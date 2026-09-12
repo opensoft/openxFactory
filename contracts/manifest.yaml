@@ -1,6 +1,6 @@
 schema_version: 1
 # Aggregate contract bundle release; must stay in sync with contracts/CHANGELOG.md.
-contract_bundle_version: contract-v3.6
+contract_bundle_version: contract-v4.0
 # source_compatibility_ref.local_source_path (a host-absolute developer path)
 # was removed at contract-v1.10 after the recorded supported-consumer audit
 # proved no supported consumer requires it; canonical repository and source
@@ -1595,83 +1595,32 @@ contracts:
     adapter_owner: openxFactory
     consumption_rule: >-
       The 9 kernel relation primitives with exact domain/range, owning contracts, evidenced adoption. Consumed through the pinned openxFactory checkout at the contract-v1.22 tag; per-file sha256 verified before any copy is treated as current. Semantic-plane rules (closed shapes, namespace/adoption/retention/compatibility, privacy floors, authority-firewall) live only in the canonical validator scripts/validate-domain-ontology.py; domain packages live in DomainxFactory repos and pin the kernel by exact digest; the memory gateway preflights packet-borne semantic contexts via scripts/validate-memory-gateway.py.
-  # ---- ideation-dashboard workbench contract surface — contract-v1.26 realization (add-staging-workbench 1.7, add-workbench-bullseye-and-create 1.6, add-dashboard-repo-selector 1.6, add-workbench-branch-sessions 1.6) ----
-  # The family's FIRST manifest registration beyond contracts/README.md's doc
-  # index (the ideation-possibles-register precedent, contract-v1.14): the
-  # dashboard projection snapshot (staged-topic growth, add-staging-workbench),
-  # the gate-action record (create/document action growth per
-  # add-workbench-bullseye-and-create; session-verb 1.1/1.2 growth plus the
-  # D23 `provenance` block per add-workbench-branch-sessions 1.8), and the NEW
-  # snapshot-index locator (add-dashboard-repo-selector). All growth is
-  # additive — no contract_schema_version bump. Per-file sha256 over each
-  # schema's bytes. The delegated strict validator
-  # (scripts/validate-ideation-dashboard-contracts.py) stays content-addressed
-  # by commit; no per-file digest. Realized at the contract-v1.26 additive
-  # cut per docs/contract-versioning-policy.md.
-  - id: ideation-dashboard-snapshot
-    path: contracts/schemas/ideation-dashboard-snapshot.schema.yaml
-    source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot.schema.yaml
-    type: schema
-    schema_version: 1
-    sha256: 9c44da235e8b4771b721b3ea0f88e0f6adcdaf4854cac045924abd9981c9ea9c
-    compatibility: canonical_openxfactory_contract
-    adapter_owner: openxFactory
-    consumption_rule: >-
-      The deterministic ideation-dashboard projection snapshot, including the
-      staging-workbench staged-topic growth (add-staging-workbench).
-      Consumers read snapshots emitted against this schema through their
-      pinned openxFactory checkout at the contract-v1.26 tag and MUST verify
-      the per-file sha256 before treating a copy as current. Snapshot referential integrity and every rule the shape
-      cannot express are enforced by
-      scripts/validate-ideation-dashboard-contracts.py (the family's
-      delegated owner), never re-implemented by consumers.
-  - id: xfactory-workbench-model-catalog
-    path: contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
-    source_path: openxFactory/contracts/schemas/xfactory-workbench-model-catalog.schema.yaml
-    type: schema
-    schema_version: 1
-    sha256: e563cc9fc6ede03dfd62537935d0ae0842617d7de46702aee6ad9026aa021635
-    compatibility: canonical_openxfactory_contract
-    adapter_owner: openxFactory
-    consumption_rule: >-
-      The doxBench approved-model catalog wire envelope
-      (add-workbench-integrated-editor-chat 2.1): the GET
-      /workbench/model-catalog success body, public allowlist only,
-      structurally closed against credentials/endpoints/secret names. An
-      empty models array is the successful editor-only posture. The allowlist
-      is the SEVEN REQUIRED base fields plus TWO OPTIONAL GROUPS, each absent
-      from a producer that predates it: the routing declaration since
-      contract-v1.38, and `modalities` since contract-v2.2 (below).
-      THE ROUTING DECLARATION is the THREE fields routing_rule, routes_to and
-      resolved_model_id, which travel together and are ABSENT from a plain
-      entry, so a consumer that reads only the seven stays correct against
-      every catalog it could already read. A consumer that offers an `auto`
-      entry MUST read all three: routing_rule says the entry is a rule rather
-      than a model, resolved_model_id is the model that ANSWERS (and is what
-      a turn record's model_id carries), and the entry's own data_handling
-      states the posture of every model in routes_to.
-      SINCE contract-v2.2 an entry MAY additionally declare `modalities` — the
-      input modalities it accepts, from the CLOSED vocabulary whose members are
-      exactly `text` and `image`. It is optional and ABSENT from a producer that
-      predates it, and its ABSENCE IS NOT A CLAIM IN EITHER DIRECTION: a
-      consumer reads an undeclared entry as text-only FOR ROUTING while
-      recording that no declaration was made, never as a statement that the
-      model rejects images. Where present the set is non-empty, carries no
-      repeat, and MUST contain `text`, because a chat turn always carries text.
-      THE VOCABULARY IS CLOSED AND EXTENDS ONLY BY THE CHANGE THAT GOVERNS A NEW
-      MEMBER — the rule the client-identity roster's admission_surface states —
-      so a consumer may treat any other value as a refused catalog rather than
-      as a value it must tolerate. Consumed through the pinned openxFactory
-      checkout at the contract-v2.2 tag; per-file sha256 verified before any
-      copy is treated as current. Catalog rules the shape cannot express —
-      routing resolution, the badge covering, the availability and headroom
-      rules — are enforced by
-      scripts/validate-ideation-dashboard-contracts.py (the family's
-      delegated owner), never re-implemented by consumers; the three modality
-      refusals are NOT among them, being expressible in the shape and therefore
-      enforced by these bytes.
-  # WHY THIS ROW'S `consumption_rule` GAINED THE NON-BLANK RULE WITHOUT A
-  # RELEASE CUT (issue #263). Read this before editing it again.
+  # ---- ideation-dashboard workbench contract surface — REGISTERED contract-v1.26
+  # (add-staging-workbench 1.7, add-workbench-bullseye-and-create 1.6,
+  # add-dashboard-repo-selector 1.6, add-workbench-branch-sessions 1.6), marked
+  # `relocating:` at contract-v3.7, REMOVED HERE at contract-v4.0
+  # (split-opendox-two-layer-product § 5.7). The three rows that stood here —
+  # `ideation-dashboard-snapshot`, `xfactory-workbench-model-catalog` and
+  # `xfactory-workbench-chat-turn` — are gone from this manifest because
+  # openxFactory no longer OWNS the ideation-dashboard contract family: it is
+  # published by opensoft/openXdox-spec and opensoft/openDox-spec and CONSUMED
+  # here at a commit. NO BYTES CHANGED — each destination file carries exactly the
+  # sha256 this manifest recorded, measured at the pinned legs rather than assumed
+  # (contracts/openxdox-pin.yaml commit 84056415…, spec leg 481a07f9;
+  # contracts/opendox-pin.yaml commit 44679fa7…, spec leg 1a216ea4). The family's
+  # delegated validator, scripts/validate-ideation-dashboard-contracts.py, left
+  # with them for opensoft/openXdox-code (leg 5da58ee2) and is still this
+  # family's conformance validator — read at the pinned leg through
+  # scripts/carved_reach.py, which is also what keeps the three RETAINED rows that
+  # name it (ideation-possibles-register, gate-intent, demotion-execution-receipt)
+  # validated by the owner they document. Migration path:
+  # contracts/CHANGELOG.md § contract-v4.0.
+  #
+  # WHY THE REMOVED `xfactory-workbench-chat-turn` ROW'S `consumption_rule`
+  # GAINED THE NON-BLANK RULE WITHOUT A RELEASE CUT (issue #263). The row itself
+  # left at contract-v4.0; the RULING is general, governs every row in this file,
+  # and is kept here because a precedent deleted alongside its example reads like
+  # one that was never made. Read it before editing any `consumption_rule` again.
   #
   # A DOCUMENTATION-ONLY `consumption_rule` edit does not require a cut:
   #   * `docs/contract-versioning-policy.md`'s change classes — Additive,
@@ -1696,123 +1645,10 @@ contracts:
   # and it stays as written anyway: a CHANGELOG entry is the immutable record
   # of what a release SHIPPED, no release was cut here, and editing it would
   # make it describe a bundle that was never published. The current rule set
-  # lives in this row and in `check_context_packet`'s docstring, which are the
-  # two places a consumer and an implementer actually read.
-  - id: xfactory-workbench-chat-turn
-    path: contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
-    source_path: openxFactory/contracts/schemas/xfactory-workbench-chat-turn.schema.yaml
-    type: schema
-    schema_version: 1
-    sha256: 350bfedc02696e7281a42c0bdc9a25059bf7af14d16d89d9f07018d3e691dc1d
-    compatibility: canonical_openxfactory_contract
-    adapter_owner: openxFactory
-    consumption_rule: >-
-      The doxBench grounded chat-turn wire family
-      (add-workbench-integrated-editor-chat 2.1): one file, THREE closed
-      envelopes discriminated by kind — the widened v2 request, validated
-      success and fixed redacted failure that contract-v1.34 added as a
-      co-resident family (add-doxbench-editing-phase-b design D15). The v1
-      trio it was co-resident WITH — workbench-chat-turn, -success and
-      -failure — was REMOVED at contract-v3.0 (retire-doxbench-chat-turn-v1);
-      this row said SIX until that cut. NO contract_schema_version moved
-      there and the decision is deliberate: the file's own integer stays 1
-      (there is no shape left for a bumped integer to describe once the
-      envelopes are gone), this row's schema_version stays 1, and every
-      envelope's schema_version const stays 1. The break is carried by the
-      bundle version and by this row's sha256.
-      Exact-UTF-8 SHA-256 content identity; working_subject is non-identity by
-      type; only limit failures carry measured data. The v2 request carries the
-      outline plus every LOADED document, DECLARES its bound-buffer key, and its
-      record states that key, the per-buffer observed hashes by key, a
-      buffer-key proposal target, and the selected-model metadata. SINCE
-      contract-v1.40 the v2 RECORD also carries `context_packet` — the POSTURE
-      (`full | reduced`) the turn's bounded context packet was assembled under,
-      plus that reduction's own reason. A consumer that reports how a turn was
-      grounded MUST read it; a consumer that does not may ignore it, exactly as
-      before. Its ABSENCE is not a posture claim: it means the producer predates
-      contract-v1.40, never that the context was full. The reason is present IFF
-      the posture is `reduced` (two schema conditionals, restated in the
-      delegated validator). TWO DELEGATED RULES now sit beside that pairing,
-      and neither is expressible in the released shape. The reason is LINTED
-      for credential and endpoint spellings as public prose. And the reason is
-      STATES SOMETHING — it carries at least one character in
-      `L* | N* | P* | S*` (a letter, number, punctuation mark or symbol) —
-      which `minLength: 1` cannot say, because it counts CHARACTERS and a lone
-      space, ZWSP, BOM, bidi override, combining mark or control is one of them
-      (issue #263). The rule is stated as what it ADMITS rather than as the
-      blank categories it excludes, because an exclusion is a rule over a set
-      that GROWS WITH THE UNICODE TABLE: a full code-point sweep found 51
-      points where two runtimes on different Unicode versions disagreed, with
-      the server accepting what the browser refused. `Cn` is never L/N/P/S in
-      any table, so admission is version-stable by construction. The admission
-      rule is therefore STRICTLY NARROWER than the blank categories: beyond
-      them it also refuses `Co` (private use), `Cn` (unassigned) and `Cs`
-      (surrogates) — deliberately, on the same fail-closed ground, since a
-      private-use code point renders as tofu for any reader without the font
-      that defines it.
-      HOW IT IS ENFORCED, per surface, because they differ: the delegated
-      validator emits a WARNING (`context-packet-blank`) and still ACCEPTS the
-      record, because contract-v1.40 accepted it and
-      `docs/contract-versioning-policy.md` makes a new validator warning
-      ADDITIVE while a new rejection is BREAKING. THIS ROW ANNOUNCED THAT IT
-      "becomes an ERROR at contract-v2.0", AND THAT NARROWING WAS NEVER TAKEN:
-      contract-v2.0 shipped 2026-08-27, contract-v3.0 is DECLARED here
-      (declared, not published — a bundle is not published until its tag
-      exists, and this row is written at the cut), and
-      `scripts/validate-ideation-dashboard-contracts.py` still calls
-      `f.warn("context-packet-blank", ...)`. The claim is CORRECTED rather than
-      carried: the promotion to ERROR is RESTATED to contract-v4.0, ahead of
-      the declared bundle, on the same rule that governs a deprecation entry
-      reaching its target unexecuted (retire-hermes-flat-keys-and-openworkflow-
-      tokens, contract-deprecation-execution: execute at the major it targets,
-      or restate with the reason). The reason is that nothing authored it —
-      not a measurement that it should not be taken — so a successor may take
-      it at that major with no new window owed, the warning having been served
-      since contract-v1.40. The shape's own `minLength: 1` is unaffected and
-      still applies. This
-      repository's runtime REFUSES such a reason at construction, at the record
-      derivation and at the browser adopter — a server may hold itself to more
-      than the wire requires. A producer conformant by the letter can still
-      ship a reduction nobody can read, so consumers MUST NOT treat a
-      schema-valid reason as a readable one.
-      ONE ASYMMETRY, RECORDED RATHER THAN LEFT TO BE DISCOVERED: a third party
-      that VENDORS this runtime — importing `doxbench_packet` or running this
-      serve, rather than only validating against the published contract —
-      inherits the RESTATED contract-v4.0 strictness today, because the runtime
-      gates refuse what the validator merely warns about. That is fail-closed, and it
-      sits outside what the versioning policy governs: the policy binds the
-      published contract surface, not a consumer's choice to run this
-      repository's code. A vendoring consumer should know it is holding itself
-      to the NEXT major's rule early.
-      SINCE contract-v1.45 the v2 RECORD may also carry `provider_retry` — the
-      REDACTED fact that a minted token expired part-way through the turn, was
-      re-minted once, and bought ONE further paid provider call, with the
-      re-mint's `audit_ref` (add-doxchat-model-intake task 3.6; Brett's ruling
-      of 2026-08-26 that a re-mint and its paid retry are VISIBLY RECORDED,
-      because a second paid call the human cannot see is the decision that
-      ruling was made to avoid). PRESENT ONLY WHEN IT HAPPENED: the object is
-      `additionalProperties: false` with `retried` and `at_most_once` both
-      `const: true`, so there is no `retried: false` spelling and an absent key
-      means "nothing to report, or a producer predating contract-v1.45" — never
-      a claim that no retry occurred. It carries NO token, no token prefix or
-      hash, no provider status and no provider prose; the `audit_ref` is
-      disclosable by construction because the broker's declaration records no
-      token material against one. The v1 family was DEPRECATED at
-      contract-v1.34 and REMOVED at contract-v3.0; the schema's
-      `deprecated_envelopes` block went with it, having no kinds left to name,
-      while the validator's READER of that block was deliberately KEPT so the
-      next deprecation is not inert. An unrecognized or absent kind is now
-      refused in the surviving family's failure envelope carrying
-      `unrecognized_turn_kind` where a wire-valid client_turn_id exists, and in
-      the pre-identity shape where it does not. A consumer pinned at or below
-      contract-v2.5 keeps the v1 bytes its pin names. Migration:
-      CHANGELOG § contract-v3.0. Consumed through the pinned
-      openxFactory checkout at the declared tag; per-file sha256 verified before
-      any copy is treated as current. Hash parity, budget, unknown-model,
-      duplicate turn-id, proposal-target, bound-buffer membership,
-      context-posture pairing, and failure-pairing rules are enforced by
-      scripts/validate-ideation-dashboard-contracts.py, never
-      re-implemented by consumers.
+  # lived in that row and lives now in the pinned opensoft/openDox-spec copy of
+  # the schema and in `check_context_packet`'s docstring at the pinned
+  # opensoft/openXdox-code leg, which are the two places a consumer and an
+  # implementer actually read.
   # ---- action-plane + worker-enrollment contract surface — contract-v1.29 realization ----
   # Registers add-ideation-intent-plane 2.4, add-wheel-action-verbs 1.5,
   # and add-worker-enrollment-broker 1.11 in one additive bundle. The
@@ -1822,48 +1658,16 @@ contracts:
   # schema kinds for the contract-first broker/host/policy realization.
   # Canonical validators and packaged fixtures are content-addressed by the
   # exact release commit; every schema below carries a raw-byte sha256.
-  - id: gate-action-record
-    path: contracts/schemas/gate-action-record.schema.yaml
-    source_path: openxFactory/contracts/schemas/gate-action-record.schema.yaml
-    type: schema
-    schema_version: 1
-    sha256: 6a6cf13c76e3e6f6792cd2a4be1ed2296b24525bee800a3e9173d608e0539189
-    compatibility: canonical_openxfactory_contract
-    adapter_owner: openxFactory
-    consumption_rule: >-
-      The human-authenticated gate-console action audit record (D16/D17),
-      including the create/document action growth
-      (add-workbench-bullseye-and-create), the branch-session verb growth
-      (add-workbench-branch-sessions 1.1/1.2), and the D23 `provenance`
-      block — surface + console_presence, stamped where the fact is known
-      (add-workbench-branch-sessions 1.8) — plus the contract-v1.29 wheel
-      commissions `promote-to-staging`, `derive-possibles`, and
-      `research-brief`, with verb-specific targets and required workflow-job
-      companions, the contract-v1.36 `share-session` action — the doxBench
-      workbench verb that commits a session's dirty thread sidecars and pushes
-      the session branch, constrained on `target.ref` with NO artifact-kind
-      requirement because its record is branch-resident when it commits and
-      main-resident when it has nothing to commit — the contract-v1.45
-      `approve-model` action, which makes a model DECLARED through the console's
-      intake flow available for governed turns: it targets `model_declaration`
-      (the model-provider binding id the declaration names, which is also the
-      catalog handle a turn selects) and carries the `model_approval` block —
-      `issued_by`, `approved_by`, `expires_at`, `audit_ref` and
-      `install_posture`, the accountability `credential-contracts` already
-      demands of an issued grant, with `consent_ref` REQUIRED on a `shared`
-      posture and REFUSED on a `single-operator` one (Brett's OQ-3 ruling,
-      2026-08-21); no artifact kind is required, because the approval produces
-      no commit, document, pull request or workflow-job and its own artifact IS
-      the record — and the contract-v1.43
-      `cleanup-abandoned-branch` transaction. Cleanup records carry an exact
-      tile/ref/head, correlated abandonment and retention evidence, and a
-      `prepared`/`completed` status; machine evidence requires a preserving
-      change, nonempty references, and a recording time. Consumed through the pinned
-      openxFactory checkout at the contract-v1.43 tag; per-file sha256 verified
-      before any copy is treated as current. The kickoff-ratification precondition, transition legality,
-      and wheel commission pairings are
-      enforced by scripts/validate-ideation-dashboard-contracts.py (the
-      family's delegated owner), never re-implemented by consumers.
+  # `gate-action-record` STOOD HERE — REGISTERED contract-v1.26, grown at
+  # contract-v1.29 (the three commission actions and cluster_id the section
+  # comment above records) and at contract-v1.43, marked `relocating:` at
+  # contract-v3.7, REMOVED at contract-v4.0. Its canonical home is
+  # opensoft/openXdox-spec, contracts/schemas/gate-action-record.schema.yaml,
+  # byte-identical at sha256 6a6cf13c… and read at the commit
+  # contracts/openxdox-pin.yaml names. Migration path:
+  # contracts/CHANGELOG.md § contract-v4.0. The section comment above is left as
+  # written: it records what contract-v1.29 REGISTERED, which is a fact about a
+  # published bundle rather than a claim about this tree.
   - id: demotion-execution-receipt
     path: contracts/schemas/demotion-execution-receipt.schema.yaml
     source_path: openxFactory/contracts/schemas/demotion-execution-receipt.schema.yaml
@@ -1957,23 +1761,22 @@ contracts:
     sha256: fead90e6ae91430ded30c449a2b0523c778e626bc634584165c1c2f9c5a2384c
     compatibility: canonical_openxfactory_contract
     adapter_owner: openxFactory
-  - id: ideation-dashboard-snapshot-index
-    path: contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
-    source_path: openxFactory/contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml
-    type: schema
-    schema_version: 1
-    sha256: 43acf0bb92abf95fc09b3705338b0fb68cfd0319a00bfc44d25811a6e2290000
-    compatibility: canonical_openxfactory_contract
-    adapter_owner: openxFactory
-    consumption_rule: >-
-      The thin (repository, ref) locator that enumerates available
-      ideation-dashboard snapshots and where each lives
-      (add-dashboard-repo-selector; design D3). The repository selector
-      renders this index and refresh re-fetches it. Consumed through the
-      pinned openxFactory checkout at the contract-v1.26 tag; per-file
-      sha256 verified before any copy is treated as current. Locator-side rules the shape cannot express are enforced by
-      scripts/validate-ideation-dashboard-contracts.py (the family's
-      delegated owner), never re-implemented by consumers.
+  # `ideation-dashboard-snapshot-index` STOOD HERE — REGISTERED contract-v1.26
+  # (add-dashboard-repo-selector), marked `relocating:` at contract-v3.7, REMOVED
+  # at contract-v4.0. Its canonical home is opensoft/openXdox-spec,
+  # contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml,
+  # byte-identical at sha256 43acf0bb… at the `spec` leg 481a07f9, which is what
+  # contracts/openxdox-pin.yaml named AT THE v4.0 CUT. THE CITATION IS DATED
+  # RATHER THAN LEFT AS "the commit the pin names", because the pin moves and
+  # this record does not: the § 4.3/§ 4.4 lockstep bump (openXdox → eca0b597,
+  # `spec` leg ae59dfa5) carries openXdox-spec #7's declared correction of four
+  # stale citations, one comment line of which is in this very file, so at the
+  # NEW pin the same artifact hashes to 7fd9b797… . That is a declared edit
+  # arriving inside the row's RULING Q-L1 lines — `verify-carve-arrival.py
+  # --destination openxdox_spec` returns OK at that pin — and not drift; a cut
+  # bundle's record is not rewritten by a later bump, which is the same line
+  # this file's five `relocating.at:` values took. Migration path:
+  # contracts/CHANGELOG.md § contract-v4.0.
   # ---- cross-factory ideation routing — contract-v1.30 registration (add-cross-factory-ideation-routing task 2.4) ----
   # The packaged corpus (examples/ideation-routing/, 8 valid + 8 invalid) and the
   # strict validator (scripts/validate-ideation-routing.py) are content-addressed

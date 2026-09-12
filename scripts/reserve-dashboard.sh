@@ -122,7 +122,15 @@ exec_serve() {
   echo "reserve-dashboard: serving $REPO_ROOT on http://127.0.0.1:$PORT" \
        "(${#argv[@]} args, actor $ACTOR)"
   cd "$REPO_ROOT"
-  exec env PYTHONPATH=scripts python3 -m ideation_dashboard.serve "${argv[@]}"
+  # THROUGH THIS REPOSITORY'S OWN ENTRYPOINT, not `-m` on the package
+  # (`split-opendox-two-layer-product` § 5.2, RULED (a) POST-SHED MODE, `#656`
+  # `5625573095`). `ideation_dashboard.serve` left for openDox-code in the shed;
+  # the wrapper reads it through this repository's PIN, puts BOTH legs' `src/`
+  # on the path — the serve's columns span openDox and openXdox — and makes the
+  # ONE process-start registration `build_server`'s lazy profile proxy resolves
+  # through. See `scripts/ideation-dashboard-serve.py`'s docstring for why
+  # the one old line cannot be re-pointed in place.
+  exec python3 scripts/ideation-dashboard-serve.py "${argv[@]}"
 }
 
 ensure_plane() {

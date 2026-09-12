@@ -37,19 +37,27 @@ from pathlib import Path
 
 import pytest
 
+from carved_reach import source as carved_source
 from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit, find_openxfactory_validator
 
 from ideation_dashboard import human_seen as hs
-from ideation_dashboard import lens
+from opendox import lens
 from ideation_dashboard import lens_submission   # add-as-cluster: pre-carve split S-2
-from ideation_dashboard import workbench as wb
-from ideation_dashboard.boundary import OutputBoundary
-from ideation_dashboard.generator import generate_snapshot
-from ideation_dashboard.workbench import WorkbenchError
+from opendox import workbench as wb
+from opendox.boundary import OutputBoundary
+from openxdox.generator import generate_snapshot
+from opendox.workbench import WorkbenchError
 
-WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
-LENS_MODEL_JS = WEB / "views" / "lens-model.js"
-LENS_JS = WEB / "views" / "lens.js"
+# THE TWO VIEW FILES, WHEREVER THE § 5.2 SHED LEFT THEM (RULED (a), `#656`
+# `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpvR`). `lens.py` is read from the
+# pinned openDox leg above and these two are its browser half, so they moved
+# with it; the intermediate `WEB` constant that used to join them onto
+# `scripts/ideation_dashboard/web` is gone rather than re-pointed, because the
+# asset root is no longer one directory (`web/views/intent-feed.js` is a
+# `not_moved` row) and a per-DIRECTORY prefix is exactly what the shed breaks.
+# `carved_reach.source()` answers each file from its own manifest row.
+LENS_MODEL_JS = carved_source("scripts/ideation_dashboard/web/views/lens-model.js")
+LENS_JS = carved_source("scripts/ideation_dashboard/web/views/lens.js")
 NODE = shutil.which("node")
 VALIDATOR = find_openxfactory_validator()
 XREF_VALIDATOR = hs.find_cross_reference_validator(REPO_ROOT)
@@ -560,7 +568,7 @@ def test_add_as_cluster_queue_stays_on_the_declared_allowlist(tmp_path):
     # so the submission has NO route to any off-allowlist path.
     boundary = _boundary(tmp_path)
     lens_submission.add_as_cluster(w, boundary, snap, _submission(), now=NOW)
-    from ideation_dashboard.boundary import BoundaryViolation
+    from opendox.boundary import BoundaryViolation
     with pytest.raises(BoundaryViolation):
         boundary.write_output("ideation/staging/human-seen.yaml", "x: 1")
     assert boundary.refusals and boundary.refusals[-1].kind == "outside-allowlist"

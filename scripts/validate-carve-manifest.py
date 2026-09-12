@@ -112,7 +112,7 @@ object this repository carries and an ANCESTOR of the revision under test — th
 shed deletes files from a tree, it does not delete a commit from a history, so
 `git cat-file blob b075fd91:<path>` answers after the shed exactly as before.
 Check 3 PASS 1 therefore still recomputes all 318 digests from the referent's
-real bytes and still bounds all 794 declared lines against them; check 4 still
+real bytes and still bounds all 866 declared lines against them; check 4 still
 walks the referent for completeness, still refuses a file that has APPEARED
 under the surface, and still requires every `stays_*` and
 `replicated_at_destination` row to be PRESENT; checks 1, 5 and 6 never read the
@@ -305,6 +305,12 @@ if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
 
 import carve_lines  # noqa: E402
+# `_git()` below reuses `carved_reach._sanitized_git_environment()` — safe to
+# import bare for the same reason `carve_lines` is: both live directly in
+# `scripts/`, which the block above already guarantees is on `sys.path` in
+# every context this file is loaded from, invoked-as-script or
+# `spec_from_file_location`.
+import carved_reach  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -566,10 +572,27 @@ class CarveRefusal(Exception):
 # --------------------------------------------------------------------------
 
 def _git(repo: Path, *args: str) -> subprocess.CompletedProcess:
-    """git, capturing BYTES — blob contents must not go through a decoder."""
+    """git, capturing BYTES — blob contents must not go through a decoder.
+
+    Runs `--no-replace-objects` against a SANITIZED environment (register
+    item, `#656` comment `5638315691`): every `resolve_revision`, `tree_at`
+    and `cat-file blob <commit>:<path>` read below goes through this one
+    helper, and without this an ambient `GIT_DIR`, alternate object
+    directory, indexed `GIT_CONFIG_KEY/VALUE_N`, or replace-ref could resolve
+    a read from a DIFFERENT object store than the one `repo` names — reading
+    a commit the tested revision does not actually carry. Same fix, same
+    reason, as `scripts/carved_reach.py`'s `_git_object_id` (commit
+    `c7d290da`) and `scripts/hermes_runtime_validation/content.py`'s `_git`;
+    `carved_reach._sanitized_git_environment()` is REUSED rather than a third
+    copy of its scrub list — see the `import carved_reach` comment above for
+    why that import is safe here.
+    """
     try:
-        return subprocess.run(["git", "-C", str(repo), *args],
-                              capture_output=True, check=False)
+        return subprocess.run(
+            ["git", "--no-replace-objects", "-C", str(repo), *args],
+            capture_output=True, check=False,
+            env=carved_reach._sanitized_git_environment(),
+        )
     except OSError as exc:  # pragma: no cover - no git on the host
         raise CarveRefusal("carve-unreadable",
                            f"git could not be run in {repo}: {exc}") from exc
@@ -697,6 +720,42 @@ def _require_str(doc: dict, key: str, where: str) -> str:
             "carve-shape-invalid",
             f"{where} declares `{key}: {value!r}`; a non-empty string is "
             "required")
+    return value
+
+
+def _require_closed_relative_path(doc: dict, key: str, where: str) -> str:
+    """`_require_str`, plus: refuse a value `scripts/carved_reach.py` could
+    not safely join onto a leg's mount.
+
+    Copilot review, `PRRT_kwDOTAvnrs6hjzVm`, 2026-09-11: `destination_path`
+    was type-checked as a non-empty string only; an absolute value or a
+    `../` segment would let the resolver's `mount / destination_path` join
+    escape the pinned leg. This is the VALIDATOR-SIDE half — the
+    resolver-side half is `carved_reach._closed_relative_path`, the same
+    predicate, kept in step here because this script cannot import that
+    module's package (`scripts.carved_reach` needs the repository root on
+    `sys.path`; this script is loaded by `spec_from_file_location` with only
+    `scripts/` on it, the same reason `carve_lines` above is a bare import).
+
+    NOT restricted to an ASCII alphabet: `destination_path` may legitimately
+    carry any Unicode filename
+    (`test_the_row_order_is_bytewise_and_not_by_code_point` exercises one
+    with U+E000) — only the segment shape that would let a join escape its
+    mount is refused.
+    """
+    value = _require_str(doc, key, where)
+    if (value.startswith("/") or value.startswith(":") or "\\" in value
+            or any(ord(character) < 32 or ord(character) == 127 for character in value)):
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} declares `{key}: {value!r}`, which is not a canonical "
+            "relative path (absolute, drive-letter-shaped, or backslashed)")
+    if any(part in {"", ".", ".."} for part in value.split("/")):
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} declares `{key}: {value!r}`, which contains a `.`, "
+            "`..` or empty segment — exactly what would let this row's "
+            "destination escape its own mount")
     return value
 
 
@@ -932,7 +991,7 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
                 f"{where} ({source_path}) declares `sha256: {digest!r}`, which "
                 "is not 64 lowercase hex characters")
         _require_str(row, "destination", f"{where} ({source_path})")
-        _require_str(row, "destination_path", f"{where} ({source_path})")
+        _require_closed_relative_path(row, "destination_path", f"{where} ({source_path})")
         if "also_replicated_to" in row:
             _check_also_replicated_shape(where, source_path,
                                          row["also_replicated_to"])

@@ -1,0 +1,161 @@
+# docs/opendox-carve-admissions.yaml — the DECLARED per-destination
+# admissions `scripts/verify-carve-arrival.py` reads beside
+# `docs/opendox-carve-manifest.yaml` (RULED — the arrival-admission repair,
+# Brett Heap, 2026-09-11 18:37Z, session `openXfactory-4 (5)`,
+# `opensoft/openxFactory#656` comment `5639058687`, "Declared per-leg
+# admissions file").
+#
+# WHY THIS FILE EXISTS. A file a destination CREATES has no row in
+# `docs/opendox-carve-manifest.yaml` — the manifest declares what LEAVES
+# openxFactory, never what a destination assembles (RULED OQ-C) — so the
+# arrival verifier must be TOLD about it, once, or it refuses
+# `arrival-undeclared-file`. Until this file existed, that admission was typed
+# on a command line (`--allow-created <path>`, `docs/opendox-cutover-runbook.md`
+# § 5.6) and lived nowhere a reviewer could see it move or a reader could see
+# it accumulate. This file is that admission GOVERNED instead: a `created:`
+# entry here is read automatically by `scripts/verify-carve-arrival.py` (the
+# default path, beside the manifest; `--admissions` overrides it) and applied
+# exactly as `--allow-created` admits today — so a NEW admission is a
+# reviewed ONE-LINE diff in the pull request that bumps the destination's pin,
+# rather than a flag typed once on a command line and recorded nowhere.
+# `--allow-created` still works for an ad-hoc run, and the verifier prints a
+# one-line notice that this file is the governed form.
+#
+# THE DEFECT THIS FIRST SEEDING REPAIRS. The runbook's `openxdox_code`
+# admission list was stale: `opensoft/openXdox-code#7` ("§ 4.1: invert the
+# openDox→openXdox dependency direction on the openXdox side", commit
+# `bfd95063b2a71be097a04bb6a3a99c4c131dd322`) added two files under that
+# destination's declared roots with no row and no admission anywhere —
+# `src/openxdox/consumer_reach.py` and `tests/test_dependency_direction.py` —
+# so `scripts/verify-carve-arrival.py --destination openxdox_code --phase B`
+# refused `arrival-undeclared-file` against the leg's own current main
+# (measured 2026-09-11 at `5da58ee2e54e5988baff235a06437616ee74a554`, the
+# commit `openXdox/contracts/code-pin.yaml` pins). Seeded here, both admit
+# with no `--allow-created` on the command line.
+#
+# THE SHAPE. One block per destination id, EVERY id the manifest's
+# `destinations:` map carries (RULED OQ-1's closed vocabulary) — an empty
+# `created: []` is a destination that has assembled nothing undeclared, not an
+# omission this file forgot. Each `created:` entry is `{path, reason, since}`:
+# `path` is exactly the value `--allow-created` would take (a plain path
+# relative to the destination's own root — never absolute, never carrying a
+# `.`/`..` segment); `reason` is a ONE-LINE why (the PR that created the
+# file); `since` is the 40-hex LEG commit that introduced it, so the claim is
+# falsifiable the same way the manifest's own `carve_commit:` is. Every
+# destination's list is ALPHABETICAL BY `path:`, so a new admission is a
+# one-line insertion and never a reshuffle — `scripts/verify-carve-arrival.py`
+# refuses a file that declares a destination id the manifest does not carry,
+# repeats a `path:` under one destination, or lists one out of order.
+#
+# NOT A MECHANICAL GENERATION, ON THE RULING'S OWN WORD. Regenerating this
+# file from each leg's tree at pin-bump time was considered and REJECTED: it
+# would admit BY CONSTRUCTION rather than by declaration, the same
+# distinction `--allow-created` already draws against the scaffold's own
+# files (`scripts/verify-carve-arrival.py`'s own docstring: "A name alone …
+# admits whatever is written at it"). A human names the file and says why;
+# this document is where that declaration lives, reviewed like any other
+# diff.
+#
+# WHAT THIS FILE DOES NOT COVER. `--replica-at` (a `not_moved /
+# replicated_at_destination` row's landing path, or a moved row's
+# `also_replicated_to:` placement) is a DIFFERENT admission, for a copy the
+# manifest already knows about but cannot place — it stays a command-line
+# flag; RULED #656 governs `created:` only. Nor does an empty `created: []`
+# here claim a destination has NOTHING left to admit ad hoc in the future —
+# only that nothing is declared FOR IT as of this seeding.
+
+schema_version: 1
+kind: opendox-carve-admissions
+
+destinations:
+  opendox_code:
+    created:
+      - path: src/opendox/consumer_reach.py
+        reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
+        since: "da8aae969b4057bd46d2550c265e5bb363142458"
+      - path: src/opendox/defaults.py
+        reason: "added by openDox-code #10 (BUILD slice 2b, openDox-owned defaults)"
+        since: "0f1f2e59e31b8304979f18d8af7108b0f82899fb"
+      - path: src/opendox/domain_profile.py
+        reason: "added by openDox-code #11 (the 4.3 profile registry)"
+        since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: src/opendox/profile_proxy.py
+        reason: "added by openDox-code #11 (the 4.3 lazy proxy)"
+        since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: src/opendox/web/views/intent-binding.js
+        reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731; split-opendox § 3.4 slice S2) — the intent-feed chips' optional contributed binding; PR not yet opened/merged, this admission PR lands first per Q-L1"
+        since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
+      - path: tests/test_consumer_reach.py
+        reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
+        since: "da8aae969b4057bd46d2550c265e5bb363142458"
+      - path: tests/test_intent_binding_dom.py
+        reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — node-driven DOM probe of the optional binding, narrowed out of validate.yml like its test_intent_tray_dom.py / test_wheel_verbs_dom.py siblings (RULED Q-L5 (b'))"
+        since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
+      - path: tests/test_intent_binding_shape.py
+        reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — the shape assertion validate.yml runs"
+        since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
+      - path: tests/test_profile_registration.py
+        reason: "added by openDox-code #11 (the 4.3 registration tests)"
+        since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+  opendox_root:
+    created: []
+  opendox_spec:
+    created:
+      - path: docs/stale-citations-erratum-2026-09-10.md
+        reason: "added by openDox-spec #6 (the erratum four manifest rows name)"
+        since: "1a216ea413cdcc14791aa3939712e2e459cfa6b6"
+  openxdox_code:
+    created:
+      - path: src/openxdox/consumer_reach.py
+        reason: "added by openXdox-code #7"
+        since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+      - path: src/openxdox/domain_profile.py
+        reason: "added by openXdox-code #14 (the 4.4 DomainProfile engine)"
+        since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
+      - path: src/openxdox/evidence_provenance_surface.py
+        reason: "added by openXdox-code #11 (4.5 slice 2)"
+        since: "427230c340cdb1f5d114d3868073cd156fa33ada"
+      - path: src/openxdox/model_scenario_workbench.py
+        reason: "added by openXdox-code #12 (4.5 slice 3)"
+        since: "5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d"
+      - path: src/openxdox/role_authority_projection.py
+        reason: "added by openXdox-code #10 (4.5 slice 1)"
+        since: "4f98e77c7985f786af2ec295c38b6b06a7f5fce6"
+      - path: tests/fixtures/openxfactory-engineering-profile.yaml
+        reason: "added by openXdox-code #14 (the 4.4 engine's profile fixture)"
+        since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
+      - path: tests/test_dependency_direction.py
+        reason: "added by openXdox-code #7"
+        since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+      - path: tests/test_domain_profile.py
+        reason: "added by openXdox-code #14 (the 4.4 DomainProfile engine)"
+        since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
+      - path: tests/test_evidence_provenance_surface.py
+        reason: "added by openXdox-code #11 (4.5 slice 2)"
+        since: "427230c340cdb1f5d114d3868073cd156fa33ada"
+      - path: tests/test_evidence_provenance_surface_seam.py
+        reason: "added by openXdox-code #11 (4.5 slice 2)"
+        since: "427230c340cdb1f5d114d3868073cd156fa33ada"
+      - path: tests/test_model_scenario_workbench.py
+        reason: "added by openXdox-code #12 (4.5 slice 3)"
+        since: "5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d"
+      - path: tests/test_model_scenario_workbench_seam.py
+        reason: "added by openXdox-code #12 (4.5 slice 3)"
+        since: "5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d"
+      - path: tests/test_no_hardcoded_status_words.py
+        reason: "added by openXdox-code #14 (RULING C2's own guard)"
+        since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
+      - path: tests/test_role_authority_projection.py
+        reason: "added by openXdox-code #10 (4.5 slice 1)"
+        since: "4f98e77c7985f786af2ec295c38b6b06a7f5fce6"
+      - path: tests/test_role_authority_projection_seam.py
+        reason: "added by openXdox-code #10 (4.5 slice 1)"
+        since: "4f98e77c7985f786af2ec295c38b6b06a7f5fce6"
+  openxdox_spec:
+    created:
+      - path: contracts/schemas/domain-profile.example.yaml
+        reason: "added by openXdox-spec #8 (the 4.4 design note's example)"
+        since: "446a13f5659c78fdf7acd3f223c7448d99fa40a4"
+      - path: contracts/schemas/domain-profile.schema.yaml
+        reason: "added by openXdox-spec #8 (the 4.4 domain-profile schema)"
+        since: "446a13f5659c78fdf7acd3f223c7448d99fa40a4"

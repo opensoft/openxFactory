@@ -19,9 +19,10 @@ from pathlib import Path
 import pytest
 
 from conftest import REPO_ROOT  # noqa: F401 (sys.path side effect)
-from test_gate_routes import _post, _serving
+from test_gate_routes import _console_token, _post, _serving
 
 from doc_health import staging_seed as ss
+from opendox import serve as serve_mod
 
 
 def _doc(path, topics, repository=None):
@@ -161,6 +162,45 @@ def test_wire_the_route_drafts_from_the_serves_own_snapshot(tmp_path):
         # …and the whole exchange wrote nothing anywhere in the checkout
         after = sorted(p.name for p in Path(root).rglob("*") if p.is_file())
         assert after == before
+
+
+def test_wire_the_route_refuses_a_non_object_body(tmp_path):
+    """Pre-existing defect (`#768`, found by Copilot reviewing #761): a body
+    that parses as valid JSON but is not an object — a list, a string, a
+    number, a bool — used to reach `body.get(...)` and raise `AttributeError`
+    in the request thread, leaving the client with no HTTP response at all.
+    The handler must refuse it with a clean 400 instead, the same idiom
+    `_handle_refresh_action` already uses."""
+    with _serving(tmp_path, snapshot=_plane()) as (host, port, root):
+        for body in (["not", "a", "dict"], "scalar", 7, True):
+            status, payload = _post(host, port, "/actions/staging-seed", body)
+            assert status == 400, payload
+            assert payload["error"] == "invalid_body"
+            assert payload["message"] == serve_mod.JSON_OBJECT_BODY_REQUIRED
+
+
+def test_wire_the_route_refuses_malformed_json(tmp_path):
+    """Malformed JSON is refused by `_read_json_body` itself, before this
+    handler ever sees a parsed body — a different refusal path from the
+    object-shape guard above, pinned separately so the two are not confused."""
+    import http.client
+    import json
+
+    with _serving(tmp_path, snapshot=_plane()) as (host, port, root):
+        token = _console_token(host, port)
+        headers = {"Content-Type": "application/json"}
+        if token:
+            headers["X-XF-Console-Token"] = token
+        conn = http.client.HTTPConnection(host, port, timeout=10)
+        conn.request("POST", "/actions/staging-seed", body=b"{not json",
+                     headers=headers)
+        response = conn.getresponse()
+        payload = json.loads(response.read().decode("utf-8"))
+        status = response.status
+        conn.close()
+    assert status == 400
+    assert payload["error"] == "invalid_body"
+    assert payload["message"] == serve_mod.JSON_OBJECT_BODY_REQUIRED
 
 
 def test_wire_a_scoped_create_then_edit_lands_one_document_with_its_body(tmp_path):
