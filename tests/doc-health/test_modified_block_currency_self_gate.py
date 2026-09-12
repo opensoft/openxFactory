@@ -1164,7 +1164,9 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of nine named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of named subjects — nine
+    at 2026-09-11, twelve since `repoint-chain-anchoring-medxchain-citation`
+    added three rows on 2026-09-12 (Copilot review, PR #998).
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1229,7 +1231,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "openxFactory went public at 2026-09-09T21:58:08Z with the address "
         "still on the promoted line — the first row here retired by canon "
         "moving to the block rather than by the block being promoted, the "
-        "packet still active and unarchived)",
+        "packet still active and unarchived; 12 SINCE 2026-09-12, when "
+        "`repoint-chain-anchoring-medxchain-citation` (openxFactory issue "
+        "#791) opened THREE rows at once, one per MODIFIED requirement its "
+        "chain-anchoring citation repoint touches — expected editorial "
+        "drift over a provenance-text-only amendment, not a regression; "
+        "retires when the packet archives and its three blocks are "
+        "promoted)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

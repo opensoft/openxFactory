@@ -22,14 +22,21 @@ origin:
     call 2 because editing promoted canon outside a governed OpenSpec change
     breaches the ratification boundary — and asks, verbatim, for "a small
     MODIFIED-requirement OpenSpec amendment to chain-anchoring" doing exactly
-    what this packet's chain-anchoring delta does. #792 is answered by making
-    NO possibles_register edit: the issue's own reasoning (rewriting
-    `provenance.document` would falsify the record of a completed
-    2026-07-23 derive-possibles run) already argues against the edit, echoed
-    verbatim in `ideation/README.md`; the proposal and this PR's body record
-    that decision rather than the register carrying a diff. No staging topic
-    precedes either issue, so drafting fields are carried and no approval is
-    claimed.
+    what this packet's chain-anchoring delta does. #792 IS RECONCILED HERE
+    RATHER THAN LEFT SILENT, because its own CLAIMED comment (issue #792
+    comment 5642768762) stated the plan as authoring "repoint the eight
+    possibles_register entries' provenance documents (merge-ordered against
+    bot PR #888...)" — a repoint — while this packet answers #792 by making
+    NO possibles_register edit at all (Copilot review, PR #998, flagged
+    exactly this claim-vs-outcome gap). The no-edit outcome is a considered
+    judgement call made DURING authoring rather than a silent drift from the
+    claimed plan: the issue's own reasoning (rewriting `provenance.document`
+    would falsify the record of a completed 2026-07-23 derive-possibles run)
+    already argues against the repoint the claim announced, and that
+    reasoning is echoed verbatim in `ideation/README.md`. The proposal and
+    this PR's body record that reconciled decision rather than the register
+    carrying a diff. No staging topic precedes either issue, so drafting
+    fields are carried and no approval is claimed.
   proposed_by: >-
     Brett Heap (openxFactory repository owner), a multi-choice SELECTION in
     session, 2026-09-12 ~01:55Z, reading "Doc-link repairs #791 + #792" —

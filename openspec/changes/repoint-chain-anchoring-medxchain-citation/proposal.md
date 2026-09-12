@@ -4,8 +4,13 @@ code_surface: none — this change edits only the PROVENANCE citation text insid
   it adds, removes, and modifies no normative obligation, scenario, or code. No
   script, schema, or validator changes. Archives on landing (no code surface to
   realize).
-target_release: none — a citation-text-only spec amendment; nothing to release
-  or pin.
+target_release: implemented — the affected repository's (openxFactory's) main
+  line; `release-realization`'s Requirement "Realization axis declaration"
+  permits only `implemented` or a named aggregation release for this field
+  (`none` is not a sanctioned value, even though the CLI does not currently
+  enforce it — Copilot review, PR #998). A citation-text-only spec amendment
+  with `code_surface: none` archives on landing, per the same requirement's
+  default; there is no separate release bundle to cut or pin.
 Status: draft
 ---
 
