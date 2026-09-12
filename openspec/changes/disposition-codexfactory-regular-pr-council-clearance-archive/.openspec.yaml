@@ -1,0 +1,85 @@
+schema: spec-driven
+created: 2026-09-11
+
+# NO SPEC DELTA, DECLARED RATHER THAN OMITTED, on exactly the reading
+# `disposition-codexfactory-floor-relocation-retitle` recorded one day earlier
+# and `disposition-codexfactory-declared-renames` six days before that.
+# `bump-openspec-cli-pin-to-1.12` already states every rule this packet
+# exercises — a disposition is scoped to one repository, an entry naming another
+# repository is neither applied nor stale on this tree, an entry goes stale on
+# the tree it names when its finding stops occurring, and an entry carries a
+# citation and an authority — and its scenario "A consuming repository runs the
+# same pin over its own tree" is this situation. So this packet ADDS NO RULE: it
+# is the FOURTH application of that rule to the same consuming repository, and
+# the honest shape for that is zero deltas declared.
+#
+# AND IT IS THE FIRST APPLICATION THAT ALSO EXERCISES THE RETIREMENT HALF OF THE
+# SAME RULE. The three packets before it only ADDED. This one DELETES an entry
+# because the event that entry's own `retires_when:` named has happened, which
+# is the rule's other clause — "A DISPOSITION MATCHED BY NO FINDING IN A
+# WHOLE-CORPUS SCAN SHALL REFUSE THE RUN" — running for the first time across a
+# repository boundary. Exercising a clause is not extending it, so there is
+# still nothing to modify. `design.md` § 3 sets that out.
+skip_specs: true
+
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-11-disposition-codexfactory-regular-pr-council-clearance-archive
+  reason: >-
+    AN ARCHIVE IN A CONSUMING REPOSITORY RETIRED ONE ENTRY OF THIS PIN AND
+    RAISED TWO MORE IN THE SAME ACT, AND ONLY THIS REPOSITORY CAN WRITE EITHER
+    HALF. codeXfactory/codexFactory PR #434 (`archive/add-regular-pr-council-clearance`,
+    head `87ea247f`) archives `add-regular-pr-council-clearance`. That archive
+    (1) makes this pin's `add-regular-pr-council-clearance /
+    merge-master-approval/spec.md` entry match nothing on codexFactory's tree —
+    the exact event that entry's own `retires_when:` named, in those words — so
+    codexFactory's `validate` REFUSES `pin-disposition-stale` until the entry is
+    deleted; and (2) PROMOTES that packet's `## MODIFIED "Bounded autonomous
+    surface"` block into codexFactory's `openspec/specs/merge-master-approval/spec.md`,
+    replacing canon's scenario "A human-authored pull request is never
+    auto-approved" with "A human-authored pull request is never approved by tier
+    1 alone" and "A gate-integrity path is never approved autonomously" — so the
+    two still-ACTIVE changes that hold their own `## MODIFIED` block for that
+    requirement, `extend-merge-master-envelope-to-floor-bot-lanes` and
+    `relocate-review-authority-floor`, each now omit two scenarios canon
+    carries. Measured through this repository's pinned entrypoint over #434's
+    tree on 2026-09-12: `Totals: 33 passed, 3 failed (36 items)`, the surviving
+    pair APPLIED and `REFUSE pin-disposition-stale` on the archived entry, exit
+    2; with that entry deleted and nothing added, exit 1 with exactly those two
+    UNDISPOSITIONED; with both added, exit 0. NEITHER SIBLING BLOCK CARRIES A
+    RESERVED MARKER AND NEITHER SHOULD — neither change performed the retitle,
+    so neither has a deletion to declare; canon moved underneath them. Brett
+    Heap ruled the ORDERING on 2026-09-11, verbatim "This change first", so each
+    sibling re-derives its block against the archived canon before its own
+    archive. THE DISPOSITION MECHANISM LIVES IN THIS REPOSITORY'S PIN FILE,
+    which is why both halves have to be written HERE. Nothing else in the pin
+    moves.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/INDEX.md` was read on 2026-09-11: no topic folder and no
+    INDEX row names the OpenSpec CLI pin, a consuming repository's findings, or
+    a finding-disposition. `kind: staged` would claim a staging source that does
+    not resolve. The organized source is openxFactory issue #745, on which the
+    claim, the measurement and the ratifying word are all recorded.
+  approved_by: >-
+    Brett Heap (openxFactory convener) — 2026-09-12T03:04:29.167Z, first-hand,
+    in session to lane `provenance-autonomous-merge` (session `codeXfactory-3`),
+    as a selection in a multiple-choice round. The option label, verbatim:
+    "ratified_by — ratify the entries as encoded". THE QUESTION PUT TO HIM WAS
+    THE AUTHORITY SPELLING — this pin admits `ratified_by:` (a convener's act)
+    or `recorded_by:` (the weaker claim, a human ruling RECORDED rather than
+    given), and the draft carried `recorded_by:` because his earlier "This
+    change first" was a ruling on the ORDERING whose own record says it is
+    "recorded for provenance and NOT disposed by this section". The word
+    SUPERSEDES that reading: the entries carry `ratified_by:` and are ratified
+    AS ENCODED. IT IS NOT A RATIFICATION OF THIS PACKET'S OWN DOCUMENTS, which
+    land `Status: draft`, AND IT IS NOT A MERGE — the pull request is opened
+    DRAFT and stays DRAFT on a further word. Recorded on openxFactory #745
+    (comment 5643056862), which states that scope on its own face so the
+    narrower reading is visible rather than assumed.
+  approved_on: 2026-09-12
+related:
+  - openxFactory:change:archive/2026-09-09-add-openspec-cli-pin              # ARCHIVED. Cut the pin (#667) and carries task 6.1, the consumer-wiring obligation whose fourth application this packet is
+  - openxFactory:change:archive/2026-09-09-bump-openspec-cli-pin-to-1.12     # ARCHIVED. #677. Moved the pin to 1.12.0 and ADDED the disposition mechanism and its rule; this packet applies BOTH halves of that rule and does not touch it
+  - openxFactory:change:disposition-codexfactory-declared-renames            # ACTIVE. Wrote the entry this packet RETIRES, and its sibling, which stands
+  - openxFactory:change:disposition-codexfactory-floor-relocation-retitle    # ACTIVE. The precedent this packet copies in shape, and the owner of the OTHER entry the change `relocate-review-authority-floor` carries
+  - openxFactory:change:extend-merge-master-envelope-to-floor-bot-lanes      # ACTIVE. openxFactory's companion of the codexFactory change one new entry names; the codexFactory delta is the one that re-derives, not this one
