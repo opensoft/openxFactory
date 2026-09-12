@@ -41,18 +41,22 @@ each open box below states the event that closes it:
 - **§ 4** closes AT THE SAME RULING and never before it. A box whose condition
   ("ONLY IF CLASS B OR CLASS C IS VETOED…") did NOT occur ticks as **NOT
   COMMISSIONED — the recommendation was accepted**, which is a disposition and
-  not a silent drop; a box whose condition DID occur ticks by NAMING the
-  successor packet or issue the veto commissions, the arm being built there and
-  never here.
+  not a silent drop; a box whose condition DID occur ticks by RE-DECLARING
+  `code_surface`/`target_release` at THIS packet's OWN ratification (§ 4.3) to
+  name the modules and tests the veto commissions, the arm built HERE, inside
+  this same packet, which then holds open past ratification (never archiving
+  on landing) until that arm is realized — merged-plus-green, § 6.
 - **§ 5** closes IN THIS PULL REQUEST, and is ticked below with the real exit
   codes.
 - **§ 6** closes AT THE ARCHIVE, which is a separate act on a separate word.
 - **§ 7** closes BY RECORDING, on the estate's ruling of 2026-09-06 that an
   owed-successor box ticks when its successor is NAMED — the shape the parent's
   own § 7 archived in. Its boxes are ticked below: TWO of the six name a filed
-  successor (#967, #968) and FOUR record a residue with no successor owed —
-  #965 is NOT one of them, § 7.2 recording in terms that its residue is not
-  handed there.
+  successor (#967, #968); of the other FOUR, two (7.1, 7.5) are this packet's
+  OWN deliberate, permanent no-successor choices, and two (7.2, 7.6) record a
+  residue with no successor NAMED YET — naming one remains an act for Brett
+  Heap's own word, not foreclosed by this recording. #965 is NOT one of them,
+  § 7.2 recording in terms that its residue is not handed there.
 
 ## 1. Ratification — OWED, NOT GIVEN (one box per class)
 
@@ -255,11 +259,13 @@ each open box below states the event that closes it:
 - [ ] 4.1 **ONLY IF CLASS B OR CLASS C IS VETOED toward (B2)/(B3)/(C2)/(C3), OR
       CLASS C IS SPLIT TOWARD (C4) WITH EITHER HALF GIVEN A READING:** one
       SHARED helper in `scripts/doc_health/`, called by each opting-in family
-      with its own family name, delegating the admission rule to
+      USING THE COMMON `(family, repo, path)` KEY — never `neutrality-drift`,
+      whose digest-keyed reader is a different admission path this helper does
+      not absorb — with its own family name, delegating the admission rule to
       `promotion_fidelity.load_dispositions(ctx, <family>)` so a second rule
-      about which entries are live is never written — the shape the parent cut
-      for `ratified-provenance`, one level up. Per-family OPT-IN, never a blanket
-      sweep.
+      about which entries are live is never written for those families — the
+      shape the parent cut for `ratified-provenance`, one level up. Per-family
+      OPT-IN, never a blanket sweep.
 - [ ] 4.2 **ONLY ON THAT VETO OR THAT SPLIT:** the `## MODIFIED` blocks the vetoed families'
       own requirements then owe, each with its own *A finding is dispositioned*
       or grandfather scenario, and the tests that pin them.
@@ -371,8 +377,10 @@ from the run and repeated in the pull request body.
 is acted on: no arm is written, no finding class is graded, no severity is
 chosen and no entry is edited. TWO of the SIX hand their residue to a NAMED
 filed successor (#967, #968), which is the form the estate ruled on 2026-09-06
-and the form the parent's own § 7 archived in; FOUR record a residue that owes
-no successor and say so.
+and the form the parent's own § 7 archived in; of the other FOUR, two (7.1,
+7.5) are this packet's own deliberate, permanent no-successor choices, and two
+(7.2, 7.6) record a residue with no successor NAMED yet — naming one remains
+Brett Heap's own act, not foreclosed by this recording.
 
 - [x] 7.1 **NO TEST PINS THE BOUNDARY** the two added scenarios state. NO SUCCESSOR
       IS OWED and none is named — this box ticks on the recording of the

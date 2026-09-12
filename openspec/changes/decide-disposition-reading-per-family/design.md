@@ -393,15 +393,20 @@ set `report.uncited_resolutions` reads, and the neutrality lane has its own
 digest-keyed reader (§ 2.6 enumerates all of them) — and supplying only the
 citation text that helper does not return. A
 vetoed class would take the same shape ONE LEVEL UP: one shared helper, called
-by each opting-in family with its own family name, so a second admission rule is
-never written. Per-family opt-in is the whole point — an entry naming one family
-has never disposed another's findings, and ONE FAMILY-SIDE ADMISSION HELPER is
-how that stays true.
+by each opting-in family USING THE COMMON `(family, repo, path)` KEY — never
+`neutrality-drift`, whose digest-keyed reader is a DIFFERENT admission path
+this helper does not and must not absorb — with its own family name, so a
+second admission rule is never written for the families that share one.
+Per-family opt-in is the whole point — an entry naming one family has never
+disposed another's findings, and ONE FAMILY-SIDE ADMISSION HELPER, for the
+families whose key shape it fits, is how that stays true.
 
 ## D3 — RECOMMENDED: this packet ratifies the DECISION ONLY, `code_surface: none`
 
-**RECOMMENDED: the decision is the deliverable; any arm a veto commissions is a
-per-family successor with its own packet.**
+**RECOMMENDED: the decision is the deliverable; any arm a veto commissions is
+built INSIDE THIS SAME PACKET, which holds open past ratification — never
+archiving on landing — until that arm is realized (merged-plus-green), per the
+last bullet below and `tasks.md` § 4.3/§6.**
 
 Under the four recommendations NO ADDITIONAL ARM IS COMMISSIONED — not "no arm
 exists": `modified-block-currency` already carries a family-side reader of its
