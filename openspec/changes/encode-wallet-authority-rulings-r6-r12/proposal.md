@@ -187,8 +187,9 @@ dual-digest question rather than leaving it open a second time.
 > that change is ratified.
 
 → ADDED requirement *"A re-issuance act records five fields as a MINIMUM, and
-the floor is not a ceiling"*. **OQ-5** decides whether this packet exercises the
-"may extend" permission.
+the floor is not a ceiling"*. **This packet exercises no extension** — the five
+stand exactly as ruled and no sixth field is minted — so the "may extend"
+permission is recorded rather than used, and no open question is put on it.
 
 ### R9 — in-flight behavior
 
