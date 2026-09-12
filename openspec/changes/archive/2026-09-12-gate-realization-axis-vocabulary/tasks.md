@@ -803,8 +803,11 @@ and its own output quoted.
       `PRRT_kwDOTAvnrs6heTQZ`.)
 - [x] 4.12 **THE BOT BENCH — DONE AND LEFT UNTICKED AT RATIFICATION, THE SAME
       BOOKKEEPING DEFECT AS § 4.10, CORRECTED HERE ON THE RECORD.** Taken and
-      dispositioned item by item across eleven rounds (`design.md` D8 through
-      D8m; `tasks.md` § 3.7–§ 3.23), all Copilot — Codex was requested once
+      dispositioned item by item across **thirteen rounds, re-counted rather
+      than carried** (`design.md` D8 through D8m; `tasks.md` § 3.7–§ 3.23:
+      labeled 1–10, then 12–14 — no round is labeled 11 anywhere in this
+      record, and § 3.20 in that same span is the second merge of
+      `origin/main`, not a bench round), all Copilot — Codex was requested once
       (2026-09-11T12:43:28Z, PR #963 comment `5634604106`) and replied ABSENCE
       (usage limit) eight seconds later, recorded verbatim in
       `review/ratification-2026-09-12.md` § 7, no second request made. FROZEN
@@ -849,10 +852,10 @@ packet's own ratification pull request #963 had already merged and its own
       carries, so no tree-equality argument is owed**), `conclusion`
       **success**, created 2026-09-12T19:03:52Z, completed 2026-09-12T19:23:11Z.
       Performed with `TZ=UTC python3 scripts/proposal-support.py . archive
-      gate-realization-axis-vocabulary --date <UTC day of the act> --yes`
+      gate-realization-axis-vocabulary --date 2026-09-12 --yes`
       through the pinned `@fission-ai/openspec@1.12.0` artifact — never a bare
       `openspec archive` — moving the packet to
-      `openspec/changes/archive/<date>-gate-realization-axis-vocabulary/` and
+      `openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/` and
       writing the `## ADDED Requirements` block (*Realization axis vocabulary
       is gated*) into `openspec/specs/release-realization/spec.md`. The
       origin-retention gate fires INSIDE the wrapper; its output, the
