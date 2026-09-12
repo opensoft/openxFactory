@@ -1928,7 +1928,12 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # `scripts/ideation_dashboard/web/app.js`, which converts `moved_verbatim`
     # -> `moved_with_declared_edit` and takes 37 lines in two classes
     # (`import rewrites` 1, `adapter calls` 36) on a row that carried no
-    # `edits:` before. 862 + 37 = 899 on 150 + 1 = 151 rows.
+    # `edits:` before, AND three more `adapter calls` lines on
+    # `tests/ideation-dashboard/test_bullseye_widget.py`, which already carried
+    # an edit: that suite asserts `app.js`'s shape by quoting its lines back, so
+    # the three quotations of the tab router's field names are invalidated by
+    # the `app.js` edit and are migrated in the same act. 862 + 37 + 3 = 902 on
+    # 150 + 1 = 151 rows — the second row is not a new carrier.
     #
     # THIS ASSERTION IS WHERE THE ABSOLUTES LIVE, and deliberately so: the
     # document itself states each act as a DELTA (see the manifest's own
@@ -1939,7 +1944,7 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (899, 151), (lines, carrying)
+    assert (lines, carrying) == (902, 151), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -2011,7 +2016,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 899 line numbers were written in the numbering this
+    The manifest's 902 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would

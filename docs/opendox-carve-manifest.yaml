@@ -289,14 +289,24 @@ moved_paths:
 # `carve_tag` are untouched, and the row keeps the `sha256` it already carries,
 # which is the CARVE blob's.
 #
+# A SECOND ROW TAKES THREE LINES AND DOES NOT CHANGE DISPOSITION:
+# `tests/ideation-dashboard/test_bullseye_widget.py`, already
+# `moved_with_declared_edit`, gains an `adapter calls` edit at 900/1781/1785.
+# That suite asserts `app.js`'s shape by QUOTING ITS LINES BACK, so the three
+# quotations of the tab router's field names are invalidated by the edit this
+# same act declares on the `app.js` row, and they are migrated here rather than
+# left to rot until S8 re-homes the suite. The row keeps its `path constants`
+# line 40 and its digest.
+#
 # THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on
 # purpose: the ASK-7 declared-edit window (`#656` comment `5642614423`) is in
 # flight over `cli.py` and `serve.py` in this same document, and two acts
 # restating one set of absolutes is how a count becomes wrong in a merge. This
 # act's whole arithmetic is: rows unchanged; `not_moved` unchanged; one row
 # moves from `moved_verbatim` to `moved_with_declared_edit`; declared lines
-# +37 (`import rewrites` +1, `adapter calls` +36, `path constants` +0); rows
-# carrying `edits:` +1; replicas unchanged.
+# +40 (`import rewrites` +1, `adapter calls` +39, `path constants` +0) over
+# TWO rows, 37 on `app.js` and 3 on `test_bullseye_widget.py`; rows carrying
+# `edits:` +1 (the second row already carried one); replicas unchanged.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -2216,6 +2226,10 @@ rows:
     edits:
       - class: path constants
         lines: [40]
+      - class: adapter calls
+        lines: [900, 1781, 1785]
+        note: "§ 3.4 SLICE S3, THE VIEW REGISTRY — the same act and the same ruling as the `app.js` row above (`#656` comment `5642758731`, Brett Heap, 2026-09-12; Q-L1 form RULED at `5628560136`). THIS FILE IS A SOURCE-GREP SUITE: it asserts app.js's shape by quoting its lines back, so the three lines that quote the TAB ROUTER'S FIELD NAMES are invalidated by the very edit declared on the `app.js` row — `target.view` -> `target.region`, `t.view` -> `t.region` — and are migrated in the same act rather than left to rot until slice S8 re-homes this suite. Class `adapter calls` on the same precedent the `app.js` row uses: the assertion is a call site reaching a name that now comes from the registry. Each is a single-line REPLACE at the carve numbering with no insertion, which is why exactly three lines are declared and no neighbour is. The assertions' MEANING is unchanged and so is every surrounding line: a tab is still remembered on every activation and restored only to a view this plane has — the router simply calls the field `region` now, because a binding's mount point is what it always was."
+
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
   - source_path: tests/ideation-dashboard/test_canvas.py
     disposition: moved_with_declared_edit
