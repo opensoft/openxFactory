@@ -627,17 +627,18 @@ Active changes:
   requirement title changes. Filed on Brett Heap's multi-select pick "Doc-link
   repairs #791 + #792" (in session, 2026-09-12 ~01:55Z; recorded on
   openxFactory #791 comment
-  [5642768645](https://github.com/opensoft/openxFactory/issues/791#issuecomment-5642768645)
-  and #792 comment
-  [5642768762](https://github.com/opensoft/openxFactory/issues/792#issuecomment-5642768762)).
-  Makes **no edit** to `ideation/cross-reference.yaml`'s `possibles_register`
-  for #792: the issue's own reasoning — rewriting `provenance.document` would
-  falsify the record of a completed 2026-07-23 derive-possibles run — already
-  answers it, echoed in `ideation/README.md`. Ratifying and archiving the
-  delta onto the promoted spec is an **(OPERATOR)** follow-up (`tasks.md`
-  1.2). PR [#998](https://github.com/opensoft/openxFactory/pull/998). Refs
-  [#791](https://github.com/opensoft/openxFactory/issues/791),
-  [#792](https://github.com/opensoft/openxFactory/issues/792). **Inserted here
+  [5642768645](https://github.com/opensoft/openxFactory/issues/791#issuecomment-5642768645)).
+  **Scoped to #791 only**: the same pick's other half, #792 (repointing
+  `ideation/cross-reference.yaml`'s `possibles_register`), is disposed
+  SEPARATELY and is not part of this packet — Brett Heap, 2026-09-12
+  ~15:30Z, "Retain the original provenance; close #792 by recorded
+  disposition" (openxFactory #745; issue #792 closed by its own recorded
+  comment
+  [5646918211](https://github.com/opensoft/openxFactory/issues/792#issuecomment-5646918211)).
+  Ratifying and archiving the delta onto the promoted spec is an
+  **(OPERATOR)** follow-up (`tasks.md` 1.2). PR
+  [#998](https://github.com/opensoft/openxFactory/pull/998). Refs
+  [#791](https://github.com/opensoft/openxFactory/issues/791). **Inserted here
   rather than at the top of this list on purpose**: sibling check
   (`gh pr diff 978 -R opensoft/openxFactory --name-only`, 2026-09-12) found
   open PR #978 anchors its own new bullet on the identical

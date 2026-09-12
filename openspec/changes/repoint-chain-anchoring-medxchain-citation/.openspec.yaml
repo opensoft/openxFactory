@@ -4,46 +4,42 @@ origin:
   kind: ad_hoc
   id: openxFactory:adhoc:2026-09-12-repoint-chain-anchoring-medxchain-citation
   reason: >-
-    Born from openxFactory issues #791 (chain-anchoring's four dead
-    MedxChain-notes citations) and #792 (possibles_register's eight
-    departed-file citations), bundled as one packet on Brett Heap's own
-    SELECTION, not a typed sentence: presented in session with a multi-choice
-    pick, 2026-09-12 ~01:55Z, he chose the option "Doc-link repairs #791 +
-    #792". That pick is recorded verbatim on both governing issues rather
-    than on openxFactory #745 (#745 is this lane's running status thread;
-    checked in full — `gh api repos/opensoft/openxFactory/issues/745/comments
-    --paginate` — and it names neither #791 nor #792, so it is not cited
-    here): openxFactory #791 comment 5642768645 (2026-09-12T02:09:41Z) and
-    #792 comment 5642768762 (2026-09-12T02:09:42Z), lane openxfactory-2,
-    session 3ea0262c, each
-    reading "on Brett Heap's pick (in session, multi-select, 2026-09-12
-    ~01:55Z, option 'Doc-link repairs #791 + #792')". #791 itself names the
-    exact defect — four dead MedxChain-notes citations in the promoted
-    chain-anchoring spec, left unrepointed by pull request #785's judgement
-    call 2 because editing promoted canon outside a governed OpenSpec change
-    breaches the ratification boundary — and asks, verbatim, for "a small
-    MODIFIED-requirement OpenSpec amendment to chain-anchoring" doing exactly
-    what this packet's chain-anchoring delta does. #792 IS RECONCILED HERE
-    RATHER THAN LEFT SILENT, because its own CLAIMED comment (issue #792
-    comment 5642768762) stated the plan as authoring "repoint the eight
-    possibles_register entries' provenance documents (merge-ordered against
-    bot PR #888...)" — a repoint — while this packet answers #792 by making
-    NO possibles_register edit at all (Copilot review, PR #998, flagged
-    exactly this claim-vs-outcome gap). The no-edit outcome is a considered
-    judgement call made DURING authoring rather than a silent drift from the
-    claimed plan: the issue's own reasoning (rewriting `provenance.document`
-    would falsify the record of a completed 2026-07-23 derive-possibles run)
-    already argues against the repoint the claim announced, and that
-    reasoning is echoed verbatim in `ideation/README.md`. The proposal and
-    this PR's body record that reconciled decision rather than the register
-    carrying a diff. No staging topic precedes either issue, so drafting
-    fields are carried and no approval is claimed.
+    Born from openxFactory issue #791 (chain-anchoring's four dead
+    MedxChain-notes citations), on Brett Heap's own SELECTION, not a typed
+    sentence: presented in session with a multi-choice pick, 2026-09-12
+    ~01:55Z, he chose the option "Doc-link repairs #791 + #792" — a
+    two-issue bundle at the time of the pick. That pick is recorded verbatim
+    on issue #791 rather than on openxFactory #745 (#745 is this lane's
+    running status thread; checked in full — `gh api
+    repos/opensoft/openxFactory/issues/745/comments --paginate` — and it
+    names neither #791 nor #792, so it is not cited here): openxFactory #791
+    comment 5642768645 (2026-09-12T02:09:41Z), lane openxfactory-2, session
+    3ea0262c, reading "on Brett Heap's pick (in session, multi-select,
+    2026-09-12 ~01:55Z, option 'Doc-link repairs #791 + #792')". #791 itself
+    names the exact defect — four dead MedxChain-notes citations in the
+    promoted chain-anchoring spec, left unrepointed by pull request #785's
+    judgement call 2 because editing promoted canon outside a governed
+    OpenSpec change breaches the ratification boundary — and asks,
+    verbatim, for "a small MODIFIED-requirement OpenSpec amendment to
+    chain-anchoring" doing exactly what this packet's chain-anchoring delta
+    does.
+    THIS PACKET IS NARROWED TO #791 ONLY. The pick's other half, #792
+    (repointing `ideation/cross-reference.yaml`'s `possibles_register`), is
+    DISPOSED SEPARATELY and is not part of this packet's scope: Brett Heap,
+    2026-09-12 ~15:30Z, in session, multi-choice SELECTION "Retain the
+    original provenance; close #792 by recorded disposition" (recorded on
+    openxFactory #745). Issue #792 is CLOSED by its own recorded comment
+    (5646918211, 2026-09-12T15:44:35Z), which supersedes this lane's earlier
+    #792 CLAIMED comment (5642768762) — no `possibles_register` edit is made
+    by this packet or any other, now or later, for that cause. No staging
+    topic precedes issue #791, so drafting fields are carried and no
+    approval is claimed.
   proposed_by: >-
     Brett Heap (openxFactory repository owner), a multi-choice SELECTION in
     session, 2026-09-12 ~01:55Z, reading "Doc-link repairs #791 + #792" —
-    recorded on openxFactory #791 (comment 5642768645, 2026-09-12T02:09:41Z)
-    and #792 (comment 5642768762, 2026-09-12T02:09:42Z), lane openxfactory-2.
+    recorded on openxFactory #791 (comment 5642768645, 2026-09-12T02:09:41Z),
+    lane openxfactory-2. (The pick's other half, #792, is disposed
+    separately — see `reason` above — and is out of this packet's scope.)
   proposed_on: 2026-09-12
 related:
   - openxFactory:issue:791  # governing issue — the chain-anchoring citation repoint
-  - openxFactory:issue:792  # governing issue — answered with no register edit
