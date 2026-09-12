@@ -73,5 +73,10 @@ Governing issue: openxFactory #791.
 
 - Affected spec: `chain-anchoring` (promoted, `openspec/specs/chain-anchoring/spec.md`).
 - Affected code: none.
-- Resolves the dead citation openxFactory #791 reports, closing the
-  provenance-text gap `#785`'s judgement call 2 flagged for a future amendment.
+- Once ratified, archived, and promoted (task 1.2, an **(OPERATOR)** act):
+  the dead citation this change exists to repoint (governing issue: openxFactory
+  #791, described under "## Why" above) will then be repaired, discharging
+  the provenance-text gap `#785`'s judgement call 2 flagged for a future
+  amendment. Until then the promoted spec still carries the dead citation
+  unchanged — this proposal's delta is not yet in effect (Copilot review,
+  PR #998).
