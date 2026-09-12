@@ -830,6 +830,49 @@ Active changes:
   nothing more).** The parent's box 3.6 stays OPEN: an OBSERVATION box, not
   an owed-successor box; none of the three acts ticks it.
 
+- [repoint-chain-anchoring-medxchain-citation](openspec/changes/repoint-chain-anchoring-medxchain-citation/proposal.md)
+  — filed 2026-09-12, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: draft`**. A small `## MODIFIED Requirements` amendment to
+  promoted `chain-anchoring` canon (`openspec/specs/chain-anchoring/spec.md`),
+  repointing the four dead MedxChain-notes citations across its three
+  affected requirements — "Served verification and access decisions are
+  logged leaves"; "The record and demographic planes are analyzable without
+  the identity plane"; "This capability is neutral and names no domain
+  semantics" — from "not in the tree yet / pull request #509 IN FLIGHT" to
+  the verified destination `MedxSoft/MedxFactory@74bed502
+  ideation/brainstorm/medxchain-blockchain-medical-records.md` (pull request
+  #785 moved the note out of openxFactory on 2026-09-08), cited as
+  historical provenance only — no SHALL/SHALL NOT obligation, scenario, or
+  requirement title changes. Filed on Brett Heap's multi-select pick "Doc-link
+  repairs #791 + #792" (in session, 2026-09-12 ~01:55Z; recorded on
+  openxFactory #791 comment
+  [5642768645](https://github.com/opensoft/openxFactory/issues/791#issuecomment-5642768645)).
+  **Scoped to #791 only**: the same pick's other half, issue 792
+  (repointing `ideation/cross-reference.yaml`'s `possibles_register`), is
+  disposed SEPARATELY and is not part of this packet — Brett Heap,
+  2026-09-12 ~15:30Z, selected the option retaining the register's original
+  provenance and disposing of issue 792 by that recorded closure (exact
+  option text on openxFactory #745, not repeated here). Issue 792 is now
+  closed by its own recorded
+  comment
+  [5646918211](https://github.com/opensoft/openxFactory/issues/792#issuecomment-5646918211).
+  Ratifying and archiving the delta onto the promoted spec is an
+  **(OPERATOR)** follow-up (`tasks.md` 1.2). PR
+  [#998](https://github.com/opensoft/openxFactory/pull/998). Refs
+  [#791](https://github.com/opensoft/openxFactory/issues/791). **Inserted here
+  rather than at the top of this list on purpose**: sibling check
+  (`gh pr diff 978 -R opensoft/openxFactory --name-only`, 2026-09-12) found
+  open PR #978 anchors its own new bullet on the identical
+  `Active changes:`-then-blank-line context this file's top would otherwise
+  share, which is the well-known same-anchor-insertion merge-conflict shape;
+  anchoring on the tail of the `amend-kill-switch-to-declared-test-companion`
+  entry instead (a boundary #978 does not touch) keeps both pull requests'
+  README hunks disjoint so either may land first. `#978` and this PR were
+  also found to touch disjoint lines of `tests/sequenced_after/corpus-ledger.yaml`
+  (its new row sorts under `decide-disposition-reading-per-family`, far from
+  this row's `add-chain-anchoring` / `repoint-chain-anchoring-medxchain-citation`
+  keys), so that file needed no such mitigation.
+
 - [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
   — filed 2026-09-11, **`Status: ratified`** (2026-09-11T13:09:12Z, Brett
   Heap, openxFactory operator authority, first-hand, in session — a
