@@ -115,6 +115,22 @@ a later change, on evidence that a stale supersedes target exists.
    the pin record enumerates capabilities.** Today none does. If a pin record
    carries a capability enumeration, the named capability MUST appear in it.
 
+**AND THE ENUMERATION IS NAMED, so the arm has a deterministic input contract
+rather than an intention.** The resolver reads ONE member and nothing else: a
+top-level `capabilities:` sequence of capability names, in the same kebab-case
+shape an in-tree capability id takes, on the pin record itself. A pin record
+without that member carries no enumeration for this purpose — the resolver does
+NOT go looking for `files:`, `digests:`, `pinned_members:`, or any other list
+and read capabilities out of it, because none of those is a capability list and
+guessing between them is exactly the non-determinism this paragraph exists to
+remove. `capabilities:` is RESERVED here as the trigger's spelling; **this
+packet adds it to no pin record and to no schema**, and admitting the member
+into a real pin record is a `neutral-product-pin` change with the publisher, as
+the paragraph below says. That is what makes arm 2 dormant today and
+self-arming later: the trigger is a named member, checkable by reading, and the
+realization's fixture cases (task 3.3(c) and (d)) are fixture pin records
+carrying it — fixtures are not the pin registry and add no pin byte.
+
 **Why the second arm is conditional — measured, not assumed.** All six pin
 records in `contracts/` were read at `323c7adf`. NONE enumerates capabilities,
 and that is the only property this arm rests on; what each record addresses
@@ -265,7 +281,7 @@ ratification, carrying four surfaces:
    1366 and 1390) dispatch on the `pinned:` prefix. The finding text for an
    unresolved pinned target names the PIN, not `openspec/specs/`. No regex
    moves (D-1).
-2. **The tests.** Under `tests/doc_health/`, and BOTH cases of D-2's
+2. **The tests.** Under `tests/doc-health/` — the hyphenated tests directory, beside the existing `tests/doc-health/fixtures/tag-hygiene/` tree; only the PACKAGE is `scripts/doc_health/` — and BOTH cases of D-2's
    conditional arm, so the realization cannot satisfy the list while omitting
    the branch: a resolving pinned target under a pin record carrying no
    capability enumeration emits nothing; an unresolvable pin id emits a finding

@@ -21,7 +21,12 @@ the later realization pull request, and § 4 is the archive act.
 - [ ] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** the pin id must
   resolve to a pin record this repository carries; the capability segment is
   checked for shape and resolved further ONLY where the pin record enumerates
-  capabilities — which none of the six does today, measured. The weakening this
+  capabilities — which none of the six does today, measured. The trigger is ONE
+  NAMED MEMBER, reserved by this change and added to no record and no schema by
+  it: a top-level `capabilities:` sequence on the pin record. The resolver
+  reads that member and no other, so the dormant arm has a deterministic input
+  contract rather than an intention; whether a real pin record may carry it is
+  a `neutral-product-pin` question with the publisher. The weakening this
   accepts is stated plainly in D-2 and is worth a veto on its own. **THIS IS
   THE PACKET'S ONE LIVE CONSTITUTIONAL QUESTION.** Principle VII
   (`.specify/memory/constitution.md:99-103`) closes registries of capabilities
@@ -68,15 +73,23 @@ the later realization pull request, and § 4 is the archive act.
   dispatch on the prefix. The regexes at 1308-1314 DO NOT MOVE.
 - [ ] 3.2 The finding text for an unresolved PINNED target names the pin
   registry, not `openspec/specs/` — the present fixed string
-  (`families.py:1367-1368`) is the wrong instruction for this class.
-- [ ] 3.3 Tests under `tests/doc_health/`, and D-2's CONDITIONAL arm gets BOTH
+  (`families.py:1367-1368`) is the wrong instruction for this class. The
+  in-tree non-resolution arm must not judge a pinned target at all: a
+  well-formed `pinned:` value exists under no `openspec/specs/` directory, so
+  an unnarrowed in-tree arm would report every one of them.
+- [ ] 3.3 Tests under `tests/doc-health/` (hyphen — the directory that
+  exists; `scripts/doc_health/` with an underscore is the package under
+  test), extending `tests/doc-health/fixtures/tag-hygiene/`, and D-2's
+  CONDITIONAL arm gets BOTH
   of its cases, so the realization cannot satisfy this list while omitting the
   branch: **(a)** a resolving pinned target, under a pin record carrying no
   capability enumeration, emits nothing; **(b)** an unresolvable pin id emits a
-  finding naming the PIN REGISTRY, not `openspec/specs/`; **(c)** a fixture pin
-  record that DOES enumerate capabilities emits nothing for a capability LISTED
-  in it; **(d)** the same fixture emits a finding naming the enumeration for a
-  capability NOT listed in it — (c) and (d) are the positive and the negative
+  finding naming the PIN REGISTRY, not `openspec/specs/`; **(c)** a FIXTURE pin
+  record carrying a top-level `capabilities:` sequence emits nothing for a
+  capability LISTED in it; **(d)** the same fixture emits a finding naming the
+  enumeration for a capability NOT listed in it — the fixture lives under
+  `tests/doc-health/fixtures/`, adds no byte to any real pin record and no
+  member to any schema — (c) and (d) are the positive and the negative
   of the arm that binds automatically, and without both the branch can be
   absent with this list still satisfied; **(e)** an `xspec:supersedes` marker
   whose `spec=` value carries the reserved `pinned:` prefix is REFUSED with a

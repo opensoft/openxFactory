@@ -31,7 +31,14 @@ A PINNED target resolves when its `<pin-id>` resolves to a pin record this
 repository carries. The `<capability>` segment MUST be well formed, and it MUST
 additionally appear in the pin record's own capability enumeration WHERE THAT
 RECORD CARRIES ONE; where the record carries no such enumeration, resolution
-rests on the pin alone and the capability name is taken as declared. This
+rests on the pin alone and the capability name is taken as declared. A PIN
+RECORD'S CAPABILITY ENUMERATION IS ONE NAMED MEMBER AND NOT A SEARCH: a
+top-level `capabilities:` sequence of capability names on the pin record. A
+record without that member carries no enumeration for this purpose, and the
+pass MUST NOT read capability names out of any other member — a file list, a
+digest list or a member list is not a capability list, and inferring one from
+them is non-deterministic. Whether a pin record may carry `capabilities:` is
+owned by `neutral-product-pin`, not by this capability. This
 conditional arm is deliberate: it binds automatically, with no further grammar
 delta, as soon as a pin record enumerates capabilities. It is NOT a licence to
 read the pinned product over the network — the deterministic pass reads this
@@ -51,8 +58,9 @@ not the thing that happens when nobody decides.
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
 
 #### Scenario: A marker target does not resolve
-- **WHEN** a marker names a `target=<capability>` or `spec=<capability>/<requirement-slug>` that does not exist under `openspec/specs/` or in an active change's spec deltas
+- **WHEN** a marker names an IN-TREE `target=<capability>` or `spec=<capability>/<requirement-slug>` — a value carrying no `pinned:` prefix — that does not exist under `openspec/specs/` or in an active change's spec deltas
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
+- **AND** a target carrying the `pinned:` prefix is NOT judged by this scenario, which would otherwise report every well-formed pinned target
 
 #### Scenario: A marker names a capability of a pinned neutral product
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and `<pin-id>` resolves to a pin record this repository carries

@@ -832,17 +832,36 @@ _LEDGER_SUBJECTS = {
     # and the pinned form `pinned:<pin-id>/<capability>`". Every other item of
     # the list is carried in canon's own order and wording, and the other five
     # promoted units — both of canon's scenarios among them — are carried
-    # verbatim. THE SIBLING BLOCK OPENS NO ROW, measured rather than assumed:
-    # the same packet's `## MODIFIED` block on `document-lifecycle`'s *Prose
-    # tagging marker hygiene* carries every unit canon states for it and only
-    # ADDS beside them, so this arm reports nothing for it and no second row
-    # belongs here. This arm cannot distinguish a ratified extension from
-    # drift and does not claim to; the finding is INFO and it is the audit
-    # trail for the extension. Retires when the packet archives on
-    # merged-plus-green realization evidence (its `code_surface` is non-empty)
-    # and its block is promoted.
+    # verbatim. This arm cannot distinguish a ratified extension from drift
+    # and does not claim to; the finding is INFO and it is the audit trail for
+    # the extension. Retires when the packet archives on merged-plus-green
+    # realization evidence (its `code_surface` is non-empty) and its block is
+    # promoted.
     ("extend-prose-tagging-target-to-pinned-capabilities", "doc-health",
      "Tag hygiene enforced by reference"),
+    # AND ITS SIBLING BLOCK, ADDED IN THE SAME FIX ROUND AND FOR A REASON THAT
+    # IS NOT THE FIRST ROW'S. The same packet's `## MODIFIED` block on
+    # `document-lifecycle`'s *Prose tagging marker hygiene* opened NO row when
+    # the packet was first pushed: it carried every unit canon states and only
+    # ADDED beside them. It opened one when the review of `74e25f2d` found a
+    # CONTRADICTION INSIDE THE BLOCK — canon's scenario *A marker target does
+    # not resolve* reports any target that "does not exist under
+    # `openspec/specs/`", which every well-formed PINNED target satisfies, so
+    # carried verbatim it would have required a finding on exactly the markers
+    # the packet's own pinned-success scenario requires to resolve. The single
+    # uncarried unit of 10 is that scenario's `WHEN` bullet, and the block
+    # restates it to say IN-TREE explicitly, adding an `AND` bullet that sends
+    # a `pinned:`-prefixed target to the pinned scenarios instead. THE
+    # SCENARIO TITLE IS UNCHANGED AND DELIBERATELY SO: retitling it would have
+    # been a scenario-title-arm finding in the `error` band — the arm carrying
+    # this family's gate — and a retitle is declared with a `Merged into`
+    # marker, which is a different act from the narrowing this is. Every other
+    # unit of the requirement, the other three scenario titles among them, is
+    # carried. The finding is INFO and it is the audit trail for a narrowing
+    # that removes an internal contradiction rather than for drift. Retires on
+    # the same condition as the row above.
+    ("extend-prose-tagging-target-to-pinned-capabilities",
+     "document-lifecycle", "Prose tagging marker hygiene"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1172,7 +1191,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of eleven named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1243,9 +1262,15 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "one clause of canon's coverage enumeration that a SECOND declared "
         "target form falsifies — the first row here opened by a delta that "
         "EXTENDS an enumeration rather than narrowing, generalizing or "
-        "amending a rule, and the sibling document-lifecycle block of the "
-        "same packet opens none because it carries canon whole and only "
-        "adds)",
+        "amending a rule; 11 within the same pull request, when the review of "
+        "74e25f2d found that carrying canon's *A marker target does not "
+        "resolve* scenario VERBATIM would have required a finding on every "
+        "well-formed pinned target, and the same packet's document-lifecycle "
+        "block narrowed that one WHEN bullet to say IN-TREE — two rows from "
+        "one packet, opened five minutes apart and for different reasons, the "
+        "second of them the only row in this ledger opened by a block "
+        "REMOVING A CONTRADICTION WITH ITSELF rather than by restating canon "
+        "in new terms)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
