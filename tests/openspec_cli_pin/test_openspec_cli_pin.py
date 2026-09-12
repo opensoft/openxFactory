@@ -872,7 +872,7 @@ def test_the_installers_options_are_exactly_the_three_it_needs(installer):
 # its condition REFUSES.
 
 
-def test_the_real_pin_declares_exactly_the_five_dispositions_two_repos_carry(
+def test_the_real_pin_declares_exactly_the_six_dispositions_two_repos_carry(
         mod, pin):
     """The pin's own entries, read through the pin's own reader.
 
@@ -889,6 +889,17 @@ def test_the_real_pin_declares_exactly_the_five_dispositions_two_repos_carry(
     the active `relocate-review-authority-floor` retitles a scenario of) rather
     than by a readiness sweep.
 
+    It fired a THIRD time for
+    `disposition-codexfactory-regular-pr-council-clearance-archive` (5 -> 6, by
+    way of one DELETION and two ADDITIONS), whose `design.md` § 4 reads that
+    movement: codexFactory PR #434 archived `add-regular-pr-council-clearance`,
+    which RETIRED that entry — the event its own `retires_when:` named — and in
+    the same act PROMOTED the retitle it was granted for, which left two
+    still-ACTIVE changes restating the requirement as it read BEFORE. That is
+    the first movement in this list that is NOT marker-blindness, and the first
+    in which one codexFactory CHANGE carries TWO entries under two different
+    delta paths, retiring on two different events.
+
     WHY THE SPLIT AND NOT A COUNT. The first version asserted
     `{repo} == {"openxFactory"}`, which a growing fleet loosens once and then
     forever. Pinning WHICH item belongs to WHICH repository keeps the fleet
@@ -901,12 +912,14 @@ def test_the_real_pin_declares_exactly_the_five_dispositions_two_repos_carry(
          "signed-execution-chain/spec.md"),
         ("openxFactory", "add-composed-view-authoring",
          "ideation-dashboard/spec.md"),
-        ("codexFactory", "add-regular-pr-council-clearance",
-         "merge-master-approval/spec.md"),
         ("codexFactory", "amend-composition-selector-labelling",
          "domain-hermes-content/spec.md"),
         ("codexFactory", "relocate-review-authority-floor",
          "repository-gate-floor/spec.md"),
+        ("codexFactory", "extend-merge-master-envelope-to-floor-bot-lanes",
+         "merge-master-approval/spec.md"),
+        ("codexFactory", "relocate-review-authority-floor",
+         "merge-master-approval/spec.md"),
     ]
 
 
@@ -939,53 +952,164 @@ def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
         "openxFactory's own gate would refuse on a consumer's corpus")
 
 
-#: THE MEASUREMENT EACH ENTRY RESTS ON, per item rather than one shared literal.
-#: The first four were measured by the 1.12 readiness sweeps of 2026-09-05 and
-#: cite that evidence file; the fifth was measured by its own packet on
-#: 2026-09-10, over codexFactory PR #318's tree AND over codexFactory main, and
-#: cites that. A PER-ITEM MAP rather than a widened substring on purpose
-#: (`disposition-codexfactory-floor-relocation-retitle` `design.md` § 4): the
-#: weak repair for an entry granted on a second day is to drop the literal, and
-#: a dropped literal never fires again. This one fires on the sixth entry.
+#: THE MEASUREMENT EACH ENTRY RESTS ON — and THE CANON THAT MAKES IT LAWFUL —
+#: keyed by the `(repo, item, path)` TRIPLE the verifier itself matches on.
+#:
+#: RE-KEYED FROM `item` TO THE TRIPLE BY
+#: `disposition-codexfactory-regular-pr-council-clearance-archive`, and that is a
+#: TIGHTENING rather than a rename. From 2026-09-11 one codexFactory CHANGE,
+#: `relocate-review-authority-floor`, carries TWO entries under two different
+#: delta paths: a DECLARED RETITLE on `repository-gate-floor/spec.md`, measured
+#: on 2026-09-10 and granted by that day's word, and a canon-moved-underneath
+#: finding on `merge-master-approval/spec.md`, measured on 2026-09-11 and granted
+#: by a different word. An item-keyed map cannot tell them apart and would have
+#: asserted one entry's measurement against the other. The triple is exactly the
+#: precision the matcher has, so the map now has it too.
+#:
+#: A PER-ENTRY MAP rather than a widened substring, on the precedent's own
+#: reasoning (`disposition-codexfactory-floor-relocation-retitle` `design.md`
+#: § 4): the weak repair for an entry granted on a second day is to drop the
+#: literal, and a dropped literal never fires again. This one fires on a seventh
+#: entry.
 DISPOSITION_MEASUREMENT = {
-    "add-chain-attestation": "openspec-1.12-readiness-2026-09-05.md",
-    "add-composed-view-authoring": "openspec-1.12-readiness-2026-09-05.md",
-    "add-regular-pr-council-clearance": "openspec-1.12-readiness-2026-09-05.md",
-    "amend-composition-selector-labelling": "openspec-1.12-readiness-2026-09-05.md",
-    "relocate-review-authority-floor": "codexfactory-floor-relocation-2026-09-10.md",
+    ("openxFactory", "add-chain-attestation", "signed-execution-chain/spec.md"):
+        "openspec-1.12-readiness-2026-09-05.md",
+    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"):
+        "openspec-1.12-readiness-2026-09-05.md",
+    ("codexFactory", "amend-composition-selector-labelling",
+     "domain-hermes-content/spec.md"):
+        "openspec-1.12-readiness-2026-09-05.md",
+    ("codexFactory", "relocate-review-authority-floor",
+     "repository-gate-floor/spec.md"):
+        "codexfactory-floor-relocation-2026-09-10.md",
+    ("codexFactory", "extend-merge-master-envelope-to-floor-bot-lanes",
+     "merge-master-approval/spec.md"):
+        "codexfactory-regular-pr-council-clearance-archive-2026-09-11.md",
+    ("codexFactory", "relocate-review-authority-floor",
+     "merge-master-approval/spec.md"):
+        "codexfactory-regular-pr-council-clearance-archive-2026-09-11.md",
+}
+
+#: THE CLASS EACH ENTRY BELONGS TO, per entry, because from 2026-09-11 this list
+#: carries TWO and a single shared literal let the second class inherit the
+#: first class's citation without ever pointing at it.
+#:
+#: MARKER_BLINDNESS is the original class: 1.12.0 cannot read this estate's
+#: reserved narrowing marker and re-reports a declared retitle as an omission.
+#: CANON_MOVED is the class
+#: `disposition-codexfactory-regular-pr-council-clearance-archive` opened: an
+#: archive PROMOTED a retitle, and a still-ACTIVE change restates the
+#: requirement as it read before. NOTHING IS DECLARED IN THOSE BLOCKS AND
+#: NOTHING SHOULD BE — the change did not perform the retitle — so a
+#: `Merged into` citation there would be a claim about a marker that is not in
+#: the block and does not belong in it. The assertion below is therefore an
+#: IF AND ONLY IF and not a floor: the marker is cited by the four, and by
+#: exactly the four.
+MARKER_BLINDNESS = "marker-blindness"
+CANON_MOVED = "canon-moved-under-an-un-re-derived-delta"
+
+#: What each class must cite. The marker class cites the reserved marker; the
+#: canon-moved class cites the promoted requirement that DEFINES the check that
+#: reported it — "Currency of an active change's MODIFIED requirement blocks",
+#: whose own text holds that the family reads every active change whatever its
+#: lifecycle standing, which is what makes these findings real rather than
+#: spurious and therefore exceptions to ACCEPT rather than defects to argue away.
+DISPOSITION_CLASS_CITATION = {
+    MARKER_BLINDNESS: "Merged into",
+    CANON_MOVED: "Currency of an active change's MODIFIED requirement blocks",
+}
+
+DISPOSITION_CLASS = {
+    ("openxFactory", "add-chain-attestation", "signed-execution-chain/spec.md"):
+        MARKER_BLINDNESS,
+    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"):
+        MARKER_BLINDNESS,
+    ("codexFactory", "amend-composition-selector-labelling",
+     "domain-hermes-content/spec.md"): MARKER_BLINDNESS,
+    ("codexFactory", "relocate-review-authority-floor",
+     "repository-gate-floor/spec.md"): MARKER_BLINDNESS,
+    ("codexFactory", "extend-merge-master-envelope-to-floor-bot-lanes",
+     "merge-master-approval/spec.md"): CANON_MOVED,
+    ("codexFactory", "relocate-review-authority-floor",
+     "merge-master-approval/spec.md"): CANON_MOVED,
 }
 
 #: The WORD each entry was granted by, to the day. Same reasoning: four entries
 #: carry "take exit 2" / "use recommended name, go on 3 repo shape" + "ratify
-#: 697" from 2026-09-05, and the fifth carries "go A, ratify the disposition
-#: entry as encoded" from 2026-09-10.
+#: 697" from 2026-09-05, the fifth carries "go A, ratify the disposition entry as
+#: encoded" from 2026-09-10, and the two added on 2026-09-11 carry "ratified_by —
+#: ratify the entries as encoded", given 2026-09-12T03:04:29.167Z (UTC having
+#: rolled past the session-local date the packet is named for).
 DISPOSITION_AUTHORITY_PREFIX = {
-    "add-chain-attestation": "Brett Heap, 2026-09-05",
-    "add-composed-view-authoring": "Brett Heap, 2026-09-05",
-    "add-regular-pr-council-clearance": "Brett Heap, 2026-09-05",
-    "amend-composition-selector-labelling": "Brett Heap, 2026-09-05",
-    "relocate-review-authority-floor": "Brett Heap, 2026-09-10",
+    ("openxFactory", "add-chain-attestation", "signed-execution-chain/spec.md"):
+        "Brett Heap, 2026-09-05",
+    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"):
+        "Brett Heap, 2026-09-05",
+    ("codexFactory", "amend-composition-selector-labelling",
+     "domain-hermes-content/spec.md"):
+        "Brett Heap, 2026-09-05",
+    ("codexFactory", "relocate-review-authority-floor",
+     "repository-gate-floor/spec.md"):
+        "Brett Heap, 2026-09-10",
+    ("codexFactory", "extend-merge-master-envelope-to-floor-bot-lanes",
+     "merge-master-approval/spec.md"):
+        "Brett Heap, 2026-09-12",
+    ("codexFactory", "relocate-review-authority-floor",
+     "merge-master-approval/spec.md"):
+        "Brett Heap, 2026-09-12",
 }
 
 
 def test_every_real_disposition_cites_canon_and_names_who_granted_it(mod, pin):
-    """The property that separates an accepted exception from a suppression."""
+    """The property that separates an accepted exception from a suppression.
+
+    READS THE AUTHORITY THROUGH BOTH SPELLINGS THE VERIFIER ADMITS, and pins
+    that EXACTLY ONE stands. `DISPOSITION_AUTHORITY` has always been
+    `("ratified_by", "recorded_by")` and `pinned_dispositions` has always
+    accepted either — this test could not express a `recorded_by:` entry at all
+    and would have raised `KeyError` on the first one, so reading both is a
+    CORRECTION to the grammar the pin has always had, and the new assertion that
+    an entry carries one and not two is a property nothing checked before.
+
+    THE SPELLING ITSELF IS DELIBERATELY NOT PINNED PER ENTRY. An entry that a
+    convener later ratifies moves from the weaker authority to the stronger, and
+    that upgrade must cost the ONE key name in the pin and nothing else; a map
+    of spellings here would make a governed upgrade require a test edit to
+    perform, which is the tail wagging the dog. What IS pinned per entry is the
+    authority's VALUE — who granted it and on what day — which is the substance.
+    """
     entries = mod.pinned_dispositions(pin)
-    assert {entry["item"] for entry in entries} == set(DISPOSITION_MEASUREMENT), \
+    keys = [(entry["repo"], entry["item"], entry["path"]) for entry in entries]
+    assert len(set(keys)) == len(keys), "two entries share one (repo, item, path)"
+    assert set(keys) == set(DISPOSITION_MEASUREMENT), \
         "an entry was added or removed without reading its measurement into " \
         "DISPOSITION_MEASUREMENT — which is what this map exists to force"
     assert set(DISPOSITION_MEASUREMENT) == set(DISPOSITION_AUTHORITY_PREFIX)
-    for entry in entries:
-        item = entry["item"]
-        assert entry["cited_to"], item
+    assert set(DISPOSITION_MEASUREMENT) == set(DISPOSITION_CLASS)
+    for entry, key in zip(entries, keys):
+        assert entry["cited_to"], key
         assert any("doc-health/spec.md" in citation
                    for citation in entry["cited_to"]), \
-            f"{item} does not cite the promoted marker requirement"
-        assert any(DISPOSITION_MEASUREMENT[item] in citation
+            f"{key} does not cite promoted doc-health canon"
+        required = DISPOSITION_CLASS_CITATION[DISPOSITION_CLASS[key]]
+        assert any(required in citation for citation in entry["cited_to"]), \
+            f"{key} does not cite the canon its class ({DISPOSITION_CLASS[key]}) " \
+            f"rests on: {required!r}"
+        cites_marker = any("Merged into" in citation
+                           for citation in entry["cited_to"])
+        assert cites_marker == (DISPOSITION_CLASS[key] == MARKER_BLINDNESS), \
+            f"{key} cites the reserved marker iff it is a marker-blindness " \
+            "entry; a canon-moved block declares nothing and has no marker to " \
+            "point at"
+        assert any(DISPOSITION_MEASUREMENT[key] in citation
                    for citation in entry["cited_to"]), \
-            f"{item} does not cite the measurement it rests on"
-        assert entry["ratified_by"].startswith(
-            DISPOSITION_AUTHORITY_PREFIX[item]), item
+            f"{key} does not cite the measurement it rests on"
+        spellings = [name for name in mod.DISPOSITION_AUTHORITY if entry.get(name)]
+        assert len(spellings) == 1, \
+            f"{key} names {len(spellings)} of {mod.DISPOSITION_AUTHORITY}; " \
+            "exactly one authority is the rule"
+        assert entry[spellings[0]].startswith(
+            DISPOSITION_AUTHORITY_PREFIX[key]), key
         assert entry["why"].strip()
         assert entry["retires_when"].strip()
 
