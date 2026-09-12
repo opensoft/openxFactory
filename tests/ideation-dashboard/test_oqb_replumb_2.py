@@ -369,8 +369,33 @@ def test_serve_re_exports_the_predicate_from_its_new_home():
     """The public surface B-2 preserved, S-3's own guard one name along:
     `serve.hosted_ref_refused` still resolves, and resolves to the projection
     column's function rather than to a second copy left in the wire module.
-    `test_session_snapshot.py:781-788` reads it exactly this way."""
-    assert serve_mod.hosted_ref_refused is serve_projection.hosted_ref_refused
+    `test_session_snapshot.py:781-788` reads it exactly this way.
+
+    THE IDENTITY IS NOW THROUGH A LATE STAND-IN, and that is the point rather
+    than a weakening. openDox-code's BUILD slice 2b stopped naming openXdox at
+    import time, so `serve.hosted_ref_refused` is bound to
+    `consumer_reach.function(serve_projection, "hosted_ref_refused")` — the
+    module's own words: "`serve.py:760` must never NAME a session ref on a
+    hosted response (FR-048), and the predicate that decides it travelled to
+    the projection column with its neighbours … same callable, same
+    root-confinement, resolved on first CALL". An `is` against the projection
+    function would now assert that openDox reaches openXdox at IMPORT time,
+    which is the dependency direction § 4.1 inverted. What the surface
+    promises is unchanged and is asserted directly: the name resolves, it is
+    callable, and the object it resolves THROUGH is the projection column's
+    one function — measured by calling both and by the stand-in's own repr,
+    not by a second copy's existence."""
+    late = serve_mod.hosted_ref_refused
+    assert callable(late)
+    assert "serve_projection.hosted_ref_refused" in repr(late), (
+        "`serve.hosted_ref_refused` no longer resolves through the projection "
+        f"column's own name; it reprs as {late!r}")
+    real = serve_projection.hosted_ref_refused
+    for ref, hosted in (("main", True), ("refs/heads/x", True),
+                        ("refs/heads/x", False)):
+        assert late(ref, hosted) == real(ref, hosted), (
+            "the late stand-in and the projection column's own predicate "
+            f"disagree about ({ref!r}, {hosted!r})")
 
 
 def test_the_relocated_predicate_still_answers_as_it_did():

@@ -25,6 +25,24 @@ except ImportError:  # pragma: no cover
     print("ERROR PyYAML is required", file=sys.stderr)
     sys.exit(2)
 
+# THE status header comes from `scripts/projection_header.py`, which is the ONE
+# place it is declared — this renderer and the delegating write path in
+# `scripts/doc_health/ideation_readiness.py` both emit it from there so the two
+# cannot disagree the way they did in openxFactory #793/#785.
+try:
+    from projection_header import STATUS_LINE
+except ImportError:  # pragma: no cover - this file loaded BY PATH (doc_health's
+    # delegating loader) with its own directory off `sys.path`: read the sibling
+    # module directly rather than duplicate the value here.
+    import importlib.util
+
+    _ph_spec = importlib.util.spec_from_file_location(
+        "_xref_projection_header",
+        Path(__file__).resolve().parent / "projection_header.py")
+    _ph = importlib.util.module_from_spec(_ph_spec)
+    _ph_spec.loader.exec_module(_ph)
+    STATUS_LINE = _ph.STATUS_LINE
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_IN = ROOT / "ideation" / "cross-reference.yaml"
 DEFAULT_OUT = ROOT / "ideation" / "cross-reference.md"
@@ -84,8 +102,10 @@ def render_markdown(index: dict) -> str:
     # run, so it has no captured state to be immutable against, and canon
     # already says so — `ideation-cross-reference` names "the cross-reference
     # index and its rendered twin" as generated artifacts that are NOT records
-    # (declare-generated-projection-status, 2026-08-28).
-    lines.append("Status: projection")
+    # (declare-generated-projection-status, 2026-08-28). The line is no longer
+    # typed here: it is `projection_header.STATUS_LINE`, the single source of
+    # truth the delegating write path stamps from too (#793).
+    lines.append(STATUS_LINE)
     lines.append("Kind: report")
     lines.append("Repository context: openxFactory")
     lines.append("")

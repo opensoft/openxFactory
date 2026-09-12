@@ -161,6 +161,14 @@ Target capabilities: ideation-dashboard (MODIFIED); lifecycle-notebook-projectio
     `add-workbench-bullseye-and-create` — the archive order has to be
     sequenced knowingly, not discovered at archive time.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Branch-name collision handling.** `draft/<staging-id>` is stable by

@@ -490,18 +490,43 @@ def test_propose_dispatches_with_the_rehydrated_session_registry(tmp_path, monke
     assert seen["dispose-possible"]["repository"] is None
 
 
-def test_manifest_digest_matches_the_grown_schema():
-    """Codex round-6 P1 (PR #157): the registered digest tracks the bytes."""
+def test_the_registered_digest_still_tracks_the_grown_schema_bytes():
+    """Codex round-6 P1 (PR #157): the registered digest tracks the bytes.
+
+    THE REGISTER MOVED AT `contract-v4.0`, AND THE CLAIM DID NOT
+    (`split-opendox-two-layer-product` § 5.7). Post-SHED (§ 5.2, RULED (a)) the
+    schema was a `moved_verbatim` row at the openXdox-spec leg while
+    `contracts/manifest.yaml` still carried its row, so this test read the
+    manifest. The MAJOR removed that row: openxFactory no longer OWNS
+    `gate-action-record`, it CONSUMES it at the pinned leg. The bytes and the
+    digest are unchanged — that is the whole content of the removal — so the
+    register that records the digest is now the bundle's own PUBLISHED
+    INVENTORY, where `gate-action-record` stays a catalog release member and is
+    digested at the leg through `scripts/carved_reach.py`.
+
+    The assertion is therefore the same one, read from the document that still
+    makes it, and it is pinned to the bundle the manifest DECLARES rather than
+    to a literal version, so the next cut does not have to edit this line. The
+    manifest is checked too, for the opposite fact: it must NOT carry the row
+    any more, because a removal that left the row behind would be no removal.
+    """
     import hashlib
+    import yaml as _yaml
     repo = Path(__file__).resolve().parents[2]
-    # POST-SHED (§ 5.2, RULED (a)): the schema is a `moved_verbatim` row at the
-    # openXdox-spec leg and the digest `contracts/manifest.yaml` records is
-    # unchanged, which is exactly what this test asserts — the manifest tracks
-    # the BYTES, and the bytes did not move.
-    schema = carved_source("contracts/schemas/gate-action-record.schema.yaml")
-    manifest = (repo / "contracts/manifest.yaml").read_text()
+    relpath = "contracts/schemas/gate-action-record.schema.yaml"
+    schema = carved_source(relpath)
     digest = hashlib.sha256(schema.read_bytes()).hexdigest()
-    assert f"sha256: {digest}" in manifest
+
+    manifest = _yaml.safe_load((repo / "contracts/manifest.yaml").read_text())
+    assert relpath not in {entry.get("path")
+                           for entry in manifest["contracts"]}, \
+        "the contract-v4.0 removal left the gate-action-record row behind"
+
+    bundle = manifest["contract_bundle_version"]
+    inventory = _yaml.safe_load(
+        (repo / "contracts/releases" / f"{bundle}.digests.yaml").read_text())
+    recorded = {entry["path"]: entry["digest"] for entry in inventory["entries"]}
+    assert recorded[relpath] == f"sha256:{digest}"
 
 
 def test_terminal_artifacts_carry_validated_fields_only(tmp_path):

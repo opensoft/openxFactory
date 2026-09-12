@@ -1233,7 +1233,8 @@ Active changes:
 
 - [register-gate-rules-council-seats](openspec/changes/register-gate-rules-council-seats/proposal.md)
   — authored 2026-09-06, **`Status: ratified`** (R1/R2 amendment 2026-09-07;
-  **Q-GRC-4 discharge amendment 2026-09-11**) (2026-09-06, Brett Heap
+  **Q-GRC-4 discharge amendment 2026-09-11, RATIFIED 2026-09-11T17:08:42Z with
+  OQ-1..OQ-5 all ruled (a)**) (2026-09-06, Brett Heap
   (repository owner), in-session at 2026-09-06T14:13:46Z, verbatim *"lets take
   them in your recommended order all approved"*; ratified head `169f84ef`;
   record
@@ -1299,11 +1300,25 @@ Active changes:
   new requirements are ADDED rather than MODIFIED **because the pinned CLI
   1.12.0 measures the alternative as unarchivable** — *"target spec does not
   exist; only ADDED requirements are allowed for new specs"* — this capability
-  being authored by two ACTIVE changes and not yet canon. **FIVE FURTHER open
-  questions, OQ-1..OQ-5, go back to Brett** (design D8-D12; distinct from
-  Q-GRC-1..5 above, which are ruled and not reopened), and every recommendation
-  is what the packet already encodes, so taking all five moves no byte. This is
-  the packet's SECOND amendment; the first is R1/R2, 2026-09-07.
+  being authored by two ACTIVE changes and not yet canon. **THE AMENDMENT IS RATIFIED AND ITS FIVE
+  FURTHER open questions OQ-1..OQ-5 ARE ALL RULED (a)** — Brett Heap, in
+  session, window `codeXfactory-2`, no comment URL, 2026-09-11T17:08:42Z,
+  verbatim *"accept all A on 971, merge slice 3 when green"*, its FIRST clause
+  (record `review/ratification-2026-09-11-amendment-2.md`, gate capture
+  `review/verification-2026-09-11-amendment-2.md`; design D8-D12;
+  distinct from Q-GRC-1..5
+  above, which were ruled 2026-09-06 and are not reopened). Every ruling is the
+  RECOMMENDED option, **so the delta moved no byte** — proven by diff, not
+  asserted: Brett Heap mints and holds the fifth keypair host-side
+  (`holder_readable`, a fresh TTY-gated task-3.2 ceremony); `grant-grc-0003`'s
+  `expires_at` stays `2027-06-30T00:00:00Z`; bind now, soak later, with no
+  `activation_gate` pass gating the binding; ONE T1/T2 pull-request pair, H1
+  unsplit; and a SEPARATE proof convening PRECEDES C2. **RATIFICATION REALIZES
+  NOTHING** — no key is minted, no seat is bound, no grant or register byte
+  moves, `tasks.md` ticks only § 6.1 and § 6.1a, and **C2 stays PARKED under α**
+  until task 6.22's `resolved-seats` run shows `unbound_conjunction_seats`
+  EMPTY. This is the packet's SECOND amendment; the first is R1/R2,
+  2026-09-07.
 
 - [disposition-codexfactory-declared-renames](openspec/changes/disposition-codexfactory-declared-renames/proposal.md)
   — authored 2026-09-05, **`Status: ratified`** (2026-09-05, Brett Heap,

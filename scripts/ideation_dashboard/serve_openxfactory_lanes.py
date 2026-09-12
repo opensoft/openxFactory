@@ -141,7 +141,15 @@ class LaneRoutes:
                                   "message": "seed drafting is loopback-only"})
             return
         body = self._read_json_body()
-        if body is None:
+        if body is None or not isinstance(body, dict):
+            # `_read_json_body` collapses "no body", a bad Content-Length, and
+            # malformed JSON all into `None`; a valid-but-non-object body
+            # (list, string, number, bool) parses fine but must not reach
+            # `body.get(...)` below, which raised `AttributeError` in the
+            # request thread with no HTTP response at all (#768). Every one
+            # of those shapes gets the same clear 400 instead.
+            self._send_json(400, {"ok": False, "error": "invalid_body",
+                                  "message": JSON_OBJECT_BODY_REQUIRED})
             return
         project = str(body.get("project_id") or "").strip()
         if not project:
@@ -212,7 +220,15 @@ class LaneRoutes:
                                   "message": "seed drafting is loopback-only"})
             return
         body = self._read_json_body()
-        if body is None:
+        if body is None or not isinstance(body, dict):
+            # `_read_json_body` collapses "no body", a bad Content-Length, and
+            # malformed JSON all into `None`; a valid-but-non-object body
+            # (list, string, number, bool) parses fine but must not reach
+            # `body.get(...)` below, which raised `AttributeError` in the
+            # request thread with no HTTP response at all (#768). Every one
+            # of those shapes gets the same clear 400 instead.
+            self._send_json(400, {"ok": False, "error": "invalid_body",
+                                  "message": JSON_OBJECT_BODY_REQUIRED})
             return
         project = str(body.get("project_id") or "").strip()
         wanted = body.get("documents")

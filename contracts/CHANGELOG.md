@@ -9,6 +9,250 @@ predate mandatory annotated tags and carry none. Tag enforcement begins at
 `contract-v1.7` — the first realized release published with an annotated tag —
 without fabricating historical tags.
 
+## contract-v4.0 — 2026-09-11 (BREAKING; the five ideation-dashboard contract schemas are REMOVED and consumed at the openDox / openXdox spec legs)
+
+Realizes `split-opendox-two-layer-product` **§ 5.7** (`tasks.md` § 5), the
+BREAKING half of the atomic consume-and-shed `design.md` § D6 specifies, after
+§ 5.2's shed (pull request **#940**, landed `cc4ae9d3`) deleted the five files
+from this tree and § 5.6a's deprecating minor
+[`contract-v3.7`](#contract-v37--2026-09-11-deprecating-the-five-ideation-dashboard-contracts-are-marked-relocating-to-the-opendoxopenxdox-spec-legs)
+served the window this removal depends on. Cut under RULED **ASK-9a → 1**
+(Brett Heap, `opensoft/openxFactory` issue #656 comment `5635150678`):
+*"§ 5.7 the MAJOR — the lane authors and lands the cut PR (CHANGELOG migration
+note, `contracts/releases/<tag>.digests.yaml`, version) on the plain gate; the
+annotated tag is Brett's act."*
+
+**Change class: BREAKING (major)** under
+[`docs/contract-versioning-policy.md`](../docs/contract-versioning-policy.md)
+§ Change Classes, *Breaking (major)*: a shape is REMOVED. All three of that
+clause's requirements are discharged, and each is checkable:
+
+1. **A CHANGELOG migration note** — this entry.
+2. **At least one full minor release where the old shape produced deprecation
+   warnings** — `contract-v3.7`, pull request **#970**, landed `45bd9ee2`,
+   annotated tag object `ec3c1729` → that commit, `verify-tag` reporting
+   `release verify-tag: pass` (the tag record is #656 comment `5639092895`).
+   Its five `relocating:` rows and `scripts/check-openxfactory-pin.py`'s
+   WARN-tier notice existed for exactly this purpose, and the notice is
+   unconditional on consumer shape — it fires on the BUNDLE for every consumer
+   that runs the checker at a pin at or after `contract-v3.7`. **This cut could
+   not legally precede it**, which is why ASK-10 (`5635524078`) ordered the
+   minor first.
+3. **An update to the conformance validator** — discharged by the MOVE ITSELF.
+   `scripts/validate-ideation-dashboard-contracts.py`, named by all five removed
+   rows' own `consumption_rule` as "the family's delegated owner", relocated to
+   `opensoft/openXdox-code` (carve manifest, `moved_with_declared_edit`,
+   destination commit `5da58ee2`) with the shapes it validates. There is no
+   second validator that accepts a new shape and rejects the old one, because
+   there is no new shape: the BYTES are identical and the PUBLISHER changed.
+   **The question `contract-v3.7` left open is answered below.**
+
+### What is removed
+
+The five digested rows leave [`manifest.yaml`](manifest.yaml), each with the
+`relocating:` block `contract-v3.7` added to it — the shape has now actually
+left:
+
+| manifest `id` | path it held | canonical home | leg commit | `sha256`, unchanged |
+|---|---|---|---|---|
+| `gate-action-record` | `contracts/schemas/gate-action-record.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` | `6a6cf13c…` |
+| `ideation-dashboard-snapshot-index` | `contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` | `43acf0bb…` |
+| `ideation-dashboard-snapshot` | `contracts/schemas/ideation-dashboard-snapshot.schema.yaml` | `opensoft/openXdox-spec` | `481a07f9` | `9c44da23…` |
+| `xfactory-workbench-chat-turn` | `contracts/schemas/xfactory-workbench-chat-turn.schema.yaml` | `opensoft/openDox-spec` | `1a216ea4` | `350bfedc…` |
+| `xfactory-workbench-model-catalog` | `contracts/schemas/xfactory-workbench-model-catalog.schema.yaml` | `opensoft/openDox-spec` | `1a216ea4` | `e563cc9f…` |
+
+**THE FILES THEMSELVES WERE ALREADY GONE.** This major removes the
+REGISTRATION, not the bytes: § 5.2's shed deleted all five paths from this tree
+at `cc4ae9d3`, and between that commit and this one the rows stood over files
+this repository no longer carried. That is the state this cut closes.
+
+**NO BYTES OF ANY CONTRACT CHANGED.** Every one of the five carries at its
+destination exactly the `sha256` this manifest recorded for it at
+`contract-v3.7` — recomputed from the pinned legs' own files at this cut and
+compared to the rows, not assumed. Three rows are `moved_verbatim` and two
+(`ideation-dashboard-snapshot`, `ideation-dashboard-snapshot-index`) are
+`moved_with_declared_edit` in `docs/opendox-carve-manifest.yaml`; the measured
+destination digests are identical for all five regardless, so the declared edit
+moved no schema byte. A move whose diff is not provably empty cannot be bisected
+against, and this cut rests on that property exactly as `contract-v2.0` did.
+
+### The migration path
+
+1. **Read the artifacts from `opensoft/openXdox-spec` / `opensoft/openDox-spec`**
+   at the leg commits in the table above — `main` of each spec leg as this
+   repository pins it — rather than from here.
+2. **Pin them through the pin files that already exist in this repository**:
+   [`contracts/openxdox-pin.yaml`](openxdox-pin.yaml) (`commit: 84056415…`,
+   whose `spec` gitlink is `481a07f9`) and
+   [`contracts/opendox-pin.yaml`](opendox-pin.yaml) (`commit: 44679fa7…`, whose
+   `spec` gitlink is `1a216ea4`), each a whole-tree digest of an assembly root
+   that reaches its own legs. **No consumer-facing pin file for this family is
+   owed by this release and none is added by it** — that was true at
+   `contract-v3.7` and is unchanged here.
+3. **`dox-v1.0` and `xdox-v1.0` DO NOT EXIST at this cut.** They are Phase 6
+   (`docs/opendox-cutover-runbook.md` § 9), they are Brett Heap's own act, and
+   RULED ASK-9c (`5635150678`) holds them until the four-part floor closes. So a
+   consumer pins COMMITS today; re-read this file when those tags are cut, at
+   which point a tag becomes the steadier referent for a consumer that does not
+   want to track leg history. A tag named before it exists would be a claim, not
+   a label.
+4. **Run the PINNED reader, not a local copy**:
+   `openXdox/code/scripts/validate-ideation-dashboard-contracts.py` at leg
+   `5da58ee2`, which is where this family's conformance validator now lives.
+
+### The conformance-validator question `contract-v3.7` left open, ANSWERED
+
+`contract-v3.7`'s own entry recorded that the discharge was **not complete**:
+the relocating validator is named by the `consumption_rule` of EIGHT manifest
+rows, and three of them neither relocated nor left —
+`ideation-possibles-register` and `gate-intent`
+(`docs/opendox-carve-manifest.yaml`, `disposition: not_moved`,
+`stays_openxfactory_adapter`) and `demotion-execution-receipt` (named in no
+carve row at all). It stated the obligation on this cut in terms: *"the major
+may not treat the conformance-validator clause as discharged until it says what
+validates them."*
+
+**It says so, and the answer is the SAME validator, read at the pinned leg.**
+
+* `scripts/carved_reach.py` resolves
+  `scripts/validate-ideation-dashboard-contracts.py` to
+  `openXdox/code/scripts/validate-ideation-dashboard-contracts.py`, derived from
+  the carve manifest rather than transcribed.
+* `scripts/hermes_runtime_validation/release.py` keeps that path a RELEASE
+  MEMBER through the same resolution, so **this cut's own inventory digests the
+  pinned bytes** — the validator did not fall out of the release surface when it
+  left the tree.
+* `scripts/ideation_dashboard/doxbench_contracts.py` composes and RUNS it from
+  there over this repository's own tree, copying the pinned script beside
+  symlinks to the pinned schemas.
+* The pinned file at `5da58ee2` still carries
+  `ideation-possibles-register.schema.yaml`, `gate-intent.schema.yaml` and
+  `demotion-execution-receipt.schema.yaml` in its own schema table and still
+  dispatches `possibles-register-section`, `gate-intent` and
+  `demotion-execution-receipt` — read at the leg at this cut, not assumed.
+
+So the three retained rows keep the delegated owner their `consumption_rule`
+names. What changed is that openxFactory CONSUMES that owner at a pin instead of
+shipping it — the `contract-v2.0` posture, where `wallet-validation` runs the
+pinned `openXwallet/scripts/validate-openxwallet.py` over this tree. No row is
+left naming a validator this repository cannot reach.
+
+### What did NOT move, and why
+
+Six schemas in the same family STAY, each named by `docs/opendox-carve-manifest.yaml`
+with its own reason — three `stays_openxfactory_adapter` (`gate-intent`,
+`ideation-cross-reference`, `ideation-possibles-register`) and three
+`stays_openxfactory_governance` (`project-register`,
+`xfactory-ideation-organizer-recommendations`,
+`xfactory-ideation-routing-index`). `demotion-execution-receipt`'s SCHEMA is in
+no carve row at all and likewise stays — its three packaged examples under
+`examples/ideation-dashboard/` ARE carve rows, `moved_verbatim`, and left with
+the family at the shed, which is the precision `contract-v3.7`'s own entry used
+and this one keeps. Their manifest rows are untouched by this cut.
+The reader travels; the governance DATA and the adapter stay, which is the same
+line `contract-v2.0` drew for `governance/review-authority/`.
+
+### Release surface, and the two digests this bundle REPAIRS
+
+[`releases/contract-v4.0.digests.yaml`](releases/contract-v4.0.digests.yaml) is
+this cut's inventory. Two facts about it are worth stating because neither is
+visible from the diff:
+
+**(1) This bundle repairs the two release members #940 edited after the
+`contract-v3.7` inventory was built** — the OWED item PR-2's own landing note
+records (#656 comment `5638315691`: *"the release-inventory bundle cut — the two
+hermes-runtime release members this PR edits report `error` until a bundle is
+cut"*). Measured on `origin/main` at `8015d45f` before this candidate was
+written, `validate-contract-release.py verify-commit` reported exactly two
+findings and nothing else:
+
+```text
+HGR-RELEASE-DIGEST-MISMATCH error path=scripts/hermes_runtime_validation/catalog.py: digest does not match the raw Git blob at the pinned commit
+HGR-RELEASE-DIGEST-MISMATCH error path=scripts/hermes_runtime_validation/release.py: digest does not match the raw Git blob at the pinned commit
+```
+
+Both are the shed-awareness those two files gained at `cc4ae9d3`. This cut's
+regenerated inventory carries their current digests, and `verify-commit` at this
+candidate reports ZERO findings. The repair is a consequence of cutting a
+bundle, not a separate act — which is precisely why the OWED item named "the
+release-inventory bundle cut" as its remedy.
+
+**(2) The five removed schemas do not leave the inventory, and three of them
+were never in it.** Inventory membership is catalog-driven from
+`contracts/hermes-runtime/contract-index.yaml`, not from `manifest.yaml` — the
+same fact [`contract-v2.0`](#contract-v20--2026-08-27-breaking-the-eight-openxwallet-contracts-are-removed-and-the-family-is-consumed-at-a-pin)
+recorded of the eight wallet rows. Here it cuts the other way for three of the
+five: `gate-action-record`, `xfactory-workbench-chat-turn` and
+`xfactory-workbench-model-catalog` ARE catalog release members and STAY release
+members, digested at the pinned spec legs through `carved_reach` — openxFactory
+no longer OWNS them but still CONSUMES them, and a consumed artifact belongs in
+the closed bundle. `contract-index.yaml` is deliberately untouched by this cut.
+`ideation-dashboard-snapshot` and `ideation-dashboard-snapshot-index` were never
+catalog members and are in no inventory. What this major changes in
+`manifest.yaml` is therefore an OWNERSHIP registration, and the manifest's own
+digest — an editorial member — moves with it.
+
+### Three unrelated deprecations are RESTATED, and none is executed
+
+`contract-v4.0` was the stated removal target of three entries in
+`docs/contract-versioning-policy.md` § Deprecations Currently In Force that this
+change does not touch, and each of those entries pre-authorized its own
+restatement if the target arrived with its acts unauthored. It did. Under
+`contract-deprecation-execution`'s rule — an entry may not survive its own
+removal target unchanged — all three are RESTATED to `contract-v5.0` with the
+reason, and **not one of their removals is taken here**:
+
+| entry | new target | why it is restated rather than executed |
+|---|---|---|
+| the `hermes` flat KEYS (the twelve, by path) | `contract-v5.0` | the deprecating minor it owes — a validator that warns on the co-resident shape whether or not `hermes.layers` is present — still has not been cut, so the removal would be unphased |
+| the undeclared `consumer:` block on a credential binding (the EIGHT shape acts the entry's own heading names, plus the ninth `identity_namespace` grammar row declared beside them) | `contract-v5.0` | none of the acts was authored; `scripts/validate-credential-contracts.py` still emits all nine `consumer-*` codes as WARNINGS, and the requiredness row's degraded fetch-identity precondition is still unmet |
+| a `requirement_ref` that RESOLVES TO NOTHING or ambiguously (two acts) | `contract-v5.0` | neither act was authored; both codes still emit as WARNINGS. Moved together with the entry above, which is how the ONE-WINDOW property those two entries share is preserved |
+
+`scripts/validate-credential-contracts.py` needs no edit for any of this: it
+DERIVES `MAJOR_RELEASE` as one major past the bundle this manifest declares
+(openxFactory#634), so bumping to `contract-v4.0` moves every message it emits
+to `contract-v5.0` on its own, and
+`tests/credential_contracts/test_major_release_matches_policy.py` checks the
+derivation against the policy's own restated text.
+
+TWO PACKAGED EXAMPLES restate with the entries, because their prose made the
+same live claim the policy entries did:
+`examples/credential-contracts/warning/requirement-ref-unresolved.yaml` and
+`requirement-ref-ambiguous.yaml` each said the refusal "lands at
+`contract-v4.0`" and now say `contract-v5.0`, with the second restatement's
+provenance. Neither is a release member — they carry no digest in any inventory
+— so the correction spends nothing; it is taken because a corpus example that
+promises a refusal at the bundle being published without it is the same defect
+the restatement rule exists to prevent. Two other classes of `contract-v4.0`
+mention are deliberately LEFT: this repository's `README.md` records what the
+`contract-v3.0` cut WROTE (a historical fact, not a live target), and the
+active `openspec/changes/retire-hermes-flat-keys-and-openworkflow-tokens`
+packet names `contract-v4.0` as its ratified target — restating a ratified
+packet is its own change, and no `openspec/changes/` path is touched by this
+cut.
+
+### Rollback posture
+
+`git revert` of this cut restores the five manifest rows and this entry; it does
+not restore the five FILES, which left at `cc4ae9d3` and are reverted by
+reverting that. A published bundle is not unpublished: if the DOCTRINE were
+reversed the honest reversal would be a FOLLOWING major, never a revert of the
+cut.
+
+### Sequencing, and the number
+
+Cut from `origin/main` at `8015d45f`, after the `contract-v3.7` tag existed and
+after PR-2 landed — the order ASK-10 set. **The NUMBER is allocated AT THE CUT
+by merge order and is never reserved** (§ Version Identity; `tasks.md` § 5.7
+says the same): `contract-v4.0` was confirmed unused on `origin` when this
+candidate was opened and again before it was marked ready. If another
+major-class bundle takes `contract-v4.0` first, this one is re-cut at the next
+available major, exactly as `contract-v3.6` was re-cut after a sibling lane took
+`contract-v3.5`. The annotated tag is **Brett Heap's act after landing**
+(ASK-9a / ASK-9c) — Bundle Realization Order step 5, verified from an
+independently refreshed checkout; `release-tag-gate` records that tag as OWED
+rather than requiring it, because step 5 follows step 4.
+
 ## contract-v3.7 — 2026-09-11 (deprecating; the five ideation-dashboard contracts are marked relocating to the openDox/openXdox spec legs)
 
 Cut under RULED **ASK-10 → 1** (Brett Heap, `opensoft/openxFactory` issue #656
@@ -92,10 +336,13 @@ before the tag exists would be a claim, not a label.
 the marker would name a destination a migrator cannot read today, which is worse
 than the wallet case rather than equal to it. The values are not guessed: they
 are the `spec` gitlinks of the assembly-root commits this repository's own pins
-already name — [`contracts/openxdox-pin.yaml`](openxdox-pin.yaml) `commit:
+named AT THIS CUT — [`contracts/openxdox-pin.yaml`](openxdox-pin.yaml) `commit:
 84056415…` → `spec 481a07f90167bb7c27cebead830b5e2f86475deb`, and
 [`contracts/opendox-pin.yaml`](opendox-pin.yaml) `commit: 44679fa7…` → `spec
-1a216ea413cdcc14791aa3939712e2e459cfa6b6`.
+1a216ea413cdcc14791aa3939712e2e459cfa6b6`. Both pins have since moved (openDox
+→ `8ec3036c`, openXdox → `eca0b597`); a CUT bundle's marker records what was
+true when it was cut and a later pin bump does not rewrite it, so the four
+values above stand as written and only the tense changed.
 
 **`at` AND NOT `commit`, and the spelling is load-bearing.** `commit` is a member
 of `scripts/doc_health/pin_class.py`'s `PIN_KEY_VOCABULARY` and
