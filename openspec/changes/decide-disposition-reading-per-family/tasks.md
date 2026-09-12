@@ -345,18 +345,20 @@ would have cost, not as work owed.
 
 ## 5. Verification — RUN IN THIS PULL REQUEST
 
-**EVERY BOX BELOW IS TICKED ON A RUN TAKEN AT `0a5a1088`** — this branch with
-`origin/main` `0805c3bb` merged — and every CONTROL was taken at `0805c3bb`
-itself in a separate worktree, never in this clone; `origin/main` had not moved
-between the control run and this one, verified by `git fetch` immediately
-before. The whole set was RE-RUN at this head rather than carried forward from
-the earlier runs at `f839bd06`, `ee243dd2` and `14dfd6e2`: each of the four
-review rounds changed packet text, so the whole set was taken again after each
-one rather than carried forward, and every figure came out the same at all four
-heads. The only commit that follows `0a5a1088` on this branch is the one
-that writes this section and the pull request body from that run's output; no
-measured file changed after it. The exit codes are the commands' own, pasted
-from the run and repeated in the pull request body.
+**EVERY BOX BELOW IS TICKED ON A RUN TAKEN AT `63653d0c`** — the ratification
+commit, this branch with `origin/main` `1f068646` merged one commit earlier —
+and every CONTROL was taken at `origin/main` `1f068646` itself in a separate
+worktree (`ctl-978`), never in this clone; `origin/main` had not moved between
+the control run and this one, verified by `git fetch` immediately before. The
+whole set was RE-RUN after the ratification encode rather than carried forward
+from the pre-ratification run at `5ae9f328`: ratifying the packet changed five
+of its files, so the whole set was taken again rather than assumed unaffected.
+The doc-health baseline SHIFTED from the pre-ratification `31/8/23/14=76` to
+`31/9/23/16=79` because `origin/main` moved (`323c7adf` → `1f068646`, 9 commits)
+between the two runs — confirmed a corpus effect and not a packet effect by the
+byte-identical branch/control comparison below, at the SAME `origin/main`
+commit. The exit codes are the commands' own, pasted from the run and repeated
+in the pull request body.
 
 - [x] 5.1 `OPENSPEC_TELEMETRY=0 openspec validate decide-disposition-reading-per-family --strict`
       on the PATH CLI (`openspec 1.2.0`) — **exit 0**, `Change
@@ -391,17 +393,20 @@ from the run and repeated in the pull request body.
       — **exit 0**, `proposal support verification ok`.
 - [x] 5.4 `python3 -m pytest tests/doc-health tests/sequenced_after
       tests/scope_globs tests/proposal-support -q --tb=no` — **exit 1**, `7
-      failed, 2193 passed, 1 skipped` — against `origin/main`'s **exit 1**, `7
-      failed, 2193 passed, 1 skipped`. **THE `FAILED` SET IS IDENTICAL**, a
+      failed, 2220 passed, 1 skipped` — against `origin/main`'s **exit 1**, `7
+      failed, 2220 passed, 1 skipped`. **THE `FAILED` SET IS IDENTICAL**, a
       `diff` of the two sorted lists being empty: three `test_ideation_readiness`,
       one `test_readiness_dispatch`, two `test_sentinel_vocabulary` and one
       `test_status_reader_real_lines`. They are environment failures present on
-      both sides and none of them names this packet.
+      both sides and none of them names this packet. (Passed count rose from
+      2193 to 2220 on BOTH sides between the pre-ratification and this run,
+      `origin/main` having added tests in the intervening 9 commits — not a
+      packet effect, confirmed identical both sides.)
 - [x] 5.5 `python3 scripts/doc-health.py --single-repo .` — **exit 0**,
-      `Findings: 32 critical, 11 error, 47 warning, 14 info`, **104 findings**,
-      against `origin/main`'s **exit 0** and the same `32 / 11 / 47 / 14` = 104.
+      `Findings: 31 critical, 9 error, 23 warning, 16 info`, **79 findings**,
+      against `origin/main`'s **exit 0** and the same `31 / 9 / 23 / 16` = 79.
       With the repository label normalised the two finding sets are
-      BYTE-IDENTICAL — 208 rendered rows each, `diff` empty — and NOT ONE finding
+      BYTE-IDENTICAL — 308 lines each, `diff` empty — and NOT ONE finding
       names this packet: `grep -c decide-disposition-reading-per-family` over the
       report returns **0**. `python3 scripts/validate-sequenced-after.py .` —
       **exit 0** (41 active changes, 11 declaring the field).
@@ -410,8 +415,8 @@ from the run and repeated in the pull request body.
       request existed — `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#978'` — as its own commit `6f4268b1`, and
       `python3 scripts/validate-sequenced-after.py . --ledger-diff` re-run at
-      `0a5a1088` — **exit 0**, `per-change sweep ledger consistent with the
-      corpus (204 rows)`.
+      `63653d0c` — **exit 0**, `per-change sweep ledger consistent with the
+      corpus (204 rows)` — unchanged from every prior round, no re-seed needed.
 
 ## 6. Archive — OWED, NOT GIVEN
 
