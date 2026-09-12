@@ -1,6 +1,18 @@
 # Design: extend-prose-tagging-target-to-pinned-capabilities
 
-Status: draft
+Status: ratified
+Ratified by: extend-prose-tagging-target-to-pinned-capabilities — 2026-09-12
+at approximately 23:20Z, Brett Heap (openxFactory repository owner), FOUR
+SELECTIONS: "Ratify 1.1 as filed (Recommended) / Ratify 1.2 as filed /
+Ratify 1.3 as filed (Recommended) / Confirm 1.4 as filed (Recommended)"
+(recorded on openxFactory #992, comment
+https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+Confirmed: the SAME word and the SAME act, recorded a second time, verbatim,
+for the lane's status thread — one act, two records, and not a second
+decision, recorded on openxFactory #745, comment
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5649359201.
+RATIFIED AS FILED: D-1, D-1.1, D-2, D-3 and D-5 stand as this document
+states them. Record: `review/ratification-2026-09-12.md`.
 
 Every figure in this document was MEASURED at this branch's base
 (`origin/main` = `323c7adf`), not remembered. Line numbers cite that tree.

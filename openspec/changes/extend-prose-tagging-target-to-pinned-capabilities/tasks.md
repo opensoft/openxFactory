@@ -1,6 +1,17 @@
 # Tasks: extend-prose-tagging-target-to-pinned-capabilities
 
-Status: draft
+Status: ratified
+Ratified by: extend-prose-tagging-target-to-pinned-capabilities —
+2026-09-12, Brett Heap (openxFactory repository owner), on his word FOUR
+SELECTIONS: "Ratify 1.1 as filed (Recommended) / Ratify 1.2 as filed /
+Ratify 1.3 as filed (Recommended) / Confirm 1.4 as filed (Recommended)"
+(2026-09-12 at approximately 23:20Z, openxFactory #992, comment
+https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+Record: `review/ratification-2026-09-12.md`. BOXES TICKED BY THE RATIFYING
+COMMIT: 1.1, 1.2, 1.3, 1.4. NO box in § 2, § 3 or § 4 is ticked, and item
+(7) of the `split-openxwallet-repo` archived-ledger entry is NOT ticked — it
+discharges on ARCHIVE. The paragraph immediately below records the AT-FILING
+state and is kept verbatim as history.
 
 NO BOX BELOW IS TICKED BY THE FILING PULL REQUEST except the ones in § 2, which
 record what that pull request itself did. § 1 needs Brett Heap's word, § 3 is
@@ -8,7 +19,7 @@ the later realization pull request, and § 4 is the archive act.
 
 ## 1. The ask — Brett Heap's ratification
 
-- [ ] 1.1 **RATIFY or REFUSE the form (D-1):** an `xspec:candidate` marker's
+- [x] 1.1 **RATIFY or REFUSE the form (D-1):** an `xspec:candidate` marker's
   `target=` may be `pinned:<pin-id>/<capability>`, where `<pin-id>` is the stem
   of a `contracts/<pin-id>-pin.yaml` record. The value is EXACTLY TWO
   `[a-z0-9]+(-[a-z0-9]+)*` components separated by EXACTLY ONE `/` — measured
@@ -23,7 +34,15 @@ the later realization pull request, and § 4 is the archive act.
   grammar splits at its first `/` and no pinned parse for it is defined, and
   because no live `supersedes` marker in this repository has a stale target —
   measured.
-- [ ] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** the pin id must
+  **RULED, 2026-09-12 at approximately 23:20Z:** RATIFIED — the FORM (D-1) —
+  an `xspec:candidate` marker's `target=` may be
+  `pinned:<pin-id>/<capability>`, with D-1.1's closure of `spec=`. Brett
+  Heap, FOUR SELECTIONS, ***"Ratify 1.1 as filed (Recommended) / Ratify 1.2
+  as filed / Ratify 1.3 as filed (Recommended) / Confirm 1.4 as filed
+  (Recommended)"*** (openxFactory #992, comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+  Record: `review/ratification-2026-09-12.md`.
+- [x] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** the pin id must
   resolve to a VALID, COMPLETE NEUTRAL-PRODUCT pin record the RESOLUTION ROOTS
   carry — a `contracts/<pin-id>-pin.yaml` of
   `kind: pinned_contract_manifest`, five of the six today, CARRYING EVERY MEMBER
@@ -65,12 +84,46 @@ the later realization pull request, and § 4 is the archive act.
   no capability enumeration) refuses all four markers this change exists to
   admit, so a REFUSE here is a refusal of the change's central mechanism rather
   than a tightening of it.
-- [ ] 1.3 **RATIFY or REFUSE the stale-target rule (D-3):** when a target
+  **RULED, 2026-09-12 at approximately 23:20Z:** RATIFIED — the RESOLUTION
+  RULE (D-2) — resolution rests on the pin record's EXISTENCE, its `kind:
+  pinned_contract_manifest` (five of the six today), and completeness for
+  its RECORD SHAPE against that shape's SHAPE-GUARD-REQUIRED SET, pinned to
+  the verifiers' own pure, source-free guards by a two-leg equivalence test
+  and NECESSARY, by design, without being SUFFICIENT for the record's full
+  verifier, judged through a CODE-FIXED route (one shared, pure,
+  non-executing adapter) that never executes, imports or opens a path the
+  record selects, and resolved under the in-tree arm's own root precedence,
+  whose `contracts` directory must itself be real and non-redirecting; the
+  reserved `capabilities:` member is the dormant arm's one trigger, added to
+  no record and no schema here. Brett Heap, FOUR SELECTIONS, ***"Ratify 1.1
+  as filed (Recommended) / Ratify 1.2 as filed / Ratify 1.3 as filed
+  (Recommended) / Confirm 1.4 as filed (Recommended)"*** (openxFactory #992,
+  comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+  Record: `review/ratification-2026-09-12.md`.
+- [x] 1.3 **RATIFY or REFUSE the stale-target rule (D-3):** when a target
   capability exits the corpus the marker either takes the pinned form or the
   block is unfenced — never silently retargeted, never silently deleted.
-- [ ] 1.4 **CONFIRM the realization split (D-5):** one later pull request
+  **RULED, 2026-09-12 at approximately 23:20Z:** RATIFIED — the STALE-TARGET
+  RULE (D-3) — a marker whose target capability exits the corpus either
+  takes the pinned form or its block is unfenced; never silently retargeted,
+  never silently deleted. Brett Heap, FOUR SELECTIONS, ***"Ratify 1.1 as
+  filed (Recommended) / Ratify 1.2 as filed / Ratify 1.3 as filed
+  (Recommended) / Confirm 1.4 as filed (Recommended)"*** (openxFactory #992,
+  comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+  Record: `review/ratification-2026-09-12.md`.
+- [x] 1.4 **CONFIRM the realization split (D-5):** one later pull request
   carrying resolver, tests, the four retargeted markers and the `INDEX.md`
   correction together, rather than four separate ones.
+  **RULED, 2026-09-12 at approximately 23:20Z:** RATIFIED — the REALIZATION
+  SPLIT (D-5) — ONE later pull request carrying resolver, tests, the four
+  retargeted markers and the `INDEX.md` correction together. Brett Heap,
+  FOUR SELECTIONS, ***"Ratify 1.1 as filed (Recommended) / Ratify 1.2 as
+  filed / Ratify 1.3 as filed (Recommended) / Confirm 1.4 as filed
+  (Recommended)"*** (openxFactory #992, comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+  Record: `review/ratification-2026-09-12.md`.
 
 ## 2. This filing — done by the pull request that carries this file
 

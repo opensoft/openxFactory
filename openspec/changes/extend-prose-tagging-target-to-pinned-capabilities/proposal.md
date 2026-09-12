@@ -5,7 +5,29 @@ target_release: implemented
 
 # Proposal: extend-prose-tagging-target-to-pinned-capabilities
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-12 at approximately 23:20Z by Brett Heap (openxFactory
+repository owner) — FOUR SELECTIONS, not typed sentences, made via the
+lane's interactive multi-choice — one question per `tasks.md` § 1 task: the
+options **"Ratify 1.1 as filed (Recommended) / Ratify 1.2 as filed / Ratify
+1.3 as filed (Recommended) / Confirm 1.4 as filed (Recommended)"** —
+first-hand, in session, lane `openxfactory-2` (display `openXfactory-2`) —
+recorded on openxFactory #992 (comment
+https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+CONFIRMED: the SAME word and the SAME act, recorded a second time, verbatim,
+for the lane's status thread — one act, two records, and not a second
+decision, recorded on openxFactory #745 (comment
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5649359201).
+Record: `review/ratification-2026-09-12.md`. **RATIFIED AS FILED.** The text
+below is ratified EXACTLY AS LANDED at
+`dafe8877e4c8f2d3a52cbe94307904b639b7bece` (2026-09-12T23:16:13Z), PR #994.
+AS FILED, WITH NO AMENDMENT AND NO VETO. The word carries no condition on
+any later act and reopens no decision. REALIZATION AND ARCHIVE ARE NOT
+AUTHORIZED BY THIS WORD and remain separate later acts on Brett Heap's word:
+no byte of `scripts/doc_health/families.py` moves, no module is added under
+`scripts/doc_health/`, no byte of `scripts/validate-pin-registrations.py` or
+of any per-product pin verifier moves, no marker is retargeted, and item (7)
+of the `split-openxwallet-repo` archived-ledger entry stays UNTICKED.
 
 Proposed: 2026-09-12 at approximately 01:55Z by Brett Heap (openxFactory
 repository owner), first-hand, in session to lane `openxfactory-2` (display
