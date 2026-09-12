@@ -642,6 +642,84 @@ def test_a_repeated_entry_refuses(tmp_path):
     assert "repeats" in str(caught.value)
 
 
+# --- the register PATH itself is the same escape the registry directory and --
+# --- the proposal walk close ---------------------------------------------------
+# Copilot's round on #963 (thread `PRRT_kwDOTAvnrs6hx2WG`): `load_register`
+# read the register through a bare `is_file()` / `read_text()`, so a committed
+# symlink at the register path — the default beside this module, or one named
+# on `--register` for a test tree or a consuming repository — would be
+# followed instead of refused, unlike the release registry (`_registry_present`,
+# `resolves_as_release`) and the proposal walk (`_unescaped`).
+
+
+def test_a_symlinked_register_refuses(tmp_path):
+    real_dir = tmp_path / "real"
+    real_dir.mkdir()
+    real = _register(real_dir, _entry("c", "x"))
+    link = tmp_path / "register.yaml"
+    link.symlink_to(real)
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(link)
+    assert "symlink" in str(caught.value)
+
+
+def test_a_symlinked_register_pointing_outside_the_tree_refuses(
+        tmp_path, tmp_path_factory):
+    outside = tmp_path_factory.mktemp("outside-register")
+    real = _register(outside, _entry("c", "x"))
+    link = tmp_path / "register.yaml"
+    link.symlink_to(real)
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(link)
+    assert "symlink" in str(caught.value)
+
+
+def test_a_dangling_register_symlink_refuses_as_a_symlink_not_a_crash(tmp_path):
+    """A dangling link is the same defect wearing the other face (the module's
+    own phrase for the proposal walk): `is_symlink()` is true whether or not
+    the target exists, so this refuses with the SAME message as a live one,
+    never a bare `does not exist` and never an unhandled `OSError`."""
+    link = tmp_path / "register.yaml"
+    link.symlink_to(tmp_path / "gone.yaml")
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(link)
+    assert "symlink" in str(caught.value)
+
+
+def test_the_default_register_path_is_checked_by_the_same_guard(
+        monkeypatch, tmp_path):
+    """THE DEFAULT ARGUMENT IS THE SAME CODE, PINNED EXPLICITLY. A function
+    default is bound once, at definition time, so patching the module-level
+    `REGISTER_PATH` attribute alone would never reach a bare `load_register()`
+    call; `__defaults__` is patched instead, to prove the exact no-argument
+    call `scan()` (and so the pytest gate) makes is guarded too — the fix is
+    not conditioned on `path` being caller-supplied."""
+    real_dir = tmp_path / "real"
+    real_dir.mkdir()
+    real = _register(real_dir, _entry("c", "x"))
+    link = tmp_path / "target-release-register.yaml"
+    link.symlink_to(real)
+    monkeypatch.setattr(tr.load_register, "__defaults__", (link, None))
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register()
+    assert "symlink" in str(caught.value)
+
+
+def test_a_symlinked_register_named_on_the_command_line_refuses_end_to_end(
+        tmp_path):
+    """THE CLI SURFACE: `--register` refusing a symlink is the `exit 2`
+    'register cannot be used' contract the validator's own usage already
+    documents, not a silent read of whatever the link resolves to."""
+    real_dir = tmp_path / "real"
+    real_dir.mkdir()
+    real = _register(real_dir, _entry("c", "x"))
+    link = tmp_path / "register.yaml"
+    link.symlink_to(real)
+    result = _run(tmp_path, link)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "symlink" in result.stdout
+
+
 # --- the entry's CITATION is enforced at the load -----------------------------
 # Copilot's round on #963 (thread `PRRT_kwDOTAvnrs6heJ2G`): the requirement has
 # every standing entry carry a citation, but the loader did not ask for one — so

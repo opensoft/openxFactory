@@ -430,9 +430,27 @@ def load_register(path: Path = REGISTER_PATH,
     on the command line unbaselined, because such a register belongs to a test
     tree or a consuming repository and its closure is that repository's own
     record to keep.
+
+    THE SAME ESCAPE `_registry_present` AND `_unescaped` CLOSE, NAMED HERE FOR
+    THE REGISTER ITSELF. `Path.is_file()` and `Path.read_text()` both follow
+    symlinks, so a committed symlink AT the register path — the default beside
+    this module, or one a caller names on the command line for a test tree or a
+    consuming repository — would make the gate consume bytes outside the
+    checkout, silently and differently per runner, unlike the symlink-boundary
+    protections this module already applies to the release registry and the
+    proposal walk. The check runs on `path` UNCONDITIONALLY, before either
+    `is_file()` or `read_text()` runs, so it is the same guard whether `path`
+    is the default argument or one a caller supplies — no branch here treats
+    the two differently, so no branch can forget one of them.
     """
     if yaml is None:  # pragma: no cover - pyyaml is a suite dependency
         raise TargetReleaseError("pyyaml is required to read the register")
+    if path.is_symlink():
+        raise TargetReleaseError(
+            f"the register {path} is a symlink, refused unread rather than "
+            "followed: a committed symlink here would let the gate consume "
+            "bytes from outside the checkout and vary by runner. Replace it "
+            "with a regular file")
     if not path.is_file():
         raise TargetReleaseError(f"the register {path} does not exist")
     try:

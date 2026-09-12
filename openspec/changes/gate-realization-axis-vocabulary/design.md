@@ -1036,3 +1036,62 @@ tests and stopped the bench at round 8. It is rebuilt on the ratified head, with
 the ruling, the six-carrier sweep, this round, and the re-measured counts —
 `refs #956, refs #931` kept and `closingIssuesReferences` re-verified `[]`
 after.
+
+### D8k — the bench's twelfth round, on the FREEZE push (16:45Z): one thread, TAKEN
+
+**IT DOES NOT REOPEN D1, D2 OR D3**, and it is bench work recorded here for the
+same reason D8g through D8j are: the ruling of 2026-09-12T15:45:19Z stands
+untouched.
+
+**A FOURTH MEMBER OF THE SAME SYMLINK-ESCAPE FAMILY, IN A FUNCTION THE FIRST
+THREE NEVER TOUCHED.** `load_register` read the register — the default beside
+this module, or one named on `--register` for a test tree or a consuming
+repository — through a bare `path.is_file()` and `path.read_text()`, neither of
+which this module's own established idiom permits any more: both FOLLOW
+SYMLINKS, so a committed symlink at the register path would be read instead of
+refused, and vary by runner, exactly the escape D8g (`resolves_as_release`'s
+leaf), D8i (`_registry_present`'s ancestor walk) and D8j (`_proposals`'s
+discovery walk, via `_unescaped`) each closed for a DIFFERENT reader. The
+register was the one reader left open.
+
+THE FIX IS A LEAF-LEVEL GUARD, NOT `_unescaped`'S ANCESTOR WALK, AND THAT IS A
+DELIBERATE NARROWING, NAMED RATHER THAN LEFT IMPLICIT. `load_register`'s `path`
+is not `repo_root`-relative the way a proposal or a release inventory is — it
+is named directly, either as `REGISTER_PATH` (itself already resolved through
+`Path(__file__).resolve()` at import, which collapses any ancestor symlink
+between this module and its own directory) or as an arbitrary path a caller
+gives, which may legitimately live anywhere a test tree or a consuming
+repository puts it. The one hop neither case resolves is the LEAF itself — the
+register file's own name, appended without a further `.resolve()` — so
+`path.is_symlink()`, checked before `is_file()` or `read_text()` runs, closes
+it; the check is UNCONDITIONAL on `path`, so it is the same guard for the
+default argument and for one a caller supplies, and no branch can forget
+either.
+
+FIVE tests (79 -> **84**): a symlinked register refuses; one pointing outside
+the tree refuses (`tmp_path_factory.mktemp`, D8g's own idiom); a DANGLING
+register symlink refuses with the SAME message rather than crashing or
+reporting "does not exist"; the DEFAULT argument is proved covered by patching
+`load_register.__defaults__` (a function default binds once, at definition
+time, so patching the module attribute `REGISTER_PATH` alone would never reach
+a bare `load_register()` call); and the CLI surface (`--register PATH`)
+reports the documented `exit 2` "register cannot be used" contract rather than
+silently reading through the link. ALL FIVE measured FAILING with the fix
+stashed and passing restored.
+
+**ON THE REAL CORPUS THE FIX CHANGES NOTHING**: `validate-target-release.py .`
+reads the same 42 active / 18 `implemented` / 3 a named release / 21 named by
+the register / 0 outside, before and after — the house register is a regular
+file, not a symlink, so the new guard has nothing to refuse there. Re-validated
+at this fix: `openspec validate gate-realization-axis-vocabulary --strict` exit
+0; `pytest tests/target_release -q` **84 passed**; `validate-sequenced-after.py
+. --ledger-diff` exit 0 (205 rows); `validate-scope-globs.py .` exit 0;
+`doc-health.py --single-repo .` exit 0; `proposal-support.py . verify` exit 0;
+`validate-openspec-cli-pin.py --change gate-realization-axis-vocabulary` exit 0
+(1 passed, 0 failed); `validate-openspec-cli-pin.py --all --no-cache` exit 0
+(102 passed, 2 failed (104), unchanged — the two known
+`disposition-codexfactory-*` exceptions); PATH 1.2.0 `--all --strict` 101
+passed, 3 failed (104), unchanged; `pytest tests/doc-health -q` **7 failed,
+1717 passed, 1 skipped** — the SAME local-only, pre-existing failure set
+`tasks.md` § 3.19 measured on `fbe3ffac`, not this packet's and not moved by
+it.

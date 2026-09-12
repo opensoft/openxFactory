@@ -580,6 +580,40 @@ and openxFactory #956 closes THERE and not at this landing.
       `review/verification-2026-09-12.md` is the DATED capture of the ratified
       tree one merge earlier and is deliberately not rewritten for this; it
       points here instead.
+- [x] 3.21 **THE BENCH'S TWELFTH ROUND, ON THE FREEZE PUSH (16:45Z): ONE
+      THREAD, TAKEN** (`design.md` D8k). Does not reopen D1, D2 or D3.
+      **A FOURTH MEMBER OF THE SAME SYMLINK-ESCAPE FAMILY** (Copilot thread
+      `PRRT_kwDOTAvnrs6hx2WG`) — `load_register` read the register through a
+      bare `path.is_file()` / `path.read_text()`, which FOLLOW SYMLINKS, so a
+      committed symlink at the register path (the default beside this module,
+      or one named on `--register`) would be read instead of refused. D8g,
+      D8i and D8j each closed this for a different reader
+      (`resolves_as_release`, `_registry_present`, `_proposals`); the register
+      was the one left open. Fixed with a leaf-level `path.is_symlink()`
+      guard, checked before `is_file()` / `read_text()` and unconditional on
+      `path`, so the default argument and a caller-supplied one take the same
+      guard. FIVE tests (79 -> **84**), all measured FAILING with the fix
+      stashed and passing restored: a symlinked register; one pointing
+      outside the tree; a dangling register symlink (refuses as a symlink,
+      not a crash); the DEFAULT path specifically, via a
+      `load_register.__defaults__` patch (a function default binds at
+      definition time, so patching the module attribute alone would not
+      reach a bare `load_register()` call); and the CLI (`--register`)
+      surface, `exit 2`. On the real corpus the fix moves nothing —
+      `validate-target-release.py .` still reads 42 active, 18
+      `implemented`, 3 a named release, 21 registered, 0 outside — the house
+      register is a regular file. Re-validated: `openspec validate
+      gate-realization-axis-vocabulary --strict` exit 0; `pytest
+      tests/target_release -q` **84 passed**; `validate-sequenced-after.py .
+      --ledger-diff` exit 0 (205 rows); `validate-scope-globs.py .` exit 0;
+      `doc-health.py --single-repo .` exit 0; `proposal-support.py . verify`
+      exit 0; `validate-openspec-cli-pin.py --change
+      gate-realization-axis-vocabulary` exit 0 (1 passed, 0 failed);
+      `validate-openspec-cli-pin.py --all --no-cache` exit 0 (102 passed, 2
+      failed (104), unchanged); PATH 1.2.0 `--all --strict` 101 passed, 3
+      failed (104), unchanged; `pytest tests/doc-health -q` **7 failed, 1717
+      passed, 1 skipped** — the same local-only, pre-existing set § 3.19
+      measured, unmoved.
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
