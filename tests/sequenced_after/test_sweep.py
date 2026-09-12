@@ -2422,6 +2422,23 @@ def test_an_INVALID_created_VALUE_is_NOT_gated(tmp_path):
     assert result2.returncode == 0, result2.stdout + result2.stderr
 
 
+def test_an_IMPOSSIBLE_calendar_date_is_NOT_gated(tmp_path):
+    """`created: 2026-02-30` raises `ValueError` out of PyYAML's OWN timestamp
+    constructor before the strict loader's refusals ever run — a distinct
+    failure mode from the malformed-YAML and non-date-string cases above, and
+    one an `except (OSError, StrictFrontMatterError)` alone would not catch,
+    exiting `--seed-ledger` with a traceback instead of treating the value as
+    unread (Copilot round 3, PR #990)."""
+    directory = _change(tmp_path, "add-a")
+    (directory / ".openspec.yaml").write_text(
+        "schema: spec-driven\ncreated: 2026-02-30\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
 def test_the_CREATED_GUARD_skips_an_id_with_AMBIGUOUS_corpus_dirs(tmp_path):
     """Two archived directories for one id is the ambiguity `resolve()`
     reports elsewhere, and the one `archive_dates` already skips (issue

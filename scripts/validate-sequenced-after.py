@@ -248,7 +248,11 @@ def _created_dates(repo_root: Path) -> dict[str, str]:
     `datetime.date` rather than a string, so that is converted back to its ISO
     form before comparison; a `created:` carrying a time-of-day (a
     `datetime.datetime`) is not a shape this corpus uses and is left unread
-    rather than guessed at.
+    rather than guessed at. An IMPOSSIBLE calendar-shaped date (`2026-02-30`)
+    raises `ValueError` out of PyYAML's own timestamp constructor before the
+    strict loader's refusals ever run, so that is caught alongside them
+    (Copilot round 3, PR #990) — the malformed value is left unread, not
+    turned into a traceback that exits `--seed-ledger` some third way.
     """
     active = sa.active_change_dirs(repo_root)
     archived = sa.archived_change_dirs(repo_root)
@@ -263,7 +267,7 @@ def _created_dates(repo_root: Path) -> dict[str, str]:
             continue
         try:
             data = sa.fms.strict_load(sa.fms.source_text(packet), what=str(packet))
-        except (OSError, sa.fms.StrictFrontMatterError):
+        except (OSError, ValueError, sa.fms.StrictFrontMatterError):
             continue
         if not isinstance(data, dict):
             continue
