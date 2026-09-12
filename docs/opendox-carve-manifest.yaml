@@ -371,6 +371,42 @@ moved_paths:
 # replicas unchanged. The one place the running absolutes are summed and
 # pinned is
 # `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+#
+# THE § 3.4 SLICE-S6 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`). RULING Q4, same comment: the read-only
+# `/source` pass-through returns from a CONTRIBUTED binding
+# (`openxdox_code`'s `serve_projection.py`) to a FIXED core arm of the
+# neutral product (`opendox_code`'s `serve.py`). NO ROW CHANGES DISPOSITION —
+# both were already `moved_with_declared_edit` — each gains one new
+# `adapter calls` entry: 10 lines on `serve.py` (five INSERTIONS, each named
+# by the pair of carve lines it sits between — the registration-modes
+# record, the two route constants `SOURCE_PREFIX`/`BARE_SOURCE_ROUTE`, the
+# `resolve_source_path` containment entry point, the two FIXED core arms in
+# `_route`, and `_keyed_source`/`_serve_source`/`_refuse_bare_source`) and
+# 122 on `serve_projection.py` (the matching DELETIONS — the same five
+# things, plus the module docstring's opening and the "THE `/source` PAIR
+# MOVES TOGETHER" paragraph, replaced by the record of where the pair went).
+# `snapshot_registry.resolve_within`, the per-entry containment rule, does
+# NOT move and stays `openxdox_code`'s. ONE new file is admitted at
+# `opendox_code`: `tests/test_source_core_arm.py`, the runnable half of the
+# re-homing (`docs/opendox-carve-admissions.yaml`). NO REFERENT DIGEST
+# MOVES: `carve_commit` and `carve_tag` are untouched, and both rows keep
+# the `sha256` they already carry, which is the CARVE blob's.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# same discipline the S3 paragraph above states: this act's whole arithmetic
+# is a DELTA on top of the § 3.4 SLICE-S3 annotation's own totals — rows
+# unchanged; `not_moved` unchanged; NO disposition conversion (both rows
+# already `moved_with_declared_edit`); declared lines +132 (`adapter calls`
+# +132, `import rewrites` +0, `path constants` +0) over the two rows above;
+# rows carrying `edits:` unchanged (neither row is a new carrier); replicas
+# unchanged. The one place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+# Realized at opensoft/openDox-code `build/s6-source-core-arm`,
+# `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)
+# and opensoft/openXdox-code `build/s6-source-route-to-opendox`,
+# `00b69de787975a663d9fb8985a6e38fc54945150` (DRAFT PR opensoft/openXdox-code#17).
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -1670,6 +1706,9 @@ rows:
       - class: path constants
         lines: [155, 725, 1338]
         note: "STALE DOCSTRING/COMMENT — RULED ASK-7 → 1 (`#656` comment `5635150678`, Brett Heap, verbatim \"the four stale docstring/comment lines (openDox-code cli.py :867; serve.py :166 / :755 / :1368) are LEFT; the in-tree comments beside the binding carry the correction; they are fixed at the next declared-edit window. No manifest rows for prose in PR-2.\"): this row annotation OPENS that declared-edit window (CLAIMED `#656` comment `5642614423`, lane `openxfactory-4-opendox-extraction`), the same act as the paired `cli.py` row annotation above. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. Three destination lines at openDox-code `a99eba03`'s `src/opendox/serve.py` still describe the in-tree profile, stale since § 4.3 (openDox-code #11) made `profile_openxfactory` a lazy proxy over the host's `opendox.domain_profile.register(...)`: `:166` (\"`profile_openxfactory.py` and dispatched BY NAME against the live handler —\", inside the by-function-split comment, naming a file that no longer assembles anything), `:755` (\"(`profile_openxfactory.ROUTE_EXTENSIONS` — the gate console, the\", inside the `route_bindings` field comment), and `:1368` (\"THE IN-TREE PROFILE (`profile_openxfactory.ROUTE_EXTENSIONS`) is registered\", `build_server()`'s own docstring — the routes-half twin of the cli.py row's line). Mapped to the carve commit by the same method the cli.py row's new entry describes (`verify-carve-arrival.py::_check_declared_lines`'s `difflib.SequenceMatcher(autojunk=False)` over `carve_lines.text_records()`), between the blob at `carve_commit` (sha256 matches this row's, above) and openDox-code `a99eba03`'s `src/opendox/serve.py`: destination `:166` (0-based 165) is the `equal` opcode carve[138:169]/arrived[149:180] at offset 16, carve line = 138 + 16 + 1 = 155; destination `:755` (0-based 754) is carve[629:828]/arrived[659:858] at offset 95, carve line = 629 + 95 + 1 = 725; destination `:1368` (0-based 1367) is carve[1286:1352]/arrived[1316:1382] at offset 51, carve line = 1286 + 51 + 1 = 1338 — all three byte-identical between carve and arrived at that offset, confirming the mapping. Filed `path constants` on the same reading as the cli.py row's new entry and the STALE CITATION rows (`#656` comment `5628560136`): neither `import rewrites` nor `adapter calls` (RULING OQ-1). The fix — one line for one line, same count, no other change — lands at openDox-code in the paired PR, inside these three declared lines only."
+      - class: adapter calls
+        lines: [161, 162, 304, 305, 515, 516, 921, 922, 949, 950]
+        note: "§ 3.4 SLICE S6, RULED Q4 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): the read-only `/source` pass-through returns from a CONTRIBUTED binding to a FIXED core arm of the neutral product — RULED Q-L1's own paragraph binds every § 3.4 slice the same way S3's `app.js` row above states it. Five insertions, each named by the pair of carve lines it sits between: 161-162 the \"AND ONE ROUTE HAS SINCE GONE THE OTHER WAY\" paragraph in the TWO REGISTRATION MODES block, recording that `/source` returned from CONTRIBUTED to FIXED; 304-305 the `SOURCE_PREFIX` / `BARE_SOURCE_ROUTE` pair and its comment block, between `PROJECT_REGISTER_ROUTE` and `CAPABILITIES_ROUTE`; 515-516 the `resolve_source_path` containment entry point, above `_checkout_real`; 921-922 the two FIXED CORE ARMS in `_route`, between the `/workbench/thread` arm and the § 2.4 contributed consult; 949-950 `_keyed_source` / `_serve_source` / `_refuse_bare_source`, between `do_HEAD` and `do_POST`. Class `adapter calls` on this manifest's own precedent (`serve.py`:618, `snapshot_registry.py`:85 — a site that reached a thing directly now calls the seam that stands in for it): here the direction is inverted, five call sites move IN from the projection column to become this core arm directly, which is the same class read the other way. All five insertions are moved from `scripts/ideation_dashboard/serve_projection.py`'s row below, which declares the matching deletions. Realized at opensoft/openDox-code `build/s6-source-core-arm`, `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)."
   - source_path: scripts/ideation_dashboard/serve_gate.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -1701,6 +1740,9 @@ rows:
     edits:
       - class: import rewrites
         lines: [47, 48, 49, 53, 54]
+      - class: adapter calls
+        lines: [6, 7, 9, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 297, 298, 299, 300, 301, 302, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 382, 383, 384, 385, 386, 387, 388]
+        note: "§ 3.4 SLICE S6, RULED Q4 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): `/source` and `/source/` are openDox's, and this column's binding keeps only `/snapshot-index.json`. What leaves, by carve-line group: 6-9,12-15 the module docstring's opening (the mixin no longer composes the `/source/` pass-through, and `checkout_root` leaves the `self.<name>` list); 23-32 the \"THE `/source` PAIR MOVES TOGETHER\" paragraph, replaced by the record of where the pair went and what the move preserves; 60-79 `SOURCE_PREFIX`, `BARE_SOURCE_ROUTE` and `resolve_source_path` removed; 297-375 `_keyed_source`, `_serve_source`, `_refuse_bare_source` removed; 382-388 `ProjectionRoutesExtension`'s docstring and its two `/source` `RouteBinding`s. The two constants, both `RouteBinding`s, the three handler methods and the single-root containment entry point leave; the per-entry rule `snapshot_registry.resolve_within` does not move and is still this column's. Class `adapter calls` on this manifest's own precedent (`serve.py`:618, `snapshot_registry.py`:85): a site that reached a thing directly stops doing so when the seam moves elsewhere, which is the same class read as a removal. The matching insertions are declared on `scripts/ideation_dashboard/serve.py`'s row above. Realized at opensoft/openXdox-code `build/s6-source-route-to-opendox`, `00b69de787975a663d9fb8985a6e38fc54945150` (DRAFT PR opensoft/openXdox-code#17)."
   - source_path: scripts/ideation_dashboard/serve_wire.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
