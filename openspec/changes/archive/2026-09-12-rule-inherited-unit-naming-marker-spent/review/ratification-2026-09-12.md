@@ -283,3 +283,51 @@ performed or authorized by this commit.
 landing has been recorded on this packet as of this ratification; the
 orchestrator asks Brett Heap for it separately, per the lane-collision
 protocol.
+
+## 10. Addendum — the separate archive word (added after this ratification, never editing it)
+
+**THIS SECTION IS APPENDED AFTER ARCHIVING; NOTHING ABOVE IS EDITED.** § 8 of
+this record, written at ratification, stated correctly that *"`tasks.md` § 5
+(ARCHIVE) STAYS ENTIRELY OPEN … that archive is a SEPARATE act on a SEPARATE
+word, not performed or authorized here"*. That word has since been given.
+
+Brett Heap, **2026-09-12T18:33:23Z**, in the lane's window, verbatim:
+
+> archive it
+
+Given AHEAD of, and CONDITIONAL on, this ratification pull request (#962)
+landing — recorded on PR
+[#962](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5647869740)
+and mirrored on openxFactory
+[#955](https://github.com/opensoft/openxFactory/issues/955#issuecomment-5647869866).
+The condition was met at **2026-09-12T22:10:57Z**, when PR #962 merged to
+`main` as `e8dd7d88d01222d2b7aefd458586df5936e3d7bb` (LANDED comment
+[issuecomment-5649022644](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5649022644)),
+just over five hours after the word — the same construction as the archive
+word recorded for `decide-disposition-reading-per-family` at PR #1007
+(issuecomment-5647690592).
+
+**THIS IS A DIFFERENT WORD FROM THE ONE § 1.2 RECORDS.** § 1.2's word
+(*"do all as recomended"*, 2026-09-12T15:45:16Z) ratified the packet's
+content — `design.md` D1 and D2b. This word authorizes only the archive act —
+the promotion of the `## MODIFIED` block into
+`openspec/specs/doc-health/spec.md` and the move of this packet into
+`openspec/changes/archive/`. It changes nothing this record's §§ 1–9 already
+state, and it is what `tasks.md` § 5 cites in its own tick.
+
+Performed via archive pull request
+[#1012](https://github.com/opensoft/openxFactory/pull/1012), on the
+sanctioned tool (`TZ=UTC python3 scripts/proposal-support.py . archive
+rule-inherited-unit-naming-marker-spent --date 2026-09-12 --yes`, pinned
+`@fission-ai/openspec@1.12.0`), which reported **ORIGIN RETAINED** — the
+declaration unchanged since the ratifying commit `5622d4cc838e` — and moved
+this packet to
+`openspec/changes/archive/2026-09-12-rule-inherited-unit-naming-marker-spent/`.
+The promoted requirement is BYTE-IDENTICAL to this packet's own delta,
+measured by slicing both sides at the same requirement heading to the next
+one and hashing: **53,777 bytes, sha256
+`6a71bd0bc49a3297cd50d8c7955ab6c9d9f9047da8f30570ccb58eb0151bf249`**, both
+sides, after normalising the one trailing-newline artefact of the delta
+file's own end-of-file boundary (the delta file carries nothing after this
+requirement; canon continues with the next one). openxFactory #955 closes at
+PR #1012, per the record above.
