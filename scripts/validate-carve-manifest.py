@@ -2056,18 +2056,27 @@ def check_disposition_consistency(doc: dict) -> None:
                 "the rewrite in its `evidence:` (RULING OQ-B's "
                 "`tests/notebooklm/*` rows), because openxFactory's own tree "
                 "is not a carve destination")
-        own = row.get("destination")
+        # THE EFFECTIVE DESTINATION, not the row's raw `destination:` (Copilot
+        # review, PR #1011): a row re-destined by a ruling arrives at
+        # `re_destined.to` today, and a manifest that let `also_replicated_to`
+        # repeat THAT key would pass here while `verify-carve-arrival.py`
+        # silently drops the now-redundant replica at the effective arrival —
+        # two tools disagreeing about the same row. Comparing against
+        # `effective_arrival(row)` closes it at the gate that runs first.
+        own, _own_path = effective_arrival(row)
         for key in row.get("also_replicated_to") or []:
             if key == own:
                 raise CarveRefusal(
                     "carve-disposition-inconsistent",
-                    f"{where} moves to `destination: {own!r}` and lists that "
-                    "same key in `also_replicated_to:`. The row already places "
-                    "the file there, at its own `destination_path` — ALSO "
-                    "means somewhere else, and a row replicating a file at the "
-                    "destination it moves to would let `--replica-at` re-point "
-                    "an arrival the manifest has already declared, which is "
-                    "the one thing the manifest is for")
+                    f"{where} arrives at {own!r} today (its own `destination`, "
+                    "or `re_destined.to` where a ruling has since moved it) "
+                    "and lists that same key in `also_replicated_to:`. The row "
+                    "already places the file there, at the path it arrives at "
+                    "— ALSO means somewhere else, and a row replicating a "
+                    "file at the destination it arrives at would let "
+                    "`--replica-at` re-point an arrival the manifest has "
+                    "already declared, which is the one thing the manifest "
+                    "is for")
         _check_re_destined_consistency(where, row)
 
     _check_re_destined_chains(doc)
@@ -2256,10 +2265,15 @@ def main(argv: list[str] | None = None) -> int:
         # THE RE-DESTINATION COUNT IS A CLAUSE OF ITS OWN and not a suffix on
         # the disposition counts: a re-destined row keeps its disposition, so
         # adding it there would double-count a row that is still exactly one
-        # `moved_verbatim` or `moved_with_declared_edit`.
+        # `moved_verbatim` or `moved_with_declared_edit`. UNCONDITIONAL, to
+        # match the promise two paragraphs up: zero is printed exactly like
+        # 48 is, on the human line as much as in `--json` (Copilot review,
+        # PR #1011 — the ternary here used to read `if summary["re_destined"]
+        # else ""`, which suppressed the clause at zero and made the landed
+        # manifest's own `0` state the one count this line never showed).
         re_destined_note = (
             f"; {summary['re_destined']} row(s) RE-DESTINED by ruling "
-            "(RULED Q6)" if summary["re_destined"] else "")
+            "(RULED Q6)")
         print(f"OK {manifest_path}: phase {summary['phase']}, "
               f"{summary['rows']} row(s) at "
               f"{where} — "

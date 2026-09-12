@@ -1937,6 +1937,57 @@ def test_the_grammar_extension_names_the_ruling_and_why_not_a_re_cut(
         {"from", "from_path", "to", "to_path", "ruling", "note"})
 
 
+def test_the_human_readable_line_prints_the_zero_state_too(
+        scratch: Scratch) -> None:
+    """`test_the_summary_counts_the_re_destined_rows` already reads `0` from
+    `--json`. The human line is a separate promise (the comment two lines
+    above the print statement: "whether the number is 0 or 48") and had its
+    own gap: a ternary printed the `RE-DESTINED by ruling` clause only when
+    the count was truthy, so the landed manifest's own zero state — the one
+    every reader hits first, until S8 lands a row — was the one count this
+    line never showed (Copilot review, PR #1011)."""
+    doc = clean_manifest(scratch)
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "0 row(s) RE-DESTINED by ruling (RULED Q6)" in done.stdout, \
+        done.stdout
+
+
+def test_a_re_destined_row_may_not_be_also_replicated_at_its_new_destination(
+        scratch: Scratch) -> None:
+    """The same refusal `test_a_row_may_not_be_also_replicated_at_its_own_
+    destination` proves, at the EFFECTIVE destination rather than the raw
+    one: a row re-destined to `opendox_code` that also lists `opendox_code`
+    in `also_replicated_to` used to pass here (the check compared against the
+    row's own `destination`, still `openxdox_code`), and
+    `verify-carve-arrival.py` would then silently drop the now-redundant
+    replica at the one place the row actually arrives today — two tools
+    reading one row two ways. Comparing against `effective_arrival(row)`
+    refuses it at the gate that runs first (Copilot review, PR #1011)."""
+    doc = clean_manifest(scratch)
+    row = _re_destine(doc)  # beta.py, openxdox_code -> opendox_code
+    row["also_replicated_to"] = ["opendox_code"]
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "also_replicated_to" in combined, combined
+
+
+def test_a_re_destined_row_may_still_be_also_replicated_at_its_original_destination(
+        scratch: Scratch) -> None:
+    """The row's ORIGINAL `destination` is not a forbidden replica key merely
+    because a ruling has since moved the row away from it — only the
+    EFFECTIVE destination is. `beta.py` moves to `openxdox_code` at the carve
+    and is re-destined to `opendox_code`; a replica declared at
+    `openxdox_code` names a DIFFERENT destination than the one the row
+    arrives at today, so it is not the self-replica the check refuses."""
+    doc = clean_manifest(scratch)
+    original_destination = row_named(doc, "beta.py")["destination"]
+    row = _re_destine(doc)  # beta.py, openxdox_code -> opendox_code
+    row["also_replicated_to"] = [original_destination]
+    summary = _summary(scratch, doc)
+    assert summary["re_destined"] == 1, summary
+
+
 # --------------------------------------------------------------------------
 # `phase: post-shed` — the § 5.2 shed, declared IN the manifest
 #
