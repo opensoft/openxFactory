@@ -1351,19 +1351,31 @@ the bookkeeping that ticks this group.
   `openxFactory`'s own direct openDox gitlink AND `opensoft/openDox`'s assembly
   root — the same equality 5.8 already states for openXdox, and RULING F's
   "openXdox only" clause is superseded for openDox alone by Q7.
-- [ ] 5.9 `[oxF]` ANNOTATE the 30 archived changes carrying an
+- [x] 5.9 `[oxF]` ANNOTATE the 30 archived changes carrying an
   `ideation-dashboard` delta with the carry-forward. **Immutable records are
   annotated, never edited into agreement** — the wallet arc's own treatment, and
   the highest-volume bookkeeping in the realization.
-  **STATUS — 2026-09-11.** RULED (Brett Heap, #656 comments `5640246046`,
-  `5640938010`): one dated bookkeeping section per archived packet, naming
-  split-opendox § 5.2's shed and the § 5.7 contract-v4.0 departure, plus a
-  companion disposition per packet in the aggregation's
-  `health/dispositions.yaml`. Realized: **`opensoft/openxFactory` #982**
-  (open, draft, 30 of 30 packets annotated, checks green) and
-  **`opensoft/xFactory` #445** (dispositions, 30 entries, open, draft). Both
-  held in draft for the contract-v4.0 cut (§ 5.7); this box ticks when #982
-  lands.
+  **STATUS — 2026-09-12, tick JUDGED MET — the 30 carry-forward annotations
+  are landed.** RULED (Brett Heap, #656 comments `5640246046`,
+  `5640938010`): one dated bookkeeping section per archived packet (the two
+  carrying a `Status: ratified` header take the `Edited (bookkeeping):` line
+  inside that block; the twenty-eight without a header carry it as the
+  section's first line), naming split-opendox § 5.2's shed (`#940 →
+  cc4ae9d3`), the legs and pins, the deprecation (`contract-v3.7`) and the
+  removal (`contract-v4.0`, `#983 → ce5c054e`, tag `9e6c0ae4`), plus a
+  companion disposition per packet. Landed: **`opensoft/openxFactory` #982
+  → `db1f0cfa04b2e8d4d1d17d11eb25da2a0147f21b`**, 2026-09-12 00:27Z (Rule 6
+  window posted and closed; head `21730067`, six required checks SUCCESS,
+  `pytest-suite` run `34659735150`, 64 threads / 0 unresolved; 30 of 30
+  archived changes annotated, 182 insertions / 0 deletions, nothing any
+  packet asserts changed). Companion: **`opensoft/xFactory` #445 →
+  `c81b957bfbc91e84e7e67bda00c8023d2d249950`**, the thirty dispositions,
+  landed by the lane's admin merge on Brett Heap's ruling ("land it anyway
+  as the governance record", `5640938010`) as the governance record: **doc-health
+  does not scan `tasks.md`** (`govern-openspec-corpus-membership`, OQ-2), so
+  these entries fire no `record-immutability` finding today and stand
+  inert until a doc-health change reads them — the correction is stated in
+  #445's own body and in `5640938010`. #656 record: `5642167113`.
 
 ## 6. Re-home the five frozen changes (RULING Q6)
 
