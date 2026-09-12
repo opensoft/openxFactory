@@ -420,8 +420,23 @@ in the pull request body.
 
 ## 6. Archive — OWED, NOT GIVEN
 
-- [x] 6.1 **DONE — THE PROMOTION AND ARCHIVE ARE PERFORMED IN THE NEXT COMMIT OF
-      THIS SAME PULL REQUEST, MEASURED AND RECORDED IN THE PULL REQUEST BODY.**
+- [x] 6.1 **DONE IN ARCHIVE PR [#1007](https://github.com/opensoft/openxFactory/pull/1007) — THE PROMOTION AND ARCHIVE ARE
+      PERFORMED IN THIS SAME PULL REQUEST'S ARCHIVE-MOVE COMMIT, MEASURED HERE
+      AND RECORDED IN THE PULL REQUEST BODY.** The archive command itself
+      reported exit `0`: `Change 'decide-disposition-reading-per-family'
+      archived as '2026-09-12-decide-disposition-reading-per-family'.`
+      **THE PROMOTION'S BYTE-IDENTITY IS MEASURED, NOT ASSERTED:** the `##
+      MODIFIED` block over *Finding severity and regression handling*,
+      sliced from this packet's own delta and from the requirement now
+      standing in `openspec/specs/doc-health/spec.md`, is **9,067 bytes,
+      sha256 `237e307323d0a1cc917e7d78165f85b7b49af84afa2a6204a83d0817b70fe095`**
+      on BOTH sides (one trailing-newline artefact of the canon-side slice
+      boundary normalised before hashing; otherwise `diff` empty). No other
+      requirement moved. No active or archived change anywhere in the corpus
+      declares `sequenced_after: [decide-disposition-reading-per-family]`
+      (searched by grep across `openspec/changes/`), so no ordered-delta
+      child resolution is owed at this archive, unlike the sibling packet's
+      #962.**
       `TZ=UTC python3 scripts/proposal-support.py . archive
       decide-disposition-reading-per-family --date 2026-09-12 --yes`, through the
       pinned `@fission-ai/openspec@1.12.0` artifact — never a bare `openspec
@@ -449,7 +464,7 @@ in the pull request body.
       On a separate word after ratification: promote the `## MODIFIED` block
       into `openspec/specs/doc-health/spec.md` and archive the packet with
       `proposal-support.py`, never with bare `openspec`.
-- [x] 6.2 **DONE — `Closes #966` STANDS IN THE ARCHIVE PULL REQUEST'S BODY AND
+- [x] 6.2 **DONE IN ARCHIVE PR [#1007](https://github.com/opensoft/openxFactory/pull/1007) — `Closes #966` STANDS IN THE ARCHIVE PULL REQUEST'S BODY AND
       NOWHERE ELSE, BOTH HALVES VERIFIED RATHER THAN PROMISED.** No commit
       message on this branch carries a closing keyword in any form
       (`Closes`/`Fixes`/`Resolves`, any case or tense, quoted or not) — checked
@@ -461,9 +476,9 @@ in the pull request body.
       **THE ORIGINAL BOX, CARRIED VERBATIM:**
       `Closes #966` is written in the ARCHIVE pull request's body and in NO
       commit message on this branch or that one.
-- [x] 6.3 **DONE — THE README `## OpenSpec Records` ACTIVE ROW FOR THIS CHANGE
-      MOVES TO THE ARCHIVED BLOCK IN THE ARCHIVE-MOVE COMMIT THAT FOLLOWS THIS
-      ONE, THE SAME COMMIT THAT RUNS THE PROMOTION.**
+- [x] 6.3 **DONE IN ARCHIVE PR [#1007](https://github.com/opensoft/openxFactory/pull/1007) — THE README `## OpenSpec Records` ACTIVE
+      ROW FOR THIS CHANGE MOVES TO THE ARCHIVED BLOCK IN THE SAME ARCHIVE-MOVE
+      COMMIT THAT RUNS THE PROMOTION.**
 
       **THE ORIGINAL BOX, CARRIED VERBATIM:**
       The README "OpenSpec Records" ACTIVE row is moved to the archived
