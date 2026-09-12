@@ -1006,31 +1006,52 @@ the bookkeeping that ticks this group.
   schema shape before it is needed"). Every field the MODIFIED
   `neutral-product-pin` requirement and this task's own text name is present
   or is a documented, ruled HAND-ACT judgment — none silently omitted.
-- [ ] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
+- [x] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
   extension points, **from `openXdox-code`**. No fork of the server.
-  **STATUS — 2026-09-11.** The CODE half is landed: `opensoft/openDox-code`
-  **#11 → `a99eba03e31a0aee1cc15a061fdf718cc88a2c44`**, 2026-09-11 19:04Z
-  (#656 comment `5639351854`) — the lazy proxy `profile_openxfactory` (RULED
-  ASK-2 → 2, `5628886636`), with `cli.build_parser()` / `serve.build_server()`
-  resolving the profile through it and refusing without a host. The
-  openxFactory HALF — the real engineering `profile_openxfactory` and the one
-  process-start registration (CLAIMED `5640395709`) — plus the pin lockstep is
-  **`opensoft/openxFactory` #984** (open, draft). This box ticks when #984
-  lands.
-- [ ] 4.4 `[oXd]` **PARAMETERIZE, do not ship one domain's words (RULING C2).**
+  **STATUS — 2026-09-12, tick JUDGED MET — both halves are landed.** CODE
+  half: `opensoft/openDox-code` **#11 →
+  `a99eba03e31a0aee1cc15a061fdf718cc88a2c44`**, 2026-09-11 19:04Z (#656
+  comment `5639351854`) — the lazy proxy `profile_openxfactory` (RULED ASK-2
+  → 2, `5628886636`) covering subcommands, with `cli.build_parser()` /
+  `serve.build_server()` resolving the profile through it and refusing
+  without a host; per **RULED ASK-6 → 1** (`5635150678`, ASK BLOCK
+  `5635063050`), `serve.py` reads the same proxy for ROUTES too — one
+  mechanism, one registration, under ASK-2, no second composition point.
+  openxFactory HALF + PIN LOCKSTEP: **`opensoft/openxFactory` #984 →
+  `a1ef886fdd65a4a530fe584c22b863b2106a0ac0`**, 2026-09-12 14:55Z (CLAIMED
+  `5640395709`; landed #656 comment `5646646722`; plain gate; head
+  `02a9f634`; six required checks SUCCESS; 10 threads / 0 unresolved) — the
+  real engineering `profile_openxfactory` as ONE composite profile
+  (`SUBCOMMAND_EXTENSIONS`, `ROUTE_EXTENSIONS`, and the CLI gate facet the
+  proxy reads) registered ONCE at process start at every composition point
+  that builds a parser or a server (the PR-2 stand-in
+  `bind_composition_point()` collapsed into that call), riding the pin
+  lockstep that moves openDox → `8ec3036c` and openXdox → `eca0b597` (both
+  assembly roots carrying this landing).
+- [x] 4.4 `[oXd]` **PARAMETERIZE, do not ship one domain's words (RULING C2).**
   The lifecycle engine reads its status vocabulary, transitions, authorities and
   immutability point from a domain profile. A hardcoded status word is a defect
   under `domain-mapping-declaration`.
-  **STATUS — 2026-09-11.** The CODE half is landed: `opensoft/openXdox-code`
-  **#14 → `3840c1670771e2dc7bcd64eaafbc43169e0f383d`**, 2026-09-11 20:41Z
-  (#656 comment `5640381252`) — on RULING C2 and ASK-4 (`5634195861`): the
-  engine reads its status vocabulary, per-kind terminal statuses, immutability
-  point and declared-only transitions/authorities from a registered
-  `DomainProfile`, `register()` the one process-start call, `current()`
-  refusing loudly when nothing is registered. The openxFactory HALF — the
-  real engineering `DomainProfile` YAML and the same process-start
-  registration — plus the pin lockstep is **`opensoft/openxFactory` #984**
-  (open, draft; the same PR as 4.3's half). This box ticks when #984 lands.
+  **STATUS — 2026-09-12, tick JUDGED MET — both halves are landed.** CODE
+  half: `opensoft/openXdox-code` **#14 →
+  `3840c1670771e2dc7bcd64eaafbc43169e0f383d`**, 2026-09-11 20:41Z (#656
+  comment `5640381252`) — on RULING C2 and **RULED ASK-4 → "proceed"**
+  (`5634195861`, over ASK-4 `5633855878`'s five Q1-Q5 sub-questions): the
+  engine reads its status vocabulary, per-kind terminal statuses (Q4, per
+  kind), immutability point (Q3, enforced in v1) and declared-only
+  transitions/authorities from a registered `DomainProfile` (Q1, YAML
+  canonical / dataclass runtime), `register()` the one process-start call
+  with two accessors (Q5), `current()` refusing loudly when nothing is
+  registered — sequenced after BUILD slice 2b on shared files
+  (`5634218589`). openxFactory HALF + PIN LOCKSTEP: **`opensoft/openxFactory`
+  #984 → `a1ef886fdd65a4a530fe584c22b863b2106a0ac0`**, 2026-09-12 14:55Z (same
+  PR as 4.3's half; CLAIMED `5640395709`; landed #656 comment `5646646722`;
+  plain gate; head `02a9f634`; six required checks SUCCESS; 10 threads / 0
+  unresolved) — the real engineering `DomainProfile` YAML under `contracts/`
+  (validating against openXdox-spec's schema, loaded with
+  `openxdox.domain_profile.load()`) and the SAME process-start registration
+  as 4.3's proxy, riding the pin lockstep that moves openDox → `8ec3036c`
+  and openXdox → `eca0b597`.
 - [x] 4.5 `[oXd]` **BUILD what does not exist**, named as three separate features
   rather than folded into a carve: the model/scenario workbench for
   `governed-derived-model` families (openXdox's centre of gravity and absent from
