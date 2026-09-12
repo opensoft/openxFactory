@@ -407,6 +407,50 @@ moved_paths:
 # `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)
 # and opensoft/openXdox-code `build/s6-source-route-to-opendox`,
 # `00b69de787975a663d9fb8985a6e38fc54945150` (DRAFT PR opensoft/openXdox-code#17).
+#
+# THE § 3.4 SLICE-S4 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`). RULING Q3, same comment: "a route
+# constant travels with the binding that calls it, never with the model
+# that happens to declare it." SEVEN rows are edited. Two were already
+# `moved_with_declared_edit` and gain another entry: `app.js` (`adapter
+# calls`, 4 lines — the `gate.lens`/`gate.projects` bindings' `routes:`
+# declarations) and `staging-workbench-model.js` (`path constants` 14 lines
+# + `adapter calls` 12 lines — six routes leaving for `swb-create.js` /
+# `swb-session.js`). FIVE rows CONVERT `moved_verbatim` ->
+# `moved_with_declared_edit`: `lens-model.js` (`path constants`, 5 lines —
+# `LENS_SAVE_ROUTE`/`LENS_CLUSTER_ROUTE` removed), `lens.js` (`import
+# rewrites` 1 line + `adapter calls` 120 lines — one import repoint and its
+# two call sites), `repo-selector.js` (`path constants` 16 lines +
+# `adapter calls` 202 lines — four routes leave, one stays, one leaves the
+# bundle entirely per RULING DQ-1), `swb-create.js` and `swb-session.js`
+# (`import rewrites` 2 lines + `path constants` 1 line each — the routes
+# arriving from `staging-workbench-model.js`). FOUR new files are admitted
+# at `opendox_code`: `views/gate-lens.js`, `views/gate-projects.js`,
+# `views/projection-index.js` and `tests/test_split_route_tails.py`
+# (`docs/opendox-carve-admissions.yaml`). NO REFERENT DIGEST MOVES:
+# `carve_commit` and `carve_tag` are untouched; the two already-declared
+# rows keep the `sha256` they carry, and the five converted rows' `sha256`
+# is the carve blob's, unchanged by the conversion.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# same discipline the S6 paragraph above states: this act's whole
+# arithmetic is a DELTA on top of the § 3.4 SLICE-S6 annotation's own
+# totals — rows unchanged; `not_moved` unchanged; FIVE rows convert
+# `moved_verbatim` -> `moved_with_declared_edit`; declared lines +380
+# (`import rewrites` +5, `path constants` +37, `adapter calls` +338) over
+# the seven rows above; rows carrying `edits:` +5 (the five new carriers;
+# the two already-carrying rows are not new carriers); replicas unchanged.
+# The one place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+# Line numbers are the arrival verifier's own refusal output against a
+# fresh clone of the leg, not transcribed from an earlier draft: one
+# correction was caught this way — an earlier reference computation's
+# `repo-selector.js` range included carve line 68, which the verifier's
+# diff does not touch, so the declared `adapter calls` set here is the
+# verifier-measured 202 lines, not 203. Realized at opensoft/openDox-code
+# `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808`
+# (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14).
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
