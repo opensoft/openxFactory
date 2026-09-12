@@ -531,7 +531,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   against `opensoft/xFactory`'s current `main`
   (`gh api repos/opensoft/xFactory/contents/CLAUDE.md`): the sentence is
   present verbatim in rule 1.
-- [ ] 1.9 `[xF]` **NEW (2026-09-05) — `project-register.yaml` rows for the two
+- [x] 1.9 `[xF]` **NEW (2026-09-05) — `project-register.yaml` rows for the two
   elected projects.** One row each for `openDox` and `openXdox` carrying
   `schema: project-repo-schema`, `reference: openxFactory docs/project-repo-schema.md`, the
   three repositories in `repositories`, and a `repository_roles` entry per
@@ -542,6 +542,22 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   and the register never originates an election. Where the two disagree, the
   register wins for NAVIGATION only and the disagreement is reported as drift —
   it does not re-elect anything. Lands with 5.8's other aggregation edits.
+  **STATUS — 2026-09-12, tick JUDGED MET — the two derived election
+  rows landed in the same PR.** `project-register.yaml`'s `opendox` and
+  `openxdox` rows landed at `opensoft/xFactory` **#442 →
+  `41d6d7aeb15dbb73c75ac4e9ba2cb2e8cfc6c1a3`** together with 5.8's other
+  aggregation edits, exactly as this box's own last sentence says (5.8's
+  STATUS line below carries the PR's landing detail). Each row is DERIVED,
+  per this box's own rule and per the row's own header comment in
+  `project-register.yaml`: the `opendox` row's `repositories` (`openDox` /
+  `openDox-spec` / `openDox-code`) and `repository_roles` (assembly / spec /
+  code) are read from `opensoft/openDox`'s own `project.yaml`, at the landed
+  pointer `8ec3036ce496a90a3c92a89c4907e57941901b51`; the `openxdox` row's
+  `repositories` (`openXdox` / `openXdox-spec` / `openXdox-code`) and
+  `repository_roles` are read from `opensoft/openXdox`'s own `project.yaml`,
+  at the landed pointer `eca0b5977b0cca1f39c725b95fc9fa8b4d307d72`. Both rows
+  carry `schema: project-repo-schema` and `reference: openxFactory
+  docs/project-repo-schema.md`, as required. `#656` record: `5646934254`.
 - [x] 1.10 `[oXd]` `[oxF]` **NEW (2026-09-05) — THE PIN CHAIN. `opensoft/openRepoShape`#40
   is RESOLVED**, by openRepoShape PR #42, *Descendant referent follows the
   declared pin chain (#40)*, merge commit `c2cc9e25`, merged 2026-09-05T16:26:49Z
@@ -1146,6 +1162,37 @@ the bookkeeping that ticks this group.
   `tests/ideation-dashboard` collection, which measures **27** collection
   errors. The finding is stronger, not weaker, and this box stays open either
   way.
+  **STATUS — 2026-09-12, box stays open; verified against
+  `origin/main` directly, the realization is PARTIAL and 5.6a's wording
+  defect is not the only reason.** `opensoft/openxFactory` **#940 →
+  `cc4ae9d35b2dbd56743c8c19699fd685d4e49343`** (`#656` comment `5638315691`)
+  cut `docs/opendox-carve-manifest.yaml`'s phase to `post-shed`, but most of
+  this box's own listed clauses are NOT gone from the tree today:
+  `scripts/ideation_dashboard/` (10 of 48 modules remain),
+  `tests/ideation-dashboard/` (42 of 125 files remain),
+  `examples/ideation-dashboard/` (44 of 142 remain), and
+  `scripts/ideation-dashboard-nightly.py` (unchanged) all carry `not_moved`
+  rows in the carve manifest (`stays_openxfactory_adapter` /
+  `stays_openxfactory_governance`) under **RULING DQ-1** (openxFactory keeps
+  its own adapter) — a plan this box's own text predates. The manifest's
+  own `scripts/ideation-dashboard-nightly.py` row says so directly: "tasks.md
+  § 5.2's deletion list predates DQ-1 and is recorded as a disagreement
+  in the pull request." Confirmed actually gone: `web/`,
+  `tests/ideation_dashboard/` (the underscore spelling),
+  `scripts/validate-ideation-dashboard-contracts.py`, and the five contract
+  schemas 5.6a's defect (a) names (`gate-action-record`,
+  `ideation-dashboard-snapshot-index`, `ideation-dashboard-snapshot`,
+  `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog`). Most
+  of the governance docs this box counts as five are ALSO still present
+  (`docs/d10-hosted-refresh-marker.md`, both `docs/doxbench-runtime-refresh-
+  dogfood*.md` records, `docs/openxdox-naming.md`,
+  `docs/project-repo-schema.md`) — only `docs/ideation-dashboard-session-
+  runbook.md` left, `moved_with_declared_edit` to `opendox_spec`. **The box
+  stays open on two defects, not one**: 5.6a's "four vs five schemas"
+  wording defect, AND this fuller pre-DQ-1 staleness across the rest of its
+  own listed clauses — neither fixed here. Reconciling the wording (or
+  re-scoping the box to what RULING DQ-1 actually kept) is for a sweep at
+  § 8, the archive gate, not a silent edit of this box's original text.
 - [ ] 5.3 `[oxF]` Convert the dashboard workflows to CONSUMER GATES over the pinned
   tools, on the `openxwallet-consumer-gate` shape, **retaining the job id** so a
   ruleset-pinned token survives a file rename.
@@ -1320,6 +1367,17 @@ the bookkeeping that ticks this group.
   validates them. Recorded in `contracts/CHANGELOG.md` § contract-v3.7 and in
   `docs/contract-versioning-policy.md`'s Deprecations Currently In Force entry
   so it survives to the cut that must answer it.
+  **STATUS — 2026-09-12, both defects tracked to where they resolve.**
+  Defect (b) is ANSWERED: `contracts/CHANGELOG.md`'s `## contract-v4.0 —
+  2026-09-11 (BREAKING; the five ideation-dashboard contract schemas are
+  REMOVED and consumed at the openDox / openXdox spec legs)` entry, point 3,
+  "An update to the conformance validator — discharged by the MOVE
+  ITSELF" — "There is no second validator that accepts a new shape and
+  rejects the old one, because there is no new shape: the BYTES are
+  identical and the PUBLISHER changed. The question `contract-v3.7` left
+  open is answered below." Defect (a) is 5.2's own wording defect, not this
+  box's: tracked at 5.2's own STATUS line (this amendment), left open there
+  rather than fixed here. This note's original text above is unedited.
 - [x] 5.7 `[oxF]` Cut the **MAJOR** — a removed shape is BREAKING under
   `docs/contract-versioning-policy.md` § Change Classes, which also requires a
   CHANGELOG migration note and a preceding full minor of deprecation warnings.
@@ -1355,7 +1413,7 @@ the bookkeeping that ticks this group.
   contract-v4.0` → `release verify-tag: pass` (#656 comment `5642131117`,
   RULED + EXECUTED 2026-09-12 00:21Z). Both of the box's own owed clauses are
   discharged; nothing remains owed.
-- [ ] 5.8 `[xF]` `.gitmodules`, two root gitlinks, `README.md`, `CLAUDE.md`,
+- [x] 5.8 `[xF]` `.gitmodules`, two root gitlinks, `README.md`, `CLAUDE.md`,
   `project-register.yaml` — **including § 1.9's two derived election rows**
   (amended 2026-09-05). The aggregation's root gitlink for openXdox SHALL EQUAL
   `openxFactory`'s (one) nested gitlink commit, both naming the ASSEMBLY ROOT
@@ -1372,6 +1430,29 @@ the bookkeeping that ticks this group.
   `openxFactory`'s own direct openDox gitlink AND `opensoft/openDox`'s assembly
   root — the same equality 5.8 already states for openXdox, and RULING F's
   "openXdox only" clause is superseded for openDox alone by Q7.
+  **STATUS — 2026-09-12, tick JUDGED MET — the aggregation row and
+  re-point ceremony are landed.** `opensoft/xFactory` **#442 →
+  `41d6d7aeb15dbb73c75ac4e9ba2cb2e8cfc6c1a3`**, admin-merged by the lane on
+  Brett Heap's word by interactive multi-choice (RULED **ASK-9b → 1**,
+  `#656` comment `5635150678`: "the lane authors the PR after 5.7's tag
+  exists, citing the green `validate` run; Brett admin-lands it on his
+  word"; head `25fd719b`; `validate` run `34701762754` SUCCESS; 11 threads /
+  0 unresolved). Root gitlinks: `openDox` →
+  `8ec3036ce496a90a3c92a89c4907e57941901b51`, `openXdox` →
+  `eca0b5977b0cca1f39c725b95fc9fa8b4d307d72`; the `openxFactory` pointer
+  moved to `75484b6742eb929c5216e110722394d7a3cfa08a` in the same commit,
+  carrying `.github/clearing/openxfactory/PIN.yaml`'s `openxfactory_commit`
+  with it. Both equalities this box states are discharged at that landing:
+  `openXdox`'s root gitlink equals `openxFactory`'s own nested `openXdox`
+  gitlink (RULING F, unchanged); `openDox`'s root gitlink equals
+  `openxFactory`'s own nested `openDox` gitlink (RULING F superseded for
+  openDox alone by **RULING Q7**, `#656` comment `5626248666`, 2026-09-10,
+  "RULED (i): SECOND SUBMODULE") — both checked live against
+  `opensoft/openDox` / `opensoft/openXdox`'s own assembly roots AND against
+  `contracts/opendox-pin.yaml` / `contracts/openxdox-pin.yaml`'s `commit:`
+  fields at the new `openxFactory` pointer, which agree exactly.
+  `tests/test_opendox_openxdox_gitlink_parity.py` PASS is the landing check.
+  `#656` record: `5646934254`.
 - [x] 5.9 `[oxF]` ANNOTATE the 30 archived changes carrying an
   `ideation-dashboard` delta with the carry-forward. **Immutable records are
   annotated, never edited into agreement** — the wallet arc's own treatment, and
