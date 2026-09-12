@@ -1922,9 +1922,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # then the Q-L1 ANNOTATIONS of 2026-09-10 (`#656` comment `5628560136`,
     # landed with the § 5.2 shed) moved both again, by 68 lines over seven rows,
     # three of which carried no `edits:` before. 794 + 68 = 862 on 147 + 3 = 150
-    # rows. AND THEN THE § 3.4 SLICE-S3 ANNOTATION of 2026-09-12 (`#656`
-    # comment `5642758731`, whose Q-L1 paragraph binds every § 3.4 slice) moved
-    # both once more: the view registry edits ONE arrived file,
+    # rows. Then the ASK-7 DECLARED-EDIT WINDOW of 2026-09-11 (`#656` comment
+    # `5635150678`, ASK-7 → 1) added 4 more declared lines to two rows that
+    # ALREADY carried `edits:` — the cli.py and serve.py docstring/comment
+    # lines — so `carrying` does not move: 862 + 4 = 866 on the same 150 rows.
+    # AND THEN THE § 3.4 SLICE-S3 ANNOTATION of 2026-09-12 (`#656` comment
+    # `5642758731`, whose Q-L1 paragraph binds every § 3.4 slice) moved both
+    # once more: the view registry edits ONE arrived file,
     # `scripts/ideation_dashboard/web/app.js`, which converts `moved_verbatim`
     # -> `moved_with_declared_edit` and takes 37 lines in two classes
     # (`import rewrites` 1, `adapter calls` 36) on a row that carried no
@@ -1932,7 +1936,7 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # `tests/ideation-dashboard/test_bullseye_widget.py`, which already carried
     # an edit: that suite asserts `app.js`'s shape by quoting its lines back, so
     # the three quotations of the tab router's field names are invalidated by
-    # the `app.js` edit and are migrated in the same act. 862 + 37 + 3 = 902 on
+    # the `app.js` edit and are migrated in the same act. 866 + 37 + 3 = 906 on
     # 150 + 1 = 151 rows — the second row is not a new carrier.
     #
     # THIS ASSERTION IS WHERE THE ABSOLUTES LIVE, and deliberately so: the
@@ -1944,10 +1948,26 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (902, 151), (lines, carrying)
+    assert (lines, carrying) == (906, 151), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
+
+    # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
+    # review, PR #995) — the aggregate `(906, 151)` above would still pass if
+    # these four had landed on the wrong rows, under the wrong class, or as a
+    # different four line numbers that happened to sum to the same total.
+    # Named individually, on the same `(class, lines)` idiom the replica row's
+    # check above already uses.
+    cli_row = rows["scripts/ideation_dashboard/cli.py"]
+    ask7_cli = [(edit["class"], edit["lines"]) for edit in cli_row["edits"]
+                if edit["lines"] == [834]]
+    assert ask7_cli == [("path constants", [834])], cli_row
+
+    serve_row = rows["scripts/ideation_dashboard/serve.py"]
+    ask7_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
+                  if edit["lines"] == [155, 725, 1338]]
+    assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
 
 
 # --------------------------------------------------------------------------
@@ -2016,7 +2036,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 902 line numbers were written in the numbering this
+    The manifest's 906 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would

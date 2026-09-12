@@ -522,6 +522,57 @@ def check_issuance(f, view: View) -> None:
                             f"which is not in scope. A composition is not composed "
                             f"until every part is there, and an identity MISSING ANY "
                             f"ONE of the three records is refused at issuance")
+
+            # AND THE PARTS MUST BELONG TO EACH OTHER. Presence was checked one
+            # reference at a time, each against its OWN pool, so a binding naming
+            # certificate C and issuance evidence E composed and verified even where
+            # E recorded the issuance of some other certificate C': three records,
+            # all present, all schema-valid, all resolvable, and the issuance act
+            # that is supposed to evidence C's issuance evidencing something else.
+            # The ratified scenario is explicit that the evidence "records the
+            # controller's issuance act and REFERENCES THAT CERTIFICATE", and
+            # nothing performed that comparison — `check_signatures()` resolves the
+            # certificate separately, from the signature side, and never closes it
+            # either (openxFactory #582, found by Codex on #566).
+            #
+            # COMPARED ONLY WHERE BOTH REFERENCES RESOLVED, so a missing part is
+            # still reported as the missing part it is rather than as a
+            # disagreement, and reported under the SAME closed code the requirement
+            # already names for a composition that does not compose — a new code
+            # would be a refusal this enumeration has no probe for.
+            cert_ref = binding.get("certificate_ref")
+            evidence_ref = binding.get("issuance_evidence_ref")
+            certificate = (view.certificates.get(cert_ref)
+                           if isinstance(cert_ref, str) else None)
+            evidence = (view.issuances.get(evidence_ref)
+                        if isinstance(evidence_ref, str) else None)
+            if certificate is not None and evidence is not None:
+                evidenced = evidence.get("certificate_ref")
+                if evidenced != cert_ref:
+                    f.error("forged_attestation_identity",
+                            f"{label}: the binding discharges its issuance against "
+                            f"evidence {evidence_ref!r}, whose `certificate_ref` is "
+                            f"{evidenced!r}, while the binding is issued against "
+                            f"certificate {cert_ref!r}. The evidence records ANOTHER "
+                            f"certificate's issuance act, so a composition whose "
+                            f"parts do not belong to each other is not composed, and "
+                            f"an identity is not discharged by another identity's "
+                            f"issuance")
+                # THE SAME BINDING FROM THE CERTIFICATE'S SIDE. Compared only where
+                # the certificate records `present: true` and carries a string
+                # reference: an honestly-absent evidence record is `add-trust-anchor`'s
+                # own state, with its own disposition, and is not restated here.
+                back = certificate.get("issuance_evidence")
+                carried = back.get("evidence_ref") if isinstance(back, dict) else None
+                if (isinstance(back, dict) and back.get("present") is True
+                        and isinstance(carried, str) and carried != evidence_ref):
+                    f.error("forged_attestation_identity",
+                            f"{label}: certificate {cert_ref!r} records its issuance "
+                            f"evidence as {carried!r} and the binding discharges "
+                            f"against {evidence_ref!r}. The two are one fact written "
+                            f"twice, and a reference free to move independently of "
+                            f"the record it names is how an issuance act is "
+                            f"substituted under a genuine certificate")
         if len(seen_scoped) > 1:
             f.error("subject_scope_mismatch",
                     f"chain {chain_id}: {len(seen_scoped)} chain-scoped tier-2 "

@@ -126,9 +126,9 @@ exec_serve() {
   # (`split-opendox-two-layer-product` § 5.2, RULED (a) POST-SHED MODE, `#656`
   # `5625573095`). `ideation_dashboard.serve` left for openDox-code in the shed;
   # the wrapper reads it through this repository's PIN, puts BOTH legs' `src/`
-  # on the path — the serve's columns span openDox and openXdox — and registers
-  # openxFactory's composition point with `build_server`, which names it as a
-  # bare global. See `scripts/ideation-dashboard-serve.py`'s docstring for why
+  # on the path — the serve's columns span openDox and openXdox — and makes the
+  # ONE process-start registration `build_server`'s lazy profile proxy resolves
+  # through. See `scripts/ideation-dashboard-serve.py`'s docstring for why
   # the one old line cannot be re-pointed in place.
   exec python3 scripts/ideation-dashboard-serve.py "${argv[@]}"
 }

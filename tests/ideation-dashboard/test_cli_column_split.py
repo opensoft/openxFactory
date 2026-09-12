@@ -75,10 +75,10 @@ from openxdox import cli_gate
 # The composition point, at its POST-SHED home. `scripts/
 # ideation_dashboard/profile_openxfactory.py` is the carve manifest's one
 # `deleted_at_carve` row and the shed removed it; openxFactory's profile now
-# lives at `scripts/profile_openxfactory.py` (plain top-level spelling) and is
-# registered with `opendox.serve`/`opendox.cli` by
-# `carved_reach.bind_composition_point()` from the conftest — the openxFactory
-# half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
+# lives at `scripts/profile_openxfactory.py` (plain top-level spelling), and
+# `opendox_host.register_openxfactory()` — called from the conftest — hands it
+# to `opendox.domain_profile` for both consumers' lazy proxy to resolve: the
+# openxFactory half of RULED ASK-2 option (2) (`#656` comment `5628886636`).
 import profile_openxfactory
 
 from carved_reach import source as carved_source
@@ -562,20 +562,66 @@ def dispatchable(parser) -> list:
     return out
 
 
-def test_every_dispatchable_verb_is_the_same_object_on_the_core_module():
-    """RE-EXPORT COMPLETENESS, walked rather than listed.
+def test_every_dispatchable_verb_is_the_same_object_on_its_owning_module():
+    """RE-EXPORT COMPLETENESS, walked rather than listed — at the grain the
+    carve left it.
 
     `args.func is cli_mod.cmd_gate_edit_document` is asserted by name in the
-    session suites; this generalises it, so a verb that moves out of `cli.py`
-    without a re-export fails here instead of in whichever suite happens to
-    name it."""
+    session suites; this generalises it, so a verb that moves out of its
+    module without a re-export fails here instead of in whichever suite
+    happens to name it.
+
+    RE-POINTED FROM `cli` TO THE OWNING MODULE, because openDox-code's BUILD
+    slice 2b deleted the nineteen `from openxdox.cli_gate import (...)`
+    re-exports and said exactly why: that block "was … nineteen names bound
+    back onto this module at import time, which is the single largest reason
+    `import opendox.cli` required the layer that PINS openDox", and the verbs
+    "are a CONTRIBUTION, not a core name" — `GateSubcommands.register()`
+    attaches each to the very `sub` action `build_parser()` builds, "so
+    `args.func` already carries the function OBJECT and
+    `openxdox.cli_gate.cmd_gate_*` is the name that holds it". The same note
+    REFUSES the alternative this test could have demanded: "A late stand-in
+    was considered and refused: it would answer the call and break
+    `args.func is cli_mod.cmd_gate_edit_document`, which is the identity the
+    re-export existed to keep — a proxy here would look like it worked."
+
+    So the property is kept and its address is corrected: every dispatchable
+    verb must be reachable, AS THE SAME OBJECT, on the module that defines it
+    — which is what an `args.func is <owner>.<name>` assertion needs, and
+    which still fails the moment a verb moves without a re-export. That
+    openDox's own core no longer holds openXdox's nineteen is asserted
+    positively below rather than left as this test's silence."""
     missing = []
     for func in dispatchable(cli_mod.build_parser()):
-        if getattr(cli_mod, func.__name__, None) is not func:
+        owner = sys.modules.get(func.__module__)
+        if owner is None or getattr(owner, func.__name__, None) is not func:
             missing.append(f"{func.__name__} ({func.__module__})")
     assert missing == [], (
-        "these dispatchable verbs are not reachable as the same object on "
-        f"`cli`, so an `args.func is cli.<name>` assertion would fail: {missing}")
+        "these dispatchable verbs are not reachable as the same object on the "
+        "module that defines them, so an `args.func is <owner>.<name>` "
+        f"assertion would fail: {missing}")
+
+
+def test_the_core_no_longer_re_exports_the_gate_verbs_it_dispatches():
+    """The OTHER half of the claim above, asserted rather than implied.
+
+    BUILD slice 2b's deletion is a layering fact openxFactory depends on: the
+    nineteen gate verbs reach `args.func` through `GateSubcommands.register()`
+    and NOT through a name on `opendox.cli`, which is what lets
+    `import opendox.cli` stop requiring the package that pins openDox. A
+    re-export quietly restored would put that import-time reach back with
+    nothing else failing, so it fails here."""
+    gate_verbs = [func for func in dispatchable(cli_mod.build_parser())
+                  if func.__module__ == "openxdox.cli_gate"]
+    assert len(gate_verbs) >= 19, (
+        "the gate column contributes fewer verbs than the nineteen BUILD "
+        f"slice 2b names; found {len(gate_verbs)}")
+    restored = sorted(func.__name__ for func in gate_verbs
+                      if hasattr(cli_mod, func.__name__))
+    assert restored == [], (
+        "`opendox.cli` binds these openXdox gate verbs again — that is the "
+        "import-time reach into the pinning layer BUILD slice 2b removed: "
+        f"{restored}")
 
 
 def test_the_dispatch_walk_is_not_vacuous():
@@ -613,7 +659,7 @@ BOOTSTRAP = (
     "import sys; sys.path.insert(0, {scripts!r})\n"
     "import carved_reach\n"
     "carved_reach.require(); carved_reach.install()\n"
-    "carved_reach.bind_composition_point()\n"
+    "import opendox_host; opendox_host.register_openxfactory()\n"
 )
 
 
@@ -873,8 +919,17 @@ def test_a_library_caller_gets_the_columns_of_its_own_core(spelling, tmp_path):
 
         verbs = walk(core.build_parser(), [])
         assert len(verbs) >= 28, len(verbs)
+        # THE SAME OBJECT ON THE MODULE THAT DEFINES IT, not on `core`:
+        # openDox-code's BUILD slice 2b deleted the nineteen
+        # `from openxdox.cli_gate import (...)` re-exports, "the single
+        # largest reason `import opendox.cli` required the layer that PINS
+        # openDox", and the gate verbs reach `args.func` as a CONTRIBUTION
+        # through `GateSubcommands.register()`. The identity this section is
+        # about is untouched: a dispatched verb is the very function its own
+        # module holds, so the caller's core is the core that runs.
         assert [v.__name__ for v in verbs
-                if getattr(core, v.__name__, None) is not v] == []
+                if getattr(sys.modules[v.__module__], v.__name__, None)
+                is not v] == []
         assert {v.__module__ for v in verbs} == {
             SPELLING + ".cli", SPELLING + ".cli_project",
             SPELLING + ".cli_model_binding", "openxdox.cli_gate"}
@@ -984,6 +1039,19 @@ def test_the_split_modules_name_each_other_lawfully():
         `scripts.ideation_dashboard.cli` name files this repository deleted;
         an import that still spelled one of them would be a half-finished
         re-point, and this is the assertion that finds it.
+      * THE COMPOSITION POINT, THROUGH THE LEG'S OWN LAZY PROXY. § 4.3 (RULED
+        ASK-2 option (2), `#656` comment `5628886636`) landed
+        `opendox.profile_proxy`, and `opendox/cli.py`:112 now says `from
+        opendox.profile_proxy import profile_openxfactory`. That is NOT a leg
+        naming openxFactory: `profile_openxfactory` has no package in the map
+        above (`None`) precisely because the HOST supplies it at run time, and
+        the proxy is the one name the LEG owns for it — it resolves through
+        `opendox.domain_profile.current()` at first attribute read and
+        refuses, naming the host's registration call, when no host registered.
+        A leg reaching the composition point any OTHER way — a bare `import
+        profile_openxfactory`, or a pre-shed
+        `ideation_dashboard.profile_openxfactory` — is still an offender,
+        which is what keeps this clause narrow.
 
     The `__main__` bootstrap keeps its one exemption, for the reason it always
     had: it names the core absolutely BECAUSE it has no package to be relative
@@ -1014,6 +1082,9 @@ def test_the_split_modules_name_each_other_lawfully():
                 owner = SPLIT_MODULE_PACKAGES[name]
                 if package == owner and owner != home:
                     continue                      # lawful cross-leg absolute
+                if (name == "profile_openxfactory" and home
+                        and package == f"{home}.profile_proxy"):
+                    continue                      # § 4.3's own lazy proxy
                 if id(node) in in_bootstrap and name == "cli":
                     continue                      # the one exemption
                 offenders.append(
@@ -1026,8 +1097,8 @@ def test_the_split_modules_name_each_other_lawfully():
         "reaches stops being the core that is running it, and its refusals "
         f"escape `main` uncaught: {offenders}")
 
-    # non-vacuity: the relative imports are really there, and so are the two
-    # cross-leg absolutes that replaced the ones the shed made impossible.
+    # non-vacuity: the relative imports are really there, and so is the
+    # cross-leg absolute that replaced the ones the shed made impossible.
     assert set(relative_sibling_imports(cli_mod)) == {
         "cli_model_binding", "cli_project"}
     assert "cli" in relative_sibling_imports(cli_project)
@@ -1036,7 +1107,21 @@ def test_the_split_modules_name_each_other_lawfully():
         "reach the core relatively, and a relative spelling here would mean "
         "the column had moved back")
     assert absolute_split_imports(cli_gate).get("cli") == "opendox"
-    assert absolute_split_imports(cli_mod).get("cli_gate") == "openxdox"
+    # THE OTHER DIRECTION IS NOW ABSENT, and its absence is the claim. The core
+    # named `openxdox.cli_gate` absolutely until openDox-code's BUILD slice 2b
+    # deleted the nineteen-name re-export block — "the single largest reason
+    # `import opendox.cli` required the layer that PINS openDox". The column is
+    # still reached, at RUN time, through `GateSubcommands.register()`; what is
+    # gone is the import-time reach, so asserting the old absolute would now be
+    # asserting the inversion undone.
+    assert "cli_gate" not in absolute_split_imports(cli_mod), (
+        "`opendox.cli` names `openxdox.cli_gate` at import time again — BUILD "
+        "slice 2b removed exactly that reach, and § 4.1's dependency "
+        "inversion is what it bought")
+    # What the core DOES name across the boundary is § 4.3's composition
+    # point, through its own lazy proxy — the clause the offender loop admits.
+    assert absolute_split_imports(cli_mod).get(
+        "profile_openxfactory") == "opendox.profile_proxy"
 
 
 @pytest.mark.parametrize("spelling", PRE_SHED_SPELLINGS)
