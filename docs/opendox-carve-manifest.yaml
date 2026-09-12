@@ -371,6 +371,42 @@ moved_paths:
 # replicas unchanged. The one place the running absolutes are summed and
 # pinned is
 # `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+#
+# THE § 3.4 SLICE-S6 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`). RULING Q4, same comment: the read-only
+# `/source` pass-through returns from a CONTRIBUTED binding
+# (`openxdox_code`'s `serve_projection.py`) to a FIXED core arm of the
+# neutral product (`opendox_code`'s `serve.py`). NO ROW CHANGES DISPOSITION —
+# both were already `moved_with_declared_edit` — each gains one new
+# `adapter calls` entry: 10 lines on `serve.py` (five INSERTIONS, each named
+# by the pair of carve lines it sits between — the registration-modes
+# record, the two route constants `SOURCE_PREFIX`/`BARE_SOURCE_ROUTE`, the
+# `resolve_source_path` containment entry point, the two FIXED core arms in
+# `_route`, and `_keyed_source`/`_serve_source`/`_refuse_bare_source`) and
+# 122 on `serve_projection.py` (the matching DELETIONS — the same five
+# things, plus the module docstring's opening and the "THE `/source` PAIR
+# MOVES TOGETHER" paragraph, replaced by the record of where the pair went).
+# `snapshot_registry.resolve_within`, the per-entry containment rule, does
+# NOT move and stays `openxdox_code`'s. ONE new file is admitted at
+# `opendox_code`: `tests/test_source_core_arm.py`, the runnable half of the
+# re-homing (`docs/opendox-carve-admissions.yaml`). NO REFERENT DIGEST
+# MOVES: `carve_commit` and `carve_tag` are untouched, and both rows keep
+# the `sha256` they already carry, which is the CARVE blob's.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# same discipline the S3 paragraph above states: this act's whole arithmetic
+# is a DELTA on top of the § 3.4 SLICE-S3 annotation's own totals — rows
+# unchanged; `not_moved` unchanged; NO disposition conversion (both rows
+# already `moved_with_declared_edit`); declared lines +132 (`adapter calls`
+# +132, `import rewrites` +0, `path constants` +0) over the two rows above;
+# rows carrying `edits:` unchanged (neither row is a new carrier); replicas
+# unchanged. The one place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+# Realized at opensoft/openDox-code `build/s6-source-core-arm`,
+# `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)
+# and opensoft/openXdox-code `build/s6-source-route-to-opendox`,
+# `00b69de787975a663d9fb8985a6e38fc54945150` (DRAFT PR opensoft/openXdox-code#17).
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
