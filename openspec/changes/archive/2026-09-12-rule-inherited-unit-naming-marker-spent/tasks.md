@@ -661,11 +661,25 @@ this archive.
       archive`; the origin-retention gate fires inside that wrapper, and a
       dry run on this tree (before this commit) already reported **ORIGIN
       RETAINED** — the declaration unchanged since the ratifying commit
-      `5622d4cc838e`. Byte-identity of the promoted block against this
-      delta, and this archive pull request's own number, are recorded in the
-      commit that performs the move and in that pull request's body, not
-      asserted here in advance of the act. The ratified text follows
-      unchanged:
+      `5622d4cc838e`. **DONE, ON ARCHIVE PULL REQUEST
+      [#1012](https://github.com/opensoft/openxFactory/pull/1012)**: the move
+      is to
+      `openspec/changes/archive/2026-09-12-rule-inherited-unit-naming-marker-spent/`
+      and the block is written back into
+      `openspec/specs/doc-health/spec.md`. **THE PROMOTED REQUIREMENT IS
+      BYTE-IDENTICAL TO THIS DELTA, MEASURED RATHER THAN EYEBALLED**: both
+      sides sliced at `### Requirement: Currency of an active change's
+      MODIFIED requirement blocks` to the next `###` heading and hashed —
+      **53,777 bytes, sha256
+      `6a71bd0bc49a3297cd50d8c7955ab6c9d9f9047da8f30570ccb58eb0151bf249`**,
+      both sides, after normalising the one trailing-newline artefact of the
+      delta file's own end-of-file boundary (canon continues with the next
+      requirement; the delta file does not). `git diff --cached -M
+      --name-status` shows all six of this packet's other files as **R100**
+      (pure, byte-identical renames); this file alone is **R09x** (renamed
+      and refined by this same commit, adding the citations this box and
+      § 5.3 needed once the pull request existed and the move had run). The
+      ratified text follows unchanged:
       **RATIFY FIRST (§ 1), THEN ARCHIVE.** The status flip and the
       approval pair land together in one ratification commit; the archive act
       — the move and the promotion of the block — is a later act on a later
@@ -692,10 +706,13 @@ this archive.
       #962's own body carried `refs #955` and no closing keyword throughout,
       verified `closingIssuesReferences == []` at its FREEZE and unchanged
       through its merge, which is what kept openxFactory #955 open across
-      that landing. This archive pull request's own number, and its
-      `closingIssuesReferences == [955]` reading, are recorded in the commit
-      that opens it and in its body, not asserted here in advance of its
-      existence. The ratified text follows unchanged:
+      that landing. **DONE, ON ARCHIVE PULL REQUEST
+      [#1012](https://github.com/opensoft/openxFactory/pull/1012)**: its body
+      carries `Closes #955` on its own line, and GraphQL
+      `closingIssuesReferences` reads exactly `[955]`, verified after the
+      body was opened and re-verified at FREEZE. No commit message on this
+      archive branch carries a closing keyword in any form. The ratified text
+      follows unchanged:
       **THE CLOSING LINE FOR openxFactory #955 STANDS IN THE ARCHIVE PULL
       REQUEST'S BODY AND NOWHERE ELSE.** This pull request's body carries
       `refs` and no closing keyword, and `closingIssuesReferences` is verified
