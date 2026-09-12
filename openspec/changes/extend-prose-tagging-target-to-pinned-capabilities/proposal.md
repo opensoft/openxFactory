@@ -103,7 +103,10 @@ fenced and queued truthfully instead.
 **One grammar extension, in three parts, none of them realized here.**
 
 1. **A target form that can name a capability in a pinned neutral product.**
-   `target=pinned:<pin-id>/<capability>`, where `<pin-id>` is the stem of a
+   `target=pinned:<pin-id>/<capability>`, in an `xspec:candidate` marker's
+   `target=` attribute and there only (design D-1.1 closes the
+   `xspec:supersedes` `spec=` case explicitly rather than leaving it silent),
+   where `<pin-id>` is the stem of a
    `contracts/<pin-id>-pin.yaml` record this repository already carries and
    `<capability>` is the capability name as the pinned product holds it. For
    the four affected markers that is `target=pinned:openxwallet/openxwallet`.
@@ -116,9 +119,19 @@ fenced and queued truthfully instead.
 2. **A resolution rule that rests on the pin, and says so.** The `<pin-id>`
    MUST resolve to a pin record in this repository's pin registry. The
    `<capability>` segment is NOT resolved further, because **no pin record in
-   this tree enumerates capabilities** — all six enumerate FILES (`files:`,
-   `digests:`, `pinned_by_commit_only:`, `pinned_members:`) — so a rule
-   requiring the enumeration would refuse every marker it exists to admit. The
+   this tree enumerates capabilities** — measured over all six at `323c7adf`.
+   What each record addresses INSTEAD differs, and the differences matter
+   enough to state rather than average: two enumerate files (`files:` beside
+   `pinned_by_commit_only:`), two carry tree `digests:`, one carries workflow
+   `pinned_members:`, and `contracts/openspec-cli-pin.yaml` enumerates NOTHING
+   — it carries ONE whole-artifact `integrity:` digest over a published tarball
+   plus a lockfile referent, and its own comment at
+   `contracts/openspec-cli-pin.yaml:69-76` states why it has neither a `files:`
+   nor a `pinned_by_commit_only:` list ("ONE digest covers ALL 389 files, so
+   the completeness question the two lists answer is answered here by
+   construction"). The invariant this resolution rule rests on is the one that
+   holds across all six: the absence of a CAPABILITY enumeration. A rule
+   requiring one would therefore refuse every marker it exists to admit. The
    requirement is written so that a pin record which LATER enumerates
    capabilities tightens resolution automatically, without a further grammar
    delta (design D-2).

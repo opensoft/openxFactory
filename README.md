@@ -541,11 +541,14 @@ Active changes:
   (Recommended)"***; recorded on openxFactory #745. That word commissioned the
   FILING and nothing further. Extends the prose-tagging grammar with a target
   form that can name a capability which has LEFT this corpus and now lives in a
-  pinned neutral product — `target=pinned:<pin-id>/<capability>`, chosen because
+  pinned neutral product — `target=pinned:<pin-id>/<capability>`, in an
+  `xspec:candidate` marker's `target=` attribute and there only, chosen because
   the existing marker regexes (`scripts/doc_health/families.py:1308-1314`) accept
-  it unchanged — with resolution resting on the pin record's existence (no pin
-  record in this tree enumerates capabilities; all six enumerate files, measured)
-  and a stale-target rule `document-lifecycle` does not carry today: when a
+  it unchanged — with resolution resting on the pin record's existence (NO pin
+  record in this tree enumerates capabilities, measured over all six; what each
+  addresses instead is files, tree digests, workflow members, or one
+  whole-artifact digest) and a stale-target rule `document-lifecycle` does not
+  carry today: when a
   target capability exits the corpus the marker either takes the pinned form or
   the block is unfenced, never silently retargeted and never silently deleted.
   **This discharges owed successor item (7) of the `split-openxwallet-repo`

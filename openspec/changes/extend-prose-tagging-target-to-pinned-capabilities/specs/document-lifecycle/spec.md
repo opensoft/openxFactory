@@ -19,7 +19,13 @@ names a capability of a NEUTRAL PRODUCT THIS REPOSITORY PINS: `<pin-id>` is the
 identifier of a pin record the repository carries, and `<capability>` is the
 capability name as the pinned product holds it. The literal prefix `pinned:` is
 RESERVED and is the discriminator between the two forms; a capability id MUST
-NOT contain a colon.
+NOT contain a colon. The PINNED form is admitted in an `xspec:candidate`
+marker's `target=` attribute ONLY. An `xspec:supersedes` marker's
+`spec=<capability>/<requirement-slug>` value MUST NOT carry the `pinned:`
+prefix, and a `spec=` value that carries it MUST be reported: the spelling is
+RESERVED AND REFUSED rather than merely undefined, because a `spec=` value
+already carries a separator of its own and no pinned parse for it is defined —
+a deferred form fails closed.
 
 A PINNED target resolves when its `<pin-id>` resolves to a pin record this
 repository carries. The `<capability>` segment MUST be well formed, and it MUST
@@ -58,6 +64,11 @@ not the thing that happens when nobody decides.
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists in this repository
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
 - **AND** the finding MUST name the pin registry as the thing that failed to resolve, not `openspec/specs/`
+
+#### Scenario: A supersedes marker carries the reserved pinned prefix
+- **WHEN** an `xspec:supersedes` marker's `spec=` value begins with the reserved `pinned:` prefix
+- **THEN** the deterministic health pass MUST report it as a hygiene finding
+- **AND** the finding MUST state that the pinned form is admitted only in a candidate marker's `target=` attribute
 
 #### Scenario: A target capability leaves the corpus
 - **WHEN** a change removes a capability that live `xspec:` markers target

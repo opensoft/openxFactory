@@ -8,16 +8,30 @@ the later realization pull request, and § 4 is the archive act.
 
 ## 1. The ask — Brett Heap's ratification
 
-- [ ] 1.1 **RATIFY or REFUSE the form (D-1):** the marker target may be
-  `pinned:<pin-id>/<capability>`, where `<pin-id>` is the stem of a
-  `contracts/<pin-id>-pin.yaml` record. For the four affected markers that is
-  `target=pinned:openxwallet/openxwallet`. The form needs NO regex change —
-  measured against `families.py:1308-1314`.
+- [ ] 1.1 **RATIFY or REFUSE the form (D-1):** an `xspec:candidate` marker's
+  `target=` may be `pinned:<pin-id>/<capability>`, where `<pin-id>` is the stem
+  of a `contracts/<pin-id>-pin.yaml` record. For the four affected markers that
+  is `target=pinned:openxwallet/openxwallet`. The form needs NO regex change —
+  measured against `families.py:1308-1314`. The `xspec:supersedes` marker's
+  `spec=` attribute is OUT OF SCOPE and CLOSED (D-1.1): a `spec=` value
+  carrying the reserved `pinned:` prefix is refused, because the `spec=`
+  grammar splits at its first `/` and no pinned parse for it is defined, and
+  because no live `supersedes` marker in this repository has a stale target —
+  measured.
 - [ ] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** the pin id must
   resolve to a pin record this repository carries; the capability segment is
   checked for shape and resolved further ONLY where the pin record enumerates
   capabilities — which none of the six does today, measured. The weakening this
-  accepts is stated plainly in D-2 and is worth a veto on its own.
+  accepts is stated plainly in D-2 and is worth a veto on its own. **THIS IS
+  THE PACKET'S ONE LIVE CONSTITUTIONAL QUESTION.** Principle VII
+  (`.specify/memory/constitution.md:99-103`) closes registries of capabilities
+  and requires deferred features to fail closed; under arm 1 the CAPABILITY
+  segment is open — `pinned:openxwallet/typo` resolves. D-2 states the
+  three-way tension in full and does not resolve it by argument. Note before
+  ruling: the fail-closed alternative (refuse a target whose pin record carries
+  no capability enumeration) refuses all four markers this change exists to
+  admit, so a REFUSE here is a refusal of the change's central mechanism rather
+  than a tightening of it.
 - [ ] 1.3 **RATIFY or REFUSE the stale-target rule (D-3):** when a target
   capability exits the corpus the marker either takes the pinned form or the
   block is unfenced — never silently retargeted, never silently deleted.
@@ -55,13 +69,21 @@ the later realization pull request, and § 4 is the archive act.
 - [ ] 3.2 The finding text for an unresolved PINNED target names the pin
   registry, not `openspec/specs/` — the present fixed string
   (`families.py:1367-1368`) is the wrong instruction for this class.
-- [ ] 3.3 Tests under `tests/doc_health/`: a resolving pinned target emits
-  nothing; an unresolvable pin id emits a finding naming the pin; the pinned
-  form on a `supersedes` marker behaves consistently with the candidate arm;
-  in-tree resolution is unchanged.
+- [ ] 3.3 Tests under `tests/doc_health/`, and D-2's CONDITIONAL arm gets BOTH
+  of its cases, so the realization cannot satisfy this list while omitting the
+  branch: **(a)** a resolving pinned target, under a pin record carrying no
+  capability enumeration, emits nothing; **(b)** an unresolvable pin id emits a
+  finding naming the PIN REGISTRY, not `openspec/specs/`; **(c)** a fixture pin
+  record that DOES enumerate capabilities emits nothing for a capability LISTED
+  in it; **(d)** the same fixture emits a finding naming the enumeration for a
+  capability NOT listed in it — (c) and (d) are the positive and the negative
+  of the arm that binds automatically, and without both the branch can be
+  absent with this list still satisfied; **(e)** an `xspec:supersedes` marker
+  whose `spec=` value carries the reserved `pinned:` prefix is REFUSED with a
+  finding (D-1.1); **(f)** in-tree resolution is unchanged.
 - [ ] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
-  target form beside the existing `<capability>` bullet, and D-3's
-  stale-target sentence.
+  target form beside the existing `<capability>` bullet, its scope (candidate
+  `target=` only, per D-1.1), and D-3's stale-target sentence.
 - [ ] 3.5 Retarget the four markers to `target=pinned:openxwallet/openxwallet`
   — `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md`
   lines 222, 242, 280 and

@@ -7,8 +7,8 @@ Every figure in this document was MEASURED at this branch's base
 
 ## D-1 — The form: `target=pinned:<pin-id>/<capability>`
 
-**Decision.** A candidate or supersedes marker MAY name its target as
-`pinned:<pin-id>/<capability>`, where:
+**Decision.** An `xspec:candidate` marker's `target=` attribute MAY name its
+target as `pinned:<pin-id>/<capability>`, where:
 
 - `pinned:` is a literal, reserved prefix. It is the discriminator, and it is
   unambiguous because **no capability id in this corpus contains a colon** —
@@ -66,6 +66,42 @@ reuses the house's own separator rather than inventing one.
   resolves to something openxFactory does not govern and cannot verify offline
   (see D-4's third rejection).
 
+### D-1.1 — The `supersedes` marker's `spec=` is OUT OF SCOPE, and CLOSED
+
+**Decision.** The pinned form is admitted in an `xspec:candidate` marker's
+`target=` attribute ONLY. An `xspec:supersedes` marker's `spec=` value MUST NOT
+carry the reserved `pinned:` prefix; a `spec=` that does is a tag-hygiene
+finding, and the realization tests that refusal (task 3.3(e)) rather than
+leaving it to the resolver's accident.
+
+**Why it cannot simply be "and supersedes too".** `xspec:supersedes` carries no
+`target=` attribute at all. It carries `spec=<capability>/<requirement-slug>`,
+and `families.py:1387-1392` reads the capability as `spec.split("/", 1)[0]` —
+a split at the FIRST separator. A pinned value there would have to be
+`spec=pinned:<pin-id>/<capability>/<requirement-slug>`: three segments across
+two separators, which that split reads as the capability `pinned:<pin-id>`,
+silently dropping the capability name and the requirement slug into one
+unparsed tail. A pinned `spec=` therefore needs its own parse rule, and writing
+one is a second grammar decision this packet has no measured demand for.
+
+**The measured demand, or its absence.** Measured at `323c7adf`: the four
+markers issue #992 names are all `xspec:candidate` `target=` markers. The only
+live `xspec:supersedes` markers in this repository outside `tests/` fixtures are
+the four in
+`ideation/staging/notebook-projection-identity/notebook-projection-identity.md`,
+and every one of them names an IN-TREE capability — `lifecycle-notebook-
+projection` and `credential-contracts` — both of which resolve today. No live
+`supersedes` marker has a stale target, so no `supersedes` marker is waiting on
+this grammar.
+
+**Why CLOSED and not merely unmentioned.** Constitution Principle VII
+(`.specify/memory/constitution.md:99-103`) says deferred features fail closed
+rather than degrade open. A silence here would degrade open: the `pinned:`
+prefix would reach `spec=` through the shared `_ATTR` pattern and resolve or
+misresolve by accident. The `document-lifecycle` delta therefore states the
+refusal as a rule and carries a scenario for it. Admitting a pinned `spec=` is
+a later change, on evidence that a stale supersedes target exists.
+
 ## D-2 — Resolution: the pin record's existence is the check
 
 **Decision.** Resolution of `pinned:<pin-id>/<capability>` has two arms:
@@ -80,8 +116,10 @@ reuses the house's own separator rather than inventing one.
    carries a capability enumeration, the named capability MUST appear in it.
 
 **Why the second arm is conditional — measured, not assumed.** All six pin
-records in `contracts/` were read at `323c7adf`. Their enumerations are of
-FILES, never of capabilities:
+records in `contracts/` were read at `323c7adf`. NONE enumerates capabilities,
+and that is the only property this arm rests on; what each record addresses
+INSTEAD differs record by record — files, tree digests, workflow members, or no
+enumeration at all:
 
 | pin record | what it enumerates |
 | --- | --- |
@@ -89,7 +127,7 @@ FILES, never of capabilities:
 | `contracts/openreposhape-pin.yaml` | `files:` + `pinned_by_commit_only:` |
 | `contracts/opendox-pin.yaml` | `digests:` (`digest_definition: sorted-ls-tree-r-v1`) |
 | `contracts/openxdox-pin.yaml` | `digests:` (same definition) |
-| `contracts/openspec-cli-pin.yaml` | a package `integrity:` + a lockfile |
+| `contracts/openspec-cli-pin.yaml` | NO enumeration of any kind: ONE whole-artifact `integrity:` digest over the published tarball + a `lockfile:` referent. It carries neither `files:` nor `pinned_by_commit_only:`, and its own lines 69-76 say why ("ONE digest covers ALL 389 files") |
 | `contracts/review-lane-pin.yaml` | `pinned_members:` (workflow members) |
 
 `grep -n 'capabilit' contracts/*pin*.yaml` returns only PROSE occurrences
@@ -111,6 +149,36 @@ the network") forbids the checker from going and looking. Third, the
 requirement is written so that the moment a pin record DOES enumerate
 capabilities, arm 2 binds automatically — no further grammar delta, no second
 change, no migration of existing markers.
+
+**THE CONSTITUTIONAL OBJECTION, PUT IN THE PACKET RATHER THAN LEFT TO A
+REVIEWER.** Constitution Principle VII (`.specify/memory/constitution.md:99-103`)
+says registries "of capabilities, outcomes, purposes, and states are closed:
+unrecognized values are rejected, and deferred features fail closed rather than
+degrade open." Under arm 1 alone the CAPABILITY segment is an OPEN set:
+`pinned:openxwallet/typo` resolves, and so does a capability name belonging to
+some other product entirely. That objection is sound as far as it goes, and
+three things are true of it at once.
+
+1. **The registry this repository OWNS is closed, and it is the one being
+   checked.** `<pin-id>` is drawn from the pin registry, an unrecognized pin id
+   is REJECTED, and that is strictly more than the status quo — which rejects
+   the whole target and then instructs the author, in a fixed remedy string, to
+   name a capability the prose is not about.
+2. **The capability segment names a unit of a corpus openxFactory does not
+   govern and may not read.** `neutral-product-pin`'s offline law binds the
+   deterministic pass to this repository's tree. A closed registry over another
+   publisher's capability set would have to be INVENTED here — exactly the row
+   `openxwallet-pin.yaml:66-69` refuses ("the values are copied unchanged,
+   which is what makes the shed checkable against the carve").
+3. **The fail-closed alternative is a refusal of the change, not a tightening
+   of it.** "Report a missing enumeration as unresolved" is, measured, the rule
+   that refuses all four markers this change exists to admit, because no pin
+   record in the tree carries an enumeration. It does not narrow the mechanism;
+   it removes it.
+
+**This is the packet's one decision where the constitution can be read against
+the design, and it is NOT resolved by argument here.** Task 1.2 puts it to
+Brett Heap as a veto point in those terms.
 
 **Why not require the enumeration and add it to `openxwallet-pin.yaml` in the
 same breath.** Because that would be openxFactory writing a claim about
@@ -197,10 +265,15 @@ ratification, carrying four surfaces:
    1366 and 1390) dispatch on the `pinned:` prefix. The finding text for an
    unresolved pinned target names the PIN, not `openspec/specs/`. No regex
    moves (D-1).
-2. **The tests.** Under `tests/doc_health/`, at minimum: a resolving pinned
-   target emits nothing; an unresolvable pin id emits a finding naming the pin;
-   a pinned form on a `supersedes` marker behaves consistently with the
-   candidate arm; and the existing in-tree resolution is unchanged.
+2. **The tests.** Under `tests/doc_health/`, and BOTH cases of D-2's
+   conditional arm, so the realization cannot satisfy the list while omitting
+   the branch: a resolving pinned target under a pin record carrying no
+   capability enumeration emits nothing; an unresolvable pin id emits a finding
+   naming the PIN REGISTRY; a fixture pin record that DOES enumerate
+   capabilities emits nothing for a LISTED capability and a finding naming the
+   enumeration for an UNLISTED one; a `supersedes` marker whose `spec=` value
+   carries the reserved `pinned:` prefix is REFUSED (D-1.1); and the existing
+   in-tree resolution is unchanged.
 3. **The four markers**, retargeted to `target=pinned:openxwallet/openxwallet`
    — `openxwallet-neutral-home.md` lines 222, 242 and 280, and
    `notebook-access-wallet-governance.md` line 107 — together with

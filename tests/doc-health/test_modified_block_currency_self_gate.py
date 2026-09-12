@@ -815,6 +815,34 @@ _LEDGER_SUBJECTS = {
     # — measured, not assumed: a `--family modified-block-currency` run over
     # this tree after the act returns ZERO lines mentioning the change id,
     # at any path.
+    # ADDED 2026-09-12 BY `extend-prose-tagging-target-to-pinned-capabilities`
+    # (openxFactory #992, filing PR #994, lane `openxfactory-2`), the packet
+    # that extends the prose-tagging grammar with a target form for a
+    # capability which has LEFT this corpus and now lives in a pinned neutral
+    # product. A DELIBERATE EXTENSION, and the narrowest one the corpus
+    # admits: canon's requirement ENUMERATES WHAT THE FAMILY COVERS — "marker
+    # well-formedness, target and change-id resolution, candidate fence
+    # structure, the code-fence and inline-code example exclusion, the ban on
+    # doc-level candidacy status values, and supersedes `change=` aging" — and
+    # a packet that adds a SECOND declared target form cannot restate that
+    # sentence verbatim without falsifying its own delta. The 1 uncarried unit
+    # of 6 is exactly that sentence, and the block rewrites exactly one clause
+    # of it: "target and change-id resolution" becomes "target and change-id
+    # resolution IN BOTH DECLARED TARGET FORMS — the in-tree capability form
+    # and the pinned form `pinned:<pin-id>/<capability>`". Every other item of
+    # the list is carried in canon's own order and wording, and the other five
+    # promoted units — both of canon's scenarios among them — are carried
+    # verbatim. THE SIBLING BLOCK OPENS NO ROW, measured rather than assumed:
+    # the same packet's `## MODIFIED` block on `document-lifecycle`'s *Prose
+    # tagging marker hygiene* carries every unit canon states for it and only
+    # ADDS beside them, so this arm reports nothing for it and no second row
+    # belongs here. This arm cannot distinguish a ratified extension from
+    # drift and does not claim to; the finding is INFO and it is the audit
+    # trail for the extension. Retires when the packet archives on
+    # merged-plus-green realization evidence (its `code_surface` is non-empty)
+    # and its block is promoted.
+    ("extend-prose-tagging-target-to-pinned-capabilities", "doc-health",
+     "Tag hygiene enforced by reference"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1144,7 +1172,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of nine named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1209,7 +1237,15 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "openxFactory went public at 2026-09-09T21:58:08Z with the address "
         "still on the promoted line — the first row here retired by canon "
         "moving to the block rather than by the block being promoted, the "
-        "packet still active and unarchived)",
+        "packet still active and unarchived; 10 SINCE 2026-09-12, when "
+        "extend-prose-tagging-target-to-pinned-capabilities was filed "
+        "(openxFactory #992, PR #994) and its doc-health block rewrote the "
+        "one clause of canon's coverage enumeration that a SECOND declared "
+        "target form falsifies — the first row here opened by a delta that "
+        "EXTENDS an enumeration rather than narrowing, generalizing or "
+        "amending a rule, and the sibling document-lifecycle block of the "
+        "same packet opens none because it carries canon whole and only "
+        "adds)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
