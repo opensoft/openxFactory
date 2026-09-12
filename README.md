@@ -3153,9 +3153,12 @@ Archived changes:
   `177ba8196e16097e30aeb3f946ca8291b9ba4e92`** on `main`, 2026-09-12T18:08:16Z
   (ratifying commit `5d099acb51afd2032d37349f704b74ac1d222892`; records
   `openspec/changes/archive/2026-09-12-report-stale-grandfather-dispositions/review/ratification-2026-09-12.md`
-  `Status: ratified` and
+  `Status: ratified` — MOVED and untouched except for a new `## 8. Addendum`
+  section appended AFTER the existing `## 7. Provenance`, recording the
+  separate archive word and its evidence, never editing what came before it —
+  and
   `openspec/changes/archive/2026-09-12-report-stale-grandfather-dispositions/review/verification-2026-09-12.md`
-  `Status: record`, both MOVED and untouched by this archive), and `main`'s OWN
+  `Status: record`, MOVED and untouched), and `main`'s OWN
   `pytest-suite` run
   [34710282045](https://github.com/opensoft/openxFactory/actions/runs/34710282045)
   — `event: push`, head **`177ba8196e16097e30aeb3f946ca8291b9ba4e92`**, the
@@ -3179,9 +3182,12 @@ Archived changes:
   successors, BOTH NOW CLOSED; § 7.5
   ([#967](https://github.com/opensoft/openxFactory/issues/967)/PR
   [#977](https://github.com/opensoft/openxFactory/pull/977), also landed) with
-  A GAP DISCLOSED — this packet's own second-pass addition to
-  `docs/doc-health.md`'s family table, described as owed at ratification, was
-  not in fact made there and is not made by this archive either; § 7.3 and
+  A DISCLOSED GAP NOW CLOSED ON THIS SAME PULL REQUEST — this packet's own
+  second-pass addition to `docs/doc-health.md`'s family table, described as
+  owed at ratification but not in fact made there, IS added by this archive
+  after all, in commit `2ec222def35e50b6edf4f0c570406364deb9123f` (row 3's
+  sixth arm plus a one-sentence currency-note addendum), once Copilot named
+  the omission (thread `PRRT_kwDOTAvnrs6h0Z2m`); § 7.3 and
   § 7.7 on decided-and-tested design boundaries (`design.md` D2a, D2) needing
   no successor; § 7.2, § 7.6 and § 7.8 RE-CONFIRMED still not taken,
   sibling-searched for a tracking issue (none found), none filed by this
