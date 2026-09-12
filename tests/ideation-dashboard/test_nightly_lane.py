@@ -258,7 +258,13 @@ def test_main_is_skipped_rather_than_raised_when_registration_fails(
     against `register_openxfactory()` rather than against a leg genuinely
     missing (which the rest of this suite cannot simulate: `tests/ideation-
     dashboard/conftest.py` already registered the real profile for the whole
-    session before this test runs)."""
+    session before this test runs).
+
+    Second round (Copilot review, PR #984, thread on this SKIP path): the
+    failure must ALSO be recorded in `lane-status.json`, the same as every
+    other SKIP this lane produces — a print alone left a missing/malformed
+    leg with no current status artifact for a consumer that only reads the
+    file, and the previous run's artifact (or none at all) looked current."""
     import opendox_host
 
     def _boom():
@@ -270,8 +276,42 @@ def test_main_is_skipped_rather_than_raised_when_registration_fails(
     assert "ideation-dashboard lane: SKIPPED" in out
     assert "RuntimeError" in out
     assert "simulated registration failure" in out
-    # And never reached run_lane(), so no status artifact was written for it.
+    status = json.loads(
+        (tmp_path / "health/ideation-dashboard/lane-status.json").read_text())
+    assert status["result"] == "skipped"
+    assert "RuntimeError" in status["reason"]
+    assert "simulated registration failure" in status["reason"]
+    assert status["repository"] == lane.DEFAULT_REPOSITORY
+
+
+def test_main_registration_failure_writes_index_status_for_repositories_mode(
+        tmp_path, capsys, monkeypatch):
+    """The same registration guard, requested through `--repositories` — the
+    form BOTH real production call sites use (`scripts/reserve-dashboard.sh`
+    and `.github/workflows/doc-health-reusable.yml` each always pass
+    `--repositories registered`): the artifact a consumer of THIS mode reads
+    is `index-status.json`, not `lane-status.json`, so the failure must land
+    there instead. No project register or repository checkout is needed —
+    registration fails before `run_multi_lane()` is ever reached, so no
+    repository is ever resolved."""
+    import opendox_host
+
+    def _boom():
+        raise RuntimeError("simulated registration failure")
+
+    monkeypatch.setattr(opendox_host, "register_openxfactory", _boom)
+    assert lane.main(["--repo-root", str(tmp_path),
+                      "--repositories", "registered"]) is None
+    out = capsys.readouterr().out
+    assert "ideation-dashboard lane: SKIPPED" in out
     assert not (tmp_path / "health/ideation-dashboard/lane-status.json").exists()
+    status = json.loads(
+        (tmp_path / "health/ideation-dashboard/index-status.json").read_text())
+    assert status["result"] == "skipped"
+    assert "RuntimeError" in status["reason"]
+    assert "simulated registration failure" in status["reason"]
+    assert status["published"] == []
+    assert status["skipped"] == []
 
 
 @needs_validator
