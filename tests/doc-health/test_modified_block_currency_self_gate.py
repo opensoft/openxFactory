@@ -815,6 +815,77 @@ _LEDGER_SUBJECTS = {
     # — measured, not assumed: a `--family modified-block-currency` run over
     # this tree after the act returns ZERO lines mentioning the change id,
     # at any path.
+    # ADDED 2026-09-11 BY `rule-inherited-unit-naming-marker-spent`
+    # (openxFactory PR #962, issue #955), AND IT IS THE FIRST ROW THIS LEDGER
+    # HAS CARRIED FOR A BASIS THE CHECKER CANNOT YET USE rather than for a
+    # block that dropped something. The packet is an ORDERED DELTA: its
+    # `## MODIFIED` block over *Currency of an active change's MODIFIED
+    # requirement blocks* is written over the OUTCOME of its declared parent
+    # `amend-merged-into-empty-tail-standing` (openxFactory PR #947, ratified,
+    # still OPEN at the time of writing), not over the promoted text that
+    # parent replaces — which is what `release-realization`'s ordered-delta
+    # rule obliges and what `proposal.md`'s `sequenced_after:` declares.
+    #
+    # WHY THE ROW EXISTS ANYWAY, MEASURED RATHER THAN ARGUED. `_arm_ordering`
+    # applies the basis override only where a group holds at least TWO ACTIVE
+    # RATIFIED writers (`ratified = [b for b in group if b.standing ==
+    # _RATIFIED]; if len(ratified) < 2`). This packet is `Status: draft` and
+    # its parent is not on `main` at all, so the group holds ONE writer, no
+    # override is applied, and the block is measured against CANON. Against
+    # canon exactly ONE of 144 body units and scenario bullets is uncarried:
+    # the body sentence "THE FIFTH GROUND SHALL BE READ ON THE `Removed from
+    # canon` FORM ALONE: the pairing form names no units by construction, its
+    # whole tail being a reason…" — WHICH IS THE SENTENCE THE PARENT'S OWN
+    # RATIFIED BLOCK RETIRES. Against the PARENT'S OUTCOME, which is the basis
+    # `release-realization` names, the same block reads 0 uncarried, 0
+    # uncarried-and-unsuppressed and 0 marker defects, through the family's own
+    # `derive_units`, `carried()` and `suppression()`.
+    #
+    # SO THIS IS NOT A LOSSY CARRIAGE AND THE ARM IS NOT WRONG: the arm cannot
+    # distinguish a block written over a not-yet-promoted parent from a block
+    # that dropped a sentence, and does not claim to; the finding is INFO and
+    # carries no gate.
+    #
+    # RETIRES ON EITHER OF TWO EXPECTED EVENTS, WHICHEVER COMES FIRST — AND THE
+    # FIRST OF THEM TAKES TWO THINGS AND NOT ONE, WHICH IS STATED EXACTLY
+    # BECAUSE THE OBVIOUS READING IS WRONG. (a) BOTH WRITERS ACTIVE AND
+    # RATIFIED IN THE CHECKED-OUT CORPUS: `_arm_ordering` returns NO basis
+    # override where `len(ratified) < 2` (see the lines quoted above), so
+    # RATIFYING THIS PACKET ALONE, WHILE THE PARENT IS STILL OFF `main`, LEAVES
+    # THIS ROW EXACTLY WHERE IT IS — the group would still hold one ratified
+    # writer. The parent must be in the active corpus AND this packet ratified;
+    # the order between them does not matter, the second of the two clears it.
+    # (b) The PARENT ARCHIVING, which needs nothing of this packet at all:
+    # canon becomes the parent's outcome and the sentence is gone from the
+    # basis. Since the parent (#947) lands before it archives, the practical
+    # sequence is #947 lands -> this branch merges main -> (a) on ratification
+    # or (b) on the parent's archive, whichever comes first.
+    #
+    # It is named here rather than dispositioned because the set is compared
+    # with `==`: a row nobody names reds the required check for every other
+    # lane, and `health/dispositions.yaml` is read under `ctx.agg_root`, which
+    # is None on the `--single-repo` self-gate a pull request runs.
+    #
+    # REMOVED 2026-09-12 BY THE PARENT'S ARCHIVE — event (b) of the two stated
+    # above, which needs nothing of this packet at all. `amend-merged-into-
+    # empty-tail-standing` archived to `openspec/changes/archive/2026-09-11-
+    # amend-merged-into-empty-tail-standing/` (openxFactory PR #973, merged
+    # 2026-09-11T18:24:42Z, archiving PR #947's landed content at `87fd33d6`),
+    # so canon became the parent's outcome and the one sentence this block was
+    # measured against stopped being uncarried; event (a) (this packet
+    # ratified while the parent held one active-ratified writer) was never
+    # reached and was not needed.
+    #
+    # VERIFIED BEFORE THE ROW WAS DELETED, not after. At the freeze
+    # (`51edde81`, issuecomment-5636697848, 2026-09-11T15:23:45Z) the family
+    # read TEN rows corpus-wide, this one among them, 0 marker defects against
+    # it specifically. After this branch merged `origin/main` (67b8011f,
+    # bringing PR #973's archive of the parent) and re-seeded the per-change
+    # sweep ledger, `--single-repo --family modified-block-currency` over this
+    # tree reads NINE, and a grep of the rendered report for this change id
+    # returns ZERO lines, at any path. The deleted row is the entire
+    # difference — the remaining nine rows are byte-for-byte the ones already
+    # named above, no other subject moved.
     # ADDED 2026-09-12 BY `extend-prose-tagging-target-to-pinned-capabilities`
     # (openxFactory #992, filing PR #994, lane `openxfactory-2`), the packet
     # that extends the prose-tagging grammar with a target form for a
@@ -1280,7 +1351,26 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "openxFactory went public at 2026-09-09T21:58:08Z with the address "
         "still on the promoted line — the first row here retired by canon "
         "moving to the block rather than by the block being promoted, the "
-        "packet still active and unarchived; 12 SINCE 2026-09-12, when "
+        "packet still active and unarchived; 10 SINCE 2026-09-11, when "
+        "rule-inherited-unit-naming-marker-spent opened ONE row over this "
+        "very requirement — an ORDERED DELTA whose block is written over its "
+        "declared parent amend-merged-into-empty-tail-standing's outcome, "
+        "which `_arm_ordering` cannot yet use as the basis because the packet "
+        "is draft and its parent is not on main, so the one sentence the "
+        "parent retires reads as uncarried against canon; the first row here "
+        "opened by a BASIS the checker cannot yet apply rather than by a "
+        "block that dropped something; it retires on the parent's archive, or "
+        "on that packet's ratification ONCE THE PARENT IS IN THE ACTIVE CORPUS "
+        "- ratification alone does not clear it, the override needing TWO "
+        "active ratified writers; 9 SINCE 2026-09-12, when this row retired "
+        "on the parent's archive (event (b)) — amend-merged-into-empty-tail-"
+        "standing archived to openspec/changes/archive/2026-09-11-amend-"
+        "merged-into-empty-tail-standing/ (PR #973, merged "
+        "2026-09-11T18:24:42Z), so canon became the parent's outcome and the "
+        "sentence this block was measured against stopped being uncarried; "
+        "event (a) was never reached, this packet still being pre-"
+        "ratification at the merge that carried PR #973 in; "
+        "12 SINCE 2026-09-12, when "
         "`repoint-chain-anchoring-medxchain-citation` (openxFactory issue "
         "#791) opened THREE rows at once, one per MODIFIED requirement its "
         "chain-anchoring citation repoint touches — expected editorial "

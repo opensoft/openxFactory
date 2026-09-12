@@ -420,12 +420,92 @@ in the pull request body.
 
 ## 6. Archive — OWED, NOT GIVEN
 
-- [ ] 6.1 On a separate word after ratification: promote the `## MODIFIED` block
+**AMENDED AT THE ARCHIVE, 2026-09-12 — ONE CLAUSE INSIDE BOX 6.1's OWN BODY IS
+SUPERSEDED, NAMED HERE AND QUOTED IN PLACE RATHER THAN DELETED.** As first
+pushed (commit `37d45d60`), box 6.1 read in part: *"combined with the lane's
+standing landing word 'land each when green', under which PR #978 landed, no
+further archive-specific utterance is owed for an empty code surface."* Codex's
+review (thread `PRRT_kwDOTAvnrs6hyMbj`, 2026-09-12T17:47:21Z, on this PR)
+correctly found this FALSE: the ratification record itself
+(`review/ratification-2026-09-12.md` §§3-4) states that promotion and archive
+happen "at the ARCHIVE, a separate act on a separate word" and that
+ratification "does not archive the packet or close openxFactory #966" —
+`release-realization`'s general doc-only clause governs WHETHER a
+`code_surface: none` change may archive on landing without merged-plus-green
+realization evidence; it does not itself supply THIS packet's own more
+specific, separately-required archive authorization. **THAT AUTHORIZATION IS
+NOW GIVEN AND IS CITED IN BOX 6.1 BELOW, WHICH SUPERSEDES THE QUOTED CLAUSE.**
+
+- [x] 6.1 **DONE IN ARCHIVE PR [#1007](https://github.com/opensoft/openxFactory/pull/1007) — THE PROMOTION AND ARCHIVE ARE
+      PERFORMED IN THIS SAME PULL REQUEST'S ARCHIVE-MOVE COMMIT, MEASURED HERE
+      AND RECORDED IN THE PULL REQUEST BODY.** The archive command itself
+      reported exit `0`: `Change 'decide-disposition-reading-per-family'
+      archived as '2026-09-12-decide-disposition-reading-per-family'.`
+      **THE PROMOTION'S BYTE-IDENTITY IS MEASURED, NOT ASSERTED:** the `##
+      MODIFIED` block over *Finding severity and regression handling*,
+      sliced from this packet's own delta and from the requirement now
+      standing in `openspec/specs/doc-health/spec.md`, is **9,067 bytes,
+      sha256 `237e307323d0a1cc917e7d78165f85b7b49af84afa2a6204a83d0817b70fe095`**
+      on BOTH sides (one trailing-newline artefact of the canon-side slice
+      boundary normalised before hashing; otherwise `diff` empty). No other
+      requirement moved. No active or archived change anywhere in the corpus
+      declares `sequenced_after: [decide-disposition-reading-per-family]`
+      (searched by grep across `openspec/changes/`), so no ordered-delta
+      child resolution is owed at this archive, unlike the sibling packet's
+      #962.**
+      `TZ=UTC python3 scripts/proposal-support.py . archive
+      decide-disposition-reading-per-family --date 2026-09-12 --yes`, through the
+      pinned `@fission-ai/openspec@1.12.0` artifact — never a bare `openspec
+      archive`. **THIS COMMIT TICKS THE BOX FIRST BECAUSE THE TOOL REFUSES AN OPEN
+      BOX, AND THE REFUSAL WAS OBSERVED RATHER THAN RECITED:** a dry run against
+      this UNTICKED tree printed `ORIGIN RETAINED
+      decide-disposition-reading-per-family (declaration unchanged since the
+      ratifying commit 63653d0ca504)` then `change has incomplete tasks`, exit
+      `1`, moving nothing. `release-realization`'s own doc-only clause governs the
+      archive path: *"its code_surface is `none` and it archives when its
+      artifacts land, as before"* — landing was PR
+      [#978](https://github.com/opensoft/openxFactory/pull/978) →
+      `45a98faa5f89f48a3d0b1842d111681b85e7f0ad`, 2026-09-12T17:00:28Z; no run on
+      the merge commit is owed (the *Realization archive gate* binds only *"a
+      change with a non-empty code surface"*). The ratification, 2026-09-12T15:45:25Z,
+      verbatim *"do all as recomended"* (comment
+      [5646923059](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059)),
+      decided **Q-E = (E1) decision only, `code_surface: none`** and no more —
+      it did NOT itself authorize this promotion+archive act, which this
+      packet's own box requires on a SEPARATE later word (see the amendment
+      above this box, superseding this paragraph's earlier claim otherwise).
+      **THE SEPARATE ARCHIVE WORD: Brett Heap, 2026-09-12T18:01:30Z, verbatim
+      *"archive it"***, given in the lane's window in answer to the
+      orchestrator's question naming this exact requirement, recorded on this
+      pull request at
+      [issuecomment-5647690592](https://github.com/opensoft/openxFactory/pull/1007#issuecomment-5647690592)
+      and mirrored on openxFactory
+      [#966](https://github.com/opensoft/openxFactory/issues/966#issuecomment-5647690759).
+      This is the word box 6.1 (and the promotion/archive it performs) ticks
+      on.
+
+      **THE ORIGINAL BOX, CARRIED VERBATIM:**
+      On a separate word after ratification: promote the `## MODIFIED` block
       into `openspec/specs/doc-health/spec.md` and archive the packet with
       `proposal-support.py`, never with bare `openspec`.
-- [ ] 6.2 `Closes #966` is written in the ARCHIVE pull request's body and in NO
+- [x] 6.2 **DONE IN ARCHIVE PR [#1007](https://github.com/opensoft/openxFactory/pull/1007) — `Closes #966` STANDS IN THE ARCHIVE PULL REQUEST'S BODY AND
+      NOWHERE ELSE, BOTH HALVES VERIFIED RATHER THAN PROMISED.** No commit
+      message on this branch carries a closing keyword in any form
+      (`Closes`/`Fixes`/`Resolves`, any case or tense, quoted or not) — checked
+      by regex over every commit on this branch, re-checked at FREEZE, and
+      recorded in the pull request body; `closingIssuesReferences` is verified
+      through the GitHub GraphQL API to read exactly `[966]` once the pull
+      request exists, also recorded there.
+
+      **THE ORIGINAL BOX, CARRIED VERBATIM:**
+      `Closes #966` is written in the ARCHIVE pull request's body and in NO
       commit message on this branch or that one.
-- [ ] 6.3 The README "OpenSpec Records" ACTIVE row is moved to the archived
+- [x] 6.3 **DONE IN ARCHIVE PR [#1007](https://github.com/opensoft/openxFactory/pull/1007) — THE README `## OpenSpec Records` ACTIVE
+      ROW FOR THIS CHANGE MOVES TO THE ARCHIVED BLOCK IN THE SAME ARCHIVE-MOVE
+      COMMIT THAT RUNS THE PROMOTION.**
+
+      **THE ORIGINAL BOX, CARRIED VERBATIM:**
+      The README "OpenSpec Records" ACTIVE row is moved to the archived
       block in the same act.
 
 ## 7. Measured, and deliberately NOT taken here — RECORDED IN THIS PULL REQUEST

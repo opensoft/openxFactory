@@ -1,0 +1,334 @@
+schema_version: 1
+kind: target-release-vocabulary-register
+
+# THE CLOSED GRANDFATHER REGISTER FOR `target_release:`.
+#
+# `release-realization`'s promoted requirement *Realization axis declaration*
+# admits exactly two values — `implemented` or a named release — and the ADDED
+# requirement *Realization axis vocabulary is gated* makes a house validator
+# refuse any other value on an ACTIVE proposal. Measured at that gate's
+# authoring, the standing corpus does not meet the vocabulary: of the ACTIVE
+# proposals, a minority declare a value inside it. Refusing the rest at the
+# gate's landing would refuse a corpus that in twelve cases is obeying ANOTHER
+# ratified policy (`docs/contract-versioning-policy.md` § Bundle Realization
+# Order allocates bundle versions LATE, so a proposal that named a number would
+# reserve one the policy allocates at the cut), and rewriting them all to
+# `implemented` would assert realizations nobody performed.
+#
+# So the gate is a RATCHET rather than a sweep: every declaration this file does
+# not name is judged from the day the gate lands, and every declaration it names
+# is REPORTED and not refused. The file is CLOSED — an entry may be REMOVED when
+# its declaration is corrected or its packet archives, and an entry is never
+# ADDED, because admitting a new value to the vocabulary is a canon act and not
+# a validator edit.
+#
+# THE ASYMMETRY IS THE PIN FILE'S, DELIBERATELY (`contracts/openspec-cli-pin.yaml`
+# `dispositions:`, and `scripts/validate-openspec-cli-pin.py`'s own account of
+# why): an UNMATCHED DECLARATION FAILS (exit 1) — somebody wrote a value canon
+# does not admit, and the remedy is theirs. An UNMATCHED ENTRY REFUSES (exit 2)
+# — the exception outlived the condition it was granted for, and the remedy is
+# to delete the entry in the same pull request that made it stale. Silently
+# tolerating the second is how an exception list rots into a blanket.
+#
+# THIS FILE IS NOT UNDER `contracts/`, AND THAT IS DELIBERATE: a file under
+# `contracts/` is a bundle surface whose change owes a bundle cut, and an
+# exception register that could not be edited without cutting a contract
+# release would be edited late or not at all. It lives beside the validator that
+# reads it, and moves with it.
+#
+# Every entry declares:
+#   change       the ACTIVE change directory under `openspec/changes/`
+#   token        the VALUE TOKEN as it stands — the first whitespace-delimited
+#                word of the declaration, trailing `.,;:` stripped. An author
+#                who edits the declaration changes the token, the entry stops
+#                matching, and the run refuses until somebody looks.
+#   class        why the declaration sits outside the vocabulary
+#   why          the reason in this packet's own words
+#   cited_to     where the reason is written down
+#   retires_when the event that ends the exception
+
+register:
+
+  # ---- class: deferred-allocation -------------------------------------------
+  # The declaration names a release that EXISTS but is deliberately unnumbered,
+  # because the bundle's version is allocated at the cut. Under the promoted
+  # two-value sentence there is no spelling for "a release, not yet numbered",
+  # so an author obeying the versioning policy cannot also satisfy the
+  # vocabulary. Whether canon should admit a deferred allocation as a third
+  # value is the successor question this packet names and does not take.
+
+  - change: add-chain-attestation
+    token: "THE"
+    class: deferred-allocation
+    why: >-
+      Declares "THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE —
+      allocated AT REALIZATION by merge order". The refusal to number is the
+      versioning policy's own rule, written into the declaration.
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order — "allocates versions late"
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: add-clearing-dispatch-boundary
+    token: "THE"
+    class: deferred-allocation
+    why: >-
+      Declares "THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE —
+      allocated AT REALIZATION by merge order".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: add-consent-custody-rederivation-record
+    token: "THE"
+    class: deferred-allocation
+    why: >-
+      Declares "THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE —
+      allocated AT THE CUT by merge order".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: add-credential-escrow-checkout
+    token: "THE"
+    class: deferred-allocation
+    why: >-
+      Declares "THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE —
+      allocated AT REALIZATION by merge order".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: add-requirement-ref-resolution-integrity
+    token: "THE"
+    class: deferred-allocation
+    why: >-
+      Declares "THE NEXT ADDITIVE MINOR, DELIBERATELY NOT NUMBERED HERE —
+      allocated AT REALIZATION by merge order".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: add-identity-brokering
+    token: "next"
+    class: deferred-allocation
+    why: >-
+      Declares "next additive contract bundle (allocated at realization per
+      docs/contract-versioning-policy.md)" — the same deferral in the lower-case
+      spelling.
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: add-standing-policy-compliance-contract
+    token: "next"
+    class: deferred-allocation
+    why: >-
+      Declares "next additive contract bundle (allocated at realization per
+      `docs/contract-versioning-policy.md`)".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: add-trust-anchor
+    token: "next"
+    class: deferred-allocation
+    why: >-
+      Declares "next additive contract bundle (allocated at realization per
+      docs/contract-versioning-policy.md)".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: add-worker-enrollment-broker
+    token: "next"
+    class: deferred-allocation
+    why: >-
+      Declares "next additive contract bundle (allocated at realization per
+      docs/contract-versioning-policy.md)".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: adopt-medxsoft-repository-identity
+    token: "next"
+    class: deferred-allocation
+    why: >-
+      Declares "next additive contract bundle (allocated at realization per
+      docs/contract-versioning-policy.md; NO minor is reserved here)".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: admit-deliberation-clearing-operation
+    token: "the"
+    class: deferred-allocation
+    why: >-
+      Declares "the NEXT ADDITIVE MINOR of the contract bundle, ALLOCATED AT
+      REALIZATION BY MERGE ORDER AND DELIBERATELY NOT NUMBERED".
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  - change: declare-client-standing-policy-contract
+    token: "contract-v<next"
+    class: deferred-allocation
+    why: >-
+      Declares the PLACEHOLDER "contract-v<next minor> — allocated LATE at
+      realization". Release-shaped but unresolvable: no such release exists and
+      none is meant to yet.
+    cited_to:
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      canon admits a deferred allocation, or this packet's cut names its
+      release, or this packet archives.
+
+  # ---- class: realization-state ---------------------------------------------
+  # The declaration names a STATE of the work rather than a target. Canon
+  # already carries that state without a vocabulary word for it: a non-empty
+  # code surface with `target_release: implemented` is held active as
+  # approved-but-unrealized intent by the *Realization archive gate* until its
+  # code is merged and has run green.
+
+  - change: add-nightly-dashboard-refresh
+    token: "implementation_pending"
+    class: realization-state
+    why: >-
+      "implementation_pending — the requirements land now; the change archives
+      only on merged code with green realization evidence" states the archive
+      gate's own condition in the target field.
+    cited_to:
+      - openspec/specs/release-realization/spec.md § Realization archive gate
+    retires_when: >-
+      the declaration is corrected to the target it realizes on, or the packet
+      archives.
+
+  - change: add-roster-directory-admission-surface
+    token: "implementation_pending"
+    class: realization-state
+    why: >-
+      Declares the bare state word with no target beside it.
+    cited_to:
+      - openspec/specs/release-realization/spec.md § Realization archive gate
+    retires_when: >-
+      the declaration is corrected to the target it realizes on, or the packet
+      archives.
+
+  - change: qualify-avatar-live-voice
+    token: "implementation_pending"
+    class: realization-state
+    why: >-
+      "implementation_pending — the requirements land now; realization runs
+      post-ratification against a NAMED INTEGRATION".
+    cited_to:
+      - openspec/specs/release-realization/spec.md § Realization archive gate
+    retires_when: >-
+      the declaration is corrected to the target it realizes on, or the packet
+      archives.
+
+  - change: split-opendox-two-layer-product
+    token: "implementation_pending"
+    class: realization-state
+    why: >-
+      "implementation_pending — the affected repositories' own main lines, plus
+      release identities allocated AT THE CUT" — a state word in front of a
+      declaration that then names both a main line and a deferred allocation.
+    cited_to:
+      - openspec/specs/release-realization/spec.md § Realization archive gate
+      - docs/contract-versioning-policy.md § Bundle Realization Order
+    retires_when: >-
+      the declaration is corrected to the target it realizes on, or the packet
+      archives.
+
+  # ---- class: non-bundle-target ---------------------------------------------
+  # The declaration names a KIND of realization that is neither a main line nor
+  # a bundle: the creation of a repository. The promoted sentence has no
+  # spelling for it, and the two packets that need one follow an archived
+  # precedent rather than inventing a release.
+
+  - change: implement-keycloak-install-repo
+    token: "repository-bootstrap"
+    class: non-bundle-target
+    why: >-
+      "repository-bootstrap (the archived `add-xfactory-installer-repository`
+      precedent for a repo-creation act)". The realization is a new repository,
+      not a line and not a bundle.
+    cited_to:
+      - openspec/changes/archive — add-xfactory-installer-repository, the precedent the declaration names
+    retires_when: >-
+      canon admits a repository-bootstrap target, or the declaration is
+      corrected, or the packet archives.
+
+  - change: implement-openxpki-install-repo
+    token: "repository-bootstrap"
+    class: non-bundle-target
+    why: >-
+      "repository-bootstrap (the archived `add-xfactory-installer-repository`
+      precedent for a repo-creation act)".
+    cited_to:
+      - openspec/changes/archive — add-xfactory-installer-repository, the precedent the declaration names
+    retires_when: >-
+      canon admits a repository-bootstrap target, or the declaration is
+      corrected, or the packet archives.
+
+  # ---- class: answers-another-question --------------------------------------
+  # The declaration is prose that answers the ARCHIVE question instead of the
+  # TARGET question: it restates the *Realization archive gate* where the target
+  # belongs. Nothing in it is wrong; it is simply not a value. These three are
+  # the class a sweep could correct with the least judgment — and they are NOT
+  # swept here, because their authors' meaning has to be read out of a sentence
+  # rather than off a token, and reading it for them is the owning lane's act.
+
+  - change: admit-review-lane-repin-to-merge-approval-envelope
+    token: "a"
+    class: answers-another-question
+    why: >-
+      "a code surface, so per `release-realization` it archives only on merged +
+      green realization evidence" — the archive rule, in the target field.
+    cited_to:
+      - openspec/specs/release-realization/spec.md § Realization archive gate
+    retires_when: >-
+      the declaration names a target, or the packet archives.
+
+  - change: amend-mirror-floor-regeneration-merge-authority
+    token: "a"
+    class: answers-another-question
+    why: >-
+      "a code surface, so per `release-realization` it archives only on merged +
+      green realization evidence. No contract bundle is cut."
+    cited_to:
+      - openspec/specs/release-realization/spec.md § Realization archive gate
+    retires_when: >-
+      the declaration names a target, or the packet archives.
+
+  - change: extend-merge-master-envelope-to-floor-bot-lanes
+    token: "a"
+    class: answers-another-question
+    why: >-
+      "a code surface, so per `release-realization` it archives only on merged +
+      green realization evidence."
+    cited_to:
+      - openspec/specs/release-realization/spec.md § Realization archive gate
+    retires_when: >-
+      the declaration names a target, or the packet archives.

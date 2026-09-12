@@ -324,6 +324,89 @@ moved_paths:
 # opensoft/openDox-code `build/s2-intent-chips-optional-binding`,
 # `330cf8161f06ae67be716deafe9b2ec3c64d1492`
 # (split-opendox-two-layer-product § 3.4, slice S2).
+#
+# THE § 3.4 SLICE-S3 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`). ONE existing row is converted:
+# `scripts/ideation_dashboard/web/app.js`, `moved_verbatim` ->
+# `moved_with_declared_edit`, taking 37 declared lines in two classes — 1 under
+# `import rewrites` (the class-B gate import at :43) and 36 under `adapter
+# calls` (the view table, the tab router's field reads, the gate-bar call sites
+# and the one added context key). NO REFERENT DIGEST MOVES, `carve_commit` and
+# `carve_tag` are untouched, and the row keeps the `sha256` it already carries,
+# which is the CARVE blob's.
+#
+# A SECOND ROW TAKES THREE LINES AND DOES NOT CHANGE DISPOSITION:
+# `tests/ideation-dashboard/test_bullseye_widget.py`, already
+# `moved_with_declared_edit`, gains an `adapter calls` edit at 900/1781/1785.
+# That suite asserts `app.js`'s shape by QUOTING ITS LINES BACK, so the three
+# quotations of the tab router's field names are invalidated by the edit this
+# same act declares on the `app.js` row, and they are migrated here rather than
+# left to rot until S8 re-homes the suite. The row keeps its `path constants`
+# line 40 and its digest.
+#
+# A THIRD ROW TAKES ONE LINE AND ALSO DOES NOT CHANGE DISPOSITION, carried by
+# the openDox-code #14 fix round's catch-up rather than by this leg's
+# original commit, but under the same act and the same ruling as the two
+# rows above: `tests/ideation-dashboard/test_doc_surfaces.py`, already
+# `moved_with_declared_edit`, gains an `adapter calls` edit at 290. That
+# SOURCE-GREP suite located the docs tab by the pre-S3 shape the `app.js`
+# row's own declared `TABS` -> `CORE_VIEWS` edit removes, and is migrated to
+# the registry shape it now reads — the same one-token-class migration the
+# second row's three quotations already took. The row keeps its `path
+# constants` line 39 and its digest.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on
+# purpose: the ASK-7 declared-edit window (`#656` comment `5642614423`) and
+# the S2 annotation directly above moved the running total to 869 declared
+# lines on 152 rows in this same document, and two acts each restating their
+# own absolute is how a count becomes wrong in a merge — the discipline this
+# merge itself depends on. This act's whole arithmetic is a DELTA on top of
+# that: rows
+# unchanged; `not_moved` unchanged; one row moves from `moved_verbatim` to
+# `moved_with_declared_edit`; declared lines +41 (`import rewrites` +1,
+# `adapter calls` +40, `path constants` +0) over THREE rows, 37 on `app.js`,
+# 3 on `test_bullseye_widget.py` and 1 on `test_doc_surfaces.py`; rows
+# carrying `edits:` +1 (the second and third rows already carried one);
+# replicas unchanged. The one place the running absolutes are summed and
+# pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+#
+# THE § 3.4 SLICE-S6 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`). RULING Q4, same comment: the read-only
+# `/source` pass-through returns from a CONTRIBUTED binding
+# (`openxdox_code`'s `serve_projection.py`) to a FIXED core arm of the
+# neutral product (`opendox_code`'s `serve.py`). NO ROW CHANGES DISPOSITION —
+# both were already `moved_with_declared_edit` — each gains one new
+# `adapter calls` entry: 10 lines on `serve.py` (five INSERTIONS, each named
+# by the pair of carve lines it sits between — the registration-modes
+# record, the two route constants `SOURCE_PREFIX`/`BARE_SOURCE_ROUTE`, the
+# `resolve_source_path` containment entry point, the two FIXED core arms in
+# `_route`, and `_keyed_source`/`_serve_source`/`_refuse_bare_source`) and
+# 122 on `serve_projection.py` (the matching DELETIONS — the same five
+# things, plus the module docstring's opening and the "THE `/source` PAIR
+# MOVES TOGETHER" paragraph, replaced by the record of where the pair went).
+# `snapshot_registry.resolve_within`, the per-entry containment rule, does
+# NOT move and stays `openxdox_code`'s. ONE new file is admitted at
+# `opendox_code`: `tests/test_source_core_arm.py`, the runnable half of the
+# re-homing (`docs/opendox-carve-admissions.yaml`). NO REFERENT DIGEST
+# MOVES: `carve_commit` and `carve_tag` are untouched, and both rows keep
+# the `sha256` they already carry, which is the CARVE blob's.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# same discipline the S3 paragraph above states: this act's whole arithmetic
+# is a DELTA on top of the § 3.4 SLICE-S3 annotation's own totals — rows
+# unchanged; `not_moved` unchanged; NO disposition conversion (both rows
+# already `moved_with_declared_edit`); declared lines +132 (`adapter calls`
+# +132, `import rewrites` +0, `path constants` +0) over the two rows above;
+# rows carrying `edits:` unchanged (neither row is a new carrier); replicas
+# unchanged. The one place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+# Realized at opensoft/openDox-code `build/s6-source-core-arm`,
+# `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)
+# and opensoft/openXdox-code `build/s6-source-route-to-opendox`,
+# `00b69de787975a663d9fb8985a6e38fc54945150` (DRAFT PR opensoft/openXdox-code#17).
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -1623,6 +1706,9 @@ rows:
       - class: path constants
         lines: [155, 725, 1338]
         note: "STALE DOCSTRING/COMMENT — RULED ASK-7 → 1 (`#656` comment `5635150678`, Brett Heap, verbatim \"the four stale docstring/comment lines (openDox-code cli.py :867; serve.py :166 / :755 / :1368) are LEFT; the in-tree comments beside the binding carry the correction; they are fixed at the next declared-edit window. No manifest rows for prose in PR-2.\"): this row annotation OPENS that declared-edit window (CLAIMED `#656` comment `5642614423`, lane `openxfactory-4-opendox-extraction`), the same act as the paired `cli.py` row annotation above. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. Three destination lines at openDox-code `a99eba03`'s `src/opendox/serve.py` still describe the in-tree profile, stale since § 4.3 (openDox-code #11) made `profile_openxfactory` a lazy proxy over the host's `opendox.domain_profile.register(...)`: `:166` (\"`profile_openxfactory.py` and dispatched BY NAME against the live handler —\", inside the by-function-split comment, naming a file that no longer assembles anything), `:755` (\"(`profile_openxfactory.ROUTE_EXTENSIONS` — the gate console, the\", inside the `route_bindings` field comment), and `:1368` (\"THE IN-TREE PROFILE (`profile_openxfactory.ROUTE_EXTENSIONS`) is registered\", `build_server()`'s own docstring — the routes-half twin of the cli.py row's line). Mapped to the carve commit by the same method the cli.py row's new entry describes (`verify-carve-arrival.py::_check_declared_lines`'s `difflib.SequenceMatcher(autojunk=False)` over `carve_lines.text_records()`), between the blob at `carve_commit` (sha256 matches this row's, above) and openDox-code `a99eba03`'s `src/opendox/serve.py`: destination `:166` (0-based 165) is the `equal` opcode carve[138:169]/arrived[149:180] at offset 16, carve line = 138 + 16 + 1 = 155; destination `:755` (0-based 754) is carve[629:828]/arrived[659:858] at offset 95, carve line = 629 + 95 + 1 = 725; destination `:1368` (0-based 1367) is carve[1286:1352]/arrived[1316:1382] at offset 51, carve line = 1286 + 51 + 1 = 1338 — all three byte-identical between carve and arrived at that offset, confirming the mapping. Filed `path constants` on the same reading as the cli.py row's new entry and the STALE CITATION rows (`#656` comment `5628560136`): neither `import rewrites` nor `adapter calls` (RULING OQ-1). The fix — one line for one line, same count, no other change — lands at openDox-code in the paired PR, inside these three declared lines only."
+      - class: adapter calls
+        lines: [161, 162, 304, 305, 515, 516, 921, 922, 949, 950]
+        note: "§ 3.4 SLICE S6, RULED Q4 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): the read-only `/source` pass-through returns from a CONTRIBUTED binding to a FIXED core arm of the neutral product — RULED Q-L1's own paragraph binds every § 3.4 slice the same way S3's `app.js` row above states it. Five insertions, each named by the pair of carve lines it sits between: 161-162 the \"AND ONE ROUTE HAS SINCE GONE THE OTHER WAY\" paragraph in the TWO REGISTRATION MODES block, recording that `/source` returned from CONTRIBUTED to FIXED; 304-305 the `SOURCE_PREFIX` / `BARE_SOURCE_ROUTE` pair and its comment block, between `PROJECT_REGISTER_ROUTE` and `CAPABILITIES_ROUTE`; 515-516 the `resolve_source_path` containment entry point, above `_checkout_real`; 921-922 the two FIXED CORE ARMS in `_route`, between the `/workbench/thread` arm and the § 2.4 contributed consult; 949-950 `_keyed_source` / `_serve_source` / `_refuse_bare_source`, between `do_HEAD` and `do_POST`. Class `adapter calls` on this manifest's own precedent (`serve.py`:618, `snapshot_registry.py`:85 — a site that reached a thing directly now calls the seam that stands in for it): here the direction is inverted, five call sites move IN from the projection column to become this core arm directly, which is the same class read the other way. All five insertions are moved from `scripts/ideation_dashboard/serve_projection.py`'s row below, which declares the matching deletions. Realized at opensoft/openDox-code `build/s6-source-core-arm`, `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)."
   - source_path: scripts/ideation_dashboard/serve_gate.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -1654,6 +1740,9 @@ rows:
     edits:
       - class: import rewrites
         lines: [47, 48, 49, 53, 54]
+      - class: adapter calls
+        lines: [6, 7, 9, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 297, 298, 299, 300, 301, 302, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 382, 383, 384, 385, 386, 387, 388]
+        note: "§ 3.4 SLICE S6, RULED Q4 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): `/source` and `/source/` are openDox's, and this column's binding keeps only `/snapshot-index.json`. What leaves, by carve-line group: 6-9,12-15 the module docstring's opening (the mixin no longer composes the `/source/` pass-through, and `checkout_root` leaves the `self.<name>` list); 23-32 the \"THE `/source` PAIR MOVES TOGETHER\" paragraph, replaced by the record of where the pair went and what the move preserves; 60-79 `SOURCE_PREFIX`, `BARE_SOURCE_ROUTE` and `resolve_source_path` removed; 297-375 `_keyed_source`, `_serve_source`, `_refuse_bare_source` removed; 382-388 `ProjectionRoutesExtension`'s docstring and its two `/source` `RouteBinding`s. The two constants, both `RouteBinding`s, the three handler methods and the single-root containment entry point leave; the per-entry rule `snapshot_registry.resolve_within` does not move and is still this column's. Class `adapter calls` on this manifest's own precedent (`serve.py`:618, `snapshot_registry.py`:85): a site that reached a thing directly stops doing so when the seam moves elsewhere, which is the same class read as a removal. The matching insertions are declared on `scripts/ideation_dashboard/serve.py`'s row above. Realized at opensoft/openXdox-code `build/s6-source-route-to-opendox`, `00b69de787975a663d9fb8985a6e38fc54945150` (DRAFT PR opensoft/openXdox-code#17)."
   - source_path: scripts/ideation_dashboard/serve_wire.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -1703,11 +1792,18 @@ rows:
       - class: adapter calls
         lines: [85]
   - source_path: scripts/ideation_dashboard/web/app.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "a01db340cab5609dc304630ae7a3f88e3535bb893a912dac4019f95d361d9a63"
     destination: opendox_code
     destination_path: src/opendox/web/app.js
+    edits:
+      - class: import rewrites
+        lines: [43]
+        note: "§ 3.4 SLICE S3, THE VIEW REGISTRY — a Q-L1 ROW ANNOTATION in the form RULED 2026-09-10 (`#656` comment `5628560136`, Brett Heap, verbatim \"rule the two Q-L1 annotations, fold into PR-2\"), under the § 3.4 slice rulings of `#656` comment `5642758731` (Brett Heap, 2026-09-12), whose Q-L1 paragraph binds every § 3.4 slice: \"an edit to an ARRIVED file outside its declared lines is an undeclared movement — each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\". No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label; the row keeps the `sha256` it has, which is the carve blob's and not the destination's. Line 43 at `carve_commit` is `import { isGateBearing, mountGateBar } from \"./views/gate.js\";` — the shell's ONE direct import of a class-B module, and the line openDox-spec `docs/front-end-package-boundary.md` § 4.1 names: \"app.js stops importing class-B modules directly. Its line 43 becomes a lookup in the collected bindings, and a shell built with no gate binding registered renders the tab strip WITHOUT the gate bar rather than failing to load.\" Class `import rewrites` because that is exactly what the edit is: one import statement replaced by another (`./views/view_extension.js`), the gate module reached through the registry instead."
+      - class: adapter calls
+        lines: [470, 471, 472, 475, 476, 480, 481, 482, 483, 484, 489, 521, 522, 523, 574, 579, 585, 587, 590, 599, 600, 602, 603, 604, 605, 606, 631, 640, 842, 843, 844, 865, 866, 876, 1102, 1103]
+        note: "§ 3.4 SLICE S3, the same act and the same ruling as the `import rewrites` line above — the CALL SITES that reach the gate module and the hardcoded view table, rewritten to go through the view registry. Class `adapter calls` on this manifest's own precedent for the class (`serve.py`:618, `snapshot_registry.py`:85): a site that reached a thing directly now calls the seam that stands in for it. Measured in the blob at `carve_commit` with `scripts/carve_lines.py`' own record definition and the arrival verifier's own `difflib` mapping (RULED Q-L8 (c)), so these are the numbers `verify-carve-arrival.py --phase B` will name and no others. What each group is: 470-523 the `TABS` table, seven hardcoded view entries, which becomes `CORE_VIEWS` — the same seven as `ViewBinding`s plus the gate bar, collected through `collectViewBindings()` (470 `const TABS = [`; 471/475/480/482/484/521/523 the seven entry headers; 472/476/481/483/489/522 their `render:` keys, which become `mount:`). 574-640 the tab router, which stops reading a module-global list and derives the tab strip from the collected bindings (574 `TABS.map(... t.tab)`; 579/585/587/590/599/600/602-606/631/640 the `t.tab` / `t.view` / `target.render` field reads, which become `control` / `region` / `mount`). 842-844 and 865-866 and 876 the gate-bar call sites: `gateContext`'s `isGateBearing(...)` and `renderViewer`'s `mountGate:` become reads of the binding `resolveView()` returned, and null where no gate column is registered — which `views/viewer.js` already renders as a document with no gate bar (`const mountGate = o.mountGate || null`), so no second file is touched. 1102-1103 the one added context key, `views`, handing the collected registry to every view so an OPTIONAL contributed panel is asked for by id. `index.html` is NOT in this act and takes no annotation: a `data-region` attribute would have been a second spelling of an id the shell already carries, and an added attribute is in NONE of the RULED `edit_classes` (`import rewrites | path constants | adapter calls`), so the region contract is held by the registry's own `REGIONS` table and a drift test against the shell's existing ids instead."
   - source_path: scripts/ideation_dashboard/web/index.html
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2251,6 +2347,9 @@ rows:
       - class: path constants
         lines: [40]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: adapter calls
+        lines: [900, 1781, 1785]
+        note: "§ 3.4 SLICE S3, THE VIEW REGISTRY — the same act and the same ruling as the `app.js` row above (`#656` comment `5642758731`, Brett Heap, 2026-09-12; Q-L1 form RULED at `5628560136`). THIS FILE IS A SOURCE-GREP SUITE: it asserts app.js's shape by quoting its lines back, so the three lines that quote the TAB ROUTER'S FIELD NAMES are invalidated by the very edit declared on the `app.js` row — `target.view` -> `target.region`, `t.view` -> `t.region` — and are migrated in the same act rather than left to rot until slice S8 re-homes this suite. Class `adapter calls` on the same precedent the `app.js` row uses: the assertion is a call site reaching a name that now comes from the registry. Each is a single-line REPLACE at the carve numbering with no insertion, which is why exactly three lines are declared and no neighbour is. The assertions' MEANING is unchanged and so is every surrounding line: a tab is still remembered on every activation and restored only to a view this plane has — the router simply calls the field `region` now, because a binding's mount point is what it always was."
   - source_path: tests/ideation-dashboard/test_canvas.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2322,6 +2421,9 @@ rows:
       - class: path constants
         lines: [39]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: adapter calls
+        lines: [290]
+        note: "§ 3.4 SLICE S3, THE VIEW REGISTRY — carried by the openDox-code #14 fix round (Copilot re-review finding \"docs-tab migration\", commit `e176947dd3691fa96b285575910989ed77e09181`) rather than by this leg's original commit, under the same act and the same ruling as the `app.js` row above and the `test_bullseye_widget.py` row's second edit (`#656` comment `5642758731`, Brett Heap, 2026-09-12; Q-L1 form RULED at `5628560136`). THIS FILE IS A SOURCE-GREP SUITE: `test_the_doc_tab_is_wired_to_the_one_cross_view_jump` located the docs tab's block by the pre-S3 shape `'{ tab: \"tab-docs\"'`, which no longer exists once the `app.js` row's declared `TABS` -> `CORE_VIEWS` edit lands; `app.split(...)[1]` on the absent literal raised IndexError before the `renderDocs` assertion ever ran. Migrated to split on the registry shape, `'{ id: \"docs.list\", control: \"tab-docs\", region: \"view-docs\",'` — the same one-token-class migration the three `test_bullseye_widget.py` `.view` -> `.region` quotations already took in this PR. Class `adapter calls` on the same precedent the `app.js` and `test_bullseye_widget.py` rows use: the assertion is a call site reaching a name that now comes from the registry. One carve-numbered line REPLACED (wrapped to two lines at the destination by line length, per `verify-carve-arrival.py`'s `difflib` opcode mapping, RULED Q-L8 (c)), so exactly one line is declared and no neighbour is. The assertion's MEANING is unchanged — the doc tab still reaches the one cross-view jump, `renderDocs(root, snap, { onOpenDoc: ctx.nav.openDoc })` — only the marker it greps for."
   - source_path: tests/ideation-dashboard/test_doc_wheel.py
     disposition: moved_with_declared_edit
     git_mode: '100644'

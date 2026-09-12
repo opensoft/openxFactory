@@ -95,7 +95,7 @@ match openxFactory at the carve commit, or whose surface is incomplete is
 opinion about the same bytes. Both are run; neither substitutes for the other.
 
 WHAT A LINE IS, AND WHY IT IS DEFINED IN A THIRD FILE (RULED Q-L8 (c)). The
-manifest declares 866 edit lines BY NUMBER, this file decides whether a diff
+manifest declares 1042 edit lines BY NUMBER, this file decides whether a diff
 touches only them, and `validate-carve-manifest.py` bounds them against the
 carve blob — so a number must mean the same thing in both tools, and it did
 not: this one split with `str.splitlines()` and that one counted `b"\\n"`, which

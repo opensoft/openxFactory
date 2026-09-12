@@ -1,6 +1,6 @@
 """ONE DEFINITION OF A LINE FOR THE CARVE FLOOR (RULED Q-L8 (c)).
 
-`docs/opendox-carve-manifest.yaml` declares 866 EDIT LINES BY NUMBER, and two
+`docs/opendox-carve-manifest.yaml` declares 1042 EDIT LINES BY NUMBER, and two
 tools read those numbers: `scripts/validate-carve-manifest.py` bounds them
 against the blob at `carve_commit` (a declared line the file does not have
 cannot be checked at the destination), and `scripts/verify-carve-arrival.py`

@@ -112,7 +112,7 @@ object this repository carries and an ANCESTOR of the revision under test — th
 shed deletes files from a tree, it does not delete a commit from a history, so
 `git cat-file blob b075fd91:<path>` answers after the shed exactly as before.
 Check 3 PASS 1 therefore still recomputes all 318 digests from the referent's
-real bytes and still bounds all 866 declared lines against them; check 4 still
+real bytes and still bounds all 1042 declared lines against them; check 4 still
 walks the referent for completeness, still refuses a file that has APPEARED
 under the surface, and still requires every `stays_*` and
 `replicated_at_destination` row to be PRESENT; checks 1, 5 and 6 never read the
