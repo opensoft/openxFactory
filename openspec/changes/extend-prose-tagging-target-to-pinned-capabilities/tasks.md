@@ -243,11 +243,14 @@ the later realization pull request, and § 4 is the archive act.
   wrong form; plus each list absent, and each a non-sequence. SHAPE (b), THE
   WHOLE-TREE DIGEST COMMIT PIN (`contracts/opendox-pin.yaml:92-93,108-110`,
   `contracts/openxdox-pin.yaml:76-77,92-94`) — the POSITIVE case FIRST, since
-  omitting it is how this shape came to be missed: a record with `commit`,
-  `revision_kind: commit`, `submodule_path`, `digest_algorithm`,
-  `digest_definition` and a `digests` mapping carrying `tree_sha256` and
-  NEITHER per-file list RESOLVES, and the absent lists are not reported as
-  missing members; then one MISSING and one MALFORMED case for each of that
+  omitting it is how this shape came to be missed: a record whose six members —
+  `commit`, `revision_kind: commit`, `submodule_path`, `digest_algorithm`,
+  `digest_definition` and a `digests` mapping carrying `tree_sha256` — are each
+  PRESENT AND WELL-FORMED, which carries NEITHER per-file list and EITHER no
+  `capabilities:` member or a well-formed one naming the capability, RESOLVES,
+  and the absent lists are not reported as missing members; the malformed
+  variants are the cases immediately below and no case may claim both outcomes
+  for one record; then one MISSING and one MALFORMED case for each of that
   shape's SIX shape-guard-required members — `submodule_path`
   (`scripts/verify-opendox-pin.py:215`), `revision_kind` (`:226`), `commit`
   (`:234`), `digest_algorithm` (`:246`), `digest_definition` (`:253`) and

@@ -371,10 +371,11 @@ not the thing that happens when nobody decides.
 - **AND** the equivalence MUST NOT be claimed to make the adapter's judgement SUFFICIENT for the shape's full verifier: a source-dependent check such as `pin-surface-undeclared` stays outside this contract, the adapter being NECESSARY and by design not sufficient
 
 #### Scenario: A pin record addresses its whole tree by one digest
-- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` with `revision_kind: commit`, a `commit`, a `submodule_path`, a `digest_algorithm`, a `digest_definition` and a `digests` mapping carrying `tree_sha256`, and carries neither `files:` nor `pinned_by_commit_only:`
+- **WHEN** a live marker names a lexically well-formed `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` with a `revision_kind: commit`, a `commit`, a `submodule_path`, a `digest_algorithm`, a `digest_definition` and a `digests` mapping carrying a `tree_sha256` — each of those six members PRESENT AND OF THE FORM ITS SHAPE GUARD REQUIRES rather than merely present — and carries neither `files:` nor `pinned_by_commit_only:`, and EITHER carries no `capabilities:` member OR carries a well-formed non-empty one in which `<capability>` appears
 - **THEN** the record MUST be judged COMPLETE against that shape and the target MUST resolve on it, one digest over the whole tree leaving no member undeclared
 - **AND** the pass MUST NOT report the absent per-file lists as missing members, the enumeration those lists provide being supplied here by the tree digest
 - **AND** a record carrying both that tree digest and a `files:` list MUST be reported as an invalid pin naming both shapes tried, no ratified text admitting the mixture
+- **AND** a record of this shape carrying any of those six members MALFORMED, and one whose `capabilities:` member is malformed or is well-formed without `<capability>` in it, are OUTSIDE this scenario and are judged by their own scenarios above, so no marker falls under two scenarios prescribing different outcomes for it
 
 #### Scenario: A source pin enumerates its members in two different forms
 - **WHEN** a live marker names a record whose `files:` entries are mappings carrying a `path` and its `sha256` and whose `pinned_by_commit_only:` entries are path-only strings
