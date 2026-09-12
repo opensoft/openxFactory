@@ -682,6 +682,59 @@ Active changes:
   archive is a separate act on a separate word, still OWED, and #966 closes
   there and not at this ratification.
 
+- [report-stale-grandfather-dispositions](openspec/changes/report-stale-grandfather-dispositions/proposal.md)
+  — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
+  **`Status: ratified`** (2026-09-12T15:45:22Z, Brett Heap, openxFactory
+  operator authority — a MULTIPLE-CHOICE ruling over `design.md` **D1** with
+  the recommendation presented first, verbatim ***"do all as recomended"***,
+  given in the lane's window in answer to the orchestrator's list of open
+  rulings and recorded on PR
+  [#981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774)
+  (mirrored on issue
+  [#965](https://github.com/opensoft/openxFactory/issues/965#issuecomment-5646922894)
+  one second later)). **D1 = OPTION 1**, a PRUNE PROMPT at `warning` — the
+  option the packet already encoded, so **THE WORDING STANDS UNCHANGED** and no
+  delta byte was rewritten, restored or deleted; D0 and D2, D2a, D2b, D3, D4 and
+  D5 were carried beside it and none was vetoed. Records
+  `openspec/changes/report-stale-grandfather-dispositions/review/ratification-2026-09-12.md`
+  and
+  `openspec/changes/report-stale-grandfather-dispositions/review/verification-2026-09-12.md`.
+  `.openspec.yaml` keeps the drafting provenance it was authored with — the
+  ORIGIN of the AUTHORING is Brett Heap's earlier word of 2026-09-11 ~18:20Z,
+  verbatim ***"usage reset, resume all. read handoff and resume and fan out
+  wide and do as much as possible in parallel"***, which commissioned the
+  AUTHORING and decided no wording — and the approval pair is ADDED beside it,
+  `kind`/`id`/`reason`/`proposed_by`/`proposed_on` byte-unmoved (numstat `43 0`).
+  Carries § 7.1 of the archived
+  `honour-grandfather-dispositions-in-ratified-provenance` and openxFactory
+  [#965](https://github.com/opensoft/openxFactory/issues/965): the landed
+  grandfather pass downgrades what it MATCHES and **nothing reports what it
+  matched NOTHING**. Measured against the real aggregation file
+  (`opensoft/xFactory` `main` `0ecb370e`, 49 entries, **18** of them
+  `family: ratified-provenance`): **15 match a live finding and 3 match
+  nothing** — all three from codexFactory, all three stale BY REPAIR (the record
+  now carries `Status: ratified` with a `Ratified:` line naming an approver and
+  a date), ZERO by a vanished path; the same 15/3 split at the aggregation's own
+  pins, at `openxFactory` `8015d45f` / `codexFactory` `dc67ad82`, and again at
+  `c521504c` / `c3108adc`. One `## MODIFIED` block over *Governed corpus
+  membership and the lifecycle scan set* with one scenario appended, canon's
+  own bytes sliced rather than transcribed; `sequenced_after: []` (#966's
+  packet, PR
+  [#978](https://github.com/opensoft/openxFactory/pull/978) — since ratified
+  and merged — writes a DIFFERENT requirement and a branch-only parent is
+  never declared). **THE CODE SURFACE
+  RIDES THIS PULL REQUEST** — `scripts/doc_health/families.py` gains one SECOND
+  AND FINAL grandfather-disposition pass (`_stale_grandfather_dispositions`,
+  appended to the downgrade's result by the family's own `return`) and
+  `tests/doc-health/test_grandfather_dispositions.py` goes **23 → 40** test
+  functions (`grep -c '^def test_'`), confirmed at this ratification to
+  implement D1 option 1 exactly, with no fix required — so under
+  `release-realization` the archive waits for
+  merged-plus-green realization evidence rather than landing with the packet.
+  **`tasks.md` § 1 is now ticked; § 6 (ARCHIVE) STAYS ENTIRELY OPEN** — a
+  further act on merged-plus-green realization evidence at canon's grain and a
+  further word — and #965 closes at the ARCHIVE and not at this ratification.
+
 - [gate-realization-axis-vocabulary](openspec/changes/gate-realization-axis-vocabulary/proposal.md)
   — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
   **`Status: ratified`** (2026-09-12 at 15:45Z, Brett Heap, openxFactory
