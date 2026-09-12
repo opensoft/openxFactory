@@ -3181,8 +3181,11 @@ Archived changes:
   after a sibling search found none, citing a re-measurement (45 active
   proposals, 45 declaring `code_surface:`, 5 `none` / 40 non-`none`, none
   validated); § 6.4 re-measures the archived off-vocabulary `target_release`
-  count via `scripts/validate-target-release.py` — still **61**, of a now-165
-  archived total; § 6.5 re-confirms no other estate repository is touched.
+  count via `scripts/validate-target-release.py` — still **61**, of a now-166
+  archived total (re-measured post-merge-from-main, which carried in
+  `rule-inherited-unit-naming-marker-spent`'s own archive: 164 → 166, +2, this
+  packet's own PR #1014 plus that sibling PR #1012); § 6.5 re-confirms no
+  other estate repository is touched.
   **openxFactory [#956](https://github.com/opensoft/openxFactory/issues/956)
   CLOSES AT THIS ARCHIVE**, by the single `Closes #956` line in PR #1014's
   body and nowhere else — `closingIssuesReferences` verified `[956]` on this
