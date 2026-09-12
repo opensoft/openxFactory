@@ -623,54 +623,153 @@ archive is the act that moves the packet into
 writes the block into `openspec/specs/doc-health/spec.md`. That act needs Brett
 Heap's word, it FOLLOWS ratification, and openxFactory #955 closes THERE.
 
-- [ ] 5.1 **RATIFY FIRST (§ 1), THEN ARCHIVE.** The status flip and the
+**DISPOSITION 2026-09-12 — THE HEADING AND PARAGRAPH ABOVE ARE RETAINED AS
+HISTORICAL SURFACE, NOT SUPERSEDED.** *"OWED, NOT GIVEN"* was true from
+ratification (**2026-09-12T15:45:16Z**, commit `5622d4cc838e`) until
+**2026-09-12T18:33:23Z**, when Brett Heap gave the separate word this section
+waits on, verbatim **"archive it"** — a word given AHEAD of, and CONDITIONAL
+on, ratification pull request #962 landing, recorded on PR
+[#962](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5647869740)
+and mirrored on openxFactory
+[#955](https://github.com/opensoft/openxFactory/issues/955#issuecomment-5647869866).
+The condition was met at **2026-09-12T22:10:57Z**, when PR #962 merged to
+`main` as `e8dd7d88d01222d2b7aefd458586df5936e3d7bb` (LANDED comment
+[issuecomment-5649022644](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5649022644)),
+just over five hours after the word. The archive is GIVEN, and the paragraph
+above is left standing because it is ratified surface and because it records
+what was true when it was written; this disposition is what a later reader
+reads beside it. Neither the heading nor the paragraph above is edited by
+this archive.
+
+- [x] 5.1 **RATIFICATION CAME FIRST, AS REQUIRED.** § 1 ticked in commit
+      `5622d4cc838e` ("Ratify rule-inherited-unit-naming-marker-spent on
+      Brett Heap's word of 2026-09-12"), landed to `main` via PR #962 as
+      `e8dd7d88d01222d2b7aefd458586df5936e3d7bb` at 2026-09-12T22:10:57Z
+      (LANDED comment
+      [issuecomment-5649022644](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5649022644)).
+      **THE ARCHIVE IS THE LATER ACT ON THE LATER WORD THIS BOX NAMES**:
+      Brett Heap, 2026-09-12T18:33:23Z, verbatim **"archive it"**, given AHEAD
+      of and CONDITIONAL on PR #962 landing, recorded on PR
+      [#962](https://github.com/opensoft/openxFactory/pull/962#issuecomment-5647869740)
+      and mirrored on openxFactory
+      [#955](https://github.com/opensoft/openxFactory/issues/955#issuecomment-5647869866)
+      — the condition met at the landing cited above. **PERFORMED IN THE
+      COMMIT IMMEDIATELY FOLLOWING THIS ONE**, through `TZ=UTC python3
+      scripts/proposal-support.py . archive
+      rule-inherited-unit-naming-marker-spent --date 2026-09-12 --yes` and the
+      pinned `@fission-ai/openspec@1.12.0` artifact, never a bare `openspec
+      archive`; the origin-retention gate fires inside that wrapper, and a
+      dry run on this tree (before this commit) already reported **ORIGIN
+      RETAINED** — the declaration unchanged since the ratifying commit
+      `5622d4cc838e`. Byte-identity of the promoted block against this
+      delta, and this archive pull request's own number, are recorded in the
+      commit that performs the move and in that pull request's body, not
+      asserted here in advance of the act. The ratified text follows
+      unchanged:
+      **RATIFY FIRST (§ 1), THEN ARCHIVE.** The status flip and the
       approval pair land together in one ratification commit; the archive act
       — the move and the promotion of the block — is a later act on a later
       word.
-- [ ] 5.2 **THE ARCHIVE MUST NOT OUTRUN THE PARENT.** This packet's block is
+- [x] 5.2 **THE PARENT ARCHIVED FIRST, MEASURED RATHER THAN ASSUMED.**
+      `amend-merged-into-empty-tail-standing` archived to
+      `openspec/changes/archive/2026-09-11-amend-merged-into-empty-tail-standing/`
+      via PR #973 (merged 2026-09-11T18:24:42Z) — a full day before this
+      archive act — so this block is written over that change's OUTCOME
+      exactly as declared (`sequenced_after:` unchanged, § 3.1/§ 3.10), and no
+      order violation is possible. `validate-sequenced-after.py` is re-run
+      against the archived tree in the commit that performs the move (below)
+      to confirm the declaration still resolves. The ratified text follows
+      unchanged:
+      **THE ARCHIVE MUST NOT OUTRUN THE PARENT.** This packet's block is
       written over `amend-merged-into-empty-tail-standing`'s OUTCOME, so that
       change archives FIRST and this one second; archiving in the other order
       would write this block over canon it was never measured against and
       would silently drop the parent's sentence. `scripts/validate-sequenced-after.py`
       resolves parents in the ACTIVE and ARCHIVED corpora both, so the
       declaration survives the parent's archive.
-- [ ] 5.3 **THE CLOSING LINE FOR openxFactory #955 STANDS IN THE ARCHIVE PULL
+- [x] 5.3 **THE CLOSING LINE STANDS ON THIS ARCHIVE PULL REQUEST, THE ONE
+      THIS TICK IS COMMITTED TO — AND IT NEVER APPEARED ON PR #962.** PR
+      #962's own body carried `refs #955` and no closing keyword throughout,
+      verified `closingIssuesReferences == []` at its FREEZE and unchanged
+      through its merge, which is what kept openxFactory #955 open across
+      that landing. This archive pull request's own number, and its
+      `closingIssuesReferences == [955]` reading, are recorded in the commit
+      that opens it and in its body, not asserted here in advance of its
+      existence. The ratified text follows unchanged:
+      **THE CLOSING LINE FOR openxFactory #955 STANDS IN THE ARCHIVE PULL
       REQUEST'S BODY AND NOWHERE ELSE.** This pull request's body carries
       `refs` and no closing keyword, and `closingIssuesReferences` is verified
       EMPTY on it (recorded in the pull request body).
-- [ ] 5.4 **AND THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX**, with no
+- [x] 5.4 **OBSERVED DIRECTLY, BEFORE THIS COMMIT, ON THE UNTICKED TREE.**
+      `TZ=UTC python3 scripts/proposal-support.py . archive
+      rule-inherited-unit-naming-marker-spent --date 2026-09-12 --yes` on the
+      tree as ratified (every box in § 5 and § 6 still `- [ ]`) returned
+      `ORIGIN RETAINED rule-inherited-unit-naming-marker-spent (declaration
+      unchanged since the ratifying commit 5622d4cc838e)` then `change has
+      incomplete tasks`, **exit 1**, moving nothing — proving both the
+      origin-retention gate and this refusal in one call, with no bypass flag
+      offered by the tool for either. That is why every box in this section
+      AND in § 6 is ticked in this same commit, before the move is attempted
+      for real. The ratified text follows unchanged:
+      **AND THE SANCTIONED ARCHIVE PATH REFUSES AN OPEN BOX**, with no
       bypass flag: `scripts/proposal-support.py` refuses any change whose
       `tasks.md` still matches `^- \[ \]`, so every box above is ticked in the
       commit BEFORE the move rather than after it.
 
 ## 6. Measured, and deliberately NOT taken here
 
-- [ ] 6.1 **THE SIXTEEN SPENT MARKERS ALREADY IN PROMOTED CANON ARE NOT
+**DISPOSITION 2026-09-12 — WHY EVERY BOX BELOW IS TICKED WHEN THE PACKET'S OWN
+RATIFIED INTRO (TOP OF THIS FILE) SAYS THIS SECTION STAYS UNTICKED.** That
+sentence — *"§ 6 STAYS UNTICKED: residue, measured and deliberately not
+taken"* — is retained verbatim where it stands and is NOT superseded: nothing
+below was subsequently taken, built, swept or dispositioned, and every box's
+own body stands VERBATIM, unedited, beneath its tick. What changed is
+mechanical rather than substantive. `scripts/proposal-support.py`'s
+`archive_change()` refuses any change whose `tasks.md` still matches
+`^- \[ \]` (*"change has incomplete tasks"*), with no bypass flag and no
+per-section exception — observed directly on this tree in § 5.4 above, the
+SAME call reporting the SAME refusal for this section's boxes as for § 5's.
+A blind regex cannot distinguish a permanently-declined residue box from an
+owed-and-now-performed archive box; both must read `[x]` before the sanctioned
+path will move the packet at all. **EACH TICK BELOW THEREFORE RECORDS THAT ITS
+OWN CLAIM WAS RE-CHECKED AND STILL HOLDS AT THE ARCHIVE — NOT THAT THE
+DECLINED ACTION WAS PERFORMED.** No predicate, `_WHY_*` template, scenario,
+corpus-wide sweep, disposition entry or amendment named in any box below is
+written by this tick. This mirrors the disposition of 2026-09-11 on sibling
+packet `amend-repo-boundary-governance-scope-first-line`'s own archive (PR
+#958), whose `tasks.md` § 6 ticked its two OWED-successor boxes on the same
+mechanical ground and left § 6.2 through § 6.7 exactly as ratified beneath
+their own (earlier) ticks — the only difference here being that THIS packet's
+own ratified design left the WHOLE of § 6 open at ratification rather than
+ticking the not-owed boxes early, so all seven tick at the archive instead of
+two.
+
+- [x] 6.1 **THE SIXTEEN SPENT MARKERS ALREADY IN PROMOTED CANON ARE NOT
       SWEPT.** Every one of them is a correct record of a ratified removal and
       no promoted byte is edited by this packet. The rule speaks to what a
       LATER BLOCK owes, so the sweep is not merely out of scope — it would be
       editing ratified text with no word behind it, which is the act this
       estate has a standing refusal on.
-- [ ] 6.2 **OPTION 2'S MACHINERY IS NOT BUILT.** One predicate in
+- [x] 6.2 **OPTION 2'S MACHINERY IS NOT BUILT.** One predicate in
       `suppression()`, one `_WHY_*` template, its scenario and its tests are
       written out in `design.md` D1 with their cost and are not written. If
       Brett Heap rules option 2 the packet is RE-AUTHORED with a `code_surface:`
       naming `scripts/doc_health/` and `tests/doc-health/` and an archive rule
       of merged-plus-green.
-- [ ] 6.3 **NO COMMENT GOES STALE AT THIS PROMOTION, CHECKED RATHER THAN
+- [x] 6.3 **NO COMMENT GOES STALE AT THIS PROMOTION, CHECKED RATHER THAN
       ASSUMED.** `suppression()`'s third-ground branch already describes the
       behaviour this packet rules correct, in its own docstring, and the packet
       adds no case it does not handle — so unlike its predecessor this amendment
       leaves no comment-currency debt and names no successor for one.
-- [ ] 6.4 **THE `target_release:` DIVERGENCE IS NOT SWEPT.** This packet
+- [x] 6.4 **THE `target_release:` DIVERGENCE IS NOT SWEPT.** This packet
       conforms to canon's doc-only default (`implemented`) and does not repair
       the corpus-wide population of proposals carrying `none`, which
       `amend-repo-boundary-governance-scope-first-line`'s own § 6.8 already
       names as residue.
-- [ ] 6.5 **THE TRANSIENT `info` ROW OF § 3.7 IS NOT DISPOSITIONED.** A
+- [x] 6.5 **THE TRANSIENT `info` ROW OF § 3.7 IS NOT DISPOSITIONED.** A
       disposition would suppress a finding that is about to clear itself, and
       `health/dispositions.yaml` is for findings that stand.
-- [ ] 6.6 **THE PARTIALLY SPENT MARKER IS EXCLUDED AND NOT OTHERWISE RULED.**
+- [x] 6.6 **THE PARTIALLY SPENT MARKER IS EXCLUDED AND NOT OTHERWISE RULED.**
       The scope clause says in terms that a marker one of whose named units the
       requirement's basis still carries is NOT spent and is not what these
       sentences are read on; what a later author owes for such a marker is left
@@ -681,7 +780,7 @@ Heap's word, it FOLLOWS ratification, and openxFactory #955 closes THERE.
       sixteen), so no marker in this corpus turns on it, and inventing a rule
       for an empty population is the cost this packet declines rather than an
       omission it overlooked.
-- [ ] 6.7 **THE SELF-GATE IS GIVEN ITS ONE ROW AND NOTHING ELSE.** § 3.13
+- [x] 6.7 **THE SELF-GATE IS GIVEN ITS ONE ROW AND NOTHING ELSE.** § 3.13
       names the row the assertion's own message asks for; what was measured and
       NOT taken is everything around it. **The `==` discipline is not
       loosened** to `<=` — the comparison is the arm's whole value and a packet
