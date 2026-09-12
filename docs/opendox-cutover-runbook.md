@@ -144,8 +144,8 @@ mapping manifest. Measured in the landed file:
 | `moved_with_declared_edit` | **152** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 910 declared edit lines**: `import rewrites` 679, `path
-constants` 165, `adapter calls` 66. **153 rows carry `edits:`** — the 152
+**318 rows move. 1042 declared edit lines**: `import rewrites` 679, `path
+constants` 165, `adapter calls` 198. **153 rows carry `edits:`** — the 152
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 
 The table above states the file's CURRENT totals — see "Measured directly
@@ -182,9 +182,9 @@ test-layout files that carve leg 1 measured:
   the LINE: `verify-carve-arrival.py` verifies one destination per run and
   compares no two legs' copies with each other.
 
-The **910th line belongs to a replica row and therefore to no destination
+The **1042nd line belongs to a replica row and therefore to no destination
 column below**: a replica row names no destination at all, so the per-leg
-declared-line figures still sum to 909, and the extra line is owed by every leg
+declared-line figures still sum to 1041, and the extra line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
 reason `edits:` is still a refusal**: RULING OQ-B's three
 `stays_openxfactory_governance` rows stay here and take their import rewrite in
@@ -202,9 +202,12 @@ among them BUILD slice 2's nine openDox-code back-imports, a second Q-L1
 annotation round (`#656` comment `5628560136`), the ASK-7 declared-edit
 window (`#656` comment `5635150678`, PR #995), the § 3.4 SLICE S2
 intent-chips annotation (RULED Q5, `#656` comment `5642758731`, openxFactory
-PR #1002, landing first per Q-L1's own landing order), and PR #1001's own
+PR #1002, landing first per Q-L1's own landing order), PR #1001's own
 post-landing extension catching up the openDox-code #14 fix round's one-line
-`test_doc_surfaces.py` edit. Rather than
+`test_doc_surfaces.py` edit, and the § 3.4 SLICE S6 annotation (RULED Q4,
+`#656` comment `5642758731`) declaring the `/source` re-homing's ten
+`serve.py` lines and 122 matching `serve_projection.py` deletions, on the same
+two rows' existing `edits:` and no new row. Rather than
 re-narrate each one here — this table is exactly the hand-maintained
 copy RULED Q-L1's own "two acts restating one set of absolutes is how a
 count becomes wrong in a merge" warns about — the figures above are the
@@ -218,9 +221,9 @@ Per destination, and these are the numbers each leg's arrival run must report:
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 58 / 65 | 337 | `src/opendox`, `tests` |
+| `opendox_code` | 123 | 58 / 65 | 347 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
-| `openxdox_code` | 92 | 9 / 83 | 537 | `scripts`, `src/openxdox`, `tests` |
+| `openxdox_code` | 92 | 9 / 83 | 659 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
 
@@ -280,7 +283,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 910 now.
+from the start — 794 of them at this ruling's own landing, 1042 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738
