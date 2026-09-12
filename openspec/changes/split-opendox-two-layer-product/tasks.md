@@ -1299,20 +1299,41 @@ the bookkeeping that ticks this group.
   validates them. Recorded in `contracts/CHANGELOG.md` § contract-v3.7 and in
   `docs/contract-versioning-policy.md`'s Deprecations Currently In Force entry
   so it survives to the cut that must answer it.
-- [ ] 5.7 `[oxF]` Cut the **MAJOR** — a removed shape is BREAKING under
+- [x] 5.7 `[oxF]` Cut the **MAJOR** — a removed shape is BREAKING under
   `docs/contract-versioning-policy.md` § Change Classes, which also requires a
   CHANGELOG migration note and a preceding full minor of deprecation warnings.
   The NUMBER is allocated AT THE CUT by merge order, never reserved here. Owes its
   own `contracts/releases/<tag>.digests.yaml` under `release-surface-integrity`,
   and a published annotated tag verified from an independently refreshed checkout.
-  **STATUS — 2026-09-11.** Precondition met: the DEPRECATING minor
-  `contract-v3.7` landed **`opensoft/openxFactory` #970 →
-  `45bd9ee250ad1125f9227ad511bee0fec2b16306`** and is published as the
-  annotated tag **`contract-v3.7` → `ec3c17292c6dc2ca6004d158d6cc26bf5e6523e2`**
-  (verify-tag pass, #656 comment `5639092895`). The cut itself is
-  **`opensoft/openxFactory` #983** (open, ready for review; CLAIMED
-  `5639135734`). This box ticks when the annotated `contract-v4.0` tag is
-  published and verified (Brett Heap tags, RULED ASK-9a → 1, `5635150678`).
+  **STATUS — 2026-09-12, tick JUDGED MET — the MAJOR is cut, published and
+  verified.** Cut: **`opensoft/openxFactory` #983 →
+  `ce5c054e8522499c6f4ff2039496243a09cb4acf`**, 2026-09-11 23:52Z (#656
+  comment `5641952070`; plain gate, RULED ASK-9a → 1 `5635150678`; head
+  `219bb357`, six required checks SUCCESS, `pytest-suite` run `34657479391`
+  — 7086 passed / 6 skipped —, 8 threads / 0 unresolved, no
+  `openspec/changes/` path). `contracts/manifest.yaml` on `main` now reads
+  `contract_bundle_version: contract-v4.0`, the five relocating rows removed,
+  and the three unrelated entries whose removal target was `contract-v4.0`
+  RESTATED to `contract-v5.0` exactly as
+  `docs/contract-versioning-policy.md`'s own text prescribes — ACCEPTED by
+  Brett Heap in the tagging sitting (`5642131117`), no correcting PR owed.
+  **The box's own "owes its own `contracts/releases/<tag>.digests.yaml` under
+  `release-surface-integrity`"** is discharged:
+  `contracts/releases/contract-v4.0.digests.yaml` exists on `main`, and
+  post-land, from an independent clone at `ce5c054e`, both
+  `validate-contract-release.py verify-commit` and `verify-promotion` read
+  `pass` (#656 comment `5641952070`) — discharging PR-2's own OWED
+  release-inventory bundle cut (`5638315691`). **The box's own "a published
+  annotated tag verified from an independently refreshed checkout"** is
+  discharged: `contract-v4.0` is the annotated tag object
+  `9e6c0ae4596b6585016ec9efa2c9e3fdafef9e4b` →
+  `ce5c054e8522499c6f4ff2039496243a09cb4acf`, pushed under Brett Heap's git
+  identity from the independent clone (amending RULING 9c for this one tag,
+  as with `contract-v3.7`), and
+  `validate-contract-release.py verify-tag --remote origin --tag
+  contract-v4.0` → `release verify-tag: pass` (#656 comment `5642131117`,
+  RULED + EXECUTED 2026-09-12 00:21Z). Both of the box's own owed clauses are
+  discharged; nothing remains owed.
 - [ ] 5.8 `[xF]` `.gitmodules`, two root gitlinks, `README.md`, `CLAUDE.md`,
   `project-register.yaml` — **including § 1.9's two derived election rows**
   (amended 2026-09-05). The aggregation's root gitlink for openXdox SHALL EQUAL
