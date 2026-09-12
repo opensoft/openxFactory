@@ -204,35 +204,42 @@ each open box below states the event that closes it:
       family's rows in the later, current run are `auto-fixable`, an
       eligibility that does not compound or persist beyond the one comparison
       — AND the later run
-      actually EVALUATED the named family and repository (`spec.md:42` states
-      the RECORDED-unavailable case, and `spec.md:43` refuses to ratify the
+      actually EVALUATED the named family and repository (`spec.md:43` states
+      the RECORDED-unavailable case, and `spec.md:44` refuses to ratify the
       gaps § 7.6 measures, where a run's scope excludes a family or repository
       without RECORDING it — measured at `report.uncited_resolutions`'
       `unavailable_families` / `unavailable_repos` guards, `report.py:424-427`,
       fed by `runner.main` 792-830 — `unavailable_families` built at 792 and
       extended at 807/809/811/823/830, `unavailable_repos` at 749 — and passed
-      at the call site, `runner.py:831`); and an entry naming `uncited-resolution`
-      itself changes nothing at all.
+      at the call site, `runner.py:831`); an entry naming
+      `semantic-contradiction` or `semantic-normative-prose` is carved out of
+      this whole scenario by its own added exception (`spec.md:41`-`42`), the
+      already-promoted *Semantic finding disposition authority* requirement
+      governing those two families' dispositions instead and this scenario's
+      cited-and-keyed admission shape proving no authority under it, so
+      neither ever suppresses the derived error by this scenario alone
+      regardless of the eligibility above; and an entry naming
+      `uncited-resolution` itself changes nothing at all.
       (ii) *A recorded disposition names a family this capability does give a
       reading* — such an entry is read OVER THAT FAMILY'S OWN FINDINGS exactly as
       that family's own declaration says and by that declaration alone, the
       family-neutral contested-resolution rule still reaching it WHEREVER THAT
       RULE'S OWN EVALUATION SCOPE REACHES the named family and repository
-      (`spec.md:50` says so in terms, so "by that declaration alone" cannot be
-      read as displacing that rule; `spec.md:51`, added in the review round of
+      (`spec.md:51` says so in terms, so "by that declaration alone" cannot be
+      read as displacing that rule; `spec.md:52`, added in the review round of
       2026-09-11, says a CITED entry missing a further family-specific key — a
       string `content_sha256`, for `neutrality-drift` — is still admitted by
       this same family-neutral reader, which tests only the cite, not that
-      further key; and `spec.md:52` says the entry reaches nothing through
+      further key; and `spec.md:53` says the entry reaches nothing through
       that rule where its scope excludes the named family — measured at
       `runner.py:823` and `runner.py:830`, which add the ideation-readiness and
       neutrality-drift lanes to `unavailable_families` unconditionally because
       their findings are folded in AFTER the deterministic render, so those
       lanes' prior contested rows never enter the pass at all), and
-      `spec.md:53` neither widens nor narrows it.
+      `spec.md:54` neither widens nor narrows it.
       No body paragraph is added, edited or removed; no promoted scenario moves
       or is retitled; scenario (ii) gained the one bullet named above
-      (`spec.md:51`) since first authored, recorded here rather than left
+      (`spec.md:52`) since first authored, recorded here rather than left
       implicit, and no bullet is lost from either.
 - [x] 3.4 ACTIVE-delta sibling search over the heading modified, RE-RUN on the
       committed tree after `origin/main` `c521504c` was merged, and scoped so it
