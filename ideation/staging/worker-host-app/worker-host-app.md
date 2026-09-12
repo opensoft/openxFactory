@@ -161,6 +161,14 @@ refresh: {policy: rebuild-on-base-cve, cadence: monthly}
   benches and emits digest + manifest per build. Bench sources today live on
   the operator's workstation; which repo owns them going forward?
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 - Local-admin path on Omni-001: does the Windows 365 provisioning policy

@@ -50,6 +50,14 @@ codexFactory rule.
    council is a bypass. The template makes the activation gate a required
    element of any instantiation.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions — resolved for staging (2026-08-05)
 
 - When does the template get extracted? DECIDED at accept (Brett,
