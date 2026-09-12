@@ -308,7 +308,19 @@ from the run and repeated in the pull request body.
       **THE FAILURE SET IS IDENTICAL**, `disposition-codexfactory-declared-renames`
       and `disposition-codexfactory-floor-relocation-retitle` on both sides, a
       `diff` of the two sorted `✗` lists being empty; the one-item difference in
-      the totals is this change itself passing. `python3
+      the totals is this change itself passing. **THIS BOX TICKS ON THE RUN AND
+      THE COMPARISON, NOT ON A CLAIM THAT THE CONSTITUTION'S PRINCIPLE V GATE IS
+      SATISFIED.** `.specify/memory/constitution.md`'s Principle V states this
+      exact command MUST pass, NON-NEGOTIABLE, before any commit is pushed, and
+      it does not pass here: both failing changes are `Status: ratified` (2026-
+      09-05) awaiting their own archive act, each with no `specs/` delta at all
+      — a wholly separate, already-decided workstream this `code_surface: none`
+      documentation packet has no authority to archive on someone else's behalf,
+      and no delta of its own to add one to. Whether an IDENTICAL, pre-existing,
+      unrelated failure satisfies Principle V for THIS pull request is a policy
+      question this packet does not resolve — it is measured and reported, not
+      repaired, the same shape as § 7.6's three gaps, and STAYS a question for
+      whoever holds that gate's authority. `python3
       scripts/validate-openspec-cli-pin.py --all --no-cache` — **exit 0** on both,
       `0 UNDISPOSITIONED failures` with the SAME two accepted exceptions
       (`add-chain-attestation / signed-execution-chain/spec.md`,
