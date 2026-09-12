@@ -301,6 +301,30 @@ moved_paths:
 # fix itself lands at openDox-code in the paired PR, inside these four
 # declared lines only.
 #
+# THE Q-L1 ANNOTATION OF 2026-09-11 (RULED Q5, `#656` comment `5642758731`,
+# Brett Heap, "keep RULED OQ-F (`not_moved`), fix the importers" — S2 makes
+# the intent chips an OPTIONAL contributed binding, `dispose.js` and
+# `wheel.js` render without it) lands ON TOP of the ASK-7 window above and
+# moves the same two counts and nothing else. It lands on TWO existing
+# `opendox_code` rows, converting both `moved_verbatim` →
+# `moved_with_declared_edit` for one `import rewrites` edit each: `dispose.js`'s
+# single-line repoint (line 26) and `wheel.js`'s two-line `import … from`
+# statement (lines 75-76, both declared because the `from` clause that
+# changed (76) and the name list it belongs to (75) are one statement).
+# Neither row's referent line count moved before this: both were plain
+# `moved_verbatim` rows with no `edits:` at all. So, ON TOP OF ASK-7's
+# 866 / 150 above: 456 rows still, `not_moved` still 138, `moved_verbatim`
+# 169 → 167 and `moved_with_declared_edit` 149 → 151, declared lines
+# 866 → 869 (`import rewrites` 675 → 678, `path constants` 165 and
+# `adapter calls` 26 unmoved from the ASK-7 window above), rows carrying
+# `edits:` 150 → 152, and the 20 replicas stay 20. NO REFERENT DIGEST MOVES:
+# `carve_commit`, `carve_tag` and all 318 `sha256` values are untouched — a
+# declared line is a claim about what may differ AT THE DESTINATION. The
+# intent-feed `not_moved` row above (RULED OQ-F) is unchanged. Realized at
+# opensoft/openDox-code `build/s2-intent-chips-optional-binding`,
+# `330cf8161f06ae67be716deafe9b2ec3c64d1492`
+# (split-opendox-two-layer-product § 3.4, slice S2).
+#
 # THE § 3.4 SLICE-S3 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
 # Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
 # Q-L1 form ruled at `5628560136`). ONE existing row is converted:
@@ -322,11 +346,12 @@ moved_paths:
 # line 40 and its digest.
 #
 # THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on
-# purpose: the ASK-7 declared-edit window above (`#656` comment `5642614423`)
-# already moved the running total to 866 declared lines on the same 150 rows
-# in this same document, and two acts each restating their own absolute is
-# how a count becomes wrong in a merge — the discipline this merge itself
-# depends on. This act's whole arithmetic is a DELTA on top of that: rows
+# purpose: the ASK-7 declared-edit window (`#656` comment `5642614423`) and
+# the S2 annotation directly above moved the running total to 869 declared
+# lines on 152 rows in this same document, and two acts each restating their
+# own absolute is how a count becomes wrong in a merge — the discipline this
+# merge itself depends on. This act's whole arithmetic is a DELTA on top of
+# that: rows
 # unchanged; `not_moved` unchanged; one row moves from `moved_verbatim` to
 # `moved_with_declared_edit`; declared lines +40 (`import rewrites` +1,
 # `adapter calls` +39, `path constants` +0) over TWO rows, 37 on `app.js` and
@@ -1786,11 +1811,15 @@ rows:
     destination: opendox_code
     destination_path: src/opendox/web/views/composed-model.js
   - source_path: scripts/ideation_dashboard/web/views/dispose.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "8fe79726ba3eaad2bfaeca77e5b9e3d423f599167ac8422cde495f212af7eb9b"
     destination: opendox_code
     destination_path: src/opendox/web/views/dispose.js
+    edits:
+      - class: import rewrites
+        lines: [26]
+        note: "RULED Q5 (opensoft/openxFactory#656 comment 5642758731; docs/front-end-package-boundary.md § 6 Q5 and § 4.2, openDox-spec a44ac06d): the intent-feed chips become an OPTIONAL contributed binding (split-opendox-two-layer-product § 3.4, slice S2). Line 26 repoints the import from the absent `./intent-feed.js` (RULED OQ-F, this manifest's own not_moved row above, unchanged) to the new `./intent-binding.js` late-lookup — same imported names (`emitIntent`, `renderIntentChips`), nothing else on the line changes. Realized at opensoft/openDox-code `build/s2-intent-chips-optional-binding`, `330cf8161f06ae67be716deafe9b2ec3c64d1492`."
   - source_path: scripts/ideation_dashboard/web/views/doc-wheel.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -1978,11 +2007,15 @@ rows:
     destination: opendox_code
     destination_path: src/opendox/web/views/wheel-model.js
   - source_path: scripts/ideation_dashboard/web/views/wheel.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "2c0049702493b158e687265bcb00a672912f1b6111d09001b53508fda4524fca"
     destination: opendox_code
     destination_path: src/opendox/web/views/wheel.js
+    edits:
+      - class: import rewrites
+        lines: [75, 76]
+        note: "RULED Q5 (opensoft/openxFactory#656 comment 5642758731; docs/front-end-package-boundary.md § 6 Q5 and § 4.2, openDox-spec a44ac06d): the same optional-binding repoint as the dispose.js row above, over the two-line import statement `import { feedActor, intentCapable, refusalLine, startIntentFeed, statesByTarget } from \"./intent-feed.js\";`. Only line 76 (the `from` clause) differs from the carve blob; line 75 (the name list) is declared alongside it because both lines are one statement. Realized at opensoft/openDox-code `build/s2-intent-chips-optional-binding`, `330cf8161f06ae67be716deafe9b2ec3c64d1492`."
   - source_path: scripts/ideation_dashboard/workbench.py
     disposition: moved_with_declared_edit
     git_mode: '100644'

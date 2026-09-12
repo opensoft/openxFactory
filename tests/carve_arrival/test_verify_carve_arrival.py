@@ -2516,14 +2516,23 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     it, because that one is about the file's SHAPE and not about what has
     accumulated in it.
 
-    What is durable is asserted in place of the frozen content: the two RULED
-    seed entries (the measured defect this file repairs, `#656` comment
-    5639058687) are still declared with their own `since`, every `since` is a
-    40-hex commit, every `reason` is non-empty, and every destination's list
-    is alphabetical by `path` with no repeat — the file's own stated
-    invariants, over whatever the file has accumulated. Reads the REAL
-    committed files, so a typo fails this rather than only a scratch
-    fixture's copy."""
+    AMENDED AGAIN by RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4
+    slice S2, Q-L1): the SECOND bump this design anticipated, `opendox_code`'s
+    own three new files (the optional-binding module and its two tests,
+    admitted the governed way because the leg PR that lands them pairs with —
+    and lands after — this annotation PR). Same footing, same reason the
+    openxdox_code seed is checked by presence and not by equality: an
+    equality over `opendox_code`'s content would break on the NEXT pin bump
+    the same way the original whole-file equality broke on this one.
+
+    What is durable is asserted in place of the frozen content: the two
+    RULED openxdox_code seed entries (the measured defect this file repairs,
+    `#656` comment 5639058687) and the three RULED Q5 opendox_code entries
+    are still declared with their own `since`, every `since` is a 40-hex
+    commit, every `reason` is non-empty, and every destination's list is
+    alphabetical by `path` with no repeat — the file's own stated invariants,
+    over whatever the file has accumulated. Reads the REAL committed files,
+    so a typo fails this rather than only a scratch fixture's copy."""
     manifest_path = REPO_ROOT / MODULE.MANIFEST_RELPATH
     admissions_path = MODULE.default_admissions_path(manifest_path)
     # Hard assertions, not a skip-guard (Copilot review, PR #979): this test
@@ -2555,6 +2564,23 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             "is no longer declared for openxdox_code")
         assert seed[path]["since"] == (
             "bfd95063b2a71be097a04bb6a3a99c4c131dd322")
+    # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2):
+    # `opendox_code`'s own three new files, admitted the GOVERNED way per
+    # Q-L1 (the leg PR pairs with this annotation PR, which lands first) —
+    # checked by PRESENCE, the same footing as the openxdox_code seed above
+    # and for the same reason (a future opendox_code bump must not break
+    # this the way an equality check broke on the FIRST bump).
+    opendox_seed = {entry["path"]: entry
+                    for entry in admissions.get("opendox_code", [])}
+    for path in ("src/opendox/web/views/intent-binding.js",
+                 "tests/test_intent_binding_dom.py",
+                 "tests/test_intent_binding_shape.py"):
+        assert path in opendox_seed, (
+            f"{path} is one of the three files RULED Q5 (`#656` comment "
+            "5642758731, split-opendox § 3.4 slice S2) into this file's "
+            "opendox_code admissions and is no longer declared")
+        assert opendox_seed[path]["since"] == (
+            "330cf8161f06ae67be716deafe9b2ec3c64d1492")
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
     # could not survive a pin bump, and an accumulating file with no checked
