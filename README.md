@@ -540,7 +540,8 @@ Active changes:
   residue `gate-realization-axis-vocabulary` `tasks.md` § 6.3 owed and that
   packet's archive act filed, standing on
   [#956](https://github.com/opensoft/openxFactory/issues/956). Taking an
-  unclaimed residue commissions the AUTHORING and ratifies no wording.
+  unclaimed residue commissions the AUTHORING and ratifies no wording. Filing PR
+  [#1018](https://github.com/opensoft/openxFactory/pull/1018).
   **Gates the OTHER half of the sentence its sibling gated**: `release-realization`'s
   *Realization axis declaration* reads as one sentence with two halves, and the
   sibling built a validator and a closed register for `target_release:` only.

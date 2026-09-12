@@ -207,31 +207,54 @@ task list rather than an intention.
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
 **EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON THIS TREE**, with its exit code
-and its own output quoted. Nothing here anticipates § 3.
+and its own output quoted. Nothing here anticipates § 3. The filing pull request
+is openxFactory [#1018](https://github.com/opensoft/openxFactory/pull/1018),
+opened as a DRAFT.
 
-- [ ] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate gate-code-surface-declarations
-      --strict` — exit code and message recorded in the pull-request body.
-- [ ] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — with the
-      failure set compared against `origin/main`'s own, so the only difference
-      is this change's one added item.
-- [ ] 4.3 `python3 scripts/proposal-support.py . verify
-      gate-code-surface-declarations`.
-- [ ] 4.4 `python3 scripts/validate-target-release.py .` — this packet's own
+- [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate gate-code-surface-declarations
+      --strict` (PATH CLI **1.2.0**) — **exit 0**, *"Change
+      'gate-code-surface-declarations' is valid"*.
+- [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — **exit 1**,
+      `Totals: 105 passed, 3 failed (108 items)`. The failure set is IDENTICAL
+      to `origin/main` `bcde1575`'s, taken in the same shell from a worktree of
+      it (`Totals: 104 passed, 3 failed (107 items)`):
+      `change/disposition-codexfactory-declared-renames`,
+      `change/disposition-codexfactory-floor-relocation-retitle` and
+      `change/disposition-codexfactory-regular-pr-council-clearance-archive`,
+      all three failing on BOTH trees alike. This change is in neither set and
+      the item count moves by exactly one.
+- [x] 4.3 `python3 scripts/proposal-support.py . verify
+      gate-code-surface-declarations` — **exit 0**, *"proposal support
+      verification ok"*.
+- [x] 4.4 `python3 scripts/validate-target-release.py .` — **exit 0**, *"46
+      active proposals, 46 declaring — 22 `implemented`, 3 a named release, 21
+      named by the register, 0 outside the vocabulary"*. This packet's own
       `target_release:` is judged by the sibling's live gate like every other
-      active change.
-- [ ] 4.5 `python3 scripts/validate-scope-globs.py .` and
-      `python3 scripts/validate-sequenced-after.py .`.
-- [ ] 4.6 `python3 scripts/doc-health.py --single-repo .` — on this tree and on
-      an `origin/main` worktree alike, so the comparison is of trees and not of
-      runs.
-- [ ] 4.7 **THE PER-CHANGE SWEEP LEDGER ROW**, seeded by the sanctioned tool and
-      never hand-written: `python3 scripts/validate-sequenced-after.py .
-      --seed-ledger --moved-by '#<PR>'`, run after the draft pull request exists
-      because the tool stamps `moved_by` with its number, then
-      `--ledger-diff` exit 0.
-- [ ] 4.8 **README `## OpenSpec Records` ACTIVE ROW**, in house style, at the
-      DRAFT standing — the drafting shape named outright, the four veto points
-      named, the measurement carried, and the archive named as the separate act
+      active change, and the `+1` active over `origin/main`'s 45 is this
+      packet's own `proposal.md`.
+- [x] 4.5 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
+      *"scope_globs validation passed (all active changes conform)"*; and
+      `python3 scripts/validate-sequenced-after.py .` — **exit 0**, *"46 active
+      changes, 14 declaring the field"*, both archive-date arms passing.
+- [x] 4.6 `python3 scripts/doc-health.py --single-repo .` — **exit 0** on this
+      tree and on the `origin/main` `bcde1575` worktree alike, with the SAME
+      band counts on both (**9** `severity=error`, **23** `severity=warning`)
+      and **ZERO** findings naming this change. The comparison is of trees and
+      not of runs, both taken in the same shell.
+- [x] 4.7 **THE PER-CHANGE SWEEP LEDGER ROW**, seeded by the sanctioned tool and
+      never hand-written: before the seed `--ledger-diff` reported the missing
+      row and six derived-total mismatches, each moving by exactly one. SEEDED
+      with `python3 scripts/validate-sequenced-after.py . --seed-ledger
+      --moved-by '#1018'` — run AFTER the draft pull request existed, because
+      the tool stamps `moved_by` with its number — *"wrote
+      tests/sequenced_after/corpus-ledger.yaml (211 rows, 1 moved by #1018)"*.
+      After it, `--ledger-diff` — **exit 0**, *"per-change sweep ledger
+      consistent with the corpus (211 rows)"*.
+- [x] 4.8 **README `## OpenSpec Records` ACTIVE ROW**, in house style, at the
+      DRAFT standing — the drafting shape named outright (**`Status: draft` —
+      NOT RATIFIED**), the ADDED-only shape and the absence of a
+      `sequenced_after` hold, the D0 measurement, the one-reader finding, the
+      four declared veto points, and the archive named as the separate act
       where #1013 closes.
 - [ ] 4.9 **THE BOT BENCH**, taken and dispositioned item by item on the record.
 
