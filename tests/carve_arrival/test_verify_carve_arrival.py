@@ -71,6 +71,9 @@ RATIFIED_CODES = (
     "arrival-missing",
     "arrival-digest-mismatch",
     "arrival-undeclared-edit",
+    # RULED Q6 — the LOSING half of a re-destination: a row moved off this leg
+    # by a ruling still has a file at the placement it left.
+    "arrival-not-vacated",
     "arrival-undeclared-file",
     "arrival-carved-from-mismatch",
     "arrival-unreadable",

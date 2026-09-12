@@ -95,6 +95,12 @@ RATIFIED_CODES = (
     "carve-disposition-inconsistent",
     "carve-path-order-violation",
     "carve-shed-incomplete",
+    # RULED Q6 (Brett Heap, 2026-09-12, `#656` comment `5648044785`) — the
+    # `re_destined:` row form's three own findings. They keep the `carve-`
+    # prefix the vocabulary's split with `arrival-*` depends on.
+    "carve-re-destined-not-moved",
+    "carve-re-destined-unruled",
+    "carve-re-destined-chain",
     "carve-unreadable",
 )
 

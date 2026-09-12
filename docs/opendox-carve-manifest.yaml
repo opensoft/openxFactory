@@ -53,7 +53,8 @@
 # carve commit are what make `moved_with_declared_edit` falsifiable at the
 # destination instead of a label. A moved row may additionally carry
 # `also_replicated_to:` and a `replicated_at_destination` row may carry
-# `edits:`, both RULED Q-L7 (a) and both explained below.
+# `edits:`, both RULED Q-L7 (a); and a moved row whose placement a RULING has
+# corrected may carry `re_destined:`, RULED Q6. All three are explained below.
 #
 # THE THREE JUDGEMENTS THAT DECIDE MOST ROWS, all ruled on `#656` 2026-09-09:
 #
