@@ -420,6 +420,22 @@ in the pull request body.
 
 ## 6. Archive — OWED, NOT GIVEN
 
+**AMENDED AT THE ARCHIVE, 2026-09-12 — ONE CLAUSE INSIDE BOX 6.1's OWN BODY IS
+SUPERSEDED, NAMED HERE AND QUOTED IN PLACE RATHER THAN DELETED.** As first
+pushed (commit `37d45d60`), box 6.1 read in part: *"combined with the lane's
+standing landing word 'land each when green', under which PR #978 landed, no
+further archive-specific utterance is owed for an empty code surface."* Codex's
+review (thread `PRRT_kwDOTAvnrs6hyMbj`, 2026-09-12T17:47:21Z, on this PR)
+correctly found this FALSE: the ratification record itself
+(`review/ratification-2026-09-12.md` §§3-4) states that promotion and archive
+happen "at the ARCHIVE, a separate act on a separate word" and that
+ratification "does not archive the packet or close openxFactory #966" —
+`release-realization`'s general doc-only clause governs WHETHER a
+`code_surface: none` change may archive on landing without merged-plus-green
+realization evidence; it does not itself supply THIS packet's own more
+specific, separately-required archive authorization. **THAT AUTHORIZATION IS
+NOW GIVEN AND IS CITED IN BOX 6.1 BELOW, WHICH SUPERSEDES THE QUOTED CLAUSE.**
+
 - [x] 6.1 **DONE IN ARCHIVE PR [#1007](https://github.com/opensoft/openxFactory/pull/1007) — THE PROMOTION AND ARCHIVE ARE
       PERFORMED IN THIS SAME PULL REQUEST'S ARCHIVE-MOVE COMMIT, MEASURED HERE
       AND RECORDED IN THE PULL REQUEST BODY.** The archive command itself
@@ -451,14 +467,22 @@ in the pull request body.
       [#978](https://github.com/opensoft/openxFactory/pull/978) →
       `45a98faa5f89f48a3d0b1842d111681b85e7f0ad`, 2026-09-12T17:00:28Z; no run on
       the merge commit is owed (the *Realization archive gate* binds only *"a
-      change with a non-empty code surface"*). Authority: Brett Heap's
-      ratification, 2026-09-12T15:45:25Z, verbatim *"do all as recomended"*
-      (comment
+      change with a non-empty code surface"*). The ratification, 2026-09-12T15:45:25Z,
+      verbatim *"do all as recomended"* (comment
       [5646923059](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059)),
-      deciding **Q-E = (E1) decision only, `code_surface: none`**; combined with
-      the lane's standing landing word *"land each when green"*, under which PR
-      #978 landed, no further archive-specific utterance is owed for an empty
-      code surface.
+      decided **Q-E = (E1) decision only, `code_surface: none`** and no more —
+      it did NOT itself authorize this promotion+archive act, which this
+      packet's own box requires on a SEPARATE later word (see the amendment
+      above this box, superseding this paragraph's earlier claim otherwise).
+      **THE SEPARATE ARCHIVE WORD: Brett Heap, 2026-09-12T18:01:30Z, verbatim
+      *"archive it"***, given in the lane's window in answer to the
+      orchestrator's question naming this exact requirement, recorded on this
+      pull request at
+      [issuecomment-5647690592](https://github.com/opensoft/openxFactory/pull/1007#issuecomment-5647690592)
+      and mirrored on openxFactory
+      [#966](https://github.com/opensoft/openxFactory/issues/966#issuecomment-5647690759).
+      This is the word box 6.1 (and the promotion/archive it performs) ticks
+      on.
 
       **THE ORIGINAL BOX, CARRIED VERBATIM:**
       On a separate word after ratification: promote the `## MODIFIED` block

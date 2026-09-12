@@ -3082,15 +3082,24 @@ Archived changes:
 - [decide-disposition-reading-per-family](openspec/changes/archive/2026-09-12-decide-disposition-reading-per-family/proposal.md)
   — **ARCHIVED 2026-09-12** by
   [PR #1007](https://github.com/opensoft/openxFactory/pull/1007), on Brett
-  Heap's ratification of the same packet — verbatim *"do all as
-  recomended"*, 2026-09-12T15:45:25Z, recorded on
-  [PR #978](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059)
-  — and the `release-realization` rule that a change with an EMPTY code
-  surface archives **ON LANDING plus its own task list**, waiting on no
-  realization evidence: *"its code_surface is `none` and it archives when its
-  artifacts land, as before"*, that capability's realization gate binding only
-  *"a change with a **non-empty** code surface"*. **THE EVIDENCE, CITED RATHER
-  THAN ASSERTED:** ratified and landed by **PR
+  Heap's **SEPARATE ARCHIVE WORD** — verbatim *"archive it"*,
+  **2026-09-12T18:01:30Z**, recorded on
+  [PR #1007](https://github.com/opensoft/openxFactory/pull/1007#issuecomment-5647690592)
+  and mirrored on
+  [#966](https://github.com/opensoft/openxFactory/issues/966#issuecomment-5647690759)
+  — given AFTER, and separate from, the packet's own ratification of the same
+  day — verbatim *"do all as recomended"*, 2026-09-12T15:45:25Z, recorded on
+  [PR #978](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059),
+  which decided the packet's shape (`code_surface: none`) but did NOT itself
+  authorize this promotion+archive act (`tasks.md` § 6 requires its own
+  separate word; Codex's review on this PR, thread `PRRT_kwDOTAvnrs6hyMbj`,
+  2026-09-12T17:47:21Z, correctly found the archive word missing before it was
+  given). Combined with the `release-realization` rule that a change with an
+  EMPTY code surface archives **ON LANDING plus its own task list**, waiting
+  on no realization evidence: *"its code_surface is `none` and it archives when
+  its artifacts land, as before"*, that capability's realization gate binding
+  only *"a change with a **non-empty** code surface"*. **THE EVIDENCE, CITED
+  RATHER THAN ASSERTED:** ratified and landed by **PR
   [#978](https://github.com/opensoft/openxFactory/pull/978) →
   `45a98faa5f89f48a3d0b1842d111681b85e7f0ad`** on `main`, 2026-09-12T17:00:28Z
   (ratifying commit `63653d0ca504`; records
