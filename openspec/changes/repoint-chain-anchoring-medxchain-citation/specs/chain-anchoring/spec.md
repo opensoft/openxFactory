@@ -44,11 +44,13 @@ ledger into a trail the minter collects instead. An unobservable verification is
 the correct outcome, not a defect to instrument away.
 
 **THIS OBLIGATION IS CARRIED FROM A NAMED SOURCE, AND THE SOURCE HAS LEFT THIS
-REPOSITORY FOR GOOD.** The MedxChain notes
-(`ideation/brainstorm/medxchain-blockchain-medical-records.md`, now at
-`MedxSoft/MedxFactory@74bed502` — vendored into openxFactory by pull request
-#509, then moved out to MedxFactory by pull request #785, 2026-09-08, in the
-2026-09-07 ideation-split ruling) log views, edits, FAILED ATTEMPTS and
+REPOSITORY FOR GOOD.** The MedxChain notes (formerly
+`ideation/brainstorm/medxchain-blockchain-medical-records.md` in this
+repository, now at the same repository-relative path in
+`MedxSoft/MedxFactory@74bed502 ideation/brainstorm/medxchain-blockchain-medical-records.md`
+— vendored into openxFactory by pull request #509, then moved out to
+MedxFactory by pull request #785, 2026-09-08, in the 2026-09-07
+ideation-split ruling) log views, edits, FAILED ATTEMPTS and
 administrative actions, and their appendix names verification-attempt auditing
 as an addition the neutral family's ten links do not yet carry, since those
 links are framed around what was signed and produced. **The path never
