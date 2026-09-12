@@ -1463,6 +1463,41 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         commit_all(root, f"rename {old} to {new}")
         return changes / new
 
+    def assert_walk_refuses(self, root: Path, moved: Path, change: str,
+                            named_commit: str,
+                            extra_substrings: tuple[str, ...] = ()) -> None:
+        """THE SHARED #833 REFUSAL SHAPE. A ratified change renamed
+        afterwards and an un-ratifying rename re-ratified later (#849) both
+        refuse `ratifying_commit` with the same message shape, stop
+        `origin_retention_errors` from returning a findings list, and stop
+        `archive_change` itself — the only difference between the two
+        callers is WHICH commit the message must name and one #849-only
+        substring, so this is that shape asserted once rather than twice."""
+        with self.assertRaises(support.OriginRetentionError) as caught:
+            support.ratifying_commit(root, change)
+        message = str(caught.exception)
+        self.assertIn("REFUSE origin-retention-path-moved", message)
+        self.assertIn("CANNOT RUN", message)
+        self.assertIn(change, message)
+        # both paths, so an operator can see WHAT moved WHERE
+        self.assertIn("openspec/changes/change-r/proposal.md", message)
+        self.assertIn(f"openspec/changes/{change}/proposal.md", message)
+        self.assertIn(named_commit[:12], message)
+        self.assertIn("FORMER ID", message)
+        # …and says WHY it refuses rather than re-basing: the baseline is
+        # not merely wrong, it cannot be established at all from history
+        self.assertIn("baseline cannot be established", message)
+        self.assertIn("#833", message)
+        for substring in extra_substrings:
+            self.assertIn(substring, message)
+
+        # the refusal is NOT swallowed into a findings list…
+        with self.assertRaises(support.OriginRetentionError):
+            support.origin_retention_errors(root, moved, change=change)
+        # …and the archive itself stops
+        with self.assertRaises(support.OriginRetentionError):
+            support.archive_change(root, change, "2026-09-05", False, True)
+
     def test_a_ratified_change_renamed_afterwards_refuses_the_walk(self):
         """THE #833 DEFECT. The walk reads ONE path — the id the tree spells
         today — so a ratified change renamed afterwards has no history under
@@ -1505,29 +1540,9 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertEqual(here, at_rename)
             self.assertNotEqual(here, at_ratification)
 
-            with self.assertRaises(support.OriginRetentionError) as caught:
-                support.ratifying_commit(root, "change-s")
-            message = str(caught.exception)
-            self.assertIn("REFUSE origin-retention-path-moved", message)
-            self.assertIn("CANNOT RUN", message)
-            self.assertIn("change-s", message)
-            # both paths, so an operator can see WHAT moved WHERE
-            self.assertIn("openspec/changes/change-r/proposal.md", message)
-            self.assertIn("openspec/changes/change-s/proposal.md", message)
-            self.assertIn(renamed_at[:12], message)
-            self.assertIn("FORMER ID", message)
-            # …and says WHY it refuses rather than re-basing: the baseline is
-            # not merely wrong, it cannot be established at all from history
-            self.assertIn("baseline cannot be established", message)
-            self.assertIn("#833", message)
-
-            # the refusal is NOT swallowed into a findings list…
-            with self.assertRaises(support.OriginRetentionError):
-                support.origin_retention_errors(root, moved, change="change-s")
-            # …and the archive itself stops
-            with self.assertRaises(support.OriginRetentionError):
-                support.archive_change(root, "change-s", "2026-09-05",
-                                       False, True)
+            # both paths, so an operator can see WHAT moved WHERE, and the
+            # walk refuses the #833 shape end to end
+            self.assert_walk_refuses(root, moved, "change-s", renamed_at)
 
     def test_a_ratified_packet_copied_to_a_new_id_refuses_too(self):
         """COPIES COUNT. A "rename" that leaves the old directory standing is
@@ -1559,6 +1574,43 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertTrue(directory.is_dir())
             self.assertIn("openspec/changes/change-r/proposal.md", message)
             self.assertIn("openspec/changes/change-s/proposal.md", message)
+
+    def test_a_ratified_packet_copied_as_a_draft_and_ratified_later_is_not_refused(self):
+        """THE FORK-BY-COPY COMPATIBILITY BOUNDARY (Copilot, PR #999). A
+        packet newly authored as a COPY of an already-ratified one, entering
+        the tree as a DRAFT and ratified only later, is ordinary authoring —
+        see `ratified_under_a_former_path`'s "RESTRICTED TO RENAMES" — and
+        must stay archivable.
+
+        THE SIBLING COPY TEST ABOVE copies a destination that is ALREADY
+        ratified at the copy commit, so it exercises the `kinds="RC"` arm
+        `ratifying_commit` takes when the visited commit's own blob declares
+        `ratified`, and would still pass even if the OTHER arm — `kinds="R"`,
+        taken when it does not — were mistakenly widened back to `"RC"`. This
+        fixture copies a DRAFT destination instead, so only the `"R"` arm is
+        ever asked at the copy commit; a regression that widens it fails
+        here, by refusing a lawful fork-by-copy.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            copy = root / "openspec" / "changes" / "change-t"
+            shutil.copytree(directory, copy)
+            proposal = copy / "proposal.md"
+            proposal.write_text(
+                proposal.read_text(encoding="utf-8").replace(
+                    "Status: ratified", "Status: draft", 1),
+                encoding="utf-8")
+            commit_all(root, "copy the ratified packet as a new draft")
+            ratify(proposal)
+            commit_all(root, "ratify the copied packet under its own history")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.assertEqual(support.ratifying_commit(root, "change-t"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, copy,
+                                                change="change-t"), [])
 
     def test_renaming_a_draft_and_ratifying_it_afterwards_is_not_refused(self):
         """RENAMING A DRAFT IS LAWFUL AND STAYS LAWFUL. This corpus does it —
@@ -1703,29 +1755,10 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             ratify(proposal)
             commit_all(root, "re-ratify it under the new name")
 
-            with self.assertRaises(support.OriginRetentionError) as caught:
-                support.ratifying_commit(root, "change-s")
-            message = str(caught.exception)
-            self.assertIn("REFUSE origin-retention-path-moved", message)
-            self.assertIn("CANNOT RUN", message)
-            self.assertIn("change-s", message)
-            self.assertIn("openspec/changes/change-r/proposal.md", message)
-            self.assertIn("openspec/changes/change-s/proposal.md", message)
-            # the RENAME is named, not the pairing-free re-ratification …
-            self.assertIn(renamed_at[:12], message)
-            self.assertIn("FORMER ID", message)
-            self.assertIn("baseline cannot be established", message)
-            self.assertIn("#833", message)
-            self.assertIn("#849", message)
-
-            # … the refusal is not swallowed into a findings list …
-            with self.assertRaises(support.OriginRetentionError):
-                support.origin_retention_errors(root, moved,
-                                                change="change-s")
-            # … and the archive itself stops, exactly as the #833 shape does
-            with self.assertRaises(support.OriginRetentionError):
-                support.archive_change(root, "change-s", "2026-09-05",
-                                       False, True)
+            # the RENAME is named, not the pairing-free re-ratification, and
+            # the walk refuses the #833 shape plus the #849 substring too
+            self.assert_walk_refuses(root, moved, "change-s", renamed_at,
+                                     extra_substrings=("#849",))
 
     def test_the_guard_reads_any_spelling_of_the_candidate_commit(self):
         """A REVISION IS A REVISION, however it is spelled — and getting that
