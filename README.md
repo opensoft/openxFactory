@@ -1266,7 +1266,8 @@ Active changes:
   FURTHER open questions OQ-1..OQ-5 ARE ALL RULED (a)** — Brett Heap, in
   session, window `codeXfactory-2`, no comment URL, 2026-09-11T17:08:42Z,
   verbatim *"accept all A on 971, merge slice 3 when green"*, its FIRST clause
-  (record `review/ratification-2026-09-11-amendment-2.md`; design D8-D12;
+  (record `review/ratification-2026-09-11-amendment-2.md`, gate capture
+  `review/verification-2026-09-11-amendment-2.md`; design D8-D12;
   distinct from Q-GRC-1..5
   above, which were ruled 2026-09-06 and are not reopened). Every ruling is the
   RECOMMENDED option, **so the delta moved no byte** — proven by diff, not

@@ -148,5 +148,10 @@ seat is bound, no grant, register or roster byte moves, and C2 stays PARKED.
 
 Written in the ratification commit itself, in the worktree
 `~/projects/xFactory/openxFactory-worktrees/ratify-q-grc-4`, by lane
-`hermes-wallet-exercise` (window `codeXfactory-2`). Every path in this file is
-repo-relative.
+`hermes-wallet-exercise` (window `codeXfactory-2`). Every REPOSITORY path in
+this file is repo-relative; the worktree paths — here and in § 0's provenance
+table — are LOCAL provenance, named as such, in the form
+`amend-register-act-5b-projection-proof/review/verification-2026-09-11.md` (the
+#960 precedent) uses for the same disclosure. They are recorded rather than
+elided because a before/after measurement whose two trees cannot be located is
+not reproducible.

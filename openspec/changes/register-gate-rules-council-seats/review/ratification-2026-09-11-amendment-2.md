@@ -82,10 +82,11 @@ checks ran against.
 
 ## 3. What this word admits, and what it does not
 
-**ADMITTED.** The Q-GRC-4 discharge as authored: the
-`client-security-compliance-officer` conjunction seat bound by the
+**ADMITTED — AS A SPECIFICATION OF AN ACT, NOT AS THE ACT.** The Q-GRC-4
+discharge as authored: the ROUTE by which the
+`client-security-compliance-officer` conjunction seat is TO BE bound — the
 lead-architect route at `lead-security`'s exact model pin (the 14:59:26Z ruling,
-already recorded), and the five further decisions above — the minter and custody
+already recorded) — and the five further decisions above — the minter and custody
 of the fifth keypair (OQ-1), the re-issued grant's expiry (OQ-2), the
 bind-now-soak-later order (OQ-3), the act's two-remote shape (OQ-4) and the
 separate proof convening (OQ-5).
@@ -150,4 +151,7 @@ record` and gains one ADDED `Ratification:` header line, on that record's own
 a line rather than rewriting one* — and on the corpus convention this
 ratification measured rather than assumed: every one of the seven other
 `review/amendment-*.md` records in this repository, active and archived, carries
-`Status: record`. Every path in this file is repo-relative.
+`Status: record`. Every REPOSITORY path in this file is repo-relative; the one
+worktree path above is local provenance and is named as such, in the form
+`amend-register-act-5b-projection-proof/review/ratification-2026-09-11.md` (the
+#960 precedent) uses for the same disclosure.

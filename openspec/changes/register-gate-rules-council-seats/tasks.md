@@ -619,8 +619,10 @@ value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
       keeps `Status: record` and gains one ADDED `Ratification:` header line,
       because a record's header states the act that MADE it and an amendment
       adds a line rather than rewriting one (amendment record § 8).
-      §§ 6.2-6.10 are now legal to BUILD, and nothing in them has been
-      performed.
+      §§ 6.2-6.10 are now legal to BUILD **subject to 6.1b, which is still
+      open and still gates 6.2**: ratification lifted the 6.1 bar, not that one,
+      and the seat identifier string owes its confirmation BEFORE 6.2 exactly as
+      6.1b says. Nothing in §§ 6.2-6.10 has been performed.
 - [x] 6.1a **[OPERATOR] [GOVERNANCE]** Rule **OQ-1..OQ-5** (amendment record
       § 9): the minter of the fifth keypair; `grant-grc-0003`'s `expires_at`;
       whether the CSC briefing owes a soak or an `activation_gate` pass before
