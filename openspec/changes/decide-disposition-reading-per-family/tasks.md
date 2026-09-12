@@ -188,11 +188,14 @@ each open box below states the event that closes it:
       reading* — such an entry changes no finding OF THE FAMILY IT NAMES; it is
       still read by the contested-resolution rule, which reaches a DERIVED
       `uncited resolution` finding and never the named family's own row, and only
-      where the entry's own key was recorded `contested` IN THE PREVIOUS REPORT
-      — that set being built by `report.parse_previous` from the previous
-      report's rows (`report.py:374-383`) and not from the later run's
-      resolution classes, so a key recorded `contested` once stays eligible even
-      if the family's later rows are `auto-fixable` — AND the later run
+      where the entry's own key was recorded `contested` IN THE IMMEDIATELY
+      PREVIOUS REPORT — that ONE report's rows, `parse_previous` reading a
+      single `--previous-report` and not a history of them (`report.py:374-383`)
+      — and not from the later run's resolution classes, so a key that report
+      recorded `contested` stays eligible for THAT TRANSITION even if the
+      family's rows in the later, current run are `auto-fixable`, an
+      eligibility that does not compound or persist beyond the one comparison
+      — AND the later run
       actually EVALUATED the named family and repository (`spec.md:42` states
       the RECORDED-unavailable case, and `spec.md:43` refuses to ratify the
       gaps § 7.6 measures, where a run's scope excludes a family or repository
