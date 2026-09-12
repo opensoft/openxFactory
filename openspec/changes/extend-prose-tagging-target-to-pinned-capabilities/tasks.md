@@ -177,14 +177,18 @@ the later realization pull request, and § 4 is the archive act.
   admits owes a case here on the same rule and arrives through THAT capability's
   text rather than through a list restated in this family, so a file added
   to `contracts/` cannot admit an arbitrary pinned target by carrying a label or
-  a partial member set; **(n)** a record whose `verify_pin:` member names an
-  ARBITRARY IN-TREE PATH is refused WITHOUT that path being opened, imported or
-  run — asserted by instrumenting the read/import/exec surface, not by reading
-  the finding text alone, since "refused" and "refused without touching it" are
-  different properties and only the second is the boundary — and, where the
-  realization picks D-2's form (b), a record whose `verify_pin:` value differs
-  from the module's dispatch-table entry emits the disagreement finding rather
-  than following the record; **(o)** the CROSS-REPOSITORY case, an aggregate
+  a partial member set; **(n)** NON-USE, asserted directly: a record whose
+  `verify_pin:` member names an ARBITRARY IN-TREE PATH has that path NEVER
+  opened, imported or run — asserted by instrumenting the read/import/exec
+  surface, not by reading a finding text, since the boundary is that the path is
+  not touched — and the record's verdict is UNCHANGED by that member's value: a
+  record complete for its revision kind still RESOLVES, since `verify_pin:` is
+  neither part of the required shape nor a resolution prerequisite, and a test
+  that refused such a record would encode the opposite of D-2 and reject valid
+  pins. ONLY where the realization picks D-2's form (b) does a `verify_pin:`
+  value that differs from the module's dispatch-table entry emit the
+  disagreement finding, which is a case of route (b) alone and is not asserted
+  against route (a); **(o)** the CROSS-REPOSITORY case, an aggregate
   fixture with TWO roots: (i) the pin record exists only in the `openxFactory`
   root and a document of the other repository names it — the target resolves by
   the fallback and the finding or log NAMES that root; (ii) both roots carry a
