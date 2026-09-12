@@ -833,7 +833,8 @@ packet's own ratification pull request #963 had already merged and its own
 `pytest-suite` run had already gone green seven hours before Brett Heap spoke.
 
 - [x] 5.1 **PROMOTE THE ADDED REQUIREMENT INTO CANON**, byte-for-byte, DONE IN
-      THIS ARCHIVE PULL REQUEST, on the separate archive word above.
+      ARCHIVE PULL REQUEST [#1014](https://github.com/opensoft/openxFactory/pull/1014),
+      on the separate archive word above.
       **REALIZATION EVIDENCE (*Realization archive gate*, a NON-EMPTY code
       surface — this packet is a house validator and a closed register, not a
       doc-only change):** this packet's OWN ratification pull request
@@ -870,10 +871,10 @@ packet's own ratification pull request #963 had already merged and its own
       ELSE.** This packet's own ratification pull request (#963)'s
       `closingIssuesReferences` was `[]` throughout and at merge (recorded
       `review/ratification-2026-09-12.md` § 6 and re-verified before this
-      archive branch was cut); THIS archive pull request's body carries the
-      single `Closes #956` line and its `closingIssuesReferences` is verified
-      through GraphQL to be exactly `[956]` (recorded in the pull request
-      body). **NO COMMIT MESSAGE ON THIS ARCHIVE BRANCH CARRIES A CLOSING
+      archive branch was cut); THIS archive pull request,
+      [#1014](https://github.com/opensoft/openxFactory/pull/1014), carries the
+      single `Closes #956` line in its body and its `closingIssuesReferences`
+      is verified through GraphQL to be exactly `[956]`. **NO COMMIT MESSAGE ON THIS ARCHIVE BRANCH CARRIES A CLOSING
       KEYWORD IN ANY FORM** — not `Closes`, `Fixes` or `Resolves`, in any case
       or tense, quoted or unquoted — checked with a compound regex over every
       commit message on the branch and recorded in the pull request body.
