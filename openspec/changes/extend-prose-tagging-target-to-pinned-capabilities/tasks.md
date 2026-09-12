@@ -19,7 +19,11 @@ the later realization pull request, and § 4 is the archive act.
   because no live `supersedes` marker in this repository has a stale target —
   measured.
 - [ ] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** the pin id must
-  resolve to a pin record this repository carries; the capability segment is
+  resolve to a NEUTRAL-PRODUCT pin record this repository carries — a
+  `contracts/<pin-id>-pin.yaml` of `kind: pinned_contract_manifest`, five of
+  the six today; `kind: pinned_workflow` (`review-lane-pin.yaml`) is EXCLUDED,
+  because it pins executable governance code and has no capability set for a
+  name to be about; the capability segment is
   checked for shape and resolved further ONLY where the pin record enumerates
   capabilities — which none of the six does today, measured. The trigger is ONE
   NAMED MEMBER, reserved by this change and added to no record and no schema by
@@ -93,7 +97,13 @@ the later realization pull request, and § 4 is the archive act.
   of the arm that binds automatically, and without both the branch can be
   absent with this list still satisfied; **(e)** an `xspec:supersedes` marker
   whose `spec=` value carries the reserved `pinned:` prefix is REFUSED with a
-  finding (D-1.1); **(f)** in-tree resolution is unchanged.
+  finding (D-1.1); **(f)** a pinned target whose record declares a kind other than
+  `pinned_contract_manifest` does NOT resolve and emits a finding; **(g)** a
+  pin record whose `capabilities:` member is present but malformed — a scalar,
+  a mapping, empty, or a sequence carrying a non-capability-shaped item — emits
+  a malformed-enumeration finding AND the pinned target naming it does not
+  resolve, proving the fail-closed path rather than the "absent enumeration"
+  fallback; **(h)** in-tree resolution is unchanged.
 - [ ] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
   target form beside the existing `<capability>` bullet, its scope (candidate
   `target=` only, per D-1.1), and D-3's stale-target sentence.

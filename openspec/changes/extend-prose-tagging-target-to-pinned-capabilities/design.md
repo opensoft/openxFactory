@@ -106,11 +106,30 @@ a later change, on evidence that a stale supersedes target exists.
 
 **Decision.** Resolution of `pinned:<pin-id>/<capability>` has two arms:
 
-1. **The pin id MUST resolve.** `<pin-id>` resolves when this repository
-   carries a pin record for it — today, `contracts/<pin-id>-pin.yaml` declaring
-   `kind: pinned_contract_manifest` or `kind: pinned_workflow`. An unresolvable
-   pin id is a tag-hygiene finding exactly as an unresolvable capability is
-   today.
+1. **The pin id MUST resolve TO A NEUTRAL-PRODUCT PIN, and not to any
+   pin-shaped file.** `<pin-id>` resolves when this repository carries
+   `contracts/<pin-id>-pin.yaml` declaring **`kind: pinned_contract_manifest`**
+   — the shape `neutral-product-pin` names in its own words: "`openxFactory`
+   SHALL declare its consumption of an EXTERNAL neutral product in
+   `contracts/<product>-pin.yaml`, REUSING `kind: pinned_contract_manifest`
+   unchanged" (`openspec/specs/neutral-product-pin/spec.md:31-33`). An
+   unresolvable pin id is a tag-hygiene finding exactly as an unresolvable
+   capability is today.
+
+   **`kind: pinned_workflow` IS EXCLUDED, deliberately.** Of the six pin
+   records, five are `pinned_contract_manifest` and one —
+   `contracts/review-lane-pin.yaml` — is `pinned_workflow`, and it pins
+   EXECUTABLE GOVERNANCE CODE, not a product whose units are capabilities: by
+   its own opening lines it records "which codexFactory decision core judges
+   openxFactory", a checked-out workflow core, and its `pinned_members:` are
+   workflow source files. A capability of it does not exist to be named, so
+   admitting it would let `pinned:review-lane/<anything>` resolve against a
+   referent that has no capability set at all — the weakest possible reading of
+   arm 2, and a strictly worse one than the neutral-product case, where the
+   pinned product does have a capability corpus even though this repository may
+   not read it. The admissible set is therefore FIVE records today, and it
+   tracks `neutral-product-pin`'s own kind rather than the presence of a
+   pin-shaped file.
 2. **The capability segment is checked for SHAPE, and resolved further ONLY if
    the pin record enumerates capabilities.** Today none does. If a pin record
    carries a capability enumeration, the named capability MUST appear in it.
@@ -123,7 +142,21 @@ without that member carries no enumeration for this purpose — the resolver doe
 NOT go looking for `files:`, `digests:`, `pinned_members:`, or any other list
 and read capabilities out of it, because none of those is a capability list and
 guessing between them is exactly the non-determinism this paragraph exists to
-remove. `capabilities:` is RESERVED here as the trigger's spelling; **this
+remove.
+
+**AND A MALFORMED ENUMERATION FAILS CLOSED, rather than degrading into
+"absent".** A `capabilities:` member that is present but is NOT a sequence of
+well-formed capability names — a scalar, a mapping, an empty value, or a
+sequence carrying an item that is not a capability-shaped name — is a
+MALFORMED ENUMERATION, and the pass reports it as a finding against the PIN
+RECORD. It MUST NOT be read as "this record carries no enumeration", because
+that reading converts a broken enumeration into a licence: the record would
+silently drop back to arm 1 and admit every capability name. Any pinned target
+naming that record fails to resolve while the enumeration is malformed. This is
+constitution Principle VII's fail-closed rule applied to the arm's own input,
+and it is the one place the arm can turn a defect into permissiveness.
+
+`capabilities:` is RESERVED here as the trigger's spelling; **this
 packet adds it to no pin record and to no schema**, and admitting the member
 into a real pin record is a `neutral-product-pin` change with the publisher, as
 the paragraph below says. That is what makes arm 2 dormant today and
@@ -288,8 +321,11 @@ ratification, carrying four surfaces:
    naming the PIN REGISTRY; a fixture pin record that DOES enumerate
    capabilities emits nothing for a LISTED capability and a finding naming the
    enumeration for an UNLISTED one; a `supersedes` marker whose `spec=` value
-   carries the reserved `pinned:` prefix is REFUSED (D-1.1); and the existing
-   in-tree resolution is unchanged.
+   carries the reserved `pinned:` prefix is REFUSED (D-1.1); a record of a kind
+   other than `pinned_contract_manifest` does not resolve a pinned target; a
+   PRESENT but malformed `capabilities:` member emits a malformed-enumeration
+   finding and the target naming it does not resolve; and the existing in-tree
+   resolution is unchanged.
 3. **The four markers**, retargeted to `target=pinned:openxwallet/openxwallet`
    — `openxwallet-neutral-home.md` lines 222, 242 and 280, and
    `notebook-access-wallet-governance.md` line 107 — together with

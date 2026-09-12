@@ -27,8 +27,13 @@ RESERVED AND REFUSED rather than merely undefined, because a `spec=` value
 already carries a separator of its own and no pinned parse for it is defined —
 a deferred form fails closed.
 
-A PINNED target resolves when its `<pin-id>` resolves to a pin record this
-repository carries. The `<capability>` segment MUST be well formed, and it MUST
+A PINNED target resolves when its `<pin-id>` resolves to a NEUTRAL-PRODUCT pin
+record this repository carries — a `contracts/<pin-id>-pin.yaml` declaring
+`kind: pinned_contract_manifest`, the shape `neutral-product-pin` requires for
+an external neutral product. A pin-shaped record of another kind, such as
+`kind: pinned_workflow`, MUST NOT resolve a pinned target: it pins executable
+governance code rather than a product whose units are capabilities, so it has
+no capability set for the name to be about. The `<capability>` segment MUST be well formed, and it MUST
 additionally appear in the pin record's own capability enumeration WHERE THAT
 RECORD CARRIES ONE; where the record carries no such enumeration, resolution
 rests on the pin alone and the capability name is taken as declared. A PIN
@@ -37,8 +42,13 @@ top-level `capabilities:` sequence of capability names on the pin record. A
 record without that member carries no enumeration for this purpose, and the
 pass MUST NOT read capability names out of any other member — a file list, a
 digest list or a member list is not a capability list, and inferring one from
-them is non-deterministic. Whether a pin record may carry `capabilities:` is
-owned by `neutral-product-pin`, not by this capability. This
+them is non-deterministic. A `capabilities:` member that is PRESENT but is not
+a sequence of well-formed capability names MUST be reported as a malformed
+enumeration against the pin record, and MUST NOT be read as an absent
+enumeration; while it is malformed, a pinned target naming that record does NOT
+resolve. A deferred or broken enumeration fails closed rather than degrading
+open. Whether a pin record may carry `capabilities:` is owned by
+`neutral-product-pin`, not by this capability. This
 conditional arm is deliberate: it binds automatically, with no further grammar
 delta, as soon as a pin record enumerates capabilities. It is NOT a licence to
 read the pinned product over the network — the deterministic pass reads this
@@ -67,6 +77,17 @@ not the thing that happens when nobody decides.
 - **THEN** the target MUST resolve
 - **AND** where that pin record enumerates capabilities, the named capability MUST appear in the enumeration or the pass MUST report a hygiene finding
 - **AND** where it enumerates none, resolution MUST rest on the pin alone and the pass MUST NOT read the pinned product over the network
+
+#### Scenario: A pinned target names a record that is not a neutral-product pin
+- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares a kind other than `pinned_contract_manifest`
+- **THEN** the deterministic health pass MUST report it as a hygiene finding
+- **AND** the target MUST NOT resolve on the strength of that record
+
+#### Scenario: A pin record's capability enumeration is malformed
+- **WHEN** a pin record carries a `capabilities:` member that is not a sequence of well-formed capability names
+- **THEN** the deterministic health pass MUST report a malformed-enumeration finding against that pin record
+- **AND** every pinned target naming that record MUST NOT resolve while the enumeration is malformed
+- **AND** the pass MUST NOT treat the malformed member as an absent enumeration
 
 #### Scenario: A pinned target names a pin the repository does not carry
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists in this repository

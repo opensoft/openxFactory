@@ -117,7 +117,10 @@ fenced and queued truthfully instead.
    precedent for a `/` inside an attribute value (design D-1).
 
 2. **A resolution rule that rests on the pin, and says so.** The `<pin-id>`
-   MUST resolve to a pin record in this repository's pin registry. The
+   MUST resolve to a NEUTRAL-PRODUCT pin record in this repository's pin
+   registry — `kind: pinned_contract_manifest`, the shape `neutral-product-pin`
+   requires; a `pinned_workflow` record pins executable governance code and is
+   excluded, since it has no capability set for a name to be about. The
    `<capability>` segment is NOT resolved further, because **no pin record in
    this tree enumerates capabilities** — measured over all six at `323c7adf`.
    What each record addresses INSTEAD differs, and the differences matter
