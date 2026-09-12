@@ -50,6 +50,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import stat
 import subprocess
 import sys
@@ -2497,16 +2498,41 @@ def test_an_admissions_entry_with_a_duplicate_field_key_refuses(
     assert "duplicate" in json.loads(done.stdout)["detail"]
 
 
-def test_the_committed_admissions_file_seeds_exactly_the_five_ruled_files(
+def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_formed(
     ) -> None:
-    """The measured defect this slice repairs (RULED — the arrival-admission
-    repair, Brett Heap, 2026-09-11, `#656` comment 5639058687):
-    `openxdox_code`'s two openXdox-code #7 files. Grown once since, on the
-    SAME governed mechanism and the SAME footing (RULED Q5, `#656` comment
-    5642758731, split-opendox § 3.4 slice S2, Q-L1): `opendox_code`'s own
-    three files the optional-binding leg adds. Nothing else is declared for
-    any other destination yet. Reads the REAL committed files, so a typo in
-    any of the five fails this rather than only a scratch fixture's copy."""
+    """The RULED SEED SURVIVES and the whole file stays well formed.
+
+    AMENDED by the § 4.3/§ 4.4 openxFactory half + pin lockstep (openDox →
+    `8ec3036c`, openXdox → `eca0b597`), which is the FIRST pin bump this
+    file's own design anticipates: "a NEW admission is a reviewed ONE-LINE
+    diff in the pull request that bumps the destination's pin". The original
+    assertions — `openxdox_code`'s set EQUALS the two openXdox-code #7 files
+    and every OTHER destination is `[]` — were true of the SEEDING COMMIT and
+    are false of every bump after it by construction, so an equality over the
+    file's CONTENT would have made the governed form unusable the first time
+    it was used. Nothing else is relaxed: the EQUALITY that matters — the
+    file declares one block for EVERY manifest destination and no id the
+    manifest does not carry — is kept exactly as PR #979's review asked for
+    it, because that one is about the file's SHAPE and not about what has
+    accumulated in it.
+
+    AMENDED AGAIN by RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4
+    slice S2, Q-L1): the SECOND bump this design anticipated, `opendox_code`'s
+    own three new files (the optional-binding module and its two tests,
+    admitted the governed way because the leg PR that lands them pairs with —
+    and lands after — this annotation PR). Same footing, same reason the
+    openxdox_code seed is checked by presence and not by equality: an
+    equality over `opendox_code`'s content would break on the NEXT pin bump
+    the same way the original whole-file equality broke on this one.
+
+    What is durable is asserted in place of the frozen content: the two
+    RULED openxdox_code seed entries (the measured defect this file repairs,
+    `#656` comment 5639058687) and the three RULED Q5 opendox_code entries
+    are still declared with their own `since`, every `since` is a 40-hex
+    commit, every `reason` is non-empty, and every destination's list is
+    alphabetical by `path` with no repeat — the file's own stated invariants,
+    over whatever the file has accumulated. Reads the REAL committed files,
+    so a typo fails this rather than only a scratch fixture's copy."""
     manifest_path = REPO_ROOT / MODULE.MANIFEST_RELPATH
     admissions_path = MODULE.default_admissions_path(manifest_path)
     # Hard assertions, not a skip-guard (Copilot review, PR #979): this test
@@ -2529,33 +2555,48 @@ def test_the_committed_admissions_file_seeds_exactly_the_five_ruled_files(
     # or an unknown id sneaking in -- must fail here rather than pass a
     # check that only bounded one side of the comparison.
     assert set(admissions) == set(manifest_doc["destinations"])
-    openxdox_code = {entry["path"]
-                     for entry in admissions.get("openxdox_code", [])}
-    assert openxdox_code == {"src/openxdox/consumer_reach.py",
-                             "tests/test_dependency_direction.py"}
-    for entry in admissions.get("openxdox_code", []):
-        assert entry["since"] == "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+    seed = {entry["path"]: entry
+            for entry in admissions.get("openxdox_code", [])}
+    for path in ("src/openxdox/consumer_reach.py",
+                 "tests/test_dependency_direction.py"):
+        assert path in seed, (
+            f"{path} is one of the two files RULED into this file's seed and "
+            "is no longer declared for openxdox_code")
+        assert seed[path]["since"] == (
+            "bfd95063b2a71be097a04bb6a3a99c4c131dd322")
     # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2):
     # `opendox_code`'s own three new files, admitted the GOVERNED way per
     # Q-L1 (the leg PR pairs with this annotation PR, which lands first) —
-    # the optional-binding module and its two tests, none of which any row
-    # places.
-    opendox_code = {entry["path"]
+    # checked by PRESENCE, the same footing as the openxdox_code seed above
+    # and for the same reason (a future opendox_code bump must not break
+    # this the way an equality check broke on the FIRST bump).
+    opendox_seed = {entry["path"]: entry
                     for entry in admissions.get("opendox_code", [])}
-    assert opendox_code == {"src/opendox/web/views/intent-binding.js",
-                            "tests/test_intent_binding_dom.py",
-                            "tests/test_intent_binding_shape.py"}
-    for entry in admissions.get("opendox_code", []):
-        assert entry["since"] == "330cf8161f06ae67be716deafe9b2ec3c64d1492"
-    # Every OTHER destination must be seeded with NOTHING (Copilot review,
-    # PR #979, extended for the same reason under RULED Q5): only
-    # `openxdox_code` and `opendox_code` carry declared admissions so far,
-    # so an accidental admission slipping into any other destination's
-    # block -- previously unchecked here -- must fail this test rather than
-    # pass it silently.
-    for dest_id in sorted(set(manifest_doc["destinations"])
-                          - {"openxdox_code", "opendox_code"}):
-        assert admissions[dest_id] == [], (
-            f"expected no declared admissions for {dest_id!r} (only "
-            "openxdox_code and opendox_code carry declared admissions so "
-            f"far), found {admissions[dest_id]!r}")
+    for path in ("src/opendox/web/views/intent-binding.js",
+                 "tests/test_intent_binding_dom.py",
+                 "tests/test_intent_binding_shape.py"):
+        assert path in opendox_seed, (
+            f"{path} is one of the three files RULED Q5 (`#656` comment "
+            "5642758731, split-opendox § 3.4 slice S2) into this file's "
+            "opendox_code admissions and is no longer declared")
+        assert opendox_seed[path]["since"] == (
+            "330cf8161f06ae67be716deafe9b2ec3c64d1492")
+    # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
+    # replaces nothing: the frozen-content assertions these stand in for
+    # could not survive a pin bump, and an accumulating file with no checked
+    # shape is the drift the declared form exists to end.
+    for destination, entries in admissions.items():
+        paths = [entry["path"] for entry in entries]
+        assert paths == sorted(paths), (
+            f"{destination}'s created: list is not alphabetical by path, "
+            "which the file's own shape requires so a new admission is a "
+            "one-line insertion and never a reshuffle")
+        assert len(paths) == len(set(paths)), (
+            f"{destination} declares a path twice")
+        for entry in entries:
+            assert re.fullmatch(r"[0-9a-f]{40}", entry["since"]), (
+                f"{destination}'s {entry['path']} declares since="
+                f"{entry['since']!r}, which is no 40-hex leg commit, so the "
+                "claim is not falsifiable")
+            assert entry["reason"].strip(), (
+                f"{destination}'s {entry['path']} declares no reason")

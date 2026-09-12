@@ -1943,19 +1943,40 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # then the Q-L1 ANNOTATIONS of 2026-09-10 (`#656` comment `5628560136`,
     # landed with the § 5.2 shed) moved both again, by 68 lines over seven rows,
     # three of which carried no `edits:` before. 794 + 68 = 862 on 147 + 3 = 150
-    # rows. Then the Q-L1 ANNOTATION of 2026-09-11 (RULED Q5, `#656` comment
-    # `5642758731`, split-opendox § 3.4 slice S2) moved both again, by 3 lines
-    # over two rows (`dispose.js` line 26, `wheel.js` lines 75-76), neither of
-    # which carried `edits:` before. 862 + 3 = 865 on 150 + 2 = 152 rows.
+    # rows. Then the ASK-7 DECLARED-EDIT WINDOW of 2026-09-11 (`#656`
+    # comment `5635150678`, ASK-7 → 1) added 4 more declared lines to two
+    # rows that ALREADY carried `edits:` — the cli.py and serve.py
+    # docstring/comment lines — so `carrying` does not move: 862 + 4 = 866
+    # on the same 150 rows. Then the Q-L1 ANNOTATION of 2026-09-11 (RULED
+    # Q5, `#656` comment `5642758731`, split-opendox § 3.4 slice S2) moved
+    # both again, by 3 lines over two rows (`dispose.js` line 26, `wheel.js`
+    # lines 75-76), neither of which carried `edits:` before. 866 + 3 = 869
+    # on 150 + 2 = 152 rows.
     # Re-derived here for the same reason as before: a transcribed count is a
     # claim, a summed one is a measurement.
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (865, 152), (lines, carrying)
+    assert (lines, carrying) == (869, 152), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
+
+    # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
+    # review, PR #995) — the aggregate `(869, 152)` above would still pass if
+    # these four had landed on the wrong rows, under the wrong class, or as a
+    # different four line numbers that happened to sum to the same total.
+    # Named individually, on the same `(class, lines)` idiom the replica row's
+    # check above already uses.
+    cli_row = rows["scripts/ideation_dashboard/cli.py"]
+    ask7_cli = [(edit["class"], edit["lines"]) for edit in cli_row["edits"]
+                if edit["lines"] == [834]]
+    assert ask7_cli == [("path constants", [834])], cli_row
+
+    serve_row = rows["scripts/ideation_dashboard/serve.py"]
+    ask7_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
+                  if edit["lines"] == [155, 725, 1338]]
+    assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
 
 
 # --------------------------------------------------------------------------
