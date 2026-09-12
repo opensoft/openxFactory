@@ -1,6 +1,16 @@
 # Proposal Amendment: register-gate-rules-council-seats — Q-GRC-4 DISCHARGED for `client-security-compliance-officer`
 
 Status: record
+Ratification: `review/ratification-2026-09-11-amendment-2.md` — this amendment
+was RATIFIED by Brett Heap (repository owner, operator) at
+**2026-09-11T17:08:42Z**, with § 9's OQ-1 through OQ-5 each ruled at option
+**(a)**; that sibling record carries `Status: ratified` and the one citation the
+lifecycle asks of a ratification record, and `tasks.md` § 6.1 and § 6.1a carry
+the ticks. **THIS LINE IS ADDED AND NOTHING AROUND IT IS REWRITTEN** —
+`Status:`, `Kind:`, `Ruler:`, `Ruled:` and `Ruling URL:` state the act that MADE
+this record (the 14:59:26Z amendment ruling) and are untouched, which is § 8's
+own rule applied to this record's own header: a record's header states the act
+that made it, and an amendment adds a line rather than rewriting one.
 Kind: decision record
 Decision date: 2026-09-11
 Lane: hermes-wallet-exercise (window `codeXfactory-2`)
@@ -675,6 +685,37 @@ Five, each with lettered options and one RECOMMENDED from precedent. Every
 recommendation is what the text above already encodes, so **taking all five
 recommendations moves no byte of this packet.**
 
+> **ALL FIVE ARE NOW RULED, EACH AT OPTION (a) — THE RECOMMENDED ONE.** Brett
+> Heap (repository owner, operator), in session, window `codeXfactory-2`, **no
+> comment URL** — the ruling was spoken, and the absence is recorded rather than
+> papered over, on the same precedent this record's `Ruling URL:` line already
+> cites for the 14:59:26Z rulings
+> (`split-opendox-two-layer-product/review/amendment-2026-09-05-repository-shape.md`)
+> — **2026-09-11T17:08:42Z**, verbatim:
+>
+> > **`accept all A on 971, merge slice 3 when green`**
+>
+> **The FIRST clause is this ruling.** The second clause is a different seat's —
+> the hermes-install Phase 8 slice 3 sweep — and is not this record's to carry.
+> Because every ruling takes the recommendation, **not one byte of this packet's
+> normative text moves**, which is the sentence this preamble predicted and
+> which the ratifying pull request proves by diff rather than asserting.
+> The ratification's own record — `Status: ratified`, one citation — is the
+> sibling `review/ratification-2026-09-11-amendment-2.md`, and its gate capture
+> is `review/verification-2026-09-11-amendment-2.md`; THIS record keeps
+> `Status: record`, because its own subject is the amendment and not the
+> ratification of it (§ 8's rule, applied to this record's header).
+> `tasks.md` § 6.1 (ratify) and § 6.1a (rule OQ-1..OQ-5) tick on this word;
+> **§§ 6.1b and 6.2-6.28 stay open, because ratification realizes nothing** — no
+> key is minted, no seat is bound, no grant moves, and C2 stays PARKED under α
+> until task 6.22's `resolved-seats` run shows `unbound_conjunction_seats`
+> EMPTY.
+>
+> The five `RULED` lines below are APPENDED to their own questions. **No
+> question, no option text and no paragraph above them is rewritten** — the
+> lettered options are kept exactly as they were put, so a later reader sees
+> what was on the table and not only what was taken.
+
 **OQ-1 — Who mints and holds the fifth keypair?**
 - **(a) RECOMMENDED — Brett Heap, host-side, the task 3.2 ceremony generalized
   to one seat.** The four existing keys were *"MINTED BY THE OPERATOR (Brett
@@ -691,6 +732,15 @@ recommendations moves no byte of this packet.**
   `holder_readable` posture Q-GRC-1 ruled for this body and give one seat a key
   the holder job cannot read.
 
+- **RULED — (a):** *"Brett Heap, host-side, the task 3.2 ceremony generalized to
+  one seat."* The fifth keypair is minted and held by Brett Heap host-side, seed
+  generated in-process and never written to disk, `gh secret set` on stdin with
+  `--body` omitted, custody `holder_readable`, secret name
+  `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` — a FRESH
+  TTY-gated ceremony, not a rerun of stored state. Brett Heap, in
+  session, window `codeXfactory-2`, no comment URL, **2026-09-11T17:08:42Z** —
+  the FIRST clause of the word quoted in full at the head of this section.
+
 **OQ-2 — `expires_at` on `grant-grc-0003`?**
 - **(a) RECOMMENDED — `2027-06-30T00:00:00Z`, unchanged.** Q-GRC-3's reason —
   one re-issuance ceremony covers both bodies and the two grants cannot silently
@@ -703,6 +753,12 @@ recommendations moves no byte of this packet.**
 - (c) A shorter expiry for the new seat — refused by shape: the grant is
   addressed to the WALLET and the row carries one expiry; there is no per-seat
   expiry to set.
+
+- **RULED — (a):** *"`2027-06-30T00:00:00Z`, unchanged."* `grant-grc-0003`
+  carries Q-GRC-3's ruled date; (b) is not taken, and it would have returned the
+  same value anyway. Brett Heap, in
+  session, window `codeXfactory-2`, no comment URL, **2026-09-11T17:08:42Z** —
+  the FIRST clause of the word quoted in full at the head of this section.
 
 **OQ-3 — Does the CSC briefing need a soak, or an `activation_gate` pass,
 before the seat sits live?**
@@ -721,6 +777,14 @@ before the seat sits live?**
   siblings); neither `gate-rules.yaml` nor this profile declares one. (c) is new
   machinery, not a gate being honoured.
 
+- **RULED — (a):** *"bind now, soak later. The lead-architect precedent
+  exactly."* The seat is bound and its key registered in this act; **no soak and
+  no `activation_gate` pass is a precondition of binding**. C13 re-opens this
+  body's soak from zero and costs nothing today, and LQ-C4's `tool_manifest`
+  bound carries onto the new seat unchanged. Brett Heap, in
+  session, window `codeXfactory-2`, no comment URL, **2026-09-11T17:08:42Z** —
+  the FIRST clause of the word quoted in full at the head of this section.
+
 **OQ-4 — One PR pair in the T1/T2 shape, or split further?**
 - **(a) RECOMMENDED — the T1/T2 PAIR: one codexFactory PR (H1), then one
   openxFactory PR (H2).** Two pull requests because there are two remotes; ONE
@@ -732,6 +796,12 @@ before the seat sits live?**
   registered.
 - (c) One single cross-repository act — not available; two remotes cannot share
   a commit.
+
+- **RULED — (a):** *"the T1/T2 PAIR: one codexFactory PR (H1), then one
+  openxFactory PR (H2)."* Two pull requests because there are two remotes; ONE
+  governed act because the hold spans them. H1 is NOT split further. Brett Heap, in
+  session, window `codeXfactory-2`, no comment URL, **2026-09-11T17:08:42Z** —
+  the FIRST clause of the word quoted in full at the head of this section.
 
 **OQ-5 — Does C2 double as the seat's first live (proof) convening?**
 - **(a) RECOMMENDED — a SEPARATE proof convening precedes C2**, on a re-verified
@@ -747,6 +817,13 @@ before the seat sits live?**
 - (c) Two proof convenings, one non-security-surface and one security-surface,
   before C2 — the most evidence and the most pins; nothing in the corpus asks
   for it.
+
+- **RULED — (a):** *"a SEPARATE proof convening precedes C2, on a re-verified
+  clean candidate, exactly as the 2026-09-11 walk did (§ 15, run
+  `34586762846`, admitted)."* C2 does NOT double as the seat's first live
+  convening; the proof convening comes first and C2 follows it. Brett Heap, in
+  session, window `codeXfactory-2`, no comment URL, **2026-09-11T17:08:42Z** —
+  the FIRST clause of the word quoted in full at the head of this section.
 
 **One authoring decision, flagged for veto rather than asked as an OQ**
 (the form `.openspec.yaml` uses for this packet's other authoring decisions):

@@ -591,22 +591,61 @@ the packet's own successor re-scopes it. **§ 6 IS NOT AN ARCHIVE CONDITION** �
 § 5.2 already puts § 4 outside the archive gate, and 4.6 lives in § 4; § 6.9
 restates it so a later reader does not fold this group in by reflex.
 
-Nothing below is ticked. Nothing below is authored by the amendment pull
-request: **H1 is built AFTER ratification, through Speckit, in codexFactory;
-H2 is Brett's operator act on a permanently human-only surface.**
+**6.1 AND 6.1a ARE NOW TICKED, AGAINST BRETT HEAP'S RATIFICATION WORD —
+2026-09-11T17:08:42Z, verbatim *"accept all A on 971, merge slice 3 when
+green"*, whose FIRST clause is this ruling, in session, window
+`codeXfactory-2`, no comment URL. NOTHING ELSE BELOW IS TICKED, AND THE PULL
+REQUEST THAT TICKS THEM PERFORMS NO OTHER ACT.** 6.1b stays open — the seat
+identifier string is an authoring decision flagged for VETO, not one of the five
+questions the word ruled, so it still owes its own confirmation before 6.2.
+Nothing below 6.1a is authored by that pull request either: **H1 is built AFTER
+ratification, through Speckit, in codexFactory; H2 is Brett's operator act on a
+permanently human-only surface.** OQ-1..OQ-5 are RULED at option **(a)**
+throughout, and the rows that named an OQ as undecided now name its ruled
+value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
 
 ### 6.1 Governance
 
-- [ ] 6.1 **[OPERATOR] [GOVERNANCE]** Ratify this amendment, or return it.
+- [x] 6.1 **[OPERATOR] [GOVERNANCE]** Ratify this amendment, or return it.
       Nothing in §§ 6.2-6.10 is legal until this is ticked. **Ratification
       REALIZES NOTHING** — no seat is bound, no key is minted, no grant moves.
-- [ ] 6.1a **[OPERATOR] [GOVERNANCE]** Rule **OQ-1..OQ-5** (amendment record
+      **RATIFIED** — Brett Heap, in session, window `codeXfactory-2`, no
+      comment URL, **2026-09-11T17:08:42Z**, verbatim *"accept all A on 971,
+      merge slice 3 when green"*, whose FIRST clause is this ruling. The
+      ratification's own record is
+      `review/ratification-2026-09-11-amendment-2.md` (`Status: ratified`, one
+      `Ratified:` citation) with its gate capture beside it at
+      `review/verification-2026-09-11-amendment-2.md`; the amendment record
+      keeps `Status: record` and gains one ADDED `Ratification:` header line,
+      because a record's header states the act that MADE it and an amendment
+      adds a line rather than rewriting one (amendment record § 8).
+      §§ 6.2-6.10 are now legal to BUILD **subject to 6.1b, which is still
+      open and still gates 6.2**: ratification lifted the 6.1 bar, not that one,
+      and the seat identifier string owes its confirmation BEFORE 6.2 exactly as
+      6.1b says. Nothing in §§ 6.2-6.10 has been performed.
+- [x] 6.1a **[OPERATOR] [GOVERNANCE]** Rule **OQ-1..OQ-5** (amendment record
       § 9): the minter of the fifth keypair; `grant-grc-0003`'s `expires_at`;
       whether the CSC briefing owes a soak or an `activation_gate` pass before
       sitting live; one T1/T2 PR pair or a further split; whether C2 doubles as
       the seat's first live convening. **Every recommendation is what this
       packet already encodes, so taking all five moves no byte** — in which case
-      this row ticks with that as its reason.
+      this row ticks with that as its reason. **RULED, ALL FIVE AT OPTION (a),
+      THE RECOMMENDED ONE, AND THAT IS EXACTLY THE REASON THIS ROW TICKS** —
+      Brett Heap, in session, window `codeXfactory-2`, no
+      comment URL, **2026-09-11T17:08:42Z**, verbatim *"accept all A on 971,
+      merge slice 3 when green"*, whose FIRST clause is this ruling:
+      **OQ-1 (a)** Brett Heap mints and holds the fifth keypair host-side, the
+      task 3.2 ceremony generalized to one seat — fresh and TTY-gated,
+      `holder_readable`, secret
+      `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER`;
+      **OQ-2 (a)** `grant-grc-0003`'s `expires_at` is `2027-06-30T00:00:00Z`,
+      unchanged; **OQ-3 (a)** bind now, soak later — the lead-architect
+      precedent, no soak and no `activation_gate` pass gating the binding;
+      **OQ-4 (a)** the T1/T2 PAIR, one codexFactory pull request then one
+      openxFactory pull request; **OQ-5 (a)** a SEPARATE proof convening
+      precedes C2, on a re-verified clean candidate. Encoded at
+      `proposal.md` § AMENDMENT — 2026-09-11 (§ Rulings table), `design.md`
+      D8-D12, and the record § 9; **the spec delta moved no byte.**
 - [ ] 6.1b **[GOVERNANCE]** The seat identifier string
       `client-security-compliance-officer` is an AUTHORING decision flagged for
       veto, not a ruling (amendment record § 4). Confirm or replace it BEFORE
@@ -660,7 +699,10 @@ H2 is Brett's operator act on a permanently human-only surface.**
       § 6 **Lead Quality's acceptance, OWED, at `claude-sonnet-5`, as an actual
       seat return**; § 7 C13 re-opens the soak from zero and costs nothing today
       (`agent-mixes.yaml:299-305`). Carry LQ-C4's `tool_manifest` bound onto the
-      new seat unchanged.
+      new seat unchanged. **OQ-3 RULED (a) — BIND NOW, SOAK LATER**
+      (2026-09-11T17:08:42Z): the soak is OWED and is **not** a precondition of
+      binding, and no `gate_rules_council` `activation_gate` is declared (none
+      exists). Nothing in §§ 6.16-6.26 waits on a soak row.
 - [ ] 6.7 **[codexFactory]** Prove it, do not assert it: re-render all five
       seats and show `rendered_set_digest` matches the live render
       (`test_gate_rules_holder_composition.py`); prove digest coupling BOTH ways
@@ -676,7 +718,12 @@ H2 is Brett's operator act on a permanently human-only surface.**
       scoped to four seats**). Publish the PUBLIC half, the `did:key:` and the
       fingerprint in a codexFactory mint record mirroring
       `records/2026-09-08-gate-rules-seat-signing-keys-minted.md`. **No seed,
-      ever, in any file.**
+      ever, in any file.** **OQ-1 RULED (a) — BRETT HEAP MINTS AND HOLDS IT**,
+      host-side, the task 3.2 ceremony generalized to one seat, as a FRESH
+      TTY-gated ceremony and never a rerun of stored state
+      (2026-09-11T17:08:42Z). (b) — minting through the committed
+      `scripts/mint-factory-origin-key.py` — and (c) — a different custody model
+      for this one key — are not taken.
 
 ### 6.3 H2 — the openxFactory register act (OPERATOR walk; no agent writes these)
 
@@ -689,7 +736,10 @@ H2 is Brett's operator act on a permanently human-only surface.**
 - [ ] 6.10 **[OPERATOR]** MINT `grants/grant-grc-0003.yaml` in
       `grant-grc-0002.yaml`'s shape — new `grant_id`, `state: active`,
       `issued_at` = the revocation instant, `issued_by` the ratifying human,
-      `expires_at` per **OQ-2**, scope re-examined rather than copied, and
+      `expires_at` **`2027-06-30T00:00:00Z`** — **OQ-2 RULED (a)**,
+      2026-09-11T17:08:42Z: Q-GRC-3's date UNCHANGED, the date
+      `grant-mrc-0002` still carries, so the two bodies' grants cannot
+      silently diverge — scope re-examined rather than copied, and
       **no `parent_grant_ref`**: a superseding grant is a ROOT grant.
 - [ ] 6.11 **[OPERATOR]** REPOINT `governance/review-authority/register.yaml`
       `row-grc-0001` (`:182-190`): `grant_ref` → `grant-grc-0003` and nothing
@@ -731,8 +781,11 @@ H2 is Brett's operator act on a permanently human-only surface.**
       posted 2026-09-10T23:20:38Z, ~14 minutes ahead of its own merge).
 - [ ] 6.17 **T1** — H1 merges on Brett's word. `grant-grc-0002` is void from
       that instant and `gate_rules_council` convenings park.
-- [ ] 6.18 **T2** — H2 merges (6.9-6.15). **OQ-4** decides whether this is one
-      PR pair or a further split.
+- [ ] 6.18 **T2** — H2 merges (6.9-6.15). **OQ-4 RULED (a)**,
+      2026-09-11T17:08:42Z: **ONE T1/T2 PAIR** — one codexFactory pull request
+      (H1, §§ 6.2-6.8) then one openxFactory pull request (H2, §§ 6.9-6.15).
+      H1 is **not** split into separate mint / roster / composition pull
+      requests; two remotes, ONE governed act, the hold spanning them.
 - [ ] 6.19 **[lane]** The 3.8-equivalent window check: prove NO
       `gate_rules_council` convening ran between T1 and T2 —
       `gh run list --workflow gate-rules-convening-trigger.yml` cross-checked
@@ -764,9 +817,12 @@ H2 is Brett's operator act on a permanently human-only surface.**
       `hermes/domain/review-councils/gate-rules.yaml`; confirm the pin was never
       previously convened; confirm the C2 packet (cxF PR #407 → `76f2e771`) is
       still in that candidate's tree.
-- [ ] 6.24 **[OPERATOR]** The proof convening — **OQ-5** decides whether it is
-      separate (precedent: walk § 15, run `34586762846`, admitted) or IS C2.
-      Brett dispatches: the workflow's federated credential is
+- [ ] 6.24 **[OPERATOR]** The proof convening — **OQ-5 RULED (a)**,
+      2026-09-11T17:08:42Z: it is **SEPARATE, and it PRECEDES C2**, on a
+      re-verified clean candidate, exactly as the 2026-09-11 walk did
+      (§ 15, run `34586762846`, admitted). C2 does not double as it: C2 is the
+      convening the conjunction FIRES on, and one dispatch cannot say which of
+      two proofs failed. Brett dispatches: the workflow's federated credential is
       `ref:refs/heads/main`-scoped and reads the factory origin key.
 - [ ] 6.25 **[OPERATOR]** Dispatch **C2** — `gate-rules-convening-trigger.yml`
       with the C2 packet ref, the fresh candidate's head sha and its PR number.
