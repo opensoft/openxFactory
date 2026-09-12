@@ -209,8 +209,10 @@ post-landing extension catching up the openDox-code #14 fix round's one-line
 `serve.py` lines and 122 matching `serve_projection.py` deletions, on the same
 two rows' existing `edits:` and no new row, and the § 3.4 SLICE S4 annotation
 (RULED Q3, `#656` comment `5642758731`) declaring the thirteen gate-route
-constants' travel out of the three RULED `SPLIT` files, over seven rows (two
-already carriers, five new) and four admitted new class-B modules. Rather than
+constants it counts across the three RULED `SPLIT` files — twelve travel to
+a new home or are removed, one (`ACTIONS_REFRESH_ROUTE`) stays in
+`repo-selector.js` — over seven rows (two already carriers, five new) and
+four admitted new class-B modules. Rather than
 re-narrate each one here — this table is exactly the hand-maintained
 copy RULED Q-L1's own "two acts restating one set of absolutes is how a
 count becomes wrong in a merge" warns about — the figures above are the
