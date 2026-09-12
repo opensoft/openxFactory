@@ -1030,3 +1030,177 @@ def test_the_obligation_set_is_the_eighteen_requirements_of_the_deltas():
     # by the reader's coverage rule.
     assert schema["properties"]["obligations"]["minItems"] == 9
     assert schema["properties"]["obligations"]["maxItems"] == 18
+
+
+# THE COMPOSED ISSUANCE IS COMPARED AGAINST THE CERTIFICATE IT COMPOSES WITH
+# (openxFactory #582, found by Codex on #566 and filed rather than patched there).
+# The binding's two references were checked for presence in their OWN pools,
+# independently, so a binding naming certificate C and issuance evidence E
+# composed and verified where E recorded the issuance of some other certificate
+# C': three records, all present, all schema-valid, all resolvable, and the
+# issuance act that is supposed to evidence C's issuance evidencing something
+# else. `check_signatures()` resolves the certificate from the signature side and
+# never closed it either.
+#
+# PINNED HERE RATHER THAN BY A PACKAGED NEGATIVE, on the reader's own stated
+# policy for this shape — "covered by tests/signed_execution_chain/
+# test_chain_reader.py rather than by three more packaged fixtures: the closed
+# refusal code they report is already red-proven, and what needs pinning is that
+# each COMPARISON runs". The disagreement lives inside `signed_binding`, whose
+# signature this reader verifies and whose fixture key's private half is not in
+# this repository, so the only packaged route is to shadow a consumed identifier
+# and let last-write-wins pick the mutant — the very substitution this family
+# refuses one layer over. Mutated in memory, the scope is built rather than
+# composed and no identifier is ambiguous.
+TRANCHE_TWO = EXAMPLES / "tranche-two"
+
+
+def _tranche_two_records():
+    """The tranche-two corpus is adjudicated ALONE, exactly as the reader's
+    self-test adjudicates it: it ships its own transparency-log store, and
+    sharing tranche one's would turn every leaf index into a collision."""
+    return reader.positive_records(TRANCHE_TWO, "examples/tranche-two")
+
+
+def _triples(records):
+    """Every binding with the certificate and issuance evidence it composes."""
+    certificates = {doc["certificate_id"]: doc for _, doc in records
+                    if doc.get("kind") == "xfactory_certificate_record"}
+    evidences = {doc["issuance_evidence_id"]: doc for _, doc in records
+                 if doc.get("kind") == "xfactory_certificate_issuance_evidence"}
+    out = []
+    for _, doc in records:
+        if doc.get("kind") != "xfactory_signed_execution_chain_chain_binding":
+            continue
+        binding = doc["signed_binding"]
+        out.append((doc, certificates.get(binding.get("certificate_ref")),
+                    evidences.get(binding.get("issuance_evidence_ref"))))
+    return out
+
+
+def test_the_packaged_composition_agrees_in_both_directions(registry_and_docs,
+                                                            carried):
+    """THE MATCHING PAIR PASSES, and the corpus is the matching pair. Asserted
+    over the records rather than only through a green walk, because a comparison
+    that never ran is also silent: if no packaged triple were resolvable in both
+    directions the tests below would be measuring a rule against nothing."""
+    records = _tranche_two_records()
+    triples = _triples(records)
+    assert len(triples) >= 10, triples
+    for doc, certificate, evidence in triples:
+        binding = doc["signed_binding"]
+        assert certificate is not None and evidence is not None, doc["binding_id"]
+        assert evidence["certificate_ref"] == binding["certificate_ref"]
+        assert certificate["issuance_evidence"]["present"] is True
+        assert certificate["issuance_evidence"]["evidence_ref"] == \
+            binding["issuance_evidence_ref"]
+    assert _validate(records, registry_and_docs, carried).errors == []
+
+
+def test_issuance_evidence_recording_another_certificate_is_refused(
+        registry_and_docs, carried):
+    """A TIER-2 IDENTITY MAY NOT DISCHARGE ITS ISSUANCE AGAINST ANOTHER
+    CERTIFICATE'S EVIDENCE. The ratified scenario is explicit that the evidence
+    "records the controller's issuance act and REFERENCES THAT CERTIFICATE", and
+    nothing performed that comparison."""
+    import copy
+
+    records = copy.deepcopy(_tranche_two_records())
+    doc, _, evidence = _triples(records)[0]
+    issued_against = doc["signed_binding"]["certificate_ref"]
+    elsewhere = next(other["certificate_id"] for _, other in records
+                     if other.get("kind") == "xfactory_certificate_record"
+                     and other["certificate_id"] != issued_against)
+    evidence["certificate_ref"] = elsewhere
+
+    lines = reader.lines_for(
+        _validate(records, registry_and_docs, carried).errors,
+        "forged_attestation_identity")
+    assert any("discharges its issuance against" in line
+               and repr(elsewhere) in line and repr(issued_against) in line
+               for line in lines), lines
+
+
+def test_a_certificate_naming_another_issuance_evidence_is_refused(
+        registry_and_docs, carried):
+    """THE SAME BINDING FROM THE CERTIFICATE'S SIDE. The certificate's own
+    `issuance_evidence.evidence_ref` and the binding's `issuance_evidence_ref`
+    are one fact written twice, and a reference free to move independently of the
+    record it names is how an issuance act is substituted under a genuine
+    certificate."""
+    import copy
+
+    records = copy.deepcopy(_tranche_two_records())
+    doc, certificate, _ = _triples(records)[0]
+    discharged_by = doc["signed_binding"]["issuance_evidence_ref"]
+    elsewhere = next(other["issuance_evidence_id"] for _, other in records
+                     if other.get("kind")
+                     == "xfactory_certificate_issuance_evidence"
+                     and other["issuance_evidence_id"] != discharged_by)
+    certificate["issuance_evidence"]["evidence_ref"] = elsewhere
+
+    lines = reader.lines_for(
+        _validate(records, registry_and_docs, carried).errors,
+        "forged_attestation_identity")
+    assert any("records its issuance evidence as" in line
+               and repr(elsewhere) in line and repr(discharged_by) in line
+               for line in lines), lines
+
+
+def test_an_honestly_absent_issuance_evidence_record_is_not_a_disagreement(
+        registry_and_docs, carried):
+    """`add-trust-anchor` owns the absent case: `present: false` answers the
+    question `unanswered`, makes the certificate a revocation candidate, and is
+    UNREPRESENTABLE beside an `evidence_ref`. Comparing against a reference that
+    is absent by shape would report a disagreement where that family records a
+    declared gap, so the comparison runs only where the certificate carries one.
+
+    SCOPED TO WHAT THIS TEST RUNS — this reader, and nothing else. The absence
+    is not refused here and is not asserted here: it is refused by the validator
+    that owns it, `scripts/validate-trust-anchor.py`, under
+    `issuance-evidence-absent-trusted`, red-proven by the packaged negative
+    `unexplained-certificate-recorded-as-trusted.yaml` under
+    `contracts/trust-anchor/examples/negative/` — exactly the shape the mutation
+    produces, a certificate recorded `trusted` while carrying no issuance
+    evidence. What is pinned here is this reader's SILENCE: the honest
+    absence must not be restated as two records naming each other differently,
+    and — the second assertion — must not be reported by this reader at all,
+    since an error appearing here would be this reader taking over another
+    family's adjudication."""
+    import copy
+
+    records = copy.deepcopy(_tranche_two_records())
+    _, certificate, _ = _triples(records)[0]
+    certificate["issuance_evidence"] = {
+        "present": False,
+        "unexplained": {"question_answered_as": "unanswered",
+                        "disposition": "revocation_candidate",
+                        "recorded_at": "2026-09-01T08:00:00Z"},
+    }
+    findings = _validate(records, registry_and_docs, carried)
+    lines = reader.lines_for(findings.errors, "forged_attestation_identity")
+    assert not any("records its issuance evidence as" in line for line in lines), \
+        lines
+    assert findings.errors == [], findings.errors
+
+
+def test_a_missing_part_is_still_reported_as_a_missing_part(registry_and_docs,
+                                                            carried):
+    """THE GUARD, IN THE DIRECTION THAT MATTERS. The comparison runs only where
+    BOTH references resolved: an unresolvable reference is one of the three
+    records MISSING, and reporting it as a disagreement instead would rename the
+    refusal the packaged negative
+    `binding-referencing-issuance-evidence-that-is-not-in-scope` is named for."""
+    import copy
+
+    records = copy.deepcopy(_tranche_two_records())
+    doc, _, _ = _triples(records)[0]
+    doc["signed_binding"]["issuance_evidence_ref"] = "ie:never-issued"
+
+    lines = reader.lines_for(
+        _validate(records, registry_and_docs, carried).errors,
+        "forged_attestation_identity")
+    assert any("which is not in scope" in line and "ie:never-issued" in line
+               for line in lines), lines
+    assert not any("discharges its issuance against" in line for line in lines), \
+        lines

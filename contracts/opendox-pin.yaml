@@ -89,7 +89,7 @@ submodule_path: openDox
 # `openDox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg, on `contracts/openxdox-pin.yaml`'s own
 # reasoning for openXdox.
-commit: "44679fa732780862230c7446a8f7f2e2bb032e88"
+commit: "8ec3036ce496a90a3c92a89c4907e57941901b51"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -107,7 +107,7 @@ digest_algorithm: sha256
 # without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "f7e2c3001365493f87c7c8fda2659cbdb11db9b783dce43e3301d80ba1a4b26c"
+  tree_sha256: "71b97c8bec10f1e85f6d56be52b7a83966232d7591952ad5e0af7db68192b392"
 
 # MIGRATION DECLARATION — MODIFIED `neutral-product-pin` requirement, "A pin
 # bump crosses a migration" scenario (`split-opendox-two-layer-product`
@@ -116,13 +116,17 @@ digests:
 # fields below are added NOW with an explicit `not_yet_deployed` sentinel,
 # proving the schema shape before a real migration exists to fill it —
 # RULING Q2's FastAPI+Postgres runtime is itself unbuilt and
-# `opensoft/openDox-code` carries no migrations directory yet (checked at
-# `da8aae96`, the `code` leg commit openDox's own assembly-root commit
-# `44679fa7` names). Update these at the FIRST real migration a bump of this
-# pin crosses, not before. Rendered identically at
+# `opensoft/openDox-code` carries no migrations directory yet — RE-CHECKED at
+# the leg this pin now names, `a99eba03`, the `code` leg commit openDox's own
+# assembly-root commit `8ec3036c` names (the previous reading was `da8aae96`
+# under `44679fa7`; `git ls-tree -r` at `a99eba03` carries no path matching
+# `migration`). Update these at the FIRST real migration a bump of this pin
+# crosses, not before. The same three sentinel values are rendered at
 # `openXdox/contracts/opendox-pin.yaml` (lockstep chain step 2, landed as
 # `opensoft/openXdox#7`) — both direct pins of the same product carry the
-# same sentinel, so neither reads as a claim the other is silent on.
+# same sentinel, so neither reads as a claim the other is silent on; that
+# leg's own comment still cites `da8aae96`, which is ITS record of when ITS
+# root last read the leg and is not this repository's to edit.
 migration:
   range: not_yet_deployed
   reversible: not_yet_deployed

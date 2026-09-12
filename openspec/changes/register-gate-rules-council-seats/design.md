@@ -317,21 +317,27 @@ APPENDED. Record:
 session, window `codeXfactory-2`, **2026-09-11T14:59:26Z**, verbatim *"amend
 register-gate-rules-council-seats, lead-architect route, same model pin as
 lead-security"*. Tasks: § 6.
+**D8-D12 RULED: Brett Heap, in session, window `codeXfactory-2`, no comment URL,
+2026-09-11T17:08:42Z, verbatim *"accept all A on 971, merge slice 3 when
+green"*, its FIRST clause** — each of OQ-1..OQ-5 at
+option **(a)**, its RECOMMENDED one, so every decision below stands exactly as
+it was written and **not one byte of the delta moves**. The amendment record's
+§ 9 carries the five `RULED` lines; `tasks.md` § 6.1 and § 6.1a carry the ticks.
 
 Five decisions, each stated with the alternative it rejects, and each mapped
 **1:1 onto one of the amendment record § 9's open questions** — so a reader who
 takes a ruling on OQ-n knows exactly which decision it moves, and a ruling that
 takes the recommendation moves no byte.
 
-| decision | open question | what it decides |
-| --- | --- | --- |
-| **D8** | **OQ-1** | who mints and holds the fifth seat keypair |
-| **D9** | **OQ-2** | `expires_at` on the re-issued grant |
-| **D10** | **OQ-3** | whether the new seat owes a soak or an activation pass before it sits |
-| **D11** | **OQ-4** | the act's shape across two remotes — one T1/T2 pair, or a further split |
-| **D12** | **OQ-5** | whether C2 doubles as the seat's first live convening |
+| decision | open question | what it decides | RULED 2026-09-11T17:08:42Z |
+| --- | --- | --- | --- |
+| **D8** | **OQ-1** | who mints and holds the fifth seat keypair | **(a)** — Brett Heap, host-side, the task 3.2 ceremony generalized to one seat; `holder_readable`; secret `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` |
+| **D9** | **OQ-2** | `expires_at` on the re-issued grant | **(a)** — `2027-06-30T00:00:00Z`, unchanged |
+| **D10** | **OQ-3** | whether the new seat owes a soak or an activation pass before it sits | **(a)** — bind now, soak later; no soak and no `activation_gate` pass gates the binding |
+| **D11** | **OQ-4** | the act's shape across two remotes — one T1/T2 pair, or a further split | **(a)** — the T1/T2 PAIR: one codexFactory PR (H1), then one openxFactory PR (H2) |
+| **D12** | **OQ-5** | whether C2 doubles as the seat's first live convening | **(a)** — a SEPARATE proof convening precedes C2, on a re-verified clean candidate |
 
-### D8 — The fifth key is minted by the operator, host-side, in the task 3.2 ceremony generalized to one seat (OQ-1)
+### D8 — The fifth key is minted by the operator, host-side, in the task 3.2 ceremony generalized to one seat (OQ-1) — RULED (a), 2026-09-11T17:08:42Z
 
 **Decision.** The same ceremony D4 already decided for the first four: an
 operator act, host-side, with the seed generated in-process and never written to
@@ -351,7 +357,7 @@ Nothing about a fifth seat reopens that.
 give one seat of one bench a key its own holder job cannot read, and would make
 the custody attestation describe two postures for one wallet.
 
-### D9 — `expires_at` stays `2027-06-30T00:00:00Z` unless a pin says otherwise, and today none does (OQ-2)
+### D9 — `expires_at` stays `2027-06-30T00:00:00Z` unless a pin says otherwise, and today none does (OQ-2) — RULED (a), 2026-09-11T17:08:42Z
 
 **Decision.** Q-GRC-3's ruled date, unchanged. Its reason — one re-issuance
 ceremony covers both bodies and the two grants cannot silently diverge — is
@@ -369,7 +375,7 @@ not by preference. The grant is addressed to the WALLET and the row carries one
 expiry; there is no per-seat expiry field to set, and inventing one would fail
 the reader's exact field-set check.
 
-### D10 — Bind now, soak later: the lead-architect precedent, and the soak that costs nothing today (OQ-3)
+### D10 — Bind now, soak later: the lead-architect precedent, and the soak that costs nothing today (OQ-3) — RULED (a), 2026-09-11T17:08:42Z
 
 **Decision.** The seat is bound and its key registered in this act; any soak
 follows. This is R1's order exactly — R1 bound `lead-architect`'s pin on
@@ -400,7 +406,7 @@ packet-only seat can meet its charge without running anything remains untested.
 A fifth seat neither worsens nor cures that, and the record says so rather than
 letting a new seat imply new capability.
 
-### D11 — Two pull requests because there are two remotes; ONE governed act because the hold spans them (OQ-4)
+### D11 — Two pull requests because there are two remotes; ONE governed act because the hold spans them (OQ-4) — RULED (a), 2026-09-11T17:08:42Z
 
 **Decision.** The T1/T2 pair: one codexFactory pull request (H1 — the binding,
 the composition, the briefing, the record, the digest re-pin), merged at T1
@@ -419,7 +425,7 @@ registered, with the first convening that seats it discovering the gap.
 a commit. The hold is what makes two merges one act, which is why D11's real
 content is the hold rather than the PR count.
 
-### D12 — A separate proof convening precedes C2, because C2 is the convening the conjunction FIRES on (OQ-5)
+### D12 — A separate proof convening precedes C2, because C2 is the convening the conjunction FIRES on (OQ-5) — RULED (a), 2026-09-11T17:08:42Z
 
 **Decision.** After the lift, a proof convening on a re-verified clean
 candidate, as the 2026-09-11 walk did (§ 15, run `34586762846`, admitted) —
@@ -429,13 +435,14 @@ which `rule_touches_security_posture` both holds AND has a bound seat to pull
 in. Proving a five-seat bench on the same dispatch that first exercises the
 conjunction conflates two proofs, and a failure would not say which one failed.
 
-**Alternative rejected in this design but genuinely open as OQ-5 (b): C2 IS the
-proof convening.** It is cheaper by one pin, and the read-only `resolved-seats`
+**Alternative put as OQ-5 (b) and NOT TAKEN — RULED (a), 2026-09-11T17:08:42Z:
+C2 IS the proof convening.** It is cheaper by one pin, and the read-only `resolved-seats`
 run (task 6.22) already proves the BINDING without spending anything — so the
 only thing the separate convening buys is separating "five seats resolve and
 return" from "the conjunction fires correctly". That is a real judgment about
-how much evidence a first sitting owes, which is why it goes to Brett rather
-than being settled here.
+how much evidence a first sitting owes, which is why it went to Brett rather
+than being settled here — and he ruled **(a)**, the separate convening, on
+2026-09-11T17:08:42Z.
 
 **Alternative rejected: two proof convenings, one on each side of the
 conjunction.** The most evidence and the most pins; nothing in the corpus asks

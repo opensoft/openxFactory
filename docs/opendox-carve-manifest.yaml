@@ -278,6 +278,28 @@ moved_paths:
 # `edits:` 147 → 150, and the 20 replicas stay 20. NO REFERENT DIGEST MOVES:
 # a declared line is a claim about what may differ AT THE DESTINATION, and
 # `carve_commit`, `carve_tag` and all 318 `sha256` values are untouched.
+#
+# THE ASK-7 DECLARED-EDIT WINDOW OF 2026-09-11 (`#656` comment `5635150678`,
+# Brett Heap, ASK-7 → 1; opened by lane `openxfactory-4-opendox-extraction`,
+# claimed `#656` comment `5642614423`) adds four declared lines and nothing
+# else: the `cli.py` row's docstring line (destination `:867`, carve `:834`)
+# and the `serve.py` row's three (destination `:166` / `:755` / `:1368`, carve
+# `:155` / `:725` / `:1338`) — the four openDox-code lines RULED ASK-7 → 1
+# left standing ("the in-tree comments beside the binding carry the
+# correction; they are fixed at the next declared-edit window"). Both rows
+# were ALREADY `moved_with_declared_edit` and already carried `edits:`; this
+# adds one new entry to each, filed `path constants` on the STALE CITATION
+# rows' reading (`#656` comment `5628560136`): neither an `import rewrites`
+# statement nor an `adapter calls` corpus-shaped literal (RULING OQ-1). So:
+# 456 rows still, `not_moved` still 138, `moved_verbatim` still 169,
+# `moved_with_declared_edit` still 149, declared lines 862 → 866
+# (`path constants` 161 → 165, `import rewrites` 675 unmoved, `adapter calls`
+# 26 unmoved), rows carrying `edits:` still 150 (both rows already carried the
+# key), and the 20 replicas stay 20. NO REFERENT DIGEST MOVES: `carve_commit`,
+# `carve_tag` and both rows' `sha256` are untouched — a declared line is a
+# claim about what may differ AT THE DESTINATION, and the docstring/comment
+# fix itself lands at openDox-code in the paired PR, inside these four
+# declared lines only.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -1234,6 +1256,9 @@ rows:
       - class: path constants
         lines: [106, 113]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: path constants
+        lines: [834]
+        note: "STALE DOCSTRING — RULED ASK-7 → 1 (`#656` comment `5635150678`, Brett Heap, verbatim \"the four stale docstring/comment lines (openDox-code cli.py :867; serve.py :166 / :755 / :1368) are LEFT; the in-tree comments beside the binding carry the correction; they are fixed at the next declared-edit window. No manifest rows for prose in PR-2.\"): this row annotation OPENS that declared-edit window (CLAIMED `#656` comment `5642614423`, lane `openxfactory-4-opendox-extraction`). No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. `build_parser()`'s docstring at openDox-code `a99eba03` (`src/opendox/cli.py:867`) still reads \"The IN-TREE PROFILE (`profile_openxfactory.SUBCOMMAND_EXTENSIONS`) is\", stale since § 4.3 (openDox-code #11) made `profile_openxfactory` a lazy proxy over the host's `opendox.domain_profile.register(...)` rather than an in-tree module. Mapped to the carve commit by the arrival verifier's own method (`verify-carve-arrival.py::_check_declared_lines`): `difflib.SequenceMatcher(a=carve_lines.text_records(carve_blob), b=carve_lines.text_records(arrived_blob), autojunk=False).get_opcodes()` between the blob at `carve_commit` (sha256 matches this row's, above) and openDox-code `a99eba03`'s `src/opendox/cli.py` — destination `:867` (0-based 866) falls inside the `equal` opcode carve[779:978]/arrived[812:1011] (0-based half-open) at offset 54, so carve line = 779 + 54 + 1 = 834; both sides read byte-identical text at that offset, confirming the mapping. Filed `path constants` on the reading RULED 2026-09-10 (`#656` comment `5628560136`) gave the STALE CITATION rows: neither an `import rewrites` statement nor an `adapter calls` corpus-shaped literal (RULING OQ-1), and a prose correction with nowhere else to be declared. The fix — replacing the docstring's \"IN-TREE\" framing with a host-registered/proxied one, same line, same line count — lands at openDox-code in the paired PR, inside this declared line only."
   - source_path: scripts/ideation_dashboard/cli_gate.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -1571,6 +1596,9 @@ rows:
       - class: adapter calls
         lines: [618]
         note: "serve.py:618 is the surviving `doc_health.corpus.RealGit` reach; openDox's core reading openxFactory's git corpus is what D2's `resolve` replaces"
+      - class: path constants
+        lines: [155, 725, 1338]
+        note: "STALE DOCSTRING/COMMENT — RULED ASK-7 → 1 (`#656` comment `5635150678`, Brett Heap, verbatim \"the four stale docstring/comment lines (openDox-code cli.py :867; serve.py :166 / :755 / :1368) are LEFT; the in-tree comments beside the binding carry the correction; they are fixed at the next declared-edit window. No manifest rows for prose in PR-2.\"): this row annotation OPENS that declared-edit window (CLAIMED `#656` comment `5642614423`, lane `openxfactory-4-opendox-extraction`), the same act as the paired `cli.py` row annotation above. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. Three destination lines at openDox-code `a99eba03`'s `src/opendox/serve.py` still describe the in-tree profile, stale since § 4.3 (openDox-code #11) made `profile_openxfactory` a lazy proxy over the host's `opendox.domain_profile.register(...)`: `:166` (\"`profile_openxfactory.py` and dispatched BY NAME against the live handler —\", inside the by-function-split comment, naming a file that no longer assembles anything), `:755` (\"(`profile_openxfactory.ROUTE_EXTENSIONS` — the gate console, the\", inside the `route_bindings` field comment), and `:1368` (\"THE IN-TREE PROFILE (`profile_openxfactory.ROUTE_EXTENSIONS`) is registered\", `build_server()`'s own docstring — the routes-half twin of the cli.py row's line). Mapped to the carve commit by the same method the cli.py row's new entry describes (`verify-carve-arrival.py::_check_declared_lines`'s `difflib.SequenceMatcher(autojunk=False)` over `carve_lines.text_records()`), between the blob at `carve_commit` (sha256 matches this row's, above) and openDox-code `a99eba03`'s `src/opendox/serve.py`: destination `:166` (0-based 165) is the `equal` opcode carve[138:169]/arrived[149:180] at offset 16, carve line = 138 + 16 + 1 = 155; destination `:755` (0-based 754) is carve[629:828]/arrived[659:858] at offset 95, carve line = 629 + 95 + 1 = 725; destination `:1368` (0-based 1367) is carve[1286:1352]/arrived[1316:1382] at offset 51, carve line = 1286 + 51 + 1 = 1338 — all three byte-identical between carve and arrived at that offset, confirming the mapping. Filed `path constants` on the same reading as the cli.py row's new entry and the STALE CITATION rows (`#656` comment `5628560136`): neither `import rewrites` nor `adapter calls` (RULING OQ-1). The fix — one line for one line, same count, no other change — lands at openDox-code in the paired PR, inside these three declared lines only."
   - source_path: scripts/ideation_dashboard/serve_gate.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
