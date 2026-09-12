@@ -552,13 +552,18 @@ Active changes:
   CONDITIONAL on the prior finding having been recorded `contested`, and measured
   at the rig 19 of the 31 belong to a contested family while 9 belong to families
   whose 131 rows are all `auto-fixable`, and the remaining 2
-  (`semantic-contradiction`, `semantic-normative-prose`) are emitted by no
-  deterministic run at all; the 31st (`uncited-resolution`'s own) can never be
-  looked up; and a control run with the file emptied moves ZERO STANDING
-  DETERMINISTIC-FAMILY rows — a DIFFERENT rig from the one below, not a wider
-  reading of it — the uncited-resolution effect (30 findings without the file,
-  0 with it) measured SEPARATELY by feeding a synthetic previous report that
-  forces every one of the thirty-one rows to `class="contested"`. Canon declares a
+  (`semantic-contradiction`, `semantic-normative-prose`) are admitted by that
+  same synthetic forcing (19+9+2=30) but UNMEASURED BY THIS RIG: it never
+  exercises `semantic.enforce_contract`, which DOES emit a WARNING/CONTESTED
+  finding for either family on a real semantic sweep, merged into the report
+  before render — a real previous report CAN carry such a row, just not from
+  a plain deterministic-only rig like this one; the 31st (`uncited-resolution`'s
+  own) can never be looked up, excluded from admission itself; and a control
+  run with the file emptied moves ZERO STANDING DETERMINISTIC-FAMILY rows — a
+  DIFFERENT rig from the one below, not a wider reading of it — the
+  uncited-resolution effect (30 findings without the file, 0 with it) measured
+  SEPARATELY by feeding a synthetic previous report that forces every one of
+  the thirty-one rows to `class="contested"`. Canon declares a
   disposition reading for FIVE families, `neutrality-drift` included, and exactly
   one of the EIGHT FAMILIES holding entries is among them — the undecided
   population being the SEVEN families with no declared reading, 27 of the 31
