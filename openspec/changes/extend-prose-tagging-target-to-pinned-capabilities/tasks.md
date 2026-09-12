@@ -128,11 +128,16 @@ the later realization pull request, and § 4 is the archive act.
   tag-hygiene finding and the pinned target naming it does not resolve, with
   the run COMPLETING rather than raising out of the family, one case per shape:
   the resolver reads this registry file, so a corrupt record must not escape
-  the family and abort doc-health; **(l)** a record declaring
-  `kind: pinned_contract_manifest` with NO `revision_kind` and referent is an
-  INCOMPLETE PIN: it emits a finding and does not resolve the target, so a file
-  added to `contracts/` carrying only `kind:` cannot admit an arbitrary pinned
-  target; **(m)** the candidate pin path is RESOLVED and refused unless it stays
+  the family and abort doc-health; **(l)** an INCOMPLETE PIN emits a
+  finding and does not resolve the target, ONE CASE PER SHAPE AND PER SUPPORTED
+  REVISION KIND rather than the kind-only shape alone: a record carrying only
+  `kind: pinned_contract_manifest`; a record declaring `revision_kind: commit`
+  with no `commit`; and a record declaring `revision_kind: package_integrity`
+  with no `integrity` — the last two are the cases a kind-only test leaves
+  open, since a resolver could check for the presence of `revision_kind` and
+  never check its referent. Any later revision kind `neutral-product-pin`
+  admits owes a case here on the same rule, so a file added to `contracts/`
+  cannot admit an arbitrary pinned target by carrying a label; **(m)** the candidate pin path is RESOLVED and refused unless it stays
   inside `contracts/` — a symlinked `contracts/<pin-id>-pin.yaml` pointing
   outside the directory is refused rather than followed, with a symlink/escape
   fixture, using the repository's own containment helper rather than a second
