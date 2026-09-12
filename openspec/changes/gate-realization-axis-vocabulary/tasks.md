@@ -760,8 +760,34 @@ and its own output quoted.
       and still **exit 0**. (Ticked on the bench's word: the work landed in
       `13ff6162` and the box was left open — Copilot round 2, thread
       `PRRT_kwDOTAvnrs6heTQZ`.)
-- [ ] 4.10 **THE FULL SUITE**, `python3 -m pytest tests/ -q -m "not postgres"`,
-      with the count before and after and the new-test count measured last.
+- [x] 4.10 **THE FULL SUITE — DONE AND LEFT UNTICKED AT RATIFICATION, THE SAME
+      BOOKKEEPING DEFECT § 3.9(c) NAMES FOR § 4.9 AND § 4.11, CORRECTED HERE ON
+      THE RECORD (tick-on-the-recording, Brett Heap's ruling of 2026-09-06T23:10Z)
+      RATHER THAN RE-RUN, BECAUSE THE REQUIRED GATE ALREADY RAN IT ON EXACTLY
+      THESE TWO TREES.** BEFORE — `main` at `f663b379` (this packet's branch's
+      merge-base, the tip immediately preceding the merge below), required
+      `pytest-suite` run
+      [34711691612](https://github.com/opensoft/openxFactory/actions/runs/34711691612),
+      **success**: *"7009 passed, 6 skipped, 338 deselected, 9 warnings, 175
+      subtests passed"* (`selected=7190 passed=7184 skipped=6 failures=0
+      errors=0`). AFTER — `main` at the merge itself, `68ff88b4`, required
+      `pytest-suite` run
+      [34713047890](https://github.com/opensoft/openxFactory/actions/runs/34713047890)
+      (the same run § 5.1 cites as realization evidence), **success**: *"7095
+      passed, 6 skipped, 338 deselected, 9 warnings, 176 subtests passed"*
+      (`selected=7277 passed=7271 skipped=6 failures=0 errors=0`). **THE
+      DELTA IS THIS PACKET'S OWN NET ADDITION**, since `f663b379` is the
+      merge's own first parent: **+87** selected, **+87** passed, **+1**
+      subtest, **0** new skips, **0** failures either side. THE NEW-TEST COUNT
+      MEASURED LAST, directly on this packet's own file: `pytest --collect-only
+      -q tests/target_release` on this archive tree collects **86** tests
+      (`grep -c '^def test_' tests/target_release/test_target_release_gate.py`
+      agrees), the figure `design.md` D8m and this pull request's own body
+      already carry; the one-test difference between that figure and the
+      repo-wide +87 delta is not reconciled further here (a repo-wide count
+      also reflects fixture/parametrization shifts outside this packet's own
+      file, and the required gate's PASS is the fact this box asks for, not a
+      line-by-line reconciliation of two different counting grains).
 - [x] 4.11 **README `## OpenSpec Records` ACTIVE ROW**, in house style, MOVED
       TO THE RATIFIED STANDING BY THIS RATIFICATION (all three ruled labels
       verbatim, the recording comment linked, the sweep's six carriers, and the
@@ -775,39 +801,186 @@ and its own output quoted.
       the only edit this round makes to it. (Ticked on the bench's word — the
       row was in the diff while the box said owed: Copilot round 2, thread
       `PRRT_kwDOTAvnrs6heTQZ`.)
-- [ ] 4.12 **THE BOT BENCH**, taken and dispositioned item by item on the
-      record.
+- [x] 4.12 **THE BOT BENCH — DONE AND LEFT UNTICKED AT RATIFICATION, THE SAME
+      BOOKKEEPING DEFECT AS § 4.10, CORRECTED HERE ON THE RECORD.** Taken and
+      dispositioned item by item across eleven rounds (`design.md` D8 through
+      D8m; `tasks.md` § 3.7–§ 3.23), all Copilot — Codex was requested once
+      (2026-09-11T12:43:28Z, PR #963 comment `5634604106`) and replied ABSENCE
+      (usage limit) eight seconds later, recorded verbatim in
+      `review/ratification-2026-09-12.md` § 7, no second request made. FROZEN
+      at head `1d08089a` with **36 threads total, 0 unresolved**: FREEZE
+      comment
+      [issuecomment-5648023802](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5648023802),
+      re-verified through GraphQL immediately before that FREEZE and not
+      contradicted by anything after it (this packet's ratification pull
+      request merged **2 minutes 18 seconds** later, 19:01:29Z to
+      2026-09-12T19:03:47Z, at unchanged head `1d08089a` as `68ff88b4`).
 
 ## 5. Archive — OWED, NOT GIVEN
 
-- [ ] 5.1 **PROMOTE THE ADDED REQUIREMENT INTO CANON**, byte-for-byte, in a
+**DISPOSITION 2026-09-12 — THE HEADING ABOVE IS RETAINED AS HISTORICAL SURFACE,
+NOT SUPERSEDED.** *"OWED, NOT GIVEN"* was true from ratification
+(2026-09-12T15:45:19Z) until **2026-09-12T22:25:43Z**, when Brett Heap gave the
+separate word this section waits on, verbatim **"archive both"** (this packet
+and `report-stale-grandfather-dispositions`), recorded on PR #963 at
+[issuecomment-5649094500](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5649094500)
+and mirrored on this issue (openxFactory #956) at
+[issuecomment-5649094591](https://github.com/opensoft/openxFactory/issues/956#issuecomment-5649094591).
+The word was given AFTER the realization evidence already existed (the reverse
+order from the `amend-merged-into-empty-tail-standing` sibling's own archive,
+where the word came first and the landing followed four hours later) — this
+packet's own ratification pull request #963 had already merged and its own
+`pytest-suite` run had already gone green seven hours before Brett Heap spoke.
+
+- [x] 5.1 **PROMOTE THE ADDED REQUIREMENT INTO CANON**, byte-for-byte, DONE IN
+      THIS ARCHIVE PULL REQUEST, on the separate archive word above.
+      **REALIZATION EVIDENCE (*Realization archive gate*, a NON-EMPTY code
+      surface — this packet is a house validator and a closed register, not a
+      doc-only change):** this packet's OWN ratification pull request
+      [#963](https://github.com/opensoft/openxFactory/pull/963) merged into
+      `main` as **`68ff88b4091ece46f0ad269643aa316924aa8c65`** at
+      **2026-09-12T19:03:47Z** (LANDED comment
+      [issuecomment-5648037759](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5648037759)),
+      and `main`'s OWN `pytest-suite` run AT THAT EXACT TREE — run
+      [34713047890](https://github.com/opensoft/openxFactory/actions/runs/34713047890),
+      `headSha` **`68ff88b4091ece46f0ad269643aa316924aa8c65`** (byte-identical
+      to the merge commit itself — **a DECIDED run at the tree the merge
+      carries, so no tree-equality argument is owed**), `conclusion`
+      **success**, created 2026-09-12T19:03:52Z, completed 2026-09-12T19:23:11Z.
+      Performed with `TZ=UTC python3 scripts/proposal-support.py . archive
+      gate-realization-axis-vocabulary --date <UTC day of the act> --yes`
+      through the pinned `@fission-ai/openspec@1.12.0` artifact — never a bare
+      `openspec archive` — moving the packet to
+      `openspec/changes/archive/<date>-gate-realization-axis-vocabulary/` and
+      writing the `## ADDED Requirements` block (*Realization axis vocabulary
+      is gated*) into `openspec/specs/release-realization/spec.md`. The
+      origin-retention gate fires INSIDE the wrapper; its output, the
+      byte-identity of the promoted block against this delta (sizes, sha256
+      both sides), and the rename-purity proof are measured and recorded in
+      the archive pull request's own body rather than repeated here.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **PROMOTE THE ADDED REQUIREMENT INTO CANON**, byte-for-byte, in a
       SEPARATE pull request on a separate word, after § 1 is ruled and after
       the realization evidence this packet's `target_release` names: this pull
       request merged into `main` and a green `pytest-suite` run at the tree
       that merge carries — *"its code merged on the implemented target through
       the owning domain's engineering gates, and — where the surface is
       runnable — a green run of that surface"* (*Realization archive gate*).
-- [ ] 5.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
+- [x] 5.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
+      ELSE.** This packet's own ratification pull request (#963)'s
+      `closingIssuesReferences` was `[]` throughout and at merge (recorded
+      `review/ratification-2026-09-12.md` § 6 and re-verified before this
+      archive branch was cut); THIS archive pull request's body carries the
+      single `Closes #956` line and its `closingIssuesReferences` is verified
+      through GraphQL to be exactly `[956]` (recorded in the pull request
+      body). **NO COMMIT MESSAGE ON THIS ARCHIVE BRANCH CARRIES A CLOSING
+      KEYWORD IN ANY FORM** — not `Closes`, `Fixes` or `Resolves`, in any case
+      or tense, quoted or unquoted — checked with a compound regex over every
+      commit message on the branch and recorded in the pull request body.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
       ELSE**, by a closing keyword written THERE against openxFactory issue
       956. No closing keyword appears in this pull request's body or in any
       commit message on this branch, in any form, quoted or otherwise.
 
 ## 6. Measured, and deliberately NOT taken here
 
-- [ ] 6.1 **WHETHER CANON ADMITS A DEFERRED ALLOCATION.** Twelve active packets
+**DISPOSITION 2026-09-12 — THE HEADING ABOVE IS RETAINED AND NOTHING IN THIS
+SECTION IS TAKEN AT THIS ARCHIVE.** All five boxes tick, on Brett Heap's ruling
+of 2026-09-06T23:10Z, option labelled verbatim *"Tick on the recording"* (his
+#900 ruling on a conditional tick trigger): each tick records either a
+MEASUREMENT RE-TAKEN on the archive tree, with any figure that moved
+disclosed at the box, or the NAMING of a successor and never its doing.
+**TWO SUCCESSORS ARE OWED. ONE IS ALREADY NAMED IN THIS PACKET'S OWN RATIFIED
+RECORD** (`add-structured-scope-substrate`, for § 6.1 and § 6.2, both
+amendments to the SAME ratified requirement title and therefore the same
+sequencing slot); **ONE HAS NO EXISTING NAME AND IS FILED HERE, UNCLAIMED:**
+openxFactory [#1013](https://github.com/opensoft/openxFactory/issues/1013)
+for § 6.3, filed after a sibling search (by title/body over open and closed
+issues, and by grep over the active and archived corpus) found no existing
+issue or packet proposing to gate `code_surface:`. § 6.4 and § 6.5 owe no
+successor and none is filed for them — each is a boundary the box's own
+ratified text already draws (a frozen record; another repository's own act).
+
+- [x] 6.1 **NOT TAKEN — A SUCCESSOR IS ALREADY NAMED IN THIS PACKET'S OWN
+      RATIFIED RECORD, AND NOTHING IS EDITED.** `openspec/changes/add-structured-scope-substrate/`
+      is ACTIVE (not archived) and `Status: ratified`, unchanged since this
+      packet's own `.openspec.yaml` `related:` block named it at ratification
+      as the change that *"Holds the `## MODIFIED` block over Realization axis
+      declaration that an amending design would have to sequence after"* — this
+      is re-verified on the archive tree rather than carried: `git log -1
+      --format=%h -- openspec/changes/add-structured-scope-substrate/proposal.md`
+      confirms it has not moved to `archive/`, and its own
+      `specs/release-realization/spec.md` still opens *"code_surface: and
+      target_release: are UNCHANGED"* and restates the promoted two-value
+      sentence verbatim — it holds the sequencing slot and does NOT itself
+      answer § 6.1, exactly as this packet's design.md D7 and ratification
+      record § 8.4 already say. **THE REGISTER'S DEFERRED-ALLOCATION COUNT IS
+      RE-MEASURED, NOT CARRIED:** `grep -c "class: deferred-allocation"
+      scripts/target-release-register.yaml` still returns **12** on the
+      archive tree — unchanged from ratification. Answering § 6.1 remains a
+      `## MODIFIED` block over *Realization axis declaration*, sequenced after
+      `add-structured-scope-substrate`, and it is not authored here.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **WHETHER CANON ADMITS A DEFERRED ALLOCATION.** Twelve active packets
       need a spelling the two-value sentence does not have, and the versioning
       policy is why. It is a `## MODIFIED` block over the title
       `add-structured-scope-substrate` holds, with the sequencing hold that
       carries. The register's twelve `deferred-allocation` entries all retire
       on it.
-- [ ] 6.2 **THE "AGGREGATION REPOSITORY" WORDING.** Canon resolves a named
-      release against a repository that defines none. A wording repair is
-      another MODIFIED block over the same contested title.
-- [ ] 6.3 **`code_surface:` IS NOT GATED.** The other half of the same sentence
-      is equally unread; it is a second population with its own classes, and
+- [x] 6.2 **NOT TAKEN — THE SAME NAMED SUCCESSOR, RE-CONFIRMED.** Same target
+      as § 6.1 (`add-structured-scope-substrate`, re-verified ACTIVE and
+      ratified above, holding the same `## MODIFIED` block over the same
+      contested title) — a wording repair to the *"aggregation repository"*
+      phrase is another amendment to that same requirement, and would
+      naturally land in the SAME future `## MODIFIED` block as § 6.1's remedy
+      rather than a second one, since both correct the identical sentence.
+      Not repaired here: this archive pull request edits no prose under
+      `openspec/specs/release-realization/spec.md` except to ADD the new
+      requirement this packet's own § 1 ratified; the existing *"Realization
+      axis declaration"* requirement is untouched.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **THE "AGGREGATION REPOSITORY" WORDING.** Canon resolves a named release
+      against a repository that defines none. A wording repair is another
+      MODIFIED block over the same contested title.
+- [x] 6.3 **NOT TAKEN — NO SUCCESSOR WAS NAMED ANYWHERE IN THIS PACKET, SO ONE
+      IS FILED HERE, UNCLAIMED.** openxFactory
+      [#1013](https://github.com/opensoft/openxFactory/issues/1013), filed for
+      this archive pull request, naming the gap and a re-measurement taken on
+      this archive tree (method: a `^code_surface:` front-matter line over
+      every `openspec/changes/*/proposal.md`, so it reproduces): **45** active
+      proposals, **45** declaring `code_surface:` — **5** `none`, **40** a
+      non-`none` value (free prose, no enumerable schema) — and no validator
+      anywhere checks its shape or vocabulary. A sibling search preceded the
+      filing: by title and body over every open and closed issue for
+      `code_surface`, and by grep over the active and archived corpus for a
+      packet proposing to gate it; neither returned an existing name, which is
+      why a new issue and not an existing one is cited.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **`code_surface:` IS NOT GATED.** The other half of the same sentence is
+      equally unread; it is a second population with its own classes, and
       folding it in here would widen a ruled remedy into an unruled sweep.
-- [ ] 6.4 **THE ARCHIVED 61 ARE NOT TOUCHED.** Frozen record: read, counted,
-      judged never.
-- [ ] 6.5 **NO OTHER ESTATE REPOSITORY IS SWEPT OR REGISTERED.** The validator
+- [x] 6.4 **NOT TAKEN, AND NOT OWED — RE-MEASURED ON THE ARCHIVE TREE.**
+      `python3 scripts/validate-target-release.py .` reports *"archive (read,
+      never judged): 164 proposals, 61 of them outside the vocabulary"* at
+      this archive's tree — the ARCHIVED TOTAL has grown from the count at
+      ratification (more packets archived in the interval), but the
+      OFF-VOCABULARY COUNT is still exactly **61**: no packet archived since
+      this one's ratification added a new off-vocabulary `target_release`
+      declaration to the frozen record. The validator's own closed-register
+      design reads and reports the archived population without judging it, and
+      this archive pull request touches no file under `openspec/changes/archive/`
+      other than this packet's own move.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **THE ARCHIVED 61 ARE NOT TOUCHED.** Frozen record: read, counted, judged
+      never.
+- [x] 6.5 **NOT TAKEN, AND NOT OWED — NO ESTATE REPOSITORY OTHER THAN THIS ONE
+      IS TOUCHED BY THIS ARCHIVE.** `scripts/target_release.py` and
+      `scripts/validate-target-release.py` take a `REPO_ROOT` (default `.`)
+      and this archive pull request runs and gates them only against
+      `opensoft/openXFactory`; no other governed repository's corpus,
+      register or CI is read, written or referenced by this act.
+      **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
+      **NO OTHER ESTATE REPOSITORY IS SWEPT OR REGISTERED.** The validator
       takes a `REPO_ROOT` and refuses a tree with no register rather than
       assuming an empty one; each repository's register would be its own act.
