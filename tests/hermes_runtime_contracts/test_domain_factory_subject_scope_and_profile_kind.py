@@ -1,12 +1,12 @@
-"""openxFactory #918 / #919 — validate-domain-factory kind-aware fixes.
+"""openxFactory #919 — validate-domain-factory kind-aware profile check.
 
-Both filed by lane opsXfactory-2 against OpsxFactory item 31 (2026-09-10).
+Filed by lane opsXfactory-2 against OpsxFactory item 31 (2026-09-10).
 
-#918: `ISOLATION_SCOPES` carried the legacy `per_customer_subject` machine key
-but not `per_subject`, the ratified Subject/Tenant/Domain spelling
-(contracts/policies/layer-vocabulary.yaml `legacy_mapping`: customer ->
-subject). `per_customer_subject` is FROZEN (CLAUDE.md) and stays accepted
-unrenamed; `per_subject` is purely additive.
+(This file previously also carried #918 coverage — adding `per_subject` to
+`ISOLATION_SCOPES`. RULED by Brett Heap 2026-09-12 (openxFactory #745): that
+enum addition is dropped from this PR; #918 is disposed by the frozen
+machine-key rule via a comment on #918 itself, not by a code change here.
+`ISOLATION_SCOPES` is untouched, exactly as on main.)
 
 #919: `profiles/*.yaml` required a nested `profile.id`. Domain-specific
 profile kinds — OpsxFactory's `cloudpc_worker_profile` is the first one — key
@@ -34,7 +34,7 @@ CANONICAL_LAYERS = [
 ]
 
 
-def _stack(*, isolation_scope: str = "per_tenant") -> dict:
+def _stack() -> dict:
     return {
         "schema_version": 1,
         "kind": "xfactory_domain_stack",
@@ -51,7 +51,7 @@ def _stack(*, isolation_scope: str = "per_tenant") -> dict:
         "hermes": {"layers": CANONICAL_LAYERS},
         "tenancy": {
             "tenant_kinds": ["pilot"],
-            "isolation": {"pilot": isolation_scope},
+            "isolation": {"pilot": "per_tenant"},
         },
         "omnigent": {"domain_overlay": "omnigent"},
     }
@@ -75,50 +75,6 @@ def _run(command_runner, repo_root: Path, repo: Path):
          repo, "--no-secret-scan"],
         cwd=repo_root,
     )
-
-
-# --------------------------------------------------------------------------
-# #918 — `per_subject` added to ISOLATION_SCOPES; `per_customer_subject` stays
-# --------------------------------------------------------------------------
-
-def test_per_subject_is_a_recognized_isolation_scope(
-    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
-) -> None:
-    repo = _materialize(tmp_path / "per-subject",
-                        _stack(isolation_scope="per_subject"), yaml_writer)
-
-    result = _run(command_runner, repo_root, repo)
-
-    assert result.returncode == 0, result.stdout
-    assert "0 error(s)" in result.stdout
-    assert "recognized isolation scope" not in result.stdout
-
-
-def test_the_frozen_legacy_per_customer_subject_key_stays_accepted(
-    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
-) -> None:
-    """`per_customer_subject` is a FROZEN legacy machine key (CLAUDE.md);
-    adding `per_subject` must not rename or drop it."""
-    repo = _materialize(tmp_path / "per-customer-subject",
-                        _stack(isolation_scope="per_customer_subject"), yaml_writer)
-
-    result = _run(command_runner, repo_root, repo)
-
-    assert result.returncode == 0, result.stdout
-    assert "recognized isolation scope" not in result.stdout
-
-
-def test_an_unrecognized_isolation_scope_still_fails(
-    tmp_path: Path, repo_root: Path, yaml_writer, command_runner,
-) -> None:
-    repo = _materialize(tmp_path / "unknown-scope",
-                        _stack(isolation_scope="per_galaxy"), yaml_writer)
-
-    result = _run(command_runner, repo_root, repo)
-
-    assert result.returncode == 1, result.stdout
-    assert ("tenancy.isolation.pilot='per_galaxy' is not a recognized "
-            "isolation scope") in result.stdout
 
 
 # --------------------------------------------------------------------------

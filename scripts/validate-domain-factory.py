@@ -56,13 +56,8 @@ TAG_RE = re.compile(r"^v?\d+\.\d+(\.\d+)?([-.][0-9A-Za-z.]+)?$")
 DOMAIN_ID_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 CANONICAL_ROLES = ("customer", "client", "domain")
-# `per_customer_subject` is a FROZEN legacy machine key (contracts/policies/
-# layer-vocabulary.yaml legacy_mapping: customer -> subject) and stays
-# accepted unrenamed; `per_subject` is the ratified Subject/Tenant/Domain
-# spelling and is additive (openxFactory #918).
 ISOLATION_SCOPES = {
-    "per_tenant", "per_client", "per_customer", "per_customer_subject",
-    "per_subject", "per_patient",
+    "per_tenant", "per_client", "per_customer", "per_customer_subject", "per_patient",
     "per_campaign", "per_project", "per_ledger", "shared_with_review",
 }
 SECRET_PATTERNS = [
