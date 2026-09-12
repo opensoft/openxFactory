@@ -371,27 +371,57 @@ def test_the_mixins_precede_simplehttprequesthandler_in_the_mro():
     prefix grew with it. The property is unchanged and strictly stronger — every
     mixin must still precede `SimpleHTTPRequestHandler`, and now the ORDER OF
     ALL FIVE is pinned rather than of two.
+
+    RESPELLED, NOT RELAXED, for the § 4.1 INVERSION. Two of the five bases are
+    openXdox's columns, and openDox-code stopped naming openXdox at class-
+    definition time: `DashboardHandler` now mixes
+    `consumer_reach.LateGateRoutes` and `consumer_reach.LateProjectionRoutes`,
+    the late `route_column` stand-ins that carry the same methods and resolve
+    to the real classes on first CALL. A stand-in class brings its own shared
+    base (`_LateConsumerColumn`) into the MRO with it, so the pinned prefix is
+    eight entries rather than seven. Both halves of the original claim are
+    still asserted and one is added: the order of the five columns is pinned,
+    every one of them still precedes `SimpleHTTPRequestHandler`, and the two
+    stand-ins are checked to BE the gate and projection columns — by the
+    module and class each declares it stands in for — so a stand-in pointed at
+    the wrong column fails here rather than at a route.
     """
     from opendox import serve as serve_mod
     from ideation_dashboard import serve_openxfactory_lanes
-    from opendox import serve_project, serve_workbench
+    from opendox import consumer_reach, serve_project, serve_workbench
     from openxdox import serve_gate, serve_projection
 
     mro = serve_mod.DashboardHandler.__mro__
-    assert mro[:7] == (
+    assert mro[:8] == (
         serve_mod.DashboardHandler,
         serve_workbench.WorkbenchRoutes,
         serve_project.ProjectRoutes,
-        serve_gate.GateRoutes,
-        serve_projection.ProjectionRoutes,
+        consumer_reach.LateGateRoutes,
+        consumer_reach.LateProjectionRoutes,
+        consumer_reach._LateConsumerColumn,
         serve_openxfactory_lanes.LaneRoutes,
         http.server.SimpleHTTPRequestHandler,
     ), (
         "DashboardHandler's MRO no longer starts "
-        "(DashboardHandler, WorkbenchRoutes, ProjectRoutes, GateRoutes, "
-        "ProjectionRoutes, LaneRoutes, SimpleHTTPRequestHandler) — decision 1's "
-        "ordering claim no longer holds, and a mixin member sharing a name with "
-        "the http.server chain would now resolve to the WRONG implementation.")
+        "(DashboardHandler, WorkbenchRoutes, ProjectRoutes, LateGateRoutes, "
+        "LateProjectionRoutes, _LateConsumerColumn, LaneRoutes, "
+        "SimpleHTTPRequestHandler) — decision 1's ordering claim no longer "
+        "holds, and a mixin member sharing a name with the http.server chain "
+        f"would now resolve to the WRONG implementation. Got: {mro[:8]}")
+    # The two stand-ins ARE the openXdox columns they name, so the respelling
+    # above did not quietly drop a column out of the chain.
+    assert repr(consumer_reach.LateGateRoutes).count("GateRoutes")
+    assert serve_gate.GateRoutes.__name__ == "GateRoutes"
+    assert serve_projection.ProjectionRoutes.__name__ == "ProjectionRoutes"
+    for late, real in ((consumer_reach.LateGateRoutes, serve_gate.GateRoutes),
+                       (consumer_reach.LateProjectionRoutes,
+                        serve_projection.ProjectionRoutes)):
+        for name in ("_handle_gate_action", "_serve_source"):
+            if hasattr(real, name):
+                assert hasattr(late, name), (
+                    f"{late.__name__} does not carry {name}, which "
+                    f"{real.__name__} defines — the stand-in is not standing "
+                    "in for the column it names")
 
 
 def _non_dunder(names) -> set[str]:

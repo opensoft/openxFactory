@@ -1765,8 +1765,17 @@ contracts:
   # (add-dashboard-repo-selector), marked `relocating:` at contract-v3.7, REMOVED
   # at contract-v4.0. Its canonical home is opensoft/openXdox-spec,
   # contracts/schemas/ideation-dashboard-snapshot-index.schema.yaml,
-  # byte-identical at sha256 43acf0bb… and read at the commit
-  # contracts/openxdox-pin.yaml names. Migration path:
+  # byte-identical at sha256 43acf0bb… at the `spec` leg 481a07f9, which is what
+  # contracts/openxdox-pin.yaml named AT THE v4.0 CUT. THE CITATION IS DATED
+  # RATHER THAN LEFT AS "the commit the pin names", because the pin moves and
+  # this record does not: the § 4.3/§ 4.4 lockstep bump (openXdox → eca0b597,
+  # `spec` leg ae59dfa5) carries openXdox-spec #7's declared correction of four
+  # stale citations, one comment line of which is in this very file, so at the
+  # NEW pin the same artifact hashes to 7fd9b797… . That is a declared edit
+  # arriving inside the row's RULING Q-L1 lines — `verify-carve-arrival.py
+  # --destination openxdox_spec` returns OK at that pin — and not drift; a cut
+  # bundle's record is not rewritten by a later bump, which is the same line
+  # this file's five `relocating.at:` values took. Migration path:
   # contracts/CHANGELOG.md § contract-v4.0.
   # ---- cross-factory ideation routing — contract-v1.30 registration (add-cross-factory-ideation-routing task 2.4) ----
   # The packaged corpus (examples/ideation-routing/, 8 valid + 8 invalid) and the
