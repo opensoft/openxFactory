@@ -982,3 +982,57 @@ validate gate-realization-axis-vocabulary --strict` exit 0;
 `validate-target-release.py .` exit 0 (41 active, 0 outside); the same
 validator against a fresh `origin/main ac688c40` clone exit 1 (40 active, 5
 outside, the same five carriers).
+
+### D8j — the bench's tenth round, one minute after the freeze and answered on the RATIFIED head: four threads, all four TAKEN
+
+**NONE OF THE FOUR REOPENS D1, D2 OR D3**, and the round is recorded here
+rather than folded into the ratification record because it is bench work, not a
+decision: the ruling of 2026-09-12T15:45:19Z stands untouched by it.
+
+**TWO WERE ALREADY ANSWERED BY THE RATIFICATION'S OWN RE-MEASUREMENT**, which
+is worth saying rather than quietly ticking. (a) `tasks.md` § 4.6 still carried
+a `39 active / 9 declaring` capture while § 4.1 read 41; it now reads **41
+active / 11 declaring**, re-measured at the ratified head. (b) § 4.9 still said
+the ledger held **200** rows while the tree held more; it now says **204**, the
+figure `--ledger-diff` prints, with the seed's 200 named as the seed's. Both
+are the same defect class D8e and D8h drew the lesson for — a figure that stops
+moving when its tree does — and both are now anchored to a named head.
+
+**THE THIRD IS A REAL CODE ESCALATION AND IT IS THE THIRD IN ITS FAMILY.**
+`_proposals` found active declarations with a bare `Path.is_file()`, which
+FOLLOWS SYMLINKS. So a committed `openspec/changes/<id>/proposal.md` symlink —
+or an ordinary `proposal.md` inside a symlinked CHANGE DIRECTORY, or under a
+symlinked `openspec/` — was read, judged and counted as the scanned tree's own
+declaration, with `declaration()` opening bytes outside `repo_root`; and a
+DANGLING link removed a proposal from the corpus the tree is judged on. D8g
+closed this escape for the release registry's leaf, D8i closed it at every
+ancestor, and **the discovery walk was the same surface all along, left open
+because nobody had pointed a validator's reader at it.**
+
+The fix is the D8i test, generalized rather than copied: a new `_unescaped`
+helper returns a path only when resolving EVERY symlink between `repo_root` and
+it lands where a symlink-free tree would have put it (`repo_root` resolved on
+both sides, so a tree reached through a symlinked parent is not mistaken for
+the escape), and `_proposals` — active and archived alike — takes every path
+through it. `_registry_present` keeps its own body and its own docstring, which
+now names the generalization; one helper, two callers, no second idiom.
+
+FIVE tests (74 -> 79). THREE of them measured FAILING with the fix stashed and
+passing with it restored: a symlinked active `proposal.md` (the case the bench
+named), a regular proposal inside a symlinked change directory, and a symlinked
+ARCHIVED proposal — an escape there is a lie about what the archive carries
+rather than a false finding, and it is closed by the same call. The other TWO
+pass either way and are pinned as BOUNDARIES rather than claimed as fixes: a
+dangling link is skipped without crashing, and a `repo_root` that is itself
+reached through a symlink still finds its proposals.
+
+**ON THE REAL CORPUS THE FIX CHANGES NOTHING, WHICH IS THE POINT**: 41 active
+proposals and 163 archived before and after, `validate-target-release.py .`
+exit 0 on both sides of it. A guard that moved the live counts would be a
+finding about this repository, not about the guard.
+
+**THE FOURTH IS THE PULL REQUEST'S OWN DESCRIPTION**, which still reported 68
+tests and stopped the bench at round 8. It is rebuilt on the ratified head, with
+the ruling, the six-carrier sweep, this round, and the re-measured counts —
+`refs #956, refs #931` kept and `closingIssuesReferences` re-verified `[]`
+after.

@@ -175,7 +175,7 @@ and openxFactory #956 closes THERE and not at this landing.
       D2 and covers the sixth unchanged: `record-immutability` binds
       `Status: record` documents only, and neither *Origin retention at
       archive* nor *Scope retention at archive* reaches `target_release:`.
-- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **74 tests**,
+- [x] 3.5 `tests/target_release/test_target_release_gate.py` (NEW, **79 tests**,
       counted last from a collected run of the file) — the token rule (7,
       including the two § 3.18 adds: a running sentence's first word IS its
       token, and the swept form — token, em dash, gloss — reads as the token),
@@ -206,8 +206,8 @@ and openxFactory #956 closes THERE and not at this landing.
       EXISTING TEST IS EDITED, FLIPPED OR DELETED (ONE RENAMED, a typo)** —
       the fourteen added by § 3.7, the eight added by § 3.9, the five added
       by § 3.10, the three added by § 3.11, the three added by § 3.14, the
-      three added by § 3.15, the two added by § 3.17 and the four added by
-      § 3.18 join the file,
+      three added by § 3.15, the two added by § 3.17, the four added by
+      § 3.18 and the five added by § 3.19 join the file,
       `_entry()` gains the citation the loader now requires,
       `test_a_symlinked_registry_directorys_contents_grant_no_extra_trust`
       is renamed (§ 3.17 (b), a dropped apostrophe) to
@@ -512,6 +512,43 @@ and openxFactory #956 closes THERE and not at this landing.
       rather than closed (`design.md` D2a): a proposal landing on `main`
       before this packet merges can add a seventh, and the remedy is the same
       one-token correction, re-measured at that head.
+- [x] 3.19 **THE BENCH'S TENTH ROUND, ONE MINUTE AFTER THE FREEZE AND
+      ANSWERED ON THE RATIFIED HEAD: FOUR THREADS, ALL FOUR TAKEN**
+      (`design.md` D8j). None reopens D1, D2 or D3. (a) and (b) were already
+      answered by the ratification's own re-measurement and are named rather
+      than quietly ticked: § 4.6's stale `39 active / 9 declaring` now reads
+      **41 / 11**, and § 4.9's stale **200** rows now reads **204**, the figure
+      `--ledger-diff` prints, with the seed's 200 named as the seed's.
+      (c) **A REAL CODE ESCALATION, THE THIRD IN ITS FAMILY** — `_proposals`
+      found active declarations with a bare `Path.is_file()`, which FOLLOWS
+      SYMLINKS, so a committed `openspec/changes/<id>/proposal.md` symlink, an
+      ordinary proposal inside a symlinked CHANGE DIRECTORY, or one under a
+      symlinked `openspec/` was read, judged and counted as the scanned tree's
+      own, with `declaration()` opening bytes outside `repo_root`; a DANGLING
+      link removed a proposal from the corpus instead. D8g closed this for the
+      registry's leaf and D8i at every ancestor; the discovery walk was the
+      same surface, untested. A new `_unescaped` helper is D8i's test
+      generalized — a path counts only when resolving every symlink between
+      `repo_root` and it lands where a symlink-free tree would have put it,
+      `repo_root` resolved on both sides — and `_proposals` takes EVERY path,
+      active and archived, through it. FIVE tests (74 -> **79**); THREE
+      measured FAILING with the fix stashed and passing restored (symlinked
+      active proposal, regular proposal inside a symlinked change directory,
+      symlinked ARCHIVED proposal), TWO pinned as BOUNDARIES that pass either
+      way (a dangling link is skipped without crashing; a `repo_root` reached
+      through a symlink still finds its proposals). On the real corpus the fix
+      moves nothing — 41 active and 163 archived before and after — which is
+      the point. (d) **THE PULL REQUEST DESCRIPTION** still reported 68 tests
+      and stopped the bench at round 8; rebuilt on the ratified head with the
+      ruling, the six-carrier sweep, this round and the re-measured counts,
+      `refs #956, refs #931` kept and `closingIssuesReferences` re-verified
+      `[]`. Re-validated at this fix: `openspec validate
+      gate-realization-axis-vocabulary --strict` exit 0;
+      `validate-target-release.py .` exit 0 (41 active, 17 `implemented`, 3 a
+      named release, 21 registered, 0 outside); `pytest tests/target_release
+      -q` **79 passed**; `validate-sequenced-after.py . --ledger-diff` exit 0
+      (204 rows); `validate-scope-globs.py .` exit 0; `doc-health.py
+      --single-repo .` exit 0.
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 

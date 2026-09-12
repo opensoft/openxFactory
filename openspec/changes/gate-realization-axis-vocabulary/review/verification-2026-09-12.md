@@ -115,7 +115,10 @@ lands. The archive is read and counted on both sides and judged on neither.
 `python3 -m pytest tests/target_release -q` — **exit 0**, **74 passed** (70 at
 the last freeze; the four added for the class the merge exposed, `tasks.md`
 § 3.18). `grep -c '^def test_' tests/target_release/test_target_release_gate.py`
-= **74**, so the figure is the file's and not a memory of it.
+= **74**, so the figure is the file's and not a memory of it. A LATER BENCH
+ROUND ON THIS SAME PULL REQUEST ADDS FIVE MORE (`design.md` D8j, `tasks.md`
+§ 3.19, **79**); that round records its own re-run where this file's preamble
+says it will, and does not rewrite this capture.
 
 ## 6. The substrate validators
 

@@ -100,6 +100,7 @@ REGISTER_PATH = Path(__file__).resolve().parent / "target-release-register.yaml"
 #: rather than repaired here, because repairing it means editing the promoted
 #: sentence.
 RELEASE_REGISTRY_DIR = Path("contracts") / "releases"
+CHANGES_DIR = Path("openspec") / "changes"
 
 #: A release identifier's SHAPE, and THE FIRST TEST A TOKEN FACES. A token is
 #: read from a proposal's front matter, which is author-controlled text, and the
@@ -508,20 +509,74 @@ def load_register(path: Path = REGISTER_PATH,
     return entries
 
 
-def _proposals(changes: Path, archived: bool) -> list[Path]:
-    if not changes.is_dir():
+def _unescaped(repo_root: Path, relative: Path) -> Path | None:
+    """`repo_root / relative`, but ONLY when it is a REAL, UNESCAPED path under
+    `repo_root` — no symlink ANYWHERE between the two, not only at the leaf —
+    and `None` otherwise.
+
+    THIS IS `_registry_present`'S TEST, GENERALIZED TO ANY PATH THIS MODULE
+    OPENS, AND IT IS HERE FOR THE SAME REASON. `Path.is_file()` FOLLOWS
+    SYMLINKS, so a committed `openspec/changes/<id>/proposal.md` symlink — or an
+    ordinary `proposal.md` inside a symlinked CHANGE DIRECTORY, or under a
+    symlinked `openspec/` — would otherwise be read as an active proposal of the
+    scanned tree, and `declaration()` would judge bytes that live outside it. A
+    dangling link is the same defect wearing the other face: the proposal
+    vanishes from the scan and the tree is judged on a corpus it does not have.
+    Neither is a judgment about the scanned tree, which is the only thing this
+    gate is entitled to make.
+
+    The leaf's own `is_symlink()` does not settle it: a REGULAR file reached
+    through a symlinked parent is not itself a symlink, and ordinariness is a
+    property of the ONE component checked. So the test is the same one the
+    registry uses — resolve everything, and require that you land where a
+    symlink-free tree would have put you — which closes the escape at every
+    component in one comparison rather than one component at a time as each is
+    found. `repo_root` is resolved on BOTH sides, so a `repo_root` that is
+    ITSELF reached through a symlink (a scratch tree under a symlinked
+    `/tmp`, say) is not mistaken for the escape.
+    """
+    candidate = repo_root / relative
+    try:
+        resolved = candidate.resolve(strict=True)
+        resolved_root = repo_root.resolve(strict=True)
+    except OSError:
+        return None
+    if resolved != resolved_root / relative:
+        return None
+    return candidate
+
+
+def _proposals(repo_root: Path, archived: bool) -> list[Path]:
+    """Every `proposal.md` the scanned tree really carries, active or archived.
+
+    EVERY PATH IS TAKEN THROUGH `_unescaped`, never through a bare `is_file()`:
+    the discovery walk is exactly as much of an escape surface as the release
+    registry was (D8g, D8i), and a proposal read from outside `repo_root` would
+    be judged, counted and named in a finding as though it belonged to the tree.
+    """
+    changes = _unescaped(repo_root, CHANGES_DIR)
+    if changes is None or not changes.is_dir():
         return []
     if archived:
-        archive = changes / "archive"
-        if not archive.is_dir():
+        archive_rel = CHANGES_DIR / "archive"
+        archive = _unescaped(repo_root, archive_rel)
+        if archive is None or not archive.is_dir():
             return []
-        return sorted(p for p in archive.glob("*/proposal.md") if p.is_file())
+        found = []
+        for child in sorted(archive.iterdir()):
+            if not child.is_dir():
+                continue
+            proposal = _unescaped(
+                repo_root, archive_rel / child.name / "proposal.md")
+            if proposal is not None and proposal.is_file():
+                found.append(proposal)
+        return found
     found = []
     for child in sorted(changes.iterdir()):
         if not child.is_dir() or child.name == "archive":
             continue
-        proposal = child / "proposal.md"
-        if proposal.is_file():
+        proposal = _unescaped(repo_root, CHANGES_DIR / child.name / "proposal.md")
+        if proposal is not None and proposal.is_file():
             found.append(proposal)
     return found
 
@@ -530,7 +585,6 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
     """Judge every ACTIVE proposal in `repo_root`; count the archive."""
     if register is None:
         register = load_register()
-    changes = repo_root / "openspec" / "changes"
     covered = {(e["change"], e["token"]): e for e in register}
     matched: set[tuple[str, str]] = set()
 
@@ -540,7 +594,7 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
     active_declaring = 0
     registry_present = _registry_present(repo_root)
 
-    active = _proposals(changes, archived=False)
+    active = _proposals(repo_root, archived=False)
     for proposal in active:
         change = proposal.parent.name
         rel = str(proposal.relative_to(repo_root))
@@ -584,7 +638,7 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
         f"{change} / {token!r}" for (change, token) in covered
         if (change, token) not in matched)
 
-    archived_paths = _proposals(changes, archived=True)
+    archived_paths = _proposals(repo_root, archived=True)
     archived_off = 0
     for proposal in archived_paths:
         try:

@@ -516,6 +516,98 @@ def test_the_corrected_form_of_that_declaration_passes(tmp_path):
     assert result.returncode == 0, result.stdout + result.stderr
 
 
+# --- the discovery walk cannot leave the scanned tree either ------------------
+# D8j. `Path.is_file()` follows symlinks, so the walk that FINDS proposals was
+# the same escape surface the release registry was (D8g, D8i): a symlinked
+# `proposal.md`, or an ordinary one inside a symlinked change directory, would
+# be judged and counted as the scanned tree's own. `_unescaped` is
+# `_registry_present`'s test generalized, and every path this module opens goes
+# through it.
+
+
+def test_a_symlinked_active_proposal_is_not_read(tmp_path):
+    """THE ACTIVE CASE THE BENCH ASKED FOR. A committed `proposal.md` symlink
+    pointing outside the tree is not the scanned tree's declaration, so it is
+    not judged — the off-vocabulary value behind the link reds nothing here,
+    because it was never this tree's to judge."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    external = outside / "proposal.md"
+    external.write_text("---\ntarget_release: none\n---\n\n# Elsewhere\n",
+                        encoding="utf-8")
+    root = tmp_path / "repo"
+    folder = root / "openspec" / "changes" / "a-packet"
+    folder.mkdir(parents=True)
+    (folder / "proposal.md").symlink_to(external)
+    result = _run(root, _register(root))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "0 active proposals" in result.stdout
+    assert "none" not in result.stdout.split("archive")[0]
+
+
+def test_a_regular_proposal_inside_a_symlinked_change_directory_is_not_read(
+        tmp_path):
+    """...and the leaf being perfectly ordinary changes nothing, which is the
+    whole lesson of D8i one directory up: the escape is a property of the PATH,
+    not of its last component."""
+    outside = tmp_path / "outside" / "a-packet"
+    outside.mkdir(parents=True)
+    (outside / "proposal.md").write_text(
+        "---\ntarget_release: none\n---\n\n# Elsewhere\n", encoding="utf-8")
+    root = tmp_path / "repo"
+    changes = root / "openspec" / "changes"
+    changes.mkdir(parents=True)
+    (changes / "a-packet").symlink_to(outside, target_is_directory=True)
+    result = _run(root, _register(root))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "0 active proposals" in result.stdout
+
+
+def test_a_dangling_proposal_symlink_is_skipped_and_never_crashes(tmp_path):
+    """The same defect wearing the other face: a link to nothing must not take
+    the run down, and must not be counted as a declaration either."""
+    root = tmp_path / "repo"
+    folder = root / "openspec" / "changes" / "a-packet"
+    folder.mkdir(parents=True)
+    (folder / "proposal.md").symlink_to(tmp_path / "gone.md")
+    _proposal(root, "b-packet", "target_release: implemented")
+    result = _run(root, _register(root))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 active proposals" in result.stdout
+
+
+def test_a_symlinked_archived_proposal_is_not_counted(tmp_path):
+    """The archive is READ AND COUNTED and never judged, so an escape there is
+    a lie about what the archive carries rather than a false finding — and it
+    is closed by the same call."""
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "proposal.md").write_text(
+        "---\ntarget_release: none\n---\n\n# Elsewhere\n", encoding="utf-8")
+    root = tmp_path / "repo"
+    folder = root / "openspec" / "changes" / "archive" / "2026-01-01-old"
+    folder.mkdir(parents=True)
+    (folder / "proposal.md").symlink_to(outside / "proposal.md")
+    result = _run(root, _register(root))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "archive (read, never judged): 0 proposals" in result.stdout
+
+
+def test_repo_root_reached_via_a_symlink_still_finds_its_proposals(tmp_path):
+    """THE BOUNDARY, PINNED EXPLICITLY, exactly as D8i pinned it for the
+    registry: `repo_root` is resolved on both sides of the comparison, so a
+    scan of a tree that is ITSELF reached through a symlink is an ordinary
+    scan and not the escape."""
+    real = tmp_path / "real"
+    real.mkdir()
+    _proposal(real, "a-packet", "target_release: implemented")
+    link = tmp_path / "link"
+    link.symlink_to(real, target_is_directory=True)
+    result = _run(link, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 active proposals" in result.stdout
+
+
 # --- the register -------------------------------------------------------------
 
 
