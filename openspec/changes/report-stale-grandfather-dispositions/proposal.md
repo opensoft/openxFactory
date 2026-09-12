@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: report-stale-grandfather-dispositions
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-12 by Brett Heap (openxFactory operator authority) — D1 option 1, a PRUNE PROMPT at `warning` ("do all as recomended", https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774); record at review/ratification-2026-09-12.md
 Proposed: 2026-09-11, in lane `openxfactory-1` (display `openXfactory-1`),
 session `c44b04` (team-01f), on Brett Heap's word of 2026-09-11 at
 approximately 18:20Z, verbatim **"usage reset, resume all. read handoff and
@@ -20,16 +21,28 @@ as the successor that packet's `tasks.md` § 7.1 owes, standing on
 origin) and [#945](https://github.com/opensoft/openxFactory/pull/945) (the
 parent's landing).
 
-**THAT WORD COMMISSIONS THE AUTHORING, NOT THE CONTENT. RATIFICATION IS OWED
-AND IT IS BRETT HEAP'S ACT.** Nothing below is ratified by being authored; no
-requirement here may be cited as approved until he rules on this packet itself;
-`.openspec.yaml` declares drafting provenance with **no approval pair**, and
-every document in this packet carries `Status: draft`. **NOTHING IS PROMOTED** —
-this pull request edits no file under `openspec/specs/`. Every judgment this
-authoring session took is listed in `design.md` as **D0, D1, D2, D2a, D2b, D3,
-D4, D5 and D6** — nine, counted rather than characterised — each with
-a recommendation and each put for veto; the one most worth one is **D1**, put as
-a MULTIPLE-CHOICE question over what a stale entry IS.
+**THAT WORD COMMISSIONED THE AUTHORING, NOT THE CONTENT; THE RATIFICATION IS A
+SEPARATE ACT AND IT HAS NOW HAPPENED.** Nothing here was ratified by being
+authored, and the commissioning word admitted no text to canon and took none of
+the nine decisions this packet carries; it stays recorded as the ORIGIN of the
+AUTHORING in `.openspec.yaml`. **BRETT HEAP RULED ON THIS PACKET ITSELF ON
+2026-09-12**, in answer to the orchestrator's list of open rulings (each put
+with its recommendation first), verbatim **"do all as recomended"** — given in
+the lane's window and recorded on openxFactory PR
+[#981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774)
+at 2026-09-12T15:45:22Z (mirrored on openxFactory issue
+[#965](https://github.com/opensoft/openxFactory/issues/965#issuecomment-5646922894)
+at 2026-09-12T15:45:23Z). Applied to `design.md` **D1** — the one decision put
+as a MULTIPLE-CHOICE question over what a stale entry IS — that word takes
+**OPTION 1: a PRUNE PROMPT**, against option 2 (the expected residue of a
+repair, graded `info`, no action) and option 3 (an aggregation defect, at
+`error`); the record is `review/ratification-2026-09-12.md`.
+**OPTION 1 IS THE OPTION THIS PACKET HAD ALREADY ENCODED, SO ITS WORDING STANDS
+UNCHANGED** — no delta byte was rewritten, restored or deleted by the
+ratification, and no byte of the arm or its tests moves either. **D0 and D2,
+D2a, D2b, D3, D4 and D5 were carried beside D1 and none was vetoed.** **NOTHING
+IS PROMOTED** — this pull request edits no file under `openspec/specs/` — and
+the archive is a further act on a further word.
 
 ## Why
 

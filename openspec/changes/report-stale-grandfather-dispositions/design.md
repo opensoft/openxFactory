@@ -1,6 +1,7 @@
 # Design: report-stale-grandfather-dispositions
 
-Status: draft
+Status: ratified
+Ratified by: report-stale-grandfather-dispositions — 2026-09-12, Brett Heap, D1 option 1 "a PRUNE PROMPT" (record `review/ratification-2026-09-12.md`)
 Kind: design
 
 **EVERY DECISION THIS AUTHORING SESSION TOOK IS HERE, WITH ITS ALTERNATIVE AND
@@ -9,10 +10,18 @@ THE ALTERNATIVE'S COST.** Brett Heap's word of 2026-09-11 at approximately
 out wide and do as much as possible in parallel"** — commissioned the authoring
 and took none of them.
 
-**D1 IS THE DECLARED VETO POINT AND IT IS PUT AS A MULTIPLE-CHOICE QUESTION**,
-recommendation first. D0, D2, D2a, D2b, D3, D4, D5 and D6 are carried beside
-it — EIGHT, so the packet takes NINE decisions in all; D2's band sentence
-follows D1 and everything else in D2 stands whichever way D1 goes.
+**D1 WAS THE DECLARED VETO POINT, PUT AS A MULTIPLE-CHOICE QUESTION, AND IT IS
+NOW RULED.** Brett Heap ruled on 2026-09-12, verbatim **"do all as
+recomended"**, given in the lane's window in answer to the orchestrator's list
+of open rulings (each put with its recommendation first) and recorded on PR
+[#981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774)
+at 2026-09-12T15:45:22Z; record `review/ratification-2026-09-12.md`. **D1 =
+OPTION 1**, the RECOMMENDED and already-encoded PRUNE PROMPT, against option 2
+(the expected residue of a repair, at `info`) and option 3 (an aggregation
+defect, at `error`) — **NEITHER TAKEN**. D0, D2, D2a, D2b, D3, D4, D5 and D6
+were carried beside it — EIGHT, so the packet took NINE decisions in all, and
+none but D1 was a veto point; none was vetoed. D2's band sentence follows D1
+and everything else in D2 stands as D1 was ruled.
 
 ## 0. The brief
 
@@ -114,10 +123,23 @@ ratified-provenance`):
 `--single-repo` run has `Context.agg_root is None`, so this repository's own
 gate reports no row of this class at all.
 
-## D1 — RECOMMENDED: a stale entry is a PRUNE PROMPT, at `warning`
+## D1 — RULED: a stale entry is a PRUNE PROMPT, at `warning`
 
-**THIS IS THE DECISION PUT TO BRETT HEAP, AS A MULTIPLE-CHOICE QUESTION, WITH
-THE RECOMMENDATION FIRST.** The packet encodes option 1.
+**RULED 2026-09-12 BY BRETT HEAP — verbatim "do all as recomended"**, given in
+the lane's window in answer to the orchestrator's list of open rulings (each
+put with its recommendation first) and recorded on PR
+[#981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774)
+at 2026-09-12T15:45:22Z (mirrored on issue
+[#965](https://github.com/opensoft/openxFactory/issues/965#issuecomment-5646922894)
+at 2026-09-12T15:45:23Z); record `review/ratification-2026-09-12.md`. **THE
+RECOMMENDATION WAS TAKEN, SO NOTHING BELOW MOVES**: option 1 is exactly the
+PRUNE PROMPT the arm and its tests already build, at `warning`, against the
+aggregation's own `health/dispositions.yaml`. Options 2 and 3 are retained
+below as the record of what was put and declined, not as work owed.
+
+**THIS WAS THE DECISION PUT TO BRETT HEAP, AS A MULTIPLE-CHOICE QUESTION, WITH
+THE RECOMMENDATION FIRST.** The packet encoded option 1, and the ruling took
+it.
 
 ### Option 1 — RECOMMENDED: a PRUNE PROMPT. A new finding class, `warning`, against the file
 

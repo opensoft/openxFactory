@@ -84,6 +84,49 @@ origin:
     merged-plus-green realization evidence and a separate word, and openxFactory
     #965 closes THERE and not at this landing.
   proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-12, lane
+    `openxfactory-1` (display `openXfactory-1`), a MULTIPLE-CHOICE ruling over
+    `design.md` D1 with the recommendation presented first: verbatim **"do all
+    as recomended"**, given in the lane's window in answer to the
+    orchestrator's list of open rulings (each put with its recommendation
+    first) and recorded on openxFactory PR #981 at 2026-09-12T15:45:22Z
+    (comment `5646922774`; mirrored on openxFactory issue #965 at
+    2026-09-12T15:45:23Z, comment `5646922894`).
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind` and `id` never
+    move, which is the shape `add-drafted-proposal-origin` (issue #318) defined
+    for this transition: approval is a pure ADDITION beside a fixed origin
+    identity, so the support manifest that repeats `kind` and `id` never comes
+    to disagree with the packet, and the archive gate's origin-retention arm
+    reads the declaration this commit establishes. The earlier word of
+    2026-09-11 at approximately 18:20Z, verbatim "usage reset, resume all. read
+    handoff and resume and fan out wide and do as much as possible in
+    parallel", stays the ORIGIN of the AUTHORING and is not read as an
+    approval.
+    THE RULING TAKES OPTION 1: A STALE GRANDFATHER DISPOSITION IS A PRUNE
+    PROMPT — the finding class `_stale_grandfather_dispositions` already
+    implements at `warning`, reported against the aggregation's own
+    `health/dispositions.yaml` row, naming the entry's target path and cite,
+    action "prune the entry, or re-point it at the record that still carries
+    the defect". Options 2 (the EXPECTED RESIDUE of a repair, graded `info`,
+    no action) and 3 (an AGGREGATION DEFECT, at `error`) are NOT taken. THE
+    RULED OPTION IS THE ONE THIS PACKET HAD ALREADY ENCODED, SO ITS WORDING
+    STANDS UNCHANGED — no delta byte was rewritten, restored or deleted by
+    this ratification, and no byte of `scripts/doc_health/families.py` or of
+    `tests/doc-health/test_grandfather_dispositions.py` moves either. D0 and
+    D2, D2a, D2b, D3, D4 and D5 were carried beside D1 and none was vetoed.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD AND IT IS NOT PERFORMED
+    HERE. `code_surface` is NON-EMPTY, so under `release-realization` this
+    packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE at canon's grain
+    — this pull request merged into `main` and a green `pytest-suite` run at
+    the tree that merge carries — rather than on landing. Nothing under
+    `openspec/specs/` is edited by this ratification, `tasks.md` § 6 stays
+    ENTIRELY OPEN, and openxFactory #965 therefore closes at the archive and on
+    no earlier pull request.
+    Record: `review/ratification-2026-09-12.md`, with the gate set re-derived
+    on the ratified tree at `review/verification-2026-09-12.md`.
+  approved_on: 2026-09-12
 related:
   - openxFactory:issue:965                                                          # THE ORIGIN. Filed by this lane at the parent's archive as the successor `tasks.md` § 7.1 owes; carries the three candidate readings. Closes at the ARCHIVE, never at this landing
   - openxFactory:change:archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance  # THE PARENT, ARCHIVED (PR #945 -> archive PR #969, promoted at `bc1f25c4`). Its `design.md` D6 declined this class by name and its `tasks.md` § 7.1 names #965 as the successor. ARCHIVED AND PROMOTED, so its text is canon and no `sequenced_after:` is owed to it

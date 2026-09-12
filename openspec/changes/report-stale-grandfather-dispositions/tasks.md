@@ -1,37 +1,46 @@
 # Tasks: report-stale-grandfather-dispositions
 
-Status: draft
+Status: ratified
+Ratified by: report-stale-grandfather-dispositions — 2026-09-12, Brett Heap, D1 option 1 "a PRUNE PROMPT" (record `review/ratification-2026-09-12.md`)
 Kind: tasks
 
 **WHAT IS DONE HERE AND WHAT IS OWED, KEPT APART.** § 2 through § 5 are
-performed in this pull request. § 1 (ratification) and § 6 (archive) are OWED
-and are Brett Heap's acts on two separate later words. § 7 is what was measured
-and deliberately NOT taken.
+performed in this pull request. **§ 1 (RATIFICATION) IS NOW GIVEN**, on Brett
+Heap's word of 2026-09-12; § 6 (archive) stays OWED, on his separate later
+word. § 7 is what was measured and deliberately NOT taken.
 
 **NOTHING IN THIS PULL REQUEST PROMOTES ANYTHING.** No file under
 `openspec/specs/` is edited by it, and openxFactory
 [#965](https://github.com/opensoft/openxFactory/issues/965) is closed at the
 ARCHIVE pull request and nowhere else.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-12
 
-- [ ] 1.1 **BRETT HEAP RULES `design.md` D1**, put as a MULTIPLE-CHOICE
-      question with the recommendation FIRST: what a stale entry IS.
+- [x] 1.1 **BRETT HEAP RULED `design.md` D1** — put as a MULTIPLE-CHOICE
+      question with the recommendation FIRST: what a stale entry IS — verbatim
+      **"do all as recomended"**, given in the lane's window in answer to the
+      orchestrator's list of open rulings (each put with its recommendation
+      first) and recorded on openxFactory PR
+      [#981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774)
+      at 2026-09-12T15:45:22Z (mirrored on openxFactory issue
+      [#965](https://github.com/opensoft/openxFactory/issues/965#issuecomment-5646922894)
+      at 2026-09-12T15:45:23Z).
       **(1) RECOMMENDED — a PRUNE PROMPT**: a new finding class at `warning`
       against the aggregation's own `health/dispositions.yaml`, naming the
       entry's target and quoting the ruling, action *"prune the entry or
       re-point it"*, so the file converges on the set the run reports.
       **(2)** the EXPECTED RESIDUE of a repair, graded `info`, no action.
       **(3)** an AGGREGATION DEFECT at `error`.
-      **THE PACKET ENCODES (1).** If (2) or (3) is taken, the delta's one
-      `THEN` bullet is re-authored (`warning` → `info` or `error`), the action
-      string in `families._STALE_ACTION` becomes a statement rather than an
-      instruction under (2), and one constant moves in the arm; every test that
-      names a band is re-measured. Under (3) the row also enters the regression
-      axis and `--fail-on error`, and `design.md` D1 option 3 carries what that
-      costs. Nothing else in this packet moves under any of the three.
-- [ ] 1.2 **THE OTHER EIGHT DECISIONS ARE CARRIED BESIDE D1 AND EACH IS
-      VETOABLE — EIGHT, COUNTED RATHER THAN CHARACTERISED, SO THE PACKET TAKES
+      **(1) WAS TAKEN, AND NOTHING MOVES**: the finding class
+      `_stale_grandfather_dispositions` already reports at `warning` against
+      the aggregation's `health/dispositions.yaml`, naming the entry's target
+      and quoting the recorded citation, action *"prune the entry, or re-point
+      it at the record that still carries the defect"* — read back from
+      `scripts/doc_health/families.py` at this ratification and confirmed
+      unchanged from what the bench froze at `f742c090`. **(2) and (3) were NOT
+      taken.** Nothing else in this packet moved.
+- [x] 1.2 **THE OTHER EIGHT DECISIONS WERE CARRIED BESIDE D1 AND NONE WAS
+      VETOED — EIGHT, COUNTED RATHER THAN CHARACTERISED, SO THE PACKET TOOK
       NINE IN ALL.** D0 (the measurement), D2 (a SECOND AND FINAL
       grandfather-disposition pass, after the downgrade; the two narrowings; the row's subject; one row per honoured
       target; the `auto-fixable` class), **D2a** (the archived-path boundary is
@@ -43,20 +52,22 @@ ARCHIVE pull request and nowhere else.
       one item of that round taken as a CODE change), D3 (the tests extend the
       parent's rig), D4 (`code_surface` non-empty → archive on realization
       evidence), D5 (the limit to this family alone), D6 (the sibling search
-      and `sequenced_after: []`). Each stands whichever way D1 goes, except that
-      D2's band sentence follows D1. **Copilot's suppressed comment on PR #981
-      caught this box saying "five" over a list of six labels; the count is now
-      taken from the list and `proposal.md` and `design.md` name the same
-      nine.**
-- [ ] 1.3 **ON RATIFICATION, AND NOT BEFORE**: `.openspec.yaml` gains
-      `approved_by` / `approved_on` as a pure ADDITION beside the unmoved
-      `kind`, `id`, `reason`, `proposed_by` and `proposed_on`
-      (`add-drafted-proposal-origin`, issue #318); every document's
-      `Status: draft` becomes `Status: ratified` with a `Ratified:` /
-      `Ratified by:` citation in a sanctioned spelling; and the record is
-      written at `review/ratification-<date>.md` carrying `Status: ratified`
-      itself, with the gate set re-derived on the ratified tree at
-      `review/verification-<date>.md`.
+      and `sequenced_after: []`). Each stood whichever way D1 went, except that
+      D2's band sentence follows D1, and the ruling reached only D1. **Copilot's
+      suppressed comment on PR #981 caught this box saying "five" over a list
+      of six labels; the count was taken from the list and `proposal.md` and
+      `design.md` name the same nine.**
+- [x] 1.3 **RATIFIED, IN THIS COMMIT.** `.openspec.yaml` gains `approved_by` /
+      `approved_on` as a pure ADDITION beside the unmoved `kind`, `id`,
+      `reason`, `proposed_by` and `proposed_on` (`add-drafted-proposal-origin`,
+      issue #318) — `git diff --numstat` reads `43 0` and lines 1-86 hash to
+      sha256 `82b5b028159508f0c1f7ee9fa3bba417b71aebf4e8006d4e92762ffce7c78326`
+      before and after; every document's `Status: draft` became
+      `Status: ratified` with a `Ratified:` / `Ratified by:` citation in the
+      sanctioned spelling; and the record is written at
+      `review/ratification-2026-09-12.md` carrying `Status: ratified` itself,
+      with the gate set re-derived on the ratified tree at
+      `review/verification-2026-09-12.md`.
 
 ## 2. The measurement, taken before the design
 
@@ -470,6 +481,37 @@ re-run's, not the first authoring's.
       `8015d45f`, `c521504c` and `0805c3bb` (`git diff --stat` over it is empty
       across each pair), so the slice this packet took before the merges is the
       slice it carries after them.
+
+- [x] 5.13 **THE WHOLE GATE SET RE-DERIVED ON THE RATIFIED TREE**, after this
+      lane's own merge of `origin/main` `1f068646` (`d4ccd285`) and after the
+      ratification commit itself, in the existing clone. The capture with
+      every command line, exit code and control run is
+      `review/verification-2026-09-12.md`; the figures are:
+      `openspec validate <change> --strict` **exit 0**; the pinned 1.12.0
+      single-change check **exit 0** (`Totals: 1 passed, 0 failed (1 items)`);
+      `openspec validate --all --strict` on the PATH 1.2.0 binary **exit 1**,
+      `101 passed, 2 failed (103 items)`, the failure set IDENTICAL to
+      `origin/main` `1f068646`'s own `100 passed, 2 failed (102 items)` and
+      this change the one extra item, passing; the pinned 1.12.0 `--all`
+      **exit 0**, same `101`/`100` split, the two accepted exceptions
+      IDENTICAL on both sides; `proposal-support.py . verify` **exit 0**;
+      `validate-sequenced-after.py .` **exit 0** and `--ledger-diff` **exit 0**
+      (204 rows, the seed this packet's own commit `37427342` took still
+      agreeing with the corpus); `validate-scope-globs.py .` **exit 0**;
+      `doc-health.py --single-repo .` **exit 0**, `31 critical, 5 error, 23
+      warning, 16 info`, NORMALIZED-IDENTICAL to `origin/main`'s on the
+      steady-state re-run (0 diff lines; one transient network-reachability
+      `Skipped:` note on an unrelated family was observed once and did not
+      reproduce, disclosed in the verification record rather than dropped),
+      **0 findings naming this packet**; `pytest
+      tests/doc-health/test_grandfather_dispositions.py -q` **40 passed, exit
+      0**; and `pytest tests/doc-health -q --tb=no` **1742 passed, exit 0**
+      against the control's **1725 passed**, the difference being exactly the
+      SEVENTEEN net-new tests this packet adds. **NOTHING IN THE RATIFICATION
+      COMMIT TOUCHES `scripts/` OR `tests/`** — every figure above confirms the
+      documentation-only commit moved no measured figure a code or test edit
+      would have, beyond the one extra passing `openspec validate --all`
+      item that a new `Status: ratified` document itself is.
 
 ## 6. Archive — OWED, NOT GIVEN
 
