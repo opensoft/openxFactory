@@ -2497,13 +2497,16 @@ def test_an_admissions_entry_with_a_duplicate_field_key_refuses(
     assert "duplicate" in json.loads(done.stdout)["detail"]
 
 
-def test_the_committed_admissions_file_seeds_exactly_the_two_ruled_files(
+def test_the_committed_admissions_file_seeds_exactly_the_five_ruled_files(
     ) -> None:
     """The measured defect this slice repairs (RULED — the arrival-admission
     repair, Brett Heap, 2026-09-11, `#656` comment 5639058687):
-    `openxdox_code`'s two openXdox-code #7 files, and nothing else declared
-    for any other destination yet. Reads the REAL committed files, so a typo
-    in either one fails this rather than only a scratch fixture's copy."""
+    `openxdox_code`'s two openXdox-code #7 files. Grown once since, on the
+    SAME governed mechanism and the SAME footing (RULED Q5, `#656` comment
+    5642758731, split-opendox § 3.4 slice S2, Q-L1): `opendox_code`'s own
+    three files the optional-binding leg adds. Nothing else is declared for
+    any other destination yet. Reads the REAL committed files, so a typo in
+    any of the five fails this rather than only a scratch fixture's copy."""
     manifest_path = REPO_ROOT / MODULE.MANIFEST_RELPATH
     admissions_path = MODULE.default_admissions_path(manifest_path)
     # Hard assertions, not a skip-guard (Copilot review, PR #979): this test
@@ -2532,13 +2535,27 @@ def test_the_committed_admissions_file_seeds_exactly_the_two_ruled_files(
                              "tests/test_dependency_direction.py"}
     for entry in admissions.get("openxdox_code", []):
         assert entry["since"] == "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+    # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2):
+    # `opendox_code`'s own three new files, admitted the GOVERNED way per
+    # Q-L1 (the leg PR pairs with this annotation PR, which lands first) —
+    # the optional-binding module and its two tests, none of which any row
+    # places.
+    opendox_code = {entry["path"]
+                    for entry in admissions.get("opendox_code", [])}
+    assert opendox_code == {"src/opendox/web/views/intent-binding.js",
+                            "tests/test_intent_binding_dom.py",
+                            "tests/test_intent_binding_shape.py"}
+    for entry in admissions.get("opendox_code", []):
+        assert entry["since"] == "330cf8161f06ae67be716deafe9b2ec3c64d1492"
     # Every OTHER destination must be seeded with NOTHING (Copilot review,
-    # PR #979): RULED #656's first seeding admits only openxdox_code's two
-    # files, so an accidental admission slipping into any other
-    # destination's block -- previously unchecked here -- must fail this
-    # test rather than pass it silently.
-    for dest_id in sorted(set(manifest_doc["destinations"]) - {"openxdox_code"}):
+    # PR #979, extended for the same reason under RULED Q5): only
+    # `openxdox_code` and `opendox_code` carry declared admissions so far,
+    # so an accidental admission slipping into any other destination's
+    # block -- previously unchecked here -- must fail this test rather than
+    # pass it silently.
+    for dest_id in sorted(set(manifest_doc["destinations"])
+                          - {"openxdox_code", "opendox_code"}):
         assert admissions[dest_id] == [], (
-            f"expected no declared admissions for {dest_id!r} (RULED #656's "
-            "first seeding admits only openxdox_code's two files), found "
-            f"{admissions[dest_id]!r}")
+            f"expected no declared admissions for {dest_id!r} (only "
+            "openxdox_code and opendox_code carry declared admissions so "
+            f"far), found {admissions[dest_id]!r}")

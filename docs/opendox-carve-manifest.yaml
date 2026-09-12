@@ -278,6 +278,29 @@ moved_paths:
 # `edits:` 147 → 150, and the 20 replicas stay 20. NO REFERENT DIGEST MOVES:
 # a declared line is a claim about what may differ AT THE DESTINATION, and
 # `carve_commit`, `carve_tag` and all 318 `sha256` values are untouched.
+#
+# THE Q-L1 ANNOTATION OF 2026-09-11 (RULED Q5, `#656` comment `5642758731`,
+# Brett Heap, "keep RULED OQ-F (`not_moved`), fix the importers" — S2 makes
+# the intent chips an OPTIONAL contributed binding, `dispose.js` and
+# `wheel.js` render without it) moves the same two counts and nothing else.
+# It lands on TWO existing `opendox_code` rows, converting both
+# `moved_verbatim` → `moved_with_declared_edit` for one `import rewrites`
+# edit each: `dispose.js`'s single-line repoint (line 26) and `wheel.js`'s
+# two-line `import … from` statement (lines 75-76, both declared because the
+# `from` clause that changed (76) and the name list it belongs to (75) are
+# one statement). Neither row's referent line count moved before this: both
+# were plain `moved_verbatim` rows with no `edits:` at all. So: 456 rows
+# still, `not_moved` still 138, `moved_verbatim` 169 → 167 and
+# `moved_with_declared_edit` 149 → 151, declared lines 862 → 865 (`import
+# rewrites` 675 → 678, `path constants` 161 and `adapter calls` 26 unmoved),
+# rows carrying `edits:` 150 → 152, and the 20 replicas stay 20. NO REFERENT
+# DIGEST MOVES: `carve_commit`, `carve_tag` and all 318 `sha256` values are
+# untouched — a declared line is a claim about what may differ AT THE
+# DESTINATION. The intent-feed `not_moved` row above (RULED OQ-F) is
+# unchanged. Realized at opensoft/openDox-code
+# `build/s2-intent-chips-optional-binding`,
+# `330cf8161f06ae67be716deafe9b2ec3c64d1492`
+# (split-opendox-two-layer-product § 3.4, slice S2).
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -1717,11 +1740,15 @@ rows:
     destination: opendox_code
     destination_path: src/opendox/web/views/composed-model.js
   - source_path: scripts/ideation_dashboard/web/views/dispose.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "8fe79726ba3eaad2bfaeca77e5b9e3d423f599167ac8422cde495f212af7eb9b"
     destination: opendox_code
     destination_path: src/opendox/web/views/dispose.js
+    edits:
+      - class: import rewrites
+        lines: [26]
+        note: "RULED Q5 (opensoft/openxFactory#656 comment 5642758731; docs/front-end-package-boundary.md § 6 Q5 and § 4.2, openDox-spec a44ac06d): the intent-feed chips become an OPTIONAL contributed binding (split-opendox-two-layer-product § 3.4, slice S2). Line 26 repoints the import from the absent `./intent-feed.js` (RULED OQ-F, this manifest's own not_moved row above, unchanged) to the new `./intent-binding.js` late-lookup — same imported names (`emitIntent`, `renderIntentChips`), nothing else on the line changes. Realized at opensoft/openDox-code `build/s2-intent-chips-optional-binding`, `330cf8161f06ae67be716deafe9b2ec3c64d1492`."
   - source_path: scripts/ideation_dashboard/web/views/doc-wheel.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -1909,11 +1936,15 @@ rows:
     destination: opendox_code
     destination_path: src/opendox/web/views/wheel-model.js
   - source_path: scripts/ideation_dashboard/web/views/wheel.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "2c0049702493b158e687265bcb00a672912f1b6111d09001b53508fda4524fca"
     destination: opendox_code
     destination_path: src/opendox/web/views/wheel.js
+    edits:
+      - class: import rewrites
+        lines: [75, 76]
+        note: "RULED Q5 (opensoft/openxFactory#656 comment 5642758731; docs/front-end-package-boundary.md § 6 Q5 and § 4.2, openDox-spec a44ac06d): the same optional-binding repoint as the dispose.js row above, over the two-line import statement `import { feedActor, intentCapable, refusalLine, startIntentFeed, statesByTarget } from \"./intent-feed.js\";`. Only line 76 (the `from` clause) differs from the carve blob; line 75 (the name list) is declared alongside it because both lines are one statement. Realized at opensoft/openDox-code `build/s2-intent-chips-optional-binding`, `330cf8161f06ae67be716deafe9b2ec3c64d1492`."
   - source_path: scripts/ideation_dashboard/workbench.py
     disposition: moved_with_declared_edit
     git_mode: '100644'

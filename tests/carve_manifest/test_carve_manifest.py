@@ -1922,12 +1922,16 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # then the Q-L1 ANNOTATIONS of 2026-09-10 (`#656` comment `5628560136`,
     # landed with the § 5.2 shed) moved both again, by 68 lines over seven rows,
     # three of which carried no `edits:` before. 794 + 68 = 862 on 147 + 3 = 150
-    # rows. Re-derived here for the same reason as before: a transcribed count
-    # is a claim, a summed one is a measurement.
+    # rows. Then the Q-L1 ANNOTATION of 2026-09-11 (RULED Q5, `#656` comment
+    # `5642758731`, split-opendox § 3.4 slice S2) moved both again, by 3 lines
+    # over two rows (`dispose.js` line 26, `wheel.js` lines 75-76), neither of
+    # which carried `edits:` before. 862 + 3 = 865 on 150 + 2 = 152 rows.
+    # Re-derived here for the same reason as before: a transcribed count is a
+    # claim, a summed one is a measurement.
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (862, 150), (lines, carrying)
+    assert (lines, carrying) == (865, 152), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
