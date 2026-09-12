@@ -559,6 +559,46 @@ re-taken against `ac688c40`**, in a control clone of that commit, so its
       documented one-subtest-per-active-change design (its own docstring:
       *"no count is written down"*), zero refusals either side. **NO GATE
       NAMES THIS PACKET AS THE SOURCE OF A NEW FINDING OR A NEW FAILURE.**
+- [x] 4.12 **A FOURTH MERGE FROM `main` FOLLOWED § 4.11 BEING WRITTEN**
+      (commit `98bd74e9`, `main` having moved again to `a72f0a76` via PR
+      #1005, `repoint-chain-anchoring-medxchain-citation` — verified
+      disjoint: it touches neither `openspec/specs/doc-health/spec.md` nor
+      `scripts/doc_health/modified_block_currency.py`), and EVERY GATE ABOVE
+      WAS RUN A FIFTH TIME on the resulting tree. **ONE REAL CONFLICT**, in
+      `tests/doc-health/test_modified_block_currency_self_gate.py`: both
+      this packet's own retirement narrative and
+      `repoint-chain-anchoring-medxchain-citation`'s three new rows extended
+      the same trailing comment and the same chained history string;
+      resolved keeping BOTH in full, this packet's narrative first, the
+      history string now chaining 10 → 9 → 12 in date order, nothing
+      dropped either side — verified green
+      (`test_modified_block_currency_self_gate.py -q`: **19 passed**).
+      **THE FIGURES §§ 4.1–4.11 QUOTE ARE NOT RE-TYPED HERE**, for the same
+      reason § 4.11 gives for §§ 4.1–4.10: avoiding a second transcription
+      of large pasted output. `review/verification-2026-09-12.md` § 12 is
+      the SINGLE authoritative record of this final re-run (baseline
+      `a72f0a76`). **THE SHAPE OF EVERY CONCLUSION IS UNCHANGED**: `openspec
+      validate --all --strict` reads branch `103 passed, 3 failed (106
+      items)` against control `102 passed, 3 failed (105 items)`, the SAME
+      3 named failures §4.11 lists, identical between branch and control;
+      `validate-openspec-cli-pin.py --all` reads `104 passed, 2 failed (106
+      items)`, `0 UNDISPOSITIONED`, the SAME 2 accepted exceptions;
+      `validate-sequenced-after.py . --ledger-diff` reads **207 rows** (206
+      in §4.11 — PR #1005 seeded its own row), this packet's own row
+      UNCHANGED at `depth: 1`, `moved_on: "2026-09-12"`; `doc-health.py
+      --single-repo .` reads BYTE-IDENTICAL branch-vs-control, `31 critical,
+      9 error, 23 warning, 19 info` both sides (16 → 19 info, the three new
+      `repoint-chain-anchoring-medxchain-citation` rows, present on both
+      sides via `main`); `--family modified-block-currency` reads **12**
+      `info` findings (9 → 12, same three rows), marker defects **0**, this
+      packet's own path named **0** times; the pytest subset reads branch
+      **7 failed, 2220 passed, 1 skipped** against control **7 failed, 2220
+      passed, 1 skipped**, the SAME named failure set; `tests/scope_globs
+      tests/proposal-support` reads branch **217 passed, 71 subtests**
+      against control **217 passed, 70 subtests**, the same
+      one-subtest-per-active-change design, zero refusals either side.
+      **NO GATE NAMES THIS PACKET AS THE SOURCE OF A NEW FINDING OR A NEW
+      FAILURE, ON ANY OF THE FOUR MERGED TREES MEASURED.**
 
 ## 5. Archive — OWED, NOT GIVEN
 

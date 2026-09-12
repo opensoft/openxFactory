@@ -238,12 +238,118 @@ WHATEVER is active, one subtest per change."* The branch carries one more
 active change directory than the control (this packet itself), hence 70 vs
 69; **zero refusals on either side**, which is the test's actual invariant.
 
+## 12. Fourth merge from `main` (`a72f0a76`, PR #1005) — full re-run
+
+A fourth merge from `main` followed this record being written (commit
+`98bd74e9`, `main` having moved again from `45a98faa` to
+`a72f0a76b14588e3cbc7b313af6222683daea72f` via PR #1005,
+`repoint-chain-anchoring-medxchain-citation` — verified disjoint: it adds its
+own change directory, edits `split-opendox-two-layer-product/tasks.md`
+(ticking boxes, no requirement delta) and its own
+`tests/sequenced_after/corpus-ledger.yaml` row; it touches neither
+`openspec/specs/doc-health/spec.md` nor
+`scripts/doc_health/modified_block_currency.py`). **ONE real conflict**,
+`tests/doc-health/test_modified_block_currency_self_gate.py`: both sides had
+extended the same trailing narrative comment and the same chained history
+string immediately after it (this packet's own retirement narrative;
+`repoint-chain-anchoring-medxchain-citation`'s three new rows). Resolved by
+keeping BOTH extensions in full, this packet's first, chaining the history
+string 10 SINCE 2026-09-11 → 9 SINCE 2026-09-12 (this packet's retirement) →
+12 SINCE 2026-09-12 (the three new rows), nothing dropped either side.
+README's `## OpenSpec Records` conflicted at the same insertion point as
+every prior merge; resolved keeping main's `repoint-chain-anchoring-
+medxchain-citation` row immediately after this packet's own, no reflow.
+Every gate below is RE-DERIVED on the resulting tree (commit `98bd74e9`)
+against a FRESH control clone fast-forwarded to the same `a72f0a76`
+(`scratchpad/NEW/ctrl-main-962`), command lines and output pasted from the
+actual run:
+
+- `openspec validate rule-inherited-unit-naming-marker-spent --strict` (PATH
+  `1.2.0`): **exit 0**, `Change 'rule-inherited-unit-naming-marker-spent' is
+  valid` — unchanged.
+- `validate-openspec-cli-pin.py --change ... --no-cache` (PINNED `1.12.0`):
+  **exit 0**, `Totals: 1 passed, 0 failed (1 items)` — unchanged.
+- `openspec validate --all --strict`: branch `Totals: 103 passed, 3 failed
+  (106 items)` vs. control `Totals: 102 passed, 3 failed (105 items)` — the
+  SAME three named failures on both
+  (`disposition-codexfactory-declared-renames`,
+  `disposition-codexfactory-floor-relocation-retitle`,
+  `disposition-codexfactory-regular-pr-council-clearance-archive`, all
+  pre-existing dispositioned packets, none of them this packet or
+  `repoint-chain-anchoring-medxchain-citation`); `diff` of the two sorted `✗`
+  lists is empty. Item and passed counts each move by exactly ONE on both
+  sides — `repoint-chain-anchoring-medxchain-citation`'s own arrival in the
+  active corpus, present on both branch and control alike since it came in
+  via `main`.
+- `validate-openspec-cli-pin.py --all --no-cache`: branch **exit 0**,
+  `Totals: 104 passed, 2 failed (106 items)`, `0 UNDISPOSITIONED failures` —
+  the SAME two accepted exceptions as every prior reading
+  (`add-chain-attestation`, `add-composed-view-authoring`, Brett Heap,
+  2026-09-05, "take exit 2"), neither this packet nor
+  `repoint-chain-anchoring-medxchain-citation`. (Not re-run on control: this
+  gate is self-contained — 0 undispositioned failures is the whole of what
+  it asserts, unaffected by which other active changes a tree carries.)
+- `proposal-support.py . verify rule-inherited-unit-naming-marker-spent`:
+  **exit 0**, `proposal support verification ok` — unchanged.
+- `validate-scope-globs.py .`: **exit 0**, `scope_globs validation passed
+  (all active changes conform)` — unchanged.
+- `validate-sequenced-after.py .`: **exit 0** (44 active changes now, 13
+  declaring — up one active change, `repoint-chain-anchoring-medxchain-
+  citation`, from the 43 this record's § 6 read). `--ledger-diff`: **exit
+  0**, `per-change sweep ledger consistent with the corpus (207 rows)` (up
+  from 206 — PR #1005 seeded its own row). This packet's own row is
+  UNCHANGED: `rule-inherited-unit-naming-marker-spent: {state: active,
+  class: co-modifier, declares: [amend-merged-into-empty-tail-standing],
+  depth: 1, prose: false, moved_by: "#962", moved_on: "2026-09-12"}` —
+  confirmed by direct read of `tests/sequenced_after/corpus-ledger.yaml`
+  after the merge, no re-seed owed.
+- `doc-health.py --single-repo .`: branch `Findings: 31 critical, 9 error,
+  23 warning, 19 info. New regressions vs previous report: 0.` — control,
+  same tree, reads IDENTICALLY: `31 critical, 9 error, 23 warning, 19 info`,
+  `New regressions: 0`. **Both exit 0, BYTE-FOR-BYTE IDENTICAL** after
+  normalizing the `Repo-Identity:` label (`enc-962` vs. `ctrl-main-962`, the
+  only difference `diff` finds on the two full reports). The `info` count
+  moves 16 → 19 relative to § 8 above — the three new
+  `repoint-chain-anchoring-medxchain-citation` `modified-block-currency`
+  rows, present identically on both branch and control since they arrived
+  via `main`, not via this packet.
+- `doc-health.py --single-repo . --family modified-block-currency`:
+  `Findings: 0 critical, 0 error, 0 warning, 12 info. New regressions vs
+  previous report: 0.` **Exit 0, marker defects 0.** The family's population
+  moves 9 → 12 (the same three `repoint-chain-anchoring-medxchain-citation`
+  rows named above); this packet's own path is named **ZERO** times
+  (`grep -c rule-inherited-unit-naming-marker-spent` on the report: `0`),
+  unchanged from § 9.
+- `pytest tests/doc-health tests/sequenced_after tests/scope_globs
+  tests/proposal-support -q --tb=no`: branch **7 failed, 2220 passed, 1
+  skipped, 71 subtests passed in 454.00s**; control **7 failed, 2220 passed,
+  1 skipped, 70 subtests passed in 463.17s**. `diff` of the sorted `FAILED`
+  lines is EMPTY — the SAME seven pre-existing, unrelated failures § 10
+  names (`test_ideation_readiness` ×3, `test_readiness_dispatch`,
+  `test_sentinel_vocabulary` ×2, `test_status_reader_real_lines`); the
+  passed count rises from 2003+217=2220 on both sides (the corpus itself
+  grew by landed PRs between the two baselines, identically on branch and
+  control); the one-subtest difference is the same documented
+  per-active-change design § 11 describes, branch carrying one more active
+  change (this packet) than control. The self-gate alone:
+  `tests/doc-health/test_modified_block_currency_self_gate.py` — **19
+  passed** in 30.36s, matching § 10 exactly.
+
+**NO GATE NAMES THIS PACKET AS THE SOURCE OF A NEW FINDING OR A NEW FAILURE
+ON THIS FOURTH-MERGE TREE.** Every population increase (the `all --strict`
+item count, the `modified-block-currency` info count, the sweep-ledger row
+count) is `repoint-chain-anchoring-medxchain-citation`'s arrival via `main`,
+present identically on branch and control; every failure set is identical
+between the two; this packet's own row in every ledger stays exactly where
+§§ 1–11 above measured it.
+
 ## Summary
 
 Every gate this packet's own `tasks.md` § 4 lists has been re-run on the
-final, thrice-merged, ratified tree and produces either an EXACT match with a
-fresh `origin/main` control (validate --all, doc-health, the pytest failure
-sets) or a clean pass with a fully-accounted, non-substantive difference (the
-sequenced_after ledger row's own history; the one subtest that counts active
-changes by design). No gate reads this packet as the source of a new finding,
-a new failure or a new marker defect anywhere in the corpus.
+final tree — after a fourth merge from `main` (§ 12) — and produces either an
+EXACT match with a fresh `origin/main` control (validate --all, doc-health,
+the pytest failure sets) or a clean pass with a fully-accounted,
+non-substantive difference (the sequenced_after ledger row's own history; the
+one subtest that counts active changes by design). No gate reads this packet
+as the source of a new finding, a new failure or a new marker defect anywhere
+in the corpus, on any of the four merged trees measured.
