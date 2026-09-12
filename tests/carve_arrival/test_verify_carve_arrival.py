@@ -2659,7 +2659,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
         "(`#656` comment 5642758731) and is no longer declared for "
         "opendox_code")
     assert opendox_seed["tests/test_source_core_arm.py"]["since"] == (
-        "7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08")
+        "b00fbd920a019e2cee816b4936f921ceeab67a8c")
     # THE FIFTH BUMP: four more `opendox_code` files, RULED into this file by
     # § 3.4 SLICE S4 (RULED Q3, `#656` comment `5642758731`) — the three new
     # class-B gate/projection modules the thirteen route tails travel to,
