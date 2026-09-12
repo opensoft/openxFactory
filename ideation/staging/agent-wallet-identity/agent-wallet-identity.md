@@ -110,6 +110,14 @@ design alone carries unresolved statistical questions.
    mechanism, and agent access to time-boxed capability grants rides the
    same broker machinery practitioners use.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Where does the key live, and who holds custody?** A signing key that
