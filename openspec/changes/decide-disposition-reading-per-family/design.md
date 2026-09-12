@@ -1,24 +1,33 @@
 # Design: decide-disposition-reading-per-family
 
-Status: draft
+Status: ratified
+Ratified by: decide-disposition-reading-per-family — 2026-09-12, Brett Heap, "do all as recomended" (record `review/ratification-2026-09-12.md`)
 Kind: design
 
 **EVERY DECISION THIS AUTHORING SESSION TOOK IS HERE, WITH ITS ALTERNATIVES AND
 EACH ALTERNATIVE'S COST.** Brett Heap's word of 2026-09-11 — verbatim **"usage
 reset, resume all. read handoff and resume and fan out wide and do as much as
-possible in parallel"** — commissioned the authoring and took none of them.
+possible in parallel"** — commissioned the authoring and took none of them; it
+stays recorded as the ORIGIN of the authoring and is not read as an approval.
 
-**D1 IS FOUR MULTIPLE-CHOICE QUESTIONS, ONE PER CLASS, AND EVERY ONE IS OPEN.**
-The eight families are grouped into four classes by the SHAPE of their finding
-and of their entry, so the CLASS decision is taken four times rather than eight.
-The recommendation is stated first in each. **A FIFTH RULING IS OPEN BESIDE
-THEM AND IS NOT ONE OF THE FOUR**: the packet's own shape — decision-only with
-`code_surface: none`, or a code surface declared now — is D3 here and
-`tasks.md` § 1.5, and it is separate because it is a question about this packet
-rather than about any family's entries. **FIVE OPEN RULINGS IN ALL: FOUR CLASS
-QUESTIONS AND ONE PACKET-SHAPE QUESTION.** **NO ARM IS BUILT AHEAD OF THE
-WORD**: `tasks.md` § 4 scopes what each veto would commission and leaves every
-box open.
+**D1 WAS FOUR MULTIPLE-CHOICE QUESTIONS, ONE PER CLASS, AND ALL FOUR ARE NOW
+RULED — TOGETHER WITH A FIFTH.** The eight families were grouped into four
+classes by the SHAPE of their finding and of their entry, so the CLASS decision
+was put four times rather than eight, the recommendation stated first in each.
+**THE FIFTH RULING STANDS BESIDE THEM AND IS NOT ONE OF THE FOUR**: the
+packet's own shape — decision-only with `code_surface: none`, or a code
+surface declared now — is D3 here and `tasks.md` § 1.5, separate because it is
+a question about this packet rather than about any family's entries. **FIVE
+OPEN RULINGS, NOW FIVE GIVEN RULINGS**: Brett Heap, 2026-09-12, verbatim
+**"do all as recomended"**, given in the lane's window in answer to the
+orchestrator's list of these same five questions and recorded on openxFactory
+PR [#978](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059)
+at 2026-09-12T15:45:25Z (comment `5646923059`; record
+`review/ratification-2026-09-12.md`), **TOOK EVERY RECOMMENDATION**: (A1) NO
+CHANGE, (B1) DELIBERATELY IGNORE, (C1) DELIBERATELY IGNORE — **(C4) NOT
+TAKEN** — (D1a) RECORD THAT IT IS INERT AND LEAVE IT, and DECISION ONLY with
+`code_surface: none`. **NOT ONE BYTE OF THE DELTA MOVES, AND NO ARM IS BUILT**:
+`tasks.md` § 4 ticks every box NOT COMMISSIONED at this same ruling.
 
 ## 0. The brief
 
@@ -234,7 +243,7 @@ and they do it in **three** distinct patterns, one quoted per pattern below
 evidence about what the mechanism is FOR, and it is why the recommendation below
 is not the parent's.
 
-## D1 — THE DECISION: four classes, four questions, recommendation first
+## D1 — THE DECISION: RULED — four classes, four questions, every recommendation taken
 
 (The fifth open ruling, the packet's own shape, is D3 — it is not a class and is
 not counted among these four.)
@@ -247,19 +256,20 @@ named requirement's findings where the entry carries a `requirement` key*.
 Measured: all four entries suppress nothing today (D0.3), two targets have
 vanished and two are present but draw no finding of this family.
 
-**RECOMMENDED — (A1) NO CHANGE.** The question was answered when the family's
-requirement was promoted; re-deciding it here would be a second rule about the
-same entries, and two readers of one file that can disagree is the drift this
-estate has written about repeatedly.
+**RULED — (A1) NO CHANGE, TAKEN** (Brett Heap, 2026-09-12T15:45:25Z, PR #978
+comment `5646923059`, verbatim "do all as recomended"). The question was
+answered when the family's requirement was promoted; re-deciding it here would
+have been a second rule about the same entries, and two readers of one file
+that can disagree is the drift this estate has written about repeatedly.
 
 - **(A2) Narrow it** — restate the reading as `info`-with-citation to match the
-  parent. Cost: a `## MODIFIED` over a promoted scenario, a code change in
-  `modified_block_currency.py`, and a family whose contract now disagrees with
-  its two suppressing neighbours for no measured reason — the population it
-  would change is ZERO.
-- **(A3) Widen it** — admit archived delta paths as well as active ones. Cost:
-  the same distinction D2 of the parent refused, in the family where an active
-  delta is one commit from correct.
+  parent. NOT TAKEN. Cost, had it been: a `## MODIFIED` over a promoted
+  scenario, a code change in `modified_block_currency.py`, and a family whose
+  contract now disagrees with its two suppressing neighbours for no measured
+  reason — the population it would change is ZERO.
+- **(A3) Widen it** — admit archived delta paths as well as active ones. NOT
+  TAKEN. Cost, had it been: the same distinction D2 of the parent refused, in
+  the family where an active delta is one commit from correct.
 
 ### Class B — DISAPPEARANCE CITATIONS: `location-conformance` (10), `document-catalog` (1) — 11 entries
 
@@ -270,21 +280,25 @@ targets no longer exist in the repository at all; the other 3 exist and draw no
 finding of their family. The entry is doing the file's ORIGINAL job — it is the
 citation the contested-resolution rule asks for — and it is doing it today.
 
-**RECOMMENDED — (B1) DELIBERATELY IGNORE: no family-side reading; the entry
-stays a resolution citation and nothing else.** The finding is already gone; a
-downgrade arm would have a population of ZERO and a suppression arm would have
-nothing to suppress. The entry is not a governance record ABOUT a standing
-defect, it is the record of why a defect stopped being reported.
+**RULED — (B1) DELIBERATELY IGNORE, TAKEN: no family-side reading; the entry
+stays a resolution citation and nothing else** (Brett Heap, 2026-09-12T15:45:25Z,
+PR #978 comment `5646923059`, verbatim "do all as recomended"). The finding is
+already gone; a downgrade arm would have had a population of ZERO and a
+suppression arm would have had nothing to suppress. The entry is not a
+governance record ABOUT a standing defect, it is the record of why a defect
+stopped being reported.
 
-- **(B2) Read and downgrade** (the parent's reading). Cost: an arm in two family
-  modules, its tests, and a `## MODIFIED` over two promoted requirements, for a
-  set of findings that do not exist. The first entry that ever matched would be
-  one where the finding came BACK — and downgrading it to `info` would hide a
-  regression behind a citation written for its disappearance.
-- **(B3) Read and suppress** (the three siblings' reading). Cost: the same arm,
-  plus the standing risk that a re-appearing finding is silenced by an entry
-  written about a different event. `location-conformance` is CONTESTED and its
-  findings are repairable: suppression here buys nothing and can hide a defect.
+- **(B2) Read and downgrade** (the parent's reading). NOT TAKEN. Cost, had it
+  been: an arm in two family modules, its tests, and a `## MODIFIED` over two
+  promoted requirements, for a set of findings that do not exist. The first
+  entry that ever matched would be one where the finding came BACK — and
+  downgrading it to `info` would hide a regression behind a citation written
+  for its disappearance.
+- **(B3) Read and suppress** (the three siblings' reading). NOT TAKEN. Cost,
+  had it been: the same arm, plus the standing risk that a re-appearing
+  finding is silenced by an entry written about a different event.
+  `location-conformance` is CONTESTED and its findings are repairable:
+  suppression here would have bought nothing and could hide a defect.
 
 ### Class C — AUDIT TRAIL BESIDE A STANDING, REPAIRABLE FINDING: `proposal-origin` (8), `record-immutability` (5), `semantic-contradiction` (1), `semantic-normative-prose` (1) — 15 entries
 
@@ -304,38 +318,45 @@ of this packet claimed, and it is the reason (C4) below exists. Ten of the
 fifteen entries say in their own `rationale` that nothing is suppressed and the
 row stays visible.
 
-**RECOMMENDED — (C1) DELIBERATELY IGNORE: no family-side reading; the entry is a
-governance record and the finding keeps its band.** This is the decision the
-entries were written under, it is what the nightly does today, and it keeps the
-one distinction the parent's D2 bought at the cost of an `and` in a predicate:
-a ruling is recorded on something nobody can repair, and a deferral is recorded
-on something nobody has repaired yet. An arm here would turn every one of these
-fifteen into the second.
+**RULED — (C1) DELIBERATELY IGNORE, TAKEN: no family-side reading; the entry is
+a governance record and the finding keeps its band** (Brett Heap,
+2026-09-12T15:45:25Z, PR #978 comment `5646923059`, verbatim "do all as
+recomended"). This is the decision the entries were written under, it is what
+the nightly does today, and it keeps the one distinction the parent's D2
+bought at the cost of an `and` in a predicate: a ruling is recorded on
+something nobody can repair, and a deferral is recorded on something nobody
+has repaired yet. An arm here would have turned every one of these fifteen
+into the second.
 
 - **(C2) Read and downgrade to `info` with the citation** (the parent's
-  reading). Cost: an arm reaching four family modules and the semantic lane,
-  tests, and a `## MODIFIED` over each family's requirement. It would move **10
-  measured rows** — including three `critical` record-immutability rows — and it
-  would extend a remedy built for immutable records to records somebody can
-  edit this afternoon. A reader who then repairs the document gets no signal
-  that the entry is now stale (`#965`'s subject, at ten times the population).
-- **(C3) Read and suppress** (the three siblings' reading). Cost: the same arm,
-  and the ten rows vanish from the report entirely. Two of the entries state in
-  terms that their authors did NOT intend this; adopting it would silence
-  findings their own disposers expected to stay visible, and would make the
-  count of dispositioned-but-live defects unreadable from the artifact.
+  reading). NOT TAKEN. Cost, had it been: an arm reaching four family modules
+  and the semantic lane, tests, and a `## MODIFIED` over each family's
+  requirement. It would have moved **10 measured rows** — including three
+  `critical` record-immutability rows — and would have extended a remedy
+  built for immutable records to records somebody can edit this afternoon. A
+  reader who then repairs the document would get no signal that the entry is
+  now stale (`#965`'s subject, at ten times the population).
+- **(C3) Read and suppress** (the three siblings' reading). NOT TAKEN. Cost,
+  had it been: the same arm, and the ten rows would vanish from the report
+  entirely. Two of the entries state in terms that their authors did NOT
+  intend this; adopting it would have silenced findings their own disposers
+  expected to stay visible, and would have made the count of
+  dispositioned-but-live defects unreadable from the artifact.
 - **(C4) SPLIT THE CLASS ON THE MEASURED STATUS** — `record-immutability`'s four
   `Status: record` targets ruled separately from the rest, on the ground that a
-  record's repair is a REVERT-OR-REISSUE rather than an edit. Cost and honest
-  statement of it: (C2) ALREADY carries the parent's downgrade reading into
-  this WHOLE population, so downgrading is not what distinguishes (C4) — its
-  distinct value is giving the `Status: record` subset a SEPARATE ruling from
-  the rest, put as an option BECAUSE THE MEASUREMENT SUPPORTS PUTTING IT — but
-  it splits one ruling into two, and the three `critical` rows it would move
-  are rows whose own disposer wrote that the CRITICAL "is NOT suppressible and
-  is reported live either way".
-  **This packet does not take it**; a class is Brett Heap's to rule, and the
-  recommendation above remains (C1).
+  record's repair is a REVERT-OR-REISSUE rather than an edit. **NOT TAKEN.**
+  Cost and honest statement of it, had it been: (C2) ALREADY carries the
+  parent's downgrade reading into this WHOLE population, so downgrading is not
+  what would have distinguished (C4) — its distinct value would have been
+  giving the `Status: record` subset a SEPARATE ruling from the rest, put as an
+  option BECAUSE THE MEASUREMENT SUPPORTS PUTTING IT — but it would have split
+  one ruling into two, and the three `critical` rows it would have moved are
+  rows whose own disposer wrote that the CRITICAL "is NOT suppressible and is
+  reported live either way".
+  **THE RULING DID NOT TAKE IT**: the class was ruled as ONE population under
+  (C1), the four `Status: record` `record-immutability` targets included
+  rather than carved out, so (C4a)/(C4b) (`tasks.md` § 1.3) were never reached
+  or asked.
 
 ### Class D — THE DEAD LETTER: `uncited-resolution` (1 entry)
 
@@ -347,19 +368,28 @@ only arm that reads the file at all (§ 2.6 enumerates the others) — and no
 family module reads it either.
 **It disposes nothing and can never dispose anything.**
 
-**RECOMMENDED — (D1a) RECORD THAT IT IS INERT AND LEAVE IT.** It costs a reader
-nothing, it is the governance record of the 2026-08-13/14 triage, and retiring
-an entry is an act in `opensoft/xFactory`, not here.
+**RULED — (D1a) RECORD THAT IT IS INERT AND LEAVE IT, TAKEN**, in the ruling's
+own words (Brett Heap, 2026-09-12T15:45:25Z, PR #978 comment `5646923059`):
+*"the `uncited-resolution` entry; its retirement is an act in
+`opensoft/xFactory`, coupled to #965."* It costs a reader nothing, it is the
+governance record of the 2026-08-13/14 triage, and no entry is retired by this
+ratification.
 
-- **(D1b) Teach the arm to read its own family's entries.** Cost: it re-opens
-  exactly the infinite echo issue #515 closed. Refused on that ground unless
-  Brett rules otherwise.
-- **(D1c) Retire the entry in the aggregation.** Cost: a pull request in another
-  repository and a judgement about a 2026-08-14 triage nobody here witnessed. It
-  is NOT [#965](https://github.com/opensoft/openxFactory/issues/965)'s either:
-  that successor's packet (PR #981) limits itself to `ratified-provenance` by
-  name and by construction, so this entry is outside its subject. If Brett takes
-  (D1c) it needs a successor of its own, named at the ruling; until then it is
+- **(D1b) Teach the arm to read its own family's entries.** NOT TAKEN. Cost,
+  had it been: it would have re-opened exactly the infinite echo issue #515
+  closed.
+- **(D1c) Retire the entry in the aggregation.** NOT TAKEN. Cost, had it been:
+  a pull request in another repository and a judgement about a 2026-08-14
+  triage nobody here witnessed. **THE RULING NAMES #965 AS THE SUBJECT THIS
+  RETIREMENT IS COUPLED TO, AND THIS PACKET'S OWN MEASUREMENT (D5, below)
+  STANDS BESIDE THAT WORD RATHER THAN BEING READ OVER BY IT**: openxFactory
+  [#965](https://github.com/opensoft/openxFactory/issues/965)'s own packet,
+  PR #981, DECLINES this entry by name and by construction
+  (`_grandfather_cites` keys on `family="ratified-provenance"` alone), so the
+  coupling is to the SUBJECT — retiring a stale entry from the aggregation's
+  own disposition file, the kind of act #965 opened — and not a claim that
+  #981 performs it. (D1a) is what is TAKEN; if (D1c) is ever ruled on a later
+  word, it still needs a successor NAMED at that ruling, and until then it is
   unassigned residue and (D1a) leaves it where it is.
 
 ### The class the brief anticipated, and what the measurement actually did to it
@@ -378,11 +408,13 @@ because the next lane to read the issue will look for this class, and because
 the first filing of this packet said "empty" on the path test alone and was
 right to be corrected.
 
-## D2 — the arm the recommended rows imply: NONE, and the seam is named anyway
+## D2 — the arm the ruled rows imply: NONE, and the seam is named anyway
 
-**UNDER THE FOUR RECOMMENDATIONS NO ARM IS OWED**, which is why `code_surface`
-is `none`. Should a class be VETOED toward (B2)/(B3)/(C2)/(C3), the seam is
-already cut and `tasks.md` § 4 scopes it without building it: the parent wired
+**UNDER THE FOUR RULED RECOMMENDATIONS (A1)/(B1)/(C1)/(D1a) NO ARM IS OWED**,
+which is why `code_surface` stays `none`. None of the four classes was vetoed
+and (C4) was not taken, so the seam below is named for the record only. Had a
+class been VETOED toward (B2)/(B3)/(C2)/(C3), the seam was already cut and
+`tasks.md` § 4 scopes it without building it: the parent wired
 `ratified-provenance` as a LAST PASS over the family's returned findings
 (`families.fam_ratified_provenance` returns
 `_honour_grandfather_dispositions(ctx, findings)`), delegating the admission
@@ -401,37 +433,44 @@ Per-family opt-in is the whole point — an entry naming one family has never
 disposed another's findings, and ONE FAMILY-SIDE ADMISSION HELPER, for the
 families whose key shape it fits, is how that stays true.
 
-## D3 — RECOMMENDED: this packet ratifies the DECISION ONLY, `code_surface: none`
+## D3 — RULED: this packet ratifies the DECISION ONLY, `code_surface: none`
 
-**RECOMMENDED: the decision is the deliverable; any arm a veto commissions is
-built INSIDE THIS SAME PACKET, which holds open past ratification — never
-archiving on landing — until that arm is realized (merged-plus-green), per the
-last bullet below and `tasks.md` § 4.3/§6.**
+**RULED — TAKEN** (Brett Heap, 2026-09-12T15:45:25Z, PR #978 comment
+`5646923059`, verbatim "do all as recomended", the fifth of the five
+questions this ruling answered, Q-E): the decision is the deliverable; no veto
+having occurred, no arm is built inside this packet and none holds it open past
+ratification — `tasks.md` § 4.3 ticks NOT COMMISSIONED and § 6 (archive) is a
+separate act on a separate word.
 
-Under the four recommendations NO ADDITIONAL ARM IS COMMISSIONED — not "no arm
-exists": `modified-block-currency` already carries a family-side reader of its
-own (D0.1, D0.3), and (A1) deliberately keeps it. The choice is therefore only
-about what a VETO would do. Carrying a non-empty `code_surface` speculatively
-would mean declaring a realization surface for work nobody has commissioned, and
-under `release-realization` it would hold the archive on merged-plus-green
-evidence for a diff of pure governance text.
+Under the four ruled recommendations — (A1), (B1), (C1) and (D1a), none of
+them a veto — NO ADDITIONAL ARM IS COMMISSIONED — not "no arm exists":
+`modified-block-currency` already carries a family-side reader of its own
+(D0.1, D0.3), and (A1) deliberately keeps it. Carrying a non-empty
+`code_surface` speculatively would have meant declaring a realization surface
+for work nobody commissioned, and under `release-realization` it would have
+held the archive on merged-plus-green evidence for a diff of pure governance
+text.
 
 - **The alternative** — declare `scripts/doc_health/` + `tests/doc-health/` now
   and add at least a regression test pinning "an entry of an unreading family
   moves no STANDING FINDING OF THE FAMILY IT NAMES" — scoped that way and not to
   "moves nothing", because D0.4 measures a deliberate 30-to-0 change in the
   DERIVED `uncited resolution` findings and a test written the wider way would
-  encode the opposite of the first added scenario. Cost: it builds the first inch of an arm ahead of the word,
-  and the control run in D0.3 already proves the property at the rig, on demand,
-  with no test to maintain. **The trade-off, stated plainly:** the recommended
-  route leaves the boundary unpinned by any test, so a future refactor could
-  break it silently; the alternative pins it but commissions code the ruling has
-  not asked for. The recommendation takes the first and names the test as owed
-  residue in `tasks.md` § 7, where a successor can pick it up under its own word.
-- **If Brett vetoes a class toward an arm**, `code_surface` changes AT THAT
-  RULING to name the modules and tests § 4 scopes, and the archive moves to
-  merged-plus-green for that reason. That is an addition beside a fixed `kind`
-  and `id`, exactly as `add-drafted-proposal-origin` (#318) defined.
+  have encoded the opposite of the first added scenario. **NOT TAKEN.** Cost,
+  had it been: it would have built the first inch of an arm ahead of the word,
+  and the control run in D0.3 already proves the property at the rig, on
+  demand, with no test to maintain. **The trade-off, stated plainly:** the
+  route the ruling took leaves the boundary unpinned by any test, so a future
+  refactor could break it silently; the alternative would have pinned it but
+  would have commissioned code the ruling did not ask for. The ruling took the
+  first and names the test as owed residue in `tasks.md` § 7.1, where a
+  successor can pick it up under its own word.
+- **Had Brett vetoed a class toward an arm**, `code_surface` would have changed
+  AT THAT RULING to name the modules and tests § 4 scopes, and the archive
+  would have moved to merged-plus-green for that reason. **NO VETO OCCURRED**:
+  `code_surface: none` and `target_release: implemented` stand CONFIRMED by
+  this ratification, an addition beside a fixed `kind` and `id`, exactly as
+  `add-drafted-proposal-origin` (#318) defined.
 
 ## D4 — the `--single-repo` asymmetry is NOT taken here
 

@@ -1,6 +1,7 @@
 # Tasks: decide-disposition-reading-per-family
 
-Status: draft
+Status: ratified
+Ratified by: decide-disposition-reading-per-family — 2026-09-12, Brett Heap, "do all as recomended" (record `review/ratification-2026-09-12.md`)
 Kind: tasks
 
 `code_surface: none`, `target_release: implemented` — the ratified vocabulary's
@@ -16,18 +17,24 @@ its archive.
 this pull request or a measurement reproducible from the command named beside
 it, recorded verbatim in the pull request body.
 
-**§ 1 (RATIFICATION) IS ENTIRELY OPEN AND IS THE POINT OF THIS PULL REQUEST.**
-It carries ONE BOX PER CLASS. Brett Heap's word of 2026-09-11 (~18:20Z)
-commissioned the AUTHORING and decided no wording; it is recorded as the origin
-in `.openspec.yaml` and is not read as an approval.
+**§ 1 (RATIFICATION) IS NOW TICKED, ONE BOX PER CLASS.** Brett Heap's word of
+2026-09-11 (~18:20Z) commissioned the AUTHORING and decided no wording; it
+stays recorded as the ORIGIN in `.openspec.yaml`'s `proposed_by` and is not
+read as an approval. **A SECOND WORD RATIFIED THE PACKET ITSELF**: Brett Heap,
+2026-09-12, verbatim *"do all as recomended"*, given in the lane's window in
+answer to the orchestrator's list of five open rulings (each put with its
+recommendation first) and recorded on PR #978 at 2026-09-12T15:45:25Z (comment
+`5646923059`; full citation and per-class disposition at `.openspec.yaml`
+`approved_by`; record `review/ratification-2026-09-12.md`). Every
+recommendation was TAKEN, so not one byte of the delta moves.
 
-**§ 4 (THE ARMS) IS OPEN ON PURPOSE AND MUST STAY OPEN UNLESS A CLASS IS
-VETOED.** Under the four recommendations NO ADDITIONAL arm is owed — Class A's
-(A1) deliberately KEEPS the family-side reader `modified-block-currency` already
-carries, which is a promoted declaration and not something this packet
-commissions. Each box below
-names what a particular veto would commission; **none of it is built here**, and
-building any of it before the ruling is the one thing this packet must not do.
+**§ 4 (THE ARMS) IS NOW TICKED — EVERY BOX NOT COMMISSIONED.** Under the five
+taken recommendations NO ADDITIONAL arm is owed — Class A's (A1) deliberately
+KEEPS the family-side reader `modified-block-currency` already carries, which
+is a promoted declaration and not something this packet commissions. No class
+was vetoed and (C4) was not taken, so every condition in § 4 failed to occur;
+each box below ticks NOT COMMISSIONED, per the closing rule stated next, and
+**none of it is built here**.
 
 **HOW EVERY BOX CLOSES, AND THE GATE THAT FORCES THE QUESTION.**
 `proposal-support.py`'s `archive_change` refuses a packet whose `tasks.md` still
@@ -58,53 +65,69 @@ each open box below states the event that closes it:
   Heap's own word, not foreclosed by this recording. #965 is NOT one of them,
   § 7.2 recording in terms that its residue is not handed there.
 
-## 1. Ratification — OWED, NOT GIVEN (one box per class)
+## 1. Ratification — GIVEN 2026-09-12T15:45:25Z (one box per class)
 
-- [ ] 1.1 **CLASS A — `modified-block-currency` (4 entries).** Brett Heap rules
-      between (A1) NO CHANGE — canon's *A finding is dispositioned* at
-      `openspec/specs/doc-health/spec.md` line 2177 (at `origin/main` `d4d96cca`)
-      already rules it
-      (**RECOMMENDED**) — (A2) narrow it to `info`-with-citation, or (A3) widen
-      it to archived delta paths. This box ticks by NAMING the word, its
-      timestamp and where it is recorded, and by nothing else.
-- [ ] 1.2 **CLASS B — `location-conformance` (10) + `document-catalog` (1), 11
-      entries.** Brett Heap rules between (B1) DELIBERATELY IGNORE — no
-      family-side reading; the entry stays a resolution citation
-      (**RECOMMENDED**) — (B2) read and downgrade, or (B3) read and suppress.
-- [ ] 1.3 **CLASS C — `proposal-origin` (8), `record-immutability` (5),
-      `semantic-contradiction` (1), `semantic-normative-prose` (1), 15 entries.**
-      Brett Heap rules between (C1) DELIBERATELY IGNORE — no family-side reading;
-      the entry is a governance record and the finding keeps its band
-      (**RECOMMENDED**) — (C2) read and downgrade to `info` with the citation,
-      (C3) read and suppress, or (C4) SPLIT THE CLASS on the measured status,
-      which SPLITS THIS ONE BOX INTO TWO rather than answering it (`design.md`'s
-      own words for what (C4) costs): (C4a) a (C1)/(C2)/(C3)-shaped choice for
-      `record-immutability`'s four `Status: record` targets ALONE, and (C4b) the
-      same three-way choice for the class's other eleven entries. (C4) NAMES
-      NEITHER OUTCOME BY ITSELF and does not close this box on its own; picking
-      it commits to (C4a) and (C4b) being answered before § 1.3 records a ruling.
-      **This is the class with a live population: ten of the fifteen draw a
-      finding today**, and (C4) exists because the status was measured directly
-      rather than inferred from an archive-path prefix (`design.md` D0.2). This
-      packet does NOT take (C4); it is put here so the split is ruled rather than
-      assumed away — and if it IS taken, (C4a)/(C4b) are asked beside it rather
-      than left implied.
-- [ ] 1.4 **CLASS D — `uncited-resolution` (1 entry).** Brett Heap rules between
-      (D1a) RECORD THAT IT IS INERT AND LEAVE IT (**RECOMMENDED**), (D1b) teach
-      the arm to read its own family's entries, or (D1c) retire the entry in
-      `opensoft/xFactory`.
-- [ ] 1.5 **THE PACKET'S OWN SHAPE (`design.md` D3).** Brett Heap rules between
-      DECISION ONLY with `code_surface: none` (**RECOMMENDED**) and declaring a
-      code surface now for a regression test pinning the boundary. A veto of any
-      of 1.1–1.4 toward a reading arm changes `code_surface` at that ruling.
-- [ ] 1.6 On the ruling, and only then: every LIFECYCLE-BEARING document in this
-      packet — `proposal.md`, `design.md` and `tasks.md`, and those three alone,
-      `.openspec.yaml` and the spec delta carrying no lifecycle header by their
-      own shape and taking none at ratification — takes
-      `Status: ratified` with exactly one citation line, `.openspec.yaml` gains
-      `approved_by`/`approved_on` **ADDED BESIDE** the byte-unmoved drafting
-      provenance, and a `review/ratification-<date>.md` record is written
-      carrying `Status: ratified` and one citation.
+**Brett Heap, 2026-09-12, verbatim *"do all as recomended"*, given in the
+lane's window in answer to the orchestrator's list of these five rulings
+(each put with its recommendation first) and recorded on openxFactory PR #978
+at 2026-09-12T15:45:25Z (comment `5646923059`), by the orchestrator (session
+`5e1d3c`); record `review/ratification-2026-09-12.md`; full per-class
+citation at `.openspec.yaml` `approved_by`.** Every recommendation below was
+TAKEN, so not one byte of the delta moves.
+
+- [x] 1.1 **CLASS A — `modified-block-currency` (4 entries) — RULED (A1) NO
+      CHANGE.** Canon's *A finding is dispositioned* at
+      `openspec/specs/doc-health/spec.md` line 2177 (at `origin/main`
+      `d4d96cca`) already rules it, and the ruling took this recommendation.
+      (A2) narrow it to `info`-with-citation and (A3) widen it to archived
+      delta paths are NOT taken. This box ticks on the word named above and by
+      nothing else.
+- [x] 1.2 **CLASS B — `location-conformance` (10) + `document-catalog` (1), 11
+      entries — RULED (B1) DELIBERATELY IGNORE.** No family-side reading; the
+      entry stays a resolution citation, and the ruling took this
+      recommendation. (B2) read and downgrade and (B3) read and suppress are
+      NOT taken.
+- [x] 1.3 **CLASS C — `proposal-origin` (8), `record-immutability` (5),
+      `semantic-contradiction` (1), `semantic-normative-prose` (1), 15
+      entries — RULED (C1) DELIBERATELY IGNORE.** No family-side reading; the
+      entry is a governance record and the finding keeps its band, and the
+      ruling took this recommendation. (C2) read and downgrade to `info` with
+      the citation and (C3) read and suppress are NOT taken. **(C4) — THE
+      SPLIT OF `record-immutability`'s FOUR `Status: record` TARGETS OUT FOR
+      A SEPARATE RULING — IS NOT TAKEN EITHER**, so (C4a)/(C4b) are never
+      asked: the class rules as ONE population under (C1), the four
+      `Status: record` targets included rather than carved out, even though
+      the status was measured directly rather than inferred from an
+      archive-path prefix (`design.md` D0.2) and ten of the fifteen draw a
+      finding today.
+- [x] 1.4 **CLASS D — `uncited-resolution` (1 entry) — RULED (D1a) RECORD THAT
+      IT IS INERT AND LEAVE IT.** The ruling's own words: "the
+      `uncited-resolution` entry; its retirement is an act in
+      `opensoft/xFactory`, coupled to #965." (D1b) teach the arm to read its
+      own family's entries and (D1c) retire the entry in `opensoft/xFactory`
+      are NOT taken; NO ENTRY IS RETIRED BY THIS RATIFICATION. `design.md`
+      D5/Class D's own measurement stands beside that word: PR #981
+      (openxFactory issue #965's own packet) declines this entry by name and
+      by construction (`_grandfather_cites` keys on
+      `family="ratified-provenance"` alone), so the coupling is to the
+      SUBJECT — retiring a stale entry from the aggregation's disposition
+      file, the kind of act #965 opened — and not to #981's particular arm;
+      a retirement, if (D1c) is ever taken on a later word, still needs a
+      successor NAMED at that ruling.
+- [x] 1.5 **THE PACKET'S OWN SHAPE (`design.md` D3) — RULED DECISION ONLY,
+      `code_surface: none`.** Declaring a code surface now for a regression
+      test pinning the boundary is NOT taken. No box in 1.1–1.4 was vetoed
+      toward a reading arm, so `code_surface` does not change at this
+      ruling and `target_release: implemented` stands confirmed.
+- [x] 1.6 **DONE IN THIS SAME COMMIT.** Every LIFECYCLE-BEARING document in
+      this packet — `proposal.md`, `design.md` and `tasks.md`, and those
+      three alone, `.openspec.yaml` and the spec delta carrying no lifecycle
+      header by their own shape and taking none at ratification — takes
+      `Status: ratified` with exactly one citation line, `.openspec.yaml`
+      gains `approved_by`/`approved_on` **ADDED BESIDE** the byte-unmoved
+      drafting provenance (`kind`, `id`, `reason` and `proposed_by` unmoved),
+      and `review/ratification-2026-09-12.md` is written carrying
+      `Status: ratified` and one citation.
 
 ## 2. The measurement — DONE IN THIS PULL REQUEST
 
@@ -271,42 +294,54 @@ each open box below states the event that closes it:
       and the lifecycle scan set* — a DIFFERENT requirement, so neither packet
       owes `sequenced_after:` to the other.
 
-## 4. The arms a VETO would commission — SCOPED, NOT BUILT
+## 4. The arms a VETO would have commissioned — NOT COMMISSIONED, ticked on the ruling of 2026-09-12T15:45:25Z
 
-- [ ] 4.1 **ONLY IF CLASS B OR CLASS C IS VETOED toward (B2)/(B3)/(C2)/(C3), OR
-      CLASS C IS SPLIT TOWARD (C4) WITH EITHER HALF GIVEN A READING:** one
-      SHARED helper in `scripts/doc_health/`, called by each opting-in family
-      USING THE COMMON `(family, repo, path)` KEY — never `neutrality-drift`,
-      whose digest-keyed reader is a different admission path this helper does
-      not absorb — with its own family name, delegating the admission rule to
+**NONE OF THE FIVE CONDITIONS BELOW OCCURRED.** Brett Heap's ruling took (A1),
+(B1), (C1) — NOT (C4) — and (D1a): no class was vetoed toward a reading arm and
+the class-C split was not taken either. Each box therefore ticks **NOT
+COMMISSIONED — the recommendation was accepted**, per this file's own closing
+rule for § 4 (above); the scoping text is kept as the record of what a veto
+would have cost, not as work owed.
+
+- [x] 4.1 **NOT COMMISSIONED.** Condition ("ONLY IF CLASS B OR CLASS C IS
+      VETOED toward (B2)/(B3)/(C2)/(C3), OR CLASS C IS SPLIT TOWARD (C4) WITH
+      EITHER HALF GIVEN A READING") did not occur. Had it occurred, one SHARED
+      helper in `scripts/doc_health/`, called by each opting-in family USING
+      THE COMMON `(family, repo, path)` KEY — never `neutrality-drift`, whose
+      digest-keyed reader is a different admission path this helper does not
+      absorb — with its own family name, delegating the admission rule to
       `promotion_fidelity.load_dispositions(ctx, <family>)` so a second rule
       about which entries are live is never written for those families — the
       shape the parent cut for `ratified-provenance`, one level up. Per-family
-      OPT-IN, never a blanket sweep.
-- [ ] 4.2 **ONLY ON THAT VETO OR THAT SPLIT:** the `## MODIFIED` blocks the vetoed families'
-      own requirements then owe, each with its own *A finding is dispositioned*
-      or grandfather scenario, and the tests that pin them.
-- [ ] 4.3 **ON ANY VETO THAT COMMISSIONS RUNTIME WORK — (A2), (A3), (B2), (B3),
-      (C2), (C3), a (C4) split giving either half a reading, or (D1b), and not
-      only a Class B or C veto:** `code_surface` and `target_release` re-declared
-      at the ratification to name the modules and tests, and the archive moved to
-      merged-plus-green realization evidence for that reason. The condition is
-      written as the full option list because every one of those options changes
-      a module in `scripts/doc_health/` (§ 4.1, § 4.2, § 4.4, § 4.5), and a
-      narrower condition would let a ruling leave `code_surface: none` standing
-      over real runtime work — which `release-realization` would then archive on
-      landing rather than on merged-plus-green evidence.
-- [ ] 4.4 **ONLY IF CLASS A IS VETOED:** the `## MODIFIED` over
-      `modified-block-currency`'s promoted *A finding is dispositioned*, plus the
-      change in `scripts/doc_health/modified_block_currency.py` that a narrowing
-      or widening implies.
-- [ ] 4.5 **ONLY IF CLASS D IS VETOED toward (D1b):** `scripts/doc_health/report.py`
-      (`parse_previous`'s anti-echo refusal, `UNCITED_RESOLUTION_FAMILY`) is the
-      module a family-side reader for `uncited-resolution` would sit in, plus a
-      NEW promoted requirement giving `uncited-resolution` its own reading —
-      today none does — and the test that pins it; the re-opening of issue
-      #515's echo is designed for and tested against before any line is written.
-      Named here so the cost is visible at the ruling and not discovered after.
+      OPT-IN, never a blanket sweep. Not built.
+- [x] 4.2 **NOT COMMISSIONED.** Condition ("ONLY ON THAT VETO OR THAT SPLIT")
+      did not occur. Had it occurred, the `## MODIFIED` blocks the vetoed
+      families' own requirements would then have owed, each with its own
+      *A finding is dispositioned* or grandfather scenario, and the tests
+      that pin them. Not built.
+- [x] 4.3 **NOT COMMISSIONED.** Condition ("ON ANY VETO THAT COMMISSIONS
+      RUNTIME WORK — (A2), (A3), (B2), (B3), (C2), (C3), a (C4) split giving
+      either half a reading, or (D1b), and not only a Class B or C veto") did
+      not occur — the ruling took (A1), (B1), (C1) and (D1a), none of which is
+      in that list. Had it occurred, `code_surface` and `target_release` would
+      have been re-declared at this same ratification to name the modules and
+      tests, and the archive moved to merged-plus-green realization evidence
+      for that reason. `code_surface: none` and `target_release: implemented`
+      stand CONFIRMED, unchanged by this ratification.
+- [x] 4.4 **NOT COMMISSIONED.** Condition ("ONLY IF CLASS A IS VETOED") did not
+      occur — (A1) NO CHANGE was taken. Had it occurred, the `## MODIFIED` over
+      `modified-block-currency`'s promoted *A finding is dispositioned*, plus
+      the change in `scripts/doc_health/modified_block_currency.py` that a
+      narrowing or widening implies. Not built.
+- [x] 4.5 **NOT COMMISSIONED.** Condition ("ONLY IF CLASS D IS VETOED toward
+      (D1b)") did not occur — (D1a) RECORD THAT IT IS INERT AND LEAVE IT was
+      taken. Had it occurred, `scripts/doc_health/report.py`
+      (`parse_previous`'s anti-echo refusal, `UNCITED_RESOLUTION_FAMILY`) is
+      the module a family-side reader for `uncited-resolution` would have sat
+      in, plus a NEW promoted requirement giving `uncited-resolution` its own
+      reading — today none does — and the test that pins it; the re-opening
+      of issue #515's echo would have been designed for and tested against
+      before any line was written. Not built.
 
 ## 5. Verification — RUN IN THIS PULL REQUEST
 

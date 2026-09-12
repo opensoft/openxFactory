@@ -134,6 +134,59 @@ origin:
     default — so under `release-realization` the archive is a separate act on a
     separate word and openxFactory #966 closes there and not at this landing.
   proposed_on: 2026-09-11
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-12, verbatim: "do
+    all as recomended", given in the lane's window in answer to the
+    orchestrator's list of open rulings (the same FIVE that stand in this
+    packet's own `design.md` D1/D3 and `tasks.md` § 1, each put with its
+    recommendation first), and recorded on openxFactory PR #978 at
+    2026-09-12T15:45:25Z (comment `5646923059`) by the orchestrator (session
+    `5e1d3c`). THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED.
+    The drafting provenance above is kept exactly as authored and `kind` and
+    `id` never move, which is the shape `add-drafted-proposal-origin` (issue
+    #318) defined for this transition: approval is a pure ADDITION beside a
+    fixed origin identity. The earlier word recorded in `proposed_by` above —
+    2026-09-11 ~18:20Z, verbatim "usage reset, resume all. read handoff and
+    resume and fan out wide and do as much as possible in parallel" —
+    COMMISSIONED THE AUTHORING ALONE and decided none of the five rulings; it
+    stays the ORIGIN and is not read as an approval of any of them.
+    THE RULING TAKES EVERY RECOMMENDATION, SO NOT ONE BYTE OF THE DELTA MOVES:
+    **Q-A** (Class A, `modified-block-currency`, 4 entries) = **(A1) NO
+    CHANGE** — canon's own *A finding is dispositioned* already rules it;
+    (A2) narrow to `info`-with-citation and (A3) widen to archived delta
+    paths are NOT taken. **Q-B** (Class B, `location-conformance` +
+    `document-catalog`, 11 entries) = **(B1) DELIBERATELY IGNORE** — no
+    family-side reading, the entry stays a resolution citation; (B2)
+    read-and-downgrade and (B3) read-and-suppress are NOT taken. **Q-C**
+    (Class C, `proposal-origin` + `record-immutability` +
+    `semantic-contradiction` + `semantic-normative-prose`, 15 entries) =
+    **(C1) DELIBERATELY IGNORE** — governance record only, the finding keeps
+    its band; (C2) read-and-downgrade, (C3) read-and-suppress and **(C4) —
+    THE SPLIT ON `record-immutability`'s MEASURED STATUS — ARE NOT TAKEN**:
+    the class rules as ONE, `record-immutability`'s four `Status: record`
+    targets included, not carved out for a separate ruling. **Q-D** (Class D,
+    `uncited-resolution`, 1 entry) = **(D1a) RECORD THAT IT IS INERT AND
+    LEAVE IT** — the ruling's own words: "the `uncited-resolution` entry;
+    its retirement is an act in `opensoft/xFactory`, coupled to #965." (D1b)
+    and (D1c) are NOT taken; NO ENTRY IS RETIRED BY THIS RATIFICATION. This
+    packet's own D5/Class D measurement stands beside that word rather than
+    being read over by it: PR #981 (openxFactory issue #965's own packet)
+    declines this entry by name and by construction
+    (`_grandfather_cites` keys on `family="ratified-provenance"` alone), so
+    the coupling the ruling states is to the SUBJECT — retiring a stale entry
+    from the aggregation's own disposition file, the kind of act #965 opened
+    — and not to #981's particular arm; a retirement, if (D1c) is ever taken
+    on a later word, still needs a successor NAMED at that ruling. **Q-E**
+    (the packet's own shape, `design.md` D3) = **DECISION ONLY,
+    `code_surface: none`** — declaring a code surface now is NOT taken.
+    UNDER ALL FIVE TAKEN RECOMMENDATIONS NO ARM IS COMMISSIONED: `tasks.md`
+    § 4's five boxes each tick **NOT COMMISSIONED** at this same ruling, and
+    `modified-block-currency`'s own already-promoted family-side reader
+    remains exactly what (A1) deliberately KEEPS, not something this
+    ratification builds. `code_surface: none` and `target_release:
+    implemented` stand CONFIRMED, not changed, by this ratification.
+    Record: `review/ratification-2026-09-12.md`.
+  approved_on: 2026-09-12
 related:
   - openxFactory:issue:966                                                     # THE ORIGIN. Filed by this lane at the parent's archive, carrying its § 7.2. Closes at the ARCHIVE, never at this landing
   - openxFactory:change:archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance  # THE PARENT. Settled `ratified-provenance`'s 18 entries; its D6 and § 7.2 filed this question; its D1/D2 are the reading this packet measures against and departs from

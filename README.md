@@ -533,10 +533,25 @@ Active changes:
 
 - [decide-disposition-reading-per-family](openspec/changes/decide-disposition-reading-per-family/proposal.md)
   — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
-  **`Status: draft`**, on Brett Heap's commissioning word of 2026-09-11 ~18:20Z
-  (verbatim *"usage reset, resume all. read handoff and resume and fan out wide
-  and do as much as possible in parallel"*), which COMMISSIONS THE AUTHORING and
-  ratifies nothing. Carries § 7.2 of the archived
+  **`Status: ratified`** (2026-09-12T15:45:25Z, Brett Heap, openxFactory
+  operator authority, verbatim *"do all as recomended"*, given in the lane's
+  window in answer to the orchestrator's list of FIVE multiple-choice
+  questions — one per class plus the packet's own shape, each put with its
+  recommendation first — and recorded on openxFactory PR
+  [#978](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059)
+  by the orchestrator, session `5e1d3c`; record
+  [`review/ratification-2026-09-12.md`](openspec/changes/decide-disposition-reading-per-family/review/ratification-2026-09-12.md)).
+  **EVERY RECOMMENDATION WAS TAKEN, SO NOT ONE BYTE OF THE DELTA MOVES**: (A1)
+  NO CHANGE, (B1) DELIBERATELY IGNORE, (C1) DELIBERATELY IGNORE — **(C4) NOT
+  TAKEN** — (D1a) RECORD THAT IT IS INERT AND LEAVE IT (the ruling's own
+  words: its retirement "is an act in `opensoft/xFactory`, coupled to #965" —
+  though PR #981, #965's own packet, declines this entry by name, so no
+  successor is named for it here), and DECISION ONLY with `code_surface:
+  none`. The origin, commissioning word — Brett Heap, 2026-09-11 ~18:20Z,
+  verbatim *"usage reset, resume all. read handoff and resume and fan out wide
+  and do as much as possible in parallel"* — decided none of the five and is
+  not read as an approval; it stays the ORIGIN of the authoring. Carries § 7.2
+  of the archived
   `honour-grandfather-dispositions-in-ratified-provenance` and openxFactory
   [#966](https://github.com/opensoft/openxFactory/issues/966): what the
   aggregation's `health/dispositions.yaml` MEANS for the **31 entries** — measured
@@ -567,20 +582,21 @@ Active changes:
   disposition reading for FIVE families, `neutrality-drift` included, and exactly
   one of the EIGHT FAMILIES holding entries is among them — the undecided
   population being the SEVEN families with no declared reading, 27 of the 31
-  entries. The eight families are grouped
-  into FOUR CLASSES so the class ruling is taken four times — with a FIFTH,
+  entries. The eight families were grouped
+  into FOUR CLASSES so the class ruling was taken four times — with a FIFTH,
   separate ruling on the packet's own shape — each put as a multiple-choice
-  question with the recommendation first, and the recommendation commissions NO
+  question with the recommendation first, and the ruling commissions NO
   NEW family-side reading anywhere: `modified-block-currency` keeps the reading
   its own requirement already declares. One `## MODIFIED` block over
   *Finding severity and regression handling*, with **TWO** scenarios appended;
   `code_surface: none`; `sequenced_after: []` — PR #981
   (`report-stale-grandfather-dispositions`, #965) modifies a DIFFERENT heading,
   read off its branch, and declines this packet's stale-entry residue by name, so
-  that residue is recorded as UNASSIGNED rather than handed anywhere. **NO ARM IS BUILT AHEAD OF THE WORD** — `tasks.md` § 4
-  scopes what a veto would commission and every box is open. **FILING ≠
-  RATIFYING** — ratification and archive are two separate acts on Brett Heap's
-  word; neither has been given, and #966 closes at the ARCHIVE.
+  that residue is recorded as UNASSIGNED rather than handed anywhere. **NO ARM
+  IS BUILT** — `tasks.md` § 4's five boxes each tick NOT COMMISSIONED, no class
+  having been vetoed and (C4) not having been taken. **RATIFIED ≠ ARCHIVED** —
+  archive is a separate act on a separate word, still OWED, and #966 closes
+  there and not at this ratification.
 
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),

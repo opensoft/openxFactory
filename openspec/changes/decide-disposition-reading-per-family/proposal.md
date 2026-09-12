@@ -1,12 +1,13 @@
 ---
-code_surface: none — MEASURED, not assumed, and the measurement is the whole reason. The recommended rows COMMISSION NO NEW FAMILY-SIDE READER of `health/dispositions.yaml` — not "no family reads it": `modified-block-currency` already carries one of its own and (A1) deliberately keeps it, and canon declares a reading for five families in all — so NO RUNTIME MODULE, TEST BEHAVIOUR, WORKFLOW, PROMOTED CONTRACT, SCHEMA OR EXAMPLE CHANGES — "promoted" being the operative word, this pull request carrying a `## MODIFIED` DELTA over the `doc-health` contract that promotes at the archive and not at this landing — the one file this pull request touches under `tests/` is the DATA row in `tests/sequenced_after/corpus-ledger.yaml` that `validate-sequenced-after.py . --seed-ledger` writes for every packet, and no test's behaviour moves with it: the delta is one `## MODIFIED` requirement whose TWO added scenarios state the boundary the shipped code already keeps. The evidence for "already keeps" is a CONTROL RUN rather than a reading — with the aggregation's real dispositions file replaced by `[]`, an aggregation-shaped run reports the identical plan rows for all five deterministic families that hold entries (`location-conformance` 7/7, `proposal-origin` 130/130, `record-immutability` 16/16, `modified-block-currency` 48/48, `document-catalog` 1/1; `diff` of the row sets empty in each), so the thirty-one entries move NO STANDING DETERMINISTIC-FAMILY ROW and the scenario forbids nothing the code does. THAT CONTROL IS ABOUT STANDING ROWS AND NOTHING ELSE, and it is not read wider than it was taken: `runner.main` hands the same entries to `report.uncited_resolutions`, where D0.4 measures **30** uncited-resolution findings without the file and **0** with it — the one effect these entries have BESIDE the family-side reading `modified-block-currency`'s own requirement already declares, recorded rather than erased, and reached only where `report.uncited_resolutions` (`report.py:424-430`) does NOT treat the named family or repository as unavailable — the disposition check at line 430 is reached only after the unavailable-family and unavailable-repo checks at 424/426 both fall through — AND the entry's key is no longer among the later run's own findings; three measured exceptions to what "unavailable" catches exist and are reported, not repaired (`tasks.md` § 7.6). This packet's whole diff is governance text: its own five files, one CHANGE-LOCAL `specs/doc-health/spec.md` delta — not the promoted `openspec/specs/doc-health/` path, untouched here — one README "OpenSpec Records" row and one `tests/sequenced_after/corpus-ledger.yaml` row seeded by `validate-sequenced-after.py . --seed-ledger` rather than by hand. **IF BRETT HEAP VETOES A CLASS TOWARD "read and downgrade" OR "read and suppress", THIS FIELD CHANGES AT THAT RULING** to name `scripts/doc_health/` and `tests/doc-health/`, and `tasks.md` § 4 holds the scoped, unbuilt arm that the veto would commission. Nothing in § 4 is built here. Under `release-realization` an empty code surface archives ON LANDING plus its own task list rather than on merged-plus-green realization evidence.
-target_release: implemented (the openxFactory main line) — the value the ratified vocabulary admits, and the doc-only default. `release-realization`'s *Realization axis declaration* permits `implemented` or a named release defined in the aggregation repository and nothing else, and makes a doc-only change `code_surface: none`, `target_release: implemented` BY DEFAULT; `none` was outside that vocabulary and is corrected here. THE ABSENCE OF A CONTRACT RELEASE IS THIS GLOSS AND NOT THE VALUE TOKEN: no contract bundle is cut, no digest set moves, no `contracts/CHANGELOG.md` line is owed and no release tag is spent; nothing under `contracts/` is touched and no consumer's pin has to advance to receive this. The active sibling `gate-realization-axis-vocabulary` (openxFactory PR #963, issue #956) is building the reader that refuses an off-vocabulary token on an ACTIVE proposal against a CLOSED register — a register that does not name this packet, and whose own act corrects the token `none` in four sibling proposals — so this declaration is conformed at authoring rather than left for that gate to refuse. The realization of a decision recorded in canon IS its promotion at archive, which is a separate act on a separate word.
+code_surface: none — MEASURED, not assumed, and the measurement is the whole reason. The recommended rows COMMISSION NO NEW FAMILY-SIDE READER of `health/dispositions.yaml` — not "no family reads it": `modified-block-currency` already carries one of its own and (A1) deliberately keeps it, and canon declares a reading for five families in all — so NO RUNTIME MODULE, TEST BEHAVIOUR, WORKFLOW, PROMOTED CONTRACT, SCHEMA OR EXAMPLE CHANGES — "promoted" being the operative word, this pull request carrying a `## MODIFIED` DELTA over the `doc-health` contract that promotes at the archive and not at this landing — the one file this pull request touches under `tests/` is the DATA row in `tests/sequenced_after/corpus-ledger.yaml` that `validate-sequenced-after.py . --seed-ledger` writes for every packet, and no test's behaviour moves with it: the delta is one `## MODIFIED` requirement whose TWO added scenarios state the boundary the shipped code already keeps. The evidence for "already keeps" is a CONTROL RUN rather than a reading — with the aggregation's real dispositions file replaced by `[]`, an aggregation-shaped run reports the identical plan rows for all five deterministic families that hold entries (`location-conformance` 7/7, `proposal-origin` 130/130, `record-immutability` 16/16, `modified-block-currency` 48/48, `document-catalog` 1/1; `diff` of the row sets empty in each), so the thirty-one entries move NO STANDING DETERMINISTIC-FAMILY ROW and the scenario forbids nothing the code does. THAT CONTROL IS ABOUT STANDING ROWS AND NOTHING ELSE, and it is not read wider than it was taken: `runner.main` hands the same entries to `report.uncited_resolutions`, where D0.4 measures **30** uncited-resolution findings without the file and **0** with it — the one effect these entries have BESIDE the family-side reading `modified-block-currency`'s own requirement already declares, recorded rather than erased, and reached only where `report.uncited_resolutions` (`report.py:424-430`) does NOT treat the named family or repository as unavailable — the disposition check at line 430 is reached only after the unavailable-family and unavailable-repo checks at 424/426 both fall through — AND the entry's key is no longer among the later run's own findings; three measured exceptions to what "unavailable" catches exist and are reported, not repaired (`tasks.md` § 7.6). This packet's whole diff is governance text: its own five files, one CHANGE-LOCAL `specs/doc-health/spec.md` delta — not the promoted `openspec/specs/doc-health/` path, untouched here — one README "OpenSpec Records" row and one `tests/sequenced_after/corpus-ledger.yaml` row seeded by `validate-sequenced-after.py . --seed-ledger` rather than by hand. **BRETT HEAP RULED 2026-09-12T15:45:25Z (PR #978 comment `5646923059`, verbatim "do all as recomended"), AND NO CLASS WAS VETOED TOWARD "read and downgrade" OR "read and suppress"**: (A1)/(B1)/(C1)/(D1a) were taken and (C4) was not, so this field does NOT change and stands CONFIRMED at `none`. `tasks.md` § 4 ticks every box NOT COMMISSIONED, the scoped, unbuilt arm a veto would have commissioned. Nothing in § 4 is built here. Under `release-realization` an empty code surface archives ON LANDING plus its own task list rather than on merged-plus-green realization evidence.
+target_release: implemented (the openxFactory main line) — the value the ratified vocabulary admits, and the doc-only default. `release-realization`'s *Realization axis declaration* permits `implemented` or a named release defined in the aggregation repository and nothing else, and makes a doc-only change `code_surface: none`, `target_release: implemented` BY DEFAULT; `none` was outside that vocabulary and is corrected here. THE ABSENCE OF A CONTRACT RELEASE IS THIS GLOSS AND NOT THE VALUE TOKEN: no contract bundle is cut, no digest set moves, no `contracts/CHANGELOG.md` line is owed and no release tag is spent; nothing under `contracts/` is touched and no consumer's pin has to advance to receive this. The active sibling `gate-realization-axis-vocabulary` (openxFactory PR #963, issue #956) is building the reader that refuses an off-vocabulary token on an ACTIVE proposal against a CLOSED register — a register that does not name this packet, and whose own act corrects the token `none` in four sibling proposals — so this declaration is conformed at authoring rather than left for that gate to refuse. The realization of a decision recorded in canon IS its promotion at archive, which is a separate act on a separate word. Brett Heap's ruling of 2026-09-12T15:45:25Z (Q-E, "do all as recomended") took DECISION ONLY with `code_surface: none`, so this value stands CONFIRMED rather than changed by ratification.
 sequenced_after: []
 ---
 
 # Proposal: decide-disposition-reading-per-family
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-12 by Brett Heap (openxFactory operator authority) — "do all as recomended"; record at review/ratification-2026-09-12.md
 Proposed: 2026-09-11, in lane `openxfactory-1` (display `openXfactory-1`),
 session `c44b04`, on Brett Heap's word of 2026-09-11 at approximately 18:20Z —
 verbatim **"usage reset, resume all. read handoff and resume and fan out wide
@@ -16,22 +17,34 @@ Origin: openxFactory
 at the archive of `honour-grandfather-dispositions-in-ratified-provenance`,
 carrying **§ 7.2** of that packet's ratified `tasks.md`.
 
-**THAT WORD COMMISSIONS THE AUTHORING AND RATIFIES NOTHING.** It admits no text
-here to canon, takes none of the FIVE OPEN RULINGS this packet carries — four
-CLASS decisions and one separate ruling on the packet's own shape — and is not
-read as an approval of any of them. Every LIFECYCLE-BEARING document in this packet
-carries `Status: draft` — `proposal.md`, `design.md` and `tasks.md`, the three
-that carry a lifecycle header at all; `.openspec.yaml` and the spec delta carry
-none by their own shape and are named here so the claim is exact.
-`.openspec.yaml` carries the drafting provenance alone, with no
-`approved_by` and no `approved_on`. **NO APPROVAL PAIR IS DECLARED AND NONE IS
-IMPLIED.** The CLASS decisions are put to Brett Heap as FOUR multiple-choice
-questions, one per class, in `design.md` D1 and on the pull request, with the
-recommendation first in each — and a FIFTH question stands beside them for the
-packet's OWN shape (`design.md` D3, `tasks.md` § 1.5: decision-only with
-`code_surface: none`, or a code surface declared now), which is a question about
-this packet rather than about any family's entries. **FIVE OPEN RULINGS IN ALL.**
-**NO ARM IS BUILT AHEAD OF THE WORD.**
+**THAT WORD COMMISSIONED THE AUTHORING AND RATIFIED NOTHING; A SECOND, LATER
+WORD HAS NOW RATIFIED THE PACKET ITSELF.** The first word admitted no text
+here to canon and took none of the FIVE OPEN RULINGS this packet carried —
+four CLASS decisions and one separate ruling on the packet's own shape — and
+is not read as an approval of any of them; it stays recorded as the ORIGIN of
+the authoring. **BRETT HEAP RATIFIED THIS PACKET ON 2026-09-12**, verbatim
+**"do all as recomended"**, given in the lane's window in answer to the
+orchestrator's list of these same five questions (each put with its
+recommendation first) and recorded on openxFactory PR
+[#978](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059)
+at 2026-09-12T15:45:25Z (comment `5646923059`). **EVERY RECOMMENDATION WAS
+TAKEN, SO NOT ONE BYTE OF THE DELTA MOVES**: Class A (`modified-block-currency`,
+4 entries) = (A1) NO CHANGE. Class B (`location-conformance` +
+`document-catalog`, 11 entries) = (B1) DELIBERATELY IGNORE. Class C
+(`proposal-origin`, `record-immutability`, `semantic-contradiction`,
+`semantic-normative-prose`, 15 entries) = (C1) DELIBERATELY IGNORE — **(C4),
+the split of `record-immutability`'s measured-status subset, was NOT taken**.
+Class D (`uncited-resolution`, 1 entry) = (D1a) RECORD THAT IT IS INERT AND
+LEAVE IT — no entry is retired by this ratification. The packet's OWN shape
+(`design.md` D3, `tasks.md` § 1.5) = DECISION ONLY, `code_surface: none`.
+`proposal.md`, `design.md` and `tasks.md` now carry `Status: ratified` with
+ONE citation line each, `.openspec.yaml` carries `approved_by` and
+`approved_on` **ADDED BESIDE** the byte-unmoved drafting provenance —
+`kind`, `id`, `reason` and `proposed_by` unmoved — and `tasks.md` § 1 and § 4
+are ticked, naming the word that ticked them. **NO ARM IS BUILT**: § 4's five
+boxes each tick NOT COMMISSIONED. The full per-class citation, including the
+ruling's own words on Class D's coupling to openxFactory issue #965, is at
+`.openspec.yaml` `approved_by` and `review/ratification-2026-09-12.md`.
 
 ## Why
 
@@ -210,14 +223,60 @@ excluded even then, a gap `design.md` § 7.6(b) records) the entry reaches
 nothing through it. The
 scenarios declare no new reachability for any family.
 
+## Ratification — GIVEN 2026-09-12
+
+Brett Heap's word of 2026-09-11 ~18:20Z decided none of the five rulings above
+and authorized this authoring; it was NOT a ratification of this wording, and
+at the time this packet did not read it as one. **A SECOND WORD RATIFIED THE
+PACKET ITSELF**, verbatim **"do all as recomended"**, given in the lane's
+window in answer to the orchestrator's list of these same five questions (each
+put with its recommendation first) and recorded on openxFactory PR
+[#978](https://github.com/opensoft/openxFactory/pull/978#issuecomment-5646923059)
+at 2026-09-12T15:45:25Z (comment `5646923059`; record
+`review/ratification-2026-09-12.md`).
+
+**EVERY ONE OF THE FIVE QUESTIONS WAS ANSWERED WITH ITS RECOMMENDATION:**
+
+- **Q-A** (Class A, `modified-block-currency`, 4 entries): **(A1) NO CHANGE**.
+  (A2) and (A3) NOT taken.
+- **Q-B** (Class B, `location-conformance` + `document-catalog`, 11 entries):
+  **(B1) DELIBERATELY IGNORE**. (B2) and (B3) NOT taken.
+- **Q-C** (Class C, `proposal-origin` + `record-immutability` +
+  `semantic-contradiction` + `semantic-normative-prose`, 15 entries): **(C1)
+  DELIBERATELY IGNORE**. (C2), (C3) and **(C4)** — the split of
+  `record-immutability`'s four `Status: record` targets out for a separate
+  ruling — **NOT taken**: the class rules as one population.
+- **Q-D** (Class D, `uncited-resolution`, 1 entry): **(D1a) RECORD THAT IT IS
+  INERT AND LEAVE IT**, in the ruling's own words, "its retirement is an act
+  in `opensoft/xFactory`, coupled to #965." (D1b) and (D1c) NOT taken; no entry
+  is retired by this ratification, and `design.md` D5/Class D records that PR
+  #981 (openxFactory issue #965's own packet) declines this entry by name and
+  by construction, so the coupling is to the subject and not to that packet's
+  particular arm.
+- **Q-E** (the packet's own shape, `design.md` D3): **DECISION ONLY,
+  `code_surface: none`**. Declaring a code surface now NOT taken.
+
+**NOTHING IS PROMOTED BY THIS RATIFICATION**: this pull request still edits no
+file under `openspec/specs/`, so the block reaches canon only at the ARCHIVE,
+which is a separate act on a separate word, and openxFactory #966 closes there
+and not at this landing. `proposal.md`, `design.md` and `tasks.md` now carry
+`Status: ratified` with ONE citation line each, `.openspec.yaml` now carries
+`approved_by` + `approved_on` **ADDED BESIDE** the drafting provenance it was
+authored with, `kind`, `id`, `reason` and `proposed_by` unmoved — the
+addition-not-rewrite shape `add-drafted-proposal-origin` (issue #318) defined.
+`tasks.md` § 1's six boxes and § 4's five boxes are ticked, each naming the
+word that ticked it; § 4 ticks NOT COMMISSIONED throughout because no class was
+vetoed and (C4) was not taken, so `code_surface: none` and `target_release:
+implemented` stand CONFIRMED rather than changed.
+
 ## What this proposal does NOT do
 
 - **It does not build an arm, and it commissions no NEW family-side reader.** No
   family is newly taught to read the file, none is downgraded and none is
   suppressed; the readers canon already declares — `modified-block-currency`'s
   among them, which (A1) deliberately keeps — are left exactly as their own
-  requirements state them. `tasks.md` § 4 scopes the arms each VETO would
-  commission and leaves every box open.
+  requirements state them. `tasks.md` § 4 scopes the arms a VETO would have
+  commissioned; no class was vetoed, so every box in it ticks NOT COMMISSIONED.
 - **It does not add, edit or retire a disposition.** `health/dispositions.yaml`
   lives in `opensoft/xFactory` and is not touched by this pull request at all.
   Retiring the dead-letter entry, or any stale one, is an act in that repository
