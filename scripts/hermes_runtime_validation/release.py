@@ -89,21 +89,41 @@ INTENT_REQUIRED_REGISTRATIONS = (
 # other block swept its paths in, so a cut's release-digest inventory stayed
 # silent on the clearing family's contract bytes even across cuts that
 # registered new clearing schemas. Unlike `INTENT_CONTRACT_PREFIX` above, this
-# family needs no release-floor or registration-completeness invariant of its
-# own: the manifest rows already close that corpus, so `_collect_members`
-# below only has to sweep the family's tree into the same closed membership
-# every other family joins, conditional on presence alone (the same
-# "join only when present at the source" reading `NORMATIVE_DOCS` uses).
+# family needs no registration-completeness invariant of its own: the
+# manifest rows already close that corpus, so `_collect_members` below only
+# has to sweep the family's tree into the same closed membership every other
+# family joins, conditional on presence alone (the same "join only when
+# present at the source" reading `NORMATIVE_DOCS` uses) — AND, like
+# `INTENT_CONTRACT_PREFIX`, gated by a release-semantic floor.
+#
+# RULED (Brett Heap, 2026-09-12 ~14:55Z, openxFactory #745, PR #1000 review
+# thread PRRT_kwDOTAvnrs6hsjob). `_collect_members` is the canonical source
+# `verify_inventory_against_commit` reads too, so an unconditional,
+# presence-only join changes the meaning of ALREADY-PUBLISHED inventories:
+# `contract-v4.0`'s own commit already contains the clearing family, but its
+# recorded `contract-v4.0.digests.yaml` (cut before this family was swept in)
+# does not list it — re-verifying that published tag against its own recorded
+# inventory would newly report every clearing path `HGR-RELEASE-MEMBER-
+# MISSING`, where it verified clean before this fix existed. `CLEARING_
+# RELEASE_FLOOR` below closes that hole exactly the way `INTENT_RELEASE_FLOOR`
+# already does: the family is a release member only for a declared bundle
+# version at or after `(4, 1)` — the first cut that follows `contract-v4.0` —
+# so every already-published tag through `contract-v4.0` keeps verifying
+# exactly, and a build for a `(4, 1)`-or-later bundle is the first to record
+# the family.
 CLEARING_CONTRACT_PREFIX = "contracts/clearing"
 CLEARING_TEST_PACKAGE = "tests/clearing"
 CLEARING_VALIDATOR_PATH = "scripts/validate-clearing-dispatch.py"
+CLEARING_RELEASE_FLOOR = (4, 1)
 
 NAMED_VALIDATORS = (
     "scripts/validate-hermes-runtime-contracts.py",
     "scripts/validate-contract-release.py",
     "scripts/hermes-runtime-dataset-digest.py",
     "scripts/validate-ideation-dashboard-contracts.py",
-    CLEARING_VALIDATOR_PATH,
+    # CLEARING_VALIDATOR_PATH is NOT here: like INTENT_VALIDATOR_PATH, it
+    # joins explicitly inside its own family's floor-gated block below, not
+    # through this unconditional, presence-only loop.
 )
 AUXILIARY_MEMBERS = (
     "requirements/hermes-runtime-contracts.in",
@@ -698,6 +718,14 @@ def _collect_members(
     intent_floor_active = (
         release_version is not None and release_version >= INTENT_RELEASE_FLOOR
     )
+    # Same computation, same `release_version`, for the clearing family's own
+    # floor (RULED, #745, PR #1000 thread PRRT_kwDOTAvnrs6hsjob) — a version
+    # this cannot parse (`release_version is None`) gates OFF exactly as it
+    # does for intent, so an un-declared or malformed bundle never gains a
+    # member it cannot make sense of.
+    clearing_floor_active = (
+        release_version is not None and release_version >= CLEARING_RELEASE_FLOOR
+    )
     intent_registrations = []
     for entry in manifest.get("contracts", []) or []:
         if not isinstance(entry, Mapping):
@@ -782,16 +810,28 @@ def _collect_members(
         members.add(INTENT_VALIDATOR_PATH)
         members.add("scripts/__init__.py")
 
-    # Clearing family (issue #722): the whole `contracts/clearing/` tree
-    # (schemas, registry instance, README, packaged examples) plus its pytest
-    # wiring join the closed membership whenever they are present at the
-    # source — empty (not an error) before the family existed, at
-    # `contract-v3.2` and earlier. `CLEARING_VALIDATOR_PATH` joins through the
-    # `NAMED_VALIDATORS` loop below, which already guards on `source.exists`.
-    for member in source.list_files(CLEARING_CONTRACT_PREFIX):
-        members.add(member)
-    for member in source.list_python(CLEARING_TEST_PACKAGE):
-        members.add(member)
+    # Clearing family (issue #722), floor-gated (RULED, #745, PR #1000 thread
+    # PRRT_kwDOTAvnrs6hsjob): the whole `contracts/clearing/` tree (schemas,
+    # registry instance, README, packaged examples), its pytest wiring, and
+    # `CLEARING_VALIDATOR_PATH` join the closed membership only for a
+    # declared bundle at or after `CLEARING_RELEASE_FLOOR` — mirroring how
+    # `INTENT_VALIDATOR_PATH` above joins inside the intent floor's own gate
+    # rather than through the unconditional `NAMED_VALIDATORS` loop below.
+    # Below the floor (every already-published tag through `contract-v4.0`)
+    # this adds nothing, whether or not the tree already carries the family:
+    # presence alone is not sufficient, because membership without the floor
+    # is exactly what made re-verifying an already-published tag disagree
+    # with what it already recorded. At or after the floor this still only
+    # joins what is actually present at the source (a build for a bundle past
+    # the floor, cut before the family itself lands, sweeps in nothing) — the
+    # same "join only when present" reading `NORMATIVE_DOCS` uses.
+    if clearing_floor_active:
+        for member in source.list_files(CLEARING_CONTRACT_PREFIX):
+            members.add(member)
+        for member in source.list_python(CLEARING_TEST_PACKAGE):
+            members.add(member)
+        if source.exists(CLEARING_VALIDATOR_PATH):
+            members.add(CLEARING_VALIDATOR_PATH)
 
     fixture_index = source.load_yaml(FIXTURE_INDEX_PATH)
     if not isinstance(fixture_index, Mapping):
