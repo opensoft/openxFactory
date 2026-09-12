@@ -117,7 +117,11 @@ each open box below states the event that closes it:
       `document-catalog`.
 - [x] 2.3 Per-entry outcome measured and tabulated (`design.md` D0.2): **10
       matched**, **7 unmatched with the target present**, **11 target vanished**,
-      **3 not deterministically measurable**. Asserted as a set test and not as a
+      **3 not admissible to this measurement for two different reasons** — the
+      semantic pair (2), which no deterministic pass emits at all, and
+      `uncited-resolution`'s own entry (1), which IS emitted deterministically
+      (`runner.py:831`) but is excluded from admission by construction
+      (`report.parse_previous`, line 382). Asserted as a set test and not as a
       count: **zero** of the thirty-one names a path under
       `openspec/changes/archive/`.
 - [x] 2.4 The CONTROL taken (`design.md` D0.3): the real file replaced by `[]`
