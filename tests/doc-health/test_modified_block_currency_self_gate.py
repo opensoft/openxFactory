@@ -865,8 +865,27 @@ _LEDGER_SUBJECTS = {
     # with `==`: a row nobody names reds the required check for every other
     # lane, and `health/dispositions.yaml` is read under `ctx.agg_root`, which
     # is None on the `--single-repo` self-gate a pull request runs.
-    ("rule-inherited-unit-naming-marker-spent", "doc-health",
-     "Currency of an active change's MODIFIED requirement blocks"),
+    #
+    # REMOVED 2026-09-12 BY THE PARENT'S ARCHIVE — event (b) of the two stated
+    # above, which needs nothing of this packet at all. `amend-merged-into-
+    # empty-tail-standing` archived to `openspec/changes/archive/2026-09-11-
+    # amend-merged-into-empty-tail-standing/` (openxFactory PR #973, merged
+    # 2026-09-11T18:24:42Z, archiving PR #947's landed content at `87fd33d6`),
+    # so canon became the parent's outcome and the one sentence this block was
+    # measured against stopped being uncarried; event (a) (this packet
+    # ratified while the parent held one active-ratified writer) was never
+    # reached and was not needed.
+    #
+    # VERIFIED BEFORE THE ROW WAS DELETED, not after. At the freeze
+    # (`51edde81`, issuecomment-5636697848, 2026-09-11T15:23:45Z) the family
+    # read TEN rows corpus-wide, this one among them, 0 marker defects against
+    # it specifically. After this branch merged `origin/main` (67b8011f,
+    # bringing PR #973's archive of the parent) and re-seeded the per-change
+    # sweep ledger, `--single-repo --family modified-block-currency` over this
+    # tree reads NINE, and a grep of the rendered report for this change id
+    # returns ZERO lines, at any path. The deleted row is the entire
+    # difference — the remaining nine rows are byte-for-byte the ones already
+    # named above, no other subject moved.
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1196,7 +1215,7 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of nine named subjects.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1272,7 +1291,14 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "block that dropped something; it retires on the parent's archive, or "
         "on that packet's ratification ONCE THE PARENT IS IN THE ACTIVE CORPUS "
         "- ratification alone does not clear it, the override needing TWO "
-        "active ratified writers)",
+        "active ratified writers; 9 SINCE 2026-09-12, when this row retired "
+        "on the parent's archive (event (b)) — amend-merged-into-empty-tail-"
+        "standing archived to openspec/changes/archive/2026-09-11-amend-"
+        "merged-into-empty-tail-standing/ (PR #973, merged "
+        "2026-09-11T18:24:42Z), so canon became the parent's outcome and the "
+        "sentence this block was measured against stopped being uncarried; "
+        "event (a) was never reached, this packet still being pre-"
+        "ratification at the merge that carried PR #973 in)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
