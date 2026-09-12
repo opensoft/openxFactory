@@ -1883,16 +1883,56 @@ def test_release_membership_clearing_joins_are_independent_of_each_other(
 ) -> None:
     """Each of the three clearing joins — the contracts tree, the test
     package, the named validator — is its own presence check. One present
-    without the others does not pull the others in and does not error."""
-    repo, _ = _synthetic_repo(tmp_path)
-    _write_tree(repo, {"contracts/clearing/README.md": CLEARING_README_MD})
-    _set_bundle_tag(repo, CLEARING_AT_FLOOR_TAG)
-    _commit_all(repo, "add only the clearing contracts tree, at the release floor")
+    without the others does not pull the others in and does not error.
 
-    members = {path.as_posix() for path in release.release_membership(repo)}
-    assert "contracts/clearing/README.md" in members
-    assert not any(m.startswith("tests/clearing/") for m in members)
-    assert "scripts/validate-clearing-dispatch.py" not in members
+    Three separate repos, one per join (Copilot review,
+    PRRT_kwDOTAvnrs6hxHX0): the original version of this test exercised only
+    the contracts-tree case, so a regression that nested the test-package or
+    validator join under the contracts-tree presence check would still have
+    passed."""
+    contracts_only, _ = _synthetic_repo(tmp_path, name="contracts-only")
+    _write_tree(contracts_only, {"contracts/clearing/README.md": CLEARING_README_MD})
+    _set_bundle_tag(contracts_only, CLEARING_AT_FLOOR_TAG)
+    _commit_all(
+        contracts_only, "add only the clearing contracts tree, at the release floor"
+    )
+    contracts_only_members = {
+        path.as_posix() for path in release.release_membership(contracts_only)
+    }
+    assert "contracts/clearing/README.md" in contracts_only_members
+    assert not any(m.startswith("tests/clearing/") for m in contracts_only_members)
+    assert "scripts/validate-clearing-dispatch.py" not in contracts_only_members
+
+    tests_only, _ = _synthetic_repo(tmp_path, name="tests-only")
+    _write_tree(tests_only, {"tests/clearing/test_schemas.py": CLEARING_TEST_PY})
+    _set_bundle_tag(tests_only, CLEARING_AT_FLOOR_TAG)
+    _commit_all(
+        tests_only, "add only the clearing test package, at the release floor"
+    )
+    tests_only_members = {
+        path.as_posix() for path in release.release_membership(tests_only)
+    }
+    assert "tests/clearing/test_schemas.py" in tests_only_members
+    assert not any(m.startswith("contracts/clearing/") for m in tests_only_members)
+    assert "scripts/validate-clearing-dispatch.py" not in tests_only_members
+
+    validator_only, _ = _synthetic_repo(tmp_path, name="validator-only")
+    _write_tree(
+        validator_only,
+        {"scripts/validate-clearing-dispatch.py": CLEARING_VALIDATOR_PY},
+    )
+    _set_bundle_tag(validator_only, CLEARING_AT_FLOOR_TAG)
+    _commit_all(
+        validator_only, "add only the clearing validator, at the release floor"
+    )
+    validator_only_members = {
+        path.as_posix() for path in release.release_membership(validator_only)
+    }
+    assert "scripts/validate-clearing-dispatch.py" in validator_only_members
+    assert not any(
+        m.startswith("contracts/clearing/") for m in validator_only_members
+    )
+    assert not any(m.startswith("tests/clearing/") for m in validator_only_members)
 
 
 def test_release_membership_excludes_clearing_family_below_the_floor(
