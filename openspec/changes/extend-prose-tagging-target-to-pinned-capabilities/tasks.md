@@ -73,6 +73,8 @@ the later realization pull request, and § 4 is the archive act.
   `scripts/validate-sequenced-after.py --seed-ledger`, so `--ledger-diff`
   exits 0.
 - [x] 2.5 **NOTHING REALIZED.** No byte of `scripts/doc_health/families.py`
+  moves, no module is added under `scripts/doc_health/`, and no byte of
+  `scripts/validate-pin-registrations.py` or of any per-product pin verifier
   moves. No marker is retargeted or deleted. `ideation/staging/INDEX.md` is not
   touched. `docs/document-lifecycle.md` is not touched. The four `tag-hygiene`
   findings stand at FOUR, unchanged.

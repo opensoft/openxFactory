@@ -560,7 +560,9 @@ Active changes:
   here.** The four `error`-band `tag-hygiene` findings that archive measured
   (`archive/2026-08-28-split-openxwallet-repo/tasks.md:1760-1786`) stay OPEN and
   the four markers stay exactly as they are: `code_surface` names
-  `scripts/doc_health/families.py`, NO BYTE OF WHICH MOVES IN THE FILING, so per
+  `scripts/doc_health/families.py` plus the at-most-two further files the arm's
+  code-fixed-route and containment rules require, NO BYTE OF WHICH MOVES IN THE
+  FILING, so per
   `release-realization` this packet archives only on merged-plus-green
   realization evidence — one later pull request carrying the resolver arm, its
   tests, the four retargeted markers, the `docs/document-lifecycle.md` section

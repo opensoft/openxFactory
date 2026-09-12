@@ -194,7 +194,14 @@ a later change, on evidence that a stale supersedes target exists.
    of them shells out to a subprocess, and
    `scripts/validate-openreposhape-pin.py` reaches the network through `urllib`
    — work `neutral-product-pin`'s offline law forbids this pass, and work a
-   non-executing validator never starts.
+   non-executing validator never starts. NEITHER FORM EDITS THOSE FIVE
+   VERIFIERS: they are product-specific rather than a shape-only API, so there
+   is nothing in them to extract without changing them, and form (a) writes its
+   own module instead. Both forms are inside the packet's DECLARED
+   `code_surface`, which names them — the shape-validator module under
+   `scripts/doc_health/` for form (a) (form (b) adds no file) and the
+   containment helper of task 3.3(m) — rather than leaving the realization to
+   discover a file the declaration does not admit.
 
    **And the ROOT is the in-tree arm's root, not a new one.** Capability
    resolution already reads the document's OWN repository root first and the
