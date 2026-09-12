@@ -723,6 +723,27 @@ def _decide_and_land(root: Path, intent: dict, report: ApplyReport, *,
 
 
 def main(argv=None) -> int:
+    # THE ONE PROCESS-START REGISTRATION (§ 4.3/§ 4.4, RULED ASK-2 option (2)
+    # and RULING C2). This lane reaches BOTH engine readers:
+    # `openxdox.generator` through `_fresh_snapshot()` :535 and
+    # `openxdox.gate_console`, each of which
+    # resolves `domain_profile.current()`.
+    # A process that reaches the engine with nothing registered is REFUSED —
+    # `openxdox.domain_profile.DomainProfileNotRegistered` — and this lane
+    # would otherwise fail at the first snapshot it refreshed
+    # (Copilot review, PR #984).
+    #
+    # HERE, IN `main()`, AND NOT AT MODULE SCOPE: a column that registered
+    # while being imported could re-enter its own half-executed module, the
+    # hazard `scripts/opendox_host.py` documents for
+    # `ideation_dashboard/serve_openxfactory_lanes.py`. Called from the process
+    # entry instead, which is what both production paths go through
+    # (`python3 -m ideation_dashboard.intent_apply_lane` and this
+    # module's own `__main__` guard). Idempotent, so a caller that
+    # already registered is not punished.
+    from opendox_host import register_openxfactory
+    register_openxfactory()
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", required=True)
     parser.add_argument("--allowlist", required=True,

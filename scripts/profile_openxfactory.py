@@ -38,18 +38,21 @@ A plain module-scope import of `cli_gate` here would put the CLI column's whole
 dependency chain into a server process that only ever wanted the route table.
 PEP 562 holds it out; only `cli.py`'s own read of `SUBCOMMAND_EXTENSIONS` pays.
 
-HOW THE CONSUMERS REACH IT — AND WHAT IS STILL OWED. `opendox.serve.build_server`
-(`serve.py:1377`) and `opendox.cli.build_parser` (`cli.py:915`) still name
-`profile_openxfactory` as a BARE GLOBAL with no import anywhere, which is the
-§ 4.3 hole RULING ASK-2 answers: option (2), a LAZY PROXY in openDox-code that
-resolves the profile at first attribute access, with openxFactory REGISTERING
-THE REAL MODULE AT PROCESS START. This file is that real module. The proxy is
-openDox-code's half and is NOT YET BUILT, so the registration is performed here
-by `carved_reach.bind_composition_point()`, which binds this module into each
-consumer's namespace as that consumer loads. When the proxy lands, that binding
-collapses into the one `register()` call the ruling describes and this module
-stops moving. § 4.3's box stays OPEN either way: nothing in this file is the
-proxy, and PR-2 ticks no § 4 box.
+HOW THE CONSUMERS REACH IT, NOW THAT BOTH HALVES EXIST. `opendox.cli` binds
+`profile_openxfactory` from `opendox.profile_proxy` and reads
+`SUBCOMMAND_EXTENSIONS` off it in `build_parser()`; `opendox.serve` binds the
+same proxy inside `build_server()` and reads `ROUTE_EXTENSIONS`. The proxy is
+LAZY — it resolves `opendox.domain_profile.current()` at first attribute access
+and REFUSES, naming the registration call, when no host has registered
+anything. That is RULED ASK-2 option (2) (`#656` comment `5628886636`), landed
+as openDox-code #11 (`a99eba03`), and openxFactory's half of it is
+`scripts/opendox_host.py`: ONE call at process start,
+`opendox.domain_profile.register(<the composite>)`, where the composite is the
+`DomainProfile` built from `contracts/domain-profiles/openxfactory-engineering
+.yaml` FORWARDING this module's two tuples. This file is still the real
+module — it holds what THIS assembly contributes — and it no longer moves: the
+import hook that used to bind it into each consumer's namespace
+(`carved_reach.bind_composition_point()`) is deleted with the hole it covered.
 """
 
 from __future__ import annotations

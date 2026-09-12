@@ -336,10 +336,13 @@ before the tag exists would be a claim, not a label.
 the marker would name a destination a migrator cannot read today, which is worse
 than the wallet case rather than equal to it. The values are not guessed: they
 are the `spec` gitlinks of the assembly-root commits this repository's own pins
-already name — [`contracts/openxdox-pin.yaml`](openxdox-pin.yaml) `commit:
+named AT THIS CUT — [`contracts/openxdox-pin.yaml`](openxdox-pin.yaml) `commit:
 84056415…` → `spec 481a07f90167bb7c27cebead830b5e2f86475deb`, and
 [`contracts/opendox-pin.yaml`](opendox-pin.yaml) `commit: 44679fa7…` → `spec
-1a216ea413cdcc14791aa3939712e2e459cfa6b6`.
+1a216ea413cdcc14791aa3939712e2e459cfa6b6`. Both pins have since moved (openDox
+→ `8ec3036c`, openXdox → `eca0b597`); a CUT bundle's marker records what was
+true when it was cut and a later pin bump does not rewrite it, so the four
+values above stand as written and only the tense changed.
 
 **`at` AND NOT `commit`, and the spelling is load-bearing.** `commit` is a member
 of `scripts/doc_health/pin_class.py`'s `PIN_KEY_VOCABULARY` and
