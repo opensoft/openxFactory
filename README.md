@@ -579,7 +579,7 @@ Active changes:
   `governance/review-authority/` is touched** — no row, no grant, no wallet, no
   custody attestation, no staleness bound — and zero files overlap openxFactory
   [#1006](https://github.com/opensoft/openxFactory/pull/1006). Filing PR
-  [#PRNUM](https://github.com/opensoft/openxFactory/pull/PRNUM), **DRAFT and
+  [#1017](https://github.com/opensoft/openxFactory/pull/1017), **DRAFT and
   HELD for Brett Heap's ratification**.
 
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
