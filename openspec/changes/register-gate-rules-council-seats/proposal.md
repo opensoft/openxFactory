@@ -30,7 +30,14 @@ Amended: 2026-09-11 — **Q-GRC-4 DISCHARGED** for
   `review/amendment-2026-09-11-q-grc-4-discharge.md`. Q-GRC-4 is NOT reopened —
   it ruled *"register neither deferred seat NOW"* and named the trigger; this is
   the trigger arriving for ONE of the two seats, and `intent_owner_role_slot`
-  stays deferred unchanged.
+  stays deferred unchanged. **That amendment's own five open questions OQ-1..
+  OQ-5 were RULED 2026-09-11T17:08:42Z** by Brett Heap in session, window
+  `codeXfactory-2`, no comment URL, verbatim *"accept all A on 971, merge slice
+  3 when green"* — its FIRST clause is this ruling, and it takes each of the
+  five at option **(a)**, its RECOMMENDED one, so the ruling moved no byte of
+  the delta (§ Rulings in § AMENDMENT — 2026-09-11 below; `design.md` D8-D12;
+  record § 9 and its `Ratification:` header line; `tasks.md` § 6.1 / § 6.1a;
+  record `review/ratification-2026-09-11-amendment-2.md`).
 
 ## AMENDMENT — 2026-09-07 (R1/R2: lead-architect pin; 5.9a before 3.1)
 
@@ -168,11 +175,37 @@ hold → `resolved-seats` shows `unbound_conjunction_seats` EMPTY → the proof
 convening → **C2 with five seats**, discharging Brett's carried-forward
 `convene C2` (13:26:14Z) and `merge the C2 record PR when green` (13:27:23Z).
 
-**FIVE OPEN QUESTIONS go back to Brett** (record § 9, design D8-D12): the
+**FIVE OPEN QUESTIONS went back to Brett** (record § 9, design D8-D12): the
 minter of the fifth key; `grant-grc-0003`'s `expires_at`; whether the seat owes
 a soak or an activation pass before it sits; one T1/T2 pair or a further split;
 whether C2 doubles as the proof convening. Every recommendation is what this
 packet already encodes, so taking all five moves no byte.
+
+**ALL FIVE ARE RULED — Brett Heap, in session, window `codeXfactory-2`, no
+comment URL, 2026-09-11T17:08:42Z, verbatim:**
+
+> **`accept all A on 971, merge slice 3 when green`**
+
+The first clause is this ruling; the second addresses a different seat's
+hermes-install sweep and is not carried here. **Every one is option (a), the
+RECOMMENDED one, so the prediction above held and the delta moved no byte** —
+proven by diff in the ratifying pull request rather than asserted.
+
+| OQ | decision | RULED (a) | considered, not adopted |
+| --- | --- | --- | --- |
+| **OQ-1** — who mints and holds the fifth keypair | `design.md` D8 | **(a)** Brett Heap, host-side, the task 3.2 ceremony generalized to one seat: seed in-process, never on disk, `gh secret set` on stdin with `--body` omitted, custody `holder_readable`, secret `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER`, a FRESH TTY-gated ceremony | (b) mint through the committed `scripts/mint-factory-origin-key.py`; (c) a different custody model for this key alone |
+| **OQ-2** — `expires_at` on `grant-grc-0003` | `design.md` D9 | **(a)** `2027-06-30T00:00:00Z`, unchanged — Q-GRC-3's ruled date, which `grant-mrc-0002` still carries | (b) recompute from the earliest published retirement floor (returns the same date today); (c) a shorter expiry for the new seat |
+| **OQ-3** — soak or `activation_gate` before the seat sits | `design.md` D10 | **(a)** bind now, soak later — the lead-architect precedent; **no soak and no activation pass is a precondition of binding**; C13 re-opens this body's soak from zero and costs nothing today | (b) require an LQ-C1-shaped fresh soak first; (c) declare a `gate_rules_council` `activation_gate` (measured: none exists) |
+| **OQ-4** — one T1/T2 pair or a further split | `design.md` D11 | **(a)** the T1/T2 PAIR: one codexFactory pull request (H1), then one openxFactory pull request (H2) — two remotes, ONE governed act, the hold spanning them | (b) split H1 into mint / roster / composition pull requests; (c) one cross-repository act (unavailable) |
+| **OQ-5** — does C2 double as the proof convening | `design.md` D12 | **(a)** a SEPARATE proof convening precedes C2, on a re-verified clean candidate, as the 2026-09-11 walk did (§ 15, run `34586762846`, admitted) | (b) C2 IS the proof convening; (c) two proof convenings, one each side of the conjunction |
+
+**RATIFICATION REALIZES NOTHING.** No key is minted, no seat is bound, no grant,
+row or wallet byte moves, and **C2 stays PARKED under α** — task 6.22's
+`resolved-seats` run showing `unbound_conjunction_seats` EMPTY is what lifts it,
+not this word. `tasks.md` § 6.1 and § 6.1a tick; **§ 6.1b and §§ 6.2-6.28 stay
+open**, and 6.1b — the seat identifier string, an authoring decision flagged for
+VETO rather than asked as an OQ — is untouched by a word that ruled the five
+questions, so it stays open for its own confirmation before 6.2.
 
 **THE SPEC DELTA IS `## ADDED`, NOT `## MODIFIED`, AND THAT IS MEASURED.** The
 pinned CLI 1.12.0 reports *"Archive would refuse this delta:
