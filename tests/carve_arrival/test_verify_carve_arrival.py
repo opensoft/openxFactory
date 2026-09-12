@@ -1274,6 +1274,34 @@ def test_a_symlink_left_at_the_vacated_path_is_not_invisible(
     assert refusal(done) == "arrival-not-vacated"
 
 
+def test_another_rows_arrival_at_the_vacated_path_is_a_lawful_refill(
+        carve: Carve) -> None:
+    """The arrival-verifier twin of `test_carve_manifest.py`'s
+    `test_another_row_may_move_into_the_path_a_re_destination_vacated`: a row
+    re-destined AWAY from a path, and a DIFFERENT row's own effective arrival
+    legitimately occupying that same path today, is one row leaving and
+    another arriving — not evidence of anything left behind (Copilot review,
+    PR #1011). `alpha.py` is retargeted onto `beta.py`'s vacated
+    `destination_path` at the SAME destination `scratch_code`; `rows_for`
+    already verifies it present there before `check_vacated` ever runs, so an
+    entry at the old path is this leg's OWN claimed arrival, not a leftover."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    alpha = next(r for r in doc["rows"]
+                if r["source_path"] == "scripts/pkg/alpha.py")
+    assert alpha["destination"] == "scratch_code", alpha
+    alpha["destination_path"] = RE_DESTINED_FROM_PATH
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    summary = json.loads(done.stdout)
+    vacated = summary["re_destined"]["vacated"]
+    assert [row["source_path"] for row in vacated] == [RE_DESTINED_SOURCE], \
+        summary
+
+
 def test_a_re_destined_row_that_never_arrived_refuses_missing(
         carve: Carve) -> None:
     """`arrival-missing` at the GAINING leg, naming the ruling that made the

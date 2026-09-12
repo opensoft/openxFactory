@@ -1278,7 +1278,8 @@ def _referent_blob(source_repo: Path, carve_commit: str,
 # check 1b — the LOSING half of a re-destination (RULED Q6)
 # --------------------------------------------------------------------------
 
-def check_vacated(rows: list[dict[str, Any]], dest_root: Path) -> int:
+def check_vacated(rows: list[dict[str, Any]], dest_root: Path,
+                   arriving_rows: list[dict[str, Any]] | None = None) -> int:
     """Every row a ruling re-destined AWAY from this leg has LEFT it.
 
     `arrival-missing` READ IN THE MIRROR. A re-destination is one act with two
@@ -1296,15 +1297,31 @@ def check_vacated(rows: list[dict[str, Any]], dest_root: Path) -> int:
     way the leg carries an entry at a path the ruling vacated, and git would
     commit it.
 
+    `arriving_rows` — `rows_for(doc, destination)`, this same leg's OWN
+    effective arrivals, already verified present by `check_arrivals` before
+    this runs — EXCLUDES a path from the vacation question when another row
+    legitimately arrives there today (Copilot review, PR #1011):
+    `validate-carve-manifest.py`'s check 4 keys its duplicate-arrival map on
+    the EFFECTIVE arrival for exactly this reason
+    (`test_another_row_may_move_into_the_path_a_re_destination_vacated`), and
+    an arrival verifier that still keyed the vacation on the bare path alone
+    would refuse the same lawful refill that validator already passes — an
+    entry PRESENT at a vacated path is not evidence of anything left behind
+    when it is the bytes ANOTHER row's own row declares belong there; `lexists`
+    stays the test for every path no row here claims.
+
     IT RUNS BEFORE THE WALK, so the finding names the ruling rather than the
     filename. Left to `check_undeclared_files`, an un-vacated file would refuse
     as `arrival-undeclared-file` — true, and useless: it would send a reader
     looking for an admission rule for a file whose whole story is a
     `re_destined:` block in its own row.
     """
+    claimed = {arrival_path(r) for r in (arriving_rows or [])}
     for row in rows:
         re_destined = row["re_destined"]
         relpath = re_destined["from_path"]
+        if relpath in claimed:
+            continue
         target = dest_root / relpath
         if not os.path.lexists(target):
             continue
@@ -1997,7 +2014,7 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     # THE LOSING HALF, immediately after the arriving one and before the walk:
     # a file a ruling moved off this leg must be GONE from it (RULED Q6).
     vacated = vacated_rows(doc, destination)
-    check_vacated(vacated, dest_root)
+    check_vacated(vacated, dest_root, rows)
     replica_counts = check_replicas(replica_placements, dest_root,
                                     source_repo, carve_commit, doc, phase)
     # A REPLICA'S DECLARED EDIT IS COUNTED WHERE A MOVED ROW'S IS (RULED Q-L7
