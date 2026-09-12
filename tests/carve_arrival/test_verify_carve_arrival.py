@@ -2901,10 +2901,31 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     still wanted admitting until this PR looked). Same footing again: checked
     by presence, not equality.
 
+    AMENDED A FOURTH TIME by § 3.4 SLICE S6's own annotation PR (RULED Q4,
+    `#656` comment 5642758731): one more `opendox_code` file,
+    `tests/test_source_core_arm.py` — the runnable half of the `/source`
+    re-homing from `openxdox_code`'s contributed binding to `opendox_code`'s
+    own fixed core arm, admitted the governed way because the leg PR that
+    lands it (opensoft/openDox-code#16) pairs with — and lands after — this
+    annotation PR. Same footing again: checked by presence, not equality.
+
+    AMENDED A FIFTH TIME by § 3.4 SLICE S4's own annotation PR (RULED Q3,
+    `#656` comment 5642758731): four more `opendox_code` files — the three
+    new class-B modules that receive five of the thirteen route tails S4
+    counts (`views/gate-lens.js`, `views/gate-projects.js`,
+    `views/projection-index.js`; the other eight arrive at the existing SWB
+    modules, are removed, or stay in place) and their own
+    `tests/test_split_route_tails.py`
+    — admitted the governed way because the leg PR that lands them
+    (opensoft/openDox-code#17, stacked on S3's #14) pairs with — and lands
+    after — this annotation PR. Same footing again: checked by presence, not
+    equality.
+
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
-    `#656` comment 5639058687), the three RULED Q5 opendox_code entries, and
-    the five PR #1001 opendox_code entries are still declared with their own
+    `#656` comment 5639058687), the three RULED Q5 opendox_code entries, the
+    five PR #1001 opendox_code entries, the one § 3.4 SLICE S6 entry, and the
+    four § 3.4 SLICE S4 entries are still declared with their own
     `since`, every `since` is a 40-hex commit, every `reason` is non-empty,
     and every destination's list is alphabetical by `path` with no repeat —
     the file's own stated invariants, over whatever the file has
@@ -2992,6 +3013,46 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             "opendox_code")
         assert opendox_seed[path]["since"] == (
             "e86deb2dbcec528a312784508ddbf63c376abc33")
+    # THE FOURTH BUMP: one more `opendox_code` file, RULED into this file by
+    # § 3.4 SLICE S6 (RULED Q4, `#656` comment `5642758731`) — the runnable
+    # half of the `/source` re-homing, admitted the GOVERNED way on the same
+    # Q-L1 footing as the bumps above (the leg PR, opensoft/openDox-code#16,
+    # pairs with — and lands after — this annotation PR). Checked by
+    # PRESENCE for the same reason as the seeds above.
+    assert "tests/test_source_core_arm.py" in opendox_seed, (
+        "tests/test_source_core_arm.py is § 3.4 SLICE S6's own new file "
+        "(`#656` comment 5642758731) and is no longer declared for "
+        "opendox_code")
+    assert opendox_seed["tests/test_source_core_arm.py"]["since"] == (
+        "b00fbd920a019e2cee816b4936f921ceeab67a8c")
+    # THE FIFTH BUMP: four more `opendox_code` files, RULED into this file by
+    # § 3.4 SLICE S4 (RULED Q3, `#656` comment `5642758731`) — the three new
+    # class-B gate/projection modules that receive five of the thirteen
+    # route tails S4 counts (two to `gate-lens.js`, two to `gate-projects.js`,
+    # one to `projection-index.js`; the other eight arrive at the existing
+    # SWB modules, are removed, or stay in place), plus their own test file,
+    # admitted the GOVERNED way on the same Q-L1 footing as the bumps above
+    # (the leg PR, opensoft/openDox-code#17, stacked on S3's #14, pairs with
+    # — and lands after — this annotation PR). Checked by PRESENCE for the
+    # same reason as the seeds above. `since` is each file's OWN introducing
+    # commit (`git log --diff-filter=A`), not the leg branch's later tip —
+    # the same provenance contract the FOURTH BUMP above states, and the
+    # same class of correction Copilot's review caught there.
+    for path in ("src/opendox/web/views/gate-lens.js",
+                 "src/opendox/web/views/gate-projects.js",
+                 "src/opendox/web/views/projection-index.js"):
+        assert path in opendox_seed, (
+            f"{path} is one of § 3.4 SLICE S4's own three new class-B "
+            "modules (`#656` comment 5642758731) and is no longer declared "
+            "for opendox_code")
+        assert opendox_seed[path]["since"] == (
+            "031edc9b4268d9898c296b2e9bb3951a78642fb6")
+    assert "tests/test_split_route_tails.py" in opendox_seed, (
+        "tests/test_split_route_tails.py is § 3.4 SLICE S4's own test file "
+        "(`#656` comment 5642758731) and is no longer declared for "
+        "opendox_code")
+    assert opendox_seed["tests/test_split_route_tails.py"]["since"] == (
+        "2e842178b2bceaee9a45441b7d70d797fe1205cf")
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
     # could not survive a pin bump, and an accumulating file with no checked

@@ -2296,6 +2296,35 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # or outside any arrived file). `test_doc_surfaces.py` already carried an
     # edit, so it is not a new carrier. 909 + 1 = 910 on the same 153 rows.
     #
+    # AND THEN THE § 3.4 SLICE-S6 ANNOTATION (`#656` comment `5642758731`,
+    # whose Q-L1 paragraph binds every § 3.4 slice, same as S2/S3 above)
+    # moved `lines` once more, on ZERO new rows: RULED Q4's read-only
+    # `/source` pass-through returns from a CONTRIBUTED binding
+    # (`openxdox_code`'s `serve_projection.py`) to a FIXED core arm
+    # (`opendox_code`'s `serve.py`) of the neutral product. Both rows were
+    # ALREADY `moved_with_declared_edit`, so this act adds one `adapter
+    # calls` entry to each and carries no new row into `carrying`: 10 lines
+    # on `serve.py` (five insertions — the registration-modes record, the
+    # two route constants, the containment entry point, the two `_route`
+    # arms and the three handler methods) and 122 on `serve_projection.py`
+    # (the matching deletions — the module docstring's opening, the "PAIR
+    # MOVES TOGETHER" paragraph, the two constants, `resolve_source_path`,
+    # the three handler methods and `ProjectionRoutesExtension`'s two
+    # `/source` bindings). 910 + 10 + 122 = 1042 on the same 153 rows.
+    #
+    # AND THEN THE § 3.4 SLICE-S4 ANNOTATION (`#656` comment `5642758731`,
+    # RULED Q3: "a route constant travels with the binding that calls it,
+    # never with the model that happens to declare it") moved both again.
+    # Seven ARRIVED rows are edited: `app.js` (already a carrier, gains one
+    # `adapter calls` entry, 4 lines — the two new gate bindings' `routes:`
+    # declarations); `lens-model.js`, `lens.js`, `repo-selector.js`,
+    # `swb-create.js` and `swb-session.js` (five NEW carriers, `moved_verbatim`
+    # -> `moved_with_declared_edit`); and `staging-workbench-model.js`
+    # (already a carrier, gains two entries). 1042 + 380 = 1422 on 153 + 5 =
+    # 158 rows. Four new files are admitted at `opendox_code`:
+    # `views/gate-lens.js`, `views/gate-projects.js`,
+    # `views/projection-index.js` and `tests/test_split_route_tails.py`.
+    #
     # THIS ASSERTION IS WHERE THE ABSOLUTES LIVE, and deliberately so: the
     # document itself states each act as a DELTA (see the manifest's own
     # comment on why two acts restating one set of absolutes is how a count
@@ -2305,13 +2334,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (910, 153), (lines, carrying)
+    assert (lines, carrying) == (1422, 158), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
 
     # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
-    # review, PR #995) — the aggregate `(910, 153)` above would still pass if
+    # review, PR #995) — the aggregate `(1422, 158)` above would still pass if
     # these four had landed on the wrong rows, under the wrong class, or as a
     # different four line numbers that happened to sum to the same total.
     # Named individually, on the same `(class, lines)` idiom the replica row's
@@ -2333,14 +2362,16 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # landed on the wrong row, under the wrong class, or as different line
     # numbers that happened to sum to 37 — and likewise for the three-line
     # `test_bullseye_widget.py` addition. `app.js` carried no `edits:` at all
-    # before this act, so its full edit list is asserted exactly, the same
-    # idiom the `moved` and `replica` row checks at the top of this test
-    # already use; `test_bullseye_widget.py` already carried an unrelated
-    # `path constants` edit, so its new entry is picked out by its lines, the
-    # same idiom the ASK-7 checks above use for `serve.py`.
+    # before THIS act, so its two entries are asserted exactly by picking
+    # them out of the row's full list — the same idiom the ASK-7 checks
+    # below use for `serve.py`, needed here too now that § 3.4 SLICE S4
+    # (below) adds this row's third entry; `test_bullseye_widget.py` already
+    # carried an unrelated `path constants` edit, so its new entry is picked
+    # out by its lines the same way.
     app_js_row = rows["scripts/ideation_dashboard/web/app.js"]
     assert app_js_row["disposition"] == "moved_with_declared_edit", app_js_row
-    s3_app_js = [(edit["class"], edit["lines"]) for edit in app_js_row["edits"]]
+    s3_app_js = [(edit["class"], edit["lines"]) for edit in app_js_row["edits"]
+                 if edit["lines"] != [514, 515, 1137, 1138]]
     assert s3_app_js == [
         ("import rewrites", [43]),
         ("adapter calls", [470, 471, 472, 475, 476, 480, 481, 482, 483, 484,
@@ -2367,6 +2398,115 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
                         for edit in doc_surfaces_row["edits"]
                         if edit["lines"] == [290]]
     assert s3_doc_surfaces == [("adapter calls", [290])], doc_surfaces_row
+
+    # THE § 3.4 SLICE-S6 ANNOTATION, PINNED THE SAME WAY (RULED Q4, `#656`
+    # comment `5642758731`) — on the same reasoning as the pins above: the
+    # aggregate assertion would still pass if these lines had landed on the
+    # wrong row, under the wrong class, or split across a different pair of
+    # line counts that happened to sum to 132. Both rows already carried
+    # `edits:` before this act, so each new entry is picked out by its exact
+    # lines, the same idiom the ASK-7 and S3-catch-up pins above use.
+    s6_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
+                if edit["lines"] == [161, 162, 304, 305, 515, 516, 921, 922,
+                                      949, 950]]
+    assert s6_serve == [("adapter calls",
+                          [161, 162, 304, 305, 515, 516, 921, 922, 949,
+                           950])], serve_row
+
+    serve_projection_row = rows[
+        "scripts/ideation_dashboard/serve_projection.py"]
+    s6_serve_projection_lines = [
+        6, 7, 9, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
+        60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76,
+        77, 78, 79, 297, 298, 299, 300, 301, 302, 304, 305, 306, 307, 308,
+        309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321,
+        322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334,
+        335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347,
+        348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360,
+        361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373,
+        374, 375, 382, 383, 384, 385, 386, 387, 388]
+    assert len(s6_serve_projection_lines) == 122, s6_serve_projection_lines
+    s6_serve_projection = [
+        (edit["class"], edit["lines"])
+        for edit in serve_projection_row["edits"]
+        if edit["lines"] == s6_serve_projection_lines]
+    assert s6_serve_projection == [
+        ("adapter calls", s6_serve_projection_lines)], serve_projection_row
+
+    # THE § 3.4 SLICE-S4 ANNOTATION, PINNED THE SAME WAY (RULED Q3, `#656`
+    # comment `5642758731`) — on the same reasoning as the pins above: the
+    # aggregate assertion would still pass if these lines had landed on the
+    # wrong row, under the wrong class, or split across a different set of
+    # line counts that happened to sum to 380 over 5 new carriers.
+    s4_app_js = [(edit["class"], edit["lines"]) for edit in app_js_row["edits"]
+                 if edit["lines"] == [514, 515, 1137, 1138]]
+    assert s4_app_js == [("adapter calls", [514, 515, 1137, 1138])], app_js_row
+
+    lens_model_row = rows["scripts/ideation_dashboard/web/views/lens-model.js"]
+    assert lens_model_row["disposition"] == "moved_with_declared_edit", \
+        lens_model_row
+    assert [(edit["class"], edit["lines"]) for edit in lens_model_row["edits"]] == [
+        ("path constants", [1033, 1034, 1035, 1036, 1037]),
+    ], lens_model_row
+
+    lens_row = rows["scripts/ideation_dashboard/web/views/lens.js"]
+    assert lens_row["disposition"] == "moved_with_declared_edit", lens_row
+    lens_adapter_calls = (
+        list(range(176, 183)) + list(range(211, 320)) + [1106, 1107, 1472, 1479])
+    assert len(lens_adapter_calls) == 120, lens_adapter_calls
+    assert [(edit["class"], edit["lines"]) for edit in lens_row["edits"]] == [
+        ("import rewrites", [30]),
+        ("adapter calls", lens_adapter_calls),
+    ], lens_row
+
+    repo_selector_row = rows[
+        "scripts/ideation_dashboard/web/views/repo-selector.js"]
+    assert repo_selector_row["disposition"] == "moved_with_declared_edit", \
+        repo_selector_row
+    repo_selector_path_constants = [6, 7, 8, 9, 10, 33, 36, 37, 39, 40, 41,
+                                     42, 43, 44, 45, 46]
+    repo_selector_adapter_calls = (
+        [64, 65, 66, 67] + list(range(69, 78)) + list(range(189, 301))
+        + [318] + list(range(357, 384))
+        + [409, 577, 608, 609, 671, 672, 681, 682, 719]
+        + list(range(779, 819)))
+    assert len(repo_selector_path_constants) == 16, repo_selector_path_constants
+    assert len(repo_selector_adapter_calls) == 202, repo_selector_adapter_calls
+    assert [(edit["class"], edit["lines"]) for edit in repo_selector_row["edits"]] == [
+        ("path constants", repo_selector_path_constants),
+        ("adapter calls", repo_selector_adapter_calls),
+    ], repo_selector_row
+
+    staging_row = rows[
+        "scripts/ideation_dashboard/web/views/staging-workbench-model.js"]
+    s4_staging = [(edit["class"], edit["lines"])
+                  for edit in staging_row["edits"]
+                  if edit["lines"] != [544]]
+    staging_path_constants = [543] + list(range(814, 827))
+    staging_adapter_calls = list(range(956, 964)) + list(range(985, 989))
+    assert len(staging_path_constants) == 14, staging_path_constants
+    assert len(staging_adapter_calls) == 12, staging_adapter_calls
+    assert s4_staging == [
+        ("path constants", staging_path_constants),
+        ("adapter calls", staging_adapter_calls),
+    ], staging_row
+
+    swb_create_row = rows["scripts/ideation_dashboard/web/views/swb-create.js"]
+    assert swb_create_row["disposition"] == "moved_with_declared_edit", \
+        swb_create_row
+    assert [(edit["class"], edit["lines"]) for edit in swb_create_row["edits"]] == [
+        ("import rewrites", [32, 34]),
+        ("path constants", [35]),
+    ], swb_create_row
+
+    swb_session_row = rows[
+        "scripts/ideation_dashboard/web/views/swb-session.js"]
+    assert swb_session_row["disposition"] == "moved_with_declared_edit", \
+        swb_session_row
+    assert [(edit["class"], edit["lines"]) for edit in swb_session_row["edits"]] == [
+        ("import rewrites", [76, 78]),
+        ("path constants", [79]),
+    ], swb_session_row
 
 
 def test_the_real_manifest_carries_the_q6_form_and_uses_it_nowhere() -> None:
@@ -2472,7 +2612,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 910 line numbers were written in the numbering this
+    The manifest's 1422 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would

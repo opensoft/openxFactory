@@ -434,6 +434,88 @@ moved_paths:
 # replicas unchanged. The one place the running absolutes are summed and
 # pinned is
 # `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+#
+# THE § 3.4 SLICE-S6 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`). RULING Q4, same comment: the read-only
+# `/source` pass-through returns from a CONTRIBUTED binding
+# (`openxdox_code`'s `serve_projection.py`) to a FIXED core arm of the
+# neutral product (`opendox_code`'s `serve.py`). NO ROW CHANGES DISPOSITION —
+# both were already `moved_with_declared_edit` — each gains one new
+# `adapter calls` entry: 10 lines on `serve.py` (five INSERTIONS, each named
+# by the pair of carve lines it sits between — the registration-modes
+# record, the two route constants `SOURCE_PREFIX`/`BARE_SOURCE_ROUTE`, the
+# `resolve_source_path` containment entry point, the two FIXED core arms in
+# `_route`, and `_keyed_source`/`_serve_source`/`_refuse_bare_source`) and
+# 122 on `serve_projection.py` (the matching DELETIONS — the same five
+# things, plus the module docstring's opening and the "THE `/source` PAIR
+# MOVES TOGETHER" paragraph, replaced by the record of where the pair went).
+# `snapshot_registry.resolve_within`, the per-entry containment rule, does
+# NOT move and stays `openxdox_code`'s. ONE new file is admitted at
+# `opendox_code`: `tests/test_source_core_arm.py`, the runnable half of the
+# re-homing (`docs/opendox-carve-admissions.yaml`). NO REFERENT DIGEST
+# MOVES: `carve_commit` and `carve_tag` are untouched, and both rows keep
+# the `sha256` they already carry, which is the CARVE blob's.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# same discipline the S3 paragraph above states: this act's whole arithmetic
+# is a DELTA on top of the § 3.4 SLICE-S3 annotation's own totals — rows
+# unchanged; `not_moved` unchanged; NO disposition conversion (both rows
+# already `moved_with_declared_edit`); declared lines +132 (`adapter calls`
+# +132, `import rewrites` +0, `path constants` +0) over the two rows above;
+# rows carrying `edits:` unchanged (neither row is a new carrier); replicas
+# unchanged. The one place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+# Realized at opensoft/openDox-code `build/s6-source-core-arm`,
+# `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)
+# and opensoft/openXdox-code `build/s6-source-route-to-opendox`,
+# `00b69de787975a663d9fb8985a6e38fc54945150` (DRAFT PR opensoft/openXdox-code#17).
+#
+# THE § 3.4 SLICE-S4 ANNOTATION OF 2026-09-12 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`). RULING Q3, same comment: "a route
+# constant travels with the binding that calls it, never with the model
+# that happens to declare it." SEVEN rows are edited. Two were already
+# `moved_with_declared_edit` and gain another entry: `app.js` (`adapter
+# calls`, 4 lines — the `gate.lens`/`gate.projects` bindings' `routes:`
+# declarations) and `staging-workbench-model.js` (`path constants` 14 lines
+# + `adapter calls` 12 lines — six routes leaving for `swb-create.js` /
+# `swb-session.js`). FIVE rows CONVERT `moved_verbatim` ->
+# `moved_with_declared_edit`: `lens-model.js` (`path constants`, 5 lines —
+# `LENS_SAVE_ROUTE`/`LENS_CLUSTER_ROUTE` removed), `lens.js` (`import
+# rewrites` 1 line + `adapter calls` 120 lines — one import repoint and its
+# two call sites), `repo-selector.js` (`path constants` 16 lines +
+# `adapter calls` 202 lines — of its five route constants, three relocate
+# to the new class-B modules and one (`ACTIONS_APPLY_REGISTER_EDITS_ROUTE`)
+# leaves the bundle entirely per RULING DQ-1; the fifth
+# (`ACTIONS_REFRESH_ROUTE`) stays), `swb-create.js` and `swb-session.js`
+# (`import rewrites` 2 lines + `path constants` 1 line each — the routes
+# arriving from `staging-workbench-model.js`). FOUR new files are admitted
+# at `opendox_code`: `views/gate-lens.js`, `views/gate-projects.js`,
+# `views/projection-index.js` and `tests/test_split_route_tails.py`
+# (`docs/opendox-carve-admissions.yaml`). NO REFERENT DIGEST MOVES:
+# `carve_commit` and `carve_tag` are untouched; the two already-declared
+# rows keep the `sha256` they carry, and the five converted rows' `sha256`
+# is the carve blob's, unchanged by the conversion.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# same discipline the S6 paragraph above states: this act's whole
+# arithmetic is a DELTA on top of the § 3.4 SLICE-S6 annotation's own
+# totals — rows unchanged; `not_moved` unchanged; FIVE rows convert
+# `moved_verbatim` -> `moved_with_declared_edit`; declared lines +380
+# (`import rewrites` +5, `path constants` +37, `adapter calls` +338) over
+# the seven rows above; rows carrying `edits:` +5 (the five new carriers;
+# the two already-carrying rows are not new carriers); replicas unchanged.
+# The one place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+# Line numbers are the arrival verifier's own refusal output against a
+# fresh clone of the leg, not transcribed from an earlier draft: one
+# correction was caught this way — an earlier reference computation's
+# `repo-selector.js` range included carve line 68, which the verifier's
+# diff does not touch, so the declared `adapter calls` set here is the
+# verifier-measured 202 lines, not 203. Realized at opensoft/openDox-code
+# `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808`
+# (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14).
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -1733,6 +1815,9 @@ rows:
       - class: path constants
         lines: [155, 725, 1338]
         note: "STALE DOCSTRING/COMMENT — RULED ASK-7 → 1 (`#656` comment `5635150678`, Brett Heap, verbatim \"the four stale docstring/comment lines (openDox-code cli.py :867; serve.py :166 / :755 / :1368) are LEFT; the in-tree comments beside the binding carry the correction; they are fixed at the next declared-edit window. No manifest rows for prose in PR-2.\"): this row annotation OPENS that declared-edit window (CLAIMED `#656` comment `5642614423`, lane `openxfactory-4-opendox-extraction`), the same act as the paired `cli.py` row annotation above. No referent digest moves, `carve_commit` does not move, `opendox-carve-0` stays the label. Three destination lines at openDox-code `a99eba03`'s `src/opendox/serve.py` still describe the in-tree profile, stale since § 4.3 (openDox-code #11) made `profile_openxfactory` a lazy proxy over the host's `opendox.domain_profile.register(...)`: `:166` (\"`profile_openxfactory.py` and dispatched BY NAME against the live handler —\", inside the by-function-split comment, naming a file that no longer assembles anything), `:755` (\"(`profile_openxfactory.ROUTE_EXTENSIONS` — the gate console, the\", inside the `route_bindings` field comment), and `:1368` (\"THE IN-TREE PROFILE (`profile_openxfactory.ROUTE_EXTENSIONS`) is registered\", `build_server()`'s own docstring — the routes-half twin of the cli.py row's line). Mapped to the carve commit by the same method the cli.py row's new entry describes (`verify-carve-arrival.py::_check_declared_lines`'s `difflib.SequenceMatcher(autojunk=False)` over `carve_lines.text_records()`), between the blob at `carve_commit` (sha256 matches this row's, above) and openDox-code `a99eba03`'s `src/opendox/serve.py`: destination `:166` (0-based 165) is the `equal` opcode carve[138:169]/arrived[149:180] at offset 16, carve line = 138 + 16 + 1 = 155; destination `:755` (0-based 754) is carve[629:828]/arrived[659:858] at offset 95, carve line = 629 + 95 + 1 = 725; destination `:1368` (0-based 1367) is carve[1286:1352]/arrived[1316:1382] at offset 51, carve line = 1286 + 51 + 1 = 1338 — all three byte-identical between carve and arrived at that offset, confirming the mapping. Filed `path constants` on the same reading as the cli.py row's new entry and the STALE CITATION rows (`#656` comment `5628560136`): neither `import rewrites` nor `adapter calls` (RULING OQ-1). The fix — one line for one line, same count, no other change — lands at openDox-code in the paired PR, inside these three declared lines only."
+      - class: adapter calls
+        lines: [161, 162, 304, 305, 515, 516, 921, 922, 949, 950]
+        note: "§ 3.4 SLICE S6, RULED Q4 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): the read-only `/source` pass-through returns from a CONTRIBUTED binding to a FIXED core arm of the neutral product — RULED Q-L1's own paragraph binds every § 3.4 slice the same way S3's `app.js` row above states it. Five insertions, each named by the pair of carve lines it sits between: 161-162 the \"AND ONE ROUTE HAS SINCE GONE THE OTHER WAY\" paragraph in the TWO REGISTRATION MODES block, recording that `/source` returned from CONTRIBUTED to FIXED; 304-305 the `SOURCE_PREFIX` / `BARE_SOURCE_ROUTE` pair and its comment block, between `PROJECT_REGISTER_ROUTE` and `CAPABILITIES_ROUTE`; 515-516 the `resolve_source_path` containment entry point, above `_checkout_real`; 921-922 the two FIXED CORE ARMS in `_route`, between the `/workbench/thread` arm and the § 2.4 contributed consult; 949-950 `_keyed_source` / `_serve_source` / `_refuse_bare_source`, between `do_HEAD` and `do_POST`. Class `adapter calls` on this manifest's own precedent (`serve.py`:618, `snapshot_registry.py`:85 — a site that reached a thing directly now calls the seam that stands in for it): here the direction is inverted, five call sites move IN from the projection column to become this core arm directly, which is the same class read the other way. All five insertions are moved from `scripts/ideation_dashboard/serve_projection.py`'s row below, which declares the matching deletions. Realized at opensoft/openDox-code `build/s6-source-core-arm`, `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)."
   - source_path: scripts/ideation_dashboard/serve_gate.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -1764,6 +1849,9 @@ rows:
     edits:
       - class: import rewrites
         lines: [47, 48, 49, 53, 54]
+      - class: adapter calls
+        lines: [6, 7, 9, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 297, 298, 299, 300, 301, 302, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 382, 383, 384, 385, 386, 387, 388]
+        note: "§ 3.4 SLICE S6, RULED Q4 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): `/source` and `/source/` are openDox's, and this column's binding keeps only `/snapshot-index.json`. What leaves, by carve-line group: 6-9,12-15 the module docstring's opening (the mixin no longer composes the `/source/` pass-through, and `checkout_root` leaves the `self.<name>` list); 23-32 the \"THE `/source` PAIR MOVES TOGETHER\" paragraph, replaced by the record of where the pair went and what the move preserves; 60-79 `SOURCE_PREFIX`, `BARE_SOURCE_ROUTE` and `resolve_source_path` removed; 297-375 `_keyed_source`, `_serve_source`, `_refuse_bare_source` removed; 382-388 `ProjectionRoutesExtension`'s docstring and its two `/source` `RouteBinding`s. The two constants, both `RouteBinding`s, the three handler methods and the single-root containment entry point leave; the per-entry rule `snapshot_registry.resolve_within` does not move and is still this column's. Class `adapter calls` on this manifest's own precedent (`serve.py`:618, `snapshot_registry.py`:85): a site that reached a thing directly stops doing so when the seam moves elsewhere, which is the same class read as a removal. The matching insertions are declared on `scripts/ideation_dashboard/serve.py`'s row above. Realized at opensoft/openXdox-code `build/s6-source-route-to-opendox`, `00b69de787975a663d9fb8985a6e38fc54945150` (DRAFT PR opensoft/openXdox-code#17)."
   - source_path: scripts/ideation_dashboard/serve_wire.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -1825,6 +1913,9 @@ rows:
       - class: adapter calls
         lines: [470, 471, 472, 475, 476, 480, 481, 482, 483, 484, 489, 521, 522, 523, 574, 579, 585, 587, 590, 599, 600, 602, 603, 604, 605, 606, 631, 640, 842, 843, 844, 865, 866, 876, 1102, 1103]
         note: "§ 3.4 SLICE S3, the same act and the same ruling as the `import rewrites` line above — the CALL SITES that reach the gate module and the hardcoded view table, rewritten to go through the view registry. Class `adapter calls` on this manifest's own precedent for the class (`serve.py`:618, `snapshot_registry.py`:85): a site that reached a thing directly now calls the seam that stands in for it. Measured in the blob at `carve_commit` with `scripts/carve_lines.py`' own record definition and the arrival verifier's own `difflib` mapping (RULED Q-L8 (c)), so these are the numbers `verify-carve-arrival.py --phase B` will name and no others. What each group is: 470-523 the `TABS` table, seven hardcoded view entries, which becomes `CORE_VIEWS` — the same seven as `ViewBinding`s plus the gate bar, collected through `collectViewBindings()` (470 `const TABS = [`; 471/475/480/482/484/521/523 the seven entry headers; 472/476/481/483/489/522 their `render:` keys, which become `mount:`). 574-640 the tab router, which stops reading a module-global list and derives the tab strip from the collected bindings (574 `TABS.map(... t.tab)`; 579/585/587/590/599/600/602-606/631/640 the `t.tab` / `t.view` / `target.render` field reads, which become `control` / `region` / `mount`). 842-844 and 865-866 and 876 the gate-bar call sites: `gateContext`'s `isGateBearing(...)` and `renderViewer`'s `mountGate:` become reads of the binding `resolveView()` returned, and null where no gate column is registered — which `views/viewer.js` already renders as a document with no gate bar (`const mountGate = o.mountGate || null`), so no second file is touched. 1102-1103 the one added context key, `views`, handing the collected registry to every view so an OPTIONAL contributed panel is asked for by id. `index.html` is NOT in this act and takes no annotation: a `data-region` attribute would have been a second spelling of an id the shell already carries, and an added attribute is in NONE of the RULED `edit_classes` (`import rewrites | path constants | adapter calls`), so the region contract is held by the registry's own `REGIONS` table and a drift test against the shell's existing ids instead."
+      - class: adapter calls
+        lines: [514, 515, 1137, 1138]
+        note: "§ 3.4 SLICE S4, RULED Q3 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): \"a route constant travels with the binding that calls it, never with the model that happens to declare it.\" Four of the thirteen route constants S4 counts across the three RULED `SPLIT` files sit on `app.js`'s own two `ViewBinding` entries, the same registry S3's row above already declares: 514-515 the `gate.lens` binding gains a `routes:` declaration naming `LENS_SAVE_ROUTE` / `LENS_CLUSTER_ROUTE`, now imported from the new `views/gate-lens.js` (an admitted, created file — see `docs/opendox-carve-admissions.yaml`) instead of `views/lens-model.js`; 1137-1138 the `gate.projects` binding gains the matching declaration for `ACTIONS_CREATE_PROJECT_ROUTE` / `ACTIONS_EDIT_PROJECT_ROUTE`, imported from the new `views/gate-projects.js`. Class `adapter calls` on this row's own S3 precedent: a binding's `routes:` declaration is a call site reaching the seam that now supplies the constant. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
   - source_path: scripts/ideation_dashboard/web/index.html
     disposition: moved_verbatim
     git_mode: '100644'
@@ -1982,17 +2073,28 @@ rows:
     reason: stays_openxfactory_adapter
     evidence: "RULED OQ-F (#656, 2026-09-09, \"rule all OQs as recommended\"): the committed-intent feed is RULING Q1's apply lane made visible; its only reader is serve_openxfactory_lanes.py:412, which stays."
   - source_path: scripts/ideation_dashboard/web/views/lens-model.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "295497eb676316d00cca16338ab061ec339430e75486fd9c21ff9c1f323cabad"
     destination: opendox_code
     destination_path: src/opendox/web/views/lens-model.js
+    edits:
+      - class: path constants
+        lines: [1033, 1034, 1035, 1036, 1037]
+        note: "§ 3.4 SLICE S4, RULED Q3 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): \"a route constant travels with the binding that calls it, never with the model that happens to declare it.\" Lines 1033-1037 are the two gate-route constants `LENS_SAVE_ROUTE` and `LENS_CLUSTER_ROUTE`, removed from this pure model — they never had a caller here — and declared instead in the new `views/gate-lens.js` (an admitted, created file; see `docs/opendox-carve-admissions.yaml`), which is what `app.js`'s `gate.lens` binding above now imports them from. Class `path constants` on this manifest's own reading: a route string is a corpus-shaped literal DECLARATION, neither an import statement nor a call site. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
   - source_path: scripts/ideation_dashboard/web/views/lens.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "f0c725fc0eb563248127b115312dd5924a4b0e50b511926624450b3a8c267780"
     destination: opendox_code
     destination_path: src/opendox/web/views/lens.js
+    edits:
+      - class: import rewrites
+        lines: [30]
+        note: "§ 3.4 SLICE S4, RULED Q3 (`#656` comment `5642758731`): line 30 repoints an import of `LENS_SAVE_ROUTE` / `LENS_CLUSTER_ROUTE` from `./lens-model.js` (where the two constants no longer live, per that row's own new entry above) to the new `./gate-lens.js`. `views/lens.js` itself stays classified `?` in the § 3.4 web-boundary census (S1's own declared, ruled-later exception, corrected of its stale S1 note reading \"splits at S4\") — this is the one import-line consequence of a SIBLING file's split, not a split of `lens.js` itself."
+      - class: adapter calls
+        lines: [176, 177, 178, 179, 180, 181, 182, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 1106, 1107, 1472, 1479]
+        note: "§ 3.4 SLICE S4, the same act and ruling as the `import rewrites` line above — the two call sites that POST the lens gate's routes (the plan-save and add-as-cluster commissions), which read the two constants from their new home instead of the old one. `views/lens.js`'s own two openxFactory-lane sites (§ 4.5 assertion 2's declared, not-counted exception) are untouched by this edit and are not among these lines. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
   - source_path: scripts/ideation_dashboard/web/views/lineage.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2024,11 +2126,18 @@ rows:
     destination: opendox_code
     destination_path: src/opendox/web/views/repo-selector-model.js
   - source_path: scripts/ideation_dashboard/web/views/repo-selector.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "f1db03e1e906fe1b092a25e9a332a770a4cbf8e6dd0beb1f6a3331e7fdbb8788"
     destination: opendox_code
     destination_path: src/opendox/web/views/repo-selector.js
+    edits:
+      - class: path constants
+        lines: [6, 7, 8, 9, 10, 33, 36, 37, 39, 40, 41, 42, 43, 44, 45, 46]
+        note: "§ 3.4 SLICE S4, RULED Q3 (`#656` comment `5642758731`): four of this file's five route constants leave. `SNAPSHOT_INDEX_ROUTE` (:33) moves to the new `views/projection-index.js`; `ACTIONS_CREATE_PROJECT_ROUTE` (:39) and `ACTIONS_EDIT_PROJECT_ROUTE` (:43) move to the new `views/gate-projects.js`; `ACTIONS_APPLY_REGISTER_EDITS_ROUTE` (:46) LEAVES THE BUNDLE ENTIRELY — RULING DQ-1 keeps openxFactory's own adapter lanes at openxFactory, which no class here may own, so the constant and everything that called it (the header's \"apply N pending\" button, its click handler, its one call of `onRefreshed`) are removed rather than relocated; nothing in this bundle replaces it, on the same footing intent-binding.js's optional contributed lane already stands on. `ACTIONS_REFRESH_ROUTE` (:34) and `/project-register.json` (:38, openDox's own) are UNCHANGED and stay class A — measured, not assumed: a slice that swept every route out of the selector would have passed every other assertion this row's leg PR adds, so that one is asserted too. Lines 6-10 and 36-37 are the accompanying JSDoc/comment lines the four moved and removed constants carry; corpus-shaped literal declarations are `path constants` on this manifest's own reading, never an import or a call site."
+      - class: adapter calls
+        lines: [64, 65, 66, 67, 69, 70, 71, 72, 73, 74, 75, 76, 77, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 299, 300, 318, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 409, 577, 608, 609, 671, 672, 681, 682, 719, 779, 780, 781, 782, 783, 784, 785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 801, 802, 803, 804, 805, 806, 807, 808, 809, 810, 811, 812, 813, 814, 815, 816, 817, 818]
+        note: "§ 3.4 SLICE S4, the same act and ruling as the `path constants` lines above — the call sites that fetch or POST the three relocated routes (the snapshot-index read, both project-gate commissions) and every site that read or handled the removed apply-register-edits affordance (the button's render guard, its click handler, its POST, its status line, the `apply.disabled` re-arm), now gone or rewritten to reach the new class-B modules through S3's registry rather than a static import. `views/projection-index.js` is reached through a dynamic `import()` inside `fetchIndex`, resolved once and cached, null when absent — the narrower guard S2's optional binding established, since an index fetch mounts no panel and occupies no region (§ 4.2). The `.applybtn` CSS rule in `styles.css` (class C, an ARRIVED `moved_verbatim` row) is deliberately left in place and takes no annotation of its own. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
   - source_path: scripts/ideation_dashboard/web/views/settings.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2045,6 +2154,12 @@ rows:
       - class: path constants
         lines: [544]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: path constants
+        lines: [543, 814, 815, 816, 817, 818, 819, 820, 821, 822, 823, 824, 825, 826]
+        note: "§ 3.4 SLICE S4, RULED Q3 (`#656` comment `5642758731`): six of this pure model's route constants leave for the class-B modules that call them — `CREATE_ROUTE` (:543) to the existing `views/swb-create.js`; `EDIT_DOCUMENT_ROUTE` (:817), `OPEN_PR_ROUTE` (:818), `FIRST_EDIT_ROUTE` (:821), `ABANDON_SESSION_ROUTE` (:822) and `SHARE_SESSION_ROUTE` (:826) to the existing `views/swb-session.js`. Lines 814-820/823-825 are the accompanying declaration/comment lines the moved block carries. Corpus-shaped literal declarations are `path constants` on this row's own precedent above."
+      - class: adapter calls
+        lines: [956, 957, 958, 959, 960, 961, 962, 963, 985, 986, 987, 988]
+        note: "§ 3.4 SLICE S4, the same act and ruling as the entry above — this model's own two call sites that read the six relocated constants back (the create-session and session-action dispatchers), rewritten to import them from `swb-create.js` / `swb-session.js` instead of declaring them locally. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
   - source_path: scripts/ideation_dashboard/web/views/staging-workbench.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2052,11 +2167,18 @@ rows:
     destination: opendox_code
     destination_path: src/opendox/web/views/staging-workbench.js
   - source_path: scripts/ideation_dashboard/web/views/swb-create.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "4b8a211b00a9e96b3f44b8af564fc33bdca32bc34fba13ac6ea34fa8480b1c31"
     destination: opendox_code
     destination_path: src/opendox/web/views/swb-create.js
+    edits:
+      - class: import rewrites
+        lines: [32, 34]
+        note: "§ 3.4 SLICE S4, RULED Q3 (`#656` comment `5642758731`): line 32 drops `CREATE_ROUTE` from this file's import of `./staging-workbench-model.js` (the constant no longer lives there, per that row's own new entry above); line 34, the import statement's closing `} from \"./staging-workbench-model.js\";`, is declared alongside it as the INSERTION's preceding neighbour — the new `export const CREATE_ROUTE = ...` declaration lands immediately after it, and a pure insertion is named by the pair of carve lines it sits between (this manifest's own convention, `serve.py`:161-162 et al.)."
+      - class: path constants
+        lines: [35]
+        note: "§ 3.4 SLICE S4, the same act and ruling as the entry above — the INSERTION's following neighbour: `CREATE_ROUTE = \"/actions/gate/create-document\"` is now declared here, in the class-B module the gate column owns and where it can travel with the binding at slice S5, rather than in the pure model that merely happened to declare it. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
   - source_path: scripts/ideation_dashboard/web/views/swb-model-intake.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2064,11 +2186,18 @@ rows:
     destination: opendox_code
     destination_path: src/opendox/web/views/swb-model-intake.js
   - source_path: scripts/ideation_dashboard/web/views/swb-session.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "06758446e95278cdd20363e10748036340b795b4e2c823c68ddd93da10225ec2"
     destination: opendox_code
     destination_path: src/opendox/web/views/swb-session.js
+    edits:
+      - class: import rewrites
+        lines: [76, 78]
+        note: "§ 3.4 SLICE S4, RULED Q3 (`#656` comment `5642758731`): line 76 drops `EDIT_DOCUMENT_ROUTE`, `OPEN_PR_ROUTE`, `FIRST_EDIT_ROUTE`, `ABANDON_SESSION_ROUTE` and `SHARE_SESSION_ROUTE` from this file's import of `./staging-workbench-model.js` (none of the five lives there any more, per that row's own new entry above); line 78, the import statement's closing `} from \"./staging-workbench-model.js\";`, is declared alongside it as the INSERTION's preceding neighbour, the same convention the `swb-create.js` row above uses."
+      - class: path constants
+        lines: [79]
+        note: "§ 3.4 SLICE S4, the same act and ruling as the entry above — the INSERTION's following neighbour: the five route constants are now declared here, in the class-B module the gate column owns. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
   - source_path: scripts/ideation_dashboard/web/views/viewer.js
     disposition: moved_verbatim
     git_mode: '100644'
