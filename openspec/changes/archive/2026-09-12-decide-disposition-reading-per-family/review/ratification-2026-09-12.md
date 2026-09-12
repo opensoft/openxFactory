@@ -145,3 +145,17 @@ reading arm, so `code_surface` does not change at this ratification:
 - It does not re-open or re-litigate any of the eighteen `ratified-provenance`
   entries the parent packet (`honour-grandfather-dispositions-in-ratified-provenance`,
   archived 2026-09-11) already settled.
+
+## 5. Addendum — the separate archive word (recorded at the archive, 2026-09-12)
+
+This ratification (§4 above) explicitly did NOT archive the packet or close
+openxFactory #966; § 6 of `tasks.md` states the archive is "a separate act on
+a separate word." That word came later, on the archive pull request itself,
+after Codex's review (thread `PRRT_kwDOTAvnrs6hyMbj` on PR #1007,
+2026-09-12T17:47:21Z) found no such word yet on record: **Brett Heap,
+2026-09-12T18:01:30Z, verbatim *"archive it"***, recorded on PR
+[#1007](https://github.com/opensoft/openxFactory/pull/1007#issuecomment-5647690592)
+and mirrored on issue
+[#966](https://github.com/opensoft/openxFactory/issues/966#issuecomment-5647690759).
+This line is an ADDITION appended after the archive, not an edit to the
+ratification prose above, which stands as it was ratified.
