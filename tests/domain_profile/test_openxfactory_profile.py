@@ -436,6 +436,57 @@ def test_the_guard_does_not_fire_on_this_modules_own_registration():
     assert opendox_host.register_openxfactory() is opendox_registry.current()
 
 
+#: The two lanes that reach the § 4.4 ENGINE rather than an openDox parser or
+#: server. `openxdox.generator` and `openxdox.gate_console` are the only two
+#: modules at the pinned leg that call `domain_profile.current()`, and these are
+#: the openxFactory modules that import them.
+_ENGINE_LANES = ("nightly_lane", "intent_apply_lane")
+
+
+@pytest.mark.parametrize("lane", _ENGINE_LANES)
+def test_an_engine_lane_registers_at_its_own_process_entry(lane):
+    """§ 4.4 WIDENS THE INVENTORY BEYOND PARSERS AND SERVERS (Copilot review,
+    PR #984). `main()` of each of these lanes reaches the lifecycle engine —
+    `nightly_lane` through `openxdox.generator.generate_snapshot()`,
+    `intent_apply_lane` through that and `openxdox.gate_console` — and the
+    engine resolves `domain_profile.current()` late, per call. A process that
+    reaches it with nothing registered is REFUSED, and `nightly_lane` reports
+    every error as SKIPPED and exits 0 by contract, so the refusal would have
+    been published as a green-looking skip rather than surfaced.
+
+    In a SUBPROCESS with NO conftest, which is the point: this whole suite runs
+    with `tests/conftest.py` having already made the registration, so an
+    in-process assertion would pass whether or not the lane registers anything
+    — the green bar the production defect hid behind. The subprocess does
+    exactly what `scripts/ideation-dashboard-nightly.py` does (put `scripts/` on
+    the path, import the lane, call `main`) and nothing else.
+
+    `--help` is the cheapest argv that reaches `main()`: the registration is
+    made before the parser is built, so `SystemExit(0)` from argparse still
+    leaves the registry to be read."""
+    program = textwrap.dedent("""
+        import sys
+        sys.path.insert(0, {scripts!r})
+        from ideation_dashboard.{lane} import main
+        from opendox import domain_profile as odp
+        from openxdox import domain_profile as xdp
+        print("before", odp.is_registered(), xdp.is_registered())
+        try:
+            main(["--help"])
+        except SystemExit:
+            pass
+        print("after", odp.is_registered())
+        print("resolves", xdp.current().mapping_id)
+    """).format(scripts=str(SCRIPTS), lane=lane)
+    proc = subprocess.run([sys.executable, "-c", program],
+                          capture_output=True, text=True, cwd=str(REPO_ROOT))
+    assert proc.returncode == 0, proc.stderr
+    lines = proc.stdout.splitlines()
+    assert "before False False" in lines, proc.stdout
+    assert "after True" in lines, proc.stdout
+    assert "resolves openxfactory-engineering" in lines, proc.stdout
+
+
 def test_a_facet_colliding_with_a_profile_field_is_refused_at_compose_time():
     """`__getattr__` runs only when ordinary lookup FAILS, so a facet named like
     one of `DomainProfile`'s own fields would hand openDox the dataclass's value

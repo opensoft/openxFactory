@@ -497,6 +497,29 @@ def main(argv: list[str] | None = None) -> None:
     """CLI entry. Void by contract: the lane NEVER fails the nightly, so there
     is no exit-status variation to return — every path (including a total
     failure, reported as SKIPPED) falls through and the process exits 0."""
+    # THE ONE PROCESS-START REGISTRATION (§ 4.3/§ 4.4, RULED ASK-2 option (2)
+    # and RULING C2). `openxdox.generator.generate_snapshot()` — imported
+    # above and called at :191 and :379 — resolves `domain_profile.current()`
+    # while deriving
+    # cluster lineage (`openxdox/generator.py`:339, :361).
+    # A process that reaches the engine with nothing registered is REFUSED —
+    # `openxdox.domain_profile.DomainProfileNotRegistered` — and this lane
+    # reports every error as SKIPPED and exits 0 by contract, so the
+    # refusal would be published as a green-looking skip rather than surfaced
+    # (Copilot review, PR #984).
+    #
+    # HERE, IN `main()`, AND NOT AT MODULE SCOPE: a column that registered
+    # while being imported could re-enter its own half-executed module, the
+    # hazard `scripts/opendox_host.py` documents for
+    # `ideation_dashboard/serve_openxfactory_lanes.py`. Called from the process
+    # entry instead, which is what both production paths go through
+    # (`scripts/ideation-dashboard-nightly.py` and
+    # `python3 -m ideation_dashboard.nightly_lane`, the form
+    # `scripts/reserve-dashboard.sh`:69 runs). Idempotent, so a caller that
+    # already registered is not punished.
+    from opendox_host import register_openxfactory
+    register_openxfactory()
+
     ap = argparse.ArgumentParser(
         prog="ideation-dashboard-nightly", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)

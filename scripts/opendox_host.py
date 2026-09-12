@@ -238,9 +238,14 @@ def register_openxfactory() -> Any:
     so `is_registered()` there stays False and the idempotent second call takes
     exactly the path the first did.
 
-    WHO CALLS IT — every process that builds an openDox parser OR server, and
-    nothing else (§ 4.3's landing note: *"scope grew: every openxFactory
-    process that builds a SERVER needs the hook too, not only a parser"*):
+    WHO CALLS IT — every process that builds an openDox parser or server, AND
+    every process that reaches the § 4.4 ENGINE. § 4.3's landing note recorded
+    the first widening (*"scope grew: every openxFactory process that builds a
+    SERVER needs the hook too, not only a parser"*); § 4.4 is the second, and it
+    is wider than the note, because the lifecycle engine is reached by lanes
+    that build neither a parser nor a server (Copilot review, PR #984).
+
+    PARSER / SERVER:
 
       * `scripts/ideation-dashboard-serve.py`, the serve entrypoint
         `scripts/reserve-dashboard.sh` executes — the production caller.
@@ -249,6 +254,26 @@ def register_openxfactory() -> Any:
       * `tests/ideation-dashboard/test_cli_column_split.py`'s BOOTSTRAP, the
         source string its two subprocess invocations of the real command line
         run before `runpy`.
+
+    ENGINE. `openxdox.generator` and `openxdox.gate_console` are the only two
+    modules at the pinned leg that call `openxdox.domain_profile.current()`, and
+    two openxFactory lanes import them. Each registers at its own `main()`:
+
+      * `scripts/ideation_dashboard/nightly_lane.py` — `generate_snapshot()`
+        resolves the profile while deriving cluster lineage. Reached by
+        `scripts/ideation-dashboard-nightly.py` AND by `python3 -m
+        ideation_dashboard.nightly_lane`, which is the form
+        `scripts/reserve-dashboard.sh`:69 runs, so the wrapper alone would not
+        have covered it. This lane reports every error as SKIPPED and exits 0
+        by contract, so an unregistered process published the refusal as a
+        green-looking skip rather than failing.
+      * `scripts/ideation_dashboard/intent_apply_lane.py` — reaches both engine
+        readers.
+
+    `scripts/ideation_dashboard/dashboard_refresh_lane.py` has a `__main__` of
+    its own and does NOT call it: it imports neither engine module, and a hook
+    where none is needed would be the blanket registration this file's FACETS
+    list refuses in the other direction.
 
     A COLUMN must NOT call it: `ideation_dashboard/serve_openxfactory_lanes.py`
     is imported BY `profile_openxfactory`, so a column that registered the
