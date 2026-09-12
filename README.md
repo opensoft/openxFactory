@@ -547,8 +547,12 @@ Active changes:
   it unchanged — with resolution resting on a VALID, COMPLETE neutral-product
   pin record, one carrying every member required by the RECORD SHAPE it matches
   — three shapes across the five `pinned_contract_manifest` records, two of them
-  sharing `revision_kind: commit`, so the revision kind alone is not the key —
-  judged through a code-fixed route that never runs a path the
+  sharing `revision_kind: commit`, so the revision kind alone is not the key,
+  and each shape's member set being that shape's VERIFIER-REQUIRED SET, exactly
+  what its in-tree pin verifier refuses-when-absent (measured; the ratified text
+  is silent on the whole-tree shape and on the published artifact's `package`
+  and `binary`), pinned to those verifiers by an equivalence test over each real
+  record — judged through a code-fixed route that never runs a path the
   record itself selects and resolved under the root precedence the in-tree arm
   already uses (NO pin
   record in this tree enumerates capabilities, measured over all six; what each

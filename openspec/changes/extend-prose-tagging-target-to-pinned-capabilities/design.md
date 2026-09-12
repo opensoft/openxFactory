@@ -166,13 +166,62 @@ a later change, on evidence that a stale supersedes target exists.
    `contracts/opendox-pin.yaml` and `contracts/openxdox-pin.yaml` — two valid
    records this repository ships — for lacking lists their shape does not have.
 
-   | record (`origin/main`) | shape | members present |
-   | --- | --- | --- |
-   | `contracts/openxwallet-pin.yaml` | (a) enumerated commit pin | `commit` `:44`, `revision_kind: commit` `:45`, `files:` `:70` (8 mappings, each `path`+`sha256`, `:80-95`), `pinned_by_commit_only:` `:104` (6 path-only strings, `:105-110`) |
-   | `contracts/openreposhape-pin.yaml` | (a) enumerated commit pin | `commit` `:114`, `revision_kind: commit` `:115`, `files:` `:134` (31 mappings, `:135-196`), `pinned_by_commit_only:` `:201` (45 path-only strings, `:202-246`) |
-   | `contracts/opendox-pin.yaml` | (b) whole-tree digest commit pin | `commit` `:92`, `revision_kind: commit` `:93`, `digest_definition: sorted-ls-tree-r-v1` `:108`, `digests.tree_sha256` `:110`; NO `files:`, NO `pinned_by_commit_only:` |
-   | `contracts/openxdox-pin.yaml` | (b) whole-tree digest commit pin | `commit` `:76`, `revision_kind: commit` `:77`, `digest_definition` `:92`, `digests.tree_sha256` `:94`; NO `files:`, NO `pinned_by_commit_only:` |
-   | `contracts/openspec-cli-pin.yaml` | (c) published-artifact pin | `version` `:289`, `revision_kind: package_integrity` `:297`, `integrity` `:299`, `shasum` `:308`, `lockfile` `:328`, `lockfile_integrity` `:329`, `lockfile_packages` `:330`; NO `commit`, NO `files:`, NO `pinned_by_commit_only:` |
+   **AND THE MEMBER SET OF A SHAPE IS THE SHAPE'S VERIFIER-REQUIRED SET.** The
+   table holds EXACTLY the top-level members that shape's in-tree pin verifier
+   REFUSES-WHEN-ABSENT, measured from the verifier scripts and cited member by
+   member below. The ratified text supplies members where it NAMES them and is
+   silent elsewhere — on shape (b) entirely, and on the published artifact's
+   `package` and `binary` — and the verifier-required set completes it.
+
+   **Why the verifier is the right completion, stated once.** On a landed tree
+   this completeness check is redundant: every record in `contracts/` already
+   passes its own verifier, those verifiers being required checks, so no landed
+   record can reach the resolver incomplete. What the check actually defends is
+   the SIDE RUNS — a doc-health fixture tree, an aggregate of repositories, a
+   `--single-repo` run over an arbitrary checkout, an added
+   `contracts/evil-pin.yaml` — where no pin verifier has run at all. On exactly
+   those trees, a resolver whose table were NARROWER than the verifier would
+   admit a record the repository's own gate refuses, which is the whole defect
+   this arm exists to close; and one WIDER would refuse a record the gate
+   admits. So the table is neither, and **the realization PINS it there with an
+   EQUIVALENCE TEST** over each real record: for every top-level member `m` of
+   the record, the shape's verifier refuses the record with `m` removed IF AND
+   ONLY IF `m` is in the table for that record's shape (task 3.3(p)). The table
+   is still CODE the resolver is reviewed with — the record never selects the
+   code that judges it — but it is code a test holds against the verifier it
+   tracks, rather than a list that can drift unobserved.
+
+   | record (`origin/main`) | shape | verifier | verifier-required members (script:line) |
+   | --- | --- | --- | --- |
+   | `contracts/openxwallet-pin.yaml` | (a) enumerated commit pin | `scripts/verify-openxwallet-pin.py` (`verify_pin:` at `:64`) | `submodule_path` `:194`, `revision_kind` `:219`, `commit` `:227`, `files` `:392` |
+   | `contracts/openreposhape-pin.yaml` | (a) enumerated commit pin | `scripts/validate-openreposhape-pin.py` (`:121`) | `revision_kind` `:239`, `commit` `:247`, `source_repository` `:258`, `files` `:438` |
+   | `contracts/opendox-pin.yaml` | (b) whole-tree digest commit pin | `scripts/verify-opendox-pin.py` (`:156`) | `submodule_path` `:215`, `revision_kind` `:226`, `commit` `:234`, `digest_algorithm` `:246`, `digest_definition` `:253`, `digests` `:262` + `digests.tree_sha256` `:269` |
+   | `contracts/openxdox-pin.yaml` | (b) whole-tree digest commit pin | `scripts/verify-openxdox-pin.py` (`:121`) | `submodule_path` `:257`, `revision_kind` `:276`, `commit` `:284`, `digest_algorithm` `:307`, `digest_definition` `:314`, `digests` `:322` + `digests.tree_sha256` `:329` |
+   | `contracts/openspec-cli-pin.yaml` | (c) published-artifact pin | `scripts/validate-openspec-cli-pin.py` (`:376`, `consumer_entrypoint:` `:394`) | `revision_kind` `:592`, `version` `:601`, `integrity` `:619`, `shasum` `:646`, `package` `:658`, `lockfile` `:698`, `lockfile_integrity` `:708`, `lockfile_packages` `:731`, `binary` `:748` |
+
+   NOT refused-when-absent, and therefore NOT in the table, though each is
+   refused when PRESENT and malformed: `pinned_by_commit_only:` under shape (a)
+   (`scripts/verify-openxwallet-pin.py:443-448`,
+   `scripts/validate-openreposhape-pin.py:487-491`, both reading it with an
+   absent-is-empty default), and `dispositions:` under shape (c)
+   (`scripts/validate-openspec-cli-pin.py:801-803`). The first of those is a
+   member the RATIFIED TEXT does name (`:31-36`) — so the text is stricter here
+   than the verifier, and the difference is resolved, not averaged: the text's
+   obligation binds the pin's AUTHOR and is `neutral-product-pin`'s to enforce,
+   while THIS table is what the resolver may refuse a record on, and it does not
+   refuse what the shape's verifier admits.
+
+   **And shape (a)'s product-identity member has two spellings, measured.**
+   `scripts/verify-openxwallet-pin.py:194` refuses a record without
+   `submodule_path`; `scripts/validate-openreposhape-pin.py:258` refuses one
+   without `source_repository`; neither verifier reads the other's member. So
+   shape (a)'s entry is `revision_kind`, `commit`, `files` and EXACTLY ONE
+   product-identity member, and AT THE RECORD GRAIN it resolves to that record's
+   own verifier's set. Neither flattening works: the UNION would refuse
+   `contracts/openxwallet-pin.yaml` for lacking `source_repository`, and the
+   INTERSECTION would admit a record naming no product at all — and the
+   equivalence test above fails the intersection outright, `submodule_path`
+   being a top-level member of that record which its verifier refuses without.
 
    Two consequences the earlier drafting of this section got wrong, both
    corrected here. **First, shape (b) is admitted and not an omission.**
@@ -188,16 +237,24 @@ a later change, on evidence that a stale supersedes target exists.
    a MIXTURE, a record carrying both `digests.tree_sha256` and a `files:` list
    matches neither (a) nor (b) and is refused naming both shapes tried, on that
    capability's own fail-closed rule (`:89`). **Second, shape (c)'s required set
-   is SIX members and not four.** Today's one published-artifact record carries
-   `version` `:289`, `integrity` `:299`, `shasum` `:308`, `lockfile` `:328`,
-   `lockfile_integrity` `:329` and `lockfile_packages` `:330` in
-   `contracts/openspec-cli-pin.yaml`; the `shasum` is the secondary address
-   `:62-65` names rather than a member the spec spells, and the last two are
-   what `:669-673` obliges BESIDE the committed lockfile — the digest "over its
-   exact bytes" and "the size of the tree it locks". A set naming `lockfile`
-   alone would leave both unchecked, which is the record's own reason for
-   carrying them (`contracts/openspec-cli-pin.yaml:321-327`), and would make
-   this resolver's notion of a complete pin weaker than the verifier's. A
+   is NINE members — the verifier's set, not a reading of the text alone.** An
+   earlier drafting of this section named four (`version`, `integrity`,
+   `shasum`, `lockfile`) and a later one six (adding `lockfile_integrity` and
+   `lockfile_packages`); both were under-measured. `scripts/validate-openspec-cli-pin.py`
+   refuses a record without any of NINE: `revision_kind` `:592`, `version`
+   `:601`, `integrity` `:619`, `shasum` `:646`, `package` `:658`, `lockfile`
+   `:698`, `lockfile_integrity` `:708`, `lockfile_packages` `:731`, `binary`
+   `:748`. The `shasum` is the secondary address `:62-65` names rather than a
+   member the spec spells; `lockfile_integrity` and `lockfile_packages` are what
+   `:669-673` obliges BESIDE the committed lockfile — the digest "over its exact
+   bytes" and "the size of the tree it locks", which is the record's own reason
+   for carrying them (`contracts/openspec-cli-pin.yaml:321-327`); and `package`
+   `:282` and `binary` `:370` the ratified text does not reach at all, naming
+   the product the referent is OF and the executable the artifact installs
+   (`:657-663`, `:747-754`). Each omission would have made this resolver's
+   notion of a complete pin WEAKER than the verifier's, which on a fixture or
+   side run is the difference between admitting and refusing a record the
+   repository's own gate would refuse. A
    `contracts/evil-pin.yaml` holding `kind`, `revision_kind: commit` and a
    `commit` satisfies the weaker wording and resolves arbitrary pinned targets
    under it; it matches neither commit-pinned shape. The list stays with
@@ -266,7 +323,21 @@ a later change, on evidence that a stale supersedes target exists.
    **And the path is RESOLVED
    before it is read**: the lexical grammar of D-1 stops a `..` inside the
    MARKER, and only resolved containment stops a committed SYMLINK at
-   `contracts/<pin-id>-pin.yaml` redirecting the read out of the registry. The
+   `contracts/<pin-id>-pin.yaml` redirecting the read out of the registry.
+   **AND THE BOUNDARY ITSELF IS CHECKED BEFORE ANY CANDIDATE IS**, because the
+   containment check has a second escape the candidate check cannot see: if
+   `<root>/contracts` is ITSELF a symlink to another directory, an
+   implementation comparing the candidate against `(root / "contracts")
+   .resolve()` accepts and reads a file that is outside the LEXICAL registry
+   the boundary names — the redirection having moved the boundary rather than
+   been caught by it, and the comparison still passing. So the arm first
+   requires that root's `contracts` to be a REAL, NON-REDIRECTING DIRECTORY
+   INSIDE THE ROOT — it is a directory, it is not a symlink, and its resolved
+   path equals its lexical path — and where it is not, the pinned arm REFUSES
+   FOR THAT ROOT as a whole with a controlled finding naming the root, reading
+   no candidate at all. Refusing the root rather than the marker is the honest
+   grain: every pinned target that would resolve through that root is affected,
+   and the defect is the registry directory, not any one record. The
    realization reuses the repository's own containment dialect rather than
    inventing a second one, but it CANNOT reuse `resolve_in_tree`
    (`scripts/validate-pin-registrations.py:237-267`) AS WRITTEN: that helper

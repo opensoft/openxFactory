@@ -139,17 +139,32 @@ fenced and queued truthfully instead.
    requires — this grammar enumerating NO MEMBER LIST OF ITS OWN and opening no
    delta against that capability. THE SHAPE AND NOT THE `revision_kind` ALONE IS
    THE UNIT, measured over all five `pinned_contract_manifest` records: THREE
-   shapes, two of them sharing `revision_kind: commit` — (a) the ENUMERATED
-   commit pin, `files:` mappings each carrying a `sha256` beside path-only
-   `pinned_by_commit_only:` strings that validly carry none
-   (`openspec/specs/neutral-product-pin/spec.md:31-36`;
+   shapes, two of them sharing `revision_kind: commit`. **And each shape's
+   member set is that shape's VERIFIER-REQUIRED SET** — exactly the top-level
+   members its in-tree pin verifier refuses-when-absent, measured from the
+   verifier scripts: (a) the ENUMERATED commit pin, `revision_kind`, `commit`,
+   `files` and one product-identity member whose spelling differs by mount
+   (`submodule_path` at `scripts/verify-openxwallet-pin.py:194`,
+   `source_repository` at `scripts/validate-openreposhape-pin.py:258`), with
+   `files:` mappings each carrying a `sha256` beside path-only
+   `pinned_by_commit_only:` strings that validly carry none and whose ABSENCE
+   the verifiers accept (`openspec/specs/neutral-product-pin/spec.md:31-36`;
    `contracts/openxwallet-pin.yaml:70,104-110`); (b) the WHOLE-TREE DIGEST
-   commit pin, a `digest_definition` and a `digests.tree_sha256` with NEITHER
-   list (`contracts/opendox-pin.yaml:108-110`,
-   `contracts/openxdox-pin.yaml:92-94`); and (c) the PUBLISHED-ARTIFACT pin,
-   `version`, `integrity`, `shasum`, `lockfile`, `lockfile_integrity` and
-   `lockfile_packages` (`:46-48`, `:62-65`, `:669-673`;
-   `contracts/openspec-cli-pin.yaml:289,299,308,328-330`). A record carrying a
+   commit pin, `submodule_path`, `revision_kind`, `commit`, `digest_algorithm`,
+   `digest_definition` and `digests.tree_sha256` with NEITHER list
+   (`scripts/verify-opendox-pin.py:215-269`;
+   `contracts/opendox-pin.yaml:108-110`, `contracts/openxdox-pin.yaml:92-94`);
+   and (c) the PUBLISHED-ARTIFACT pin, NINE members — `revision_kind`,
+   `version`, `integrity`, `shasum`, `package`, `lockfile`,
+   `lockfile_integrity`, `lockfile_packages`, `binary`
+   (`scripts/validate-openspec-cli-pin.py:592,601,619,646,658,698,708,731,748`;
+   `:46-48`, `:62-65`, `:669-673`;
+   `contracts/openspec-cli-pin.yaml:282,289,299,308,328-330,370`), the ratified
+   text reaching six of the nine and the verifier supplying `package` and
+   `binary` it does not name. The table is PINNED to those verifiers by an
+   EQUIVALENCE TEST over each real record, so it can be neither narrower than
+   the gate (admitting on a side run what the repository refuses) nor wider
+   (refusing what it admits). A record carrying a
    kind with a partial member set for the shape it matches, or matching no shape
    at all, is an INVALID PIN that reports with a finding NAMING THE SHAPE TRIED
    AND THE FAILING MEMBER and does not resolve; a table keyed on the revision

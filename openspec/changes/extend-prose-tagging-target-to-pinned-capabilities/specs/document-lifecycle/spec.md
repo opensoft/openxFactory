@@ -45,58 +45,96 @@ an external neutral product. A pin-shaped record of another kind, such as
 `kind: pinned_workflow`, MUST NOT resolve a pinned target: it pins executable
 governance code rather than a product whose units are capabilities, so it has
 no capability set for the name to be about. THE KIND ALONE IS A LABEL, NOT A
-PIN: the record MUST also be COMPLETE — it MUST carry the members the
-`neutral-product-pin` capability's ratified requirement *An external neutral
-product is pinned by commit and digest, never by tag* obliges of a
-`pinned_contract_manifest` record FOR ITS OWN RECORD SHAPE. THE SHAPE IS THE
-UNIT OF THAT JUDGEMENT AND THE `revision_kind` ALONE IS NOT: two records may
-declare `revision_kind: commit` and be complete on DIFFERENT member sets, so a
-single required-member list keyed on the revision kind would refuse one of them
-for carrying the other's shape. This grammar RESTATES no shape and OWNS no
-field list; the shapes are read from `neutral-product-pin`'s ratified text and
-MEASURED over every `pinned_contract_manifest` record this tree carries — five,
-on `origin/main` — and there are THREE.
+PIN: the record MUST also be COMPLETE FOR ITS OWN RECORD SHAPE. THE SHAPE IS
+THE UNIT OF THAT JUDGEMENT AND THE `revision_kind` ALONE IS NOT: two records
+may declare `revision_kind: commit` and be complete on DIFFERENT member sets,
+so a single required-member list keyed on the revision kind would refuse one of
+them for carrying the other's shape.
 
-(a) THE ENUMERATED COMMIT-PINNED SOURCE PIN: `commit` with
-`revision_kind: commit`, beside "a per-file `sha256` for every artifact the
-product's own manifest digests per file, and `pinned_by_commit_only:` for every
-artifact the product content-addresses by commit alone"
-(`openspec/specs/neutral-product-pin/spec.md:31-36`), those two lists being the
-ENUMERATION that makes completeness checkable where a commit is not a digest a
-single file can be compared against (`:56-59`). THE TWO LISTS ARE OF DIFFERENT
-FORMS AND MUST NOT BE JUDGED BY ONE RULE: a `files:` entry is a MAPPING
-carrying a `path` and its `sha256` (`contracts/openxwallet-pin.yaml:70,80-95`;
-`contracts/openreposhape-pin.yaml:134,135-196`), while a
-`pinned_by_commit_only:` entry is a PATH-ONLY STRING that carries no digest of
-its own and is VALID as such (`contracts/openxwallet-pin.yaml:104-110`;
-`contracts/openreposhape-pin.yaml:201-246`) — the publisher having published no
+AND THE MEMBER SET OF A SHAPE IS THE SHAPE'S VERIFIER-REQUIRED SET: EXACTLY THE
+TOP-LEVEL MEMBERS THAT SHAPE'S IN-TREE PIN VERIFIER REFUSES-WHEN-ABSENT,
+MEASURED FROM THE VERIFIER SCRIPTS. This grammar RESTATES no shape and OWNS no
+field list. `neutral-product-pin`'s ratified requirement *An external neutral
+product is pinned by commit and digest, never by tag* supplies members WHERE IT
+NAMES THEM, and it does not name them everywhere: it is SILENT on the
+whole-tree digest shape and on the published artifact's `package` and `binary`,
+so the verifier-required set COMPLETES it rather than competing with it. WHY
+THE VERIFIER AND NOT A NARROWER READING: on a landed tree every record already
+passes its own verifier, those verifiers being required checks, so what this
+completeness check actually defends is the SIDE RUNS — a fixture tree, an
+aggregate of repositories, an added `contracts/evil-pin.yaml` — where no
+verifier has run at all. A resolver that ACCEPTED what the shape's verifier
+REFUSES would admit, on exactly those trees, a record the repository's own
+gate would reject. Where the ratified text names a member the verifier does NOT
+refuse-when-absent — `pinned_by_commit_only:` is the one such member measured —
+that is the text's obligation on the pin's AUTHOR, enforced by
+`neutral-product-pin`'s own machinery, and it is NOT a resolution prerequisite
+here; the set is neither narrower nor wider than the verifier, and an
+equivalence test named below holds it there. Measured over every
+`pinned_contract_manifest` record this tree carries — five, on `origin/main` —
+there are THREE shapes.
+
+(a) THE ENUMERATED COMMIT-PINNED SOURCE PIN. Verifier-required: `revision_kind`
+(`scripts/verify-openxwallet-pin.py:219`,
+`scripts/validate-openreposhape-pin.py:239`), `commit` (`:227`, `:247`),
+`files` (`:392`, `:438`), and EXACTLY ONE PRODUCT-IDENTITY MEMBER, whose
+spelling differs with how the product is mounted: `submodule_path` for a
+submodule-mounted product (`scripts/verify-openxwallet-pin.py:194`) and
+`source_repository` for one resolved from its host
+(`scripts/validate-openreposhape-pin.py:258`). AT THE RECORD GRAIN the table
+resolves to exactly that record's verifier's set — neither the union of the two
+(which would refuse `contracts/openxwallet-pin.yaml` for lacking
+`source_repository`) nor their intersection (which would admit a record with no
+product identity at all). `files:` entries are MAPPINGS carrying a `path` and
+its `sha256` (`contracts/openxwallet-pin.yaml:70,80-95`;
+`contracts/openreposhape-pin.yaml:134,135-196`), and a `files:` list that is
+absent or empty is refused (`scripts/verify-openxwallet-pin.py:392-397`).
+`pinned_by_commit_only:` is NOT in the verifier-required set: both verifiers
+read it with an absent-is-empty default and refuse it only when it is PRESENT
+and not a list (`scripts/verify-openxwallet-pin.py:443-448`,
+`scripts/validate-openreposhape-pin.py:487-491`). It is nonetheless of a
+DIFFERENT FORM from `files:` and MUST NOT be judged by one rule with it: its
+entries are PATH-ONLY STRINGS carrying no digest of their own
+(`contracts/openxwallet-pin.yaml:104-110`;
+`contracts/openreposhape-pin.yaml:201-246`), the publisher having published no
 per-file digest for those members, so requiring a `sha256` of them would
 require an invented row.
 
-(b) THE WHOLE-TREE DIGEST COMMIT-PINNED SOURCE PIN: `commit` with
-`revision_kind: commit`, beside a `digest_definition` naming exactly what is
-digested and a `digests.tree_sha256` over it, and NEITHER `files:` NOR
-`pinned_by_commit_only:` (`contracts/opendox-pin.yaml:92-93,108-110`;
-`contracts/openxdox-pin.yaml:76-77,92-94`). ONE digest over the whole tree
-leaves no member undeclared, which is the ground on which the
+(b) THE WHOLE-TREE DIGEST COMMIT-PINNED SOURCE PIN. Verifier-required, and the
+two verifiers agree member for member: `submodule_path`
+(`scripts/verify-opendox-pin.py:215`, `scripts/verify-openxdox-pin.py:257`),
+`revision_kind` (`:226`, `:276`), `commit` (`:234`, `:284`),
+`digest_algorithm` (`:246`, `:307`), `digest_definition` (`:253`, `:314`) and
+`digests` as a MAPPING (`:262`, `:322`) carrying `tree_sha256` (`:269`,
+`:329`), with NEITHER `files:` NOR `pinned_by_commit_only:`
+(`contracts/opendox-pin.yaml:92-95,108-110`;
+`contracts/openxdox-pin.yaml:76-79,92-94`). `digest_algorithm` and
+`digest_definition` are not decoration: each verifier refuses a value other
+than the one it implements, because a definition it cannot compute is an
+unanswerable question rather than a finding about the tree. ONE digest over the
+whole tree leaves no member undeclared, which is the ground on which the
 published-artifact shape needs no enumeration either
 (`openspec/specs/neutral-product-pin/spec.md:59-61`).
 
-(c) THE PUBLISHED-ARTIFACT PIN: that artifact's digest as the referent with
-`revision_kind` declared accordingly (`:46-48`), NEITHER per-file list
+(c) THE PUBLISHED-ARTIFACT PIN. Verifier-required — NINE members, all from
+`scripts/validate-openspec-cli-pin.py`: `revision_kind` (`:592`), `version`
+(`:601`), `integrity` (`:619`), `shasum` (`:646`), `package` (`:658`),
+`lockfile` (`:698`), `lockfile_integrity` (`:708`), `lockfile_packages`
+(`:731`) and `binary` (`:748`)
+(`contracts/openspec-cli-pin.yaml:282,289,297,299,308,328-330,370`). The
+ratified text reaches six of the nine — the artifact's digest as the referent
+with `revision_kind` declared accordingly (`:46-48`), NEITHER per-file list
 (`:55-56`), "every field the consumer's verifier checks — including any
 secondary address the registry publishes" (`:62-65`), and the vendored
-resolution that capability's requirement *A pinned artifact that resolves
-dependencies at install time carries a vendored lockfile, and the install runs
-through it* obliges, "a lockfile … addressed by a digest over its exact bytes
-recorded in the pin, together with the size of the tree it locks" (`:669-673`)
-— SIX members on this tree's one such record: `version`, `integrity`, `shasum`,
-`lockfile`, `lockfile_integrity` and `lockfile_packages`
-(`contracts/openspec-cli-pin.yaml:289,299,308,328-330`). THE LAST TWO ARE NOT
-OPTIONAL TRIMMING: `lockfile_integrity` is the digest over the lockfile's exact
-bytes and `lockfile_packages` is the size of the tree it locks, and those are
-the two things `:669-673` obliges BESIDE the committed file, so a required set
-naming `lockfile` alone would leave the bytes the verifier checks undeclared.
+resolution *A pinned artifact that resolves dependencies at install time
+carries a vendored lockfile, and the install runs through it* obliges, "a
+lockfile … addressed by a digest over its exact bytes recorded in the pin,
+together with the size of the tree it locks" (`:669-673`), which is `lockfile`,
+`lockfile_integrity` and `lockfile_packages` and not `lockfile` alone. It does
+NOT reach `package` or `binary`, which name the product the referent is OF and
+the executable it installs; the verifier refuses a record without either
+(`:657-663`, `:747-754`), so the set carries them. `dispositions:` is NOT in
+the set: it is read with an absent-is-empty default (`:801-803`).
 
 A record that matches NO admitted shape, and a record that matches one shape
 but LACKS a member THAT SHAPE requires — no `revision_kind`, a `revision_kind`
@@ -113,18 +151,25 @@ ratified text is SILENT on the whole-tree shape — the spellings
 one — so the mixed form is admitted by no text and fails closed on that
 capability's own refusal rule (`openspec/specs/neutral-product-pin/spec.md:89`)
 rather than resolving on the strength of whichever half is complete.
-WHERE THAT LIST LIVES IS THE POINT: it is
-`neutral-product-pin`'s, read from that capability's text — and THE CODE-FIXED
-VALIDATOR HOLDS THE MACHINE READING OF THAT TEXT, a PER-SHAPE
-required-member table reviewed with the resolver at authoring time, covering
-every RECORD SHAPE this tree's `pinned_contract_manifest` records carry today
-(the three above, measured over all five records); that table is not a
-SECOND, independently-authored list — it is not restated as PROSE in this
-requirement, where a restatement could drift unreviewed, but the code that
-applies `neutral-product-pin`'s own text is not thereby forbidden from
-encoding it. Of two INDEPENDENTLY-AUTHORED lists the WEAKER is always the one
-that admits, which is why this requirement fixes the source of the table
-rather than forbidding the table. A record declaring a `revision_kind` the
+WHERE THAT LIST COMES FROM IS THE POINT, AND IT IS NOT THIS
+GRAMMAR: THE CODE-FIXED VALIDATOR HOLDS A PER-SHAPE REQUIRED-MEMBER TABLE,
+reviewed with the resolver at authoring time, covering every RECORD SHAPE this
+tree's `pinned_contract_manifest` records carry today (the three above,
+measured over all five records) — `neutral-product-pin`'s ratified text where
+that text names members, COMPLETED BY THE SHAPE'S VERIFIER-REQUIRED SET where
+it is silent. That table is not a SECOND, independently-authored list — it is
+not restated as PROSE in this requirement, where a restatement could drift
+unreviewed. AND IT SHALL BE PINNED TO THE VERIFIERS BY AN EQUIVALENCE TEST
+rather than by a promise: over each real `pinned_contract_manifest` record, for
+EVERY top-level member `m` of that record, the shape's verifier SHALL refuse
+the record with `m` removed IF AND ONLY IF `m` is in the table for that
+record's shape. A table that drifted NARROWER than its verifier would admit a
+record the repository's own gate refuses; one that drifted WIDER would refuse a
+record the gate admits; the test fails on either, so the table cannot part from
+the verifier without a red check. Of two INDEPENDENTLY-AUTHORED lists the
+WEAKER is always the one that admits, which is why this requirement fixes the
+SOURCE of the table and then pins it to running code rather than forbidding the
+table. A record declaring a `revision_kind` the
 table does not recognize, and a record whose member set matches no shape the
 table holds, MUST each be reported as an invalid pin: an unrecognized kind and
 an unrecognized shape are both deferred cases, and Principle VII requires each
@@ -175,7 +220,18 @@ resolve the candidate path and refuse to read it unless the resolved path stays
 inside that root's `contracts/` directory, and a symlink that leaves it MUST be
 refused rather than
 followed — the lexical grammar stops a `..` in the marker, and only resolved
-containment stops a committed symlink. A pin record that EXISTS but
+containment stops a committed symlink. AND THE BOUNDARY ITSELF MUST BE CHECKED
+BEFORE ANY CANDIDATE IS, because a boundary that can be redirected is not a
+boundary: the pass SHALL require that root's `contracts` BE A REAL,
+NON-REDIRECTING DIRECTORY INSIDE THE ROOT — it is a directory, it is not a
+symlink, and its RESOLVED path equals its LEXICAL path — and SHALL make that
+judgement BEFORE it resolves any candidate pin path. Where `contracts` is a
+symlink, to another directory inside the repository or to one outside it, the
+PINNED ARM REFUSES FOR THAT ROOT as a whole with a controlled finding NAMING
+THE ROOT, and NO candidate is resolved and NOTHING is read. Comparing a
+candidate against a RESOLVED `contracts` directory would otherwise accept and
+read a file outside the lexical registry the boundary names, the redirection
+having moved the boundary rather than been caught by it. A pin record that EXISTS but
 cannot be read as a mapping carrying a `kind` — invalid YAML, a non-mapping
 document, or no `kind` member — MUST be reported as an unreadable pin record
 and MUST NOT resolve a pinned target, and the pass MUST complete rather than
@@ -259,10 +315,17 @@ not the thing that happens when nobody decides.
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but matches no admitted record shape, or matches one and lacks a member THAT SHAPE requires — no `revision_kind`, a `revision_kind` without its required referent, a required member of that shape missing or malformed, or the members of two shapes mixed in one record
 - **THEN** the deterministic health pass MUST report it as an invalid pin, naming the shape tried, the failing member and the root it resolved against
 - **AND** the target MUST NOT resolve on the strength of the declared kind
-- **AND** the pass MUST reach that judgement through a code-fixed route — a PER-SHAPE required-member table read from `neutral-product-pin`'s ratified text where that text speaks and measured from this tree's own records where it is silent, reviewed with the resolver and held in the validator rather than restated as prose in this requirement
+- **AND** the pass MUST reach that judgement through a code-fixed route — a PER-SHAPE required-member table read from `neutral-product-pin`'s ratified text where that text names members and completed by the shape's VERIFIER-REQUIRED SET where it is silent, reviewed with the resolver and held in the validator rather than restated as prose in this requirement
+
+#### Scenario: The per-shape table and the shape's verifier disagree
+- **WHEN** the per-shape required-member table is checked against a real `pinned_contract_manifest` record, member by member over that record's own top-level members
+- **THEN** the shape's verifier MUST refuse the record with a member removed IF AND ONLY IF that member is in the table for that record's shape
+- **AND** a table NARROWER than its verifier MUST fail that test, since it would admit on a fixture or side run a record the repository's own required check refuses
+- **AND** a table WIDER than its verifier MUST fail it too, since it would refuse a record that gate admits
+- **AND** the equivalence MUST be asserted by a test over each real record rather than stated as an intention, the table being code that can drift from the verifier it tracks
 
 #### Scenario: A pin record addresses its whole tree by one digest
-- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` with `revision_kind: commit`, a `commit`, a `digest_definition` and a `digests.tree_sha256`, and carries neither `files:` nor `pinned_by_commit_only:`
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` with `revision_kind: commit`, a `commit`, a `submodule_path`, a `digest_algorithm`, a `digest_definition` and a `digests` mapping carrying `tree_sha256`, and carries neither `files:` nor `pinned_by_commit_only:`
 - **THEN** the record MUST be judged COMPLETE against that shape and the target MUST resolve on it, one digest over the whole tree leaving no member undeclared
 - **AND** the pass MUST NOT report the absent per-file lists as missing members, the enumeration those lists provide being supplied here by the tree digest
 - **AND** a record carrying both that tree digest and a `files:` list MUST be reported as an invalid pin naming both shapes tried, no ratified text admitting the mixture
@@ -271,6 +334,7 @@ not the thing that happens when nobody decides.
 - **WHEN** a live marker names a record whose `files:` entries are mappings carrying a `path` and its `sha256` and whose `pinned_by_commit_only:` entries are path-only strings
 - **THEN** both forms MUST be accepted as declared, a `pinned_by_commit_only:` entry carrying no `sha256` being the valid form rather than a malformed member
 - **AND** a `files:` entry carrying no `sha256`, and a `pinned_by_commit_only:` entry that is a mapping rather than a path string, MUST each be reported as a malformed member naming the list it came from
+- **AND** an ABSENT `pinned_by_commit_only:` MUST NOT be reported as a missing member, both of this shape's verifiers reading it with an absent-is-empty default and refusing it only when it is present and not a list
 
 #### Scenario: A pin record names the code that would judge it
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` carries a `verify_pin:` member naming an arbitrary path in the checkout
@@ -283,6 +347,12 @@ not the thing that happens when nobody decides.
 - **THEN** the deterministic health pass MUST refuse to read it
 - **AND** the target MUST NOT resolve
 - **AND** the refusal MUST be reported as a hygiene finding naming that root, rather than silently skipped
+
+#### Scenario: A root's contracts directory is itself a symlink
+- **WHEN** a resolution root's `contracts` is not a real, non-redirecting directory inside that root — it is a symlink to another directory inside the repository, a symlink to one outside it, or not a directory at all
+- **THEN** the deterministic health pass MUST make that judgement BEFORE resolving any candidate pin path, and the pinned arm MUST refuse for that root without reading anything
+- **AND** the refusal MUST be reported as a controlled finding naming that root
+- **AND** no pinned target MUST resolve against that root, a boundary that can be redirected being no boundary: comparing a candidate against a resolved `contracts` directory would otherwise read a file outside the lexical registry
 
 #### Scenario: A pinned target resolves under an aggregate run's second root
 - **WHEN** a document in another repository carries a pinned target whose pin record exists only in the `openxFactory` root of an aggregate run
