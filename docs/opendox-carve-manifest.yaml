@@ -422,8 +422,10 @@ moved_paths:
 # `LENS_SAVE_ROUTE`/`LENS_CLUSTER_ROUTE` removed), `lens.js` (`import
 # rewrites` 1 line + `adapter calls` 120 lines — one import repoint and its
 # two call sites), `repo-selector.js` (`path constants` 16 lines +
-# `adapter calls` 202 lines — four routes leave, one stays, one leaves the
-# bundle entirely per RULING DQ-1), `swb-create.js` and `swb-session.js`
+# `adapter calls` 202 lines — of its five route constants, three relocate
+# to the new class-B modules and one (`ACTIONS_APPLY_REGISTER_EDITS_ROUTE`)
+# leaves the bundle entirely per RULING DQ-1; the fifth
+# (`ACTIONS_REFRESH_ROUTE`) stays), `swb-create.js` and `swb-session.js`
 # (`import rewrites` 2 lines + `path constants` 1 line each — the routes
 # arriving from `staging-workbench-model.js`). FOUR new files are admitted
 # at `opendox_code`: `views/gate-lens.js`, `views/gate-projects.js`,
