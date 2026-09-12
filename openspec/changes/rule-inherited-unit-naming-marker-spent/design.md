@@ -176,8 +176,8 @@ one per half of the rule.
 **COST: NOTHING BUT THE WORDS, PLUS ONE ROW OF BOOKKEEPING.**
 `code_surface: none`, measured; **no predicate, no template, no finding class,
 and no NEW test** — the one test file the diff touches is the
-modified-block-currency self-gate's named-subject list, whose row this draft
-opens and whose `==` comparison obliges every lane to name it (D4 below,
+modified-block-currency self-gate's named-subject list, whose row this packet
+opened at drafting and whose `==` comparison obliges every lane to name it (D4 below,
 `tasks.md` § 3.13); no assertion in that module moves. The packet archives ON
 LANDING plus its own task list.
 
@@ -290,9 +290,9 @@ canon will carry the moment the parent archives — carrying the marker forward
 costs exactly one third-ground marker defect and dropping it costs nothing. The
 two options and no third.
 
-**THE ONE ROW THE DROP COSTS TODAY IS DISCLOSED RATHER THAN HIDDEN, AND IT IS
-TRANSIENT.** While this packet is `Status: draft`, `_arm_ordering` applies no
-basis override — `release-realization` scopes the two-writers rule to active
+**THE ONE ROW THE DROP COST AT AUTHORING WAS DISCLOSED RATHER THAN HIDDEN, AND
+IT WAS TRANSIENT.** While this packet was `Status: draft` (before this
+ratification), `_arm_ordering` applied no basis override — `release-realization` scopes the two-writers rule to active
 RATIFIED changes and this family does not widen it — so the run measures this
 block against CANON, where the sentence the PARENT retired is uncarried and
 unsuppressed: **one `info` carriage-ledger finding against this delta's own
@@ -525,6 +525,7 @@ REACHES IT".
   deleted unit is NAMED — and carries no reporting rule; the boundary
   `amend-marker-defect-reporting` § 2.4 checked in both directions is left
   standing.
-- **THE ONE TRANSIENT `info` ROW THIS DELTA RAISES** while it is a draft (D2b)
-  is disclosed in the pull request body and is NOT dispositioned. A disposition
-  would be a suppression of a finding that is about to clear itself.
+- **THE ONE TRANSIENT `info` ROW THIS DELTA RAISED** while it was a draft
+  (D2b), before this ratification, was disclosed in the pull request body and
+  was NOT dispositioned rather than suppressed. **IT HAS SINCE RETIRED**, on
+  the parent's archive rather than on this ratification — D2b's addendum.

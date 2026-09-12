@@ -201,12 +201,13 @@ here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
       `fa9b7668…` / 53,552 bytes; before either, `72941993…` / 53,396 bytes);
       the PRE-text is the same 48,507 bytes at the same sha256, re-verified
       below.
-- [x] 3.7 **THE ONE ROW THE DROP COSTS WHILE THIS PACKET IS A DRAFT IS
+- [x] 3.7 **THE ONE ROW THE DROP COST WHILE THIS PACKET WAS A DRAFT WAS
       MEASURED AND DISCLOSED, NOT DISPOSITIONED.** `_arm_ordering` applies a
       basis override only between two active RATIFIED writers, so while this
-      packet is `draft` the run measures this block against CANON, where the
-      sentence the PARENT retired is uncarried and unsuppressed: **one `info`
-      carriage-ledger finding against this delta's own path, naming one unit**.
+      packet was `draft` (before this ratification), the run measured this
+      block against CANON, where the sentence the PARENT retired was uncarried
+      and unsuppressed: **one `info` carriage-ledger finding against this
+      delta's own path, naming one unit**.
       **IT CLEARS ON EITHER OF TWO EXPECTED EVENTS, AND THE FIRST TAKES TWO
       THINGS AND NOT ONE:** (a) BOTH writers active and ratified in the
       checked-out corpus — `ratified = [b for b in group if b.standing ==
@@ -217,11 +218,20 @@ here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
       parent ARCHIVING, which needs nothing of this packet — canon becomes the
       parent's outcome. The counterfactual is in `design.md` D2b: carrying the
       marker instead buys a clean row today and costs a third-ground MARKER
-      DEFECT the day the parent archives.
-- [x] 3.8 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
-      style, in the DRAFT form: `Status: draft` — NOT RATIFIED, naming the
-      origin issue, the commissioning word and what it does not do, the parent
-      declaration, D1 as the open multiple choice, and the measured population.
+      DEFECT the day the parent archives. **THE ROW HAS SINCE RETIRED, UNDER
+      (b) AND NOT (a): the parent archived (PR #973, 2026-09-11T18:24:42Z)
+      before this packet's own ratification — design.md D2b's addendum,
+      commit `396bca94`.**
+- [x] 3.8 **README `## OpenSpec Records` CARRIED THE ACTIVE ROW AT
+      AUTHORING**, in house style, in the DRAFT form then current: `Status:
+      draft` — NOT RATIFIED, naming the origin issue, the commissioning word
+      and what it does not do, the parent declaration, D1 as the open
+      multiple choice, and the measured population. **THE ROW HAS SINCE BEEN
+      REWRITTEN TO THE RATIFIED FORM, AT THIS PACKET'S OWN RATIFICATION**
+      (§ 1): `Status: ratified` with the 2026-09-12 citation, D1 and D2b as
+      RULED rather than open, in the same commit as every other document's
+      status flip. This task records what the row said when it was first
+      added; it is not a live description of what the row says today.
 - [x] 3.9 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
       never hand-written: `python3 scripts/validate-sequenced-after.py .
       --seed-ledger --moved-by '#962'`, run AFTER the draft pull request
@@ -309,8 +319,9 @@ here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
       and a note is a provenance record rather than a rule whose clauses a
       later block is read for. The move is applied to the RULE-BEARING sentence
       and to that sentence only.
-- [x] 3.13 **THE ONE CARRIAGE-LEDGER ROW THIS DRAFT OPENS IS NAMED IN THE
-      SELF-GATE, WHICH IS WHAT THE ASSERTION'S OWN MESSAGE DIRECTS.**
+- [x] 3.13 **THE ONE CARRIAGE-LEDGER ROW THIS PACKET OPENED AT DRAFTING IS
+      NAMED IN THE SELF-GATE, WHICH IS WHAT THE ASSERTION'S OWN MESSAGE
+      DIRECTS.**
       `tests/doc-health/test_modified_block_currency_self_gate.py`'s
       `test_every_carriage_ledger_finding_over_the_real_tree_is_named` compares
       `_LEDGER_SUBJECTS` with the family's `info` population using `==` and
@@ -325,8 +336,9 @@ here. **§ 6 STAYS UNTICKED**: residue, measured and deliberately not taken.
       records the mechanism rather than the outcome: `_arm_ordering` applies a
       basis override only where a group holds at least TWO ACTIVE RATIFIED
       writers (`ratified = [b for b in group if b.standing == _RATIFIED]; if
-      len(ratified) < 2`), and this packet is `draft` with its parent not yet
-      on `main`, so the group holds ONE writer and the block is measured
+      len(ratified) < 2`), and this packet was `draft` (before this
+      ratification) with its parent not yet on `main` at authoring, so the
+      group held ONE writer and the block was measured
       against CANON — where exactly **1 of 144** body units and scenario
       bullets is uncarried and it is the sentence the PARENT's ratified block
       retires. Against the parent's OUTCOME the same block reads 0/0/0 (§ 3.6).

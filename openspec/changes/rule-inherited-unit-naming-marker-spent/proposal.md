@@ -224,9 +224,10 @@ at authoring, before the parent's archive. No other active change carries a
 - **Every governed repository's nightly**: no finding starts being emitted and
   none stops on account of the RULE — it changes no predicate — so no
   repository gains or loses a row from it, and the uncited-resolution rule has
-  nothing to fire on. The ONE row this packet's own delta raises while it is a
-  draft is measured and disclosed in `design.md` D2 and in the pull request
-  body rather than dispositioned, and it clears itself.
+  nothing to fire on. The ONE row this packet's own delta raised while it was
+  a draft was measured and disclosed in `design.md` D2 and in the pull request
+  body rather than dispositioned, and it has since cleared on its own (the
+  parent's archive; `design.md` D2b's addendum).
 - **Authors** gain a decision where they previously found two reachable states
   and no rule, which is what #955 reports.
 
