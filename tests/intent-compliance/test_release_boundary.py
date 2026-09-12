@@ -157,6 +157,22 @@ class ReleaseState(StrEnum):
     the tripwire is worth its cost. Worth stating here because a cut that
     changes no contract bytes is exactly the kind a reader assumes cannot
     require an entry in a release-boundary enum at all.
+    Advanced again at the ``contract-v4.0`` cut, the second MAJOR since
+    ``contract-v3.0`` and the BREAKING half of
+    ``split-opendox-two-layer-product`` § 5.7: it removes the five
+    ideation-dashboard rows from ``contracts/manifest.yaml`` and restates three
+    unrelated deprecation targets, and it touches NO intent-compliance member,
+    so the membership this file asserts is again UNCHANGED. MEASURED rather than
+    assumed, like every advance above it: ``git diff --name-status
+    contract-v3.7 HEAD`` over ``contracts/intent-compliance/``,
+    ``scripts/intent_compliance/``, ``tests/intent-compliance/`` and
+    ``scripts/validate-intent-compliance.py`` reports ZERO paths BEFORE this
+    edit, so no member of this family moved a byte between the two cuts. THIS
+    FILE then moves, for this advance alone, and the cut's inventory is BUILT
+    AFTER this line is added rather than before — the ordering the
+    ``contract-v3.6`` advance discovered and the ``contract-v3.7`` advance
+    restated. A major is not by itself a reason to expect movement here, and
+    "unchanged" still has to be said by hand rather than inferred.
     ``contract-v2.6`` stays named above although it was never published: its
     number is spent, and a value this enum has been told how to classify costs
     nothing to keep while removing it would make a historical manifest
@@ -176,6 +192,7 @@ class ReleaseState(StrEnum):
     FEATURE_SUCCESSOR_9 = "contract-v3.5"
     FEATURE_SUCCESSOR_10 = "contract-v3.6"
     FEATURE_SUCCESSOR_11 = "contract-v3.7"
+    FEATURE_SUCCESSOR_12 = "contract-v4.0"
 
 
 def _release_state() -> ReleaseState:
@@ -271,6 +288,7 @@ def test_release_membership_when_registration_changes_then_transition_is_atomic(
             | ReleaseState.FEATURE_SUCCESSOR_9
             | ReleaseState.FEATURE_SUCCESSOR_10
             | ReleaseState.FEATURE_SUCCESSOR_11
+            | ReleaseState.FEATURE_SUCCESSOR_12
         ):
             assert feature_members | {"scripts/__init__.py"} <= members
         case unreachable:
@@ -311,6 +329,7 @@ def test_release_inventory_when_registration_changes_then_schema_pins_are_atomic
             | ReleaseState.FEATURE_SUCCESSOR_9
             | ReleaseState.FEATURE_SUCCESSOR_10
             | ReleaseState.FEATURE_SUCCESSOR_11
+            | ReleaseState.FEATURE_SUCCESSOR_12
         ):
             for path in schema_paths:
                 assert entries[path]["schema_id"].startswith("intent-compliance-")

@@ -114,6 +114,14 @@ IDs stay frozen; only the decisions behind the ports become real.
    review, and a penetration test, all explicitly outside F0's scope. Any missing
    artifact fails the gate closed.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Hermes call site — synchronous inside preflight, or a pre-session

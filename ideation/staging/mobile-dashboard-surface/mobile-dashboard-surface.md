@@ -65,6 +65,14 @@ store gatekeeping. Phases:
 
 Each phase lands bring-up evidence per the usual discipline.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. Shell platform: does the avatar-client kernel (frozen AVC ports,
