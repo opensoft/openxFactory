@@ -411,11 +411,18 @@ So:
    **beside the rows it bounds** precisely so a deploy setting cannot loosen it,
    and the runtime holds a ceiling of its own and honours whichever is tighter —
    *"an artifact must never be able to widen its own trust window."* Today the
-   bound is **`P7D`**, and it is loose on purpose to cover the interval before
-   the projection refresher's next completed cycle — **currency is not
-   content**: a projection well inside the bound can still have been derived
-   before this act, so step 3 below requires a refresh that COMPLETED after
-   the act, never one merely due. Do not tighten the bound here as a tidy-up.
+   bound is **`P7D`**, and what it declares is how long a revocation may go
+   unhonoured, not how fresh the projection is: *"seven days is the window a
+   revocation may go unhonoured today … the intended target once projection
+   refresh is automated is P1D or tighter"*
+   ([`register.yaml`](../governance/review-authority/register.yaml), *"WHY P7D
+   AND NOT SOMETHING TIGHT"*). The refresher that runs on a cadence today is
+   therefore the reason to TIGHTEN that bound later, never the reason it is
+   loose — **currency is not content**: a projection well inside the bound can
+   still have been derived before this act, so step 3 below requires a refresh
+   that COMPLETED after the act and never one merely due, evidenced by the
+   refresher's own success record. Do not tighten the bound here as a
+   tidy-up; that is its own governed edit on the human-only surface.
 3. **VERIFY THE REGISTER PROJECTION HAS BEEN OBSERVED — NOT THAT A CONVENING
    WAS ADMITTED.** The park is not lifted by a green validator — it is lifted
    when a named operator's read-only observation confirms the published
