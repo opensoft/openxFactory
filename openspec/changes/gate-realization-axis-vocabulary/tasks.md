@@ -614,6 +614,68 @@ and openxFactory #956 closes THERE and not at this landing.
       failed (104), unchanged; `pytest tests/doc-health -q` **7 failed, 1717
       passed, 1 skipped** — the same local-only, pre-existing set § 3.19
       measured, unmoved.
+- [x] 3.22 **THE BENCH'S THIRTEENTH ROUND, ON THE § 3.21 PUSH (343af525): ONE
+      THREAD, TAKEN** (`design.md` D8l). Does not reopen D1, D2 or D3. Copilot
+      thread `PRRT_kwDOTAvnrs6hyDwH` (on `proposal.md`): § 3.21's own fix grew
+      `tests/target_release/test_target_release_gate.py` from 79 to 84, but
+      `proposal.md`'s `code_surface:` line still read **79 tests** — the
+      summary was one round behind the code it describes. Measured on the
+      flagged head: `grep -c '^def test_'` = 84; `pytest --collect-only`
+      collects 84. Two places stated the stale total as a CURRENT figure and
+      are corrected to 84: `proposal.md`'s `code_surface:` line (this
+      thread's own anchor) and the README `## OpenSpec Records` row's own
+      restatement of the same code surface. Left alone, deliberately: § 3.5,
+      § 3.19, § 3.20 here and `design.md`'s D8j/D8k narrative all state a
+      count as a DATED CHECKPOINT of what a specific round measured (74, then
+      79, then 84) and are each true of their own moment, not a claim about
+      the file's current total; `review/verification-2026-09-12.md` is the
+      dated capture § 3.20 already says is deliberately not rewritten.
+      Fix committed `34bc8cad`. `origin/main` moved twice while this round
+      was answered — `a72f0a76` (#978, #998, #1005) then `177ba819` (#981) —
+      and both were merged in ordinary bookkeeping merges (`db208513`,
+      `32e57bd7`), README's `## OpenSpec Records` conflicting the same way
+      each time: the newer active row kept FIRST, this packet's row
+      immediately after, no reflow. Re-validated at each head: `openspec
+      validate gate-realization-axis-vocabulary --strict` exit 0; `pytest
+      tests/target_release -q` 84 passed throughout (prose-only, and then a
+      merge-only change); `validate-target-release.py .` exit 0, growing
+      from 42/18/0-outside to 45/21/0-outside as main's own admitted changes
+      landed; `doc-health.py --single-repo .` exit 0.
+- [x] 3.23 **THE BENCH'S FOURTEENTH ROUND, ON THE § 3.22 PUSH (32e57bd7): TWO
+      THREADS, BOTH TAKEN** (`design.md` D8m). Does not reopen D1, D2 or D3.
+      (a) **A FIFTH MEMBER OF THE SAME SYMLINK-ESCAPE FAMILY, AND THE FIRST
+      IN THE ANCESTOR DIMENSION FOR THE REGISTER** (Copilot thread
+      `PRRT_kwDOTAvnrs6hyYeC`, on `scripts/target_release.py`): § 3.21's
+      leaf-level `path.is_symlink()` guard covers only `load_register`'s own
+      name. `linkdir/register.yaml`, where `linkdir` is a symlink to an
+      external directory, has an entirely ORDINARY leaf, so the guard passed
+      it and `read_text()` still followed `linkdir`. A new
+      `_has_symlinked_ancestor` helper climbs `path`'s own ancestors —
+      without a `repo_root` to anchor it the way `_unescaped` has one,
+      because a register named on `--register` is deliberately allowed to
+      live anywhere (`load_register`'s own docstring) — and `load_register`
+      now refuses on `path.is_symlink() or _has_symlinked_ancestor(path)`.
+      TWO tests (84 -> **86**), both measured FAILING with the fix stashed
+      and passing restored: the direct call, and the CLI (`--register`) end
+      to end. On the real corpus the fix moves nothing — the house register
+      sits directly beside this module with no symlinked ancestor either.
+      (b) **THE PULL REQUEST'S OWN DESCRIPTION, A THIRD TIME** (Copilot
+      thread `PRRT_kwDOTAvnrs6hybFv`, on `README.md`, but naming the PR body
+      directly): the live description still reported 70 tests in its
+      implementation summary and 79 passed in later verification, both
+      behind the committed 86. Rebuilt on this head with the current
+      figures; `refs #956` kept, `closingIssuesReferences` re-verified `[]`.
+      Re-validated: `openspec validate gate-realization-axis-vocabulary
+      --strict` exit 0; `pytest tests/target_release -q` **86 passed**;
+      `validate-target-release.py .` exit 0 (45 active, 45 declaring, 21
+      `implemented`, 3 a named release, 21 registered, 0 outside, unchanged —
+      an I/O-boundary-only fix); `validate-sequenced-after.py . --ledger-diff`
+      exit 0 (208 rows); `validate-scope-globs.py .` exit 0; `doc-health.py
+      --single-repo .` exit 0; `proposal-support.py . verify` exit 0;
+      `validate-openspec-cli-pin.py --change gate-realization-axis-vocabulary`
+      exit 0 (1 passed, 0 failed); `--all --no-cache` exit 0 (102 passed, 2
+      failed (104), the two known `disposition-codexfactory-*` exceptions,
+      unchanged).
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 

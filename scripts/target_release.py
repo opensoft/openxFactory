@@ -414,6 +414,37 @@ def resolves_as_release(token: str, repo_root: Path) -> tuple[bool, bool]:
     return candidate.is_file() and not candidate.is_symlink(), True
 
 
+def _has_symlinked_ancestor(path: Path) -> bool:
+    """Whether any directory between `path` and its own top is a symlink.
+
+    `path.is_symlink()` answers only for the LEAF. `linkdir/register.yaml`,
+    where `linkdir` is a symlink to an external directory, has an entirely
+    ORDINARY leaf — `register.yaml` itself is a regular file — so the leaf
+    check alone passes it, and `read_text()` still follows `linkdir` and
+    reads bytes from wherever it points, silently and differently per
+    runner. This is the same escape `_registry_present` and `_unescaped`
+    close for the release registry and the proposal walk, generalized here
+    WITHOUT a `repo_root` to anchor it: a register named on `--register` is
+    deliberately allowed to live anywhere a test tree or a consuming
+    repository puts it (`load_register`'s own docstring), so there is no
+    boundary to check "outside of" the way `_unescaped` checks outside
+    `repo_root`. The walk therefore climbs `path`'s OWN ancestors one
+    directory at a time — stopping at `/` for an absolute path, or at `.`
+    for a relative one, so a caller's working directory is no more
+    implicated than `_unescaped` implicates `repo_root`'s own approach to
+    it — rather than checking only the one directory immediately holding
+    the leaf.
+    """
+    current = path.parent
+    while True:
+        if current.is_symlink():
+            return True
+        parent = current.parent
+        if parent == current:
+            return False
+        current = parent
+
+
 def load_register(path: Path = REGISTER_PATH,
                   closed: tuple[tuple[str, str], ...] | None = None
                   ) -> list[dict]:
@@ -432,25 +463,33 @@ def load_register(path: Path = REGISTER_PATH,
     record to keep.
 
     THE SAME ESCAPE `_registry_present` AND `_unescaped` CLOSE, NAMED HERE FOR
-    THE REGISTER ITSELF. `Path.is_file()` and `Path.read_text()` both follow
-    symlinks, so a committed symlink AT the register path — the default beside
-    this module, or one a caller names on the command line for a test tree or a
-    consuming repository — would make the gate consume bytes outside the
-    checkout, silently and differently per runner, unlike the symlink-boundary
+    THE REGISTER ITSELF — AT EVERY PATH COMPONENT, NOT ONLY THE LEAF.
+    `Path.is_file()` and `Path.read_text()` both follow symlinks, so a
+    committed symlink AT the register path — the default beside this module,
+    or one a caller names on the command line for a test tree or a consuming
+    repository — would make the gate consume bytes outside the checkout,
+    silently and differently per runner, unlike the symlink-boundary
     protections this module already applies to the release registry and the
-    proposal walk. The check runs on `path` UNCONDITIONALLY, before either
-    `is_file()` or `read_text()` runs, so it is the same guard whether `path`
-    is the default argument or one a caller supplies — no branch here treats
-    the two differently, so no branch can forget one of them.
+    proposal walk. Checking only `path.is_symlink()` closes that at the LEAF
+    but leaves an ANCESTOR open: `linkdir/register.yaml`, where `linkdir`
+    is a symlink to an external directory, has an entirely ordinary leaf, so
+    a leaf-only guard passes it and `read_text()` still follows `linkdir`.
+    `_has_symlinked_ancestor` closes the ancestor walk; both checks run on
+    `path` UNCONDITIONALLY, before `is_file()` or `read_text()` runs, so it
+    is the same guard whether `path` is the default argument or one a
+    caller supplies — no branch here treats the two differently, so no
+    branch can forget one of them.
     """
     if yaml is None:  # pragma: no cover - pyyaml is a suite dependency
         raise TargetReleaseError("pyyaml is required to read the register")
-    if path.is_symlink():
+    if path.is_symlink() or _has_symlinked_ancestor(path):
         raise TargetReleaseError(
-            f"the register {path} is a symlink, refused unread rather than "
-            "followed: a committed symlink here would let the gate consume "
-            "bytes from outside the checkout and vary by runner. Replace it "
-            "with a regular file")
+            f"the register {path} is reached through a symlink, refused "
+            "unread rather than followed: a committed symlink here — at "
+            "the register's own name, or at any directory between it and "
+            "the top — would let the gate consume bytes from outside the "
+            "checkout and vary by runner. Replace it with a regular file "
+            "at an ordinary, unsymlinked path")
     if not path.is_file():
         raise TargetReleaseError(f"the register {path} does not exist")
     try:

@@ -720,6 +720,43 @@ def test_a_symlinked_register_named_on_the_command_line_refuses_end_to_end(
     assert "symlink" in result.stdout
 
 
+# --- the register path's own ANCESTOR being a symlink is the same escape, ----
+# --- reached through a leaf the leaf-only guard above cannot see -------------
+# Copilot's follow-up round on #963 (thread `PRRT_kwDOTAvnrs6hyYeC`), opened
+# against the leaf-only guard just above: `linkdir/register.yaml`, where
+# `linkdir` is a symlink to an external directory, has an entirely ORDINARY
+# leaf — `register.yaml` itself is a regular file, so `path.is_symlink()` is
+# False — and `read_text()` still follows `linkdir` and reads bytes from
+# wherever it points. `_has_symlinked_ancestor` closes the walk the leaf
+# check could never reach.
+
+
+def test_a_register_reached_through_a_symlinked_ancestor_directory_refuses(
+        tmp_path, tmp_path_factory):
+    outside = tmp_path_factory.mktemp("outside-register-ancestor")
+    _register(outside, _entry("c", "x"))
+    linkdir = tmp_path / "linkdir"
+    linkdir.symlink_to(outside)
+    path = linkdir / "register.yaml"
+    assert not path.is_symlink()  # the leaf itself is perfectly ordinary
+    with pytest.raises(tr.TargetReleaseError) as caught:
+        tr.load_register(path)
+    assert "symlink" in str(caught.value)
+
+
+def test_a_register_reached_through_a_symlinked_ancestor_directory_refuses_end_to_end(  # noqa: E501
+        tmp_path, tmp_path_factory):
+    """THE CLI SURFACE, for the same ancestor escape."""
+    outside = tmp_path_factory.mktemp("outside-register-ancestor-cli")
+    _register(outside, _entry("c", "x"))
+    linkdir = tmp_path / "linkdir"
+    linkdir.symlink_to(outside)
+    path = linkdir / "register.yaml"
+    result = _run(tmp_path, path)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "symlink" in result.stdout
+
+
 # --- the entry's CITATION is enforced at the load -----------------------------
 # Copilot's round on #963 (thread `PRRT_kwDOTAvnrs6heJ2G`): the requirement has
 # every standing entry carry a citation, but the loader did not ask for one — so

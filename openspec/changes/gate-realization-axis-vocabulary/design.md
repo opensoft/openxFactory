@@ -1095,3 +1095,94 @@ passed, 3 failed (104), unchanged; `pytest tests/doc-health -q` **7 failed,
 1717 passed, 1 skipped** — the SAME local-only, pre-existing failure set
 `tasks.md` § 3.19 measured on `fbe3ffac`, not this packet's and not moved by
 it.
+
+### D8l — the bench's thirteenth round, on the D8k push: one thread, TAKEN, and it does not reopen D1, D2 or D3
+
+**THE CODE-SURFACE SUMMARY WAS ONE ROUND BEHIND THE CODE IT DESCRIBES.**
+D8k's own fix grew `tests/target_release/test_target_release_gate.py` from
+79 to 84 tests, but `proposal.md`'s `code_surface:` line — the thread's own
+anchor, Copilot thread `PRRT_kwDOTAvnrs6hyDwH` — still read **79 tests**.
+Measured on the flagged head: `grep -c '^def test_'` = 84; `pytest
+--collect-only` collects 84.
+
+Two places stated the stale total as a CURRENT figure and are corrected to
+84: `proposal.md`'s `code_surface:` line, and the README `## OpenSpec
+Records` row's own restatement of the same code surface (`... and 79
+tests)`). Left alone, deliberately: `tasks.md` § 3.5, § 3.19 and § 3.20, and
+this file's own D8j and D8k narrative, all state a count as a DATED
+CHECKPOINT of what a specific round measured (74, then 79, then 84) — each
+is true of its own moment and is not a claim about the file's CURRENT total,
+so there is nothing to desynchronize there. `review/verification-2026-09-12.md`
+is the dated capture `tasks.md` § 3.20 already says is deliberately not
+rewritten for a later round.
+
+Fixed, committed `34bc8cad`. `origin/main` moved TWICE while this one-line
+round was being answered — `a72f0a76` (#978 `decide-disposition-reading-per-
+family`, #998 `repoint-chain-anchoring-medxchain-citation`, #1005 a
+`split-opendox` tasks.md amendment) and then, before the first merge's
+push had even settled, `177ba819` (#981 `report-stale-grandfather-
+dispositions`) — and both were taken as ordinary bookkeeping merges
+(`db208513`, then `32e57bd7`), README's `## OpenSpec Records` conflicting
+the identical way each time: the newer active row kept FIRST, verbatim,
+this packet's row immediately after it, no other row touched and no reflow.
+
+Re-validated at each head: `openspec validate gate-realization-axis-
+vocabulary --strict` exit 0 throughout; `pytest tests/target_release -q`
+84 passed throughout — this round and both merges are prose- and
+bookkeeping-only, so the count does not move; `validate-target-release.py .`
+exit 0, growing from 42 active / 18 `implemented` / 0 outside to 45 / 21 / 0
+as main's own admitted changes landed; `doc-health.py --single-repo .` exit
+0 at each head.
+
+### D8m — the bench's fourteenth round, on the D8l push: two threads, both TAKEN, and neither reopens D1, D2 or D3
+
+**(a) A FIFTH MEMBER OF THE SAME SYMLINK-ESCAPE FAMILY, AND THE FIRST IN THE
+ANCESTOR DIMENSION FOR THE REGISTER.** Copilot thread `PRRT_kwDOTAvnrs6hyYeC`,
+on `scripts/target_release.py`: D8k's leaf-level `path.is_symlink()` guard
+covers only `load_register`'s own name. `linkdir/register.yaml`, where
+`linkdir` is a symlink to an external directory, has an entirely ORDINARY
+leaf — `register.yaml` itself is a regular file, so `path.is_symlink()` is
+False — and the leaf-only guard passed it while `read_text()` still followed
+`linkdir` and read bytes from wherever it points.
+
+THE FIX GENERALIZES THE SAME TEST `_unescaped` USES, WITHOUT THE ANCHOR
+`_unescaped` HAS. A new `_has_symlinked_ancestor(path)` helper climbs `path`'s
+own ancestors one directory at a time, refusing if any is a symlink,
+stopping at `/` for an absolute path or at `.` for a relative one — there is
+no `repo_root` to check "outside of" the way `_unescaped` checks outside
+`repo_root`, because a register named on `--register` is deliberately
+allowed to live anywhere a test tree or a consuming repository puts it
+(`load_register`'s own docstring says so, and the CLI's `--register` and
+`repo_root` positional argument are independent — a register legitimately
+outside `repo_root`, reached by an ordinary unsymlinked path, must keep
+working). `load_register` now refuses on `path.is_symlink() or
+_has_symlinked_ancestor(path)`, before `is_file()` or `read_text()` runs,
+unconditional on `path` — the same guard whether `path` is the default
+argument or one a caller supplies, matching D8k's own discipline.
+
+TWO tests (84 -> **86**), both measured FAILING with the fix stashed and
+passing restored: the direct call (`linkdir` symlinked to a directory
+outside `tmp_path`, an ordinary `register.yaml` inside it) and the CLI
+(`--register`) surface end to end, `exit 2`. On the real corpus the fix
+moves nothing — the house register sits directly beside this module with
+no symlinked ancestor anywhere between it and the filesystem root.
+
+**(b) THE PULL REQUEST'S OWN DESCRIPTION, A THIRD TIME.** Copilot thread
+`PRRT_kwDOTAvnrs6hybFv`, on `README.md` but naming the PR body directly: the
+live description still reported 70 tests in its implementation summary and
+79 passed in later verification, both behind the committed 86 — the same
+class of defect D8j's item (d) and D8l already closed once each, recurring
+because the description is GitHub metadata and not a tracked file a merge or
+a grep sweep reaches. Rebuilt on this head with the current figures;
+`refs #956` kept, `closingIssuesReferences` re-verified `[]`.
+
+Re-validated: `openspec validate gate-realization-axis-vocabulary --strict`
+exit 0; `pytest tests/target_release -q` **86 passed**; `validate-target-
+release.py .` exit 0 (45 active, 45 declaring, 21 `implemented`, 3 a named
+release, 21 registered, 0 outside, unchanged — an I/O-boundary-only fix);
+`validate-sequenced-after.py . --ledger-diff` exit 0 (208 rows);
+`validate-scope-globs.py .` exit 0; `doc-health.py --single-repo .` exit 0;
+`proposal-support.py . verify` exit 0; `validate-openspec-cli-pin.py
+--change gate-realization-axis-vocabulary` exit 0 (1 passed, 0 failed);
+`--all --no-cache` exit 0 (102 passed, 2 failed (104), the two known
+`disposition-codexfactory-*` exceptions, unchanged).
