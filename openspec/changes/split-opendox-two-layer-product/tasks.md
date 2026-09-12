@@ -1162,21 +1162,37 @@ the bookkeeping that ticks this group.
   `tests/ideation-dashboard` collection, which measures **27** collection
   errors. The finding is stronger, not weaker, and this box stays open either
   way.
-  **STATUS — 2026-09-12, box stays open on its own wording defect.**
-  Realized: `opensoft/openxFactory` **#940 →
+  **STATUS — 2026-09-12, box stays open; verified against
+  `origin/main` directly, the realization is PARTIAL and 5.6a's wording
+  defect is not the only reason.** `opensoft/openxFactory` **#940 →
   `cc4ae9d35b2dbd56743c8c19699fd685d4e49343`** (`#656` comment `5638315691`)
-  executed every clause above — `scripts/ideation_dashboard/`, `web/`,
-  `tests/ideation-dashboard/` and `tests/ideation_dashboard/`,
-  `scripts/ideation-dashboard-nightly.py`,
-  `scripts/validate-ideation-dashboard-contracts.py`, the dashboard contract
-  schemas, the 142 packaged examples under `examples/ideation-dashboard/`,
-  and the five dashboard governance docs are gone from the tree (381 files,
-  179,308 deletions). **The tick itself does not follow**: this box's own
-  text still says "the four dashboard contract schemas" and names none of
-  them, while the carve manifest moves FIVE — task 5.6a's defect (a)
-  records this exact mismatch and does not itself fix it. Reconciling the
-  wording is left to a sweep at § 8, the archive gate — not performed
-  here by silently editing this box's original text.
+  cut `docs/opendox-carve-manifest.yaml`'s phase to `post-shed`, but most of
+  this box's own listed clauses are NOT gone from the tree today:
+  `scripts/ideation_dashboard/` (10 of 48 modules remain),
+  `tests/ideation-dashboard/` (42 of 125 files remain),
+  `examples/ideation-dashboard/` (44 of 142 remain), and
+  `scripts/ideation-dashboard-nightly.py` (unchanged) all carry `not_moved`
+  rows in the carve manifest (`stays_openxfactory_adapter` /
+  `stays_openxfactory_governance`) under **RULING DQ-1** (openxFactory keeps
+  its own adapter) — a plan this box's own text predates. The manifest's
+  own `scripts/ideation-dashboard-nightly.py` row says so directly: "tasks.md
+  § 5.2's deletion list predates DQ-1 and is recorded as a disagreement
+  in the pull request." Confirmed actually gone: `web/`,
+  `tests/ideation_dashboard/` (the underscore spelling),
+  `scripts/validate-ideation-dashboard-contracts.py`, and the five contract
+  schemas 5.6a's defect (a) names (`gate-action-record`,
+  `ideation-dashboard-snapshot-index`, `ideation-dashboard-snapshot`,
+  `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog`). Most
+  of the governance docs this box counts as five are ALSO still present
+  (`docs/d10-hosted-refresh-marker.md`, both `docs/doxbench-runtime-refresh-
+  dogfood*.md` records, `docs/openxdox-naming.md`,
+  `docs/project-repo-schema.md`) — only `docs/ideation-dashboard-session-
+  runbook.md` left, `moved_with_declared_edit` to `opendox_spec`. **The box
+  stays open on two defects, not one**: 5.6a's "four vs five schemas"
+  wording defect, AND this fuller pre-DQ-1 staleness across the rest of its
+  own listed clauses — neither fixed here. Reconciling the wording (or
+  re-scoping the box to what RULING DQ-1 actually kept) is for a sweep at
+  § 8, the archive gate, not a silent edit of this box's original text.
 - [ ] 5.3 `[oxF]` Convert the dashboard workflows to CONSUMER GATES over the pinned
   tools, on the `openxwallet-consumer-gate` shape, **retaining the job id** so a
   ruleset-pinned token survives a file rename.
