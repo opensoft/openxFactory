@@ -70,7 +70,7 @@ act that ticks it and the word that authorizes that act.
 does NOT move: its own header rules why it is draft, and this packet does not
 reach that ruling.**
 
-- [ ] 3.1 **§5.2 step 3 — replace the exit condition.** Today:
+- [x] 3.1 **§5.2 step 3 — replace the exit condition.** Today:
       *"**VERIFY ONE CONVENING ADMITS.** The park is not lifted by a green
       validator — it is lifted when a real convening is admitted against the
       new grant. Until you have seen that, you have evidence that the files are
@@ -81,22 +81,50 @@ reach that ruling.**
       ConfigMap `hermes-register-projection`, annotation
       `hermes.opensoft.one/source-revision`, at or after the register act's
       landed commit. Cite the requirement by title, and cite the walk record
-      §13.2/§14.1 as the evidence.
-- [ ] 3.2 **§5.2 step 2 — correct the stale clause** *"it is loose on purpose
+      §13.2/§14.1 as the evidence. **DONE**: replaced in openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008) →
+      `0446dece9886f60daf052741b3b3e00f51b24583`, citing this requirement's
+      title and walk record §§13.2/14.1 inline, and naming PR #960 →
+      `ac688c40` as the ratifying act.
+- [x] 3.2 **§5.2 step 2 — correct the stale clause** *"it is loose on purpose
       because nothing refreshes the projection automatically"*, which
       contradicts the refresher this packet's precondition depends on.
       **ONLY IF OQ-4 is ruled A**; dropped otherwise, with the drop recorded
-      here.
-- [ ] 3.3 **§ "Contents" of the walk record — the `step-5b` evidence bullet.**
+      here. **DONE** (OQ-4 confirmed ruled A at `design.md` D-4): corrected in
+      the same commit, openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008) →
+      `0446dece9886f60daf052741b3b3e00f51b24583`.
+- [x] 3.3 **§ "Contents" of the walk record — the `step-5b` evidence bullet.**
       Today it requires *"which convening was watched admitting"*; it becomes
       the observation's values, its comparison and its stated limit, per OQ-2.
-- [ ] 3.4 **Do NOT touch §"Before you start" (the step-5b prerequisite) or §4's
+      **DONE**: corrected in the same commit, openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008) →
+      `0446dece9886f60daf052741b3b3e00f51b24583`; the bullet now names the
+      `source-revision` value read, the comparison against the act's landed
+      commit, and the unread fields, named as OWED with an owner.
+- [x] 3.4 **Do NOT touch §"Before you start" (the step-5b prerequisite) or §4's
       *"The only exit is step 5 and step 5b together"***. Both are true as
       written and this packet makes them truer; recorded as a deliberate
       non-edit so a reviewer does not read the omission as an oversight.
-- [ ] 3.5 **Prove the edit did not widen.** Diff the runbook and state the
+      **DONE**: confirmed untouched in openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008) →
+      `0446dece9886f60daf052741b3b3e00f51b24583` (`git diff` shows no hunk
+      near either sentence). Citation correction while checking: the "only
+      exit is step 5 and step 5b together" sentence is in the runbook's own
+      §3 ("Step 3 — the in-flight behavior (R9), verbatim"), not §4 as this
+      row's text says — unchanged either way.
+- [x] 3.5 **Prove the edit did not widen.** Diff the runbook and state the
       insertion/deletion counts in the realization pull request body; any hunk
       outside §5.2 and the Contents list is a finding against the edit.
+      **DONE**: `git diff --stat` = 1 file changed, 39 insertions(+),
+      7 deletions(-), stated in full in openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008)'s body.
+      **Disclosed, not hidden**: the diff carries a THIRD hunk beyond §5.2 and
+      the Contents list — a new `Amended by:` line in the document's own
+      header, this repo's standing convention for citing a realizing change
+      (e.g. `docs/lifecycle-notebook-projection.md`'s `Amended by:` lines).
+      It is a provenance metadatum, not a step-5b procedural edit; named here
+      rather than read as a silent widening.
 
 ## 4. Cite back — close the disposition's loop
 
