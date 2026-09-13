@@ -2077,6 +2077,50 @@ def test_a_re_destined_row_may_still_be_also_replicated_at_its_original_destinat
     assert summary["re_destined"] == 1, summary
 
 
+def test_a_row_may_not_be_also_replicated_at_an_ALIAS_of_its_own_destination(
+        scratch: Scratch) -> None:
+    """THE SAME RESOLVED-IDENTITY READING, ONE CHECK OVER (Copilot review of
+    PR #1025, accurate).
+
+    The self-replica refusal above compared `also_replicated_to`'s entries
+    against `effective_arrival(row)` AS RAW LABELS, while this slice made
+    `verify-carve-arrival.py::also_replicated_rows` resolve both sides. A row
+    listing an ALIAS of the destination it arrives at therefore passed HERE and
+    was DROPPED THERE — the manifest claiming a replica no run can verify and
+    `--replica-at` cannot declare, which is the self-replica refusal bypassed by
+    spelling. A `destinations:` key is a LABEL and `check_shape` admits two keys
+    for one `{repository, leg}` body on purpose, so the two tools must agree on
+    what "the same destination" means or the asymmetry is the finding.
+    """
+    doc = clean_manifest(scratch)
+    doc["destinations"]["openxdox_code_alias"] = dict(
+        doc["destinations"]["openxdox_code"])
+    row = row_named(doc, "beta.py")
+    assert row["destination"] == "openxdox_code", row
+    row["also_replicated_to"] = ["openxdox_code_alias"]
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "also_replicated_to" in combined, combined
+    assert "openxdox_code_alias" in combined, combined
+    assert "ONE REAL DESTINATION" in combined, combined
+
+
+def test_an_also_replicated_alias_naming_a_DIFFERENT_leg_stays_lawful(
+        scratch: Scratch) -> None:
+    """The discriminator, so the check above is not a blanket refusal of every
+    alias: two keys whose `{repository, leg}` bodies DIFFER are two real
+    destinations, and a replica declared at one of them is somewhere ELSE — the
+    thing `also_replicated_to:` is for."""
+    doc = clean_manifest(scratch)
+    doc["destinations"]["openxdox_root"] = {
+        "repository": "opensoft/openXdox-code", "leg": "assembly"}
+    row = row_named(doc, "beta.py")
+    assert row["destination"] == "openxdox_code", row
+    row["also_replicated_to"] = ["openxdox_root"]
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
 # --------------------------------------------------------------------------
 # `phase: post-shed` — the § 5.2 shed, declared IN the manifest
 #
@@ -2473,20 +2517,31 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # lawfully change leg, because every one of the 23 at `openxdox_code`
     # imports a real `openxdox` module and RULED OQ-G's TEST HOMES rule places
     # a mixed file there for exactly that reason. The defect is the PATH
-    # CONSTANT, which is § 1.2(d)'s own sentence. NINE rows gain one
-    # `path constants` entry each and every one of the nine was ALREADY a
-    # carrier, so `carrying` does not move: six at `opendox_code`
-    # (`test_outline_model.py` 1, `test_doxbench_view.py` 3,
-    # `test_doxbench_knowledge.py` 2, `test_doxbench_document_abstract.py` 2,
-    # `test_doxbench_memory_gateway.py` 2, `test_bullseye_widget.py` 1 = 11)
-    # and three at `openxdox_code` (`test_doxbench_mutation_boundary.py` 2,
-    # `test_doxbench_save.py` 5, `test_doxbench_scope.py` 2 = 9). The other 37
-    # edited sites across the two legs needed no new line: the carve's own
-    # `import rewrites` pass already declared the roots it rewrote, and an
-    # import inserted beside an already-declared import line is declared by its
-    # neighbour (`_check_declared_lines`' insertion rule). 1422 + 20 = 1442 on
-    # the same 158 rows. One new file is admitted at `openxdox_code`:
+    # CONSTANT, which is § 1.2(d)'s own sentence. THIRTEEN rows gain a
+    # `path constants` entry — one each, and TWO for
+    # `test_doxbench_mutation_boundary.py`, whose first entry the same slice
+    # corrects — and every one of the thirteen was ALREADY a carrier, so
+    # `carrying` does not move: six at `opendox_code` (`test_outline_model.py`
+    # 1, `test_doxbench_view.py` 3, `test_doxbench_knowledge.py` 2,
+    # `test_doxbench_document_abstract.py` 2, `test_doxbench_memory_gateway.py`
+    # 2, `test_bullseye_widget.py` 1 = 11) and seven at `openxdox_code`
+    # (`test_doxbench_mutation_boundary.py` 2 + 10, `test_doxbench_save.py` 5,
+    # `test_doxbench_scope.py` 2, `test_renderer.py` 2,
+    # `test_doxbench_abstract_store.py` 3, `test_doxbench_telemetry.py` 3,
+    # `test_doxbench_turns.py` 2 = 29). The other edited sites across the two
+    # legs needed no new line: the carve's own `import rewrites` pass already
+    # declared the roots it rewrote, and an import inserted beside an
+    # already-declared import line is declared by its neighbour
+    # (`_check_declared_lines`' insertion rule). 1422 + 40 = 1462 on the same
+    # 158 rows. One new file is admitted at `openxdox_code`:
     # `tests/opendox_bundle.py`.
+    #
+    # TEN OF THE FORTY ARE A CORRECTION TO THIS SLICE'S OWN FIRST PUSH, and
+    # they are why the second push re-ran `_check_declared_lines` file-by-file
+    # against both leg heads instead of reading the sweep's diff:
+    # `test_doxbench_mutation_boundary.py` and `test_renderer.py` were short,
+    # and nothing would have said so until a phase-B run at a tree carrying
+    # every other slice's declarations too.
     #
     # THIS ASSERTION IS WHERE THE ABSOLUTES LIVE, and deliberately so: the
     # document itself states each act as a DELTA (see the manifest's own
@@ -2497,7 +2552,7 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (1442, 158), (lines, carrying)
+    assert (lines, carrying) == (1462, 158), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -2518,15 +2573,15 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
                   if edit["lines"] == [155, 725, 1338]]
     assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
 
-    # THE § 3.4 SLICE-S8 ANNOTATION'S OWN NINE ROWS, PINNED BY ROW, CLASS AND
-    # EXACT LINES — on the same reasoning as the ASK-7 and S3 pins: the
-    # aggregate `(1442, 158)` would still pass if these twenty lines had landed
-    # on the wrong rows, under the wrong class, or as a different twenty that
-    # summed the same. Every one is `path constants` (a path literal naming a
-    # location the destination does not have — this manifest's own reading),
-    # and every one of the nine rows already carried an unrelated edit, so each
-    # new entry is picked out by its lines exactly as `test_bullseye_widget.py`'s
-    # S3 entry is.
+    # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
+    # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
+    # the aggregate `(1462, 158)` would still pass if these forty lines had
+    # landed on the wrong rows, under the wrong class, or as a different forty
+    # that summed the same. Every one is `path constants` (a path literal
+    # naming a location the destination does not have — this manifest's own
+    # reading), and every one of the thirteen rows already carried an unrelated
+    # edit, so each new entry is picked out by its lines exactly as
+    # `test_bullseye_widget.py`'s S3 entry is.
     for source_path, expected in (
             ("tests/ideation-dashboard/test_outline_model.py", [22]),
             ("tests/ideation-dashboard/test_doxbench_view.py", [302, 303, 306]),
@@ -2540,7 +2595,19 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
              [45, 46]),
             ("tests/ideation-dashboard/test_doxbench_save.py",
              [524, 525, 526, 1075, 1077]),
-            ("tests/ideation-dashboard/test_doxbench_scope.py", [27, 28])):
+            ("tests/ideation-dashboard/test_doxbench_scope.py", [27, 28]),
+            # The second push's five, four of them new sites and the first a
+            # CORRECTION to the `mutation_boundary` entry above: re-running
+            # `_check_declared_lines` against the leg head found the four
+            # `Path` expressions REPLACED and not merely re-rooted.
+            ("tests/ideation-dashboard/test_doxbench_mutation_boundary.py",
+             [47, 48, 49, 51, 52, 55, 56, 57, 59, 60]),
+            ("tests/ideation-dashboard/test_renderer.py", [610, 1078]),
+            ("tests/ideation-dashboard/test_doxbench_abstract_store.py",
+             [36, 46, 47]),
+            ("tests/ideation-dashboard/test_doxbench_telemetry.py",
+             [15, 22, 23]),
+            ("tests/ideation-dashboard/test_doxbench_turns.py", [35, 103])):
         row = rows[source_path]
         assert row["disposition"] == "moved_with_declared_edit", row
         s8 = [(edit["class"], edit["lines"]) for edit in row["edits"]

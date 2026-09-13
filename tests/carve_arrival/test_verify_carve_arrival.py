@@ -3057,6 +3057,21 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     after — this annotation PR. Same footing again: checked by presence, not
     equality.
 
+    AMENDED A SIXTH TIME by § 3.4 SLICE S8's own annotation PR (`#656`
+    comment `5649985838`): one more `openxdox_code` file,
+    `tests/opendox_bundle.py` — the module through which that leg's 31
+    mis-pointed suites read the PINNED openDox bundle (§ 1.2(d)'s measured
+    defect: they resolved `REPO_ROOT / "src" / "openxdox" / "web"`, a
+    directory openXdox-code does not have), and which builds RULED Q5's
+    COMPOSED root for the four suites asserting across the seam. Admitted the
+    governed way because the leg PR that lands it (opensoft/openXdox-code#19)
+    pairs with — and lands after — this annotation PR. Checked by PRESENCE and
+    by its own `since`, the same footing as every bump above; added to these
+    durable assertions in the same act that declared it, on Copilot's review of
+    PR #1025 (accurate: the generic shape checks below admit any well-formed
+    entry, so this path and its provenance commit could have been changed or
+    dropped without a failure).
+
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
     `#656` comment 5639058687), the three RULED Q5 opendox_code entries, the
@@ -3098,6 +3113,18 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             "is no longer declared for openxdox_code")
         assert seed[path]["since"] == (
             "bfd95063b2a71be097a04bb6a3a99c4c131dd322")
+    # THE SIXTH BUMP: § 3.4 SLICE S8's own `openxdox_code` file (`#656`
+    # comment `5649985838`), admitted the GOVERNED way on the same Q-L1
+    # footing as every bump below (the leg PR, opensoft/openXdox-code#19,
+    # pairs with — and lands after — this annotation PR). `since` is the
+    # file's OWN introducing commit (`git log --diff-filter=A`), not the leg
+    # branch's later tip — the provenance contract the FOURTH and FIFTH bumps
+    # below state.
+    assert "tests/opendox_bundle.py" in seed, (
+        "tests/opendox_bundle.py is § 3.4 SLICE S8's own new file (`#656` "
+        "comment 5649985838) and is no longer declared for openxdox_code")
+    assert seed["tests/opendox_bundle.py"]["since"] == (
+        "c8e4a59bd8eab231e5903e26b2a9b08e9e527fba")
     # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2):
     # `opendox_code`'s own three new files, admitted the GOVERNED way per
     # Q-L1 (the leg PR pairs with this annotation PR, which lands first) —

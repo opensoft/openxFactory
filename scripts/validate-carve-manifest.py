@@ -121,7 +121,7 @@ object this repository carries and an ANCESTOR of the revision under test — th
 shed deletes files from a tree, it does not delete a commit from a history, so
 `git cat-file blob b075fd91:<path>` answers after the shed exactly as before.
 Check 3 PASS 1 therefore still recomputes all 318 digests from the referent's
-real bytes and still bounds all 1422 declared lines against them; check 4 still
+real bytes and still bounds all 1462 declared lines against them; check 4 still
 walks the referent for completeness, still refuses a file that has APPEARED
 under the surface, and still requires every `stays_*` and
 `replicated_at_destination` row to be PRESENT; checks 1, 5 and 6 never read the
@@ -2083,6 +2083,7 @@ def _check_re_destined_chains(doc: dict) -> None:
 
 
 def check_disposition_consistency(doc: dict) -> None:
+    destinations = doc.get("destinations") or {}
     for index, row in enumerate(doc["rows"]):
         where = f"rows[{index}] ({row['source_path']})"
         disposition = row["disposition"]
@@ -2129,21 +2130,38 @@ def check_disposition_consistency(doc: dict) -> None:
         # two tools disagreeing about the same row. Comparing against
         # `effective_arrival(row)` closes it at the gate that runs first.
         own, _own_path = effective_arrival(row)
+        # ON THE RESOLVED `(repository, leg)` AND NOT ON THE KEY, for the same
+        # reason `_check_re_destined_consistency` gives below and by the same
+        # helper (Copilot review of PR #1025, accurate — the asymmetry this
+        # slice's own resolved-identity change would otherwise have opened). A
+        # `destinations:` key is a LABEL and `check_shape` admits two keys
+        # sharing one body, so `also_replicated_to: [<an alias of `own`>]`
+        # would have passed HERE while `verify-carve-arrival.py`'s
+        # `also_replicated_rows` — which resolves both sides — drops the row as
+        # arriving at this very leg. The manifest would then claim a replica no
+        # run can verify and `--replica-at` cannot declare: the self-replica
+        # refusal below, bypassed by spelling.
+        own_id = _resolved_destination(own, destinations)
         for key in row.get("also_replicated_to") or []:
-            if key == own:
+            if _resolved_destination(key, destinations) == own_id:
+                alias = (key != own)
                 raise CarveRefusal(
                     "carve-disposition-inconsistent",
                     f"{where} arrives at {own!r} today (its own `destination`, "
                     "or `re_destined.to` where a ruling has since moved it) "
-                    "and lists that same key in `also_replicated_to:`. The row "
-                    "already places the file there, at the path it arrives at "
-                    "— ALSO means somewhere else, and a row replicating a "
-                    "file at the destination it arrives at would let "
-                    "`--replica-at` re-point an arrival the manifest has "
-                    "already declared, which is the one thing the manifest "
-                    "is for")
-        _check_re_destined_consistency(where, row,
-                                       doc.get("destinations") or {})
+                    + (f"and lists {key!r} in `also_replicated_to:` — TWO "
+                       f"`destinations:` KEYS FOR ONE REAL DESTINATION, "
+                       f"{own_id!r}"
+                       if alias else "and lists that same key in "
+                                     "`also_replicated_to:`")
+                    + ". The row "
+                      "already places the file there, at the path it arrives at "
+                      "— ALSO means somewhere else, and a row replicating a "
+                      "file at the destination it arrives at would let "
+                      "`--replica-at` re-point an arrival the manifest has "
+                      "already declared, which is the one thing the manifest "
+                      "is for")
+        _check_re_destined_consistency(where, row, destinations)
 
     _check_re_destined_chains(doc)
 
