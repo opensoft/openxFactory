@@ -1302,6 +1302,35 @@ def test_another_rows_arrival_at_the_vacated_path_is_a_lawful_refill(
         summary
 
 
+def test_a_declared_replica_may_refill_a_re_destinations_vacated_path(
+        carve: Carve) -> None:
+    """The `--replica-at` twin of
+    `test_another_rows_arrival_at_the_vacated_path_is_a_lawful_refill`
+    (Copilot review, PR #1011, round 3): a replica the OPERATOR declares at a
+    path a `re_destined:` row vacated on this same leg is a lawful refill too
+    — `neutral.py` is not a row `rows_for()` ever returns (RULED OQ-C), so it
+    was invisible to round 2's own fix and read as the vacated row's
+    abandoned copy. `check_vacated` runs before `check_replicas` builds and
+    verifies the declared placements, so excluding this path here says only
+    "not a leftover" — `check_replicas` still separately verifies the bytes
+    below are actually `neutral.py`'s."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, RE_DESTINED_FROM_PATH, SURFACE_FILES["scripts/pkg/neutral.py"])
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", f"scripts/pkg/neutral.py={RE_DESTINED_FROM_PATH}")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_declared"] == 1, payload
+    assert payload["replicas_verified"] == 1, payload
+    vacated = payload["re_destined"]["vacated"]
+    assert [row["source_path"] for row in vacated] == [RE_DESTINED_SOURCE], \
+        payload
+
+
 def test_a_re_destined_row_that_never_arrived_refuses_missing(
         carve: Carve) -> None:
     """`arrival-missing` at the GAINING leg, naming the ruling that made the

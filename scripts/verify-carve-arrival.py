@@ -310,6 +310,7 @@ import re
 import stat
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -1279,7 +1280,9 @@ def _referent_blob(source_repo: Path, carve_commit: str,
 # --------------------------------------------------------------------------
 
 def check_vacated(rows: list[dict[str, Any]], dest_root: Path,
-                   arriving_rows: list[dict[str, Any]] | None = None) -> int:
+                   arriving_rows: list[dict[str, Any]] | None = None,
+                   declared_replica_paths: Iterable[str] | None = None
+                   ) -> int:
     """Every row a ruling re-destined AWAY from this leg has LEFT it.
 
     `arrival-missing` READ IN THE MIRROR. A re-destination is one act with two
@@ -1310,6 +1313,23 @@ def check_vacated(rows: list[dict[str, Any]], dest_root: Path,
     when it is the bytes ANOTHER row's own row declares belong there; `lexists`
     stays the test for every path no row here claims.
 
+    `declared_replica_paths` — `replica_placements.values()`, the SAME
+    `--replica-at` declarations `check_replicas` verifies afterwards (Copilot
+    review, PR #1011, round 3): a replica is not a row this file's own
+    `rows_for()` ever returns (RULED OQ-C — a `not_moved` row declares no
+    arrival, and a moved row's `also_replicated_to:` names a destination, not
+    a path), so a declared replica refilling a vacated path was invisible to
+    `arriving_rows` alone and read as un-vacated. `parse_replica_placements`
+    has already held each entry here to the manifest's own
+    `replicated_at_destination` / `also_replicated_to` vocabulary for this
+    destination, so a path is excluded here only where the manifest and the
+    operator agree a replica belongs — never on the strength of the flag by
+    itself. Passed straight through rather than re-derived, on the same
+    "one definition" reasoning `effective_arrival` documents: `check_replicas`
+    still runs after this and still verifies the replica is actually there
+    and byte-right, so excluding its path here only says "not a leftover", not
+    "verified" — first-failure order over the SET OF QUESTIONS is unchanged.
+
     IT RUNS BEFORE THE WALK, so the finding names the ruling rather than the
     filename. Left to `check_undeclared_files`, an un-vacated file would refuse
     as `arrival-undeclared-file` — true, and useless: it would send a reader
@@ -1317,6 +1337,7 @@ def check_vacated(rows: list[dict[str, Any]], dest_root: Path,
     `re_destined:` block in its own row.
     """
     claimed = {arrival_path(r) for r in (arriving_rows or [])}
+    claimed.update(declared_replica_paths or ())
     for row in rows:
         re_destined = row["re_destined"]
         relpath = re_destined["from_path"]
@@ -2014,7 +2035,7 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     # THE LOSING HALF, immediately after the arriving one and before the walk:
     # a file a ruling moved off this leg must be GONE from it (RULED Q6).
     vacated = vacated_rows(doc, destination)
-    check_vacated(vacated, dest_root, rows)
+    check_vacated(vacated, dest_root, rows, replica_placements.values())
     replica_counts = check_replicas(replica_placements, dest_root,
                                     source_repo, carve_commit, doc, phase)
     # A REPLICA'S DECLARED EDIT IS COUNTED WHERE A MOVED ROW'S IS (RULED Q-L7
