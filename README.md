@@ -79,7 +79,7 @@ Core domain-neutral docs:
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
 - [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
 - [The openDox carve admissions](docs/opendox-carve-admissions.yaml) (RULED — the arrival-admission repair, Brett Heap, 2026-09-11, `#656` comment 5639058687: the DECLARED per-destination `created:` list `scripts/verify-carve-arrival.py` reads beside the manifest by default, applied exactly as `--allow-created` admits, so a file a leg legitimately assembles is a reviewed one-line diff in the pin-bump pull request rather than a flag typed on a command line and recorded nowhere; seeded with the two `opensoft/openXdox-code#7` files; `--allow-created` remains the ad-hoc fallback)
-- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 1042 declared edit lines over 153 rows, and 20 replica rows of which one declares a line)
+- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 1422 declared edit lines over 158 rows, and 20 replica rows of which one declares a line)
 - [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, five refusal codes, a `--json` seat), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 and the other two named destinations have authored no reader yet, so § 3.7 is not ticked)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
@@ -530,6 +530,57 @@ Every DomainxFactory must validate against the canonical contract:
 ## OpenSpec Records
 
 Active changes:
+
+- [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
+  — filed 2026-09-12, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: draft`** — an UNAPPROVED packet in the lawful drafting shape
+  (`proposed_by` / `proposed_on`, no approval pair). **Proposed** 2026-09-12 at
+  approximately 01:55Z by Brett Heap, openxFactory repository owner, first-hand,
+  in session — a SELECTION, not a typed sentence, via the lane's multi-select
+  question: the option ***"#992 grammar-extension OpenSpec change
+  (Recommended)"***; recorded on openxFactory #745. That word commissioned the
+  FILING and nothing further. Extends the prose-tagging grammar with a target
+  form that can name a capability which has LEFT this corpus and now lives in a
+  pinned neutral product — `target=pinned:<pin-id>/<capability>`, in an
+  `xspec:candidate` marker's `target=` attribute and there only, chosen because
+  the existing marker regexes (`scripts/doc_health/families.py:1308-1314`) accept
+  it unchanged — with resolution resting on a VALID, COMPLETE neutral-product
+  pin record, one carrying every member required by the RECORD SHAPE it matches
+  — three shapes across the five `pinned_contract_manifest` records, two of them
+  sharing `revision_kind: commit`, so the revision kind alone is not the key,
+  and each shape's member set being that shape's SHAPE-GUARD-REQUIRED SET,
+  exactly what its in-tree pin verifier refuses-when-absent IN ITS PURE,
+  SOURCE-FREE GUARDS (measured; the ratified text is silent on the whole-tree
+  shape and on the published artifact's `package` and `binary`), pinned to those
+  guards by a TWO-LEG equivalence test over each real record and NECESSARY, by
+  design, without being SUFFICIENT for the record's full verifier, since a
+  source-dependent check such as `pin-surface-undeclared` cannot be made offline
+  — judged through ONE code-fixed route, a single shared pure adapter that never
+  runs a path the record itself selects, and resolved under the root precedence
+  the in-tree arm already uses (NO pin
+  record in this tree enumerates capabilities, measured over all six; what each
+  addresses instead is files, tree digests, workflow members, or one
+  whole-artifact digest) and a stale-target rule `document-lifecycle` does not
+  carry today: when a
+  target capability exits the corpus the marker either takes the pinned form or
+  the block is unfenced, never silently retargeted and never silently deleted.
+  **This discharges owed successor item (7) of the `split-openxwallet-repo`
+  archived-ledger entry below on ARCHIVE, not on filing — no box is ticked
+  here.** The four `error`-band `tag-hygiene` findings that archive measured
+  (`archive/2026-08-28-split-openxwallet-repo/tasks.md:1760-1786`) stay OPEN and
+  the four markers stay exactly as they are: `code_surface` names
+  `scripts/doc_health/families.py` plus the AT-MOST-THREE further files the
+  arm's code-fixed-route and containment rules require — the shape-ADAPTER
+  module, a shared containment helper, and `scripts/validate-pin-registrations.py`
+  as that helper's second caller, the bound reached only where both rules take
+  their file-adding branch (`proposal.md:2`) — NO BYTE OF WHICH MOVES IN THE
+  FILING, so per
+  `release-realization` this packet archives only on merged-plus-green
+  realization evidence — one later pull request carrying the resolver arm, its
+  tests, the four retargeted markers, the `docs/document-lifecycle.md` section
+  and the stale `ideation/staging/INDEX.md:2262-2265` line together. Filed from
+  openxFactory [#992](https://github.com/opensoft/openxFactory/issues/992), filing PR
+  [#994](https://github.com/opensoft/openxFactory/pull/994).
 
 - [disposition-codexfactory-regular-pr-council-clearance-archive](openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/proposal.md)
   — authored 2026-09-11, lane `provenance-autonomous-merge` (session
