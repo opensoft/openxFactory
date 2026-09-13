@@ -146,6 +146,17 @@ is in another repository.** None of the three is performed by this packet.
       sanctioned `python3 scripts/validate-sequenced-after.py . --seed-ledger
       --moved-by '#<PR>'`, never by hand-editing
       `tests/sequenced_after/corpus-ledger.yaml`.
+- [ ] 5.3 **Resolve `target_release: deferred-allocation` before the archive.**
+      The proposal declares the THIRD value `add-target-release-deferred-allocation`
+      admitted (openxFactory #1022 → `9378eca5`): a contract bundle whose number
+      `docs/contract-versioning-policy.md` § Bundle Realization Order allocates AT
+      THE CUT. That value is TEMPORARY by construction — the resolving pull
+      request rewrites it to the literal release identifier the § 3 cut allocated
+      (or to `implemented`, should the realization end up cutting no bundle) and
+      NAMES THE CUT IT OBSERVED, as the MODIFIED *Realization axis declaration*
+      requires; the packet does not archive (5.1) while the token still reads
+      `deferred-allocation`. No register entry moves: this packet was never
+      grandfathered in `scripts/target-release-register.yaml`.
 
 ## 6. Residue — named, so it is not rediscovered
 
