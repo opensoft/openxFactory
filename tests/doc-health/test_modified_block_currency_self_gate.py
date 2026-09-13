@@ -953,6 +953,56 @@ _LEDGER_SUBJECTS = {
      "identity plane"),
     ("repoint-chain-anchoring-medxchain-citation", "chain-anchoring",
      "This capability is neutral and names no domain semantics"),
+    # ADDED 2026-09-13 BY `add-target-release-deferred-allocation`
+    # (openxFactory PR #1022, lane `hermes-wallet-exercise`), the packet that
+    # admits the THIRD `target_release:` value — the successor question
+    # `gate-realization-axis-vocabulary` D1 declined as its "OPTION 2" and its
+    # `tasks.md` § 6.1 named for a later packet by name. TWO ROWS FROM ONE
+    # PACKET, one per MODIFIED requirement, because promoted canon STATES THE
+    # VOCABULARY TWICE — once as the author's declaration rule and once as the
+    # gate's refusal rule — and a widening written into only one of the two
+    # would leave canon enumerating two values in one place and three in the
+    # other.
+    #
+    # A DELIBERATE WIDENING, and the narrowest one the corpus admits: BOTH
+    # uncarried units are THE SAME TWO-VALUE ENUMERATION SENTENCE, which the
+    # new value falsifies the moment it exists. In *Realization axis
+    # declaration* the 1 uncarried unit of 6 is the `SHALL declare` sentence,
+    # whose "`implemented` (the affected repositories' main lines) or a named
+    # release defined in the aggregation repository" becomes the same pair
+    # followed by "or `deferred-allocation`" and the clause that defines it. In
+    # *Realization axis vocabulary is gated* the 1 uncarried unit of 51 is the
+    # `SHALL carry a value the ratified vocabulary admits` sentence, widened in
+    # the same three-item shape and in the same order. Every other promoted
+    # unit of both requirements — the doc-only default, the TOKEN-not-GLOSS
+    # paragraph, the register paragraphs, and every scenario of each — is
+    # carried. This arm cannot distinguish a ratified widening from drift and
+    # does not claim to; the finding is INFO and it is the audit trail for the
+    # widening. Retires when the packet archives on merged-plus-green
+    # realization evidence (its `code_surface` is non-empty) and its two blocks
+    # are promoted onto `openspec/specs/release-realization/spec.md`.
+    #
+    # THE UNIT COUNTS ABOVE ARE THIS FILE'S CONTEXT, `--single-repo`, AND THE
+    # DECLARATION ROW READS DIFFERENTLY IN THE AGGREGATION ONE — said here
+    # because the next editor who re-measures from the other side will otherwise
+    # read a contradiction. This packet is the SECOND active writer of
+    # *Realization axis declaration*, behind `add-structured-scope-substrate`,
+    # so the arm compares its block against THAT SIBLING'S BLOCK rather than
+    # against promoted canon wherever the sibling resolves, and the finding then
+    # reads `1 of 10` against
+    # `openspec/changes/add-structured-scope-substrate/specs/release-realization/spec.md`
+    # instead of `1 of 6` against canon. The SUBJECT TRIPLE is the same either
+    # way, which is why one row covers both readings; the uncarried unit is the
+    # same two-value sentence in both. That second reading is the real tree's
+    # FIRST two-writer carriage finding, and it is what falsified the
+    # promoted-path assumption in
+    # `test_modified_block_currency_reporting.py::test_the_drift_grain_is_one_finding_per_arm_template`
+    # (fixed in the same pull request, by reading the template's own
+    # `{spec_rel}` slot instead of guessing an `openspec/specs/` prefix).
+    ("add-target-release-deferred-allocation", "release-realization",
+     "Realization axis declaration"),
+    ("add-target-release-deferred-allocation", "release-realization",
+     "Realization axis vocabulary is gated"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1284,9 +1334,12 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     """PACKET § 4.1's editorial arm, as an EXACT SET of named subjects — nine
     at 2026-09-11, twelve since `repoint-chain-anchoring-medxchain-citation`
-    added three rows on 2026-09-12 (Copilot review, PR #998), and fourteen
+    added three rows on 2026-09-12 (Copilot review, PR #998), fourteen
     since `extend-prose-tagging-target-to-pinned-capabilities` added two more
-    the same day (openxFactory #992, filing PR #994).
+    the same day (openxFactory #992, filing PR #994), and SIXTEEN since
+    `add-target-release-deferred-allocation` added two on 2026-09-13 (PR
+    #1022) — one per promoted requirement that states the `target_release:`
+    vocabulary, both widened by the third value that packet admits.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
