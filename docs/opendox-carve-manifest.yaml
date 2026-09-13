@@ -150,13 +150,17 @@
 # import rewrite the new leg needs is an ORDINARY declared line under the
 # existing `import rewrites` class.
 #
-# NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
-# and re-destines nothing: slice S8 of the front-end boundary note is the act
-# that uses it, under its own claim and its own pull request, and every count
-# in this file is therefore unmoved by this landing. `re-destined 0` is what
-# `scripts/validate-carve-manifest.py` prints for this document until then —
-# the count is printed on every run, in both phases and at zero, so the state
-# the file is in is never the state no log records.
+# AS FIRST LANDED, NO ROW BELOW CARRIED THE FIELD: this amendment landed the
+# FORM and its gates and re-destined nothing itself, on the expectation that
+# slice S8 of the front-end boundary note would be the first act to use it,
+# under its own claim and its own pull request. § 3.4 slice S5 (`#656` CLAIM
+# `5648073924`, `opensoft/openxFactory#1023`) used it FIRST instead: RULED Q5
+# (`5648044785`) makes the gate loop a CONTRIBUTED column, and FOUR rows below
+# — `views/gate.js`, `views/dispose.js`, `views/swb-create.js` and
+# `views/swb-session.js` — now carry `re_destined:` from `opendox_code` to
+# `openxdox_code`. `re-destined 4` is what `scripts/validate-carve-manifest.py`
+# prints for this document now; the count is printed on every run, in both
+# phases, so the state the file is in is never the state no log records.
 #
 # THE GATES, FIVE OF THEM: `re_destined:` on a `not_moved` row refuses
 # `carve-re-destined-not-moved` (a row that placed nothing has no arrival to
@@ -1818,6 +1822,9 @@ rows:
       - class: adapter calls
         lines: [161, 162, 304, 305, 515, 516, 921, 922, 949, 950]
         note: "§ 3.4 SLICE S6, RULED Q4 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): the read-only `/source` pass-through returns from a CONTRIBUTED binding to a FIXED core arm of the neutral product — RULED Q-L1's own paragraph binds every § 3.4 slice the same way S3's `app.js` row above states it. Five insertions, each named by the pair of carve lines it sits between: 161-162 the \"AND ONE ROUTE HAS SINCE GONE THE OTHER WAY\" paragraph in the TWO REGISTRATION MODES block, recording that `/source` returned from CONTRIBUTED to FIXED; 304-305 the `SOURCE_PREFIX` / `BARE_SOURCE_ROUTE` pair and its comment block, between `PROJECT_REGISTER_ROUTE` and `CAPABILITIES_ROUTE`; 515-516 the `resolve_source_path` containment entry point, above `_checkout_real`; 921-922 the two FIXED CORE ARMS in `_route`, between the `/workbench/thread` arm and the § 2.4 contributed consult; 949-950 `_keyed_source` / `_serve_source` / `_refuse_bare_source`, between `do_HEAD` and `do_POST`. Class `adapter calls` on this manifest's own precedent (`serve.py`:618, `snapshot_registry.py`:85 — a site that reached a thing directly now calls the seam that stands in for it): here the direction is inverted, five call sites move IN from the projection column to become this core arm directly, which is the same class read the other way. All five insertions are moved from `scripts/ideation_dashboard/serve_projection.py`'s row below, which declares the matching deletions. Realized at opensoft/openDox-code `build/s6-source-core-arm`, `7dd0ba5a07484a2fb2715d1de4e08e7c4b68be08` (DRAFT PR opensoft/openDox-code#16)."
+      - class: adapter calls
+        lines: [1453, 1454]
+        note: "§ 3.4 SLICE S5. The ONE line slice S3 built both ends of and deliberately did not write: `capabilities[\"views\"] = view_extension.view_manifest(...)` in `build_server()`, with the collect call beside it, so the contributed view manifest is published on `/capabilities` for the same probe the routes already travel on. Both carve lines are BLANK at `carve_commit` — this is an insertion into the capabilities assembly, class `adapter calls` on this row's own precedent (`serve.py`:618). Realized at opensoft/openDox-code `build/s5-gate-loop-contributed` (DRAFT PR #20)."
   - source_path: scripts/ideation_dashboard/serve_gate.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -1916,6 +1923,12 @@ rows:
       - class: adapter calls
         lines: [514, 515, 1137, 1138]
         note: "§ 3.4 SLICE S4, RULED Q3 (`#656` comment `5642758731`, Brett Heap, 2026-09-12): \"a route constant travels with the binding that calls it, never with the model that happens to declare it.\" Four of the thirteen route constants S4 counts across the three RULED `SPLIT` files sit on `app.js`'s own two `ViewBinding` entries, the same registry S3's row above already declares: 514-515 the `gate.lens` binding gains a `routes:` declaration naming `LENS_SAVE_ROUTE` / `LENS_CLUSTER_ROUTE`, now imported from the new `views/gate-lens.js` (an admitted, created file — see `docs/opendox-carve-admissions.yaml`) instead of `views/lens-model.js`; 1137-1138 the `gate.projects` binding gains the matching declaration for `ACTIONS_CREATE_PROJECT_ROUTE` / `ACTIONS_EDIT_PROJECT_ROUTE`, imported from the new `views/gate-projects.js`. Class `adapter calls` on this row's own S3 precedent: a binding's `routes:` declaration is a call site reaching the seam that now supplies the constant. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
+      - class: import rewrites
+        lines: [45, 47, 48]
+        note: "§ 3.4 SLICE S5. :45 was `import { firstEditTransport } from \"./views/swb-session.js\"` — a class-A file importing a class-B module, and RULED Q10 (`#656` comment `5648065587`) makes that export travel through the REGISTRY instead, with a refusal-shaped fallback. :47-48 are the neighbouring import lines where RULED counterpart Q6 (`5649094228`) puts the two model NAMESPACES the contributed bindings reach through `ctx` (`lensModel`, `workbenchModel`), since a contributed module may import `./views/helpers.js` and nothing else."
+      - class: adapter calls
+        lines: [478, 479, 746, 747, 749, 750, 879, 880, 1012, 1013, 1015, 1057, 1058, 1060, 1061, 1113, 1114, 1150, 1151]
+        note: "§ 3.4 SLICE S5, the call sites. 478-479: the wheel's ctx gains `dispose:` — the contributed dispose column's DECLARED namespace (RULED Q2), null where no column is registered. 746-747: `refusalTransport()` and `ensurePageOverlayHost()` enter the render scope — RULED Q10's 'never a blank' and RULED Q8's `page-overlay` host, which the shell builds because `index.html` is a `moved_verbatim` row that cannot grow an element. 879-880, 1060-1061, 1113-1114: RULED Q1's generic mount pass, run PER REGION by the caller that just rendered it — after `mountExplorer()`, after `mountStagingWorkbench()`, and through the tab router's `onRegionRendered` hook on a tab's first render (Copilot round 2: every `dom` region is a root its core renderer CLEARS, so one pass before them all mounted contributed panels into roots that were about to be emptied). 1012-1015: the doxBench Save reaches `firstEditTransport` off the `gate.workbench.session` binding and falls back to the refusal transport. 1057-1058: the workbench overlay's ctx gains the resolved `gate` column and openDox's own model. 1150-1151: RULED Q11 — a `ViewBindingError` is caught SEPARATELY and shown as a registry refusal naming the binding, the rule and the value, instead of being framed as a snapshot defect; the frame is a NAMED function as of round 2, because the late per-region pass must reach the same surface rather than becoming an unhandled rejection, and at 749-750 `render()` remembers where `#loadstatus` sits so the frame can put back the element a successful render removed (round 3) — `index.html` is a `moved_verbatim` row and cannot grow a second host. Class `adapter calls` on this row's own S3/S4 precedent."
   - source_path: scripts/ideation_dashboard/web/index.html
     disposition: moved_verbatim
     git_mode: '100644'
@@ -1982,10 +1995,20 @@ rows:
     sha256: "8fe79726ba3eaad2bfaeca77e5b9e3d423f599167ac8422cde495f212af7eb9b"
     destination: opendox_code
     destination_path: src/opendox/web/views/dispose.js
+    re_destined:
+      from: opendox_code
+      from_path: src/opendox/web/views/dispose.js
+      to: openxdox_code
+      to_path: src/openxdox/web/views/dispose.js
+      ruling: "opensoft/openxFactory#656 comment 5648044785 (RULED Q5, Brett Heap, 2026-09-12, by interactive multi-choice: openXdox ships its view modules as package data and the composed install copies them into openDox's one --web-dir at assembly); placed with the § 3.4 slice S5 CLAIM, comment 5648073924"
+      note: "§ 3.4 slice S5, 'contribute the gate loop' (openDox-spec docs/front-end-package-boundary.md § 5 row S5 @ 7d12428c). The carve placed this class-B module in the shell; RULED Q5 makes the gate loop a CONTRIBUTED column, so the bytes live at openXdox-code and the composed install places them back into openDox's bundle at assembly. Both halves are proven at the legs: the row is verified VACATED at opendox_code and arrives at openxdox_code under this row's own digest and declared-line rules. Realized at opensoft/openXdox-code build/s5-gate-loop-bindings (DRAFT PR #18) and opensoft/openDox-code build/s5-gate-loop-contributed (DRAFT PR #20)."
     edits:
       - class: import rewrites
         lines: [26]
         note: "RULED Q5 (opensoft/openxFactory#656 comment 5642758731; docs/front-end-package-boundary.md § 6 Q5 and § 4.2, openDox-spec a44ac06d): the intent-feed chips become an OPTIONAL contributed binding (split-opendox-two-layer-product § 3.4, slice S2). Line 26 repoints the import from the absent `./intent-feed.js` (RULED OQ-F, this manifest's own not_moved row above, unchanged) to the new `./intent-binding.js` late-lookup — same imported names (`emitIntent`, `renderIntentChips`), nothing else on the line changes. Realized at opensoft/openDox-code `build/s2-intent-chips-optional-binding`, `330cf8161f06ae67be716deafe9b2ec3c64d1492`."
+      - class: adapter calls
+        lines: [29, 30, 51, 53, 54, 55, 69, 184, 212, 213, 396]
+        note: "§ 3.4 SLICE S5. :29-30 the four `/actions/gate/<verb>` route constants RULED Q12 (`5648065587`) requires as LITERALS — 'a COMPUTED route is declared as its literals; assertion 2's grep sees them' — which is why :396's `post(\"/actions/gate/\" + verb, ...)` concatenation goes. :51-69 RULED Q8 (`5648049748`): the singleton refusal panel stops appending itself to `document.body` ('never a contract surface') and mounts into the declared `page-overlay` region the shell hands it. :184, :212-213 RULED counterpart Q6 (`5649094228`): the intent emitter and the chip renderer arrive as `ctx.intent.emit` / `ctx.intent.renderChips` instead of an import of openDox's `./intent-binding.js` — a fallback into a module a contributed binding may not import is a refusal, not a default. Class `adapter calls` on the S4 precedent for a route constant travelling with the binding that calls it."
   - source_path: scripts/ideation_dashboard/web/views/doc-wheel.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2052,10 +2075,20 @@ rows:
     sha256: "f304d5e61980192be39a4225dbc847b5bcc7c71388784d7b67d70cff53e79261"
     destination: opendox_code
     destination_path: src/opendox/web/views/gate.js
+    re_destined:
+      from: opendox_code
+      from_path: src/opendox/web/views/gate.js
+      to: openxdox_code
+      to_path: src/openxdox/web/views/gate.js
+      ruling: "opensoft/openxFactory#656 comment 5648044785 (RULED Q5, Brett Heap, 2026-09-12, by interactive multi-choice: openXdox ships its view modules as package data and the composed install copies them into openDox's one --web-dir at assembly); placed with the § 3.4 slice S5 CLAIM, comment 5648073924"
+      note: "§ 3.4 slice S5, 'contribute the gate loop' (openDox-spec docs/front-end-package-boundary.md § 5 row S5 @ 7d12428c). The carve placed this class-B module in the shell; RULED Q5 makes the gate loop a CONTRIBUTED column, so the bytes live at openXdox-code and the composed install places them back into openDox's bundle at assembly. Both halves are proven at the legs: the row is verified VACATED at opendox_code and arrives at openxdox_code under this row's own digest and declared-line rules. Realized at opensoft/openXdox-code build/s5-gate-loop-bindings (DRAFT PR #18) and opensoft/openDox-code build/s5-gate-loop-contributed (DRAFT PR #20)."
     edits:
       - class: path constants
         lines: [27]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: adapter calls
+        lines: [136, 137, 138, 139, 140, 142, 145, 163, 166, 174, 175, 182]
+        note: "§ 3.4 SLICE S5, RULED Q3 (`#656` comment `5648044785`): 'ONE mount signature, mount(host, snapshot, ctx); the gate bar's (container, ctx, opts) is recorded as the one declared exception UNTIL S5 REWRITES IT.' This is that rewrite — `mountGateBar(host, snapshot, ctx)`, the per-artifact context under `ctx.gate` and the probe under `ctx.caps`, with the descriptor, ratify and upgrade sites following the new shape. Class `adapter calls`."
   - source_path: scripts/ideation_dashboard/web/views/grouping.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2161,17 +2194,31 @@ rows:
         lines: [956, 957, 958, 959, 960, 961, 962, 963, 985, 986, 987, 988]
         note: "§ 3.4 SLICE S4, the same act and ruling as the entry above — this model's own two call sites that read the six relocated constants back (the create-session and session-action dispatchers), rewritten to import them from `swb-create.js` / `swb-session.js` instead of declaring them locally. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
   - source_path: scripts/ideation_dashboard/web/views/staging-workbench.js
-    disposition: moved_verbatim
+    disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "f55485482c9284bde45672f45dd889f74e89624389e91a033013336a56c5c751"
     destination: opendox_code
     destination_path: src/opendox/web/views/staging-workbench.js
+    edits:
+      - class: import rewrites
+        lines: [84, 85, 88, 89, 90, 91, 92]
+        note: "§ 3.4 SLICE S5. :88-92 were `import { mountCreateAffordance, openCreateDialog, createGateLive } from \"./swb-create.js\"` and a six-name import from `./swb-session.js` — two of § 4.5 assertion 3's four breaches, a CLASS-C file statically importing CLASS-B modules, and the reason a student install failed to LOAD rather than coming up without the session verbs. Both modules are openXdox's package data (RULED Q5) and are reached as the declared namespaces the shell resolved. :84-85 are the neighbouring import lines where RULED counterpart Q6 (`5649094228`) puts `import * as workbenchModel from \"./staging-workbench-model.js\"` — the model the contributed pair may no longer import and now takes through `ctx.model`."
+      - class: adapter calls
+        lines: [1484, 1485, 1490, 1491, 1514, 1753, 1754, 1780, 1781, 1789, 1790, 1794, 1795, 1821, 1826, 1842, 1843, 1855, 2100, 2105, 2579, 2595, 2729, 2978, 3181, 3219, 3220]
+        note: "§ 3.4 SLICE S5, the call sites. `mountStagingWorkbench` takes the resolved `gate` column and installs its two halves (:1484-1491), and every affordance site reads THROUGH it — the create gate pill (:1514, :2579, :2595, :2729, :2978), the create mount and dialog under RULED Q3's one `mount(host, snapshot, ctx)` signature with the seed under `ctx.seed` and openDox's model under `ctx.model` (:1789-1795, :3181), the session-bar mount (:1826) and the session overlays (:1780-1781, :1821, :1842-1855, :2100-2105, :3219-3220). Absent the column, frozen null objects answer 'not offered' rather than 'undefined', so a student install renders the workbench with no session verbs and no create gate. Class `adapter calls`."
   - source_path: scripts/ideation_dashboard/web/views/swb-create.js
     disposition: moved_with_declared_edit
     git_mode: '100644'
     sha256: "4b8a211b00a9e96b3f44b8af564fc33bdca32bc34fba13ac6ea34fa8480b1c31"
     destination: opendox_code
     destination_path: src/opendox/web/views/swb-create.js
+    re_destined:
+      from: opendox_code
+      from_path: src/opendox/web/views/swb-create.js
+      to: openxdox_code
+      to_path: src/openxdox/web/views/swb-create.js
+      ruling: "opensoft/openxFactory#656 comment 5648044785 (RULED Q5, Brett Heap, 2026-09-12, by interactive multi-choice: openXdox ships its view modules as package data and the composed install copies them into openDox's one --web-dir at assembly); placed with the § 3.4 slice S5 CLAIM, comment 5648073924"
+      note: "§ 3.4 slice S5, 'contribute the gate loop' (openDox-spec docs/front-end-package-boundary.md § 5 row S5 @ 7d12428c). The carve placed this class-B module in the shell; RULED Q5 makes the gate loop a CONTRIBUTED column, so the bytes live at openXdox-code and the composed install places them back into openDox's bundle at assembly. Both halves are proven at the legs: the row is verified VACATED at opendox_code and arrives at openxdox_code under this row's own digest and declared-line rules. Realized at opensoft/openXdox-code build/s5-gate-loop-bindings (DRAFT PR #18) and opensoft/openDox-code build/s5-gate-loop-contributed (DRAFT PR #20)."
     edits:
       - class: import rewrites
         lines: [32, 34]
@@ -2179,6 +2226,12 @@ rows:
       - class: path constants
         lines: [35]
         note: "§ 3.4 SLICE S4, the same act and ruling as the entry above — the INSERTION's following neighbour: `CREATE_ROUTE = \"/actions/gate/create-document\"` is now declared here, in the class-B module the gate column owns and where it can travel with the binding at slice S5, rather than in the pure model that merely happened to declare it. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
+      - class: import rewrites
+        lines: [29, 30, 31, 33]
+        note: "§ 3.4 SLICE S5, RULED counterpart Q6 (`5649094228`): 'a CONTRIBUTED view module may import ./views/helpers.js and NOTHING ELSE.' The five-name import from openDox's `./staging-workbench-model.js` is gone; `./helpers.js` stays (the guarantee) and `./dispose.js` is this column's own module, placed beside this one by the same assembly step."
+      - class: adapter calls
+        lines: [162, 345, 346, 367, 368, 369, 370]
+        note: "§ 3.4 SLICE S5. :345-346 and :367-370 RULED Q3's one `mount(host, snapshot, ctx)` signature, with the seed under `ctx.seed` and a NAMED refusal when the shell supplies no `ctx.model`; :162 the continuation tokens read off the supplied model instead of the vanished import. Class `adapter calls`."
   - source_path: scripts/ideation_dashboard/web/views/swb-model-intake.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2191,6 +2244,13 @@ rows:
     sha256: "06758446e95278cdd20363e10748036340b795b4e2c823c68ddd93da10225ec2"
     destination: opendox_code
     destination_path: src/opendox/web/views/swb-session.js
+    re_destined:
+      from: opendox_code
+      from_path: src/opendox/web/views/swb-session.js
+      to: openxdox_code
+      to_path: src/openxdox/web/views/swb-session.js
+      ruling: "opensoft/openxFactory#656 comment 5648044785 (RULED Q5, Brett Heap, 2026-09-12, by interactive multi-choice: openXdox ships its view modules as package data and the composed install copies them into openDox's one --web-dir at assembly); placed with the § 3.4 slice S5 CLAIM, comment 5648073924"
+      note: "§ 3.4 slice S5, 'contribute the gate loop' (openDox-spec docs/front-end-package-boundary.md § 5 row S5 @ 7d12428c). The carve placed this class-B module in the shell; RULED Q5 makes the gate loop a CONTRIBUTED column, so the bytes live at openXdox-code and the composed install places them back into openDox's bundle at assembly. Both halves are proven at the legs: the row is verified VACATED at opendox_code and arrives at openxdox_code under this row's own digest and declared-line rules. Realized at opensoft/openXdox-code build/s5-gate-loop-bindings (DRAFT PR #18) and opensoft/openDox-code build/s5-gate-loop-contributed (DRAFT PR #20)."
     edits:
       - class: import rewrites
         lines: [76, 78]
@@ -2198,6 +2258,12 @@ rows:
       - class: path constants
         lines: [79]
         note: "§ 3.4 SLICE S4, the same act and ruling as the entry above — the INSERTION's following neighbour: the five route constants are now declared here, in the class-B module the gate column owns. Realized at opensoft/openDox-code `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808` (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14)."
+      - class: import rewrites
+        lines: [69, 70, 71, 72, 73, 74, 75, 77]
+        note: "§ 3.4 SLICE S5, RULED counterpart Q6 (`5649094228`). The eighteen-name import from openDox's `./staging-workbench-model.js` is gone. The nine model FUNCTIONS arrive as `ctx.model` (openDox's behaviour stays openDox's, single-sourced); the affordance VOCABULARY — six tokens, `SESSION_AFFORDANCES`, `SESSION_VERBS`, `SESSION_LABELS` — is DECLARED by this module on RULED Q3's slice-S4 precedent, because those tokens key this module's own `SESSION_ROUTES` table at MODULE SCOPE, they name the gate verbs openXdox's own `serve_gate.py` answers, and after S5 no file in openDox's bundle reads one of them."
+      - class: adapter calls
+        lines: [161, 162, 163, 168, 177, 190, 191, 194, 195, 573, 574, 579, 582, 596, 601, 609]
+        note: "§ 3.4 SLICE S5. :161-177 and :191-195 the request path takes the model the CALLER validated (Copilot round 3): `submitSession` gains a last argument for the bound namespace and reads `consoleHeaders` / `withConsoleRepair` off it when given one, and the returned transport reads `firstEditBody` / `firstEditVerdict` off the same one — because that transport OUTLIVES the call that built it, so a second mount re-pointing the module-level install would have shaped and read one editor's Save with another's model. A mount still reads the module-level install, which is what every affordance in this file has always done. :190 `firstEditTransport` — RULED Q10's DECLARED NON-MOUNT export, reached through the registry — takes openDox's model in the options object its one caller already builds, and answers a refusal-shaped transport when the shell supplies none. :573-609 RULED Q3's one `mount(host, snapshot, ctx)` signature, the session context under `ctx.session`, and the model installed once at the mount with a NAMED refusal for a missing name. Class `adapter calls`."
   - source_path: scripts/ideation_dashboard/web/views/viewer.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2220,6 +2286,12 @@ rows:
       - class: import rewrites
         lines: [75, 76]
         note: "RULED Q5 (opensoft/openxFactory#656 comment 5642758731; docs/front-end-package-boundary.md § 6 Q5 and § 4.2, openDox-spec a44ac06d): the same optional-binding repoint as the dispose.js row above, over the two-line import statement `import { feedActor, intentCapable, refusalLine, startIntentFeed, statesByTarget } from \"./intent-feed.js\";`. Only line 76 (the `from` clause) differs from the carve blob; line 75 (the name list) is declared alongside it because both lines are one statement. Realized at opensoft/openDox-code `build/s2-intent-chips-optional-binding`, `330cf8161f06ae67be716deafe9b2ec3c64d1492`."
+      - class: import rewrites
+        lines: [73, 74]
+        note: "§ 3.4 SLICE S5. The two-line `from \"./dispose.js\"` import of eight names — a class-C file importing a class-B module, § 4.5 assertion 3's own breach — is gone: `dispose.js` is openXdox's package data (RULED Q5) and the wheel reads the DECLARED namespace the shell resolved (RULED Q2), through a null column where no gate column is registered. The same edit adds `emitIntent` / `renderIntentChips` to this file's EXISTING `./intent-binding.js` import (:75-76, already declared by S2), because RULED counterpart Q6 (`5649094228`) makes the contributed tray reach them through `ctx.intent` — supplied here, where the hosted context is built."
+      - class: adapter calls
+        lines: [136, 140, 142, 144, 146, 358, 359, 427, 1174, 1185, 1195, 1196, 1223, 1224, 1428, 1498, 1500, 1505, 1506, 1509, 1510]
+        note: "§ 3.4 SLICE S5, the call sites that reached the imported class-B module and now read the resolved column: the four ACTION_MOUNTERS (:136-146), the render entry that receives it (:358-359), the refusal panel (:427), the commissioned/applied/gate reads (:1174-1196, :1428) and the dispose tray's own mount with its hosted intent context (:1498-1510), which now carries `emit` and `renderChips`. :1223-1224 is the action row's own `opts` object, which carries the column to the module-level mounter table as `opts.dispose` (Copilot round 2: a module-level `let` is shared by every live render, so a second `renderWheel` rebinds the column the first render's in-flight callbacks still read). Class `adapter calls` on this row's own S2 precedent."
   - source_path: scripts/ideation_dashboard/workbench.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2500,6 +2572,9 @@ rows:
       - class: adapter calls
         lines: [900, 1781, 1785]
         note: "§ 3.4 SLICE S3, THE VIEW REGISTRY — the same act and the same ruling as the `app.js` row above (`#656` comment `5642758731`, Brett Heap, 2026-09-12; Q-L1 form RULED at `5628560136`). THIS FILE IS A SOURCE-GREP SUITE: it asserts app.js's shape by quoting its lines back, so the three lines that quote the TAB ROUTER'S FIELD NAMES are invalidated by the very edit declared on the `app.js` row — `target.view` -> `target.region`, `t.view` -> `t.region` — and are migrated in the same act rather than left to rot until slice S8 re-homes this suite. Class `adapter calls` on the same precedent the `app.js` row uses: the assertion is a call site reaching a name that now comes from the registry. Each is a single-line REPLACE at the carve numbering with no insertion, which is why exactly three lines are declared and no neighbour is. The assertions' MEANING is unchanged and so is every surrounding line: a tab is still remembered on every activation and restored only to a view this plane has — the router simply calls the field `region` now, because a binding's mount point is what it always was."
+      - class: adapter calls
+        lines: [1465, 1509, 1510, 1511, 1512, 1513, 1514, 1515]
+        note: "§ 3.4 SLICE S5, Copilot round-2 review of opensoft/openDox-code#20. THIS FILE IS A SOURCE-GREP SUITE and `test_the_draft_view_has_one_action_called_save_reachable_from_both_tabs` quoted TWO files back: `views/staging-workbench.js`, which stays openDox's, and `views/swb-create.js`, which this slice re-destines to openxdox_code (§ 1). :1465 is the `read_text()` of the second; :1510-1513 and :1515 are the five statements that quote it (the relocated actions host, its two appends, the `method: \"POST\"` count that IS the 'never a second write path' assertion, and the tile path's untouched `create document` label), with :1509 and :1514 their own comment lines. All eight travel with the module, to openXdox-code `tests/test_gate_loop_views.py`; every statement in the test about `styles.css` and `views/staging-workbench.js` stays, which is what the test is named for. Class `adapter calls` on THIS ROW'S OWN slice-S3 precedent, which migrated three of its lines in the same act rather than leaving them 'to rot until slice S8 re-homes this suite'."
   - source_path: tests/ideation-dashboard/test_canvas.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -3465,6 +3540,9 @@ rows:
       - class: path constants
         lines: [72, 282, 363, 505, 622, 1705, 1795]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: adapter calls
+        lines: [408, 409, 411, 412, 456]
+        note: "§ 3.4 SLICE S5, RULED counterpart Q6 (`#656` comment `5649094228`). `firstEditTransport` no longer imports openDox's `staging-workbench-model.js`; RULED Q10 reaches this export through the REGISTRY rather than through a mount, so `ctx.model` reaches it as a field of the ONE options object its caller already builds, and a caller that omits it gets a refusal closure by design. :456 is that call site; :408-412 are the harness's import block, which gains the model NAMESPACE beside the four names it already imported from the same module for its assertions. THE HARNESS IS THE CALLER, so it supplies what the shell supplies."
   - source_path: tests/ideation-dashboard/test_session_document_ownership.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -3673,6 +3751,9 @@ rows:
       - class: path constants
         lines: [49, 769, 881, 1004, 1663, 2227, 2559]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: adapter calls
+        lines: [1895, 1896, 1897, 1898, 1900, 1906, 1907, 1918, 1926, 1928]
+        note: "§ 3.4 SLICE S5, RULED Q3 (`#656` comment `5648044785`): ONE mount signature, `mount(host, snapshot, ctx)`. `_ENDING_REPLAY_HARNESS` called `mountSessionAffordances(host, ctx, opts)` at :1926 and :1928, so the session context arrived as the SNAPSHOT and the seams as the `ctx` — the mount saw no `session` and no `model`, took the refusal path, and the replay failed before it exercised the ending behaviour it exists to measure. :1900/:1918 rename the two objects to RULED Q3's shape (`session` and `ctx`), :1897 adds the model namespace import RULED counterpart Q6 requires, and :1895-1896/:1906-1907 are the declaring lines beside them."
   - source_path: tests/ideation-dashboard/test_subcommand_extension.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
