@@ -89,6 +89,19 @@ def test_facet_conforms_to_opendox_schema():
     try:
         from opendox import display_profile
     except ImportError as exc:
+        # `from opendox import display_profile` when the submodule truly
+        # does not exist yet raises a plain `ImportError` (NOT
+        # `ModuleNotFoundError`) reading "cannot import name 'display_profile'
+        # from 'opendox'", with `exc.name == "opendox"` (the PARENT package —
+        # confirmed empirically against the pinned tree: `opendox/__init__.py`
+        # itself imports fine, it just has no such attribute or submodule).
+        # A genuine regression — `display_profile.py` existing but failing to
+        # import one of ITS OWN dependencies — raises with a DIFFERENT
+        # `exc.name` (the broken inner module), so only THIS exact signature
+        # is treated as "not built yet"; anything else re-raises rather than
+        # silently entering the vendored-fixture fallback (Copilot review).
+        if exc.name != "opendox":
+            raise
         pytest.importorskip("jsonschema")
         import jsonschema
 
@@ -138,7 +151,9 @@ def test_the_schema_conformance_path_taken_is_the_expected_one():
     """
     try:
         from opendox import display_profile  # noqa: F401
-    except ImportError:
+    except ImportError as exc:
+        if exc.name != "opendox":
+            raise  # the same distinction the test above draws
         return
     pytest.fail(
         "opendox.display_profile is now importable at this repository's "
