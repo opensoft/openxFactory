@@ -537,7 +537,8 @@ Active changes:
   Brett Heap's word and a separate act. Filed under his RULING of 2026-09-13 at
   approximately 03:0xZ, verbatim *"option 2 on 1003 with the fix"*, recorded at
   [#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5650519818),
-  which selects a remedy SHAPE and ratifies no wording.
+  which selects a remedy SHAPE and ratifies no wording. Filing PR
+  [#1028](https://github.com/opensoft/openxFactory/pull/1028).
   **THE SUCCESSOR PACKET TWO LANDED ACTS ALREADY NAME.** PR #846 closed issue
   [#833](https://github.com/opensoft/openxFactory/issues/833) by REFUSING to
   re-base the origin-retention baseline onto a rename, and its refusal text says
