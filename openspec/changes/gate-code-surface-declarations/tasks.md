@@ -207,6 +207,47 @@ task list rather than an intention.
       (for the tests and for a consuming tree; the gate runs it with neither).
       Exit 0 clean, 1 an unreadable declaration, 2 an unusable or stale
       register; both present prints both and exits 1.
+- [ ] 3.2a **NO PATH THIS GATE OPENS MAY BE REACHED THROUGH A SYMLINK**, the
+      sibling's guard MIRRORED EXACTLY — imported from
+      `scripts/target_release.py` or restated beside it, the realization's
+      choice, but never APPROXIMATED, because a guard that is nearly the
+      sibling's is a guard whose gaps nobody has measured. `Path.is_file()`
+      and `Path.read_text()` BOTH FOLLOW SYMLINKS, so without this a committed
+      link would make the gate read exception data, or declarations, from
+      OUTSIDE THE CHECKOUT: silently, and differently per runner. There are
+      TWO surfaces, the sibling guards them with two DIFFERENT semantics, and
+      both are mirrored exactly rather than approximated.
+      **(i) THE REGISTER IS REFUSED UNREAD** — the `--register PATH` of § 3.2
+      and the default beside the module ALIKE — when the file ITSELF is a
+      symlink OR when ANY directory between it and its own top is one, the
+      check running UNCONDITIONALLY before `is_file()` or `read_text()`, so no
+      branch treats a supplied path differently from the default and no branch
+      can forget one of them. A leaf-only check does not close it:
+      `linkdir/register.yaml` has a perfectly ORDINARY leaf and `read_text()`
+      still follows `linkdir`. The ancestor walk is UNANCHORED — climbing to
+      `/` for an absolute path and to `.` for a relative one — because a
+      register named on the command line is deliberately allowed to live
+      wherever a test tree or a consuming repository puts it, so there is no
+      `REPO_ROOT` to check "outside of"; `scripts/target_release.py`'s
+      `load_register` (line 448) and `_has_symlinked_ancestor` (line 417) are
+      the exact shape. An unusable register is EXIT 2 by § 3.2, and the
+      refusal names the remedy: a regular file at an ordinary, unsymlinked
+      path.
+      **(ii) EVERY DISCOVERED PROPOSAL PATH IS ADMITTED ONLY THROUGH THE
+      ANCHORED TEST**, active and archived alike — the one
+      `scripts/target_release.py`'s `_unescaped` (line 569) applies: resolve
+      the candidate AND `REPO_ROOT` on BOTH sides and require the candidate to
+      land exactly where a symlink-free tree would have put it, which closes
+      every component in ONE comparison rather than one at a time as each is
+      found. A path that fails it is NOT READ, NOT JUDGED and NOT COUNTED, and
+      that is a DROP rather than an exit-1 finding, because the fact being
+      reported would otherwise be a fact about another tree: a proposal read
+      from outside `REPO_ROOT` would be judged and named in a finding as
+      though this tree carried it, and a DANGLING link is the same defect
+      wearing the other face — the proposal vanishes and the tree is judged on
+      a corpus it does not have. Resolving `REPO_ROOT` on BOTH sides is what
+      keeps a scratch tree reached through a symlinked `/tmp` from being
+      mistaken for the escape.
 - [ ] 3.3 `scripts/code-surface-register.yaml` (NEW) — the standing divergences
       the same act does not correct, each with its declaration text as it
       stands, its class, its reason, its citation and the event that retires it.
@@ -242,6 +283,51 @@ task list rather than an intention.
       declaration that causes it). The refusal message SHALL name the remedy —
       bring the declaration into the grammar, which retires the entry in the
       same act.
+- [ ] 3.5b **§ 3.5a's REFUSAL MUST BE EXPRESSIBLE AT THE POINT OF ENFORCEMENT,
+      AND ON THIS TREE IT IS NOT** — so the PROPOSAL IDENTITY and the REGISTER
+      ENTRY travel the reader path, and not a bare set of tokens. Measured
+      here rather than asserted: `scripts/validate-scope-globs.py:68` calls
+      `sg.code_surface_repositories(front)` with the front-matter mapping
+      ALONE, and `scope_globs.validate_cross_consistency` (line 391) receives
+      a bare `Iterable[str]`, so at the moment of judgment NOTHING
+      distinguishes a REGISTERED EXCEPTION from an EMPTY SURFACE — and the two
+      values a narrowed derivation could hand it are exactly the two § 3.5a
+      forbids by name: `None` SKIPS the cross-consistency check outright
+      (`validate_scope_globs`'s `if code_surface_repos is not None`, line 414)
+      and an empty set raises the GENERIC *"names repository … not in
+      code_surface"* message against the structured scope. **NARROWING
+      `code_surface_repositories` ALONE THEREFORE CANNOT REALIZE THE RATIFIED
+      RULE, AND § 3.5 IS NOT FINISHED BY DOING IT.**
+      **THE SHAPE IS CHOSEN HERE RATHER THAN LEFT TO THE IMPLEMENTER, AND IT
+      IS THE ONE THE EXISTING CODE ALREADY SUPPORTS: THE DERIVATION RETURNS A
+      TYPED CARRIER** — either the head-derived set, or the ABSENCE of one
+      carrying the proposal id and the register entry that tolerates its
+      declaration — **AND THAT CARRIER IS THREADED THROUGH
+      `validate_scope_globs` INTO `validate_cross_consistency`, WHICH RAISES A
+      `ScopeGlobsError` SUBCLASS NAMING BOTH.** `scripts/scope_globs.py`
+      already carries both halves of that idiom: a frozen-dataclass result
+      type (`ScopeGlobs`, line 235) and an error SUBCLASS for a distinct fact
+      every existing caller keeps catching (`ScopeGlobsResolutionError`, line
+      106). **THE WIDENING IS CHEAP, AND THE COST IS MEASURED RATHER THAN
+      GUESSED**: `code_surface_repositories` has exactly ONE in-tree caller
+      (`scripts/validate-scope-globs.py:68`) and `validate_cross_consistency`
+      exactly one (`validate_scope_globs`, line 415), so neither signature
+      owes a sweep; `validate_scope_globs` itself only PASSES THE CARRIER
+      THROUGH, its own `code_surface_repos` parameter accepting EITHER form,
+      and **A BARE ITERABLE SHALL KEEP WORKING** — read as a head-derived set
+      carrying no registered-exception context — which is what keeps the
+      shipped tests that call
+      `validate_scope_globs(..., code_surface_repos={"R"})` with a plain set
+      passing unedited. **THE CHEAPER ALTERNATIVE IS REJECTED ON THE RECORD**:
+      raising from the derivation itself is fewer lines, but it moves the
+      refusal UPSTREAM of the cross-consistency check the ratified requirement
+      names as the refuser. The consumer owes nothing it does not already
+      hold: `_validate_change` receives the `proposal` path whose
+      `.parent.name` IS the change id, and `validate_corpus` already prefixes
+      that id onto every problem it prints. Pinned by a test asserting the
+      refusal names the PROPOSAL and its REGISTER ENTRY — § 3.6's two
+      forbidden-substitute tests prove what the run must NOT say, and this one
+      proves what it MUST.
 - [ ] 3.6 `tests/code_surface/test_code_surface_gate.py` (NEW) — the head parse
       and the opener requirement; the block-scalar refusal by name; the repeat
       refusal; absence as the promoted default and a present-but-empty value
@@ -257,6 +343,21 @@ task list rather than an intention.
       tree so a new divergence reds the required `pytest-suite` with no workflow
       edit. **The test count is MEASURED at the realization and never carried
       from this task list.**
+- [ ] 3.6a **§ 3.2a's TWO PATH-BOUNDARY REFUSALS GET THEIR OWN TESTS, BOTH
+      SURFACES AND BOTH DEPTHS**, in § 3.6's own
+      `tests/code_surface/test_code_surface_gate.py` and in the sibling's
+      shape (`tests/target_release/test_target_release_gate.py` carries the
+      pattern for every case named here). THE REGISTER: refused when the file
+      named on `--register` is ITSELF a symlink, and refused again when it is an
+      ordinary file reached through a symlinked ANCESTOR DIRECTORY — each
+      proved END TO END through the CLI at exit 2, each also with the link
+      pointing OUTSIDE the tree, and a DANGLING link refused AS A SYMLINK
+      rather than crashing. THE CORPUS WALK: a discovered proposal NOT READ
+      and NOT COUNTED when the `proposal.md` is a symlink, when an ordinary
+      `proposal.md` sits inside a symlinked CHANGE DIRECTORY, and when the
+      link dangles — on the ACTIVE arm and on the archive count alike. Beside
+      them the NEGATIVE that keeps the guard from over-refusing: a `REPO_ROOT`
+      reached through a symlink still finds every proposal it really carries.
 - [ ] 3.7 **NO WORKFLOW IS EDITED**, confirmed by running the suite rather than
       by reading the workflow: `pytest-suite` already runs everything under
       `tests/`, so a new test directory is collected with no registration
@@ -284,32 +385,62 @@ opened as a DRAFT.
       --strict` (PATH CLI **1.2.0**) — **exit 0**, *"Change
       'gate-code-surface-declarations' is valid"*.
 - [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — **exit 1**,
-      `Totals: 105 passed, 3 failed (108 items)`. The failure set is IDENTICAL
+      `Totals: 104 passed, 3 failed (107 items)`. The failure set is IDENTICAL
       to `origin/main` `bcde1575`'s, taken in the same shell from a worktree of
       it (`Totals: 104 passed, 3 failed (107 items)`):
       `change/disposition-codexfactory-declared-renames`,
       `change/disposition-codexfactory-floor-relocation-retitle` and
       `change/disposition-codexfactory-regular-pr-council-clearance-archive`,
-      all three failing on BOTH trees alike. This change is in neither set and
-      the item count moves by exactly one.
+      all three failing on BOTH trees alike, and this change is in neither set.
+      **THE ITEM COUNT NOW MOVES BY ZERO, AND THE CAUSE IS THIS BRANCH'S OWN
+      MERGE — RE-MEASURED AT THE HEAD RATHER THAN REASONED FROM THE OLD
+      FIGURE**: at `df96018c`, one commit earlier, the same command in the same
+      shell returned `Totals: 105 passed, 3 failed (108 items)` and the count
+      moved by exactly one. `df230260` then merged `origin/main` `a1429885`,
+      which ARCHIVED the sibling `gate-realization-axis-vocabulary` into
+      `openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary` —
+      ONE ACTIVE CHANGE OUT AS THIS PACKET PUTS ONE IN — so the totals now
+      COINCIDE with the baseline's instead of exceeding them by one. A count is
+      a fact about a tree and is never carried across a merge.
 - [x] 4.3 `python3 scripts/proposal-support.py . verify
       gate-code-surface-declarations` — **exit 0**, *"proposal support
       verification ok"*.
-- [x] 4.4 `python3 scripts/validate-target-release.py .` — **exit 0**, *"46
-      active proposals, 46 declaring — 22 `implemented`, 3 a named release, 21
+- [x] 4.4 `python3 scripts/validate-target-release.py .` — **exit 0**, *"45
+      active proposals, 45 declaring — 21 `implemented`, 3 a named release, 21
       named by the register, 0 outside the vocabulary"*. This packet's own
       `target_release:` is judged by the sibling's live gate like every other
-      active change, and the `+1` active over `origin/main`'s 45 is this
-      packet's own `proposal.md`.
+      active change. **THE ACTIVE COUNT EQUALS `origin/main` `bcde1575`'s 45
+      RATHER THAN EXCEEDING IT BY ONE, FOR THE REASON § 4.2 RE-MEASURES**: the
+      merge archived `gate-realization-axis-vocabulary`, which itself declared
+      `target_release: implemented`, so it carried one active proposal and one
+      `implemented` OUT of the corpus — 46 to 45 and 22 to 21, the figures this
+      box held at `df96018c` — exactly as this packet's own `proposal.md`
+      carries one of each IN.
 - [x] 4.5 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
       *"scope_globs validation passed (all active changes conform)"*; and
-      `python3 scripts/validate-sequenced-after.py .` — **exit 0**, *"46 active
-      changes, 14 declaring the field"*, both archive-date arms passing.
+      `python3 scripts/validate-sequenced-after.py .` — **exit 0**, *"45 active
+      changes, 13 declaring the field"*, both archive-date arms passing. These
+      two are `bcde1575`'s own counts for the same reason: the sibling the
+      merge archived declared `sequenced_after: []`, so both figures came down
+      by one with it from the 46 and the 14 this box held at `df96018c`.
 - [x] 4.6 `python3 scripts/doc-health.py --single-repo .` — **exit 0** on this
       tree and on the `origin/main` `bcde1575` worktree alike, with the SAME
-      band counts on both (**9** `severity=error`, **23** `severity=warning`)
-      and **ZERO** findings naming this change. The comparison is of trees and
-      not of runs, both taken in the same shell.
+      band counts on both **AS OF 2026-09-13** (**9** `severity=error`,
+      **26** `severity=warning`), a normalized finding-set diff between the
+      two trees that is **EMPTY** — **87** findings each side, identical line
+      for line once the `repo=` directory token is normalized, so every band
+      and not only these two is unmoved — and **ZERO** findings naming this
+      change. **THE WARNING BAND MOVED FROM 23 TO 26 AT THE UTC-MIDNIGHT AGING
+      BOUNDARY AND NOT ON THIS BRANCH**, which is why the figure is quoted
+      with its date: `doc-health` defaults `--as-of` to today UTC, three
+      `staged-candidate-aging` thresholds crossed overnight on both trees
+      alike (`contracts/avatar-client-lab/README.md` and
+      `examples/avatar-first-ui/fixtures/README.md` reaching 60 days,
+      `ideation/staging/openxdox-install-app-provisioning` reaching 30), and
+      re-running THIS tree with `--as-of 2026-09-12` still returns the earlier
+      **23**. Both sides were therefore re-taken on the SAME day rather than
+      one being carried, and the comparison is of trees and not of runs, both
+      taken in the same shell.
 - [x] 4.7 **THE PER-CHANGE SWEEP LEDGER ROW**, seeded by the sanctioned tool and
       never hand-written: before the seed `--ledger-diff` reported the missing
       row and six derived-total mismatches, each moving by exactly one. SEEDED

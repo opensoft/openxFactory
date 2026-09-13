@@ -684,3 +684,12 @@ seeded by the sanctioned tool at `83b13051`, after the draft pull request existe
 so the tool could stamp `moved_by`, exactly as `tasks.md` § 4.7 records. **A
 finding is not taken for having been made**; this one is answered with the line
 number, the command and the exit code, and the refusal is recorded on the thread.
+
+**A SECOND BENCH ROUND FOLLOWED THE RATIFICATION AND IS ANSWERED IN `tasks.md`
+RATHER THAN IN CANON**: its findings land on the realization work list (§ 3.2a's
+path-boundary rule for the register and the corpus walk, § 3.5b's reader-path
+context without which (b)'s refusal cannot name both the proposal and its
+register entry at the point of enforcement, and § 3.6a's tests) and on the
+verification record (§ 4.6's band counts, re-taken on the same day and quoted
+with their as-of date), and not one requirement, scenario or word of the
+ratified delta moves on them.
