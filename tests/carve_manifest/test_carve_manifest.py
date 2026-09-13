@@ -2429,14 +2429,29 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     dispose = rows["scripts/ideation_dashboard/web/views/dispose.js"]
     assert dispose["disposition"] == "moved_with_declared_edit", dispose
     assert dispose["destination"] == "opendox_code", dispose
-    assert [(edit["class"], edit["lines"]) for edit in dispose["edits"]] == \
-        [("import rewrites", [26])], dispose
+    assert [(edit["class"], edit["lines"]) for edit in dispose["edits"]] == [
+        ("import rewrites", [26]),
+        # § 3.4 SLICE S5: RULED Q12's four literal `/actions/gate/<verb>`
+        # routes replacing the concatenation, RULED Q8's `page-overlay` mount
+        # replacing the append to `document.body`, and RULED counterpart Q6's
+        # `ctx.intent.emit` / `ctx.intent.renderChips`.
+        ("adapter calls",
+         [29, 30, 51, 53, 54, 55, 69, 184, 212, 213, 396]),
+    ], dispose
 
     wheel = rows["scripts/ideation_dashboard/web/views/wheel.js"]
     assert wheel["disposition"] == "moved_with_declared_edit", wheel
     assert wheel["destination"] == "opendox_code", wheel
-    assert [(edit["class"], edit["lines"]) for edit in wheel["edits"]] == \
-        [("import rewrites", [75, 76])], wheel
+    assert [(edit["class"], edit["lines"]) for edit in wheel["edits"]] == [
+        ("import rewrites", [75, 76]),
+        # § 3.4 SLICE S5: the two-line `from "./dispose.js"` import of eight
+        # names — one of § 4.5 assertion 3's four breaches — is gone, and the
+        # call sites read the DECLARED namespace the shell resolved.
+        ("import rewrites", [73, 74]),
+        ("adapter calls",
+         [136, 140, 142, 144, 146, 358, 359, 427, 1174, 1185, 1195, 1196,
+          1223, 1224, 1428, 1498, 1500, 1505, 1506, 1509, 1510]),
+    ], wheel
 
     # And the counts this amendment moved, re-derived from the file rather than
     # transcribed: one more declared line than the 793 the runbook's § 2 table
@@ -2509,6 +2524,20 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # `views/gate-lens.js`, `views/gate-projects.js`,
     # `views/projection-index.js` and `tests/test_split_route_tails.py`.
     #
+    # AND THEN THE § 3.4 SLICE-S5 ANNOTATION (`#656` comments `5648044785` /
+    # `5648049748` / `5648065587`, whose Q-L1 obligation binds every § 3.4
+    # slice, same as S2/S3/S4/S6 above) moved both once more: "contribute the
+    # gate loop" edits ELEVEN arrived rows (five at `opendox_code` — `serve.py`,
+    # `app.js`, `wheel.js`, `staging-workbench.js`,
+    # `test_bullseye_widget.py` — and six at `openxdox_code` — `gate.js`,
+    # `dispose.js`, `swb-create.js`, `swb-session.js`,
+    # `test_session_confinement.py`, `test_staging_workbench.py`) and converts
+    # ONE of them — `views/staging-workbench.js`, `moved_verbatim` until this
+    # slice — into a carrier. 1422 + 162 = 1584 on 158 + 1 = 159 rows. It is
+    # also the FIRST act to use RULED Q6's `re_destined:` field, on four rows;
+    # a re-destination is not an edit and moves neither figure, which the next
+    # test measures.
+    #
     # AND THEN THE § 3.4 SLICE-S8 ANNOTATION (`#656` comment `5642758731`,
     # whose Q-L1 paragraph binds every § 3.4 slice; S8 CLAIM `#656` comment
     # `5649985838`) moved `lines` once more, on ZERO new rows. S8 is "re-home
@@ -2517,7 +2546,11 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # lawfully change leg, because every one of the 23 at `openxdox_code`
     # imports a real `openxdox` module and RULED OQ-G's TEST HOMES rule places
     # a mixed file there for exactly that reason. The defect is the PATH
-    # CONSTANT, which is § 1.2(d)'s own sentence. THIRTEEN rows gain a
+    # CONSTANT, which is § 1.2(d)'s own sentence — and that reading is now
+    # RULED: `#656` comment `5656343213`, Brett Heap, 2026-09-13, by
+    # interactive multi-choice, "the path constant moves, the file does
+    # not", with boundary-note amendment #3 rewriting § 5's S8 row and
+    # § 1.2(d) to it (48 re-measured to 43). THIRTEEN rows gain a
     # `path constants` entry — one each, and TWO for
     # `test_doxbench_mutation_boundary.py`, whose first entry the same slice
     # corrects — and every one of the thirteen was ALREADY a carrier, so
@@ -2532,8 +2565,8 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # legs needed no new line: the carve's own `import rewrites` pass already
     # declared the roots it rewrote, and an import inserted beside an
     # already-declared import line is declared by its neighbour
-    # (`_check_declared_lines`' insertion rule). 1422 + 40 = 1462 on the same
-    # 158 rows. One new file is admitted at `openxdox_code`:
+    # (`_check_declared_lines`' insertion rule). 1584 + 40 = 1624 on the same
+    # 159 rows. One new file is admitted at `openxdox_code`:
     # `tests/opendox_bundle.py`.
     #
     # TEN OF THE FORTY ARE A CORRECTION TO THIS SLICE'S OWN FIRST PUSH, and
@@ -2552,7 +2585,7 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (1462, 158), (lines, carrying)
+    assert (lines, carrying) == (1624, 159), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -2575,7 +2608,7 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
     # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
-    # the aggregate `(1462, 158)` would still pass if these forty lines had
+    # the aggregate `(1624, 159)` would still pass if these forty lines had
     # landed on the wrong rows, under the wrong class, or as a different forty
     # that summed the same. Every one is `path constants` (a path literal
     # naming a location the destination does not have — this manifest's own
@@ -2620,8 +2653,11 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # AND THE SLICE CARRIES NO RE-DESTINATION, asserted rather than left to the
     # summary line: S8 is the act RULED Q6 was built for, and it measured that
-    # the move the note infers is unlawful for every one of the 48 files. The
-    # S5 annotation's four rows stay this document's only uses of the field.
+    # the move the note infers is unlawful for every one of the 48 files —
+    # RULED on that measurement, `#656` comment `5656343213` (Brett Heap,
+    # 2026-09-13, by interactive multi-choice): "the path constant moves, the
+    # file does not". The S5 annotation's four rows therefore stay this
+    # document's only uses of the field.
     re_destined = [row["source_path"] for row in doc["rows"]
                    if isinstance(row.get("re_destined"), dict)]
     assert all(path.startswith("scripts/ideation_dashboard/web/views/")
@@ -2642,8 +2678,14 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # out by its lines the same way.
     app_js_row = rows["scripts/ideation_dashboard/web/app.js"]
     assert app_js_row["disposition"] == "moved_with_declared_edit", app_js_row
+    # § 3.4 SLICE S5 adds this row's fourth and fifth entries (RULED Q10's
+    # `firstEditTransport` through the registry, RULED counterpart Q6's two
+    # model namespaces, and the call sites of RULED Q1/Q2/Q8/Q11), so they are
+    # filtered out here the same way S4's were — this assertion is slice S3's.
     s3_app_js = [(edit["class"], edit["lines"]) for edit in app_js_row["edits"]
-                 if edit["lines"] != [514, 515, 1137, 1138]]
+                 if edit["lines"] not in ([514, 515, 1137, 1138],
+                                          [45, 47, 48])
+                 and 749 not in edit["lines"]]
     assert s3_app_js == [
         ("import rewrites", [43]),
         ("adapter calls", [470, 471, 472, 475, 476, 480, 481, 482, 483, 484,
@@ -2769,6 +2811,11 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     assert [(edit["class"], edit["lines"]) for edit in swb_create_row["edits"]] == [
         ("import rewrites", [32, 34]),
         ("path constants", [35]),
+        # § 3.4 SLICE S5: RULED counterpart Q6 closes this contributed module's
+        # reach into openDox's bundle to `./views/helpers.js`, and RULED Q3
+        # gives it the one `mount(host, snapshot, ctx)` signature.
+        ("import rewrites", [29, 30, 31, 33]),
+        ("adapter calls", [162, 345, 346, 367, 368, 369, 370]),
     ], swb_create_row
 
     swb_session_row = rows[
@@ -2778,19 +2825,29 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     assert [(edit["class"], edit["lines"]) for edit in swb_session_row["edits"]] == [
         ("import rewrites", [76, 78]),
         ("path constants", [79]),
+        # § 3.4 SLICE S5: RULED counterpart Q6 (the eighteen-name model import
+        # goes, the nine functions arrive as `ctx.model`), RULED Q3's mount
+        # signature, and RULED Q10's `firstEditTransport` reached through the
+        # registry with the model the caller validated.
+        ("import rewrites", [69, 70, 71, 72, 73, 74, 75, 77]),
+        ("adapter calls",
+         [161, 162, 163, 168, 177, 190, 191, 194, 195, 573, 574, 579, 582,
+          596, 601, 609]),
     ], swb_session_row
 
 
-def test_the_real_manifest_carries_the_q6_form_and_uses_it_nowhere() -> None:
-    """RULED Q6 against the LANDED manifest: the FORM, documented, and NOT ONE
-    ROW using it.
+def test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines() -> None:
+    """RULED Q6 against the LANDED manifest: the FORM, documented, and the
+    FOUR ROWS § 3.4 slice S5 uses it for.
 
-    The amendment that landed the field re-destined nothing on purpose — slice
-    S8 of the front-end boundary note is the act that uses it, under its own
-    claim and its own pull request — so this is the assertion that says the
-    floor gained a gate and the document did not move. It is also what makes
-    every count in `test_the_real_manifest_carries_the_ruled_q_l7_amendment`
-    above still readable as untouched by this amendment.
+    AS FIRST LANDED this amendment re-destined nothing on purpose, on the
+    expectation that slice S8 of the front-end boundary note would be the
+    first act to use it, under its own claim and its own pull request. § 3.4
+    slice S5 (`#656` CLAIM `5648073924`) used it FIRST instead, so this is now
+    the assertion that the floor's gate holds FOUR re-destined rows, not zero,
+    and that `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above
+    still reads the aggregate correctly around them — a re-destination is not
+    an edit and moves neither of that test's two figures.
 
     THE HEADER IS ASSERTED TOO, because a form nobody can find in the document
     that carries it is a form the next author re-invents: the ruling, the field
@@ -2805,7 +2862,32 @@ def test_the_real_manifest_carries_the_q6_form_and_uses_it_nowhere() -> None:
     doc = yaml.safe_load(text)
 
     re_destined = [row for row in doc["rows"] if "re_destined" in row]
-    assert re_destined == [], re_destined
+    assert [row["source_path"] for row in re_destined] == [
+        "scripts/ideation_dashboard/web/views/dispose.js",
+        "scripts/ideation_dashboard/web/views/gate.js",
+        "scripts/ideation_dashboard/web/views/swb-create.js",
+        "scripts/ideation_dashboard/web/views/swb-session.js",
+    ], [row["source_path"] for row in re_destined]
+
+    # EVERY ONE OF THE FOUR SAYS THE SAME THING, which is what makes the field a
+    # form rather than four hand-written paragraphs: the carve placed a class-B
+    # module in the shell, and RULED Q5 makes the gate loop a CONTRIBUTED column
+    # whose bytes live at openXdox-code. The row keeps its own `destination` and
+    # `destination_path` untouched — that is the whole reason the ruling made
+    # this a FIELD instead of an edit — and the EFFECTIVE destination is what
+    # the arrival verifier reads.
+    for row in re_destined:
+        name = row["source_path"].rsplit("/", 1)[1]
+        assert row["destination"] == "opendox_code", row
+        assert row["destination_path"] == f"src/opendox/web/views/{name}", row
+        moved = row["re_destined"]
+        assert moved["from"] == "opendox_code", row
+        assert moved["from_path"] == f"src/opendox/web/views/{name}", row
+        assert moved["to"] == "openxdox_code", row
+        assert moved["to_path"] == f"src/openxdox/web/views/{name}", row
+        assert "5648044785" in moved["ruling"], row
+        assert "5648073924" in moved["ruling"], row   # the S5 CLAIM comment
+        assert moved["note"].strip(), row
 
     assert "re_destined:" in text, "the header does not document the form"
     assert "RULED Q6" in text, text[:200]
@@ -2815,7 +2897,55 @@ def test_the_real_manifest_carries_the_q6_form_and_uses_it_nowhere() -> None:
         [sys.executable, str(SCRIPT), "--json"],
         capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stdout + done.stderr
-    assert json.loads(done.stdout)["re_destined"] == 0, done.stdout
+    assert json.loads(done.stdout)["re_destined"] == 4, done.stdout
+
+
+def test_carved_reach_resolves_the_four_re_destined_rows_at_their_arrival() -> None:
+    """`PRRT_kwDOTAvnrs6h1nYE`, pinned against the same four LANDED rows.
+
+    `carved_reach.source()` used to resolve every MOVED row — re-destined or
+    not — at its raw `destination`/`destination_path`. For the four rows the
+    test above pins, that raw pair names `opendox_code`, the leg RULED Q6's
+    form says the ruling VACATES; the effective arrival (`#656` comment
+    `5648044785`) is `openxdox_code`. `sources_under()` builds every one of
+    its answers on `source()`, so the dashboard compositor's sweep of
+    `scripts/ideation_dashboard/web/views/` inherited the same defect — a link
+    to a file the paired leg no longer carries, for all four rows.
+
+    Both legs are required, materialized, for the reason every other test here
+    that reads a MOVED row's real destination is: this asks about rows that
+    moved, and only the legs a ruling actually moved them between can answer
+    what `source()` names now.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    re_destined = [row for row in doc["rows"] if "re_destined" in row]
+    assert len(re_destined) == 4, re_destined  # the same four, guarded again
+
+    import carved_reach as carved_reach_direct
+
+    carved_reach_direct.require()
+    swept = carved_reach_direct.sources_under(
+        "scripts/ideation_dashboard/web/views/")
+    for row in re_destined:
+        key = row["source_path"]
+        moved = row["re_destined"]
+        vacated = (carved_reach_direct.MOUNTS[row["destination"]]
+                   / row["destination_path"])
+        arrived = (carved_reach_direct.MOUNTS[moved["to"]] / moved["to_path"])
+        assert arrived != vacated, row  # or the assertions below prove nothing
+
+        resolved = carved_reach_direct.source(key)
+        assert resolved == arrived, (
+            f"{key}: source() must resolve re_destined.to/to_path (RULED Q6), "
+            f"not the row's own vacated destination — got {resolved}")
+
+        assert swept[key] == arrived, (
+            f"{key}: sources_under() delegates to source(); a dashboard "
+            f"compositor sweep must not link the vacated path either")
 
 
 # --------------------------------------------------------------------------
