@@ -140,16 +140,20 @@ mapping manifest. Measured in the landed file:
 
 | disposition | rows | the proof owed at the destination |
 | --- | ---: | --- |
-| `moved_verbatim` | **160** | the arrived blob's `sha256` and mode EQUAL the row's |
-| `moved_with_declared_edit` | **158** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
+| `moved_verbatim` | **143** | the arrived blob's `sha256` and mode EQUAL the row's |
+| `moved_with_declared_edit` | **175** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 1584 declared edit lines**: `import rewrites` 708, `path
-constants` 202, `adapter calls` 674. **159 rows carry `edits:`** — the 158
+**318 rows move. 2366 declared edit lines**: `import rewrites` 722, `path
+constants` 206, `adapter calls` 1438. **176 rows carry `edits:`** — the 175
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
 `views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
 the one row that moves BOTH disposition counts and the carrier count at once.
+The § 3.4 slice-S7 annotation moved them again and by the largest margin of
+any act so far: **+782 declared lines over 33 `opendox_code` rows, 17 of them
+converted `moved_verbatim` -> declared** — "parameterize class C" edits every
+file in the served bundle, because every one of them rendered a word.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
@@ -201,7 +205,7 @@ test-layout files that carve leg 1 measured:
   compares no two legs' copies with each other.
 
 The **one replica line belongs to no destination column below** (the 1422nd
-when this paragraph was written, the 1584th now): a replica row names no
+when this paragraph was written, the 2366th now): a replica row names no
 destination at all, so the per-leg declared-line figures still sum to one less
 than the total, and that line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
@@ -245,11 +249,21 @@ Per destination, and these are the numbers each leg's arrival run must report:
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 53 / 70 | 727 | `src/opendox`, `tests` |
+| `opendox_code` | 123 | 35 / 88 | 1656 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
 | `openxdox_code` | 92 | 9 / 83 | 659 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
+
+The numeric columns are summed over the rows whose `destination:` names that
+leg, re-derived here rather than carried forward. THEY WERE STALE and are
+corrected in the same act: `opendox_code`'s `53 / 70 | 727` was current at
+`880c821c` and the § 3.4 slice-S5 annotation (`ee251d6c`) moved it to
+`52 / 71 | 874` without moving the table. The slice-S7 annotation moves it to
+`35 / 88 | 1656`. A row RE-DESTINED by ruling still counts at the
+`destination:` it declares, which is why a leg's arrival run reports FOUR
+fewer arrived rows than this table's count for `opendox_code` (119) and four
+fewer declared-edit rows (84): the ruling moved the placement, not the row.
 
 The declared-roots column is spelled **exactly as a run prints it** — no
 trailing slash — because an operator's first act after a leg lands is to read
@@ -308,7 +322,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 1584 now.
+from the start — 794 of them at this ruling's own landing, 2366 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738

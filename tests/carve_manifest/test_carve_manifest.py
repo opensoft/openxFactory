@@ -2253,6 +2253,269 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
         assert "shed row(s)" not in done.stdout, done.stdout
 
 
+# ---------------------------------------------------------------------------
+# THE § 3.4 SLICE-S7 DECLARED-EDIT WINDOW, BY ROW AND CLASS
+#
+# "Parameterize class C — every governance word in the fourteen class-C files
+# and the four declared class-A tails becomes a read of the registered domain's
+# DISPLAY facet BY ROLE" (openDox-spec `docs/front-end-package-boundary.md` § 5
+# row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`,
+# Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `5628560136`).
+#
+# WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion
+# `(2366, 176)` would still pass if any of these 782 lines had landed on the
+# wrong row, under the wrong class, or as a different set summing to the same
+# total — which is the reason every slice since ASK-7 has pinned its own window
+# by row and class. S7 edits 33 rows where S5 edited 11, so the pins are a TABLE
+# rather than a run of hand-written asserts; it is the same claim, made once per
+# row instead of once per slice. The entries are the LAST ones on each row,
+# because an annotation appends to whatever the row already carried, and the
+# assertion below reads them that way rather than by matching prose.
+S7_WINDOW: dict[str, list[tuple[str, list[int]]]] = {
+    "scripts/ideation_dashboard/canvas_drafts.py": [
+        ("adapter calls", [56, 57, 146, 189]),
+    ],
+    "scripts/ideation_dashboard/web/app.js": [
+        ("adapter calls", [473, 819, 867, 1050, 1095]),
+    ],
+    "scripts/ideation_dashboard/web/index.html": [
+        ("adapter calls", [
+            28, 29, 54, 56, 57, 58, 59, 60, 61, 62, 98, 99, 100, 101
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/styles.css": [
+        ("adapter calls", [
+            18, 19, 20, 21, 30, 55, 56, 57, 58, 79, 80, 81, 82, 99, 100,
+            101, 102, 256, 260, 261, 270, 277, 281, 287, 305, 306, 311,
+            326, 331, 352, 353, 354, 355, 366, 367, 368, 369, 370, 371,
+            372, 373, 374, 375, 376, 377, 393, 398, 426, 437, 451, 491,
+            492, 493, 505, 551, 568, 586, 604, 621, 630, 637, 638, 642,
+            645, 646, 709, 713, 714, 720, 721, 772, 773, 776, 791, 800,
+            814, 815, 831, 841, 844, 851, 858, 869, 877, 879, 900, 920,
+            921, 922, 927, 929, 993, 996, 1016, 1032, 1035, 1042, 1049,
+            1050, 1075, 1125, 1126, 1128, 1149, 1150, 1151, 1164, 1167,
+            1194, 1204, 1213, 1225, 1229, 1242, 1245, 1273, 1291, 1306,
+            1324, 1327, 1333, 1335, 1347, 1371, 1372, 1386, 1446, 1458,
+            1474, 1475, 1481, 1482, 1492, 1504, 1528, 1544, 1582, 1584,
+            1591, 1601, 1603, 1682, 1692, 1704, 1715, 1726, 2128, 2155,
+            2158, 2159, 2168, 2519
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/board.js": [
+        ("import rewrites", [16]),
+        ("adapter calls", [
+            18, 59, 87, 105, 106, 117, 118, 125, 126, 141, 142, 145, 147,
+            154, 155, 156, 157, 168, 169, 194, 202, 203, 204, 217, 219,
+            220, 222, 223, 225, 226, 228, 234
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/canvas-model.js": [
+        ("import rewrites", [1]),
+        ("adapter calls", [
+            35, 36, 37, 60, 63, 77, 127, 142, 145, 175, 176, 182, 187, 189,
+            196, 197, 209, 213
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/canvas.js": [
+        ("import rewrites", [28]),
+        ("adapter calls", [
+            52, 66, 69, 112, 115, 117, 119, 128, 129, 133, 134, 135, 137,
+            138, 156, 164, 167, 170, 178, 185, 194, 239, 263, 269, 273,
+            286, 289, 292, 304, 306, 307, 357, 358, 359, 361, 376, 381
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/doc-wheel.js": [
+        ("import rewrites", [45]),
+        ("adapter calls", [52, 98, 100, 124, 129, 162]),
+    ],
+    "scripts/ideation_dashboard/web/views/docs.js": [
+        ("import rewrites", [14]),
+        ("adapter calls", [
+            16, 17, 18, 20, 21, 22, 23, 24, 76, 116, 126, 134, 146, 152,
+            177
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/explorer.js": [
+        ("import rewrites", [1]),
+        ("adapter calls", [
+            44, 46, 47, 48, 49, 50, 51, 54, 80, 82, 89, 91, 94, 99, 103,
+            108, 119, 124, 148, 221, 239, 272
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/funnel.js": [
+        ("import rewrites", [24]),
+        ("adapter calls", [
+            26, 42, 44, 45, 75, 78, 109, 116, 121, 122, 126, 127, 128, 133,
+            135, 162, 163, 174, 176, 191, 194, 196, 197, 198, 199, 213,
+            248, 249, 250, 269, 271, 293, 328, 331, 425, 429, 437, 441,
+            510
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/grouping.js": [
+        ("import rewrites", [24]),
+        ("adapter calls", [
+            34, 35, 36, 37, 38, 39, 40, 41, 45, 46, 47, 48, 49, 50, 51, 52,
+            53, 58, 64, 69, 209
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/helpers.js": [
+        ("adapter calls", [15, 16]),
+    ],
+    "scripts/ideation_dashboard/web/views/lineage.js": [
+        ("import rewrites", [13]),
+        ("adapter calls", [
+            41, 47, 52, 62, 63, 64, 65, 76, 77, 78, 79, 80, 81, 82, 83,
+            104, 115, 116, 117, 124, 129, 130, 138
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/model.js": [
+        ("adapter calls", [
+            1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 15, 35, 37, 38, 39, 40,
+            41, 56, 57, 58, 59, 61, 62, 63, 64, 65, 67, 68, 80, 81, 83, 86,
+            87, 89, 92, 93, 95, 97, 98, 100, 103, 104, 105, 106, 107, 108,
+            109, 110, 115, 116, 117, 119
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/outline-model.js": [
+        ("import rewrites", [1]),
+        ("adapter calls", [
+            92, 152, 153, 154, 155, 158, 160, 316, 340, 343, 361, 366
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/repo-selector-model.js": [
+        ("import rewrites", [1]),
+        ("adapter calls", [
+            517, 518, 519, 520, 521, 522, 523, 525, 527, 531, 532
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/staging-workbench-model.js": [
+        ("import rewrites", [29]),
+        ("adapter calls", [
+            31, 54, 56, 57, 64, 65, 69, 70, 74, 75, 85, 86, 89, 91, 138,
+            269, 281, 304, 337, 539, 540, 541, 542, 551, 552, 554, 612,
+            626, 634, 635, 636, 637, 638, 726, 731, 1042, 1043, 1044, 1045,
+            1046, 1050, 1104, 1108, 1112, 1238, 1247, 1251, 1255, 1433,
+            1446, 1447
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/staging-workbench.js": [
+        ("adapter calls", [
+            83, 113, 114, 115, 116, 119, 126, 131, 132, 133, 134, 135, 434,
+            520, 1086, 1130, 1131, 1132, 1137, 1139, 1391, 1392, 1393,
+            1576, 1617, 1677, 1684, 1701, 1928, 1955, 2434, 2905, 2912,
+            2952, 2987, 3159, 3279
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/wheel-model.js": [
+        ("adapter calls", [
+            20, 21, 22, 23, 25, 27, 28, 29, 30, 31, 32, 33, 34, 55, 63, 64,
+            71, 74, 86, 88, 91, 93, 95, 97, 100, 104, 105, 106, 107, 108,
+            109, 114, 122, 123, 125, 128, 129, 132, 135, 136, 137, 139,
+            141, 142, 144, 147, 150, 179, 181, 182, 183, 184, 185, 187,
+            188, 190, 191, 193, 200, 201, 203, 207, 593, 594, 630, 632,
+            636, 643, 644, 655, 660, 661, 662, 669, 670, 673, 678, 685,
+            686, 705, 706, 722, 723, 729, 760, 764, 1088, 1096, 1101, 1105,
+            1107, 1108
+        ]),
+    ],
+    "scripts/ideation_dashboard/web/views/wheel.js": [
+        ("import rewrites", [71]),
+        ("adapter calls", [
+            67, 139, 141, 143, 145, 155, 167, 174, 179, 184, 207, 214, 218,
+            229, 236, 263, 375, 521, 601, 603, 789, 792, 831, 857, 1168,
+            1169, 1170, 1199, 1255, 1344, 1481, 1483, 1499, 1632
+        ]),
+    ],
+    "tests/ideation-dashboard/test_bullseye_widget.py": [
+        ("path constants", [1988, 1989, 1990, 1991]),
+        ("adapter calls", [
+            45, 1277, 1318, 1319, 1751, 1752, 1756, 1757, 1758, 1759, 1977,
+            2071, 2073, 2074, 2075
+        ]),
+    ],
+    "tests/ideation-dashboard/test_doc_surfaces.py": [
+        ("adapter calls", [
+            90, 161, 202, 291, 298, 300, 301, 312, 321, 323, 327, 337, 339,
+            340
+        ]),
+    ],
+    "tests/ideation-dashboard/test_doc_wheel.py": [
+        ("adapter calls", [135]),
+    ],
+    "tests/ideation-dashboard/test_doxbench_abstract_pane.py": [
+        ("adapter calls", [152]),
+    ],
+    "tests/ideation-dashboard/test_doxbench_accessibility.py": [
+        ("adapter calls", [309]),
+    ],
+    "tests/ideation-dashboard/test_doxbench_context_panes.py": [
+        ("adapter calls", [117]),
+    ],
+    "tests/ideation-dashboard/test_doxbench_tile_verbs.py": [
+        ("import rewrites", [25]),
+        ("adapter calls", [36, 288, 333]),
+    ],
+    "tests/ideation-dashboard/test_doxbench_view.py": [
+        ("adapter calls", [
+            2874, 2877, 2880, 4128, 4223, 4225, 4335, 4337, 4380, 4381,
+            4382, 4383, 4384, 4385, 4386, 4387, 4388, 4389, 4390, 4391,
+            4392, 4393, 4394, 4395, 4396, 4398, 4399, 4412, 4414, 4562,
+            4563, 4564, 4567, 4568, 4569, 4571, 4938, 5004, 5006
+        ]),
+    ],
+    "tests/ideation-dashboard/test_outline_model.py": [
+        ("adapter calls", [208, 212]),
+    ],
+    "tests/ideation-dashboard/test_outline_tab.py": [
+        ("adapter calls", [785, 864, 865, 866]),
+    ],
+    "tests/ideation-dashboard/test_wheel_paint_and_reach.py": [
+        ("adapter calls", [132]),
+    ],
+    "tests/ideation-dashboard/test_wheel_verbs_dom.py": [
+        ("adapter calls", [310]),
+    ],
+}
+
+# The seventeen rows this act converts `moved_verbatim` -> declared. Named,
+# because a conversion is the one edit that moves BOTH disposition counts and
+# the carrier count at once, and an act that converted a row it did not mean to
+# would still sum correctly.
+S7_CONVERTED = [
+    "scripts/ideation_dashboard/canvas_drafts.py",
+    "scripts/ideation_dashboard/web/index.html",
+    "scripts/ideation_dashboard/web/styles.css",
+    "scripts/ideation_dashboard/web/views/board.js",
+    "scripts/ideation_dashboard/web/views/canvas-model.js",
+    "scripts/ideation_dashboard/web/views/canvas.js",
+    "scripts/ideation_dashboard/web/views/doc-wheel.js",
+    "scripts/ideation_dashboard/web/views/docs.js",
+    "scripts/ideation_dashboard/web/views/explorer.js",
+    "scripts/ideation_dashboard/web/views/funnel.js",
+    "scripts/ideation_dashboard/web/views/grouping.js",
+    "scripts/ideation_dashboard/web/views/helpers.js",
+    "scripts/ideation_dashboard/web/views/lineage.js",
+    "scripts/ideation_dashboard/web/views/model.js",
+    "scripts/ideation_dashboard/web/views/outline-model.js",
+    "scripts/ideation_dashboard/web/views/repo-selector-model.js",
+    "scripts/ideation_dashboard/web/views/wheel-model.js",
+]
+
+
+# THE THREE S7 ENTRIES THE EARLIER SLICES' ASSERTIONS FILTER OUT, read off the
+# table above so there is ONE declaration of them — each earlier slice's
+# assertion stays exactly its own (the idiom this file has used since S4
+# filtered S3's, and S5 filtered S4's), and nothing is excluded that the
+# S7 assertion does not itself pin.
+WHEEL_S7_ADAPTER_CALLS = dict(
+    S7_WINDOW["scripts/ideation_dashboard/web/views/wheel.js"])["adapter calls"]
+APP_JS_S7_ADAPTER_CALLS = dict(
+    S7_WINDOW["scripts/ideation_dashboard/web/app.js"])["adapter calls"]
+SWB_MODEL_S7_ADAPTER_CALLS = dict(S7_WINDOW[
+    "scripts/ideation_dashboard/web/views/staging-workbench-model.js"])[
+        "adapter calls"]
+
+
 def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     """RULED Q-L7 (a) against the LANDED manifest, not a generated one.
 
@@ -2309,7 +2572,16 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     wheel = rows["scripts/ideation_dashboard/web/views/wheel.js"]
     assert wheel["disposition"] == "moved_with_declared_edit", wheel
     assert wheel["destination"] == "opendox_code", wheel
-    assert [(edit["class"], edit["lines"]) for edit in wheel["edits"]] == [
+    # § 3.4 SLICE S7 adds this row's fourth and fifth entries (the one sibling
+    # import, and every per-wheel map keyed by STAGE ROLE), so they are filtered
+    # out here exactly as S5's were filtered out of S4's assertions — this
+    # assertion is slices S1–S5's and stays theirs. S7's own entries are pinned
+    # by row and class in `test_the_real_manifest_carries_the_s7_display_facet_
+    # declared_edits` below.
+    s7_wheel_lines = ([71], WHEEL_S7_ADAPTER_CALLS)
+    through_s5_wheel = [(edit["class"], edit["lines"]) for edit in wheel["edits"]
+                        if edit["lines"] not in s7_wheel_lines]
+    assert through_s5_wheel == [
         ("import rewrites", [75, 76]),
         # § 3.4 SLICE S5: the two-line `from "./dispose.js"` import of eight
         # names — one of § 4.5 assertion 3's four breaches — is gone, and the
@@ -2413,7 +2685,15 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # also the FIRST act to use RULED Q6's `re_destined:` field, on four rows;
     # a re-destination is not an edit and moves neither figure, which the next
     # test measures.
-    assert (lines, carrying) == (1584, 159), (lines, carrying)
+    #
+    # AND THEN THE § 3.4 SLICE-S7 ANNOTATION (RULED Q1/Q2/Q7, `#656` comment
+    # `5648049748`, whose Q-L1 obligation binds every § 3.4 slice, same as
+    # S2/S3/S4/S5/S6 above) moved both by the largest margin of any act so far:
+    # "parameterize class C" edits THIRTY-THREE arrived rows, all at
+    # `opendox_code`, and converts SEVENTEEN of them from `moved_verbatim`.
+    # Every file in the served bundle is edited because every file in it
+    # rendered a word. 1584 + 782 = 2366 on 159 + 17 = 176 rows.
+    assert (lines, carrying) == (2366, 176), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -2453,9 +2733,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # `firstEditTransport` through the registry, RULED counterpart Q6's two
     # model namespaces, and the call sites of RULED Q1/Q2/Q8/Q11), so they are
     # filtered out here the same way S4's were — this assertion is slice S3's.
+    # § 3.4 SLICE S7 adds this row's sixth entry (RULED Q1/Q2/Q7's hop: the
+    # facet read once per render and handed down as `ctx.display`), filtered out
+    # the same way S4's and S5's are.
     s3_app_js = [(edit["class"], edit["lines"]) for edit in app_js_row["edits"]
                  if edit["lines"] not in ([514, 515, 1137, 1138],
-                                          [45, 47, 48])
+                                          [45, 47, 48],
+                                          APP_JS_S7_ADAPTER_CALLS)
                  and 749 not in edit["lines"]]
     assert s3_app_js == [
         ("import rewrites", [43]),
@@ -2564,9 +2848,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     staging_row = rows[
         "scripts/ideation_dashboard/web/views/staging-workbench-model.js"]
+    # § 3.4 SLICE S7 adds this row's two last entries (the one sibling import,
+    # and the whole class-A TAIL § 3.2 names — `SECTION_META`, the three scope
+    # dispatches, and the corpus-area constants), filtered out the same way.
     s4_staging = [(edit["class"], edit["lines"])
                   for edit in staging_row["edits"]
-                  if edit["lines"] != [544]]
+                  if edit["lines"] != [544]
+                  and edit["lines"] not in ([29], SWB_MODEL_S7_ADAPTER_CALLS)]
     staging_path_constants = [543] + list(range(814, 827))
     staging_adapter_calls = list(range(956, 964)) + list(range(985, 989))
     assert len(staging_path_constants) == 14, staging_path_constants
