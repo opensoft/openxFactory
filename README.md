@@ -533,12 +533,17 @@ Active changes:
 
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
   — filed 2026-09-12, lane `openxfactory-2` (display `openXfactory-2`),
-  **`Status: ratified`** (2026-09-12, Brett Heap, openxFactory repository
-  owner, first-hand, in session — FOUR SELECTIONS, ***"Ratify 1.1 as filed
-  (Recommended) / Ratify 1.2 as filed / Ratify 1.3 as filed (Recommended) /
-  Confirm 1.4 as filed (Recommended)"***; recorded on openxFactory #992
-  comment
-  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053)
+  **`Status: ratified`** — **1.1, 1.3 and 1.4 AS FILED; 1.2 WITH TIGHTENING
+  (D-2 FAILS CLOSED)** — by Brett Heap, openxFactory repository owner,
+  first-hand, in session, FIVE SELECTIONS across two sittings: FOUR on
+  2026-09-12 at approximately 23:20Z (***"Ratify 1.1 as filed (Recommended) /
+  Ratify 1.2 as filed / Ratify 1.3 as filed (Recommended) / Confirm 1.4 as
+  filed (Recommended)"***), then a FIFTH on 2026-09-13T01:25:07Z RE-RULING
+  task 1.2 over a Copilot review thread on the ratification pull request
+  (***"Tighten to fail-closed after all"***), which supersedes the 23:20Z
+  selection on that ONE box and on no other; recorded in the consolidated
+  record carrying all five acts, openxFactory #992 comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
   — an APPROVED packet: the drafting pair (`proposed_by` / `proposed_on`)
   stands unmoved and `approved_by` / `approved_on` are ADDED beside it,
   approval being a pure addition. **Proposed** 2026-09-12 at approximately
@@ -565,10 +570,17 @@ Active changes:
   verifier, since a source-dependent check such as `pin-surface-undeclared`
   cannot be made offline — judged through ONE code-fixed route, a single
   shared pure adapter that never runs a path the record itself selects, and
-  resolved under the root precedence the in-tree arm already uses (NO pin
+  resolved under the root precedence the in-tree arm already uses; **AND, on
+  the re-ruling of 2026-09-13, ON THE RECORD'S OWN `capabilities:`
+  ENUMERATION — D-2 FAILS CLOSED.** A pinned target resolves only where the
+  record ALSO carries a well-formed, non-empty top-level `capabilities:`
+  sequence naming the capability; an ABSENT enumeration is an unresolved
+  pinned target naming the record and the publisher's remedy, exactly as a
+  MALFORMED one already was, so nothing degrades open and Principle VII is
+  satisfied by construction (NO pin
   record in this tree enumerates capabilities, measured over all six; what
   each addresses instead is files, tree digests, workflow members, or one
-  whole-artifact digest) and a stale-target rule `document-lifecycle` does
+  whole-artifact digest) — and a stale-target rule `document-lifecycle` does
   not carry today: when a target capability exits the corpus the marker
   either takes the pinned form or the block is unfenced, never silently
   retargeted and never silently deleted. **This discharges owed successor
@@ -577,7 +589,13 @@ Active changes:
   stay UNTICKED here.** The four `error`-band
   `tag-hygiene` findings that archive measured
   (`archive/2026-08-28-split-openxwallet-repo/tasks.md:1760-1786`) stay OPEN
-  and the four markers stay exactly as they are: `code_surface` names
+  and the four markers stay exactly as they are — **and under the fail-closed
+  D-2 they stay open PAST REALIZATION too: when the resolver and the four
+  retargeted markers land together the findings CHANGE FORM rather than close,
+  to "unresolved pinned target — `contracts/openxwallet-pin.yaml` carries no
+  `capabilities:` enumeration; remedy: the publisher adds one through a
+  `neutral-product-pin` change", still FOUR and still `error`-band, reaching
+  ZERO only on openXwallet's publisher's act**: `code_surface` names
   `scripts/doc_health/families.py` plus the AT-MOST-THREE further files the
   arm's code-fixed-route and containment rules require — the shape-ADAPTER
   module, a shared containment helper, and
@@ -591,17 +609,25 @@ Active changes:
   Filed from openxFactory
   [#992](https://github.com/opensoft/openxFactory/issues/992), filing PR
   [#994](https://github.com/opensoft/openxFactory/pull/994).
-  **RATIFICATION ONLY — RATIFIED AS FILED, record
+  **RATIFICATION ONLY — 1.1, 1.3 and 1.4 AS FILED, 1.2 WITH TIGHTENING (D-2
+  fails closed), record
   [`review/ratification-2026-09-12.md`](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/review/ratification-2026-09-12.md),
   over the packet as landed by PR
   [#994](https://github.com/opensoft/openxFactory/pull/994) at
-  `dafe8877e4c8f2d3a52cbe94307904b639b7bece` (2026-09-12T23:16:13Z).**
+  `dafe8877e4c8f2d3a52cbe94307904b639b7bece` (2026-09-12T23:16:13Z) — the head
+  acts 1-4 were given over, with act 5's tightening of D-2 re-encoded on that
+  same packet by the ratification pull request.**
   Realization (one later pull request carrying the resolver arm, its tests,
   the at-most-three further files its code-fixed-route and containment rules
   require, the four retargeted markers, the `docs/document-lifecycle.md`
   section and the stale `ideation/staging/INDEX.md` line) and archive are
   separate later acts on Brett Heap's word; neither has been given. Boxes
-  ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4. Item (7) of the
+  ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4 — and the TIGHTENING
+  commits that encode the re-ruling MOVE NO BOX, changing only what 1.2's
+  RULED annotation records, what § 3 states about the rule it realizes, and
+  adding ONE UNTICKED § 3 line (3.8) that records the publisher's enumeration
+  as the closure prerequisite — not filed, not claimed, not owed by this
+  change. Item (7) of the
   `split-openxwallet-repo` archived-ledger entry stays UNTICKED — it
   discharges on archive.
 

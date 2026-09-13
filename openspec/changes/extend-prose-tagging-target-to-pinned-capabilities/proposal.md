@@ -1,29 +1,37 @@
 ---
-code_surface: openxFactory — `scripts/doc_health/families.py`, whose `_resolve_capability` (line 1317) and `fam_tag_hygiene` (line 1331) gain a second resolution arm for a pinned target, plus that arm's tests under `tests/doc-health/` (hyphen: the tests directory is `tests/doc-health/`, while the package under test is `scripts/doc_health/`), plus AT MOST THREE FURTHER FILES THE ARM'S OWN RULES REQUIRE and which are named here rather than discovered at realization: (i) ONE module under `scripts/doc_health/` holding the shared, PURE, NON-EXECUTING `pinned_contract_manifest` SHAPE ADAPTER — design D-2's single code-fixed route, which holds the per-shape table and reads the record and nothing else — and this file exists ONLY where the realization gives that adapter a module of its own; where the adapter lives inside `scripts/doc_health/families.py`, already named above, (i) ADDS NO FILE. Under EITHER placement the adapter NEITHER EDITS NOR CALLS any of the five per-product pin verifiers, which are product-specific, shell out, and in one case reach the network, so they are not a shape-only API to extract from; the only place any of them is imported at all is the GUARD LEG of the equivalence test (task 3.3(p)), which lives in that arm's tests under `tests/doc-health/` — already named above, so it adds no file either — and imports them at fixed, authored paths; and (ii) the containment helper of D-2 and task 3.3(m), EITHER as a parameter added to `resolve_in_tree` in `scripts/validate-pin-registrations.py` — that file's own edit, no further file — OR as one shared helper both callers use, which is a NEW file AND requires `scripts/validate-pin-registrations.py` itself to be edited to become the shared helper's second caller. THE BOUND IS EXACTLY THREE AND THE THREE ARE ENUMERATED: (1) the shape-adapter module under `scripts/doc_health/`, (2) the new shared containment helper, (3) `scripts/validate-pin-registrations.py` as that helper's second caller. THREE is reached only where (i) gives the adapter a module of its own AND (ii) takes the shared-helper branch; where the adapter lives in `scripts/doc_health/families.py` and (ii) takes the parameter branch the further-file count is ZERO, and the two intermediate combinations give ONE or TWO. No fourth file is admitted under any combination, and the five pin verifiers are in none of them. NO BYTE OF ANY OF THEM MOVES IN THIS PULL REQUEST. This pull request carries the PACKET ONLY — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, two `## MODIFIED` spec deltas, one README "Active changes" bullet, the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml`, and the two `_LEDGER_SUBJECTS` rows the two `## MODIFIED` deltas above require of `tests/doc-health/test_modified_block_currency_self_gate.py`'s own carriage-ledger self-gate (all three are bookkeeping the self-gates require of ANY filing that touches a promoted block, not test implementation for the pinned-target arm the realization proposes). THE REALIZATION IS A LATER PULL REQUEST in this same repository, authored after ratification, and it is FOUR surfaces and not more: (1) the resolver arm and its tests, together with the at-most-three further files named above that the arm's code-fixed-route and containment rules require; (2) the four affected markers retargeted from `target=openxwallet` to the pinned form; (3) `docs/document-lifecycle.md`'s Prose Tagging Markers section carrying the new form and the stale-target rule; (4) the stale sentence at `ideation/staging/INDEX.md:2262-2265`, which still calls three `openxwallet` blocks "all resolving" and has been false since 2026-08-28. NOT THIS PACKET'S SURFACE, each for a stated reason: no marker regex changes, because the existing `_CAND_OPEN` and `_ATTR` patterns already accept the proposed value unchanged (design D-1, measured); no pin record is edited and no pin schema member is added — D-2 RESERVES the member name `capabilities:` as the trigger for its dormant conditional arm, so that the arm has a deterministic input contract rather than an intention, but it NAMES it and does not add it: no pin record gains that member here, no schema admits it here, and whether a real pin record may carry it is a `neutral-product-pin` question with the publisher (design D-2); no capability is created, deleted or renamed; no `openspec/specs/` directory moves; no contract byte, pin byte or digest moves; no contract bundle is cut.
+code_surface: openxFactory — `scripts/doc_health/families.py`, whose `_resolve_capability` (line 1317) and `fam_tag_hygiene` (line 1331) gain a second resolution arm for a pinned target, plus that arm's tests under `tests/doc-health/` (hyphen: the tests directory is `tests/doc-health/`, while the package under test is `scripts/doc_health/`), plus AT MOST THREE FURTHER FILES THE ARM'S OWN RULES REQUIRE and which are named here rather than discovered at realization: (i) ONE module under `scripts/doc_health/` holding the shared, PURE, NON-EXECUTING `pinned_contract_manifest` SHAPE ADAPTER — design D-2's single code-fixed route, which holds the per-shape table and reads the record and nothing else — and this file exists ONLY where the realization gives that adapter a module of its own; where the adapter lives inside `scripts/doc_health/families.py`, already named above, (i) ADDS NO FILE. Under EITHER placement the adapter NEITHER EDITS NOR CALLS any of the five per-product pin verifiers, which are product-specific, shell out, and in one case reach the network, so they are not a shape-only API to extract from; the only place any of them is imported at all is the GUARD LEG of the equivalence test (task 3.3(p)), which lives in that arm's tests under `tests/doc-health/` — already named above, so it adds no file either — and imports them at fixed, authored paths; and (ii) the containment helper of D-2 and task 3.3(m), EITHER as a parameter added to `resolve_in_tree` in `scripts/validate-pin-registrations.py` — that file's own edit, no further file — OR as one shared helper both callers use, which is a NEW file AND requires `scripts/validate-pin-registrations.py` itself to be edited to become the shared helper's second caller. THE BOUND IS EXACTLY THREE AND THE THREE ARE ENUMERATED: (1) the shape-adapter module under `scripts/doc_health/`, (2) the new shared containment helper, (3) `scripts/validate-pin-registrations.py` as that helper's second caller. THREE is reached only where (i) gives the adapter a module of its own AND (ii) takes the shared-helper branch; where the adapter lives in `scripts/doc_health/families.py` and (ii) takes the parameter branch the further-file count is ZERO, and the two intermediate combinations give ONE or TWO. No fourth file is admitted under any combination, and the five pin verifiers are in none of them. NO BYTE OF ANY OF THEM MOVES IN THIS PULL REQUEST. This pull request carries the PACKET ONLY — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, two `## MODIFIED` spec deltas, one README "Active changes" bullet, the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml`, and the two `_LEDGER_SUBJECTS` rows the two `## MODIFIED` deltas above require of `tests/doc-health/test_modified_block_currency_self_gate.py`'s own carriage-ledger self-gate (all three are bookkeeping the self-gates require of ANY filing that touches a promoted block, not test implementation for the pinned-target arm the realization proposes). THE REALIZATION IS A LATER PULL REQUEST in this same repository, authored after ratification, and it is FOUR surfaces and not more: (1) the resolver arm and its tests, together with the at-most-three further files named above that the arm's code-fixed-route and containment rules require; (2) the four affected markers retargeted from `target=openxwallet` to the pinned form; (3) `docs/document-lifecycle.md`'s Prose Tagging Markers section carrying the new form and the stale-target rule; (4) the stale sentence at `ideation/staging/INDEX.md:2262-2265`, which still calls three `openxwallet` blocks "all resolving" and has been false since 2026-08-28. NOT THIS PACKET'S SURFACE, each for a stated reason: no marker regex changes, because the existing `_CAND_OPEN` and `_ATTR` patterns already accept the proposed value unchanged (design D-1, measured); no pin record is edited and no pin schema member is added — D-2 RESERVES the member name `capabilities:` as the spelling of its enumeration PREREQUISITE, so that the prerequisite has a deterministic input contract rather than an intention, but it NAMES it and does not add it: no pin record gains that member here, no schema admits it here, and whether a real pin record may carry it is a `neutral-product-pin` question with the publisher (design D-2); no capability is created, deleted or renamed; no `openspec/specs/` directory moves; no contract byte, pin byte or digest moves; no contract bundle is cut.
 target_release: implemented
 ---
 
 # Proposal: extend-prose-tagging-target-to-pinned-capabilities
 
 Status: ratified
-Ratified: 2026-09-12 at approximately 23:20Z by Brett Heap (openxFactory
-repository owner) — FOUR SELECTIONS, not typed sentences, made via the
-lane's interactive multi-choice — one question per `tasks.md` § 1 task: the
-options **"Ratify 1.1 as filed (Recommended) / Ratify 1.2 as filed / Ratify
-1.3 as filed (Recommended) / Confirm 1.4 as filed (Recommended)"** —
-first-hand, in session, lane `openxfactory-2` (display `openXfactory-2`) —
-recorded on openxFactory #992 (comment
-https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
-CONFIRMED: the SAME word and the SAME act, recorded a second time, verbatim,
-for the lane's status thread — one act, two records, and not a second
-decision, recorded on openxFactory #745 (comment
-https://github.com/opensoft/openxFactory/issues/745#issuecomment-5649359201).
-Record: `review/ratification-2026-09-12.md`. **RATIFIED AS FILED.** The text
-below is ratified EXACTLY AS LANDED at
-`dafe8877e4c8f2d3a52cbe94307904b639b7bece` (2026-09-12T23:16:13Z), PR #994.
-AS FILED, WITH NO AMENDMENT AND NO VETO. The word carries no condition on
-any later act and reopens no decision. REALIZATION AND ARCHIVE ARE NOT
-AUTHORIZED BY THIS WORD and remain separate later acts on Brett Heap's word:
+Ratified: 2026-09-12 and 2026-09-13 by Brett Heap (openxFactory repository
+owner), first-hand, in session, lane `openxfactory-2` (display
+`openXfactory-2`) — FIVE SELECTIONS, not typed sentences, made via the
+lane's interactive multi-choice. FOUR on 2026-09-12 at approximately
+23:20Z, one question per `tasks.md` § 1 task: **"Ratify 1.1 as filed
+(Recommended) / Ratify 1.2 as filed / Ratify 1.3 as filed (Recommended) /
+Confirm 1.4 as filed (Recommended)"**. A FIFTH on 2026-09-13T01:25:07Z,
+RE-RULING task 1.2 over Copilot review thread `PRRT_kwDOTAvnrs6h1H-H` on
+ratification PR #1019: **"Tighten to fail-closed after all"** — which
+SUPERSEDES the 23:20Z selection on that ONE box and on no other. THE ONE
+CITATION, which supersedes and restates the 23:20Z record: openxFactory
+#992 (comment
+https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136);
+copy for the lane's status thread on openxFactory #745 (comment
+https://github.com/opensoft/openxFactory/issues/745#issuecomment-5649935244).
+Record: `review/ratification-2026-09-12.md`. **RATIFIED — 1.1, 1.3 and 1.4
+AS FILED; 1.2 WITH TIGHTENING, D-2 FAILING CLOSED.** The packet was put to
+him AS LANDED at `dafe8877e4c8f2d3a52cbe94307904b639b7bece`
+(2026-09-12T23:16:13Z), PR #994; acts 1, 3 and 4 ratify that text unchanged,
+and act 5 TIGHTENS D-2 — a pinned target now resolves only where the pin
+record ALSO carries a well-formed `capabilities:` enumeration naming the
+capability, an absent enumeration being an unresolved pinned target exactly
+as a malformed one already was. NO VETO, and ONE AMENDMENT, which this
+ratification pull request re-encodes on that word. REALIZATION AND ARCHIVE
+ARE NOT AUTHORIZED BY EITHER WORD and remain separate later acts on Brett
+Heap's word:
 no byte of `scripts/doc_health/families.py` moves, no module is added under
 `scripts/doc_health/`, no byte of `scripts/validate-pin-registrations.py` or
 of any per-product pin verifier moves, no marker is retargeted, and item (7)
@@ -34,8 +42,9 @@ of the `split-openxwallet-repo` archived-ledger entry stays UNTICKED.
 negations — *"no ratification, no realization and no archive is claimed by
 this packet"*, *"carry `Status: draft`"* — were true AT FILING and are
 superseded by the ratification recorded above: ratification HAS now been
-given, in the one act of 2026-09-12 ~23:20Z, recorded twice — openxFactory
-#992 and #745. Realization and archive remain separate later acts on
+given, in the acts of 2026-09-12 ~23:20Z and 2026-09-13T01:25:07Z,
+consolidated in one record — openxFactory #992 comment 5649935136, copied to
+#745. Realization and archive remain separate later acts on
 Brett Heap's word, and no word for either has been given.
 
 Proposed: 2026-09-12 at approximately 01:55Z by Brett Heap (openxFactory
@@ -218,9 +227,20 @@ fenced and queued truthfully instead.
    EXACTLY the root precedence the in-tree arm already uses**, the document's own
    repository root then the `openxFactory` root
    (`scripts/doc_health/families.py:1317-1321`), with every pinned-arm finding
-   naming the root it resolved against (design D-2). The
-   `<capability>` segment is NOT resolved further, because **no pin record in
-   this tree enumerates capabilities** — measured over all six at `323c7adf`.
+   naming the root it resolved against (design D-2). **AND THE `<capability>`
+   SEGMENT MUST APPEAR IN THAT RECORD'S OWN `capabilities:` ENUMERATION — the
+   RULING'S TIGHTENING, and D-2 FAILS CLOSED.** Resolution has three
+   prerequisites and no arms: a valid, complete pin record; a well-formed,
+   non-empty top-level `capabilities:` sequence on it; and the named capability
+   as a member of that sequence. An ABSENT enumeration is an UNRESOLVED PINNED
+   TARGET — a controlled finding naming the record and the remedy, "the
+   publisher adds `capabilities:` through a `neutral-product-pin` change" —
+   exactly as a MALFORMED one already was, so nothing degrades open and
+   Principle VII is satisfied by construction. The enumeration is ONE NAMED
+   MEMBER and not a search, which is what makes the prerequisite deterministic;
+   naming it adds it to nothing.
+   **THE MEASURED CONSEQUENCE, STATED PLAINLY: no pin record in this tree
+   enumerates capabilities** — measured over all six at `323c7adf`.
    What each record addresses INSTEAD differs, and the differences matter
    enough to state rather than average: two enumerate files (`files:` beside
    `pinned_by_commit_only:`), two carry tree `digests:`, one carries workflow
@@ -230,14 +250,15 @@ fenced and queued truthfully instead.
    `contracts/openspec-cli-pin.yaml:69-76` states why it has neither a `files:`
    nor a `pinned_by_commit_only:` list ("ONE digest covers ALL 389 files, so
    the completeness question the two lists answer is answered here by
-   construction"). The invariant this resolution rule rests on is the one that
-   holds across all six: the absence of a CAPABILITY enumeration. A rule
-   requiring one would therefore refuse every marker it exists to admit. The
-   requirement is written so that a pin record which LATER enumerates
-   capabilities tightens resolution automatically, without a further grammar
-   delta. The enumeration is ONE NAMED MEMBER and not a search — a top-level
-   `capabilities:` sequence on the pin record — so the dormant arm is
-   deterministic; naming it adds it to nothing (design D-2).
+   construction"). So the four markers this change was filed for do NOT resolve
+   on the day the resolver lands: their findings CHANGE FORM, from "unresolved
+   target=openxwallet — name a capability under `openspec/specs/`" to
+   "unresolved pinned target — `contracts/openxwallet-pin.yaml` carries no
+   `capabilities:` enumeration; remedy: the publisher adds one through a
+   `neutral-product-pin` change" — still FOUR, still `error`-band, and for the
+   first time naming the act that would clear them. That act is openXwallet's
+   publisher's, through `neutral-product-pin`, and it is no part of this packet
+   (design D-2).
 
 3. **A stale-target rule, which `document-lifecycle` does not have today.**
    When a marker's target capability exits the corpus, the marker either takes
@@ -267,8 +288,14 @@ realization is a later pull request after ratification.
 - **Affected documents at realization, not here:**
   `docs/document-lifecycle.md` (Prose Tagging Markers section), the four
   markers in `ideation/staging/`, and `ideation/staging/INDEX.md:2262-2265`.
-- **Findings:** the four `tag-hygiene` findings stay OPEN until realization
-  lands green. This packet changes their count by zero.
+- **Findings:** the four `tag-hygiene` findings stay OPEN, and this packet
+  changes their count by zero. Under the tightening they stay open past
+  realization too: they CHANGE FORM when the resolver and the retargeted
+  markers land together — to unresolved PINNED targets naming
+  `contracts/openxwallet-pin.yaml` and the publisher's remedy — and they reach
+  ZERO only when openXwallet's pin record publishes a `capabilities:`
+  enumeration naming `openxwallet`, which is the publisher's act through
+  `neutral-product-pin` and no part of this packet or of its realization.
 - **Release:** `target_release: implemented` and `code_surface` is non-empty,
   so per `release-realization` this packet archives ONLY on merged-plus-green
   realization evidence. No contract bundle is cut, nothing under `contracts/`

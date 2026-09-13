@@ -116,19 +116,38 @@ origin:
     findings stay OPEN and the four markers stay EXACTLY AS THEY ARE.
   proposed_on: 2026-09-12
   approved_by: >-
-    Brett Heap (openxFactory repository owner) — 2026-09-12 at approximately
-    23:20Z, first-hand, in session. FOUR SELECTIONS, NOT TYPED SENTENCES:
-    presented with the lane's interactive multi-choice, one question per
-    tasks.md section 1 task, he chose the options "Ratify 1.1 as filed
-    (Recommended) / Ratify 1.2 as filed / Ratify 1.3 as filed (Recommended) /
-    Confirm 1.4 as filed (Recommended)". Recorded on openxFactory #992, comment
-    https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053.
-    CONFIRMED: the SAME word and the SAME act, recorded a second time, verbatim,
-    for the lane's status thread — one act, two records, and not a second
-    decision, recorded on openxFactory #745, comment
-    https://github.com/opensoft/openxFactory/issues/745#issuecomment-5649359201.
-    AS FILED, WITH NO AMENDMENT AND NO VETO. The word carries no condition on
-    any later act and reopens no decision. THE WORD PERFORMS NO REALIZATION AND
+    Brett Heap (openxFactory repository owner) — first-hand, in session, FIVE
+    SELECTIONS, NOT TYPED SENTENCES, all by interactive multi-choice, across
+    TWO SITTINGS. ACTS 1-4, 2026-09-12 at approximately 23:20Z: one question
+    per tasks.md section 1 task, he chose "Ratify 1.1 as filed (Recommended) /
+    Ratify 1.2 as filed / Ratify 1.3 as filed (Recommended) / Confirm 1.4 as
+    filed (Recommended)"; the option "Confirm, and give the realization word
+    now" was offered on 1.4 and NOT taken. ACT 5, 2026-09-13T01:25:07Z
+    (plus or minus 3 minutes): a RE-RULING on task 1.2 alone, put to him over
+    Copilot review thread PRRT_kwDOTAvnrs6h1H-H on ratification pull request
+    #1019, which raised constitution Principle VII against D-2 as filed. He
+    selected "Tighten to fail-closed after all", whose description read
+    verbatim: "Reopens 1.2: D-2 refuses a pinned target whose record carries no
+    capabilities enumeration; the four markers stay unresolvable until
+    openXwallet's pin publishes one. Reverts your 23:20Z selection; a fix round
+    re-encodes and the record changes." Not taken: "Record my as-filed ruling as
+    the explicit justification (Recommended)", "Same, PLUS name a Principle VII
+    clarification as an owed successor", "Hold #1019 — I will read the thread
+    myself". THE RECORD, AND THE ONE CITATION, superseding and restating the
+    23:20Z record: openxFactory #992, comment
+    https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
+    (copied for the lane's status thread to openxFactory #745, comment
+    https://github.com/opensoft/openxFactory/issues/745#issuecomment-5649935244).
+    THE EFFECT. Tasks 1.1, 1.3 and 1.4 stand AS FILED. Task 1.2 is RATIFIED
+    WITH TIGHTENING and D-2 FAILS CLOSED: a pinned target resolves only where
+    the pin id resolves to a valid, complete pinned_contract_manifest record
+    (unchanged), AND that record carries a well-formed capabilities
+    enumeration, AND the named capability is a member of it; an absent
+    enumeration is an unresolved pinned target naming the record and the
+    publisher's remedy, exactly as a malformed one already was. Principle VII is
+    satisfied by construction and no Complexity-Tracking justification or
+    constitution amendment is owed. NO VETO, and ONE AMENDMENT — act 5 itself.
+    THE WORD PERFORMS NO REALIZATION AND
     NO ARCHIVE: no byte of scripts/doc_health/families.py moves, no module is
     added under scripts/doc_health/, no byte of
     scripts/validate-pin-registrations.py or of any per-product pin verifier
@@ -136,8 +155,13 @@ origin:
     ideation/staging/INDEX.md are not touched, no pin record gains a
     capabilities member and no schema admits one, and item (7) of the
     split-openxwallet-repo archived-ledger entry is NOT ticked — it discharges
-    on archive. Record: review/ratification-2026-09-12.md.
-  approved_on: 2026-09-12
+    on archive. AND THE FOUR FINDINGS STAY OPEN PAST REALIZATION: no pin record
+    in this tree enumerates capabilities, so the four target=openxwallet
+    tag-hygiene findings change FORM when the resolver and the retargeted
+    markers land, and reach zero only when openXwallet's pin record publishes a
+    capabilities enumeration, which is the publisher's act through
+    neutral-product-pin. Record: review/ratification-2026-09-12.md.
+  approved_on: 2026-09-13
 related:
   - openxFactory:change:archive/2026-08-28-split-openxwallet-repo   # THE CAUSE and the SOURCE OF THE ASK: its `tasks.md:1770-1786` measured the four findings, rejected both mechanical fixes, and named this grammar extension as the honest one; its README archived-ledger entry carries the owed successor as numbered item (7). ARCHIVED — no `sequenced_after` is owed or declared
   - openxFactory:change:archive/2026-07-09-concretize-prose-tagging-syntax  # THE GRAMMAR THIS PACKET EXTENDS: the change that concretized the `xspec:` marker syntax `docs/document-lifecycle.md` now carries and `families.py` transcribes by reference

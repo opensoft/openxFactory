@@ -1,14 +1,24 @@
 # Tasks: extend-prose-tagging-target-to-pinned-capabilities
 
 Status: ratified
-Ratified by: extend-prose-tagging-target-to-pinned-capabilities —
-2026-09-12, Brett Heap (openxFactory repository owner), on his word FOUR
-SELECTIONS: "Ratify 1.1 as filed (Recommended) / Ratify 1.2 as filed /
-Ratify 1.3 as filed (Recommended) / Confirm 1.4 as filed (Recommended)"
-(2026-09-12 at approximately 23:20Z, openxFactory #992, comment
-https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+Ratified by: extend-prose-tagging-target-to-pinned-capabilities — Brett Heap
+(openxFactory repository owner), FIVE SELECTIONS by interactive multi-choice:
+FOUR on 2026-09-12 at approximately 23:20Z ("Ratify 1.1 as filed
+(Recommended) / Ratify 1.2 as filed / Ratify 1.3 as filed (Recommended) /
+Confirm 1.4 as filed (Recommended)"), then a FIFTH on 2026-09-13T01:25:07Z
+RE-RULING task 1.2 — "Tighten to fail-closed after all" — over Copilot
+thread `PRRT_kwDOTAvnrs6h1H-H` on PR #1019, SUPERSEDING the 23:20Z
+selection on that ONE box and on no other. THE ONE CITATION: openxFactory
+#992, comment
+https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
+(copy on #745, comment 5649935244).
 Record: `review/ratification-2026-09-12.md`. BOXES TICKED BY THE RATIFYING
-COMMIT: 1.1, 1.2, 1.3, 1.4 — AND NO OTHERS. This commit ticks NO box in § 2,
+COMMIT: 1.1, 1.2, 1.3, 1.4 — AND NO OTHERS; the TIGHTENING commits that
+encode the re-ruling MOVE NO BOX AT ALL — they change what 1.2's RULED
+annotation records and what § 3 states about the rule it realizes, and they
+ADD one UNTICKED line (3.8) recording a prerequisite that is outside this
+change. This
+commit ticks NO box in § 2,
 § 3 or § 4: § 2's boxes stand exactly as the filing pull request left them
 (all seven already `[x]`, recording what that pull request did), § 3 and § 4
 stay open, and item (7) of the `split-openxwallet-repo` archived-ledger entry
@@ -41,8 +51,11 @@ the later realization pull request, and § 4 is the archive act.
   `pinned:<pin-id>/<capability>`, with D-1.1's closure of `spec=`. Brett
   Heap, FOUR SELECTIONS, ***"Ratify 1.1 as filed (Recommended) / Ratify 1.2
   as filed / Ratify 1.3 as filed (Recommended) / Confirm 1.4 as filed
-  (Recommended)"*** (openxFactory #992, comment
-  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+  (Recommended)"*** — UNCHANGED by the re-ruling of 2026-09-13, which reached
+  task 1.2 alone. Citation: the consolidated record carrying all five acts,
+  openxFactory #992, comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
+  (which supersedes and restates the 23:20Z record, comment 5649359053).
   Record: `review/ratification-2026-09-12.md`.
 - [x] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** the pin id must
   resolve to a VALID, COMPLETE NEUTRAL-PRODUCT pin record the RESOLUTION ROOTS
@@ -76,8 +89,10 @@ the later realization pull request, and § 4 is the archive act.
   reads that member and no other, so the dormant arm has a deterministic input
   contract rather than an intention; whether a real pin record may carry it is
   a `neutral-product-pin` question with the publisher. The weakening this
-  accepts is stated plainly in D-2 and is worth a veto on its own. **THIS IS
-  THE PACKET'S ONE LIVE CONSTITUTIONAL QUESTION.** Principle VII
+  accepts is stated plainly in D-2 and is worth a veto on its own. **THIS WAS
+  THE PACKET'S ONE LIVE CONSTITUTIONAL QUESTION. IT IS NOW ANSWERED — see the
+  RULED annotation below — and the rest of this ask is kept VERBATIM as the
+  question AS PUT, not as a live reading of D-2.** Principle VII
   (`.specify/memory/constitution.md:99-103`) closes registries of capabilities
   and requires deferred features to fail closed; under arm 1 the CAPABILITY
   segment is open — `pinned:openxwallet/typo` resolves. D-2 states the
@@ -86,22 +101,57 @@ the later realization pull request, and § 4 is the archive act.
   no capability enumeration) refuses all four markers this change exists to
   admit, so a REFUSE here is a refusal of the change's central mechanism rather
   than a tightening of it.
-  **RULED, 2026-09-12 at approximately 23:20Z:** RATIFIED — the RESOLUTION
-  RULE (D-2) — resolution rests on the pin record's EXISTENCE, its `kind:
-  pinned_contract_manifest` (five of the six today), and completeness for
+  **RULED — RATIFIED WITH TIGHTENING (FAIL-CLOSED). TWO ACTS ON THIS BOX, the
+  second superseding the first.** **(1) 2026-09-12 at approximately 23:20Z:**
+  ***"Ratify 1.2 as filed"***, one of FOUR selections by interactive
+  multi-choice; the options "Ratify with tightening: fail closed", "Ratify
+  with tightening: enumeration owed as a named successor" and "Refuse 1.2"
+  were offered and NOT taken. **(2) 2026-09-13T01:25:07Z (±3 min):** RE-RULED,
+  the question re-raised over Copilot review thread `PRRT_kwDOTAvnrs6h1H-H` on
+  ratification pull request #1019, which put Principle VII back against D-2 as
+  filed. Brett Heap selected ***"Tighten to fail-closed after all"***, whose
+  description read VERBATIM: *"Reopens 1.2: D-2 refuses a pinned target whose
+  record carries no capabilities enumeration; the four markers stay
+  unresolvable until openXwallet's pin publishes one. Reverts your 23:20Z
+  selection; a fix round re-encodes and the record changes."* Not taken:
+  "Record my as-filed ruling as the explicit justification (Recommended)",
+  "Same, PLUS name a Principle VII clarification as an owed successor", "Hold
+  #1019 — I will read the thread myself". **ACT (2) SUPERSEDES THE 23:20Z
+  AS-FILED SELECTION ON THIS BOX, AND ON THIS BOX ONLY** — 1.1, 1.3 and 1.4
+  stand exactly as ruled at 23:20Z, and this box stays `[x]`: it was answered
+  then and it is answered now, by a different answer.
+  **WHAT STANDS — the RESOLUTION RULE (D-2) FAILS CLOSED.** A
+  `pinned:<pin-id>/<capability>` target resolves only where ALL THREE hold:
+  **(a)** the pin id resolves to a VALID, COMPLETE `kind:
+  pinned_contract_manifest` record — UNCHANGED from the filing: complete for
   its RECORD SHAPE against that shape's SHAPE-GUARD-REQUIRED SET, pinned to
-  the verifiers' own pure, source-free guards by a two-leg equivalence test
+  the verifiers' own pure, source-free guards by the two-leg equivalence test
   and NECESSARY, by design, without being SUFFICIENT for the record's full
   verifier, judged through a CODE-FIXED route (one shared, pure,
   non-executing adapter) that never executes, imports or opens a path the
-  record selects, and resolved under the in-tree arm's own root precedence,
-  whose `contracts` directory must itself be real and non-redirecting; the
-  reserved `capabilities:` member is the dormant arm's one trigger, added to
-  no record and no schema here. Brett Heap, FOUR SELECTIONS, ***"Ratify 1.1
-  as filed (Recommended) / Ratify 1.2 as filed / Ratify 1.3 as filed
-  (Recommended) / Confirm 1.4 as filed (Recommended)"*** (openxFactory #992,
-  comment
-  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+  record selects, resolved under the in-tree arm's own root precedence, whose
+  `contracts` directory must itself be real and non-redirecting; **(b)** that
+  record carries a WELL-FORMED, NON-EMPTY `capabilities:` enumeration; and
+  **(c)** `<capability>` is a MEMBER of it. An ABSENT enumeration is an
+  UNRESOLVED PINNED TARGET — a controlled finding naming the record path and
+  the remedy ("the publisher adds `capabilities:` through a
+  `neutral-product-pin` change") — exactly as a MALFORMED one already was.
+  THERE IS NO DORMANT ARM AND NOTHING SELF-ARMS. `capabilities:` stays
+  RESERVED and is added to NO record and NO schema by this packet.
+  **PRINCIPLE VII IS SATISFIED BY CONSTRUCTION**, so no Complexity-Tracking
+  justification and no constitution amendment is owed.
+  **THE CONSEQUENCE, STATED PLAINLY:** no pin record in this tree carries an
+  enumeration today, so the four `target=openxwallet` findings stay OPEN until
+  this packet is RATIFIED (this act), REALIZED (a separate later word, not
+  given) AND openXwallet's pin record publishes a `capabilities:` enumeration
+  (the publisher's act, not this repository's). After realization the four
+  CHANGE FORM rather than close — from "unresolved target=openxwallet — name a
+  capability under `openspec/specs/`" to "unresolved pinned target —
+  `contracts/openxwallet-pin.yaml` carries no `capabilities:` enumeration;
+  remedy: the publisher adds one through a `neutral-product-pin` change" —
+  still FOUR, still `error`-band. Citation, and THE ONE CITATION for this
+  ratification: openxFactory #992, comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136.
   Record: `review/ratification-2026-09-12.md`.
 - [x] 1.3 **RATIFY or REFUSE the stale-target rule (D-3):** when a target
   capability exits the corpus the marker either takes the pinned form or the
@@ -111,9 +161,11 @@ the later realization pull request, and § 4 is the archive act.
   takes the pinned form or its block is unfenced; never silently retargeted,
   never silently deleted. Brett Heap, FOUR SELECTIONS, ***"Ratify 1.1 as
   filed (Recommended) / Ratify 1.2 as filed / Ratify 1.3 as filed
-  (Recommended) / Confirm 1.4 as filed (Recommended)"*** (openxFactory #992,
-  comment
-  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+  (Recommended) / Confirm 1.4 as filed (Recommended)"*** — UNCHANGED by the
+  re-ruling of 2026-09-13, which reached task 1.2 alone. Citation: the
+  consolidated record carrying all five acts, openxFactory #992, comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
+  (which supersedes and restates the 23:20Z record, comment 5649359053).
   Record: `review/ratification-2026-09-12.md`.
 - [x] 1.4 **CONFIRM the realization split (D-5):** one later pull request
   carrying resolver, tests, the four retargeted markers and the `INDEX.md`
@@ -123,8 +175,11 @@ the later realization pull request, and § 4 is the archive act.
   retargeted markers and the `INDEX.md` correction together. Brett Heap,
   FOUR SELECTIONS, ***"Ratify 1.1 as filed (Recommended) / Ratify 1.2 as
   filed / Ratify 1.3 as filed (Recommended) / Confirm 1.4 as filed
-  (Recommended)"*** (openxFactory #992, comment
-  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
+  (Recommended)"*** — UNCHANGED by the re-ruling of 2026-09-13, which reached
+  task 1.2 alone. Citation: the consolidated record carrying all five acts,
+  openxFactory #992, comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
+  (which supersedes and restates the 23:20Z record, comment 5649359053).
   Record: `review/ratification-2026-09-12.md`.
 
 ## 2. This filing — done by the pull request that carries this file
@@ -219,22 +274,38 @@ the later realization pull request, and § 4 is the archive act.
   wrong instruction for this class. The
   in-tree non-resolution arm must not judge a pinned target at all: a
   well-formed `pinned:` value exists under no `openspec/specs/` directory, so
-  an unnarrowed in-tree arm would report every one of them.
+  an unnarrowed in-tree arm would report every one of them. AND THE
+  ENUMERATION CLASS GETS ITS OWN TEXTS, one per defect, because the remedies
+  differ: where the record carries NO `capabilities:` member the finding names
+  THAT RECORD and the PUBLISHER's act ("the publisher adds `capabilities:`
+  through a `neutral-product-pin` change"), never `openspec/specs/`, never an
+  active change and never an invented list written into this repository's own
+  copy of the pin; where the member is PRESENT and MALFORMED the finding names
+  the broken member, whose repair belongs to whoever wrote it; and where it is
+  well formed without the named capability the finding names the enumeration.
+  Each is a separate string in the pinned table of (j).
 - [ ] 3.3 Tests under `tests/doc-health/` (hyphen — the directory that
   exists; `scripts/doc_health/` with an underscore is the package under
   test), extending `tests/doc-health/fixtures/tag-hygiene/`, and D-2's
-  CONDITIONAL arm gets BOTH
-  of its cases, so the realization cannot satisfy this list while omitting the
-  branch: **(a)** a resolving pinned target, under a pin record carrying no
-  capability enumeration, emits nothing; **(b)** an unresolvable pin id emits a
+  ENUMERATION PREREQUISITE gets BOTH
+  of its sides, so the realization cannot satisfy this list while omitting
+  either: **(a)** a pinned target whose pin record is otherwise VALID AND
+  COMPLETE but carries NO top-level `capabilities:` member does NOT resolve
+  and emits an unresolved-pinned-target finding naming THAT RECORD and the
+  PUBLISHER's remedy — this is the fail-closed case the re-ruling of
+  2026-09-13 put in place of the filing's "emits nothing", and a test asserting
+  the old outcome would encode the superseded rule; **(b)** an unresolvable pin
+  id emits a
   finding naming the PIN REGISTRY, not `openspec/specs/`; **(c)** a FIXTURE pin
   record carrying a top-level `capabilities:` sequence emits nothing for a
-  capability LISTED in it; **(d)** the same fixture emits a finding naming the
-  enumeration for a capability NOT listed in it — the fixture lives under
+  capability LISTED in it — PRESENT AND NAMES, the only shape in which a pinned
+  target resolves at all; **(d)** the same fixture emits a finding naming the
+  enumeration for a capability NOT listed in it — PRESENT AND DOES NOT NAME;
+  the fixture lives under
   `tests/doc-health/fixtures/`, adds no byte to any real pin record and no
-  member to any schema — (c) and (d) are the positive and the negative
-  of the arm that binds automatically, and without both the branch can be
-  absent with this list still satisfied; **(e)** an `xspec:supersedes` marker
+  member to any schema — (a), (c) and (d) are the three states of the
+  prerequisite (ABSENT, PRESENT-AND-NAMES, PRESENT-AND-DOES-NOT-NAME) and
+  without all three a branch can be absent with this list still satisfied; **(e)** an `xspec:supersedes` marker
   whose `spec=` value carries the reserved `pinned:` prefix is REFUSED with a
   finding whose ACTION TEXT is asserted VERBATIM and states that the pinned
   form is admitted only in a candidate marker's `target=` attribute (D-1.1) —
@@ -248,9 +319,12 @@ the later realization pull request, and § 4 is the archive act.
   sequence carrying a non-capability-shaped item — emits a
   malformed-enumeration finding AND the pinned target naming it does not
   resolve, the record being read because the marker names it and not by any
-  registry sweep, proving the fail-closed path rather
-  than the "absent enumeration" fallback, with the empty sequence as its own
-  case since it satisfies "a sequence of well-formed names" vacuously;
+  registry sweep, with the empty sequence as its own
+  case since it satisfies "a sequence of well-formed names" vacuously. (g) and
+  (a) reach the SAME outcome by TWO findings and the test asserts BOTH TEXTS,
+  not one: absent and malformed are different defects with different remedies —
+  published versus repaired — and a realization that collapsed them would send
+  the reader to the wrong act;
   **(h)** a pinned value that does not match the lexical grammar — an extra `/`
   segment, a dotted or traversal component such as `pinned:../x/y`, an
   upper-case or empty component — emits a malformed-pinned-target finding, and
@@ -301,8 +375,9 @@ the later realization pull request, and § 4 is the archive act.
   omitting it is how this shape came to be missed: a record whose six members —
   `commit`, `revision_kind: commit`, `submodule_path`, `digest_algorithm`,
   `digest_definition` and a `digests` mapping carrying `tree_sha256` — are each
-  PRESENT AND WELL-FORMED, which carries NEITHER per-file list and EITHER no
-  `capabilities:` member or a well-formed one naming the capability, RESOLVES,
+  PRESENT AND WELL-FORMED, which carries NEITHER per-file list and which
+  carries a well-formed, non-empty `capabilities:` member NAMING THE CAPABILITY,
+  RESOLVES,
   and the absent lists are not reported as missing members; the malformed
   variants are the cases immediately below and no case may claim both outcomes
   for one record; then one MISSING and one MALFORMED case for each of that
@@ -508,13 +583,38 @@ the later realization pull request, and § 4 is the archive act.
   lines 222, 242, 280 and
   `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md`
   line 107. Line numbers re-measured at that branch's tip, never carried from
-  here on trust.
+  here on trust. **THE STEP STANDS AND ITS OUTCOME IS STATED HONESTLY:** under
+  the fail-closed D-2, retargeting does NOT clear the four findings, because
+  `contracts/openxwallet-pin.yaml` carries no `capabilities:` enumeration. The
+  four CHANGE FORM — from "unresolved target=openxwallet — name a capability
+  under `openspec/specs/`" to "unresolved pinned target —
+  `contracts/openxwallet-pin.yaml` carries no `capabilities:` enumeration;
+  remedy: the publisher adds one through a `neutral-product-pin` change" —
+  still FOUR and still `error`-band, and for the first time naming the act that
+  would clear them. The markers are retargeted anyway because the pinned form
+  is the TRUE form for these blocks (D-3), and a true marker carrying a true
+  finding is the outcome this packet exists to reach.
 - [ ] 3.6 Correct `ideation/staging/INDEX.md:2262-2265`, which still describes
   three `openxwallet` blocks as "all resolving" and has been false since
   2026-08-28.
 - [ ] 3.7 Evidence: a `--single-repo` doc-health run over the realization tree
-  showing the four `tag-hygiene` findings at ZERO and `New regressions: 0`, and
-  the green required `pytest-suite` run, both cited at the TREE grain.
+  showing `New regressions: 0` and the four `tag-hygiene` findings CHANGED IN
+  FORM — unresolved PINNED targets naming `contracts/openxwallet-pin.yaml` and
+  the publisher's remedy — together with the green required `pytest-suite` run,
+  both cited at the TREE grain. **THE EVIDENCE MUST NOT CLAIM THE FOUR REACH
+  ZERO at realization, because under the fail-closed D-2 they do not**; a
+  realization pull request asserting zero would be asserting something the tree
+  does not show.
+- [ ] 3.8 **THE CLOSURE PREREQUISITE, NAMED HERE AND NOT FILED.** The four
+  findings reach ZERO only when `contracts/openxwallet-pin.yaml` carries a
+  well-formed `capabilities:` enumeration naming `openxwallet` — the
+  PUBLISHER's act, admitted into a real pin record through a
+  `neutral-product-pin` change with openXwallet, and no part of this packet or
+  of its realization. This line RECORDS that prerequisite so no later reader
+  takes realization for closure. **It is NOT filed, NOT claimed and NOT owed by
+  this change**: no issue is opened for it, no successor is named, and this box
+  does not gate this packet's archive, which turns on the realization evidence
+  of 3.7 and on nothing the publisher does.
 
 ## 4. Archive — a separate act on Brett Heap's word
 
