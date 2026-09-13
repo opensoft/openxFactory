@@ -57,7 +57,10 @@ the later realization pull request, and § 4 is the archive act.
   https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
   (which supersedes and restates the 23:20Z record, comment 5649359053).
   Record: `review/ratification-2026-09-12.md`.
-- [x] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** the pin id must
+- [x] 1.2 **RATIFY or REFUSE the resolution rule (D-2):** **THIS WAS THE
+  PACKET'S ONE LIVE CONSTITUTIONAL QUESTION. IT IS NOW ANSWERED — see the
+  RULED annotation below — and everything below in this ask is kept VERBATIM
+  as the question AS PUT, not as a live reading of D-2.** The pin id must
   resolve to a VALID, COMPLETE NEUTRAL-PRODUCT pin record the RESOLUTION ROOTS
   carry — a `contracts/<pin-id>-pin.yaml` of
   `kind: pinned_contract_manifest`, five of the six today, CARRYING EVERY MEMBER
@@ -89,10 +92,8 @@ the later realization pull request, and § 4 is the archive act.
   reads that member and no other, so the dormant arm has a deterministic input
   contract rather than an intention; whether a real pin record may carry it is
   a `neutral-product-pin` question with the publisher. The weakening this
-  accepts is stated plainly in D-2 and is worth a veto on its own. **THIS WAS
-  THE PACKET'S ONE LIVE CONSTITUTIONAL QUESTION. IT IS NOW ANSWERED — see the
-  RULED annotation below — and the rest of this ask is kept VERBATIM as the
-  question AS PUT, not as a live reading of D-2.** Principle VII
+  accepts is stated plainly in D-2 and is worth a veto on its own. **THIS IS
+  THE PACKET'S ONE LIVE CONSTITUTIONAL QUESTION.** Principle VII
   (`.specify/memory/constitution.md:99-103`) closes registries of capabilities
   and requires deferred features to fail closed; under arm 1 the CAPABILITY
   segment is open — `pinned:openxwallet/typo` resolves. D-2 states the

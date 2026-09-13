@@ -38,10 +38,18 @@ RESERVED AND REFUSED rather than merely undefined, because a `spec=` value
 already carries a separator of its own and no pinned parse for it is defined —
 a deferred form fails closed.
 
-A PINNED target resolves when its `<pin-id>` resolves to a NEUTRAL-PRODUCT pin
+A PINNED target resolves ONLY WHERE ALL THREE of the following hold. FIRST, its
+`<pin-id>` resolves to a NEUTRAL-PRODUCT pin
 record the RESOLUTION ROOTS carry — a `contracts/<pin-id>-pin.yaml` declaring
 `kind: pinned_contract_manifest`, the shape `neutral-product-pin` requires for
-an external neutral product. A pin-shaped record of another kind, such as
+an external neutral product. SECOND, that record carries a well-formed,
+NON-EMPTY top-level `capabilities:` enumeration. THIRD, `<capability>` is a
+MEMBER of that enumeration. ALL THREE ARE PREREQUISITES AND THE FIRST IS NOT
+SUFFICIENT ALONE: a record that resolves and is complete for its shape but
+enumerates nothing does NOT resolve a pinned target. The SECOND and the THIRD
+are stated in full at the capability-segment rule below, and are announced here
+so that no reader takes the pin-record rule that follows for the whole test.
+THE FIRST, ELABORATED. A pin-shaped record of another kind, such as
 `kind: pinned_workflow`, MUST NOT resolve a pinned target: it pins executable
 governance code rather than a product whose units are capabilities, so it has
 no capability set for the name to be about. THE KIND ALONE IS A LABEL, NOT A
