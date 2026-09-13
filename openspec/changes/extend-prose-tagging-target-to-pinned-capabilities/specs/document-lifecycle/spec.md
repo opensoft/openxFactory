@@ -279,10 +279,15 @@ cannot be read as a mapping carrying a `kind` — invalid YAML, a non-mapping
 document, or no `kind` member — MUST be reported as an unreadable pin record
 and MUST NOT resolve a pinned target, and the pass MUST complete rather than
 abort: a corrupt record in the registry is a controlled finding, never an
-exception that takes the run down with it. The `<capability>` segment MUST be well formed, and it MUST
-additionally appear in the pin record's own capability enumeration WHERE THAT
-RECORD CARRIES ONE; where the record carries no such enumeration, resolution
-rests on the pin alone and the capability name is taken as declared. A PIN
+exception that takes the run down with it. THE `<capability>` SEGMENT MUST BE WELL FORMED AND MUST APPEAR IN THE PIN
+RECORD'S OWN CAPABILITY ENUMERATION, THE ENUMERATION BEING A PREREQUISITE OF
+RESOLUTION RATHER THAN A CONDITION ON IT. A pinned target resolves only where
+the record carries a well-formed enumeration AND `<capability>` is a member of
+it. Where the record carries NO such enumeration the target MUST NOT resolve,
+and the pass MUST report an unresolved pinned target naming the pin record and
+the REMEDY — the pinned product's PUBLISHER adds `capabilities:` through a
+`neutral-product-pin` change — rather than resting resolution on the pin alone
+and taking the capability name as declared. A PIN
 RECORD'S CAPABILITY ENUMERATION IS ONE NAMED MEMBER AND NOT A SEARCH: a
 top-level `capabilities:` sequence of capability names on the pin record. A
 record without that member carries no enumeration for this purpose, and the
@@ -296,15 +301,22 @@ well-formed capability names — including an empty sequence, a null value, a
 scalar, a mapping, or a sequence carrying an item that is not a capability-shaped
 name — MUST be reported as a malformed enumeration against the pin record, and MUST NOT be read as an absent
 enumeration; while it is malformed, a pinned target naming that record does NOT
-resolve. THAT OBLIGATION IS REACHED THROUGH THE MARKER AND NOT BY A SWEEP: the
+resolve. AN ABSENT ENUMERATION AND A MALFORMED ONE REACH THE SAME OUTCOME BY
+TWO FINDINGS, AND THE PASS MUST NOT COLLAPSE THEM: the outcome is the same
+because both fail closed, and the findings differ because the remedies differ —
+a malformed member is REPAIRED by whoever wrote it, an absent one is PUBLISHED
+by the pinned product's publisher, and a finding that named the wrong one would
+send the reader to the wrong act. THAT OBLIGATION IS REACHED THROUGH THE MARKER AND NOT BY A SWEEP: the
 pass reads a pin record because a live marker names it, and this capability
 imposes NO registry-wide scan of pin records no live marker references. A pin
 record's own well-formedness, unreferenced, is `neutral-product-pin`'s business
-and not the marker grammar's. A deferred or broken enumeration fails closed rather than degrading
-open. Whether a pin record may carry `capabilities:` is owned by
-`neutral-product-pin`, not by this capability. This
-conditional arm is deliberate: it binds automatically, with no further grammar
-delta, as soon as a pin record enumerates capabilities. It is NOT a licence to
+and not the marker grammar's. A deferred, broken OR ABSENT enumeration fails
+closed rather than degrading open. Whether a pin record may carry
+`capabilities:` is owned by `neutral-product-pin`, not by this capability, and
+this capability adds the member to NO record and to NO schema. The prerequisite
+binds with no further grammar delta the moment a pin record enumerates
+capabilities: what changes then is which targets RESOLVE, not what this grammar
+says. It is NOT a licence to
 read the pinned product over the network — the deterministic pass reads the
 resolution roots' trees and nothing else.
 
@@ -327,10 +339,17 @@ not the thing that happens when nobody decides.
 - **AND** a target carrying the `pinned:` prefix is NOT judged by this scenario, which would otherwise report every well-formed pinned target
 
 #### Scenario: A marker names a capability of a pinned neutral product
-- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves under the in-tree arm's root precedence to a pin record whose path stays inside that root's `contracts/` directory when resolved, which declares `kind: pinned_contract_manifest` AND carries every member required by the RECORD SHAPE it matches — a shape `neutral-product-pin`'s ratified text obliges or this tree's measured records realize — and which EITHER carries no `capabilities:` member OR carries a well-formed non-empty one in which `<capability>` appears
+- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves under the in-tree arm's root precedence to a pin record whose path stays inside that root's `contracts/` directory when resolved, which declares `kind: pinned_contract_manifest` AND carries every member required by the RECORD SHAPE it matches — a shape `neutral-product-pin`'s ratified text obliges or this tree's measured records realize — AND which carries a well-formed, NON-EMPTY `capabilities:` member in which `<capability>` appears
 - **THEN** the target MUST resolve
-- **AND** where the record carries no `capabilities:` member, resolution MUST rest on the pin alone and the pass MUST NOT read the pinned product over the network
-- **AND** a malformed enumeration, and a well-formed enumeration in which `<capability>` does not appear, are OUTSIDE this scenario and are judged by their own scenarios below
+- **AND** the pass MUST make that judgement from the pin record's OWN enumeration, in the resolution root's tree, and MUST NOT read the pinned product over the network
+- **AND** an ABSENT enumeration, a malformed enumeration, and a well-formed enumeration in which `<capability>` does not appear, are OUTSIDE this scenario and are judged by their own scenarios below
+
+#### Scenario: A pin record named by a pinned target carries no capability enumeration
+- **WHEN** a live marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` resolves and is complete for its record shape, and it carries NO top-level `capabilities:` member
+- **THEN** the target MUST NOT resolve, the enumeration being a prerequisite of resolution rather than a condition on it
+- **AND** the deterministic health pass MUST report an unresolved pinned target naming that pin record and the root it resolved against
+- **AND** the remedy MUST name the PUBLISHER's act — the pinned product's publisher adds `capabilities:` through a `neutral-product-pin` change — rather than `openspec/specs/`, an active change, or an invented list written into this repository's own copy of the pin
+- **AND** the pass MUST NOT read the absent member as a licence to take the capability name as declared
 
 #### Scenario: A pinned capability is absent from the pin record's enumeration
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` carries a well-formed non-empty `capabilities:` member, and `<capability>` does not appear in it
@@ -371,11 +390,11 @@ not the thing that happens when nobody decides.
 - **AND** the equivalence MUST NOT be claimed to make the adapter's judgement SUFFICIENT for the shape's full verifier: a source-dependent check such as `pin-surface-undeclared` stays outside this contract, the adapter being NECESSARY and by design not sufficient
 
 #### Scenario: A pin record addresses its whole tree by one digest
-- **WHEN** a live marker names a lexically well-formed `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` with a `revision_kind: commit`, a `commit`, a `submodule_path`, a `digest_algorithm`, a `digest_definition` and a `digests` mapping carrying a `tree_sha256` — each of those six members PRESENT AND OF THE FORM ITS SHAPE GUARD REQUIRES rather than merely present — and carries neither `files:` nor `pinned_by_commit_only:`, and EITHER carries no `capabilities:` member OR carries a well-formed non-empty one in which `<capability>` appears
+- **WHEN** a live marker names a lexically well-formed `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` with a `revision_kind: commit`, a `commit`, a `submodule_path`, a `digest_algorithm`, a `digest_definition` and a `digests` mapping carrying a `tree_sha256` — each of those six members PRESENT AND OF THE FORM ITS SHAPE GUARD REQUIRES rather than merely present — and carries neither `files:` nor `pinned_by_commit_only:`, AND carries a well-formed, NON-EMPTY `capabilities:` member in which `<capability>` appears
 - **THEN** the record MUST be judged COMPLETE against that shape and the target MUST resolve on it, one digest over the whole tree leaving no member undeclared
 - **AND** the pass MUST NOT report the absent per-file lists as missing members, the enumeration those lists provide being supplied here by the tree digest
 - **AND** a record carrying both that tree digest and a `files:` list MUST be reported as an invalid pin naming both shapes tried, no ratified text admitting the mixture
-- **AND** a record of this shape carrying any of those six members MALFORMED, and one whose `capabilities:` member is malformed or is well-formed without `<capability>` in it, are OUTSIDE this scenario and are judged by their own scenarios above, so no marker falls under two scenarios prescribing different outcomes for it
+- **AND** a record of this shape carrying any of those six members MALFORMED, and one whose `capabilities:` member is ABSENT, malformed, or well-formed without `<capability>` in it, are OUTSIDE this scenario and are judged by their own scenarios above, so no marker falls under two scenarios prescribing different outcomes for it
 
 #### Scenario: A source pin enumerates its members in two different forms
 - **WHEN** a live marker names a record whose `files:` entries are mappings carrying a `path` and its `sha256` and whose `pinned_by_commit_only:` entries are path-only strings
