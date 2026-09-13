@@ -2668,6 +2668,65 @@ def test_admissions_file_default_path_resolves_and_admits(carve: Carve
     assert payload["admissions_file"] == str(admissions)
 
 
+def test_an_admission_declared_under_an_ALIAS_of_the_destination_admits(
+        carve: Carve) -> None:
+    """THE GOVERNED ADMISSIONS PATH READS THE REAL DESTINATION, not the CLI
+    label (Copilot review, PR #1025, accurate).
+
+    `check_shape` admits two `destinations:` keys sharing one
+    `{repository, leg}` body on purpose, and every other reader in the tool
+    resolves a key to that body. The admissions selection did not: it was
+    `.get(args.destination)`, so a `created:` entry filed under one alias made
+    the SAME CHECKOUT pass through that key and refuse
+    `arrival-undeclared-file` through the other. A verdict that depends on
+    which name the caller typed is not a verdict about the tree."""
+    doc = carve.manifest_doc()
+    doc["destinations"]["scratch_code_alias"] = dict(
+        doc["destinations"]["scratch_code"])
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    (dest / "src/pkg/created.py").write_text("CREATED = 1\n", encoding="utf-8")
+    admissions = _admissions_doc({"scratch_code": []})
+    admissions["destinations"]["scratch_code_alias"] = {
+        "created": [_entry("src/pkg/created.py")]}
+    carve.write_admissions(admissions)
+    for key in ("scratch_code", "scratch_code_alias"):
+        done = run(carve, manifest, "--destination", key,
+                   "--dest-root", str(dest), "--phase", "A", "--json")
+        assert done.returncode == 0, (key, done.stdout + done.stderr)
+        payload = json.loads(done.stdout)
+        assert payload["declared_admissions_used"] == [
+            "src/pkg/created.py"], (key, payload)
+
+
+def test_one_path_admitted_under_TWO_aliases_of_one_leg_refuses(
+        carve: Carve) -> None:
+    """The explicit duplicate rule the union needs. `read_admissions` already
+    refuses a repeat WITHIN one destination's list because a file cannot have
+    two provenances; the same claim spelled under an alias is the same claim
+    about the same leg, with two `since` values and no rule saying which is the
+    file's. Refused rather than silently collapsed — two entries are two review
+    decisions, and this file's whole design is that an admission is a one-line
+    diff somebody read."""
+    doc = carve.manifest_doc()
+    doc["destinations"]["scratch_code_alias"] = dict(
+        doc["destinations"]["scratch_code"])
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    (dest / "src/pkg/created.py").write_text("CREATED = 1\n", encoding="utf-8")
+    admissions = _admissions_doc(
+        {"scratch_code": [_entry("src/pkg/created.py")]})
+    admissions["destinations"]["scratch_code_alias"] = {
+        "created": [_entry("src/pkg/created.py", reason="the alias's copy")]}
+    carve.write_admissions(admissions)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    detail = json.loads(done.stdout)["detail"]
+    assert "scratch_code_alias" in detail, detail
+    assert "twice for one real destination" in detail, detail
+
+
 def test_a_declared_admission_admits_exactly_the_file_it_names(
         carve: Carve) -> None:
     """Declaring `created.py` must not admit a DIFFERENT undeclared file: the

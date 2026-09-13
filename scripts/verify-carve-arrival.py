@@ -1077,6 +1077,57 @@ def _resolved_destination(key: Any, destinations: Any) -> tuple:
     return (key,)
 
 
+def admissions_for(admissions: dict[str, list[dict[str, str]]],
+                   destination: str,
+                   destinations: Any) -> list[dict[str, str]]:
+    """Every `created:` entry declared for the REAL destination `destination`
+    names — the UNION over every `destinations:` key that resolves to the same
+    `{repository, leg}` body.
+
+    BY RESOLVED IDENTITY AND NOT BY THE CLI LABEL (Copilot review, PR #1025,
+    accurate). Every other reader in this file — `rows_for`, `vacated_rows`,
+    `also_replicated_rows`, and `validate-carve-manifest.py`'s own checks —
+    resolves a key to its body, because `check_shape` admits two keys sharing
+    one body on purpose and a key is a LABEL, never a referent. This one
+    selected with `.get(args.destination)`, so a `created:` entry filed under
+    one of two aliases of a single leg made the SAME CHECKOUT pass when
+    verified through that key and refuse `arrival-undeclared-file` through its
+    alias. A verdict that depends on which name the caller typed is not a
+    verdict about the tree.
+
+    A PATH DECLARED UNDER TWO ALIASES OF ONE LEG IS `arrival-unreadable`, and
+    that is the explicit duplicate rule the union needs: `read_admissions`
+    already refuses a repeat WITHIN a destination's list, for the reason that
+    one file cannot have two provenances, and spelling the second entry under
+    an alias is the same claim made twice about one leg. Identical duplicates
+    are refused too rather than silently collapsed — two entries are two
+    review decisions, and the file's whole design is that an admission is a
+    one-line diff somebody read.
+    """
+    here = _resolved_destination(destination, destinations)
+    seen: dict[str, str] = {}
+    out: list[dict[str, str]] = []
+    for key in sorted(admissions):
+        if _resolved_destination(key, destinations) != here:
+            continue
+        for entry in admissions[key]:
+            path = entry["path"]
+            if path in seen:
+                raise ArrivalRefusal(
+                    "arrival-unreadable",
+                    f"the admissions file declares {path!r} twice for one real "
+                    f"destination — under {seen[path]!r} and under {key!r}, "
+                    f"two `destinations:` keys for {here!r}. A key is a LABEL "
+                    "and this tool reads a destination by its "
+                    "`{repository, leg}` body, so the two entries are one "
+                    "claim made twice about one leg, with two `since` "
+                    "provenances and no rule for which is the file's. Declare "
+                    "it once, under the key that leg's pull requests use")
+            seen[path] = key
+            out.append(entry)
+    return sorted(out, key=lambda entry: entry["path"])
+
+
 def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     """The MOVED rows this destination is owed, in manifest order.
 
@@ -2346,7 +2397,8 @@ def main(argv: list[str] | None = None) -> int:
                 "silently")
         declared_created = {
             entry["path"] for entry in
-            read_admissions(admissions_path, doc).get(args.destination, [])}
+            admissions_for(read_admissions(admissions_path, doc),
+                           args.destination, doc.get("destinations"))}
         cli_created = {dest_relative(p, "--allow-created")
                        for p in args.allow_created}
         # THE NOTICE (RULED #656): --allow-created still works for an ad-hoc
