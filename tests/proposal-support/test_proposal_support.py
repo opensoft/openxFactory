@@ -2658,6 +2658,80 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                                      support.OriginRetentionError)
             self.assertIn("incomplete tasks", str(caught.exception))
 
+    def test_an_unreadable_accepted_declaration_refuses_the_acceptance(self):
+        """THE TWO READS THE FAIL-CLOSED PASS LEFT ALONE, pinned rather than
+        changed (PR #1024's bench, second round).
+
+        Every read under the origin-retention walk now separates ABSENT from
+        UNREADABLE, and `_accept_declaration_problems` was MEASURED instead
+        of altered: the acceptance turns on what the dispositioned commit
+        DECLARED, and a blob git cannot read is not a declaration. The entry
+        fails its own predicate, the headline mutation finding stands, and
+        the archive refuses — which is the answer a fail-closed read would
+        have reached anyway, arrived at through a check the record already
+        carried. So the code stayed as it was and the property is pinned
+        here, where a later reader who flattens either read into an
+        acceptance has to fail a fixture to do it.
+
+        BOTH HALVES USE A REAL UNREADABLE OBJECT, deleted out of
+        `.git/objects` rather than mocked, in the shape the sibling lineage
+        fixtures already use. The second half is the ORDERING that makes the
+        record's other read safe: the declaration AT RATIFICATION goes
+        through `_readable_blob` BEFORE any disposition is consulted, so a
+        silence there refuses `origin-retention-history-unreadable` and the
+        record — valid, committed, and naming that very commit — is never
+        reached at all."""
+        rel = "openspec/changes/change-r/.openspec.yaml"
+
+        def make_unreadable(root: Path, revision: str) -> None:
+            blob = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", f"{revision}:{rel}"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            loose = root / ".git" / "objects" / blob[:2] / blob[2:]
+            if not loose.exists():
+                self.skipTest("this fixture's objects were packed, so there "
+                              "is no loose blob to make unreadable")
+            loose.unlink()
+            self.assertIsNone(support.git_show_text(root, revision, rel))
+
+        # THE RECORD'S OWN READ. The acceptance holds while git answers…
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at))
+            commit_all(root, "record the owner's acceptance")
+            with mock.patch("builtins.print"):
+                self.assertEqual(
+                    support.origin_retention_errors(root, directory), [])
+
+            # …and stops holding the moment it cannot read what it accepted
+            make_unreadable(root, mutation_at)
+            joined = "\n".join(support.origin_retention_errors(root,
+                                                               directory))
+            self.assertIn("the origin declaration differs from the one this "
+                          "change was ratified over", joined)
+            self.assertIn("there is no declaration to accept", joined)
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(root, "change-r", "2026-09-05",
+                                       False, True)
+
+        # THE BASELINE READ IS ASKED FIRST, which is the whole reason the
+        # read above is the only one a record can reach over a silence.
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at))
+            commit_all(root, "record the owner's acceptance")
+            make_unreadable(root, ratified_at)
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.origin_retention_errors(root, directory)
+            self.assertIn("origin-retention-history-unreadable",
+                          str(caught.exception))
+            self.assertIn(f"the blob `{rel}` stands as at "
+                          f"{ratified_at[:12]}", str(caught.exception))
+
     def test_the_318_tense_only_approved_by_case_archives_with_the_record(self):
         """THE LIVE CASE, with #318's own bytes. The mutation is the TENSE of
         one sentence inside the `approved_by` folded scalar — who approved,
