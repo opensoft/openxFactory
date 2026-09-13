@@ -53,7 +53,8 @@
 # carve commit are what make `moved_with_declared_edit` falsifiable at the
 # destination instead of a label. A moved row may additionally carry
 # `also_replicated_to:` and a `replicated_at_destination` row may carry
-# `edits:`, both RULED Q-L7 (a) and both explained below.
+# `edits:`, both RULED Q-L7 (a); and a moved row whose placement a RULING has
+# corrected may carry `re_destined:`, RULED Q6. All three are explained below.
 #
 # THE THREE JUDGEMENTS THAT DECIDE MOST ROWS, all ruled on `#656` 2026-09-09:
 #
@@ -117,6 +118,68 @@
 #     bytes arrive nowhere, so there is no replica for a line to be applied at,
 #     which is why RULING OQ-B's three `stays_openxfactory_governance` rows go
 #     on recording their import rewrite in `evidence:`.
+#
+# A THIRD GRAMMAR EXTENSION, RULED Q6 (Brett Heap, 2026-09-12, by interactive
+# multi-choice; `#656` comment `5648044785`, adopting the RECOMMENDED answer of
+# openDox-spec `docs/front-end-package-boundary.md` § 6 Q6 at `7d12428c`). It is
+# the SECOND amendment to this grammar and the FIRST that is about PLACEMENT —
+# which is why it needed a ruling of its own and could not be read out of Q-L7
+# (a)'s precedent above, whose own sentence about its two fields is "neither of
+# them a fourth disposition and NEITHER OF THEM A PLACEMENT".
+#
+#   * `re_destined: {from, from_path, to, to_path, ruling, note}` ON A MOVED
+#     ROW, OPTIONAL. It says: the carve placed these bytes at
+#     `from`:`from_path`, a RULING has since moved that placement, and the
+#     arrival the floor now asks about is `to`:`to_path`. `from` is the row's
+#     own `destination` and `from_path` its own `destination_path`, and the row
+#     KEEPS BOTH UNEDITED — that is the whole reason this is a field and not an
+#     edit of the two it names: the manifest goes on recording what the carve
+#     did, and `re_destined:` records what a ruling did afterwards, in one row
+#     a reader can see both halves of. `to` is a `destinations:` key that is
+#     NOT `from`, and `ruling:` — a `#656` comment id, or the pull request URL
+#     carrying the ruling — is REQUIRED: the ruling's own scope answer is that
+#     the form serves a RULED mis-placement and never a convenience move after
+#     the carve is closed, so the citation is what keeps it from becoming one.
+#
+# WHAT IT DOES NOT MOVE, and the list is the ruling's own: `carve_commit`,
+# `carve_tag`, all 318 `sha256` values, every `git_mode`, the 456 rows, the
+# three `edit_classes`, the four `not_moved_reasons`, the five `destinations:`
+# keys, the disposition list (still three) and every declared line. A digest is
+# a claim about the SOURCE blob at `b075fd91…`, and where the file now lives
+# says nothing about it; a declared line is bounded by that same blob. An
+# import rewrite the new leg needs is an ORDINARY declared line under the
+# existing `import rewrites` class.
+#
+# NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
+# and re-destines nothing: slice S8 of the front-end boundary note is the act
+# that uses it, under its own claim and its own pull request, and every count
+# in this file is therefore unmoved by this landing. `re-destined 0` is what
+# `scripts/validate-carve-manifest.py` prints for this document until then —
+# the count is printed on every run, in both phases and at zero, so the state
+# the file is in is never the state no log records.
+#
+# THE GATES, FIVE OF THEM: `re_destined:` on a `not_moved` row refuses
+# `carve-re-destined-not-moved` (a row that placed nothing has no arrival to
+# re-place); a missing or empty `ruling:` refuses `carve-re-destined-unruled`;
+# `from`/`to` outside `destinations:` refuses `carve-vocabulary-unknown`;
+# `from`/`from_path` disagreeing with the row's own destination, and `to` equal
+# to `from`, refuse `carve-disposition-inconsistent`; and a CHAIN — a row whose
+# `(to, to_path)` is another row's `(from, from_path)` — refuses
+# `carve-re-destined-chain`, because a row already re-destined is AMENDED IN
+# PLACE and never re-destined twice. At the destination
+# `scripts/verify-carve-arrival.py` reads the EFFECTIVE arrival: the file must
+# be ABSENT at the losing leg (`arrival-not-vacated`) and PRESENT at the
+# gaining one under this row's own digest and declared-line rules.
+#
+# WHY NOT A RE-CUT: § 11 of the runbook re-cuts at a NEW `carve_commit` with
+# every digest recomputed, and this manifest is `phase: post-shed` — a manifest
+# re-emitted at a post-shed commit would carry NO MOVED ROWS AT ALL, which is a
+# different document rather than a re-cut. Re-cutting is also Brett Heap's own
+# act (runbook § 12 act 5), it re-verifies every already-arrived leg (§ 11 step
+# 6), and its trigger is a SOURCE-SIDE fact — "if `main` moves under the carve"
+# — while a mis-placement is destination-side and is a correction to a RULED
+# placement. Correcting a ruling is DECLARED, not re-cut; and a re-homed file
+# never leaves its row, which is what keeps the ruling's own sentence true.
 #
 # THIS IS NOT RULING OQ-K'S OWED FLOOR PART 2 FIELD, and the two must not be
 # read as one. Design § D6 (2) clause (b) owes FLOOR PART 1 a field on a
