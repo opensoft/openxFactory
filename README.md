@@ -531,6 +531,64 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-declared-former-id](openspec/changes/add-declared-former-id/proposal.md)
+  — filed 2026-09-13, lane `openxfactory-1` (display `openXfactory-1`),
+  **`Status: draft`** — drafting provenance, no approval pair; ratification is
+  Brett Heap's word and a separate act. Filed under his RULING of 2026-09-13 at
+  approximately 03:0xZ, verbatim *"option 2 on 1003 with the fix"*, recorded at
+  [#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5650519818),
+  which selects a remedy SHAPE and ratifies no wording. Filing PR
+  [#1028](https://github.com/opensoft/openxFactory/pull/1028).
+  **THE SUCCESSOR PACKET TWO LANDED ACTS ALREADY NAME.** PR #846 closed issue
+  [#833](https://github.com/opensoft/openxFactory/issues/833) by REFUSING to
+  re-base the origin-retention baseline onto a rename, and its refusal text says
+  why the refusal was the whole fix — *"Nothing in this corpus declares a FORMER
+  ID"*; `docs/document-lifecycle.md`, ratified by the same act, states the
+  consequence as canon — *"Renaming a ratified change is therefore blocked until
+  a change declares a FORMER ID (issue #833, a successor packet)"*. **ONE
+  `## MODIFIED` BLOCK AND THREE `## ADDED` REQUIREMENTS** over
+  `release-realization` — *Origin retention at archive* (MODIFIED; every
+  promoted sentence and all three promoted scenarios carried verbatim, FOUR
+  scenarios added), *A moved packet declares the identity it was ratified
+  under*, *An undeclared rename arrival is refused at its landing*, and *A
+  packet reference resolves by identity, not by path* (**thirty-one scenarios**,
+  7 + 8 + 10 + 6, the bench's three rounds having added eleven). `sequenced_after: []` is a corroborated root claim: no active
+  change holds a MODIFIED block over *Origin retention at archive*, the only
+  other occurrence of the title under `openspec/changes/*/specs/` being one line
+  of prose in `add-structured-scope-substrate`'s delta. **THE DECLARATION
+  CARRIES THE INTENT BIT NO WALK CAN**: a top-level `former_ids:` list in the
+  packet's own `.openspec.yaml`, a SIBLING of `origin:` so a lawful move is
+  never a mutation of the frozen origin declaration, naming change IDS because
+  this estate addresses a packet by id and derives the path; its ABSENCE at a
+  rename arrival is a REFUSAL at that hop's landing — one commit read, never a
+  chain — and a fork-by-copy declares nothing, keeps its own origin and is never
+  refused. **MEASURED IN THE AUTHORING, NOT ARGUED**: on a `--filter=blob:none
+  --no-checkout` clone of the #1003 chain with the promisor cut (git 2.43.0),
+  `git ls-tree` prints the row for a present-but-unreadable blob and prints
+  nothing for an absent path, both at exit 0, while `git cat-file -e` and
+  `git show` exit 128 for both — so the two reads this estate's packet lookups
+  are built on cannot tell *nothing there* from *cannot tell you*; and at the
+  un-ratifying hop the full clone pairs `R075` where that clone reports no
+  record at all, the pairing being computed from content. **#833's
+  DANGLING-CITED-PATH HALF IS SWEPT IN** as a resolution rule rather than a
+  sweep: 94 dangling `openspec/changes/<id>/…` references measured on
+  `9378eca5`, **58** of them resolvable BY ID against the archive — including
+  the one #833 named — because the archive relocation moves the path and keeps
+  the identity; and the rule has a NAMED CONSUMER WITH A DATED FAILURE AHEAD OF
+  IT, `validate-pin-registrations.py`'s `check_citations`, which resolves every
+  `cited_to` referent by RAW PATH and refuses exit 1 on an absent one — six of
+  its live in-tree referents point into four ACTIVE packets, so the next of those
+  archives refuses a gate nobody touched; `design.md` D4 rules that REPORTING the remainder is a successor,
+  a twenty-fourth `doc-health` family being a `## MODIFIED` block over a promoted
+  enumeration that reads *"twenty-three check families"*. **NOT SELECTED, BY
+  NAME**: the full rename-lineage walk (PR
+  [#1024](https://github.com/opensoft/openxFactory/pull/1024), CLOSED in favour
+  of this packet, branch retained at `2bc60386`) and the all-rename-chain interim
+  guard. `code_surface` is NON-EMPTY and **no byte of it moves in the filing** —
+  no script, validator, register or test is added or edited — so per
+  `release-realization` this packet archives only on merged-plus-green
+  realization evidence, and #1003 stays OPEN on Brett Heap's word and closes at
+  no pull request of this packet's.
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
   — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
   (2026-09-13T01:0xZ, Brett Heap, openxFactory repository owner, given in

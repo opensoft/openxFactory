@@ -1,0 +1,82 @@
+schema: spec-driven
+created: 2026-09-13
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-13-add-declared-former-id
+  reason: >-
+    A GATE REFUSES AN ACT AND NAMES THE PACKET THAT WOULD UNBLOCK IT, AND THAT
+    PACKET HAS NEVER BEEN WRITTEN. `release-realization`'s *Origin retention at
+    archive* compares a packet's origin declaration against "the declaration
+    present at ratification", and `scripts/proposal-support.py` resolves that
+    ratification by walking ONE path derived from the id the tree spells today.
+    A ratified packet whose directory is renamed therefore has no history under
+    its new name before the rename, so the walk's first ratified blob is the
+    RENAME COMMIT — later than every mutation made in between, which the gate
+    printed as `ORIGIN RETAINED` (measured on openxFactory issue #777 and filed
+    as issue #833). PR #846 closed that by REFUSING instead of re-basing, and
+    its own refusal text says why the refusal is the whole of the fix: "Nothing
+    in this corpus declares a FORMER ID, so the baseline cannot be established
+    from history alone". `docs/document-lifecycle.md`, ratified by that same
+    act, states the consequence as canon: "Renaming a ratified change is
+    therefore blocked until a change declares a FORMER ID (issue #833, a
+    successor packet)". This is that successor packet.
+    AND THE REFUSAL DOES NOT REACH A CHAIN, WHICH IS WHAT FORCED THE DECISION.
+    openxFactory issue #1003, routed off PR #999's review bench, reproduces
+    `ratify r -> rename+un-ratify r->s -> rename s->t while draft -> ratify t`:
+    the walk for `t` begins at the `s->t` hop, whose former blob is a draft and
+    refuses nothing, and the `r->s` hop that moved the ratified packet is never
+    enumerated. Brett Heap ruled the remedy on 2026-09-13 at approximately
+    03:0xZ, verbatim "option 2 on 1003 with the fix", recorded at
+    https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5650519818
+    — the former-id declaration mechanism, encoding FAIL-CLOSED ON THE
+    UNDECLARED CASE, with issue #833's dangling-cited-path finding swept in. The
+    ruling NOT-SELECTS a rename-lineage walk and an all-rename-chain interim
+    guard by name, as "history-walking archaeology that cannot carry the intent
+    bit distinguishing rename-of-ratified from lawful fork-by-copy".
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated on 2026-09-13 — 30 topic folders — and
+    `INDEX.md` read: no topic names packet identity, a former id, a rename of a
+    ratified change, the origin-retention walk, or citation resolution. The only
+    `rename` hits in that index belong to requirement-title renames inside spec
+    deltas, a different mechanism in a different capability. `kind: staged`
+    would claim a staging source that does not resolve. The organized source is
+    openxFactory issue #1003, together with issue #833's own "Remedy shape"
+    paragraph, which named this option (b) and called it "a later packet".
+  proposed_by: >-
+    Lane `openxfactory-1` (display `openXfactory-1`), session `3da6c3f9`
+    (team-01l), as the standing claim holder of openxFactory issue #1003
+    (CLAIMED 2026-09-13T01:37:03Z), under the ruling recorded above and the
+    lane's DECISION comment of 2026-09-13T04:46:12Z
+    (https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5651211644).
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. The ruling selects a
+    REMEDY SHAPE and commissions this authoring; it decides no sentence, no
+    scenario and no scoping, none of which existed when it was given, and it
+    admits no text to canon. The lawful unapproved shape is the one
+    `add-drafted-proposal-origin` (issue #318) added — drafting provenance, no
+    `approved_by`, no `approved_on` — and every document in this packet carries
+    `Status: draft` to match. Approval, when it comes, is a pure ADDITION beside
+    a fixed `kind` and `id`. Ratification, realization and archive are three
+    later acts on three later words.
+    THE DECISIONS MOST WORTH A VETO ARE `design.md` D1 THROUGH D5, each put as a
+    question with the recommendation first and the cost of the alternatives
+    beside it: where the declaration lives, whether it names ids or paths, which
+    gate takes the fail-closed refusal, whether the dangling-citation sweep owes
+    a `doc-health` delta, and whether the origin-retention requirement is
+    MODIFIED or left alone.
+    NOTHING IS PROMOTED, NOTHING IS REALIZED AND NOTHING IS ARCHIVED BY THIS
+    FILING. This pull request edits no file under `openspec/specs/` and adds no
+    script, no validator and no test; `code_surface` is non-empty, so under
+    `release-realization` the archive is a separate act on merged-plus-green
+    realization evidence and a separate word. Issue #1003 stays OPEN on Brett
+    Heap's word and closes on no pull request of this packet's.
+  proposed_on: 2026-09-13
+related:
+  - openxFactory:issue:1003                                                     # THE GOVERNING ISSUE. The rename-chain reproduction, the three candidate remedies, the ruling that selects this one, and this lane's standing claim. Stays OPEN on Brett Heap's word
+  - openxFactory:issue:833                                                      # THE DEFECT. Names this mechanism as remedy shape (b) and calls it "a later packet"; also the source of the dangling-cited-path finding this packet sweeps in. CLOSED by PR #846, which took shape (a)
+  - openxFactory:pr:846                                                         # MERGED. The refusal that blocks renaming a ratified change, and whose refusal text names the missing former-id declaration as the reason the refusal is the whole fix
+  - openxFactory:pr:999                                                         # MERGED. Widened the walk to every visited commit (issue #849); its review bench raised the multi-hop gap that became #1003
+  - openxFactory:pr:1024                                                        # CLOSED in favour of this packet. The option-1 rename-lineage walk the ruling does not select; its FREEZE comment carries the partial-checkout measurements this packet's design cites, and its branch is retained at 2bc60386 as the salvage reference
+  - openxFactory:change:archive/2026-08-06-add-proposal-origin-contract         # ARCHIVED. Promoted *Origin retention at archive*, the requirement this packet MODIFIES, and established `.openspec.yaml`'s `origin:` block as the packet's identity record
+  - openxFactory:change:add-structured-scope-substrate                          # ACTIVE, ratified. Holds the only other mention of *Origin retention at archive* under `openspec/changes/*/specs/` — one line of prose mirroring it for its own scope declaration, not a MODIFIED block — so no delta collision and no `sequenced_after:` is owed
+  - openxFactory:change:disposition-codexfactory-declared-renames               # ACTIVE, ratified. The packet that CARRIES the live dangling citation #833 named. Its "declared renames" are RENAMED REQUIREMENT TITLES inside a spec delta, a different mechanism from this packet's declared packet identity; nothing here edits it
+  - openxFactory:change:archive/2026-09-12-gate-realization-axis-vocabulary     # ARCHIVED. The house shape this packet's realization follows: a reader module, a validator CLI run as a required check, and a test suite over the live corpus
