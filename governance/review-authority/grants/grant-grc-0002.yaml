@@ -231,6 +231,119 @@
 # PR #374 and issue #279 lifts only when a real convening is observed to be
 # ADMITTED against this grant, not when a validator goes green.
 # ============================================================================
+#
+# ============================================================================
+# 2026-09-12 — REVOKED. Appended, and nothing above this line is rewritten: the
+# header records what this grant WAS, and it is still true of the grant it
+# describes. The sentences above that read in the present tense — the scope,
+# the expiry, the resolution paths, the five digests — were true of an ACTIVE
+# grant issued against a FOUR-SEAT composition, and they are now read through
+# this block.
+#
+# REASON CLASS: DRIFT. The declared composition of this holder changed on
+# 2026-09-12: `gate_rules_council` gained a FIFTH SEAT. This is the FIRST
+# SEAT-ADDITION event this register has ever seen — the 2026-09-11 revocation
+# above was a prompt-corpus edit over a fixed four-seat roster, and the
+# 2026-09-02 one was an enrolled-roster model pin flip. A seat addition moves
+# BOTH declared components at once, which neither predecessor did.
+#
+# THE ACT THAT MOVED IT — T1. codexFactory PR #439, merge commit
+# `eff9ae191d78c396800a72cdec9fffe0caf866d7`, merged 2026-09-12T15:59:10Z:
+# "Q-GRC-4 H1 (T1): bind the client-security-compliance-officer conjunction
+# seat — the word is given". It binds `client-security-compliance-officer` as
+# the conjunction seat `members.client.conjunction_pull_in.seat` — the one key
+# `scripts/merge_master/seat_resolution.py` reads (`pull_in.get("seat")`) to
+# move `seat_identity` from `UNBOUND` to `declared`.
+#
+# THE GOVERNING PACKET is openxFactory `register-gate-rules-council-seats`
+# AMENDMENT 2 (`review/amendment-2026-09-11-q-grc-4-discharge.md`, oxF PR #971
+# → `3402d93a`; RATIFIED and encoded at oxF PR #993 → `323c7adf`), on Brett
+# Heap's rulings of 2026-09-11T14:59:26Z ("amend register-gate-rules-council-
+# seats, lead-architect route, same model pin as lead-security") and
+# 2026-09-11T17:08:42Z ("accept all A on 971, merge slice 3 when green").
+# Amendment task 6.9 is this write.
+#
+# WHAT MOVED IN THE COMPOSITION, and this is the difference from 2026-09-11:
+# BOTH `agent-mixes.yaml` component 1 (`model_assignments` — the new seat's
+# exact pin `claude-opus-5`) and component 2 (`prompt_contract` — the new
+# seat's briefing, and `all_possible_seats` 4 → 5). The 2026-09-11 event moved
+# component 2 alone. Components 3-6 (tool manifest, parameters, policy version,
+# retrieval corpus) are untouched.
+#
+# THE SIX DIGESTS, read from the LANDED composition at
+# `eff9ae191d78c396800a72cdec9fffe0caf866d7` and not guessed:
+#
+#   rendered_set_digest
+#      sha256:aac9b60e877d5ab61324ebb5102fe24b685b1bcc1d97aecf9f6c8ef254358f21
+#   -> sha256:0ea5f7afd8a55f286129206470ab4ad377ac73535644f95fc3811515a44321ad
+#   lead-architect        sha256:619153c4… (UNMOVED)
+#   lead-security         sha256:4d90a110… (UNMOVED)
+#   lead-quality          sha256:3a7bb571… (UNMOVED)
+#   company-policy-lead   sha256:7c170ecb… (UNMOVED)
+#   client-security-compliance-officer
+#      (absent)
+#   -> sha256:09d59e06a9fb6d2bca9caa5c27e407f9a28e5a0962682b12d99dbd00409487f2
+#
+# THE FOUR EXISTING SEAT DIGESTS DID NOT MOVE, and that is the proof that
+# nothing but the new entry entered the set. The SET digest moved anyway and
+# could not be patched: the basis is lexicographic and
+# `client-security-compliance-officer` sorts FIRST of the five
+# (`cli` < `com` < `lea`), so the new prompt entered at the HEAD of the
+# concatenation and every byte after it shifted.
+#
+# THE RULE THIS ACT OBEYS IS THE COMPOSITION'S OWN FACE, exactly as on
+# 2026-09-11: "WHEN any single component of the declared set changes, THEN the
+# change alone is sufficient to revoke, AND no threshold, score, or tolerance
+# band is consulted." TWO components changed here; one would have been enough.
+# The revocation is BY DECLARATION and not by any code that ran.
+#
+# TERMINAL, NOT SUSPENDED. "A revoked grant SHALL NEVER return to the active
+# state" (openXwallet `add-composition-drift-cascade`, ratified 2026-08-28).
+# Do not edit `state` back to `active`; authority resumed as a NEW grant.
+#
+# SUPERSEDED BY grant-grc-0003, minted at the same instant recorded in the
+# `revocation` block below, so there is no window between the revocation and
+# the issuance. THE SUPERSESSION IS RECORDED IN PROSE — here, in
+# grant-grc-0003's own header, and in the walk record — because the pinned
+# grant schema is `additionalProperties: false` and carries no `supersedes`
+# key. `parent_grant_ref` means DERIVED FROM, a different relation, and it is
+# deliberately NOT borrowed for this one.
+#
+# DRIFT PROPAGATES EXACTLY AS CAUSE. This is a ROOT grant and no grant in this
+# tree declares it as `parent_grant_ref` (checked). The propagation is
+# therefore VACUOUS here, and it is recorded as vacuous rather than as
+# satisfied.
+#
+# THE TWO-BODY COUPLING DID NOT FIRE, and that is checked rather than assumed.
+# Q-GRC-2 couples the two bodies on an ENROLLED-ROSTER pin flip. This event is
+# not one: the pin that moved is `gate_rules_council`'s OWN
+# `model_assignments`, the new seat sits on no other bench, and
+# `merge_readiness_council`'s `rendered_set_digest` is unchanged at
+# `sha256:751e03a2…` at `eff9ae19` (read, not assumed). `grant-mrc-0002` is NOT
+# revoked by this act and `row-mrc-0001` is not touched.
+#
+# THE HOLD THAT COVERS THE WINDOW. The gate-rules body is PARKED from T1 —
+# codexFactory issue #279 comment
+# [`5646989264`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5646989264),
+# posted 2026-09-12T15:57:19Z, one minute fifty-one seconds BEFORE the merge,
+# as Brett Heap's word required ("merge H1 when green, post the hold first",
+# 2026-09-12T03:14:35Z). No mechanical park fires for a seat addition — the
+# briefing text and the content pin move together, so a convening run in the
+# T1→T2 window would pass every mechanical check while this grant stands
+# revoked. THE HOLD IS THE ONLY THING BETWEEN THE TWO.
+#
+# THE ACT: the register act of 2026-09-12, ratified by Brett Heap
+# (`Brett.Heap@opensoft.one`) on a permanently human-only surface. Its record
+# is `openspec/changes/register-gate-rules-council-seats/walk-2026-09-12-register-act.md`.
+#
+# WHO COMPOSED THE BYTES. THE RATIFYING HUMAN DID NOT TYPE THIS FILE. This
+# header and the revocation block below were COMPOSED BY THE COORDINATING LANE
+# (`hermes-wallet-exercise`) as a PRE-STAGED draft, ahead of the mint that this
+# act's own fifth key waits on, and Brett Heap MERGES. What is Brett Heap's is
+# the ACT: the decision to revoke, the reason class DRIFT, the effective
+# instant, the expiry ruled for the successor, and the mint of the key. The
+# full disclosure is the walk record's capacity table.
+# ============================================================================
 schema_version: 1
 kind: xfactory_wallet_grant
 grant_id: grant-grc-0002
@@ -250,4 +363,25 @@ scope:
 expires_at: "2027-06-30T00:00:00Z"
 issued_at: "2026-09-11T02:12:30Z"
 issued_by: Brett.Heap@opensoft.one
-state: active
+state: revoked
+revocation:
+  # RE-STAMPED AT THE FILL (2026-09-13T02:20:48Z). This act was COMPOSED pre-staged on
+  # 2026-09-12 and its effective instant was taken then, 2026-09-12T16:33:01Z;
+  # task 6.8's mint landed the NEXT DAY, so the fill was not same-day and the
+  # walk record § 6.3 step 2 re-stamp rule applied: ONE fresh instant written
+  # into this field, into `grant-grc-0003`'s `issued_at`, into the fifth wallet
+  # key's `custody.declared_at` and into the record's header. The superseded
+  # value is kept here and at walk record § 6.2, never silently dropped. The
+  # REVOCATION'S CAUSE is older than either instant: this grant has been void
+  # since T1, `eff9ae191d78c396800a72cdec9fffe0caf866d7`, 2026-09-12T15:59:10Z.
+  revoked_at: "2026-09-13T02:20:48Z"
+  reason: >-
+    DRIFT: declared composition change — SEAT ADDITION. gate_rules_council
+    gained a FIFTH seat, client-security-compliance-officer, bound as the
+    conjunction seat by the Q-GRC-4 discharge (Amendment 2):
+    agent-mixes.yaml components 1 and 2 both moved and rendered_set_digest
+    re-pinned to sha256:0ea5f7af…. codexFactory
+    eff9ae191d78c396800a72cdec9fffe0caf866d7, PR #439, 2026-09-12. A
+    declared composition change ends this holder's certified identity at
+    once, with no tolerance band and no grace period. Re-issued as
+    grant-grc-0003; record walk-2026-09-12-register-act.md. Terminal.

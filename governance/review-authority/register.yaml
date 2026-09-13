@@ -179,13 +179,70 @@ rows:
   # still unexpired at 2027-06-30T00:00:00Z; and none of the four names a
   # grant, so none moved. The reader's `register-seat-row-unresolved` rule
   # re-checks this inside the REQUIRED wallet-validation check.
+  #
+  # 2026-09-12 — THE ROW IS REPOINTED AGAIN, AND A FIFTH SEAT KEY JOINS IT.
+  # Appended, and every comment above is left exactly as written. THREE
+  # sentences above now name a superseded grant — "THE COMPOSITION CAME FIRST",
+  # the 2026-09-08 `expires_at` equality note, and the 2026-09-11 block's own
+  # `grant-grc-0002` references. All are left standing because they record what
+  # the row was pointed at THEN; read them now as `grant-grc-0003`.
+  #
+  # THE SENTENCE DIRECTLY ABOVE — "THE FOUR GATE-RULES `seat_keys` ENTRIES
+  # BELOW ARE UNTOUCHED" — IS THE ONE THAT STOPS BEING TRUE OF THE PRESENT,
+  # and it is corrected here rather than rewritten there: as of this act there
+  # are FIVE gate-rules seat entries, not four. The four it names are still
+  # untouched and still resolve; a FIFTH, `client-security-compliance-officer`,
+  # is ADDED below by this act, on the same `authorizing_row: row-grc-0001`.
+  #
+  # `grant_ref` moves grant-grc-0002 -> grant-grc-0003 AND NOTHING ELSE ON THE
+  # ROW. `expires_at` DOES NOT MOVE and stays `"2027-06-30T00:00:00Z"`,
+  # character-for-character equal to the NEW grant's own `expires_at` because
+  # the reader compares the two — and it is the same string only because the
+  # expiry was RULED AFRESH at that value (Brett Heap, 2026-09-11T17:08:42Z,
+  # amendment OQ-2 option (a): "Q-GRC-3's date UNCHANGED"), bound to a floor
+  # the fifth seat does not move because its pin `claude-opus-5` is an
+  # identifier this bench already carries. THE ROW'S OWN `state` STAYS
+  # `active`. NO ROW WAS ADDED — D2's one-body-one-row shape is unchanged and
+  # A SEAT IS NOT A HOLDER; the row still carries exactly nine fields, which
+  # the reader enforces as exact set equality, and the composition is NOT
+  # smuggled onto it.
+  #
+  # WHY: the holder's declared composition changed on 2026-09-12 by GAINING A
+  # SEAT — the first seat addition this register has seen.
+  # `client-security-compliance-officer`, a conjunction PERSONA carried with no
+  # seat identifier since 2026-07-23 and DEFERRED by Q-GRC-4 since
+  # 2026-09-06, was bound as a seat: codexFactory PR #439 →
+  # `eff9ae191d78c396800a72cdec9fffe0caf866d7`, merged 2026-09-12T15:59:10Z.
+  # BOTH `agent-mixes.yaml` content components moved (component 1
+  # `model_assignments`, component 2 `prompt_contract`), which neither prior
+  # re-issuance did. `grant-grc-0002` was revoked for DRIFT at
+  # 2026-09-13T02:20:48Z and `grant-grc-0003` was issued against the changed
+  # composition at the SAME INSTANT, so there is no window between the two.
+  # That effective instant was RE-STAMPED AT THE FILL from the composed-day
+  # value 2026-09-12T16:33:01Z, because task 6.8's mint landed 2026-09-13 and
+  # the walk record § 6.3 step 2 requires ONE fresh instant when the fill is
+  # not same-day. The ninth `seat_keys` entry below carries that mint's PUBLIC
+  # half; the private half is a codexFactory environment secret and appears in
+  # no file.
+  # The governing packet is `register-gate-rules-council-seats` AMENDMENT 2
+  # (oxF PR #971 → `3402d93a`; ratified and encoded at #993 → `323c7adf`),
+  # tasks 6.9-6.15. Ratifying human: Brett Heap (Brett.Heap@opensoft.one), on
+  # this permanently human-only surface.
+  # Record: `openspec/changes/register-gate-rules-council-seats/walk-2026-09-12-register-act.md`.
+  #
+  # THE ROW ABOVE IS NOT TOUCHED, and neither is `revocation_staleness_bound`.
+  # Q-GRC-2's two-body coupling fires on an ENROLLED-ROSTER pin flip; the pin
+  # that moved here is this body's OWN, the new seat sits on no other bench,
+  # `merge_readiness_council`'s `rendered_set_digest` is unchanged at
+  # `sha256:751e03a2…` at `eff9ae19`, and `grant-mrc-0002` is therefore NOT
+  # revoked by this act.
   - row_id: row-grc-0001
     holder_ref: agent:gate-rules-council
     wallet_ref: wal-agent-grc-0001
     target_repo: opensoft/openxFactory
     act: review
     authority_tier: act
-    grant_ref: grant-grc-0002
+    grant_ref: grant-grc-0003
     expires_at: "2027-06-30T00:00:00Z"
     state: active
 
@@ -330,6 +387,28 @@ seat_keys:
   # reports `total_count: 0`. These four entries record authority that has
   # never been presented, and that is stated here rather than left to be
   # assumed from their presence.
+  #
+  # 2026-09-12 ADDENDUM, append-only. THE BLOCK ABOVE SAYS "FOUR" AND NAMES
+  # `client-security-compliance-officer` AS DELIBERATELY ABSENT. Both were
+  # true when it was written and neither is true of the present: as of this
+  # act there are FIVE gate-rules seat entries, and the fifth is that seat.
+  # Q-GRC-4 IS DISCHARGED FOR IT — not by re-reading the ruling but by the
+  # condition the ruling named actually occurring: "their keys are registered
+  # by whichever codexFactory roster act binds them, in that same governed
+  # act." codexFactory PR #439 → `eff9ae191d78c396800a72cdec9fffe0caf866d7`
+  # (2026-09-12T15:59:10Z) is that roster act, and this file's own 2026-09-12
+  # edit is the same governed act's openxFactory half.
+  #
+  # `intent_owner_role_slot` IS STILL ABSENT, and still deliberately so. It
+  # carries `binding: symbolic_until_project_roster` and its own unchanged
+  # trigger; Q-GRC-4's "delete neither" still governs it. Amendment 2's task
+  # 6.27 says in terms that task 4.6 does NOT tick on this act, because 4.6
+  # names two seats and this discharges one.
+  #
+  # STILL UNEXERCISED, and the fifth entry changes nothing about that: no
+  # `gate_rules_council` convening has ever been admitted, and the body is
+  # PARKED under an operational hold from T1 until the register act lands and
+  # the projection read passes.
   - seat_id: lead-architect
     council_ref: agent:gate-rules-council
     council_id: gate_rules_council
@@ -361,4 +440,70 @@ seat_keys:
     key_id: key-grc-seat-company-policy-lead-0001
     public_key: qBBLKKy2AEyGCtYW8TI80IZbgbSvCrO1JFNTG5gWy_8
     key_fingerprint: sha256:72a6fea097059eeddc4e34c01ab2de8ec2639a8fe00ce3dc41f07605eab2d4e7
+    authorizing_row: row-grc-0001
+
+  # ── THE FIFTH GATE-RULES SEAT KEY — THE CONJUNCTION SEAT ─────────────────
+  #
+  # Amendment 2 task 6.12. `client-security-compliance-officer` is the seat
+  # Q-GRC-4 deferred on 2026-09-06 and codexFactory PR #439 bound on
+  # 2026-09-12. It is a CONDITIONAL seat: the resolver seats it only when
+  # `rule_touches_security_posture` holds over the candidate — the
+  # `members.client.conjunction_pull_in` rule, whose declared surfaces are
+  # `scripts/merge_master/**`, `.github/workflows/**`,
+  # `hermes/domain/review-councils/**` and `schemas/**`. Its key is registered
+  # ANYWAY and unconditionally, for the same reason `company-policy-lead`'s was
+  # on the merge-readiness side: "a candidate whose class seats it must not be
+  # the convening that discovers a missing key."
+  #
+  # CUSTODY IS `holder_readable`, AND IT NEEDED NO FRESH DETERMINATION.
+  # Q-GRC-1 (RULED 2026-09-06T14:13:46Z) was written about this body's seat
+  # keys and was never scoped to four of them. The private half is a 32-byte
+  # Ed25519 seed held ONLY as the GitHub Actions secret
+  # `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` in
+  # codexFactory's `worker-credentials` environment — the GRC-namespaced
+  # spelling, already bound by name in the landed caller
+  # (`.github/workflows/gate-rules-convening.yml:276` at `eff9ae19`) with the
+  # refusal count moved 4 → 5 in the same act. NO PRIVATE HALF, SEED OR
+  # PASSPHRASE MAY EVER APPEAR IN THIS FILE.
+  #
+  # ⚠ THE PUBLIC HALF BELOW IS A PLACEHOLDER AND THIS FILE IS NOT MERGEABLE
+  # UNTIL IT IS FILLED. The mint (amendment task 6.8, OQ-1 ruled (a) —
+  # "BRETT HEAP MINTS AND HOLDS IT", host-side, TTY-gated, the task 3.2
+  # ceremony generalized to one seat) HAS NOT HAPPENED YET. This entry is
+  # PRE-STAGED so that everything the mint does NOT determine is already
+  # written, reviewed and proved; the mint determines exactly one fact — 32
+  # bytes — and that one fact appears in this tree as ONE placeholder token,
+  # in the slots listed in the walk record § 6.3.
+  #
+  # THE READER WILL REFUSE IT, AND THAT IS THE POINT: `public_key` must be 43
+  # characters of canonical unpadded base64url (32 raw bytes) and
+  # `key_fingerprint` must be `"sha256:" + sha256(raw).hexdigest()` recomputed
+  # from it. The placeholder is neither, so `register-seat-key-malformed` and
+  # `register-seat-fingerprint-malformed` fire in the REQUIRED
+  # `wallet-validation` check until the real values land. A pre-staged act that
+  # could merge unfilled would be worse than one that cannot.
+  #
+  # ⚠ THE BANNER DIRECTLY ABOVE IS THE ONE THAT STOPPED BEING TRUE OF THE
+  # PRESENT AT THE FILL, and it is corrected here rather than rewritten there,
+  # so the pre-staged state this entry was composed in stays legible.
+  # THE MINT HAS HAPPENED: Brett Heap minted it host-side and the secret
+  # `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` was
+  # provisioned in codexFactory's `worker-credentials` environment at
+  # 2026-09-13T02:12:15Z (amendment task 6.8). The two fields below carry the
+  # REAL public half of that mint, derived from the public half ALONE through
+  # the pinned decoder (`scripts/validate-factory-identity.py --derive`, at
+  # openXwallet `f3eb929b` / `wallet-v1.5`) and never a second tool. NO
+  # PLACEHOLDER REMAINS: `register-seat-key-malformed` and
+  # `register-seat-fingerprint-malformed` no longer fire, and
+  # `validate-openxwallet.py .` reads `0 error(s), 0 warning(s)` with
+  # `9 of 9 per-seat signing key(s)` adjudicated and resolved. THIS FILE IS
+  # MERGEABLE; what is still owed is the MERGE ITSELF, which is Brett Heap's
+  # and is T2. The fill is recorded at walk record § 6.8; the mint's public
+  # half is published in the codexFactory mint record, PR #452.
+  - seat_id: client-security-compliance-officer
+    council_ref: agent:gate-rules-council
+    council_id: gate_rules_council
+    key_id: key-grc-seat-client-security-compliance-officer-0001
+    public_key: cxm-qmZVKXb_B5aucwuNzeOrXbgLPMKqa6D6DX1DUiQ
+    key_fingerprint: sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310
     authorizing_row: row-grc-0001
