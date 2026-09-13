@@ -516,6 +516,79 @@ moved_paths:
 # verifier-measured 202 lines, not 203. Realized at opensoft/openDox-code
 # `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808`
 # (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14).
+# THE § 3.4 SLICE-S8 ANNOTATION OF 2026-09-13 (`#656` comment `5642758731`,
+# Brett Heap, whose Q-L1 paragraph binds every § 3.4 slice; the FORM is the
+# Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`).
+# NINE existing rows gain ONE `path constants` entry each and NO ROW CHANGES
+# DISPOSITION — all nine were already `moved_with_declared_edit`.
+#
+# WHAT S8 IS, AND WHY IT CARRIES NO `re_destined:` ROW. The slice is "re-home
+# the 48 test files and un-narrow `validate`" (openDox-spec
+# `docs/front-end-package-boundary.md` § 5 row S8 @ `7d12428c`), and RULED Q6
+# built the `re_destined:` form directly above for it. **Measured at both leg
+# heads on 2026-09-13, not one of the 48 may lawfully change leg.** § 1.2(d)
+# states the defect in its own words — "the carve's `import rewrites` edit class
+# rewrote the path constant and pointed the tests at the wrong leg" — and then
+# INFERS that the files must move. An `ast` walk of every module-level
+# `Import`/`ImportFrom` in the 23 files at `openxdox_code` says the inference
+# does not hold for a single one: every one imports a real `openxdox` module
+# (`generator`, `snapshot_registry`, `gate_console`, `gate_routes`,
+# `doxbench_scope`, `round_trip`), and RULED OQ-G's TEST HOMES rule — the rule
+# at the head of this file — places a mixed file at openXdox PRECISELY because
+# "lawful there, because openXdox pins openDox; unlawful in openDox, which pins
+# nothing". Moved to `opendox_code` each one fails on its first import line. So
+# OQ-G's placement stands and the PATH CONSTANT is the whole defect, which is
+# what § 1.2(d) said before it inferred otherwise. `re-destined 0` is what
+# `scripts/validate-carve-manifest.py` goes on printing for this document, and
+# the S5 annotation's four rows stay its only uses.
+#
+# WHERE THE BUNDLE IS INSTEAD: in the openDox that leg PINS. openXdox-code's
+# 31 mis-pointed suites now read `Path(opendox.__file__).parent / "web"`, the
+# resolution slice S5 already landed at that leg
+# (`tests/test_gate_loop_probes.py::_opendox_bundle`), through one CREATED file
+# — `tests/opendox_bundle.py`, no row (RULED OQ-C), admitted by name in
+# `docs/opendox-carve-admissions.yaml` — which also builds RULED Q5's COMPOSED
+# root for the four suites that assert across the seam.
+#
+# WHY ONLY NINE ROWS FOR 46 EDITED SITES. The carve's own `import rewrites`
+# pass already DECLARED most of the roots it rewrote, so re-pointing one of them
+# a second time changes a line the row already names, and an import inserted
+# beside an already-declared import line is declared by its neighbour (the
+# insertion rule `scripts/verify-carve-arrival.py::_check_declared_lines`
+# states). 27 of the 31 openXdox rows and none of the 6 openDox rows needed a
+# line they did not already carry; the nine below are the sites the carve's pass
+# MISSED — two surviving pre-carve `scripts/ideation_dashboard/web/views` roots
+# in `test_doxbench_save.py`, four pre-carve `scripts/ideation_dashboard/<mod>.py`
+# module reads, one pre-carve `tests/ideation-dashboard/fixtures/` fixture path,
+# one `parents[2]` depth that resolved outside the repository (the Q-L7 (a)
+# conftest-replica defect one file over), and the neighbouring import lines two
+# openXdox rows needed.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# discipline the S3, S6 and S4 paragraphs above each state: rows unchanged;
+# `not_moved` unchanged; NO disposition conversion; declared lines +20
+# (`path constants` +20, `import rewrites` +0, `adapter calls` +0) over the nine
+# rows below; rows carrying `edits:` unchanged (every one of the nine was
+# already a carrier); replicas unchanged; `re_destined` unchanged at 0. The one
+# place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`.
+# Line numbers are the CARVE COMMIT's and were computed with the arrival
+# verifier's own algorithm (`carve_lines.text_records` + `difflib` opcodes,
+# `_check_declared_lines`) against each leg's head, minus the lines its base
+# already changed, so a line another slice declared is not re-declared here.
+# Realized at opensoft/openDox-code `build/s8-receive-web-tests` (DRAFT PR #23)
+# and opensoft/openXdox-code `build/s8-shed-web-tests` (DRAFT PR #19).
+#
+# THE RESOLVED-IDENTITY READING OF `to != from`, taken in the same act. The
+# follow-up registered at `#1011`'s landing — comparing `re_destined.to` and
+# `from` on their resolved `(repository, leg)` bodies rather than as KEYS — is
+# implemented here, in `scripts/validate-carve-manifest.py`, its mirror in
+# `scripts/verify-carve-arrival.py` and both suites. A `destinations:` key is a
+# LABEL, never a referent, `check_shape` admits two keys sharing one body on
+# purpose, and `check_surface`'s duplicate-arrival map already keyed on the
+# resolved triple for that reason; the `to != from` check was the one place
+# still comparing labels, and an alias pair passing it would produce a document
+# no leg could satisfy. It moves no row and no count.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -2500,6 +2573,9 @@ rows:
       - class: adapter calls
         lines: [900, 1781, 1785]
         note: "§ 3.4 SLICE S3, THE VIEW REGISTRY — the same act and the same ruling as the `app.js` row above (`#656` comment `5642758731`, Brett Heap, 2026-09-12; Q-L1 form RULED at `5628560136`). THIS FILE IS A SOURCE-GREP SUITE: it asserts app.js's shape by quoting its lines back, so the three lines that quote the TAB ROUTER'S FIELD NAMES are invalidated by the very edit declared on the `app.js` row — `target.view` -> `target.region`, `t.view` -> `t.region` — and are migrated in the same act rather than left to rot until slice S8 re-homes this suite. Class `adapter calls` on the same precedent the `app.js` row uses: the assertion is a call site reaching a name that now comes from the registry. Each is a single-line REPLACE at the carve numbering with no insertion, which is why exactly three lines are declared and no neighbour is. The assertions' MEANING is unchanged and so is every surrounding line: a tab is still remembered on every activation and restored only to a view this plane has — the router simply calls the field `region` now, because a binding's mount point is what it always was."
+      - class: path constants
+        lines: [1674]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:1674`'s `(REPO_ROOT / \"scripts\" / \"ideation_dashboard\" / \"serve.py\").read_text()` — the same PRE-CARVE class one more time, for `src/opendox/serve.py`. This row already carries `path constants` `:40` and the slice-S3 `adapter calls` migration at `:900`/`:1781`/`:1785`; this is a fourth site on the same file and the same reading. Filed `path constants`. Realized at opensoft/openDox-code `build/s8-receive-web-tests` (DRAFT PR #23)."
   - source_path: tests/ideation-dashboard/test_canvas.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2733,6 +2809,9 @@ rows:
       - class: import rewrites
         lines: [40, 41, 42, 281]
         note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: path constants
+        lines: [44, 45]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:44-45`'s `MODULE_PATH`, the same PRE-CARVE `scripts/ideation_dashboard/doxbench_knowledge.py` as the row above and the same repair. 2 cases. Filed `path constants`. Realized at opensoft/openDox-code `build/s8-receive-web-tests` (DRAFT PR #23)."
   - source_path: tests/ideation-dashboard/test_doxbench_entrypoint.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2766,6 +2845,9 @@ rows:
       - class: import rewrites
         lines: [29]
         note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: path constants
+        lines: [31, 32]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:31-32`'s `MODULE_PATH` named `scripts/ideation_dashboard/doxbench_knowledge.py` — the PRE-CARVE module path; the module arrives at `src/opendox/doxbench_knowledge.py`, which this row's own file already imports as `from opendox import doxbench_knowledge` two lines above. 21 of this suite's 56 cases read the module as TEXT and failed FileNotFoundError. Filed `path constants`. Realized at opensoft/openDox-code `build/s8-receive-web-tests` (DRAFT PR #23)."
   - source_path: tests/ideation-dashboard/test_doxbench_knowledge_service.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2799,6 +2881,9 @@ rows:
       - class: import rewrites
         lines: [27, 28, 29, 30]
         note: "`ideation_dashboard.X` becomes `opendox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: path constants
+        lines: [32, 33]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:32-33`'s `MODULE_PATH`, the same PRE-CARVE class — `scripts/ideation_dashboard/doxbench_memory_gateway.py` for `src/opendox/doxbench_memory_gateway.py`. 12 failed cases become 3, the remaining three reading `openspec/specs/memory-gateway/spec.md`, openxFactory's own tree, which is the BUILD arc's and not this slice's. Filed `path constants`. Realized at opensoft/openDox-code `build/s8-receive-web-tests` (DRAFT PR #23)."
   - source_path: tests/ideation-dashboard/test_doxbench_model.py
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -2816,6 +2901,9 @@ rows:
       - class: path constants
         lines: [50, 58, 63, 66, 496]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: path constants
+        lines: [45, 46]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:45-46` are the import lines beside which `from opendox_bundle import OPENDOX_WEB` is inserted at openXdox-code. THE DEFECT § 1.2(d) MEASURED: this file's bundle root read `REPO_ROOT / \"src\" / \"openxdox\" / \"web\"`, a directory openXdox-code does not have — \"the carve's `import rewrites` edit class rewrote the path constant and pointed the tests at the wrong leg\". The bundle is in the openDox this leg PINS, which is where S5 already reads it from (`tests/test_gate_loop_probes.py::_opendox_bundle`, openXdox-code #18). The root lines themselves (`:50`, `:58`, `:63`, `:66`, `:496`) were ALREADY declared by the carve's own rewrite and are unmoved by this act; only the two neighbouring import lines are new. Filed `path constants`. Realized at opensoft/openXdox-code `build/s8-shed-web-tests` (DRAFT PR #19)."
   - source_path: tests/ideation-dashboard/test_doxbench_packet.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2886,6 +2974,9 @@ rows:
       - class: path constants
         lines: [527, 1076]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: path constants
+        lines: [524, 525, 526, 1075, 1077]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:524-526` and `:1075-1077` are this file's TWO surviving PRE-CARVE roots — `Path(__file__).resolve().parent.parent.parent / \"scripts\" / \"ideation_dashboard\" / \"web\" / \"views\"` — which the carve's `import rewrites` class never reached at all (`:527` and `:1076`, the tail segments, were rewritten; the heads were not, so the two constants named a path with no leg). Both now resolve through the PINNED openDox bundle, on the same reading as the row above. Filed `path constants`. Realized at opensoft/openXdox-code `build/s8-shed-web-tests` (DRAFT PR #19)."
   - source_path: tests/ideation-dashboard/test_doxbench_scope.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2899,6 +2990,9 @@ rows:
       - class: path constants
         lines: [29]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: path constants
+        lines: [27, 28]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:27-28` are the import lines beside which `from opendox_bundle import OPENDOX_WEB` is inserted; `:29`, the `WEB_VIEWS` root itself, was already declared by the carve's own rewrite and is unmoved. Same defect and same repair as the two rows above. Filed `path constants`. Realized at opensoft/openXdox-code `build/s8-shed-web-tests` (DRAFT PR #19)."
   - source_path: tests/ideation-dashboard/test_doxbench_share.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -3012,6 +3106,9 @@ rows:
       - class: path constants
         lines: [16, 17, 18, 291, 292, 293, 298, 301, 2860]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead. AMENDED under RULING Q-L1 (Brett Heap, 2026-09-10, `#656` comment `5611834121`, verbatim \"rule Q-L1 approve\"): leg 1 (`opensoft/openDox-code#4`, head `cfabe3c4`) reported this citation as a SHORT CITATION — `:18` and `:293` are bare `/ \"web\"` continuations of the `STATE_JS` and `EDITOR_JS` `Path` expressions whose `\"scripts\"` and `\"ideation_dashboard\"` segments sit on `:16-17` and `:291-292`; `:298`, `:301` and `:2860` are single-line statements that already carried the whole spelling and were rewritten by the leg — so the note above described an edit its own line numbers could not express and the row arrived byte-identical instead. The missing line(s) are declared here; the edit itself is destination-local and available at the carve, needing nothing from the openXdox-code leg or the BUILD arc."
+      - class: path constants
+        lines: [302, 303, 306]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:302-306`'s `PREVIEW_CASES_PATH` named `tests/ideation-dashboard/fixtures/doxbench_preview_cases.json` — the PRE-CARVE location. The suite arrives one directory shallower and its fixture with it, at `tests/fixtures/`, so the node editor harness died ENOENT on 62 cases and 11 more errored behind them. Three lines: the two `/ \"tests\"` / `/ \"ideation-dashboard\"` segments the rewrite collapses to one, and the record of why beside them. Filed `path constants`. Realized at opensoft/openDox-code `build/s8-receive-web-tests` (DRAFT PR #23)."
   - source_path: tests/ideation-dashboard/test_doxbench_workspace.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -3303,6 +3400,9 @@ rows:
       - class: path constants
         lines: [23]
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
+      - class: path constants
+        lines: [22]
+        note: "§ 3.4 SLICE S8, the declared-edit window for \"re-home the 48 test files and un-narrow `validate`\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S8 and § 1.2(d) @ `7d12428c`; RULED Q-L1's own paragraph binds every § 3.4 slice, `#656` comment `5642758731`; the FORM is the Q-L1 form ruled at `5628560136`; S8 CLAIM `#656` comment `5649985838`). `:22`'s `REPO_ROOT = Path(__file__).resolve().parents[2]` resolved ONE DIRECTORY ABOVE the destination repository, so node was handed `<parent-of-repo>/src/opendox/web/views/outline-model.js` and all 48 cases died `ERR_MODULE_NOT_FOUND`. THIS IS THE `tests/ideation-dashboard/conftest.py` REPLICA DEFECT OF RULED Q-L7 (a), ONE FILE OVER — the replica arrives one directory shallower and this is the only OTHER module in the arrived tree that computes its own `REPO_ROOT`; openDox-code #19 took the conftest half on 2026-09-12 and this row is the other. Filed `path constants` on that row's own reading: a path literal naming a location the destination does not have. Realized at opensoft/openDox-code `build/s8-receive-web-tests` (DRAFT PR #23)."
   - source_path: tests/ideation-dashboard/test_outline_tab.py
     disposition: moved_with_declared_edit
     git_mode: '100644'

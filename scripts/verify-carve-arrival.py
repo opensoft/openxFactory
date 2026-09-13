@@ -1040,6 +1040,43 @@ def arrival_path(row: dict[str, Any]) -> Any:
     return path
 
 
+def _resolved_destination(key: Any, destinations: Any) -> tuple:
+    """A destination key's REAL identity — its `(repository, leg)` body.
+
+    THE MIRROR OF `validate-carve-manifest.py`'s function of the same name, and
+    kept in step by
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_both_tools_resolve_a_destination_key_identically`
+    — the same discipline `effective_arrival` is held to, and for the same
+    reason: two tools quietly disagreeing about one definition is what RULED
+    Q-L8 (c) had to repair when a line meant two things.
+
+    WHY IT EXISTS HERE (the follow-up REGISTERED at `#1011`'s landing and
+    carried by slice S8, the act that writes the first real `re_destined:`
+    rows). A `destinations:` KEY IS A LABEL, NEVER A REFERENT, and the
+    validator's `check_shape` deliberately ADMITS two keys sharing one
+    `{repository, leg}` body. `--destination` names a key, so every question
+    this file asks about "is this row THIS leg's" was being answered by a
+    string comparison against a label: a row re-destined between two ALIASES of
+    one real leg would be read here as both an arrival (file must be PRESENT)
+    and a vacation (file must be ABSENT), at one real destination, which
+    nothing can satisfy — and the leg would refuse `arrival-not-vacated` on a
+    file the manifest still says it carries. The validator now refuses that
+    document at the gate that runs first; this file must not ACT on one either
+    if it is handed a manifest that was never gated.
+
+    GUARDED AT EVERY LEVEL, exactly as `_also_replicated_labels` is: a key
+    `destinations:` does not carry resolves to a 1-tuple of the key itself — a
+    shape that can never equal a resolved 2-tuple — so an unknown key never
+    accidentally compares EQUAL to a known one, and a malformed
+    `destinations:` block degrades to the label comparison this file used to
+    make rather than crashing.
+    """
+    entry = destinations.get(key) if isinstance(destinations, dict) else None
+    if isinstance(entry, dict):
+        return (entry.get("repository"), entry.get("leg"))
+    return (key,)
+
+
 def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     """The MOVED rows this destination is owed, in manifest order.
 
@@ -1052,10 +1089,12 @@ def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     `arrival-missing`, which is exactly the pair of refusals the boundary
     note's § 6 measured stopping slice S6.
     """
+    here = _resolved_destination(destination, doc.get("destinations"))
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
-            and effective_arrival(row)[0] == destination]
+            and _resolved_destination(effective_arrival(row)[0],
+                                      doc.get("destinations")) == here]
 
 
 def vacated_rows(doc: dict[str, Any],
@@ -1063,6 +1102,8 @@ def vacated_rows(doc: dict[str, Any],
     """The MOVED rows a ruling has re-destined AWAY from this destination —
     the ones whose `re_destined.from_path` must now be absent here."""
     out: list[dict[str, Any]] = []
+    destinations = doc.get("destinations")
+    here = _resolved_destination(destination, destinations)
     for row in doc["rows"]:
         if not isinstance(row, dict):
             continue
@@ -1071,14 +1112,15 @@ def vacated_rows(doc: dict[str, Any],
         re_destined = row.get("re_destined")
         if not isinstance(re_destined, dict):
             continue
-        if (re_destined.get("from") != destination
+        if (_resolved_destination(re_destined.get("from"), destinations) != here
                 or not isinstance(re_destined.get("from_path"), str)):
             continue
         # A `to` that is not a usable string is no re-destination at all
         # (`effective_arrival`'s own reading), and demanding a vacation on the
         # strength of half a field would refuse a leg for a document defect
         # `validate-carve-manifest.py` owns.
-        if effective_arrival(row)[0] == destination:
+        if _resolved_destination(effective_arrival(row)[0],
+                                 destinations) == here:
             continue
         out.append(row)
     return out
@@ -1129,11 +1171,15 @@ def also_replicated_rows(doc: dict[str, Any],
     a replica would let `--replica-at` re-point it — the single thing that flag
     was narrowed to prevent.
     """
+    destinations = doc.get("destinations")
+    here = _resolved_destination(destination, destinations)
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
-            and effective_arrival(row)[0] != destination
-            and destination in _also_replicated_labels(row)]
+            and _resolved_destination(effective_arrival(row)[0],
+                                      destinations) != here
+            and any(_resolved_destination(label, destinations) == here
+                    for label in _also_replicated_labels(row))]
 
 
 def declared_roots(rows: list[dict[str, Any]]) -> list[str]:

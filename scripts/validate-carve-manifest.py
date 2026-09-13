@@ -1914,7 +1914,24 @@ def check_vocabularies(doc: dict) -> None:
                 "not carry")
 
 
-def _check_re_destined_consistency(where: str, row: dict[str, Any]) -> None:
+def _resolved_destination(key: Any, destinations: dict[str, Any]) -> tuple:
+    """A destination key's REAL identity — its `(repository, leg)` body.
+
+    One place, so this file and `verify-carve-arrival.py` cannot drift on what
+    "the same destination" means. A key `destinations:` does not carry resolves
+    to a 1-tuple of the key itself: a shape that can never equal a resolved
+    2-tuple, so an unknown key never accidentally compares EQUAL to a known
+    one, and `check_vocabulary` keeps its own refusal
+    (`carve-vocabulary-unknown`) rather than having it pre-empted here.
+    """
+    entry = destinations.get(key) if isinstance(destinations, dict) else None
+    if isinstance(entry, dict):
+        return (entry.get("repository"), entry.get("leg"))
+    return (key,)
+
+
+def _check_re_destined_consistency(where: str, row: dict[str, Any],
+                                  destinations: dict[str, Any]) -> None:
     """A re-destination must agree with the row it sits on (RULED Q6).
 
     `from`/`from_path` ARE THE ROW'S OWN `destination`/`destination_path`, and
@@ -1926,14 +1943,40 @@ def _check_re_destined_consistency(where: str, row: dict[str, Any]) -> None:
     therefore not a harmless restatement: it would ask the vacation question of
     a leg this row never placed anything at.
 
-    `to` MAY NOT EQUAL `from`. A re-destination that lands where it started
-    declares nothing and would make every arrival question below read twice for
-    one answer; and since `from` is the row's own destination, the ruling's
-    "`to` (a `destinations:` key ≠ from)" is the same sentence as "a
-    re-destination moves the file to another leg". A file that moves to a new
-    PATH at the same leg is not this form — nothing about its destination
-    changed, and the row's own `destination_path` is the field that says where
-    it lands.
+    `to` MAY NOT EQUAL `from`, AND THE COMPARISON IS ON THE RESOLVED
+    `(repository, leg)` IDENTITY RATHER THAN ON THE KEY. A re-destination that
+    lands where it started declares nothing and would make every arrival
+    question below read twice for one answer; and since `from` is the row's own
+    destination, the ruling's "`to` (a `destinations:` key ≠ from)" is the same
+    sentence as "a re-destination moves the file to another leg". A file that
+    moves to a new PATH at the same leg is not this form — nothing about its
+    destination changed, and the row's own `destination_path` is the field that
+    says where it lands.
+
+    WHY THE RESOLVED IDENTITY AND NOT THE KEY (the follow-up REGISTERED at
+    `#1011`'s landing, `opensoft/openxFactory#656`, lane
+    `openxfactory-4-opendox-extraction`; raised in review of that pull request,
+    landed there AS RULED — key-distinct — because no live row exercised it,
+    and carried here by slice S8, which is the act that writes the first real
+    `re_destined:` rows). A `destinations:` KEY IS A LABEL, NEVER A REFERENT
+    (this file's own sentence at the head of `DESTINATION_KEY_RE`), and
+    `check_shape` deliberately ADMITS two keys sharing one `{repository, leg}`
+    body — its own comment says why, and `check_surface`'s duplicate-arrival
+    map already keys on the resolved `(repository, leg, path)` triple FOR THAT
+    REASON. Comparing `to` and `from` as strings therefore left one hole in the
+    only check that is supposed to guarantee a re-destination MOVES the file:
+    an alias pair would pass here, and every consequence downstream would then
+    read the row twice for one answer — `verify-carve-arrival.py` would require
+    the SAME file both PRESENT (as this row's arrival) and ABSENT (as its
+    vacation) at one real leg, which is unsatisfiable, and it would refuse
+    `arrival-not-vacated` on a leg the manifest still says carries the file.
+
+    Resolving closes it at the gate that runs first, in the same shape
+    `check_surface` already uses. Where either key names NOTHING in
+    `destinations:` the comparison falls back to the key itself: that is
+    `check_vocabulary`'s `carve-vocabulary-unknown` to refuse, it runs after
+    this, and crashing here would decide its question with this check's
+    information.
     """
     re_destined = row.get("re_destined")
     if not isinstance(re_destined, dict):
@@ -1952,18 +1995,32 @@ def _check_re_destined_consistency(where: str, row: dict[str, Any]) -> None:
                 "`destination`/`destination_path` unedited on purpose: the "
                 "manifest goes on recording what the carve did, and "
                 "`re_destined:` records what a ruling did afterwards")
-    if re_destined.get("to") == re_destined.get("from"):
+    frm, to = re_destined.get("from"), re_destined.get("to")
+    if _resolved_destination(frm, destinations) == _resolved_destination(
+            to, destinations):
+        alias = (frm != to)
         raise CarveRefusal(
             "carve-disposition-inconsistent",
-            f"{where} declares `re_destined:` from {re_destined.get('from')!r} "
-            "to the same destination. RULED Q6 makes `to` a `destinations:` "
-            "key that is NOT `from`: a re-destination that lands where it "
-            "started declares nothing, and it would make every arrival "
-            "question read the row twice for one answer. If only the PATH "
-            f"changes at {re_destined.get('from')!r}, that is not this form — "
-            "the row's own `destination_path:` is what says where the file "
-            f"lands at its destination, and {source_path} has not been "
-            "re-homed at all")
+            f"{where} declares `re_destined:` from {frm!r} to {to!r}, which "
+            + ("are two `destinations:` KEYS FOR ONE REAL DESTINATION — "
+               f"{_resolved_destination(to, destinations)!r} — so the file "
+               "does not move at all"
+               if alias else "is the same destination")
+            + ". RULED Q6 makes `to` a `destinations:` key that is NOT "
+              "`from`: a re-destination that lands where it started declares "
+              "nothing, and it would make every arrival question read the row "
+              "twice for one answer — at the destination "
+              "`verify-carve-arrival.py` would require these bytes PRESENT as "
+              "this row's arrival and ABSENT as its vacation, at one real "
+              "leg, which nothing can satisfy. A `destinations:` key is a "
+              "LABEL, never a referent, and `check_shape` admits two keys "
+              "sharing one `{repository, leg}` body on purpose, so this "
+              "comparison is on the RESOLVED identity exactly as "
+              "`check_surface`'s duplicate-arrival map already is. If only "
+              f"the PATH changes at {frm!r}, that is not this form — the "
+              "row's own `destination_path:` is what says where the file "
+              f"lands at its destination, and {source_path} has not been "
+              "re-homed at all")
 
 
 def _check_re_destined_chains(doc: dict) -> None:
@@ -1988,26 +2045,34 @@ def _check_re_destined_chains(doc: dict) -> None:
     happen is a second re-destination LEAVING the exact arrival a first one
     CREATED.
     """
-    origins: dict[tuple[str, str], int] = {}
+    # KEYED ON THE RESOLVED `(repository, leg)` AND NOT ON THE KEY, for the
+    # reason `_check_re_destined_consistency` states: a `destinations:` key is
+    # a label, `check_shape` admits two keys for one real leg, and a chain
+    # spelled across the two aliases is the same chain. Registered at `#1011`'s
+    # landing and carried here by slice S8.
+    destinations = doc.get("destinations") or {}
+    origins: dict[tuple[tuple, str], int] = {}
     for index, row in enumerate(doc["rows"]):
         re_destined = row.get("re_destined")
         if not isinstance(re_destined, dict):
             continue
-        origin = (re_destined.get("from"), re_destined.get("from_path"))
-        if all(isinstance(part, str) for part in origin):
+        origin = (_resolved_destination(re_destined.get("from"), destinations),
+                  re_destined.get("from_path"))
+        if isinstance(origin[1], str):
             origins.setdefault(origin, index)  # type: ignore[arg-type]
     for index, row in enumerate(doc["rows"]):
         re_destined = row.get("re_destined")
         if not isinstance(re_destined, dict):
             continue
-        arrival = (re_destined.get("to"), re_destined.get("to_path"))
+        arrival = (_resolved_destination(re_destined.get("to"), destinations),
+                   re_destined.get("to_path"))
         other = origins.get(arrival)  # type: ignore[arg-type]
         if other is None or other == index:
             continue
         raise CarveRefusal(
             "carve-re-destined-chain",
             f"rows[{index}] ({row['source_path']}) is re-destined TO "
-            f"{arrival[0]}:{arrival[1]}, which rows[{other}] "
+            f"{re_destined.get('to')}:{arrival[1]}, which rows[{other}] "
             f"({doc['rows'][other]['source_path']}) is re-destined FROM. That "
             "is a CHAIN, and RULED Q6 refuses it: a row already re-destined is "
             "AMENDED IN PLACE, never re-destined twice, so one row never needs "
@@ -2077,7 +2142,8 @@ def check_disposition_consistency(doc: dict) -> None:
                     "`--replica-at` re-point an arrival the manifest has "
                     "already declared, which is the one thing the manifest "
                     "is for")
-        _check_re_destined_consistency(where, row)
+        _check_re_destined_consistency(where, row,
+                                       doc.get("destinations") or {})
 
     _check_re_destined_chains(doc)
 

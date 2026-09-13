@@ -1507,6 +1507,85 @@ def test_both_tools_read_the_effective_arrival_identically() -> None:
                                                   "src/pkg/a.py")
 
 
+def test_both_tools_resolve_a_destination_key_identically() -> None:
+    """THE SECOND SHARED DEFINITION, held equal the way `effective_arrival`
+    already is (§ 3.4 slice S8; the follow-up REGISTERED at `#1011`'s landing).
+
+    A `destinations:` KEY IS A LABEL, NEVER A REFERENT, and the validator's
+    `check_shape` deliberately admits two keys sharing one `{repository, leg}`
+    body. Both tools therefore resolve a key to that body before asking whether
+    two destinations are "the same" — and if the two readings ever drifted, one
+    tool would gate a document the other could not satisfy, which is precisely
+    what RULED Q-L8 (c) cost six declared lines to repair.
+    """
+    other = _load_manifest_validator()
+    destinations = {
+        "scratch_code": {"repository": "opensoft/scratch-code", "leg": "code"},
+        "scratch_code_alias": {"repository": "opensoft/scratch-code",
+                               "leg": "code"},
+        "scratch_spec": {"repository": "opensoft/scratch-spec", "leg": "spec"},
+        "half": {"repository": "opensoft/scratch-code"},
+        "not_a_mapping": ["opensoft/scratch-code", "code"],
+    }
+    for key in (*destinations, "absent", None, 7):
+        assert (MODULE._resolved_destination(key, destinations)
+                == other._resolved_destination(key, destinations)), key
+    # the claim the two tools are making, spelled out once
+    resolve = MODULE._resolved_destination
+    assert resolve("scratch_code", destinations) == \
+        resolve("scratch_code_alias", destinations)
+    assert resolve("scratch_code", destinations) != \
+        resolve("scratch_spec", destinations)
+    # an UNKNOWN key is a 1-tuple of itself: it can never equal a resolved
+    # 2-tuple, and two different unknown keys never equal each other
+    assert resolve("absent", destinations) == ("absent",)
+    assert resolve("absent", destinations) != resolve("other", destinations)
+    # a malformed `destinations:` degrades to the label comparison rather than
+    # crashing — this file READS the manifest and does not revalidate it
+    for broken in (None, [], "scratch_code"):
+        assert resolve("scratch_code", broken) == ("scratch_code",)
+
+
+def test_two_keys_for_one_leg_are_read_as_one_destination(
+        carve: Carve) -> None:
+    """The behaviour that reading matters for. A row re-destined from
+    `scratch_code` to an ALIAS of `scratch_code` does not LEAVE that leg, so
+    the file must stay exactly where it is — and reading the keys as strings
+    made this file demand it both PRESENT (this row's own arrival) and ABSENT
+    (its vacation) at one real destination, an unsatisfiable pair that would
+    have refused `arrival-not-vacated` on a file the manifest still says the
+    leg carries. `validate-carve-manifest.py` refuses such a document at the
+    gate that runs first; this file must not ACT on one either.
+    """
+    doc = carve.manifest_doc()
+    doc["destinations"]["scratch_code_alias"] = dict(
+        doc["destinations"]["scratch_code"])
+    row = _re_destine(doc, to="scratch_code_alias",
+                      to_path=RE_DESTINED_FROM_PATH)
+    assert row["re_destined"]["from"] == "scratch_code", row
+    manifest = carve.write_manifest(doc)
+    # ONE tree, built from both spellings — the fixture's own `_placement`
+    # reading is a string comparison by design (it is the test's third reading
+    # of the field, deliberately the naive one), so the alias half is laid down
+    # by a second call into the same directory rather than by teaching the
+    # fixture what the subject is supposed to know.
+    dest = carve.materialise(doc, "scratch_code")
+    carve.materialise(doc, "scratch_code_alias", name="dest-scratch_code")
+    # the file is where the carve put it, because nothing moved
+    assert (dest / RE_DESTINED_FROM_PATH).is_file()
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    summary = json.loads(done.stdout)
+    assert summary["re_destined"]["vacated"] == [], summary
+    # and the row is still OWED here, counted as this leg's arrival
+    assert summary["rows"] == len(
+        [r for r in doc["rows"]
+         if r["disposition"] in ("moved_verbatim", "moved_with_declared_edit")
+         and r["destination"] in ("scratch_code", "scratch_code_alias")]), \
+        summary
+
+
 def test_the_module_records_the_effective_arrival_and_its_limit() -> None:
     """The disclosure, asserted in the file that carries it: what the field
     moves, and the limit that ONE destination is verified per run, so the two

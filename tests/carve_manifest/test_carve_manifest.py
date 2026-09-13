@@ -1781,6 +1781,95 @@ def test_a_re_destination_to_the_destination_it_came_from_refuses(
     assert "re_destined" in combined, combined
 
 
+def test_a_re_destination_between_two_aliases_of_one_leg_refuses(
+        scratch: Scratch) -> None:
+    """THE RESOLVED-IDENTITY READING of `to != from` (§ 3.4 slice S8; the
+    follow-up REGISTERED at `#1011`'s landing, `opensoft/openxFactory#656`,
+    lane `openxfactory-4-opendox-extraction`).
+
+    `check_shape` deliberately ADMITS two `destinations:` keys sharing one
+    `{repository, leg}` body — its own comment says why — and a key is a LABEL,
+    never a referent. So `to != from` compared as STRINGS left exactly one
+    hole in the check that is supposed to guarantee a re-destination MOVES the
+    file: an ALIAS PAIR passed. The document that results is unsatisfiable at
+    the destination, which is the point — `verify-carve-arrival.py` would
+    require these bytes PRESENT (this row's arrival) and ABSENT (its vacation)
+    at ONE real leg, and the leg would refuse `arrival-not-vacated` on a file
+    the manifest still says it carries. Refused here, at the gate that runs
+    first, in the same shape `check_surface`'s duplicate-arrival map already
+    uses.
+    """
+    doc = clean_manifest(scratch)
+    doc["destinations"]["openxdox_code_alias"] = dict(
+        doc["destinations"]["openxdox_code"])
+    row = _re_destine(doc, to="openxdox_code_alias",
+                      to_path="src/openxdox/relocated.py")
+    assert row["re_destined"]["from"] == "openxdox_code", row
+    assert row["re_destined"]["to"] != row["re_destined"]["from"], row
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "openxdox_code_alias" in combined, combined
+    assert "ONE REAL DESTINATION" in combined, combined
+    assert "opensoft/openXdox-code" in combined, combined
+
+
+def test_an_alias_that_is_a_DIFFERENT_leg_is_a_lawful_re_destination(
+        scratch: Scratch) -> None:
+    """The other side of the same reading, so the check is a discriminator and
+    not a blanket refusal: two keys whose `{repository, leg}` bodies DIFFER are
+    two destinations, and a re-destination between them moves the file. Only
+    the resolved IDENTITY is compared — never the spelling of the key."""
+    doc = clean_manifest(scratch)
+    doc["destinations"]["opendox_root"] = {
+        "repository": "opensoft/openDox-code", "leg": "assembly"}
+    _re_destine(doc, to="opendox_root", to_path="src/opendox/beta.py")
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "1 row(s) RE-DESTINED by ruling" in done.stdout, done.stdout
+
+
+def test_a_chain_spelled_across_two_aliases_of_one_leg_refuses(
+        scratch: Scratch) -> None:
+    """The chain check takes the same reading, for the same reason: the arrival
+    one row CREATES is the arrival the other MOVES ON even where the two rows
+    spell that one real leg with two different keys. A reader would still have
+    to compose two hops to learn where one file is, and the two vacation
+    questions would still contradict each other."""
+    doc = clean_manifest(scratch)
+    doc["destinations"]["opendox_code_alias"] = dict(
+        doc["destinations"]["opendox_code"])
+    _re_destine(doc, "beta.py", to="opendox_code",
+                to_path="src/opendox/relay.py")
+    alpha = row_named(doc, "alpha.py")
+    alpha["re_destined"] = {
+        "from": alpha["destination"], "from_path": alpha["destination_path"],
+        "to": "openxdox_code", "to_path": "src/openxdox/alpha.py",
+        "ruling": RULING_CITATION,
+    }
+    # `alpha.py` vacates `opendox_code:<its path>`; `beta.py` lands on it — but
+    # spelled with the ALIAS, which the string comparison could not see.
+    beta = row_named(doc, "beta.py")
+    beta["re_destined"]["to"] = "opendox_code_alias"
+    beta["re_destined"]["to_path"] = alpha["destination_path"]
+    combined = refuses(scratch, doc, "carve-re-destined-chain")
+    assert "AMENDED IN PLACE" in combined, combined
+
+
+def test_an_unknown_destination_key_still_falls_to_the_vocabulary_refusal(
+        scratch: Scratch) -> None:
+    """The resolver's own guard, asserted rather than assumed: a key
+    `destinations:` does not carry resolves to a 1-TUPLE of the key itself — a
+    shape that can never equal a resolved 2-tuple — so two unknown keys never
+    compare equal to each other by accident, and `check_vocabulary` keeps its
+    own refusal instead of having it pre-empted by a crash here."""
+    doc = clean_manifest(scratch)
+    row = _re_destine(doc)
+    row["re_destined"]["to"] = "opendox_kode"
+    row["re_destined"]["from"] = "openxdox_kode"
+    row["destination"] = "openxdox_kode"
+    refuses(scratch, doc, "carve-vocabulary-unknown")
+
+
 def test_a_re_destination_must_name_the_placement_the_row_made(
         scratch: Scratch) -> None:
     """`from`/`from_path` ARE the row's own `destination`/`destination_path`,
@@ -2376,6 +2465,29 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # `views/gate-lens.js`, `views/gate-projects.js`,
     # `views/projection-index.js` and `tests/test_split_route_tails.py`.
     #
+    # AND THEN THE § 3.4 SLICE-S8 ANNOTATION (`#656` comment `5642758731`,
+    # whose Q-L1 paragraph binds every § 3.4 slice; S8 CLAIM `#656` comment
+    # `5649985838`) moved `lines` once more, on ZERO new rows. S8 is "re-home
+    # the 48 test files and un-narrow `validate`", and it carries NO
+    # `re_destined:` row: measured at both leg heads, not one of the 48 may
+    # lawfully change leg, because every one of the 23 at `openxdox_code`
+    # imports a real `openxdox` module and RULED OQ-G's TEST HOMES rule places
+    # a mixed file there for exactly that reason. The defect is the PATH
+    # CONSTANT, which is § 1.2(d)'s own sentence. NINE rows gain one
+    # `path constants` entry each and every one of the nine was ALREADY a
+    # carrier, so `carrying` does not move: six at `opendox_code`
+    # (`test_outline_model.py` 1, `test_doxbench_view.py` 3,
+    # `test_doxbench_knowledge.py` 2, `test_doxbench_document_abstract.py` 2,
+    # `test_doxbench_memory_gateway.py` 2, `test_bullseye_widget.py` 1 = 11)
+    # and three at `openxdox_code` (`test_doxbench_mutation_boundary.py` 2,
+    # `test_doxbench_save.py` 5, `test_doxbench_scope.py` 2 = 9). The other 37
+    # edited sites across the two legs needed no new line: the carve's own
+    # `import rewrites` pass already declared the roots it rewrote, and an
+    # import inserted beside an already-declared import line is declared by its
+    # neighbour (`_check_declared_lines`' insertion rule). 1422 + 20 = 1442 on
+    # the same 158 rows. One new file is admitted at `openxdox_code`:
+    # `tests/opendox_bundle.py`.
+    #
     # THIS ASSERTION IS WHERE THE ABSOLUTES LIVE, and deliberately so: the
     # document itself states each act as a DELTA (see the manifest's own
     # comment on why two acts restating one set of absolutes is how a count
@@ -2385,7 +2497,7 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (1422, 158), (lines, carrying)
+    assert (lines, carrying) == (1442, 158), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -2405,6 +2517,48 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     ask7_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
                   if edit["lines"] == [155, 725, 1338]]
     assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
+
+    # THE § 3.4 SLICE-S8 ANNOTATION'S OWN NINE ROWS, PINNED BY ROW, CLASS AND
+    # EXACT LINES — on the same reasoning as the ASK-7 and S3 pins: the
+    # aggregate `(1442, 158)` would still pass if these twenty lines had landed
+    # on the wrong rows, under the wrong class, or as a different twenty that
+    # summed the same. Every one is `path constants` (a path literal naming a
+    # location the destination does not have — this manifest's own reading),
+    # and every one of the nine rows already carried an unrelated edit, so each
+    # new entry is picked out by its lines exactly as `test_bullseye_widget.py`'s
+    # S3 entry is.
+    for source_path, expected in (
+            ("tests/ideation-dashboard/test_outline_model.py", [22]),
+            ("tests/ideation-dashboard/test_doxbench_view.py", [302, 303, 306]),
+            ("tests/ideation-dashboard/test_doxbench_knowledge.py", [31, 32]),
+            ("tests/ideation-dashboard/test_doxbench_document_abstract.py",
+             [44, 45]),
+            ("tests/ideation-dashboard/test_doxbench_memory_gateway.py",
+             [32, 33]),
+            ("tests/ideation-dashboard/test_bullseye_widget.py", [1674]),
+            ("tests/ideation-dashboard/test_doxbench_mutation_boundary.py",
+             [45, 46]),
+            ("tests/ideation-dashboard/test_doxbench_save.py",
+             [524, 525, 526, 1075, 1077]),
+            ("tests/ideation-dashboard/test_doxbench_scope.py", [27, 28])):
+        row = rows[source_path]
+        assert row["disposition"] == "moved_with_declared_edit", row
+        s8 = [(edit["class"], edit["lines"]) for edit in row["edits"]
+              if edit["lines"] == expected]
+        assert s8 == [("path constants", expected)], (source_path, row)
+        note = s8 and [edit["note"] for edit in row["edits"]
+                       if edit["lines"] == expected][0]
+        assert "SLICE S8" in note, (source_path, note)
+        assert "5649985838" in note, (source_path, note)
+
+    # AND THE SLICE CARRIES NO RE-DESTINATION, asserted rather than left to the
+    # summary line: S8 is the act RULED Q6 was built for, and it measured that
+    # the move the note infers is unlawful for every one of the 48 files. The
+    # S5 annotation's four rows stay this document's only uses of the field.
+    re_destined = [row["source_path"] for row in doc["rows"]
+                   if isinstance(row.get("re_destined"), dict)]
+    assert all(path.startswith("scripts/ideation_dashboard/web/views/")
+               for path in re_destined), re_destined
 
     # THE § 3.4 SLICE-S3 ANNOTATION'S OWN ROWS, PINNED BY DISPOSITION, CLASS
     # AND EXACT LINES (Copilot review, openxFactory PR #1001) — on the same
