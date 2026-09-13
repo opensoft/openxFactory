@@ -1973,6 +1973,173 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                 support.origin_retention_errors(root, moved,
                                                 change="change-s"), [])
 
+    # ----------------------------------------------------------------
+    # WHAT THE LINEAGE WALK MUST NOT DO (review bench, PR #1024)
+    # ----------------------------------------------------------------
+
+    def test_a_reused_intermediate_name_does_not_contaminate_a_later_packet(self):
+        """A PATH IS NOT AN IDENTITY. An old ratified `r` is renamed to `s`;
+        `s` is renamed onward to `u`, so that name falls vacant; a NEW and
+        unrelated draft is then authored at `s` and renamed to `t` before
+        being ratified. The name `s` therefore carries two packets' histories,
+        and a lineage walk that read the WHOLE history of that name would
+        refuse `t` for a move that belonged to somebody else — permanently,
+        this gate having no bypass flag (#690). The predecessor history is
+        trimmed to the incarnation the hop actually renamed away, so `t`
+        archives on its own history.
+
+        THE ANTI-VACUITY HALF IS IN THE SAME FIXTURE: the OLD packet, which
+        really was renamed while ratified, still refuses. A walk that trimmed
+        too far would pass both, and this tree tells the two apart."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            self.rename(root, "change-r", "change-s")
+            self.rename(root, "change-s", "change-u")
+            fresh = root / "openspec" / "changes" / "change-s"
+            fresh.mkdir(parents=True)
+            (fresh / "proposal.md").write_text(
+                "---\nStatus: draft\n---\n\n## Why\n\nA different packet, "
+                "authored at a name that fell vacant.\n", encoding="utf-8")
+            (fresh / "tasks.md").write_text(
+                "## 1. Work\n\n- [x] 1.1 Done\n", encoding="utf-8")
+            (fresh / ".openspec.yaml").write_text(
+                "schema: spec-driven\ncreated: 2026-09-06\n"
+                "origin:\n  kind: ad_hoc\n"
+                "  id: fixture:adhoc:2026-09-06-change-t\n"
+                "  reason: a second fixture packet, unrelated to the first\n"
+                "  approved_by: >-\n    Fixture Authority, for the second "
+                "packet\n  approved_on: '2026-09-06'\n", encoding="utf-8")
+            commit_all(root, "author a new draft at the vacant name")
+            moved = self.rename(root, "change-s", "change-t")
+            ratify(moved / "proposal.md")
+            commit_all(root, "ratify the new packet under its own name")
+            head = self.sha(root)
+
+            self.assertEqual(support.ratifying_commit(root, "change-t"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-t"), [])
+            # …and the packet that really did move while ratified still refuses
+            with self.assertRaises(support.OriginRetentionError):
+                support.ratifying_commit(root, "change-u")
+
+    def test_a_rename_that_landed_through_a_merge_still_refuses(self):
+        """MERGE PARENTS, MEASURED RATHER THAN FEARED. A branch ratifies `r`
+        and renames it to `s` while the first-parent side of the merge still
+        carries a DRAFT `r`, and the branch lands as a merge commit. git
+        reports NO rename pairing at the merge itself — `git log --follow -1
+        <merge> -- <path>` answers with the BRANCH's own rename commit, and
+        `renamed_from` accepts a pairing only where git's `%H` is the revision
+        asked about — so the question is put to the branch commit that made
+        the move, where the parent read is exact, and the walk refuses there
+        rather than reading the first parent's draft and passing.
+
+        The predecessor bound is every parent of a hop for the same reason
+        (`_parents`), so a lineage that DID run through a merge would be read
+        from both sides rather than from the first."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            trunk = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "--abbrev-ref", "HEAD"],
+                check=True, capture_output=True,
+                text=True).stdout.strip()
+            git(root, "checkout", "-q", "-b", "feature")
+            changes = root / "openspec" / "changes"
+            ratify(changes / "change-r" / "proposal.md")
+            commit_all(root, "ratify the packet on the branch")
+            moved = self.rename(root, "change-r", "change-s")
+            renamed_at = self.sha(root)
+            git(root, "checkout", "-q", trunk)
+            (root / "README.md").write_text("the trunk moved on\n",
+                                            encoding="utf-8")
+            commit_all(root, "an unrelated commit on the trunk")
+            git(root, "-c", "user.name=Test", "-c",
+                "user.email=test@example.com", "merge", "--no-ff", "-q",
+                "-m", "merge the branch that renamed the ratified packet",
+                "feature")
+            merged_at = self.sha(root)
+
+            # the merge itself carries no pairing — the property the refusal
+            # below rests on, asserted rather than assumed
+            rel = "openspec/changes/change-s/proposal.md"
+            self.assertIsNone(support.renamed_from(root, merged_at, rel))
+            self.assertEqual(support.renamed_from(root, renamed_at, rel),
+                             "openspec/changes/change-r/proposal.md")
+            self.assert_walk_refuses(root, moved, "change-s", renamed_at)
+
+    def test_a_lineage_git_will_not_read_refuses_rather_than_reading_a_silence(self):
+        """A CHECK THAT CANNOT RUN MUST NOT PASS — at the lineage too. A
+        bounded `git log` that FAILS is not a history that is empty, and
+        reading the one as the other would switch this guard off exactly
+        where it is meant to bite: in a checkout whose history is not all
+        there.
+
+        BOTH LAYERS ARE MEASURED HERE. The walk's own arm refuses when the
+        bound cannot be read (`origin-retention-history-unreadable`), and a
+        repository with a hop's parent commit object DELETED refuses END TO
+        END — on the `not ratified` arm, because a missing object reaches the
+        current name's own enumeration as well — rather than resolving a
+        baseline nobody could check."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            self.rename_and_un_ratify(root, "change-r", "change-s")
+            hop = self.sha(root)
+            parent = self.sha(root, f"{hop}^")
+            moved = self.rename(root, "change-s", "change-t")
+            ratify(moved / "proposal.md")
+            commit_all(root, "re-ratify it under its third name")
+
+            # the arm itself: a bound git cannot resolve is CANNOT RUN
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support._incarnation(root, "change-t",
+                                     "openspec/changes/change-s/proposal.md",
+                                     "no-such-revision")
+            self.assertIn("origin-retention-history-unreadable",
+                          str(caught.exception))
+            self.assertIn("CANNOT RUN", str(caught.exception))
+
+            # and end to end, with the object actually gone
+            (root / ".git" / "objects" / parent[:2] / parent[2:]).unlink()
+            errors = support.origin_retention_errors(root, moved,
+                                                     change="change-t")
+            self.assertIn("not ratified", "\n".join(errors))
+            with self.assertRaises(support.SupportError):
+                support.archive_change(root, "change-t", "2026-09-05",
+                                       False, True)
+
+    def test_a_long_lawful_draft_rename_chain_is_not_capped(self):
+        """NO ARBITRARY DEPTH. "Renaming a DRAFT change is unaffected" carries
+        no number, so neither does the walk: it follows the lineage
+        iteratively, bounded by the history itself rather than by a constant,
+        and a packet renamed seventy times while still a draft archives on
+        the ratification it finally got. A depth cap here would have been a
+        refusal nobody ruled, on a gate with no bypass flag (#690)."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            changes = root / "openspec" / "changes"
+            current = "change-r"
+            for step in range(70):
+                following = f"change-{step:03d}"
+                git(root, "mv", str(changes / current),
+                    str(changes / following))
+                commit_all(root, f"rename {current} to {following}")
+                current = following
+            moved = changes / current
+            ratify(moved / "proposal.md")
+            commit_all(root, "ratify it under the name it ended up with")
+            head = self.sha(root)
+            self.assertEqual(support.ratifying_commit(root, current), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change=current), [])
+
     def test_the_guard_reads_any_spelling_of_the_candidate_commit(self):
         """A REVISION IS A REVISION, however it is spelled — and getting that
         wrong is silent NON-detection, which is the failure class this whole
