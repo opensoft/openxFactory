@@ -2403,11 +2403,16 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # AND THEN THE § 3.4 SLICE-S5 ANNOTATION (`#656` comments `5648044785` /
     # `5648049748` / `5648065587`, whose Q-L1 obligation binds every § 3.4
     # slice, same as S2/S3/S4/S6 above) moved both once more: "contribute the
-    # gate loop" edits TEN arrived rows and converts ONE of them —
-    # `views/staging-workbench.js`, `moved_verbatim` until this slice — into a
-    # carrier. 1422 + 162 = 1584 on 158 + 1 = 159 rows. It is also the FIRST
-    # act to use RULED Q6's `re_destined:` field, on four rows; a re-destination
-    # is not an edit and moves neither figure, which the next test measures.
+    # gate loop" edits ELEVEN arrived rows (five at `opendox_code` — `serve.py`,
+    # `app.js`, `wheel.js`, `staging-workbench.js`,
+    # `test_bullseye_widget.py` — and six at `openxdox_code` — `gate.js`,
+    # `dispose.js`, `swb-create.js`, `swb-session.js`,
+    # `test_session_confinement.py`, `test_staging_workbench.py`) and converts
+    # ONE of them — `views/staging-workbench.js`, `moved_verbatim` until this
+    # slice — into a carrier. 1422 + 162 = 1584 on 158 + 1 = 159 rows. It is
+    # also the FIRST act to use RULED Q6's `re_destined:` field, on four rows;
+    # a re-destination is not an edit and moves neither figure, which the next
+    # test measures.
     assert (lines, carrying) == (1584, 159), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
@@ -2603,15 +2608,17 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
 
 def test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines() -> None:
-    """RULED Q6 against the LANDED manifest: the FORM, documented, and NOT ONE
-    ROW using it.
+    """RULED Q6 against the LANDED manifest: the FORM, documented, and the
+    FOUR ROWS § 3.4 slice S5 uses it for.
 
-    The amendment that landed the field re-destined nothing on purpose — slice
-    S8 of the front-end boundary note is the act that uses it, under its own
-    claim and its own pull request — so this is the assertion that says the
-    floor gained a gate and the document did not move. It is also what makes
-    every count in `test_the_real_manifest_carries_the_ruled_q_l7_amendment`
-    above still readable as untouched by this amendment.
+    AS FIRST LANDED this amendment re-destined nothing on purpose, on the
+    expectation that slice S8 of the front-end boundary note would be the
+    first act to use it, under its own claim and its own pull request. § 3.4
+    slice S5 (`#656` CLAIM `5648073924`) used it FIRST instead, so this is now
+    the assertion that the floor's gate holds FOUR re-destined rows, not zero,
+    and that `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above
+    still reads the aggregate correctly around them — a re-destination is not
+    an edit and moves neither of that test's two figures.
 
     THE HEADER IS ASSERTED TOO, because a form nobody can find in the document
     that carries it is a form the next author re-invents: the ruling, the field

@@ -150,13 +150,17 @@
 # import rewrite the new leg needs is an ORDINARY declared line under the
 # existing `import rewrites` class.
 #
-# NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
-# and re-destines nothing: slice S8 of the front-end boundary note is the act
-# that uses it, under its own claim and its own pull request, and every count
-# in this file is therefore unmoved by this landing. `re-destined 0` is what
-# `scripts/validate-carve-manifest.py` prints for this document until then —
-# the count is printed on every run, in both phases and at zero, so the state
-# the file is in is never the state no log records.
+# AS FIRST LANDED, NO ROW BELOW CARRIED THE FIELD: this amendment landed the
+# FORM and its gates and re-destined nothing itself, on the expectation that
+# slice S8 of the front-end boundary note would be the first act to use it,
+# under its own claim and its own pull request. § 3.4 slice S5 (`#656` CLAIM
+# `5648073924`, `opensoft/openxFactory#1023`) used it FIRST instead: RULED Q5
+# (`5648044785`) makes the gate loop a CONTRIBUTED column, and FOUR rows below
+# — `views/gate.js`, `views/dispose.js`, `views/swb-create.js` and
+# `views/swb-session.js` — now carry `re_destined:` from `opendox_code` to
+# `openxdox_code`. `re-destined 4` is what `scripts/validate-carve-manifest.py`
+# prints for this document now; the count is printed on every run, in both
+# phases, so the state the file is in is never the state no log records.
 #
 # THE GATES, FIVE OF THEM: `re_destined:` on a `not_moved` row refuses
 # `carve-re-destined-not-moved` (a row that placed nothing has no arrival to
