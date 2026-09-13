@@ -122,6 +122,44 @@ keys:
   # RULED 2026-09-06T14:13:46Z: "register neither deferred seat now; delete
   # neither." Their keys are registered by whichever codexFactory roster act
   # binds them, in that same governed act.
+  #
+  # 2026-09-12 ADDENDUM, append-only — FIVE SEATS NOW, AND ONE STILL ABSENT.
+  # The paragraph above is left exactly as written because it records what
+  # this wallet declared when it was minted, and that is still true of the
+  # mint. Read it now against this: `client-security-compliance-officer` IS
+  # NO LONGER ABSENT. Q-GRC-4 is discharged for it by the condition the ruling
+  # itself named — "their keys are registered by whichever codexFactory roster
+  # act binds them, in that same governed act" — occurring: codexFactory PR
+  # #439 → `eff9ae191d78c396800a72cdec9fffe0caf866d7`, merged
+  # 2026-09-12T15:59:10Z, bound it as the conjunction seat
+  # (`members.client.conjunction_pull_in.seat`), and this edit is that same
+  # governed act's openxFactory half (Amendment 2 task 6.13).
+  #
+  # IT IS STILL A CONJUNCTION SEAT, and the sentence above about the
+  # CONDITIONAL pull-in is still right about what that rule IS — it is a rule
+  # this body writes for other councils' convenings. What changed is that the
+  # persona it names now has a seat identifier on THIS bench too, and a
+  # conditional seat's key is declared unconditionally so that the first
+  # convening the condition fires on is not the one that discovers a missing
+  # key.
+  #
+  # `intent_owner_role_slot` IS STILL DELIBERATELY ABSENT. Its
+  # `binding: symbolic_until_project_roster` and its own unchanged trigger are
+  # untouched by this act, "delete neither" still governs it, and Amendment 2
+  # task 6.27 records that the packet's task 4.6 does NOT tick here because it
+  # names two seats and this act discharges one.
+  #
+  # ⚠ THE FIFTH ENTRY'S KEY MATERIAL IS A PLACEHOLDER — see the entry's own
+  # comment below. This wallet is NOT MERGEABLE in this state.
+  #
+  # ⚠ CORRECTED AT THE FILL, 2026-09-13: the two lines directly above stopped
+  # being true of the present when the mint landed, and they are corrected
+  # here rather than rewritten there so the pre-staged state stays legible.
+  # THE FIFTH ENTRY'S KEY MATERIAL IS REAL — minted host-side by Brett Heap,
+  # provisioned 2026-09-13T02:12:15Z (amendment task 6.8) — and THIS WALLET IS
+  # MERGEABLE: `validate-openxwallet.py .` reads `0 error(s), 0 warning(s)`
+  # and `wal-agent-grc-0001: 6 declared key(s)`. See the entry's own comment
+  # below and walk record § 6.8.
   - did: "did:key:z6MkoBFJbV2XhaoN6kJKrTzYLULZiU85UptzsMgTUfFCPg7f"
     key_id: key-grc-seat-lead-architect-0001
     key_fingerprint: sha256:858abc4cff28d7cdf24d9dda7b6f80bb8df69978adfbb7c10336d84c8c62f933
@@ -165,6 +203,69 @@ keys:
       model: holder_readable
       registry_version: 1
       declared_at: "2026-09-08T12:31:36Z"
+      declared_by: Brett.Heap
+  # THE FIFTH KEY — THE CONJUNCTION SEAT (Amendment 2 task 6.13).
+  #
+  # BOTH PLACES ARE REQUIRED and this is the second of them. The register
+  # (`../register.yaml`) knowing a key is NOT the wallet declaring it: the
+  # pinned validator's rule (r) refuses a presenting key no wallet declares,
+  # so without this entry the first gate-rules seat return naming
+  # `key-grc-seat-client-security-compliance-officer-0001` would be refused on
+  # arrival, and hermes-install writes exactly that register-recorded `key_id`
+  # into an exercise record's `presenting_key_ref`.
+  #
+  # ⚠ PLACEHOLDER — NOT MERGEABLE UNTIL FILLED. Amendment task 6.8's mint has
+  # not happened: OQ-1 was ruled (a), "BRETT HEAP MINTS AND HOLDS IT",
+  # host-side and TTY-gated, the task 3.2 ceremony generalized to one seat,
+  # private half only ever as
+  # `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` in
+  # codexFactory's `worker-credentials`. THREE of this entry's fields carry the
+  # SAME placeholder token, because all three are encodings of the SAME 32
+  # bytes and there is exactly ONE unknown:
+  #
+  #   `did`                   -> "did:key:" + the multibase, QUOTED
+  #   `public_key_multibase`  -> `z` + base58btc(0xed 0x01 ‖ the 32 raw bytes)
+  #   `key_fingerprint`       -> "sha256:" + sha256(the 32 raw bytes).hexdigest()
+  #
+  # DERIVE THEM THROUGH THE PINNED DECODERS AND NEVER A SECOND TOOL —
+  # `scripts/validate-factory-identity.py --derive`, the same route the four
+  # entries above took. `key_fingerprint` MUST be byte-identical to the value
+  # in `../register.yaml`'s matching `seat_keys` entry; the pinned reader
+  # RECOMPUTES it from the multibase here and the register reader recomputes
+  # the same value from that entry's base64url half, so a transcription slip
+  # in either place fails the REQUIRED `wallet-validation` check.
+  #
+  # ⚠ THE BANNER ABOVE ("PLACEHOLDER — NOT MERGEABLE UNTIL FILLED") STOPPED
+  # BEING TRUE OF THE PRESENT AT THE FILL, and it is corrected here rather
+  # than rewritten there, so the pre-staged state this entry was composed in
+  # stays legible. AMENDMENT TASK 6.8'S MINT HAS HAPPENED: Brett Heap minted
+  # it host-side, TTY-gated, and the secret was provisioned
+  # 2026-09-13T02:12:15Z. The three fields named above are FILLED below — all
+  # three derived from the ONE minted public half through the pinned decoder
+  # and never a second tool — and `key_fingerprint` is byte-identical to the
+  # matching `../register.yaml` `seat_keys` entry, which the pinned reader
+  # recomputes from both encodings and agrees. NO PLACEHOLDER REMAINS and
+  # THIS FILE IS MERGEABLE; what is still owed is the MERGE ITSELF, which is
+  # Brett Heap's and is T2. Recorded at walk record § 6.8; the public half is
+  # published in the codexFactory mint record, PR #452.
+  #
+  # `custody.declared_at` is the REGISTER ACT's effective instant, not a mint
+  # instant this file cannot know. THE FILL LANDED 2026-09-13, the day after
+  # this act was composed, so the instant WAS re-stamped with the three other
+  # instants of this act (walk record § 6.3 step 2) rather than left to drift
+  # silently: 2026-09-12T16:33:01Z → 2026-09-13T02:20:48Z. The three fields below are
+  # the REAL public half, minted host-side and provisioned 2026-09-13T02:12:15Z
+  # (task 6.8), derived through the pinned decoder and never a second tool.
+  - did: "did:key:z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7"
+    key_id: key-grc-seat-client-security-compliance-officer-0001
+    key_fingerprint: sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310
+    public_key_multibase: z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7
+    signature_algorithm: ed25519
+    display_label: gate rules council — client-security-compliance-officer seat (client layer, conjunction)
+    custody:
+      model: holder_readable
+      registry_version: 1
+      declared_at: "2026-09-13T02:20:48Z"
       declared_by: Brett.Heap
 state: active
 created_at: "2026-09-08T12:31:36Z"

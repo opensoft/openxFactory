@@ -604,6 +604,50 @@ permanently human-only surface.** OQ-1..OQ-5 are RULED at option **(a)**
 throughout, and the rows that named an OQ as undecided now name its ruled
 value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
 
+**2026-09-12 — WHAT THE H2 PRE-STAGE PULL REQUEST TICKS, AND WHAT IT
+DELIBERATELY DOES NOT.** T1 has landed (codexFactory PR #439 →
+`eff9ae191d78c396800a72cdec9fffe0caf866d7`, 2026-09-12T15:59:10Z) and the H2
+pull request is composed and PRE-STAGED on `register/q-grc-4-h2-grant-grc-0003`.
+
+**TICKED, each against landed evidence:** **6.1b** (Brett Heap's
+2026-09-12T03:23:17Z word), **6.2-6.7** (H1, realized by #439), **6.16** (the
+hold, posted 15:57:19Z) and **6.17** (T1 itself).
+
+**NOT TICKED, and each for its own reason:**
+
+* ~~**6.8 — THE MINT HAS NOT HAPPENED.** It is Brett Heap's host-side act and
+  it is the **PRECONDITION** of everything below. The H2 pull request carries
+  ONE PLACEHOLDER where the public half goes and **cannot merge until it is
+  filled**; its five slots and the fill recipe are
+  `walk-2026-09-12-register-act.md` § 6.3.~~ **IT HAS SINCE HAPPENED AND 6.8
+  IS TICKED** — see the 2026-09-13 note below. The line is struck rather than
+  deleted, so the state this block was written in stays legible.
+* **6.9-6.15 — COMPOSED BUT NOT PERFORMED.** The bytes exist on the branch; an
+  act is performed when it lands. These tick at T2, in the merge commit or
+  immediately after it — never at draft.
+* **6.18-6.26 — the ceremony after T2**, in order, none of them started.
+* **6.27 / 6.28 — bookkeeping this group does not do**, unchanged.
+
+Rule 1 `CLAIMED` and Rule 6 `LANDING`/`LANDED` are owed **AT LANDING**, per
+6.28, and none is posted at draft.
+
+**2026-09-13 — WHAT THE FILL COMMIT CHANGES ABOUT THE BLOCK ABOVE.** The block
+above describes the act as it stood PRE-STAGED on 2026-09-12 and is left
+standing in that tense. ONE row of it has moved since: **6.8 IS NOW TICKED.**
+Brett Heap minted the fifth keypair host-side and the secret
+`COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` was
+provisioned in codexFactory's `worker-credentials` environment at
+**2026-09-13T02:12:15Z**; the public half is published in the codexFactory mint
+record (**cxF PR #452**) and written into this act's five slots by the fill
+commit, derived through the pinned decoder alone. The REQUIRED
+`wallet-validation` gate now reads `0 error(s), 0 warning(s)`,
+`9 of 9 per-seat signing key(s)` and `6 declared key(s)`. The act's effective
+instant was RE-STAMPED at the fill, `2026-09-12T16:33:01Z` →
+`2026-09-13T02:20:48Z`, under walk record § 6.3 step 2 (the fill was not
+same-day). **NOTHING ELSE MOVED:** 6.9-6.15 and 6.18 still tick at T2 and
+6.19-6.28 are still untouched, exactly as the block above says. The merge is
+still Brett Heap's, and the merge is T2.
+
 ### 6.1 Governance
 
 - [x] 6.1 **[OPERATOR] [GOVERNANCE]** Ratify this amendment, or return it.
@@ -646,25 +690,46 @@ value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
       precedes C2, on a re-verified clean candidate. Encoded at
       `proposal.md` § AMENDMENT — 2026-09-11 (§ Rulings table), `design.md`
       D8-D12, and the record § 9; **the spec delta moved no byte.**
-- [ ] 6.1b **[GOVERNANCE]** The seat identifier string
+- [x] 6.1b **[GOVERNANCE]** The seat identifier string
       `client-security-compliance-officer` is an AUTHORING decision flagged for
       veto, not a ruling (amendment record § 4). Confirm or replace it BEFORE
       6.2 — it is written into six places and a late change is six edits plus a
       re-mint of the secret name.
+      **CONFIRMED — NOT VETOED.** Brett Heap, in session, window
+      `codeXfactory-2`, no comment URL, **2026-09-12T03:23:17Z**, verbatim:
+      *"confirm client-security-compliance-officer, proceed with T1"*. The
+      string stands in all six places and the secret name
+      `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` stands
+      with it. **The disposition PRECEDED 6.2's landing** — the word was given
+      at 03:23:17Z and T1 merged at 15:59:10Z — so the bar this row set
+      ("confirm or replace it BEFORE 6.2") was met in the order it required and
+      not ratified after the fact. Ticked here, in the H2 cycle, because the
+      word was spoken in a codexFactory session and this is the first
+      openxFactory act that follows it.
 
 ### 6.2 H1 — the codexFactory roster act (built via Speckit, after 6.1)
 
-- [ ] 6.2 **[codexFactory]** `hermes/domain/review-councils/gate-rules.yaml`:
+- [x] 6.2 **[codexFactory]** `hermes/domain/review-councils/gate-rules.yaml`:
       add `seat: client-security-compliance-officer` beside `persona:` under
       `members.client.conjunction_pull_in` (`:152-161` @ `a990cba5`). This is
       the edit `scripts/merge_master/seat_resolution.py:566`
       (`seat = pull_in.get("seat")`) reads, and the ONLY one that moves `:582`'s
       `seat_identity` from `UNBOUND` to `declared`.
-- [ ] 6.3 **[codexFactory]** Same file: rewrite the `deferred_seats` CSC entry
+      **DONE — LANDED AT T1**, codexFactory PR #439 → `eff9ae191d78c396800a72cdec9fffe0caf866d7`, merged
+      2026-09-12T15:59:10Z. The key sits at `gate-rules.yaml:203`. Measured,
+      not asserted: against the real C2 subject the resolver answers
+      `unbound_conjunction_seats: []`, `seat_identity: "declared"`,
+      `unbound_why: null` — it answered `UNBOUND` on the same subject before.
+- [x] 6.3 **[codexFactory]** Same file: rewrite the `deferred_seats` CSC entry
       (`:100-114`) as a DISCHARGED entry pointing at 6.6's record — **do not
       delete it silently**, per its own block comment (`:92-93`).
       `intent_owner_role_slot` (`:115-126`) stays byte-identical.
-- [ ] 6.4 **[codexFactory]** `hermes/domain/agent-mixes.yaml`, profile
+      **DONE AT T1** (`eff9ae191d78c396800a72cdec9fffe0caf866d7`). The entry RELOCATED to a new
+      `discharged_seats` sibling carrying its original `why` verbatim plus
+      `discharged_on: "2026-09-12"` and a `discharged_by` naming Amendment 2
+      and Brett Heap's 2026-09-11T14:59:26Z ruling — **not deleted**.
+      `intent_owner_role_slot` stays deferred, byte-identical.
+- [x] 6.4 **[codexFactory]** `hermes/domain/agent-mixes.yaml`, profile
       `gate_rules_council`: add the identifier to `all_possible_seats`
       (`:271-275`) and rewrite the Q-GRC-4 comment above it (`:251-270`) to
       record the discharge; add the `model_assignments` entry (`:312-372`) with
@@ -675,7 +740,14 @@ value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
       `lead-security`'s `authority_ref` (`:338-339`), which points at the
       enrolled merge-readiness roster and would attribute this pin to an act
       that never made it.**
-- [ ] 6.5 **[codexFactory]** Same file: add the identifier to
+      **DONE AT T1** (`eff9ae191d78c396800a72cdec9fffe0caf866d7`). `all_possible_seats` 4 → 5; the
+      `model_assignments` entry carries `selector: claude-opus-5`,
+      `selector_kind: exact_provider_version`, `pin_status: pinned` (copied
+      field by field from `lead-security`), `authority_layer: domain`, and
+      `authority_ref: hermes/domain/review-councils/records/2026-09-12-gate-rules-roster-csc-pin.md#operator-ruling-q-grc-4-discharge`
+      — **correctly UNCOPIED**, which is the half **LQ2-C1** names as making a
+      citation of this pin lawful.
+- [x] 6.5 **[codexFactory]** Same file: add the identifier to
       `prompt_contract.seats` (`:378-382`) and **WRITE the seat's briefing** as
       a new entry in `.github/workflows/scripts/deliberation_packet.py`'s
       `GATE_RULES_SEAT_FOCUS` (`:225-258`). **There is nothing to copy** — the
@@ -688,7 +760,14 @@ value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
       every byte after it shifts and the digest cannot be patched), add the
       fifth `seat_digests` entry, advance `pinned_on` and set
       `previously_pinned_on: "2026-09-10"`.
-- [ ] 6.6 **[codexFactory]** Write the `roster_change: lead_accepted_recorded`
+      **DONE AT T1** (`eff9ae191d78c396800a72cdec9fffe0caf866d7`). `rendered_set_digest`
+      `sha256:aac9b60e…` → **`sha256:0ea5f7afd8a55f286129206470ab4ad377ac73535644f95fc3811515a44321ad`**;
+      fifth entry
+      `client-security-compliance-officer: sha256:09d59e06a9fb6d2bca9caa5c27e407f9a28e5a0962682b12d99dbd00409487f2`;
+      `pinned_on: "2026-09-12"`, `previously_pinned_on: "2026-09-10"`. **The
+      four pre-existing seat digests are byte-identical**, which is the proof
+      that nothing but the new entry entered the set.
+- [x] 6.6 **[codexFactory]** Write the `roster_change: lead_accepted_recorded`
       record at
       `hermes/domain/review-councils/records/<date>-gate-rules-roster-csc-pin.md`
       in R1's shape
@@ -703,13 +782,31 @@ value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
       (2026-09-11T17:08:42Z): the soak is OWED and is **not** a precondition of
       binding, and no `gate_rules_council` `activation_gate` is declared (none
       exists). Nothing in §§ 6.16-6.26 waits on a soak row.
-- [ ] 6.7 **[codexFactory]** Prove it, do not assert it: re-render all five
+      **DONE AT T1** (`eff9ae191d78c396800a72cdec9fffe0caf866d7`) at
+      `hermes/domain/review-councils/records/2026-09-12-gate-rules-roster-csc-pin.md`.
+      § 6's OWED acceptance slot is DISCHARGED by a real seat return —
+      `records/2026-09-12-seat-returns/lead-quality.md`, commit `7d7ee39a`,
+      produced by `lead-quality` at its own pin `claude-sonnet-5` on Brett
+      Heap's commissioning word of 2026-09-12T03:05:02Z. **Position: ACCEPT AS
+      AMENDED**; five `should_fix` conditions **LQ2-C1..C5**, none blocking,
+      **NONE discharged by their own recording — they are the convener's.** No
+      condition required a pre-T1 change to H1.
+- [x] 6.7 **[codexFactory]** Prove it, do not assert it: re-render all five
       seats and show `rendered_set_digest` matches the live render
       (`test_gate_rules_holder_composition.py`); prove digest coupling BOTH ways
       (edit-without-repin FAILS, edit-with-repin PASSES), as cxF PR #374 did;
       run `deliberation_packet.py resolved-seats` against a security-surface
       packet and record the output.
-- [ ] 6.8 **[OPERATOR]** Mint the fifth Ed25519 keypair (**OQ-1**): seed
+      **DONE AT T1** (`eff9ae191d78c396800a72cdec9fffe0caf866d7`). Against baseline `main` `3c31a2e4`:
+      full pytest **+5 passed / +1 skipped** with the 163 pre-existing
+      FAILED+ERROR ids byte-identical (all in
+      `tests/browser-ui-repair/test_whole_chain_validation.py`, none ours); the
+      three gate-rules test files **144 passed / 1 skipped**;
+      `resolved-seats` on the real C2 subject returns
+      `unbound_conjunction_seats: []` with CSC `seat_identity: "declared"`;
+      validate-docs 5071/33 ok; openspec strict failure set = main's. All eight
+      required and optional checks green on #439 at merge.
+- [x] 6.8 **[OPERATOR]** Mint the fifth Ed25519 keypair (**OQ-1**): seed
       generated in-process and never written to disk, `gh secret set` on stdin
       with `--body` OMITTED, private half stored ONLY as
       `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` in
@@ -724,6 +821,27 @@ value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
       (2026-09-11T17:08:42Z). (b) — minting through the committed
       `scripts/mint-factory-origin-key.py` — and (c) — a different custody model
       for this one key — are not taken.
+      **DONE — Brett Heap, host-side.** Secret
+      `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER`
+      provisioned in `codeXfactory/codexFactory` environment
+      `worker-credentials` at **`2026-09-13T02:12:15Z`** (the confirming
+      `gh secret list` read). PUBLIC half published in the codexFactory mint
+      record, **cxF PR #452** —
+      `hermes/domain/review-councils/records/2026-09-12-gate-rules-seat-signing-key-minted-csc.md`:
+      `public_key` `cxm-qmZVKXb_B5aucwuNzeOrXbgLPMKqa6D6DX1DUiQ`,
+      `key_fingerprint` `sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310`,
+      `did:key` `did:key:z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7`.
+      Derived through the PINNED decoder only
+      (`scripts/validate-factory-identity.py --derive`, openXwallet `f3eb929b`
+      / `wallet-v1.5`) and written into the five slots of this act by the fill
+      commit; `validate-openxwallet.py .` then reads `0 error(s)`,
+      `9 of 9 per-seat signing key(s)` and `6 declared key(s)`. **No seed in any
+      file.** FOOTNOTE: a first seed provisioned `2026-09-13T00:33:05Z` was
+      DELETED UNUSED — its public half was lost to a swallowed non-TTY stdout,
+      nothing ever registered or consumed it (walk record § 6.8). The act's
+      effective instant was RE-STAMPED at the fill, `2026-09-12T16:33:01Z` →
+      `2026-09-13T02:20:48Z`, under the walk record § 6.3 step 2 rule (the fill
+      was not same-day).
 
 ### 6.3 H2 — the openxFactory register act (OPERATOR walk; no agent writes these)
 
@@ -776,11 +894,24 @@ value: 6.8 (OQ-1), 6.10 (OQ-2), 6.6 (OQ-3), 6.18 (OQ-4), 6.24 (OQ-5).
 
 ### 6.4 The ceremony
 
-- [ ] 6.16 **[lane]** Post the **HOLD** on the tracking issue, the H1 pull
+- [x] 6.16 **[lane]** Post the **HOLD** on the tracking issue, the H1 pull
       request and `LANES.md` **BEFORE** the H1 merge (precedent cxF #374, hold
       posted 2026-09-10T23:20:38Z, ~14 minutes ahead of its own merge).
-- [ ] 6.17 **T1** — H1 merges on Brett's word. `grant-grc-0002` is void from
+      **DONE — POSTED 2026-09-12T15:57:19Z**, codexFactory issue #279 comment
+      [`5646989264`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5646989264),
+      **one minute fifty-one seconds ahead of the T1 merge** and in the order
+      Brett Heap's word required (*"merge H1 when green, post the hold first"*,
+      2026-09-12T03:14:35Z). **THE HOLD IS IN FORCE**: no
+      `agent:gate-rules-council` convening may be dispatched until the lift at
+      6.21. Rule 6 landing window recorded as N/A — #439 touched no
+      `openspec/changes/` path.
+- [x] 6.17 **T1** — H1 merges on Brett's word. `grant-grc-0002` is void from
       that instant and `gate_rules_council` convenings park.
+      **DONE — T1 = `2026-09-12T15:59:10Z`**, codexFactory PR #439 → `eff9ae191d78c396800a72cdec9fffe0caf866d7`.
+      `grant-grc-0002` has been VOID since that instant, by the declared
+      composition change itself and not by any later act. The body is parked
+      under 6.16's hold. **The merge word: Brett Heap, 2026-09-12T03:14:35Z,
+      verbatim *"merge H1 when green, post the hold first"*.**
 - [ ] 6.18 **T2** — H2 merges (6.9-6.15). **OQ-4 RULED (a)**,
       2026-09-11T17:08:42Z: **ONE T1/T2 PAIR** — one codexFactory pull request
       (H1, §§ 6.2-6.8) then one openxFactory pull request (H2, §§ 6.9-6.15).
