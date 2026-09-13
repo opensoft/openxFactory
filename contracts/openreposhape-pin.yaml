@@ -88,6 +88,34 @@ kind: pinned_contract_manifest
 # because only those bytes moved.
 # ============================================================================
 
+# ============================================================================
+# ADDENDUM (issue #775, direct fix `register-sibling-consumption-pins`):
+# MEASURED AND NOT REGISTERED. Issue #775 named this pin beside its
+# `openxwallet-pin.yaml` sibling and required `neutral-product-pin`'s
+# predicate — "wherever any repository other than openxFactory is expected
+# to read it" — to be MEASURED per pin rather than assumed for both. The two
+# answer DIFFERENTLY. This pin's own paragraph above already gives the
+# reason: openxFactory CITES the standard rather than mounting it, so there
+# is no gitlink for another checkout to compare against in the first place.
+# Beyond that: the ratified `project-repo-schema` requirement "The standard
+# lives in `opensoft/openRepoShape`, is consumed by fork, and openxFactory
+# pins it by commit and digest" states in its own scenario that an
+# organisation electing the schema "depends on no artifact of this family at
+# run time" — every other adopter forks `opensoft/openRepoShape` directly,
+# never through this pin (confirmed live: `opensoft/openRepoTools` carries
+# its own independent `contracts/openreposhape-pin.yaml`, whose own header
+# states it is NOT compared to openxFactory's); `openreposhape-pin-gate.yml`
+# is openxFactory's own NON-required `pull_request` gate, carries no
+# `workflow_call` trigger and is invoked by no other repository; and
+# `scripts/validate-openreposhape-pin.py` has no aggregation-comparison mode
+# analogous to `verify-openxwallet-pin.py`'s `verify_aggregation()`. This
+# pin is therefore NOT registered in `contracts/manifest.yaml` or indexed as
+# a contract member in `contracts/README.md` — it carries a documentation-only
+# README row recording this same negative finding instead, so an absent
+# registration reads as MEASURED rather than as an oversight indistinguishable
+# from one the register simply never declared.
+# ============================================================================
+
 source_repository: opensoft/openRepoShape
 source_url: https://github.com/opensoft/openRepoShape
 

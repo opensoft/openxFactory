@@ -3589,3 +3589,92 @@ contracts:
       accepts, and retired when that repository adopts a stack pin. See
       `contracts/README.md` § "Gating archives on the pinned CLI from a consumer
       repository".
+  # ---- the openXwallet consumption pin — published by the direct fix for
+  # issue #775 (register-sibling-consumption-pins). THIS ROW PUBLISHES A
+  # CLAIM, NOT A PRODUCT, on `openspec-cli-pin`'s own precedent above.
+  # openxFactory does not own, vendor or publish `opensoft/openXwallet`; it
+  # CONSUMES it as a nested `openXwallet/` gitlink pinned by commit plus eight
+  # per-file `sha256` digests in `contracts/openxwallet-pin.yaml`, and this
+  # row publishes openxFactory's own claim about which revision it consumes,
+  # so a consuming repository finds that claim in the register it already
+  # reads rather than by knowing the path. The product's ownership, licence
+  # and release cadence are unchanged by the registration; `adapter_owner`
+  # and `compatibility` below describe THE PIN.
+  #
+  # THE PREDICATE IS MEASURED, PER PIN (issue #775, "why this is not simply
+  # 'add two more rows'"). `neutral-product-pin`'s own text — "wherever any
+  # repository other than openxFactory is expected to read it" — holds for
+  # THIS pin: the xFactory aggregation repository (`opensoft/xFactory`)
+  # carries `openXwallet` as a ROOT-LEVEL submodule beside its `openxFactory`
+  # one, and that same spec's "consuming repository's pin is authoritative
+  # among reachable checkouts" requirement obliges the two gitlinks to agree.
+  # openxFactory's own tree cannot see the aggregation's root gitlink, so the
+  # check runs the other way: this repository publishes
+  # `scripts/verify-openxwallet-pin.py --aggregation-root <path>`
+  # (`verify_aggregation()`, design D11, `split-openxwallet-repo` task 9.4) as
+  # the "Verify openXwallet root-gitlink parity" step of the `prepare` job in
+  # the REUSABLE workflow `.github/workflows/doc-health-reusable.yml`, and
+  # `opensoft/xFactory`'s own `.github/workflows/doc-health-nightly.yml` is
+  # the caller that actually invokes it (`uses:
+  # opensoft/openxFactory/.github/workflows/doc-health-reusable.yml@main`),
+  # from a checkout of openxFactory. `tests/openxwallet_pin/
+  # test_aggregation_lane_wiring.py` pins that exact invocation in the
+  # REQUIRED `pytest-suite` job. The sibling pin,
+  # `contracts/openreposhape-pin.yaml`, was measured the same way and answers
+  # DIFFERENTLY — see that pin's own header for the negative finding, which
+  # is why this registration covers one pin and not both.
+  #
+  # NO `sha256`, on `openspec-cli-pin`'s D2 precedent: a digest over this
+  # pin's own bytes would be a THIRD copy of information the pin's internal
+  # `files:` list already carries and that already moves on every openXwallet
+  # release bump (a new `commit:` plus up to eight digests); an omitted
+  # fourth-place update would red the required suite for a bump that is
+  # otherwise complete. `openxwallet-consumer-gate.yml` and the aggregation
+  # parity step both verify the pin's OWN digests and gitlink at every run;
+  # this row registers the claim, not a second checksum of it.
+  #
+  # THE #828 ENTRYPOINT-AGREEMENT ASSERTION DOES NOT MECHANICALLY FIRE HERE,
+  # AND THAT IS STATED RATHER THAN LEFT SILENT.
+  # `scripts/validate-pin-registrations.py` cross-checks a row's
+  # `consumption_rule` against the pin's own `consumer_entrypoint:` field;
+  # this pin (and its `openreposhape-pin.yaml` sibling) names its verifier
+  # under `verify_pin:` instead — a naming that predates issue #775 and is
+  # shared by both siblings — so the checker reports the entrypoint
+  # assertions "do not apply" for this row rather than affirming agreement.
+  # The path named below (`scripts/verify-openxwallet-pin.py`) is manually
+  # verified against the pin's own `verify_pin:` field and against the
+  # reusable-workflow step named above; reconciling the checker's field name
+  # with the `verify_pin:` convention both sibling pins share is left to a
+  # successor rather than picked here.
+  - id: openxwallet-pin
+    path: contracts/openxwallet-pin.yaml
+    source_path: openxFactory/contracts/openxwallet-pin.yaml
+    type: pin
+    schema_version: 1
+    intended_consumers:
+      - the xFactory aggregation's doc-health nightly lane (`opensoft/xFactory` `.github/workflows/doc-health-nightly.yml`, calling this repository's reusable `.github/workflows/doc-health-reusable.yml`)
+      - openxFactory's own `openxwallet-consumer-gate.yml` (required check `wallet-validation`)
+    compatibility: canonical_openxfactory_contract
+    adapter_owner: openxFactory
+    consumption_rule: >-
+      READ FROM THE CHECKOUT THE REUSABLE WORKFLOW ALREADY HOLDS, NEVER
+      COPIED. The aggregation's doc-health lane is a reusable workflow this
+      repository publishes at `.github/workflows/doc-health-reusable.yml`;
+      `opensoft/xFactory`'s `.github/workflows/doc-health-nightly.yml` calls
+      it, and its `prepare` job initializes both the aggregation's own
+      `openXwallet` gitlink and this repository's `openxFactory` submodule
+      before invoking `python3 openxFactory/scripts/verify-openxwallet-pin.py
+      --aggregation-root .` from that checkout. `verify()` runs first and
+      recomputes this pin's eight digests against the NESTED `openXwallet`
+      checkout; `verify_aggregation()` then requires the aggregation's OWN
+      root gitlink for `openXwallet` to record the SAME commit this pin's
+      `commit:` field names, refusing `pin-member-missing` where the
+      aggregation declares no gitlink at all and `pin-gitlink-mismatch` where
+      the two commits disagree. This is the root-gitlink-equals-nested-gitlink
+      invariant `neutral-product-pin`'s "The consuming repository's pin is
+      authoritative among reachable checkouts" requirement obliges, checked
+      from the aggregation because openxFactory's own tree cannot see the
+      aggregation's root gitlink. A copy of this pin taken into the
+      aggregation instead of reading it live from the checkout would be a
+      second pin that moves separately, which is the defect this pin grammar
+      exists to end.
