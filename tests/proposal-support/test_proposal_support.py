@@ -2138,39 +2138,19 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
     # `--filter=blob:none` clone whose promisor is unreachable lists the
     # predecessor's `proposal.md` in its tree and cannot read the blob
     # behind it. Both fixtures below are that clone, and both are measured
-    # against the FULL clone of the same fixture, where the walk refuses:
-    # the partial one accepted the late re-ratification and printed
-    # `ORIGIN RETAINED` over a mutated origin.
+    # against the FULL clone of the same history, where the walk refuses.
+    #
+    # WHAT THE PARTIAL CLONE DID BEFORE THIS ROUND DIFFERS BETWEEN THEM,
+    # and the difference is why the first pins `_incarnation` directly
+    # rather than through an outcome (measured against `a90e6ccd`, both).
+    # On the #1003 chain — the hop whose pairing cannot be read — the walk
+    # RETURNED a baseline and printed `ORIGIN RETAINED` over a mutated
+    # origin. On the byte-exact chain a sibling arm still refused, but it
+    # named the LAST hop where the full clone names the FIRST: the lineage
+    # trimmed at a tree it could not read, and a guard that has silently
+    # stopped seeing the shape it was widened for is one round away from
+    # the same pass.
     # ----------------------------------------------------------------
-
-    def partial_checkout(self, source: Path, destination: Path,
-                         unreadable: tuple[str, str]) -> Path:
-        """A `--filter=blob:none` clone of `source` with its promisor cut.
-
-        The blobs the working tree needs are fetched while the promisor is
-        still reachable, so HEAD reads normally and HISTORY does not: a blob
-        whose content differs from anything at HEAD was never fetched and can
-        no longer be. `unreadable` is the (revision, path) the fixture rests
-        on, and it is PROVED rather than assumed — a git that ignored the
-        filter would otherwise turn these fixtures green by being unable to
-        pose the question."""
-        git(source, "config", "uploadpack.allowFilter", "true")
-        subprocess.run(
-            ["git", "clone", "-q", "--filter=blob:none", f"file://{source}",
-             str(destination)], check=True, capture_output=True, text=True)
-        git(destination, "remote", "set-url", "origin",
-            f"file://{source.parent / 'no-such-promisor'}")
-        revision, rel = unreadable
-        probe = subprocess.run(
-            ["git", "-C", str(destination), "show", f"{revision}:{rel}"],
-            capture_output=True, text=True)
-        if probe.returncode == 0:
-            self.skipTest("this git did not honour --filter=blob:none over "
-                          "file://, so there is no unreadable blob to test")
-        # the tree still LISTS it: presence and readability are two questions
-        self.assertIs(support._path_present(destination, revision, rel), True)
-        self.assertIsNone(support.git_show_text(destination, revision, rel))
-        return destination
 
     def a_lineage_with_a_mutated_origin(self, root: Path) -> dict:
         """The opening every fixture below shares: a packet ratified under
