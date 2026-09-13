@@ -573,7 +573,8 @@ Active changes:
   either takes the pinned form or the block is unfenced, never silently
   retargeted and never silently deleted. **This discharges owed successor
   item (7) of the `split-openxwallet-repo` archived-ledger entry below on
-  ARCHIVE, not on filing — no box is ticked here.** The four `error`-band
+  ARCHIVE, not on filing — item (7) and the realization/archive boxes below
+  stay UNTICKED here.** The four `error`-band
   `tag-hygiene` findings that archive measured
   (`archive/2026-08-28-split-openxwallet-repo/tasks.md:1760-1786`) stay OPEN
   and the four markers stay exactly as they are: `code_surface` names
