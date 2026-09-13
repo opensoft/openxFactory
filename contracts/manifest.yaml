@@ -3708,6 +3708,23 @@ contracts:
       a required gate in this repository rather than by the aggregation's
       nightly, which is why the guard is accurate to describe as an ordering
       allowance and not as a hole.
+      THE INVOCATION RUNS ON THE RUNNER'S SYSTEM PYTHON, BEFORE THE JOB
+      INSTALLS ANYTHING, and a consumer wiring this pin into a lane of its
+      own needs to know it (added on PR #1026 review). In the published lane
+      the parity step is step 13 of `prepare`, while `actions/setup-python`
+      and `pip install pyyaml "cryptography>=41,<46"` are steps 14 and 15 —
+      so `verify-openxwallet-pin.py` runs under whatever `python3` the runner
+      image already carries. Its module-level imports are standard library
+      apart from ONE: PyYAML, which it needs to read this pin at all and
+      takes inside a module-level `try`. An image without PyYAML therefore
+      does not traceback and does not pass — it prints `ERROR PyYAML is
+      required to read contracts/openxwallet-pin.yaml` and exits 2, failing
+      the step, the job and with it the whole reusable call, which is the
+      same fail-closed shape every refusal above has. The dependency is named
+      here rather than left to the image: GitHub's hosted `ubuntu-latest`
+      satisfies it today and the step is green in `opensoft/xFactory`'s
+      nightly, but a consumer on a leaner runner must install PyYAML before
+      invoking this verifier, or order its own install ahead of the call.
       This is the root-gitlink-equals-nested-gitlink invariant
       `neutral-product-pin`'s "The consuming repository's pin is
       authoritative among reachable checkouts" requirement obliges, checked
