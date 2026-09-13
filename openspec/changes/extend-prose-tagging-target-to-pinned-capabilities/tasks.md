@@ -304,9 +304,11 @@ the later realization pull request, and § 4 is the archive act.
   enumeration for a capability NOT listed in it — PRESENT AND DOES NOT NAME;
   the fixture lives under
   `tests/doc-health/fixtures/`, adds no byte to any real pin record and no
-  member to any schema — (a), (c) and (d) are the three states of the
-  prerequisite (ABSENT, PRESENT-AND-NAMES, PRESENT-AND-DOES-NOT-NAME) and
-  without all three a branch can be absent with this list still satisfied; **(e)** an `xspec:supersedes` marker
+  member to any schema — (a), (c) and (d) are the three NON-MALFORMED states of
+  the prerequisite (ABSENT, PRESENT-AND-NAMES, PRESENT-AND-DOES-NOT-NAME), and
+  (g), MALFORMED, is the fourth required state — absent and malformed are two
+  findings with one outcome, so a matrix that treats (g) as optional leaves a
+  branch untested; **(e)** an `xspec:supersedes` marker
   whose `spec=` value carries the reserved `pinned:` prefix is REFUSED with a
   finding whose ACTION TEXT is asserted VERBATIM and states that the pinned
   form is admitted only in a candidate marker's `target=` attribute (D-1.1) —

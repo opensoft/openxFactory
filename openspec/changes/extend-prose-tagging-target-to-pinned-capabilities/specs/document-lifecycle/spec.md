@@ -361,9 +361,10 @@ not the thing that happens when nobody decides.
 - **AND** a record of another kind, or one incomplete for its shape, is judged by the kind and shape findings and never reaches this scenario or the publisher remedy
 
 #### Scenario: A pinned capability is absent from the pin record's enumeration
-- **WHEN** a marker names `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` carries a well-formed non-empty `capabilities:` member, and `<capability>` does not appear in it
+- **WHEN** a marker names `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` resolves, through the code-fixed route, to a valid, complete `kind: pinned_contract_manifest` record for its record shape, carries a well-formed non-empty top-level `capabilities:` member, and `<capability>` does not appear in it
 - **THEN** the deterministic health pass MUST report it as a hygiene finding naming the enumeration
 - **AND** the target MUST NOT resolve
+- **AND** a record of another kind, or one incomplete for its shape, is judged by the kind and shape findings and never reaches this scenario
 
 #### Scenario: A pinned target names a record that is not a neutral-product pin
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares a kind other than `pinned_contract_manifest`
