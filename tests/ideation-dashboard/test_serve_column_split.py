@@ -18,8 +18,9 @@ FIVE THINGS, because each answers a different question a reviewer of a move has:
   2. **The profile is what the server is assembled with.** Three extensions,
      each conforming to the protocol, in a declared order.
   3. **The flattened binding set, exactly.** Method, pattern, prefix-ness and
-     handler name for all nine, in consult order — the table the pinned
-     `ROUTE_ARMS`/`DO_POST_ARMS` no longer cover.
+     handler name for all seven (nine at PR 3; `/source` + `/source/` left for
+     a fixed core arm at § 3.4 slice S6, RULED Q4), in consult order — the
+     table the pinned `ROUTE_ARMS`/`DO_POST_ARMS` no longer cover.
   4. **Every moved WRITE route still refuses off-loopback**, driven through a
      real `build_server`, giving the SAME status and the SAME error code a core
      write route gives. This is the property the whole by-name dispatch shape
@@ -82,6 +83,17 @@ WEB = dashboard_web_root()
 #: The handlers PR 3 moved out of `serve.py`, with the module each landed in.
 #: `_serve_snapshot` is here too although its ARM stayed core: the method moved,
 #: and a method that moved and did not compose back is exactly what this checks.
+#:
+#: `_keyed_source`/`_serve_source`/`_refuse_bare_source` LEFT this dict at § 3.4
+#: slice S6 (RULED Q4, `#656` comment `5642758731`): `/source` returned from
+#: CONTRIBUTED to FIXED, and the three methods moved AGAIN, this time to
+#: `opendox.serve` itself rather than to a sibling column's mixin — so "did the
+#: move compose back onto DashboardHandler through a mixin" is not even the
+#: right question for them any more; they are declared directly on the request
+#: handler's own module now. That property (fixed, ordered ahead of the § 2.4
+#: consult, unshadowable) is proven at the repository that owns it —
+#: `opensoft/openDox-code`'s `tests/test_source_core_arm.py`, § 2's dispatch-
+#: order and unshadowability tests — not here.
 MOVED_HANDLERS = {
     "_handle_gate_action": serve_gate.GateRoutes,
     "_log_gate_failure": serve_gate.GateRoutes,
@@ -90,9 +102,6 @@ MOVED_HANDLERS = {
     "_serve_snapshot": serve_projection.ProjectionRoutes,
     "_hosted_entry_refused": serve_projection.ProjectionRoutes,
     "_serve_index": serve_projection.ProjectionRoutes,
-    "_keyed_source": serve_projection.ProjectionRoutes,
-    "_serve_source": serve_projection.ProjectionRoutes,
-    "_refuse_bare_source": serve_projection.ProjectionRoutes,
     "_handle_dtn_seed": serve_openxfactory_lanes.LaneRoutes,
     "_handle_staging_seed": serve_openxfactory_lanes.LaneRoutes,
     "_handle_apply_register_edits": serve_openxfactory_lanes.LaneRoutes,
@@ -103,12 +112,15 @@ MOVED_HANDLERS = {
 
 #: The CONTRIBUTED table, in `collect_bindings`' consult order: every exact
 #: binding in declaration order, then every prefix binding in declaration order.
-#: Nine, not ten: `/snapshot.json` stayed a core arm (see the module docstring of
-#: `serve_projection.py` for why a frozen pattern cannot carry the
-#: `build_server(snapshot_route=…)` keyword).
+#: Seven, not ten: `/snapshot.json` stayed a core arm (see the module docstring
+#: of `serve_projection.py` for why a frozen pattern cannot carry the
+#: `build_server(snapshot_route=…)` keyword), and `/source` + `/source/` LEFT
+#: at § 3.4 slice S6 (RULED Q4, `#656` comment `5642758731`) for a FIXED core
+#: arm in `opendox/serve.py` — a route-ownership correction, not a behaviour
+#: change (`test_a_bare_source_request_still_answers_the_same_refusal` below
+#: proves the wire answer is unchanged).
 CONTRIBUTED_BINDINGS = (
     ("GET", "/snapshot-index.json", False, "_serve_index"),
-    ("GET", "/source", False, "_refuse_bare_source"),
     ("GET", "/committed-intents.json", False, "_serve_committed_intents"),
     ("POST", "/actions/refresh", False, "_handle_refresh_action"),
     ("POST", "/actions/dtn-seed", False, "_handle_dtn_seed"),
@@ -116,7 +128,6 @@ CONTRIBUTED_BINDINGS = (
     ("POST", "/actions/apply-register-edits", False,
      "_handle_apply_register_edits"),
     ("POST", "/actions/gate/", True, "_handle_gate_action"),
-    ("GET", "/source/", True, "_serve_source"),
 )
 
 #: The moved WRITE routes, each with a body a real client would send. Every one
@@ -222,31 +233,28 @@ def test_the_contributed_dispatch_table_is_exactly_the_routes_that_moved():
         "unreachable, and one that appears in both is a collision.")
 
 
-def test_the_exact_source_binding_is_consulted_before_the_prefix_one():
-    """The `/source` ordering trap, pinned.
-
-    `if path == "/source" or path == "/source/"` was partly dead in `_route`:
-    the `startswith("/source/")` arm fired first, so `/source/` reached
-    `_serve_source("")` and NEVER `send_error(404, "no source path")`. Moving
-    only the prefix would have promoted the surviving core arm above the
-    binding and changed that answer. `collect_bindings` groups exact ahead of
-    prefix, which reproduces the old order — but only as long as `/source`
-    stays EXACT and `/source/` stays a PREFIX.
-    """
-    bindings = route_extension.collect_bindings(
-        profile_openxfactory.ROUTE_EXTENSIONS)
-    bare = route_extension.match(bindings, "GET", "/source")
-    trailing = route_extension.match(bindings, "GET", "/source/")
-    nested = route_extension.match(bindings, "GET", "/source/a/b.md")
-    assert bare is not None and bare[0].handler == "_refuse_bare_source"
-    assert trailing is not None and trailing[0].handler == "_serve_source"
-    assert trailing[1] == "", "the trailing-slash form must serve an EMPTY tail"
-    assert nested is not None and nested[0].handler == "_serve_source"
-    assert nested[1] == "a/b.md"
+# `test_the_exact_source_binding_is_consulted_before_the_prefix_one` LEFT
+# here at § 3.4 slice S6 (RULED Q4, `#656` comment `5642758731`): its subject,
+# `/source` exact-before-prefix ordering, moved from `collect_bindings`'
+# consult order (a property of the CONTRIBUTED table this file pins) to
+# `opendox/serve.py`'s own FIXED-arm dispatch order — a property of code that
+# now lives outside this file's domain entirely, not merely renamed. It is
+# proven there instead: `opensoft/openDox-code`'s
+# `tests/test_source_core_arm.py::test_route_dispatches_the_exact_arm_before_
+# the_prefix_arm` asserts the identical ordering trap this test used to pin
+# (bare-before-prefix, by direct source inspection of `_route`), at the
+# repository that can now break it.
 
 
 def test_a_bare_source_request_still_answers_the_same_refusal(tmp_path):
-    """The wire half of the trap above, over a real server."""
+    """The wire-level half of the `/source` ordering trap, over a real server —
+    UNCHANGED by § 3.4 slice S6 moving `/source` from a contributed binding to
+    a fixed core arm (RULED Q4, `#656` comment `5642758731`, "a route-
+    ownership correction, not a new capability"): the same two requests must
+    still get the same two answers regardless of which mechanism serves them.
+    The ordering property itself (why they must) is now pinned at
+    `opensoft/openDox-code`'s `tests/test_source_core_arm.py` instead of
+    immediately above this test, where it used to live."""
     with serving(tmp_path) as (_httpd, host, port):
         conn = http.client.HTTPConnection(host, port, timeout=5)
         conn.request("GET", "/source")
