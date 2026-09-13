@@ -1806,12 +1806,36 @@ def test_the_drift_grain_is_one_finding_per_arm_template():
 
     # they really are different findings, differing OUTSIDE their quoted spans
     assert len({f.rule for f in unplaced}) == len(unplaced)
-    specs = {re.search(r"(openspec/specs/[\w./-]+)", f.rule).group(1)
+    # THE COMPARISON SUBJECT, READ OUT OF THE TEMPLATE'S OWN `{spec_rel}` SLOT
+    # RATHER THAN GUESSED AT BY PREFIX. This read `openspec/specs/[...]` until
+    # 2026-09-13 and that was a guess about the corpus, not about the family:
+    # `{spec_rel}` is whatever the arm compared the block AGAINST, and the arm
+    # compares against AN ACTIVE SIBLING'S BLOCK when one already writes the
+    # same requirement title, falling back to promoted canon only when none
+    # does. The real tree simply never had two active writers over one title
+    # until `add-target-release-deferred-allocation` became the second writer of
+    # `release-realization`'s *Realization axis declaration*, behind
+    # `add-structured-scope-substrate` — whereupon `re.search` returned None and
+    # this test failed with an `AttributeError` that named nothing, on a corpus
+    # state the family handles correctly and the `-two-writers` fixture tree has
+    # exercised all along.
+    #
+    # ANCHORED ON THE PROSE BOTH ARM TEMPLATES SHARE (`TEMPLATE_LEDGER` and
+    # `TEMPLATE_TITLES` both end `{spec_rel} currently states for it`), so the
+    # capture IS the slot and cannot drift onto a path that happens to appear
+    # inside a quoted unit excerpt further along the rule.
+    #
+    # WHAT THE ASSERTION BELOW STILL MEASURES IS UNCHANGED: the unplaced
+    # findings must name AT LEAST TWO DIFFERENT comparison subjects, so the
+    # one-shape collapse is a real collapse and not one that would hold under
+    # the pre-amendment rule too.
+    specs = {re.search(r"(openspec/[\w./-]+) currently states for it",
+                       f.rule).group(1)
              for f in unplaced}
     assert len(specs) >= 2, (
-        f"every unplaced finding named the same promoted spec ({specs}), so the "
-        f"collapse below would hold under the OLD rule too and this test no "
-        f"longer measures the amendment")
+        f"every unplaced finding named the same comparison subject ({specs}), "
+        f"so the collapse below would hold under the OLD rule too and this test "
+        f"no longer measures the amendment")
 
     # ...and they are nonetheless ONE template, hence ONE remedy, hence ONE finding
     assert len({_independent_template_of(f.rule) for f in unplaced}) == 1

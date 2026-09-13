@@ -515,7 +515,9 @@ re-run's, not the first authoring's.
 
 ## 6. Archive — OWED, NOT GIVEN
 
-- [ ] 6.1 **`code_surface` IS NON-EMPTY, SO THIS PACKET DOES NOT ARCHIVE ON
+- [x] 6.1 **DONE, ON BRETT HEAP'S SEPARATE ARCHIVE WORD.** Brett Heap, 2026-09-12T22:25:43Z, verbatim **"archive both"** (scope named: this packet, openxFactory #965, and its sibling `gate-realization-axis-vocabulary`, #956) — recorded on PR #981 at https://github.com/opensoft/openxFactory/pull/981#issuecomment-5649094329, mirrored on #965 at https://github.com/opensoft/openxFactory/issues/965#issuecomment-5649094412. The word is given conditionally on exactly the realization this box asks for, and the condition is MET: this packet's ratification, PR [#981](https://github.com/opensoft/openxFactory/pull/981) (Brett Heap, 2026-09-12T15:45:22Z, verbatim "do all as recomended", https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774), MERGED into `main` as **`177ba8196e16097e30aeb3f946ca8291b9ba4e92`** at **2026-09-12T18:08:16Z**, and `main`'s OWN `pytest-suite` run **[34710282045](https://github.com/opensoft/openxFactory/actions/runs/34710282045)** (`event: push`, `headBranch: main`, head **`177ba8196e16097e30aeb3f946ca8291b9ba4e92`** — the merge commit itself) ran **`conclusion: success`**, 2026-09-12T18:08:18Z to 18:27:25Z. Performed with `TZ=UTC python3 scripts/proposal-support.py . archive report-stale-grandfather-dispositions --date 2026-09-12 --yes` through the pinned `@fission-ai/openspec@1.12.0` artifact — never a bare `openspec archive`.
+      The ratified text follows unchanged:
+      **`code_surface` IS NON-EMPTY, SO THIS PACKET DOES NOT ARCHIVE ON
       LANDING.** `release-realization`'s *Realization archive gate*: *"A change
       with a non-empty code surface SHALL NOT archive until realization evidence
       exists: its code merged on the implemented target through the owning
@@ -523,18 +525,24 @@ re-run's, not the first authoring's.
       run of that surface."* The realization rides THIS pull request, so the
       evidence is this pull request MERGED into `main` plus a green
       `pytest-suite` run at the tree that merge carries.
-- [ ] 6.2 **THE EVIDENCE IS CITED AT CANON'S GRAIN, WHICH IS THE TREE.** `main`'s
+- [x] 6.2 **THE EVIDENCE IS AT CANON'S OWN GRAIN — NO TREE-EQUALITY ARGUMENT IS NEEDED, AND NONE IS MADE.** Run 34710282045's `headSha` IS the merge commit `177ba8196e16097e30aeb3f946ca8291b9ba4e92` — not `refs/pull/981/merge`, not a pre-merge branch tip — so the tested tree and the merged tree are the same tree by construction: this box's fallback (a pull-request-own green run, plus proof the base did not move between run and merge) is not needed here. `main` itself ran, and ran to `success`, on exactly the commit that carries the merge, and was not pre-empted by any later landing before it completed (`updatedAt` 18:27:25Z, `status: completed`).
+      The ratified text follows unchanged:
+      **THE EVIDENCE IS CITED AT CANON'S GRAIN, WHICH IS THE TREE.** `main`'s
       post-merge suite run is routinely cancelled by the next landing, so the
       citable run is this pull request's own green run on `refs/pull/N/merge`
       TOGETHER WITH proof that the merge commit's tree is the tree that ran (the
       base not having moved between the run and the merge). A bare "it was green
       on the branch" is not the evidence this gate asks for.
-- [ ] 6.3 **THE PROMOTION IS PART OF THE ARCHIVE ACT AND NOT OF THIS ONE.** The
+- [x] 6.3 **PERFORMED IN THIS ARCHIVE PULL REQUEST'S OWN ARCHIVE-MOVE COMMIT, IMMEDIATELY AFTER THIS TICK COMMIT, BY `proposal-support.py` — NEVER IN THE RATIFICATION.** Pre-computed on the tree as it stands now (`origin/main` `e8dd7d88`, unmoved since): the delta's full requirement text (*Governed corpus membership and the lifecycle scan set*) is **77 lines, 8,394 bytes, sha256 `68be1ba5ea476431aa2792f530de36b03d6a114b5d6a394ae882d2613caa6670`**; canon's SAME requirement, pre-promotion, is **68 lines, 5,781 bytes, sha256 `2afbd626b22b32955ef69059a40fa6f15e5ec558b007eb24fe347cd5df83a48a`**; the delta is a byte-for-byte PREFIX MATCH of canon plus a **9-line, 2,613-byte** appended tail (the added scenario *A recorded disposition matches no finding*), confirmed programmatically (`delta_block.startswith(canon_block)`). The archive-move commit re-verifies canon carries the delta's full bytes AFTER the move, citing the same figures again there.
+      The ratified text follows unchanged:
+      **THE PROMOTION IS PART OF THE ARCHIVE ACT AND NOT OF THIS ONE.** The
       `## MODIFIED` block is applied to `openspec/specs/doc-health/spec.md`
       THERE, by `proposal-support.py`, after the ratification of § 1 and on
       Brett Heap's separate archive word. This pull request edits no file under
       `openspec/specs/`.
-- [ ] 6.4 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
+- [x] 6.4 **PERFORMED IN THIS ARCHIVE PULL REQUEST'S BODY, AND NOWHERE ELSE.** openxFactory issue [#965](https://github.com/opensoft/openxFactory/issues/965) is verified **OPEN** at this writing; `Closes #965` will appear once, on its own line, in this pull request's BODY only. No closing keyword appears in this tick commit's message, in this quotation of the box itself (deliberately written out of closing-keyword form), or in any other commit on this branch, in any form, case or tense, quoted or otherwise.
+      The ratified text follows unchanged:
+      **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
       ELSE**, by a closing keyword written THERE against openxFactory issue 965.
       No closing keyword appears in this pull request's body or in any commit
       message on this branch, in any form, quoted or otherwise — a commit
@@ -542,7 +550,9 @@ re-run's, not the first authoring's.
 
 ## 7. Measured, and deliberately NOT taken here
 
-- [ ] 7.1 **THE OTHER EIGHT FAMILIES' ENTRIES ARE NOT READ FOR STALENESS**, and
+- [x] 7.1 **RE-MEASURED AND RESOLVED AT THIS ARCHIVE, NOT MERELY CARRIED.** [#966](https://github.com/opensoft/openxFactory/issues/966) — this box's own named successor — is now **CLOSED** (`completed`, 2026-09-12T18:28:05Z): its packet, `decide-disposition-reading-per-family`, was RATIFIED (PR [#978](https://github.com/opensoft/openxFactory/pull/978), merged `45a98faa5f89f48a3d0b1842d111681b85e7f0ad`, 2026-09-12T17:00:28Z) and then ARCHIVED (PR [#1007](https://github.com/opensoft/openxFactory/pull/1007), merged `4756149436692df66f42f3505658e97e992dfe11`, 2026-09-12T18:28:03Z), promoting its own `## MODIFIED` block over a DIFFERENT requirement (*Finding severity and regression handling*) — no collision, exactly as `design.md` D5 records. **THE PARTITION IS RE-COUNTED** at `opensoft/xFactory` `main` `c64295b315296ef7d64b67343ce1c6d1e7580718`: `health/dispositions.yaml` now carries **79** entries, of which **18** still carry `family: ratified-provenance` (unchanged population — no new grandfather entry has landed) and **61** belong to the other eight families (up from the `31`-of-`49` split this box measured at drafting) — `location-conformance` 10, `proposal-origin` 8, `record-immutability` 35, `modified-block-currency` 4, and one each of `semantic-contradiction`, `semantic-normative-prose`, `uncited-resolution` and `document-catalog`. This box ticks by naming its now-landed successor and by nothing else — no stale-disposition check for another family is written here, no finding class is graded, no severity chosen.
+      The ratified text follows unchanged:
+      **THE OTHER EIGHT FAMILIES' ENTRIES ARE NOT READ FOR STALENESS**, and
       the count is measured rather than carried: at `opensoft/xFactory` `main`
       `0ecb370e`, **31 of the 49** entries belong to the other eight families —
       `location-conformance` 10, `proposal-origin` 8, `record-immutability` 5,
@@ -561,7 +571,9 @@ re-run's, not the first authoring's.
       not by convention: `_grandfather_cites` asks the shared reader for this
       family's key set alone, so an entry naming another family is not in the
       map this pass takes the complement of.
-- [ ] 7.2 **THE UNRECORDED-FINDING HALF OF THE SET EQUALITY IS NOT TAKEN.** A
+- [x] 7.2 **RE-CONFIRMED, STILL NOT TAKEN, NO SUCCESSOR FILED.** The unrecorded-finding half of the set equality — a `critical` row this family raises with no covering disposition entry — remains ungoverned by any rule at this archive, and none is written here: it is a question about the dispositions file's COMPLETENESS rather than its CURRENCY (this packet's own subject), and belongs to a change nobody has yet proposed. **NOT INDEPENDENTLY RE-MEASURED AT THIS ARCHIVE**: the box's own `20` figure was taken over a fully-materialized aggregation checkout (rig A, `0ecb370e`); reproducing it would require materializing every pinned repository under `opensoft/xFactory`, which this archive-mechanics act does not do (`doc-health.py --single-repo .`, the gate this act runs, reads no disposition of any family by construction). The rule this packet DOES write is unaffected either way: `scripts/doc_health/families.py` and `tests/doc-health/test_grandfather_dispositions.py` are BYTE-UNMOVED by anything landed on `main` since the ratification merge (neither file appears in the `177ba819..origin/main` diff). Sibling search for a tracking issue (`gh issue list --search`, keywords "unrecorded finding" / "dispositions completeness" / "duplicate target dispositions") returned no match; none is filed by this archive.
+      The ratified text follows unchanged:
+      **THE UNRECORDED-FINDING HALF OF THE SET EQUALITY IS NOT TAKEN.** A
       finding that SHOULD be dispositioned and is not draws its own arm's
       severity and nothing says the file is missing an entry. That is the other
       direction of the same comparison, it is a question about the file's
@@ -569,7 +581,9 @@ re-run's, not the first authoring's.
       Measured at `0ecb370e` over rig A: **20** `critical` rows of this family
       carry no entry, which is the correct answer for every one of them and is
       exactly why the completeness half needs a rule before it needs an arm.
-- [ ] 7.3 **AN ENTRY NAMING AN ACTIVE PATH IS NOT A SEPARATE CLASS HERE.**
+- [x] 7.3 **RE-CONFIRMED AT THIS ARCHIVE — A DECIDED, TESTED BOUNDARY, NOT AN OWED SUCCESSOR.** `design.md` D2a decided this in this packet's own authoring (take the complement over ENTRIES, not over the FINDING's archived-path boundary), and it is TESTED: `test_an_active_path_entry_whose_finding_stands_is_not_stale` and `test_an_entry_naming_a_clean_active_path_is_reported_stale` pin both halves, byte-unmoved since ratification. **THE ZERO POPULATION HOLDS**: re-querying the current `opensoft/xFactory` `main` `c64295b3` dispositions file (79 entries) for a `family: ratified-provenance` entry whose `path` sits outside `openspec/changes/archive/` still returns **ZERO** — all 18 `ratified-provenance` entries' paths are under the archive prefix (re-verified programmatically over the same file § 7.1 re-counted). Nothing here is owed to a successor.
+      The ratified text follows unchanged:
+      **AN ENTRY NAMING AN ACTIVE PATH IS NOT A SEPARATE CLASS HERE.**
       `design.md` D2 of the archived parent rules that a disposition NEVER
       downgrades a finding against an ACTIVE packet's record, so such an entry
       is inert by construction — but it still MATCHES the `critical` row that
@@ -585,7 +599,9 @@ re-run's, not the first authoring's.
       with its cost, and
       `test_an_entry_naming_a_clean_active_path_is_reported_stale` pins the
       encoded reading. Raised by Copilot on PR #981 (`families.py:619`).
-- [ ] 7.4 **`--single-repo` IS STILL GIVEN NO ROUTE TO AN AGGREGATION
+- [x] 7.4 **RESOLVED AT THIS ARCHIVE.** [#968](https://github.com/opensoft/openxFactory/issues/968) — this box's own named successor, filed UNCLAIMED at the PARENT packet's own archive — is now **CLOSED** (`completed`, 2026-09-12T15:45:28Z), in the same window as this packet's own ratification word. `design.md` D2's asymmetry (a `--single-repo` run reports nothing of this class, inherited from the parent) is unchanged on this branch: no CLI surface, argument, contract line or test matrix is added by this packet, and `test_a_single_repo_run_reports_no_stale_entry` still pins that. This box ticks by naming its now-closed successor and by nothing else.
+      The ratified text follows unchanged:
+      **`--single-repo` IS STILL GIVEN NO ROUTE TO AN AGGREGATION
       DISPOSITIONS FILE.** A CLI surface, an argument, a contract line and a
       test matrix, for a gate whose job is to report this repository's own
       defects — left to
@@ -593,7 +609,11 @@ re-run's, not the first authoring's.
       OPEN and unclaimed at this authoring (no branch, no pull request), and
       pinned unchanged here by
       `test_a_single_repo_run_reports_no_stale_entry`.
-- [ ] 7.5 **`docs/doc-health.md` IS NOT EDITED, AND THE SWEEP THAT WOULD HAVE
+- [x] 7.5 **CLOSED AT THIS CONTINUATION — THE DISCLOSED GAP NO LONGER STANDS.** The gap the archive-tick paragraph below discloses is closed, on this same pull request, by a later commit: `docs/doc-health.md` row 3 now states the sixth arm — the second-and-final grandfather-disposition pass — in `2ec222def35e50b6edf4f0c570406364deb9123f`, after Copilot's review (thread `PRRT_kwDOTAvnrs6h0Z2m`) named the omission; the currency note below the table gained one appended sentence citing this PR for row 3's own further update, its existing sentences unedited. `scripts/doc-health.py --single-repo .` reports IDENTICAL finding counts on this branch and a control worktree at this PR's own merge base, the only deltas being this edit's own word count and an already-explained figure from this PR's earlier promotion. Nothing below this paragraph is edited to match: each layer stands exactly as first written, describing the gap as it stood at the moment that layer was written.
+      The archive-tick paragraph follows unchanged:
+      **RE-CONFIRMED AT THIS ARCHIVE, WITH A GAP DISCLOSED RATHER THAN HIDDEN.** [#967](https://github.com/opensoft/openxFactory/issues/967) is **CLOSED** (`completed`, 2026-09-11T21:05:18Z) via PR [#977](https://github.com/opensoft/openxFactory/pull/977) (`0805c3bbd53e29c6c76ab5c3017be8567b896be0`, merged 2026-09-11T21:05:17Z), which rewrote `docs/doc-health.md`'s family-table row 3 to spell out all five arms and the grandfather downgrade — landed BEFORE this packet's own ratification. **THIS PACKET'S OWN SECOND-PASS ADDITION IS STILL NOT REFLECTED IN THAT ROW, AND THIS ARCHIVE DOES NOT ADD IT EITHER**: the ratification commit (`5d099acb`, PR #981) touched seven files and did not include `docs/doc-health.md`, so the "owed at RATIFICATION" wording below was not, in fact, taken up at ratification — disclosed here rather than carried forward silently — and this archive pull request edits no file under `docs/` either, its own stated surface being `openspec/` and `README.md` only. Whether that row update is still owed, and by which act, is left for the orchestrator to weigh; no new issue is filed by this archive.
+      The ratified text follows unchanged:
+      **`docs/doc-health.md` IS NOT EDITED, AND THE SWEEP THAT WOULD HAVE
       EDITED IT HAS LANDED WITHOUT THIS ROW.** The family-table row 3 this
       packet's earlier draft quoted — *"Every `Ratified by:` resolves to an
       existing OpenSpec change"* — no longer stands:
@@ -614,7 +634,9 @@ re-run's, not the first authoring's.
       no byte of it is this branch's. A row for the stale pass is owed at
       RATIFICATION, not at drafting, since D1 may yet re-author what the row
       would say.
-- [ ] 7.7 **A DUPLICATE TARGET IS NOT GIVEN A ROW PER LINE.** Where one
+- [x] 7.7 **RE-CONFIRMED AT THIS ARCHIVE — A DECIDED, TESTED BOUNDARY, NOT AN OWED SUCCESSOR.** D2's own reader (`_grandfather_cites`, `cites.setdefault(key, cite)`) is BYTE-UNMOVED by this packet and by everything landed on `main` since ratification (`scripts/doc_health/families.py` absent from the `177ba819..origin/main` diff), and `test_two_entries_at_one_target_report_the_one_row_the_reader_admits` still pins the one-row-per-target answer. **THE ZERO-DUPLICATE POPULATION IS RE-MEASURED, OVER A WIDER FILE THAN BEFORE**: the current `opensoft/xFactory` `main` `c64295b3` dispositions file carries **79** entries and **79 DISTINCT** `(family, repo, path)` triples — no duplicate target exists in ANY family today, not only in `ratified-provenance` (the box's original measurement, `49`/`49`, was against a smaller file). This is a decided, tested design boundary; nothing here is owed to a successor.
+      The ratified text follows unchanged:
+      **A DUPLICATE TARGET IS NOT GIVEN A ROW PER LINE.** Where one
       `(repo, path)` carries two entries of this family, `_grandfather_cites`
       keeps the FIRST (`cites.setdefault(key, cite)` — the parent's landed
       line, BYTE-UNMOVED by this change), so the two downgrade one finding
@@ -627,12 +649,16 @@ re-run's, not the first authoring's.
       today, in this family or in any other.** Pinned either way by
       `test_two_entries_at_one_target_report_the_one_row_the_reader_admits`.
       Raised by Copilot on PR #981 (`families.py:621`).
-- [ ] 7.6 **NO ENTRY IS PRUNED AND NO RECORD IS TOUCHED.**
+- [x] 7.6 **RE-CONFIRMED, STILL NOT TAKEN — AN OPERATIONAL ACT IN A DIFFERENT REPOSITORY, NOT AN OWED OPENSPEC SUCCESSOR.** This archive pull request does not edit `health/dispositions.yaml` (that file lives in `opensoft/xFactory`, a different repository than this one) and prunes no entry. The three stale entries this packet's family now REPORTS (rather than removes) stay in the file until the lifecycle owner acts on THAT repository's own pull request; a plain data edit to another repository's file is not an OpenSpec change in this one, so no issue is filed here and none is owed by this archive.
+      The ratified text follows unchanged:
+      **NO ENTRY IS PRUNED AND NO RECORD IS TOUCHED.**
       `health/dispositions.yaml` lives in `opensoft/xFactory` and this pull
       request does not edit it. The three entries this authoring measures as
       stale are reported, not removed: pruning them is the lifecycle owner's
       act in that repository, on that repository's own pull request.
-- [ ] 7.8 **`corpus.discover_repos` IS NOT NARROWED, THOUGH D2b IS ABOUT ITS
+- [x] 7.8 **RE-CONFIRMED, STILL NOT TAKEN, NO SUCCESSOR FILED — COST STILL MEASURED AS ZERO.** `corpus.discover_repos` is unchanged since the ratification merge (byte-unmoved: `scripts/doc_health/families.py` does not appear in the `177ba819..origin/main` diff), so D2b's own narrowing (scope = the document set this family read, not `ctx.repo_paths`) still fully absorbs the anchor's `is_dir()` laxness for THIS family, at the same measured **ZERO**-row cost. Tightening `corpus.discover_repos` itself remains a question for a future, as-yet-unproposed change with its own estate-wide gate run; sibling search (`gh issue list --search 'discover_repos'`, `'unmaterialized anchor'`) returned no match, and none is filed by this archive.
+      The ratified text follows unchanged:
+      **`corpus.discover_repos` IS NOT NARROWED, THOUGH D2b IS ABOUT ITS
       ASYMMETRY.** The aggregation's ANCHOR is admitted on `is_dir()` while
       every other pinned repository must pass `_is_materialized_repo`, and that
       laxness is what lets an unmaterialized `openxFactory` pin enumerate as a

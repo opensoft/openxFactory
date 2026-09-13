@@ -219,3 +219,53 @@ SUBJECT whatever status it carries. Its sibling
 `review/verification-2026-09-12.md` keeps `Status: record`: that file's
 subject is the GATE RUN, so the scenario *A review record is not about a
 ratification* governs it instead. Every path in this file is repo-relative.
+
+## 8. Addendum — the separate archive word and its evidence
+
+Appended at the archive (PR #1015), AFTER the ratifying commit above; nothing
+in § 1 through § 7 is edited. `§ 6` above named this word OWED and not given —
+it is now given and recorded here as the ratification record's own addendum,
+per the same "moved/appended, never edited" convention this packet's own
+`review/` captures are governed by.
+
+**THE ARCHIVE WORD.** Brett Heap, **2026-09-12T22:25:43Z**, verbatim
+**"archive both"** — naming this packet (`report-stale-grandfather-
+dispositions`, openxFactory #965) and its sibling
+`gate-realization-axis-vocabulary` (#956) — given in the lane's window, first-
+hand, in answer to the orchestrator's statement that both remaining code-
+surface packets each require their own separate archive word under their own
+`tasks.md` § 6.3, with the invitation "Say 'archive both' or name one".
+Recorded on PR
+[#981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5649094329)
+and mirrored on issue
+[#965](https://github.com/opensoft/openxFactory/issues/965#issuecomment-5649094412).
+This is a DIFFERENT, LATER utterance than the ratification word § 1 records
+(2026-09-12T15:45:22Z, "do all as recomended") — the ratification word decided
+`design.md` D1 and did not itself authorize promotion+archive, exactly as § 6
+above already anticipated.
+
+**THE REALIZATION EVIDENCE THE WORD'S OWN CONDITION NAMED, MET BEFORE THE WORD
+WAS GIVEN.** This packet's ratification, PR
+[#981](https://github.com/opensoft/openxFactory/pull/981), MERGED into `main`
+as **`177ba8196e16097e30aeb3f946ca8291b9ba4e92`** at **2026-09-12T18:08:16Z**.
+`main`'s OWN `pytest-suite` run
+[**34710282045**](https://github.com/opensoft/openxFactory/actions/runs/34710282045)
+— `event: push`, `headBranch: main`, head **`177ba8196e16097e30aeb3f946ca8291b9ba4e92`**
+(the merge commit itself, not a test-merge and not `refs/pull/981/merge`) —
+ran **`conclusion: success`**, 2026-09-12T18:08:18Z to 18:27:25Z. **NO TREE-
+EQUALITY ARGUMENT IS NEEDED AND NONE IS MADE**: the run's head IS the merge
+commit, so the tested tree and the merged tree are the same tree by
+construction — exactly the grain § 6.2 above named.
+
+**THE ARCHIVE ITSELF.** Performed by PR #1015 with `TZ=UTC python3
+scripts/proposal-support.py . archive report-stale-grandfather-dispositions
+--date 2026-09-12 --yes` through the pinned `@fission-ai/openspec@1.12.0`
+artifact. ORIGIN RETAINED: the declaration was unchanged since this file's own
+ratifying commit, `5d099acb51afd2032d37349f704b74ac1d222892`. The `##
+MODIFIED` block over *Governed corpus membership and the lifecycle scan set*
+promoted byte-identical to `openspec/specs/doc-health/spec.md` — 8,394 bytes,
+sha256 `68be1ba5ea476431aa2792f530de36b03d6a114b5d6a394ae882d2613caa6670` both
+sides. openxFactory [#965](https://github.com/opensoft/openxFactory/issues/965)
+closes at PR #1015 and nowhere else — no closing keyword appears in any commit
+message on that branch, in any form, case or tense, quoted or otherwise; the
+one `Closes #965` line lives in PR #1015's body alone.

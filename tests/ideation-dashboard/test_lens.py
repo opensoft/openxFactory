@@ -37,6 +37,7 @@ from pathlib import Path
 
 import pytest
 
+from carved_reach import MOUNTS
 from carved_reach import source as carved_source
 from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit, find_openxfactory_validator
 
@@ -58,6 +59,17 @@ from opendox.workbench import WorkbenchError
 # `carved_reach.source()` answers each file from its own manifest row.
 LENS_MODEL_JS = carved_source("scripts/ideation_dashboard/web/views/lens-model.js")
 LENS_JS = carved_source("scripts/ideation_dashboard/web/views/lens.js")
+# `gate-lens.js` and `helpers.js` are NOT `carved_source()`-reachable: both are
+# post-carve CREATIONS at openDox-code (`gate-lens.js` since § 3.4 slice S4;
+# `helpers.js` predates S4) with no row in `docs/opendox-carve-manifest.yaml`
+# (RULED OQ-C — the manifest declares what LEFT openxFactory, never what a
+# destination assembles since). `carved_source()` raises `NotACarvedPath` for
+# exactly this reason, so these two are addressed directly at the mount
+# `carved_reach.MOUNTS` itself names, the same lookup `source()` uses one
+# layer down.
+_OPENDOX_CODE_WEB = MOUNTS["opendox_code"] / "src" / "opendox" / "web" / "views"
+GATE_LENS_JS = _OPENDOX_CODE_WEB / "gate-lens.js"
+HELPERS_JS = _OPENDOX_CODE_WEB / "helpers.js"
 NODE = shutil.which("node")
 VALIDATOR = find_openxfactory_validator()
 XREF_VALIDATOR = hs.find_cross_reference_validator(REPO_ROOT)
@@ -177,13 +189,23 @@ def _run_node(snapshot, tmp_path):
 # the gate-verb REQUEST builders (add-lens-gate-verbs): recipeRequest /
 # clusterRequest map a confirmed PLAN to the POST body its verb route re-
 # evaluates server-side. Run in node against the fixture snapshot.
+#
+# `LENS_SAVE_ROUTE`/`LENS_CLUSTER_ROUTE` are read from `./gate-lens.js`, not
+# `./lens-model.mjs`: § 3.4 slice S4 (RULED Q3, `#656` comment `5642758731`,
+# "a route constant travels with the binding that calls it, never with the
+# model that happens to declare it") moved both out of `lens-model.js` —
+# which never called them, `lens.js` did — into the class-B module that owns
+# the gate verbs. `recipeRequest`/`clusterRequest` themselves did NOT move
+# (Q3 moves the ROUTE, not the arithmetic; `gate-lens.js`'s own header says
+# so) and are still read from `lens-model.mjs` below.
 # ----------------------------------------------------------------------------
 
 _REQUEST_HARNESS = """
 import {
   buildLensModel, savePlan, clusterPlan,
-  recipeRequest, clusterRequest, LENS_SAVE_ROUTE, LENS_CLUSTER_ROUTE,
+  recipeRequest, clusterRequest,
 } from './lens-model.mjs';
+import { LENS_SAVE_ROUTE, LENS_CLUSTER_ROUTE } from './gate-lens.js';
 import { readFileSync } from 'node:fs';
 const snap = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const model = buildLensModel(snap, {
@@ -208,6 +230,16 @@ def _run_request_node(snapshot, tmp_path):
     if not NODE:
         pytest.skip("node not available for the JS derivation probe")
     shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
+    # `gate-lens.js` imports `./lens-model.js` and `./helpers.js` BY THOSE
+    # EXACT NAMES (it is copied verbatim, unlike the harness's own `.mjs`
+    # rename of lens-model.js above) — so both are ALSO placed under their
+    # real names, and a minimal `package.json` makes Node parse plain `.js`
+    # here as ESM (harness*.mjs and lens-model.mjs already are, by extension
+    # alone; this only newly applies to gate-lens.js/helpers.js/lens-model.js).
+    (tmp_path / "package.json").write_text('{"type": "module"}\n', encoding="utf-8")
+    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.js")
+    shutil.copy(HELPERS_JS, tmp_path / "helpers.js")
+    shutil.copy(GATE_LENS_JS, tmp_path / "gate-lens.js")
     (tmp_path / "reqharness.mjs").write_text(_REQUEST_HARNESS, encoding="utf-8")
     snap_path = tmp_path / "snapshot.json"
     snap_path.write_text(json.dumps(snapshot), encoding="utf-8")

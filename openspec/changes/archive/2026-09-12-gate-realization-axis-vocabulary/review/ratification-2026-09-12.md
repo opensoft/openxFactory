@@ -218,3 +218,58 @@ posted its guide/summary stub only (comment `5634576211`) and no finding.
 The gate set re-derived on the ratified tree is
 `review/verification-2026-09-12.md` (`Status: record`); later bench rounds
 record their own re-runs in `tasks.md` § 3.x rather than rewriting it.
+
+## 9. Addendum — the archive word, recorded after this ratification and appended rather than edited into it
+
+**ADDED AT THE ARCHIVE (PR #1014), NOT PART OF THE ORIGINAL RATIFICATION
+ABOVE.** § 8 above already named what remained owed: the landing, the
+realization evidence, the archive, and § 6's named successors. What follows
+completes that record without touching a word above it.
+
+**THE LANDING.** This ratification pull request (#963) merged into `main` as
+`68ff88b4091ece46f0ad269643aa316924aa8c65` at **2026-09-12T19:03:47Z** (LANDED
+comment
+[issuecomment-5648037759](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5648037759)).
+
+**THE REALIZATION EVIDENCE.** `main`'s OWN `pytest-suite` run at that exact
+tree — run
+[34713047890](https://github.com/opensoft/openxFactory/actions/runs/34713047890),
+`headSha` `68ff88b4091ece46f0ad269643aa316924aa8c65` (byte-identical to the
+merge commit itself), conclusion **success**, created 2026-09-12T19:03:52Z,
+completed 2026-09-12T19:23:11Z — a decided run at the tree the merge carries,
+so no tree-equality argument is owed.
+
+**THE ARCHIVE WORD.** Brett Heap, **2026-09-12T22:25:43Z**, verbatim
+**"archive both"** (this packet and `report-stale-grandfather-dispositions`),
+given in answer to the orchestrator's statement that each of the two remaining
+code-surface packets requires its own separate archive word under its own
+`tasks.md` § 5/§ 6, with the invitation "Say 'archive both' or name one" —
+recorded on this pull request (#963) at
+[issuecomment-5649094500](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5649094500)
+and mirrored on openxFactory
+[#956](https://github.com/opensoft/openxFactory/issues/956#issuecomment-5649094591).
+
+**THE ARCHIVE ITSELF.** Performed in
+[PR #1014](https://github.com/opensoft/openxFactory/pull/1014): the ONE
+`## ADDED Requirements` block (*Realization axis vocabulary is gated*)
+promoted byte-for-byte into `openspec/specs/release-realization/spec.md`
+(8,569 bytes, sha256 `204368c0fb73f7638c5264ba345d7814f2920e5c3e54ae0d24cee5832749d9d5`
+both sides), the packet moved to
+`openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/`, and
+openxFactory #956 closed by that pull request's own `Closes #956` line —
+nowhere else.
+
+**§ 4.10 AND § 4.12**, left unticked at this ratification per § 8 item 3
+above, were done (the required `pytest-suite` was green at merge; the bench
+froze at 36 threads, 0 unresolved) and left unticked — the same bookkeeping
+defect `tasks.md` § 3.9(c) already names for § 4.9/§ 4.11 at an earlier round.
+Ticked at the archive, citing the CI runs directly rather than re-deriving them.
+
+**§ 6'S NAMED SUCCESSORS.** § 6.1 and § 6.2 name
+`add-structured-scope-substrate` (ACTIVE, ratified, already cited in this
+packet's own `.openspec.yaml` `related:` block and design.md D7) — re-verified
+unmoved at the archive. § 6.3 had no successor named anywhere in this packet
+or the corpus; openxFactory
+[#1013](https://github.com/opensoft/openxFactory/issues/1013) is filed for it,
+UNCLAIMED, at the archive. § 6.4 and § 6.5 owe no successor, per their own
+ratified text, and none is filed for them.

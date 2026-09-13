@@ -79,7 +79,7 @@ Core domain-neutral docs:
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
 - [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
 - [The openDox carve admissions](docs/opendox-carve-admissions.yaml) (RULED — the arrival-admission repair, Brett Heap, 2026-09-11, `#656` comment 5639058687: the DECLARED per-destination `created:` list `scripts/verify-carve-arrival.py` reads beside the manifest by default, applied exactly as `--allow-created` admits, so a file a leg legitimately assembles is a reviewed one-line diff in the pin-bump pull request rather than a flag typed on a command line and recorded nowhere; seeded with the two `opensoft/openXdox-code#7` files; `--allow-created` remains the ad-hoc fallback)
-- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 1422 declared edit lines over 158 rows, and 20 replica rows of which one declares a line)
+- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 1584 declared edit lines over 159 rows, and 20 replica rows of which one declares a line)
 - [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, five refusal codes, a `--json` seat), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 and the other two named destinations have authored no reader yet, so § 3.7 is not ticked)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
@@ -531,6 +531,119 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
+  — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
+  (2026-09-13T01:0xZ, Brett Heap, openxFactory repository owner, given in
+  session — a MULTIPLE-CHOICE ruling over all ten `design.md` D1…D10 decisions,
+  verbatim ***"accept all A on 1022"***) — record
+  [`review/ratification-2026-09-13.md`](openspec/changes/add-target-release-deferred-allocation/review/ratification-2026-09-13.md).
+  **ALL TEN OQs = (a), THE RECOMMENDED OPTION, SO THE DELTA MOVED NOT ONE BYTE**
+  (`.openspec.yaml` now carries `approved_by`/`approved_on` ADDED BESIDE the
+  unmoved drafting pair). **Proposed** 2026-09-13 at approximately 00:5xZ by
+  Brett Heap, openxFactory repository owner, first-hand, in session — a
+  SELECTION via the lane's multiple-choice question, the option ***"(b) Author
+  the 'deferred' vocabulary value first"***. That word commissioned the
+  AUTHORING and ratified no wording. **THIS IS THE SUCCESSOR `gate-realization-axis-vocabulary` NAMED
+  AND DID NOT TAKE** (that packet's `tasks.md` § 6.1, and the
+  `deferred-allocation` class note in its own register: *"Whether canon should
+  admit a deferred allocation as a third value is the successor question this
+  packet names and does not take."*). It admits **`deferred-allocation`** as the
+  THIRD `target_release:` value — a contract bundle a change realizes into whose
+  NUMBER `docs/contract-versioning-policy.md` § Bundle Realization Order
+  allocates AT THE CUT, so that no number exists to be named at proposal time,
+  and twelve active packets were departing from one ratified rule in order to
+  obey another. Two `## MODIFIED Requirements` blocks over `release-realization`
+  — *Realization axis declaration* (pre-text written from
+  `add-structured-scope-substrate`'s OUTCOME, that change being ACTIVE and
+  ratified over the same title, so `sequenced_after: [add-structured-scope-substrate]`
+  is declared as *Ordered deltas and branch vocabulary* requires) and
+  *Realization axis vocabulary is gated* — plus four rules the new value needs
+  and canon does not have: it is available only where a bundle is cut; it MUST be
+  resolved to a literal release before the packet archives; the resolving pull
+  request MUST name the cut it observed; and the archive is REPORTED and still
+  never judged, the promoted *"SHALL refuse nothing there"* admitting no
+  exception for this value. The realization rides in the SAME pull request, the
+  precedent's shape: `scripts/target_release.py` admits the token, the report
+  counts it, and archived records still carrying it unresolved are counted and
+  refused never. **`CLOSED_REGISTER` DOES NOT MOVE AND NO ENTRY IS ADDED** — this
+  admits a VALUE, which is the distinction the promoted requirement draws when it
+  says admitting a new value *"SHALL be a change to this specification rather than
+  an addition to the register."* The twelve standing entries are NOT swept: each
+  retires on its own packet's correction, the entry deleted in that same pull
+  request by the stale-entry refusal that already exists. **THE FIRST CONSUMER IS
+  BLOCKED TODAY** — openxFactory #1017 (`encode-wallet-authority-rulings-r6-r12`)
+  is RATIFIED and READY with its merge word given, and reds `pytest-suite` on
+  exactly this gap; its one-line correction is its own lane's act after this
+  lands. Ten decisions were put as multiple choice with the recommendation first
+  and every recommendation already encoded, and **Brett Heap ruled
+  2026-09-13T01:0xZ, verbatim *"accept all A on 1022"*** — all ten at (a), so
+  ratification moved not one byte. `code_surface` is non-empty, so the archive
+  is a separate act on merged-plus-green realization evidence and a separate
+  word; PR [#1022](https://github.com/opensoft/openxFactory/pull/1022) is
+  **RATIFIED and marked READY**, merge needs its own word, and Rule 6 applies at
+  landing.
+  **DRAFT and HELD for Brett Heap's ratification.**
+- [gate-code-surface-declarations](openspec/changes/gate-code-surface-declarations/proposal.md)
+  — filed 2026-09-12, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: ratified`** — **RATIFIED 2026-09-13 at 00:41Z by Brett Heap
+  (openxFactory operator authority), verbatim *"ratify"***, recorded at
+  [#1018](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+  **THE WORD IS BARE**: it ratifies the PACKET and names no option individually,
+  so each of the four declared veto points stands at the option the packet
+  encodes — the RECOMMENDED one in all four — and no wording moved on the
+  ruling; `.openspec.yaml` carries the approval pair as a pure ADDITION beside a
+  byte-unmoved drafting provenance (`kind` and `id` never move). Filed in answer
+  to openxFactory
+  [#1013](https://github.com/opensoft/openxFactory/issues/1013), the UNCLAIMED
+  residue `gate-realization-axis-vocabulary` `tasks.md` § 6.3 owed and that
+  packet's archive act filed, standing on
+  [#956](https://github.com/opensoft/openxFactory/issues/956). Filing PR
+  [#1018](https://github.com/opensoft/openxFactory/pull/1018).
+  **Gates the OTHER half of the sentence its sibling gated**: `release-realization`'s
+  *Realization axis declaration* reads as one sentence with two halves, and the
+  sibling built a validator and a closed register for `target_release:` only.
+  **THREE `## ADDED` REQUIREMENTS AND NO `## MODIFIED` BLOCK** — *Code-surface
+  declaration grammar is gated*, *The declared repository set is derived from
+  the head and never from the gloss*, and *Standing code-surface divergence is
+  named in a closed register* (**EIGHTEEN scenarios**, 10 + 4 + 4) — the
+  ADDED-only shape being deliberate, since
+  `add-structured-scope-substrate` is ACTIVE and already holds a MODIFIED block
+  over *Realization axis declaration*, so a second one would owe
+  `sequenced_after` and inherit that requirement's archive-order hold; all three
+  titles are novel to the corpus and `sequenced_after: []` is declared as a
+  corroborated root claim. **THE MEASUREMENT, RE-TAKEN AT `origin/main`
+  `bcde1575` AND NOT CARRIED FROM THE ISSUE**: 45 active proposals, 45 declaring
+  `code_surface:`, 4 `none` (the issue's 5 is stale by one) and 41 a non-`none`
+  repository list; the grammar is DERIVED from the population — 38 of the 45
+  already write head-then-opener-then-gloss (opening parenthesis 19, em dash 17,
+  full stop 2) and **7 do not**, in four classes (a YAML block scalar leaving a
+  literal `>-` in the value, a possessive, an apposition, and four whose list
+  runs into prose); the archive is read and never judged (165 proposals, 119
+  declaring, 3 outside the grammar). **AND EXACTLY ONE MACHINE READER OF THE
+  FIELD EXISTS AND IT READS THE GLOSS**: `scripts/scope_globs.py`'s
+  `code_surface_repositories`, wired at `scripts/validate-scope-globs.py:68`,
+  splits the whole declaration on `[\s,()/]+` and returns 3,421 distinct
+  "repository" tokens across the 45 — 767 from one declaration — with 27 of 45
+  yielding an estate repository their own head does not name, and its consumer
+  is the cross-check that bounds what a `scope_globs:` path grant may authorize;
+  the defect is LATENT and not standing, because 0 of 45 declare `scope_globs:`
+  today. **FOUR VETO POINTS, ALL FOUR RULED AT THE RECOMMENDED OPTION**: D1 the
+  grammar (against token-only and against resolving membership, which this
+  repository has no inventory to do), D2 the shape of the remedy (against a bare
+  refusal and against an advisory gate), D3 the disposition of the seven
+  (register all seven, against sweeping — a departure from the sibling's ruled
+  sweep, reasoned in D3), D4 the `scope_globs:` reuse (narrow the extractor to
+  the declared head). **THE RULING REACHES THE FIRST BENCH ROUND ON ITS OWN
+  WORDS** — the two confirmed Copilot findings were fixed before the record was
+  cut, so the ratified text reserves `none` out of REPOSITORY IDENTIFIER and
+  states the FAIL-CLOSED rule for a registered-exception packet that later
+  declares `scope_globs:`; the third standing thread is refused as false on
+  measurement (`design.md` D9). `code_surface` is NON-EMPTY and
+  **no byte of it moves in the filing** — the validator, the register and the
+  tests are a LATER pull request — so per `release-realization` this packet
+  archives only on merged-plus-green realization evidence, and #1013 closes
+  THERE and at no earlier pull request.
+
 - [encode-wallet-authority-rulings-r6-r12](openspec/changes/encode-wallet-authority-rulings-r6-r12/proposal.md)
   — filed 2026-09-12, lane `hermes-wallet-exercise` (session `codeXfactory-2`,
   workstation Eagle), **`Status: ratified`** (2026-09-12T23:58Z, Brett Heap,
@@ -726,111 +839,6 @@ Active changes:
   both spellings the verifier has always admitted with a new assertion that
   exactly one stands. `sequenced_after: []`.
 
-- [report-stale-grandfather-dispositions](openspec/changes/report-stale-grandfather-dispositions/proposal.md)
-  — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
-  **`Status: ratified`** (2026-09-12T15:45:22Z, Brett Heap, openxFactory
-  operator authority — a MULTIPLE-CHOICE ruling over `design.md` **D1** with
-  the recommendation presented first, verbatim ***"do all as recomended"***,
-  given in the lane's window in answer to the orchestrator's list of open
-  rulings and recorded on PR
-  [#981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774)
-  (mirrored on issue
-  [#965](https://github.com/opensoft/openxFactory/issues/965#issuecomment-5646922894)
-  one second later)). **D1 = OPTION 1**, a PRUNE PROMPT at `warning` — the
-  option the packet already encoded, so **THE WORDING STANDS UNCHANGED** and no
-  delta byte was rewritten, restored or deleted; D0 and D2, D2a, D2b, D3, D4 and
-  D5 were carried beside it and none was vetoed. Records
-  `openspec/changes/report-stale-grandfather-dispositions/review/ratification-2026-09-12.md`
-  and
-  `openspec/changes/report-stale-grandfather-dispositions/review/verification-2026-09-12.md`.
-  `.openspec.yaml` keeps the drafting provenance it was authored with — the
-  ORIGIN of the AUTHORING is Brett Heap's earlier word of 2026-09-11 ~18:20Z,
-  verbatim ***"usage reset, resume all. read handoff and resume and fan out
-  wide and do as much as possible in parallel"***, which commissioned the
-  AUTHORING and decided no wording — and the approval pair is ADDED beside it,
-  `kind`/`id`/`reason`/`proposed_by`/`proposed_on` byte-unmoved (numstat `43 0`).
-  Carries § 7.1 of the archived
-  `honour-grandfather-dispositions-in-ratified-provenance` and openxFactory
-  [#965](https://github.com/opensoft/openxFactory/issues/965): the landed
-  grandfather pass downgrades what it MATCHES and **nothing reports what it
-  matched NOTHING**. Measured against the real aggregation file
-  (`opensoft/xFactory` `main` `0ecb370e`, 49 entries, **18** of them
-  `family: ratified-provenance`): **15 match a live finding and 3 match
-  nothing** — all three from codexFactory, all three stale BY REPAIR (the record
-  now carries `Status: ratified` with a `Ratified:` line naming an approver and
-  a date), ZERO by a vanished path; the same 15/3 split at the aggregation's own
-  pins, at `openxFactory` `8015d45f` / `codexFactory` `dc67ad82`, and again at
-  `c521504c` / `c3108adc`. One `## MODIFIED` block over *Governed corpus
-  membership and the lifecycle scan set* with one scenario appended, canon's
-  own bytes sliced rather than transcribed; `sequenced_after: []` (#966's
-  packet, PR
-  [#978](https://github.com/opensoft/openxFactory/pull/978) — since ratified
-  and merged — writes a DIFFERENT requirement and a branch-only parent is
-  never declared). **THE CODE SURFACE
-  RIDES THIS PULL REQUEST** — `scripts/doc_health/families.py` gains one SECOND
-  AND FINAL grandfather-disposition pass (`_stale_grandfather_dispositions`,
-  appended to the downgrade's result by the family's own `return`) and
-  `tests/doc-health/test_grandfather_dispositions.py` goes **23 → 40** test
-  functions (`grep -c '^def test_'`), confirmed at this ratification to
-  implement D1 option 1 exactly, with no fix required — so under
-  `release-realization` the archive waits for
-  merged-plus-green realization evidence rather than landing with the packet.
-  **`tasks.md` § 1 is now ticked; § 6 (ARCHIVE) STAYS ENTIRELY OPEN** — a
-  further act on merged-plus-green realization evidence at canon's grain and a
-  further word — and #965 closes at the ARCHIVE and not at this ratification.
-
-- [gate-realization-axis-vocabulary](openspec/changes/gate-realization-axis-vocabulary/proposal.md)
-  — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
-  **`Status: ratified`** (2026-09-12 at 15:45Z, Brett Heap, openxFactory
-  operator authority, first-hand, in session — THREE INDEPENDENT
-  MULTIPLE-CHOICE RULINGS over `design.md`'s three declared veto points, the
-  recommendation presented first in each, given verbatim as ***"do all as
-  recomended"*** and recorded item by item on PR
-  [#963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493)
-  at 2026-09-12T15:45:19Z: **D1 *"Keep and gate"*** (not *"Admit none"*, not
-  *"Rule none a synonym"*), **D2 *"Sweep in this PR"*** (not *"Each owning lane
-  sweeps"*, not *"Register all 26"*), **D3 *"Resolve against the registry that
-  exists"*** (not *"Resolve literally"*, not *"Accept any release-shaped
-  token"*)) — record
-  [`review/ratification-2026-09-12.md`](openspec/changes/gate-realization-axis-vocabulary/review/ratification-2026-09-12.md),
-  gate set re-derived on the ratified tree at
-  [`review/verification-2026-09-12.md`](openspec/changes/gate-realization-axis-vocabulary/review/verification-2026-09-12.md).
-  **ALL THREE ARE THE RECOMMENDED AND ALREADY-ENCODED OPTIONS, SO THE WORDING
-  STANDS UNCHANGED**; D0 and D4–D7 were carried beside them and none was
-  vetoed. The earlier word of 2026-09-11T12:08:24Z, verbatim ***"land each when
-  green, archive both when landed, claim 955 and 956"***, COMMISSIONED THE
-  AUTHORING under its "claim 956" clause and ratified no wording; it stays the
-  origin in `.openspec.yaml`, where the approval pair is a pure ADDITION beside
-  a byte-unmoved `origin:` block. Origin openxFactory
-  [#956](https://github.com/opensoft/openxFactory/issues/956), the named
-  successor owed by `amend-repo-boundary-governance-scope-first-line`
-  `tasks.md` § 6.8. ONE `## ADDED Requirements` block in `release-realization`
-  — *Realization axis vocabulary is gated* — with **no MODIFIED block**, so no
-  collision with the active `add-structured-scope-substrate` and no
-  `sequenced_after` hold. Measured at authoring on `38c076d1`: of **38** active
-  proposals only **12** declare a value the ratified two-value vocabulary
-  admits (9 `implemented`, 3 a release this estate defines); **26** are
-  outside it, **12** of those because `docs/contract-versioning-policy.md`
-  § Bundle Realization Order allocates bundle versions LATE. The realization
-  rides the same pull request (`scripts/validate-target-release.py`,
-  `scripts/target_release.py`, `scripts/target-release-register.yaml` — 21
-  entries, CLOSED against a baseline the validator carries — and 86 tests),
-  which corrects the **six** active off-vocabulary carriers to `implemented`
-  and leaves the archive's **61** off-vocabulary records as frozen record. D2's
-  ruled option sweeps the corpus AS IT STANDS, so the population was re-measured
-  at the ratified head (the merge of `origin/main` `1f068646`) and is SIX, not
-  the five the drafting corpus carried: the sixth,
-  `amend-kill-switch-to-declared-test-companion`, landed on main with
-  [#959](https://github.com/opensoft/openxFactory/pull/959) declaring no leading
-  token at all, was swept by the same one-token correction, and could not be
-  registered instead because D1's ruled option keeps the register CLOSED
-  (`design.md` D2a). Re-measured after: **0** active declarations outside the
-  vocabulary. **RATIFICATION ONLY — the realization rides this pull request but
-  the ARCHIVE is a separate later act on a separate word:** `code_surface` is
-  non-empty, so under `release-realization` this packet archives on
-  merged-plus-green realization evidence at canon's grain. Nothing is promoted;
-  `tasks.md` § 5 and § 6 stay entirely open; #956 closes at the ARCHIVE and at
-  no earlier landing.
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: ratified`** (2026-09-11 at approximately 11:58Z, Brett Heap,
@@ -3294,6 +3302,129 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [report-stale-grandfather-dispositions](openspec/changes/archive/2026-09-12-report-stale-grandfather-dispositions/proposal.md)
+  — **ARCHIVED 2026-09-12** by
+  [PR #1015](https://github.com/opensoft/openxFactory/pull/1015), on Brett
+  Heap's **SEPARATE ARCHIVE WORD** — verbatim *"archive both"* (naming this
+  packet and its sibling `gate-realization-axis-vocabulary`, #956),
+  **2026-09-12T22:25:43Z**, recorded on
+  [PR #981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5649094329)
+  and mirrored on
+  [#965](https://github.com/opensoft/openxFactory/issues/965#issuecomment-5649094412)
+  — given AFTER, and separate from, the packet's own ratification of the same
+  day — verbatim *"do all as recomended"*, 2026-09-12T15:45:22Z, recorded on
+  [PR #981](https://github.com/opensoft/openxFactory/pull/981#issuecomment-5646922774),
+  which ruled `design.md` **D1 = OPTION 1** but did NOT itself authorize this
+  promotion+archive act (`tasks.md` § 6 requires its own separate word).
+  **`code_surface` IS NON-EMPTY** (unlike its sibling
+  `decide-disposition-reading-per-family`), so this archive rests on
+  MERGED-PLUS-GREEN REALIZATION EVIDENCE AT CANON'S GRAIN, not on landing
+  alone. **THE EVIDENCE, CITED RATHER THAN ASSERTED:** ratified and landed by
+  **PR [#981](https://github.com/opensoft/openxFactory/pull/981) →
+  `177ba8196e16097e30aeb3f946ca8291b9ba4e92`** on `main`, 2026-09-12T18:08:16Z
+  (ratifying commit `5d099acb51afd2032d37349f704b74ac1d222892`; records
+  `openspec/changes/archive/2026-09-12-report-stale-grandfather-dispositions/review/ratification-2026-09-12.md`
+  `Status: ratified` — MOVED and untouched except for a new `## 8. Addendum`
+  section appended AFTER the existing `## 7. Provenance`, recording the
+  separate archive word and its evidence, never editing what came before it —
+  and
+  `openspec/changes/archive/2026-09-12-report-stale-grandfather-dispositions/review/verification-2026-09-12.md`
+  `Status: record`, MOVED and untouched), and `main`'s OWN
+  `pytest-suite` run
+  [34710282045](https://github.com/opensoft/openxFactory/actions/runs/34710282045)
+  — `event: push`, head **`177ba8196e16097e30aeb3f946ca8291b9ba4e92`**, the
+  merge commit ITSELF — **`conclusion: success`**, 2026-09-12T18:08:18Z to
+  18:27:25Z. **NO TREE-EQUALITY ARGUMENT IS NEEDED AND NONE IS MADE**: the
+  tested tree IS the merge commit's tree because the run's head IS the merge
+  commit. **THE PROMOTION, MEASURED RATHER THAN EYEBALLED:** the `## MODIFIED`
+  block over *Governed corpus membership and the lifecycle scan set* is
+  BYTE-IDENTICAL to the requirement now standing in
+  `openspec/specs/doc-health/spec.md` — **8,394 bytes, sha256
+  `68be1ba5ea476431aa2792f530de36b03d6a114b5d6a394ae882d2613caa6670`** on both
+  sides — a byte-for-byte PREFIX MATCH of canon's prior text (68 lines, 5,781
+  bytes) plus a **9-line** appended tail, `git diff --numstat` and `-w
+  --numstat` both `9 0`; no `Removed from canon` marker is owed and none is
+  written. **NO ORDERED-DELTA CHILD DEPENDS ON THIS CHANGE** — searched across
+  `openspec/changes/` for any `sequenced_after` declaration naming it; none
+  found. **ALL TWELVE OPEN BOXES TICK ON THE RECORDING**: § 6.1 through § 6.4
+  on the evidence and word above; § 7.1
+  ([#966](https://github.com/opensoft/openxFactory/issues/966)) and § 7.4
+  ([#968](https://github.com/opensoft/openxFactory/issues/968)) on their named
+  successors, BOTH NOW CLOSED; § 7.5
+  ([#967](https://github.com/opensoft/openxFactory/issues/967)/PR
+  [#977](https://github.com/opensoft/openxFactory/pull/977), also landed) with
+  A DISCLOSED GAP NOW CLOSED ON THIS SAME PULL REQUEST — this packet's own
+  second-pass addition to `docs/doc-health.md`'s family table, described as
+  owed at ratification but not in fact made there, IS added by this archive
+  after all, in commit `2ec222def35e50b6edf4f0c570406364deb9123f` (row 3's
+  sixth arm plus a one-sentence currency-note addendum), once Copilot named
+  the omission (thread `PRRT_kwDOTAvnrs6h0Z2m`); § 7.3 and
+  § 7.7 on decided-and-tested design boundaries (`design.md` D2a, D2) needing
+  no successor; § 7.2, § 7.6 and § 7.8 RE-CONFIRMED still not taken,
+  sibling-searched for a tracking issue (none found), none filed by this
+  archive. openxFactory
+  [#965](https://github.com/opensoft/openxFactory/issues/965) ends at this
+  archive and at nothing else. Lane `openxfactory-1`.
+
+- [gate-realization-axis-vocabulary](openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/proposal.md)
+  — **ARCHIVED 2026-09-12** by
+  [PR #1014](https://github.com/opensoft/openxFactory/pull/1014), on Brett
+  Heap's **SEPARATE ARCHIVE WORD** — verbatim *"archive both"*
+  (this packet and `report-stale-grandfather-dispositions`),
+  **2026-09-12T22:25:43Z**, recorded on
+  [PR #963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5649094500)
+  and mirrored on
+  [#956](https://github.com/opensoft/openxFactory/issues/956#issuecomment-5649094591)
+  — given AFTER, and separate from, the packet's own ratification of the same
+  day, verbatim *"do all as recomended"*, 2026-09-12T15:45:19Z, recorded on
+  [PR #963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493).
+  **REALIZATION EVIDENCE, CITED RATHER THAN ASSERTED** (`release-realization`'s
+  *Realization archive gate*, a NON-EMPTY code surface): ratified and landed by
+  **PR [#963](https://github.com/opensoft/openxFactory/pull/963) →
+  `68ff88b4091ece46f0ad269643aa316924aa8c65`** on `main`, 2026-09-12T19:03:47Z
+  (ratifying commit `d002f85d`; records
+  `openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/review/ratification-2026-09-12.md`
+  and `review/verification-2026-09-12.md`, both `MOVED` and untouched by this
+  archive), and `main`'s OWN `pytest-suite` run at that exact tree — **run
+  [34713047890](https://github.com/opensoft/openxFactory/actions/runs/34713047890)**,
+  `headSha` `68ff88b4091ece46f0ad269643aa316924aa8c65` (byte-identical to the
+  merge commit — a DECIDED run at the tree the merge carries, so no
+  tree-equality argument is owed), conclusion **success**. **THE PROMOTION,
+  MEASURED RATHER THAN EYEBALLED:** the ONE `## ADDED Requirements` block
+  (*Realization axis vocabulary is gated*) is BYTE-IDENTICAL to the
+  requirement now standing in `openspec/specs/release-realization/spec.md` —
+  **8,569 bytes, sha256
+  `204368c0fb73f7638c5264ba345d7814f2920e5c3e54ae0d24cee5832749d9d5`** on both
+  sides, `diff` over the two extracted slices empty; the spec file grows
+  **541 → 660** lines, numstat `+119/-0` matching `-w` numstat exactly (a pure
+  addition, no reflow). **NO ORDERED-DELTA CHILD DEPENDS ON THIS CHANGE**
+  (an ADDED requirement over a novel title, deliberately, to avoid the
+  `sequenced_after` hold a second `## MODIFIED` block over *Realization axis
+  declaration* would owe beside `add-structured-scope-substrate`'s own).
+  **`tasks.md` § 5 AND § 6 TICK ON THE RECORDING, PLUS TWO BOOKKEEPING BOXES
+  (§ 4.10/§ 4.12) LEFT UNTICKED AT RATIFICATION**, the same class § 3.9(c)
+  already named for § 4.9/§ 4.11: § 4.10/§ 4.12 cite the required
+  `pytest-suite` runs before (`f663b379`, run 34711691612, 7009 passed) and
+  after (`68ff88b4`, run 34713047890, 7095 passed) the merge, and the FREEZE
+  record (36 threads, 0 unresolved); § 6.1/§ 6.2 name the successor ALREADY
+  ACTIVE in this packet's own ratified record, `add-structured-scope-substrate`
+  (re-verified ratified, not archived, still holding the sequencing slot;
+  register's `deferred-allocation` count re-measured at **12**, unchanged);
+  § 6.3 had no successor named anywhere and files one here, UNCLAIMED —
+  openxFactory [#1013](https://github.com/opensoft/openxFactory/issues/1013),
+  after a sibling search found none, citing a re-measurement (45 active
+  proposals, 45 declaring `code_surface:`, 5 `none` / 40 non-`none`, none
+  validated); § 6.4 re-measures the archived off-vocabulary `target_release`
+  count via `scripts/validate-target-release.py` — still **61**, of a now-166
+  archived total (re-measured post-merge-from-main, which carried in
+  `rule-inherited-unit-naming-marker-spent`'s own archive: 164 → 166, +2, this
+  packet's own PR #1014 plus that sibling PR #1012); § 6.5 re-confirms no
+  other estate repository is touched.
+  **openxFactory [#956](https://github.com/opensoft/openxFactory/issues/956)
+  CLOSES AT THIS ARCHIVE**, by the single `Closes #956` line in PR #1014's
+  body and nowhere else — `closingIssuesReferences` verified `[956]` on this
+  pull request and `[]` throughout the ratification pull request (#963).
 
 - [rule-inherited-unit-naming-marker-spent](openspec/changes/archive/2026-09-12-rule-inherited-unit-naming-marker-spent/proposal.md)
   — **ARCHIVED 2026-09-12** by

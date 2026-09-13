@@ -67,11 +67,18 @@ def _report(report: tr.Report) -> None:
         f"{report.active_declaring} declaring — "
         f"{report.inside_implemented} `implemented`, "
         f"{report.inside_release} a named release, "
+        f"{report.inside_deferred} `{tr.DEFERRED_ALLOCATION}`, "
         f"{len(report.grandfathered)} named by the register, "
         f"{len(report.findings)} outside the vocabulary.")
     print(
         f"  archive (read, never judged): {report.archived_total} proposals, "
         f"{report.archived_off_vocabulary} of them outside the vocabulary.")
+    if report.archived_deferred_unresolved:
+        print(
+            f"  note: {report.archived_deferred_unresolved} archived record(s) "
+            f"still declare `{tr.DEFERRED_ALLOCATION}`, which the archiving act "
+            "was to resolve. Reported and never refused: an archived packet's "
+            "front matter is frozen record.")
     if not report.registry_present:
         print(f"  note: no {tr.RELEASE_REGISTRY_DIR} in this tree, so a release "
               "name is accepted on its SHAPE alone.")

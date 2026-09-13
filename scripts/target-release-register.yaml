@@ -4,9 +4,13 @@ kind: target-release-vocabulary-register
 # THE CLOSED GRANDFATHER REGISTER FOR `target_release:`.
 #
 # `release-realization`'s promoted requirement *Realization axis declaration*
-# admits exactly two values — `implemented` or a named release — and the ADDED
-# requirement *Realization axis vocabulary is gated* makes a house validator
-# refuse any other value on an ACTIVE proposal. Measured at that gate's
+# admitted exactly two values when this register was written — `implemented` or a
+# named release — and the ADDED requirement *Realization axis vocabulary is
+# gated* makes a house validator refuse any other value on an ACTIVE proposal.
+# A THIRD VALUE, `deferred-allocation`, WAS ADMITTED LATER by
+# `add-target-release-deferred-allocation`, which is the successor the
+# deferred-allocation class note below names. It changed the VOCABULARY and not
+# this register: no entry was added, and the closed baseline did not move. Measured at that gate's
 # authoring, the standing corpus does not meet the vocabulary: of the ACTIVE
 # proposals, a minority declare a value inside it. Refusing the rest at the
 # gate's landing would refuse a corpus that in twelve cases is obeying ANOTHER
@@ -56,6 +60,20 @@ register:
   # so an author obeying the versioning policy cannot also satisfy the
   # vocabulary. Whether canon should admit a deferred allocation as a third
   # value is the successor question this packet names and does not take.
+  #
+  # THAT SUCCESSOR WAS TAKEN: `add-target-release-deferred-allocation` admits
+  # `deferred-allocation` as the third value of the vocabulary, and the entries
+  # below each carry `retires_when: canon admits a deferred allocation, …`.
+  # THE ADMISSION DOES NOT BY ITSELF RETIRE ONE OF THEM, and the distinction is
+  # the register's own: an entry names the VALUE TOKEN ITS AUTHOR ACTUALLY
+  # WROTE — `THE`, `next`, `the`, `contract-v<next` — and not one of those is
+  # `deferred-allocation`. So each entry stays LIVE and MATCHING until its own
+  # packet corrects its declaration to the admitted token; on that correction
+  # the entry stops matching, the run refuses with the stale status, and the
+  # entry is deleted in the SAME pull request that made it stale. That is the
+  # asymmetry this file already documents, doing the work — no sweep of twelve
+  # other packets' front matter was performed by the admitting change, each
+  # correction being its owning lane's act.
 
   - change: add-chain-attestation
     token: "THE"

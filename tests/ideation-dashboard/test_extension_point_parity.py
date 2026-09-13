@@ -98,6 +98,19 @@ MIN_ENTRY_POINTS = 25
 # frozen string — contributing that route would have broken the keyword in
 # silence. The HANDLER moved to `serve_projection.py` with its neighbours; the
 # ARM did not, and this line is where that decision is visible.
+#
+# NARROWED A SECOND TIME, DELIBERATELY, BY § 3.4 SLICE S6 (RULED Q4, `#656`
+# comment `5642758731`) — the one legitimate edit since PR 3, disclosed in
+# that slice's own #656 landing note. S6 returned `/source` (exact) and
+# `/source/` (prefix) from CONTRIBUTED back to FIXED: they left
+# `test_serve_column_split.CONTRIBUTED_BINDINGS` (nine there, seven now) and
+# arrive here as the two new LAST core arms, both still above the § 2.4
+# contributed consult (`opendox/serve.py`'s own comment there says why: "no
+# binding can take the route back"). Their unshadowability and dispatch order
+# are proven at the repository that now owns them,
+# `opensoft/openDox-code`'s `tests/test_source_core_arm.py`, not pinned a
+# second time here — this tuple's job is only to say THIS method's fixed set
+# is these eight arms and no others.
 ROUTE_ARMS = (
     ("path == self.snapshot_route", ("_serve_snapshot",)),
     ("path == PROJECT_REGISTER_ROUTE", ("_serve_project_register",)),
@@ -109,6 +122,8 @@ ROUTE_ARMS = (
     ("path == WORKBENCH_MODEL_INTAKE_ROUTE",
      ("_handle_workbench_model_intake_surface",)),
     ("path == WORKBENCH_THREAD_ROUTE", ("_handle_workbench_thread",)),
+    ("path == BARE_SOURCE_ROUTE", ("_refuse_bare_source",)),
+    ("path.startswith(SOURCE_PREFIX)", ("_serve_source",)),
 )
 
 DO_POST_ARMS = (

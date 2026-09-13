@@ -987,6 +987,116 @@ def test_a_missing_register_refuses_the_run(tmp_path):
     assert "CANNOT RUN" in result.stdout
 
 
+# --- the third value: `deferred-allocation` -----------------------------------
+# `add-target-release-deferred-allocation`. The successor question this gate's
+# own register header named and did not take: a change whose realization lands in
+# a contract bundle whose number `docs/contract-versioning-policy.md` § Bundle
+# Realization Order allocates AT THE CUT, so no number exists to be named at
+# proposal time.
+
+
+def test_the_deferred_allocation_token_is_admitted(tmp_path):
+    """The whole point: an active proposal may declare it and pass."""
+    _proposal(tmp_path, "a-bundle-change",
+              "target_release: deferred-allocation")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_the_deferred_token_takes_a_gloss_like_every_other_token(tmp_path):
+    """The gate judges the TOKEN and never the gloss, for this value too."""
+    _proposal(tmp_path, "a-bundle-change",
+              "target_release: deferred-allocation — the next additive minor, "
+              "allocated at the cut by merge order and deliberately not numbered "
+              "here.")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_the_deferred_value_is_vocabulary_and_never_a_register_entry(tmp_path):
+    """IT PASSES AGAINST AN EMPTY REGISTER. The promoted requirement draws
+    exactly this line — admitting a NEW value "SHALL be a change to this
+    specification rather than an addition to the register" — so the value must
+    be admitted by the VOCABULARY and never grandfathered by an exception."""
+    _proposal(tmp_path, "a-bundle-change",
+              "target_release: deferred-allocation")
+    result = _run(tmp_path, _register(tmp_path))  # `register: []`
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "named by the register" in result.stdout
+    assert "0 named by the register" in result.stdout
+
+
+def test_the_deferred_value_is_counted_on_its_own_line(tmp_path):
+    """Counted apart from `implemented` and apart from a named release, so the
+    report says how much of the corpus is waiting on a cut."""
+    _proposal(tmp_path, "one", "target_release: deferred-allocation")
+    _proposal(tmp_path, "two", "target_release: deferred-allocation")
+    _proposal(tmp_path, "three", "target_release: implemented")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "2 `deferred-allocation`" in result.stdout
+    assert "1 `implemented`" in result.stdout
+
+
+def test_an_archived_record_declaring_the_deferred_value_is_never_refused(
+        tmp_path):
+    """The archiving act was to resolve it, but an archived packet's front
+    matter is frozen record and the promoted requirement says the gate "SHALL
+    refuse nothing there". So this is REPORTED and the run still passes."""
+    _proposal(tmp_path, "landed", "target_release: deferred-allocation",
+              archived=True)
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 archived record(s) still declare `deferred-allocation`" \
+        in result.stdout
+
+
+def test_an_archived_deferred_record_is_not_counted_off_vocabulary(tmp_path):
+    """It is INSIDE the vocabulary and merely unresolved, so it must not inflate
+    the off-vocabulary archive count that the gate's own § 6.4 re-measures."""
+    _proposal(tmp_path, "landed", "target_release: deferred-allocation",
+              archived=True)
+    result = _run(tmp_path, _register(tmp_path))
+    assert "0 of them outside the vocabulary" in result.stdout
+
+
+def test_a_resolved_archived_record_prints_no_deferred_note(tmp_path):
+    """The note is a finding-shaped signal and must be silent when there is
+    nothing to say."""
+    _proposal(tmp_path, "landed", "target_release: implemented", archived=True)
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "still declare" not in result.stdout
+
+
+def test_the_admitted_token_is_the_registers_own_class_word():
+    """THE SPELLING IS NOT AN INVENTION. `REGISTER_CLASSES` has carried
+    `deferred-allocation` since the gate landed; the value and the class it
+    retires are one word, so an entry's retirement is mechanical. A drift
+    between the two is this test failing."""
+    assert tr.DEFERRED_ALLOCATION in tr.REGISTER_CLASSES
+
+
+def test_admitting_the_value_did_not_move_the_closed_baseline():
+    """A VALUE WAS ADMITTED, NOT AN EXCEPTION. The promoted requirement makes
+    closure enforced rather than declared, so the admission must be visible in
+    the vocabulary and invisible in the baseline."""
+    assert len(tr.CLOSED_REGISTER) == 21
+    assert not [e for e in tr.CLOSED_REGISTER
+                if e[1] == tr.DEFERRED_ALLOCATION]
+
+
+def test_the_standing_deferred_entries_are_not_retired_by_the_admission():
+    """The entries name the tokens their authors ACTUALLY WROTE — `THE`,
+    `next`, `the`, `contract-v<next` — so admitting the value retires none of
+    them. Each retires on its own packet's correction, and the stale-entry
+    refusal is what forces the entry's deletion in that same pull request."""
+    entries = [e for e in tr.load_register(REGISTER)
+               if e["class"] == "deferred-allocation"]
+    assert len(entries) == 12
+    assert not [e for e in entries if e["token"] == tr.DEFERRED_ALLOCATION]
+
+
 # --- the live corpus ----------------------------------------------------------
 
 

@@ -15,7 +15,7 @@ resume and fan out wide and do as much as possible in parallel"**.
 Origin: openxFactory
 [#965](https://github.com/opensoft/openxFactory/issues/965), filed by this lane
 AT the archive of
-[`honour-grandfather-dispositions-in-ratified-provenance`](../archive/2026-09-11-honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
+[`honour-grandfather-dispositions-in-ratified-provenance`](../2026-09-11-honour-grandfather-dispositions-in-ratified-provenance/proposal.md)
 as the successor that packet's `tasks.md` § 7.1 owes, standing on
 [#939](https://github.com/opensoft/openxFactory/issues/939) (the parent's
 origin) and [#945](https://github.com/opensoft/openxFactory/pull/945) (the
