@@ -415,7 +415,7 @@ not the thing that happens when nobody decides.
 - **THEN** the deterministic health pass MUST NOT execute, import or open that path
 - **AND** the completeness judgement MUST be made by ONE shared, pure, non-executing adapter — the resolver's own module or one shared helper module beside it — which reads the record and nothing else
 - **AND** where the record's `verify_pin:` value differs from what that adapter holds for `<pin-id>`, the pass MUST report that disagreement as a finding rather than follow the record
-- **AND** that finding MUST stand BESIDE the resolution rather than in place of it: `verify_pin:` is not a prerequisite of resolution, so a record complete for its record shape still resolves while the disagreement is reported
+- **AND** that finding MUST stand BESIDE the resolution rather than in place of it: `verify_pin:` is not a prerequisite of resolution, so the target still resolves WHERE ALL THREE PREREQUISITES HOLD — a valid, complete record for its shape, a well-formed non-empty `capabilities:` enumeration, and `<capability>` a member of it — while the disagreement is reported; where any prerequisite fails, the target is unresolved for THAT reason and the disagreement finding is reported beside it
 
 #### Scenario: A pin path resolves outside the contracts directory
 - **WHEN** the candidate pin-record path for `<pin-id>` resolves outside the `contracts/` directory of the root it was resolved against, whether by symlink or otherwise

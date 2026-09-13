@@ -474,16 +474,21 @@ the later realization pull request, and § 4 is the archive act.
   read/import/exec surface, not by reading a finding text, since the boundary is
   that the path is not touched. SECOND, where `verify_pin:` carries THE VALUE
   THE ADAPTER HOLDS for that record, a record complete for its record shape
-  RESOLVES with NO finding from this arm, `verify_pin:` being neither part of
-  the required shape nor a resolution prerequisite, and a test that refused such
-  a record would encode the opposite of D-2 and reject valid pins. THIRD, where
-  the value DIFFERS from what the adapter holds — which the first case's
-  arbitrary path also is — the pass emits the DISAGREEMENT FINDING, still
-  without touching the path, and the TARGET STILL RESOLVES where the record is
-  complete for its shape: the finding stands BESIDE the resolution rather than
-  in place of it, a disagreement about which code would judge the record being
-  no fact about the record's shape. The three are separate because the first
-  case's arbitrary path IS a differing value, so a single case asserting both
+  AND satisfying the enumeration prerequisites (well-formed `capabilities:`
+  naming the capability) RESOLVES with NO finding from this arm, `verify_pin:`
+  being neither part of the required shape nor a resolution prerequisite, and
+  a test that refused such a record would encode the opposite of D-2 and
+  reject valid pins. THIRD, where the value DIFFERS from what the adapter
+  holds — which the first case's arbitrary path also is — the pass emits the
+  DISAGREEMENT FINDING, still without touching the path, and the target still
+  resolves where the record is complete for its shape AND the enumeration
+  prerequisites hold; where they do not, the target is unresolved for that
+  reason and the disagreement finding is still reported beside it, still
+  without touching the path: the finding stands BESIDE the resolution rather
+  than in place of it, a disagreement about which code would judge the record
+  being no fact about the record's shape. The three are separate because the
+  first case's arbitrary path IS a differing value, so a single case asserting
+  both
   "the verdict is unchanged by that member's value" and "a differing value is a
   finding" would contradict itself; the adapter being ONE pure table rather than
   a dispatch to the record's own choice, all three are asserted wherever the
