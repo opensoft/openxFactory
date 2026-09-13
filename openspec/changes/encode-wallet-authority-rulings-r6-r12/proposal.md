@@ -6,7 +6,8 @@ sequenced_after: [add-wallet-carried-review-authority, register-gate-rules-counc
 
 # Proposal: encode-wallet-authority-rulings-r6-r12
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-12T23:58Z by Brett Heap (openxFactory operator authority) — verbatim "accept all A on 1017"; record at review/ratification-2026-09-12.md
 Lane: hermes-wallet-exercise
 Proposed: 2026-09-12, in lane `hermes-wallet-exercise` (window
 `hermes-wallet-exercise`, session `codeXfactory-2`, workstation Eagle), on
@@ -17,15 +18,16 @@ Origin: the closing paragraph of
 § "Packet 4 — canonical composition and re-issuance (R6–R12)", which names this
 change by shape and makes seven rulings unenforceable until it is ratified.
 
-**THIS PACKET IS `Status: draft` AND HELD.** The word that commissioned it
-commissioned the AUTHORING. Nine decisions are put below as multiple choice
-(§ Open questions), each with a RECOMMENDED option and the one-line reason it
-is recommended; **the recommended option is what the delta already encodes**,
-so ***"accept all A"*** ratifies this packet without moving one byte of it.
-Ruling otherwise on OQ-1, OQ-2, OQ-3, OQ-5 or OQ-9 rewrites the requirement it
-names before ratification; ruling otherwise on OQ-4 revokes live grants;
-ruling otherwise on OQ-6, OQ-7 or OQ-8 moves the packet rather than its
-wording.
+**THIS PACKET IS NOW RATIFIED.** It was filed `Status: draft` and HELD; the
+word that commissioned its authoring commissioned the AUTHORING only. Nine
+decisions were put below as multiple choice (§ Open questions), each with a
+RECOMMENDED option and the one-line reason it was recommended. **Brett Heap
+ruled 2026-09-12T23:58Z, verbatim ***"accept all A on 1017"*** — all nine at
+their RECOMMENDED option (§ Rulings below), so the delta moved not one byte.**
+Ruling otherwise on OQ-1, OQ-2, OQ-3, OQ-5 or OQ-9 would have rewritten the
+requirement it names before ratification; ruling otherwise on OQ-4 would have
+revoked live grants; ruling otherwise on OQ-6, OQ-7 or OQ-8 would have moved
+the packet rather than its wording — none of that was taken.
 
 ---
 
@@ -387,7 +389,29 @@ can revoke live grants)*
 
 ## Rulings
 
-*(Empty by design. This section is written by the ratification act and carries
-Brett Heap's verbatim word, its UTC instant, and the option taken on each of
-OQ-1 through OQ-9.)*
+**Brett Heap, 2026-09-12T23:58Z, verbatim "accept all A on 1017"** — given in
+session directly to the ENCODE seat of lane `hermes-wallet-exercise` (window
+`hermes-wallet-exercise`, session `codeXfactory-2`, workstation Eagle), and
+captured in full at `review/ratification-2026-09-12.md`. The word reaches all
+nine decisions this packet put, each at its RECOMMENDED option, so **the
+delta's wording stands unchanged**: not one byte of
+`specs/review-authority-intake/spec.md` moves.
+
+| OQ | Decision | Ruled | Considered, not adopted |
+| --- | --- | --- | --- |
+| **OQ-1** — home capability for R6–R12 | `design.md` D-1 | **RESOLVED (a)** — `review-authority-intake`, delta class `## ADDED` (forced: no promoted spec exists, both authoring changes are ACTIVE) | (b) a new `holder-composition` capability — splits the register's grammar across two specifications with no rule obliging agreement; (c) split R6/R7 into `signed-execution-chain` — would make R6/R7 a `## MODIFIED` of shipped canon to carry a subject it does not compute |
+| **OQ-2** — how R7 is satisfied | `design.md` D-2 | **RESOLVED (a)** — adopt `xfc-jcs-sha256-1` BY REFERENCE plus one `digest_subject` member (`holder_composition`) | (b) declare a second JCS profile — two profiles free to drift, nothing obliging agreement; (c) leave the profile abstract and name none — reproduces the defect the promoted requirement exists to close |
+| **OQ-3** — digest agility / dual-digest transition | `design.md` D-3 | **RESOLVED (a)** — no agility mechanism is minted now; algorithm tagging plus a recorded profile name and version is what makes a later migration a readable change | (b) declare an agility register now; (c) declare a dual-digest transition window now |
+| **OQ-4** — R6's temporal reach *(the one that can revoke live grants)* | `design.md` D-4 | **RESOLVED (a)** — PROSPECTIVE; composition digests live grants were issued against are not re-derived by this act | (b) retroactive re-derivation — under the shipped drift cascade this REVOKES `grant-mrc-0002`, on a day `grant-grc-0002` is already VOID and `grant-grc-0003` cannot yet be minted; (c) prospective plus a named reconciliation task — no reconciliation is owed |
+| **OQ-5** — how much of R12 is encoded here | `design.md` D-5 | **RESOLVED (a)** — the INTERIM half only: unsigned composition digests admissible, activation fail-closed on digest match, self-attestation refused | (b) defer the whole ruling — leaves self-attestation UNREFUSED; (c) encode the signer here too — contradicts R12's own words |
+| **OQ-6** — who discharges 7.6 Ground 1, and who ticks 7.6 | `design.md` D-6 | **RESOLVED (a)** — ratification of THIS packet discharges Ground 1; the tick in `add-wallet-carried-review-authority/tasks.md` is the PARENT's act, on a separate word | (b) this packet edits the parent's `tasks.md` and ticks 7.6 itself — collides with the sibling lane actively ticking those S3/S5 rows; (c) discharge only on archive — contradicts Ground 1's own words, "ratified" |
+| **OQ-7** — ratification ordering against the pending gate-rules act | `design.md` D-7 | **RESOLVED (a)** — NOT sequenced against openxFactory PR #1006 — zero file overlap, measured | (b) hold ratification until #1006 merges; (c) hold ratification until the parent's S3/S5 bookkeeping lands |
+| **OQ-8** — realization surface and archive gate | `design.md` D-8 | **RESOLVED (a)** — declare the surface named in the front matter; archive on merged-plus-green realization evidence | (b) file as `code_surface: none` — a FALSE declaration, since a `digest_subject` member is contract artifact bytes; (c) split — a doctrine packet now (`none`) and a separate contract packet later |
+| **OQ-9** — R10's governing-configuration members: closed or minimum | `design.md` D-9 | **RESOLVED (a)** — the four named members (scope, selection configuration, admission policy, ontology package digest) are REQUIRED, and a corpus MAY declare further invalidating members | (b) exactly four, closed — a corpus could add a new governing knob that silently never invalidates; (c) four required, further members permitted but non-invalidating |
+
+**EVERY RULING IS THE RECOMMENDED OPTION.** No requirement text was rewritten,
+no delta directory was renamed, and no `sequenced_after:` entry moved. This
+packet is `Status: ratified`; realization (§ 3) and archive (§ 5) are separate
+acts on separate words, and neither has been given — `tasks.md` § 5 stays
+entirely open, held behind the three parents named in `sequenced_after:`.
 

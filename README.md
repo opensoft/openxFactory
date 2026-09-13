@@ -533,12 +533,18 @@ Active changes:
 
 - [encode-wallet-authority-rulings-r6-r12](openspec/changes/encode-wallet-authority-rulings-r6-r12/proposal.md)
   — filed 2026-09-12, lane `hermes-wallet-exercise` (session `codeXfactory-2`,
-  workstation Eagle), **`Status: draft`** — an UNAPPROVED packet in the lawful
-  drafting shape (`proposed_by` / `proposed_on`, no approval pair). **Proposed**
-  2026-09-12 by Brett Heap, openxFactory operator authority, first-hand, in
-  session, as a multiple-choice selection, verbatim ***"Author the R6–R12
-  successor change"***. That word commissioned the AUTHORING and nothing
-  further. **This is the FRESH OpenSpec change that
+  workstation Eagle), **`Status: ratified`** (2026-09-12T23:58Z, Brett Heap,
+  openxFactory operator authority, given in session directly to the ENCODE
+  seat — a MULTIPLE-CHOICE ruling over all nine `design.md` D-1..D-9
+  decisions, verbatim ***"accept all A on 1017"***) — record
+  [`review/ratification-2026-09-12.md`](openspec/changes/encode-wallet-authority-rulings-r6-r12/review/ratification-2026-09-12.md).
+  **ALL NINE OQs = (a), THE RECOMMENDED OPTION, SO THE DELTA MOVED NOT ONE
+  BYTE** (`.openspec.yaml` now carries `approved_by`/`approved_on` ADDED
+  BESIDE the unmoved drafting pair). **Proposed** 2026-09-12 by Brett Heap,
+  openxFactory operator authority, first-hand, in session, as a
+  multiple-choice selection, verbatim ***"Author the R6–R12 successor
+  change"***. That word commissioned the AUTHORING and nothing further.
+  **This is the FRESH OpenSpec change that
   `add-wallet-carried-review-authority/rulings-2026-08-29.md` § Packet 4 names
   by shape** — *"a FRESH OpenSpec change, authored after issuance, carrying
   R6–R12 as ratified contract text (with R12's signer half landing in
@@ -567,20 +573,23 @@ Active changes:
   **"Ground 1" alone** — *"neither ruling is enforced until the change carrying
   R6–R12 is ratified, so this task stays OPEN"* — Ground 2 having been
   discharged by two dated walks (precision-class 2026-08-31, revocation-class
-  2026-09-02). **RATIFICATION of this packet discharges Ground 1; the 7.6 tick
+  2026-09-02). **RATIFICATION of this packet discharged Ground 1; the 7.6 tick
   is the PARENT's act on a separate word and THIS PACKET EDITS NO FILE IN THAT
-  CHANGE.** Nine decisions are put as multiple choice, each with a RECOMMENDED
-  option that the delta already encodes, so ***"accept all A"*** ratifies
-  without moving one byte; **OQ-4 is the one that can revoke live grants** —
-  ruling R6 retroactively would re-derive the composition digests both councils'
-  grants are bound to and, under the shipped drift cascade, revoke
-  `grant-mrc-0002` on a day `grant-grc-0002` is already void and
-  `grant-grc-0003` cannot yet be minted. **NOTHING under
-  `governance/review-authority/` is touched** — no row, no grant, no wallet, no
-  custody attestation, no staleness bound — and zero files overlap openxFactory
-  [#1006](https://github.com/opensoft/openxFactory/pull/1006). Filing PR
-  [#1017](https://github.com/opensoft/openxFactory/pull/1017), **DRAFT and
-  HELD for Brett Heap's ratification**.
+  CHANGE.** Nine decisions were put as multiple choice, each with a RECOMMENDED
+  option that the delta already encoded, and **Brett Heap ruled
+  2026-09-12T23:58Z, verbatim *"accept all A on 1017"*** — all nine at (a), so
+  ratification moved not one byte; **OQ-4 was the one that could have revoked
+  live grants** — ruling R6 retroactively would have re-derived the composition
+  digests both councils' grants are bound to and, under the shipped drift
+  cascade, revoked `grant-mrc-0002` on a day `grant-grc-0002` is already void
+  and `grant-grc-0003` cannot yet be minted; PROSPECTIVE (a) was ruled instead.
+  **NOTHING under `governance/review-authority/` is touched** — no row, no
+  grant, no wallet, no custody attestation, no staleness bound — and zero
+  files overlap openxFactory
+  [#1006](https://github.com/opensoft/openxFactory/pull/1006). PR
+  [#1017](https://github.com/opensoft/openxFactory/pull/1017) is **RATIFIED
+  and marked READY**; merge needs its own word, and Rule 6 applies at
+  landing.
 
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
   — filed 2026-09-12, lane `openxfactory-2` (display `openXfactory-2`),

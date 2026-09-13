@@ -78,6 +78,27 @@ origin:
     ordering against the pending gate-rules act, the realization surface, and
     the closed-versus-minimum reading of R10's governing-configuration members.
   proposed_on: 2026-09-12
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-12T23:58Z,
+    verbatim: "accept all A on 1017", given as a MULTIPLE-CHOICE ruling over
+    all nine decisions this packet put (OQ-1 through OQ-9 in `proposal.md`;
+    `design.md` D-1 through D-9), given in session directly to the ENCODE
+    seat of lane `hermes-wallet-exercise` (window `hermes-wallet-exercise`,
+    session `codeXfactory-2`, workstation Eagle) and recorded in full at
+    `review/ratification-2026-09-12.md`. THIS IS THE RATIFICATION ACT AND IT
+    IS ADDED, NOT SUBSTITUTED: the drafting provenance above (`kind`, `id`,
+    `reason`, `proposed_by`, `proposed_on`) is kept exactly as authored,
+    which is the shape `add-drafted-proposal-origin` (issue #318) defined
+    for this transition — approval is a pure ADDITION beside a fixed origin
+    identity, and the archive gate's origin-retention arm reads the
+    declaration this act establishes. EVERY OQ TOOK ITS RECOMMENDED OPTION,
+    SO THE DELTA'S WORDING STANDS UNCHANGED: no delta byte was re-written,
+    restored or deleted by this ratification. NOTHING IS PROMOTED BY THIS
+    ACT: no file under `openspec/specs/` is edited, `tasks.md` § 5 stays
+    open, and archive is a separate act on a separate word, held behind
+    `add-wallet-carried-review-authority` and
+    `register-gate-rules-council-seats` per OQ-6.
+  approved_on: 2026-09-12
 related:
   - openxFactory:change:add-wallet-carried-review-authority   # ACTIVE, ratified 2026-08-23. Authors `review-authority-intake`; carries `rulings-2026-08-29.md` (the source of R6-R12) and task 7.6 (Ground 1). Declared in `sequenced_after:`
   - openxFactory:change:register-gate-rules-council-seats     # ACTIVE, ratified 2026-09-06 (Amendment 2, 2026-09-12). Second author of `review-authority-intake`; its chain is the one whose `grant-grc-0002` is VOID and whose `grant-grc-0003` is pre-staged in PR #1006. Declared in `sequenced_after:`

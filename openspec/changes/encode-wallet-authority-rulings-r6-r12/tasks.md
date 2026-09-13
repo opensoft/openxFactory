@@ -1,6 +1,7 @@
 # Tasks: encode-wallet-authority-rulings-r6-r12
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-12T23:58Z — verbatim "accept all A on 1017" (record `review/ratification-2026-09-12.md`)
 Kind: tasks
 Lane: hermes-wallet-exercise
 
@@ -9,7 +10,8 @@ this packet archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE and not on
 landing.** § 5 holds the archive behind § 3, and § 3 is in another repository
 for two of its three legs.
 
-**EVERY BOX BELOW IS UNTICKED, AND THIS PULL REQUEST PERFORMS NO ACT.** No
+**§ 1 BELOW IS NOW TICKED, AGAINST BRETT HEAP'S RATIFICATION WORD; NOTHING
+ELSE IS, AND THIS PULL REQUEST STILL PERFORMS NO OTHER ACT.** No
 requirement is promoted, no contract byte moves, no register file is touched,
 no grant is issued or revoked, no pin advances, no runbook sentence changes,
 and **no box in any other packet is ticked by it** — `add-wallet-carried-review-authority`'s
@@ -23,7 +25,7 @@ names the act that ticks it and the word that authorizes that act.
 
 ## 1. Ratification — Brett Heap's, and nobody else's
 
-- [ ] 1.1 **Rule OQ-1 through OQ-9** (`proposal.md` § Open questions;
+- [x] 1.1 **Rule OQ-1 through OQ-9** (`proposal.md` § Open questions;
       `design.md` D-1 through D-9). Multiple choice, each with a RECOMMENDED
       option and its one-line reason. **Taking every recommendation moves not
       one byte of the delta** — ***"accept all A"*** is a complete ruling.
@@ -32,17 +34,27 @@ names the act that ticks it and the word that authorizes that act.
       re-derives live composition digests and, under the shipped drift cascade,
       REVOKES `grant-mrc-0002`; ruling otherwise on OQ-6, OQ-7 or OQ-8 moves
       the packet rather than its wording. Ticks on the ruling, recorded
-      verbatim with its UTC instant.
-- [ ] 1.2 **Ratify the packet.** `Status: draft` → `ratified` on
+      verbatim with its UTC instant. **RULED: Brett Heap, 2026-09-12T23:58Z,
+      verbatim "accept all A on 1017"** — all nine OQs at their RECOMMENDED
+      option (`proposal.md` § Rulings; `review/ratification-2026-09-12.md`).
+- [x] 1.2 **Ratify the packet.** `Status: draft` → `ratified` on
       `proposal.md`, `design.md`, `tasks.md` and the delta, each gaining a
       `Ratified:` line naming the human, the instant and the verbatim word,
       plus `review/ratification-<date>.md` carrying the word in full.
       `.openspec.yaml` gains `approved_by` + `approved_on` **ADDED BESIDE** the
       drafting pair, with `kind`, `id`, `reason`, `proposed_by` and
       `proposed_on` left EXACTLY as authored — the addition-not-rewrite shape
-      `add-drafted-proposal-origin` (issue #318) defined.
-- [ ] 1.3 **Write `proposal.md` § Rulings**, one line per OQ naming the option
+      `add-drafted-proposal-origin` (issue #318) defined. **DONE** in this same
+      commit: all three documents plus `.openspec.yaml` and
+      `review/ratification-2026-09-12.md` (`Status: ratified`). The specs
+      delta (`specs/review-authority-intake/spec.md`) carries no lifecycle
+      header to flip — checked, not assumed.
+- [x] 1.3 **Write `proposal.md` § Rulings**, one line per OQ naming the option
       taken, and state in terms whether any delta byte moved as a result.
+      **DONE**: the nine-row table names each OQ's RESOLVED option and the
+      rejected alternatives; every row is (a), so the delta moved no byte
+      (proven by `git diff --stat` over `specs/` between the pre-ratification
+      head and the ratification commit).
 
 ## 2. Encode — only if a ruling moved a byte
 

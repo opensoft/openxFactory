@@ -1,6 +1,7 @@
 # Design: encode-wallet-authority-rulings-r6-r12
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-12T23:58Z — verbatim "accept all A on 1017" (record `review/ratification-2026-09-12.md`)
 Kind: design
 Lane: hermes-wallet-exercise
 
@@ -49,7 +50,7 @@ and this packet neither amends nor re-performs it.
 
 ## 2. Decisions
 
-### D-1 (OQ-1) — Home capability: `review-authority-intake`, `## ADDED`
+### D-1 (OQ-1) — Home capability: `review-authority-intake`, `## ADDED` — RULED (a), 2026-09-12T23:58Z
 
 **The class is FORCED, not preferred.** `openspec/specs/` carries no
 `review-authority-intake/spec.md`: both authoring changes
@@ -68,7 +69,7 @@ become a `## MODIFIED` of shipped canon to carry a subject it does not compute
 digests SHALL NOT carry a second construction rule, which is an argument for
 adopting its construction, not for moving composition doctrine into it).
 
-### D-2 (OQ-2) — R7 by ADOPTION, and the route is precedented twice
+### D-2 (OQ-2) — R7 by ADOPTION, and the route is precedented twice — RULED (a), 2026-09-12T23:58Z
 
 `xfc-jcs-sha256-1` is R7's ruled profile already shipped: RFC 8785 JCS,
 SHA-256, `sha256:` + 64 lowercase hex, profile named and versioned, every
@@ -93,7 +94,7 @@ LITERALLY violate the promoted requirement, which scopes itself to
 estate scale. This packet says that, and does not dress a design preference as
 a contract violation.
 
-### D-3 (OQ-3) — No agility mechanism, and it is DECIDED
+### D-3 (OQ-3) — No agility mechanism, and it is DECIDED — RULED (a), 2026-09-12T23:58Z
 
 R7 left "digest agility and any dual-digest transition" open and assigned both
 to "the carrying change". This is the carrying change, so leaving them open a
@@ -105,7 +106,7 @@ admitted mechanism with no consumer is the shape
 `digest-construction.schema.yaml` itself declines elsewhere (*"an admitted
 subject with no consumer is a widening nothing exercises"*).
 
-### D-4 (OQ-4) — PROSPECTIVE, and this is the decision that can revoke live grants
+### D-4 (OQ-4) — PROSPECTIVE, and this is the decision that can revoke live grants — RULED (a), 2026-09-12T23:58Z
 
 **Retroactive re-derivation would revoke both councils' authority as a side
 effect of a doctrine packet.** The shipped drift cascade revokes on a changed
@@ -124,7 +125,7 @@ for that reason and the reason is recorded, not assumed.** The next genuine
 composition event re-derives under the ruled reading in the ordinary way, which
 is the path both walks already exercised.
 
-### D-5 (OQ-5) — R12's interim half encoded, signer half deferred by name
+### D-5 (OQ-5) — R12's interim half encoded, signer half deferred by name — RULED (a), 2026-09-12T23:58Z
 
 Three interim sentences in R12 are enforceable statements and are encoded:
 unsigned digests admissible; activation fail-closed on digest match regardless;
@@ -134,7 +135,7 @@ permission and not a silence. The four envelope questions are named as deferred
 so the requirement's silence cannot be read as an answer — the delta carries a
 scenario refusing exactly that inference.
 
-### D-6 (OQ-6) — Ratification discharges Ground 1; the parent ticks 7.6
+### D-6 (OQ-6) — Ratification discharges Ground 1; the parent ticks 7.6 — RULED (a), 2026-09-12T23:58Z
 
 Ground 1's own words are *"until the change carrying R6–R12 is **ratified**"* —
 ratified, not archived, not realized. **So ratification of this packet
@@ -149,7 +150,7 @@ the remaining question as *"whether the pair discharges 7.6's 'walk it once'
 limb, and the answer is very likely yes on the evidence"* — the lane holding
 that ledger answers it, citing the two walk records.
 
-### D-7 (OQ-7) — Not sequenced against PR #1006
+### D-7 (OQ-7) — Not sequenced against PR #1006 — RULED (a), 2026-09-12T23:58Z
 
 **FILE-LEVEL MEASUREMENT, not a judgment call.** PR #1006 edits
 `governance/review-authority/register.yaml`,
@@ -164,7 +165,7 @@ realization. **Zero file overlap, so either may land first.**
 That is a REALIZATION-AXIS declaration — which changes must archive before this
 one can — and it is not a merge queue.
 
-### D-8 (OQ-8) — Declared code surface, archive on merged-plus-green
+### D-8 (OQ-8) — Declared code surface, archive on merged-plus-green — RULED (a), 2026-09-12T23:58Z
 
 A `digest_subject` member is a contract artifact's bytes, so
 `code_surface: none` would be a FALSE declaration. Under `release-realization`
@@ -176,7 +177,7 @@ self-attestation — is openXwallet's, consumed here through
 advance in another repository plus a pin bump here. **Named in tasks § 3 and
 NOT performed by this packet.**
 
-### D-9 (OQ-9) — R10's four members REQUIRED, not CLOSED
+### D-9 (OQ-9) — R10's four members REQUIRED, not CLOSED — RULED (a), 2026-09-12T23:58Z
 
 Scope, selection configuration, admission policy and ontology package digest
 are each required members of the governing configuration digest; a governed
