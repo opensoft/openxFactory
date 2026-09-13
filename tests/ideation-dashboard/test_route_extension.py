@@ -72,13 +72,24 @@ from opendox import serve as serve_mod  # noqa: E402
 # asserts the BUILD-time overlap refusal over the two security-sensitive
 # prefixes, so it wants the prefix itself and not the module that used to
 # forward it; reading it from the owner is also what keeps the assertion true
-# if openDox ever re-exports it again. `SOURCE_PREFIX` moved in the same slice
-# and for the same reason (`opendox/serve.py`:201-206: one of "the patterns
-# `ProjectionRoutesExtension.routes()` declares", which "travel with it" and
-# "stay reachable at `openxdox.serve_projection`, which is where they live"),
-# so it is read from its owner too.
+# if openDox ever re-exports it again. `SOURCE_PREFIX` moved AGAIN since: § 3.4
+# slice S6 (RULED Q4, Brett Heap, 2026-09-12, openxFactory#656 comment
+# `5642758731`, "`/source/` is openDox's, and openXdox's projection binding
+# keeps only `/snapshot-index.json` and the three `/projections/*` routes")
+# returned the `/source` pair from CONTRIBUTED to FIXED: it is openDox's own
+# read-only pass-through over the pinned checkout now, not a column's, so
+# `SOURCE_PREFIX` and its sibling `BARE_SOURCE_ROUTE` are declared in
+# `opendox/serve.py` (see its own comment there, immediately above where they
+# are declared) and read from THAT owner — `openxdox.serve_projection` no
+# longer binds the name at all, so the old import there would be an
+# `ImportError`, not a stale-but-working re-export. Only `BARE_SOURCE_ROUTE`
+# is read BY NAME below: S6 also removed `SOURCE_PREFIX` from this file's own
+# use (see `test_a_contributed_source_binding_builds_but_the_fixed_arm_still_
+# wins`, which tests the BARE arm instead — importing the PREFIX constant
+# with nothing left to read it would be exactly the "F401" this module's own
+# convention calls out).
 from openxdox.serve_gate import ACTIONS_GATE_PREFIX  # noqa: E402
-from openxdox.serve_projection import SOURCE_PREFIX  # noqa: E402
+from opendox.serve import BARE_SOURCE_ROUTE  # noqa: E402
 from openxdox.generator import generate_snapshot  # noqa: E402
 
 # The dashboard's asset root, DERIVED from `web/index.html`'s manifest row
@@ -511,15 +522,28 @@ def test_an_exact_binding_under_a_prefix_of_ANOTHER_METHOD_does_not_collide(
 
 
 def test_an_exact_pattern_equal_to_a_prefix_minus_its_slash_does_not_collide():
-    """The pair this assembly ACTUALLY declares must keep building.
+    """A synthetic pair proves the general rule; the in-tree profile proves the
+    rule does not accidentally refuse to build.
 
     `"/source".startswith("/source/")` is False — the bare route does not sit
-    inside the prefix and no request path reaches both — so the projection
-    column's `/source` + `/source/` pair is legal, and the containment refusal
-    reads "under" as exactly that `startswith` rather than as a segment-wise
-    or "same stem" test that would have refused this assembly's own profile.
-    Asserted twice: on the pair alone, and on the whole in-tree profile, whose
-    nine bindings must still collect.
+    inside the prefix and no request path reaches both — so an exact pattern
+    equal to a prefix minus its trailing slash is legal, and the containment
+    refusal reads "under" as exactly that `startswith` rather than as a
+    segment-wise or "same stem" test.
+
+    UNTIL § 3.4 SLICE S6 (RULED Q4, `#656` comment `5642758731`), the
+    projection column's OWN `/source` + `/source/` pair was this rule's live
+    example: `profile_openxfactory.ROUTE_EXTENSIONS` actually declared both,
+    and the second assertion below counted them as part of the nine bindings
+    the in-tree profile collected. S6 moved that pair to a FIXED core arm in
+    `opendox/serve.py` — no longer contributed through any extension at all —
+    so the profile lost exactly two bindings (9 -> 7) and no longer contains
+    an example of this specific pattern. That does not make the rule untested:
+    the synthetic `pair` above still exercises it directly, independent of
+    what the real profile happens to declare this slice. The second assertion
+    now serves only its OTHER purpose — a regression guard that the real
+    profile still collects at all — not as a second, real-world instance of
+    the exact/prefix pair.
     """
     pair = ProbeExtension((
         route_extension.RouteBinding("GET", "/source", False, "_bare"),
@@ -528,9 +552,10 @@ def test_an_exact_pattern_equal_to_a_prefix_minus_its_slash_does_not_collide():
         ["_bare", "_under"]
     profile = route_extension.collect_bindings(
         profile_openxfactory.ROUTE_EXTENSIONS)
-    assert len(profile) == 9, (
-        "the in-tree profile no longer collects — RULING A's containment "
-        "refusal must not fire on `/source` beside `/source/`")
+    assert len(profile) == 7, (
+        "the in-tree profile no longer collects, or its binding count moved "
+        "for a reason other than the documented S6 /source shed — either is "
+        "worth a second look before touching this number again")
 
 
 def test_a_non_conforming_extension_is_refused():
@@ -805,9 +830,55 @@ def test_a_contributed_route_cannot_shadow_a_core_route(tmp_path, probes):
     assert "generation" in payload   # the real snapshot, unchanged
 
 
+def test_a_contributed_source_binding_builds_but_the_fixed_arm_still_wins(
+        tmp_path, probes):
+    """`/source` LEFT `test_an_exact_caller_binding_under_a_contributed_prefix_
+    refuses_the_build`'s parametrization at § 3.4 slice S6 (RULED Q4, `#656`
+    comment `5642758731`) — it is no longer a prefix any `ROUTE_EXTENSIONS`
+    member declares, so a caller's own exact binding under it no longer
+    COLLIDES with anything `collect_bindings` knows about, and the build no
+    longer refuses it (unlike `ACTIONS_GATE_PREFIX`, still contributed by
+    `GateRoutesExtension` and still covered by that test).
+
+    That is not a hole: `opendox/serve.py`'s `/source` and `/source/` are now
+    FIXED core arms consulted before the § 2.4 contributed-route match ever
+    runs (`opensoft/openDox-code`'s own
+    `tests/test_source_core_arm.py::test_the_arms_are_fixed_and_cannot_be_
+    shadowed_by_a_contribution` proves the ordering, by source inspection, at
+    the repository that now owns the arm). This test is that same property's
+    other half, proved here instead: the build ACCEPTS the caller's binding
+    (RULING A no longer applies — there is nothing left in this profile for it
+    to collide with), and a real request still never reaches it, exactly like
+    `test_a_contributed_route_cannot_shadow_a_core_route` above proves for
+    `SNAPSHOT_ROUTE`.
+
+    THE BARE ARM, not the `/source/` prefix one: `_refuse_bare_source`'s
+    answer is a fixed, fixture-independent 404 ("no source path"), where the
+    prefix arm's `_serve_source` resolves a real path out of the pinned
+    checkout and would need a real, keyed fixture entry to answer
+    deterministically. The bare arm proves the same ordering with less
+    machinery, and `test_route_dispatches_the_exact_arm_before_the_prefix_arm`
+    (the openDox-code file cited above) already proves the exact arm and the
+    prefix arm are consulted in the same fixed block, so this one arm stands
+    for both.
+    """
+    shadow = ProbeExtension((
+        route_extension.RouteBinding("GET", BARE_SOURCE_ROUTE, False,
+                                     PROBE_READ),))
+    with serving(tmp_path, route_extensions=(shadow,)) as (_httpd, host, port):
+        status, payload, raw = request(host, port, "GET", BARE_SOURCE_ROUTE)
+    assert status == 404, (
+        "a contributed binding answered /source — the fixed core arm no "
+        "longer runs first, which is exactly the shadowing S6 closed"
+    )
+    assert payload is None and b"probe" not in raw, (
+        "the response body came from the probe, not from "
+        "_refuse_bare_source's plain 404 — the fixed arm did not win"
+    )
+
+
 @pytest.mark.parametrize("method,prefix,core_handler,probe", [
     ("POST", ACTIONS_GATE_PREFIX, "_handle_gate_action", PROBE_WRITE),
-    ("GET", SOURCE_PREFIX, "_serve_source", PROBE_READ),
 ])
 def test_an_exact_caller_binding_under_a_contributed_prefix_refuses_the_build(
         tmp_path, probes, method, prefix, core_handler, probe):
@@ -819,18 +890,25 @@ def test_an_exact_caller_binding_under_a_contributed_prefix_refuses_the_build(
     routes off `serve.py`'s fixed tables, and while a hard-coded `if` could not
     be reached by a caller-supplied binding, a CONTRIBUTED prefix binding could
     — a caller who passes `route_extensions` could declare an exact binding
-    under `ACTIONS_GATE_PREFIX` or `SOURCE_PREFIX`, the build accepted it, and
-    it won the match, so `_handle_gate_action` (and its loopback, capability,
-    actor and human-console refusals) never ran for that one path. That was
-    demonstrated live at this branch's head — a probe binding answering
+    under `ACTIONS_GATE_PREFIX`, the build accepted it, and it won the match,
+    so `_handle_gate_action` (and its loopback, capability, actor and
+    human-console refusals) never ran for that one path. That was demonstrated
+    live at this branch's head — a probe binding answering
     `POST /actions/gate/<verb>` with its own 200.
 
     It is now impossible at BUILD: `collect_bindings` refuses the overlap
     before `build_server` opens a socket, reads a checkout or bootstraps a
     session, and the refusal names both the caller's binding and this
-    assembly's own. Parametrized over the two security-sensitive prefixes the
-    PR contributed, because the ruling is about the shape and not about the
-    gate console alone.
+    assembly's own.
+
+    ONCE PARAMETRIZED OVER A SECOND PREFIX, `SOURCE_PREFIX` — REMOVED at § 3.4
+    slice S6 (RULED Q4, `#656` comment `5642758731`), which moved `/source`
+    out of `ROUTE_EXTENSIONS` entirely and into a FIXED core arm in
+    `opendox/serve.py`. It is no longer a "contributed prefix" this ruling's
+    BUILD-time mechanism has anything to say about — see
+    `test_a_contributed_source_binding_builds_but_the_fixed_arm_still_wins`
+    immediately above, which replaces this parametrization's former second
+    case with the property that is now actually true.
     """
     verb_path = prefix + "fake-verb"
     override = ProbeExtension((
