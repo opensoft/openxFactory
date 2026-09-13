@@ -523,6 +523,27 @@ sibling is active or archived when it lands. The one real interaction is the
 README *OpenSpec Records* block, which both pull requests touch — a landing-window
 matter under the lane-collision protocol, not a content collision.
 
+**IT HAS SINCE LANDED, AND THE PREDICTION HELD.** PR #1014 merged into `main` at
+2026-09-12T20:49Z (`a1429885`), and this branch took `origin/main` at that head.
+The command capture above is therefore a DATED reading of a tree that has moved
+— `gate-realization-axis-vocabulary` now lives at
+`openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/` and its
+requirement *Realization axis vocabulary is gated* is PROMOTED — and it is left
+as the dated capture it is rather than rewritten. **TWO THINGS MOVED AND BOTH
+ARE MECHANICAL**: the README block merged with both rows kept (ours active and
+ratified, the sibling's at its archived standing), and the per-change sweep
+ledger conflicted on exactly one hunk, resolved as the UNION — our row active,
+the sibling's at main's `archived` state — with
+`scripts/validate-sequenced-after.py . --ledger-diff` exit 0 confirming the
+result rather than a hand-argued one. **NOTHING IN THIS PACKET'S CANON MOVED**:
+this delta's three titles are still novel against the promoted spec the archive
+produced, `sequenced_after: []` still holds because no active change modifies a
+title this delta writes, and the ADDED-only reasoning is unchanged — the
+`## MODIFIED` block over *Realization axis declaration* that reasoning turns on
+belongs to `add-structured-scope-substrate`, which is still ACTIVE. The one
+citation that needed repointing is `.openspec.yaml`'s `related:` entry, moved
+from the sibling's active id to its archive id.
+
 **THE TWO ACTIVE SIBLINGS ON THIS CAPABILITY, BY REQUIREMENT HEADING:**
 
 - **`add-structured-scope-substrate`** — one `## MODIFIED` block over

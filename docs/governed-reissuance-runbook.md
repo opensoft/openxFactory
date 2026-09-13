@@ -7,6 +7,16 @@ Backed by: `openspec/changes/add-wallet-carried-review-authority/tasks.md` task
   7.6, written against
   [`rulings-2026-08-29.md`](../openspec/changes/add-wallet-carried-review-authority/rulings-2026-08-29.md)
   R8 (the re-issuance record's five fields) and R9 (in-flight behavior)
+Amended by: amend-register-act-5b-projection-proof (ratified 2026-09-11T13:09:12Z,
+  openxFactory PR #960) — §5.2 step 3's exit condition corrected to a direct,
+  read-only observation of the register projection's declared source revision,
+  never an admitted convening; step 2's stale-refresh sentence corrected to
+  require a refresh cycle that COMPLETED after the register act rather than
+  one merely due; and §7's Contents list's step-5b evidence bullet corrected
+  to match. Realized per
+  `openspec/changes/amend-register-act-5b-projection-proof/tasks.md` §3
+  (tasks 3.1-3.5). This document's own `Status: draft` is unchanged by that
+  realization — see "Why this document is `draft` and not `ratified`" below.
 
 **Why this document is `draft` and not `ratified`.** Task 7.6's own text rules
 it: *"neither ruling is enforced until the change carrying R6–R12 is ratified,
@@ -401,12 +411,38 @@ So:
    **beside the rows it bounds** precisely so a deploy setting cannot loosen it,
    and the runtime holds a ceiling of its own and honours whichever is tighter —
    *"an artifact must never be able to widen its own trust window."* Today the
-   bound is **`P7D`**, and it is loose on purpose because nothing refreshes the
-   projection automatically; do not tighten it here as a tidy-up.
-3. **VERIFY ONE CONVENING ADMITS.** The park is not lifted by a green validator
-   — it is lifted when a real convening is admitted against the new grant. Until
-   you have seen that, you have evidence that the *files* are consistent and no
-   evidence that the *lane* recovered. Record which convening you watched.
+   bound is **`P7D`**, and what it declares is how long a revocation may go
+   unhonoured, not how fresh the projection is: *"seven days is the window a
+   revocation may go unhonoured today … the intended target once projection
+   refresh is automated is P1D or tighter"*
+   ([`register.yaml`](../governance/review-authority/register.yaml), *"WHY P7D
+   AND NOT SOMETHING TIGHT"*). The refresher that runs on a cadence today is
+   therefore the reason to TIGHTEN that bound later, never the reason it is
+   loose — **currency is not content**: a projection well inside the bound can
+   still have been derived before this act, so step 3 below requires a refresh
+   that COMPLETED after the act and never one merely due, evidenced by the
+   refresher's own success record. Do not tighten the bound here as a
+   tidy-up; that is its own governed edit on the human-only surface.
+3. **VERIFY THE REGISTER PROJECTION HAS BEEN OBSERVED — NOT THAT A CONVENING
+   WAS ADMITTED.** The park is not lifted by a green validator — it is lifted
+   when a named operator's read-only observation confirms the published
+   register projection (ConfigMap `hermes-register-projection`, annotation
+   `hermes.opensoft.one/source-revision`) is at or after this act's own landed
+   commit, taken only after a refresh cycle completed afterward (step 2
+   above). **An admitted convening does not establish this and must not be
+   substituted for it**: the admission path resolves the domain-content
+   projection, never the register projection, so a convening can admit
+   cleanly against a projection that still predates this act — a manufactured
+   clearance that reads exactly like the proof. Record the operator's word
+   (naming the executing lane), the commands run, the values read, and the
+   comparison that decided the exit.
+   *(Requirement: "A re-issuance's projection step exits on an observed
+   projection, never on an admitted convening" —
+   `openspec/changes/amend-register-act-5b-projection-proof/specs/review-authority-intake/spec.md`,
+   ratified by openxFactory PR #960 → `ac688c40`, 2026-09-11T13:09:12Z;
+   evidenced at
+   `openspec/changes/register-gate-rules-council-seats/walk-2026-09-11-register-act.md`
+   §§13.2, 14.1.)*
 
 **A projection older than the bound REFUSES, never proceeds on the stale copy.**
 A re-issuance that lands the register act and skips 5b leaves every convening
@@ -489,7 +525,10 @@ change already uses for its dated rulings, and the archived
 * the step-5 acts — the revoked grant's id and revocation reason, the new
   grant's id, and the row's repointed `grant_ref`/`expires_at` — and the
   **step-5b** evidence: that the projection was re-derived, that the staleness
-  bound travelled verbatim, and **which convening was watched admitting**;
+  bound travelled verbatim, and **the observation's own record** — the
+  `source-revision` value read, the comparison against this act's landed
+  commit, and the fields the observation did NOT read, named as OWED with an
+  owner;
 * the honest limits restated, in terms: **R8 and R9 are not enforced until the
   change carrying R6–R12 is ratified**, so the walk demonstrates the runbook
   against a real bump and does not exercise an enforced control; **this walk
