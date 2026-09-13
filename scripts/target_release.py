@@ -2,9 +2,15 @@
 declaration (release-realization / gate-realization-axis-vocabulary).
 
 WHY THIS MODULE EXISTS. `release-realization`'s promoted requirement
-*Realization axis declaration* admits exactly two values for `target_release:`
-— `implemented` (the affected repositories' main lines) or a named release
-defined in the aggregation repository — and nothing reads the field. Measured
+*Realization axis declaration* admits THREE values for `target_release:` —
+`implemented` (the affected repositories' main lines), a named release defined in
+the aggregation repository, or `deferred-allocation` (a contract bundle whose
+number the versioning policy allocates at the cut) — and, before the gate,
+nothing read the field. THE THIRD VALUE ARRIVED LATER, by
+`add-target-release-deferred-allocation`: this module's first version judged the
+two-value sentence, and the register below names the twelve active packets that
+could not satisfy it without breaking `docs/contract-versioning-policy.md`
+§ Bundle Realization Order. Measured
 at this module's authoring: no script, test or workflow in this repository
 gates the value; the only reader is the ideation dashboard's DISPLAY
 (`scripts/ideation_dashboard/generator.py` `_release_frontmatter`, rendered by
@@ -85,6 +91,23 @@ FIELD = "target_release"
 
 #: The one value the promoted sentence names outright.
 IMPLEMENTED = "implemented"
+
+#: THE THIRD VALUE (`add-target-release-deferred-allocation`). A contract bundle
+#: this change realizes into whose NUMBER `docs/contract-versioning-policy.md`
+#: § Bundle Realization Order allocates AT THE CUT, so that no number exists to
+#: be named at proposal time. It is VOCABULARY and never an exception: it is
+#: admitted here, beside `implemented`, and `CLOSED_REGISTER` does not move —
+#: which is the distinction the promoted requirement draws when it says that
+#: admitting a NEW value "SHALL be a change to this specification rather than an
+#: addition to the register."
+#:
+#: THE SPELLING IS THE REGISTER'S OWN CLASS WORD, deliberately: `REGISTER_CLASSES`
+#: below has carried `"deferred-allocation"` since the gate landed, so the value
+#: and the class it retires are one word and a reader needs no mapping between
+#: them. A bare `deferred` would have read as a STATE and invited the four
+#: `realization-state` carriers to "correct" into a token that does not describe
+#: them — their realizations land on main lines and have nothing to defer.
+DEFERRED_ALLOCATION = "deferred-allocation"
 
 #: The register, beside the validator that reads it.
 REGISTER_PATH = Path(__file__).resolve().parent / "target-release-register.yaml"
@@ -268,11 +291,19 @@ class Report:
     active_declaring: int
     inside_implemented: int
     inside_release: int
+    inside_deferred: int
     grandfathered: tuple[tuple[str, str], ...]
     findings: tuple[Finding, ...]
     stale: tuple[str, ...]
     archived_total: int
     archived_off_vocabulary: int
+    #: ARCHIVED RECORDS STILL DECLARING `deferred-allocation`, COUNTED AND NEVER
+    #: REFUSED. The value is temporary by construction and the archiving act is
+    #: what resolves it, but an archived packet's front matter is frozen record
+    #: and the promoted requirement says the gate "SHALL refuse nothing there".
+    #: So an unresolved one is REPORTED — visible to a reader, a refusal to
+    #: nobody — rather than made a standing finding with no remedy.
+    archived_deferred_unresolved: int
     registry_present: bool
 
 
@@ -647,7 +678,7 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
 
     findings: list[Finding] = []
     grandfathered: list[tuple[str, str]] = []
-    inside_implemented = inside_release = 0
+    inside_implemented = inside_release = inside_deferred = 0
     active_declaring = 0
     registry_present = _registry_present(repo_root)
 
@@ -668,12 +699,18 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
         if token == IMPLEMENTED:
             inside_implemented += 1
             continue
+        if token == DEFERRED_ALLOCATION:
+            # VOCABULARY, judged BEFORE the register lookup so the value can
+            # never be mistaken for a grandfathered exception on the report.
+            inside_deferred += 1
+            continue
         if token is None:
             findings.append(Finding(
                 change, rel, "",
                 "declares `target_release:` with no value; the vocabulary is "
-                "`implemented` or a named release, and an empty declaration is "
-                "neither (omit the key to take the doc-only default)"))
+                "`implemented`, a named release, or `deferred-allocation`, and "
+                "an empty declaration is none of them (omit the key to take the "
+                "doc-only default)"))
             continue
         resolved, _ = resolves_as_release(token, repo_root)
         if resolved:
@@ -686,8 +723,10 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
             continue
         findings.append(Finding(
             change, rel, token,
-            "is outside the ratified vocabulary — `implemented` or a release "
-            f"this estate defines" + (
+            "is outside the ratified vocabulary — `implemented`, a release "
+            f"this estate defines, or `{DEFERRED_ALLOCATION}` (a contract "
+            "bundle whose number the versioning policy allocates at the cut)"
+            + (
                 f" (no `{RELEASE_REGISTRY_DIR}/{token}.digests.yaml`)"
                 if RELEASE_ID_RE.match(token) else "")))
 
@@ -697,12 +736,19 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
 
     archived_paths = _proposals(repo_root, archived=True)
     archived_off = 0
+    archived_deferred = 0
     for proposal in archived_paths:
         try:
             present, token = declaration(proposal)
         except TargetReleaseError:
             continue  # read, never judged
         if not present or token == IMPLEMENTED or token is None:
+            continue
+        if token == DEFERRED_ALLOCATION:
+            # Inside the vocabulary, so NOT off-vocabulary — but unresolved,
+            # which the archiving act was supposed to prevent. Counted on its
+            # own line and refused never.
+            archived_deferred += 1
             continue
         resolved, _ = resolves_as_release(token, repo_root)
         if not resolved:
@@ -713,10 +759,12 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
         active_declaring=active_declaring,
         inside_implemented=inside_implemented,
         inside_release=inside_release,
+        inside_deferred=inside_deferred,
         grandfathered=tuple(sorted(grandfathered)),
         findings=tuple(findings),
         stale=tuple(sorted(stale)),
         archived_total=len(archived_paths),
         archived_off_vocabulary=archived_off,
+        archived_deferred_unresolved=archived_deferred,
         registry_present=registry_present,
     )
