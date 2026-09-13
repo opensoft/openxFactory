@@ -1760,6 +1760,82 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assert_walk_refuses(root, moved, "change-s", renamed_at,
                                      extra_substrings=("#849",))
 
+    def test_an_unratifying_rename_chain_escapes_the_guard_a_stated_gap(self):
+        """THE #1003 GAP, STATED AND PINNED, NOT CLOSED. #849 closed the
+        SINGLE-hop shape above — rename-and-un-ratify and the later
+        re-ratification under the SAME name — by asking every commit the
+        outer walk visits. This chain adds ONE more rename after the
+        un-ratify, so the hop that un-ratifies (r to s) and the hop that
+        lands the CURRENT name (s to t) are two DIFFERENT commits: `git log`
+        for `t` never visits the r-to-s commit at all, because it never
+        touched `t`, and the s-to-t commit's own parent is already a draft,
+        so the one-hop-back check there finds nothing amiss either.
+        Ratified, mutated, renamed-and-un-ratified, renamed again while
+        draft, re-ratified: `ratifying_commit` returns the LAST
+        ratification rather than the first, and the mutation sitting
+        between them is waved through — `origin_retention_errors` reports
+        nothing.
+
+        This is the ruling's OPTION 2 (Brett Heap, 2026-09-13, on #1003):
+        state the gap here, pin TODAY's acceptance with this fixture, and
+        leave the closure to `add-declared-former-id` — a declared
+        former-id every hop checks as it lands, rather than a longer walk.
+        When that packet lands, this fixture is expected to flip to a
+        refusal, the way `test_an_unratifying_rename_now_refuses_the_walk`
+        above once pinned a gap of its own before #999 closed it.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            s = changes / "change-s"
+            proposal_s = s / "proposal.md"
+            proposal_s.write_text(
+                proposal_s.read_text(encoding="utf-8").replace(
+                    "Status: ratified", "Status: draft", 1),
+                encoding="utf-8")
+            commit_all(root, "rename r to s and un-ratify in one commit")
+
+            # a SEPARATE, later commit: rename s to t while still a draft —
+            # the second hop, distinct from the un-ratifying first one
+            git(root, "mv", str(s), str(changes / "change-t"))
+            t = changes / "change-t"
+            commit_all(root, "rename s to t while draft")
+
+            ratify(t / "proposal.md")
+            commit_all(root, "ratify t under its third name")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+
+            # the real stakes: a mutation stands between the TRUE
+            # ratification and whatever the walk actually resolves
+            here = support.origin_block_lines(
+                (t / ".openspec.yaml").read_text(encoding="utf-8"))
+            at_true_ratification = support.origin_block_lines(
+                support.git_show_text(
+                    root, ratified_at,
+                    "openspec/changes/change-r/.openspec.yaml"))
+            self.assertNotEqual(here, at_true_ratification)
+
+            # TODAY'S ANSWER, pinned rather than asserted away: the later
+            # re-ratification, not the real one, and no refusal at all
+            self.assertEqual(support.ratifying_commit(root, "change-t"), head)
+            self.assertNotEqual(
+                support.ratifying_commit(root, "change-t"), ratified_at)
+            self.assertEqual(
+                support.origin_retention_errors(root, t, change="change-t"),
+                [])
+
     def test_the_guard_reads_any_spelling_of_the_candidate_commit(self):
         """A REVISION IS A REVISION, however it is spelled — and getting that
         wrong is silent NON-detection, which is the failure class this whole
