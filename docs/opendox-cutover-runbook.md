@@ -160,9 +160,11 @@ PRESENT at `to:to_path` under this same table's rules, and ABSENT at the
 `from:from_path` it left (`arrival-not-vacated`). Nothing else moves —
 `carve_commit`, `carve_tag`, every `sha256`, every disposition and every
 declared line are claims about the SOURCE blob at the carve commit, and where
-the file now lives says nothing about them. **NO ROW CARRIES IT TODAY**: the
-amendment landed the form and its gates, and § 5.7 is the procedure the act
-itself follows.
+the file now lives says nothing about them. **FOUR ROWS CARRY IT TODAY**: §
+3.4 slice S5 (`#656` CLAIM `5648073924`) is the first act to use the form,
+RULED Q5 (`5648044785`) moving `gate.js`, `dispose.js`, `swb-create.js` and
+`swb-session.js` from `opendox_code` to `openxdox_code`, and § 5.7 is the
+general procedure this and any later re-destination follows.
 
 The table above states the file's CURRENT totals — see "Measured directly
 against the landed manifest" below for how they are derived. What follows is
@@ -936,7 +938,11 @@ openXdox by a rule about imports, and § 1.2(d) of that note measured that 23 of
 them landed where nothing can run them. **Correcting a ruled placement is
 DECLARED, never re-cut** (§ 11 is for a SOURCE-side fact, and a `post-shed`
 manifest re-emitted at a post-shed commit would carry no moved rows at all).
-This is the procedure; slice S8 is the act that first runs it.
+This is the procedure; § 3.4 slice S5 (`#656` CLAIM `5648073924`) is the act
+that first ran it, moving `gate.js`, `dispose.js`, `swb-create.js` and
+`swb-session.js` from `opendox_code` to `openxdox_code` under RULED Q5
+(`5648044785`) — a later slice, S8 among them, follows the same five steps
+below.
 
 **It is not a way to move a file for convenience.** The `ruling:` field is
 required and is validated PRESENT for exactly that reason: a re-destination
