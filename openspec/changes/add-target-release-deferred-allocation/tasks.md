@@ -1,25 +1,38 @@
 # Tasks: add-target-release-deferred-allocation
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-13T01:0xZ — verbatim "accept all A on 1022" (record `review/ratification-2026-09-13.md`)
 Kind: tasks
 Lane: hermes-wallet-exercise
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-13, Brett Heap's and nobody else's
 
-- [ ] 1.1 Brett Heap rules `proposal.md` § Open questions OQ-1 … OQ-10. The
+- [x] 1.1 Brett Heap rules `proposal.md` § Open questions OQ-1 … OQ-10. The
       recommended option in each is what this packet already encodes, so
       **`accept all A on <n>` ratifies and moves not one byte**; any other
-      answer rewrites the requirement it names first.
-- [ ] 1.2 On the word: `Status: draft` → `Status: ratified` on `proposal.md`,
+      answer rewrites the requirement it names first. **RULED: Brett Heap,
+      2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — all ten OQs at
+      their RECOMMENDED option (`proposal.md` § Rulings;
+      `review/ratification-2026-09-13.md`).
+- [x] 1.2 On the word: `Status: draft` → `Status: ratified` on `proposal.md`,
       `design.md` and this file, each gaining a `Ratified:` line naming the
       human, the UTC instant as GIVEN (never invented) and the verbatim word;
       `.openspec.yaml` gains `approved_by` / `approved_on` **ADDED BESIDE** the
       untouched drafting pair (`add-drafted-proposal-origin`'s shape). The specs
-      delta carries no lifecycle header and has none to flip.
-- [ ] 1.3 `review/ratification-<date>.md` records the word, the ten decisions as
+      delta carries no lifecycle header and has none to flip. **DONE** in this
+      same commit; the instant is recorded `01:0xZ`, the precision the word was
+      taken at, never invented finer. The delta's absence of a lifecycle header
+      was CHECKED, not assumed. `design.md`'s ten `## D1 … D10` headers each
+      gained an inline `— RULED (a), 2026-09-13T01:0xZ` marker and no other byte
+      in that file moved.
+- [x] 1.3 `review/ratification-<date>.md` records the word, the ten decisions as
       put and as ruled, what the word admits and does not, and what is owed
-      after.
-- [ ] 1.4 `proposal.md` § Rulings filled, one line per OQ.
+      after. **DONE**: `review/ratification-2026-09-13.md`, `Status: ratified`.
+- [x] 1.4 `proposal.md` § Rulings filled, one line per OQ. **DONE**: a ten-row
+      table, each row carrying `RESOLVED (a)` with the ruler, the instant and
+      the verbatim word, plus the alternatives considered and not adopted; and
+      the section states in terms that no delta byte moved as a result, proven
+      by `git diff --stat` over `specs/` across the ratification commit.
 
 ## 2. Realization — IN THIS PULL REQUEST (OQ-10)
 

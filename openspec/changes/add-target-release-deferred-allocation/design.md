@@ -1,6 +1,7 @@
 # Design: add-target-release-deferred-allocation
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-13T01:0xZ — verbatim "accept all A on 1022" (record `review/ratification-2026-09-13.md`)
 Kind: design
 Lane: hermes-wallet-exercise
 
@@ -32,7 +33,7 @@ Reproducible from the commands below, on this worktree, off `origin/main`
 authored AFTER the register was fixed. That is the ratchet working as designed,
 and it is why the remedy is an admission rather than a repair.
 
-## D1 — the token's spelling
+## D1 — the token's spelling — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — `deferred-allocation`.** Four grounds, none of them taste:
 
@@ -65,7 +66,7 @@ the `contract-` prefix with `contract-vX.Y`. *Cost:* it invents a second name fo
 a class the register already names, and a reader who greps `deferred-allocation`
 finds the class but not the value.
 
-## D2 — where the widening is written
+## D2 — where the widening is written — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — BOTH promoted requirements, as `## MODIFIED` blocks.**
 
@@ -119,7 +120,7 @@ itself took. *Cost:* it works for an ADDITION and not for an AMENDMENT. Both
 promoted enumerations would go stale on the day it lands, and the vocabulary would
 then be written in three places with the newest one winning by implication.
 
-## D3 — may a `deferred-allocation` change archive?
+## D3 — may a `deferred-allocation` change archive? — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — NO.** The declaration is temporary by construction: the number it
 stands in for comes into existence at the cut, and by the time a code-surface
@@ -137,7 +138,7 @@ better name, and it would be introduced by the very act meant to remove it.
 targets, and the count only grows. **(c) archive with a disposition** — makes the
 ORDINARY case a contested act, which inverts the disposition mechanism's purpose.
 
-## D4 — how that archive rule is enforced
+## D4 — how that archive rule is enforced — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — canon-enforced at the archiving act; the validator REPORTS and
 refuses nothing in the archive.**
@@ -165,7 +166,7 @@ never-judged paragraph as well, and would create exactly the standing finding wi
 no remedy that paragraph exists to forbid. **(c) silent** — no report and no
 refusal, so a breach leaves no trace anywhere.
 
-## D5 — must the resolving edit cite the cut?
+## D5 — must the resolving edit cite the cut? — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — YES: the resolving pull request names the bundle version and the
 release surface that carries it.** § Bundle Realization Order runs land-then-tag
@@ -178,7 +179,7 @@ policy forbids — which is the whole reason the value exists.
 only for a cut in another repository** — a seam in the rule with no principle
 behind it.
 
-## D6 — who may declare it
+## D6 — who may declare it — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — only a change whose `code_surface:` is non-empty AND whose
 realization lands in a contract bundle.** A value available to every proposal
@@ -189,7 +190,7 @@ promoted default already covers the doc-only case and says so.
 non-empty code surface** — would silently admit the four `realization-state`
 carriers, whose realizations land on main lines and have nothing to defer.
 
-## D7 — the twelve standing register entries
+## D7 — the twelve standing register entries — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — NOT swept here; only the class NOTE is amended.**
 
@@ -213,7 +214,7 @@ avoid, in a packet whose realization evidence ought to be about the vocabulary.
 makes the corpus consistent in one act at the cost above. **(c) sweep the
 quiescent lanes' only** — an arbitrary line nobody can re-derive later.
 
-## D8 — this packet's own `target_release:`
+## D8 — this packet's own `target_release:` — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — `implemented`, and the reason is the admission's own rule.**
 
@@ -231,7 +232,7 @@ without cutting a contract release would be edited late or not at all."*
 **(b) `deferred-allocation`** — false, and circular. **(c) omit the field** — the
 doc-only default is `code_surface: none`, which this packet is not.
 
-## D9 — openxFactory #1017
+## D9 — openxFactory #1017 — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — not edited here.** Its front matter is its own lane's file; two
 lanes writing one packet is the collision the protocol names. After this lands,
@@ -243,7 +244,7 @@ and `merge 1017 when green`, already given, applies to that head unchanged.
 that packet's review. **(c) hold #1017 until a real cut** — blocks a ratified
 change on an unscheduled event, which is what the value exists to avoid.
 
-## D10 — where the realization lands
+## D10 — where the realization lands — RULED (a), 2026-09-13T01:0xZ
 
 **RECOMMENDED — this pull request**, mirroring `gate-realization-axis-vocabulary`
 exactly: non-empty `code_surface`, the validator and register and tests in the

@@ -6,7 +6,8 @@ sequenced_after: [add-structured-scope-substrate]
 
 # Proposal: add-target-release-deferred-allocation
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-13T01:0xZ by Brett Heap (openxFactory repository owner) — verbatim "accept all A on 1022"; record at review/ratification-2026-09-13.md
 Lane: hermes-wallet-exercise
 Proposed: 2026-09-13, in lane `hermes-wallet-exercise` (window
 `hermes-wallet-exercise`, session `codeXfactory-2`, workstation Eagle), on Brett
@@ -16,14 +17,16 @@ Origin: the successor question `gate-realization-axis-vocabulary` NAMES AND DOES
 NOT TAKE — `tasks.md` § 6.1 of that packet, archived 2026-09-12 at openxFactory
 [#1014](https://github.com/opensoft/openxFactory/pull/1014).
 
-**THIS PACKET IS `Status: draft` AND HELD.** The word above commissioned the
-AUTHORING and ratifies no wording: it admits no text to canon and takes none of
-the ten decisions this packet carries. Every one of them is put below as
-`## Open questions` OQ-1 … OQ-10, each with a RECOMMENDED option first and the
-alternatives' costs written out beside it, and every recommended option is what
-the delta already encodes — so **`accept all A on <n>` ratifies this packet
-without moving one byte of it**. Any other answer rewrites the requirement it
-names before ratification.
+**THIS PACKET IS NOW RATIFIED.** It was filed `Status: draft` and HELD: the
+word above commissioned the AUTHORING and ratified no wording, admitting no text
+to canon and taking none of the ten decisions this packet carries. Every one of
+them was put below as `## Open questions` OQ-1 … OQ-10, each with a RECOMMENDED
+option first and the alternatives' costs written out beside it, and every
+recommended option is what the delta already encodes. **Brett Heap ruled
+2026-09-13T01:0xZ, verbatim *"accept all A on 1022"* — all ten at their
+RECOMMENDED option (§ Rulings below), so the delta moved not one byte.** Any
+other answer would have rewritten the requirement it names before ratification;
+none was taken.
 
 ---
 
@@ -189,4 +192,37 @@ trees, and the `after` row is reproducible by the command above.
 
 ## Rulings
 
-*(empty until ratification; one line per OQ.)*
+**Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — given in
+session directly to this lane as a MULTIPLE-CHOICE ruling over all ten decisions
+`proposal.md` § Open questions and `design.md` D1 through D10 put, and captured
+in full at `review/ratification-2026-09-13.md`. The instant is recorded to the
+precision the word was taken at and no finer: the minute is written `01:0xZ`
+rather than invented, the same house form this packet's own filing provenance
+uses for the commissioning word ("approximately 00:5xZ").
+
+**THE WORD REACHES ALL TEN AT (a), THE RECOMMENDED OPTION, SO THE DELTA'S
+WORDING STANDS UNCHANGED**: not one byte of
+`specs/release-realization/spec.md` moves, and the two `## MODIFIED` blocks are
+ratified exactly as authored.
+
+| OQ | Decision | Ruled | Considered, not adopted |
+| --- | --- | --- | --- |
+| **OQ-1** — the token's spelling | `design.md` D1 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — `deferred-allocation`, the register's own ratified class word, so vocabulary and register name one thing and retirement is mechanical | (b) `deferred` — pairs with `implemented` but reads as a work STATE and invites the four registered `implementation_pending` carriers to "correct" into a token that does not describe them; (c) `contract-deferred` — a second name for a class the register already names |
+| **OQ-2** — where the widening is written | `design.md` D2 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — BOTH promoted requirements, `## MODIFIED` — *Realization axis declaration* (pre-text from `add-structured-scope-substrate`'s outcome, `sequenced_after` declared) and *Realization axis vocabulary is gated* | (b) the gate requirement only — canon would then enumerate two values in one place and three in the other; (c) an `## ADDED` novel title — no sequencing, but both promoted enumerations go stale and the vocabulary is written in three places |
+| **OQ-3** — may a `deferred-allocation` change archive? | `design.md` D3 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — NO — the archiving act first resolves the token to the literal the cut allocated, or to `implemented` where no bundle was cut | (b) archive with the token standing — a permanently unresolvable frozen record; (c) archive with a disposition — makes the ordinary case a contested act |
+| **OQ-4** — how that archive rule is enforced | `design.md` D4 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — canon-enforced AT THE ARCHIVING ACT; the validator REPORTS an archived-unresolved count and refuses nothing there | (b) refuse an archived carrier — contradicts the promoted *"SHALL refuse nothing there"* and creates a standing finding with no remedy on a frozen record; (c) silent — nobody ever learns the rule was broken |
+| **OQ-5** — must the resolving edit cite the cut? | `design.md` D5 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — YES — it names the bundle version and the release surface carrying it, so the number is OBSERVED (§ Bundle Realization Order steps 4–5) | (b) a bare token swap — indistinguishable from the reservation the versioning policy forbids; (c) cite only for a cut in another repository — a seam for no reason |
+| **OQ-6** — who may declare it | `design.md` D6 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — only a change whose `code_surface:` is non-empty AND whose realization lands in a contract bundle | (b) any change — re-opens the defect the gate was built to close, a second `none`; (c) any non-empty code surface — would admit the four `realization-state` carriers this packet does not reach |
+| **OQ-7** — the twelve standing register entries | `design.md` D7 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — NOT swept here — each retires when its owning packet corrects its own declaration, the entry deleted in that same pull request, which the exit-2 stale refusal already forces; only the class NOTE is amended | (b) sweep all twelve — twelve other lanes' `proposal.md` files, twelve entry deletions and a baseline move inside a vocabulary packet; (c) sweep only the quiescent lanes' — an arbitrary line nobody can re-derive later |
+| **OQ-8** — this packet's own `target_release:` | `design.md` D8 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — `implemented` — its surface is a validator, a register note and a test; it cuts no bundle, so `deferred-allocation` would be FALSE under its own new sentence | (b) `deferred-allocation` — false, and circular; (c) omit it — but `code_surface:` is non-empty, so the doc-only default would misdescribe it |
+| **OQ-9** — openxFactory #1017 | `design.md` D9 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — NOT edited here — its own lane makes the one-line correction after this lands, and `merge 1017 when green` then applies unchanged | (b) edit its front matter in this pull request — two lanes writing one packet; (c) hold #1017 until its bundle is actually cut — blocks a ratified change on an unscheduled event |
+| **OQ-10** — where the realization lands | `design.md` D10 | **RESOLVED (a) — Brett Heap, 2026-09-13T01:0xZ, verbatim "accept all A on 1022"** — THIS pull request, mirroring `gate-realization-axis-vocabulary` exactly: validator, register note and tests beside the ratification, archiving later on merged-plus-green | (b) a follow-up realization PR — leaves canon admitting a value no validator accepts, so #1017 stays blocked after ratification |
+
+**EVERY RULING IS THE RECOMMENDED OPTION.** No requirement text was rewritten,
+no delta directory was renamed, no `sequenced_after:` entry moved, and
+`scripts/target-release-register.yaml`'s `CLOSED_REGISTER` baseline did not
+move — this act admits a VALUE and admits no ENTRY. Realization (§ 2 of
+`tasks.md`) rides in this same pull request per OQ-10; the ARCHIVE (§ 5) stays
+entirely open, held behind merged-plus-green realization evidence, its own word,
+and the § 5.2 ordering re-read against `add-structured-scope-substrate`. Merge
+is a separate word from this ratification, and Rule 6 applies at landing.

@@ -532,13 +532,18 @@ Every DomainxFactory must validate against the canonical contract:
 Active changes:
 
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
-  — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: draft`** — an
-  UNAPPROVED packet in the lawful drafting shape (`proposed_by` / `proposed_on`,
-  no approval pair). **Proposed** 2026-09-13 at approximately 00:5xZ by Brett
-  Heap, openxFactory repository owner, first-hand, in session — a SELECTION via
-  the lane's multiple-choice question, the option ***"(b) Author the 'deferred'
-  vocabulary value first"***. That word commissioned the AUTHORING and ratifies
-  no wording. **THIS IS THE SUCCESSOR `gate-realization-axis-vocabulary` NAMED
+  — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
+  (2026-09-13T01:0xZ, Brett Heap, openxFactory repository owner, given in
+  session — a MULTIPLE-CHOICE ruling over all ten `design.md` D1…D10 decisions,
+  verbatim ***"accept all A on 1022"***) — record
+  [`review/ratification-2026-09-13.md`](openspec/changes/add-target-release-deferred-allocation/review/ratification-2026-09-13.md).
+  **ALL TEN OQs = (a), THE RECOMMENDED OPTION, SO THE DELTA MOVED NOT ONE BYTE**
+  (`.openspec.yaml` now carries `approved_by`/`approved_on` ADDED BESIDE the
+  unmoved drafting pair). **Proposed** 2026-09-13 at approximately 00:5xZ by
+  Brett Heap, openxFactory repository owner, first-hand, in session — a
+  SELECTION via the lane's multiple-choice question, the option ***"(b) Author
+  the 'deferred' vocabulary value first"***. That word commissioned the
+  AUTHORING and ratified no wording. **THIS IS THE SUCCESSOR `gate-realization-axis-vocabulary` NAMED
   AND DID NOT TAKE** (that packet's `tasks.md` § 6.1, and the
   `deferred-allocation` class note in its own register: *"Whether canon should
   admit a deferred allocation as a third value is the successor question this
@@ -569,10 +574,14 @@ Active changes:
   BLOCKED TODAY** — openxFactory #1017 (`encode-wallet-authority-rulings-r6-r12`)
   is RATIFIED and READY with its merge word given, and reds `pytest-suite` on
   exactly this gap; its one-line correction is its own lane's act after this
-  lands. Ten decisions are put as multiple choice with the recommendation first
-  and every recommendation already encoded, so **`accept all A on <n>` ratifies
-  without moving one byte**. `code_surface` is non-empty, so the archive is a
-  separate act on merged-plus-green realization evidence and a separate word.
+  lands. Ten decisions were put as multiple choice with the recommendation first
+  and every recommendation already encoded, and **Brett Heap ruled
+  2026-09-13T01:0xZ, verbatim *"accept all A on 1022"*** — all ten at (a), so
+  ratification moved not one byte. `code_surface` is non-empty, so the archive
+  is a separate act on merged-plus-green realization evidence and a separate
+  word; PR [#1022](https://github.com/opensoft/openxFactory/pull/1022) is
+  **RATIFIED and marked READY**, merge needs its own word, and Rule 6 applies at
+  landing.
   **DRAFT and HELD for Brett Heap's ratification.**
 
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
