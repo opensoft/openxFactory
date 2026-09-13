@@ -32,7 +32,11 @@ Two of them read the revision under test and therefore read `phase:` — see
      passes), `kind`, the three consts, a 40-lowercase-hex `carve_commit`, a
      label `carve_tag`, the closed maps and lists, the CLOSED top-level and
      per-disposition key sets, and the per-disposition required keys
-     (`carve-shape-invalid`).
+     (`carve-shape-invalid`). Two arms here carry their own codes because the
+     defect they name is not a typo: `re_destined:` on a `not_moved` row is
+     `carve-re-destined-not-moved` — there is no arrival to re-place — and a
+     `re_destined:` without `ruling:` is `carve-re-destined-unruled`, RULED Q6
+     having scoped the form to a RULED mis-placement only.
   2. REVISION — `carve_commit` must name a COMMIT OBJECT THIS REPOSITORY
      CARRIES (not an annotated tag's object id, which is also 40 hex and which
      git would peel silently) and be an ANCESTOR of the REVISION UNDER TEST
@@ -74,17 +78,22 @@ Two of them read the revision under test and therefore read `phase:` — see
      `validate-openreposhape-pin.py`'s check 5 re-aimed, and it is the ruling's
      "a file in no row" sentence as running code — the one failure mode per-file
      digests cannot see, because they say nothing about a file nobody listed.
-  5. CLOSED VOCABULARIES — `disposition`, `edits[].class`, `destination` and
-     `reason` are each membership-tested against a closed list
+  5. CLOSED VOCABULARIES — `disposition`, `edits[].class`, `destination`,
+     `also_replicated_to[]`, `re_destined.from`, `re_destined.to` and `reason`
+     are each membership-tested against a closed list
      (`carve-vocabulary-unknown`).
   6. DISPOSITION CONSISTENCY — `moved_with_declared_edit` with no `edits:` is
      `moved_verbatim` mislabelled; `moved_verbatim` with `edits:`, or
      `not_moved` with `edits:` under any reason but
      `replicated_at_destination`, is a contradiction
      (`carve-disposition-inconsistent`); so is a moved row that lists its OWN
-     `destination` in `also_replicated_to:`. Then the rows' file order must
-     equal their bytewise-UTF-8 sort, which is what the const
-     `path_order: bytewise_utf8` claims (`carve-path-order-violation`).
+     `destination` in `also_replicated_to:`, and so is a `re_destined:` whose
+     `from`/`from_path` are not the row's own `destination`/`destination_path`
+     or whose `to` equals its `from`. A row whose `(to, to_path)` is another
+     row's `(from, from_path)` is a CHAIN and refuses
+     `carve-re-destined-chain`. Then the rows' file order must equal their
+     bytewise-UTF-8 sort, which is what the const `path_order: bytewise_utf8`
+     claims (`carve-path-order-violation`).
 
 THE TWO PHASES, AND WHY THE DECLARATION IS IN THE MANIFEST (`phase:`). This
 document outlives the tree it describes by exactly one act: § 5.2, the shed,
@@ -178,6 +187,84 @@ test-layout files, and the ruling amends the grammar once rather than twice:
   names `destinations:` KEYS for arrival admission; the owed field names
   repositories for an arithmetic. They can coexist on one row without either
   meaning the other.
+
+THE THIRD GRAMMAR EXTENSION, RULED Q6 (Brett Heap, 2026-09-12, by interactive
+multi-choice; `#656` comment `5648044785`, adopting verbatim the RECOMMENDED
+answer of openDox-spec `docs/front-end-package-boundary.md` § 6 Q6 at
+`7d12428c`). It is THE FIRST EXTENSION ABOUT PLACEMENT, which is exactly why it
+needed a ruling of its own and could not be assumed from Q-L7 (a)'s precedent —
+that ruling's own sentence about its two fields is "neither of them a fourth
+disposition and NEITHER OF THEM A PLACEMENT".
+
+  `re_destined: {from, from_path, to, to_path, ruling, note}` ON A MOVED ROW,
+  OPTIONAL. It says: this row's bytes were placed at `from:from_path` by the
+  carve, a RULING has since moved that placement, and the arrival the floor
+  now asks about is `to:to_path`. `from` is the row's own `destination` and
+  `from_path` its own `destination_path` — the row keeps both, unedited, so
+  the manifest never stops recording where the carve actually put the file —
+  and `to` is a `destinations:` key that is NOT `from`.
+
+  WHAT DOES NOT MOVE, and the list is the ruling's: `carve_commit`,
+  `carve_tag`, every `sha256`, every `git_mode`, the row's `disposition`, its
+  `edits[]` and the lines they name. A digest is a claim about the SOURCE blob
+  at `b075fd91…` and where the file now lives says nothing about it; a
+  declared line is bounded by that same blob in check 3 and is untouched here.
+  An import rewrite the new leg needs is an ORDINARY declared line under the
+  existing `import rewrites` class, so `edit_classes` stays closed at three,
+  `destinations:` stays closed at five and the disposition list stays three.
+
+  WHAT S8 NEEDS IT FOR. § 1.2(d) of the boundary note measured 23 test files at
+  openXdox-code naming a `views/<name>.js` path under a directory openXdox-code
+  does not have: RULED OQ-G's TEST HOMES rule placed them by a rule about
+  imports and they landed where nothing can run them. Re-homing such a file is
+  a change of DESTINATION on an already-arrived row, and no field of the row
+  grammar could express it — `edits: [{class, lines[]}]` is a claim about BYTES
+  ON A LINE, never about placement, which the manifest's own amendment records
+  say three times. Slice S6 met the same wall on ONE file and withdrew rather
+  than work round it (openXdox-code `657c821b`); S8 is forty-eight.
+
+  WHY NOT A RE-CUT. Runbook § 11 re-cuts at a NEW `carve_commit` with every
+  digest RECOMPUTED and re-emits the manifest "at that commit, as the last
+  thing on that tree" — and this manifest is `phase: post-shed`, so a manifest
+  re-emitted at a post-shed commit would carry NO MOVED ROWS AT ALL. It would
+  be a different document, not a re-cut. Three costs stand even setting that
+  aside: re-cutting is Brett Heap's own act (§ 12 act 5); § 11 step 6
+  re-verifies EVERY already-arrived leg, because a leg proved against a
+  superseded referent is proved against nothing; and § 11's trigger is a
+  SOURCE-SIDE fact — "if `main` moves under the carve", with the digests wrong
+  — while S8's fact is destination-side and is a correction to a RULED
+  placement. Correcting a ruling is DECLARED, not re-cut, and a re-homed file
+  never leaves its row, which is what keeps the floor's own sentence true.
+
+  THE FIVE REFUSALS, AND WHICH CHECK OWNS EACH. `re_destined:` on a `not_moved`
+  row is `carve-re-destined-not-moved` in check 1 — a row that declares no
+  destination has no arrival to re-place, and the reasoning is
+  `also_replicated_to:`' own one level down. A `re_destined:` with no `ruling:`
+  is `carve-re-destined-unruled`, also in check 1: the ruling's scope answer is
+  that the form serves a RULED mis-placement and nothing else, so the citation
+  is the one field whose absence is a governance defect rather than a typo, and
+  it is required PRESENT and non-empty — its FORM is not constrained, because a
+  citation may legitimately be a comment id, a `#656` reference or a pull
+  request URL and refusing one of those would be this file inventing a rule the
+  ruling did not make. `from`/`to` outside `destinations:` is check 5's
+  `carve-vocabulary-unknown`, the same membership test and the same reason a
+  row's own `destination` gets one. `from`/`from_path` disagreeing with the
+  row's own destination, and `to == from`, are check 6's
+  `carve-disposition-inconsistent` — a row contradicting itself. And a CHAIN —
+  a row whose `(to, to_path)` is another row's `(from, from_path)` — is check
+  6's `carve-re-destined-chain`: a row already re-destined is AMENDED IN PLACE,
+  never re-destined twice, so one row never needs two readings and no reader
+  has to compose two hops to learn where a file is.
+
+  CHECK 4 READS THE EFFECTIVE ARRIVAL AND CHECK 3 DOES NOT. The duplicate-
+  arrival map is keyed on `(repository, leg, path)` at the destination the row
+  arrives at TODAY, because that is the collision it exists to refuse: without
+  it, a row re-destined AWAY from a path would go on reserving it — so a
+  second row moving to the vacated path would refuse as a duplicate — while a
+  re-destined row landing on an occupied path would pass in silence, which is
+  the two errors this check exists to prevent, in both directions at once. The
+  SURFACE walk is untouched: it is a claim about SOURCE paths, and a
+  re-destination moves nothing at the source.
 
 WHY CHECK 2 IS ANCESTRY AND NOT IDENTITY (AMENDED 2026-09-09, before the
 manifest was authored). As landed, check 2 required the revision under test to
@@ -411,7 +498,7 @@ KNOWN_NOT_MOVED_REASONS: tuple[str, ...] = (
 # never became a document — and every other code is a manifest that disagrees
 # with the tree it claims.
 #
-# ONE MEMBER HAS BEEN ADDED SINCE, AND DELIBERATELY. `carve-shed-incomplete`
+# FOUR MEMBERS HAVE BEEN ADDED SINCE, AND DELIBERATELY. `carve-shed-incomplete`
 # joined this tuple with the manifest's `phase:` key (RULED (a), Brett Heap,
 # 2026-09-10, `#656` comment `5625573095`). The post-shed phase asserts an
 # ABSENCE, and a tree that still carries the file is a finding no existing code
@@ -419,7 +506,18 @@ KNOWN_NOT_MOVED_REASONS: tuple[str, ...] = (
 # would be a claim about bytes nobody compared. "FIXED, COMPLETE" is a statement
 # about what this vocabulary owes a caller — every code a check can raise is in
 # it, and nothing raises a code outside it — and not a promise never to extend
-# it. Extending it is a ruled act, it is visible in the diff that does it, and
+# it. THE OTHER THREE joined with the `re_destined:` row form (RULED Q6, Brett
+# Heap, 2026-09-12, `#656` comment `5648044785`), and each names a defect no
+# landed code named: `carve-re-destined-not-moved` (a row with no arrival
+# declaring a new one), `carve-re-destined-unruled` (the citation the ruling's
+# own scope answer requires, absent) and `carve-re-destined-chain` (a
+# re-destination of a re-destination, which the ruling forbids in favour of
+# amending the one row in place). They keep the `carve-` prefix every code in
+# this vocabulary carries — `verify-carve-arrival.py`'s docstring reads that
+# prefix as the OWNERSHIP split between the two tools ("every `carve-*` code is
+# a manifest that disagrees with openxFactory"), so a bare `re-destined-*` here
+# would be a manifest finding outside the namespace that sentence describes.
+# Extending it is a ruled act, it is visible in the diff that does it, and
 # `RATIFIED_CODES` in `tests/carve_manifest/test_carve_manifest.py` restates the
 # tuple as a literal, so no member can be added, removed or reordered in silence.
 REFUSAL_CODES: tuple[str, ...] = (
@@ -434,6 +532,9 @@ REFUSAL_CODES: tuple[str, ...] = (
     "carve-disposition-inconsistent",
     "carve-path-order-violation",
     "carve-shed-incomplete",
+    "carve-re-destined-not-moved",
+    "carve-re-destined-unruled",
+    "carve-re-destined-chain",
     "carve-unreadable",
 )
 
@@ -447,7 +548,10 @@ REMEDIATION = (
     "remedy for `carve-shed-incomplete` is the opposite one: the manifest "
     "declares the shed DONE and the tree still carries the file, so either "
     "the deletion is missing from this commit or the phase was flipped "
-    "early — the shed and the flip land together or not at all."
+    "early — the shed and the flip land together or not at all. A "
+    "`carve-re-destined-*` refusal is not a re-cut either: amend the one "
+    "row's own `re_destined:` block in place, citing the ruling that ordered "
+    "the move — a row already re-destined is AMENDED, never re-destined twice."
 )
 
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -456,6 +560,16 @@ TAG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 REPO_RE = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
 MODE_RE = re.compile(r"^(100644|100755|120000)$")
 EDIT_KEYS = {"class", "lines", "note"}
+
+# `re_destined:`' OWN KEY SET, CLOSED to exactly these six (RULED Q6). Five are
+# REQUIRED — the placement is not expressible without all four of
+# `from`/`from_path`/`to`/`to_path`, and `ruling:` is required because the
+# ruling's scope answer is that the form serves a RULED mis-placement only, so
+# a re-destination with no citation is the quiet convenience move the ruling
+# refuses. `note:` is the one optional key, prose, exactly as an `edits[]`
+# entry's is.
+RE_DESTINED_KEYS = frozenset({"from", "from_path", "to", "to_path", "ruling",
+                              "note"})
 
 # A `destinations:` KEY is a label, never a referent — a row's own
 # `destination` is always a string (`_require_str` enforces it on every
@@ -508,6 +622,13 @@ TOP_LEVEL_KEYS = frozenset({
 # check 6 now ADMITS it on a `not_moved / replicated_at_destination` row, which
 # is a change in that check and not in this grammar.
 #
+# `re_destined` is on the MOVED dispositions ONLY (RULED Q6), for the reason
+# `also_replicated_to` is: a `not_moved` row declares no destination, so there
+# is no arrival for a ruling to re-place. That refusal is its own arm in
+# `_check_row_shape` under its own code — `carve-re-destined-not-moved` — and
+# not the generic "carries a destination" message, because a row asking to be
+# re-destined is asking a coherent question with an incoherent premise.
+#
 # `also_replicated_to` is on the MOVED dispositions ONLY (RULED Q-L7 (a)). A
 # `not_moved` row declares no destination at all, so it cannot declare an
 # ADDITIONAL one: a replica row is already replicated at every destination that
@@ -518,10 +639,10 @@ TOP_LEVEL_KEYS = frozenset({
 ROW_KEYS_BY_DISPOSITION: dict[str, frozenset[str]] = {
     "moved_verbatim": frozenset({
         "source_path", "disposition", "git_mode", "sha256", "destination",
-        "destination_path", "edits", "also_replicated_to"}),
+        "destination_path", "edits", "also_replicated_to", "re_destined"}),
     "moved_with_declared_edit": frozenset({
         "source_path", "disposition", "git_mode", "sha256", "destination",
-        "destination_path", "edits", "also_replicated_to"}),
+        "destination_path", "edits", "also_replicated_to", "re_destined"}),
     "not_moved": frozenset({
         "source_path", "disposition", "reason", "evidence", "edits"}),
 }
@@ -995,6 +1116,8 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
         if "also_replicated_to" in row:
             _check_also_replicated_shape(where, source_path,
                                          row["also_replicated_to"])
+        if "re_destined" in row:
+            _check_re_destined_shape(where, source_path, row["re_destined"])
         for key in sorted(ROW_KEYS - ROW_KEYS_BY_DISPOSITION[disposition]):
             if key in row:
                 raise CarveRefusal(
@@ -1010,6 +1133,21 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
         # a DIFFERENT claim from `destination:` and the generic message —
         # "nothing arrives" — is false of a replica row, whose bytes do arrive
         # at every destination that needs them. Reported precisely instead.
+        if "re_destined" in row:
+            raise CarveRefusal(
+                "carve-re-destined-not-moved",
+                f"{where} ({source_path}) is `not_moved` and carries "
+                "`re_destined:`. RULED Q6 puts that field on a MOVED row, to "
+                "say that a RULING has moved a placement the carve made; a "
+                "`not_moved` row placed nothing, so there is no arrival to "
+                "re-place. A row that STAYS, or was deleted at the carve, "
+                f"arrives nowhere; a `{REPLICA_REASON}` row's copies are "
+                "placed by the leg and declared to `verify-carve-arrival.py` "
+                "with `--replica-at` (RULED OQ-C), so a re-destination of one "
+                "would be re-pointing a placement this manifest never made. "
+                "If the ruling really moves a file this manifest says stays, "
+                "that is a change of DISPOSITION and a re-cut question, not "
+                "this field")
         if "also_replicated_to" in row:
             raise CarveRefusal(
                 "carve-shape-invalid",
@@ -1125,6 +1263,106 @@ def _check_also_replicated_shape(where: str, source_path: str,
                 "destination, so a repeat is either a typo for a second "
                 "destination or the same claim made twice")
         seen.add(entry)
+
+
+def _check_re_destined_shape(where: str, source_path: str, value: Any) -> None:
+    """`re_destined:` is a CLOSED mapping of five required strings and one
+    optional note (RULED Q6).
+
+    SHAPE ONLY, and the split is the one `also_replicated_to:` already keeps.
+    WHETHER `from` and `to` are keys of `destinations:` is check 5's question,
+    the same check that owns a row's own `destination`. WHETHER `from` is the
+    row's own destination, whether `to` differs from it, and whether the row
+    chains off another row's re-destination are check 6's — a row contradicting
+    itself, or two rows contradicting each other, rather than a document
+    mis-shaped.
+
+    THE MISSING `ruling:` IS NOT `carve-shape-invalid`, and that is deliberate.
+    Every other absent key here is a typo; this one is the whole scope answer
+    of the ruling that created the field — "require a `ruling:` field naming
+    the comment that ordered it, validated present, so the form cannot become a
+    quiet way to move a file after the carve is closed" — so it gets a code a
+    reader can branch on and a message that says what is actually wrong.
+
+    THE CITATION'S FORM IS NOT CONSTRAINED. A ruling is cited in this estate as
+    a comment id (`5648044785`), as `#656` plus a comment reference, or as a
+    pull request URL, and the ruling asked for the field to be PRESENT, not for
+    one of those spellings. A pattern here would refuse a legitimate citation
+    and teach the author to write whatever the pattern wanted.
+
+    THE TWO PATHS GO THROUGH `_require_closed_relative_path`, exactly as
+    `destination_path` does: `to_path` is joined onto a leg's mount by
+    `carved_reach`, and `from_path` is the path `verify-carve-arrival.py`
+    requires ABSENT at the losing leg — an absolute or `../` value would ask
+    either question about a file outside the tree it is about.
+    """
+    if not isinstance(value, dict):
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} ({source_path}) declares `re_destined: {value!r}`; a "
+            "mapping of `{from, from_path, to, to_path, ruling, note?}` is "
+            "required (RULED Q6)")
+    stray = sorted(set(value) - RE_DESTINED_KEYS, key=repr)
+    if stray:
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} ({source_path}) declares `re_destined:` with the "
+            f"unknown key(s) {stray!r}; the field is closed to "
+            f"{sorted(RE_DESTINED_KEYS)!r}, so a field nobody validates is a "
+            "field nobody reads")
+    if "ruling" not in value or not isinstance(value.get("ruling"), str) \
+            or not value["ruling"].strip():
+        raise CarveRefusal(
+            "carve-re-destined-unruled",
+            f"{where} ({source_path}) declares `re_destined:` with "
+            f"`ruling: {value.get('ruling')!r}`. RULED Q6 scoped this form to "
+            "a RULED mis-placement and required the citation PRESENT — "
+            "without it the field is a quiet way to move a file after the "
+            "carve is closed, which is the one use the ruling refused. Name "
+            "the comment that ordered the move (a `#656` comment id, or the "
+            "pull request URL that carries the ruling); the form of the "
+            "citation is yours, its presence is not")
+    for key in ("from", "to"):
+        _require_str(value, key, f"{where} ({source_path}) `re_destined`")
+    for key in ("from_path", "to_path"):
+        _require_closed_relative_path(
+            value, key, f"{where} ({source_path}) `re_destined`")
+    if "note" in value and (not isinstance(value["note"], str)
+                            or not value["note"].strip()):
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} ({source_path}) declares `re_destined.note: "
+            f"{value['note']!r}`; a note is prose or it is absent")
+
+
+def effective_arrival(row: dict[str, Any]) -> tuple[Any, Any]:
+    """`(destination key, destination path)` a moved row's bytes arrive at
+    TODAY — `re_destined.to`/`to_path` where a ruling has moved the placement,
+    else the row's own `destination`/`destination_path` (RULED Q6).
+
+    THE SAME PREDICATE LIVES IN `scripts/verify-carve-arrival.py`, and the two
+    are kept in step here rather than shared through a module, on the precedent
+    `_require_closed_relative_path` sets for `carved_reach._closed_relative_path`
+    — this script is loaded by `spec_from_file_location` with only `scripts/` on
+    `sys.path`, and the other tool is a hyphenated entry point that cannot be
+    imported at all.
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_both_tools_read_the_effective_arrival_identically`
+    loads both files and compares them over a table of rows, so "kept in step"
+    is asserted rather than hoped for — the lesson RULED Q-L8 (c) taught about
+    two tools and one definition.
+
+    GUARDED AT EVERY LEVEL for the reason `_also_replicated_labels` is guarded
+    at the destination: check 1 has already proved the shape by the time any
+    caller here runs, but a helper that would raise on a mis-shaped document is
+    a helper that decides check 1's finding for it.
+    """
+    re_destined = row.get("re_destined")
+    if isinstance(re_destined, dict):
+        to = re_destined.get("to")
+        to_path = re_destined.get("to_path")
+        if isinstance(to, str) and isinstance(to_path, str):
+            return to, to_path
+    return row.get("destination"), row.get("destination_path")
 
 
 def in_surface(path: str, moved_paths: list[str]) -> bool:
@@ -1477,15 +1715,34 @@ def check_surface(doc: dict, referent: dict[str, TreeEntry],
     # `carve-vocabulary-unknown` (check 4 runs first): fall back to keying on
     # the alias itself rather than crash ahead of it, in a shape (a 1-tuple)
     # that can never collide with a resolved `(repository, leg, path)` key.
+    #
+    # AND KEYED ON THE EFFECTIVE ARRIVAL (RULED Q6): where a row carries
+    # `re_destined:`, the path it collides at is the one it arrives at TODAY,
+    # not the one the carve placed it at. Keying on the original would be
+    # wrong in both directions at once — a row re-destined AWAY from a path
+    # would go on reserving it, so a second row moving to the vacated path
+    # would refuse as a duplicate; and a re-destined row landing on an
+    # occupied path would pass in silence, which is exactly the overwrite this
+    # check exists to refuse. The SURFACE walk below is untouched by the
+    # field: it is a claim about SOURCE paths, and a re-destination moves
+    # nothing at the source.
+    #
+    # WHAT THIS DOES NOT ASK, stated because a floor that overstates its reach
+    # is worse than one that does not reach: whether a row re-destined AWAY
+    # from a path leaves it free. Keying a SECOND map on the original arrivals
+    # would refuse the lawful case this field exists for — one row vacating a
+    # path and another moving into it is two rows agreeing, not colliding — so
+    # a row re-destined off a path some other row still occupies is answered
+    # at the destination instead, where the file either is or is not there:
+    # `verify-carve-arrival.py`'s `arrival-not-vacated`.
     arrivals: dict[tuple[str, ...], int] = {}
     for index, row in enumerate(doc["rows"]):
         if row.get("disposition") not in MOVED_DISPOSITIONS:
             continue
-        dest_key = row["destination"]
+        dest_key, dest_path = effective_arrival(row)
         dest_entry = destinations.get(dest_key)
         if dest_entry is not None:
-            arrival = (dest_entry["repository"], dest_entry["leg"],
-                       row["destination_path"])
+            arrival = (dest_entry["repository"], dest_entry["leg"], dest_path)
             where = f"{dest_entry['repository']} ({dest_entry['leg']})"
         else:
             arrival = (dest_key,)
@@ -1494,11 +1751,13 @@ def check_surface(doc: dict, referent: dict[str, TreeEntry],
             raise CarveRefusal(
                 "carve-file-duplicated",
                 f"rows[{arrivals[arrival]}] AND rows[{index}] both send a file "
-                f"to the DESTINATION {where}:{row['destination_path']}; two "
+                f"to the DESTINATION {where}:{dest_path}; two "
                 "sources arriving at one real destination path means one of "
                 "them overwrites the other, and the manifest does not say "
                 "which — even across two DIFFERENT `destination` keys that "
-                "declare the same repository and leg")
+                "declare the same repository and leg, and counting a "
+                "`re_destined:` row at the placement it arrives at TODAY "
+                "rather than the one the carve made")
         arrivals[arrival] = index
 
     undeclared = sorted(surface - set(seen))
@@ -1619,6 +1878,25 @@ def check_vocabularies(doc: dict) -> None:
                     "ALSO arrive there as a replica, and an arrival at a "
                     "destination nobody declared is the typo the closed map "
                     "exists to refuse")
+        # THE SAME MEMBERSHIP TEST AGAIN, on a re-destination's two ends
+        # (RULED Q6). `to` is where the floor now asks for the file, so a key
+        # nobody declared sends it to a repository nobody declared; `from` is
+        # where `verify-carve-arrival.py` requires it ABSENT, so an unknown key
+        # there is a vacation nobody can check. Check 6 is what holds `from` to
+        # the row's OWN destination — this is only the closed map.
+        re_destined = row.get("re_destined")
+        if isinstance(re_destined, dict):
+            for key in ("from", "to"):
+                value = re_destined.get(key)
+                if value is not None and value not in destinations:
+                    raise CarveRefusal(
+                        "carve-vocabulary-unknown",
+                        f"{where}.re_destined.{key} declares {value!r}, which "
+                        "is not a key of `destinations:` "
+                        f"({sorted(destinations)!r}). A re-destination moves "
+                        "an arrival between two DECLARED destinations; one "
+                        "typo otherwise re-homes a file to a repository "
+                        "nobody declared")
         for position, edit in enumerate(row.get("edits") or []):
             if edit["class"] not in declared_classes:
                 raise CarveRefusal(
@@ -1634,6 +1912,109 @@ def check_vocabularies(doc: dict) -> None:
                 f"{where} declares `reason: {reason!r}`, which the manifest's "
                 f"own `not_moved_reasons:` ({list(declared_reasons)!r}) does "
                 "not carry")
+
+
+def _check_re_destined_consistency(where: str, row: dict[str, Any]) -> None:
+    """A re-destination must agree with the row it sits on (RULED Q6).
+
+    `from`/`from_path` ARE THE ROW'S OWN `destination`/`destination_path`, and
+    the row keeps both unedited — which is the whole reason this is a FIELD and
+    not an edit of the two it names. The manifest goes on recording where the
+    carve actually put the file, `verify-carve-arrival.py` knows which path to
+    require ABSENT at the losing leg, and a reader can see the correction and
+    the thing corrected in one row. A `from` naming some third destination is
+    therefore not a harmless restatement: it would ask the vacation question of
+    a leg this row never placed anything at.
+
+    `to` MAY NOT EQUAL `from`. A re-destination that lands where it started
+    declares nothing and would make every arrival question below read twice for
+    one answer; and since `from` is the row's own destination, the ruling's
+    "`to` (a `destinations:` key ≠ from)" is the same sentence as "a
+    re-destination moves the file to another leg". A file that moves to a new
+    PATH at the same leg is not this form — nothing about its destination
+    changed, and the row's own `destination_path` is the field that says where
+    it lands.
+    """
+    re_destined = row.get("re_destined")
+    if not isinstance(re_destined, dict):
+        return
+    source_path = row["source_path"]
+    for key, own in (("from", "destination"), ("from_path", "destination_path")):
+        if re_destined.get(key) != row.get(own):
+            raise CarveRefusal(
+                "carve-disposition-inconsistent",
+                f"{where} declares `re_destined.{key}: "
+                f"{re_destined.get(key)!r}` where its own `{own}:` is "
+                f"{row.get(own)!r}. A re-destination names the placement it "
+                "CORRECTS, and the placement this row made is its own "
+                f"`{own}:` — a `{key}` naming anything else asks the floor "
+                "about an arrival this row never declared. The row keeps "
+                "`destination`/`destination_path` unedited on purpose: the "
+                "manifest goes on recording what the carve did, and "
+                "`re_destined:` records what a ruling did afterwards")
+    if re_destined.get("to") == re_destined.get("from"):
+        raise CarveRefusal(
+            "carve-disposition-inconsistent",
+            f"{where} declares `re_destined:` from {re_destined.get('from')!r} "
+            "to the same destination. RULED Q6 makes `to` a `destinations:` "
+            "key that is NOT `from`: a re-destination that lands where it "
+            "started declares nothing, and it would make every arrival "
+            "question read the row twice for one answer. If only the PATH "
+            f"changes at {re_destined.get('from')!r}, that is not this form — "
+            "the row's own `destination_path:` is what says where the file "
+            f"lands at its destination, and {source_path} has not been "
+            "re-homed at all")
+
+
+def _check_re_destined_chains(doc: dict) -> None:
+    """No row's `(to, to_path)` may be another row's `(from, from_path)`.
+
+    RULED Q6, verbatim: "refuses a chain (a row already re-destined is AMENDED
+    in place, never re-destined twice, so one row never needs two readings)".
+
+    WHAT A CHAIN ACTUALLY LOOKS LIKE, since one row cannot carry two
+    `re_destined:` blocks. Row A is re-destined from X to Y at path P, and row
+    B is re-destined FROM Y at that same P — so the arrival A created is the
+    arrival B moves on. A reader then has to compose two hops across two rows
+    to learn where ONE file is, the vacation checks at Y disagree with each
+    other (A's arrival requires the file PRESENT there, B's vacation requires
+    it ABSENT), and the ruling that ordered the second move is recorded on a
+    row that is not the file's. The remedy is the ruling's own: amend row A's
+    `re_destined:` in place to name the destination the file actually ends at,
+    citing the later ruling.
+
+    KEYED ON `(destination key, path)` AND NOT ON THE KEY ALONE: two files may
+    lawfully be re-destined off one leg, and two more onto it. What may not
+    happen is a second re-destination LEAVING the exact arrival a first one
+    CREATED.
+    """
+    origins: dict[tuple[str, str], int] = {}
+    for index, row in enumerate(doc["rows"]):
+        re_destined = row.get("re_destined")
+        if not isinstance(re_destined, dict):
+            continue
+        origin = (re_destined.get("from"), re_destined.get("from_path"))
+        if all(isinstance(part, str) for part in origin):
+            origins.setdefault(origin, index)  # type: ignore[arg-type]
+    for index, row in enumerate(doc["rows"]):
+        re_destined = row.get("re_destined")
+        if not isinstance(re_destined, dict):
+            continue
+        arrival = (re_destined.get("to"), re_destined.get("to_path"))
+        other = origins.get(arrival)  # type: ignore[arg-type]
+        if other is None or other == index:
+            continue
+        raise CarveRefusal(
+            "carve-re-destined-chain",
+            f"rows[{index}] ({row['source_path']}) is re-destined TO "
+            f"{arrival[0]}:{arrival[1]}, which rows[{other}] "
+            f"({doc['rows'][other]['source_path']}) is re-destined FROM. That "
+            "is a CHAIN, and RULED Q6 refuses it: a row already re-destined is "
+            "AMENDED IN PLACE, never re-destined twice, so one row never needs "
+            "two readings. As written the two rows also contradict each other "
+            "at that destination — one requires the file PRESENT there and the "
+            "other requires it ABSENT. Amend the earlier row to name the "
+            "destination the file actually ends at, citing the later ruling")
 
 
 def check_disposition_consistency(doc: dict) -> None:
@@ -1675,18 +2056,30 @@ def check_disposition_consistency(doc: dict) -> None:
                 "the rewrite in its `evidence:` (RULING OQ-B's "
                 "`tests/notebooklm/*` rows), because openxFactory's own tree "
                 "is not a carve destination")
-        own = row.get("destination")
+        # THE EFFECTIVE DESTINATION, not the row's raw `destination:` (Copilot
+        # review, PR #1011): a row re-destined by a ruling arrives at
+        # `re_destined.to` today, and a manifest that let `also_replicated_to`
+        # repeat THAT key would pass here while `verify-carve-arrival.py`
+        # silently drops the now-redundant replica at the effective arrival —
+        # two tools disagreeing about the same row. Comparing against
+        # `effective_arrival(row)` closes it at the gate that runs first.
+        own, _own_path = effective_arrival(row)
         for key in row.get("also_replicated_to") or []:
             if key == own:
                 raise CarveRefusal(
                     "carve-disposition-inconsistent",
-                    f"{where} moves to `destination: {own!r}` and lists that "
-                    "same key in `also_replicated_to:`. The row already places "
-                    "the file there, at its own `destination_path` — ALSO "
-                    "means somewhere else, and a row replicating a file at the "
-                    "destination it moves to would let `--replica-at` re-point "
-                    "an arrival the manifest has already declared, which is "
-                    "the one thing the manifest is for")
+                    f"{where} arrives at {own!r} today (its own `destination`, "
+                    "or `re_destined.to` where a ruling has since moved it) "
+                    "and lists that same key in `also_replicated_to:`. The row "
+                    "already places the file there, at the path it arrives at "
+                    "— ALSO means somewhere else, and a row replicating a "
+                    "file at the destination it arrives at would let "
+                    "`--replica-at` re-point an arrival the manifest has "
+                    "already declared, which is the one thing the manifest "
+                    "is for")
+        _check_re_destined_consistency(where, row)
+
+    _check_re_destined_chains(doc)
 
     # `path_order: bytewise_utf8` is a claim about THIS document, and a const
     # nothing enforces is a comment. Bytewise on the UTF-8 encoding, not on
@@ -1746,6 +2139,14 @@ def validate(manifest_path: Path, repo: Path,
     shed = sum(1 for row in doc["rows"]
                if row.get("disposition") in MOVED_DISPOSITIONS
                or row.get("reason") == "deleted_at_carve")
+    # COUNTED AND PRINTED ON EVERY RUN (RULED Q6), in both the JSON and the
+    # human line and whether the number is 0 or 48: a placement corrected by a
+    # ruling is the one thing in this document that is not the carve's own act,
+    # and a reader of a CI log must be able to see how many of them the
+    # manifest now carries without opening it. Zero is the state the file
+    # landed in and is as much a fact as any other.
+    re_destined = sum(1 for row in doc["rows"]
+                      if isinstance(row.get("re_destined"), dict))
     return {
         "result": "ok",
         "manifest": str(manifest_path),
@@ -1759,6 +2160,7 @@ def validate(manifest_path: Path, repo: Path,
         "dispositions": counts,
         "digests_recomputed": recomputed,
         "surface": surface,
+        "re_destined": re_destined,
     }
 
 
@@ -1860,6 +2262,18 @@ def main(argv: list[str] | None = None) -> int:
         shed_note = (f"; {summary['shed_rows']} shed row(s) absent at source "
                      "as declared"
                      if summary["phase"] == PHASE_POST_SHED else "")
+        # THE RE-DESTINATION COUNT IS A CLAUSE OF ITS OWN and not a suffix on
+        # the disposition counts: a re-destined row keeps its disposition, so
+        # adding it there would double-count a row that is still exactly one
+        # `moved_verbatim` or `moved_with_declared_edit`. UNCONDITIONAL, to
+        # match the promise two paragraphs up: zero is printed exactly like
+        # 48 is, on the human line as much as in `--json` (Copilot review,
+        # PR #1011 — the ternary here used to read `if summary["re_destined"]
+        # else ""`, which suppressed the clause at zero and made the landed
+        # manifest's own `0` state the one count this line never showed).
+        re_destined_note = (
+            f"; {summary['re_destined']} row(s) RE-DESTINED by ruling "
+            "(RULED Q6)")
         print(f"OK {manifest_path}: phase {summary['phase']}, "
               f"{summary['rows']} row(s) at "
               f"{where} — "
@@ -1868,7 +2282,7 @@ def main(argv: list[str] | None = None) -> int:
               f"{counts['not_moved']} not_moved; "
               f"{summary['digests_recomputed']} digest(s) recomputed; "
               f"{summary['surface']} file(s) in the declared surface with none "
-              "undeclared" + shed_note)
+              "undeclared" + shed_note + re_destined_note)
     return 0
 
 
