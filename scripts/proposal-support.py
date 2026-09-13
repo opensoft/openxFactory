@@ -499,6 +499,17 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
 # guessing at the identity it exists to hold fixed. Following a ratified
 # change across a declared rename is a later packet.
 #
+# AND EVERY READ FAILS CLOSED (PR #1024's review bench). The guard reads
+# history through git, and git answers "there is nothing there" and "I cannot
+# tell you" with the same empty value in more than one place — a `git show`
+# that fails, a `git log` that fails, a rename pairing that is not reported.
+# Read flat, all three say "no predecessor, no ratified blob, nothing
+# earlier", which is the guard SWITCHED OFF in a checkout carrying only part
+# of its history rather than a clean pass. Each read now keeps the two apart
+# and an unreadable one refuses (`origin-retention-history-unreadable`, exit
+# 2), on the rule the sibling gates already keep: a check that cannot run
+# must not pass.
+#
 # AND THE WHOLE LINEAGE IS ASKED, NOT ONE PATH (issue #1003). That refusal
 # can only be raised for commits the walk ENUMERATES, and the enumeration is
 # path-limited to the name the tree spells today — so a ratified packet
@@ -546,10 +557,13 @@ class OriginRetentionError(SupportError):
 
     THE UNREADABLE-HISTORY ARM IS RAISED THERE TOO where the walk is what
     could not read it (issue #1003): resolving a packet's rename lineage asks
-    git for an earlier name's history, and a git that declines to answer
-    leaves the same impossible comparison rather than a finding to collect.
-    The same arm reached through `origin_retention_errors` — no repository,
-    no readable blob at the baseline — is still assembled there, unchanged.
+    git for an earlier name's history, for a commit's parents, for the tree
+    one of them carried and for the blob standing at a path, and a git that
+    declines any of them leaves the same impossible comparison rather than a
+    finding to collect. `origin_retention_errors` raises it for one read of
+    its own — the DECLARATION AT RATIFICATION, which every comparison there
+    is against — and still assembles the no-repository arm as a finding,
+    unchanged.
     """
 
 
@@ -661,6 +675,37 @@ def renamed_from(root: Path, revision: str, rel: str, *,
     `test_the_guard_reads_any_spelling_of_the_candidate_commit`). A revision
     that resolves to nothing answers None, as an unreadable history already
     did.
+
+    AND A READ GIT DECLINED IS FLATTENED INTO "NO PAIRING" HERE, which is why
+    the guard does not read THIS answer (raised by the review bench on PR
+    #1024). Both commands below can FAIL rather than answer — an object this
+    checkout does not carry, a revision that resolves to nothing, a history
+    only part of which was cloned — and a caller that reads that failure as
+    "this path was not renamed at this commit" walks off the end of a lineage
+    it cannot see and takes a later re-ratification as the baseline: the #833
+    defect back, reached through a partial checkout rather than through a
+    config. So the mechanics live in `_pairing_at`, which keeps the two
+    answers apart, and this is its FLATTENED reading for the callers and
+    fixtures that legitimately want one. A None here means only "no
+    predecessor was NAMED".
+    """
+    return _pairing_at(root, revision, rel, kinds=kinds) or None
+
+
+def _pairing_at(root: Path, revision: str, rel: str, *,
+                kinds: str) -> str | None:
+    """The path `rel` was renamed or copied from at `revision` — `""` where
+    git ANSWERED and reported no pairing, None where git DECLINED to answer.
+
+    THE MECHANICS ARE `renamed_from`'S, and its docstring is where they are
+    written down: `--follow` as the one mode that pairs a rename for a single
+    path, `-1 <revision>` bounding the walk to the commit asked about, the
+    `%H` comparison that makes any spelling of the revision safe, and the
+    config that can switch none of it off. What is here and not there is the
+    TRI-STATE alone, in this module's own convention — `_commits_touching`
+    and `_parents` already answer None for git declining and an empty answer
+    for git saying there is nothing — so that the guard can refuse on the
+    silence while `renamed_from` stays the flat reading.
     """
     resolved = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
         ["git", "-C", str(root.resolve()), "rev-parse", "--verify",
@@ -687,11 +732,89 @@ def renamed_from(root: Path, revision: str, rel: str, *,
             if (len(fields) == 3 and fields[0][:1] in kinds
                     and fields[2] == rel):
                 return fields[1]
-    return None
+    return ""
+
+
+def _path_present(root: Path, revision: str, rel: str) -> bool | None:
+    """Whether `rel` STANDS in `revision`'s tree — None where git DECLINED to
+    say, in the same convention as every other reader here.
+
+    `git ls-tree` rather than `git show`, and telling those two apart is the
+    whole of why this exists: `git show` answers ABSENT and UNREADABLE with
+    the same non-zero exit, while `ls-tree` separates them — exit 0 with no
+    row is git SAYING the path is not in that tree, exit 0 with a row is git
+    saying it is, and a non-zero exit is git declining to answer at all (a
+    revision that does not resolve, a tree object this checkout does not
+    carry). Measured on git 2.43.0, all three.
+
+    A ROW IS NOT THE CONTENT, deliberately, and the gap between them is a
+    real checkout rather than a hypothesis: in a `--filter=blob:none` clone
+    whose promisor is unreachable, `ls-tree` lists `proposal.md` and `git
+    show` cannot read the blob behind it (measured, and a fixture). So
+    PRESENCE is what this answers; `_readable_blob` is what asks for content,
+    and it refuses on exactly that disagreement.
+    """
+    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "ls-tree", "--name-only",
+         "--end-of-options", revision, "--", rel],
+        capture_output=True, text=True, check=False,
+    )
+    if listed.returncode != 0:
+        return None
+    return bool(listed.stdout.strip())
+
+
+_PACKET_ID_RE = re.compile(r"openspec/changes/(?:archive/)?([^/]+)/")
+
+
+def _packet_id(rel: str) -> str:
+    """The change id a packet path spells — for a refusal raised where the
+    caller named a path and not an id (`ratified_under_a_former_path` is
+    reached directly by fixtures as well as through the walk)."""
+    found = _PACKET_ID_RE.match(rel)
+    return found.group(1) if found else rel
+
+
+def _readable_blob(root: Path, change: str, revision: str,
+                   rel: str) -> str | None:
+    """The text at `revision:rel`, None where the path is genuinely ABSENT
+    there — and a REFUSAL where git could not read it.
+
+    `git_show_text` answers both with None (raised by the review bench on PR
+    #1024), and for every question this guard asks they are opposite facts:
+    "the packet was not there yet" is an ANSWER the walk acts on — the
+    deletion commits and pre-creation parents it visits are full of them —
+    while "this checkout cannot show me what was there" is a silence that
+    must not be read as one. The read where that goes wrong first is the one
+    the whole refusal turns on: whether a PREDECESSOR declared `Status:
+    ratified` at the hop's parent. In a blobless partial clone that blob is
+    precisely what cannot be read, so a flattened answer reports "no ratified
+    predecessor" and waves the archive through — measured, not feared.
+
+    SO BOTH QUESTIONS ARE ASKED and the disagreement is the refusal: git
+    showing the blob is one answer, git saying the path is not in that tree
+    is the other, and anything else — the tree unreadable, or the entry
+    standing with no blob behind it — is CANNOT RUN. The second question is
+    asked ONLY where the first failed, so a read that works costs exactly
+    what it always did.
+    """
+    text = git_show_text(root, revision, rel)
+    if text is not None:
+        return text
+    present = _path_present(root, revision, rel)
+    if present is False:
+        return None
+    if present is None:
+        need = (f"the tree of {revision[:12]}, to say whether `{rel}` stood "
+                f"in it")
+    else:
+        need = f"the blob `{rel}` stands as at {revision[:12]}"
+    raise _unreadable_history(change, need)
 
 
 def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
-                                 kinds: str = "RC") -> str | None:
+                                 kinds: str = "RC",
+                                 change: str | None = None) -> str | None:
     """The path this packet occupied BEFORE `revision` moved it, when it
     ALREADY declared `Status: ratified` there — the case in which `revision`
     cannot be the ratification. None otherwise.
@@ -777,11 +900,31 @@ def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
     guessing. Zero of the 189 active-plus-archived packets on `main` trip it
     (measured while authoring the guard), and a proposal that similar to a
     ratified one is what `add-duplicate-packet-check` exists to notice.
+
+    AND NEITHER READ MAY ANSWER "NO" BECAUSE GIT SAID NOTHING (raised by the
+    review bench on PR #1024). Both questions here are asked of history — did
+    `revision` bring this path in from another name, and did that name
+    declare `ratified` at the parent — and a checkout that carries only part
+    of its history answers neither while LOOKING like a clean no. That is the
+    guard switched off exactly where it bites: in a blobless partial clone
+    the predecessor's blob is the one thing that cannot be read (measured),
+    so the flattened reading returned None and nothing refused. So the
+    pairing is taken from `_pairing_at` and the blob from `_readable_blob`,
+    both of which keep ABSENT and UNREADABLE apart, and an unreadable answer
+    raises `origin-retention-history-unreadable` — CANNOT RUN, exit 2, the
+    same shape as every other arm of this gate. `change` is carried only so
+    that refusal can name the packet; the walk passes it, and a fixture that
+    calls this directly gets it read off the path.
     """
-    former = renamed_from(root, revision, rel, kinds=kinds)
+    change = change or _packet_id(rel)
+    former = _pairing_at(root, revision, rel, kinds=kinds)
     if former is None:
+        raise _unreadable_history(
+            change, f"whether {revision[:12]} renamed `{rel}` in from an "
+                    f"earlier name")
+    if not former:
         return None
-    before = git_show_text(root, f"{revision}^", former)
+    before = _readable_blob(root, change, f"{revision}^", former)
     if before is not None and declares_ratified(before):
         return former
     return None
@@ -807,12 +950,15 @@ def _commits_touching(root: Path, rel: str,
     business (raised by the review bench on PR #1024). An empty list is git's
     ANSWER — nothing earlier touched this name. None is git DECLINING TO
     ANSWER: an unreadable object, a revision that does not resolve, a
-    checkout carrying only part of the history. The caller that resolves the
-    baseline treats None as it always treated a failed `git log` (no
-    ratifying commit, so the gate's own `not ratified` refusal, never a
-    pass), and the lineage walk treats it as CANNOT RUN rather than as "there
-    is nothing earlier here" — which would switch the guard off exactly where
-    it is meant to bite.
+    checkout carrying only part of the history. EVERY caller now refuses on
+    None — the lineage's bounded reads and the CURRENT name's own enumeration
+    alike — rather than reading the silence as "there is nothing here", which
+    would switch the guard off exactly where it is meant to bite. The current
+    name's enumeration took a second round to get right: an unreadable `git
+    log` there did refuse, but on the `not ratified` arm, which tells an
+    operator to go and commit a ratification that is already in the history
+    they could not read (raised by the review bench on PR #1024 again, after
+    the first answer left that layer alone). It now refuses as what it is.
     """
     arguments = ["--full-history", "--topo-order", "--reverse", "--format=%H"]
     arguments.extend(bounds or [])
@@ -853,30 +999,33 @@ def _parents(root: Path, revision: str) -> list[str] | None:
     return fields[1:]
 
 
-def _unreadable_lineage(change: str, rel: str,
-                        revision: str) -> OriginRetentionError:
-    """The refusal for a lineage git would not read — the same CANNOT RUN
+def _unreadable_history(change: str, need: str) -> OriginRetentionError:
+    """The refusal for a history git would not read — the same CANNOT RUN
     shape as every other arm of this gate, raised for the same reason.
 
-    The walk was asking whether an EARLIER name of this packet already
-    declared `Status: ratified` when it was renamed, and git declined to
+    The walk needed something out of history — an earlier name's commits, a
+    commit's parents, the tree one of them carried, the blob standing at a
+    path, the declaration at the ratifying commit — and git declined to
     answer. An unanswered question is not a clean answer: reading the silence
-    as "there is nothing earlier" would switch the guard off precisely where
-    it is meant to bite — in a checkout whose history is not all there
-    (raised by the review bench on PR #1024).
+    as "there is nothing there" switches the guard off precisely where it is
+    meant to bite, in a checkout whose history is not all there (raised by
+    the review bench on PR #1024, twice).
+
+    `need` NAMES WHAT COULD NOT BE READ, rather than the refusal saying only
+    that something could not: the two operators this reaches are one who must
+    re-run in a full checkout and one who must repair an object, and which
+    they are is the missing half. It is a sentence fragment completing "it
+    needed …", which is why every caller phrases it as one.
     """
-    short = revision[:12]
     return OriginRetentionError(
         f"REFUSE origin-retention-history-unreadable: {change}: the "
-        f"origin-retention walk CANNOT RUN. Resolving this packet's rename "
-        f"lineage needed the history of `{rel}` as it stood before {short}, "
-        f"and git would not read it — an unreadable object, or a checkout "
-        f"carrying only part of the history. The walk therefore cannot tell "
-        f"an earlier name that was ALREADY RATIFIED when it was renamed from "
-        f"one that was still a draft, so the baseline was never established "
-        f"and this refuses rather than passing on a silence (issues #833, "
-        f"#1003). Re-run the archive in a checkout carrying the packet's "
-        f"whole history.")
+        f"origin-retention walk CANNOT RUN. It needed {need}, and git would "
+        f"not read it — an unreadable object, or a checkout carrying only "
+        f"part of the history (a shallow or a partial clone). The walk "
+        f"therefore cannot establish the declaration this packet was "
+        f"ratified over, and it refuses rather than passing on a silence: a "
+        f"check that cannot run must not pass (issues #833, #1003). Re-run "
+        f"the archive in a checkout carrying the packet's whole history.")
 
 
 def _moved_packet_refusal(change: str, rel: str, path: str, former: str,
@@ -946,11 +1095,21 @@ def _refuse_if_moved(root: Path, change: str, rel: str, path: str,
     PATH THAT COMMIT SPELLED, so that the current name's loop in
     `ratifying_commit` and the lineage beside it cannot drift apart about
     what the question is.
+
+    THE BLOB IS READ THROUGH `_readable_blob`, so that a commit where the
+    packet is ABSENT — every deletion commit the walk visits, and the archive
+    move itself — answers "not ratified here" as it always did, while a blob
+    git CANNOT READ refuses instead of quietly becoming the same answer
+    (raised by the review bench on PR #1024). The difference is not academic
+    at this call: an unreadable blob at the real ratification would leave the
+    walk to find a LATER ratified commit and take that as the baseline, which
+    is the failure the whole guard exists to prevent.
     """
-    blob = git_show_text(root, revision, path)
+    blob = _readable_blob(root, change, revision, path)
     ratified_here = blob is not None and declares_ratified(blob)
     former = ratified_under_a_former_path(
-        root, revision, path, kinds="RC" if ratified_here else "R")
+        root, revision, path, kinds="RC" if ratified_here else "R",
+        change=change)
     if former is not None:
         raise _moved_packet_refusal(change, rel, path, former, revision)
     return ratified_here
@@ -980,11 +1139,19 @@ def _incarnation(root: Path, change: str, rel: str,
     pairing found at any of them still refuses.
 
     A BOUND GIT WILL NOT READ IS CANNOT RUN rather than an empty history, for
-    the reason `_commits_touching` states.
+    the reason `_commits_touching` states — and so is a TREE it will not read,
+    which is the boundary test itself (raised by the review bench on PR
+    #1024). "The name stood in no parent" is read from `_path_present`, not
+    from a failed `git show`: the two were one value before, so a checkout
+    that could not read an ancestor's tree declared the boundary reached
+    there and trimmed away every hop behind it — the ratified predecessor
+    among them.
     """
     parents = _parents(root, hop)
     if parents is None:
-        raise _unreadable_lineage(change, rel, hop)
+        raise _unreadable_history(
+            change, f"the parents of {hop[:12]}, to bound the history of "
+                    f"`{rel}` before it")
     if not parents:
         # A pairing cannot be found at a parentless commit — git detects a
         # rename against a parent's tree — so this is the belt rather than
@@ -992,15 +1159,22 @@ def _incarnation(root: Path, change: str, rel: str,
         return []
     revisions = _commits_touching(root, rel, parents)
     if revisions is None:
-        raise _unreadable_lineage(change, rel, hop)
+        raise _unreadable_history(
+            change, f"the history of `{rel}` as it stood before {hop[:12]}")
     kept: list[str] = []
     for revision in reversed(revisions):
         kept.append(revision)
         ancestors = _parents(root, revision)
         if ancestors is None:
-            raise _unreadable_lineage(change, rel, revision)
-        if not any(git_show_text(root, ancestor, rel) is not None
-                   for ancestor in ancestors):
+            raise _unreadable_history(
+                change, f"the parents of {revision[:12]}, to find where "
+                        f"`{rel}` came into being")
+        stood = [_path_present(root, ancestor, rel) for ancestor in ancestors]
+        if any(present is None for present in stood):
+            raise _unreadable_history(
+                change, f"the trees of {revision[:12]}'s parents, to say "
+                        f"whether `{rel}` stood in them")
+        if not any(stood):
             break
     kept.reverse()
     return kept
@@ -1076,8 +1250,11 @@ def _lineage_commits(root: Path, change: str,
     changed here.
     """
     seen: set[tuple[str, str]] = set()
+    revisions = _commits_touching(root, rel)
+    if revisions is None:
+        raise _unreadable_history(change, f"the history of `{rel}`")
     # each frame is [path, commits oldest-first, index, descended already?]
-    frames: list[list] = [[rel, _commits_touching(root, rel) or [], 0, False]]
+    frames: list[list] = [[rel, revisions, 0, False]]
     while frames:
         path, revisions, index, descended = frames[-1]
         if index >= len(revisions):
@@ -1086,8 +1263,12 @@ def _lineage_commits(root: Path, change: str,
         revision = revisions[index]
         if not descended:
             frames[-1][3] = True
-            former = renamed_from(root, revision, path, kinds="R")
-            if former is not None and (former, revision) not in seen:
+            former = _pairing_at(root, revision, path, kinds="R")
+            if former is None:
+                raise _unreadable_history(
+                    change, f"whether {revision[:12]} renamed `{path}` in "
+                            f"from an earlier name")
+            if former and (former, revision) not in seen:
                 seen.add((former, revision))
                 frames.append([former,
                                _incarnation(root, change, former, revision),
@@ -1179,6 +1360,28 @@ def ratifying_commit(root: Path, change: str) -> str | None:
     onto, for the reason this docstring already gives: nothing here declares
     a former id, so a baseline under a name the tree no longer spells cannot
     be established at all.
+
+    AND EVERY READ UNDER THIS WALK FAILS CLOSED. A widened walk reads more of
+    history, which means more places a checkout can fail to answer, and the
+    helpers it reads through — `git_show_text`, `renamed_from` — answered
+    ABSENT and UNREADABLE with one value each (raised by the review bench on
+    PR #1024). Flattened that way, a partial clone makes this walk report no
+    predecessor, no ratified blob and no earlier history, all of which read
+    as clean answers and none of which was one: the guard would be silently
+    off in exactly the checkout that cannot prove anything. So the reads go
+    through `_pairing_at`, `_path_present` and `_readable_blob`, each of
+    which keeps the two apart, and an unreadable answer raises
+    `origin-retention-history-unreadable` — CANNOT RUN, exit 2 — instead of
+    resolving a baseline nobody can check. A check that cannot run must not
+    pass; that is the rule every other arm of this gate already keeps.
+
+    NO DEPTH CAP, and that is a decision rather than an omission (raised by
+    the review bench on PR #1024). `_lineage_commits` is iterative with a
+    `seen` memo over a finite history, so it terminates without one, and the
+    realization record's own sentence — "renaming a DRAFT change is
+    unaffected" — carries no number for a cap to enforce. A constant here
+    would refuse a packet renamed often but lawfully, on a gate with no
+    bypass flag (#690), which is a refusal nobody ruled.
     """
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", change):
         raise SupportError(f"invalid change name: {change}")
@@ -1859,6 +2062,19 @@ def origin_retention_errors(root: Path, directory: Path,
     list would file "cannot run" under "ran and found something", which is the
     conflation the sibling gates' CANNOT RUN status exists to avoid.
 
+    AND FOR THE ARM BESIDE IT, WHICH THE BASELINE READ BELOW CAN RAISE TOO.
+    `was_text` is the DECLARATION AT RATIFICATION — the one thing every
+    comparison here is against — and a read that git declines is not a packet
+    that declares no origin: the "NOT COMPARABLE" branch below is for the
+    pre-contract packets that really carry none, and a partial checkout
+    falling into it would skip the whole comparison and return `[]`, which is
+    an archive PASSING on a silence (raised by the review bench on PR #1024).
+    So that read goes through `_readable_blob`: absent is still NOT
+    COMPARABLE, unreadable is `origin-retention-history-unreadable`. The
+    disposition record's own reads (`_accept_declaration_problems`) were
+    measured rather than changed — an unreadable commit there already fails
+    the acceptance and leaves the mutation refused.
+
     AND THE BASELINE MOVES ON A RECORDED ACCEPTANCE (issue #745). Where the
     declaration HAS moved since ratification, `<root>/openspec/origin-
     dispositions.yaml` is consulted for the explicit disposition the
@@ -1883,8 +2099,9 @@ def origin_retention_errors(root: Path, directory: Path,
                 "declaration to retain. Commit the ratification before "
                 "archiving."]
     short = revision[:12]
-    was_text = git_show_text(
-        root, revision, f"openspec/changes/{change}/.openspec.yaml")
+    was_text = _readable_blob(
+        root, change, revision,
+        f"openspec/changes/{change}/.openspec.yaml")
     was = origin_block_lines(was_text)
     packet_file = directory / ".openspec.yaml"
     now_text = (packet_file.read_text(encoding="utf-8")
@@ -1926,8 +2143,9 @@ def origin_retention_errors(root: Path, directory: Path,
             print(accepted.note())
             revision = accepted.mutation_at
             short = revision[:12]
-            was_text = git_show_text(
-                root, revision, f"openspec/changes/{change}/.openspec.yaml")
+            was_text = _readable_blob(
+                root, change, revision,
+                f"openspec/changes/{change}/.openspec.yaml")
             was = origin_block_lines(was_text)
     if now is None:
         errors.append(

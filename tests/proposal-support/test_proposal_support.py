@@ -2076,12 +2076,17 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         where it is meant to bite: in a checkout whose history is not all
         there.
 
-        BOTH LAYERS ARE MEASURED HERE. The walk's own arm refuses when the
-        bound cannot be read (`origin-retention-history-unreadable`), and a
-        repository with a hop's parent commit object DELETED refuses END TO
-        END — on the `not ratified` arm, because a missing object reaches the
-        current name's own enumeration as well — rather than resolving a
-        baseline nobody could check."""
+        BOTH LAYERS ARE MEASURED HERE, AND BOTH REFUSE AS WHAT THEY ARE. The
+        walk's own arm refuses when a bound cannot be read, and a repository
+        with a hop's parent commit object DELETED — which reaches the CURRENT
+        name's enumeration as well — refuses END TO END on the same arm. That
+        second half took two rounds: the first answer left the current name's
+        `git log` reading its own failure as an empty history, which still
+        refused, but on the `not ratified` arm — a refusal that tells an
+        operator to go and commit a ratification already sitting in the
+        history they could not read (PR #1024's bench, second round). A
+        refusal must name what actually happened, so both now answer
+        `origin-retention-history-unreadable` and say which read failed."""
         with TemporaryDirectory() as td:
             root = Path(td)
             directory = self.packet(root)
@@ -2106,11 +2111,272 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
 
             # and end to end, with the object actually gone
             (root / ".git" / "objects" / parent[:2] / parent[2:]).unlink()
-            errors = support.origin_retention_errors(root, moved,
-                                                     change="change-t")
-            self.assertIn("not ratified", "\n".join(errors))
-            with self.assertRaises(support.SupportError):
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.origin_retention_errors(root, moved,
+                                                change="change-t")
+            self.assertIn("origin-retention-history-unreadable",
+                          str(caught.exception))
+            # the refusal NAMES the read that failed rather than saying only
+            # that something did — this one is the current name's own
+            # enumeration, which is what the first round left generic
+            self.assertIn("It needed the history of "
+                          "`openspec/changes/change-t/proposal.md`",
+                          str(caught.exception))
+            self.assertNotIn("not ratified", str(caught.exception))
+            with self.assertRaises(support.OriginRetentionError):
                 support.archive_change(root, "change-t", "2026-09-05",
+                                       False, True)
+
+    # ----------------------------------------------------------------
+    # A PARTIAL CHECKOUT MUST NOT BE A PASS (review bench, PR #1024,
+    # second round)
+    #
+    # `git_show_text` and `renamed_from` each answered ABSENT and UNREADABLE
+    # with one value, and the walk read both as clean answers: no ratified
+    # predecessor, no predecessor at all, nothing earlier under that name.
+    # The checkout that makes every one of those a lie is not exotic — a
+    # `--filter=blob:none` clone whose promisor is unreachable lists the
+    # predecessor's `proposal.md` in its tree and cannot read the blob
+    # behind it. Both fixtures below are that clone, and both are measured
+    # against the FULL clone of the same fixture, where the walk refuses:
+    # the partial one accepted the late re-ratification and printed
+    # `ORIGIN RETAINED` over a mutated origin.
+    # ----------------------------------------------------------------
+
+    def partial_checkout(self, source: Path, destination: Path,
+                         unreadable: tuple[str, str]) -> Path:
+        """A `--filter=blob:none` clone of `source` with its promisor cut.
+
+        The blobs the working tree needs are fetched while the promisor is
+        still reachable, so HEAD reads normally and HISTORY does not: a blob
+        whose content differs from anything at HEAD was never fetched and can
+        no longer be. `unreadable` is the (revision, path) the fixture rests
+        on, and it is PROVED rather than assumed — a git that ignored the
+        filter would otherwise turn these fixtures green by being unable to
+        pose the question."""
+        git(source, "config", "uploadpack.allowFilter", "true")
+        subprocess.run(
+            ["git", "clone", "-q", "--filter=blob:none", f"file://{source}",
+             str(destination)], check=True, capture_output=True, text=True)
+        git(destination, "remote", "set-url", "origin",
+            f"file://{source.parent / 'no-such-promisor'}")
+        revision, rel = unreadable
+        probe = subprocess.run(
+            ["git", "-C", str(destination), "show", f"{revision}:{rel}"],
+            capture_output=True, text=True)
+        if probe.returncode == 0:
+            self.skipTest("this git did not honour --filter=blob:none over "
+                          "file://, so there is no unreadable blob to test")
+        # the tree still LISTS it: presence and readability are two questions
+        self.assertIs(support._path_present(destination, revision, rel), True)
+        self.assertIsNone(support.git_show_text(destination, revision, rel))
+        return destination
+
+    def a_lineage_with_a_mutated_origin(self, root: Path) -> dict:
+        """The opening every fixture below shares: a packet ratified under
+        `change-r`, its origin mutated afterwards — so a baseline resolved
+        anywhere later waves the mutation through — and a paragraph written
+        under that first name.
+
+        THE PARAGRAPH IS THE FIXTURE'S MECHANISM, not decoration. A blob is
+        unreadable in a partial checkout only where its CONTENT is not also
+        at HEAD, and a packet this small would otherwise carry the same bytes
+        at both ends of its own chain.
+        """
+        directory = self.packet(root)
+        hops = {"created": self.sha(root, "HEAD~1"),
+                "ratified": self.sha(root)}
+        proposal = directory / "proposal.md"
+        proposal.write_text(
+            proposal.read_text(encoding="utf-8")
+            + "\nThe first name's own paragraph.\n", encoding="utf-8")
+        commit_all(root, "write under the name it was ratified with")
+        self.mutate(directory, "quoting the ratified prose",
+                    "quoting the corrected prose")
+        commit_all(root, "mutate the origin after ratification")
+        return hops
+
+    def a_moved_ratified_lineage(self, root: Path) -> dict:
+        """`ratify r → git mv r→s → edit s → git mv s→t`, every hop
+        BYTE-EXACT — which is the knob that decides what a partial checkout
+        can still do: git pairs an exact rename from object ids alone, so the
+        pairings all survive and the BLOB reads are what fail."""
+        hops = self.a_lineage_with_a_mutated_origin(root)
+        moved = self.rename(root, "change-r", "change-s")
+        hops["r_to_s"] = self.sha(root)
+        proposal = moved / "proposal.md"
+        proposal.write_text(
+            proposal.read_text(encoding="utf-8")
+            + "An edit while it sat at its second name.\n", encoding="utf-8")
+        commit_all(root, "edit it under its second name")
+        hops["moved"] = self.rename(root, "change-s", "change-t")
+        hops["s_to_t"] = self.sha(root)
+        return hops
+
+    def an_un_ratifying_lineage(self, root: Path) -> dict:
+        """The #1003 chain — `ratify r → rename+un-ratify r→s → rename s→t
+        AMENDING it → ratify t` — whose second hop is INEXACT, because the
+        commit that moved the packet also added a line to it. That is the hop
+        a partial checkout cannot pair at all."""
+        hops = self.a_lineage_with_a_mutated_origin(root)
+        self.rename_and_un_ratify(root, "change-r", "change-s")
+        hops["r_to_s"] = self.sha(root)
+        changes = root / "openspec" / "changes"
+        git(root, "mv", str(changes / "change-s"), str(changes / "change-t"))
+        moved = changes / "change-t"
+        proposal = moved / "proposal.md"
+        proposal.write_text(
+            proposal.read_text(encoding="utf-8")
+            + "A line added as the packet moved.\n", encoding="utf-8")
+        commit_all(root, "rename change-s to change-t, amending it")
+        hops["s_to_t"] = self.sha(root)
+        ratify(proposal)
+        commit_all(root, "re-ratify it under its third name")
+        hops["moved"] = moved
+        return hops
+
+    def partial_checkout(self, source: Path, destination: Path,
+                         unreadable: tuple[str, str]) -> Path:
+        """A `--filter=blob:none` clone of `source` with its promisor cut.
+
+        The blobs the working tree needs are fetched while the promisor is
+        still reachable, so HEAD reads normally and HISTORY does not: a blob
+        whose content differs from anything at HEAD was never fetched and can
+        no longer be. `unreadable` is the (revision, path) each fixture rests
+        on, and it is PROVED rather than assumed — a git that ignored the
+        filter would otherwise turn these fixtures green by being unable to
+        pose the question at all."""
+        git(source, "config", "uploadpack.allowFilter", "true")
+        subprocess.run(
+            ["git", "clone", "-q", "--filter=blob:none", f"file://{source}",
+             str(destination)], check=True, capture_output=True, text=True)
+        git(destination, "remote", "set-url", "origin",
+            f"file://{source.parent / 'no-such-promisor'}")
+        revision, rel = unreadable
+        probe = subprocess.run(
+            ["git", "-C", str(destination), "show", f"{revision}:{rel}"],
+            capture_output=True, text=True)
+        if probe.returncode == 0:
+            self.skipTest("this git did not honour --filter=blob:none over "
+                          "file://, so there is no unreadable blob to test")
+        # THE TREE STILL LISTS IT: presence and readability are two questions,
+        # and the whole finding is that one value was answering both
+        self.assertIs(support._path_present(destination, revision, rel), True)
+        self.assertIsNone(support.git_show_text(destination, revision, rel))
+        return destination
+
+    def assert_the_full_clone_refuses(self, root: Path, change: str,
+                                      hops: dict) -> None:
+        """ANTI-VACUITY FOR BOTH FIXTURES BELOW. A partial checkout is only
+        interesting where the SAME history refuses once it can all be read —
+        a fixture git could not pair at all would make a fail-closed walk and
+        a blind one agree, and the test would pass either way."""
+        with self.assertRaises(support.OriginRetentionError) as caught:
+            support.ratifying_commit(root, change)
+        self.assertIn("origin-retention-path-moved", str(caught.exception))
+        self.assertIn(hops["r_to_s"][:12], str(caught.exception))
+
+    def test_a_partial_checkout_that_cannot_read_the_predecessor_refuses(self):
+        """AN UNREADABLE BLOB IS NOT AN ABSENT ONE. `git_show_text` answers
+        both with None, and the walk asked it two questions that turn on the
+        difference: where an earlier incarnation of a name CAME INTO BEING
+        (its boundary), and what the packet declared at a commit. Here the
+        true answers are "it stood there" and "this is what it said"; the
+        flattened ones are "it did not" and "nothing".
+
+        MEASURED, against the same history fully readable: `_incarnation`
+        kept ONE commit where the full checkout keeps two — the hop that
+        moved the ratified packet trimmed out of the lineage altogether. What
+        that costs is not visible in every shape, and it is not in this one:
+        a sibling arm still refuses here, because the same hop is asked again
+        under the current name. So the trim is pinned DIRECTLY rather than
+        through an outcome — a lineage that silently loses hops is a guard
+        that has stopped being able to see the shape it was widened for, and
+        the next fixture is the shape where nothing else catches it.
+
+        THE END-TO-END HALF IS THE REASON, not the refusal: the walk now
+        answers `origin-retention-history-unreadable` naming the blob it
+        could not read, rather than whatever it stumbles into afterwards."""
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_moved_ratified_lineage(root)
+            self.assert_the_full_clone_refuses(root, "change-t", hops)
+            r_rel = "openspec/changes/change-r/proposal.md"
+            s_rel = "openspec/changes/change-s/proposal.md"
+            clone = self.partial_checkout(root, Path(td) / "partial",
+                                          (hops["created"], r_rel))
+
+            # THE BOUNDARY, which is the read the finding names: the hop that
+            # moved the ratified packet is still in the incarnation, because
+            # "the name stood in no parent" is read off the TREE
+            self.assertEqual(
+                support._incarnation(clone, "change-t", s_rel,
+                                     hops["s_to_t"]),
+                support._incarnation(root, "change-t", s_rel,
+                                     hops["s_to_t"]))
+            self.assertIn(hops["r_to_s"],
+                          support._incarnation(clone, "change-t", s_rel,
+                                               hops["s_to_t"]))
+
+            # and the walk refuses rather than resolving a late baseline
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(clone, "change-t")
+            self.assertIn("origin-retention-history-unreadable",
+                          str(caught.exception))
+            self.assertIn(f"the blob `{r_rel}` stands as at "
+                          f"{hops['created'][:12]}", str(caught.exception))
+            moved = clone / "openspec" / "changes" / "change-t"
+            with self.assertRaises(support.OriginRetentionError):
+                support.origin_retention_errors(clone, moved,
+                                                change="change-t")
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(clone, "change-t", "2026-09-05",
+                                       False, True)
+
+    def test_a_partial_checkout_that_cannot_read_the_pairing_refuses(self):
+        """AND A `--follow` GIT COULD NOT RUN IS NOT "THIS WAS NEVER
+        RENAMED". Rename detection reads blobs wherever the move was not
+        byte-exact, so a hop that AMENDED the packet as it moved is precisely
+        the hop a partial checkout cannot pair — and `renamed_from` reports
+        that failure as None, the value it already uses for "no predecessor".
+        Read flat, the lineage simply ENDS there, and everything behind the
+        hop, the real ratification included, is never asked about.
+
+        MEASURED against the full clone of the same history, where the
+        pairing IS reported and the walk refuses: in the partial checkout
+        `renamed_from` answers None at that very hop, and the walk used to
+        answer `ORIGIN RETAINED` over a mutated origin."""
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.an_un_ratifying_lineage(root)
+            self.assert_the_full_clone_refuses(root, "change-t", hops)
+            t_rel = "openspec/changes/change-t/proposal.md"
+            s_rel = "openspec/changes/change-s/proposal.md"
+            clone = self.partial_checkout(root, Path(td) / "partial",
+                                          (hops["r_to_s"], s_rel))
+
+            # the pairing the full clone reports is the one this checkout
+            # cannot read — and the FLAT reading calls that "no predecessor"
+            self.assertEqual(
+                support.renamed_from(root, hops["s_to_t"], t_rel), s_rel)
+            self.assertIsNone(
+                support.renamed_from(clone, hops["s_to_t"], t_rel))
+
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(clone, "change-t")
+            self.assertIn("origin-retention-history-unreadable",
+                          str(caught.exception))
+            self.assertIn(f"whether {hops['s_to_t'][:12]} renamed "
+                          f"`{t_rel}` in from an earlier name",
+                          str(caught.exception))
+            moved = clone / "openspec" / "changes" / "change-t"
+            with self.assertRaises(support.OriginRetentionError):
+                support.origin_retention_errors(clone, moved,
+                                                change="change-t")
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(clone, "change-t", "2026-09-05",
                                        False, True)
 
     def test_a_long_lawful_draft_rename_chain_is_not_capped(self):
@@ -2170,10 +2436,25 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                     self.assertEqual(
                         support.ratified_under_a_former_path(
                             root, spelling, rel), former)
-            # a revision that resolves to nothing answers None rather than
-            # raising — an unreadable history already behaved that way
+            # A REVISION THAT RESOLVES TO NOTHING SPLITS THE TWO READINGS,
+            # which is the contract PR #1024's bench asked for: the FLAT one
+            # still answers None — "no predecessor was named" — while the
+            # guard's own reading refuses, because git declining to resolve a
+            # revision is not evidence that nothing was renamed there.
             self.assertIsNone(
                 support.renamed_from(root, "no-such-revision", rel))
+            self.assertIsNone(
+                support._pairing_at(root, "no-such-revision", rel,
+                                    kinds="RC"))
+            self.assertEqual(
+                support._pairing_at(root, head, rel, kinds="RC"), former)
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratified_under_a_former_path(
+                    root, "no-such-revision", rel)
+            self.assertIn("origin-retention-history-unreadable",
+                          str(caught.exception))
+            # and it names the packet even though the caller named a path
+            self.assertIn("change-s:", str(caught.exception))
 
     def test_a_git_config_cannot_switch_the_guard_off(self):
         """NO GIT CONFIG SWITCHES THE GUARD OFF. Rename detection is
