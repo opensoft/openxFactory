@@ -142,6 +142,18 @@ tightening commits add NO box: the publisher's enumeration prerequisite is
 recorded as prose under § 3, and belongs to openXwallet's publisher, neither
 filed, claimed, nor owed by this change.
 
+**THE ORIGIN DECLARATION MOVED WITH ACT 5, AND THE MOVE IS DISPOSED.** The
+ratifying commit `9c829d48` recorded acts 1–4 in `origin.approved_by` /
+`approved_on: 2026-09-12`; commit `b18e08b4` rewrote those two keys to carry
+all five acts and `approved_on: 2026-09-13`. `release-realization` § "Origin
+retention at archive" makes that a mutation the archive gate refuses unless
+an explicit disposition accepts it, so the FIRST entry of
+`openspec/origin-dispositions.yaml` accepts it — `mutation_at b18e08b4`,
+`changed_keys: [approved_by, approved_on]`, on act 5's own verbatim word
+("a fix round re-encodes and the record changes"), cited to #992
+5649935136 — and the act-5 declaration is the ORIGIN OF RECORD the gate
+compares against from here on. Every other origin key is unmoved.
+
 ## What this ratification does NOT do
 
 - **NO REALIZATION.** No byte of `scripts/doc_health/families.py` moves, no
