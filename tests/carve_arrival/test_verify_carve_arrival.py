@@ -71,6 +71,9 @@ RATIFIED_CODES = (
     "arrival-missing",
     "arrival-digest-mismatch",
     "arrival-undeclared-edit",
+    # RULED Q6 — the LOSING half of a re-destination: a row moved off this leg
+    # by a ruling still has a file at the placement it left.
+    "arrival-not-vacated",
     "arrival-undeclared-file",
     "arrival-carved-from-mismatch",
     "arrival-unreadable",
@@ -230,6 +233,23 @@ def _sha256(data: bytes) -> str:
 # destination materialised from the manifest
 # --------------------------------------------------------------------------
 
+def _placement(row: dict[str, Any]) -> tuple[Any, Any]:
+    """Where a row's blob goes: `re_destined.to`/`to_path` where a ruling has
+    moved the placement (RULED Q6), else the row's own destination.
+
+    SPELLED OUT HERE rather than imported from the verifier, on `Scratch.blobs`'
+    own reasoning one file over: a fixture that borrowed its subject's reader
+    would agree with a broken reader too.
+    `test_both_tools_read_the_effective_arrival_identically` is what holds the
+    two SHIPPED readings equal; this third one is the test's own, and it is
+    three lines so that it can be read at a glance.
+    """
+    re_destined = row.get("re_destined")
+    if isinstance(re_destined, dict):
+        return re_destined.get("to"), re_destined.get("to_path")
+    return row.get("destination"), row.get("destination_path")
+
+
 class Carve:
     """A scratch source repository at a carve commit, plus its manifest."""
 
@@ -340,17 +360,24 @@ class Carve:
     def materialise(self, doc: dict[str, Any], destination: str,
                     name: str | None = None) -> Path:
         """A destination directory built from the manifest's own rows — commit
-        A, byte-identical, which is what `--phase A` asserts."""
+        A, byte-identical, which is what `--phase A` asserts.
+
+        AT THE EFFECTIVE PLACEMENT (RULED Q6), so a re-destined row is
+        materialised where the ruling put it and NOT where the carve did —
+        which is what makes the losing leg's tree genuinely vacated rather
+        than vacated by a fixture that forgot to write the file.
+        """
         dest = self.tmp / (name or f"dest-{destination}")
         dest.mkdir(parents=True, exist_ok=True)
         for row in doc["rows"]:
-            if row.get("destination") != destination:
+            where, relpath = _placement(row)
+            if where != destination:
                 continue
             data = subprocess.run(
                 ["git", "-C", str(self.source), "cat-file", "blob",
                  f"{self.carve_commit}:{row['source_path']}"],
                 capture_output=True, check=True).stdout
-            target = dest / row["destination_path"]
+            target = dest / relpath
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(data)
             if row["git_mode"] == "100755":
@@ -1097,6 +1124,399 @@ def test_a_file_outside_every_declared_root_is_not_the_walks_business(
     done = run(carve, manifest, "--destination", "scratch_code",
                "--dest-root", str(dest), "--phase", "A", "--json")
     assert done.returncode == 0, done.stdout + done.stderr
+
+
+# --------------------------------------------------------------------------
+# RULED Q6 — the EFFECTIVE arrival, and `arrival-not-vacated`
+#
+# Brett Heap, 2026-09-12, by interactive multi-choice (`#656` comment
+# `5648044785`), adopting the RECOMMENDED answer of openDox-spec
+# `docs/front-end-package-boundary.md` § 6 Q6 at `7d12428c`. A moved row whose
+# placement a RULING has corrected carries `re_destined:`, and this file asks
+# every question at the placement the ruling made — with the LOSING leg held to
+# the other half of the same act.
+#
+# THE TWO REFUSALS THE BOUNDARY NOTE MEASURED are what these cases are built
+# around: before the field, a re-homed file drew `arrival-missing` at the leg
+# whose row it left and `arrival-undeclared-file` at the leg it landed on, and
+# one such file stopped slice S6 (openXdox-code `657c821b`). Both must now
+# answer correctly, and the file must not be in two places at once.
+# --------------------------------------------------------------------------
+
+RE_DESTINED_RULING = "`#656` comment 5648044785 (RULED Q6, Brett Heap 2026-09-12)"
+
+# The `src/pkg/beta.py` row, re-homed at the spec leg: the shape of S8's 23
+# test files, which RULED OQ-G's imports rule placed at a leg that cannot run
+# them. `beta.py` rather than `alpha.py` because it CARRIES A DECLARED EDIT —
+# a re-destination must not disturb the phase-B question, and a fixture built
+# on the verbatim row could not tell.
+RE_DESTINED_SOURCE = "scripts/pkg/beta.py"
+RE_DESTINED_TO = "scratch_spec"
+RE_DESTINED_TO_PATH = "examples/beta.py"
+RE_DESTINED_FROM_PATH = "src/pkg/beta.py"
+
+
+def _re_destine(doc: dict[str, Any], source_path: str = RE_DESTINED_SOURCE,
+                to: str = RE_DESTINED_TO, to_path: str = RE_DESTINED_TO_PATH,
+                **override: Any) -> dict[str, Any]:
+    """Re-destine a row of the generated manifest, and return it.
+
+    `from`/`from_path` are READ OFF THE ROW and never typed: that is what the
+    form requires them to be, and a fixture that spelled them out would go on
+    agreeing with itself after the row moved.
+    """
+    row = next(r for r in doc["rows"] if r["source_path"] == source_path)
+    block: dict[str, Any] = {
+        "from": row["destination"],
+        "from_path": row["destination_path"],
+        "to": to,
+        "to_path": to_path,
+        "ruling": RE_DESTINED_RULING,
+    }
+    block.update(override)
+    row["re_destined"] = block
+    return row
+
+
+def _load_manifest_validator() -> Any:
+    """`scripts/validate-carve-manifest.py` as a module — the OTHER half of the
+    floor, loaded by path for the same reason this file's own subject is."""
+    path = REPO_ROOT / "scripts" / "validate-carve-manifest.py"
+    spec = importlib.util.spec_from_file_location("validate_carve_manifest",
+                                                  path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_a_re_destined_row_is_verified_at_the_leg_the_ruling_named(
+        carve: Carve) -> None:
+    """The GAINING half. The row's `destination:` still says `scratch_code`,
+    and every question here — owed, present, digest, roots, the walk's
+    admission BY NAME — is asked at `scratch_spec:examples/beta.py` instead."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RE_DESTINED_TO)
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    summary = json.loads(done.stdout)
+    assert summary["rows"] == 2, summary
+    assert summary["digests_verified"] == 2, summary
+    assert summary["declared_roots"] == ["examples"], summary
+    # ADMITTED BY NAME, not by a coincidence of bytes and not by a created-file
+    # rule: the manifest places the file here, which is the whole point.
+    assert summary["admitted"]["created"] == 0, summary
+    arrived = summary["re_destined"]["arrived"]
+    assert [row["source_path"] for row in arrived] == [RE_DESTINED_SOURCE], \
+        summary
+    assert arrived[0]["ruling"] == RE_DESTINED_RULING, arrived
+    assert arrived[0]["from_path"] == RE_DESTINED_FROM_PATH, arrived
+
+
+def test_the_losing_leg_no_longer_owes_the_re_destined_row(
+        carve: Carve) -> None:
+    """The LOSING half, passing: the row is not owed here any more, and the
+    tree that no longer carries it verifies. Before the field this was
+    `arrival-missing` — the refusal that stopped slice S6."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    summary = json.loads(done.stdout)
+    assert summary["rows"] == 1, summary
+    assert summary["declared_roots"] == ["src/pkg"], summary
+    vacated = summary["re_destined"]["vacated"]
+    assert [row["source_path"] for row in vacated] == [RE_DESTINED_SOURCE], \
+        summary
+    assert vacated[0]["to_path"] == RE_DESTINED_TO_PATH, vacated
+
+
+def test_a_copy_left_behind_at_the_losing_leg_refuses(carve: Carve) -> None:
+    """The other half of the same act. A re-destination that did not also
+    REMOVE the file leaves the same bytes at two legs with the floor standing
+    behind one — and the finding names the ruling, not the filename, because
+    it runs before the walk."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    left_behind = dest / RE_DESTINED_FROM_PATH
+    left_behind.parent.mkdir(parents=True, exist_ok=True)
+    left_behind.write_text(SURFACE_FILES[RE_DESTINED_SOURCE], encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-not-vacated"
+    detail = json.loads(done.stdout)["detail"]
+    assert RE_DESTINED_RULING in detail, detail
+    assert RE_DESTINED_TO_PATH in detail, detail
+
+
+def test_a_symlink_left_at_the_vacated_path_is_not_invisible(
+        carve: Carve) -> None:
+    """`lexists` and not `exists`. A DANGLING symlink at the old path reads as
+    absent to a followed test and would be committed by git all the same; one
+    pointing at the new location reads as the file still being there."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    link = dest / RE_DESTINED_FROM_PATH
+    link.parent.mkdir(parents=True, exist_ok=True)
+    os.symlink("../../nowhere/beta.py", link)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-not-vacated"
+
+
+def test_another_rows_arrival_at_the_vacated_path_is_a_lawful_refill(
+        carve: Carve) -> None:
+    """The arrival-verifier twin of `test_carve_manifest.py`'s
+    `test_another_row_may_move_into_the_path_a_re_destination_vacated`: a row
+    re-destined AWAY from a path, and a DIFFERENT row's own effective arrival
+    legitimately occupying that same path today, is one row leaving and
+    another arriving — not evidence of anything left behind (Copilot review,
+    PR #1011). `alpha.py` is retargeted onto `beta.py`'s vacated
+    `destination_path` at the SAME destination `scratch_code`; `rows_for`
+    already verifies it present there before `check_vacated` ever runs, so an
+    entry at the old path is this leg's OWN claimed arrival, not a leftover."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    alpha = next(r for r in doc["rows"]
+                if r["source_path"] == "scripts/pkg/alpha.py")
+    assert alpha["destination"] == "scratch_code", alpha
+    alpha["destination_path"] = RE_DESTINED_FROM_PATH
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    summary = json.loads(done.stdout)
+    vacated = summary["re_destined"]["vacated"]
+    assert [row["source_path"] for row in vacated] == [RE_DESTINED_SOURCE], \
+        summary
+
+
+def test_a_declared_replica_may_refill_a_re_destinations_vacated_path(
+        carve: Carve) -> None:
+    """The `--replica-at` twin of
+    `test_another_rows_arrival_at_the_vacated_path_is_a_lawful_refill`
+    (Copilot review, PR #1011, round 3): a replica the OPERATOR declares at a
+    path a `re_destined:` row vacated on this same leg is a lawful refill too
+    — `neutral.py` is not a row `rows_for()` ever returns (RULED OQ-C), so it
+    was invisible to round 2's own fix and read as the vacated row's
+    abandoned copy. `check_vacated` runs before `check_replicas` builds and
+    verifies the declared placements, so excluding this path here says only
+    "not a leftover" — `check_replicas` still separately verifies the bytes
+    below are actually `neutral.py`'s."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    _write(dest, RE_DESTINED_FROM_PATH, SURFACE_FILES["scripts/pkg/neutral.py"])
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", f"scripts/pkg/neutral.py={RE_DESTINED_FROM_PATH}")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_declared"] == 1, payload
+    assert payload["replicas_verified"] == 1, payload
+    vacated = payload["re_destined"]["vacated"]
+    assert [row["source_path"] for row in vacated] == [RE_DESTINED_SOURCE], \
+        payload
+
+
+def test_a_re_destined_row_that_never_arrived_refuses_missing(
+        carve: Carve) -> None:
+    """`arrival-missing` at the GAINING leg, naming the ruling that made the
+    leg owe it — a reader of the refusal must not have to open the manifest to
+    learn why a file the row does not name is this leg's to place."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RE_DESTINED_TO)
+    (dest / RE_DESTINED_TO_PATH).unlink()
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-missing"
+    detail = json.loads(done.stdout)["detail"]
+    assert "RULED Q6" in detail, detail
+    assert RE_DESTINED_FROM_PATH in detail, detail
+
+
+def test_a_re_destined_row_is_byte_identical_at_phase_a(carve: Carve) -> None:
+    """The digest is untouched by the field: a `sha256` is a claim about the
+    SOURCE blob at the carve commit, so the row is held to exactly the bytes it
+    always was — at a different address."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RE_DESTINED_TO)
+    (dest / RE_DESTINED_TO_PATH).write_text(BETA_REWRITTEN, encoding="utf-8")
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-digest-mismatch"
+
+
+def test_a_re_destined_rows_declared_lines_still_bind_at_the_new_leg(
+        carve: Carve) -> None:
+    """Phase B at the gaining leg: the diff against the CARVE blob must touch
+    only the row's own `edits[].lines`, exactly as it would have at the leg the
+    carve chose. The edit lines are bounded by the source blob and a
+    re-destination moves nothing at the source."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RE_DESTINED_TO)
+    (dest / RE_DESTINED_TO_PATH).write_text(BETA_REWRITTEN, encoding="utf-8")
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(dest), "--phase", "B", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert json.loads(done.stdout)["declared_edits_diffed"] == 1, done.stdout
+
+    (dest / RE_DESTINED_TO_PATH).write_text(
+        "import opendox.alpha\nBETA = 2\nCALL = 4\n", encoding="utf-8")
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(dest), "--phase", "B", "--json")
+    assert refusal(done) == "arrival-undeclared-edit"
+
+
+def test_the_human_line_names_the_re_destinations_at_both_legs(
+        carve: Carve) -> None:
+    """A reader of a leg's log must be able to see that one of its arrivals is
+    not the carve's own act — and, at the other leg, that a row it used to owe
+    was checked to be GONE rather than simply forgotten."""
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    gaining = carve.materialise(doc, RE_DESTINED_TO)
+    losing = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(gaining), "--phase", "A")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "1 row(s) re-destined HERE and 0 re-destined AWAY" in done.stdout, \
+        done.stdout
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(losing), "--phase", "A")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "0 row(s) re-destined HERE and 1 re-destined AWAY" in done.stdout, \
+        done.stdout
+
+
+def test_a_leg_with_no_re_destination_says_nothing_about_one(
+        carve: Carve) -> None:
+    """Silent at zero. The manifest validator prints its count in every state
+    because it describes ONE document; this line describes a leg, where the
+    honest default is that every arrival is the carve's own."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "re-destined" not in done.stdout, done.stdout
+
+
+def test_a_ruled_re_destination_verifies_at_BOTH_legs_end_to_end(
+        carve: Carve) -> None:
+    """ONE manifest, TWO destination trees, and the whole act in one case.
+
+    The two halves of a re-destination are two runs — this file verifies one
+    destination per run — so nothing else here proves they agree. This does:
+    the same document, materialised at both legs, passes at both; and then each
+    violation of the pair is introduced in turn and refuses.
+    """
+    doc = carve.manifest_doc()
+    _re_destine(doc)
+    manifest = carve.write_manifest(doc)
+    gaining = carve.materialise(doc, RE_DESTINED_TO)
+    losing = carve.materialise(doc, "scratch_code")
+
+    # The file is at the gaining leg and NOT at the losing one, which is what
+    # the ruling ordered — and the fixture derived both trees from the same
+    # rows rather than being told where to put anything.
+    assert (gaining / RE_DESTINED_TO_PATH).is_file()
+    assert not (losing / RE_DESTINED_FROM_PATH).exists()
+
+    for destination, root in ((RE_DESTINED_TO, gaining),
+                              ("scratch_code", losing)):
+        done = run(carve, manifest, "--destination", destination,
+                   "--dest-root", str(root), "--phase", "A", "--json")
+        assert done.returncode == 0, (destination, done.stdout, done.stderr)
+
+    # VIOLATION 1 — the gaining leg never placed it.
+    (gaining / RE_DESTINED_TO_PATH).unlink()
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(gaining), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-missing"
+
+    # VIOLATION 2 — the losing leg kept it.
+    (losing / RE_DESTINED_FROM_PATH).write_text(
+        SURFACE_FILES[RE_DESTINED_SOURCE], encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(losing), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-not-vacated"
+
+    # VIOLATION 3 — the gaining leg placed it, but at the OLD path, which no
+    # row of this destination names: the walk owns that one, by name.
+    stray = gaining / RE_DESTINED_FROM_PATH
+    stray.parent.mkdir(parents=True, exist_ok=True)
+    stray.write_text(SURFACE_FILES[RE_DESTINED_SOURCE], encoding="utf-8")
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(gaining), "--phase", "A", "--json")
+    assert refusal(done) in ("arrival-missing", "arrival-undeclared-file")
+
+
+def test_both_tools_read_the_effective_arrival_identically() -> None:
+    """The two halves of the floor, over one table of rows.
+
+    RULED Q-L8 (c) is the lesson this closes in advance: `validate-carve-
+    manifest.py` and this file each carry the same three-line reading of
+    `re_destined:`, because neither can import the other, and two tools quietly
+    disagreeing about ONE definition is what cost six declared lines when a
+    line meant two things. The mis-shaped rows are in the table deliberately —
+    the agreement that matters most is the one about a document neither tool
+    validates.
+    """
+    other = _load_manifest_validator()
+    table: list[dict[str, Any]] = [
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py"},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "re_destined": {"from": "scratch_code", "from_path": "src/pkg/a.py",
+                         "to": "scratch_spec", "to_path": "examples/a.py",
+                         "ruling": RE_DESTINED_RULING}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "re_destined": "scratch_spec"},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "re_destined": {"to": "scratch_spec"}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "re_destined": {"to": ["scratch_spec"], "to_path": "examples/a.py"}},
+        {},
+    ]
+    for row in table:
+        assert MODULE.effective_arrival(row) == other.effective_arrival(row), \
+            row
+    assert MODULE.effective_arrival(table[1]) == ("scratch_spec",
+                                                  "examples/a.py")
+    assert MODULE.effective_arrival(table[0]) == ("scratch_code",
+                                                  "src/pkg/a.py")
+
+
+def test_the_module_records_the_effective_arrival_and_its_limit() -> None:
+    """The disclosure, asserted in the file that carries it: what the field
+    moves, and the limit that ONE destination is verified per run, so the two
+    halves are two runs and nothing here compares them."""
+    doc = MODULE.__doc__ or ""
+    assert "re_destined" in doc, doc
+    assert "RULED Q6" in doc, doc
+    assert "5648044785" in doc, doc
+    assert "arrival-not-vacated" in doc, doc
+    assert "ONE destination per run" in doc, doc
 
 
 # --------------------------------------------------------------------------
@@ -2525,13 +2945,48 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     equality over `opendox_code`'s content would break on the NEXT pin bump
     the same way the original whole-file equality broke on this one.
 
+    AMENDED A THIRD TIME by openxFactory PR #1001 (Copilot review): five more
+    `opendox_code` files, declared the same governed way once the PR ran
+    `verify-carve-arrival.py` against the merged S1+S2+S3 tree and found them
+    undeclared — § 3.4 SLICE S3's own `view_extension.py` /
+    `view_extension.js` / `test_view_registry.py` (`#656` comment 5642758731,
+    the leg PR opensoft/openDox-code#14 pairs with and lands after this one),
+    and § 3.4 SLICE S1's `test_web_boundary.py` /
+    `tests/fixtures/web_boundary_census.yaml` (already landed via
+    opensoft/openDox-code#13, which touched no arrived file and so needed no
+    row-annotation PR of its own — nothing wrote down that its two new files
+    still wanted admitting until this PR looked). Same footing again: checked
+    by presence, not equality.
+
+    AMENDED A FOURTH TIME by § 3.4 SLICE S6's own annotation PR (RULED Q4,
+    `#656` comment 5642758731): one more `opendox_code` file,
+    `tests/test_source_core_arm.py` — the runnable half of the `/source`
+    re-homing from `openxdox_code`'s contributed binding to `opendox_code`'s
+    own fixed core arm, admitted the governed way because the leg PR that
+    lands it (opensoft/openDox-code#16) pairs with — and lands after — this
+    annotation PR. Same footing again: checked by presence, not equality.
+
+    AMENDED A FIFTH TIME by § 3.4 SLICE S4's own annotation PR (RULED Q3,
+    `#656` comment 5642758731): four more `opendox_code` files — the three
+    new class-B modules that receive five of the thirteen route tails S4
+    counts (`views/gate-lens.js`, `views/gate-projects.js`,
+    `views/projection-index.js`; the other eight arrive at the existing SWB
+    modules, are removed, or stay in place) and their own
+    `tests/test_split_route_tails.py`
+    — admitted the governed way because the leg PR that lands them
+    (opensoft/openDox-code#17, stacked on S3's #14) pairs with — and lands
+    after — this annotation PR. Same footing again: checked by presence, not
+    equality.
+
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
-    `#656` comment 5639058687) and the three RULED Q5 opendox_code entries
-    are still declared with their own `since`, every `since` is a 40-hex
-    commit, every `reason` is non-empty, and every destination's list is
-    alphabetical by `path` with no repeat — the file's own stated invariants,
-    over whatever the file has accumulated. Reads the REAL committed files,
+    `#656` comment 5639058687), the three RULED Q5 opendox_code entries, the
+    five PR #1001 opendox_code entries, the one § 3.4 SLICE S6 entry, and the
+    four § 3.4 SLICE S4 entries are still declared with their own
+    `since`, every `since` is a 40-hex commit, every `reason` is non-empty,
+    and every destination's list is alphabetical by `path` with no repeat —
+    the file's own stated invariants, over whatever the file has
+    accumulated. Reads the REAL committed files,
     so a typo fails this rather than only a scratch fixture's copy."""
     manifest_path = REPO_ROOT / MODULE.MANIFEST_RELPATH
     admissions_path = MODULE.default_admissions_path(manifest_path)
@@ -2581,6 +3036,80 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             "opendox_code admissions and is no longer declared")
         assert opendox_seed[path]["since"] == (
             "330cf8161f06ae67be716deafe9b2ec3c64d1492")
+    # THE THIRD BUMP (Copilot review, openxFactory PR #1001): two more
+    # `opendox_code` files RULED into this file by § 3.4 SLICE S3 (`#656`
+    # comment 5642758731) — the view registry's server and client modules,
+    # admitted the GOVERNED way on the same Q-L1 footing as the S2 entries
+    # above (the leg PR, opensoft/openDox-code#14, pairs with — and lands
+    # after — this annotation PR) — plus its own test, and TWO files RULED
+    # by § 3.4 SLICE S1 (opensoft/openDox-code#13, already landed on
+    # `main`): S1 touched no arrived file, so Q-L1 required no
+    # row-annotation PR of its own, but its two new files sat undeclared
+    # until this PR ran `verify-carve-arrival.py` against the merged
+    # S1+S2+S3 tree and needed them admitted. Checked by PRESENCE for the
+    # same reason as the seeds above.
+    for path in ("src/opendox/view_extension.py",
+                 "src/opendox/web/views/view_extension.js"):
+        assert path in opendox_seed, (
+            f"{path} is one of § 3.4 SLICE S3's own two new files (`#656` "
+            "comment 5642758731, openxFactory PR #1001) and is no longer "
+            "declared for opendox_code")
+        assert opendox_seed[path]["since"] == (
+            "e6c65ed757bfc3f9b6664e27c85111bfe5f0d465")
+    assert "tests/test_view_registry.py" in opendox_seed, (
+        "tests/test_view_registry.py is § 3.4 SLICE S3's own test file "
+        "(`#656` comment 5642758731, openxFactory PR #1001) and is no "
+        "longer declared for opendox_code")
+    assert opendox_seed["tests/test_view_registry.py"]["since"] == (
+        "cb810d39737bf50bbe87e5700177c2e5ce2750da")
+    for path in ("tests/test_web_boundary.py",
+                 "tests/fixtures/web_boundary_census.yaml"):
+        assert path in opendox_seed, (
+            f"{path} is one of § 3.4 SLICE S1's two new files "
+            "(opensoft/openDox-code#13) and is no longer declared for "
+            "opendox_code")
+        assert opendox_seed[path]["since"] == (
+            "e86deb2dbcec528a312784508ddbf63c376abc33")
+    # THE FOURTH BUMP: one more `opendox_code` file, RULED into this file by
+    # § 3.4 SLICE S6 (RULED Q4, `#656` comment `5642758731`) — the runnable
+    # half of the `/source` re-homing, admitted the GOVERNED way on the same
+    # Q-L1 footing as the bumps above (the leg PR, opensoft/openDox-code#16,
+    # pairs with — and lands after — this annotation PR). Checked by
+    # PRESENCE for the same reason as the seeds above.
+    assert "tests/test_source_core_arm.py" in opendox_seed, (
+        "tests/test_source_core_arm.py is § 3.4 SLICE S6's own new file "
+        "(`#656` comment 5642758731) and is no longer declared for "
+        "opendox_code")
+    assert opendox_seed["tests/test_source_core_arm.py"]["since"] == (
+        "b00fbd920a019e2cee816b4936f921ceeab67a8c")
+    # THE FIFTH BUMP: four more `opendox_code` files, RULED into this file by
+    # § 3.4 SLICE S4 (RULED Q3, `#656` comment `5642758731`) — the three new
+    # class-B gate/projection modules that receive five of the thirteen
+    # route tails S4 counts (two to `gate-lens.js`, two to `gate-projects.js`,
+    # one to `projection-index.js`; the other eight arrive at the existing
+    # SWB modules, are removed, or stay in place), plus their own test file,
+    # admitted the GOVERNED way on the same Q-L1 footing as the bumps above
+    # (the leg PR, opensoft/openDox-code#17, stacked on S3's #14, pairs with
+    # — and lands after — this annotation PR). Checked by PRESENCE for the
+    # same reason as the seeds above. `since` is each file's OWN introducing
+    # commit (`git log --diff-filter=A`), not the leg branch's later tip —
+    # the same provenance contract the FOURTH BUMP above states, and the
+    # same class of correction Copilot's review caught there.
+    for path in ("src/opendox/web/views/gate-lens.js",
+                 "src/opendox/web/views/gate-projects.js",
+                 "src/opendox/web/views/projection-index.js"):
+        assert path in opendox_seed, (
+            f"{path} is one of § 3.4 SLICE S4's own three new class-B "
+            "modules (`#656` comment 5642758731) and is no longer declared "
+            "for opendox_code")
+        assert opendox_seed[path]["since"] == (
+            "031edc9b4268d9898c296b2e9bb3951a78642fb6")
+    assert "tests/test_split_route_tails.py" in opendox_seed, (
+        "tests/test_split_route_tails.py is § 3.4 SLICE S4's own test file "
+        "(`#656` comment 5642758731) and is no longer declared for "
+        "opendox_code")
+    assert opendox_seed["tests/test_split_route_tails.py"]["since"] == (
+        "2e842178b2bceaee9a45441b7d70d797fe1205cf")
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
     # could not survive a pin bump, and an accumulating file with no checked

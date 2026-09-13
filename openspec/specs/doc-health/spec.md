@@ -228,6 +228,24 @@ single issue per run in the aggregation repo listing the new findings.
 - **WHEN** canon share by words drops between runs
 - **THEN** the decline is trend data in the report, not a regression — no issue is opened for it alone
 
+#### Scenario: A recorded disposition names a family this capability gives no reading
+- **WHEN** an aggregation-checkout run (`Context.agg_root` set — never `--single-repo`, which reads no disposition of any family) sees the aggregation's `health/dispositions.yaml` carry a CITED entry naming a check family, a repository and a path, and this capability declares no FAMILY-SIDE disposition reading for that family — the family-neutral contested-resolution rule above is a separate, existing reading, and "no" here negates only a reading in that family's own requirement
+- **THEN** the entry MUST change no finding OF THE FAMILY IT NAMES — not its severity, not its action, not whether that finding is reported at all — because a family-side disposition is read by the arm the family's OWN requirement declares, and a family whose requirement declares none has NO FAMILY-SIDE ARM to read it, which is a statement about that family's own arm and not about the family-neutral rule above
+- **AND** the entry MUST still be read by the contested-resolution rule above, which reaches a DERIVED finding and never the named family's own row: where a finding the entry names was reported `contested` and the LATER run EVALUATED that family and that repository and no longer reports it, the derived `uncited resolution` error MUST NOT be emitted against it — the one effect an entry of such a family has ever had — EXCEPT where the entry names `semantic-contradiction` or `semantic-normative-prose`: the ALREADY-PROMOTED *Semantic finding disposition authority* requirement (this file, *A layer without standing disposes a finding*) governs those two families' dispositions on its own terms — an authority other than the finding's named disposer — and this scenario's admission shape (a cited, keyed entry) is not proof of that authority; this scenario neither overrides nor discharges that requirement for the semantic pair
+- **AND** the preceding exception states a boundary rather than a reading: this capability does not test disposition authority for any family, semantic or otherwise, and the contested-resolution rule's own code does not either — the exception exists so this scenario's blanket MUST NOT is not read as silently satisfying a DIFFERENT, already-ratified requirement it was never written to satisfy
+- **AND** where the later run RECORDED the named family or the named repository as unavailable to that rule — a lane whose findings are folded in after the deterministic render, a family EXCLUDED BY THIS RUN'S OWN CONFIGURATION (named by `--skip-family`, or every other REGISTERED family under a single `--family` run — `runner.FAMILIES` only; the semantic pair is not a member and is NOT excluded even then, the gap § 7.6(b) records), or a repository the baseline's stamped identity puts outside this run's scope — that rule MUST NOT emit the derived error whether an entry exists or not, an absence that only means the check did not run being no resolution to cite
+- **AND** where a run's scope excludes a family or a repository WITHOUT recording it as unavailable — including a family's OWN check function returning an ordinary `Skip` result rather than being named by `--skip-family` — this requirement MUST be read as stating nothing and ratifying nothing about that case, the change that adds this scenario reporting three such measured gaps rather than repairing them
+- **AND** where the entry's own key was NOT recorded `contested` IN THE IMMEDIATELY PREVIOUS REPORT, the entry MUST reach nothing through that rule, which iterates that ONE previous report's contested rows — `parse_previous` reads a single `--previous-report`, never a history of them — and not the later run's resolution classes: so a family whose rows the immediately previous report never classified `contested` can never put a key there for this transition, while a key that report DID record `contested` stays eligible FOR THIS ONE TRANSITION regardless of what class the family's rows carry in the later, current run — an eligibility that does not compound or persist beyond this single previous-report-to-current-run comparison
+- **AND** an entry naming the `uncited-resolution` family itself MUST change nothing at all, that family's rows never entering the contested set the rule above iterates
+
+#### Scenario: A recorded disposition names a family this capability does give a reading
+- **WHEN** an aggregation-checkout run (`Context.agg_root` set — never `--single-repo`, which reads no disposition of any family) sees the aggregation's `health/dispositions.yaml` carry a CITED entry naming a check family, a repository and a path, for which family this capability DOES declare a disposition reading in that family's own requirement — an entry carrying no cite recording no decision and being admitted by no reader
+- **THEN**, PROVIDED the entry also satisfies whatever FURTHER admission predicate that family's own reader declares beyond the cite (a `date` for `ratified-provenance`, `families.py:445-456` — that reader separately requires the MATCHED FINDING's own path, not the entry's, to sit under the archive prefix, `families.py:527-528`; a string `content_sha256` for `neutrality-drift`, `neutrality.py:669-677`), the entry MUST be read over THAT FAMILY'S OWN FINDINGS exactly as that family's own declaration says and by that declaration alone, whether it suppresses or downgrades — an entry failing that further predicate is left to the family-neutral reader above, admitted or not on that reader's own terms and never this one's
+- **AND** the family-neutral contested-resolution rule above MUST still reach the entry WHEREVER THAT RULE'S OWN EVALUATION SCOPE REACHES THE NAMED FAMILY AND REPOSITORY, the words "by that declaration alone" governing the family-side effect and never displacing that rule
+- **AND** a CITED entry missing a key that family's own reader further requires (a string `content_sha256`, for `neutrality-drift`) is still ADMITTED by the family-NEUTRAL reader above, which tests only the cite and not that further key — admission alone, and the following bullet's scope-exclusion still governs whether the contested-resolution rule ever reaches it, `neutrality-drift` itself being one of the lanes that bullet excludes UNCONDITIONALLY (folded in after the deterministic render, `runner.py:830`)
+- **AND** where that rule's scope excludes the named family — a lane whose findings are folded in after the deterministic render, or a family EXCLUDED BY THIS RUN'S OWN CONFIGURATION (named by `--skip-family`, or every other REGISTERED family under a single `--family` run — `runner.FAMILIES` only; the semantic pair is not a member and is NOT excluded even then, the gap § 7.6(b) records) — the entry MUST reach nothing through it, this requirement declaring no new reachability for any family
+- **AND** the preceding scenario MUST neither widen nor narrow any such declaration, its condition being the ABSENCE of one
+
 ### Requirement: Aging threshold defaults
 The contract SHALL define default aging thresholds so reports are comparable
 across runs: staged topics and `xspec:candidate` blocks untouched 30 days are
@@ -943,6 +961,15 @@ scope rather than the corpus.
 - **AND** a finding against a document under an ACTIVE change packet MUST NOT be downgraded by such an entry, an active record's header being a plain fix rather than a ruling's subject
 - **AND** an entry carrying no `cite` MUST change nothing, an entry that records no decision having disposed nothing under every other reader of this file
 - **AND** a run that has no aggregation checkout in scope MUST report every finding of this family at its own severity, the dispositions file living at the aggregation root and a single-repository run having none
+
+#### Scenario: A recorded disposition matches no finding
+- **WHEN** an entry in the aggregation's `health/dispositions.yaml` that this family would honour — carrying this family, a repository that contributed a document to this family's scan scope, a path, a date and a non-empty `cite` — names no finding this run raised — the record it names having been repaired, or its path having vanished, or its path being one no arm of this family reports at all, those being examples of the condition rather than the condition itself, which is that the entry matched nothing
+- **THEN** the run MUST emit a `ratified-provenance` finding at `warning` against the dispositions file's own path in the aggregation, naming the entry's repository and path and quoting the recorded citation, because an entry that has stopped disposing anything is drift that no artifact a reader reads reports today and that the file keeps for as long as nobody re-reads it by hand
+- **AND** the finding MUST NOT be raised against the record the entry names, that record being conformant or absent and its path therefore the wrong subject for a defect that is a line of another file
+- **AND** an entry naming a repository the run READ NO DOCUMENT FROM MUST NOT be reported, the absence of a finding from a repository nobody read being no evidence about that entry — the scope of this class being the repositories that contributed a document to THIS FAMILY'S OWN SCAN SCOPE — the governed corpus TOGETHER WITH the lifecycle scan set, both of which this family's arms read — rather than the repositories the run enumerated, an unmaterialized pin being capable of enumerating as a repository and yielding no document of either set
+- **AND** an entry this family would not honour — carrying no date, no `cite`, or another family's name — MUST NOT be reported, one entry-side admission rule serving both halves of the comparison so that the file converges on a set every reader of it agrees with
+- **AND** the archived-path boundary of the scenario above MUST NOT narrow this class further, that boundary being a property of the FINDING the downgrade moves rather than of the entry, so an entry naming a path outside `openspec/changes/archive/` that names no finding this run raised MUST be reported like any other — an entry that can never dispose anything is the strongest case of an entry that disposes nothing rather than an exception to it
+- **AND** a run that has no aggregation checkout in scope MUST report nothing of this class, the dispositions file living at the aggregation root and a single-repository run having none
 
 ### Requirement: Release-inventory drift
 The release-inventory drift family SHALL compare, for every repository in
@@ -1815,11 +1842,33 @@ marker names titles only**, so a bullet a merge makes redundant is a declared
 removal, not a permanent editorial row — but it has to be declared as a bullet,
 one at a time, which is exactly the deliberation the class deserves.
 
-**A marker is NOT a carriage unit, in either direction.** A marker promotes into
-canon with the requirement that carries it, and if it were a unit every later
-block would have to restate every marker any predecessor ever wrote, forever.
-The durable record of a deletion is the archived delta, which is where every
-other archived governance act is read from.
+**A marker is NOT a carriage unit, in either direction.** A marker promotes
+into canon with the requirement that carries it, and if it were a unit every
+later block would have to restate every marker any predecessor ever wrote,
+forever. The durable record of a deletion is the archived delta, which is where
+every other archived governance act is read from. **A UNIT-NAMING MARKER IS
+SPENT ONCE EVERY UNIT IT NAMES HAS LEFT CANON BY A DECLARED ACT, AND DROPPING
+IT IS THEREFORE THE LAWFUL CARRIAGE**. The act the marker declares is complete
+and every unit it names is gone from the promoted text, so the marker describes
+nothing a later block could be carrying: a later block SHALL NOT be required to
+restate it, SHALL NOT be reported for omitting it, and loses no record by
+dropping it, the archived delta named above being where that record is read.
+WHERE A LATER BLOCK CARRIES A SPENT MARKER FORWARD INSTEAD, THE THIRD GROUND
+ABOVE REPORTS THAT MARKER, AND THAT REPORT IS THIS CLASS WORKING AS WRITTEN
+RATHER THAN A DEFECT OF THE LATER AUTHOR'S CARE: its names match no unit of the
+requirement's basis, the declared act having removed them, and no unit of the
+block, a block not restating a retired unit, which is the third ground exactly
+as it already stands. NO GROUND IS ADDED HERE, NONE IS WITHDRAWN AND NO
+SUPPRESSION MOVES: the count stays at FIVE, a spent name suppresses nothing and
+never has, and both carriage arms are untouched — what is written here is which
+of the two standing options is the lawful one and what the other one costs, not
+a sixth ground and not a suppression this class does not carry. AND IT IS READ
+ON A MARKER EVERY ONE OF WHOSE NAMED UNITS HAS LEFT CANON AND ON NO OTHER: the
+third ground is resolved BY NAME, so a marker that names nothing NEVER REACHES
+IT and nothing here decides anything about such a marker, and a marker still
+naming a unit the requirement's basis carries is not spent and is not what
+these sentences are read on, the standing of a tail that names nothing being
+decided in the grounds paragraph above rather than in this one.
 
 Written out, the two forms are exactly:
 
@@ -2097,23 +2146,56 @@ longer carries because that change removed them — match no unit of the
 requirement or of this block, which is the third ground above reporting this
 block for copying a predecessor's declaration forward.
 
-**Removed from canon by amend-merged-into-empty-tail-standing (2026-09-11):**
-``THE FIFTH GROUND SHALL BE READ ON THE `Removed from canon` FORM ALONE: the
-pairing form names no units by construction, its whole tail being a reason, so
-a pairing marker carrying no code span declares exactly what that form declares
-and SHALL NOT be reported on this ground; and a `Merged into` marker whose tail
-names no superseded title is a question this requirement does not decide, its
-destination standing in the prefix where that form's declaration has always
-been read.`` — the retired sentence scoped the fifth ground to the removal form
-and then said of the merge form's tail that whether it declares nothing, or
-declares a destination that absorbed nothing named in it, is a question this
-requirement does not decide. Brett Heap decided it on 2026-09-11, so that
-clause cannot stand beside the sentence stating the decision. The unit is
-REPLACED rather than dropped, by the sentence above that carries its
-removal-form scoping and its pairing-form exclusion word for word, and the
-decision is stated in ONE sentence added beside it. Nothing else in this
-requirement is dropped, and this reason carries no code span at all, so the
-marker names exactly the one unit standing before the separator.
+**AMENDED BY `rule-inherited-unit-naming-marker-spent` (2026-09-11).** Every
+paragraph and every scenario above this note stands exactly as
+`amend-merged-into-empty-tail-standing`'s block states it —
+`amend-marker-reason-boundary`'s, `amend-marker-defect-reporting`'s,
+`amend-modified-block-currency-standing`'s, `amend-marker-declaring-nothing`'s
+and `amend-merged-into-empty-tail-standing`'s own notes and their narratives
+included — BECAUSE THIS BLOCK IS WRITTEN OVER THAT CHANGE'S OUTCOME AND NOT
+OVER THE PROMOTED TEXT THAT CHANGE REPLACES:
+`amend-merged-into-empty-tail-standing` is an active ratified writer of this
+requirement, this change declares it as its ordered-delta parent, and
+`release-realization` makes that declaration the order. THIS AMENDMENT RETIRES
+NOTHING AND IS A PURE ADDITION: FIVE SENTENCES are added at the END of ONE
+paragraph — the one ruling that a marker is not a carriage unit — DERIVING AS
+FIVE CARRIAGE UNITS, each sentence its own unit, the bold lead-in closing its
+emphasis BEFORE its terminator so that the terminator is followed by whitespace
+and the unit boundary this note claims is the boundary the family derives; and
+TWO SCENARIOS are added at the END of the block, one for each half of the rule,
+because a rule no scenario exercises is a rule the next author re-deriving this
+class has nothing to test against and because pinning one half of a two-option
+rule invites a reader to take that half for the whole. NO UNIT IS RETIRED,
+REWORDED, MOVED OR DROPPED, so NO `Removed from canon` MARKER IS OWED AND NONE
+IS WRITTEN — derived through `derive_units` rather than asserted. NO GROUND IS
+ADDED AND NONE IS WITHDRAWN: the class still states FIVE, the added sentences
+being a carriage rule and a reading of the third ground rather than a sixth
+ground written in the negative; no severity moves, no threshold moves, no arm
+is added or removed, no parse and no marker grammar moves, no disposition rule
+changes, this family's registration in the resolution table is untouched, and
+the set of trees over which this family speaks is not altered by one line. NO
+CODE MOVES EITHER, AND THAT IS MEASURED RATHER THAN PROMISED: the third ground
+already reports a name matching no unit of the basis and no unit of the block,
+which is what `suppression` does today, and DROPPING a marker is the absence of
+an edit rather than an edit — so this block states in canon which of two
+standing options is lawful and asks the module for nothing it does not already
+do. THE POPULATION IS MEASURED RATHER THAN ASSUMED, on 2026-09-11 over the
+corpus as it stood before this packet: of the 18 markers the promoted
+specifications carry — 15 of `Removed from canon` form, 1 of `Merged into` form
+and 2 of the pairing form — SIXTEEN name at least one unit and ALL SIXTEEN ARE
+SPENT, every unit every one of them names being absent from the requirement
+that carries it, across THIRTEEN requirements in SEVEN promoted
+specifications; and of the 31 active MODIFIED blocks this family reads, TWO
+carry a unit-naming marker, both of the `Merged into` form and each naming one
+unit that matches its resolved basis, so a run reports NO marker defect before
+this amendment and none after it. AND
+`amend-merged-into-empty-tail-standing`'S OWN `Removed from canon` MARKER IS
+DELIBERATELY NOT RESTATED HERE — the fifth consecutive amendment of this
+requirement to drop its predecessor's, and the first to drop one under the rule
+it is itself writing: the marker's one named unit is a sentence this
+requirement's basis no longer carries, so restating it would declare a removal
+this change did not perform and would report this block under the third ground
+above, which is the state these added sentences exist to write down.
 
 #### Scenario: An active block drops a scenario the requirement keeps
 - **WHEN** an active change's MODIFIED block restates a promoted requirement and omits a scenario title that requirement currently carries, with no marker naming it
@@ -2227,6 +2309,16 @@ marker names exactly the one unit standing before the separator.
 - **THEN** the run MUST NOT report the marker on the fifth ground, that ground being read on the `Removed from canon` form alone, and MUST NOT report it on any of the other four either, each of those being reached through a name or a quoted span such a marker does not carry
 - **AND** the silence MUST be read as this requirement's ruling that such a marker declares what its form declares, rather than as a ground this requirement has left unwritten
 - **AND** a code span a `Merged into` marker's reason DOES quote MUST remain subject to the second ground, the silence covering a tail with no code span in it and not the form as such
+
+#### Scenario: A later block drops an inherited unit-naming marker
+- **WHEN** an active MODIFIED block restates a requirement whose basis carries a unit-naming marker, and every unit that marker names has left canon by the act the marker declares
+- **THEN** the block MUST NOT be reported for omitting that marker, a marker being no carriage unit in either direction and a marker whose act is complete being spent
+- **AND** the omission MUST NOT be read as undeclaring the removal, the archived delta remaining the durable record of the act
+
+#### Scenario: A later block carries an inherited unit-naming marker forward
+- **WHEN** an active MODIFIED block carries such a marker forward instead, its named units matching no unit of the requirement's basis and no unit of the block
+- **THEN** the run MUST report the marker itself in the `info` band on the third ground, exactly as it reports any other name matching neither side
+- **AND** the report MUST NOT be read as a new ground, as a new severity or as a defect of the carriage arms, the name suppressing nothing and the block's own carriage being measured unchanged
 
 ### Requirement: A declared unrecoverable pin loss is discharged by a superseding record, never by deleting its declaration
 A declared loss of a pinned commit SHALL stay declared and reported for as long

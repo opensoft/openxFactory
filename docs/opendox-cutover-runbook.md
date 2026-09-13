@@ -140,16 +140,31 @@ mapping manifest. Measured in the landed file:
 
 | disposition | rows | the proof owed at the destination |
 | --- | ---: | --- |
-| `moved_verbatim` | **172** | the arrived blob's `sha256` and mode EQUAL the row's |
-| `moved_with_declared_edit` | **146** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
+| `moved_verbatim` | **161** | the arrived blob's `sha256` and mode EQUAL the row's |
+| `moved_with_declared_edit` | **157** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 794 declared edit lines**: `import rewrites` 636, `path
-constants` 132, `adapter calls` 26. **147 rows carry `edits:`** — the 146
+**318 rows move. 1422 declared edit lines**: `import rewrites` 684, `path
+constants` 202, `adapter calls` 536. **158 rows carry `edits:`** — the 157
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 
-The row and line totals above are the file AS AMENDED on 2026-09-10 under
-RULING Q-L1 (`#656`, comment `5611834121`): the two § 2.4 extension-point seams
+**AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
+`#656` comment `5648044785`).** Where a RULING has corrected the placement the
+carve made, the row records it — `{from, from_path, to, to_path, ruling,
+note}`, `to` held to the closed `destinations:` keys and the citation REQUIRED
+— and **the proof owed at the destination moves with it**: the file must be
+PRESENT at `to:to_path` under this same table's rules, and ABSENT at the
+`from:from_path` it left (`arrival-not-vacated`). Nothing else moves —
+`carve_commit`, `carve_tag`, every `sha256`, every disposition and every
+declared line are claims about the SOURCE blob at the carve commit, and where
+the file now lives says nothing about them. **NO ROW CARRIES IT TODAY**: the
+amendment landed the form and its gates, and § 5.7 is the procedure the act
+itself follows.
+
+The table above states the file's CURRENT totals — see "Measured directly
+against the landed manifest" below for how they are derived. What follows is
+the file's history of amendments in landing order, starting with RULING Q-L1 on
+2026-09-10 (`#656`, comment `5611834121`): the two § 2.4 extension-point seams
 joined the `replicated_at_destination` rows, and eleven lines over seven
 `opendox_code` rows were declared — ten of them citations too short to express
 the edit their row's own note described, plus the seam file's own path
@@ -180,9 +195,9 @@ test-layout files that carve leg 1 measured:
   the LINE: `verify-carve-arrival.py` verifies one destination per run and
   compares no two legs' copies with each other.
 
-The **794th line belongs to a replica row and therefore to no destination
+The **1422nd line belongs to a replica row and therefore to no destination
 column below**: a replica row names no destination at all, so the per-leg
-declared-line figures still sum to 793, and the extra line is owed by every leg
+declared-line figures still sum to 1421, and the extra line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
 reason `edits:` is still a refusal**: RULING OQ-B's three
 `stays_openxfactory_governance` rows stay here and take their import rewrite in
@@ -191,14 +206,43 @@ RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
 test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
+**Measured directly against the landed manifest, 2026-09-12** (rather than
+hand-chained through every intervening amendment): the table and the two
+paragraphs above, and the per-destination table below, state the totals as of
+the § 3.4 SLICE-S3 row annotation (`#656` comment `5642758731`, openxFactory
+PR #1001) merged with every row annotation since RULED Q-L7 (a) above —
+among them BUILD slice 2's nine openDox-code back-imports, a second Q-L1
+annotation round (`#656` comment `5628560136`), the ASK-7 declared-edit
+window (`#656` comment `5635150678`, PR #995), the § 3.4 SLICE S2
+intent-chips annotation (RULED Q5, `#656` comment `5642758731`, openxFactory
+PR #1002, landing first per Q-L1's own landing order), PR #1001's own
+post-landing extension catching up the openDox-code #14 fix round's one-line
+`test_doc_surfaces.py` edit, and the § 3.4 SLICE S6 annotation (RULED Q4,
+`#656` comment `5642758731`) declaring the `/source` re-homing's ten
+`serve.py` lines and 122 matching `serve_projection.py` deletions, on the same
+two rows' existing `edits:` and no new row, and the § 3.4 SLICE S4 annotation
+(RULED Q3, `#656` comment `5642758731`) declaring the thirteen gate-route
+constants it counts across the three RULED `SPLIT` files — twelve travel to
+a new home or are removed, one (`ACTIONS_REFRESH_ROUTE`) stays in
+`repo-selector.js` — over seven rows (two already carriers, five new) and
+four admitted files, three of them class-B modules. Rather than
+re-narrate each one here — this table is exactly the hand-maintained
+copy RULED Q-L1's own "two acts restating one set of absolutes is how a
+count becomes wrong in a merge" warns about — the figures above are the
+same measurement
+`scripts/validate-carve-manifest.py` prints and
+`tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
+pins, computed the same way every time: a transcribed count is a claim, a
+summed one is a measurement.
+
 Per destination, and these are the numbers each leg's arrival run must report:
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 61 / 62 | 250 | `src/opendox`, `tests` |
-| `opendox_spec` | 56 | 55 / 1 | 6 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
-| `openxdox_code` | 92 | 9 / 83 | 537 | `scripts`, `src/openxdox`, `tests` |
-| `openxdox_spec` | 47 | 47 / 0 | 0 | `contracts/schemas`, `examples/ideation-dashboard` |
+| `opendox_code` | 123 | 53 / 70 | 727 | `src/opendox`, `tests` |
+| `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
+| `openxdox_code` | 92 | 9 / 83 | 659 | `scripts`, `src/openxdox`, `tests` |
+| `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
 
 The declared-roots column is spelled **exactly as a run prints it** — no
@@ -233,13 +277,14 @@ python3 scripts/verify-carve-arrival.py \
     --dest-root     /path/to/openXdox
 ```
 
-Its five findings and one environment code:
+Its six findings and one environment code:
 
 | code | what it refuses |
 | --- | --- |
-| `arrival-missing` | a row for this destination has no file at `destination_path` |
+| `arrival-missing` | a row for this destination has no file at its EFFECTIVE `destination_path` — `re_destined.to_path` where a ruling has moved the placement (RULED Q6), else the row's own |
 | `arrival-digest-mismatch` | the arrived bytes or mode are not the row's (phase A for every moved row; both phases for `moved_verbatim`) |
 | `arrival-undeclared-edit` | phase B: the arrived blob differs from the carve blob on a line no `edits[].lines` declares — **the refusal names the lines** |
+| `arrival-not-vacated` | `arrival-missing` read in the mirror, and the LOSING half of RULED Q6: a row re-destined AWAY from this destination still has a file (or a symlink — the test is `lexists`) at the `re_destined.from_path` it left. A re-destination is one act with two halves, and a copy kept here is the same bytes at two legs with the floor standing behind one |
 | `arrival-undeclared-file` | an ENTRY under a declared root that no row places and no admission rule admits — a file, a symlink, or a **symlink to a directory** (git stores it as a `120000` blob, and `os.walk` would hand it to `dirnames` and never read it); also a file admitted as SCAFFOLD whose bytes are not the destination's own at `--dest-base` |
 | `arrival-carved-from-mismatch` | an assembly root's `contracts/manifest.yaml` carries no `carved_from`, or one naming another repository or another commit |
 | `arrival-unreadable` | the environment and the encoding: no git, an unreadable manifest, an unknown `--destination`, a `--dest-root` that is not a directory, a `--dest-base` that resolves to no commit, `--destination` and `--assembly-root` together, a source repository that does not carry `carve_commit`. It is also the CATCH-ALL that holds the exit contract: any exception the checks did not name arrives as this code and exit 2, never as a traceback and exit 1 |
@@ -256,7 +301,8 @@ of the raw bytes, line N is the Nth such record counting from 1, a trailing
 newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
-`grep -n`'s, and the one the manifest's 794 declared lines were written in.
+`grep -n`'s, and the one the manifest's declared lines have been written in
+from the start — 794 of them at this ruling's own landing, 1422 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738
@@ -876,6 +922,87 @@ his word — `gh` opens pull requests as `brettheap`, so the code-owner
 requirement cannot clear on his own click and admin merge with a recorded
 `OrganizationAdmin` bypass actor is the standing pattern (§ 12).
 
+### 5.7 A RULED re-destination — the `re_destined:` act
+
+**RULED Q6** (Brett Heap, 2026-09-12, by interactive multi-choice; `#656`
+comment `5648044785`, adopting the RECOMMENDED answer of openDox-spec
+`docs/front-end-package-boundary.md` § 6 Q6 at `7d12428c`). A row's placement
+may turn out to be wrong — RULED OQ-G's TEST HOMES rule placed 70 files at
+openXdox by a rule about imports, and § 1.2(d) of that note measured that 23 of
+them landed where nothing can run them. **Correcting a ruled placement is
+DECLARED, never re-cut** (§ 11 is for a SOURCE-side fact, and a `post-shed`
+manifest re-emitted at a post-shed commit would carry no moved rows at all).
+This is the procedure; slice S8 is the act that first runs it.
+
+**It is not a way to move a file for convenience.** The `ruling:` field is
+required and is validated PRESENT for exactly that reason: a re-destination
+with no ruling behind it refuses `carve-re-destined-unruled`, and there is no
+second form. Amend, never chain: a row already re-destined is amended IN PLACE
+to name where the file actually ends, citing the later ruling
+(`carve-re-destined-chain`).
+
+1. **The ruling first.** Brett Heap's word, on `#656` or on the pull request
+   that asks for it, naming the rows and the destination. Record the comment id
+   — it is what every row below cites.
+2. **ONE openxFactory row-amendment pull request, and it lands FIRST** — the
+   pairing § 5 requires of every slice. On each affected row add:
+
+   ```yaml
+       re_destined:
+         from: openxdox_code                     # the row's own `destination`
+         from_path: tests/test_x.py              # its own `destination_path`
+         to: opendox_code
+         to_path: tests/test_x.py
+         ruling: "`#656` comment 5648044785"
+         note: "RULED Q6 — the census says this bundle file's tests belong at
+           the leg that owns it (§ 1.2(d))."
+   ```
+
+   **Edit nothing else.** `destination:` and `destination_path:` stay as the
+   carve made them — they are the record of what happened and the path the
+   losing leg must vacate — and `disposition`, `sha256`, `git_mode`,
+   `edits[]`, `carve_commit` and `carve_tag` are untouched. An import rewrite
+   the new leg needs is an ORDINARY declared line under `import rewrites`, on
+   this same row, taken in the same window.
+3. **Verify the document**: `python3 scripts/validate-carve-manifest.py` must
+   print `OK` and end `; N row(s) RE-DESTINED by ruling (RULED Q6)`. A refusal
+   here is a document defect and never a reason to edit a digest.
+4. **The GAINING leg, then the LOSING leg — in that order.** Each is its own
+   pull request, § 5.5's two commits apply to the gaining one (place the carve
+   blob, then apply the declared edits), and the order is chosen so the estate
+   never has a window with the bytes at NO leg: a window with them at two is
+   recoverable and one at none breaks every importer downstream.
+   * **GAINING**: place the blob at `to_path` from the carve commit, apply the
+     row's declared edits in commit B, then
+
+     ```sh
+     python3 scripts/verify-carve-arrival.py \
+         --destination <to> --dest-root /path/to/<to leg> \
+         --manifest docs/opendox-carve-manifest.yaml --source-repo . --phase A
+     ```
+
+     whose line must carry `N row(s) re-destined HERE`. Run `--phase B` after
+     commit B. A missing file here refuses `arrival-missing` and names the
+     ruling that made this leg owe it.
+   * **LOSING**: delete the file at `from_path` — that deletion is the whole
+     content of the commit — UNLESS another row's own effective arrival or a
+     declared `--replica-at` replica already claims `from_path` at this same
+     leg (a lawful refill: `check_vacated` excludes a path either one claims,
+     leaving the arriving question to `check_arrivals`/`check_replicas`
+     instead), in which case there is nothing here to delete and the file's
+     presence is that arrival's or replica's own commit, not this one's. Either
+     way, re-run the same invocation with `--destination <from>`. Its line must
+     carry `N re-destined AWAY and verified vacated`. A copy left behind that
+     no other row or declared replica claims refuses `arrival-not-vacated`.
+5. **Both legs' own `validate` green, and both pull requests admin-merged on
+   Brett's word** (§ 12 act 1), exactly as every other arrival is.
+
+**What the floor does NOT prove here, stated so the evidence is not read wider
+than it is.** `verify-carve-arrival.py` verifies ONE destination per run, so
+the vacated-here and arrived-there halves are two runs and nothing compares
+them with each other: it is this procedure — both runs, on the record, in the
+two pull requests — that closes the pair, not the tool.
+
 ---
 
 ## 6. Phase 3 — the assembly roots: `carved_from` + gitlink + pin, ONE COMMIT
@@ -1167,7 +1294,7 @@ Nothing in this arc is performed by a lane without one of these:
 | 1 | **Every destination pull request, admin-merged on his word.** Org ruleset `18834180` requires code-owner review on all six, `.github/CODEOWNERS` is `* @brettheap`, and `gh` opens pull requests AS `brettheap` — so the requirement cannot clear on his own click. Admin merge with a recorded `OrganizationAdmin` bypass actor is the standing pattern | Phases 1, 2, 3 |
 | 2 | Ruleset promotion to ACTIVE, and any required-check change, at the six | Phase 1 |
 | 3 | **The pins** — openXdox's `opendox-pin.yaml` bump and openxFactory's new `openxdox-pin.yaml`; the estate hand-bumps pins | Phases 3, 4 |
-| 4 | **The tags** — `dox-v1.0`, `xdox-v1.0`, and openxFactory's MAJOR | Phase 6, § 5.7 |
+| 4 | **The tags** — `dox-v1.0`, `xdox-v1.0`, and openxFactory's MAJOR | Phase 6 (§ 9) |
 | 5 | **Re-cutting `carve_commit`** if `main` moves under the carve | § 11 |
 | 6 | The openxFactory § 5 merge — the largest diff in this repository's history | Phase 5 |
 

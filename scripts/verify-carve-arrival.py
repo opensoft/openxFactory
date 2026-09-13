@@ -28,11 +28,13 @@ checks that the arrived blob differs from the carve blob ONLY on lines the row's
 own `edits[].lines` declare. A reviewer then reads the declared lines rather
 than the whole leg.
 
-FIVE FINDINGS AND ONE ENVIRONMENT CODE, closed and ordered by the check that
+SIX FINDINGS AND ONE ENVIRONMENT CODE, closed and ordered by the check that
 raises them, on `validate-carve-manifest.py`'s own idiom:
 
   `arrival-missing`               a row for this destination has no file at its
-                                  `destination_path`.
+                                  EFFECTIVE `destination_path` — `re_destined.
+                                  to_path` where a ruling has moved the
+                                  placement (RULED Q6), else the row's own.
   `arrival-digest-mismatch`       the arrived bytes or the arrived mode are not
                                   the row's. Every moved row at phase A; every
                                   `moved_verbatim` row at BOTH phases, because
@@ -47,6 +49,14 @@ raises them, on `validate-carve-manifest.py`'s own idiom:
                                   replica whose row declares lines is held to
                                   the same bound at the path `--replica-at`
                                   names.
+  `arrival-not-vacated`           `arrival-missing` read in the mirror, and
+                                  the LOSING half of RULED Q6: a row
+                                  re-destined AWAY from this destination still
+                                  has a file at the `re_destined.from_path` it
+                                  left. The ruling moved the placement; a leg
+                                  that kept the file has the bytes in two
+                                  places and the floor can no longer say which
+                                  one the carve stands behind.
   `arrival-undeclared-file`       an ENTRY under one of this destination's
                                   DECLARED ROOTS that no row places and no
                                   admission rule admits — a file, a symlink,
@@ -95,7 +105,7 @@ match openxFactory at the carve commit, or whose surface is incomplete is
 opinion about the same bytes. Both are run; neither substitutes for the other.
 
 WHAT A LINE IS, AND WHY IT IS DEFINED IN A THIRD FILE (RULED Q-L8 (c)). The
-manifest declares 866 edit lines BY NUMBER, this file decides whether a diff
+manifest declares 1422 edit lines BY NUMBER, this file decides whether a diff
 touches only them, and `validate-carve-manifest.py` bounds them against the
 carve blob — so a number must mean the same thing in both tools, and it did
 not: this one split with `str.splitlines()` and that one counted `b"\\n"`, which
@@ -186,6 +196,38 @@ reach is worse than one that does not reach.
     passed over in silence, because a phase-B run reporting 62 rows diffed and a
     phase-B run reporting 0 are very different events wearing the same `OK`.
 
+THE EFFECTIVE ARRIVAL (RULED Q6, Brett Heap, 2026-09-12, `#656` comment
+`5648044785`; the RECOMMENDED answer of openDox-spec
+`docs/front-end-package-boundary.md` § 6 Q6 at `7d12428c`). A moved row may
+carry an optional `re_destined: {from, from_path, to, to_path, ruling, note}`
+saying that a RULING has moved the placement the carve made. Every question
+this file asks about such a row is asked at `re_destined.to`/`to_path` — which
+destination owes the row, where the file must be, which digest and which
+declared lines it is held to, which roots the walk covers, and which path the
+walk admits by name. The row's own `destination`/`destination_path` stay in the
+manifest unedited, recording what the carve did, and they are what this file
+requires to be VACATED at the losing leg.
+
+  TWO LEGS, TWO HALVES OF ONE CLAIM, one run each. At the GAINING leg the row
+  is an ordinary row that happens to land somewhere else: present at `to_path`,
+  byte-identical at phase A, within its own `edits[].lines` at phase B, and
+  admitted in the walk BY NAME rather than by a coincidence of bytes — which is
+  exactly the `arrival-undeclared-file` the boundary note's § 6 measured. At
+  the LOSING leg the row is no longer owed at all, and the file it used to
+  place must be GONE: still there, it is `arrival-not-vacated`, the finding
+  `arrival-missing` becomes when it is read in the mirror. Without that half a
+  re-destination would be a licence to leave a copy behind, and the manifest
+  would describe a file that lives at two legs while claiming one.
+
+  WHAT IT DOES NOT PROVE. This file verifies ONE destination per run, so the
+  vacated-here and arrived-there halves are two runs and nothing compares them
+  with each other: a leg that never ran its own verification is not caught by
+  the other leg's. That is the same limit `--replica-at` has across two legs
+  and it is the runbook's per-leg discipline (§ 5.7) that closes it, not this
+  tool. And the digest is untouched by the field: a `sha256` is a claim about
+  the SOURCE blob at the carve commit, so a re-destined row is held to exactly
+  the bytes it always was — at a different address.
+
 ADDRESSING AN ASSEMBLY ROOT THE MANIFEST GIVES NO KEY. `destinations:` is a map
 of the places ROWS GO. RULED OQ-I puts `carved_from:` in EACH assembly root's
 `contracts/manifest.yaml`, and the runbook writes one at § 6 and another at § 7
@@ -268,6 +310,7 @@ import re
 import stat
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -340,6 +383,7 @@ REFUSAL_CODES: tuple[str, ...] = (
     "arrival-missing",
     "arrival-digest-mismatch",
     "arrival-undeclared-edit",
+    "arrival-not-vacated",
     "arrival-undeclared-file",
     "arrival-carved-from-mismatch",
     "arrival-unreadable",
@@ -354,7 +398,11 @@ REMEDIATION = (
     "declared it; name a file the destination legitimately assembles with "
     "`--allow-created <path>` and say why in the pull request. Where the "
     "manifest itself disagrees with openxFactory, that is "
-    f"`{MANIFEST_VALIDATOR}`'s finding and not this one."
+    f"`{MANIFEST_VALIDATOR}`'s finding and not this one. For "
+    "`arrival-not-vacated`, delete the file the ruling moved off this leg "
+    "(RULED Q6) — the row's `re_destined:` says where it went, and a copy "
+    "left behind is the same bytes at two legs with the floor standing "
+    "behind one."
 )
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -943,12 +991,97 @@ def read_admissions(path: Path, doc: dict[str, Any]
     return result
 
 
+def effective_arrival(row: dict[str, Any]) -> tuple[Any, Any]:
+    """`(destination key, destination path)` a moved row arrives at TODAY —
+    `re_destined.to`/`to_path` where a RULING has moved the placement (RULED
+    Q6), else the row's own `destination`/`destination_path`.
+
+    THE SAME PREDICATE LIVES IN `scripts/validate-carve-manifest.py` and the
+    two are kept in step by
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_both_tools_read_the_effective_arrival_identically`,
+    which loads both files and compares them over a table of rows. Duplicated
+    rather than shared because the other tool is a hyphenated entry point that
+    cannot be imported, exactly as `_plain_relative_path` mirrors
+    `carved_reach._closed_relative_path` — and ASSERTED EQUAL rather than
+    trusted, because two tools quietly disagreeing about one definition is what
+    RULED Q-L8 (c) had to repair when a line meant two things.
+
+    GUARDED AT EVERY LEVEL, exactly as `_also_replicated_labels` is: this file
+    READS the manifest and does not revalidate it — a mis-shaped `re_destined:`
+    is `validate-carve-manifest.py`'s `carve-shape-invalid` — but it must not
+    ACT on the mis-shape either, and half a re-destination (a `to` with no
+    `to_path`) must read as no re-destination rather than as an arrival at
+    `None`.
+    """
+    re_destined = row.get("re_destined")
+    if isinstance(re_destined, dict):
+        to = re_destined.get("to")
+        to_path = re_destined.get("to_path")
+        if isinstance(to, str) and isinstance(to_path, str):
+            return to, to_path
+    return row.get("destination"), row.get("destination_path")
+
+
+def arrival_path(row: dict[str, Any]) -> Any:
+    """The path half of `effective_arrival` — the one every check joins onto
+    `--dest-root`.
+
+    THE FALLBACK IS AN INDEX AND NOT A `get`, deliberately: a row with neither
+    a re-destination nor a `destination_path:` is a manifest this file cannot
+    read, and `row["destination_path"]`'s KeyError is what `main()`'s
+    catch-all renders as `arrival-unreadable` — the landed behaviour, and the
+    one `test_a_row_shape_this_file_cannot_read_refuses_rather_than_exiting_1`
+    pins. Returning `None` instead would defer the same defect to a `PosixPath
+    / None` TypeError one frame later, which says nothing about the document.
+    """
+    _key, path = effective_arrival(row)
+    if path is None:
+        return row["destination_path"]
+    return path
+
+
 def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
-    """The MOVED rows this destination is owed, in manifest order."""
+    """The MOVED rows this destination is owed, in manifest order.
+
+    BY THE EFFECTIVE ARRIVAL (RULED Q6): a row re-destined HERE is owed here
+    even though its `destination:` names another leg, and a row re-destined
+    AWAY is not owed here even though its `destination:` still names this one —
+    it is `vacated_rows`' business instead. Reading `destination:` alone would
+    fail both halves at once: the gaining leg would refuse the arrived file as
+    `arrival-undeclared-file` and the losing leg would refuse its absence as
+    `arrival-missing`, which is exactly the pair of refusals the boundary
+    note's § 6 measured stopping slice S6.
+    """
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
-            and row.get("destination") == destination]
+            and effective_arrival(row)[0] == destination]
+
+
+def vacated_rows(doc: dict[str, Any],
+                 destination: str) -> list[dict[str, Any]]:
+    """The MOVED rows a ruling has re-destined AWAY from this destination —
+    the ones whose `re_destined.from_path` must now be absent here."""
+    out: list[dict[str, Any]] = []
+    for row in doc["rows"]:
+        if not isinstance(row, dict):
+            continue
+        if row.get("disposition") not in MOVED_DISPOSITIONS:
+            continue
+        re_destined = row.get("re_destined")
+        if not isinstance(re_destined, dict):
+            continue
+        if (re_destined.get("from") != destination
+                or not isinstance(re_destined.get("from_path"), str)):
+            continue
+        # A `to` that is not a usable string is no re-destination at all
+        # (`effective_arrival`'s own reading), and demanding a vacation on the
+        # strength of half a field would refuse a leg for a document defect
+        # `validate-carve-manifest.py` owns.
+        if effective_arrival(row)[0] == destination:
+            continue
+        out.append(row)
+    return out
 
 
 def replica_rows(doc: dict[str, Any]) -> list[dict[str, Any]]:
@@ -986,7 +1119,9 @@ def also_replicated_rows(doc: dict[str, Any],
     """The MOVED rows this destination receives as a REPLICA rather than as a
     move — `also_replicated_to:` listing it (RULED Q-L7 (a)).
 
-    THE ROW'S OWN DESTINATION IS EXCLUDED, even where a document lists it.
+    THE ROW'S OWN DESTINATION IS EXCLUDED — its EFFECTIVE one (RULED Q6), so a
+    row re-destined to this leg is read here as the MOVE it now is and not as a
+    replica of itself — even where a document lists it.
     Such a manifest is `validate-carve-manifest.py`'s
     `carve-disposition-inconsistent` and this file does not re-own its shape;
     what it must not do is ACT on it, because at that one destination the row
@@ -997,7 +1132,7 @@ def also_replicated_rows(doc: dict[str, Any],
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
-            and row.get("destination") != destination
+            and effective_arrival(row)[0] != destination
             and destination in _also_replicated_labels(row)]
 
 
@@ -1009,10 +1144,16 @@ def declared_roots(rows: list[dict[str, Any]]) -> list[str]:
     top-level: `src/opendox` and not `src`, so the walk does not sweep the
     scaffold's own `src/.gitkeep` into the undeclared set and then need a rule
     to take it back out.
+
+    FROM THE EFFECTIVE ARRIVALS (RULED Q6). `rows` is already this
+    destination's effective set, and a re-destined row's `to_path` may open a
+    root its original leg never had — a walk keyed on the original paths would
+    not cover the directory the file actually landed in, which is a walk that
+    reports `0 undeclared` about a tree it did not read.
     """
-    dirs = sorted({os.path.dirname(row["destination_path"])
+    dirs = sorted({os.path.dirname(effective_arrival(row)[1])
                    for row in rows
-                   if isinstance(row.get("destination_path"), str)})
+                   if isinstance(effective_arrival(row)[1], str)})
     minimal = [d for d in dirs
                if not any(other != d and d.startswith(other + "/")
                           for other in dirs)]
@@ -1043,15 +1184,26 @@ def check_arrivals(rows: list[dict[str, Any]], dest_root: Path,
     counts = {"rows": len(rows), "digests_verified": 0, "diffed": 0,
               "unapplied": 0}
     for row in rows:
-        relpath = row["destination_path"]
+        # THE EFFECTIVE PATH (RULED Q6): `re_destined.to_path` where a ruling
+        # moved the placement, else the row's own. Everything below — the
+        # mode, the digest, the phase-B diff against the carve blob — is the
+        # row's unchanged; only the address is.
+        relpath = arrival_path(row)
         target = dest_root / relpath
         if not os.path.lexists(target):
+            re_destined = row.get("re_destined")
+            moved_by_ruling = (
+                ("; RULED Q6 re-destined this row here from "
+                 f"{re_destined.get('from')}:{re_destined.get('from_path')}, "
+                 f"citing {re_destined.get('ruling')!r}, so it is this leg's "
+                 "to place")
+                if isinstance(re_destined, dict) else "")
             raise ArrivalRefusal(
                 "arrival-missing",
                 f"the row for {row['source_path']} places a file at "
                 f"{relpath} and {target} does not exist. Every moved row of a "
                 "destination is owed at that destination; a leg missing one is "
-                "a leg the manifest does not describe")
+                "a leg the manifest does not describe" + moved_by_ruling)
         mode, data = read_arrived(target)
         if mode != row.get("git_mode"):
             raise ArrivalRefusal(
@@ -1121,6 +1273,91 @@ def _referent_blob(source_repo: Path, carve_commit: str,
             "about its own referent, so no diff taken here would be about the "
             f"destination; run {MANIFEST_VALIDATOR}")
     return data
+
+
+# --------------------------------------------------------------------------
+# check 1b — the LOSING half of a re-destination (RULED Q6)
+# --------------------------------------------------------------------------
+
+def check_vacated(rows: list[dict[str, Any]], dest_root: Path,
+                   arriving_rows: list[dict[str, Any]] | None = None,
+                   declared_replica_paths: Iterable[str] | None = None
+                   ) -> int:
+    """Every row a ruling re-destined AWAY from this leg has LEFT it.
+
+    `arrival-missing` READ IN THE MIRROR. A re-destination is one act with two
+    halves — the file arrives at the gaining leg and is gone from the losing
+    one — and a floor that checked only the arriving half would make
+    `re_destined:` a licence to leave a copy behind: the same bytes at two
+    legs, with the manifest claiming one and the ruling naming the other. The
+    boundary note's § 6 names the losing half before the field exists, as the
+    `arrival-missing` a re-homed file draws at the leg whose row it left; this
+    is the same question asked of the same path after the field exists.
+
+    `os.path.lexists`, NOT `exists`: a SYMLINK left at the old path is exactly
+    what a followed link would hide — a dangling one reads as absent, and one
+    pointing at the new location reads as a file that is still there. Either
+    way the leg carries an entry at a path the ruling vacated, and git would
+    commit it.
+
+    `arriving_rows` — `rows_for(doc, destination)`, this same leg's OWN
+    effective arrivals, already verified present by `check_arrivals` before
+    this runs — EXCLUDES a path from the vacation question when another row
+    legitimately arrives there today (Copilot review, PR #1011):
+    `validate-carve-manifest.py`'s check 4 keys its duplicate-arrival map on
+    the EFFECTIVE arrival for exactly this reason
+    (`test_another_row_may_move_into_the_path_a_re_destination_vacated`), and
+    an arrival verifier that still keyed the vacation on the bare path alone
+    would refuse the same lawful refill that validator already passes — an
+    entry PRESENT at a vacated path is not evidence of anything left behind
+    when it is the bytes ANOTHER row's own row declares belong there; `lexists`
+    stays the test for every path no row here claims.
+
+    `declared_replica_paths` — `replica_placements.values()`, the SAME
+    `--replica-at` declarations `check_replicas` verifies afterwards (Copilot
+    review, PR #1011, round 3): a replica is not a row this file's own
+    `rows_for()` ever returns (RULED OQ-C — a `not_moved` row declares no
+    arrival, and a moved row's `also_replicated_to:` names a destination, not
+    a path), so a declared replica refilling a vacated path was invisible to
+    `arriving_rows` alone and read as un-vacated. `parse_replica_placements`
+    has already held each entry here to the manifest's own
+    `replicated_at_destination` / `also_replicated_to` vocabulary for this
+    destination, so a path is excluded here only where the manifest and the
+    operator agree a replica belongs — never on the strength of the flag by
+    itself. Passed straight through rather than re-derived, on the same
+    "one definition" reasoning `effective_arrival` documents: `check_replicas`
+    still runs after this and still verifies the replica is actually there
+    and byte-right, so excluding its path here only says "not a leftover", not
+    "verified" — first-failure order over the SET OF QUESTIONS is unchanged.
+
+    IT RUNS BEFORE THE WALK, so the finding names the ruling rather than the
+    filename. Left to `check_undeclared_files`, an un-vacated file would refuse
+    as `arrival-undeclared-file` — true, and useless: it would send a reader
+    looking for an admission rule for a file whose whole story is a
+    `re_destined:` block in its own row.
+    """
+    claimed = {arrival_path(r) for r in (arriving_rows or [])}
+    claimed.update(declared_replica_paths or ())
+    for row in rows:
+        re_destined = row["re_destined"]
+        relpath = re_destined["from_path"]
+        if relpath in claimed:
+            continue
+        target = dest_root / relpath
+        if not os.path.lexists(target):
+            continue
+        to_key, to_path = effective_arrival(row)
+        raise ArrivalRefusal(
+            "arrival-not-vacated",
+            f"the row for {row['source_path']} was RE-DESTINED to "
+            f"{to_key}:{to_path} by ruling {re_destined.get('ruling')!r} "
+            f"(RULED Q6), and {target} still exists at the placement it left. "
+            "A re-destination is one act with two halves: the file arrives "
+            "there and is GONE here. A copy kept at the losing leg is the same "
+            "bytes at two destinations with the floor standing behind one, and "
+            "this manifest's row no longer says this leg carries it — delete "
+            "it in the commit that lands the re-destination")
+    return len(rows)
 
 
 # --------------------------------------------------------------------------
@@ -1756,6 +1993,25 @@ def verify_assembly_root(doc: dict[str, Any], repository: str,
     }
 
 
+def _re_destined_record(row: dict[str, Any]) -> dict[str, Any]:
+    """One re-destined row as the summary reports it: the source path, both
+    ends of the move, and the RULING that ordered it (RULED Q6).
+
+    The citation travels with the row into the evidence, so a reader of a
+    leg's `--json` output can reach the comment that ordered a placement the
+    carve did not make without opening the manifest.
+    """
+    re_destined = row.get("re_destined") or {}
+    return {
+        "source_path": row.get("source_path"),
+        "from": re_destined.get("from"),
+        "from_path": re_destined.get("from_path"),
+        "to": re_destined.get("to"),
+        "to_path": re_destined.get("to_path"),
+        "ruling": re_destined.get("ruling"),
+    }
+
+
 def verify(doc: dict[str, Any], destination: str, dest_root: Path,
            source_repo: Path, phase: str,
            declared_created: set[str], cli_created: set[str],
@@ -1776,6 +2032,10 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     if rows or replica_placements:
         require_commit(source_repo, carve_commit)
     counts = check_arrivals(rows, dest_root, source_repo, carve_commit, phase)
+    # THE LOSING HALF, immediately after the arriving one and before the walk:
+    # a file a ruling moved off this leg must be GONE from it (RULED Q6).
+    vacated = vacated_rows(doc, destination)
+    check_vacated(vacated, dest_root, rows, replica_placements.values())
     replica_counts = check_replicas(replica_placements, dest_root,
                                     source_repo, carve_commit, doc, phase)
     # A REPLICA'S DECLARED EDIT IS COUNTED WHERE A MOVED ROW'S IS (RULED Q-L7
@@ -1791,7 +2051,13 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     # A DECLARED replica is admitted BY NAME, so it no longer rides into the
     # walk on a coincidence of bytes: the operator said where it is, and that
     # path is the one admitted.
-    placed = {row["destination_path"] for row in rows}
+    # THE EFFECTIVE PATHS (RULED Q6): a re-destined row is admitted in the walk
+    # at the path it arrived at, by NAME. That is the second of the two
+    # refusals the boundary note's § 6 measured — at the gaining leg the file
+    # sits under a declared root that no row places, which is
+    # `arrival-undeclared-file` — and it is answered here rather than by an
+    # admission rule, because the manifest DOES place it.
+    placed = {arrival_path(row) for row in rows}
     placed.update(replica_placements.values())
     # EMPTY REPLICA BLOBS ADMIT NOTHING. Two of the landed manifest's 20
     # replica rows are `fixtures/empty/*/.gitkeep`, whose blob is empty, so an
@@ -1850,6 +2116,17 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
         "declared_edits_unapplied": counts["unapplied"],
         "replicas_declared": len(replica_placements),
         "replicas_verified": replicas_verified,
+        # THE RE-DESTINED ROWS THIS RUN TOUCHED, LISTED AND NOT ONLY COUNTED
+        # (RULED Q6): a placement corrected by a ruling is the one arrival here
+        # that the carve did not make, so a reader of a leg's evidence must be
+        # able to see which rows those were and which ruling ordered each —
+        # `arrived` for the ones this leg GAINED, `vacated` for the ones it
+        # LOST and has been checked to have let go of.
+        "re_destined": {
+            "arrived": [_re_destined_record(row) for row in rows
+                        if isinstance(row.get("re_destined"), dict)],
+            "vacated": [_re_destined_record(row) for row in vacated],
+        },
         "declared_roots": roots,
         "files_walked": admitted["walked"],
         "admitted": {k: admitted[k] for k in ("scaffold", "replica", "created")},
@@ -2122,6 +2399,18 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
              if summary["dest_base"] is not None else
              "; scaffold admissions by NAME ONLY (no --dest-base and no "
              f"{DEST_BASE_DEFAULT} at the destination)")
+    # THE RE-DESTINATIONS, PRINTED WHEN THERE ARE ANY (RULED Q6). Silent at
+    # zero, unlike the manifest validator's own count: that line describes ONE
+    # document whose state a reader must be able to read off any run, and this
+    # one describes a leg, where the honest default is that every arrival here
+    # is the carve's own.
+    re_destined = summary.get("re_destined") or {}
+    arrived = re_destined.get("arrived") or []
+    vacated_here = re_destined.get("vacated") or []
+    if arrived or vacated_here:
+        line += (f"; {len(arrived)} row(s) re-destined HERE and "
+                 f"{len(vacated_here)} re-destined AWAY and verified vacated "
+                 "(RULED Q6)")
     if summary["carved_from"] is not None:
         line += (f"; carved_from {summary['carved_from']['repository']}@"
                  f"{summary['carved_from']['commit'][:12]}")

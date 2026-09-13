@@ -539,3 +539,122 @@ mutation of it.
 - **WHEN** a ratified change's proposal gains a `sequenced_after:` header line, or an existing one is moved into the header window, after its ratified head
 - **THEN** the archive retention gate MUST report a contested-class mutation requiring an explicit recorded disposition
 - **AND** a declaration already present at the ratified head MUST read as retained rather than as a mutation
+
+### Requirement: Realization axis vocabulary is gated
+An ACTIVE change proposal's `target_release:` declaration SHALL carry a value
+the ratified vocabulary admits — `implemented`, or a release identifier that
+resolves to a release this estate defines — and a house validator SHALL REFUSE
+any other value on an active proposal, naming the proposal's path and the value
+it carries. A vocabulary stated in prose and read by nobody is a vocabulary the
+next proposal diverges from, which is what the corpus shows.
+
+THE DECLARATION IS A VALUE TOKEN FOLLOWED BY AN OPTIONAL PROSE GLOSS, and the
+gate SHALL judge the TOKEN and never the gloss. That is the corpus's own form
+rather than a rule invented at the gate: the house writes `target_release:
+implemented (the openxFactory main line). No contract bundle is cut …`, and a
+reader that judged the whole string would refuse every declaration that explains
+itself. The token is the first whitespace-delimited word of the declaration.
+
+A BLOCK THAT DECLARES `target_release:` TWICE SHALL BE REFUSED RATHER THAN READ
+FROM ITS FIRST TOKEN. The declaration is a prose header, and a prose header's
+repeat is joined into one value rather than refused as the duplicate key a
+structured field's repeat would be — so a block declaring `implemented` and then
+`none` would show a reviewer two declarations and authorize the first. One
+declaration per block, and a repeat is a finding against that proposal.
+
+ABSENCE IS THE PROMOTED DEFAULT AND SHALL NEVER BE A FINDING. *Realization axis
+declaration* makes a proposal without the declarations a doc-only change
+(`code_surface: none`, `target_release: implemented`) by default, so a proposal
+that declares nothing declares the default. Only a PRESENT declaration is
+judged — and a declaration present with no value SHALL be refused, because the
+author wrote the key and the default is available by omitting it.
+
+A RELEASE IDENTIFIER SHALL RESOLVE AGAINST THE REGISTRY THE SCANNED TREE
+DEFINES, AND WHERE THE TREE DEFINES NONE THE SHAPE SHALL BE THE WHOLE TEST AND
+THE RUN SHALL SAY SO. Where the tree carries a release registry, a name that
+resolves to nothing in it is NOT a named release and SHALL be refused. Where
+the tree carries no registry at all — every consuming repository that defines
+no releases of its own — refusing every release name would make the gate
+unusable outside the repository that defines them, so the identifier's SHAPE is
+accepted on its own; that is a WEAKER judgment and SHALL NOT be silent, so the
+run SHALL report that it judged on shape alone. The identifier's shape SHALL be
+the shape this estate DEFINES for a release tag rather than one the gate
+invents, so the gate cannot refuse a release the estate's own inventory admits.
+
+AN ARCHIVED PROPOSAL SHALL BE READ AND NEVER JUDGED. An archived packet's front
+matter is frozen record — `record-immutability` and `govern-archived-record-edits`
+put it beyond a plain fix — so the gate SHALL count what the archive carries and
+report it, and SHALL refuse nothing there. A gate that demanded an edit nobody
+may make would be a standing finding with no remedy, which is the defect this
+estate disposes of rather than creates.
+
+THE STANDING DIVERGENCE SHALL BE NAMED IN A CLOSED REGISTER RATHER THAN
+FORGIVEN IN CODE. Where the corpus at the gate's landing carries declarations
+outside the vocabulary that are not corrected by the same act, each SHALL be
+named in a register carried beside the validator, with the value token as it
+stands, the class of divergence, the reason, a citation, and the event that
+retires the entry. The register SHALL be CLOSED: an entry may be REMOVED when
+its declaration is corrected or its packet archives, and admitting a NEW value
+to the vocabulary SHALL be a change to this specification rather than an
+addition to the register. CLOSURE SHALL BE ENFORCED AND NOT MERELY DECLARED:
+the validator SHALL carry the baseline of entries the register holds when the
+gate lands and SHALL REFUSE any entry that baseline does not carry, so an
+exception cannot be granted by appending a line to a data file — granting one
+takes an edit where the refusal itself is written, and the diff shows the act
+for what it is. A registered declaration is REPORTED and not refused;
+every declaration the register does not name is judged from the day the gate
+lands, so the gate is a ratchet and the divergence cannot grow.
+
+THE TWO REFUSALS ARE ASYMMETRIC AND SHALL STAY SO. An off-vocabulary
+declaration the register does not name is a statement about the PROPOSAL and
+the run SHALL fail; a register entry that matches nothing on a whole-corpus scan
+is a statement about the REGISTER — the exception outlived the condition it was
+granted for — and the run SHALL refuse with a distinct status until the entry is
+deleted. Silently tolerating the second is how an exception list rots into a
+blanket, and refusing makes the correction, or the archive, the event that
+forces the re-examination.
+
+#### Scenario: An active proposal declares a value outside the vocabulary
+- **WHEN** an active change's `proposal.md` declares a `target_release:` whose value token is neither `implemented` nor a release identifier that resolves, and the register does not name it
+- **THEN** the validator MUST fail, naming the proposal's path and the value token it carries
+- **AND** the remedy belongs to the declaring packet, which corrects its own declaration
+
+#### Scenario: An active proposal declares the implemented target
+- **WHEN** an active change declares `target_release: implemented`, with or without a prose gloss after the token
+- **THEN** the validator passes, the gloss being explanation and not declaration
+
+#### Scenario: An active proposal names a release the estate defines
+- **WHEN** an active change declares a release identifier and the scanned tree's release registry carries that release
+- **THEN** the validator passes
+- **AND** where that tree HAS a registry, a release-shaped name the registry does not carry MUST be refused, because a name that resolves to nothing is not a named release
+
+#### Scenario: The scanned tree defines no release registry at all
+- **WHEN** the tree carries no release registry, so no name in it could resolve, and an active change declares a release-shaped identifier
+- **THEN** the identifier's shape MUST be the whole test and the declaration passes, because refusing every release name in a tree that cannot define one would make the gate unusable outside the repository that defines them
+- **AND** the run MUST report that it judged on shape alone, the weaker judgment never being silent
+
+#### Scenario: An archived proposal carries an off-vocabulary value
+- **WHEN** the scan reaches a proposal under `openspec/changes/archive/` whose declaration is outside the vocabulary
+- **THEN** it MUST NOT be a finding, and the run reports how many such records the archive carries
+
+#### Scenario: A standing declaration is named by the register
+- **WHEN** an active declaration outside the vocabulary is named by a register entry carrying its current value token, its class, its reason, its citation and its retirement event
+- **THEN** the validator reports it as registered and does not refuse it
+
+#### Scenario: A proposal declares the target release twice
+- **WHEN** an active change's `proposal.md` front matter carries two `target_release:` header lines, the shared prose-header loader joining them into one value
+- **THEN** the validator MUST refuse that proposal, naming it, rather than judging the first token and ignoring the second declaration
+
+#### Scenario: An entry is appended to the closed register
+- **WHEN** a register entry names a change and value token the validator's recorded closed baseline does not carry
+- **THEN** the run MUST refuse, because the register is removable and never addable
+- **AND** granting the exception takes an edit to the baseline in the same pull request, where the diff shows it
+
+#### Scenario: A register entry matches nothing
+- **WHEN** a whole-corpus scan finds a register entry whose change has archived, or whose declaration has been corrected so the value token no longer matches
+- **THEN** the run MUST refuse with a status distinct from an off-vocabulary failure, naming the entry
+- **AND** the remedy is to delete the entry in the same pull request that made it stale
+
+#### Scenario: A proposal declares no target release
+- **WHEN** an active change's `proposal.md` declares no `target_release:` at all
+- **THEN** the validator passes, the proposal having taken the promoted doc-only default

@@ -95,6 +95,12 @@ RATIFIED_CODES = (
     "carve-disposition-inconsistent",
     "carve-path-order-violation",
     "carve-shed-incomplete",
+    # RULED Q6 (Brett Heap, 2026-09-12, `#656` comment `5648044785`) — the
+    # `re_destined:` row form's three own findings. They keep the `carve-`
+    # prefix the vocabulary's split with `arrival-*` depends on.
+    "carve-re-destined-not-moved",
+    "carve-re-destined-unruled",
+    "carve-re-destined-chain",
     "carve-unreadable",
 )
 
@@ -1621,6 +1627,368 @@ def test_the_grammar_extension_names_the_ruling_and_not_the_owed_field(
 
 
 # --------------------------------------------------------------------------
+# RULED Q6 — the `re_destined:` row form
+#
+# Brett Heap, 2026-09-12, by interactive multi-choice (`#656` comment
+# `5648044785`), adopting the RECOMMENDED answer of openDox-spec
+# `docs/front-end-package-boundary.md` § 6 Q6 at `7d12428c`. The THIRD
+# grammar extension and the FIRST about PLACEMENT: a moved row whose
+# placement a ruling has corrected carries where it went, and the floor asks
+# its arrival question there instead. Every case below is a generated
+# manifest and a real tree, and the landed manifest — which carries the form
+# and uses it nowhere — is asserted separately in the § 8.2 seat.
+# --------------------------------------------------------------------------
+
+RULING_CITATION = "`#656` comment 5648044785 (RULED Q6, Brett Heap 2026-09-12)"
+
+
+def _re_destine(doc: dict[str, Any], name: str = "beta.py",
+                to: str = "opendox_code",
+                to_path: str = "src/opendox/beta.py",
+                **override: Any) -> dict[str, Any]:
+    """Re-destine a generated row, and return it.
+
+    `from`/`from_path` are READ OFF THE ROW rather than typed, because that is
+    what the form requires them to be — a fixture that spelled them out would
+    go on agreeing with itself after the row moved and stop being evidence.
+    `beta.py` by default: the `moved_with_declared_edit` row, so the cases
+    below exercise a re-destination of a row that also carries `edits:`, which
+    is S8's actual shape.
+    """
+    row = row_named(doc, name)
+    block: dict[str, Any] = {
+        "from": row["destination"],
+        "from_path": row["destination_path"],
+        "to": to,
+        "to_path": to_path,
+        "ruling": RULING_CITATION,
+    }
+    block.update(override)
+    row["re_destined"] = block
+    return row
+
+
+def _summary(scratch: Scratch, doc: dict[str, Any]) -> dict[str, Any]:
+    """Write `doc`, run with `--json`, and return the summary of a clean run."""
+    scratch.write(doc)
+    done = run(scratch, "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    return json.loads(done.stdout)
+
+
+def test_a_moved_row_may_be_re_destined_by_a_ruling(scratch: Scratch) -> None:
+    """The form itself: `beta.py` moved to `openxdox_code` at the carve and a
+    ruling has since re-homed it at `opendox_code`, which is slice S8's shape
+    in miniature (23 test files placed by RULED OQ-G's imports rule at a leg
+    that cannot run them)."""
+    doc = clean_manifest(scratch)
+    _re_destine(doc)
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.startswith("OK "), done.stdout
+    assert "1 row(s) RE-DESTINED by ruling" in done.stdout, done.stdout
+
+
+def test_a_verbatim_row_may_be_re_destined_and_keeps_its_digest(
+        scratch: Scratch) -> None:
+    """The field is on BOTH moved dispositions, and it moves NO digest: the
+    same number of blobs is recomputed with the re-destination as without it,
+    because a `sha256` is a claim about the SOURCE blob at the carve commit and
+    where the file now lives says nothing about it."""
+    before = _summary(scratch, clean_manifest(scratch))
+    doc = clean_manifest(scratch)
+    row = _re_destine(doc, "alpha.py", to="openxdox_code",
+                      to_path="src/openxdox/alpha.py")
+    after = _summary(scratch, doc)
+    assert row["disposition"] == "moved_verbatim", row
+    assert after["digests_recomputed"] == before["digests_recomputed"], after
+    assert after["dispositions"] == before["dispositions"], after
+    assert after["carve_commit"] == before["carve_commit"], after
+
+
+def test_the_summary_counts_the_re_destined_rows(scratch: Scratch) -> None:
+    """Counted in `--json` and printed on the human line — and ZERO is a state
+    the log records too, which is what the landed manifest reads as until S8
+    uses the form."""
+    clean = _summary(scratch, clean_manifest(scratch))
+    assert clean["re_destined"] == 0, clean
+    doc = clean_manifest(scratch)
+    _re_destine(doc)
+    _re_destine(doc, "gamma.py", to="openxdox_code",
+                to_path="src/openxdox/gamma.py")
+    assert _summary(scratch, doc)["re_destined"] == 2
+
+
+def test_re_destined_on_a_not_moved_row_refuses(scratch: Scratch) -> None:
+    """A row that placed nothing has no arrival to re-place — under EVERY
+    `not_moved` reason, the replica one included: a replica's copies are
+    placed by the leg and declared with `--replica-at` (RULED OQ-C), so
+    re-destining one would re-point a placement this manifest never made."""
+    for make_replica in (False, True):
+        doc = clean_manifest(scratch)
+        row = _as_replica(doc) if make_replica else row_named(doc, "delta.py")
+        row["re_destined"] = {
+            "from": "opendox_code", "from_path": "src/opendox/delta.py",
+            "to": "openxdox_code", "to_path": "src/openxdox/delta.py",
+            "ruling": RULING_CITATION,
+        }
+        combined = refuses(scratch, doc, "carve-re-destined-not-moved")
+        assert "re_destined" in combined, combined
+
+
+def test_a_re_destination_with_no_ruling_refuses(scratch: Scratch) -> None:
+    """The ruling's own SCOPE answer, as running code: "require a `ruling:`
+    field naming the comment that ordered it, validated present, so the form
+    cannot become a quiet way to move a file after the carve is closed". Its
+    own code, because an absent citation is a governance defect and not a
+    typo."""
+    for value in (None, "", "   ", 5648044785, ["#656"]):
+        doc = clean_manifest(scratch)
+        row = _re_destine(doc)
+        if value is None:
+            del row["re_destined"]["ruling"]
+        else:
+            row["re_destined"]["ruling"] = value
+        refuses(scratch, doc, "carve-re-destined-unruled")
+
+
+def test_the_citations_form_is_not_constrained(scratch: Scratch) -> None:
+    """PRESENT is what the ruling asked for. A comment id, a `#656` reference
+    and a pull request URL are all how this estate cites a ruling, and a
+    pattern here would refuse a legitimate one and teach the author to write
+    whatever the pattern wanted."""
+    for citation in ("5648044785", "#656 comment 5648044785",
+                     "https://github.com/opensoft/openxFactory/pull/1011"):
+        doc = clean_manifest(scratch)
+        _re_destine(doc, ruling=citation)
+        scratch.write(doc)
+        done = run(scratch)
+        assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_re_destination_to_the_destination_it_came_from_refuses(
+        scratch: Scratch) -> None:
+    """RULED Q6 makes `to` a `destinations:` key that is NOT `from`. A move
+    that lands where it started declares nothing, and a file that changes only
+    its PATH at one leg has not been re-homed at all — the row's own
+    `destination_path:` is the field that says where it lands."""
+    doc = clean_manifest(scratch)
+    row = _re_destine(doc)
+    row["re_destined"]["to"] = row["re_destined"]["from"]
+    row["re_destined"]["to_path"] = "src/openxdox/moved.py"
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "re_destined" in combined, combined
+
+
+def test_a_re_destination_must_name_the_placement_the_row_made(
+        scratch: Scratch) -> None:
+    """`from`/`from_path` ARE the row's own `destination`/`destination_path`,
+    and the row keeps both unedited. A `from` naming some third leg would ask
+    the vacation question of a leg this row never placed anything at."""
+    doc = clean_manifest(scratch)
+    _re_destine(doc)["re_destined"]["from"] = "opendox_code"
+    refuses(scratch, doc, "carve-disposition-inconsistent")
+    doc = clean_manifest(scratch)
+    _re_destine(doc)["re_destined"]["from_path"] = "src/openxdox/elsewhere.py"
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "from_path" in combined, combined
+
+
+def test_a_chain_of_re_destinations_refuses(scratch: Scratch) -> None:
+    """RULED Q6, verbatim: "refuses a chain (a row already re-destined is
+    AMENDED in place, never re-destined twice, so one row never needs two
+    readings)". One row cannot carry two blocks, so a chain is two rows — the
+    arrival one creates being the arrival the other moves on — and the pair
+    also contradicts each other at that destination, one requiring the file
+    present and the other requiring it absent."""
+    doc = clean_manifest(scratch)
+    _re_destine(doc, "beta.py", to="opendox_code",
+                to_path="src/opendox/relay.py")
+    alpha = row_named(doc, "alpha.py")
+    alpha["re_destined"] = {
+        "from": alpha["destination"], "from_path": alpha["destination_path"],
+        "to": "openxdox_code", "to_path": "src/openxdox/alpha.py",
+        "ruling": RULING_CITATION,
+    }
+    # `alpha.py` now vacates `opendox_code:src/opendox/alpha.py`; point
+    # `beta.py`'s re-destination AT that vacated arrival to build the chain.
+    row_named(doc, "beta.py")["re_destined"]["to_path"] = \
+        alpha["destination_path"]
+    combined = refuses(scratch, doc, "carve-re-destined-chain")
+    assert "AMENDED IN PLACE" in combined, combined
+
+
+def test_a_re_destination_to_a_destination_the_manifest_does_not_declare_refuses(
+        scratch: Scratch) -> None:
+    """The same membership test a row's own `destination` gets, at both ends:
+    one typo otherwise re-homes a file to a repository nobody declared, and an
+    unknown `from` is a vacation nobody can check."""
+    for key in ("to", "from"):
+        doc = clean_manifest(scratch)
+        _re_destine(doc)["re_destined"][key] = "opendox_kode"
+        refuses(scratch, doc, "carve-vocabulary-unknown")
+
+
+def test_a_malformed_re_destined_refuses(scratch: Scratch) -> None:
+    """Shape, in check 1: a CLOSED mapping of five required strings and one
+    optional prose note. The two paths go through the same canonical-relative
+    predicate `destination_path` does — `to_path` is joined onto a leg's mount
+    and `from_path` is the path the arrival verifier requires ABSENT, and
+    either question asked about a path outside the tree is a question about
+    the wrong file."""
+    cases: list[Any] = [
+        "opendox_code",                      # not a mapping at all
+        {"from": "openxdox_code", "from_path": "src/openxdox/beta.py",
+         "to": "opendox_code", "to_path": "src/opendox/beta.py",
+         "ruling": RULING_CITATION, "why": "an unknown key"},
+    ]
+    for value in cases:
+        doc = clean_manifest(scratch)
+        row_named(doc, "beta.py")["re_destined"] = value
+        refuses(scratch, doc, "carve-shape-invalid")
+    for key in ("from", "from_path", "to", "to_path"):
+        for value in (None, "", 7, ["x"]):
+            doc = clean_manifest(scratch)
+            row = _re_destine(doc)
+            if value is None:
+                del row["re_destined"][key]
+            else:
+                row["re_destined"][key] = value
+            refuses(scratch, doc, "carve-shape-invalid")
+    for path in ("/etc/passwd", "../../escape.py", "src/./beta.py",
+                 "src/../../beta.py", "src\\beta.py"):
+        doc = clean_manifest(scratch)
+        _re_destine(doc, to_path=path)
+        refuses(scratch, doc, "carve-shape-invalid")
+    doc = clean_manifest(scratch)
+    _re_destine(doc, note="   ")
+    refuses(scratch, doc, "carve-shape-invalid")
+
+
+def test_a_re_destination_may_carry_a_note(scratch: Scratch) -> None:
+    """`note:` is the one optional key, prose, exactly as an `edits[]` entry's
+    is — the place the reason for a re-homed file is written down beside the
+    citation that ordered it."""
+    doc = clean_manifest(scratch)
+    _re_destine(doc, note="the census says this bundle file's tests belong at "
+                          "the other leg (§ 1.2(d))")
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_another_row_may_move_into_the_path_a_re_destination_vacated(
+        scratch: Scratch) -> None:
+    """Check 4 keys the duplicate-arrival map on the EFFECTIVE arrival. Keyed
+    on the original, a row re-destined AWAY from a path would go on reserving
+    it and this lawful refill — one row leaving and another arriving, which is
+    two rows agreeing — would refuse as a duplicate."""
+    doc = clean_manifest(scratch)
+    beta = row_named(doc, "beta.py")
+    vacated = beta["destination_path"]
+    _re_destine(doc)
+    gamma = row_named(doc, "gamma.py")
+    gamma["destination"] = "openxdox_code"
+    gamma["destination_path"] = vacated
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_re_destination_onto_an_occupied_path_refuses(
+        scratch: Scratch) -> None:
+    """The other direction of the same keying: a re-destined row landing where
+    another row already arrives is the overwrite `carve-file-duplicated`
+    exists to refuse, and keyed on the original arrivals it would have passed
+    in silence."""
+    doc = clean_manifest(scratch)
+    alpha = row_named(doc, "alpha.py")
+    _re_destine(doc, to=alpha["destination"],
+                to_path=alpha["destination_path"])
+    refuses(scratch, doc, "carve-file-duplicated")
+
+
+def test_a_re_destination_moves_no_source_path(scratch: Scratch) -> None:
+    """The surface walk is untouched by the field. The row's `source_path` is
+    still the file openxFactory carries, still in exactly one row, and still
+    counted in the surface — a re-destination is a claim about the
+    DESTINATION, and a floor that let it move a source path would let a file
+    leave the surface by being re-addressed."""
+    doc = clean_manifest(scratch)
+    _re_destine(doc)
+    summary = _summary(scratch, doc)
+    assert summary["surface"] == _summary(scratch, clean_manifest(scratch))[
+        "surface"], summary
+
+
+def test_the_grammar_extension_names_the_ruling_and_why_not_a_re_cut(
+        scratch: Scratch) -> None:
+    """The disclosure, asserted in the file that carries it: the ruling, the
+    field, and the argument that a post-shed manifest cannot be re-cut into
+    one carrying moved rows at all — which is why a ruled mis-placement is
+    DECLARED."""
+    doc = MODULE.__doc__ or ""
+    assert "re_destined" in doc, doc
+    assert "RULED Q6" in doc, doc
+    assert "5648044785" in doc, doc
+    assert "WHY NOT A RE-CUT" in doc, doc
+    assert MODULE.RE_DESTINED_KEYS == frozenset(
+        {"from", "from_path", "to", "to_path", "ruling", "note"})
+
+
+def test_the_human_readable_line_prints_the_zero_state_too(
+        scratch: Scratch) -> None:
+    """`test_the_summary_counts_the_re_destined_rows` already reads `0` from
+    `--json`. The human line is a separate promise (the comment two lines
+    above the print statement: "whether the number is 0 or 48") and had its
+    own gap: a ternary printed the `RE-DESTINED by ruling` clause only when
+    the count was truthy, so the landed manifest's own zero state — the one
+    every reader hits first, until S8 lands a row — was the one count this
+    line never showed (Copilot review, PR #1011)."""
+    doc = clean_manifest(scratch)
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "0 row(s) RE-DESTINED by ruling (RULED Q6)" in done.stdout, \
+        done.stdout
+
+
+def test_a_re_destined_row_may_not_be_also_replicated_at_its_new_destination(
+        scratch: Scratch) -> None:
+    """The same refusal `test_a_row_may_not_be_also_replicated_at_its_own_
+    destination` proves, at the EFFECTIVE destination rather than the raw
+    one: a row re-destined to `opendox_code` that also lists `opendox_code`
+    in `also_replicated_to` used to pass here (the check compared against the
+    row's own `destination`, still `openxdox_code`), and
+    `verify-carve-arrival.py` would then silently drop the now-redundant
+    replica at the one place the row actually arrives today — two tools
+    reading one row two ways. Comparing against `effective_arrival(row)`
+    refuses it at the gate that runs first (Copilot review, PR #1011)."""
+    doc = clean_manifest(scratch)
+    row = _re_destine(doc)  # beta.py, openxdox_code -> opendox_code
+    row["also_replicated_to"] = ["opendox_code"]
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "also_replicated_to" in combined, combined
+
+
+def test_a_re_destined_row_may_still_be_also_replicated_at_its_original_destination(
+        scratch: Scratch) -> None:
+    """The row's ORIGINAL `destination` is not a forbidden replica key merely
+    because a ruling has since moved the row away from it — only the
+    EFFECTIVE destination is. `beta.py` moves to `openxdox_code` at the carve
+    and is re-destined to `opendox_code`; a replica declared at
+    `openxdox_code` names a DIFFERENT destination than the one the row
+    arrives at today, so it is not the self-replica the check refuses."""
+    doc = clean_manifest(scratch)
+    original_destination = row_named(doc, "beta.py")["destination"]
+    row = _re_destine(doc)  # beta.py, openxdox_code -> opendox_code
+    row["also_replicated_to"] = [original_destination]
+    summary = _summary(scratch, doc)
+    assert summary["re_destined"] == 1, summary
+
+
+# --------------------------------------------------------------------------
 # `phase: post-shed` — the § 5.2 shed, declared IN the manifest
 #
 # The shed deletes every MOVED row's source path and the one
@@ -1951,19 +2319,79 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # Q5, `#656` comment `5642758731`, split-opendox § 3.4 slice S2) moved
     # both again, by 3 lines over two rows (`dispose.js` line 26, `wheel.js`
     # lines 75-76), neither of which carried `edits:` before. 866 + 3 = 869
-    # on 150 + 2 = 152 rows.
-    # Re-derived here for the same reason as before: a transcribed count is a
-    # claim, a summed one is a measurement.
+    # on 150 + 2 = 152 rows. AND THEN THE § 3.4 SLICE-S3 ANNOTATION of
+    # 2026-09-12 (`#656` comment `5642758731`, whose Q-L1 paragraph binds
+    # every § 3.4 slice) moved both once more: the view registry edits ONE
+    # arrived file, `scripts/ideation_dashboard/web/app.js`, which converts
+    # `moved_verbatim` -> `moved_with_declared_edit` and takes 37 lines in
+    # two classes (`import rewrites` 1, `adapter calls` 36) on a row that
+    # carried no `edits:` before, AND three more `adapter calls` lines on
+    # `tests/ideation-dashboard/test_bullseye_widget.py`, which already
+    # carried an edit: that suite asserts `app.js`'s shape by quoting its
+    # lines back, so the three quotations of the tab router's field names
+    # are invalidated by the `app.js` edit and are migrated in the same act.
+    # 869 + 37 + 3 = 909 on 152 + 1 = 153 rows — the second row is not a new
+    # carrier. AND THEN THE OPENDOX-CODE #14 FIX ROUND'S CATCH-UP (openxFactory
+    # #1001, extended after landing) moved `lines` once more: running
+    # `verify-carve-arrival.py --destination opendox_code --phase B` against
+    # openDox-code's post-Copilot-re-review head
+    # (`e176947dd3691fa96b285575910989ed77e09181`) found one more undeclared
+    # edit — `test_the_doc_tab_is_wired_to_the_one_cross_view_jump` in
+    # `tests/ideation-dashboard/test_doc_surfaces.py` quoted `app.js`'s pre-S3
+    # `{ tab: "tab-docs"` shape and was migrated to the registry shape in that
+    # same fix round (Copilot finding "docs-tab migration"), the same
+    # one-token-class migration `test_bullseye_widget.py` already took; the
+    # `app.js` row itself needed no new declaration (the fix round's other two
+    # findings — the gate bar's declared-entry mount and a view-registry
+    # isolation fixture — both fall inside lines already declared on that row
+    # or outside any arrived file). `test_doc_surfaces.py` already carried an
+    # edit, so it is not a new carrier. 909 + 1 = 910 on the same 153 rows.
+    #
+    # AND THEN THE § 3.4 SLICE-S6 ANNOTATION (`#656` comment `5642758731`,
+    # whose Q-L1 paragraph binds every § 3.4 slice, same as S2/S3 above)
+    # moved `lines` once more, on ZERO new rows: RULED Q4's read-only
+    # `/source` pass-through returns from a CONTRIBUTED binding
+    # (`openxdox_code`'s `serve_projection.py`) to a FIXED core arm
+    # (`opendox_code`'s `serve.py`) of the neutral product. Both rows were
+    # ALREADY `moved_with_declared_edit`, so this act adds one `adapter
+    # calls` entry to each and carries no new row into `carrying`: 10 lines
+    # on `serve.py` (five insertions — the registration-modes record, the
+    # two route constants, the containment entry point, the two `_route`
+    # arms and the three handler methods) and 122 on `serve_projection.py`
+    # (the matching deletions — the module docstring's opening, the "PAIR
+    # MOVES TOGETHER" paragraph, the two constants, `resolve_source_path`,
+    # the three handler methods and `ProjectionRoutesExtension`'s two
+    # `/source` bindings). 910 + 10 + 122 = 1042 on the same 153 rows.
+    #
+    # AND THEN THE § 3.4 SLICE-S4 ANNOTATION (`#656` comment `5642758731`,
+    # RULED Q3: "a route constant travels with the binding that calls it,
+    # never with the model that happens to declare it") moved both again.
+    # Seven ARRIVED rows are edited: `app.js` (already a carrier, gains one
+    # `adapter calls` entry, 4 lines — the two new gate bindings' `routes:`
+    # declarations); `lens-model.js`, `lens.js`, `repo-selector.js`,
+    # `swb-create.js` and `swb-session.js` (five NEW carriers, `moved_verbatim`
+    # -> `moved_with_declared_edit`); and `staging-workbench-model.js`
+    # (already a carrier, gains two entries). 1042 + 380 = 1422 on 153 + 5 =
+    # 158 rows. Four new files are admitted at `opendox_code`:
+    # `views/gate-lens.js`, `views/gate-projects.js`,
+    # `views/projection-index.js` and `tests/test_split_route_tails.py`.
+    #
+    # THIS ASSERTION IS WHERE THE ABSOLUTES LIVE, and deliberately so: the
+    # document itself states each act as a DELTA (see the manifest's own
+    # comment on why two acts restating one set of absolutes is how a count
+    # becomes wrong in a merge), and the one place that sums them is this test,
+    # which re-derives rather than transcribes. A transcribed count is a claim,
+    # a summed one is a measurement.
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
-    assert (lines, carrying) == (869, 152), (lines, carrying)
+    assert (lines, carrying) == (1422, 158), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
 
     # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
-    # review, PR #995) — the aggregate `(869, 152)` above would still pass if
+    # review, PR #995) — the aggregate `(1422, 158)` above would still pass if
     # these four had landed on the wrong rows, under the wrong class, or as a
     # different four line numbers that happened to sum to the same total.
     # Named individually, on the same `(class, lines)` idiom the replica row's
@@ -1977,6 +2405,196 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     ask7_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
                   if edit["lines"] == [155, 725, 1338]]
     assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
+
+    # THE § 3.4 SLICE-S3 ANNOTATION'S OWN ROWS, PINNED BY DISPOSITION, CLASS
+    # AND EXACT LINES (Copilot review, openxFactory PR #1001) — on the same
+    # reasoning as the ASK-7 pin above: the aggregate assertion would still
+    # pass if the `app.js` row's conversion, or either of its two edits,
+    # landed on the wrong row, under the wrong class, or as different line
+    # numbers that happened to sum to 37 — and likewise for the three-line
+    # `test_bullseye_widget.py` addition. `app.js` carried no `edits:` at all
+    # before THIS act, so its two entries are asserted exactly by picking
+    # them out of the row's full list — the same idiom the ASK-7 checks
+    # below use for `serve.py`, needed here too now that § 3.4 SLICE S4
+    # (below) adds this row's third entry; `test_bullseye_widget.py` already
+    # carried an unrelated `path constants` edit, so its new entry is picked
+    # out by its lines the same way.
+    app_js_row = rows["scripts/ideation_dashboard/web/app.js"]
+    assert app_js_row["disposition"] == "moved_with_declared_edit", app_js_row
+    s3_app_js = [(edit["class"], edit["lines"]) for edit in app_js_row["edits"]
+                 if edit["lines"] != [514, 515, 1137, 1138]]
+    assert s3_app_js == [
+        ("import rewrites", [43]),
+        ("adapter calls", [470, 471, 472, 475, 476, 480, 481, 482, 483, 484,
+                            489, 521, 522, 523, 574, 579, 585, 587, 590, 599,
+                            600, 602, 603, 604, 605, 606, 631, 640, 842, 843,
+                            844, 865, 866, 876, 1102, 1103]),
+    ], app_js_row
+
+    bullseye_row = rows["tests/ideation-dashboard/test_bullseye_widget.py"]
+    s3_bullseye = [(edit["class"], edit["lines"])
+                   for edit in bullseye_row["edits"]
+                   if edit["lines"] == [900, 1781, 1785]]
+    assert s3_bullseye == [("adapter calls", [900, 1781, 1785])], bullseye_row
+
+    # THE OPENDOX-CODE #14 FIX ROUND'S CATCH-UP, PINNED THE SAME WAY (openxFactory
+    # #1001, extended after landing) — on the same reasoning as the two pins
+    # above: the aggregate assertion would still pass if this line had landed
+    # on the wrong row or under the wrong class. `test_doc_surfaces.py`
+    # already carried an unrelated `path constants` edit (line 39), so its new
+    # entry is picked out by its lines, the same idiom `test_bullseye_widget.py`
+    # and `serve.py` use above.
+    doc_surfaces_row = rows["tests/ideation-dashboard/test_doc_surfaces.py"]
+    s3_doc_surfaces = [(edit["class"], edit["lines"])
+                        for edit in doc_surfaces_row["edits"]
+                        if edit["lines"] == [290]]
+    assert s3_doc_surfaces == [("adapter calls", [290])], doc_surfaces_row
+
+    # THE § 3.4 SLICE-S6 ANNOTATION, PINNED THE SAME WAY (RULED Q4, `#656`
+    # comment `5642758731`) — on the same reasoning as the pins above: the
+    # aggregate assertion would still pass if these lines had landed on the
+    # wrong row, under the wrong class, or split across a different pair of
+    # line counts that happened to sum to 132. Both rows already carried
+    # `edits:` before this act, so each new entry is picked out by its exact
+    # lines, the same idiom the ASK-7 and S3-catch-up pins above use.
+    s6_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
+                if edit["lines"] == [161, 162, 304, 305, 515, 516, 921, 922,
+                                      949, 950]]
+    assert s6_serve == [("adapter calls",
+                          [161, 162, 304, 305, 515, 516, 921, 922, 949,
+                           950])], serve_row
+
+    serve_projection_row = rows[
+        "scripts/ideation_dashboard/serve_projection.py"]
+    s6_serve_projection_lines = [
+        6, 7, 9, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
+        60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76,
+        77, 78, 79, 297, 298, 299, 300, 301, 302, 304, 305, 306, 307, 308,
+        309, 310, 311, 312, 313, 314, 315, 316, 317, 318, 319, 320, 321,
+        322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334,
+        335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347,
+        348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360,
+        361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373,
+        374, 375, 382, 383, 384, 385, 386, 387, 388]
+    assert len(s6_serve_projection_lines) == 122, s6_serve_projection_lines
+    s6_serve_projection = [
+        (edit["class"], edit["lines"])
+        for edit in serve_projection_row["edits"]
+        if edit["lines"] == s6_serve_projection_lines]
+    assert s6_serve_projection == [
+        ("adapter calls", s6_serve_projection_lines)], serve_projection_row
+
+    # THE § 3.4 SLICE-S4 ANNOTATION, PINNED THE SAME WAY (RULED Q3, `#656`
+    # comment `5642758731`) — on the same reasoning as the pins above: the
+    # aggregate assertion would still pass if these lines had landed on the
+    # wrong row, under the wrong class, or split across a different set of
+    # line counts that happened to sum to 380 over 5 new carriers.
+    s4_app_js = [(edit["class"], edit["lines"]) for edit in app_js_row["edits"]
+                 if edit["lines"] == [514, 515, 1137, 1138]]
+    assert s4_app_js == [("adapter calls", [514, 515, 1137, 1138])], app_js_row
+
+    lens_model_row = rows["scripts/ideation_dashboard/web/views/lens-model.js"]
+    assert lens_model_row["disposition"] == "moved_with_declared_edit", \
+        lens_model_row
+    assert [(edit["class"], edit["lines"]) for edit in lens_model_row["edits"]] == [
+        ("path constants", [1033, 1034, 1035, 1036, 1037]),
+    ], lens_model_row
+
+    lens_row = rows["scripts/ideation_dashboard/web/views/lens.js"]
+    assert lens_row["disposition"] == "moved_with_declared_edit", lens_row
+    lens_adapter_calls = (
+        list(range(176, 183)) + list(range(211, 320)) + [1106, 1107, 1472, 1479])
+    assert len(lens_adapter_calls) == 120, lens_adapter_calls
+    assert [(edit["class"], edit["lines"]) for edit in lens_row["edits"]] == [
+        ("import rewrites", [30]),
+        ("adapter calls", lens_adapter_calls),
+    ], lens_row
+
+    repo_selector_row = rows[
+        "scripts/ideation_dashboard/web/views/repo-selector.js"]
+    assert repo_selector_row["disposition"] == "moved_with_declared_edit", \
+        repo_selector_row
+    repo_selector_path_constants = [6, 7, 8, 9, 10, 33, 36, 37, 39, 40, 41,
+                                     42, 43, 44, 45, 46]
+    repo_selector_adapter_calls = (
+        [64, 65, 66, 67] + list(range(69, 78)) + list(range(189, 301))
+        + [318] + list(range(357, 384))
+        + [409, 577, 608, 609, 671, 672, 681, 682, 719]
+        + list(range(779, 819)))
+    assert len(repo_selector_path_constants) == 16, repo_selector_path_constants
+    assert len(repo_selector_adapter_calls) == 202, repo_selector_adapter_calls
+    assert [(edit["class"], edit["lines"]) for edit in repo_selector_row["edits"]] == [
+        ("path constants", repo_selector_path_constants),
+        ("adapter calls", repo_selector_adapter_calls),
+    ], repo_selector_row
+
+    staging_row = rows[
+        "scripts/ideation_dashboard/web/views/staging-workbench-model.js"]
+    s4_staging = [(edit["class"], edit["lines"])
+                  for edit in staging_row["edits"]
+                  if edit["lines"] != [544]]
+    staging_path_constants = [543] + list(range(814, 827))
+    staging_adapter_calls = list(range(956, 964)) + list(range(985, 989))
+    assert len(staging_path_constants) == 14, staging_path_constants
+    assert len(staging_adapter_calls) == 12, staging_adapter_calls
+    assert s4_staging == [
+        ("path constants", staging_path_constants),
+        ("adapter calls", staging_adapter_calls),
+    ], staging_row
+
+    swb_create_row = rows["scripts/ideation_dashboard/web/views/swb-create.js"]
+    assert swb_create_row["disposition"] == "moved_with_declared_edit", \
+        swb_create_row
+    assert [(edit["class"], edit["lines"]) for edit in swb_create_row["edits"]] == [
+        ("import rewrites", [32, 34]),
+        ("path constants", [35]),
+    ], swb_create_row
+
+    swb_session_row = rows[
+        "scripts/ideation_dashboard/web/views/swb-session.js"]
+    assert swb_session_row["disposition"] == "moved_with_declared_edit", \
+        swb_session_row
+    assert [(edit["class"], edit["lines"]) for edit in swb_session_row["edits"]] == [
+        ("import rewrites", [76, 78]),
+        ("path constants", [79]),
+    ], swb_session_row
+
+
+def test_the_real_manifest_carries_the_q6_form_and_uses_it_nowhere() -> None:
+    """RULED Q6 against the LANDED manifest: the FORM, documented, and NOT ONE
+    ROW using it.
+
+    The amendment that landed the field re-destined nothing on purpose — slice
+    S8 of the front-end boundary note is the act that uses it, under its own
+    claim and its own pull request — so this is the assertion that says the
+    floor gained a gate and the document did not move. It is also what makes
+    every count in `test_the_real_manifest_carries_the_ruled_q_l7_amendment`
+    above still readable as untouched by this amendment.
+
+    THE HEADER IS ASSERTED TOO, because a form nobody can find in the document
+    that carries it is a form the next author re-invents: the ruling, the field
+    and the citation requirement are all read out of the manifest's own prose.
+    A BRANCH and never a skip, on the module docstring's reasoning.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    text = manifest.read_text(encoding="utf-8")
+    doc = yaml.safe_load(text)
+
+    re_destined = [row for row in doc["rows"] if "re_destined" in row]
+    assert re_destined == [], re_destined
+
+    assert "re_destined:" in text, "the header does not document the form"
+    assert "RULED Q6" in text, text[:200]
+    assert "5648044785" in text, "the header does not cite the ruling"
+
+    done = subprocess.run(
+        [sys.executable, str(SCRIPT), "--json"],
+        capture_output=True, text=True, check=False)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert json.loads(done.stdout)["re_destined"] == 0, done.stdout
 
 
 # --------------------------------------------------------------------------
@@ -2045,7 +2663,7 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 862 line numbers were written in the numbering this
+    The manifest's 1422 line numbers were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would

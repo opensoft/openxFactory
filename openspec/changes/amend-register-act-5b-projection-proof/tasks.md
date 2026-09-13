@@ -70,7 +70,7 @@ act that ticks it and the word that authorizes that act.
 does NOT move: its own header rules why it is draft, and this packet does not
 reach that ruling.**
 
-- [ ] 3.1 **§5.2 step 3 — replace the exit condition.** Today:
+- [x] 3.1 **§5.2 step 3 — replace the exit condition.** Today:
       *"**VERIFY ONE CONVENING ADMITS.** The park is not lifted by a green
       validator — it is lifted when a real convening is admitted against the
       new grant. Until you have seen that, you have evidence that the files are
@@ -81,22 +81,80 @@ reach that ruling.**
       ConfigMap `hermes-register-projection`, annotation
       `hermes.opensoft.one/source-revision`, at or after the register act's
       landed commit. Cite the requirement by title, and cite the walk record
-      §13.2/§14.1 as the evidence.
-- [ ] 3.2 **§5.2 step 2 — correct the stale clause** *"it is loose on purpose
+      §13.2/§14.1 as the evidence. **DONE**: replaced in openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008) →
+      `0446dece9886f60daf052741b3b3e00f51b24583`, citing this requirement's
+      title and walk record §§13.2/14.1 inline, and naming PR #960 →
+      `ac688c40` as the ratifying act.
+- [x] 3.2 **§5.2 step 2 — correct the stale clause** *"it is loose on purpose
       because nothing refreshes the projection automatically"*, which
       contradicts the refresher this packet's precondition depends on.
       **ONLY IF OQ-4 is ruled A**; dropped otherwise, with the drop recorded
-      here.
-- [ ] 3.3 **§ "Contents" of the walk record — the `step-5b` evidence bullet.**
+      here. **DONE** (OQ-4 confirmed ruled A at `design.md` D-4): corrected in
+      the same commit, openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008) →
+      `0446dece9886f60daf052741b3b3e00f51b24583`, **and CORRECTED AGAIN at
+      `08eb0aa3e691d02064af661c21d95dadd1bc18ea`** on the #1008 REVIEW seat's BLOCKING finding
+      ([comment 5648024201](https://github.com/opensoft/openxFactory/pull/1008#issuecomment-5648024201)):
+      the first correction deleted the stale clause and put a DIFFERENT false
+      one in its place — *"loose on purpose to cover the interval before the
+      projection refresher's next completed cycle"* — which inverts the
+      register's own declared rationale
+      (`governance/review-authority/register.yaml` § *"WHY P7D AND NOT
+      SOMETHING TIGHT"*: the bound is the window a revocation may go
+      unhonoured, and automated refresh is the reason to move it to `P1D` or
+      tighter, never the reason it is loose). The clause now quotes the
+      register verbatim and carries ratified requirement 3's own evidence
+      phrase, *"evidenced by the refresher's own success record"*.
+- [x] 3.3 **§ "Contents" of the walk record — the `step-5b` evidence bullet.**
       Today it requires *"which convening was watched admitting"*; it becomes
       the observation's values, its comparison and its stated limit, per OQ-2.
-- [ ] 3.4 **Do NOT touch §"Before you start" (the step-5b prerequisite) or §4's
+      **DONE**: corrected in the same commit, openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008) →
+      `0446dece9886f60daf052741b3b3e00f51b24583`; the bullet now names the
+      `source-revision` value read, the comparison against the act's landed
+      commit, and the unread fields, named as OWED with an owner.
+      **OPEN REVIEW FINDING, RECORDED AND NOT FIXED** (#1008 REVIEW seat,
+      [comment 5648024201](https://github.com/opensoft/openxFactory/pull/1008#issuecomment-5648024201)):
+      the bullet's surviving first half still requires, as step-5b evidence,
+      *"that the staleness bound travelled verbatim"* — which is one of the
+      THREE fields D-2 and §6.3 of this file record as OWED and UNREAD under a
+      provenance-only observation, and which the bullet's new second half
+      simultaneously permits to be named as unread. As written a walker must
+      either overclaim (the failure ratified requirement 4 exists to refuse) or
+      fail the bullet. This row's own text names only the *"which convening was
+      watched admitting"* clause, so moving the staleness-bound clause into the
+      OWED half is a judgement about what the evidence list requires rather
+      than a transcription of this row — **left to Brett Heap.**
+- [x] 3.4 **Do NOT touch §"Before you start" (the step-5b prerequisite) or §4's
       *"The only exit is step 5 and step 5b together"***. Both are true as
       written and this packet makes them truer; recorded as a deliberate
       non-edit so a reviewer does not read the omission as an oversight.
-- [ ] 3.5 **Prove the edit did not widen.** Diff the runbook and state the
+      **DONE**: confirmed untouched in openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008) →
+      `0446dece9886f60daf052741b3b3e00f51b24583` (`git diff` shows no hunk
+      near either sentence). Citation correction while checking: the "only
+      exit is step 5 and step 5b together" sentence is in the runbook's own
+      §3 ("Step 3 — the in-flight behavior (R9), verbatim"), not §4 as this
+      row's text says — unchanged either way.
+- [x] 3.5 **Prove the edit did not widen.** Diff the runbook and state the
       insertion/deletion counts in the realization pull request body; any hunk
       outside §5.2 and the Contents list is a finding against the edit.
+      **DONE**: `git diff --stat` for the runbook = 1 file changed, 46
+      insertions(+), 7 deletions(-) at review-fix `08eb0aa3e691d02064af661c21d95dadd1bc18ea`
+      (39/7 at the first pass, `0446dece`), stated in openxFactory PR
+      [#1008](https://github.com/opensoft/openxFactory/pull/1008)'s body.
+      **THE FINDING THIS ROW DEFINES IS RAISED, NOT WAIVED.** The diff carries
+      a THIRD hunk beyond §5.2 and the Contents list — a new `Amended by:`
+      line in the document's own header — so by this row's own words it **is a
+      finding against the edit**, and it is recorded here as one rather than
+      explained away. It is raised rather than dropped because the line is this
+      repository's standing convention for citing a realizing change
+      (`docs/lifecycle-notebook-projection.md:8,11,13` — same shape, same
+      header position) and because `docs/document-lifecycle.md` reaches neither
+      for nor against it on a `Status: draft` document. **Its disposition is
+      Brett Heap's at merge — keep the hunk, or drop it and re-diff — and this
+      row does not clear it.**
 
 ## 4. Cite back — close the disposition's loop
 
