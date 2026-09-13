@@ -122,6 +122,10 @@ LIVE_ENTRYPOINT = "scripts/validate-openspec-cli-pin.py"
 # are, and pinned separately because neither of them reds when this one goes.
 WALLET_PIN_ID = "openxwallet-pin"
 WALLET_PIN_PATH = "contracts/openxwallet-pin.yaml"
+#: `neutral-product-pin` fixes this value literally — `adapter_owner:
+#: openxFactory` — rather than leaving it to the row's author, so it is a
+#: constant here and not a field read back from the row it is grading.
+WALLET_ADAPTER_OWNER = "openxFactory"
 #: The verifier the row's `consumption_rule` names and the pin names under
 #: `verify_pin:` — NOT under `consumer_entrypoint:`, which is why the checker's
 #: entrypoint arm does not fire for this row.
@@ -217,11 +221,29 @@ def test_the_live_register_carries_the_openxwallet_pin_row() -> None:
 
     `test_the_live_register_carries_at_least_one_pin_row` above cannot do this
     job any more and says so in its own name: with two rows present, "at least
-    one" is satisfied by the other one. This names THIS row, asserts the path it
-    registers is the path in the tree, and asserts that path resolves — so
-    deleting the row, renaming its `id`, or pointing it at a pin that is not
-    there each reds in the required `pytest-suite` job rather than passing
-    quietly.
+    one" is satisfied by the other one. This names THIS row, so deleting it,
+    renaming its `id`, or pointing it at a pin that is not there each goes red
+    in the required `pytest-suite` job rather than passing quietly.
+
+    IT ASSERTS THE WHOLE MEMBER LIST CANON NAMES, NOT THE FOUR FIELDS THE
+    CHECKER HAPPENS TO READ (PR #1026 review, second round). The promoted
+    requirement — `openspec/specs/neutral-product-pin/spec.md` § "A consumption
+    pin that another repository reads is a PUBLISHED contract member, adopted by
+    pin-sync" — obliges the row to carry "an `id`, its `path`, a `type`, its
+    `intended_consumers`, `adapter_owner: openxFactory`, and a
+    `consumption_rule`". `scripts/validate-pin-registrations.py` reads only
+    `id`, `path`, `type` and `consumption_rule`, and says so in its own
+    docstring ("the three assertions below are those sentences and no further
+    rule"); `intended_consumers` and `adapter_owner` are quoted there as canon
+    and then checked by nothing. Measured before it was believed: deleting
+    either field from this row leaves the checker at exit 0 and
+    `tests/pin_registrations` at 62 passed. So they are asserted HERE.
+
+    Scoped to THIS row on purpose. `openspec-cli-pin` carries the same two
+    fields and the same absence of any check on them; widening this file to
+    grade every registered row is a rule about the register rather than a pin
+    on the member this PR introduces, and it belongs with the successor work
+    the manifest comment already names — not smuggled into a fix round.
     """
     doc = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
     pin_rows = [row for row in doc["contracts"] if row.get("type") == "pin"]
@@ -235,6 +257,22 @@ def test_the_live_register_carries_the_openxwallet_pin_row() -> None:
     assert row["path"] == WALLET_PIN_PATH, row["path"]
     assert (REPO_ROOT / row["path"]).is_file(), (
         f"{row['path']} is registered but is not in the tree")
+
+    # The two members canon names that nothing else grades.
+    assert row.get("adapter_owner") == WALLET_ADAPTER_OWNER, (
+        f"the {WALLET_PIN_ID} row declares `adapter_owner: "
+        f"{row.get('adapter_owner')!r}`; `neutral-product-pin` obliges "
+        f"`adapter_owner: {WALLET_ADAPTER_OWNER}` on a registered consumption "
+        "pin, and no checker reads this field")
+    consumers = row.get("intended_consumers")
+    assert isinstance(consumers, list) and consumers, (
+        f"the {WALLET_PIN_ID} row declares `intended_consumers: "
+        f"{consumers!r}`; `neutral-product-pin` obliges a registered "
+        "consumption pin to name who is expected to read it, and a register "
+        "that does not say that is the state registration exists to end")
+    assert all(isinstance(entry, str) and entry.strip() for entry in consumers), (
+        f"the {WALLET_PIN_ID} row's `intended_consumers` carries an empty or "
+        f"non-string entry: {consumers!r}")
 
 
 def test_the_openxwallet_row_names_its_verifier_and_its_consuming_workflow(
@@ -252,7 +290,7 @@ def test_the_openxwallet_row_names_its_verifier_and_its_consuming_workflow(
 
     It reads `consumer_entrypoint:` FIRST and falls back to `verify_pin:`, so
     the day a successor reconciles the checker's field name with the convention
-    both sibling pins share, this stays green instead of reding on the fix.
+    both sibling pins share, this stays green instead of going red on the fix.
     """
     doc = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
     row = next(row for row in doc["contracts"]
