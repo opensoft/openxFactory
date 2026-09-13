@@ -1473,17 +1473,24 @@ def test_a_ruled_re_destination_verifies_at_BOTH_legs_end_to_end(
 
 
 def test_both_tools_read_the_effective_arrival_identically() -> None:
-    """The two halves of the floor, over one table of rows.
+    """The three copies of the floor, over one table of rows.
 
     RULED Q-L8 (c) is the lesson this closes in advance: `validate-carve-
-    manifest.py` and this file each carry the same three-line reading of
-    `re_destined:`, because neither can import the other, and two tools quietly
-    disagreeing about ONE definition is what cost six declared lines when a
-    line meant two things. The mis-shaped rows are in the table deliberately —
-    the agreement that matters most is the one about a document neither tool
-    validates.
+    manifest.py`, this file and `scripts/carved_reach.py` each carry the same
+    three-line reading of `re_destined:`, because none of the three can import
+    either of the others, and two tools quietly disagreeing about ONE
+    definition is what cost six declared lines when a line meant two things.
+    `carved_reach.py` joined the comparison at `PRRT_kwDOTAvnrs6h1nYE`: its
+    `source()` (and `sources_under()`/`shed_destination()` through it) used to
+    read a row's raw `destination`/`destination_path` even when a
+    `re_destined:` block said a ruling had moved the placement, which is
+    exactly the disagreement this test exists to catch — now for three readers
+    instead of two. The mis-shaped rows are in the table deliberately — the
+    agreement that matters most is the one about a document none of the three
+    tools validates.
     """
     other = _load_manifest_validator()
+    import carved_reach  # noqa: E402 — local: only this test needs it here
     table: list[dict[str, Any]] = [
         {"destination": "scratch_code", "destination_path": "src/pkg/a.py"},
         {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
@@ -1500,6 +1507,8 @@ def test_both_tools_read_the_effective_arrival_identically() -> None:
     ]
     for row in table:
         assert MODULE.effective_arrival(row) == other.effective_arrival(row), \
+            row
+        assert MODULE.effective_arrival(row) == carved_reach.effective_arrival(row), \
             row
     assert MODULE.effective_arrival(table[1]) == ("scratch_spec",
                                                   "examples/a.py")

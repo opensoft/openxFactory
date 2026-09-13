@@ -2671,6 +2671,54 @@ def test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines(
     assert json.loads(done.stdout)["re_destined"] == 4, done.stdout
 
 
+def test_carved_reach_resolves_the_four_re_destined_rows_at_their_arrival() -> None:
+    """`PRRT_kwDOTAvnrs6h1nYE`, pinned against the same four LANDED rows.
+
+    `carved_reach.source()` used to resolve every MOVED row — re-destined or
+    not — at its raw `destination`/`destination_path`. For the four rows the
+    test above pins, that raw pair names `opendox_code`, the leg RULED Q6's
+    form says the ruling VACATES; the effective arrival (`#656` comment
+    `5648044785`) is `openxdox_code`. `sources_under()` builds every one of
+    its answers on `source()`, so the dashboard compositor's sweep of
+    `scripts/ideation_dashboard/web/views/` inherited the same defect — a link
+    to a file the paired leg no longer carries, for all four rows.
+
+    Both legs are required, materialized, for the reason every other test here
+    that reads a MOVED row's real destination is: this asks about rows that
+    moved, and only the legs a ruling actually moved them between can answer
+    what `source()` names now.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    re_destined = [row for row in doc["rows"] if "re_destined" in row]
+    assert len(re_destined) == 4, re_destined  # the same four, guarded again
+
+    import carved_reach as carved_reach_direct
+
+    carved_reach_direct.require()
+    swept = carved_reach_direct.sources_under(
+        "scripts/ideation_dashboard/web/views/")
+    for row in re_destined:
+        key = row["source_path"]
+        moved = row["re_destined"]
+        vacated = (carved_reach_direct.MOUNTS[row["destination"]]
+                   / row["destination_path"])
+        arrived = (carved_reach_direct.MOUNTS[moved["to"]] / moved["to_path"])
+        assert arrived != vacated, row  # or the assertions below prove nothing
+
+        resolved = carved_reach_direct.source(key)
+        assert resolved == arrived, (
+            f"{key}: source() must resolve re_destined.to/to_path (RULED Q6), "
+            f"not the row's own vacated destination — got {resolved}")
+
+        assert swept[key] == arrived, (
+            f"{key}: sources_under() delegates to source(); a dashboard "
+            f"compositor sweep must not link the vacated path either")
+
+
 # --------------------------------------------------------------------------
 # ONE DEFINITION OF A LINE, SHARED WITH THE ARRIVAL VERIFIER
 # (RULED Q-L8 (c), Brett Heap 2026-09-10)
