@@ -166,6 +166,7 @@ rows:
   add-subject-establishment: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#647", moved_on: "2026-09-04"}
   add-subject-overlay-contract: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-substantive-review-lane: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-target-release-deferred-allocation: {state: active, class: co-modifier, declares: [add-structured-scope-substrate], depth: 1, prose: false, moved_by: "#1022", moved_on: "2026-09-13"}
   add-trust-anchor: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-unclassified-finding-class: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-wallet-carried-review-authority: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -234,7 +235,7 @@ rows:
   fix-pin-value-boundary-and-sentinel-split: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-release-reachability-race: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   gate-code-surface-declarations: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1018", moved_on: "2026-09-12"}
-  gate-realization-axis-vocabulary: {state: archived, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1014", moved_on: "2026-09-12"}
+  gate-realization-axis-vocabulary: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1022", moved_on: "2026-09-13"}
   govern-archived-record-edits: {state: archived, class: co-modifier, declares: [govern-openspec-corpus-membership], depth: 1, prose: false, moved_by: "#845", moved_on: "2026-09-09"}
   govern-derived-pin-reachability: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-openspec-corpus-membership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
