@@ -964,17 +964,20 @@ ratified text already draws (a frozen record; another repository's own act).
       **`code_surface:` IS NOT GATED.** The other half of the same sentence is
       equally unread; it is a second population with its own classes, and
       folding it in here would widen a ruled remedy into an unruled sweep.
-- [x] 6.4 **NOT TAKEN, AND NOT OWED — RE-MEASURED ON THE ARCHIVE TREE.**
+- [x] 6.4 **NOT TAKEN, AND NOT OWED — RE-MEASURED ON THE ARCHIVE TREE, THEN
+      RE-MEASURED AGAIN AT THIS PULL REQUEST'S FINAL HEAD (Codex review,
+      thread `PRRT_kwDOTAvnrs6h01lG`: the first re-measurement's figure had
+      gone stale by the tree this box now sits in).**
       `python3 scripts/validate-target-release.py .` reports *"archive (read,
-      never judged): 164 proposals, 61 of them outside the vocabulary"* at
-      this archive's tree — the ARCHIVED TOTAL has grown from the count at
-      ratification (more packets archived in the interval), but the
+      never judged): 166 proposals, 61 of them outside the vocabulary"* at
+      this head — the ARCHIVED TOTAL has grown from 164 at ratification to
+      166 (this packet's own archive-move, plus the concurrently incorporated
+      sibling `rule-inherited-unit-naming-marker-spent`, the same two-packet
+      accounting the README's own archived row gives), but the
       OFF-VOCABULARY COUNT is still exactly **61**: no packet archived since
       this one's ratification added a new off-vocabulary `target_release`
       declaration to the frozen record. The validator's own closed-register
-      design reads and reports the archived population without judging it, and
-      this archive pull request touches no file under `openspec/changes/archive/`
-      other than this packet's own move.
+      design reads and reports the archived population without judging it.
       **THE RATIFIED BODY OF THIS BOX, CARRIED VERBATIM:**
       **THE ARCHIVED 61 ARE NOT TOUCHED.** Frozen record: read, counted, judged
       never.
