@@ -291,7 +291,22 @@ def test_the_openxwallet_row_names_its_verifier_and_its_consuming_workflow(
     It reads `consumer_entrypoint:` FIRST and falls back to `verify_pin:`, so
     the day a successor reconciles the checker's field name with the convention
     both sibling pins share, this stays green instead of going red on the fix.
+
+    THE TWO RULE ASSERTIONS GRADE WITH THE CHECKER'S OWN DELIMITER-AWARE
+    PREDICATE, NOT WITH `in` (PR #1026 review, third round). A bare substring
+    test is the exact shape `scripts/validate-pin-registrations.py` refuses:
+    `rule_names_entrypoint()` exists because a stale rule saying
+    `scripts/tool.py.old` CONTAINS `scripts/tool.py`, so the rename that
+    produced it would be graded coherent. Measured on this row before the fix:
+    with the rule's verifier rewritten to `…verify-openxwallet-pin.py.old`,
+    `WALLET_VERIFIER in rule` was still True while
+    `rule_names_entrypoint(rule, WALLET_VERIFIER)` was False — the same on the
+    workflow path. So this test was published with the weakness the checker was
+    written to close, and it now calls the checker's helper rather than
+    restating its rule: one predicate, in one place, and a later change to the
+    delimiter semantics moves the test with the checker instead of past it.
     """
+    module = _load_checker()
     doc = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
     row = next(row for row in doc["contracts"]
                if row.get("id") == WALLET_PIN_ID)
@@ -305,14 +320,15 @@ def test_the_openxwallet_row_names_its_verifier_and_its_consuming_workflow(
     assert (REPO_ROOT / WALLET_VERIFIER).is_file()
 
     rule = row["consumption_rule"]
-    assert WALLET_VERIFIER in rule, (
+    assert module.rule_names_entrypoint(rule, WALLET_VERIFIER), (
         f"the {WALLET_PIN_ID} row's `consumption_rule` no longer names "
-        f"{WALLET_VERIFIER}, so the registration stops saying how the pin is "
-        "consumed")
-    assert WALLET_REUSABLE_WORKFLOW in rule, (
+        f"{WALLET_VERIFIER} as a delimited path token, so the registration "
+        "stops saying how the pin is consumed — a rule that only CONTAINS the "
+        f"path (`{WALLET_VERIFIER}.old`) names a different file")
+    assert module.rule_names_entrypoint(rule, WALLET_REUSABLE_WORKFLOW), (
         f"the {WALLET_PIN_ID} row's `consumption_rule` no longer names "
-        f"{WALLET_REUSABLE_WORKFLOW}, the workflow that carries the consuming "
-        "invocation")
+        f"{WALLET_REUSABLE_WORKFLOW} as a delimited path token, and that is "
+        "the workflow carrying the consuming invocation")
     assert (REPO_ROOT / WALLET_REUSABLE_WORKFLOW).is_file()
 
 
