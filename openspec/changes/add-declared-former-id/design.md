@@ -1,6 +1,7 @@
 # Design: add-declared-former-id
 
-Status: draft
+Status: ratified
+Ratified by: add-declared-former-id — 2026-09-13T22:48Z, Brett Heap, verbatim "ratify 1028 as encoded" (record `review/ratification-2026-09-13.md`)
 
 **WHAT THIS DOCUMENT IS FOR.** Five decisions in this packet could reasonably
 have gone the other way, and each is put below as a question with the
@@ -119,7 +120,7 @@ retention at archive***; the only other occurrence of that title under
 scope declaration. So this packet's MODIFIED block is declared against CANON and
 `sequenced_after: []` is correct rather than merely empty.
 
-## D1 — RECOMMENDED: the declaration lives in the packet's own `.openspec.yaml`, as a SIBLING of `origin:`
+## D1 — RECOMMENDED: the declaration lives in the packet's own `.openspec.yaml`, as a SIBLING of `origin:` — RULED (a), 2026-09-13T22:48Z
 
 **Option (a), recommended — a top-level `former_ids:` key in
 `openspec/changes/<id>/.openspec.yaml`.** Three properties decide it.
@@ -158,7 +159,7 @@ directory where the origin-retention gate reads it. A central register would
 have to be read at a ref, would become a second thing to keep in step with the
 corpus, and would put one file in the path of every lane's merges.
 
-## D2 — RECOMMENDED: the declaration names change IDS, and the path is derived
+## D2 — RECOMMENDED: the declaration names change IDS, and the path is derived — RULED (a), 2026-09-13T22:48Z
 
 **Option (a), recommended — `former_ids:` is a list of CHANGE IDS.** Decided
 from how this estate addresses a packet today, read rather than assumed:
@@ -188,7 +189,7 @@ former id declares `Status: ratified`, so a mis-ordered list cannot produce a
 later baseline — it can only be a worse record, which a reader sees. Earliest is
 the property that matters because the defect is a baseline that is too LATE.
 
-## D3 — RECOMMENDED: the fail-closed refusal is taken by a house validator at the landing, not by the archive gate
+## D3 — RECOMMENDED: the fail-closed refusal is taken by a house validator at the landing, not by the archive gate — RULED (a), 2026-09-13T22:48Z
 
 **Where the refusal belongs.** The archive gate runs at ARCHIVE. A rename that
 sheds a ratification does its damage at the RENAME, and the packet may not
@@ -234,7 +235,7 @@ who could repair it cheaply — the one who made the move — would be long gone
 **Option (c) — a `doc-health` finding.** Rejected: `doc-health` reports and does
 not refuse, and the ruling's word is "refused".
 
-## D4 — RECOMMENDED: no `doc-health` delta in this packet, and the reasoning is the cost
+## D4 — RECOMMENDED: no `doc-health` delta in this packet, and the reasoning is the cost — RULED (a), 2026-09-13T22:48Z
 
 **The question.** #833's dangling-cited-path finding is swept in by the ruling.
 Does reporting the unresolvable remainder need a requirement in
@@ -291,7 +292,7 @@ its dispositions are deliberately cross-repository — 12 of this tree's 36
 referents are paths qualified to another repository and must not be refused
 here, which is a rule that belongs to that validator's own design.
 
-## D5 — RECOMMENDED: *Origin retention at archive* is MODIFIED, not left alone
+## D5 — RECOMMENDED: *Origin retention at archive* is MODIFIED, not left alone — RULED (a), 2026-09-13T22:48Z
 
 **Option (a), recommended — MODIFY it.** The promoted requirement names the
 baseline as *"the declaration present at ratification"*, and the whole defect is

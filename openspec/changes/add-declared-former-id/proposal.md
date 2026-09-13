@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: add-declared-former-id
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-13T22:48Z by Brett Heap (openxFactory repository owner) — verbatim "ratify 1028 as encoded"; record at review/ratification-2026-09-13.md
 Proposed: 2026-09-13, in lane `openxfactory-1` (display `openXfactory-1`),
 session `3da6c3f9`, as the standing claim holder of openxFactory
 [#1003](https://github.com/opensoft/openxFactory/issues/1003) (CLAIMED
@@ -18,15 +19,32 @@ and openxFactory [#833](https://github.com/opensoft/openxFactory/issues/833),
 whose "Remedy shape" paragraph named this mechanism as option (b) and called it
 "a later packet".
 
-**THE RULING SELECTS A REMEDY SHAPE AND RATIFIES NO WORDING.** It names the
-mechanism — a declared former id over `release-realization`, fail-closed on the
-undeclared case, with #833's dangling-cited-path finding swept in — and it
-NOT-SELECTS two alternatives by name: a full rename-lineage walk and an
-all-rename-chain interim guard, as "history-walking archaeology that cannot
-carry the intent bit distinguishing rename-of-ratified from lawful
-fork-by-copy". Every sentence below that the ruling did not give is this lane's
-authoring, offered for veto; `design.md` puts the five decisions most worth one
-as questions with the recommendation first.
+**THE COMMISSIONING RULING SELECTED A REMEDY SHAPE AND RATIFIED NO WORDING.**
+It names the mechanism — a declared former id over `release-realization`,
+fail-closed on the undeclared case, with #833's dangling-cited-path finding
+swept in — and it NOT-SELECTS two alternatives by name: a full rename-lineage
+walk and an all-rename-chain interim guard, as "history-walking archaeology
+that cannot carry the intent bit distinguishing rename-of-ratified from lawful
+fork-by-copy". Every sentence below that the ruling did not give was this
+lane's authoring, offered for veto; `design.md` put the five decisions most
+worth one as questions with the recommendation first.
+
+**A SECOND WORD RATIFIED THE TEXT ITSELF, AND THIS PACKET IS NOW RATIFIED.**
+Brett Heap, 2026-09-13T22:48Z, verbatim **"ratify 1028 as encoded"**, given
+first-hand in this lane's window and recorded on PR
+[#1028](https://github.com/opensoft/openxFactory/pull/1028#issuecomment-5656710037)
+at 2026-09-13T22:48:34Z, mirrored on issue
+[#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5656710187).
+It is a MULTIPLE-CHOICE ruling over all five decisions `design.md` D1 … D5 put,
+taking the RECOMMENDED option on every one (§ Rulings below), **so the delta
+moved not one byte**: the ratified wording is the wording frozen at `1e57643d`
+and nothing was re-authored. `.openspec.yaml` now carries `approved_by` +
+`approved_on` **ADDED BESIDE** the untouched drafting provenance — the
+addition-not-rewrite shape `add-drafted-proposal-origin` (issue #318) defined,
+`kind` and `id` unmoved. **NOTHING IS PROMOTED BY THIS RATIFICATION**: no file
+under `openspec/specs/` is edited here, and the block reaches canon only at the
+ARCHIVE, which `code_surface` being non-empty holds behind merged-plus-green
+realization evidence and a separate word.
 
 ## Why
 
@@ -225,5 +243,38 @@ the source packet still standing.
   Its branch is retained at `2bc60386` as the salvage reference: its fail-closed
   reads are candidates for this mechanism's realization, and its FREEZE comment
   records the partial-checkout measurements re-taken above.
-- **Ratification is Brett Heap's word**, and it is a separate act from this
-  landing. Realization and archive are two further acts on two further words.
+- **Ratification was Brett Heap's word and it is GIVEN**: 2026-09-13T22:48Z,
+  verbatim "ratify 1028 as encoded", all five decisions at their RECOMMENDED
+  option (§ Rulings; record `review/ratification-2026-09-13.md`). It is a
+  separate act from this landing. Realization and archive are two further acts
+  on two further words.
+
+## Rulings
+
+**Brett Heap, 2026-09-13T22:48Z, verbatim "ratify 1028 as encoded"** — given
+first-hand in lane `openxfactory-1`'s window as a MULTIPLE-CHOICE ruling over
+all five decisions `design.md` D1 through D5 put, in answer to the standing
+question this pull request asked (ratify-as-encoded / land-as-draft /
+per-decision veto), recorded on PR #1028 at 2026-09-13T22:48:34Z
+([issuecomment-5656710037](https://github.com/opensoft/openxFactory/pull/1028#issuecomment-5656710037))
+and mirrored on issue #1003
+([issuecomment-5656710187](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5656710187)).
+
+**THE WORD REACHES ALL FIVE AT (a), THE RECOMMENDED OPTION, SO THE DELTA'S
+WORDING STANDS UNCHANGED**: not one byte of
+`specs/release-realization/spec.md` moves, and the one `## MODIFIED` block and
+three `## ADDED` requirements are ratified exactly as frozen at `1e57643d`.
+
+| D | Decision | Ruled | Considered, not adopted |
+| --- | --- | --- | --- |
+| **D1** | Where the declaration lives | **RESOLVED (a) — Brett Heap, 2026-09-13T22:48Z, verbatim "ratify 1028 as encoded"** — a top-level `former_ids:` key in the packet's own `.openspec.yaml`, a SIBLING of `origin:` and never a member of it: the file the gate already reads at both ends, the packet's own identity record, and a sibling position that keeps a lawful move from being a mutation of the frozen origin declaration (M3) | (b) a field inside `origin:` — costs a disposition for every lawful move, a mechanism whose ordinary use requires an exception; (c) an estate-level register in the shape of `contracts/policies/repository-identity.yaml` — a repository transfer is estate-wide, a packet move is local and its record must travel with the packet into the archived directory the gate reads |
+| **D2** | What the declaration names | **RESOLVED (a) — Brett Heap, 2026-09-13T22:48Z, verbatim "ratify 1028 as encoded"** — CHANGE IDS, with the path DERIVED, ordered oldest first and appended to rather than rewritten; the id is how this estate already addresses a packet (`ratifying_commit`, `proposal_path_at_ref`, `doc_health.corpus.change_ids`) | (b) declare former PATHS — would restate the archive-directory convention in every packet that ever moved and would have to be RE-declared at archive, which is not an identity change, so the list would stop meaning "the identities this packet has had" |
+| **D3** | Who takes the fail-closed refusal | **RESOLVED (a) — Brett Heap, 2026-09-13T22:48Z, verbatim "ratify 1028 as encoded"** — a NEW house validator run as a required check AT THE LANDING, in the shape `gate-realization-axis-vocabulary` established: `former-id-undeclared` exit 1, `former-id-arrival-unreadable` exit 2 CANNOT RUN, two arms, the archive relocation excepted by id, no bypass flag (#690) | (b) put the refusal in the archive gate — leaves the corpus carrying a laundered rename until the packet archives, by which time the author who could repair it cheaply is gone; (c) a `doc-health` finding — `doc-health` reports and does not refuse, and the ruling's word is "refused" |
+| **D4** | Does the swept-in citation half owe a `doc-health` delta | **RESOLVED (a) — Brett Heap, 2026-09-13T22:48Z, verbatim "ratify 1028 as encoded"** — NO delta in this packet; what the mechanism repairs is a RESOLUTION RULE and it belongs with the identity it resolves (58 of the 94 measured danglers), while REPORTING the remainder is a successor with its own numeral, recorded with its figures at `tasks.md` § 6.1 | (b) add the twenty-fourth family here — a `## MODIFIED` block over a promoted enumeration reading *"twenty-three check families"*, a registry edit, a numeral and a second set of severity decisions this packet has no ruling for; (c) put the reporting sweep in the `cited_to` gate — that gate already refuses on an absent path and needs the resolution rule, not a reporting arm, and its cross-repository dispositions belong to its own design |
+| **D5** | *Origin retention at archive* — MODIFIED or left alone | **RESOLVED (a) — Brett Heap, 2026-09-13T22:48Z, verbatim "ratify 1028 as encoded"** — MODIFY it, carrying every promoted sentence and all three promoted scenarios VERBATIM and only adding, so the modified-block-currency carriage arm has nothing to report and this packet opens no ledger row (M6: no active change holds the title, so no `sequenced_after:` is owed) | (b) three ADDED requirements only — cheaper, and the shape `gate-code-surface-declarations` took, but it would leave two rules over one gate with the older one still saying the baseline is found where it cannot be found |
+
+**EVERY RULING IS THE RECOMMENDED OPTION.** No requirement text was rewritten,
+no scenario was added or removed, no delta directory was renamed and no
+`sequenced_after:` entry moved: `git diff --stat -- openspec/changes/add-declared-former-id/specs/`
+across the ratification commit is EMPTY (0 files), which is the proof rather
+than the claim.

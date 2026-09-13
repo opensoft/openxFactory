@@ -70,6 +70,37 @@ origin:
     realization evidence and a separate word. Issue #1003 stays OPEN on Brett
     Heap's word and closes on no pull request of this packet's.
   proposed_on: 2026-09-13
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — 2026-09-13T22:48Z, verbatim:
+    "ratify 1028 as encoded", given first-hand in lane `openxfactory-1`'s
+    window as a MULTIPLE-CHOICE ruling over all five decisions this packet put
+    for a veto (`design.md` D1 through D5), in answer to the standing question
+    on PR #1028 (ratify-as-encoded / land-as-draft / per-decision veto). It is
+    recorded on that pull request at 2026-09-13T22:48:34Z
+    (https://github.com/opensoft/openxFactory/pull/1028#issuecomment-5656710037),
+    mirrored on issue #1003
+    (https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5656710187),
+    and written out in full at `review/ratification-2026-09-13.md`. The instant
+    is written to the precision the word was taken at and no finer — `22:48Z` —
+    because inventing a second would be inventing evidence.
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED: the drafting
+    provenance above (`kind`, `id`, `reason`, `proposed_by`, `proposed_on`) is
+    kept exactly as authored, which is the shape `add-drafted-proposal-origin`
+    (issue #318) defined for this transition — approval is a pure ADDITION
+    beside a fixed origin identity, and the archive gate's origin-retention arm
+    reads the declaration this act establishes as its baseline.
+    EVERY DECISION TOOK ITS RECOMMENDED OPTION, SO THE DELTA'S WORDING STANDS
+    UNCHANGED: no byte of `specs/release-realization/spec.md` was re-written,
+    restored or deleted by this ratification, and the ratified wording is the
+    wording frozen at `1e57643d`.
+    NOTHING IS PROMOTED, NOTHING IS REALIZED AND NOTHING IS ARCHIVED BY THIS
+    ACT: no file under `openspec/specs/` is edited, no script, validator,
+    register, workflow or test is added or edited, `tasks.md` §§ 2-7 stay open,
+    and `code_surface` being non-empty the archive is a separate act on a
+    separate word held behind merged-plus-green realization evidence. Merge is
+    a separate word again, and openxFactory #1003 stays OPEN on Brett Heap's
+    word.
+  approved_on: 2026-09-13
 related:
   - openxFactory:issue:1003                                                     # THE GOVERNING ISSUE. The rename-chain reproduction, the three candidate remedies, the ruling that selects this one, and this lane's standing claim. Stays OPEN on Brett Heap's word
   - openxFactory:issue:833                                                      # THE DEFECT. Names this mechanism as remedy shape (b) and calls it "a later packet"; also the source of the dangling-cited-path finding this packet sweeps in. CLOSED by PR #846, which took shape (a)

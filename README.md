@@ -533,11 +533,18 @@ Active changes:
 
 - [add-declared-former-id](openspec/changes/add-declared-former-id/proposal.md)
   — filed 2026-09-13, lane `openxfactory-1` (display `openXfactory-1`),
-  **`Status: draft`** — drafting provenance, no approval pair; ratification is
-  Brett Heap's word and a separate act. Filed under his RULING of 2026-09-13 at
+  **`Status: ratified`** (2026-09-13T22:48Z, Brett Heap, openxFactory
+  repository owner, given first-hand in this lane's window — a MULTIPLE-CHOICE
+  ruling over all five `design.md` D1…D5 decisions, verbatim ***"ratify 1028 as
+  encoded"***, recorded on PR #1028 at 2026-09-13T22:48:34Z) — record
+  [`review/ratification-2026-09-13.md`](openspec/changes/add-declared-former-id/review/ratification-2026-09-13.md).
+  **ALL FIVE DECISIONS = (a), THE RECOMMENDED OPTION, SO THE DELTA MOVED NOT
+  ONE BYTE** — the ratified wording is the wording frozen at `1e57643d`, and
+  `.openspec.yaml` now carries `approved_by`/`approved_on` ADDED BESIDE the
+  unmoved drafting pair. Filed under his earlier RULING of 2026-09-13 at
   approximately 03:0xZ, verbatim *"option 2 on 1003 with the fix"*, recorded at
   [#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5650519818),
-  which selects a remedy SHAPE and ratifies no wording. Filing PR
+  which selected a remedy SHAPE and ratified no wording. Filing PR
   [#1028](https://github.com/opensoft/openxFactory/pull/1028).
   **THE SUCCESSOR PACKET TWO LANDED ACTS ALREADY NAME.** PR #846 closed issue
   [#833](https://github.com/opensoft/openxFactory/issues/833) by REFUSING to
@@ -588,7 +595,9 @@ Active changes:
   no script, validator, register or test is added or edited — so per
   `release-realization` this packet archives only on merged-plus-green
   realization evidence, and #1003 stays OPEN on Brett Heap's word and closes at
-  no pull request of this packet's.
+  no pull request of this packet's. **RATIFIED AND NOT ARCHIVED**: `tasks.md`
+  § 1 is ticked and §§ 2-7 stay open; PR #1028 carries the ratification encode
+  and its merge is a separate word, Rule 6 applying at landing.
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
   — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
   (2026-09-13T01:0xZ, Brett Heap, openxFactory repository owner, given in

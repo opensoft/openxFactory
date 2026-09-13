@@ -1,40 +1,66 @@
 # Tasks: add-declared-former-id
 
-Status: draft
+Status: ratified
+Ratified by: add-declared-former-id — 2026-09-13T22:48Z, Brett Heap, verbatim "ratify 1028 as encoded" (record `review/ratification-2026-09-13.md`)
 
-**NOTHING BELOW IS TICKED, AND THAT IS THE STATE OF THE WORK RATHER THAN AN
-OVERSIGHT.** This pull request files a proposal. It edits no file under
-`openspec/specs/`, adds no script, no validator, no register and no test, and
-changes no behaviour of anything that runs. § 1 is decided by a ratification act
-that has not happened; § 2 through § 5 are realization slices that follow it.
+**§ 1 IS TICKED AND NOTHING ELSE IS, AND THAT IS THE STATE OF THE WORK RATHER
+THAN AN OVERSIGHT.** This pull request filed a proposal and now carries its
+ratification. It still edits no file under `openspec/specs/`, adds no script,
+no validator, no register and no test, and changes no behaviour of anything
+that runs. § 1 was decided by a ratification act that has now happened —
+Brett Heap, 2026-09-13T22:48Z, verbatim "ratify 1028 as encoded"; § 2 through
+§ 5 are realization slices that follow it and stay entirely open, § 6 is
+residue taken nowhere, and § 7 (archive) is held behind merged-plus-green
+realization evidence and a further word.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-13, Brett Heap's and nobody else's
 
-- [ ] 1.1 **RULE `design.md` D1 — where the declaration lives.** Recommended:
+- [x] 1.1 **RULE `design.md` D1 — where the declaration lives.** Recommended:
       a top-level `former_ids:` key in the packet's own `.openspec.yaml`, a
       SIBLING of `origin:` and never a member of it. The alternatives and their
       costs are written out in D1; option (c), an estate-level register in the
       shape of `contracts/policies/repository-identity.yaml`, is the one a
       reader is most likely to prefer and the reasons it is not taken are
-      stated there.
-- [ ] 1.2 **RULE `design.md` D2 — the declaration names change IDS, not paths**,
-      ordered oldest first and appended to rather than rewritten.
-- [ ] 1.3 **RULE `design.md` D3 — the fail-closed refusal is taken by a house
+      stated there. **RULED (a)** — Brett Heap, 2026-09-13T22:48Z, verbatim
+      "ratify 1028 as encoded" (`proposal.md` § Rulings;
+      `review/ratification-2026-09-13.md`).
+- [x] 1.2 **RULE `design.md` D2 — the declaration names change IDS, not paths**,
+      ordered oldest first and appended to rather than rewritten. **RULED (a)**
+      on the same word; the path is DERIVED from the id, which is how this
+      estate already addresses a packet.
+- [x] 1.3 **RULE `design.md` D3 — the fail-closed refusal is taken by a house
       validator at the landing**, not by the archive gate and not as a
       `doc-health` finding, with the two refusal statuses, the two arms and the
-      archive-relocation exception as D3 states them.
-- [ ] 1.4 **RULE `design.md` D4 — no `doc-health` delta in this packet**, the
+      archive-relocation exception as D3 states them. **RULED (a)** on the same
+      word; the validator is a § 4 realization slice and is built nowhere here.
+- [x] 1.4 **RULE `design.md` D4 — no `doc-health` delta in this packet**, the
       reporting sweep being a successor with its own numeral. A veto here adds
       a `## MODIFIED Requirements` block over *Deterministic check families*
-      and a registry edit, and D4 prices both.
-- [ ] 1.5 **RULE `design.md` D5 — *Origin retention at archive* is MODIFIED**
+      and a registry edit, and D4 prices both. **RULED (a)** on the same word;
+      no veto was taken, so no such block exists in this packet and § 6.1
+      keeps the successor's figures.
+- [x] 1.5 **RULE `design.md` D5 — *Origin retention at archive* is MODIFIED**
       rather than left standing beside an ADDED requirement that contradicts it.
-- [ ] 1.6 **RATIFY THE TEXT, OR NAME WHAT MOVES.** Ratification is Brett Heap's
+      **RULED (a)** on the same word; the MODIFIED block stands exactly as
+      frozen at `1e57643d`, every promoted sentence and all three promoted
+      scenarios carried verbatim.
+- [x] 1.6 **RATIFY THE TEXT, OR NAME WHAT MOVES.** Ratification is Brett Heap's
       word and is a separate act from this landing. The record is a
       `review/ratification-<date>.md` carrying the verbatim word and its
       recording URL, and `.openspec.yaml` then takes `approved_by` and
       `approved_on` ADDED BESIDE the drafting provenance, `kind` and `id`
-      unmoved.
+      unmoved. **DONE in the ratification commit**: the text is ratified AS
+      ENCODED and NOTHING MOVES — `git diff --stat` over
+      `openspec/changes/add-declared-former-id/specs/` across that commit is
+      empty (0 files). `Status: draft` → `Status: ratified` on `proposal.md`,
+      `design.md` and this file, one citation line each; `design.md`'s five
+      `## D1 … D5` headers each gained an inline `— RULED (a),
+      2026-09-13T22:48Z` marker and no other byte of that file moved; the
+      record is `review/ratification-2026-09-13.md` (`Status: ratified`),
+      carrying the word verbatim and its recording URL; `.openspec.yaml` gained
+      `approved_by` + `approved_on` beside an unmoved `kind`, `id`, `reason`,
+      `proposed_by` and `proposed_on`. The instant is written `22:48Z`, the
+      precision the word was taken at, never invented finer.
 
 ## 2. The declaration and its reader — REALIZATION
 
