@@ -1760,6 +1760,219 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assert_walk_refuses(root, moved, "change-s", renamed_at,
                                      extra_substrings=("#849",))
 
+    # ----------------------------------------------------------------
+    # THE RENAME CHAIN (issue #1003)
+    # ----------------------------------------------------------------
+
+    def rename_and_un_ratify(self, root: Path, old: str, new: str) -> Path:
+        """The #849 hop as ONE commit: `git mv`, and the destination's own
+        header flipped back to `draft` before anything is committed. Its own
+        blob is therefore NOT ratified, which is what kept it out of the
+        walk's question until #999."""
+        changes = root / "openspec" / "changes"
+        git(root, "mv", str(changes / old), str(changes / new))
+        moved = changes / new
+        proposal = moved / "proposal.md"
+        proposal.write_text(
+            proposal.read_text(encoding="utf-8").replace(
+                "Status: ratified", "Status: draft", 1),
+            encoding="utf-8")
+        commit_all(root, f"rename {old} to {new} and un-ratify it")
+        return moved
+
+    def test_a_rename_chain_refuses_at_the_hop_that_moved_the_ratified_packet(self):
+        """THE #1003 SHAPE, routed from the review bench on PR #999. #849
+        closed the un-ratifying rename at ONE hop, and the walk that closed
+        it still enumerates commits with a plain path-limited `git log` for
+        the name the tree spells TODAY — which follows no rename at all. One
+        more hop therefore walked straight past it: after `ratify r →
+        rename+un-ratify r→s → rename s→t while draft → ratify t`, the
+        commits that touched `change-t` BEGIN at the `s→t` rename, whose
+        former blob is a draft and refuses nothing, and the later
+        re-ratification was taken as the baseline — #833's failure and
+        #849's, reached by one hop more than either closed.
+
+        THE NEGATIVE CONTROL IS IN THE FIXTURE, as it is for #833 above, so
+        it holds whatever the code does: the origin at the re-ratification
+        EQUALS the working tree's (a baseline taken there finds nothing to
+        report) while the origin at the real ratification DIFFERS. A walk
+        that re-based onto the chain's end passes this tree; one that
+        refuses cannot pass it by accident.
+
+        AND THE COMMIT NAMED IS THE HOP THAT MOVED THE RATIFIED PACKET — the
+        `r→s` rename — not the `s→t` hop that carried a draft onward, and not
+        the pairing-free re-ratification a caller might otherwise suspect.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = self.sha(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            self.rename_and_un_ratify(root, "change-r", "change-s")
+            moved_at = self.sha(root)
+            moved = self.rename(root, "change-s", "change-t")
+            ratify(moved / "proposal.md")
+            commit_all(root, "re-ratify it under its third name")
+            re_ratified_at = self.sha(root)
+
+            # the negative control, asserted as a property of the history
+            here = support.origin_block_lines(
+                (moved / ".openspec.yaml").read_text(encoding="utf-8"))
+            at_re_ratification = support.origin_block_lines(
+                support.git_show_text(
+                    root, re_ratified_at,
+                    "openspec/changes/change-t/.openspec.yaml"))
+            at_ratification = support.origin_block_lines(
+                support.git_show_text(
+                    root, ratified_at,
+                    "openspec/changes/change-r/.openspec.yaml"))
+            self.assertEqual(here, at_re_ratification)
+            self.assertNotEqual(here, at_ratification)
+
+            # the FIRST hop is named, and the message carries all three
+            # names: the path the packet was ratified under, the path it was
+            # moved to at that commit, and the one it occupies today
+            self.assert_walk_refuses(
+                root, moved, "change-t", moved_at,
+                extra_substrings=("#1003",
+                                  "openspec/changes/change-s/proposal.md"))
+
+    def test_a_three_hop_rename_chain_still_refuses_at_the_first_hop(self):
+        """HOP COUNT IS NOT A PROPERTY OF THE DEFECT. Nothing in the walk
+        should care how many lawful draft renames stand between the move and
+        the name the tree spells today, so this adds a third hop to the
+        fixture above and asserts the same refusal naming the same commit."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            self.rename_and_un_ratify(root, "change-r", "change-s")
+            moved_at = self.sha(root)
+            self.rename(root, "change-s", "change-t")
+            moved = self.rename(root, "change-t", "change-u")
+            ratify(moved / "proposal.md")
+            commit_all(root, "re-ratify it under its fourth name")
+            self.assert_walk_refuses(
+                root, moved, "change-u", moved_at,
+                extra_substrings=("#1003",
+                                  "openspec/changes/change-s/proposal.md"))
+
+    def test_a_draft_renamed_twice_and_ratified_at_the_end_still_archives(self):
+        """RENAMING A DRAFT STAYS LAWFUL, HOWEVER OFTEN IT HAPPENS. This
+        corpus renames drafts (`46059b77`, #834); doing it twice before the
+        ratification is that same lawful act twice, and a walk that follows
+        the lineage must not turn a longer lawful history into a refusal —
+        which is exactly the trap a hop-chain guard refusing on ANY hop
+        would fall into (`ratified_under_a_former_path`, "RESTRICTED TO
+        RENAMES"), this gate having no bypass flag by design (#690)."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root, ratified=False)
+            self.rename(root, "change-r", "change-s")
+            moved = self.rename(root, "change-s", "change-t")
+            ratify(moved / "proposal.md")
+            commit_all(root, "record the ratification under the third name")
+            head = self.sha(root)
+            self.assertEqual(support.ratifying_commit(root, "change-t"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-t"), [])
+
+    def test_a_ratified_packet_renamed_twice_refuses_at_the_first_hop(self):
+        """A CHAIN CARRYING NO UN-RATIFICATION AT ALL still refuses, because
+        renaming a RATIFIED change is blocked outright until a change
+        declares a former id (#833; `docs/document-lifecycle.md` § "Gates In
+        Practice": "Renaming a ratified change is therefore blocked until a
+        change declares a FORMER ID").
+
+        WHAT THE LINEAGE WALK MOVES HERE IS WHICH COMMIT THE REFUSAL NAMES.
+        The single-path walk saw only the LAST hop — the one commit that
+        touched the name the tree spells today — and named it; the lineage
+        walk reaches the FIRST hop, where the ratified packet actually left
+        the name it was ratified under, and names that instead. Both refuse;
+        the earlier commit is the one an operator can act on."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            self.rename(root, "change-r", "change-s")
+            moved_at = self.sha(root)
+            moved = self.rename(root, "change-s", "change-t")
+            self.assert_walk_refuses(
+                root, moved, "change-t", moved_at,
+                extra_substrings=("#1003",
+                                  "openspec/changes/change-s/proposal.md"))
+
+    def test_a_draft_fork_by_copy_renamed_afterwards_still_archives(self):
+        """THE FORK-BY-COPY BOUNDARY SURVIVES THE CHAIN. A predecessor is
+        followed as a RENAME only (`kinds="R"`), never as a copy, so a packet
+        authored as a draft COPY of a ratified one — and renamed afterwards
+        while still a draft — is ordinary authoring and stays archivable. A
+        lineage walk that followed the copy hop backwards would land in the
+        SOURCE packet's ratified history and refuse a lawful fork
+        permanently, this gate having no bypass flag (#690). The sibling
+        single-hop fixture above pins the same boundary at one hop; this one
+        pins it after the lineage walk has a hop to follow."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            copy = root / "openspec" / "changes" / "change-t"
+            shutil.copytree(directory, copy)
+            proposal = copy / "proposal.md"
+            proposal.write_text(
+                proposal.read_text(encoding="utf-8").replace(
+                    "Status: ratified", "Status: draft", 1),
+                encoding="utf-8")
+            commit_all(root, "copy the ratified packet as a new draft")
+            moved = self.rename(root, "change-t", "change-u")
+            ratify(moved / "proposal.md")
+            commit_all(root, "ratify the forked packet under its own name")
+            head = self.sha(root)
+            self.assertTrue(directory.is_dir())
+            self.assertEqual(support.ratifying_commit(root, "change-u"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-u"), [])
+
+    def test_an_un_ratification_before_the_rename_is_a_stated_gap(self):
+        """A STATED GAP, PINNED RATHER THAN CLOSED — the precedent being
+        #846's own `test_an_unratifying_rename_escapes_the_guard_a_stated_gap`,
+        which pinned #849's shape with a fixture until #999 closed it.
+
+        Where the un-ratification is its OWN commit and the rename comes
+        later, every hop in the lineage moved a DRAFT, so no hop moved an
+        already-ratified packet and nothing refuses: the baseline is the
+        later re-ratification, exactly as it was before #1003. Closing this
+        one turns on whether a re-ratification after a return to draft is
+        lawfully a NEW baseline — a governance question rather than an
+        author's — and #1003 names the shape whose un-ratification rides IN
+        the rename commit rather than this one. So today's answer is pinned
+        here and left where it is, and a later change that means to move it
+        has to move this fixture and say so."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            proposal = directory / "proposal.md"
+            proposal.write_text(
+                proposal.read_text(encoding="utf-8").replace(
+                    "Status: ratified", "Status: draft", 1),
+                encoding="utf-8")
+            commit_all(root, "return the ratified packet to draft")
+            moved = self.rename(root, "change-r", "change-s")
+            ratify(moved / "proposal.md")
+            commit_all(root, "re-ratify it under the new name")
+            head = self.sha(root)
+            self.assertEqual(support.ratifying_commit(root, "change-s"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-s"), [])
+
     def test_the_guard_reads_any_spelling_of_the_candidate_commit(self):
         """A REVISION IS A REVISION, however it is spelled — and getting that
         wrong is silent NON-detection, which is the failure class this whole

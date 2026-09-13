@@ -497,6 +497,20 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
 # onto, and inventing one from rename detection alone would be this gate
 # guessing at the identity it exists to hold fixed. Following a ratified
 # change across a declared rename is a later packet.
+#
+# AND THE WHOLE LINEAGE IS ASKED, NOT ONE PATH (issue #1003). That refusal
+# can only be raised for commits the walk ENUMERATES, and the enumeration is
+# path-limited to the name the tree spells today — so a ratified packet
+# renamed and un-ratified in one commit, renamed AGAIN while draft, and
+# re-ratified under its third name put the guilty hop outside the
+# enumeration entirely, and the walk accepted the re-ratification exactly as
+# it did before #833 (measured on the reproduction in #1003, routed there
+# from PR #999's review bench). The hops are now followed backwards through
+# `renamed_from` — renames only, never copies, so a lawful fork-by-copy
+# stays archivable — and every commit of every earlier name is asked the
+# same question with the name it had then. The baseline is still resolved
+# under the current name alone, because there is still nothing to re-base
+# onto.
 # --------------------------------------------------------------------------
 
 
@@ -631,8 +645,8 @@ def renamed_from(root: Path, revision: str, rel: str, *,
     40-hex hash and be answered None — NO PAIRING, no refusal: the #833
     defect back, reached through a caller rather than a config. So the
     revision is resolved to its commit hash first (`rev-parse --verify
-    <revision>^{commit}`, which also peels an annotated tag). The only
-    caller today passes a full hash straight out of `git log --format=%H`,
+    <revision>^{commit}`, which also peels an annotated tag). Both callers
+    today pass a full hash straight out of `git log --format=%H`,
     so this changes no answer in this corpus; it is here so that a future
     call site cannot switch the guard off by naming its commit differently
     (raised by the review bench on PR #846, pinned by
@@ -708,7 +722,11 @@ def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
     this function for EVERY commit its walk visits, not only the one whose
     blob happens to declare `ratified`, so the rename-and-un-ratify commit is
     asked the question too and answers it before any later re-ratification is
-    ever reached.
+    ever reached. Since issue #1003 the commits it asks are the packet's
+    WHOLE RENAME LINEAGE's — every name it has had, each asked with the name
+    it had then — but the question asked at each of them is the one stated
+    here, unwidened: `_predecessor_history` changes which commits reach this
+    function, never what it answers.
 
     RESTRICTED TO RENAMES (`kinds="R"`) FOR THAT BROADER CALL, deliberately,
     because a COPY answers the same question ambiguously. The wider closure —
@@ -759,6 +777,212 @@ def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
     if before is not None and declares_ratified(before):
         return former
     return None
+
+
+_LINEAGE_HOP_LIMIT = 64
+
+
+def _commits_touching(root: Path, rel: str,
+                      until: str | None = None) -> list[str]:
+    """The commits that touched `rel`, OLDEST FIRST, optionally bounded above
+    by `until` — the revision the history is read from, so a predecessor's
+    commits can be asked for as they stood BEFORE the hop that renamed it.
+
+    `--full-history --topo-order --reverse` for the reason `ratifying_commit`
+    states and re-states: MISSING the earliest ratified blob is the failure
+    that matters, so history simplification must not prune a commit that
+    changed the file on a merged branch and a rebased clock must not reorder
+    anything. NOT `--follow`, which is the other way this could have been
+    written and the reason it is not: `--follow` walks the SIMPLIFIED history
+    of one path, so making it the enumeration would trade the `--full-history`
+    property away to buy the rename hops — and the hops are bought instead,
+    without that trade, by `_predecessor_history` below asking `renamed_from`
+    one commit at a time.
+
+    A GIT THAT CANNOT ANSWER ANSWERS WITH NO COMMITS: an unreadable history
+    and a bound that does not resolve (`<root commit>^`, the ordinary one at
+    the end of a lineage) both mean "there is nothing earlier here", which is
+    what an empty list says. A caller that must not pass on silence is the
+    one that establishes a baseline, and it treats no commits as no
+    ratification, exactly as it did when this was inline.
+    """
+    arguments = ["--full-history", "--topo-order", "--reverse", "--format=%H"]
+    if until is not None:
+        arguments.append(until)
+    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "log", *arguments, "--", rel],
+        capture_output=True, text=True, check=False,
+    )
+    if listed.returncode != 0:
+        return []
+    return listed.stdout.split()
+
+
+def _moved_packet_refusal(change: str, rel: str, path: str, former: str,
+                          revision: str) -> OriginRetentionError:
+    """The `origin-retention-path-moved` refusal, in ONE place for the two
+    callers that raise it.
+
+    `path` is the name the packet occupied AT `revision`; `rel` is the one it
+    occupies now. They are the same string for every hop that touched the
+    name the tree spells today — which was every hop this refusal could reach
+    before issue #1003 — so that wording is unchanged to the byte, and the
+    lineage case ADDS a sentence rather than rewording the rest: an operator
+    who has read this refusal before should not have to re-read it to find
+    what is different, and what is different is only that the hop sits
+    earlier in the packet's rename lineage than the commits that touched its
+    current name.
+    """
+    short = revision[:12]
+    message = (
+        f"REFUSE origin-retention-path-moved: {change}: the "
+        f"origin-retention walk CANNOT RUN. Commit {short} carries "
+        f"`{path}` in from `{former}`, which already declared "
+        f"`Status: ratified` at {short}^ — so this change was "
+        f"ratified under a path that is not the one it occupies now "
+        f"(`{rel}`), and {short} is a MOVE OR COPY of that ratified "
+        f"packet rather than its ratification, whatever `{path}` "
+        f"itself declares as of {short} — and if `{former}` still "
+        f"stands in the tree then the packet was COPIED to this id "
+        f"rather than moved to it, which git pairs the same way and "
+        f"which leaves the same baseline unestablishable. Taking "
+        f"{short} or any later commit under `{path}` as the baseline "
+        f"would compare the packet against itself and wave through "
+        f"every origin mutation made between the real ratification "
+        f"and it — the `ORIGIN RETAINED` measured on issue #777, "
+        f"the failure issue #833 names, and the same failure "
+        f"reached through an un-ratifying rename (issue #849). "
+        f"Nothing in this corpus declares a FORMER ID, so the "
+        f"baseline cannot be established from history alone and "
+        f"this walk refuses rather than re-basing onto that "
+        f"commit: archive {change} under the id it was ratified "
+        f"with, or land the former-id declaration (a later packet) "
+        f"before renaming a ratified change. Renaming a DRAFT "
+        f"change is unaffected.")
+    if path != rel:
+        message += (
+            f" AND THE HOP IS NOT AT THIS PACKET'S CURRENT NAME: `{path}` "
+            f"was itself renamed onward to `{rel}` later, so the move above "
+            f"sits EARLIER IN THE RENAME LINEAGE than any commit that "
+            f"touched the name the tree spells today — the chain shape issue "
+            f"#1003 names, which a walk enumerating only `{rel}`'s own "
+            f"history never reaches.")
+    return OriginRetentionError(message)
+
+
+def _refuse_if_moved(root: Path, change: str, rel: str, path: str,
+                     revision: str) -> bool:
+    """Put ONE commit to the walk's question, and answer whether the packet's
+    own blob declares `ratified` there.
+
+    RAISES when `revision` brought the packet into `path` from a name that
+    already declared `Status: ratified` at `revision^` — with `kinds="RC"`
+    where the blob at `path` is itself ratified (a MOVE OR COPY landing
+    already-ratified, issue #833) and `kinds="R"` where it is not (a true
+    rename, the former path gone, issue #849; a COPY there is the lawful
+    fork-by-copy `ratified_under_a_former_path` protects). Both readings are
+    that function's — this is the pair of them asked at one commit, WITH THE
+    PATH THAT COMMIT SPELLED, so that the current-name loop in
+    `ratifying_commit` and the lineage walk beside it cannot drift apart
+    about what the question is.
+    """
+    blob = git_show_text(root, revision, path)
+    ratified_here = blob is not None and declares_ratified(blob)
+    former = ratified_under_a_former_path(
+        root, revision, path, kinds="RC" if ratified_here else "R")
+    if former is not None:
+        raise _moved_packet_refusal(change, rel, path, former, revision)
+    return ratified_here
+
+
+def _predecessor_history(root: Path, change: str, rel: str, path: str,
+                         revision: str, seen: set[tuple[str, str]],
+                         hops: int) -> None:
+    """Ask the walk's question of the packet's EARLIER NAMES, where `revision`
+    renamed it into `path` from one of them (issue #1003).
+
+    THE OUTER WALK FOLLOWS NO RENAME, and that is the gap this closes. Its
+    enumeration is `git log -- <one path>`, which lists the commits that
+    touched THE NAME THE TREE SPELLS TODAY and nothing else, so #849's
+    closure — asking every commit the walk visits, not only the ones whose
+    blob declares `ratified` — reached exactly ONE hop. Measured on the shape
+    routed from PR #999's review: after `ratify r → rename+un-ratify r→s →
+    rename s→t while draft → ratify t`, the commits under `t` BEGIN at the
+    `s→t` hop, whose former blob (`s`) is a draft and refuses nothing, and
+    the re-ratification under `t` carries no pairing of its own — so the walk
+    took that as its baseline, later than the real ratification, waving
+    through every mutation in between. The `r→s` hop, where the ratified
+    packet actually moved, was never enumerated at all.
+
+    SO THE LINEAGE IS ASSEMBLED HOP BY HOP, out of `renamed_from` rather than
+    out of a `--follow` enumeration: `--follow` would have to REPLACE the
+    outer walk, and it follows the simplified history of one path, trading
+    away the `--full-history` property that walk depends on. Taking the hops
+    from `renamed_from` keeps both properties at once — each name in the
+    lineage is still enumerated `--full-history --topo-order --reverse`, and
+    the hops themselves come from the `--follow` pairing NO GIT CONFIG CAN
+    SWITCH OFF (see `renamed_from`, and the fixture carrying the hostile
+    config).
+
+    PREDECESSORS ARE ASKED FIRST, so a refusal names the EARLIEST hop that
+    moved an already-ratified packet rather than whichever hop the
+    enumeration happened to reach first. That is the commit an operator can
+    act on: it is where the packet left the name it was ratified under.
+
+    RENAMES ONLY (`kinds="R"`), never copies, which is the line #999 drew for
+    the same reason. A COPY leaves the source standing, so following one
+    backwards would walk into the SOURCE packet's history and take its
+    ratification as this packet's problem — refusing a packet honestly
+    authored as a draft copy of a ratified one, the fork-by-copy this gate
+    must not trap, on a gate with no bypass flag by design (#690).
+
+    AND A RATIFICATION UNDER A FORMER NAME IS NEVER A BASELINE. The lineage
+    is asked for its REFUSALS, not for a commit to re-base onto: nothing in
+    this corpus declares a former id, so a baseline under a name the tree no
+    longer spells cannot be established at all (#833), and where one is found
+    the answer is the refusal above rather than a quiet re-base onto it. This
+    therefore returns nothing, and `_refuse_if_moved`'s answer is read only
+    by the caller that owns the current name.
+
+    A LINEAGE DEEPER THAN `_LINEAGE_HOP_LIMIT` REFUSES rather than recursing
+    without bound. No packet in this corpus is renamed twice, let alone
+    sixty-four times, so the cap is not a policy about renaming: it is the
+    same rule as every other arm here — a check that cannot run must not
+    pass — applied to a history this walk would not be able to finish.
+
+    WHAT THIS DOES NOT REACH, stated rather than implied: an un-ratification
+    landing in its OWN commit BEFORE the rename leaves every hop moving a
+    DRAFT, so no hop answers the question and the later re-ratification is
+    still the baseline. Whether a re-ratification after a return to draft is
+    lawfully a NEW baseline is a governance question rather than this
+    function's; #1003 names the shape whose un-ratification rides IN the
+    rename commit; and today's answer for the other shape is pinned by
+    `test_an_un_ratification_before_the_rename_is_a_stated_gap` rather than
+    changed here.
+    """
+    former = renamed_from(root, revision, path, kinds="R")
+    if former is None:
+        return
+    if hops >= _LINEAGE_HOP_LIMIT:
+        raise OriginRetentionError(
+            f"REFUSE origin-retention-path-moved: {change}: the "
+            f"origin-retention walk CANNOT RUN. Following this packet's "
+            f"rename lineage back from `{rel}` passed "
+            f"{_LINEAGE_HOP_LIMIT} hops without reaching a name that was "
+            f"never renamed into — `{path}` came in from `{former}` at "
+            f"{revision[:12]} — which nothing in this corpus does, so the "
+            f"walk stops rather than following a lineage it cannot bound. "
+            f"The baseline was never established, and a check that cannot "
+            f"run must not pass (issue #1003).")
+    if (former, revision) in seen:
+        return
+    seen.add((former, revision))
+    for earlier in _commits_touching(root, former, f"{revision}^"):
+        _predecessor_history(root, change, rel, former, earlier, seen,
+                             hops + 1)
+        # the answer belongs to the CURRENT name's loop: a ratification under
+        # a former name is a refusal there, never a baseline here
+        _refuse_if_moved(root, change, rel, former, earlier)
 
 
 def ratifying_commit(root: Path, change: str) -> str | None:
@@ -822,50 +1046,32 @@ def ratifying_commit(root: Path, change: str) -> str | None:
     see `ratified_under_a_former_path`'s own "RESTRICTED TO RENAMES" — so a
     packet honestly authored as a draft copy of a ratified one stays
     archivable.
+
+    AND THE COMMITS VISITED ARE THE WHOLE LINEAGE'S, NOT ONLY THOSE THAT
+    TOUCHED THE NAME THE TREE SPELLS TODAY (issue #1003). Asking every
+    visited commit left the ENUMERATION path-limited, and a path-limited
+    `git log` follows no rename, so the closure above reached exactly ONE
+    hop: put a lawful draft rename between the move and the current name —
+    `ratify r → rename+un-ratify r→s → rename s→t while draft → ratify t` —
+    and the walk for `t` begins at the `s→t` hop, whose former blob is a
+    draft, while the `r→s` hop that moved the ratified packet is never
+    enumerated. So before each visited commit is asked its own question,
+    `_predecessor_history` asks it of the commits that made the packet's
+    EARLIER NAMES what they were, hop by hop, oldest first, renames only.
+
+    THE BASELINE STILL COMES FROM THE CURRENT NAME ALONE. A ratification
+    found under a former name is a refusal and never a commit to re-base
+    onto, for the reason this docstring already gives: nothing here declares
+    a former id, so a baseline under a name the tree no longer spells cannot
+    be established at all.
     """
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", change):
         raise SupportError(f"invalid change name: {change}")
     rel = f"openspec/changes/{change}/proposal.md"
-    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
-        ["git", "-C", str(root.resolve()), "log", "--full-history",
-         "--topo-order", "--reverse", "--format=%H", "--", rel],
-        capture_output=True, text=True, check=False,
-    )
-    if listed.returncode != 0:
-        return None
-    for revision in listed.stdout.split():
-        blob = git_show_text(root, revision, rel)
-        ratified_here = blob is not None and declares_ratified(blob)
-        former = ratified_under_a_former_path(
-            root, revision, rel, kinds="RC" if ratified_here else "R")
-        if former is not None:
-            short = revision[:12]
-            raise OriginRetentionError(
-                f"REFUSE origin-retention-path-moved: {change}: the "
-                f"origin-retention walk CANNOT RUN. Commit {short} carries "
-                f"`{rel}` in from `{former}`, which already declared "
-                f"`Status: ratified` at {short}^ — so this change was "
-                f"ratified under a path that is not the one it occupies now "
-                f"(`{rel}`), and {short} is a MOVE OR COPY of that ratified "
-                f"packet rather than its ratification, whatever `{rel}` "
-                f"itself declares as of {short} — and if `{former}` still "
-                f"stands in the tree then the packet was COPIED to this id "
-                f"rather than moved to it, which git pairs the same way and "
-                f"which leaves the same baseline unestablishable. Taking "
-                f"{short} or any later commit under `{rel}` as the baseline "
-                f"would compare the packet against itself and wave through "
-                f"every origin mutation made between the real ratification "
-                f"and it — the `ORIGIN RETAINED` measured on issue #777, "
-                f"the failure issue #833 names, and the same failure "
-                f"reached through an un-ratifying rename (issue #849). "
-                f"Nothing in this corpus declares a FORMER ID, so the "
-                f"baseline cannot be established from history alone and "
-                f"this walk refuses rather than re-basing onto that "
-                f"commit: archive {change} under the id it was ratified "
-                f"with, or land the former-id declaration (a later packet) "
-                f"before renaming a ratified change. Renaming a DRAFT "
-                f"change is unaffected.")
-        if ratified_here:
+    seen: set[tuple[str, str]] = set()
+    for revision in _commits_touching(root, rel):
+        _predecessor_history(root, change, rel, rel, revision, seen, 0)
+        if _refuse_if_moved(root, change, rel, rel, revision):
             return revision
     return None
 
