@@ -142,14 +142,21 @@ mapping manifest. Measured in the landed file:
 | --- | ---: | --- |
 | `moved_verbatim` | **160** | the arrived blob's `sha256` and mode EQUAL the row's |
 | `moved_with_declared_edit` | **158** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
-| `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
+| `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares lines** (RULED Q-L7 (a) — one line at that ruling, two today) and its copies are held to them |
 
-**318 rows move. 1584 declared edit lines**: `import rewrites` 708, `path
-constants` 202, `adapter calls` 674. **159 rows carry `edits:`** — the 158
+**318 rows move. 1632 declared edit lines**: `import rewrites` 712, `path
+constants` 202, `adapter calls` 718. **159 rows carry `edits:`** — the 158
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
 `views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
 the one row that moves BOTH disposition counts and the carrier count at once.
+The PRE-EXISTING `openxdox_code` annotation (`#656` CLAIM `5656688910`) then
+added **+48 declared lines and moved nothing else**: the four rows it declares
+— three moved rows and the conftest replica — ALL carried `edits:` already, so
+neither disposition count nor the carrier count moves with it. It is the first
+act on this document that is not a slice: it declares edits that landed at
+openXdox-code BEFORE Q-L1's pairing became general (`#656` comment
+`5642758731`, 2026-09-12 02:07Z), which is why no slice ever owned them.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
@@ -193,18 +200,29 @@ test-layout files that carve leg 1 measured:
   (which pins openDox), and `openxdox.X` would name modules openXdox does not
   own.
 * `tests/ideation-dashboard/conftest.py` gains the first **`edits:` any replica
-  row has carried** — `path constants`, line 25. `REPO_ROOT =
+  row has carried** — `path constants`, line 25. A SECOND line joined it later,
+  `:271` under `adapter calls`, when the pre-existing `openxdox_code`
+  annotation declared openXdox-code#14's 27-line § 4.4 pytest fixture — the
+  bound is still on the LINE and still applied at every replica, and
+  openDox-code's copy does not take it (measured at `05bbde80`: 271 lines, the
+  declared `:25` and nothing else). `REPO_ROOT =
   HERE.parent.parent` resolves outside the destination repository once the copy
   lands one directory shallower at `tests/conftest.py`, and must read
   `HERE.parent`. It is applied identically at every replica, which is a bound on
   the LINE: `verify-carve-arrival.py` verifies one destination per run and
   compares no two legs' copies with each other.
 
-The **one replica line belongs to no destination column below** (the 1422nd
-when this paragraph was written, the 1584th now): a replica row names no
-destination at all, so the per-leg declared-line figures still sum to one less
-than the total, and that line is owed by every leg
-that places that conftest — both `-code` legs. **Under every other `not_moved`
+The **two replica lines belong to no destination column below** — `:25` (the
+1422nd declared line when this paragraph was written) and, since the
+pre-existing `openxdox_code` annotation, `:271`: a replica row names no
+destination at all, so the per-leg declared-line figures below exclude both,
+and both lines are owed by every leg
+that places that conftest — both `-code` legs. **That per-leg column is STALE
+and this act deliberately does not move it**: its four cells still sum to 1421,
+the figure before the § 3.4 slice-S5 annotation's +162 — S5 moved the aggregate
+and left the per-destination table where it stood. Registered here rather than
+quietly re-derived, because slices S7 and S8 are in flight over the same cells
+and ONE act should redistribute them. **Under every other `not_moved`
 reason `edits:` is still a refusal**: RULING OQ-B's three
 `stays_openxfactory_governance` rows stay here and take their import rewrite in
 openxFactory, so they go on recording it in `evidence:`. And this is **not**
@@ -308,7 +326,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 1584 now.
+from the start — 794 of them at this ruling's own landing, 1632 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738

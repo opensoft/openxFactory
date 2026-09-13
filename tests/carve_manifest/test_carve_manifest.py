@@ -2283,8 +2283,15 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     replica = rows["tests/ideation-dashboard/conftest.py"]
     assert replica["disposition"] == "not_moved", replica
     assert replica["reason"] == MODULE.REPLICA_REASON, replica
+    # The SECOND entry is the pre-existing `openxdox_code` annotation's (`#656`
+    # CLAIM `5656688910`): openXdox-code#14 appends a 27-line § 4.4 pytest
+    # fixture beside this file's LAST carve line, and an insertion at the end
+    # of a file has ONE neighbour. A replica has no row of its own, so the
+    # declaration is row-wide and openDox-code's copy simply does not take it
+    # (measured at `05bbde80`: 271 lines, the `:25` depth fix and nothing
+    # else) — a permission, never an obligation.
     assert [(edit["class"], edit["lines"]) for edit in replica["edits"]] == \
-        [("path constants", [25])], replica
+        [("path constants", [25]), ("adapter calls", [271])], replica
 
     # The ruling's own pairing: the replica IMPORTS the moved row's module
     # unconditionally, which is why one amendment carries both.
@@ -2413,7 +2420,22 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # also the FIRST act to use RULED Q6's `re_destined:` field, on four rows;
     # a re-destination is not an edit and moves neither figure, which the next
     # test measures.
-    assert (lines, carrying) == (1584, 159), (lines, carrying)
+    #
+    # AND THEN THE PRE-EXISTING `openxdox_code` ANNOTATION (`#656` CLAIM
+    # `5656688910`) moved the LINE figure alone. It is the first act on this
+    # document that is not a § 3.4 slice: openXdox-code#14 (`3840c167`) and #16
+    # (`17384c07`) landed RULING C2's § 4.4 work at the destination BEFORE
+    # Q-L1's pairing became general (`#656` comment `5642758731`,
+    # 2026-09-12 02:07Z), so no slice ever owned their edits, and openxFactory
+    # #1023 § 5 listed them as `openxdox_code`'s remaining refusals rather than
+    # absorbing them. Four rows are declared — `gate_console.py` (26 lines),
+    # `generator.py` (17, split into the two acts that made them),
+    # `test_generator.py` (4) and the conftest REPLICA (:271, the fourth and
+    # the one #1023 could not see, because `--allow-created` had been used
+    # where the runbook's `--replica-at` belongs and that suppresses the
+    # replica's own line check). All four carried `edits:` already, so the
+    # carrier count does not move: 1584 + 48 = 1632 on 159 rows.
+    assert (lines, carrying) == (1632, 159), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -2605,6 +2627,56 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
          [161, 162, 163, 168, 177, 190, 191, 194, 195, 573, 574, 579, 582,
           596, 601, 609]),
     ], swb_session_row
+
+    # THE PRE-EXISTING `openxdox_code` ANNOTATION, PINNED THE SAME WAY (`#656`
+    # CLAIM `5656688910`) — on the same reasoning as every pin above: the
+    # aggregate would still pass if these 48 lines had landed on the wrong
+    # rows, under the wrong class, or split across a different set of counts
+    # summing to 48. Each row carried `edits:` before this act, so every new
+    # entry is picked out by its exact lines, the idiom the S3/S4/S6 pins use.
+    # The conftest replica's entry is pinned with the rest of its row above.
+    gate_console_row = rows["scripts/ideation_dashboard/gate_console.py"]
+    preexisting_gate_console_adapters = [
+        167, 168, 169, 170, 171, 826, 903, 968, 1012, 1135, 1150, 1151, 1154,
+        1155, 1157, 1339, 1351, 1374, 1487, 1550, 1551, 1569, 1651, 2241]
+    assert len(preexisting_gate_console_adapters) == 24, \
+        preexisting_gate_console_adapters
+    preexisting_gate_console = [
+        (edit["class"], edit["lines"]) for edit in gate_console_row["edits"]
+        if edit["lines"] in ([64, 65], preexisting_gate_console_adapters)]
+    assert preexisting_gate_console == [
+        # `from . import domain_profile`, inserted between :64 and :65 — BOTH
+        # neighbours named, which is the form every insertion slice S5
+        # declared at this destination already takes.
+        ("import rewrites", [64, 65]),
+        ("adapter calls", preexisting_gate_console_adapters),
+    ], gate_console_row
+
+    generator_row = rows["scripts/ideation_dashboard/generator.py"]
+    preexisting_generator = [
+        (edit["class"], edit["lines"]) for edit in generator_row["edits"]
+        if edit["lines"] in ([326, 327, 348, 366, 891, 892, 893],
+                             [76, 77, 78, 79, 80, 81, 438, 439, 456, 459])]
+    assert preexisting_generator == [
+        # TWO entries on one row, because they are two acts by two pull
+        # requests: openXdox-code#14's two resolvers and their three call
+        # sites, then #16's exclusion-check vocabulary. One entry, one commit.
+        ("adapter calls", [326, 327, 348, 366, 891, 892, 893]),
+        ("adapter calls", [76, 77, 78, 79, 80, 81, 438, 439, 456, 459]),
+    ], generator_row
+
+    test_generator_row = rows["tests/ideation-dashboard/test_generator.py"]
+    preexisting_test_generator = [
+        (edit["class"], edit["lines"]) for edit in test_generator_row["edits"]
+        if edit["lines"] in ([7, 8], [352, 353])]
+    assert preexisting_test_generator == [
+        # `from types import SimpleNamespace` is an insertion of NOTHING BUT an
+        # import statement; the 76-line block beside :352/:353 is the new
+        # tests, four of whose lines are function-local imports — the class of
+        # an insertion is what the insertion IS.
+        ("import rewrites", [7, 8]),
+        ("adapter calls", [352, 353]),
+    ], test_generator_row
 
 
 def test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines() -> None:
