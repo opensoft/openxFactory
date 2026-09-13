@@ -625,9 +625,9 @@ Active changes:
   ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4 — and the TIGHTENING
   commits that encode the re-ruling MOVE NO BOX, changing only what 1.2's
   RULED annotation records, what § 3 states about the rule it realizes, and
-  adding ONE UNTICKED § 3 line (3.8) that records the publisher's enumeration
-  as the closure prerequisite — not filed, not claimed, not owed by this
-  change. Item (7) of the
+  recording, as prose under § 3 and not as a task line, the publisher's
+  enumeration as the closure prerequisite — not filed, not claimed, not
+  owed by this change. Item (7) of the
   `split-openxwallet-repo` archived-ledger entry stays UNTICKED — it
   discharges on archive.
 

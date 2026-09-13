@@ -42,9 +42,10 @@ carries the defect, so the family MUST keep reporting it at the same band.
 - **AND** its remedy text MUST name the pin registry rather than `openspec/specs/` or an active change
 
 #### Scenario: A pinned target fails on the pin record's capability enumeration
-- **WHEN** a live marker names a pinned target whose pin record resolves but carries no `capabilities:` enumeration, or carries one that is malformed, or carries a well-formed one that does not name the target's capability
+- **WHEN** a live marker names a pinned target whose pin record resolves, through the code-fixed route, to a valid, COMPLETE `kind: pinned_contract_manifest` record for its record shape, and that record carries no `capabilities:` enumeration, or carries one that is malformed, or carries a well-formed one that does not name the target's capability
 - **THEN** the run MUST emit a tag-hygiene finding naming that pin record and which of those three the defect is
 - **AND** where the enumeration is ABSENT, the remedy text MUST name the publisher's act — `capabilities:` added through a `neutral-product-pin` change — rather than `openspec/specs/`, an active change, or an invented list written into this repository's copy of the pin
+- **AND** a record of another kind, or one incomplete for its shape, is judged by the kind and shape findings and never reaches this scenario or the publisher remedy
 
 #### Scenario: The grammar evolves
 - **WHEN** an OpenSpec change modifies the marker grammar in `document-lifecycle`

@@ -16,8 +16,8 @@ Record: `review/ratification-2026-09-12.md`. BOXES TICKED BY THE RATIFYING
 COMMIT: 1.1, 1.2, 1.3, 1.4 — AND NO OTHERS; the TIGHTENING commits that
 encode the re-ruling MOVE NO BOX AT ALL — they change what 1.2's RULED
 annotation records and what § 3 states about the rule it realizes, and they
-ADD one UNTICKED line (3.8) recording a prerequisite that is outside this
-change. This
+record, as PROSE under § 3 and not as a task line, a prerequisite that is
+outside this change. This
 commit ticks NO box in § 2,
 § 3 or § 4: § 2's boxes stand exactly as the filing pull request left them
 (all seven already `[x]`, recording what that pull request did), § 3 and § 4
@@ -611,16 +611,19 @@ the later realization pull request, and § 4 is the archive act.
   ZERO at realization, because under the fail-closed D-2 they do not**; a
   realization pull request asserting zero would be asserting something the tree
   does not show.
-- [ ] 3.8 **THE CLOSURE PREREQUISITE, NAMED HERE AND NOT FILED.** The four
-  findings reach ZERO only when `contracts/openxwallet-pin.yaml` carries a
-  well-formed `capabilities:` enumeration naming `openxwallet` — the
-  PUBLISHER's act, admitted into a real pin record through a
-  `neutral-product-pin` change with openXwallet, and no part of this packet or
-  of its realization. This line RECORDS that prerequisite so no later reader
-  takes realization for closure. **It is NOT filed, NOT claimed and NOT owed by
-  this change**: no issue is opened for it, no successor is named, and this box
-  does not gate this packet's archive, which turns on the realization evidence
-  of 3.7 and on nothing the publisher does.
+**CLOSURE PREREQUISITE — RECORDED HERE AS PROSE, NOT AS A TASK, AND NOT
+FILED.** The four findings reach ZERO only when
+`contracts/openxwallet-pin.yaml` carries a well-formed `capabilities:`
+enumeration naming `openxwallet` — the PUBLISHER's act, admitted into a real
+pin record through a `neutral-product-pin` change with openXwallet, and no
+part of this packet or of its realization. This paragraph RECORDS that
+prerequisite so no later reader takes realization for closure. **It is NOT
+filed, NOT claimed and NOT owed by this change**: no issue is opened for it,
+no successor is named, and it is recorded as prose and not as a task line
+PRECISELY so that it cannot gate this packet's archive —
+`scripts/proposal-support.py` refuses to archive any change whose `tasks.md`
+still carries an unticked box — and the archive turns on the realization
+evidence of 3.7 and on nothing the publisher does.
 
 ## 4. Archive — a separate act on Brett Heap's word
 

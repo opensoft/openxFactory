@@ -138,9 +138,9 @@ carries:
 word that answers it and on nothing else. **ACT 5 MOVES NO BOX.** 1.2 was
 answered at 23:20Z and is answered still; what changed is the ANSWER, so the
 box stays `[x]` and its RULED annotation is rewritten to record both acts. The
-tightening commits add ONE UNTICKED line to § 3 (3.8), which records a
-prerequisite that belongs to openXwallet's publisher and is neither filed,
-claimed, nor owed by this change.
+tightening commits add NO box: the publisher's enumeration prerequisite is
+recorded as prose under § 3, and belongs to openXwallet's publisher, neither
+filed, claimed, nor owed by this change.
 
 ## What this ratification does NOT do
 

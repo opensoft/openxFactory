@@ -353,11 +353,12 @@ not the thing that happens when nobody decides.
 - **AND** an ABSENT enumeration, a malformed enumeration, and a well-formed enumeration in which `<capability>` does not appear, are OUTSIDE this scenario and are judged by their own scenarios below
 
 #### Scenario: A pin record named by a pinned target carries no capability enumeration
-- **WHEN** a live marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` resolves and is complete for its record shape, and it carries NO top-level `capabilities:` member
+- **WHEN** a live marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` resolves, through the code-fixed route, to a valid, complete `kind: pinned_contract_manifest` record for its record shape, and it carries NO top-level `capabilities:` member
 - **THEN** the target MUST NOT resolve, the enumeration being a prerequisite of resolution rather than a condition on it
 - **AND** the deterministic health pass MUST report an unresolved pinned target naming that pin record and the root it resolved against
 - **AND** the remedy MUST name the PUBLISHER's act — the pinned product's publisher adds `capabilities:` through a `neutral-product-pin` change — rather than `openspec/specs/`, an active change, or an invented list written into this repository's own copy of the pin
 - **AND** the pass MUST NOT read the absent member as a licence to take the capability name as declared
+- **AND** a record of another kind, or one incomplete for its shape, is judged by the kind and shape findings and never reaches this scenario or the publisher remedy
 
 #### Scenario: A pinned capability is absent from the pin record's enumeration
 - **WHEN** a marker names `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` carries a well-formed non-empty `capabilities:` member, and `<capability>` does not appear in it
