@@ -129,6 +129,17 @@ that has not happened; § 2 through § 5 are realization slices that follow it.
       what `docs/document-lifecycle.md` already promises: *"renaming a DRAFT
       change, and a single commit that renames a draft and ratifies it, are
       unaffected"*. Fixtures on both sides of the qualification.
+- [ ] 4.2a **READ THE SOURCE'S WHOLE DECLARED LINEAGE, NOT ITS ID ALONE.** The
+      "ever ratified" test covers the source packet's own id TOGETHER WITH every
+      id it declares in `former_ids:` at the commit's parent — otherwise a
+      packet that already moved once lawfully (X ratified, X→Y declared and
+      returned to draft, then Y→Z) passes its second landing on Y's own empty
+      history and stands with no lineage. This is ONE blob at ONE commit and not
+      a history walk. Fixture: the three-id chain, refused at the second hop.
+- [ ] 4.2b **REQUIRE THE ARRIVING LIST TO BE THE SOURCE'S LIST PLUS THE SOURCE
+      ID**, in the source's own order. A move that drops an entry the source
+      declared sheds a lineage, which is the same defect as never declaring one.
+      Fixture: a declared move whose destination omits an inherited entry.
 - [ ] 4.3 **EXCEPT THE ARCHIVE RELOCATION BY ID.**
       `openspec/changes/<id>/` to `openspec/changes/archive/<YYYY-MM-DD>-<id>/`
       with the id unchanged passes with no declaration.
@@ -149,6 +160,13 @@ that has not happened; § 2 through § 5 are realization slices that follow it.
 - [ ] 5.2 **LEAVE THE CROSS-REPOSITORY CASE OUT OF SCOPE ON THE TREE BEING
       READ**, a reference to another repository's packet being no evidence about
       that reference.
+- [ ] 5.1a **RESOLVE BOTH HALVES OF A PACKET-RELATIVE CITATION.** The location
+      the identity resolves to must also carry the remainder the citation names;
+      an identity that resolves to a packet not carrying the cited file is
+      DANGLING, reported against the FILE and not against the packet. Resolving
+      the identity alone would accept a citation to a file deleted, renamed or
+      never written. Fixtures: a live id with a deleted remainder; an archived id
+      whose remainder moved inside the packet.
 - [ ] 5.2a **REPORT AN AMBIGUOUS REFERENCE RATHER THAN RESOLVING IT.** An id
       that would resolve to more than one candidate is AMBIGUOUS, and the defect
       belongs to the declaration that made one identity resolve twice rather

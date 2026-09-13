@@ -226,6 +226,22 @@ the commit that performs the move, which is the only place the question is
 cheap: a move lands as one commit, so the gate reads one commit and never a
 chain, and the author who made the move is the author who is asked.
 
+THE SOURCE IDENTITY IS THE SOURCE PACKET'S WHOLE DECLARED LINEAGE — its own id
+TOGETHER WITH every id it declares in `former_ids:` at that commit's parent —
+and the "ever ratified" test SHALL be taken over all of them. Reading the source
+id alone would lose a packet that has already moved once lawfully: X ratified,
+X moved to Y with the move declared and the header returned to draft, then Y
+moved to Z undeclared. Y's own id never declared `Status: ratified`, so a test
+over Y alone would pass the second landing and Z would stand with no lineage at
+all. THIS IS NOT A HISTORY WALK: the source packet's own declaration is one
+blob at one commit, and every id it names is asked directly, exactly as the
+baseline resolution asks them.
+
+AND THE ARRIVING PACKET'S LIST SHALL BE THE SOURCE'S LIST WITH THE SOURCE ID
+APPENDED — every entry the source carried, in the order it carried them, then
+the id the move came from. A move that drops an entry the source declared is a
+move that sheds a lineage, which is the same defect as never declaring one.
+
 A MOVE OF A PACKET THAT HAS NEVER BEEN RATIFIED IS OUT OF SCOPE AND STAYS
 LAWFUL. Renaming a draft is an ordinary authoring act this estate performs, the
 promoted realization record says so in as many words — *"renaming a DRAFT
@@ -279,6 +295,15 @@ would be the declaration nobody writes.
 - **THEN** the landing MUST be refused unless the arriving packet declares the source id
 - **AND** the test MUST be the source identity's whole history and never its blob at the commit's parent
 
+#### Scenario: A packet that already moved lawfully moves again
+- **WHEN** a packet ratified under one id, moved to a second with the move declared and the header returned to draft, is moved to a third
+- **THEN** the "ever ratified" test MUST reach the id the packet declares as its former identity, so the second move is refused unless it too is declared
+- **AND** the arriving packet's list MUST be the source's list with the source id appended, so no entry the source declared is dropped
+
+#### Scenario: A move drops an entry the source declared
+- **WHEN** a declared move's destination omits an id the source packet carried in its own `former_ids:`
+- **THEN** the landing MUST be refused, a move that sheds a lineage being the same defect as never declaring one
+
 #### Scenario: The declared move lands
 - **WHEN** the moving commit carries the source id in the destination packet's `former_ids:`
 - **THEN** the landing passes and the identity continuity is on the record where the archive gate will read it
@@ -304,6 +329,14 @@ A PACKET-RELATIVE PATH CARRIES THE ID IT ADDRESSES, so this rule reaches
 citations written as paths and not only citations written as ids: the second
 segment of `openspec/changes/<id>/…` names the packet, and the remainder names a
 file within it, which is what makes the reference re-resolvable at all.
+
+BOTH HALVES SHALL RESOLVE, AND A FAILURE SHALL SAY WHICH HALF FAILED. Where a
+citation names a file inside the packet, the location the identity resolves to
+MUST also carry that remainder; an identity that resolves to a packet which does
+not carry the cited file is a DANGLING reference, reported against the file and
+not against the packet. Resolving the identity alone would accept a citation to
+a file that was deleted, renamed or never written — a defect this rule exists to
+find, spelled at a finer grain than the one the archive relocation breaks.
 
 THE DEFECT IS THAT NOTHING RESOLVES THEM. A citation contract that requires a
 citation and never checks that it leads anywhere accepts a citation to a path
@@ -342,6 +375,10 @@ it belongs to the declaration that created the collision.
 #### Scenario: A cited path resolves to no identity at all
 - **WHEN** a cited packet id names no active directory, no archived directory, and no declared former id
 - **THEN** the reference is dangling and is a defect of the citing record
+
+#### Scenario: The identity resolves and the cited file does not
+- **WHEN** a citation's packet id resolves but the location it resolves to does not carry the remainder the citation names
+- **THEN** the reference is dangling and the report MUST name the FILE as the half that failed, the identity having resolved
 
 #### Scenario: A reference names another repository's packet
 - **WHEN** a citation names a packet in a repository other than the one being read

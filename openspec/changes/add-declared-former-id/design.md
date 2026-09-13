@@ -432,3 +432,46 @@ the edit: `sequenced_after.py`'s `archived_change_dirs` docstring and
 `docs/document-lifecycle.md`'s draft-rename sentence. The delta grew from
 **twenty scenarios to twenty-seven** (7 + 8 + 7 + 5) and `tasks.md` from 29
 boxes to 34, all unticked.
+
+## D10 — The bench's second round: three threads, ALL THREE TAKEN
+
+Posted on head `94a0e6cd`, the commit that took round one. Two of the three are
+defects the round-one fixes CREATED or left half-closed, which is the reason a
+second round is bench and not ceremony.
+
+**(1) THE QUALIFICATION ROUND ONE ADDED COULD BE SHED BY MOVING TWICE.**
+Round one narrowed the landing refusal to a source identity that has EVER
+declared `Status: ratified`. Read over the source's OWN id alone, that admits a
+three-id chain: X ratified; X moves to Y with the move DECLARED and the header
+returned to draft; Y then moves to Z undeclared. Y's own id never declared
+`ratified` — it was created already in draft — so the second landing would pass
+and Z would stand with no lineage at all, which contradicts this packet's own
+`tasks.md` § 4.2 and D8. **Taken:** the source identity is now the source
+packet's WHOLE DECLARED LINEAGE — its own id together with every id it declares
+in `former_ids:` at that commit's parent — and the packet says in the same
+breath why this is not the history walk the ruling refuses: the source's
+declaration is ONE blob at ONE commit, and each id it names is asked directly,
+exactly as the baseline resolution asks them. The same finding's other half is
+now normative too: the arriving packet's list SHALL be the source's list WITH
+THE SOURCE ID APPENDED, in the source's own order, so a move cannot shed a
+lineage by omission. Three scenarios added, `tasks.md` § 4.2a and § 4.2b.
+
+**(2) THE REFERENCE RULE RESOLVED THE PACKET AND NOT THE FILE.** *A packet
+reference resolves by identity, not by path* identified the packet by the second
+path segment and defined dangling only as a failure to resolve an IDENTITY — so
+`openspec/changes/<live-id>/deleted-file` would have been non-dangling. **Taken:**
+both halves must resolve, the location the identity resolves to must carry the
+remainder the citation names, and a failure SAYS WHICH HALF FAILED — reported
+against the FILE where the identity resolved. Scenario *The identity resolves
+and the cited file does not*, `tasks.md` § 5.1a with two fixtures. This is a
+finer grain than the defect the archive relocation causes, and the rule is
+better for reaching it.
+
+**(3) THE README ROW'S OWN COUNT WAS STALE BY ONE.** The row said the MODIFIED
+block added three scenarios; round one's ambiguity scenario made it four, and
+the row's own total said seven. Corrected to FOUR, and the delta total restated
+as **thirty** (7 + 8 + 9 + 6) after this round. A packet index that disagrees
+with the packet is exactly the class of defect this packet is about.
+
+**Nothing refused; the delta is twenty-seven scenarios to thirty and `tasks.md`
+34 boxes to 37, all unticked.**

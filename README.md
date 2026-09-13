@@ -548,11 +548,11 @@ Active changes:
   a change declares a FORMER ID (issue #833, a successor packet)"*. **ONE
   `## MODIFIED` BLOCK AND THREE `## ADDED` REQUIREMENTS** over
   `release-realization` — *Origin retention at archive* (MODIFIED; every
-  promoted sentence and all three promoted scenarios carried verbatim, three
+  promoted sentence and all three promoted scenarios carried verbatim, FOUR
   scenarios added), *A moved packet declares the identity it was ratified
   under*, *An undeclared rename arrival is refused at its landing*, and *A
-  packet reference resolves by identity, not by path* (**twenty-seven
-  scenarios**, 7 + 8 + 7 + 5, the bench's first round having added seven). `sequenced_after: []` is a corroborated root claim: no active
+  packet reference resolves by identity, not by path* (**thirty scenarios**,
+  7 + 8 + 9 + 6, the bench's two rounds having added ten). `sequenced_after: []` is a corroborated root claim: no active
   change holds a MODIFIED block over *Origin retention at archive*, the only
   other occurrence of the title under `openspec/changes/*/specs/` being one line
   of prose in `add-structured-scope-substrate`'s delta. **THE DECLARATION

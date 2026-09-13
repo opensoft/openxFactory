@@ -141,8 +141,12 @@ met after a lawful move.
    arriving packet declares the source id in the SAME commit; a move of a packet
    that has never been ratified stays lawful and declares nothing, as the
    promoted realization record already promises. The test is EVER, over the
-   source identity's whole history, and never its blob at the parent — a packet
-   renamed and un-ratified in one commit is back in draft at every later hop.
+   source's whole DECLARED LINEAGE — its own id together with every id it
+   declares — and never its blob at the parent: a packet renamed and un-ratified
+   in one commit is back in draft at every later hop, and a packet that already
+   moved once carries its ratification under an id its own header never bore.
+   The arriving packet's list is the source's list with the source id appended,
+   so no move sheds a lineage.
    A move lands as one commit, so one commit is read and no chain is ever
    walked. The arrival read fails closed: where the pairing cannot be computed
    and the tree shows both an arrival and a departure, the gate refuses CANNOT
@@ -150,9 +154,11 @@ met after a lawful move.
 3. **A packet reference resolves by identity, not by path** (ADDED). A reference
    that addresses a packet resolves by its change id — against the location that
    id occupies now, active or archived, and against any packet declaring that id
-   as a former id. Resolution is to EXACTLY ONE packet or to nothing and never
-   to a set: an id that would resolve twice is reported AMBIGUOUS, never settled
-   by sort order. A reference is dangling only when it resolves to nothing under
+   as a former id. BOTH HALVES of a packet-relative citation resolve: the
+   location the identity resolves to must also carry the file the citation
+   names, and a failure says which half failed. Resolution is to EXACTLY ONE
+   packet or to nothing and never to a set: an id that would resolve twice is
+   reported AMBIGUOUS, never settled by sort order. A reference is dangling only when it resolves to nothing under
    that rule, and a reference that resolves owes the citing record no edit.
 4. **Origin retention at archive** (MODIFIED). The baseline is resolved across
    the current identity and every declared former identity together, taking the
