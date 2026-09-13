@@ -15,10 +15,14 @@ Governing packet: `register-gate-rules-council-seats` **AMENDMENT 2** —
   oxF PR #971 → `3402d93a`; RATIFIED and encoded at oxF PR #993 → `323c7adf`.
   This act is its tasks **6.9-6.15** (with **6.14** carried in the same commit)
 Ratifying human: **Brett Heap** (`Brett.Heap@opensoft.one`)
-Effective instant: **`2026-09-12T16:33:01Z`** — ONE instant, taken once from
+Effective instant: **`2026-09-13T02:20:48Z`** — ONE instant, taken once from
   `date -u`, written identically into `grant-grc-0002`'s
   `revocation.revoked_at`, into `grant-grc-0003`'s `issued_at`, into the fifth
-  wallet key's `custody.declared_at`, and here
+  wallet key's `custody.declared_at`, and here. **RE-STAMPED AT THE FILL** from
+  the composed-day value `2026-09-12T16:33:01Z`, under § 6.3 step 2's rule,
+  because the mint landed the day after the act was composed (§ 6.2, § 6.8)
+Mint (task 6.8): **DONE** — minted host-side by Brett Heap, secret provisioned
+  **`2026-09-13T02:12:15Z`**; this act is FILLED and carries no placeholder (§ 6.8)
 Predecessor walk: [`walk-2026-09-11-register-act.md`](walk-2026-09-11-register-act.md)
   — `grant-grc-0002`'s own issuance. **This act supersedes it; it does not
   re-derive it.**
@@ -28,17 +32,24 @@ Lane: hermes-wallet-exercise
 
 ## 0. THE HEADLINE, BEFORE THE DETAIL
 
-**THIS ACT IS PRE-STAGED AND IT IS NOT COMPLETE.** It carries **ONE
-PLACEHOLDER** — the public half of a keypair **Brett Heap has not minted yet** —
-and it **CANNOT MERGE** until that placeholder is filled. That is deliberate,
-and § 6.3 is the recipe.
+**THIS ACT WAS PRE-STAGED, AND IT IS NOW FILLED.** It carried **ONE
+PLACEHOLDER** — the public half of a keypair Brett Heap had not yet minted — and
+it **COULD NOT MERGE** until that placeholder was filled. **The mint happened**,
+host-side, the secret provisioned `2026-09-13T02:12:15Z` (task 6.8), and the
+fill was performed against § 6.3's own recipe. **The tree now carries the real
+public half in all five slots and the REQUIRED `wallet-validation` gate reads
+`0 error(s), 0 warning(s)`, `9 of 9 per-seat signing key(s)` and
+`6 declared key(s)`.** § 6.3 is the recipe as it was written; **§ 6.8 is the
+fill as it was performed**. What remains is Brett Heap's merge, and the merge
+is T2 (§ 7.3).
 
 Everything the mint does NOT determine is written, measured and proved here:
 the revocation and its reason class, the successor grant and its scope, the
 row repoint, the fifth seat entry's identity fields, the wallet declaration,
 the two literal gate counts, and the test that pins them. The mint determines
-exactly one fact — **32 bytes** — and that one fact appears in this tree as
-**one placeholder token**.
+exactly one fact — **32 bytes** — and that one fact appeared in this tree as
+**one placeholder token**. Since the fill it appears as the minted public half,
+in the same five slots, derived through the pinned decoder (§ 6.8).
 
 **What is DONE, and is not a formality:**
 
@@ -54,8 +65,11 @@ exactly one fact — **32 bytes** — and that one fact appears in this tree as
 
 **What is NOT done, and none of it is a formality:**
 
-* **THE MINT (amendment task 6.8) HAS NOT HAPPENED** (§ 6.3). It is Brett
-  Heap's, host-side, and it is the PRECONDITION of this act.
+* ~~**THE MINT (amendment task 6.8) HAS NOT HAPPENED** (§ 6.3). It is Brett
+  Heap's, host-side, and it is the PRECONDITION of this act.~~ **IT HAS NOW
+  HAPPENED** — Brett Heap minted it host-side and the secret was provisioned
+  `2026-09-13T02:12:15Z` (§ 6.8). The line is struck rather than deleted, so the
+  pre-staged state this record was written in stays legible.
 * **THIS ACT IS NOT MERGED.** The merge **is T2** (§ 7.3).
 * **STEP 5b IS NOT DONE BY THIS ACT** (§ 8). Until the projection is re-derived
   the runtime keeps refusing with `review_authority.root_key_mismatch` and **NO
@@ -77,7 +91,7 @@ are not identical in what they cover.
 | the event | enrolled-roster **model pin flip** (alias → exact) | **prompt-corpus edit** over a fixed four-seat roster | **SEAT ADDITION — the roster grew** |
 | components moved | 1 (`model_version`) | 2 (`prompt_contract`) | **1 AND 2, both** |
 | seats before → after | 4 → 4 | 4 → 4 | **4 → 5** |
-| a new key minted? | no | no | **YES — and it is not minted yet** |
+| a new key minted? | no | no | **YES — minted host-side `2026-09-13T02:12:15Z`, § 6.8** |
 | `seat_keys` entries touched | none | none | **one ADDED (the ninth)** |
 | wallet file edited? | no | no | **YES — a fifth declared key** |
 | consuming gate counts moved? | no | no | **YES — two literals, task 6.14** |
@@ -88,7 +102,9 @@ already exist. This one does, and the key's private half is Brett Heap's to
 generate host-side under a TTY (**OQ-1 ruled (a)**, 2026-09-11T17:08:42Z). So
 this record is filed **ahead of** the fact it depends on, and says so in every
 place the fact is missing, rather than waiting and composing under time
-pressure after the mint.
+pressure after the mint. **THE FACT HAS SINCE ARRIVED** (§ 6.8): the mint landed
+`2026-09-13T02:12:15Z` and the five slots carry it. The places that named the
+fact as missing are corrected in place and the correction says what it was.
 
 ---
 
@@ -99,8 +115,8 @@ pressure after the mint.
 | **§5.1 act 1 — REVOKE** | `grants/grant-grc-0002.yaml`: `state: revoked`, `revocation.revoked_at`, reason class **DRIFT** naming **SEAT ADDITION** (§ 5.1) |
 | **§5.1 act 2 — MINT** | `grants/grant-grc-0003.yaml`, new root grant, no `parent_grant_ref` (§ 5.2) |
 | **§5.1 act 3 — REPOINT** | `register.yaml` `row-grc-0001.grant_ref` → `grant-grc-0003` (§ 5.3) |
-| **task 6.12 — REGISTER the key** | `register.yaml` `seat_keys` gains its NINTH entry (§ 5.4) — **placeholder** |
-| **task 6.13 — DECLARE the key** | `wallets/wal-agent-grc-0001.yaml` `keys` gains its FIFTH entry (§ 5.5) — **placeholder** |
+| **task 6.12 — REGISTER the key** | `register.yaml` `seat_keys` gains its NINTH entry (§ 5.4) — **FILLED** (§ 6.8) |
+| **task 6.13 — DECLARE the key** | `wallets/wal-agent-grc-0001.yaml` `keys` gains its FIFTH entry (§ 5.5) — **FILLED** (§ 6.8) |
 | **task 6.14 — move the literals** | `.github/workflows/openxwallet-consumer-gate.yml` `8 of 8` → `9 of 9` and grc `5 declared key` → `6 declared key`, plus the test that pins them (§ 5.6) |
 | **§5.1 — the NON-WRITES** | no second row; no custody-attestation edit; no `revocation_staleness_bound` edit; `row-mrc-0001` untouched (§ 5.7) |
 | **step 4 — the R8 record** | this file (§ 6) |
@@ -294,7 +310,8 @@ Before the writes, on `origin/main` at `5972c8f3055d325e7fb6bd5a701a4b3c6d6ca105
 ### 5.1 REVOKE — `grant-grc-0002`, in place
 
 `state: active` → **`revoked`**; `revocation.revoked_at:
-"2026-09-12T16:33:01Z"`; `revocation.reason` of class **DRIFT**, **575
+"2026-09-13T02:20:48Z"` (re-stamped at the fill from `2026-09-12T16:33:01Z`, § 6.2);
+`revocation.reason` of class **DRIFT**, **575
 characters** against the pinned schema's `maxLength: 600` (measured, not
 estimated). The free text names **SEAT ADDITION**, as task 6.9 requires — the
 2026-09-11 precedent's named the prompt-corpus pin move, and a reason that read
@@ -359,8 +376,8 @@ Added after the gate-rules `company-policy-lead` entry, in the seven-field shape
 | `council_ref` | `agent:gate-rules-council` |
 | `council_id` | `gate_rules_council` |
 | `key_id` | `key-grc-seat-client-security-compliance-officer-0001` |
-| `public_key` | **PLACEHOLDER** (§ 6.3) |
-| `key_fingerprint` | **PLACEHOLDER** (§ 6.3) |
+| `public_key` | `cxm-qmZVKXb_B5aucwuNzeOrXbgLPMKqa6D6DX1DUiQ` — the mint's public half, VERBATIM (§ 6.8) |
+| `key_fingerprint` | `sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310` — recomputed by the reader from the line above |
 | `authorizing_row` | `row-grc-0001` |
 
 The `key_id` follows the established naming scheme exactly — `key-grc-seat-` +
@@ -381,14 +398,20 @@ refused on arrival.
 Seven fields, the shape of the four above it: `did`, `key_id`,
 `key_fingerprint`, `public_key_multibase`, `signature_algorithm: ed25519`,
 `display_label`, `custody` (`model: holder_readable`, `registry_version: 1`,
-`declared_at`, `declared_by: Brett.Heap`). **Three of the seven carry the
+`declared_at`, `declared_by: Brett.Heap`). **Three of the seven carried the
 placeholder** — `did`, `key_fingerprint`, `public_key_multibase` — because all
-three are encodings of the SAME 32 bytes.
+three are encodings of the SAME 32 bytes. **All three are now filled** from the
+one minted public half, each derived through the pinned decoder (§ 6.8):
+`did:key:z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7`, `sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310`,
+`z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7`.
 
 **`custody.declared_at` is the REGISTER ACT's effective instant**
-(`2026-09-12T16:33:01Z`), not a mint instant this file cannot know. If the fill
-lands materially later than 2026-09-12 it is re-stamped together with the other
-two instants of this act — § 6.3 step 2 — never left to drift silently.
+(`2026-09-13T02:20:48Z`), not a mint instant this file cannot know. The fill
+landed on 2026-09-13, the day after the act was composed, so the instant WAS
+re-stamped together with the other two instants of this act — § 6.3 step 2 —
+rather than left to drift silently: `2026-09-12T16:33:01Z` → `2026-09-13T02:20:48Z`.
+**The mint's own instant, `2026-09-13T02:12:15Z`, is recorded at § 6.8 and in the
+codexFactory mint record; it is deliberately not written into this field.**
 
 **NOTE WHAT IS NOT ADDED.** The entry carries no `minted_by` and no `minted_at`.
 Those field names appear nowhere in this family; the pinned reader enforces an
@@ -455,7 +478,7 @@ window instead of `wallet-validation`. Measured: `18 passed`.
 | **superseding grant reference** | **`grant-grc-0003`** — minted by this act. Root grant, no `parent_grant_ref` |
 | **composition hash issued against** | **STILL PENDING R6/R7 — filled with a SUBSTITUTE, EXPLICITLY LABELLED ONE.** See § 6.1 |
 | **ratifying human** | **Brett Heap** (`Brett.Heap@opensoft.one`), the anchored responsible operator under the Human Escalation Contract |
-| **effective time** | **`2026-09-12T16:33:01Z`** — one instant, taken once, written into four places (§ 6.2) |
+| **effective time** | **`2026-09-13T02:20:48Z`** — one instant, taken once, written into four places (§ 6.2); RE-STAMPED at the fill from `2026-09-12T16:33:01Z` under § 6.3 step 2 |
 
 ### 6.1 The composition hash — still PENDING, and what stands in for it
 
@@ -473,7 +496,7 @@ empty field**: a later reader could not tell the two apart.
 
 ### 6.2 The effective instant — one instant, four places
 
-`2026-09-12T16:33:01Z`, taken once from `date -u`, written byte-identically
+`2026-09-13T02:20:48Z`, taken once from `date -u`, written byte-identically
 into:
 
 1. `grant-grc-0002.yaml` `revocation.revoked_at`
@@ -485,15 +508,30 @@ into:
 conflated.** T2 is the **merge** of this pull request — the window boundary
 § 13.1 measures to. The precedent's gap was ~27 minutes (compose
 2026-09-11T02:12:30Z, merge 02:29:10Z) and before that ~9.6 hours
-(2026-09-02). **THIS ACT'S GAP WILL BE LARGER AND MAY BE DAYS**, because it
-waits on a mint that has not happened. That is disclosed, not minimized: **the
-hold, not the timestamp, is what covers the window**, and § 6.3 step 2 makes
-re-stamping an explicit, named step of the fill rather than something a reader
-has to notice.
+(2026-09-02). **THIS ACT'S GAP WAS LARGER**, because it waited on a mint that
+had not happened when the act was composed. That is disclosed, not minimized:
+**the hold, not the timestamp, is what covers the window**, and § 6.3 step 2
+makes re-stamping an explicit, named step of the fill rather than something a
+reader has to notice.
+
+**AND THE RE-STAMP HAPPENED, WHICH IS WHY THIS SECTION READS 2026-09-13T02:20:48Z.**
+The act was composed pre-staged on 2026-09-12 and took `2026-09-12T16:33:01Z`
+then. The mint landed `2026-09-13T02:12:15Z` — **not the same day** — so § 6.3
+step 2's rule fired and ONE fresh `date -u` value, `2026-09-13T02:20:48Z`, was
+written into all four places above in the fill commit. **The superseded value is
+recorded, here and beside each field, and not silently dropped**; a reader
+comparing this record with the pre-fill commit `764006df` sees both instants and
+the rule that moved them. **The mint instant is a FIFTH fact and is deliberately
+NOT one of the four** — it lives at § 6.8 and in the codexFactory mint record,
+because a custody declaration records when the act declared the key, not when
+the operator generated it.
 
 ### 6.3 ⚠ THE ONE PLACEHOLDER, AND THE RECIPE THAT FILLS IT
 
-**THE MINT HAS NOT HAPPENED.** Amendment task 6.8, **OQ-1 ruled (a)** at
+**THE MINT HAS HAPPENED — `2026-09-13T02:12:15Z` — AND § 6.8 RECORDS IT.** This
+section is left standing as it was written, in the tense it was written in,
+because it is the recipe the fill was actually held to; read it as the
+instruction and § 6.8 as the discharge. Amendment task 6.8, **OQ-1 ruled (a)** at
 2026-09-11T17:08:42Z: **Brett Heap mints and holds it**, host-side, as a FRESH
 TTY-gated ceremony and never a rerun of stored state — the task 3.2 ceremony
 generalized to one seat. Seed generated in-process (`secrets.token_bytes(32)`),
@@ -506,7 +544,12 @@ binds that exact secret NAME
 fail-closed refusal count moved 4 → 5 in the same H1 act. **NO SEED, EVER, IN
 ANY FILE.**
 
-**THE PLACEHOLDER TOKEN, exactly:**
+**THE PLACEHOLDER TOKEN, exactly as it stood in the tree at `764006df`** — it
+is quoted here and no longer appears in any file. **Its parenthetical `(task
+3.2)` is a MIS-NUMBERING and is corrected here rather than in the quote: the
+amendment task that performed this mint is 6.8**, and `task 3.2` names only the
+PRECEDENT ceremony this one generalizes (that is the sense every other `task
+3.2` in this packet carries, and those are correct as written):
 
 ```
 <<PUBLIC KEY — Brett's host-side mint (task 3.2), secret COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER>>
@@ -553,9 +596,10 @@ check. That is the safety net; it is not a substitute for deriving correctly.
 6. Then, in order: § 13.1 the window check, § 13.2 the 5b read (on his separate
    operator word), § 13.3 the lift, § 13.4 the proof convening, § 13.5 C2.
 
-**WHAT THE PLACEHOLDER REFUSES TODAY, MEASURED** (§ 6.5): six errors, all of
-them the placeholder's, none of them anything else. **A pre-staged act that
-could merge unfilled would be worse than one that cannot.**
+**WHAT THE PLACEHOLDER REFUSED WHILE IT STOOD, MEASURED** (§ 6.5): six errors,
+all of them the placeholder's, none of them anything else. **A pre-staged act
+that could merge unfilled would be worse than one that cannot.** All six are
+gone on the filled tree and nothing replaced them (§ 6.8).
 
 ### 6.4 `issued_by` — carried from the precedent, and flagged
 
@@ -621,6 +665,92 @@ consumes `wallet-v1.5`. The finding is absent from the measured output above.
   warning, 16 info; 0 new regressions**, and it exits non-zero on `origin/main`
   already. The identical set after the edits is what this act claims — **not**
   that the repository is clean.
+
+### 6.8 THE FILL — the mint, its values, and the gates on the filled tree
+
+**THE MINT HAPPENED, AND IT IS BRETT HEAP'S ACT.** Task 6.8, host-side and
+TTY-gated: the seed generated in-process, never written to disk, the private
+half passed to `gh secret set` on stdin with `--body` omitted. **No lane, no
+agent and no file in this repository ever held the private half. Every value in
+this section is a PUBLIC one.**
+
+| Fact | Value |
+|---|---|
+| secret | `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER`, `codeXfactory/codexFactory` environment `worker-credentials` |
+| `provisioned_at` | **`2026-09-13T02:12:15Z`** — the CONFIRMING `gh secret list` read, not the store attempt |
+| `public_key` (base64url) | `cxm-qmZVKXb_B5aucwuNzeOrXbgLPMKqa6D6DX1DUiQ` |
+| `key_fingerprint` | `sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310` |
+| `did:key` | `did:key:z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7` |
+| `public_key_multibase` | `z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7` |
+| derivation | `scripts/validate-factory-identity.py --derive`, at openXwallet `f3eb929b` (`wallet-v1.5`) — the pinned decoder named at § 6.3, and never a second tool |
+| mint record | codexFactory PR #452 — `hermes/domain/review-councils/records/2026-09-12-gate-rules-seat-signing-key-minted-csc.md` |
+
+**THE DERIVED FIELDS WERE NOT HAND-TYPED.** The fill took the public half ALONE
+and re-derived `did`, `key_fingerprint` and `public_key_multibase` through the
+pinned decoder, so a transcription slip in the operator's hand-back sentence
+could not enter the tree. The five substituted values were then byte-compared
+against the hand-back's own derived triple and matched exactly, and the pinned
+reader independently recomputes the fingerprint from BOTH encodings — which is
+the safety net § 6.3 promised, exercised.
+
+**FOOTNOTE — A FIRST SEED WAS PROVISIONED AND DELETED, UNUSED.** An earlier run
+of the same ceremony provisioned the same secret name at `2026-09-13T00:33:05Z`.
+Its PUBLIC half was lost to a swallowed non-TTY stdout, so nothing could be
+registered from it. **No file, no register entry, no wallet declaration and no
+convening ever carried or consumed it**; the secret was DELETED before use and
+the ceremony re-run. The `2026-09-13T02:12:15Z` seed above is the only one this
+act registers. The first is recorded because a later reader of the repository's
+secret history will see two provisioning events on one name and is owed the
+reason for the first.
+
+**THE FOUR BANNERS THAT NAMED THE FACT AS MISSING, CORRECTED IN PLACE.** The
+pre-staged act said so "in every place the fact is missing" (§ 1). Four of those
+places are standing banners rather than the five slots, and the fill CORRECTS
+EACH IN PLACE RATHER THAN REWRITING IT, so the state each was written in stays
+legible and a reader of the merged tree is never told the file cannot merge:
+
+| # | where | what it said | the correction |
+|---|---|---|---|
+| 1 | `register.yaml`, above `seat_keys[8]` | "THE PUBLIC HALF BELOW IS A PLACEHOLDER AND THIS FILE IS NOT MERGEABLE UNTIL IT IS FILLED … HAS NOT HAPPENED YET" | a dated block naming the mint, the decoder, and `0 error(s)` / `9 of 9` |
+| 2 | `wal-agent-grc-0001.yaml`, above the four existing keys | "THE FIFTH ENTRY'S KEY MATERIAL IS A PLACEHOLDER … NOT MERGEABLE in this state" | a dated block naming the mint and `6 declared key(s)` |
+| 3 | `wal-agent-grc-0001.yaml`, above `keys[4]` | "PLACEHOLDER — NOT MERGEABLE UNTIL FILLED. Amendment task 6.8's mint has not happened" | a dated block naming the mint and the fingerprint agreement across both encodings |
+| 4 | `tasks.md`, the 2026-09-12 pre-stage block | "6.8 — THE MINT HAS NOT HAPPENED … cannot merge until it is filled" | the bullet STRUCK, plus a dated 2026-09-13 addendum recording the tick, the re-stamp, and that nothing else moved |
+
+**None of the four is deleted.** Each superseded sentence is still readable
+beside its correction, which is the same treatment § 0 and § 7 item 7 give their
+own struck lines and the treatment `register.yaml` already gave the sentence its
+row comment corrected. **A governance file that merges while asserting it cannot
+merge is a defect, not a formality** — that is why these are part of the fill and
+not left to Part C.
+
+**THE GATES, ON THE FILLED TREE** (compare § 6.5's unfilled column):
+
+| Command | Filled tree |
+|---|---|
+| `scripts/verify-openxwallet-pin.py` | OK — `openXwallet@f3eb929b` (`wallet-v1.5`), 8 digest(s) recomputed |
+| `openXwallet/scripts/wallet-yaml-syntax-gate.py .` | exit 0 |
+| `openXwallet/scripts/validate-openxwallet.py .` | **`0 error(s), 0 warning(s)`**; `2 row(s)`; **`9 of 9 per-seat signing key(s)`**; `wal-agent-grc-0001: 6 declared key(s)` |
+| `pytest tests/openxwallet_consumer_gate` | 18 passed |
+| `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` | the same three pre-existing `disposition-codexfactory-*` failures as `origin/main`, **0 new**; this change passes |
+
+**THE SIX ERRORS OF § 6.6 ARE GONE AND NOTHING REPLACED THEM.** The `9 of 9`
+line is the positive proof § 6.5 named in advance: nine entries present, nine
+adjudicated, none refused.
+
+**WHAT THE FILL DID NOT DO.** It did not merge — **T2 is Brett Heap's** (§ 7.3).
+It did not lift the hold (§ 9), did not perform step 5b (§ 8), and wrote no
+Part C section (§ 13 is still entirely unwritten). **Task 6.8 is ticked by the
+fill commit and nothing else is**; every other task of this act ticks at T2 or
+after it.
+
+**ONE NAMING TENSION, DISCLOSED AND NOT RESOLVED.** Task 6.15 names this record
+`walk-<T2-date>-register-act.md`. This file is named for the day it was walked
+and pre-staged, 2026-09-12; T2 will fall on 2026-09-13 or later, so the filename
+and the T2 date will differ. **The fill does NOT rename it**: four governance
+files and `tasks.md` already cite this path inside append-only blocks, and
+rewriting those for a cosmetic gain would cost more than the divergence does.
+It is recorded here so a later reader does not read the filename as a claim
+about T2. The ratifying human may have Part C re-date it.
 
 ---
 
@@ -744,8 +874,11 @@ for it.
    anything — is carried onto the new seat unchanged, with LQ2-C4 requiring it
    be re-routed naming this seat specifically by the first convening the
    conjunction fires on.
-7. **THE ACT IS INCOMPLETE AS FILED.** One placeholder, five slots, one mint
-   outstanding (§ 6.3).
+7. ~~**THE ACT IS INCOMPLETE AS FILED.** One placeholder, five slots, one mint
+   outstanding (§ 6.3).~~ **COMPLETED AT THE FILL** — the mint landed
+   `2026-09-13T02:12:15Z`, the five slots carry it, and the limit that remains is
+   the one above it in this list, not this one (§ 6.8). **What is still
+   outstanding is the MERGE, which is Brett Heap's and is T2.**
 
 ---
 
@@ -827,8 +960,8 @@ is not discovered afterwards.
 
 | Owed | By | Gates what |
 |---|---|---|
-| **the mint of the fifth keypair** | **Brett Heap** | **THIS ACT** — nothing below can start |
-| the fill + the merge (T2) | Brett Heap | everything below |
+| ~~**the mint of the fifth keypair**~~ **DONE `2026-09-13T02:12:15Z`** | Brett Heap | **THIS ACT** — it no longer blocks anything (§ 6.8) |
+| ~~the fill~~ **DONE** + the merge (T2) — **STILL OWED** | the lane filled; **Brett Heap merges** | everything below |
 | § 13.1 window check | the lane | § 13.3 |
 | § 13.2 5b read | Brett Heap's word, then the lane | § 13.3 |
 | § 13.3 lift | the lane, on his word | § 13.4 |

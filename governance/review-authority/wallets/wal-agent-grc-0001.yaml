@@ -151,6 +151,15 @@ keys:
   #
   # ⚠ THE FIFTH ENTRY'S KEY MATERIAL IS A PLACEHOLDER — see the entry's own
   # comment below. This wallet is NOT MERGEABLE in this state.
+  #
+  # ⚠ CORRECTED AT THE FILL, 2026-09-13: the two lines directly above stopped
+  # being true of the present when the mint landed, and they are corrected
+  # here rather than rewritten there so the pre-staged state stays legible.
+  # THE FIFTH ENTRY'S KEY MATERIAL IS REAL — minted host-side by Brett Heap,
+  # provisioned 2026-09-13T02:12:15Z (amendment task 6.8) — and THIS WALLET IS
+  # MERGEABLE: `validate-openxwallet.py .` reads `0 error(s), 0 warning(s)`
+  # and `wal-agent-grc-0001: 6 declared key(s)`. See the entry's own comment
+  # below and walk record § 6.8.
   - did: "did:key:z6MkoBFJbV2XhaoN6kJKrTzYLULZiU85UptzsMgTUfFCPg7f"
     key_id: key-grc-seat-lead-architect-0001
     key_fingerprint: sha256:858abc4cff28d7cdf24d9dda7b6f80bb8df69978adfbb7c10336d84c8c62f933
@@ -226,20 +235,37 @@ keys:
   # the same value from that entry's base64url half, so a transcription slip
   # in either place fails the REQUIRED `wallet-validation` check.
   #
+  # ⚠ THE BANNER ABOVE ("PLACEHOLDER — NOT MERGEABLE UNTIL FILLED") STOPPED
+  # BEING TRUE OF THE PRESENT AT THE FILL, and it is corrected here rather
+  # than rewritten there, so the pre-staged state this entry was composed in
+  # stays legible. AMENDMENT TASK 6.8'S MINT HAS HAPPENED: Brett Heap minted
+  # it host-side, TTY-gated, and the secret was provisioned
+  # 2026-09-13T02:12:15Z. The three fields named above are FILLED below — all
+  # three derived from the ONE minted public half through the pinned decoder
+  # and never a second tool — and `key_fingerprint` is byte-identical to the
+  # matching `../register.yaml` `seat_keys` entry, which the pinned reader
+  # recomputes from both encodings and agrees. NO PLACEHOLDER REMAINS and
+  # THIS FILE IS MERGEABLE; what is still owed is the MERGE ITSELF, which is
+  # Brett Heap's and is T2. Recorded at walk record § 6.8; the public half is
+  # published in the codexFactory mint record, PR #452.
+  #
   # `custody.declared_at` is the REGISTER ACT's effective instant, not a mint
-  # instant this file cannot know; if the fill lands materially later than
-  # 2026-09-12 it is re-stamped with the three other instants of this act (see
-  # the walk record § 6.3's fill recipe), never left to drift silently.
-  - did: <<PUBLIC KEY — Brett's host-side mint (task 3.2), secret COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER>>
+  # instant this file cannot know. THE FILL LANDED 2026-09-13, the day after
+  # this act was composed, so the instant WAS re-stamped with the three other
+  # instants of this act (walk record § 6.3 step 2) rather than left to drift
+  # silently: 2026-09-12T16:33:01Z → 2026-09-13T02:20:48Z. The three fields below are
+  # the REAL public half, minted host-side and provisioned 2026-09-13T02:12:15Z
+  # (task 6.8), derived through the pinned decoder and never a second tool.
+  - did: "did:key:z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7"
     key_id: key-grc-seat-client-security-compliance-officer-0001
-    key_fingerprint: <<PUBLIC KEY — Brett's host-side mint (task 3.2), secret COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER>>
-    public_key_multibase: <<PUBLIC KEY — Brett's host-side mint (task 3.2), secret COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER>>
+    key_fingerprint: sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310
+    public_key_multibase: z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7
     signature_algorithm: ed25519
     display_label: gate rules council — client-security-compliance-officer seat (client layer, conjunction)
     custody:
       model: holder_readable
       registry_version: 1
-      declared_at: "2026-09-12T16:33:01Z"
+      declared_at: "2026-09-13T02:20:48Z"
       declared_by: Brett.Heap
 state: active
 created_at: "2026-09-08T12:31:36Z"

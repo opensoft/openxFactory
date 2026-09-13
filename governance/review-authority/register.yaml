@@ -216,8 +216,14 @@ rows:
   # BOTH `agent-mixes.yaml` content components moved (component 1
   # `model_assignments`, component 2 `prompt_contract`), which neither prior
   # re-issuance did. `grant-grc-0002` was revoked for DRIFT at
-  # 2026-09-12T16:33:01Z and `grant-grc-0003` was issued against the changed
+  # 2026-09-13T02:20:48Z and `grant-grc-0003` was issued against the changed
   # composition at the SAME INSTANT, so there is no window between the two.
+  # That effective instant was RE-STAMPED AT THE FILL from the composed-day
+  # value 2026-09-12T16:33:01Z, because task 6.8's mint landed 2026-09-13 and
+  # the walk record § 6.3 step 2 requires ONE fresh instant when the fill is
+  # not same-day. The ninth `seat_keys` entry below carries that mint's PUBLIC
+  # half; the private half is a codexFactory environment secret and appears in
+  # no file.
   # The governing packet is `register-gate-rules-council-seats` AMENDMENT 2
   # (oxF PR #971 → `3402d93a`; ratified and encoded at #993 → `323c7adf`),
   # tasks 6.9-6.15. Ratifying human: Brett Heap (Brett.Heap@opensoft.one), on
@@ -476,10 +482,28 @@ seat_keys:
   # `register-seat-fingerprint-malformed` fire in the REQUIRED
   # `wallet-validation` check until the real values land. A pre-staged act that
   # could merge unfilled would be worse than one that cannot.
+  #
+  # ⚠ THE BANNER DIRECTLY ABOVE IS THE ONE THAT STOPPED BEING TRUE OF THE
+  # PRESENT AT THE FILL, and it is corrected here rather than rewritten there,
+  # so the pre-staged state this entry was composed in stays legible.
+  # THE MINT HAS HAPPENED: Brett Heap minted it host-side and the secret
+  # `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` was
+  # provisioned in codexFactory's `worker-credentials` environment at
+  # 2026-09-13T02:12:15Z (amendment task 6.8). The two fields below carry the
+  # REAL public half of that mint, derived from the public half ALONE through
+  # the pinned decoder (`scripts/validate-factory-identity.py --derive`, at
+  # openXwallet `f3eb929b` / `wallet-v1.5`) and never a second tool. NO
+  # PLACEHOLDER REMAINS: `register-seat-key-malformed` and
+  # `register-seat-fingerprint-malformed` no longer fire, and
+  # `validate-openxwallet.py .` reads `0 error(s), 0 warning(s)` with
+  # `9 of 9 per-seat signing key(s)` adjudicated and resolved. THIS FILE IS
+  # MERGEABLE; what is still owed is the MERGE ITSELF, which is Brett Heap's
+  # and is T2. The fill is recorded at walk record § 6.8; the mint's public
+  # half is published in the codexFactory mint record, PR #452.
   - seat_id: client-security-compliance-officer
     council_ref: agent:gate-rules-council
     council_id: gate_rules_council
     key_id: key-grc-seat-client-security-compliance-officer-0001
-    public_key: <<PUBLIC KEY — Brett's host-side mint (task 3.2), secret COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER>>
-    key_fingerprint: <<PUBLIC KEY — Brett's host-side mint (task 3.2), secret COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER>>
+    public_key: cxm-qmZVKXb_B5aucwuNzeOrXbgLPMKqa6D6DX1DUiQ
+    key_fingerprint: sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310
     authorizing_row: row-grc-0001

@@ -615,11 +615,13 @@ hold, posted 15:57:19Z) and **6.17** (T1 itself).
 
 **NOT TICKED, and each for its own reason:**
 
-* **6.8 — THE MINT HAS NOT HAPPENED.** It is Brett Heap's host-side act and it
-  is the **PRECONDITION** of everything below. The H2 pull request carries ONE
-  PLACEHOLDER where the public half goes and **cannot merge until it is
+* ~~**6.8 — THE MINT HAS NOT HAPPENED.** It is Brett Heap's host-side act and
+  it is the **PRECONDITION** of everything below. The H2 pull request carries
+  ONE PLACEHOLDER where the public half goes and **cannot merge until it is
   filled**; its five slots and the fill recipe are
-  `walk-2026-09-12-register-act.md` § 6.3.
+  `walk-2026-09-12-register-act.md` § 6.3.~~ **IT HAS SINCE HAPPENED AND 6.8
+  IS TICKED** — see the 2026-09-13 note below. The line is struck rather than
+  deleted, so the state this block was written in stays legible.
 * **6.9-6.15 — COMPOSED BUT NOT PERFORMED.** The bytes exist on the branch; an
   act is performed when it lands. These tick at T2, in the merge commit or
   immediately after it — never at draft.
@@ -628,6 +630,23 @@ hold, posted 15:57:19Z) and **6.17** (T1 itself).
 
 Rule 1 `CLAIMED` and Rule 6 `LANDING`/`LANDED` are owed **AT LANDING**, per
 6.28, and none is posted at draft.
+
+**2026-09-13 — WHAT THE FILL COMMIT CHANGES ABOUT THE BLOCK ABOVE.** The block
+above describes the act as it stood PRE-STAGED on 2026-09-12 and is left
+standing in that tense. ONE row of it has moved since: **6.8 IS NOW TICKED.**
+Brett Heap minted the fifth keypair host-side and the secret
+`COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` was
+provisioned in codexFactory's `worker-credentials` environment at
+**2026-09-13T02:12:15Z**; the public half is published in the codexFactory mint
+record (**cxF PR #452**) and written into this act's five slots by the fill
+commit, derived through the pinned decoder alone. The REQUIRED
+`wallet-validation` gate now reads `0 error(s), 0 warning(s)`,
+`9 of 9 per-seat signing key(s)` and `6 declared key(s)`. The act's effective
+instant was RE-STAMPED at the fill, `2026-09-12T16:33:01Z` →
+`2026-09-13T02:20:48Z`, under walk record § 6.3 step 2 (the fill was not
+same-day). **NOTHING ELSE MOVED:** 6.9-6.15 and 6.18 still tick at T2 and
+6.19-6.28 are still untouched, exactly as the block above says. The merge is
+still Brett Heap's, and the merge is T2.
 
 ### 6.1 Governance
 
@@ -787,7 +806,7 @@ Rule 1 `CLAIMED` and Rule 6 `LANDING`/`LANDED` are owed **AT LANDING**, per
       `unbound_conjunction_seats: []` with CSC `seat_identity: "declared"`;
       validate-docs 5071/33 ok; openspec strict failure set = main's. All eight
       required and optional checks green on #439 at merge.
-- [ ] 6.8 **[OPERATOR]** Mint the fifth Ed25519 keypair (**OQ-1**): seed
+- [x] 6.8 **[OPERATOR]** Mint the fifth Ed25519 keypair (**OQ-1**): seed
       generated in-process and never written to disk, `gh secret set` on stdin
       with `--body` OMITTED, private half stored ONLY as
       `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER` in
@@ -802,6 +821,27 @@ Rule 1 `CLAIMED` and Rule 6 `LANDING`/`LANDED` are owed **AT LANDING**, per
       (2026-09-11T17:08:42Z). (b) — minting through the committed
       `scripts/mint-factory-origin-key.py` — and (c) — a different custody model
       for this one key — are not taken.
+      **DONE — Brett Heap, host-side.** Secret
+      `COUNCIL_SEAT_SIGNING_KEY_GRC_CLIENT_SECURITY_COMPLIANCE_OFFICER`
+      provisioned in `codeXfactory/codexFactory` environment
+      `worker-credentials` at **`2026-09-13T02:12:15Z`** (the confirming
+      `gh secret list` read). PUBLIC half published in the codexFactory mint
+      record, **cxF PR #452** —
+      `hermes/domain/review-councils/records/2026-09-12-gate-rules-seat-signing-key-minted-csc.md`:
+      `public_key` `cxm-qmZVKXb_B5aucwuNzeOrXbgLPMKqa6D6DX1DUiQ`,
+      `key_fingerprint` `sha256:85a4f47606f68a65be7c40f4abb392321d8bc6604ed7c27bef7418ac18df3310`,
+      `did:key` `did:key:z6MknCZhXWq3KkPXubK4TTcKCSxXLfC3r2GBQ24Qcrwf9fp7`.
+      Derived through the PINNED decoder only
+      (`scripts/validate-factory-identity.py --derive`, openXwallet `f3eb929b`
+      / `wallet-v1.5`) and written into the five slots of this act by the fill
+      commit; `validate-openxwallet.py .` then reads `0 error(s)`,
+      `9 of 9 per-seat signing key(s)` and `6 declared key(s)`. **No seed in any
+      file.** FOOTNOTE: a first seed provisioned `2026-09-13T00:33:05Z` was
+      DELETED UNUSED — its public half was lost to a swallowed non-TTY stdout,
+      nothing ever registered or consumed it (walk record § 6.8). The act's
+      effective instant was RE-STAMPED at the fill, `2026-09-12T16:33:01Z` →
+      `2026-09-13T02:20:48Z`, under the walk record § 6.3 step 2 rule (the fill
+      was not same-day).
 
 ### 6.3 H2 — the openxFactory register act (OPERATOR walk; no agent writes these)
 
