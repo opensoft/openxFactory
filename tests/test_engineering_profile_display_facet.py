@@ -239,7 +239,7 @@ def test_the_out_of_band_role_really_is_ambiguous_for_governance_document():
     assert "out-of-band" not in profile_openxfactory.DISPLAY["statuses"]["document"]
 
 
-def test_area_labels_equal_the_governance_document_vocabularys_own_label():
+def test_area_labels_equal_the_governance_document_vocabularies_own_label():
     """(c), the areas half. `captured` / `organized` each resolve to exactly
     one governance-document status, so the area's label can reuse — and must
     equal — that status's own `label` field."""
