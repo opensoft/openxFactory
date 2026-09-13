@@ -202,8 +202,9 @@ def test_the_refusal_quotes_the_declaration_but_does_not_print_all_of_it():
     these runs to 11,678 bytes, so an unbounded echo would bury the finding in
     the gloss it is refusing to judge."""
     long_gloss = "openxFactory's " + ("word " * 4000)
-    message = str(pytest.raises(
-        cs.CodeSurfaceError, cs.parse_head, long_gloss).value)
+    with pytest.raises(cs.CodeSurfaceError) as caught:
+        cs.parse_head(long_gloss)
+    message = str(caught.value)
     assert len(message) < 1000
     assert "…" in message
 
