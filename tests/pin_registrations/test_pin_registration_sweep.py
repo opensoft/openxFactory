@@ -74,6 +74,22 @@ and the reader stated at its boundaries are at the foot of this file, with the
 reasoning beside them — and beside them the review bench's own two findings on
 that arm, each one a test that is red on the arm as first written.
 
+A SECOND REGISTERED ROW ARRIVED AND THE ANTI-VACUITY PIN DID NOT COVER IT
+(issue #775's registration, corrected on PR #1026 review). When this file was
+written `openspec-cli-pin` was the ONLY `type: pin` row, so naming it was the
+same act as saying "the register measures something". It stopped being the same
+act the moment `openxwallet-pin` joined it: every live-corpus assertion above
+names the OTHER row, so deleting the new registration — or keeping its `id`
+while dropping its `path` or gutting its `consumption_rule` — left the REQUIRED
+suite green, which is this module's own defect class committed against the row
+it was written to protect. The pair below is that row's own pin, in the shape
+the `openspec-cli-pin` pair uses, and it carries the one difference that row
+has: this pin names its verifier under `verify_pin:` rather than
+`consumer_entrypoint:`, so `scripts/validate-pin-registrations.py` reports its
+entrypoint assertions as "do not apply" and the agreement is asserted HERE
+instead of by the checker. The assertion reads BOTH field names rather than
+pinning the current one, so reconciling that naming later is not a red.
+
 Hermetic: no network and no `nlm`/`gh`/`omp` (`tests/hermeticity.py`'s guarded
 set). The subprocess in the positive test is `sys.executable` plus a script
 path, the shape `tests/manifest_digests/` already uses; every other test touches
@@ -101,6 +117,21 @@ MANIFEST = REPO_ROOT / "contracts" / "manifest.yaml"
 LIVE_PIN_ID = "openspec-cli-pin"
 LIVE_PIN_PATH = "contracts/openspec-cli-pin.yaml"
 LIVE_ENTRYPOINT = "scripts/validate-openspec-cli-pin.py"
+
+# The SECOND registered pin. Written out for the same reason the three above
+# are, and pinned separately because neither of them reds when this one goes.
+WALLET_PIN_ID = "openxwallet-pin"
+WALLET_PIN_PATH = "contracts/openxwallet-pin.yaml"
+#: The verifier the row's `consumption_rule` names and the pin names under
+#: `verify_pin:` — NOT under `consumer_entrypoint:`, which is why the checker's
+#: entrypoint arm does not fire for this row.
+WALLET_VERIFIER = "scripts/verify-openxwallet-pin.py"
+#: The reusable workflow the rule names as the consuming invocation's home. The
+#: aggregation-side wiring itself is pinned by
+#: `tests/openxwallet_pin/test_aggregation_lane_wiring.py`; what is asserted
+#: here is only that the REGISTRATION still names it, so a rule gutted down to
+#: prose reds in the same required job.
+WALLET_REUSABLE_WORKFLOW = ".github/workflows/doc-health-reusable.yml"
 
 
 def _load_checker() -> ModuleType:
@@ -179,6 +210,72 @@ def test_the_live_pin_and_row_name_the_same_entrypoint() -> None:
     assert entrypoint == LIVE_ENTRYPOINT
     assert (REPO_ROOT / entrypoint).is_file()
     assert entrypoint in row["consumption_rule"]
+
+
+def test_the_live_register_carries_the_openxwallet_pin_row() -> None:
+    """The anti-deletion pin for the SECOND registration.
+
+    `test_the_live_register_carries_at_least_one_pin_row` above cannot do this
+    job any more and says so in its own name: with two rows present, "at least
+    one" is satisfied by the other one. This names THIS row, asserts the path it
+    registers is the path in the tree, and asserts that path resolves — so
+    deleting the row, renaming its `id`, or pointing it at a pin that is not
+    there each reds in the required `pytest-suite` job rather than passing
+    quietly.
+    """
+    doc = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    pin_rows = [row for row in doc["contracts"] if row.get("type") == "pin"]
+    ids = {row.get("id") for row in pin_rows}
+    assert WALLET_PIN_ID in ids, (
+        f"contracts/manifest.yaml registers no `type: pin` row with id "
+        f"{WALLET_PIN_ID!r} — if that registration was deliberately withdrawn, "
+        f"move this pin WITH the reason; registered ids: {sorted(ids)}")
+    row = next(row for row in pin_rows if row.get("id") == WALLET_PIN_ID)
+    assert row["type"] == "pin"
+    assert row["path"] == WALLET_PIN_PATH, row["path"]
+    assert (REPO_ROOT / row["path"]).is_file(), (
+        f"{row['path']} is registered but is not in the tree")
+
+
+def test_the_openxwallet_row_names_its_verifier_and_its_consuming_workflow(
+) -> None:
+    """The agreement the CHECKER cannot make for this row, made here instead.
+
+    `scripts/validate-pin-registrations.py` compares a row's `consumption_rule`
+    against the pin's own `consumer_entrypoint:`; this pin names its verifier
+    under `verify_pin:`, so that arm reports "do not apply" and nothing compares
+    the two. This is that comparison — the MANIFEST ROW against the PIN, the
+    same thing `test_the_live_pin_and_row_name_the_same_entrypoint` does for
+    `openspec-cli-pin` — plus the reusable workflow the rule names as the
+    consuming invocation's home, because a `consumption_rule` reduced to prose
+    that names neither file is the defect this module exists to catch.
+
+    It reads `consumer_entrypoint:` FIRST and falls back to `verify_pin:`, so
+    the day a successor reconciles the checker's field name with the convention
+    both sibling pins share, this stays green instead of reding on the fix.
+    """
+    doc = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
+    row = next(row for row in doc["contracts"]
+               if row.get("id") == WALLET_PIN_ID)
+    pin = yaml.safe_load(
+        (REPO_ROOT / row["path"]).read_text(encoding="utf-8"))
+
+    named = pin.get("consumer_entrypoint") or pin.get("verify_pin")
+    assert named == WALLET_VERIFIER, (
+        f"{row['path']} names its verifier {named!r}, but the registration and "
+        f"this pin expect {WALLET_VERIFIER!r}")
+    assert (REPO_ROOT / WALLET_VERIFIER).is_file()
+
+    rule = row["consumption_rule"]
+    assert WALLET_VERIFIER in rule, (
+        f"the {WALLET_PIN_ID} row's `consumption_rule` no longer names "
+        f"{WALLET_VERIFIER}, so the registration stops saying how the pin is "
+        "consumed")
+    assert WALLET_REUSABLE_WORKFLOW in rule, (
+        f"the {WALLET_PIN_ID} row's `consumption_rule` no longer names "
+        f"{WALLET_REUSABLE_WORKFLOW}, the workflow that carries the consuming "
+        "invocation")
+    assert (REPO_ROOT / WALLET_REUSABLE_WORKFLOW).is_file()
 
 
 # --------------------------------------------------------------------------

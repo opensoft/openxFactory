@@ -3661,17 +3661,55 @@ contracts:
       COPIED. The aggregation's doc-health lane is a reusable workflow this
       repository publishes at `.github/workflows/doc-health-reusable.yml`;
       `opensoft/xFactory`'s `.github/workflows/doc-health-nightly.yml` calls
-      it, and its `prepare` job initializes both the aggregation's own
-      `openXwallet` gitlink and this repository's `openxFactory` submodule
-      before invoking `python3 openxFactory/scripts/verify-openxwallet-pin.py
-      --aggregation-root .` from that checkout. `verify()` runs first and
-      recomputes this pin's eight digests against the NESTED `openXwallet`
-      checkout; `verify_aggregation()` then requires the aggregation's OWN
-      root gitlink for `openXwallet` to record the SAME commit this pin's
-      `commit:` field names, refusing `pin-member-missing` where the
-      aggregation declares no gitlink at all and `pin-gitlink-mismatch` where
-      the two commits disagree. This is the root-gitlink-equals-nested-gitlink
-      invariant `neutral-product-pin`'s "The consuming repository's pin is
+      it, and its `prepare` job initializes this repository's `openxFactory`
+      submodule and then, under the guard described below, the NESTED
+      `openXwallet` gitlink inside it (`git -C openxFactory submodule update
+      --init openXwallet`), before invoking `python3
+      openxFactory/scripts/verify-openxwallet-pin.py --aggregation-root .`
+      from that checkout under that same guard. The aggregation's ROOT
+      `openXwallet` working tree is deliberately NOT initialized, and that is
+      a property of the check rather than an omission: `verify_aggregation()`
+      reads the RECORDED gitlink through `git ls-tree HEAD` / `git ls-files
+      -s`, which answer from the commit and the index without any checkout.
+      `verify()` runs first and recomputes this pin's eight digests against
+      the NESTED `openXwallet` checkout; `verify_aggregation()` then requires
+      the aggregation's OWN root gitlink for `openXwallet` to record the SAME
+      commit this pin's `commit:` field names, refusing `pin-member-missing`
+      where the aggregation records no such gitlink in HEAD or in its index
+      and `pin-gitlink-mismatch` where the two commits disagree.
+      THE STEP IS GUARDED, AND THE GUARD IS DESCRIBED HERE RATHER THAN LEFT
+      FOR A READER TO FIND IN THE WORKFLOW (corrected on PR #1026 review).
+      Both the nested init and the parity invocation are wrapped in `if git
+      -C openxFactory config --file .gitmodules --get
+      submodule.openXwallet.path`, and where that declaration is absent the
+      step prints `openxFactory declares no openXwallet gitlink at this pin;
+      skipping the root-gitlink parity check` and the job stays green.
+      THE GUARD'S CONDITION IS NOT THE CONDITION `pin-member-missing` COVERS,
+      and conflating the two misreads this rule: the guard asks whether
+      OPENXFACTORY still declares the NESTED gitlink in its own
+      `.gitmodules`, while `pin-member-missing` fires on the AGGREGATION
+      ROOT recording none. Wherever openxFactory declares the nested gitlink
+      the guard is satisfied, `verify_aggregation()` runs, and that refusal
+      is reachable and fail-closed — so the skip does not weaken it. What
+      the guard DOES bound is an ORDERING window, and the workflow says so in
+      its own comment: the aggregation's openxFactory pin bump and its own
+      root gitlink land in ONE pull request (P4), so before that bump there
+      is nothing to compare and an unguarded invocation would fail the
+      nightly for a deploy ordering rather than for a defect.
+      THE ONE CASE THE SKIP LEAVES UNMEASURED IS NAMED RATHER THAN CLAIMED
+      AWAY: an openxFactory that still carries this pin but has dropped
+      `submodule.openXwallet` from its own `.gitmodules` would skip here
+      silently. That tree is refused one level down instead, by `verify()`
+      itself — `pin-submodule-uninitialized` where `openXwallet/.git` is
+      absent, `pin-gitlink-mismatch` where the gitlink is recorded neither in
+      HEAD nor in the index — run over this repository's own tree by
+      `openxwallet-consumer-gate.yml` as the REQUIRED `wallet-validation`
+      check on every pull request into `main` here. So that arm is closed by
+      a required gate in this repository rather than by the aggregation's
+      nightly, which is why the guard is accurate to describe as an ordering
+      allowance and not as a hole.
+      This is the root-gitlink-equals-nested-gitlink invariant
+      `neutral-product-pin`'s "The consuming repository's pin is
       authoritative among reachable checkouts" requirement obliges, checked
       from the aggregation because openxFactory's own tree cannot see the
       aggregation's root gitlink. A copy of this pin taken into the
