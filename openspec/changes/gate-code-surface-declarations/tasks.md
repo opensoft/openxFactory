@@ -216,6 +216,42 @@ The sibling gate reads the same 44 at this head
 (`scripts/validate-target-release.py .` — *"44 active proposals"*), so the
 active count is a fact about the tree and not about either reader.
 
+**AND THEN THE SCENARIO FIRED. SECOND RE-MEASUREMENT, AT `origin/main`
+`bfa90db6` — THE HEAD THIS GATE NOW LANDS ON.** `main` moved ten-plus commits
+past `54885296` while this realization was in review, so the figures above are
+the record of the FIRST re-measurement and are kept as that record; the figures
+below are the tree the gate lands on. **THE RE-MEASUREMENT, IN FULL:** `python3
+scripts/validate-code-surface.py .` — *"46 active proposals, 46 declaring — 4
+`none`, 34 a repository list, 7 named by the register, **1 outside the
+grammar**"*, **exit 1**, *"archive (read, never judged): 167 proposals, 121
+declaring, 3 of them outside the grammar"*. The sibling gate reads the same 46
+(`scripts/validate-target-release.py .` — *"46 active proposals"*), so again the
+active count is a fact about the tree and not about either reader, and the
+ARCHIVE IS UNMOVED at 167/121/3.
+
+**TWO PROPOSALS LANDED IN BETWEEN AND NONE ARCHIVED**, which is a measurement
+and not an assumption: `git diff --name-status 54885296..origin/main --
+'openspec/changes/*/proposal.md'` is exactly two `A` lines and nothing else — no
+`M`, no `D`, no `R`. So NOT ONE OF THE SEVEN MOVED: no registered packet
+archived and no registered declaration was edited, every entry still matches its
+live declaration byte for byte, and NO ENTRY IS STALE. Of the two arrivals,
+`add-target-release-deferred-allocation` (#1022 → `9378eca5`) CONFORMS and is
+one of the 34; `encode-wallet-authority-rulings-r6-r12` (#1017 → `bfa90db6`)
+does NOT, and it is the 1.
+
+**THAT ONE IS DISPOSED OF HERE, AT THE LANDING HEAD, ON D3's RULED OPTION —
+REGISTERED, NOT SWEPT.** It is the register requirement's own scenario *The
+corpus moves between drafting and landing* firing exactly as written ("the
+register MUST be re-measured at the head the gate lands on, and the new carrier
+disposed of there"), and § 3.4's standing instruction ("a carrier that arrived
+after this drafting is disposed of there"). **AFTER THE DISPOSITION:** `python3
+scripts/validate-code-surface.py .` — **exit 0**, *"46 active proposals, 46
+declaring — 4 `none`, 34 a repository list, **8** named by the register, 0
+outside the grammar"*, archive unmoved at *"167 proposals, 121 declaring, 3 of
+them outside the grammar"*. **THE REGISTER IS EIGHT AT THE LANDING, NOT SEVEN**,
+and every § 3 box below that records `SEVEN` records the FIRST re-measurement
+and is corrected in place where the number is now false.
+
 - [x] 3.1 `scripts/code_surface.py` (NEW) — the reader and judge. Reads the
       declaration through the SHIPPED strict loader
       `frontmatter_strict.read_front_matter`, adding no second parser; parses
@@ -312,7 +348,15 @@ active count is a fact about the tree and not about either reader.
       LANDS ON** — seven at this packet's drafting, and a fact about that tree
       only.
       **LANDED WITH SEVEN ENTRIES IN FOUR CLASSES** (block-scalar 1,
-      possessive 1, apposition 1, list-runs-into-prose 4), each carrying its
+      possessive 1, apposition 1, list-runs-into-prose 4) AT THE FIRST
+      RE-MEASUREMENT `54885296`, **AND WITH EIGHT IN THE SAME FOUR CLASSES AT
+      THE LANDING HEAD `bfa90db6`** (list-runs-into-prose 5) — the eighth being
+      the carrier that arrived in between, disposed of at the landing head as
+      the § 3 preamble's second re-measurement records and as the requirement's
+      *The corpus moves between drafting and landing* directs. **NO NEW CLASS
+      WAS ADMITTED**, which the loader itself enforces (`REGISTER_CLASSES` is
+      the four, and a fifth "is a change to the specification, not a register
+      edit"). Each entry carries its
       declaration VERBATIM AND BYTE FOR BYTE — copied from the tree, never
       retyped, and pinned by
       `test_every_register_entry_carries_the_live_declaration_byte_for_byte`.
@@ -344,13 +388,33 @@ active count is a fact about the tree and not about either reader.
       `amend-mirror-floor-regeneration-merge-authority`,
       `extend-merge-master-envelope-to-floor-bot-lanes` and
       `split-opendox-two-layer-product` (list-runs-into-prose). **NO CARRIER
-      ARRIVED AFTER THE DRAFTING**, so no new disposition was owed — and that is
-      a measurement rather than an assumption: `git diff --name-status
-      b4e0087a..HEAD -- openspec/changes/` is EMPTY, so the active corpus is
-      byte-identical to the tree this packet landed on. **NOT ONE BYTE OF
-      ANOTHER LANE'S RATIFIED PROSE IS RE-PUNCTUATED BY THIS PULL REQUEST**:
-      `git diff --stat origin/main...HEAD` touches no `proposal.md` but this
-      packet's own `tasks.md`.
+      HAD ARRIVED AT THE FIRST RE-MEASUREMENT**, so no new disposition was owed
+      THERE — and that was a measurement rather than an assumption: `git diff
+      --name-status b4e0087a..HEAD -- openspec/changes/` was EMPTY, so the
+      active corpus was byte-identical to the tree this packet landed on.
+      **THAT IS NO LONGER TRUE AT THE LANDING HEAD, AND THIS BOX RECORDS THE
+      CHANGE RATHER THAN KEEPING THE NUMBER THAT WAS TRUE WHEN IT WAS WRITTEN.**
+      Merging `origin/main` `bfa90db6` brought ONE new carrier,
+      `encode-wallet-authority-rulings-r6-r12` (#1017, ratified 2026-09-12),
+      whose declaration names FOUR FILE PATHS where the grammar wants repository
+      identifiers — the reader takes `contracts/signed-execution-chain` as an
+      `<owner>/<name>` address and then runs into
+      `/digest-construction.schema.yaml` with no gloss opener. **IT IS
+      REGISTERED AND NOT SWEPT, WHICH IS THIS BOX'S OWN INSTRUCTION** ("a
+      carrier that arrived after this drafting is disposed of there") ON § 1.3's
+      RULED OPTION, and D3's reason holds with more force here than for the
+      seven: correcting this head is not a re-punctuation at all but a judgment
+      about which repository four artifacts belong to, in another lane's
+      ratified, active, mid-flight packet. **SO THE DISPOSITION IS EIGHT
+      REGISTERED, NONE SWEPT**, and **STILL NOT ONE BYTE OF ANOTHER LANE'S
+      RATIFIED PROSE IS RE-PUNCTUATED BY THIS PULL REQUEST**: `git diff --stat
+      origin/main...HEAD` touches no `proposal.md` but this packet's own
+      `tasks.md`. **THE CLOSURE IS KEPT BY THE ONE ROUTE IT ADMITS**: the
+      entry's `(change, sha256-of-declaration)` pair is added to
+      `code_surface.CLOSED_REGISTER` in the SAME pull request as the register
+      entry — the "second, deliberate, reviewable edit HERE, in the module,
+      beside the reason" the baseline's own comment demands, and the remedy the
+      refusal itself names.
 - [x] 3.5 **NARROW `scripts/scope_globs.py`'s `code_surface_repositories`** to
       derive its set from the DECLARED HEAD, through the reader § 3.1 adds, so
       the field has one derivation and not two — **OWED, § 1.4 having ruled D4
@@ -368,10 +432,21 @@ active count is a fact about the tree and not about either reader.
       across the 44 active declarations, **767** from
       `split-opendox-two-layer-product` alone, with **ALL FOUR** `none` heads
       yielding a NON-EMPTY set and **33 of the 33** readable non-`none` heads
-      yielding at least one token their own head does not name. The narrowed
+      yielding at least one token their own head does not name. **RE-MEASURED
+      AT THE LANDING HEAD `bfa90db6`, WITH THE SAME SCRIPT AND THE SAME
+      PRE-NARROWING EXTRACTOR, THE FIGURES MOVE WITH THE CORPUS AND THE FINDING
+      DOES NOT: 3,408** distinct tokens across the 46 active declarations,
+      **767** from `split-opendox-two-layer-product` still, **ALL FOUR** `none`
+      heads still yielding a NON-EMPTY set, and **34 of the 34** readable
+      non-`none` heads still yielding at least one token their own head does not
+      name. The narrowed
       reader returns the head's identifiers and nothing else, and returns the
       EMPTY set for a `none` head whatever its gloss says. It is unobservable
-      on the live corpus because **0 of 44** active proposals declare
+      on the live corpus because **0 of 44** active proposals declare — and
+      **0 of 46** at the landing head `bfa90db6`, re-measured rather than
+      carried, `python3 scripts/validate-scope-globs.py .` returning **exit 0**
+      and the same *"scope_globs validation passed (all active changes
+      conform)"* on the merged tree — because no active proposal declares
       `scope_globs:` — the same latency § 2.7 measured — which is what makes it
       landable without a sweep. The derivation is the SHARED reader
       (`code_surface.parse_head`) and not a second grammar, which is the

@@ -279,7 +279,16 @@ def declaration_digest(text: str) -> str:
 #: THE POPULATION IS A FACT ABOUT A TREE AND WAS RE-MEASURED AT THE HEAD THIS
 #: GATE LANDS ON, never carried from the tree the packet was drafted against
 #: (the requirement's own scenario *The corpus moves between drafting and
-#: landing*). Seven at drafting (`origin/main` `bcde1575`); re-measured here.
+#: landing*). Seven at drafting (`origin/main` `bcde1575`); seven again at the
+#: first re-measurement (`54885296`); EIGHT at the head this gate lands on
+#: (`bfa90db6`), the scenario having FIRED while the realization was in review.
+#: `encode-wallet-authority-rulings-r6-r12` landed in between and declares a
+#: head the grammar cannot read, so it is disposed of AT THE LANDING HEAD on
+#: D3's ruled option — registered, not swept — and its pair is added HERE, in
+#: the same pull request as its register entry, which is the second deliberate
+#: reviewable edit the closure demands and the one the refusal below names.
+#: NONE OF THE SEVEN MOVED: no registered packet archived and no registered
+#: declaration was edited between the two heads.
 CLOSED_REGISTER = (
     # class: block-scalar
     ("adopt-configured-notebook-hosting-identity",
@@ -299,6 +308,10 @@ CLOSED_REGISTER = (
      "2854d3889fb1cb79e8f1cabaf64c7287a2b073e72130f5098a81e946bea825e8"),
     ("split-opendox-two-layer-product",
      "60f4e11d53e6d0772ff642280fcf626dafcabebafa0c7c4e537d8eae8a54d058"),
+    # the carrier that arrived between `54885296` and the landing head
+    # `bfa90db6` — *The corpus moves between drafting and landing*, fired
+    ("encode-wallet-authority-rulings-r6-r12",
+     "112d24ba19d1b1af0e3e1706802e3a205f323754712fe987cb16d637dd63692f"),
 )
 
 
