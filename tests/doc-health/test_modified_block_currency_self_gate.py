@@ -981,6 +981,24 @@ _LEDGER_SUBJECTS = {
     # widening. Retires when the packet archives on merged-plus-green
     # realization evidence (its `code_surface` is non-empty) and its two blocks
     # are promoted onto `openspec/specs/release-realization/spec.md`.
+    #
+    # THE UNIT COUNTS ABOVE ARE THIS FILE'S CONTEXT, `--single-repo`, AND THE
+    # DECLARATION ROW READS DIFFERENTLY IN THE AGGREGATION ONE — said here
+    # because the next editor who re-measures from the other side will otherwise
+    # read a contradiction. This packet is the SECOND active writer of
+    # *Realization axis declaration*, behind `add-structured-scope-substrate`,
+    # so the arm compares its block against THAT SIBLING'S BLOCK rather than
+    # against promoted canon wherever the sibling resolves, and the finding then
+    # reads `1 of 10` against
+    # `openspec/changes/add-structured-scope-substrate/specs/release-realization/spec.md`
+    # instead of `1 of 6` against canon. The SUBJECT TRIPLE is the same either
+    # way, which is why one row covers both readings; the uncarried unit is the
+    # same two-value sentence in both. That second reading is the real tree's
+    # FIRST two-writer carriage finding, and it is what falsified the
+    # promoted-path assumption in
+    # `test_modified_block_currency_reporting.py::test_the_drift_grain_is_one_finding_per_arm_template`
+    # (fixed in the same pull request, by reading the template's own
+    # `{spec_rel}` slot instead of guessing an `openspec/specs/` prefix).
     ("add-target-release-deferred-allocation", "release-realization",
      "Realization axis declaration"),
     ("add-target-release-deferred-allocation", "release-realization",
