@@ -159,20 +159,27 @@ jobs:
           # a different line, deliberately — and asserting a parsed count would
           # prove parsing, which is the class this whole step exists to close.
           #
-          # The count is LITERAL, not `[0-9]+`. EIGHT seats are minted and
+          # The count is LITERAL, not `[0-9]+`. NINE seats are minted and
           # recorded — merge-readiness's four (2026-08-28) plus gate-rules'
-          # four (`register-gate-rules-council-seats` task 3.7) — and a ninth
-          # arriving, or one going missing, must break this gate and be a
-          # deliberate edit here beside the register edit, not a silent pass
-          # under a wildcard.
+          # five (`register-gate-rules-council-seats` task 3.7 for four, task
+          # 6.12 for the fifth) — and a tenth arriving, or one going missing,
+          # must break this gate and be a deliberate edit here beside the
+          # register edit, not a silent pass under a wildcard.
           #
           # MOVED FROM `4 of 4` IN THE SAME ACT that wrote the second body's
           # row and seat entries, which is the mint runbook's §0.1.4
           # precondition: "Every count the consuming gate asserts is LITERAL …
           # move them in the same act, or the REQUIRED check goes red on a
           # human-only surface."
-          grep -qE '^note  intake register: 8 of 8 per-seat signing key\(s\) adjudicated and resolved$' wallet-gate.log \
-            || fail "the gate log does not say the eight per-seat council signing keys were ADJUDICATED (8 of 8); the register's seat_keys surface was not read, or an entry was refused, or the pinned reader predates wallet-v1.2"
+          #
+          # MOVED AGAIN, `8 of 8` -> `9 of 9`, 2026-09-12, IN THE SAME ACT that
+          # registered the `client-security-compliance-officer` seat key
+          # (Amendment 2 task 6.14, which requires this edit by name and for
+          # this reason: "a wildcard there would let a register that lost a
+          # body pass the positive proof"). The seat was bound in codexFactory
+          # PR #439 → `eff9ae191d78c396800a72cdec9fffe0caf866d7`.
+          grep -qE '^note  intake register: 9 of 9 per-seat signing key\(s\) adjudicated and resolved$' wallet-gate.log \
+            || fail "the gate log does not say the nine per-seat council signing keys were ADJUDICATED (9 of 9); the register's seat_keys surface was not read, or an entry was refused, or the pinned reader predates wallet-v1.2"
           ! grep -q 'no per-seat signing key is recorded' wallet-gate.log \
             || fail "the gate log says no per-seat signing key is recorded — the register lost its seat_keys surface, and a Hermes projection derived from it could authorize no seat"
           # wallet-v1.3 (openXwallet `add-multi-key-wallets`): the WALLET now
@@ -201,10 +208,15 @@ jobs:
           # for the new wallet, do not widen the existing one" — a single
           # assertion covering either wallet would go green on a tree that
           # lost one of them, which is the class this step exists to close.
-          # Five again: one operator-vaulted root (`key-grc-0001`) plus four
-          # CI-resident seat keys.
-          grep -qE "^note  wallet 'wal-agent-grc-0001': 5 declared key\(s\) adjudicated " wallet-gate.log \
-            || fail "the gate log does not say wal-agent-grc-0001's FIVE declared keys were adjudicated; the gate-rules wallet lost its keys: block, or an entry was refused, or the pinned reader predates wallet-v1.3 — in any of which cases rule (r) refuses every exercise record naming a gate-rules per-seat key"
+          # SIX since 2026-09-12: one operator-vaulted root (`key-grc-0001`)
+          # plus FIVE CI-resident seat keys. It was five — one root plus four
+          # seats — until the `client-security-compliance-officer` conjunction
+          # seat was bound (codexFactory PR #439 → `eff9ae19`) and its key
+          # declared here by Amendment 2 task 6.13. THE TWO BODIES' COUNTS NOW
+          # DIFFER (mrc 5, grc 6) and that asymmetry is the point of asserting
+          # them separately rather than widening one line to cover both.
+          grep -qE "^note  wallet 'wal-agent-grc-0001': 6 declared key\(s\) adjudicated " wallet-gate.log \
+            || fail "the gate log does not say wal-agent-grc-0001's SIX declared keys were adjudicated; the gate-rules wallet lost its keys: block, or an entry was refused, or the pinned reader predates wallet-v1.3 — in any of which cases rule (r) refuses every exercise record naming a gate-rules per-seat key"
           echo "register-read conjunction holds:"
           grep -E "^note  (repo scan:|intake register read:|intake register: |wallet 'wal-agent-mrc-0001':|wallet 'wal-agent-grc-0001':)" wallet-gate.log
 
