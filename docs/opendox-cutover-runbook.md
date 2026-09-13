@@ -251,19 +251,25 @@ Per destination, and these are the numbers each leg's arrival run must report:
 | --- | ---: | ---: | ---: | --- |
 | `opendox_code` | 123 | 35 / 88 | 1656 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
-| `openxdox_code` | 92 | 9 / 83 | 659 | `scripts`, `src/openxdox`, `tests` |
+| `openxdox_code` | 92 | 9 / 83 | 674 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
 
 The numeric columns are summed over the rows whose `destination:` names that
-leg, re-derived here rather than carried forward. THEY WERE STALE and are
-corrected in the same act: `opendox_code`'s `53 / 70 | 727` was current at
-`880c821c` and the § 3.4 slice-S5 annotation (`ee251d6c`) moved it to
-`52 / 71 | 874` without moving the table. The slice-S7 annotation moves it to
-`35 / 88 | 1656`. A row RE-DESTINED by ruling still counts at the
+leg, re-derived here rather than carried forward. TWO OF THEM WERE STALE and
+both are corrected in the same act, because the correction is the measurement:
+the table was last current at `880c821c`, where `opendox_code` read
+`53 / 70 | 727` and `openxdox_code` read `9 / 83 | 659`; the § 3.4 slice-S5
+annotation (`ee251d6c`) moved BOTH — to `52 / 71 | 874` and `9 / 83 | 674` —
+and moved neither cell. The slice-S7 annotation moves `opendox_code` again, to
+`35 / 88 | 1656`, and leaves `openxdox_code` where S5 put it. The four
+destination figures now sum to 2365, and the single line the replica row
+`tests/ideation-dashboard/conftest.py` declares — the one replica line, which
+names no destination at all — makes 2366. A row RE-DESTINED by ruling still counts at the
 `destination:` it declares, which is why a leg's arrival run reports FOUR
 fewer arrived rows than this table's count for `opendox_code` (119) and four
-fewer declared-edit rows (84): the ruling moved the placement, not the row.
+fewer declared-edit rows (84), and why `openxdox_code`'s run reports four MORE
+of each: the ruling moved the placement, not the row.
 
 The declared-roots column is spelled **exactly as a run prints it** — no
 trailing slash — because an operator's first act after a leg lands is to read

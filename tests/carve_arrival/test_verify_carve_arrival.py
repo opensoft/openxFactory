@@ -1782,6 +1782,77 @@ def test_the_real_manifest_declares_the_roots_the_runbook_names() -> None:
         assert MODULE.declared_roots(rows) == roots, destination
 
 
+def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
+    """§ 2's per-destination table, checked rather than described — the NUMERIC
+    columns this time, not only the roots.
+
+    The paragraph beneath that table says the figures are "summed over the rows
+    whose `destination:` names that leg, re-derived here rather than carried
+    forward". NOTHING CHECKED THAT until this test: the roots column has been
+    asserted since the table landed, and the four numeric columns rotted
+    silently through two acts — `opendox_code` and `openxdox_code` were both
+    left at their `880c821c` values while the § 3.4 slice-S5 annotation moved
+    both, and the slice-S7 annotation found it. A stale cell here is worse than
+    a missing one, because § 2's own sentence tells the operator to read the
+    verifier's summary line and compare it with this table.
+
+    SUMMED BY THE RAW `destination:` FIELD and not by `rows_for()`, which
+    resolves the EFFECTIVE arrival (RULED Q6): the table counts a re-destined
+    row at the leg its row still names, which is precisely what the paragraph
+    beneath it explains, and reading it the other way would make the table
+    disagree with itself. A BRANCH and never a skip, on the module docstring's
+    reasoning.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
+    if not manifest.is_file() or not runbook.is_file():
+        assert True
+        return
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    text = runbook.read_text(encoding="utf-8")
+
+    marker = ("Per destination, and these are the numbers each leg's arrival "
+              "run must report:")
+    assert text.count(marker) == 1, marker
+    table = text.split(marker, 1)[1].split("\n\n")[1]
+    cell = re.compile(
+        r"^\| `(?P<key>[a-z_]+)` \| (?P<rows>\d+) \| "
+        r"(?:(?P<verbatim>\d+) / (?P<edited>\d+)|—) \| "
+        r"(?:(?P<lines>\d+)|—) \|")
+    stated: dict[str, tuple[int, int, int, int]] = {}
+    for line in table.splitlines():
+        found = cell.match(line)
+        if found is None:
+            continue
+        stated[found["key"]] = (
+            int(found["rows"]),
+            int(found["verbatim"] or 0),
+            int(found["edited"] or 0),
+            int(found["lines"] or 0),
+        )
+    assert set(stated) == set(doc["destinations"]), sorted(stated)
+
+    for key, claimed in stated.items():
+        rows = [row for row in doc["rows"] if row.get("destination") == key]
+        summed = (
+            len(rows),
+            sum(1 for row in rows if row["disposition"] == "moved_verbatim"),
+            sum(1 for row in rows
+                if row["disposition"] == "moved_with_declared_edit"),
+            sum(len(edit["lines"]) for row in rows
+                for edit in row.get("edits") or []),
+        )
+        assert claimed == summed, (key, claimed, summed)
+
+    # AND THE ONE INVARIANT THAT TIES THE TABLE TO THE AGGREGATE ABOVE IT: a
+    # replica row names no destination at all, so the per-leg figures sum to
+    # exactly one less than the manifest's declared-line total (RULED Q-L7 (a),
+    # § 2's own "the one replica line belongs to no destination column below").
+    total = sum(len(edit["lines"]) for row in doc["rows"]
+                for edit in row.get("edits") or [])
+    assert sum(claimed[3] for claimed in stated.values()) == total - 1, stated
+
+
 # --------------------------------------------------------------------------
 # RULED Q-L7 (a) — a moved row also replicated, and a replica that declares
 # lines

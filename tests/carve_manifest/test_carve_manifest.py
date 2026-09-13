@@ -2895,6 +2895,83 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     ], swb_session_row
 
 
+def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None:
+    """The § 3.4 slice-S7 window against the LANDED manifest, row by row.
+
+    `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
+    AGGREGATE `(2366, 176)`, and that pair would stay green if any of these 782
+    lines had landed on the wrong row, under the wrong one of RULING OQ-1's
+    three classes, or as a different set summing to the same total — which is
+    why every slice since ASK-7 pins its own window. S7 edits THIRTY-THREE rows
+    where S5 edited eleven, so the window is the `S7_WINDOW` table above rather
+    than a run of hand-written asserts; it is the same claim, made once per row.
+
+    THE ENTRIES ARE THE LAST ONES ON EACH ROW, because an annotation APPENDS to
+    whatever the row already carried — sixteen of these rows were already
+    `moved_with_declared_edit` from S1-S6 and seventeen are converted here — and
+    a tail read positionally is a claim about ORDER too, which matching on prose
+    would not be. A BRANCH and never a skip, on the module docstring's reasoning.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    rows = {row["source_path"]: row for row in doc["rows"]}
+
+    # 1. EVERY ROW IN THE WINDOW, by disposition, destination and tail.
+    assert len(S7_WINDOW) == 33, len(S7_WINDOW)
+    for source_path, entries in S7_WINDOW.items():
+        row = rows[source_path]
+        assert row["disposition"] == "moved_with_declared_edit", row
+        # Slice S7 is a ONE-LEG act: "parameterize class C" edits the served
+        # bundle, and every file of it arrives at openDox-code. A window entry
+        # landing on an `openxdox_code` row would be a different slice.
+        assert row["destination"] == "opendox_code", row
+        landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
+        assert landed[-len(entries):] == entries, (source_path, landed)
+
+    # 2. THE SEVENTEEN CONVERSIONS, named. A conversion moves BOTH disposition
+    # counts and the carrier count at once, so an act that converted a row it
+    # did not mean to would still sum correctly; and a converted row carried no
+    # `edits:` before this act, so S7's entries are its ONLY entries.
+    assert len(S7_CONVERTED) == 17, len(S7_CONVERTED)
+    assert set(S7_CONVERTED) <= set(S7_WINDOW), \
+        set(S7_CONVERTED) - set(S7_WINDOW)
+    for source_path in S7_CONVERTED:
+        row = rows[source_path]
+        assert [(edit["class"], edit["lines"]) for edit in row["edits"]] == \
+            S7_WINDOW[source_path], row
+
+    # 3. THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures
+    # the runbook's § 2 paragraph and this pull request's body both state.
+    lines = sum(len(nums) for entries in S7_WINDOW.values()
+                for _class, nums in entries)
+    entries_count = sum(len(entries) for entries in S7_WINDOW.values())
+    by_class: dict[str, int] = {}
+    for entries in S7_WINDOW.values():
+        for edit_class, nums in entries:
+            by_class[edit_class] = by_class.get(edit_class, 0) + len(nums)
+    assert (lines, entries_count) == (782, 48), (lines, entries_count)
+    assert by_class == {"import rewrites": 14, "path constants": 4,
+                        "adapter calls": 764}, by_class
+    # 1584 + 782 = 2366 and 159 + 17 = 176, which is the aggregate the
+    # amendment test asserts against the same document.
+    assert 1584 + lines == 2366, lines
+    assert 159 + len(S7_CONVERTED) == 176, len(S7_CONVERTED)
+
+    # 4. THE FOUR ARRIVED SUITES NOBODY HAD RUN SINCE THE CARVE (`#656` comment
+    # `5650335573` § 4), which slice S7 repaired in the same leg commit that
+    # this window declares. They are named because a suite repaired but NOT
+    # declared is the undeclared movement the floor exists to refuse, and the
+    # three classes cannot tell a test file from a product file.
+    for source_path in ("tests/ideation-dashboard/test_doc_surfaces.py",
+                        "tests/ideation-dashboard/test_doxbench_tile_verbs.py",
+                        "tests/ideation-dashboard/test_doxbench_view.py",
+                        "tests/ideation-dashboard/test_bullseye_widget.py"):
+        assert source_path in S7_WINDOW, source_path
+
+
 def test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines() -> None:
     """RULED Q6 against the LANDED manifest: the FORM, documented, and the
     FOUR ROWS § 3.4 slice S5 uses it for.

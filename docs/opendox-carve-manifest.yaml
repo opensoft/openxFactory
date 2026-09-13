@@ -520,6 +520,60 @@ moved_paths:
 # verifier-measured 202 lines, not 203. Realized at opensoft/openDox-code
 # `build/s4-split-route-tails`, `8fdc6ac4e8f39c6ad8604689aba16e9aa8a1c808`
 # (DRAFT PR opensoft/openDox-code#17, stacked on S3's #14).
+#
+# THE § 3.4 SLICE-S7 ANNOTATION OF 2026-09-13 (RULED Q1/Q2/Q7, `#656` comment
+# `5648049748`, Brett Heap 2026-09-12 by interactive multi-choice; the FORM is
+# the Q-L1 form ruled at `5628560136` and its § 3.4 binding clause
+# `5642758731`; S7 CLAIM `#656` comment `5649148461`). Slice S7 is
+# "parameterize class C — every governance word in the fourteen class-C files
+# and the four declared class-A tails becomes a read of the registered
+# domain's DISPLAY facet BY ROLE" (openDox-spec
+# `docs/front-end-package-boundary.md` § 5 row S7 and § 4.3 @ `7d12428c`).
+# THIRTY-THREE rows are edited, every one of them `opendox_code`'s: this is a
+# ONE-LEG act, because the files that render a word are the served bundle and
+# the served bundle arrives at openDox-code. SEVENTEEN of the thirty-three
+# CONVERT `moved_verbatim` -> `moved_with_declared_edit` and sixteen were
+# already declared and gain entries — which is the largest window any act on
+# this file has opened, and the reason is the slice's own sentence: every file
+# in the bundle is edited because every file in it rendered a word.
+#
+# FOUR OF THE THIRTY-THREE ARE ARRIVED TEST SUITES NOBODY HAD RUN SINCE THE
+# CARVE (`#656` comment `5650335573` § 4, measured by slice S8):
+# `test_doc_surfaces.py`, `test_doxbench_tile_verbs.py`, `test_doxbench_view.py`
+# and `test_bullseye_widget.py` are narrowed OUT of the leg's `validate` under
+# RULED Q-L5 (b'), and the rot they had taken from slices S5 and S7 is repaired
+# INSIDE this window rather than left for the slice that re-homes them — this
+# file's own slice-S3 and slice-S5 precedent for a source-grep suite whose
+# quotations an act in the same window invalidates. THREE new files are
+# admitted at `opendox_code`: `src/opendox/display_profile.py` and
+# `src/opendox/web/views/display.js`, the facet's two halves, and
+# `tests/test_display_facet.py`, its running proof
+# (`docs/opendox-carve-admissions.yaml`). NO REFERENT DIGEST MOVES:
+# `carve_commit` and `carve_tag` are untouched; the sixteen already-declared
+# rows keep the `sha256` they carry, and the seventeen converted rows' `sha256`
+# is the carve blob's, unchanged by the conversion.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# same discipline the S3, S6 and S4 paragraphs above state. This act's whole
+# arithmetic is a DELTA on top of the § 3.4 SLICE-S5 annotation's totals, which
+# that act stated in the runbook, the README and the two tools' docstrings
+# rather than here — its own amendment to this header is RULED Q6's
+# `re_destined:` paragraph above, and a re-destination moves no count. So:
+# rows unchanged; `not_moved` unchanged; SEVENTEEN rows convert
+# `moved_verbatim` -> `moved_with_declared_edit`; declared lines +782
+# (`adapter calls` +764, `import rewrites` +14, `path constants` +4) over the
+# thirty-three rows above; rows carrying `edits:` +17 (the seventeen new
+# carriers; the sixteen already-carrying rows are not new carriers); replicas
+# unchanged. The one place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`,
+# and the WINDOW itself — every row, every class, every line — is pinned
+# beside it by
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_s7_display_facet_declared_edits`,
+# because the aggregate pair would stay green if these 782 lines had landed on
+# the wrong rows. Line numbers are the arrival verifier's own opcode walk over
+# a fresh clone of the leg, re-derived at its FINAL head and never transcribed.
+# Realized at opensoft/openDox-code `build/s7-parameterize-class-c`
+# (DRAFT PR opensoft/openDox-code#21, stacked on S5's #20).
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
