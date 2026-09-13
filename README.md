@@ -531,6 +531,66 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [encode-wallet-authority-rulings-r6-r12](openspec/changes/encode-wallet-authority-rulings-r6-r12/proposal.md)
+  — filed 2026-09-12, lane `hermes-wallet-exercise` (session `codeXfactory-2`,
+  workstation Eagle), **`Status: ratified`** (2026-09-12T23:58Z, Brett Heap,
+  openxFactory operator authority, given in session directly to the ENCODE
+  seat — a MULTIPLE-CHOICE ruling over all nine `design.md` D-1..D-9
+  decisions, verbatim ***"accept all A on 1017"***) — record
+  [`review/ratification-2026-09-12.md`](openspec/changes/encode-wallet-authority-rulings-r6-r12/review/ratification-2026-09-12.md).
+  **ALL NINE OQs = (a), THE RECOMMENDED OPTION, SO THE DELTA MOVED NOT ONE
+  BYTE** (`.openspec.yaml` now carries `approved_by`/`approved_on` ADDED
+  BESIDE the unmoved drafting pair). **Proposed** 2026-09-12 by Brett Heap,
+  openxFactory operator authority, first-hand, in session, as a
+  multiple-choice selection, verbatim ***"Author the R6–R12 successor
+  change"***. That word commissioned the AUTHORING and nothing further.
+  **This is the FRESH OpenSpec change that
+  `add-wallet-carried-review-authority/rulings-2026-08-29.md` § Packet 4 names
+  by shape** — *"a FRESH OpenSpec change, authored after issuance, carrying
+  R6–R12 as ratified contract text (with R12's signer half landing in
+  signed-execution-chain instead)"* — and it carries all seven rulings verbatim
+  as seven `## ADDED` requirements on `review-authority-intake`: what
+  `model_version` digests (R6, the provider PLANE inside the digest, execution
+  and deployment identity outside it by reference); the canonical serialization
+  (R7); the five-field re-issuance record as a MINIMUM (R8); a revoked holder
+  PARKING with a named refusal and no grandfathering (R9); corpus drift
+  invalidating on identity or governing configuration and never on rows (R10);
+  the lifecycle roles table with REGISTER as the only human-ratified act (R11);
+  and R12's INTERIM half only — unsigned digests admissible, activation
+  fail-closed on digest match, self-attestation refused — with the signer,
+  envelope standard, key distribution, signature algorithm and
+  evidence-retention location travelling with `signed-execution-chain` exactly
+  as ruled. **The measurement that shaped the delta before it was written:**
+  R7's ruled profile ALREADY SHIPS in this repository as `xfc-jcs-sha256-1`
+  (`contracts/signed-execution-chain/digest-construction.schema.yaml`), whose own
+  header says *"A LATER TRANCHE ADDS NO SECOND RULE … with its subject added to
+  the enumeration below"*, and whose invitation `add-cpc-clearing-boundary`
+  already took from a DIFFERENT capability — so R7 is encoded as ADOPTION BY
+  REFERENCE plus ONE `digest_subject` member (`holder_composition`) and not as a
+  second JCS profile, which is why `code_surface` is DECLARED and not `none` and
+  why this packet archives on merged-plus-green rather than on landing.
+  **THE VEHICLE:** `add-wallet-carried-review-authority` task 7.6 stays open on
+  **"Ground 1" alone** — *"neither ruling is enforced until the change carrying
+  R6–R12 is ratified, so this task stays OPEN"* — Ground 2 having been
+  discharged by two dated walks (precision-class 2026-08-31, revocation-class
+  2026-09-02). **RATIFICATION of this packet discharged Ground 1; the 7.6 tick
+  is the PARENT's act on a separate word and THIS PACKET EDITS NO FILE IN THAT
+  CHANGE.** Nine decisions were put as multiple choice, each with a RECOMMENDED
+  option that the delta already encoded, and **Brett Heap ruled
+  2026-09-12T23:58Z, verbatim *"accept all A on 1017"*** — all nine at (a), so
+  ratification moved not one byte; **OQ-4 was the one that could have revoked
+  live grants** — ruling R6 retroactively would have re-derived the composition
+  digests both councils' grants are bound to and, under the shipped drift
+  cascade, revoked `grant-mrc-0002` on a day `grant-grc-0002` is already void
+  and `grant-grc-0003` cannot yet be minted; PROSPECTIVE (a) was ruled instead.
+  **NOTHING under `governance/review-authority/` is touched** — no row, no
+  grant, no wallet, no custody attestation, no staleness bound — and zero
+  files overlap openxFactory
+  [#1006](https://github.com/opensoft/openxFactory/pull/1006). PR
+  [#1017](https://github.com/opensoft/openxFactory/pull/1017) is **RATIFIED
+  and marked READY**; merge needs its own word, and Rule 6 applies at
+  landing.
+
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
   — filed 2026-09-12, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: draft`** — an UNAPPROVED packet in the lawful drafting shape
