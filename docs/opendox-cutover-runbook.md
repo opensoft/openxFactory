@@ -256,20 +256,27 @@ Per destination, and these are the numbers each leg's arrival run must report:
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
 
 The numeric columns are summed over the rows whose `destination:` names that
-leg, re-derived here rather than carried forward. TWO OF THEM WERE STALE and
-both are corrected in the same act, because the correction is the measurement:
-the table was last current at `880c821c`, where `opendox_code` read
-`53 / 70 | 727` and `openxdox_code` read `9 / 83 | 659`; the § 3.4 slice-S5
-annotation (`ee251d6c`) moved BOTH — to `52 / 71 | 874` and `9 / 83 | 674` —
-and moved neither cell. The slice-S7 annotation moves `opendox_code` again, to
-`35 / 88 | 1656`, and leaves `openxdox_code` where S5 put it. The four
-destination figures now sum to 2365, and the single line the replica row
-`tests/ideation-dashboard/conftest.py` declares — the one replica line, which
-names no destination at all — makes 2366. A row RE-DESTINED by ruling still counts at the
-`destination:` it declares, which is why a leg's arrival run reports FOUR
-fewer arrived rows than this table's count for `opendox_code` (119) and four
-fewer declared-edit rows (84), and why `openxdox_code`'s run reports four MORE
-of each: the ruling moved the placement, not the row.
+leg, re-derived here rather than carried forward. TWO ROWS OF IT WERE STALE
+and both are corrected in the same act, because the correction IS the
+measurement: the table was last current at `880c821c`, where `opendox_code`
+read `53 / 70 | 727` and `openxdox_code` read `9 / 83 | 659`; the § 3.4
+slice-S5 annotation (`ee251d6c`) moved BOTH — to `52 / 71 | 874` and
+`9 / 83 | 674` — and moved neither cell. The slice-S7 annotation moves
+`opendox_code` again, to `35 / 88 | 1656`, and leaves `openxdox_code` where S5
+put it. The four destination figures now sum to 2365, and the single line the
+replica row `tests/ideation-dashboard/conftest.py` declares — the one replica
+line, which names no destination at all — makes 2366.
+`tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`
+asserts all four numeric columns and that sum against the landed manifest, so
+this half of the table is now checked exactly as the roots column below is;
+until the slice-S7 annotation nothing checked it, which is how two cells sat
+wrong through two acts.
+
+A row RE-DESTINED by ruling still counts at the `destination:` it declares,
+which is why a leg's arrival run reports FOUR fewer arrived rows than this
+table's count for `opendox_code` (119) and four fewer declared-edit rows (84),
+and why `openxdox_code`'s run reports four MORE of each: the ruling moved the
+placement, not the row.
 
 The declared-roots column is spelled **exactly as a run prints it** — no
 trailing slash — because an operator's first act after a leg lands is to read
