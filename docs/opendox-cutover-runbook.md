@@ -985,9 +985,15 @@ to name where the file actually ends, citing the later ruling
      commit B. A missing file here refuses `arrival-missing` and names the
      ruling that made this leg owe it.
    * **LOSING**: delete the file at `from_path` — that deletion is the whole
-     content of the commit — and re-run the same invocation with
-     `--destination <from>`. Its line must carry `N re-destined AWAY and
-     verified vacated`. A copy left behind refuses `arrival-not-vacated`.
+     content of the commit — UNLESS another row's own effective arrival or a
+     declared `--replica-at` replica already claims `from_path` at this same
+     leg (a lawful refill: `check_vacated` excludes a path either one claims,
+     leaving the arriving question to `check_arrivals`/`check_replicas`
+     instead), in which case there is nothing here to delete and the file's
+     presence is that arrival's or replica's own commit, not this one's. Either
+     way, re-run the same invocation with `--destination <from>`. Its line must
+     carry `N re-destined AWAY and verified vacated`. A copy left behind that
+     no other row or declared replica claims refuses `arrival-not-vacated`.
 5. **Both legs' own `validate` green, and both pull requests admin-merged on
    Brett's word** (§ 12 act 1), exactly as every other arrival is.
 
