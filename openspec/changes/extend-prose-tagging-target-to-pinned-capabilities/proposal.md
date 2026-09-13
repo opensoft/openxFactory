@@ -29,6 +29,15 @@ no byte of `scripts/doc_health/families.py` moves, no module is added under
 of any per-product pin verifier moves, no marker is retargeted, and item (7)
 of the `split-openxwallet-repo` archived-ledger entry stays UNTICKED.
 
+**THE `Proposed:` BLOCK IMMEDIATELY BELOW RECORDS THE AT-FILING STATE
+(2026-09-12 ~01:55Z) AND IS KEPT VERBATIM AS HISTORY.** Its present-tense
+negations — *"no ratification, no realization and no archive is claimed by
+this packet"*, *"carry `Status: draft`"* — were true AT FILING and are
+superseded by the ratification recorded above: ratification HAS now been
+given, in the one act of 2026-09-12 ~23:20Z, recorded twice — openxFactory
+#992 and #745. Realization and archive remain separate later acts on
+Brett Heap's word, and no word for either has been given.
+
 Proposed: 2026-09-12 at approximately 01:55Z by Brett Heap (openxFactory
 repository owner), first-hand, in session to lane `openxfactory-2` (display
 `openXfactory-2`) — **a SELECTION, not a typed sentence**: presented with the
