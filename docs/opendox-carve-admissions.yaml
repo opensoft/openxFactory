@@ -85,12 +85,6 @@ destinations:
       - path: src/opendox/view_extension.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the server-side view registry, `ViewBinding` + `collectViewBindings`, mirroring `route_extension.collect_bindings` (openDox-spec `docs/front-end-package-boundary.md` § 4.1); this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "e6c65ed757bfc3f9b6664e27c85111bfe5f0d465"
-      - path: src/opendox/web/views/gate-lens.js
-        reason: "added by opensoft/openDox-code build/s4-split-route-tails (PR #17, split-opendox § 3.4 slice S4, RULED Q3, `#656` comment `5642758731`) — the lens gate's own class-B module, holding `LENS_SAVE_ROUTE` / `LENS_CLUSTER_ROUTE` moved off `views/lens-model.js`, mounted through S3's registry as the `gate.lens` binding; this admission PR lands first per Q-L1"
-        since: "031edc9b4268d9898c296b2e9bb3951a78642fb6"
-      - path: src/opendox/web/views/gate-projects.js
-        reason: "added by opensoft/openDox-code build/s4-split-route-tails (PR #17, split-opendox § 3.4 slice S4, RULED Q3, `#656` comment `5642758731`) — the project gate's own class-B module, holding `ACTIONS_CREATE_PROJECT_ROUTE` / `ACTIONS_EDIT_PROJECT_ROUTE` moved off `views/repo-selector.js`, mounted through S3's registry as the `gate.projects` binding; this admission PR lands first per Q-L1"
-        since: "031edc9b4268d9898c296b2e9bb3951a78642fb6"
       - path: src/opendox/web/views/intent-binding.js
         reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731; split-opendox § 3.4 slice S2) — the intent-feed chips' optional contributed binding; PR not yet opened/merged, this admission PR lands first per Q-L1"
         since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
@@ -106,6 +100,9 @@ destinations:
       - path: tests/test_consumer_reach.py
         reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
         since: "da8aae969b4057bd46d2550c265e5bb363142458"
+      - path: tests/test_gate_loop_contributed.py
+        reason: "added by openDox-code #20 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg B) — the shell's half of the contract, node-driven against the real `views/view_extension.js`: the student install, RULED Q1's generic mount pass, RULED Q2's declared namespace, RULED Q4's `requires`, RULED Q10's refusal transport and RULED counterpart Q6's four supply sites"
+        since: "fd7160d71813874033c21d6f2a8daa5ebf2350e4"
       - path: tests/test_intent_binding_dom.py
         reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — node-driven DOM probe of the optional binding, narrowed out of validate.yml like its test_intent_tray_dom.py / test_wheel_verbs_dom.py siblings (RULED Q-L5 (b'))"
         since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
@@ -151,6 +148,21 @@ destinations:
       - path: src/openxdox/role_authority_projection.py
         reason: "added by openXdox-code #10 (4.5 slice 1)"
         since: "4f98e77c7985f786af2ec295c38b6b06a7f5fce6"
+      - path: src/openxdox/serve_views.py
+        reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — RULED Q5's DECLARED HOSTED FALLBACK: six EXACT GET bindings for this column's view modules, never a `/views/` prefix that would answer for openDox's own"
+        since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
+      - path: src/openxdox/view_extensions.py
+        reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — the six `ViewBinding` specs, the `VIEW_EXTENSIONS` facet, `BUNDLE_REACH` and `CTX_MODEL_REACH`"
+        since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
+      - path: src/openxdox/web/views/gate-lens.js
+        reason: "added by openDox-code #17 (§ 3.4 slice S4, RULED Q3) and re-homed by split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587` — a CREATED file with no row (RULED OQ-C), so it moves by ADMISSION rather than by `re_destined:`, which is a field of a row; admitted at `opendox_code` until this slice and REMOVED there in the same diff"
+        since: "8a3355889fcc9cd40efa03ee9d007dedc5d14f2a"
+      - path: src/openxdox/web/views/gate-projects.js
+        reason: "added by openDox-code #17 (§ 3.4 slice S4, RULED Q3) and re-homed by split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587` — as `gate-lens.js` above: a CREATED file with no row, moved by admission and removed from `opendox_code`'s list in the same diff"
+        since: "8a3355889fcc9cd40efa03ee9d007dedc5d14f2a"
+      - path: src/openxdox/web_assets.py
+        reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — RULED Q5's ASSEMBLY HOOK: `install_view_modules(web_dir)` places this column's module bytes into openDox's one `--web-dir`"
+        since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
       - path: tests/fixtures/openxfactory-engineering-profile.yaml
         reason: "added by openXdox-code #14 (the 4.4 engine's profile fixture)"
         since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
@@ -166,6 +178,12 @@ destinations:
       - path: tests/test_evidence_provenance_surface_seam.py
         reason: "added by openXdox-code #11 (4.5 slice 2)"
         since: "427230c340cdb1f5d114d3868073cd156fa33ada"
+      - path: tests/test_gate_loop_probes.py
+        reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — slice S4's five node probes ported with the modules they drive, three of RULED counterpart Q6's own, and slice S2's dispose-tray probes ported from openDox-code's `tests/test_intent_binding_dom.py`; every one of them runs against an ASSEMBLED bundle, so the byte measured is the shipped byte in the shipped position"
+        since: "b009196345088e27abe87db0b99f7d132b2e41c4"
+      - path: tests/test_gate_loop_views.py
+        reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — the column's contract EXECUTED rather than described: the six bindings, their declared exports and routes, RULED Q3's one mount signature, RULED Q4's `requires`, the assembly hook and the hosted fallback"
+        since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
       - path: tests/test_model_scenario_workbench.py
         reason: "added by openXdox-code #12 (4.5 slice 3)"
         since: "5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d"

@@ -411,6 +411,41 @@ def _closed_relative_path(value: str, *, source_path: str) -> str:
     return value
 
 
+def effective_arrival(row: dict) -> tuple[str, str]:
+    """`(destination key, destination path)` a MOVED row resolves at TODAY —
+    `re_destined.to`/`to_path` where RULED Q6 has re-destined the placement,
+    else the row's own `destination`/`destination_path`.
+
+    THE SAME THREE-LINE PREDICATE LIVES IN `scripts/validate-carve-manifest.py`
+    and `scripts/verify-carve-arrival.py`, and this is a THIRD copy rather than
+    an import of either: both are hyphenated entry points loaded by
+    `importlib.util.spec_from_file_location`, and this module is itself loaded
+    BARE at some call sites (`scripts/ideation-dashboard-serve.py` puts only
+    `scripts/` on `sys.path`), so none of the three can import another — the
+    same precedent `_closed_relative_path` already set against those same two
+    tools. `tests/carve_arrival/test_verify_carve_arrival.py
+    ::test_both_tools_read_the_effective_arrival_identically` asserts this
+    copy equal to theirs rather than trusting three definitions to agree —
+    RULED Q-L8 (c)'s lesson about two tools and one definition, now for three.
+
+    `source()` resolves every MOVED row through this — and `sources_under()`
+    and `shed_destination()` through `source()` in turn — because reading a
+    row's raw `destination`/`destination_path` once it carries a
+    `re_destined:` block answers where the § 5.2 shed FIRST placed the file,
+    not where a later ruling actually put it. `PRRT_kwDOTAvnrs6h1nYE` named
+    the consequence: the dashboard compositor's `sources_under()` sweep would
+    link a path the paired leg has since VACATED instead of the one the file
+    arrived at.
+    """
+    re_destined = row.get("re_destined")
+    if isinstance(re_destined, dict):
+        to = re_destined.get("to")
+        to_path = re_destined.get("to_path")
+        if isinstance(to, str) and isinstance(to_path, str):
+            return to, to_path
+    return row.get("destination"), row.get("destination_path")
+
+
 def source(path: str | Path) -> Path:
     """The file `path` NAMES TODAY, wherever the § 5.2 shed left it.
 
@@ -420,9 +455,11 @@ def source(path: str | Path) -> Path:
 
       * a MOVED row resolves at its declared destination's mount
         (`openDox/code`, `openDox/spec`, `openXdox/code`, `openXdox/spec`),
-        at the row's own `destination_path` — which is NOT always the same
-        relative path, and is exactly why this is a lookup and not a prefix
-        substitution;
+        at `effective_arrival(row)`'s path — the row's own `destination_path`,
+        unless a `re_destined:` block (RULED Q6) says a ruling moved the
+        placement afterwards, in which case its `to_path` — which is NOT
+        always the same relative path either way, and is exactly why this is
+        a lookup and not a prefix substitution;
       * a `not_moved` row resolves HERE, unchanged, so a caller that sweeps a
         mixed set does not have to know which of its members stayed;
       * the one `deleted_at_carve` row raises `ShedModuleHasNoDestination`,
@@ -451,14 +488,15 @@ def source(path: str | Path) -> Path:
                 f"{key} is the carve manifest's `deleted_at_carve` row and has "
                 f"no destination to read it from. {reason}")
         return REPO_ROOT / key
-    mount = MOUNTS[row["destination"]]
+    destination, destination_path = effective_arrival(row)
+    mount = MOUNTS[destination]
     if not (mount / ".git").exists() and not any(mount.glob("*")):
         raise CarveReachUnavailable(
-            f"the pinned {row['destination']} leg is not materialized: "
+            f"the pinned {destination} leg is not materialized: "
             f"{mount.relative_to(REPO_ROOT)} is empty, so {key} cannot be read "
             f"from the destination the carve manifest declares for it. Run "
             f"`{INIT_COMMAND}` from the repository root.")
-    return mount / _closed_relative_path(row["destination_path"], source_path=key)
+    return mount / _closed_relative_path(destination_path, source_path=key)
 
 
 def module(path: str | Path):

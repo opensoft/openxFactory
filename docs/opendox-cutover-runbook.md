@@ -140,13 +140,16 @@ mapping manifest. Measured in the landed file:
 
 | disposition | rows | the proof owed at the destination |
 | --- | ---: | --- |
-| `moved_verbatim` | **161** | the arrived blob's `sha256` and mode EQUAL the row's |
-| `moved_with_declared_edit` | **157** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
+| `moved_verbatim` | **160** | the arrived blob's `sha256` and mode EQUAL the row's |
+| `moved_with_declared_edit` | **158** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 1422 declared edit lines**: `import rewrites` 684, `path
-constants` 202, `adapter calls` 536. **158 rows carry `edits:`** — the 157
+**318 rows move. 1584 declared edit lines**: `import rewrites` 708, `path
+constants` 202, `adapter calls` 674. **159 rows carry `edits:`** — the 158
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
+The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
+`views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
+the one row that moves BOTH disposition counts and the carrier count at once.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
@@ -157,9 +160,11 @@ PRESENT at `to:to_path` under this same table's rules, and ABSENT at the
 `from:from_path` it left (`arrival-not-vacated`). Nothing else moves —
 `carve_commit`, `carve_tag`, every `sha256`, every disposition and every
 declared line are claims about the SOURCE blob at the carve commit, and where
-the file now lives says nothing about them. **NO ROW CARRIES IT TODAY**: the
-amendment landed the form and its gates, and § 5.7 is the procedure the act
-itself follows.
+the file now lives says nothing about them. **FOUR ROWS CARRY IT TODAY**: §
+3.4 slice S5 (`#656` CLAIM `5648073924`) is the first act to use the form,
+RULED Q5 (`5648044785`) moving `gate.js`, `dispose.js`, `swb-create.js` and
+`swb-session.js` from `opendox_code` to `openxdox_code`, and § 5.7 is the
+general procedure this and any later re-destination follows.
 
 The table above states the file's CURRENT totals — see "Measured directly
 against the landed manifest" below for how they are derived. What follows is
@@ -195,9 +200,10 @@ test-layout files that carve leg 1 measured:
   the LINE: `verify-carve-arrival.py` verifies one destination per run and
   compares no two legs' copies with each other.
 
-The **1422nd line belongs to a replica row and therefore to no destination
-column below**: a replica row names no destination at all, so the per-leg
-declared-line figures still sum to 1421, and the extra line is owed by every leg
+The **one replica line belongs to no destination column below** (the 1422nd
+when this paragraph was written, the 1584th now): a replica row names no
+destination at all, so the per-leg declared-line figures still sum to one less
+than the total, and that line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
 reason `edits:` is still a refusal**: RULING OQ-B's three
 `stays_openxfactory_governance` rows stay here and take their import rewrite in
@@ -302,7 +308,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 1422 now.
+from the start — 794 of them at this ruling's own landing, 1584 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738
@@ -932,7 +938,11 @@ openXdox by a rule about imports, and § 1.2(d) of that note measured that 23 of
 them landed where nothing can run them. **Correcting a ruled placement is
 DECLARED, never re-cut** (§ 11 is for a SOURCE-side fact, and a `post-shed`
 manifest re-emitted at a post-shed commit would carry no moved rows at all).
-This is the procedure; slice S8 is the act that first runs it.
+This is the procedure; § 3.4 slice S5 (`#656` CLAIM `5648073924`) is the act
+that first ran it, moving `gate.js`, `dispose.js`, `swb-create.js` and
+`swb-session.js` from `opendox_code` to `openxdox_code` under RULED Q5
+(`5648044785`) — a later slice, S8 among them, follows the same five steps
+below.
 
 **It is not a way to move a file for convenience.** The `ruling:` field is
 required and is validated PRESENT for exactly that reason: a re-destination
