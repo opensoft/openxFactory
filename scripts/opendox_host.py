@@ -94,12 +94,23 @@ PROFILE_PATH = REPO_ROOT / "contracts" / "domain-profiles" / "openxfactory-engin
 #: `profile.cli_gate is gate` — the profile's reference to the column must be
 #: the SAME module object a sibling import produces.
 #:
+#: `DISPLAY` is a FOURTH kind of reader (§ 3.4 slice S7's landing precondition,
+#: openxFactory#656 comment `5649744596`): `opendox.display_profile
+#: .host_display()` reads it for `serve.py`'s `/capabilities` payload, which is
+#: neither `cli.build_parser()` nor `serve.build_server()` and so is not in
+#: `_LateProfile.READERS` either — `host_display()` reads it through
+#: `getattr(profile_openxfactory, "DISPLAY", None)`, a 3-argument `getattr`
+#: whose default absorbs `ProfileFacetMissing` cleanly (it subclasses
+#: `AttributeError`), which is how "registered, no facet declared" stays
+#: distinct from a crash. `scripts/profile_openxfactory.py`'s own module
+#: docstring ("THE FOURTH FACET") carries the rest of the reasoning.
+#:
 #: A NARROW LIST RATHER THAN BLANKET FORWARDING, on purpose. A leg that comes to
-#: read a third facet should fail with `ProfileFacetMissing` naming it — the
+#: read a fifth facet should fail with `ProfileFacetMissing` naming it — the
 #: refusal that sends a host to its own profile rather than to its
 #: registration — and the fix is a declared row here. Forwarding everything
 #: would answer a facet this repository never decided to contribute.
-FACETS: tuple[str, ...] = ("SUBCOMMAND_EXTENSIONS", "ROUTE_EXTENSIONS", "cli_gate")
+FACETS: tuple[str, ...] = ("SUBCOMMAND_EXTENSIONS", "ROUTE_EXTENSIONS", "cli_gate", "DISPLAY")
 
 _PROFILE_CLASS: type | None = None
 _COMPOSED: Any = None

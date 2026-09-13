@@ -1,0 +1,116 @@
+# VENDORED, NOT AUTHORITATIVE. Hand-copied from openDox-code #21
+# (branch `build/s7-parameterize-class-c`, head `173ac12b`)
+# `src/opendox/display_profile.py`'s own role tuples (`STAGE_ROLES`,
+# `STATUS_ROLES`, `AREA_ROLES`, `TOKEN_ROLES`, `ARTIFACT_ROLES`,
+# `_STATUS_VOCABULARIES`, `_STAGE_FIELDS_REQUIRED`) and `normalize_display()`'s
+# structural shape, because `contracts/opendox-pin.yaml` pins openDox's code
+# leg at `a99eba03` (BUILD slice 1b), which predates #21 — `opendox
+# .display_profile` is not importable from this repository's test environment
+# yet. `tests/test_engineering_profile_display_facet.py`'s
+# `test_facet_conforms_to_opendox_schema` tries the real import FIRST and
+# falls back to this file only when that fails; delete this fixture and that
+# fallback branch once the pin advances past #21's landing and the live
+# import succeeds.
+#
+# A STRUCTURAL SUBSET, deliberately. This does not encode every cross-field
+# refusal `normalize_display()` raises at runtime — e.g. that `areas.reference`
+# may carry no `prefix` — because this host's own facet
+# (`scripts/profile_openxfactory.py::_display_facet`) never declares
+# `areas.reference` in the first place, so the rule is moot against what is
+# being validated here. Forbidding unknown role names per section
+# (`additionalProperties: false` + `propertyNames.enum`) is stricter than and
+# sufficient in place of hand-coding that specific refusal.
+"$schema": "https://json-schema.org/draft/2020-12/schema"
+"$id": "https://opensoft.example/opendox/display-facet-vendored.schema.yaml"
+title: "opendox display_profile.PROFILE_FACET (\"DISPLAY\"), vendored subset"
+type: object
+additionalProperties: false
+properties:
+  stages:
+    type: object
+    additionalProperties: false
+    propertyNames:
+      enum: [source, grouping, candidate, selection, submission, completion]
+    patternProperties:
+      "^.*$":
+        type: object
+        additionalProperties: false
+        properties:
+          one: {type: string, minLength: 1}
+          many: {type: string, minLength: 1}
+          short: {type: string, minLength: 1}
+          label: {type: string, minLength: 1}
+          gate: {type: [string, "null"]}
+  statuses:
+    type: object
+    additionalProperties: false
+    propertyNames:
+      enum: [document, change, candidate]
+    patternProperties:
+      "^.*$":
+        type: object
+        additionalProperties: false
+        propertyNames:
+          enum: [captured, organized, proposed, ratified, promoted,
+                 superseded, retired, "out-of-band"]
+        patternProperties:
+          "^.*$": {type: string, minLength: 1}
+  areas:
+    type: object
+    additionalProperties: false
+    propertyNames:
+      enum: [captured, organized, proposed, reference]
+    patternProperties:
+      "^.*$":
+        type: object
+        additionalProperties: false
+        properties:
+          prefix:
+            type: [string, "null"]
+            pattern: "^.*/$"
+          label: {type: string, minLength: 1}
+  tokens:
+    type: object
+    additionalProperties: false
+    propertyNames:
+      enum: [captured, organized, proposed, completion]
+    patternProperties:
+      "^.*$":
+        type: string
+        pattern: "^#[0-9A-Fa-f]{6}$"
+  acts:
+    type: object
+    additionalProperties: false
+    propertyNames:
+      enum: [derive, brief, promote, propose, demote]
+    patternProperties:
+      "^.*$": {type: string, minLength: 1}
+  artifacts:
+    type: object
+    additionalProperties: false
+    propertyNames:
+      enum: [root, packet, delta, supporting]
+    patternProperties:
+      "^.*$":
+        type: object
+        additionalProperties: false
+        properties:
+          prefix:
+            type: [string, "null"]
+            pattern: "^.*/$"
+          label: {type: string, minLength: 1}
+          order:
+            type: array
+            items: {type: string, minLength: 1}
+  values:
+    type: object
+    additionalProperties: false
+    propertyNames:
+      enum: [document_stage, register_state]
+    patternProperties:
+      "^.*$":
+        type: object
+        additionalProperties: {type: string, minLength: 1}
+  sections:
+    type: array
+    items: {type: string, minLength: 1}
