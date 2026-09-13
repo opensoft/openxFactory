@@ -551,8 +551,8 @@ Active changes:
   promoted sentence and all three promoted scenarios carried verbatim, three
   scenarios added), *A moved packet declares the identity it was ratified
   under*, *An undeclared rename arrival is refused at its landing*, and *A
-  packet reference resolves by identity, not by path* (**twenty scenarios**,
-  6 + 5 + 5 + 4). `sequenced_after: []` is a corroborated root claim: no active
+  packet reference resolves by identity, not by path* (**twenty-seven
+  scenarios**, 7 + 8 + 7 + 5, the bench's first round having added seven). `sequenced_after: []` is a corroborated root claim: no active
   change holds a MODIFIED block over *Origin retention at archive*, the only
   other occurrence of the title under `openspec/changes/*/specs/` being one line
   of prose in `add-structured-scope-substrate`'s delta. **THE DECLARATION

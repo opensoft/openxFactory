@@ -128,13 +128,21 @@ met after a lawful move.
 1. **A moved packet declares the identity it was ratified under** (ADDED). A
    top-level `former_ids:` list in the packet's own `.openspec.yaml`, a sibling
    of `origin:` and never a member of it, naming change IDS and never paths,
-   ordered oldest first and appended to rather than rewritten. The archive
-   relocation is not a move under this requirement and is never declared. A
-   declared former id that still stands as a live directory is refused — that
-   shape is a copy.
+   ordered oldest first and APPEND-ONLY ACROSS COMMITS — a later commit that
+   removes, reorders or respells an established entry is refused, whether or not
+   it moves anything. An entry is added only by the commit that performs the
+   move it records, so a standing packet cannot append an identity it never had.
+   A former identity has EXACTLY ONE OWNER. The archive relocation is not a move
+   under this requirement and is never declared. A declared former id that still
+   stands as a live directory is refused — that shape is a copy.
 2. **An undeclared rename arrival is refused at its landing** (ADDED). A commit
-   that brings a packet directory in by a move from another packet directory is
-   refused unless the arriving packet declares the source id in the SAME commit.
+   that brings a packet directory in by a move from another packet directory
+   WHOSE IDENTITY HAS EVER DECLARED `Status: ratified` is refused unless the
+   arriving packet declares the source id in the SAME commit; a move of a packet
+   that has never been ratified stays lawful and declares nothing, as the
+   promoted realization record already promises. The test is EVER, over the
+   source identity's whole history, and never its blob at the parent — a packet
+   renamed and un-ratified in one commit is back in draft at every later hop.
    A move lands as one commit, so one commit is read and no chain is ever
    walked. The arrival read fails closed: where the pairing cannot be computed
    and the tree shows both an arrival and a departure, the gate refuses CANNOT
@@ -142,9 +150,10 @@ met after a lawful move.
 3. **A packet reference resolves by identity, not by path** (ADDED). A reference
    that addresses a packet resolves by its change id — against the location that
    id occupies now, active or archived, and against any packet declaring that id
-   as a former id. A reference is dangling only when it resolves to nothing
-   under that rule, and a reference that resolves owes the citing record no
-   edit.
+   as a former id. Resolution is to EXACTLY ONE packet or to nothing and never
+   to a set: an id that would resolve twice is reported AMBIGUOUS, never settled
+   by sort order. A reference is dangling only when it resolves to nothing under
+   that rule, and a reference that resolves owes the citing record no edit.
 4. **Origin retention at archive** (MODIFIED). The baseline is resolved across
    the current identity and every declared former identity together, taking the
    EARLIEST commit at which any of them declares `Status: ratified`; the

@@ -354,3 +354,81 @@ dependency order, not a preference.
 * **Other estate repositories.** Every rule here is scoped to the corpus of the
   repository being read. No other governed repository's corpus, register or CI is
   read, written or referenced by this packet.
+
+## D9 — The bench's first round: nine threads, ALL NINE TAKEN
+
+Posted on head `75ff1043` — three P1 findings from Codex and six from Copilot.
+Every one of them is a real defect of the text as filed, every one is taken, and
+four of them found the same class of hole from two directions. Recorded here
+rather than only in replies, because four of the nine changed what the
+requirements SAY and not merely how they read.
+
+**(1) THE REFUSAL REACHED A LAWFUL DRAFT RENAME — a contradiction inside this
+packet.** *An undeclared rename arrival is refused at its landing* was written
+unconditionally over every packet-directory move, while *A moved packet declares
+the identity it was ratified under* carries the scenario *A draft is renamed*
+saying no declaration is owed, and the promoted realization record says
+*"renaming a DRAFT change […] unaffected"*. A realization could not satisfy both.
+**Taken:** the refusal is now qualified to a move whose SOURCE IDENTITY HAS EVER
+DECLARED `Status: ratified`. The qualification is EVER, over that identity's
+whole history up to the commit, and explicitly NOT its blob at the parent — a
+packet renamed and un-ratified in one commit is back in draft at every later
+hop, so a parent-blob test would exempt exactly the shape this refusal exists to
+catch. Two scenarios added on either side of the line, plus an `AND` on the
+chain scenario naming why its first hop qualifies. `tasks.md` § 4.2 carries the
+same qualification, which it did not.
+
+**(2) A STANDING PACKET COULD HAVE APPENDED AN IDENTITY IT NEVER HAD.** The only
+test on a declared entry was that the id is not a LIVE directory — and an
+archived id has no live directory either, nor does one that never existed. So an
+ordinary edit could append an unrelated identity, inherit its ratification as
+the baseline, and capture every reference written under it; no arrival check
+would fire, because no arrival happened. **Taken:** an entry is added ONLY by the
+commit that performs the move it records, and a commit that adds a former id
+while moving nothing into this packet is refused. Scenario added, `tasks.md`
+§ 2.4 added with both fixtures.
+
+**(3) APPEND-ONLY WAS STATED AND UNENFORCEABLE.** The requirement said the list
+is *"appended to rather than rewritten"* and a scenario repeated it, but the
+arrival check only ever runs at a move, so a commit the day AFTER a lawful move
+could delete the declaration and no gate would look. The archive resolver would
+then fall back to the later ratification under the current id — precisely the
+baseline this mechanism exists to keep it away from. **Taken:** append-only is
+now normative ACROSS COMMITS and not only within one, refused whether or not the
+commit moves anything, with a scenario and `tasks.md` § 2.5 naming the
+day-after-deletion fixture.
+
+**(4) ONE IDENTITY COULD RESOLVE TO A SET.** *A packet reference resolves by
+identity, not by path* said "against any packet that declares that id", which
+admits two claimants; the baseline resolution had the same hole from the other
+end, and `proposal_path_at_ref` takes the FIRST SORTED archived directory when
+an id matches more than one. Against this estate's own stated rule:
+`sequenced_after.archived_change_dirs` returns a LIST rather than a path because
+*"two archive dates for one id is an AMBIGUITY the resolver must be able to
+report, not a collision to resolve by taking the newest"*. **Taken:** a former
+identity has EXACTLY ONE OWNER (refusal naming every claimant); an identity that
+resolves to more than one location at a commit refuses CANNOT RUN rather than
+choosing; and an AMBIGUOUS reference is a third outcome beside resolved and
+dangling, belonging to the declaration that made one identity resolve twice
+rather than to the citing record. Three scenarios added across three
+requirements, plus `tasks.md` § 2.6, § 3.1a and § 5.2a.
+
+**(5) `proposal_path_at_ref`'S PROBES CONTRADICT THIS PACKET'S OWN FAIL-CLOSED
+CLAUSE, and D0's M1 already measured why.** `tasks.md` § 3.1 said the baseline
+resolver reuses that helper; its `_blob_exists_at_ref` asks `git cat-file -e`,
+which M1 measures exiting 128 for a missing blob AND for an unreadable one, and
+`_archive_dir_names_at_ref` returns an empty list on any read failure. Reusing
+them would make an unreadable former identity read as absent and let the walk
+take a later baseline — what § 3.4 refuses. **Taken:** the packet now names the
+RULE (active location, then a dated archive directory carrying the same id) and
+forbids reusing the boolean probes, in `tasks.md` § 3.1 and as a sentence of the
+MODIFIED requirement itself: *"An EXISTING probe that collapses the two SHALL
+NOT be reused for this read merely because it already resolves a packet by id."*
+
+**Nothing was refused, and nothing was taken on the reviewer's word alone.** The
+two factual claims each finding rested on were re-read in this session before
+the edit: `sequenced_after.py`'s `archived_change_dirs` docstring and
+`_blob_exists_at_ref`/`_archive_dir_names_at_ref` bodies, and
+`docs/document-lifecycle.md`'s draft-rename sentence. The delta grew from
+**twenty scenarios to twenty-seven** (7 + 8 + 7 + 5) and `tasks.md` from 29
+boxes to 34, all unticked.

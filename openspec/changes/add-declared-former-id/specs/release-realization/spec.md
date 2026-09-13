@@ -73,7 +73,15 @@ switches itself off exactly where it can prove nothing. So the gate SHALL
 establish whether a path is PRESENT at a commit from the tree, SHALL treat a
 read it could not perform as a refusal — CANNOT RUN, naming the read that
 failed and the identity it was for — and SHALL NOT report an unreadable
-history as an unratified one.
+history as an unratified one. An EXISTING probe that collapses the two SHALL
+NOT be reused for this read merely because it already resolves a packet by id.
+
+AND AN IDENTITY THAT RESOLVES TO MORE THAN ONE PATH AT A COMMIT SHALL REFUSE
+RATHER THAN CHOOSE. Where the current id or a declared former id matches more
+than one candidate location in the tree being read, the gate SHALL refuse as
+CANNOT RUN naming the candidates, on the same ground the estate's own
+archived-directory lookup already states: two archive dates for one id is an
+ambiguity to report, not a collision to resolve by taking one.
 
 #### Scenario: A staged-origin change archives
 - **WHEN** a change with a staged origin reaches its archive gate
@@ -102,6 +110,11 @@ history as an unratified one.
 - **WHEN** the gate cannot perform a read it needs to resolve the baseline — the tree says a path is present at a commit and the checkout cannot produce what stands there
 - **THEN** the gate MUST refuse as CANNOT RUN, naming the read that failed
 - **AND** it MUST NOT report the packet as unratified, and MUST NOT establish a baseline from the reads that did succeed
+
+#### Scenario: A declared identity resolves to two locations at one commit
+- **WHEN** the current id or a declared former id matches more than one candidate location in the tree being read
+- **THEN** the gate MUST refuse as CANNOT RUN, naming the candidates
+- **AND** it MUST NOT resolve the ambiguity by preferring one of them
 
 ## ADDED Requirements
 
@@ -146,6 +159,29 @@ that stands as a live packet directory at the commit that declared it is a claim
 to be the move of something that did not move, and SHALL be refused naming both
 ids — that shape is a COPY, and a copy is a new packet with its own origin.
 
+AN ENTRY IS ADDED ONLY BY THE COMMIT THAT PERFORMS THE MOVE IT RECORDS, and a
+commit that adds a former id while moving nothing into this packet SHALL be
+refused. Absence of a live directory is not proof of predecessorship: an id that
+has archived, or that never existed, has no live directory either, so a rule
+that only checks for one would let a standing packet append an unrelated
+identity in an ordinary edit, acquire that identity's ratification as its
+baseline, and capture every reference written under it. The entry a commit adds
+SHALL therefore be exactly the source of the move that commit performs.
+
+THE LIST IS APPEND-ONLY ACROSS COMMITS AND NOT ONLY WITHIN ONE. A commit that
+REMOVES, REORDERS or REWRITES an entry an earlier commit established SHALL be
+refused, whether or not that commit moves anything. Without that, a lawful move
+could be declared at its landing and the declaration deleted the day after,
+which would hand the archive gate the later ratification under the current id —
+the very baseline this mechanism exists to keep it away from — and would do it
+in a commit no arrival check ever looks at.
+
+A FORMER IDENTITY HAS EXACTLY ONE OWNER. Where two packets declare the same
+former id, or where an id is at once a live packet id and some packet's declared
+former id, the declaration SHALL be refused naming every claimant: an identity
+claimed twice resolves to a set, and a baseline chosen from a set is a baseline
+chosen by the resolver rather than by an author.
+
 #### Scenario: A ratified packet is renamed and declares where it came from
 - **WHEN** the commit that renames a ratified packet also adds the former id to the destination packet's `former_ids:`
 - **THEN** the move is lawful, the packet keeps the ratification it had under the former id, and its archive gate reads the baseline there
@@ -167,13 +203,38 @@ ids — that shape is a COPY, and a copy is a new packet with its own origin.
 - **WHEN** a packet that has never declared `Status: ratified` is renamed
 - **THEN** no declaration is owed, the packet having no ratification for a former identity to carry
 
+#### Scenario: A former id is appended by a commit that moves nothing
+- **WHEN** a standing packet adds a former id in a commit that performs no move of that id into it
+- **THEN** the declaration MUST be refused, naming the id and the commit
+- **AND** the id having no live directory MUST NOT be read as evidence that it moved here
+
+#### Scenario: A later commit removes or reorders a declared former id
+- **WHEN** a commit rewrites `former_ids:` so that an entry an earlier commit established is removed, reordered or respelled
+- **THEN** that commit MUST be refused, the list being append-only across commits and not only within one
+
+#### Scenario: Two packets claim the same former identity
+- **WHEN** two packets declare the same id in `former_ids:`, or an id is both a live packet id and a declared former id
+- **THEN** the declaration MUST be refused, naming every claimant
+- **AND** the resolver MUST NOT settle the claim by preferring one of them
+
 ### Requirement: An undeclared rename arrival is refused at its landing
 A landing SHALL be REFUSED where its commit brings a change packet directory in
-by a MOVE from another change packet directory and the arriving packet does not
-declare the source id in `former_ids:` in that same commit. The refusal is taken AT THE LANDING of
+by a MOVE from another change packet directory WHOSE IDENTITY HAS EVER DECLARED
+`Status: ratified`, and the arriving packet does not declare the source id in
+`former_ids:` in that same commit. The refusal is taken AT THE LANDING of
 the commit that performs the move, which is the only place the question is
 cheap: a move lands as one commit, so the gate reads one commit and never a
 chain, and the author who made the move is the author who is asked.
+
+A MOVE OF A PACKET THAT HAS NEVER BEEN RATIFIED IS OUT OF SCOPE AND STAYS
+LAWFUL. Renaming a draft is an ordinary authoring act this estate performs, the
+promoted realization record says so in as many words — *"renaming a DRAFT
+change, and a single commit that renames a draft and ratifies it, are
+unaffected"* — and a refusal reaching it would make the mechanism cost more than
+the defect. The qualification is EVER, read over the source identity's whole
+history up to that commit, and never its blob at the parent: a packet renamed
+and un-ratified in one commit is back in DRAFT for every later hop, so a test
+taken at the parent would exempt exactly the shape this refusal exists to catch.
 
 THE REFUSAL IS WHAT MAKES THE DECLARATION MORE THAN AN HONOUR SYSTEM. A
 mechanism that only reads declarations protects the author who writes one; the
@@ -207,6 +268,16 @@ would be the declaration nobody writes.
 - **WHEN** a packet is renamed, un-ratified, renamed again while draft, and ratified under its third id, each hop landing as its own commit
 - **THEN** the FIRST undeclared hop MUST be refused at its own landing, so no later hop is ever reached
 - **AND** the gate MUST NOT need to walk the chain to reach that answer
+- **AND** the first hop qualifies because its source had declared `Status: ratified`, whatever the destination declares at that commit
+
+#### Scenario: A never-ratified draft is renamed
+- **WHEN** a commit moves a packet directory whose identity has never declared `Status: ratified` anywhere in its history
+- **THEN** the landing passes with no declaration, the move being an ordinary authoring act
+
+#### Scenario: A once-ratified packet is moved while back in draft
+- **WHEN** a commit moves a packet whose identity declared `Status: ratified` earlier in its history but does not at that commit
+- **THEN** the landing MUST be refused unless the arriving packet declares the source id
+- **AND** the test MUST be the source identity's whole history and never its blob at the commit's parent
 
 #### Scenario: The declared move lands
 - **WHEN** the moving commit carries the source id in the destination packet's `former_ids:`
@@ -240,10 +311,23 @@ that has not existed for weeks, and the corpus's own citations break by an act
 nobody thinks of as breaking anything — the archive relocation, which every
 packet performs exactly once.
 
+RESOLUTION IS TO EXACTLY ONE PACKET, OR TO NOTHING, AND NEVER TO A SET. Where an
+id would resolve to more than one candidate — two dated archive directories
+carrying the same id, a live directory and some packet's declared former id, or
+two packets declaring the same former id — the reference SHALL be reported as
+AMBIGUOUS and SHALL NOT be resolved by preferring one. This estate already draws
+that line where it resolves a packet by id: its archived-directory lookup
+returns every match as a LIST rather than a path, on the stated ground that two
+archive dates for one id is "an AMBIGUITY the resolver must be able to report,
+not a collision to resolve by taking the newest". A resolver that silently picks
+one candidate makes the record's meaning depend on sort order.
+
 CORRECTING A RECORD IS NOT THE REMEDY THIS REQUIREMENT IMPOSES. Where a
 reference resolves by identity, it is not a defect and nothing is owed; the
 reader resolves it. Only a reference that resolves to no identity at all is a
-defect, and it belongs to the record that wrote it.
+defect, and it belongs to the record that wrote it. An AMBIGUOUS reference is
+neither: it is a defect of the corpus that made one identity resolve twice, and
+it belongs to the declaration that created the collision.
 
 #### Scenario: A cited path names a packet that has since archived
 - **WHEN** a record cites `openspec/changes/<id>/<file>` and that packet now stands at `openspec/changes/archive/<YYYY-MM-DD>-<id>/<file>`
@@ -262,3 +346,8 @@ defect, and it belongs to the record that wrote it.
 #### Scenario: A reference names another repository's packet
 - **WHEN** a citation names a packet in a repository other than the one being read
 - **THEN** it MUST NOT be reported as dangling on that tree, a reference out of scope being no evidence about the reference
+
+#### Scenario: An id resolves to more than one packet
+- **WHEN** a cited id matches two dated archive directories, or a live directory and a declared former id, or two packets' declared former ids
+- **THEN** the reference MUST be reported as AMBIGUOUS and MUST NOT be resolved by preferring one candidate
+- **AND** the defect belongs to the declaration that made one identity resolve twice, not to the citing record

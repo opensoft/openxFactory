@@ -52,15 +52,49 @@ that has not happened; § 2 through § 5 are realization slices that follow it.
 - [ ] 2.3 **REFUSE A DECLARED ID THAT STILL STANDS.** A former id carried by a
       live packet directory at the commit that declared it is a claim to be the
       move of something that did not move; refuse naming both ids.
+- [ ] 2.4 **BIND EVERY NEWLY ADDED ENTRY TO THE MOVE THAT COMMIT PERFORMS.**
+      Absence of a live directory is NOT proof of predecessorship — an archived
+      id and an id that never existed both lack one — so the entry a commit adds
+      must be exactly the source of the move that commit performs, and a commit
+      that adds a former id while moving nothing into this packet is refused.
+      Fixtures: a standing packet appending an archived id; a standing packet
+      appending an id that never existed.
+- [ ] 2.5 **ENFORCE APPEND-ONLY ACROSS COMMITS, NOT ONLY WITHIN ONE.** Compare
+      the list against the one the packet carried at the commit's parent and
+      refuse a commit that removes, reorders or respells an established entry,
+      whether or not that commit moves anything. Fixtures: a declaration deleted
+      the day after a lawful move (the attack that would hand the archive gate
+      the later ratification under the current id, in a commit no arrival check
+      looks at); an entry reordered; an entry respelled.
+- [ ] 2.6 **REFUSE A FORMER IDENTITY CLAIMED TWICE.** Two packets declaring the
+      same former id, or an id that is at once a live packet id and a declared
+      former id, is refused naming every claimant — an identity claimed twice
+      resolves to a set, and a baseline chosen from a set is chosen by the
+      resolver rather than by an author. Fixture: two claimants; a live id also
+      declared as somebody's former id.
 
 ## 3. The archive gate — REALIZATION
 
 - [ ] 3.1 **RESOLVE THE BASELINE ACROSS THE DECLARED IDENTITIES.**
       `proposal-support.ratifying_commit` takes the current id and every
       declared former id, resolves each to the path it occupies at the commit
-      being read by the rule `sequenced_after.proposal_path_at_ref` already
-      implements, and returns the EARLIEST commit at which any of them declares
-      `Status: ratified`.
+      being read by the two-candidate RULE `sequenced_after.proposal_path_at_ref`
+      states — the active location, then a dated archive directory carrying the
+      same id — and returns the EARLIEST commit at which any of them declares
+      `Status: ratified`. **THE RULE, NEVER THAT FUNCTION'S BOOLEAN PROBES**:
+      `_blob_exists_at_ref` asks `git cat-file -e`, which exits non-zero for a
+      missing blob and for an unreadable one alike, and
+      `_archive_dir_names_at_ref` returns an empty list on ANY read failure — so
+      reusing them would make an unreadable former identity read as absent and
+      let the walk take a later baseline, which is exactly what § 3.4 refuses.
+- [ ] 3.1a **REFUSE AN IDENTITY THAT RESOLVES TWICE.** Where the current id or a
+      declared former id matches more than one candidate location in the tree
+      being read, refuse CANNOT RUN naming the candidates rather than taking the
+      first sorted one. The estate's own `archived_change_dirs` already states
+      the rule — it returns a LIST because "two archive dates for one id is an
+      AMBIGUITY the resolver must be able to report, not a collision to resolve
+      by taking the newest" — and `proposal_path_at_ref` does not carry it at a
+      ref.
 - [ ] 3.2 **LEAVE THE UNDECLARED REFUSAL EXACTLY WHERE IT IS.** PR #846's
       `origin-retention-path-moved` refusal stands unchanged for a packet that
       declares nothing; what changes is that a packet which DOES declare now has
@@ -83,9 +117,18 @@ that has not happened; § 2 through § 5 are realization slices that follow it.
 - [ ] 4.1 **BUILD THE READER AND THE CLI** in the shape
       `gate-realization-axis-vocabulary` established: a module under `scripts/`,
       a validator CLI beside it, a test suite over the live corpus.
-- [ ] 4.2 **REFUSE THE UNDECLARED ARRIVAL.** Status `former-id-undeclared`,
-      exit 1, naming the commit, the source path, the destination path and the
-      one repair. **No bypass flag** (#690).
+- [ ] 4.2 **REFUSE THE UNDECLARED ARRIVAL, QUALIFIED BY THE SOURCE'S HISTORY.**
+      Status `former-id-undeclared`, exit 1, naming the commit, the source path,
+      the destination path and the one repair. **No bypass flag** (#690). **The
+      refusal reaches a move whose SOURCE IDENTITY HAS EVER DECLARED
+      `Status: ratified`, read over that identity's whole history up to the
+      commit and never off its blob at the parent** — a packet renamed and
+      un-ratified in one commit is back in draft for every later hop, so a test
+      taken at the parent would exempt the shape this exists to catch. A move of
+      a packet that has NEVER been ratified passes with no declaration, which is
+      what `docs/document-lifecycle.md` already promises: *"renaming a DRAFT
+      change, and a single commit that renames a draft and ratifies it, are
+      unaffected"*. Fixtures on both sides of the qualification.
 - [ ] 4.3 **EXCEPT THE ARCHIVE RELOCATION BY ID.**
       `openspec/changes/<id>/` to `openspec/changes/archive/<YYYY-MM-DD>-<id>/`
       with the id unchanged passes with no declaration.
@@ -106,6 +149,10 @@ that has not happened; § 2 through § 5 are realization slices that follow it.
 - [ ] 5.2 **LEAVE THE CROSS-REPOSITORY CASE OUT OF SCOPE ON THE TREE BEING
       READ**, a reference to another repository's packet being no evidence about
       that reference.
+- [ ] 5.2a **REPORT AN AMBIGUOUS REFERENCE RATHER THAN RESOLVING IT.** An id
+      that would resolve to more than one candidate is AMBIGUOUS, and the defect
+      belongs to the declaration that made one identity resolve twice rather
+      than to the citing record. Never settle it by sort order.
 - [ ] 5.3 **AMEND `docs/document-lifecycle.md`.** Its sentence *"Renaming a
       ratified change is therefore blocked until a change declares a FORMER ID
       (issue #833, a successor packet)"* is the sentence this packet answers; it
