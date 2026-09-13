@@ -719,58 +719,6 @@ Active changes:
   further act on merged-plus-green realization evidence at canon's grain and a
   further word — and #965 closes at the ARCHIVE and not at this ratification.
 
-- [gate-realization-axis-vocabulary](openspec/changes/gate-realization-axis-vocabulary/proposal.md)
-  — filed 2026-09-11, lane `openxfactory-1` (display `openXfactory-1`),
-  **`Status: ratified`** (2026-09-12 at 15:45Z, Brett Heap, openxFactory
-  operator authority, first-hand, in session — THREE INDEPENDENT
-  MULTIPLE-CHOICE RULINGS over `design.md`'s three declared veto points, the
-  recommendation presented first in each, given verbatim as ***"do all as
-  recomended"*** and recorded item by item on PR
-  [#963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493)
-  at 2026-09-12T15:45:19Z: **D1 *"Keep and gate"*** (not *"Admit none"*, not
-  *"Rule none a synonym"*), **D2 *"Sweep in this PR"*** (not *"Each owning lane
-  sweeps"*, not *"Register all 26"*), **D3 *"Resolve against the registry that
-  exists"*** (not *"Resolve literally"*, not *"Accept any release-shaped
-  token"*)) — record
-  [`review/ratification-2026-09-12.md`](openspec/changes/gate-realization-axis-vocabulary/review/ratification-2026-09-12.md),
-  gate set re-derived on the ratified tree at
-  [`review/verification-2026-09-12.md`](openspec/changes/gate-realization-axis-vocabulary/review/verification-2026-09-12.md).
-  **ALL THREE ARE THE RECOMMENDED AND ALREADY-ENCODED OPTIONS, SO THE WORDING
-  STANDS UNCHANGED**; D0 and D4–D7 were carried beside them and none was
-  vetoed. The earlier word of 2026-09-11T12:08:24Z, verbatim ***"land each when
-  green, archive both when landed, claim 955 and 956"***, COMMISSIONED THE
-  AUTHORING under its "claim 956" clause and ratified no wording; it stays the
-  origin in `.openspec.yaml`, where the approval pair is a pure ADDITION beside
-  a byte-unmoved `origin:` block. Origin openxFactory
-  [#956](https://github.com/opensoft/openxFactory/issues/956), the named
-  successor owed by `amend-repo-boundary-governance-scope-first-line`
-  `tasks.md` § 6.8. ONE `## ADDED Requirements` block in `release-realization`
-  — *Realization axis vocabulary is gated* — with **no MODIFIED block**, so no
-  collision with the active `add-structured-scope-substrate` and no
-  `sequenced_after` hold. Measured at authoring on `38c076d1`: of **38** active
-  proposals only **12** declare a value the ratified two-value vocabulary
-  admits (9 `implemented`, 3 a release this estate defines); **26** are
-  outside it, **12** of those because `docs/contract-versioning-policy.md`
-  § Bundle Realization Order allocates bundle versions LATE. The realization
-  rides the same pull request (`scripts/validate-target-release.py`,
-  `scripts/target_release.py`, `scripts/target-release-register.yaml` — 21
-  entries, CLOSED against a baseline the validator carries — and 86 tests),
-  which corrects the **six** active off-vocabulary carriers to `implemented`
-  and leaves the archive's **61** off-vocabulary records as frozen record. D2's
-  ruled option sweeps the corpus AS IT STANDS, so the population was re-measured
-  at the ratified head (the merge of `origin/main` `1f068646`) and is SIX, not
-  the five the drafting corpus carried: the sixth,
-  `amend-kill-switch-to-declared-test-companion`, landed on main with
-  [#959](https://github.com/opensoft/openxFactory/pull/959) declaring no leading
-  token at all, was swept by the same one-token correction, and could not be
-  registered instead because D1's ruled option keeps the register CLOSED
-  (`design.md` D2a). Re-measured after: **0** active declarations outside the
-  vocabulary. **RATIFICATION ONLY — the realization rides this pull request but
-  the ARCHIVE is a separate later act on a separate word:** `code_surface` is
-  non-empty, so under `release-realization` this packet archives on
-  merged-plus-green realization evidence at canon's grain. Nothing is promoted;
-  `tasks.md` § 5 and § 6 stay entirely open; #956 closes at the ARCHIVE and at
-  no earlier landing.
 - [amend-kill-switch-to-declared-test-companion](openspec/changes/amend-kill-switch-to-declared-test-companion/proposal.md)
   — filed 2026-09-11, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: ratified`** (2026-09-11 at approximately 11:58Z, Brett Heap,
@@ -3234,6 +3182,65 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [gate-realization-axis-vocabulary](openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/proposal.md)
+  — **ARCHIVED 2026-09-12** by
+  [PR #1014](https://github.com/opensoft/openxFactory/pull/1014), on Brett
+  Heap's **SEPARATE ARCHIVE WORD** — verbatim *"archive both"*
+  (this packet and `report-stale-grandfather-dispositions`),
+  **2026-09-12T22:25:43Z**, recorded on
+  [PR #963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5649094500)
+  and mirrored on
+  [#956](https://github.com/opensoft/openxFactory/issues/956#issuecomment-5649094591)
+  — given AFTER, and separate from, the packet's own ratification of the same
+  day, verbatim *"do all as recomended"*, 2026-09-12T15:45:19Z, recorded on
+  [PR #963](https://github.com/opensoft/openxFactory/pull/963#issuecomment-5646922493).
+  **REALIZATION EVIDENCE, CITED RATHER THAN ASSERTED** (`release-realization`'s
+  *Realization archive gate*, a NON-EMPTY code surface): ratified and landed by
+  **PR [#963](https://github.com/opensoft/openxFactory/pull/963) →
+  `68ff88b4091ece46f0ad269643aa316924aa8c65`** on `main`, 2026-09-12T19:03:47Z
+  (ratifying commit `d002f85d`; records
+  `openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/review/ratification-2026-09-12.md`
+  and `review/verification-2026-09-12.md`, both `MOVED` and untouched by this
+  archive), and `main`'s OWN `pytest-suite` run at that exact tree — **run
+  [34713047890](https://github.com/opensoft/openxFactory/actions/runs/34713047890)**,
+  `headSha` `68ff88b4091ece46f0ad269643aa316924aa8c65` (byte-identical to the
+  merge commit — a DECIDED run at the tree the merge carries, so no
+  tree-equality argument is owed), conclusion **success**. **THE PROMOTION,
+  MEASURED RATHER THAN EYEBALLED:** the ONE `## ADDED Requirements` block
+  (*Realization axis vocabulary is gated*) is BYTE-IDENTICAL to the
+  requirement now standing in `openspec/specs/release-realization/spec.md` —
+  **8,569 bytes, sha256
+  `204368c0fb73f7638c5264ba345d7814f2920e5c3e54ae0d24cee5832749d9d5`** on both
+  sides, `diff` over the two extracted slices empty; the spec file grows
+  **541 → 660** lines, numstat `+119/-0` matching `-w` numstat exactly (a pure
+  addition, no reflow). **NO ORDERED-DELTA CHILD DEPENDS ON THIS CHANGE**
+  (an ADDED requirement over a novel title, deliberately, to avoid the
+  `sequenced_after` hold a second `## MODIFIED` block over *Realization axis
+  declaration* would owe beside `add-structured-scope-substrate`'s own).
+  **`tasks.md` § 5 AND § 6 TICK ON THE RECORDING, PLUS TWO BOOKKEEPING BOXES
+  (§ 4.10/§ 4.12) LEFT UNTICKED AT RATIFICATION**, the same class § 3.9(c)
+  already named for § 4.9/§ 4.11: § 4.10/§ 4.12 cite the required
+  `pytest-suite` runs before (`f663b379`, run 34711691612, 7009 passed) and
+  after (`68ff88b4`, run 34713047890, 7095 passed) the merge, and the FREEZE
+  record (36 threads, 0 unresolved); § 6.1/§ 6.2 name the successor ALREADY
+  ACTIVE in this packet's own ratified record, `add-structured-scope-substrate`
+  (re-verified ratified, not archived, still holding the sequencing slot;
+  register's `deferred-allocation` count re-measured at **12**, unchanged);
+  § 6.3 had no successor named anywhere and files one here, UNCLAIMED —
+  openxFactory [#1013](https://github.com/opensoft/openxFactory/issues/1013),
+  after a sibling search found none, citing a re-measurement (45 active
+  proposals, 45 declaring `code_surface:`, 5 `none` / 40 non-`none`, none
+  validated); § 6.4 re-measures the archived off-vocabulary `target_release`
+  count via `scripts/validate-target-release.py` — still **61**, of a now-166
+  archived total (re-measured post-merge-from-main, which carried in
+  `rule-inherited-unit-naming-marker-spent`'s own archive: 164 → 166, +2, this
+  packet's own PR #1014 plus that sibling PR #1012); § 6.5 re-confirms no
+  other estate repository is touched.
+  **openxFactory [#956](https://github.com/opensoft/openxFactory/issues/956)
+  CLOSES AT THIS ARCHIVE**, by the single `Closes #956` line in PR #1014's
+  body and nowhere else — `closingIssuesReferences` verified `[956]` on this
+  pull request and `[]` throughout the ratification pull request (#963).
 
 - [rule-inherited-unit-naming-marker-spent](openspec/changes/archive/2026-09-12-rule-inherited-unit-naming-marker-spent/proposal.md)
   — **ARCHIVED 2026-09-12** by
