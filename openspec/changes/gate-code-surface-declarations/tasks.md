@@ -1,6 +1,7 @@
 # Tasks: gate-code-surface-declarations
 
-Status: draft
+Status: ratified
+Ratified by: gate-code-surface-declarations — 2026-09-13, Brett Heap, verbatim "ratify" (recorded at https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -14,10 +15,16 @@ LATER word.
 this pull request or a measurement recorded verbatim in this packet and
 reproducible from the commands named beside it.
 
-**§ 1 (RATIFICATION) IS ENTIRELY OPEN AND IS THE ASK.** Taking openxFactory
-issue #1013 — an unclaimed residue another lane filed — commissioned the
-AUTHORING and decided no wording. Four decisions are put for veto: `design.md`
-D1, D2, D3 and D4.
+**§ 1 (RATIFICATION) IS CLOSED: BRETT HEAP RULED ON 2026-09-13 AT 00:41Z**,
+verbatim **"ratify"**, recorded at
+[#1018](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+**THE WORD IS BARE** — it ratifies the PACKET and names no option individually,
+so each of `design.md`'s four declared veto points stands at the option this
+packet encodes, the RECOMMENDED one in all four; no wording moved on the ruling.
+Taking openxFactory issue #1013 — an unclaimed residue another lane filed —
+commissioned the AUTHORING and decided no wording; that provenance is recorded
+in `.openspec.yaml` and is untouched by this ratification, which adds the
+approval pair beside it.
 
 **§ 5 (ARCHIVE) IS ENTIRELY OPEN.** `code_surface` is non-empty, so under
 `release-realization` this packet SHALL NOT archive on landing. **THIS PACKET'S
@@ -29,58 +36,92 @@ openxFactory #1013 closes THERE and at no earlier pull request.
 
 **§ 6 IS UNTICKED ON PURPOSE**: residue, measured and deliberately not taken.
 
-## 1. Ratification — OWED, NOT GIVEN
+## 1. Ratification — GIVEN 2026-09-13
 
-- [ ] 1.1 **RULE `design.md` D1 — what "off-vocabulary" means when the value is
-      prose.** Option 1 (RECOMMENDED): GATE THE GRAMMAR — a declared head
+- [x] 1.1 **`design.md` D1 RULED — "GATE THE GRAMMAR"**, the RECOMMENDED and
+      already-encoded option. The options as put: option 1, a declared head
       (`none`, or repository identifiers separated by `,` / ` and ` / ` + `)
       followed by a REQUIRED gloss opener, with the head judged and the gloss
-      never, and NO membership check. Option 2: judge only the FIRST TOKEN, as
-      the sibling does — measured cost: it refuses 2 of the 7 and passes the
-      other 5, including a head whose second and third "repositories" are the
-      words `the` and `PROJECT`, and it cannot read a multi-repository
-      declaration at all. Option 3: resolve each identifier against a repository
-      inventory — measured cost: this repository defines none, so the gate would
-      refuse all 41 non-`none` declarations on the day it landed.
-- [ ] 1.2 **RULE `design.md` D2 — the shape of the remedy.** Option 1
-      (RECOMMENDED): an ADDED requirement, a house validator and a CLOSED
-      register, following `gate-realization-axis-vocabulary`. Option 2: the
-      requirement alone, with a bare refusal and no register — cost: it cannot
+      never, and NO membership check (recommended); option 2, judge only the
+      FIRST TOKEN as the sibling does — measured cost: it refuses 2 of the 7 and
+      passes the other 5, including a head whose second and third
+      "repositories" are the words `the` and `PROJECT`, and it cannot read a
+      multi-repository declaration at all; option 3, resolve each identifier
+      against a repository inventory — measured cost: this repository defines
+      none, so the gate would refuse all 41 non-`none` declarations on the day
+      it landed.
+- [x] 1.2 **`design.md` D2 RULED — "VALIDATOR PLUS CLOSED REGISTER PLUS ADDED
+      REQUIREMENT"**, the RECOMMENDED and already-encoded option, so the
+      register's closure stays SHALLed in the delta rather than left to the
+      implementation. The options as put: option 1, an ADDED requirement, a
+      house validator and a CLOSED register, following
+      `gate-realization-axis-vocabulary` (recommended); option 2, the
+      requirement alone with a bare refusal and no register — cost: it cannot
       land unless D3 option 3 lands with it, coupling two independent decisions
-      into one word. Option 3: an ADVISORY gate — cost: an advisory gate refuses
+      into one word; option 3, an ADVISORY gate — cost: an advisory gate refuses
       nothing, which is the state #1013 filed about.
-- [ ] 1.3 **RULE `design.md` D3 — the disposition of the SEVEN pre-existing
-      non-conformers.** Option 1 (RECOMMENDED): REGISTER ALL SEVEN, sweep none.
-      Option 2: sweep the six whose correction carries no judgment and register
-      the one that does. Option 3: sweep all seven. The reason this departs from
-      the sibling's ruled sweep is written out in D3 and is two things: a head
-      correction RE-PUNCTUATES another lane's ratified prose rather than
+- [x] 1.3 **`design.md` D3 RULED — "REGISTER ALL SEVEN, SWEEP NONE"**, the
+      RECOMMENDED and already-encoded option. **THE RULING FIXES THE
+      DISPOSITION AND NEVER THE COUNT**: the population is a fact about a TREE
+      and § 3.3 re-measures it at the head the gate lands on. The options as
+      put: option 1, register all seven and sweep none (recommended); option 2,
+      sweep the six whose correction carries no judgment and register the one
+      that does; option 3, sweep all seven. The reason this departs from the
+      sibling's ruled sweep is written out in `design.md` D3 and is two things:
+      a head correction RE-PUNCTUATES another lane's ratified prose rather than
       replacing one token whose meaning the author's own gloss supplied, and for
       `split-opendox-two-layer-product` it is a judgment about what counts as a
-      repository. **Note the structural difference too:** the sibling swept "in
-      this PR" because its realization was in that same pull request; here any
-      sweep lands in § 3's LATER pull request, so the population must be
-      re-measured there in any case.
-- [ ] 1.4 **RULE `design.md` D4 — whether `scope_globs:`'s machinery is
-      reusable.** Option 1 (RECOMMENDED): reuse it as the CONSUMER and NARROW
+      repository. The structural difference stands beside it: the sibling swept
+      "in this PR" because its realization was in that same pull request, while
+      here any sweep lands in § 3's LATER pull request.
+- [x] 1.4 **`design.md` D4 RULED — "REUSE AS THE CONSUMER AND NARROW THE
+      EXTRACTOR"**, the RECOMMENDED and already-encoded option, so § 3.5 is OWED
+      rather than conditional. The options as put: option 1, reuse the
+      `scope_globs:` machinery as the CONSUMER and narrow
       `scripts/scope_globs.py`'s `code_surface_repositories` to the declared
-      head, with the rule SHALLed in the delta. Option 2: leave the extractor and
-      name a successor — cost: the field is then read two ways, strictly by the
-      new gate and permissively by the authorization check. Option 3: leave the
-      extractor and register the 27 — cost: it registers 27 packets for a defect
-      that is in the reader, not in any of their declarations.
-- [ ] 1.5 **D0 AND D5 THROUGH D8 ARE CARRIED BESIDE THEM** and are equally open
-      to veto: D0 (the measurement and its method), D5 (the code surface, the
-      three exit codes, the register's home outside `contracts/`), D6 (why an
-      OpenSpec change and not a patch), D7 (sequencing and the sibling search),
-      D8 (what is not taken).
-- [ ] 1.6 **ON RATIFICATION**, `.openspec.yaml` gains `approved_by` and
-      `approved_on` as a pure ADDITION beside a byte-unmoved drafting
-      provenance — `kind` and `id` never move, which is the shape
-      `add-drafted-proposal-origin` (issue #318) defined for this transition —
-      and every document here moves to `Status: ratified` with one citation line
-      naming the ruled labels. A ratification record is written under
-      `review/`.
+      head, with the rule SHALLed in the delta (recommended); option 2, leave
+      the extractor and name a successor — cost: the field is then read two
+      ways, strictly by the new gate and permissively by the authorization
+      check; option 3, leave the extractor and register the 27 — cost: it
+      registers 27 packets for a defect that is in the reader, not in any of
+      their declarations.
+- [x] 1.5 **THE RULING IS A BARE WORD AND IS RECORDED AS ONE.** Brett Heap's
+      word of 2026-09-13T00:41Z is verbatim **"ratify"**; unlike the sibling's
+      three labelled rulings it names no option individually. It ratifies the
+      PACKET, and the packet encodes the recommended option at each of D1
+      through D4, which is why § 1.1 through § 1.4 read as they do and why
+      **nothing in the delta moved on the ruling**. Recorded at
+      [#1018](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+- [x] 1.6 **D0 AND D5 THROUGH D8 WERE CARRIED BESIDE THEM AND NONE WAS
+      VETOED**, each with its alternative written out and each available to be
+      vetoed in the same ruling: D0 (the measurement and its method), D5 (the
+      code surface, the three exit codes, the register's home outside
+      `contracts/`), D6 (why an OpenSpec change and not a patch), D7 (sequencing
+      and the sibling search), D8 (what is not taken). The bare word reached the
+      packet as a whole; it named none of the carried five and none of them
+      moves.
+- [x] 1.7 **THE RULING REACHES THE FIRST BENCH ROUND, ON ITS OWN WORDS**, which
+      direct that the two confirmed findings be fixed *"before the record is
+      cut, so the ratified packet includes them"*. Both are taken and both are
+      in the ratified text: `none` reserved out of REPOSITORY IDENTIFIER with a
+      tenth scenario, and the FAIL-CLOSED rule for a registered-exception packet
+      that later declares `scope_globs:` with a fourth scenario on the
+      derivation requirement. The third open thread is REFUSED as false on
+      measurement. `design.md` D9 records all three; § 4.9 carries the ledger
+      line.
+- [x] 1.8 **THE RATIFICATION RECORD IS CUT IN THIS PUSH.** `.openspec.yaml`
+      gains `approved_by` and `approved_on` as a pure ADDITION beside a
+      byte-unmoved drafting provenance — `kind` and `id` never move, which is
+      the shape `add-drafted-proposal-origin` (issue #318) defined for this
+      transition — and `proposal.md`, `design.md` and this file carry
+      `Status: ratified` with ONE citation each, the ruling comment URL, which
+      is the record (estate rule of 2026-09-10). **THE FLIP IS NOT
+      HEADER-ONLY**: the draft-voiced prose in all three documents is revised
+      with it — the veto-point framing, the *what this packet does NOT do* list,
+      § 1's own preamble, and the conditional in `proposal.md`'s `code_surface:`
+      declaration that read "only if D4 is ruled as recommended" — because a
+      header flip over unrevised draft language is the defect Opsx #397
+      recorded on 2026-09-12.
 
 ## 2. The measurement, taken before the design — DONE IN THIS PULL REQUEST
 
@@ -153,11 +194,14 @@ task list rather than an intention.
 - [ ] 3.1 `scripts/code_surface.py` (NEW) — the reader and judge. Reads the
       declaration through the SHIPPED strict loader
       `frontmatter_strict.read_front_matter`, adding no second parser; parses
-      the DECLARED HEAD (`none`, or repository identifiers separated by `,` /
-      ` and ` / ` + `); requires a GLOSS OPENER where a gloss follows; refuses a
-      YAML folding indicator BY NAME; refuses a repeated declaration; loads and
-      shape-checks the register; scans top-level active changes and counts the
-      archive.
+      the DECLARED HEAD — EITHER the single token `none` OR a list of
+      repository identifiers separated by `,` / ` and ` / ` + `, the two
+      EXCLUSIVE, so a MIXED head such as `none, openxFactory` is REFUSED and no
+      derived set is computed for it, in either order and wherever in the list
+      the token sits (`design.md` D9 (a)); requires a GLOSS OPENER where a gloss
+      follows; refuses a YAML folding indicator BY NAME; refuses a repeated
+      declaration; loads and shape-checks the register; scans top-level active
+      changes and counts the archive.
 - [ ] 3.2 `scripts/validate-code-surface.py` (NEW) — the CLI, in
       `validate-scope-globs.py`'s shape. `[REPO_ROOT]` plus `--register PATH`
       (for the tests and for a consuming tree; the gate runs it with neither).
@@ -179,19 +223,36 @@ task list rather than an intention.
       carrier that arrived after this drafting is disposed of there.
 - [ ] 3.5 **NARROW `scripts/scope_globs.py`'s `code_surface_repositories`** to
       derive its set from the DECLARED HEAD, through the reader § 3.1 adds, so
-      the field has one derivation and not two — **only if § 1.4 rules D4
+      the field has one derivation and not two — **OWED, § 1.4 having ruled D4
       option 1**. Pinned by a test proving the function returns the head's
       identifiers and none of the gloss's, and by a before/after run of
       `python3 scripts/validate-scope-globs.py .` showing the live corpus
       unmoved (0 active proposals declare `scope_globs:`, § 2.7, so the change
       is unobservable there — which is what makes it landable without a sweep).
+- [ ] 3.5a **FAIL CLOSED WHERE THE HEAD IS CARRIED BY THE REGISTER RATHER THAN
+      READ BY THE GRAMMAR** (`design.md` D9 (b)). A proposal the register names
+      has NO head-derived set, so `code_surface_repositories` SHALL NOT return
+      one for it, and `validate_cross_consistency` SHALL REFUSE a registered
+      proposal that also declares `scope_globs:`, naming BOTH the proposal and
+      the register entry that carries its declaration. **THE TWO SUBSTITUTES
+      ARE FORBIDDEN BY NAME AND EACH GETS ITS OWN REFUSAL TEST**: no fallback to
+      a set derived from the whole declaration (it would re-admit the 3,421-token
+      gloss surface), and no empty-set substitution (it would report the fault
+      against the structured scope rather than against the code-surface
+      declaration that causes it). The refusal message SHALL name the remedy —
+      bring the declaration into the grammar, which retires the entry in the
+      same act.
 - [ ] 3.6 `tests/code_surface/test_code_surface_gate.py` (NEW) — the head parse
       and the opener requirement; the block-scalar refusal by name; the repeat
       refusal; absence as the promoted default and a present-but-empty value
       refused; both identifier spellings (`<name>` and `<owner>/<name>`); the
-      list separators; `none` with and without a gloss; the archive read and
-      never judged; the register's shape refusals, its closed baseline, and the
-      stale-entry status; the derivation rule of § 3.5; and
+      list separators; `none` with and without a gloss; **a MIXED `none`-plus-
+      identifier head refused in either order and at every list position**; the
+      archive read and never judged; the register's shape refusals, its closed
+      baseline, and the stale-entry status; the derivation rule of § 3.5;
+      **§ 3.5a's fail-closed rule, with one test per forbidden substitute — a
+      registered proposal declaring `scope_globs:` refused, never granted a
+      whole-declaration set and never granted an empty one**; and
       `test_corpus_code_surface_validates`, which runs the CLI over the LIVE
       tree so a new divergence reds the required `pytest-suite` with no workflow
       edit. **The test count is MEASURED at the realization and never carried
@@ -200,9 +261,17 @@ task list rather than an intention.
       by reading the workflow: `pytest-suite` already runs everything under
       `tests/`, so a new test directory is collected with no registration
       anywhere.
-- [ ] 3.8 **THE README ACTIVE ROW MOVES TO THE RATIFIED STANDING** in the same
-      commit as § 1.6, and every figure it carries is re-measured at that
-      commit rather than copied from here.
+- [x] 3.8 **THE README ACTIVE ROW MOVED TO THE RATIFIED STANDING**, in the same
+      commit as § 1.8 — the drafting-shape sentence replaced by the ruling, its
+      date, its verbatim word and the recording comment, the bareness of the
+      word named, the four veto points shown as RULED at the recommended option,
+      and the bench round's two taken findings carried. **Every figure it
+      carries was RE-MEASURED at that commit rather than copied**: the scenario
+      count is read from the delta file (18 = 10 + 4 + 4) and the corpus figures
+      re-derived. It is the one § 3 box this pull request closes, because the
+      row is bookkeeping the ratification owes and not realization.
+      (Re-numbered from the § 1.6 the drafting text cited; the ratification
+      tasks are now § 1.1 through § 1.8.)
 
 ## 4. Verification — DONE IN THIS PULL REQUEST
 
@@ -250,13 +319,35 @@ opened as a DRAFT.
       tests/sequenced_after/corpus-ledger.yaml (211 rows, 1 moved by #1018)"*.
       After it, `--ledger-diff` — **exit 0**, *"per-change sweep ledger
       consistent with the corpus (211 rows)"*.
-- [x] 4.8 **README `## OpenSpec Records` ACTIVE ROW**, in house style, at the
-      DRAFT standing — the drafting shape named outright (**`Status: draft` —
-      NOT RATIFIED**), the ADDED-only shape and the absence of a
-      `sequenced_after` hold, the D0 measurement, the one-reader finding, the
-      four declared veto points, and the archive named as the separate act
-      where #1013 closes.
-- [ ] 4.9 **THE BOT BENCH**, taken and dispositioned item by item on the record.
+- [x] 4.8 **README `## OpenSpec Records` ACTIVE ROW**, in house style. It first
+      landed at the DRAFT standing in `5fe7a0c8` — the drafting shape named
+      outright, the ADDED-only shape and the absence of a `sequenced_after`
+      hold, the D0 measurement, the one-reader finding, the four declared veto
+      points, and the archive named as the separate act where #1013 closes — and
+      **MOVED TO THE RATIFIED STANDING BY THIS RATIFICATION** (§ 3.8), which is
+      the only edit this round makes to it besides the re-measured scenario
+      count.
+- [x] 4.9 **THE BOT BENCH — ROUND 1, taken and dispositioned item by item on
+      the record** (`design.md` D9). FIVE threads. TWO were taken before the
+      ruling and are resolved: a scenario count overstated by one (`a5a707c7`)
+      and a `§ 4` header reading DONE over unticked boxes (`83b13051`) — both
+      the packet's own bookkeeping contradicting its own diff. Of the three
+      standing at the ruling, **TWO ARE TAKEN INTO THE RATIFIED TEXT**: (a)
+      `none` reserved out of REPOSITORY IDENTIFIER, the two head forms made
+      EXCLUSIVE in the requirement's first line, with a tenth scenario refusing
+      a mixed head; and (b) the FAIL-CLOSED rule for a registered-exception
+      packet that later declares `scope_globs:`, with both substitutes forbidden
+      by name and a fourth scenario on the derivation requirement. **ONE IS
+      REFUSED AS FALSE, ON MEASUREMENT**: the corpus-ledger finding claims the
+      row is absent, and the row is at
+      `tests/sequenced_after/corpus-ledger.yaml:236` on this branch with the
+      file in this pull request's diff, `--ledger-diff` exit 0, *"per-change
+      sweep ledger consistent with the corpus (211 rows)"* — seeded by the
+      sanctioned tool at `83b13051` exactly as § 4.7 records. A finding is not
+      taken for having been made, and the refusal is recorded on that thread
+      with the line number, the command and the exit code. **Later rounds, and
+      the round the un-draft fires, are dispositioned the same way and are not
+      claimed by this box.**
 
 ## 5. Archive — OWED, NOT GIVEN
 

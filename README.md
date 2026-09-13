@@ -533,14 +533,19 @@ Active changes:
 
 - [gate-code-surface-declarations](openspec/changes/gate-code-surface-declarations/proposal.md)
   — filed 2026-09-12, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: draft` — NOT RATIFIED**, an UNAPPROVED packet in the lawful
-  drafting shape `add-drafted-proposal-origin` defined (`proposed_by` /
-  `proposed_on`, no approval pair). Filed in answer to openxFactory
+  **`Status: ratified`** — **RATIFIED 2026-09-13 at 00:41Z by Brett Heap
+  (openxFactory operator authority), verbatim *"ratify"***, recorded at
+  [#1018](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+  **THE WORD IS BARE**: it ratifies the PACKET and names no option individually,
+  so each of the four declared veto points stands at the option the packet
+  encodes — the RECOMMENDED one in all four — and no wording moved on the
+  ruling; `.openspec.yaml` carries the approval pair as a pure ADDITION beside a
+  byte-unmoved drafting provenance (`kind` and `id` never move). Filed in answer
+  to openxFactory
   [#1013](https://github.com/opensoft/openxFactory/issues/1013), the UNCLAIMED
   residue `gate-realization-axis-vocabulary` `tasks.md` § 6.3 owed and that
   packet's archive act filed, standing on
-  [#956](https://github.com/opensoft/openxFactory/issues/956). Taking an
-  unclaimed residue commissions the AUTHORING and ratifies no wording. Filing PR
+  [#956](https://github.com/opensoft/openxFactory/issues/956). Filing PR
   [#1018](https://github.com/opensoft/openxFactory/pull/1018).
   **Gates the OTHER half of the sentence its sibling gated**: `release-realization`'s
   *Realization axis declaration* reads as one sentence with two halves, and the
@@ -548,7 +553,8 @@ Active changes:
   **THREE `## ADDED` REQUIREMENTS AND NO `## MODIFIED` BLOCK** — *Code-surface
   declaration grammar is gated*, *The declared repository set is derived from
   the head and never from the gloss*, and *Standing code-surface divergence is
-  named in a closed register* — the ADDED-only shape being deliberate, since
+  named in a closed register* (**EIGHTEEN scenarios**, 10 + 4 + 4) — the
+  ADDED-only shape being deliberate, since
   `add-structured-scope-substrate` is ACTIVE and already holds a MODIFIED block
   over *Realization axis declaration*, so a second one would owe
   `sequenced_after` and inherit that requirement's archive-order hold; all three
@@ -569,13 +575,18 @@ Active changes:
   yielding an estate repository their own head does not name, and its consumer
   is the cross-check that bounds what a `scope_globs:` path grant may authorize;
   the defect is LATENT and not standing, because 0 of 45 declare `scope_globs:`
-  today. **FOUR DECLARED VETO POINTS**, each a multiple-choice question with the
-  recommendation first: D1 the grammar (against token-only and against resolving
-  membership, which this repository has no inventory to do), D2 the shape of the
-  remedy (against a bare refusal and against an advisory gate), D3 the
-  disposition of the seven (register all seven, against sweeping — a departure
-  from the sibling's ruled sweep, reasoned in D3), D4 the `scope_globs:` reuse
-  (narrow the extractor to the declared head). `code_surface` is NON-EMPTY and
+  today. **FOUR VETO POINTS, ALL FOUR RULED AT THE RECOMMENDED OPTION**: D1 the
+  grammar (against token-only and against resolving membership, which this
+  repository has no inventory to do), D2 the shape of the remedy (against a bare
+  refusal and against an advisory gate), D3 the disposition of the seven
+  (register all seven, against sweeping — a departure from the sibling's ruled
+  sweep, reasoned in D3), D4 the `scope_globs:` reuse (narrow the extractor to
+  the declared head). **THE RULING REACHES THE FIRST BENCH ROUND ON ITS OWN
+  WORDS** — the two confirmed Copilot findings were fixed before the record was
+  cut, so the ratified text reserves `none` out of REPOSITORY IDENTIFIER and
+  states the FAIL-CLOSED rule for a registered-exception packet that later
+  declares `scope_globs:`; the third standing thread is refused as false on
+  measurement (`design.md` D9). `code_surface` is NON-EMPTY and
   **no byte of it moves in the filing** — the validator, the register and the
   tests are a LATER pull request — so per `release-realization` this packet
   archives only on merged-plus-green realization evidence, and #1013 closes

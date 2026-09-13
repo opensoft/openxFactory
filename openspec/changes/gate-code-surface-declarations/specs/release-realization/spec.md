@@ -54,8 +54,9 @@ seven are the population the register names.
 
 ### Requirement: Code-surface declaration grammar is gated
 An ACTIVE change proposal's `code_surface:` declaration SHALL open with a
-DECLARED HEAD the ratified grammar admits — the single word `none`, or one or
-more REPOSITORY IDENTIFIERS separated by a comma, by ` and `, or by ` + ` — and a
+DECLARED HEAD the ratified grammar admits — EITHER the single token `none`, OR a
+list of one or more REPOSITORY IDENTIFIERS separated by a comma, by ` and `, or
+by ` + `, the two being EXCLUSIVE alternatives and never mixed — and a
 house validator SHALL REFUSE any active declaration whose head it cannot read,
 naming the proposal's path and the text the declaration carries. A declaration
 whose repositories cannot be told from its explanation is a declaration no
@@ -83,6 +84,19 @@ neither of which enumerates the estate. A gate that resolved membership against 
 place that does not exist would refuse every declaration on the day it landed.
 Whether canon should define such an inventory is a separate act and is named as a
 successor, not smuggled in here.
+
+`none` IS THE EMPTY-SURFACE SENTINEL AND SHALL NEVER BE READ AS A REPOSITORY
+IDENTIFIER. A head is EITHER the single token `none` and nothing else, OR a list
+in which the token `none` appears nowhere — so a MIXED head such as
+`none, openxFactory` SHALL be REFUSED rather than parsed as a two-member list.
+The exclusivity is stated here rather than left to a reader's good sense because
+the two readings differ in the one way that matters: parsed as a list, a mixed
+head yields a NON-EMPTY derived repository set for a change that declared the
+empty surface, contradicting the promoted meaning of `none` and the rule the next
+requirement states for it. `none` is not a repository, so a declaration naming it
+beside one is not a wide surface but a self-contradictory one, and the author
+owes a correction rather than a reader a guess. The refusal SHALL hold wherever
+in the list the token appears, position being no part of the contradiction.
 
 A BLOCK THAT DECLARES `code_surface:` TWICE SHALL BE REFUSED RATHER THAN READ
 FROM ITS FIRST HEAD. The declaration is a prose header, and a prose header's
@@ -131,6 +145,12 @@ estate disposes of rather than creates.
 - **THEN** the validator passes and the declared repository set is every identifier in the head
 - **AND** an identifier spelled as an `<owner>/<name>` address is admitted on the same terms as a bare repository name, both spellings being ones the corpus carries
 
+#### Scenario: A head mixes none with a repository identifier
+- **WHEN** an active change's head carries both the token `none` and a repository identifier, in either order — `none, openxFactory` or `openxFactory and none`
+- **THEN** the validator MUST refuse that proposal, naming the mixed head, rather than reading `none` as one member of a multi-repository list
+- **AND** the derived repository set MUST NOT be computed for it, a head that declares the empty surface beside a named one being self-contradictory rather than wide
+- **AND** the refusal holds wherever in the list the token appears, position being no part of the contradiction
+
 #### Scenario: A declaration is written as a YAML block scalar
 - **WHEN** an active change's declaration opens with a YAML folding indicator such as `>-` or `|`, the prose header carrying it into the value unread
 - **THEN** the validator MUST refuse that proposal and MUST name the indicator as the defect, rather than reporting only that the head is unreadable
@@ -178,7 +198,29 @@ WHERE THE HEAD IS `none` THE DERIVED SET SHALL BE EMPTY, and a gloss SHALL NOT
 add to it. A declaration of `none` is a declaration that the change has no code
 surface at all; a reader that returned the gloss's words for it would return a
 non-empty surface for a change that declared none, which inverts the very
-distinction the archive gate turns on.
+distinction the archive gate turns on. An empty set here is a set the head
+DECLARES, and it is a different fact from the ABSENCE of a head-derived set the
+next paragraph governs.
+
+A DECLARATION CARRIED BY THE REGISTER RATHER THAN BY THE GRAMMAR HAS NO
+HEAD-DERIVED SET AT ALL, AND A CONSUMER SHALL FAIL CLOSED ON IT. Where a
+proposal passes the gate only because the closed register names it — its head
+being one the grammar cannot read — there is no head to derive from, and a
+consumer that needs the set SHALL REFUSE rather than supply a substitute.
+Specifically, a REGISTERED proposal that ALSO declares `scope_globs:` SHALL be
+refused by the cross-consistency check, naming the proposal and its register
+entry, and SHALL remain refused until that declaration is brought into the
+grammar. **THE TWO SUBSTITUTES ARE NAMED HERE AND BOTH ARE FORBIDDEN**: falling
+back to a set derived from the WHOLE declaration would re-admit the gloss as an
+authorization surface, which is the single defect this requirement exists to
+close and which no exception may reopen; and substituting an EMPTY set would
+make every scope key unnameable while reporting the fault in the wrong place —
+the author would read a refusal about their structured scope when the defect is
+in their code surface, and a silently ineligible packet is the fail-OPEN-looking
+shape of a fail-closed intent. A REGISTER ENTRY TOLERATES AN UNREADABLE
+DECLARATION AND AUTHORIZES NOTHING DERIVED FROM ONE; the remedy is the
+correction that retires the entry, which is available to the owning packet in
+the same act.
 
 #### Scenario: A consumer derives the repository set from a declaration with a gloss
 - **WHEN** a consumer needs the repositories an active change declared, and the declaration is a head followed by a gloss that mentions other repositories by name
@@ -192,6 +234,13 @@ distinction the archive gate turns on.
 - **WHEN** a consumer derives the repository set from a declaration whose head is `none`, its gloss naming repositories the change does not touch
 - **THEN** the derived set MUST be empty
 
+#### Scenario: A registered-exception packet later declares a structured scope
+- **WHEN** a proposal whose `code_surface:` head the grammar cannot read is carried by the closed register, and that proposal declares `scope_globs:`
+- **THEN** the cross-consistency check MUST refuse, naming the proposal and the register entry that carries its declaration, because no head-derived repository set exists for it
+- **AND** the run MUST NOT fall back to a set derived from the whole declaration, which would re-admit the gloss as an authorization surface
+- **AND** the run MUST NOT substitute an empty set, which would report the fault against the structured scope rather than against the code-surface declaration that causes it
+- **AND** the remedy is to bring the declaration into the grammar, which retires the register entry in the same act
+
 ### Requirement: Standing code-surface divergence is named in a closed register
 A CLOSED register carried beside the validator SHALL name every active
 declaration the grammar does not admit that the act landing this gate does not
@@ -200,6 +249,13 @@ stands, the class of divergence, the reason, a citation, and the event that
 retires the entry. A registered declaration is REPORTED and never refused; every
 declaration the register does not name is judged from the day the gate lands, so
 the gate is a ratchet and the divergence cannot grow.
+
+AN ENTRY SUSPENDS THE GRAMMAR'S REFUSAL FOR ONE DECLARATION AND DOES NOTHING
+ELSE. It supplies no repository set, because there is none to supply: the head it
+tolerates is a head no reader can parse. A consumer that needs the set therefore
+fails closed on that proposal under *The declared repository set is derived from
+the head and never from the gloss*, and an entry SHALL NOT be read as
+authorizing anything derived from the declaration it carries.
 
 THE REGISTER SHALL BE CLOSED, AND CLOSURE SHALL BE ENFORCED RATHER THAN MERELY
 DECLARED. An entry may be REMOVED when its declaration is corrected or its packet

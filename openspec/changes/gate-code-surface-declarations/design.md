@@ -1,6 +1,7 @@
 # Design: gate-code-surface-declarations
 
-Status: draft
+Status: ratified
+Ratified by: gate-code-surface-declarations — 2026-09-13, Brett Heap, verbatim "ratify" (recorded at https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729)
 Kind: design
 
 **EVERY DECISION THIS AUTHORING SESSION TOOK IS HERE, WITH ITS ALTERNATIVE AND
@@ -9,10 +10,24 @@ THE ALTERNATIVE'S COST.** Taking openxFactory issue
 residue another lane filed at the archive of `gate-realization-axis-vocabulary`
 — commissioned this authoring and took none of them.
 
-**THE FOUR DECLARED VETO POINTS ARE D1, D2, D3 AND D4**, each put as a
-multiple-choice question with the recommendation FIRST and the alternatives'
-costs written out beside it. D0 and D5 through D8 are carried beside them and
-are equally available to be vetoed. **Nothing here is ratified.**
+**THE FOUR DECLARED VETO POINTS WERE D1, D2, D3 AND D4, AND ALL FOUR ARE NOW
+RULED.** Brett Heap ratified this packet on 2026-09-13 at 00:41Z, verbatim
+**"ratify"**, recorded at
+[#1018](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+**THE WORD IS BARE AND THAT IS RECORDED AS WHAT IT IS**: unlike the sibling's
+three labelled rulings, it names no option individually — it ratifies the PACKET,
+and the packet encodes the RECOMMENDED option at each of the four, so **D1 =
+GATE THE GRAMMAR**, **D2 = VALIDATOR PLUS CLOSED REGISTER PLUS ADDED
+REQUIREMENT**, **D3 = REGISTER ALL SEVEN**, **D4 = REUSE AS THE CONSUMER AND
+NARROW THE EXTRACTOR**. Each was the recommended and already-encoded option, so
+**nothing in the delta moves on the ruling**; D0 and D5 through D8 were carried
+beside them and none was vetoed. The alternatives below are retained as the
+record of what was put and declined, not as work owed.
+
+**THE RULING REACHES THE FIRST BENCH ROUND TOO, ON ITS OWN WORDS**, which direct
+that the two confirmed findings be fixed *"before the record is cut, so the
+ratified packet includes them"*. **D9** records both, and the ratified text is
+the text they produced.
 
 ## 0. The brief
 
@@ -136,9 +151,14 @@ carriers (`add-wallet-carried-review-authority`,
 `repoint-chain-anchoring-medxchain-citation`) are conforming declarations. The
 divergence is entirely inside the 41 non-`none` values.
 
-## D1 — VETO POINT: what "off-vocabulary" means when the value is prose
+## D1 — RULED: what "off-vocabulary" means when the value is prose
 
-**RECOMMENDED — OPTION 1: GATE THE GRAMMAR — a DECLARED HEAD, then a REQUIRED
+**RULED 2026-09-13 BY BRETT HEAP — the bare word "ratify" takes the packet as
+encoded, which is OPTION 1.** The recommendation was taken, so the grammar, the
+opener set and the refusal to judge membership stand exactly as authored.
+Options 2 and 3 are retained below as the record of what was put and declined.
+
+**RECOMMENDED AND RULED — OPTION 1: GATE THE GRAMMAR — a DECLARED HEAD, then a REQUIRED
 GLOSS OPENER — and judge no name's membership of anything.**
 
 The accepted grammar, derived from the population in D0 and stated in the delta:
@@ -204,9 +224,15 @@ the exact trap the sibling's D3 named for `target_release:`, where resolving
 inventory first is a real and useful act; it is a different act, with its own
 authority question (who admits a repository to the estate), and D8.1 names it.
 
-## D2 — VETO POINT: the shape of the remedy
+## D2 — RULED: the shape of the remedy
 
-**RECOMMENDED — OPTION 1: an ADDED requirement, a HOUSE VALIDATOR, and a CLOSED
+**RULED 2026-09-13 BY BRETT HEAP — the bare word "ratify" takes the packet as
+encoded, which is OPTION 1.** The recommendation was taken, so the remedy is a
+validator plus a CLOSED register plus the ADDED requirements, and the register's
+closure stays SHALLed rather than left to the implementation. Options 2 and 3
+are retained below as the record of what was put and declined.
+
+**RECOMMENDED AND RULED — OPTION 1: an ADDED requirement, a HOUSE VALIDATOR, and a CLOSED
 REGISTER — following the sibling.**
 
 *Why the register rather than a bare refusal.* D0 says 7 of 45 active
@@ -249,9 +275,17 @@ until the seven are corrected by their owners.**
 It also makes the gate's landing date and its effective date two different
 things, and nothing schedules the second.
 
-## D3 — VETO POINT: the disposition of the seven
+## D3 — RULED: the disposition of the seven
 
-**RECOMMENDED — OPTION 1: REGISTER ALL SEVEN, sweep none.**
+**RULED 2026-09-13 BY BRETT HEAP — the bare word "ratify" takes the packet as
+encoded, which is OPTION 1.** The recommendation was taken, so all seven are
+registered and none is swept, and no other lane's ratified prose is
+re-punctuated by this lane. **THE POPULATION IS STILL A FACT ABOUT A TREE** and
+`tasks.md` § 3.3 re-measures it at the head the gate lands on; the ruling fixes
+the DISPOSITION, never the count. Options 2 and 3 are retained below as the
+record of what was put and declined.
+
+**RECOMMENDED AND RULED — OPTION 1: REGISTER ALL SEVEN, sweep none.**
 
 *Why this departs from the sibling, which swept.* The sibling's sweep was a
 ONE-TOKEN correction whose meaning the declaration's own gloss already supplied:
@@ -297,7 +331,7 @@ of seven.
 *Cost:* it takes the `split-opendox` judgment described above, in a lane that
 does not own that packet and while that packet is itself active and mid-flight.
 
-## D4 — VETO POINT: is `add-structured-scope-substrate`'s `scope_globs:` machinery reusable?
+## D4 — RULED: is `add-structured-scope-substrate`'s `scope_globs:` machinery reusable?
 
 **THE ANSWER IS SPLIT, AND BOTH HALVES ARE MEASURED: REUSABLE AS THE CONSUMER,
 NOT REUSABLE AS THE GRAMMAR — AND THE EXTRACTOR IT SHIPS IS THE STRONGEST
@@ -375,8 +409,13 @@ What exists is a guard that will answer wrongly the first time it is asked — t
 sibling's D8c lesson (a latent defect made live by the next change) applied
 before rather than after the fact.
 
-**RECOMMENDED — OPTION 1: narrow `code_surface_repositories` to the DECLARED
-HEAD, in this packet's realization, and SHALL it in the delta.** The requirement
+**RULED 2026-09-13 BY BRETT HEAP — the bare word "ratify" takes the packet as
+encoded, which is OPTION 1**, so the narrowing is owed by `tasks.md` § 3.5 and
+the derivation rule stands in the delta. Options 2 and 3 are retained below as
+the record of what was put and declined.
+
+**RECOMMENDED AND RULED — OPTION 1: narrow `code_surface_repositories` to the
+DECLARED HEAD, in this packet's realization, and SHALL it in the delta.** The requirement
 *The declared repository set is derived from the head and never from the gloss*
 states the rule; the realization makes that function call this capability's
 reader, so there is ONE derivation and not two.
@@ -540,3 +579,87 @@ branch vocabulary* now carries.
    `generator.py` today. Re-measured rather than carried, which is the point —
    a figure quoted from a sibling packet three weeks old is a figure about that
    tree.
+
+## D9 — the bench's first round: five threads, two code-of-canon findings TAKEN IN FULL, one REFUSED AS FALSE with evidence
+
+The draft pull request's first automated review round opened FIVE threads. Two
+were taken at `a5a707c7` and `83b13051` and are resolved (a scenario count
+overstated by one, and a `§ 4` header reading DONE over unticked boxes — both
+real, both the packet's own bookkeeping contradicting its diff, which is the
+defect class this house has already paid for twice). Of the three that stood at
+the ruling, **TWO ARE REAL DEFECTS IN THE RATIFIED TEXT AND BOTH ARE TAKEN**,
+and **ONE IS FALSE AND IS REFUSED ON MEASUREMENT** rather than absorbed. The
+ruling of 2026-09-13 directs in its own words that the two be fixed *"before
+the record is cut, so the ratified packet includes them"*, so the text ratified
+is the text they produced.
+
+**(a) THE GRAMMAR NEVER RESERVED `none` OUT OF REPOSITORY IDENTIFIER**
+(`specs/release-realization/spec.md`, the head definition). The first
+requirement admitted a head that was "the single word `none`, or one or more
+REPOSITORY IDENTIFIERS separated by a comma …" — an `or` between two
+alternatives, with nothing forbidding a head from containing both. Read against
+the grammar as it stood, **`none, openxFactory` parses as a two-member list**,
+because `none` matches the repository-name shape like any other lowercase word:
+the identifier rule judges SHAPE and deliberately not membership (D1), so it has
+no ground on which to refuse the token. The derived set for that head is then
+NON-EMPTY — one member `none`, one member `openxFactory` — for a change whose
+declaration says the surface is empty, which contradicts the second
+requirement's own rule that a `none` head derives the empty set, in the one
+field where the two readings differ by an authorization.
+
+THE FIX makes the two alternatives EXCLUSIVE in the requirement's first line
+(`EITHER the single token none, OR a list … the two being EXCLUSIVE alternatives
+and never mixed`), adds a paragraph stating why the exclusivity is written down
+rather than left to good sense, and adds a tenth scenario — *A head mixes none
+with a repository identifier* — that refuses the mixed head in either order,
+forbids computing a derived set for it, and holds the refusal wherever in the
+list the token appears, position being no part of the contradiction. The
+remedy is a REFUSAL rather than a precedence rule ("`none` wins", or "the
+repositories win") because both precedence rules silently discard something an
+author wrote; the author of a self-contradictory head owes a correction, not a
+reader a guess.
+
+**(b) THE DELTA LEFT THE REGISTERED-EXCEPTION CASE UNDEFINED, AND BOTH OBVIOUS
+FALLBACKS ARE DEFECTS** (`specs/release-realization/spec.md`, the register
+requirement). The register tolerates seven declarations the grammar cannot read;
+the second requirement makes every consumer derive its repository set from the
+HEAD. **The two rules do not meet.** If one of those seven later declares
+`scope_globs:`, there is no head to derive from, and the delta said nothing — so
+an implementer would have chosen, and both available choices are wrong. Falling
+back to the whole-declaration extractor re-admits the gloss as an authorization
+surface, which is the single 3,421-token defect this packet exists to close and
+which no exception may reopen. Returning an EMPTY set makes every scope key
+unnameable while reporting the fault in the wrong place: the author reads a
+refusal about their structured scope when the defect is in their code surface,
+and a packet silently ineligible for the provenance axis is the fail-open-LOOKING
+shape of a fail-closed intent — the same *"treated as ineligible rather than as
+all paths in scope"* posture `add-structured-scope-substrate` states, but with
+its reason hidden.
+
+THE FIX states FAIL-CLOSED in canon and names both forbidden substitutes
+explicitly: a REGISTERED proposal that also declares `scope_globs:` is REFUSED
+by the cross-consistency check, naming the proposal AND its register entry, and
+stays refused until the declaration is brought into the grammar — which retires
+the entry in the same act. A sentence is added to the register requirement so
+the boundary is legible from that side too (*an entry suspends the grammar's
+refusal for one declaration and authorizes nothing derived from it*), a
+distinction is drawn in the derivation requirement between an empty set the head
+DECLARES and the ABSENCE of a head-derived set, and a fourth scenario — *A
+registered-exception packet later declares a structured scope* — pins the
+refusal and both prohibitions. `tasks.md` § 3.1, § 3.5 and § 3.6 carry the
+realization.
+
+**(c) THE CORPUS-LEDGER FINDING IS FALSE, AND IS REFUSED ON THE FILE ITSELF**
+(`proposal.md`, the front-matter thread). The finding says
+`tests/sequenced_after/corpus-ledger.yaml` "has no `gate-code-surface-declarations`
+entry" and that `--ledger-diff` therefore reports a missing row. Measured on this
+branch: the row is at **`tests/sequenced_after/corpus-ledger.yaml:236`** —
+`gate-code-surface-declarations: {state: active, class: sole, declares: [],
+depth: 0, prose: false, moved_by: "#1018", moved_on: "2026-09-12"}` — the file
+is in this pull request's own diff, and `python3
+scripts/validate-sequenced-after.py . --ledger-diff` exits **0** with
+*"per-change sweep ledger consistent with the corpus (211 rows)"*. The row was
+seeded by the sanctioned tool at `83b13051`, after the draft pull request existed
+so the tool could stamp `moved_by`, exactly as `tasks.md` § 4.7 records. **A
+finding is not taken for having been made**; this one is answered with the line
+number, the command and the exit code, and the refusal is recorded on the thread.

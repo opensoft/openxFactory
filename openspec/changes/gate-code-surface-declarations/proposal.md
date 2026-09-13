@@ -1,12 +1,13 @@
 ---
-code_surface: openxFactory — and NOT ONE BYTE OF IT MOVES IN THIS PULL REQUEST. The realization this packet proposes is a LATER pull request in this same repository, authored after ratification, and it is four files and one edit: `scripts/code_surface.py` (NEW, the reader and judge), `scripts/validate-code-surface.py` (NEW, the house validator CLI in the shape every other `scripts/validate-*.py` uses), `scripts/code-surface-register.yaml` (NEW, the closed grandfather register), `tests/code_surface/test_code_surface_gate.py` (NEW, the tests that pin them and the live-corpus run that reds `pytest-suite` on a new divergence), and — only if `design.md` D4 is ruled as recommended — ONE narrowing edit to `scripts/scope_globs.py`'s `code_surface_repositories`, so the repository set it derives comes from the declared head rather than from every word of the gloss. NO OTHER EXISTING FILE IS EDITED: no arm of an existing validator moves, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema, no report field and no promoted byte. The reader reaches the declaration through the SHIPPED strict loader `scripts/frontmatter_strict.py` and adds no second parser. THIS pull request carries the PACKET ONLY — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, one `## ADDED` spec delta, one README *Active changes* bullet, and the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml` that any filing owes.
+code_surface: openxFactory — and NOT ONE BYTE OF IT MOVES IN THIS PULL REQUEST. The realization this packet proposes is a LATER pull request in this same repository, authored after ratification, and it is four files and one edit: `scripts/code_surface.py` (NEW, the reader and judge), `scripts/validate-code-surface.py` (NEW, the house validator CLI in the shape every other `scripts/validate-*.py` uses), `scripts/code-surface-register.yaml` (NEW, the closed grandfather register), `tests/code_surface/test_code_surface_gate.py` (NEW, the tests that pin them and the live-corpus run that reds `pytest-suite` on a new divergence), and — D4 having been ruled at the option this packet encodes — ONE narrowing edit to `scripts/scope_globs.py`'s `code_surface_repositories`, so the repository set it derives comes from the declared head rather than from every word of the gloss, and so a REGISTERED declaration, whose head no reader can parse, fails closed there rather than falling back to the gloss or to an empty set. NO OTHER EXISTING FILE IS EDITED: no arm of an existing validator moves, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema, no report field and no promoted byte. The reader reaches the declaration through the SHIPPED strict loader `scripts/frontmatter_strict.py` and adds no second parser. THIS pull request carries the PACKET ONLY — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, one `## ADDED` spec delta, one README *Active changes* bullet, and the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml` that any filing owes.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves, no `contract_bundle_version` is spent and no release tag is owed — deliberately, and for the reason the sibling's register states in its own header: an exception file that could not be edited without cutting a contract release would be edited late or not at all. Under `release-realization` a non-empty code surface archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE rather than on landing, so this packet archives only after its realization pull request has merged and run green, and openxFactory issue 1013 closes there.
 sequenced_after: []
 ---
 
 # Proposal: gate-code-surface-declarations
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-13 by Brett Heap (openxFactory operator authority), verbatim **"ratify"** — recorded at [PR #1018, comment 5649742729](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729)
 
 Proposed: 2026-09-12, in lane `openxfactory-5` (display `openXfactory-5`),
 session `71ee29`, in answer to openxFactory
@@ -18,19 +19,26 @@ archive act filed, standing on
 
 Origin: openxFactory
 
-**NOTHING HERE IS RATIFIED AND NO WORD RATIFIES IT.** Taking an unclaimed
-residue commissions the AUTHORING and decides no wording: this packet admits no
-text to canon, and every document in it — this one, `design.md`, `tasks.md` —
-carries `Status: draft`. `.openspec.yaml` carries the lawful unapproved shape
-`add-drafted-proposal-origin` (issue #318) defined: drafting provenance, no
-`approved_by`, no `approved_on`. **NOTHING IS PROMOTED**: this pull request
-edits no file under `openspec/specs/`. **NOTHING IS REALIZED**: it adds no
-script, no register and no test. Every judgment this authoring session took is
-listed in `design.md` as **D0 through D8**, each with its alternative and the
-alternative's cost; the four put for veto are **D1** (what "off-vocabulary"
-means when the value is prose), **D2** (the shape of the remedy), **D3** (the
-disposition of the seven pre-existing non-conformers) and **D4** (whether
-`add-structured-scope-substrate`'s `scope_globs:` machinery is reusable).
+**THE AUTHORING WAS COMMISSIONED BY TAKING AN UNCLAIMED RESIDUE; THE WORDING
+WAS OWED A RULING, AND THE RULING HAS BEEN GIVEN.** Brett Heap ratified this
+packet on 2026-09-13 at 00:41Z, verbatim **"ratify"**, recorded at
+[#1018](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+**THE WORD IS BARE — IT RATIFIES THE PACKET AND NAMES NO OPTION INDIVIDUALLY**,
+so each of `design.md`'s four declared veto points stands at the option this
+packet encodes, which is the RECOMMENDED one in all four: **D1** the GRAMMAR
+(against token-only, against resolving membership), **D2** the shape of the
+remedy — validator, closed register and ADDED requirements (against a bare
+refusal, against an advisory gate), **D3** REGISTER ALL SEVEN and sweep none
+(against sweeping six or all seven), **D4** reuse the `scope_globs:` machinery
+as the CONSUMER and narrow its extractor to the declared head. The alternatives
+are retained in `design.md` as the record of what was put and declined, not as
+work owed; D0 and D5 through D8 were carried beside them and none was vetoed.
+**THE RULING REACHES THIS PACKET INCLUDING ITS FIRST BENCH ROUND, ON THE
+RULING'S OWN WORDS**: it directs that the two confirmed findings be fixed
+"before the record is cut, so the ratified packet includes them", and
+`design.md` D9 records both. **NOTHING IS PROMOTED**: this pull request edits no
+file under `openspec/specs/`. **NOTHING IS REALIZED**: it adds no script, no
+register and no test, and `tasks.md` § 3 stays entirely open.
 
 ## Why
 
@@ -149,24 +157,31 @@ nothing reads, one step further along.
 
 ## What changes
 
-**THREE `## ADDED` REQUIREMENTS, AND A REALIZATION THIS PULL REQUEST DOES NOT
-PERFORM.**
+**THREE `## ADDED` REQUIREMENTS, RATIFIED, AND A REALIZATION THIS PULL REQUEST
+DOES NOT PERFORM.**
 
 1. **`### Requirement: Code-surface declaration grammar is gated`** — its first
    line makes a house validator refuse an active declaration whose HEAD it
-   cannot read, the head being `none` or repository identifiers separated by a
-   comma, by ` and `, or by ` + `, and the gloss being introduced by one of the
-   openers the corpus already uses. The head is judged; the gloss never is.
-   Membership is explicitly NOT judged, for a measured reason (`design.md` D1).
-   NINE scenarios.
+   cannot read, the head being EITHER the single token `none` OR a list of
+   repository identifiers separated by a comma, by ` and `, or by ` + ` — the
+   two EXCLUSIVE, so a mixed head such as `none, openxFactory` is refused rather
+   than read as a two-member list (`design.md` D9 (a)) — and the gloss being
+   introduced by one of the openers the corpus already uses. The head is judged;
+   the gloss never is. Membership is explicitly NOT judged, for a measured
+   reason (`design.md` D1). TEN scenarios.
 2. **`### Requirement: The declared repository set is derived from the head and
-   never from the gloss`** — the consumer rule, which is where the
-   authorization actually sits. THREE scenarios.
+   never from the gloss`** — the consumer rule, which is where the authorization
+   actually sits, and which FAILS CLOSED where the head is one the register
+   carries rather than one the grammar reads: a registered proposal that also
+   declares `scope_globs:` is refused by the cross-check, with both substitutes
+   — the whole-declaration fallback and an empty set — forbidden by name
+   (`design.md` D9 (b)). FOUR scenarios.
 3. **`### Requirement: Standing code-surface divergence is named in a closed
    register`** — the ratchet, in the sibling's shape: removable, never addable,
    with the closure enforced by a baseline in the module and the two asymmetric
-   refusals kept asymmetric. FOUR scenarios. **SIXTEEN in all**, counted from
-   the delta file rather than carried.
+   refusals kept asymmetric; an entry suspends the grammar's refusal for one
+   declaration and authorizes nothing derived from it. FOUR scenarios.
+   **EIGHTEEN in all**, counted from the delta file rather than carried.
 
 The realization — validator, register, tests, and the one narrowing edit — is
 `tasks.md` § 3, and it is a LATER pull request on a LATER word.
@@ -180,7 +195,7 @@ deltas and branch vocabulary* imposes. Three ADDED requirements over novel
 titles owe none of it and edit no promoted byte. The titles were checked against
 the whole corpus and appear nowhere else (`design.md` D7).
 
-## What this proposal does NOT do
+## What this packet does NOT do
 
 - **It does not widen or narrow the promoted vocabulary.** The `code_surface:`
   half of *Realization axis declaration* stands exactly as ratified. The grammar
@@ -197,10 +212,10 @@ the whole corpus and appear nowhere else (`design.md` D7).
   header into a `scope_globs`-style structured list is the obvious machine-
   readable move and it is a MODIFIED block over the contested title, with the
   sequencing cost that carries. Named as a successor (`tasks.md` § 6.2).
-- **It does not sweep the seven, on the recommended option.** `design.md` D3
-  puts the sweep as an alternative and states its cost: correcting a head
-  re-punctuates another lane's ratified prose, and for one of the seven it is a
-  judgment about what counts as a repository.
+- **It does not sweep the seven.** D3's ruled option registers all seven;
+  `design.md` D3 retains the sweep as the alternative that was put and declined,
+  with its cost — correcting a head re-punctuates another lane's ratified prose,
+  and for one of the seven it is a judgment about what counts as a repository.
 - **It does not close the origin issue.** `code_surface` is non-empty, so the
   archive is a separate act on merged-plus-green realization evidence and a
   separate word, and openxFactory issue 1013 is closed THERE, by a closing
