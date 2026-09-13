@@ -551,8 +551,8 @@ Active changes:
   promoted sentence and all three promoted scenarios carried verbatim, FOUR
   scenarios added), *A moved packet declares the identity it was ratified
   under*, *An undeclared rename arrival is refused at its landing*, and *A
-  packet reference resolves by identity, not by path* (**thirty scenarios**,
-  7 + 8 + 9 + 6, the bench's two rounds having added ten). `sequenced_after: []` is a corroborated root claim: no active
+  packet reference resolves by identity, not by path* (**thirty-one scenarios**,
+  7 + 8 + 10 + 6, the bench's three rounds having added eleven). `sequenced_after: []` is a corroborated root claim: no active
   change holds a MODIFIED block over *Origin retention at archive*, the only
   other occurrence of the title under `openspec/changes/*/specs/` being one line
   of prose in `add-structured-scope-substrate`'s delta. **THE DECLARATION
@@ -574,7 +574,11 @@ Active changes:
   sweep: 94 dangling `openspec/changes/<id>/…` references measured on
   `9378eca5`, **58** of them resolvable BY ID against the archive — including
   the one #833 named — because the archive relocation moves the path and keeps
-  the identity; `design.md` D4 rules that REPORTING the remainder is a successor,
+  the identity; and the rule has a NAMED CONSUMER WITH A DATED FAILURE AHEAD OF
+  IT, `validate-pin-registrations.py`'s `check_citations`, which resolves every
+  `cited_to` referent by RAW PATH and refuses exit 1 on an absent one — six of
+  its live in-tree referents point into four ACTIVE packets, so the next of those
+  archives refuses a gate nobody touched; `design.md` D4 rules that REPORTING the remainder is a successor,
   a twenty-fourth `doc-health` family being a `## MODIFIED` block over a promoted
   enumeration that reads *"twenty-three check families"*. **NOT SELECTED, BY
   NAME**: the full rename-lineage walk (PR

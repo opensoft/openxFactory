@@ -120,6 +120,19 @@ now stands at
 Nothing broke it on purpose: the archive relocation is an act every packet
 performs exactly once, and it moves the path while preserving the identity.
 
+**AND ONE GATE ALREADY RESOLVES THOSE CITATIONS, BY RAW PATH, WITH A DATE ON ITS
+NEXT FAILURE.** `scripts/validate-pin-registrations.py`'s `check_citations` —
+landed for this exact defect (issue #840, after a change directory was renamed
+and two live citations went on naming the old id while every run exited 0) —
+opens every `dispositions[].cited_to` referent and makes an absent path "a named
+finding and exit 1". On this tree it passes: *"6 disposition(s) carry 40
+citation(s) naming 36 referent(s) — 17 name a path in this tree […]; every
+in-tree path resolves"*. **Six of those in-tree referents point into four ACTIVE
+packets.** Each of the four will archive; each archive moves the path and keeps
+the id; the gate resolves the raw path. So the next of those archives turns a
+lawful act into an exit-1 refusal of a gate nobody touched — which is why the
+resolution rule below is owed now rather than when somebody renames something.
+
 ## What changes
 
 Three obligations canon does not have, and one it has in a form that cannot be

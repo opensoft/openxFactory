@@ -271,6 +271,16 @@ as CANNOT RUN, naming the read it could not perform, rather than reporting that
 no arrival was found. A silence that cannot be distinguished from an answer is
 not an answer.
 
+AND SO SHALL THE RATIFICATION LOOKUP, WHICH IS A SECOND READ AND NOT A COROLLARY
+OF THE FIRST. Deciding whether the source lineage has EVER declared
+`Status: ratified` reads history at every identity in that lineage, and a
+checkout that cannot produce those blobs returns the same silence as a lineage
+that was never ratified — which would pass an undeclared landing on the one
+checkout where nothing can be proved. So this read SHALL distinguish ABSENT from
+UNREADABLE on the same terms the archive gate's baseline read does, and a read
+it could not perform SHALL refuse as CANNOT RUN naming the identity and the
+read, never resolve to "never ratified".
+
 THE REFUSAL SHALL NAME THE REMEDY AND SHALL CARRY NO BYPASS FLAG. It names the
 commit, the source path, the destination path, and the one repair: declare the
 source id in the destination packet's `former_ids:` in the same commit. A flag
@@ -316,6 +326,11 @@ would be the declaration nobody writes.
 - **WHEN** the checkout cannot produce what the arrival pairing is computed from, and the tree at that commit shows a packet directory arriving and a packet directory leaving
 - **THEN** the gate MUST refuse as CANNOT RUN, naming the read it could not perform
 - **AND** it MUST NOT report that no arrival was found
+
+#### Scenario: The ratification lookup cannot be performed
+- **WHEN** the gate cannot read the history that would say whether an identity in the source lineage ever declared `Status: ratified`
+- **THEN** the gate MUST refuse as CANNOT RUN, naming that identity and the read
+- **AND** it MUST NOT resolve the unreadable history to "never ratified" and pass an undeclared landing
 
 ### Requirement: A packet reference resolves by identity, not by path
 A reference that addresses a change packet SHALL be resolved BY ITS CHANGE ID —

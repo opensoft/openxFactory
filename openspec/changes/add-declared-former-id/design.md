@@ -75,13 +75,38 @@ cited at `openspec/changes/disposition-codexfactory-declared-renames/design.md`,
 now standing at
 `openspec/changes/archive/2026-09-09-bump-openspec-cli-pin-to-1.12/specs/neutral-product-pin/spec.md`.
 
-**M5 — nothing checks a citation's destination.**
-`scripts/validate-openspec-cli-pin.py` requires `cited_to:` to be non-empty and
-refuses `pin-disposition-malformed` when it is not; no arm of it, and no
-`doc-health` family, reads where a citation points. Confirmed by reading the
-validator's disposition arms and by the absence of the reference above from the
-control run of `scripts/doc-health.py --single-repo .`, which reports the
-archived packet only for an unrelated ratification-record finding.
+**M5 — ONE thing checks a citation's destination, and it checks the RAW PATH.**
+This measurement was taken twice: the first reading said nothing checks, and the
+bench's third round found the consumer it missed. Corrected here rather than
+quietly, because the corrected fact is stronger than the original claim.
+
+`scripts/validate-openspec-cli-pin.py` requires `cited_to:` to be non-empty,
+refuses `pin-disposition-malformed` when it is not, and PRINTS the members in
+its disposition report — it never opens one. But
+`scripts/validate-pin-registrations.py`'s `check_citations` DOES, and it was
+landed for exactly this defect (issue #840, after PR #834 renamed a change
+directory and left two live citations naming the old id while every run still
+exited 0). Its own docstring states the rule: "a path that is absent — or
+absolute, or `..`-escaping — is a named finding and exit 1".
+
+Run on this tree, it reports: *"6 disposition(s) carry 40 citation(s) naming 36
+referent(s) — 17 name a path in this tree, 0 a URL, 7 a forge reference, 12 a
+path qualified to another repository; 4 citation(s) name no machine referent
+[…]; every in-tree path resolves"*. **SIX of those in-tree referents point INTO
+AN ACTIVE PACKET**, across four packets — `prepare-openspec-1-12-readiness`
+(twice), `add-chain-attestation`,
+`disposition-codexfactory-floor-relocation-retitle` and
+`disposition-codexfactory-regular-pr-council-clearance-archive` (twice). Each of
+those four will archive, each archive moves the path and keeps the id, and this
+gate resolves the RAW PATH — so the next of those archives turns a lawful act
+into an exit-1 refusal of a gate nobody touched. That is the dangling-cited-path
+defect with a date on it rather than a hypothesis, and the resolution rule below
+is what makes the archive survivable.
+
+The `doc-health` half of the original claim stands: no family reads where a
+citation points, which is why the reference at M4 appears nowhere in the control
+run of `scripts/doc-health.py --single-repo .` — that run reports the archived
+packet only for an unrelated ratification-record finding.
 
 **M6 — the delta is unsequenced.** `## MODIFIED Requirements` blocks over
 `release-realization` titles across all active changes:
@@ -255,13 +280,16 @@ packet measured so the successor does not have to re-derive them.
 enumeration, the registry edit, the numeral, and a second set of severity
 decisions this packet has no ruling for. Rejected on cost, not on merit.
 
-**Option (c) — extend the `openspec-cli-pin` validator's citation arm.** The
-`cited_to:` contract is the one place a citation is already required (M5), so
-requiring it to RESOLVE is a small step. Rejected for scope: that validator's
-requirement lives in `neutral-product-pin`, a third capability, and its
-dispositions are deliberately cross-repository — a citation naming another
-repository's packet must not be refused on this tree, which is a rule that
-belongs to that validator's own design and not to a rider on this one.
+**Option (c) — put the reporting sweep in the `cited_to` gate.** Rejected for
+scope, and the scope is now measured rather than guessed: that gate
+(`validate-pin-registrations.py`'s `check_citations`, M5) already RESOLVES every
+citation and refuses exit 1 on an absent path, so it needs no new reporting arm
+— it needs the resolution rule, which it is named as the consumer of in
+`tasks.md` § 5.1. What belongs to it and not here is everything else about that
+field: its requirement lives in `neutral-product-pin`, a third capability, and
+its dispositions are deliberately cross-repository — 12 of this tree's 36
+referents are paths qualified to another repository and must not be refused
+here, which is a rule that belongs to that validator's own design.
 
 ## D5 — RECOMMENDED: *Origin retention at archive* is MODIFIED, not left alone
 
@@ -475,3 +503,51 @@ with the packet is exactly the class of defect this packet is about.
 
 **Nothing refused; the delta is twenty-seven scenarios to thirty and `tasks.md`
 34 boxes to 37, all unticked.**
+
+## D11 — The bench's third round: three threads, ALL THREE TAKEN, and one of them corrects a MEASUREMENT
+
+Posted on head `f887fd78`. One of the three found a consumer this packet's own
+D0 had recorded as not existing, which makes it the most valuable finding of the
+three rounds: the corrected fact is stronger than the claim it replaces.
+
+**(1) THE FAIL-CLOSED ARM COVERED ONE READ AND THE REQUIREMENT NEEDS TWO.**
+Round one's qualification ("the source lineage has EVER declared
+`Status: ratified`") is answered by reading HISTORY at every identity in that
+lineage — a second read, beside the arrival pairing. On a checkout that cannot
+produce those blobs it returns the same silence as a lineage that was never
+ratified, so an undeclared landing would pass on the one checkout where nothing
+can be proved, with the fail-closed arm looking on. **Taken:** the ratification
+lookup now carries its own sentence, refusing CANNOT RUN and naming the identity
+and the read, with scenario *The ratification lookup cannot be performed* and
+`tasks.md` § 4.2c pointing its fixture at M1's partial checkout.
+
+**(2) D0 M5 WAS WRONG, AND THE TRUTH IS A DATED FAILURE RATHER THAN A
+HYPOTHESIS.** M5 said no arm of any validator reads where a citation points. It
+missed `scripts/validate-pin-registrations.py`'s `check_citations`, which was
+landed for exactly this defect (issue #840, after PR #834 renamed a change
+directory and left two live citations naming the old id while every run still
+exited 0) and whose own docstring says "a path that is absent — or absolute, or
+`..`-escaping — is a named finding and exit 1". Re-measured on this tree, it
+reports *"6 disposition(s) carry 40 citation(s) naming 36 referent(s) — 17 name
+a path in this tree […]; every in-tree path resolves"* — and **six of those
+in-tree referents point into four ACTIVE packets**
+(`prepare-openspec-1-12-readiness` twice, `add-chain-attestation`,
+`disposition-codexfactory-floor-relocation-retitle`, and
+`disposition-codexfactory-regular-pr-council-clearance-archive` twice). Each of
+the four will archive; each archive moves the path and keeps the id; the gate
+resolves the RAW path. **Taken:** M5 is rewritten with the measurement, D4's
+option (c) is restated against the corrected fact, `tasks.md` § 5.0 names that
+reader as the CONSUMER of the resolution rule with its own tests, and the
+proposal carries the consequence. The thread's own framing — "an unconnected
+reader" — was the right diagnosis: § 5.1 built a resolver and named nobody to
+call it.
+
+**(3) THE PULL REQUEST DESCRIPTION STILL CARRIED ROUND ZERO'S COUNT.** Twenty
+scenarios (6 + 5 + 5 + 4) where the packet now defines thirty-one. **Taken:** the
+description is rewritten from the packet rather than patched, and the README
+row's count re-derived with it. Twice in three rounds a stale count has been the
+finding, which is itself the argument for deriving these numbers at each push
+instead of carrying them.
+
+**Nothing refused; thirty scenarios to thirty-one and `tasks.md` 37 boxes to
+39, all unticked.**

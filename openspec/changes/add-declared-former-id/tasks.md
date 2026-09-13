@@ -136,6 +136,15 @@ that has not happened; § 2 through § 5 are realization slices that follow it.
       returned to draft, then Y→Z) passes its second landing on Y's own empty
       history and stands with no lineage. This is ONE blob at ONE commit and not
       a history walk. Fixture: the three-id chain, refused at the second hop.
+- [ ] 4.2c **FAIL CLOSED ON THE RATIFICATION LOOKUP TOO, NOT ONLY ON THE
+      PAIRING.** Deciding whether the source lineage has ever declared
+      `Status: ratified` is a SECOND historical read, and on a checkout that
+      cannot produce those blobs it returns the same silence as a lineage that
+      was never ratified — passing an undeclared landing on the one checkout
+      where nothing can be proved. Distinguish ABSENT from UNREADABLE on the
+      same terms as § 3.4 and refuse CANNOT RUN naming the identity and the
+      read. Fixture: the partial checkout of `design.md` M1, asked the
+      qualification question.
 - [ ] 4.2b **REQUIRE THE ARRIVING LIST TO BE THE SOURCE'S LIST PLUS THE SOURCE
       ID**, in the source's own order. A move that drops an entry the source
       declared sheds a lineage, which is the same defect as never declaring one.
@@ -160,6 +169,18 @@ that has not happened; § 2 through § 5 are realization slices that follow it.
 - [ ] 5.2 **LEAVE THE CROSS-REPOSITORY CASE OUT OF SCOPE ON THE TREE BEING
       READ**, a reference to another repository's packet being no evidence about
       that reference.
+- [ ] 5.0 **THE CONSUMER IS NAMED, AND IT ALREADY EXISTS.**
+      `scripts/validate-pin-registrations.py`'s `check_citations` resolves every
+      `dispositions[].cited_to` referent and refuses exit 1 on an absent path
+      (landed for issue #840). It resolves the RAW PATH, and `design.md` D0 M5
+      measures six live referents pointing into four ACTIVE packets — so the
+      next of those four to archive turns a lawful act into an exit-1 refusal.
+      That reader is updated to resolve by identity (§ 5.1) rather than by raw
+      path, with its own tests: an archived-by-id referent PASSES where the raw
+      path no longer exists, a referent qualified to another repository is still
+      out of scope, and a referent whose identity resolves but whose file does
+      not still REFUSES. Without this task the resolver would be a reader with
+      no caller.
 - [ ] 5.1a **RESOLVE BOTH HALVES OF A PACKET-RELATIVE CITATION.** The location
       the identity resolves to must also carry the remainder the citation names;
       an identity that resolves to a packet not carrying the cited file is
