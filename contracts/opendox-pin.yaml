@@ -89,7 +89,7 @@ submodule_path: openDox
 # `openDox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg, on `contracts/openxdox-pin.yaml`'s own
 # reasoning for openXdox.
-commit: "8ec3036ce496a90a3c92a89c4907e57941901b51"
+commit: "7cf6c143e65e0bde799a5135dfde2dd66df5d495"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -107,7 +107,7 @@ digest_algorithm: sha256
 # without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "71b97c8bec10f1e85f6d56be52b7a83966232d7591952ad5e0af7db68192b392"
+  tree_sha256: "46f49679e721e1d6c0d43c1aad370feec34c56bc5bbb2fffc88fa680734ecbc8"
 
 # MIGRATION DECLARATION — MODIFIED `neutral-product-pin` requirement, "A pin
 # bump crosses a migration" scenario (`split-opendox-two-layer-product`
