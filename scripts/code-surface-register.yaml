@@ -1,0 +1,281 @@
+schema_version: 1
+kind: code-surface-grammar-register
+
+# THE CLOSED REGISTER FOR `code_surface:`.
+#
+# `release-realization`'s promoted requirement *Realization axis declaration*
+# has every proposal declare `code_surface:` — `none` or the repositories whose
+# runtime artifacts it changes — and the ADDED requirement *Code-surface
+# declaration grammar is gated* makes a house validator refuse any ACTIVE
+# declaration whose DECLARED HEAD it cannot read. Measured at that gate's
+# authoring, the standing corpus does not all meet the grammar: of the 45
+# active declarations at `origin/main` `bcde1575`, 38 already wrote a head then
+# a gloss opener and SEVEN did not. Refusing those seven at the gate's landing
+# would refuse a corpus whose every carrier is ANOTHER lane's ratified packet,
+# and correcting them would re-punctuate another lane's ratified prose — which
+# for one of the seven is not a re-punctuation at all but a judgment about what
+# counts as a repository, in a packet that exists to answer exactly that.
+# `design.md` D3 puts the alternatives and their costs; Brett Heap ruled the
+# packet as encoded on 2026-09-13.
+#
+# So the gate is a RATCHET rather than a sweep: every declaration this file does
+# not name is judged from the day the gate lands, and every declaration it names
+# is REPORTED and not refused. The file is CLOSED — an entry may be REMOVED when
+# its declaration is corrected or its packet archives, and an entry is never
+# ADDED, because admitting a new exception is a change to the SPECIFICATION and
+# not a validator edit. The closure is ENFORCED and not merely declared:
+# `code_surface.CLOSED_REGISTER` carries `(change, sha256-of-declaration)` for
+# every entry this file held at the gate's landing, and an entry that baseline
+# does not carry is REFUSED — so granting one takes an edit where the refusal
+# itself is written.
+#
+# AN ENTRY SUSPENDS THE GRAMMAR'S REFUSAL FOR ONE DECLARATION AND DOES NOTHING
+# ELSE. It supplies NO repository set, because there is none to supply: the head
+# it tolerates is a head no reader can parse. A consumer that needs the set
+# therefore FAILS CLOSED on that proposal — a registered packet that also
+# declares `scope_globs:` is refused by the cross-consistency check, naming both
+# the proposal and the entry, with the whole-declaration fallback and the empty
+# set both forbidden by name (*The declared repository set is derived from the
+# head and never from the gloss*).
+#
+# THE ASYMMETRY IS THE SIBLING'S AND THE PIN FILE'S, DELIBERATELY
+# (`scripts/target-release-register.yaml`, `contracts/openspec-cli-pin.yaml`
+# `dispositions:`): an UNREADABLE DECLARATION THIS FILE DOES NOT NAME FAILS
+# (exit 1) — somebody wrote a head no reader can act on, and the remedy is
+# theirs. An ENTRY THAT MATCHES NOTHING REFUSES (exit 2) — the exception
+# outlived the condition it was granted for, and the remedy is to delete the
+# entry in the same pull request that made it stale. Silently tolerating the
+# second is how an exception list rots into a blanket.
+#
+# THIS FILE IS NOT UNDER `contracts/`, AND THAT IS DELIBERATE: a file under
+# `contracts/` is a bundle surface whose change owes a bundle cut, and an
+# exception register that could not be edited without cutting a contract
+# release would be edited late or not at all. It lives beside the validator that
+# reads it, and moves with it.
+#
+# THE POPULATION IS A FACT ABOUT A TREE AND WAS RE-MEASURED AT THE HEAD THIS
+# GATE LANDS ON rather than carried from the drafting tree — the requirement's
+# own scenario *The corpus moves between drafting and landing*. Re-measured at
+# `origin/main` `54885296` with the § 3.1 reader: 44 active proposals, 44
+# declaring, 4 `none`, 33 a repository list, SEVEN outside the grammar — the
+# same seven changes and the same four classes the drafting measurement found
+# at `bcde1575`, the corpus having lost one CONFORMING carrier to an archive in
+# between (45 active to 44, 38 conforming to 37).
+#
+# Every entry declares:
+#   change       the ACTIVE change directory under `openspec/changes/`
+#   class        which of the four measured divergences this declaration is
+#   why          the reason in this packet's own words
+#   cited_to     where the reason is written down
+#   retires_when the event that ends the exception
+#   declaration  THE DECLARATION TEXT AS IT STANDS, verbatim and byte for byte,
+#                as `frontmatter_strict.read_front_matter` returns it. An author
+#                who edits the declaration stops matching this entry, and the
+#                run REFUSES until somebody looks — which is the point: the
+#                correction is the event that forces the re-examination.
+
+register:
+  # ---- class: block-scalar --------------------------------------------------
+  # `code_surface:` is a PROSE HEADER of the realization-axis block, and the
+  # shared strict loader reads only the block's two STRUCTURED fields
+  # (`scope_globs:`, `sequenced_after:`) through YAML. So an author who writes
+  # `code_surface: >-` to fold a long declaration gets those two characters
+  # back as the first thing in the value, where a repository name belongs, and
+  # nothing tells them. It reads correctly to a human and opens with a YAML
+  # folding indicator to every reader. This is not a typo; it is an author
+  # reaching for a structure this field does not have.
+
+  - change: adopt-configured-notebook-hosting-identity
+    class: block-scalar
+    why: >-
+      Declares `>-` and then an indented continuation, so the value the loader
+      returns OPENS with the YAML folding indicator. `code_surface:` is a prose
+      header no YAML loader reads, so the indicator survives into the value; the
+      declaration below it is perfectly legible and its head is not reachable by
+      any reader.
+    cited_to:
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D0 — "the block-scalar case is not a typo"
+      - >-
+        openspec/changes/gate-code-surface-declarations/specs/release-realization/spec.md — *Code-surface declaration grammar is gated*, the block-scalar paragraph
+    retires_when: >-
+      the owning packet rewrites the declaration on the key's own line, with the
+      explanation after a gloss opener — or the packet archives. Either retires
+      this entry, and the entry MUST be deleted in that same pull request.
+    declaration: |-
+      >-
+        openxFactory — NOT `none`, and the surface is measured at main `543d47a9`
+        rather than described. FIVE FILES CARRY THE FORTY LINES Q2 CLASSIFIES, and
+        they are three different kinds of surface:
+        (1) `openspec/specs/lifecycle-notebook-projection/spec.md` (1 line, the third
+        bullet of the promoted scenario *An operating party declares the company
+        account*) — reachable only through the `## MODIFIED Requirements` delta in
+        `specs/lifecycle-notebook-projection/spec.md`;
+        (2) `examples/notebook-projection-hosting.yaml` (18 lines: `hosting.account`,
+        `hosting.migration.from_account`, seven `share_out[].hosting_account`, seven
+        `share_out[].user`, one `denied[].hosting_account`, and two prose comment
+        lines) — this file IS the live declaration today, so the change does not
+        redact it, it SPLITS it: a synthetic instance stays here and the live record
+        moves to a configured, private home;
+        (3) `tests/notebooklm/test_nlm_auth.py` (2: the `STORED` / `LEGACY`
+        module constants), `tests/notebooklm/test_sync_notebooklm_books.py` (11: the
+        `HOSTING_DECLARED` / `HOSTING_PENDING` fixture texts and the assertions over
+        them) and `tests/notebooklm/test_validate_hosting.py` (8: the `BASE` and
+        `ENTRY` fixture texts and the assertions over them) — 21 fixture literals.
+        AND TWO RUNTIME ARTIFACTS CHANGE BEHAVIOUR, which is why this surface is not
+        `none`: `scripts/sync-notebooklm-books.py` (`HOSTING_REL`,
+        `read_hosting_declaration()`, `_refuse_unusable_declaration()`,
+        `enforce_hosting_profile()`) and
+        `scripts/validate-notebook-projection-hosting.py` (`DEFAULT_REL` and
+        `main()`'s path resolution) gain a CONFIGURED-PATH RESOLVER and a refusal for
+        a configured path that resolves to the shipped example. Plus
+        `docs/lifecycle-notebook-projection.md` § *The declaration* and § *The
+        approval lane* (structural, not redaction — the Q1 docs pull request owns the
+        three address lines there) and `README.md`'s doc index if the doc's section
+        titles move.
+        NOT THIS CHANGE'S SURFACE, each for a stated reason: `scripts/nlm_auth.py`
+        (its two lines are DOCSTRINGS and belong to Q1's docs pull request; the
+        script reads the real username from the vault and hard-codes nothing);
+        the eight prose files of Q1 and the nine archived records of Q3 (separate
+        arms of the same ruling, landing in ONE docs pull request under Rule 6); the
+        history (Q0[A] accepted exposure at HEAD-redaction only); and the LIVE
+        RECORD'S NEW HOME, which is an OPERATOR act in a private repository and is
+        recorded here rather than performed — see `tasks.md` Group 5.
+
+  # ---- class: possessive ----------------------------------------------------
+  # The head is a repository name carrying a POSSESSIVE, so the declaration
+  # never stops declaring: `openxFactory's` is not an identifier this grammar
+  # admits, and there is no point in the string at which the declaration ends
+  # and the explanation begins.
+
+  - change: amend-kill-switch-to-declared-test-companion
+    class: possessive
+    why: >-
+      Opens `openxFactory's half of this packet carries NO CODE — …`. The
+      possessive runs the repository name straight into the sentence, so the
+      head has no end; the correction is one em dash away and belongs to the
+      owning lane, which alone may re-punctuate its own ratified prose.
+    cited_to:
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D0 — the seven, by class
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D3 — RULED: register all seven, sweep none
+    retires_when: >-
+      the owning packet re-punctuates its declaration so the head ends where the
+      explanation begins, or the packet archives. Either retires this entry,
+      and the entry MUST be deleted in that same pull request.
+    declaration: |-
+      openxFactory's half of this packet carries NO CODE — its rules land as text (a `## MODIFIED` requirement delta, a design record and a task list), and no byte under `.github/`, `scripts/` or `contracts/` moves in this repository by this pull request. No test implementation or runtime code moves either: the only file under `tests/` this pull request touches is the machine-derived per-change sweep ledger `tests/sequenced_after/corpus-ledger.yaml`, whose two rows this filing moves by construction (its own row, and the parent's `sole` → `co-modifier` flip), seeded by `scripts/validate-sequenced-after.py --seed-ledger --moved-by '#959'`. THE REALIZATION IS A codexFactory COMPANION CHANGE, authored THERE by that repository's own lane after ratification, and it is TWO surfaces and not more: (1) `.github/merge-approval-envelope.yml`'s BANNER/COMMENT BLOCK beside EACH ENROLLED CANDIDATE CLASS — today TWO, `codexfactory-routine-code` and `openxfactory-floor-regeneration`, because the requirement binds every enrolment and nothing is grandfathered — where the false "takes one edit" sentence is corrected and each candidate's DECLARED TEST COMPANION is named as `# companion:` / `# companion-artefact:` comment lines beside it, which is a comment-only edit and therefore NO SCHEMA CHANGE; (2) ONE conformance test in codexFactory running, PER ENROLLED CLASS, the FIVE-STEP PROCEDURE `tasks.md` § 3.2 fixes in order — capture the declarations from the pre-withdrawal envelope, commit the withdrawal of that class alone as the baseline, measure the assertions over the WHOLE pinning suite with the conformance module excluded by its own path, regenerate EVERY allowlisted artefact ONE TOOL AT A TIME from that baseline and take each tool's FULL WORKING-TREE DELTA against it, record — and asserting TWO EQUALITIES — that the declared companion ASSERTIONS equal the set that actually pin that enrolment, and that the declared companion ARTEFACTS equal, AS A SET OF (IDENTIFIER, PATH) PAIRS AND NEVER AS A SET OF PATHS ALONE, what regenerating EVERY ARTEFACT IN THE ALLOWLIST TABLE — the whole table, not only the entries the declaration names — ONE TOOL AT A TIME actually produces: each allowlisted tool run ALONE from the committed baseline, and that run's FULL WORKING-TREE DELTA against it — tracked modifications and deletions, untracked files and ignored files alike — attributed to ITS OWN `regenerate:` IDENTIFIER — an ALLOWLISTED TOKEN resolved to a fixed argv only in the trusted, code-owner-reviewed test module and never a command carried in the pull-request-editable declaration — those measured pairs compared with the DECLARED `# companion-artefact:` PAIRS, so that an artefact bound to the WRONG recording tool is a finding rather than something a path-only comparison absorbs, and an undeclared output fails even where version control ignores it; with both equalities taken against a COMMITTED POST-WITHDRAWAL BASELINE and the measured assertion set required to be NON-EMPTY, no more and no less; so artefact movement is MEASURED rather than inferred from the failing node ids or from an existence check, and the declaration cannot go stale silently nor pass vacuously on an enrolment that nothing pins. NOT THIS PACKET'S SURFACE, each for a stated reason: the envelope's `openxfactory-floor-regeneration` CANDIDATE MAPPING itself is untouched — this packet amends the ACCOUNT of the switch, never throws it, and the entry is INTACT on codexFactory `main` (blob `fa8773628ef69dceab3a912740850c0432ffbce3`, 356 lines); NO RULESET IS EDITED BY ANY AGENT and NO BYPASS ACTOR IS PROPOSED IN ANY FORM; no schema member is added and `active:` is refused again exactly as N-4 refused it; no repository variable is introduced, for N-4's own reason (invisible in the diff); `scripts/` and `contracts/` do not move in either repository; and THIS LANE AUTHORS NO codexFactory BYTE — the split is the same one `extend-merge-master-envelope-to-floor-bot-lanes` made.
+
+  # ---- class: apposition ------------------------------------------------------
+  # The head is a repository name followed by an APPOSITION describing it, with
+  # no opener between the two. A reader cannot tell whether the following words
+  # are more repositories or a description of the first one.
+
+  - change: add-substantive-review-lane
+    class: apposition
+    why: >-
+      Opens `xFactory aggregation repo (…`. `xFactory` is the repository and
+      `aggregation repo` describes it, but nothing in the string says so — read
+      as a list it declares three repositories, two of which are the words
+      `aggregation` and `repo`.
+    cited_to:
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D0 — the seven, by class
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D3 — RULED: register all seven, sweep none
+    retires_when: >-
+      the owning packet re-punctuates its declaration so the head ends where the
+      explanation begins, or the packet archives. Either retires this entry,
+      and the entry MUST be deleted in that same pull request.
+    declaration: |-
+      xFactory aggregation repo (.github/workflows/merge-master-approval.yml + .github/merge-approval-envelope.yml — additional substantive candidate classes and generalized council-verdict consumption; per-repo instances of these files for repos beyond opensoft/xFactory), codexFactory (hermes/domain/review-councils/gate-rules.yaml candidate-class + risk-tier + per-class company-policy pull-in-condition additions, hermes/domain/review-councils/merge-readiness.yaml conditional company-policy-lead seat, merge_readiness_council scope generalized to substantive human- and agent-authored PRs), openxFactory (this spec delta on roles-authority-model; opensoft/openxFactory as the pilot repo's ruleset + workflow wiring). This change's own diff is the spec delta; the workflow/council/ruleset realization across the three surfaces is downstream, tracked in tasks.md and archived only on merged, green realization evidence per release-realization.
+
+  # ---- class: list-runs-into-prose ----------------------------------------------
+  # The largest class. The declaration opens with a real repository list and
+  # then CONTINUES the sentence through the separator — `openxFactory, and it
+  # is …` — so the list never closes. The separator `, and ` is one the grammar
+  # admits, which is exactly why these cannot be told from a list by their
+  # tokens: they are told apart by the fact that the declaration never stops.
+
+  - change: admit-review-lane-repin-to-merge-approval-envelope
+    class: list-runs-into-prose
+    why: >-
+      Opens `openxFactory, and it is THREE FILES at realization and not one. (1)
+      …`. The `, and ` is a list separator the grammar admits, so the head runs
+      on into the sentence and closes nowhere.
+    cited_to:
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D0 — the seven, by class
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D1 — "what distinguishes them is that the first never stops declaring"
+    retires_when: >-
+      the owning packet re-punctuates its declaration so the head ends where the
+      explanation begins, or the packet archives. Either retires this entry,
+      and the entry MUST be deleted in that same pull request.
+    declaration: |-
+      openxFactory, and it is THREE FILES at realization and not one. (1) `.github/merge-approval-envelope.yml` gains a SECOND candidate class, `openxfactory-review-lane-repin`, whose every condition is a value MEASURED off this lane's own observed pull requests rather than asserted; (2) `tests/review_lane_pin/test_review_lane_caller.py` — its `sole_candidate()` helper refuses anything but exactly one candidate today, in terms ("a second entry is a NEW GRANT rather than a configuration change"), so admitting a second class means REPLACING that helper with a per-class shape assertion that pins BOTH classes exactly, and the replacement is the load-bearing edit of the realization rather than a consequence of it; (3) `.github/workflows/review-lane-repin.yml` — the `ARMED_TAIL` witness at `:789` carries a second sentence the file's own comment at `:783-788` says "MUST BE DROPPED THE DAY IT STOPS BEING TRUE", and dropping exactly that sentence and nothing else is this packet's realization act on the workflow. NOT THIS CHANGE'S SURFACE, each for a stated reason: `.github/workflows/merge-master-approval.yml` is untouched — the floor composition at `:1602-1603` is the pinned decision core's caller and the N-1b (ii) carve it needs is codexFactory's decision core to author, consumed here at a later re-pin; `contracts/review-lane-pin.yaml` is untouched and STAYS ON THE NEVER-CLEARABLE FLOOR — this packet proposes a CARVE, never a removal, and authors neither; `scripts/review_lane_repin.py` is untouched — the driver's five-site discipline is a SAFEGUARD this enrolment relies on, so editing it would edit the ground the enrolment stands on; codexFactory's promoted `Bounded autonomous surface` is untouched here — the `## MODIFIED` it needs is codexFactory's text to move, exactly as `extend-merge-master-envelope-to-floor-bot-lanes` split it; NO RULESET IS EDITED BY ANY AGENT and NO BYPASS ACTOR IS PROPOSED ANYWHERE; and no schema, credential, contract member, pin byte or digest set moves.
+
+  - change: amend-mirror-floor-regeneration-merge-authority
+    class: list-runs-into-prose
+    why: >-
+      Opens `openxFactory, and it is DELIBERATELY SMALL. …` — the same shape: a
+      real head, an admitted separator, and then a sentence rather than a
+      second repository.
+    cited_to:
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D0 — the seven, by class
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D3 — RULED: register all seven, sweep none
+    retires_when: >-
+      the owning packet re-punctuates its declaration so the head ends where the
+      explanation begins, or the packet archives. Either retires this entry,
+      and the entry MUST be deleted in that same pull request.
+    declaration: |-
+      openxFactory, and it is DELIBERATELY SMALL. THIS PACKET'S OWN SURFACE at realization is `.github/workflows/review-lane-repin.yml` — ONE arming line in the existing "Open or update the single automated advance" step, on both the open and the update path — and `tests/review_lane_pin/test_repin_lane.py`, whose `AnAutomatedPinAdvanceOnlyEverProposes::test_the_lane_opens_a_pull_request_and_stops_there` is the ten-term disposal sweep that enforces the very sentence being narrowed, plus the negative controls that bound the narrowing and the `EveryRatifiedScenarioHasATest` mapping, whose scenario count is read out of the ratified delta and must be re-read rather than re-pinned. NOT THIS CHANGE'S SURFACE, each for a stated reason: `scripts/review_lane_repin.py` is untouched — the DRIVER arms nothing, it writes the five sites and re-reads them, and keeping it disposal-free is the narrowing's blast-radius bound (a control is ADDED for it at realization, because openxFactory's sweep reads only the workflow's shell today and the bound must be measured rather than assumed); `.github/merge-approval-envelope.yml` is untouched — this packet enrols nothing, and the enrolment it waits on is a SEPARATE successor named in § The realization gate; `.github/workflows/merge-master-approval.yml` is untouched — neither the floor composition at `:1499-1506` nor the approval it produces is edited here, and the N-1b carve that composition would need is codexFactory's decision core to author; `contracts/review-lane-pin.yaml`, `contracts/review-lane-floor-snapshot.yaml` and the vendored snapshot's witnesses do not move; no ruleset is edited by any agent; and no schema, credential or pin moves.
+
+  - change: extend-merge-master-envelope-to-floor-bot-lanes
+    class: list-runs-into-prose
+    why: >-
+      Opens `openxFactory and codexFactory, and the split is decided by decision
+      N-1. …`. The TWO-REPOSITORY head is real and correct; the `, and ` that
+      follows it continues the sentence, so a reader cannot tell the list ended
+      at `codexFactory`.
+    cited_to:
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D0 — the seven, by class
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D3 — RULED: register all seven, sweep none
+    retires_when: >-
+      the owning packet re-punctuates its declaration so the head ends where the
+      explanation begins, or the packet archives. Either retires this entry,
+      and the entry MUST be deleted in that same pull request.
+    declaration: |-
+      openxFactory and codexFactory, and the split is decided by decision N-1. In codexFactory (a COMPANION change, authored there, not here): a `## MODIFIED` narrowing the PROMOTED requirement `openspec/specs/merge-master-approval/spec.md` § *Bounded autonomous surface*, whose CODEOWNERS-scoped prohibition forbids approving either bot lane's pull request today and which is the load-bearing act of the whole extension; a second candidate class in `.github/merge-approval-envelope.yml`; the enrolled-surface shape assertion in `tests/merge-master/test_enrolled_surface_config.py` that pins it; and an auto-merge arming step in `.github/workflows/floor-regeneration.yml` — because the merge-master lane submits an APPROVE review and never merges, so an approved bot pull request still sits until something merges it. In openxFactory, ONLY IF N-1 is vetoed toward admitting the re-pin lane as well: a second candidate class in `.github/merge-approval-envelope.yml`, its shape assertion in `tests/review_lane_pin/test_review_lane_caller.py`, an auto-merge arming step in `.github/workflows/review-lane-repin.yml`, AND a codexFactory decision-core change carving the floor composition at `.github/workflows/merge-master-approval.yml:1499` for one named candidate. NOT THIS CHANGE'S SURFACE, each for a stated reason: `scripts/merge_master/envelope.py` and `schemas/merge-approval-envelope.schema.json` are NOT modified — the conditions this packet asks for are members the schema and the core already carry, and the packet's whole point is that no new condition member is invented; the two bot lanes' generators, judges and refusals are untouched, because they are the JUDGE of the pull requests being enrolled; and NO floor path is removed from `scripts/merge_master/openxfactory-review-authority-floor.yaml` by any option here, including the vetoed one.
+
+  # THE ONE WHOSE CORRECTION IS A JUDGMENT AND NOT A RE-PUNCTUATION, which is
+  # the reason `design.md` D3 gives for registering rather than sweeping and the
+  # reason this lane must not touch it: making the head readable means deciding
+  # whether "the openDox PROJECT" is a repository, two repositories
+  # (`openDox-code`, `openDox-spec`), or a project that is not a repository at
+  # all — a question that packet exists to answer.
+
+  - change: split-opendox-two-layer-product
+    class: list-runs-into-prose
+    why: >-
+      Opens `openxFactory, the openDox PROJECT (NEW), the openXdox PROJECT (NEW),
+      …`. Read as a list, its second and third members are the words `the` and
+      `PROJECT`. Correcting it is not a re-punctuation but a judgment about what
+      counts as a repository, which belongs to the packet that exists to make
+      it — and which is mid-flight.
+    cited_to:
+      - >-
+        openspec/changes/gate-code-surface-declarations/design.md § D3 — "for split-opendox-two-layer-product it is a judgment rather than a re-punctuation"
+      - >-
+        openspec/changes/gate-code-surface-declarations/tasks.md § 1.3 — D3 RULED: register all seven, sweep none
+    retires_when: >-
+      the owning packet decides what its openDox/openXdox members are and writes
+      a head that says so, or the packet archives. Either retires this entry,
+      and the entry MUST be deleted in that same pull request.
+    declaration: |-
+      openxFactory, the openDox PROJECT (NEW), the openXdox PROJECT (NEW), xFactory (aggregation), Omnigent-Install, OpsxFactory, codexFactory — ELEVEN repositories, SIX of which do not exist. **AMENDED 2026-09-05 (repository shape).** This first read *SEVEN repositories, two of which do not exist*, on the reading that each new layer was ONE repository. Brett Heap's ruling of 2026-09-05T14:52Z — verbatim *"elect the shape for both, follow the pin chain, no family yet"* (`opensoft/openxFactory`#656 comment `5552614170`; record `review/amendment-2026-09-05-repository-shape.md`) — ELECTS the `openRepoShape` three-repository shape for BOTH, so each layer is an ASSEMBLY ROOT plus a `-spec` and a `-code` leg: `openDox` + `openDox-spec` + `openDox-code`, `openXdox` + `openXdox-spec` + `openXdox-code`. SIX new repositories rather than two; five existing ones unchanged. All six are created by `scaffold-project.py` rather than by hand, PUBLIC and Apache-2.0 as RULING Q7 already required, with the election recorded in each assembly root's `project.yaml` — `elected_by: Brett Heap`, `elected_on: 2026-09-05`, `reference: openxFactory docs/project-repo-schema.md`. *(Corrected by reality check 2026-09-05 (lane openxfactory-4-opendox-extraction): "created by `scaffold-project.py`" holds at `openRepoShape` `355f6ef4`/`5ffa8d58` or any descendant commit, and FAILS at `122d729b` — pinned when this check ran (2026-09-05, before PR #700 re-pinned to `e9c4827b` at 21:50Z) — the tool REFUSES a neutral-product `--project` name there with `naming-role-mismatch`, exit 2 (`tasks.md` § 1.1a already blocks 1.1/1.2 on the in-flight re-pin, so this is a currency note rather than a new blocker). "Apache-2.0" is NOT something the tool produces at ANY revision checked: `scaffold-project.py`'s `gh repo create` call carries no `--license`, and no path under `templates/` is named `LICENSE*` at either `e9c4827b` or `122d729b` — the LICENSE TEXT stays a hand act, exactly as `tasks.md` § 1.3 already says. "PUBLIC" likewise holds only because `tasks.md` § 1.1/1.2 pass `--visibility public` explicitly; the tool's own default, unset, is `private`.)* Electing the shape CONFERS NOTHING (`docs/project-repo-schema.md`, first sentence): no gate, no floor, no grant and no authority moves with it, and every boundary this packet ratifies is unchanged by it. `codexDox` was never inside the seven and is not inside the eleven — it is the descendant § 7 still gates on a ruling; the amendment records only that when that ruling lands it is likewise THREE repositories rather than one. (1) **The `openDox` PROJECT — THREE repositories created from scratch** (AMENDED 2026-09-05): assembly root `opensoft/openDox`, spec leg `opensoft/openDox-spec`, code leg `opensoft/openDox-code`; all three PUBLIC, Apache-2.0, `opensoft`-owned (RULING Q7). **The `-code` leg** carries the app that leaves `openxFactory`: the editor and canvas family, the model plane, branch sessions and pull requests, accounts, projects, documents and ideas, the NotebookLM connection, the named PULL-UP wave (`doxbench_knowledge` 1,231 LOC, `doxbench_abstract_store` 446 plus its generation surface, the keyword-query half of `lens` 282, `notebook_action` 239), the app-server half of `serve.py` behind a route EXTENSION POINT, the neutral half of `cli.py`, a FastAPI + Postgres runtime on the `xFactory-Hermes-Install` shape with `migrations/` (ordered SQL) and `deploy/{compose,kubernetes}/`, and the tests that prove all of it. **The `-spec` leg** carries openDox's own OpenSpec instance, its requirements and its decisions — including the CORPUS-ADAPTER INTERFACE as openDox's own declaration, which is a requirement before it is code. **The assembly root** carries `project.yaml` (the manifest, and the SOURCE the register row is derived from), `contracts/shape-pin.yaml` plus the double pin of each leg (`contracts/spec-pin.yaml`, `contracts/code-pin.yaml`, each with its gitlink in the SAME commit), the scaffold's `validate` gate — and, **the placement this amendment decides, `contracts/manifest.yaml`, `contracts/CHANGELOG.md` and the `dox-v1.0` BUNDLE TAG.** They sit in the assembly root because it is the only object whose ONE commit names both legs: a tag on a leg describes half a project, and `neutral-product-pin` makes a consumer pin a commit and a digest, so the commit a consumer pins must be the one that answers *what was this project at that moment*. openXdox therefore pins the ASSEMBLY ROOT; `openxFactory` does NOT pin openDox's assembly root directly (RULING F — `opensoft/openxFactory` issue #656, Brett Heap, 2026-09-05, "rule F openXdox only") — it reaches openDox's commit only by reading it through openXdox's own pin. *(AMENDED 2026-09-10 — RULED Q7: `openxFactory` DOES now pin and mount openDox's assembly root directly, Brett Heap verbatim "SECOND SUBMODULE — openxFactory mounts the openDox assembly root" (`#656` comment `5626248666`), landed by openxFactory #932 → `f4fb4ffc`. RULING F's CHAIN survives as a LOCKSTEP INVARIANT — the direct pin MUST EQUAL the commit `openXdox/contracts/opendox-pin.yaml` names, read as a git blob at the `openXdox` gitlink's commit — so RULING OQ-2 is untouched and openDox's commit is still decided in one place. The mount exists because § 5.2's shed leaves 32 importing files with nowhere to import from; see `design.md` § D12's pin discussion.)* `.github/CODEOWNERS`, a required check from day one and a branch-protection ruleset are owed in EACH of the three, not once for the project. (2) **The `openXdox` PROJECT — THREE repositories created from scratch** (AMENDED 2026-09-05): assembly root `opensoft/openXdox`, `opensoft/openXdox-spec`, `opensoft/openXdox-code`; all three PUBLIC, Apache-2.0. **The `-code` leg** carries the domain-mapping core PARAMETERIZED by a domain profile (RULING C2): the corpus-adapter IMPLEMENTATION and projection mechanism (`corpus_root`, `generator`, `snapshot`, `snapshot_registry`, `register`, `completeness`, `round_trip`), the gate-and-commission loop (`gate_console`, `gate_routes`, `kickoff`, `record_binding`, `register_edit_lane`), `doxbench_scope`, the routes it contributes to openDox's extension point, and the three machineries that do not exist anywhere today — the model/scenario workbench for `governed-derived-model` families, the evidence-and-provenance surface, and the role-and-authority projection. **The `-spec` leg** carries openXdox's own OpenSpec instance and the requirements of its domain-mapping declaration. **The assembly root** carries `project.yaml` — whose `neutral_product_pins: [openDox]` is the family's ONE CHAIN (RULING OQ-2) — `contracts/opendox-pin.yaml`, its own pin of openDox NAMING THE OPENDOX ASSEMBLY ROOT's commit and digest, the shape and leg pins, the gate, `contracts/manifest.yaml`, `contracts/CHANGELOG.md` and the `xdox-v1.0` bundle tag. (3) `openxFactory` SHEDS: all 48 modules of `scripts/ideation_dashboard/` (49,605 LOC), all 40 files of `web/` (30,410 LOC excluding the vendored `markdown-it.min.js`), all 125 files of `tests/ideation-dashboard/` (3,927 `def test_` — 52% of this repository's 7,612 test functions) and the four-file `tests/ideation_dashboard/` underscore spelling, `scripts/ideation-dashboard-nightly.py`, `scripts/validate-ideation-dashboard-contracts.py`, the four dashboard contract schemas and 142 packaged examples under `examples/ideation-dashboard/`, the five dashboard governance docs, and `openspec/specs/ideation-dashboard/spec.md` (289,266 B / 102 requirements / 472 scenarios); and GAINS `contracts/openxdox-pin.yaml`, one gitlink (RULING F — `openxFactory` pins openXdox only; openDox's commit is read through openXdox's own pin and is never separately declared, pinned or mounted here) *(AMENDED 2026-09-10 — RULED Q7, `#656` comment `5626248666`: TWO gitlinks and TWO pin files, openXdox and openDox, held in LOCKSTEP; openxFactory #932 → `f4fb4ffc`)*, `scripts/doc_health/` edits (the two back-imports at `derive_possibles.py:857` and `ideation_readiness.py:1351` relocate to a small neutral module BOTH sides depend on), `contracts/manifest.yaml` / `README.md` / `CHANGELOG.md` / `contracts/releases/<tag>.digests.yaml`, `.github/CODEOWNERS`, the dashboard workflows converted to consumer gates on the `openxwallet-consumer-gate` shape, `README.md`, and `docs/openxdox-naming.md` Amendment 3. (4) BRANCH-PROTECTION RULESET STATE in **seven** repositories (AMENDED 2026-09-05 — this first said three, before the shape was elected: the six new ones and `openxFactory`) — a repository setting, not a tree fact, and therefore its own evidence line. `scaffold-project.py` creates NO ruleset; it prints a hint for the case where an existing organisation ruleset refuses the seed push, so every one of the seven is a separate act. *(Corrected by reality check 2026-09-05 (lane openxfactory-4-opendox-extraction): the seven-count double-counts `openxFactory`, which needs no ruleset act — read live at `gh api orgs/opensoft/rulesets`, its required-check tokens (`wallet-validation`, `pytest-suite`, `lane-line`, `release-tag-gate` on ruleset 21538893; `signed-execution-chain-gate`, `lane-line` on 21957695) name no dashboard workflow today, so nothing in its ruleset state has to move; `tasks.md` § 1.5 already authorises and § 8.1 already counts SIX, not seven, and the packet contradicts its own "seven" nowhere else. It is also NOT "a repository setting" for this organisation: every ruleset binding `opensoft` repositories is `source_type: "Organization"` (confirmed live), an org-admin edit scoped by `repository_name.include` — one such ruleset gaining six new entries is still one org-admin act per required-check ruleset, not per repository, though the evidence line is still owed per repository once its own check has reported. Read "**six**" and "every one of the six is a separate act" in place of "seven" above; `openxFactory`'s ruleset state is VERIFIED UNCHANGED by this packet, not a repository under it.)* (5) The xFactory aggregation: `.gitmodules`, two root gitlinks — **naming the two ASSEMBLY ROOTS** (AMENDED 2026-09-05); the legs are the assembly roots' own submodules and the aggregation never mounts them directly — `README.md`, `CLAUDE.md`, and `project-register.yaml`, which gains one row per elected project carrying `schema`, `reference` and `repository_roles`, **DERIVED from each `project.yaml` and never the origin of the election** (`docs/project-repo-schema.md` § The manifest is the source). (6) Omnigent-Install: the per-tenant installer that provisions an instance, its database and its two GitHub Apps through the App Manifest flow, plus the intent inbox and minter. (7) OpsxFactory: the `dox` workload set (`workflows/aks-administration.yaml:412-431`) becomes per-tenant, and the ungoverned `openxdox` DNS record is governed. (8) codexFactory: two draft Speckit features (002, 010) and the false `stack.yaml` doxBench digest declaration, plus the review-authority FLOOR de-floor that must precede any removal under `openspec/specs/` (Rule 7 substrate row 1). **(9) UNDER RULING DQ-1 (2026-09-04T22:14Z) `openxFactory` ALSO GAINS A SURFACE RATHER THAN ONLY SHEDDING ONE:** a small ENGINEERING ADAPTER PACKAGE beside `scripts/doc_health/` implementing openDox's corpus-adapter seam over this repository's own corpus, carrying the fifteen engineering-vocabulary requirements that leave the CAPABILITY but NOT the repository, plus its own tests. `codexDox` is a THIN DESCENDANT that pins openXdox and reuses that adapter; it owns no adapter of its own. Per `release-realization` this change archives ONLY on merged plus green realization evidence across the affected repositories, never on landing.

@@ -5,11 +5,14 @@ Ratified by: gate-code-surface-declarations — 2026-09-13, Brett Heap, verbatim
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
-group is § 3 and it is **NOT IN THIS PULL REQUEST**: this filing carries the
+group is § 3 and it was **NOT IN THE FILING PULL REQUEST**
+([#1018](https://github.com/opensoft/openxFactory/pull/1018)), which carried the
 PACKET ONLY. The tasks are individually executable, so under
 `release-realization`'s decomposition rule this packet realizes through its own
-task list rather than through a feature DAG — in a LATER pull request, on a
-LATER word.
+task list rather than through a feature DAG — **which it now has, in the LATER
+realization pull request § 3's own preamble names**. Every § 3 box below is
+ticked THERE, against that pull request's diff; §§ 1, 2 and 4 were closed at the
+filing and § 5 is still owed.
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in this packet and
@@ -185,13 +188,35 @@ openxFactory #1013 closes THERE and at no earlier pull request.
       different requirement titles; the three titles added here appear nowhere
       in the corpus.
 
-## 3. The realization — a house validator and a closed register, in a LATER pull request
+## 3. The realization — a house validator and a closed register, IN THE REALIZATION PULL REQUEST
 
-**NONE OF § 3 IS IN THIS PULL REQUEST.** It is written here so ratification
-knows exactly what it is ratifying, and so the realization pull request has a
-task list rather than an intention.
+**§ 3 IS THE REALIZATION PULL REQUEST, AND THE BOXES BELOW ARE TICKED THERE.**
+The list was written at the filing so ratification knew exactly what it was
+ratifying, and so the realization had a task list rather than an intention; the
+filing ([#1018](https://github.com/opensoft/openxFactory/pull/1018)) carried the
+PACKET ONLY and closed § 3.8 alone, which is bookkeeping the ratification owed
+rather than realization. Every other box below is a diff in the realization pull
+request, ticked there and nowhere else.
 
-- [ ] 3.1 `scripts/code_surface.py` (NEW) — the reader and judge. Reads the
+**EVERY FIGURE IN § 3 WAS RE-MEASURED AT THE HEAD THE GATE LANDS ON** —
+`origin/main` `54885296` — with the § 3.1 reader itself, and NONE is carried
+from the drafting tree `bcde1575`. That is the register requirement's own
+scenario *The corpus moves between drafting and landing*, obeyed rather than
+quoted. **THE RE-MEASUREMENT, IN FULL:** `python3
+scripts/validate-code-surface.py .` — **exit 0**, *"44 active proposals, 44
+declaring — 4 `none`, 33 a repository list, 7 named by the register, 0 outside
+the grammar"*, *"archive (read, never judged): 167 proposals, 121 declaring, 3
+of them outside the grammar"*. **THE SEVEN ARE THE SAME SEVEN CHANGES IN THE
+SAME FOUR CLASSES THE DRAFTING FOUND**, and the two numbers that moved both
+moved for one reason that is not this gate's: an archive between the drafting
+tree and this one took ONE CONFORMING carrier out of the active corpus (45
+active to 44, 38 conforming to 37) and put two more records into the archive
+(165 to 167, 119 to 121 declaring, the 3 off-grammar archived records unmoved).
+The sibling gate reads the same 44 at this head
+(`scripts/validate-target-release.py .` — *"44 active proposals"*), so the
+active count is a fact about the tree and not about either reader.
+
+- [x] 3.1 `scripts/code_surface.py` (NEW) — the reader and judge. Reads the
       declaration through the SHIPPED strict loader
       `frontmatter_strict.read_front_matter`, adding no second parser; parses
       the DECLARED HEAD — EITHER the single token `none` OR a list of
@@ -202,12 +227,30 @@ task list rather than an intention.
       follows; refuses a YAML folding indicator BY NAME; refuses a repeated
       declaration; loads and shape-checks the register; scans top-level active
       changes and counts the archive.
-- [ ] 3.2 `scripts/validate-code-surface.py` (NEW) — the CLI, in
+      **LANDED**: `parse_head` (the head, the openers, the reserved sentinel),
+      `declaration` (the strict-loader read and the repeat refusal),
+      `load_register`, `register_entry_for`, `_proposals` and `scan`, with
+      `declaration_digest` carrying the closed baseline. The MIXED-head refusal
+      is `parse_head`'s own (`"mixes the empty-surface sentinel \`none\` with N
+      repository identifier(s) … self-contradictory rather than wide"`), raised
+      BEFORE any set is built, so no derived set is computed for such a head —
+      pinned in either order and at every list position by
+      `test_a_mixed_none_head_is_refused_wherever_the_token_sits`. The block
+      scalar is refused by name (`"opens with the YAML folding indicator
+      \`>-\`"`) and NOT as a generic unreadable head, pinned by
+      `test_the_block_scalar_refusal_is_not_merely_an_unreadable_head`.
+- [x] 3.2 `scripts/validate-code-surface.py` (NEW) — the CLI, in
       `validate-scope-globs.py`'s shape. `[REPO_ROOT]` plus `--register PATH`
       (for the tests and for a consuming tree; the gate runs it with neither).
       Exit 0 clean, 1 an unreadable declaration, 2 an unusable or stale
       register; both present prints both and exits 1.
-- [ ] 3.2a **NO PATH THIS GATE OPENS MAY BE REACHED THROUGH A SYMLINK**, the
+      **LANDED**, and all four exits are pinned end to end through the CLI:
+      exit 0 (`test_a_conforming_declaration_passes`), exit 1
+      (`test_an_active_unreadable_head_is_refused`), exit 2 for an unusable
+      register (`test_a_missing_register_refuses`) and for a stale one
+      (`test_an_entry_that_matches_nothing_refuses`), and BOTH-at-once printing
+      both and exiting 1 (`test_a_finding_and_a_stale_entry_are_both_reported`).
+- [x] 3.2a **NO PATH THIS GATE OPENS MAY BE REACHED THROUGH A SYMLINK**, the
       sibling's guard MIRRORED EXACTLY — imported from
       `scripts/target_release.py` or restated beside it, the realization's
       choice, but never APPROXIMATED, because a guard that is nearly the
@@ -248,7 +291,19 @@ task list rather than an intention.
       a corpus it does not have. Resolving `REPO_ROOT` on BOTH sides is what
       keeps a scratch tree reached through a symlinked `/tmp` from being
       mistaken for the escape.
-- [ ] 3.3 `scripts/code-surface-register.yaml` (NEW) — the standing divergences
+      **LANDED AS THE SIBLING'S TWO SEMANTICS, RESTATED BESIDE IT RATHER THAN
+      APPROXIMATED.** (i) `code_surface.load_register` runs
+      `path.is_symlink() or _has_symlinked_ancestor(path)` UNCONDITIONALLY
+      before `is_file()` or `read_text()`, and `_has_symlinked_ancestor` is the
+      UNANCHORED climb `target_release._has_symlinked_ancestor` (line 417)
+      performs. (ii) `code_surface._unescaped` is
+      `target_release._unescaped`'s (line 569) ANCHORED test — resolve the
+      candidate AND `REPO_ROOT` on both sides and require the candidate to land
+      where a symlink-free tree would have put it — and `_proposals` takes
+      EVERY discovered path through it, on the active arm and the archive arm
+      alike, DROPPING what fails rather than reporting it. § 3.6a's tests pin
+      both surfaces at both depths.
+- [x] 3.3 `scripts/code-surface-register.yaml` (NEW) — the standing divergences
       the same act does not correct, each with its declaration text as it
       stands, its class, its reason, its citation and the event that retires it.
       CLOSED: removable, never addable, with the closure ENFORCED by a baseline
@@ -256,13 +311,47 @@ task list rather than an intention.
       (`design.md` D5). **ITS POPULATION IS RE-MEASURED AT THE HEAD THE GATE
       LANDS ON** — seven at this packet's drafting, and a fact about that tree
       only.
-- [ ] 3.4 **THE SEVEN DISPOSED OF AS § 1.3 RULES.** On the recommended option
+      **LANDED WITH SEVEN ENTRIES IN FOUR CLASSES** (block-scalar 1,
+      possessive 1, apposition 1, list-runs-into-prose 4), each carrying its
+      declaration VERBATIM AND BYTE FOR BYTE — copied from the tree, never
+      retyped, and pinned by
+      `test_every_register_entry_carries_the_live_declaration_byte_for_byte`.
+      **THE CLOSURE IS ENFORCED BY `code_surface.CLOSED_REGISTER`**, which
+      carries `(change, sha256-of-declaration)` for each. THE BASELINE IS A
+      DIGEST AND NOT THE TEXT, and the reason is measured: these declarations
+      run from 940 to 11,678 bytes and one is 38 lines, so a baseline carrying
+      the text verbatim would be a wall nobody could review and one carrying a
+      PREFIX would pin an arbitrary number of characters. The act stays legible
+      because the register carries the text in the same diff, beside the change
+      id the baseline names. Appending an entry refuses
+      (`test_an_entry_outside_the_closed_baseline_refuses`) and so does editing
+      a registered declaration by one byte
+      (`test_an_entry_whose_declaration_moved_off_the_baseline_refuses`).
+- [x] 3.4 **THE SEVEN DISPOSED OF AS § 1.3 RULES.** On the recommended option
       all seven are registered and none is swept. On option 2 the six are
       corrected — one re-punctuation each, every word of every gloss preserved
       verbatim — and one registered; on option 3 all seven are corrected. Under
       any option the population is re-measured at the landing head first, and a
       carrier that arrived after this drafting is disposed of there.
-- [ ] 3.5 **NARROW `scripts/scope_globs.py`'s `code_surface_repositories`** to
+      **DONE ON THE RULED OPTION: ALL SEVEN REGISTERED, NONE SWEPT, AND THE
+      POPULATION RE-MEASURED FIRST.** The re-measurement ran the § 3.1 reader
+      over `origin/main` `54885296` before the register was written, and the
+      seven it returned are the seven `design.md` D0 names, unchanged:
+      `adopt-configured-notebook-hosting-identity` (block-scalar),
+      `amend-kill-switch-to-declared-test-companion` (possessive),
+      `add-substantive-review-lane` (apposition), and
+      `admit-review-lane-repin-to-merge-approval-envelope`,
+      `amend-mirror-floor-regeneration-merge-authority`,
+      `extend-merge-master-envelope-to-floor-bot-lanes` and
+      `split-opendox-two-layer-product` (list-runs-into-prose). **NO CARRIER
+      ARRIVED AFTER THE DRAFTING**, so no new disposition was owed — and that is
+      a measurement rather than an assumption: `git diff --name-status
+      b4e0087a..HEAD -- openspec/changes/` is EMPTY, so the active corpus is
+      byte-identical to the tree this packet landed on. **NOT ONE BYTE OF
+      ANOTHER LANE'S RATIFIED PROSE IS RE-PUNCTUATED BY THIS PULL REQUEST**:
+      `git diff --stat origin/main...HEAD` touches no `proposal.md` but this
+      packet's own `tasks.md`.
+- [x] 3.5 **NARROW `scripts/scope_globs.py`'s `code_surface_repositories`** to
       derive its set from the DECLARED HEAD, through the reader § 3.1 adds, so
       the field has one derivation and not two — **OWED, § 1.4 having ruled D4
       option 1**. Pinned by a test proving the function returns the head's
@@ -270,7 +359,32 @@ task list rather than an intention.
       `python3 scripts/validate-scope-globs.py .` showing the live corpus
       unmoved (0 active proposals declare `scope_globs:`, § 2.7, so the change
       is unobservable there — which is what makes it landable without a sweep).
-- [ ] 3.5a **FAIL CLOSED WHERE THE HEAD IS CARRIED BY THE REGISTER RATHER THAN
+      **LANDED, AND THE BEFORE/AFTER IS A PAIR OF RUNS IN ONE SHELL ON ONE
+      TREE.** BEFORE: `python3 scripts/validate-scope-globs.py .` — **exit 0**,
+      *"scope_globs validation passed (all active changes conform)"*. AFTER, on
+      the narrowed reader: **exit 0**, the SAME line. **THE CORPUS IS UNMOVED
+      AND THE READER IS NOT**, re-measured at this head rather than carried:
+      the permissive extractor returned **3,321** distinct "repository" tokens
+      across the 44 active declarations, **767** from
+      `split-opendox-two-layer-product` alone, with **ALL FOUR** `none` heads
+      yielding a NON-EMPTY set and **33 of the 33** readable non-`none` heads
+      yielding at least one token their own head does not name. The narrowed
+      reader returns the head's identifiers and nothing else, and returns the
+      EMPTY set for a `none` head whatever its gloss says. It is unobservable
+      on the live corpus because **0 of 44** active proposals declare
+      `scope_globs:` — the same latency § 2.7 measured — which is what makes it
+      landable without a sweep. The derivation is the SHARED reader
+      (`code_surface.parse_head`) and not a second grammar, which is the
+      requirement's own *one shared reader rather than one per consumer*.
+      **THE VENDORING CONTRACT IS KEPT**: `scripts/scope_globs.py` is vendored
+      byte-for-byte into codexFactory's merge gate beside only
+      `frontmatter_strict.py`, so the sibling is imported ON FIRST USE through
+      `_code_surface()` — `_sequenced_after()`'s exact idiom and its exact
+      reason — and the module still imports standalone with neither sibling in
+      `sys.modules`, which
+      `tests/scope_globs/test_integrity.py::test_the_sequenced_after_sibling_is_NOT_imported_at_module_import_time`
+      proves in a bare subprocess and which was re-run here for the new one.
+- [x] 3.5a **FAIL CLOSED WHERE THE HEAD IS CARRIED BY THE REGISTER RATHER THAN
       READ BY THE GRAMMAR** (`design.md` D9 (b)). A proposal the register names
       has NO head-derived set, so `code_surface_repositories` SHALL NOT return
       one for it, and `validate_cross_consistency` SHALL REFUSE a registered
@@ -283,7 +397,23 @@ task list rather than an intention.
       declaration that causes it). The refusal message SHALL name the remedy —
       bring the declaration into the grammar, which retires the entry in the
       same act.
-- [ ] 3.5b **§ 3.5a's REFUSAL MUST BE EXPRESSIBLE AT THE POINT OF ENFORCEMENT,
+      **LANDED.** `code_surface_repositories` returns a
+      `NoDeclaredRepositories` carrier — never a set — for a head the grammar
+      cannot read, and `validate_cross_consistency` refuses it with
+      `CodeSurfaceHeadError`, naming the PROPOSAL, the register ENTRY (its
+      change, its class and its retirement event) and the remedy. **EACH
+      FORBIDDEN SUBSTITUTE HAS ITS OWN REFUSAL TEST, AND EACH PROVES WHAT THE
+      RUN MUST NOT SAY**:
+      `test_the_refusal_forbids_the_whole_declaration_fallback_by_name` declares
+      a scope for `codexFactory`, a repository the registered declaration's
+      GLOSS names and its head does not, and asserts the refusal rather than
+      the grant; `test_the_refusal_forbids_the_empty_set_substitution_by_name`
+      asserts the message does NOT carry the generic *"names repository … not
+      in code_surface"* and DOES carry *"NO REPOSITORY SET CAN BE DERIVED"*.
+      An unreadable head the register does NOT name fails closed too, saying so
+      rather than implying an exception exists
+      (`test_an_unreadable_head_the_register_does_not_name_also_fails_closed`).
+- [x] 3.5b **§ 3.5a's REFUSAL MUST BE EXPRESSIBLE AT THE POINT OF ENFORCEMENT,
       AND ON THIS TREE IT IS NOT** — so the PROPOSAL IDENTITY and the REGISTER
       ENTRY travel the reader path, and not a bare set of tokens. Measured
       here rather than asserted: `scripts/validate-scope-globs.py:68` calls
@@ -328,7 +458,32 @@ task list rather than an intention.
       refusal names the PROPOSAL and its REGISTER ENTRY — § 3.6's two
       forbidden-substitute tests prove what the run must NOT say, and this one
       proves what it MUST.
-- [ ] 3.6 `tests/code_surface/test_code_surface_gate.py` (NEW) — the head parse
+      **LANDED AT THE SHAPE THIS BOX CHOSE, AND AT NO OTHER.** The derivation
+      returns a TYPED CARRIER — `scope_globs.NoDeclaredRepositories`, a frozen
+      dataclass beside `ScopeGlobs` (line 235) carrying the change id, the
+      declaration and the register entry — threaded through
+      `validate_scope_globs` into `validate_cross_consistency`, which raises
+      `CodeSurfaceHeadError`, a `ScopeGlobsError` SUBCLASS beside
+      `ScopeGlobsResolutionError` (line 106), so every caller that already
+      catches `ScopeGlobsError` keeps catching it. **A BARE ITERABLE STILL
+      WORKS**, read as a head-derived set with no registered-exception context,
+      which is why the shipped
+      `validate_scope_globs(..., code_surface_repos={"R"})` callers in
+      `tests/scope_globs/` pass UNEDITED — proved by running that directory
+      (`python3 -m pytest tests/scope_globs -q -m "not postgres"` — **88
+      passed**, not one file edited) and pinned here by
+      `test_a_bare_iterable_still_works_as_a_head_derived_set`. **THE CHEAPER
+      ALTERNATIVE IS STILL REFUSED**: the refusal is raised at the
+      cross-consistency check the ratified requirement names as the refuser,
+      not upstream in the derivation. The consumer owed nothing it did not
+      already hold — `validate-scope-globs.py:_validate_change` passes
+      `proposal.parent.name`, and `validate_corpus` prefixes that id onto every
+      problem it prints, which
+      `test_a_registered_packet_declaring_a_scope_reds_the_scope_gate_end_to_end`
+      asserts at the CLI (`c: … NO REPOSITORY SET CAN BE DERIVED`, exit 1).
+      `test_a_registered_packet_declaring_a_scope_is_refused` asserts the
+      refusal names BOTH the proposal and its entry.
+- [x] 3.6 `tests/code_surface/test_code_surface_gate.py` (NEW) — the head parse
       and the opener requirement; the block-scalar refusal by name; the repeat
       refusal; absence as the promoted default and a present-but-empty value
       refused; both identifier spellings (`<name>` and `<owner>/<name>`); the
@@ -343,7 +498,26 @@ task list rather than an intention.
       tree so a new divergence reds the required `pytest-suite` with no workflow
       edit. **The test count is MEASURED at the realization and never carried
       from this task list.**
-- [ ] 3.6a **§ 3.2a's TWO PATH-BOUNDARY REFUSALS GET THEIR OWN TESTS, BOTH
+      **LANDED WITH 115 TESTS**, counted from a collected run of the file
+      (`python3 -m pytest tests/code_surface -q --collect-only` — *"115 tests
+      collected"*; `python3 -m pytest tests/code_surface -q` — **115 passed**)
+      and not carried from anywhere. **BY GROUP, AND THE FIFTEEN SUM TO 115**:
+      the head and the opener rule (**19**, including every ratified list
+      separator and both identifier spellings), the reserved sentinel (**7** —
+      `none` bare, `none` with a gloss, a MIXED head refused in either order and
+      at every list position, and `None` capitalized refused as the prose it
+      is), the block scalar refused BY NAME (**7**), reading the declaration
+      including the repeat refusal and the indented-gloss NON-repeat (**7**),
+      absence as the promoted default with a present-but-empty value refused
+      (**3**), the gate end to end (**5**), the archive read and never judged
+      (**2**), the corpus walk's path boundary (**7**, § 3.6a), the register's
+      shape refusals (**18**), the closed baseline (**5**), the register path's
+      own boundary (**8**, § 3.6a), the registered/stale asymmetry (**6**), the
+      § 3.5 derivation (**6**), § 3.5a's fail-closed rule with one test per
+      forbidden substitute (**7**), and the live corpus (**8**).
+      `test_corpus_code_surface_validates` runs the CLI over the REAL tree, so a
+      new divergence reds the required `pytest-suite`.
+- [x] 3.6a **§ 3.2a's TWO PATH-BOUNDARY REFUSALS GET THEIR OWN TESTS, BOTH
       SURFACES AND BOTH DEPTHS**, in § 3.6's own
       `tests/code_surface/test_code_surface_gate.py` and in the sibling's
       shape (`tests/target_release/test_target_release_gate.py` carries the
@@ -358,10 +532,44 @@ task list rather than an intention.
       link dangles — on the ACTIVE arm and on the archive count alike. Beside
       them the NEGATIVE that keeps the guard from over-refusing: a `REPO_ROOT`
       reached through a symlink still finds every proposal it really carries.
-- [ ] 3.7 **NO WORKFLOW IS EDITED**, confirmed by running the suite rather than
+      **LANDED, ALL FIFTEEN, IN § 3.6's OWN FILE.** THE REGISTER (8): the file
+      ITSELF a symlink (`test_a_symlinked_register_refuses`), the same with the
+      link pointing OUTSIDE the tree
+      (`…_pointing_outside_the_tree_refuses`, via `tmp_path_factory`), a
+      DANGLING link refused AS A SYMLINK and not as a crash or a `does not
+      exist` (`test_a_dangling_register_symlink_refuses_as_a_symlink_not_a_crash`),
+      an ordinary file reached through a symlinked ANCESTOR directory — whose
+      leaf the test asserts is NOT a symlink before refusing it
+      (`test_a_register_reached_through_a_symlinked_ancestor_refuses`), a
+      dangling ANCESTOR (`test_a_dangling_ancestor_link_refuses_as_a_symlink…`),
+      the DEFAULT argument proved guarded by patching `__defaults__` rather
+      than the module attribute
+      (`test_the_default_register_path_is_checked_by_the_same_guard`), and BOTH
+      depths again END TO END through the CLI at **exit 2**
+      (`…_refuses_end_to_end`, twice). THE CORPUS WALK (7): a symlinked
+      `proposal.md` not read, an ordinary one inside a symlinked CHANGE
+      DIRECTORY not read, and a DANGLING link skipped — each on the ACTIVE arm
+      and each again on the ARCHIVE count — plus the NEGATIVE, a `REPO_ROOT`
+      reached through a symlink still finding both the active proposal and the
+      archived one it really carries.
+- [x] 3.7 **NO WORKFLOW IS EDITED**, confirmed by running the suite rather than
       by reading the workflow: `pytest-suite` already runs everything under
       `tests/`, so a new test directory is collected with no registration
       anywhere.
+      **CONFIRMED BY THE RUN AND NOT BY THE READING.** `python3 -m pytest
+      tests/ -q -m "not postgres"` — the EXACT command
+      `.github/workflows/pytest-suite.yml:599` runs — collected and passed
+      `tests/code_surface/` with no edit to any workflow, and
+      `git diff --name-only origin/main...HEAD` carries no `.github/` path.
+      The gate is the corpus test, which is also where the SIBLING validator is
+      wired: `grep -rn validate-target-release .` finds it in no workflow, no
+      Makefile and no shell script — only in
+      `tests/target_release/test_target_release_gate.py`'s `VALIDATOR`
+      constant. `tests/code_surface/` deliberately carries no `__init__.py`, so
+      it adds no ambient top-level module name (`pytest.ini`'s own account of
+      why that matters), and the suite's floors are MINIMA that may only rise —
+      these tests add passes and add no skip, so `MIN_SELECTED`/`MIN_PASSED`
+      need no move and the EXACT skipped pin is untouched.
 - [x] 3.8 **THE README ACTIVE ROW MOVED TO THE RATIFIED STANDING**, in the same
       commit as § 1.8 — the drafting-shape sentence replaced by the ruling, its
       date, its verbatim word and the recording comment, the bareness of the

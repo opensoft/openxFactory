@@ -115,6 +115,101 @@ class ScopeGlobsResolutionError(ScopeGlobsError):
     """
 
 
+class CodeSurfaceHeadError(ScopeGlobsError):
+    """Raised when a scope is cross-checked against a declaration that has NO
+    HEAD-DERIVED REPOSITORY SET — the declaration's head being one the ratified
+    `code_surface:` grammar cannot read.
+
+    A SUBCLASS for the same reason as the one above: every caller that already
+    catches `ScopeGlobsError` keeps catching this one. It is nonetheless a
+    DISTINCT FACT from the ordinary cross-consistency refusal, and the
+    distinction is the whole point of the requirement *The declared repository
+    set is derived from the head and never from the gloss*: the ordinary refusal
+    says a scope names a repository the CODE SURFACE does not, and is a finding
+    against the SCOPE; this one says no repository set exists to check against
+    at all, and is a finding against the CODE-SURFACE DECLARATION. Reporting the
+    second in the first's words would send the author to fix the wrong file.
+    """
+
+
+def _code_surface():
+    """The sibling `scripts/code_surface.py`, imported ON FIRST USE.
+
+    THE `code_surface:` HEAD GRAMMAR IS NOT RE-IMPLEMENTED HERE. The ratified
+    requirement *The declared repository set is derived from the head and never
+    from the gloss* says so in terms — *"the derivation SHALL be one shared
+    reader rather than one per consumer … a consumer that needs the set SHALL
+    obtain it from the reader this capability's gate uses"* — because two
+    readers of one field are two vocabularies, and the divergence between them
+    is invisible until something authorizes on the wider one. That is exactly
+    the defect this narrowing closes, so reproducing the grammar here would
+    re-open it in the same act that closed it.
+
+    THE IMPORT IS DEFERRED RATHER THAN MODULE-LEVEL, FOR `_sequenced_after`'S
+    REASON AND NOT A NEW ONE. This file is VENDORED BYTE-FOR-BYTE into
+    codexFactory's merge gate, which vendors only this module and
+    `frontmatter_strict.py`; a module-level import of a THIRD sibling would make
+    that vendored copy UNIMPORTABLE — breaking every merge-gate path — for a
+    function the merge gate never calls (`code_surface_repositories` has exactly
+    one in-tree caller, `validate-scope-globs.py`, and the merge gate is not
+    it). Deferred, the vendored copy keeps working unchanged, and a caller that
+    does reach this path without the sibling present gets a named
+    `ScopeGlobsResolutionError` instead of an import traceback.
+    `tests/scope_globs/test_integrity.py` pins the deferral for
+    `sequenced_after` by loading this module in a bare subprocess; the same
+    probe covers this one.
+
+    LOADED BY LOCATION UNDER ITS OWN NAME, which is unambiguous here: unlike
+    `sequenced_after`, no test package in this repository is called
+    `code_surface` (`tests/code_surface/` deliberately carries no
+    `__init__.py`), so the plain name resolves to the script and to nothing
+    else.
+    """
+    name = "code_surface"
+    # EVERY attribute this module uses from the sibling, probed as a set: a
+    # cached module carrying only some of them would surface as an
+    # AttributeError traceback at the call site instead of the named
+    # `ScopeGlobsResolutionError` this function exists to guarantee.
+    required = ("parse_head", "register_entry_for", "load_register",
+                "CodeSurfaceError")
+    module = sys.modules.get(name)
+    if module is not None and all(hasattr(module, attr) for attr in required):
+        return module
+    path = Path(__file__).resolve().parent / "code_surface.py"
+    try:
+        spec = importlib.util.spec_from_file_location(name, path)
+        if spec is None or spec.loader is None:  # pragma: no cover - defensive
+            raise ImportError(f"cannot locate the sibling module at {path}")
+        module = importlib.util.module_from_spec(spec)
+        # REGISTERED BEFORE `exec_module`, as importlib's own loader does and as
+        # `_sequenced_after` does for the same measured reason; the failure path
+        # pops the entry so a failed load never leaves a half-initialized stub
+        # for the next caller to reuse.
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+    except Exception as exc:  # pragma: no cover - vendored-copy path
+        # BROAD ON PURPOSE, exactly as `_sequenced_after` is: an absent sibling
+        # (the vendored copy) raises OSError, but ANY module-level failure in
+        # the sibling must still reach the caller as this module's named
+        # "could not run" fact rather than as a raw traceback out of a gate.
+        sys.modules.pop(name, None)
+        raise ScopeGlobsResolutionError(
+            "the cross-consistency check needs the sibling module "
+            "'code_surface' to derive a change's declared repository set from "
+            f"its code_surface HEAD, and it could not be loaded from {path}: "
+            f"{exc}. The permissive whole-declaration split this function used "
+            "to perform is NOT available as a fallback — it is the defect the "
+            "ratified derivation rule exists to close") from exc
+    missing = [attr for attr in required if not hasattr(module, attr)]
+    if missing:  # pragma: no cover - defensive
+        sys.modules.pop(name, None)
+        raise ScopeGlobsResolutionError(
+            f"the sibling module loaded from {path} provides no "
+            f"{', '.join(missing)} — the declared repository set cannot be "
+            "derived from the code_surface head")
+    return module
+
+
 def _sequenced_after():
     """The sibling `scripts/sequenced_after.py`, imported ON FIRST USE.
 
@@ -388,12 +483,89 @@ def validate_dialect(scope: ScopeGlobs) -> None:
             validate_glob(f"scope_globs[{repo}]", pattern)
 
 
+@dataclass(frozen=True)
+class NoDeclaredRepositories:
+    """THE ABSENCE OF A HEAD-DERIVED REPOSITORY SET, carried rather than
+    substituted for.
+
+    A declaration whose head the ratified `code_surface:` grammar cannot read
+    has NO head to derive from. The requirement *The declared repository set is
+    derived from the head and never from the gloss* names the two substitutes an
+    implementer would otherwise reach for and FORBIDS BOTH:
+
+      * falling back to a set derived from the WHOLE declaration re-admits the
+        prose gloss as an authorization surface — 3,321 distinct "repository"
+        tokens across this corpus's 44 active declarations when last measured,
+        767 from a single one — which is the one defect this derivation exists
+        to close and which no exception may reopen;
+      * substituting an EMPTY set makes every scope key unnameable while
+        reporting the fault in the WRONG PLACE: the author reads a refusal about
+        their structured scope when the defect is in their code surface, and a
+        packet silently ineligible for the provenance axis is the
+        fail-OPEN-LOOKING shape of a fail-closed intent.
+
+    So the derivation returns THIS instead, and it travels the reader path to
+    the point of enforcement carrying the two things the refusal must name — the
+    PROPOSAL and the REGISTER ENTRY that tolerates its declaration. A bare set
+    of tokens could name neither, which is why the carrier exists at all rather
+    than a `None` (which `validate_scope_globs` would read as "no cross-check
+    asked for" and SKIP) or an empty set.
+
+    An EMPTY `repositories` set a head DECLARES — the `none` head — is a
+    different fact and is returned as a plain empty `set()`, never as this.
+    """
+
+    change: str | None
+    declaration: str
+    register_entry: Mapping[str, object] | None
+    detail: str
+
+
 def validate_cross_consistency(
-    scope: ScopeGlobs, code_surface_repos: Iterable[str]
+    scope: ScopeGlobs,
+    code_surface_repos: Iterable[str] | NoDeclaredRepositories,
 ) -> None:
     """Every `scope_globs` repository key MUST be named in `code_surface`; the
     reverse is NOT required (a code_surface repo may carry no scope and is then
-    simply not provenance-eligible)."""
+    simply not provenance-eligible).
+
+    A `NoDeclaredRepositories` carrier REFUSES OUTRIGHT, naming the proposal and
+    the register entry that tolerates its declaration: there is no head-derived
+    set for that change, so there is nothing to check a scope key against, and
+    both available substitutes are forbidden by the ratified requirement (see
+    the carrier's own docstring). THE REFUSAL IS RAISED HERE, at the
+    cross-consistency check the requirement names as the refuser, rather than
+    upstream in the derivation — raising from the derivation would be fewer
+    lines and would move the refusal off the rule's own named surface.
+    """
+    if isinstance(code_surface_repos, NoDeclaredRepositories):
+        absent = code_surface_repos
+        where = f"{absent.change} " if absent.change else ""
+        if absent.register_entry is not None:
+            entry = absent.register_entry
+            tolerated = (
+                f"Its declaration is carried by the CLOSED code-surface "
+                f"register — entry `{entry.get('change')}`, class "
+                f"`{entry.get('class')}`, retiring when "
+                f"{str(entry.get('retires_when', '')).strip()} — and a register "
+                f"entry TOLERATES an unreadable declaration and AUTHORIZES "
+                f"NOTHING DERIVED FROM ONE.")
+        else:
+            tolerated = (
+                "Its declaration is not carried by the closed code-surface "
+                "register either, so `validate-code-surface.py` refuses it in "
+                "its own right.")
+        raise CodeSurfaceHeadError(
+            f"{where}declares scope_globs for "
+            f"{', '.join(sorted(scope.by_repo))}, but NO REPOSITORY SET CAN BE "
+            f"DERIVED from its code_surface declaration: {absent.detail} "
+            f"{tolerated} The run does NOT fall back to a set derived from the "
+            "whole declaration (that would re-admit the prose gloss as an "
+            "authorization surface) and does NOT substitute an empty set (that "
+            "would report the fault against the structured scope rather than "
+            "against the code-surface declaration that causes it). THE REMEDY "
+            "IS TO BRING THE DECLARATION INTO THE GRAMMAR — a head, then a "
+            "gloss opener — which retires the register entry in the same act")
     declared = set(code_surface_repos)
     for repo in scope.by_repo:
         if repo not in declared:
@@ -404,11 +576,23 @@ def validate_cross_consistency(
 
 
 def validate_scope_globs(
-    scope: object, code_surface_repos: Iterable[str] | None = None
+    scope: object,
+    code_surface_repos: Iterable[str] | NoDeclaredRepositories | None = None,
 ) -> ScopeGlobs:
     """Full validation of a raw `scope_globs` value: shape, dialect conformance,
     and (when `code_surface_repos` is given) cross-consistency. Returns the
-    validated `ScopeGlobs`. FLOOR-AGNOSTIC throughout."""
+    validated `ScopeGlobs`. FLOOR-AGNOSTIC throughout.
+
+    `code_surface_repos` is PASSED THROUGH unread: it may be the head-derived
+    set `code_surface_repositories` returns, a `NoDeclaredRepositories` carrier
+    standing for the ABSENCE of one, or — as before — A BARE ITERABLE, which is
+    read as a head-derived set carrying no registered-exception context. The
+    bare form is what keeps every shipped caller passing a plain
+    `code_surface_repos={"R"}` working unedited. `None` still means "do not
+    cross-check at all", which is why the absence of a derivable set is a
+    CARRIER and not a `None`: `None` would SKIP the check the requirement
+    demands must refuse.
+    """
     validated = validate_shape(scope)
     validate_dialect(validated)
     if code_surface_repos is not None:
@@ -416,21 +600,75 @@ def validate_scope_globs(
     return validated
 
 
-def code_surface_repositories(front_matter: Mapping[str, object]) -> set[str]:
-    """Best-effort set of repository tokens named in the `code_surface` header.
+def code_surface_repositories(
+    front_matter: Mapping[str, object],
+    change: str | None = None,
+    register: list[dict] | None = None,
+) -> set[str] | NoDeclaredRepositories:
+    """The repositories a change DECLARED, derived from the declaration's
+    DECLARED HEAD and never from its prose gloss.
 
-    `code_surface` is prose (ratified as repository-granularity free text), so
-    this extracts bare repository-name tokens for the cross-consistency check:
-    every whitespace/comma/parenthesis-separated word that looks like a repo
-    name. `none` yields the empty set. It is intentionally permissive — the
+    NARROWED BY `gate-code-surface-declarations` § 3.5, and the thing it
+    replaced is the reason the packet exists. This function used to split the
+    WHOLE declaration on `[\\s,()/]+` and return every word that was not
+    `none` — "intentionally permissive", said its own docstring, because "the
     cross-consistency check only needs to confirm a scope key APPEARS in the
-    prose, and a false accept here is caught by the human ratification read, while
-    a false reject would wrongly gate a valid scope."""
+    prose". Measured over this repository's 44 active declarations: 3,321
+    distinct "repository" tokens, 767 from a single declaration (among them
+    `the`, `and`, `GitHub`, `Postgres`, `FastAPI`), 33 declarations yielding an
+    estate repository name their own HEAD does not name, and ALL FOUR `none`
+    carriers yielding a NON-EMPTY set because the filter dropped the word `none`
+    and kept the gloss. `scope_globs:` bounds the paths a provenance-gated
+    autonomous merge may write, so the ceiling on what a scope could authorize
+    was *any word appearing anywhere in the declaration's explanation*.
+
+    THE GRAMMAR IS THE SIBLING READER'S AND IS NOT RESTATED HERE
+    (`scripts/code_surface.py`, `parse_head`), so this field has ONE derivation
+    and not two.
+
+    Returns:
+      * a `set[str]` of the head's identifiers — EMPTY for a `none` head, which
+        is an empty set the head DECLARES;
+      * a `NoDeclaredRepositories` carrier when the head is one the grammar
+        cannot read, or when the field is absent or is not text. The carrier is
+        the ABSENCE of a head-derived set, which is a different fact from the
+        empty one, and `validate_cross_consistency` refuses on it.
+
+    `change` is the change-directory name, which the one in-tree caller already
+    holds (`proposal.parent.name`); it is what lets the refusal name the
+    proposal. `register` is the loaded code-surface register; when it is None
+    and a head cannot be read, the house register is loaded ON DEMAND — only on
+    that path, so the ordinary case does no file I/O, and a register that cannot
+    be loaded yields a carrier naming no entry rather than an exception, because
+    the absence of an exception file may never turn a fail-closed into a
+    fail-open.
+    """
     raw = front_matter.get("code_surface")
     if not isinstance(raw, str):
-        return set()
-    tokens = re.split(r"[\s,()/]+", raw)
-    return {t for t in tokens if t and t != "none"}
+        return NoDeclaredRepositories(
+            change=change, declaration="" if raw is None else str(raw),
+            register_entry=None,
+            detail=("the proposal declares no `code_surface:` value this "
+                    "reader can read (absent, or not text), so it declares no "
+                    "repositories — and the promoted doc-only default it would "
+                    "otherwise take is `none`, which declares none either."))
+    cs = _code_surface()
+    try:
+        head = cs.parse_head(raw)
+    except cs.CodeSurfaceError as exc:
+        entry = None
+        if change is not None:
+            entries = register
+            if entries is None:
+                try:
+                    entries = cs.load_register()
+                except cs.CodeSurfaceError:
+                    entries = []
+            entry = cs.register_entry_for(change, raw, entries)
+        return NoDeclaredRepositories(
+            change=change, declaration=raw, register_entry=entry,
+            detail=str(exc))
+    return set(head.repositories)
 
 
 # --- scope retention at archive (the FREEZE) ---------------------------------

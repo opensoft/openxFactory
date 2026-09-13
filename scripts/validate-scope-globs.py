@@ -64,8 +64,17 @@ def _validate_change(proposal: Path) -> list[str]:
     if raw is None:
         return []  # absence is the fail-closed default, not an error
     try:
+        # THE CHANGE ID TRAVELS WITH THE FRONT MATTER (gate-code-surface-
+        # declarations § 3.5b). The derivation may return the ABSENCE of a
+        # head-derived repository set — for a declaration whose head the
+        # ratified `code_surface:` grammar cannot read — and the refusal that
+        # absence raises must name the PROPOSAL and the register entry carrying
+        # its declaration. The directory name is the change id, which this
+        # function already holds, so the consumer owes nothing it did not have.
         sg.validate_scope_globs(
-            raw, code_surface_repos=sg.code_surface_repositories(front)
+            raw,
+            code_surface_repos=sg.code_surface_repositories(
+                front, change=proposal.parent.name),
         )
     except sg.ScopeGlobsError as exc:
         return [str(exc)]
