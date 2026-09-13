@@ -154,6 +154,9 @@ destinations:
       - path: tests/fixtures/openxfactory-engineering-profile.yaml
         reason: "added by openXdox-code #14 (the 4.4 engine's profile fixture)"
         since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
+      - path: tests/opendox_bundle.py
+        reason: "added by openXdox-code #19 (§ 3.4 slice S8: the PINNED openDox bundle the 31 mis-pointed suites read, and the composed root RULED Q5 assembles)"
+        since: "c8e4a59bd8eab231e5903e26b2a9b08e9e527fba"
       - path: tests/test_dependency_direction.py
         reason: "added by openXdox-code #7"
         since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"

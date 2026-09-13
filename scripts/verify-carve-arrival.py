@@ -105,7 +105,7 @@ match openxFactory at the carve commit, or whose surface is incomplete is
 opinion about the same bytes. Both are run; neither substitutes for the other.
 
 WHAT A LINE IS, AND WHY IT IS DEFINED IN A THIRD FILE (RULED Q-L8 (c)). The
-manifest declares 1422 edit lines BY NUMBER, this file decides whether a diff
+manifest declares 1462 edit lines BY NUMBER, this file decides whether a diff
 touches only them, and `validate-carve-manifest.py` bounds them against the
 carve blob — so a number must mean the same thing in both tools, and it did
 not: this one split with `str.splitlines()` and that one counted `b"\\n"`, which
@@ -1040,6 +1040,94 @@ def arrival_path(row: dict[str, Any]) -> Any:
     return path
 
 
+def _resolved_destination(key: Any, destinations: Any) -> tuple:
+    """A destination key's REAL identity — its `(repository, leg)` body.
+
+    THE MIRROR OF `validate-carve-manifest.py`'s function of the same name, and
+    kept in step by
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_both_tools_resolve_a_destination_key_identically`
+    — the same discipline `effective_arrival` is held to, and for the same
+    reason: two tools quietly disagreeing about one definition is what RULED
+    Q-L8 (c) had to repair when a line meant two things.
+
+    WHY IT EXISTS HERE (the follow-up REGISTERED at `#1011`'s landing and
+    carried by slice S8, the act that writes the first real `re_destined:`
+    rows). A `destinations:` KEY IS A LABEL, NEVER A REFERENT, and the
+    validator's `check_shape` deliberately ADMITS two keys sharing one
+    `{repository, leg}` body. `--destination` names a key, so every question
+    this file asks about "is this row THIS leg's" was being answered by a
+    string comparison against a label: a row re-destined between two ALIASES of
+    one real leg would be read here as both an arrival (file must be PRESENT)
+    and a vacation (file must be ABSENT), at one real destination, which
+    nothing can satisfy — and the leg would refuse `arrival-not-vacated` on a
+    file the manifest still says it carries. The validator now refuses that
+    document at the gate that runs first; this file must not ACT on one either
+    if it is handed a manifest that was never gated.
+
+    GUARDED AT EVERY LEVEL, exactly as `_also_replicated_labels` is: a key
+    `destinations:` does not carry resolves to a 1-tuple of the key itself — a
+    shape that can never equal a resolved 2-tuple — so an unknown key never
+    accidentally compares EQUAL to a known one, and a malformed
+    `destinations:` block degrades to the label comparison this file used to
+    make rather than crashing.
+    """
+    entry = destinations.get(key) if isinstance(destinations, dict) else None
+    if isinstance(entry, dict):
+        return (entry.get("repository"), entry.get("leg"))
+    return (key,)
+
+
+def admissions_for(admissions: dict[str, list[dict[str, str]]],
+                   destination: str,
+                   destinations: Any) -> list[dict[str, str]]:
+    """Every `created:` entry declared for the REAL destination `destination`
+    names — the UNION over every `destinations:` key that resolves to the same
+    `{repository, leg}` body.
+
+    BY RESOLVED IDENTITY AND NOT BY THE CLI LABEL (Copilot review, PR #1025,
+    accurate). Every other reader in this file — `rows_for`, `vacated_rows`,
+    `also_replicated_rows`, and `validate-carve-manifest.py`'s own checks —
+    resolves a key to its body, because `check_shape` admits two keys sharing
+    one body on purpose and a key is a LABEL, never a referent. This one
+    selected with `.get(args.destination)`, so a `created:` entry filed under
+    one of two aliases of a single leg made the SAME CHECKOUT pass when
+    verified through that key and refuse `arrival-undeclared-file` through its
+    alias. A verdict that depends on which name the caller typed is not a
+    verdict about the tree.
+
+    A PATH DECLARED UNDER TWO ALIASES OF ONE LEG IS `arrival-unreadable`, and
+    that is the explicit duplicate rule the union needs: `read_admissions`
+    already refuses a repeat WITHIN a destination's list, for the reason that
+    one file cannot have two provenances, and spelling the second entry under
+    an alias is the same claim made twice about one leg. Identical duplicates
+    are refused too rather than silently collapsed — two entries are two
+    review decisions, and the file's whole design is that an admission is a
+    one-line diff somebody read.
+    """
+    here = _resolved_destination(destination, destinations)
+    seen: dict[str, str] = {}
+    out: list[dict[str, str]] = []
+    for key in sorted(admissions):
+        if _resolved_destination(key, destinations) != here:
+            continue
+        for entry in admissions[key]:
+            path = entry["path"]
+            if path in seen:
+                raise ArrivalRefusal(
+                    "arrival-unreadable",
+                    f"the admissions file declares {path!r} twice for one real "
+                    f"destination — under {seen[path]!r} and under {key!r}, "
+                    f"two `destinations:` keys for {here!r}. A key is a LABEL "
+                    "and this tool reads a destination by its "
+                    "`{repository, leg}` body, so the two entries are one "
+                    "claim made twice about one leg, with two `since` "
+                    "provenances and no rule for which is the file's. Declare "
+                    "it once, under the key that leg's pull requests use")
+            seen[path] = key
+            out.append(entry)
+    return sorted(out, key=lambda entry: entry["path"])
+
+
 def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     """The MOVED rows this destination is owed, in manifest order.
 
@@ -1052,10 +1140,12 @@ def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     `arrival-missing`, which is exactly the pair of refusals the boundary
     note's § 6 measured stopping slice S6.
     """
+    here = _resolved_destination(destination, doc.get("destinations"))
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
-            and effective_arrival(row)[0] == destination]
+            and _resolved_destination(effective_arrival(row)[0],
+                                      doc.get("destinations")) == here]
 
 
 def vacated_rows(doc: dict[str, Any],
@@ -1063,6 +1153,8 @@ def vacated_rows(doc: dict[str, Any],
     """The MOVED rows a ruling has re-destined AWAY from this destination —
     the ones whose `re_destined.from_path` must now be absent here."""
     out: list[dict[str, Any]] = []
+    destinations = doc.get("destinations")
+    here = _resolved_destination(destination, destinations)
     for row in doc["rows"]:
         if not isinstance(row, dict):
             continue
@@ -1071,14 +1163,15 @@ def vacated_rows(doc: dict[str, Any],
         re_destined = row.get("re_destined")
         if not isinstance(re_destined, dict):
             continue
-        if (re_destined.get("from") != destination
+        if (_resolved_destination(re_destined.get("from"), destinations) != here
                 or not isinstance(re_destined.get("from_path"), str)):
             continue
         # A `to` that is not a usable string is no re-destination at all
         # (`effective_arrival`'s own reading), and demanding a vacation on the
         # strength of half a field would refuse a leg for a document defect
         # `validate-carve-manifest.py` owns.
-        if effective_arrival(row)[0] == destination:
+        if _resolved_destination(effective_arrival(row)[0],
+                                 destinations) == here:
             continue
         out.append(row)
     return out
@@ -1129,11 +1222,15 @@ def also_replicated_rows(doc: dict[str, Any],
     a replica would let `--replica-at` re-point it — the single thing that flag
     was narrowed to prevent.
     """
+    destinations = doc.get("destinations")
+    here = _resolved_destination(destination, destinations)
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
-            and effective_arrival(row)[0] != destination
-            and destination in _also_replicated_labels(row)]
+            and _resolved_destination(effective_arrival(row)[0],
+                                      destinations) != here
+            and any(_resolved_destination(label, destinations) == here
+                    for label in _also_replicated_labels(row))]
 
 
 def declared_roots(rows: list[dict[str, Any]]) -> list[str]:
@@ -2300,7 +2397,8 @@ def main(argv: list[str] | None = None) -> int:
                 "silently")
         declared_created = {
             entry["path"] for entry in
-            read_admissions(admissions_path, doc).get(args.destination, [])}
+            admissions_for(read_admissions(admissions_path, doc),
+                           args.destination, doc.get("destinations"))}
         cli_created = {dest_relative(p, "--allow-created")
                        for p in args.allow_created}
         # THE NOTICE (RULED #656): --allow-created still works for an ad-hoc
