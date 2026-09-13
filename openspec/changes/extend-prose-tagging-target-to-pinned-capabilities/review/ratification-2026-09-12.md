@@ -86,8 +86,8 @@ carries:
   section and the stale `ideation/staging/INDEX.md` line together, rather than
   four separate ones.
 
-**BOXES TICKED BY THIS RATIFICATION: 1.1, 1.2, 1.3, 1.4.** Boxes none in
-`tasks.md` § 1 stay OPEN and are not ticked by this record — a box ticks on the
+**BOXES TICKED BY THIS RATIFICATION: 1.1, 1.2, 1.3, 1.4.** NO box in
+`tasks.md` § 1 stays open — the word answers all four, and a box ticks on the
 word that answers it and on nothing else.
 
 ## What this ratification does NOT do

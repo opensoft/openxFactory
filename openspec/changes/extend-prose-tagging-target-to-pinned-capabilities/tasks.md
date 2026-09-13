@@ -8,10 +8,12 @@ Ratify 1.3 as filed (Recommended) / Confirm 1.4 as filed (Recommended)"
 (2026-09-12 at approximately 23:20Z, openxFactory #992, comment
 https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649359053).
 Record: `review/ratification-2026-09-12.md`. BOXES TICKED BY THE RATIFYING
-COMMIT: 1.1, 1.2, 1.3, 1.4. NO box in § 2, § 3 or § 4 is ticked, and item
-(7) of the `split-openxwallet-repo` archived-ledger entry is NOT ticked — it
-discharges on ARCHIVE. The paragraph immediately below records the AT-FILING
-state and is kept verbatim as history.
+COMMIT: 1.1, 1.2, 1.3, 1.4 — AND NO OTHERS. This commit ticks NO box in § 2,
+§ 3 or § 4: § 2's boxes stand exactly as the filing pull request left them
+(all seven already `[x]`, recording what that pull request did), § 3 and § 4
+stay open, and item (7) of the `split-openxwallet-repo` archived-ledger entry
+is NOT ticked — it discharges on ARCHIVE. The paragraph immediately below
+records the AT-FILING state and is kept verbatim as history.
 
 NO BOX BELOW IS TICKED BY THE FILING PULL REQUEST except the ones in § 2, which
 record what that pull request itself did. § 1 needs Brett Heap's word, § 3 is
