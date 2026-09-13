@@ -1051,8 +1051,10 @@ def _resolved_destination(key: Any, destinations: Any) -> tuple:
     Q-L8 (c) had to repair when a line meant two things.
 
     WHY IT EXISTS HERE (the follow-up REGISTERED at `#1011`'s landing and
-    carried by slice S8, the act that writes the first real `re_destined:`
-    rows). A `destinations:` KEY IS A LABEL, NEVER A REFERENT, and the
+    carried by slice S8, the act that first READS live `re_destined:` rows —
+    slice S5's four, at `#1023`; S8 writes none of its own, RULED
+    `opensoft/openxFactory#656` comment 5656343213). A `destinations:` KEY IS A
+    LABEL, NEVER A REFERENT, and the
     validator's `check_shape` deliberately ADMITS two keys sharing one
     `{repository, leg}` body. `--destination` names a key, so every question
     this file asks about "is this row THIS leg's" was being answered by a

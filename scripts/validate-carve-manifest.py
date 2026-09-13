@@ -1957,8 +1957,10 @@ def _check_re_destined_consistency(where: str, row: dict[str, Any],
     `#1011`'s landing, `opensoft/openxFactory#656`, lane
     `openxfactory-4-opendox-extraction`; raised in review of that pull request,
     landed there AS RULED — key-distinct — because no live row exercised it,
-    and carried here by slice S8, which is the act that writes the first real
-    `re_destined:` rows). A `destinations:` KEY IS A LABEL, NEVER A REFERENT
+    and carried here by slice S8, the act that first READS live `re_destined:`
+    rows — slice S5's four, at `#1023`. S8 writes none of its own: RULED
+    `opensoft/openxFactory#656` comment 5656343213, "the path constant moves,
+    the file does not"). A `destinations:` KEY IS A LABEL, NEVER A REFERENT
     (this file's own sentence at the head of `DESTINATION_KEY_RE`), and
     `check_shape` deliberately ADMITS two keys sharing one `{repository, leg}`
     body — its own comment says why, and `check_surface`'s duplicate-arrival
@@ -2040,16 +2042,25 @@ def _check_re_destined_chains(doc: dict) -> None:
     `re_destined:` in place to name the destination the file actually ends at,
     citing the later ruling.
 
-    KEYED ON `(destination key, path)` AND NOT ON THE KEY ALONE: two files may
-    lawfully be re-destined off one leg, and two more onto it. What may not
+    KEYED ON `(destination, path)` AND NOT ON THE DESTINATION ALONE: two files
+    may lawfully be re-destined off one leg, and two more onto it. What may not
     happen is a second re-destination LEAVING the exact arrival a first one
     CREATED.
+
+    AND THE DESTINATION HALF OF THAT PAIR IS THE RESOLVED `(repository, leg)`
+    BODY, NEVER THE `destinations:` KEY, for the reason
+    `_check_re_destined_consistency` states above: a key is a LABEL,
+    `check_shape` admits two keys sharing one real leg on purpose, and a chain
+    spelled across the two aliases is the same chain — one arrival, reached
+    under two names. Reading the KEY here would let a chain pass by being
+    spelled twice, which is the hole the resolved comparison closes one check
+    earlier. Registered at `#1011`'s landing (`opensoft/openxFactory#656`) and
+    carried here by slice S8, the act that first READS live `re_destined:`
+    rows (slice S5's four, at `#1023`; S8 writes none of its own). An unknown
+    key falls back to a 1-tuple of itself, as
+    `_resolved_destination` documents, so it can never collide with a resolved
+    pair and `check_vocabulary` keeps its own refusal.
     """
-    # KEYED ON THE RESOLVED `(repository, leg)` AND NOT ON THE KEY, for the
-    # reason `_check_re_destined_consistency` states: a `destinations:` key is
-    # a label, `check_shape` admits two keys for one real leg, and a chain
-    # spelled across the two aliases is the same chain. Registered at `#1011`'s
-    # landing and carried here by slice S8.
     destinations = doc.get("destinations") or {}
     origins: dict[tuple[tuple, str], int] = {}
     for index, row in enumerate(doc["rows"]):
