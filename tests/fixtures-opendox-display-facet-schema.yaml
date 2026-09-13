@@ -1,5 +1,5 @@
 # VENDORED, NOT AUTHORITATIVE. Hand-copied from openDox-code #21
-# (branch `build/s7-parameterize-class-c`, head `173ac12b`)
+# (branch `build/s7-parameterize-class-c`, head `90cf05a0`)
 # `src/opendox/display_profile.py`'s own role tuples (`STAGE_ROLES`,
 # `STATUS_ROLES`, `AREA_ROLES`, `TOKEN_ROLES`, `ARTIFACT_ROLES`,
 # `_STATUS_VOCABULARIES`, `_STAGE_FIELDS_REQUIRED`) and `normalize_display()`'s
@@ -20,6 +20,18 @@
 # being validated here. Forbidding unknown role names per section
 # (`additionalProperties: false` + `propertyNames.enum`) is stricter than and
 # sufficient in place of hand-coding that specific refusal.
+#
+# NOT ENCODED HERE, ON PURPOSE: "no two roles within one enum may share a raw
+# value" (`_refuse_duplicate_enum_values`, added at this same head, `90cf05a0`
+# — Copilot round 4, "two roles may not share one snapshot enum value"). JSON
+# Schema has no clean way to express "these mapping VALUES are pairwise
+# distinct" without restructuring the payload, and the real check is a runtime
+# MERGE-time refusal in `display_manifest` anyway (a partial override can
+# collide with a value openDox still ships for another role, which a
+# structural schema over the host's declaration alone cannot see). Checked
+# instead as a plain Python assertion in
+# tests/test_engineering_profile_display_facet.py against this facet's own
+# `statuses.*` tables.
 "$schema": "https://json-schema.org/draft/2020-12/schema"
 "$id": "https://opensoft.example/opendox/display-facet-vendored.schema.yaml"
 title: "opendox display_profile.PROFILE_FACET (\"DISPLAY\"), vendored subset"

@@ -57,7 +57,7 @@ import hook that used to bind it into each consumer's namespace
 THE FOURTH FACET, `DISPLAY` (§ 3.4 slice S7's landing precondition,
 openxFactory#656 comment `5649744596`; the schema is openDox-code #21's
 `src/opendox/display_profile.py`, `PROFILE_FACET = "DISPLAY"`, at head
-`173ac12b`). Resolved on access, like `SUBCOMMAND_EXTENSIONS` and `cli_gate` —
+`90cf05a0`). Resolved on access, like `SUBCOMMAND_EXTENSIONS` and `cli_gate` —
 building it reads `openxdox.domain_profile.current()`, which only exists once
 `opendox_host.register_openxfactory()` has already run, and every reach of
 this name arrives after that call by construction (the composite's own
@@ -187,7 +187,7 @@ def _display_facet(profile: Any) -> dict[str, Any]:
     """openxFactory's real `DISPLAY` facet — every word derived, none retyped.
 
     Conforms to openDox-code #21's schema (`src/opendox/display_profile.py` at
-    head `173ac12b`; NOT YET PINNED — `contracts/opendox-pin.yaml` names
+    head `90cf05a0`; NOT YET PINNED — `contracts/opendox-pin.yaml` names
     `a99eba03`, BUILD slice 1b, so this facet targets the schema at that PR's
     current head and `tests/test_engineering_profile_display_facet.py` says so
     rather than importing it). Every value below reads off THIS SAME `profile`
@@ -196,6 +196,21 @@ def _display_facet(profile: Any) -> dict[str, Any]:
     `profile.lifecycle_for(kind).by_role(role)`), so a renamed status or act id
     fails this derivation instead of silently drifting from what this facet
     declares.
+
+    NO TWO ROLES SHARE ONE WORD WITHIN A SINGLE VOCABULARY — checked by
+    `tests/test_engineering_profile_display_facet.py`, not by this function,
+    because the collision that matters is against openDox's own shipped words
+    for the roles this facet leaves undeclared, which only `display_manifest`'s
+    merge (not this partial declaration alone) can see. openDox-code #21's own
+    `90cf05a0` ("two roles may not share one snapshot enum value") enforces
+    exactly this for `values.register_state` / `values.document_stage`
+    (neither of which this facet declares, so there is nothing here for that
+    check to merge against); this profile's own `statuses.document` /
+    `statuses.change` / `statuses.candidate` tables are each pairwise distinct
+    by construction (`profile.status()` returns one word per role and this
+    module asks for none of the roles that collide within a kind — see
+    `_DOCUMENT_STATUS_ROLES`), and the test suite asserts it directly rather
+    than trusting the construction.
 
     PARTIAL, DELIBERATELY. `display_profile.normalize_display`'s own stance is
     that partial is legal and is the point — a host declares the roles it has

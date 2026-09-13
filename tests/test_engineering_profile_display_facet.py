@@ -25,6 +25,12 @@ of it:
      view reaches: `opendox.profile_proxy.profile_openxfactory.DISPLAY` ->
      `opendox_host.OpenxFactoryProfile.__getattr__` ->
      `profile_openxfactory.DISPLAY` (this repository's own contribution).
+  5. No two roles within one vocabulary share a rendered word (openDox-code
+     #21 at head `90cf05a0`, "two roles may not share one snapshot enum
+     value" — Copilot round 4), and this facet sits on the exact same
+     registered profile OBJECT every other facet (`ROUTE_EXTENSIONS`, and
+     once forwarded, `VIEW_EXTENSIONS`) rides — never a separately loaded or
+     freshly constructed one.
 
 `tests/conftest.py` has already installed the reach and made the ONE
 registration call, exactly as `tests/domain_profile/test_openxfactory_profile
@@ -333,3 +339,91 @@ def test_a_facet_named_like_a_profile_field_would_be_refused_and_display_is_not_
     `gates`, `basis`, `notes`, `source`, `extra`; none is `"DISPLAY"`."""
     loaded = engine.load(opendox_host.PROFILE_PATH)
     assert not hasattr(loaded, "DISPLAY")
+
+
+# --------------------------------------------------------------------------
+# 6. no two roles share one word within a vocabulary (openDox-code #21 at
+# head `90cf05a0`, "two roles may not share one snapshot enum value")
+# --------------------------------------------------------------------------
+
+def test_no_two_roles_share_one_word_within_any_statuses_vocabulary():
+    """The reverse-lookup rule `display_profile._refuse_duplicate_enum_values`
+    enforces for `values.register_state` / `values.document_stage`
+    (openDox-code #21 `90cf05a0`, Copilot round 4) applies for the same reason
+    to `statuses.change` — read at BOTH the submission and completion
+    stations, since both render `changes[]` items through the SAME `"change"`
+    vocabulary — and, for consistency, to `statuses.document` and
+    `statuses.candidate` too: a view that ever needs to resolve a rendered
+    word back to the role it came from cannot if two roles share one word.
+
+    This facet's own declaration is checked directly (not merged against
+    openDox's neutral words first, unlike the real `_refuse_duplicate_enum_
+    values`) because `statuses` is not merged per-role the way `values` is —
+    this facet declares every role for `change` and `candidate` and all but
+    one (the ambiguous `out-of-band`) for `document`, so there is nothing of
+    openDox's own left to merge in and collide with for these three tables.
+    """
+    facet = profile_openxfactory.DISPLAY
+    for vocabulary, words in facet["statuses"].items():
+        seen: dict[str, str] = {}
+        for role, word in words.items():
+            assert word not in seen, (
+                f"statuses.{vocabulary} gives {word!r} to BOTH {seen.get(word)!r} "
+                f"and {role!r} — a view resolving this word back to its role "
+                "cannot tell them apart")
+            seen[word] = role
+
+
+def test_no_two_roles_share_one_word_within_acts_or_areas():
+    """Same property, checked across this facet's other role tables too —
+    cheap insurance against the identical class of mistake Copilot found
+    twice in openDox-code #21 itself (round 1: `ACT_IDS` vs. a four-word
+    `acts` table; round 4: the snapshot-value enums)."""
+    facet = profile_openxfactory.DISPLAY
+    acts_words = list(facet["acts"].values())
+    assert len(acts_words) == len(set(acts_words)), facet["acts"]
+    area_labels = [entry["label"] for entry in facet["areas"].values()]
+    assert len(area_labels) == len(set(area_labels)), facet["areas"]
+
+
+# --------------------------------------------------------------------------
+# 7. this facet sits on the SAME registered profile object every other facet
+# does (coordinator correction: `view_extension.host_profile_name`, openDox-
+# code #21 at head `90cf05a0`, names whatever `domain_profile.current()`
+# answers — `ROUTE_EXTENSIONS`, and once forwarded, `VIEW_EXTENSIONS`, must
+# name that identical object)
+# --------------------------------------------------------------------------
+
+def test_display_and_route_extensions_ride_the_identical_registered_object():
+    """`opendox.view_extension.host_profile_name()` is not importable at this
+    repository's PINNED openDox commit (`a99eba03` predates even the module it
+    lives in), so this proves the property it will rely on using what IS
+    pinned: `opendox.domain_profile.name_of()`, already present at `a99eba03`
+    (`profile_proxy.py`'s own refusal message already quotes it).
+
+    `_LateProfile.resolve()` calls `domain_profile.current()` fresh on every
+    attribute access (no cache) — so this asserts the registry hands back the
+    SAME object across two separate resolutions, one triggered by reading
+    `ROUTE_EXTENSIONS` and one by reading `DISPLAY`, and that both facets sit
+    on that one object rather than on two independently-built profiles.
+    """
+    from opendox import domain_profile as opendox_registry
+
+    before = engine.current()
+    routes = proxy.ROUTE_EXTENSIONS               # resolves current() again
+    after_routes = engine.current()
+    display = proxy.DISPLAY                        # resolves current() again
+    after_display = engine.current()
+
+    assert before is after_routes is after_display, (
+        "ROUTE_EXTENSIONS and DISPLAY resolved through two different "
+        "registered profile objects")
+    assert routes is opendox_host.profile().ROUTE_EXTENSIONS
+    assert display == opendox_host.profile().DISPLAY
+
+    # THE NAME, the same way `host_profile_name()` will report it once
+    # `serve.py` is switched over: `domain_profile.name_of()` on the object
+    # both facets share.
+    assert (opendox_registry.name_of(before)
+            == opendox_registry.name_of(after_display)
+            == "openxfactory-engineering")
