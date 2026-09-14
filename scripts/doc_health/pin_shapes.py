@@ -249,8 +249,10 @@ class Member:
     """One entry of a shape's required-member table.
 
     `spellings` is normally one name. It is TWO for shape (a)'s product-identity
-    entry, whose spelling differs with how the product is mounted, and the entry
-    is satisfied by either — see `_PRODUCT_IDENTITY`.
+    entry, whose spelling differs with how the product is mounted; which of the
+    two that entry REQUIRES is decided per pin id by `required_spellings` — the
+    record grain — and both are admitted only where the pin id is one this
+    checker has measured no verifier for. See `_PRODUCT_IDENTITY`.
     """
     spellings: tuple[str, ...]
     form: Callable
@@ -260,9 +262,10 @@ class Member:
     #: guard reads its own member and refuses its own shape.
     forms: dict = field(default_factory=dict)
 
-    @property
-    def name(self) -> str:
-        return " or ".join(self.spellings)
+    # NO `name` ACCESSOR. One flattening both spellings into a single string
+    # was exactly what made the entry regime-blind; the live name of an entry is
+    # `" or ".join(required_spellings(member, pin_id))`, which cannot be spelled
+    # without saying WHICH PIN it is the name for.
 
     def form_for(self, spelling: str) -> Callable:
         return self.forms.get(spelling, self.form)
@@ -278,24 +281,35 @@ _OPENSPEC_CLI = "scripts/validate-openspec-cli-pin.py"
 #: here and re-read at the cited line by the equivalence test's citation route.
 _FILES_REFUSAL = "the pin lists no `files:` members, so it pins no bytes"
 
-# SHAPE (a)'s PRODUCT-IDENTITY ENTRY, AND WHY IT IS AN ALTERNATION RATHER THAN
-# TWO SHAPES. `verify-openxwallet-pin.py:194` refuses a record without
-# `submodule_path`; `validate-openreposhape-pin.py:258` refuses one without
-# `source_repository`; neither verifier reads the other's member. So the shape
-# requires EXACTLY ONE PRODUCT-IDENTITY MEMBER and, at the record grain, it is
-# the one that record's own verifier reads (design D-2).
+# SHAPE (a)'s PRODUCT-IDENTITY ENTRY, AND HOW IT RESOLVES AT THE RECORD GRAIN.
+# `verify-openxwallet-pin.py:194` refuses a record without `submodule_path`;
+# `validate-openreposhape-pin.py:258` refuses one without `source_repository`;
+# neither verifier reads the other's member. So the shape requires EXACTLY ONE
+# PRODUCT-IDENTITY MEMBER and, at the record grain, it is the one THAT RECORD's
+# own verifier reads (design D-2).
 #
-# THE ADAPTER CANNOT ASK WHICH VERIFIER — that is the record choosing its own
-# judge — so the entry admits either spelling and refuses a record carrying
-# NEITHER, which is the failure the design names ("the INTERSECTION would admit
-# a record naming no product at all"). Splitting shape (a) into a
-# submodule-mounted variant and a host-resolved one by the presence of
-# `submodule_path` would be worse and is measurably wrong: the equivalence
-# test's record leg deletes `submodule_path` from
-# `contracts/openxwallet-pin.yaml` and requires a REFUSAL, and a
-# presence-selected variant would simply fall through to the other variant and
-# accept, that record carrying `source_repository` as well. The record leg
-# therefore removes the ENTRY — both spellings — and the refusal names both.
+# THE ADAPTER CANNOT ASK THE RECORD WHICH VERIFIER JUDGES IT — that is the
+# record choosing its own judge, and `verify_pin:` is exactly the member D-2
+# withdraws from that role. IT MAY CONSULT ITS OWN CODE-FIXED MAP, keyed by the
+# PIN ID the MARKER named and the REGISTRY stem carries:
+# `PRODUCT_IDENTITY_BY_PIN` below, reviewed with the resolver like every other
+# row of this table. So the entry has TWO REGIMES, and the difference is which
+# input it is keyed on rather than which code runs:
+#
+#   - a KNOWN pin id — one this checker has measured a verifier's guards for —
+#     requires THAT record's own spelling, and the other spelling is a NON-TABLE
+#     member of that record. This is what keeps the adapter from being NARROWER
+#     than the guard it tracks: `contracts/openxwallet-pin.yaml` carries BOTH
+#     spellings, so an entry satisfied by either would ACCEPT that record with
+#     `submodule_path` deleted while `verify-openxwallet-pin.py:194` REFUSES it.
+#     Task 3.3(p)'s measurement says the same thing from the other side, listing
+#     `source_repository` among that record's NINE non-table members.
+#   - an UNKNOWN pin id — a fixture, an added `contracts/<anything>-pin.yaml`,
+#     any future product — keeps the ALTERNATION: either spelling satisfies the
+#     entry and a record carrying NEITHER is refused, which is the failure the
+#     design names ("the INTERSECTION would admit a record naming no product at
+#     all"). Selecting the regime by the PRESENCE of `submodule_path` instead
+#     would be the record choosing again, and would accept the deletion above.
 _PRODUCT_IDENTITY = Member(
     spellings=("submodule_path", "source_repository"),
     form=_is_text,
@@ -421,6 +435,20 @@ TRACKED_VERIFIERS: dict[str, str] = {
     "openspec-cli": _OPENSPEC_CLI,
 }
 
+#: WHICH PRODUCT-IDENTITY SPELLING SHAPE (a) REQUIRES OF A KNOWN PIN — the
+#: record grain, held in code beside the verifier map and keyed by the same pin
+#: id, never read out of the record. `submodule_path` for a submodule-mounted
+#: product (`scripts/verify-openxwallet-pin.py:194`, `_submodule_path`) and
+#: `source_repository` for one resolved from its host
+#: (`scripts/validate-openreposhape-pin.py:258`, `_source_repository`); neither
+#: verifier reads the other's member. A pin id absent from this map gets the
+#: alternation — see `_PRODUCT_IDENTITY`'s two regimes. Only shape-(a) pins
+#: appear here: the other shapes name their identity member outright.
+PRODUCT_IDENTITY_BY_PIN: dict[str, str] = {
+    "openxwallet": "submodule_path",
+    "openreposhape": "source_repository",
+}
+
 # ---------------------------------------------------------------------------
 # The judgement
 # ---------------------------------------------------------------------------
@@ -460,11 +488,30 @@ class Verdict:
         return any(member in failure.member for failure in self.failures)
 
 
-def _first_failure(shape: Shape, record: dict) -> Failure | None:
+def required_spellings(member: Member, pin_id: str | None) -> tuple[str, ...]:
+    """The spellings THIS PIN's table entry requires, at the record grain.
+
+    One for every single-spelling member. For shape (a)'s product-identity
+    entry: the spelling `PRODUCT_IDENTITY_BY_PIN` holds for a KNOWN pin id —
+    its own verifier's member, the other spelling being non-table for that
+    record — and BOTH for an unknown one, where the entry is an alternation
+    satisfied by either. See `_PRODUCT_IDENTITY`'s two regimes.
+    """
+    if len(member.spellings) == 1:
+        return member.spellings
+    required = PRODUCT_IDENTITY_BY_PIN.get(pin_id)
+    if required in member.spellings:
+        return (required,)
+    return member.spellings
+
+
+def _first_failure(shape: Shape, record: dict,
+                   pin_id: str | None = None) -> Failure | None:
     for member in shape.required:
-        present = [name for name in member.spellings if name in record]
+        spellings = required_spellings(member, pin_id)
+        present = [name for name in spellings if name in record]
         if not present:
-            return Failure(shape.title, member.name, MISSING)
+            return Failure(shape.title, " or ".join(spellings), MISSING)
         for name in present:
             if not member.form_for(name)(record.get(name)):
                 return Failure(shape.title, name, MALFORMED)
@@ -496,12 +543,21 @@ def shapes_for(record: dict) -> tuple[Shape, ...]:
                  if revision_kind in shape.revision_kinds)
 
 
-def judge(record) -> Verdict:
+def judge(record, pin_id: str | None = None) -> Verdict:
     """Is `record` a COMPLETE record of an ADMITTED SHAPE? Pure; reads nothing.
 
     The caller has already established that the record is a mapping declaring
     `kind: pinned_contract_manifest` — that precondition is gated on BEFORE any
     shape is selected, which is why `kind` is a member of no shape's table.
+
+    `pin_id` is the identifier the MARKER named and the registry stem carries —
+    an input of this function, never a member read out of the record. It selects
+    nothing but a TABLE ROW: shape (a)'s product-identity spelling for a pin this
+    checker has measured (`PRODUCT_IDENTITY_BY_PIN`), which is how the entry
+    resolves AT THE RECORD GRAIN without the record choosing its own judge. Omit
+    it — or pass one this checker does not know — and that entry is the
+    alternation instead. Every other row is the same for every caller, and the
+    function stays pure: same two inputs, same verdict.
     """
     if not isinstance(record, dict):
         return Verdict(None, (Failure(None, "record", NOT_A_MAPPING),))
@@ -528,7 +584,7 @@ def judge(record) -> Verdict:
 
     failures = []
     for shape in candidates:
-        failure = _first_failure(shape, record)
+        failure = _first_failure(shape, record, pin_id)
         if failure is None:
             return Verdict(shape, ())
         failures.append(failure)

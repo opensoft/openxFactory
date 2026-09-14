@@ -12,7 +12,12 @@ as it stands; for every member `m` IN the table for that record's shape it
 REFUSES the record with `m` removed AND NAMES `m`; and for every top-level
 member of that record that is NEITHER in the table NOR the `kind:`
 discriminator it STILL ACCEPTS the record without it. So the table is neither
-WIDER nor NARROWER than declared. `kind:` is EXEMPT from the second arm and is a
+WIDER nor NARROWER than declared. THE TABLE IS THE ONE FOR THAT RECORD: shape
+(a)'s product-identity entry requires the spelling THAT record's own verifier
+reads (`PRODUCT_IDENTITY_BY_PIN`, keyed by the pin id the marker named), so
+`submodule_path` is a table member of `contracts/openxwallet-pin.yaml` and
+`source_repository` one of its NINE non-table members — and removing either is
+a different assertion, which is what the two arms below check. `kind:` is EXEMPT from the second arm and is a
 member of no shape's table, because `kind: pinned_contract_manifest` is the
 PRECONDITION the pinned arm gates on BEFORE any shape is selected: a record
 without it is not a record of the kind a pinned target may name, so deleting it
@@ -80,18 +85,27 @@ RECORDS = _records()
 
 def _tracked_table(pin_id: str, record: dict):
     """The table for THAT record: one (member, spelling, citation) row per table
-    entry, the citation being the one measured from THE VERIFIER THIS CHECKER
-    TRACKS FOR THAT PIN ID — a fixed, authored mapping, never the record's own
-    `verify_pin:`."""
+    entry, at the RECORD GRAIN.
+
+    Both halves come from the adapter's own CODE-FIXED maps, keyed by the pin id
+    and never by anything the record says: the citation from the verifier
+    `TRACKED_VERIFIERS` names for that pin, and the spelling shape (a)'s
+    product-identity entry requires from `required_spellings` — which reads
+    `PRODUCT_IDENTITY_BY_PIN`. The two are independently authored and must agree,
+    which is what the assertion below checks as it goes."""
     verifier = ps.TRACKED_VERIFIERS[pin_id]
-    shape = ps.judge(record).shape
+    shape = ps.judge(record, pin_id).shape
     rows = []
     for member in shape.required:
+        required = ps.required_spellings(member, pin_id)
         for index, citation in enumerate(member.citations):
             if citation.script != verifier:
                 continue
             spelling = (member.spellings[index] if len(member.spellings) > 1
                         else member.spellings[0])
+            assert spelling in required, (
+                f"{pin_id}: the citation names {spelling} but the table "
+                f"requires {required} — the two code-fixed maps disagree")
             rows.append((member, spelling, citation))
     return shape, rows
 
@@ -145,7 +159,7 @@ def test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two
 
 
 def test_each_records_own_shape_is_the_one_the_measurement_named():
-    assert {pin_id: ps.judge(record).shape.key
+    assert {pin_id: ps.judge(record, pin_id).shape.key
             for pin_id, record in RECORDS.items()} == {
         "openxwallet": "a", "openreposhape": "a",
         "opendox": "b", "openxdox": "b", "openspec-cli": "c"}
@@ -154,11 +168,19 @@ def test_each_records_own_shape_is_the_one_the_measurement_named():
 def test_a_multi_spelling_entry_carries_one_citation_per_spelling():
     """The invariant `_tracked_table` reads the identity entry by: where an entry
     admits two spellings, its citations are PARALLEL to them, so the row for a
-    given verifier names the spelling THAT verifier reads."""
+    given verifier names the spelling THAT verifier reads — and every spelling
+    `PRODUCT_IDENTITY_BY_PIN` requires is one of that entry's own, so the two
+    code-fixed maps cannot name different members."""
+    multi = 0
     for shape in ps.SHAPES:
         for member in shape.required:
             if len(member.spellings) > 1:
+                multi += 1
                 assert len(member.citations) == len(member.spellings)
+                assert set(ps.PRODUCT_IDENTITY_BY_PIN.values()) <= set(
+                    member.spellings)
+    assert multi == 1, "shape (a)'s product identity is the only such entry"
+    assert set(ps.PRODUCT_IDENTITY_BY_PIN) <= set(ps.TRACKED_VERIFIERS)
 
 
 # --------------------------------------------------------------------------
@@ -167,23 +189,22 @@ def test_a_multi_spelling_entry_carries_one_citation_per_spelling():
 
 @pytest.mark.parametrize("pin_id", sorted(RECORDS))
 def test_record_leg_the_adapter_accepts_each_real_record(pin_id):
-    verdict = ps.judge(RECORDS[pin_id])
+    verdict = ps.judge(RECORDS[pin_id], pin_id)
     assert verdict.accepted, verdict.render()
 
 
 @pytest.mark.parametrize("pin_id", sorted(RECORDS))
 def test_record_leg_removing_any_table_member_refuses_and_names_it(pin_id):
-    """Arm 1: the table is not WIDER than declared. The identity ENTRY is
-    removed as an entry — both spellings — because shape (a) requires EXACTLY
-    ONE product-identity member and `contracts/openxwallet-pin.yaml` carries
-    both spellings: deleting one alone asks whether the OTHER satisfies the
-    entry, which it does, and the refusal still names the spelling this record's
-    own verifier reads."""
+    """Arm 1: the table is not WIDER than declared. THE MEMBER REMOVED IS THE
+    ONE SPELLING THAT RECORD'S OWN VERIFIER READS, not an alternation of two:
+    `contracts/openxwallet-pin.yaml` carries BOTH product-identity spellings, so
+    an entry satisfied by either would accept it with `submodule_path` deleted
+    while `verify-openxwallet-pin.py:194` refuses it — the adapter NARROWER than
+    the guard it tracks, which is the exact defect this leg exists to catch."""
     record = RECORDS[pin_id]
     _shape, rows = _tracked_table(pin_id, record)
-    for member, spelling, _citation in rows:
-        stripped = _without(record, *member.spellings)
-        verdict = ps.judge(stripped)
+    for _member, spelling, _citation in rows:
+        verdict = ps.judge(_without(record, spelling), pin_id)
         assert not verdict.accepted, f"{pin_id}: {spelling} removal accepted"
         assert verdict.names(spelling), (
             f"{pin_id}: the refusal does not name {spelling}: "
@@ -195,31 +216,55 @@ def test_record_leg_removing_any_other_member_still_accepts(pin_id):
     """Arm 2: the table is not NARROWER than declared. Every top-level member
     that is neither in the table nor the `kind:` discriminator may go, and the
     record still resolves at the adapter — `verify_pin:` and `schema_version:`
-    among them, neither being part of the shape this grammar requires."""
+    among them, neither being part of the shape this grammar requires, and
+    `source_repository` on `contracts/openxwallet-pin.yaml`, which is non-table
+    FOR THAT RECORD because its verifier reads `submodule_path` instead."""
     record = RECORDS[pin_id]
     _shape, rows = _tracked_table(pin_id, record)
     table = {spelling for _m, spelling, _c in rows}
     others = [member for member in record
               if member != "kind" and member not in table]
     for member in others:
-        verdict = ps.judge(_without(record, member))
+        verdict = ps.judge(_without(record, member), pin_id)
         assert verdict.accepted, (
             f"{pin_id}: removing the non-table member {member} refused the "
             f"record: {verdict.render()}")
 
 
 def test_record_leg_ranges_over_the_thirty_eight_members_measured():
-    """The count the design measured, pinned: THIRTY-EIGHT top-level members
-    across the five records are neither table entries nor `kind:`."""
-    counted = {}
+    """THE LISTS the design measured, not merely their sum: THIRTY-EIGHT
+    top-level members across the five records are neither table entries nor
+    `kind:`, and design D-2 / task 3.3(p) name every one of them. Asserting the
+    NAMES is what makes `source_repository`'s place readable — it is non-table on
+    `contracts/openxwallet-pin.yaml` (whose verifier reads `submodule_path`) and
+    a TABLE member on `contracts/openreposhape-pin.yaml` (whose verifier reads
+    it), which one number could not tell apart."""
+    measured = {}
     for pin_id, record in RECORDS.items():
         _shape, rows = _tracked_table(pin_id, record)
         table = {spelling for _m, spelling, _c in rows}
-        counted[pin_id] = len([m for m in record
-                               if m != "kind" and m not in table])
-    assert counted == {"openxwallet": 9, "openreposhape": 6, "opendox": 6,
-                       "openxdox": 5, "openspec-cli": 12}
-    assert sum(counted.values()) == 38
+        measured[pin_id] = sorted(m for m in record
+                                  if m != "kind" and m not in table)
+    assert measured == {
+        "openxwallet": ["carve_commit", "contract_bundle_tag",
+                        "digest_algorithm", "digest_source",
+                        "pinned_by_commit_only", "resync_runbook",
+                        "schema_version", "source_repository", "verify_pin"],
+        "openreposhape": ["digest_algorithm", "doctrine",
+                          "pinned_by_commit_only", "schema_version",
+                          "source_url", "verify_pin"],
+        "opendox": ["carve_commit", "migration", "resync_runbook",
+                    "schema_version", "source_repository", "verify_pin"],
+        "openxdox": ["carve_commit", "resync_runbook", "schema_version",
+                     "source_repository", "verify_pin"],
+        "openspec-cli": ["consumer_entrypoint", "dispositions",
+                         "integrity_algorithm", "pinned_invocation",
+                         "registry", "resync_runbook", "rollback",
+                         "schema_version", "source_repository", "source_url",
+                         "tarball", "verify_pin"],
+    }
+    assert [len(names) for names in measured.values()] .count(0) == 0
+    assert sum(len(names) for names in measured.values()) == 38
 
 
 def test_record_leg_the_kind_discriminator_is_exempt_and_in_no_table():
@@ -318,13 +363,15 @@ def test_the_adapter_is_necessary_and_not_sufficient_and_the_boundary_is_named()
     source — which is why the full verifier is READ here and never run."""
     record = RECORDS["openreposhape"]
     assert "pinned_by_commit_only" in record
-    assert ps.judge(_without(record, "pinned_by_commit_only")).accepted
+    assert ps.judge(_without(record, "pinned_by_commit_only"),
+                    "openreposhape").accepted
     source = (REPO_ROOT / "scripts"
               / "validate-openreposhape-pin.py").read_text(encoding="utf-8")
     assert "pin-surface-undeclared" in source
     assert "source.paths()" in source
     # ...and the same shape of negative for the published artifact.
-    assert ps.judge(_without(RECORDS["openspec-cli"], "dispositions")).accepted
+    assert ps.judge(_without(RECORDS["openspec-cli"], "dispositions"),
+                    "openspec-cli").accepted
 
 
 # --------------------------------------------------------------------------
@@ -488,18 +535,55 @@ def test_dispositions_null_is_accepted_and_a_mapping_is_refused_malformed():
                for f in verdict.failures), verdict.render()
 
 
-def test_the_product_identity_entry_admits_either_spelling_and_neither_absent():
-    """Shape (a)'s entry is EXACTLY ONE product-identity member, and at the
-    record grain it resolves to that record's own verifier's set: the UNION
-    would refuse the host-resolved record for lacking `submodule_path`, and the
-    INTERSECTION would admit a record naming no product at all."""
-    base = _without(_base("a"), "submodule_path")
-    assert not ps.judge(base).accepted
-    assert ps.judge(base).names("submodule_path or source_repository")
-    assert ps.judge(dict(base, submodule_path="productX")).accepted
-    assert ps.judge(dict(base, source_repository="opensoft/productX")).accepted
-    assert ps.judge(dict(base, source_repository="noslash")).names(
-        "source_repository")
+def test_the_product_identity_entry_has_two_regimes_keyed_on_the_pin_id():
+    """Shape (a)'s entry is EXACTLY ONE product-identity member, and AT THE
+    RECORD GRAIN it resolves to that record's own verifier's set — which the
+    adapter reaches through its own code-fixed `PRODUCT_IDENTITY_BY_PIN`, keyed
+    by the pin id the marker named, never by a member of the record.
+
+    KNOWN PIN: that spelling and no other. The record carrying only the OTHER
+    spelling is refused naming the one its verifier reads, and the other
+    spelling is a non-table member — present or absent, it changes nothing.
+
+    UNKNOWN PIN — a fixture, an added `contracts/<anything>-pin.yaml`, a future
+    product this checker has measured no guards for: the ALTERNATION, because
+    neither spelling can be preferred without a verifier to prefer it by. Either
+    satisfies the entry and a record carrying NEITHER is refused, which is the
+    INTERSECTION the design names ("would admit a record naming no product at
+    all"). The UNION is refused in both regimes: no record must carry both.
+    """
+    assert ps.PRODUCT_IDENTITY_BY_PIN == {"openxwallet": "submodule_path",
+                                          "openreposhape": "source_repository"}
+    neither = _without(_base("a"), "submodule_path")
+    submodule = dict(neither, submodule_path="productX")
+    host = dict(neither, source_repository="opensoft/productX")
+
+    # KNOWN PIN — the submodule-mounted one
+    assert ps.judge(submodule, "openxwallet").accepted
+    assert ps.judge(host, "openxwallet").names("submodule_path")
+    assert not ps.judge(host, "openxwallet").accepted
+    assert ps.judge(dict(submodule, source_repository="opensoft/productX"),
+                    "openxwallet").accepted
+    # ...and a `source_repository` of the WRONG form is not judged at all for
+    # this pin: its verifier never reads that member.
+    assert ps.judge(dict(submodule, source_repository="noslash"),
+                    "openxwallet").accepted
+
+    # KNOWN PIN — the host-resolved one
+    assert ps.judge(host, "openreposhape").accepted
+    assert ps.judge(submodule, "openreposhape").names("source_repository")
+    assert ps.judge(dict(host, source_repository="noslash"),
+                    "openreposhape").names("source_repository")
+
+    # UNKNOWN PIN — the alternation
+    for unknown in (None, "some-future-product"):
+        assert ps.judge(submodule, unknown).accepted
+        assert ps.judge(host, unknown).accepted
+        assert not ps.judge(neither, unknown).accepted
+        assert ps.judge(neither, unknown).names(
+            "submodule_path or source_repository")
+        assert ps.judge(dict(neither, source_repository="noslash"),
+                        unknown).names("source_repository")
 
 
 def test_a_record_matching_no_shape_and_an_unknown_revision_kind_are_invalid():

@@ -1677,7 +1677,12 @@ def _judge_pinned_record(doc, hit, *, target, lineno, pin_id, capability,
             "reconcile the pin record's verify_pin: with the verifier the "
             "resolver tracks for it (document-lifecycle grammar)")
 
-    verdict = pin_shapes.judge(content)
+    # THE PIN ID IS AN INPUT, NOT A MEMBER OF THE RECORD. It is what the MARKER
+    # named and what the registry stem carries, and the adapter uses it to pick
+    # one TABLE ROW — shape (a)'s product-identity spelling for a pin whose
+    # verifier this checker has measured — so the entry resolves at the record
+    # grain without the record choosing its own judge.
+    verdict = pin_shapes.judge(content, pin_id)
     if not verdict.accepted:
         hit(ERROR, doc,
             f"invalid pin for target={target} at line {lineno}: {record} in "
