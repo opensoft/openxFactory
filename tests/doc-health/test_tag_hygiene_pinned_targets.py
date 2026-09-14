@@ -26,6 +26,7 @@ the thing under test is the arm's behaviour rather than the bytes' address.
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 
@@ -411,6 +412,27 @@ def test_a_corrupt_record_is_a_controlled_finding_and_the_run_completes(
     assert shape in "abc"
 
 
+def test_a_non_utf8_record_is_a_controlled_finding_and_the_run_completes(
+        tmp_path):
+    """(k), one more shape: a record whose BYTES are not valid UTF-8 at all.
+    `Path.read_text(encoding="utf-8")` raises `UnicodeDecodeError` — a
+    `UnicodeError`, not an `OSError` — and `_pin_record_text` must catch it the
+    same way it catches an unreadable file, so the family OWNS the failure
+    rather than propagating it out of the run."""
+    name = "invalid-utf8-pin.yaml"
+    pin_id = name[: -len("-pin.yaml")]
+    root = _repo(tmp_path / "alpha",
+                 docs={"case.md": _doc(f"pinned:{pin_id}/wallet-carve")})
+    (root / "contracts" / name).write_bytes(b"\xff\xfe\x00kind: x\n")
+    findings = _run(_context({"alpha": root}))
+    assert len(findings) == 1, findings
+    assert findings[0].severity == ERROR
+    assert findings[0].action == (
+        "repair the pin record so it reads as a mapping carrying a kind: "
+        "(document-lifecycle grammar)")
+    assert f"contracts/{name} in root alpha" in findings[0].rule
+
+
 # --------------------------------------------------------------------------
 # (m) — CONTAINMENT: FOUR ESCAPES AND A POSITIVE
 # --------------------------------------------------------------------------
@@ -525,6 +547,28 @@ def test_the_boundary_is_checked_before_any_candidate_is(tmp_path, seams):
         spy.real = record
     _run(_context({"alpha": root}))
     assert order == ["boundary_dir", "resolve_in_root"]
+
+
+def test_a_self_looping_symlink_record_cannot_be_resolved_and_reads_nothing(
+        tmp_path, seams):
+    """(m), the SYMLINK LOOP — `Path.resolve()` raises `RuntimeError` on a
+    self-referencing symlink (Python 3.12), which `resolve_in_root` must catch
+    and turn into a refusal rather than letting it escape the family. The read
+    seam is never reached: a target that cannot be resolved is not a candidate
+    to read."""
+    root = _repo(tmp_path / "alpha",
+                 docs={"case.md": _doc("pinned:loop/wallet-carve")})
+    os.symlink("loop-pin.yaml", root / "contracts" / "loop-pin.yaml")
+
+    findings = _run(_context({"alpha": root}))
+    assert [f.rule for f in findings] == [
+        "pinned target=pinned:loop/wallet-carve at line 5: "
+        "contracts/loop-pin.yaml in root alpha cannot be resolved "
+        "(unresolvable)"]
+    assert findings[0].action == (
+        "keep the pin record inside its root's contracts/ directory rather "
+        "than a symlink out of it (document-lifecycle grammar)")
+    assert seams["_pin_record_text"].calls == [], "nothing was read"
 
 
 # --------------------------------------------------------------------------

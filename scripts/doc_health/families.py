@@ -52,7 +52,8 @@ from .lines import split_keepends
 # `output_boundary` and `path_slug` are reached from this package: `scripts/` is
 # on `sys.path` for anything that can import `doc_health` at all, since that is
 # where the package itself lives.
-from pin_containment import boundary_dir, resolve_in_root
+from pin_containment import (OUTSIDE_BOUNDARY, OUTSIDE_ROOT, boundary_dir,
+                             resolve_in_root)
 
 # Per-family resolution class defaults (doc-health contract): contested
 # families suggest state-changing edits; everything else is mechanical.
@@ -1532,7 +1533,7 @@ def _pin_record_text(path: Path) -> str | None:
     3.3(m), 3.3(n)). `None` where the file cannot be read at all."""
     try:
         return path.read_text(encoding="utf-8")
-    except OSError:
+    except (OSError, UnicodeError):
         return None
 
 
@@ -1560,7 +1561,7 @@ def _pin_roots(ctx, repo: str):
 def _pinned_arm(ctx, doc, target, lineno, hit):
     """Judge a `target=pinned:...` value, reporting every defect it carries."""
     value = target[len(PINNED_PREFIX):]
-    if not _PINNED_VALUE.match(value):
+    if not _PINNED_VALUE.fullmatch(value):
         hit(ERROR, doc,
             f"malformed pinned target={target} at line {lineno}",
             "spell a pinned target pinned:<pin-id>/<capability>, two "
@@ -1589,9 +1590,14 @@ def _pinned_arm(ctx, doc, target, lineno, hit):
         searched.append(name)
         candidate, refusal = resolve_in_root(record, root, boundary=boundary)
         if candidate is None:
-            hit(ERROR, doc,
-                f"pinned target={target} at line {lineno}: {record} resolves "
-                f"outside root {name}'s contracts/ directory",
+            code = refusal[0]
+            if code in (OUTSIDE_ROOT, OUTSIDE_BOUNDARY):
+                rule = (f"pinned target={target} at line {lineno}: {record} "
+                        f"resolves outside root {name}'s contracts/ directory")
+            else:
+                rule = (f"pinned target={target} at line {lineno}: {record} "
+                        f"in root {name} cannot be resolved ({code})")
+            hit(ERROR, doc, rule,
                 "keep the pin record inside its root's contracts/ directory "
                 "rather than a symlink out of it (document-lifecycle grammar)")
             return
@@ -1629,7 +1635,12 @@ def _judge_pinned_record(doc, hit, *, target, lineno, pin_id, capability,
     try:
         import yaml
     except ImportError:                                     # pragma: no cover
-        return              # no parser, so no judgement — and no false finding
+        hit(ERROR, doc,
+            f"pinned target={target} at line {lineno}: {record} in root {root} "
+            f"could not be judged — PyYAML is not importable",
+            "install PyYAML so pinned targets can be judged; nothing resolves "
+            "without it (document-lifecycle grammar)")
+        return
     try:
         content = yaml.safe_load(text)
     except yaml.YAMLError as exc:

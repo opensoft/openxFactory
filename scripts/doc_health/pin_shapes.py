@@ -151,12 +151,21 @@ def _is_files_list(value) -> bool:
 def _is_path_only_list(value) -> bool:
     """A list of PATH-ONLY STRINGS — the valid form of `pinned_by_commit_only:`.
 
+    EVERY FALSEY VALUE IS EMPTY AND ADMITTED, not only absence: both verifiers
+    read `pin.get("pinned_by_commit_only") or []`
+    (`verify-openxwallet-pin.py:443-452`,
+    `validate-openreposhape-pin.py:487-495`), so `None` and `""` are exactly as
+    empty as an absent member or an explicit `[]` to the guard this adapter
+    tracks — an adapter that refused them would be WIDER than the guard.
+
     A mapping entry is the wrong form and is refused; an entry carrying no
     `sha256` is NOT, the publisher having published no per-file digest for these
     members, so demanding one would demand an invented row
     (`verify-openxwallet-pin.py:443-452`,
     `validate-openreposhape-pin.py:487-495`).
     """
+    if not value:
+        return True
     if not isinstance(value, list):
         return False
     return all(_is_text(entry) for entry in value)
@@ -206,10 +215,12 @@ def _is_binary(value) -> bool:
 
 
 def _is_disposition_list(value) -> bool:
-    """A list of entries. Absent is EMPTY at this guard
-    (`validate-openspec-cli-pin.py:801-803`), so `dispositions:` is not a
-    required member; present and not a list is refused (`:804-809`)."""
-    return isinstance(value, list)
+    """A list of entries, or `None`. Absent OR NULL is EMPTY at this guard
+    (`validate-openspec-cli-pin.py:801-803`: `raw = pin.get("dispositions")`
+    then `if raw is None: return []`), so `dispositions:` is not a required
+    member and an explicit `null` is no more malformed than an absent key;
+    present, non-null and not a list is refused (`:804-809`)."""
+    return value is None or isinstance(value, list)
 
 
 # ---------------------------------------------------------------------------
@@ -573,7 +584,7 @@ def enumeration(record: dict) -> Enumeration:
     if not raw:
         return Enumeration(MALFORMED, detail="it is an empty sequence")
     for item in raw:
-        if not isinstance(item, str) or not CAPABILITY_RE.match(item):
+        if not isinstance(item, str) or not CAPABILITY_RE.fullmatch(item):
             return Enumeration(
                 MALFORMED,
                 detail=f"it carries {item!r}, which is not a capability name")

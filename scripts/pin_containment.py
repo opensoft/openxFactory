@@ -60,6 +60,7 @@ OUTSIDE_BOUNDARY = "outside-boundary"
 BOUNDARY_MISSING = "boundary-missing"
 BOUNDARY_NOT_A_DIRECTORY = "boundary-not-a-directory"
 BOUNDARY_REDIRECTS = "boundary-redirects"
+UNRESOLVABLE = "unresolvable"
 
 
 def resolve_in_root(claimed, root, *, boundary=None):
@@ -98,8 +99,13 @@ def resolve_in_root(claimed, root, *, boundary=None):
         return None, (TRAVERSAL,
                       "contains a '..' segment, which walks out of the "
                       "repository the register speaks for")
-    resolved_root = Path(root).resolve()
-    target = (resolved_root / candidate).resolve()
+    try:
+        resolved_root = Path(root).resolve()
+        target = (resolved_root / candidate).resolve()
+    except (OSError, RuntimeError):
+        return None, (UNRESOLVABLE,
+                      "cannot be resolved — a symlink loop or an unreadable "
+                      "link; refused rather than read")
     if not target.is_relative_to(resolved_root):
         return None, (OUTSIDE_ROOT,
                       f"resolves to {target}, which is outside the repository; "
@@ -135,7 +141,12 @@ def boundary_dir(root, name=CONTRACTS_DIRNAME):
     lexical-equality test for every root, refusing a registry nothing is wrong
     with.
     """
-    lexical = Path(root).resolve() / name
+    try:
+        lexical = Path(root).resolve() / name
+    except (OSError, RuntimeError):
+        return None, (UNRESOLVABLE,
+                      "cannot be resolved — a symlink loop or an unreadable "
+                      "link; refused rather than read")
     if not lexical.exists():
         return None, (BOUNDARY_MISSING,
                       f"carries no {name}/ directory to resolve a record in")
@@ -147,7 +158,13 @@ def boundary_dir(root, name=CONTRACTS_DIRNAME):
     if not lexical.is_dir():
         return None, (BOUNDARY_NOT_A_DIRECTORY,
                       f"has a {name} that is not a directory")
-    if lexical.resolve() != lexical:
+    try:
+        redirected = lexical.resolve() != lexical
+    except (OSError, RuntimeError):
+        return None, (UNRESOLVABLE,
+                      "cannot be resolved — a symlink loop or an unreadable "
+                      "link; refused rather than read")
+    if redirected:
         return None, (BOUNDARY_REDIRECTS,
                       f"has a {name} whose resolved path is not its lexical "
                       f"path; a boundary reached through a redirection is not "

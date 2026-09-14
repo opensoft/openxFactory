@@ -744,7 +744,7 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
     scoping walks that function's whole subtree rather than filtering a
     flat module walk).
 
-    TWELVE MORE ARRIVE WITH THE PINNED ARM
+    THIRTEEN MORE ARRIVE WITH THE PINNED ARM
     (`extend-prose-tagging-target-to-pinned-capabilities`, task 3.3(j)), and
     BOTH derivations widen to reach them. BEHAVIOURALLY, the pinned fixture
     corpus `fixtures/tag-hygiene-pinned/` drives the arm's live defects through
@@ -780,7 +780,7 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
         "use one of the three canonical marker forms (document-lifecycle grammar)",
         "add the matching /xspec:candidate close fence (document-lifecycle grammar)",
         "candidacy is block-level only; remove the status value",
-        # THE PINNED ARM'S TWELVE, one per defect
+        # THE PINNED ARM'S THIRTEEN, one per defect
         # (`extend-prose-tagging-target-to-pinned-capabilities`, task 3.3(j)).
         # Each is a SEPARATE string because each names a different remedy, and
         # this table is what stops any of them drifting back to the in-tree
@@ -811,6 +811,8 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
         "(document-lifecycle grammar)",
         "the pinned form is admitted only in a candidate marker's target= "
         "attribute (document-lifecycle grammar)",
+        "install PyYAML so pinned targets can be judged; nothing resolves "
+        "without it (document-lifecycle grammar)",
     }
     assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
                           family="tag-hygiene")

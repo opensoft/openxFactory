@@ -449,6 +449,24 @@ def test_shape_a_judges_its_two_lists_by_two_rules_and_not_by_one():
         assert ps.judge(broken).names("pinned_by_commit_only"), value
 
 
+def test_pinned_by_commit_only_treats_every_falsey_value_as_empty():
+    """(PR #1040 fix round 1, R4). Both shape-(a) verifiers read
+    `pin.get("pinned_by_commit_only") or []` (`verify-openxwallet-pin.py:443`,
+    `validate-openreposhape-pin.py:487`): every FALSEY value — not only
+    absence — is EMPTY and admitted, so an adapter refusing `None` or `""`
+    would be WIDER than the guard it tracks. `None` and `[]` are ACCEPTED; a
+    mapping and a scalar string are still refused, MALFORMED, neither being a
+    list."""
+    base = _base("a")
+    assert ps.judge(dict(base, pinned_by_commit_only=None)).accepted
+    assert ps.judge(dict(base, pinned_by_commit_only=[])).accepted
+    for value in ({"a": 1}, "docs/a.md"):
+        verdict = ps.judge(dict(base, pinned_by_commit_only=value))
+        assert not verdict.accepted
+        assert any(f.member == "pinned_by_commit_only" and f.defect == ps.MALFORMED
+                   for f in verdict.failures), verdict.render()
+
+
 def test_shape_c_judges_dispositions_as_absent_is_empty_and_refuses_a_non_list():
     base = _base("c")
     assert ps.judge(base).accepted                      # absent
@@ -456,6 +474,18 @@ def test_shape_c_judges_dispositions_as_absent_is_empty_and_refuses_a_non_list()
     assert ps.judge(accepted).accepted                  # present and empty
     refused = dict(base, dispositions="not a list")
     assert ps.judge(refused).names("dispositions")
+
+
+def test_dispositions_null_is_accepted_and_a_mapping_is_refused_malformed():
+    """(PR #1040 fix round 1, R5). `validate-openspec-cli-pin.py:801-803`
+    treats `raw is None` as empty (`if raw is None: return []`), so an adapter
+    refusing `dispositions: null` would be WIDER than the guard it tracks."""
+    base = _base("c")
+    assert ps.judge(dict(base, dispositions=None)).accepted
+    verdict = ps.judge(dict(base, dispositions={"a": 1}))
+    assert not verdict.accepted
+    assert any(f.member == "dispositions" and f.defect == ps.MALFORMED
+               for f in verdict.failures), verdict.render()
 
 
 def test_the_product_identity_entry_admits_either_spelling_and_neither_absent():
@@ -524,6 +554,17 @@ def test_the_enumeration_is_one_named_member_and_not_a_search():
     for broken in ("scalar", {"a": 1}, None, [], ["Not A Name"], [3]):
         assert ps.enumeration(dict(record, capabilities=broken)).state \
             == ps.MALFORMED, broken
+
+
+def test_enumeration_refuses_an_item_carrying_a_trailing_newline():
+    """(PR #1040 fix round 1, R6). `CAPABILITY_RE.match` with a trailing `$`
+    admits a trailing newline — `"openxwallet\\n"`, exactly what a YAML block
+    scalar can carry — so the resolver must use `fullmatch` instead."""
+    record = _base("a")
+    item = "openxwallet\n"
+    verdict = ps.enumeration(dict(record, capabilities=[item]))
+    assert verdict.state == ps.MALFORMED
+    assert repr(item) in verdict.detail
 
 
 # --------------------------------------------------------------------------
