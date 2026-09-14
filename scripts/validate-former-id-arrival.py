@@ -14,7 +14,10 @@ WHAT IT JUDGES
      at a time: did a change packet directory arrive HERE by a MOVE from
      another change packet directory whose identity has EVER declared
      `Status: ratified`, and if so does the arriving packet declare that move
-     in `former_ids:` IN THE SAME COMMIT?
+     in `former_ids:` IN THE SAME COMMIT? Plus the two rules that bind a
+     declaration to the commit that writes it: an entry is added only by the
+     commit that performs the move it records, and the list is append-only
+     ACROSS commits and not only within one.
   2. THE CORPUS ARM — the whole-tree declaration sweep: the `former_ids:`
      shape, a declared id that still STANDS as a live directory, and the
      ownership sweep that says a former identity has exactly one owner. This

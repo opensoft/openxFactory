@@ -133,19 +133,14 @@ THIS MODULE IS THEIR CONSUMER:
 * `former_id_problems` — through `declared_former_ids`, on every packet this
   gate reads at a commit, and directly over every packet in the working tree
   (`corpus_problems`).
+* `append_only_problems` — per commit, over the list the packet carried at the
+  parent versus the list it carries here (§ 2.5).
 * `standing_former_id_problems` — over the working tree (§ 2.3).
 * `former_identity_ownership_problems` — the whole-corpus ownership sweep
   (§ 2.6), called from the corpus arm. That placement is the realization
   plan's Q3 recommendation (a), taken on its own terms: the landing validator
   already walks the corpus and already refuses, and two callers for one sweep
   is two places to keep in step.
-
-THE FOURTH, `append_only_problems`, IS STILL UNCALLED AS OF THIS COMMIT, and
-it is named here rather than left to be noticed: it compares the list a packet
-carried at a commit's PARENT against the list it carries at the commit, which
-is `tasks.md` § 2.4/§ 2.5's question and not this commit's. The commit that
-binds a newly added entry to the move that commit performs is its consumer,
-and it follows this one.
 
 `scripts/proposal-support.py` IS NOT EDITED BY THIS MODULE. It is imported.
 
@@ -171,8 +166,9 @@ STATUSES AND EXITS (`design.md` D3, ratified)
                                          could not be performed.
 
 The declaration refusals this gate also carries — the `former_ids:` shape
-(§ 2.1), a declared id that still stands (§ 2.3) and a former identity claimed
-twice (§ 2.6) — belong to the sibling requirement
+(§ 2.1), a declared id that still stands (§ 2.3), an entry added by a commit
+that moves nothing (§ 2.4), a list rewritten across commits (§ 2.5) and a
+former identity claimed twice (§ 2.6) — belong to the sibling requirement
 *A moved packet declares the identity it was ratified under*, which names no
 status token of its own. They are reported under that requirement's own name
 and exit 1 beside the arrival findings; NO THIRD STATUS TOKEN IS INVENTED
@@ -702,6 +698,30 @@ def _undeclared_finding(commit: str, source: str, destination: str,
             f"member of it."))
 
 
+def _bound_entry_finding(commit: str, packet_dir: str, change: str,
+                         entry: str, source: str | None) -> Finding:
+    """§ 2.4 — an entry added by a commit that moves nothing into this
+    packet."""
+    from_note = (
+        f"the only move this commit performs into it comes from "
+        f"`{source}`, so `{change_id_of_dir(source)}` is the only entry it "
+        f"may add"
+        if source else
+        "this commit performs NO move into that packet")
+    return Finding(
+        commit=commit,
+        message=(
+            f"{change}: commit {_short(commit)} adds former id {entry!r} to "
+            f"`{packet_dir}/.openspec.yaml`, and {from_note}. AN ENTRY IS "
+            f"ADDED ONLY BY THE COMMIT THAT PERFORMS THE MOVE IT RECORDS. "
+            f"Absence of a live directory is NOT proof of predecessorship — "
+            f"an id that has archived and an id that never existed both lack "
+            f"one — so a rule that only checked for one would let a standing "
+            f"packet append an unrelated identity in an ordinary edit, "
+            f"acquire that identity's ratification as its baseline, and "
+            f"capture every reference written under it."))
+
+
 def judge_commit(root: Path, commit: str, *,
                  cache: dict | None = None,
                  report: Report | None = None) -> list[Finding]:
@@ -762,6 +782,7 @@ def judge_commit(root: Path, commit: str, *,
         return findings
 
     moves = moves_at(diff)
+    arrivals = {destination: source for source, destination in moves}
 
     for source, destination in moves:
         if report is not None:
@@ -797,6 +818,68 @@ def judge_commit(root: Path, commit: str, *,
             findings.append(_undeclared_finding(
                 commit, source, destination, qualifying, expected, declared))
 
+    findings += _declaration_findings(root, commit, parent, diff, arrivals)
+    return findings
+
+
+def _declaration_findings(root: Path, commit: str, parent: str,
+                          diff: CommitDiff,
+                          arrivals: dict[str, str]) -> list[Finding]:
+    """§ 2.4 and § 2.5 over every packet this commit touched.
+
+    § 2.5 IS ASKED OF EVERY TOUCHED PACKET AND NOT ONLY OF AN ARRIVING ONE,
+    which is the whole of `append_only_problems`'s reason to exist: the
+    arrival check only ever runs at a MOVE, so without this a lawful move
+    could be declared at its landing and the declaration deleted the day
+    after, in a commit no arrival check ever looks at.
+
+    § 2.4 IS THE SAME READ FROM THE OTHER SIDE: the entries this commit ADDS
+    must be exactly the source of the move it performs, and a commit that adds
+    one while moving nothing into that packet is refused whether the id it
+    names has archived, never existed, or stands somewhere else entirely.
+    """
+    findings: list[Finding] = []
+    touched: list[str] = []
+    for path in diff.paths:
+        packet_dir = packet_dir_of(path)
+        if packet_dir is not None and packet_dir not in touched:
+            touched.append(packet_dir)
+    present = packet_dirs_at(root, commit)
+    if present is None:
+        raise ArrivalCannotRun(
+            f"REFUSE {UNREADABLE}: the declaration comparison at commit "
+            f"{_short(commit)} CANNOT RUN. The packet listing at that commit "
+            f"could not be read, so a packet that gained an entry cannot be "
+            f"told from one that left.")
+    for packet_dir in sorted(set(touched) & set(present)):
+        change = change_id_of_dir(packet_dir)
+        source = arrivals.get(packet_dir)
+        # THE ESTABLISHED LIST TRAVELS WITH THE PACKET: where this commit
+        # moved it, the list it carried at the parent is the SOURCE's, read
+        # under the source's own id.
+        was_dir = source if source is not None else packet_dir
+        try:
+            established = declared_at(root, parent, was_dir,
+                                      change_id_of_dir(was_dir))
+            current = declared_at(root, commit, packet_dir, change)
+        except support.FormerIdError as exc:
+            findings.append(Finding(commit=commit, message=str(exc)))
+            continue
+        for problem in support.append_only_problems(
+                change, established, current):
+            findings.append(Finding(
+                commit=commit,
+                message=f"commit {_short(commit)}: {problem}"))
+        if current[:len(established)] != established:
+            # The append-only refusal above already names it; the "which
+            # entries are new" question has no honest answer over a rewritten
+            # list.
+            continue
+        allowed = change_id_of_dir(source) if source is not None else None
+        for entry in current[len(established):]:
+            if entry != allowed:
+                findings.append(_bound_entry_finding(
+                    commit, packet_dir, change, entry, source))
     return findings
 
 

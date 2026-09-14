@@ -284,10 +284,11 @@ class ArrivalRefusalTests(unittest.TestCase):
             declare(changes / "change-s", "change-r")
             declared = commit_all(root, "declare the move after the fact")
             # The DECLARATION is owed in the moving commit; a later one does
-            # not repair the landing that already happened.
+            # not repair the landing that already happened, and § 2.4 refuses
+            # the entry the later commit adds.
             self.assertEqual(self.judge(root, moved)[0].status,
                              fia.UNDECLARED)
-            self.assertTrue(declared)
+            self.assertTrue(self.judge(root, declared))
 
     def test_the_ever_test_is_the_whole_history_and_never_the_parent_blob(
             self):
@@ -484,10 +485,19 @@ class ArrivalRefusalTests(unittest.TestCase):
             second = commit_all(root, "move y to z, shedding the lineage")
 
             findings = self.judge(root, second)
-            self.assertEqual([f.status for f in findings], [fia.UNDECLARED],
+            # TWO TRUE STATEMENTS ABOUT ONE COMMIT, and neither is the
+            # other's corollary: the ARRIVAL is undeclared (the list is not
+            # the source's plus the source id), and the LIST is rewritten
+            # rather than appended to. A shed lineage is refused from both
+            # sides, which is what the requirement says it is — "the same
+            # defect as never declaring one".
+            self.assertEqual([f.status for f in findings],
+                             [fia.UNDECLARED, None],
                              [f.message for f in findings])
             self.assertIn("SHEDS the lineage ['change-x']",
                           findings[0].message)
+            self.assertIn("APPEND-ONLY ACROSS COMMITS", findings[1].message)
+            self.assertIn("REMOVED 'change-x'", findings[1].message)
 
             # …and the same move declaring the WHOLE list lands.
             git(root, "reset", "-q", "--hard", "HEAD~1")
@@ -823,6 +833,85 @@ class FailClosedTests(unittest.TestCase):
             self.assertEqual(fia.judge_commit(root, first), [])
 
 
+class BoundEntryTests(unittest.TestCase):
+    """§ 2.4 and § 2.5 — *AN ENTRY IS ADDED ONLY BY THE COMMIT THAT PERFORMS
+    THE MOVE IT RECORDS*, and the list is append-only ACROSS commits."""
+
+    def standing(self, root: Path) -> Path:
+        directory = packet(root, "change-a", ratified=True)
+        commit_all(root, "create a standing ratified packet")
+        return directory
+
+    def test_a_former_id_appended_by_a_commit_that_moves_nothing_is_refused(
+            self):
+        """Scenario: *A former id is appended by a commit that moves
+        nothing*.
+
+        A standing packet adds a former id in a commit that performs no move
+        of that id into it. The declaration is refused, naming the id and the
+        commit.
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = self.standing(root)
+            declare(directory, "change-b")
+            added = commit_all(root, "append a former id, moving nothing")
+
+            findings = fia.judge_commit(root, added)
+            self.assertEqual(len(findings), 1,
+                             [f.message for f in findings])
+            message = findings[0].message
+            self.assertIn("'change-b'", message)
+            self.assertIn(added[:12], message)
+            self.assertIn("performs NO move into that packet", message)
+            self.assertIn("AN ENTRY IS ADDED ONLY BY THE COMMIT THAT PERFORMS "
+                          "THE MOVE IT RECORDS", message)
+
+    def test_an_archived_id_appended_by_a_standing_packet_is_refused(self):
+        """*ABSENCE OF A LIVE DIRECTORY IS NOT PROOF OF PREDECESSORSHIP*, and
+        an ARCHIVED id is the first of the two ways to have none.
+
+        Without this rule a standing packet could append an archived
+        identity in an ordinary edit, acquire that identity's ratification as
+        its baseline, and capture every reference written under it.
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = self.standing(root)
+            packet(root, "change-old", ratified=True, archived="2026-01-01")
+            commit_all(root, "carry an archived packet in the corpus")
+            declare(directory, "change-old")
+            added = commit_all(root, "append the ARCHIVED id")
+
+            findings = fia.judge_commit(root, added)
+            self.assertEqual(len(findings), 1,
+                             [f.message for f in findings])
+            self.assertIn("'change-old'", findings[0].message)
+            self.assertIn("an id that has archived", findings[0].message)
+
+    def test_an_id_that_never_existed_appended_by_a_standing_packet_is_refused(
+            self):
+        """…and an id that NEVER EXISTED is the second way to have no live
+        directory. The two are refused by the same rule, which is why the rule
+        is about the MOVE and not about the directory."""
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = self.standing(root)
+            declare(directory, "change-never-existed")
+            added = commit_all(root, "append an id that never existed")
+
+            findings = fia.judge_commit(root, added)
+            self.assertEqual(len(findings), 1,
+                             [f.message for f in findings])
+            self.assertIn("'change-never-existed'", findings[0].message)
+            # The corpus reader would not refuse this on its own: an entry
+            # naming an id that resolves nowhere is not a SHAPE defect, which
+            # is exactly why the binding rule needs a commit range.
+            self.assertEqual(
+                support.former_id_problems(
+                    "change-a", support.load_packet(directory)), [])
+
+
 class ConsumedReaderTests(unittest.TestCase):
     """THE FOUR READERS SLICE 1 LANDED AND NOBODY CALLED, EACH PROVED CALLED.
 
@@ -855,6 +944,46 @@ class ConsumedReaderTests(unittest.TestCase):
 
             # …and the CLI reports it and exits 1.
             self.assertEqual(cli.main([str(root)]), 1)
+
+    def test_the_append_only_rule_is_enforced_by_this_validator(self):
+        """§ 2.5, and the proof that `append_only_problems` is CALLED.
+
+        THE ATTACK IT CLOSES: a lawful move declared at its landing and the
+        declaration DELETED the day after, in a commit no arrival check ever
+        looks at — which would hand the archive gate the later ratification
+        under the current id, the very baseline this mechanism exists to keep
+        it away from.
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "change-r", ratified=True)
+            commit_all(root, "create the ratified packet")
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(directory), str(changes / "change-s"))
+            declare(changes / "change-s", "change-r")
+            commit_all(root, "move and declare it lawfully")
+            declare(changes / "change-s")
+            deleted = commit_all(root, "delete the declaration the day after")
+
+            with mock.patch.object(
+                    support, "append_only_problems",
+                    wraps=support.append_only_problems) as spy:
+                findings = fia.judge_commit(root, deleted)
+            self.assertTrue(spy.called)
+            self.assertEqual(len(findings), 1,
+                             [f.message for f in findings])
+            self.assertIn("APPEND-ONLY ACROSS COMMITS", findings[0].message)
+            self.assertIn("REMOVED 'change-r'", findings[0].message)
+
+            # A REORDER is the same defect by another author mistake, and is
+            # named separately.
+            git(root, "reset", "-q", "--hard", "HEAD~1")
+            declare(changes / "change-s", "change-r", "change-q")
+            commit_all(root, "append a second entry")
+            declare(changes / "change-s", "change-q", "change-r")
+            reordered = commit_all(root, "reorder the established entries")
+            self.assertIn("REORDERED",
+                          fia.judge_commit(root, reordered)[0].message)
 
     def test_a_declared_id_that_still_stands_is_refused_by_this_validator(
             self):
