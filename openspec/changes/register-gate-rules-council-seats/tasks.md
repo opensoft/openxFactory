@@ -940,10 +940,11 @@ still Brett Heap's, and the merge is T2.
       walk-record path, and naming any wording mismatch as the precedent's lift
       text did.
       **DONE 2026-09-14T09:10:05Z — LIFTED on cxF #279 (5661634651), PR #439 (5661635340) and LANES.md (837c9e9); walk-2026-09-12-register-act.md § 13.3 (appended 2026-09-14). Three wording mismatches named, none reworded.**
-- [ ] 6.22 **[lane]** Re-run `deliberation_packet.py resolved-seats` against a
+- [x] 6.22 **[lane]** Re-run `deliberation_packet.py resolved-seats` against a
       security-surface-touching subject and **confirm
       `unbound_conjunction_seats` is EMPTY.** This is the concrete verification
       the whole act exists for, and it spends no pin.
+      **DONE 2026-09-14T09:1xZ — resolved-seats against the C2 packet on cxF main 3cbb4bd9: five required seats, CSC seat_identity 'declared', unbound_conjunction_seats [] (α lifted); walk-2026-09-12-register-act.md § 13.4 pre-note (appended 2026-09-14). Proof-convening candidate handed to Brett: cxF #471 head 4a92ee67 on the 2026-09-09 packet (#279 5661759632).**
 
 ### 6.5 C2 unparks
 

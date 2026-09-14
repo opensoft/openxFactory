@@ -1205,6 +1205,58 @@ security-surface-touching subject and confirm `unbound_conjunction_seats` is
 **EMPTY**. That is the concrete verification the whole act exists for, and it
 spends no pin.
 
+#### 13.4 — PRE-NOTE APPENDED 2026-09-14: TASK 6.22 IS PERFORMED (α LIFTED); THE PROOF CONVENING AWAITS BRETT HEAP'S DISPATCH
+
+**Task 6.22 — `resolved-seats` re-run against a security-surface-touching
+subject: `unbound_conjunction_seats` is EMPTY.** Run 2026-09-14T09:1xZ (before
+09:13:34Z, the candidate-selection run that followed it) by lane
+`codeXfactory-2`, in a read-only codexFactory `main` worktree at `3cbb4bd9`,
+spending no pin — the concrete verification the whole act exists for, and
+step 8 of `records/2026-09-12-gate-rules-roster-csc-pin.md` § 9 (*"THIS is
+what lifts α"*, Brett Heap's `α, park C2 until Q-GRC-4 is discharged`,
+2026-09-11T14:23:26Z):
+
+```sh
+python3 .github/workflows/scripts/deliberation_packet.py rule-facts \
+  --packet hermes/domain/review-councils/convening-packets/2026-09-11-routine-code-clearance-repository-respelling.md \
+  --out facts.json
+# rule_touched_paths: ["scripts/merge_master/codexfactory-routine-code-clearance.yaml"]
+python3 .github/workflows/scripts/deliberation_packet.py resolved-seats \
+  --council hermes/domain/review-councils/gate-rules.yaml \
+  --council-id gate_rules_council --facts facts.json
+```
+
+| field | value read |
+|---|---|
+| `required_seats` | `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead`, **`client-security-compliance-officer`** |
+| `conjunction_evidence[0]` | seat `client-security-compliance-officer`, `predicate: rule_touches_security_posture`, `required: true`, **`seat_identity: "declared"`**, `unbound_why: null` |
+| `unbound_conjunction_seats` | **`[]`** |
+
+Where the 2026-09-11 measurement read `seat_identity: "UNBOUND"` and
+`unbound_conjunction_seats: ['client-security-compliance-officer']`
+(c2-prep § ★), the bound seat now resolves: T1 declared it, T2 registered its
+key and grant, and § 13.2 proved the projection carries T2.
+
+**The proof packet, chosen as the 2026-09-11 walk § 15 chose.** Against the
+non-security 2026-09-09 packet
+(`2026-09-09-openxfactory-substantive-candidate-class-re-put.md`, surfaces
+`openspec/changes/**` and `openspec/specs/**`) the same resolver gives the four
+registered seats, the conjunction `required: false` with the seat `declared`,
+and `unbound_conjunction_seats: []` — so a proof convening on it proves ONE
+thing, admission and signing under `grant-grc-0003` with the register act in
+the projection, and does not double as C2 (OQ-5 (a)).
+
+**Candidate, re-verified 2026-09-14T09:2xZ and handed to Brett Heap** (cxF #279
+comments 5661759632 and 5661766095): codexFactory PR **#471**, head
+`4a92ee67c97e896bc906c1dde89ffe0d2ce471d1` — MERGED 2026-09-14T08:56:21Z, so
+the head cannot move; a single-parent commit touching exactly one file
+(`tests/merge-master/test_clearing_integration_proof_paths.py`, no machinery
+path), so the FR-021 guard cannot fire; descends from T1 `eff9ae19`; carries
+the 2026-09-09 packet; its pin post-dates every convening run this council has
+had (latest 2026-09-11T09:56:58Z), so it is unspent by construction. **Nothing
+is dispatched by the lane**: step 9 is Brett Heap's act, and this section is
+appended before it so the candidate's basis is on record when he does.
+
 ### 13.5 C2 unparks (tasks 6.23, 6.25, 6.26) — **APPENDED BY PART C**
 
 Re-select a clean candidate at that moment (heads and pins will have moved),
