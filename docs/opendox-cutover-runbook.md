@@ -215,20 +215,34 @@ test-layout files that carve leg 1 measured:
 The **two replica lines belong to no destination column below** — `:25` (the
 1422nd declared line when this paragraph was written) and, since the
 pre-existing `openxdox_code` annotation, `:271`: a replica row names no
-destination at all, so the per-leg declared-line figures below exclude both,
-and both lines are owed by every leg
-that places that conftest — both `-code` legs. **That per-leg column is STALE
-and this act deliberately does not move it**: its four cells still sum to 1421,
-the figure before the § 3.4 slice-S5 annotation's +162 — S5 moved the aggregate
-and left the per-destination table where it stood. Registered here rather than
-quietly re-derived, because slices S7 and S8 are in flight over the same cells
-and ONE act should redistribute them. **Under every other `not_moved`
-reason `edits:` is still a refusal**: RULING OQ-B's three
-`stays_openxfactory_governance` rows stay here and take their import rewrite in
-openxFactory, so they go on recording it in `evidence:`. And this is **not**
-RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
-test-bearing replica row for the multiplicity sum, and both files here carry
-zero `def test_` at the carve commit.
+destination at all, so the per-leg declared-line figures below exclude both.
+**The two are owed differently, and a replica row cannot say so**: `:25` is
+owed by every leg that places that conftest — both `-code` legs — while `:271`
+is openXdox-code#14's § 4.4 fixture, PERMITTED at every replica by the same
+row-wide grammar and owed at none. openXdox-code takes it; openDox-code does
+not, and its arrival run answers `OK` all the same (measured at `8efb3cf5`).
+**That per-leg column is STALE and this act deliberately does not move it**:
+its four cells still sum to 1421 — the figure before the § 3.4 slice-S5
+annotation's +162, and now before this act's +47 to `openxdox_code` too. Each
+moved the aggregate and left the per-destination table where it stood, so the
+arithmetic that closes the gap is 1421 + 162 + 47 = 1630 per destination, plus
+the two replica lines above = the aggregate. **Its ROWS and `verbatim /
+edited` columns are stale too, and for a SECOND reason**: RULED Q6 re-destined
+four rows from `opendox_code` to `openxdox_code` after they were written, and
+neither `-code` cell moved with the ruling — so the sentence above that table,
+*these are the numbers each leg's arrival run must report*, is today true only
+of the declared-roots column, the one cell
+`test_the_real_manifest_declares_the_roots_the_runbook_names` asserts. The
+corrected cells are NOT restated here: this document states a set of absolutes
+in exactly one place, and two acts restating one set is how a count goes wrong
+in a merge. Registered here rather than quietly re-derived, because slices S7
+and S8 are in flight over the same cells and ONE act should redistribute them.
+**Under every other `not_moved` reason `edits:` is still a refusal**: RULING
+OQ-B's three `stays_openxfactory_governance` rows stay here and take their
+import rewrite in openxFactory, so they go on recording it in `evidence:`. And
+this is **not** RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names
+REPOSITORIES on a test-bearing replica row for the multiplicity sum, and both
+files here carry zero `def test_` at the carve commit.
 
 **Measured directly against the landed manifest, 2026-09-12** (rather than
 hand-chained through every intervening amendment): the table and the two
