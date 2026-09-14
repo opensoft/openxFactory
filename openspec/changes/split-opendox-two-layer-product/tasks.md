@@ -947,7 +947,8 @@ the bookkeeping that ticks this group.
   **The FILE count is right; the LINE count is 173 short.** The carve step is
   one file and is exactly accounted for: `views/intent-feed.js` (483 lines)
   did not travel, RULED `not_moved / stays_openxfactory_adapter` under OQ-F,
-  and 41 files / 31,066 lines less that one file is **40 / 30,583** — the
+  and taking that one file out of 41 files / 31,066 lines leaves **40 /
+  30,583** — the
   packet's "40 files" on the nose, its "30,410 lines" **173** short of what
   arrived and **656** short of what the carve commit held. Everything after
   that is the arc itself (five files in before S5, six out with S5, one in
@@ -973,7 +974,20 @@ the bookkeeping that ticks this group.
   `validate` waits on the BUILD arc, which RULED **Q-L5 (b′)** and **Q-L8 (b′)**
   each say in terms (S8 lifts it for the web suites only, and
   `tests/test_consumer_reach.py`'s `STILL_REACHING` asserts the openDox half
-  still fails); (iv) the two floor acts above. `#656` records: CLAIM
+  still fails); (iv) the two floor acts above; and (v) **the packet's own
+  README entry, overtaken and NOT corrected here** — `README.md`:1875–1879
+  still reads *"IT STILL PERFORMS NOTHING. No repository is created, no code
+  moves …"*, written 2026-09-05 (`ceb6dc9e`, `8b297c2f`) when that was exactly
+  true and no longer is: `openDox-code` and `openXdox-code` exist and were cut
+  from the carve commit `b075fd91` (tag `opendox-carve-0`), and six of the
+  eight slices above are merged. The staleness predates this amendment and is
+  not made by it; it is left to the act that CLAIMS that text — the same rule
+  this box applies to `design.md`'s and `proposal.md`'s four *"30,410"*
+  occurrences — which is the packet's ARCHIVAL act, the README **OpenSpec
+  Records** block being both where an archived packet's entry is rewritten and
+  (lane-collision protocol, Rule 6) the one block a landing window exists to
+  serialize. Recorded here so that act does not have to rediscover it.
+  `#656` records: CLAIM
   `5656686020`; rulings `5642758731` · `5647678655` · `5648044785` ·
   `5648049748` · `5648065587` · `5649094228` · `5656343213`.
 - [ ] 3.5 `[oD]` The runtime, on the `xFactory-Hermes-Install` pattern (RULING
@@ -1097,7 +1111,7 @@ the bookkeeping that ticks this group.
   | --- | ---: | --- |
   | `openXdox-code` `src/openxdox/` (the adapter's implementation surface, as 4.1 asks) | **12** | `completeness` 1, `corpus_root` 1, `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1, `snapshot_registry` 1 |
   | `openDox-code` `src/opendox/` | **5** | `serve.py`:710 `from doc_health.corpus import RealGit`; `workbench.py`:746, :1407, :1408, :1409 |
-  | RULED to stay at `openxFactory` (DQ-1) | **1** | `doxbench_packet`'s one |
+  | RULED to stay at `openxFactory` (DQ-1) | **1** | `design.md` § D3 inventories it at `doxbench_packet`; the import had already moved by the carve commit and the LIVE site is `scripts/ideation_dashboard/doxbench_status_exemption.py`:63 — `from doc_health.lines import split_keepends`, the same line at `b075fd91` and at `main` `e6e1c968` (reading (ii) below) |
   | **DISCHARGED at the § 2 seam** — the import became an adapter call or a late seam read, so there is nothing left to relocate | **5** | `authoring` 2 → `authoring.py`:317–318, `from .corpus_adapter import DocumentId` + `from corpus_adapter_openxfactory import home_corpus`; `cli` 1 → gone, only the path comment at `cli.py`:14 survives; `serve` 2 of 3 → gone before the carve (openxFactory `b075fd91` already reads one, at `serve.py`:618), the leg's own late seam reading `from opendox import consumer_reach` at `serve.py`:146 |
 
   **The five DISCHARGED were discharged at the SEAM, before the carve, and the
