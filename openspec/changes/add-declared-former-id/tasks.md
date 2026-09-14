@@ -7,8 +7,9 @@ Ratified by: add-declared-former-id — 2026-09-13T22:48Z, Brett Heap, verbatim 
 ALL OF § 3, ARE BUILT AND ARE NOW TICKED, AND § 5.3/§ 5.4 ARE PERFORMED BY THE
 PULL REQUEST THIS AMENDMENT RIDES IN. § 2.4 IS SLICE 4'S AND STAYS OPEN**, it
 being the one § 2 task that reads a COMMIT RANGE and therefore belongs to the
-landing validator rather than to the declaration's reader. Slices 1, 2 and 3 of `design.md` D7 landed as PR
-**#1038**, merge **`701c8fde`** (2026-09-14T21:09:31Z): the declaration and
+landing validator rather than to the declaration's reader. Slices 1, 2 and 3
+of `design.md` D7 landed as PR **#1038**, merge **`701c8fde`**
+(2026-09-14T21:09:31Z): the declaration and
 its reader (§ 2.1, 2.2, 2.3, 2.5, 2.6), the archive gate's baseline resolution
 (§ 3.1, 3.1a, 3.2, 3.3) and the fail-closed reads behind it (§ 3.4). The
 evidence sits under each box, and every box a later slice owns is LEFT OPEN
@@ -412,15 +413,15 @@ realization evidence and a further word.
       SEPARATELY: as measured 2026-09-14 the gate had not landed on `main`
       (§ 4.1–4.4) and was named by no branch ruleset (§ 4.5), so the sentence
       says an undeclared arrival is refused by the rule and stopped by
-      nothing rather than implying a protection this estate does not have. The promoted clause *"renaming a DRAFT
-      change, and a single commit that renames a draft and ratifies it, are
-      unaffected"* is carried verbatim, and nothing else in that paragraph
-      moved. **Q4 IS OUTSTANDING**: that document carries `Status: standard`
+      nothing rather than implying a protection this estate does not have.
+      The promoted clause *"renaming a DRAFT change, and a single commit that
+      renames a draft and ratifies it, are unaffected"* is carried verbatim,
+      and nothing else in that paragraph moved. **Q4 IS OUTSTANDING**: that document carries `Status: standard`
       and was ratified by PR #846's act. The authority claimed is this box
       itself, which commissions the edit by quoting the exact sentence, plus
       `proposal.md`'s `code_surface:`, which names the file. Brett Heap's
-      confirmation had not been given when this landed and the pull request
-      says so.
+      confirmation HAD NOT BEEN GIVEN when this pull request was opened, and
+      its body says so rather than letting the question pass silently.
 - [x] 5.4 **RE-MEASURE THE DANGLING-CITATION POPULATION ON THE REALIZATION
       TREE** and record it there. `design.md` M4's figures (94 dangling, 58
       resolvable by id) were taken at `9378eca5` and are history by the time the
