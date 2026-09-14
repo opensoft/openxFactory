@@ -2950,6 +2950,54 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                 (ratified_at, "2026-09-09-foo",
                  "openspec/changes/archive/2026-09-09-foo/proposal.md"))
 
+    def test_an_archived_dated_directory_does_not_guess_its_own_identity(
+            self):
+        """THE REPLAY READS AN ARCHIVED DIRECTORY, and its default identity
+        was an unchecked strip. For `archive/2026-09-09-foo` the stripped
+        reading `foo` omits `openspec/changes/2026-09-09-foo/` from the
+        baseline walk entirely, so the later ARCHIVE commit can become the
+        baseline and a mutation made before archiving passes. (Copilot, PR
+        #1038 `PRRT_kwDOTAvnrs6iJHKd`.)
+
+        HISTORY SETTLES IT AND ONLY HISTORY. The two readings differ in
+        whether an ACTIVE packet by the directory's FULL name ever existed —
+        one path-limited `git log`, a fact rather than a preference. Measured
+        over this corpus: of 167 archived directories, ZERO have a full name
+        that ever stood as an active packet, so the refusal below fires on
+        nothing that stands today.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            changes = root / "openspec" / "changes"
+            unambiguous = changes / "archive" / "2026-09-09-add-x"
+            unambiguous.mkdir(parents=True)
+            self.assertEqual(
+                support.identity_of_packet_dir(root, unambiguous), "add-x")
+            # an ACTIVE directory's name IS its id, date prefix or not
+            dated_live = changes / "2026-08-04-add-dated"
+            dated_live.mkdir(parents=True)
+            self.assertEqual(
+                support.identity_of_packet_dir(root, dated_live),
+                "2026-08-04-add-dated")
+
+            # …and where BOTH readings name a packet this repository really
+            # carried, it refuses instead of picking one
+            ambiguous = changes / "archive" / "2026-09-09-foo"
+            ambiguous.mkdir(parents=True)
+            active = changes / "2026-09-09-foo"
+            active.mkdir(parents=True)
+            (active / "proposal.md").write_text(
+                "---\nStatus: draft\n---\n", encoding="utf-8")
+            commit_all(root, "the full name really stood as an active packet")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.identity_of_packet_dir(root, ambiguous)
+            message = str(caught.exception)
+            self.assertIn("origin-retention-identity-ambiguous", message)
+            self.assertIn("2026-09-09-foo", message)
+            self.assertIn("'foo'", message)
+            self.assertIn("pass the id explicitly", message)
+
     def test_the_gate_resolves_its_lineage_through_the_tree_resolver(self):
         """THE TWO-CANDIDATE RULE IS NOT BYPASSED BY THE CALLER'S DIRECTORY.
         `origin_retention_errors` read the declaration straight off the

@@ -690,6 +690,57 @@ def change_id_of(directory: Path) -> str:
     return _ARCHIVE_DATE_RE.sub("", directory.name, count=1)
 
 
+def identity_of_packet_dir(root: Path, directory: Path) -> str:
+    """THE ONE id a packet directory carries — refusing where the name admits
+    two and history does not settle it.
+
+    `change_id_of` answers the commoner reading and is right for every
+    directory in this corpus. It is not SAFE as an unchecked default for an
+    ARCHIVED packet, because the archive gate's replay reads an archived
+    directory: for `archive/2026-09-09-foo` the stripped reading `foo` omits
+    `openspec/changes/2026-09-09-foo/` from the baseline walk entirely, so the
+    later ARCHIVE commit can become the baseline and a mutation made before
+    archiving passes. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iJHKd`.)
+
+    HISTORY SETTLES IT, and cheaply. The two readings differ only in whether
+    an ACTIVE packet by the directory's FULL name ever existed — that is one
+    path-limited `git log`, and it is a fact rather than a preference. Where
+    that path has history the name is genuinely ambiguous and this REFUSES,
+    naming both candidates and the repair: pass the id. Where it has none, the
+    stripped reading is the only packet the name can be about.
+
+    MEASURED over this corpus: of 167 archived directories, ZERO have a full
+    name that ever stood as an active packet, so this refuses nothing that
+    stands today and the archive wrapper — which passes `change` explicitly —
+    never reaches it.
+    """
+    candidates = packet_identities_of(directory)
+    if len(candidates) < 2:
+        return candidates[0]
+    full, stripped = candidates
+    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "log", "--format=%H", "-1", "--",
+         f"openspec/changes/{full}/proposal.md"],
+        capture_output=True, text=True, check=False,
+    )
+    if listed.returncode == 0 and not listed.stdout.strip():
+        return stripped
+    raise OriginRetentionError(
+        f"REFUSE origin-retention-identity-ambiguous: "
+        f"`{_corpus_rel(directory)}`: the origin-retention walk CANNOT RUN. "
+        f"This archived directory's name reads as BOTH {stripped!r} archived "
+        f"on {full[:10]} and {full!r} archived under its own name, which "
+        f"`archive_directory_name` preserves unchanged — and "
+        f"`openspec/changes/{full}/proposal.md` "
+        + ("has history, so both readings name a packet this repository "
+           "really carried"
+           if listed.returncode == 0 else
+           "could not be read, so neither reading can be ruled out") +
+        ". Choosing one here would pick the identity whose history the "
+        "baseline is resolved from, which is the resolver choosing rather "
+        "than an author: pass the id explicitly (`change=`).")
+
+
 def packet_identities_of(directory: Path) -> list[str]:
     """EVERY id a packet directory can carry, the directory's own name first.
 
@@ -2880,9 +2931,7 @@ def origin_retention_errors(root: Path, directory: Path,
     naming what did not match.
     """
     root = root.resolve()
-    # `change_id_of` AND NOT A FOURTH COPY OF THE STRIP: an ACTIVE directory
-    # whose id begins with a date was renamed by the spelling that stood here.
-    change = change or change_id_of(directory)
+    change = change or identity_of_packet_dir(root, directory)
     if is_declared_sentinel(repo_revision(root)):
         return [f"origin retention: {change}: this repository's history is "
                 "unreadable, so the declaration present at ratification "
