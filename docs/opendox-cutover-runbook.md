@@ -907,8 +907,11 @@ lines** — `:25`, the depth constant, and, since the pre-existing
 `openxdox_code` annotation, `:271`, openXdox-code#14's § 4.4 fixture — and the
 verifier asks ONE question of the pair: `diffed` where the copy differs from
 the carve blob AT ALL, and then every line it differs on must be one of the
-two, else `arrival-undeclared-edit` naming the rest; `unapplied` ONLY where
-neither was applied and the copy is byte-identical. **A declared line is a
+two, else `arrival-undeclared-edit` naming the rest; `unapplied` where the copy
+is BYTE-IDENTICAL with the carve blob. That is the whole of what the count can
+see — `check_replicas` compares the arrived bytes and nothing else, so a
+declared line never applied and one applied and later reverted are the same
+event to it, and neither is a refusal. **A declared line is a
 permission and never an obligation**, so a leg that takes one and not the other
 is `diffed` and lawful: openDox-code's copy takes `:25` alone — measured at
 `05bbde80` and unchanged at `8efb3cf5`, 271 lines and that one hunk — and
@@ -983,7 +986,8 @@ lands is not obliged to update this prose, only the declared file.
   its bytes checkable; leave `tests/corpus-adapter/test_conformance.py`
   undeclared, because its implementation-aware block is rewritten here by
   design, and name it with `--allow-created` once that rewrite has begun;
-* **the two RULED Q-L7 (a) placements, which BOTH `-code` legs owe** —
+* **the two RULED Q-L7 (a) placements — the conftest one BOTH `-code` legs
+  owe, the `session_fixtures` one openXdox-code's ALONE** —
   `--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` (the
   replica whose row declares `:25` — so its copy must read
   `REPO_ROOT = HERE.parent` — and, since the pre-existing `openxdox_code`
@@ -998,7 +1002,13 @@ lands is not obliged to update this prose, only the declared file.
   an `--allow-created`: the carve ships both files, and `--allow-created` would
   record that the destination assembled them. At openDox-code the second is the
   row's own move and arrives as `tests/session_fixtures.py` with no flag at
-  all;
+  all — and passing it there is not merely redundant but REFUSED, measured:
+  `arrival-unreadable`, *"--replica-at names
+  'tests/ideation-dashboard/session_fixtures.py', which at destination
+  'opendox_code' is neither a not_moved / replicated_at_destination row of this
+  manifest nor a moved row whose also_replicated_to: lists this destination"* —
+  because a flag that could name a moved row at its own destination would let a
+  caller re-point an arrival the manifest already declared;
 * **`openxdox-code/src/openxdox/openxfactory_surface.py`** — the mirror of
   `openxdox_surface.py`, the re-export surface openxFactory's own adapter
   reaches after the shed (RULED OQ-L). One line plus its reason per name, on

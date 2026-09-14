@@ -2060,8 +2060,9 @@ def check_disposition_consistency(doc: dict) -> None:
                 "edit(s); a file that arrives nowhere takes no carve edit. "
                 f"RULED Q-L7 (a) admits `edits:` on a `{REPLICA_REASON}` row "
                 "ONLY, because that is the one reason whose bytes do arrive — "
-                "a copy at each destination, where a declared line is applied "
-                "identically. A file that STAYS and is rewritten HERE records "
+                "a copy at each destination, where a declared line is "
+                "PERMITTED at every replica of that file and obligatory at "
+                "none. A file that STAYS and is rewritten HERE records "
                 "the rewrite in its `evidence:` (RULING OQ-B's "
                 "`tests/notebooklm/*` rows), because openxFactory's own tree "
                 "is not a carve destination")
