@@ -276,19 +276,32 @@ def declaration_digest(text: str) -> str:
 #: baseline. `load_register` applies it when, and only when, it is reading the
 #: register this repository carries.
 #:
-#: THE POPULATION IS A FACT ABOUT A TREE AND WAS RE-MEASURED AT THE HEAD THIS
-#: GATE LANDS ON, never carried from the tree the packet was drafted against
-#: (the requirement's own scenario *The corpus moves between drafting and
-#: landing*). Seven at drafting (`origin/main` `bcde1575`); seven again at the
-#: first re-measurement (`54885296`); EIGHT at the head this gate lands on
-#: (`bfa90db6`), the scenario having FIRED while the realization was in review.
-#: `encode-wallet-authority-rulings-r6-r12` landed in between and declares a
-#: head the grammar cannot read, so it is disposed of AT THE LANDING HEAD on
-#: D3's ruled option — registered, not swept — and its pair is added HERE, in
-#: the same pull request as its register entry, which is the second deliberate
-#: reviewable edit the closure demands and the one the refusal below names.
-#: NONE OF THE SEVEN MOVED: no registered packet archived and no registered
-#: declaration was edited between the two heads.
+#: THE POPULATION IS A FACT ABOUT A TREE AND IS RE-MEASURED AT THE MAIN HEAD
+#: MERGED AT EACH RE-MEASUREMENT, never carried from the tree the packet was
+#: drafted against (the requirement's own scenario *The corpus moves between
+#: drafting and landing*). Seven at drafting (`origin/main` `bcde1575`); seven
+#: again at the FIRST re-measurement (`54885296`); EIGHT from the SECOND
+#: re-measurement (`bfa90db6`) onward, the scenario having FIRED while the
+#: realization was in review; EIGHT STILL at the THIRD (`e6e1c968`) and EIGHT
+#: STILL at THE MAIN HEAD MERGED AT RE-MEASUREMENT, `dd073746`.
+#: `encode-wallet-authority-rulings-r6-r12` landed between `54885296` and
+#: `bfa90db6` and declares a head the grammar cannot read, so it is disposed of
+#: AT THAT RE-MEASUREMENT on D3's ruled option — registered, not swept — and
+#: its pair is added HERE, in the same pull request as its register entry,
+#: which is the second deliberate reviewable edit the closure demands and the
+#: one the refusal below names.
+#:
+#: `bfa90db6` IS NOT THE HEAD THIS GATE LANDS ON, AND IS NOT CLAIMED AS ONE.
+#: It is the re-measurement at which the eighth entry ARRIVED and was DISPOSED
+#: OF. The head a gate lands on is not knowable while its branch is open, so
+#: what this comment names — and what `tasks.md` § 3's transcript names with it,
+#: in the same words — is THE MAIN HEAD MERGED AT RE-MEASUREMENT: a number that
+#: moves every time `main` does, and that is RE-MEASURED rather than assumed
+#: each time it moves. It has moved twice since the eighth entry and the
+#: population has not: the scenario fired once, and cost nothing the two times
+#: after.
+#: NONE OF THE SEVEN MOVED AT ANY RE-MEASUREMENT: no registered packet archived
+#: and no registered declaration was edited between any two of these heads.
 CLOSED_REGISTER = (
     # class: block-scalar
     ("adopt-configured-notebook-hosting-identity",
@@ -308,8 +321,9 @@ CLOSED_REGISTER = (
      "2854d3889fb1cb79e8f1cabaf64c7287a2b073e72130f5098a81e946bea825e8"),
     ("split-opendox-two-layer-product",
      "60f4e11d53e6d0772ff642280fcf626dafcabebafa0c7c4e537d8eae8a54d058"),
-    # the carrier that arrived between `54885296` and the landing head
-    # `bfa90db6` — *The corpus moves between drafting and landing*, fired
+    # the carrier that arrived between `54885296` and the SECOND
+    # re-measurement `bfa90db6`, and was disposed of there —
+    # *The corpus moves between drafting and landing*, fired
     ("encode-wallet-authority-rulings-r6-r12",
      "112d24ba19d1b1af0e3e1706802e3a205f323754712fe987cb16d637dd63692f"),
 )

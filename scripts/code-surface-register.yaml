@@ -53,10 +53,14 @@ kind: code-surface-grammar-register
 # release would be edited late or not at all. It lives beside the validator that
 # reads it, and moves with it.
 #
-# THE POPULATION IS A FACT ABOUT A TREE AND WAS RE-MEASURED AT THE HEAD THIS
-# GATE LANDS ON rather than carried from the drafting tree — the requirement's
-# own scenario *The corpus moves between drafting and landing*. That scenario
-# has now FIRED, and this file records the firing rather than the drafting.
+# THE POPULATION IS A FACT ABOUT A TREE AND IS RE-MEASURED AT THE MAIN HEAD
+# MERGED AT EACH RE-MEASUREMENT rather than carried from the drafting tree —
+# the requirement's own scenario *The corpus moves between drafting and
+# landing*. That scenario has now FIRED, and this file records the firing
+# rather than the drafting. NO RE-MEASUREMENT BELOW CLAIMS TO BE THE HEAD THE
+# GATE LANDS ON: that head is not knowable while the branch is open, so each is
+# named for what it is — the main head this branch had merged when the figures
+# were taken.
 #
 # FIRST re-measurement, at `origin/main` `54885296` with the § 3.1 reader: 44
 # active proposals, 44 declaring, 4 `none`, 33 a repository list, SEVEN outside
@@ -64,15 +68,16 @@ kind: code-surface-grammar-register
 # measurement found at `bcde1575`, the corpus having lost one CONFORMING
 # carrier to an archive in between (45 active to 44, 38 conforming to 37).
 #
-# SECOND re-measurement, at `origin/main` `bfa90db6` — the head this gate now
-# lands on, main having moved ten-plus commits past `54885296` while this
-# realization was in review: 46 active proposals, 46 declaring, 4 `none`, 34 a
+# SECOND re-measurement, at `origin/main` `bfa90db6` — the main head merged at
+# that re-measurement, main having moved ten-plus commits past `54885296` while
+# this realization was in review: 46 active proposals, 46 declaring, 4 `none`, 34 a
 # repository list, EIGHT outside the grammar. TWO proposals landed in between
 # and NONE archived: `add-target-release-deferred-allocation` (#1022 →
 # `9378eca5`), which CONFORMS and needs nothing, and
 # `encode-wallet-authority-rulings-r6-r12` (#1017 → `bfa90db6`), which does
-# not. THE EIGHTH ENTRY BELOW IS THAT CARRIER, disposed of AT THE LANDING HEAD
-# exactly as the scenario directs and on the disposition `design.md` D3 ruled
+# not. THE EIGHTH ENTRY BELOW IS THAT CARRIER, disposed of AT THAT
+# RE-MEASUREMENT exactly as the scenario directs and on the disposition
+# `design.md` D3 ruled
 # — REGISTER, SWEEP NONE. Its `(change, sha256)` pair is added to
 # `code_surface.CLOSED_REGISTER` in the SAME pull request, which is the one
 # way the closure admits an entry and the way the module's own refusal names:
@@ -80,8 +85,27 @@ kind: code-surface-grammar-register
 # same pull request, where the diff shows the act for what it is". NOT ONE
 # BYTE of the seven moved: no registered packet archived and no registered
 # declaration was edited between the two heads, which is a measurement —
-# `git diff --name-status 54885296..origin/main -- 'openspec/changes/*/proposal.md'`
-# is two ADDs and nothing else.
+# `git diff --name-status 54885296..bfa90db6 -- 'openspec/changes/*/proposal.md'`
+# is two ADDs and nothing else. (The command is pinned to the head it measured
+# rather than written against `origin/main`, which moves: re-run against a
+# moved `origin/main` it would answer a different question and read as a false
+# record of this one.)
+#
+# THIRD re-measurement, at `origin/main` `e6e1c968`, and FOURTH at `origin/main`
+# `dd073746` — THE MAIN HEAD MERGED AT RE-MEASUREMENT as this file stands. Main
+# moved twice more while the realization was in review and THE POPULATION DID
+# NOT: 47 active proposals, 47 declaring, 4 `none`, 35 a repository list, EIGHT
+# named by this register, 0 outside the grammar, at BOTH heads, with the archive
+# unmoved at 167/121/3. That is a measurement and not an assumption —
+# `git diff --name-status bfa90db6..dd073746 -- 'openspec/changes/*/proposal.md'`
+# is exactly one `A` (`add-declared-former-id`) and one `M`
+# (`extend-prose-tagging-target-to-pinned-capabilities`) — no `D`, no `R` — and
+# `e6e1c968..dd073746` is EMPTY, so the fourth re-measurement moved no
+# declaration at all. BOTH of the two CONFORM (each is one of the 35), and the
+# `M` is not one of the eight, so NO ENTRY IS STALE and NO ENTRY IS OWED. The scenario fired ONCE, at
+# the second re-measurement; it has cost nothing the two times since, which is
+# the shape it is supposed to have when the corpus moves without a divergence
+# in it.
 #
 # Every entry declares:
 #   change       the ACTIVE change directory under `openspec/changes/`
