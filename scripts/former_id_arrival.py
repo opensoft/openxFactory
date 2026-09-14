@@ -1007,7 +1007,24 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
 
 def scan(root: Path, *, base: str | None = None, head: str | None = None,
          env: dict | None = None) -> Report:
-    """The whole gate, as a value. The CLI below only prints it."""
+    """The whole gate, as a value. The CLI below only prints it.
+
+    THE FIRST THING IT DOES IS REFUSE A RUN THAT COULD ONLY PASS VACUOUSLY.
+    Without PyYAML no declaration can be parsed, `load_packet` answers None for
+    every packet in the corpus, and `former_id_problems` then has nothing to
+    refuse — so the whole-tree sweep would report a clean corpus it never read.
+    A green check that proves nothing was read is the class of defect the
+    sibling gate's own workflow adds an assertion step for; here the reader
+    refuses it at the source, so the refusal holds however the gate is invoked
+    and not only through the workflow that installs the dependency.
+    """
+    if support.yaml is None:
+        raise ArrivalCannotRun(
+            f"REFUSE {UNREADABLE}: the arrival gate CANNOT RUN. PyYAML is not "
+            f"available in this environment, so no `.openspec.yaml` can be "
+            f"parsed — every packet would read as declaring nothing and the "
+            f"whole-tree sweep would report a clean corpus it never read. "
+            f"Install `pyyaml` rather than reading this silence as an answer.")
     report = Report()
     try:
         report.base, report.head = resolve_range(root, base, head, env=env)

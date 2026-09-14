@@ -1065,6 +1065,133 @@ class ConsumedReaderTests(unittest.TestCase):
             REPO_ROOT), [])
 
 
+class RangeTests(unittest.TestCase):
+    """`base..head` — THE PULL REQUEST'S OWN COMMITS AND NOTHING ELSE.
+
+    Every other test here asks ONE commit. This one asks the range, which is
+    what CI actually runs: `design.md` D3 says the gate *"reads the pull
+    request's own commit range and, for each commit, asks whether a change
+    packet directory arrived by a move from another change packet directory"*,
+    so the range's two properties are load-bearing in their own right — every
+    commit INSIDE it is judged, and no commit outside it is. A gate that read
+    one commit too few would miss the landing it exists for; a gate that read
+    one too many would red a pull request for history it did not write.
+    """
+
+    def history(self, root: Path) -> dict:
+        """One repository carrying every kind of landing at once: an
+        undeclared rename BEFORE the base, a declared move, an archive
+        relocation, and an undeclared rename at the head."""
+        t = {}
+        packet(root, "change-p", ratified=True)
+        packet(root, "change-x", ratified=True)
+        t["a"] = commit_all(root, "create two ratified packets")
+        changes = root / "openspec" / "changes"
+        git(root, "mv", str(changes / "change-p"), str(changes / "change-q"))
+        t["b"] = commit_all(root, "rename p to q with no declaration")
+        git(root, "mv", str(changes / "change-q"), str(changes / "change-r"))
+        declare(changes / "change-r", "change-q")
+        t["c"] = commit_all(root, "move q to r and declare the move")
+        archive = changes / "archive"
+        archive.mkdir(parents=True)
+        git(root, "mv", str(changes / "change-r"),
+            str(archive / "2026-09-14-change-r"))
+        t["d"] = commit_all(root, "archive r under its own id")
+        git(root, "mv", str(changes / "change-x"), str(changes / "change-y"))
+        t["e"] = commit_all(root, "rename x to y with no declaration")
+        return t
+
+    def test_the_range_arm_judges_base_to_head_and_nothing_outside_it(self):
+        """THE RANGE IS THE UNIT CI RUNS, and it is asserted as one.
+
+        Over `b..e` the gate judges three commits and refuses exactly one —
+        the undeclared rename at the head. The declared move and the archive
+        relocation inside the same range pass, so the single refusal is not a
+        gate that refuses everything; and the undeclared rename at `b`, which
+        is already on the base branch, is NOT reported, because it is not this
+        pull request's to repair.
+
+        ANTI-VACUITY: that same `b` is asserted refusable in its own range, so
+        its silence over `b..e` is the RANGE and never the gate failing to see
+        it.
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td) / "src")
+            at = self.history(root)
+
+            report = fia.scan(root, base=at["b"], head=at["e"], env={})
+            self.assertEqual(report.commits_read, 3)
+            self.assertEqual([f.status for f in report.findings],
+                             [fia.UNDECLARED],
+                             [f.message for f in report.findings])
+            self.assertEqual(report.findings[0].commit, at["e"])
+            self.assertIn("`openspec/changes/change-x/`",
+                          report.findings[0].message)
+            self.assertIn("`openspec/changes/change-y/`",
+                          report.findings[0].message)
+            self.assertIn("3 commit(s) of", report.range_note)
+            # …and the two lawful landings were SEEN rather than missed: three
+            # moves paired, one of them excepted as an archive relocation.
+            self.assertEqual(report.moves_seen, 3)
+            self.assertEqual(report.moves_excepted_archive, 1)
+
+            # THE COMMIT BEFORE THE BASE IS REFUSABLE — it is simply not in
+            # this range.
+            before = fia.scan(root, base=at["a"], head=at["b"], env={})
+            self.assertEqual([f.status for f in before.findings],
+                             [fia.UNDECLARED])
+            self.assertEqual(before.findings[0].commit, at["b"])
+
+            # THE DECLARED MOVE AND THE ARCHIVE RELOCATION PASS AS A RANGE,
+            # not only as single commits.
+            lawful = fia.scan(root, base=at["b"], head=at["d"], env={})
+            self.assertEqual(lawful.findings, [])
+            self.assertEqual(lawful.commits_read, 2)
+
+    def test_the_cli_reads_the_same_range_and_exits_on_it(self):
+        """THE EXIT CODE IS THE WHOLE OF WHAT A REQUIRED CHECK READS, so the
+        range arm is driven as a SUBPROCESS too: exit 1 over a range carrying
+        the undeclared rename, exit 0 over the range that carries only lawful
+        landings, and exit 2 where a read in that range cannot be performed at
+        all.
+
+        The unreadable case is the same history on a blobless clone
+        (`design.md` M1): the declared move rewrote `.openspec.yaml` as it
+        travelled, so its rename is INEXACT, so the pairing needs a blob the
+        checkout cannot produce — and the gate refuses CANNOT RUN over the
+        range rather than reporting a clean one.
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td) / "src")
+            at = self.history(root)
+
+            refused = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(root),
+                 "--base", at["b"], "--head", at["e"]],
+                capture_output=True, text=True)
+            self.assertEqual(refused.returncode, 1, refused.stdout)
+            self.assertIn(fia.UNDECLARED, refused.stdout)
+            self.assertIn("3 commit(s) of", refused.stdout)
+
+            passed = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(root),
+                 "--base", at["b"], "--head", at["d"]],
+                capture_output=True, text=True)
+            self.assertEqual(passed.returncode, 0, passed.stdout)
+            self.assertIn("former-id arrival gate passed", passed.stdout)
+            self.assertIn("1 archive relocation(s) excepted by id",
+                          passed.stdout)
+
+            partial = blobless_clone(root, Path(td) / "partial")
+            cannot = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(partial),
+                 "--base", at["b"], "--head", at["e"]],
+                capture_output=True, text=True)
+            self.assertEqual(cannot.returncode, 2, cannot.stdout)
+            self.assertIn(fia.UNREADABLE, cannot.stdout)
+            self.assertIn("CANNOT RUN", cannot.stdout)
+
+
 class CliTests(unittest.TestCase):
     """The validator CLI: its statuses, its exits, and the flag it has not
     got."""
@@ -1163,6 +1290,35 @@ class CliTests(unittest.TestCase):
                 capture_output=True, text=True)
             self.assertEqual(passed.returncode, 0, passed.stdout)
             self.assertIn("former-id arrival gate passed", passed.stdout)
+
+    def test_a_run_without_pyyaml_refuses_rather_than_sweeping_vacuously(
+            self):
+        """A GREEN CHECK THAT PROVES NOTHING WAS READ IS NOT A PASS.
+
+        Without PyYAML `load_packet` answers None for every packet and
+        `former_id_problems` then has nothing to refuse, so the whole-tree
+        sweep would report a clean corpus it never read. The reader refuses at
+        the source rather than leaving the property to the workflow that
+        installs the dependency — the same anti-vacuity posture
+        `signed-execution-chain-gate.yml` writes an assertion step for.
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "change-a", ratified=True)
+            (directory / ".openspec.yaml").write_text(
+                MANIFEST + "former_ids: change-b\n", encoding="utf-8")
+            commit_all(root, "declare a scalar where a sequence is required")
+
+            with mock.patch.object(support, "yaml", None):
+                with self.assertRaises(fia.ArrivalCannotRun) as caught:
+                    fia.scan(root, env={})
+                self.assertEqual(cli.main([str(root)]), 2)
+            self.assertIn("PyYAML is not available", str(caught.exception))
+            self.assertIn(fia.UNREADABLE, str(caught.exception))
+
+            # …and with it, the same tree refuses the DECLARATION rather than
+            # the run, which is the difference the guard protects.
+            self.assertEqual(cli.main([str(root)]), 1)
 
     def test_the_live_corpus_passes_this_gate(self):
         """THE CORPUS ARM, OVER THIS REPOSITORY'S OWN PACKETS.
