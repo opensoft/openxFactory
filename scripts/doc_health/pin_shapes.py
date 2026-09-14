@@ -305,8 +305,10 @@ _FILES_REFUSAL = "the pin lists no `files:` members, so it pins no bytes"
 #     Task 3.3(p)'s measurement says the same thing from the other side, listing
 #     `source_repository` among that record's NINE non-table members.
 #   - an UNKNOWN pin id — a fixture, an added `contracts/<anything>-pin.yaml`,
-#     any future product — keeps the ALTERNATION: either spelling satisfies the
-#     entry and a record carrying NEITHER is refused, which is the failure the
+#     any future product — keeps the ALTERNATION: either WELL-FORMED spelling
+#     satisfies the entry (a present spelling in the wrong form is MALFORMED, as
+#     any present-and-malformed member is), a record may carry both, and a
+#     record carrying NEITHER is refused, which is the failure the
 #     design names ("the INTERSECTION would admit a record naming no product at
 #     all"). Selecting the regime by the PRESENCE of `submodule_path` instead
 #     would be the record choosing again, and would accept the deletion above.
@@ -494,8 +496,11 @@ def required_spellings(member: Member, pin_id: str | None) -> tuple[str, ...]:
     One for every single-spelling member. For shape (a)'s product-identity
     entry: the spelling `PRODUCT_IDENTITY_BY_PIN` holds for a KNOWN pin id —
     its own verifier's member, the other spelling being non-table for that
-    record — and BOTH for an unknown one, where the entry is an alternation
-    satisfied by either. See `_PRODUCT_IDENTITY`'s two regimes.
+    record — and BOTH for an unknown one, where the entry is an alternation:
+    MISSING only when NEITHER spelling is present, and any spelling that IS
+    present is judged by its own form, a present-but-malformed one being
+    MALFORMED exactly as an optional member present in the wrong form is. See
+    `_PRODUCT_IDENTITY`'s two regimes.
     """
     if len(member.spellings) == 1:
         return member.spellings

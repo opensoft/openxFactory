@@ -548,9 +548,13 @@ def test_the_product_identity_entry_has_two_regimes_keyed_on_the_pin_id():
     UNKNOWN PIN — a fixture, an added `contracts/<anything>-pin.yaml`, a future
     product this checker has measured no guards for: the ALTERNATION, because
     neither spelling can be preferred without a verifier to prefer it by. Either
-    satisfies the entry and a record carrying NEITHER is refused, which is the
-    INTERSECTION the design names ("would admit a record naming no product at
-    all"). The UNION is refused in both regimes: no record must carry both.
+    satisfies the entry and a record carrying NEITHER is refused as MISSING,
+    which is the INTERSECTION the design names ("would admit a record naming no
+    product at all"). The UNION — REQUIRING both — is a requirement neither
+    regime imposes: a record MAY carry both spellings (the real openxwallet
+    record does), and a spelling that IS present is judged by its own form, so a
+    present-but-malformed one is refused as MALFORMED, exactly as an optional
+    member present in the wrong form is.
     """
     assert ps.PRODUCT_IDENTITY_BY_PIN == {"openxwallet": "submodule_path",
                                           "openreposhape": "source_repository"}
@@ -596,12 +600,18 @@ def test_an_unknown_pin_carrying_both_identity_spellings_is_accepted_not_refused
     neither shape-(a) verifier refuses a record for carrying the one it does not
     read. An adapter refusing a both-present record would therefore be WIDER
     than the guards, which is the defect the two-leg test forbids. For an
-    UNKNOWN pin the alternation admits either or both and refuses only
-    NEITHER."""
+    UNKNOWN pin the alternation admits either or both WELL-FORMED spellings,
+    refuses NEITHER-present as MISSING, and refuses a present spelling in the
+    wrong form as MALFORMED — a broken byte is never a silent pass (round 5)."""
     record = dict(_base("a"), submodule_path="vendor/x",
                   source_repository="opensoft/x")
     assert ps.judge(record, pin_id="fixture-unknown").accepted
     assert ps.judge(record).accepted
+    broken = dict(record, source_repository="no-slash-here")
+    verdict = ps.judge(broken, pin_id="fixture-unknown")
+    assert not verdict.accepted and any(
+        f.member == "source_repository" and f.defect == ps.MALFORMED
+        for f in verdict.failures), verdict.render()
     neither = {k: v for k, v in record.items()
                if k not in ("submodule_path", "source_repository")}
     verdict = ps.judge(neither, pin_id="fixture-unknown")
