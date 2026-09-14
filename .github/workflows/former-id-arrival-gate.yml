@@ -102,12 +102,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      # THE READER REFUSES WITHOUT IT rather than sweeping a corpus it cannot
-      # parse: with no PyYAML every `.openspec.yaml` reads as declaring
+      # THE READER REFUSES WITHOUT PyYAML rather than sweeping a corpus it
+      # cannot parse: with no PyYAML every `.openspec.yaml` reads as declaring
       # nothing and the whole-tree sweep would report a clean corpus it never
       # read. Installed here so the gate can run; refused there so the gate
       # cannot pass vacuously if it is ever run somewhere this step is not.
-      - run: pip install pyyaml
+      #
+      # THE HASHED LOCKFILE, NOT AN AD-HOC PIP LIST. `pip install pyyaml`
+      # resolves whatever PyPI serves at run time: no version, no hash. This
+      # repository's own newer pattern is the `.in`/`.lock` pair installed with
+      # `--require-hashes`, which `pytest-suite.yml` and `review-lane-repin.yml`
+      # both take and the latter's comment gives the reason for; the lock
+      # carries `pyyaml==6.0.3`, the only import this gate's reader needs. The
+      # older gates beside this one still carry the ad-hoc list they were
+      # written with, and this file does not follow them there.
+      - name: Install the pinned dependency set
+        run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
 
       - name: Judge every landing this pull request carries
         shell: bash
