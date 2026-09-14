@@ -2099,7 +2099,16 @@ def test_an_ambiguous_referent_is_refused_against_the_declaration(
     names exists, exactly as written — and the reference is still refused,
     because an id that resolves twice has no answer to give. The finding places
     the repair where the requirement places it: on the DECLARATION that made one
-    identity resolve twice, and not on the record that cited it."""
+    identity resolve twice, and not on the record that cited it.
+
+    THE CLOSING SENTENCE NAMES NO SINGLE CAUSE, moved with the wording it
+    pins: two dated archive directories can make one identity resolve twice
+    with no declaration involved at all, so `_ambiguous_report` no longer
+    says "the declaration" unconditionally — it says a duplicate packet
+    location "as much as" a `former_ids:` declaration, and this fixture's own
+    declaring packet (`add-the-claimant`) is still named in the candidate list
+    either way. (Copilot `PRRT_kwDOTAvnrs6iTWy0`.)
+    """
     module = _load_checker()
     _packet_in(tmp_path, "openspec/changes/add-a-contested-id",
                files=("proposal.md", "tasks.md"))
@@ -2113,7 +2122,8 @@ def test_an_ambiguous_referent_is_refused_against_the_declaration(
     out = capsys.readouterr().out
     assert "AMBIGUOUS" in out, out
     assert "add-the-claimant" in out, out
-    assert "belongs to the declaration" in out, out
+    assert "declares" in out, out
+    assert "WHATEVER MADE THIS IDENTITY RESOLVE TWICE" in out, out
     assert "which owes no edit" in out, out
 
 

@@ -305,23 +305,36 @@ def packet_reference(claimed) -> tuple[str, str] | None:
     A REMAINDER MAY BE EMPTY: a citation legitimately names a packet directory.
 
     WHAT IS REFUSED AS "NOT A PACKET REFERENCE", each for its own reason: a path
-    that is absolute or carries a `.`/`..` segment, because a reference that
-    walks out of the tree is the caller's containment question and never this
-    reader's (`resolve_in_tree` in the consumer refuses it in those words, and a
-    library that trusted its caller's containment would hand the next caller a
-    read outside the repository); `openspec/changes/archive` itself and a
-    directory under it whose name carries no archive date, because neither names
-    a packet; and a second segment that is not a change id by the grammar this
-    estate resolves a packet with, or is the literal `archive`, which
-    `active_change_dir` refuses by name for the same reason.
+    that is absolute or carries a `..` segment, because a reference that walks
+    out of the tree is the caller's containment question and never this
+    reader's (`resolve_in_tree` in the consumer refuses `..` in those words,
+    and a library that trusted its caller's containment would hand the next
+    caller a read outside the repository); `openspec/changes/archive` itself
+    and a directory under it whose name carries no archive date, because
+    neither names a packet; and a second segment that is not a change id by
+    the grammar this estate resolves a packet with, or is the literal
+    `archive`, which `active_change_dir` refuses by name for the same reason.
+
+    A BARE `.` SEGMENT IS DROPPED, NOT REFUSED — it is not the same question
+    as `..`. `resolve_in_tree`'s own `candidate.parts` is built by `pathlib`,
+    which already elides a `.` segment silently, so the consumer resolves
+    `openspec/changes/foo/./proposal.md` exactly as it resolves the same path
+    without one; a citation spelled that way stood at its raw path while `foo`
+    is active. Refusing it here as NOT A PACKET REFERENCE — this reader's
+    string split does not get `pathlib`'s elision for free — would have handed
+    the caller's raw-path resolution a citation that same caller reads as
+    ordinary, and then reported it dangling by PATH instead of resolving it by
+    IDENTITY the day `foo` archives: the defect this whole module exists to
+    stop, reintroduced through the one segment nobody thought to spell
+    unusually. (Copilot `PRRT_kwDOTAvnrs6iTWyS`.)
     """
     if not isinstance(claimed, str) or not claimed.strip():
         return None
     raw = claimed.strip()
     if raw.startswith("/"):
         return None
-    parts = [part for part in raw.split("/") if part]
-    if any(part in (".", "..") for part in parts):
+    parts = [part for part in raw.split("/") if part and part != "."]
+    if any(part == ".." for part in parts):
         return None
     if len(parts) < 3 or parts[0] != "openspec" or parts[1] != "changes":
         return None
@@ -524,13 +537,23 @@ def _file_half_report(identity: str, remainder: str, location: Claim) -> str:
 
 
 def _ambiguous_report(identity: str, candidates) -> str:
+    # THE CLOSING SENTENCE NAMES NO SINGLE CAUSE, because there is more than
+    # one: two dated archive directories for one id, or an archived
+    # directory's literal reading colliding with another packet's own id, are
+    # a duplicate PACKET LOCATION and involve no `former_ids:` declaration at
+    # all — each candidate's own `why` above already says which is which, and
+    # a reader sent looking for "the declaration" when the defect is two
+    # directories is sent looking for a repair that does not exist. (Copilot
+    # `PRRT_kwDOTAvnrs6iTWy0`.)
     return (f"the packet id `{identity}` resolves to MORE THAN ONE packet — "
             + "; ".join(claim.why for claim in candidates)
             + " — so this reference is AMBIGUOUS and is NOT resolved by "
               "preferring one candidate: a resolver that picked one would make "
               "this record's meaning depend on sort order. The defect belongs "
-              "to the declaration that made one identity resolve twice and not "
-              "to the citing record, which owes no edit")
+              "to WHATEVER MADE THIS IDENTITY RESOLVE TWICE — a duplicate "
+              "packet location as much as a `former_ids:` declaration "
+              "repeating an id another packet already carries — and never to "
+              "the citing record, which owes no edit")
 
 
 def _resolved_report(identity: str, location: Claim,

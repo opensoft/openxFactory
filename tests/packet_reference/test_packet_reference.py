@@ -349,6 +349,36 @@ def test_the_ambiguity_belongs_to_the_declaration_and_not_to_the_citing_record(
     assert "no edit" in resolution.report
 
 
+def test_a_duplicate_packet_location_is_ambiguous_with_no_declaration_at_all(
+        tmp_path) -> None:
+    """AN IDENTITY CAN RESOLVE TWICE WITH NO `former_ids:` DECLARATION
+    INVOLVED AT ALL — two dated archive directories for the same id, the
+    archive relocation's own duplicate rather than one a declaration created.
+    `_ambiguous_report`'s closing sentence must not name "the declaration" as
+    though it were the only possible cause, or a reader sent looking for one
+    here is sent looking for a repair that does not exist. (Copilot
+    `PRRT_kwDOTAvnrs6iTWy0`.)
+    """
+    root = _tree(tmp_path)
+    _packet(root, "openspec/changes/archive/2026-09-01-add-a-duplicated-one",
+            files=("proposal.md",))
+    _packet(root, "openspec/changes/archive/2026-09-05-add-a-duplicated-one",
+            files=("proposal.md",))
+
+    resolution = pr.resolve(
+        root, "openspec/changes/add-a-duplicated-one/proposal.md")
+
+    assert resolution.status == pr.AMBIGUOUS, resolution.report
+    assert all(claim.kind == pr.ARCHIVED for claim in resolution.candidates)
+    assert len(resolution.candidates) == 2
+    # NEITHER CANDIDATE'S OWN REASON NAMES A DECLARATION — both are dated
+    # archive directories, and the closing sentence's generic mention of
+    # `former_ids:` (covering the OTHER possible cause) is not one.
+    assert not any("declares" in claim.why for claim in resolution.candidates)
+    assert "duplicate packet location" in resolution.report
+    assert "no edit" in resolution.report
+
+
 def test_a_reference_that_resolves_owes_the_citing_record_no_edit(
         tmp_path) -> None:
     """The requirement's own remedy sentence, asserted as behaviour.
@@ -458,6 +488,38 @@ def test_the_resolver_never_walks_out_of_the_tree(tmp_path) -> None:
                     "openspec/changes/../changes/add-a-real-one/proposal.md",
                     "openspec/changes/add-a-real-one/../../../etc/passwd"):
         assert pr.packet_reference(claimed) is None, claimed
+
+
+def test_a_bare_dot_segment_is_dropped_and_not_refused(tmp_path) -> None:
+    """A `.` segment is not the same question as `..`, and this reader must
+    not answer it as though it were.
+
+    `resolve_in_tree`'s own `candidate.parts` is built by `pathlib`, which
+    elides a bare `.` segment silently — so the consumer resolves
+    `openspec/changes/add-a-thing/./proposal.md` exactly as it resolves the
+    same citation without the `.`, and such a citation stands at its raw path
+    while the packet is ACTIVE. Refusing it here as NOT A PACKET REFERENCE
+    would hand the caller's raw-path resolution a citation that caller reads
+    as perfectly ordinary — passing today — and then report it DANGLING by
+    path instead of resolving it by IDENTITY the day the packet archives:
+    exactly the defect this module exists to stop, reintroduced through one
+    unusually-spelled segment. (Copilot `PRRT_kwDOTAvnrs6iTWyS`.)
+    """
+    root = _tree(tmp_path)
+    _packet(root, "openspec/changes/archive/2026-09-07-add-a-thing",
+            files=("proposal.md",))
+
+    dotted = pr.resolve(
+        root, "openspec/changes/add-a-thing/./proposal.md")
+    plain = pr.resolve(root, "openspec/changes/add-a-thing/proposal.md")
+    assert dotted.status == pr.RESOLVED, dotted.report
+    assert dotted.identity == plain.identity == "add-a-thing"
+    assert dotted.resolved_rel == plain.resolved_rel == (
+        "openspec/changes/archive/2026-09-07-add-a-thing/proposal.md")
+
+    # `..` IS STILL REFUSED — dropping `.` must not have loosened it.
+    assert pr.packet_reference(
+        "openspec/changes/add-a-thing/../add-a-thing/proposal.md") is None
 
 
 def test_an_archived_spelling_resolves_by_id_when_the_archive_date_moves(
