@@ -2555,6 +2555,12 @@ def test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose(
         carved_reach.source("scripts/pkg/retired.py")
 
 
+def _cross_reference_validator():
+    """`scripts/validate-ideation-cross-reference.py` as a module, by path."""
+    return _load_by_path("validate-ideation-cross-reference.py",
+                         "validate_ideation_cross_reference")
+
+
 def _load_by_path(filename: str, module_name: str):
     """A hyphenated `scripts/` entry point as a module, by path."""
     spec = importlib.util.spec_from_file_location(
@@ -2567,8 +2573,10 @@ def _load_by_path(filename: str, module_name: str):
 
 def test_the_retirement_refusal_reaches_its_callers_as_their_own_error(
         tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """The three RETAINED-CONSUMER call sites translate `CarveRowRetired`
-    instead of letting it out as a traceback (Copilot review of PR #1032).
+    """The five RETAINED-CONSUMER call sites translate `CarveRowRetired`
+    instead of letting it out as a traceback (Copilot review of PR #1032,
+    rounds 1 and 2 — round 1 found three, round 2 found the two that resolve
+    a path through a ROOT rather than by name).
 
     `shed_destination()` is how a consumer of a file the § 5.2 shed MOVED
     reads it from the pinned leg (RULED (a), `#656` comment `5625573095`). It
@@ -2581,9 +2589,13 @@ def test_the_retirement_refusal_reaches_its_callers_as_their_own_error(
 
     Each now answers in its own vocabulary — a `FAIL` line and a non-zero exit
     for the digest sweep, `CatalogError` (HRC-CATALOG-INVALID) for the Hermes
-    family catalog, a named `RuntimeError` for the cross-reference validator
-    whose `main()` would otherwise label it `harness failure`, which is the
-    one thing it is not.
+    family catalog, a named `RetiredSchema` finding for the cross-reference
+    validator whose `main()` would otherwise label it `harness failure`, which
+    is the one thing it is not, `ContractPinError` for the doxbench contract
+    pin — the refusal that function already raises for a pinned schema the
+    checkout does not have — and `ReleaseDependencyError` for the release
+    source, whose `exists()` would otherwise answer a plain FALSE for a file
+    that is not absent but DELETED BY RULING.
 
     `scripts/sync-notebooklm-books.py` is deliberately NOT in this list: it
     asks `module()` for a dotted name, its own docstring says a shed module
@@ -2591,6 +2603,19 @@ def test_the_retirement_refusal_reaches_its_callers_as_their_own_error(
     that refusal one subclass further down.
     """
     import carved_reach
+
+    # IMPORTED BEFORE THE PATCH, every one of them: two of these modules read
+    # the manifest AT IMPORT TIME (`doxbench_contracts.VALIDATOR_IN_CHECKOUT`
+    # is computed from a row), and importing them under the stub rows below
+    # would cache an answer derived from a fixture for the rest of the
+    # session.
+    digests = _load_by_path("validate-manifest-digests.py",
+                            "validate_manifest_digests")
+    cross = _load_by_path("validate-ideation-cross-reference.py",
+                          "validate_ideation_cross_reference")
+    catalog = importlib.import_module("scripts.hermes_runtime_validation.catalog")
+    release = importlib.import_module("scripts.hermes_runtime_validation.release")
+    doxbench = importlib.import_module("ideation_dashboard.doxbench_contracts")
 
     key = "scripts/ideation_dashboard/retired_reader.py"
     rows = {key: {
@@ -2611,32 +2636,39 @@ def test_the_retirement_refusal_reaches_its_callers_as_their_own_error(
                         dict(carved_reach.MOUNTS, opendox_code=leg))
     target = carved_reach.REPO_ROOT / key
 
-    digests = _load_by_path("validate-manifest-digests.py",
-                            "validate_manifest_digests")
     with pytest.raises(digests.RetiredMember) as caught:
         digests.shed_aware(target)
     assert "5656343213" in str(caught.value), caught.value
 
-    cross = _load_by_path("validate-ideation-cross-reference.py",
-                          "validate_ideation_cross_reference")
-    with pytest.raises(RuntimeError) as raised:
+    with pytest.raises(cross.RetiredSchema) as raised:
         cross.shed_aware(target)
     assert "RETIRED" in str(raised.value), raised.value
     assert not isinstance(raised.value, ImportError), (
         "the whole point is that it stops being an ImportError at the caller")
 
-    catalog = importlib.import_module("scripts.hermes_runtime_validation.catalog")
     with pytest.raises(catalog.CatalogError) as refused:
         catalog._shed_destination(target, "contracts[0]")
     assert "contracts[0]" in str(refused.value), refused.value
     assert "5656343213" in str(refused.value), refused.value
 
-    # …and with NO retirement on the row the three answer exactly as before.
+    with pytest.raises(release.ReleaseDependencyError) as owed:
+        release._shed_aware(target)
+    assert "RETIRED" in str(owed.value), owed.value
+    assert "5656343213" in str(owed.value), owed.value
+
+    with pytest.raises(doxbench.ContractPinError) as pinned:
+        doxbench._shed_aware(target)
+    assert "RETIRED" in str(pinned.value), pinned.value
+    assert "5656343213" in str(pinned.value), pinned.value
+
+    # …and with NO retirement on the row the five answer exactly as before.
     rows[key].pop("retired")
     assert digests.shed_aware(target) == carved_reach.source(key)
     assert cross.shed_aware(target) == carved_reach.source(key)
     assert catalog._shed_destination(target, "contracts[0]") \
         == carved_reach.source(key)
+    assert release._shed_aware(target) == carved_reach.source(key)
+    assert doxbench._shed_aware(target) == carved_reach.source(key)
 
 
 # --------------------------------------------------------------------------
@@ -3368,6 +3400,42 @@ def test_carved_reach_resolves_the_four_re_destined_rows_at_their_arrival() -> N
         assert swept[key] == arrived, (
             f"{key}: sources_under() delegates to source(); a dashboard "
             f"compositor sweep must not link the vacated path either")
+
+
+def test_a_retired_schema_is_a_finding_and_not_a_harness_failure(
+        capsys: pytest.CaptureFixture[str],
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """WHERE the cross-reference validator's retirement lands (Copilot review
+    of PR #1032, round 2).
+
+    Round 1 gave the refusal a name so it would stop being an `ImportError`
+    at the caller. It was still a bare `RuntimeError`, and `main()` catches
+    every `Exception` and prints `ERROR harness failure: …` with exit 2 —
+    which says the tool broke. The tool did not break: it read the manifest,
+    found that a ruling had DELETED the schema it validates against, and said
+    so. That is a FINDING about the document set, so it is reported as one,
+    through the same `Findings`/`report` pair as every other error, with the
+    validator's own exit code 1 — and the two orchestrators are where it is
+    caught, because `main()` has no `Findings` to put it in.
+    """
+    cross = _cross_reference_validator()
+    message = ("a RULING has RETIRED the schema scratch.schema.yaml at its "
+               "leg (RULED 5656343213)")
+
+    def retired() -> None:
+        raise cross.RetiredSchema(message)
+
+    monkeypatch.setattr(cross, "build_registry", retired)
+
+    for run_one in (lambda: cross.run_default(REPO_ROOT, False),
+                    lambda: cross.run_path(REPO_ROOT / "ideation",
+                                           REPO_ROOT, False)):
+        capsys.readouterr()
+        assert run_one() == 1
+        printed = capsys.readouterr()
+        assert "ERROR [schema-retired]" in printed.out, printed
+        assert message in printed.out, printed
+        assert "harness failure" not in printed.out + printed.err, printed
 
 
 def test_the_real_manifest_carries_the_retirement_form_and_uses_it_nowhere() -> None:

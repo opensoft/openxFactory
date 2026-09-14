@@ -1097,12 +1097,27 @@ def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
     row. Both defaults are the same sentence: where the block cannot be read,
     the answer is the placement the CARVE made, and a mis-shaped block is
     `validate-carve-manifest.py`'s `carve-shape-invalid` — never a licence.
+
+    ALL FOUR REQUIRED KEYS ARE THE GUARD, not the two a placement needs
+    (Copilot review of PR #1032, round 2). `retired: {at, at_path}` is half a
+    block: `validate-carve-manifest.py` refuses it — `carve-retired-unruled`,
+    then `carve-shape-invalid` on the missing `surface` — but THIS predicate is
+    read by tools that never run that validator. `verify-carve-arrival.py` is
+    run at a leg against a `--dest-root` and `carved_reach` is imported by
+    every retained consumer, so "the validator would have caught it" is not
+    true at the moment of reading; a half-written block would silence a
+    required arrival before anyone validated the document. Four non-empty
+    strings or no retirement — the same closed key set (`at`, `at_path`,
+    `ruling`, `surface`, and the optional `note`) the form itself declares.
     """
     retired = row.get("retired")
     if isinstance(retired, dict):
         at = retired.get("at")
         at_path = retired.get("at_path")
-        if isinstance(at, str) and isinstance(at_path, str):
+        ruling = retired.get("ruling")
+        surface = retired.get("surface")
+        if all(isinstance(value, str) and value.strip()
+               for value in (at, at_path, ruling, surface)):
             return at, at_path
     return None, None
 

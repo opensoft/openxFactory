@@ -431,12 +431,29 @@ def _shed_aware(target: Path) -> Path:
 
     Imported lazily and never required: a consumer's pinned copy of this module
     sits in a checkout with no carve manifest and answers exactly as before.
+
+    A ROW THAT A RULING HAS RETIRED ARRIVES AS A `ContractPinError` (RULED
+    5656343213; Copilot review of PR #1032, round 2). `shed_destination()`
+    refuses such a row by name — `CarveRowRetired`, a subclass of
+    `ShedModuleHasNoDestination` and so of `ImportError` — and the `except`
+    above guards the lazy IMPORT, not the CALL, so without this the refusal
+    would leave `_pinned_schema_bytes` as an uncaught traceback in the one
+    function whose entire job is to refuse in this family's own vocabulary.
+    Nothing is downgraded by the translation: a pinned schema whose bytes a
+    ruling deleted at its leg IS the "pinned schema is absent from the
+    checkout" this module already refuses, arrived by a different road, and
+    the refusal names the road.
     """
     try:
-        from carved_reach import shed_destination
+        from carved_reach import CarveRowRetired, shed_destination
     except ImportError:  # pragma: no cover - no manifest, nothing to resolve
         return target
-    moved = shed_destination(target)
+    try:
+        moved = shed_destination(target)
+    except CarveRowRetired as exc:
+        raise ContractPinError(
+            f"{target.name}: a RULING has RETIRED this pinned file at its "
+            f"leg, so there are no bytes to verify — {exc}") from exc
     return moved if moved is not None else target
 
 

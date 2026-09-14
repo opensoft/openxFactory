@@ -1906,6 +1906,12 @@ def test_all_three_tools_read_the_retirement_identically() -> None:
     RETIREMENT reading as one would SILENCE this leg's arrival check for that
     row, so `retired: {}` and a block whose `at_path` is a list must both read
     as NO retirement in all three.
+
+    THE LAST FIVE ROWS ARE THE HALF-WRITTEN BLOCKS (Copilot review of PR
+    #1032, round 2): `at` and `at_path` present and well-formed, `ruling` or
+    `surface` missing, empty, blank or not a string. Each is a placement a
+    reader COULD act on and a retirement this floor has not ruled, and the
+    guard's four required keys are what keep the two apart.
     """
     other = _load_manifest_validator()
     import carved_reach  # noqa: E402 — local: only this test needs it here
@@ -1925,6 +1931,23 @@ def test_all_three_tools_read_the_retirement_identically() -> None:
          "retired": {"at": "scratch_code", "at_path": ["src/pkg/a.py"]}},
         {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
          "retired": {"at": ["scratch_code"], "at_path": "src/pkg/a.py"}},
+        # …and the four-key half-blocks: a usable PLACEMENT, no ruled
+        # RETIREMENT (Copilot review of PR #1032, round 2).
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py"}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "ruling": RETIREMENT_RULING}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "surface": RETIRED_SURFACE}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "ruling": RETIREMENT_RULING, "surface": "   "}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "ruling": {"comment": 5656343213},
+                     "surface": RETIRED_SURFACE}},
         {},
     ]
     for row in table:
@@ -1933,6 +1956,49 @@ def test_all_three_tools_read_the_retirement_identically() -> None:
     assert MODULE.retired_at(table[1]) == ("scratch_code", "src/pkg/a.py")
     for row in table[2:]:
         assert MODULE.retired_at(row) == (None, None), row
+
+
+def test_a_half_written_retirement_leaves_the_arrival_owed(
+        carve: Carve) -> None:
+    """WHAT THE FOUR-KEY GUARD BUYS, at the tool that would have paid for its
+    absence (Copilot review of PR #1032, round 2).
+
+    A leg acting on a `retired:` block DELETES the file, and this fixture's
+    own reader is deliberately loose about the rest of the block — so the tree
+    below is exactly the tree that act leaves behind, and the only question
+    left is whether the floor accepts it. It must not: `retired:` with a
+    well-formed `at`/`at_path` but no `ruling` and no `surface` is a placement
+    a reader could act on and a retirement NOBODY RULED, and the row is still
+    owed here. The refusal is the ordinary one for a file the manifest says
+    arrived and the tree does not have.
+
+    `validate-carve-manifest.py` refuses the same document as
+    `carve-shape-invalid` — but that is a DIFFERENT tool, run at a different
+    moment, against the manifest rather than against a leg. This one runs at
+    the leg with `--dest-root`, routinely before anyone has validated the
+    document, and this test is what says the absence is not licensed in the
+    meantime.
+    """
+    doc = carve.manifest_doc()
+    row = _retire(doc)
+    del row["retired"]["ruling"]
+    del row["retired"]["surface"]
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    assert not (dest / RETIRED_AT_PATH).exists()
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-missing"
+    assert RETIRED_AT_PATH in json.loads(done.stdout)["detail"], done.stdout
+
+    # …and the COMPLETE block over the SAME tree verifies, so what the
+    # refusal above measures is the two missing keys and not the tree.
+    whole_doc = carve.manifest_doc()
+    _retire(whole_doc)
+    whole = carve.write_manifest(whole_doc, name="manifest-whole.yaml")
+    done = run(carve, whole, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
 
 
 def test_the_module_records_the_retirement_and_what_it_does_not_prove(
