@@ -133,6 +133,19 @@ def _tree(tmp_path: Path) -> Path:
     return tmp_path
 
 
+def _outside_packet(tmp_path: Path, name: str, *, files=("proposal.md",),
+                     former_ids=None) -> Path:
+    """A packet directory built OUTSIDE `tmp_path`, so a fixture can link a
+    tree entry to it and measure what a reader that followed the link would
+    see. Sibling of `_packet`, deliberately rooted somewhere the subject is
+    never handed as `root` — a directory next to `tmp_path` rather than under
+    it, which pytest's own base temp directory makes free to use without
+    reaching past it into anything this suite does not own.
+    """
+    outside_root = tmp_path.parent / f"{tmp_path.name}-outside"
+    return _packet(outside_root, name, files=files, former_ids=former_ids)
+
+
 # --------------------------------------------------------------------------
 # The six scenarios of `A packet reference resolves by identity, not by path`
 # --------------------------------------------------------------------------
@@ -563,6 +576,115 @@ def test_the_index_claims_at_least_what_the_corpus_ownership_sweep_claims(
     live_index = set(pr.PacketIndex(REPO_ROOT).identities())
     assert live_swept <= live_index, sorted(live_swept - live_index)
     assert len(live_index) > len(live_swept)
+
+
+# --------------------------------------------------------------------------
+# Symlink escape: the index must not follow a link out of `root` (Copilot
+# review, PR #1037, `scripts/packet_reference.py:336`)
+# --------------------------------------------------------------------------
+
+def test_a_symlinked_archive_packet_pointing_outside_root_is_not_indexed(
+        tmp_path) -> None:
+    """A symlinked ARCHIVE packet directory pointing outside `root` must not
+    be indexed, and a citation into it must resolve DANGLING rather than read
+    the outside content.
+
+    MEASURED AGAINST THE UNGUARDED READER (Copilot's finding). Before this
+    guard: `PacketIndex` indexed the link (`Path.is_dir()` follows it to the
+    outside target's own type), `Claim.carries` answered True for a file that
+    exists only through it, and `resolve` reported RESOLVED while the bytes a
+    caller would actually open came from outside the checkout — proved by
+    reading them (`"outside content, not part of the checkout"`) before this
+    commit. `check_citations` only containment-checks the CITED SPELLING
+    (`openspec/changes/<id>/...`), and that spelling never itself crosses the
+    link: the link sits at the ARCHIVE location the identity resolves TO, a
+    path this module's own directory scan builds and the citing record never
+    typed.
+    """
+    root = _tree(tmp_path)
+    outside = _outside_packet(tmp_path, "add-a-linked-one",
+                              files=("proposal.md", "evidence/run.md"))
+    linked = root / "openspec/changes/archive/2026-09-10-add-a-linked-one"
+    linked.symlink_to(outside, target_is_directory=True)
+
+    index = pr.PacketIndex(root)
+    assert "add-a-linked-one" not in index.identities()
+    assert index.claims("add-a-linked-one") == ()
+
+    resolution = pr.resolve(
+        root, "openspec/changes/add-a-linked-one/proposal.md")
+    assert resolution.status == pr.DANGLING, resolution.report
+    assert resolution.half == pr.IDENTITY_HALF
+    assert resolution.location is None
+
+
+def test_a_symlinked_live_packet_pointing_outside_root_is_not_indexed(
+        tmp_path) -> None:
+    """The LIVE half of the same scan (`changes.iterdir()`, the sibling of the
+    `archive.iterdir()` Copilot named at line 336) must refuse the identical
+    link — the defect is in the SHAPE of the scan and not specific to the
+    archive branch of it.
+    """
+    root = _tree(tmp_path)
+    outside = _outside_packet(tmp_path, "add-a-linked-live-one")
+    linked = root / "openspec/changes/add-a-linked-live-one"
+    linked.symlink_to(outside, target_is_directory=True)
+
+    index = pr.PacketIndex(root)
+    assert "add-a-linked-live-one" not in index.identities()
+
+    resolution = pr.resolve(
+        root, "openspec/changes/add-a-linked-live-one/proposal.md")
+    assert resolution.status == pr.DANGLING, resolution.report
+    assert resolution.half == pr.IDENTITY_HALF
+
+
+def test_a_symlinked_openspec_yaml_marker_is_not_read_through(
+        tmp_path) -> None:
+    """A REAL packet directory, standing legitimately inside `root`, whose own
+    `.openspec.yaml` is a symlink to a file outside `root` must not have its
+    `former_ids:` read through the link — `.is_file()` follows it exactly as
+    `.is_dir()` follows one on a whole directory, and `declared_former_ids_of`
+    would otherwise mint a claim from bytes this checkout never carried.
+    """
+    root = _tree(tmp_path)
+    outside = _outside_packet(tmp_path, "outside-declarer",
+                              former_ids=["add-an-outside-claimed-id"])
+
+    directory = root / "openspec/changes/add-a-legit-directory"
+    directory.mkdir(parents=True)
+    (directory / "proposal.md").write_text("# proposal.md\n", encoding="utf-8")
+    (directory / ".openspec.yaml").symlink_to(outside / ".openspec.yaml")
+
+    index = pr.PacketIndex(root)
+    assert "add-an-outside-claimed-id" not in index.identities()
+    assert pr.resolve(
+        root, "openspec/changes/add-an-outside-claimed-id/proposal.md"
+    ).status == pr.DANGLING
+
+
+def test_a_symlinked_file_inside_a_legitimate_packet_is_not_read_as_carried(
+        tmp_path) -> None:
+    """`Claim.carries` must not answer True for a remainder that only exists
+    by following a symlink out of `root`, even where the PACKET DIRECTORY
+    itself is real and stands legitimately inside it — the citation names a
+    file inside a sound packet, and the file is the half that fails.
+    """
+    root = _tree(tmp_path)
+    outside_dir = tmp_path.parent / f"{tmp_path.name}-outside-file"
+    outside_dir.mkdir(parents=True)
+    outside_file = outside_dir / "secret.md"
+    outside_file.write_text("outside content, not part of the checkout\n",
+                            encoding="utf-8")
+
+    _packet(root, "openspec/changes/add-a-legit-packet", files=("proposal.md",))
+    (root / "openspec/changes/add-a-legit-packet/linked.md").symlink_to(
+        outside_file)
+
+    resolution = pr.resolve(
+        root, "openspec/changes/add-a-legit-packet/linked.md")
+    assert resolution.status == pr.DANGLING, resolution.report
+    assert resolution.half == pr.FILE_HALF
 
 
 # --------------------------------------------------------------------------

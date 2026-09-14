@@ -173,16 +173,28 @@ class Claim:
         return (f"`{self.declared_by}` declares `{self.identity}` in "
                 f"`{support.FORMER_IDS_KEY}:`")
 
-    def carries(self, remainder: str) -> bool:
+    def carries(self, remainder: str, root: Path) -> bool:
         """Whether this packet carries the remainder a citation names.
 
         `.exists()` and not `.is_file()`, in step with the consumer this reader
         was built for: "a citation legitimately names a change packet's
         directory", so a remainder naming a subdirectory resolves.
+
+        `root` IS PASSED AND NOT STORED: a `Claim` is a location within
+        whatever tree `PacketIndex` was built over and carries no root of its
+        own. It is needed here because `remainder` is CITATION-SUPPLIED text —
+        never a `.`/`..` segment (`packet_reference` refuses those before this
+        is reached), but still free to name a path segment that happens to be
+        a symlink escaping `root` from inside an otherwise legitimate packet
+        directory, and `.exists()` would follow it. `_contained` is applied to
+        `self.path` too, even though `PacketIndex._build` only ever
+        constructs a `Claim` from a directory that already passed the same
+        check — belt and suspenders over an invariant a future caller could
+        otherwise break by constructing one directly.
         """
-        if not remainder:
-            return self.path.exists()
-        return (self.path / remainder).exists()
+        target = self.path if not remainder else self.path / remainder
+        contained = _contained(root, target)
+        return contained is not None and contained.exists()
 
 
 @dataclass(frozen=True)
@@ -230,6 +242,49 @@ def _normalised(claimed: str) -> str:
     """A claimed path with its empty segments dropped, so a trailing slash is
     not a different reference from the same path without one."""
     return "/".join(part for part in str(claimed).split("/") if part)
+
+
+def _contained(root: Path, path: Path) -> Path | None:
+    """`path` resolved — following every symlink in the chain — and returned
+    only where it still stands inside `root`; `None` where it does not, or
+    where resolving it cannot be done at all (a symlink loop, an unreadable
+    segment).
+
+    `Path.is_dir()`, `Path.is_file()` and `Path.exists()` all follow symlinks,
+    and every path this module tests one of them against is either a WORKING
+    TREE ENTRY (`PacketIndex._build`'s directory scan) or built by joining a
+    CITATION-SUPPLIED remainder onto one (`Claim.carries`, `resolve`'s own
+    fallback) — both a hostile or careless commit controls. Mirrors
+    `scripts/validate-pin-registrations.py`'s `resolve_in_tree` containment
+    idiom (`.resolve()` then `is_relative_to`) rather than inventing a second
+    one: this module's own docstring already credits that function with the
+    judgement "a reference that walks out of the tree is the caller's
+    containment question and never this reader's" — true of a citation's
+    SPELLING, and equally true of a directory this module discovers by
+    walking the tree that spelling names.
+    """
+    try:
+        resolved_root = root.resolve()
+        resolved = path.resolve()
+    except (OSError, RuntimeError):
+        return None
+    return resolved if resolved.is_relative_to(resolved_root) else None
+
+
+def _contained_dir(root: Path, path: Path) -> bool:
+    """True where `path` is a directory that stays inside `root` once every
+    symlink in it is resolved; False otherwise, INCLUDING where `path` is a
+    symlink to a directory OUTSIDE `root` — the case `Path.is_dir()` alone
+    answers wrongly, because it follows the link and reports the target's own
+    type rather than anything about where the link itself sits. A directory
+    that fails this contributes NO CLAIM, exactly as `PacketIndex._build`
+    already treats a malformed `former_ids:` declaration: "a resolver that
+    raised here would turn one packet's malformed declaration into a refusal
+    of every citation in the corpus" — true in the same words of one hostile
+    symlink.
+    """
+    resolved = _contained(root, path)
+    return resolved is not None and resolved.is_dir()
 
 
 def packet_reference(claimed) -> tuple[str, str] | None:
@@ -304,6 +359,18 @@ class PacketIndex:
     and `former_id_problems` is the reader that reports shape". A resolver that
     raised here would turn one packet's malformed declaration into a refusal of
     every citation in the corpus.
+
+    A DIRECTORY THAT ESCAPES `root` CONTRIBUTES NO CLAIM EITHER, on the same
+    ground. `Path.is_dir()` and `Path.iterdir()` follow symlinks, and a
+    symlinked packet directory pointing outside `root` — committed by a
+    hostile or careless PR — would otherwise be indexed and read through the
+    link, exactly as `check_citations`'s own containment check
+    (`resolve_in_tree`) already refuses for a citation's raw spelling; that
+    check alone does not reach here, because it containment-checks the path a
+    citation was WRITTEN as, and this index is built by walking the tree, not
+    by re-deriving it from any one citation. `_build` applies the identical
+    `.resolve()`-then-`is_relative_to` containment (`_contained_dir`) to every
+    directory it discovers.
     """
 
     def __init__(self, root) -> None:
@@ -324,16 +391,19 @@ class PacketIndex:
 
     def _build(self) -> dict[str, list[Claim]]:
         claims: dict[str, list[Claim]] = {}
-        changes = self._root / "openspec" / "changes"
-        if not changes.is_dir():
+        root = self._root
+        changes = root / "openspec" / "changes"
+        if not _contained_dir(root, changes):
             return claims
         live = [d for d in sorted(changes.iterdir())
-                if d.is_dir() and d.name != ARCHIVE_SEGMENT
-                and support.CHANGE_ID_RE.fullmatch(d.name)]
+                if d.name != ARCHIVE_SEGMENT
+                and support.CHANGE_ID_RE.fullmatch(d.name)
+                and _contained_dir(root, d)]
         archive = changes / ARCHIVE_SEGMENT
         archived = ([d for d in sorted(archive.iterdir())
-                     if d.is_dir() and support.ARCHIVE_DATE_PREFIX.match(d.name)]
-                    if archive.is_dir() else [])
+                     if support.ARCHIVE_DATE_PREFIX.match(d.name)
+                     and _contained_dir(root, d)]
+                    if _contained_dir(root, archive) else [])
         for directory in live:
             self._add(claims, Claim(identity=directory.name, path=directory,
                                     rel=self._rel(directory), kind=ACTIVE))
@@ -342,7 +412,13 @@ class PacketIndex:
             self._add(claims, Claim(identity=identity, path=directory,
                                     rel=self._rel(directory), kind=ARCHIVED))
         for directory in live + archived:
-            if not (directory / ".openspec.yaml").is_file():
+            # THE MARKER ITSELF IS CONTAINMENT-CHECKED, not only `directory`:
+            # `directory` already passed `_contained_dir` above, but a single
+            # committed file inside an otherwise legitimate packet can still
+            # be a symlink of its own, and `.is_file()` follows it exactly as
+            # `.is_dir()` does.
+            marker = _contained(root, directory / ".openspec.yaml")
+            if marker is None or not marker.is_file():
                 continue
             try:
                 declared = support.declared_former_ids_of(directory)
@@ -435,8 +511,13 @@ def resolve(root, claimed: str, *, index: PacketIndex | None = None
         # second segment was never an identity — `openspec/changes/README.md`
         # is the corpus's own case — and the reference is a plain path, handed
         # back to the caller's own resolution. Where it is absent too, the
-        # identity half is the half that failed.
-        if (Path(root) / _normalised(claimed)).exists():
+        # identity half is the half that failed. CONTAINMENT APPLIES HERE TOO:
+        # a claimed path is free text once it clears `packet_reference`'s own
+        # `.`/`..`/absolute refusal, and a segment that is itself a symlink
+        # escaping `root` must not be read as "present" any more than a
+        # symlinked packet directory may be indexed as one.
+        present = _contained(Path(root), Path(root) / _normalised(claimed))
+        if present is not None and present.exists():
             return Resolution(
                 status=NOT_A_PACKET_REFERENCE, claimed=claimed,
                 identity=identity, remainder=remainder,
@@ -448,7 +529,7 @@ def resolve(root, claimed: str, *, index: PacketIndex | None = None
                           report=_identity_half_report(identity))
 
     location = candidates[0]
-    if not location.carries(remainder):
+    if not location.carries(remainder, Path(root)):
         return Resolution(status=DANGLING, claimed=claimed, identity=identity,
                           remainder=remainder, location=location,
                           candidates=candidates, half=FILE_HALF,
