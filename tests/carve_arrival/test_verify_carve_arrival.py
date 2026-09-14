@@ -1812,8 +1812,11 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     reshaped cell is a FAILURE and not a skipped line — the roots cell must be
     exactly a comma-separated sequence of backticked paths (or the one prose
     cell that says "none"), a missing runbook is a failure rather than a
-    branch, and the BLOCK runs across interior blank lines so that a blank with
-    rows below it fails to parse instead of silently truncating the table. Each
+    branch, the key grammar is the VALIDATOR's own `^[a-z][a-z0-9_]*$` rather
+    than a narrower one that would refuse a destination the manifest accepts,
+    and the BLOCK is bounded by § 2's own two sentences rather than by any
+    heuristic for where a table ends — so an interior blank line and a
+    malformed row are both failures instead of ways to move the boundary. Each
     of those is a way a table could stop stating what this test says it states
     while the test stayed green.
 
@@ -1848,30 +1851,37 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
 
     marker = ("Per destination, and these are the numbers each leg's arrival "
               "run must report:")
+    # THE BLOCK IS BOUNDED BY TWO FIXED SENTENCES, not by anything about where
+    # a table LOOKS like it ends (Copilot review, rounds five and six on this
+    # PR). Round five's extent walked forward across a blank line for as long
+    # as anything table-shaped resumed after it, which still let a row that had
+    # LOST ITS LEADING `|` end the block: that row was what resumed, it did not
+    # look table-shaped, the block stopped above it, and — every destination
+    # having appeared before the blank — the key-set check passed while the
+    # malformed row went unread. EVERY heuristic for "where the table ends" has
+    # that shape, so the boundary stops being a heuristic here. The block is
+    # everything BETWEEN § 2's own two sentences — the one that introduces the
+    # table and the one that states what its numeric columns mean — each
+    # required to appear exactly once and in that order. Only the blank lines
+    # that separate the table from those two sentences are trimmed; every line
+    # that remains must be the header, the ruler or a record, so an interior
+    # blank line and a malformed row are both FAILURES and neither of them can
+    # move the boundary.
+    terminator = ("The numeric columns are summed over the rows whose "
+                  "`destination:` names that")
     assert text.count(marker) == 1, marker
-    # THE BLOCK'S EXTENT IS PART OF THE CHECK TOO (Copilot review, round five
-    # on this PR) — one level further out again than the unreadable row and the
-    # duplicate key below it. Taking the table as "everything up to the first
-    # blank line" let an INTERIOR BLANK LINE end it while rows went on
-    # underneath: `set(stated) == set(destinations)` still passes when every
-    # destination appeared ABOVE the blank, so a stale row placed BELOW it is a
-    # row nothing reads — which is exactly what the duplicate-key assertion
-    # refuses, walked back in through the parser that feeds it. So the block
-    # runs ACROSS blank lines for as long as anything table-shaped resumes
-    # after them, and ends only at the blank line that begins the prose. Every
-    # line inside it must then parse, which is how the interior blank itself —
-    # and any prose line between two rows — becomes the failure.
-    after = text.split(marker, 1)[1].splitlines()
-    first = next((n for n, line in enumerate(after) if line.strip()), len(after))
-    end = first
-    while end < len(after):
-        if after[end].strip():
-            end += 1
-            continue
-        resumes = next((line for line in after[end:] if line.strip()), "")
-        if not resumes.lstrip().startswith("|"):
-            break
-        end += 1
+    assert text.count(terminator) == 1, terminator
+    start = text.index(marker) + len(marker)
+    stop = text.index(terminator)
+    assert stop > start, (
+        "§ 2 states what the per-destination table's numeric columns mean "
+        "BEFORE it introduces the table; the two sentences bound the block, so "
+        "their order is part of the bound")
+    block = text[start:stop].splitlines()
+    while block and not block[0].strip():
+        block.pop(0)
+    while block and not block[-1].strip():
+        block.pop()
     # EVERY LINE OF THE BLOCK IS READ, AND A LINE THAT DOES NOT PARSE IS A
     # FAILURE (Copilot review, this PR). A `match()` that skipped what it could
     # not read let a malformed row — a key outside the character class, a sixth
@@ -1884,7 +1894,12 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
               "| declared roots |")
     ruler = "| --- | ---: | ---: | ---: | --- |"
     record = re.compile(
-        r"\| `(?P<key>[a-z_]+)` \| (?P<rows>\d+) \| "
+        # The key grammar is the VALIDATOR's, `DESTINATION_KEY_RE =
+        # ^[a-z][a-z0-9_]*$` (Copilot review, round six on this PR). A narrower
+        # one here refuses a destination the manifest accepts — `code2` would
+        # fail this consistency check while the runbook and the manifest agreed
+        # perfectly — which makes the test disagree with the floor it checks.
+        r"\| `(?P<key>[a-z][a-z0-9_]*)` \| (?P<rows>\d+) \| "
         r"(?:(?P<verbatim>\d+) / (?P<edited>\d+)|—) \| "
         r"(?:(?P<lines>\d+)|—) \| (?P<roots>[^|]*) \|")
     # The roots cell is EXACTLY a comma-separated sequence of backticked paths,
@@ -1892,7 +1907,7 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     # backticks, a word appended after the list — is refused rather than
     # quietly dropped by the `findall` that follows.
     roots_list = re.compile(r"`[^`]+`(?:, `[^`]+`)*")
-    lines = [line.rstrip() for line in after[first:end]]
+    lines = [line.rstrip() for line in block]
     assert lines[0] == header, lines[0]
     assert lines[1] == ruler, lines[1]
     stated: dict[str, tuple[int, int, int, int]] = {}
