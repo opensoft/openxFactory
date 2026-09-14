@@ -414,6 +414,12 @@ realization evidence and a further word.
       (§ 4.1–4.4) and was named by no branch ruleset (§ 4.5), so the sentence
       says an undeclared arrival is refused by the rule and stopped by
       nothing rather than implying a protection this estate does not have.
+      The citation also states the PACKET'S OWN state — ratified 2026-09-13,
+      its `release-realization` delta promoting at § 7.1 and not before —
+      because canon carries neither the amended sentence nor the one it
+      replaces: `grep -rn "FORMER ID\|former_ids\|Renaming a ratified"
+      openspec/specs/` is EMPTY, PR #846's passage having been document prose
+      from the start.
       The promoted clause *"renaming a DRAFT change, and a single commit that
       renames a draft and ratifies it, are unaffected"* is carried verbatim,
       and nothing else in that paragraph moved. **Q4 IS OUTSTANDING**: that document carries `Status: standard`

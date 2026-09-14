@@ -455,7 +455,9 @@ its own.>
   the duplicate's baseline is just as unestablishable — so the refusal names
   a MOVE OR COPY rather than only a rename. A ratified change's directory MAY
   now MOVE, and what the move owes is a DECLARATION (`add-declared-former-id`,
-  the successor packet issue #833 named; #1003): the arriving packet names the
+  the successor packet issue #833 named — RATIFIED 2026-09-13, its
+  `release-realization` delta promoting into canon at that packet's own
+  archive and not before; #1003): the arriving packet names the
   id it moved FROM in a top-level `former_ids:` list in its own
   `.openspec.yaml` — a SIBLING of `origin:` and never a member of it, so a
   lawful move is never a mutation of the frozen origin block — naming change
