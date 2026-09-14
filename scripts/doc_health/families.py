@@ -1577,8 +1577,22 @@ def _pinned_arm(ctx, doc, target, lineno, hit):
         return
     pin_id, capability = value.split("/", 1)
     record = f"contracts/{pin_id}-pin.yaml"
+    roots = _pin_roots(ctx, doc.repo)
+    if not roots:
+        # NO ROOT AT ALL — the run's `repo_paths` carries neither the document's
+        # repository nor `openxFactory`. The in-tree arm reports an unresolved
+        # target here; a pinned marker must not pass merely because there was
+        # nothing to search (PR #1040 round 6). Roots that REFUSED at their
+        # boundary are not this case: each already has its own finding above.
+        hit(ERROR, doc,
+            f"pinned target={target} at line {lineno}: no resolution root for "
+            f"repository {doc.repo} in this run",
+            "run doc-health over a root set that carries the document's "
+            "repository, so the pin registry can be searched "
+            "(document-lifecycle grammar)")
+        return
     searched = []
-    for name, root in _pin_roots(ctx, doc.repo):
+    for name, root in roots:
         # THE BOUNDARY BEFORE THE CANDIDATE. Where `<root>/contracts` is itself
         # a symlink, an implementation comparing a candidate against
         # `(root / "contracts").resolve()` accepts and READS a file outside the
@@ -1592,8 +1606,9 @@ def _pinned_arm(ctx, doc, target, lineno, hit):
             hit(ERROR, doc,
                 f"pinned target={target} at line {lineno}: root {name} "
                 f"{refusal[1]}",
-                "make the resolution root's contracts/ a real directory rather "
-                "than a redirection (document-lifecycle grammar)")
+                "give the resolution root a real contracts/ directory — "
+                "present, a directory, not a symlink or a redirection "
+                "(document-lifecycle grammar)")
             continue
         searched.append(name)
         candidate, refusal = resolve_in_root(record, root, boundary=boundary)

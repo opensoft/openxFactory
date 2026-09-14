@@ -744,7 +744,7 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
     scoping walks that function's whole subtree rather than filtering a
     flat module walk).
 
-    THIRTEEN MORE ARRIVE WITH THE PINNED ARM
+    FOURTEEN MORE ARRIVE WITH THE PINNED ARM
     (`extend-prose-tagging-target-to-pinned-capabilities`, task 3.3(j)), and
     BOTH derivations widen to reach them. BEHAVIOURALLY, the pinned fixture
     corpus `fixtures/tag-hygiene-pinned/` drives the arm's live defects through
@@ -780,7 +780,7 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
         "use one of the three canonical marker forms (document-lifecycle grammar)",
         "add the matching /xspec:candidate close fence (document-lifecycle grammar)",
         "candidacy is block-level only; remove the status value",
-        # THE PINNED ARM'S THIRTEEN, one per defect
+        # THE PINNED ARM'S FOURTEEN, one per defect
         # (`extend-prose-tagging-target-to-pinned-capabilities`, task 3.3(j)).
         # Each is a SEPARATE string because each names a different remedy, and
         # this table is what stops any of them drifting back to the in-tree
@@ -789,8 +789,10 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
         # false.
         "spell a pinned target pinned:<pin-id>/<capability>, two kebab-case "
         "components (document-lifecycle grammar)",
-        "make the resolution root's contracts/ a real directory rather than a "
-        "redirection (document-lifecycle grammar)",
+        "give the resolution root a real contracts/ directory — present, a "
+        "directory, not a symlink or a redirection (document-lifecycle grammar)",
+        "run doc-health over a root set that carries the document's repository, "
+        "so the pin registry can be searched (document-lifecycle grammar)",
         "keep the pin record inside its root's contracts/ directory rather "
         "than a symlink out of it (document-lifecycle grammar)",
         "name a pin the registry under contracts/ carries "

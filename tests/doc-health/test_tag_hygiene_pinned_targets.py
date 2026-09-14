@@ -507,8 +507,8 @@ def test_a_contracts_directory_that_is_itself_a_symlink_refuses_for_that_root(
         "contracts that is a SYMLINK; a boundary that can be redirected is not "
         "a boundary, so no candidate is resolved through it"]
     assert findings[0].action == (
-        "make the resolution root's contracts/ a real directory rather than a "
-        "redirection (document-lifecycle grammar)")
+        "give the resolution root a real contracts/ directory — present, a "
+        "directory, not a symlink or a redirection (document-lifecycle grammar)")
     assert seams["boundary_dir"].calls, "the precondition was asked"
     assert seams["resolve_in_root"].calls == [], "no candidate was resolved"
     assert seams["_pin_record_text"].calls == [], "nothing was read"
@@ -527,6 +527,56 @@ def test_an_ordinary_contracts_directory_passes_the_precondition(
     assert len(seams["boundary_dir"].calls) == 1
     assert len(seams["resolve_in_root"].calls) == 1
     assert len(seams["_pin_record_text"].calls) == 1
+
+
+def test_a_dangling_contracts_symlink_is_a_redirecting_boundary_not_a_missing_one(
+        tmp_path, seams):
+    """(m), PR #1040 round 6 R1: `exists()` follows a link, so a DANGLING
+    `contracts` symlink read as MISSING and told the operator to `mkdir` a
+    directory a link already occupies. The symlink test now comes first: the
+    boundary is REDIRECTING, refused for that root, and nothing is read."""
+    import pin_containment as pc
+    root = _repo(tmp_path / "alpha",
+                 docs={"case.md": _doc("pinned:openxwallet/openxwallet")})
+    contracts = root / "contracts"
+    for child in contracts.iterdir():
+        child.unlink()
+    contracts.rmdir()
+    os.symlink("nowhere-at-all", contracts)
+    assert pc.boundary_dir(root)[1][0] == pc.BOUNDARY_REDIRECTS
+
+    findings = _run(_context({"alpha": root}))
+    assert len(findings) == 1, findings
+    assert "SYMLINK" in findings[0].rule and "root alpha" in findings[0].rule
+    assert findings[0].action == (
+        "give the resolution root a real contracts/ directory — present, a "
+        "directory, not a symlink or a redirection (document-lifecycle grammar)")
+    assert seams["_pin_record_text"].calls == [], "nothing was read"
+
+
+def test_a_document_whose_repository_has_no_root_in_the_run_fails_closed(
+        tmp_path, seams):
+    """PR #1040 round 6 R2: where `repo_paths` carries neither the document's
+    repository nor `openxFactory`, the arm used to find no root, search
+    nothing and emit nothing — a pinned marker passing merely because there was
+    nothing to search, where the in-tree arm reports an unresolved target. Now
+    it is one controlled finding naming the repository, and nothing is read."""
+    import dataclasses
+    root = _repo(tmp_path / "alpha",
+                 docs={"case.md": _doc("pinned:openxwallet/openxwallet")})
+    ctx = _context({"alpha": root})
+    try:
+        ctx = dataclasses.replace(ctx, repo_paths={})
+    except TypeError:
+        ctx.repo_paths = {}
+    findings = _run(ctx)
+    assert [f.rule for f in findings] == [
+        "pinned target=pinned:openxwallet/openxwallet at line 5: no resolution "
+        "root for repository alpha in this run"]
+    assert findings[0].action == (
+        "run doc-health over a root set that carries the document's repository, "
+        "so the pin registry can be searched (document-lifecycle grammar)")
+    assert seams["_pin_record_text"].calls == [], "nothing was read"
 
 
 def test_the_boundary_is_checked_before_any_candidate_is(tmp_path, seams):

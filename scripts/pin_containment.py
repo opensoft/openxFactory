@@ -147,14 +147,17 @@ def boundary_dir(root, name=CONTRACTS_DIRNAME):
         return None, (UNRESOLVABLE,
                       "cannot be resolved — a symlink loop, an unreadable link "
                       "or a malformed path; refused rather than read")
-    if not lexical.exists():
-        return None, (BOUNDARY_MISSING,
-                      f"carries no {name}/ directory to resolve a record in")
+    # THE SYMLINK TEST COMES FIRST: `exists()` FOLLOWS a link, so a DANGLING
+    # `contracts` symlink would otherwise read as "missing" and send the operator
+    # to `mkdir` a directory a link already occupies (PR #1040 round 6).
     if lexical.is_symlink():
         return None, (BOUNDARY_REDIRECTS,
                       f"has a {name} that is a SYMLINK; a boundary that can be "
                       f"redirected is not a boundary, so no candidate is "
                       f"resolved through it")
+    if not lexical.exists():
+        return None, (BOUNDARY_MISSING,
+                      f"carries no {name}/ directory to resolve a record in")
     if not lexical.is_dir():
         return None, (BOUNDARY_NOT_A_DIRECTORY,
                       f"has a {name} that is not a directory")
