@@ -43,6 +43,9 @@ import yaml
 
 from conftest import REPO_ROOT  # noqa: F401 (sys.path side effect)
 
+from carved_reach import NotACarvedPath
+from carved_reach import source as carved_source
+
 from doc_health import pin_class as pc
 from doc_health import pin_sentinels as ps
 
@@ -165,6 +168,28 @@ def test_a_member_declared_without_a_condition_is_reported(monkeypatch):
                for d in defects), defects
 
 
+def _emitter_path(rel: str) -> Path:
+    """The file a declared emitter NAMES, wherever the § 5.2 shed left it.
+
+    An emitter is a repository-relative path recorded in `pin_sentinels`, and
+    the shed moved some of the files those paths name to a pinned leg
+    (`scripts/ideation_dashboard/snapshot_registry.py` is at openXdox-code
+    now). The declaration keeps the pre-shed spelling — it is the name this
+    repository's history and every reader knows — and the manifest answers
+    where it is, so an emitter is still MEASURED rather than believed and no
+    destination path is transcribed here (RULED (a), `#656` comment
+    `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpuB`).
+
+    `NotACarvedPath` is the ordinary answer for most emitters: they name files
+    that were never under the carve's `moved_paths:` surface at all, and those
+    resolve here, unchanged.
+    """
+    try:
+        return carved_source(rel)
+    except NotACarvedPath:
+        return REPO_ROOT / rel
+
+
 def test_the_declared_emitters_are_measured_rather_than_believed():
     """`emitters` is what exempts a member with no committed instance from the
     unused report, so a phantom emitter would keep a stale member alive on a
@@ -175,7 +200,7 @@ def test_the_declared_emitters_are_measured_rather_than_believed():
     for member in ps.SENTINELS:
         for emitter in member.emitters:
             rel = emitter.split(" (")[0]
-            path = REPO_ROOT / rel
+            path = _emitter_path(rel)
             assert path.is_file(), f"{member.value}: no {rel}"
             text = path.read_text(encoding="utf-8")
             name = constants.get(member.value, "")
@@ -231,8 +256,14 @@ def test_unknown_is_not_folded_into_the_unreadable_repository_condition():
     assert unknown.standing == ps.CANONICAL
     # the projector's site, now reaching for the DECLARED constant rather than
     # retyping the spelling (Q3, ruled 2026-08-28)
-    registry = (REPO_ROOT / "scripts/ideation_dashboard/snapshot_registry.py"
-                ).read_text(encoding="utf-8")
+    # The § 5.2 shed moved the projector to the openXdox leg; the assertion is
+    # over its SOURCE TEXT, so the path is asked of the manifest row by the
+    # pre-shed name this file has always spelled rather than joined onto
+    # `REPO_ROOT` (RULED (a), `#656` comment `5625573095`; Copilot
+    # `PRRT_kwDOTAvnrs6hUpuB`).
+    registry = carved_source(
+        "scripts/ideation_dashboard/snapshot_registry.py"
+    ).read_text(encoding="utf-8")
     assert "self.source_revision or pin_sentinels.UNKNOWN" in registry
     assert 'self.source_revision or "unknown"' not in registry, (
         "the projector retypes the spelling again; a generator writing a "
@@ -912,11 +943,17 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     without anything having drifted (ruling D-8(a); the last paragraph
     below measures both readings)."""
     report = pc.verify(REPO_ROOT, allow_remote=False)
-    # 70, not the 66 this census landed with, and every step is kept apart
-    # because each was taken by a different packet: two on 2026-08-28 and two
-    # more that arrived from `main` in the 2026-09-03 merge. Read the four
-    # paragraphs below in order; the assertion at the end of them is the only
-    # number this test enforces.
+    # 75, not the 66 this census landed with, and every step is kept apart
+    # because each was taken by a different packet: of the first four, two on
+    # 2026-08-28 and two more that arrived from `main` in the 2026-09-03
+    # merge. Read the eight paragraphs below in order; the assertion at the
+    # end of them is the only number this test enforces. (This line still read
+    # "70" and "four paragraphs" after the 2026-09-08 step took the census to
+    # 71 and the paragraph count to six, and "73"/"seven paragraphs" after the
+    # 2026-09-10 openxdox-pin step took it to 73 and seven — a header going
+    # stale while the assertion below stayed true, which is precisely the
+    # drift this file's own 70 -> 70 paragraph says to correct rather than
+    # leave to be found.)
     #
     # 66 -> 67, `add-worker-enrollment-broker`: a `proposal-support.py transition`
     # writes a `supporting-docs/manifest.yaml` carrying a `source_revision`, and
@@ -1010,8 +1047,58 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # intents from `origin/intents/rolling` it reads 75 results / 25 members
     # and the SAME standing census of (71, 24). The frozen pair is the one that
     # did not move.
+    #
+    # 71 -> 73, AND THE MEMBER COUNT MOVES BY TWO FOR THE FIRST TIME
+    # (`split-opendox-two-layer-product` task 5.1, RULED OQ-L, 2026-09-10).
+    # `contracts/openxdox-pin.yaml` is the THIRD neutral-product pin, and the
+    # first artifact in this census to declare TWO members at once, because one
+    # file carries two values with two different localities: `carve_commit` is
+    # an openxFactory commit that must stay reachable HERE (REPO_LOCAL, RULED
+    # OQ-I's record 2), and `commit` is `opensoft/openXdox`'s, answered against
+    # another remote by another authority (CROSS_REPOSITORY). Contrast the
+    # 67 -> 69 step above, which also moved the SITE count by two but the MEMBER
+    # count by one: only one of its two sites was new in kind. Both sites here
+    # are `population=CURRENT`, so unlike the rolling gate intents they belong
+    # inside the frozen pair rather than beside it.
+    #
+    # DECLARED BY THE SAME COMMIT THAT ADDS THE PIN, so unlike the 69th this one
+    # never announced itself as `uncovered`: the coverage half was satisfied
+    # before the push instead of by CI, and `report.uncovered == ()` below holds
+    # unchanged rather than being repaired afterwards. ENUMERATED WITH
+    # `pin_class.verify()` ON THE COMMITTED TREE — 79 results / 27 members,
+    # standing census (73, 26) — and measured the same way against `main` at
+    # `ea34f22a`, which reads 77 / 25 and a standing census of (71, 24). Never
+    # by arithmetic. `lost` stays 1, and `vanished` / `arrived` are untouched.
+    #
+    # 73 -> 75, `contracts/opendox-pin.yaml` (split-opendox-two-layer-product
+    # task 5.1 extension, RULED Q7, PR #932) — the FOURTH neutral-product pin,
+    # and the SECOND artifact in this census to declare two members at once, on
+    # the immediately-preceding step's own reasoning: `carve_commit` is the
+    # same openxFactory commit as `openxdox-pin-carve-commit` (REPO_LOCAL,
+    # RULED OQ-I's record 2 — openDox and openXdox were carved in the SAME
+    # act), and `commit` is `opensoft/openDox`'s own, answered against another
+    # remote by another authority (CROSS_REPOSITORY). RULING F ("rule F
+    # openXdox only", #656, 2026-09-05) is SUPERSEDED for openDox alone by
+    # RULED Q7 (`#656` comment `5626248666`, 2026-09-10): this is a SECOND,
+    # independent direct pin of a product already reachable through openXdox's
+    # own pin, held equal to it by `scripts/verify-opendox-pin.py`'s fifth
+    # (LOCKSTEP) check — a runtime cross-check this census does not itself
+    # perform, and does not need to: both new sites are `population=CURRENT`,
+    # so like the 73rd/74th they join the frozen pair rather than sit beside it.
+    #
+    # DECLARED BY THE SAME COMMIT THAT ADDS THE PIN, on the 73rd/74th's own
+    # precedent: measured here before the push, so this step likewise never
+    # announces itself as `uncovered`. ENUMERATED WITH `pin_class.verify()` ON
+    # THE COMMITTED TREE (this branch's tip, `f2e54ba5` plus this commit) — 81
+    # results / 29 members, standing census (75, 28) — and measured the same
+    # way against `main` at `85fb8562` (this test's own `REPO_ROOT` before this
+    # branch's commits), which reads 79 / 27 and a standing census of (73, 26).
+    # Never by arithmetic. `lost` stays 1, `uncovered`/`vanished`/`arrived` are
+    # untouched, and the three pre-existing `allow_remote=False` orphans (two
+    # `ideation-readiness-run` records, one `proposal-support-manifest`) are
+    # unrelated to this pin and unmoved by it.
     standing_sites, standing_members = pc.standing_census(report.results)
-    assert (standing_sites, standing_members) == (71, 24)
+    assert (standing_sites, standing_members) == (75, 28)
     # ...and the exclusion is exactly one declared row, not a hole a later
     # member can fall into unnoticed.
     assert [m.id for m in pc.rolling_members()] == ["gate-intent-snapshot-rev"]

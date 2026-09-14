@@ -755,10 +755,40 @@ def main(argv=None) -> int:
                   if ctx.agg_root else None)
     if dispo_path and dispo_path.is_file():
         import yaml as _yaml
-        for d in (_yaml.safe_load(dispo_path.read_text()) or []):
+        # THE SAME REFUSAL AS `promotion_fidelity.load_dispositions`, AND IT IS
+        # NEEDED HERE TOO OR THE GUARD THERE BUYS NOTHING. This read is
+        # unconditional on every aggregation run, so a scalar-root file aborts
+        # the whole nightly HERE whatever any family does — measured on
+        # `origin/main`, where `doc-health.py --repo-root <agg>` over a
+        # `42`-rooted file exits 1 at this line with `TypeError: 'int' object
+        # is not iterable`, with or without #939's arm. Fixing only the shared
+        # reader would move that abort back to this line rather than remove it
+        # (PR #945, Copilot's fourth round).
+        _entries = _yaml.safe_load(dispo_path.read_text()) or []
+        for d in (_entries if isinstance(_entries, list) else []):
             if isinstance(d, dict) and d.get("cite"):
-                dispositions.add((d.get("family"), d.get("repo"),
-                                  d.get("path")))
+                # AND AN UNHASHABLE KEY MUST NOT ABORT IT EITHER. A
+                # list- or dict-valued `family`, `repo` or `path` in an
+                # otherwise well-formed list file makes this tuple
+                # unhashable and `set.add` raises `TypeError` out of the
+                # whole nightly, on a read that happens on EVERY
+                # aggregation run and predates #939's arm. Skipping such
+                # an entry NARROWS NOTHING: a key that cannot be hashed
+                # could never have entered this set, and could never have
+                # matched the `(family, repo, path)` of a real finding,
+                # whose three fields are always strings — so the
+                # dispositioned set is identical either way and only the
+                # exception is gone. It is the same refusal
+                # `promotion_fidelity.load_dispositions` applies to a
+                # non-string `repo`/`path`, reached here by the cheapest
+                # test that is exactly equivalent to it (PR #945,
+                # Copilot's fifth round).
+                _key = (d.get("family"), d.get("repo"), d.get("path"))
+                try:
+                    hash(_key)
+                except TypeError:
+                    continue
+                dispositions.add(_key)
     unavailable_families = set()
     # A family this run was CONFIGURED not to execute never gets a chance to
     # re-confirm or refute its prior findings, so its absence from

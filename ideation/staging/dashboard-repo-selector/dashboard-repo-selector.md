@@ -140,6 +140,14 @@ domain-neutralization candidate at its own gate
     hosted plane fetches, and never becomes a shared view. Main stays the
     shared truth on every surface.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Aggregate rendering**: `xFactory` selection = one merged funnel with

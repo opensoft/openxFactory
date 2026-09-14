@@ -55,21 +55,21 @@ from pathlib import Path
 import pytest
 import yaml
 
-from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,
-                      serve_surface_source)
+from conftest import (BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit,  # noqa: F401
+                      dashboard_web_root, serve_surface_source)
 
 from jsonschema import Draft202012Validator
 
-from ideation_dashboard import action_errors
-from ideation_dashboard import branch_session
+from opendox import action_errors
+from opendox import branch_session
 from ideation_dashboard import doxbench_contracts
-from ideation_dashboard import doxbench_hash
-from ideation_dashboard import doxbench_packet
-from ideation_dashboard import doxbench_turns
-from ideation_dashboard import gate_console
-from ideation_dashboard import serve as serve_mod
-from ideation_dashboard.doxbench_hash import content_identity
-from ideation_dashboard.doxbench_model import (
+from opendox import doxbench_hash
+from opendox import doxbench_packet
+from opendox import doxbench_turns
+from openxdox import gate_console
+from opendox import serve as serve_mod
+from opendox.doxbench_hash import content_identity
+from opendox.doxbench_model import (
     EMPTY_CATALOG,
     FakeWorkbenchModelPort,
     ModelCatalog,
@@ -77,10 +77,13 @@ from ideation_dashboard.doxbench_model import (
     PUBLIC_ENTRY_FIELDS,
     catalog_wire_envelope,
 )
-from ideation_dashboard.doxbench_scope import ScopeKey
-from ideation_dashboard.generator import generate_snapshot
+from openxdox.doxbench_scope import ScopeKey
+from openxdox.generator import generate_snapshot
 
-WEB = REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
+# POST-SHED (§ 5.2, RULED (a)). The dashboard's assets moved to the openDox-code
+# leg; `dashboard_web_root()` derives the root they are AT from `index.html`'s
+# own manifest row rather than transcribing a destination path here.
+WEB = dashboard_web_root()
 
 # The route under test (T050). Referencing it at module scope is deliberate:
 # it does not exist yet, so importing this file fails closed (an
@@ -2893,7 +2896,7 @@ def test_a_valid_turn_with_a_dispatch_capable_port_returns_the_released_success(
 
 def test_the_fixture_tile_is_the_single_document_shape_g1_measured(tmp_path):
     """The route's own snapshot, through the real scope authority."""
-    from ideation_dashboard.doxbench_scope import resolve_scope
+    from openxdox.doxbench_scope import resolve_scope
     projection = resolve_scope(_snapshot(), KEY, source_root=BASE_REPO)
     assert projection is not None
     assert projection.editable_paths == (OUTLINE_PATH,)
@@ -3042,7 +3045,7 @@ def test_the_three_dispatch_outcome_codes_join_the_fixed_error_catalog():
     provider response (bad-gateway semantics: the upstream answered
     unusably). Messages are fixed and module-level like every other entry."""
     catalog = serve_mod.DOXBENCH_ERROR_CATALOG
-    from ideation_dashboard import doxbench_model as model_mod
+    from opendox import doxbench_model as model_mod
     assert catalog[model_mod.DISPATCH_ERR_MODEL_TIMEOUT][0] == 504
     assert catalog[model_mod.DISPATCH_ERR_MODEL_FAILED][0] == 502
     assert catalog[model_mod.DISPATCH_ERR_RESPONSE_INVALID][0] == 502
@@ -3408,7 +3411,7 @@ def test_the_widened_fixture_tile_really_is_editable_at_every_added_path():
     """The fixture's own precondition, through the real scope authority — so a
     test below that passes because a path was NOT editable cannot be mistaken for
     one that passes because the rule under test held."""
-    from ideation_dashboard.doxbench_scope import resolve_scope
+    from openxdox.doxbench_scope import resolve_scope
     projection = resolve_scope(
         _snapshot_with_editable("outline", "document", DOC_ALPHA, DOC_ZULU),
         KEY, source_root=BASE_REPO)
@@ -3801,8 +3804,8 @@ def test_the_no_document_sentence_names_both_the_cause_and_the_remedy(tmp_path):
     The remedy is asserted against the selector's ratified empty-state note
     rather than a literal, so the two surfaces cannot drift into naming
     different remedies for one state."""
-    empty_note = (REPO_ROOT / "scripts" / "ideation_dashboard" / "web"
-                  / "views" / "doxbench-chat.js").read_text(encoding="utf-8")
+    empty_note = (WEB / "views" / "doxbench-chat.js").read_text(
+        encoding="utf-8")
     assert "use a docs tile's load verb to work on one" in empty_note, (
         "precondition: the selector's ratified empty state still names the "
         "load verb as the remedy")

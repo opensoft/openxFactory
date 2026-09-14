@@ -50,7 +50,8 @@ sa = _load()
 
 
 def _change(root: Path, change_id: str, declaration: str | None = None,
-            archived: str | None = None, requirements: dict | None = None) -> Path:
+            archived: str | None = None, requirements: dict | None = None,
+            created: str | None = None) -> Path:
     base = root / "openspec" / "changes"
     directory = (base / "archive" / f"{archived}-{change_id}"
                  if archived else base / change_id)
@@ -60,6 +61,9 @@ def _change(root: Path, change_id: str, declaration: str | None = None,
         front += f"\nsequenced_after: {declaration}"
     (directory / "proposal.md").write_text(
         f"---\n{front}\n---\n\n# {change_id}\n", encoding="utf-8")
+    if created is not None:
+        (directory / ".openspec.yaml").write_text(
+            f"schema: spec-driven\ncreated: {created}\n", encoding="utf-8")
     for capability, titles in (requirements or {}).items():
         spec_dir = directory / "specs" / capability
         spec_dir.mkdir(parents=True, exist_ok=True)
@@ -1144,6 +1148,58 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
       promotes nothing until it archives — so this is a movement of the SWEEP's
       reading of the active corpus, and no `ideation-dashboard` requirement has
       left canon.
+    - **A PARTNER FLIP, 2026-09-10 — the second entry the new rule owes, found
+      by Copilot review rather than by the authoring pass, and added on
+      re-verification.** Authoring `state-header-window-budget` (PR #921, an
+      OpenSpec amendment adding one paragraph and one scenario to the
+      `release-realization` requirement "Equivalent declaration sites for the
+      ordered-delta parent declaration") moves TWO rows:
+
+        * `state-header-window-budget` — a NEW row, `active` and
+          `co-modifier`. Its own `## MODIFIED Requirements` block writes the
+          same requirement key `accept-sequenced-after-header-line`'s own
+          `## ADDED Requirements` block wrote, so it enters the corpus
+          already co-modified rather than sole.
+        * `accept-sequenced-after-header-line` — `class: sole` ->
+          `co-modifier`, and NOTHING ABOUT THAT ARCHIVED CHANGE ITSELF MOVED.
+          It archived 2026-09-10 (PR #906) and has not been touched since.
+
+      THE ROW DIFF DOES NOT EXPLAIN THE SECOND ONE, WHICH IS WHY THIS ENTRY
+      EXISTS. Read the two rows alone and a co-modifier appears and an
+      archived change flips, but not WHICH requirement key they share, nor
+      that this newcomer is what flipped it rather than any other change
+      landing in the same window — exactly the case the rule reserves: "a
+      PARTNER'S row moving because of someone else's delta, where the reason
+      is not legible from the two rows alone".
+
+      THE SHARED KEY, MEASURED RATHER THAN INFERRED. Both changes write
+      `release-realization` / "Equivalent declaration sites for the
+      ordered-delta parent declaration" — `accept-sequenced-after-header-line`
+      ADDED it (archived, PR #906) and `state-header-window-budget` MODIFIES
+      it (a pure-addition amendment, `code_surface: none`, routed from a
+      Copilot review comment on #906 itself). No other active or archived
+      change writes this exact requirement key (`proposal.md` § Sibling
+      search, corrected twice over this packet's own review rounds), so this
+      is a two-party flip and not a wider one.
+
+      WHICH IS WHY `co_modified` ROSE BY TWO AND NOT BY ONE. One MODIFIED
+      block, one earlier writer, and that writer was sole: the newcomer
+      entering the set (+1) and `accept-sequenced-after-header-line` leaving
+      `sole` for it (+1), 143 -> 145. `sole_modifiers` falls by exactly one
+      with it, 54 -> 53. `change_ids` rises 197 -> 198 for the new id alone;
+      `active` rises 40 -> 41 and `active_co_modified` rises 25 -> 26, both by
+      the new row alone, the partner being ARCHIVED; `active_sole` holds at
+      15. `declaring` rises 22 -> 23, this change's own
+      `sequenced_after: [accept-sequenced-after-header-line]`; the explicit
+      `[]` root claims hold at 5, the prose headers at 3 (3 archived), and the
+      deepest declared chain at 4 hops — this change's own chain is one hop
+      to an archived root, shorter than the standing champion.
+      MEASURED ON BOTH TREES, never adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main`
+      at `0e76e789` reads `40 active + 157 archived` = 197 change ids, `143`
+      co-modified, `54` sole modifiers, `25 / 15` active co-modified/sole,
+      `22` declaring; this branch (merged with `0e76e789`) reads `41 active +
+      157 archived` = 198, `145`, `53`, `26 / 15`, `23`.
     """
     readings = sa.classify_corpus(ROOT)
     ledger = sa.load_ledger(sa.ledger_path(ROOT))
@@ -2218,3 +2274,183 @@ def test_the_SEEDER_STAMPS_THE_UTC_DAY_UNDER_AN_AHEAD_OF_UTC_TZ(tmp_path):
     assert stamped in (before, after), (
         f"{stamped!r} is neither UTC day this run spanned "
         f"({before!r}, {after!r}) — the local Kiritimati day is a day ahead")
+
+
+# ---- a row cannot move before the change existed (issue #743) --------------
+#
+# #790 (above) fixed the seeder's DEFAULT `--moved-on` to read UTC rather than
+# the machine's local day; #743 was filed against the same paragraph before
+# that fix landed and asked, additionally, for a guard this file did not yet
+# have: refuse a `moved_on` (defaulted OR explicit, and on a flip too) that
+# predates the change's own `.openspec.yaml` `created:` date. The reader that
+# gets `created:` (`_created_dates`) lives on `validate-sequenced-after.py`
+# itself rather than on the shared `sequenced_after` library module, so these
+# are exercised through the CLI subprocess, exactly as every other
+# `--seed-ledger` behaviour above is.
+
+
+def test_the_SEEDER_REFUSES_a_moved_on_EARLIER_than_the_changes_created_date(
+        tmp_path):
+    _change(tmp_path, "add-a", created="2026-09-15")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2026-09-10"],
+        capture_output=True, text=True)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "add-a" in result.stderr
+    assert "created" in result.stderr
+    assert not sa.ledger_path(tmp_path).is_file(), (
+        "a refused seed must not write a ledger — the ONE-REFUSAL discipline "
+        "the directory-ahead-of-UTC guard above already keeps")
+
+
+def test_the_SEEDER_REFUSES_the_DEFAULTED_UTC_moved_on_TOO(tmp_path):
+    """The SAME guard over the `moved_on is None` branch, where `effective`
+    is `today` rather than an explicit `--moved-on` or a flip's directory
+    date — the one branch an explicit-`--moved-on`-only suite would leave
+    unwatched (Copilot round 1, PR #990)."""
+    _change(tmp_path, "add-a", created="2099-01-01")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743"],
+        capture_output=True, text=True)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "add-a" in result.stderr
+    assert "created" in result.stderr
+    assert not sa.ledger_path(tmp_path).is_file()
+
+
+def test_the_SEEDER_ACCEPTS_a_moved_on_EQUAL_TO_the_changes_created_date(
+        tmp_path):
+    _change(tmp_path, "add-a", created="2026-09-10")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2026-09-10"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    row = sa.load_ledger(sa.ledger_path(tmp_path)).rows["add-a"]
+    assert row["moved_on"] == "2026-09-10"
+
+
+def test_the_SEEDER_ACCEPTS_a_moved_on_LATER_than_the_changes_created_date(
+        tmp_path):
+    _change(tmp_path, "add-a", created="2026-01-01")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2026-09-10"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    row = sa.load_ledger(sa.ledger_path(tmp_path)).rows["add-a"]
+    assert row["moved_on"] == "2026-09-10"
+
+
+def test_a_change_with_NO_readable_created_date_is_NOT_gated(tmp_path):
+    # No `.openspec.yaml` at all — the common case for most of the corpus —
+    # is a permissive read, not a refusal waiting to happen.
+    _change(tmp_path, "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_the_SEEDER_GUARD_APPLIES_TO_A_FLIPS_DIRECTORY_DATE_TOO(tmp_path):
+    """A row FLIPPING to archived takes its DIRECTORY'S date, not the run's
+    (issue #790) — and that is the stamp this guard has to compare, or a
+    change archived (by directory name) before it was created would sail
+    through on the run's own, later, date."""
+    _change(tmp_path, "add-a")
+    _ledger(tmp_path, [_row("add-a", moved_by="#1", moved_on="2026-01-01")])
+    _change(tmp_path, "add-a", archived="2026-01-10", created="2026-06-01")
+    import shutil
+    shutil.rmtree(tmp_path / "openspec" / "changes" / "add-a")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743"],
+        capture_output=True, text=True)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "add-a" in result.stderr
+    assert "2026-01-10" in result.stderr and "2026-06-01" in result.stderr
+
+
+def test_a_PRESENT_packet_with_NO_created_field_is_NOT_gated(tmp_path):
+    directory = _change(tmp_path, "add-a")
+    (directory / ".openspec.yaml").write_text(
+        "schema: spec-driven\norigin:\n  kind: staged\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_a_MALFORMED_packet_is_NOT_gated(tmp_path):
+    directory = _change(tmp_path, "add-a")
+    # Unbalanced flow-sequence: a `yaml.YAMLError` the strict loader turns
+    # into `StrictFrontMatterError`, not a `created:` this guard can compare.
+    (directory / ".openspec.yaml").write_text(
+        "schema: spec-driven\ncreated: [2026-01-01\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_an_INVALID_created_VALUE_is_NOT_gated(tmp_path):
+    """Neither a non-date string nor a timestamp-with-time-of-day is a shape
+    this guard reads (it wants the plain calendar date every packet in this
+    corpus actually carries), so seeding proceeds rather than comparing
+    against a value it cannot place."""
+    directory = _change(tmp_path, "add-a")
+    (directory / ".openspec.yaml").write_text(
+        "schema: spec-driven\ncreated: not-a-date\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    directory2 = _change(tmp_path, "add-b")
+    (directory2 / ".openspec.yaml").write_text(
+        "schema: spec-driven\ncreated: 2099-01-01T10:00:00\n", encoding="utf-8")
+    result2 = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result2.returncode == 0, result2.stdout + result2.stderr
+
+
+def test_an_IMPOSSIBLE_calendar_date_is_NOT_gated(tmp_path):
+    """`created: 2026-02-30` raises `ValueError` out of PyYAML's OWN timestamp
+    constructor before the strict loader's refusals ever run — a distinct
+    failure mode from the malformed-YAML and non-date-string cases above, and
+    one an `except (OSError, StrictFrontMatterError)` alone would not catch,
+    exiting `--seed-ledger` with a traceback instead of treating the value as
+    unread (Copilot round 3, PR #990)."""
+    directory = _change(tmp_path, "add-a")
+    (directory / ".openspec.yaml").write_text(
+        "schema: spec-driven\ncreated: 2026-02-30\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743", "--moved-on", "2020-01-01"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_the_CREATED_GUARD_skips_an_id_with_AMBIGUOUS_corpus_dirs(tmp_path):
+    """Two archived directories for one id is the ambiguity `resolve()`
+    reports elsewhere, and the one `archive_dates` already skips (issue
+    #790's `if len(dirs) != 1: continue`); this guard's own packet read must
+    not pick one arbitrarily and gate — or refuse — on it. One directory
+    here carries a `created:` far enough in the future to refuse a seed on
+    its own, and the seed passes anyway because the id is ambiguous, not
+    because that date lost a tie-break (Copilot round 2, PR #990)."""
+    _change(tmp_path, "add-a", archived="2026-01-01", created="2099-01-01")
+    _change(tmp_path, "add-a", archived="2026-06-01", created="2020-01-01")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(tmp_path), "--seed-ledger",
+         "--moved-by", "#743"],
+        capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr

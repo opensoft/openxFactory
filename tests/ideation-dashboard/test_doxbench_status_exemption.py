@@ -57,12 +57,14 @@ from conftest import (  # noqa: F401  (sys.path side effect)
     REPO_ROOT,
 )
 
+from carved_reach import source as carved_source
+
 from import_scan import (  # noqa: E402
     imported_modules,
     names_a_forbidden_package,
 )
 
-from ideation_dashboard import doxbench_packet as pk  # noqa: E402
+from opendox import doxbench_packet as pk  # noqa: E402
 from ideation_dashboard import doxbench_status_exemption as rail  # noqa: E402
 
 # The fixture corpus and the packet-construction helpers are the ones the
@@ -87,8 +89,10 @@ from test_doxbench_packet import (  # noqa: E402
     _thread,
 )
 
-PACKET_MODULE = (REPO_ROOT / "scripts" / "ideation_dashboard"
-                 / "doxbench_packet.py")
+# POST-SHED (§ 5.2, RULED (a)): the packet module is a moved row read from the
+# pinned openDox-code leg; the exemption module below is a `not_moved` row and
+# stays where it is, which is why exactly one of the two is derived.
+PACKET_MODULE = carved_source("scripts/ideation_dashboard/doxbench_packet.py")
 EXEMPTION_MODULE = (REPO_ROOT / "scripts" / "ideation_dashboard"
                     / "doxbench_status_exemption.py")
 

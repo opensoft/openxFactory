@@ -52,11 +52,27 @@ closed instead of drifting. The collapse is filed to § 2.4.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from doc_health.corpus import RealGit
 
-from corpus_adapter import (
+# #872 (RULED OQ-Q): the interface now lives in openDox ONLY; openxFactory
+# consumes it by pin rather than the local `scripts/corpus_adapter.py` replica
+# (the carve manifest still requires that replica's path to be present, so it
+# stays in tree, unread by this module from here on). Reach mirrors how
+# openXdox/openXwallet are consumed: the submodule's own src/ layout goes on
+# sys.path, never a second implementation.
+_OPENDOX_SRC = Path(__file__).resolve().parents[2] / "openDox" / "code" / "src"
+if not (_OPENDOX_SRC / "opendox" / "corpus_adapter.py").is_file():
+    raise ImportError(
+        "corpus_adapter_openxfactory.adapter: the pinned openDox corpus-adapter "
+        f"interface is not at {_OPENDOX_SRC / 'opendox' / 'corpus_adapter.py'}. "
+        "Run `git submodule update --init --recursive openDox` from the "
+        "repository root (openDox nests `code` as its own gitlink).")
+sys.path.insert(0, str(_OPENDOX_SRC))
+
+from opendox.corpus_adapter import (
     CORPUS_ABSENT,
     CORPUS_READ_ONLY,
     CORPUS_UNCLASSIFIABLE,

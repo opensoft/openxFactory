@@ -1003,7 +1003,14 @@ def test_persist_writes_only_allowlisted_paths_through_the_boundary(
 
 
 def test_any_other_write_path_is_refused_recorded_and_raised(tmp_path):
-    from ideation_dashboard.boundary import BoundaryViolation
+    # POST-SHED (§ 5.2, RULED (a), `#656` comment `5625573095`). `opendox.boundary`
+    # re-exports from the leg's OWN `opendox.output_boundary`, which is a
+    # DIFFERENT class object from this repository's retained
+    # `scripts/output_boundary.py` — a `not_moved` row, and the one
+    # `make_boundary()` below actually raises. Catching the leg's name caught
+    # nothing. The machinery under test stayed here, so the exception it raises
+    # is named from here.
+    from output_boundary import BoundaryViolation
     boundary = ir.make_boundary(tmp_path)
     # a source-document write is outside the allowlist -> refused
     with pytest.raises(BoundaryViolation):

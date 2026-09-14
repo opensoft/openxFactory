@@ -44,9 +44,9 @@ sys.path.insert(0, str(REPO_ROOT / "scripts"))
 if importlib.util.find_spec("ideation_dashboard.branch_session") is None:
     raise unittest.SkipTest(
         "ideation_dashboard arrives with adopt-neutral-tooling-home tranche B")
-from ideation_dashboard import branch_session as bs   # noqa: E402
-from ideation_dashboard import session_git as sg      # noqa: E402
-from ideation_dashboard import workbench as wb        # noqa: E402
+from opendox import branch_session as bs  # noqa: E402
+from opendox import session_git as sg  # noqa: E402
+from opendox import workbench as wb  # noqa: E402
 
 # doc-health's notebook-projection-drift family counts `[book] ADD|DEL|UPD`
 # lines as PENDING lifecycle-book projection operations
@@ -1270,7 +1270,7 @@ class SessionImportBindingTests(unittest.TestCase):
 
 
 def _dashboard_registry():
-    from ideation_dashboard.snapshot_registry import SnapshotRegistry
+    from openxdox.snapshot_registry import SnapshotRegistry
 
     return SnapshotRegistry()
 

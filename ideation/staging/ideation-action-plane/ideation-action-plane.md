@@ -54,6 +54,14 @@ Target capabilities: ideation-intent-plane (ADDED), document-lifecycle (MODIFIED
    events; unmerged transitions are exploration, not status — the shared
    dashboard is definitionally the team's true pipeline picture.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. Inbox hosting shape: sidecar in the dashboard pod vs own deployment.

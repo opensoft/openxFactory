@@ -1,0 +1,165 @@
+schema: spec-driven
+created: 2026-09-12
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-12-gate-code-surface-declarations
+  reason: >-
+    THE OTHER HALF OF A SENTENCE ONE HALF OF WHICH IS NOW GATED.
+    `release-realization`'s promoted requirement *Realization axis declaration*
+    reads as ONE sentence with TWO halves: every proposal declares
+    `code_surface:` — `none` or the repositories whose runtime artifacts it
+    changes — and `target_release:` — `implemented` or a named release.
+    `gate-realization-axis-vocabulary` built a house validator and a closed
+    register for the SECOND half and said in its own ratified `tasks.md` § 6.3
+    that the FIRST half IS NOT GATED, being "a second population with its own
+    classes". openxFactory issue #1013 is that residue, filed at that packet's
+    archive act and left deliberately unsized.
+    MEASURED HERE, NOT QUOTED. Re-taken on a fresh clone at `origin/main`
+    `bcde1575` by the method the issue names, so it reproduces: a
+    `^code_surface:` line inside the leading fence of every top-level
+    `openspec/changes/<change>/proposal.md`, read through the SHIPPED strict
+    loader `scripts/frontmatter_strict.read_front_matter`. FORTY-FIVE active
+    proposals; FORTY-FIVE declare the field; none is absent, none is repeated,
+    none is refused by the loader. FOUR declare `none` and FORTY-ONE declare a
+    non-`none` value.
+    THE DIVERGENCE IS NOT A VOCABULARY DIVERGENCE, WHICH IS WHY THIS PACKET
+    CANNOT MIRROR ITS SIBLING'S REMEDY UNCHANGED. `target_release:` had a
+    closed two-value vocabulary to check membership against; `code_surface:`
+    has no enumerable vocabulary at all — its value is a repository LIST, and
+    this repository defines no inventory of the estate's repositories to
+    resolve a name against. So the gate this packet proposes judges the
+    declaration's GRAMMAR rather than its membership, and the grammar is
+    DERIVED FROM THE POPULATION rather than invented: 38 of the 45 active
+    declarations already open with a head — `none`, or repository identifiers
+    separated by a comma, by " and ", or by " + " — and then hand off to a
+    prose gloss through one of exactly three openers, an opening parenthesis
+    (19), an em dash (17) or a full stop (2). SEVEN do not, in four classes: a
+    declaration written as a YAML block scalar so its value opens with the
+    literal `>-` (1); a possessive, `openxFactory's half of this packet
+    carries NO CODE` (1); an apposition, `xFactory aggregation repo` (1); and
+    a sentence continued by ", and …" or a list whose members are prose
+    descriptors (4). The archive is read and never judged: 165 archived
+    proposals, 119 declaring, 3 outside the grammar.
+    AND ONE READER IS ALREADY DERIVING AN AUTHORIZATION SET FROM THE GLOSS.
+    `scripts/scope_globs.py`'s `code_surface_repositories` — wired live at
+    `scripts/validate-scope-globs.py:68` — splits the WHOLE declaration, gloss
+    included, on `[\s,()/]+` and returns every word that is not `none`.
+    Measured over the 45: it returns 3,421 distinct "repository" tokens, the
+    widest single declaration yielding 767 (`the`, `and`, `GitHub`, `Postgres`,
+    `§`); TWENTY-SEVEN of the 45 yield an estate repository name their declared
+    head does not name. Its consumer is
+    `scope_globs.validate_cross_consistency`, which holds that "every
+    `scope_globs` repository key MUST be named in `code_surface`" — and
+    `scope_globs:` bounds the paths a provenance-gated autonomous merge may
+    write. THE DEFECT IS LATENT AND NOT STANDING, and this packet says so
+    rather than overstating it: ZERO of the 45 active proposals declare
+    `scope_globs:` today, so the cross-check is vacuous until the first one
+    lands. It is a guard that will be wrong the first time it is asked a
+    question.
+    WHY AN ADDED REQUIREMENT AND NOT A MODIFIED ONE, FOR THE SIBLING'S REASON.
+    `add-structured-scope-substrate` is ACTIVE, ratified, and holds a
+    `## MODIFIED Requirements` block over *Realization axis declaration*. A
+    second MODIFIED block over that title would owe
+    `sequenced_after: [add-structured-scope-substrate]`, would have to write
+    its pre-text from THAT change rather than from canon, and would inherit the
+    archive-order hold *Ordered deltas and branch vocabulary* imposes. Three
+    ADDED requirements over NOVEL titles owe none of it and edit no promoted
+    byte. The cost of the alternatives is written out in `design.md` D1.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated on 2026-09-12 and `INDEX.md` read: no
+    topic names the realization-axis front matter, the `code_surface`
+    declaration, a repository-name grammar, or a proposal front-matter
+    validator. `kind: staged` would claim a staging source that does not
+    resolve. The organized source is openxFactory issue #1013, filed by lane
+    `openxfactory-1` at the archive of `gate-realization-axis-vocabulary` as
+    the successor that packet's `tasks.md` § 6.3 owed.
+  proposed_by: >-
+    Lane `openxfactory-5` (display `openXfactory-5`), session `71ee29`, in
+    answer to openxFactory issue #1013, which the lane CLAIMED before
+    authoring.
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED, AND NO WORD OF BRETT
+    HEAP'S RATIFIES ANY WORDING HERE. The issue is an unclaimed residue filed
+    by another lane; taking it commissions the AUTHORING and ratifies nothing.
+    It admits no text to canon, takes none of the decisions this packet
+    carries, and is not read as an approval of any of them. The lawful
+    unapproved shape is the one `add-drafted-proposal-origin` (issue #318)
+    added — drafting provenance, no `approved_by`, no `approved_on` — and
+    every document in this packet carries `Status: draft` to match. Approval,
+    when it comes, is a pure ADDITION beside a fixed `kind` and `id`.
+    Ratification, realization and archive are three later acts on later words.
+    THE DECISIONS MOST WORTH A VETO ARE `design.md` D1, D2, D3 AND D4, each
+    put as a multiple-choice question with the recommendation FIRST and the
+    alternatives' costs written out beside it. D1: what "off-vocabulary" means
+    when the declared value is prose — GATE THE GRAMMAR, head plus a required
+    gloss opener (recommended), against judging only the FIRST TOKEN as the
+    sibling does, against resolving each name against a repository inventory
+    this repository does not have. D2: the shape of the remedy — a house
+    validator plus a CLOSED REGISTER plus an ADDED requirement, following the
+    sibling (recommended), against an ADDED requirement with a bare refusal
+    and no register, against an advisory-only gate. D3: the disposition of the
+    SEVEN pre-existing non-conformers — REGISTER ALL SEVEN and sweep none
+    (recommended), against sweeping the six whose correction carries no
+    judgment and registering the one that does, against sweeping all seven.
+    D4: whether `add-structured-scope-substrate`'s `scope_globs:` machinery is
+    reusable — reuse it as the CONSUMER and narrow its extractor to the
+    declared head (recommended), against leaving the extractor as it stands
+    and naming a successor, against leaving it and registering the 27. The
+    four rest on no shared predicate and each stands whichever way the others
+    go.
+    NOTHING IS PROMOTED, NOTHING IS REALIZED AND NOTHING IS ARCHIVED BY THIS
+    FILING. This pull request edits no file under `openspec/specs/` and adds no
+    script, register or test; `code_surface` is non-empty, so under
+    `release-realization` the archive is a separate act on merged-plus-green
+    realization evidence and a separate word, and openxFactory #1013 closes
+    THERE and not at this landing.
+  proposed_on: 2026-09-12
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-13 at 00:41Z,
+    lane `openxfactory-5` (display `openXfactory-5`), verbatim **"ratify"**,
+    given in session on this packet's own pull request and recorded at
+    openxFactory PR #1018, comment 5649742729
+    (https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind` and `id` never
+    move, which is the shape `add-drafted-proposal-origin` (issue #318) defined
+    for this transition: approval is a pure ADDITION beside a fixed origin
+    identity, so the support manifest that repeats `kind` and `id` never comes
+    to disagree with the packet, and the archive gate's origin-retention arm
+    reads the declaration this commit establishes. The `reason:` above describes
+    the unapproved state this packet was authored in and is deliberately left in
+    that tense.
+    THE WORD IS BARE, AND WHAT THAT MEANS IS RECORDED RATHER THAN ASSUMED.
+    Unlike the sibling `gate-realization-axis-vocabulary`, which took three
+    labelled multiple-choice rulings, this word names no option individually: it
+    ratifies the PACKET, and the packet encodes the RECOMMENDED option at each of
+    `design.md`'s four declared veto points — D1 GATE THE GRAMMAR, D2 VALIDATOR
+    PLUS CLOSED REGISTER PLUS ADDED REQUIREMENT, D3 REGISTER ALL SEVEN AND SWEEP
+    NONE, D4 REUSE AS THE CONSUMER AND NARROW THE EXTRACTOR. All four being the
+    already-encoded options, ITS WORDING STANDS UNCHANGED ON THE RULING; D0 and
+    D5 through D8 were carried beside them and none was vetoed. Nothing under
+    `openspec/specs/` is edited by this ratification.
+    IT REACHES THE FIRST BENCH ROUND TOO, ON ITS OWN WORDS. The recording
+    comment directs that the two confirmed Copilot findings be fixed "before the
+    record is cut, so the ratified packet includes them", so the ratified text is
+    the text those fixes produced: `none` reserved out of REPOSITORY IDENTIFIER
+    with the two head forms made EXCLUSIVE and a tenth scenario refusing a mixed
+    head, and a FAIL-CLOSED rule for a registered-exception packet that later
+    declares `scope_globs:` with both substitutes forbidden by name and a fourth
+    scenario on the derivation requirement. The third standing thread is REFUSED
+    as false on measurement. `design.md` D9 records all three.
+    THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD AND IT IS NOT PERFORMED
+    HERE. `code_surface` is NON-EMPTY, so under `release-realization` this packet
+    archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE at canon's grain — the
+    LATER realization pull request merged into `main` and a green `pytest-suite`
+    run at the tree that merge carries — rather than on landing or on
+    ratification. `tasks.md` § 3 stays ENTIRELY OPEN, § 5 stays ENTIRELY OPEN,
+    § 6 (residue) stays ENTIRELY OPEN, and openxFactory #1013 therefore closes at
+    the archive and on no earlier pull request.
+  approved_on: 2026-09-13
+related:
+  - openxFactory:issue:1013                                                       # THE ORIGIN. Filed at the archive of the packet whose § 6.3 owed it; carries the gap, the first measurement and the three design questions. Closes at the ARCHIVE, never at this landing
+  - openxFactory:issue:956                                                        # The governing issue of the sibling packet, whose § 6.3 named this successor
+  - openxFactory:change:archive/2026-09-12-gate-realization-axis-vocabulary       # ARCHIVED at PR #1014 (merged 2026-09-12T20:49Z, `a1429885`), AFTER this branch was cut and repointed here from its active id at the merge of main. The sibling this packet mirrors in shape and departs from in remedy: it gated `target_release:`, the OTHER half of the same promoted sentence, with a validator, a closed register and an ADDED requirement, and its `tasks.md` § 6.3 owed the successor this packet answers
+  - openxFactory:change:add-structured-scope-substrate                            # ACTIVE, ratified. Holds the `## MODIFIED` block over *Realization axis declaration* that an amending design would have to sequence after — the collision these deltas avoid by ADDING — and ships `code_surface_repositories`, the reader `design.md` D4 measures
+  - openxFactory:change:add-sequenced-after-substrate                             # ACTIVE, ratified. ADDED *Strict loading of the realization-axis front-matter block* and produced `scripts/frontmatter_strict.py`, the loader this gate READS THROUGH. `code_surface:` is a prose header, not a structured field, so this delta neither realizes nor contradicts that rule
+  - openxFactory:change:archive/2026-09-04-add-per-change-sweep-ledger            # ARCHIVED. The house shape this packet's realization follows: a validator, a data file it reads, a test that runs it over the live corpus

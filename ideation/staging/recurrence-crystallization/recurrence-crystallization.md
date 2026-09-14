@@ -151,6 +151,14 @@ brainstorm remainder is
 [crystallization-cross-tenant.md](../../brainstorm/crystallization-cross-tenant.md)
 for the pooling wave.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Spanning open questions (carried, non-blocking)
 
 Dial tuning beyond staged defaults; adjudicator assignment by rung/risk

@@ -46,8 +46,8 @@ from pathlib import Path
 import pytest
 
 from ideation_dashboard import dashboard_refresh_lane as lane
-from ideation_dashboard import snapshot as snapshot_mod
-from ideation_dashboard.generator import is_rfc3339_datetime
+from openxdox import snapshot as snapshot_mod
+from openxdox.generator import is_rfc3339_datetime
 
 CORRELATION = "dashboard-refresh-4242-1"
 COMMITTED_AT = "2026-09-04T01:02:03+00:00"

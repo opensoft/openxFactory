@@ -17,7 +17,9 @@ supporting documents, an unmutated origin declaration, pins re-derived
 by the landing whose rewrite orphans them, and a pinned corpus
 measurement carried one row per subject rather than as a contended
 shared total.
+
 ## Requirements
+
 ### Requirement: Realization axis declaration
 Every OpenSpec change proposal SHALL declare `code_surface:` — `none` or
 the repositories whose runtime artifacts it changes — and
@@ -419,3 +421,240 @@ is noise that hides the entries that carry judgement.
 - **THEN** no narrative entry is owed
 - **AND** where a move is NOT so explained — a counting-method change, a partner's flip, a non-per-subject reading, or a re-seeding — a dated entry in the single narrative is owed
 
+### Requirement: Equivalent declaration sites for the ordered-delta parent declaration
+A `sequenced_after:` declaration written as a LIFECYCLE HEADER LINE SHALL
+declare exactly what the same declaration written in the `---`-fenced
+realization-axis front matter declares, and the two sites SHALL be read by ONE
+loader under ONE shape, ONE entry grammar, ONE resolution rule, ONE cycle rule
+and ONE retention rule. Neither site is preferred and neither is a fallback of
+lesser standing: a corpus whose proposals carry no fence is not a corpus whose
+authors declared nothing.
+
+A LIFECYCLE HEADER LINE IS A BOUNDED CONSTRUCT, AND THE BOUND IS THE
+REQUIREMENT'S SUBSTANCE. It is a line whose first characters are the field's own
+name followed by a colon, at column 0, case-sensitively, sitting within the
+document's BOUNDED LIFECYCLE HEADER WINDOW — the same window, counted in the same
+REAL LINES (CR, LF and CRLF only), that this corpus already reads a document's
+`Status:` header in — and outside any leading `---` fence, whose lines are read
+by the front-matter reader and MUST NOT be counted a second time as header lines
+of the same document. BEYOND THAT WINDOW THE SAME BYTES ARE PROSE AND SHALL
+DECLARE NOTHING. The bound is what front matter was chosen FOR: the alternative
+it refused was unbounded prose parsing, in which a `sequenced_after:` written in
+a body paragraph would authorize as loudly as one written in a header, and this
+capability already refuses a mention as a parent link. An INDENTED line is a
+continuation of what precedes it and SHALL NOT declare. The legacy free-text
+`Sequenced-after:` header SHALL continue to declare nothing and SHALL continue
+to be counted as the prose header it is.
+
+A LEADING FENCE'S OWN LINES COUNT TOWARD THE WINDOW'S BUDGET, AND DO NOT BUY IT
+A FRESH ONE. The window is counted from the document's own line 1: the `---`
+that opens a leading fence, every line between it and the closing `---`, and
+the closing `---` itself are REAL LINES of the document like any other and
+SHALL be counted among the window's lines exactly as any other line is, even
+though those same lines — already read once by the front-matter reader — are
+excluded from being read AGAIN as a header-line declaration site. The window
+SHALL NOT be re-measured as though it began fresh after the fence closes: a
+header-line declaration MUST sit within the window counted from line 1
+inclusive of the fence, so a fence occupying part of the window leaves
+correspondingly FEWER lines available inside it for a header-line declaration,
+and one long enough MAY leave none at all.
+
+THE HEADER-LINE FORM IS A SINGLE LINE, because an unfenced document supplies no
+closing delimiter: a multi-line value has no defined end, and a window boundary
+falling inside one would show a reader one declaration and authorize another. A
+self-delimiting flow sequence on the line SHALL be the admitted form; a
+valueless field line followed by an indented continuation SHALL be refused BY
+NAME, naming the forms that work, rather than read as null. A field line with no
+value and no continuation SHALL be PRESENT-but-null and SHALL be refused by the
+field's own shape validation, never read as absence — presence is decided by the
+KEY on both sites.
+
+THIS EQUIVALENCE IS GRANTED TO THE PARENT DECLARATION ALONE. The structured
+path-scope declaration `scope_globs:` SHALL NOT be declarable as a header line.
+The asymmetry is deliberate: `sequenced_after:` declares WHERE IN A CHAIN a
+change sits, and every consumer applies its own root proof, co-modifier
+cross-check and refusals on top, so making an author's existing declaration
+legible authorizes nothing that absence did not already refuse; `scope_globs:`
+declares WHICH PATHS an autonomous merge MAY WRITE, and a second place to
+declare it is a second place to widen a path grant. Reading a position is not
+granting a path.
+
+#### Scenario: An unfenced proposal declares its parent as a header line
+- **WHEN** a proposal carries no `---` front matter and writes `sequenced_after:` with a flow sequence at column 0 within the lifecycle header window
+- **THEN** the declaration is read, and it is the same declaration the fenced form would have made
+- **AND** it is validated, resolved, cycle-checked and freeze-checked by exactly the machinery the fenced form goes through
+
+#### Scenario: The same bytes appear beyond the header window
+- **WHEN** a `sequenced_after:` line sits below the lifecycle header window, or is indented, or appears inside a body paragraph
+- **THEN** it MUST declare nothing, because beyond the window it is prose and a mention is not a parent link
+
+#### Scenario: Fence lines consume the header window budget
+- **WHEN** a proposal opens with a well-formed `---`-fenced front-matter block, and a `sequenced_after:` header line follows the closing fence
+- **THEN** the window is still counted from the document's own line 1, so the fence's lines — both `---` delimiters and every line between them — count toward it rather than being excluded from the count
+- **AND** a header line that the fence's length pushes past the window's last line is NOT read, exactly as a header line beyond the window is not read in an unfenced document
+
+#### Scenario: An unfenced declaration attempts a multi-line value
+- **WHEN** a header line carries no value on its own line and the next line is an indented continuation
+- **THEN** the reader MUST refuse it by name and name the forms that work, because an unfenced document supplies no closing delimiter for the value
+
+#### Scenario: The path-scope declaration is written as a header line
+- **WHEN** an unfenced proposal writes `scope_globs:` as a header line
+- **THEN** no path scope is declared, because the equivalence is granted to the parent declaration alone
+
+### Requirement: One parent declaration across both sites, and its retention
+A change SHALL carry AT MOST ONE `sequenced_after:` value however many sites it
+writes it in, and a reader that finds the field at both sites SHALL treat equal
+declarations as ONE declaration and SHALL REFUSE unequal ones rather than prefer
+either site. Equality is decided under the SAME canonical form the archive
+retention gate compares with, so entry ORDER is significant and a
+self-qualified entry equals its bare form. A reader that preferred one site
+would show a reviewer the other — the show-one-authorize-another defect the
+strict loader's duplicate-key refusal already closes, one file apart rather than
+one key apart — and the refusal SHALL name both values so the author can delete
+the one that is not true. Two header lines for the same field SHALL be refused
+as the duplicate key they are.
+
+READING A NEW DECLARATION SITE SHALL NOT LICENSE WRITING INTO IT AFTER
+RATIFICATION. Admitting the header-line form changes what a reader can SEE; it
+changes nothing about what a ratified proposal may CARRY. Where a change's
+declaration is ABSENT at its ratified head and present in the working tree —
+whether because a header line was added, or because an existing line was MOVED
+from beyond the window to inside it — the archive retention gate SHALL report a
+contested-class mutation requiring an explicit recorded disposition, exactly as
+it does for the fenced form. A declaration that was already present at the
+ratified head SHALL be read as RETAINED, because both sides of the comparison
+are read by the same reader; making an existing declaration legible is not a
+mutation of it.
+
+#### Scenario: Both sites carry the same declaration
+- **WHEN** a proposal declares `sequenced_after:` in its front matter and again as a header line, and the two are equal under the canonical form
+- **THEN** it is ONE declaration and validation proceeds
+
+#### Scenario: The two sites disagree
+- **WHEN** a proposal's front-matter declaration and header-line declaration differ — including the case where one is the empty root claim and the other names a parent
+- **THEN** the reader MUST refuse, naming both values
+- **AND** it MUST NOT resolve the disagreement by preferring a site
+
+#### Scenario: A header-line declaration is added after ratification
+- **WHEN** a ratified change's proposal gains a `sequenced_after:` header line, or an existing one is moved into the header window, after its ratified head
+- **THEN** the archive retention gate MUST report a contested-class mutation requiring an explicit recorded disposition
+- **AND** a declaration already present at the ratified head MUST read as retained rather than as a mutation
+
+### Requirement: Realization axis vocabulary is gated
+An ACTIVE change proposal's `target_release:` declaration SHALL carry a value
+the ratified vocabulary admits — `implemented`, or a release identifier that
+resolves to a release this estate defines — and a house validator SHALL REFUSE
+any other value on an active proposal, naming the proposal's path and the value
+it carries. A vocabulary stated in prose and read by nobody is a vocabulary the
+next proposal diverges from, which is what the corpus shows.
+
+THE DECLARATION IS A VALUE TOKEN FOLLOWED BY AN OPTIONAL PROSE GLOSS, and the
+gate SHALL judge the TOKEN and never the gloss. That is the corpus's own form
+rather than a rule invented at the gate: the house writes `target_release:
+implemented (the openxFactory main line). No contract bundle is cut …`, and a
+reader that judged the whole string would refuse every declaration that explains
+itself. The token is the first whitespace-delimited word of the declaration.
+
+A BLOCK THAT DECLARES `target_release:` TWICE SHALL BE REFUSED RATHER THAN READ
+FROM ITS FIRST TOKEN. The declaration is a prose header, and a prose header's
+repeat is joined into one value rather than refused as the duplicate key a
+structured field's repeat would be — so a block declaring `implemented` and then
+`none` would show a reviewer two declarations and authorize the first. One
+declaration per block, and a repeat is a finding against that proposal.
+
+ABSENCE IS THE PROMOTED DEFAULT AND SHALL NEVER BE A FINDING. *Realization axis
+declaration* makes a proposal without the declarations a doc-only change
+(`code_surface: none`, `target_release: implemented`) by default, so a proposal
+that declares nothing declares the default. Only a PRESENT declaration is
+judged — and a declaration present with no value SHALL be refused, because the
+author wrote the key and the default is available by omitting it.
+
+A RELEASE IDENTIFIER SHALL RESOLVE AGAINST THE REGISTRY THE SCANNED TREE
+DEFINES, AND WHERE THE TREE DEFINES NONE THE SHAPE SHALL BE THE WHOLE TEST AND
+THE RUN SHALL SAY SO. Where the tree carries a release registry, a name that
+resolves to nothing in it is NOT a named release and SHALL be refused. Where
+the tree carries no registry at all — every consuming repository that defines
+no releases of its own — refusing every release name would make the gate
+unusable outside the repository that defines them, so the identifier's SHAPE is
+accepted on its own; that is a WEAKER judgment and SHALL NOT be silent, so the
+run SHALL report that it judged on shape alone. The identifier's shape SHALL be
+the shape this estate DEFINES for a release tag rather than one the gate
+invents, so the gate cannot refuse a release the estate's own inventory admits.
+
+AN ARCHIVED PROPOSAL SHALL BE READ AND NEVER JUDGED. An archived packet's front
+matter is frozen record — `record-immutability` and `govern-archived-record-edits`
+put it beyond a plain fix — so the gate SHALL count what the archive carries and
+report it, and SHALL refuse nothing there. A gate that demanded an edit nobody
+may make would be a standing finding with no remedy, which is the defect this
+estate disposes of rather than creates.
+
+THE STANDING DIVERGENCE SHALL BE NAMED IN A CLOSED REGISTER RATHER THAN
+FORGIVEN IN CODE. Where the corpus at the gate's landing carries declarations
+outside the vocabulary that are not corrected by the same act, each SHALL be
+named in a register carried beside the validator, with the value token as it
+stands, the class of divergence, the reason, a citation, and the event that
+retires the entry. The register SHALL be CLOSED: an entry may be REMOVED when
+its declaration is corrected or its packet archives, and admitting a NEW value
+to the vocabulary SHALL be a change to this specification rather than an
+addition to the register. CLOSURE SHALL BE ENFORCED AND NOT MERELY DECLARED:
+the validator SHALL carry the baseline of entries the register holds when the
+gate lands and SHALL REFUSE any entry that baseline does not carry, so an
+exception cannot be granted by appending a line to a data file — granting one
+takes an edit where the refusal itself is written, and the diff shows the act
+for what it is. A registered declaration is REPORTED and not refused;
+every declaration the register does not name is judged from the day the gate
+lands, so the gate is a ratchet and the divergence cannot grow.
+
+THE TWO REFUSALS ARE ASYMMETRIC AND SHALL STAY SO. An off-vocabulary
+declaration the register does not name is a statement about the PROPOSAL and
+the run SHALL fail; a register entry that matches nothing on a whole-corpus scan
+is a statement about the REGISTER — the exception outlived the condition it was
+granted for — and the run SHALL refuse with a distinct status until the entry is
+deleted. Silently tolerating the second is how an exception list rots into a
+blanket, and refusing makes the correction, or the archive, the event that
+forces the re-examination.
+
+#### Scenario: An active proposal declares a value outside the vocabulary
+- **WHEN** an active change's `proposal.md` declares a `target_release:` whose value token is neither `implemented` nor a release identifier that resolves, and the register does not name it
+- **THEN** the validator MUST fail, naming the proposal's path and the value token it carries
+- **AND** the remedy belongs to the declaring packet, which corrects its own declaration
+
+#### Scenario: An active proposal declares the implemented target
+- **WHEN** an active change declares `target_release: implemented`, with or without a prose gloss after the token
+- **THEN** the validator passes, the gloss being explanation and not declaration
+
+#### Scenario: An active proposal names a release the estate defines
+- **WHEN** an active change declares a release identifier and the scanned tree's release registry carries that release
+- **THEN** the validator passes
+- **AND** where that tree HAS a registry, a release-shaped name the registry does not carry MUST be refused, because a name that resolves to nothing is not a named release
+
+#### Scenario: The scanned tree defines no release registry at all
+- **WHEN** the tree carries no release registry, so no name in it could resolve, and an active change declares a release-shaped identifier
+- **THEN** the identifier's shape MUST be the whole test and the declaration passes, because refusing every release name in a tree that cannot define one would make the gate unusable outside the repository that defines them
+- **AND** the run MUST report that it judged on shape alone, the weaker judgment never being silent
+
+#### Scenario: An archived proposal carries an off-vocabulary value
+- **WHEN** the scan reaches a proposal under `openspec/changes/archive/` whose declaration is outside the vocabulary
+- **THEN** it MUST NOT be a finding, and the run reports how many such records the archive carries
+
+#### Scenario: A standing declaration is named by the register
+- **WHEN** an active declaration outside the vocabulary is named by a register entry carrying its current value token, its class, its reason, its citation and its retirement event
+- **THEN** the validator reports it as registered and does not refuse it
+
+#### Scenario: A proposal declares the target release twice
+- **WHEN** an active change's `proposal.md` front matter carries two `target_release:` header lines, the shared prose-header loader joining them into one value
+- **THEN** the validator MUST refuse that proposal, naming it, rather than judging the first token and ignoring the second declaration
+
+#### Scenario: An entry is appended to the closed register
+- **WHEN** a register entry names a change and value token the validator's recorded closed baseline does not carry
+- **THEN** the run MUST refuse, because the register is removable and never addable
+- **AND** granting the exception takes an edit to the baseline in the same pull request, where the diff shows it
+
+#### Scenario: A register entry matches nothing
+- **WHEN** a whole-corpus scan finds a register entry whose change has archived, or whose declaration has been corrected so the value token no longer matches
+- **THEN** the run MUST refuse with a status distinct from an off-vocabulary failure, naming the entry
+- **AND** the remedy is to delete the entry in the same pull request that made it stale
+
+#### Scenario: A proposal declares no target release
+- **WHEN** an active change's `proposal.md` declares no `target_release:` at all
+- **THEN** the validator passes, the proposal having taken the promoted doc-only default

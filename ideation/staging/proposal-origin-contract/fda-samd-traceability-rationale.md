@@ -354,3 +354,14 @@ is the failure mode the document itself warns about.
 and it does NOT stop the topic ageing in doc-health: there is no `deferred`
 state for a staged topic and this change deliberately adds none.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
+## Open questions
+
+No open questions recorded at staging.

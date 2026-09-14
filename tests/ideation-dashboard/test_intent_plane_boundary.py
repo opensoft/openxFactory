@@ -64,7 +64,7 @@ from conftest import (  # used below to read the serving path's own sources
     serve_surface_paths,
 )
 
-from ideation_dashboard import gate_console as gc
+from openxdox import gate_console as gc
 from ideation_dashboard import intent_apply_lane as lane
 
 from test_gate_routes import _get, _post, _register, _serving

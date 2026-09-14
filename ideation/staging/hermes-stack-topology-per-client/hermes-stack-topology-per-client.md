@@ -312,6 +312,14 @@ lane as its first worked example; the successor also owns the still-open
 pending-approvals discovery/notification surface. (b) — an OpsxFactory
 domain stack — remains available later and is NOT precluded.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 - Is the company/business Hermes in openxFactory's scope at all, or does it stay

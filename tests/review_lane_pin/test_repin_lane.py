@@ -54,8 +54,30 @@ BINDING_TEMPLATE = REPO_ROOT / "contracts/review-lane-repin-binding.template.yam
 JUDGE_TEST = REPO_ROOT / "tests/review_lane_pin/test_floor_snapshot.py"
 REQUIRED_SUITE = REPO_ROOT / ".github/workflows/pytest-suite.yml"
 
+#: THE PACKET ARCHIVED 2026-09-10 (openxFactory PR #894, "Archive
+#: mirror-floor-regeneration-automation: the re-pin half promotes into
+#: review-lane-floor-mirror", commit `242e8e08`) AND ITS BLOCK WAS PROMOTED,
+#: so the path this constant named until then no longer exists on disk —
+#: reading it now raises `FileNotFoundError` rather than reporting a corpus
+#: change, because the packet's directory itself moved.
+#:
+#: THIS NAMES THE ARCHIVED COPY, NOT CANON, and that is a choice rather than
+#: the only option: `git show --stat 242e8e08` records the move of this exact
+#: file as a 100%-similarity rename (old path to the archived path, zero
+#: content change), so the archived copy still carries EXACTLY the 24
+#: scenarios this file's docstrings claim coverage for — the three counts
+#: `test_every_ratified_scenario_has_a_test` asserts below are unmoved by
+#: this edit. Canon's `openspec/specs/review-lane-floor-mirror/spec.md` is
+#: NOT the right basis even though it now carries this packet's block
+#: byte-identically: canon also carries the SEVEN requirements
+#: `mirror-floor-addition-grace` promoted there on 2026-09-05 — named as such
+#: by `amend-mirror-floor-regeneration-merge-authority`'s own `.openspec.yaml`
+#: `related:` entry for that archived change — each with its own scenarios
+#: that no test in this file claims. Reading canon directly would make
+#: `missing` silently stop measuring anything beyond "does canon still
+#: contain these bytes somewhere", which is not the claim this test makes.
 RATIFIED_DELTA = (
-    REPO_ROOT / "openspec/changes/mirror-floor-regeneration-automation"
+    REPO_ROOT / "openspec/changes/archive/2026-09-10-mirror-floor-regeneration-automation"
     / "specs/review-lane-floor-mirror/spec.md")
 
 #: THE SECOND RATIFIED DELTA OVER THE SAME CAPABILITY.
@@ -2576,6 +2598,18 @@ class EveryRatifiedScenarioHasATest(unittest.TestCase):
         10 in the amendment, and 31 DISTINCT titles, because the amendment
         carries three of the parent's titles forward (one with narrowed
         bullets, two verbatim) rather than inventing new ones.
+
+        RE-BASED 2026-09-10, NOT RE-READ, BECAUSE THE PARENT MOVED RATHER
+        THAN CHANGED. `mirror-floor-regeneration-automation` archived that
+        same day (openxFactory PR #894, commit `242e8e08`) and its block
+        promoted into canon, so `RATIFIED_DELTA` (defined above) was
+        repointed at the archived copy of the same file — a 100%-similarity
+        rename, so the four counts in this method are unchanged from
+        2026-09-09's reading. Canon was deliberately NOT used as the new
+        basis: it now also carries the seven `mirror-floor-addition-grace`
+        requirements this packet composes with, and reading it here would
+        silently widen what "every ratified scenario has a test" measures
+        rather than keep it pinned to this packet's own 24.
         """
         parent = self._scenarios(RATIFIED_DELTA)
         amended = self._scenarios(AMENDED_DELTA)

@@ -83,6 +83,14 @@ key — not a growing pile of per-install values.
    contract must carve out SOPS-encrypted escrow blobs under the
    registry path explicitly, so the exception is policy, not precedent.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Delta shape**: MODIFIED `credential-contracts` (a sixth canonical

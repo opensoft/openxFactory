@@ -128,7 +128,7 @@ def test_the_reader_finds_what_the_writer_just_wrote_through_an_exotic_header():
     the comparison IS; keeping it function-local keeps it visibly one, and
     nothing under `scripts/doc_health/` may follow it.
     """
-    from ideation_dashboard import gate_console as gc  # lazy: test-only
+    from openxdox import gate_console as gc  # lazy: test-only
 
     header = "".join(f"Field{i}: v {chr(0x2028)}\n" for i in range(9))
     src = "# Staged: t\n" + header + "Status: draft\n\n## Why\n"

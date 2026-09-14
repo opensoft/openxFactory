@@ -92,7 +92,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   `5547107565`): NO `document-lifecycle` delta now; descendants declare their
   lifecycles via `domain-mapping-declaration`; revisit at `MedxDox`. Both encoded
   at § D3a.
-- [ ] 0.6 `[oxF]` **GATE — `ideation-intent-plane` reaches canon, or its
+- [x] 0.6 `[oxF]` **GATE — `ideation-intent-plane` reaches canon, or its
   non-promotion is RECORDED.** Ratified 2026-07-23, part-realized, absent from
   `openspec/specs/` for 43 days, and RULING Q1 has just made its apply lane the
   only governed write path. A capability that is ratified and absent from canon
@@ -104,6 +104,13 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   — discharge is by `add-ideation-intent-plane` ARCHIVING WITH PROMOTION after
   4.4/5.1/5.2; 4.5 deferred successor; Path B rejected. This gate ticks at
   that archive.
+  **DONE — openxFactory #832 → `56e69a11c59d473da23eab455cb9848dc083fac3`,
+  2026-09-09T07:49:06Z** (head `1e1b1aa9`, Rule 6 window): `add-ideation-intent-plane`
+  ARCHIVED WITH PROMOTION (`openspec/changes/archive/2026-09-09-add-ideation-intent-plane/`),
+  § 4.4/§ 5.1/§ 5.2 ticked on the D-2 live-exercise evidence, § 4.5 kept as the
+  deferred successor exactly as openxFactory #714 encoded it. `#656` comment `5598218564`:
+  "**→ § 0.6 is MET. Path A is COMPLETE**". Independent verification (Opus, own
+  worktrees): PASS WITH NOTES, 13/13 items; CI 11/11 green.
 - [x] 0.7 `[oxF]` Amendment 3's text is DRAFTED at `design.md` § D8 and is NOT
   applied here. It is applied at § 1.6, in the pull request that creates the
   repository, because amending a `ratified` record ahead of the act it describes
@@ -506,11 +513,25 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   as unchanged and still "registered with no repository created". Verified
   live 2026-09-06T04:58Z: `gh api repos/opensoft/<name>` returns `404 Not Found` for all sixteen — the five bases, the ten leg names, and
   `openXdox-Install` — checked individually — zero repositories, as required.
-- [ ] 1.8 `[xF]` Aggregation `CLAUDE.md` working rule #1 amended: it accommodates a
+- [x] 1.8 `[xF]` Aggregation `CLAUDE.md` working rule #1 amended: it accommodates a
   neutral `open*` product `openxFactory` pins, and does NOT yet accommodate a
   neutral product that is an APPLICATION WITH A SCHEMA rather than a contract
   family.
-- [ ] 1.9 `[xF]` **NEW (2026-09-05) — `project-register.yaml` rows for the two
+  **DONE — opensoft/xFactory #284 → `05cb5abf9427b37f9d94ead5329bc0ee84408915`,
+  2026-09-06T08:43:55Z**: an additive sentence appended to rule 1 (the existing
+  sentences are unchanged) — "A neutral `open*` product may also be an
+  APPLICATION with its own schema and database rather than a contract family
+  (`openDox`, with `openXdox` as its openxFactory-tuned layer —
+  split-opendox-two-layer-product, 2026-09-06): it is elected into the
+  openRepoShape three-repository shape, `openxFactory` consumes it at a pin
+  exactly as it consumes a contract family (inside the openDox family,
+  `openxFactory` pins `openXdox` ONLY; openDox's commit is read through
+  openXdox's own pin — RULING F), and domain repos consume it through their own
+  descendant (`codexDox`, `MedxDox`, …) pinning `openXdox`." Verified live
+  against `opensoft/xFactory`'s current `main`
+  (`gh api repos/opensoft/xFactory/contents/CLAUDE.md`): the sentence is
+  present verbatim in rule 1.
+- [x] 1.9 `[xF]` **NEW (2026-09-05) — `project-register.yaml` rows for the two
   elected projects.** One row each for `openDox` and `openXdox` carrying
   `schema: project-repo-schema`, `reference: openxFactory docs/project-repo-schema.md`, the
   three repositories in `repositories`, and a `repository_roles` entry per
@@ -521,6 +542,22 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   and the register never originates an election. Where the two disagree, the
   register wins for NAVIGATION only and the disagreement is reported as drift —
   it does not re-elect anything. Lands with 5.8's other aggregation edits.
+  **STATUS — 2026-09-12, tick JUDGED MET — the two derived election
+  rows landed in the same PR.** `project-register.yaml`'s `opendox` and
+  `openxdox` rows landed at `opensoft/xFactory` **#442 →
+  `41d6d7aeb15dbb73c75ac4e9ba2cb2e8cfc6c1a3`** together with 5.8's other
+  aggregation edits, exactly as this box's own last sentence says (5.8's
+  STATUS line below carries the PR's landing detail). Each row is DERIVED,
+  per this box's own rule and per the row's own header comment in
+  `project-register.yaml`: the `opendox` row's `repositories` (`openDox` /
+  `openDox-spec` / `openDox-code`) and `repository_roles` (assembly / spec /
+  code) are read from `opensoft/openDox`'s own `project.yaml`, at the landed
+  pointer `8ec3036ce496a90a3c92a89c4907e57941901b51`; the `openxdox` row's
+  `repositories` (`openXdox` / `openXdox-spec` / `openXdox-code`) and
+  `repository_roles` are read from `opensoft/openXdox`'s own `project.yaml`,
+  at the landed pointer `eca0b5977b0cca1f39c725b95fc9fa8b4d307d72`. Both rows
+  carry `schema: project-repo-schema` and `reference: openxFactory
+  docs/project-repo-schema.md`, as required. `#656` record: `5646934254`.
 - [x] 1.10 `[oXd]` `[oxF]` **NEW (2026-09-05) — THE PIN CHAIN. `opensoft/openRepoShape`#40
   is RESOLVED**, by openRepoShape PR #42, *Descendant referent follows the
   declared pin chain (#40)*, merge commit `c2cc9e25`, merged 2026-09-05T16:26:49Z
@@ -678,12 +715,29 @@ else in the arc can start while the two packages import each other.**
   (Brett Heap, 2026-09-07) governs the test edits throughout: tests that pin
   WHERE code lives are repointed to the module now holding the moved code, at the
   same strength, disclosed and mutation-proved.
-- [ ] 2.5 `[oxF]` `[OmI]` `[xF]` **HARDEN THE APPLY LANE BEFORE IT BECOMES THE ONLY
+- [x] 2.5 `[oxF]` `[OmI]` `[xF]` **HARDEN THE APPLY LANE BEFORE IT BECOMES THE ONLY
   WRITE PATH.** RULING Q1 promotes a path with ONE dispatch in its entire history
   (`intent-apply.yml`, 2026-08-15T01:22:04Z, success) to carrying every governed
   write from every tenant instance. Evidence is a real dispatch and a real
   refusal, not a dry run — the bar the wallet arc and the nightly-refresh lane
   both established. **PRECONDITION of § 3, not a follow-up.**
+  **DONE — D-2 live exercise COMPLETE 2026-09-09T06:37:45Z** (`#656` comment
+  `5597232065`): a real dispatch (act A — intent applied at `e970dfec`,
+  `codexfactory[bot]` APPROVED, auto-merged into `intents/rolling` as openxFactory PR #176 →
+  `7681e409890a64027018edd46593f2973ada4c86`) and a real refusal (act B — the D4
+  stale-view rung, commit `36d07ecf`, run 34229563533; recorded live
+  2026-09-08T13:30Z, comment `5585923935`), not a dry run. Eight defects found
+  across six live runs, each fixed by its own verified, Brett-worded PR:
+  openxFactory #808 → `2ef7d8c27c56cbf95c51db4a420d0e96d9f16e50`, #814 →
+  `c991c0f34adb328980bfbaff17b807725683ad80`, #816 →
+  `892423040a41c7c277c45bcf8474fefd3dce6bc3`, #830 →
+  `202c170d8d56bf82c26facbc84ca13ebfa52ae7e`, plus xFactory #345/#362/#369.
+  **Reading of `[OmI]`**: the box's own text names no Omnigent-Install-specific
+  act — the evidentiary bar it states is "a real dispatch and a real refusal,
+  not a dry run" against the apply lane (`intent-apply.yml`, hosted in xFactory
+  `[xF]`, dispatching openxFactory's `[oxF]` `merge-master-approval`); `[OmI]`
+  is a repository tag on the box with no clause behind it, so it ticks on the
+  `[oxF]`/`[xF]` evidence alone, with no Omnigent-Install act in the record.
 - [x] 2.6 `[oxF]` The whole group lands green:
   `python3 -m pytest tests/ideation-dashboard tests/doc-health` and
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`. **DONE — both gates
@@ -764,7 +818,7 @@ the bookkeeping that ticks this group.
 > the field it already carries, now answered with a leg. Nothing else in the
 > group moved.
 
-- [ ] 3.1 `[oxF]` **FLOOR PART 1 (RULED OQ-1).** Emit
+- [x] 3.1 `[oxF]` **FLOOR PART 1 (RULED OQ-1).** Emit
   `docs/opendox-carve-manifest.yaml` at the **NAMED CARVE COMMIT** BEFORE any file
   moves: for every file under the moved paths, its `openxFactory` path, its
   `sha256` at that commit, its destination repository and path, and one of exactly
@@ -775,13 +829,54 @@ the bookkeeping that ticks this group.
   such an edit is either expressible as one of the three or it is not a carve edit
   and belongs to a later change. **A file in no row, or an edit in no class, is an
   UNDECLARED MOVEMENT and the carve REFUSES.**
-- [ ] 3.2 `[oD]` Carve openDox's ~24.9K of modules **into `openDox-code`** per `design.md` § D3, plus the
+  **DONE — openxFactory #865 → `17167481e9d69dec9347f1d26699b6218a697f53`,
+  2026-09-09T22:20:29Z** (head `a0979c91`): `docs/opendox-carve-manifest.yaml`
+  emitted at `carve_commit` `b075fd91dc8fced8e1373825ba80220c33536bae` (tag
+  `opendox-carve-0`), 454 rows, before any file moved; independently
+  re-verified PASS (454/454 surface, 318/318 digests). Amended by **#889 →
+  `15ebb37d483b4bfd0665844967d2699a7be3df33`**, 2026-09-10T04:28:06Z (RULED
+  Q-L1): 456 rows (172 `moved_verbatim` / 146 `moved_with_declared_edit` / 138
+  `not_moved`, 20 replicas). `#656` comment `5609537944`: "**§ 3.1 IS
+  COMPLETE**". (A further grammar amendment, PR #895 — RULED Q-L7 — is still
+  OPEN and is not cited as landed.)
+- [x] 3.2 `[oD]` Carve openDox's ~24.9K of modules **into `openDox-code`** per `design.md` § D3, plus the
   PULL-UP wave: `doxbench_knowledge` (1,231), `doxbench_abstract_store` (446) and
   the abstract-generation surface, the keyword-query half of `lens` (282), and
   `notebook_action` (239). **The stage-to-book mapping does NOT come up** — a
   per-project book is the neutral shape.
-- [ ] 3.3 `[oD]` The app-server half of `serve.py` and the neutral half of
+  **DONE — opensoft/openDox-code #6 → `ce53b489f8007c37f70da19c90c95ba89156feed`,
+  2026-09-10T12:37:23Z** (re-cut under RULED Q-L4; history-preserving
+  `filter-repo`, RULED OQ-H; independent verification: three-way digests
+  123/123, phase A + B OK): all 123 `opendox_code`-destined manifest rows
+  arrived. Cross-checked against `design.md` § D3's openDox column and the
+  landed manifest (`docs/opendox-carve-manifest.yaml` at `15ebb37d`): every
+  named module — the PULL-UPs (`doxbench_knowledge`, `doxbench_abstract_store`,
+  the abstract-generation surface inside `doxbench_turns`, `notebook_action`,
+  the keyword-query half of `lens`) and the rest of the column
+  (`doxbench_turns/threads/model`, `canvas_drafts`, `doxbench_hash/bridge/
+  provider/intake/binding/mcp/memory_gateway/telemetry/install`,
+  `branch_session`, `session_git`, `session_pr`, `actor_identity`, `boundary`,
+  `action_errors`, `fixtures`, `__init__`) — carries a manifest row with
+  `destination: opendox_code`, disposition `moved_verbatim` or
+  `moved_with_declared_edit`. Live-verified on `opensoft/openDox-code` main:
+  `gh api repos/opensoft/openDox-code/contents/src/opendox` lists every one of
+  them present.
+- [x] 3.3 `[oD]` The app-server half of `serve.py` and the neutral half of
   `cli.py`, carrying the extension points § 2.4 created. **Both in `openDox-code`.**
+  **DONE — landed inside the same PR, opensoft/openDox-code #6 →
+  `ce53b489f8007c37f70da19c90c95ba89156feed`**: the manifest routes
+  `serve.py`/`serve_wire.py`/`serve_workbench.py`/`serve_project.py` (the
+  app-server half — `serve_projection.py`/`serve_gate.py`, the gate/neutral
+  mechanism S-3 and RULED B-2 (i′) moved out, go to `openxdox_code` instead)
+  and `cli.py`/`cli_project.py`/`cli_model_binding.py` (the neutral half —
+  `cli_gate.py` goes to `openxdox_code`) all to `destination: opendox_code`;
+  the § 2.4 extension points (`route_extension.py`, `subcommand_extension.py`,
+  first landed at openxFactory #736 → `a83eb93a6e69ef608a217079e963ed4427e5cd02`)
+  arrive as declared replicas (RULED Q-L1). Live-verified on
+  `opensoft/openDox-code` main: `src/opendox/` carries `serve.py`,
+  `serve_wire.py`, `serve_workbench.py`, `serve_project.py`, `cli.py`,
+  `cli_project.py`, `cli_model_binding.py`; `src/` carries `route_extension.py`
+  and `subcommand_extension.py` at top level.
 - [ ] 3.4 `[oD]` **INVENT the front-end package boundary** in `openDox-code` — 40
   files, 30,410 lines, and no boundary exists to discover. Account menu, canvas, editor, chat,
   docs tile and theme controls are openDox; the gate console and drill-in are the
@@ -807,6 +902,45 @@ the bookkeeping that ticks this group.
   ruling's own word: openDox, openXdox's adapter implementation, AND
   `openxFactory`'s own adapter from § 2.2a. That last one is the only mechanical
   proof that the home corpus has no privileged route.
+  **NOT TICKED — the machine is built and the answer it returns is NO, at
+  openxFactory #920, 2026-09-10.** The box asks for two things and only one of
+  them was ever missing. The CORPUS exists: RULED OQ-3 (2026-09-06) seeded it
+  at `tests/corpus-adapter/fixtures/` — three documents in two roots of their
+  own under a two-field header vocabulary belonging to no governed repository,
+  plus an empty sibling and a non-directory — and eleven manifest rows name
+  those exact paths `not_moved / replicated_at_destination`, so it is not
+  relocated and no second copy is authored. What did not exist is a way to run
+  it against a reader `openxFactory` did not author, the seed being
+  `pytest`-bound to a factory named in the file. That lands here:
+  `scripts/carve_conformance.py`, the corpus as a closed set of **17 checks**
+  (10 positives, 7 negative confirmations) over any reader, stdlib plus
+  `corpus_adapter` only and held to the interface's own no-home-vocabulary
+  scan; `scripts/verify-carve-conformance.py`, the runner in
+  `verify-carve-arrival.py`'s idiom (`--destination`/`--dest-root`, exit 0 or
+  2, five refusal codes, a `--json` seat, the seat-holding pass); and
+  `tests/carve_conformance/` (34 tests; six non-conformant readers each
+  failing the check that catches it, three live mutations of the corpus each
+  turning its own case red, and one reader raising its OWN refusal class —
+  every destination holds a replica of the interface — asserted to PASS).
+  **Measured at each destination's then-current main, 2026-09-10:**
+  `openxfactory` (§ 2.2a) **OK — 17 of 17**; `opendox_code` `8e9ffa62`,
+  `openxdox_code` `59600412`, `opendox_spec` `41d570e9` and `openxdox_spec`
+  `03eacc61` each `conformance-adapter-undeclared`. openDox-code holds the
+  INTERFACE replica at `src/opendox/corpus_adapter.py` — byte-identical to the
+  carve blob at `b075fd91` (`a0d971d6…`) and a `runtime_checkable Protocol`
+  whose six methods are docstring-only, so pointing the runner at it returns
+  `TypeError: Protocols cannot be instantiated` — and no implementation of it;
+  an AST census over all four legs (91 / 1 / 98 / 1 `.py` files) finds no
+  class defining the six operations anywhere but that Protocol, which
+  independently reproduces the corpus-adapter non-placement leg 3 recorded and
+  its verifier confirmed (`#656` comments `5621296616`, `5621719657`).
+  **ONE of the three named destinations passes, so the box stays open**: the
+  missing readers are § 3.6's "trivial conformant adapter implementation" for
+  openDox and § 4's mapping core for openXdox, and they are build tasks at
+  those destinations rather than findings against the corpus — narrowing the
+  corpus to what the legs pass today would be FLOOR PART 3 deleted to tick
+  FLOOR PART 3. § 3.8's tag waits on it. Runbook § 2.2 carries the runner, the
+  refusal table and the same verdicts.
 - [ ] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
   **In the ASSEMBLY ROOT** (amended 2026-09-05), over the commit that names both
   legs: a tag on a leg describes half a project, and the bundle tag,
@@ -824,7 +958,34 @@ the bookkeeping that ticks this group.
   implementation and projection mechanism, the gate-and-commission loop, and
   `doxbench_scope`. The 23 outbound `doc_health` imports become the adapter's
   IMPLEMENTATION SURFACE here, where importing doc-health is lawful.
-- [ ] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
+  **STATUS — 2026-09-11, tick NOT YET DUE (partially met), verified against
+  `openXdox-code` main (`af15f71207797214ffd6340267b5cb2ecb40bf6a`, the pin
+  landed at `#656` comment `5640535165`).** MET: all thirteen named modules
+  are present in `src/openxdox/` — the seven "adapter implementation and
+  projection mechanism" modules (`corpus_root.py`, `generator.py`,
+  `snapshot.py`, `snapshot_registry.py`, `register.py`, `completeness.py`,
+  `round_trip.py`), the five "gate and commission loop" modules
+  (`gate_console.py`, `gate_routes.py`, `kickoff.py`, `record_binding.py`,
+  `register_edit_lane.py`), and `doxbench_scope.py`. NOT MET: the second
+  sentence's own claim, that all 23 outbound `doc_health` imports `design.md`
+  § D3 counts (12 modules: `authoring` 2, `cli` 1, `completeness` 1,
+  `corpus_root` 1, `doxbench_packet` 1, `gate_console` 4, `gate_routes` 1,
+  `generator` 3, `round_trip` 1, `serve` 3, `snapshot_registry` 1, `workbench`
+  4) become the adapter's implementation surface HERE. Live count in
+  `openXdox-code`'s `src/`: 12 of the 23 (`completeness` 1, `corpus_root` 1,
+  `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1,
+  `snapshot_registry` 1 — exactly the seven landed adapter/projection
+  modules). The other 11 do not relocate here today: `doxbench_packet`'s 1 is
+  RULED (DQ-1) to stay in `openxFactory`'s own engineering adapter and never
+  comes here; `authoring` (2), `cli` (1), `serve` (3) and `workbench` (4) are
+  the residue that splits BY FUNCTION between openDox and openXdox, owed to
+  § 3.4 / 3.5 / 3.6, which the RECOUNT (`#656` comment `5638391057`) still
+  lists open. `openXdox-code` also carries one further live `doc_health`
+  import outside the original 23 — `cli_gate.py:251` — a new site from the
+  § 4.3 routes/subcommands build, not one of `design.md`'s inventoried twelve
+  modules. Box stays open until the residue carve resolves where the
+  remaining imports land.
+- [x] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
   and tree digest (`sorted-ls-tree-r-v1` over openDox's whole tree — the scaffold
   writes NO per-file `sha256`; the per-file `sha256`, `pinned_by_commit_only:`
   and the migration range/reversibility/runbook the MODIFIED `neutral-product-pin`
@@ -842,23 +1003,98 @@ the bookkeeping that ticks this group.
   `openRepoShape` and `openXwallet` pins); what the shape election ADDS is the
   first move, the assembly root's own leg lockstep. *(reality check 2026-09-05,
   second run, claims C27/C41.)*
-- [ ] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
+  **STATUS — 2026-09-11, tick JUDGED MET, verified live against `openXdox`
+  root main (`eca0b5977b0cca1f39c725b95fc9fa8b4d307d72`, #656 comment
+  `5640651561`).** `contracts/opendox-pin.yaml` at that commit names
+  `product: openDox`, `source_repository: opensoft/openDox`,
+  `commit: "8ec3036ce496a90a3c92a89c4907e57941901b51"` (the openDox ASSEMBLY
+  ROOT's own commit, #656 comment `5640527633` — not a leg commit),
+  `revision_kind: commit`, and `digests.tree_sha256` under
+  `digest_definition: sorted-ls-tree-r-v1`. The per-file `sha256` /
+  `pinned_by_commit_only:` HAND ACT is the recorded judgment that both lists
+  are empty because `opensoft/openDox`'s own `contracts/manifest.yaml`
+  carries `contract_bundle_version: none` and `entries: []` — verified live
+  at openDox root main `8ec3036c` — the identical judgment already accepted
+  for openxFactory's own openXdox pin (5.1). The migration `range` /
+  `reversible` / `runbook` triple is present, each `not_yet_deployed`, on
+  **RULED ASK-1** (Brett Heap, `#656` comment `5628886636`: "the three fields
+  are added now with an explicit `not_yet_deployed` sentinel, proving the
+  schema shape before it is needed"). Every field the MODIFIED
+  `neutral-product-pin` requirement and this task's own text name is present
+  or is a documented, ruled HAND-ACT judgment — none silently omitted.
+- [x] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
   extension points, **from `openXdox-code`**. No fork of the server.
-- [ ] 4.4 `[oXd]` **PARAMETERIZE, do not ship one domain's words (RULING C2).**
+  **STATUS — 2026-09-12, tick JUDGED MET — both halves are landed.** CODE
+  half: `opensoft/openDox-code` **#11 →
+  `a99eba03e31a0aee1cc15a061fdf718cc88a2c44`**, 2026-09-11 19:04Z (#656
+  comment `5639351854`) — the lazy proxy `profile_openxfactory` (RULED ASK-2
+  → 2, `5628886636`) covering subcommands, with `cli.build_parser()` /
+  `serve.build_server()` resolving the profile through it and refusing
+  without a host; per **RULED ASK-6 → 1** (`5635150678`, ASK BLOCK
+  `5635063050`), `serve.py` reads the same proxy for ROUTES too — one
+  mechanism, one registration, under ASK-2, no second composition point.
+  openxFactory HALF + PIN LOCKSTEP: **`opensoft/openxFactory` #984 →
+  `a1ef886fdd65a4a530fe584c22b863b2106a0ac0`**, 2026-09-12 14:55Z (CLAIMED
+  `5640395709`; landed #656 comment `5646646722`; plain gate; head
+  `02a9f634`; six required checks SUCCESS; 10 threads / 0 unresolved) — the
+  real engineering `profile_openxfactory` as ONE composite profile
+  (`SUBCOMMAND_EXTENSIONS`, `ROUTE_EXTENSIONS`, and the CLI gate facet the
+  proxy reads) registered ONCE at process start at every composition point
+  that builds a parser or a server (the PR-2 stand-in
+  `bind_composition_point()` collapsed into that call), riding the pin
+  lockstep that moves openDox → `8ec3036c` and openXdox → `eca0b597` (both
+  assembly roots carrying this landing).
+- [x] 4.4 `[oXd]` **PARAMETERIZE, do not ship one domain's words (RULING C2).**
   The lifecycle engine reads its status vocabulary, transitions, authorities and
   immutability point from a domain profile. A hardcoded status word is a defect
   under `domain-mapping-declaration`.
-- [ ] 4.5 `[oXd]` **BUILD what does not exist**, named as three separate features
+  **STATUS — 2026-09-12, tick JUDGED MET — both halves are landed.** CODE
+  half: `opensoft/openXdox-code` **#14 →
+  `3840c1670771e2dc7bcd64eaafbc43169e0f383d`**, 2026-09-11 20:41Z (#656
+  comment `5640381252`) — on RULING C2 and **RULED ASK-4 → "proceed"**
+  (`5634195861`, over ASK-4 `5633855878`'s five Q1-Q5 sub-questions): the
+  engine reads its status vocabulary, per-kind terminal statuses (Q4, per
+  kind), immutability point (Q3, enforced in v1) and declared-only
+  transitions/authorities from a registered `DomainProfile` (Q1, YAML
+  canonical / dataclass runtime), `register()` the one process-start call
+  with two accessors (Q5), `current()` refusing loudly when nothing is
+  registered — sequenced after BUILD slice 2b on shared files
+  (`5634218589`). openxFactory HALF + PIN LOCKSTEP: **`opensoft/openxFactory`
+  #984 → `a1ef886fdd65a4a530fe584c22b863b2106a0ac0`**, 2026-09-12 14:55Z (same
+  PR as 4.3's half; CLAIMED `5640395709`; landed #656 comment `5646646722`;
+  plain gate; head `02a9f634`; six required checks SUCCESS; 10 threads / 0
+  unresolved) — the real engineering `DomainProfile` YAML under `contracts/`
+  (validating against openXdox-spec's schema, loaded with
+  `openxdox.domain_profile.load()`) and the SAME process-start registration
+  as 4.3's proxy, riding the pin lockstep that moves openDox → `8ec3036c`
+  and openXdox → `eca0b597`.
+- [x] 4.5 `[oXd]` **BUILD what does not exist**, named as three separate features
   rather than folded into a carve: the model/scenario workbench for
   `governed-derived-model` families (openXdox's centre of gravity and absent from
   all 80,000 lines), the evidence-and-provenance surface (invariant 2's evidence
   traces and assumption registers), and the role-and-authority projection.
+  **STATUS — 2026-09-11, tick JUDGED DUE at the RECOUNT (#656 comment
+  `5638391057`).** All three features landed at `openXdox-code`, in RULING
+  ASK-3's order (`5628886636`): slice 1, the role-and-authority projection,
+  **#10 → `4f98e77c7985f786af2ec295c38b6b06a7f5fce6`** (2026-09-11 03:51Z);
+  slice 2, the evidence-and-provenance surface, **#11 →
+  `427230c340cdb1f5d114d3868073cd156fa33ada`** (2026-09-11 10:39Z); slice 3,
+  the model/scenario workbench, **#12 →
+  `5333b125dc0f2dd9ee6f6e558c758fbfe6c49b4d`** (2026-09-11 11:24Z). The
+  requirement row for all three landed as the change
+  `add-openxdox-projection-surfaces` at `openXdox-spec`: proposed **#9 →
+  `8557fc1912834491a8e97743376cf877601dbcae`**, ratified and archived **#10 →
+  `0dd7621a983867806eb5fd93f164d4e5da189943`**, corrected **#11 →
+  `d6b71aa31b21a39a90b7b6095b03fd8e083d41ba`** (the `projection` row + the
+  out-of-band status allowance), and erratum'd **#12 →
+  `6b92bdc40863b017926718ee314e9ca87e49ff09`** (ASK-5, the workbench
+  scenario's four existing route-extension columns).
 - [ ] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green. **In the ASSEMBLY
   ROOT** (amended 2026-09-05), on 3.8's reasoning.
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
-- [ ] 5.1 `[oxF]` `contracts/openxdox-pin.yaml`, plus its one gitlink — the pin
+- [x] 5.1 `[oxF]` `contracts/openxdox-pin.yaml`, plus its one gitlink — the pin
   file and gitlink moving in the SAME commit. **Names the ASSEMBLY ROOT**
   (amended 2026-09-05; corrected 2026-09-05 per RULING F — `opensoft/openxFactory`
   issue #656, Brett Heap, "rule F openXdox only, then do the corrections PR":
@@ -867,7 +1103,23 @@ the bookkeeping that ticks this group.
   never pins or mounts a leg, which is the assembly root's own job.
   Per the MODIFIED `neutral-product-pin`, `openxFactory` declares only its DIRECT
   upstreams; openDox's commit is READ from openXdox's own pin and recorded, if at
-  all, as a DERIVED value.
+  all, as a DERIVED value. **TICKED — #917 → `edf0e24f45b6e7baf5322023cbc1c43d28ff46cd`**,
+  the § 5-remainder lane's own live re-verification (2026-09-10, on this packet's
+  tick standard, PR #897 → `021c3d3607a626730ae8d2027ca68c58ed14a3b6`): at that
+  commit the `openXdox` gitlink reads `db58fffa58d49d92f58db40bd7e63cad3205052f`,
+  `.gitmodules` names the assembly root (`git@github.com:opensoft/openXdox.git`,
+  not a leg), `contracts/openxdox-pin.yaml` carries that same commit, and both
+  moved together in commit `7f76f978194150a73f6cbc56a2ee900d32ccf03e`,
+  PR #917's first commit (**corrected 2026-09-10**, `#656` comment
+  `5625808031`: this aside previously read "nothing else in that diff"; that
+  is overstated — `7f76f978` also carried `.gitmodules`,
+  `scripts/doc_health/pin_class.py`, and added
+  `scripts/verify-openxdox-pin.py`. 5.1's own text holds regardless: the pin
+  file and the gitlink moved in the SAME commit, which is what this task
+  requires). No `contracts/opendox-pin.yaml`
+  and no second gitlink exist anywhere in the tree.
+  `python3 scripts/verify-openxdox-pin.py` passes live at that commit:
+  `OK openxdox-pin verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from HEAD, sorted-ls-tree-r-v1 tree digest recomputed (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
 - [ ] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
   re-promoted HERE (RULING DQ-1), not shed.** They leave the capability
   `ideation-dashboard` and land in `openxFactory`'s own corpus under the § 2.2a
@@ -882,6 +1134,65 @@ the bookkeeping that ticks this group.
   `scripts/validate-ideation-dashboard-contracts.py`, the four dashboard contract
   schemas, the 142 packaged examples under `examples/ideation-dashboard/`, and the
   five dashboard governance docs.
+  **STATUS — 2026-09-10, `#656` comment `5625573095` (Brett Heap, verbatim
+  "rule (a) post-shed mode, merge 924 when green").** RULING (a) resolves this
+  box's own prerequisite — `design.md` § D6 (1)'s amendment. Realization is two
+  pull requests. **PR-1** — the post-shed mode CAPABILITY alone (the `phase:`
+  key, the `carve-shed-incomplete` refusal, their tests, the manifest's own
+  documented `phase:` field, the runbook § 8 text) — **openxFactory #928,
+  landing** at the time of this writing, not yet merged. **PR-2 — this box, the
+  shed itself** (the phase flip to `post-shed`, the 319 deletions, and whatever
+  the re-point needs) is **NOT STARTABLE** until three sub-questions are
+  answered (addendum, `#656` comment `5625144570`):
+  **(2)** does the six `contracts/schemas/*` moved rows' fallout — named by 127
+  tracked files — join this atomic § 5 pull request, or land separately;
+  **(6)** the RETAINED `tests/ideation-dashboard/conftest.py:106` still imports
+  the shed's `session_fixtures` (RULING Q-L7 fixed the destination side and left
+  this one) — edit the retained file, or change that manifest row's disposition;
+  **(7)** the adapter re-point (104 import sites / 32 files; 17 of those modules
+  are reachable only with BOTH legs' `src/` present) — defer to the BUILD arc
+  (§ 3.5 / § 3.6) or give `openxFactory` its own reach to openDox (a second
+  submodule, or a pinned wheel). None of the three is answered as of this
+  writing, and this box does not tick until PR-2 lands.
+  **Correction, 2026-09-10** (`#656` comment `5625808031`): the § 4 / shed
+  reality-check record
+  (`review/reality-check-2026-09-10-section-4-and-the-shed.md`, `Status:
+  record`, immutable — corrected here rather than in that file) reports Probe 1
+  as `Interrupted: 4 errors during collection`; that undercounts a FULL
+  `tests/ideation-dashboard` collection, which measures **27** collection
+  errors. The finding is stronger, not weaker, and this box stays open either
+  way.
+  **STATUS — 2026-09-12, box stays open; verified against
+  `origin/main` directly, the realization is PARTIAL and 5.6a's wording
+  defect is not the only reason.** `opensoft/openxFactory` **#940 →
+  `cc4ae9d35b2dbd56743c8c19699fd685d4e49343`** (`#656` comment `5638315691`)
+  cut `docs/opendox-carve-manifest.yaml`'s phase to `post-shed`, but most of
+  this box's own listed clauses are NOT gone from the tree today:
+  `scripts/ideation_dashboard/` (10 of 48 modules remain),
+  `tests/ideation-dashboard/` (42 of 125 files remain),
+  `examples/ideation-dashboard/` (44 of 142 remain), and
+  `scripts/ideation-dashboard-nightly.py` (unchanged) all carry `not_moved`
+  rows in the carve manifest (`stays_openxfactory_adapter` /
+  `stays_openxfactory_governance`) under **RULING DQ-1** (openxFactory keeps
+  its own adapter) — a plan this box's own text predates. The manifest's
+  own `scripts/ideation-dashboard-nightly.py` row says so directly: "tasks.md
+  § 5.2's deletion list predates DQ-1 and is recorded as a disagreement
+  in the pull request." Confirmed actually gone: `web/`,
+  `tests/ideation_dashboard/` (the underscore spelling),
+  `scripts/validate-ideation-dashboard-contracts.py`, and the five contract
+  schemas 5.6a's defect (a) names (`gate-action-record`,
+  `ideation-dashboard-snapshot-index`, `ideation-dashboard-snapshot`,
+  `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog`). Most
+  of the governance docs this box counts as five are ALSO still present
+  (`docs/d10-hosted-refresh-marker.md`, both `docs/doxbench-runtime-refresh-
+  dogfood*.md` records, `docs/openxdox-naming.md`,
+  `docs/project-repo-schema.md`) — only `docs/ideation-dashboard-session-
+  runbook.md` left, `moved_with_declared_edit` to `opendox_spec`. **The box
+  stays open on two defects, not one**: 5.6a's "four vs five schemas"
+  wording defect, AND this fuller pre-DQ-1 staleness across the rest of its
+  own listed clauses — neither fixed here. Reconciling the wording (or
+  re-scoping the box to what RULING DQ-1 actually kept) is for a sweep at
+  § 8, the archive gate, not a silent edit of this box's original text.
 - [ ] 5.3 `[oxF]` Convert the dashboard workflows to CONSUMER GATES over the pinned
   tools, on the `openxwallet-consumer-gate` shape, **retaining the job id** so a
   ruleset-pinned token survives a file rename.
@@ -1012,24 +1323,161 @@ the bookkeeping that ticks this group.
   `SPECS_FLOOR_PATHS` moved in the SAME commit), then `openxFactory`'s five pin
   sites in ONE reviewed diff, then the removal. Never hand-edit the block or the
   snapshot.
-- [ ] 5.7 `[oxF]` Cut the **MAJOR** — a removed shape is BREAKING under
+- [x] 5.6a `[oxF]` **THE DEPRECATING MINOR § 5.7 OWES — `contract-v3.7`, cut
+  BEFORE the shed.** `docs/contract-versioning-policy.md` § Change Classes
+  requires, before any Breaking removal, "at least one full minor release where
+  the old shape produced deprecation warnings", and NO such minor existed for
+  the five manifest-digested schemas `docs/opendox-carve-manifest.yaml` marks
+  `moved_verbatim` to the spec legs (`gate-action-record`,
+  `ideation-dashboard-snapshot-index`, `ideation-dashboard-snapshot`,
+  `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog`) or the
+  conformance validator that leaves with them. RULED **ASK-10 → 1** (Brett Heap,
+  `#656` comment `5635524078`): cut it FIRST, from pre-shed `main`, before PR-2
+  `#940` lands. Landed as `opensoft/openxFactory` **#970** — a `relocating:`
+  marker on the five manifest rows naming destination repository and leg commit,
+  a § Deprecations Currently In Force entry, a DEPRECATING `contracts/CHANGELOG.md`
+  entry carrying the removal version and the migration path, and
+  `contracts/releases/contract-v3.7.digests.yaml`. **THIS BOX IS SATISFIED BY
+  THAT PULL REQUEST LANDING.** The `contract-v3.7` annotated tag is Brett Heap's
+  own act (ASK-9a, `5635150678`) and is 5.7's PRECONDITION, not this box's: a
+  bundle whose warning window a major relies on must be PUBLISHED before that
+  major cuts, so 5.7 does not open until the tag exists and
+  `validate-contract-release.py verify-tag` passes on it.
+
+  **TWO DEFECTS IN 5.2 AND 5.7 THIS BOX EXPOSED AND DOES NOT ITSELF FIX**, both
+  raised by the review of #970 and both owed an answer before the MAJOR cuts:
+
+  (a) **5.2 SAYS FOUR AND THE CARVE MANIFEST MOVES FIVE.** 5.2 reads "the four
+  dashboard contract schemas" and names none of them; the carve manifest marks
+  FIVE manifest-digested schemas `moved_verbatim` — `gate-action-record` is the
+  fifth, and `ideation-workbench.schema.yaml` moves as well while carrying no
+  independent manifest row. 5.2's wording must be reconciled to the carve
+  manifest before the shed, or the shed and the deprecation window cover
+  different sets.
+
+  (b) **THE CONFORMANCE VALIDATOR IS SHARED WITH THREE ROWS THAT STAY.**
+  `scripts/validate-ideation-dashboard-contracts.py`, which 5.2 deletes and
+  which discharges § Change Classes' conformance-validator clause for the five
+  BY LEAVING WITH THEM, is named by the `consumption_rule` of EIGHT manifest
+  rows. `ideation-possibles-register` and `gate-intent` are `not_moved`
+  (`stays_openxfactory_adapter`) and `demotion-execution-receipt` appears in no
+  carve row at all. At contract-v3.7 all eight keep their validator; at the
+  MAJOR those three would name a delegated owner this repository no longer
+  contains. 5.7 may not treat the clause as discharged until it says what
+  validates them. Recorded in `contracts/CHANGELOG.md` § contract-v3.7 and in
+  `docs/contract-versioning-policy.md`'s Deprecations Currently In Force entry
+  so it survives to the cut that must answer it.
+  **STATUS — 2026-09-12, both defects tracked to where they resolve.**
+  Defect (b) is ANSWERED: `contracts/CHANGELOG.md`'s `## contract-v4.0 —
+  2026-09-11 (BREAKING; the five ideation-dashboard contract schemas are
+  REMOVED and consumed at the openDox / openXdox spec legs)` entry, point 3,
+  "An update to the conformance validator — discharged by the MOVE
+  ITSELF" — "There is no second validator that accepts a new shape and
+  rejects the old one, because there is no new shape: the BYTES are
+  identical and the PUBLISHER changed. The question `contract-v3.7` left
+  open is answered below." Defect (a) is 5.2's own wording defect, not this
+  box's: tracked at 5.2's own STATUS line (this amendment), left open there
+  rather than fixed here. This note's original text above is unedited.
+- [x] 5.7 `[oxF]` Cut the **MAJOR** — a removed shape is BREAKING under
   `docs/contract-versioning-policy.md` § Change Classes, which also requires a
   CHANGELOG migration note and a preceding full minor of deprecation warnings.
   The NUMBER is allocated AT THE CUT by merge order, never reserved here. Owes its
   own `contracts/releases/<tag>.digests.yaml` under `release-surface-integrity`,
   and a published annotated tag verified from an independently refreshed checkout.
-- [ ] 5.8 `[xF]` `.gitmodules`, two root gitlinks, `README.md`, `CLAUDE.md`,
+  **STATUS — 2026-09-12, tick JUDGED MET — the MAJOR is cut, published and
+  verified.** Cut: **`opensoft/openxFactory` #983 →
+  `ce5c054e8522499c6f4ff2039496243a09cb4acf`**, 2026-09-11 23:52Z (#656
+  comment `5641952070`; plain gate, RULED ASK-9a → 1 `5635150678`; head
+  `219bb357`, six required checks SUCCESS, `pytest-suite` run `34657479391`
+  — 7086 passed / 6 skipped —, 8 threads / 0 unresolved, no
+  `openspec/changes/` path). `contracts/manifest.yaml` on `main` now reads
+  `contract_bundle_version: contract-v4.0`, the five relocating rows removed,
+  and the three unrelated entries whose removal target was `contract-v4.0`
+  RESTATED to `contract-v5.0` exactly as
+  `docs/contract-versioning-policy.md`'s own text prescribes — ACCEPTED by
+  Brett Heap in the tagging sitting (`5642131117`), no correcting PR owed.
+  **The box's own "owes its own `contracts/releases/<tag>.digests.yaml` under
+  `release-surface-integrity`"** is discharged:
+  `contracts/releases/contract-v4.0.digests.yaml` exists on `main`, and
+  post-land, from an independent clone at `ce5c054e`, both
+  `validate-contract-release.py verify-commit` and `verify-promotion` read
+  `pass` (#656 comment `5641952070`) — discharging PR-2's own OWED
+  release-inventory bundle cut (`5638315691`). **The box's own "a published
+  annotated tag verified from an independently refreshed checkout"** is
+  discharged: `contract-v4.0` is the annotated tag object
+  `9e6c0ae4596b6585016ec9efa2c9e3fdafef9e4b` →
+  `ce5c054e8522499c6f4ff2039496243a09cb4acf`, pushed under Brett Heap's git
+  identity from the independent clone (amending RULING 9c for this one tag,
+  as with `contract-v3.7`), and
+  `validate-contract-release.py verify-tag --remote origin --tag
+  contract-v4.0` → `release verify-tag: pass` (#656 comment `5642131117`,
+  RULED + EXECUTED 2026-09-12 00:21Z). Both of the box's own owed clauses are
+  discharged; nothing remains owed.
+- [x] 5.8 `[xF]` `.gitmodules`, two root gitlinks, `README.md`, `CLAUDE.md`,
   `project-register.yaml` — **including § 1.9's two derived election rows**
   (amended 2026-09-05). The aggregation's root gitlink for openXdox SHALL EQUAL
   `openxFactory`'s (one) nested gitlink commit, both naming the ASSEMBLY ROOT
   (RULING F, `#656`, 2026-09-05 — `openxFactory` nests openXdox only). The
-  aggregation's root gitlink for openDox has NO `openxFactory`-side counterpart
-  to check against: `openxFactory` does not pin or mount openDox directly, so
-  that gitlink is checked only against `opensoft/openDox`'s own assembly root.
-- [ ] 5.9 `[oxF]` ANNOTATE the 30 archived changes carrying an
+  aggregation's root gitlink for openDox HAS an `openxFactory`-side counterpart
+  and SHALL EQUAL it too — **corrected 2026-09-11**. The sentence this replaces
+  read "has NO `openxFactory`-side counterpart to check against: `openxFactory`
+  does not pin or mount openDox directly, so that gitlink is checked only
+  against `opensoft/openDox`'s own assembly root", which was true when it was
+  written and stopped being true at RULED Q7 (`#656` comment `5626248666`,
+  2026-09-10): `openxFactory` now mounts the openDox assembly root DIRECTLY, as
+  a second gitlink beside `contracts/opendox-pin.yaml` (PRs `#932` / `#952`), and
+  declares two direct upstreams. So that gitlink is checked against BOTH
+  `openxFactory`'s own direct openDox gitlink AND `opensoft/openDox`'s assembly
+  root — the same equality 5.8 already states for openXdox, and RULING F's
+  "openXdox only" clause is superseded for openDox alone by Q7.
+  **STATUS — 2026-09-12, tick JUDGED MET — the aggregation row and
+  re-point ceremony are landed.** `opensoft/xFactory` **#442 →
+  `41d6d7aeb15dbb73c75ac4e9ba2cb2e8cfc6c1a3`**, admin-merged by the lane on
+  Brett Heap's word by interactive multi-choice (RULED **ASK-9b → 1**,
+  `#656` comment `5635150678`: "the lane authors the PR after 5.7's tag
+  exists, citing the green `validate` run; Brett admin-lands it on his
+  word"; head `25fd719b`; `validate` run `34701762754` SUCCESS; 11 threads /
+  0 unresolved). Root gitlinks: `openDox` →
+  `8ec3036ce496a90a3c92a89c4907e57941901b51`, `openXdox` →
+  `eca0b5977b0cca1f39c725b95fc9fa8b4d307d72`; the `openxFactory` pointer
+  moved to `75484b6742eb929c5216e110722394d7a3cfa08a` in the same commit,
+  carrying `.github/clearing/openxfactory/PIN.yaml`'s `openxfactory_commit`
+  with it. Both equalities this box states are discharged at that landing:
+  `openXdox`'s root gitlink equals `openxFactory`'s own nested `openXdox`
+  gitlink (RULING F, unchanged); `openDox`'s root gitlink equals
+  `openxFactory`'s own nested `openDox` gitlink (RULING F superseded for
+  openDox alone by **RULING Q7**, `#656` comment `5626248666`, 2026-09-10,
+  "RULED (i): SECOND SUBMODULE") — both checked live against
+  `opensoft/openDox` / `opensoft/openXdox`'s own assembly roots AND against
+  `contracts/opendox-pin.yaml` / `contracts/openxdox-pin.yaml`'s `commit:`
+  fields at the new `openxFactory` pointer, which agree exactly.
+  `tests/test_opendox_openxdox_gitlink_parity.py` PASS is the landing check.
+  `#656` record: `5646934254`.
+- [x] 5.9 `[oxF]` ANNOTATE the 30 archived changes carrying an
   `ideation-dashboard` delta with the carry-forward. **Immutable records are
   annotated, never edited into agreement** — the wallet arc's own treatment, and
   the highest-volume bookkeeping in the realization.
+  **STATUS — 2026-09-12, tick JUDGED MET — the 30 carry-forward annotations
+  are landed.** RULED (Brett Heap, #656 comments `5640246046`,
+  `5640938010`): one dated bookkeeping section per archived packet (the two
+  carrying a `Status: ratified` header take the `Edited (bookkeeping):` line
+  inside that block; the twenty-eight without a header carry it as the
+  section's first line), naming split-opendox § 5.2's shed (`#940 →
+  cc4ae9d3`), the legs and pins, the deprecation (`contract-v3.7`) and the
+  removal (`contract-v4.0`, `#983 → ce5c054e`, tag `9e6c0ae4`), plus a
+  companion disposition per packet. Landed: **`opensoft/openxFactory` #982
+  → `db1f0cfa04b2e8d4d1d17d11eb25da2a0147f21b`**, 2026-09-12 00:27Z (Rule 6
+  window posted and closed; head `21730067`, six required checks SUCCESS,
+  `pytest-suite` run `34659735150`, 64 threads / 0 unresolved; 30 of 30
+  archived changes annotated, 182 insertions / 0 deletions, nothing any
+  packet asserts changed). Companion: **`opensoft/xFactory` #445 →
+  `c81b957bfbc91e84e7e67bda00c8023d2d249950`**, the thirty dispositions,
+  landed by the lane's admin merge on Brett Heap's ruling ("land it anyway
+  as the governance record", `5640938010`) as the governance record: **doc-health
+  does not scan `tasks.md`** (`govern-openspec-corpus-membership`, OQ-2), so
+  these entries fire no `record-immutability` finding today and stand
+  inert until a doc-health change reads them — the correction is stated in
+  #445's own body and in `5640938010`. #656 record: `5642167113`.
 
 ## 6. Re-home the five frozen changes (RULING Q6)
 

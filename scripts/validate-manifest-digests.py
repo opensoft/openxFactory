@@ -31,6 +31,25 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "contracts" / "manifest.yaml"
 
 
+def shed_aware(target: Path) -> Path:
+    """`target`, or the pinned-leg copy of it when the § 5.2 shed moved it.
+
+    RULED (a) POST-SHED MODE (`#656` comment `5625573095`): a retained consumer
+    of a file that MOVED reads it from the leg this repository pins, through
+    `carved_reach`, which reads the row — nothing here transcribes a
+    destination, and nothing is restored into this tree. Every one of the moved
+    schemas arrived BYTE FOR BYTE, so what is read back is what was always read.
+    Imported lazily and never required: a checkout with no carve manifest
+    answers exactly as it did before.
+    """
+    try:
+        from carved_reach import shed_destination
+    except ImportError:  # pragma: no cover - no manifest, nothing to resolve
+        return target
+    moved = shed_destination(target)
+    return moved if moved is not None else target
+
+
 def iter_entries(node):
     if isinstance(node, dict):
         if "sha256" in node and "path" in node:
@@ -47,7 +66,7 @@ def main() -> int:
     failures = 0
     checked = 0
     for entry in iter_entries(doc):
-        path = ROOT / str(entry["path"])
+        path = shed_aware(ROOT / str(entry["path"]))
         recorded = str(entry["sha256"])
         checked += 1
         if not path.is_file():

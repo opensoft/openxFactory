@@ -9,10 +9,16 @@
 #
 #   1. NO APP TOKEN. `opensoft/openRepoShape` is PUBLIC (ruled by Brett Heap on
 #      2026-09-02, "name it openRepoShape and make it public"), so an anonymous
-#      clone succeeds. The wallet gate mints an App token because openXwallet is
-#      a private second repository and `github.token` is scoped to this one; that
-#      reasoning does not reach a public product, and minting a token this gate
-#      does not need would widen its permissions for nothing.
+#      clone succeeds, and minting a token this gate does not need would widen
+#      its permissions for nothing.
+#
+#      THE WALLET GATE USED TO BE THE CONTRAST HERE, and this line said so: it
+#      minted an App token because openXwallet was a private second repository
+#      and `github.token` is scoped to this one. That contrast is GONE.
+#      openXwallet went PUBLIC on 2026-09-07T15:24:11Z and
+#      `openxwallet-consumer-gate.yml`'s mint was retired on 2026-09-11 (runbook
+#      7.6, codexFactory issue #279), so both gates now read a public product
+#      without a credential and they differ only in item 2.
 #   2. NO SUBMODULE INIT. openxFactory does not MOUNT the standard — nothing here
 #      runs out of an openRepoShape checkout — so there is no gitlink and the
 #      bytes are fetched into a scratch path for the duration of the job. The pin

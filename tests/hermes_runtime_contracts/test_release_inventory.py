@@ -1702,6 +1702,293 @@ def test_two_entries_normalizing_to_one_member_fail_closed(tmp_path: Path) -> No
     assert "normalize" in str(excinfo.value) or "collision" in str(excinfo.value)
 
 
+# ---- contracts/clearing/ family membership (issue #722) ---------------------
+#
+# The clearing family has its own closed-corpus mechanism — per-row sha256
+# inside `contracts/manifest.yaml` itself, enforced by
+# `scripts/validate-clearing-dispatch.py` and
+# `tests/clearing/test_clearing_manifest_rows.py` — and none of that changes
+# here. What these prove is the SEPARATE, general release-digest inventory:
+# before this fix `FAMILY_PREFIX` never pointed at `contracts/clearing/` and no
+# other block swept its paths in, so the family's contract bytes were silent in
+# a cut's inventory even when a governed change registered a new clearing
+# schema in the same cut. These pin the fix: the family joins when present,
+# with the same digest rule as every other member, and stays silent — not an
+# error — when it is absent (a pre-`contract-v3.3` repo).
+
+CLEARING_SCHEMA_YAML = "kind: xfactory_clearing_dispatch_record\n"
+CLEARING_REGISTRY_YAML = (
+    "kind: xfactory_clearing_permitted_operations_registry\nentries: []\n"
+)
+CLEARING_README_MD = "# clearing\n"
+CLEARING_TEST_PY = "def test_placeholder() -> None:\n    assert True\n"
+CLEARING_VALIDATOR_PY = '#!/usr/bin/env python3\n"""stub clearing validator"""\n'
+
+# The clearing family's own release-semantic floor (RULED, Brett Heap,
+# 2026-09-12 ~14:55Z, openxFactory #745, PR #1000 thread
+# PRRT_kwDOTAvnrs6hsjob): CLEARING_RELEASE_FLOOR = (4, 1), the first cut past
+# the already-published contract-v4.0. AT_FLOOR is the lowest bundle the
+# family is a member for; BELOW_FLOOR is the highest bundle it is not,
+# deliberately the real contract-v4.0 boundary this repository actually
+# published, not an arbitrary lower number.
+CLEARING_AT_FLOOR_TAG = "contract-v4.1"
+CLEARING_BELOW_FLOOR_TAG = "contract-v4.0"
+
+
+def _set_bundle_tag(repo: Path, bundle_tag: str) -> None:
+    """Overwrite only this synthetic repo's declared bundle version.
+
+    A targeted rewrite of ``contracts/manifest.yaml`` rather than a change to
+    module-level ``MANIFEST_YAML``/``SYNTHETIC_TREE``: those back every other
+    test in this file at ``SYNTHETIC_TAG`` ("contract-v1.0"), and the clearing
+    floor sits far above that, so the floor-boundary tests below need their
+    own declared version without moving the shared default.
+
+    Both floor-boundary tags this file uses (contract-v4.0 and contract-v4.1)
+    sit past ``INTENT_RELEASE_FLOOR`` (2, 3) too, so crossing the clearing
+    floor also arms intent-compliance's OWN registration-completeness
+    invariant — a synthetic repo that declares one of these tags without also
+    registering the six canonical intent tuples fails closed with
+    ``HGR-RELEASE-INTENT-REGISTRATION-INCOMPLETE`` before the clearing gate is
+    ever reached, exactly as it would for a real repo at this version. This
+    writes that registration alongside the bundle tag and
+    ``_satisfy_intent_registration`` below drops the six target files it
+    names, so these tests exercise the clearing floor in an otherwise
+    fully-compliant repo rather than tripping a second, unrelated gate.
+    """
+    registration_yaml = "".join(
+        f"- id: {identifier}\n  path: {path}\n  type: {artifact_type}\n"
+        "  schema_version: 1\n"
+        for identifier, path, artifact_type in release.INTENT_REQUIRED_REGISTRATIONS
+    )
+    _write_tree(
+        repo,
+        {"contracts/manifest.yaml": (
+            f"schema_version: 1\ncontract_bundle_version: {bundle_tag}\n"
+            f"contracts:\n{registration_yaml}"
+        )},
+    )
+    _satisfy_intent_registration(repo)
+
+
+def _satisfy_intent_registration(repo: Path) -> None:
+    """Drop the six files ``INTENT_REQUIRED_REGISTRATIONS`` names, so a
+    repo whose manifest registers them (``_set_bundle_tag`` above) also
+    carries them — the registration and the file are two separate
+    invariants (`HGR-RELEASE-INTENT-REGISTRATION-INCOMPLETE` vs.
+    `HGR-RELEASE-INTENT-MEMBER-MISSING`) and this satisfies both. Also drops
+    `scripts/__init__.py`: once the intent floor is active `_collect_members`
+    adds it unconditionally, and `SYNTHETIC_TREE` — built for tests well
+    below that floor — never carries it, so a `build_release_inventory` call
+    here would otherwise fail closed trying to read a member that does not
+    exist on disk."""
+    _write_tree(
+        repo,
+        {
+            path: "schema_version: 1\n"
+            for _, path, _ in release.INTENT_REQUIRED_REGISTRATIONS
+        }
+        | {"scripts/__init__.py": ""},
+    )
+
+
+def _add_clearing_family(repo: Path) -> None:
+    _write_tree(
+        repo,
+        {
+            "contracts/clearing/README.md": CLEARING_README_MD,
+            "contracts/clearing/dispatch-record.schema.yaml": CLEARING_SCHEMA_YAML,
+            "contracts/clearing/permitted-operations.registry.yaml": (
+                CLEARING_REGISTRY_YAML
+            ),
+            "contracts/clearing/examples/dispatch-record-cleared.example.yaml": (
+                CLEARING_SCHEMA_YAML
+            ),
+            "tests/clearing/test_schemas.py": CLEARING_TEST_PY,
+            "scripts/validate-clearing-dispatch.py": CLEARING_VALIDATOR_PY,
+        },
+    )
+
+
+def test_release_membership_excludes_clearing_family_when_absent(
+    tmp_path: Path,
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    members = {path.as_posix() for path in release.release_membership(repo)}
+    assert not any(m.startswith("contracts/clearing/") for m in members)
+    assert not any(m.startswith("tests/clearing/") for m in members)
+    assert "scripts/validate-clearing-dispatch.py" not in members
+
+
+def test_release_membership_includes_clearing_family_when_present(
+    tmp_path: Path,
+) -> None:
+    repo, _ = _synthetic_repo(tmp_path)
+    _add_clearing_family(repo)
+    # At or after CLEARING_RELEASE_FLOOR (RULED, #745): below it, the family
+    # is excluded regardless of presence — see
+    # test_release_membership_excludes_clearing_family_below_the_floor.
+    _set_bundle_tag(repo, CLEARING_AT_FLOOR_TAG)
+    commit = _commit_all(repo, "add clearing family at the release floor")
+
+    members = {path.as_posix() for path in release.release_membership(repo)}
+    expected = {
+        "contracts/clearing/README.md",
+        "contracts/clearing/dispatch-record.schema.yaml",
+        "contracts/clearing/permitted-operations.registry.yaml",
+        "contracts/clearing/examples/dispatch-record-cleared.example.yaml",
+        "tests/clearing/test_schemas.py",
+        "scripts/validate-clearing-dispatch.py",
+    }
+    assert expected <= members
+
+    inventory = release.build_release_inventory(repo, bundle_tag=CLEARING_AT_FLOOR_TAG)
+    entries = {
+        e["path"]: e for e in inventory["entries"] if isinstance(e, dict)
+    }
+
+    schema_entry = entries["contracts/clearing/dispatch-record.schema.yaml"]
+    assert schema_entry["type"] == "schema"
+    assert schema_entry["digest"] == (
+        "sha256:" + hashlib.sha256(CLEARING_SCHEMA_YAML.encode("utf-8")).hexdigest()
+    )
+    # Same digest rule as every other member (raw Git blob bytes) and no
+    # schema_id/schema_version pin: the clearing family's own manifest rows
+    # already carry that pin, so this inventory only has to record the bytes.
+    # Both halves of the pin are checked (Copilot review,
+    # PRRT_kwDOTAvnrs6hsjoh): an implementation that fabricated
+    # `schema_version` alone while leaving `schema_id` absent would have
+    # passed the single-field check.
+    assert "schema_id" not in schema_entry
+    assert "schema_version" not in schema_entry
+
+    registry_entry = entries["contracts/clearing/permitted-operations.registry.yaml"]
+    assert registry_entry["type"] == "documentation"
+
+    validator_entry = entries["scripts/validate-clearing-dispatch.py"]
+    assert validator_entry["type"] == "validator"
+
+    readme_entry = entries["contracts/clearing/README.md"]
+    assert readme_entry["type"] == "documentation"
+
+    # No dependency error and no fail-closed path: unlike intent-compliance,
+    # this family carries no registration-completeness invariant of its own,
+    # so a plain round trip (build from the working tree, verify against the
+    # exact commit) must be clean.
+    assert release.verify_inventory_against_commit(repo, commit, inventory) == []
+
+
+def test_release_membership_clearing_joins_are_independent_of_each_other(
+    tmp_path: Path,
+) -> None:
+    """Each of the three clearing joins — the contracts tree, the test
+    package, the named validator — is its own presence check. One present
+    without the others does not pull the others in and does not error.
+
+    Three separate repos, one per join (Copilot review,
+    PRRT_kwDOTAvnrs6hxHX0): the original version of this test exercised only
+    the contracts-tree case, so a regression that nested the test-package or
+    validator join under the contracts-tree presence check would still have
+    passed."""
+    contracts_only, _ = _synthetic_repo(tmp_path, name="contracts-only")
+    _write_tree(contracts_only, {"contracts/clearing/README.md": CLEARING_README_MD})
+    _set_bundle_tag(contracts_only, CLEARING_AT_FLOOR_TAG)
+    _commit_all(
+        contracts_only, "add only the clearing contracts tree, at the release floor"
+    )
+    contracts_only_members = {
+        path.as_posix() for path in release.release_membership(contracts_only)
+    }
+    assert "contracts/clearing/README.md" in contracts_only_members
+    assert not any(m.startswith("tests/clearing/") for m in contracts_only_members)
+    assert "scripts/validate-clearing-dispatch.py" not in contracts_only_members
+
+    tests_only, _ = _synthetic_repo(tmp_path, name="tests-only")
+    _write_tree(tests_only, {"tests/clearing/test_schemas.py": CLEARING_TEST_PY})
+    _set_bundle_tag(tests_only, CLEARING_AT_FLOOR_TAG)
+    _commit_all(
+        tests_only, "add only the clearing test package, at the release floor"
+    )
+    tests_only_members = {
+        path.as_posix() for path in release.release_membership(tests_only)
+    }
+    assert "tests/clearing/test_schemas.py" in tests_only_members
+    assert not any(m.startswith("contracts/clearing/") for m in tests_only_members)
+    assert "scripts/validate-clearing-dispatch.py" not in tests_only_members
+
+    validator_only, _ = _synthetic_repo(tmp_path, name="validator-only")
+    _write_tree(
+        validator_only,
+        {"scripts/validate-clearing-dispatch.py": CLEARING_VALIDATOR_PY},
+    )
+    _set_bundle_tag(validator_only, CLEARING_AT_FLOOR_TAG)
+    _commit_all(
+        validator_only, "add only the clearing validator, at the release floor"
+    )
+    validator_only_members = {
+        path.as_posix() for path in release.release_membership(validator_only)
+    }
+    assert "scripts/validate-clearing-dispatch.py" in validator_only_members
+    assert not any(
+        m.startswith("contracts/clearing/") for m in validator_only_members
+    )
+    assert not any(m.startswith("tests/clearing/") for m in validator_only_members)
+
+
+def test_release_membership_excludes_clearing_family_below_the_floor(
+    tmp_path: Path,
+) -> None:
+    """RULED (#745, PR #1000 thread PRRT_kwDOTAvnrs6hsjob): presence alone is
+    not enough. A declared bundle below CLEARING_RELEASE_FLOOR excludes the
+    whole family even though every path is physically present at the source
+    — contract-v4.0 is the real boundary this repository already published,
+    so this is the exact case that made re-verifying it disagree with its own
+    recorded inventory before the floor existed."""
+    repo, _ = _synthetic_repo(tmp_path)
+    _add_clearing_family(repo)
+    _set_bundle_tag(repo, CLEARING_BELOW_FLOOR_TAG)
+    commit = _commit_all(repo, "add clearing family below the release floor")
+
+    members = {path.as_posix() for path in release.release_membership(repo)}
+    assert not any(m.startswith("contracts/clearing/") for m in members)
+    assert not any(m.startswith("tests/clearing/") for m in members)
+    assert "scripts/validate-clearing-dispatch.py" not in members
+
+    # The round trip must also stay clean: an inventory built (and thus
+    # recorded) below the floor never claims the family, so verifying it
+    # against the exact commit that already carries the family's bytes finds
+    # no drift either.
+    inventory = release.build_release_inventory(repo, bundle_tag=CLEARING_BELOW_FLOOR_TAG)
+    assert release.verify_inventory_against_commit(repo, commit, inventory) == []
+
+
+def test_verify_commit_against_contract_v4_0_stays_clean_under_the_clearing_floor() -> (
+    None
+):
+    """RULED (Brett Heap, 2026-09-12 ~14:55Z, #745, PR #1000 thread
+    PRRT_kwDOTAvnrs6hsjob): the one place this file departs from its own
+    hermetic-fixture rule and pins a real historical commit on purpose. Unlike
+    every other test above, what is under test here is not the mechanism in
+    the abstract but a concrete, already-published fact: contract-v4.0 points
+    at ce5c054e8522499c6f4ff2039496243a09cb4acf, whose tree already contains
+    the whole contracts/clearing/ family, while contract-v4.0.digests.yaml
+    (cut before this fix existed) lists none of it. Before
+    CLEARING_RELEASE_FLOOR, verifying that exact commit against its own
+    recorded inventory reported 59 HGR-RELEASE-MEMBER-MISSING findings —
+    measured on PR #1000 before this fix. The floor is what makes it clean
+    again, and only a real commit proves that; a synthetic fixture could not,
+    because the whole defect was ABOUT a real tag someone already published."""
+    commit = "ce5c054e8522499c6f4ff2039496243a09cb4acf"
+    committed = release.resolve_committed_inventory(ROOT, commit)
+    assert committed is not None, (
+        f"{commit} (contract-v4.0) must still record a release digest "
+        "inventory at that commit"
+    )
+    inventory_path, inventory = committed
+    assert inventory_path == "contracts/releases/contract-v4.0.digests.yaml"
+    assert release.verify_inventory_against_commit(ROOT, commit, inventory) == []
+
+
 # --- content-resolution conflation (fix-content-resolution-conflation) --------
 #
 # `_blob_object_id` and `_CommitSource.exists` reduce a content resolution to a

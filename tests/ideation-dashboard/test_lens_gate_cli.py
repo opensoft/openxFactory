@@ -16,9 +16,9 @@ import pytest
 
 from conftest import BASE_REPO, PINNED_REVISION, FakeGit, find_openxfactory_validator
 
-from ideation_dashboard import cli
+from opendox import cli
 from ideation_dashboard import human_seen as hs
-from ideation_dashboard import workbench as wb
+from opendox import workbench as wb
 
 VALIDATOR = find_openxfactory_validator()
 XREF_VALIDATOR = hs.find_cross_reference_validator(BASE_REPO)
@@ -28,7 +28,7 @@ _SKIP = pytest.mark.skipif(VALIDATOR is None or XREF_VALIDATOR is None,
 
 
 def _snapshot():
-    from ideation_dashboard.generator import generate_snapshot
+    from openxdox.generator import generate_snapshot
     return generate_snapshot(BASE_REPO, "fixture-repo",
                              source_revision=PINNED_REVISION, git=FakeGit())
 

@@ -27,9 +27,11 @@
 # has no way to know which file to open.
 #
 # The record is VALID and WARNED: nothing narrows at this minor, and the refusal
-# lands at contract-v4.0 (restated from contract-v3.0, openxFactory#634) with
-# the consumer block's seven acts, behind ONE deprecation window rather than
-# two.
+# lands at contract-v5.0 (restated from contract-v3.0 by the publishing cut,
+# openxFactory#634, then from contract-v4.0 by the cut that reached it — that
+# major landed 2026-09-11 carrying an unrelated removal and neither of these two
+# acts) with the consumer block's acts, behind ONE deprecation window rather
+# than two.
 schema_version: 1
 kind: xfactory_credential_binding_template
 client:

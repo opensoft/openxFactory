@@ -81,11 +81,49 @@ INTENT_REQUIRED_REGISTRATIONS = (
     ),
 )
 
+# The `contracts/clearing/` family (openxFactory issue #722): registered in
+# `contracts/manifest.yaml`'s generic `contracts:` list with its own per-row
+# sha256 — a closed-corpus mechanism `scripts/validate-clearing-dispatch.py`
+# and `tests/clearing/test_clearing_manifest_rows.py` already enforce — but
+# never a member of THIS inventory: `FAMILY_PREFIX` never pointed at it and no
+# other block swept its paths in, so a cut's release-digest inventory stayed
+# silent on the clearing family's contract bytes even across cuts that
+# registered new clearing schemas. Unlike `INTENT_CONTRACT_PREFIX` above, this
+# family needs no registration-completeness invariant of its own: the
+# manifest rows already close that corpus, so `_collect_members` below only
+# has to sweep the family's tree into the same closed membership every other
+# family joins, conditional on presence alone (the same "join only when
+# present at the source" reading `NORMATIVE_DOCS` uses) — AND, like
+# `INTENT_CONTRACT_PREFIX`, gated by a release-semantic floor.
+#
+# RULED (Brett Heap, 2026-09-12 ~14:55Z, openxFactory #745, PR #1000 review
+# thread PRRT_kwDOTAvnrs6hsjob). `_collect_members` is the canonical source
+# `verify_inventory_against_commit` reads too, so an unconditional,
+# presence-only join changes the meaning of ALREADY-PUBLISHED inventories:
+# `contract-v4.0`'s own commit already contains the clearing family, but its
+# recorded `contract-v4.0.digests.yaml` (cut before this family was swept in)
+# does not list it — re-verifying that published tag against its own recorded
+# inventory would newly report every clearing path `HGR-RELEASE-MEMBER-
+# MISSING`, where it verified clean before this fix existed. `CLEARING_
+# RELEASE_FLOOR` below closes that hole exactly the way `INTENT_RELEASE_FLOOR`
+# already does: the family is a release member only for a declared bundle
+# version at or after `(4, 1)` — the first cut that follows `contract-v4.0` —
+# so every already-published tag through `contract-v4.0` keeps verifying
+# exactly, and a build for a `(4, 1)`-or-later bundle is the first to record
+# the family.
+CLEARING_CONTRACT_PREFIX = "contracts/clearing"
+CLEARING_TEST_PACKAGE = "tests/clearing"
+CLEARING_VALIDATOR_PATH = "scripts/validate-clearing-dispatch.py"
+CLEARING_RELEASE_FLOOR = (4, 1)
+
 NAMED_VALIDATORS = (
     "scripts/validate-hermes-runtime-contracts.py",
     "scripts/validate-contract-release.py",
     "scripts/hermes-runtime-dataset-digest.py",
     "scripts/validate-ideation-dashboard-contracts.py",
+    # CLEARING_VALIDATOR_PATH is NOT here: like INTENT_VALIDATOR_PATH, it
+    # joins explicitly inside its own family's floor-gated block below, not
+    # through this unconditional, presence-only loop.
 )
 AUXILIARY_MEMBERS = (
     "requirements/hermes-runtime-contracts.in",
@@ -108,6 +146,62 @@ RELEASE_SURFACE_PATHS = (
     "contracts/hermes-runtime/README.md",
     "docs/contract-versioning-policy.md",
 )
+
+
+
+def _shed_aware(target: Path) -> Path:
+    """`target`, or the pinned-leg copy of it when the § 5.2 shed moved it.
+
+    RULED (a) POST-SHED MODE (`#656` comment `5625573095`). Three release
+    members of this repository's own registration — `gate-action-record`,
+    `xfactory-workbench-chat-turn` and `xfactory-workbench-model-catalog` — are
+    `moved_verbatim` manifest rows, and every byte of them arrived unchanged, so
+    the digest this source computes is the digest it has always computed. The
+    containment check below is unaffected: a pinned leg is mounted INSIDE this
+    repository, so a resolved destination is still under `self.root`.
+
+    Answers `target` unchanged for any other repository, any path in no row, and
+    any `not_moved` row — so a candidate-mode release run over a domain mirror
+    is untouched.
+    """
+    try:
+        from carved_reach import shed_destination
+    except ImportError:
+        return target
+    moved = shed_destination(target)
+    return moved if moved is not None else target
+
+
+def _shed_aware_commit(root: Path, commit: str, path: str):
+    """The pinned leg's `(repo, commit, path)` for a member the § 5.2 shed moved
+    — or `None`, in which case this repository's own answer stands.
+
+    `_shed_aware` above, in the direction `_CommitSource` reads: from one exact
+    commit and never from the working tree. `content.resolve_git_object` reads
+    ONE repository's object store, and post-shed the three moved members of this
+    repository's own registration have their bytes in a LEG's, reachable from
+    the verified commit through the gitlink THAT COMMIT records —
+    `carved_reach.shed_commit_object` walks that chain and answers what to read
+    instead.
+
+    The exactness is preserved rather than traded away: the leg commit comes from
+    the verified commit's own tree, so verifying an older commit reads the leg
+    that commit pinned. A commit from BEFORE the shed records no such gitlink and
+    answers `None`, which is right — there the member is still in this
+    repository's tree and the ordinary read already found it. A root that is not
+    this repository answers `None` too, so a candidate-mode run over a domain
+    mirror is untouched.
+    """
+    try:
+        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_commit_object
+    except ImportError:
+        return None
+    try:
+        if Path(root).resolve() != CARVE_ROOT.resolve():
+            return None
+    except OSError:
+        return None
+    return shed_commit_object(commit, path)
 
 
 class ReleaseDependencyError(RuntimeError):
@@ -399,7 +493,7 @@ class _WorkingTreeSource:
         return yaml.safe_load(text)
 
     def exists(self, path: str) -> bool:
-        target = self.root / path
+        target = _shed_aware(self.root / path)
         return target.is_file() and not target.is_symlink()
 
     def list_python(self, package: str) -> list[str]:
@@ -426,7 +520,7 @@ class _WorkingTreeSource:
         )
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
-        target = self.root / path
+        target = _shed_aware(self.root / path)
         # Defense in depth beneath the membership guard: a normalized path
         # outside the repository root is refused here too, so no caller of
         # this source can ever digest bytes from beyond the tree.
@@ -477,6 +571,14 @@ class _CommitSource:
         machine.
         """
 
+        moved = _shed_aware_commit(self.root, self.commit, path)
+        if moved is not None:
+            try:
+                resolve_git_object(*moved)
+            except ContentResolutionError as leg_exc:
+                _resolution_established_absence(leg_exc, moved[1], moved[2])
+                return False
+            return True
         try:
             resolve_git_object(self.root, self.commit, path)
         except ContentResolutionError as exc:
@@ -498,7 +600,25 @@ class _CommitSource:
         )
 
     def read_member(self, path: str) -> tuple[bytes, str, str]:
-        resolved = resolve_git_object(self.root, self.commit, path)
+        """The member's bytes AT THE PINNED COMMIT, from the leg when the shed
+        moved it.
+
+        THE LEG IS ASKED FIRST, not as a fallback (Copilot
+        `PRRT_kwDOTAvnrs6hfEoe`). A post-shed commit whose tree still carries a
+        stale file at the pre-shed source path would satisfy the ordinary read,
+        and a fallback-shaped order would then hash THOSE bytes and call the
+        release verified. For a MOVED row the destination is what this
+        repository publishes, so it is the only answer; `_shed_aware_commit`
+        answers `None` for every row that stayed, for a path in no row, for a
+        root that is not this repository and for a commit from before the shed
+        (its tree records no such gitlink), which is what keeps the ordinary
+        read the answer everywhere else.
+        """
+        moved = _shed_aware_commit(self.root, self.commit, path)
+        if moved is not None:
+            resolved = resolve_git_object(*moved)
+        else:
+            resolved = resolve_git_object(self.root, self.commit, path)
         return resolved.data, resolved.git_mode, resolved.digest
 
 
@@ -598,6 +718,14 @@ def _collect_members(
     intent_floor_active = (
         release_version is not None and release_version >= INTENT_RELEASE_FLOOR
     )
+    # Same computation, same `release_version`, for the clearing family's own
+    # floor (RULED, #745, PR #1000 thread PRRT_kwDOTAvnrs6hsjob) — a version
+    # this cannot parse (`release_version is None`) gates OFF exactly as it
+    # does for intent, so an un-declared or malformed bundle never gains a
+    # member it cannot make sense of.
+    clearing_floor_active = (
+        release_version is not None and release_version >= CLEARING_RELEASE_FLOOR
+    )
     intent_registrations = []
     for entry in manifest.get("contracts", []) or []:
         if not isinstance(entry, Mapping):
@@ -681,6 +809,29 @@ def _collect_members(
             members.add(member)
         members.add(INTENT_VALIDATOR_PATH)
         members.add("scripts/__init__.py")
+
+    # Clearing family (issue #722), floor-gated (RULED, #745, PR #1000 thread
+    # PRRT_kwDOTAvnrs6hsjob): the whole `contracts/clearing/` tree (schemas,
+    # registry instance, README, packaged examples), its pytest wiring, and
+    # `CLEARING_VALIDATOR_PATH` join the closed membership only for a
+    # declared bundle at or after `CLEARING_RELEASE_FLOOR` — mirroring how
+    # `INTENT_VALIDATOR_PATH` above joins inside the intent floor's own gate
+    # rather than through the unconditional `NAMED_VALIDATORS` loop below.
+    # Below the floor (every already-published tag through `contract-v4.0`)
+    # this adds nothing, whether or not the tree already carries the family:
+    # presence alone is not sufficient, because membership without the floor
+    # is exactly what made re-verifying an already-published tag disagree
+    # with what it already recorded. At or after the floor this still only
+    # joins what is actually present at the source (a build for a bundle past
+    # the floor, cut before the family itself lands, sweeps in nothing) — the
+    # same "join only when present" reading `NORMATIVE_DOCS` uses.
+    if clearing_floor_active:
+        for member in source.list_files(CLEARING_CONTRACT_PREFIX):
+            members.add(member)
+        for member in source.list_python(CLEARING_TEST_PACKAGE):
+            members.add(member)
+        if source.exists(CLEARING_VALIDATOR_PATH):
+            members.add(CLEARING_VALIDATOR_PATH)
 
     fixture_index = source.load_yaml(FIXTURE_INDEX_PATH)
     if not isinstance(fixture_index, Mapping):

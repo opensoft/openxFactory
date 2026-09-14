@@ -22,6 +22,19 @@ REPO_ROOT = HERE.parent.parent
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(TESTS_ROOT))
 
+# --------------------------------------------------------------------------
+# THE § 5.2 SHED REACH, INSTALLED HERE TOO. Same reason as the hermeticity
+# guard above it: a targeted `pytest tests/doc-health` makes this directory the
+# rootdir, `confcutdir` excludes `tests/conftest.py`, and this suite reaches
+# carved modules — `test_status_reader_real_lines.py` imports `openxdox` and
+# `test_sentinel_vocabulary.py` reads a moved file's SOURCE through
+# `carved_reach.source()` (Copilot, `PRRT_kwDOTAvnrs6hVRyV`). Idempotent.
+# --------------------------------------------------------------------------
+
+from carved_reach import install as install_carved_reach  # noqa: E402
+
+install_carved_reach(tests=True)
+
 from doc_health import corpus  # noqa: E402
 from doc_health.runner import Context  # noqa: E402
 from hermeticity import (  # noqa: E402,F401  (autouse fixture registration)

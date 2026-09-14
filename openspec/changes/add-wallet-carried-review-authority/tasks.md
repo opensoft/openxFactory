@@ -304,32 +304,77 @@ repository's spec corpus, and refusal vocabulary is ratified as the consumer's
     required-seat signatures fail closed, and requires atomic exercise
     evidence while preserving the separate advisory-only requirement. Tasks
     6.2-6.8 remain explicit unchecked realization work.
-- [ ] 6.2 **[codexFactory]** Mint the seat's wallet key INSIDE the deliberation
+- [x] 6.2 **[codexFactory]** Mint the seat's wallet key INSIDE the deliberation
       job.
-- [ ] 6.3 **[hermes-install]** Verify the signature over the seat return at
+  - **TICKED (bookkeeping, this pull request).** Realized by hermes-install PR
+    #49 (`1ef3632e`, MERGED 2026-08-28T02:01:27Z, Speckit feature
+    `015-wallet-exercise-conformance`) as a DELIBERATE DIVERGENCE from this
+    task's literal wording: `api/routers/seat_key_authorizations.py` registers
+    the seat's wallet key in a separate PRE-verdict request against the
+    register-recorded key, rather than minting it inside the deliberation job,
+    so a forger cannot present key and signature together in one act — same
+    intent, stronger mechanism. Independently re-verified present in the merge
+    commit; discharged per the feature's own realization record
+    (`specs/015-wallet-exercise-conformance/realization-record.md:4`,
+    "Records: the realization of parent tasks 6.2-6.8 ... Discharges parent
+    task 6.8 and the feature's FR-023 / SC-005").
+- [x] 6.3 **[hermes-install]** Verify the signature over the seat return at
       `check_verdict` and write the exercise record there.
+  - **TICKED (bookkeeping, this pull request).** Realized by hermes-install PR
+    #49 (`1ef3632e`): `DatabaseSeatExerciseGate`
+    (`src/hermes_install/domain/review_authority.py:1262`) is constructed by
+    `verdict_for_completion` (`domain/council_orchestration.py:604`) and
+    invoked by `check_verdict` (`:445`), calling `resolve_seat_authority` per
+    required seat at the verdict instant and writing the exercise record on
+    the caller's own connection, inside the same transaction as the verdict.
+    Independently re-verified present in the merge commit.
 - [ ] 6.4 **[hermes-install]** Decide where exercise records are STORED —
       runtime Postgres (queryable, satisfies the distinct-holder store need, but
       outside the governed git corpus) or a git artifact (auditable but not
       queryable, and subject to the pinning lag that disqualifies a file-based
       revocation surface). Undecided here (N9).
-- [ ] 6.5 **[hermes-install]** Implement the derived candidate-side input for the
+- [x] 6.5 **[hermes-install]** Implement the derived candidate-side input for the
       non-self-review refusal: compute the touched-object set from the subject
       pin under the runtime's OWN credential; unavailable, self-reported or
       unverifiable ⇒ REFUSE. Costs named: a per-target repository credential
       held by Hermes, cluster egress, a per-target machinery map.
+  - **TICKED (bookkeeping, this pull request).** Realized by hermes-install PR
+    #49 (`1ef3632e`): `HttpCommitTouchedObjectResolver`
+    (`src/hermes_install/review_authority/resolvers.py:183`) implements the
+    `TouchedObjectResolver` protocol (`domain/touched_objects.py:176`),
+    resolving the touched-object set over HTTP under the runtime's own
+    credential; `refuse_self_reported_touched_set` (`touched_objects.py:237`)
+    and the `TouchedSetUnavailableError` / `TouchedSetSelfReportedError`
+    classes (`:133`, `:114`) refuse an unavailable or self-reported set.
+    Independently re-verified present in the merge commit.
 - [ ] 6.6 If the derived input needs a field on the posted convening block, that
       is a `neutral-job-envelope` delta in **openxFactory** — a declared
       successor, not declared now.
-- [ ] 6.7 **Gate:** a seat return with no verifiable signature is refused
+- [x] 6.7 **Gate:** a seat return with no verifiable signature is refused
       fail-closed; a conforming one writes an exercise record. Only then does
       `distinct_holder_constraint_refs` become the observable that supersedes
       QA 4.2, since its comparison basis is the prior act's RECORDED holder.
-- [ ] 6.8 State in the realization record that the refusal's reachable subject is
+  - **TICKED (bookkeeping, this pull request).** Gated by hermes-install PR
+    #49's test suite (`1ef3632e`): `tests/unit/test_review_authority_gate.py`
+    and `tests/pg/test_review_authority_exercise_gate.py` (real Postgres)
+    exercise the fail-closed refusal on an unverifiable seat return and the
+    conforming write on a valid one; `tests/unit/test_council_orchestration.py`
+    and `tests/api/test_council_orchestration.py` cover the seat-return
+    conformance path end to end. Independently re-verified present in the
+    merge commit.
+- [x] 6.8 State in the realization record that the refusal's reachable subject is
       MATERIALIZED DOMAIN CONTENT ONLY, that it would not have caught the
       executed `scripts/yaml.py` attack, and that it is ADDITIVE to
       codexFactory's `"scripts/**"` floor entry, CODEOWNERS line and import-root
       test — which are not retired.
+  - **TICKED (bookkeeping, this pull request).** Stated verbatim in
+    hermes-install PR #49's
+    `specs/015-wallet-exercise-conformance/realization-record.md` (`1ef3632e`,
+    line 4: "Records: the realization of parent tasks 6.2-6.8 ... Discharges
+    parent task 6.8 and the feature's FR-023 / SC-005"); its own
+    "The bounded statement (parent task 6.8)" section carries the
+    materialized-domain-content-only / additive-to-the-floor statement this
+    task asks for. Independently re-verified present in the merge commit.
 
 ## 7. S5 — revocation, lifecycle, blast radius
 
@@ -350,7 +395,7 @@ the day S3 landed and was merely UNPINNED; 7.2 already refused and merely
 refused ANONYMOUSLY; 7.4 was half-built on a wrong diagnosis; 7.3 was
 unimplementable, and `projection.py`'s property 5 said so in as many words.
 
-- [ ] 7.1 **[hermes-install]** Re-check revocation at VERDICT CONSUMPTION, not
+- [x] 7.1 **[hermes-install]** Re-check revocation at VERDICT CONSUMPTION, not
       from the admission stamp. `verdict_for_completion` takes the roster and
       content provenance from the `convening` stamp written at admission, which
       is exactly the issuance-time trust `openxwallet:127-131` forbids.
@@ -370,7 +415,15 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     convening is over the roster it was convened with. Whether the CONTENT
     PROVENANCE should also be re-derived at consumption is named as an open
     ruling in #51's realization record and is NOT answered there.
-- [ ] 7.2 **[hermes-install]** On a revoked or expired holder, PARK with a NAMED
+  - **TICKED (bookkeeping, this pull request).** The guard cited two bullets
+    above, `test_a_revocation_after_admission_refuses_the_completion`,
+    independently re-verified added by hermes-install PR #51 (`cba1a2bd`,
+    MERGED 2026-08-28T07:34:10Z, Speckit feature
+    `016-wallet-revocation-lifecycle`) in
+    `tests/pg/test_review_authority_exercise_gate.py`. This bookkeeping tick is
+    about the guard the task asks for, not about the still-open
+    content-provenance question the bullet above names, which stays open.
+- [x] 7.2 **[hermes-install]** On a revoked or expired holder, PARK with a NAMED
       REFUSAL — never silently honour the stamp.
   - **BUILT** (hermes-install #51), and it uncovered a real defect rather than a
     naming complaint. The refusal already existed and was already fail-closed
@@ -393,7 +446,14 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     effect of `missing_required_seat: refused`. The runtime's obligation is a
     fail-closed refusal carrying a reason the consumer can park ON, which is
     what it now does.
-- [ ] 7.3 Declare the register's staleness bound as a duration.
+  - **TICKED (bookkeeping, this pull request).** Independently re-verified in
+    hermes-install PR #51 (`cba1a2bd`, feature `016-wallet-revocation-lifecycle`):
+    `GrantNotActiveError`'s three codes (`review_authority.grant_not_active` /
+    `grant_revoked` / `grant_expired`, `review_authority/projection.py:345-381`)
+    and `api/routers/runs.py`'s fix reading `seat_id` from the exception
+    instead of hard-coding `None`, both present in the merge-commit diff
+    against parent `e0c2b4b4`.
+- [x] 7.3 Declare the register's staleness bound as a duration.
   - DECLARED in this branch: `governance/review-authority/register.yaml` gains
     the top-level `revocation_staleness_bound: P7D`, with the reasoning recorded
     beside it — the runtime does not read this file but an operator-established
@@ -430,7 +490,14 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
     (hermes-install: older-than-the-bound ⇒ REFUSE), and 7.4 is BUILT but not
     ticked. Closing a reader's blind spot is not the same as the runtime
     refusing a stale projection. Tick 7.3 when 7.4 ticks.
-- [ ] 7.4 **[hermes-install]** Unreadable register ⇒ REFUSE. Unreachable,
+  - **TICKED (bookkeeping, this pull request), per this task's own rule two
+    bullets above ("Tick 7.3 when 7.4 ticks").** 7.4 below is ticked in this
+    same pull request, independently re-verified via hermes-install PR #51
+    (`cba1a2bd`, feature `016-wallet-revocation-lifecycle`); the declaration
+    itself is independently confirmed live in this repository's own tree at
+    `governance/review-authority/register.yaml:56`
+    (`revocation_staleness_bound: P7D`).
+- [x] 7.4 **[hermes-install]** Unreadable register ⇒ REFUSE. Unreachable,
       unparseable, or older than the bound all refuse; never proceed.
   - **BUILT** (hermes-install #51). Half of it existed — absent, unreadable,
     unparseable, wrong-kind and schema-invalid each already had their own named
@@ -915,6 +982,12 @@ unimplementable, and `projection.py`'s property 5 said so in as many words.
       taken here (it is an openXwallet contract change plus a pin bump).
       **`wallet-validation` is a REQUIRED check that runs on pull requests only**,
       so merging before that fix reds every subsequent candidate.
+  - **TICKED (bookkeeping, this pull request).** Independently re-verified in
+    hermes-install PR #51 (`cba1a2bd`, MERGED 2026-08-28T07:34:10Z, Speckit
+    feature `016-wallet-revocation-lifecycle`): the `os.stat`-based
+    absent-vs-unreachable split, the `register_stale` code, and the v2
+    projection schema's required `projected_at` / `staleness_bound` fields
+    (`review_authority/projection.py`), all present in the merge commit.
 
 ## 8. Bench and governance items carried, not performed
 

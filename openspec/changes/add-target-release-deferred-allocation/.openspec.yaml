@@ -1,0 +1,120 @@
+schema: spec-driven
+created: 2026-09-13
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-13-add-target-release-deferred-allocation
+  reason: >-
+    THE SUCCESSOR QUESTION `gate-realization-axis-vocabulary` NAMED, MEASURED AT
+    TWELVE PACKETS, AND DELIBERATELY DID NOT TAKE — now a live block on a
+    ratified change. That packet's register header says it in its own words over
+    the twelve entries of class `deferred-allocation`: "Under the promoted
+    two-value sentence there is no spelling for 'a release, not yet numbered',
+    so an author obeying the versioning policy cannot also satisfy the
+    vocabulary. Whether canon should admit a deferred allocation as a third
+    value is the successor question this packet names and does not take." Its
+    `tasks.md` § 6.1 carries the same words as a ratified box and re-confirms
+    the count at archive (12, re-measured on the archive tree), naming the
+    remedy: "a `## MODIFIED` block over *Realization axis declaration*,
+    sequenced after `add-structured-scope-substrate`, and it is not authored
+    here."
+    THE RULE THE TWELVE ARE OBEYING IS ALSO RATIFIED.
+    `docs/contract-versioning-policy.md` § Bundle Realization Order opens
+    "Contract-bundle realization is serialized and allocates versions late" and
+    allocates the next available version at step 1 of the cut, so an author who
+    named a number at proposal time would reserve one that policy allocates at
+    the cut. The gap is therefore a canon gap and not sloppiness, which is why
+    the gate registered the twelve rather than refusing them.
+    WHAT FORCED IT NOW, AND WHY IT IS A CHANGE TO THE SPECIFICATION RATHER THAN
+    A VALIDATOR EDIT. The gate is a RATCHET: the register is the corpus as it
+    stood on 2026-09-12, so a proposal authored AFTER it, obeying the versioning
+    policy exactly as the twelve do, has no entry and no lawful spelling and
+    reds the required `pytest-suite`. openxFactory #1017
+    (`encode-wallet-authority-rulings-r6-r12`) is RATIFIED and READY with its
+    merge word already given, and is blocked on exactly this:
+    `test_corpus_target_release_validates` refuses its
+    "contract bundle — … NO BUNDLE NUMBER IS TAKEN OR RESERVED HERE". All three
+    existing escapes are foreclosed by ratified rules — `implemented` would be a
+    false declaration for a packet whose own code surface moves contract bytes,
+    a literal `contract-vX.Y` would reserve a minor the versioning policy
+    allocates late, and the register is closed. The promoted requirement names
+    the lawful route in so many words: "admitting a NEW value to the vocabulary
+    SHALL be a change to this specification rather than an addition to the
+    register." This is that change.
+    WHY TWO `## MODIFIED` BLOCKS AND NOT AN `## ADDED` ONE. Both promoted
+    requirements carry the enumeration — *Realization axis declaration* defines
+    it and *Realization axis vocabulary is gated* restates it in the gate's own
+    apposition — so widening one and not the other would leave canon
+    contradicting itself. The declaration block owes
+    `sequenced_after: [add-structured-scope-substrate]` and a pre-text written
+    from THAT change's outcome, which is the cost `gate-realization-axis-vocabulary`
+    D1 wrote out when it declined this remedy; it is paid here rather than
+    avoided. NO `Modified over` MARKER IS OWED: `document-lifecycle` scopes that
+    reserved form to a block over a title THE PROMOTED SPECIFICATION DOES NOT
+    CARRY, and canon carries both titles — checked, not assumed.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`. The organized source is an
+    archived packet's own named successor box (§ 6.1) plus the live block on
+    #1017, not an `ideation/staging/` topic; `kind: staged` would claim a
+    staging source that does not resolve.
+  proposed_by: >-
+    Lane `hermes-wallet-exercise` (window `hermes-wallet-exercise`, session
+    `codeXfactory-2`, workstation Eagle), on Brett Heap's multiple-choice ruling
+    of 2026-09-13 at approximately 00:5xZ, verbatim **"(b) Author the 'deferred'
+    vocabulary value first"** — chosen over ruling `implemented` acceptable on
+    #1017 despite its bundle involvement, over a reviewed addition to the closed
+    register naming #1017, and over holding #1017 until a real bundle cut.
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. That word COMMISSIONS THE
+    AUTHORING and ratifies no wording: it admits no text here to canon and takes
+    none of the ten decisions this packet carries. The lawful unapproved shape is
+    the one `add-drafted-proposal-origin` (issue #318) defined — drafting
+    provenance, no `approved_by`, no `approved_on` — and every document in this
+    packet carries `Status: draft` to match. Approval, when it comes, is a pure
+    ADDITION beside a fixed `kind` and `id`.
+    THE DECISIONS ARE PUT AS `proposal.md` § Open questions OQ-1 … OQ-10, each
+    multiple-choice with the recommendation FIRST and the alternatives' costs
+    beside it. EVERY RECOMMENDED OPTION IS WHAT THE DELTA ALREADY ENCODES, so
+    `accept all A on <n>` ratifies without moving one byte. The ones most worth a
+    veto: OQ-1 (the token's spelling, which the twelve carriers and every future
+    author will write), OQ-2 (whether the widening reaches BOTH promoted
+    requirements and pays the sequencing cost, or only the gate), OQ-3 and OQ-4
+    (whether a deferred packet may archive, and whether the archive is refused —
+    where refusing would contradict the promoted "SHALL refuse nothing there"),
+    and OQ-7 (whether the twelve standing carriers are swept here or left to
+    their owning lanes).
+    NOTHING IS PROMOTED AND NOTHING IS ARCHIVED BY THIS FILING. `code_surface` is
+    non-empty, so under `release-realization` the archive is a separate act on
+    merged-plus-green realization evidence and a separate word.
+  proposed_on: 2026-09-13
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — 2026-09-13T01:0xZ, verbatim:
+    "accept all A on 1022", given as a MULTIPLE-CHOICE ruling over all ten
+    decisions this packet put (OQ-1 through OQ-10 in `proposal.md`; `design.md`
+    D1 through D10), given in session directly to lane `hermes-wallet-exercise`
+    (window `hermes-wallet-exercise`, session `codeXfactory-2`, workstation
+    Eagle) and recorded in full at `review/ratification-2026-09-13.md`. The
+    instant is written to the precision the word was taken at and no finer —
+    `01:0xZ`, the same house form the `proposed_by` block above uses for the
+    commissioning word ("approximately 00:5xZ") — because inventing a minute
+    would be inventing evidence.
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED: the drafting
+    provenance above (`kind`, `id`, `reason`, `proposed_by`, `proposed_on`) is
+    kept exactly as authored, `<n>` placeholder and all, which is the shape
+    `add-drafted-proposal-origin` (issue #318) defined for this transition —
+    approval is a pure ADDITION beside a fixed origin identity, and the archive
+    gate's origin-retention arm reads the declaration this act establishes.
+    EVERY OQ TOOK ITS RECOMMENDED OPTION, SO THE DELTA'S WORDING STANDS
+    UNCHANGED: no byte of `specs/release-realization/spec.md` was re-written,
+    restored or deleted by this ratification, and `CLOSED_REGISTER` did not
+    move — this act admits a VALUE and admits no ENTRY.
+    NOTHING IS PROMOTED AND NOTHING IS ARCHIVED BY THIS ACT: no file under
+    `openspec/specs/` is edited, `tasks.md` § 5 stays open, and the archive is a
+    separate act on a separate word held behind merged-plus-green realization
+    evidence and the § 5.2 ordering re-read against
+    `add-structured-scope-substrate`. Merge is a separate word again, and
+    openxFactory #1017 is untouched here (OQ-9).
+  approved_on: 2026-09-13
+related:
+  - openxFactory:change:archive/2026-09-12-gate-realization-axis-vocabulary      # THE ORIGIN. Its register header and `tasks.md` § 6.1 name this successor, measure it at twelve packets, and state the remedy this packet performs
+  - openxFactory:change:add-structured-scope-substrate                           # ACTIVE, ratified. Holds the `## MODIFIED` block over *Realization axis declaration*; this packet's pre-text is ITS outcome and `sequenced_after` names it
+  - openxFactory:change:add-sequenced-after-substrate                            # ACTIVE, ratified. Produced `scripts/frontmatter_strict.py`, the loader the gate reads through; unchanged by this packet
+  - openxFactory:pr:1017                                                         # THE FIRST CONSUMER, blocked today. Ratified and READY with its merge word given; its one-line correction is its own lane's act after this lands
+  - openxFactory:issue:1013                                                      # The sibling successor (§ 6.3, gating `code_surface:`), deliberately NOT taken here

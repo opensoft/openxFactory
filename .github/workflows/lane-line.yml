@@ -46,7 +46,7 @@ jobs:
           BODY: ${{ github.event.pull_request.body }}
         run: |
           first="$(printf '%s' "$BODY" | tr -d '\r' | sed -n '/[^[:space:]]/{p;q;}')"
-          if printf '%s' "$first" | grep -Eq '^Lane: [a-z0-9-]+( \(.*\))?$'; then
+          if printf '%s' "$first" | grep -Eq '^Lane: [A-Za-z0-9-]+( \(.*\))?$'; then
             echo "lane-line OK: $first"
             exit 0
           fi

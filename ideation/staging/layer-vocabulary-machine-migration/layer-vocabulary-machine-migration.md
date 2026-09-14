@@ -56,6 +56,14 @@ inventory.
    aliases in the vocabulary contract). Ops/Adx prose sweeps can run
    before the major, key migrations only with it.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 - Does the hermes-runtime major fold this in with other v3 drivers

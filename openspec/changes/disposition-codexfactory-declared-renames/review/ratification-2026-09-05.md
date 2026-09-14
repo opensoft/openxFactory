@@ -1,5 +1,9 @@
 # Ratification — 2026-09-05
 
+Status: ratified
+Ratified: 2026-09-05 by Brett Heap — verbatim "ratify 697", recorded below
+under "Authority, and the two words".
+
 ## Decision
 
 RATIFIED by Brett Heap.

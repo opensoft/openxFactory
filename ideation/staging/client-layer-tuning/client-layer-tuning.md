@@ -76,6 +76,14 @@ as the record of what the topic asked, never as live work.
   The avatar-led surface arrives with the avatar staging topics; the schema
   and CLI do not wait for it.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions (carried to the proposals)
 
 - Which repo hosts the shared validator implementation (openxFactory scripts,

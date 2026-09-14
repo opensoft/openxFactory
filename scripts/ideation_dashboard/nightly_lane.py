@@ -82,10 +82,18 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-from ideation_dashboard import register as register_mod  # noqa: E402
-from ideation_dashboard import snapshot as snapshot_mod  # noqa: E402
-from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
-from ideation_dashboard.generator import generate_snapshot  # noqa: E402
+# § 5.2 SHED REACH (RULED (a) / RULED Q7, `#656`): the modules this file reads
+# from `opendox.*` / `openxdox.*` below left openxFactory at the carve and are
+# read from the two PINNED legs through the ONE resolver. See
+# `scripts/carved_reach.py`.
+from carved_reach import install as _install_carved_reach  # noqa: E402
+
+_install_carved_reach()
+
+from openxdox import register as register_mod  # noqa: E402
+from openxdox import snapshot as snapshot_mod  # noqa: E402
+from openxdox import snapshot_registry as registry_mod  # noqa: E402
+from openxdox.generator import generate_snapshot  # noqa: E402
 from output_boundary import OutputBoundary  # noqa: E402
 
 LANE = "ideation-dashboard-snapshot"
@@ -485,10 +493,133 @@ def _write_index_status(boundary: OutputBoundary, out_dir: Path, payload: dict) 
             return None
 
 
+def _pre_parse_output_location(argv: list[str] | None) -> argparse.Namespace:
+    """A `--help`-agnostic peek at just the flags that decide WHERE a
+    registration-failure status artifact belongs (`--repo-root`, `--out-dir`,
+    `--repository`, `--repositories`), read BEFORE the real parser built
+    inside `main()` runs. `add_help=False` and `parse_known_args` so this
+    never recognizes `--help` and never raises on a flag it does not itself
+    define — reintroducing a parser that could raise `SystemExit` ahead of
+    registration is exactly the hazard the real parser's placement (after
+    registration, in `main()`) exists to avoid
+    (`test_an_engine_lane_registers_at_its_own_process_entry`). Never raises:
+    a malformed argv falls back to the defaults (with no `--repo-root` to
+    anchor a write, `_write_registration_failure_status` below is then a
+    no-op) rather than letting a SKIP path raise."""
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument("--repo-root", default=None)
+    pre.add_argument("--out-dir", default=DEFAULT_OUT_DIR)
+    pre.add_argument("--repository", default=DEFAULT_REPOSITORY)
+    pre.add_argument("--repositories", default=None)
+    try:
+        peeked, _ = pre.parse_known_args(argv)
+    except SystemExit:
+        return argparse.Namespace(repo_root=None, out_dir=DEFAULT_OUT_DIR,
+                                  repository=DEFAULT_REPOSITORY, repositories=None)
+    return peeked
+
+
+def _write_registration_failure_status(args: argparse.Namespace, reason: str) -> None:
+    """Record a process-start registration failure (`main()`, below) through
+    the SAME status-writing path `run_lane()`/`run_multi_lane()` use for
+    every other SKIP (Copilot review, PR #984, second round) — never only a
+    print. `main()` runs this registration before either of those ever gets
+    a chance to write anything, so nothing else will record the reason.
+    Writes whichever artifact the requested mode would have produced:
+    `index-status.json` for `--repositories`, `lane-status.json` otherwise —
+    there is no per-repository outcome to report, since no repository was
+    ever reached. Best-effort like the writers it calls: a failure here
+    must not turn this SKIP into a raised exception. `args` is ordinarily
+    `_pre_parse_output_location`'s peek (registration runs before the real
+    parser — see `main()`), so `repo_root` may legitimately be `None`."""
+    if args.repo_root is None:
+        return
+    agg_root = Path(args.repo_root).resolve()
+    out_abs = agg_root / args.out_dir
+    common = {"generated_at": _now_iso(), "run_id": _run_id()}
+    if args.repositories:
+        boundary = OutputBoundary(out_abs, [INDEX_STATUS_NAME])
+        _write_index_status(boundary, out_abs, {
+            "kind": "ideation-dashboard-index-status",
+            "lane": LANE,
+            "result": "skipped",
+            "reason": reason,
+            "index": None,
+            "published": [],
+            "skipped": [],
+            **common,
+        })
+    else:
+        boundary = OutputBoundary(out_abs, [STATUS_NAME])
+        _write_status(boundary, out_abs, {
+            "kind": "ideation-dashboard-lane-status",
+            "lane": LANE,
+            "result": "skipped",
+            "reason": reason,
+            "repository": args.repository,
+            "source_revision": None,
+            "snapshot": f"{args.repository}-snapshot.json",
+            "excluded_documents": [],
+            "detail": [],
+            **common,
+        })
+
+
 def main(argv: list[str] | None = None) -> None:
     """CLI entry. Void by contract: the lane NEVER fails the nightly, so there
     is no exit-status variation to return — every path (including a total
     failure, reported as SKIPPED) falls through and the process exits 0."""
+    # THE ONE PROCESS-START REGISTRATION (§ 4.3/§ 4.4, RULED ASK-2 option (2)
+    # and RULING C2). `openxdox.generator.generate_snapshot()` — imported
+    # above and called at :191 and :379 — resolves `domain_profile.current()`
+    # while deriving
+    # cluster lineage (`openxdox/generator.py`:339, :361).
+    # A process that reaches the engine with nothing registered is REFUSED —
+    # `openxdox.domain_profile.DomainProfileNotRegistered` — and this lane
+    # reports every error as SKIPPED and exits 0 by contract, so the
+    # refusal would be published as a green-looking skip rather than surfaced
+    # (Copilot review, PR #984).
+    #
+    # HERE, IN `main()`, AND NOT AT MODULE SCOPE: a column that registered
+    # while being imported could re-enter its own half-executed module, the
+    # hazard `scripts/opendox_host.py` documents for
+    # `ideation_dashboard/serve_openxfactory_lanes.py`. Called from the process
+    # entry instead, which is what both production paths go through
+    # (`scripts/ideation-dashboard-nightly.py` and
+    # `python3 -m ideation_dashboard.nightly_lane`, the form
+    # `scripts/reserve-dashboard.sh`:69 runs). Idempotent, so a caller that
+    # already registered is not punished.
+    #
+    # BEFORE THE REAL PARSER BELOW, DELIBERATELY
+    # (`test_an_engine_lane_registers_at_its_own_process_entry`): `--help` is
+    # the cheapest argv that reaches `main()`, and it must still leave the
+    # registry populated, which only holds if this runs before a parser that
+    # defines `--help` gets a chance to raise `SystemExit(0)`. A registration
+    # failure still has to honour this lane's FAILURE SEMANTICS (module
+    # docstring) — the reason recorded in a status artifact, not only
+    # printed (Copilot review, PR #984, second round) — so the except: below
+    # reaches for `--repo-root`/`--out-dir`/`--repositories` through
+    # `_pre_parse_output_location`'s OWN `add_help=False` parser instead of
+    # the real one: it never recognizes `--help`, so it cannot reintroduce
+    # the SystemExit-before-registration hazard this ordering exists to avoid.
+    from opendox_host import register_openxfactory
+    try:
+        register_openxfactory()
+    except Exception as exc:  # noqa: BLE001 — same SKIPPED contract as run_lane()
+        # A missing leg, a malformed profile, or a registration conflict must
+        # not escape `main()` uncaught (Copilot review, PR #984): this call
+        # runs before `run_lane()`/`run_multi_lane()` ever get a chance to
+        # write their own status artifact, and this function's own contract
+        # (docstring above) is that EVERY error is a SKIP at exit 0, never a
+        # nonzero exit — reported on stdout AND in the status artifact, same
+        # as any other SKIP this lane can produce. There is no
+        # `LaneOutcome`/`MultiLaneOutcome` to build around it, so
+        # `_write_registration_failure_status` writes the artifact directly.
+        reason = f"{type(exc).__name__}: {exc}"
+        print(f"ideation-dashboard lane: SKIPPED — unhandled {reason}")
+        _write_registration_failure_status(_pre_parse_output_location(argv), reason)
+        return
+
     ap = argparse.ArgumentParser(
         prog="ideation-dashboard-nightly", description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)

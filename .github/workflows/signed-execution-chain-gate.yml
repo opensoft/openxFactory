@@ -61,30 +61,42 @@ jobs:
   signed-execution-chain-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      # The house guard (`doc-health-reusable.yml`, `openxwallet-consumer-gate.yml`).
-      # If the App key is absent the mint is SKIPPED rather than erroring on an
-      # empty app-id, the token expression falls back, and the scoped init then
-      # fails on the PRIVATE nested repository — a red gate with a legible cause.
-      # Falling back is not a pass: without the pinned vocabulary the carried
-      # blocks cannot be held to the shapes that own them, and this gate refuses
-      # rather than proceeding on a reader that checks less than it says.
-      HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
     steps:
-      - name: Mint openxFactory app token
-        id: app-token
-        if: env.HAS_APP_KEY == 'true'
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
-          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
+      # NO MINT, AND NO `HAS_APP_KEY` GUARD — RETIRED 2026-09-11 (runbook 7.6,
+      # codexFactory issue #279). A `Mint openxFactory app token` step stood here
+      # minting this repository's content App
+      # (`OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY`) for the single
+      # purpose of authenticating the `openXwallet` gitlink below, guarded by a
+      # job-level `HAS_APP_KEY` env so an absent key SKIPPED the mint rather than
+      # erroring on an empty app-id (`doc-health-reusable.yml`'s house pattern).
+      # Both existed for ONE reason: `opensoft/openXwallet` was a SECOND, PRIVATE
+      # org repository and `github.token` is scoped to this repository alone. IT
+      # HAS BEEN PUBLIC SINCE 2026-09-07T15:24:11Z — its own flip, two days
+      # before openxFactory's — so the default token reads the pinned gitlink
+      # like any other public tree. NO SECRET WAS DELETED: the same names are
+      # still required by `merge-master-approval.yml`, `review-lane-repin.yml`,
+      # `session-open-pr.yml` and `pytest-suite.yml`'s decision-core mint.
+      #
+      # THE REWRITE BELOW STAYS AND IS STILL LOAD-BEARING. `.gitmodules` spells
+      # the gitlink in SSH form (`git@github.com:opensoft/openXwallet.git`) so a
+      # human clone uses the operator's key instead of prompting; a runner has no
+      # such key, and this `insteadOf` is what makes that URL fetchable over
+      # HTTPS at all. Only the credential the rewritten URL carries changed, and
+      # `github.token` is exactly what the retired `||` expression already fell
+      # back to whenever the App key was absent.
+      #
+      # THIS FAILS CLOSED, which is why no further fallback is written, and it is
+      # what the retired guard's comment was really claiming: without the pinned
+      # vocabulary the carried blocks cannot be held to the shapes that own them,
+      # so `--require-pinned-wallet-vocabulary` below turns a missing gitlink
+      # into a REFUSAL rather than a reader that checks less than it says. If
+      # openXwallet is flipped back to private, REVERT this change rather than
+      # patching around the failure.
       - name: Rewrite ssh submodule URLs for token auth
         run: |
           git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
         env:
-          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          TOKEN: ${{ github.token }}
 
       - uses: actions/checkout@v4
 

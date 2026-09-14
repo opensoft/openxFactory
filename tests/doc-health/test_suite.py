@@ -7,6 +7,7 @@ import ast
 import re
 import shutil
 from datetime import date
+from types import SimpleNamespace
 
 import pytest
 
@@ -1110,3 +1111,144 @@ def test_a_plain_family_skip_still_contributes_nothing_but_the_skip(
     assert [(s.family, s.reason) for s in result.skips] == \
         [(rtp.FAMILY, "no contract bundle declared")]
     assert result.findings == []
+
+
+# --------------------------------------------------------------------------
+# Issue #902: AND THE FAMILY'S OWN SECTION MUST SHOW WHAT THE SKIP CARRIED.
+#
+# `render`'s `## Findings By Family` loop branched on the skip FIRST and made
+# the `Skipped:` line the whole of the section, so the rows the loop above had
+# just been repaired to keep reached the headline counts, the ranked plan and
+# the previous-report diff — and were missing from the one section a reader
+# opens to see what those counts are counting. That is the inverse of
+# "Skipped families (never silently omitted)": the family named, its findings
+# not. The rule now turns on the FINDINGS rather than on the skip — an EMPTY
+# skip renders its reason alone, byte-identically to every report written
+# before this, and a CARRYING skip renders its reason and then its rows.
+
+_SKIPPED_LINE = f"Skipped: {_CARRIED_REASON}"
+_CARRIED_ROWS = (
+    "- [warning] alpha:contracts/manifest.yaml — contract-v2.0 is declared "
+    "and has no published annotated tag\n"
+    "- [info] alpha:contracts/releases/contract-v1.9.digests.yaml — "
+    "contract-v1.9 is declared SPENT\n")
+
+
+def _family_section(text: str, family: str) -> str:
+    """One `### <family>` section of a rendered report — its own heading
+    included, the next family's excluded."""
+    rest = text[text.index(f"### {family}\n"):]
+    end = rest.find("\n### ")
+    return rest if end < 0 else rest[:end]
+
+
+def _rendered(result) -> str:
+    return report.render(AS_OF, result.findings, result.skips, [], [], 0, [],
+                         [])
+
+
+def _readiness_meta():
+    """The narrowest stand-in `insert_readiness_section` accepts: the fields
+    `build_readiness_section` reads, and no findings of its own, so what is
+    under test is WHERE the lane's section lands rather than what it says
+    (`test_readiness_report.py` owns that)."""
+    return SimpleNamespace(
+        skipped_reason=None, scored_clusters=0, total_clusters=0,
+        index_path=None, index_md_path=None, evidence_path=None,
+        prompt_version=1, model="claude-sonnet-5", source_revision=None,
+        skipped_clusters=(), findings=())
+
+
+def test_a_carrying_skip_renders_its_rows_beneath_the_skipped_line(
+        monkeypatch):
+    """THE READER'S HALF OF #766, ASSERTED OVER THE WHOLE SECTION.
+
+    Equality rather than three `in` checks, because what was wrong was not a
+    missing substring but the SHAPE of the section: the reason stands first —
+    the skip is still the headline fact about this family — the rows follow
+    it, and `No findings.` is absent, which it must be for a family that found
+    two.
+
+    Driven through `run_suite`, so the `(findings, skips)` pair rendered here
+    is the one the suite really produces for a carrying skip and not a pair
+    this test invented.
+    """
+    result = _one_family_run(
+        monkeypatch, rtp._skip(_CARRIED_REASON, _carried_findings()))
+
+    assert _family_section(_rendered(result), rtp.FAMILY) == \
+        f"### {rtp.FAMILY}\n\n{_SKIPPED_LINE}\n{_CARRIED_ROWS}"
+
+
+def test_an_empty_skip_renders_the_reason_alone_exactly_as_it_always_did(
+        monkeypatch):
+    """THE BYTE-IDENTITY GUARANTEE, AND THE LITERAL IS THE OLD RENDERER'S.
+
+    Captured from `report.render` as this branch's base leaves it
+    (`b4270224`; the renderer itself last moved at `31fc2b6e`) rather than
+    re-derived from the code under test, which is the only form of this
+    assertion that can catch the new branch leaking a line into the state it
+    must not touch. A plain `Skip` is what every family but one answers with,
+    so this is the shape of every skipped section in `health/reports/` to
+    date and every one of them must still read this way.
+    """
+    result = _one_family_run(monkeypatch, Skip(rtp.FAMILY, _CARRIED_REASON))
+
+    assert result.findings == [], (
+        "a plain skip carries nothing, by construction")
+    assert _family_section(_rendered(result), rtp.FAMILY) == \
+        f"### {rtp.FAMILY}\n\n{_SKIPPED_LINE}\n"
+
+
+def test_the_rows_beneath_a_skip_line_are_not_ranked_plan_rows(monkeypatch):
+    """THE CONSUMERS OF THE SECTION, CHECKED RATHER THAN ASSUMED (#902).
+
+    Nothing that reads a report reads a skipped section as exactly one line,
+    and the two places where that could have mattered are pinned here.
+
+    THE PREVIOUS-REPORT DIFF. `parse_previous` judges a line by
+    `PLAN_ROW_PREFIX` (`- severity=`) and a per-family row begins `- [`, so
+    the two readings of one finding cannot become two rows: the plan carries
+    exactly one row per finding, no line claims to be a row the grammar cannot
+    read, and the key set is the carried findings' own.
+
+    THE LANE INSERTS. `insert_readiness_section` finds
+    `FINDINGS_BY_FAMILY_HEADING` and inserts BEFORE it, so a family section
+    that grew by three lines is still below the insertion point: the lane's
+    section still precedes the family heading, and the family's own section
+    comes back byte-identical with the carrying skip's rows intact behind it.
+    Asserted over that one of the three because its two siblings —
+    `insert_derive_possibles_section` and `insert_neutrality_section` — locate
+    the heading with the same `report_text.index(FINDINGS_BY_FAMILY_HEADING)`
+    and splice at the same offset. Not one of the three reads a character
+    PAST the heading, which is the whole of what this section's length could
+    ever have mattered to.
+
+    A CARRIED `error` IS IN THE SET, and it is the shape arm two really
+    produces — `test_release_tag_publication.py` pins it under
+    `test_an_unlistable_superseding_ref_keeps_the_earlier_bundles_error`.
+    Without one the key set is empty and the assertion on it would pass over
+    a renderer that dropped every row.
+    """
+    graded = Finding(ERROR, rtp.FAMILY, "alpha",
+                     "contracts/releases/contract-v2.0.digests.yaml",
+                     "contract-v2.0 was cut and SUPERSEDED without ever being "
+                     "published",
+                     "publish the annotated tag or withdraw the bundle")
+    carried = _carried_findings() + [graded]
+    result = _one_family_run(monkeypatch, rtp._skip(_CARRIED_REASON, carried))
+    text = _rendered(result)
+
+    assert report.unparsed_plan_rows(text) == []
+    assert len([line for line in text.splitlines()
+                if line.startswith(report.PLAN_ROW_PREFIX)]) == len(carried)
+    keys, contested = report.parse_previous(text, announce=None)
+    assert keys == {(rtp.FAMILY, "alpha", graded.path)}
+    assert contested == set()
+
+    updated = report.insert_readiness_section(text, _readiness_meta())
+    assert updated.index("## Ideation Readiness") < \
+        updated.index(report.FINDINGS_BY_FAMILY_HEADING)
+    assert _family_section(updated, rtp.FAMILY) == \
+        _family_section(text, rtp.FAMILY)
+    assert f"{_SKIPPED_LINE}\n- [error] " in updated

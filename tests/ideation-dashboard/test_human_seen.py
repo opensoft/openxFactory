@@ -31,10 +31,10 @@ import pytest
 from conftest import BASE_REPO, PINNED_REVISION, REPO_ROOT, FakeGit
 
 from ideation_dashboard import human_seen as hs
-from ideation_dashboard import lens
-from ideation_dashboard import workbench as wb
-from ideation_dashboard.boundary import OutputBoundary
-from ideation_dashboard.generator import generate_snapshot
+from opendox import lens
+from opendox import workbench as wb
+from opendox.boundary import OutputBoundary
+from openxdox.generator import generate_snapshot
 
 XREF_VALIDATOR = hs.find_cross_reference_validator(REPO_ROOT)
 NOW = "2026-07-14T08:00:00Z"

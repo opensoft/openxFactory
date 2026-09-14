@@ -1,6 +1,6 @@
 ---
 code_surface: xFactory aggregation repo (.github/workflows/merge-master-approval.yml + .github/merge-approval-envelope.yml — additional substantive candidate classes and generalized council-verdict consumption; per-repo instances of these files for repos beyond opensoft/xFactory), codexFactory (hermes/domain/review-councils/gate-rules.yaml candidate-class + risk-tier + per-class company-policy pull-in-condition additions, hermes/domain/review-councils/merge-readiness.yaml conditional company-policy-lead seat, merge_readiness_council scope generalized to substantive human- and agent-authored PRs), openxFactory (this spec delta on roles-authority-model; opensoft/openxFactory as the pilot repo's ruleset + workflow wiring). This change's own diff is the spec delta; the workflow/council/ruleset realization across the three surfaces is downstream, tracked in tasks.md and archived only on merged, green realization evidence per release-realization.
-target_release: none (no contract-bundle involvement — this generalizes the roles-authority-model authority doc and cross-repo rules-as-code, not a `contracts/schemas/` artifact; realization lands as workflow, council, and ruleset changes in the affected repos)
+target_release: implemented (no contract-bundle involvement — this generalizes the roles-authority-model authority doc and cross-repo rules-as-code, not a `contracts/schemas/` artifact; realization lands as workflow, council, and ruleset changes in the affected repos)
 ---
 
 # Proposal: add-substantive-review-lane

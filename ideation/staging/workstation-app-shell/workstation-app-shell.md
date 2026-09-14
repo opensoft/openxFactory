@@ -253,6 +253,14 @@ surface (name open; codexFactory first consumer)
     stating because it makes even a two-position per-host valve a strict
     improvement.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions
 
 1. **Shell platform.** The mobile sibling already carries a "shell platform

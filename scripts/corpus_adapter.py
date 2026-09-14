@@ -357,3 +357,46 @@ class CorpusAdapter(Protocol):
         An implementation that writes the corpus tree here is not conformant,
         even where it would produce identical bytes.
         """
+
+
+# NOTE (#872, RULED OQ-Q): openxFactory's executable readers of this module now
+# import the pinned copy at `openDox/code/src/opendox/corpus_adapter.py` once
+# that submodule is initialized (see `corpus_adapter_openxfactory/adapter.py`'s
+# header). This file stays in tree because the carve manifest's row for this
+# path is `not_moved / replicated_at_destination`, and deleting a retained
+# row's path is refused by `validate-carve-manifest.py` (`carve-path-absent`):
+# only flipping that row's disposition (Brett Heap's act) or folding this path
+# into a follow-up shed PR makes removal lawful.
+#
+# NOT EVERY EXECUTABLE READER WAS RE-POINTED. `authoring.py`'s one
+# function-local import still reads this replica, and unlike everything
+# below this is not a design choice -- it is BLOCKED. That module's own
+# carve-manifest row is `moved_with_declared_edit` (destination
+# `openDox/code/src/opendox/authoring.py`), and `validate-carve-manifest.py`
+# check 3 pass 2 byte-locks a `moved`/`moved_with_declared_edit` row's SOURCE
+# path to its content at `carve_commit` for as long as `phase: carve` holds:
+# ANY edit trips `carve-digest-mismatch`, not only an edit outside the row's
+# declared lines -- measured directly: a one-line edit confined to the
+# declared `edits[].lines: [317, 318]` still fails this way. So that
+# module's import waits on the same act as this file does (a disposition
+# flip or a shed PR), not on more effort here. Concretely: that function
+# still builds its document identity from THIS module's class and hands it
+# to the pinned adapter's `classify()`, so the classification it gets back
+# carries the replica's class, not the pinned one. That crossing is inert
+# today only because nothing on this path compares by nominal type
+# (`isinstance` / dataclass identity) -- every check downstream is
+# structural attribute access -- and it stops being inert the day something
+# does.
+#
+# What else still reads this exact path is structural test tooling, by
+# design, comparing shapes or refusals rather than nominal class identity,
+# for which a second, separately-loaded copy of the interface is the point,
+# not a defect:
+#   - by import: `scripts/carve_conformance.py`,
+#     `tests/carve_conformance/home_factory.py` and
+#     `tests/carve_conformance/test_verify_carve_conformance.py` (see that
+#     file's own docstring on why a distinct class object here must PASS),
+#     `tests/corpus-adapter/test_interface_closure.py`, and two dashboard
+#     test modules, `test_authoring_classify_derivation.py` and
+#     `test_doxbench_status_exemption.py`
+#   - by path, never imported: the two neutrality scans named above

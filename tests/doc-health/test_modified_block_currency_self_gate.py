@@ -722,36 +722,287 @@ _LEDGER_SUBJECTS = {
     # — measured, not assumed: a `--family modified-block-currency` run over
     # this tree after the act returns ZERO lines mentioning the change id, at
     # any path.
-    # ADDED 2026-09-08 BY `adopt-configured-notebook-hosting-identity` (PR
-    # #783), the Q2 arm of Brett Heap's public-flip redaction ruling of
-    # 2026-09-08T03:36Z. ONE ROW, ONE UNIT, AND THE UNIT IS THE POINT: canon's
-    # scenario *An operating party declares the company account* carries a
-    # third bullet that names Opensoft's own install AND THE LIVE WORKSPACE
-    # SERVICE-ACCOUNT ADDRESS IT IS HOSTED ON, and that bullet is the only line
-    # of the promoted corpus stating a real identity as a normative example.
-    # The block restates it in ROLE TERMS — "naming the CONFIGURED HOSTING
-    # IDENTITY it resolves at run time rather than an address written into this
-    # repository" — and carries all four promoted body paragraphs
-    # byte-identically, all five promoted scenario titles, and every other
-    # promoted bullet verbatim, adding two body paragraphs and two scenarios of
-    # its own. So this is a DELIBERATE REWORDING of exactly one unit, which is
-    # the class this arm exists to log and cannot distinguish from drift.
+    # REMOVED 2026-09-11 BY THE PUBLIC-FLIP REDACTION —
+    # ('adopt-configured-notebook-hosting-identity',
+    # 'lifecycle-notebook-projection', "The projection's hosting identity is
+    # declared at install"). A ROW RETIRED BY PROMOTION, on the condition its
+    # own note stated — "retires when the packet archives and its block is
+    # promoted" — DISCHARGED IN ITS SECOND HALF ONLY, and the asymmetry is the
+    # record rather than an oversight. The packet is STILL ACTIVE and has NOT
+    # archived; what moved is CANON. Its `tasks.md` 1.1 reserved this bullet
+    # for the archive act and forbade editing it by hand, and 5.4 gated the
+    # public flip on no live identity remaining in the public tree. THE FLIP
+    # DID NOT WAIT: `opensoft/openxFactory` became PUBLIC at
+    # 2026-09-09T21:58:08Z with the address still on the promoted line, so the
+    # ordering 1.1 protected had already been spent. Brett Heap (convener)
+    # ruled the remedy through the interactive multi-choice walkthrough,
+    # verbatim "Redact the xFactor001 service-account line now", and the
+    # redaction takes the replacement bullet VERBATIM from THIS packet's own
+    # `## MODIFIED` block rather than inventing a spelling. So canon now states
+    # what the block states, the block carries every unit canon states, and
+    # this arm has nothing left to report. The archive act still applies the
+    # block wholesale; for this one bullet it is now a no-op, not a conflict.
     #
-    # WHY NO MARKER RETIRES THIS ROW, WHICH IS THE ONE THING A READER WILL
-    # REACH FOR. `document-lifecycle`'s reserved `Removed from canon by` marker
-    # names the retired unit as a CODE SPAN CARRYING THAT UNIT'S EXACT TEXT —
-    # here, the address — so declaring the deletion the family's action line
-    # asks for would reprint in the delta the value the delta exists to remove,
-    # in a repository that is about to become public. A marker naming a
-    # REDACTED spelling names no canon unit at all, and `_suppression()` skips
-    # such a name ("names nothing; buys nothing"), so it would buy no
-    # suppression and raise no marker defect either — it would be decoration.
-    # The declaration therefore lives in the delta's own header paragraph, this
-    # row is the audit trail, and the finding is INFO with no gate on it.
-    # Retires when the packet archives and its block is promoted.
-    ("adopt-configured-notebook-hosting-identity",
-     "lifecycle-notebook-projection",
-     "The projection's hosting identity is declared at install"),
+    # VERIFIED BEFORE THE ROW WAS DELETED, not after. `--single-repo --family
+    # modified-block-currency` over this tree reads the ledger at NINE and
+    # returns ZERO lines naming this change at any path; at the `origin/main`
+    # baseline `96b4835b` the same run read TEN and ONE. The deleted row is the
+    # entire difference — no other subject moved.
+    #
+    # THE ONE RECEIPT THIS CANNOT SUPPRESS, stated rather than hidden. The
+    # carriage finding is `contested`, so its DISAPPEARANCE re-emits through
+    # `report.uncited_resolutions` as an `uncited-resolution` ERROR naming the
+    # still-active path — the same mechanical shadow the 2026-08-31
+    # `add-notebook-projection-identity` retirement above records. It is an
+    # AGGREGATION artifact by construction (`health/dispositions.yaml` resolves
+    # under `ctx.agg_root`, which is `None` on the `--single-repo` self-gate a
+    # pull request runs), so no file in THIS repository could suppress it and
+    # none is offered; the citation is this change id and that ruling.
+    # ADDED 2026-09-10 BY THIS REPOSITORY'S OWN ARCHIVE ACT — TWO ROWS, from
+    # the two SIBLING packets whose `## MODIFIED` blocks restate requirements
+    # `mirror-floor-regeneration-automation` added. `mirror-floor-regeneration-
+    # automation` archived to `openspec/changes/archive/2026-09-10-mirror-
+    # floor-regeneration-automation/` (openxFactory PR #894) and its block was
+    # PROMOTED, so both siblings — each of which already declared in its own
+    # header that its basis was "a sibling's addition rather than a promoted
+    # specification" — are now compared against CANON for the first time
+    # rather than against nothing. That is the mechanism, not a new edit to
+    # either sibling: neither block moved on this day, canon did.
+    #
+    # `amend-mirror-floor-regeneration-merge-authority` (PR #807, ratified and
+    # landed 2026-09-08 at `6cc06288`, the D-6 lockstep mirror of codexFactory's
+    # own amendment ratified the same day) REWRITES *An automated pin advance
+    # only ever proposes* to let the lane ARM the platform's auto-merge on its
+    # own pull request instead of holding an absolute no-merge rule. 3 of 12
+    # body units and scenario bullets are uncarried, all for the one reason:
+    # the body sentence "MUST NOT dispose of it: it SHALL NOT merge, SHALL NOT
+    # approve, SHALL NOT push…" and the THEN/AND bullets of *The lane opens a
+    # pull request and stops there* are each narrowed by the same clause —
+    # disposal stays forbidden, arming is newly admitted. This arm cannot
+    # distinguish a ratified narrowing from drift and does not claim to; the
+    # finding is INFO. Retires when this packet archives and its block is
+    # promoted.
+    ("amend-mirror-floor-regeneration-merge-authority",
+     "review-lane-floor-mirror",
+     "An automated pin advance only ever proposes"),
+    # `relocate-review-authority-floor-mirror` (PR #817, ratified 2026-09-08,
+    # landed at `c98a0544`, the openxFactory half of a cross-repository
+    # relocation ruled the same day) REWROTE *The automated advance re-copies
+    # the vendored snapshot and recomputes its witnesses from the bytes it
+    # wrote* so the lane resolves the authoritative document through an
+    # ORDERED candidate-path list rather than one fixed path, for a governed
+    # relocation neither repository can land atomically. 2 of 13 body units
+    # and scenario bullets were uncarried, both bullets of *A missing copy
+    # refuses the whole advance*: the WHEN gained "from any declared
+    # candidate path" and the AND gained "and the refusal names every path it
+    # tried" — the THEN bullet ("the lane refuses and opens no pull request")
+    # was carried verbatim. This arm could not distinguish a ratified
+    # rewording from drift and did not claim to; the finding was INFO.
+    #
+    # THE STATED RETIREMENT CONDITION WAS "when this packet archives and its
+    # block is promoted", AND BOTH HALVES WERE VERIFIED BEFORE THE ROW WAS
+    # DELETED, not after. The packet archived to
+    # `openspec/changes/archive/2026-09-10-relocate-review-authority-floor-
+    # mirror/` (openxFactory PR #925), and its block WAS promoted
+    # BYTE-IDENTICALLY: canon's "The automated advance re-copies the vendored
+    # snapshot and recomputes its witnesses from the bytes it wrote" now
+    # equals the delta body under
+    # `sha256:43cc7a7e5152f883f2a8285382a2af6b003c7796817f31e73d7285b4976bfd2f`
+    # (6680 bytes both sides, all eight scenario titles in order), so the two
+    # units the finding named as uncarried are carried by construction
+    # rather than by argument. The family reads no archived path by
+    # construction, so no finding can name either path this packet ever had
+    # — measured, not assumed: a `--family modified-block-currency` run over
+    # this tree after the act returns ZERO lines mentioning the change id,
+    # at any path.
+    # ADDED 2026-09-11 BY `rule-inherited-unit-naming-marker-spent`
+    # (openxFactory PR #962, issue #955), AND IT IS THE FIRST ROW THIS LEDGER
+    # HAS CARRIED FOR A BASIS THE CHECKER CANNOT YET USE rather than for a
+    # block that dropped something. The packet is an ORDERED DELTA: its
+    # `## MODIFIED` block over *Currency of an active change's MODIFIED
+    # requirement blocks* is written over the OUTCOME of its declared parent
+    # `amend-merged-into-empty-tail-standing` (openxFactory PR #947, ratified,
+    # still OPEN at the time of writing), not over the promoted text that
+    # parent replaces — which is what `release-realization`'s ordered-delta
+    # rule obliges and what `proposal.md`'s `sequenced_after:` declares.
+    #
+    # WHY THE ROW EXISTS ANYWAY, MEASURED RATHER THAN ARGUED. `_arm_ordering`
+    # applies the basis override only where a group holds at least TWO ACTIVE
+    # RATIFIED writers (`ratified = [b for b in group if b.standing ==
+    # _RATIFIED]; if len(ratified) < 2`). This packet is `Status: draft` and
+    # its parent is not on `main` at all, so the group holds ONE writer, no
+    # override is applied, and the block is measured against CANON. Against
+    # canon exactly ONE of 144 body units and scenario bullets is uncarried:
+    # the body sentence "THE FIFTH GROUND SHALL BE READ ON THE `Removed from
+    # canon` FORM ALONE: the pairing form names no units by construction, its
+    # whole tail being a reason…" — WHICH IS THE SENTENCE THE PARENT'S OWN
+    # RATIFIED BLOCK RETIRES. Against the PARENT'S OUTCOME, which is the basis
+    # `release-realization` names, the same block reads 0 uncarried, 0
+    # uncarried-and-unsuppressed and 0 marker defects, through the family's own
+    # `derive_units`, `carried()` and `suppression()`.
+    #
+    # SO THIS IS NOT A LOSSY CARRIAGE AND THE ARM IS NOT WRONG: the arm cannot
+    # distinguish a block written over a not-yet-promoted parent from a block
+    # that dropped a sentence, and does not claim to; the finding is INFO and
+    # carries no gate.
+    #
+    # RETIRES ON EITHER OF TWO EXPECTED EVENTS, WHICHEVER COMES FIRST — AND THE
+    # FIRST OF THEM TAKES TWO THINGS AND NOT ONE, WHICH IS STATED EXACTLY
+    # BECAUSE THE OBVIOUS READING IS WRONG. (a) BOTH WRITERS ACTIVE AND
+    # RATIFIED IN THE CHECKED-OUT CORPUS: `_arm_ordering` returns NO basis
+    # override where `len(ratified) < 2` (see the lines quoted above), so
+    # RATIFYING THIS PACKET ALONE, WHILE THE PARENT IS STILL OFF `main`, LEAVES
+    # THIS ROW EXACTLY WHERE IT IS — the group would still hold one ratified
+    # writer. The parent must be in the active corpus AND this packet ratified;
+    # the order between them does not matter, the second of the two clears it.
+    # (b) The PARENT ARCHIVING, which needs nothing of this packet at all:
+    # canon becomes the parent's outcome and the sentence is gone from the
+    # basis. Since the parent (#947) lands before it archives, the practical
+    # sequence is #947 lands -> this branch merges main -> (a) on ratification
+    # or (b) on the parent's archive, whichever comes first.
+    #
+    # It is named here rather than dispositioned because the set is compared
+    # with `==`: a row nobody names reds the required check for every other
+    # lane, and `health/dispositions.yaml` is read under `ctx.agg_root`, which
+    # is None on the `--single-repo` self-gate a pull request runs.
+    #
+    # REMOVED 2026-09-12 BY THE PARENT'S ARCHIVE — event (b) of the two stated
+    # above, which needs nothing of this packet at all. `amend-merged-into-
+    # empty-tail-standing` archived to `openspec/changes/archive/2026-09-11-
+    # amend-merged-into-empty-tail-standing/` (openxFactory PR #973, merged
+    # 2026-09-11T18:24:42Z, archiving PR #947's landed content at `87fd33d6`),
+    # so canon became the parent's outcome and the one sentence this block was
+    # measured against stopped being uncarried; event (a) (this packet
+    # ratified while the parent held one active-ratified writer) was never
+    # reached and was not needed.
+    #
+    # VERIFIED BEFORE THE ROW WAS DELETED, not after. At the freeze
+    # (`51edde81`, issuecomment-5636697848, 2026-09-11T15:23:45Z) the family
+    # read TEN rows corpus-wide, this one among them, 0 marker defects against
+    # it specifically. After this branch merged `origin/main` (67b8011f,
+    # bringing PR #973's archive of the parent) and re-seeded the per-change
+    # sweep ledger, `--single-repo --family modified-block-currency` over this
+    # tree reads NINE, and a grep of the rendered report for this change id
+    # returns ZERO lines, at any path. The deleted row is the entire
+    # difference — the remaining nine rows are byte-for-byte the ones already
+    # named above, no other subject moved.
+    # ADDED 2026-09-12 BY `extend-prose-tagging-target-to-pinned-capabilities`
+    # (openxFactory #992, filing PR #994, lane `openxfactory-2`), the packet
+    # that extends the prose-tagging grammar with a target form for a
+    # capability which has LEFT this corpus and now lives in a pinned neutral
+    # product. A DELIBERATE EXTENSION, and the narrowest one the corpus
+    # admits: canon's requirement ENUMERATES WHAT THE FAMILY COVERS — "marker
+    # well-formedness, target and change-id resolution, candidate fence
+    # structure, the code-fence and inline-code example exclusion, the ban on
+    # doc-level candidacy status values, and supersedes `change=` aging" — and
+    # a packet that adds a SECOND declared target form cannot restate that
+    # sentence verbatim without falsifying its own delta. The 1 uncarried unit
+    # of 6 is exactly that sentence, and the block rewrites exactly one clause
+    # of it: "target and change-id resolution" becomes "target and change-id
+    # resolution IN BOTH DECLARED TARGET FORMS — the in-tree capability form
+    # and the pinned form `pinned:<pin-id>/<capability>`". Every other item of
+    # the list is carried in canon's own order and wording, and the other five
+    # promoted units — both of canon's scenarios among them — are carried
+    # verbatim. This arm cannot distinguish a ratified extension from drift
+    # and does not claim to; the finding is INFO and it is the audit trail for
+    # the extension. Retires when the packet archives on merged-plus-green
+    # realization evidence (its `code_surface` is non-empty) and its block is
+    # promoted.
+    ("extend-prose-tagging-target-to-pinned-capabilities", "doc-health",
+     "Tag hygiene enforced by reference"),
+    # AND ITS SIBLING BLOCK, ADDED IN THE SAME FIX ROUND AND FOR A REASON THAT
+    # IS NOT THE FIRST ROW'S. The same packet's `## MODIFIED` block on
+    # `document-lifecycle`'s *Prose tagging marker hygiene* opened NO row when
+    # the packet was first pushed: it carried every unit canon states and only
+    # ADDED beside them. It opened one when the review of `74e25f2d` found a
+    # CONTRADICTION INSIDE THE BLOCK — canon's scenario *A marker target does
+    # not resolve* reports any target that "does not exist under
+    # `openspec/specs/`", which every well-formed PINNED target satisfies, so
+    # carried verbatim it would have required a finding on exactly the markers
+    # the packet's own pinned-success scenario requires to resolve. The single
+    # uncarried unit of 10 is that scenario's `WHEN` bullet, and the block
+    # restates it to say IN-TREE explicitly, adding an `AND` bullet that sends
+    # a `pinned:`-prefixed target to the pinned scenarios instead. THE
+    # SCENARIO TITLE IS UNCHANGED AND DELIBERATELY SO: retitling it would have
+    # been a scenario-title-arm finding in the `error` band — the arm carrying
+    # this family's gate — and a retitle is declared with a `Merged into`
+    # marker, which is a different act from the narrowing this is. Every other
+    # unit of the requirement, the other three scenario titles among them, is
+    # carried. The finding is INFO and it is the audit trail for a narrowing
+    # that removes an internal contradiction rather than for drift. Retires on
+    # the same condition as the row above.
+    ("extend-prose-tagging-target-to-pinned-capabilities",
+     "document-lifecycle", "Prose tagging marker hygiene"),
+    # ADDED 2026-09-12 BY `repoint-chain-anchoring-medxchain-citation`
+    # (openxFactory issue #791) — THREE ROWS, one per MODIFIED requirement,
+    # because the packet repoints four dead MedxChain-notes citations across
+    # three requirements of promoted `chain-anchoring` canon after PR #785
+    # (merged 2026-09-08) moved the source note out to
+    # `MedxSoft/MedxFactory@74bed502`. Each row's uncarried units are exactly
+    # the stale "the source is not in the tree yet / vendored by pull request
+    # #509, IN FLIGHT" sentences the repoint replaces with the verified
+    # destination, cited as historical provenance only — a deliberate
+    # provenance-text rewording, not a lossy carriage: no SHALL/SHALL NOT
+    # obligation, scenario, or requirement title changes anywhere in the
+    # block. Retires when the packet archives and its three blocks are
+    # promoted onto `openspec/specs/chain-anchoring/spec.md` (tasks.md 1.2).
+    ("repoint-chain-anchoring-medxchain-citation", "chain-anchoring",
+     "Served verification and access decisions are logged leaves"),
+    ("repoint-chain-anchoring-medxchain-citation", "chain-anchoring",
+     "The record and demographic planes are analyzable without the "
+     "identity plane"),
+    ("repoint-chain-anchoring-medxchain-citation", "chain-anchoring",
+     "This capability is neutral and names no domain semantics"),
+    # ADDED 2026-09-13 BY `add-target-release-deferred-allocation`
+    # (openxFactory PR #1022, lane `hermes-wallet-exercise`), the packet that
+    # admits the THIRD `target_release:` value — the successor question
+    # `gate-realization-axis-vocabulary` D1 declined as its "OPTION 2" and its
+    # `tasks.md` § 6.1 named for a later packet by name. TWO ROWS FROM ONE
+    # PACKET, one per MODIFIED requirement, because promoted canon STATES THE
+    # VOCABULARY TWICE — once as the author's declaration rule and once as the
+    # gate's refusal rule — and a widening written into only one of the two
+    # would leave canon enumerating two values in one place and three in the
+    # other.
+    #
+    # A DELIBERATE WIDENING, and the narrowest one the corpus admits: BOTH
+    # uncarried units are THE SAME TWO-VALUE ENUMERATION SENTENCE, which the
+    # new value falsifies the moment it exists. In *Realization axis
+    # declaration* the 1 uncarried unit of 6 is the `SHALL declare` sentence,
+    # whose "`implemented` (the affected repositories' main lines) or a named
+    # release defined in the aggregation repository" becomes the same pair
+    # followed by "or `deferred-allocation`" and the clause that defines it. In
+    # *Realization axis vocabulary is gated* the 1 uncarried unit of 51 is the
+    # `SHALL carry a value the ratified vocabulary admits` sentence, widened in
+    # the same three-item shape and in the same order. Every other promoted
+    # unit of both requirements — the doc-only default, the TOKEN-not-GLOSS
+    # paragraph, the register paragraphs, and every scenario of each — is
+    # carried. This arm cannot distinguish a ratified widening from drift and
+    # does not claim to; the finding is INFO and it is the audit trail for the
+    # widening. Retires when the packet archives on merged-plus-green
+    # realization evidence (its `code_surface` is non-empty) and its two blocks
+    # are promoted onto `openspec/specs/release-realization/spec.md`.
+    #
+    # THE UNIT COUNTS ABOVE ARE THIS FILE'S CONTEXT, `--single-repo`, AND THE
+    # DECLARATION ROW READS DIFFERENTLY IN THE AGGREGATION ONE — said here
+    # because the next editor who re-measures from the other side will otherwise
+    # read a contradiction. This packet is the SECOND active writer of
+    # *Realization axis declaration*, behind `add-structured-scope-substrate`,
+    # so the arm compares its block against THAT SIBLING'S BLOCK rather than
+    # against promoted canon wherever the sibling resolves, and the finding then
+    # reads `1 of 10` against
+    # `openspec/changes/add-structured-scope-substrate/specs/release-realization/spec.md`
+    # instead of `1 of 6` against canon. The SUBJECT TRIPLE is the same either
+    # way, which is why one row covers both readings; the uncarried unit is the
+    # same two-value sentence in both. That second reading is the real tree's
+    # FIRST two-writer carriage finding, and it is what falsified the
+    # promoted-path assumption in
+    # `test_modified_block_currency_reporting.py::test_the_drift_grain_is_one_finding_per_arm_template`
+    # (fixed in the same pull request, by reading the template's own
+    # `{spec_rel}` slot instead of guessing an `openspec/specs/` prefix).
+    ("add-target-release-deferred-allocation", "release-realization",
+     "Realization axis declaration"),
+    ("add-target-release-deferred-allocation", "release-realization",
+     "Realization axis vocabulary is gated"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1081,7 +1332,14 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
-    """PACKET § 4.1's editorial arm, as an EXACT SET of ten named subjects.
+    """PACKET § 4.1's editorial arm, as an EXACT SET of named subjects — nine
+    at 2026-09-11, twelve since `repoint-chain-anchoring-medxchain-citation`
+    added three rows on 2026-09-12 (Copilot review, PR #998), fourteen
+    since `extend-prose-tagging-target-to-pinned-capabilities` added two more
+    the same day (openxFactory #992, filing PR #994), and SIXTEEN since
+    `add-target-release-deferred-allocation` added two on 2026-09-13 (PR
+    #1022) — one per promoted requirement that states the `target_release:`
+    vocabulary, both widened by the third value that packet admits.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1127,7 +1385,65 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "line of the promoted corpus that stated a real identity as a "
         "normative example, and the one row in this ledger that CANNOT be "
         "retired by the reserved marker, because the marker names the retired "
-        "unit by its exact text and that text is the value being removed)",
+        "unit by its exact text and that text is the value being removed; "
+        "11 SINCE 2026-09-10, when THIS repository's own archive act (PR #894) "
+        "promoted `review-lane-floor-mirror` into canon and made two SIBLING "
+        "packets' MODIFIED blocks — amend-mirror-floor-regeneration-merge-"
+        "authority's and relocate-review-authority-floor-mirror's, neither "
+        "edited that day — comparable against canon for the first time rather "
+        "than against nothing, opening both their rows at once; 10 LATER THE "
+        "SAME DAY, when relocate-review-authority-floor-mirror itself "
+        "archived (PR #925) on its own merged-plus-green realization "
+        "evidence and its MODIFIED block promoted byte-identically, "
+        "retiring the row PR #894 had just opened for it — the sibling row "
+        "(amend-mirror-floor-regeneration-merge-authority's) stays open, "
+        "that packet still active and unarchived; 9 SINCE 2026-09-11, when "
+        "the public-flip redaction took adopt-configured-notebook-hosting-"
+        "identity's reworded bullet out of its own MODIFIED block and INTO "
+        "canon ahead of the archive act, on Brett Heap's word after "
+        "openxFactory went public at 2026-09-09T21:58:08Z with the address "
+        "still on the promoted line — the first row here retired by canon "
+        "moving to the block rather than by the block being promoted, the "
+        "packet still active and unarchived; 10 SINCE 2026-09-11, when "
+        "rule-inherited-unit-naming-marker-spent opened ONE row over this "
+        "very requirement — an ORDERED DELTA whose block is written over its "
+        "declared parent amend-merged-into-empty-tail-standing's outcome, "
+        "which `_arm_ordering` cannot yet use as the basis because the packet "
+        "is draft and its parent is not on main, so the one sentence the "
+        "parent retires reads as uncarried against canon; the first row here "
+        "opened by a BASIS the checker cannot yet apply rather than by a "
+        "block that dropped something; it retires on the parent's archive, or "
+        "on that packet's ratification ONCE THE PARENT IS IN THE ACTIVE CORPUS "
+        "- ratification alone does not clear it, the override needing TWO "
+        "active ratified writers; 9 SINCE 2026-09-12, when this row retired "
+        "on the parent's archive (event (b)) — amend-merged-into-empty-tail-"
+        "standing archived to openspec/changes/archive/2026-09-11-amend-"
+        "merged-into-empty-tail-standing/ (PR #973, merged "
+        "2026-09-11T18:24:42Z), so canon became the parent's outcome and the "
+        "sentence this block was measured against stopped being uncarried; "
+        "event (a) was never reached, this packet still being pre-"
+        "ratification at the merge that carried PR #973 in; "
+        "12 SINCE 2026-09-12, when "
+        "`repoint-chain-anchoring-medxchain-citation` (openxFactory issue "
+        "#791) opened THREE rows at once, one per MODIFIED requirement its "
+        "chain-anchoring citation repoint touches — expected editorial "
+        "drift over a provenance-text-only amendment, not a regression; "
+        "retires when the packet archives and its three blocks are "
+        "promoted; 13 THE SAME DAY, when "
+        "extend-prose-tagging-target-to-pinned-capabilities was filed "
+        "(openxFactory #992, PR #994) and its doc-health block rewrote the "
+        "one clause of canon's coverage enumeration that a SECOND declared "
+        "target form falsifies — the first row here opened by a delta that "
+        "EXTENDS an enumeration rather than narrowing, generalizing or "
+        "amending a rule; 14 within the same pull request, when the review of "
+        "74e25f2d found that carrying canon's *A marker target does not "
+        "resolve* scenario VERBATIM would have required a finding on every "
+        "well-formed pinned target, and the same packet's document-lifecycle "
+        "block narrowed that one WHEN bullet to say IN-TREE — two rows from "
+        "one packet, opened five minutes apart and for different reasons, the "
+        "second of them the only row in this ledger opened by a block "
+        "REMOVING A CONTRADICTION WITH ITSELF rather than by restating canon "
+        "in new terms)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

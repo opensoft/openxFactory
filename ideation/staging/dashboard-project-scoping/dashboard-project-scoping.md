@@ -261,6 +261,14 @@ not a UI change.
   in one pass. `create-project` keeps its single-flight guard: a project is
   created once.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions — resolved 2026-08-06
 
 - Q1 (all-repos view shape) — RESOLVED by D1: true merged view, staged behind

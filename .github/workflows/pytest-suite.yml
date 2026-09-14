@@ -98,9 +98,12 @@
 # CI is expected, not a regression. MEASURED 2026-08-27 on this suite: 18 in a
 # developer worktree, 21 on a runner (a three-skip difference; it was two before
 # `024-root-governed-repo-recognition` added the LedgerxFactory fixture-drift
-# guard, which resolves and RUNS in a worktree beside `xFactories/`). The exact
-# runner number is pinned in `EXPECT_SKIPPED` below, where the reason for each
-# move is recorded.
+# guard, which resolves and RUNS in a worktree beside `xFactories/`). SINCE THE
+# § 5.2 SHED (2026-09-11) the runner number is 6, because one of the two files
+# that carried those guard strings — `tests/ideation-dashboard/
+# test_session_harness.py` — is one of the 111 test files the shed moved to the
+# legs; the other stays and still skips. The exact runner number is pinned in
+# `EXPECT_SKIPPED` below, where the reason for each move is recorded.
 #
 # WHY THE LOCK, NOT AN AD-HOC PIP LIST. `requirements/hermes-runtime-contracts.lock`
 # is the ratified validator-input source: `specs/005-customer-subject-runtime/
@@ -293,50 +296,133 @@ jobs:
       run:
         working-directory: openxFactory
     env:
-      # See `openxwallet-consumer-gate.yml` for why this is a guard and not an
-      # unconditional mint: `doc-health-reusable.yml:125`'s house pattern.
+      # RETAINED, AND IT NOW GUARDS EXACTLY ONE MINT — read this before deleting
+      # it. Until 2026-09-11 this line covered TWO `create-github-app-token`
+      # steps in this job: the gitlink mint below, RETIRED (runbook 7.6,
+      # codexFactory issue #279) because `openXwallet`, `openXdox` and `openDox`
+      # are all PUBLIC; and the decision-core mint far below, which reads
+      # `codeXfactory/codexFactory` and is NOT retirable because that repository
+      # is private and stays private. Only the second survives, and it still
+      # tests this env.
+      #
+      # SO THIS LINE COULD NOT GO WITH THE FIRST MINT, and the failure would have
+      # been quiet: `if: env.HAS_APP_KEY == 'true'` over an UNDEFINED env is
+      # `'' == 'true'`, always false. The decision-core mint would silently skip,
+      # the snapshot freshness verifier would silently skip with it, and the job
+      # would then go red on the `EXPECT_SKIPPED` pin for a cause nobody could
+      # read off the diff. (The 7.6 enumeration of 2026-09-11T02:25Z listed this
+      # line as MOOT for that reason; it is not, and the retirable count for this
+      # repository is 11 rather than 12.)
+      #
+      # The guard itself is `doc-health-reusable.yml:125`'s house pattern: an
+      # absent App key SKIPS the mint rather than erroring on an empty app-id.
       HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
     steps:
-      # THE NESTED GITLINK. `tests/trust-anchor/` reads the openxWallet custody
-      # registry through `openXwallet/`, which is a SECOND, PRIVATE org
-      # repository: `github.token` is scoped to this repository alone and cannot
-      # clone it. The house pattern of `doc-health-reusable.yml` (prepare job:
+      # THE NESTED GITLINKS, AND NO MINT FOR THEM ANY MORE. `tests/trust-anchor/`
+      # reads the openxWallet custody registry through `openXwallet/`, and
+      # `tests/openxdox_pin/` and `tests/opendox_pin/` read `openXdox/` and
+      # `openDox/`. Until 2026-09-11 a `Mint openxFactory app token` step stood
+      # here — this repository's own content App, because the org secret
+      # `XFACTORY_APP_ID` is visibility-`selected` and openxFactory is not among
+      # its repositories — for ONE reason: openXwallet was a SECOND, PRIVATE org
+      # repository, and `github.token` is scoped to this repository alone.
+      # ALL THREE GITLINKS ARE NOW PUBLIC (`openXwallet` flipped
+      # 2026-09-07T15:24:11Z; `openXdox` and `openDox` likewise, all three
+      # re-measured `visibility: public` on 2026-09-11), so the mint was retired:
+      # runbook 7.6, codexFactory issue #279. NO SECRET WAS DELETED.
+      #
+      # THE URL REWRITE IS KEPT, and it is the half that was never about
+      # privacy. The house pattern of `doc-health-reusable.yml` (prepare job:
       # `Mint xFactory app token` → `Rewrite ssh submodule URLs for token auth`
-      # → `Init governed submodules only`) is therefore used — mint an App
-      # token, rewrite the SSH URL with `insteadOf` BEFORE checkout, then init
-      # the one gitlink by name. The secret names are
-      # this repository's own content App (App 4253636, installation 145372182,
-      # `repository_selection: all`), because the org secret `XFACTORY_APP_ID`
-      # is visibility-`selected` and openxFactory is not among its repositories.
+      # → `Init governed submodules only`) is now used WITHOUT its first step:
+      # `.gitmodules` spells every gitlink `git@github.com:` so that a human
+      # clone uses the operator's key rather than prompting, a runner has no such
+      # key, and the `insteadOf` is what makes those URLs fetchable over HTTPS at
+      # all. The rewritten URL now carries plain `github.token` — exactly what
+      # the retired `||` expression already fell back to whenever the App key was
+      # absent.
+      #
+      # THE SECOND MINT, FAR BELOW, IS UNTOUCHED AND UNRETIRABLE: it reads
+      # `codeXfactory/codexFactory` at the pinned decision core, which is PRIVATE
+      # and stays private. It is also why the job-level `HAS_APP_KEY` guard above
+      # survives this retirement.
       #
       # `submodules: true` on the checkout is NOT the fix and is deliberately
-      # absent: without the URL rewrite it cannot authenticate at all, and with
-      # it, it would additionally fetch `installs/omnigent-install`, which no
-      # test here reads. `--recursive` is rejected one level down for the same
-      # reason.
-      - name: Mint openxFactory app token
-        id: app-token
-        if: env.HAS_APP_KEY == 'true'
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
-          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
+      # absent: without the URL rewrite it cannot resolve the SSH form at all,
+      # and with it, it would additionally fetch `installs/omnigent-install`,
+      # which no test here reads. `--recursive` is rejected one level down for
+      # the same reason.
       - name: Rewrite ssh submodule URLs for token auth
         working-directory: .
         run: |
           git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
         env:
-          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          TOKEN: ${{ github.token }}
 
       - uses: actions/checkout@v4
         with:
           path: openxFactory
           fetch-depth: 0
 
-      - name: Init the openXwallet gitlink only
-        run: git submodule update --init openXwallet
+      # THREE GITLINKS BY NAME, AND STILL NOT `submodules: true`. `openDox`
+      # joins `openXwallet` and `openXdox` here (RULED Q7, `#656` comment
+      # `5626248666`, 2026-09-10; PR #932) because `tests/opendox_pin/`
+      # adjudicates its own positive case against the REAL checkout, exactly
+      # as `tests/openxdox_pin/` already does for openXdox — it recomputes the
+      # shipped `sorted-ls-tree-r-v1` digest over the pinned tree with a second
+      # implementation, which is the assertion that makes the pin a measured
+      # fact rather than a self-consistent one — and a suite that cannot see
+      # the submodule cannot make it. `openDox`'s presence ALSO lets
+      # `tests/opendox_pin/`'s fifth (LOCKSTEP) check run for real: it reads
+      # openXdox's own derived pin as a git blob out of the already-mounted
+      # `openXdox/` submodule's object store, so both gitlinks have to be
+      # initialized for that positive case to be reachable rather than
+      # `pin-unreadable`. The alternative was to weaken those cases to a
+      # `pytest.skip`, which this gate's own design rejects: a skip reports as
+      # a green bar, indistinguishable from a pass, and `EXPECT_SKIPPED` below
+      # is pinned as an exact SUM for that reason.
+      #
+      # THIS IS NOT THE TASK 5.3 CONSUMER GATE. Materializing a submodule so
+      # the test suite can read it is a different act from wiring
+      # `scripts/verify-openxdox-pin.py` or `scripts/verify-opendox-pin.py` as
+      # its own required check; that gate is Phase 5's, is unwritten, and
+      # stays named as owed.
+      #
+      # `installs/omnigent-install` still stays out — no test here reads it.
+      #
+      # `--recursive` WAS REJECTED ONE LEVEL DOWN AND IS NOW REQUIRED, and the
+      # sentence it replaces is kept here because the reason it changed is the
+      # whole point. That sentence read: "neither product's own `code`/`spec`
+      # legs are fetched: `ls-tree -r` reads a nested gitlink as an opaque
+      # `160000` record, so the whole-tree digest needs no leg materialized to
+      # be correct … `openDox/code` in particular is NOT needed for anything
+      # in this pull request — the adapter re-point that reaches into it is a
+      # BUILD-arc PR-2 job (RULED Q7), not this one's." Both halves were true
+      # of #932. THIS IS THAT PR-2. The § 5.2 shed removed 319 declared paths
+      # from this repository and 36 files that STAY read 38 of those modules
+      # from `openDox/code/src` and `openXdox/code/src` through
+      # `scripts/carved_reach.py`. A non-recursive init leaves both `code`
+      # legs EMPTY on the runner, `carved_reach.install()` refuses by name,
+      # and every one of those files fails at import. The pin digests are
+      # unaffected either way — `ls-tree -r` still reads the nested gitlinks
+      # as opaque `160000` records, so `tests/opendox_pin/` and
+      # `tests/openxdox_pin/` measure exactly what they measured before.
+      # Recursion only ADDS trees; it changes no assertion that already ran.
+      #
+      # AND IT SUBSUMES #934's SECOND STEP RATHER THAN SITTING BESIDE IT.
+      # `#934` (RULED OQ-Q, `#872`) added a separate `git -C openDox
+      # submodule update --init code` because openxFactory's own executable
+      # corpus-adapter readers import the pinned
+      # `openDox/code/src/opendox/corpus_adapter.py`, and a one-level init
+      # leaves that file off the runner. That reason is unchanged and is now
+      # one instance of the general case above: `--recursive openDox` puts
+      # the same leg on disk, so a second scoped init would only repeat it.
+      # `openXdox/code` joins it for the first time here, which is why the
+      # recursion covers BOTH names and not just `openDox`.
+      - name: Init the openXwallet, openXdox and openDox gitlinks (openDox and openXdox RECURSIVELY — § 5.2 reads their code legs)
+        run: |
+          git submodule update --init openXwallet
+          git submodule update --init --recursive openXdox openDox
 
       # THE PINNED DECISION CORE, FETCHED SO A REQUIRED CHECK CAN VERIFY A
       # VENDORED COPY — CSC-C6's required-check home, ruled BOTH-LAYERED at the
@@ -378,10 +464,12 @@ jobs:
       # keeps its own separate job — the general skip discipline, "a directory
       # that silently turned into skips".
       #
-      # THE CREDENTIAL IS THE ONE ALREADY MINTED ABOVE, and it is proven: on PR
+      # THE CREDENTIAL IS THE ONE MINTED JUST BELOW, and it is proven: on PR
       # #550, `merge-master-approval` checked out this same repository at this
       # same commit with these same App secrets, in one second, while
-      # `pytest-suite` minted the same token one job over.
+      # `pytest-suite` minted the same token one job over. (It read "the one
+      # already minted above" until 2026-09-11, when the gitlink mint above was
+      # retired; the decision-core mint below is now the job's only one.)
       #
       # `path:` IS BESIDE THIS REPOSITORY'S TREE, never inside it. A foreign
       # checkout under `openxFactory/` would be visible to every test that scans
@@ -406,10 +494,15 @@ jobs:
       # exemption could never hide in one of its comments. The circumlocution
       # is the guard working, not an oversight.
       #
-      # THE `app-token` STEP ABOVE IS DELIBERATELY UNCHANGED: the URL rewrite
-      # beneath it authenticates the `opensoft/openXwallet` gitlink
-      # (`contracts/openxwallet-pin.yaml`), which did not move. Two targets in
-      # two organizations need two tokens; one token cannot be both.
+      # THERE IS NO LONGER AN `app-token` STEP ABOVE, AND THAT DOES NOT REACH
+      # THIS MINT. Until 2026-09-11 this comment read "the `app-token` step above
+      # is deliberately unchanged", because two targets in two organizations
+      # needed two tokens and one token cannot be both. The first target —
+      # the `opensoft/openXwallet` gitlink (`contracts/openxwallet-pin.yaml`),
+      # which did not move — now needs no token at all, so its mint went and this
+      # one stayed. The rule the sentence was protecting is unchanged: a
+      # `github.repository_owner`-scoped token could never have read the
+      # decision core in `codeXfactory`, however Phase 1 went.
       #
       # `repositories:` narrows this one to the single repository it reads,
       # rather than to every repository the App holds on `codeXfactory`.
@@ -434,7 +527,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: codeXfactory/codexFactory
-          ref: "b594ef2ad86ebdefffc497c571c8a84044f6ec10"
+          ref: "1f131a236ceea9cfc17d88d7ecbfee516d0aabfe"
           path: .merge-master-core
           persist-credentials: false
           # The codeXfactory-scoped token, NOT `app-token`: see the mint above.
@@ -539,9 +632,46 @@ jobs:
           # message. Measured at run 33111235491 (PR #431, 2026-08-27), the
           # LOWER of the two runs, so the floor is a number this suite has
           # actually met rather than the high-water mark of one run.
-          MIN_SELECTED: "7090"
-          MIN_PASSED: "7070"
-          # EXACT — the anti-vacuity pin. 21 on a runner. A developer worktree
+          #
+          # THE ONE LOWERING, AND WHY IT IS NOT THE THING THE FLOOR GUARDS
+          # AGAINST (§ 5.2 SHED, RULED (a) `#656` comment `5625573095`). The
+          # shed removed 319 declared paths from this repository, and 111 of
+          # them are `test_*.py` files — 71 to openXdox-code, 40 to
+          # openDox-code — that now run in THOSE repositories' own suites at
+          # the commits this one pins. So the tests did not stop being
+          # collected, which is the failure this floor exists to catch; they
+          # stopped being THIS suite's tests, by a declared act whose every
+          # path is a manifest row (`docs/opendox-carve-manifest.yaml`,
+          # `scripts/validate-carve-manifest.py` re-derives the 319).
+          # `git diff --name-only origin/main...HEAD` carries no test deletion
+          # that is not one of those rows, which is the check a reader should
+          # redo rather than take on trust.
+          #
+          # RE-MEASURED, not estimated, and TWICE (§ 5.2 shed PR #940,
+          # 2026-09-11). Run 34607968174 printed `selected=7053 passed=7047
+          # skipped=6` over `6876 passed, 6 skipped, 338 deselected, 171
+          # subtests passed`; run 34610094133 printed `selected=7054
+          # passed=7048 skipped=6` over the SAME `6876 passed, 6 skipped` with
+          # 172 subtests. Both green, both zero failures and zero errors.
+          #
+          # THE THREE-TEST GAP IS THE SUBTEST EMITTER, AND IT IS WHY THESE
+          # FLOORS SIT BELOW THE MEASUREMENT RATHER THAN ON IT. `pytest-subtests`
+          # emits a `<testcase>` per SUBTEST, and that count moves run to run on
+          # the same tree (170, 171 and 172 across three runs of this branch;
+          # 181 on `main`), so the JUnit `tests` attribute moves with it while
+          # the test count — `6876 passed, 6 skipped` — does not. A floor cut ON
+          # the high-water mark would red on a run that emitted one subtest
+          # fewer, for no change to the suite at all, and a required check that
+          # reds at random teaches a reader to ignore it. So the floor sits
+          # three below the lower of the two greens, which is a number this
+          # suite has met with room for exactly the jitter that has been
+          # measured — and still names the collection loss it exists for: a
+          # moved directory is hundreds of tests, never three. They may only
+          # rise from here.
+          MIN_SELECTED: "7050"
+          MIN_PASSED: "7044"
+          # EXACT — the anti-vacuity pin. 6 on a runner since the § 5.2 shed
+          # (21 before it; the move is recorded below). A developer worktree
           # inside the aggregation checkout measures a DIFFERENT number, because
           # the self-skip guards ("no sibling openxFactory checkout", "no
           # aggregation checkout reachable from this tree", "no sibling
@@ -610,25 +740,46 @@ jobs:
           #   * BEFORE the transfer completes (Phase 1, step 1.6 INCLUDED),
           #     the mint and the checkout both fail, `locate_pinned_core()`
           #     stands both watched tests down, and this job reports
-          #     `skipped=23` against the pinned 21 with `TheFreshnessVerifier`
+          #     TWO skips above the pin — `skipped=23` against 21 when that
+          #     entry was written, `skipped=8` against the 6 pinned since the
+          #     § 5.2 shed — with `TheFreshnessVerifier`
           #     and `TheVectorReplay` both `skipped`. **That red is by design
           #     and it is the only red this branch is allowed to carry.** It is
           #     also why the pull request realizing this change is a DRAFT that
           #     no green can clear early.
           #   * AFTER 1.6, the mint resolves, the checkout succeeds, both
-          #     watched tests RUN, and the job reports `skipped=21` with both
+          #     watched tests RUN, and the job reports the pinned number
+          #     exactly (21 when this entry was written, 6 since the § 5.2
+          #     shed) with both
           #     named verdicts `passed`. **That reading is the merge-time proof
           #     for the branch, and the only one that counts** — a green on any
           #     other check says nothing about the cross-organization read,
           #     because no other check performs it.
           #
-          # A 23 SEEN AFTER THE TRANSFER IS NOT THIS ENTRY. It means the
+          # THE PIN-PLUS-TWO SEEN AFTER THE TRANSFER IS NOT THIS ENTRY. It means the
           # installation, the App's repository access, or the reusable-workflow
           # access policy is wrong, and the fix is that configuration — NEVER
-          # this pin and never a wider token. Moving the pin to 23 would
-          # convert exactly the failure this design exists to surface into the
-          # expected state, permanently.
-          EXPECT_SKIPPED: "21"
+          # this pin and never a wider token. Moving the pin UP BY THOSE TWO
+          # would convert exactly the failure this design exists to surface
+          # into the expected state, permanently.
+          #
+          # MOVED 21 -> 6 BY THE § 5.2 SHED, WITH THE REASON, WHICH IS WHAT
+          # THIS PIN ASKS FOR. Of the 21 skips a runner measured on `main`, 15
+          # lived in the 111 `test_*.py` files the shed moved to the two legs
+          # and left this repository with them — including the "no aggregation
+          # checkout reachable from this tree" guard in
+          # `tests/ideation-dashboard/test_session_harness.py`, one of the two
+          # files that carried the guard strings named above. The other,
+          # `tests/domain_pin_setter/test_set_domain_openxfactory_pin.py`
+          # ("no sibling LedgerxFactory checkout reachable from this tree"),
+          # STAYS and still skips, which is why the number falls rather than
+          # going to zero. Nothing turned into a skip: run 34607968174 measured
+          # `skipped=6` with `failures=0 errors=0` and both named verdicts
+          # `passed`, and the shed's OWN 27 conditional skips — the validator
+          # and corpus readers that pointed at moved files between `dd0f307a`
+          # and `20cfd0b9` — were re-pointed at the pinned legs rather than
+          # left standing down, which is the move this pin exists to force.
+          EXPECT_SKIPPED: "6"
           # THE NAMED VERDICT — the freshness verifier watched as itself rather
           # than as one unit of an aggregate it can hide inside.
           #

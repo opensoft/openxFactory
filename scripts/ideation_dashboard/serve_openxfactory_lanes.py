@@ -46,6 +46,14 @@ _SCRIPTS_DIR = Path(__file__).resolve().parent.parent
 if str(_SCRIPTS_DIR) not in sys.path:  # plain-script parity with serve.py (D12)
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
+# § 5.2 SHED REACH (RULED (a) / RULED Q7, `#656`): the modules this file reads
+# from `opendox.*` / `openxdox.*` below left openxFactory at the carve and are
+# read from the two PINNED legs through the ONE resolver. See
+# `scripts/carved_reach.py`.
+from carved_reach import install as _install_carved_reach  # noqa: E402
+
+_install_carved_reach()
+
 import route_extension  # noqa: E402
 
 # The three fixed wire strings, at their own neutral home rather than through
@@ -59,14 +67,14 @@ from wire_messages import (  # noqa: E402
     JSON_OBJECT_BODY_REQUIRED,
 )
 
-from ideation_dashboard import snapshot_registry as registry_mod  # noqa: E402
+from openxdox import snapshot_registry as registry_mod  # noqa: E402
 # The hosted-plane ref confinement, at its own home rather than through the
 # wire module (openDox under design D3): this column is openxFactory's own
 # engineering adapter and STAYS, so the import it used to make is the edge
 # RULING OQ-2 forbids. `serve_projection` is openXdox, which is the allowed
 # direction and the one OQ-B B-3 already took for the sessions reach.
 # OQ-B re-plumb B-2, ruled on `#656` 2026-09-09 ("rule B-2 (i')").
-from ideation_dashboard.serve_projection import hosted_ref_refused  # noqa: E402
+from openxdox.serve_projection import hosted_ref_refused  # noqa: E402
 
 # add-ideation-intent-plane task 4.4 (Brett Heap's ruling D-1, openxFactory
 # #656): the COMMITTED half of the hosted intent feed — the applied/refused
@@ -133,7 +141,15 @@ class LaneRoutes:
                                   "message": "seed drafting is loopback-only"})
             return
         body = self._read_json_body()
-        if body is None:
+        if body is None or not isinstance(body, dict):
+            # `_read_json_body` collapses "no body", a bad Content-Length, and
+            # malformed JSON all into `None`; a valid-but-non-object body
+            # (list, string, number, bool) parses fine but must not reach
+            # `body.get(...)` below, which raised `AttributeError` in the
+            # request thread with no HTTP response at all (#768). Every one
+            # of those shapes gets the same clear 400 instead.
+            self._send_json(400, {"ok": False, "error": "invalid_body",
+                                  "message": JSON_OBJECT_BODY_REQUIRED})
             return
         project = str(body.get("project_id") or "").strip()
         if not project:
@@ -204,7 +220,15 @@ class LaneRoutes:
                                   "message": "seed drafting is loopback-only"})
             return
         body = self._read_json_body()
-        if body is None:
+        if body is None or not isinstance(body, dict):
+            # `_read_json_body` collapses "no body", a bad Content-Length, and
+            # malformed JSON all into `None`; a valid-but-non-object body
+            # (list, string, number, bool) parses fine but must not reach
+            # `body.get(...)` below, which raised `AttributeError` in the
+            # request thread with no HTTP response at all (#768). Every one
+            # of those shapes gets the same clear 400 instead.
+            self._send_json(400, {"ok": False, "error": "invalid_body",
+                                  "message": JSON_OBJECT_BODY_REQUIRED})
             return
         project = str(body.get("project_id") or "").strip()
         wanted = body.get("documents")
@@ -284,7 +308,7 @@ class LaneRoutes:
                                   "message": "applying register edits needs "
                                              "the human gate capability"})
             return
-        from ideation_dashboard.register_edit_lane import fulfil_once
+        from openxdox.register_edit_lane import fulfil_once
         try:
             report = fulfil_once(Path(self.checkout_root))
         except Exception as exc:  # noqa: BLE001 - a lane crash must answer, not hang

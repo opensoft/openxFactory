@@ -21,21 +21,33 @@
 # exactly `wallet-validation`, the literal token the ruleset pins; a distinct job
 # display name silently de-advises the gate.
 #
-# WHY AN APP TOKEN AND NOT `github.token`. `opensoft/openXwallet` is a SECOND,
-# PRIVATE org repository, and `github.token` is scoped to this repository alone.
-# `.gitmodules` deliberately keeps `git@github.com:` — openXwallet is private, so
-# an anonymous HTTPS clone fails and a token is needed either way, while an HTTPS
-# URL would make every human clone prompt for credentials instead of using the
-# operator's key. The house pattern (`doc-health-reusable.yml`, prepare job:
+# NO APP TOKEN, AND YET THE URL REWRITE IS STILL REQUIRED. Those are two facts,
+# and this header used to state them as one.
+#
+# UNTIL 2026-09-11 THIS GATE MINTED THE CONTENT APP
+# (`OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY`) before checkout,
+# because `opensoft/openXwallet` was a SECOND, PRIVATE org repository and
+# `github.token` is scoped to this repository alone. openXwallet HAS BEEN PUBLIC
+# SINCE 2026-09-07T15:24:11Z — its own flip, two days before openxFactory's — so
+# an anonymous HTTPS clone now succeeds, the reason is gone, and the mint was
+# retired: runbook 7.6, codexFactory issue #279. The sibling
+# `openreposhape-pin-gate.yml` had already written the rule down for a public
+# product: "minting a token this gate does not need would widen its permissions
+# for nothing." NO SECRET WAS DELETED — the same two names are still required by
+# `merge-master-approval.yml`, `review-lane-repin.yml`, `session-open-pr.yml` and
+# `pytest-suite.yml`'s decision-core mint, all of which read a PRIVATE repository
+# or hold WRITE.
+#
+# WHAT DID NOT CHANGE. `.gitmodules` still spells the gitlink
+# `git@github.com:opensoft/openXwallet.git`, deliberately, so that every human
+# clone uses the operator's key instead of prompting for credentials. A runner
+# has no such key, so the house pattern's SECOND step — rewrite the SSH URL with
+# `insteadOf` BEFORE checkout (`doc-health-reusable.yml`, prepare job:
 # `Mint xFactory app token` → `Rewrite ssh submodule URLs for token auth` →
-# `Init governed submodules only`) is therefore adopted: mint an App token,
-# then rewrite the SSH URL to a token URL with `insteadOf` BEFORE checkout.
-# The SECRET NAMES differ from that file's on
-# purpose: the org secret `XFACTORY_APP_ID` is visibility-`selected` and
-# openxFactory is not among its repositories, while this repository already holds
-# `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY` for the content App
-# (App 4253636, installation 145372182, `repository_selection: all`), which
-# reaches every repository in the organization including openXwallet.
+# `Init governed submodules only`) — is RETAINED, and is what makes the gitlink
+# fetchable at all. Its URL now carries plain `github.token`, which is precisely
+# what the retired expression already fell back to whenever the App key was
+# absent.
 #
 # WHY A SCOPED INIT AND NOT `submodules: true`. A blanket init would also fetch
 # `installs/omnigent-install`, which nothing in this gate reads. `--recursive` is
@@ -56,29 +68,30 @@ jobs:
   wallet-validation:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      # The house guard (`doc-health-reusable.yml:125`). If the App key is
-      # absent the mint is SKIPPED rather than erroring on an empty app-id, the
-      # token expression falls back, and the scoped init then fails on the
-      # PRIVATE nested repository — a red gate with a legible cause. Falling back
-      # is not a pass: without a token the pin cannot be verified, and this gate
-      # refuses rather than proceeding on an unverifiable reader.
-      HAS_APP_KEY: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY != '' }}
     steps:
-      - name: Mint openxFactory app token
-        id: app-token
-        if: env.HAS_APP_KEY == 'true'
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.OPENXFACTORY_APP_ID }}
-          private-key: ${{ secrets.OPENXFACTORY_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
+      # THE MINT AND ITS `HAS_APP_KEY` GUARD ARE BOTH GONE — see the header. The
+      # guard (`doc-health-reusable.yml:125`'s house pattern) existed only so an
+      # absent App key SKIPPED the mint instead of erroring on an empty app-id;
+      # with no mint there is nothing to guard, and the job-level `env:` block
+      # held nothing else.
+      #
+      # THIS GATE STILL FAILS CLOSED, which is what that guard's comment was
+      # really claiming. If the gitlink cannot be read the scoped init below
+      # errors, the pin verifier never runs, and the gate goes red — it cannot
+      # adjudicate openxFactory's tree against a reader nobody could fetch,
+      # because nothing here degrades to a fallback. If openXwallet is ever
+      # flipped back to private, REVERT this change rather than patching around
+      # the failure.
+      #
+      # `tests/openxwallet_consumer_gate/test_gate_invocation.py` asserts the
+      # absence positively — the gate must mint NOTHING — so a later edit
+      # "restoring" a credential for a public read has to argue with a test in
+      # the REQUIRED suite rather than with this comment.
       - name: Rewrite ssh submodule URLs for token auth
         run: |
           git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
         env:
-          TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+          TOKEN: ${{ github.token }}
 
       - uses: actions/checkout@v4
 
@@ -146,20 +159,27 @@ jobs:
           # a different line, deliberately — and asserting a parsed count would
           # prove parsing, which is the class this whole step exists to close.
           #
-          # The count is LITERAL, not `[0-9]+`. EIGHT seats are minted and
+          # The count is LITERAL, not `[0-9]+`. NINE seats are minted and
           # recorded — merge-readiness's four (2026-08-28) plus gate-rules'
-          # four (`register-gate-rules-council-seats` task 3.7) — and a ninth
-          # arriving, or one going missing, must break this gate and be a
-          # deliberate edit here beside the register edit, not a silent pass
-          # under a wildcard.
+          # five (`register-gate-rules-council-seats` task 3.7 for four, task
+          # 6.12 for the fifth) — and a tenth arriving, or one going missing,
+          # must break this gate and be a deliberate edit here beside the
+          # register edit, not a silent pass under a wildcard.
           #
           # MOVED FROM `4 of 4` IN THE SAME ACT that wrote the second body's
           # row and seat entries, which is the mint runbook's §0.1.4
           # precondition: "Every count the consuming gate asserts is LITERAL …
           # move them in the same act, or the REQUIRED check goes red on a
           # human-only surface."
-          grep -qE '^note  intake register: 8 of 8 per-seat signing key\(s\) adjudicated and resolved$' wallet-gate.log \
-            || fail "the gate log does not say the eight per-seat council signing keys were ADJUDICATED (8 of 8); the register's seat_keys surface was not read, or an entry was refused, or the pinned reader predates wallet-v1.2"
+          #
+          # MOVED AGAIN, `8 of 8` -> `9 of 9`, 2026-09-12, IN THE SAME ACT that
+          # registered the `client-security-compliance-officer` seat key
+          # (Amendment 2 task 6.14, which requires this edit by name and for
+          # this reason: "a wildcard there would let a register that lost a
+          # body pass the positive proof"). The seat was bound in codexFactory
+          # PR #439 → `eff9ae191d78c396800a72cdec9fffe0caf866d7`.
+          grep -qE '^note  intake register: 9 of 9 per-seat signing key\(s\) adjudicated and resolved$' wallet-gate.log \
+            || fail "the gate log does not say the nine per-seat council signing keys were ADJUDICATED (9 of 9); the register's seat_keys surface was not read, or an entry was refused, or the pinned reader predates wallet-v1.2"
           ! grep -q 'no per-seat signing key is recorded' wallet-gate.log \
             || fail "the gate log says no per-seat signing key is recorded — the register lost its seat_keys surface, and a Hermes projection derived from it could authorize no seat"
           # wallet-v1.3 (openXwallet `add-multi-key-wallets`): the WALLET now
@@ -188,10 +208,15 @@ jobs:
           # for the new wallet, do not widen the existing one" — a single
           # assertion covering either wallet would go green on a tree that
           # lost one of them, which is the class this step exists to close.
-          # Five again: one operator-vaulted root (`key-grc-0001`) plus four
-          # CI-resident seat keys.
-          grep -qE "^note  wallet 'wal-agent-grc-0001': 5 declared key\(s\) adjudicated " wallet-gate.log \
-            || fail "the gate log does not say wal-agent-grc-0001's FIVE declared keys were adjudicated; the gate-rules wallet lost its keys: block, or an entry was refused, or the pinned reader predates wallet-v1.3 — in any of which cases rule (r) refuses every exercise record naming a gate-rules per-seat key"
+          # SIX since 2026-09-12: one operator-vaulted root (`key-grc-0001`)
+          # plus FIVE CI-resident seat keys. It was five — one root plus four
+          # seats — until the `client-security-compliance-officer` conjunction
+          # seat was bound (codexFactory PR #439 → `eff9ae19`) and its key
+          # declared here by Amendment 2 task 6.13. THE TWO BODIES' COUNTS NOW
+          # DIFFER (mrc 5, grc 6) and that asymmetry is the point of asserting
+          # them separately rather than widening one line to cover both.
+          grep -qE "^note  wallet 'wal-agent-grc-0001': 6 declared key\(s\) adjudicated " wallet-gate.log \
+            || fail "the gate log does not say wal-agent-grc-0001's SIX declared keys were adjudicated; the gate-rules wallet lost its keys: block, or an entry was refused, or the pinned reader predates wallet-v1.3 — in any of which cases rule (r) refuses every exercise record naming a gate-rules per-seat key"
           echo "register-read conjunction holds:"
           grep -E "^note  (repo scan:|intake register read:|intake register: |wallet 'wal-agent-mrc-0001':|wallet 'wal-agent-grc-0001':)" wallet-gate.log
 

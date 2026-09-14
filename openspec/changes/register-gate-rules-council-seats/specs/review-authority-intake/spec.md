@@ -150,3 +150,85 @@ tighten or loosen it as a tidy-up.
 #### Scenario: The bound is tightened
 - **WHEN** the bound is tightened
 - **THEN** it is tightened as its own governed edit to that line, justified by the projection refresh cadence that makes the tighter number meetable
+
+<!-- AMENDED 2026-09-11 — the three requirements below are added by the Q-GRC-4
+     discharge amendment (record: `review/amendment-2026-09-11-q-grc-4-discharge.md`,
+     Brett Heap 2026-09-11T14:59:26Z). They are `## ADDED` and not `## MODIFIED`
+     because `review-authority-intake` is not promoted: the pinned CLI 1.12.0
+     reports `Archive would refuse this delta: target spec does not exist; only
+     ADDED requirements are allowed for new specs`. The seven requirements above
+     are UNTOUCHED — in particular "A symbolic seat and a conditionally pulled-in
+     persona are not registered until the council seats them by identifier",
+     whose third scenario this amendment's act EXERCISES rather than amends. -->
+
+### Requirement: A convening whose conjunction holds over an unbound seat REFUSES, and is never admitted with that seat dropped
+A convening SHALL refuse admission when a declared conjunction rule HOLDS over a
+persona for which the council document declares no seat identifier, and SHALL
+NOT admit instead by dropping the seat from the required set, by inventing an
+identifier for it, by resolving it to another seat's declared model, or by
+treating another seat's registered key as answering for it; the refusal is the
+correct behaviour of the bench and not a defect to be worked around, it MUST
+name the persona and say that the identifier and the key are both absent, and
+the only act that clears it is the governed act that gives the persona a seat
+identifier AND registers that seat's key.
+
+#### Scenario: The conjunction holds and no identifier is declared
+- **WHEN** a declared conjunction rule holds over a candidate and the council document names the pulled-in persona without a seat identifier
+- **THEN** the convening refuses rather than admitting, and the refusal names the persona and states that it has no declared model and no registered signing key
+- **AND** no identifier, model or key is invented or borrowed from another seat to let the convening proceed
+
+#### Scenario: The identifier is declared but the key is not yet registered
+- **WHEN** a roster gives the pulled-in persona a seat identifier and the register carries no key for that (council, seat) pair
+- **THEN** the convening still refuses, because the deferral's own rule requires the identifier and the key in ONE governed act, and a bench whose seat can present nothing is not a bench
+
+#### Scenario: The conjunction does not hold
+- **WHEN** the declared conjunction rule does not hold over a candidate
+- **THEN** the pulled-in persona is absent from the required set and the convening proceeds on the unconditional bench
+- **AND** the non-firing is recorded with the predicate that decided it, so a later reader can tell an unfired conjunction from a dropped seat
+
+### Requirement: A seat pinned BY EQUALITY to another seat carries that seat's exact identifier and its own authority reference
+A seat whose model pin is ruled EQUAL to a named bound seat's SHALL declare that
+seat's EXACT model identifier — never a family, never a re-selection, never an
+alias — and SHALL declare its OWN authority reference naming the act that made
+the selection, and SHALL NOT copy the referenced seat's authority reference;
+the equality decides WHAT the model is and the authority reference records WHO
+DECIDED, so carrying the second across with the first would attribute the new
+seat's pin to an act that never made it, and would make the new pin silently
+follow the referenced seat the next time that seat moves.
+
+#### Scenario: A ruling pins one seat equal to another
+- **WHEN** a roster act pins a new seat's model by equality to a named bound seat's pin
+- **THEN** the new seat's declared composition carries that seat's exact model identifier, byte for byte
+- **AND** its authority reference names the record of the act that ruled the equality, not the referenced seat's own authority reference
+
+#### Scenario: The referenced seat's authority reference is copied across
+- **WHEN** a new seat's declared composition carries the referenced seat's authority reference
+- **THEN** the declaration is refused, because it attributes the selection to a body that never made it
+
+#### Scenario: The referenced seat's pin later moves
+- **WHEN** the referenced seat's own pin is later moved by its own recorded act
+- **THEN** the by-equality seat's pin does NOT move with it, because it is a declared component in its own right and moves only by a recorded act of its own
+
+### Requirement: A grant re-issued over a composition that GAINED a seat is issued only after every identified seat carries a registered key
+A grant re-issued because a council's declared composition gained a seat SHALL
+NOT be issued until the intake register and the holder's wallet EACH carry a key
+entry for every seat that council seats by identifier, so that at the instant of
+issuance the count of registered seat keys equals the count of identified seats;
+a grant issued over a roster with more identified seats than registered keys
+certifies a bench one of whose seats can present nothing, which is exactly the
+failure the deferral's "same governed act" rule exists to prevent, and the
+consuming gate's literal key-count assertion SHALL move in the same act rather
+than being widened to a wildcard that would let the mismatch pass.
+
+#### Scenario: A roster gains a fifth identified seat
+- **WHEN** a council's roster binds an additional seat by identifier and its declared composition changes accordingly
+- **THEN** the register's per-seat key entries for that council and the holder wallet's declared keys each gain an entry for that seat in the same governed act
+- **AND** the re-issued grant is issued only after both entries are present, against the composition that includes the new seat
+
+#### Scenario: The grant is re-issued before the key is registered
+- **WHEN** a re-issued grant would be issued while an identified seat of that council has no entry in the register
+- **THEN** the issuance is refused, and the missing entry is named rather than deferred to the first convening that seats it
+
+#### Scenario: The key is minted and registered but the wallet does not declare it
+- **WHEN** a seat's key is recorded in the register and absent from the holder wallet's declared keys
+- **THEN** the state is refused, because a presenting key no wallet declares is refused on arrival and the register knowing a key is not the wallet declaring it

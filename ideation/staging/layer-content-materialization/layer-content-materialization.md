@@ -68,6 +68,14 @@ deleted.
   **Gated on domain increment A landing** (real content to materialize) and
   the neutral schema.
 
+## Idea notes (pre-document, non-documented)
+
+None recorded at staging.
+
+## Conflicts
+
+No conflicts recorded.
+
 ## Open questions (carried to the proposals)
 
 - Exact `enforceable_payload` schema per `content_kind` (cut list is the draft).

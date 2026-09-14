@@ -167,6 +167,25 @@ def load_yaml(path: Path) -> Any:
 
 # --------------------------- schema registry ---------------------------
 
+def shed_aware(target: Path) -> Path:
+    """`target`, or the pinned-leg copy of it when the § 5.2 shed moved it.
+
+    RULED (a) POST-SHED MODE (`#656` comment `5625573095`): a retained consumer
+    of a file that MOVED reads it from the leg this repository pins, through
+    `carved_reach`, which reads the row — nothing here transcribes a
+    destination, and nothing is restored into this tree. Every one of the moved
+    schemas arrived BYTE FOR BYTE, so what is read back is what was always read.
+    Imported lazily and never required: a checkout with no carve manifest
+    answers exactly as it did before.
+    """
+    try:
+        from carved_reach import shed_destination
+    except ImportError:  # pragma: no cover - no manifest, nothing to resolve
+        return target
+    moved = shed_destination(target)
+    return moved if moved is not None else target
+
+
 def build_registry() -> tuple[Registry, dict[str, dict]]:
     """Offline registry over all four schemas so the index's cross-file `$ref`s
     (routing-reference kernel, snapshot `generation`/`lifecycle_status`, and the
@@ -175,7 +194,7 @@ def build_registry() -> tuple[Registry, dict[str, dict]]:
     resources = []
     docs: dict[str, dict] = {}
     for name in SCHEMA_FILENAMES:
-        doc = load_yaml(SCHEMAS_DIR / name)
+        doc = load_yaml(shed_aware(SCHEMAS_DIR / name))
         docs[name] = doc
         rid = doc.get("$id", name)
         resources.append((rid, Resource.from_contents(doc, default_specification=DRAFT202012)))

@@ -162,16 +162,72 @@ def test_the_checkout_does_not_use_a_blanket_submodule_init(
 
 
 def test_the_ssh_url_is_rewritten_before_checkout(gate_job: dict) -> None:
-    """`insteadOf` after checkout is `insteadOf` too late for a nested clone."""
+    """`insteadOf` after checkout is `insteadOf` too late for a nested clone.
+
+    THE ORDERING IS THE PROPERTY, AND IT OUTLIVED THE CREDENTIAL THAT SHARED
+    THIS TEST. A third assertion ran here until 2026-09-11 — that the
+    `app-token` mint preceded the rewrite — because the rewrite interpolated the
+    minted token into the URL. `opensoft/openXwallet` went PUBLIC on
+    2026-09-07T15:24:11Z, the mint was retired (runbook 7.6, codexFactory issue
+    #279), and that line would now raise `StopIteration` searching for a step
+    that does not exist. It is not merely deleted: its successor is the test
+    below, which asserts the ABSENCE positively, so that reintroducing a
+    credential for a public read has to argue with this suite.
+    """
     steps = gate_job["steps"]
     rewrite = next(i for i, s in enumerate(steps)
                    if "insteadOf" in s.get("run", ""))
     checkout = next(i for i, s in enumerate(steps)
                     if str(s.get("uses", "")).startswith("actions/checkout"))
     assert rewrite < checkout
-    token_step = next(i for i, s in enumerate(steps)
-                      if s.get("id") == "app-token")
-    assert token_step < rewrite
+
+
+def test_the_gate_mints_no_credential_for_a_public_gitlink(
+        gate_job: dict) -> None:
+    """RETIREMENT, ASSERTED — runbook 7.6, part 2 of 2, codexFactory #279.
+
+    `opensoft/openXwallet` is public, so this gate resolves the pinned gitlink
+    with the workflow's own `github.token` and holds no App credential at all.
+    Written as a test rather than as a comment for this file's stated reason:
+    this module is collected by the REQUIRED `pytest-suite` job, so the shape
+    cannot regress without a second required check going red.
+
+    WHAT IT GUARDS AGAINST is a later edit that "restores" a mint for a read
+    that needs none. The retired step minted `owner: github.repository_owner`
+    with no `repositories:` narrowing, so the token it produced reached EVERY
+    repository the content App is installed on — handed to a job that then
+    executes a pinned reader out of a foreign checkout. Retiring it is a
+    reduction in blast radius, not only a tidy-up, which is why the absence is
+    pinned rather than assumed.
+
+    ASSERTED AT BOTH LEVELS. The parsed form catches a mint step under any name;
+    the raw-text form catches the secret arriving by some other route — an `env`
+    guard, a `with` value, a shell interpolation — which a step-shaped probe
+    alone would miss.
+
+    ON THE `secrets.` PREFIX, WHICH IS THE WHOLE POINT OF THE SECOND PROBE. It
+    is CONSUMPTION that is forbidden, not the NAME: the header above still spells
+    `OPENXFACTORY_APP_ID` / `OPENXFACTORY_APP_PRIVATE_KEY` in prose, recording
+    what was retired and why, and that history is worth more than a grep-clean
+    file. `${{ secrets.… }}` is the only spelling that reaches a real credential,
+    so it is the only one asserted absent. NOTHING HERE SAYS THE SECRETS ARE
+    GONE — they are not, on either repository or either organization, and four
+    other workflows still require them.
+    """
+    mints = [s.get("name") or s.get("id") or s.get("uses")
+             for s in gate_job["steps"]
+             if "create-github-app-token" in str(s.get("uses", ""))]
+    assert mints == [], (
+        f"the gate must mint no App token for a PUBLIC gitlink; found {mints}. "
+        f"If openXwallet went private again, revert the 7.6 retirement rather "
+        f"than adding a mint back beside this test")
+
+    text = WORKFLOW.read_text(encoding="utf-8")
+    for name in ("OPENXFACTORY_APP_ID", "OPENXFACTORY_APP_PRIVATE_KEY"):
+        assert f"secrets.{name}" not in text, (
+            f"{WORKFLOW.name} CONSUMES secrets.{name}; the 7.6 retirement left "
+            f"this gate with no App credential at all, and a public gitlink "
+            f"needs none")
 
 
 def test_the_register_assertion_is_positive(runs: list[str]) -> None:
@@ -190,36 +246,44 @@ def test_the_register_assertion_is_positive(runs: list[str]) -> None:
     assert "register-" in assertion
 
 
-def test_the_eight_per_seat_keys_are_asserted_as_adjudicated(
+def test_the_nine_per_seat_keys_are_asserted_as_adjudicated(
         runs: list[str]) -> None:
     """wallet-v1.2: the register carries the council seat signing keys, and a
     green gate must PROVE they were adjudicated.
 
     The word matters. The pinned reader excludes every entry it refused from the
-    count it notes, so `8 of 8 ... adjudicated` can only appear on a run that
-    stood behind all eight keys — while a count of entries PARSED, or the mere
+    count it notes, so `9 of 9 ... adjudicated` can only appear on a run that
+    stood behind all nine keys — while a count of entries PARSED, or the mere
     presence of some seat-key note, would be satisfied by a register nobody
     read. That is the same defect one level up from the one the seat surface
     exists to close.
 
-    The count is asserted LITERALLY rather than as a pattern: a ninth seat
+    The count is asserted LITERALLY rather than as a pattern: a tenth seat
     arriving, or one going missing, must break this gate and force a deliberate
     edit here beside the register edit.
 
     MOVED 4 -> 8 BY `register-gate-rules-council-seats` § 3 (task 2.8's deferred
     literal flip), IN THE SAME ACT that wrote the second body's row and seat
-    entries. EIGHT is merge-readiness's four (2026-08-28) plus gate-rules' four.
+    entries. EIGHT was merge-readiness's four (2026-08-28) plus gate-rules' four.
     The mint runbook's §0.1.4 precondition is why it moves here and not later:
     "Every count the consuming gate asserts is LITERAL … move them in the same
     act, or the REQUIRED check goes red on a human-only surface." This test
     pins the workflow's literal, so it is part of "the same act" too — leaving
     it at four would have reddened `pytest-suite` for the whole window instead.
+
+    MOVED 8 -> 9 BY THE SAME CHANGE'S AMENDMENT 2, task 6.14, in the act that
+    registered the FIFTH gate-rules seat key — `client-security-compliance-
+    officer`, the conjunction seat bound in codexFactory PR #439 →
+    `eff9ae191d78c396800a72cdec9fffe0caf866d7` (2026-09-12T15:59:10Z). NINE is
+    merge-readiness's four plus gate-rules' five. The same §0.1.4 precondition
+    applies for the same reason, and this test moves with the workflow for the
+    same reason it did at 8.
     """
     assertion = next((r for r in runs if "wallet-gate.log" in r
                       and "validate-openxwallet.py" not in r), None)
     assert assertion is not None, "the gate has no register-assertion step"
-    assert "8 of 8 per-seat signing key" in assertion, (
-        "the gate does not assert that the eight per-seat council signing keys "
+    assert "9 of 9 per-seat signing key" in assertion, (
+        "the gate does not assert that the nine per-seat council signing keys "
         "were adjudicated; a register-read proof that ignores the key surface "
         "proves the register was opened and not that its keys were honoured")
     assert "adjudicated and resolved" in assertion
@@ -273,19 +337,24 @@ def test_the_second_bodys_wallet_is_asserted_separately(
     them — which is precisely the class the named, counted form exists to close.
     So the workflow carries two greps and this suite carries two tests.
 
-    Five again, for the same reason and with the same arithmetic: one
-    operator-vaulted root (`key-grc-0001`) plus four CI-resident seat keys.
+    SIX since 2026-09-12, and the arithmetic is the same shape: one
+    operator-vaulted root (`key-grc-0001`) plus FIVE CI-resident seat keys. It
+    was five until Amendment 2 task 6.13 declared the
+    `client-security-compliance-officer` conjunction seat's key on this wallet,
+    in the same act that registered it. THE TWO COUNTS NOW DIFFER — mrc 5, grc
+    6 — which is exactly why each wallet carries its own counted assertion
+    rather than one widened line.
     """
     assertion = next((r for r in runs if "wallet-gate.log" in r
                       and "validate-openxwallet.py" not in r), None)
     assert assertion is not None, "the gate has no register-assertion step"
     assert "wal-agent-grc-0001" in assertion, (
         "the gate does not name the gate-rules council's wallet; after the "
-        "register act its five declared keys are what rule (r) resolves every "
+        "register act its six declared keys are what rule (r) resolves every "
         "gate-rules exercise record against, and an unasserted wallet can go "
         "missing without reddening this check")
     mrc = assertion.count("wal-agent-mrc-0001': 5 declared key")
-    grc = assertion.count("wal-agent-grc-0001': 5 declared key")
+    grc = assertion.count("wal-agent-grc-0001': 6 declared key")
     assert mrc >= 1 and grc >= 1, (
         "each wallet needs its OWN counted assertion; found "
         f"mrc={mrc}, grc={grc}")

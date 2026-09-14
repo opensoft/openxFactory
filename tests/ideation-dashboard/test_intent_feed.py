@@ -35,9 +35,10 @@ from pathlib import Path
 import pytest
 import yaml
 
+from carved_reach import source as carved_source
 from ideation_dashboard import intent_apply_lane as lane
 from ideation_dashboard import intent_feed
-from ideation_dashboard import serve as serve_mod
+from opendox import serve as serve_mod
 
 from test_gate_routes import _get, _serving
 from test_intent_apply_lane import _apply, _corpus, _intent
@@ -201,8 +202,15 @@ def test_the_web_bundle_mirrors_the_same_verb_table():
     digests the RAW object it is handed — so a browser that spells a target key
     differently from the lane mints a request identity the lane never
     recomputes, and the pending chip never resolves to its own outcome."""
-    source = (Path(serve_mod.__file__).parent / "web" / "views"
-              / "intent-feed.js").read_text(encoding="utf-8")
+    # `intent-feed.js` is a `not_moved` row (`stays_openxfactory_adapter`):
+    # the feed view is openxFactory's OWN adapter column, exactly as
+    # `intent_feed.py` beside it is, so it did NOT travel to the openDox leg
+    # with `serve.py`. Asked of the manifest rather than joined onto
+    # `serve_mod.__file__`, which after the shed names the moved package
+    # (Copilot `PRRT_kwDOTAvnrs6hcKix`).
+    source = carved_source(
+        "scripts/ideation_dashboard/web/views/intent-feed.js"
+    ).read_text(encoding="utf-8")
     for verb, key in intent_feed.VERB_TARGET_KEY.items():
         assert f'"{verb}": "{key}"' in source, verb
 

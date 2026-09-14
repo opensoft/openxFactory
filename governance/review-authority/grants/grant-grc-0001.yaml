@@ -193,6 +193,104 @@
 # adequacy claim, and LQ-C4 leaves open whether a packet-only seat can
 # discharge its charge at all.
 # ============================================================================
+#
+# ============================================================================
+# 2026-09-11 — REVOKED. Appended, and nothing above this line is rewritten: the
+# header records what this grant WAS, and it is still true of the grant it
+# describes. The sentences above that read in the present tense — the scope,
+# the expiry, the resolution paths — were true of an ACTIVE grant, and they are
+# now read through this block.
+#
+# REASON CLASS: DRIFT. The declared composition of this holder changed on
+# 2026-09-10: `agent-mixes.yaml` component 2 — the `gate_rules_council`
+# PROMPT-CORPUS pin — moved under the ratified change
+# `clarify-gate-rules-decline-position` (row C+: the decline/refuse standing
+# distinction plus the tool-less `executed` guard, in PROHIBITION form carrying
+# adversarial review R1's S2 checked/unchecked sentence). codexFactory PR #374,
+# merge commit `02e14c086d5ead77d0c390c33ba5df622f07a4df`, merged
+# 2026-09-10T23:34:23Z. The ratified packet is codexFactory PR #361 →
+# `65ee2f10`, whose clause sits at `hermes/domain/agent-mixes.yaml:396-401`.
+#
+# THE FIVE DIGESTS THAT MOVED, computed by RENDERING the four seat briefings
+# and never copied from a design table (`digests.md`, row A → row V2S/C+):
+#
+#   rendered_set_digest
+#      sha256:2d4660230104fb9e5fddeef37eec494cd38b57627feef7a2e396ac98eaf9a99e
+#   -> sha256:aac9b60e877d5ab61324ebb5102fe24b685b1bcc1d97aecf9f6c8ef254358f21
+#   lead-architect
+#      sha256:5d3e6b12ad01b5c20de5242d2fef51e4bac990d09adaa5a9cca063499871b554
+#   -> sha256:619153c4f31cb1c2f57d00a692d785eed656e354424443507cb01726298a12d0
+#   lead-security
+#      sha256:bc29937e550768cf319fc8ad39c73abddf58da0087c6431f78ff4fe30be583d6
+#   -> sha256:4d90a110c52095c998744e04cb8e2d24387c01d8d5ddc399ba81f28b2ad69cab
+#   lead-quality
+#      sha256:a106892a47254408b3ec571115e235fc117f529aef2bd12952d89e4d0aa9a506
+#   -> sha256:3a7bb5718adcaa4ad01cb8f2e983125601cd06b5bd5aed4bee855d66f2571e29
+#   company-policy-lead
+#      sha256:22cb4fb6d7af36f3341ba73febac1794e7c1821249838204741fe562d372b595
+#   -> sha256:7c170ecb2b46e53e041d122c2d92cdbee32ce0da110c38e559e432b088d0e2d0
+#
+# THE RULE THIS ACT OBEYS IS THE COMPOSITION'S OWN FACE. `agent-mixes.yaml`'s
+# comment governing this holder's component 2 states it in terms: "THE DIGEST
+# MAKES AN EDIT A DECLARED COMPOSITION CHANGE … under `openxwallet-agent-profile`
+# a composition change revokes this holder's grants immediately and requires a
+# governed re-issuance. For THIS holder no grant exists yet — the grant is
+# Brett's walk (`register-gate-rules-council-seats` task 3.5) — so this first
+# pin revokes nothing. EVERY LATER EDIT WILL." PR #374 is that later edit. The
+# revocation is BY DECLARATION — by the ratified rule itself — and not by any
+# code that ran.
+#
+# TERMINAL, NOT SUSPENDED. "A revoked grant SHALL NEVER return to the active
+# state" (openXwallet `add-composition-drift-cascade`, ratified 2026-08-28).
+# Do not edit `state` back to `active`; authority resumed as a NEW grant.
+#
+# SUPERSEDED BY grant-grc-0002, minted at the same instant recorded in the
+# `revocation` block below, so there is no window between the revocation and
+# the issuance. THE SUPERSESSION IS RECORDED IN PROSE — here, in
+# grant-grc-0002's own header, and in the walk record — because the pinned
+# grant schema is `additionalProperties: false` and carries no `supersedes`
+# key. `parent_grant_ref` means DERIVED FROM, a different relation, and it is
+# deliberately NOT borrowed for this one.
+#
+# DRIFT PROPAGATES EXACTLY AS CAUSE — "no derived authority survives on the
+# strength of its parent's reason." This is a ROOT grant and no grant in this
+# tree declares it as `parent_grant_ref` (checked). The propagation is
+# therefore VACUOUS here, and it is recorded as vacuous rather than as
+# satisfied.
+#
+# THE TWO-BODY COUPLING DID NOT FIRE, and that is checked rather than assumed.
+# Q-GRC-2 couples the two bodies on an ENROLLED-ROSTER pin flip. This event is
+# not one: no `model_version` moved, only rendered prompt text, and
+# `test_a_gate_rules_prompt_edit_does_NOT_move_the_merge_readiness_pin` passed
+# on every variant — `merge_readiness_council`'s `rendered_set_digest` is
+# unchanged at `sha256:751e03a2…`, and neither anchor string appears in any of
+# its four seats. `grant-mrc-0002` is NOT revoked by this act and
+# `row-mrc-0001` is not touched.
+#
+# THE ACT: the register act of 2026-09-11, ratified by Brett Heap
+# (`Brett.Heap@opensoft.one`) on a permanently human-only surface. Its record
+# is `openspec/changes/register-gate-rules-council-seats/walk-2026-09-11-register-act.md`.
+#
+# WHO PERFORMED THE WRITE, and why that is worth saying. R11 rules that
+# revocation needs no ratifier, because a fail-closed cascade must not wait on
+# a human. That is not a claim that anything in this estate performed it:
+# NOTHING TODAY WRITES `state: revoked` INTO A GRANT FILE. There is no daemon,
+# no reconciler and no hook that walks a composition change into this
+# directory. This write is an OPERATOR ACT with a machine-enforced refusal
+# behind it — the reader fails the required gate when a row's grant does not
+# back it — and it must never be read as a cascade that ran while nobody was
+# looking.
+#
+# WHO COMPOSED THE BYTES. "OPERATOR ACT" names whose ACT this is; it does not
+# name whose HANDS. THE RATIFYING HUMAN DID NOT TYPE THIS FILE. This header and
+# the revocation block below were COMPOSED BY THE COORDINATING LANE
+# (`hermes-wallet-exercise`) ON THE RATIFIER'S WORD — Brett Heap, in session at
+# 2026-09-11T02:03:35Z, ruling that the lane composes this act and that he
+# reviews it and gives the merge word. What is Brett Heap's is the ACT: the
+# decision to revoke, the reason class DRIFT, the effective instant, and the
+# expiry ruled for the successor. The full disclosure, including the
+# coordinator's merge, is the walk record's capacity table.
+# ============================================================================
 schema_version: 1
 kind: xfactory_wallet_grant
 grant_id: grant-grc-0001
@@ -212,4 +310,17 @@ scope:
 expires_at: "2027-06-30T00:00:00Z"
 issued_at: "2026-09-08T12:31:36Z"
 issued_by: Brett.Heap@opensoft.one
-state: active
+state: revoked
+revocation:
+  revoked_at: "2026-09-11T02:12:30Z"
+  reason: >-
+    DRIFT: declared composition change — `agent-mixes.yaml` component 2,
+    the gate_rules_council prompt-corpus pin, moved under the ratified
+    change clarify-gate-rules-decline-position (row C+: decline-vs-refuse
+    by standing; tool-less `executed` guard); codexFactory
+    02e14c086d5ead77d0c390c33ba5df622f07a4df, PR #374, 2026-09-10. A
+    declared composition change ends this holder's certified identity at
+    once, with no tolerance band and no grace period. Re-issued as
+    grant-grc-0002 by the register act of 2026-09-11
+    (walk-2026-09-11-register-act.md). Terminal: this grant never returns
+    to active.

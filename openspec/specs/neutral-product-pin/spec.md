@@ -666,21 +666,22 @@ false by omission.
 - **AND** the result is NOT reported as a clean tree, the tree not being clean
 
 ### Requirement: A pinned artifact that resolves dependencies at install time carries a vendored lockfile, and the install runs through it
-Where a pinned external neutral product is distributed as a published artifact
-whose installation RESOLVES dependency ranges, the pin SHALL carry a VENDORED
-RESOLUTION — a lockfile in the format that product's own package manager
+The pin SHALL carry a VENDORED RESOLUTION where a pinned external neutral
+product is distributed as a published artifact whose installation RESOLVES
+dependency ranges — a lockfile in the format that product's own package manager
 consumes, committed beside the pin, addressed by a digest over its exact bytes
-recorded in the pin, together with the size of the tree it locks. The consumer's
-verifier SHALL recompute that digest BEFORE any registry round trip is spent and
-SHALL REFUSE with a named exit on disagreement; SHALL REFUSE unless the vendored
-resolution's own entry for the pinned product carries the pin's OWN referent, so
-that one pin cannot name two artifacts; and SHALL INSTALL THROUGH the vendored
-resolution with the package manager's CLEAN-INSTALL verb — the one that resolves
-nothing and refuses when the manifest and the lockfile disagree — never the verb
-that may re-resolve a range. A pin that declares NO vendored resolution for such
-a product SHALL be refused on the same ground a range is refused: the ranges it
-leaves unresolved are a moving reference, and the moment a pin trusts a range the
-fail-closed property is gone.
+recorded in the pin, together with the size of the tree it locks. The
+consumer's verifier SHALL recompute that digest BEFORE any registry round trip
+is spent and SHALL REFUSE with a named exit on disagreement; SHALL REFUSE
+unless the vendored resolution's own entry for the pinned product carries the
+pin's OWN referent, so that one pin cannot name two artifacts; and SHALL
+INSTALL THROUGH the vendored resolution with the package manager's
+CLEAN-INSTALL verb — the one that resolves nothing and refuses when the
+manifest and the lockfile disagree — never the verb that may re-resolve a
+range. A pin that declares NO vendored resolution for such a product SHALL be
+refused on the same ground a range is refused: the ranges it leaves unresolved
+are a moving reference, and the moment a pin trusts a range the fail-closed
+property is gone.
 
 VERIFYING AN ARTIFACT'S OWN BYTES SAYS NOTHING ABOUT THE CODE IT RUNS ON. A
 content address over a published artifact addresses every file inside it and no
@@ -719,6 +720,8 @@ which is the defect this capability's pin rule exists to end.
 - **WHEN** the vendored resolution changes and a consumer's cache is keyed only on the artifact's address
 - **THEN** one directory would serve two different dependency trees and whichever ran first would decide what the second received
 - **AND** the cache key incorporates the resolution's digest, so the second tree is a new entry rather than a silent reuse
+
+**Removed from canon by amend-neutral-product-pin-lockfile-first-line (2026-09-10):** `Where a pinned external neutral product is distributed as a published artifact whose installation RESOLVES dependency ranges, the pin SHALL carry a VENDORED RESOLUTION — a lockfile in the format that product's own package manager consumes, committed beside the pin, addressed by a digest over its exact bytes recorded in the pin, together with the size of the tree it locks.` — the sentence is REPLACED IN PLACE by the one above it and is not dropped, and the replacement is built out of canon's own words rather than written afresh: every word of the retired sentence is carried, in the same spelling, and the only edits are that its main clause moves to the front of the sentence, its condition clause follows in lower case, and the comma that separated the two goes. Nothing this requirement obliges, admits or refuses moves. The obligation's bearer is still THE PIN, the four things the vendored resolution must be and record are the same four, and every later sentence, all four scenarios, both trailing paragraphs and the requirement heading are canon's own bytes. What moves is WHERE the obligation stands inside its own sentence: the subject and the modal now open the first body line, which is the shape the other seventeen requirements of this specification already have, so a reader who reads one line and a parser that reads one line both meet the obligation there instead of meeting a condition whose subject has not arrived. This reason carries no code span, so the marker names exactly one unit under the grammar it is written in.
 
 ### Requirement: A vendored resolution is regenerated with the referent, and an entry without one is declared uncovered
 A change that moves a pinned artifact's REFERENT SHALL regenerate the vendored

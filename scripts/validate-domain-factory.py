@@ -19,8 +19,11 @@ Checks (errors fail the run; warnings fail only with --strict):
   4.  omnigent.domain_overlay dir exists.
   5.  tenancy declares kinds + isolation; isolation values are from the
       recognized scope vocabulary.
-  6.  profiles/*.yaml: every profile's tenant_kind/client_kind is declared
-      in stack tenancy; every declared kind has a profile (warning).
+  6.  profiles/*.yaml: every profile declares an identifier (nested
+      `profile.id`, or a flat `profile_id` for the domain-specific kinds
+      registered in PROFILE_ID_KEY_KINDS); every profile's tenant_kind/
+      client_kind is declared in stack tenancy; every declared kind has a
+      profile (warning).
   7.  tenants/examples/*.yaml: profile references resolve.
   8.  workflows/*.yaml: every gate has id + owner_layer + requires;
       owner_layer resolves to a declared layer, omnigent, or xfactory.
@@ -72,6 +75,12 @@ SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv",
              # carry secret-shaped strings -- is not the domain's own
              # surface and must not fail its validation.
              ".openxfactory-pin"}
+# Profile document kinds that key their identifier on a flat top-level
+# `profile_id` field instead of nesting `id` under `profile:`. Domain-specific
+# profile kinds register here rather than widen the default `profile.id`
+# rule for every kind (openxFactory #919; OpsxFactory's cloudpc_worker_profile
+# is the first member).
+PROFILE_ID_KEY_KINDS = {"cloudpc_worker_profile"}
 MEMORY_GATEWAY_TIERS = {"M0", "M1", "M2", "M3", "M4"}
 MEMORY_GATEWAY_OPERATIONS = {
     "xfactory.memory.query",
@@ -229,9 +238,24 @@ def check_profiles(root: Path, kinds: list[str], rpt: Report) -> set[str]:
         if not isinstance(data, dict):
             continue
         prof = data.get("profile", data)
-        pid = prof.get("id")
+        kind_value = data.get("kind")
+        if isinstance(kind_value, str) and kind_value in PROFILE_ID_KEY_KINDS:
+            # The identifier may sit at the document top level (flat, beside
+            # `kind:`) or nested under `profile:` alongside other fields
+            # (mixed shape) -- check both rather than assuming one.
+            pid = data.get("profile_id") or prof.get("profile_id")
+            id_label = "profile_id"
+        else:
+            pid = prof.get("id")
+            id_label = "profile.id"
         if not pid:
-            rpt.error(f"{pf.name}: profile.id missing")
+            rpt.error(f"{pf.name}: {id_label} missing")
+            continue
+        if not isinstance(pid, str):
+            # A truthy non-hashable YAML value (a list or mapping) would
+            # otherwise reach `profile_ids.add(pid)` and raise TypeError,
+            # aborting the whole run instead of reporting this profile.
+            rpt.error(f"{pf.name}: {id_label} must be a string, got {type(pid).__name__}")
             continue
         profile_ids.add(pid)
         kind = prof.get("tenant_kind") or prof.get("client_kind")

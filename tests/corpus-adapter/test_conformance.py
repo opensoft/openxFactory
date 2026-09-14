@@ -48,7 +48,21 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 sys.path.insert(0, str(REPO_ROOT / "tests"))
 
-from corpus_adapter import (  # noqa: E402
+# #872 (RULED OQ-Q): the adapter under test now builds its dataclasses from the
+# PINNED openDox copy, not the local `scripts/corpus_adapter.py` replica — this
+# suite must construct/compare against the SAME copy, or every isinstance check
+# below (a nominal check, since these are dataclasses and not the Protocol)
+# reports a conformant adapter as foreign. See `adapter.py`'s header.
+_OPENDOX_SRC = REPO_ROOT / "openDox" / "code" / "src"
+if not (_OPENDOX_SRC / "opendox" / "corpus_adapter.py").is_file():
+    raise ImportError(
+        "test_conformance: the pinned openDox corpus-adapter interface is not "
+        f"at {_OPENDOX_SRC / 'opendox' / 'corpus_adapter.py'}. Run `git "
+        "submodule update --init --recursive openDox` from the repository "
+        "root.")
+sys.path.insert(0, str(_OPENDOX_SRC))
+
+from opendox.corpus_adapter import (  # noqa: E402
     CORPUS_ABSENT,
     CORPUS_READ_ONLY,
     CORPUS_UNREADABLE,

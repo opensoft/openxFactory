@@ -1300,6 +1300,37 @@ def render_index_yaml(index: dict) -> str:
     return _YAML_HEADER + body
 
 
+def _projection_stamp():
+    """`projection_header.apply_status_line`, resolved from THIS module's own
+    tree when it is not importable off `sys.path`.
+
+    The bare import is the ordinary route and the one `make_boundary` takes for
+    `output_boundary` a few lines below, so in openxFactory and in any consumer
+    that puts its vendored `scripts/` on the path it answers immediately. It is
+    not, however, guaranteed: `doc_health` is vendored, and a tree whose
+    `scripts/` is not on `sys.path` would raise before anything was stamped
+    (Copilot, `PRRT_kwDOTAvnrs6hq2is`). So the fallback reads the sibling file
+    directly.
+
+    FROM THIS MODULE'S TREE, never from the renderer's. The renderer is
+    resolved from `OPENXFACTORY_ROOT` or an ancestor walk and may be any
+    vintage — that is the whole defect (#793). The declaration has to come from
+    the checkout doing the stamping, which is the one that travels with this
+    file."""
+    try:
+        from projection_header import apply_status_line
+        return apply_status_line
+    except ImportError:
+        import importlib.util
+
+        path = Path(__file__).resolve().parents[1] / "projection_header.py"
+        spec = importlib.util.spec_from_file_location(
+            "_doc_health_projection_header", path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod.apply_status_line
+
+
 def _render_markdown(index: dict):
     """Project the index to Markdown by loading the pinned openxFactory renderer
     (`render-ideation-cross-reference.py`) — the same projection the bootstrap
@@ -1308,14 +1339,28 @@ def _render_markdown(index: dict):
     falling back to the ancestor walk to a sibling `openxFactory/`
     (aggregation-workspace layout). Returns the Markdown text, or None when the
     renderer is unreachable (the `.md` is then skipped; the yaml stays the
-    source of truth)."""
+    source of truth).
+
+    THE `Status:` HEADER IS NOT THE RESOLVED RENDERER'S TO DECIDE (#793). This
+    lookup can only ever reach whichever snapshot of that script is on disk —
+    a consuming repository pinned before `fc788825` (2026-08-28,
+    `declare-generated-projection-status`) still returns the superseded
+    `Status: record`, which is the disagreement #785 hit and hand-corrected. So
+    the delegate's output is stamped with `projection_header.STATUS_LINE`, the
+    one place the value is declared and the same constant the in-tree renderer
+    appends — the two cannot disagree whichever copy resolves. Resolved by
+    `_projection_stamp()` from `scripts/`, the directory `make_boundary`
+    already reaches for `output_boundary`, so `doc_health` still depends on no
+    package."""
     import importlib.util
+
+    apply_status_line = _projection_stamp()
 
     def _load(path):
         spec = importlib.util.spec_from_file_location("_xref_renderer", path)
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
-        return mod.render_markdown(index)
+        return apply_status_line(mod.render_markdown(index))
 
     env_root = os.environ.get("OPENXFACTORY_ROOT")
     if env_root:

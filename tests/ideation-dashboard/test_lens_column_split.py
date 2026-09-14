@@ -28,12 +28,16 @@ from __future__ import annotations
 
 import ast
 
-from conftest import REPO_ROOT
+from carved_reach import source as carved_source
 
-from ideation_dashboard import lens, lens_submission
+from ideation_dashboard import lens_submission
+from opendox import lens
 
-PACKAGE = REPO_ROOT / "scripts" / "ideation_dashboard"
-LENS = PACKAGE / "lens.py"
+# `lens.py` left for openDox-code in the § 5.2 shed and this test reads its
+# SOURCE, so the path comes from that file's own manifest row rather than from a
+# package prefix — the prefix would name the deleted root (RULED (a), `#656`
+# `5625573095`; Copilot `PRRT_kwDOTAvnrs6hUpvi`).
+LENS = carved_source("scripts/ideation_dashboard/lens.py")
 
 # `scripts/__init__.py` exists, so every module under `scripts/` is importable
 # BOTH as a top-level name and as `scripts.<name>`; a relative import inside the
