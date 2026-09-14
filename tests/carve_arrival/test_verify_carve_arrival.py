@@ -1806,14 +1806,16 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
 
     AND THE PARSER IS PART OF THE CHECK, not a way into it (Copilot review,
     round two on this PR for the duplicate key, round three for the roots cell,
-    round four for the rest): the header and ruler are pinned, every remaining
-    line of the block must `fullmatch` the record — so a key outside the
-    character class, a sixth column or a reshaped cell is a FAILURE and not a
-    skipped line — the roots cell must be exactly a comma-separated sequence of
-    backticked paths (or the one prose cell that says "none"), and a missing
-    runbook is a failure rather than a branch. Each of those is a way a table
-    could stop stating what this test says it states while the test stayed
-    green.
+    round four for the rest, round five for the block's own extent): the header
+    and ruler are pinned, every remaining line of the block must `fullmatch`
+    the record — so a key outside the character class, a sixth column or a
+    reshaped cell is a FAILURE and not a skipped line — the roots cell must be
+    exactly a comma-separated sequence of backticked paths (or the one prose
+    cell that says "none"), a missing runbook is a failure rather than a
+    branch, and the BLOCK runs across interior blank lines so that a blank with
+    rows below it fails to parse instead of silently truncating the table. Each
+    of those is a way a table could stop stating what this test says it states
+    while the test stayed green.
 
     THE TWO HALVES OF A ROW ARE READ ON TWO BASES, each the one its column
     claims. The NUMERIC columns are summed by the RAW `destination:` field and
@@ -1847,7 +1849,29 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     marker = ("Per destination, and these are the numbers each leg's arrival "
               "run must report:")
     assert text.count(marker) == 1, marker
-    table = text.split(marker, 1)[1].split("\n\n")[1]
+    # THE BLOCK'S EXTENT IS PART OF THE CHECK TOO (Copilot review, round five
+    # on this PR) — one level further out again than the unreadable row and the
+    # duplicate key below it. Taking the table as "everything up to the first
+    # blank line" let an INTERIOR BLANK LINE end it while rows went on
+    # underneath: `set(stated) == set(destinations)` still passes when every
+    # destination appeared ABOVE the blank, so a stale row placed BELOW it is a
+    # row nothing reads — which is exactly what the duplicate-key assertion
+    # refuses, walked back in through the parser that feeds it. So the block
+    # runs ACROSS blank lines for as long as anything table-shaped resumes
+    # after them, and ends only at the blank line that begins the prose. Every
+    # line inside it must then parse, which is how the interior blank itself —
+    # and any prose line between two rows — becomes the failure.
+    after = text.split(marker, 1)[1].splitlines()
+    first = next((n for n, line in enumerate(after) if line.strip()), len(after))
+    end = first
+    while end < len(after):
+        if after[end].strip():
+            end += 1
+            continue
+        resumes = next((line for line in after[end:] if line.strip()), "")
+        if not resumes.lstrip().startswith("|"):
+            break
+        end += 1
     # EVERY LINE OF THE BLOCK IS READ, AND A LINE THAT DOES NOT PARSE IS A
     # FAILURE (Copilot review, this PR). A `match()` that skipped what it could
     # not read let a malformed row — a key outside the character class, a sixth
@@ -1868,7 +1892,7 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     # backticks, a word appended after the list — is refused rather than
     # quietly dropped by the `findall` that follows.
     roots_list = re.compile(r"`[^`]+`(?:, `[^`]+`)*")
-    lines = [line.rstrip() for line in table.strip().splitlines()]
+    lines = [line.rstrip() for line in after[first:end]]
     assert lines[0] == header, lines[0]
     assert lines[1] == ruler, lines[1]
     stated: dict[str, tuple[int, int, int, int]] = {}
@@ -1876,9 +1900,12 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     for line in lines[2:]:
         found = record.fullmatch(line)
         assert found is not None, (
-            "§ 2's per-destination table carries a row this check cannot "
+            "§ 2's per-destination table carries a line this check cannot "
             f"read: {line!r}. A row that does not parse is a row nothing "
-            "asserts, so the table's own shape is refused here, not skipped")
+            "asserts, so the table's own shape is refused here, not skipped — "
+            "and an EMPTY line here is a blank inside the table with rows "
+            "still below it, which would otherwise end the block and hide "
+            "every one of them")
         # ONE AUTHORITATIVE ROW PER DESTINATION, refused HERE rather than
         # silently resolved (Copilot review, this PR). Assigning straight into
         # `stated` lets a later CORRECT row overwrite an earlier STALE
