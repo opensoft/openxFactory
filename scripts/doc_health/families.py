@@ -40,9 +40,19 @@ from . import (AUTO_FIXABLE, CONTESTED, CRITICAL, ERROR, WARNING, INFO,
                TAXONOMY, Finding, Skip, recorded_rel)
 from . import (client_identity_composition, corpus, document_catalog,
                duplicate_packet, family_enumeration, ideation_routing,
-               modified_block_currency, promotion_fidelity, proposal_origin,
-               release_inventory, release_tag_publication)
+               modified_block_currency, pin_shapes, promotion_fidelity,
+               proposal_origin, release_inventory, release_tag_publication)
 from .lines import split_keepends
+
+# The NEUTRAL containment helper at the top of `scripts/` — in neither package,
+# standard library only, and shared with `scripts/validate-pin-registrations.py`
+# so this repository keeps ONE containment dialect rather than a second copy
+# that stops catching things (`extend-prose-tagging-target-to-pinned-
+# capabilities`, task 3.3(m)). Imported by the bare top-level name, exactly as
+# `output_boundary` and `path_slug` are reached from this package: `scripts/` is
+# on `sys.path` for anything that can import `doc_health` at all, since that is
+# where the package itself lives.
+from pin_containment import boundary_dir, resolve_in_root
 
 # Per-family resolution class defaults (doc-health contract): contested
 # families suggest state-changing edits; everything else is mechanical.
@@ -1482,6 +1492,211 @@ def _resolve_change(ctx, repo: str, change: str) -> bool:
     return False
 
 
+# --------------------------------------------------------------------------
+# THE PINNED TARGET ARM
+# (`extend-prose-tagging-target-to-pinned-capabilities`, design D-1/D-2, § 3.1)
+#
+# A candidate marker's `target=` may name a capability of a NEUTRAL PRODUCT THIS
+# REPOSITORY PINS, as `pinned:<pin-id>/<capability>`. The form needed no regex
+# change — `_CAND_OPEN`'s `[^\s>]+` and `_ATTR`'s `\S+` already admit `:` and
+# `/`, which is exactly why the patterns above DO NOT MOVE and why the grammar
+# below is the guard instead of them.
+#
+# IT FAILS CLOSED (re-ruled 2026-09-13, openxFactory #992 comment 5649935136).
+# A pinned target RESOLVES only where ALL THREE hold: the pin id resolves to a
+# `kind: pinned_contract_manifest` record COMPLETE FOR ITS RECORD SHAPE, that
+# record carries a well-formed NON-EMPTY top-level `capabilities:` enumeration,
+# and `<capability>` is a member of it. Any one failing is an UNRESOLVED PINNED
+# TARGET, reported with the remedy ITS OWN defect admits — and never with the
+# in-tree remedy, which for a capability that has left the corpus instructs the
+# author to write something false.
+# --------------------------------------------------------------------------
+
+#: The literal, reserved discriminator. Unambiguous because no capability id in
+#: this corpus contains a colon.
+PINNED_PREFIX = "pinned:"
+
+#: THE LEXICAL GRAMMAR, AND IT IS CHECKED BEFORE ANY PATH IS BUILT. Exactly two
+#: `[a-z0-9]+(-[a-z0-9]+)*` components separated by exactly one `/` — the
+#: measured shape of every capability id under `openspec/specs/` and of every pin
+#: stem in `contracts/`. A component can therefore carry no `/`, `.`, `:`,
+#: whitespace or upper-case letter, and `..` is not expressible in it. Validating
+#: AFTER building a path is how `pinned:../../etc/passwd/x` would become a read
+#: outside the pin registry, so the order is the point.
+_PINNED_VALUE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*$")
+
+
+def _pin_record_text(path: Path) -> str | None:
+    """THE ONE PLACE this arm reads a pin record, so a test can instrument the
+    read surface rather than take "nothing was read" on trust (tasks 3.3(h),
+    3.3(m), 3.3(n)). `None` where the file cannot be read at all."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+
+def _pin_roots(ctx, repo: str):
+    """The resolution roots, in EXACTLY the in-tree arm's own precedence.
+
+    `_resolve_capability` reads the document's own repository root first and the
+    `openxFactory` root second; a single-repository run has ONE root and no
+    fallback. This arm uses that precedence unchanged and invents none of its
+    own — a precedence of its own making would resolve the same marker against
+    different `contracts/<pin-id>-pin.yaml` files depending on how the checker
+    was invoked. What is guaranteed is the ORDER, not an identical OUTCOME
+    across invocation scopes, which is why every finding below names its root.
+    """
+    roots, seen = [], set()
+    for name in (repo, "openxFactory"):
+        path = ctx.repo_paths.get(name)
+        if path is None or name in seen:
+            continue
+        seen.add(name)
+        roots.append((name, Path(path)))
+    return roots
+
+
+def _pinned_arm(ctx, doc, target, lineno, hit):
+    """Judge a `target=pinned:...` value, reporting every defect it carries."""
+    value = target[len(PINNED_PREFIX):]
+    if not _PINNED_VALUE.match(value):
+        hit(ERROR, doc,
+            f"malformed pinned target={target} at line {lineno}",
+            "spell a pinned target pinned:<pin-id>/<capability>, two "
+            "kebab-case components (document-lifecycle grammar)")
+        return
+    pin_id, capability = value.split("/", 1)
+    record = f"contracts/{pin_id}-pin.yaml"
+    searched = []
+    for name, root in _pin_roots(ctx, doc.repo):
+        # THE BOUNDARY BEFORE THE CANDIDATE. Where `<root>/contracts` is itself
+        # a symlink, an implementation comparing a candidate against
+        # `(root / "contracts").resolve()` accepts and READS a file outside the
+        # lexical registry — the redirection having moved the boundary rather
+        # than been caught by it. So the arm refuses FOR THAT ROOT, reading no
+        # candidate at all: every pinned target that would resolve through that
+        # root is affected, and the defect is the registry directory rather than
+        # any one record.
+        boundary, refusal = boundary_dir(root)
+        if boundary is None:
+            hit(ERROR, doc,
+                f"pinned target={target} at line {lineno}: root {name} "
+                f"{refusal[1]}",
+                "make the resolution root's contracts/ a real directory rather "
+                "than a redirection (document-lifecycle grammar)")
+            continue
+        searched.append(name)
+        candidate, refusal = resolve_in_root(record, root, boundary=boundary)
+        if candidate is None:
+            hit(ERROR, doc,
+                f"pinned target={target} at line {lineno}: {record} resolves "
+                f"outside root {name}'s contracts/ directory",
+                "keep the pin record inside its root's contracts/ directory "
+                "rather than a symlink out of it (document-lifecycle grammar)")
+            return
+        if not candidate.is_file():
+            continue          # this root carries no such record; try the next
+        _judge_pinned_record(doc, hit, target=target, lineno=lineno,
+                             pin_id=pin_id, capability=capability,
+                             root=name, record=record, path=candidate)
+        return
+    if searched:
+        hit(ERROR, doc,
+            f"unresolved pinned target={target} at line {lineno}: no {record} "
+            f"under root(s) {', '.join(searched)}",
+            "name a pin the registry under contracts/ carries "
+            "(document-lifecycle grammar)")
+
+
+def _judge_pinned_record(doc, hit, *, target, lineno, pin_id, capability,
+                         root, record, path):
+    """The three prerequisites, over the record this root carries.
+
+    Reached THROUGH THE MARKER and never by a sweep: a pin record is read here
+    because a live marker names it, and a pin record no live marker references
+    is `neutral-product-pin`'s business rather than this family's.
+    """
+    text = _pin_record_text(path)
+    unreadable = ("repair the pin record so it reads as a mapping carrying a "
+                  "kind: (document-lifecycle grammar)")
+    if text is None:
+        hit(ERROR, doc,
+            f"pinned target={target} at line {lineno}: {record} in root {root} "
+            f"cannot be read",
+            unreadable)
+        return
+    try:
+        import yaml
+    except ImportError:                                     # pragma: no cover
+        return              # no parser, so no judgement — and no false finding
+    try:
+        content = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        hit(ERROR, doc,
+            f"pinned target={target} at line {lineno}: {record} in root {root} "
+            f"is not readable as YAML ({type(exc).__name__})",
+            unreadable)
+        return
+    if not isinstance(content, dict) or "kind" not in content:
+        hit(ERROR, doc,
+            f"pinned target={target} at line {lineno}: {record} in root {root} "
+            f"is not a mapping carrying a kind:",
+            unreadable)
+        return
+    if content["kind"] != pin_shapes.KIND:
+        hit(ERROR, doc,
+            f"pinned target={target} at line {lineno}: {record} in root {root} "
+            f"declares kind {content['kind']!r}, not {pin_shapes.KIND}",
+            "name a neutral-product pin rather than a pin-shaped record of "
+            "another kind (document-lifecycle grammar)")
+        return
+
+    # `verify_pin:` IS DATA THIS ARM MAY COMPARE AND MUST NOT FOLLOW. The path
+    # is never opened, imported or run; a value differing from what the adapter
+    # holds for this pin id is a finding that stands BESIDE the resolution
+    # rather than in place of it, a disagreement about which code would judge
+    # the record being no fact about the record's shape.
+    tracked = pin_shapes.TRACKED_VERIFIERS.get(pin_id)
+    if tracked is not None and content.get("verify_pin", tracked) != tracked:
+        hit(ERROR, doc,
+            f"pinned target={target} at line {lineno}: {record} in root {root} "
+            f"names verify_pin {content['verify_pin']!r}, not the {tracked} "
+            f"this checker tracks for it",
+            "reconcile the pin record's verify_pin: with the verifier the "
+            "resolver tracks for it (document-lifecycle grammar)")
+
+    verdict = pin_shapes.judge(content)
+    if not verdict.accepted:
+        hit(ERROR, doc,
+            f"invalid pin for target={target} at line {lineno}: {record} in "
+            f"root {root} — {verdict.render()}",
+            "complete the pin record for its record shape through a "
+            "neutral-product-pin change (document-lifecycle grammar)")
+        return
+
+    enumeration = pin_shapes.enumeration(content)
+    if enumeration.state == pin_shapes.ABSENT:
+        hit(ERROR, doc,
+            f"unresolved pinned target={target} at line {lineno}: {record} in "
+            f"root {root} carries no capabilities: enumeration",
+            "the publisher adds capabilities: to the pin record through a "
+            "neutral-product-pin change (document-lifecycle grammar)")
+    elif enumeration.state == pin_shapes.MALFORMED:
+        hit(ERROR, doc,
+            f"unresolved pinned target={target} at line {lineno}: the "
+            f"capabilities: enumeration in {record} (root {root}) is "
+            f"malformed — {enumeration.detail}",
+            "repair the pin record's capabilities: member to a non-empty "
+            "sequence of capability names (document-lifecycle grammar)")
+    elif not enumeration.carries(capability):
+        hit(ERROR, doc,
+            f"unresolved pinned target={target} at line {lineno}: {record} in "
+            f"root {root} enumerates {', '.join(enumeration.names)}",
+            "name a capability the pin record's capabilities: enumeration "
+            "carries (document-lifecycle grammar)")
+
+
 def fam_tag_hygiene(ctx):
     findings = []
 
@@ -1517,6 +1732,12 @@ def fam_tag_hygiene(ctx):
                     hit(ERROR, doc,
                         f"candidate open without target= at line {lineno}",
                         "add target=<capability> (document-lifecycle grammar)")
+                elif target.startswith(PINNED_PREFIX):
+                    # THE IN-TREE ARM MUST NOT JUDGE A PINNED VALUE: a
+                    # well-formed `pinned:` target exists under no
+                    # `openspec/specs/` directory, so an unnarrowed in-tree arm
+                    # would report every one of them with the wrong remedy.
+                    _pinned_arm(ctx, doc, target, lineno, hit)
                 elif not _resolve_capability(ctx, doc.repo, target):
                     hit(ERROR, doc,
                         f"unresolved target={target} at line {lineno}",
@@ -1536,7 +1757,20 @@ def fam_tag_hygiene(ctx):
             elif m := _SUPERSEDES.match(bare):
                 attrs = dict(_ATTR.findall(m.group(1)))
                 spec = attrs.get("spec")
-                if not spec or "/" not in spec:
+                if spec and spec.startswith(PINNED_PREFIX):
+                    # D-1.1: the pinned form is admitted in a CANDIDATE marker's
+                    # `target=` ONLY. A `spec=` value already carries a separator
+                    # of its own — `<capability>/<requirement-slug>`, split at
+                    # the FIRST `/` below — so a pinned value there would need a
+                    # parse rule no text defines, and a deferred form fails
+                    # closed rather than resolving by accident.
+                    hit(ERROR, doc,
+                        f"supersedes spec={spec} carries the reserved pinned: "
+                        f"prefix at line {lineno}",
+                        "the pinned form is admitted only in a candidate "
+                        "marker's target= attribute (document-lifecycle "
+                        "grammar)")
+                elif not spec or "/" not in spec:
                     hit(ERROR, doc,
                         f"supersedes without spec=<capability>/<requirement> "
                         f"at line {lineno}",
