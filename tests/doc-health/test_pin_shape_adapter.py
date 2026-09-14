@@ -586,6 +586,28 @@ def test_the_product_identity_entry_has_two_regimes_keyed_on_the_pin_id():
                         unknown).names("source_repository")
 
 
+def test_an_unknown_pin_carrying_both_identity_spellings_is_accepted_not_refused():
+    """(PR #1040 round 4, RULED STANDS.) D-2's "EXACTLY ONE product-identity
+    member" describes the TABLE ENTRY — the required set holds one such member,
+    resolved per record — not a prohibition on a record CARRYING the other
+    spelling as an extra top-level member. "The UNION would refuse
+    openxwallet-pin.yaml" is about REQUIRING both, not about refusing their
+    co-presence: the real openxwallet record carries BOTH spellings today, and
+    neither shape-(a) verifier refuses a record for carrying the one it does not
+    read. An adapter refusing a both-present record would therefore be WIDER
+    than the guards, which is the defect the two-leg test forbids. For an
+    UNKNOWN pin the alternation admits either or both and refuses only
+    NEITHER."""
+    record = dict(_base("a"), submodule_path="vendor/x",
+                  source_repository="opensoft/x")
+    assert ps.judge(record, pin_id="fixture-unknown").accepted
+    assert ps.judge(record).accepted
+    neither = {k: v for k, v in record.items()
+               if k not in ("submodule_path", "source_repository")}
+    verdict = ps.judge(neither, pin_id="fixture-unknown")
+    assert not verdict.accepted and verdict.names("submodule_path or source_repository")
+
+
 def test_a_record_matching_no_shape_and_an_unknown_revision_kind_are_invalid():
     """AND the UNKNOWN cases. `contracts/evil-pin.yaml` carrying `kind`,
     `revision_kind: commit` and a well-formed `commit` AND NOTHING ELSE
