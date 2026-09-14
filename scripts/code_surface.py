@@ -400,8 +400,22 @@ def parse_head(raw: object) -> Head:
             "and did not make")
     if _BLOCK_SCALAR_RE.match(text):
         indicator = text.split()[0] if text.split() else text[:2]
+        # THE WORDING FOLLOWS THE REQUIREMENT'S TITLE AND NOT ITS BODY PROSE,
+        # AND THAT IS DELIBERATE. `_BLOCK_SCALAR_RE` admits BOTH block-scalar
+        # styles, and they are not the same style: `|` is the LITERAL style and
+        # `>` the FOLDED one (YAML 1.2 § 8.1.2, § 8.1.3). The ratified
+        # requirement's own title says "A DECLARATION WRITTEN AS A YAML BLOCK
+        # SCALAR SHALL BE REFUSED BY NAME" and its scenario is titled "A
+        # declaration is written as a YAML block scalar"; only the explanatory
+        # sentence inside it calls both "folding indicators", which is a slip.
+        # The message therefore says BLOCK-SCALAR — the accurate term, and the
+        # requirement's own title's — and names the indicator it actually saw,
+        # which is what the requirement makes normative ("MUST name the
+        # indicator as the defect"). NOT ONE BYTE OF THE RATIFIED DELTA IS
+        # EDITED HERE; the slip is flagged for the record, not corrected in a
+        # realization pull request.
         raise CodeSurfaceError(
-            f"opens with the YAML folding indicator `{indicator}`. "
+            f"opens with the YAML block-scalar indicator `{indicator}`. "
             f"`{FIELD}:` is a PROSE HEADER that no YAML loader reads, so the "
             "indicator is not consumed as YAML syntax — it survives into the "
             "value and becomes the first thing a reader sees where a "

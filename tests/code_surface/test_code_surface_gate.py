@@ -252,7 +252,12 @@ def test_the_sentinel_is_matched_exactly_and_None_capitalized_is_not_it():
         cs.parse_head("None of this repository's runtime artifacts move")
 
 
-# --- the YAML folding indicator, refused BY NAME ------------------------------
+# --- the YAML block-scalar indicator, refused BY NAME -------------------------
+# BOTH STYLES, AND THEY ARE TWO: `|` is the LITERAL style and `>` the FOLDED one
+# (YAML 1.2 § 8.1.2, § 8.1.3). The refusal says "block-scalar", which is the
+# accurate term for the pair and the ratified requirement's own TITLE's; the
+# delta's explanatory sentence calls both "folding indicators", and that slip is
+# recorded rather than copied into the message a reader actually meets.
 
 
 @pytest.mark.parametrize("indicator", [">-", "|", ">", "|-", ">+", "|2-"])
@@ -260,8 +265,10 @@ def test_a_block_scalar_declaration_is_refused_by_name(indicator):
     with pytest.raises(cs.CodeSurfaceError) as caught:
         cs.parse_head(f"{indicator}\n  openxFactory — the surface")
     message = str(caught.value)
-    assert "YAML folding indicator" in message
+    assert "YAML block-scalar indicator" in message
     assert indicator in message
+    # and it never labels the LITERAL style as a folding one, or vice versa
+    assert "folding indicator" not in message
 
 
 def test_the_block_scalar_refusal_is_not_merely_an_unreadable_head():

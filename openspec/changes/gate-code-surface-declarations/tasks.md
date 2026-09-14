@@ -281,7 +281,7 @@ and is corrected in place where the number is now false.
       EXCLUSIVE, so a MIXED head such as `none, openxFactory` is REFUSED and no
       derived set is computed for it, in either order and wherever in the list
       the token sits (`design.md` D9 (a)); requires a GLOSS OPENER where a gloss
-      follows; refuses a YAML folding indicator BY NAME; refuses a repeated
+      follows; refuses a YAML block-scalar indicator BY NAME; refuses a repeated
       declaration; loads and shape-checks the register; scans top-level active
       changes and counts the archive.
       **LANDED**: `parse_head` (the head, the openers, the reserved sentinel),
@@ -292,10 +292,30 @@ and is corrected in place where the number is now false.
       repository identifier(s) … self-contradictory rather than wide"`), raised
       BEFORE any set is built, so no derived set is computed for such a head —
       pinned in either order and at every list position by
-      `test_a_mixed_none_head_is_refused_wherever_the_token_sits`. The block
-      scalar is refused by name (`"opens with the YAML folding indicator
-      \`>-\`"`) and NOT as a generic unreadable head, pinned by
+      `test_a_mixed_none_head_is_refused_wherever_the_token_sits` — and a head
+      that REPEATS the sentinel (`none, none`) is refused as the repeat it is
+      (`"repeats the empty-surface sentinel \`none\` N times as a list"`) rather
+      than mis-reported as a mix with an empty parenthetical, a fix-round nit.
+      The block scalar is refused by name (`"opens with the YAML BLOCK-SCALAR
+      indicator \`>-\`"`) and NOT as a generic unreadable head, pinned by
       `test_the_block_scalar_refusal_is_not_merely_an_unreadable_head`.
+      **THE MESSAGE SAYS BLOCK-SCALAR AND NOT FOLDING, AND THE REASON IS
+      RECORDED HERE RATHER THAN LEFT TO THE NEXT READER TO "CORRECT" BACK.**
+      `_BLOCK_SCALAR_RE` admits both styles and they are two: `|` is the
+      LITERAL style and `>` the FOLDED one (YAML 1.2 § 8.1.2, § 8.1.3). The
+      ratified requirement's own TITLE says *"A DECLARATION WRITTEN AS A YAML
+      BLOCK SCALAR SHALL BE REFUSED BY NAME"* and its scenario is titled *"A
+      declaration is written as a YAML block scalar"*; only the explanatory
+      sentence inside the requirement calls both *"YAML folding indicators"*,
+      which mislabels `|`. The message follows the TITLE — the accurate term —
+      and names the indicator it actually saw, which is the part the
+      requirement makes normative (*"MUST name the indicator as the defect"*).
+      **NOT ONE BYTE OF THE RATIFIED DELTA IS EDITED BY THIS PULL REQUEST**:
+      the slip is a wording defect in ratified prose, flagged for the record
+      and owed a separate act, never corrected inside a realization.
+      (§ 2.2's measurement keeps the word "folding" and is right to: the ONE
+      carrier the corpus actually holds declares `>-`, which IS the folded
+      style.)
 - [x] 3.2 `scripts/validate-code-surface.py` (NEW) — the CLI, in
       `validate-scope-globs.py`'s shape. `[REPO_ROOT]` plus `--register PATH`
       (for the tests and for a consuming tree; the gate runs it with neither).
