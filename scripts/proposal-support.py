@@ -2246,9 +2246,12 @@ def ratifying_commit(root: Path, change: str, *,
     THIS FILE: it arrives with slice 4 (PR #1039), so a checkout that predates
     that merge carries this walk and no such validator, and REQUIRING the
     check is a further act again (`tasks.md` § 4.5, an operator act still
-    outstanding on 2026-09-14). Until both are done an undeclared move is
-    refused by the rule and stopped by nothing — and nothing in THIS function
-    changes when they are. What this WALK does not do — deliberately — is
+    outstanding on 2026-09-14). Until both are done an undeclared move can
+    still LAND; what still stops one is this walk itself, whose
+    `origin-retention-path-moved` refusal reaches a single undeclared hop AT
+    THE ARCHIVE — the enforcement the paragraph above describes, and the one
+    the multi-hop chain escapes. Nothing in THIS function changes when the
+    landing gate lands or is required. What this WALK does not do — deliberately — is
     reach an UNDECLARED multi-hop chain that is already in history: nothing
     connects `change-t` to `change-r` there, which is the whole argument for a
     declaration.

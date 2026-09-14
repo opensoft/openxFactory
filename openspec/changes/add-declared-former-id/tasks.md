@@ -412,8 +412,10 @@ realization evidence and a further word.
       commit that performs it, with the rule and its enforcement said
       SEPARATELY: as measured 2026-09-14 the gate had not landed on `main`
       (§ 4.1–4.4) and was named by no branch ruleset (§ 4.5), so the sentence
-      says an undeclared arrival is refused by the rule and stopped by
-      nothing rather than implying a protection this estate does not have.
+      says an undeclared arrival can still LAND meanwhile, with the archive
+      refusal `origin-retention-path-moved` named as the one enforcement
+      that does stand — a single undeclared hop, at the archive, never at the
+      landing — rather than implying a protection this estate does not have.
       The citation also states the PACKET'S OWN state — ratified 2026-09-13,
       its `release-realization` delta promoting at § 7.1 and not before —
       because canon carries neither the amended sentence nor the one it
