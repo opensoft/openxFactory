@@ -848,6 +848,8 @@ Neither, per § 8, does an admitted convening.
 
 ---
 
+> **POINTER ADDED 2026-09-14 — THE HOLD IS LIFTED (task 6.21), § 13.3.** Posted 2026-09-14T09:10:05Z on #279 (`5661634651`), mirrored on PR #439 (`5661635340`) and in `LANES.md` (`837c9e9`), after § 13.1 (EMPTY) and § 13.2 (`ahead`). The lift releases the `gate_rules_council` hold only.
+
 ## 10. THE WORDS AS SPOKEN
 
 | UTC | Brett Heap, verbatim | What it authorized |
@@ -1134,11 +1136,61 @@ published projection's own data; (ii) that row's `expires_at` matching
 These follow from the source revision only if the refresher is faithful to its
 input, which is its whole job but is not a thing this read observed.
 
+**Posted in full at** codexFactory [#279 comment 5661631470](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5661631470) (2026-09-14T09:09:49Z), before the lift; the raw `az aks command invoke` output is attached to openxFactory #1033 (comment 5661515412).
+
 ### 13.3 The hold lift (task 6.21) — **APPENDED BY PART C. THE HOLD IS IN FORCE.**
 
 Posted only after § 13.1 and § 13.2 both pass, citing **T2's merge commit** and
 **this file's path**, and naming any wording mismatch as the precedent's lift
 text did.
+
+#### 13.3 — APPENDED 2026-09-14, PART C: THE HOLD IS **LIFTED**
+
+Posted 2026-09-14T09:10:05Z–2026-09-14T09:10:20Z, in the **same three places** the hold of
+2026-09-12T15:57:19Z was posted — § 3.4 of this record names one (issue #279);
+the register's own line of 2026-09-12T15:57:40Z names all three (*"HOLD posted
+(#279 5646989264, #439 5646989441)"* plus the row itself) — and nowhere else:
+
+| Where | URL / id | UTC |
+|---|---|---|
+| codexFactory issue **#279** | [`issuecomment-5661634651`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5661634651) | 2026-09-14T09:10:05Z |
+| codexFactory PR **#439** (merged; the hold's second posting, `5646989441`) | [`issuecomment-5661635340`](https://github.com/codeXfactory/codexFactory/pull/439#issuecomment-5661635340) | 2026-09-14T09:10:09Z |
+| `LANES.md` (`opensoft/brett-wip` `lanes/LANES.md`, row `codeXfactory-2`) | commit `837c9e9`, pushed to `origin/main` | 2026-09-14T09:10:20Z |
+
+The lift sentence, as posted:
+
+> LIFTED — the HOLD posted at 2026-09-12T15:57:19Z on `agent:gate-rules-council`
+> convenings (this issue, comment `5646989264`; mirrored on PR #439 comment
+> `5646989441` and in `LANES.md`), by lane `hermes-wallet-exercise` — register
+> key `codeXfactory-2` since 2026-09-14T00:30Z (same lane, same window).
+
+**IT CITES BOTH HALVES, AND IT NAMES THE MISMATCHES — as § 9 and task 6.21
+require.** T1 (`eff9ae19`, 2026-09-12T15:59:10Z) and T2 (`765d8c6f`,
+2026-09-13T22:30:20Z, Brett Heap's word *"merge 1006"*); § 13.1's EMPTY window
+under both candidate upper bounds; § 13.2's read with its values and the
+`ahead` result; the record id — **this file's path** — with §§ 13.1/13.2 on
+openxFactory #1033. Three wording mismatches are named rather than reworded:
+**(1)** the hold says *"the 3.8 window check"* — task 3.8 of this change is a
+pre-push validator run; the check performed is task 6.19, the 3.8-equivalent,
+by the 2026-09-11 walk's § 13.1 method (runbook § 4.2). **(2)** The hold calls
+H2 *"Brett Heap's register act … human-only surface"* — the act is his, by his
+word *"merge 1006"*, and the hands that merged were this lane's, as § 7.2
+defines "operator act". **(3)** The hold says the lift is posted *"on Brett
+Heap's word, after that read"* — the word relied on is the read-word itself
+(*"do the 5b read"*, 2026-09-13T22:4xZ); `tasks.md` 6.21 is a `[lane]` task
+with no separate operator word, and the lift states that reading so a reader
+can disagree with it. **The original hold postings are not reworded.**
+
+The lift releases **this hold and nothing else**: merge-readiness-council
+convenings were never held (§ 3.4 — `grant-mrc-0002` did not move). It carries
+forward, undischarged, Brett Heap's two still-open words of 2026-09-11 —
+**13:26:14Z** *"convene C2"* (the live half of *"merge the packet PR when green
+then convene C2"*) and **13:27:23Z** *"merge the C2 record PR when green"* —
+both owed at `tasks.md` 6.25–6.26, downstream of 6.22 (`deliberation_packet.py
+resolved-seats` → `unbound_conjunction_seats` EMPTY), the proof convening
+(6.24, Brett Heap dispatches) and C2 (6.25). **What the lift does not claim:**
+no convening was dispatched or admitted as proof — § 8's route does not reach
+the register projection, and none was tried.
 
 ### 13.4 The proof convening (task 6.24) — **APPENDED BY PART C**
 
@@ -1174,7 +1226,7 @@ is not discovered afterwards.
 | ~~the fill~~ **DONE** + the merge (T2) — **STILL OWED** | the lane filled; **Brett Heap merges** | everything below |
 | ~~§ 13.1 window check~~ **DONE `2026-09-13T22:4xZ`** | the lane | § 13.3 |
 | ~~§ 13.2 5b read~~ **DONE `2026-09-14T08:56:47Z`** | Brett Heap's word, then the lane | § 13.3 |
-| § 13.3 lift | the lane, on his word | § 13.4 |
+| ~~§ 13.3 lift~~ **DONE `2026-09-14T09:10:05Z`** | the lane, on his word | § 13.4 |
 | § 13.4 proof convening | Brett Heap dispatches | § 13.5 |
 | LQ2-C2 corroboration | the lane, ruled to follow T1 | nothing here |
 | LQ2-C4 re-route | the lane | § 13.5's convening |

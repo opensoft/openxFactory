@@ -936,9 +936,10 @@ still Brett Heap's, and the merge is T2.
       **DONE 2026-09-14T08:56:47Z — walk-2026-09-12-register-act.md § 13.2
       (appended 2026-09-14): source-revision 96895259 ahead of T2 765d8c6f; by
       source revision only, three row-level fields OWED.**
-- [ ] 6.21 **[lane]** LIFT the hold, citing T2's merge commit and the
+- [x] 6.21 **[lane]** LIFT the hold, citing T2's merge commit and the
       walk-record path, and naming any wording mismatch as the precedent's lift
       text did.
+      **DONE 2026-09-14T09:10:05Z — LIFTED on cxF #279 (5661634651), PR #439 (5661635340) and LANES.md (837c9e9); walk-2026-09-12-register-act.md § 13.3 (appended 2026-09-14). Three wording mismatches named, none reworded.**
 - [ ] 6.22 **[lane]** Re-run `deliberation_packet.py resolved-seats` against a
       security-surface-touching subject and **confirm
       `unbound_conjunction_seats` is EMPTY.** This is the concrete verification
