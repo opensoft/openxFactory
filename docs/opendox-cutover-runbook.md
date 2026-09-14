@@ -202,15 +202,19 @@ test-layout files that carve leg 1 measured:
 * `tests/ideation-dashboard/conftest.py` gains the first **`edits:` any replica
   row has carried** — `path constants`, line 25. A SECOND line joined it later,
   `:271` under `adapter calls`, when the pre-existing `openxdox_code`
-  annotation declared openXdox-code#14's 27-line § 4.4 pytest fixture — the
-  bound is still on the LINE and still applied at every replica, and
-  openDox-code's copy does not take it (measured at `05bbde80`: 271 lines, the
-  declared `:25` and nothing else). `REPO_ROOT =
-  HERE.parent.parent` resolves outside the destination repository once the copy
-  lands one directory shallower at `tests/conftest.py`, and must read
-  `HERE.parent`. It is applied identically at every replica, which is a bound on
-  the LINE: `verify-carve-arrival.py` verifies one destination per run and
-  compares no two legs' copies with each other.
+  annotation declared openXdox-code#14's 27-line § 4.4 pytest fixture. **Each
+  declared line is a PERMISSION at every replica of this file and an OBLIGATION
+  at none** — `edits:` is a field of the ROW and a replica has no row of its
+  own — so what the grammar bounds is the LINE, and which of them a given copy
+  takes is that leg's own declared act: openXdox-code's takes both,
+  openDox-code's takes `:25` alone (measured at `05bbde80`: 271 lines, the
+  declared `:25` and nothing else). `REPO_ROOT = HERE.parent.parent` resolves
+  outside the destination repository once the copy lands one directory
+  shallower at `tests/conftest.py`, and must read `HERE.parent`; that one both
+  `-code` legs owe, because both place the file at that depth — and where a
+  line IS applied its text is the same at every replica, for the same reason.
+  None of which `verify-carve-arrival.py` proves across legs: it verifies one
+  destination per run and compares no two legs' copies with each other.
 
 The **two replica lines belong to no destination column below** — `:25` (the
 1422nd declared line when this paragraph was written) and, since the
@@ -235,10 +239,11 @@ true only of the declared-roots column, the one cell
 `test_the_real_manifest_declares_the_roots_the_runbook_names` asserts, **and
 that sentence now says so at the table itself** rather than only here: a
 registration sixty lines above the cells is not read by the operator who reads
-the cells. The corrected cells are NOT restated here: this document states a set of absolutes
-in exactly one place, and two acts restating one set is how a count goes wrong
-in a merge. Registered here rather than quietly re-derived, because slices S7
-and S8 are in flight over the same cells and ONE act should redistribute them.
+the cells. The corrected cells are NOT restated here: this document states a
+set of absolutes in exactly one place, and two acts restating one set is how a
+count goes wrong in a merge. Registered here rather than quietly re-derived,
+because slices S7 and S8 are in flight over the same cells and ONE act should
+redistribute them.
 **Under every other `not_moved` reason `edits:` is still a refusal**: RULING
 OQ-B's three `stays_openxfactory_governance` rows stay here and take their
 import rewrite in openxFactory, so they go on recording it in `evidence:`. And
@@ -251,14 +256,15 @@ hand-chained through every intervening amendment) — **and it is a DATED
 record, not a statement of the current totals**: on that day the aggregate
 above, the two paragraphs with it and the per-destination table below all
 stated the totals as of the § 3.4 SLICE-S3 row annotation (`#656` comment
-`5642758731`, openxFactory PR #1001) merged with every row annotation since RULED Q-L7 (a) above —
-among them BUILD slice 2's nine openDox-code back-imports, a second Q-L1
-annotation round (`#656` comment `5628560136`), the ASK-7 declared-edit
-window (`#656` comment `5635150678`, PR #995), the § 3.4 SLICE S2
-intent-chips annotation (RULED Q5, `#656` comment `5642758731`, openxFactory
-PR #1002, landing first per Q-L1's own landing order), PR #1001's own
-post-landing extension catching up the openDox-code #14 fix round's one-line
-`test_doc_surfaces.py` edit, and the § 3.4 SLICE S6 annotation (RULED Q4,
+`5642758731`, openxFactory PR #1001) merged with every row annotation since
+RULED Q-L7 (a) above — among them BUILD slice 2's nine openDox-code
+back-imports, a second Q-L1 annotation round (`#656` comment `5628560136`),
+the ASK-7 declared-edit window (`#656` comment `5635150678`, PR #995), the
+§ 3.4 SLICE S2 intent-chips annotation (RULED Q5, `#656` comment
+`5642758731`, openxFactory PR #1002, landing first per Q-L1's own landing
+order), PR #1001's own post-landing extension catching up the openDox-code
+#14 fix round's one-line `test_doc_surfaces.py` edit, and the § 3.4 SLICE S6
+annotation (RULED Q4,
 `#656` comment `5642758731`) declaring the `/source` re-homing's ten
 `serve.py` lines and 122 matching `serve_projection.py` deletions, on the same
 two rows' existing `edits:` and no new row, and the § 3.4 SLICE S4 annotation
@@ -858,9 +864,9 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
     --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py \
     --replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py
-# expect exit 0: … declared-edit row(s) within their lines …; 4 of 4 declared
-# replica(s) verified (byte-identical, or — where the row declares lines —
-# differing only on them)
+# expect exit 0: … declared-edit row(s) within their lines …;
+# 4 of 4 declared replica(s) verified (byte-identical, or — where
+# the row declares lines — differing only on them)
 ```
 
 **The fourth `--replica-at` is this leg's conftest, and without it the command

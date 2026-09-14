@@ -169,12 +169,15 @@ test-layout files, and the ruling amends the grammar once rather than twice:
     `tests/conftest.py`, ONE DIRECTORY SHALLOWER than its source, so its `:25`
     `REPO_ROOT = HERE.parent.parent` points outside the destination repository
     (391 node-gated errors, measured in leg 1's full suite) and must read
-    `HERE.parent` at every replica. The lines are the carve commit's, bounded
+    `HERE.parent` at every replica that places the file — which both `-code`
+    legs do, at the same depth. The lines are the carve commit's, bounded
     by the source blob at `carve_commit` in check 3 exactly as a moved row's
-    are, and the class vocabulary is the same closed three. The edit is
-    APPLIED IDENTICALLY AT EVERY REPLICA — a claim about lines, which is what
-    this grammar can bound; see `verify-carve-arrival.py`'s own docstring for
-    what that does and does not prove at the destination.
+    are, and the class vocabulary is the same closed three. A DECLARED LINE IS
+    PERMITTED AT EVERY REPLICA AND OBLIGED AT NONE — `edits:` is a field of the
+    ROW and a replica has no row of its own — and where a line IS applied its
+    text is the same at each: a claim about lines, which is what this grammar
+    can bound; see `verify-carve-arrival.py`'s own docstring for what that does
+    and does not prove at the destination.
 
   It is NOT the FLOOR PART 2 field. RULING OQ-K's clause (b)
   (`split-opendox-two-layer-product` design § D6 (2)) owes FLOOR PART 1 a field
@@ -2038,8 +2041,10 @@ def check_disposition_consistency(doc: dict) -> None:
                 "digest, which a declared edit contradicts")
         # RULED Q-L7 (a): the ONE reason under which a `not_moved` row's edits
         # are not a contradiction. A replica's bytes DO arrive — a copy at each
-        # destination, retained here — so a line the copy must differ on is a
-        # declarable carve edit, applied identically at every replica. Under
+        # destination, retained here — so a line a copy MAY differ on is a
+        # declarable carve edit: permitted at every replica of that file and
+        # obligatory at none, because `edits:` belongs to the ROW and a replica
+        # has no row of its own. Under
         # every other reason the bytes arrive nowhere and the old finding
         # stands, which is what keeps RULING OQ-B's three
         # `stays_openxfactory_governance` rows recording their rewrite in

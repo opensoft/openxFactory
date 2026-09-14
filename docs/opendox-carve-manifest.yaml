@@ -109,11 +109,20 @@
 #     `opendox_code` that the replicated `tests/ideation-dashboard/conftest.py`
 #     imports UNCONDITIONALLY at `:106` — so collecting `tests/` at openXdox-code
 #     would have failed at import, on a file no row placed there.
-#   * `edits:` ON A `replicated_at_destination` ROW, applied identically at
-#     every replica, with the lines bounded by the SOURCE BLOB at the carve
-#     commit exactly as a moved row's are. The row here is that same
-#     `conftest.py`, whose `:25` `REPO_ROOT = HERE.parent.parent` must read
-#     `HERE.parent` because the replica arrives one directory shallower. Under
+#   * `edits:` ON A `replicated_at_destination` ROW: each declared line is
+#     PERMITTED at every replica of that file and OBLIGATORY at none — the
+#     field belongs to the ROW and a replica has no row of its own — with the
+#     lines bounded by the SOURCE BLOB at the carve commit exactly as a moved
+#     row's are, and with the applied TEXT of a line the same wherever it IS
+#     applied. `scripts/verify-carve-arrival.py` asks ONE question of the
+#     declared SET: `diffed` where a copy differs from the carve blob at all,
+#     and then every differing line must be one of them; `unapplied` only where
+#     the copy is byte-identical. The row here is that same `conftest.py`,
+#     which declares TWO — `:25`, whose `REPO_ROOT = HERE.parent.parent` must
+#     read `HERE.parent` because the replica arrives one directory shallower,
+#     and which both `-code` legs owe because both place the file at that
+#     depth; and `:271`, openXdox-code#14's § 4.4 fixture, which openXdox-code's
+#     copy takes and openDox-code's does not. Under
 #     every OTHER `not_moved` reason `edits:` is still the refusal it was: the
 #     bytes arrive nowhere, so there is no replica for a line to be applied at,
 #     which is why RULING OQ-B's three `stays_openxfactory_governance` rows go
@@ -2409,7 +2418,7 @@ rows:
     edits:
       - class: path constants
         lines: [25]
-        note: "`path constants` and not `adapter calls` under RULING OQ-1's own reservation of that class for PACKAGE-INTERNAL asset and module paths: `gate_console.py:567`'s `parents[2]` arithmetic is the ruling's own example and this is the same shape — the depth of this file's own home, not a corpus-shaped literal being resolved. APPLIED IDENTICALLY AT EVERY REPLICA (RULED Q-L7 (a)): both `-code` legs place this file at `tests/conftest.py`, at the same depth, so the same one-line edit is the correct text at both. The grammar bounds the LINE; the identity of the applied text is the placing pull request's claim and each leg's own suite, because `verify-carve-arrival.py` verifies one destination per run and compares no two legs' copies with each other."
+        note: "`path constants` and not `adapter calls` under RULING OQ-1's own reservation of that class for PACKAGE-INTERNAL asset and module paths: `gate_console.py:567`'s `parents[2]` arithmetic is the ruling's own example and this is the same shape — the depth of this file's own home, not a corpus-shaped literal being resolved. APPLIED IDENTICALLY AT EVERY REPLICA (RULED Q-L7 (a)) — true of THIS line and a property of IT rather than of the grammar, which permits a declared line at every replica and obliges it at none (see this row's `evidence:`, and `:271` below, which openDox-code's copy does not take): both `-code` legs place this file at `tests/conftest.py`, at the same depth, so the same one-line edit is the correct text at both. The grammar bounds the LINE; the identity of the applied text is the placing pull request's claim and each leg's own suite, because `verify-carve-arrival.py` verifies one destination per run and compares no two legs' copies with each other."
       - class: adapter calls
         lines: [271]
         note: "PRE-EXISTING DECLARED-EDIT WINDOW, declared after the fact and in its own act. The edit is openXdox-code's § 4.4 RULING C2 work — PR #14 (`3840c1670771e2dc7bcd64eaafbc43169e0f383d`, landed 2026-09-11 20:41Z) and its follow-up PR #16 (`17384c07dd6aadaa30c35d333e7e83d5298dda43`, 2026-09-12 00:21Z) — and BOTH landed BEFORE the § 3.4 clause that binds a leg to a row annotation (`#656` comment `5642758731`, 2026-09-12 02:07Z: \"each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\"), which is why no slice ever declared it. Slice S5's annotation (openxFactory #1023, `ee251d6c`) § 5 LISTED these three rows as `openxdox_code`'s remaining refusals and deliberately did not absorb them — \"this PR does not invent declared-edit notes for work this lane did not do\"; this is that declaration, measured at openXdox-code `main` `c1ad341a`. CLAIM `#656` comment `5656688910`. THE FOURTH PRE-EXISTING EDIT — the one #1023 could not see, and the reason it could not. That PR read `tests/conftest.py` and `tests/session_fixtures.py` as two `arrival-undeclared-file` gaps \"admitted ad hoc on the command line\" with `--allow-created`. They are neither created nor undeclared: they are THIS row's declared replica and `tests/ideation-dashboard/session_fixtures.py`'s (`also_replicated_to: [openxdox_code]`), and `docs/opendox-cutover-runbook.md` § 5.6 already names the `--replica-at` pair that makes both checkable. `--allow-created` SUPPRESSES the replica check, so reading them that way admitted the NAME and never looked at the bytes — which is the single failure mode `--replica-at`'s own reasoning exists to prevent, and it hid this edit for three days. What is declared: openXdox-code #14 appends a 27-line pytest fixture beside this file's LAST carve line (:271 — an insertion at the end of a file has ONE neighbour, not two), the § 4.4 fixture that takes the registered domain profile AWAY for the duration of one test so `domain_profile.current()`'s refusal can be exercised rather than simulated; the registration itself is made by the repository-root `conftest.py`, which sits outside this destination's declared roots and carries no row. WHAT THIS DECLARATION COSTS, stated here rather than discovered later: `edits:` is a field of a ROW and a replica has no row of its own (RULED Q-L7 (a)), so :271 is now permitted at EVERY replica of this file — and openDox-code's replica does not take it. Measured at openDox-code `main` `05bbde80`: 271 lines, one opcode, the declared :25 and nothing else. A per-replica declaration would need a grammar this manifest does not have, and inventing one inside an annotation PR is the kind of floor edit RULED OQ-1 forbids. Landed at opensoft/openXdox-code#14 `3840c167`; nothing in this file moved again between that commit and `c1ad341a`."
