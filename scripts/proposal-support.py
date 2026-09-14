@@ -545,13 +545,41 @@ def load_packet_at(root: Path, revision: str, rel_path: str) -> dict | None:
 
 
 def change_id_of(directory: Path) -> str:
-    """The change id a packet directory carries, archive date prefix stripped.
+    """The change id a packet directory carries — the ARCHIVE's date prefix
+    stripped, and nothing else.
 
     `openspec/changes/add-x` and `openspec/changes/archive/2026-09-09-add-x`
     are the same IDENTITY at two moments of its life, which is the whole
     reason the archive relocation is never a declared move.
+
+    THE PREFIX IS THE ARCHIVE'S, AND ONLY THE ARCHIVE'S. An ACTIVE
+    directory's NAME IS ITS ID, whatever that name begins with: `CHANGE_ID_RE`
+    admits a leading date, `active_change_dir` resolves such an id verbatim,
+    and this corpus's own test fixture carries `2026-08-04-add-dated`. Read
+    unconditionally, the strip RENAMED every such live packet — and
+    `former_identity_claimants`, which passes live directories through here,
+    then validated and attributed `2026-08-04-add-dated`'s `former_ids:`
+    declaration as `add-dated`'s, so the "an entry may not name the packet's
+    OWN id" refusal was asked about the wrong packet in both directions.
+    (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iEmbV` and PR #1037
+    `PRRT_kwDOTAvnrs6iEemp`.)
+
+    AND THE ARCHIVED HALF IS GENUINELY AMBIGUOUS, which this function does
+    NOT pretend to settle. `archive_directory_name` states the pinned CLI's
+    own rule — a change whose id already carries a `YYYY-MM-DD-` prefix is
+    archived under that id UNCHANGED — so `archive/2026-08-04-foo` is the
+    archive of `foo` AND the archive of a change whose id IS
+    `2026-08-04-foo`, and `names_this_change` says in as many words that "the
+    two readings are indistinguishable from the name". This returns the
+    commoner reading for the callers that want one string; a caller ASKING
+    WHETHER A DIRECTORY IS A GIVEN CHANGE'S asks `names_this_change`, and a
+    caller resolving an identity to a PATH asks `identity_paths_at`, which
+    admits both readings and refuses where one identity matches two
+    directories.
     """
-    return _ARCHIVE_DATE_RE.sub("", directory.name)
+    if directory.parent.name != "archive":
+        return directory.name
+    return _ARCHIVE_DATE_RE.sub("", directory.name, count=1)
 
 
 def former_id_problems(change: str, packet: dict | None) -> list[str]:
@@ -716,6 +744,19 @@ def former_identity_claimants(root: Path) -> dict[str, list[str]]:
 
     A malformed declaration is skipped rather than raised over: this is the
     corpus sweep, and `former_id_problems` is the reader that reports shape.
+
+    ONE RESIDUE, NAMED RATHER THAN LEFT TO BE DISCOVERED. `change_id_of` reads
+    an ARCHIVED directory's name the commoner way, and for the ambiguous shape
+    `archive_directory_name` creates — a change whose id already carried a
+    `YYYY-MM-DD-` prefix, archived under that id unchanged — the other reading
+    is the right one. Such a packet declaring its OWN id in `former_ids:`
+    would therefore escape the "a packet cannot be the move of itself" arm
+    here. The estate has no change of that shape today (`ls
+    openspec/changes/archive/` is all `<date>-<undated-id>`), the LIVE half of
+    this sweep is exact since the prefix is no longer stripped from an active
+    directory, and settling the archived half needs the active-ids reading
+    `names_this_change` takes — which this sweep cannot take for a packet that
+    has already left the active tree.
     """
     claimants: dict[str, list[str]] = {}
 
@@ -1208,7 +1249,7 @@ def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
     `identity` NAMES WHOSE WALK THIS IS in that refusal, and defaults to the
     id `rel` addresses so that no caller can leave the refusal unattributed.
     """
-    identity = identity or _change_id_of_proposal_path(rel) or rel
+    identity = identity or _first_change_id_of_proposal_path(rel) or rel
     former = _pairing_or_refuse(root, revision, rel, kinds=kinds,
                                 identity=identity)
     if former is None:
@@ -1221,6 +1262,38 @@ def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
 
 _ARCHIVE_DIR_RE = re.compile(r"^(?P<date>\d{4}-\d{2}-\d{2})-(?P<id>.+)$")
 _ARCHIVE_ROOT = "openspec/changes/archive/"
+
+
+def _archive_dir_carries(name: str, identity: str) -> bool:
+    """Is the archive directory `name` a location `identity` can occupy?
+
+    TWO READINGS, AND THE EXACT ONE IS ASKED FIRST. `archive_directory_name`
+    states the pinned CLI's own rule: a change whose id ALREADY carries a
+    `YYYY-MM-DD-` prefix is archived under that id UNCHANGED, because
+    "re-prefixing would stutter the name, and when the archive runs on a
+    later day the folder would sort under a day on which the change did not
+    happen". So `openspec/changes/archive/2026-09-09-foo` is the archived
+    `foo` AND the archived `2026-09-09-foo`, and reading the date prefix
+    unconditionally lost the second: `identity_paths_at(root, revision,
+    "2026-09-09-foo")` reported the packet ABSENT with its `proposal.md`
+    standing in that very directory, so the walk passed its ratification by.
+    (Codex P2 `PRRT_kwDOTAvnrs6iElb4` and Copilot `PRRT_kwDOTAvnrs6iEmbp` on
+    PR #1038.)
+
+    ADMITTING BOTH IS WHAT THE REQUIREMENT ASKS FOR, not a hedge. The
+    identity resolution "SHALL NOT infer an identity from rename detection,
+    from similarity between two packets, or from any walk over a lineage" —
+    and a directory name is none of those; it is the location the id occupies,
+    read the two ways the estate's own archiver can have written it. Where
+    ONE identity matches two directories that way, `proposal_path_at` refuses
+    CANNOT RUN naming both, which is the ratified scenario *A declared
+    identity resolves to two locations at one commit* and the reason this
+    answers a BOOLEAN per row rather than picking a winner.
+    """
+    if name == identity:
+        return True
+    match = _ARCHIVE_DIR_RE.match(name)
+    return match is not None and match.group("id") == identity
 
 
 def _tree_rows(root: Path, revision: str, path: str) -> list[str] | None:
@@ -1397,8 +1470,7 @@ def identity_paths_at(root: Path, revision: str, identity: str, *,
                      f"so whether {identity} stands there")
     for row in archive_rows:
         name = row.rstrip("/").rsplit("/", 1)[-1]
-        match = _ARCHIVE_DIR_RE.match(name)
-        if match is None or match.group("id") != identity:
+        if not _archive_dir_carries(name, identity):
             continue
         archived = f"{_ARCHIVE_ROOT}{name}/proposal.md"
         if _rows_or_refuse(root, revision, archived, identity=identity,
@@ -1464,28 +1536,63 @@ def _identity_pathspecs(identity: str) -> list[str]:
             f":(glob){_ARCHIVE_ROOT}*-{identity}/proposal.md"]
 
 
-def _change_id_of_proposal_path(rel: str) -> str | None:
-    """The change id a `openspec/changes/…/proposal.md` path addresses."""
+def _change_ids_of_proposal_path(rel: str) -> list[str]:
+    """EVERY change id a `openspec/changes/…/proposal.md` path can address.
+
+    A LIST, for the archived half's genuine ambiguity that
+    `_archive_dir_carries` states: `archive/2026-09-09-foo` addresses `foo`
+    and addresses `2026-09-09-foo`, and a reader that returned only the first
+    could not recognise a packet that DECLARES the second as a former id —
+    the declared move would then take the undeclared move's refusal. The
+    exact directory name comes FIRST, so `_first_change_id_of_proposal_path`
+    names the packet as its directory spells it.
+
+    An ACTIVE path addresses exactly one id: its second segment, verbatim.
+    """
     parts = rel.split("/")
     if len(parts) < 4 or parts[0] != "openspec" or parts[1] != "changes":
-        return None
+        return []
     if parts[2] == "archive":
         if len(parts) < 5:
-            return None
+            return []
+        found = [parts[3]]
         match = _ARCHIVE_DIR_RE.match(parts[3])
-        return match.group("id") if match else None
-    return parts[2]
+        if match and match.group("id") not in found:
+            found.append(match.group("id"))
+        return found
+    return [parts[2]]
+
+
+def _first_change_id_of_proposal_path(rel: str) -> str | None:
+    """The id a proposal path addresses, for the callers that want one
+    string — the directory's own name, before any date-prefix reading."""
+    found = _change_ids_of_proposal_path(rel)
+    return found[0] if found else None
 
 
 def declared_former_ids_in_tree(root: Path, change: str) -> list[str]:
     """The lineage `change` declares in the WORKING TREE, active or archived
-    — `[]` when the packet is not there to ask."""
+    — `[]` when the packet is not there to ask.
+
+    THE ARCHIVED CANDIDATE IS CHOSEN BY `names_this_change`, the reading this
+    file already settled for the archive wrapper (and the ambiguity
+    `archive_directory_name` creates): the exact directory name counts, the
+    dated one counts, and an active change id of that exact name takes the
+    directory out of the running. Asked through `change_id_of` alone, an
+    archived packet under a PRESERVED date-prefixed id — `archive/2026-09-10-
+    bar/` for the change `2026-09-10-bar` — matched no candidate, so its
+    declared lineage came back EMPTY and `ratifying_baseline` was handed the
+    UNDECLARED answer for a packet that declares. That is the shed-lineage
+    failure this mechanism exists to stop, arriving through the reader.
+    """
     changes = root / "openspec" / "changes"
     candidates = [changes / change]
     archive = changes / "archive"
     if archive.is_dir():
+        live_ids = change_dir_names(root)
         candidates += [d for d in sorted(archive.iterdir())
-                       if d.is_dir() and change_id_of(d) == change]
+                       if d.is_dir() and names_this_change(d.name, change,
+                                                           live_ids)]
     for directory in candidates:
         if (directory / ".openspec.yaml").is_file():
             return declared_former_ids_of(directory, change)
@@ -1640,7 +1747,8 @@ def _refuse_an_undeclared_move(root: Path, revision: str, rel: str,
         identity=change)
     if former is None:
         return
-    if _change_id_of_proposal_path(former) in declared:
+    if any(identity in declared
+           for identity in _change_ids_of_proposal_path(former)):
         return
     short = revision[:12]
     declared_note = (

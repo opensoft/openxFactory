@@ -2763,6 +2763,155 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                     root, hops["rename"], rel, identity="change-s"))
 
     # ----------------------------------------------------------------
+    # AN ID THAT BEGINS WITH A DATE IS NOT THE ARCHIVE'S DATE PREFIX
+    # (fix round 1: Codex P2 `PRRT_kwDOTAvnrs6iElb4`, Copilot
+    # `PRRT_kwDOTAvnrs6iEmbV` and `PRRT_kwDOTAvnrs6iEmbp` on PR #1038, and
+    # Copilot `PRRT_kwDOTAvnrs6iEemp` on the stacked PR #1037)
+    #
+    # `archive_directory_name` states the pinned CLI's own rule in this very
+    # file: a change whose id ALREADY carries a `YYYY-MM-DD-` prefix is
+    # archived under that id UNCHANGED, and `names_this_change` says in as
+    # many words that the two readings of such a directory name "are
+    # indistinguishable from the name". The identity readers this packet
+    # added took only one of them — unconditionally, and for LIVE directories
+    # too, where there is no ambiguity at all and the name simply IS the id.
+    # ----------------------------------------------------------------
+
+    def test_an_active_id_that_begins_with_a_date_keeps_it(self):
+        """AN ACTIVE DIRECTORY'S NAME IS ITS ID. `CHANGE_ID_RE` admits a
+        leading date and `active_change_dir` resolves such an id verbatim —
+        the corpus's own pinned-CLI fixture uses `2026-08-04-add-dated` — so
+        stripping the prefix from a live packet renamed it.
+
+        MEASURED against `5859f053`: `change_id_of` returned `'add-dated'`
+        for `openspec/changes/2026-08-04-add-dated`, and
+        `former_identity_claimants`, which passes every live directory
+        through it, validated and attributed that packet's `former_ids:` as
+        `add-dated`'s — so the "an entry may not name the packet's OWN id"
+        refusal was asked about a packet that does not exist, and missed the
+        self-claim that was actually written.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            live = self.packet(root, change="2026-08-04-add-dated")
+            self.assertEqual(support.change_id_of(live),
+                             "2026-08-04-add-dated")
+            self.assertEqual(
+                support.active_change_dir(root, "2026-08-04-add-dated"), live)
+
+            # THE CONSEQUENCE, and the reason this is not cosmetic: the
+            # self-claim is refused because the packet is asked about itself.
+            self.declare(live, "2026-08-04-add-dated")
+            self.assertTrue(any(
+                "OWN id" in problem for problem in
+                support.former_id_problems(
+                    support.change_id_of(live), support.load_packet(live))))
+            # …and the sweep attributes the declaration to the real id.
+            claimants = support.former_identity_claimants(root)
+            self.assertIn("2026-08-04-add-dated", claimants)
+
+            # AND THE ARCHIVED HALF STILL STRIPS, because there the prefix is
+            # the archive's doing and the relocation preserves the identity.
+            archived = (root / "openspec" / "changes" / "archive"
+                        / "2026-09-09-add-x")
+            archived.mkdir(parents=True)
+            self.assertEqual(support.change_id_of(archived), "add-x")
+
+    def test_a_preserved_date_prefixed_archive_id_resolves_to_its_directory(
+            self):
+        """THE ARCHIVE WRAPPER KEEPS SUCH A NAME UNCHANGED, so the directory
+        `archive/2026-09-09-foo/` is the archived `foo` AND the archived
+        `2026-09-09-foo`. The resolver read only the first.
+
+        MEASURED against `5859f053`: `identity_paths_at(root, HEAD,
+        "2026-09-09-foo")` returned `[]` with
+        `openspec/changes/archive/2026-09-09-foo/proposal.md` standing in the
+        tree, and `proposal_path_at` therefore answered None — the identity
+        reported ABSENT at every commit it occupies, which is the silence the
+        baseline walk passes a ratification by.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            preserved = (root / "openspec" / "changes" / "archive"
+                         / "2026-09-09-foo")
+            preserved.mkdir(parents=True)
+            (preserved / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            commit_all(root, "archive a change whose id carried a date")
+            head = self.sha(root)
+            rel = "openspec/changes/archive/2026-09-09-foo/proposal.md"
+
+            self.assertEqual(
+                support.identity_paths_at(root, head, "2026-09-09-foo"), [rel])
+            self.assertEqual(
+                support.proposal_path_at(root, head, "2026-09-09-foo"), rel)
+            # the OTHER reading is still admitted — the name really is
+            # ambiguous, and this resolver reports rather than decides
+            self.assertEqual(
+                support.identity_paths_at(root, head, "foo"), [rel])
+            self.assertEqual(
+                support._change_ids_of_proposal_path(rel),
+                ["2026-09-09-foo", "foo"])
+
+    def test_an_identity_matching_two_archive_directories_still_refuses(self):
+        """AND ADMITTING BOTH READINGS DOES NOT ADMIT A CHOICE. The ratified
+        scenario *A declared identity resolves to two locations at one
+        commit* says the gate "MUST refuse as CANNOT RUN, naming the
+        candidates" and "MUST NOT resolve the ambiguity by preferring one of
+        them" — which is reachable for a date-prefixed id exactly once the
+        exact-name reading exists: `2026-09-09-foo` archived under its own
+        name, and re-archived on a later day as `2026-09-14-2026-09-09-foo`.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            archive = root / "openspec" / "changes" / "archive"
+            for name in ("2026-09-09-foo", "2026-09-14-2026-09-09-foo"):
+                (archive / name).mkdir(parents=True)
+                (archive / name / "proposal.md").write_text(
+                    "---\nStatus: ratified\n---\n", encoding="utf-8")
+            commit_all(root, "two archive directories for one identity")
+            head = self.sha(root)
+            self.assertEqual(
+                len(support.identity_paths_at(root, head, "2026-09-09-foo")),
+                2)
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.proposal_path_at(root, head, "2026-09-09-foo")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-identity-ambiguous", message)
+            self.assertIn("2026-09-14-2026-09-09-foo", message)
+
+    def test_an_archived_packet_under_a_preserved_dated_id_declares_lineage(
+            self):
+        """AND THE LINEAGE READER TOO, which is where the same assumption
+        does the most damage: `declared_former_ids_in_tree` found no
+        candidate directory for such a packet and returned `[]`, which
+        `ratifying_baseline` cannot tell from "this packet declares
+        nothing" — the UNDECLARED answer handed to a packet that declares,
+        which is the shed-lineage failure arriving through the reader.
+
+        MEASURED against `5859f053`: `declared_former_ids_in_tree(root,
+        "2026-09-10-bar")` returned `[]` for an archived packet whose
+        `.openspec.yaml` declares `former_ids: [old-bar]`.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            preserved = (root / "openspec" / "changes" / "archive"
+                         / "2026-09-10-bar")
+            preserved.mkdir(parents=True)
+            (preserved / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            (preserved / ".openspec.yaml").write_text(
+                "schema: spec-driven\n" + self.ORIGIN, encoding="utf-8")
+            self.declare(preserved, "old-bar")
+            commit_all(root, "archive a declaring packet under a dated id")
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-10-bar"),
+                ["old-bar"])
+
+    # ----------------------------------------------------------------
     # THE EXPLICIT DISPOSITION THE REQUIREMENT PROMISES (issue #745)
     #
     # `release-realization` § "Origin retention at archive" ends its mutation
