@@ -280,6 +280,14 @@ def git_blob_sha256(root: Path, revision: str, source_path: str) -> str | None:
 # miniature, so the pattern is named here and the copies are gone.
 CHANGE_ID_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
+# THE ONE SEGMENT UNDER `openspec/changes/` THAT IS NOT A PACKET. It matches
+# `CHANGE_ID_RE` like any other slug, so the grammar alone never rules it out
+# and every reader that resolves an id has to rule it out by name. Hoisted
+# here beside the pattern for the reason the pattern itself was hoisted: the
+# declaration and the walk that consumes it cannot be allowed to disagree
+# about what a change id is.
+RESERVED_CHANGE_ID = "archive"
+
 
 def active_change_dir(root: Path, change: str) -> Path:
     # Change ids are plain slugs; anything with path syntax would let a
@@ -287,7 +295,7 @@ def active_change_dir(root: Path, change: str) -> Path:
     if not CHANGE_ID_RE.fullmatch(change):
         raise SupportError(f"invalid change name: {change}")
     path = root / "openspec" / "changes" / change
-    if not path.is_dir() or change == "archive":
+    if not path.is_dir() or change == RESERVED_CHANGE_ID:
         raise SupportError(f"active OpenSpec change not found: {change}")
     return path
 
@@ -586,7 +594,7 @@ def former_id_problems(change: str, packet: dict | None) -> list[str]:
     """The shape refusals over a packet's `former_ids:` — empty when the
     declaration is well formed, and empty when there is none.
 
-    Six refusals, each named in `release-realization` § "A moved packet
+    Seven refusals, each named in `release-realization` § "A moved packet
     declares the identity it was ratified under" or in this packet's own
     tasks:
 
@@ -595,6 +603,8 @@ def former_id_problems(change: str, packet: dict | None) -> list[str]:
     * a scalar (or a mapping) where a SEQUENCE is required;
     * an entry that is not a change id by the grammar `ratifying_commit`
       enforces;
+    * an entry naming `RESERVED_CHANGE_ID` — the `archive` segment is not a
+      packet, and the grammar cannot refuse it because it is a lawful slug;
     * an entry equal to the packet's OWN id — a packet cannot be the move of
       itself, and the archive relocation, which preserves the id, is the one
       move that is never declared;
@@ -646,6 +656,17 @@ def former_id_problems(change: str, packet: dict | None) -> list[str]:
                 f"(`{CHANGE_ID_RE.pattern}`). An entry names an ID and never "
                 f"a PATH: the path is derived from the id, at a ref as well "
                 f"as in the working tree")
+            continue
+        if entry == RESERVED_CHANGE_ID:
+            problems.append(
+                f"{change}: {where} names {entry!r}, which is the RESERVED "
+                f"segment `openspec/changes/{RESERVED_CHANGE_ID}/` and never "
+                f"a packet. It matches the id grammar like any other slug, so "
+                f"the pattern above cannot refuse it and this arm must — "
+                f"`active_change_dir` already reserves it by name, and no "
+                f"resolution of an identity to a path can return anything "
+                f"for it, so the entry would stand as a declared lineage "
+                f"that every reader answers with silence")
             continue
         if entry == change:
             problems.append(

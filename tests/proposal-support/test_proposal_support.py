@@ -3593,6 +3593,26 @@ class DeclaredFormerIdTests(unittest.TestCase):
         self.assertEqual(len(problems), 1)
         self.assertIn("CHANGE ID", problems[0])
 
+    def test_an_entry_naming_the_reserved_archive_segment_refuses(self):
+        """THE ONE SLUG UNDER `openspec/changes/` THAT IS NOT A PACKET, and
+        the grammar cannot say so: `archive` matches `CHANGE_ID_RE` like any
+        other id, so the pattern arm passes it and this arm has to refuse it
+        by name — which is what `active_change_dir` already does.
+
+        MEASURED against `5859f053`: `former_id_problems("x", {"former_ids":
+        ["archive"]})` returned `[]` — accepted — while `active_change_dir(
+        root, "archive")` refuses it and `identity_paths_at(root, HEAD,
+        "archive")` returns `[]`. The reader therefore admitted and indexed a
+        declared lineage that every resolution answers with silence.
+        (Copilot, PR #1037 `PRRT_kwDOTAvnrs6iEenD`; the reader is this
+        branch's, so the fix is here.)
+        """
+        problems = self.problems("change-t", "former_ids:\n  - archive\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("RESERVED", problems[0])
+        self.assertIn("'archive'", problems[0])
+        self.assertEqual(support.RESERVED_CHANGE_ID, "archive")
+
     def test_an_entry_equal_to_the_packets_own_id_refuses(self):
         """THE ARCHIVE RELOCATION IS NEVER DECLARED. It preserves the id, so
         a packet declaring its own id would be declaring that it used to be
