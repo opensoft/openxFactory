@@ -379,7 +379,7 @@ them.** Both reach the arrival verifier, and neither adds a refusal code:
 | the shape | `--replica-at` | phase A | phase B | undeclared in the walk |
 | --- | --- | --- | --- | --- |
 | a `replicated_at_destination` row with **no** `edits:` (19 rows) | may name it, at any destination | byte-identical to the carve blob | byte-identical | admitted by identity with its non-empty carve blob |
-| a `replicated_at_destination` row **declaring lines** (1 row: the conftest's `:25`) | may name it, at any destination | byte-identical — commit A places the copy | the diff against the carve blob touches ONLY the declared lines, else `arrival-undeclared-edit` naming them | its APPLIED bytes are no replica's, so it **refuses** `arrival-undeclared-file` — an edited replica must be declared |
+| a `replicated_at_destination` row **declaring lines** (1 row: the conftest's `:25` and `:271`) | may name it, at any destination | byte-identical — commit A places the copy | the diff against the carve blob touches ONLY the declared lines, else `arrival-undeclared-edit` naming them | its APPLIED bytes are no replica's, so it **refuses** `arrival-undeclared-file` — an edited replica must be declared |
 | a **moved** row with `also_replicated_to:` (1 row: `session_fixtures.py`) | may name it **iff** the destination being verified is in that list and is not the row's own — else `arrival-unreadable` | byte-identical, and its `git_mode` is compared (a moved row declares one) | its own declared lines, exactly as at the destination it moves to | admitted by identity with its carve blob, at the listed destinations only |
 
 **An UNAPPLIED declared edit on a replica does not refuse**, and that is
@@ -846,15 +846,25 @@ becomes one only once a future PR adds `pytest.ini` and `conftest.py` to
 the flag and this note should go with it.
 
 The human line says `verified (byte-identical, or …)` and not
-`byte-identical` since RULED Q-L7 (a), because one replica row now declares a
-line and a copy that arrived carrying it is not byte-identical. **A leg that
+`byte-identical` since RULED Q-L7 (a), because one replica row now declares
+lines and a copy that arrived carrying them is not byte-identical. **A leg that
 places `tests/ideation-dashboard/conftest.py` declares it too** —
 `--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` — and at
-phase B the run then reports it as a declared-edit row: `diffed` where the `:25`
-depth line was applied, `unapplied` where it was not. Leg 1 (openDox-code #6,
-merge `ce53b489`) landed BEFORE that grammar existed and is **not re-cut** for
-it: openDox-code takes the depth fix in a later declared act, which is the
-ruling's own sequencing.
+phase B the run then reports it as a declared-edit row. **That row declares TWO
+lines** — `:25`, the depth constant, and, since the pre-existing
+`openxdox_code` annotation, `:271`, openXdox-code#14's § 4.4 fixture — and the
+verifier asks ONE question of the pair: `diffed` where the copy differs from
+the carve blob AT ALL, and then every line it differs on must be one of the
+two, else `arrival-undeclared-edit` naming the rest; `unapplied` ONLY where
+neither was applied and the copy is byte-identical. **A declared line is a
+permission and never an obligation**, so a leg that takes one and not the other
+is `diffed` and lawful: openDox-code's copy takes `:25` alone — measured at
+`05bbde80` and unchanged at `8efb3cf5`, 271 lines and that one hunk — and
+openXdox-code's takes both. Leg 1 (openDox-code #6, merge `ce53b489`) landed
+BEFORE that grammar existed and is **not re-cut** for it: openDox-code TOOK the
+depth fix in a later declared act, which is the ruling's own sequencing —
+openDox-code #19 (`3954d78`), leaving `ce53b489`'s `HERE.parent.parent` where
+it stood.
 
 **§ 5.2-5.5 PROVED END TO END, 2026-09-09**, against the landed manifest and a
 fresh mirror: the `opendox_spec` leg's 112-line path file carved `carve-src`
@@ -923,9 +933,12 @@ lands is not obliged to update this prose, only the declared file.
   design, and name it with `--allow-created` once that rewrite has begun;
 * **the two RULED Q-L7 (a) placements, which BOTH `-code` legs owe** —
   `--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` (the
-  replica whose row declares `:25`, so its copy must read
-  `REPO_ROOT = HERE.parent`, and it is `arrival-undeclared-file` if placed
-  edited and left undeclared) and, **at openXdox-code only**,
+  replica whose row declares `:25` — so its copy must read
+  `REPO_ROOT = HERE.parent` — and, since the pre-existing `openxdox_code`
+  annotation, `:271`, which is openXdox-code#14's § 4.4 fixture and is a
+  PERMISSION at every replica rather than an obligation at any; it is
+  `arrival-undeclared-file` if placed edited and left undeclared) and,
+  **at openXdox-code only**,
   `--replica-at tests/ideation-dashboard/session_fixtures.py=tests/session_fixtures.py`
   (the moved row `also_replicated_to: [openxdox_code]`, with the same four
   `ideation_dashboard.X` → `opendox.X` rewrites its `opendox_code` arrival

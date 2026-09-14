@@ -2258,9 +2258,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     The two rows the ruling names, read out of the real document: a moved row
     that is ALSO replicated at `openxdox_code`, and a replica row declaring the
-    one line its copies must differ on. A BRANCH and never a skip, on the
-    module docstring's reasoning — before the § 6 ceremony there is no manifest
-    to read.
+    lines its copies may differ on. That replica row declares TWO since the
+    pre-existing `openxdox_code` annotation (`#656` CLAIM `5656688910`) — Q-L7
+    (a)'s own `:25` depth constant and openXdox-code#14's `:271` § 4.4 fixture
+    — and the assertion below pins both, in order, with their classes: `edits:`
+    is a field of a ROW, so each is permitted at EVERY replica of this file and
+    obligatory at none. A BRANCH and never a skip, on the module docstring's
+    reasoning — before the § 6 ceremony there is no manifest to read.
 
     Also carries RULED Q-L1's own per-row contract for the two rows S2 (RULED
     Q5, `#656` comment 5642758731) annotated, added on Copilot review of PR
