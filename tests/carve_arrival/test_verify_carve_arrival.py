@@ -1804,6 +1804,17 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     compared here too, and the claim is true of every column it makes. The
     hard-coded test stays: two pins on one fact, one either side of the runbook.
 
+    AND THE PARSER IS PART OF THE CHECK, not a way into it (Copilot review,
+    round two on this PR for the duplicate key, round three for the roots cell,
+    round four for the rest): the header and ruler are pinned, every remaining
+    line of the block must `fullmatch` the record — so a key outside the
+    character class, a sixth column or a reshaped cell is a FAILURE and not a
+    skipped line — the roots cell must be exactly a comma-separated sequence of
+    backticked paths (or the one prose cell that says "none"), and a missing
+    runbook is a failure rather than a branch. Each of those is a way a table
+    could stop stating what this test says it states while the test stayed
+    green.
+
     THE TWO HALVES OF A ROW ARE READ ON TWO BASES, each the one its column
     claims. The NUMERIC columns are summed by the RAW `destination:` field and
     not by `rows_for()`, which resolves the EFFECTIVE arrival (RULED Q6): the
@@ -1817,9 +1828,19 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     """
     manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
     runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
-    if not manifest.is_file() or not runbook.is_file():
+    if not manifest.is_file():
+        # Before the § 6 ceremony landed the manifest there is nothing to
+        # compare; a BRANCH, not a skip, for the module docstring's reason.
         assert True
         return
+    # BUT A MISSING RUNBOOK IS A FAILURE, NOT A BRANCH (Copilot review, this
+    # PR). Branching on it too made this invariant VACUOUS exactly when § 2
+    # disappeared — the check would go green on a repository that had lost the
+    # document it checks, which is the one state it must not pass.
+    assert runbook.is_file(), (
+        f"{runbook} is absent while the manifest is present: § 2's "
+        "per-destination table is the operator's comparison for every leg's "
+        "arrival run, and a missing table is not a table that agrees")
     doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
     text = runbook.read_text(encoding="utf-8")
 
@@ -1827,16 +1848,37 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
               "run must report:")
     assert text.count(marker) == 1, marker
     table = text.split(marker, 1)[1].split("\n\n")[1]
-    cell = re.compile(
-        r"^\| `(?P<key>[a-z_]+)` \| (?P<rows>\d+) \| "
+    # EVERY LINE OF THE BLOCK IS READ, AND A LINE THAT DOES NOT PARSE IS A
+    # FAILURE (Copilot review, this PR). A `match()` that skipped what it could
+    # not read let a malformed row — a key outside the character class, a sixth
+    # column, a cell in the wrong shape — sit in the table saying something
+    # while this test asserted nothing about it, which is the same hole as the
+    # duplicate key below one level down: the parser deciding what the check
+    # covers. So the header and its ruler are pinned, and every remaining line
+    # must `fullmatch` the record.
+    header = ("| destination | rows | verbatim / edited | declared edit lines "
+              "| declared roots |")
+    ruler = "| --- | ---: | ---: | ---: | --- |"
+    record = re.compile(
+        r"\| `(?P<key>[a-z_]+)` \| (?P<rows>\d+) \| "
         r"(?:(?P<verbatim>\d+) / (?P<edited>\d+)|—) \| "
-        r"(?:(?P<lines>\d+)|—) \| (?P<roots>[^|]*)\|")
+        r"(?:(?P<lines>\d+)|—) \| (?P<roots>[^|]*) \|")
+    # The roots cell is EXACTLY a comma-separated sequence of backticked paths,
+    # or prose that begins "none". Anything else — a path that lost its
+    # backticks, a word appended after the list — is refused rather than
+    # quietly dropped by the `findall` that follows.
+    roots_list = re.compile(r"`[^`]+`(?:, `[^`]+`)*")
+    lines = [line.rstrip() for line in table.strip().splitlines()]
+    assert lines[0] == header, lines[0]
+    assert lines[1] == ruler, lines[1]
     stated: dict[str, tuple[int, int, int, int]] = {}
     roots_stated: dict[str, list[str]] = {}
-    for line in table.splitlines():
-        found = cell.match(line)
-        if found is None:
-            continue
+    for line in lines[2:]:
+        found = record.fullmatch(line)
+        assert found is not None, (
+            "§ 2's per-destination table carries a row this check cannot "
+            f"read: {line!r}. A row that does not parse is a row nothing "
+            "asserts, so the table's own shape is refused here, not skipped")
         # ONE AUTHORITATIVE ROW PER DESTINATION, refused HERE rather than
         # silently resolved (Copilot review, this PR). Assigning straight into
         # `stated` lets a later CORRECT row overwrite an earlier STALE
@@ -1857,9 +1899,20 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
         # THE FIFTH COLUMN IS A CLAIM TOO: every backticked path in the cell,
         # in the order the cell states them. A cell that names no path at all
         # (`opendox_root`'s "none — the release identity only") claims the
-        # empty walk, and a cell that lost its backticks claims nothing while
-        # appearing to claim everything — both answered by the same read.
-        roots_stated[found["key"]] = re.findall(r"`([^`]+)`", found["roots"])
+        # EMPTY walk, and it is the only cell allowed to be prose.
+        roots_cell = found["roots"]
+        if "`" in roots_cell:
+            assert roots_list.fullmatch(roots_cell), (
+                f"the roots cell for {found['key']!r} is not a comma-separated "
+                f"sequence of backticked paths: {roots_cell!r}. An unbackticked "
+                "path reads as a declared root to an operator and as nothing to "
+                "the comparison below")
+            roots_stated[found["key"]] = re.findall(r"`([^`]+)`", roots_cell)
+        else:
+            assert roots_cell.startswith("none"), (
+                f"the roots cell for {found['key']!r} names no path and does "
+                f"not say so: {roots_cell!r}")
+            roots_stated[found["key"]] = []
     assert set(stated) == set(doc["destinations"]), sorted(stated)
 
     for key, claimed_roots in roots_stated.items():
