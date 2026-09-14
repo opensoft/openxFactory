@@ -1132,17 +1132,56 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
     changes = root / "openspec" / "changes"
     if not changes.is_dir():
         return problems
-    live = [d for d in sorted(changes.iterdir())
-            if d.is_dir() and d.name != "archive"]
+    live: list[Path] = []
+    for entry in sorted(changes.iterdir()):
+        if entry.name == "archive":
+            continue
+        # A SYMLINK IS NOT A PACKET DIRECTORY TO THIS GATE, and saying so is
+        # not pedantry: git stores one as a BLOB whose content is a path, so
+        # `git ls-tree` — the read the range arm and the fail-closed arm both
+        # use — reports no tree there and sees no packet. Following it here
+        # would make the corpus arm adjudicate a directory the other arms
+        # cannot see, possibly outside the checkout entirely, and report a
+        # clean or a refusing corpus on evidence no commit carries. Reported
+        # rather than skipped, because a silence is what this arm refuses.
+        # (Copilot, PR #1039.)
+        if entry.is_symlink():
+            problems.append(_symlink_problem(entry, "a change packet"))
+            continue
+        if entry.is_dir():
+            live.append(entry)
     archive = changes / "archive"
-    archived = ([d for d in sorted(archive.iterdir()) if d.is_dir()]
-                if archive.is_dir() else [])
+    archived: list[Path] = []
+    if archive.is_symlink():
+        problems.append(_symlink_problem(archive, "the packet archive"))
+    elif archive.is_dir():
+        for entry in sorted(archive.iterdir()):
+            if entry.is_symlink():
+                problems.append(_symlink_problem(entry, "an archived packet"))
+                continue
+            if entry.is_dir():
+                archived.append(entry)
     if report is not None:
         report.active_packets = len(live)
         report.archived_packets = len(archived)
     for directory in live + archived:
         change = support.change_id_of(directory)
         rel = f"{support._corpus_rel(directory)}/.openspec.yaml"
+        manifest = directory / ".openspec.yaml"
+        if manifest.is_symlink():
+            # THE SAME RULE ONE LEVEL DOWN, and it catches the DANGLING link
+            # too — `exists()` follows the link and answers False for one, so
+            # a manifest that is present in the tree would read as no manifest
+            # at all. `is_symlink()` is asked FIRST, so nothing is ever read
+            # THROUGH a link. (Copilot, PR #1039.)
+            problems.append(
+                f"{change}: `{rel}` is a SYMLINK. Git stores one as a blob "
+                f"whose content is a path, so the declaration this packet "
+                f"would carry is not in this tree and this gate will not read "
+                f"one through a link — a dangling link would read as no "
+                f"manifest at all, and a live one as a file no commit "
+                f"carries: replace it with the file itself, or remove it")
+            continue
         try:
             packet = support.load_packet(directory)
         except (UnicodeDecodeError, OSError) as exc:
@@ -1188,6 +1227,23 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
         if declared:
             problems += support.standing_former_id_problems(
                 root, change, declared)
+    if any("is a SYMLINK" in problem for problem in problems):
+        # THE SWEEP WALKS THE WORKING TREE ITSELF, in a shared reader this
+        # slice imports and does not edit, and its walk FOLLOWS the link this
+        # arm has just refused — measured: `former_identity_claimants` reads
+        # the target's `former_ids:` and claims an identity from outside this
+        # checkout. Running it here would let a file no commit carries decide
+        # whether an identity has one owner. The run is already refusing, so
+        # nothing is lost by saying which question went unanswered instead.
+        # (Copilot, PR #1039.)
+        problems.append(
+            "the ownership sweep over this corpus was NOT run: a symlink "
+            "stands where a packet directory or a manifest would be (named "
+            "above), and the sweep re-reads the corpus through the working "
+            "tree — through that link included. Whether every declared former "
+            "identity has EXACTLY ONE OWNER is therefore not established over "
+            "this tree: repair the link and run again")
+        return problems
     try:
         problems += support.former_identity_ownership_problems(root)
     except (UnicodeDecodeError, OSError) as exc:
@@ -1204,6 +1260,21 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
             f"identity has EXACTLY ONE OWNER was not established. The "
             f"unreadable manifest is named above")
     return problems
+
+
+def _symlink_problem(entry: Path, what: str) -> str:
+    """One refusal for a symlink standing where a packet directory would be.
+
+    Written once because the three places it can happen — an active packet,
+    the archive root, an archived packet — differ only in what they are called.
+    """
+    return (
+        f"`{support._corpus_rel(entry)}` is a SYMLINK where {what} directory "
+        f"would be. Git stores a symlink as a BLOB whose content is a path, so "
+        f"`git ls-tree` reports no directory there and the commit-range arm of "
+        f"this gate cannot see a packet at that path; reading through it here "
+        f"would adjudicate a tree no commit carries, possibly outside this "
+        f"checkout. Replace it with the directory itself, or remove it")
 
 
 def scan(root: Path, *, base: str | None = None, head: str | None = None,

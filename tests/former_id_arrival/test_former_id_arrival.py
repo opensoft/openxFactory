@@ -1062,6 +1062,68 @@ class FailClosedTests(unittest.TestCase):
             self.assertIn("did not read as a mapping", problems[0])
             self.assertIn("not a regular file", problems[0])
 
+    def test_a_symlink_is_refused_and_is_never_read_through(self):
+        """WHAT `ls-tree` CANNOT SEE, THIS ARM DOES NOT READ.
+
+        Git stores a symlink as a BLOB whose content is a path, so the
+        commit-range and fail-closed arms — which read `git ls-tree` — see no
+        packet directory at a symlinked path and no manifest at a symlinked
+        one. A working-tree walk that follows links would adjudicate a tree no
+        commit carries, possibly outside the checkout; and because `exists()`
+        follows links, a DANGLING manifest link would read as no manifest at
+        all, which is the silence this arm exists to refuse. Both are refused,
+        and the content behind the link is never read. (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td) / "repo")
+            outside = Path(td) / "outside"
+            (outside / "change-x").mkdir(parents=True)
+            (outside / "change-x" / ".openspec.yaml").write_text(
+                MANIFEST + "former_ids:\n  - change-from-outside\n",
+                encoding="utf-8")
+            packet(root, "change-a", ratified=True)
+            changes = root / "openspec" / "changes"
+            (changes / "change-linked").symlink_to(outside / "change-x")
+            commit_all(root, "a symlink where a packet directory would be")
+
+            problems = fia.corpus_problems(root)
+            self.assertEqual(len(problems), 2, problems)
+            self.assertIn("is a SYMLINK where a change packet directory",
+                          problems[0])
+            self.assertIn("change-linked", problems[0])
+            # THE TARGET IS NEVER READ BY THIS ARM…
+            self.assertNotIn("change-from-outside", problems[0])
+            # …AND THE OWNERSHIP SWEEP IS NOT RUN OVER A TREE THIS ARM HAS
+            # REFUSED, because that sweep walks the working tree in a shared
+            # reader this slice imports and does not edit, and its walk DOES
+            # follow the link — measured here, so the refusal to run it is
+            # measured too rather than assumed.
+            self.assertIn("ownership sweep over this corpus was NOT run",
+                          problems[1])
+            self.assertIn("change-from-outside",
+                          support.former_identity_claimants(root))
+
+            # A SYMLINKED MANIFEST, and a DANGLING one, are the same rule one
+            # level down.
+            (changes / "change-linked").unlink()
+            manifest = changes / "change-a" / ".openspec.yaml"
+            manifest.unlink()
+            manifest.symlink_to(outside / "change-x" / ".openspec.yaml")
+            commit_all(root, "a symlinked manifest")
+            problems = fia.corpus_problems(root)
+            self.assertEqual(len(problems), 2, problems)
+            self.assertIn("is a SYMLINK", problems[0])
+            self.assertNotIn("change-from-outside", problems[0])
+
+            manifest.unlink()
+            manifest.symlink_to(outside / "gone.yaml")
+            self.assertFalse(manifest.exists())      # PRECONDITION: dangling
+            problems = fia.corpus_problems(root)
+            self.assertEqual(len(problems), 2, problems)
+            self.assertIn("is a SYMLINK", problems[0])
+            with no_event():
+                self.assertEqual(cli.main([str(root)]), 1)
+
     def test_a_grafted_boundary_takes_no_refusal(self):
         """`tasks.md` § 6.4, NOT TAKEN, asserted so it stays not taken.
 
