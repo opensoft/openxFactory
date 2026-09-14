@@ -216,11 +216,14 @@ RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
 test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
-**Measured directly against the landed manifest, 2026-09-12** (rather than
-hand-chained through every intervening amendment): the table and the two
-paragraphs above, and the per-destination table below, state the totals as of
-the § 3.4 SLICE-S3 row annotation (`#656` comment `5642758731`, openxFactory
-PR #1001) merged with every row annotation since RULED Q-L7 (a) above —
+**Measured directly against the landed manifest, and CURRENT TO THE § 3.4
+SLICE-S7 ANNOTATION of 2026-09-13** (rather than hand-chained through every
+intervening amendment): the table and the two paragraphs above, and the
+per-destination table below, state the totals as of THIS act — the § 3.4
+slice-S7 row annotation (RULED Q1/Q2/Q7, `#656` comment `5648049748`; S7 CLAIM
+`#656` comment `5649148461`) — which is the § 3.4 SLICE-S3 row annotation
+(`#656` comment `5642758731`, openxFactory PR #1001) merged with every row
+annotation since RULED Q-L7 (a) above —
 among them BUILD slice 2's nine openDox-code back-imports, a second Q-L1
 annotation round (`#656` comment `5628560136`), the ASK-7 declared-edit
 window (`#656` comment `5635150678`, PR #995), the § 3.4 SLICE S2
@@ -235,7 +238,16 @@ two rows' existing `edits:` and no new row, and the § 3.4 SLICE S4 annotation
 constants it counts across the three RULED `SPLIT` files — twelve travel to
 a new home or are removed, one (`ACTIONS_REFRESH_ROUTE`) stays in
 `repo-selector.js` — over seven rows (two already carriers, five new) and
-four admitted files, three of them class-B modules. Rather than
+four admitted files, three of them class-B modules, the § 3.4 SLICE S5
+annotation (RULED Q5/Q6, `#656` comment `5648044785`, openxFactory PR #1023
+@ `ee251d6c`) — the first act to use the `re_destined:` form, +162 declared
+lines, and the one `views/staging-workbench.js` conversion that moves both
+disposition counts and the carrier count at once — and the § 3.4 SLICE S7
+annotation THIS ACT CARRIES: +782 declared lines over 33 `opendox_code` rows,
+17 of them converted `moved_verbatim` -> declared, and three admitted files.
+The list is now complete: S3 and every annotation after it is named here, so
+the paragraph dates the figures to the LAST act rather than to the first.
+Rather than
 re-narrate each one here — this table is exactly the hand-maintained
 copy RULED Q-L1's own "two acts restating one set of absolutes is how a
 count becomes wrong in a merge" warns about — the figures above are the

@@ -3058,11 +3058,27 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     after — this annotation PR. Same footing again: checked by presence, not
     equality.
 
+    AMENDED A SIXTH TIME by § 3.4 SLICE S7's own annotation PR (RULED
+    Q1/Q2/Q7, `#656` comment 5648049748; S7 CLAIM `#656` comment 5649148461):
+    three more `opendox_code` files — the DISPLAY facet's two halves
+    (`src/opendox/display_profile.py`, `src/opendox/web/views/display.js`,
+    introduced together) and the suite that holds one against the other
+    (`tests/test_display_facet.py`) — admitted the governed way on the same
+    Q-L1 footing as every bump above (the leg PR, opensoft/openDox-code#21,
+    pairs with — and lands after — this annotation PR). Same footing again:
+    checked by presence, not equality. It is pinned here at all because
+    Copilot's review of the annotation PR observed that these three were the
+    FIRST bump to arrive carrying only the generic shape/sort checks below:
+    without an exact path+`since` pin, swapping one for another well-formed
+    entry, or dropping one while adding another, passes every local test and
+    lets the governed admission claim drift silently.
+
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
     `#656` comment 5639058687), the three RULED Q5 opendox_code entries, the
-    five PR #1001 opendox_code entries, the one § 3.4 SLICE S6 entry, and the
-    four § 3.4 SLICE S4 entries are still declared with their own
+    five PR #1001 opendox_code entries, the one § 3.4 SLICE S6 entry, the
+    four § 3.4 SLICE S4 entries, and the three § 3.4 SLICE S7 entries are
+    still declared with their own
     `since`, every `since` is a 40-hex commit, every `reason` is non-empty,
     and every destination's list is alphabetical by `path` with no repeat —
     the file's own stated invariants, over whatever the file has
@@ -3231,6 +3247,46 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
         "opendox_code")
     assert opendox_seed["tests/test_split_route_tails.py"]["since"] == (
         "2e842178b2bceaee9a45441b7d70d797fe1205cf")
+    # THE SIXTH BUMP: three more `opendox_code` files, RULED into this file by
+    # § 3.4 SLICE S7 (RULED Q1/Q2/Q7, `#656` comment 5648049748; S7 CLAIM
+    # `#656` comment 5649148461) — the DISPLAY facet's SERVER half
+    # (`display_profile.py`, what `/capabilities` publishes) and CLIENT half
+    # (`views/display.js`, the module every class-C file in the bundle resolves
+    # its vocabulary through), introduced by ONE commit because neither half
+    # means anything without the other, plus the suite that holds the two
+    # against each other (`tests/test_display_facet.py`). None of the three
+    # carries a manifest row (RULED OQ-C: a CREATED file has none), so the
+    # admission is the ONLY governed record that they may be at the
+    # destination at all — which is exactly why each is pinned to its own
+    # introducing commit (`git log --diff-filter=A`, not the leg branch's
+    # tip) rather than left to the generic shape checks below. Admitted on the
+    # same Q-L1 footing as every bump above: the leg PR,
+    # opensoft/openDox-code#21, pairs with — and lands after — this annotation
+    # PR. Checked by PRESENCE for the same reason as the seeds above.
+    for path, since in (
+            ("src/opendox/display_profile.py",
+             "80b1f3bc60499ebbd84e69aaba40ef243c24a54a"),
+            ("src/opendox/web/views/display.js",
+             "80b1f3bc60499ebbd84e69aaba40ef243c24a54a"),
+            ("tests/test_display_facet.py",
+             "372a04da2a14c2a4c547b78e9500d65f63899aac")):
+        assert path in opendox_seed, (
+            f"{path} is one of § 3.4 SLICE S7's three created files (`#656` "
+            "comment 5648049748, RULED Q1/Q2/Q7) and is no longer declared "
+            "for opendox_code")
+        assert opendox_seed[path]["since"] == since, (
+            f"{path} declares since={opendox_seed[path]['since']!r}; § 3.4 "
+            f"SLICE S7 introduced it at {since} (`git log --diff-filter=A` on "
+            "opensoft/openDox-code `build/s7-parameterize-class-c`), and an "
+            "admission whose `since` is not the introducing commit is not a "
+            "falsifiable claim")
+    # THE TWO HALVES ARE ONE ADMISSION, and the pin says so: `display.js` is
+    # unreadable without the payload `display_profile.py` publishes, so a
+    # future act that re-homes one must move the other or state why not.
+    assert (opendox_seed["src/opendox/display_profile.py"]["since"]
+            == opendox_seed["src/opendox/web/views/display.js"]["since"]), (
+        "§ 3.4 SLICE S7's two DISPLAY-facet halves were introduced by one "
+        "commit and no longer declare the same `since`")
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
     # could not survive a pin bump, and an accumulating file with no checked
