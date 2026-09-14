@@ -1,0 +1,67 @@
+schema_version: 1
+kind: derive_possibles_run
+status: record
+run_id: derive-possibles-34667923153-1
+source_revision: b91af6eab605021118e625a013961123ac9796e2
+generated_at: '2026-09-12T00:00:00Z'
+prompt_contract_version: derive-possibles-prompt-v1
+worker_profile: derive-possibles
+generator_version: possibles-derivation-0.1.0
+register_fingerprint_read: 7517f45bdee9ace7c48aecb9ff0367cc72957d415e4f6726c6cfd5270cf3665f
+register_fingerprint_written: 5e7c5cb81ddf3f5b2a70f877a2a87bb519197fb9d37b812a26c7bbaf246de002
+envelopes:
+- cluster_id: cl-synthesis
+  job_id: DPOSS-0351303166c0
+- cluster_id: cl-feat-request
+  job_id: DPOSS-034762d43d98
+- cluster_id: cl-crystallization
+  job_id: DPOSS-8f2d822577b5
+- cluster_id: cl-agent-assisted-app-testing
+  job_id: DPOSS-762052532e91
+- cluster_id: cl-worker-execution
+  job_id: DPOSS-43e9c25fe366
+- cluster_id: cl-omnigent
+  job_id: DPOSS-65c6ddf278bb
+- cluster_id: cl-micro-agents
+  job_id: DPOSS-1df37c863ac6
+- cluster_id: cl-omni-unattended-worker
+  job_id: DPOSS-7076111e3c54
+- cluster_id: cl-consent
+  job_id: DPOSS-b3f4dc1ad0da
+- cluster_id: cl-subject-hermes
+  job_id: DPOSS-898bc4df417d
+proposed:
+- id: pos-derived-cross-domain-autonomy-envelope-contract
+- id: pos-derived-neutral-derived-non-authoritative-model-contract
+- id: pos-derived-live-authority-re-check-over-historical-grant
+- id: pos-derived-cross-domain-authority-subset-validator
+- id: pos-derived-lens-feat-requests-reframed-as-opendox-pull-up-t
+- id: pos-derived-tenant-project-catalog-as-opendox-s-project-back
+- id: pos-derived-cross-tenant-pooling-and-neutral-promotion-chang
+- id: pos-derived-calibration-to-dial-feedback-service
+- id: pos-derived-capability-health-gate-console-panel
+- id: pos-derived-repo-first-ui-baseline-registry
+- id: pos-derived-platform-neutral-intent-evidence-adapter-framewo
+- id: pos-derived-hermes-governed-autonomous-experience-management
+- id: pos-derived-unified-heartbeat-readiness-contract-extension
+- id: pos-derived-attempt-grant-mechanics-as-the-omnigent-run-loop
+- id: pos-derived-one-neutral-host-capability-contract-for-governe
+- id: pos-derived-shared-typed-recursive-runtime-contract-across-o
+- id: pos-derived-cross-surface-authority-integrity-check-for-role
+- id: pos-derived-shared-credential-free-execution-broker-profile
+- id: pos-derived-fragment-mined-micro-agent-library-for-automatio
+- id: pos-derived-shared-micro-task-record-family-for-recursive-ch
+- id: pos-derived-cross-lane-deterministic-pre-router-for-ontology
+- id: pos-derived-qualification-record-as-a-formal-contract-object
+- id: pos-derived-attempt-authorization-record-as-a-standalone-ser
+- id: pos-derived-unattended-executor-feasibility-proof-harness
+- id: pos-derived-consent-gated-telemetry-intake-for-the-ui-observ
+- id: pos-derived-shared-conjunctive-autonomy-envelope-schema
+- id: pos-derived-non-authoritative-purpose-bound-learning-memory
+merge_skipped: []
+skipped_clusters:
+- cluster_id: cl-consent
+  reason: 'output rejected: candidate 1: grounding passage is not found verbatim in
+    the cited member document ''ideation/brainstorm/hermes-retrieval-primitives-contract.md''
+    (a cited passage must be real)'
+voided: []
