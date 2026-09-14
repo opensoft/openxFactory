@@ -74,6 +74,10 @@ RATIFIED_CODES = (
     # RULED Q6 — the LOSING half of a re-destination: a row moved off this leg
     # by a ruling still has a file at the placement it left.
     "arrival-not-vacated",
+    # RULED 5656343213 — the RETIREMENT's own finding: a row whose `retired:`
+    # block says a ruling DELETED its arrival at this leg still has a file at
+    # `retired.at_path`.
+    "arrival-not-retired",
     "arrival-undeclared-file",
     "arrival-carved-from-mismatch",
     "arrival-unreadable",

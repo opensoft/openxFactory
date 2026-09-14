@@ -101,6 +101,13 @@ RATIFIED_CODES = (
     "carve-re-destined-not-moved",
     "carve-re-destined-unruled",
     "carve-re-destined-chain",
+    # RULED 5656343213 (Brett Heap, 2026-09-13, by interactive multi-choice, on
+    # the question slice S8's author put in `#656` comment `5650335573` § 2) —
+    # the `retired:` row form's three own findings, same prefix and same
+    # reasoning as the Q6 trio above.
+    "carve-retired-not-moved",
+    "carve-retired-unruled",
+    "carve-retired-surface-live",
     "carve-unreadable",
 )
 

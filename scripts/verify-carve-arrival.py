@@ -28,7 +28,7 @@ checks that the arrived blob differs from the carve blob ONLY on lines the row's
 own `edits[].lines` declare. A reviewer then reads the declared lines rather
 than the whole leg.
 
-SIX FINDINGS AND ONE ENVIRONMENT CODE, closed and ordered by the check that
+SEVEN FINDINGS AND ONE ENVIRONMENT CODE, closed and ordered by the check that
 raises them, on `validate-carve-manifest.py`'s own idiom:
 
   `arrival-missing`               a row for this destination has no file at its
@@ -57,6 +57,17 @@ raises them, on `validate-carve-manifest.py`'s own idiom:
                                   that kept the file has the bytes in two
                                   places and the floor can no longer say which
                                   one the carve stands behind.
+  `arrival-not-retired`           `arrival-missing` read in the mirror again,
+                                  for RULED 5656343213: a row whose `retired:`
+                                  block says a RULING deleted its arrival at
+                                  THIS destination still has a file at
+                                  `retired.at_path`. The difference from
+                                  `arrival-not-vacated` is where the bytes
+                                  went — a re-destination moves them to
+                                  another leg and a retirement moves them
+                                  nowhere — and they are two codes because the
+                                  remedies differ: one deletion completes a
+                                  move, the other completes a removal.
   `arrival-undeclared-file`       an ENTRY under one of this destination's
                                   DECLARED ROOTS that no row places and no
                                   admission rule admits — a file, a symlink,
@@ -228,6 +239,45 @@ requires to be VACATED at the losing leg.
   the SOURCE blob at the carve commit, so a re-destined row is held to exactly
   the bytes it always was — at a different address.
 
+THE RETIREMENT (RULED 5656343213, Brett Heap, 2026-09-13, by interactive
+multi-choice, on the question slice S8's author put in `#656` comment
+`5650335573` § 2). A moved row may carry an optional
+`retired: {at, at_path, ruling, surface, note}` saying that a RULING has
+DELETED the arrival itself — not moved it, as RULED Q6 does, because the
+surface the arrived file drove is at NO leg to move it to. What this file does
+with such a row is the simplest thing and the most easily got wrong:
+
+  THE ROW IS NOT OWED HERE, AND THE PATH MUST BE EMPTY. `rows_for()` drops a
+  retired row, so it is not asked for, not digested, not diffed, and — this is
+  the half a reader should check — NOT ADMITTED IN THE WALK EITHER. A form
+  that only stopped ASKING for the file would make `retired:` a licence to
+  leave the arrived copy standing under a declared root with nothing left to
+  declare it. `check_retired` closes that: the path is required ABSENT by
+  `lexists` before the walk runs, so the finding names the RULING rather than
+  the filename, exactly as `check_vacated` does for the losing half of a
+  re-destination.
+
+  AT THE EFFECTIVE ARRIVAL, so a row re-destined by Q6 and retired afterwards
+  is retired at the leg the file actually reached. `retired.at`/`at_path` say
+  which that is, and `validate-carve-manifest.py`'s check 6 has already held
+  them equal to the row's own effective arrival — this file READS them and
+  does not revalidate them, on the reasoning `effective_arrival` documents.
+
+  A LAWFUL REFILL IS NOT AN UN-RETIREMENT. Another row's own effective arrival,
+  or a declared `--replica-at` replica, may legitimately occupy the path a
+  retirement emptied — the same case `check_vacated` learned in two rounds of
+  review on PR #1011, and it is built into `check_retired` from the start
+  rather than discovered again.
+
+  WHAT IT DOES NOT PROVE, on the Q6 section's own terms. This file verifies ONE
+  destination per run, so a retirement at one leg says nothing about any other
+  leg, and nothing here reads the SURFACE the block cites — that is a claim
+  about openxFactory's own tree and it is `validate-carve-manifest.py`'s
+  `carve-retired-surface-live`. And the SOURCE side is untouched in both
+  directions: a retirement deletes a file at a DESTINATION, so the manifest
+  still records the move, the digest and the declared lines, and the source
+  path is still whatever the phase says it is.
+
 ADDRESSING AN ASSEMBLY ROOT THE MANIFEST GIVES NO KEY. `destinations:` is a map
 of the places ROWS GO. RULED OQ-I puts `carved_from:` in EACH assembly root's
 `contracts/manifest.yaml`, and the runbook writes one at § 6 and another at § 7
@@ -384,6 +434,7 @@ REFUSAL_CODES: tuple[str, ...] = (
     "arrival-digest-mismatch",
     "arrival-undeclared-edit",
     "arrival-not-vacated",
+    "arrival-not-retired",
     "arrival-undeclared-file",
     "arrival-carved-from-mismatch",
     "arrival-unreadable",
@@ -402,7 +453,10 @@ REMEDIATION = (
     "`arrival-not-vacated`, delete the file the ruling moved off this leg "
     "(RULED Q6) — the row's `re_destined:` says where it went, and a copy "
     "left behind is the same bytes at two legs with the floor standing "
-    "behind one."
+    "behind one. For `arrival-not-retired`, delete the file the ruling "
+    "RETIRED at this leg (RULED 5656343213) — the row's `retired:` says which "
+    "ruling ordered it and which surface it drove; the deletion and the block "
+    "land together or not at all."
 )
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -1022,6 +1076,37 @@ def effective_arrival(row: dict[str, Any]) -> tuple[Any, Any]:
     return row.get("destination"), row.get("destination_path")
 
 
+def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
+    """`(destination key, destination path)` a RULING has RETIRED this row's
+    arrival at (RULED 5656343213) — or `(None, None)` where the row carries no
+    usable retirement.
+
+    THE SAME PREDICATE LIVES IN `scripts/validate-carve-manifest.py` AND
+    `scripts/carved_reach.py`, kept in step by
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_all_three_tools_read_the_retirement_identically`,
+    which loads all three and compares them over a table. Duplicated for the
+    reason `effective_arrival` is: none of the three can import either of the
+    others.
+
+    GUARDED AT EVERY LEVEL, and the guard FAILS CLOSED IN THE OTHER DIRECTION
+    from `effective_arrival`'s — which is why it is spelled out rather than
+    left to symmetry. Half a re-destination reads as NO re-destination and the
+    row stays owed at its original leg. Half a RETIREMENT must read as NO
+    retirement too, because reading it as one would let `retired: {}`, or a
+    block whose `at_path` is a list, SILENCE this leg's arrival check for that
+    row. Both defaults are the same sentence: where the block cannot be read,
+    the answer is the placement the CARVE made, and a mis-shaped block is
+    `validate-carve-manifest.py`'s `carve-shape-invalid` — never a licence.
+    """
+    retired = row.get("retired")
+    if isinstance(retired, dict):
+        at = retired.get("at")
+        at_path = retired.get("at_path")
+        if isinstance(at, str) and isinstance(at_path, str):
+            return at, at_path
+    return None, None
+
+
 def arrival_path(row: dict[str, Any]) -> Any:
     """The path half of `effective_arrival` — the one every check joins onto
     `--dest-root`.
@@ -1051,11 +1136,45 @@ def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     `arrival-undeclared-file` and the losing leg would refuse its absence as
     `arrival-missing`, which is exactly the pair of refusals the boundary
     note's § 6 measured stopping slice S6.
+
+    AND A RETIRED ROW IS OWED NOWHERE (RULED 5656343213). A ruling has DELETED
+    the arrival, so this leg is not asked for the file, and the row travels to
+    `retired_rows()` instead — which requires the path ABSENT here. Dropping
+    it from this list is what removes it from `check_arrivals`, from
+    `declared_roots` and, load-bearingly, from the walk's `placed` set: a form
+    that only stopped asking for the file would leave the arrived copy
+    standing under a declared root with nothing left to declare it.
     """
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
+            and retired_at(row)[1] is None
             and effective_arrival(row)[0] == destination]
+
+
+def retired_rows(doc: dict[str, Any],
+                 destination: str) -> list[dict[str, Any]]:
+    """The MOVED rows a ruling has RETIRED at this destination — the ones
+    whose `retired.at_path` must now be absent here (RULED 5656343213).
+
+    KEYED ON `retired.at` AND NOT ON THE EFFECTIVE ARRIVAL, even though
+    `validate-carve-manifest.py`'s check 6 holds the two equal. This file
+    READS the manifest and does not revalidate it, so it asks the question the
+    BLOCK asks: a document whose `at` disagreed with its own row would be
+    refused there, and asking it here at a leg the block never named would
+    make this tool quietly re-decide the other tool's finding.
+    """
+    out: list[dict[str, Any]] = []
+    for row in doc["rows"]:
+        if not isinstance(row, dict):
+            continue
+        if row.get("disposition") not in MOVED_DISPOSITIONS:
+            continue
+        at, _at_path = retired_at(row)
+        if at != destination:
+            continue
+        out.append(row)
+    return out
 
 
 def vacated_rows(doc: dict[str, Any],
@@ -1357,6 +1476,79 @@ def check_vacated(rows: list[dict[str, Any]], dest_root: Path,
             "bytes at two destinations with the floor standing behind one, and "
             "this manifest's row no longer says this leg carries it — delete "
             "it in the commit that lands the re-destination")
+    return len(rows)
+
+
+# --------------------------------------------------------------------------
+# check 1c — a RULED retirement (RULED 5656343213)
+# --------------------------------------------------------------------------
+
+def check_retired(rows: list[dict[str, Any]], dest_root: Path,
+                  arriving_rows: list[dict[str, Any]] | None = None,
+                  declared_replica_paths: Iterable[str] | None = None
+                  ) -> int:
+    """Every row a ruling RETIRED at this leg has GONE from it.
+
+    `check_vacated` READ ONE STEP FURTHER. A re-destination is one act with
+    two halves and this is an act with one: the arrival is DELETED and there
+    is no other leg for it to be at. So the question is the same question —
+    is the path empty — and the finding is a different one, because the remedy
+    is. `arrival-not-vacated` tells a reader to look for the file at the leg
+    the ruling named; `arrival-not-retired` tells them there is no such leg
+    and the file should not exist.
+
+    IT RUNS BEFORE THE WALK, for `check_vacated`'s reason exactly: left to
+    `check_undeclared_files` an un-deleted file would refuse as
+    `arrival-undeclared-file` — true, and useless, because it would send a
+    reader looking for an admission rule for a file whose whole story is the
+    `retired:` block in its own row. It is also what makes this check
+    load-bearing rather than cosmetic: `rows_for()` has already dropped the
+    row, so nothing else here would ever mention the file again.
+
+    `os.path.lexists`, NOT `exists`, on `check_vacated`'s reasoning verbatim:
+    a dangling symlink reads as absent and one pointing elsewhere reads as a
+    live file, and either way the leg carries an entry at a path the ruling
+    emptied and git would commit it.
+
+    `arriving_rows` and `declared_replica_paths` EXCLUDE A LAWFUL REFILL, and
+    they are here from the first line of this function rather than after two
+    rounds of review, which is what PR #1011 cost `check_vacated` to learn:
+    another row's own effective arrival, or a `--replica-at` replica the
+    manifest's own vocabulary admits, may legitimately occupy the path a
+    retirement emptied, and an entry there is then that row's or that
+    replica's — verified by `check_arrivals`/`check_replicas` on its own
+    terms — not the retired row's leftover. `lexists` stays the test for
+    every path no row here claims.
+
+    A RETIREMENT NAMES ONE PLACEMENT. It says nothing about the row's
+    `also_replicated_to:` copies at other destinations, which are the legs'
+    own placements (RULED OQ-C) and are declared with `--replica-at`; and it
+    says nothing about a `re_destined.from_path` the same row may also owe —
+    `check_vacated` asks that one, at the leg the block names, and the two
+    absences are two questions about two legs.
+    """
+    claimed = {arrival_path(r) for r in (arriving_rows or [])}
+    claimed.update(declared_replica_paths or ())
+    for row in rows:
+        retired = row["retired"]
+        relpath = retired["at_path"]
+        if relpath in claimed:
+            continue
+        target = dest_root / relpath
+        if not os.path.lexists(target):
+            continue
+        raise ArrivalRefusal(
+            "arrival-not-retired",
+            f"the row for {row['source_path']} was RETIRED at "
+            f"{retired.get('at')}:{relpath} by ruling "
+            f"{retired.get('ruling')!r} (RULED 5656343213), citing the "
+            f"surface {retired.get('surface')!r} that this manifest says "
+            f"arrived at no leg — and {target} still exists. A retirement is "
+            "a DELETION: unlike a re-destination there is no other leg the "
+            "bytes went to, so a file left here is an arrival the floor no "
+            "longer stands behind and no row declares. Delete it in the "
+            "commit that lands the `retired:` block — the block and the "
+            "deletion are one act")
     return len(rows)
 
 
@@ -2012,6 +2204,26 @@ def _re_destined_record(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _retired_record(row: dict[str, Any]) -> dict[str, Any]:
+    """One retired row as the summary reports it: the source path, the
+    placement the ruling deleted, the SURFACE it drove, and the ruling that
+    ordered it (RULED 5656343213).
+
+    The surface travels with the citation because it is the whole ground of
+    the act: a reader of a leg's `--json` output can see which arrival is gone
+    and WHY without opening the manifest, which is the one thing an absence
+    cannot tell them by itself.
+    """
+    retired = row.get("retired") or {}
+    return {
+        "source_path": row.get("source_path"),
+        "at": retired.get("at"),
+        "at_path": retired.get("at_path"),
+        "surface": retired.get("surface"),
+        "ruling": retired.get("ruling"),
+    }
+
+
 def verify(doc: dict[str, Any], destination: str, dest_root: Path,
            source_repo: Path, phase: str,
            declared_created: set[str], cli_created: set[str],
@@ -2036,6 +2248,13 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     # a file a ruling moved off this leg must be GONE from it (RULED Q6).
     vacated = vacated_rows(doc, destination)
     check_vacated(vacated, dest_root, rows, replica_placements.values())
+    # AND THE RETIREMENTS (RULED 5656343213), on the same terms and in the same
+    # window: before the walk, so the finding names the ruling; after the
+    # arrivals, so a refill's own file is already verified present when this
+    # excludes its path. `rows` has already dropped every retired row, which
+    # is what makes this the ONLY check that will ever mention those files.
+    retired = retired_rows(doc, destination)
+    check_retired(retired, dest_root, rows, replica_placements.values())
     replica_counts = check_replicas(replica_placements, dest_root,
                                     source_repo, carve_commit, doc, phase)
     # A REPLICA'S DECLARED EDIT IS COUNTED WHERE A MOVED ROW'S IS (RULED Q-L7
@@ -2127,6 +2346,14 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
                         if isinstance(row.get("re_destined"), dict)],
             "vacated": [_re_destined_record(row) for row in vacated],
         },
+        # THE RETIREMENTS THIS LEG NO LONGER CARRIES, LISTED AND NOT ONLY
+        # COUNTED (RULED 5656343213), for `re_destined`'s reason one step
+        # further on: a re-destination's evidence can be read off the OTHER
+        # leg's arrival, and a retirement's cannot be read off anything at all
+        # — the file is nowhere. This list is the only place a leg's own
+        # evidence records that an arrival it once owed was deleted by a
+        # ruling, so it carries the surface and the citation with each row.
+        "retired": [_retired_record(row) for row in retired],
         "declared_roots": roots,
         "files_walked": admitted["walked"],
         "admitted": {k: admitted[k] for k in ("scaffold", "replica", "created")},
@@ -2411,6 +2638,17 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
         line += (f"; {len(arrived)} row(s) re-destined HERE and "
                  f"{len(vacated_here)} re-destined AWAY and verified vacated "
                  "(RULED Q6)")
+    # THE RETIREMENTS, PRINTED WHEN THERE ARE ANY (RULED 5656343213) — silent
+    # at zero for the reason the clause above is: this line describes a LEG,
+    # where the honest default is that every arrival here is the carve's own,
+    # and a clause that printed `0 retired` on every run at every leg would
+    # be noise about an act almost no leg ever takes. The MANIFEST validator's
+    # own count is unconditional instead, because that one describes ONE
+    # document whose state a reader must be able to read off any run.
+    retired_here = summary.get("retired") or []
+    if retired_here:
+        line += (f"; {len(retired_here)} row(s) RETIRED here by ruling and "
+                 "verified absent (RULED 5656343213)")
     if summary["carved_from"] is not None:
         line += (f"; carved_from {summary['carved_from']['repository']}@"
                  f"{summary['carved_from']['commit'][:12]}")
