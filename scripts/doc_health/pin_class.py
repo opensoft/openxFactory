@@ -1475,6 +1475,28 @@ NON_MEMBERS: tuple[NonMember, ...] = (
                "about itself today, and a future one that did would go "
                "unswept here.",
     ),
+    NonMember(
+        paths=("openspec/origin-dispositions.yaml",),
+        reason="ORIGIN DISPOSITIONS (`release-realization` § \"Origin retention "
+               "at archive\"; issue #745), whose SUBJECT is a packet's origin "
+               "declaration at two commits. `ratified_at` names the commit that "
+               "ratified a change and `mutation_at` the later commit whose "
+               "origin block an owner ACCEPTED as the origin of record; both "
+               "are CITATIONS of history the archive gate re-reads on every "
+               "run — `scripts/proposal-support.py` resolves each with "
+               "`rev-parse`, requires `mutation_at` to descend from "
+               "`ratified_at` and to be an ancestor of HEAD, and REFUSES the "
+               "archive when either does not hold — and neither is the "
+               "record's own derivation claim: nothing re-derives this file "
+               "from a revision, and a reader checks it by reading those two "
+               "commits, which the gate already does. Declared here for the "
+               "same reason the supersession records are, rather than dodged "
+               "by a key nobody enumerated. THE TRADE IS STATED: an "
+               "unreachable `ratified_at` or `mutation_at` is reported by the "
+               "archive gate at the moment it matters and not by this sweep; "
+               "a future entry shape that carried a derivation claim of its "
+               "own would go unswept here.",
+    ),
 )
 
 
