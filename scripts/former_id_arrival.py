@@ -867,7 +867,14 @@ def judge_commit(root: Path, commit: str, *,
             f"crossed two STANDING packets cannot be told from a packet "
             f"directory that MOVED, and this gate does not guess which it was.")
     moves = relocations_at(diff, before, after)
-    arrivals = {destination: source for source, destination in moves}
+    # EVERY SOURCE, NOT THE LAST ONE READ. Git can pair files from more than
+    # one source packet into a single newly created destination, and a mapping
+    # that kept one of them would let the LEXICAL ORDER of two ids decide which
+    # newly added former id § 2.4 allows — an answer that changes if the
+    # packets are renamed and nothing else. (Copilot, PR #1039.)
+    arrivals: dict[str, list[str]] = {}
+    for source, destination in moves:
+        arrivals.setdefault(destination, []).append(source)
 
     for source, destination in moves:
         if report is not None:
@@ -909,7 +916,7 @@ def judge_commit(root: Path, commit: str, *,
 
 
 def _declaration_findings(root: Path, commit: str, parent: str,
-                          diff: CommitDiff, arrivals: dict[str, str],
+                          diff: CommitDiff, arrivals: dict[str, list[str]],
                           present: list[str]) -> list[Finding]:
     """§ 2.4 and § 2.5 over every packet this commit touched.
 
@@ -932,7 +939,12 @@ def _declaration_findings(root: Path, commit: str, parent: str,
             touched.append(packet_dir)
     for packet_dir in sorted(set(touched) & set(present)):
         change = change_id_of_dir(packet_dir)
-        source = arrivals.get(packet_dir)
+        sources = arrivals.get(packet_dir, [])
+        if len(sources) > 1:
+            findings += _multi_source_findings(
+                root, commit, parent, packet_dir, change, sources)
+            continue
+        source = sources[0] if sources else None
         # THE ESTABLISHED LIST TRAVELS WITH THE PACKET: where this commit
         # moved it, the list it carried at the parent is the SOURCE's, read
         # under the source's own id.
@@ -959,6 +971,65 @@ def _declaration_findings(root: Path, commit: str, parent: str,
             if entry != allowed:
                 findings.append(_bound_entry_finding(
                     commit, packet_dir, change, entry, source))
+    return findings
+
+
+def _multi_source_findings(root: Path, commit: str, parent: str,
+                           packet_dir: str, change: str,
+                           sources: list[str]) -> list[Finding]:
+    """§ 2.4 over a destination this commit brought in from MORE THAN ONE
+    source — bound to every source, and to none of them by name.
+
+    THE ESTABLISHED LIST IS THE QUESTION THAT HAS NO SINGLE ANSWER HERE. The
+    requirement's list is *the source's list with the source id appended*, and
+    a destination with two sources has two candidate lists; the append-only
+    comparison, which asks what this packet carried BEFORE, therefore has no
+    honest reading and is not taken. What survives is the rule that matters:
+    AN ENTRY IS ADDED ONLY BY THE COMMIT THAT PERFORMS THE MOVE IT RECORDS, so
+    every entry the destination declares must be one a source of THIS commit's
+    moves carried, or a source's own id.
+
+    AND THE ARRIVAL ARM STILL JUDGES EACH SOURCE ON ITS OWN: a destination
+    whose list satisfies one qualifying source does not satisfy a second, so a
+    two-source arrival of two ratified packets is refused there, by name, with
+    both paths. This function exists so that the SECOND question — which newly
+    added entry is bound to a move — is not answered by the lexical order of
+    two ids. (Copilot, PR #1039.)
+    """
+    findings: list[Finding] = []
+    allowed: list[str] = []
+    for source in sources:
+        source_id = change_id_of_dir(source)
+        try:
+            carried = declared_at(root, parent, source, source_id)
+        except support.FormerIdError as exc:
+            findings.append(Finding(commit=commit, message=str(exc)))
+            return findings
+        for entry in list(carried) + [source_id]:
+            if entry not in allowed:
+                allowed.append(entry)
+    try:
+        current = declared_at(root, commit, packet_dir, change)
+    except support.FormerIdError as exc:
+        findings.append(Finding(commit=commit, message=str(exc)))
+        return findings
+    for entry in current:
+        if entry not in allowed:
+            findings.append(Finding(
+                commit=commit,
+                message=(
+                    f"{change}: commit {_short(commit)} brings "
+                    f"`{packet_dir}/` in by moves from MORE THAN ONE packet "
+                    f"directory (" + ", ".join(f"`{s}`" for s in sources) +
+                    f"), and its `former_ids:` names {entry!r}, which none of "
+                    f"them carried and none of them is. AN ENTRY IS ADDED "
+                    f"ONLY BY THE COMMIT THAT PERFORMS THE MOVE IT RECORDS. "
+                    f"With two sources there is no single lawful list — the "
+                    f"requirement's list is the SOURCE's list with the SOURCE "
+                    f"id appended — so this gate binds the entries to the "
+                    f"union of what the sources carried rather than letting "
+                    f"the order of two ids decide, and the arrival refusal "
+                    f"above says which move went undeclared.")))
     return findings
 
 

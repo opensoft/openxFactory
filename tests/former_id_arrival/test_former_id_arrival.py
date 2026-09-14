@@ -1114,6 +1114,92 @@ class BoundEntryTests(unittest.TestCase):
                     "change-a", support.load_packet(directory)), [])
 
 
+class MultiSourceTests(unittest.TestCase):
+    """A DESTINATION BROUGHT IN FROM MORE THAN ONE SOURCE, bound to every one
+    of them and to none of them BY NAME.
+
+    Git can pair files from two source packets into one newly created
+    destination. A mapping that kept one source per destination kept the
+    LEXICALLY LAST, so § 2.4's question — which newly added former id is bound
+    to a move this commit performed — was answered by the alphabet: the same
+    tree with `change-a` and `change-b` swapped gave a different verdict.
+    (Copilot, PR #1039.)
+    """
+
+    def dissolve(self, root: Path, declared: list[str]) -> str:
+        """Two ratified packets dissolved into one new one, in one commit."""
+        first = packet(root, "change-a", ratified=True)
+        second = packet(root, "change-b", ratified=True)
+        (first / "a.md").write_text("a" * 600, encoding="utf-8")
+        (second / "b.md").write_text("b" * 600, encoding="utf-8")
+        commit_all(root, "two ratified packets")
+        changes = root / "openspec" / "changes"
+        third = changes / "change-c"
+        third.mkdir()
+        git(root, "mv", str(first / "a.md"), str(third / "a.md"))
+        git(root, "mv", str(second / "b.md"), str(third / "b.md"))
+        git(root, "mv", str(first / "proposal.md"), str(third / "proposal.md"))
+        git(root, "rm", "-q", str(first / ".openspec.yaml"),
+            str(second / "proposal.md"), str(second / ".openspec.yaml"))
+        declare(third, *declared)
+        return commit_all(root, "dissolve two packets into one")
+
+    def test_a_two_source_arrival_is_judged_the_same_whichever_id_is_declared(
+            self):
+        """THE SAME TREE, THE SAME VERDICT, WHATEVER THE PACKETS ARE CALLED.
+
+        Declaring either source leaves exactly ONE refusal — the arrival from
+        the source that went undeclared — and no `bound to no move` finding
+        against the entry that IS a source of this commit's moves. Measured on
+        the parent commit: declaring `change-a` produced TWO findings and
+        declaring `change-b` produced ONE, over the identical history.
+        """
+        for declared in (["change-a"], ["change-b"]):
+            with self.subTest(declared=declared):
+                with TemporaryDirectory() as td:
+                    root = new_repo(Path(td))
+                    head = self.dissolve(root, declared)
+
+                    parent = fia.commit_parents(root, head)[0]
+                    diff = fia.diff_at(root, parent, head)
+                    self.assertEqual(
+                        fia.relocations_at(
+                            diff, fia.packet_dirs_at(root, parent),
+                            fia.packet_dirs_at(root, head)),
+                        [("openspec/changes/change-a",
+                          "openspec/changes/change-c"),
+                         ("openspec/changes/change-b",
+                          "openspec/changes/change-c")])
+
+                    findings = fia.judge_commit(root, head)
+                    self.assertEqual([f.status for f in findings],
+                                     [fia.UNDECLARED],
+                                     [f.message for f in findings])
+                    # …and the refusal names the OTHER source, which is the
+                    # move that went undeclared.
+                    other = ("change-b" if declared == ["change-a"]
+                             else "change-a")
+                    self.assertIn(f"`openspec/changes/{other}/`",
+                                  findings[0].message)
+
+    def test_an_entry_no_source_carried_is_still_bound_to_nothing(self):
+        """AND THE RULE § 2.4 STATES IS STILL ENFORCED over both sources: an
+        entry that neither source carried and neither source is remains an
+        entry bound to no move, and the refusal says so naming every source.
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            head = self.dissolve(root, ["change-a", "change-gone"])
+
+            findings = fia.judge_commit(root, head)
+            bound = [f for f in findings if f.status is None]
+            self.assertEqual(len(bound), 1, [f.message for f in findings])
+            self.assertIn("'change-gone'", bound[0].message)
+            self.assertIn("MORE THAN ONE packet directory", bound[0].message)
+            self.assertIn("`openspec/changes/change-a`", bound[0].message)
+            self.assertIn("`openspec/changes/change-b`", bound[0].message)
+
+
 class ConsumedReaderTests(unittest.TestCase):
     """THE FOUR READERS SLICE 1 LANDED AND NOBODY CALLED, EACH PROVED CALLED.
 
