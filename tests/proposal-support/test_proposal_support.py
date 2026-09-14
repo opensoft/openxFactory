@@ -2009,8 +2009,12 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         its own word) — which refuses the r-to-s
         hop at its own landing, `former-id-undeclared`, exit 1, because that
         hop's source identity had declared `Status: ratified` and the arriving
-        packet declares nothing. So this history can never be created in the
-        first place, and the archive gate never has to reach back for it.
+        packet declares nothing. ONCE THAT GATE IS REQUIRED this history cannot
+        be created in the first place and the archive gate never has to reach
+        back for it — and until then (slice 4 landing, then § 4.5, an operator
+        act outstanding on 2026-09-14) the refusal is reported and enforced by
+        nothing, so a commit of exactly this shape can still land. What does
+        not change either way is WHERE the refusal belongs: not here.
 
         WHY THIS FIXTURE KEEPS ITS ASSERTIONS AND ITS NAME. The #999
         convention (`2dd54b8e`) renames a fixture when ITS OWN answer flips:

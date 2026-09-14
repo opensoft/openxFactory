@@ -3,9 +3,11 @@
 Status: ratified
 Ratified by: add-declared-former-id — 2026-09-13T22:48Z, Brett Heap, verbatim "ratify 1028 as encoded" (record `review/ratification-2026-09-13.md`)
 
-**AMENDED 2026-09-14, AT THE FIRST REALIZATION LANDING: §§ 2 AND 3 ARE BUILT
-AND ARE NOW TICKED, AND § 5.3/§ 5.4 ARE PERFORMED BY THE PULL REQUEST THIS
-AMENDMENT RIDES IN.** Slices 1, 2 and 3 of `design.md` D7 landed as PR
+**AMENDED 2026-09-14, AT THE FIRST REALIZATION LANDING: § 2 EXCEPT § 2.4, AND
+ALL OF § 3, ARE BUILT AND ARE NOW TICKED, AND § 5.3/§ 5.4 ARE PERFORMED BY THE
+PULL REQUEST THIS AMENDMENT RIDES IN. § 2.4 IS SLICE 4'S AND STAYS OPEN**, it
+being the one § 2 task that reads a COMMIT RANGE and therefore belongs to the
+landing validator rather than to the declaration's reader. Slices 1, 2 and 3 of `design.md` D7 landed as PR
 **#1038**, merge **`701c8fde`** (2026-09-14T21:09:31Z): the declaration and
 its reader (§ 2.1, 2.2, 2.3, 2.5, 2.6), the archive gate's baseline resolution
 (§ 3.1, 3.1a, 3.2, 3.3) and the fail-closed reads behind it (§ 3.4). The
@@ -406,8 +408,11 @@ realization evidence and a further word.
       gate resolving the baseline across every declared identity and taking
       the EARLIEST ratification, so a rename is not a way to launder a
       mutation; and the UNDECLARED arrival refused at the landing of the
-      commit that performs it, with the honest statement that the gate is NOT
-      YET A REQUIRED CHECK (§ 4.5). The promoted clause *"renaming a DRAFT
+      commit that performs it, with the rule and its enforcement said
+      SEPARATELY: as measured 2026-09-14 the gate had not landed on `main`
+      (§ 4.1–4.4) and was named by no branch ruleset (§ 4.5), so the sentence
+      says an undeclared arrival is refused by the rule and stopped by
+      nothing rather than implying a protection this estate does not have. The promoted clause *"renaming a DRAFT
       change, and a single commit that renames a draft and ratifies it, are
       unaffected"* is carried verbatim, and nothing else in that paragraph
       moved. **Q4 IS OUTSTANDING**: that document carries `Status: standard`

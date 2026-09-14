@@ -466,15 +466,17 @@ its own.>
   together and takes the EARLIEST commit at which any of them declares
   `Status: ratified`, so a rename is not a way to acquire a later baseline and
   therefore not a way to launder a mutation. An UNDECLARED arrival is refused
-  at the landing of the commit that performs it — the arrival gate this packet
-  realizes (`scripts/validate-former-id-arrival.py`, `former-id-undeclared`,
-  exit 1, no bypass flag), one commit read and never a chain — and THAT GATE
-  IS NOT YET A REQUIRED CHECK: registering it is the packet's § 4.5, an
-  operator act outstanding on 2026-09-14 (the live branch rules for `main`
-  name `former-id-arrival-gate` nowhere), so it reports and blocks no landing
-  until it is registered; renaming a DRAFT change, and a single commit that
-  renames a draft and ratifies it, are unaffected. The nightly
-  `proposal-origin` doc-health family
+  at the landing of the commit that performs it — one commit read and never a
+  chain — by the arrival gate `add-declared-former-id` § 4 builds
+  (`scripts/validate-former-id-arrival.py`, `former-id-undeclared`, exit 1, no
+  bypass flag). THE RULE IS CANON AND THE ENFORCEMENT IS NOT YET IN PLACE, AND
+  THE TWO ARE SAID SEPARATELY: as measured on 2026-09-14 that gate had not
+  landed on `main` (§ 4.1–4.4) and was named by no branch ruleset (§ 4.5, an
+  operator act, the live branch rules for `main` naming
+  `former-id-arrival-gate` nowhere), so until both are done an undeclared
+  arrival is refused by this rule and stopped by nothing; renaming a DRAFT
+  change, and a single commit that renames a draft and ratifies it, are
+  unaffected. The nightly `proposal-origin` doc-health family
   (the fifteenth) reports drift — including post-ratification mutation, a
   `contested` finding — across active and archived proposals.
 - `proposed -> ratified -> implemented`: standard OpenSpec flow.

@@ -2241,11 +2241,14 @@ def ratifying_commit(root: Path, change: str, *,
     the house validator `add-declared-former-id` § 4 realizes —
     `scripts/former_id_arrival.py` and its CLI
     `scripts/validate-former-id-arrival.py`, status `former-id-undeclared`,
-    exit 1, no bypass flag (slice 4, PR #1039) — one commit at a time, so no
-    lineage ever needs walking. THAT GATE IS NOT YET A REQUIRED CHECK
-    (`tasks.md` § 4.5, an operator act outstanding on 2026-09-14), so until it
-    is registered it reports and blocks no landing; nothing in THIS function
-    changes when it is. What this WALK does not do — deliberately — is
+    exit 1, no bypass flag — one commit at a time, so no lineage ever needs
+    walking. THAT GATE IS A SEPARATE LANDING AND IS NOT NECESSARILY BESIDE
+    THIS FILE: it arrives with slice 4 (PR #1039), so a checkout that predates
+    that merge carries this walk and no such validator, and REQUIRING the
+    check is a further act again (`tasks.md` § 4.5, an operator act still
+    outstanding on 2026-09-14). Until both are done an undeclared move is
+    refused by the rule and stopped by nothing — and nothing in THIS function
+    changes when they are. What this WALK does not do — deliberately — is
     reach an UNDECLARED multi-hop chain that is already in history: nothing
     connects `change-t` to `change-r` there, which is the whole argument for a
     declaration.
