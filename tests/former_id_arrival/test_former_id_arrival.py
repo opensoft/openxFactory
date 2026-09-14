@@ -1095,13 +1095,17 @@ class FailClosedTests(unittest.TestCase):
             self.assertNotIn("change-from-outside", problems[0])
             # …AND THE OWNERSHIP SWEEP IS NOT RUN OVER A TREE THIS ARM HAS
             # REFUSED, because that sweep walks the working tree in a shared
-            # reader this slice imports and does not edit, and its walk DOES
-            # follow the link — measured here, so the refusal to run it is
-            # measured too rather than assumed.
+            # reader this slice imports and does not edit. PR #1038 (merged
+            # to main at `701c8fde`) added the same containment guard to
+            # that reader, so it no longer follows THIS link either —
+            # measured directly below, so the claim stays measured rather
+            # than stale. The skip is kept anyway: this arm's own refusal
+            # should not start depending on staying in step with a guard a
+            # module it does not review happens to carry today.
             self.assertIn("ownership sweep over this corpus was NOT run",
                           problems[1])
-            self.assertIn("change-from-outside",
-                          support.former_identity_claimants(root))
+            self.assertEqual(list(support.former_identity_claimants(root)),
+                             ["change-a"])
 
             # A SYMLINKED MANIFEST, and a DANGLING one, are the same rule one
             # level down.

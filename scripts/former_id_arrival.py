@@ -171,15 +171,29 @@ THIS MODULE IS THEIR CONSUMER:
 
 THE ONE READER SPELLED AGAIN HERE, AND WHY. `_identity_paths_at` below is
 `proposal_support.identity_paths_at`'s FAIL-CLOSED spelling: the shared one
-treats a `_tree_rows` read failure as "no row" (its own docstring says so, and
-names `tasks.md` § 3.4 as the slice that changes it), which would collapse an
-UNREADABLE presence read into an ABSENT one and let this gate resolve an
-unreadable identity to "never ratified". Everything else is reused —
-`_tree_rows` itself, `_ARCHIVE_ROOT`, `_ARCHIVE_DIR_RE`, the two-candidate
-rule and the ambiguity refusal. WHEN § 3.4 LANDS THAT BEHAVIOUR IN
-`proposal-support.py`, DELETE `_identity_paths_at` AND CALL THE SHARED READER:
-this is a spelling of one rule in two places, kept only for as long as the two
-slices are in flight together.
+used to treat a `_tree_rows` read failure as "no row" (its own docstring said
+so, and named `tasks.md` § 3.4 as the slice that changes it), which would have
+collapsed an UNREADABLE presence read into an ABSENT one and let this gate
+resolve an unreadable identity to "never ratified". Everything else is
+reused — `_tree_rows` itself, `_ARCHIVE_ROOT`, `_ARCHIVE_DIR_RE`, the
+two-candidate rule and the ambiguity refusal.
+
+§ 3.4 HAS LANDED (main at `701c8fde`) AND THE SWAP IS STILL NOT TAKEN, because
+landing it changed what the shared reader answers without changing what it
+RAISES to say so: `proposal_support.identity_paths_at` now fails closed
+through `_rows_or_refuse`, but that raises `OriginRetentionError` — a
+`SupportError`/`ValueError`, built for the archive gate's own four origin-
+retention conditions — and never this gate's `ArrivalCannotRun`, a
+`RuntimeError` this module owns so `validate-former-id-arrival.py` can catch
+exactly one exception for exit 2. Calling the shared reader here directly
+would let an unreadable read escape that `except fia.ArrivalCannotRun` as an
+uncaught `OriginRetentionError` — a traceback where the documented exits are
+1 and 2, the same defect class this slice's own review round refused for
+`load_packet` (`d053b38e`) rather than a refusal. DELETE `_identity_paths_at`
+AND CALL THE SHARED READER only once a caller here can turn
+`OriginRetentionError` into `ArrivalCannotRun` at the boundary — an adapter,
+not a one-line call-site swap — which is left to whichever slice takes it,
+named rather than taken silently here.
 
 ────────────────────────────────────────────────────────────────────────────
 STATUSES AND EXITS (`design.md` D3, ratified)
@@ -521,7 +535,11 @@ def _identity_paths_at(root: Path, revision: str, identity: str, *,
     ratified" and pass an undeclared landing on the one checkout where nothing
     can be proved.
 
-    DELETE THIS WHEN § 3.4 LANDS and call the shared reader.
+    § 3.4 HAS LANDED and the shared reader now fails closed too — but by
+    raising `OriginRetentionError`, not this module's `ArrivalCannotRun`
+    (module docstring above has the measurement). DELETE THIS AND CALL THE
+    SHARED READER once a caller here adapts that exception at the boundary;
+    not sooner.
     """
     found: list[str] = []
     active = f"{CHANGES_ROOT}/{identity}/proposal.md"
@@ -1248,13 +1266,20 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
                 root, change, declared)
     if any("is a SYMLINK" in problem for problem in problems):
         # THE SWEEP WALKS THE WORKING TREE ITSELF, in a shared reader this
-        # slice imports and does not edit, and its walk FOLLOWS the link this
-        # arm has just refused — measured: `former_identity_claimants` reads
-        # the target's `former_ids:` and claims an identity from outside this
-        # checkout. Running it here would let a file no commit carries decide
-        # whether an identity has one owner. The run is already refusing, so
-        # nothing is lost by saying which question went unanswered instead.
-        # (Copilot, PR #1039.)
+        # slice imports and does not edit. At this arm's own head the walk
+        # FOLLOWED the link this arm has just refused — measured:
+        # `former_identity_claimants` read the target's `former_ids:` and
+        # claimed an identity from outside this checkout. PR #1038 (merged
+        # to main at `701c8fde`) closed that exact hole in the shared reader
+        # too, with the same containment guard this arm carries; re-measured
+        # after that merge, the claim for THIS scenario is
+        # `{'change-a': [...]}`, not `change-from-outside`. The skip stands
+        # anyway: this arm does not review that module's changes, so a
+        # refusal already reached here should not start depending on staying
+        # in step with a guard it does not own. The run is already refusing,
+        # so nothing is lost by saying which question went unanswered instead
+        # of trusting an imported walk over a tree this arm has already
+        # refused. (Copilot, PR #1039; re-measured against PR #1038, 2026-09-14.)
         problems.append(
             "the ownership sweep over this corpus was NOT run: a symlink "
             "stands where a packet directory or a manifest would be (named "
