@@ -1128,9 +1128,327 @@ def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
     return None
 
 
-def ratifying_commit(root: Path, change: str) -> str | None:
-    """The FIRST commit whose `openspec/changes/<change>/proposal.md` declares
-    `Status: ratified`, or None when no commit in history does.
+_ARCHIVE_DIR_RE = re.compile(r"^(?P<date>\d{4}-\d{2}-\d{2})-(?P<id>.+)$")
+_ARCHIVE_ROOT = "openspec/changes/archive/"
+
+
+def _tree_rows(root: Path, revision: str, path: str) -> list[str] | None:
+    """`git ls-tree --name-only <revision> -- <path>`, or None when the read
+    could not be performed.
+
+    THE TREE ANSWERS PRESENCE, AND IT IS THE ONLY READ THAT SEPARATES THE TWO
+    SILENCES. `design.md` M1 measured it on git 2.43.0 against a
+    `--filter=blob:none --no-checkout` clone whose promisor remote was
+    unreachable: for a path PRESENT at a commit whose blob is not locally
+    available `ls-tree` prints the row and exits 0, and for a path GENUINELY
+    ABSENT it prints nothing and exits 0 — while `git cat-file -e` and
+    `git show` exit 128 for BOTH. So "there is nothing there" and "I cannot
+    tell you" are the same value to the probes this estate's packet-at-a-ref
+    lookups are built on, and a gate that reads the second as the first
+    switches itself off exactly where it can prove nothing.
+
+    A NON-ZERO EXIT IS RETURNED AS None AND NEVER AS AN EMPTY LIST, which is
+    the distinction `sequenced_after._archive_dir_names_at_ref` collapses and
+    which this packet's own requirement forbids reusing. What the CALLERS
+    then do with a None is this slice's honest limit: they treat it as "no
+    row", which is today's behaviour, and turning it into the CANNOT RUN
+    refusal the requirement names is the fail-closed slice (`tasks.md` § 3.4)
+    — this function is the read that slice needs, landed early so that slice
+    changes callers and not probes.
+    """
+    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "ls-tree", "--name-only",
+         "--end-of-options", revision, "--", path],
+        capture_output=True, text=True, check=False,
+    )
+    if listed.returncode != 0:
+        return None
+    return [row for row in listed.stdout.splitlines() if row.strip()]
+
+
+def identity_paths_at(root: Path, revision: str, identity: str, *,
+                      archive_rows: list[str] | None = None) -> list[str]:
+    """EVERY path `identity`'s `proposal.md` occupies at `revision` — the
+    two-candidate rule this estate already resolves a packet by.
+
+    THE RULE, NOT THE FUNCTION. `sequenced_after.proposal_path_at_ref` states
+    the rule — the active location first, then a dated archive directory
+    carrying the same id — and this reads it the same way, but it does NOT
+    reuse that function's probes: `_blob_exists_at_ref` asks `git cat-file
+    -e`, which exits non-zero for a missing blob and for an unreadable one
+    alike, and `_archive_dir_names_at_ref` returns an empty list on ANY read
+    failure. Reusing them would make an unreadable former identity read as
+    ABSENT and let the walk take a later baseline, which is exactly what the
+    requirement refuses: "An EXISTING probe that collapses the two SHALL NOT
+    be reused for this read merely because it already resolves a packet by
+    id."
+
+    A LIST RATHER THAN A PATH, and for the reason this estate's own
+    `archived_change_dirs` returns one: two locations for one id is an
+    AMBIGUITY the resolver must be able to REPORT, not a collision to settle
+    by taking the first sorted one. `proposal_path_at` refuses CANNOT RUN
+    over a list longer than one.
+
+    `archive_rows` is the archive listing at this revision when the caller
+    already read it — a walk asks about several identities at one commit, and
+    the listing is the same for all of them.
+    """
+    found: list[str] = []
+    active = f"openspec/changes/{identity}/proposal.md"
+    if _tree_rows(root, revision, active):
+        found.append(active)
+    if archive_rows is None:
+        archive_rows = _tree_rows(root, revision, _ARCHIVE_ROOT)
+    for row in archive_rows or []:
+        name = row.rstrip("/").rsplit("/", 1)[-1]
+        match = _ARCHIVE_DIR_RE.match(name)
+        if match is None or match.group("id") != identity:
+            continue
+        archived = f"{_ARCHIVE_ROOT}{name}/proposal.md"
+        if _tree_rows(root, revision, archived):
+            found.append(archived)
+    return found
+
+
+def proposal_path_at(root: Path, revision: str, identity: str, *,
+                     archive_rows: list[str] | None = None) -> str | None:
+    """The ONE path `identity` occupies at `revision`, or None when it
+    occupies none. Refuses CANNOT RUN where it would occupy more than one."""
+    found = identity_paths_at(root, revision, identity,
+                              archive_rows=archive_rows)
+    if len(found) > 1:
+        raise OriginRetentionError(
+            f"REFUSE origin-retention-identity-ambiguous: {identity}: the "
+            f"origin-retention walk CANNOT RUN. At commit {revision[:12]} "
+            f"this identity resolves to MORE THAN ONE location — "
+            + ", ".join(f"`{path}`" for path in found) +
+            " — and a baseline chosen from a set is a baseline chosen by the "
+            "resolver rather than by an author. Two locations for one id is "
+            "an AMBIGUITY to report and not a collision to settle by "
+            "preferring one: resolve the duplicate before archiving.")
+    return found[0] if found else None
+
+
+def packet_yaml_of(proposal_rel: str) -> str:
+    """The `.openspec.yaml` beside a packet's `proposal.md`."""
+    return proposal_rel.rsplit("/", 1)[0] + "/.openspec.yaml"
+
+
+def packet_yaml_at(root: Path, revision: str,
+                   identities: list[str]) -> str | None:
+    """The first of `identities` standing at `revision`, as its
+    `.openspec.yaml` path. Callers pass the identities in the order they want
+    them preferred — the CURRENT id first for a read about the packet as it
+    is now, the resolved baseline identity for a read about the ratification.
+    """
+    for identity in identities:
+        resolved = proposal_path_at(root, revision, identity)
+        if resolved is not None:
+            return packet_yaml_of(resolved)
+    return None
+
+
+def _identity_pathspecs(identity: str) -> list[str]:
+    """The pathspecs that enumerate every commit that touched `identity`'s
+    proposal, at either of the two locations an id can occupy.
+
+    `:(glob)` MAGIC IS LOAD-BEARING: without it `*` matches `/` as well, so
+    the archive pattern would reach every depth below `archive/`. With it the
+    wildcard is confined to ONE path component, which is what a dated archive
+    directory is. The pattern is deliberately WIDER than the convention — it
+    matches `<anything>-<identity>`, so a neighbour whose name merely ends
+    that way is enumerated too — because this selects COMMITS TO VISIT and
+    nothing else: every path is re-resolved against the convention by
+    `identity_paths_at` before it is read, and over-enumeration costs a read
+    while under-enumeration would cost the baseline.
+    """
+    return [f"openspec/changes/{identity}/proposal.md",
+            f":(glob){_ARCHIVE_ROOT}*-{identity}/proposal.md"]
+
+
+def _change_id_of_proposal_path(rel: str) -> str | None:
+    """The change id a `openspec/changes/…/proposal.md` path addresses."""
+    parts = rel.split("/")
+    if len(parts) < 4 or parts[0] != "openspec" or parts[1] != "changes":
+        return None
+    if parts[2] == "archive":
+        if len(parts) < 5:
+            return None
+        match = _ARCHIVE_DIR_RE.match(parts[3])
+        return match.group("id") if match else None
+    return parts[2]
+
+
+def declared_former_ids_in_tree(root: Path, change: str) -> list[str]:
+    """The lineage `change` declares in the WORKING TREE, active or archived
+    — `[]` when the packet is not there to ask."""
+    changes = root / "openspec" / "changes"
+    candidates = [changes / change]
+    archive = changes / "archive"
+    if archive.is_dir():
+        candidates += [d for d in sorted(archive.iterdir())
+                       if d.is_dir() and change_id_of(d) == change]
+    for directory in candidates:
+        if (directory / ".openspec.yaml").is_file():
+            return declared_former_ids_of(directory, change)
+    return []
+
+
+def ratifying_baseline(root: Path, change: str, *,
+                       former_ids: list[str] | None = None
+                       ) -> tuple[str, str, str] | None:
+    """The baseline the archive gate compares against, resolved ACROSS THE
+    DECLARED IDENTITIES: `(commit, identity, that identity's proposal path at
+    that commit)`, or None when no identity of this packet has ever declared
+    `Status: ratified`.
+
+    THE DECLARATION PRESENT AT RATIFICATION IS FOUND UNDER THE IDENTITY THE
+    PACKET WAS RATIFIED UNDER, WHICH IS NOT ALWAYS THE IDENTITY IT CARRIES
+    NOW. Where the packet declares a former identity, the current id and every
+    declared former id are resolved TOGETHER and the EARLIEST commit at which
+    any of them declares `Status: ratified` is the baseline. Earliest is the
+    whole of it: the failure this exists to catch is a baseline LATER than the
+    real ratification, which waves through every mutation made in between, so
+    a resolution that could return a later commit than some identity of the
+    same packet offers would reintroduce the defect by another route.
+
+    ONE WALK, TOPOLOGICALLY ORDERED ACROSS EVERY IDENTITY, rather than one
+    walk per identity and a comparison afterwards. Comparing two commits found
+    on two separate walks needs an ordering `git log` has already computed:
+    `--topo-order --reverse` over the UNION of the identities' pathspecs
+    visits parents before children across all of them, so the first ratified
+    blob this single walk finds IS the earliest — and no commit DATES, which
+    run backwards through a rebase, are ever compared.
+
+    THE RESOLUTION IS BY IDENTITY AND NEVER BY HISTORY. Each identity is
+    resolved to the path it occupies AT THE COMMIT BEING READ, by the rule
+    `identity_paths_at` states, and no rename detection, similarity score or
+    lineage walk decides which identity belongs to this packet — the
+    DECLARATION does. An identity the packet has not declared is not an
+    identity of that packet, whatever history suggests.
+
+    AND THE UNDECLARED REFUSAL STAYS EXACTLY WHERE IT WAS (issue #833, PR
+    #846). A packet that declares nothing gets today's behaviour: one identity
+    is walked, and a commit that carries the current path in from a path
+    already declaring `Status: ratified` refuses CANNOT RUN rather than
+    re-basing onto the move. What a DECLARATION changes is that the refusal no
+    longer fires for the move the packet DECLARED — that move has a lawful
+    answer now, and the answer is the earlier identity's own ratification.
+    """
+    if not CHANGE_ID_RE.fullmatch(change):
+        raise SupportError(f"invalid change name: {change}")
+    # None MEANS "READ THE PACKET", AND `[]` MEANS "DECLARES NOTHING", which
+    # are different questions and must not answer the same way: a caller that
+    # forgot to pass the lineage would otherwise get the UNDECLARED answer
+    # silently, which is the defect this whole mechanism is about.
+    if former_ids is None:
+        former_ids = declared_former_ids_in_tree(root, change)
+    declared = list(former_ids)
+    identities = declared + [change]
+    pathspecs: list[str] = []
+    for identity in identities:
+        for spec in _identity_pathspecs(identity):
+            if spec not in pathspecs:
+                pathspecs.append(spec)
+    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "log", "--full-history",
+         "--topo-order", "--reverse", "--format=%H", "--", *pathspecs],
+        capture_output=True, text=True, check=False,
+    )
+    if listed.returncode != 0:
+        return None
+    rel = f"openspec/changes/{change}/proposal.md"
+    for revision in listed.stdout.split():
+        archive_rows = _tree_rows(root, revision, _ARCHIVE_ROOT)
+        ratified: dict[str, str] = {}
+        for identity in identities:
+            resolved = proposal_path_at(root, revision, identity,
+                                        archive_rows=archive_rows)
+            if resolved is None:
+                continue
+            blob = git_show_text(root, revision, resolved)
+            if blob is not None and declares_ratified(blob):
+                ratified.setdefault(identity, resolved)
+        # THE REFUSAL IS ASKED BEFORE THE ANSWER IS TAKEN, exactly as it was
+        # before this slice: a commit that is a MOVE of an already-ratified
+        # packet refuses rather than becoming the baseline, whatever its own
+        # blob says.
+        _refuse_an_undeclared_move(root, revision, rel, change, declared,
+                                   change in ratified)
+        for identity in identities:
+            if identity in ratified:
+                return revision, identity, ratified[identity]
+    return None
+
+
+def _refuse_an_undeclared_move(root: Path, revision: str, rel: str,
+                               change: str, declared: list[str],
+                               ratified_here: bool) -> None:
+    """PR #846's refusal, unchanged for a packet that declares nothing, and
+    silent for the move that packet DECLARED.
+
+    The pairing is read exactly as before — `kinds="RC"` where the visited
+    commit's own blob declares `ratified` (a move or copy that lands already
+    ratified) and `kinds="R"` where it does not (a plain rename, the former
+    path gone, that lands short of ratified; issue #849). What is new is one
+    test on the answer: where the paired predecessor's change id is one this
+    packet DECLARES, the move is the lawful one this mechanism exists to
+    admit, and the walk goes on to find that identity's own ratification.
+    Where it is not, the refusal is the one PR #846 wrote, to the sentence.
+    """
+    former = ratified_under_a_former_path(
+        root, revision, rel, kinds="RC" if ratified_here else "R")
+    if former is None:
+        return
+    if _change_id_of_proposal_path(former) in declared:
+        return
+    short = revision[:12]
+    declared_note = (
+        f"This packet DECLARES {declared!r} in `former_ids:` and `{former}` "
+        f"is not among them"
+        if declared else
+        "This packet declares no FORMER ID")
+    raise OriginRetentionError(
+        f"REFUSE origin-retention-path-moved: {change}: the "
+        f"origin-retention walk CANNOT RUN. Commit {short} carries "
+        f"`{rel}` in from `{former}`, which already declared "
+        f"`Status: ratified` at {short}^ — so this change was "
+        f"ratified under a path that is not the one it occupies now "
+        f"(`{rel}`), and {short} is a MOVE OR COPY of that ratified "
+        f"packet rather than its ratification, whatever `{rel}` "
+        f"itself declares as of {short} — and if `{former}` still "
+        f"stands in the tree then the packet was COPIED to this id "
+        f"rather than moved to it, which git pairs the same way and "
+        f"which leaves the same baseline unestablishable. Taking "
+        f"{short} or any later commit under `{rel}` as the baseline "
+        f"would compare the packet against itself and wave through "
+        f"every origin mutation made between the real ratification "
+        f"and it — the `ORIGIN RETAINED` measured on issue #777, "
+        f"the failure issue #833 names, and the same failure "
+        f"reached through an un-ratifying rename (issue #849). "
+        f"{declared_note}, so the "
+        f"baseline cannot be established from history alone and "
+        f"this walk refuses rather than re-basing onto that "
+        f"commit: archive {change} under the id it was ratified "
+        f"with, or declare the source id in this packet's "
+        f"`former_ids:` in the commit that performs the move. "
+        f"Renaming a DRAFT change is unaffected.")
+
+
+def ratifying_commit(root: Path, change: str, *,
+                     former_ids: list[str] | None = None) -> str | None:
+    """The FIRST commit at which THIS PACKET — under `change` or under any
+    identity it declares in `former_ids:` — declares `Status: ratified`, or
+    None when no commit in history does.
+
+    A THIN WRAPPER SINCE `add-declared-former-id`: the resolution itself is
+    `ratifying_baseline`, which returns the identity and the path beside the
+    commit because the declaration at that commit is read under the identity
+    the packet was RATIFIED under, not under the one it carries now. This
+    function keeps its name and its one return value for the callers that only
+    ever wanted the commit. `former_ids` defaults to the lineage the packet
+    declares IN THE WORKING TREE, so a caller that has already read the packet
+    passes it and a caller that has not gets the same answer.
 
     A line-by-line walk over the commits that touched that ONE path, oldest
     first, reading each blob — not `git log -S`, which would match the string
@@ -1207,67 +1525,31 @@ def ratifying_commit(root: Path, change: str) -> str | None:
     it never touched `t`. The baseline the walk returns is the LATER
     re-ratification, and everything mutated since the real first
     ratification is waved through — the #833 failure, reached by a second
-    rename hop instead of one. Reproduced and pinned, not fixed, by
-    `test_an_unratifying_rename_chain_escapes_the_guard_a_stated_gap`,
-    which records today's answer as what it is: no refusal.
+    rename hop instead of one. THAT IS STILL THIS WALK'S ANSWER FOR AN
+    UNDECLARED CHAIN, pinned by
+    `test_an_undeclared_rename_chain_is_the_landing_validators_to_refuse`,
+    which records it as what it is: no refusal, and not this gate's to take.
 
-    LEFT OPEN RATHER THAN CLOSED BY A LONGER WALK. Chasing the packet's full
-    rename lineage — following former paths back across every hop, rather
-    than only the one hop a candidate commit itself pairs — is the shape
-    the ruling on this issue declines (Brett Heap, 2026-09-13):
-    "history-walking archaeology that cannot carry the intent bit
-    distinguishing rename-of-ratified from lawful fork-by-copy, and code
-    that would be deleted when the declaration mechanism lands." The
-    declared former-id (`add-declared-former-id`, the successor packet this
-    issue names) closes it properly instead: a hop that arrives undeclared
-    refuses AT THAT HOP, one commit at a time, so no lineage ever needs
-    walking and no chain, of any length, escapes.
+    CLOSED BY A DECLARATION AND NOT BY A LONGER WALK, WHICH IS WHY THE
+    PARAGRAPH ABOVE STILL DESCRIBES AN UNDECLARED CHAIN. Chasing the packet's
+    full rename lineage — following former paths back across every hop rather
+    than only the one hop a candidate commit itself pairs — is the shape the
+    ruling on this issue declines (Brett Heap, 2026-09-13): "history-walking
+    archaeology that cannot carry the intent bit distinguishing
+    rename-of-ratified from lawful fork-by-copy". `add-declared-former-id`
+    closes it from the other side. A packet that DECLARES the chain resolves
+    its baseline across every declared identity and takes the EARLIEST
+    ratification of any of them, so the chain above, declared, is baselined at
+    `change-r`'s own ratification and the mutation between is caught; and a
+    chain that declares NOTHING is refused at the landing of its first hop by
+    the house validator this packet's § 4 builds, one commit at a time, so no
+    lineage ever needs walking. What this WALK does not do — deliberately — is
+    reach an UNDECLARED multi-hop chain that is already in history: nothing
+    connects `change-t` to `change-r` there, which is the whole argument for a
+    declaration.
     """
-    if not CHANGE_ID_RE.fullmatch(change):
-        raise SupportError(f"invalid change name: {change}")
-    rel = f"openspec/changes/{change}/proposal.md"
-    listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
-        ["git", "-C", str(root.resolve()), "log", "--full-history",
-         "--topo-order", "--reverse", "--format=%H", "--", rel],
-        capture_output=True, text=True, check=False,
-    )
-    if listed.returncode != 0:
-        return None
-    for revision in listed.stdout.split():
-        blob = git_show_text(root, revision, rel)
-        ratified_here = blob is not None and declares_ratified(blob)
-        former = ratified_under_a_former_path(
-            root, revision, rel, kinds="RC" if ratified_here else "R")
-        if former is not None:
-            short = revision[:12]
-            raise OriginRetentionError(
-                f"REFUSE origin-retention-path-moved: {change}: the "
-                f"origin-retention walk CANNOT RUN. Commit {short} carries "
-                f"`{rel}` in from `{former}`, which already declared "
-                f"`Status: ratified` at {short}^ — so this change was "
-                f"ratified under a path that is not the one it occupies now "
-                f"(`{rel}`), and {short} is a MOVE OR COPY of that ratified "
-                f"packet rather than its ratification, whatever `{rel}` "
-                f"itself declares as of {short} — and if `{former}` still "
-                f"stands in the tree then the packet was COPIED to this id "
-                f"rather than moved to it, which git pairs the same way and "
-                f"which leaves the same baseline unestablishable. Taking "
-                f"{short} or any later commit under `{rel}` as the baseline "
-                f"would compare the packet against itself and wave through "
-                f"every origin mutation made between the real ratification "
-                f"and it — the `ORIGIN RETAINED` measured on issue #777, "
-                f"the failure issue #833 names, and the same failure "
-                f"reached through an un-ratifying rename (issue #849). "
-                f"Nothing in this corpus declares a FORMER ID, so the "
-                f"baseline cannot be established from history alone and "
-                f"this walk refuses rather than re-basing onto that "
-                f"commit: archive {change} under the id it was ratified "
-                f"with, or land the former-id declaration (a later packet) "
-                f"before renaming a ratified change. Renaming a DRAFT "
-                f"change is unaffected.")
-        if ratified_here:
-            return revision
-    return None
+    baseline = ratifying_baseline(root, change, former_ids=former_ids)
+    return baseline[0] if baseline is not None else None
 
 
 def origin_block_lines(yaml_text: str | None) -> list[str] | None:
@@ -1768,14 +2050,25 @@ def _accept_declaration_problems(root: Path, change: str, entry: dict,
     does it move exactly the keys the entry names, and does the packet being
     archived carry it."""
     ratified_at, mutation_at = entry["ratified_at"], entry["mutation_at"]
-    rel = f"openspec/changes/{change}/.openspec.yaml"
+    # RESOLVED BY IDENTITY AT EACH REF, not derived once from the id the tree
+    # spells now: a packet that moved lawfully carries its ratification under
+    # a former id, so the two refs this compares can name two DIFFERENT paths
+    # for the same packet (`add-declared-former-id`). The lineage is read from
+    # the packet, current identity preferred, and the pre-declaration answer
+    # is unchanged for every packet that declares nothing.
+    lineage = declared_former_ids_in_tree(root, change)
+    identities = [change] + list(reversed(lineage))
+    fallback = f"openspec/changes/{change}/.openspec.yaml"
+    rel = packet_yaml_at(root, mutation_at, identities) or fallback
     at_mutation_text = git_show_text(root, mutation_at, rel)
     at_mutation = origin_block_lines(at_mutation_text)
     if at_mutation is None:
         return [f"{where} names a `mutation_at` ({mutation_at[:12]}) at "
                 f"which {rel} declares no origin, so there is no declaration "
                 f"to accept"]
-    at_ratification_text = git_show_text(root, ratified_at, rel)
+    at_ratification_text = git_show_text(
+        root, ratified_at,
+        packet_yaml_at(root, ratified_at, identities) or fallback)
     if origin_block_lines(at_ratification_text) == at_mutation:
         return [f"{where} accepts {mutation_at[:12]}, whose origin "
                 f"declaration is IDENTICAL to the ratified one; the entry "
@@ -1955,16 +2248,32 @@ def origin_retention_errors(root: Path, directory: Path,
                 "unreadable, so the declaration present at ratification "
                 "cannot be resolved — the archive gate cannot verify origin "
                 "retention"]
-    revision = ratifying_commit(root, change)
-    if revision is None:
+    lineage = declared_former_ids_of(directory, change)
+    identities = [change] + list(reversed(lineage))
+    baseline = ratifying_baseline(root, change, former_ids=lineage)
+    if baseline is None:
+        under = (f"openspec/changes/{change}/proposal.md"
+                 if not lineage else
+                 f"openspec/changes/{change}/proposal.md, nor under any "
+                 f"identity this packet declares ({', '.join(lineage)})")
         return [f"origin retention: {change}: not ratified — no commit in "
                 f"history carries `Status: ratified` in "
-                f"openspec/changes/{change}/proposal.md, so there is no "
+                f"{under}, so there is no "
                 "declaration to retain. Commit the ratification before "
                 "archiving."]
+    revision, baseline_identity, baseline_proposal = baseline
     short = revision[:12]
-    was_text = git_show_text(
-        root, revision, f"openspec/changes/{change}/.openspec.yaml")
+    under = ("" if baseline_identity == change
+             else f", under the declared former identity {baseline_identity}")
+    # THE BASELINE DECLARATION IS READ UNDER THE IDENTITY THE PACKET WAS
+    # RATIFIED UNDER, at the path that identity occupied AT THAT COMMIT. The
+    # current id is not always that identity, and deriving the path from it
+    # would read nothing at all after a lawful move — which is `git_show_text`
+    # answering None, which this function reads as "declares no origin" and
+    # prints as NOT COMPARABLE. A gate that goes quiet on exactly the packets
+    # this mechanism exists for is the defect wearing the fix's clothes.
+    was_text = git_show_text(root, revision,
+                             packet_yaml_of(baseline_proposal))
     was = origin_block_lines(was_text)
     packet_file = directory / ".openspec.yaml"
     now_text = (packet_file.read_text(encoding="utf-8")
@@ -1984,8 +2293,8 @@ def origin_retention_errors(root: Path, directory: Path,
         # case belongs to `origin_errors` (strict) and to the nightly family's
         # class 1, both of which still run.
         print(f"ORIGIN RETENTION NOT COMPARABLE {change}: the packet at the "
-              f"ratifying commit {short} declares no origin (pre-contract "
-              "packet); presence and shape are still gated")
+              f"ratifying commit {short}{under} declares no origin "
+              "(pre-contract packet); presence and shape are still gated")
         return []
     ratifying = revision
     errors: list[str] = []
@@ -2006,25 +2315,32 @@ def origin_retention_errors(root: Path, directory: Path,
             print(accepted.note())
             revision = accepted.mutation_at
             short = revision[:12]
+            # CURRENT IDENTITY FIRST, then the declared lineage newest-first:
+            # an accepted mutation is by construction LATER than the
+            # ratification, so the packet most likely stood under the id it
+            # carries now — but a move that also edits the origin is exactly
+            # the laundering case, and there the mutation commit is the one
+            # under the FORMER id.
             was_text = git_show_text(
-                root, revision, f"openspec/changes/{change}/.openspec.yaml")
+                root, revision, packet_yaml_at(root, revision, identities)
+                or f"openspec/changes/{change}/.openspec.yaml")
             was = origin_block_lines(was_text)
     if now is None:
         errors.append(
             f"origin retention: {change}: the origin declaration present at "
-            f"the ratifying commit {short} is GONE from the packet being "
-            "archived")
+            f"the ratifying commit {short}{under} is GONE from the packet "
+            "being archived")
     elif now != was:
         keys = _changed_keys(_origin_mapping(was_text),
                              _origin_mapping(now_text))
         detail = "\n".join(difflib.unified_diff(
             was, now,
-            fromfile=f"{short}:openspec/changes/{change}/.openspec.yaml",
+            fromfile=f"{short}:{packet_yaml_of(baseline_proposal)}",
             tofile=_relative(packet_file, root), lineterm="", n=1))
         errors.append(
             f"origin retention: {change}: the origin declaration differs "
             f"from the one this change was ratified over (ratifying commit "
-            f"{short})"
+            f"{short}{under})"
             + (f"\n  changed keys: {', '.join(keys)}" if keys else "")
             + f"\n{detail}")
     # THE MANIFEST IS THE SECOND COPY THE REQUIREMENT NAMES — "the compressed
@@ -2071,7 +2387,7 @@ def origin_retention_errors(root: Path, directory: Path,
               f"commit {ratifying[:12]})")
     else:
         print(f"ORIGIN RETAINED {change} (declaration unchanged since the "
-              f"ratifying commit {short})")
+              f"ratifying commit {short}{under})")
     return errors
 
 
