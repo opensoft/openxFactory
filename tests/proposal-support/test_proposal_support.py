@@ -4215,6 +4215,58 @@ class DeclaredFormerIdTests(unittest.TestCase):
             self.assertIn("change-t", str(caught.exception))
             del directory
 
+    def test_a_header_that_stands_and_does_not_parse_is_not_an_empty_lineage(
+            self):
+        """THE THIRD SILENCE. Round three taught the history read to tell
+        ABSENT from UNREADABLE and left PRESENT-BUT-UNPARSEABLE answering
+        None with them — so `declared_former_ids` still read a broken
+        declaration as an empty one, and the append-only comparison accepts a
+        REMOVAL against an empty established list.
+
+        MEASURED at head `e6ff63fa`: `declared_former_ids_of` over a packet
+        whose `.openspec.yaml` is `[not: a, mapping]` returned `[]`, and
+        `load_packet_at` over the same blob at a ref returned None — the same
+        value a genuinely absent packet answers with. (Copilot, PR #1038
+        `PRRT_kwDOTAvnrs6iIM9m`.)
+
+        REFUSED AS A `FormerIdError`, which is the class the corpus sweep
+        already skips over by design — shape is `former_id_problems`'s to
+        report, not the ownership sweep's — and which every gate caller
+        propagates.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = root / "openspec" / "changes" / "change-t"
+            directory.mkdir(parents=True)
+            (directory / ".openspec.yaml").write_text(
+                "- not\n- a mapping\n", encoding="utf-8")
+            with self.assertRaises(support.FormerIdError) as caught:
+                support.declared_former_ids_of(directory, "change-t")
+            self.assertIn("does not parse", str(caught.exception))
+            self.assertIn("change-t", str(caught.exception))
+            with self.assertRaises(support.FormerIdError):
+                support.declared_former_ids_in_tree(root, "change-t")
+
+            # a packet with NO header is still an empty lineage, not a refusal
+            other = root / "openspec" / "changes" / "change-u"
+            other.mkdir(parents=True)
+            self.assertEqual(
+                support.declared_former_ids_of(other, "change-u"), [])
+
+            # …and the ownership sweep still steps over the broken one
+            self.assertEqual(
+                support.former_identity_ownership_problems(root), [])
+
+            git(root, "init", "-q")
+            commit_all(root, "a packet whose header does not parse")
+            rel = "openspec/changes/change-t/.openspec.yaml"
+            with self.assertRaises(support.FormerIdError) as caught:
+                support.load_packet_at(root, "HEAD", rel)
+            self.assertIn("MAPPING", str(caught.exception))
+            # absent at the ref is STILL None
+            self.assertIsNone(support.load_packet_at(
+                root, "HEAD", "openspec/changes/change-q/.openspec.yaml"))
+
     def test_a_malformed_declaration_does_not_crash_the_corpus_sweep(self):
         """The sweep is about OWNERSHIP; shape is `former_id_problems`'s to
         report, and one unreadable packet must not stop the others being

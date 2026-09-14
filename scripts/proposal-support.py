@@ -625,9 +625,23 @@ def load_packet_at(root: Path, revision: str, rel_path: str, *,
         return None
     try:
         data = yaml.safe_load(text)
-    except yaml.YAMLError:
-        return None
-    return data if isinstance(data, dict) else None
+    except yaml.YAMLError as broken:
+        raise FormerIdError(
+            f"{identity}: `{rel_path}` at {revision[:12]} does not parse as "
+            f"YAML ({broken.__class__.__name__}), so the lineage it "
+            f"ESTABLISHED cannot be read. None is reserved here for a path "
+            f"that is genuinely ABSENT: read as one, an unparseable parent "
+            f"declaration becomes an EMPTY established list, and a later "
+            f"commit that REMOVES or REORDERS an entry is then accepted "
+            f"against nothing — the append-only rule waved through by a file "
+            f"nobody could read") from broken
+    if not isinstance(data, dict):
+        raise FormerIdError(
+            f"{identity}: `{rel_path}` at {revision[:12]} parses as "
+            f"{type(data).__name__} and a change packet is a MAPPING, so the "
+            f"lineage it established cannot be read. Absent and unreadable "
+            f"are distinguished by this reader; so are unreadable and EMPTY")
+    return data
 
 
 def change_id_of(directory: Path) -> str:
@@ -810,9 +824,29 @@ def declared_former_ids(change: str, packet: dict | None) -> list[str]:
 def declared_former_ids_of(directory: Path, change: str | None = None
                            ) -> list[str]:
     """`declared_former_ids` for a packet directory on disk, active or
-    archived — the shape every caller in this module wants."""
+    archived — the shape every caller in this module wants.
+
+    A HEADER THAT STANDS AND DOES NOT PARSE IS NOT A PACKET THAT DECLARES
+    NOTHING. `load_packet` answers None for absent AND for unparseable alike,
+    and `declared_former_ids` reads that as an empty lineage — so a packet
+    whose `.openspec.yaml` is broken handed `ratifying_baseline` the
+    UNDECLARED answer, and handed the append-only comparison an empty
+    established list to accept a removal against. Refused as a
+    `FormerIdError`, which is the class the corpus sweep already skips over
+    (shape is `former_id_problems`'s to report, not the ownership sweep's)
+    and which every gate caller propagates. (Copilot, PR #1038
+    `PRRT_kwDOTAvnrs6iIM9m`.)
+    """
     change = change or change_id_of(directory)
-    return declared_former_ids(change, load_packet(directory))
+    packet = load_packet(directory)
+    if packet is None and (directory / ".openspec.yaml").is_file():
+        raise FormerIdError(
+            f"{change}: `{_corpus_rel(directory)}/.openspec.yaml` STANDS in "
+            f"this tree and does not parse as a YAML mapping, so the lineage "
+            f"it declares cannot be read. A packet that declares nothing and "
+            f"a packet nobody can read are different facts, and only the "
+            f"first of them is an empty lineage")
+    return declared_former_ids(change, packet)
 
 
 def append_only_problems(change: str, established: list[str],
