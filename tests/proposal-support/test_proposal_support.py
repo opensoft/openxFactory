@@ -1992,7 +1992,8 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
 
     def test_an_undeclared_rename_chain_is_the_landing_validators_to_refuse(
             self):
-        """THE #1003 GAP, STILL OPEN AT THE ARCHIVE GATE AND DELIBERATELY SO.
+        """THE #1003 GAP AT THIS GATE, SILENT BY RULE AND NOT BY OVERSIGHT —
+        AND THE DIVISION IS NOW SETTLED RATHER THAN PENDING.
         The chain above, with NOTHING declared, is not reachable from here and
         this test pins that rather than hiding it: `git log` for `change-t`
         never visits the r-to-s commit (it never touched `change-t`), and the
@@ -2000,13 +2001,30 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         check finds nothing amiss either. Nothing in history connects
         `change-t` to `change-r`, which IS the argument for a declaration.
 
-        THE CLOSURE IS AT THE LANDING, not here — `release-realization`'s *An
-        undeclared rename arrival is refused at its landing*, the house
-        validator `tasks.md` § 4 builds: the r-to-s hop is refused at its own
-        landing because its source identity had declared `Status: ratified`
-        and the arriving packet declares nothing, so this history can never be
-        created in the first place. When that validator lands, this fixture
-        gains its refusal — from the validator, over the same tree.
+        THE REFUSAL IS THE LANDING GATE'S, AND IT IS BUILT.
+        `release-realization`'s *An undeclared rename arrival is refused at its
+        landing* is realized by `add-declared-former-id` § 4 —
+        `scripts/former_id_arrival.py` and its CLI
+        `scripts/validate-former-id-arrival.py` (slice 4, PR #1039, landing on
+        its own word) — which refuses the r-to-s
+        hop at its own landing, `former-id-undeclared`, exit 1, because that
+        hop's source identity had declared `Status: ratified` and the arriving
+        packet declares nothing. So this history can never be created in the
+        first place, and the archive gate never has to reach back for it.
+
+        WHY THIS FIXTURE KEEPS ITS ASSERTIONS AND ITS NAME. The #999
+        convention (`2dd54b8e`) renames a fixture when ITS OWN answer flips:
+        `test_an_unratifying_rename_escapes_the_guard_a_stated_gap` became
+        `test_an_unratifying_rename_now_refuses_the_walk` because the walk
+        began raising. Nothing flips here — `ratifying_commit` still returns
+        the late ratification for an undeclared chain, deliberately, `tasks.md`
+        § 3.2 having ruled that the undeclared refusal stays exactly where it
+        is — so a name claiming a refusal would be a name this test does not
+        keep. The refusal has its OWN fixture, asserting both halves over one
+        tree — `ArrivalRefusalTests` in
+        `tests/former_id_arrival/test_former_id_arrival.py`, method
+        `test_an_undeclared_rename_chain_now_refuses_at_its_landing` — which
+        reads this gate's silence and that gate's refusal in the same history.
         """
         with TemporaryDirectory() as td:
             root = Path(td)

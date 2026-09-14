@@ -2200,9 +2200,10 @@ def ratifying_commit(root: Path, change: str, *,
     archivable.
 
     AND WHEN THE UN-RATIFYING HOP AND THE HOP THAT LANDS THE CURRENT NAME ARE
-    TWO DIFFERENT COMMITS, THIS DOES NOT REFUSE — A DELIBERATE, OPEN GAP
-    (issue #1003). The `git log` above is bounded to the ONE path this call
-    was given — the change's CURRENT id — so it visits every commit that
+    TWO DIFFERENT COMMITS, THIS DOES NOT REFUSE — A DELIBERATE GAP AT THIS
+    GATE, AND A SETTLED ONE RATHER THAN AN OPEN ONE (issue #1003). The
+    `git log` above is bounded to the ONE path this call was given — the
+    change's CURRENT id — so it visits every commit that
     ever touched that literal path, starting at the commit that renamed the
     packet INTO its present name; nothing that only ever touched an EARLIER
     name is in that list at all. Ratify r, then rename r to s and un-ratify
@@ -2220,6 +2221,10 @@ def ratifying_commit(root: Path, change: str, *,
     UNDECLARED CHAIN, pinned by
     `test_an_undeclared_rename_chain_is_the_landing_validators_to_refuse`,
     which records it as what it is: no refusal, and not this gate's to take.
+    The refusal that does take it has its own fixture over the same history,
+    `tests/former_id_arrival/test_former_id_arrival.py`'s
+    `test_an_undeclared_rename_chain_now_refuses_at_its_landing`, which asserts
+    this gate's silence and that gate's refusal together.
 
     CLOSED BY A DECLARATION AND NOT BY A LONGER WALK, WHICH IS WHY THE
     PARAGRAPH ABOVE STILL DESCRIBES AN UNDECLARED CHAIN. Chasing the packet's
@@ -2233,8 +2238,14 @@ def ratifying_commit(root: Path, change: str, *,
     ratification of any of them, so the chain above, declared, is baselined at
     `change-r`'s own ratification and the mutation between is caught; and a
     chain that declares NOTHING is refused at the landing of its first hop by
-    the house validator this packet's § 4 builds, one commit at a time, so no
-    lineage ever needs walking. What this WALK does not do — deliberately — is
+    the house validator `add-declared-former-id` § 4 realizes —
+    `scripts/former_id_arrival.py` and its CLI
+    `scripts/validate-former-id-arrival.py`, status `former-id-undeclared`,
+    exit 1, no bypass flag (slice 4, PR #1039) — one commit at a time, so no
+    lineage ever needs walking. THAT GATE IS NOT YET A REQUIRED CHECK
+    (`tasks.md` § 4.5, an operator act outstanding on 2026-09-14), so until it
+    is registered it reports and blocks no landing; nothing in THIS function
+    changes when it is. What this WALK does not do — deliberately — is
     reach an UNDECLARED multi-hop chain that is already in history: nothing
     connects `change-t` to `change-r` there, which is the whole argument for a
     declaration.
