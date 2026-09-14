@@ -1824,6 +1824,17 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
         found = cell.match(line)
         if found is None:
             continue
+        # ONE AUTHORITATIVE ROW PER DESTINATION, refused HERE rather than
+        # silently resolved (Copilot review, this PR). Assigning straight into
+        # `stated` lets a later CORRECT row overwrite an earlier STALE
+        # duplicate, so a table that has stopped having one entry per leg
+        # still passes every numeric check below — the defect this test exists
+        # to catch, hidden by the parser that feeds it. The table's SHAPE is
+        # part of what the table states.
+        assert found["key"] not in stated, (
+            f"the runbook's per-destination table names {found['key']!r} more "
+            "than once; a duplicate row is a stale figure standing behind a "
+            "fresh one, and the sums below read only the last of them")
         stated[found["key"]] = (
             int(found["rows"]),
             int(found["verbatim"] or 0),

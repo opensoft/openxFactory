@@ -2936,6 +2936,15 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     # did not mean to would still sum correctly; and a converted row carried no
     # `edits:` before this act, so S7's entries are its ONLY entries.
     assert len(S7_CONVERTED) == 17, len(S7_CONVERTED)
+    # SEVENTEEN DISTINCT ROWS, not merely a list seventeen long (Copilot
+    # review, this PR): a DUPLICATED path could stand in for an OMITTED
+    # conversion, and the length above, the subset check below and the
+    # per-row loop after it would every one of them still pass — while § 3's
+    # `159 + len(S7_CONVERTED) == 176` counted the same row twice and the
+    # omitted row's conversion went unasserted. Uniqueness is what makes the
+    # count a claim about rows rather than about list length.
+    assert len(set(S7_CONVERTED)) == 17, sorted(
+        path for path in S7_CONVERTED if S7_CONVERTED.count(path) > 1)
     assert set(S7_CONVERTED) <= set(S7_WINDOW), \
         set(S7_CONVERTED) - set(S7_WINDOW)
     for source_path in S7_CONVERTED:
