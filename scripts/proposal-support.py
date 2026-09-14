@@ -272,10 +272,19 @@ def git_blob_sha256(root: Path, revision: str, source_path: str) -> str | None:
     return sha256_bytes(result.stdout) if result.returncode == 0 else None
 
 
+# THE CHANGE-ID GRAMMAR, SPELLED ONCE. Both the path-traversal guard below and
+# `ratifying_commit`'s own argument check carried this pattern inline, and
+# `former_id_problems` needed a third copy to say what a declared former
+# identity may name. Three copies of the rule that decides how this estate
+# ADDRESSES a packet is the defect `add-declared-former-id` is about, in
+# miniature, so the pattern is named here and the copies are gone.
+CHANGE_ID_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+
+
 def active_change_dir(root: Path, change: str) -> Path:
     # Change ids are plain slugs; anything with path syntax would let a
     # caller-supplied name traverse outside openspec/changes/.
-    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", change):
+    if not CHANGE_ID_RE.fullmatch(change):
         raise SupportError(f"invalid change name: {change}")
     path = root / "openspec" / "changes" / change
     if not path.is_dir() or change == "archive":
@@ -440,6 +449,364 @@ def origin_errors(root: Path, directory: Path, *, strict: bool,
                     "immutable after ratification")
     return errors
 
+
+# --------------------------------------------------------------------------
+# THE DECLARED FORMER IDENTITY
+# (`release-realization` § "A moved packet declares the identity it was
+#  ratified under"; add-declared-former-id, issues #1003 and #833)
+#
+# WHAT THIS SECTION IS. A packet whose directory MOVES to a new change id
+# declares the id it moved from, in its own `.openspec.yaml`, as a member of a
+# TOP-LEVEL `former_ids:` list. The declaration is the author's statement THIS
+# DIRECTORY IS THAT PACKET, MOVED, and it is the only thing in the corpus that
+# carries that statement: history records that two paths are similar and cannot
+# record what the author MEANT by the similarity, and the two meanings need
+# opposite answers — a rename of a ratified packet keeps its ratification, a
+# fork authored as a copy of one gets its own.
+#
+# A SIBLING OF `origin:`, NEVER A MEMBER OF IT, and that is a requirement
+# rather than a preference. The origin declaration is frozen at ratification
+# and any post-ratification edit to it is a mutation needing an explicit
+# disposition; a former-id entry is written by the very act that MOVES the
+# packet, which happens after ratification BY CONSTRUCTION — a draft that
+# moves owes no declaration. A member of `origin:` would therefore make every
+# lawful move a mutation of a frozen declaration, a mechanism whose ordinary
+# use requires an exception. `origin_block_lines` below is what makes the
+# sibling position TRUE rather than conventional: it starts collecting at the
+# `origin:` line and stops at the first line that is neither blank nor
+# indented, so a top-level key is outside the block the archive gate freezes.
+# `test_the_declaration_is_outside_the_frozen_origin_block` pins it.
+#
+# AN ENTRY NAMES AN ID AND NEVER A PATH, on the grammar `ratifying_commit`
+# already enforces — this estate addresses a packet by its change id and
+# DERIVES the path, at a ref as well as in the working tree, so an id is
+# declared ONCE per identity change and both of the paths it can occupy follow
+# from it. A declared path would have to restate the archive-directory
+# convention in every packet that ever moved, and would have to be re-declared
+# at the archive, which is not an identity change at all.
+#
+# THE ARCHIVE RELOCATION IS NOT A MOVE UNDER THIS REQUIREMENT and is never
+# declared: it relocates `openspec/changes/<id>/` to
+# `openspec/changes/archive/<YYYY-MM-DD>-<id>/` and PRESERVES the id, so a
+# packet declaring it would be declaring that it used to be itself. That is
+# why an entry equal to the packet's own id refuses below.
+#
+# WHAT THIS SECTION DOES NOT DO. It does not decide whether a COMMIT was
+# entitled to add the entry it added — binding a newly added entry to the move
+# that commit performs, and refusing an undeclared arrival, are the landing
+# validator's, which reads a commit range this module never sees. What lives
+# here is the DECLARATION and its reader: the grammar, the shape refusals, the
+# append-only comparison, and the corpus ownership sweep — everything that can
+# be answered from a packet and from the corpus around it.
+# --------------------------------------------------------------------------
+
+# A former-id entry is a CHANGE ID by the grammar this module already
+# enforces on one — `CHANGE_ID_RE`, defined above beside `active_change_dir`,
+# which was the third copy of that pattern until this section hoisted it. One
+# spelling, because the declaration and the walk that consumes it cannot be
+# allowed to disagree about what a change id is.
+FORMER_IDS_KEY = "former_ids"
+
+_ARCHIVE_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}-")
+
+
+class FormerIdError(SupportError):
+    """A `former_ids:` declaration that cannot be read as one.
+
+    A subclass rather than a message so a caller can branch on "the
+    declaration is malformed" without parsing prose, and so the landing
+    validator can answer it with its own exit status. Every arm names the
+    packet and the entry, because an operator repairs a declaration by
+    editing one line of one file.
+
+    NOT RAISED FOR AN ABSENT DECLARATION. A packet that declares no former
+    identity is the ordinary case — the corpus is almost entirely such
+    packets — and it reads as an empty list.
+    """
+
+
+def load_packet_at(root: Path, revision: str, rel_path: str) -> dict | None:
+    """A `.openspec.yaml` AT A REVISION, parsed — None when absent or
+    unparseable.
+
+    The tree-side sibling of `load_packet`. The append-only comparison needs
+    the list a packet carried at a commit's PARENT, which is not on disk
+    anywhere, and reading it through `git_show_text` keeps one spelling of
+    "the packet at a ref" in this module.
+    """
+    text = git_show_text(root, revision, rel_path)
+    if text is None or yaml is None:
+        return None
+    try:
+        data = yaml.safe_load(text)
+    except yaml.YAMLError:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def change_id_of(directory: Path) -> str:
+    """The change id a packet directory carries, archive date prefix stripped.
+
+    `openspec/changes/add-x` and `openspec/changes/archive/2026-09-09-add-x`
+    are the same IDENTITY at two moments of its life, which is the whole
+    reason the archive relocation is never a declared move.
+    """
+    return _ARCHIVE_DATE_RE.sub("", directory.name)
+
+
+def former_id_problems(change: str, packet: dict | None) -> list[str]:
+    """The shape refusals over a packet's `former_ids:` — empty when the
+    declaration is well formed, and empty when there is none.
+
+    Six refusals, each named in `release-realization` § "A moved packet
+    declares the identity it was ratified under" or in this packet's own
+    tasks:
+
+    * the key declared INSIDE `origin:` rather than beside it — the position
+      is normative, for the freeze reason the section header states;
+    * a scalar (or a mapping) where a SEQUENCE is required;
+    * an entry that is not a change id by the grammar `ratifying_commit`
+      enforces;
+    * an entry equal to the packet's OWN id — a packet cannot be the move of
+      itself, and the archive relocation, which preserves the id, is the one
+      move that is never declared;
+    * a duplicate entry — an identity is declared once;
+    * (reported by `append_only_problems`, not here) a list that rewrites what
+      an earlier commit established.
+
+    WHAT IS DELIBERATELY NOT REFUSED HERE. An entry naming an id that does not
+    resolve anywhere in this corpus is NOT a shape defect: the whole point of
+    a former identity is that the id it names no longer stands as a directory.
+    Whether the commit that ADDED the entry was entitled to add it is the
+    landing validator's question and needs a commit range, which this reader
+    does not have.
+    """
+    problems: list[str] = []
+    if not isinstance(packet, dict):
+        return problems
+    origin = packet.get("origin")
+    if isinstance(origin, dict) and FORMER_IDS_KEY in origin:
+        problems.append(
+            f"{change}: `{FORMER_IDS_KEY}:` is declared INSIDE `origin:`. It "
+            f"is a TOP-LEVEL SIBLING of `origin:` and never a member of it — "
+            f"the origin declaration is frozen at ratification, so a member "
+            f"would make every lawful move a mutation of a frozen "
+            f"declaration and would need a disposition for each one")
+    if FORMER_IDS_KEY not in packet:
+        return problems
+    declared = packet[FORMER_IDS_KEY]
+    if not isinstance(declared, list):
+        problems.append(
+            f"{change}: `{FORMER_IDS_KEY}:` is {type(declared).__name__} "
+            f"({declared!r}), and a SEQUENCE of change ids is required — a "
+            f"packet may move more than once, so the declaration is a list "
+            f"ordered oldest first even when it carries one entry")
+        return problems
+    seen: dict[str, str] = {}
+    for index, entry in enumerate(declared):
+        where = f"`{FORMER_IDS_KEY}[{index}]`"
+        if not isinstance(entry, str) or not entry.strip():
+            problems.append(
+                f"{change}: {where} is {entry!r}, and an entry names a "
+                f"CHANGE ID — a non-empty string matching "
+                f"`{CHANGE_ID_RE.pattern}`")
+            continue
+        if not CHANGE_ID_RE.fullmatch(entry):
+            problems.append(
+                f"{change}: {where} names {entry!r}, which is not a change "
+                f"id by the grammar this estate resolves a packet with "
+                f"(`{CHANGE_ID_RE.pattern}`). An entry names an ID and never "
+                f"a PATH: the path is derived from the id, at a ref as well "
+                f"as in the working tree")
+            continue
+        if entry == change:
+            problems.append(
+                f"{change}: {where} names the packet's OWN id, which is a "
+                f"claim to have been moved from itself. The archive "
+                f"relocation to "
+                f"`openspec/changes/archive/<YYYY-MM-DD>-{change}/` PRESERVES "
+                f"the id and is never a declared move")
+            continue
+        if entry in seen:
+            problems.append(
+                f"{change}: {where} repeats {entry!r}, already declared at "
+                f"{seen[entry]} — an identity is declared ONCE, and a list "
+                f"that names one twice cannot say how many times the packet "
+                f"moved")
+            continue
+        seen[entry] = where
+    return problems
+
+
+def declared_former_ids(change: str, packet: dict | None) -> list[str]:
+    """The packet's declared former identities, OLDEST FIRST — `[]` when it
+    declares none.
+
+    Raises `FormerIdError` naming every problem when the declaration is
+    malformed, rather than returning the entries it could read: a reader that
+    silently drops a bad entry would hand the archive gate a SHORTER lineage
+    than the author wrote, which is the shed-lineage defect arriving through
+    the reader instead of through a move.
+    """
+    problems = former_id_problems(change, packet)
+    if problems:
+        raise FormerIdError("; ".join(problems))
+    declared = (packet or {}).get(FORMER_IDS_KEY)
+    return list(declared) if isinstance(declared, list) else []
+
+
+def declared_former_ids_of(directory: Path, change: str | None = None
+                           ) -> list[str]:
+    """`declared_former_ids` for a packet directory on disk, active or
+    archived — the shape every caller in this module wants."""
+    change = change or change_id_of(directory)
+    return declared_former_ids(change, load_packet(directory))
+
+
+def append_only_problems(change: str, established: list[str],
+                         current: list[str]) -> list[str]:
+    """The append-only comparison: `current` must be `established` PLUS zero
+    or more new entries at the END.
+
+    APPEND-ONLY ACROSS COMMITS AND NOT ONLY WITHIN ONE, which is the whole
+    reason this is a separate function from `former_id_problems`. The arrival
+    check only ever runs at a MOVE, so without this a lawful move could be
+    declared at its landing and the declaration deleted the day after, in a
+    commit no arrival check ever looks at — handing the archive gate the later
+    ratification under the current id, the very baseline this mechanism exists
+    to keep it away from.
+
+    `established` is the list the packet carried at the commit's PARENT and
+    `current` the list it carries at the commit. A removal, a reorder and a
+    respelling are all the same defect to the comparison (the established
+    prefix is no longer a prefix) and each is named separately in the finding,
+    because they are three different author mistakes.
+    """
+    if list(current[:len(established)]) == list(established):
+        return []
+    missing = [entry for entry in established if entry not in current]
+    kept = [entry for entry in established if entry in current]
+    reordered = [entry for entry in kept
+                 if current.index(entry) != established.index(entry)]
+    detail: list[str] = []
+    if missing:
+        detail.append("REMOVED " + ", ".join(repr(e) for e in missing))
+    if reordered:
+        detail.append("REORDERED " + ", ".join(repr(e) for e in reordered))
+    if not detail:
+        detail.append("REWRITTEN")
+    return [f"{change}: `{FORMER_IDS_KEY}:` is APPEND-ONLY ACROSS COMMITS and "
+            f"this commit rewrites it — {'; '.join(detail)}. Established "
+            f"{established!r}, now {current!r}. An entry an earlier commit "
+            f"established may never be removed, reordered or respelled, "
+            f"whether or not this commit moves anything: a declaration "
+            f"deleted after a lawful move hands the archive gate the later "
+            f"ratification under the current id"]
+
+
+def former_identity_claimants(root: Path) -> dict[str, list[str]]:
+    """Every identity this corpus claims -> the packets claiming it.
+
+    Two kinds of claim, and the requirement names both: a LIVE packet
+    directory claims its own id, and any packet — active or archived —
+    claims every id it declares in `former_ids:`. The ARCHIVED directories
+    are read for their DECLARATIONS and not for their own ids: a declaration
+    travels with the packet into the archived directory the archive gate
+    reads, so an archived packet's lineage is still a claim on those ids.
+
+    A malformed declaration is skipped rather than raised over: this is the
+    corpus sweep, and `former_id_problems` is the reader that reports shape.
+    """
+    claimants: dict[str, list[str]] = {}
+
+    def claim(identity: str, by: str) -> None:
+        claimants.setdefault(identity, [])
+        if by not in claimants[identity]:
+            claimants[identity].append(by)
+
+    changes = root / "openspec" / "changes"
+    if not changes.is_dir():
+        return claimants
+    live = [d for d in sorted(changes.iterdir())
+            if d.is_dir() and d.name != "archive"]
+    archived_root = changes / "archive"
+    archived = ([d for d in sorted(archived_root.iterdir()) if d.is_dir()]
+                if archived_root.is_dir() else [])
+    for directory in live:
+        claim(directory.name, f"the live packet `{_corpus_rel(directory)}`")
+    for directory in live + archived:
+        change = change_id_of(directory)
+        try:
+            ids = declared_former_ids_of(directory, change)
+        except FormerIdError:
+            continue
+        for identity in ids:
+            claim(identity,
+                  f"`{_corpus_rel(directory)}` declares it in "
+                  f"`{FORMER_IDS_KEY}:`")
+    return claimants
+
+
+def _corpus_rel(directory: Path) -> str:
+    """A packet directory as the corpus spells it, for a finding that reads
+    the same on a runner and on a developer machine."""
+    parts = directory.parts
+    if "changes" in parts:
+        index = len(parts) - 1 - parts[::-1].index("changes")
+        return "/".join(("openspec",) + parts[index:])
+    return directory.name
+
+
+def former_identity_ownership_problems(root: Path) -> list[str]:
+    """A FORMER IDENTITY HAS EXACTLY ONE OWNER — the corpus sweep that says so.
+
+    Where two packets declare the same former id, or where an id is at once a
+    live packet id and some packet's declared former id, the declaration is
+    refused NAMING EVERY CLAIMANT. An identity claimed twice resolves to a
+    SET, and a baseline chosen from a set is a baseline chosen by the resolver
+    rather than by an author — the same line this estate's own archived-
+    directory lookup draws when it returns a LIST because "two archive dates
+    for one id is an AMBIGUITY the resolver must be able to report, not a
+    collision to resolve by taking the newest".
+    """
+    problems = []
+    for identity, claimants in sorted(former_identity_claimants(root).items()):
+        if len(claimants) < 2:
+            continue
+        problems.append(
+            f"former identity {identity!r} is claimed by "
+            f"{len(claimants)} packets — " + "; ".join(claimants) +
+            ". A former identity has EXACTLY ONE OWNER: an identity claimed "
+            "twice resolves to a set, and a baseline chosen from a set is "
+            "chosen by the resolver rather than by an author")
+    return problems
+
+
+def standing_former_id_problems(root: Path, change: str,
+                                ids: list[str]) -> list[str]:
+    """A DECLARED FORMER ID SHALL RESOLVE TO A PACKET THAT ACTUALLY MOVED.
+
+    A former id that still stands as a LIVE packet directory is a claim to be
+    the move of something that did not move — that shape is a COPY, and a copy
+    is a new packet with its own origin, its own first ratification and no
+    inherited lineage. Refused naming BOTH ids, because the repair is a choice
+    between them: either the source really moved (and its directory should be
+    gone) or this packet is a fork (and owes no declaration).
+
+    Read against the tree it is GIVEN, so the archive gate can ask it of the
+    working tree and the landing validator of a commit's tree.
+    """
+    problems = []
+    for identity in ids:
+        standing = root / "openspec" / "changes" / identity
+        if standing.is_dir():
+            problems.append(
+                f"{change}: declares former id {identity!r}, but "
+                f"`{_corpus_rel(standing)}` STILL STANDS in this tree. A "
+                f"packet that still stands was COPIED and not moved, and a "
+                f"copy is a new packet with its own origin — declare nothing, "
+                f"or complete the move")
+    return problems
 
 # --------------------------------------------------------------------------
 # ORIGIN RETENTION AT THE ARCHIVE GATE
@@ -856,7 +1223,7 @@ def ratifying_commit(root: Path, change: str) -> str | None:
     refuses AT THAT HOP, one commit at a time, so no lineage ever needs
     walking and no chain, of any length, escapes.
     """
-    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", change):
+    if not CHANGE_ID_RE.fullmatch(change):
         raise SupportError(f"invalid change name: {change}")
     rel = f"openspec/changes/{change}/proposal.md"
     listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled

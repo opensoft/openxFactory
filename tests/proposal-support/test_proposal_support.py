@@ -2516,5 +2516,358 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIn(flag, result.stdout)
 
 
+class DeclaredFormerIdTests(unittest.TestCase):
+    """`release-realization` § "A moved packet declares the identity it was
+    ratified under" — the DECLARATION and its reader (add-declared-former-id
+    § 2, issues #1003 and #833).
+
+    THE MECHANISM IS A DECLARATION AND NOT A WALK, and these tests are over
+    the reader rather than over history for that reason: history records that
+    two paths are similar and cannot record what the author MEANT by the
+    similarity, so the intent bit is written down by the author and READ from
+    the tree. What history is still needed for is the ONE comparison that
+    cannot be taken from a single tree — append-only ACROSS COMMITS — and
+    that test carries a real repository.
+
+    WHAT IS DELIBERATELY NOT HERE. Binding a newly added entry to the move
+    that commit performs (§ 2.4) and refusing an undeclared arrival (§ 4) both
+    read a COMMIT RANGE, which this module never sees; they belong to the
+    landing validator and to its own suite.
+    """
+
+    HEADER = "schema: spec-driven\ncreated: 2026-09-13\n"
+    ORIGIN = (
+        "origin:\n"
+        "  kind: ad_hoc\n"
+        "  id: fixture:adhoc:2026-09-13-change-t\n"
+        "  reason: the fixture declares an ad-hoc origin\n"
+    )
+
+    def packet_yaml(self, root: Path, change: str, body: str = "") -> Path:
+        directory = root / "openspec" / "changes" / change
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / ".openspec.yaml").write_text(
+            self.HEADER + self.ORIGIN + body, encoding="utf-8")
+        return directory
+
+    def read(self, change: str, body: str) -> list[str]:
+        loaded = support.yaml.safe_load(self.HEADER + self.ORIGIN + body)
+        return support.declared_former_ids(change, loaded)
+
+    def problems(self, change: str, body: str) -> list[str]:
+        loaded = support.yaml.safe_load(self.HEADER + self.ORIGIN + body)
+        return support.former_id_problems(change, loaded)
+
+    # ---------------------------------------------------------------- § 2.1
+
+    def test_a_packet_that_declares_nothing_reads_as_an_empty_lineage(self):
+        """THE ORDINARY CASE, and it must stay silent: every packet in this
+        corpus declares no former identity, so a reader that treated absence
+        as a defect would refuse the whole corpus."""
+        self.assertEqual(self.read("change-t", ""), [])
+        self.assertEqual(self.problems("change-t", ""), [])
+
+    def test_the_declared_list_is_read_oldest_first(self):
+        self.assertEqual(
+            self.read("change-t", "former_ids:\n  - change-r\n  - change-s\n"),
+            ["change-r", "change-s"])
+
+    def test_a_scalar_where_a_sequence_is_required_refuses(self):
+        """A packet may move more than once, so the declaration is a LIST
+        even when it carries one entry."""
+        problems = self.problems("change-t", "former_ids: change-r\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("SEQUENCE", problems[0])
+        self.assertIn("change-r", problems[0])
+        with self.assertRaises(support.FormerIdError):
+            self.read("change-t", "former_ids: change-r\n")
+
+    def test_a_mapping_where_a_sequence_is_required_refuses(self):
+        problems = self.problems("change-t", "former_ids:\n  change-r: yes\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("SEQUENCE", problems[0])
+
+    def test_an_entry_that_is_not_a_change_id_refuses(self):
+        """AN ENTRY NAMES AN ID AND NEVER A PATH. The path is derived from the
+        id, so a declared path would restate the archive-directory convention
+        in every packet that ever moved."""
+        body = "former_ids:\n  - openspec/changes/change-r\n"
+        problems = self.problems("change-t", body)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("not a change id", problems[0])
+        self.assertIn("never a PATH", " ".join(problems[0].split()))
+
+    def test_an_entry_that_is_not_a_string_refuses(self):
+        problems = self.problems("change-t", "former_ids:\n  - 7\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("CHANGE ID", problems[0])
+
+    def test_an_entry_equal_to_the_packets_own_id_refuses(self):
+        """THE ARCHIVE RELOCATION IS NEVER DECLARED. It preserves the id, so
+        a packet declaring its own id would be declaring that it used to be
+        itself."""
+        problems = self.problems("change-t", "former_ids:\n  - change-t\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("OWN id", problems[0])
+        self.assertIn("archive", problems[0])
+
+    def test_a_duplicate_entry_refuses(self):
+        body = "former_ids:\n  - change-r\n  - change-s\n  - change-r\n"
+        problems = self.problems("change-t", body)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("repeats", problems[0])
+        self.assertIn("'change-r'", problems[0])
+
+    def test_a_declaration_nested_inside_origin_refuses(self):
+        """THE POSITION IS NORMATIVE. A member of `origin:` would make every
+        lawful move a mutation of a declaration frozen at ratification, and
+        would need a disposition for each one — a mechanism whose ordinary
+        use requires an exception."""
+        nested = (self.HEADER + self.ORIGIN + "  former_ids:\n    - change-r\n")
+        loaded = support.yaml.safe_load(nested)
+        problems = support.former_id_problems("change-t", loaded)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("INSIDE `origin:`", problems[0])
+        self.assertIn("SIBLING", problems[0])
+
+    def test_every_problem_is_reported_rather_than_the_first(self):
+        """An operator repairs a declaration by editing lines, so the reader
+        names every line that needs one."""
+        body = "former_ids:\n  - change-t\n  - not a change id\n  - change-t\n"
+        self.assertEqual(len(self.problems("change-t", body)), 3)
+
+    def test_a_malformed_declaration_raises_rather_than_reading_short(self):
+        """A reader that silently dropped a bad entry would hand the archive
+        gate a SHORTER lineage than the author wrote — the shed-lineage
+        defect arriving through the reader instead of through a move."""
+        body = "former_ids:\n  - change-r\n  - not a change id\n"
+        with self.assertRaises(support.FormerIdError) as caught:
+            self.read("change-t", body)
+        self.assertIn("not a change id", str(caught.exception))
+
+    # ---------------------------------------------------------------- § 2.2
+
+    def test_the_declaration_is_outside_the_frozen_origin_block(self):
+        """`design.md` M3, PINNED BY A TEST RATHER THAN BY A COMMENT. The
+        archive gate freezes the `origin:` block at ratification; a top-level
+        sibling must therefore read IDENTICALLY with and without the
+        declaration, or every lawful move would be a mutation."""
+        without = self.HEADER + self.ORIGIN
+        with_ids = without + "former_ids:\n  - change-r\n  - change-s\n"
+        self.assertEqual(support.origin_block_lines(with_ids),
+                         support.origin_block_lines(without))
+        # ANTI-VACUITY: the reader returns a real block, not None for both
+        self.assertTrue(support.origin_block_lines(without))
+
+    def test_a_declaration_before_the_origin_block_is_still_outside_it(self):
+        """Order in the file is not the mechanism — the block reader starts at
+        the `origin:` line, so a declaration ABOVE it is outside too."""
+        without = self.HEADER + self.ORIGIN
+        above = (self.HEADER + "former_ids:\n  - change-r\n" + self.ORIGIN)
+        self.assertEqual(support.origin_block_lines(above),
+                         support.origin_block_lines(without))
+
+    # ---------------------------------------------------------------- § 2.3
+
+    def test_a_declared_former_id_that_still_stands_refuses_naming_both(self):
+        """A PACKET THAT STILL STANDS WAS COPIED AND NOT MOVED, and a copy is
+        a new packet with its own origin. Both ids are named because the
+        repair is a choice between them."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-r")
+            self.packet_yaml(root, "change-t",
+                             "former_ids:\n  - change-r\n")
+            problems = support.standing_former_id_problems(
+                root, "change-t", ["change-r"])
+            self.assertEqual(len(problems), 1)
+            self.assertIn("change-t", problems[0])
+            self.assertIn("change-r", problems[0])
+            self.assertIn("STILL STANDS", problems[0])
+            self.assertIn("COPIED", problems[0])
+
+    def test_a_declared_former_id_with_no_live_directory_passes(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-t",
+                             "former_ids:\n  - change-r\n")
+            self.assertEqual(
+                support.standing_former_id_problems(
+                    root, "change-t", ["change-r"]), [])
+
+    # ---------------------------------------------------------------- § 2.5
+
+    def test_append_only_accepts_an_appended_entry(self):
+        self.assertEqual(
+            support.append_only_problems(
+                "change-t", ["change-r"], ["change-r", "change-s"]), [])
+
+    def test_append_only_accepts_an_unchanged_list(self):
+        self.assertEqual(
+            support.append_only_problems(
+                "change-t", ["change-r"], ["change-r"]), [])
+
+    def test_append_only_refuses_a_removed_entry(self):
+        problems = support.append_only_problems(
+            "change-t", ["change-r", "change-s"], ["change-s"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("APPEND-ONLY ACROSS COMMITS", problems[0])
+        self.assertIn("REMOVED 'change-r'", problems[0])
+
+    def test_append_only_refuses_a_reordered_entry(self):
+        problems = support.append_only_problems(
+            "change-t", ["change-r", "change-s"], ["change-s", "change-r"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("REORDERED", problems[0])
+
+    def test_append_only_refuses_a_respelled_entry(self):
+        problems = support.append_only_problems(
+            "change-t", ["change-r"], ["change-R"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("REMOVED 'change-r'", problems[0])
+
+    def test_a_declaration_deleted_the_day_after_a_move_is_refused(self):
+        """THE ATTACK APPEND-ONLY EXISTS TO STOP, as a repository rather than
+        as a pair of lists. The arrival check only ever runs at a MOVE, so a
+        commit the day AFTER a lawful move could delete the declaration and no
+        arrival check would ever look — handing the archive gate the later
+        ratification under the current id, the very baseline this mechanism
+        exists to keep it away from."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet_yaml(root, "change-t",
+                                         "former_ids:\n  - change-r\n")
+            (directory / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            git(root, "init", "-q")
+            commit_all(root, "the declared move lands")
+            (directory / ".openspec.yaml").write_text(
+                self.HEADER + self.ORIGIN, encoding="utf-8")
+            commit_all(root, "delete the declaration the day after")
+
+            rel = "openspec/changes/change-t/.openspec.yaml"
+            established = support.declared_former_ids(
+                "change-t", support.load_packet_at(root, "HEAD^", rel))
+            current = support.declared_former_ids(
+                "change-t", support.load_packet_at(root, "HEAD", rel))
+            self.assertEqual(established, ["change-r"])
+            self.assertEqual(current, [])
+            problems = support.append_only_problems(
+                "change-t", established, current)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("REMOVED 'change-r'", problems[0])
+            self.assertIn("whether or not this commit moves anything",
+                          problems[0])
+
+    def test_load_packet_at_reads_none_for_a_path_absent_at_the_ref(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-t")
+            git(root, "init", "-q")
+            commit_all(root, "one packet")
+            self.assertIsNone(support.load_packet_at(
+                root, "HEAD", "openspec/changes/change-r/.openspec.yaml"))
+
+    # ---------------------------------------------------------------- § 2.6
+
+    def test_two_packets_claiming_one_former_identity_refuse(self):
+        """A FORMER IDENTITY HAS EXACTLY ONE OWNER. An identity claimed twice
+        resolves to a SET, and a baseline chosen from a set is chosen by the
+        resolver rather than by an author."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-s", "former_ids:\n  - change-r\n")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            problems = support.former_identity_ownership_problems(root)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("'change-r'", problems[0])
+            self.assertIn("openspec/changes/change-s", problems[0])
+            self.assertIn("openspec/changes/change-t", problems[0])
+            self.assertIn("EXACTLY ONE OWNER", problems[0])
+
+    def test_a_live_id_also_declared_as_a_former_id_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-r")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            problems = support.former_identity_ownership_problems(root)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("the live packet `openspec/changes/change-r`",
+                          problems[0])
+            self.assertIn("openspec/changes/change-t", problems[0])
+
+    def test_an_archived_packets_declaration_still_claims_its_lineage(self):
+        """A DECLARATION TRAVELS WITH THE PACKET into the archived directory
+        the archive gate reads, so an archived packet's lineage is still a
+        claim — otherwise archiving one claimant would silently free the
+        identity for another."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            archived = root / "openspec" / "changes" / "archive"
+            archived.mkdir(parents=True)
+            (archived / "2026-09-09-change-s").mkdir()
+            (archived / "2026-09-09-change-s" / ".openspec.yaml").write_text(
+                self.HEADER + self.ORIGIN + "former_ids:\n  - change-r\n",
+                encoding="utf-8")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            problems = support.former_identity_ownership_problems(root)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("2026-09-09-change-s", problems[0])
+            self.assertIn("change-t", problems[0])
+
+    def test_one_owner_per_identity_reports_nothing(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-s", "former_ids:\n  - change-q\n")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            self.assertEqual(
+                support.former_identity_ownership_problems(root), [])
+
+    def test_a_malformed_declaration_does_not_crash_the_corpus_sweep(self):
+        """The sweep is about OWNERSHIP; shape is `former_id_problems`'s to
+        report, and one unreadable packet must not stop the others being
+        measured."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-s", "former_ids: change-r\n")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            self.assertEqual(
+                support.former_identity_ownership_problems(root), [])
+
+    @unittest.skipUnless((REPO_ROOT / "openspec" / "changes").is_dir(),
+                         "no corpus in this checkout")
+    def test_this_corpus_claims_no_identity_twice_today(self):
+        """THE SWEEP IS A NO-OP ON THE LAWFUL CORPUS, measured rather than
+        asserted. NO COUNT IS WRITTEN DOWN — the corpus gains and loses
+        packets with every landing — but the sweep must have SEEN packets,
+        or "nothing claimed twice" would only mean "nothing was asked"."""
+        claimants = support.former_identity_claimants(REPO_ROOT)
+        self.assertTrue(claimants)
+        self.assertEqual(
+            support.former_identity_ownership_problems(REPO_ROOT), [])
+
+    @unittest.skipUnless((REPO_ROOT / "openspec" / "changes").is_dir(),
+                         "no corpus in this checkout")
+    def test_every_packet_in_this_corpus_reads_its_declaration_cleanly(self):
+        """Anti-vacuity for the reader: every active and archived packet is
+        put to it, so a grammar this corpus cannot satisfy would be found
+        here rather than at somebody's archive."""
+        changes = REPO_ROOT / "openspec" / "changes"
+        directories = [d for d in sorted(changes.iterdir())
+                       if d.is_dir() and d.name != "archive"]
+        archive = changes / "archive"
+        if archive.is_dir():
+            directories += [d for d in sorted(archive.iterdir()) if d.is_dir()]
+        self.assertTrue(directories)
+        for directory in directories:
+            with self.subTest(packet=directory.name):
+                # NOT an assertion that the list is EMPTY: a lawful move
+                # would make one non-empty and this test must survive it.
+                # What is asserted is that every packet's declaration READS —
+                # a grammar this corpus cannot satisfy would be found here
+                # rather than at somebody's archive.
+                self.assertIsInstance(
+                    support.declared_former_ids_of(directory), list)
+
 if __name__ == "__main__":
     unittest.main()
