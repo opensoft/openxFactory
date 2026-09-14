@@ -229,6 +229,27 @@ declaring, 3 of them outside the grammar"*. The sibling gate reads the same 46
 active count is a fact about the tree and not about either reader, and the
 ARCHIVE IS UNMOVED at 167/121/3.
 
+**AND THEN MAIN MOVED AGAIN, DURING THE FIX ROUND. THIRD RE-MEASUREMENT, AT
+`origin/main` `e6e1c968` — THE HEAD THIS GATE NOW LANDS ON.** The figures above
+are kept as the record of the SECOND re-measurement; these are the tree the gate
+lands on. `python3 scripts/validate-code-surface.py .` — **exit 0**, *"47 active
+proposals, 47 declaring — 4 `none`, 35 a repository list, 8 named by the
+register, 0 outside the grammar"*, *"archive (read, never judged): 167
+proposals, 121 declaring, 3 of them outside the grammar"*. The sibling gate
+reads the same 47 (`python3 scripts/validate-target-release.py .` — *"47 active
+proposals"*), so once more the active count is a fact about the tree and not
+about either reader, and THE ARCHIVE IS STILL UNMOVED at 167/121/3.
+**NO NEW CARRIER ARRIVED AND THE REGISTER DID NOT MOVE**, which is a
+measurement: `git diff --name-status bfa90db6..origin/main --
+'openspec/changes/*/proposal.md'` is exactly one `A`
+(`add-declared-former-id`) and one `M`
+(`extend-prose-tagging-target-to-pinned-capabilities`) — no `D`, no `R`. BOTH
+CONFORM (each declares the head `openxFactory` followed by an em dash), so both
+join the 35; the `M` is not one of the eight, so no entry is stale and the
+register stands at EIGHT unchanged. **THE SCENARIO FIRED A SECOND TIME AND COST
+NOTHING**, which is the shape it is supposed to have when the corpus moves
+without a divergence in it.
+
 **TWO PROPOSALS LANDED IN BETWEEN AND NONE ARCHIVED**, which is a measurement
 and not an assumption: `git diff --name-status 54885296..origin/main --
 'openspec/changes/*/proposal.md'` is exactly two `A` lines and nothing else — no
@@ -350,7 +371,7 @@ and is corrected in place where the number is now false.
       **LANDED WITH SEVEN ENTRIES IN FOUR CLASSES** (block-scalar 1,
       possessive 1, apposition 1, list-runs-into-prose 4) AT THE FIRST
       RE-MEASUREMENT `54885296`, **AND WITH EIGHT IN THE SAME FOUR CLASSES AT
-      THE LANDING HEAD `bfa90db6`** (list-runs-into-prose 5) — the eighth being
+      THE LANDING HEAD `bfa90db6`, STILL EIGHT AT `e6e1c968`** (list-runs-into-prose 5) — the eighth being
       the carrier that arrived in between, disposed of at the landing head as
       the § 3 preamble's second re-measurement records and as the requirement's
       *The corpus moves between drafting and landing* directs. **NO NEW CLASS
@@ -566,7 +587,9 @@ and is corrected in place where the number is now false.
       `validate_scope_globs(..., code_surface_repos={"R"})` callers in
       `tests/scope_globs/` pass UNEDITED — proved by running that directory
       (`python3 -m pytest tests/scope_globs -q -m "not postgres"` — **88
-      passed**, not one file edited) and pinned here by
+      passed**, not one file edited; **90 at the fix round**, the two added
+      being the deferral pins § 3.5 above records, and STILL not one shipped
+      file edited) and pinned here by
       `test_a_bare_iterable_still_works_as_a_head_derived_set`. **THE CHEAPER
       ALTERNATIVE IS STILL REFUSED**: the refusal is raised at the
       cross-consistency check the ratified requirement names as the refuser,
@@ -612,6 +635,40 @@ and is corrected in place where the number is now false.
       forbidden substitute (**7**), and the live corpus (**8**).
       `test_corpus_code_surface_validates` runs the CLI over the REAL tree, so a
       new divergence reds the required `pytest-suite`.
+      **AND THEN THE FIX ROUND ADDED FIFTEEN, SO THE FILE IS 130 AND THIS BOX
+      SAYS WHICH FIFTEEN RATHER THAN RE-SPLITTING THE GROUPS IT CANNOT
+      RE-DERIVE HONESTLY.** Measured the same way (`python3 -m pytest
+      tests/code_surface -q --collect-only` — *"130 tests collected"*; `python3
+      -m pytest tests/code_surface -q` — **130 passed**). The fifteen, each
+      named with the finding it answers:
+      **(a) an OMITTED key derives the promoted default's EMPTY SET** —
+      `test_an_OMITTED_key_derives_the_EMPTY_SET_the_promoted_default_declares`,
+      `test_an_OMITTED_key_beside_a_scope_is_the_ORDINARY_finding_against_the_scope`,
+      `test_an_OMITTED_key_beside_a_scope_reds_the_scope_gate_END_TO_END`,
+      `test_a_PRESENT_value_that_is_not_text_still_fails_closed`,
+      `test_a_PRESENT_but_EMPTY_value_still_fails_closed`;
+      **(b) the carrier's `declaration` is READ**, once and never twice —
+      `test_the_absence_carrier_QUOTES_the_declaration_it_carries`,
+      `test_the_absence_carrier_QUOTES_a_declaration_the_detail_does_NOT_carry`;
+      **(c) the register reaches the SCANNED tree**, without which the
+      end-to-end registered arm was never exercised —
+      `test_an_UNREGISTERED_unreadable_head_reds_the_scope_gate_end_to_end`,
+      `test_the_scope_gate_defaults_the_register_to_the_SCANNED_tree`,
+      `test_an_operator_named_register_that_cannot_be_used_REFUSES_not_falls_back`
+      (and `test_a_registered_packet_declaring_a_scope_reds_the_scope_gate_end_to_end`
+      REWRITTEN to supply one, which is a correction and not an addition);
+      **(d) the two report sections cross-referenced where they name one
+      change** — `test_a_stale_entry_and_a_finding_for_the_SAME_change_are_ONE_event`,
+      `test_two_DIFFERENT_changes_are_NOT_cross_referenced`;
+      **(e) the register requirement's third scenario, in its own shape** —
+      `test_the_corpus_moves_between_drafting_and_landing`;
+      **(f) two nits** — `test_a_head_that_REPEATS_the_sentinel_NAMES_THE_DUPLICATE`
+      and `test_scan_with_NO_register_loads_the_HOUSE_register`.
+      **THE FIFTEEN-GROUP BREAKDOWN ABOVE IS LEFT AS THE RECORD OF THE FIRST
+      LANDING** rather than re-derived: re-splitting 130 tests across fifteen
+      authored groups would be a classification nobody measured, and a number
+      that looks measured and is not is worse than a number that says when it
+      was taken.
 - [x] 3.6a **§ 3.2a's TWO PATH-BOUNDARY REFUSALS GET THEIR OWN TESTS, BOTH
       SURFACES AND BOTH DEPTHS**, in § 3.6's own
       `tests/code_surface/test_code_surface_gate.py` and in the sibling's
