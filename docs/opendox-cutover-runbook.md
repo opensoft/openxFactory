@@ -1097,10 +1097,23 @@ opposite.
    print `OK` and end `; N row(s) RETIRED by ruling (RULED 5656343213)`. The
    count prints in every state, zero included, so the document's own state is
    never the state no log records.
-4. **ONE leg, and one commit: the deletion.** Unlike § 5.7 there is no gaining
-   half — the bytes go nowhere — so there is no ordering question and no
-   window with the file at two legs. Delete the file at `at_path` on the leg
-   `at` names; that deletion is the whole content of the commit. Then
+4. **ONE leg, and the deletion is one commit of its own.** Unlike § 5.7 there
+   is no gaining half — the bytes go nowhere — so there is no ordering
+   question and no window with the file at two legs. Delete the file at
+   `at_path` on the leg `at` names; that deletion is the whole content of THAT
+   commit. **And where the leg's own PROSE named the file, a SECOND commit in
+   the same pull request repairs it** — measured on the first act to use this
+   form, which found three sentences at openDox-code that the deletion
+   falsified: a `validate.yml` comment calling the two suites "narrowed out"
+   of its selection, when after the act they are not narrowed but ABSENT, and
+   two sibling suites citing them as an EXISTING precedent for the
+   node-driven DOM-probe pattern. A comment naming a file the same pull
+   request deletes is a reference to nothing, and the next reader greps for it
+   and finds a hole. Two commits and not one, for § 5.7's reason exactly: a
+   reviewer reads the deletion by itself, in its own diff, and the repair
+   beside it. Prose that is HISTORICAL — "this instrument came from X" — may
+   stay as it is, and is worth a word saying the file is retired rather than
+   missing. Then
 
    ```sh
    python3 scripts/verify-carve-arrival.py \
