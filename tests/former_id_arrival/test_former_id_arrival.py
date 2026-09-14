@@ -1946,6 +1946,29 @@ class CliTests(unittest.TestCase):
             self.assertEqual(
                 cli.main([str(root), "--base", head, "--head", head]), 1)
 
+    def test_a_root_with_no_corpus_at_all_refuses_rather_than_passing_vacuously(
+            self):
+        """`corpus_problems` used to return `[]` for a root with no
+        `openspec/changes/` at all — the SAME shape a genuinely clean
+        corpus produces (`0 active and 0 archived`, the one shape the
+        workflow's own anti-vacuity step already refuses in the RENDERED
+        LOG), but a caller that reads `report.findings` directly, never
+        the log text, saw an empty list and nothing else: a WRONG root, a
+        typo'd path, or a checkout this gate is not meant to run against
+        would pass having checked nothing. (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            self.assertFalse((root / "openspec").exists())  # PRECONDITION
+
+            problems = fia.corpus_problems(root)
+            self.assertEqual(len(problems), 1, problems)
+            self.assertIn("does not exist as a directory", problems[0])
+            self.assertIn(str(root), problems[0])
+
+            with no_event():
+                self.assertEqual(cli.main([str(root)]), 1)
+
     def test_the_cli_exits_one_for_a_refusal_and_two_for_cannot_run(self):
         """The statuses `design.md` D3 ruled, as exit codes a ruleset can see.
 

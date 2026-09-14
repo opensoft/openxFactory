@@ -1430,6 +1430,22 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
                 f"itself, or remove it")
             return problems
     if not changes.is_dir():
+        # A MISSING CORPUS IS NOT A CLEAN ONE. Returning `[]` here reads
+        # identically to a corpus that was actually swept and found nothing
+        # wrong — so a WRONG root, a typo'd path, or a checkout this gate is
+        # not meant to run against would report "no active and no archived
+        # packet(s)" (the shape the workflow's own anti-vacuity step already
+        # refuses, `arrival-gate.yml`), but a caller that reads this list
+        # directly and not the rendered log line would see an empty list and
+        # nothing else — a silent pass having checked NOTHING. Refused
+        # instead, naming the path this arm could not find a corpus under.
+        # (Copilot, PR #1039.)
+        problems.append(
+            f"`openspec/changes/` does not exist as a directory under "
+            f"`{root}`. This arm cannot sweep a corpus that is not there: a "
+            f"wrong root, a typo'd path, or a checkout this gate is not "
+            f"meant to run against would otherwise report a clean corpus "
+            f"having read nothing at all")
         return problems
     live: list[Path] = []
     for entry in sorted(changes.iterdir()):
