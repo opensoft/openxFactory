@@ -531,6 +531,73 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-declared-former-id](openspec/changes/add-declared-former-id/proposal.md)
+  — filed 2026-09-13, lane `openxfactory-1` (display `openXfactory-1`),
+  **`Status: ratified`** (2026-09-13T22:48Z, Brett Heap, openxFactory
+  repository owner, given first-hand in this lane's window — a MULTIPLE-CHOICE
+  ruling over all five `design.md` D1…D5 decisions, verbatim ***"ratify 1028 as
+  encoded"***, recorded on PR #1028 at 2026-09-13T22:48:34Z) — record
+  [`review/ratification-2026-09-13.md`](openspec/changes/add-declared-former-id/review/ratification-2026-09-13.md).
+  **ALL FIVE DECISIONS = (a), THE RECOMMENDED OPTION, SO THE DELTA MOVED NOT
+  ONE BYTE** — the ratified wording is the wording frozen at `1e57643d`, and
+  `.openspec.yaml` now carries `approved_by`/`approved_on` ADDED BESIDE the
+  unmoved drafting pair. Filed under his earlier RULING of 2026-09-13 at
+  approximately 03:0xZ, verbatim *"option 2 on 1003 with the fix"*, recorded at
+  [#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5650519818),
+  which selected a remedy SHAPE and ratified no wording. Filing PR
+  [#1028](https://github.com/opensoft/openxFactory/pull/1028).
+  **THE SUCCESSOR PACKET TWO LANDED ACTS ALREADY NAME.** PR #846 closed issue
+  [#833](https://github.com/opensoft/openxFactory/issues/833) by REFUSING to
+  re-base the origin-retention baseline onto a rename, and its refusal text says
+  why the refusal was the whole fix — *"Nothing in this corpus declares a FORMER
+  ID"*; `docs/document-lifecycle.md`, ratified by the same act, states the
+  consequence as canon — *"Renaming a ratified change is therefore blocked until
+  a change declares a FORMER ID (issue #833, a successor packet)"*. **ONE
+  `## MODIFIED` BLOCK AND THREE `## ADDED` REQUIREMENTS** over
+  `release-realization` — *Origin retention at archive* (MODIFIED; every
+  promoted sentence and all three promoted scenarios carried verbatim, FOUR
+  scenarios added), *A moved packet declares the identity it was ratified
+  under*, *An undeclared rename arrival is refused at its landing*, and *A
+  packet reference resolves by identity, not by path* (**thirty-one scenarios**,
+  7 + 8 + 10 + 6, the bench's three rounds having added eleven). `sequenced_after: []` is a corroborated root claim: no active
+  change holds a MODIFIED block over *Origin retention at archive*, the only
+  other occurrence of the title under `openspec/changes/*/specs/` being one line
+  of prose in `add-structured-scope-substrate`'s delta. **THE DECLARATION
+  CARRIES THE INTENT BIT NO WALK CAN**: a top-level `former_ids:` list in the
+  packet's own `.openspec.yaml`, a SIBLING of `origin:` so a lawful move is
+  never a mutation of the frozen origin declaration, naming change IDS because
+  this estate addresses a packet by id and derives the path; its ABSENCE at a
+  rename arrival is a REFUSAL at that hop's landing — one commit read, never a
+  chain — and a fork-by-copy declares nothing, keeps its own origin and is never
+  refused. **MEASURED IN THE AUTHORING, NOT ARGUED**: on a `--filter=blob:none
+  --no-checkout` clone of the #1003 chain with the promisor cut (git 2.43.0),
+  `git ls-tree` prints the row for a present-but-unreadable blob and prints
+  nothing for an absent path, both at exit 0, while `git cat-file -e` and
+  `git show` exit 128 for both — so the two reads this estate's packet lookups
+  are built on cannot tell *nothing there* from *cannot tell you*; and at the
+  un-ratifying hop the full clone pairs `R075` where that clone reports no
+  record at all, the pairing being computed from content. **#833's
+  DANGLING-CITED-PATH HALF IS SWEPT IN** as a resolution rule rather than a
+  sweep: 94 dangling `openspec/changes/<id>/…` references measured on
+  `9378eca5`, **58** of them resolvable BY ID against the archive — including
+  the one #833 named — because the archive relocation moves the path and keeps
+  the identity; and the rule has a NAMED CONSUMER WITH A DATED FAILURE AHEAD OF
+  IT, `validate-pin-registrations.py`'s `check_citations`, which resolves every
+  `cited_to` referent by RAW PATH and refuses exit 1 on an absent one — six of
+  its live in-tree referents point into four ACTIVE packets, so the next of those
+  archives refuses a gate nobody touched; `design.md` D4 rules that REPORTING the remainder is a successor,
+  a twenty-fourth `doc-health` family being a `## MODIFIED` block over a promoted
+  enumeration that reads *"twenty-three check families"*. **NOT SELECTED, BY
+  NAME**: the full rename-lineage walk (PR
+  [#1024](https://github.com/opensoft/openxFactory/pull/1024), CLOSED in favour
+  of this packet, branch retained at `2bc60386`) and the all-rename-chain interim
+  guard. `code_surface` is NON-EMPTY and **no byte of it moves in the filing** —
+  no script, validator, register or test is added or edited — so per
+  `release-realization` this packet archives only on merged-plus-green
+  realization evidence, and #1003 stays OPEN on Brett Heap's word and closes at
+  no pull request of this packet's. **RATIFIED AND NOT ARCHIVED**: `tasks.md`
+  § 1 is ticked and §§ 2-7 stay open; PR #1028 carries the ratification encode
+  and its merge is a separate word, Rule 6 applying at landing.
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
   — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
   (2026-09-13T01:0xZ, Brett Heap, openxFactory repository owner, given in
@@ -706,54 +773,103 @@ Active changes:
 
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
   — filed 2026-09-12, lane `openxfactory-2` (display `openXfactory-2`),
-  **`Status: draft`** — an UNAPPROVED packet in the lawful drafting shape
-  (`proposed_by` / `proposed_on`, no approval pair). **Proposed** 2026-09-12 at
-  approximately 01:55Z by Brett Heap, openxFactory repository owner, first-hand,
-  in session — a SELECTION, not a typed sentence, via the lane's multi-select
+  **`Status: ratified`** — **1.1, 1.3 and 1.4 AS FILED; 1.2 WITH TIGHTENING
+  (D-2 FAILS CLOSED)** — by Brett Heap, openxFactory repository owner,
+  first-hand, in session, FIVE SELECTIONS across two sittings: FOUR on
+  2026-09-12 at approximately 23:20Z (***"Ratify 1.1 as filed (Recommended) /
+  Ratify 1.2 as filed / Ratify 1.3 as filed (Recommended) / Confirm 1.4 as
+  filed (Recommended)"***), then a FIFTH on 2026-09-13T01:25:07Z RE-RULING
+  task 1.2 over a Copilot review thread on the ratification pull request
+  (***"Tighten to fail-closed after all"***), which supersedes the 23:20Z
+  selection on that ONE box and on no other; recorded in the consolidated
+  record carrying all five acts, openxFactory #992 comment
+  https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
+  — an APPROVED packet: the drafting pair (`proposed_by` / `proposed_on`)
+  stands unmoved and `approved_by` / `approved_on` are ADDED beside it,
+  approval being a pure addition. **Proposed** 2026-09-12 at approximately
+  01:55Z by Brett Heap, openxFactory repository owner, first-hand, in
+  session — a SELECTION, not a typed sentence, via the lane's multi-select
   question: the option ***"#992 grammar-extension OpenSpec change
-  (Recommended)"***; recorded on openxFactory #745. That word commissioned the
-  FILING and nothing further. Extends the prose-tagging grammar with a target
-  form that can name a capability which has LEFT this corpus and now lives in a
-  pinned neutral product — `target=pinned:<pin-id>/<capability>`, in an
-  `xspec:candidate` marker's `target=` attribute and there only, chosen because
-  the existing marker regexes (`scripts/doc_health/families.py:1308-1314`) accept
-  it unchanged — with resolution resting on a VALID, COMPLETE neutral-product
-  pin record, one carrying every member required by the RECORD SHAPE it matches
-  — three shapes across the five `pinned_contract_manifest` records, two of them
-  sharing `revision_kind: commit`, so the revision kind alone is not the key,
-  and each shape's member set being that shape's SHAPE-GUARD-REQUIRED SET,
-  exactly what its in-tree pin verifier refuses-when-absent IN ITS PURE,
-  SOURCE-FREE GUARDS (measured; the ratified text is silent on the whole-tree
-  shape and on the published artifact's `package` and `binary`), pinned to those
-  guards by a TWO-LEG equivalence test over each real record and NECESSARY, by
-  design, without being SUFFICIENT for the record's full verifier, since a
-  source-dependent check such as `pin-surface-undeclared` cannot be made offline
-  — judged through ONE code-fixed route, a single shared pure adapter that never
-  runs a path the record itself selects, and resolved under the root precedence
-  the in-tree arm already uses (NO pin
-  record in this tree enumerates capabilities, measured over all six; what each
-  addresses instead is files, tree digests, workflow members, or one
-  whole-artifact digest) and a stale-target rule `document-lifecycle` does not
-  carry today: when a
-  target capability exits the corpus the marker either takes the pinned form or
-  the block is unfenced, never silently retargeted and never silently deleted.
-  **This discharges owed successor item (7) of the `split-openxwallet-repo`
-  archived-ledger entry below on ARCHIVE, not on filing — no box is ticked
-  here.** The four `error`-band `tag-hygiene` findings that archive measured
-  (`archive/2026-08-28-split-openxwallet-repo/tasks.md:1760-1786`) stay OPEN and
-  the four markers stay exactly as they are: `code_surface` names
+  (Recommended)"***; recorded on openxFactory #745. That word commissioned
+  the FILING and nothing further. Extends the prose-tagging grammar with a
+  target form that can name a capability which has LEFT this corpus and now
+  lives in a pinned neutral product — `target=pinned:<pin-id>/<capability>`,
+  in an `xspec:candidate` marker's `target=` attribute and there only,
+  chosen because the existing marker regexes
+  (`scripts/doc_health/families.py:1308-1314`) accept it unchanged — with
+  resolution resting on a VALID, COMPLETE neutral-product pin record, one
+  carrying every member required by the RECORD SHAPE it matches — three
+  shapes across the five `pinned_contract_manifest` records, two of them
+  sharing `revision_kind: commit`, so the revision kind alone is not the
+  key, and each shape's member set being that shape's SHAPE-GUARD-REQUIRED
+  SET, exactly what its in-tree pin verifier refuses-when-absent IN ITS
+  PURE, SOURCE-FREE GUARDS (measured; the ratified text is silent on the
+  whole-tree shape and on the published artifact's `package` and `binary`),
+  pinned to those guards by a TWO-LEG equivalence test over each real record
+  and NECESSARY, by design, without being SUFFICIENT for the record's full
+  verifier, since a source-dependent check such as `pin-surface-undeclared`
+  cannot be made offline — judged through ONE code-fixed route, a single
+  shared pure adapter that never runs a path the record itself selects, and
+  resolved under the root precedence the in-tree arm already uses; **AND, on
+  the re-ruling of 2026-09-13, ON THE RECORD'S OWN `capabilities:`
+  ENUMERATION — D-2 FAILS CLOSED.** A pinned target resolves only where the
+  record ALSO carries a well-formed, non-empty top-level `capabilities:`
+  sequence naming the capability; an ABSENT enumeration is an unresolved
+  pinned target naming the record and the publisher's remedy, exactly as a
+  MALFORMED one already was, so nothing degrades open and Principle VII is
+  satisfied by construction (NO pin
+  record in this tree enumerates capabilities, measured over all six; what
+  each addresses instead is files, tree digests, workflow members, or one
+  whole-artifact digest) — and a stale-target rule `document-lifecycle` does
+  not carry today: when a target capability exits the corpus the marker
+  either takes the pinned form or the block is unfenced, never silently
+  retargeted and never silently deleted. **This discharges owed successor
+  item (7) of the `split-openxwallet-repo` archived-ledger entry below on
+  ARCHIVE, not on filing — item (7) and the realization/archive boxes below
+  stay UNTICKED here.** The four `error`-band
+  `tag-hygiene` findings that archive measured
+  (`archive/2026-08-28-split-openxwallet-repo/tasks.md:1760-1786`) stay OPEN
+  and the four markers stay exactly as they are — **and under the fail-closed
+  D-2 they stay open PAST REALIZATION too: when the resolver and the four
+  retargeted markers land together the findings CHANGE FORM rather than close,
+  to "unresolved pinned target — `contracts/openxwallet-pin.yaml` carries no
+  `capabilities:` enumeration; remedy: the publisher adds one through a
+  `neutral-product-pin` change", still FOUR and still `error`-band, reaching
+  ZERO only on openXwallet's publisher's act**: `code_surface` names
   `scripts/doc_health/families.py` plus the AT-MOST-THREE further files the
   arm's code-fixed-route and containment rules require — the shape-ADAPTER
-  module, a shared containment helper, and `scripts/validate-pin-registrations.py`
-  as that helper's second caller, the bound reached only where both rules take
-  their file-adding branch (`proposal.md:2`) — NO BYTE OF WHICH MOVES IN THE
-  FILING, so per
+  module, a shared containment helper, and
+  `scripts/validate-pin-registrations.py` as that helper's second caller,
+  the bound reached only where both rules take their file-adding branch
+  (`proposal.md:2`) — NO BYTE OF WHICH MOVES IN THE FILING, so per
   `release-realization` this packet archives only on merged-plus-green
-  realization evidence — one later pull request carrying the resolver arm, its
-  tests, the four retargeted markers, the `docs/document-lifecycle.md` section
-  and the stale `ideation/staging/INDEX.md:2262-2265` line together. Filed from
-  openxFactory [#992](https://github.com/opensoft/openxFactory/issues/992), filing PR
+  realization evidence — one later pull request carrying the resolver arm,
+  its tests, the four retargeted markers, the `docs/document-lifecycle.md`
+  section and the stale `ideation/staging/INDEX.md:2262-2265` line together.
+  Filed from openxFactory
+  [#992](https://github.com/opensoft/openxFactory/issues/992), filing PR
   [#994](https://github.com/opensoft/openxFactory/pull/994).
+  **RATIFICATION ONLY — 1.1, 1.3 and 1.4 AS FILED, 1.2 WITH TIGHTENING (D-2
+  fails closed), record
+  [`review/ratification-2026-09-12.md`](openspec/changes/extend-prose-tagging-target-to-pinned-capabilities/review/ratification-2026-09-12.md),
+  over the packet as landed by PR
+  [#994](https://github.com/opensoft/openxFactory/pull/994) at
+  `dafe8877e4c8f2d3a52cbe94307904b639b7bece` (2026-09-12T23:16:13Z) — the head
+  acts 1-4 were given over, with act 5's tightening of D-2 re-encoded on that
+  same packet by the ratification pull request.**
+  Realization (one later pull request carrying the resolver arm, its tests,
+  the at-most-three further files its code-fixed-route and containment rules
+  require, the four retargeted markers, the `docs/document-lifecycle.md`
+  section and the stale `ideation/staging/INDEX.md` line) and archive are
+  separate later acts on Brett Heap's word; neither has been given. Boxes
+  ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4 — and the TIGHTENING
+  commits that encode the re-ruling MOVE NO BOX, changing only what 1.2's
+  RULED annotation records, what § 3 states about the rule it realizes, and
+  recording, as prose under § 3 and not as a task line, the publisher's
+  enumeration as the closure prerequisite — not filed, not claimed, not
+  owed by this change. Item (7) of the
+  `split-openxwallet-repo` archived-ledger entry stays UNTICKED — it
+  discharges on archive.
 
 - [disposition-codexfactory-regular-pr-council-clearance-archive](openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/proposal.md)
   — authored 2026-09-11, lane `provenance-autonomous-merge` (session

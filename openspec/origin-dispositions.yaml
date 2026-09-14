@@ -1,0 +1,41 @@
+# Origin dispositions — the ACCEPTING half of `release-realization`
+# § "Origin retention at archive" (issue #745; read by
+# `scripts/proposal-support.py` ONLY where a packet's origin declaration
+# differs from the one at its ratifying commit). An entry is owner-attributed,
+# names both commits in full, lists exactly the origin keys that moved, and
+# quotes the verbatim word that authorized the move. A valid `accept` moves
+# the gate's comparison baseline to the accepted declaration; it switches
+# nothing off. Entries are permanent: the archived packet carries the accepted
+# origin for good, and this file is the only place that says why, on whose
+# word (see docs/document-lifecycle.md, "Proposal origin declaration").
+schema_version: 1
+kind: origin_dispositions
+dispositions:
+  - change_id: extend-prose-tagging-target-to-pinned-capabilities
+    ratified_at: 9c829d48d0805e78d22cc2728a59812e1835e441
+    mutation_at: b18e08b4ecc23b424c62ed933f2c6d0a5a2c1586
+    changed_keys: [approved_by, approved_on]
+    disposition: accept
+    disposed_by: Brett Heap (openxFactory repository owner)
+    disposed_on: "2026-09-13"
+    word: >-
+      "Tighten to fail-closed after all" — Brett Heap's act 5 on task 1.2,
+      2026-09-13T01:25:07Z (±3 min), an interactive multi-choice SELECTION
+      whose description read verbatim: "Reopens 1.2: D-2 refuses a pinned
+      target whose record carries no capabilities enumeration; the four
+      markers stay unresolvable until openXwallet's pin publishes one.
+      Reverts your 23:20Z selection; a fix round re-encodes and the record
+      changes."
+    cited_to:
+      - https://github.com/opensoft/openxFactory/issues/992#issuecomment-5649935136
+      - https://github.com/opensoft/openxFactory/issues/745#issuecomment-5649935244
+      - https://github.com/opensoft/openxFactory/pull/1019 (Copilot thread PRRT_kwDOTAvnrs6h8a62, fix round 4)
+    fact: >-
+      The ratifying commit 9c829d48 recorded acts 1-4 (2026-09-12 ~23:20Z,
+      approved_on 2026-09-12). Act 5 re-ruled task 1.2 alone and, by its own
+      words, changed the record; commit b18e08b4 re-wrote `approved_by` to
+      carry all five acts and moved `approved_on` to 2026-09-13. The accepted
+      declaration is therefore the ratifier's own later word, not an edit by
+      anyone else; every other origin key (`kind`, `id`, `reason`,
+      `proposed_by`, `proposed_on`, `related`) is unmoved, as measured by the
+      gate.
