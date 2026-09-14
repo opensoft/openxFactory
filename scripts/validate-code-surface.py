@@ -45,7 +45,12 @@ Usage:
 
     Where BOTH occur, the run reports both and exits 1: an unreadable
     declaration is the more actionable defect and the stale block is printed
-    beside it, so neither is hidden by the other.
+    beside it, so neither is hidden by the other. AND WHERE BOTH NAME THE SAME
+    CHANGE, the run says so in one line ABOVE the two blocks: that is not two
+    faults but one — a declaration edited without being brought into the
+    grammar — and the remedy is to conform the declaration (which retires the
+    entry in the same act) or to re-register the new text (an entry AND its
+    baseline pair, in one diff), never to delete the stale entry alone.
 
     --register PATH
         Read the register from PATH instead of from
@@ -101,6 +106,30 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     _report(report)
+
+    # ONE EVENT IS REPORTED AS ONE EVENT. The two sections below are the two
+    # ASYMMETRIC refusals, and keeping them asymmetric is the requirement's own
+    # instruction — but a change that appears in BOTH is not two faults. It is
+    # one: its declaration was EDITED, so the entry recording the old text
+    # matches nothing (stale), and the new text is off-grammar too (a finding).
+    # Printed as two unrelated blocks, the obvious reading is "delete the stale
+    # entry", which leaves the finding standing — and the other obvious reading,
+    # appending the new text to the register, is the closed-register violation
+    # the baseline refuses. So the link is drawn explicitly, BEFORE either
+    # block, and it names both halves of the remedy and the one that is not.
+    same_event = sorted(
+        set(report.stale_changes) & {f.change for f in report.findings})
+    if same_event:
+        print("code_surface: the two reports below name the SAME CHANGE — one "
+              "event, not two:")
+        for change in same_event:
+            print(f"  - {change}: the register entry is stale AND the live "
+                  f"declaration is off-grammar — the declaration was edited "
+                  f"without being brought into the grammar. CONFORM THE "
+                  f"DECLARATION (which retires the entry in the same act) or "
+                  f"RE-REGISTER the new text (an entry AND its baseline pair, "
+                  f"in one reviewable diff). Do NOT just delete the entry: "
+                  f"that leaves the finding standing.")
 
     if report.stale:
         print("code_surface register entries matched NOTHING (stale):")

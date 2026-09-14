@@ -851,6 +851,111 @@ def test_a_finding_and_a_stale_entry_are_both_reported(tmp_path):
     assert "validation FAILED" in result.stdout
 
 
+def test_a_stale_entry_and_a_finding_for_the_SAME_change_are_ONE_event(tmp_path):
+    """THE TWO SECTIONS ARE CROSS-REFERENCED WHERE THEY NAME THE SAME CHANGE.
+
+    Both refusals firing for one change is not two faults: the declaration was
+    EDITED (so the entry recording the old text matches nothing) and the new
+    text is off-grammar too (so it is a finding). Printed as two unrelated
+    blocks, the obvious reading is "delete the stale entry" — which leaves the
+    finding standing — and the other obvious reading, appending the new text,
+    is the closure violation the baseline refuses. So the run says it is one
+    event, above both blocks, and names both halves of the remedy.
+    """
+    _proposal(tmp_path, "c", "code_surface: openxFactory, and it is EDITED")
+    result = _run(tmp_path, _register(
+        tmp_path, _entry_text("c", "openxFactory, and it is the OLD text")))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "SAME CHANGE" in result.stdout
+    assert "one event, not two" in result.stdout
+    assert "c: the register entry is stale AND the live declaration is "\
+           "off-grammar" in result.stdout
+    assert "CONFORM THE DECLARATION" in result.stdout
+    assert "RE-REGISTER" in result.stdout
+    assert "Do NOT just delete the entry" in result.stdout
+    # the two asymmetric blocks are still printed, unchanged, beneath it
+    assert "matched NOTHING (stale)" in result.stdout
+    assert "validation FAILED" in result.stdout
+
+
+def test_two_DIFFERENT_changes_are_NOT_cross_referenced(tmp_path):
+    """The link is drawn only where the two reports name the SAME change: a
+    stale entry for one packet and a finding against another are two facts and
+    are left as two."""
+    _proposal(tmp_path, "c", "code_surface: openxFactory's half")
+    result = _run(tmp_path, _register(
+        tmp_path, _entry_text("gone", "another unreadable head's text")))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "SAME CHANGE" not in result.stdout
+    assert "matched NOTHING (stale)" in result.stdout
+    assert "validation FAILED" in result.stdout
+
+
+def test_the_corpus_moves_between_drafting_and_landing(tmp_path):
+    """THE REGISTER REQUIREMENT'S THIRD SCENARIO, PINNED AS ITS OWN SHAPE.
+
+    *The corpus moves between drafting and landing*: "WHEN a proposal declaring
+    an unreadable head lands on the main line after this packet's register was
+    written and before the gate itself lands — THEN the register MUST be
+    re-measured at the head the gate lands on, and the new carrier disposed of
+    there; AND a register carried unchanged from the drafting tree MUST NOT be
+    treated as evidence about the landing tree."
+
+    The mechanism was realized and proven by hand at the landing (the register
+    grew seven to eight for `encode-wallet-authority-rulings-r6-r12`), but no
+    named test carried the scenario's own shape. This is that test: a register
+    written at the drafting tree, a carrier that arrives afterwards, the
+    unchanged register REFUSING to cover it, and the disposition — the entry AND
+    its baseline pair, in one act — clearing the run.
+    """
+    drafting = "openxFactory, and it is THE DRAFTING CARRIER"
+    arrival = "contracts/signed-execution-chain/digest-construction.schema.yaml"
+    _proposal(tmp_path, "drafted", f"code_surface: {drafting}")
+
+    # (a) the register as written at the drafting tree: one entry, and the run
+    #     is clean on the tree it was measured against.
+    register = _register(tmp_path, _entry_text("drafted", drafting))
+    result = _run(tmp_path, register)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 named by the register" in result.stdout
+    assert "0 outside the grammar" in result.stdout
+
+    # (b) THE CORPUS MOVES: a proposal declaring an unreadable head lands after
+    #     the register was written. The UNCHANGED register is not evidence
+    #     about this tree — the run refuses, naming the new carrier and not the
+    #     old one.
+    _proposal(tmp_path, "arrived", f"code_surface: {arrival}")
+    result = _run(tmp_path, register)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "1 outside the grammar" in result.stdout
+    assert "openspec/changes/arrived/proposal.md" in result.stdout
+    assert "openspec/changes/drafted/proposal.md" not in result.stdout
+
+    # (c) THE NEW CARRIER IS DISPOSED OF AT THE LANDING HEAD: re-measured, then
+    #     registered. Two entries, and the run is clean again.
+    both = yaml.safe_dump({"register": [
+        yaml.safe_load(_entry_text("drafted", drafting))["register"][0],
+        yaml.safe_load(_entry_text("arrived", arrival))["register"][0],
+    ]}, sort_keys=False, allow_unicode=True, width=10_000)
+    result = _run(tmp_path, _register(tmp_path, both))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "2 named by the register" in result.stdout
+    assert "0 outside the grammar" in result.stdout
+
+    # (d) AND THE DISPOSITION COSTS A BASELINE EDIT IN THE SAME ACT, which is
+    #     what keeps the register removable-never-addable while the corpus
+    #     moves under it. Against the DRAFTING baseline the second entry is
+    #     refused; only the baseline carrying BOTH pairs admits it.
+    drafting_baseline = (("drafted", cs.declaration_digest(drafting)),)
+    with pytest.raises(cs.CodeSurfaceError) as caught:
+        cs.load_register(_register(tmp_path, both), closed=drafting_baseline)
+    assert "REMOVABLE, NEVER ADDABLE" in str(caught.value)
+    landing_baseline = drafting_baseline + (
+        ("arrived", cs.declaration_digest(arrival)),)
+    assert len(cs.load_register(_register(tmp_path, both),
+                                closed=landing_baseline)) == 2
+
+
 def test_an_entry_authorizes_nothing_beyond_its_own_declaration(tmp_path):
     """An entry suspends the grammar's refusal for ONE declaration. A SECOND
     packet writing the same unreadable shape is refused on its own account."""
@@ -866,7 +971,7 @@ def test_an_entry_authorizes_nothing_beyond_its_own_declaration(tmp_path):
 # --- § 3.5: the derived set comes from the HEAD and never from the gloss ------
 
 
-def test_the_derived_set_is_the_heads_identifiers_and_none_of_the_glosss():
+def test_the_derived_set_is_the_head_and_never_the_gloss():
     front = {"code_surface":
              "openxFactory — and NOT codexFactory, whose companion change is "
              "authored there; the pin points at OpsxFactory and the workflow "
@@ -1002,6 +1107,27 @@ def test_the_absence_carrier_QUOTES_a_declaration_the_detail_does_NOT_carry():
                                 code_surface_repos=derived)
     assert derived.excerpt() in str(caught.value)
     assert "openxFactory" in str(caught.value)
+
+
+def test_a_head_that_REPEATS_the_sentinel_NAMES_THE_DUPLICATE():
+    """`none, none` refuses on the same rule as a mixed head, but it is not a
+    mix: it reported "1 repository identifier(s) ()" — a miscount and an empty
+    parenthetical where the reader looks for the name of the thing complained
+    about. The duplicate is named instead."""
+    for raw, times in (("none, none", 2), ("none and none", 2),
+                       ("none, none, none", 3)):
+        with pytest.raises(cs.CodeSurfaceError) as caught:
+            cs.parse_head(raw)
+        message = str(caught.value)
+        assert f"repeats the empty-surface sentinel `none` {times} times" \
+            in message, message
+        assert "()" not in message, message
+        assert "repository identifier(s)" not in message, message
+    # and a head that really IS mixed still says so, naming the identifiers.
+    with pytest.raises(cs.CodeSurfaceError) as caught:
+        cs.parse_head("openxFactory, none, codexFactory")
+    assert "mixes the empty-surface sentinel `none` with 2 repository " \
+           "identifier(s) (openxFactory, codexFactory)" in str(caught.value)
 
 
 def test_a_structured_scope_naming_a_gloss_only_repository_is_refused(tmp_path):
@@ -1246,6 +1372,19 @@ def test_an_operator_named_register_that_cannot_be_used_REFUSES_not_falls_back(
 
 
 # --- the live corpus ----------------------------------------------------------
+
+
+def test_scan_with_NO_register_loads_the_HOUSE_register():
+    """`scan(repo_root)` with no register is the branch every caller but the
+    CLI takes, and it was untested. It loads the register beside the module —
+    proved by equality with the same scan given that register explicitly, over
+    the real tree, where the registered count is non-zero and so the two could
+    differ."""
+    implicit = cs.scan(ROOT)
+    explicit = cs.scan(ROOT, cs.load_register(REGISTER))
+    assert implicit == explicit
+    assert implicit.registered, "the house register names nothing; " \
+        "this test would pass vacuously"
 
 
 def test_corpus_code_surface_validates():

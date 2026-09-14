@@ -353,6 +353,13 @@ class Report:
     registered: tuple[tuple[str, str], ...]
     findings: tuple[Finding, ...]
     stale: tuple[str, ...]
+    # THE STALE ENTRIES' CHANGE IDS, CARRIED BESIDE THEIR DISPLAY STRINGS so a
+    # reader can CROSS-REFERENCE the two report sections without parsing one of
+    # them back apart. A change that is BOTH stale here and a finding above is
+    # ONE event wearing two faces — the declaration was edited and not brought
+    # into the grammar — and a run that printed the two sections without saying
+    # so invites the wrong half of the remedy (deleting the entry alone).
+    stale_changes: tuple[str, ...]
     archived_total: int
     archived_declaring: int
     archived_off_grammar: int
@@ -439,10 +446,26 @@ def parse_head(raw: object) -> Head:
     if NONE in names:
         if len(names) == 1:
             return Head(repositories=(), is_none=True)
+        others = [n for n in names if n != NONE]
+        if not others:
+            # THE SENTINEL REPEATED, NOT MIXED. `none, none` refuses on the same
+            # rule — a head is EITHER the single token `none` OR a list in which
+            # it appears nowhere — but naming it a mix with "1 repository
+            # identifier(s) ()" both miscounts and prints an empty parenthetical
+            # where the reader is looking for the name of the thing complained
+            # about. The duplicate is named instead.
+            raise CodeSurfaceError(
+                f"repeats the empty-surface sentinel `{NONE}` "
+                f"{len(names)} times as a list. A head is EITHER the SINGLE "
+                f"token `{NONE}` OR a list in which that token appears "
+                f"nowhere — `{NONE}` is not a repository, so it cannot be a "
+                "member of a list, and a list of it is not a wider empty "
+                f"surface than one `{NONE}`. Declare the single token. "
+                f"Declaration: `{_excerpt(text)}`")
         raise CodeSurfaceError(
             f"mixes the empty-surface sentinel `{NONE}` with "
-            f"{len(names) - 1} repository identifier(s) "
-            f"({', '.join(n for n in names if n != NONE)}). A head is EITHER "
+            f"{len(others)} repository identifier(s) "
+            f"({', '.join(others)}). A head is EITHER "
             f"the single token `{NONE}` OR a list in which that token appears "
             "nowhere: parsed as a list, this head derives a NON-EMPTY "
             "repository set for a change whose declaration says the surface is "
@@ -760,9 +783,12 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
         else:
             inside_repositories += 1
 
-    stale = tuple(
-        f"{change} / {_excerpt(text, 60)!r}" for (change, text) in covered
-        if (change, text) not in matched)
+    unmatched = tuple(sorted(
+        (change, text) for (change, text) in covered
+        if (change, text) not in matched))
+    stale = tuple(f"{change} / {_excerpt(text, 60)!r}"
+                  for (change, text) in unmatched)
+    stale_changes = tuple(sorted({change for (change, _) in unmatched}))
 
     archived_paths = _proposals(repo_root, archived=True)
     archived_declaring = 0
@@ -787,7 +813,8 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
         inside_repositories=inside_repositories,
         registered=tuple(sorted(registered)),
         findings=tuple(findings),
-        stale=tuple(sorted(stale)),
+        stale=stale,
+        stale_changes=stale_changes,
         archived_total=len(archived_paths),
         archived_declaring=archived_declaring,
         archived_off_grammar=archived_off,
