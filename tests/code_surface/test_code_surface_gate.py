@@ -983,7 +983,25 @@ def test_the_absence_carrier_QUOTES_the_declaration_it_carries():
     with pytest.raises(sg.CodeSurfaceHeadError) as caught:
         sg.validate_scope_globs({"R": ["scripts/**"]},
                                 code_surface_repos=derived)
-    assert excerpt in str(caught.value)
+    message = str(caught.value)
+    assert excerpt in message
+    # NAMED ONCE, NEVER TWICE: the head grammar's own refusal already quotes
+    # the declaration, so the carrier does not print it a second time.
+    assert message.count(excerpt) == 1
+
+
+def test_the_absence_carrier_QUOTES_a_declaration_the_detail_does_NOT_carry():
+    """The other side of "named once": the not-text arm's detail never quotes
+    the value, so the refusal must — or it refuses a declaration without ever
+    showing the author what it read."""
+    derived = sg.code_surface_repositories(
+        {"code_surface": ["openxFactory", "codexFactory"]}, change="c")
+    assert isinstance(derived, sg.NoDeclaredRepositories)
+    with pytest.raises(sg.CodeSurfaceHeadError) as caught:
+        sg.validate_scope_globs({"R": ["scripts/**"]},
+                                code_surface_repos=derived)
+    assert derived.excerpt() in str(caught.value)
+    assert "openxFactory" in str(caught.value)
 
 
 def test_a_structured_scope_naming_a_gloss_only_repository_is_refused(tmp_path):
@@ -1147,17 +1165,84 @@ def test_the_absence_carrier_is_never_read_as_no_cross_check_asked_for(
 
 def test_a_registered_packet_declaring_a_scope_reds_the_scope_gate_end_to_end(
         tmp_path):
-    """THE CLI SURFACE. The refusal must reach the run, not only the module —
-    and it reaches it as the scope gate's own exit 1 with the change id
-    prefixed, which `validate_corpus` already does for every problem it
-    prints."""
+    """THE CLI SURFACE, WITH A LIVE REGISTER ENTRY PROPAGATING THROUGH IT.
+
+    The refusal must reach the run, not only the module — and it must reach it
+    NAMING THE ENTRY, which is the ratified requirement's own wording
+    ("refused by the cross-consistency check, naming the proposal and its
+    register entry"). THE REGISTER IS PASSED, and that is the point of the
+    test rather than an incidental: without `--code-surface-register` the
+    derivation loads the register beside the IMPORTED MODULE — this
+    repository's own — which does not carry a change called `c`, so the run
+    took the UNREGISTERED arm and this test proved the other one only by its
+    name. That was a bench finding, and it is fixed on both sides: the CLI now
+    takes a register for the tree it scans, and this test supplies one.
+    """
     root, declaration = _registered_scope_tree(tmp_path)
+    register = _register(root, _entry_text("c", declaration))
     result = subprocess.run(
-        [sys.executable, str(SCOPE_VALIDATOR), str(root)],
+        [sys.executable, str(SCOPE_VALIDATOR), str(root),
+         "--code-surface-register", str(register)],
         capture_output=True, text=True)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "c: " in result.stdout
     assert "NO REPOSITORY SET CAN BE DERIVED" in result.stdout
+    # THE ENTRY, NAMED — the half the house register could never have supplied.
+    assert "CLOSED code-surface register" in result.stdout
+    assert "entry `c`" in result.stdout
+    assert "list-runs-into-prose" in result.stdout
+    # and NOT the unregistered arm's wording.
+    assert "not carried by the closed code-surface register" not in result.stdout
+
+
+def test_an_UNREGISTERED_unreadable_head_reds_the_scope_gate_end_to_end(
+        tmp_path):
+    """The OTHER arm at the CLI, kept as its own test now that the one above
+    exercises the registered one: an unreadable head no register names fails
+    closed too, and says the register does not carry it rather than implying an
+    exception exists."""
+    root, _ = _registered_scope_tree(tmp_path)
+    empty = _register(root)
+    result = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root),
+         "--code-surface-register", str(empty)],
+        capture_output=True, text=True)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "c: " in result.stdout
+    assert "NO REPOSITORY SET CAN BE DERIVED" in result.stdout
+    assert "not carried by the closed code-surface register" in result.stdout
+
+
+def test_the_scope_gate_defaults_the_register_to_the_SCANNED_tree(tmp_path):
+    """With no flag, the register is `REPO_ROOT/scripts/code-surface-register.yaml`
+    when the scanned tree carries one — so a tree is judged against ITS OWN
+    exceptions rather than against whichever file sits beside the imported
+    module."""
+    root, declaration = _registered_scope_tree(tmp_path)
+    scripts = root / "scripts"
+    scripts.mkdir(parents=True, exist_ok=True)
+    (scripts / "code-surface-register.yaml").write_text(
+        _entry_text("c", declaration), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root)],
+        capture_output=True, text=True)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "entry `c`" in result.stdout
+    assert "not carried by the closed code-surface register" not in result.stdout
+
+
+def test_an_operator_named_register_that_cannot_be_used_REFUSES_not_falls_back(
+        tmp_path):
+    """The sibling's semantics for a NAMED register: exit 2 and a named
+    finding, never a silent fallback to some other tree's exceptions."""
+    root, _ = _registered_scope_tree(tmp_path)
+    result = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root),
+         "--code-surface-register", str(root / "no-such-register.yaml")],
+        capture_output=True, text=True)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "CANNOT RUN" in result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
 
 
 # --- the live corpus ----------------------------------------------------------

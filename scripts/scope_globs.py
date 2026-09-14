@@ -581,10 +581,17 @@ def validate_cross_consistency(
                 "Its declaration is not carried by the closed code-surface "
                 "register either, so `validate-code-surface.py` refuses it in "
                 "its own right.")
+        # THE DECLARATION IS NAMED ONCE AND NEVER TWICE. The head grammar's own
+        # refusal already ends by quoting it, so quoting it again here would
+        # print the same prose twice in one message; the arms whose detail does
+        # NOT carry it (a value that is not text) would otherwise refuse a
+        # declaration without ever showing it.
+        quoted = ("" if absent.excerpt() in absent.detail
+                  else f" `{absent.excerpt()}`")
         raise CodeSurfaceHeadError(
             f"{where}declares scope_globs for "
             f"{', '.join(sorted(scope.by_repo))}, but NO REPOSITORY SET CAN BE "
-            f"DERIVED from its code_surface declaration `{absent.excerpt()}`: "
+            f"DERIVED from its code_surface declaration{quoted}: "
             f"{absent.detail} "
             f"{tolerated} The run does NOT fall back to a set derived from the "
             "whole declaration (that would re-admit the prose gloss as an "

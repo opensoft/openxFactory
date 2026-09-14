@@ -22,6 +22,29 @@ Usage:
     declares `scope_globs`. Exit 0 when all pass; exit 1 (naming the offending
     change, entry, and rule) otherwise.
 
+    --code-surface-register PATH
+        Read the CODE-SURFACE register (`gate-code-surface-declarations`) from
+        PATH. The cross-consistency check derives each change's declared
+        repository set from its `code_surface:` HEAD, and where that head is one
+        the grammar cannot read the refusal must name the REGISTER ENTRY that
+        tolerates it — so the register has to be the one belonging to the tree
+        being SCANNED. THE FLAG IS SPELLED FOR THE FIELD IT BELONGS TO rather
+        than as the sibling's bare `--register`, because this validator's own
+        subject is `scope_globs:` and an unqualified "register" here would read
+        as a register of scopes.
+
+        RESOLUTION ORDER, AND THE REASON FOR EACH STEP. With the flag, PATH is
+        used and a register that cannot be used REFUSES (exit 2), the sibling's
+        semantics: an operator who named a file is owed a refusal rather than a
+        silent fallback. Without it, `REPO_ROOT/scripts/code-surface-register.yaml`
+        is used when it exists — so a scanned tree is judged against ITS OWN
+        exceptions and not against whichever register happens to sit beside the
+        imported module, which for REPO_ROOT `.` in this repository is the same
+        file either way. With neither, the derivation's own on-demand load
+        applies: an absent exception file yields an entry-less refusal rather
+        than an exception, because the absence of an exception file may never
+        turn a fail-closed into a fail-open.
+
     --archive-gate CHANGE_DIR --ratified-ref REF
         Scope-retention (freeze) gate — see the `scope-globs-integrity` feature.
         CHANGE_DIR may name either the change's ACTIVE or its ARCHIVED
@@ -54,7 +77,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import scope_globs as sg  # noqa: E402
 
 
-def _validate_change(proposal: Path) -> list[str]:
+def _load_code_surface_register(path: Path) -> list[dict]:
+    """The code-surface register at `path`, loaded through the sibling reader.
+
+    IMPORTED HERE AND NOT AT MODULE LEVEL, on `scope_globs._code_surface()`'s
+    reason: this CLI must keep running in a tree that does not carry
+    `scripts/code_surface.py`, and it needs the sibling only when a register is
+    to be loaded at all.
+    """
+    import code_surface as cs  # deliberate local import, see the docstring
+    return cs.load_register(path)
+
+
+def _validate_change(proposal: Path,
+                     register: list[dict] | None = None) -> list[str]:
     """Return a list of problem strings for one proposal (empty when clean)."""
     try:
         front = sg.read_front_matter(proposal)
@@ -71,17 +107,25 @@ def _validate_change(proposal: Path) -> list[str]:
         # absence raises must name the PROPOSAL and the register entry carrying
         # its declaration. The directory name is the change id, which this
         # function already holds, so the consumer owes nothing it did not have.
+        #
+        # AND SO DOES THE REGISTER, FOR THE OTHER HALF OF THE SAME REFUSAL.
+        # Left to load itself, the derivation reads the register beside the
+        # IMPORTED MODULE, which is the right file only when the scanned tree
+        # IS this one — so for a temp or consuming tree an entry that tree
+        # carries reads as unregistered and the refusal cannot name it.
+        # `main` resolves the register against REPO_ROOT and passes it down.
         sg.validate_scope_globs(
             raw,
             code_surface_repos=sg.code_surface_repositories(
-                front, change=proposal.parent.name),
+                front, change=proposal.parent.name, register=register),
         )
     except sg.ScopeGlobsError as exc:
         return [str(exc)]
     return []
 
 
-def validate_corpus(repo_root: Path) -> int:
+def validate_corpus(repo_root: Path,
+                    register: list[dict] | None = None) -> int:
     changes = repo_root / "openspec" / "changes"
     problems: list[str] = []
     if changes.is_dir():
@@ -91,7 +135,7 @@ def validate_corpus(repo_root: Path) -> int:
             proposal = change_dir / "proposal.md"
             if not proposal.is_file():
                 continue
-            for problem in _validate_change(proposal):
+            for problem in _validate_change(proposal, register):
                 problems.append(f"{change_dir.name}: {problem}")
     if problems:
         print("scope_globs validation FAILED:")
@@ -144,6 +188,10 @@ def main(argv: list[str] | None = None) -> int:
                         help="run the scope-retention freeze gate on one change dir")
     parser.add_argument("--ratified-ref", metavar="REF",
                         help="git ref carrying the ratified proposal (with --archive-gate)")
+    parser.add_argument("--code-surface-register", metavar="PATH", default=None,
+                        help="code-surface register for the scanned tree "
+                             "(default: REPO_ROOT/scripts/"
+                             "code-surface-register.yaml when it exists)")
     args = parser.parse_args(argv)
 
     if args.archive_gate:
@@ -151,7 +199,31 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("--archive-gate requires --ratified-ref")
         return _archive_gate(Path(args.archive_gate), args.ratified_ref)
 
-    return validate_corpus(Path(args.repo_root))
+    repo_root = Path(args.repo_root)
+    register: list[dict] | None = None
+    if args.code_surface_register:
+        # NAMED BY AN OPERATOR, SO A FAILURE IS A REFUSAL AND NOT A FALLBACK.
+        try:
+            register = _load_code_surface_register(
+                Path(args.code_surface_register))
+        except Exception as exc:  # reported as a finding, never traced
+            print("scope_globs validation CANNOT RUN:")
+            print(f"  - the code-surface register "
+                  f"{args.code_surface_register} cannot be used: {exc}")
+            return 2
+    else:
+        default = repo_root / "scripts" / "code-surface-register.yaml"
+        if default.is_file():
+            # UNNAMED AND PRESENT: used, but a failure here falls back to the
+            # derivation's own on-demand load rather than refusing, because
+            # nobody named this file and an exception file that cannot be read
+            # must never turn a fail-closed into a fail-open.
+            try:
+                register = _load_code_surface_register(default)
+            except Exception:  # see the comment above
+                register = None
+
+    return validate_corpus(repo_root, register)
 
 
 if __name__ == "__main__":
