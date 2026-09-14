@@ -540,6 +540,42 @@ def test_a_malformed_former_ids_declaration_is_left_to_its_own_reader(
     assert problems, "the fixture must really be malformed to the estate reader"
 
 
+def test_a_marker_that_cannot_be_read_at_all_contributes_no_claim_either(
+        tmp_path) -> None:
+    """A `.openspec.yaml` THAT IS NOT EVEN READABLE AS TEXT is no less
+    "malformed" than one that parses to the wrong shape, and must not abort
+    the whole index build.
+
+    `load_packet` catches `yaml.YAMLError` around its own read but not a bad
+    encoding — `marker.is_file()` only proves the path is a regular file at
+    that instant, and `.read_text(encoding="utf-8")` still raises
+    `UnicodeDecodeError` on a marker that is not valid UTF-8. Left uncaught,
+    one such packet anywhere in the corpus crashed `PacketIndex._build`
+    entirely, and every OTHER citation in the corpus refused with it — the
+    "blast radius no requirement asks for"
+    `test_a_malformed_former_ids_declaration_is_left_to_its_own_reader`
+    already refuses for a shape defect, now proved for an unreadable one.
+    (Copilot `PRRT_kwDOTAvnrs6iTGJQ`.)
+    """
+    root = _tree(tmp_path)
+    unreadable = _packet(root, "openspec/changes/add-an-unreadable-declarer",
+                         files=("proposal.md",))
+    (unreadable / ".openspec.yaml").write_bytes(b"schema: \xff\xfe not-utf8\n")
+    _packet(root, "openspec/changes/add-a-sound-neighbour",
+            files=("proposal.md", "tasks.md"),
+            former_ids=["add-a-neighbours-old-id"])
+
+    # THE DIRECTORY'S OWN IDENTITY STILL RESOLVES — nothing about ACTIVE
+    # indexing reads the marker's content — and the unreadable marker
+    # contributes no DECLARED claim, but does not raise past this call either.
+    own = pr.resolve(root, "openspec/changes/add-an-unreadable-declarer/proposal.md")
+    assert own.status == pr.RESOLVED, own.report
+
+    neighbour = pr.resolve(
+        root, "openspec/changes/add-a-neighbours-old-id/tasks.md")
+    assert neighbour.status == pr.RESOLVED, neighbour.report
+
+
 def test_the_index_claims_at_least_what_the_corpus_ownership_sweep_claims(
         tmp_path) -> None:
     """THE TWO READERS ARE PINNED IN STEP, not left to drift.

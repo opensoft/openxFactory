@@ -469,6 +469,18 @@ class PacketIndex:
                                                           identities[0])
             except support.FormerIdError:
                 continue
+            except (UnicodeDecodeError, OSError):
+                # A MARKER THAT CANNOT BE READ AT ALL IS NO LESS "MALFORMED"
+                # THAN ONE THAT PARSES TO THE WRONG SHAPE. `marker.is_file()`
+                # above only proved the path was a regular file at that
+                # instant; `load_packet` catches `yaml.YAMLError` around its
+                # own read but not a bad encoding or a file gone unreadable
+                # between the two calls, and neither of those is a
+                # `FormerIdError`. Left uncaught, one such packet would abort
+                # this index build entirely and crash pin validation, rather
+                # than contributing no claim the way every other malformed
+                # declaration already does. (Copilot `PRRT_kwDOTAvnrs6iTGJQ`.)
+                continue
             if any(identity in declared for identity in identities):
                 continue
             for identity in declared:

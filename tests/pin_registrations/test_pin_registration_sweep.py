@@ -926,7 +926,17 @@ def test_the_live_pin_carries_citations_and_every_in_tree_path_resolves(
     cheerful count, indistinguishable from one that opened something. This names
     the corpus fact instead — the live pin DOES carry citations that resolve
     here — so deleting the last one reds this test rather than quietly emptying
-    the assertion."""
+    the assertion.
+
+    RESOLVED BY IDENTITY, NOT BY RAW PATH — the same swap
+    `test_the_live_pin_registration_citations_still_resolve` below makes for
+    the same reason, restated here rather than left as a second, unmoved
+    assertion that would red the day one of this pin's four actively-cited
+    packets archives. An assertion written against `.exists()` breaks on
+    exactly the lawful act this slice exists to stop breaking; one written
+    against the resolver keeps its meaning on both sides of the relocation.
+    (Copilot `PRRT_kwDOTAvnrs6iTGJw`.)
+    """
     module = _load_checker()
     text = (REPO_ROOT / LIVE_PIN_PATH).read_text(encoding="utf-8")
     pin = yaml.safe_load(text)
@@ -939,8 +949,10 @@ def test_the_live_pin_carries_citations_and_every_in_tree_path_resolves(
                for kind, referent in module.read_citation(line, declared)
                if kind == "tree-path"]
     assert len(in_tree) >= 2, in_tree
-    missing = [p for p in in_tree if not (REPO_ROOT / p).exists()]
-    assert not missing, f"citations naming paths that are gone: {missing}"
+    unresolved = [referent for referent in in_tree
+                  if not module.packet_reference.resolve(
+                      REPO_ROOT, referent).ok]
+    assert not unresolved, f"citations that do not resolve: {unresolved}"
 
 
 def test_the_live_pins_citation_bytes_align_with_its_parsed_structure() -> None:
