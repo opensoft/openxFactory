@@ -1018,6 +1018,50 @@ class FailClosedTests(unittest.TestCase):
             self.assertEqual(len(findings), 1, [f.message for f in findings])
             self.assertIn("did not read as a mapping", findings[0].message)
 
+    def test_a_manifest_that_cannot_be_read_at_all_is_refused_not_skipped(
+            self):
+        """A READ THAT RAISES IS STILL A READ THAT FAILED.
+
+        Two states `is_file()` plus `load_packet` used to let through: bytes
+        that are not UTF-8, which `load_packet` decodes and therefore RAISES
+        over (it catches only `YAMLError`), leaving this gate with an exit its
+        own contract does not name; and a `.openspec.yaml` that is PRESENT and
+        is not a regular file, which `is_file()` reads as absent. Both are now
+        refusals that name the packet, and the ownership sweep — which
+        re-reads every manifest in a module this slice imports and does not
+        edit — is caught rather than allowed to raise through the CLI.
+        (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "change-a", ratified=True)
+            (directory / ".openspec.yaml").write_bytes(
+                b"former_ids:\n  - \xff\xfe not utf-8\n")
+            commit_all(root, "a manifest that is not UTF-8")
+
+            with self.assertRaises(UnicodeDecodeError):
+                support.load_packet(directory)          # PRECONDITION
+            problems = fia.corpus_problems(root)
+            self.assertTrue(problems, problems)
+            self.assertIn("could not be read at all", problems[0])
+            self.assertIn("change-a", problems[0])
+            # …the sweep's own re-read of the same file is a refusal and not
+            # a traceback, so the run still ends in the documented exit 1.
+            self.assertTrue(any("ownership sweep" in p for p in problems),
+                            problems)
+            with no_event():
+                self.assertEqual(cli.main([str(root)]), 1)
+
+            # A PATH THAT IS PRESENT AND IS NOT A REGULAR FILE is the same
+            # defect wearing a different shape.
+            (directory / ".openspec.yaml").unlink()
+            (directory / ".openspec.yaml").mkdir()
+            self.assertIsNone(support.load_packet(directory))
+            problems = fia.corpus_problems(root)
+            self.assertEqual(len(problems), 1, problems)
+            self.assertIn("did not read as a mapping", problems[0])
+            self.assertIn("not a regular file", problems[0])
+
     def test_a_grafted_boundary_takes_no_refusal(self):
         """`tasks.md` § 6.4, NOT TAKEN, asserted so it stays not taken.
 

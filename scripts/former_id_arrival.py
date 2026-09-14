@@ -1142,21 +1142,40 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
         report.archived_packets = len(archived)
     for directory in live + archived:
         change = support.change_id_of(directory)
-        packet = support.load_packet(directory)
-        if packet is None and (directory / ".openspec.yaml").is_file():
-            # AN UNREADABLE MANIFEST IS NOT A PACKET THAT DECLARES NOTHING.
-            # `load_packet` answers None for THREE states — absent, unparseable
-            # YAML, and a top-level that is not a mapping — and only the first
-            # is an answer. Handing the other two to `former_id_problems` as a
-            # packet with no declaration is the vacuous read this gate exists
-            # to refuse: a malformed `former_ids:` would be swallowed by the
-            # parser that could not reach it. The commit-range arm draws the
-            # same distinction (`declared_at` raises rather than returning
-            # `[]`); this is that rule over the working tree. (Copilot, #1039.)
+        rel = f"{support._corpus_rel(directory)}/.openspec.yaml"
+        try:
+            packet = support.load_packet(directory)
+        except (UnicodeDecodeError, OSError) as exc:
+            # A READ THAT RAISES IS STILL A READ THAT FAILED, and it leaves
+            # this gate with an exit code its own contract does not name.
+            # `load_packet` decodes as UTF-8 and catches only `YAMLError`, so
+            # a manifest carrying bytes that are not UTF-8 comes out of it as
+            # an exception rather than as None — a crash where the two
+            # documented exits are 1 and 2. (Copilot, PR #1039.)
             problems.append(
-                f"{change}: `{support._corpus_rel(directory)}/.openspec.yaml` "
-                f"is PRESENT and did not read as a mapping — unparseable YAML, "
-                f"or a top-level that is not one — so any `former_ids:` it "
+                f"{change}: `{rel}` is PRESENT and could not be read at all "
+                f"({exc.__class__.__name__}), so any `former_ids:` it carries "
+                f"cannot be read and none of the declaration refusals could "
+                f"be taken over it: repair the file, or remove it")
+            continue
+        if packet is None and (directory / ".openspec.yaml").exists():
+            # AN UNREADABLE MANIFEST IS NOT A PACKET THAT DECLARES NOTHING.
+            # `load_packet` answers None for FOUR states — absent, unparseable
+            # YAML, a top-level that is not a mapping, and a path that is not
+            # a regular file — and only the first is an answer. Handing the
+            # others to `former_id_problems` as a packet with no declaration
+            # is the vacuous read this gate exists to refuse: a malformed
+            # `former_ids:` would be swallowed by the parser that could not
+            # reach it. `exists()` rather than `is_file()` because a path that
+            # is PRESENT and not a regular file is the same defect wearing a
+            # different shape, and reading it as absent is the silence this
+            # arm refuses. The commit-range arm draws the same distinction
+            # (`declared_at` raises rather than returning `[]`); this is that
+            # rule over the working tree. (Copilot, PR #1039.)
+            problems.append(
+                f"{change}: `{rel}` is PRESENT and did not read as a mapping "
+                f"— unparseable YAML, a top-level that is not one, or a path "
+                f"that is not a regular file — so any `former_ids:` it "
                 f"carries cannot be read and none of the declaration refusals "
                 f"could be taken over it. An unreadable manifest is not a "
                 f"packet that declares nothing: repair the file, or remove it")
@@ -1169,7 +1188,21 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
         if declared:
             problems += support.standing_former_id_problems(
                 root, change, declared)
-    problems += support.former_identity_ownership_problems(root)
+    try:
+        problems += support.former_identity_ownership_problems(root)
+    except (UnicodeDecodeError, OSError) as exc:
+        # THE SWEEP RE-READS EVERY MANIFEST ITSELF, in a module this slice
+        # imports and does not edit, so the same unreadable file reaches it a
+        # second time and raises there too. Turned into a refusal here rather
+        # than left to leave the gate with an undocumented exit: the packet
+        # itself is already named by the loop above, and this says which
+        # question went unanswered because of it. (Copilot, PR #1039.)
+        problems.append(
+            f"the ownership sweep over this corpus could not be completed "
+            f"({exc.__class__.__name__}): a packet manifest it re-reads is "
+            f"present and unreadable, so whether every declared former "
+            f"identity has EXACTLY ONE OWNER was not established. The "
+            f"unreadable manifest is named above")
     return problems
 
 
