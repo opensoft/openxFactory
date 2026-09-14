@@ -837,6 +837,11 @@ PATH**:
 **A GREEN VALIDATOR DOES NOT LIFT IT. NEITHER DOES THIS FILE'S EXISTENCE.**
 Neither, per § 8, does an admitted convening.
 
+> **POINTER ADDED 2026-09-14 — § 13.1 IS NOW CLOSED, AND EMPTY: no
+> `gate_rules_council` convening ran between T1 and T2 (full record at § 13.1
+> below). §§ 13.2 and 13.3 REMAIN OPEN. THE HOLD IS STILL IN FORCE — a closed
+> window check does not lift it.**
+
 ---
 
 ## 10. THE WORDS AS SPOKEN
@@ -917,6 +922,100 @@ merge instant) so the answer does not depend on which is called T2.
 merge of this pull request. **The hold (§ 3.4) is what makes the expected
 finding empty; the check is what proves it.**
 
+#### 13.1 — APPENDED 2026-09-14, PART C: THE WINDOW CHECK IS CLOSED, AND THE FINDING IS EMPTY
+
+**No `agent:gate-rules-council` convening ran in the window. Nothing was
+consumed under revocation.** A checked absence, recorded as one.
+
+**Window: T1 = codexFactory PR #439 → `eff9ae191d78c396800a72cdec9fffe0caf866d7`,
+merged `2026-09-12T15:59:10Z`. T2 = openxFactory PR #1006 →
+`765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged `2026-09-13T22:30:20Z`.**
+
+The command, verbatim, run `2026-09-13T22:4xZ` by lane `hermes-wallet-exercise`
+(session `661394c0-589c-4d88-b1b6-1e692bfbc2e8`, container `0e7d1a79a07e`),
+read-only `gh` calls only:
+
+```sh
+gh run list -R codeXfactory/codexFactory --workflow gate-rules-convening-trigger.yml \
+  --json databaseId,createdAt,event,conclusion,headSha --limit 100
+```
+
+It returns **seven runs in the workflow's entire history**, and **every one of
+them predates T1**:
+
+| run | createdAt | conclusion | headSha |
+|---|---|---|---|
+| `34586762846` | 2026-09-11T09:56:58Z | success | `9433796e` |
+| `34561266626` | 2026-09-11T04:11:31Z | failure | `77537d7d` |
+| `34481205558` | 2026-09-10T13:12:32Z | success | `f881cea1` |
+| `34480882955` | 2026-09-10T13:09:22Z | failure | not gathered |
+| `34318204178` | 2026-09-09T06:14:39Z | failure | `6f50112b` |
+| `34317084150` | 2026-09-09T05:59:09Z | failure | not gathered |
+| `34307939608` | 2026-09-09T03:39:04Z | failure | not gathered |
+
+Filtered to the window, the result is **`[]`**.
+
+**THE TWO CANDIDATE UPPER BOUNDS DISAGREE, AND THE FINDING SURVIVES BOTH.** The
+effective instant — `grant-grc-0003.issued_at`, equal to
+`grant-grc-0002.revocation.revoked_at` on oxF `main` — is `2026-09-13T02:20:48Z`.
+The merge instant is T2's own `2026-09-13T22:30:20Z`. **The two are 20h 09m 32s
+apart** (the 2026-09-11 precedent's own two bounds were 17 minutes apart).
+Both give the same empty result, so the finding is empty under both, and the
+disagreement is recorded rather than resolved, exactly as the precedent
+recorded its own gap. **The gap between them is covered by the HOLD, not by
+either timestamp.**
+
+**Two independent cross-checks, because one empty list is not a finding:**
+
+* **The records side is NOT `[]`.**
+  `gh api "repos/codeXfactory/codexFactory/commits?path=hermes/domain/review-councils/records&since=2026-09-12T15:59:10Z&until=2026-09-13T22:30:20Z&per_page=100"`
+  → **9 commits** — walked from `main` as of `22:4xZ`, so it includes PR
+  #452's commits, which merged AFTER T2, at `22:32:20Z`. Via PR #441 (merged
+  `17:24:27Z`), PR #450 (`18:52:32Z`), PR #446 (`23:43:32Z`), PR #452
+  (`22:32:20Z`, post-T2). **9 distinct files**, each header-verified on
+  `main`: `2026-09-11-gate-rules-provenance-axis-declaration.md` (RULING
+  PACKET, Status: record); `2026-09-12-gate-rules-roster-csc-pin.md` (Status:
+  record; *"NO SEAT WAS RUN, AND NO COUNCIL SELECTED THIS PIN"*);
+  `2026-09-12-gate-rules-seat-signing-key-minted-csc.md` (mint record);
+  `2026-09-12-lq2-c2-corroboration.md` plus 4 evidence files; and
+  `2026-09-12-lq2-c4-reroute.md`. **Zero convening records; none produced by a
+  `gate_rules_council` convening.** Stated plainly because it is easy to miss:
+  the precedent's `[]` reflected a quiet 3-hour window; this window is 30.5 h
+  of lane-authored governance records, and the header-verified answer is
+  still zero convening records.
+* **The trap named in the runbook, avoided and recorded as avoided (NO
+  weight).** `gh run list … --workflow gate-rules-convening.yml` → `0`. That
+  file is `workflow_call`-only and reports zero runs whether or not one
+  occurred; it was not relied on.
+
+**A THIRD CHECK, NOT ASKED FOR BY THE TASK TEXT, AND IT MATTERED.** Every
+workflow run in the window, enumerated in 3-hour chunks (the single-range
+query returned exactly 1000 — the API's own page cap — so it was chunked, and
+no chunk came back capped): **2546 distinct runs** — council-deliberation-worker
+726, council-authorization-trigger 364, council-convening-lane 350,
+merge-master-approval 335, lane-line 211, sonar 192, validate 192, Copilot
+review 143, floor-regeneration 31, publish-project-bench 1,
+provenance-reconciliation 1. **`gate-rules-convening-trigger` /
+`gate-rules-convening`: NONE.** Files naming `gate_rules_council` on `main` are
+now FIVE (the precedent knew one): the trigger (the only dispatcher),
+`gate-rules-convening.yml` (`workflow_call`, REFUSES any other `council_id`),
+`merge-master-approval.yml` (a comment, line 2957),
+`provenance-reconciliation.yml` (comments plus a LAPSE error string, lines
+60/282/291 — it convenes nothing), and `scripts/deliberation_packet.py` (a
+profile reader). The `council-*` runs above are all `merge_readiness_council` —
+`grant-mrc-0002` was never revoked — and are not "consumed under revocation"
+candidates.
+
+**Finding: EMPTY.**
+
+```
+WINDOW CHECK (task 6.19): [T1 eff9ae19/2026-09-12T15:59:10Z .. T2
+765d8c6f/2026-09-13T22:30:20Z] — EMPTY. No `agent:gate-rules-council`
+convening ran. Evidence: 7 trigger runs all pre-T1; records-API 9 commits / 0
+convening records (header-verified); 2546 in-window runs, 0 gate-rules; both
+upper bounds agree.
+```
+
 ### 13.2 Step 5b — the register-projection read (task 6.20) — **APPENDED BY PART C**
 
 **OPERATOR WORD REQUIRED — NOT SELF-SERVE.** Read-only cluster read of the
@@ -962,7 +1061,7 @@ is not discovered afterwards.
 |---|---|---|
 | ~~**the mint of the fifth keypair**~~ **DONE `2026-09-13T02:12:15Z`** | Brett Heap | **THIS ACT** — it no longer blocks anything (§ 6.8) |
 | ~~the fill~~ **DONE** + the merge (T2) — **STILL OWED** | the lane filled; **Brett Heap merges** | everything below |
-| § 13.1 window check | the lane | § 13.3 |
+| ~~§ 13.1 window check~~ **DONE `2026-09-13T22:4xZ`** | the lane | § 13.3 |
 | § 13.2 5b read | Brett Heap's word, then the lane | § 13.3 |
 | § 13.3 lift | the lane, on his word | § 13.4 |
 | § 13.4 proof convening | Brett Heap dispatches | § 13.5 |

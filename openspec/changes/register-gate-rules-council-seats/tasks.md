@@ -917,10 +917,12 @@ still Brett Heap's, and the merge is T2.
       (H1, §§ 6.2-6.8) then one openxFactory pull request (H2, §§ 6.9-6.15).
       H1 is **not** split into separate mint / roster / composition pull
       requests; two remotes, ONE governed act, the hold spanning them.
-- [ ] 6.19 **[lane]** The 3.8-equivalent window check: prove NO
+- [x] 6.19 **[lane]** The 3.8-equivalent window check: prove NO
       `gate_rules_council` convening ran between T1 and T2 —
       `gh run list --workflow gate-rules-convening-trigger.yml` cross-checked
       against `records/` commits in the window, by walk § 13.1's method.
+      **DONE 2026-09-13T22:4xZ — walk-2026-09-12-register-act.md § 13.1
+      (appended 2026-09-14). Finding: EMPTY.**
 - [ ] 6.20 **[OPERATOR WORD REQUIRED — NOT SELF-SERVE]** Step 5b: a read-only
       cluster read confirming the `hermes-register-projection` ConfigMap's
       `hermes.opensoft.one/source-revision` annotation is at or after T2's merge
