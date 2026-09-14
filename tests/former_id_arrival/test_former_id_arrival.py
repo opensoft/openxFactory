@@ -36,7 +36,9 @@ differs FAILS the test rather than passing it vacuously.
 """
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -156,6 +158,35 @@ def blobless_clone(source: Path, destination: Path) -> Path:
 def _exit(root: Path, revision: str, *args: str) -> int:
     return subprocess.run(["git", "-C", str(root), *args],
                           capture_output=True, text=True).returncode
+
+
+@contextlib.contextmanager
+def no_event():
+    """THE AMBIENT `GITHUB_EVENT_NAME`, REMOVED FOR THE CORPUS-ARM TESTS.
+
+    Given no `--base`/`--head`, the CLI derives its range from the event it is
+    running under — and the runner that runs this suite IS a `pull_request`
+    event, which sets `GITHUB_EVENT_NAME` for every step of it. Without this
+    the tests below would ask the CLI to resolve `HEAD^1..HEAD^2` inside a
+    two-commit fixture repository, it would refuse CANNOT RUN, and assertions
+    that mean "exit 1, a refusal" would read exit 2.
+
+    MEASURED, and the reason this helper exists rather than a comment:
+    `python3 -m pytest tests/former_id_arrival` passed on a developer machine
+    while pytest-suite run 34846423535 failed four of these same tests with
+    `AssertionError: 2 != 1`. Reproduced locally with
+    `GITHUB_EVENT_NAME=pull_request python3 -m pytest tests/former_id_arrival`,
+    which also failed `test_the_live_corpus_passes_this_gate` — a test that
+    PASSED on the runner, because there `HEAD^1..HEAD^2` does resolve. A test
+    whose answer depends on where it runs is a test that can pass for the wrong
+    reason, and one of these did.
+    """
+    saved = os.environ.pop("GITHUB_EVENT_NAME", None)
+    try:
+        yield
+    finally:
+        if saved is not None:
+            os.environ["GITHUB_EVENT_NAME"] = saved
 
 
 class ArrivalRefusalTests(unittest.TestCase):
@@ -915,7 +946,8 @@ class FailClosedTests(unittest.TestCase):
             self.assertIn("is PRESENT and did not read as a mapping",
                           problems[0])
             self.assertIn("change-a", problems[0])
-            self.assertEqual(cli.main([str(root)]), 1)
+            with no_event():
+                self.assertEqual(cli.main([str(root)]), 1)
 
             # A top-level that parses but is not a mapping is the same state.
             (directory / ".openspec.yaml").write_text(
@@ -1056,7 +1088,8 @@ class ConsumedReaderTests(unittest.TestCase):
                           problems[0])
 
             # …and the CLI reports it and exits 1.
-            self.assertEqual(cli.main([str(root)]), 1)
+            with no_event():
+                self.assertEqual(cli.main([str(root)]), 1)
 
     def test_the_append_only_rule_is_enforced_by_this_validator(self):
         """§ 2.5, and the proof that `append_only_problems` is CALLED.
@@ -1155,7 +1188,8 @@ class ConsumedReaderTests(unittest.TestCase):
             self.assertEqual(len(problems), 1, problems)
             self.assertIn("claimed by 2 packets", problems[0])
             self.assertIn("EXACTLY ONE OWNER", problems[0])
-            self.assertEqual(cli.main([str(root)]), 1)
+            with no_event():
+                self.assertEqual(cli.main([str(root)]), 1)
 
     def test_the_ownership_sweep_runs_over_the_live_corpus(self):
         """PLAN Q3, RECOMMENDATION (a), TAKEN: the sweep's ONE caller is this
@@ -1422,16 +1456,20 @@ class CliTests(unittest.TestCase):
                 MANIFEST + "former_ids: change-b\n", encoding="utf-8")
             commit_all(root, "declare a scalar where a sequence is required")
 
-            with mock.patch.object(support, "yaml", None):
+            with no_event(), mock.patch.object(support, "yaml", None):
                 with self.assertRaises(fia.ArrivalCannotRun) as caught:
                     fia.scan(root, env={})
+                # EXIT 2 FOR THE RIGHT REASON: `no_event()` is what keeps this
+                # from reading the CANNOT RUN of an unresolvable range as the
+                # CANNOT RUN of a missing parser.
                 self.assertEqual(cli.main([str(root)]), 2)
             self.assertIn("PyYAML is not available", str(caught.exception))
             self.assertIn(fia.UNREADABLE, str(caught.exception))
 
             # …and with it, the same tree refuses the DECLARATION rather than
             # the run, which is the difference the guard protects.
-            self.assertEqual(cli.main([str(root)]), 1)
+            with no_event():
+                self.assertEqual(cli.main([str(root)]), 1)
 
     def test_the_live_corpus_passes_this_gate(self):
         """THE CORPUS ARM, OVER THIS REPOSITORY'S OWN PACKETS.
@@ -1441,10 +1479,18 @@ class CliTests(unittest.TestCase):
         its `former_ids:`, for a declared id that still stands, and for an
         identity claimed twice. Exit 0, and the run says what it scanned.
         """
+        # THE ENVIRONMENT IS STATED RATHER THAN INHERITED: with the runner's
+        # `GITHUB_EVENT_NAME=pull_request` this invocation would judge the
+        # pull request's range as well, so what it asserted would differ
+        # between a runner and a developer machine. The corpus arm is what
+        # this test is about, so it is the only arm it runs.
+        environment = {k: v for k, v in os.environ.items()
+                       if k != "GITHUB_EVENT_NAME"}
         done = subprocess.run(
             [sys.executable, str(VALIDATOR), str(REPO_ROOT)],
-            capture_output=True, text=True)
+            capture_output=True, text=True, env=environment)
         self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
+        self.assertIn("no commit range", done.stdout)
         self.assertIn("corpus sweep:", done.stdout)
         self.assertIn("former-id arrival gate passed", done.stdout)
 
