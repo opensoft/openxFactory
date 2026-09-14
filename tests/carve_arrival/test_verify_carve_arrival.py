@@ -254,6 +254,21 @@ def _placement(row: dict[str, Any]) -> tuple[Any, Any]:
     return row.get("destination"), row.get("destination_path")
 
 
+def _retirement(row: dict[str, Any]) -> tuple[Any, Any]:
+    """Where a RULING has DELETED this row's arrival (RULED 5656343213), or
+    `(None, None)`.
+
+    SPELLED OUT HERE for `_placement`'s reason one function up, and used by
+    `Carve.materialise` so a retired row is written NOWHERE — which is what
+    makes a retiring leg's tree genuinely empty at that path rather than empty
+    because a fixture forgot to write the file.
+    """
+    retired = row.get("retired")
+    if isinstance(retired, dict):
+        return retired.get("at"), retired.get("at_path")
+    return None, None
+
+
 class Carve:
     """A scratch source repository at a carve commit, plus its manifest."""
 
@@ -369,11 +384,18 @@ class Carve:
         AT THE EFFECTIVE PLACEMENT (RULED Q6), so a re-destined row is
         materialised where the ruling put it and NOT where the carve did —
         which is what makes the losing leg's tree genuinely vacated rather
-        than vacated by a fixture that forgot to write the file.
+        than vacated by a fixture that forgot to write the file. AND NOT AT
+        ALL where a ruling has RETIRED the arrival (RULED 5656343213), for
+        the same reason read one step further on.
         """
         dest = self.tmp / (name or f"dest-{destination}")
         dest.mkdir(parents=True, exist_ok=True)
         for row in doc["rows"]:
+            # A RETIRED row is materialised nowhere (RULED 5656343213): the
+            # ruling DELETED the arrival, so the tree this builds is the tree
+            # the act leaves behind.
+            if _retirement(row)[1] is not None:
+                continue
             where, relpath = _placement(row)
             if where != destination:
                 continue
@@ -1530,6 +1552,399 @@ def test_the_module_records_the_effective_arrival_and_its_limit() -> None:
     assert "5648044785" in doc, doc
     assert "arrival-not-vacated" in doc, doc
     assert "ONE destination per run" in doc, doc
+
+
+# --------------------------------------------------------------------------
+# RULED 5656343213 — the RETIREMENT, and `arrival-not-retired`
+#
+# Brett Heap, 2026-09-13, by interactive multi-choice, on the question slice
+# S8's author put in `#656` comment `5650335573` § 2. A moved row may carry
+# `retired: {at, at_path, ruling, surface, note}` saying that a RULING has
+# DELETED the arrival itself — not moved it, as Q6 does, because the surface
+# the arrived file drove is at NO leg to move it to. This file then asks the
+# INVERSE of its usual question at that leg: the row is not owed, and the path
+# must be empty.
+#
+# THE FAILURE MODE THESE CASES ARE BUILT AROUND is the one a half-built form
+# would have: a `retired:` that only stopped ASKING for the file would leave
+# the arrived copy standing under a declared root with nothing left to declare
+# it — `rows_for()` having dropped the row, nothing else here would ever
+# mention it again. `check_retired` is what closes that, and it runs BEFORE
+# the walk so the finding names the RULING rather than the filename.
+# --------------------------------------------------------------------------
+
+RETIREMENT_RULING = ("`#656` comment 5656343213 (RULED, Brett Heap "
+                     "2026-09-13)")
+
+#: The manifest's own `not_moved` row, which is what `retired.surface` must be
+#: — `validate-carve-manifest.py` holds it, and this file reads the block
+#: without revalidating it, so the value here is the one a valid document
+#: carries.
+RETIRED_SURFACE = "scripts/pkg/neutral.py"
+
+RETIRED_SOURCE = "scripts/pkg/beta.py"
+RETIRED_AT = "scratch_code"
+RETIRED_AT_PATH = "src/pkg/beta.py"
+
+
+def _retire(doc: dict[str, Any], source_path: str = RETIRED_SOURCE,
+            surface: str = RETIRED_SURFACE, **override: Any) -> dict[str, Any]:
+    """Retire a row of the generated manifest at its EFFECTIVE arrival.
+
+    `at`/`at_path` are READ OFF THE ROW and never typed — through
+    `re_destined:` where one is present, because that is what EFFECTIVE means
+    and a fixture that took the raw destination could not tell the composed
+    case from the plain one. `beta.py` by default: the row that CARRIES A
+    DECLARED EDIT, so these cases prove that a retirement stops the phase-B
+    question being asked rather than merely passing it.
+    """
+    row = next(r for r in doc["rows"] if r["source_path"] == source_path)
+    at, at_path = _placement(row)
+    block: dict[str, Any] = {
+        "at": at,
+        "at_path": at_path,
+        "ruling": RETIREMENT_RULING,
+        "surface": surface,
+    }
+    block.update(override)
+    row["retired"] = block
+    return row
+
+
+def test_the_leg_no_longer_owes_a_retired_row(carve: Carve) -> None:
+    """The whole act, passing: the row is not owed here any more, the tree
+    that no longer carries it verifies, and the retirement is REPORTED rather
+    than merely tolerated — with the surface and the citation, because an
+    absence cannot tell a reader why by itself."""
+    doc = carve.manifest_doc()
+    _retire(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    assert not (dest / RETIRED_AT_PATH).exists()
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "B", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    summary = json.loads(done.stdout)
+    assert summary["rows"] == 1, summary          # alpha.py only
+    retired = summary["retired"]
+    assert [row["source_path"] for row in retired] == [RETIRED_SOURCE], summary
+    assert retired[0]["at_path"] == RETIRED_AT_PATH, retired
+    assert retired[0]["surface"] == RETIRED_SURFACE, retired
+    assert retired[0]["ruling"] == RETIREMENT_RULING, retired
+
+
+def test_a_retired_row_is_neither_digested_nor_diffed(carve: Carve) -> None:
+    """`rows_for()` drops it, so nothing downstream asks it anything.
+
+    Measured in BOTH phases against the same document un-retired, because the
+    two phases ask a `moved_with_declared_edit` row two different questions:
+    phase A digests it, phase B diffs it against its declared lines. Retired,
+    it is in neither count and in neither row total — which is the difference
+    between a row this leg no longer owes and a row it owes and cannot find.
+    """
+    plain = carve.manifest_doc()
+    plain_manifest = carve.write_manifest(plain, name="plain.yaml")
+    plain_dest = carve.materialise(plain, RETIRED_AT, name="dest-plain")
+
+    doc = carve.manifest_doc()
+    _retire(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT, name="dest-retired")
+    assert not (dest / RETIRED_AT_PATH).exists()
+
+    # PHASE A — the digest question. `beta.py` is digested un-retired and is
+    # not digested retired.
+    done = run(carve, plain_manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(plain_dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    before = json.loads(done.stdout)
+    assert before["rows"] == 2 and before["digests_verified"] == 2, before
+
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    after = json.loads(done.stdout)
+    assert after["rows"] == 1 and after["digests_verified"] == 1, after
+
+    # PHASE B — the declared-lines question, on trees carrying the edit.
+    (plain_dest / RETIRED_AT_PATH).write_text(BETA_REWRITTEN, encoding="utf-8")
+    done = run(carve, plain_manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(plain_dest), "--phase", "B", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert json.loads(done.stdout)["declared_edits_diffed"] == 1, done.stdout
+
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "B", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert json.loads(done.stdout)["declared_edits_diffed"] == 0, done.stdout
+
+
+def test_a_copy_left_at_a_retired_arrival_refuses(carve: Carve) -> None:
+    """The half a reader should check. A retirement that did not also DELETE
+    the file leaves an arrival the floor no longer stands behind and no row
+    declares — and the finding names the RULING and the SURFACE, not the
+    filename, because it runs before the walk."""
+    doc = carve.manifest_doc()
+    _retire(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    left_behind = dest / RETIRED_AT_PATH
+    left_behind.parent.mkdir(parents=True, exist_ok=True)
+    left_behind.write_text(SURFACE_FILES[RETIRED_SOURCE], encoding="utf-8")
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-not-retired"
+    detail = json.loads(done.stdout)["detail"]
+    assert RETIREMENT_RULING in detail, detail
+    assert RETIRED_SURFACE in detail, detail
+
+
+def test_the_leftover_is_not_left_to_the_walk_to_find(carve: Carve) -> None:
+    """WHY `check_retired` EXISTS AT ALL, as running code.
+
+    Left to `check_undeclared_files`, an un-deleted file would refuse as
+    `arrival-undeclared-file` — true, and useless: it would send a reader
+    looking for an admission rule for a file whose whole story is the
+    `retired:` block in its own row. Worse, the walk might not look at all:
+    here the retired row is the ONLY row under `examples`, so dropping it
+    closes that root and the leftover falls outside every directory the walk
+    reads. `check_retired` is then the only check that will ever mention the
+    file, and this case is the one that would pass in silence without it.
+    """
+    doc = carve.manifest_doc()
+    _retire(doc, "scripts/pkg/gamma.py")     # the only `scratch_spec` row
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_spec")
+    stray = dest / "examples/gamma.py"
+    stray.parent.mkdir(parents=True, exist_ok=True)
+    stray.write_text(SURFACE_FILES["scripts/pkg/gamma.py"], encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-not-retired"
+    # The root really is gone — which is what makes the paragraph above a
+    # measurement rather than a worry.
+    doc = carve.manifest_doc()
+    _retire(doc, "scripts/pkg/gamma.py")
+    manifest = carve.write_manifest(doc)
+    clean = carve.materialise(doc, "scratch_spec", name="dest-spec-clean")
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(clean), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert json.loads(done.stdout)["declared_roots"] == [], done.stdout
+
+
+def test_a_symlink_left_at_the_retired_path_is_not_invisible(
+        carve: Carve) -> None:
+    """`lexists` and not `exists`, on `check_vacated`'s reasoning verbatim: a
+    DANGLING symlink reads as absent to a followed test and git would commit
+    it all the same."""
+    doc = carve.manifest_doc()
+    _retire(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    link = dest / RETIRED_AT_PATH
+    link.parent.mkdir(parents=True, exist_ok=True)
+    os.symlink("../../nowhere/beta.py", link)
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-not-retired"
+
+
+def test_another_rows_arrival_at_the_retired_path_is_a_lawful_refill(
+        carve: Carve) -> None:
+    """A retirement EMPTIES a path; another row's own effective arrival may
+    lawfully occupy it, and an entry there is then that row's — verified by
+    `check_arrivals` on its own terms — not the retired row's leftover. Built
+    in from the first line of `check_retired` rather than found in review,
+    which is what PR #1011 cost `check_vacated` to learn."""
+    doc = carve.manifest_doc()
+    _retire(doc)
+    alpha = next(r for r in doc["rows"]
+                 if r["source_path"] == "scripts/pkg/alpha.py")
+    assert alpha["destination"] == RETIRED_AT, alpha
+    alpha["destination_path"] = RETIRED_AT_PATH
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    summary = json.loads(done.stdout)
+    assert [row["source_path"] for row in summary["retired"]] == \
+        [RETIRED_SOURCE], summary
+
+
+def test_a_declared_replica_may_refill_a_retired_path(carve: Carve) -> None:
+    """The `--replica-at` twin of the case above, and it is a SEPARATE one
+    for the reason PR #1011's round 3 found the hard way: a replica is not a
+    row `rows_for()` ever returns (RULED OQ-C), so a fix that only excluded
+    other rows' arrivals would still read a declared replica's file as the
+    retired row's abandoned copy."""
+    doc = carve.manifest_doc()
+    _retire(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    _write(dest, RETIRED_AT_PATH, SURFACE_FILES[RETIRED_SURFACE])
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json",
+               "--replica-at", f"{RETIRED_SURFACE}={RETIRED_AT_PATH}")
+    assert done.returncode == 0, done.stdout + done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["replicas_verified"] == 1, payload
+    assert [row["source_path"] for row in payload["retired"]] == \
+        [RETIRED_SOURCE], payload
+
+
+def test_a_row_re_destined_and_then_retired_is_retired_at_the_leg_it_reached(
+        carve: Carve) -> None:
+    """THE TWO ACTS COMPOSE IN ONE ORDER — move, then retire — and this is the
+    case that proves the pair at both legs.
+
+    `beta.py` is re-destined from `scratch_code` to `scratch_spec` by RULED
+    Q6 and retired there by RULED 5656343213. The GAINING leg must be empty at
+    `examples/beta.py` and report the retirement; the LOSING leg must still be
+    VACATED at `src/pkg/beta.py`, because a retirement says nothing about the
+    other half of a re-destination — those are two absences at two legs, and
+    `check_vacated` goes on asking its own.
+    """
+    doc = carve.manifest_doc()
+    _re_destine(doc)                       # -> scratch_spec:examples/beta.py
+    row = _retire(doc)                     # ... retired AT that arrival
+    assert row["retired"]["at"] == RE_DESTINED_TO, row
+    assert row["retired"]["at_path"] == RE_DESTINED_TO_PATH, row
+    manifest = carve.write_manifest(doc)
+
+    gaining = carve.materialise(doc, RE_DESTINED_TO)
+    losing = carve.materialise(doc, "scratch_code")
+    assert not (gaining / RE_DESTINED_TO_PATH).exists()
+    assert not (losing / RE_DESTINED_FROM_PATH).exists()
+
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(gaining), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    gaining_summary = json.loads(done.stdout)
+    assert [r["source_path"] for r in gaining_summary["retired"]] == \
+        [RE_DESTINED_SOURCE], gaining_summary
+    assert gaining_summary["re_destined"]["arrived"] == [], gaining_summary
+
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(losing), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    losing_summary = json.loads(done.stdout)
+    assert losing_summary["retired"] == [], losing_summary
+    assert [r["source_path"] for r in losing_summary["re_destined"]["vacated"]] \
+        == [RE_DESTINED_SOURCE], losing_summary
+
+    # And each half still refuses on its own: the gaining leg for the file the
+    # retirement deleted, the losing leg for the file the move left behind.
+    _write(gaining, RE_DESTINED_TO_PATH, SURFACE_FILES[RE_DESTINED_SOURCE])
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(gaining), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-not-retired"
+    _write(losing, RE_DESTINED_FROM_PATH, SURFACE_FILES[RE_DESTINED_SOURCE])
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(losing), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-not-vacated"
+
+
+def test_a_retirement_at_one_leg_says_nothing_about_another(
+        carve: Carve) -> None:
+    """ONE destination per run. `gamma.py` is retired at `scratch_spec`; the
+    `scratch_code` run neither reports it nor asks anything about it, and the
+    two absences are two questions about two legs."""
+    doc = carve.manifest_doc()
+    _retire(doc, "scripts/pkg/gamma.py")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert json.loads(done.stdout)["retired"] == [], done.stdout
+
+
+def test_the_human_line_names_the_retirements_at_this_leg(
+        carve: Carve) -> None:
+    """A reader of a leg's log must be able to see that a row it used to owe
+    was checked to be GONE by a ruling rather than simply forgotten."""
+    doc = carve.manifest_doc()
+    _retire(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert ("1 row(s) RETIRED here by ruling and verified absent "
+            "(RULED 5656343213)") in done.stdout, done.stdout
+
+
+def test_a_leg_with_no_retirement_says_nothing_about_one(
+        carve: Carve) -> None:
+    """Silent at zero, on the re-destination clause's own reasoning: the
+    MANIFEST validator's count is unconditional because it describes ONE
+    document whose state a reader must be able to read off any run; this line
+    describes a LEG, where the honest default is that every arrival here is
+    the carve's own."""
+    doc = carve.manifest_doc()
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "RETIRED" not in done.stdout, done.stdout
+
+
+def test_all_three_tools_read_the_retirement_identically() -> None:
+    """The three copies of the predicate, over one table of rows.
+
+    `validate-carve-manifest.py`, this file and `scripts/carved_reach.py` each
+    carry the same reading of `retired:`, because none of the three can import
+    either of the others — the same duplication, and the same risk, that
+    `test_both_tools_read_the_effective_arrival_identically` closes for
+    `effective_arrival`. The mis-shaped rows are in the table deliberately, and
+    they are the half that matters MOST here: this guard fails closed in the
+    OTHER direction from `effective_arrival`'s. Half a re-destination reading
+    as no re-destination leaves a row owed at its original leg; half a
+    RETIREMENT reading as one would SILENCE this leg's arrival check for that
+    row, so `retired: {}` and a block whose `at_path` is a list must both read
+    as NO retirement in all three.
+    """
+    other = _load_manifest_validator()
+    import carved_reach  # noqa: E402 — local: only this test needs it here
+    table: list[dict[str, Any]] = [
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py"},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "ruling": RETIREMENT_RULING,
+                     "surface": RETIRED_SURFACE}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": "scratch_code"},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code"}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": ["src/pkg/a.py"]}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": ["scratch_code"], "at_path": "src/pkg/a.py"}},
+        {},
+    ]
+    for row in table:
+        assert MODULE.retired_at(row) == other.retired_at(row), row
+        assert MODULE.retired_at(row) == carved_reach.retired_at(row), row
+    assert MODULE.retired_at(table[1]) == ("scratch_code", "src/pkg/a.py")
+    for row in table[2:]:
+        assert MODULE.retired_at(row) == (None, None), row
+
+
+def test_the_module_records_the_retirement_and_what_it_does_not_prove(
+        ) -> None:
+    """The disclosure, asserted in the file that carries it: the ruling, the
+    finding, and the two limits — nothing here reads the SURFACE the block
+    cites, and one destination is verified per run."""
+    doc = MODULE.__doc__ or ""
+    assert "retired" in doc, doc
+    assert "5656343213" in doc, doc
+    assert "arrival-not-retired" in doc, doc
+    assert "carve-retired-surface-live" in doc, doc
 
 
 # --------------------------------------------------------------------------

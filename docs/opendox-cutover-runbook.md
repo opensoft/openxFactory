@@ -166,6 +166,23 @@ RULED Q5 (`5648044785`) moving `gate.js`, `dispose.js`, `swb-create.js` and
 `swb-session.js` from `opendox_code` to `openxdox_code`, and § 5.7 is the
 general procedure this and any later re-destination follows.
 
+**AND A MOVED ROW MAY CARRY `retired:` (RULED 5656343213, Brett Heap,
+2026-09-13, `#656` comment `5656343213`, on the question slice S8's author put
+in `#656` comment `5650335573` § 2).** Where a RULING has DELETED an arrival
+the carve made — not moved it, as Q6 does, because the surface the arrived
+file drove is at NO leg to move it to — the row records it: `{at, at_path,
+ruling, surface, note}`, `at`/`at_path` held to the row's **EFFECTIVE**
+arrival (so a row may be re-destined and THEN retired), `surface:` held to a
+`not_moved` row of this manifest, and the citation REQUIRED. **The proof owed
+at the destination inverts**: the leg is no longer asked for the file, and the
+file must be ABSENT at `at:at_path` (`arrival-not-retired`). Nothing else
+moves — a retirement is a fact about a DESTINATION, so the digest passes, the
+declared lines and the whole source side go on asking of a retired row exactly
+what they ask of any other moved row. **NO ROW CARRIES IT TODAY**: the form
+lands ahead of its first use, exactly as RULED Q6 did, and the three
+intent-feed suites the ruling retires arrive under their own claim. § 5.8 is
+the general procedure a retirement follows.
+
 The table above states the file's CURRENT totals — see "Measured directly
 against the landed manifest" below for how they are derived. What follows is
 the file's history of amendments in landing order, starting with RULING Q-L1 on
@@ -283,7 +300,7 @@ python3 scripts/verify-carve-arrival.py \
     --dest-root     /path/to/openXdox
 ```
 
-Its six findings and one environment code:
+Its seven findings and one environment code:
 
 | code | what it refuses |
 | --- | --- |
@@ -291,6 +308,7 @@ Its six findings and one environment code:
 | `arrival-digest-mismatch` | the arrived bytes or mode are not the row's (phase A for every moved row; both phases for `moved_verbatim`) |
 | `arrival-undeclared-edit` | phase B: the arrived blob differs from the carve blob on a line no `edits[].lines` declares — **the refusal names the lines** |
 | `arrival-not-vacated` | `arrival-missing` read in the mirror, and the LOSING half of RULED Q6: a row re-destined AWAY from this destination still has a file (or a symlink — the test is `lexists`) at the `re_destined.from_path` it left. A re-destination is one act with two halves, and a copy kept here is the same bytes at two legs with the floor standing behind one |
+| `arrival-not-retired` | `arrival-missing` read in the mirror again, for RULED 5656343213: a row whose `retired:` block says a RULING DELETED its arrival at THIS destination still has a file (or a symlink — the test is `lexists` here too) at `retired.at_path`. The difference from `arrival-not-vacated` is where the bytes went — a re-destination moves them to another leg and a retirement moves them nowhere — and they are two codes because the remedies differ: one deletion completes a move, the other completes a removal |
 | `arrival-undeclared-file` | an ENTRY under a declared root that no row places and no admission rule admits — a file, a symlink, or a **symlink to a directory** (git stores it as a `120000` blob, and `os.walk` would hand it to `dirnames` and never read it); also a file admitted as SCAFFOLD whose bytes are not the destination's own at `--dest-base` |
 | `arrival-carved-from-mismatch` | an assembly root's `contracts/manifest.yaml` carries no `carved_from`, or one naming another repository or another commit |
 | `arrival-unreadable` | the environment and the encoding: no git, an unreadable manifest, an unknown `--destination`, a `--dest-root` that is not a directory, a `--dest-base` that resolves to no commit, `--destination` and `--assembly-root` together, a source repository that does not carry `carve_commit`. It is also the CATCH-ALL that holds the exit contract: any exception the checks did not name arrives as this code and exit 2, never as a traceback and exit 1 |
@@ -1012,6 +1030,102 @@ than it is.** `verify-carve-arrival.py` verifies ONE destination per run, so
 the vacated-here and arrived-there halves are two runs and nothing compares
 them with each other: it is this procedure — both runs, on the record, in the
 two pull requests — that closes the pair, not the tool.
+
+### 5.8 A RULED retirement — the `retired:` act
+
+**RULED 5656343213** (Brett Heap, 2026-09-13, by interactive multi-choice, on
+the question slice S8's author put in `#656` comment `5650335573` § 2). An
+arrival may turn out to have nothing left to be: three suites reached their
+legs driving `views/intent-feed.js`, RULED OQ-F `not_moved` — so it stayed
+HERE and arrived at NEITHER leg — and slice S2 replaced the surface openDox
+does have with `views/intent-binding.js`. The suites test a surface that is
+not there. **§ 5.7 cannot say so**: `re_destined.to` is held to the closed
+`destinations:` keys, openxFactory is the SOURCE and not one of them, and
+`re_destined:` on a `not_moved` row refuses `carve-re-destined-not-moved`.
+Deleting the arrived file with NO form at all was the other option, and it is
+the one this floor exists to refuse — a file at no leg, in a row that says it
+arrived there, is RULING OQ-1's UNDECLARED MOVEMENT read backwards.
+
+**It is not a way to delete an arrived file for convenience**, and it is
+gated twice rather than once. `ruling:` is required and validated PRESENT, on
+§ 5.7's reasoning exactly (`carve-retired-unruled`). And `surface:` must name
+a `not_moved` row of this manifest (`carve-retired-surface-live`): the claim a
+retirement rests on is that the surface the arrived file drove is gone from
+BOTH legs, and a `not_moved` row is the one way this document can answer that
+without reading a leg. A surface that is a MOVED row is LIVE at a leg; a
+surface in no row is one the manifest never declared, and "this document
+cannot say" is not "gone".
+
+1. **The ruling first.** Brett Heap's word, on `#656` or on the pull request
+   that asks for it, naming the rows, the surface they drive, and the evidence
+   that the surface is at no leg. Record the comment id — it is what every row
+   below cites.
+2. **ONE openxFactory row-amendment pull request, and it lands FIRST** — the
+   same pairing § 5.7 requires. On each affected row add:
+
+   ```yaml
+       retired:
+         at: opendox_code                        # the row's EFFECTIVE arrival
+         at_path: tests/test_intent_tray_dom.py  # its own `destination_path`,
+                                                 # or `re_destined.to_path`
+         ruling: "`#656` comment 5656343213"
+         surface: scripts/ideation_dashboard/web/views/intent-feed.js
+         note: "RULED OQ-F kept the surface at openxFactory; S2 replaced the
+           one openDox has with views/intent-binding.js."
+   ```
+
+   **Edit nothing else.** `destination:`, `destination_path:` and any
+   `re_destined:` stay exactly as they were — they are the record of where the
+   carve put the file and where a ruling moved it — and `disposition`,
+   `sha256`, `git_mode`, `edits[]`, `carve_commit` and `carve_tag` are
+   untouched. A retirement is a fact about a DESTINATION; the source side does
+   not move.
+3. **Verify the document**: `python3 scripts/validate-carve-manifest.py` must
+   print `OK` and end `; N row(s) RETIRED by ruling (RULED 5656343213)`. The
+   count prints in every state, zero included, so the document's own state is
+   never the state no log records.
+4. **ONE leg, and one commit: the deletion.** Unlike § 5.7 there is no gaining
+   half — the bytes go nowhere — so there is no ordering question and no
+   window with the file at two legs. Delete the file at `at_path` on the leg
+   `at` names; that deletion is the whole content of the commit. Then
+
+   ```sh
+   python3 scripts/verify-carve-arrival.py \
+       --destination <at> --dest-root /path/to/<at leg> \
+       --manifest docs/opendox-carve-manifest.yaml --source-repo . --phase B
+   ```
+
+   whose line must carry `N row(s) RETIRED here by ruling and verified
+   absent`. A copy left behind refuses `arrival-not-retired` and names the
+   ruling rather than the filename — UNLESS another row's own effective
+   arrival or a declared `--replica-at` replica claims `at_path` at this same
+   leg, which is a lawful refill exactly as § 5.7's is: the path a retirement
+   empties may be legitimately re-occupied, and the entry there is then that
+   row's or that replica's, verified on its own terms.
+5. **The leg's own `validate` green, and both pull requests admin-merged on
+   Brett's word** (§ 12 act 1), exactly as every other arrival is.
+
+**What the form CANNOT express, stated because the first act to use it hit
+it.** `retired:` retires a ROW, and a row is a FILE. A leg that must lose only
+PART of an arrived file — one replay block at the end of a suite, say, driving
+a surface the ruling retires, in a file whose other tests drive live surfaces
+— has no retirement to declare, because the row's bytes do not stop arriving.
+The minimal reading, and the one this floor already has a form for, is an
+ORDINARY declared edit: a `moved_with_declared_edit` row whose `edits[]`
+names the removed lines under an existing class, verified by
+`arrival-undeclared-edit` like every other declared edit. Widening `retired:`
+to a line range would put a SECOND line-bearing grammar beside `edits[]` and
+give one row two readings of what its bytes are; that is a ruling's act, not
+an author's.
+
+**And what the floor does NOT prove, on § 5.7's own terms.**
+`verify-carve-arrival.py` verifies ONE destination per run, so a retirement at
+one leg says nothing about any other; nothing at the destination reads the
+SURFACE the block cites, which is a claim about openxFactory's own tree and is
+`validate-carve-manifest.py`'s `carve-retired-surface-live`; and the check
+does not prove the arrived test was the surface's only reader, or that no
+other file should follow it. The form RECORDS a ruled act and bounds it; it
+does not discover one.
 
 ---
 
