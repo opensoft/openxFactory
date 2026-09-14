@@ -952,11 +952,13 @@ the bookkeeping that ticks this group.
   arrived and **656** short of what the carve commit held. Everything after
   that is the arc itself (five files in before S5, six out with S5, one in
   with S7), which is why the arc-complete bundle is 40 hand-authored files
-  again at 31,953 lines. **Three other places carry the same figure and are
-  NOT edited here** — `design.md`:52 (§ D1) and :351 (§ D3), and
-  `proposal.md`:208 and its `code_surface:` line — because a ratified document
-  is amended by an act that claims it; this box records the measurement so the
-  next such act has it rather than re-deriving it.
+  again at 31,953 lines. **FOUR other occurrences carry this figure and NONE is
+  edited here** — `design.md`:52 and :351 and `proposal.md`'s `code_surface:`
+  line each pair *"40 files"* with *"30,410"*, and `proposal.md`:208 carries
+  the line count alone (*"30,410 lines of front end"*) — because a ratified
+  document is amended by an act that CLAIMS it, and this box claims neither.
+  What it does is record the measurement, so the act that amends them does not
+  have to re-derive it.
 
   **What the arc did NOT close, named so no later reader takes the tick for
   more than it is** — every item is someone else's act under its own claim and
@@ -1083,7 +1085,12 @@ the bookkeeping that ticks this group.
   openDox-code `main` **`8efb3cf5`** (S1–S6 landed), openxFactory `main`
   **`e6e1c968`**, and the carve commit **`b075fd91`** both legs were cut
   from — counting only real import statements
-  (`^\s*(from|import)\s+.*doc_health`) under each leg's `src/`. All 23 of
+  (`^\s*(from|import)\s+.*doc_health`), each under the root that repository
+  actually keeps the inventoried modules in: `src/openxdox/` at openXdox-code,
+  `src/opendox/` at openDox-code, and `scripts/ideation_dashboard/` at
+  openxFactory (both at `main` `e6e1c968` and at the carve commit — openxFactory
+  has no `src/`, which is why a single root spelling would not reproduce).
+  All 23 of
   `design.md` § D3's inventoried outbound imports now have a position:
 
   | where the 23 stand | count | sites |
