@@ -317,13 +317,17 @@ the later realization pull request, and § 4 is the archive act.
   marker carries the reserved pinned prefix*, whose THEN/AND pair requires that
   sentence; **(f)** a pinned target whose record declares a kind other than
   `pinned_contract_manifest` does NOT resolve and emits a finding; **(g)** a
-  pin record NAMED BY A LIVE MARKER whose `capabilities:` member is present but
+  pin record NAMED BY A LIVE MARKER, otherwise VALID AND COMPLETE for its record
+  shape exactly as (a)'s is, whose `capabilities:` member is present but
   malformed — a scalar, a mapping, a null value, an EMPTY sequence, or a
   sequence carrying a non-capability-shaped item — emits a
   malformed-enumeration finding AND the pinned target naming it does not
   resolve, the record being read because the marker names it and not by any
   registry sweep, with the empty sequence as its own
-  case since it satisfies "a sequence of well-formed names" vacuously. (g) and
+  case since it satisfies "a sequence of well-formed names" vacuously — and a
+  record of another kind, or one incomplete for its shape, is judged by (f) and
+  the kind and shape findings and never reaches (g), so no fixture is asked for
+  both the malformed-enumeration and the invalid-pin outcome. (g) and
   (a) reach the SAME outcome by TWO findings and the test asserts BOTH TEXTS,
   not one: absent and malformed are different defects with different remedies —
   published versus repaired — and a realization that collapsed them would send

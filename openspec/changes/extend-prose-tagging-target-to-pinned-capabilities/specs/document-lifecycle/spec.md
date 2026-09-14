@@ -377,11 +377,12 @@ not the thing that happens when nobody decides.
 - **AND** the pass MUST NOT construct a pin-record path, perform a pin lookup, or read any file for that value
 
 #### Scenario: A pin record's capability enumeration is malformed
-- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` carries a `capabilities:` member that is not a NON-EMPTY sequence of well-formed capability names, an empty sequence among those shapes
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` resolves, through the code-fixed route, to a valid, complete `kind: pinned_contract_manifest` record for its record shape, and it carries a `capabilities:` member that is not a NON-EMPTY sequence of well-formed capability names, an empty sequence among those shapes
 - **THEN** the deterministic health pass MUST report a malformed-enumeration finding against that pin record
 - **AND** that pinned target MUST NOT resolve while the enumeration is malformed
 - **AND** the pass MUST NOT treat the malformed member as an absent enumeration
 - **AND** the pass MUST NOT be required to scan pin records that no live marker names: this obligation is reached through the marker
+- **AND** a record of another kind, or one incomplete for its shape, is judged by the kind and shape findings and never reaches this scenario
 
 #### Scenario: A pin record declares the kind but is incomplete for its record shape
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` declares `kind: pinned_contract_manifest` but matches no admitted record shape, or matches one and lacks a member THAT SHAPE requires — no `revision_kind`, a `revision_kind` without its required referent, a required member of that shape missing or malformed, or the members of two shapes mixed in one record
