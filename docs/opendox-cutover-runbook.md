@@ -247,10 +247,11 @@ REPOSITORIES on a test-bearing replica row for the multiplicity sum, and both
 files here carry zero `def test_` at the carve commit.
 
 **Measured directly against the landed manifest, 2026-09-12** (rather than
-hand-chained through every intervening amendment): the table and the two
-paragraphs above, and the per-destination table below, state the totals as of
-the § 3.4 SLICE-S3 row annotation (`#656` comment `5642758731`, openxFactory
-PR #1001) merged with every row annotation since RULED Q-L7 (a) above —
+hand-chained through every intervening amendment) — **and it is a DATED
+record, not a statement of the current totals**: on that day the aggregate
+above, the two paragraphs with it and the per-destination table below all
+stated the totals as of the § 3.4 SLICE-S3 row annotation (`#656` comment
+`5642758731`, openxFactory PR #1001) merged with every row annotation since RULED Q-L7 (a) above —
 among them BUILD slice 2's nine openDox-code back-imports, a second Q-L1
 annotation round (`#656` comment `5628560136`), the ASK-7 declared-edit
 window (`#656` comment `5635150678`, PR #995), the § 3.4 SLICE S2
@@ -265,11 +266,17 @@ two rows' existing `edits:` and no new row, and the § 3.4 SLICE S4 annotation
 constants it counts across the three RULED `SPLIT` files — twelve travel to
 a new home or are removed, one (`ACTIONS_REFRESH_ROUTE`) stays in
 `repo-selector.js` — over seven rows (two already carriers, five new) and
-four admitted files, three of them class-B modules. Rather than
-re-narrate each one here — this table is exactly the hand-maintained
-copy RULED Q-L1's own "two acts restating one set of absolutes is how a
-count becomes wrong in a merge" warns about — the figures above are the
-same measurement
+four admitted files, three of them class-B modules. **TWO acts have moved the
+aggregate since that day and neither is enumerated in this list**: the § 3.4
+slice-S5 annotation and the pre-existing `openxdox_code` annotation. Both are
+already stated ONCE, in the current-totals paragraph above this history —
+which is the place to read the aggregate, and the reason they are not
+re-narrated into a second one here. The per-destination table below moved with
+neither act, and now says so at its own lead sentence. And the list above is
+not re-narrated either — the per-destination table is exactly the
+hand-maintained copy RULED Q-L1's own "two acts restating one set of absolutes
+is how a count becomes wrong in a merge" warns about — because the aggregate
+above is the same measurement
 `scripts/validate-carve-manifest.py` prints and
 `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
 pins, computed the same way every time: a transcribed count is a claim, a
