@@ -609,7 +609,7 @@ the later realization pull request, and § 4 is the archive act.
 - [x] 3.6 Correct `ideation/staging/INDEX.md:2262-2265`, which still describes
   three `openxwallet` blocks as "all resolving" and has been false since
   2026-08-28.
-- [ ] 3.7 Evidence: a `--single-repo` doc-health run over the realization tree
+- [x] 3.7 Evidence: a `--single-repo` doc-health run over the realization tree
   showing `New regressions: 0` and the four `tag-hygiene` findings CHANGED IN
   FORM — unresolved PINNED targets naming `contracts/openxwallet-pin.yaml` and
   the publisher's remedy — together with the green required `pytest-suite` run,
@@ -617,6 +617,20 @@ the later realization pull request, and § 4 is the archive act.
   ZERO at realization, because under the fail-closed D-2 they do not**; a
   realization pull request asserting zero would be asserting something the tree
   does not show.
+  **TICKED 2026-09-14 by lane openxfactory-2 (openXfactory-2), realization PR
+  #1040, at the TREE grain:** the code tree is `0138384f` (rounds 1–3 folded;
+  the two commits after it are tests-only and the 3.7 tick itself). Required
+  `pytest-suite` GREEN at `0138384f`: run 34875251402 (all six required
+  green). Doc-health `--single-repo . --as-of 2026-09-14`: `New regressions
+  vs previous report: 0`; finding-by-finding against the base `dd073746` the
+  ONLY content change is the four `tag-hygiene` findings CHANGED IN FORM — from
+  `unresolved target=openxwallet at line 107/222/242/280` to `unresolved pinned
+  target=pinned:openxwallet/openxwallet at line N: contracts/openxwallet-pin.yaml
+  in root <root> carries no capabilities: enumeration` with the PUBLISHER's
+  remedy — measured in full at `16ce87d9` and re-measured with `--family
+  tag-hygiene` at `9e40d749`, `62bc53e1` and `0138384f`: exactly four, still
+  `error`. **The four do NOT reach zero**, as this box requires the evidence to
+  say.
 **CLOSURE PREREQUISITE — RECORDED HERE AS PROSE, NOT AS A TASK, AND NOT
 FILED.** The four findings reach ZERO only when
 `contracts/openxwallet-pin.yaml` carries a well-formed `capabilities:`
