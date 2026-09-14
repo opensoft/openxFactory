@@ -3834,6 +3834,86 @@ class DeclaredFormerIdTests(unittest.TestCase):
             self.assertEqual(
                 support.former_identity_ownership_problems(root), [])
 
+    def test_a_symlinked_archive_cannot_import_an_identity_from_outside(self):
+        """A SYMLINK IS `active_change_dir`'S TRAVERSAL REACHED FROM THE TREE
+        INSTEAD OF FROM THE CALLER, and git carries one through a pull request
+        like any other file — `git ls-files -s` shows it at mode `120000`.
+        `is_dir()` and `iterdir()` follow it silently.
+
+        MEASURED against head `30d40c1c`, with
+        `openspec/changes/archive` committed as a symlink to a directory
+        outside the checkout: the sweep claimed `'stolen-identity'` from an
+        `.openspec.yaml` nobody in this repository wrote, attributed to
+        ``openspec/changes/archive/2026-09-09-forged``, and
+        `declared_former_ids_in_tree` returned that outside packet's list as
+        this corpus's lineage — a forged declaration reaching the archive
+        gate through the reader. (Copilot, PR #1037 `PRRT_kwDOTAvnrs6iGr_N`.)
+        """
+        with TemporaryDirectory() as td:
+            outside = Path(td) / "outside"
+            forged = outside / "2026-09-09-forged"
+            forged.mkdir(parents=True)
+            (forged / ".openspec.yaml").write_text(
+                self.HEADER + self.ORIGIN
+                + "former_ids:\n  - stolen-identity\n", encoding="utf-8")
+            root = Path(td) / "repo"
+            self.packet_yaml(root, "change-x", "former_ids:\n  - old-x\n")
+            os.symlink(outside, root / "openspec" / "changes" / "archive")
+            # the fixture is only worth anything if the link really resolves
+            self.assertTrue(
+                (root / "openspec" / "changes" / "archive").is_dir())
+            self.assertTrue(
+                (root / "openspec" / "changes" / "archive"
+                 / "2026-09-09-forged" / ".openspec.yaml").is_file())
+
+            claimants = support.former_identity_claimants(root)
+            self.assertNotIn("stolen-identity", claimants)
+            # …and the packets this repository DOES contain are still swept,
+            # so the guard is containment and not a switched-off sweep
+            self.assertIn("old-x", claimants)
+            self.assertIn("change-x", claimants)
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-09-forged"),
+                [])
+
+    def test_an_identity_holding_a_packet_in_two_places_refuses_the_lineage(
+            self):
+        """TWO PLACES FOR ONE ID IS AN AMBIGUITY TO REPORT. Where the
+        identity stands both actively and in the archive, the two
+        `.openspec.yaml` files may declare DIFFERENT lineages, and returning
+        the first was the whole of the choice — a lineage chosen by this
+        reader's ordering rather than by an author, which `proposal_path_at`
+        already refuses one layer down.
+
+        MEASURED against head `30d40c1c`: with the active copy declaring
+        `[from-the-active-copy]` and the archived copy declaring
+        `[from-the-archived-copy]`, this returned `['from-the-active-copy']`
+        silently. The walk that consumes it happened to refuse afterwards
+        because both locations also stand at the commit it visits first —
+        but that is the COMMITTED tree agreeing with the working one, which a
+        reader of the WORKING tree may not assume. (Copilot, PR #1037
+        `PRRT_kwDOTAvnrs6iGr_s`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-x",
+                             "former_ids:\n  - from-the-active-copy\n")
+            self.packet_yaml(root, "archive/2026-09-09-change-x",
+                             "former_ids:\n  - from-the-archived-copy\n")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.declared_former_ids_in_tree(root, "change-x")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-identity-ambiguous", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("openspec/changes/change-x", message)
+            self.assertIn("openspec/changes/archive/2026-09-09-change-x",
+                          message)
+            # AND ONE LOCATION IS STILL AN ANSWER, not a refusal
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root,
+                                                    "2026-09-09-change-x"),
+                ["from-the-archived-copy"])
+
     def test_a_malformed_declaration_does_not_crash_the_corpus_sweep(self):
         """The sweep is about OWNERSHIP; shape is `former_id_problems`'s to
         report, and one unreadable packet must not stop the others being

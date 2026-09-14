@@ -289,6 +289,45 @@ CHANGE_ID_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 RESERVED_CHANGE_ID = "archive"
 
 
+def contained_dir(root: Path, path: Path) -> bool:
+    """Is `path` a DIRECTORY THIS REPOSITORY ACTUALLY CONTAINS?
+
+    THE OTHER HALF OF `active_change_dir`'S OWN GUARD. That function refuses a
+    change NAME with path syntax in it, "anything with path syntax would let a
+    caller-supplied name traverse outside openspec/changes/" — and a SYMLINK
+    is the same traversal reached from the tree instead of from the caller.
+    `is_dir()` and `iterdir()` both follow one silently, and git tracks a
+    symlink as an ordinary object (mode `120000`), so it arrives through a
+    pull request like any other file.
+
+    MEASURED on this corpus's own shape: with `openspec/changes/archive`
+    committed as a symlink to a directory outside the checkout,
+    `former_identity_claimants` imported `stolen-identity` from an
+    `.openspec.yaml` nobody in this repository wrote, and
+    `declared_former_ids_in_tree` returned that outside packet's `former_ids:`
+    as this corpus's lineage — a forged declaration reaching the archive gate
+    through the reader. (Copilot, PR #1037 `PRRT_kwDOTAvnrs6iGr_N`.) The live
+    corpus tracks ZERO symlinks anywhere, so this refuses nothing that stands
+    today; it is the surface being closed, not a finding being repaired.
+
+    RESOLVED BEFORE IT IS COMPARED, so a link CHAIN cannot walk out in more
+    than one hop, and `root` is resolved too so that a checkout reached
+    through a symlinked parent is not refused as foreign. A BOOLEAN rather
+    than the resolved path, deliberately: callers read a packet's identity off
+    the path they WALKED (`change_id_of` asks whether the parent is
+    `archive/`), and handing them a resolved spelling would rename a packet
+    reached through an in-repository link.
+    """
+    try:
+        resolved = path.resolve(strict=True)
+        if not resolved.is_dir():
+            return False
+        resolved.relative_to(root.resolve(strict=True))
+    except (OSError, ValueError):
+        return False
+    return True
+
+
 def active_change_dir(root: Path, change: str) -> Path:
     # Change ids are plain slugs; anything with path syntax would let a
     # caller-supplied name traverse outside openspec/changes/.
@@ -787,13 +826,14 @@ def former_identity_claimants(root: Path) -> dict[str, list[str]]:
             claimants[identity].append(by)
 
     changes = root / "openspec" / "changes"
-    if not changes.is_dir():
+    if not contained_dir(root, changes):
         return claimants
     live = [d for d in sorted(changes.iterdir())
-            if d.is_dir() and d.name != "archive"]
+            if d.name != RESERVED_CHANGE_ID and contained_dir(root, d)]
     archived_root = changes / "archive"
-    archived = ([d for d in sorted(archived_root.iterdir()) if d.is_dir()]
-                if archived_root.is_dir() else [])
+    archived = ([d for d in sorted(archived_root.iterdir())
+                 if contained_dir(root, d)]
+                if contained_dir(root, archived_root) else [])
     for directory in live:
         claim(directory.name, f"the live packet `{_corpus_rel(directory)}`")
     for directory in live + archived:
@@ -1605,19 +1645,53 @@ def declared_former_ids_in_tree(root: Path, change: str) -> list[str]:
     declared lineage came back EMPTY and `ratifying_baseline` was handed the
     UNDECLARED answer for a packet that declares. That is the shed-lineage
     failure this mechanism exists to stop, arriving through the reader.
+
+    AND TWO CANDIDATES HOLDING A PACKET REFUSE RATHER THAN PREFERRING ONE.
+    Where the identity stands BOTH actively and in the archive, the two
+    `.openspec.yaml` files may declare different lineages, and returning the
+    first was the whole of the choice — a lineage chosen by this reader's
+    ordering rather than by an author, which is what `proposal_path_at`
+    already refuses one layer down. MEASURED before it was changed: with
+    `openspec/changes/change-x/` declaring `[from-the-active-copy]` and
+    `openspec/changes/archive/2026-09-09-change-x/` declaring
+    `[from-the-archived-copy]`, this returned the first silently. The walk
+    that consumes it happened to refuse afterwards, because both locations
+    also stand at the commit it visits first — but that is the COMMITTED tree
+    agreeing with the working one, which is not a thing a reader of the
+    WORKING tree may assume. (Copilot, PR #1037 `PRRT_kwDOTAvnrs6iGr_s`.)
+
+    EVERY DIRECTORY IS CONTAINMENT-CHECKED, the same surface
+    `former_identity_claimants` closes: a committed
+    `openspec/changes/archive` symlink made this return an outside packet's
+    declaration as this corpus's lineage.
     """
     changes = root / "openspec" / "changes"
     candidates = [changes / change]
     archive = changes / "archive"
-    if archive.is_dir():
+    if contained_dir(root, archive):
         live_ids = change_dir_names(root)
         candidates += [d for d in sorted(archive.iterdir())
-                       if d.is_dir() and names_this_change(d.name, change,
-                                                           live_ids)]
-    for directory in candidates:
-        if (directory / ".openspec.yaml").is_file():
-            return declared_former_ids_of(directory, change)
-    return []
+                       if contained_dir(root, d)
+                       and names_this_change(d.name, change, live_ids)]
+    holding = [d for d in candidates
+               if contained_dir(root, d)
+               and (d / ".openspec.yaml").is_file()]
+    if len(holding) > 1:
+        raise OriginRetentionError(
+            f"REFUSE origin-retention-identity-ambiguous: {change}: the "
+            f"origin-retention walk CANNOT RUN. In the tree being read this "
+            f"identity holds a packet at MORE THAN ONE location — "
+            + ", ".join(f"`{_corpus_rel(d)}`" for d in holding) +
+            " — and each of them may declare a DIFFERENT `former_ids:`, so "
+            "the lineage the walk resolves would be chosen by whichever this "
+            "reader looked at first. A lineage chosen by the reader is the "
+            "defect this mechanism exists to stop, on the same ground "
+            "`proposal_path_at` refuses two locations at a commit: two "
+            "places for one id is an AMBIGUITY to report, not a collision "
+            "to settle by preferring one. Resolve the duplicate — an "
+            "archived packet whose active directory was left standing is "
+            "the usual cause — and run the gate again.")
+    return declared_former_ids_of(holding[0], change) if holding else []
 
 
 def ratifying_baseline(root: Path, change: str, *,
