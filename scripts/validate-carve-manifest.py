@@ -316,7 +316,11 @@ legs, and what S8 measured has no leg to move it to.
   carry no moved rows at all. A retirement is destination-side and corrects
   what a RULING placed. Correcting a ruling is DECLARED, not re-cut.
 
-  THE FOUR REFUSALS, AND WHICH CHECK OWNS EACH. `retired:` on a `not_moved`
+  THE FIVE REFUSALS, AND WHICH CHECK OWNS EACH — three of them this form's
+  OWN codes and two of them the codes the checks that already ask those
+  questions raise (the count is the failure modes, not the vocabulary; PR
+  #1032's Copilot review read the old heading against the list below and was
+  right to). `retired:` on a `not_moved`
   row is `carve-retired-not-moved` in check 1, for the reason
   `carve-re-destined-not-moved` is: a row that placed nothing has no arrival
   to retire. A `retired:` with no `ruling:` is `carve-retired-unruled`, also
@@ -329,17 +333,23 @@ legs, and what S8 measured has no leg to move it to.
   itself. And a `surface:` that is not a `not_moved` row of this manifest is
   check 6's `carve-retired-surface-live`.
 
-  WHY THE SURFACE IS HELD TO A `not_moved` ROW, AND WHAT THAT DOES NOT PROVE.
-  The claim a retirement rests on is that the surface the arrived file drove
-  is gone from BOTH legs, and the one way THIS document can answer that
-  without reading a leg is a disposition it already carries: a `not_moved` row
-  STAYED at openxFactory, so by the manifest's own declaration it arrived at
-  no destination at all. A MOVED surface is LIVE at a leg, and a suite driving
-  a live surface is not retired for the reason this form serves. A `surface:`
-  in NO row refuses under the same code rather than being admitted: the
-  manifest says nothing about a file it never declared, and "this document
-  cannot say" is not "gone" in a fail-closed floor — widening it is a ruling's
-  act and not this file's. What the check does NOT prove is that the arrived
+  WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON — AND WHAT
+  THAT DOES NOT PROVE. The claim a retirement rests on is that the surface the
+  arrived file drove is gone from BOTH legs, and the one way THIS document can
+  answer that without reading a leg is a disposition it already carries: a
+  `not_moved` row STAYED at openxFactory, so by the manifest's own declaration
+  it arrived at no destination at all. A MOVED surface is LIVE at a leg, and a
+  suite driving a live surface is not retired for the reason this form serves.
+  A `surface:` in NO row refuses under the same code rather than being
+  admitted: the manifest says nothing about a file it never declared, and
+  "this document cannot say" is not "gone" in a fail-closed floor. AND ONE
+  `not_moved` REASON IS EXCLUDED WITH THE MOVED ROWS: a
+  `replicated_at_destination` row is `not_moved` because the file is RETAINED
+  here, not because it is absent there — RULED OQ-C has every destination
+  place its own copy and RULED Q-L7 (a) lets the row declare the edits those
+  copies carry — so a surface cited against a replica row is live at each leg
+  that placed one. Widening any of the three is a ruling's act and not this
+  file's. What the check does NOT prove is that the arrived
   test was the surface's only reader, or that no other suite should follow it.
   The form RECORDS a ruled act and bounds it; it does not discover one.
 
@@ -2335,15 +2345,26 @@ def _check_retired_surfaces(doc: dict) -> None:
     that sentence as running code, and it is the difference between a floor
     act and a licence to delete an arrived file.
 
-    TWO ARMS, ONE CODE, because they fail the SAME claim. A surface that is a
-    MOVED row is LIVE at a leg: the file the retirement removes is a test of
-    a surface that still exists, which is not what this form serves and is a
-    question for the leg that owns both. A surface in NO row is one this
-    document says nothing about — it was never under the carve surface — and
-    "this manifest cannot say" is not "gone" in a floor that refuses by
-    default. Widening the second arm (a surface a leg created after the carve,
-    say) is a ruling's act; the code and its message name both arms so a
-    reader is never left guessing which one they hit.
+    THREE ARMS, ONE CODE, because all three fail the SAME claim. A surface
+    that is a MOVED row is LIVE at a leg: the file the retirement removes is a
+    test of a surface that still exists, which is not what this form serves
+    and is a question for the leg that owns both. A surface in NO row is one
+    this document says nothing about — it was never under the carve surface —
+    and "this manifest cannot say" is not "gone" in a floor that refuses by
+    default. And a surface that is `not_moved` for the reason
+    `replicated_at_destination` IS LIVE AT THE LEGS TOO, which is the arm a
+    reading of "not_moved means it stayed here" misses (Copilot review of PR
+    #1032): RULED OQ-C makes a replica a file each destination PLACES ITS OWN
+    COPY OF — `verify-carve-arrival.py` admits those copies through
+    `--replica-at`, and RULED Q-L7 (a) lets the row declare the `edits:` they
+    are held to — so the one `not_moved` reason that is not an absence at the
+    legs is excluded by name rather than by the disposition alone. The other
+    reasons are absences: `stays_openxfactory_adapter` and
+    `stays_openxfactory_governance` keep the file HERE, `deleted_at_carve`
+    keeps it nowhere, and `superseded_by_split` is a file the split replaced.
+    Widening any arm (a surface a leg created after the carve, say) is a
+    ruling's act; the code and its message name which arm was hit so a reader
+    is never left guessing.
 
     IT IS A CROSS-ROW CHECK and therefore its own pass, exactly as
     `_check_re_destined_chains` is: the row carrying the block and the row
@@ -2359,25 +2380,36 @@ def _check_retired_surfaces(doc: dict) -> None:
         retired = row["retired"]
         surface = retired.get("surface")
         cited = by_source.get(surface)
-        if cited is not None and cited.get("disposition") == "not_moved":
+        if cited is not None and cited.get("disposition") == "not_moved" \
+                and cited.get("reason") != REPLICA_REASON:
             continue
-        why = ("names no row of this manifest at all, so nothing here says "
-               "where it went — and a document that cannot say is not a "
-               "document that says GONE"
-               if cited is None else
-               f"is `{cited.get('disposition')}` to "
-               f"{cited.get('destination')!r}, so the surface is LIVE at a "
-               "leg — a suite driving a surface that still exists is not "
-               "retired for the reason this form serves")
+        if cited is None:
+            why = ("names no row of this manifest at all, so nothing here "
+                   "says where it went — and a document that cannot say is "
+                   "not a document that says GONE")
+        elif cited.get("disposition") != "not_moved":
+            why = (f"is `{cited.get('disposition')}` to "
+                   f"{cited.get('destination')!r}, so the surface is LIVE at "
+                   "a leg — a suite driving a surface that still exists is "
+                   "not retired for the reason this form serves")
+        else:
+            why = (f"is `not_moved` for the reason `{REPLICA_REASON}` — the "
+                   "ONE `not_moved` reason that does not mean ABSENT AT THE "
+                   "LEGS. RULED OQ-C has each destination place its own copy "
+                   "of a replica, `verify-carve-arrival.py` admits those "
+                   "copies through `--replica-at` and a replica row may even "
+                   "declare the `edits:` they are held to (RULED Q-L7 (a)), "
+                   "so the surface is LIVE at every leg that placed one")
         raise CarveRefusal(
             "carve-retired-surface-live",
             f"rows[{index}] ({row['source_path']}) declares "
             f"`retired.surface: {surface!r}`, which {why}. RULED 5656343213 "
             "retires an arrived file because the surface it drove is gone "
             "from BOTH legs, and the one way this manifest can answer that "
-            "without reading a leg is a `not_moved` row — a file that STAYED "
-            "at openxFactory arrived at no destination by the document's own "
-            "declaration. Cite that row, or take the retirement to a ruling "
+            "without reading a leg is a `not_moved` row under a reason that "
+            f"means ABSENT THERE — every one but `{REPLICA_REASON}`, whose "
+            "copies the legs place themselves. Cite such a row, or take the "
+            "retirement to a ruling "
             "that widens this form")
 
 

@@ -1544,11 +1544,15 @@ def check_retired(rows: list[dict[str, Any]], dest_root: Path,
             f"{retired.get('ruling')!r} (RULED 5656343213), citing the "
             f"surface {retired.get('surface')!r} that this manifest says "
             f"arrived at no leg — and {target} still exists. A retirement is "
-            "a DELETION: unlike a re-destination there is no other leg the "
-            "bytes went to, so a file left here is an arrival the floor no "
-            "longer stands behind and no row declares. Delete it in the "
-            "commit that lands the `retired:` block — the block and the "
-            "deletion are one act")
+            "a DELETION: unlike a re-destination there is no other leg this "
+            "PLACEMENT'S bytes went to, so a file left here is an arrival the "
+            "floor no longer stands behind and no row declares. Delete it in "
+            "the commit that lands the `retired:` block — the block and the "
+            "deletion are one act. (The row's `also_replicated_to` copies, if "
+            "it declares any, are a separate question: RULED OQ-C makes them "
+            "the legs' own placements, declared here with `--replica-at`, and "
+            "this finding is about the ARRIVAL at "
+            f"{retired.get('at')}:{relpath} alone.)")
     return len(rows)
 
 

@@ -524,9 +524,11 @@ def source(path: str | Path) -> Path:
         the same named refusal its import gets;
       * a row a RULING has RETIRED at its leg (RULED 5656343213) raises
         `CarveRowRetired`, a subclass of that same refusal: the carve DID
-        place this file and a later ruling DELETED it, so there is no copy
-        anywhere and the well-formed path this function could still compute
-        would name nothing;
+        place this file and a later ruling DELETED that placement, so the
+        well-formed path this function could still compute would name
+        nothing. It is the ARRIVAL that is refused, and the refusal says so:
+        a row may ALSO declare `also_replicated_to:` copies, which RULED OQ-C
+        makes the legs' own placements and which no retirement touches;
       * a path in no row raises `NotACarvedPath`, because a caller asking this
         question about a file the manifest never declared has the wrong file,
         and answering `REPO_ROOT / path` would hide that.
@@ -554,15 +556,22 @@ def source(path: str | Path) -> Path:
     at, at_path = retired_at(row)
     if at_path is not None:
         retired = row["retired"]
+        replicas = row.get("also_replicated_to") or []
         raise CarveRowRetired(
             f"{key} was RETIRED at {at}:{at_path} by ruling "
             f"{retired.get('ruling')!r} (RULED 5656343213), because the "
             f"surface it drove ({retired.get('surface')!r}) arrived at no "
             "leg. The row still records the move the carve made — that is "
-            "what the manifest is for — but the file is at NO destination "
-            "now, and a path computed from the row would name a file the "
-            "arrival verifier has just finished proving absent. Ask for "
-            "whatever replaced the surface, or for nothing.")
+            "what the manifest is for — but the ARRIVAL this function "
+            "resolves is gone, and a path computed from the row would name a "
+            "file the arrival verifier has just finished proving absent. Ask "
+            "for whatever replaced the surface, or for nothing."
+            + (f" (This says nothing about the row's `also_replicated_to` "
+               f"copies at {sorted(str(r) for r in replicas)!r}: RULED OQ-C "
+               "makes those the LEGS' own placements, declared with "
+               "`--replica-at` and governed on their own terms — a "
+               "retirement deletes ONE placement, the one named above.)"
+               if replicas else ""))
     destination, destination_path = effective_arrival(row)
     mount = MOUNTS[destination]
     if not (mount / ".git").exists() and not any(mount.glob("*")):
@@ -782,6 +791,31 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     not materialized, for the reason the module docstring gives: an object store
     that is not on disk cannot be read, and a reader that quietly found nothing
     reports as a green bar.
+
+    A RETIRED ROW IS NOT GUARDED HERE, AND THE DIVERGENCE FROM `source()` IS
+    DELIBERATE (Copilot review of PR #1032, which asked for the guard). This
+    is the one resolver whose question is TIME-INDEXED. `source()` answers
+    about the working tree — one tree, the one that exists now — so a row a
+    ruling has deleted has no answer and refusing is the only honest one. This
+    function answers about THE COMMIT THE CALLER NAMES, through the leg THAT
+    COMMIT pins. A retirement is an EVENT: the deletion lands at the leg at
+    some commit, and every commit before it pins a leg that still carries the
+    file. The `retired:` block, meanwhile, is read from the manifest in the
+    WORKING TREE and says nothing about when the deletion landed — so a guard
+    here would apply today's retirement to every commit ever asked about, and
+    would break the exact property `scripts/hermes_runtime_validation/
+    release.py` is built on: verifying an OLDER commit reads the leg that
+    commit pinned, where the member is present and the read is correct.
+
+    At a commit whose pinned leg no longer carries the file, this answers a
+    path with no blob there, and the caller's own absence finding is the right
+    verdict and the one it already produces: `scripts/doc_health/
+    release_inventory.py` reports the member as VANISHED at that commit, and
+    `hermes_runtime_validation.content.resolve_git_object` raises its own
+    error. Neither is silent, and neither needs this function to decide for
+    it. `tests/carve_manifest/test_carve_manifest.py::
+    test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose` pins
+    the divergence so it stays a decision rather than an omission.
     """
     key = str(path).replace("\\", "/")
     row = _rows().get(key)

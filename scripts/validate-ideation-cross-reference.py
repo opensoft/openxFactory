@@ -179,10 +179,23 @@ def shed_aware(target: Path) -> Path:
     answers exactly as it did before.
     """
     try:
-        from carved_reach import shed_destination
+        from carved_reach import CarveRowRetired, shed_destination
     except ImportError:  # pragma: no cover - no manifest, nothing to resolve
         return target
-    moved = shed_destination(target)
+    try:
+        moved = shed_destination(target)
+    except CarveRowRetired as exc:
+        # NAMED RATHER THAN LEFT TO `main()`'s BLANKET HANDLER (RULED
+        # 5656343213; Copilot review of PR #1032). The resolver's refusal is
+        # an `ImportError` subclass, so the `except` above — which guards the
+        # lazy IMPORT — does not catch it at the CALL. `main()` would still
+        # print it, as `ERROR harness failure: …`, and that label would be
+        # wrong in the one way that matters: nothing failed in the harness. A
+        # schema this validator needs was DELETED at its leg by a ruling, and
+        # the fix is an amendment to the schema set, not a rerun.
+        raise RuntimeError(
+            f"a RULING has RETIRED the schema {target.name} at its leg, so "
+            f"this validator has no document to read — {exc}") from exc
     return moved if moved is not None else target
 
 

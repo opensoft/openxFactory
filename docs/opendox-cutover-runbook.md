@@ -173,12 +173,20 @@ the carve made — not moved it, as Q6 does, because the surface the arrived
 file drove is at NO leg to move it to — the row records it: `{at, at_path,
 ruling, surface, note}`, `at`/`at_path` held to the row's **EFFECTIVE**
 arrival (so a row may be re-destined and THEN retired), `surface:` held to a
-`not_moved` row of this manifest, and the citation REQUIRED. **The proof owed
-at the destination inverts**: the leg is no longer asked for the file, and the
-file must be ABSENT at `at:at_path` (`arrival-not-retired`). Nothing else
-moves — a retirement is a fact about a DESTINATION, so the digest passes, the
-declared lines and the whole source side go on asking of a retired row exactly
-what they ask of any other moved row. **NO ROW CARRIES IT TODAY**: the form
+`not_moved` row of this manifest — under any reason but
+`replicated_at_destination`, whose copies the legs place themselves — and the
+citation REQUIRED. **The proof owed at the destination inverts**: the leg is
+no longer asked for the file, and the file must be ABSENT at `at:at_path`
+(`arrival-not-retired`). Be exact about what that leaves, because the two
+tools answer differently (Copilot review of PR #1032): `rows_for()` drops a
+retired row, so `verify-carve-arrival.py` does NOT digest it and does NOT diff
+it at this leg — there is no file left here to digest or to diff. What goes on
+unchanged is the SOURCE side, in `validate-carve-manifest.py`: `sha256`,
+`git_mode`, `disposition` and `edits[]` stay untouched on the row, and check
+3's two passes and check 4's surface walk ask of a retired row exactly what
+they ask of any other moved row — a retirement is a fact about a DESTINATION,
+and the row is still the record of a file that LEFT openxFactory. **NO ROW
+CARRIES IT TODAY**: the form
 lands ahead of its first use, exactly as RULED Q6 did, and the three
 intent-feed suites the ruling retires arrive under their own claim. § 5.8 is
 the general procedure a retirement follows.
@@ -1054,7 +1062,12 @@ retirement rests on is that the surface the arrived file drove is gone from
 BOTH legs, and a `not_moved` row is the one way this document can answer that
 without reading a leg. A surface that is a MOVED row is LIVE at a leg; a
 surface in no row is one the manifest never declared, and "this document
-cannot say" is not "gone".
+cannot say" is not "gone". **And one `not_moved` reason is excluded with the
+moved rows**: `replicated_at_destination` (RULED OQ-C) means every destination
+places its OWN copy — `--replica-at` admits them, and RULED Q-L7 (a) lets the
+row declare the edits they carry — so such a surface is LIVE at each leg that
+placed one, and citing it would rest the claim on a row that says the
+opposite.
 
 1. **The ruling first.** Brett Heap's word, on `#656` or on the pull request
    that asks for it, naming the rows, the surface they drive, and the evidence

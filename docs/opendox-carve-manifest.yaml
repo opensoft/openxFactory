@@ -218,16 +218,22 @@
 # `post-shed`. A retired row is still a file that LEFT openxFactory, and this
 # document still records where the carve put it.
 #
-# WHY THE SURFACE IS HELD TO A `not_moved` ROW. The claim a retirement rests
-# on is that the surface the arrived file drove is gone from BOTH legs, and
-# the one way THIS document can answer that without reading a leg is a
-# disposition it already carries: a `not_moved` row STAYED at openxFactory, so
-# by the manifest's own declaration it arrived at no destination at all. A
-# MOVED surface is LIVE at a leg, and a suite driving a live surface is not
-# retired for the reason this form serves; a `surface:` in NO row is one this
-# document says nothing about, and "this manifest cannot say" is not "gone" in
-# a fail-closed floor. What the check does NOT prove is that the arrived test
-# was the surface's only reader, or that no other file should follow it.
+# WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON. The claim a
+# retirement rests on is that the surface the arrived file drove is gone from
+# BOTH legs, and the one way THIS document can answer that without reading a
+# leg is a disposition it already carries: a `not_moved` row STAYED at
+# openxFactory, so by the manifest's own declaration it arrived at no
+# destination at all. A MOVED surface is LIVE at a leg, and a suite driving a
+# live surface is not retired for the reason this form serves; a `surface:` in
+# NO row is one this document says nothing about, and "this manifest cannot
+# say" is not "gone" in a fail-closed floor. AND ONE `not_moved` REASON IS
+# EXCLUDED WITH THE MOVED ROWS: `replicated_at_destination` says the file is
+# RETAINED here, not that it is absent there — RULED OQ-C has every
+# destination place its own copy, `--replica-at` admits them and RULED Q-L7
+# (a) lets the row declare the edits they carry — so a surface cited against a
+# replica row is live at each leg that placed one. What the check does NOT
+# prove is that the arrived test was the surface's only reader, or that no
+# other file should follow it.
 #
 # NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
 # and retires nothing: the three intent-feed suites RULED 5656343213 retires
@@ -244,9 +250,11 @@
 # `at` outside `destinations:` refuses `carve-vocabulary-unknown`; `at`/
 # `at_path` disagreeing with the row's EFFECTIVE arrival refuses
 # `carve-disposition-inconsistent`; and a `surface:` that is not a `not_moved`
-# row of this manifest refuses `carve-retired-surface-live`, under one code
-# for both arms — a MOVED surface is live at a leg, and a surface in no row is
-# one this document cannot speak for. At the destination
+# row of this manifest under a reason that means ABSENT AT THE LEGS refuses
+# `carve-retired-surface-live`, under one code for all three arms — a MOVED
+# surface is live at a leg, a `replicated_at_destination` surface is live at
+# every leg that placed a copy, and a surface in no row is one this document
+# cannot speak for. At the destination
 # `scripts/verify-carve-arrival.py` stops owing the row, requires
 # `at_path` ABSENT (`arrival-not-retired`) and admits a lawful refill there;
 # `scripts/carved_reach.py` refuses a retired row by name (`CarveRowRetired`,
