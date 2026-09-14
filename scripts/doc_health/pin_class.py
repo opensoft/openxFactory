@@ -470,6 +470,43 @@ PIN_CLASS: tuple[PinMember, ...] = (
         # carries the whole-object-name guard exactly as the field forms do.
         pattern=r"Source revision:\s*`?([0-9a-f]{40})" + HEX_BOUNDARY + r"`?",
     ),
+    # ---- the cross-reference index's embedded per-tier evidence citations --
+    # `add-possibles-derivation-lane`: judging an existing cluster for
+    # possibles-derivation eligibility embeds a `supporting_evidence`
+    # passage pin directly into that cluster's OWN `topic_entries[*].
+    # readiness.tiers[*].evidence.source_ref` block (doc_health.
+    # derive_possibles), a SECOND, narrower key (`revision`, not
+    # `source_revision`) under a path `cross-reference-index` already
+    # declares. Measured on PR #888 (2026-09-10..12): 24 such sites,
+    # every one UNCOVERED (`member_id=None`) — a coverage gap that
+    # predates this PR (the shape ships from the derive-possibles lane,
+    # not from anything the PR itself hand-authored) and simply had never
+    # been exercised against a committed tree until this run. `_field_re`'s
+    # leading key boundary (`(?<![A-Za-z0-9_])`) keeps this member from
+    # ever matching `source_revision`'s tail, so the two keys stay two
+    # sites even though they share one file.
+    PinMember(
+        id="cross-reference-tier-evidence-revision",
+        paths=("ideation/cross-reference.yaml",),
+        key="revision",
+        key_form="field",
+        generator="the possibles-derivation lane "
+                  "(doc_health.derive_possibles), embedded per-cluster "
+                  "`evidence.source_ref` citation",
+        reproduction=MEASURED,
+        locality=REPO_LOCAL,
+        presence=CURRENT,
+        note="`topic_entries[*].readiness.tiers[*].evidence.source_ref."
+             "revision` — the revision the cited passage was read at when "
+             "a cluster's tier was judged. Declared MEASURED rather than "
+             "TOOL_DEFINED: the byte-comparable reproduction "
+             "`cross-reference-index` claims is for the index's own "
+             "`generation.source_revision` derivation, and "
+             "`test_only_the_index_pair_claims_byte_comparable_"
+             "reproduction` fixes that pair at exactly two CURRENT "
+             "members — this is a distinct claim (a passage citation, not "
+             "the whole-tree derivation) and must not join it.",
+    ),
     # ---- immutable derivation and readiness evidence -----------------------
     PinMember(
         id="ideation-readiness-run",
@@ -1474,6 +1511,28 @@ NON_MEMBERS: tuple[NonMember, ...] = (
                "IS STATED: a supersession record makes no derivation claim "
                "about itself today, and a future one that did would go "
                "unswept here.",
+    ),
+    NonMember(
+        paths=("openspec/origin-dispositions.yaml",),
+        reason="ORIGIN DISPOSITIONS (`release-realization` § \"Origin retention "
+               "at archive\"; issue #745), whose SUBJECT is a packet's origin "
+               "declaration at two commits. `ratified_at` names the commit that "
+               "ratified a change and `mutation_at` the later commit whose "
+               "origin block an owner ACCEPTED as the origin of record; both "
+               "are CITATIONS of history the archive gate re-reads on every "
+               "run — `scripts/proposal-support.py` resolves each with "
+               "`rev-parse`, requires `mutation_at` to descend from "
+               "`ratified_at` and to be an ancestor of HEAD, and REFUSES the "
+               "archive when either does not hold — and neither is the "
+               "record's own derivation claim: nothing re-derives this file "
+               "from a revision, and a reader checks it by reading those two "
+               "commits, which the gate already does. Declared here for the "
+               "same reason the supersession records are, rather than dodged "
+               "by a key nobody enumerated. THE TRADE IS STATED: an "
+               "unreachable `ratified_at` or `mutation_at` is reported by the "
+               "archive gate at the moment it matters and not by this sweep; "
+               "a future entry shape that carried a derivation claim of its "
+               "own would go unswept here.",
     ),
 )
 

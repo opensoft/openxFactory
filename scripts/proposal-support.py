@@ -822,6 +822,39 @@ def ratifying_commit(root: Path, change: str) -> str | None:
     see `ratified_under_a_former_path`'s own "RESTRICTED TO RENAMES" — so a
     packet honestly authored as a draft copy of a ratified one stays
     archivable.
+
+    AND WHEN THE UN-RATIFYING HOP AND THE HOP THAT LANDS THE CURRENT NAME ARE
+    TWO DIFFERENT COMMITS, THIS DOES NOT REFUSE — A DELIBERATE, OPEN GAP
+    (issue #1003). The `git log` above is bounded to the ONE path this call
+    was given — the change's CURRENT id — so it visits every commit that
+    ever touched that literal path, starting at the commit that renamed the
+    packet INTO its present name; nothing that only ever touched an EARLIER
+    name is in that list at all. Ratify r, then rename r to s and un-ratify
+    in the SAME commit, then — in a SEPARATE, later commit — rename s to t
+    while still a draft, then ratify t: the walk for `t` visits only the
+    s-to-t rename and the ratification that follows it. At the s-to-t
+    rename, `ratified_under_a_former_path` reads the parent it actually
+    has — the r-to-s commit's OWN result, already a draft, because that
+    commit did its own un-ratifying — and finds nothing amiss; the commit
+    that carried the true ratified-to-draft flip is never visited, because
+    it never touched `t`. The baseline the walk returns is the LATER
+    re-ratification, and everything mutated since the real first
+    ratification is waved through — the #833 failure, reached by a second
+    rename hop instead of one. Reproduced and pinned, not fixed, by
+    `test_an_unratifying_rename_chain_escapes_the_guard_a_stated_gap`,
+    which records today's answer as what it is: no refusal.
+
+    LEFT OPEN RATHER THAN CLOSED BY A LONGER WALK. Chasing the packet's full
+    rename lineage — following former paths back across every hop, rather
+    than only the one hop a candidate commit itself pairs — is the shape
+    the ruling on this issue declines (Brett Heap, 2026-09-13):
+    "history-walking archaeology that cannot carry the intent bit
+    distinguishing rename-of-ratified from lawful fork-by-copy, and code
+    that would be deleted when the declaration mechanism lands." The
+    declared former-id (`add-declared-former-id`, the successor packet this
+    issue names) closes it properly instead: a hop that arrives undeclared
+    refuses AT THAT HOP, one commit at a time, so no lineage ever needs
+    walking and no chain, of any length, escapes.
     """
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", change):
         raise SupportError(f"invalid change name: {change}")

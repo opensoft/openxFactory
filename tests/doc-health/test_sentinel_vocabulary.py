@@ -1097,8 +1097,41 @@ def test_the_pin_counts_did_not_move_and_no_site_is_classified_twice():
     # untouched, and the three pre-existing `allow_remote=False` orphans (two
     # `ideation-readiness-run` records, one `proposal-support-manifest`) are
     # unrelated to this pin and unmoved by it.
+    #
+    # 75 -> 100, AND THIS STEP ARRIVED UNCOVERED RATHER THAN DECLARED — the
+    # 69th's own failure shape, not the 73rd/74th/75th's. PR #888's
+    # derive-possibles nightly (2026-09-10..12) judges an existing cluster for
+    # possibles-derivation eligibility by embedding a `supporting_evidence`
+    # passage pin straight into that cluster's OWN `topic_entries[*].
+    # readiness.tiers[*].evidence.source_ref.revision` — 24 such sites, all
+    # citing one commit, every one `member_id=None` on the CI run of the PR
+    # that carried them: found, not covered, reported, exactly the 69th's
+    # "why the member had to be declared rather than the count merely
+    # bumped." `cross-reference-tier-evidence-revision` is the repair — a NEW
+    # member on the path `cross-reference-index` already declares, but the
+    # narrower key `revision` rather than `source_revision`; `_field_re`'s
+    # leading key boundary (`(?<![A-Za-z0-9_])`) is why the two keys stay two
+    # sites sharing one file rather than one member's tail swallowing the
+    # other's head. The 25th new site in the same step is the nightly's own
+    # `health/derive-possibles/2026-09-12/derive-possibles-34667923153-1.yaml`
+    # record, which joins the EXISTING `derive-possibles-run` member (no new
+    # member for it) the same way the 71st joined `ideation-readiness-run`.
+    #
+    # PR #888 forked at `b91af6ea` (2026-09-10) and was never rebased while
+    # `main` advanced 482 commits with zero touches to `ideation/
+    # cross-reference.yaml` in that span (`git diff b91af6ea origin/main --
+    # ideation/cross-reference.yaml` is empty) — so the merge this fix
+    # carries is a pure catch-up, not a second source of drift, and the
+    # coverage gap measured here is exactly what the stalled branch's own CI
+    # run reported, re-verified rather than assumed. ENUMERATED WITH
+    # `pin_class.verify()` ON THE MERGED TREE (PR #888's branch merged with
+    # `main` at `a80f0e3c`, this fix committed on top at `5d162ae0`) — 106
+    # results / 30 members, standing census (100, 29). `lost` stays 1,
+    # `uncovered` is EMPTIED BACK OUT by the new member's declaration rather
+    # than left standing, `vanished`/`arrived` are untouched, and the three
+    # pre-existing `allow_remote=False` orphans are unrelated and unmoved.
     standing_sites, standing_members = pc.standing_census(report.results)
-    assert (standing_sites, standing_members) == (75, 28)
+    assert (standing_sites, standing_members) == (100, 29)
     # ...and the exclusion is exactly one declared row, not a hole a later
     # member can fall into unnoticed.
     assert [m.id for m in pc.rolling_members()] == ["gate-intent-snapshot-rev"]

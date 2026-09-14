@@ -88,6 +88,69 @@ kind: pinned_contract_manifest
 # because only those bytes moved.
 # ============================================================================
 
+# ============================================================================
+# ADDENDUM (issue #775, direct fix `register-sibling-consumption-pins`):
+# MEASURED AND NOT REGISTERED. Issue #775 named this pin beside its
+# `openxwallet-pin.yaml` sibling and required `neutral-product-pin`'s
+# predicate — "wherever any repository other than openxFactory is expected
+# to read it" — to be MEASURED per pin rather than assumed for both. The two
+# answer DIFFERENTLY. This pin's own paragraph above already gives the
+# reason: openxFactory CITES the standard rather than mounting it, so there
+# is no gitlink for another checkout to compare against in the first place.
+# Beyond that: `openreposhape-pin-gate.yml` is openxFactory's own NON-required
+# `pull_request` gate (its `on:` block carries `pull_request` and nothing
+# else — no `workflow_call` — and `openreposhape-pin` is absent from the
+# repository's required-status-check rulesets), and it is invoked by no other
+# repository; and `scripts/validate-openreposhape-pin.py` has no
+# aggregation-comparison mode analogous to `verify-openxwallet-pin.py`'s
+# `verify_aggregation()` — grepped for `aggregation`, zero hits.
+#
+# THE PREDICATE MEASURED IS "ANOTHER REPOSITORY READS *THIS* PIN", NOT
+# "ANOTHER REPOSITORY CONSUMES `openRepoShape`", AND AN EARLIER DRAFT OF THIS
+# ADDENDUM CONFLATED THE TWO (corrected on PR #1026 review, which was right).
+# The withdrawn sentence claimed "every other adopter forks
+# `opensoft/openRepoShape` directly" and offered `opensoft/openRepoTools` as
+# confirmation. openRepoTools is the COUNTEREXAMPLE to that generalisation,
+# not its confirmation: it MOUNTS the standard as a git submodule —
+# `[submodule "upstream/openRepoShape"]` in its `.gitmodules`, gitlink
+# `32450eb5c5d18fbb0747dc5ad420cf67742cfa99` at `upstream/openRepoShape`, and
+# its OWN `contracts/openreposhape-pin.yaml` declaring
+# `submodule_path: upstream/openRepoShape`, `materialization: mounted` and
+# `verify_pin: tests/test_upstream_pin.py`, a suite that checks that gitlink,
+# that checkout and a recomputed `tree_sha256` — and it is not a fork of
+# `opensoft/openRepoShape` at all (`fork: false`, no parent). Nor does its
+# header say what that sentence attributed to it; what it says is "THE
+# DEPENDENCY RUNS ONE WAY … openRepoShape pins this repository nowhere",
+# which is a claim about openRepoShape, not about openxFactory.
+#
+# THE RATIFIED FORK CLAUSE IS NARROWER THAN THAT GENERALISATION AND IS NOT
+# CONTRADICTED. `project-repo-schema`'s requirement "The standard lives in
+# `opensoft/openRepoShape`, is consumed by fork, and openxFactory pins it by
+# commit and digest" obliges the fork of "An organisation OUTSIDE this
+# family", and its scenario's own WHEN is "an organisation with no
+# openxFactory, no codexFactory and no wallet register … depends on no
+# artifact of this family at run time". openRepoTools is inside the family
+# and is the standard's own tooling sibling, so its mount is not a breach of
+# that clause; it is simply outside what the clause speaks to.
+#
+# WHAT R1 ACTUALLY TURNS ON IS NARROWER STILL, AND IT HOLDS. openRepoTools'
+# pin is an INDEPENDENT second pin of the same upstream product, and it reads
+# nothing of openxFactory's: the string `openxFactory` does not occur
+# anywhere in `opensoft/openRepoTools` — not in any of the three revisions of
+# that pin file, not in its tests, not anywhere in its tree — and an org-wide
+# code search for `openreposhape-pin` outside openxFactory returns that one
+# repository and no other consumer. Two repositories pinning the same
+# upstream separately is not one repository reading the other's pin, which is
+# the predicate `neutral-product-pin` states. The registration decision is
+# therefore UNCHANGED by this correction; only its stated grounds are.
+#
+# SO THE OUTCOME: this pin is NOT registered in `contracts/manifest.yaml`,
+# nor indexed as a contract member in `contracts/README.md` — it carries a
+# documentation-only README row recording this same negative finding
+# instead, so an absent registration reads as MEASURED rather than as an
+# oversight indistinguishable from one the register simply never declared.
+# ============================================================================
+
 source_repository: opensoft/openRepoShape
 source_url: https://github.com/opensoft/openRepoShape
 
