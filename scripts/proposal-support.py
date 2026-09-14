@@ -937,15 +937,29 @@ def git_show_text(root: Path, revision: str, rel_path: str) -> str | None:
     return result.stdout.decode("utf-8", "replace")
 
 
-def renamed_from(root: Path, revision: str, rel: str, *,
-                 kinds: str = "RC") -> str | None:
-    """The path `rel` was RENAMED OR COPIED FROM at `revision`, or None when it
-    came into being there outright (or was merely modified there).
+def _pairing_rows(root: Path, revision: str, rel: str) -> list[str] | None:
+    """The `--name-status` records git pairs `rel` with AT `revision` — `[]`
+    when it pairs it with NOTHING, and None when the read could not be
+    performed.
+
+    THE PROBE SEPARATES THE TWO SILENCES AND RAISES NEITHER, exactly as
+    `_tree_rows` does, and for the same reason: a NON-ZERO EXIT IS RETURNED AS
+    None AND NEVER AS AN EMPTY LIST, because "this commit moved nothing" and
+    "I cannot tell you whether it moved anything" are different facts that
+    one value used to carry. `_pairing_or_refuse` is the one door that None
+    leaves by; `renamed_from` is the tolerant reading kept for readers that
+    are not a gate.
+
+    A REVISION THAT RESOLVES TO NOTHING IS `[]` AND NOT None, and the
+    distinction is deliberate: a question about a commit that is not there is
+    not a read that failed, and it answered "no pairing" before this split as
+    the paragraph on revision spellings below says it should.
 
     `kinds` NARROWS WHICH PAIRING COUNTS, for the one caller that needs a
     RENAME (`R`, the former path GONE) and not a COPY (`C`, the former path
     still standing) — issue #849. Default `"RC"` is every existing behaviour
-    in this docstring, unchanged.
+    in this docstring, unchanged. It is applied by `_former_path_in` over
+    these rows rather than here, so that both doors read one set of records.
 
     RENAME DETECTION IS GIT'S OWN, reached through `--follow` — the one mode
     that pairs a rename for a SINGLE path — and NOT through a pathspec-limited
@@ -1013,7 +1027,7 @@ def renamed_from(root: Path, revision: str, rel: str, *,
         capture_output=True, text=True, check=False,
     )
     if resolved.returncode != 0:
-        return None
+        return []
     revision = resolved.stdout.strip()
     listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
         ["git", "-C", str(root.resolve()), "log", "--follow",
@@ -1025,18 +1039,72 @@ def renamed_from(root: Path, revision: str, rel: str, *,
         return None
     for record in listed.stdout.split("\0"):
         rows = [row for row in record.splitlines() if row.strip()]
-        if not rows or rows[0].strip() != revision:
-            continue
-        for row in rows[1:]:
-            fields = row.split("\t")
-            if (len(fields) == 3 and fields[0][:1] in kinds
-                    and fields[2] == rel):
-                return fields[1]
+        if rows and rows[0].strip() == revision:
+            return rows[1:]
+    return []
+
+
+def _former_path_in(rows: list[str], rel: str, kinds: str) -> str | None:
+    """The source `rel` was paired with in `rows`, for a pairing of a kind
+    `kinds` admits — None where the records name no such pairing."""
+    for row in rows:
+        fields = row.split("\t")
+        if (len(fields) == 3 and fields[0][:1] in kinds
+                and fields[2] == rel):
+            return fields[1]
     return None
 
 
+def renamed_from(root: Path, revision: str, rel: str, *,
+                 kinds: str = "RC") -> str | None:
+    """`_pairing_rows` read as one answer: the path `rel` was renamed or
+    copied from at `revision`, or None when it was not — AND None when the
+    read could not be performed at all.
+
+    THE TOLERANT DOOR, KEPT FOR THE READERS THAT ARE NOT A GATE. Every gate
+    caller goes through `_pairing_or_refuse` instead, because for a gate the
+    two silences are not the same fact; this spelling survives for the tests
+    and for any reader that only ever wanted "did git pair this".
+    """
+    rows = _pairing_rows(root, revision, rel)
+    return None if rows is None else _former_path_in(rows, rel, kinds)
+
+
+def _pairing_or_refuse(root: Path, revision: str, rel: str, *, kinds: str,
+                       identity: str) -> str | None:
+    """`_pairing_rows`, with its None raised rather than read as "no move".
+
+    THE ONE DOOR THAT None LEAVES BY, the way `_rows_or_refuse` is for
+    `_tree_rows`. MEASURED on git 2.43.0, on the `--filter=blob:none` clone
+    of the #1003 chain with its promisor cut: at the hop that renames a
+    ratified packet AND edits it, `git log --follow --find-renames
+    --name-status -1 <hop> -- <destination>` exits **128** (`fatal: could not
+    fetch … from promisor remote`), because rename pairing below an exact
+    match is computed FROM CONTENT and this checkout has none to compute it
+    from. Read as None that failure was indistinguishable from "this commit
+    moved nothing", so the walk accepted the RENAME COMMIT as the baseline
+    and the archive gate then compared the packet against the declaration
+    standing after the mutation: `origin_retention_errors` returned `[]` over
+    a tree the full clone of the same history refuses. That is the #833
+    failure reached through a partial clone rather than through a rename, and
+    "EVERY READ BEHIND THE BASELINE SHALL FAIL CLOSED" is the clause it
+    contradicted.
+    """
+    rows = _pairing_rows(root, revision, rel)
+    if rows is None:
+        raise _unreadable_read_refusal(
+            identity,
+            f"git log --follow --find-renames --name-status -1 "
+            f"{revision[:12]} -- {rel}",
+            f"whether {revision[:12]} carries `{rel}` in from another packet "
+            f"— the move this walk must rule out before it may take that "
+            f"commit as the baseline", at=revision)
+    return _former_path_in(rows, rel, kinds)
+
+
 def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
-                                 kinds: str = "RC") -> str | None:
+                                 kinds: str = "RC",
+                                 identity: str | None = None) -> str | None:
     """The path this packet occupied BEFORE `revision` moved it, when it
     ALREADY declared `Status: ratified` there — the case in which `revision`
     cannot be the ratification. None otherwise.
@@ -1118,11 +1186,34 @@ def ratified_under_a_former_path(root: Path, revision: str, rel: str, *,
     guessing. Zero of the 189 active-plus-archived packets on `main` trip it
     (measured while authoring the guard), and a proposal that similar to a
     ratified one is what `add-duplicate-packet-check` exists to notice.
+
+    AND BOTH OF ITS READS FAIL CLOSED (`tasks.md` § 3.4, the MODIFIED
+    requirement's *"EVERY READ BEHIND THE BASELINE SHALL FAIL CLOSED"*). This
+    guard is TWO reads, not one — the PAIRING at `revision`, and the SOURCE
+    PACKET'S HEADER at `revision^` — and a partial checkout answers each of
+    them with a silence indistinguishable from the innocent answer:
+
+    * the pairing read exits non-zero and used to return None, which reads as
+      "this commit moved nothing"; it now goes through `_pairing_or_refuse`;
+    * the header read returned None from `git_show_text`, which reads as "the
+      source was not ratified", and `git show` answers a GENUINELY ABSENT
+      path and an UNREADABLE one with the same exit 128 (`design.md` M1); it
+      now goes through `_text_at`, which takes presence off the TREE first,
+      so an absent predecessor is still None and an unreadable one refuses.
+
+    Either silence, read flat, skipped the refusal and let the walk take a
+    LATER baseline — the failure this whole guard exists to stop, arriving
+    through the checkout instead of through the rename.
+
+    `identity` NAMES WHOSE WALK THIS IS in that refusal, and defaults to the
+    id `rel` addresses so that no caller can leave the refusal unattributed.
     """
-    former = renamed_from(root, revision, rel, kinds=kinds)
+    identity = identity or _change_id_of_proposal_path(rel) or rel
+    former = _pairing_or_refuse(root, revision, rel, kinds=kinds,
+                                identity=identity)
     if former is None:
         return None
-    before = git_show_text(root, f"{revision}^", former)
+    before = _text_at(root, f"{revision}^", former, identity=identity)
     if before is not None and declares_ratified(before):
         return former
     return None
@@ -1436,7 +1527,9 @@ def ratifying_baseline(root: Path, change: str, *,
 
     AND EVERY READ BEHIND THIS BASELINE FAILS CLOSED (`tasks.md` § 3.4).
     The commit enumeration, the archive listing at each visited commit, each
-    identity's presence probe and each blob this walk reads are four reads
+    identity's presence probe, each blob this walk reads, and BOTH READS THE
+    UNDECLARED-MOVE PROBE TAKES at each visited commit — the rename pairing
+    and the source packet's header at that commit's parent — are six reads
     that a partial checkout answers with a silence indistinguishable from
     "nothing is there". None of them is read that way: presence comes off the
     TREE (`_rows_or_refuse`), content is read separately and only where the
@@ -1534,9 +1627,17 @@ def _refuse_an_undeclared_move(root: Path, revision: str, rel: str,
     packet DECLARES, the move is the lawful one this mechanism exists to
     admit, and the walk goes on to find that identity's own ratification.
     Where it is not, the refusal is the one PR #846 wrote, to the sentence.
+
+    AND A PROBE THAT CANNOT BE PERFORMED IS NOT A PACKET THAT DID NOT MOVE.
+    `ratified_under_a_former_path` now refuses `origin-retention-read-
+    unavailable` for either of its two reads rather than answering None, so
+    this function is SILENT only where the reads succeeded and said "no
+    move". That is the whole of the difference: the refusal below fires on a
+    move it could see, and CANNOT RUN fires on a move it could not look for.
     """
     former = ratified_under_a_former_path(
-        root, revision, rel, kinds="RC" if ratified_here else "R")
+        root, revision, rel, kinds="RC" if ratified_here else "R",
+        identity=change)
     if former is None:
         return
     if _change_id_of_proposal_path(former) in declared:

@@ -2567,6 +2567,202 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIn("not ratified", str(caught.exception))
 
     # ----------------------------------------------------------------
+    # AND THE UNDECLARED-MOVE PROBE IS TWO MORE SUCH READS (fix round 1,
+    # Codex P1 `PRRT_kwDOTAvnrs6iElb0` and Copilot `PRRT_kwDOTAvnrs6iEma3`
+    # on PR #1038)
+    #
+    # `_refuse_an_undeclared_move` is asked at EVERY commit the walk visits,
+    # before the answer at that commit may be taken, and it is not one read
+    # but two: the rename PAIRING at the commit, and the source packet's
+    # HEADER at that commit's parent. Both answered a checkout that could not
+    # perform them with the innocent value — "this commit moved nothing" and
+    # "the source was not ratified" — so the refusal that exists to stop a
+    # move becoming the baseline was skipped on exactly the checkout where
+    # nothing can be proved, and the walk took the rename commit.
+    # ----------------------------------------------------------------
+
+    def a_ratified_packet_moved_with_nothing_declared(self, root: Path
+                                                      ) -> dict:
+        """`change-r` ratified, its origin MUTATED, then renamed to
+        `change-s` by a commit that also edits one line of its prose.
+
+        THE PROSE IS LONG ON PURPOSE, and that is fixture mechanism rather
+        than padding. Git pairs a rename below an exact match FROM CONTENT,
+        and over the six-line fixture `packet()` writes, a one-line prose
+        edit falls under the similarity threshold: measured while writing
+        this, the FULL-clone control then did not refuse at all, because git
+        reported a plain `A` and there was no pairing to refuse over. With
+        the body appended below the same edit reports a rename and the
+        control refuses, so the partial-clone assertion is about the
+        checkout and not about git's threshold.
+
+        AND THE TWO BLOBS ARE ON OPPOSITE SIDES OF WHAT A PARTIAL CLONE
+        FETCHES. `--filter=blob:none` fetches what HEAD's worktree needs, so
+        the DESTINATION blob at the rename commit — which is HEAD's — reads
+        normally there, while the SOURCE blob at that commit's parent, which
+        differs from everything at HEAD, can never be fetched again. That is
+        the exact shape the P1 thread names: the destination readable, the
+        differing source at the parent not.
+        """
+        directory = self.packet(root)
+        proposal = directory / "proposal.md"
+        proposal.write_text(
+            proposal.read_text(encoding="utf-8")
+            + "".join(f"Paragraph {n} of the proposal, unchanged throughout.\n"
+                      for n in range(40)), encoding="utf-8")
+        commit_all(root, "write the body out in full")
+        self.mutate(directory, "quoting the ratified prose",
+                    "quoting the corrected prose")
+        commit_all(root, "mutate the origin after ratification")
+        hops = {"mutated": self.sha(root)}
+        changes = root / "openspec" / "changes"
+        git(root, "mv", str(changes / "change-r"), str(changes / "change-s"))
+        moved = changes / "change-s" / "proposal.md"
+        moved.write_text(
+            moved.read_text(encoding="utf-8").replace(
+                "Paragraph 0 of the proposal, unchanged throughout.",
+                "Paragraph 0, rewritten by the very commit that moved it.", 1),
+            encoding="utf-8")
+        commit_all(root, "rename change-r to change-s")
+        hops["rename"] = self.sha(root)
+        return hops
+
+    def test_an_unreadable_move_probe_refuses_rather_than_concluding_no_move(
+            self):
+        """THE PAIRING IS A READ BEHIND THE BASELINE, and its failure was the
+        innocent answer.
+
+        MEASURED against this branch's head `5859f053` on this fixture, on
+        git 2.43.0: in the partial checkout `git log --follow --find-renames
+        --name-status -1 <rename> -- <destination>` exits **128** (`fatal:
+        could not fetch … from promisor remote`), `renamed_from` returned
+        None, `ratifying_commit` returned THE RENAME COMMIT ITSELF, and
+        `origin_retention_errors` returned `[]` — printing `ORIGIN RETAINED
+        change-s` over a tree whose origin was mutated before the move. The
+        full clone of the same history refuses `origin-retention-path-moved`,
+        and that clone is this test's anti-vacuity assertion.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_moved_with_nothing_declared(root)
+            rel = "openspec/changes/change-s/proposal.md"
+            source = "openspec/changes/change-r/proposal.md"
+            # ANTI-VACUITY: the full clone sees the move and refuses over it.
+            self.assertEqual(
+                support.renamed_from(root, hops["rename"], rel), source)
+            with self.assertRaises(support.OriginRetentionError) as control:
+                support.ratifying_commit(root, "change-s")
+            self.assertIn("origin-retention-path-moved", str(control.exception))
+
+            clone = self.partial_checkout(
+                root, Path(td) / "partial", (hops["mutated"], source))
+            # THE PROBE'S OWN READ, proved to fail on this checkout before
+            # anything is asserted about what the gate does with it.
+            probe = subprocess.run(
+                ["git", "-C", str(clone), "log", "--follow", "--find-renames",
+                 "--name-status", "--format=%H", "-1", hops["rename"], "--",
+                 rel], capture_output=True, text=True)
+            self.assertNotEqual(probe.returncode, 0)
+            # …while the DESTINATION blob at that commit reads normally, so
+            # the walk gets as far as the probe rather than refusing earlier.
+            self.assertIsNotNone(
+                support.git_show_text(clone, hops["rename"], rel))
+
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(clone, "change-s")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-read-unavailable", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("git log --follow", message)
+            self.assertIn("change-s", message)
+            # AND NOT THE OTHER ANSWER: the rename commit taken as a baseline.
+            self.assertNotIn("ORIGIN RETAINED", message)
+            moved = clone / "openspec" / "changes" / "change-s"
+            with self.assertRaises(support.OriginRetentionError):
+                support.origin_retention_errors(clone, moved,
+                                                change="change-s")
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(clone, "change-s", "2026-09-14",
+                                       False, True)
+
+    def test_the_move_probes_source_header_read_refuses_where_it_stands(self):
+        """THE SECOND READ, driven with the one value the checkout above was
+        just proved to produce.
+
+        `ratified_under_a_former_path` asks the SOURCE packet what it
+        declared at the rename commit's PARENT, and `git show` answers a
+        genuinely absent path and an unreadable one with the same exit 128
+        (`design.md` M1) — so a None there read as "the source was not
+        ratified" and the refusal was skipped.
+
+        ON A REAL PARTIAL CLONE THIS READ IS UNREACHABLE, and the test says
+        so rather than pretending otherwise: a pairing git can still compute
+        without content is an EXACT one, whose source blob at the parent is
+        the SAME OBJECT as the destination blob at the commit — so either
+        both read or the destination read fails first. The two measured
+        values are therefore composed rather than found together: the
+        pairing the FULL clone reports, and the `_tree_rows`-says-present /
+        `git_show_text`-says-None pair the PARTIAL clone is asserted to
+        produce two lines below. That is the same technique
+        `test_an_unreadable_archive_listing_refuses_cannot_run` uses, and for
+        the same reason — it pins WHICH CALLER carries the refusal, over
+        values that were read off real repositories.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_moved_with_nothing_declared(root)
+            rel = "openspec/changes/change-s/proposal.md"
+            source = "openspec/changes/change-r/proposal.md"
+            parent = hops["rename"] + "^"
+            clone = self.partial_checkout(
+                root, Path(td) / "partial", (hops["mutated"], source))
+            # THE MEASURED PAIR: the tree says the source stands at the
+            # parent, and the checkout cannot produce what stands there.
+            self.assertEqual(support._tree_rows(clone, parent, source),
+                             [source])
+            self.assertIsNone(support.git_show_text(clone, parent, source))
+
+            rows = support._pairing_rows(root, hops["rename"], rel)
+            self.assertTrue(any(source in row for row in rows))
+            with mock.patch.object(support, "_pairing_rows",
+                                   return_value=rows):
+                with self.assertRaises(support.OriginRetentionError) as caught:
+                    support.ratified_under_a_former_path(
+                        clone, hops["rename"], rel, identity="change-s")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-read-unavailable", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn(source, message)
+            self.assertIn("change-s", message)
+
+    def test_a_predecessor_absent_at_the_parent_is_still_no_move(self):
+        """AND THE FAIL-CLOSED READ IS NOT A FAIL-ALWAYS ONE. A source path
+        the tree says is GENUINELY ABSENT at the parent still answers "no
+        move" and refuses nothing — otherwise every packet whose pairing
+        points at a path that was not there would refuse, and the gate would
+        stop over histories it can read perfectly well.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_moved_with_nothing_declared(root)
+            rel = "openspec/changes/change-s/proposal.md"
+            source = "openspec/changes/change-r/proposal.md"
+            real_rows = support._tree_rows
+
+            def absent_only_at_the_parent(root_, revision, path):
+                if path == source and revision == hops["rename"] + "^":
+                    return []
+                return real_rows(root_, revision, path)
+
+            with mock.patch.object(support, "_tree_rows",
+                                   side_effect=absent_only_at_the_parent):
+                self.assertIsNone(support.ratified_under_a_former_path(
+                    root, hops["rename"], rel, identity="change-s"))
+
+    # ----------------------------------------------------------------
     # THE EXPLICIT DISPOSITION THE REQUIREMENT PROMISES (issue #745)
     #
     # `release-realization` § "Origin retention at archive" ends its mutation
