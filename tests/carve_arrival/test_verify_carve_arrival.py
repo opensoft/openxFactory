@@ -1783,25 +1783,37 @@ def test_the_real_manifest_declares_the_roots_the_runbook_names() -> None:
 
 
 def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
-    """§ 2's per-destination table, checked rather than described — the NUMERIC
-    columns this time, not only the roots.
+    """§ 2's per-destination table, checked rather than described — EVERY cell
+    of it, read from the table itself.
 
     The paragraph beneath that table says the figures are "summed over the rows
     whose `destination:` names that leg, re-derived here rather than carried
-    forward". NOTHING CHECKED THAT until this test: the roots column has been
-    asserted since the table landed, and the four numeric columns rotted
-    silently through two acts — `opendox_code` and `openxdox_code` were both
-    left at their `880c821c` values while the § 3.4 slice-S5 annotation moved
-    both, and the slice-S7 annotation found it. A stale cell here is worse than
-    a missing one, because § 2's own sentence tells the operator to read the
-    verifier's summary line and compare it with this table.
+    forward". NOTHING CHECKED THAT until this test, and the four numeric columns
+    rotted silently through two acts — `opendox_code` and `openxdox_code` were
+    both left at their `880c821c` values while the § 3.4 slice-S5 annotation
+    moved both, and the slice-S7 annotation found it. A stale cell here is worse
+    than a missing one, because § 2's own sentence tells the operator to read
+    the verifier's summary line and compare it with this table.
 
-    SUMMED BY THE RAW `destination:` FIELD and not by `rows_for()`, which
-    resolves the EFFECTIVE arrival (RULED Q6): the table counts a re-destined
-    row at the leg its row still names, which is precisely what the paragraph
-    beneath it explains, and reading it the other way would make the table
-    disagree with itself. A BRANCH and never a skip, on the module docstring's
-    reasoning.
+    THE ROOTS COLUMN HAD ONLY LOOKED CHECKED (Copilot review, this PR).
+    `test_the_real_manifest_declares_the_roots_the_runbook_names` compares the
+    manifest with a list hard-coded IN THE TEST: it holds the manifest to the
+    roots that test names and never opens the runbook, so a roots cell that went
+    stale or malformed passed it while this test's own docstring — and § 2's
+    paragraph — said the table was checked. So the fifth column is parsed and
+    compared here too, and the claim is true of every column it makes. The
+    hard-coded test stays: two pins on one fact, one either side of the runbook.
+
+    THE TWO HALVES OF A ROW ARE READ ON TWO BASES, each the one its column
+    claims. The NUMERIC columns are summed by the RAW `destination:` field and
+    not by `rows_for()`, which resolves the EFFECTIVE arrival (RULED Q6): the
+    table counts a re-destined row at the leg its row still names, which is
+    precisely what the paragraph beneath it explains, and reading it the other
+    way would make the table disagree with itself. The ROOTS column is the walk
+    the verifier performs, which IS `declared_roots(rows_for(...))` — effective,
+    because a re-destined row lands in the gaining leg's tree and the walk that
+    reads that tree must cover it. A BRANCH and never a skip, on the module
+    docstring's reasoning.
     """
     manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
     runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
@@ -1818,8 +1830,9 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     cell = re.compile(
         r"^\| `(?P<key>[a-z_]+)` \| (?P<rows>\d+) \| "
         r"(?:(?P<verbatim>\d+) / (?P<edited>\d+)|—) \| "
-        r"(?:(?P<lines>\d+)|—) \|")
+        r"(?:(?P<lines>\d+)|—) \| (?P<roots>[^|]*)\|")
     stated: dict[str, tuple[int, int, int, int]] = {}
+    roots_stated: dict[str, list[str]] = {}
     for line in table.splitlines():
         found = cell.match(line)
         if found is None:
@@ -1841,7 +1854,19 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
             int(found["edited"] or 0),
             int(found["lines"] or 0),
         )
+        # THE FIFTH COLUMN IS A CLAIM TOO: every backticked path in the cell,
+        # in the order the cell states them. A cell that names no path at all
+        # (`opendox_root`'s "none — the release identity only") claims the
+        # empty walk, and a cell that lost its backticks claims nothing while
+        # appearing to claim everything — both answered by the same read.
+        roots_stated[found["key"]] = re.findall(r"`([^`]+)`", found["roots"])
     assert set(stated) == set(doc["destinations"]), sorted(stated)
+
+    for key, claimed_roots in roots_stated.items():
+        # The walk this destination's arrival run performs, computed from the
+        # manifest exactly as `verify-carve-arrival.py` computes it.
+        walked = MODULE.declared_roots(MODULE.rows_for(doc, key))
+        assert claimed_roots == walked, (key, claimed_roots, walked)
 
     for key, claimed in stated.items():
         rows = [row for row in doc["rows"] if row.get("destination") == key]

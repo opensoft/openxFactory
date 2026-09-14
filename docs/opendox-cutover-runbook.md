@@ -279,10 +279,16 @@ put it. The four destination figures now sum to 2365, and the single line the
 replica row `tests/ideation-dashboard/conftest.py` declares — the one replica
 line, which names no destination at all — makes 2366.
 `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`
-asserts all four numeric columns and that sum against the landed manifest, so
-this half of the table is now checked exactly as the roots column below is;
-until the slice-S7 annotation nothing checked it, which is how two cells sat
-wrong through two acts.
+asserts all four numeric columns, the fifth ROOTS column and that sum against
+the landed manifest, so every cell of this table is now read FROM THE TABLE;
+until the slice-S7 annotation nothing checked the numbers, which is how two
+cells sat wrong through two acts. THE ROOTS COLUMN HAD ONLY LOOKED CHECKED:
+`test_the_real_manifest_declares_the_roots_the_runbook_names` holds the
+manifest to a list hard-coded in the test and never opens this file, so a roots
+cell gone stale or gone unbackticked passed it. It stays where it is — two pins
+on one fact, one either side of the runbook — and the roots cell is now
+compared with `declared_roots(rows_for(...))`, the walk each leg's arrival run
+actually performs.
 
 A row RE-DESTINED by ruling still counts at the `destination:` it declares,
 which is why a leg's arrival run reports FOUR fewer arrived rows than this

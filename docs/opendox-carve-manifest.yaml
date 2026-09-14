@@ -572,8 +572,15 @@ moved_paths:
 # because the aggregate pair would stay green if these 782 lines had landed on
 # the wrong rows. Line numbers are the arrival verifier's own opcode walk over
 # a fresh clone of the leg, re-derived at its FINAL head and never transcribed.
-# Realized at opensoft/openDox-code `build/s7-parameterize-class-c`
-# (DRAFT PR opensoft/openDox-code#21, stacked on S5's #20).
+# Realized at opensoft/openDox-code `build/s7-parameterize-class-c`,
+# `c7a216c782cb4ca434838490c8bae00af8cdbf38` (PR opensoft/openDox-code#21, whose
+# base became `main` when S5's #20 landed at `8efb3cf5`) — the form the S2, S6
+# and S4 entries above use, which this act had left off. THE HEAD IS WHAT MAKES
+# THE WINDOW REPRODUCIBLE: the 782 line numbers are the arrival verifier's
+# opcode walk AT THAT REVISION, and a branch advances again or is deleted at the
+# squash, as this one will be. Every figure above was re-derived there and the
+# verifier re-run against a PRISTINE checkout of it. The forty-eight row `note:`
+# fields below name the same head by its branch.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
