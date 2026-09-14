@@ -688,6 +688,119 @@ def test_a_symlinked_file_inside_a_legitimate_packet_is_not_read_as_carried(
 
 
 # --------------------------------------------------------------------------
+# The archive's two-reading ambiguity: an archived directory can stand for
+# BOTH its literal name and its date-stripped one (Copilot
+# `PRRT_kwDOTAvnrs6iSjPt`, Codex P2 `PRRT_kwDOTAvnrs6iSmuD`)
+# --------------------------------------------------------------------------
+
+def test_a_dated_id_archived_packet_resolves_under_its_literal_id(
+        tmp_path) -> None:
+    """A packet whose OWN id begins with a date is archived UNCHANGED
+    (`archive_directory_name` preserves an already-dated id rather than
+    stuttering a second date onto it), so `archive/2026-08-04-add-dated` is
+    indistinguishably the archived `add-dated` AND the archived
+    `2026-08-04-add-dated`.
+
+    MEASURED against `fbc18db1` (this file's own prior fix, before this one):
+    indexing only `change_id_of(directory)` — the stripped reading alone —
+    dropped the literal one, so this exact citation reported IDENTITY-
+    DANGLING although the proposal it names stands in the directory below.
+    """
+    root = _tree(tmp_path)
+    _packet(root, "openspec/changes/archive/2026-08-04-add-dated",
+            files=("proposal.md", "tasks.md"))
+
+    resolution = pr.resolve(
+        root, "openspec/changes/2026-08-04-add-dated/tasks.md")
+
+    assert resolution.status == pr.RESOLVED, resolution.report
+    assert resolution.location.rel == (
+        "openspec/changes/archive/2026-08-04-add-dated")
+    assert resolution.location.kind == pr.ARCHIVED
+
+    # THE STRIPPED READING STILL RESOLVES TOO — both candidates name the same
+    # directory, and neither is AMBIGUOUS on its own.
+    stripped = pr.resolve(
+        root, "openspec/changes/archive/2026-08-04-add-dated/tasks.md")
+    assert stripped.status == pr.RESOLVED, stripped.report
+    assert stripped.location.rel == resolution.location.rel
+
+
+def test_the_literal_archived_reading_yields_to_a_live_packet_of_that_name(
+        tmp_path) -> None:
+    """THE LITERAL READING ALONE YIELDS TO A LIVE PACKET OF THAT NAME — the
+    guard `_archive_dir_carries` states and this index must mirror, on its
+    own working-tree precedent (`declared_former_ids_in_tree`'s `live_ids`):
+    a change that IS live has not been archived, so an archive directory
+    spelled exactly like a live id cannot be that live packet's own archive.
+
+    Without the guard, `archive/2026-09-09-foo` (the dated archive of `foo`)
+    would ALSO claim the literal `2026-09-09-foo` — and where a genuinely
+    live, unrelated packet happens to carry that exact name, its own
+    citations would report AMBIGUOUS between itself and somebody else's
+    archive, which is a false positive this guard exists to prevent. The
+    STRIPPED reading (`foo`) carries no such guard and still resolves.
+    """
+    root = _tree(tmp_path)
+    _packet(root, "openspec/changes/archive/2026-09-09-foo",
+            files=("proposal.md",))
+    _packet(root, "openspec/changes/2026-09-09-foo",
+            files=("proposal.md",))
+
+    live = pr.resolve(root, "openspec/changes/2026-09-09-foo/proposal.md")
+    assert live.status == pr.RESOLVED, live.report
+    assert live.location.kind == pr.ACTIVE
+    assert live.location.rel == "openspec/changes/2026-09-09-foo"
+
+    archived = pr.resolve(
+        root, "openspec/changes/archive/2026-09-09-foo/proposal.md")
+    assert archived.status == pr.RESOLVED, archived.report
+    assert archived.location.kind == pr.ARCHIVED
+    assert archived.location.rel == "openspec/changes/archive/2026-09-09-foo"
+
+    foo = pr.resolve(root, "openspec/changes/foo/proposal.md")
+    assert foo.status == pr.RESOLVED, foo.report
+    assert foo.location.rel == "openspec/changes/archive/2026-09-09-foo"
+
+
+def test_an_archived_self_claim_under_either_reading_suppresses_its_declaration(
+        tmp_path) -> None:
+    """A PACKET CANNOT BE THE MOVE OF ITSELF UNDER EITHER READING OF ITS
+    ARCHIVE NAME — this index's own version of `former_identity_claimants`'s
+    already-landed `test_an_archived_self_claim_under_either_reading_is_not_
+    indexed` in `tests/proposal-support/`, pinned here because `PacketIndex`
+    calls `declared_former_ids_of` itself rather than through that sweep.
+
+    `declared_former_ids_of`'s OWN default `change` (`change_id_of(directory)`
+    alone, no `identities` argument) is already the STRIPPED reading for a
+    real archived directory, so a self-claim spelled that way was always
+    caught. What the default MISSES — Copilot's own wording — is a self-claim
+    "under the full interpretation": `former_ids: [2026-09-09-foo]` declared
+    by the directory literally named `2026-09-09-foo` compares that entry
+    against the default `change="foo"`, finds them unequal, and raises no
+    `FormerIdError`, so it reaches the loop as an ordinary-looking entry.
+    THE WHOLE PACKET'S DECLARATION IS WITHHELD once a self-claim is seen
+    under EITHER reading — not merely the one self-referential entry — on
+    `former_identity_claimants`'s own precedent: a declaration that names its
+    own directory under one reading is not trusted for its other entries
+    either, so the co-declared `old-name` below must not be indexed.
+    """
+    root = _tree(tmp_path)
+    _packet(root, "openspec/changes/archive/2026-09-09-foo",
+            former_ids=["2026-09-09-foo", "old-name"])
+    _packet(root, "openspec/changes/archive/2026-09-10-bar",
+            former_ids=["old-bar"])
+
+    index = pr.PacketIndex(root)
+    assert index.claims("old-name") == (), (
+        "a self-claim under the STRIPPED reading must withhold the whole "
+        "packet's declaration, `old-name` included")
+    # …and a LAWFUL archived declaration is still indexed, so the guard is
+    # the self-claim and not a switched-off declaration sweep.
+    assert any(claim.kind == pr.DECLARED for claim in index.claims("old-bar"))
+
+
+# --------------------------------------------------------------------------
 # The live corpus — a resolver proved only against invented trees is proved
 # against the author's imagination
 # --------------------------------------------------------------------------

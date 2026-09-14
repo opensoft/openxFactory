@@ -65,7 +65,8 @@ packet is somebody else's.
 WHAT IS IMPORTED AND WHAT IS BUILT HERE, STATED. The declaration grammar, the id
 grammar and the archive-date rule are `scripts/proposal-support.py`'s and are
 IMPORTED (`CHANGE_ID_RE`, `change_id_of`, `ARCHIVE_DATE_PREFIX`,
-`declared_former_ids_of`, `FormerIdError`, `FORMER_IDS_KEY`) rather than
+`declared_former_ids_of`, `FormerIdError`, `FORMER_IDS_KEY`, and
+`packet_identities_of` for the archive's two-reading ambiguity) rather than
 respelled. What is built here is the WORKING-TREE LOCATION INDEX, and it is
 built rather than reused for a reason the packet's own plan states: that
 module's `identity_paths_at` resolves the same two-candidate rule AT A REVISION
@@ -417,10 +418,35 @@ class PacketIndex:
         for directory in live:
             self._add(claims, Claim(identity=directory.name, path=directory,
                                     rel=self._rel(directory), kind=ACTIVE))
+        # AN ARCHIVED DIRECTORY CAN STAND FOR TWO IDENTITIES, NOT ONE.
+        # `archive_directory_name` preserves an already-dated id UNCHANGED, so
+        # `archive/2026-09-09-foo` is indistinguishably the archived `foo` AND
+        # the archived `2026-09-09-foo` (`change_id_of`'s own docstring, and
+        # `packet_identities_of` is its plural sibling "for the callers that
+        # must not silently choose the shorter reading"). Indexing only the
+        # stripped reading dropped the literal one, so a citation to
+        # `openspec/changes/2026-09-09-foo/…` for a packet whose OWN id
+        # begins with a date reported IDENTITY-DANGLING although that exact
+        # proposal stands in the archived directory. (Copilot
+        # `PRRT_kwDOTAvnrs6iSjPt`, Codex P2 `PRRT_kwDOTAvnrs6iSmuD`.)
+        #
+        # THE LITERAL READING YIELDS TO A LIVE PACKET OF THAT NAME, and only
+        # the literal one does — `_archive_dir_carries`'s own guard, mirrored
+        # here rather than reused because that function answers one identity
+        # at a time and this loop is building the index all of them are
+        # looked up against. A change that is LIVE has not been archived, so
+        # an archive directory spelled exactly like a live id cannot be that
+        # packet's own archive; it is the dated archive of the STRIPPED id,
+        # and the stripped reading carries no such guard (`declared_former_
+        # ids_in_tree`'s working-tree precedent: the guard sat on the
+        # stripped arm once and suppressed a legitimate match).
+        live_ids = {directory.name for directory in live}
         for directory in archived:
-            identity = support.change_id_of(directory)
-            self._add(claims, Claim(identity=identity, path=directory,
-                                    rel=self._rel(directory), kind=ARCHIVED))
+            for identity in support.packet_identities_of(directory):
+                if identity == directory.name and identity in live_ids:
+                    continue
+                self._add(claims, Claim(identity=identity, path=directory,
+                                        rel=self._rel(directory), kind=ARCHIVED))
         for directory in live + archived:
             # THE MARKER ITSELF IS CONTAINMENT-CHECKED, not only `directory`:
             # `directory` already passed `_contained_dir` above, but a single
@@ -430,9 +456,20 @@ class PacketIndex:
             marker = _contained(root, directory / ".openspec.yaml")
             if marker is None or not marker.is_file():
                 continue
+            # THE SELF-CLAIM CHECK IS ASKED UNDER BOTH READINGS TOO, on
+            # `former_identity_claimants`'s already-landed precedent: passing
+            # `identities[0]` (the directory's own literal name) is what lets
+            # `former_id_problems`'s "an entry equal to the packet's OWN id"
+            # refusal see the literal reading, and the `any(...)` guard below
+            # catches a self-claim spelled under the STRIPPED one instead —
+            # `former_id_problems` can only be asked about one id at a time.
+            identities = support.packet_identities_of(directory)
             try:
-                declared = support.declared_former_ids_of(directory)
+                declared = support.declared_former_ids_of(directory,
+                                                          identities[0])
             except support.FormerIdError:
+                continue
+            if any(identity in declared for identity in identities):
                 continue
             for identity in declared:
                 self._add(claims, Claim(identity=identity, path=directory,
