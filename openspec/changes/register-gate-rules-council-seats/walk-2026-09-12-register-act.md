@@ -824,6 +824,10 @@ sha**. **IT REQUIRES BRETT HEAP'S EXPLICIT OPERATOR WORD EACH TIME — IT IS NOT
 SELF-SERVE** (precedent: *"Operator word: hermes-wallet-exercise reads it"*,
 2026-09-11T03:01:28Z). **Do NOT attempt it via a convening dispatch.**
 
+> **2026-09-14 — STEP 5b IS PERFORMED, see § 13.2: source-revision
+> 96895259 is `ahead` of T2. The hold (§ 9) is NOT lifted by this section;
+> § 13.3 records the lift.**
+
 ---
 
 ## 9. THE HOLD, AND WHAT ACTUALLY LIFTS IT
@@ -837,7 +841,14 @@ PATH**:
 **A GREEN VALIDATOR DOES NOT LIFT IT. NEITHER DOES THIS FILE'S EXISTENCE.**
 Neither, per § 8, does an admitted convening.
 
+> **POINTER ADDED 2026-09-14 — § 13.1 IS NOW CLOSED, AND EMPTY: no
+> `gate_rules_council` convening ran between T1 and T2 (full record at § 13.1
+> below). §§ 13.2 and 13.3 REMAIN OPEN. THE HOLD IS STILL IN FORCE — a closed
+> window check does not lift it.**
+
 ---
+
+> **POINTER ADDED 2026-09-14 — THE HOLD IS LIFTED (task 6.21), § 13.3.** Posted 2026-09-14T09:10:05Z on #279 (`5661634651`), mirrored on PR #439 (`5661635340`) and in `LANES.md` (`837c9e9`), after § 13.1 (EMPTY) and § 13.2 (`ahead`). The lift releases the `gate_rules_council` hold only.
 
 ## 10. THE WORDS AS SPOKEN
 
@@ -917,6 +928,100 @@ merge instant) so the answer does not depend on which is called T2.
 merge of this pull request. **The hold (§ 3.4) is what makes the expected
 finding empty; the check is what proves it.**
 
+#### 13.1 — APPENDED 2026-09-14, PART C: THE WINDOW CHECK IS CLOSED, AND THE FINDING IS EMPTY
+
+**No `agent:gate-rules-council` convening ran in the window. Nothing was
+consumed under revocation.** A checked absence, recorded as one.
+
+**Window: T1 = codexFactory PR #439 → `eff9ae191d78c396800a72cdec9fffe0caf866d7`,
+merged `2026-09-12T15:59:10Z`. T2 = openxFactory PR #1006 →
+`765d8c6fcd3fbfdb71540903858e8fca74f04929`, merged `2026-09-13T22:30:20Z`.**
+
+The command, verbatim, run `2026-09-13T22:4xZ` by lane `hermes-wallet-exercise`
+(session `661394c0-589c-4d88-b1b6-1e692bfbc2e8`, container `0e7d1a79a07e`),
+read-only `gh` calls only:
+
+```sh
+gh run list -R codeXfactory/codexFactory --workflow gate-rules-convening-trigger.yml \
+  --json databaseId,createdAt,event,conclusion,headSha --limit 100
+```
+
+It returns **seven runs in the workflow's entire history**, and **every one of
+them predates T1**:
+
+| run | createdAt | conclusion | headSha |
+|---|---|---|---|
+| `34586762846` | 2026-09-11T09:56:58Z | success | `9433796e` |
+| `34561266626` | 2026-09-11T04:11:31Z | failure | `77537d7d` |
+| `34481205558` | 2026-09-10T13:12:32Z | success | `f881cea1` |
+| `34480882955` | 2026-09-10T13:09:22Z | failure | `f881cea1` |
+| `34318204178` | 2026-09-09T06:14:39Z | failure | `6f50112b` |
+| `34317084150` | 2026-09-09T05:59:09Z | failure | `6f50112b` |
+| `34307939608` | 2026-09-09T03:39:04Z | failure | `c02abc84` |
+
+Filtered to the window, the result is **`[]`**.
+
+**THE TWO CANDIDATE UPPER BOUNDS DISAGREE, AND THE FINDING SURVIVES BOTH.** The
+effective instant — `grant-grc-0003.issued_at`, equal to
+`grant-grc-0002.revocation.revoked_at` on oxF `main` — is `2026-09-13T02:20:48Z`.
+The merge instant is T2's own `2026-09-13T22:30:20Z`. **The two are 20h 09m 32s
+apart** (the 2026-09-11 precedent's own two bounds were 17 minutes apart).
+Both give the same empty result, so the finding is empty under both, and the
+disagreement is recorded rather than resolved, exactly as the precedent
+recorded its own gap. **The gap between them is covered by the HOLD, not by
+either timestamp.**
+
+**Two independent cross-checks, because one empty list is not a finding:**
+
+* **The records side is NOT `[]`.**
+  `gh api "repos/codeXfactory/codexFactory/commits?path=hermes/domain/review-councils/records&since=2026-09-12T15:59:10Z&until=2026-09-13T22:30:20Z&per_page=100"`
+  → **9 commits** — walked from `main` as of `22:4xZ`, so it includes PR
+  #452's commits, which merged AFTER T2, at `22:32:20Z`. Via PR #441 (merged
+  `17:24:27Z`), PR #450 (`18:52:32Z`), PR #446 (`23:43:32Z`), PR #452
+  (`22:32:20Z`, post-T2). **9 distinct files**, each header-verified on
+  `main`: `2026-09-11-gate-rules-provenance-axis-declaration.md` (RULING
+  PACKET, Status: record); `2026-09-12-gate-rules-roster-csc-pin.md` (Status:
+  record; *"NO SEAT WAS RUN, AND NO COUNCIL SELECTED THIS PIN"*);
+  `2026-09-12-gate-rules-seat-signing-key-minted-csc.md` (mint record);
+  `2026-09-12-lq2-c2-corroboration.md` plus 4 evidence files; and
+  `2026-09-12-lq2-c4-reroute.md`. **Zero convening records; none produced by a
+  `gate_rules_council` convening.** Stated plainly because it is easy to miss:
+  the precedent's `[]` reflected a quiet 3-hour window; this window is 30.5 h
+  of lane-authored governance records, and the header-verified answer is
+  still zero convening records.
+* **The trap named in the runbook, avoided and recorded as avoided (NO
+  weight).** `gh run list … --workflow gate-rules-convening.yml` → `0`. That
+  file is `workflow_call`-only and reports zero runs whether or not one
+  occurred; it was not relied on.
+
+**A THIRD CHECK, NOT ASKED FOR BY THE TASK TEXT, AND IT MATTERED.** Every
+workflow run in the window, enumerated in 3-hour chunks (the single-range
+query returned exactly 1000 — the API's own page cap — so it was chunked, and
+no chunk came back capped): **2546 distinct runs** — council-deliberation-worker
+726, council-authorization-trigger 364, council-convening-lane 350,
+merge-master-approval 335, lane-line 211, sonar 192, validate 192, Copilot
+review 143, floor-regeneration 31, publish-project-bench 1,
+provenance-reconciliation 1. **`gate-rules-convening-trigger` /
+`gate-rules-convening`: NONE.** Files naming `gate_rules_council` on `main` are
+now FIVE (the precedent knew one): the trigger (the only dispatcher),
+`gate-rules-convening.yml` (`workflow_call`, REFUSES any other `council_id`),
+`merge-master-approval.yml` (a comment, line 2957),
+`provenance-reconciliation.yml` (comments plus a LAPSE error string, lines
+60/282/291 — it convenes nothing), and `scripts/deliberation_packet.py` (a
+profile reader). The `council-*` runs above are all `merge_readiness_council` —
+`grant-mrc-0002` was never revoked — and are not "consumed under revocation"
+candidates.
+
+**Finding: EMPTY.**
+
+```
+WINDOW CHECK (task 6.19): [T1 eff9ae19/2026-09-12T15:59:10Z .. T2
+765d8c6f/2026-09-13T22:30:20Z] — EMPTY. No `agent:gate-rules-council`
+convening ran. Evidence: 7 trigger runs all pre-T1; records-API 9 commits / 0
+convening records (header-verified); 2546 in-window runs, 0 gate-rules; both
+upper bounds agree.
+```
+
 ### 13.2 Step 5b — the register-projection read (task 6.20) — **APPENDED BY PART C**
 
 **OPERATOR WORD REQUIRED — NOT SELF-SERVE.** Read-only cluster read of the
@@ -924,11 +1029,168 @@ finding empty; the check is what proves it.**
 `hermes.opensoft.one/source-revision` is **at or after T2's merge sha**. Route
 ratified by oxF #960 → `ac688c40` (§ 8). **Not via a convening dispatch.**
 
+#### 13.2 — APPENDED 2026-09-14, PART C: STEP 5b IS PERFORMED — THE PROJECTION CARRIES THIS ACT
+
+This section performs task 6.20 / step 5b per runbook §§ 2.1-2.6, satisfying
+the four ratified requirements of `amend-register-act-5b-projection-proof`
+(openxFactory PR #960 → `ac688c40`, capability `review-authority-intake`) by
+number: requirement 1 (exit on an OBSERVED projection, never an admitted
+convening) is what THE TEST below is; requirements 2 and 3 (read-only, on a
+named operator's word, recorded with commands and values; taken only after a
+refresh that COMPLETED after T2) are what The authority / The wait condition /
+How it was executed / What was read establish; requirement 4 (state the limit)
+is STATED LIMIT below.
+
+**The authority.** Brett Heap, in session with this lane, verbatim: *"do the
+5b read"* (2026-09-13T22:4xZ) — the fresh operator word naming the executing
+lane that § 8 and runbook § 0.3 both require (the 2026-09-11 word —
+*"Operator word: hermes-wallet-exercise reads it"* — was spent on that act
+only and does not carry forward). **For the credential path**, Brett Heap,
+verbatim: *"mount it"* (2026-09-14T08:5xZ) — authorizing his host Azure CLI
+profile to be mounted **read-write** into an
+`mcr.microsoft.com/azure-cli:latest` container run from the lane's bench
+container `0e7d1a79a07e` (the bench container has no `az`/`kubectl` of its
+own; a read-only mount fails because `az` writes `az.sess` on start). The
+subscription was passed per command (`--subscription
+sub-opensoft-platform-aks-qa`), so Brett's default subscription was not
+changed. `az account show` confirmed subscription
+`sub-opensoft-platform-aks-qa`, user `brett.heap@opensoft.one`.
+
+**The wait condition, met rather than assumed.** The register-projection
+refresher's schedule is `0 */2 * * *` (hermes-install
+`deploy/kubernetes/overlays/aks-qa/register-projection-cronjob.yaml`,
+`successfulJobsHistoryLimit: 1`); the first tick after T2 (`765d8c6f`,
+2026-09-13T22:30:20Z) is **2026-09-14T00:00:00Z**. The read ran after the
+**08:00Z** tick: because the history limit is 1, only the newest Job is ever
+observable — `hermes-register-projection-refresher-29822880`, created
+**2026-09-14T08:00:00Z**, **`succeeded=1`**. CronJob `lastScheduleTime`
+**2026-09-14T08:00:00Z**, `lastSuccessfulTime` **2026-09-14T08:00:08Z**. The
+read ran roughly **8.9 hours** after the first eligible tick — not a cluster
+or refresher delay, but the wait for the credential decision above; recorded
+so the gap reads as accounted for, not overlooked.
+
+**How it was executed.** One `az aks command invoke` against
+`aks-opensoft-platform-qa-01` / `rg-opensoft-platform-aks-qa`, namespace
+`hermes` throughout: `provisioningState` `Succeeded`, `exitCode` `0`,
+`startedAt` `2026-09-14T08:56:45+00:00`, `finishedAt`
+`2026-09-14T08:56:47+00:00`. The lane's own shell clock: **START
+2026-09-14T08:56:37Z, END 08:56:52Z**. The command was a shell script passed
+inline (base64) — **every line a `kubectl get` with `-o jsonpath`** — no
+`apply`, `patch`, `create`, `delete`, `edit`, `rollout`, or side-effecting
+`exec`:
+
+```sh
+NS=hermes
+kubectl -n "$NS" get cronjob hermes-register-projection-refresher -o jsonpath='{.status.lastScheduleTime} {.status.lastSuccessfulTime}'
+kubectl -n "$NS" get jobs -l app.kubernetes.io/name=hermes-register-projection-refresher --sort-by=.metadata.creationTimestamp -o jsonpath='{range .items[*]}{.metadata.name}{" created="}{.metadata.creationTimestamp}{" succeeded="}{.status.succeeded}{"\n"}{end}'
+kubectl -n "$NS" get configmap hermes-register-projection -o jsonpath='{.metadata.annotations}'
+kubectl -n "$NS" get configmap hermes-register-projection -o jsonpath='{.metadata.resourceVersion} {.metadata.creationTimestamp}'
+kubectl -n "$NS" get cronjob -o jsonpath='{range .items[*]}{.metadata.name}{" lastSuccessful="}{.status.lastSuccessfulTime}{"\n"}{end}'
+```
+
+**What was read, verbatim:**
+
+| | Value |
+|---|---|
+| CronJob `hermes-register-projection-refresher` `lastScheduleTime` | `2026-09-14T08:00:00Z` |
+| …`lastSuccessfulTime` | `2026-09-14T08:00:08Z` |
+| Newest Job | **`hermes-register-projection-refresher-29822880`**, created `2026-09-14T08:00:00Z`, **`succeeded=1`** |
+| ConfigMap `hermes-register-projection` → `hermes.opensoft.one/source-revision` | **`968952596dfa9f3a6ba4e0cc47a71a37c7c65eea`** |
+| …`hermes.opensoft.one/projected-at` | `2026-09-14T08:00:02Z` |
+| …`hermes.opensoft.one/projection-digest` | `sha256:58dd5e737a6a11a580b31354d05914a87521f67be84694aa46c2116057d87bff` |
+| …object `resourceVersion` / `creationTimestamp` | `38705388` / `2026-08-30T15:23:46Z` |
+
+Context only, not part of the proof: `hermes-council-refresher`
+`lastSuccessful` `2026-09-14T08:45:04Z`.
+
+**THE TEST, AND IT PASSES.** Runbook § 2.4 names the check:
+
+```sh
+gh api repos/opensoft/openxFactory/compare/765d8c6fcd3fbfdb71540903858e8fca74f04929...968952596dfa9f3a6ba4e0cc47a71a37c7c65eea --jq .status
+```
+
+→ **`ahead`** (`ahead_by` 31, `behind_by` 0). `96895259` is
+`opensoft/openxFactory` `main` at **2026-09-14T05:05:22Z** — the merge of PR
+#888 (`Derive-possibles register merge 2026-09-10`) — identical to `main` at
+read time, and strictly after T2 (`765d8c6f`, 2026-09-13T22:30:20Z). **The
+published projection was derived from a revision of `main` that already
+carries this act** (`grant-grc-0003`, the repointed `row-grc-0001`, the
+registered fifth seat key). **PASSES** per runbook § 2.4 (accept = `ahead` or
+`identical`).
+
+**STATED LIMIT (ratified requirement 4).** This read establishes 5b **BY
+SOURCE REVISION ONLY.** Fields actually read: CronJob
+`.status.lastScheduleTime`, `.status.lastSuccessfulTime`; Jobs
+`.metadata.name`, `.metadata.creationTimestamp`, `.status.succeeded`;
+ConfigMap `.metadata.annotations`, `.metadata.resourceVersion`,
+`.metadata.creationTimestamp`. It did not read the ConfigMap's `data` at all
+— only `metadata`; no `.data` jsonpath was ever run. NOT separately read,
+and recorded here as **OWED** to whoever next has operator cause to touch this
+ConfigMap:
+
+(i) `row-grc-0001`'s projected `grant_ref` reading `grant-grc-0003` inside the
+published projection's own data; (ii) that row's `expires_at` matching
+`grant-grc-0003`'s; (iii) `projected_from.staleness_bound` still carrying
+`revocation_staleness_bound` **`P7D`** verbatim.
+
+These follow from the source revision only if the refresher is faithful to its
+input, which is its whole job but is not a thing this read observed.
+
+**Posted in full at** codexFactory [#279 comment 5661631470](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5661631470) (2026-09-14T09:09:49Z), before the lift; the raw `az aks command invoke` output is attached to openxFactory #1033 (comment 5661515412).
+
 ### 13.3 The hold lift (task 6.21) — **APPENDED BY PART C. THE HOLD IS IN FORCE.**
 
 Posted only after § 13.1 and § 13.2 both pass, citing **T2's merge commit** and
 **this file's path**, and naming any wording mismatch as the precedent's lift
 text did.
+
+#### 13.3 — APPENDED 2026-09-14, PART C: THE HOLD IS **LIFTED**
+
+Posted 2026-09-14T09:10:05Z–2026-09-14T09:10:20Z, in the **same three places** the hold of
+2026-09-12T15:57:19Z was posted — § 3.4 of this record names one (issue #279);
+the register's own line of 2026-09-12T15:57:40Z names all three (*"HOLD posted
+(#279 5646989264, #439 5646989441)"* plus the row itself) — and nowhere else:
+
+| Where | URL / id | UTC |
+|---|---|---|
+| codexFactory issue **#279** | [`issuecomment-5661634651`](https://github.com/codeXfactory/codexFactory/issues/279#issuecomment-5661634651) | 2026-09-14T09:10:05Z |
+| codexFactory PR **#439** (merged; the hold's second posting, `5646989441`) | [`issuecomment-5661635340`](https://github.com/codeXfactory/codexFactory/pull/439#issuecomment-5661635340) | 2026-09-14T09:10:09Z |
+| `LANES.md` (`opensoft/brett-wip` `lanes/LANES.md`, row `codeXfactory-2`) | commit `837c9e9`, pushed to `origin/main` | 2026-09-14T09:10:20Z |
+
+The lift sentence, as posted:
+
+> LIFTED — the HOLD posted at 2026-09-12T15:57:19Z on `agent:gate-rules-council`
+> convenings (this issue, comment `5646989264`; mirrored on PR #439 comment
+> `5646989441` and in `LANES.md`), by lane `hermes-wallet-exercise` — register
+> key `codeXfactory-2` since 2026-09-14T00:30Z (same lane, same window).
+
+**IT CITES BOTH HALVES, AND IT NAMES THE MISMATCHES — as § 9 and task 6.21
+require.** T1 (`eff9ae19`, 2026-09-12T15:59:10Z) and T2 (`765d8c6f`,
+2026-09-13T22:30:20Z, Brett Heap's word *"merge 1006"*); § 13.1's EMPTY window
+under both candidate upper bounds; § 13.2's read with its values and the
+`ahead` result; the record id — **this file's path** — with §§ 13.1/13.2 on
+openxFactory #1033. Three wording mismatches are named rather than reworded:
+**(1)** the hold says *"the 3.8 window check"* — task 3.8 of this change is a
+pre-push validator run; the check performed is task 6.19, the 3.8-equivalent,
+by the 2026-09-11 walk's § 13.1 method (runbook § 4.2). **(2)** The hold calls
+H2 *"Brett Heap's register act … human-only surface"* — the act is his, by his
+word *"merge 1006"*, and the hands that merged were this lane's, as § 7.2
+defines "operator act". **(3)** The hold says the lift is posted *"on Brett
+Heap's word, after that read"* — the word relied on is the read-word itself
+(*"do the 5b read"*, 2026-09-13T22:4xZ); `tasks.md` 6.21 is a `[lane]` task
+with no separate operator word, and the lift states that reading so a reader
+can disagree with it. **The original hold postings are not reworded.**
+
+The lift releases **this hold and nothing else**: merge-readiness-council
+convenings were never held (§ 3.4 — `grant-mrc-0002` did not move). It carries
+forward, undischarged, Brett Heap's two still-open words of 2026-09-11 —
+**13:26:14Z** *"convene C2"* (the live half of *"merge the packet PR when green
+then convene C2"*) and **13:27:23Z** *"merge the C2 record PR when green"* —
+both owed at `tasks.md` 6.25–6.26, downstream of 6.22 (`deliberation_packet.py
+resolved-seats` → `unbound_conjunction_seats` EMPTY), the proof convening
+(6.24, Brett Heap dispatches) and C2 (6.25). **What the lift does not claim:**
+no convening was dispatched or admitted as proof — § 8's route does not reach
+the register projection, and none was tried.
 
 ### 13.4 The proof convening (task 6.24) — **APPENDED BY PART C**
 
@@ -962,9 +1224,9 @@ is not discovered afterwards.
 |---|---|---|
 | ~~**the mint of the fifth keypair**~~ **DONE `2026-09-13T02:12:15Z`** | Brett Heap | **THIS ACT** — it no longer blocks anything (§ 6.8) |
 | ~~the fill~~ **DONE** + the merge (T2) — **STILL OWED** | the lane filled; **Brett Heap merges** | everything below |
-| § 13.1 window check | the lane | § 13.3 |
-| § 13.2 5b read | Brett Heap's word, then the lane | § 13.3 |
-| § 13.3 lift | the lane, on his word | § 13.4 |
+| ~~§ 13.1 window check~~ **DONE `2026-09-13T22:4xZ`** | the lane | § 13.3 |
+| ~~§ 13.2 5b read~~ **DONE `2026-09-14T08:56:47Z`** | Brett Heap's word, then the lane | § 13.3 |
+| ~~§ 13.3 lift~~ **DONE `2026-09-14T09:10:05Z`** | the lane, on his word | § 13.4 |
 | § 13.4 proof convening | Brett Heap dispatches | § 13.5 |
 | LQ2-C2 corroboration | the lane, ruled to follow T1 | nothing here |
 | LQ2-C4 re-route | the lane | § 13.5's convening |

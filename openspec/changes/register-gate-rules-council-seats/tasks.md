@@ -917,11 +917,13 @@ still Brett Heap's, and the merge is T2.
       (H1, §§ 6.2-6.8) then one openxFactory pull request (H2, §§ 6.9-6.15).
       H1 is **not** split into separate mint / roster / composition pull
       requests; two remotes, ONE governed act, the hold spanning them.
-- [ ] 6.19 **[lane]** The 3.8-equivalent window check: prove NO
+- [x] 6.19 **[lane]** The 3.8-equivalent window check: prove NO
       `gate_rules_council` convening ran between T1 and T2 —
       `gh run list --workflow gate-rules-convening-trigger.yml` cross-checked
       against `records/` commits in the window, by walk § 13.1's method.
-- [ ] 6.20 **[OPERATOR WORD REQUIRED — NOT SELF-SERVE]** Step 5b: a read-only
+      **DONE 2026-09-13T22:4xZ — walk-2026-09-12-register-act.md § 13.1
+      (appended 2026-09-14). Finding: EMPTY.**
+- [x] 6.20 **[OPERATOR WORD REQUIRED — NOT SELF-SERVE]** Step 5b: a read-only
       cluster read confirming the `hermes-register-projection` ConfigMap's
       `hermes.opensoft.one/source-revision` annotation is at or after T2's merge
       sha. **This is now RATIFIED, not merely dispositioned** —
@@ -931,9 +933,13 @@ still Brett Heap's, and the merge is T2.
       the admission path reads the domain-content projection only, so an
       admitted convening returns a green result against a pre-act projection
       that reads exactly like the proof.
-- [ ] 6.21 **[lane]** LIFT the hold, citing T2's merge commit and the
+      **DONE 2026-09-14T08:56:47Z — walk-2026-09-12-register-act.md § 13.2
+      (appended 2026-09-14): source-revision 96895259 ahead of T2 765d8c6f; by
+      source revision only, three row-level fields OWED.**
+- [x] 6.21 **[lane]** LIFT the hold, citing T2's merge commit and the
       walk-record path, and naming any wording mismatch as the precedent's lift
       text did.
+      **DONE 2026-09-14T09:10:05Z — LIFTED on cxF #279 (5661634651), PR #439 (5661635340) and LANES.md (837c9e9); walk-2026-09-12-register-act.md § 13.3 (appended 2026-09-14). Three wording mismatches named, none reworded.**
 - [ ] 6.22 **[lane]** Re-run `deliberation_packet.py resolved-seats` against a
       security-surface-touching subject and **confirm
       `unbound_conjunction_seats` is EMPTY.** This is the concrete verification
