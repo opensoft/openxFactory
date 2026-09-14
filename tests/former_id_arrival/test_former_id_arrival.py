@@ -603,7 +603,8 @@ class ArrivalRefusalTests(unittest.TestCase):
             self.assertEqual([f.status for f in findings], [fia.UNDECLARED],
                              [f.message for f in findings])
 
-    def test_a_dated_identitys_own_archival_is_excepted_too(self):
+    def test_archiving_a_packet_whose_id_is_already_dated_is_excepted_too(
+            self):
         """Scenario: *A packet archives* — for a packet whose OWN id already
         carries a date, which `archive_directory_name` archives UNCHANGED.
 
@@ -662,6 +663,32 @@ class ArrivalRefusalTests(unittest.TestCase):
                 fia._identity_paths_at(root, tip, "2026-09-09-foo"),
                 [f"{fia.ARCHIVE_ROOT}2026-09-09-foo/proposal.md"])
             self.assertTrue(fia.ever_ratified(root, tip, "2026-09-09-foo"))
+
+    def test_a_malformed_destination_produces_one_finding_not_two(self):
+        """The moves loop and `_declaration_findings` both read a MOVED
+        packet's declaration at the SAME `(revision, packet_dir)` — the
+        moves loop to compare it against what the move expects, and
+        `_declaration_findings` to judge § 2.4 and § 2.5 over every packet
+        the commit touched. Read twice, a malformed DESTINATION manifest
+        raised `FormerIdError` twice: one true defect, reported as two.
+        (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "change-r", ratified=True)
+            commit_all(root, "create the ratified packet")
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(directory), str(changes / "change-s"))
+            (changes / "change-s" / ".openspec.yaml").write_text(
+                "- former_ids\n", encoding="utf-8")
+            moved = commit_all(root, "move it, and break its manifest in "
+                                     "the same commit")
+
+            findings = self.judge(root, moved)
+            self.assertEqual(len(findings), 1, [f.message for f in findings])
+            self.assertIn("did not read as a mapping", findings[0].message)
+            self.assertIn("openspec/changes/change-s/.openspec.yaml",
+                          findings[0].message)
 
     def test_a_fork_by_copy_is_not_a_move_and_is_not_refused(self):
         """Scenario: *A fork by copy declares nothing*.
@@ -1128,13 +1155,15 @@ class FailClosedTests(unittest.TestCase):
 
         `load_packet` decodes a manifest ON DISK strictly and only catches
         `YAMLError`, so the corpus arm refuses non-UTF-8 bytes as "could not
-        be read at all" (the test above). The range arm reads history through
-        `support.git_show_text`, which decodes with `errors="replace"` and
-        NEVER raises — so without this check, the identical corruption in a
-        historical commit would come back as a string with one or more
-        `�` replacement characters and might still parse as a valid YAML
-        mapping, silently accepting from history exactly what the corpus arm
-        refuses on disk. (Copilot, PR #1039.)
+        be read at all" (the test above). `support.git_show_text` decodes
+        history with `errors="replace"` and NEVER raises, so a check asking
+        the STRING it returns "does it contain U+FFFD" cannot tell an
+        invalid byte sequence that got replaced from a genuine U+FFFD the
+        source legitimately carries — an EARLIER version of this fix asked
+        exactly that, and Copilot's sharper reading is why `declared_at`
+        instead reads the RAW BYTES itself (`_git_show_bytes`, never
+        `git_show_text`) and decodes them strictly, the same call
+        `load_packet` makes on disk. (Copilot, PR #1039.)
         """
         with TemporaryDirectory() as td:
             root = new_repo(Path(td))
@@ -1152,14 +1181,33 @@ class FailClosedTests(unittest.TestCase):
             shown = support.git_show_text(root, broken, rel)
             self.assertIsNotNone(shown)
             self.assertIn("�", shown)
+            # …and the RAW bytes this arm reads instead still carry the
+            # invalid sequence `git_show_text` silently replaced.
+            raw = fia._git_show_bytes(root, broken, rel)
+            with self.assertRaises(UnicodeDecodeError):
+                raw.decode("utf-8")
 
             with self.assertRaises(fia.ArrivalCannotRun) as caught:
                 fia.declared_at(root, broken, "openspec/changes/change-r",
                                 "change-r")
             message = str(caught.exception)
             self.assertIn("CANNOT RUN", message)
-            self.assertIn("invalid UTF-8", message)
+            self.assertIn("not valid UTF-8", message)
             self.assertIn(rel, message)
+
+            # A GENUINE U+FFFD IN A VALID UTF-8 DOCUMENT decodes cleanly and
+            # is not this refusal's to take — the whole reason the check
+            # reads bytes and decodes strictly instead of asking the lossy
+            # string for the same character. In a comment so the grammar of
+            # `former_ids:` itself is not what this assertion is about.
+            (directory / ".openspec.yaml").write_text(
+                MANIFEST + "# a genuine � is valid UTF-8\n",
+                encoding="utf-8")
+            genuine = commit_all(root, "a manifest with a real U+FFFD")
+            self.assertEqual(
+                fia.declared_at(root, genuine, "openspec/changes/change-r",
+                                "change-r"),
+                [])
 
     def test_a_symlink_is_refused_and_is_never_read_through(self):
         """WHAT `ls-tree` CANNOT SEE, THIS ARM DOES NOT READ.

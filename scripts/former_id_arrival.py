@@ -661,6 +661,29 @@ def ever_ratified(root: Path, tip: str, identity: str, *,
     return answer
 
 
+def _git_show_bytes(root: Path, revision: str, rel_path: str) -> bytes | None:
+    """`<revision>:<rel_path>` as RAW BYTES, or None when git cannot resolve
+    it — `support.git_show_text` for callers that must decode strictly.
+
+    `git_show_text` decodes with `errors="replace"` and hands back a STRING,
+    so asking that string "does it contain U+FFFD" cannot tell an invalid
+    byte sequence that got REPLACED from a genuine U+FFFD the source
+    legitimately carries — the former is corruption, the latter a valid (if
+    unusual) character `load_packet`'s own strict decode would accept on the
+    working tree. This reads the same bytes `git_show_text` would and leaves
+    the decoding to the caller, exactly as `load_packet` decodes a manifest
+    ON DISK. (Copilot, PR #1039.)
+    """
+    result = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
+        ["git", "-C", str(root.resolve()), "show", "--end-of-options",
+         f"{revision}:{rel_path}"],
+        capture_output=True, check=False,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
 def declared_at(root: Path, revision: str, packet_dir: str,
                 change: str) -> list[str]:
     """The lineage the packet at `packet_dir` declares at `revision`.
@@ -678,32 +701,29 @@ def declared_at(root: Path, revision: str, packet_dir: str,
     what = f"the declaration `{rel}` at {_short(revision)}"
     if not _tree_rows_or_refuse(root, revision, rel, what):
         return []
-    text = support.git_show_text(root, revision, rel)
-    if text is None:
+    raw = _git_show_bytes(root, revision, rel)
+    if raw is None:
         raise ArrivalCannotRun(
             f"REFUSE {UNREADABLE}: {what} CANNOT RUN. The read that could not "
             f"be performed is `git show {_short(revision)}:{rel}` — the tree "
             f"LISTS that path, so the manifest is PRESENT and its content is "
             f"unavailable, which is not the same as a packet that declares "
             f"nothing.")
-    if "�" in text:
-        # `git_show_text` DECODES WITH errors="replace" AND NEVER RAISES —
-        # unlike `load_packet`, which decodes a manifest ON DISK strictly and
-        # catches only `YAMLError`, so the corpus arm refuses the identical
-        # corruption as "could not be read at all". Without this check the
-        # range arm would read a LOSSY decode as a document instead — one or
-        # more invalid byte sequences silently replaced by U+FFFD, a
-        # character a legitimate `.openspec.yaml` has no reason to carry —
-        # and might still parse it as a valid mapping, accepting from
-        # history exactly what this gate refuses on the working tree.
-        # Refused here as the same CANNOT RUN an unreadable manifest earns
-        # everywhere else. (Copilot, PR #1039.)
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        # DECODED STRICTLY, THE SAME WAY `load_packet` DECODES A MANIFEST ON
+        # DISK, and only for that reason: reading the RAW bytes ourselves
+        # (`_git_show_bytes`, not `support.git_show_text`) is what lets this
+        # arm tell an actually-invalid byte sequence from a legitimate
+        # U+FFFD, which a check over the lossily-decoded string cannot.
+        # (Copilot, PR #1039.)
         raise ArrivalCannotRun(
             f"REFUSE {UNREADABLE}: {what} CANNOT RUN. `git show "
-            f"{_short(revision)}:{rel}` decoded with one or more invalid "
-            f"UTF-8 byte sequences replaced (U+FFFD) — the same corruption "
-            f"`load_packet` refuses on the working tree, refused here rather "
-            f"than parsed as a document it is not.")
+            f"{_short(revision)}:{rel}` is PRESENT and is not valid UTF-8 "
+            f"({exc}) — the same corruption `load_packet` refuses on the "
+            f"working tree, refused here rather than parsed after a lossy "
+            f"decode.")
     if support.yaml is None:
         raise ArrivalCannotRun(
             f"REFUSE {UNREADABLE}: {what} CANNOT RUN. PyYAML is not available "
@@ -733,6 +753,72 @@ def declared_at(root: Path, revision: str, packet_dir: str,
             f"it carries cannot be read, and an unreadable declaration is not "
             f"a packet that declares nothing")
     return support.declared_former_ids(change, data)
+
+
+def _declared_at_cached(cache: dict, root: Path, revision: str,
+                        packet_dir: str, change: str) -> list[str]:
+    """`declared_at`, MEMOIZED PER `(revision, packet_dir)` — within ONE
+    commit's judging, and no further.
+
+    `judge_commit` asks the SAME declaration more than once: the moves loop
+    reads a destination's declaration to compare against what its move
+    expects, and `_declaration_findings` (through `_multi_source_findings`
+    for a multi-source arrival) reads the identical declaration again to
+    judge § 2.4 and § 2.5 over every packet the commit touched — the same
+    path at the same revision, asked for two different questions. Read
+    twice, a malformed manifest raised `FormerIdError` twice: the gate
+    refused, but it refused the one problem more than once. (Copilot, PR
+    #1039.)
+
+    THE CACHED VALUE IS THE EXACT EXCEPTION OBJECT where the read raised,
+    replayed by IDENTITY rather than re-read, and identity is the point:
+    every caller still sees a `FormerIdError` and can still handle it as one,
+    but `_already_reported` below tells a SECOND catcher of the SAME object
+    apart from a first, which is what stops the one problem being turned
+    into two findings. This memoizes the READ; whether to REPORT it is
+    still each caller's own question, asked through `_already_reported`.
+    Keyed by `(revision, packet_dir)` and not by `change` too: `change` is
+    `change_id_of_dir(packet_dir)`, a pure function of the path already in
+    the key.
+
+    A CACHE LOCAL TO ONE `judge_commit` CALL, never the one `ever_ratified`
+    is handed: that one remembers a RATIFICATION ANSWER across the several
+    commits one `scan` judges, which the module docstring already says is
+    the one thing that carries between commits. This dictionary is built
+    fresh by `judge_commit` and does not outlive it.
+    """
+    key = (revision, packet_dir)
+    if key in cache:
+        cached = cache[key]
+        if isinstance(cached, support.FormerIdError):
+            raise cached
+        return cached
+    try:
+        result = declared_at(root, revision, packet_dir, change)
+    except support.FormerIdError as exc:
+        cache[key] = exc
+        raise
+    cache[key] = result
+    return result
+
+
+def _already_reported(reported: set, exc: "support.FormerIdError") -> bool:
+    """Has THIS EXACT exception object already become a `Finding`?
+
+    Answered by OBJECT IDENTITY (a plain `set` hashes and compares Python
+    exceptions that way by default), which is exactly what
+    `_declared_at_cached` preserves across two callers reading the same
+    `(revision, packet_dir)`: the SECOND catcher receives the identical
+    object the first one raised a `Finding` from, never an equal-looking
+    but distinct one, so there is no risk of conflating two different reads
+    that merely produced the same message. Records the object on the first
+    ask and answers `False` for it; every later ask of the same object
+    answers `True`.
+    """
+    if exc in reported:
+        return True
+    reported.add(exc)
+    return False
 
 
 # --------------------------------------------------------------------------
@@ -857,8 +943,15 @@ def judge_commit(root: Path, commit: str, *,
     The whole of the landing question, asked of one commit and of nothing
     else: no predecessor is followed, no successor is consulted, and no state
     carries between commits but the memoized `ever_ratified` answers.
+    `declared_cache` and `reported` below are not an exception to that: both
+    are built here, live no longer than this one call, and only stop this
+    one commit's own two readers — the moves loop and `_declaration_findings`
+    — from asking the tree the same `(revision, packet_dir)` question twice
+    and refusing the one answer twice.
     """
     findings: list[Finding] = []
+    declared_cache: dict = {}
+    reported: set = set()
     parents = commit_parents(root, commit)
     if parents is None:
         raise ArrivalCannotRun(
@@ -952,7 +1045,8 @@ def judge_commit(root: Path, commit: str, *,
                 report.moves_excepted_archive += 1
             continue
         # THE SOURCE'S WHOLE DECLARED LINEAGE, read as ONE BLOB at ONE COMMIT.
-        inherited = declared_at(root, parent, source, source_id)
+        inherited = _declared_at_cached(declared_cache, root, parent, source,
+                                        source_id)
         lineage = list(inherited) + [source_id]
         qualifying = next(
             (identity for identity in lineage
@@ -966,22 +1060,25 @@ def judge_commit(root: Path, commit: str, *,
             continue
         expected = list(inherited) + [source_id]
         try:
-            declared = declared_at(root, commit, destination, destination_id)
+            declared = _declared_at_cached(declared_cache, root, commit,
+                                           destination, destination_id)
         except support.FormerIdError as exc:
-            findings.append(Finding(commit=commit, message=str(exc)))
+            if not _already_reported(reported, exc):
+                findings.append(Finding(commit=commit, message=str(exc)))
             continue
         if declared != expected:
             findings.append(_undeclared_finding(
                 commit, source, destination, qualifying, expected, declared))
 
     findings += _declaration_findings(root, commit, parent, diff, arrivals,
-                                      after)
+                                      after, declared_cache, reported)
     return findings
 
 
 def _declaration_findings(root: Path, commit: str, parent: str,
                           diff: CommitDiff, arrivals: dict[str, list[str]],
-                          present: list[str]) -> list[Finding]:
+                          present: list[str], declared_cache: dict,
+                          reported: set) -> list[Finding]:
     """§ 2.4 and § 2.5 over every packet this commit touched.
 
     § 2.5 IS ASKED OF EVERY TOUCHED PACKET AND NOT ONLY OF AN ARRIVING ONE,
@@ -1006,7 +1103,8 @@ def _declaration_findings(root: Path, commit: str, parent: str,
         sources = arrivals.get(packet_dir, [])
         if len(sources) > 1:
             findings += _multi_source_findings(
-                root, commit, parent, packet_dir, change, sources)
+                root, commit, parent, packet_dir, change, sources,
+                declared_cache, reported)
             continue
         source = sources[0] if sources else None
         # THE ESTABLISHED LIST TRAVELS WITH THE PACKET: where this commit
@@ -1014,11 +1112,14 @@ def _declaration_findings(root: Path, commit: str, parent: str,
         # under the source's own id.
         was_dir = source if source is not None else packet_dir
         try:
-            established = declared_at(root, parent, was_dir,
-                                      change_id_of_dir(was_dir))
-            current = declared_at(root, commit, packet_dir, change)
+            established = _declared_at_cached(
+                declared_cache, root, parent, was_dir,
+                change_id_of_dir(was_dir))
+            current = _declared_at_cached(declared_cache, root, commit,
+                                          packet_dir, change)
         except support.FormerIdError as exc:
-            findings.append(Finding(commit=commit, message=str(exc)))
+            if not _already_reported(reported, exc):
+                findings.append(Finding(commit=commit, message=str(exc)))
             continue
         for problem in support.append_only_problems(
                 change, established, current):
@@ -1040,7 +1141,8 @@ def _declaration_findings(root: Path, commit: str, parent: str,
 
 def _multi_source_findings(root: Path, commit: str, parent: str,
                            packet_dir: str, change: str,
-                           sources: list[str]) -> list[Finding]:
+                           sources: list[str], declared_cache: dict,
+                           reported: set) -> list[Finding]:
     """§ 2.4 over a destination this commit brought in from MORE THAN ONE
     source — bound to every source, and to none of them by name.
 
@@ -1065,17 +1167,21 @@ def _multi_source_findings(root: Path, commit: str, parent: str,
     for source in sources:
         source_id = change_id_of_dir(source)
         try:
-            carried = declared_at(root, parent, source, source_id)
+            carried = _declared_at_cached(declared_cache, root, parent,
+                                          source, source_id)
         except support.FormerIdError as exc:
-            findings.append(Finding(commit=commit, message=str(exc)))
+            if not _already_reported(reported, exc):
+                findings.append(Finding(commit=commit, message=str(exc)))
             return findings
         for entry in list(carried) + [source_id]:
             if entry not in allowed:
                 allowed.append(entry)
     try:
-        current = declared_at(root, commit, packet_dir, change)
+        current = _declared_at_cached(declared_cache, root, commit,
+                                      packet_dir, change)
     except support.FormerIdError as exc:
-        findings.append(Finding(commit=commit, message=str(exc)))
+        if not _already_reported(reported, exc):
+            findings.append(Finding(commit=commit, message=str(exc)))
         return findings
     for entry in current:
         if entry not in allowed:
