@@ -4136,6 +4136,85 @@ class DeclaredFormerIdTests(unittest.TestCase):
                              "former_ids:\n  - old-bar\n")
             self.assertIn("old-bar", support.former_identity_claimants(root))
 
+    def test_an_uncontained_live_directory_cannot_hide_an_archived_lineage(
+            self):
+        """A CONTAINMENT GUARD THAT LEAVES ONE SET UNGUARDED GUARDS NOTHING.
+        `_archive_dir_carries` yields its EXACT reading to a live id of the
+        same name, so an entry in the live set does not merely add a name — it
+        SUPPRESSES one. Read from `change_dir_names`, which follows a symlink
+        as `is_dir()` does, an out-of-tree link named like a preserved dated
+        identity hid that identity's real archived directory.
+
+        MEASURED against head `018a65d3`, with
+        `openspec/changes/2026-09-09-foo` an out-of-tree symlink and the
+        packet standing at `archive/2026-09-09-foo`:
+        `declared_former_ids_in_tree(root, "2026-09-09-foo")` returned `[]`,
+        where without the link it returns `['old-foo']` — an empty lineage
+        sending the archive gate through the undeclared baseline. (Copilot,
+        PR #1038 `PRRT_kwDOTAvnrs6iHxAo`.)
+        """
+        with TemporaryDirectory() as td:
+            outside = Path(td) / "outside"
+            outside.mkdir()
+            root = Path(td) / "repo"
+            self.packet_yaml(root, "archive/2026-09-09-foo",
+                             "former_ids:\n  - old-foo\n")
+            # ANTI-VACUITY: without the link the lineage resolves
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-09-foo"),
+                ["old-foo"])
+            os.symlink(outside,
+                       root / "openspec" / "changes" / "2026-09-09-foo")
+            # the wrapper's own set still sees it; the resolver's does not
+            self.assertIn("2026-09-09-foo", support.change_dir_names(root))
+            self.assertNotIn("2026-09-09-foo",
+                             support.contained_change_dir_names(root))
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-09-foo"),
+                ["old-foo"])
+
+    def test_an_unreadable_parent_declaration_is_not_an_empty_one(self):
+        """THE APPEND-ONLY COMPARISON'S OWN READ BEHIND A GATE. Through a bare
+        `git_show_text` an UNREADABLE parent answered None exactly as an
+        ABSENT one does, `declared_former_ids` turned that into `[]`, and
+        `append_only_problems` compares against `[]` without complaint — so a
+        declaration DELETED or REORDERED is accepted whenever the established
+        list could not be read.
+
+        MEASURED at head `018a65d3`: `append_only_problems("change-t", [],
+        ["a"])` is `[]` while `append_only_problems("change-t", ["a", "b"],
+        ["a"])` refuses the removal, and `declared_former_ids("change-t",
+        None)` is `[]`. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHw_y`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet_yaml(root, "change-t",
+                                         "former_ids:\n  - change-r\n")
+            git(root, "init", "-q")
+            commit_all(root, "declare a lineage")
+            rel = "openspec/changes/change-t/.openspec.yaml"
+            self.assertEqual(
+                support.load_packet_at(root, "HEAD", rel)[
+                    support.FORMER_IDS_KEY], ["change-r"])
+            # a path GENUINELY ABSENT at the ref is still None, not a refusal
+            self.assertIsNone(support.load_packet_at(
+                root, "HEAD", "openspec/changes/change-q/.openspec.yaml"))
+
+            real = support.git_show_text
+
+            def unreadable(root_, revision, path):
+                return None if path == rel else real(root_, revision, path)
+
+            self.assertEqual(support._tree_rows(root, "HEAD", rel), [rel])
+            with mock.patch.object(support, "git_show_text",
+                                   side_effect=unreadable):
+                with self.assertRaises(support.OriginRetentionError) as caught:
+                    support.load_packet_at(root, "HEAD", rel)
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("change-t", str(caught.exception))
+            del directory
+
     def test_a_malformed_declaration_does_not_crash_the_corpus_sweep(self):
         """The sweep is about OWNERSHIP; shape is `former_id_problems`'s to
         report, and one unreadable packet must not stop the others being

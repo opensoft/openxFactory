@@ -593,16 +593,34 @@ class FormerIdError(SupportError):
     """
 
 
-def load_packet_at(root: Path, revision: str, rel_path: str) -> dict | None:
+def load_packet_at(root: Path, revision: str, rel_path: str, *,
+                   identity: str | None = None) -> dict | None:
     """A `.openspec.yaml` AT A REVISION, parsed — None when absent or
     unparseable.
 
     The tree-side sibling of `load_packet`. The append-only comparison needs
     the list a packet carried at a commit's PARENT, which is not on disk
-    anywhere, and reading it through `git_show_text` keeps one spelling of
-    "the packet at a ref" in this module.
+    anywhere, and reading it through `_text_at` keeps one spelling of "the
+    packet at a ref" in this module.
+
+    AND IT FAILS CLOSED, because the comparison it feeds is a read behind a
+    gate like any other. Through a bare `git_show_text` an UNREADABLE parent
+    answered None exactly as an ABSENT one does, `declared_former_ids` turned
+    that into `[]`, and `append_only_problems` compares against `[]` without
+    complaint: MEASURED, `append_only_problems("change-t", [], ["a"])` is `[]`
+    while `append_only_problems("change-t", ["a", "b"], ["a"])` refuses the
+    removal — so a declaration DELETED or REORDERED is accepted whenever the
+    established list could not be read. That is the shed-lineage failure with
+    the checkout, rather than the author, doing the shedding. Presence now
+    comes off the TREE first: a genuinely absent packet is still None, and one
+    the checkout cannot produce refuses `origin-retention-read-unavailable`.
+    (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHw_y`.)
+
+    `identity` names whose read this is in that refusal, and defaults to the
+    id `rel_path` addresses.
     """
-    text = git_show_text(root, revision, rel_path)
+    identity = identity or _first_change_id_of_proposal_path(rel_path) or rel_path
+    text = _text_at(root, revision, rel_path, identity=identity)
     if text is None or yaml is None:
         return None
     try:
@@ -1755,7 +1773,7 @@ def declared_former_ids_in_tree(root: Path, change: str) -> list[str]:
     candidates = [changes / change]
     archive = changes / "archive"
     if contained_dir(root, archive):
-        live_ids = change_dir_names(root)
+        live_ids = contained_change_dir_names(root)
         candidates += [d for d in sorted(archive.iterdir())
                        if contained_dir(root, d)
                        and _archive_dir_carries(d.name, change,
@@ -4023,7 +4041,36 @@ def change_dir_names(root: Path) -> set[str]:
     if not directory.is_dir():
         return set()
     return {child.name for child in directory.iterdir()
-            if child.is_dir() and child.name != "archive"}
+            if child.is_dir() and child.name != RESERVED_CHANGE_ID}
+
+
+def contained_change_dir_names(root: Path) -> set[str]:
+    """`change_dir_names` over the directories this repository CONTAINS.
+
+    THE WRAPPER'S SET AND THE RESOLVER'S SET ARE NOT THE SAME QUESTION.
+    `change_dir_names` answers "what did the operator's tree look like before
+    the child ran", and follows a symlink as `is_dir()` does. A RESOLVER
+    cannot use that set, because an uncontained entry there does not merely
+    add a name — it SUPPRESSES one: `_archive_dir_carries` yields its exact
+    reading to a live id of the same name, so a symlink named like a
+    preserved dated identity hides that identity's real archived directory.
+    MEASURED at head `018a65d3`, with `openspec/changes/2026-09-09-foo` an
+    out-of-tree symlink and the packet standing at
+    `archive/2026-09-09-foo`: `declared_former_ids_in_tree(root,
+    "2026-09-09-foo")` returned `[]` where it returns `['old-foo']` without
+    the link — an empty lineage sending the archive gate through the
+    undeclared baseline. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHxAo`.)
+
+    `change_dir_names` itself is left alone: it is the archive wrapper's
+    reading of the operator's tree, its answer is compared against directory
+    names the CLI wrote, and narrowing it would change what that wrapper
+    refuses on a question this one is not asking.
+    """
+    directory = root / "openspec" / "changes"
+    if not contained_dir(root, directory):
+        return set()
+    return {child.name for child in directory.iterdir()
+            if child.name != RESERVED_CHANGE_ID and contained_dir(root, child)}
 
 
 def names_this_change(directory_name: str, change: str,
