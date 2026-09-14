@@ -667,8 +667,22 @@ def declared_at(root: Path, revision: str, packet_dir: str,
             f"{change}: `{rel}` at {_short(revision)} is not parseable YAML "
             f"({exc.__class__.__name__}), so the declaration it carries "
             f"cannot be read") from exc
-    packet = data if isinstance(data, dict) else None
-    return support.declared_former_ids(change, packet)
+    if not isinstance(data, dict):
+        # A PRESENT MANIFEST THAT IS NOT A MAPPING IS MALFORMED, NOT EMPTY.
+        # `yaml.safe_load` answers None for an empty document and a list for a
+        # sequence, and passing either on as "no packet" would hand
+        # `declared_former_ids` the same value an ABSENT manifest gives it —
+        # so a draft rename or an append-only update carrying a broken
+        # `.openspec.yaml` would pass this arm while the corpus arm refuses
+        # the identical state. Read as it is written instead. (Copilot, #1039.)
+        kind = ("an empty document" if data is None
+                else f"a {type(data).__name__}")
+        raise support.FormerIdError(
+            f"{change}: `{rel}` at {_short(revision)} is PRESENT and did not "
+            f"read as a mapping — it parsed as {kind} — so any `former_ids:` "
+            f"it carries cannot be read, and an unreadable declaration is not "
+            f"a packet that declares nothing")
+    return support.declared_former_ids(change, data)
 
 
 # --------------------------------------------------------------------------

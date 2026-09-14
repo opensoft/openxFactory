@@ -961,6 +961,63 @@ class FailClosedTests(unittest.TestCase):
             commit_all(root, "remove the manifest")
             self.assertEqual(fia.corpus_problems(root), [])
 
+    def test_a_manifest_that_is_not_a_mapping_is_refused_by_the_range_arm_too(
+            self):
+        """THE SAME STATE, REFUSED BY BOTH ARMS — the corpus sweep's answer and
+        the commit range's answer to one broken `.openspec.yaml` must agree.
+
+        `yaml.safe_load` answers None for an empty document and a list for a
+        sequence; handing either on as "no packet" gives
+        `declared_former_ids` exactly what an ABSENT manifest gives it, so a
+        DRAFT RENAME carrying a broken manifest passed the range arm while the
+        corpus arm refused the identical tree. The read now refuses, naming
+        what it parsed as. (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "change-r")
+            (directory / ".openspec.yaml").write_text(
+                "- former_ids\n", encoding="utf-8")
+            commit_all(root, "a draft whose manifest is a sequence")
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(directory), str(changes / "change-s"))
+            moved = commit_all(root, "rename the draft")
+
+            with self.assertRaises(support.FormerIdError) as caught:
+                fia.judge_commit(root, moved)
+            message = str(caught.exception)
+            self.assertIn("did not read as a mapping", message)
+            self.assertIn("it parsed as a list", message)
+            self.assertIn("openspec/changes/change-r/.openspec.yaml", message)
+
+            # …and the CLI reports it and exits 1 — a malformed declaration is
+            # a refusal of the packet, not the CANNOT RUN of a checkout.
+            refused = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(root),
+                 "--base", f"{moved}^", "--head", moved],
+                capture_output=True, text=True)
+            self.assertEqual(refused.returncode, 1, refused.stdout)
+            self.assertIn("did not read as a mapping", refused.stdout)
+
+            # AN EMPTY MANIFEST IS THE SAME STATE UNDER ANOTHER SPELLING,
+            # and it is named as what it is.
+            (changes / "change-s" / ".openspec.yaml").write_text(
+                "\n", encoding="utf-8")
+            empty = commit_all(root, "empty the manifest")
+            with self.assertRaises(support.FormerIdError) as caught:
+                fia.declared_at(root, empty, "openspec/changes/change-s",
+                                "change-s")
+            self.assertIn("an empty document", str(caught.exception))
+
+            # …and a commit that moves NOTHING reports the unreadable
+            # declaration as a finding rather than raising out of the run, so
+            # the rest of the range is still judged. (The finding names the
+            # list at the parent, which is the first of the two reads that
+            # could not be made sense of.)
+            findings = fia.judge_commit(root, empty)
+            self.assertEqual(len(findings), 1, [f.message for f in findings])
+            self.assertIn("did not read as a mapping", findings[0].message)
+
     def test_a_grafted_boundary_takes_no_refusal(self):
         """`tasks.md` § 6.4, NOT TAKEN, asserted so it stays not taken.
 
