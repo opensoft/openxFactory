@@ -860,7 +860,31 @@ def declared_at(root: Path, revision: str, packet_dir: str,
             f"read as a mapping — it parsed as {kind} — so any `former_ids:` "
             f"it carries cannot be read, and an unreadable declaration is not "
             f"a packet that declares nothing")
-    return support.declared_former_ids(change, data)
+    declared = support.declared_former_ids(change, data)
+    # THE OTHER READING'S SELF-CLAIM — the corpus arm's fix
+    # (`test_an_archived_self_claim_under_its_OTHER_reading_is_refused`)
+    # for this SAME shape, applied here because every caller of this
+    # function passes `change_id_of_dir`'s STRIPPED reading, never the
+    # exact one, so `declared_former_ids` (through `former_id_problems`)
+    # is asked about only ONE of a dated archived directory's two
+    # identities. A self-claim written under the OTHER (exact,
+    # unstripped) reading — `archive/2026-09-09-foo` declaring
+    # `former_ids: [2026-09-09-foo]` — names an id this read never
+    # compared against, and the append-only and bound-entry checks every
+    # caller of `declared_at` performs downstream would then adjudicate a
+    # lineage carrying its own directory's other name as if it were an
+    # ordinary former identity. (Copilot, PR #1039.)
+    if is_archived_dir(packet_dir):
+        bare = packet_dir.rsplit("/", 1)[-1]
+        exact = bare if bare != change else None
+        if exact is not None and exact in declared:
+            raise support.FormerIdError(
+                f"{change}: `{rel}` at {_short(revision)} names {exact!r}, "
+                f"which is `{packet_dir}`'s OTHER reading of its own "
+                f"archived name — the same self-claim refused under the "
+                f"reading {change!r}, written here under the reading this "
+                f"directory ALSO is")
+    return declared
 
 
 def _declared_at_cached(cache: dict, root: Path, revision: str,

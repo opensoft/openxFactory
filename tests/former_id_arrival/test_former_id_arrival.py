@@ -740,6 +740,41 @@ class ArrivalRefusalTests(unittest.TestCase):
             rearchived = commit_all(root, "re-date its archive directory")
             self.assertEqual(self.judge(root, rearchived), [])
 
+    def test_an_archived_self_claim_under_the_exact_reading_is_refused_by_the_range_arm(
+            self):
+        """The RANGE arm's mirror of the corpus arm's fix
+        (`test_an_archived_self_claim_under_its_OTHER_reading_is_refused`):
+        every caller of `declared_at` passes `change_id_of_dir`'s STRIPPED
+        reading, so a self-claim written under a dated archived
+        directory's OTHER (exact) reading names an id this read never
+        compared against. Reachable even through the archive-relocation
+        EXCEPTION, which skips the declaration check entirely but does not
+        stop `_declaration_findings` from re-reading the same manifest for
+        § 2.4/2.5 regardless. (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "2026-09-09-foo", ratified=True)
+            commit_all(root, "create the ratified, already-dated packet")
+            archive = root / "openspec" / "changes" / "archive"
+            archive.mkdir(parents=True)
+            git(root, "mv", str(directory), str(archive / "2026-09-09-foo"))
+            declare(archive / "2026-09-09-foo", "2026-09-09-foo")
+            archived = commit_all(root, "archive it, declaring a self-claim "
+                                        "under its OTHER reading")
+
+            findings = self.judge(root, archived)
+            self.assertEqual(len(findings), 1, [f.message for f in findings])
+            self.assertIn("2026-09-09-foo", findings[0].message)
+            self.assertIn("OTHER reading", findings[0].message)
+
+            # THE ARCHIVE RELOCATION ITSELF IS STILL EXCEPTED — this finding
+            # is § 2.4/2.5's, over the declaration, and not the arrival
+            # arm's false refusal of the relocation `8124eead` already
+            # fixed.
+            self.assertNotIn("former-id-undeclared",
+                             [f.status for f in findings])
+
     def test_a_fork_by_copy_is_not_a_move_and_is_not_refused(self):
         """Scenario: *A fork by copy declares nothing*.
 
