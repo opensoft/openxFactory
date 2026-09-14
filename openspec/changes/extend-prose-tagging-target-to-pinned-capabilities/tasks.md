@@ -222,7 +222,7 @@ the later realization pull request, and § 4 is the archive act.
 
 ## 3. Realization — a LATER pull request, after ratification
 
-- [ ] 3.1 `scripts/doc_health/families.py`: teach resolution the `pinned:`
+- [x] 3.1 `scripts/doc_health/families.py`: teach resolution the `pinned:`
   prefix — `_resolve_capability` (line 1317) gains the arm, or a sibling
   resolver is added and `fam_tag_hygiene`'s call sites (lines 1366, 1390)
   dispatch on the prefix. The regexes at 1308-1314 DO NOT MOVE. The arm judges
@@ -269,7 +269,7 @@ the later realization pull request, and § 4 is the archive act.
   `scripts/doc_health/families.py:1317-1321`, over `Context.repo_paths`,
   `scripts/doc_health/runner.py:39`) — invents no precedence of its own, and
   NAMES THE ROOT it resolved against in every finding the arm emits.
-- [ ] 3.2 The finding text for an unresolved PINNED target names the pin
+- [x] 3.2 The finding text for an unresolved PINNED target names the pin
   registry, not `openspec/specs/` — the present fixed string
   (`families.py:1523-1524`, measured on `origin/main` at `177ba819`) is the
   wrong instruction for this class. The
@@ -285,7 +285,7 @@ the later realization pull request, and § 4 is the archive act.
   the broken member, whose repair belongs to whoever wrote it; and where it is
   well formed without the named capability the finding names the enumeration.
   Each is a separate string in the pinned table of (j).
-- [ ] 3.3 Tests under `tests/doc-health/` (hyphen — the directory that
+- [x] 3.3 Tests under `tests/doc-health/` (hyphen — the directory that
   exists; `scripts/doc_health/` with an underscore is the package under
   test), extending `tests/doc-health/fixtures/tag-hygiene/`, and D-2's
   ENUMERATION PREREQUISITE gets BOTH
@@ -587,10 +587,10 @@ the later realization pull request, and § 4 is the archive act.
   `scripts/validate-openspec-cli-pin.py` — and the test is what keeps that
   baseline true as either side moves, rather than a comment asserting it was
   true once.
-- [ ] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
+- [x] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
   target form beside the existing `<capability>` bullet, its scope (candidate
   `target=` only, per D-1.1), and D-3's stale-target sentence.
-- [ ] 3.5 Retarget the four markers to `target=pinned:openxwallet/openxwallet`
+- [x] 3.5 Retarget the four markers to `target=pinned:openxwallet/openxwallet`
   — `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md`
   lines 222, 242, 280 and
   `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md`
@@ -606,7 +606,7 @@ the later realization pull request, and § 4 is the archive act.
   would clear them. The markers are retargeted anyway because the pinned form
   is the TRUE form for these blocks (D-3), and a true marker carrying a true
   finding is the outcome this packet exists to reach.
-- [ ] 3.6 Correct `ideation/staging/INDEX.md:2262-2265`, which still describes
+- [x] 3.6 Correct `ideation/staging/INDEX.md:2262-2265`, which still describes
   three `openxwallet` blocks as "all resolving" and has been false since
   2026-08-28.
 - [ ] 3.7 Evidence: a `--single-repo` doc-health run over the realization tree

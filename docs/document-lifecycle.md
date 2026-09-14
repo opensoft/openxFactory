@@ -183,6 +183,36 @@ change):
   active change's `specs/` while the capability is pre-promotion);
   `<requirement-slug>` is the kebab-case requirement name, e.g.
   `document-lifecycle/explicit-delta-rule`.
+- A candidate marker's `target=` may instead take the **pinned form**,
+  `pinned:<pin-id>/<capability>`, naming a capability of a NEUTRAL PRODUCT THIS
+  REPOSITORY PINS: `<pin-id>` is the stem of a `contracts/<pin-id>-pin.yaml`
+  record and `<capability>` is the capability name as the pinned product holds
+  it — e.g. `target=pinned:openxwallet/openxwallet`. The literal prefix
+  `pinned:` is RESERVED and is the discriminator between the two forms; a
+  capability id contains no colon. The value after it is exactly TWO
+  `[a-z0-9]+(-[a-z0-9]+)*` components separated by exactly one `/`, checked
+  BEFORE any pin-record path is built, and a value that fails that grammar is
+  reported as a malformed pinned target with nothing read for it. A pinned
+  target RESOLVES only where all three hold: the pin id resolves to a
+  `kind: pinned_contract_manifest` record complete for its record shape, that
+  record carries a well-formed non-empty top-level `capabilities:` enumeration,
+  and `<capability>` is a member of it — so a pinned target whose record
+  enumerates nothing does not resolve, and its remedy is the PUBLISHER's
+  (`capabilities:` added through a `neutral-product-pin` change) rather than
+  this repository's. Ratified by
+  `extend-prose-tagging-target-to-pinned-capabilities`.
+- The pinned form is admitted in a CANDIDATE marker's `target=` attribute ONLY.
+  An `xspec:supersedes` marker's `spec=` value must not carry the `pinned:`
+  prefix — that value already splits at its first `/`, so a pinned parse for it
+  is undefined — and a `spec=` that carries it is reported.
+- **When a marker's target capability EXITS the corpus, the marker either takes
+  the pinned form naming the product that now holds the capability, or the
+  block is unfenced — never silently retargeted to a different capability, and
+  never silently deleted.** Retargeting makes the marker name a capability the
+  tagged prose is not about; deleting drops the block out of the conversion
+  queue without a record that it was dropped. Unfencing is a lawful outcome
+  that is CHOSEN and visible in the diff, not the thing that happens when
+  nobody decides.
 - Candidacy is **block-level only**: no `Status:` value expresses
   conversion candidacy — a document's lifecycle status and its conversion
   queue stay orthogonal. Only prose inside well-formed candidate blocks is
