@@ -629,8 +629,17 @@ def load_packet_at(root: Path, revision: str, rel_path: str, *,
     """
     identity = identity or _first_change_id_of_proposal_path(rel_path) or rel_path
     text = _text_at(root, revision, rel_path, identity=identity)
-    if text is None or yaml is None:
+    if text is None:
         return None
+    if yaml is None:
+        raise FormerIdError(
+            f"{identity}: `{rel_path}` STANDS at {revision[:12]} and PyYAML "
+            f"is not installed, so the lineage it declares cannot be read. "
+            f"None is reserved here for a path that is genuinely ABSENT, and "
+            f"a missing parser is not an absent declaration — read as one, "
+            f"the established list comes back empty and the append-only rule "
+            f"passes whatever the commit did to it. Install PyYAML and run "
+            f"the gate again")
     try:
         data = yaml.safe_load(text)
     except yaml.YAMLError as broken:
@@ -719,7 +728,8 @@ def identity_of_packet_dir(root: Path, directory: Path) -> str:
         return candidates[0]
     full, stripped = candidates
     listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
-        ["git", "-C", str(root.resolve()), "log", "--format=%H", "-1", "--",
+        ["git", "-C", str(root.resolve()), "log", "--full-history",
+         "--format=%H", "-1", "--",
          f"openspec/changes/{full}/proposal.md"],
         capture_output=True, text=True, check=False,
     )
@@ -1067,7 +1077,13 @@ def standing_former_id_problems(root: Path, change: str,
     problems = []
     for identity in ids:
         standing = root / "openspec" / "changes" / identity
-        if standing.is_dir():
+        # CONTAINED, because this arm REFUSES on what it finds: `is_dir()`
+        # follows a symlink, so a tracked `openspec/changes/<id>` link
+        # pointing outside would reject a LAWFUL move over a packet this
+        # repository does not contain. The other containment guards stop a
+        # foreign packet being believed; this one stops a foreign packet
+        # being blamed.
+        if contained_dir(root, standing):
             problems.append(
                 f"{change}: declares former id {identity!r}, but "
                 f"`{_corpus_rel(standing)}` STILL STANDS in this tree. A "
@@ -1534,7 +1550,13 @@ def _archive_dir_carries(name: str, identity: str, *,
     match = _ARCHIVE_DIR_RE.match(name)
     if match is not None and match.group("id") == identity:
         return True
-    if name != identity:
+    if name != identity or not _ARCHIVE_DATE_RE.match(identity):
+        # THE EXACT ARM EXISTS FOR ONE SHAPE ONLY — an identity that already
+        # carries a date, which `archive_directory_name` preserves unchanged.
+        # For any other id that function emits `<date>-<id>` and nothing else,
+        # so `archive/foo/` is not a directory the pinned archiver can
+        # produce, and admitting it would let a stray or hand-made entry stand
+        # as a baseline LOCATION.
         return False
     # THE EXACT READING YIELDS TO A LIVE PACKET OF THAT NAME, and only the
     # exact one does. `names_this_change` settles the ambiguous shape from the
@@ -1959,7 +1981,12 @@ def ratifying_baseline(root: Path, change: str, *,
     longer fires for the move the packet DECLARED — that move has a lawful
     answer now, and the answer is the earlier identity's own ratification.
     """
-    if not CHANGE_ID_RE.fullmatch(change):
+    if not CHANGE_ID_RE.fullmatch(change) or change == RESERVED_CHANGE_ID:
+        # THE RESERVED SEGMENT IS A LAWFUL SLUG AND AN UNLAWFUL IDENTITY, so
+        # the grammar cannot refuse it and this must — the same arm
+        # `active_change_dir` and `former_id_problems` carry. Without it a
+        # caller, or a malformed tree, makes this walk resolve
+        # `openspec/changes/archive/proposal.md` as an active packet.
         raise SupportError(f"invalid change name: {change}")
     # None MEANS "READ THE PACKET", AND `[]` MEANS "DECLARES NOTHING", which
     # are different questions and must not answer the same way: a caller that
@@ -3717,8 +3744,15 @@ def verify(root: Path, change: str | None) -> list[str]:
     for directory in sorted((active_root / "archive").iterdir()):
         if not directory.is_dir():
             continue
-        change_id = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", directory.name)
-        if change and change_id != change:
+        # `names_this_change` AND NOT A PRIVATE COPY OF THE STRIP: after the
+        # pinned CLI archives `2026-08-04-add-dated` under that name
+        # unchanged, a bare strip derives `add-dated` here and
+        # `verify(root, "2026-08-04-add-dated")` skips the archived packet
+        # altogether. The helper reads both spellings and lets the ACTIVE ids
+        # settle the ambiguous one.
+        change_id = change_id_of(directory)
+        if change and not names_this_change(directory.name, change,
+                                            change_dir_names(root)):
             continue
         has_manifest = (directory / "supporting-docs.manifest.yaml").exists()
         has_bundle = (directory / "supporting-docs.tar.gz").exists()

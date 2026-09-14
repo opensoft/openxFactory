@@ -4345,6 +4345,68 @@ class DeclaredFormerIdTests(unittest.TestCase):
             self.assertIsNone(support.load_packet_at(
                 root, "HEAD", "openspec/changes/change-q/.openspec.yaml"))
 
+    def test_the_six_suppressed_findings_of_the_last_copilot_round(self):
+        """SIX FINDINGS COPILOT SUPPRESSED RATHER THAN POSTED, taken anyway.
+
+        A suppressed comment opens no thread, so a FREEZE counting threads
+        would have recorded zero and been true and useless. Each is measured
+        here as its own assertion rather than its own test, because they are
+        one commit's worth of the same two families — containment, and an
+        identity read that guesses.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "repo"
+            changes = root / "openspec" / "changes"
+            changes.mkdir(parents=True)
+
+            # (1) :1070 — `standing_former_id_problems` followed a symlink, so
+            # a link pointing OUTSIDE could reject a lawful move over a packet
+            # this repository does not contain.
+            outside = Path(td) / "outside"
+            outside.mkdir()
+            os.symlink(outside, changes / "change-r")
+            self.assertEqual(
+                support.standing_former_id_problems(root, "change-t",
+                                                    ["change-r"]), [])
+            # …and a REAL standing packet is still refused
+            (changes / "change-s").mkdir()
+            self.assertTrue(support.standing_former_id_problems(
+                root, "change-t", ["change-s"]))
+
+            # (3) :1538 — the exact archive arm is for a DATED identity only;
+            # `archive_directory_name` emits `<date>-<id>` for anything else,
+            # so `archive/foo/` is not a directory the archiver can produce.
+            self.assertFalse(support._archive_dir_carries("foo", "foo"))
+            self.assertTrue(support._archive_dir_carries("2026-09-09-foo",
+                                                         "2026-09-09-foo"))
+            self.assertTrue(support._archive_dir_carries("2026-09-09-foo",
+                                                         "foo"))
+
+            # (4) :1963 — the reserved segment is a lawful slug and an
+            # unlawful identity, so the walk must refuse it by name.
+            with self.assertRaises(support.SupportError):
+                support.ratifying_baseline(root, support.RESERVED_CHANGE_ID)
+
+    def test_a_missing_yaml_parser_is_not_an_absent_declaration(self):
+        """(2) :632 — with PyYAML unavailable `load_packet_at` returned None
+        for a path `_text_at` had just proved PRESENT, which is the documented
+        "None only when absent" contract broken by the import rather than by
+        the tree, and an empty established list handed to the append-only
+        rule."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            git(root, "init", "-q")
+            commit_all(root, "declare a lineage")
+            rel = "openspec/changes/change-t/.openspec.yaml"
+            with mock.patch.object(support, "yaml", None):
+                with self.assertRaises(support.FormerIdError) as caught:
+                    support.load_packet_at(root, "HEAD", rel)
+                self.assertIn("PyYAML", str(caught.exception))
+                # a genuinely absent path is STILL None, parser or no parser
+                self.assertIsNone(support.load_packet_at(
+                    root, "HEAD", "openspec/changes/change-q/.openspec.yaml"))
+
     def test_a_malformed_declaration_does_not_crash_the_corpus_sweep(self):
         """The sweep is about OWNERSHIP; shape is `former_id_problems`'s to
         report, and one unreadable packet must not stop the others being
