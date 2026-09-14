@@ -520,6 +520,23 @@ class NoDeclaredRepositories:
     register_entry: Mapping[str, object] | None
     detail: str
 
+    def excerpt(self, limit: int = 120) -> str:
+        """The declaration as a refusal quotes it: one line, bounded.
+
+        THE FIELD IS CARRIED TO BE READ. It was write-only until a bench round
+        said so, and a carried-but-unread field is a field the next reader
+        deletes or the next writer fills wrongly. The refusal names the text
+        the declaration carries, which is what the grammar requirement asks of
+        its own findings; the bound is `code_surface._excerpt`'s, because some
+        of these declarations run to thousands of bytes across dozens of lines
+        and an unbounded echo would bury the refusal in the gloss it is
+        refusing to derive from.
+        """
+        flat = " ".join(self.declaration.split())
+        if not flat:
+            return "<no value>"
+        return flat if len(flat) <= limit else flat[:limit - 1] + "\u2026"
+
 
 def validate_cross_consistency(
     scope: ScopeGlobs,
@@ -558,7 +575,8 @@ def validate_cross_consistency(
         raise CodeSurfaceHeadError(
             f"{where}declares scope_globs for "
             f"{', '.join(sorted(scope.by_repo))}, but NO REPOSITORY SET CAN BE "
-            f"DERIVED from its code_surface declaration: {absent.detail} "
+            f"DERIVED from its code_surface declaration `{absent.excerpt()}`: "
+            f"{absent.detail} "
             f"{tolerated} The run does NOT fall back to a set derived from the "
             "whole declaration (that would re-admit the prose gloss as an "
             "authorization surface) and does NOT substitute an empty set (that "
@@ -628,11 +646,30 @@ def code_surface_repositories(
 
     Returns:
       * a `set[str]` of the head's identifiers — EMPTY for a `none` head, which
-        is an empty set the head DECLARES;
-      * a `NoDeclaredRepositories` carrier when the head is one the grammar
-        cannot read, or when the field is absent or is not text. The carrier is
-        the ABSENCE of a head-derived set, which is a different fact from the
-        empty one, and `validate_cross_consistency` refuses on it.
+        is an empty set the head DECLARES, AND EMPTY FOR AN ABSENT KEY, which
+        declares the same thing by taking the promoted default;
+      * a `NoDeclaredRepositories` carrier when a PRESENT declaration is one no
+        reader can read — a head the grammar refuses, or a value that is not
+        text. The carrier is the ABSENCE of a head-derived set, which is a
+        different fact from the empty one, and `validate_cross_consistency`
+        refuses on it.
+
+    AN OMITTED KEY IS NOT THE ABSENCE THE CARRIER STANDS FOR, and the two were
+    conflated here until a bench round separated them. *Realization axis
+    declaration* makes "a proposal without the declarations a doc-only change
+    (`code_surface: none`, `target_release: implemented`) by default", and this
+    packet's own grammar requirement restates it — *"ABSENCE IS THE PROMOTED
+    DEFAULT AND SHALL NEVER BE A FINDING … a proposal that declares nothing
+    declares the default. Only a PRESENT declaration is judged"*. What the
+    default declares is `none`, and the derivation requirement rules that head:
+    *"WHERE THE HEAD IS `none` THE DERIVED SET SHALL BE EMPTY"*. So an omitted
+    key derives the EMPTY SET, by way of the default head it takes — and a
+    scope key declared beside it is refused as the ORDINARY cross-consistency
+    finding against the SCOPE, which is where the fault then is. The carrier's
+    own population is named by the paragraph that introduces it: *"Where a
+    proposal passes the gate only because the closed register names it — its
+    head being one the grammar cannot read — there is no head to derive from"*.
+    A declaration nobody wrote is not a head nobody can read.
 
     `change` is the change-directory name, which the one in-tree caller already
     holds (`proposal.parent.name`); it is what lets the refusal name the
@@ -643,15 +680,31 @@ def code_surface_repositories(
     the absence of an exception file may never turn a fail-closed into a
     fail-open.
     """
+    if "code_surface" not in front_matter:
+        # THE PROMOTED DOC-ONLY DEFAULT, DERIVED RATHER THAN REFUSED. The key
+        # is absent, so the proposal declares `code_surface: none` by default,
+        # and a `none` head derives the EMPTY SET. Membership is then judged as
+        # it is for any other empty surface: a scope key declared beside it is
+        # the ordinary cross-consistency finding against the SCOPE. Returning
+        # the absence carrier here would make a proposal that declared nothing
+        # read a refusal about a declaration it never wrote.
+        return set()
     raw = front_matter.get("code_surface")
     if not isinstance(raw, str):
+        # PRESENT AND UNREADABLE, which is the carrier's own population. The
+        # prose-header loader yields a string for every declaration a document
+        # can carry, so this arm is reached only by a caller holding a
+        # hand-built mapping — and a value present in a shape no reader can
+        # read is judged as the present declaration it is, never silently
+        # defaulted.
         return NoDeclaredRepositories(
             change=change, declaration="" if raw is None else str(raw),
             register_entry=None,
-            detail=("the proposal declares no `code_surface:` value this "
-                    "reader can read (absent, or not text), so it declares no "
-                    "repositories — and the promoted doc-only default it would "
-                    "otherwise take is `none`, which declares none either."))
+            detail=("the proposal carries a `code_surface:` value that is not "
+                    "text, so no head can be read from it. The promoted "
+                    "doc-only default is available by OMITTING the key; a key "
+                    "present in an unreadable shape is a declaration the "
+                    "author began and did not make."))
     cs = _code_surface()
     try:
         head = cs.parse_head(raw)

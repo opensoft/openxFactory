@@ -890,6 +890,102 @@ def test_a_none_head_derives_the_empty_set_and_the_gloss_adds_nothing():
     assert sg.code_surface_repositories(front, change="c") == set()
 
 
+def test_an_OMITTED_key_derives_the_EMPTY_SET_the_promoted_default_declares():
+    """ABSENCE IS THE PROMOTED DEFAULT, AND THE DEFAULT DECLARES `none`.
+
+    *Realization axis declaration* makes "a proposal without the declarations a
+    doc-only change (`code_surface: none`, `target_release: implemented`) by
+    default"; this packet's grammar requirement restates it ("ABSENCE IS THE
+    PROMOTED DEFAULT AND SHALL NEVER BE A FINDING … a proposal that declares
+    nothing declares the default"); and the derivation requirement rules the
+    head the default declares ("WHERE THE HEAD IS `none` THE DERIVED SET SHALL
+    BE EMPTY"). So an omitted key derives the EMPTY SET, by way of the default
+    head it takes — and NOT the absence carrier, whose own population the next
+    paragraph names: "a proposal [that] passes the gate only because the closed
+    register names it — its head being one the grammar cannot read".
+    """
+    derived = sg.code_surface_repositories({"target_release": "implemented"},
+                                           change="c")
+    assert derived == set()
+    assert not isinstance(derived, sg.NoDeclaredRepositories)
+
+
+def test_an_OMITTED_key_beside_a_scope_is_the_ORDINARY_finding_against_the_scope(
+        tmp_path):
+    """And the consequence at the point of enforcement: the refusal is the
+    ordinary cross-consistency one — a finding against the SCOPE, which names a
+    repository the change declares no surface for — and NOT the fail-closed
+    carrier's, which would send the author to correct a `code_surface:`
+    declaration they never wrote."""
+    front = {"scope_globs": {"codexFactory": ["scripts/**"]}}
+    with pytest.raises(sg.ScopeGlobsError) as caught:
+        sg.validate_scope_globs(
+            front["scope_globs"],
+            code_surface_repos=sg.code_surface_repositories(front, change="c"))
+    message = str(caught.value)
+    assert not isinstance(caught.value, sg.CodeSurfaceHeadError), message
+    assert "not in code_surface" in message
+    assert "NO REPOSITORY SET CAN BE DERIVED" not in message
+
+
+def test_an_OMITTED_key_beside_a_scope_reds_the_scope_gate_END_TO_END(tmp_path):
+    """The same fact through the CLI, so the default is pinned where an author
+    meets it: exit 1 with the change id prefixed and the ORDINARY message, not
+    the code-surface carrier's."""
+    _proposal(tmp_path, "c",
+              "target_release: implemented\n"
+              "scope_globs:\n  codexFactory:\n    - 'scripts/**'")
+    result = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(tmp_path)],
+        capture_output=True, text=True)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "c: " in result.stdout
+    assert "not in code_surface" in result.stdout
+    assert "NO REPOSITORY SET CAN BE DERIVED" not in result.stdout
+
+
+def test_a_PRESENT_value_that_is_not_text_still_fails_closed():
+    """The carrier keeps the arm it was built for. An omitted key is a
+    declaration nobody wrote; a key PRESENT in a shape no reader can read is a
+    declaration the author began and did not make, and the promoted default is
+    available by omitting the key rather than by writing it unreadably."""
+    derived = sg.code_surface_repositories(
+        {"code_surface": ["openxFactory"]}, change="c")
+    assert isinstance(derived, sg.NoDeclaredRepositories)
+    assert "not text" in derived.detail
+    with pytest.raises(sg.CodeSurfaceHeadError):
+        sg.validate_scope_globs({"R": ["scripts/**"]},
+                                code_surface_repos=derived)
+
+
+def test_a_PRESENT_but_EMPTY_value_still_fails_closed():
+    """`code_surface:` written with nothing after it is the refusal the grammar
+    requirement states in terms ("a declaration present with no value SHALL be
+    refused, because the author wrote the key and the default is available by
+    omitting it"), and the consumer fails closed on it rather than reading the
+    default the author did not take."""
+    derived = sg.code_surface_repositories({"code_surface": ""}, change="c")
+    assert isinstance(derived, sg.NoDeclaredRepositories)
+    assert "with no value" in derived.detail
+
+
+def test_the_absence_carrier_QUOTES_the_declaration_it_carries():
+    """The carrier's `declaration` is carried TO BE READ: the refusal names the
+    text the declaration carries, bounded to one line so the gloss it refuses to
+    derive from cannot bury the refusal."""
+    declaration = ("openxFactory, and it is THREE FILES " + "x " * 200).strip()
+    derived = sg.code_surface_repositories(
+        {"code_surface": declaration}, change="c", register=[])
+    assert isinstance(derived, sg.NoDeclaredRepositories)
+    excerpt = derived.excerpt()
+    assert len(excerpt) <= 120
+    assert excerpt.endswith("\u2026")
+    with pytest.raises(sg.CodeSurfaceHeadError) as caught:
+        sg.validate_scope_globs({"R": ["scripts/**"]},
+                                code_surface_repos=derived)
+    assert excerpt in str(caught.value)
+
+
 def test_a_structured_scope_naming_a_gloss_only_repository_is_refused(tmp_path):
     """The scenario, end to end: a scope key that appears in the GLOSS and not
     in the head is a scope naming a repository the change declares no
