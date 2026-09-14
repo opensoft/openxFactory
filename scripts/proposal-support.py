@@ -1149,12 +1149,12 @@ def _tree_rows(root: Path, revision: str, path: str) -> list[str] | None:
 
     A NON-ZERO EXIT IS RETURNED AS None AND NEVER AS AN EMPTY LIST, which is
     the distinction `sequenced_after._archive_dir_names_at_ref` collapses and
-    which this packet's own requirement forbids reusing. What the CALLERS
-    then do with a None is this slice's honest limit: they treat it as "no
-    row", which is today's behaviour, and turning it into the CANNOT RUN
-    refusal the requirement names is the fail-closed slice (`tasks.md` § 3.4)
-    — this function is the read that slice needs, landed early so that slice
-    changes callers and not probes.
+    which this packet's own requirement forbids reusing. EVERY CALLER NOW
+    RAISES ON THAT None (`tasks.md` § 3.4): `_rows_or_refuse` is the one door
+    this value leaves by, and it leaves as `origin-retention-read-unavailable`
+    — CANNOT RUN, naming the read and the identity it was for. This function
+    is unchanged by that slice, which was the point of landing the probe
+    first: the fail-closed slice changed callers and not probes.
     """
     listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
         ["git", "-C", str(root.resolve()), "ls-tree", "--name-only",
@@ -1164,6 +1164,96 @@ def _tree_rows(root: Path, revision: str, path: str) -> list[str] | None:
     if listed.returncode != 0:
         return None
     return [row for row in listed.stdout.splitlines() if row.strip()]
+
+
+_READ_UNAVAILABLE = "origin-retention-read-unavailable"
+
+
+def _unreadable_read_refusal(identity: str, read: str, question: str, *,
+                             at: str | None = None) -> OriginRetentionError:
+    """The refusal EVERY read behind the baseline takes when it cannot be
+    performed — CANNOT RUN, naming the read that failed and the identity it
+    was for.
+
+    ONE REFUSAL FOR EVERY SUCH READ, because a caller can act on exactly one
+    thing: the baseline CANNOT BE ESTABLISHED from this checkout. Which read
+    it was is in the message and never in the status, the way
+    `OriginRetentionError`'s own docstring already says its four arms work.
+
+    RETURNED RATHER THAN RAISED, so the `raise` stands at the call site and a
+    reader of that site sees the control flow leave there rather than
+    trusting a helper's name to mean "this never returns".
+    """
+    where = f"At commit {at[:12]}" if at else "Behind the baseline"
+    return OriginRetentionError(
+        f"REFUSE {_READ_UNAVAILABLE}: {identity}: the origin-retention walk "
+        f"CANNOT RUN. {where} this checkout could not perform a read the "
+        f"baseline rests on — `{read}` exited non-zero — so {question} "
+        f"is a question it cannot answer. ABSENT AND UNREADABLE ARE THE "
+        f"SAME SILENCE TO A PROBE AND NOT THE SAME FACT: reading this one "
+        f"as the other would let the walk pass the commit by and take a "
+        f"LATER baseline, or report {identity} as never ratified, over a "
+        f"history it never read — a gate switching itself off exactly "
+        f"where it can prove nothing, which is what this refusal exists to "
+        f"stop. The measured shape is a `--filter=blob:none` or "
+        f"`--filter=tree:0` partial clone whose promisor remote is "
+        f"unreachable (`design.md` M1, git 2.43.0). Fetch the objects this "
+        f"read needs (`git fetch --refetch`, or a full clone) and run the "
+        f"gate again; there is no bypass flag.")
+
+
+def _rows_or_refuse(root: Path, revision: str, path: str, *, identity: str,
+                    question: str) -> list[str]:
+    """`_tree_rows`, with its None raised rather than read as an empty tree.
+
+    THE ONE DOOR THE None LEAVES BY. `_tree_rows` separates the two silences
+    and returns them as `[]` and `None`; this is where the second stops being
+    a value and becomes a refusal, so no caller has to remember which is
+    which.
+    """
+    rows = _tree_rows(root, revision, path)
+    if rows is None:
+        raise _unreadable_read_refusal(
+            identity, f"git ls-tree --name-only {revision[:12]} -- {path}",
+            question, at=revision)
+    return rows
+
+
+def _text_at_a_present_path(root: Path, revision: str, rel: str, *,
+                            identity: str) -> str:
+    """The blob at a path THE TREE HAS ALREADY SAID STANDS at `revision`.
+
+    So a None from `git_show_text` here is never "there is nothing there":
+    the row was read off the tree one call ago, and the only remaining
+    reading of the silence is that this checkout cannot produce what stands
+    there. Raised, therefore, and never returned.
+    """
+    text = git_show_text(root, revision, rel)
+    if text is None:
+        raise _unreadable_read_refusal(
+            identity, f"git show {revision[:12]}:{rel}",
+            f"what `{rel}` declares at {revision[:12]}, where the tree says "
+            f"it stands", at=revision)
+    return text
+
+
+def _text_at(root: Path, revision: str, rel: str, *,
+             identity: str) -> str | None:
+    """The blob at `rel`, None where the TREE SAYS IT IS GENUINELY ABSENT,
+    and a refusal where the tree says it stands and the checkout cannot
+    produce it.
+
+    PRESENCE FIRST AND SEPARATELY, which is the whole of `design.md` M1: a
+    path that is absent and a path whose blob is unavailable answer `git
+    show` with the same exit 128, and only the tree tells them apart. The
+    extra `ls-tree` is one subprocess per read and buys the distinction the
+    requirement is about.
+    """
+    if not _rows_or_refuse(
+            root, revision, rel, identity=identity,
+            question=f"whether `{rel}` stands at {revision[:12]}"):
+        return None
+    return _text_at_a_present_path(root, revision, rel, identity=identity)
 
 
 def identity_paths_at(root: Path, revision: str, identity: str, *,
@@ -1191,21 +1281,38 @@ def identity_paths_at(root: Path, revision: str, identity: str, *,
 
     `archive_rows` is the archive listing at this revision when the caller
     already read it — a walk asks about several identities at one commit, and
-    the listing is the same for all of them.
+    the listing is the same for all of them. It is a LIST or absent; a caller
+    that read it and could not is expected to have refused already, which is
+    what `_rows_or_refuse` makes unavoidable.
+
+    AND EVERY ONE OF THESE READS FAILS CLOSED (`tasks.md` § 3.4). Three reads
+    resolve an identity here — the active probe, the archive listing, and the
+    archived probe — and each of them answers "nothing is there" and "I
+    cannot tell you" with the same shape unless the None is raised. An
+    unreadable ARCHIVE LISTING is the quietest of the three: an identity that
+    stands only in the archive then resolves to nothing at all, and the walk
+    passes its ratification by without ever reporting that it could not look.
     """
     found: list[str] = []
     active = f"openspec/changes/{identity}/proposal.md"
-    if _tree_rows(root, revision, active):
+    if _rows_or_refuse(root, revision, active, identity=identity,
+                       question=f"whether {identity} stands at its active "
+                                f"location at {revision[:12]}"):
         found.append(active)
     if archive_rows is None:
-        archive_rows = _tree_rows(root, revision, _ARCHIVE_ROOT)
-    for row in archive_rows or []:
+        archive_rows = _rows_or_refuse(
+            root, revision, _ARCHIVE_ROOT, identity=identity,
+            question=f"what stands in the archive at {revision[:12]}, and "
+                     f"so whether {identity} stands there")
+    for row in archive_rows:
         name = row.rstrip("/").rsplit("/", 1)[-1]
         match = _ARCHIVE_DIR_RE.match(name)
         if match is None or match.group("id") != identity:
             continue
         archived = f"{_ARCHIVE_ROOT}{name}/proposal.md"
-        if _tree_rows(root, revision, archived):
+        if _rows_or_refuse(root, revision, archived, identity=identity,
+                           question=f"whether {identity} stands at "
+                                    f"`{archived}` at {revision[:12]}"):
             found.append(archived)
     return found
 
@@ -1327,6 +1434,18 @@ def ratifying_baseline(root: Path, change: str, *,
     DECLARATION does. An identity the packet has not declared is not an
     identity of that packet, whatever history suggests.
 
+    AND EVERY READ BEHIND THIS BASELINE FAILS CLOSED (`tasks.md` § 3.4).
+    The commit enumeration, the archive listing at each visited commit, each
+    identity's presence probe and each blob this walk reads are four reads
+    that a partial checkout answers with a silence indistinguishable from
+    "nothing is there". None of them is read that way: presence comes off the
+    TREE (`_rows_or_refuse`), content is read separately and only where the
+    tree already said the path stands (`_text_at_a_present_path`), and a read
+    that could not be performed raises `origin-retention-read-unavailable` —
+    CANNOT RUN, naming the read and the identity it was for. An unreadable
+    history is never reported as an unratified one, and no baseline is ever
+    established from the reads that happened to succeed.
+
     AND THE UNDECLARED REFUSAL STAYS EXACTLY WHERE IT WAS (issue #833, PR
     #846). A packet that declares nothing gets today's behaviour: one identity
     is walked, and a commit that carries the current path in from a path
@@ -1356,18 +1475,38 @@ def ratifying_baseline(root: Path, change: str, *,
         capture_output=True, text=True, check=False,
     )
     if listed.returncode != 0:
-        return None
+        # AN ENUMERATION THAT FAILED IS NOT AN EMPTY HISTORY. Returning None
+        # here reported "no commit in history carries `Status: ratified`" —
+        # the packet as NEVER RATIFIED — for a checkout that could not read
+        # the commits at all, which is the exact sentence the requirement
+        # forbids: "SHALL NOT report an unreadable history as an unratified
+        # one".
+        raise _unreadable_read_refusal(
+            change,
+            "git log --full-history --topo-order --reverse -- "
+            + " ".join(pathspecs),
+            f"which commits ever touched this packet, under {change} or "
+            f"under any identity it declares "
+            f"({', '.join(declared) or 'none'})")
     rel = f"openspec/changes/{change}/proposal.md"
     for revision in listed.stdout.split():
-        archive_rows = _tree_rows(root, revision, _ARCHIVE_ROOT)
+        archive_rows = _rows_or_refuse(
+            root, revision, _ARCHIVE_ROOT, identity=change,
+            question=f"what stands in the archive at {revision[:12]}, and "
+                     f"so where each identity of this packet stands there")
         ratified: dict[str, str] = {}
         for identity in identities:
             resolved = proposal_path_at(root, revision, identity,
                                         archive_rows=archive_rows)
             if resolved is None:
                 continue
-            blob = git_show_text(root, revision, resolved)
-            if blob is not None and declares_ratified(blob):
+            # THE TREE HAS ALREADY SAID THIS PATH STANDS HERE, so a silent
+            # blob is UNREADABLE and not "declares no ratification". Read
+            # flat, this commit is skipped and the walk takes a LATER
+            # baseline — the #833 failure reached through a partial clone
+            # rather than through a rename.
+            if declares_ratified(_text_at_a_present_path(
+                    root, revision, resolved, identity=identity)):
                 ratified.setdefault(identity, resolved)
         # THE REFUSAL IS ASKED BEFORE THE ANSWER IS TAKEN, exactly as it was
         # before this slice: a commit that is a MOVE of an already-ratified
@@ -2232,6 +2371,18 @@ def origin_retention_errors(root: Path, directory: Path,
     list would file "cannot run" under "ran and found something", which is the
     conflation the sibling gates' CANNOT RUN status exists to avoid.
 
+    AND THE REFUSAL FOR AN UNREADABLE READ IS NOT CAUGHT HERE EITHER
+    (`tasks.md` § 3.4). `ratifying_baseline` fails closed on every read behind
+    the baseline, and the `.openspec.yaml` this function then reads AT that
+    baseline is one more such read: it is taken through `_text_at`, which
+    establishes presence from the TREE first, so a genuinely absent
+    declaration still reaches the NOT COMPARABLE arm below and an UNREADABLE
+    one refuses. Before that split, a partial checkout that could not read
+    the ratifying commit's `.openspec.yaml` reported `ORIGIN RETENTION NOT
+    COMPARABLE` and returned `[]` — an ARCHIVE GREEN over a mutated origin,
+    the defect this whole gate exists to catch, wearing the pre-contract
+    packet's clothes.
+
     AND THE BASELINE MOVES ON A RECORDED ACCEPTANCE (issue #745). Where the
     declaration HAS moved since ratification, `<root>/openspec/origin-
     dispositions.yaml` is consulted for the explicit disposition the
@@ -2272,8 +2423,8 @@ def origin_retention_errors(root: Path, directory: Path,
     # answering None, which this function reads as "declares no origin" and
     # prints as NOT COMPARABLE. A gate that goes quiet on exactly the packets
     # this mechanism exists for is the defect wearing the fix's clothes.
-    was_text = git_show_text(root, revision,
-                             packet_yaml_of(baseline_proposal))
+    was_text = _text_at(root, revision, packet_yaml_of(baseline_proposal),
+                        identity=baseline_identity)
     was = origin_block_lines(was_text)
     packet_file = directory / ".openspec.yaml"
     now_text = (packet_file.read_text(encoding="utf-8")
@@ -2321,9 +2472,10 @@ def origin_retention_errors(root: Path, directory: Path,
             # carries now — but a move that also edits the origin is exactly
             # the laundering case, and there the mutation commit is the one
             # under the FORMER id.
-            was_text = git_show_text(
+            was_text = _text_at(
                 root, revision, packet_yaml_at(root, revision, identities)
-                or f"openspec/changes/{change}/.openspec.yaml")
+                or f"openspec/changes/{change}/.openspec.yaml",
+                identity=change)
             was = origin_block_lines(was_text)
     if now is None:
         errors.append(

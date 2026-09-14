@@ -2233,6 +2233,340 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         self.assertTrue([sha for sha in resolved if sha is not None])
 
     # ----------------------------------------------------------------
+    # EVERY READ BEHIND THE BASELINE FAILS CLOSED (`add-declared-former-id`
+    # § 3.4 — MODIFIED *Origin retention at archive*, scenario *The history
+    # holding the baseline cannot be read*)
+    #
+    # `design.md` M1, re-measured here as a fixture rather than quoted: at a
+    # commit where a path is PRESENT and its blob is not locally available,
+    # `git ls-tree` prints the row and exits 0 while `git show` exits 128 —
+    # and a GENUINELY ABSENT path answers `git show` with the same 128. So
+    # "there is nothing there" and "I cannot tell you" reach the walk as one
+    # value, and a walk that reads the second as the first takes a LATER
+    # baseline, or reports an unratified packet, over a history it never
+    # read.
+    #
+    # THE FIXTURES ARE TWO, because two different reads fail in two different
+    # partial clones, and each is PROVED on this git before anything is
+    # asserted about the code — a checkout that is merely empty asserts
+    # nothing:
+    #   * `--filter=blob:none` with the promisor cut — every TREE is local,
+    #     so `ls-tree` still answers and the BLOB read is what fails;
+    #   * `--filter=tree:0 --no-checkout` with the promisor cut — the trees
+    #     themselves are fetched lazily, so `ls-tree` and the pathspec-
+    #     limited `git log` enumeration fail too.
+    # ----------------------------------------------------------------
+
+    def a_ratified_packet_with_a_mutated_origin(self, root: Path) -> dict:
+        """A packet ratified under `change-r` whose origin is mutated
+        afterwards — so a baseline not resolved, or resolved anywhere later,
+        waves the mutation through.
+
+        THE EDITS ARE THE FIXTURE'S MECHANISM, not decoration. A blob is
+        unreadable in a partial checkout only where its content is not ALSO
+        at HEAD, so the packet has to say something at its ratification that
+        it does not say now: the draft `proposal.md` differs from the
+        ratified one, and the mutation makes the ratified `.openspec.yaml`
+        differ from the one on disk. Both are the ordinary shape of a packet
+        that was edited — which is why this is the common case and not an
+        exotic one.
+        """
+        directory = self.packet(root)
+        hops = {"created": self.sha(root, "HEAD~1"),
+                "ratified": self.sha(root)}
+        self.mutate(directory, "quoting the ratified prose",
+                    "quoting the corrected prose")
+        commit_all(root, "mutate the origin after ratification")
+        hops["mutated"] = self.sha(root)
+        return hops
+
+    def partial_checkout(self, source: Path, destination: Path,
+                         unreadable: tuple[str, str]) -> Path:
+        """A `--filter=blob:none` clone of `source` with its promisor cut.
+
+        The blobs the working tree needs are fetched while the promisor is
+        still reachable, so HEAD reads normally and HISTORY does not: a blob
+        whose content differs from anything at HEAD was never fetched and can
+        no longer be. `unreadable` is the (revision, path) the caller rests
+        on, and it is PROVED rather than assumed — a git that ignored the
+        filter would otherwise turn these tests green by being unable to pose
+        the question at all.
+
+        LIFTED FROM PR #1024's RETAINED BRANCH `2bc60386`, where it was
+        written against that pull request's NOT-SELECTED lineage walk;
+        `tasks.md` § 3.4 names it as a candidate to lift, and the fixture is
+        the half of that branch the ruling leaves standing.
+        """
+        git(source, "config", "uploadpack.allowFilter", "true")
+        subprocess.run(
+            ["git", "clone", "-q", "--filter=blob:none", f"file://{source}",
+             str(destination)], check=True, capture_output=True, text=True)
+        git(destination, "remote", "set-url", "origin",
+            f"file://{source.parent / 'no-such-promisor'}")
+        revision, rel = unreadable
+        probe = subprocess.run(
+            ["git", "-C", str(destination), "show", f"{revision}:{rel}"],
+            capture_output=True, text=True)
+        if probe.returncode == 0:
+            self.skipTest("this git did not honour --filter=blob:none over "
+                          "file://, so there is no unreadable blob to test")
+        # THE TREE STILL LISTS IT: presence and readability are two
+        # questions, and the whole finding is that one value was answering
+        # both.
+        self.assertEqual(support._tree_rows(destination, revision, rel),
+                         [rel])
+        self.assertIsNone(support.git_show_text(destination, revision, rel))
+        return destination
+
+    def treeless_checkout(self, source: Path, destination: Path,
+                          revision: str) -> Path:
+        """A `--filter=tree:0 --no-checkout` clone of `source` with its
+        promisor cut — the shape where the TREE READS themselves fail.
+
+        `blob:none` keeps every tree local, so `ls-tree` always answers
+        there; `tree:0` defers the trees as well, and with nothing to fetch
+        them from, `git ls-tree` and a pathspec-limited `git log` exit
+        non-zero. Proved on this git before any assertion rests on it, for
+        the same reason the fixture above is.
+        """
+        git(source, "config", "uploadpack.allowFilter", "true")
+        subprocess.run(
+            ["git", "clone", "-q", "--filter=tree:0", "--no-checkout",
+             f"file://{source}", str(destination)],
+            check=True, capture_output=True, text=True)
+        git(destination, "remote", "set-url", "origin",
+            f"file://{source.parent / 'no-such-promisor'}")
+        rel = "openspec/changes/change-r/proposal.md"
+        probe = subprocess.run(
+            ["git", "-C", str(destination), "ls-tree", "--name-only",
+             revision, "--", rel], capture_output=True, text=True)
+        if probe.returncode == 0:
+            self.skipTest("this git did not honour --filter=tree:0 over "
+                          "file://, so there is no unreadable tree to test")
+        self.assertIsNone(support._tree_rows(destination, revision, rel))
+        self.assertIsNone(support._tree_rows(
+            destination, revision, "openspec/changes/archive/"))
+        return destination
+
+    def test_an_unreadable_baseline_read_refuses_cannot_run(self):
+        """THE SHAPE THIS SLICE EXISTS FOR, END TO END. The same history that
+        refuses a mutated origin in a full clone ARCHIVED GREEN in a partial
+        one: the `.openspec.yaml` standing at the ratifying commit could not
+        be read, and "declares no origin" is what that silence was read as.
+
+        MEASURED against this branch's parent (`2a9cfbda`), on this fixture:
+        the partial checkout printed `ORIGIN RETENTION NOT COMPARABLE
+        change-r: the packet at the ratifying commit … declares no origin
+        (pre-contract packet); presence and shape are still gated` and
+        `origin_retention_errors` returned `[]` — over a tree whose origin
+        had been mutated after ratification, and which the full clone of the
+        SAME history refuses. The anti-vacuity assertion below is that full
+        clone.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            directory = root / "openspec" / "changes" / "change-r"
+            self.assertTrue(support.origin_retention_errors(root, directory))
+            rel = "openspec/changes/change-r/proposal.md"
+            clone = self.partial_checkout(root, Path(td) / "partial",
+                                          (hops["created"], rel))
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(clone, "change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("CANNOT RUN", str(caught.exception))
+            # AND NOT THE OTHER ANSWER: an unreadable history reported as an
+            # unratified one is the sentence the requirement forbids.
+            self.assertNotIn("not ratified", str(caught.exception))
+            moved = clone / "openspec" / "changes" / "change-r"
+            with self.assertRaises(support.OriginRetentionError):
+                support.origin_retention_errors(clone, moved,
+                                                change="change-r")
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(clone, "change-r", "2026-09-05",
+                                       False, True)
+
+    def test_an_unreadable_archive_listing_refuses_cannot_run(self):
+        """THE LISTING IS A READ LIKE ANY OTHER, and the quietest of the
+        three `identity_paths_at` takes. It asks the archive root which dated
+        directory carries this id, and a None from that read means "this
+        checkout cannot tell you what is archived here" — not "nothing is
+        archived here". Read flat, an identity that stands ONLY in the
+        archive resolves to no path at all and the walk passes its
+        ratification by without ever reporting that it could not look.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            clone = self.treeless_checkout(root, Path(td) / "treeless",
+                                           hops["ratified"])
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.identity_paths_at(clone, hops["ratified"], "change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("git ls-tree --name-only", str(caught.exception))
+
+            # AND THE ARCHIVE ARM ON ITS OWN. In a treeless clone the ACTIVE
+            # probe is the first read to fail, so the archive listing never
+            # gets its turn; it is driven here with the one value that clone
+            # was just proved to produce — a None from `_tree_rows` — and
+            # nothing else is stubbed. The probe's contract is measured two
+            # assertions above; this pins which CALLER carries it out.
+            rows = {"openspec/changes/change-r/proposal.md":
+                    ["openspec/changes/change-r/proposal.md"]}
+
+            def only_the_listing_is_unreadable(_root, _revision, path):
+                return rows.get(path)
+
+            with mock.patch.object(support, "_tree_rows",
+                                   side_effect=only_the_listing_is_unreadable):
+                with self.assertRaises(support.OriginRetentionError) as caught:
+                    support.identity_paths_at(root, hops["ratified"],
+                                              "change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("openspec/changes/archive/", str(caught.exception))
+            self.assertIn("change-r", str(caught.exception))
+
+    def test_a_present_path_whose_blob_is_unavailable_is_not_read_as_absent(
+            self):
+        """`design.md` M1 AS A RUNNING TEST. The tree prints the row and the
+        blob behind it cannot be produced, and the two halves of the gate
+        answer accordingly: `identity_paths_at` says the path STANDS there —
+        presence is a tree question — and the content read refuses rather
+        than reporting the packet as declaring nothing at that commit."""
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            rel = "openspec/changes/change-r/proposal.md"
+            clone = self.partial_checkout(root, Path(td) / "partial",
+                                          (hops["created"], rel))
+            # PRESENT — read off the tree, and unaffected by the blob
+            self.assertEqual(
+                support.identity_paths_at(clone, hops["created"], "change-r"),
+                [rel])
+            self.assertEqual(
+                support.proposal_path_at(clone, hops["created"], "change-r"),
+                rel)
+            # UNREADABLE — and never "absent", which is what a bare
+            # `git_show_text` None had been standing for
+            self.assertIsNone(
+                support.git_show_text(clone, hops["created"], rel))
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_baseline(clone, "change-r")
+            self.assertIn(rel, str(caught.exception))
+            self.assertIn(hops["created"][:12], str(caught.exception))
+
+    def test_a_genuinely_absent_path_is_still_read_as_absent(self):
+        """THE OTHER HALF, AND IT MUST NOT MOVE. Failing closed on a read
+        that could not be performed is only worth anything if a read that
+        CAN be performed and finds nothing still answers "nothing" — a gate
+        that refuses over absence refuses over every packet that ever moved,
+        and over every commit before the one that created it.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = self.sha(root)
+            head = ratified_at
+            # an id that never stood here resolves to nothing, and says so
+            self.assertEqual(
+                support.identity_paths_at(root, head, "change-absent"), [])
+            self.assertIsNone(
+                support.proposal_path_at(root, head, "change-absent"))
+            # an archive root that is genuinely empty is an ANSWER — `[]`,
+            # not a refusal — and the ordinary gate still runs over it
+            self.assertEqual(
+                support._tree_rows(root, head, "openspec/changes/archive/"),
+                [])
+            self.assertEqual(support.ratifying_commit(root, "change-r"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, directory), [])
+
+            # AND THE WALK STILL MOVES ON past a commit where the identity it
+            # carries NOW is genuinely absent: the declared move's baseline is
+            # `change-r`'s own ratification, reached by reading `change-t` as
+            # absent at every commit before the rename.
+            moved = self.rename(root, "change-r", "change-t")
+            self.declare(moved, "change-r")
+            commit_all(root, "declare where it came from")
+            self.assertEqual(
+                support.identity_paths_at(root, ratified_at, "change-t"), [])
+            self.assertEqual(
+                support.ratifying_commit(root, "change-t"), ratified_at)
+
+    def test_the_refusal_names_the_read_and_the_identity_it_was_for(self):
+        """THE REQUIREMENT'S OWN WORDS: "CANNOT RUN, naming the read that
+        failed and the identity it was for". A refusal that says only that
+        something could not be read leaves the operator to guess which of the
+        four reads behind a baseline it was, and over which of the identities
+        a declaring packet resolves together.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            rel = "openspec/changes/change-r/proposal.md"
+            clone = self.partial_checkout(root, Path(td) / "partial",
+                                          (hops["created"], rel))
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_baseline(clone, "change-r")
+            blob_refusal = str(caught.exception)
+            for named in ("origin-retention-read-unavailable", "CANNOT RUN",
+                          "change-r", f"git show {hops['created'][:12]}:{rel}",
+                          hops["created"][:12]):
+                self.assertIn(named, blob_refusal)
+            self.assertNotIn("not ratified", blob_refusal)
+
+            treeless = self.treeless_checkout(root, Path(td) / "treeless",
+                                              hops["ratified"])
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.identity_paths_at(treeless, hops["ratified"],
+                                          "change-r")
+            tree_refusal = str(caught.exception)
+            for named in ("origin-retention-read-unavailable", "CANNOT RUN",
+                          "change-r",
+                          f"git ls-tree --name-only {hops['ratified'][:12]} "
+                          f"-- {rel}"):
+                self.assertIn(named, tree_refusal)
+
+    def test_an_unreadable_commit_enumeration_is_not_an_unratified_packet(
+            self):
+        """THE FOURTH READ, AND THE ONE WHOSE FLAT ANSWER IS A SENTENCE THE
+        REQUIREMENT NAMES. `ratifying_baseline` enumerates the commits that
+        touched this packet before it reads anything, and a non-zero exit
+        from that `git log` returned None — which `origin_retention_errors`
+        prints as "not ratified — no commit in history carries `Status:
+        ratified`", the unreadable history reported as an unratified one.
+
+        This is the sixth test of the slice and beyond the five the brief
+        names, because § 3.4's fourth clause commissions the behaviour by
+        hand and a commissioned behaviour with no test is the defect this
+        packet's own plan warns about.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            treeless = self.treeless_checkout(root, Path(td) / "treeless",
+                                              hops["ratified"])
+            enumeration = subprocess.run(
+                ["git", "-C", str(treeless), "log", "--full-history",
+                 "--format=%H", "--", "openspec/changes/change-r/proposal.md"],
+                capture_output=True, text=True)
+            self.assertNotEqual(enumeration.returncode, 0)
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(treeless, "change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("git log --full-history", str(caught.exception))
+            self.assertNotIn("not ratified", str(caught.exception))
+
+    # ----------------------------------------------------------------
     # THE EXPLICIT DISPOSITION THE REQUIREMENT PROMISES (issue #745)
     #
     # `release-realization` § "Origin retention at archive" ends its mutation
