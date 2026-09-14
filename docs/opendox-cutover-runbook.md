@@ -230,10 +230,12 @@ the two replica lines above = the aggregate. **Its ROWS and `verbatim /
 edited` columns are stale too, and for a SECOND reason**: RULED Q6 re-destined
 four rows from `opendox_code` to `openxdox_code` after they were written, and
 neither `-code` cell moved with the ruling — so the sentence above that table,
-*these are the numbers each leg's arrival run must report*, is today true only
-of the declared-roots column, the one cell
-`test_the_real_manifest_declares_the_roots_the_runbook_names` asserts. The
-corrected cells are NOT restated here: this document states a set of absolutes
+which read *these are the numbers each leg's arrival run must report*, is today
+true only of the declared-roots column, the one cell
+`test_the_real_manifest_declares_the_roots_the_runbook_names` asserts, **and
+that sentence now says so at the table itself** rather than only here: a
+registration sixty lines above the cells is not read by the operator who reads
+the cells. The corrected cells are NOT restated here: this document states a set of absolutes
 in exactly one place, and two acts restating one set is how a count goes wrong
 in a merge. Registered here rather than quietly re-derived, because slices S7
 and S8 are in flight over the same cells and ONE act should redistribute them.
@@ -273,7 +275,14 @@ same measurement
 pins, computed the same way every time: a transcribed count is a claim, a
 summed one is a measurement.
 
-Per destination, and these are the numbers each leg's arrival run must report:
+Per destination — **and of the columns below only `declared roots` is still a
+number each leg's arrival run must report.** The `rows`, `verbatim / edited`
+and `declared edit lines` cells are STALE, for the two reasons registered
+above: annotation acts that moved the aggregate and left this table where it
+stood, and RULED Q6, which re-destined four rows and moved neither `-code`
+cell. ONE later act redistributes them, and until it lands they are history —
+not a value to compare a run against. The run's own line and
+`scripts/validate-carve-manifest.py` are that value.
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
@@ -840,11 +849,25 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --allow-created pytest.ini --allow-created conftest.py \
     --replica-at scripts/output_boundary.py=src/opendox/output_boundary.py \
     --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
-    --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py
-# expect exit 0: 62 edited row(s), declared-lines-only; 3 of 3 declared
+    --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py \
+    --replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py
+# expect exit 0: … declared-edit row(s) within their lines …; 4 of 4 declared
 # replica(s) verified (byte-identical, or — where the row declares lines —
 # differing only on them)
 ```
+
+**The fourth `--replica-at` is this leg's conftest, and without it the command
+above REFUSES** (Copilot review, PR #1031): commit B places
+`tests/ideation-dashboard/conftest.py` at `tests/conftest.py` with the declared
+`:25` applied, so its bytes match no blob at the carve commit, the byte-identity
+admission cannot see it, and `--allow-created conftest.py` names the ROOT file
+and not this one — measured at openDox-code `8efb3cf5`, the three-flag form
+refuses `arrival-undeclared-file — tests/conftest.py` and the four-flag form
+exits 0. It is the rule three paragraphs below, applied here: one
+`--replica-at` per replica THIS leg places. The row count in the comment is
+deliberately not restated — it is one of the per-destination absolutes § 2
+registers as stale and reserves for the single redistribution act; the replica
+count is a property of this command and moves with it.
 
 **This `--allow-created pytest.ini --allow-created conftest.py` is the ad-hoc
 form on purpose, not a stale example** (Copilot review, PR #979): RULED

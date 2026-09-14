@@ -2287,10 +2287,10 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     replica = rows["tests/ideation-dashboard/conftest.py"]
     assert replica["disposition"] == "not_moved", replica
     assert replica["reason"] == MODULE.REPLICA_REASON, replica
-    # The SECOND entry is the pre-existing `openxdox_code` annotation's (`#656`
-    # CLAIM `5656688910`): openXdox-code#14 appends a 27-line § 4.4 pytest
-    # fixture beside this file's LAST carve line, and an insertion at the end
-    # of a file has ONE neighbour. A replica has no row of its own, so the
+    # The SECOND entry comes from the pre-existing `openxdox_code` annotation
+    # (`#656` CLAIM `5656688910`): openXdox-code#14 appends a 27-line § 4.4
+    # pytest fixture beside this file's LAST carve line, and an insertion at
+    # the end of a file has ONE neighbour. A replica has no row of its own, so the
     # declaration is row-wide and openDox-code's copy simply does not take it
     # (measured at `05bbde80`: 271 lines, the `:25` depth fix and nothing
     # else) — a permission, never an obligation.
