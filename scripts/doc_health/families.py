@@ -52,8 +52,16 @@ from .lines import split_keepends
 # `output_boundary` and `path_slug` are reached from this package: `scripts/` is
 # on `sys.path` for anything that can import `doc_health` at all, since that is
 # where the package itself lives.
-from pin_containment import (OUTSIDE_BOUNDARY, OUTSIDE_ROOT, boundary_dir,
-                             resolve_in_root)
+try:
+    from pin_containment import (OUTSIDE_BOUNDARY, OUTSIDE_ROOT, boundary_dir,
+                                 resolve_in_root)
+except ImportError:                                         # pragma: no cover
+    # Reached as `scripts.doc_health.families` with NO `scripts/` on `sys.path`
+    # — the dotted route this repository's own tests take
+    # (`import scripts.doc_health.corpus`) — `scripts` is a namespace package
+    # and the neutral helper is its sibling module.
+    from ..pin_containment import (OUTSIDE_BOUNDARY, OUTSIDE_ROOT,  # type: ignore[no-redef]
+                                   boundary_dir, resolve_in_root)
 
 # Per-family resolution class defaults (doc-health contract): contested
 # families suggest state-changing edits; everything else is mechanical.

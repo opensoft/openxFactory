@@ -102,10 +102,10 @@ def resolve_in_root(claimed, root, *, boundary=None):
     try:
         resolved_root = Path(root).resolve()
         target = (resolved_root / candidate).resolve()
-    except (OSError, RuntimeError):
+    except (OSError, RuntimeError, ValueError):
         return None, (UNRESOLVABLE,
-                      "cannot be resolved — a symlink loop or an unreadable "
-                      "link; refused rather than read")
+                      "cannot be resolved — a symlink loop, an unreadable link "
+                      "or a malformed path; refused rather than read")
     if not target.is_relative_to(resolved_root):
         return None, (OUTSIDE_ROOT,
                       f"resolves to {target}, which is outside the repository; "
@@ -143,10 +143,10 @@ def boundary_dir(root, name=CONTRACTS_DIRNAME):
     """
     try:
         lexical = Path(root).resolve() / name
-    except (OSError, RuntimeError):
+    except (OSError, RuntimeError, ValueError):
         return None, (UNRESOLVABLE,
-                      "cannot be resolved — a symlink loop or an unreadable "
-                      "link; refused rather than read")
+                      "cannot be resolved — a symlink loop, an unreadable link "
+                      "or a malformed path; refused rather than read")
     if not lexical.exists():
         return None, (BOUNDARY_MISSING,
                       f"carries no {name}/ directory to resolve a record in")
@@ -160,10 +160,10 @@ def boundary_dir(root, name=CONTRACTS_DIRNAME):
                       f"has a {name} that is not a directory")
     try:
         redirected = lexical.resolve() != lexical
-    except (OSError, RuntimeError):
+    except (OSError, RuntimeError, ValueError):
         return None, (UNRESOLVABLE,
-                      "cannot be resolved — a symlink loop or an unreadable "
-                      "link; refused rather than read")
+                      "cannot be resolved — a symlink loop, an unreadable link "
+                      "or a malformed path; refused rather than read")
     if redirected:
         return None, (BOUNDARY_REDIRECTS,
                       f"has a {name} whose resolved path is not its lexical "

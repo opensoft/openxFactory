@@ -549,6 +549,40 @@ def test_the_boundary_is_checked_before_any_candidate_is(tmp_path, seams):
     assert order == ["boundary_dir", "resolve_in_root"]
 
 
+def test_a_malformed_claimed_path_is_a_controlled_refusal_not_a_traceback(
+        tmp_path):
+    """(PR #1040 fix round 3, R1). `Path.resolve()` raises `ValueError`
+    ("embedded null byte") on a claimed path carrying NUL, which a YAML
+    registration can supply; the helper promises a refusal tuple, so it maps
+    that to `UNRESOLVABLE` too. Asserted on the helper: a MARKER cannot carry
+    NUL — the lexical grammar refuses it before any path exists."""
+    import pin_containment as pc
+    root = tmp_path / "alpha"
+    (root / "contracts").mkdir(parents=True)
+    target, refusal = pc.resolve_in_root("contracts/a\x00b-pin.yaml", root)
+    assert target is None
+    assert refusal[0] == pc.UNRESOLVABLE
+
+
+def test_the_package_imports_by_its_dotted_path_without_sys_path_injection():
+    """(PR #1040 fix round 3, R2). This repository's own tests reach the
+    package as `scripts.doc_health.*` (tests/ideation-dashboard/
+    test_route_extension.py); a module-level bare `from pin_containment import`
+    would fail that import at load time whenever `scripts/` is not on
+    `sys.path`, so the resolver falls back to the package-relative spelling. A
+    fresh interpreter from the repository root, no PYTHONPATH, is the proof."""
+    import subprocess
+    import sys
+    repo_root = Path(__file__).resolve().parents[2]
+    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    proc = subprocess.run(
+        [sys.executable, "-c",
+         "import scripts.doc_health.families as f; print(f.PINNED_PREFIX)"],
+        cwd=repo_root, env=env, capture_output=True, text=True, timeout=120)
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip() == "pinned:"
+
+
 def test_a_self_looping_symlink_record_cannot_be_resolved_and_reads_nothing(
         tmp_path, seams):
     """(m), the SYMLINK LOOP — `Path.resolve()` raises `RuntimeError` on a
