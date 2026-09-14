@@ -618,19 +618,20 @@ the later realization pull request, and § 4 is the archive act.
   realization pull request asserting zero would be asserting something the tree
   does not show.
   **TICKED 2026-09-14 by lane openxfactory-2 (openXfactory-2), realization PR
-  #1040, at the TREE grain:** the code tree is `0138384f` (rounds 1–3 folded;
-  the two commits after it are tests-only and the 3.7 tick itself). Required
-  `pytest-suite` GREEN at `0138384f`: run 34875251402 (all six required
-  green). Doc-health `--single-repo . --as-of 2026-09-14`: `New regressions
-  vs previous report: 0`; finding-by-finding against the base `dd073746` the
-  ONLY content change is the four `tag-hygiene` findings CHANGED IN FORM — from
-  `unresolved target=openxwallet at line 107/222/242/280` to `unresolved pinned
-  target=pinned:openxwallet/openxwallet at line N: contracts/openxwallet-pin.yaml
-  in root <root> carries no capabilities: enumeration` with the PUBLISHER's
-  remedy — measured in full at `16ce87d9` and re-measured with `--family
-  tag-hygiene` at `9e40d749`, `62bc53e1` and `0138384f`: exactly four, still
-  `error`. **The four do NOT reach zero**, as this box requires the evidence to
-  say.
+  #1040, at the TREE grain (refreshed after review round 6, which changed
+  resolver behaviour):** the code tree is `da54bed4` — rounds 1–6 folded; the
+  ONE commit after it is this evidence refresh plus a test rename and touches no
+  code. Required `pytest-suite` GREEN at `da54bed4`: run 34897473169 (all six
+  required green). Doc-health `--single-repo . --as-of 2026-09-14`: `New
+  regressions vs previous report: 0`; finding-by-finding against the base
+  `dd073746` the ONLY content change is the four `tag-hygiene` findings CHANGED
+  IN FORM — from `unresolved target=openxwallet at line 107/222/242/280` to
+  `unresolved pinned target=pinned:openxwallet/openxwallet at line N:
+  contracts/openxwallet-pin.yaml in root <root> carries no capabilities:
+  enumeration` with the PUBLISHER's remedy — measured in full at `16ce87d9` and
+  re-measured with `--family tag-hygiene` at `9e40d749`, `62bc53e1`, `0138384f`
+  and `da54bed4`: exactly four, still `error`. **The four do NOT reach zero**, as
+  this box requires the evidence to say.
 **CLOSURE PREREQUISITE — RECORDED HERE AS PROSE, NOT AS A TASK, AND NOT
 FILED.** The four findings reach ZERO only when
 `contracts/openxwallet-pin.yaml` carries a well-formed `capabilities:`

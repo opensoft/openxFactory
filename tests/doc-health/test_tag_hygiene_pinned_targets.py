@@ -772,7 +772,7 @@ def test_a_pinned_target_resolves_under_an_aggregate_runs_second_root(
         "openxfactory-root-capability")
 
 
-def test_the_documents_own_repositorys_record_is_the_one_read(tmp_path):
+def test_the_documents_own_repositories_record_is_the_one_read(tmp_path):
     """(o)(ii). Where BOTH roots carry a record for the same `<pin-id>`, the
     document's own repository's record is the one read — the in-tree arm's
     precedence, unchanged and invented nowhere."""
