@@ -2737,6 +2737,36 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertIn(source, message)
             self.assertIn("change-s", message)
 
+    def test_an_unresolvable_candidate_commit_refuses_at_the_gate_door(self):
+        """A COMMIT THIS CHECKOUT CANNOT RESOLVE IS A READ THAT FAILED. The
+        first draft of the split answered `[]` here, reasoning that a question
+        about a commit that is not there is not a read that failed — true of a
+        MISSPELLED revision, and false of the shape that matters: the only
+        caller passes a full hash straight out of this repository's own `git
+        log`, so a `rev-parse` that fails on it means the object cannot be
+        read, and `[]` went on to `_pairing_or_refuse` as a successful read
+        with no pairing. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iIy3N`.)
+
+        THE TOLERANT DOOR IS UNCHANGED, which is the whole point of there
+        being two: `renamed_from` still answers None for a revision that
+        resolves to nothing, as
+        `test_the_guard_reads_any_spelling_of_the_candidate_commit` pins.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            rel = "openspec/changes/change-r/proposal.md"
+            self.assertIsNone(
+                support._pairing_rows(root, "no-such-revision", rel))
+            self.assertIsNone(
+                support.renamed_from(root, "no-such-revision", rel))
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support._pairing_or_refuse(root, "no-such-revision", rel,
+                                           kinds="RC", identity="change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("change-r", str(caught.exception))
+
     def test_a_predecessor_absent_at_the_parent_is_still_no_move(self):
         """AND THE FAIL-CLOSED READ IS NOT A FAIL-ALWAYS ONE. A source path
         the tree says is GENUINELY ABSENT at the parent still answers "no

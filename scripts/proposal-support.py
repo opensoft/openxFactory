@@ -595,8 +595,16 @@ class FormerIdError(SupportError):
 
 def load_packet_at(root: Path, revision: str, rel_path: str, *,
                    identity: str | None = None) -> dict | None:
-    """A `.openspec.yaml` AT A REVISION, parsed — None when absent or
-    unparseable.
+    """A `.openspec.yaml` AT A REVISION, parsed — None ONLY where the path is
+    genuinely ABSENT there.
+
+    RAISES rather than returning None for the other two silences, and the
+    summary line above says so because a caller who reads "None when absent or
+    unparseable" reintroduces by hand the conflation this slice removes:
+    `OriginRetentionError` (`origin-retention-read-unavailable`) where the tree
+    says the path stands and the checkout cannot produce it, and
+    `FormerIdError` where the blob is produced and does not parse as a YAML
+    mapping. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iIy43`.)
 
     The tree-side sibling of `load_packet`. The append-only comparison needs
     the list a packet carried at a commit's PARENT, which is not on disk
@@ -1236,7 +1244,19 @@ def _pairing_rows(root: Path, revision: str, rel: str) -> list[str] | None:
         capture_output=True, text=True, check=False,
     )
     if resolved.returncode != 0:
-        return []
+        # A COMMIT THIS CHECKOUT CANNOT RESOLVE IS A READ THAT FAILED, not a
+        # commit that paired nothing. An earlier draft returned `[]` here on
+        # the reasoning that "a question about a commit that is not there is
+        # not a read that failed" — true of a MISSPELLED revision, and false
+        # of the one shape that matters: the only caller passes a full hash
+        # straight out of this repository's own `git log`, so a `rev-parse`
+        # that fails on it means the object cannot be read, and `[]` sent
+        # `_pairing_or_refuse` on as a successful read with no pairing.
+        # (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iIy3N`.) `renamed_from`, the
+        # tolerant door, still answers None for a revision that resolves to
+        # nothing, which is what `test_the_guard_reads_any_spelling_of_the_
+        # candidate_commit` pins.
+        return None
     revision = resolved.stdout.strip()
     listed = subprocess.run(  # NOSONAR: argv is allowlisted; shell is disabled
         ["git", "-C", str(root.resolve()), "log", "--follow",
