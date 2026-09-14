@@ -552,8 +552,22 @@ def _identity_paths_at(root: Path, revision: str, identity: str, *,
             f"the archive listing at {_short(revision)}")
     for row in archive_rows:
         name = row.rstrip("/").rsplit("/", 1)[-1]
-        match = ARCHIVE_DIR_RE.match(name)
-        if match is None or match.group("id") != identity:
+        # THE TWO-CANDIDATE RULE, ACTUALLY CALLED — the module docstring
+        # above already claimed this reader reuses it, and until now it did
+        # not: this loop asked only the STRIPPED reading
+        # (`ARCHIVE_DIR_RE.match(name).group("id") == identity`), which is
+        # not the exact one an already-dated identity's OWN unstripped name
+        # needs. `archive/2026-09-09-foo` is the archived `foo` AND the
+        # archived `2026-09-09-foo` (`_archive_dir_carries`'s own docstring
+        # names why), and asking only the first meant `_identity_paths_at(…,
+        # "2026-09-09-foo")` returned no location for a `proposal.md`
+        # standing right there — an unreadable presence read this gate
+        # cannot tell from "never ratified" resolved to exactly that, over a
+        # packet that WAS ratified. `support._archive_dir_carries` is the
+        # shared predicate, and calling it is not a fork of the fail-closed
+        # concern this function exists for: it only ANSWERS a name, and
+        # raises nothing to adapt. (Copilot, PR #1039.)
+        if not support._archive_dir_carries(name, identity):
             continue
         archived = f"{ARCHIVE_ROOT}{name}/proposal.md"
         if _tree_rows_or_refuse(root, revision, archived, what):
@@ -672,6 +686,24 @@ def declared_at(root: Path, revision: str, packet_dir: str,
             f"LISTS that path, so the manifest is PRESENT and its content is "
             f"unavailable, which is not the same as a packet that declares "
             f"nothing.")
+    if "�" in text:
+        # `git_show_text` DECODES WITH errors="replace" AND NEVER RAISES —
+        # unlike `load_packet`, which decodes a manifest ON DISK strictly and
+        # catches only `YAMLError`, so the corpus arm refuses the identical
+        # corruption as "could not be read at all". Without this check the
+        # range arm would read a LOSSY decode as a document instead — one or
+        # more invalid byte sequences silently replaced by U+FFFD, a
+        # character a legitimate `.openspec.yaml` has no reason to carry —
+        # and might still parse it as a valid mapping, accepting from
+        # history exactly what this gate refuses on the working tree.
+        # Refused here as the same CANNOT RUN an unreadable manifest earns
+        # everywhere else. (Copilot, PR #1039.)
+        raise ArrivalCannotRun(
+            f"REFUSE {UNREADABLE}: {what} CANNOT RUN. `git show "
+            f"{_short(revision)}:{rel}` decoded with one or more invalid "
+            f"UTF-8 byte sequences replaced (U+FFFD) — the same corruption "
+            f"`load_packet` refuses on the working tree, refused here rather "
+            f"than parsed as a document it is not.")
     if support.yaml is None:
         raise ArrivalCannotRun(
             f"REFUSE {UNREADABLE}: {what} CANNOT RUN. PyYAML is not available "
@@ -901,7 +933,21 @@ def judge_commit(root: Path, commit: str, *,
         destination_id = change_id_of_dir(destination)
         # THE ARCHIVE RELOCATION, EXCEPTED BY ID, AND IT IS THE ONLY
         # EXCEPTION: the id is preserved, so the identity did not change.
-        if is_archived_dir(destination) and destination_id == source_id:
+        # ASKED UNDER THE SAME TWO READINGS `_identity_paths_at` asks
+        # `support._archive_dir_carries` for, and NOT by comparing
+        # `destination_id` — `change_id_of_dir`'s STRIPPED reading of the
+        # archived name — against `source_id` directly. A RATIFIED packet
+        # whose own id already carries a date is archived UNCHANGED
+        # (`archive_directory_name`'s own rule): `source_id` is
+        # `2026-09-14-example`, the destination strips to `example`, the two
+        # never compare equal, and this gate refused that packet's perfectly
+        # ordinary archival as an undeclared rename — the false-refusal shape
+        # a required gate with no bypass flag must never take. Measured
+        # against the parent: refused; on this head, excepted. (Codex P2 and
+        # Copilot, PR #1039.)
+        if (is_archived_dir(destination)
+                and support._archive_dir_carries(
+                    destination.rsplit("/", 1)[-1], source_id)):
             if report is not None:
                 report.moves_excepted_archive += 1
             continue
@@ -1257,6 +1303,35 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
                 f"packet that declares nothing: repair the file, or remove it")
             continue
         shape = support.former_id_problems(change, packet)
+        # `former_id_problems` IS ASKED ABOUT ONE IDENTITY, and this loop
+        # hands it the commoner of an archived directory's two readings
+        # (`change_id_of`, by its own docstring's design). A DATED archived
+        # directory carries a SECOND identity (`packet_identities_of`), and a
+        # self-claim written under THAT reading — `archive/2026-09-09-foo`
+        # declaring `former_ids: [2026-09-09-foo]` — names an id
+        # `former_id_problems` was never asked about, so its "an entry may
+        # not name the packet's OWN id" refusal does not fire; and the corpus
+        # sweep's ownership arm (`former_identity_claimants`) treats the SAME
+        # entry as a lawful self-reference under the other reading and skips
+        # it too — `packet_identities_of`'s own docstring names this exact
+        # shape as a measured historical defect (`cce09fdd`), closed THERE
+        # and not here. Asked here as well, so neither arm is the one that
+        # lets it through. (Copilot, PR #1039.)
+        if not shape and isinstance(packet, dict):
+            other_identities = [i for i in support.packet_identities_of(directory)
+                               if i != change]
+            declared_raw = packet.get(support.FORMER_IDS_KEY)
+            if other_identities and isinstance(declared_raw, list):
+                for entry in declared_raw:
+                    if entry in other_identities:
+                        shape.append(
+                            f"{change}: `{support.FORMER_IDS_KEY}` names "
+                            f"{entry!r}, which is "
+                            f"`{support._corpus_rel(directory)}`'s OTHER "
+                            f"reading of its own archived name — the same "
+                            f"self-claim `former_id_problems` refuses under "
+                            f"the reading {change!r}, written here under the "
+                            f"reading this directory ALSO is")
         problems += shape
         if shape:
             continue

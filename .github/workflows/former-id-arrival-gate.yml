@@ -139,10 +139,14 @@ jobs:
       # READ anything is the conjunction of the notes it DOES produce: a commit
       # range was resolved and judged (not "no commit range", which is what a
       # checkout without history or a non-pull_request invocation would print),
-      # and the whole-tree sweep read a non-zero number of packets. A green
-      # check that proves nothing was read is the class of defect this step
-      # exists to close — the same guard `signed-execution-chain-gate.yml`
-      # writes for its own reader.
+      # and the whole-tree sweep read a non-zero number of packets of EITHER
+      # KIND. Not "a non-zero ACTIVE count": a corpus that has archived every
+      # packet it ever held is a valid live state (`0 active and N archived`),
+      # and requiring active alone would fail this required check on a read
+      # that succeeded — the false-refusal shape this gate's own review round
+      # refuses everywhere else. So the two zeros are asked about TOGETHER:
+      # `0 active and 0 archived` is the one shape that cannot be a real
+      # corpus, and is the only count this step refuses. (Copilot, PR #1039.)
       - name: Assert the gate actually judged something
         shell: bash
         run: |
@@ -150,7 +154,9 @@ jobs:
           fail() { echo "::error::$1"; exit 1; }
           grep -qE '^former-id arrival gate: [0-9]+ commit\(s\) of ' arrival-gate.log \
             || fail "the gate log reports no judged commit range — on a pull_request run the checkout is a merge commit and HEAD^1..HEAD^2 must resolve; check that fetch-depth is 0"
-          grep -qE '^  corpus sweep: [1-9][0-9]* active and [0-9]+ archived packet\(s\)' arrival-gate.log \
-            || fail "the gate log reports no active packet read by the corpus sweep — the whole-tree declaration sweep did not run, so no declaration was adjudicated"
+          grep -qE '^  corpus sweep: [0-9]+ active and [0-9]+ archived packet\(s\)' arrival-gate.log \
+            || fail "the gate log reports no corpus-sweep line at all — the whole-tree declaration sweep did not run, so no declaration was adjudicated"
+          ! grep -qE '^  corpus sweep: 0 active and 0 archived packet\(s\)' arrival-gate.log \
+            || fail "the gate log reports the corpus sweep read ZERO packets of either kind — a corpus this small is not this repository's, so nothing was actually adjudicated"
           ! grep -qE '^former-id arrival gate (FAILED|CANNOT RUN):' arrival-gate.log \
             || fail "the gate log carries a refusal; see the reader output above"

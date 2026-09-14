@@ -69,9 +69,9 @@ def _report(report: fia.Report) -> None:
     if report.base is not None:
         print(f"  moves paired: {report.moves_seen} packet-directory "
               f"move(s) — {report.moves_excepted_archive} archive "
-              f"relocation(s) excepted by id, {report.moves_unqualified} of "
-              f"a packet no identity of which has ever declared "
-              f"`Status: ratified`.")
+              f"relocation(s) excepted by id, {report.moves_unqualified} "
+              f"packet-directory move(s) whose source identity has never "
+              f"declared `Status: ratified`.")
     print(f"  corpus sweep: {report.active_packets} active and "
           f"{report.archived_packets} archived packet(s) read for their "
           f"`former_ids:` declaration, their standing ids and the ownership "

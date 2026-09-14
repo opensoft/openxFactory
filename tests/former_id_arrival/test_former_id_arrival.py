@@ -603,6 +603,66 @@ class ArrivalRefusalTests(unittest.TestCase):
             self.assertEqual([f.status for f in findings], [fia.UNDECLARED],
                              [f.message for f in findings])
 
+    def test_a_dated_identitys_own_archival_is_excepted_too(self):
+        """Scenario: *A packet archives* — for a packet whose OWN id already
+        carries a date, which `archive_directory_name` archives UNCHANGED.
+
+        Comparing `change_id_of_dir`'s STRIPPED reading of the destination
+        against the source's own (unstripped) id refused this exactly
+        because the two never compare equal — `example` against
+        `2026-09-14-example` — even though nothing about the identity
+        changed and this relocation is the SAME exception every other
+        archival gets. The false refusal a required gate with no bypass
+        flag must never take. (Codex P2 and Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "2026-09-14-example", ratified=True)
+            commit_all(root, "create the ratified, already-dated packet")
+            archive = root / "openspec" / "changes" / "archive"
+            archive.mkdir(parents=True)
+            git(root, "mv", str(directory),
+                str(archive / "2026-09-14-example"))
+            archived = commit_all(root, "archive it, unchanged, as the "
+                                        "convention requires")
+            self.assertEqual(self.judge(root, archived), [])
+
+    def test_ever_ratified_finds_the_EXACT_reading_of_a_dated_archived_id(
+            self):
+        """`_identity_paths_at` MUST ASK BOTH READINGS OF A DATED IDENTITY,
+        the way `support._archive_dir_carries` already does for the shared
+        reader — not only the stripped one.
+
+        `archive/2026-09-09-foo` is the archived `foo` AND the archived
+        `2026-09-09-foo` (`_archive_dir_carries`'s own docstring names why).
+        Asked only under the stripped reading, this reader found no location
+        for `2026-09-09-foo`'s own `proposal.md` standing right there, and a
+        ratification recorded while the packet was ALREADY archived — an
+        editorial correction is still a commit, and this gate does not
+        assume when in a packet's life one lands — resolved to "never
+        ratified": the same unreadable-presence-as-absence collapse this
+        gate's other fail-closed reads all refuse. (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "2026-09-09-foo")   # draft, active
+            commit_all(root, "create the draft under its own dated name")
+            archive = root / "openspec" / "changes" / "archive"
+            archive.mkdir(parents=True, exist_ok=True)
+            git(root, "mv", str(directory), str(archive / "2026-09-09-foo"))
+            commit_all(root, "archive the draft, unchanged")
+            set_status(archive / "2026-09-09-foo", "ratified")
+            tip = commit_all(root, "ratify it while archived")
+
+            # UNMASKED: at `tip` the identity stands ONLY in the archive, so
+            # this asks `_identity_paths_at`'s OWN archive-loop directly and
+            # not the (unaffected) active-path check an earlier commit would
+            # satisfy.
+            self.assertEqual(
+                fia._identity_paths_at(root, tip, "2026-09-09-foo"),
+                [f"{fia.ARCHIVE_ROOT}2026-09-09-foo/proposal.md"])
+            self.assertTrue(fia.ever_ratified(root, tip, "2026-09-09-foo"))
+
     def test_a_fork_by_copy_is_not_a_move_and_is_not_refused(self):
         """Scenario: *A fork by copy declares nothing*.
 
@@ -1062,6 +1122,45 @@ class FailClosedTests(unittest.TestCase):
             self.assertIn("did not read as a mapping", problems[0])
             self.assertIn("not a regular file", problems[0])
 
+    def test_a_historical_manifest_with_invalid_utf8_is_refused_not_garbled(
+            self):
+        """THE RANGE ARM'S READ MUST FAIL AS CLOSED AS THE CORPUS ARM'S.
+
+        `load_packet` decodes a manifest ON DISK strictly and only catches
+        `YAMLError`, so the corpus arm refuses non-UTF-8 bytes as "could not
+        be read at all" (the test above). The range arm reads history through
+        `support.git_show_text`, which decodes with `errors="replace"` and
+        NEVER raises — so without this check, the identical corruption in a
+        historical commit would come back as a string with one or more
+        `�` replacement characters and might still parse as a valid YAML
+        mapping, silently accepting from history exactly what the corpus arm
+        refuses on disk. (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "change-r")
+            commit_all(root, "create the draft")
+            (directory / ".openspec.yaml").write_bytes(
+                MANIFEST.encode("utf-8") +
+                b"former_ids:\n  - \xff\xfe not utf-8\n")
+            broken = commit_all(root, "corrupt the manifest with invalid "
+                                      "UTF-8 bytes")
+
+            # PRECONDITION: `git_show_text` is lossy and does not raise —
+            # the defect this check exists to close is real without it.
+            rel = "openspec/changes/change-r/.openspec.yaml"
+            shown = support.git_show_text(root, broken, rel)
+            self.assertIsNotNone(shown)
+            self.assertIn("�", shown)
+
+            with self.assertRaises(fia.ArrivalCannotRun) as caught:
+                fia.declared_at(root, broken, "openspec/changes/change-r",
+                                "change-r")
+            message = str(caught.exception)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("invalid UTF-8", message)
+            self.assertIn(rel, message)
+
     def test_a_symlink_is_refused_and_is_never_read_through(self):
         """WHAT `ls-tree` CANNOT SEE, THIS ARM DOES NOT READ.
 
@@ -1377,6 +1476,49 @@ class ConsumedReaderTests(unittest.TestCase):
             # …and the CLI reports it and exits 1.
             with no_event():
                 self.assertEqual(cli.main([str(root)]), 1)
+
+    def test_an_archived_self_claim_under_its_OTHER_reading_is_refused(self):
+        """§ 2.1's self-claim refusal, asked under BOTH of a dated archived
+        directory's readings — not only the one `change_id_of` prefers.
+
+        `packet_identities_of`'s own docstring names the measured historical
+        shape: `archive/2026-09-09-foo` declaring `former_ids:
+        [2026-09-09-foo]` is a claim to be the move of ITSELF, read under the
+        EXACT (unstripped) reading of its own name. `former_id_problems` is
+        asked about ONE identity at a time and this corpus arm hands it only
+        the commoner (stripped) reading, so without this check the entry
+        never equals the identity `former_id_problems` compares against — and
+        the ownership sweep treats the very same entry as a lawful
+        self-reference under the OTHER reading and skips it too. Neither arm
+        refuses it unless this one does. (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "foo", archived="2026-09-09")
+            declare(directory, "2026-09-09-foo")
+            commit_all(root, "an archived packet declares its own dated name")
+
+            self.assertEqual(
+                support.packet_identities_of(directory),
+                ["2026-09-09-foo", "foo"])      # PRECONDITION: two readings
+            problems = fia.corpus_problems(root)
+            self.assertEqual(len(problems), 1, problems)
+            self.assertIn("2026-09-09-foo", problems[0])
+            self.assertIn("OTHER reading", problems[0])
+
+            # THE COMMONER READING'S OWN SELF-CLAIM is still
+            # `former_id_problems`'s to catch directly, unaffected by this
+            # check — asserted so the two paths are not confused for one.
+            declare(directory, "foo")
+            commit_all(root, "declare the commoner reading instead")
+            problems = fia.corpus_problems(root)
+            self.assertEqual(len(problems), 1, problems)
+            self.assertIn("names the packet's OWN id", problems[0])
+
+            # …and a LAWFUL former id on the same directory is untouched.
+            declare(directory, "bar")
+            commit_all(root, "declare an unrelated former id")
+            self.assertEqual(fia.corpus_problems(root), [])
 
     def test_the_append_only_rule_is_enforced_by_this_validator(self):
         """§ 2.5, and the proof that `append_only_problems` is CALLED.
