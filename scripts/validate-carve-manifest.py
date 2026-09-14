@@ -174,10 +174,14 @@ test-layout files, and the ruling amends the grammar once rather than twice:
     by the source blob at `carve_commit` in check 3 exactly as a moved row's
     are, and the class vocabulary is the same closed three. A DECLARED LINE IS
     PERMITTED AT EVERY REPLICA AND OBLIGED AT NONE — `edits:` is a field of the
-    ROW and a replica has no row of its own — and where a line IS applied its
-    text is the same at each: a claim about lines, which is what this grammar
-    can bound; see `verify-carve-arrival.py`'s own docstring for what that does
-    and does not prove at the destination.
+    ROW and a replica has no row of its own. What this grammar bounds is the
+    LINE. That the applied TEXT is the same wherever a line IS applied is the
+    PLACING LEGS' CLAIM plus each leg's own suite and NOT a check made here or
+    at arrival: `verify-carve-arrival.py` verifies ONE DESTINATION PER RUN and
+    compares no two legs' copies with each other, so two legs applying one
+    declared line differently both pass it — its own docstring says so, and
+    `test_two_legs_may_apply_one_replicas_line_differently` records the limit
+    rather than leaving a reader to discover it.
 
   It is NOT the FLOOR PART 2 field. RULING OQ-K's clause (b)
   (`split-opendox-two-layer-product` design § D6 (2)) owes FLOOR PART 1 a field

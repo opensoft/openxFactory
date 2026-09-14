@@ -212,9 +212,11 @@ test-layout files that carve leg 1 measured:
   outside the destination repository once the copy lands one directory
   shallower at `tests/conftest.py`, and must read `HERE.parent`; that one both
   `-code` legs owe, because both place the file at that depth — and where a
-  line IS applied its text is the same at every replica, for the same reason.
-  None of which `verify-carve-arrival.py` proves across legs: it verifies one
-  destination per run and compares no two legs' copies with each other.
+  line IS applied its text is the same at every replica of this row, for the
+  same reason. That identity is the PLACING LEGS' CLAIM plus each leg's own
+  suite and not a check the grammar makes: `verify-carve-arrival.py` proves
+  none of it across legs, because it verifies one destination per run and
+  compares no two legs' copies with each other.
 
 The **two replica lines belong to no destination column below** — `:25` (the
 1422nd declared line when this paragraph was written) and, since the

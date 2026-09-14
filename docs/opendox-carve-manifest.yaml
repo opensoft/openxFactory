@@ -113,9 +113,14 @@
 #     PERMITTED at every replica of that file and OBLIGATORY at none — the
 #     field belongs to the ROW and a replica has no row of its own — with the
 #     lines bounded by the SOURCE BLOB at the carve commit exactly as a moved
-#     row's are, and with the applied TEXT of a line the same wherever it IS
-#     applied. `scripts/verify-carve-arrival.py` asks ONE question of the
-#     declared SET: `diffed` where a copy differs from the carve blob at all,
+#     row's are. That the applied TEXT is the same wherever a line IS applied
+#     is the PLACING LEGS' CLAIM plus each leg's own suite, NOT a check this
+#     grammar makes: `scripts/verify-carve-arrival.py` verifies ONE
+#     DESTINATION PER RUN and compares no two legs' copies with each other, so
+#     two legs applying one declared line differently BOTH pass — which
+#     `test_two_legs_may_apply_one_replicas_line_differently` records rather
+#     than leaving a reader to infer it from a passing run. It asks ONE
+#     question of the declared SET: `diffed` where a copy differs from the carve blob at all,
 #     and then every differing line must be one of them; `unapplied` only where
 #     the copy is byte-identical. The row here is that same `conftest.py`,
 #     which declares TWO — `:25`, whose `REPO_ROOT = HERE.parent.parent` must
