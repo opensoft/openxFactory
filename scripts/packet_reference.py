@@ -327,7 +327,17 @@ def packet_reference(claimed) -> tuple[str, str] | None:
     if parts[2] == ARCHIVE_SEGMENT:
         if len(parts) < 4 or not support.ARCHIVE_DATE_PREFIX.match(parts[3]):
             return None
-        identity = support.change_id_of(Path(parts[3]))
+        # `change_id_of` strips the date only where the PARENT it is handed is
+        # named `archive` (`RESERVED_CHANGE_ID`) — the fix landed at main
+        # 701c8fde so an ACTIVE directory whose own id happens to look dated
+        # (this corpus's `2026-08-04-add-dated`) is read verbatim rather than
+        # mis-stripped. `parts[3]` is a bare leaf read out of a citation
+        # string, with no real parent of its own, so it is handed to
+        # `change_id_of` prefixed with the segment that citation already
+        # proved it sits under (`parts[2] == ARCHIVE_SEGMENT`, just above) —
+        # never the bare leaf alone, which `change_id_of` would now read as an
+        # unparented name and return it un-stripped, unchanged.
+        identity = support.change_id_of(Path(ARCHIVE_SEGMENT) / parts[3])
         remainder = parts[4:]
     else:
         identity = parts[2]

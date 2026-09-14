@@ -712,7 +712,13 @@ def test_every_packet_in_this_corpus_resolves_to_exactly_itself() -> None:
     assert len(live) >= 40 and len(archived) >= 150, (len(live), len(archived))
 
     ambiguous = []
-    for name in live + [support.change_id_of(Path(n)) for n in archived]:
+    # `change_id_of` strips a date prefix only where the Path it is handed has
+    # `archive` for a parent (main 701c8fde, so an ACTIVE id that merely looks
+    # dated is read verbatim) — `n` alone is a bare leaf with no such parent,
+    # so it is prefixed with the segment it was actually read from, exactly as
+    # `packet_reference.py`'s own archive-spelling branch now must.
+    for name in live + [support.change_id_of(Path("archive") / n)
+                        for n in archived]:
         resolution = pr.resolve(REPO_ROOT,
                                 f"openspec/changes/{name}/proposal.md",
                                 index=index)
