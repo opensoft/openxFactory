@@ -365,6 +365,69 @@ def is_archived_dir(packet_dir: str) -> bool:
     return packet_dir.startswith(ARCHIVE_ROOT)
 
 
+def _refuse_ambiguous_archived_source(root: Path, parent: str, commit: str,
+                                      source: str) -> None:
+    """Raise `ArrivalCannotRun` where `source` is an ARCHIVED, DATED
+    directory whose name is GENUINELY ambiguous between two identities, AT
+    `parent` — never merely because the stripped reading is POSSIBLE.
+
+    `change_id_of_dir` answers the single, commoner (stripped) reading
+    unconditionally, which is safe for a DESTINATION'S OWN archival — that
+    identity is read from the ACTIVE side of the move (`source_id`, never
+    ambiguous: an active directory's name IS its id) — but not for a
+    SOURCE that is ITSELF already archived and dated: `archive/2026-09-09-
+    foo` might be the archived `foo`, or `2026-09-09-foo` archived under
+    its own UNCHANGED name (`archive_directory_name`'s rule for an id that
+    already carries a date). Choosing the stripped reading unconditionally
+    would let this gate accept `former_ids: [foo]` — or refuse a lawful
+    `former_ids: [2026-09-09-foo]` — over a label that may never have
+    stood as a packet at all.
+
+    THE TWO READINGS DIFFER ONLY IN WHETHER THE FULL NAME EVER STOOD ACTIVE,
+    up to `parent` — the same fact `support.identity_of_packet_dir` settles,
+    over the LIVE working tree and UNBOUNDED history (a different read from
+    this arm's, which judges one historical commit and never touches the
+    working tree) and raising `OriginRetentionError` doing it, an exception
+    this arm's CLI does not catch. Settled here the same way but BOUNDED TO
+    `parent` and raising THIS module's own CANNOT RUN, one path-limited
+    `git log`. Where that path has NO history the stripped reading is the
+    only packet the name can ever have been about, and NOTHING IS REFUSED:
+    an archived directory renamed, or re-dated, again is an ORDINARY
+    operation this gate must not block on a hypothetical — refusing every
+    dated archived source unconditionally would be a NEW false-refusal
+    shape traded for the one being closed. (Copilot, PR #1039.)
+    """
+    if not is_archived_dir(source):
+        return
+    bare = source.rsplit("/", 1)[-1]
+    stripped = support._ARCHIVE_DATE_RE.sub("", bare)
+    if stripped == bare:
+        return
+    full = bare
+    active_path = f"{CHANGES_ROOT}/{full}/proposal.md"
+    listed = _run(root, "log", "--full-history", "--format=%H", "-1",
+                 "--end-of-options", parent, "--", active_path)
+    if listed is None:
+        raise ArrivalCannotRun(
+            f"REFUSE {UNREADABLE}: the arrival qualification at commit "
+            f"{_short(commit)} CANNOT RUN. The read that could not be "
+            f"performed is `git log --full-history -1 {_short(parent)} -- "
+            f"{active_path}`, so whether `{source}`'s name is ambiguous "
+            f"between `{stripped}` and `{full}` cannot be settled.")
+    if not listed.strip():
+        return
+    raise ArrivalCannotRun(
+        f"REFUSE {UNREADABLE}: the arrival qualification at commit "
+        f"{_short(commit)} CANNOT RUN. `{source}` is an ARCHIVED, DATED "
+        f"directory being moved AGAIN, and its name reads as BOTH "
+        f"`{stripped}` (archived on {full[:10]}) and `{full}` (archived "
+        f"under its own unchanged name — `{active_path}` HAS history up to "
+        f"{_short(parent)}, so `{full}` really stood ACTIVE at some point) "
+        f"— `archive_directory_name` cannot be told which this repository "
+        f"meant from the name alone, and this gate does not choose one for "
+        f"it: resolve the ambiguity before moving `{source}` again.")
+
+
 def _short(revision: str) -> str:
     return revision[:12]
 
@@ -642,8 +705,8 @@ def ever_ratified(root: Path, tip: str, identity: str, *,
                                     archive_rows=archive_rows)
         if resolved is None:
             continue
-        blob = support.git_show_text(root, revision, resolved)
-        if blob is None:
+        raw = _git_show_bytes(root, revision, resolved)
+        if raw is None:
             raise ArrivalCannotRun(
                 f"REFUSE {UNREADABLE}: the ratification lookup for identity "
                 f"`{identity}` CANNOT RUN. The read that could not be "
@@ -653,6 +716,26 @@ def ever_ratified(root: Path, tip: str, identity: str, *,
                 f"same as an identity that was never ratified. This gate "
                 f"refuses rather than resolving an unreadable history to "
                 f"\"never ratified\".")
+        try:
+            blob = raw.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            # THE SAME LOSSY DECODE, THE SAME REFUSAL — `git_show_text`
+            # decodes with errors="replace" and never raises, so a
+            # ratification proof this checkout cannot actually read would
+            # be silently adjudicated as ordinary (garbled) text instead of
+            # the documented CANNOT RUN, and a corruption landing near the
+            # literal `Status: ratified` line could resolve a ratified
+            # identity to "never ratified". Read via `_git_show_bytes` (the
+            # same raw-bytes helper `declared_at` uses) and decoded
+            # strictly instead, for the identical reason. (Copilot, PR
+            # #1039.)
+            raise ArrivalCannotRun(
+                f"REFUSE {UNREADABLE}: the ratification lookup for identity "
+                f"`{identity}` CANNOT RUN. `git show "
+                f"{_short(revision)}:{resolved}` is PRESENT and is not "
+                f"valid UTF-8 ({exc}) — an unreadable proposal is not the "
+                f"same as one that was never ratified, and this gate does "
+                f"not adjudicate a lossy decode of it either way.")
         if support.declares_ratified(blob):
             answer = True
             break
@@ -1022,6 +1105,7 @@ def judge_commit(root: Path, commit: str, *,
     for source, destination in moves:
         if report is not None:
             report.moves_seen += 1
+        _refuse_ambiguous_archived_source(root, parent, commit, source)
         source_id = change_id_of_dir(source)
         destination_id = change_id_of_dir(destination)
         # THE ARCHIVE RELOCATION, EXCEPTED BY ID, AND IT IS THE ONLY
@@ -1165,6 +1249,7 @@ def _multi_source_findings(root: Path, commit: str, parent: str,
     findings: list[Finding] = []
     allowed: list[str] = []
     for source in sources:
+        _refuse_ambiguous_archived_source(root, parent, commit, source)
         source_id = change_id_of_dir(source)
         try:
             carried = _declared_at_cached(declared_cache, root, parent,

@@ -690,6 +690,56 @@ class ArrivalRefusalTests(unittest.TestCase):
             self.assertIn("openspec/changes/change-s/.openspec.yaml",
                           findings[0].message)
 
+    def test_a_move_from_an_ambiguous_archived_source_refuses_cannot_run(
+            self):
+        """Scenario Copilot's finding named directly: a packet that
+        previously stood ACTIVE as a DATED id, later moved AGAIN from its
+        own (unchanged-name) archive.
+
+        `change_id_of_dir` answers the stripped reading unconditionally, so
+        this move's source would be labelled `foo` — a fictitious identity
+        `openspec/changes/foo` never stood as — rather than `2026-09-09-
+        foo`, the one this packet was actually ratified under. Choosing
+        the stripped label could accept a lawful `former_ids:
+        [2026-09-09-foo]` as undeclared, or accept `former_ids: [foo]` as
+        if a packet by that name had ever existed. Refused rather than
+        guessed: `support.identity_of_packet_dir` settles the identical
+        ambiguity by history over the LIVE tree (a different read, raising
+        a different exception this arm's CLI does not catch), so this arm
+        refuses instead. (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "2026-09-09-foo", ratified=True)
+            commit_all(root, "create the ratified, already-dated packet")
+            archive = root / "openspec" / "changes" / "archive"
+            archive.mkdir(parents=True)
+            git(root, "mv", str(directory), str(archive / "2026-09-09-foo"))
+            commit_all(root, "archive it, unchanged")
+            git(root, "mv", str(archive / "2026-09-09-foo"),
+                str(archive / "2026-09-09-bar"))
+            renamed = commit_all(root, "rename it again, still archived")
+
+            with self.assertRaises(fia.ArrivalCannotRun) as caught:
+                self.judge(root, renamed)
+            message = str(caught.exception)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("2026-09-09-foo", message)
+            self.assertIn("BOTH", message)
+
+            # A NON-DATED ARCHIVED SOURCE IS NOT AMBIGUOUS and is untouched:
+            # `foo` archived under a date has only one reading.
+            git(root, "reset", "-q", "--hard", "HEAD~2")
+            plain = packet(root, "plain", ratified=True)
+            commit_all(root, "create a plain ratified packet")
+            archive.mkdir(parents=True, exist_ok=True)
+            git(root, "mv", str(plain), str(archive / "2026-09-09-plain"))
+            commit_all(root, "archive it")
+            git(root, "mv", str(archive / "2026-09-09-plain"),
+                str(archive / "2026-09-15-plain"))
+            rearchived = commit_all(root, "re-date its archive directory")
+            self.assertEqual(self.judge(root, rearchived), [])
+
     def test_a_fork_by_copy_is_not_a_move_and_is_not_refused(self):
         """Scenario: *A fork by copy declares nothing*.
 
@@ -976,6 +1026,42 @@ class FailClosedTests(unittest.TestCase):
                           message)
             self.assertIn("git show", message)
             self.assertIn("never ratified", message)
+
+    def test_a_corrupted_ratification_proof_refuses_rather_than_garbles(
+            self):
+        """The ratification lookup reads history through THE SAME lossy
+        decoder `declared_at` did before `8124eead` — `git_show_text`
+        decodes with `errors="replace"` and never raises — but this spot
+        had no equivalent strict check: an unreadable `proposal.md` would
+        be silently adjudicated as ordinary (garbled) text instead of the
+        documented CANNOT RUN, and a corruption landing near the literal
+        `Status: ratified` line could resolve a RATIFIED identity to
+        "never ratified" — the collapse this whole gate exists to refuse,
+        reached through a read this one call forgot to guard. (Copilot, PR
+        #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "change-r", ratified=True)
+            commit_all(root, "create the ratified packet")
+            (directory / "proposal.md").write_bytes(
+                b"---\nStatus: ratified\n---\n\n## Why\n\n"
+                b"\xff\xfe not utf-8\n")
+            corrupted = commit_all(root, "corrupt the proposal after "
+                                         "ratifying it")
+
+            # PRECONDITION: `git_show_text` is lossy and does not raise.
+            shown = support.git_show_text(
+                root, corrupted, "openspec/changes/change-r/proposal.md")
+            self.assertIsNotNone(shown)
+            self.assertIn("�", shown)
+
+            with self.assertRaises(fia.ArrivalCannotRun) as caught:
+                fia.ever_ratified(root, corrupted, "change-r")
+            message = str(caught.exception)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("not valid UTF-8", message)
+            self.assertIn("change-r", message)
 
     def test_a_pull_request_run_without_its_range_refuses_cannot_run(self):
         """A CHECKOUT WITHOUT HISTORY MUST REFUSE RATHER THAN PASS BLIND.
