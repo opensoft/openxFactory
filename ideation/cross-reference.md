@@ -6,7 +6,7 @@ Repository context: openxFactory
 
 **GENERATED FILE — do not edit by hand.** This is a deterministic Markdown projection of the source-of-truth `ideation/cross-reference.yaml`, produced by `scripts/render-ideation-cross-reference.py`. Edit the YAML and re-render; per the `add-ideation-cross-reference-readiness` spec the index is a generated projection over governed documents. See `ideation/README.md` for how this surface relates to the promoted requirements and to `staging/INDEX.md`.
 
-- Source revision: `50959c1831362d1f36dcc6bad19642bb5af5149f`
+- Source revision: `b91af6eab605021118e625a013961123ac9796e2`
 - Generator: `ideation-xref-scorer-0.1.0`
 - Topic clusters: 295
 
@@ -16,8 +16,9 @@ Repository context: openxFactory
 - topics: accessibility
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-accessibility); company unscored (worker failed: no remote result collected for cl-accessibility); project unscored (worker failed: no remote result collected for cl-accessibility)
+- no promoted fit — No listed promoted capability corresponds to component-spec accessibility gating, a legal-compliance/accessibility advisory persona, or an avatar-pilot accessibility audit; this cluster does not extend an existing promoted spec (fit checked, none found).
+- readiness: domain unscored (no owning domain resolves for this cluster); company 3; project 2
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -31,8 +32,9 @@ Repository context: openxFactory
 - topics: accounting
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-accounting); company unscored (worker failed: no remote result collected for cl-accounting); project unscored (worker failed: no remote result collected for cl-accounting)
+- no promoted fit — No promoted capability in the given list corresponds to cost accounting, spend ledgers, or efficiency auditing. The only reference to a promoted spec in these documents is crystallization-synthesis-steward.md citing 'doc-health's pattern' as an analogy for an auto/contested split on drift responses (DL-C4) — that is a borrowed governance pattern, not this cluster extending the doc-health capability itself, so it does not satisfy the citation.
+- readiness: domain unscored (The cluster explicitly spans multiple layers (domain/client/subject) rather than resolving to one owning DomainxFactory, and the document itself leaves the responsible persona for the core mechanism (the efficiency-audit algorithm) unresolved among three candidates.); company 6; project 3
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -46,8 +48,9 @@ Repository context: openxFactory
 - topics: adxdox, domain-mappings, ledgerxdox
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-adxdox); company unscored (worker failed: no remote result collected for cl-adxdox); project unscored (worker failed: no remote result collected for cl-adxdox)
+- extends promoted `corpus-adapter-seam` — The cluster's staged document proposes an ADDED 'neutral corpus-adapter seam capability' (declared by openDox, implemented by openXdox) and states plainly that this capability 'is deliberately NOT fenced as xspec:candidate targets... neither exists in openspec/specs/ or in any active change's specs' — but 'corpus-adapter-seam' and 'domain-mapping-declaration' both already appear among this cluster's promoted capabilities, and 'domain-descendant-boundary' and 'neutral-product-pin' (which the cluster proposes to MODIFY) are likewise already promoted. This cluster is therefore extending/reconciling with already-promoted specs rather than creating wholly new ones, which the source documents themselves do not appear to have checked against current canon.
+- readiness: domain unscored (no single owning DomainxFactory resolves for this cluster); company 8; project 6
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -60,8 +63,9 @@ Repository context: openxFactory
 - topics: agent-assisted-app-testing
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-agent-assisted-app-testing); company unscored (worker failed: no remote result collected for cl-agent-assisted-app-testing); project unscored (worker failed: no remote result collected for cl-agent-assisted-app-testing)
+- no promoted fit — No promoted spec or capability in the provided promoted_capabilities list corresponds to agent-assisted browser/UI testing, visual regression, or Hermes-driven experience admission; the closest-sounding entries (doc-health, ideation-cross-reference, workflow-visualization, hermes-domain-overlay) address document/workflow tooling and Hermes layering generally, not this cluster's UI-testing subject matter. This is a genuine no-fit rather than fit-not-checked.
+- readiness: domain unscored (no owning DomainxFactory resolves for this cluster; it is framed as a cross-factory, neutral workflow concept rather than a single domain's vertical content); company 5; project 2
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -92,8 +96,9 @@ Repository context: openxFactory
 - topics: agent-certification
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-agent-certification); company unscored (worker failed: no remote result collected for cl-agent-certification); project unscored (worker failed: no remote result collected for cl-agent-certification)
+- extends promoted `credential-contracts` — agent-certification-wallets.md explicitly states the cluster's exit composes with the already-promoted credential-contracts and roles-authority-model capabilities: it extends credential-contracts with a new verifiable-credential shape (issuer = certification gate, subject = agent DID, claims = qualification level + certified config hash + battery scores + expiry) and ties its 'autonomous-authority scope' claim to the authority levels already modeled by roles-authority-model, per the doc's own line: "composing with the roles-authority-model and credential-contracts capabilities, plus omnigent-install adoption (config-hash attestation in heartbeats)".
+- readiness: domain unscored (no owning DomainxFactory resolves for this cluster); company 6; project 4
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -109,8 +114,9 @@ Repository context: openxFactory
 - topics: agent-identity, did, verifiable-credentials
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-agent-identity); company unscored (worker failed: no remote result collected for cl-agent-identity); project unscored (worker failed: no remote result collected for cl-agent-identity)
+- no promoted fit — No promoted capability already covers this cluster. The staged doc explicitly cites two promoted MedxFactory specs (patient-identity-and-assembly, patient-snapshot-ledger-custody) but only as external constraints the new capability must respect ('MUST NOT be silently accepted as identity proof', must remain 'topology and wallet neutral'), not as a capability being extended. It proposes an ADDED neutral capability (agent-wallet-identity) composing with roles-authority-model and credential-contracts, neither of which is described as already providing agent DID/proof-of-control identity. This is a genuine 'no fit checked and confirmed absent' rather than an unchecked gap.
+- readiness: domain unscored (No owning DomainxFactory resolves for this cluster: both documents frame openxWallet/agent-wallet-identity as a NEUTRAL openxFactory capability ('the neutral identity/authorization capability', 'ADDED neutral agent-wallet-identity'), explicitly owned at the openxFactory (company/neutral) layer rather than by any specific DomainxFactory. LedgerxFactory appears only as the first named CONSUMER ('the first consumer is LedgerxFactory') that forced staging, not as the owning domain. There is no domain whose Domain Hermes authority this cluster belongs to.); company 7; project 4
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -123,8 +129,9 @@ Repository context: openxFactory
 - topics: aggregate-budget
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-aggregate-budget); company unscored (worker failed: no remote result collected for cl-aggregate-budget); project unscored (worker failed: no remote result collected for cl-aggregate-budget)
+- no promoted fit — No entry in the provided promoted-capabilities list corresponds to aggregate host-resource budgeting, durable owner pause/consent controls, or per-executor enforcement-vs-measurement declarations; this is a genuine no-fit rather than fit-not-checked.
+- readiness: domain unscored (no single owning domain resolves for this cluster during the Hermes-layer migration); company 6; project 4
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -137,8 +144,9 @@ Repository context: openxFactory
 - topics: approved-ui-source
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-approved-ui-source); company unscored (worker failed: no remote result collected for cl-approved-ui-source); project unscored (worker failed: no remote result collected for cl-approved-ui-source)
+- no promoted fit — No promoted capability in the provided list (e.g. doc-health, ideation-cross-reference, workflow-gate-contract) addresses approved UI runtime baselines, visual diffing, or app-testing authority; nothing promoted relates to this cluster's topic, so there is no fit to cite.
+- readiness: domain unscored (No owning domain resolves for this cluster; the material explicitly frames itself as a neutral cross-factory concept rather than material owned by any single DomainxFactory.); company 3; project 2
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -151,8 +159,9 @@ Repository context: openxFactory
 - topics: audit
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-audit); company unscored (worker failed: no remote result collected for cl-audit); project unscored (worker failed: no remote result collected for cl-audit)
+- extends promoted `memory-gateway` — crystallization-episode-ledger.md explicitly rides existing memory-gateway ports rather than introducing a new store: 'Gateway usage metering (memory-gateway M3) is the authoritative meter where it applies,' and its Related section cites 'openspec/specs/memory-gateway/spec.md — metering (M3) and promotion (M1) ports' as the promoted capability the episode ledger's cost vector and future promotion path depend on.
+- readiness: domain unscored (no owning DomainxFactory resolves for this cluster; all five member documents are staged under openxFactory as neutral cross-factory architecture, and the overview document explicitly treats domain adoption (codexFactory, OpsxFactory, LedgerxFactory, MedxFactory) as a later, unqualified pilot rather than an existing owner); company 6; project 4
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -168,8 +177,9 @@ Repository context: openxFactory
 - topics: audit-continuity
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-audit-continuity); company unscored (worker failed: no remote result collected for cl-audit-continuity); project unscored (worker failed: no remote result collected for cl-audit-continuity)
+- extends promoted `crystallization-consent` — The authority-and-consent document's three-tier consent contract (episode use / automation / pooling) and authority-conservation rule map directly onto the already-promoted crystallization-consent capability, and its sibling document's admission-time fingerprint/fence/execute/post-condition junction maps directly onto the already-promoted crystallization-dispatch capability (both names appear in the promoted_capabilities list alongside crystallization-build, crystallization-decision, and crystallized-capability-registry). This indicates the cluster is design history for concepts that have already progressed to promoted specs rather than net-new material awaiting first formalization; any new proposal from this cluster should be scoped as a delta against those existing specs, not a restatement of them.
+- readiness: domain unscored (No single owning DomainxFactory resolves for this cluster.); company 7; project 5
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -182,8 +192,9 @@ Repository context: openxFactory
 - topics: authority-conservation
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-authority-conservation); company unscored (worker failed: no remote result collected for cl-authority-conservation); project unscored (worker failed: no remote result collected for cl-authority-conservation)
+- extends promoted `crystallization-consent` — The authority-and-consent brainstorm's three separately-grantable consent tiers (T1 episode use, T2 automation, T3 pooling, default deny) and its authority-conservation subset rule spell out exactly the consent/permission behavior the already-promoted 'crystallization-consent' capability would need to implement, and sit alongside sibling promoted capabilities covering neighboring stages of the same arc (crystallization-decision, crystallization-build, crystallization-dispatch, crystallized-capability-registry).
+- readiness: domain unscored (No single owning DomainxFactory resolves for this cluster; every member document's repository context is 'openxFactory' (neutral, cross-cutting) or a generic, unnamed 'DomainxFactory repos' reference for policy activation, never a specific vertical domain claiming ownership of authority-conservation as its capability.); company 4; project 3
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
@@ -200,8 +211,9 @@ Repository context: openxFactory
 - topics: authority-object-lifetimes
 - tag sources: topics-header
 - origin: machine-derived
-- no promoted fit — Readiness worker did not evaluate extension fit for this cluster (scoring skipped or the worker proposed none); recorded as no-promoted-fit-claim, not an asserted 'no fit exists' finding.
-- readiness: domain unscored (worker failed: no remote result collected for cl-authority-object-lifetimes); company unscored (worker failed: no remote result collected for cl-authority-object-lifetimes); project unscored (worker failed: no remote result collected for cl-authority-object-lifetimes)
+- extends promoted `worker-enrollment-broker` — The cluster explicitly cites 'the ratified contracts/worker-enrollment/ family... whose lease record is the object this model extends,' proposing to replace the existing single per-host lease row with the new host-participation-session object while keeping the broker's per-engineer machine-slot invariant unchanged.
+- readiness: domain unscored (no owning business Domain xFactory resolves for this cluster); company 7; project 4
+- recommendation: not flagged (pending_review) — gate not fired — tier(s) not scored: ['domain']
 
 | Member | Stage | Matched tags |
 | --- | --- | --- |
