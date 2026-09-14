@@ -141,6 +141,19 @@ import string
 import sys
 from pathlib import Path
 
+# THE CONTAINMENT DIALECT, NOW SHARED (`extend-prose-tagging-target-to-pinned-
+# capabilities`, design D-2 and task 3.3(m)). `resolve_in_tree` below keeps its
+# name, its signature and its refusal TEXT and delegates the question to
+# `scripts/pin_containment.py`, whose second caller is doc-health's pinned-target
+# arm. The extraction is what the packet requires: that arm resolves against
+# per-repository and fixture roots, which a module-global `ROOT` cannot speak
+# for, and it needs a `contracts/` boundary this repository's own dialect did
+# not answer. `pin_containment` is NEUTRAL — top of `scripts/`, in neither
+# package, standard library only — so this standalone checker takes on no
+# doc-health package member, which is the reason `OWN_REPOSITORY_SPELLINGS`
+# below is copied rather than imported.
+import pin_containment
+
 try:
     import yaml
 except ImportError:  # pragma: no cover
@@ -247,24 +260,21 @@ def resolve_in_tree(claimed):
     "Committed files MUST NOT contain host-absolute paths; use repo-relative
     paths or runtime resolution" — so a register naming one is a finding on its
     own terms and not merely an unreadable path.
+
+    THE RULE NOW LIVES IN `scripts/pin_containment.py` AND THIS IS ITS FIRST
+    CALLER. Nothing about the question this function answers has changed — the
+    root is still this repository, the four refusals are still those four, and
+    their TEXT is unchanged, which is what `tests/pin_registrations/`'s negative
+    cases match on. What changed is where the sentences are written: doc-health's
+    pinned-target arm asks the same question about a root it is handed and about
+    a `contracts/` boundary inside it, and a second copy of a containment rule is
+    the copy that stops catching things (`extend-prose-tagging-target-to-pinned-
+    capabilities`, task 3.3(m)). The shared helper reports `(code, reason)` so a
+    caller may branch on the DEFECT; this one keeps publishing the reason alone,
+    because its three call sites interpolate it into a `FAIL` line.
     """
-    if not isinstance(claimed, str) or not claimed.strip():
-        return None, ("is not a non-empty string path, and `ROOT / "
-                      "<non-string>` raises rather than reporting")
-    candidate = Path(claimed)
-    if candidate.is_absolute():
-        return None, ("is an ABSOLUTE path; joining one to the repository root "
-                      "discards the root entirely, and no consumer's checkout "
-                      "carries a host path")
-    if ".." in candidate.parts:
-        return None, ("contains a '..' segment, which walks out of the "
-                      "repository the register speaks for")
-    root = ROOT.resolve()
-    target = (root / candidate).resolve()
-    if not target.is_relative_to(root):
-        return None, (f"resolves to {target}, which is outside the repository; "
-                      f"refused rather than read")
-    return target, None
+    target, refusal = pin_containment.resolve_in_root(claimed, ROOT)
+    return target, None if refusal is None else refusal[1]
 
 
 def rule_names_entrypoint(rule: str, entrypoint: str) -> bool:
