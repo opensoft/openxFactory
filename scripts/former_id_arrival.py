@@ -1130,6 +1130,25 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
     """
     problems: list[str] = []
     changes = root / "openspec" / "changes"
+    # THE SAME RULE AT THE ANCESTORS, asked BEFORE `is_dir()`, which follows a
+    # link like everything else here. A symlinked `openspec/` or
+    # `openspec/changes/` moves the WHOLE corpus somewhere no commit carries,
+    # and every per-packet check below would then read files the tree arm
+    # cannot see while never seeing a symlink itself. Nothing under it is read
+    # and nothing is reported about it: the run says the corpus was not read.
+    # (Copilot, PR #1039.)
+    for ancestor, spelling in ((root / "openspec", "openspec/"),
+                               (changes, "openspec/changes/")):
+        if ancestor.is_symlink():
+            problems.append(
+                f"`{spelling}` is a SYMLINK. Git stores one as a blob whose "
+                f"content is a path, so `git ls-tree` reports no directory "
+                f"there and the commit-range arm of this gate sees no corpus "
+                f"at that path. This arm will not walk one through it: no "
+                f"declaration, no standing id and no ownership question was "
+                f"answered over this tree. Replace it with the directory "
+                f"itself, or remove it")
+            return problems
     if not changes.is_dir():
         return problems
     live: list[Path] = []

@@ -1124,6 +1124,40 @@ class FailClosedTests(unittest.TestCase):
             with no_event():
                 self.assertEqual(cli.main([str(root)]), 1)
 
+    def test_a_symlinked_corpus_root_is_refused_before_anything_is_walked(
+            self):
+        """THE SAME RULE AT THE ANCESTORS, asked BEFORE `is_dir()`.
+
+        A symlinked `openspec/` or `openspec/changes/` moves the WHOLE corpus
+        somewhere no commit carries: every per-packet check would then read
+        files the tree arm cannot see, while never seeing a symlink itself,
+        because `is_dir()` and `iterdir()` both follow links. The run says the
+        corpus was not read rather than reporting what it found down there.
+        (Copilot, PR #1039.)
+        """
+        for level in ("openspec", "openspec/changes"):
+            with self.subTest(level=level):
+                with TemporaryDirectory() as td:
+                    root = new_repo(Path(td) / "repo")
+                    outside = Path(td) / "outside"
+                    elsewhere = outside / "openspec" / "changes" / "change-x"
+                    elsewhere.mkdir(parents=True)
+                    (elsewhere / ".openspec.yaml").write_text(
+                        MANIFEST + "former_ids:\n  - change-from-outside\n",
+                        encoding="utf-8")
+                    link = root / level
+                    link.parent.mkdir(parents=True, exist_ok=True)
+                    link.symlink_to(outside / level)
+                    self.assertTrue(link.is_dir())    # PRECONDITION: followed
+
+                    problems = fia.corpus_problems(root)
+                    self.assertEqual(len(problems), 1, problems)
+                    self.assertIn(f"`{level}/` is a SYMLINK", problems[0])
+                    self.assertNotIn("change-from-outside", problems[0])
+                    self.assertIn("no declaration, no standing id and no "
+                                  "ownership question was answered",
+                                  problems[0])
+
     def test_a_grafted_boundary_takes_no_refusal(self):
         """`tasks.md` § 6.4, NOT TAKEN, asserted so it stays not taken.
 
