@@ -456,9 +456,29 @@ and is corrected in place where the number is now false.
       `frontmatter_strict.py`, so the sibling is imported ON FIRST USE through
       `_code_surface()` — `_sequenced_after()`'s exact idiom and its exact
       reason — and the module still imports standalone with neither sibling in
-      `sys.modules`, which
-      `tests/scope_globs/test_integrity.py::test_the_sequenced_after_sibling_is_NOT_imported_at_module_import_time`
-      proves in a bare subprocess and which was re-run here for the new one.
+      `sys.modules`.
+      **THAT FACT IS NOW PINNED BY ITS OWN TESTS, AND THIS BOX RECORDS THE
+      CORRECTION RATHER THAN KEEPING THE CLAIM THAT WAS FALSE WHEN IT WAS
+      WRITTEN.** It first said the sibling's probe
+      (`tests/scope_globs/test_integrity.py::test_the_sequenced_after_sibling_is_NOT_imported_at_module_import_time`)
+      covered the new deferral. **IT DOES NOT**: that test asserts only that
+      `sequenced_after`/`sequenced_after_substrate` are absent from
+      `sys.modules`, so hoisting `import code_surface` to module level in this
+      repository's own `scripts/` idiom
+      (`sys.path.insert(0, str(Path(__file__).resolve().parent))` then a bare
+      `import`) leaves it **GREEN** — measured with the hoist actually applied,
+      the test passing — while a `scope_globs.py` copied out beside only
+      `frontmatter_strict.py`, which is exactly what codexFactory's merge gate
+      vendors, raises `ModuleNotFoundError: No module named 'code_surface'`.
+      Two tests now pin it, both proven to FAIL under that same hoist and to
+      pass on the shipped tree:
+      `test_the_code_surface_sibling_is_NOT_imported_at_module_import_time`
+      (the bare-subprocess `sys.modules` probe for the new sibling) and
+      `test_the_module_IMPORTS_IN_THE_VENDORED_SHAPE_with_NEITHER_sibling_present`
+      (the vendoring contract itself — this file and `frontmatter_strict.py`
+      alone in a directory, imported — which no `sys.path` accident can
+      defeat). The shipped behaviour was correct throughout; only the evidence
+      for it was missing.
 - [x] 3.5a **FAIL CLOSED WHERE THE HEAD IS CARRIED BY THE REGISTER RATHER THAN
       READ BY THE GRAMMAR** (`design.md` D9 (b)). A proposal the register names
       has NO head-derived set, so `code_surface_repositories` SHALL NOT return

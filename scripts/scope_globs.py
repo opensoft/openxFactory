@@ -155,9 +155,18 @@ def _code_surface():
     it). Deferred, the vendored copy keeps working unchanged, and a caller that
     does reach this path without the sibling present gets a named
     `ScopeGlobsResolutionError` instead of an import traceback.
-    `tests/scope_globs/test_integrity.py` pins the deferral for
-    `sequenced_after` by loading this module in a bare subprocess; the same
-    probe covers this one.
+    THE DEFERRAL IS PINNED FOR THIS SIBLING IN ITS OWN RIGHT.
+    `tests/scope_globs/test_integrity.py` carries
+    `test_the_code_surface_sibling_is_NOT_imported_at_module_import_time`
+    (a bare-subprocess probe asserting `code_surface` is absent from
+    `sys.modules` after this module loads) and
+    `test_the_module_IMPORTS_IN_THE_VENDORED_SHAPE_with_NEITHER_sibling_present`
+    (this file and `frontmatter_strict.py` alone in a directory, imported).
+    The `sequenced_after` probe beside them does NOT cover this one and was
+    wrongly said to: it asserts only that ITS sibling is absent, so a
+    module-level `import code_surface` written in this repository's own
+    `scripts/` idiom leaves it green while making the vendored copy
+    unimportable — measured, with the hoist applied, before this was written.
 
     LOADED BY LOCATION UNDER ITS OWN NAME, which is unambiguous here: unlike
     `sequenced_after`, no test package in this repository is called
