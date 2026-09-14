@@ -318,9 +318,30 @@ def contained_dir(root: Path, path: Path) -> bool:
     `archive/`), and handing them a resolved spelling would rename a packet
     reached through an in-repository link.
     """
+    return _contained(root, path, want_dir=True)
+
+
+def contained_file(root: Path, path: Path) -> bool:
+    """`contained_dir` for a FILE — the same guard one level down.
+
+    A DIRECTORY GUARD ALONE IS NOT THE SURFACE. `load_packet` opens
+    `<directory>/.openspec.yaml` through `is_file()`, which follows a symlink
+    exactly as `is_dir()` does, so a packet directory that IS contained can
+    still carry a HEADER that is not. MEASURED at head `cce09fdd`, with a
+    packet's `.openspec.yaml` committed as a symlink to a file outside the
+    checkout (`git ls-files -s` → mode `120000`): the sweep claimed
+    `'stolen-by-header'` and `declared_former_ids_in_tree` returned
+    `['stolen-by-header']` — a lineage imported from outside the repository
+    through the one file the directory guard does not cover. (Copilot, PR
+    #1038 `PRRT_kwDOTAvnrs6iHNFa`.)
+    """
+    return _contained(root, path, want_dir=False)
+
+
+def _contained(root: Path, path: Path, *, want_dir: bool) -> bool:
     try:
         resolved = path.resolve(strict=True)
-        if not resolved.is_dir():
+        if resolved.is_dir() != want_dir:
             return False
         resolved.relative_to(root.resolve(strict=True))
     except (OSError, ValueError):
@@ -624,9 +645,34 @@ def change_id_of(directory: Path) -> str:
     admits both readings and refuses where one identity matches two
     directories.
     """
-    if directory.parent.name != "archive":
+    if directory.parent.name != RESERVED_CHANGE_ID:
         return directory.name
     return _ARCHIVE_DATE_RE.sub("", directory.name, count=1)
+
+
+def packet_identities_of(directory: Path) -> list[str]:
+    """EVERY id a packet directory can carry, the directory's own name first.
+
+    `change_id_of`'s plural sibling, for the callers that must not silently
+    choose the shorter reading. An ACTIVE directory carries exactly one id —
+    its name. An ARCHIVED one carries two whenever its name is dated, because
+    `archive_directory_name` preserves an already-dated id unchanged, and
+    `names_this_change` says the readings "are indistinguishable from the
+    name": `archive/2026-09-09-foo` is the archived `foo` AND the archived
+    `2026-09-09-foo`.
+
+    MEASURED at head `cce09fdd`, which is why this exists rather than the
+    residue note it replaces: an archived packet declaring `former_ids:
+    [2026-09-09-foo]` from the directory `archive/2026-09-09-foo` — a claim
+    to be the move of ITSELF — was validated as `foo`, passed every arm, and
+    the corpus sweep indexed the self-claim as a legitimate lineage. (Copilot
+    `PRRT_kwDOTAvnrs6iG9vt`, Codex P2 `PRRT_kwDOTAvnrs6iHS5I`.)
+    """
+    found = [directory.name]
+    stripped = change_id_of(directory)
+    if stripped != directory.name:
+        found.append(stripped)
+    return found
 
 
 def former_id_problems(change: str, packet: dict | None) -> list[str]:
@@ -805,18 +851,17 @@ def former_identity_claimants(root: Path) -> dict[str, list[str]]:
     A malformed declaration is skipped rather than raised over: this is the
     corpus sweep, and `former_id_problems` is the reader that reports shape.
 
-    ONE RESIDUE, NAMED RATHER THAN LEFT TO BE DISCOVERED. `change_id_of` reads
-    an ARCHIVED directory's name the commoner way, and for the ambiguous shape
-    `archive_directory_name` creates — a change whose id already carried a
-    `YYYY-MM-DD-` prefix, archived under that id unchanged — the other reading
-    is the right one. Such a packet declaring its OWN id in `former_ids:`
-    would therefore escape the "a packet cannot be the move of itself" arm
-    here. The estate has no change of that shape today (`ls
-    openspec/changes/archive/` is all `<date>-<undated-id>`), the LIVE half of
-    this sweep is exact since the prefix is no longer stripped from an active
-    directory, and settling the archived half needs the active-ids reading
-    `names_this_change` takes — which this sweep cannot take for a packet that
-    has already left the active tree.
+    AND THE ARCHIVED HALF IS ASKED UNDER BOTH OF ITS READINGS. An earlier
+    draft of this docstring named that as a residue and left it; two reviewers
+    then measured it, so it is closed rather than noted.
+    `packet_identities_of` returns every id an archive directory can carry,
+    and a declaration naming ANY of them is a self-claim — the arm
+    `former_id_problems` can only ask about one id at a time.
+
+    EVERY HEADER IS CONTAINMENT-CHECKED, not only every directory:
+    `load_packet` opens `.openspec.yaml` through `is_file()`, which follows a
+    symlink, so a contained packet directory can still carry an uncontained
+    header.
     """
     claimants: dict[str, list[str]] = {}
 
@@ -837,10 +882,20 @@ def former_identity_claimants(root: Path) -> dict[str, list[str]]:
     for directory in live:
         claim(directory.name, f"the live packet `{_corpus_rel(directory)}`")
     for directory in live + archived:
-        change = change_id_of(directory)
+        if not contained_file(root, directory / ".openspec.yaml"):
+            continue
+        identities = packet_identities_of(directory)
         try:
-            ids = declared_former_ids_of(directory, change)
+            ids = declared_former_ids_of(directory, identities[0])
         except FormerIdError:
+            continue
+        # A SELF-CLAIM UNDER EITHER READING OF AN ARCHIVE NAME IS STILL A
+        # SELF-CLAIM. `former_id_problems` is asked about ONE id, and for the
+        # ambiguous archive shape the id it was asked about may be the other
+        # one — so the arm that refuses "a packet cannot be the move of
+        # itself" could be evaded by declaring the directory's OTHER
+        # identity. Asked here over every identity the directory can carry.
+        if any(identity in ids for identity in identities):
             continue
         for identity in ids:
             claim(identity,
@@ -1325,7 +1380,9 @@ _ARCHIVE_DIR_RE = re.compile(r"^(?P<date>\d{4}-\d{2}-\d{2})-(?P<id>.+)$")
 _ARCHIVE_ROOT = "openspec/changes/archive/"
 
 
-def _archive_dir_carries(name: str, identity: str) -> bool:
+def _archive_dir_carries(name: str, identity: str, *,
+                         live_ids: frozenset[str] | set[str]
+                         = frozenset()) -> bool:
     """Is the archive directory `name` a location `identity` can occupy?
 
     TWO READINGS, AND THE EXACT ONE IS ASKED FIRST. `archive_directory_name`
@@ -1351,10 +1408,29 @@ def _archive_dir_carries(name: str, identity: str) -> bool:
     identity resolves to two locations at one commit* and the reason this
     answers a BOOLEAN per row rather than picking a winner.
     """
-    if name == identity:
-        return True
     match = _ARCHIVE_DIR_RE.match(name)
-    return match is not None and match.group("id") == identity
+    if match is not None and match.group("id") == identity:
+        return True
+    if name != identity:
+        return False
+    # THE EXACT READING YIELDS TO A LIVE PACKET OF THAT NAME, and only the
+    # exact one does. `names_this_change` settles the ambiguous shape from the
+    # ACTIVE ids and the reasoning holds in a static tree too: a change that
+    # is LIVE has not been archived, so an archive directory spelled exactly
+    # like a live id cannot be that packet's archive — it is the dated archive
+    # of the stripped id. Reusing that helper wholesale went too far, because
+    # its guard sat on the STRIPPED arm and suppressed a legitimate match:
+    # with archived `foo` at `archive/2026-09-09-foo` and an unrelated live
+    # `2026-09-09-foo`, `declared_former_ids_in_tree(root, "foo")` returned
+    # `[]` although the archived packet declares a lineage. (Codex P2, PR
+    # #1038 `PRRT_kwDOTAvnrs6iHS5E`.) The guard belongs on the EXACT arm,
+    # where it prevents a lawful corpus reading as one identity in two places.
+    #
+    # `live_ids` IS EMPTY FOR A READ AT A REF, deliberately: which ids were
+    # active at some commit is another tree read per commit, and admitting
+    # both readings there is what the ratified ambiguity scenario expects —
+    # `proposal_path_at` refuses when one identity then resolves twice.
+    return name not in live_ids
 
 
 def _tree_rows(root: Path, revision: str, path: str) -> list[str] | None:
@@ -1592,8 +1668,18 @@ def _identity_pathspecs(identity: str) -> list[str]:
     nothing else: every path is re-resolved against the convention by
     `identity_paths_at` before it is read, and over-enumeration costs a read
     while under-enumeration would cost the baseline.
+
+    AND THE EXACT ARCHIVE PATH IS ITS OWN PATHSPEC, because the glob cannot
+    reach it. `archive_directory_name` archives an id that already carries a
+    `YYYY-MM-DD-` prefix UNDER THAT NAME UNCHANGED, and `*-<identity>` does
+    not match `<identity>`: without this third spec `ratifying_baseline`
+    enumerated NO commit for such a packet and reported it as never ratified,
+    while `identity_paths_at` resolved it perfectly well — the two halves of
+    one resolution disagreeing about where an id can stand. (Copilot, PR
+    #1038 `PRRT_kwDOTAvnrs6iG9tt`.)
     """
     return [f"openspec/changes/{identity}/proposal.md",
+            f"{_ARCHIVE_ROOT}{identity}/proposal.md",
             f":(glob){_ARCHIVE_ROOT}*-{identity}/proposal.md"]
 
 
@@ -1672,10 +1758,11 @@ def declared_former_ids_in_tree(root: Path, change: str) -> list[str]:
         live_ids = change_dir_names(root)
         candidates += [d for d in sorted(archive.iterdir())
                        if contained_dir(root, d)
-                       and names_this_change(d.name, change, live_ids)]
+                       and _archive_dir_carries(d.name, change,
+                                                live_ids=live_ids)]
     holding = [d for d in candidates
                if contained_dir(root, d)
-               and (d / ".openspec.yaml").is_file()]
+               and contained_file(root, d / ".openspec.yaml")]
     if len(holding) > 1:
         raise OriginRetentionError(
             f"REFUSE origin-retention-identity-ambiguous: {change}: the "
@@ -1893,8 +1980,10 @@ def ratifying_commit(root: Path, change: str, *,
     declares IN THE WORKING TREE, so a caller that has already read the packet
     passes it and a caller that has not gets the same answer.
 
-    A line-by-line walk over the commits that touched that ONE path, oldest
-    first, reading each blob — not `git log -S`, which would match the string
+    A line-by-line walk over the commits that touched EVERY PATH EVERY
+    DECLARED IDENTITY CAN OCCUPY — the active location, the exact archive
+    directory, and a dated archive directory carrying the id, for the current
+    id and for each entry of `former_ids:` — oldest first, reading each blob — not `git log -S`, which would match the string
     inside a fenced example and inside a `- Status: ratified` bullet alike, and
     not `git log -G`, which has the same problem. The walk is bounded by the
     number of commits that touched a single file (a handful, for a change
@@ -1910,13 +1999,19 @@ def ratifying_commit(root: Path, change: str, *,
     ordering is taken from topology (parents before children) rather than from
     the clock.
 
-    The path read is the ACTIVE one even when the packet being gated is an
-    archived one: the archive move renames it, and the history before that
-    rename is where the ratification lives.
+    THE PATH IS RE-RESOLVED AT EVERY COMMIT VISITED, by `identity_paths_at`'s
+    rule, so an archived packet is read where it stood at the commit being
+    read rather than where it stands now — the active location before its
+    archive move, the archive directory after. An earlier draft of this
+    paragraph said "the path read is the ACTIVE one even when the packet being
+    gated is an archived one", which was true of the single-path walk this
+    docstring described before `add-declared-former-id` and is not true of
+    `ratifying_baseline`. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iG9wN`.)
 
-    AND WHEN THE PACKET'S OWN NAME MOVED, THIS REFUSES (issue #833). One path
-    is walked, so a ratified change whose directory was RENAMED afterwards has
-    no history under its new name before the rename — and the first ratified
+    AND WHEN THE PACKET'S OWN NAME MOVED AND IT DECLARED NOTHING, THIS
+    REFUSES (issue #833). Where the packet declares no former identity ONE
+    identity is walked, so a ratified change whose directory was RENAMED
+    afterwards has no history under its new name before the rename — and the first ratified
     blob the walk finds is then the RENAME COMMIT, which is precisely "a LATER
     commit as the baseline" named above. Measured on issue #777: a ratified
     change renamed on a trial branch reported `ORIGIN RETAINED` against a
@@ -1928,9 +2023,12 @@ def ratifying_commit(root: Path, change: str, *,
     `ratified_under_a_former_path` asks whether the candidate is a FLIP or a
     MOVE, and a move raises `OriginRetentionError` — CANNOT RUN, exit 2 — with
     the change, both paths and the commit named. It never re-bases silently,
-    and there is nothing to re-base ONTO: no former-id declaration exists in
-    this corpus (that is the successor packet), so a baseline under a name the
-    tree no longer spells cannot be established at all.
+    and where the packet declares nothing there is nothing to re-base ONTO, so
+    a baseline under a name the tree no longer spells cannot be established at
+    all. WHAT A DECLARATION CHANGES is that the move the packet DECLARED has a
+    lawful answer: the identities are resolved together, the EARLIEST
+    ratification any of them offers is the baseline, and the refusal below
+    fires only for a move that is not among them.
 
     EVERY COMMIT VISITED IS ASKED, NOT ONLY THE ONE THAT DECLARES `ratified`
     (issue #849). Asking `ratified_under_a_former_path` only where
@@ -2503,15 +2601,28 @@ def _accept_declaration_problems(root: Path, change: str, entry: dict,
     identities = [change] + list(reversed(lineage))
     fallback = f"openspec/changes/{change}/.openspec.yaml"
     rel = packet_yaml_at(root, mutation_at, identities) or fallback
-    at_mutation_text = git_show_text(root, mutation_at, rel)
+    # BOTH READS GO THROUGH `_text_at` (`tasks.md` § 3.4): presence off the
+    # TREE first, so a genuinely absent declaration still reaches the findings
+    # below and one the checkout cannot produce refuses CANNOT RUN.
+    #
+    # THE RATIFICATION READ IS THE ONE THAT WAVED SOMETHING THROUGH, and the
+    # slice that landed these doors said only that its wording mis-described
+    # the cause. It does more than that: `_origin_mapping(None)` is None and
+    # `_changed_keys(None, …)` is `[]` by its own advisory contract, so an
+    # `accept` entry declaring `changed_keys: []` compared EQUAL to a
+    # measurement taken over a declaration that was never read — the
+    # acceptance authorised, and the baseline moved to the accepted mutation,
+    # on a checkout that could not read the ratification at all. (Copilot, PR
+    # #1038 `PRRT_kwDOTAvnrs6iG9vA`.)
+    at_mutation_text = _text_at(root, mutation_at, rel, identity=change)
     at_mutation = origin_block_lines(at_mutation_text)
     if at_mutation is None:
         return [f"{where} names a `mutation_at` ({mutation_at[:12]}) at "
                 f"which {rel} declares no origin, so there is no declaration "
                 f"to accept"]
-    at_ratification_text = git_show_text(
-        root, ratified_at,
-        packet_yaml_at(root, ratified_at, identities) or fallback)
+    ratified_rel = packet_yaml_at(root, ratified_at, identities) or fallback
+    at_ratification_text = _text_at(root, ratified_at, ratified_rel,
+                                    identity=change)
     if origin_block_lines(at_ratification_text) == at_mutation:
         return [f"{where} accepts {mutation_at[:12]}, whose origin "
                 f"declaration is IDENTICAL to the ratified one; the entry "
@@ -2697,13 +2808,22 @@ def origin_retention_errors(root: Path, directory: Path,
     naming what did not match.
     """
     root = root.resolve()
-    change = change or re.sub(r"^\d{4}-\d{2}-\d{2}-", "", directory.name)
+    # `change_id_of` AND NOT A FOURTH COPY OF THE STRIP: an ACTIVE directory
+    # whose id begins with a date was renamed by the spelling that stood here.
+    change = change or change_id_of(directory)
     if is_declared_sentinel(repo_revision(root)):
         return [f"origin retention: {change}: this repository's history is "
                 "unreadable, so the declaration present at ratification "
                 "cannot be resolved — the archive gate cannot verify origin "
                 "retention"]
-    lineage = declared_former_ids_of(directory, change)
+    # THROUGH THE TREE-LEVEL RESOLVER, so the two-candidate rule is not
+    # bypassed by the caller handing in a directory. Read straight off
+    # `directory` this took ONE packet's declaration and passed it on as
+    # `former_ids=`, which skips `declared_former_ids_in_tree`'s ambiguity
+    # refusal — and a lineage read from whichever of two locations the caller
+    # happened to name is the resolver choosing, which is what this mechanism
+    # refuses everywhere else. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHNGM`.)
+    lineage = declared_former_ids_in_tree(root, change)
     identities = [change] + list(reversed(lineage))
     baseline = ratifying_baseline(root, change, former_ids=lineage)
     if baseline is None:

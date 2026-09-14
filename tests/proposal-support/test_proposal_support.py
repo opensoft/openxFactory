@@ -2882,6 +2882,77 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertIn("origin-retention-identity-ambiguous", message)
             self.assertIn("2026-09-14-2026-09-09-foo", message)
 
+    def test_a_preserved_dated_archive_id_is_enumerated_by_the_walk(self):
+        """RESOLUTION AND ENUMERATION MUST AGREE ABOUT WHERE AN ID CAN STAND.
+        `_archive_dir_carries` admits `archive/<id>` for a preserved dated
+        id, and `_identity_pathspecs` — which chooses the COMMITS TO VISIT —
+        could not reach it: its archive spec is the glob `*-<identity>`, and
+        `*-2026-09-09-foo` does not match `2026-09-09-foo`.
+
+        MEASURED against head `cce09fdd`: `ratifying_commit` returned None for
+        a packet standing ratified at
+        `openspec/changes/archive/2026-09-09-foo/proposal.md` — the walk
+        enumerated NO commit for it and reported it as never ratified, which
+        `origin_retention_errors` prints as "not ratified". (Copilot, PR #1038
+        `PRRT_kwDOTAvnrs6iG9tt`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)                      # a repo with a history
+            archived = (root / "openspec" / "changes" / "archive"
+                        / "2026-09-09-foo")
+            archived.mkdir(parents=True)
+            (archived / "proposal.md").write_text(
+                "---\nStatus: draft\n---\n\n## Why\n\nA dated id.\n",
+                encoding="utf-8")
+            commit_all(root, "create the dated packet, archived in place")
+            ratify(archived / "proposal.md")
+            commit_all(root, "ratify it")
+            ratified_at = self.sha(root)
+
+            self.assertIn(
+                "openspec/changes/archive/2026-09-09-foo/proposal.md",
+                support._identity_pathspecs("2026-09-09-foo"))
+            self.assertEqual(
+                support.ratifying_commit(root, "2026-09-09-foo"), ratified_at)
+            self.assertEqual(
+                support.ratifying_baseline(root, "2026-09-09-foo"),
+                (ratified_at, "2026-09-09-foo",
+                 "openspec/changes/archive/2026-09-09-foo/proposal.md"))
+
+    def test_the_gate_resolves_its_lineage_through_the_tree_resolver(self):
+        """THE TWO-CANDIDATE RULE IS NOT BYPASSED BY THE CALLER'S DIRECTORY.
+        `origin_retention_errors` read the declaration straight off the
+        directory it was handed and passed it on as `former_ids=`, which skips
+        `declared_former_ids_in_tree`'s ambiguity refusal — a lineage read
+        from whichever of two locations the caller happened to name is the
+        resolver choosing. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHNGM`.)
+
+        The refusal that fires is named rather than merely counted, because
+        at head `cce09fdd` this fixture ALREADY refused — through
+        `proposal_path_at` at the commit the walk visits, the committed tree
+        happening to agree with the working one. What changes is that the
+        refusal no longer depends on that coincidence.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            archived = (root / "openspec" / "changes" / "archive"
+                        / "2026-09-09-change-r")
+            archived.mkdir(parents=True)
+            (archived / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            (archived / ".openspec.yaml").write_text(
+                "schema: spec-driven\n" + self.ORIGIN
+                + "former_ids:\n  - from-the-archived-copy\n",
+                encoding="utf-8")
+            commit_all(root, "leave a second location standing")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.origin_retention_errors(root, directory,
+                                                change="change-r")
+            self.assertIn("origin-retention-identity-ambiguous",
+                          str(caught.exception))
+
     def test_an_archived_packet_under_a_preserved_dated_id_declares_lineage(
             self):
         """AND THE LINEAGE READER TOO, which is where the same assumption
@@ -3063,6 +3134,69 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIsInstance(caught.exception,
                                      support.OriginRetentionError)
             self.assertIn("incomplete tasks", str(caught.exception))
+
+    def test_an_unreadable_ratification_blob_cannot_authorise_an_acceptance(
+            self):
+        """THE ACCEPT CHANNEL'S OWN READ BEHIND THE BASELINE. The slice that
+        landed these doors said this read's flat answer only mis-described its
+        cause. It does more: `_origin_mapping(None)` is None and
+        `_changed_keys(None, …)` is `[]` by its own advisory contract, so an
+        entry declaring `changed_keys: []` compares EQUAL to a measurement
+        taken over a declaration that was never read — the acceptance
+        authorised, and the baseline moved to the accepted mutation, on a
+        checkout that could not read the ratification at all.
+
+        DRIVEN WITH THE ONE VALUE A PARTIAL CHECKOUT PRODUCES, measured in
+        this file two classes up and asserted here again: the tree says the
+        path stands and `git_show_text` cannot produce it. (Copilot, PR #1038
+        `PRRT_kwDOTAvnrs6iG9vA`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at))
+            commit_all(root, "record the owner's acceptance")
+            rel = "openspec/changes/change-r/.openspec.yaml"
+            entry = self.accept_entry("change-r", ratified_at, mutation_at)
+            now_text = (directory / ".openspec.yaml").read_text(
+                encoding="utf-8")
+            now_lines = support.origin_block_lines(now_text)
+            # ANTI-VACUITY: readable, this entry is accepted — no findings.
+            self.assertEqual(
+                support._accept_declaration_problems(
+                    root, "change-r", entry, now_lines, now_text, "the entry"),
+                [])
+
+            # THE ARM THE `changed_keys: []` ESCAPE RIDES ON, asserted rather
+            # than argued: with the ratified declaration unread, the measured
+            # diff is EMPTY, so an entry declaring nothing changed compares
+            # equal to it.
+            self.assertEqual(support._origin_mapping(None), None)
+            self.assertEqual(
+                support._changed_keys(None, {"approved_by": "x"}), [])
+
+            real = support.git_show_text
+
+            def only_the_ratification_is_unreadable(root_, revision, path):
+                if revision == ratified_at and path == rel:
+                    return None
+                return real(root_, revision, path)
+
+            # the tree still says it stands — presence and readability are two
+            # questions, which is the whole of `design.md` M1
+            self.assertEqual(support._tree_rows(root, ratified_at, rel), [rel])
+            with mock.patch.object(
+                    support, "git_show_text",
+                    side_effect=only_the_ratification_is_unreadable):
+                with self.assertRaises(support.OriginRetentionError) as caught:
+                    support._accept_declaration_problems(
+                        root, "change-r", entry, now_lines, now_text,
+                        "the entry")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-read-unavailable", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn(rel, message)
 
     def test_the_318_tense_only_approved_by_case_archives_with_the_record(self):
         """THE LIVE CASE, with #318's own bytes. The mutation is the TENSE of
@@ -3913,6 +4047,94 @@ class DeclaredFormerIdTests(unittest.TestCase):
                 support.declared_former_ids_in_tree(root,
                                                     "2026-09-09-change-x"),
                 ["from-the-archived-copy"])
+
+    def test_a_symlinked_packet_header_cannot_import_a_lineage(self):
+        """THE DIRECTORY GUARD IS NOT THE WHOLE SURFACE. `load_packet` opens
+        `.openspec.yaml` through `is_file()`, which follows a symlink exactly
+        as `is_dir()` does, so a packet directory that IS contained can still
+        carry a header that is not.
+
+        MEASURED against head `cce09fdd`, with the header committed as a
+        symlink (`git ls-files -s` → mode `120000`): the sweep claimed
+        `'stolen-by-header'` and `declared_former_ids_in_tree` returned
+        `['stolen-by-header']`. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHNFa`.)
+        """
+        with TemporaryDirectory() as td:
+            outside = Path(td) / "outside"
+            outside.mkdir()
+            (outside / "forged.yaml").write_text(
+                self.HEADER + self.ORIGIN
+                + "former_ids:\n  - stolen-by-header\n", encoding="utf-8")
+            root = Path(td) / "repo"
+            directory = root / "openspec" / "changes" / "change-x"
+            directory.mkdir(parents=True)
+            os.symlink(outside / "forged.yaml", directory / ".openspec.yaml")
+            self.assertTrue((directory / ".openspec.yaml").is_file())
+            self.assertEqual(
+                support.load_packet(directory)[support.FORMER_IDS_KEY],
+                ["stolen-by-header"])
+
+            self.assertNotIn("stolen-by-header",
+                             support.former_identity_claimants(root))
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "change-x"), [])
+
+    def test_an_unrelated_live_dated_id_does_not_hide_an_archived_lineage(
+            self):
+        """THE ARCHIVE WRAPPER'S TRANSIENT COLLISION HEURISTIC IS NOT A
+        STATIC RESOLUTION RULE. `names_this_change`'s `other_change_ids` arm
+        answers "is this new directory MINE or a sibling lane's", read before
+        the child ran; reused for lineage it suppresses a legitimate match.
+
+        MEASURED against head `cce09fdd`: with archived `foo` at
+        `archive/2026-09-09-foo` and an unrelated ACTIVE packet whose valid id
+        is `2026-09-09-foo`, `declared_former_ids_in_tree(root, "foo")`
+        returned `[]` although the archived packet declares `['old-foo']`.
+        `declared_former_ids_in_tree` now uses `_archive_dir_carries` — the
+        same rule `identity_paths_at` resolves a location with — so the two
+        halves of one resolution cannot disagree. (Codex P2, PR #1038
+        `PRRT_kwDOTAvnrs6iHS5E`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "archive/2026-09-09-foo",
+                             "former_ids:\n  - old-foo\n")
+            self.packet_yaml(root, "2026-09-09-foo")
+            self.assertIn("2026-09-09-foo", support.change_dir_names(root))
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "foo"), ["old-foo"])
+            # …and the live packet is still resolved under its OWN id
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-09-foo"),
+                [])
+
+    def test_an_archived_self_claim_under_either_reading_is_not_indexed(self):
+        """A PACKET CANNOT BE THE MOVE OF ITSELF UNDER EITHER READING OF ITS
+        ARCHIVE NAME. `former_id_problems` can only be asked about one id, and
+        for the ambiguous archive shape the id it was asked about may be the
+        other one.
+
+        MEASURED against head `cce09fdd`: the directory
+        `archive/2026-09-09-foo` declaring `former_ids: [2026-09-09-foo]` —
+        a claim to be the move of itself — was validated as `foo`, passed
+        every arm, and the sweep indexed the self-claim as a legitimate
+        lineage. (Copilot `PRRT_kwDOTAvnrs6iG9vt`, Codex P2
+        `PRRT_kwDOTAvnrs6iHS5I`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet_yaml(
+                root, "archive/2026-09-09-foo",
+                "former_ids:\n  - 2026-09-09-foo\n")
+            self.assertEqual(support.packet_identities_of(directory),
+                             ["2026-09-09-foo", "foo"])
+            self.assertNotIn("2026-09-09-foo",
+                             support.former_identity_claimants(root))
+            # …and a LAWFUL archived declaration is still indexed, so the
+            # guard is the self-claim and not a switched-off sweep
+            self.packet_yaml(root, "archive/2026-09-10-bar",
+                             "former_ids:\n  - old-bar\n")
+            self.assertIn("old-bar", support.former_identity_claimants(root))
 
     def test_a_malformed_declaration_does_not_crash_the_corpus_sweep(self):
         """The sweep is about OWNERSHIP; shape is `former_id_problems`'s to
