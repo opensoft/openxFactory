@@ -923,7 +923,7 @@ still Brett Heap's, and the merge is T2.
       against `records/` commits in the window, by walk § 13.1's method.
       **DONE 2026-09-13T22:4xZ — walk-2026-09-12-register-act.md § 13.1
       (appended 2026-09-14). Finding: EMPTY.**
-- [ ] 6.20 **[OPERATOR WORD REQUIRED — NOT SELF-SERVE]** Step 5b: a read-only
+- [x] 6.20 **[OPERATOR WORD REQUIRED — NOT SELF-SERVE]** Step 5b: a read-only
       cluster read confirming the `hermes-register-projection` ConfigMap's
       `hermes.opensoft.one/source-revision` annotation is at or after T2's merge
       sha. **This is now RATIFIED, not merely dispositioned** —
@@ -933,6 +933,9 @@ still Brett Heap's, and the merge is T2.
       the admission path reads the domain-content projection only, so an
       admitted convening returns a green result against a pre-act projection
       that reads exactly like the proof.
+      **DONE 2026-09-14T08:56:47Z — walk-2026-09-12-register-act.md § 13.2
+      (appended 2026-09-14): source-revision 96895259 ahead of T2 765d8c6f; by
+      source revision only, three row-level fields OWED.**
 - [ ] 6.21 **[lane]** LIFT the hold, citing T2's merge commit and the
       walk-record path, and naming any wording mismatch as the precedent's lift
       text did.

@@ -824,6 +824,10 @@ sha**. **IT REQUIRES BRETT HEAP'S EXPLICIT OPERATOR WORD EACH TIME — IT IS NOT
 SELF-SERVE** (precedent: *"Operator word: hermes-wallet-exercise reads it"*,
 2026-09-11T03:01:28Z). **Do NOT attempt it via a convening dispatch.**
 
+> **2026-09-14 — STEP 5b IS PERFORMED, see § 13.2: source-revision
+> 96895259 is `ahead` of T2. The hold (§ 9) is NOT lifted by this section;
+> § 13.3 records the lift.**
+
 ---
 
 ## 9. THE HOLD, AND WHAT ACTUALLY LIFTS IT
@@ -1023,6 +1027,113 @@ upper bounds agree.
 `hermes.opensoft.one/source-revision` is **at or after T2's merge sha**. Route
 ratified by oxF #960 → `ac688c40` (§ 8). **Not via a convening dispatch.**
 
+#### 13.2 — APPENDED 2026-09-14, PART C: STEP 5b IS PERFORMED — THE PROJECTION CARRIES THIS ACT
+
+This section performs task 6.20 / step 5b per runbook §§ 2.1-2.6, satisfying
+the four ratified requirements of `amend-register-act-5b-projection-proof`
+(openxFactory PR #960 → `ac688c40`, capability `review-authority-intake`) by
+number: requirement 1 (exit on an OBSERVED projection, never an admitted
+convening) is what THE TEST below is; requirements 2 and 3 (read-only, on a
+named operator's word, recorded with commands and values; taken only after a
+refresh that COMPLETED after T2) are what The authority / The wait condition /
+How it was executed / What was read establish; requirement 4 (state the limit)
+is STATED LIMIT below.
+
+**The authority.** Brett Heap, in session with this lane, verbatim: *"do the
+5b read"* (2026-09-13T22:4xZ) — the fresh operator word naming the executing
+lane that § 8 and runbook § 0.3 both require (the 2026-09-11 word —
+*"Operator word: hermes-wallet-exercise reads it"* — was spent on that act
+only and does not carry forward). **For the credential path**, Brett Heap,
+verbatim: *"mount it"* (2026-09-14T08:5xZ) — authorizing his host Azure CLI
+profile to be mounted **read-write** into an
+`mcr.microsoft.com/azure-cli:latest` container run from the lane's bench
+container `0e7d1a79a07e` (the bench container has no `az`/`kubectl` of its
+own; a read-only mount fails because `az` writes `az.sess` on start). The
+subscription was passed per command (`--subscription
+sub-opensoft-platform-aks-qa`), so Brett's default subscription was not
+changed. `az account show` confirmed subscription
+`sub-opensoft-platform-aks-qa`, user `brett.heap@opensoft.one`.
+
+**The wait condition, met rather than assumed.** The register-projection
+refresher's schedule is `0 */2 * * *` (hermes-install
+`deploy/kubernetes/overlays/aks-qa/register-projection-cronjob.yaml`,
+`successfulJobsHistoryLimit: 1`); the first tick after T2 (`765d8c6f`,
+2026-09-13T22:30:20Z) is **2026-09-14T00:00:00Z**. The read ran after the
+**08:00Z** tick: because the history limit is 1, only the newest Job is ever
+observable — `hermes-register-projection-refresher-29822880`, created
+**2026-09-14T08:00:00Z**, **`succeeded=1`**. CronJob `lastScheduleTime`
+**2026-09-14T08:00:00Z**, `lastSuccessfulTime` **2026-09-14T08:00:08Z**. The
+read ran roughly **8.9 hours** after the first eligible tick — not a cluster
+or refresher delay, but the wait for the credential decision above; recorded
+so the gap reads as accounted for, not overlooked.
+
+**How it was executed.** One `az aks command invoke` against
+`aks-opensoft-platform-qa-01` / `rg-opensoft-platform-aks-qa`, namespace
+`hermes` throughout: `provisioningState` `Succeeded`, `exitCode` `0`,
+`startedAt` `2026-09-14T08:56:45+00:00`, `finishedAt`
+`2026-09-14T08:56:47+00:00`. The lane's own shell clock: **START
+2026-09-14T08:56:37Z, END 08:56:52Z**. The command was a shell script passed
+inline (base64) — **every line a `kubectl get` with `-o jsonpath`** — no
+`apply`, `patch`, `create`, `delete`, `edit`, `rollout`, or side-effecting
+`exec`:
+
+```sh
+NS=hermes
+kubectl -n "$NS" get cronjob hermes-register-projection-refresher -o jsonpath='{.status.lastScheduleTime} {.status.lastSuccessfulTime}'
+kubectl -n "$NS" get jobs -l app.kubernetes.io/name=hermes-register-projection-refresher --sort-by=.metadata.creationTimestamp -o jsonpath='{range .items[*]}{.metadata.name}{" created="}{.metadata.creationTimestamp}{" succeeded="}{.status.succeeded}{"\n"}{end}'
+kubectl -n "$NS" get configmap hermes-register-projection -o jsonpath='{.metadata.annotations}'
+kubectl -n "$NS" get configmap hermes-register-projection -o jsonpath='{.metadata.resourceVersion} {.metadata.creationTimestamp}'
+kubectl -n "$NS" get cronjob -o jsonpath='{range .items[*]}{.metadata.name}{" lastSuccessful="}{.status.lastSuccessfulTime}{"\n"}{end}'
+```
+
+**What was read, verbatim:**
+
+| | Value |
+|---|---|
+| CronJob `hermes-register-projection-refresher` `lastScheduleTime` | `2026-09-14T08:00:00Z` |
+| …`lastSuccessfulTime` | `2026-09-14T08:00:08Z` |
+| Newest Job | **`hermes-register-projection-refresher-29822880`**, created `2026-09-14T08:00:00Z`, **`succeeded=1`** |
+| ConfigMap `hermes-register-projection` → `hermes.opensoft.one/source-revision` | **`968952596dfa9f3a6ba4e0cc47a71a37c7c65eea`** |
+| …`hermes.opensoft.one/projected-at` | `2026-09-14T08:00:02Z` |
+| …`hermes.opensoft.one/projection-digest` | `sha256:58dd5e737a6a11a580b31354d05914a87521f67be84694aa46c2116057d87bff` |
+| …object `resourceVersion` / `creationTimestamp` | `38705388` / `2026-08-30T15:23:46Z` |
+
+Context only, not part of the proof: `hermes-council-refresher`
+`lastSuccessful` `2026-09-14T08:45:04Z`.
+
+**THE TEST, AND IT PASSES.** Runbook § 2.4 names the check:
+
+```sh
+gh api repos/opensoft/openxFactory/compare/765d8c6fcd3fbfdb71540903858e8fca74f04929...968952596dfa9f3a6ba4e0cc47a71a37c7c65eea --jq .status
+```
+
+→ **`ahead`** (`ahead_by` 31, `behind_by` 0). `96895259` is
+`opensoft/openxFactory` `main` at **2026-09-14T05:05:22Z** — the merge of PR
+#888 (`Derive-possibles register merge 2026-09-10`) — identical to `main` at
+read time, and strictly after T2 (`765d8c6f`, 2026-09-13T22:30:20Z). **The
+published projection was derived from a revision of `main` that already
+carries this act** (`grant-grc-0003`, the repointed `row-grc-0001`, the
+registered fifth seat key). **PASSES** per runbook § 2.4 (accept = `ahead` or
+`identical`).
+
+**STATED LIMIT (ratified requirement 4).** This read establishes 5b **BY
+SOURCE REVISION ONLY.** Fields actually read: CronJob
+`.status.lastScheduleTime`, `.status.lastSuccessfulTime`; Jobs
+`.metadata.name`, `.metadata.creationTimestamp`, `.status.succeeded`;
+ConfigMap `.metadata.annotations`, `.metadata.resourceVersion`,
+`.metadata.creationTimestamp`. It did not read the ConfigMap's `data` at all
+— only `metadata`; no `.data` jsonpath was ever run. NOT separately read,
+and recorded here as **OWED** to whoever next has operator cause to touch this
+ConfigMap:
+
+(i) `row-grc-0001`'s projected `grant_ref` reading `grant-grc-0003` inside the
+published projection's own data; (ii) that row's `expires_at` matching
+`grant-grc-0003`'s; (iii) `projected_from.staleness_bound` still carrying
+`revocation_staleness_bound` **`P7D`** verbatim.
+
+These follow from the source revision only if the refresher is faithful to its
+input, which is its whole job but is not a thing this read observed.
+
 ### 13.3 The hold lift (task 6.21) — **APPENDED BY PART C. THE HOLD IS IN FORCE.**
 
 Posted only after § 13.1 and § 13.2 both pass, citing **T2's merge commit** and
@@ -1062,7 +1173,7 @@ is not discovered afterwards.
 | ~~**the mint of the fifth keypair**~~ **DONE `2026-09-13T02:12:15Z`** | Brett Heap | **THIS ACT** — it no longer blocks anything (§ 6.8) |
 | ~~the fill~~ **DONE** + the merge (T2) — **STILL OWED** | the lane filled; **Brett Heap merges** | everything below |
 | ~~§ 13.1 window check~~ **DONE `2026-09-13T22:4xZ`** | the lane | § 13.3 |
-| § 13.2 5b read | Brett Heap's word, then the lane | § 13.3 |
+| ~~§ 13.2 5b read~~ **DONE `2026-09-14T08:56:47Z`** | Brett Heap's word, then the lane | § 13.3 |
 | § 13.3 lift | the lane, on his word | § 13.4 |
 | § 13.4 proof convening | Brett Heap dispatches | § 13.5 |
 | LQ2-C2 corroboration | the lane, ruled to follow T1 | nothing here |
