@@ -240,9 +240,21 @@ class Resolution:
 
 
 def _normalised(claimed: str) -> str:
-    """A claimed path with its empty segments dropped, so a trailing slash is
-    not a different reference from the same path without one."""
-    return "/".join(part for part in str(claimed).split("/") if part)
+    """A claimed path read exactly as `packet_reference` reads it: stripped,
+    its empty segments dropped, and a bare `.` segment dropped too — so a
+    trailing slash, surrounding whitespace, or a harmless `.` is not read as
+    a different reference from the same path without it.
+
+    THIS MUST STAY IN STEP WITH `packet_reference`'s OWN NORMALIZATION, not
+    approximate it: `relocated` compares `resolved_rel` (built from the
+    identity and remainder `packet_reference` already stripped `.` out of)
+    against THIS function's output, and where the two disagree on what
+    counts as "the same spelling", a citation carrying nothing but a `.` or
+    stray whitespace reports RELOCATED — the archive/rename message — for a
+    location that never moved. (Copilot `PRRT_kwDOTAvnrs6iTm2d`.)
+    """
+    return "/".join(part for part in str(claimed).strip().split("/")
+                    if part and part != ".")
 
 
 def _contained(root: Path, path: Path) -> Path | None:

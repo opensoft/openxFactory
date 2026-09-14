@@ -522,6 +522,38 @@ def test_a_bare_dot_segment_is_dropped_and_not_refused(tmp_path) -> None:
         "openspec/changes/add-a-thing/../add-a-thing/proposal.md") is None
 
 
+def test_a_harmless_dot_or_stray_whitespace_is_not_reported_relocated(
+        tmp_path) -> None:
+    """`relocated` COMPARES `resolved_rel` AGAINST `_normalised(claimed)`, and
+    the two must agree on what counts as the same spelling — `packet_
+    reference()` already drops a `.` segment (and `.strip()`s the whole
+    string) before it ever computes an identity, so a comparison function
+    that does not drop the same things reports a citation RELOCATED — the
+    archive/rename message — for a packet that never moved at all, over
+    nothing but a redundant `.` or a leading space.
+
+    MEASURED: before `_normalised` dropped `.` and stripped whitespace,
+    `openspec/changes/add-a-live-one/./tasks.md` against a packet that has
+    never archived reported `relocated is True`, and `_resolved_report`
+    claimed the path was "not the path the record spells" — false, since it
+    resolved to precisely the path spelled, `.` aside. (Copilot
+    `PRRT_kwDOTAvnrs6iTm2d`.)
+    """
+    root = _tree(tmp_path)
+    _packet(root, "openspec/changes/add-a-live-one",
+            files=("proposal.md", "tasks.md"))
+
+    dotted = pr.resolve(root, "openspec/changes/add-a-live-one/./tasks.md")
+    assert dotted.status == pr.RESOLVED, dotted.report
+    assert dotted.relocated is False, dotted.report
+    assert "not the path the record spells" not in dotted.report
+
+    whitespace = pr.resolve(
+        root, "  openspec/changes/add-a-live-one/tasks.md  ")
+    assert whitespace.status == pr.RESOLVED, whitespace.report
+    assert whitespace.relocated is False, whitespace.report
+
+
 def test_an_archived_spelling_resolves_by_id_when_the_archive_date_moves(
         tmp_path) -> None:
     """A citation may name the ARCHIVED spelling, and the date in it is part of
