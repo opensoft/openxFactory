@@ -318,6 +318,40 @@ class ArrivalRefusalTests(unittest.TestCase):
             self.assertTrue(fia.ever_ratified(root, moved, "change-r"))
             self.assertTrue(self.judge(root, moved))
 
+    def test_a_live_packet_id_that_begins_with_a_date_keeps_its_whole_id(self):
+        """THE ARCHIVE DATE MEANS THE ARCHIVE AND NOTHING ELSE.
+
+        `CHANGE_ID_RE` admits `2026-09-14-example` as an ACTIVE change id, and
+        a reader that strips a date prefix wherever it sees one hands this gate
+        a source identity no packet ever carried: `ever_ratified` walks the
+        wrong pathspecs, answers "never ratified", and the undeclared rename
+        passes. So the strip happens only under the archive root, and this test
+        asserts the identity BOTH directly and through the refusal.
+        (Copilot, PR #1039.)
+        """
+        self.assertEqual(
+            fia.change_id_of_dir("openspec/changes/2026-09-14-example"),
+            "2026-09-14-example")
+        self.assertEqual(
+            fia.change_id_of_dir(
+                "openspec/changes/archive/2026-09-14-example"),
+            "example")
+
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "2026-09-14-example", ratified=True)
+            commit_all(root, "create a ratified packet whose id reads as a date")
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(directory), str(changes / "change-s"))
+            moved = commit_all(root, "rename it with no declaration")
+
+            self.assertTrue(fia.ever_ratified(root, moved, "2026-09-14-example"))
+            findings = self.judge(root, moved)
+            self.assertEqual(self.statuses(findings), [fia.UNDECLARED],
+                             [f.message for f in findings])
+            self.assertIn("`2026-09-14-example` HAS declared", findings[0].message)
+            self.assertIn("['2026-09-14-example']", findings[0].message)
+
     def test_a_rename_chain_is_refused_at_its_first_hop_and_no_chain_is_walked(
             self):
         """Scenario: *A rename chain is attempted one hop at a time*.
@@ -558,6 +592,42 @@ class ArrivalRefusalTests(unittest.TestCase):
             self.assertEqual(self.judge(root, forked), [])
             self.assertTrue(
                 (root / "openspec/changes/change-r/proposal.md").is_file())
+
+    def test_a_file_moved_between_two_standing_packets_is_not_an_arrival(self):
+        """A FILE THAT CROSSES TWO STANDING PACKETS IS NOT A PACKET MOVING.
+
+        One `design.md` relocated out of a ratified packet into another packet
+        that also stands is a file-level rename git pairs across two packet
+        directories — and it is not an arrival: the tree shows no directory
+        leaving and no directory arriving, so there is nothing a declaration
+        could record. A gate that refused it would red an ordinary edit nobody
+        can repair by declaring anything. The pairing is asserted first, so
+        this test cannot pass because git failed to report the rename.
+        (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            source = packet(root, "change-r", ratified=True)
+            destination = packet(root, "change-s")
+            (source / "design.md").write_text("d" * 900, encoding="utf-8")
+            commit_all(root, "two standing packets, one carrying a design")
+            git(root, "mv", str(source / "design.md"),
+                str(destination / "design.md"))
+            moved = commit_all(root, "move one file between two packets")
+
+            parent = fia.commit_parents(root, moved)[0]
+            diff = fia.diff_at(root, parent, moved)
+            self.assertIn(
+                ("openspec/changes/change-r/design.md",
+                 "openspec/changes/change-s/design.md"), diff.renames)
+            self.assertEqual(
+                fia.moves_at(diff),
+                [("openspec/changes/change-r", "openspec/changes/change-s")])
+            # …and the tree says neither directory left and neither arrived.
+            self.assertEqual(fia.relocations_at(
+                diff, fia.packet_dirs_at(root, parent),
+                fia.packet_dirs_at(root, moved)), [])
+            self.assertEqual(self.judge(root, moved), [])
 
     # ---- the pairing itself ---------------------------------------------
 
@@ -815,6 +885,49 @@ class FailClosedTests(unittest.TestCase):
             report = fia.scan(root, env={})
             self.assertIn("no commit range", report.range_note)
             self.assertEqual(report.findings, [])
+
+    def test_a_present_manifest_that_does_not_parse_is_refused_not_read_as_empty(
+            self):
+        """AN UNREADABLE MANIFEST IS NOT A PACKET THAT DECLARES NOTHING.
+
+        `proposal_support.load_packet` answers None for three states — absent,
+        unparseable YAML, and a top-level that is not a mapping — and only the
+        first is an answer. The corpus arm used to hand all three to
+        `former_id_problems` as a packet with no declaration, so a malformed
+        `.openspec.yaml` was swallowed by the parser that could not reach it
+        and the sweep reported a clean corpus. The commit-range arm always drew
+        the distinction; this is that rule over the working tree.
+        (Copilot, PR #1039.)
+        """
+        with TemporaryDirectory() as td:
+            root = new_repo(Path(td))
+            directory = packet(root, "change-a", ratified=True)
+            (directory / ".openspec.yaml").write_text(
+                "former_ids: [change-b\nschema: spec-driven\n",
+                encoding="utf-8")
+            commit_all(root, "a manifest that is not parseable YAML")
+
+            # PRECONDITION: the shared reader cannot tell this from an absent
+            # manifest, which is exactly why this arm must.
+            self.assertIsNone(support.load_packet(directory))
+            problems = fia.corpus_problems(root)
+            self.assertEqual(len(problems), 1, problems)
+            self.assertIn("is PRESENT and did not read as a mapping",
+                          problems[0])
+            self.assertIn("change-a", problems[0])
+            self.assertEqual(cli.main([str(root)]), 1)
+
+            # A top-level that parses but is not a mapping is the same state.
+            (directory / ".openspec.yaml").write_text(
+                "- former_ids\n", encoding="utf-8")
+            commit_all(root, "a manifest whose top level is a sequence")
+            self.assertIn("did not read as a mapping",
+                          fia.corpus_problems(root)[0])
+
+            # …and a packet with NO manifest at all is still simply silent.
+            (directory / ".openspec.yaml").unlink()
+            commit_all(root, "remove the manifest")
+            self.assertEqual(fia.corpus_problems(root), [])
 
     def test_a_grafted_boundary_takes_no_refusal(self):
         """`tasks.md` § 6.4, NOT TAKEN, asserted so it stays not taken.

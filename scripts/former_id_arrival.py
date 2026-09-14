@@ -120,6 +120,31 @@ fail-closed arms testable with real git rather than with a stubbed seam, and
 `tests/former_id_arrival/test_former_id_arrival.py` builds exactly that clone.
 
 ────────────────────────────────────────────────────────────────────────────
+WHAT THIS READER DOES NOT JUDGE, NAMED RATHER THAN IMPLIED
+
+A MOVE GIT DOES NOT PAIR IS NOT JUDGED. `-M -l0` lifts the rename LIMIT but not
+the similarity THRESHOLD: a relocation whose every file is also rewritten below
+it lands as plain D and A rows, and this gate reads no move. The fail-closed arm
+does not reach it and is not meant to — that arm exists for a pairing read the
+checkout CANNOT PERFORM, and here the read was performed and answered. Pairing
+from the TREE instead is the answer `design.md` D3 declined by name: a commit
+that withdraws one packet and creates an unrelated other has exactly that tree
+shape, and a required gate refusing it refuses a lawful landing. Closing this is
+a threshold ruling and a new refusal class on a gate with no bypass flag, so it
+belongs to a change that says so — the shape `tasks.md` § 6.4 uses for the
+shallow-checkout class. (Raised by Copilot on PR #1039; refused there with this
+reason.)
+
+AN EVIL MERGE IS NOT JUDGED. Merges are skipped for the reason above, which
+holds for every merge carrying only what its parents carried. A conflict
+resolution that introduces a move — or rewrites a declaration — relative to BOTH
+parents is carried by no other commit in the range, so no commit this gate reads
+contains it. Judging it needs a COMBINED diff (`git diff-tree -c`), whose rename
+reporting is not the `-M` pairing every refusal here rests on; that is a
+different read and a different ruling from D3's *one commit, never a chain*.
+Named here, not taken here. (Also Copilot, PR #1039.)
+
+────────────────────────────────────────────────────────────────────────────
 THE READERS THIS MODULE CONSUMES, AND WHY THAT IS THE POINT
 
 `add-declared-former-id`'s slices 1 and 2 landed four readers in
@@ -302,13 +327,23 @@ def packet_dir_of(rel: str) -> str | None:
 
 
 def change_id_of_dir(packet_dir: str) -> str:
-    """The change ID a packet directory addresses, archive date stripped.
+    """The change ID a packet directory addresses, archive date stripped —
+    AND STRIPPED ONLY UNDER THE ARCHIVE ROOT.
 
     `openspec/changes/add-x` and `openspec/changes/archive/2026-09-09-add-x`
     are the same IDENTITY at two moments of its life, which is the whole
-    reason the archive relocation is never a declared move.
+    reason the archive relocation is never a declared move. THE DATE PREFIX
+    MEANS THAT AND ONLY THAT, so it is stripped only where the convention puts
+    it. `CHANGE_ID_RE` admits an ACTIVE id that merely begins the same way
+    (`2026-09-14-example` is a legal change id), and stripping it there would
+    hand this gate a source identity no packet has ever carried: `ever_ratified`
+    would walk the wrong pathspecs, answer "never ratified", and pass an
+    undeclared rename — and the archive exception, which compares the two ids,
+    would stop recognizing that packet's own relocation. (Copilot, PR #1039.)
     """
     name = packet_dir.rsplit("/", 1)[-1]
+    if not is_archived_dir(packet_dir):
+        return name
     return support._ARCHIVE_DATE_RE.sub("", name)
 
 
@@ -661,6 +696,33 @@ def moves_at(diff: CommitDiff) -> list[tuple[str, str]]:
     return sorted(seen)
 
 
+def relocations_at(diff: CommitDiff, before: list[str],
+                   after: list[str]) -> list[tuple[str, str]]:
+    """The packet-directory RELOCATIONS a commit performs — the pairings of
+    `moves_at` that the TREE confirms are a directory leaving and a directory
+    arriving.
+
+    A FILE THAT CROSSES TWO STANDING PACKETS IS NOT A PACKET MOVING. Without
+    this, one `design.md` relocated from a ratified packet into another packet
+    that is also standing reads as an arrival from a ratified identity, and the
+    gate refuses an ordinary edit — a required gate refusing a landing nobody
+    can repair by declaring anything, because nothing moved. So a pairing
+    counts only where the SOURCE directory was present at the parent and is
+    gone here, and the DESTINATION was absent at the parent and is present
+    here. (Copilot, PR #1039.)
+
+    THIS IS NOT PAIRING FROM THE TREE, which `design.md` D3 declined by name.
+    The pairing is still git's and only git's; the tree is asked one further
+    question about a pairing git has already made. A source that still stands
+    is the COPY shape the requirement says declares nothing, and a destination
+    that already stood is not a packet directory being BROUGHT IN.
+    """
+    return [(source, destination)
+            for source, destination in moves_at(diff)
+            if source in before and source not in after
+            and destination in after and destination not in before]
+
+
 def _undeclared_finding(commit: str, source: str, destination: str,
                         qualifying: str, expected: list[str],
                         declared: list[str]) -> Finding:
@@ -781,7 +843,16 @@ def judge_commit(root: Path, commit: str, *,
     if not any(path.startswith(f"{CHANGES_ROOT}/") for path in diff.paths):
         return findings
 
-    moves = moves_at(diff)
+    before = packet_dirs_at(root, parent)
+    after = packet_dirs_at(root, commit)
+    if before is None or after is None:
+        raise ArrivalCannotRun(
+            f"REFUSE {UNREADABLE}: the arrival qualification at commit "
+            f"{_short(commit)} CANNOT RUN. The packet directories at that "
+            f"commit or at its parent could not be listed, so a file that "
+            f"crossed two STANDING packets cannot be told from a packet "
+            f"directory that MOVED, and this gate does not guess which it was.")
+    moves = relocations_at(diff, before, after)
     arrivals = {destination: source for source, destination in moves}
 
     for source, destination in moves:
@@ -818,13 +889,14 @@ def judge_commit(root: Path, commit: str, *,
             findings.append(_undeclared_finding(
                 commit, source, destination, qualifying, expected, declared))
 
-    findings += _declaration_findings(root, commit, parent, diff, arrivals)
+    findings += _declaration_findings(root, commit, parent, diff, arrivals,
+                                      after)
     return findings
 
 
 def _declaration_findings(root: Path, commit: str, parent: str,
-                          diff: CommitDiff,
-                          arrivals: dict[str, str]) -> list[Finding]:
+                          diff: CommitDiff, arrivals: dict[str, str],
+                          present: list[str]) -> list[Finding]:
     """§ 2.4 and § 2.5 over every packet this commit touched.
 
     § 2.5 IS ASKED OF EVERY TOUCHED PACKET AND NOT ONLY OF AN ARRIVING ONE,
@@ -844,13 +916,6 @@ def _declaration_findings(root: Path, commit: str, parent: str,
         packet_dir = packet_dir_of(path)
         if packet_dir is not None and packet_dir not in touched:
             touched.append(packet_dir)
-    present = packet_dirs_at(root, commit)
-    if present is None:
-        raise ArrivalCannotRun(
-            f"REFUSE {UNREADABLE}: the declaration comparison at commit "
-            f"{_short(commit)} CANNOT RUN. The packet listing at that commit "
-            f"could not be read, so a packet that gained an entry cannot be "
-            f"told from one that left.")
     for packet_dir in sorted(set(touched) & set(present)):
         change = change_id_of_dir(packet_dir)
         source = arrivals.get(packet_dir)
@@ -993,6 +1058,24 @@ def corpus_problems(root: Path, report: Report | None = None) -> list[str]:
     for directory in live + archived:
         change = support.change_id_of(directory)
         packet = support.load_packet(directory)
+        if packet is None and (directory / ".openspec.yaml").is_file():
+            # AN UNREADABLE MANIFEST IS NOT A PACKET THAT DECLARES NOTHING.
+            # `load_packet` answers None for THREE states — absent, unparseable
+            # YAML, and a top-level that is not a mapping — and only the first
+            # is an answer. Handing the other two to `former_id_problems` as a
+            # packet with no declaration is the vacuous read this gate exists
+            # to refuse: a malformed `former_ids:` would be swallowed by the
+            # parser that could not reach it. The commit-range arm draws the
+            # same distinction (`declared_at` raises rather than returning
+            # `[]`); this is that rule over the working tree. (Copilot, #1039.)
+            problems.append(
+                f"{change}: `{support._corpus_rel(directory)}/.openspec.yaml` "
+                f"is PRESENT and did not read as a mapping — unparseable YAML, "
+                f"or a top-level that is not one — so any `former_ids:` it "
+                f"carries cannot be read and none of the declaration refusals "
+                f"could be taken over it. An unreadable manifest is not a "
+                f"packet that declares nothing: repair the file, or remove it")
+            continue
         shape = support.former_id_problems(change, packet)
         problems += shape
         if shape:
