@@ -144,6 +144,31 @@ reporting is not the `-M` pairing every refusal here rests on; that is a
 different read and a different ruling from D3's *one commit, never a chain*.
 Named here, not taken here. (Also Copilot, PR #1039.)
 
+A HISTORICAL SYMLINK'S OWN CONTENT IS NOT JUDGED AS A SYMLINK. `_tree_rows`
+lists PATHS (`git ls-tree --name-only`), never MODES, so a `proposal.md` or
+`.openspec.yaml` that is a SYMLINK at some historical commit (mode `120000`)
+is indistinguishable, to every read in this module, from an ordinary file at
+that path: `git show <rev>:<path>` returns the symlink's own blob content —
+which is the TARGET STRING it stores, not whatever that target names — and
+`declares_ratified` or `yaml.safe_load` is asked about THAT string. A target
+string crafted to itself read as `Status: ratified`, or as valid
+`former_ids:` YAML, could therefore be adjudicated as a real declaration by
+this arm, replaced by an ordinary file before the corpus sweep — which DOES
+refuse a live symlink (`e4fab682`, `21f61c36`) — ever runs over it. NARROWER
+than the corpus-arm shape those commits closed: there the symlink pointed
+AT a real file elsewhere and was read THROUGH; here the symlink's OWN
+target text would have to BE the payload, a construction a git diff shows
+plainly (a symlink entry reads nothing like an ordinary proposal or
+manifest addition) and that this repository's mandatory PR review would see
+before any commit reading it ever lands. Closing it needs the TREE ENTRY'S
+MODE, which means widening `_tree_rows` — this module's single most-reused
+primitive, called from every arm — to carry it, and deciding, call site by
+call site, which of its many callers must now refuse a mode this change
+would newly distinguish. That is a change to a primitive this whole module
+rests on, not a call-site patch, and belongs to one that says so and reasons
+through every caller at once rather than the two this round happened to
+name. (Copilot, PR #1039; refused here with this reason.)
+
 ────────────────────────────────────────────────────────────────────────────
 THE READERS THIS MODULE CONSUMES, AND WHY THAT IS THE POINT
 
