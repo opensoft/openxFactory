@@ -59,19 +59,26 @@ Usage:
              REFUSES (exit 2) — the sibling's semantics: an operator who named
              a file is owed a refusal rather than a silent fallback.
           2. WITHOUT IT, `REPO_ROOT/scripts/code-surface-register.yaml` is used
-             WHEN IT EXISTS, so a tree is judged against ITS OWN exceptions
-             (for REPO_ROOT `.` in this repository that is the same file
-             either way). A PRESENT register that cannot be used REFUSES HERE
-             TOO, on `code_surface.load_register`'s own rule — "a register
+             WHEN THE SCANNED TREE CARRIES ONE, so a tree is judged against ITS
+             OWN exceptions (for REPO_ROOT `.` in this repository that is the
+             same file either way). CARRIES ONE MEANS PRESENT IN ANY FORM: the
+             probe is `is_symlink() or exists()` (`os.path.lexists`) and NOT
+             `is_file()`, which follows the link and so read a DANGLING SYMLINK
+             or a DIRECTORY at that name as absent — both of them
+             `load_register` refusals, reported instead as a `NO_REGISTER`
+             judgment about a tree that carries something there. A PRESENT
+             register that cannot be used REFUSES HERE TOO, on
+             `code_surface.load_register`'s own rule — "a register
              that cannot be used REFUSES rather than being ignored: ignoring a
              malformed exception file would silently re-fail every declaration
              it covers, or silently admit one it does not" — because the file
              is the SCANNED TREE'S OWN artifact whether or not an operator
              typed its path, and because whether an entry tolerates a
              declaration is UNKNOWN when nothing could be read, never "no".
-          3. WITH NEITHER — no flag and no such file — the scan runs against
-             `scope_globs.NO_REGISTER`: no entry tolerates anything, and an
-             unreadable head is refused as UNREGISTERED. It does NOT fall
+          3. WITH NEITHER — no flag, and nothing at that path in any form —
+             the scan runs against `scope_globs.NO_REGISTER`: no entry
+             tolerates anything, and an unreadable head is refused as
+             UNREGISTERED. It does NOT fall
              through to the derivation's own `register=None` on-demand load,
              which reads the register beside the IMPORTED MODULE. MEASURED
              before this was separated: a tree carrying no register at all,
@@ -309,7 +316,29 @@ def main(argv: list[str] | None = None) -> int:
             return 2
     else:
         default = repo_root / "scripts" / "code-surface-register.yaml"
-        if default.is_file():
+        # PRESENT IN ANY FORM — THE ONE QUESTION `is_file()` DOES NOT ASK.
+        # `Path.is_file()` FOLLOWS THE LINK and answers only "a regular file
+        # is readable at the end of this path", so it reads a DANGLING SYMLINK
+        # and a DIRECTORY at the register's own name as ABSENT, and the scan
+        # went on with `NO_REGISTER` — the value that says NO ENTRY TOLERATES
+        # ANYTHING — about a tree that plainly carries something there. Both
+        # shapes are `load_register` REFUSALS (the link at the leaf is refused
+        # UNREAD by its symlink guard, which runs before any `is_file()` or
+        # `read_text()`; the directory by that same `is_file()` check inside
+        # it), and a refusal reported as a judgment is the fail-closed this
+        # module refuses elsewhere: whether an entry tolerates a declaration
+        # is UNKNOWN when nothing could be read, never `no`.
+        #
+        # SO THE PROBE IS PRESENCE AND NOTHING MORE. `is_symlink() or
+        # exists()` is `os.path.lexists` — true for every path the scanned
+        # tree actually carries, whatever shape it is in, and false only for
+        # one it does not — which gives the default path THE SAME BOUNDARY as
+        # `--code-surface-register`, whose named path is handed to
+        # `load_register` unconditionally. Deciding the shape here would be a
+        # SECOND, weaker copy of `load_register`'s rules; the probe's whole
+        # job is to tell ABSENT from PRESENT and to leave usability to the
+        # reader that owns it.
+        if default.is_symlink() or default.exists():
             # UNNAMED BUT PRESENT, AND A PRESENT REGISTER THAT CANNOT BE USED
             # REFUSES — the named flag's semantics, because the file is the
             # SCANNED TREE'S OWN artifact whether or not an operator typed its
@@ -332,7 +361,8 @@ def main(argv: list[str] | None = None) -> int:
                       f"exceptions. Whether an entry tolerates a declaration "
                       f"here is UNKNOWN, not `no`, until this file reads")
                 return 2
-        # ABSENT: `NO_REGISTER` stands. No entry tolerates anything, an
+        # ABSENT — nothing at that path in any form, which is the only case
+        # left: `NO_REGISTER` stands. No entry tolerates anything, an
         # unreadable head is refused as UNREGISTERED, and the register beside
         # this validator is never consulted about a tree that is not its own.
 

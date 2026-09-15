@@ -721,13 +721,20 @@ and is corrected in place where the number is now false.
       `test_corpus_code_surface_validates` runs the CLI over the REAL tree, so a
       new divergence reds the required `pytest-suite`.
       **AND THEN THE FIX ROUND ADDED FIFTEEN, SO THE FILE IS 130 — AND THE
-      SECOND FIX ROUND ADDED SIX MORE (the finding-class tests), SO IT IS
-      **136** AT THE LANDING TREE — AND THIS BOX
+      SECOND FIX ROUND ADDED SIX MORE (the finding-class tests), SO IT WAS
+      **136**; THE THIRD ROUND ADDED FOUR (the scanned tree's register or
+      NONE, never the house one) AND THE FOURTH FIVE (the default register's
+      probe, one case per shape a path can be in), SO IT IS
+      **145** AT THE LANDING TREE — AND THIS BOX
       SAYS WHICH FIFTEEN RATHER THAN RE-SPLITTING THE GROUPS IT CANNOT
       RE-DERIVE HONESTLY.** Measured the same way (`python3 -m pytest
-      tests/code_surface -q --collect-only` — *"136 tests collected"*; `python3
-      -m pytest tests/code_surface -q` — **136 passed**). The fifteen, each
-      named with the finding it answers:
+      tests/code_surface -q --collect-only` — *"145 tests collected"*; `python3
+      -m pytest tests/code_surface -q` — **145 passed**). **EACH RE-MEASUREMENT
+      IS RECORDED WHERE IT HAPPENED RATHER THAN OVERWRITING THE LAST**: 130 was
+      the fix round's, 136 the second's, and the third round's four landed
+      without this box moving — a drift of four found by re-measuring here and
+      corrected beside the fourth round's five rather than silently absorbed.
+      The fifteen, each named with the finding it answers:
       **(a) an OMITTED key derives the promoted default's EMPTY SET** —
       `test_an_OMITTED_key_derives_the_EMPTY_SET_the_promoted_default_declares`,
       `test_an_OMITTED_key_beside_a_scope_is_the_ORDINARY_finding_against_the_scope`,
@@ -751,8 +758,23 @@ and is corrected in place where the number is now false.
       `test_the_corpus_moves_between_drafting_and_landing`;
       **(f) two nits** — `test_a_head_that_REPEATS_the_sentinel_NAMES_THE_DUPLICATE`
       and `test_scan_with_NO_register_loads_the_HOUSE_register`.
+      **THE THIRD ROUND'S FOUR**, which separated `NO_REGISTER` from `None` so a
+      tree carrying no exception file is not judged against the house one —
+      `test_a_scanned_tree_with_NO_register_is_NOT_judged_against_the_HOUSE_one`,
+      `test_a_scanned_tree_register_that_CANNOT_BE_USED_refuses_not_falls_back`,
+      `test_NO_REGISTER_is_the_absence_SPELLED_and_is_not_a_None`,
+      `test_the_derivation_reads_NO_REGISTER_and_None_as_TWO_DIFFERENT_FACTS`.
+      **AND THE FOURTH ROUND'S FIVE**, one parametrized case per shape the
+      default register path can be in, in
+      `test_the_default_register_probe_is_PRESENCE_in_every_shape`: a DANGLING
+      SYMLINK and a DIRECTORY (the two `is_file()` called absent, so the scan
+      judged with `NO_REGISTER` where `load_register` would have refused — the
+      defect), a symlink to a real file outside the tree and an ordinary file
+      (both already right), and a genuinely absent path (the only
+      `NO_REGISTER`). The probe is now `is_symlink() or exists()`, which is the
+      same boundary `--code-surface-register` has always had.
       **THE FIFTEEN-GROUP BREAKDOWN ABOVE IS LEFT AS THE RECORD OF THE FIRST
-      LANDING** rather than re-derived: re-splitting 130 tests across fifteen
+      LANDING** rather than re-derived: re-splitting 145 tests across fifteen
       authored groups would be a classification nobody measured, and a number
       that looks measured and is not is worse than a number that says when it
       was taken.

@@ -1599,6 +1599,112 @@ def test_a_scanned_tree_register_that_CANNOT_BE_USED_refuses_not_falls_back(
     assert "Traceback" not in result.stderr, result.stderr
 
 
+# --- THE DEFAULT PROBE ASKS PRESENCE, NOT SHAPE -------------------------------
+#
+# Resolving the scanned tree's register is TWO questions, and only the first
+# belongs to the CLI: is there something at `scripts/code-surface-register.yaml`,
+# and — if so — can it be used? `Path.is_file()` answers NEITHER cleanly. It
+# FOLLOWS THE LINK and reports only "a regular file is readable at the end of
+# this path", so a DANGLING SYMLINK and a DIRECTORY at that name both came back
+# False and the scan proceeded with `NO_REGISTER` — the value that means NO
+# ENTRY TOLERATES ANYTHING — about a tree that plainly carries something there.
+# Both are `load_register` REFUSALS (the leaf link refused UNREAD by its symlink
+# guard; the directory by that reader's own `is_file()` check), so the defect was
+# a REFUSAL REPORTED AS A JUDGMENT: exit 1 against an empty register instead of
+# exit 2, in the one direction the packet names — whether an entry tolerates a
+# declaration is UNKNOWN when nothing could be read, never `no`.
+#
+# The probe is now `is_symlink() or exists()` (`os.path.lexists`): present in ANY
+# form goes to `load_register`, and ABSENT is the only `NO_REGISTER`. That is the
+# SAME BOUNDARY `--code-surface-register` has always had, where a named path is
+# handed to the reader whatever shape it is in.
+
+
+def _default_register_tree(tmp_path, shape: str) -> tuple[Path, Path]:
+    """A tree whose one proposal carries an unreadable head, with
+    `scripts/code-surface-register.yaml` in one of the five shapes a path can be
+    in.
+
+    WHEREVER BYTES ARE REACHABLE AT ALL THEY NAME THE CHANGE, which is what makes
+    `entry `c`` in the output a measurement rather than a coincidence: it appears
+    only if that file was read, and the escaped-symlink case proves by its
+    absence that bytes from outside the tree were not.
+    """
+    root, declaration = _registered_scope_tree(tmp_path)
+    scripts = root / "scripts"
+    scripts.mkdir(parents=True, exist_ok=True)
+    default = scripts / "code-surface-register.yaml"
+    if shape == "dangling-symlink":
+        default.symlink_to(tmp_path / "nowhere" / "code-surface-register.yaml")
+    elif shape == "symlink-to-a-real-file":
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        target = outside / "code-surface-register.yaml"
+        target.write_text(_entry_text("c", declaration), encoding="utf-8")
+        default.symlink_to(target)
+    elif shape == "directory":
+        default.mkdir()
+    elif shape == "absent":
+        pass
+    elif shape == "regular-file":
+        default.write_text(_entry_text("c", declaration), encoding="utf-8")
+    else:  # pragma: no cover - the parametrization below is closed
+        raise AssertionError(f"unknown shape {shape!r}")
+    return root, default
+
+
+@pytest.mark.parametrize(
+    "shape, is_file_says, present, code, expected, forbidden",
+    [
+        # THE DEFECT, PINNED TWICE — the two shapes `is_file()` calls absent.
+        ("dangling-symlink", False, True, 2,
+         ("CANNOT RUN", "the scanned tree's code-surface register",
+          "reached through a symlink", "does NOT fall back"),
+         ("entry `c`", "NO REPOSITORY SET CAN BE DERIVED")),
+        ("directory", False, True, 2,
+         ("CANNOT RUN", "the scanned tree's code-surface register",
+          "cannot be used", "does NOT fall back"),
+         ("entry `c`", "NO REPOSITORY SET CAN BE DERIVED")),
+        # ALREADY CLOSED, KEPT BESIDE THEM: `is_file()` follows the link and
+        # says True, and the refusal comes from the reader either way.
+        ("symlink-to-a-real-file", True, True, 2,
+         ("CANNOT RUN", "reached through a symlink", "does NOT fall back"),
+         ("entry `c`", "NO REPOSITORY SET CAN BE DERIVED")),
+        # THE ONLY `NO_REGISTER`: nothing there in any form.
+        ("absent", False, False, 1,
+         ("NO REPOSITORY SET CAN BE DERIVED",
+          "not carried by the closed code-surface register"),
+         ("CANNOT RUN", "entry `c`")),
+        # AND THE ORDINARY CASE, so the parametrization measures the fix rather
+        # than a validator that refuses everything.
+        ("regular-file", True, True, 1,
+         ("NO REPOSITORY SET CAN BE DERIVED", "CLOSED code-surface register",
+          "entry `c`"),
+         ("CANNOT RUN", "not carried by the closed code-surface register")),
+    ])
+def test_the_default_register_probe_is_PRESENCE_in_every_shape(
+        tmp_path, shape, is_file_says, present, code, expected, forbidden):
+    """Five shapes one path can be in, and the boundary each lands on.
+
+    THE TWO PROBES ARE ASSERTED APART FIRST. `is_file_says` is what the old
+    probe answered and `present` what the new one does; they DIVERGE on exactly
+    the dangling symlink and the directory, which is why those two are the
+    defect and why asserting the exit code alone would not have caught it.
+    """
+    root, default = _default_register_tree(tmp_path, shape)
+    assert default.is_file() is is_file_says
+    assert (default.is_symlink() or default.exists()) is present
+    result = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root)],
+        capture_output=True, text=True)
+    assert result.returncode == code, result.stdout + result.stderr
+    for text in expected:
+        assert text in result.stdout, result.stdout
+    for text in forbidden:
+        assert text not in result.stdout, result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+
+
 def test_NO_REGISTER_is_the_absence_SPELLED_and_is_not_a_None(tmp_path):
     """The sentinel's own properties, pinned where they are relied on: it is
     NOT `None` (the derivation tests `is None`), it is EMPTY, and it is
