@@ -885,11 +885,16 @@ the bookkeeping that ticks this group.
   consequence of the Python split.
   **STATUS — 2026-09-14, tick JUDGED MET AT THIS AMENDMENT'S OWN LANDING: the
   boundary was INVENTED as a design note and REALIZED in an eight-slice arc.**
-  Six of the eight are merged as this is written; **S7 and S8 land AHEAD of
-  this amendment** in the lane's recorded order — they are the two rows
+  **SEVEN** of the eight are merged as this is written; **S8 lands AHEAD of
+  this amendment** in the lane's recorded order — it is the one row still
   carrying `[FILL AT LANDING]` below — so the tick is written for the state
   this pull request lands INTO and not for the state it was authored in, and
-  the box is not ticked ahead of them. That is the discipline `openDox-spec`'s
+  the box is not ticked ahead of it. *(S7's row was filled in place at its own
+  landing, 2026-09-15, from the merged pull requests: `#1030` →
+  `b3a75537217d9b15684501684e9527f412d4e6b6` at **21:40:25Z** and openDox-code
+  `#21` → `1e4697130855e9695a6acc3344b7c925bb3eeb09` at **21:41:36Z** — Q-L1's
+  annotation-first rule holding a seventh time, by 71 seconds. The paragraph
+  read "Six of the eight … S7 and S8 land AHEAD" until then.)* That is the discipline `openDox-spec`'s
   own amendment #3 applies to its § 5.0 landing record, which this table
   mirrors.
 
@@ -917,7 +922,7 @@ the bookkeeping that ticks this group.
   | S4 | split the three RULED `SPLIT` files — thirteen route tails | `#1010` → `bcde1575` | `#17` → `69d27602` | — |
   | S6 | `/source` becomes openDox's own fixed core arm (RULED Q4) | `#1009` → `468371dc` | `#16` → `3661345f` | `#17` → `d6e7bbe3` |
   | S5 | contribute the gate loop — six class-B modules leave | `#1023` → `ee251d6c` | `#20` → `8efb3cf5` | `#18` → `c1ad341a` |
-  | S7 | parameterize class C — the display facet and the context hop | `#1030` → **[FILL AT LANDING]** | `#21` → **[FILL AT LANDING]** | — |
+  | S7 | parameterize class C — the display facet and the context hop | `#1030` → `b3a75537` | `#21` → `1e469713` | — |
   | S8 | re-point the bundle paths, un-narrow `validate` for the web suites | `#1025` → **[FILL AT LANDING]** | `#23` → **[FILL AT LANDING]** | `#19` → **[FILL AT LANDING]** |
 
   Two acts of the floor belong to the arc and are named with it: RULED **Q6**'s
@@ -930,6 +935,20 @@ the bookkeeping that ticks this group.
   openXdox-code `tests/test_staging_workbench.py`'s ending replay, all three
   driving `views/intent-feed.js`, RULED `not_moved` and present at neither leg).
   Both are registered acts under their own claims, not conditions of this box.
+  **A THIRD act of the floor followed the arc's seventh slice and is named here
+  because it is what carries these landings into the aggregation** — the **pin
+  lockstep**, whose second run is openxFactory **`#1054` →
+  `3c614d340777cb1ff825c04dbc78d98af1dc875e`** (2026-09-15T23:27:40Z). Read
+  from that merge commit's own diff rather than from its title: it moves
+  `contracts/opendox-pin.yaml`'s `commit:` `7cf6c143` → **`3819625e`** (the
+  openDox assembly root, `opensoft/openDox` `#8` at 21:48:52Z, which names
+  `code` leg **`1e469713`** — slice S7's own merge) and
+  `contracts/openxdox-pin.yaml`'s `76df74c8` → **`a6500141`**
+  (`opensoft/openXdox` `#10` at 21:54:21Z), with BOTH gitlinks moving in that
+  one commit, which is the lockstep invariant §§ 4.2 and 5.1 of this file
+  describe. It is the bump the boundary note's § 1.2(d) SKIP waits on, arriving
+  at the aggregation level; like the two acts above it is its own claim and not
+  a condition of this box.
 
   **THE PACKET FIGURE, AMENDED HERE — this box's own "40 files, 30,410 lines"
   is a design-time reading no tree in the arc reproduces**, and the boundary
