@@ -283,3 +283,66 @@ def test_only_the_reporting_run_declares_the_live_main_basis():
                 for s in job.get("steps", [])
                 if flag in (s.get("run") or "")]
     assert carriers == ["Run doc-health suite"]
+
+
+# --- readiness evidence travels with the derive-possibles commit (#1034) ----
+#
+# The "Ideation readiness lane" merge step (tested above by
+# test_readiness_merge_step_always_runs_and_never_gates_on_readiness) runs
+# BEFORE derive-possibles in this same `finalize` job so derive-possibles sees
+# this run's freshest index, and it writes health/ideation-readiness/ but
+# never commits — the "Derive-possibles register commit-back" step below is
+# the ONLY commit on the doc-health/derive-possibles branch path. Before this
+# fix, that step staged only ideation/cross-reference.yaml, its own
+# health/derive-possibles/, and the optional .md render — so a run where the
+# readiness lane also mutated ideation/cross-reference.yaml carried that
+# index mutation into the commit while leaving the readiness lane's own
+# evidence record for it silently orphaned on the runner disk (opensoft/
+# openxFactory#1034, measured against PR #888's ae62886b).
+
+def test_derive_possibles_commit_back_also_stages_readiness_evidence():
+    finalize = workflow()["jobs"]["finalize"]
+    commit_back = step(finalize, "Derive-possibles register commit-back "
+                                 "(rolling PR; dormant until first lane "
+                                 "persist)")
+    script = commit_back["run"]
+    assert ("[ -d health/ideation-readiness/ ] && "
+            "git add health/ideation-readiness/") in script
+
+
+def test_readiness_evidence_guard_is_staged_in_the_same_commit_not_a_second_one():
+    # Guarded like its .md sibling (`[ -f ideation/cross-reference.md ] &&
+    # git add ...`): a bare `git add` on a directory that does not exist
+    # (a run where the readiness lane was skipped) exits 128 and, under this
+    # step's default `set -e` shell, would fail the whole step — the `&&`
+    # form is exempt from errexit on the guard's own failure (only the
+    # command after the final `&&` is not). And it must land BEFORE the
+    # `git commit` below, staged in the SAME step as derive-possibles' own
+    # evidence — not a second commit — matching the archived
+    # add-ideation-cross-reference-readiness design intent of one shared
+    # commit-back covering both lanes.
+    finalize = workflow()["jobs"]["finalize"]
+    commit_back = step(finalize, "Derive-possibles register commit-back "
+                                 "(rolling PR; dormant until first lane "
+                                 "persist)")
+    lines = commit_back["run"].splitlines()
+
+    def index_containing(fragment):
+        return next(i for i, line in enumerate(lines) if fragment in line)
+
+    own_add_line = index_containing(
+        "git add ideation/cross-reference.yaml health/derive-possibles/")
+    md_guard_line = index_containing(
+        "[ -f ideation/cross-reference.md ] && git add "
+        "ideation/cross-reference.md")
+    readiness_guard_line = index_containing(
+        "[ -d health/ideation-readiness/ ] && git add "
+        "health/ideation-readiness/")
+    commit_line = index_containing(
+        'git commit -m "derive-possibles: merged register')
+
+    assert own_add_line < readiness_guard_line < commit_line
+    assert md_guard_line < commit_line
+    # Exactly one commit in this step — the fix stages more, it does not
+    # commit twice.
+    assert commit_back["run"].count("git commit -m") == 1
