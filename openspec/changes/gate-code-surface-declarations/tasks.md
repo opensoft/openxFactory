@@ -206,9 +206,9 @@ RE-MEASUREMENT** — a number that moves every time `main` does and is
 RE-MEASURED rather than assumed each time it moves. `scripts/code_surface.py`'s
 `CLOSED_REGISTER` provenance comment and `scripts/code-surface-register.yaml`'s
 header name them in the same words, so the three records cannot drift apart
-again. As this transcript stands there have been FIVE re-measurements
-(`54885296`, `bfa90db6`, `e6e1c968`, `dd073746`, `92d519b0`) and the scenario
-has FIRED ONCE, at the second.
+again. As this transcript stands there have been SIX re-measurements
+(`54885296`, `bfa90db6`, `e6e1c968`, `dd073746`, `92d519b0`, `8944758c`) and
+the scenario has FIRED ONCE, at the second.
 
 **EVERY FIGURE IN § 3 WAS RE-MEASURED AT THE MAIN HEAD MERGED AT THE FIRST
 RE-MEASUREMENT** — `origin/main` `54885296` — with the § 3.1 reader itself, and
@@ -302,6 +302,30 @@ equal). The 55 commits `main` gained are the `former_id` arrival-gate and
 reference-resolver realizations, `packet_reference`, and doc-health
 pinned-target work; the merge (`8f8d709a`) resolved **ZERO conflicts**. **THE
 SCENARIO FIRED A FOURTH TIME AND AGAIN COST NOTHING.**
+
+**AND MAIN MOVED ONCE MORE, IN THE THIRD FIX ROUND. SIXTH RE-MEASUREMENT, AT
+`origin/main` `8944758c` — THE MAIN HEAD MERGED AT RE-MEASUREMENT AS THIS
+TRANSCRIPT STANDS** (merged at `d4c5a7f9`; that merge landed and the
+re-measurement did not, which is the drift this paragraph closes — the figures
+are taken at `e3a4c051`, the branch head carrying the merge). `python3
+scripts/validate-code-surface.py .` — **exit 0**, *"46 active proposals, 46
+declaring — 4 `none`, 34 a repository list, 8 named by the register, 0 outside
+the grammar"*, *"archive (read, never judged): 168 proposals, 122 declaring, 3
+of them outside the grammar"*. `python3 scripts/validate-scope-globs.py .` —
+**exit 0**. **THIS IS THE FIRST RE-MEASUREMENT AT WHICH THE ACTIVE CORPUS
+SHRANK**, and a measurement rather than an inference: `git diff --name-status
+92d519b0..8944758c -- 'openspec/changes/*/proposal.md'` is exactly one `R100` —
+the FIRST `R` of the whole record — `extend-prose-tagging-target-to-pinned-
+capabilities` moving to `archive/2026-09-15-extend-prose-tagging-target-to-
+pinned-capabilities/` (#1042), which is why 47 active / 47 declaring / 35 a
+repository list reads 46 / 46 / 34 and the archive 167/121/3 reads 168/122/3.
+That carrier CONFORMS — it was one of the 35, which is where the 34 comes
+from — and is NOT one of the eight, so no carrier arrived, NO ENTRY WENT STALE
+(`scan().stale` is empty, and the CLI's own exit 0 says the same) and the
+register stands at EIGHT untouched (8 entries, `CLOSED_REGISTER` length 8,
+equal). **THE SCENARIO FIRED A FIFTH TIME AND AGAIN COST NOTHING** — and the
+arm nothing had exercised until now answered too: an ARCHIVING packet would
+have made its entry stale, and this one was not registered.
 
 **TWO PROPOSALS LANDED IN BETWEEN AND NONE ARCHIVED**, which is a measurement
 and not an assumption: `git diff --name-status 54885296..bfa90db6 --
@@ -447,8 +471,9 @@ and is corrected in place where the number is now false.
       **LANDED WITH SEVEN ENTRIES IN FOUR CLASSES** (block-scalar 1,
       possessive 1, apposition 1, list-runs-into-prose 4) AT THE FIRST
       RE-MEASUREMENT `54885296`, **AND WITH EIGHT IN THE SAME FOUR CLASSES FROM
-      THE SECOND RE-MEASUREMENT `bfa90db6` ONWARD — STILL EIGHT AT `e6e1c968`
-      AND STILL EIGHT AT `dd073746`, THE MAIN HEAD MERGED AT RE-MEASUREMENT**
+      THE SECOND RE-MEASUREMENT `bfa90db6` ONWARD — STILL EIGHT AT `e6e1c968`,
+      AT `dd073746`, AT `92d519b0` AND AT `8944758c`, THE MAIN HEAD MERGED AT
+      RE-MEASUREMENT**
       (list-runs-into-prose 5) — the eighth being
       the carrier that arrived in between, disposed of at that re-measurement as
       the § 3 preamble's second re-measurement records and as the requirement's

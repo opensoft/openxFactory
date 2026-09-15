@@ -92,8 +92,8 @@ kind: code-surface-grammar-register
 # record of this one.)
 #
 # THIRD re-measurement, at `origin/main` `e6e1c968`; FOURTH at `origin/main`
-# `dd073746`; FIFTH at `origin/main` `92d519b0` — THE MAIN HEAD MERGED AT
-# RE-MEASUREMENT as this file stands. Main moved three times more while the
+# `dd073746`; FIFTH at `origin/main` `92d519b0`. Main moved three times more
+# while the
 # realization was in review and THE POPULATION DID NOT: 47 active proposals, 47
 # declaring, 4 `none`, 35 a repository list, EIGHT named by this register, 0
 # outside the grammar, at ALL THREE heads, with the archive unmoved at
@@ -105,9 +105,22 @@ kind: code-surface-grammar-register
 # fourth nor the fifth re-measurement moved a declaration at all. BOTH of the
 # two CONFORM (each is one of the 35), and the
 # `M` is not one of the eight, so NO ENTRY IS STALE and NO ENTRY IS OWED. The scenario fired ONCE, at
-# the second re-measurement; it has cost nothing the three times since, which is
-# the shape it is supposed to have when the corpus moves without a divergence
-# in it.
+# the second re-measurement; it has cost nothing the FOUR times since (the
+# sixth below included), which is the shape it is supposed to have when the
+# corpus moves without a divergence in it.
+#
+# SIXTH re-measurement, at `origin/main` `8944758c` — THE MAIN HEAD MERGED AT
+# RE-MEASUREMENT as this file stands (merged at `d4c5a7f9`, measured at
+# `e3a4c051`): 46 active proposals, 46 declaring, 4 `none`, 34 a repository
+# list, EIGHT named by this register, 0 outside the grammar, with the archive
+# at 168 read / 122 declaring / 3 outside. THE FIRST RE-MEASUREMENT AT WHICH
+# THE ACTIVE CORPUS SHRANK, and a measurement rather than an assumption —
+# `git diff --name-status 92d519b0..8944758c -- 'openspec/changes/*/proposal.md'`
+# is exactly one `R100`, the first `R` of this record:
+# `extend-prose-tagging-target-to-pinned-capabilities` archived (#1042). It
+# CONFORMS — it was one of the 35, which is where the 34 comes from — and it is
+# NOT one of the eight, so no carrier arrived, NO ENTRY IS STALE and NO ENTRY
+# IS OWED. The population is unmoved at EIGHT.
 #
 # Every entry declares:
 #   change       the ACTIVE change directory under `openspec/changes/`
