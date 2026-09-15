@@ -1003,10 +1003,11 @@ Active changes:
   and RULED STANDS there — the sentence is ratified canon promoted
   byte-identical, which an archive act may not edit — so the remedy is a
   successor packet. `sequenced_after: []`, corroborated: no active change holds
-  a `## MODIFIED` block over that requirement. Filing PR — the
-  number is written into this bullet in the same commit that seeds this
-  packet's per-change sweep-ledger row, the pull request not existing when the
-  packet was committed. Refs
+  a `## MODIFIED` block over that requirement. Filing PR
+  [#1052](https://github.com/opensoft/openxFactory/pull/1052), whose second
+  commit — this one — seeds the packet's per-change sweep-ledger row and writes
+  the number here, the pull request not having existed when the packet was
+  committed. Refs
   [#1047](https://github.com/opensoft/openxFactory/issues/1047). **Inserted
   here rather than at the top of this list on purpose**, on the same reasoning
   the entry above records: the `Active changes:`-then-blank-line context at the
