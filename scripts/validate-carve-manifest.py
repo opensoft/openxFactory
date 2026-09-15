@@ -2556,8 +2556,12 @@ def validate(manifest_path: Path, repo: Path,
     # human line and whether the number is 0 or 48: a placement corrected by a
     # ruling is the one thing in this document that is not the carve's own act,
     # and a reader of a CI log must be able to see how many of them the
-    # manifest now carries without opening it. Zero is the state the file
-    # landed in and is as much a fact as any other.
+    # manifest now carries without opening it. Zero was the state the file
+    # landed in AT RULED Q6 (PR #1011) and is as much a fact as any other; it
+    # has printed 4 since § 3.4 slice S5 re-destined that many, and the
+    # retirement clause below prints 2 since RULED 5656343213's first use
+    # (PR #1043). One clause each, unconditional, so no count is ever the
+    # state no log records.
     re_destined = sum(1 for row in doc["rows"]
                       if isinstance(row.get("re_destined"), dict))
     # COUNTED SEPARATELY FROM `re_destined` AND FROM THE DISPOSITIONS (RULED
