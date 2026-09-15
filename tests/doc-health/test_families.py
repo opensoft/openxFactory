@@ -743,10 +743,28 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
     finds its nested `hit` wrapper and every one of its call sites, since
     scoping walks that function's whole subtree rather than filtering a
     flat module walk).
+
+    FOURTEEN MORE ARRIVE WITH THE PINNED ARM
+    (`extend-prose-tagging-target-to-pinned-capabilities`, task 3.3(j)), and
+    BOTH derivations widen to reach them. BEHAVIOURALLY, the pinned fixture
+    corpus `fixtures/tag-hygiene-pinned/` drives the arm's live defects through
+    one real run — kept a SEPARATE corpus so `test_tag_hygiene` above still
+    reads the tree it was written against, unchanged. STATICALLY, the scope
+    gains `_pinned_arm` and `_judge_pinned_record`: the arm emits through the
+    same `hit(sev, doc, rule, action)` wrapper, which the scoped walk registers
+    as an action-taker from `fam_tag_hygiene`'s own subtree and then matches BY
+    NAME at their call sites. Four cases have no live fixture (a `contracts`
+    that is itself a symlink, a record that escapes the boundary, an unreadable
+    record, a `verify_pin:` disagreement) and are driven from `tmp_path` trees
+    in `test_tag_hygiene_pinned_targets.py`; the static half is what pins their
+    text here.
     """
     behavioral = harvest_behavioral(FAMILIES["tag-hygiene"],
                                     make_ctx("tag-hygiene"))
-    static = harvest_static(families, functions=frozenset({"fam_tag_hygiene"}))
+    behavioral |= harvest_behavioral(FAMILIES["tag-hygiene"],
+                                     make_ctx("tag-hygiene-pinned"))
+    static = harvest_static(families, functions=frozenset({
+        "fam_tag_hygiene", "_pinned_arm", "_judge_pinned_record"}))
 
     EXPECTED_ACTIONS = {
         "close the fence before the heading (document-lifecycle grammar)",
@@ -762,6 +780,41 @@ def test_every_action_string_the_tag_hygiene_family_can_emit_is_pinned_verbatim(
         "use one of the three canonical marker forms (document-lifecycle grammar)",
         "add the matching /xspec:candidate close fence (document-lifecycle grammar)",
         "candidacy is block-level only; remove the status value",
+        # THE PINNED ARM'S FOURTEEN, one per defect
+        # (`extend-prose-tagging-target-to-pinned-capabilities`, task 3.3(j)).
+        # Each is a SEPARATE string because each names a different remedy, and
+        # this table is what stops any of them drifting back to the in-tree
+        # "name a capability under openspec/specs/" — which, for a capability
+        # that has left the corpus, instructs the author to write something
+        # false.
+        "spell a pinned target pinned:<pin-id>/<capability>, two kebab-case "
+        "components (document-lifecycle grammar)",
+        "give the resolution root a real contracts/ directory — present, a "
+        "directory, not a symlink or a redirection (document-lifecycle grammar)",
+        "run doc-health over a root set that carries the document's repository, "
+        "so the pin registry can be searched (document-lifecycle grammar)",
+        "keep the pin record inside its root's contracts/ directory rather "
+        "than a symlink out of it (document-lifecycle grammar)",
+        "name a pin the registry under contracts/ carries "
+        "(document-lifecycle grammar)",
+        "repair the pin record so it reads as a mapping carrying a kind: "
+        "(document-lifecycle grammar)",
+        "name a neutral-product pin rather than a pin-shaped record of another "
+        "kind (document-lifecycle grammar)",
+        "reconcile the pin record's verify_pin: with the verifier the resolver "
+        "tracks for it (document-lifecycle grammar)",
+        "complete the pin record for its record shape through a "
+        "neutral-product-pin change (document-lifecycle grammar)",
+        "the publisher adds capabilities: to the pin record through a "
+        "neutral-product-pin change (document-lifecycle grammar)",
+        "repair the pin record's capabilities: member to a non-empty sequence "
+        "of capability names (document-lifecycle grammar)",
+        "name a capability the pin record's capabilities: enumeration carries "
+        "(document-lifecycle grammar)",
+        "the pinned form is admitted only in a candidate marker's target= "
+        "attribute (document-lifecycle grammar)",
+        "install PyYAML so pinned targets can be judged; nothing resolves "
+        "without it (document-lifecycle grammar)",
     }
     assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
                           family="tag-hygiene")

@@ -1,0 +1,17 @@
+# FIXTURE pin record, not a pin. `tests/` is outside every pin-class
+# scan root and outside the governed corpus, so this file adds no pin
+# byte and makes no provenance claim: its values are shaped, not real.
+
+schema_version: 1
+kind: pinned_contract_manifest
+revision_kind: package_integrity
+version: 1.12.0
+integrity: sha512-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+shasum: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+package: '@vendor/product'
+lockfile: product.package-lock.json
+lockfile_integrity: sha512-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+lockfile_packages: 80
+binary: product
+capabilities:
+- published-capability
