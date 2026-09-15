@@ -280,6 +280,18 @@ with such a row is the simplest thing and the most easily got wrong:
   review on PR #1011, and it is built into `check_retired` from the start
   rather than discovered again.
 
+  AND IT IS NOT A VERIFIED ABSENCE EITHER (Copilot review of PR #1032, round
+  5). The exclusion above is a decision NOT TO ASK the absence question at that
+  path, because the entry there belongs to the refiller and is verified on the
+  refiller's own terms. A run that then reported every retirement as "verified
+  absent" would be claiming the one reading it deliberately skipped — about the
+  only kind of path where the claim is false, since something IS there. So the
+  skipped rows travel back from `check_retired` BY NAME, with the refiller's,
+  and both the human line and `--json`'s `retired[]` records say which of the
+  two answers each retirement got: `absence: verified` or `absence: refilled`.
+  Nothing about the RETIREMENT changes — the row is still not owed here, and
+  the floor still says the arrival is gone.
+
   WHAT IT DOES NOT PROVE, on the Q6 section's own terms. This file verifies ONE
   destination per run, so a retirement at one leg says nothing about any other
   leg, and nothing here reads the SURFACE the block cites — that is a claim
@@ -1656,7 +1668,7 @@ def check_vacated(rows: list[dict[str, Any]], dest_root: Path,
 def check_retired(rows: list[dict[str, Any]], dest_root: Path,
                   arriving_rows: list[dict[str, Any]] | None = None,
                   declared_replica_paths: Iterable[str] | None = None
-                  ) -> int:
+                  ) -> dict[str, str]:
     """Every row a ruling RETIRED at this leg has GONE from it.
 
     `check_vacated` READ ONE STEP FURTHER. A re-destination is one act with
@@ -1707,9 +1719,26 @@ def check_retired(rows: list[dict[str, Any]], dest_root: Path,
     says nothing about a `re_destined.from_path` the same row may also owe —
     `check_vacated` asks that one, at the leg the block names, and the two
     absences are two questions about two legs.
+
+    AND WHAT IT RETURNS IS WHAT THE RUN MAY SAY (Copilot round 5). The
+    exclusion above is a decision not to ASK the absence question at a refilled
+    path; it is not an answer to it. So this function hands back the retirements
+    it skipped, each named with the refiller, and the summary and `--json`
+    report `absence: refilled` for exactly those — rather than the blanket
+    "verified absent" that was false about the only paths where something is
+    actually there. It returns them instead of the row count `check_vacated`
+    returns because that count was never read by anything, and because a caller
+    that re-derived `claimed` for itself would be the second reading of one
+    question that rounds 3 and 4 of this review each refused.
     """
-    claimed = {arrival_path(r) for r in (arriving_rows or [])}
-    claimed.update(declared_replica_paths or ())
+    # NAMED, NOT JUST MATCHED: the refiller travels with the exclusion, because
+    # a reader told "not verified absent" is owed the reason in the same breath.
+    claimed: dict[str, str] = {
+        arrival_path(r): f"the arrival of {r.get('source_path')}"
+        for r in (arriving_rows or [])}
+    for replica_path in (declared_replica_paths or ()):
+        claimed.setdefault(replica_path, "a declared --replica-at replica")
+    refilled: dict[str, str] = {}
     for row in rows:
         retired = row["retired"]
         # THE BLOCK IS READ BEFORE ITS PATH IS USED, and before `claimed` can
@@ -1718,6 +1747,7 @@ def check_retired(rows: list[dict[str, Any]], dest_root: Path,
         # are `retired_placement`'s.
         relpath = retired_placement(row)
         if relpath in claimed:
+            refilled[row.get("source_path")] = claimed[relpath]
             continue
         target = dest_root / relpath
         if not os.path.lexists(target):
@@ -1738,7 +1768,7 @@ def check_retired(rows: list[dict[str, Any]], dest_root: Path,
             "the legs' own placements, declared here with `--replica-at`, and "
             "this finding is about the ARRIVAL at "
             f"{retired.get('at')}:{relpath} alone.)")
-    return len(rows)
+    return refilled
 
 
 # --------------------------------------------------------------------------
@@ -2393,23 +2423,35 @@ def _re_destined_record(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _retired_record(row: dict[str, Any]) -> dict[str, Any]:
+def _retired_record(row: dict[str, Any],
+                    refilled: dict[str, str] | None = None) -> dict[str, Any]:
     """One retired row as the summary reports it: the source path, the
-    placement the ruling deleted, the SURFACE it drove, and the ruling that
-    ordered it (RULED 5656343213).
+    placement the ruling deleted, the SURFACE it drove, the ruling that
+    ordered it (RULED 5656343213), and WHICH ANSWER THIS RUN GOT at the path.
 
     The surface travels with the citation because it is the whole ground of
     the act: a reader of a leg's `--json` output can see which arrival is gone
     and WHY without opening the manifest, which is the one thing an absence
     cannot tell them by itself.
+
+    `absence` IS THE ROUND-5 FIELD (Copilot review of PR #1032). It is
+    `verified` where `check_retired` asked `lexists` and the path was empty,
+    and `refilled` where it deliberately did not ask because another row's own
+    arrival or a declared replica lawfully occupies the path — with
+    `refilled_by` naming which. The key is present with `refilled_by: null` in
+    the verified case rather than absent, so a consumer reads one shape and
+    never has to tell "this run did not say" from "this run said absent".
     """
     retired = row.get("retired") or {}
+    refill = (refilled or {}).get(row.get("source_path"))
     return {
         "source_path": row.get("source_path"),
         "at": retired.get("at"),
         "at_path": retired.get("at_path"),
         "surface": retired.get("surface"),
         "ruling": retired.get("ruling"),
+        "absence": "verified" if refill is None else "refilled",
+        "refilled_by": refill,
     }
 
 
@@ -2443,7 +2485,11 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     # excludes its path. `rows` has already dropped every retired row, which
     # is what makes this the ONLY check that will ever mention those files.
     retired = retired_rows(doc, destination)
-    check_retired(retired, dest_root, rows, replica_placements.values())
+    # WHAT IT SKIPPED COMES BACK BY NAME (Copilot round 5): a retirement whose
+    # path a lawful refill occupies had its absence deliberately not asked, and
+    # the summary must report that answer rather than the one it did not make.
+    retired_refilled = check_retired(retired, dest_root, rows,
+                                     replica_placements.values())
     replica_counts = check_replicas(replica_placements, dest_root,
                                     source_repo, carve_commit, doc, phase)
     # A REPLICA'S DECLARED EDIT IS COUNTED WHERE A MOVED ROW'S IS (RULED Q-L7
@@ -2542,7 +2588,8 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
         # — the file is nowhere. This list is the only place a leg's own
         # evidence records that an arrival it once owed was deleted by a
         # ruling, so it carries the surface and the citation with each row.
-        "retired": [_retired_record(row) for row in retired],
+        "retired": [_retired_record(row, retired_refilled)
+                    for row in retired],
         "declared_roots": roots,
         "files_walked": admitted["walked"],
         "admitted": {k: admitted[k] for k in ("scaffold", "replica", "created")},
@@ -2836,8 +2883,27 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
     # document whose state a reader must be able to read off any run.
     retired_here = summary.get("retired") or []
     if retired_here:
-        line += (f"; {len(retired_here)} row(s) RETIRED here by ruling and "
-                 "verified absent (RULED 5656343213)")
+        # AND A REFILLED PATH IS REPORTED AS THE ANSWER IT GOT (Copilot round
+        # 5). `check_retired` EXCLUDES a path another row's arrival or a
+        # declared replica lawfully occupies — it does not verify it empty, and
+        # it could not: something is there. Printing "verified absent" over
+        # that exclusion made this line's only false case the one case where a
+        # file really is at the retired path, which is the case a reader would
+        # most want it to be honest about. The retirement itself is unchanged.
+        refilled_here = [r for r in retired_here
+                         if r.get("absence") == "refilled"]
+        if not refilled_here:
+            line += (f"; {len(retired_here)} row(s) RETIRED here by ruling and "
+                     "verified absent (RULED 5656343213)")
+        else:
+            named = ", ".join(
+                f"{r.get('at_path')} now holds {r.get('refilled_by')}"
+                for r in refilled_here)
+            line += (f"; {len(retired_here)} row(s) RETIRED here by ruling "
+                     f"(RULED 5656343213), "
+                     f"{len(retired_here) - len(refilled_here)} verified "
+                     f"absent and {len(refilled_here)} at a path a LAWFUL "
+                     f"REFILL occupies — not asked, not owed absent: {named}")
     if summary["carved_from"] is not None:
         line += (f"; carved_from {summary['carved_from']['repository']}@"
                  f"{summary['carved_from']['commit'][:12]}")

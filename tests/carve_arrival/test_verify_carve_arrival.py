@@ -1756,7 +1756,13 @@ def test_another_rows_arrival_at_the_retired_path_is_a_lawful_refill(
     lawfully occupy it, and an entry there is then that row's — verified by
     `check_arrivals` on its own terms — not the retired row's leftover. Built
     in from the first line of `check_retired` rather than found in review,
-    which is what PR #1011 cost `check_vacated` to learn."""
+    which is what PR #1011 cost `check_vacated` to learn.
+
+    AND THE RECORD SAYS SO (Copilot round 5): the exclusion is a decision not
+    to ASK the absence question here, so this retirement is reported
+    `absence: refilled`, naming the arrival that occupies the path, and not as
+    an absence this run verified. The assertion is AMENDED rather than joined
+    by a second case, because the defect was in what THIS run already said."""
     doc = carve.manifest_doc()
     _retire(doc)
     alpha = next(r for r in doc["rows"]
@@ -1771,6 +1777,9 @@ def test_another_rows_arrival_at_the_retired_path_is_a_lawful_refill(
     summary = json.loads(done.stdout)
     assert [row["source_path"] for row in summary["retired"]] == \
         [RETIRED_SOURCE], summary
+    assert summary["retired"][0]["absence"] == "refilled", summary
+    assert summary["retired"][0]["refilled_by"] == \
+        "the arrival of scripts/pkg/alpha.py", summary
 
 
 def test_a_declared_replica_may_refill_a_retired_path(carve: Carve) -> None:
@@ -1778,7 +1787,13 @@ def test_a_declared_replica_may_refill_a_retired_path(carve: Carve) -> None:
     for the reason PR #1011's round 3 found the hard way: a replica is not a
     row `rows_for()` ever returns (RULED OQ-C), so a fix that only excluded
     other rows' arrivals would still read a declared replica's file as the
-    retired row's abandoned copy."""
+    retired row's abandoned copy.
+
+    ITS RECORD NAMES THE OTHER REFILLER (Copilot round 5). `--replica-at` is
+    declared on the COMMAND LINE and not in the manifest, so a reader of this
+    run's output has no row to look the occupant up in — which is the reason
+    the refiller is named in the record rather than left as a bare
+    `absence: refilled`."""
     doc = carve.manifest_doc()
     _retire(doc)
     manifest = carve.write_manifest(doc)
@@ -1792,6 +1807,9 @@ def test_a_declared_replica_may_refill_a_retired_path(carve: Carve) -> None:
     assert payload["replicas_verified"] == 1, payload
     assert [row["source_path"] for row in payload["retired"]] == \
         [RETIRED_SOURCE], payload
+    assert payload["retired"][0]["absence"] == "refilled", payload
+    assert payload["retired"][0]["refilled_by"] == \
+        "a declared --replica-at replica", payload
 
 
 def test_a_row_re_destined_and_then_retired_is_retired_at_the_leg_it_reached(
@@ -2166,6 +2184,48 @@ def test_the_human_line_names_the_retirements_at_this_leg(
     assert done.returncode == 0, done.stdout + done.stderr
     assert ("1 row(s) RETIRED here by ruling and verified absent "
             "(RULED 5656343213)") in done.stdout, done.stdout
+
+
+def test_a_refilled_retirement_is_not_printed_as_a_verified_absence(
+        carve: Carve) -> None:
+    """THE RUN MAY NOT CLAIM THE ONE READING IT DELIBERATELY SKIPPED (Copilot
+    review of PR #1032, round 5).
+
+    `check_retired` EXCLUDES a path another row's arrival or a declared replica
+    lawfully occupies — rightly: the entry there is the refiller's and is
+    verified on the refiller's own terms. But the summary then reported every
+    retirement as "verified absent", which made this line's only false case the
+    one case where a file really is sitting at the retired path — the case a
+    reader would most want it honest about, and the one an operator would act
+    on. TWO retirements here rather than one, so the arithmetic is visible:
+    the counts must SPLIT, not switch.
+
+    The second run is the control, on the same manifest: take the refill away
+    and the original sentence returns unchanged, so what moved is the report of
+    a refill and not the report of a retirement."""
+    doc = carve.manifest_doc()
+    _retire(doc)
+    _retire(doc, source_path="scripts/pkg/alpha.py")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    _write(dest, RETIRED_AT_PATH, SURFACE_FILES[RETIRED_SURFACE])
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A",
+               "--replica-at", f"{RETIRED_SURFACE}={RETIRED_AT_PATH}")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "RETIRED here by ruling and verified absent" not in done.stdout, \
+        done.stdout
+    assert ("2 row(s) RETIRED here by ruling (RULED 5656343213), 1 verified "
+            "absent and 1 at a path a LAWFUL REFILL occupies — not asked, not "
+            "owed absent: src/pkg/beta.py now holds a declared --replica-at "
+            "replica") in done.stdout, done.stdout
+
+    control_dest = carve.materialise(doc, RETIRED_AT, name="dest-no-refill")
+    control = run(carve, manifest, "--destination", RETIRED_AT,
+                  "--dest-root", str(control_dest), "--phase", "A")
+    assert control.returncode == 0, control.stdout + control.stderr
+    assert ("2 row(s) RETIRED here by ruling and verified absent "
+            "(RULED 5656343213)") in control.stdout, control.stdout
 
 
 def test_a_leg_with_no_retirement_says_nothing_about_one(
