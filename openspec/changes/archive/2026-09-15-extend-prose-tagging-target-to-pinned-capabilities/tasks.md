@@ -648,12 +648,46 @@ evidence of 3.7 and on nothing the publisher does.
 
 ## 4. Archive — a separate act on Brett Heap's word
 
-- [ ] 4.1 Archive via `scripts/proposal-support.py` (never bare `openspec`),
+- [x] 4.1 Archive via `scripts/proposal-support.py` (never bare `openspec`),
   on merged-plus-green realization evidence per `release-realization`, since
   this packet's `code_surface` is non-empty.
-- [ ] 4.2 The archived-ledger entry records that item (7) of
+  **DONE 2026-09-15, ON BRETT HEAP'S SEPARATE ARCHIVE WORD** — verbatim
+  **"archive it"**, in session to lane openxfactory-2 (openXfactory-2),
+  recorded on #992 (comment 5686413187; mirror #745 5686413478) — given AFTER
+  and apart from "realize it" (5662218844) and "merge 1040 when green, then
+  post the records" (5670841396). **THE EVIDENCE, CITED:** the realization
+  PR [#1040](https://github.com/opensoft/openxFactory/pull/1040) → merge
+  commit `74348374bcf999b80ac2e442b3fd3bf98473a20a` on `main`,
+  2026-09-14T22:14:26Z (REALIZED record #992 5671554584), and `main`'s OWN
+  required `pytest-suite` run
+  [34903098178](https://github.com/opensoft/openxFactory/actions/runs/34903098178)
+  — `event: push`, head the merge commit ITSELF, `conclusion: success`,
+  2026-09-14T22:14:29Z→22:34:47Z — so the tested tree IS the landed tree and
+  no tree-equality argument is made. Archived through
+  `scripts/proposal-support.py . archive extend-prose-tagging-target-to-pinned-capabilities --yes`
+  (ORIGIN RETAINED: the declaration is unchanged since the ratifying merge
+  `e6e1c968`, act 5's rewrite of `approved_by`/`approved_on` being the
+  accepted mutation of `openspec/origin-dispositions.yaml`'s first entry).
+- [x] 4.2 The archived-ledger entry records that item (7) of
   `split-openxwallet-repo`'s successor register is discharged by this change,
   naming this change id and its realization pull request.
-- [ ] 4.3 `openspec/specs/document-lifecycle/spec.md` and
+  **DONE 2026-09-15:** this change's own archived-ledger entry in the README
+  records the discharge, and item (7) of `split-openxwallet-repo`'s entry is
+  annotated **DISCHARGED** naming `extend-prose-tagging-target-to-pinned-capabilities`
+  and PR #1040 → `74348374`. Stated honestly there too: the four markers now
+  carry the TRUE form and the four `tag-hygiene` findings CHANGED FORM and stay
+  FOUR until openXwallet's publisher enumerates `capabilities:` — the
+  publisher's act, recorded as prose, not filed.
+- [x] 4.3 `openspec/specs/document-lifecycle/spec.md` and
   `openspec/specs/doc-health/spec.md` carry the promoted MODIFIED requirement
   text verbatim, per `promotion-fidelity`.
+  **DONE 2026-09-15, MEASURED RATHER THAN EYEBALLED.** At the archive commit,
+  each `## MODIFIED` requirement block is BYTE-IDENTICAL to the requirement now
+  standing in canon: `document-lifecycle` *Prose tagging marker hygiene* —
+  40,464 bytes, sha256 `bb106900ac5ce1c7…` on both sides (canon `git diff
+  --numstat` vs `main`: +447 −1); `doc-health` *Tag hygiene enforced by
+  reference* — 3,686 bytes, sha256 `16c290ab796ea56f…` on both sides (+36 −4).
+  The canon text before the archive is a byte prefix of each promoted block
+  except for the one restated line each delta deliberately moved, so no
+  `Removed from canon` marker is owed and none is written. Measured by the
+  lane's own read of both files, then held by `promotion-fidelity`.
