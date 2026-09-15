@@ -144,12 +144,24 @@ mapping manifest. Measured in the landed file:
 | `moved_with_declared_edit` | **158** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 1584 declared edit lines**: `import rewrites` 708, `path
-constants` 202, `adapter calls` 674. **159 rows carry `edits:`** — the 158
+**318 rows move. 1761 declared edit lines**: `import rewrites` 708, `path
+constants` 202, `adapter calls` 851. **159 rows carry `edits:`** — the 158
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
 `views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
 the one row that moves BOTH disposition counts and the carrier count at once.
+THE RETIREMENT ACT (RULED 5656343213, `#656` CLAIM `5656690570`) then added
+**+177 declared lines and moved nothing else**: the ENDING REPLAY removed from
+`tests/ideation-dashboard/test_staging_workbench.py` is declared on that row's
+own `edits[]`, and that row has carried `edits:` since slice S5, so neither
+disposition count nor the carrier count moves with it — and the two rows the
+same act RETIRES move no figure here at all, because `retired:` touches no
+`edits[]` and a retirement is a fact about a DESTINATION. **The
+per-destination table below is not moved by this act**, deliberately: its
+four `declared edit lines` cells already sum to 1421, the figure before slice
+S5's +162, so adding this act's +177 to a stale cell would state a number
+that is neither the old one nor the measured one. Slices S7 and S8 are in
+flight over those same cells and ONE act should redistribute them.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
@@ -185,11 +197,19 @@ unchanged is the SOURCE side, in `validate-carve-manifest.py`: `sha256`,
 `git_mode`, `disposition` and `edits[]` stay untouched on the row, and check
 3's two passes and check 4's surface walk ask of a retired row exactly what
 they ask of any other moved row — a retirement is a fact about a DESTINATION,
-and the row is still the record of a file that LEFT openxFactory. **NO ROW
-CARRIES IT TODAY**: the form
-lands ahead of its first use, exactly as RULED Q6 did, and the three
-intent-feed suites the ruling retires arrive under their own claim. § 5.8 is
-the general procedure a retirement follows.
+and the row is still the record of a file that LEFT openxFactory. **TWO ROWS
+CARRY IT TODAY**: the form landed ahead of its first use (PR #1032), exactly
+as RULED Q6 did, and the first use is PR #1043 (`#656` CLAIM `5656690570`) —
+`tests/ideation-dashboard/test_intent_tray_dom.py` and
+`tests/ideation-dashboard/test_wheel_verbs_dom.py`, retired at `opendox_code`,
+deleted there by opensoft/openDox-code#24. **The ruling's THIRD suite carries
+no block**: only the ENDING REPLAY inside
+`tests/ideation-dashboard/test_staging_workbench.py` goes, a PART of a file
+whose other tests drive surfaces `openxdox_code` has, so that row goes on
+arriving and the removal is an ORDINARY declared edit on its own `edits[]`
+(`adapter calls`, 177 lines, realized at opensoft/openXdox-code#20). § 5.8 is
+the general procedure a retirement follows, and its "What the form CANNOT
+express" is that third case, written from this act.
 
 The table above states the file's CURRENT totals — see "Measured directly
 against the landed manifest" below for how they are derived. What follows is
@@ -226,7 +246,7 @@ test-layout files that carve leg 1 measured:
   compares no two legs' copies with each other.
 
 The **one replica line belongs to no destination column below** (the 1422nd
-when this paragraph was written, the 1584th now): a replica row names no
+when this paragraph was written, the 1761st now): a replica row names no
 destination at all, so the per-leg declared-line figures still sum to one less
 than the total, and that line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
@@ -334,7 +354,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 1584 now.
+from the start — 794 of them at this ruling's own landing, 1761 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738

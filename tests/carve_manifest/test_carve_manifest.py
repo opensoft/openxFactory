@@ -3161,7 +3161,22 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # also the FIRST act to use RULED Q6's `re_destined:` field, on four rows;
     # a re-destination is not an edit and moves neither figure, which the next
     # test measures.
-    assert (lines, carrying) == (1584, 159), (lines, carrying)
+    #
+    # AND THEN THE RETIREMENT ACT (RULED 5656343213, Brett Heap 2026-09-13,
+    # `#656` CLAIM `5656690570`) moved `lines` once more and `carrying` not at
+    # all. The ruling retires three suites and only ONE of them is an edit:
+    # the ENDING REPLAY inside `tests/ideation-dashboard/test_staging_workbench.py`
+    # — `_DOM_SHIM`, `_ENDING_REPLAY_HARNESS`, `_run_ending_replay()` and
+    # `test_the_ending_report_really_reaches_the_slot_the_re_render_rebuilt`,
+    # carve lines 1833-2006, plus the docstring tail at 2028-2030 that named
+    # the removed probe as the behaviour's owner — declared under `adapter
+    # calls`, the class slice S5 already gave ten of those lines and the class
+    # RULED OQ-1's CLOSED vocabulary leaves for a removal. That row has carried
+    # `edits:` since S5, so `carrying` does not move: 1584 + 177 = 1761 on the
+    # same 159 rows. The OTHER TWO suites are RETIRED rows and move neither
+    # figure — `retired:` touches no `edits[]`, a retirement is a fact about a
+    # DESTINATION, and the test below measures them.
+    assert (lines, carrying) == (1761, 159), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -3245,6 +3260,26 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     assert s6_serve == [("adapter calls",
                           [161, 162, 304, 305, 515, 516, 921, 922, 949,
                            950])], serve_row
+
+    # THE RETIREMENT ACT'S ONE DECLARED EDIT, PINNED BY ROW, CLASS AND EXACT
+    # LINES (RULED 5656343213) — on the same reasoning as every pin above, and
+    # with one more: this entry is a REMOVAL filed under `adapter calls`
+    # because the closed vocabulary has no class for one, so the row, the
+    # class and the extent are the only record of what was taken out. The row
+    # already carried three entries before this act, and slice S5's ten
+    # `adapter calls` lines sit INSIDE this range and are declared twice on
+    # purpose, so the new entry is picked out by its exact lines the same way
+    # the ASK-7 and S3 pins above pick out theirs.
+    swb_test_row = rows["tests/ideation-dashboard/test_staging_workbench.py"]
+    assert swb_test_row["disposition"] == "moved_with_declared_edit", \
+        swb_test_row
+    assert swb_test_row["destination"] == "openxdox_code", swb_test_row
+    ending_replay = list(range(1833, 2007)) + [2028, 2029, 2030]
+    retirement_entry = [(edit["class"], edit["lines"])
+                        for edit in swb_test_row["edits"]
+                        if edit["lines"] == ending_replay]
+    assert retirement_entry == [("adapter calls", ending_replay)], swb_test_row
+    assert len(ending_replay) == 177, len(ending_replay)
 
     serve_projection_row = rows[
         "scripts/ideation_dashboard/serve_projection.py"]
@@ -3503,21 +3538,34 @@ def test_a_retired_schema_is_a_finding_and_not_a_harness_failure(
         assert "harness failure" not in printed.out + printed.err, printed
 
 
-def test_the_real_manifest_carries_the_retirement_form_and_uses_it_nowhere() -> None:
+def test_the_real_manifest_carries_the_retirement_form_and_the_two_rows_it_retires() -> None:
     """RULED 5656343213 against the LANDED manifest: the FORM, documented, and
-    ZERO rows using it.
+    the TWO ROWS its first use retires.
 
-    THE ZERO IS THE ASSERTION, and it is the point of landing the form ahead
-    of its first use — the precedent is RULED Q6 itself, which landed at PR
-    #1011 with the grammar, the gates and no re-destined row, and was used
-    first by an act with its own claim and its own pull request. The three
-    intent-feed suites this ruling retires arrive the same way. A floor
-    amendment that landed WITH its first use could not be reviewed apart from
-    it, and this test is what stops the two from being quietly merged: the day
-    a row carries `retired:`, this assertion fails and the author must come
-    here and say which act did it, exactly as
+    AS FIRST LANDED (PR #1032) this amendment retired NOTHING, and the ZERO was
+    the assertion — the precedent is RULED Q6 itself, which landed at PR #1011
+    with the grammar, the gates and no re-destined row, and was used first by
+    an act with its own claim and its own pull request. A floor amendment that
+    landed WITH its first use could not be reviewed apart from it, and this
+    test is what stopped the two from being quietly merged: the day a row
+    carried `retired:`, the assertion failed and the author had to come here
+    and say which act did it.
+
+    THAT DAY IS THIS ACT (openxFactory PR #1043, `#656` CLAIM `5656690570`),
+    so the assertion MOVED rather than being deleted — it now names the two
+    rows, exactly as
     `test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines`
-    records S5's four.
+    names S5's four, and the next author who retires a row comes here for the
+    same reason.
+
+    THE RULING'S THIRD SUITE IS ASSERTED ABSENT FROM THE FORM. RULED
+    5656343213 retires three, and only the ENDING REPLAY inside
+    `tests/ideation-dashboard/test_staging_workbench.py` goes from that third
+    file — a PART of a file whose other tests drive surfaces `openxdox_code`
+    has, so its row goes on arriving and carries no block. It is an ordinary
+    declared edit instead, pinned by
+    `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above; here the
+    assertion is that nobody later stretched `retired:` over it.
 
     THE HEADER IS ASSERTED TOO, because a form nobody can find in the document
     that carries it is a form the next author re-invents. A BRANCH and never a
@@ -3529,21 +3577,61 @@ def test_the_real_manifest_carries_the_retirement_form_and_uses_it_nowhere() -> 
         return
     text = manifest.read_text(encoding="utf-8")
     doc = yaml.safe_load(text)
+    rows = {row["source_path"]: row for row in doc["rows"]}
 
-    using = [row["source_path"] for row in doc["rows"] if "retired" in row]
-    assert using == [], (
-        "the landed manifest now uses the `retired:` form; record the act "
-        f"that did it here, as S5's four re-destinations are recorded: {using}")
+    surface = "scripts/ideation_dashboard/web/views/intent-feed.js"
+    retired = [row for row in doc["rows"] if "retired" in row]
+    assert [row["source_path"] for row in retired] == [
+        "tests/ideation-dashboard/test_intent_tray_dom.py",
+        "tests/ideation-dashboard/test_wheel_verbs_dom.py",
+    ], [row["source_path"] for row in retired]
+
+    # BOTH SAY THE SAME THING, which is what makes this a form rather than two
+    # hand-written paragraphs: the suite ARRIVED at openDox-code, the surface
+    # it drove is `views/intent-feed.js`, and a RULING deleted the arrival. The
+    # row keeps every placement field and its own `edits[]` — that is the whole
+    # reason the ruling made this a FIELD — and `at`/`at_path` are the row's
+    # EFFECTIVE arrival, which for these two is their own destination pair
+    # because RULED Q6 never moved them.
+    for row in retired:
+        name = row["source_path"].rsplit("/", 1)[1]
+        assert row["disposition"] == "moved_with_declared_edit", row
+        assert row["destination"] == "opendox_code", row
+        assert row["destination_path"] == f"tests/{name}", row
+        assert "re_destined" not in row, row
+        block = row["retired"]
+        assert block["at"] == row["destination"], row
+        assert block["at_path"] == row["destination_path"], row
+        assert "5656343213" in block["ruling"], row
+        assert block["surface"] == surface, row
+        assert block["note"].strip(), row
+        assert row["edits"], row          # untouched: a retirement is a fact
+                                          # about a DESTINATION
+
+    # THE CLAIM THE WHOLE FORM RESTS ON, read out of the document rather than
+    # trusted: the surface both rows cite is `not_moved` HERE, and under a
+    # reason that means ABSENT AT THE LEGS rather than
+    # `replicated_at_destination`, whose copies each leg places itself. This is
+    # `carve-retired-surface-live`'s question, asked of the landed rows.
+    surface_row = rows[surface]
+    assert surface_row["disposition"] == "not_moved", surface_row
+    assert surface_row["reason"] != MODULE.REPLICA_REASON, surface_row
+
+    # THE THIRD SUITE: a part of a file is not a row, and carries no block.
+    swb_test_row = rows["tests/ideation-dashboard/test_staging_workbench.py"]
+    assert "retired" not in swb_test_row, swb_test_row
 
     assert "retired:" in text, "the header does not document the form"
     assert "5656343213" in text, "the header does not cite the ruling"
     assert "A FOURTH GRAMMAR EXTENSION" in text, text[:200]
+    assert "TWO ROWS BELOW CARRY THE FIELD" in text, \
+        "the header does not record the act that used the form"
 
     done = subprocess.run(
         [sys.executable, str(SCRIPT), "--json"],
         capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stdout + done.stderr
-    assert json.loads(done.stdout)["retired"] == 0, done.stdout
+    assert json.loads(done.stdout)["retired"] == 2, done.stdout
 
 
 # --------------------------------------------------------------------------

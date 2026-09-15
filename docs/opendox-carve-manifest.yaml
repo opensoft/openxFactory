@@ -247,14 +247,31 @@
 # prove is that the arrived test was the surface's only reader, or that no
 # other file should follow it.
 #
-# NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
-# and retires nothing: the three intent-feed suites RULED 5656343213 retires
-# are the act that uses it, under their own claim and their own pull requests,
-# so every count in this file is unmoved by this landing — exactly as RULED Q6
-# landed above with no row carrying `re_destined:`. `retired 0` is what
-# `scripts/validate-carve-manifest.py` prints for this document until then, on
-# every run, in both phases and at zero, so the state the file is in is never
-# the state no log records.
+# TWO ROWS BELOW CARRY THE FIELD, and this paragraph is where the act that
+# put them there is named. AS FIRST LANDED (openxFactory PR #1032) this
+# amendment carried the FORM and its gates and retired nothing — exactly as
+# RULED Q6 landed above with no row carrying `re_destined:` — so the grammar
+# could be reviewed apart from its use. THE FIRST USE is openxFactory PR
+# #1043 (`#656` CLAIM `5656690570`), the two intent-feed suites
+# `tests/ideation-dashboard/test_intent_tray_dom.py` and
+# `tests/ideation-dashboard/test_wheel_verbs_dom.py`: both retired at
+# `opendox_code`, both citing
+# `scripts/ideation_dashboard/web/views/intent-feed.js` — the RULED OQ-F
+# `not_moved` surface that stayed HERE and reached neither leg — and both
+# deleted at the leg by opensoft/openDox-code#24, the pull request this
+# annotation lands ahead of (cutover-runbook § 5.8 step 2). `retired 2` is
+# what `scripts/validate-carve-manifest.py` prints for this document today;
+# the count prints on every run, in both phases and at zero, so the state the
+# file is in is never the state no log records.
+#
+# THE RULING'S THIRD SUITE CARRIES NO BLOCK, and could not. RULED 5656343213
+# retires three, and the third is the ENDING REPLAY inside
+# `tests/ideation-dashboard/test_staging_workbench.py` — a PART of a file
+# whose other tests drive surfaces `openxdox_code` has, so its row goes on
+# arriving and there is nothing to retire. `retired:` retires a ROW and a row
+# is a FILE; that one is an ORDINARY declared edit on the row's own `edits[]`
+# (`adapter calls`, 177 lines), realized at opensoft/openXdox-code#20 and
+# stated at cutover-runbook § 5.8 "What the form CANNOT express".
 #
 # THE GATES, FIVE OF THEM: `retired:` on a `not_moved` row refuses
 # `carve-retired-not-moved` (a row that placed nothing has no arrival to
