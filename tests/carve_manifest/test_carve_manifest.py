@@ -2646,6 +2646,18 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # entry is picked out by its exact lines, the idiom the S3/S4/S6 pins use.
     # The conftest replica's entry is pinned with the rest of its row above.
     gate_console_row = rows["scripts/ideation_dashboard/gate_console.py"]
+    # DISPOSITION AND DESTINATION PINNED TOO, on all three rows (Copilot
+    # review, round 8). The `(class, lines)` assertions below would stay green
+    # through a re-destination: `destination:` is the field
+    # `verify-carve-arrival.py --destination openxdox_code` reads to decide
+    # whether a row is its business at all, so a row re-destined to
+    # `opendox_code` would carry these declarations to the OTHER leg with
+    # every line still where this test looks for it — and `disposition:`
+    # is what makes `edits:` legal on the row in the first place. Same form
+    # as the S2 pins (`dispose.js`, `wheel.js`) above.
+    assert gate_console_row["disposition"] == "moved_with_declared_edit", \
+        gate_console_row
+    assert gate_console_row["destination"] == "openxdox_code", gate_console_row
     preexisting_gate_console_adapters = [
         167, 168, 169, 170, 171, 826, 903, 968, 1012, 1135, 1150, 1151, 1154,
         1155, 1157, 1339, 1351, 1374, 1487, 1550, 1551, 1569, 1651, 2241]
@@ -2663,6 +2675,9 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     ], gate_console_row
 
     generator_row = rows["scripts/ideation_dashboard/generator.py"]
+    assert generator_row["disposition"] == "moved_with_declared_edit", \
+        generator_row
+    assert generator_row["destination"] == "openxdox_code", generator_row
     preexisting_generator = [
         (edit["class"], edit["lines"]) for edit in generator_row["edits"]
         if edit["lines"] in ([326, 327, 348, 366, 891, 892, 893],
@@ -2676,6 +2691,10 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     ], generator_row
 
     test_generator_row = rows["tests/ideation-dashboard/test_generator.py"]
+    assert test_generator_row["disposition"] == "moved_with_declared_edit", \
+        test_generator_row
+    assert test_generator_row["destination"] == "openxdox_code", \
+        test_generator_row
     preexisting_test_generator = [
         (edit["class"], edit["lines"]) for edit in test_generator_row["edits"]
         if edit["lines"] in ([7, 8], [352, 353])]
