@@ -33,6 +33,27 @@ conditional skip here would red the required job. When the first destination
 exists, this file gains a case that names it; the seat's own assertion is about
 the documented invocation and stays true either way.
 
+THE SEVEN TESTS THAT READ THE LANDED MANIFEST DO NOT BRANCH ON IT (amended on
+a Copilot finding, `#1030`, the round after the same finding closed in
+`tests/carve_manifest/test_carve_manifest.py`; the COUNT re-read on round
+eleven of the same review, which found this paragraph still saying FIVE two
+tests later). They had taken the seat above for a DIFFERENT absence than the
+one it describes — `if not manifest.is_file(): assert True; return` — and
+`assert True` REPORTS A PASS, the same green bar the paragraph above refuses a
+skip for, so a checkout that had lost `docs/opendox-carve-manifest.yaml`
+turned four pins on the landed document into four no-ops and passed the fifth
+— the five that existed then — on the verifier's apology line instead of its
+answer. The § 6 ceremony has happened: the manifest is committed, and there is
+no revision these seven can run at without it. They read it through
+`the_landed_manifest()`, where the absence is a FAILURE, and the NUMBER above
+is counted rather than transcribed:
+`test_the_module_docstring_counts_the_tests_that_read_the_landed_manifest`
+re-counts the call sites in this file and holds this paragraph to them,
+because a paragraph that states its own coverage is a claim like any other.
+The absent manifest is pinned where a claim about it belongs — hermetically,
+on a path the test controls: `test_a_manifest_that_is_not_there_refuses` and
+the `--json` seat's `destinations_unreadable`.
+
 Hermetic: no network and no `nlm`/`gh`/`omp` (`tests/hermeticity.py`'s guarded
 set); `git` is not guarded, and the environment it reads is PINNED rather than
 inherited — `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_NOSYSTEM=1` and a
@@ -51,6 +72,7 @@ import importlib.util
 import json
 import os
 import re
+import shlex
 import stat
 import subprocess
 import sys
@@ -1734,6 +1756,84 @@ def test_no_destination_holds_the_seat_and_names_the_choices(
     assert "scratch_code" in done.stdout and "scratch_root" in done.stdout
 
 
+def the_landed_manifest() -> tuple[str, dict[str, Any]]:
+    """The committed manifest's TEXT and document — and a failure if it is gone.
+
+    THE SEAT-HOLDING BRANCH HAD OUTLIVED ITS REASON HERE TOO (Copilot review,
+    `#1030`). `docs/opendox-carve-manifest.yaml` is authored by the § 6
+    ceremony at the carve commit, AFTER both scripts land, so every assertion
+    about its contents held a seat until then. The ceremony has happened and
+    the seat has nothing left to hold, while what it had degraded into —
+    `assert True` — REPORTS A PASS. Absence is a FAILURE here, named, for the
+    module docstring's reason.
+
+    THE SEAT THE MODULE DOCSTRING DESCRIBES IS A DIFFERENT ABSENCE and it
+    stays: no destination CHECKOUT exists on this machine, so the documented
+    invocation is the one with no `--destination`, and `NO DESTINATION` is the
+    verifier's ANSWER to that — asserted rather than skipped, and true whether
+    or not a destination ever exists.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    assert manifest.is_file(), (
+        f"{MODULE.MANIFEST_RELPATH} is not in this checkout. It landed at the "
+        "carve commit, and every assertion in the test that asked for it is "
+        "about its contents: its absence is a FAILURE, not a seat to hold.")
+    text = manifest.read_text(encoding="utf-8")
+    return text, yaml.safe_load(text)
+
+
+# The word this file's own docstring uses for the number below. A map and not
+# an f-string of the digit, because the paragraph is PROSE and says "THE SEVEN
+# TESTS"; a count with no word here is a FAILURE that asks for one, never a
+# check that quietly stops looking.
+MANIFEST_READER_WORDS = {4: "FOUR", 5: "FIVE", 6: "SIX", 7: "SEVEN",
+                         8: "EIGHT", 9: "NINE", 10: "TEN", 11: "ELEVEN",
+                         12: "TWELVE"}
+
+
+def test_the_module_docstring_counts_the_tests_that_read_the_landed_manifest(
+        ) -> None:
+    """The docstring's own coverage claim, COUNTED from this file.
+
+    "THE FIVE TESTS THAT READ THE LANDED MANIFEST" was true when it was written
+    and stopped being true twice without anyone noticing (Copilot review, round
+    eleven on `#1030`): the per-destination table test and § 5.5's phase-example
+    test joined the five and the paragraph still said FIVE, while the sentence
+    under it — "there is no revision these five can run at without it" — named
+    a set two smaller than the one it describes.
+
+    IT IS THE FILE'S OWN SUBJECT, ONE LEVEL UP. Every test in the § 2 and § 5.5
+    group exists because a document stated a number nothing re-derived; a module
+    docstring that states its own coverage is the same claim in the same shape,
+    so it is re-counted here from the CALL SITES rather than maintained by hand.
+    """
+    source = Path(__file__).read_text(encoding="utf-8")
+    readers = sorted(
+        node.name for node in ast.parse(source, filename=__file__).body
+        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+        and any(isinstance(call, ast.Call)
+                and isinstance(call.func, ast.Name)
+                and call.func.id == the_landed_manifest.__name__
+                for call in ast.walk(node)))
+    word = MANIFEST_READER_WORDS.get(len(readers))
+    assert word is not None, (
+        f"{len(readers)} tests in this file read the landed manifest and this "
+        "check has no word for that many: extend MANIFEST_READER_WORDS rather "
+        f"than leaving the paragraph unchecked. {readers}")
+    # The module's docstring, named through `sys.modules` rather than the bare
+    # `__doc__` global, so a reader does not have to know which `__doc__` a
+    # name inside a function resolves to.
+    docstring = " ".join((sys.modules[__name__].__doc__ or "").split())
+    for sentence in (f"THE {word} TESTS THAT READ THE LANDED MANIFEST",
+                     f"no revision these {word.lower()} can run at without"):
+        assert sentence in docstring, (
+            f"the module docstring does not say {sentence!r}, and "
+            f"{len(readers)} tests in this file read the landed manifest: "
+            f"{readers}. The paragraph states its own coverage, so it moves "
+            "with the tests it describes or it is a transcription like any "
+            "other")
+
+
 def test_the_real_repository_answers_the_documented_invocation() -> None:
     """The seat, run from the repository root with no arguments.
 
@@ -1743,32 +1843,36 @@ def test_the_real_repository_answers_the_documented_invocation() -> None:
     — so what this asserts is that the DOCUMENTED INVOCATION answers, exit 0,
     naming the destinations the landed manifest declares. When a destination
     exists, this file gains a case that names it; this assertion stays true.
+
+    THE MANIFEST, THOUGH, IS REQUIRED AND NOT BRANCHED ON: see
+    `the_landed_manifest()`. The two absences are not the same absence.
     """
     done = subprocess.run([sys.executable, str(SCRIPT)], cwd=str(REPO_ROOT),
                           capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stdout + done.stderr
     assert done.stdout.startswith("NO DESTINATION "), done.stdout
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if manifest.is_file():
-        for key in ("opendox_code", "opendox_spec", "opendox_root",
-                    "openxdox_code", "openxdox_spec"):
-            assert key in done.stdout, done.stdout
-    else:
-        assert "the manifest could not be read" in done.stdout, done.stdout
+    # THE `else` ARM ASSERTED THE APOLOGY INSTEAD OF THE ANSWER (Copilot
+    # review, `#1030`): on a checkout that had lost the landed manifest this
+    # test passed on the verifier's "the manifest could not be read" sentence,
+    # which is the one state where the five destination keys — the thing the
+    # documented invocation is being asserted to name — go unchecked. That
+    # sentence is pinned hermetically instead, on a manifest path the test
+    # controls (`test_a_manifest_that_is_not_there_refuses`, and the `--json`
+    # seat's `destinations_unreadable`), which is the only way to assert it
+    # without making this test green on it.
+    the_landed_manifest()
+    for key in ("opendox_code", "opendox_spec", "opendox_root",
+                "openxdox_code", "openxdox_spec"):
+        assert key in done.stdout, done.stdout
 
 
 def test_the_real_manifest_declares_the_roots_the_runbook_names() -> None:
     """The runbook's § 2 table is a claim about the LANDED manifest, and a table
     nothing checks is a comment. This reads the manifest and asserts the roots
     the verifier would walk for each destination — so a re-cut that moved a
-    destination's layout reds here rather than at 2am inside a carve."""
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        # Before the § 6 ceremony landed the manifest there is nothing to
-        # compare; a BRANCH, not a skip, for the module docstring's reason.
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    destination's layout reds here rather than at 2am inside a carve. The
+    manifest is REQUIRED and not branched on: see `the_landed_manifest()`."""
+    _text, doc = the_landed_manifest()
     expected = {
         "opendox_code": ["src/opendox", "tests"],
         "opendox_spec": ["contracts/schemas", "docs",
@@ -1780,6 +1884,702 @@ def test_the_real_manifest_declares_the_roots_the_runbook_names() -> None:
     for destination, roots in expected.items():
         rows = MODULE.rows_for(doc, destination)
         assert MODULE.declared_roots(rows) == roots, destination
+
+
+def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
+    """§ 2's per-destination table, checked rather than described — EVERY cell
+    of it, read from the table itself.
+
+    The paragraph beneath that table says the figures are "summed over the rows
+    whose `destination:` names that leg, re-derived here rather than carried
+    forward". NOTHING CHECKED THAT until this test, and the four numeric columns
+    rotted silently through two acts — `opendox_code` and `openxdox_code` were
+    both left at their `880c821c` values while the § 3.4 slice-S5 annotation
+    moved both, and the slice-S7 annotation found it. A stale cell here is worse
+    than a missing one, because § 2's own sentence tells the operator to read
+    the verifier's summary line and compare it with this table.
+
+    THE ROOTS COLUMN HAD ONLY LOOKED CHECKED (Copilot review, this PR).
+    `test_the_real_manifest_declares_the_roots_the_runbook_names` compares the
+    manifest with a list hard-coded IN THE TEST: it holds the manifest to the
+    roots that test names and never opens the runbook, so a roots cell that went
+    stale or malformed passed it while this test's own docstring — and § 2's
+    paragraph — said the table was checked. So the fifth column is parsed and
+    compared here too, and the claim is true of every column it makes. The
+    hard-coded test stays: two pins on one fact, one either side of the runbook.
+
+    AND THE PARSER IS PART OF THE CHECK, not a way into it (Copilot review,
+    round two on this PR for the duplicate key, round three for the roots cell,
+    round four for the rest, round five for the block's own extent): the header
+    and ruler are pinned, every remaining line of the block must `fullmatch`
+    the record — so a key outside the character class, a sixth column or a
+    reshaped cell is a FAILURE and not a skipped line — the roots cell must be
+    exactly a comma-separated sequence of backticked paths (or the one
+    empty-root marker, pinned WHOLE rather than by its first word), a missing
+    runbook — and, round eight, a missing
+    MANIFEST — is a failure rather than a branch, the key grammar is the
+    VALIDATOR's own `^[a-z][a-z0-9_]*$` rather than a narrower one that would
+    refuse a destination the manifest accepts,
+    and the BLOCK is bounded by § 2's own two sentences rather than by any
+    heuristic for where a table ends — so an interior blank line and a
+    malformed row are both failures instead of ways to move the boundary. Each
+    of those is a way a table could stop stating what this test says it states
+    while the test stayed green.
+
+    THE TWO HALVES OF A ROW ARE READ ON TWO BASES, each the one its column
+    claims. The NUMERIC columns are summed by the RAW `destination:` field and
+    not by `rows_for()`, which resolves the EFFECTIVE arrival (RULED Q6): the
+    table counts a re-destined row at the leg its row still names, which is
+    precisely what the paragraph beneath it explains, and reading it the other
+    way would make the table disagree with itself. The ROOTS column is the walk
+    the verifier performs, which IS `declared_roots(rows_for(...))` — effective,
+    because a re-destined row lands in the gaining leg's tree and the walk that
+    reads that tree must cover it. NEITHER DOCUMENT IS BRANCHED ON: both are
+    required, and this test compares them.
+    """
+    runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
+    # NEITHER A MISSING RUNBOOK NOR A MISSING MANIFEST IS A BRANCH (Copilot
+    # review, this PR: the runbook half in round six, the manifest half in
+    # round eight). Branching on either made this invariant VACUOUS exactly
+    # when the document it compares disappeared — the check went green on a
+    # repository that had lost one of the two things it reads, which is the one
+    # state it must not pass. The manifest's absence is a named failure in
+    # `the_landed_manifest()`.
+    assert runbook.is_file(), (
+        f"{runbook} is absent while the manifest is present: § 2's "
+        "per-destination table is the operator's comparison for every leg's "
+        "arrival run, and a missing table is not a table that agrees")
+    _text, doc = the_landed_manifest()
+    text = runbook.read_text(encoding="utf-8")
+
+    marker = ("Per destination, and these are the numbers each leg's arrival "
+              "run must report:")
+    # THE BLOCK IS BOUNDED BY TWO FIXED SENTENCES, not by anything about where
+    # a table LOOKS like it ends (Copilot review, rounds five and six on this
+    # PR). Round five's extent walked forward across a blank line for as long
+    # as anything table-shaped resumed after it, which still let a row that had
+    # LOST ITS LEADING `|` end the block: that row was what resumed, it did not
+    # look table-shaped, the block stopped above it, and — every destination
+    # having appeared before the blank — the key-set check passed while the
+    # malformed row went unread. EVERY heuristic for "where the table ends" has
+    # that shape, so the boundary stops being a heuristic here. The block is
+    # everything BETWEEN § 2's own two sentences — the one that introduces the
+    # table and the one that states what its numeric columns mean — each
+    # required to appear exactly once and in that order. Only the blank lines
+    # that separate the table from those two sentences are trimmed; every line
+    # that remains must be the header, the ruler or a record, so an interior
+    # blank line and a malformed row are both FAILURES and neither of them can
+    # move the boundary.
+    terminator = ("The numeric columns are summed over the rows whose "
+                  "`destination:` names that")
+    assert text.count(marker) == 1, marker
+    assert text.count(terminator) == 1, terminator
+    start = text.index(marker) + len(marker)
+    stop = text.index(terminator)
+    assert stop > start, (
+        "§ 2 states what the per-destination table's numeric columns mean "
+        "BEFORE it introduces the table; the two sentences bound the block, so "
+        "their order is part of the bound")
+    block = text[start:stop].splitlines()
+    while block and not block[0].strip():
+        block.pop(0)
+    while block and not block[-1].strip():
+        block.pop()
+    # EVERY LINE OF THE BLOCK IS READ, AND A LINE THAT DOES NOT PARSE IS A
+    # FAILURE (Copilot review, this PR). A `match()` that skipped what it could
+    # not read let a malformed row — a key outside the character class, a sixth
+    # column, a cell in the wrong shape — sit in the table saying something
+    # while this test asserted nothing about it, which is the same hole as the
+    # duplicate key below one level down: the parser deciding what the check
+    # covers. So the header and its ruler are pinned, and every remaining line
+    # must `fullmatch` the record.
+    header = ("| destination | rows | verbatim / edited | declared edit lines "
+              "| declared roots |")
+    ruler = "| --- | ---: | ---: | ---: | --- |"
+    record = re.compile(
+        # The key grammar is the VALIDATOR's, `DESTINATION_KEY_RE =
+        # ^[a-z][a-z0-9_]*$` (Copilot review, round six on this PR). A narrower
+        # one here refuses a destination the manifest accepts — `code2` would
+        # fail this consistency check while the runbook and the manifest agreed
+        # perfectly — which makes the test disagree with the floor it checks.
+        r"\| `(?P<key>[a-z][a-z0-9_]*)` \| (?P<rows>\d+) \| "
+        r"(?:(?P<verbatim>\d+) / (?P<edited>\d+)|—) \| "
+        r"(?:(?P<lines>\d+)|—) \| (?P<roots>[^|]*) \|")
+    # The roots cell is EXACTLY a comma-separated sequence of backticked paths,
+    # or THE one empty-root marker. Anything else — a path that lost its
+    # backticks, a word appended after the list — is refused rather than
+    # quietly dropped by the `findall` that follows.
+    #
+    # THE MARKER IS PINNED WHOLE AND NOT BY ITS FIRST WORD (Copilot review,
+    # round nine on this PR). `startswith("none")` read one word and let the
+    # rest of the cell say anything: `none — stale`, or a sentence that had
+    # stopped being true, still produced the EMPTY walk, still matched
+    # `declared_roots(...) == []` and still passed every numeric check — so the
+    # one cell whose shape this test could not check was the only cell it
+    # claims to check as PROSE. The header and the ruler above are pinned
+    # exactly for the same reason. When § 3.8 is renumbered this literal moves
+    # in the same commit, which is what a marker is for.
+    empty_roots = "none — the release identity only (§ 3.8)"
+    roots_list = re.compile(r"`[^`]+`(?:, `[^`]+`)*")
+    lines = [line.rstrip() for line in block]
+    assert lines[0] == header, lines[0]
+    assert lines[1] == ruler, lines[1]
+    stated: dict[str, tuple[int, int, int, int]] = {}
+    roots_stated: dict[str, list[str]] = {}
+    for line in lines[2:]:
+        found = record.fullmatch(line)
+        assert found is not None, (
+            "§ 2's per-destination table carries a line this check cannot "
+            f"read: {line!r}. A row that does not parse is a row nothing "
+            "asserts, so the table's own shape is refused here, not skipped — "
+            "and an EMPTY line here is a blank inside the table with rows "
+            "still below it, which would otherwise end the block and hide "
+            "every one of them")
+        # ONE AUTHORITATIVE ROW PER DESTINATION, refused HERE rather than
+        # silently resolved (Copilot review, this PR). Assigning straight into
+        # `stated` lets a later CORRECT row overwrite an earlier STALE
+        # duplicate, so a table that has stopped having one entry per leg
+        # still passes every numeric check below — the defect this test exists
+        # to catch, hidden by the parser that feeds it. The table's SHAPE is
+        # part of what the table states.
+        assert found["key"] not in stated, (
+            f"the runbook's per-destination table names {found['key']!r} more "
+            "than once; a duplicate row is a stale figure standing behind a "
+            "fresh one, and the sums below read only the last of them")
+        stated[found["key"]] = (
+            int(found["rows"]),
+            int(found["verbatim"] or 0),
+            int(found["edited"] or 0),
+            int(found["lines"] or 0),
+        )
+        # THE FIFTH COLUMN IS A CLAIM TOO: every backticked path in the cell,
+        # in the order the cell states them. A cell that names no path at all
+        # (`opendox_root`'s "none — the release identity only") claims the
+        # EMPTY walk, and it is the only cell allowed to be prose — that one
+        # prose cell being pinned whole, above.
+        roots_cell = found["roots"]
+        if "`" in roots_cell:
+            assert roots_list.fullmatch(roots_cell), (
+                f"the roots cell for {found['key']!r} is not a comma-separated "
+                f"sequence of backticked paths: {roots_cell!r}. An unbackticked "
+                "path reads as a declared root to an operator and as nothing to "
+                "the comparison below")
+            roots_stated[found["key"]] = re.findall(r"`([^`]+)`", roots_cell)
+        else:
+            assert roots_cell == empty_roots, (
+                f"the roots cell for {found['key']!r} names no path and is "
+                f"not the empty-root marker {empty_roots!r}: {roots_cell!r}. "
+                "A cell that begins 'none' and then says something else is a "
+                "cell this check would read as the empty walk while the "
+                "sentence beside it went unread")
+            roots_stated[found["key"]] = []
+    assert set(stated) == set(doc["destinations"]), sorted(stated)
+
+    for key, claimed_roots in roots_stated.items():
+        # The walk this destination's arrival run performs, computed from the
+        # manifest exactly as `verify-carve-arrival.py` computes it.
+        walked = MODULE.declared_roots(MODULE.rows_for(doc, key))
+        assert claimed_roots == walked, (key, claimed_roots, walked)
+
+    for key, claimed in stated.items():
+        rows = [row for row in doc["rows"] if row.get("destination") == key]
+        summed = (
+            len(rows),
+            sum(1 for row in rows if row["disposition"] == "moved_verbatim"),
+            sum(1 for row in rows
+                if row["disposition"] == "moved_with_declared_edit"),
+            sum(len(edit["lines"]) for row in rows
+                for edit in row.get("edits") or []),
+        )
+        assert claimed == summed, (key, claimed, summed)
+
+    # AND THE ONE INVARIANT THAT TIES THE TABLE TO THE AGGREGATE ABOVE IT: a
+    # replica row names no destination at all, so the per-leg figures sum to
+    # exactly one less than the manifest's declared-line total (RULED Q-L7 (a),
+    # § 2's own "the one replica line belongs to no destination column below").
+    total = sum(len(edit["lines"]) for row in doc["rows"]
+                for edit in row.get("edits") or [])
+    assert sum(claimed[3] for claimed in stated.values()) == total - 1, stated
+
+
+# --------------------------------------------------------------------------
+# § 2's FIRST table and the sentence beneath it — the same measurement the
+# per-destination table states, stated over the WHOLE document
+# --------------------------------------------------------------------------
+
+# § 2's own two sentences bound the block, for the per-destination parser's
+# reason: every heuristic for "where the block ends" is a boundary the document
+# can move without anyone noticing it moved.
+DISPOSITION_MARKER = "mapping manifest. Measured in the landed file:"
+DISPOSITION_TERMINATOR = "**AND A MOVED ROW MAY CARRY `re_destined:`"
+DISPOSITION_HEADER = ("| disposition | rows | the proof owed at the "
+                      "destination |")
+DISPOSITION_RULER = "| --- | ---: | --- |"
+DISPOSITION_RECORD = re.compile(
+    r"\| `(?P<disposition>[a-z][a-z0-9_]*)` \| \*\*(?P<rows>\d+)\*\* \| "
+    r"(?P<proof>[^|]*) \|")
+# The totals sentence, whitespace-normalised: four numbers and the class list,
+# each of which is a sum over the landed manifest.
+TOTALS = re.compile(
+    r"\*\*(?P<moved>\d+) rows move\. (?P<lines>\d+) declared edit lines\*\*: "
+    r"(?P<classes>[^.]+)\. \*\*(?P<carriers>\d+) rows carry `edits:`\*\* — "
+    r"the (?P<edited>\d+) `moved_with_declared_edit` rows and, since RULED "
+    r"Q-L7 \(a\), one replica row\.")
+MOVED_DISPOSITIONS = ("moved_verbatim", "moved_with_declared_edit")
+
+
+def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
+        ) -> None:
+    """§ 2's FIRST table and the totals sentence under it, re-derived — the pin
+    the paragraph below them already claims to be.
+
+    § 2 says of these figures that they are "the same measurement
+    `scripts/validate-carve-manifest.py` prints and
+    `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
+    pins ... a transcribed count is a claim, a summed one is a measurement".
+    THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
+    PR). It pins the MANIFEST's own aggregate — `(2366, 176)` and the 20
+    replica rows — which is a claim about the file and not about the sentence
+    that transcribes it. So every cell here (three disposition counts, the
+    replica count, the three per-class totals, the moved-row total, the carrier
+    total) was a transcription nothing compared with the thing transcribed,
+    which is exactly how the per-destination table below rotted through two
+    acts while its own paragraph said it was re-derived.
+
+    THE BLOCK IS BOUNDED BY § 2'S OWN TWO SENTENCES and split into EXACTLY TWO
+    paragraphs, the table and the totals. A third paragraph between them, a
+    blank line inside the table, or a row that does not parse is a FAILURE here
+    rather than a way to move the bound — the per-destination parser's rule,
+    and for the reason its docstring gives.
+
+    WHAT IT DELIBERATELY DOES NOT PIN: the two DELTA sentences that follow
+    ("+162 declared lines", "+782 declared lines over 33 `opendox_code` rows,
+    17 of them converted"). A delta is a claim about the PREVIOUS state of the
+    file, which the landed manifest does not carry; those are pinned where the
+    previous state is known, in `tests/carve_manifest/test_carve_manifest.py`'s
+    slice window (`1584 + 782 == 2366`, `159 + 17 == 176`).
+    """
+    runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
+    assert runbook.is_file(), (
+        f"{runbook} is absent while the manifest is present: § 2's first table "
+        "is the floor's own summary, and a missing table is not a table that "
+        "agrees")
+    _text, doc = the_landed_manifest()
+    text = runbook.read_text(encoding="utf-8")
+    validator = _load_manifest_validator()
+
+    assert text.count(DISPOSITION_MARKER) == 1, (
+        f"§ 2's disposition table is bounded by {DISPOSITION_MARKER!r}, which "
+        f"this runbook states {text.count(DISPOSITION_MARKER)} times")
+    assert text.count(DISPOSITION_TERMINATOR) == 1, (
+        f"§ 2's totals paragraph is bounded by {DISPOSITION_TERMINATOR!r}, "
+        f"which this runbook states {text.count(DISPOSITION_TERMINATOR)} times")
+    start = text.index(DISPOSITION_MARKER) + len(DISPOSITION_MARKER)
+    stop = text.index(DISPOSITION_TERMINATOR)
+    assert stop > start, (
+        "§ 2 states the `re_destined:` grammar BEFORE it introduces the "
+        "disposition table; the two sentences bound the block, so their order "
+        "is part of the bound")
+    blocks = [block for block in text[start:stop].split("\n\n")
+              if block.strip()]
+    assert len(blocks) == 2, (
+        "§ 2's opening two sentences bound "
+        f"{len(blocks)} paragraphs and this check reads exactly two — the "
+        "disposition table and the totals sentence. A third paragraph between "
+        "them is a claim nothing here asserts, and a blank line inside the "
+        "table would end it early and hide every row below")
+
+    table = [line.rstrip() for line in blocks[0].strip("\n").split("\n")]
+    assert table[0] == DISPOSITION_HEADER, table[0]
+    assert table[1] == DISPOSITION_RULER, table[1]
+    stated: list[tuple[str, int]] = []
+    proofs: dict[str, str] = {}
+    for line in table[2:]:
+        found = DISPOSITION_RECORD.fullmatch(line)
+        assert found is not None, (
+            "§ 2's disposition table carries a line this check cannot read: "
+            f"{line!r}. A row that does not parse is a row nothing asserts, so "
+            "the table's own shape is refused here and not skipped")
+        assert found["disposition"] not in proofs, (
+            f"§ 2's disposition table names {found['disposition']!r} more than "
+            "once; a duplicate row is a stale figure standing behind a fresh "
+            "one")
+        stated.append((found["disposition"], int(found["rows"])))
+        proofs[found["disposition"]] = found["proof"]
+    # THE VOCABULARY IS THE VALIDATOR'S, verbatim AND IN ORDER (RULED OQ-1's
+    # own "three, not four"): a disposition the manifest can carry and this
+    # table does not state is a row class with no proof owed against it.
+    assert [name for name, _ in stated] == list(validator.DISPOSITIONS), (
+        [name for name, _ in stated], list(validator.DISPOSITIONS))
+
+    for name, claimed in stated:
+        summed = sum(1 for row in doc["rows"] if row["disposition"] == name)
+        assert claimed == summed, (name, claimed, summed)
+    assert sum(claimed for _, claimed in stated) == len(doc["rows"]), (
+        "§ 2's three disposition counts do not sum to the manifest's row "
+        f"count ({len(doc['rows'])}): the table claims to exhaust the "
+        "document, so a row in no stated class is a row nothing owes a proof "
+        "for")
+
+    # THE REPLICA CLAUSE inside the `not_moved` cell. Both halves are the
+    # manifest's: how many replica rows there are, and that exactly ONE of them
+    # declares a line (RULED Q-L7 (a)) — the second replica to declare one
+    # makes this sentence false, and says so here.
+    replicas = [row for row in doc["rows"]
+                if row.get("reason") == MODULE.REPLICA_REASON]
+    cell = proofs["not_moved"]
+    assert f"**{len(replicas)}** `{MODULE.REPLICA_REASON}` rows" in cell, (
+        f"§ 2's `not_moved` cell does not state the manifest's "
+        f"{len(replicas)} `{MODULE.REPLICA_REASON}` rows: {cell!r}")
+    declaring = [row for row in replicas if row.get("edits")]
+    assert len(declaring) == 1, (
+        "§ 2's `not_moved` cell says ONE replica row declares a line and the "
+        f"landed manifest has {len(declaring)}: "
+        f"{[row['source_path'] for row in declaring]}. The sentence is the "
+        "reason the human summary line reads `verified (byte-identical, or …)`")
+    assert "**one of them declares a line**" in cell, cell
+
+    # THE TOTALS SENTENCE — four numbers and a class list, each a sum.
+    prose = " ".join(blocks[1].split())
+    found = TOTALS.match(prose)
+    assert found is not None, (
+        "§ 2's totals sentence is not in the shape this check reads: "
+        f"{prose[:240]!r}. It states the document's four aggregate figures, so "
+        "a reshaped sentence is a claim nothing here compares with the "
+        "manifest")
+    lines_total = sum(len(edit["lines"]) for row in doc["rows"]
+                      for edit in row.get("edits") or [])
+    # THE CLASSES ARE THE LANDED MANIFEST'S OWN `edit_classes:` LIST, in its
+    # order — the list `validate-carve-manifest.py` asserts EQUAL to RULED
+    # OQ-1's three. A class with lines and no place in this sentence would
+    # otherwise be invisible here and visible in the total, which is the next
+    # assertion.
+    per_class = [
+        (name, sum(len(edit["lines"]) for row in doc["rows"]
+                   for edit in row.get("edits") or []
+                   if edit["class"] == name))
+        for name in doc["edit_classes"]]
+    assert found["classes"] == ", ".join(
+        f"`{name}` {total}" for name, total in per_class), (
+        found["classes"], per_class)
+    assert sum(total for _, total in per_class) == lines_total, (
+        per_class, lines_total)
+    assert int(found["lines"]) == lines_total, (found["lines"], lines_total)
+    moved = sum(1 for row in doc["rows"]
+                if row["disposition"] in MOVED_DISPOSITIONS)
+    assert int(found["moved"]) == moved, (found["moved"], moved)
+    carriers = sum(1 for row in doc["rows"] if row.get("edits"))
+    assert int(found["carriers"]) == carriers, (found["carriers"], carriers)
+    edited = sum(1 for row in doc["rows"]
+                 if row["disposition"] == "moved_with_declared_edit")
+    assert int(found["edited"]) == edited, (found["edited"], edited)
+    # AND THE SENTENCE'S OWN ARITHMETIC: the carriers are the edited rows plus
+    # the replica rows that declare lines, which is what makes 176 one more
+    # than 175 and the one figure a reader is most likely to "correct".
+    assert carriers == edited + len(declaring), (carriers, edited, declaring)
+
+
+# --------------------------------------------------------------------------
+# § 5.5's worked example — the invocation an operator copies, and the line the
+# runbook tells that operator to expect back
+# --------------------------------------------------------------------------
+
+# Each example is the ```sh block that FOLLOWS one of § 5.5's own sentences.
+# The sentence is the bound, for the § 2 table test's reason: a heuristic for
+# "the block near here" is a boundary the document can move without anyone
+# noticing it moved.
+PHASE_A_MARKER = "`arrival-unreadable` rather than holding a seat:"
+PHASE_B_MARKER = ("**Only then** apply the declared edits as commit B, "
+                  "and re-verify at phase B:")
+# `…` elides, `<name>` stands for a value the operator supplies (`<origin/main>`
+# is a ref, and the verifier prints the sha it resolved to). Everything BETWEEN
+# them is the tool's own words and is compared with them.
+ELISION = re.compile(r"…|<[^>]+>")
+
+
+def _runbook_example(text: str, marker: str) -> tuple[list[str], str]:
+    """The fenced example after `marker`, as (argv, the quoted expectation).
+
+    FAIL-CLOSED AT EVERY STEP, because each way of being lenient here is a way
+    for the check to stop reading what it says it reads: the marker appears
+    exactly once, the fence opens immediately beneath it, the `# ` quotation is
+    a CONTIGUOUS run at the END of the block — a comment among the command's
+    own lines is a shape this parser refuses rather than silently drops — and
+    both halves are non-empty.
+    """
+    assert text.count(marker) == 1, (
+        f"§ 5.5's example is bounded by {marker!r}, which this runbook states "
+        f"{text.count(marker)} times")
+    rest = text[text.index(marker) + len(marker):]
+    opening = "\n\n```sh\n"
+    assert rest.startswith(opening), (
+        f"the fenced invocation does not open immediately under {marker!r}: "
+        f"{rest[:60]!r}")
+    body = rest[len(opening):]
+    closing = body.find("\n```\n")
+    assert closing != -1, f"the invocation under {marker!r} is never closed"
+    lines = body[:closing].split("\n")
+    quoted: list[str] = []
+    while lines and lines[-1].startswith("#"):
+        quoted.insert(0, lines.pop()[1:].strip())
+    assert lines, f"the block under {marker!r} is all comment and no command"
+    assert quoted, (
+        f"the block under {marker!r} states no `# expect exit 0:` line; an "
+        "example with no expectation is an invocation nobody can check a run "
+        "against")
+    assert not any(line.lstrip().startswith("#") for line in lines), (
+        f"the invocation under {marker!r} carries a comment among its own "
+        "lines; this check reads the trailing run as the expectation, so a "
+        "comment above the command would be read as part of it")
+    argv = shlex.split(" ".join(line.rstrip("\\ ") for line in lines))
+    return argv, " ".join(quoted)
+
+
+def _flag(argv: list[str], flag: str) -> list[str]:
+    """Every value given to `flag`, in the order the invocation gives them."""
+    return [argv[i + 1] for i, word in enumerate(argv)
+            if word == flag and i + 1 < len(argv)]
+
+
+def _composed(summary: dict[str, Any],
+              capsys: pytest.CaptureFixture[str]) -> str:
+    """The verifier's own summary line for `summary` — the tool's words."""
+    MODULE._print_ok(summary, False)
+    return capsys.readouterr().out.strip()
+
+
+def _summary(doc: dict[str, Any], destination: str, phase: str, *,
+             rows: int, digests: int, diffed: int, unapplied: int,
+             replicas: int) -> dict[str, Any]:
+    """A summary the verifier would build for a run of § 5.5's example.
+
+    Only the counted fields are asserted on; the rest are this destination's
+    own identity, so the composed line is the one this leg prints and not a
+    shape assembled out of nothing.
+    """
+    return {
+        "result": "ok",
+        "mode": "destination",
+        "destination": destination,
+        "repository": (doc["destinations"].get(destination) or {}).get(
+            "repository"),
+        "leg": None,
+        "dest_root": "../dest-openDox-code",
+        "phase": phase,
+        # A run that PRINTS the strong scaffold sentence is the one § 5.5's
+        # phase-A comment quotes; `None` here prints the weaker `by NAME ONLY`
+        # alternative, which is a different claim and a different line.
+        "dest_base": "0" * 40,
+        "carve_commit": doc["carve_commit"],
+        "carve_tag": doc.get("carve_tag"),
+        "source_repository": doc["source_repository"],
+        "rows": rows,
+        "digests_verified": digests,
+        "declared_edits_diffed": diffed,
+        "declared_edits_unapplied": unapplied,
+        "replicas_declared": replicas,
+        "replicas_verified": replicas,
+        "re_destined": {"arrived": [], "vacated": []},
+        "declared_roots": MODULE.declared_roots(
+            MODULE.rows_for(doc, destination)),
+        "files_walked": 0,
+        "admitted": {"scaffold": 0, "replica": 0, "created": 0},
+        "carved_from": None,
+        "admissions_file": None,
+        "declared_admissions_used": [],
+        "declared_admissions_unused": [],
+        "ad_hoc_allow_created": [],
+    }
+
+
+def _declared_replica_row(doc: dict[str, Any], value: str,
+                          destination: str) -> dict[str, Any]:
+    """The manifest row `--replica-at VALUE` names, refused where there is none.
+
+    `parse_replica_placements` admits a left side that is a
+    `replicated_at_destination` row's `source_path` or — RULED Q-L7 (a) — a
+    moved row's where the manifest replicates it HERE, and refuses
+    `arrival-unreadable` for anything else: an example that named something
+    else would not run at all. The ROW is also what decides the figure below,
+    because a replica whose row declares lines is counted with the moved rows'
+    declared edits at phase B (`check_replicas` -> `counts["diffed"]`).
+    """
+    source_path = value.partition("=")[0]
+    admissible = {row["source_path"] for row in MODULE.replica_rows(doc)}
+    admissible |= {row["source_path"]
+                   for row in MODULE.also_replicated_rows(doc, destination)}
+    assert source_path in admissible, (
+        f"§ 5.5's example declares `--replica-at {value}`, and at "
+        f"{destination!r} that left side is neither a replica row of the "
+        "landed manifest nor a moved row it also replicates here. The "
+        "verifier refuses `arrival-unreadable` for exactly that, so the "
+        "invocation an operator copies would not run")
+    rows = [row for row in doc["rows"]
+            if row.get("source_path") == source_path]
+    assert len(rows) == 1, (source_path, len(rows))
+    return rows[0]
+
+
+def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
+        capsys: pytest.CaptureFixture[str]) -> None:
+    """§ 5.5's two worked invocations, held to the landed manifest AND to the
+    line this verifier composes — § 2's pin, one section down.
+
+    § 2's per-destination table rotted through two acts because nothing read
+    it. THESE TWO COMMENTS HAD ROTTED FURTHER (Copilot review, round ten on
+    this PR): they were written when the runbook landed (`a970fd9d`) and never
+    touched again, so phase A still told an operator to expect `123 row(s)
+    arrived` after RULED Q6 re-destined four of `opendox_code`'s rows away,
+    and phase B still expected `62 edited row(s), declared-lines-only` —
+    a figure six annotation acts out of date, in words this verifier does not
+    print at all. An expectation the tool would never produce cannot be
+    compared with a run, so it fails silently forever: the operator reads the
+    difference as their own mistake, or does not read it.
+
+    SO THE EXPECTATION IS COMPOSED RATHER THAN MATCHED. The numbers come from
+    the landed manifest through `rows_for()` — the EFFECTIVE arrival, which is
+    what a run places and therefore what a run reports — and the WORDS come
+    from `_print_ok`, the verifier's own summary line, with the runbook's `…`
+    elisions and its one `<origin/main>` placeholder as the only wildcards.
+    Each remaining fragment must appear, in order, in that line. A wording
+    change in the tool, a figure moved by an annotation act, and a comment
+    edited to say something the tool does not say are all the same failure.
+
+    AND THE EXAMPLE'S OWN REPLICA FLAGS ARE PART OF THE ARITHMETIC (Copilot
+    review, round eleven). A `--replica-at` whose ROW declares lines is a
+    declared-edit row at phase B, counted with the moved rows' edits, so the
+    phase-B figure is this leg's `moved_with_declared_edit` count PLUS one per
+    such flag — derived from the invocation rather than carried, which is what
+    let the fourth flag land in the same commit as the `85` it produces.
+
+    THE MODULE IS IMPORTED HERE, against this file's subprocess rule, for the
+    reason the docstring gives for the constant assertions: the claim is about
+    the LINE THE TOOL COMPOSES, not about a run. Every behavioural claim about
+    a real destination stays where it is — no destination checkout exists on
+    this machine, which is the seat the module docstring describes.
+
+    AND THE AD-HOC `--allow-created` FLAGS ARE READ AGAINST THE ADMISSIONS
+    FILE. § 5.5's note says in prose that those two flags are correct only
+    while `opendox_code` declares neither path — and the sentence under it
+    predicts its own expiry. That prediction is checked here, so the day a PR
+    declares `pytest.ini` or `conftest.py` is a red test rather than a note
+    nobody re-reads. (The note's OTHER premise had already expired unread: it
+    said the block was `created: []` long after BUILD slice 2 began filling
+    it.)
+    """
+    runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
+    assert runbook.is_file(), (
+        f"{runbook} is absent: § 5.5 is the procedure every leg runs, and a "
+        "missing procedure is not a procedure that agrees with the manifest")
+    _text, doc = the_landed_manifest()
+    text = runbook.read_text(encoding="utf-8")
+
+    destination = "opendox_code"
+    rows = MODULE.rows_for(doc, destination)
+    verbatim = sum(1 for row in rows
+                   if row["disposition"] == "moved_verbatim")
+    edited = sum(1 for row in rows
+                 if row["disposition"] == "moved_with_declared_edit")
+    assert len(rows) == verbatim + edited, (
+        "every row `rows_for` returns is a MOVED row, so the two dispositions "
+        "exhaust it; a third here would mean the arrival counts below no "
+        "longer sum to the rows the run walks")
+
+    for marker, phase, expected in (
+            # Phase A checks EVERY arrived row's digest, so its two figures
+            # are one figure twice. Phase B checks the verbatim rows' digests
+            # and diffs the declared-edit rows within their lines; `0
+            # unapplied` is the standard for a complete commit B, not a
+            # manifest figure.
+            (PHASE_A_MARKER, "A", (len(rows), len(rows), 0, 0)),
+            (PHASE_B_MARKER, "B", (len(rows), verbatim, edited, 0))):
+        argv, quotation = _runbook_example(text, marker)
+        assert _flag(argv, "--destination") == [destination], (
+            f"§ 5.5's phase-{phase} example does not run {destination!r}; the "
+            "figures below are that leg's and no other's")
+        assert _flag(argv, "--phase") == [phase], (
+            f"the example under {marker!r} does not run phase {phase}")
+        prefix = "expect exit 0: "
+        assert quotation.startswith(prefix), (
+            f"§ 5.5's phase-{phase} expectation does not begin {prefix!r}: "
+            f"{quotation!r}")
+        # THE EXAMPLE'S OWN `--replica-at` FLAGS MOVE ITS FIGURES (Copilot
+        # review, round eleven on this PR). A declared replica whose ROW
+        # declares lines is a DECLARED-EDIT ROW at phase B — `check_replicas`
+        # adds it to the same counter the moved rows use — so the phase-B
+        # expectation is one above this leg's `moved_with_declared_edit` count
+        # for each such flag. Held here rather than transcribed: the round that
+        # added the Q-L7 conftest flag to the phase-B example moved `84` to
+        # `85` and `3 of 3` to `4 of 4`, and a test whose expectation did not
+        # move with the example's own command line could not have checked
+        # either figure. At phase A the copies are not placed yet (§ 5.5's
+        # phase-A paragraph, measured at this leg's commit A), so a flag there
+        # would refuse `arrival-missing` and the arithmetic stays the rows'.
+        placements = _flag(argv, "--replica-at")
+        declaring = sum(
+            1 for value in placements
+            if _declared_replica_row(doc, value, destination).get("edits"))
+        # AND EVERY REPLICA ROW THAT DECLARES LINES IS DECLARED BY THE PHASE-B
+        # EXAMPLE (§ 5.6's "the two RULED Q-L7 (a) placements, which BOTH
+        # `-code` legs owe"; RULED Q-L7 (a)'s "applied identically at every
+        # replica"). This is the defect the round-eleven finding names, and it
+        # is not one the composition above can see: with the flag absent AND
+        # the figures matching, the composed line agreed with the runbook while
+        # the invocation itself had stopped running. Once a leg applies the
+        # declared line — `opendox_code` did, at `3954d78` (#19) — the copy's
+        # bytes are no blob at the carve commit, so an UNDECLARED copy is
+        # `arrival-undeclared-file` and the example refuses at the destination
+        # it is written for. A later line-declaring replica that this leg does
+        # NOT place makes this assertion the re-read it should be: § 5.6 names
+        # who owes which placement, and the example follows it.
+        if phase == "B":
+            declared_here = {value.partition("=")[0] for value in placements}
+            owed = {row["source_path"] for row in MODULE.replica_rows(doc)
+                    if row.get("edits")}
+            assert owed <= declared_here, (
+                "§ 5.5's phase-B example declares no `--replica-at` for "
+                f"{sorted(owed - declared_here)}, whose row(s) DECLARE LINES "
+                "(RULED Q-L7 (a)) and which § 5.6 says both `-code` legs "
+                "place. A copy carrying its declared line and left undeclared "
+                "is `arrival-undeclared-file`, so this example would refuse at "
+                "the leg it is written for")
+        line = _composed(_summary(
+            doc, destination, phase,
+            rows=expected[0], digests=expected[1],
+            diffed=expected[2] + (declaring if phase == "B" else 0),
+            unapplied=expected[3],
+            replicas=len(placements)), capsys)
+        position = 0
+        for fragment in ELISION.split(quotation[len(prefix):]):
+            fragment = fragment.strip()
+            if not fragment:
+                continue
+            found = line.find(fragment, position)
+            assert found != -1, (
+                f"§ 5.5's phase-{phase} example says a run reports "
+                f"{fragment!r}, and the line this verifier composes for that "
+                f"run — from the LANDED manifest — is {line!r}. The runbook "
+                "states what an operator compares their own run against, so "
+                "a figure or a phrase it states and this tool does not print "
+                "is an expectation no run can meet")
+            position = found + len(fragment)
+
+    # THE AD-HOC ADMISSION FLAGS, against the file that would replace them.
+    admissions = REPO_ROOT / "docs" / MODULE.ADMISSIONS_BASENAME
+    assert admissions.is_file(), (
+        f"{admissions} is absent while § 5.5 names it: the note under the "
+        "phase-B example is a claim about that file's contents")
+    declared = {
+        entry["path"] for entry in
+        ((yaml.safe_load(admissions.read_text(encoding="utf-8"))
+          ["destinations"].get(destination) or {}).get("created") or [])}
+    argv, _quotation = _runbook_example(text, PHASE_B_MARKER)
+    for path in _flag(argv, "--allow-created"):
+        assert path not in declared, (
+            f"§ 5.5's phase-B example still passes `--allow-created {path}` "
+            f"while {MODULE.ADMISSIONS_BASENAME} declares that path for "
+            f"{destination}. The note beneath the example says this is the "
+            "moment the flag should be dropped and the note deleted with it")
 
 
 # --------------------------------------------------------------------------
@@ -2064,12 +2864,9 @@ def test_the_human_line_no_longer_calls_an_edited_replica_byte_identical(
 def test_the_real_manifest_carries_the_ruled_q_l7_rows(carve: Carve) -> None:
     """The LANDED manifest read through this verifier's own row readers, so the
     grammar the leg-3 run will depend on is asserted here and not only in the
-    manifest validator's suite. A BRANCH and never a skip."""
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    manifest validator's suite. The manifest is REQUIRED and not branched on:
+    see `the_landed_manifest()`."""
+    _text, doc = the_landed_manifest()
     also = MODULE.also_replicated_rows(doc, "openxdox_code")
     assert [row["source_path"] for row in also] == \
         ["tests/ideation-dashboard/session_fixtures.py"], also
@@ -2556,12 +3353,9 @@ def test_the_no_destination_json_names_the_destinations_as_a_list(
 def test_the_landed_manifest_gives_the_openxdox_root_no_key() -> None:
     """The measured fact the `--assembly-root` mode exists for, asserted
     against the LANDED manifest so that a re-cut which ADDS the key reds here
-    and the runbook's § 7 can go back to a `--destination`."""
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    and the runbook's § 7 can go back to a `--destination`. The manifest is
+    REQUIRED and not branched on: see `the_landed_manifest()`."""
+    _text, doc = the_landed_manifest()
     assert "opendox_root" in doc["destinations"]
     assert "openxdox_root" not in doc["destinations"]
     repositories = {entry["repository"] for entry in doc["destinations"].values()}
@@ -2987,11 +3781,27 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     after — this annotation PR. Same footing again: checked by presence, not
     equality.
 
+    AMENDED A SIXTH TIME by § 3.4 SLICE S7's own annotation PR (RULED
+    Q1/Q2/Q7, `#656` comment 5648049748; S7 CLAIM `#656` comment 5649148461):
+    three more `opendox_code` files — the DISPLAY facet's two halves
+    (`src/opendox/display_profile.py`, `src/opendox/web/views/display.js`,
+    introduced together) and the suite that holds one against the other
+    (`tests/test_display_facet.py`) — admitted the governed way on the same
+    Q-L1 footing as every bump above (the leg PR, opensoft/openDox-code#21,
+    pairs with — and lands after — this annotation PR). Same footing again:
+    checked by presence, not equality. It is pinned here at all because
+    Copilot's review of the annotation PR observed that these three were the
+    FIRST bump to arrive carrying only the generic shape/sort checks below:
+    without an exact path+`since` pin, swapping one for another well-formed
+    entry, or dropping one while adding another, passes every local test and
+    lets the governed admission claim drift silently.
+
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
     `#656` comment 5639058687), the three RULED Q5 opendox_code entries, the
-    five PR #1001 opendox_code entries, the one § 3.4 SLICE S6 entry, and the
-    four § 3.4 SLICE S4 entries are still declared with their own
+    five PR #1001 opendox_code entries, the one § 3.4 SLICE S6 entry, the
+    four § 3.4 SLICE S4 entries, and the three § 3.4 SLICE S7 entries are
+    still declared with their own
     `since`, every `since` is a 40-hex commit, every `reason` is non-empty,
     and every destination's list is alphabetical by `path` with no repeat —
     the file's own stated invariants, over whatever the file has
@@ -3160,6 +3970,46 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
         "opendox_code")
     assert opendox_seed["tests/test_split_route_tails.py"]["since"] == (
         "2e842178b2bceaee9a45441b7d70d797fe1205cf")
+    # THE SIXTH BUMP: three more `opendox_code` files, RULED into this file by
+    # § 3.4 SLICE S7 (RULED Q1/Q2/Q7, `#656` comment 5648049748; S7 CLAIM
+    # `#656` comment 5649148461) — the DISPLAY facet's SERVER half
+    # (`display_profile.py`, what `/capabilities` publishes) and CLIENT half
+    # (`views/display.js`, the module every class-C file in the bundle resolves
+    # its vocabulary through), introduced by ONE commit because neither half
+    # means anything without the other, plus the suite that holds the two
+    # against each other (`tests/test_display_facet.py`). None of the three
+    # carries a manifest row (RULED OQ-C: a CREATED file has none), so the
+    # admission is the ONLY governed record that they may be at the
+    # destination at all — which is exactly why each is pinned to its own
+    # introducing commit (`git log --diff-filter=A`, not the leg branch's
+    # tip) rather than left to the generic shape checks below. Admitted on the
+    # same Q-L1 footing as every bump above: the leg PR,
+    # opensoft/openDox-code#21, pairs with — and lands after — this annotation
+    # PR. Checked by PRESENCE for the same reason as the seeds above.
+    for path, since in (
+            ("src/opendox/display_profile.py",
+             "80b1f3bc60499ebbd84e69aaba40ef243c24a54a"),
+            ("src/opendox/web/views/display.js",
+             "80b1f3bc60499ebbd84e69aaba40ef243c24a54a"),
+            ("tests/test_display_facet.py",
+             "372a04da2a14c2a4c547b78e9500d65f63899aac")):
+        assert path in opendox_seed, (
+            f"{path} is one of § 3.4 SLICE S7's three created files (`#656` "
+            "comment 5648049748, RULED Q1/Q2/Q7) and is no longer declared "
+            "for opendox_code")
+        assert opendox_seed[path]["since"] == since, (
+            f"{path} declares since={opendox_seed[path]['since']!r}; § 3.4 "
+            f"SLICE S7 introduced it at {since} (`git log --diff-filter=A` on "
+            "opensoft/openDox-code `build/s7-parameterize-class-c`), and an "
+            "admission whose `since` is not the introducing commit is not a "
+            "falsifiable claim")
+    # THE TWO HALVES ARE ONE ADMISSION, and the pin says so: `display.js` is
+    # unreadable without the payload `display_profile.py` publishes, so a
+    # future act that re-homes one must move the other or state why not.
+    assert (opendox_seed["src/opendox/display_profile.py"]["since"]
+            == opendox_seed["src/opendox/web/views/display.js"]["since"]), (
+        "§ 3.4 SLICE S7's two DISPLAY-facet halves were introduced by one "
+        "commit and no longer declare the same `since`")
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
     # could not survive a pin bump, and an accumulating file with no checked
