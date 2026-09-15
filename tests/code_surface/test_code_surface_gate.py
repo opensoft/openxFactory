@@ -1625,10 +1625,11 @@ def _default_register_tree(tmp_path, shape: str) -> tuple[Path, Path]:
     `scripts/code-surface-register.yaml` in one of the five shapes a path can be
     in.
 
-    WHEREVER BYTES ARE REACHABLE AT ALL THEY NAME THE CHANGE, which is what makes
-    `entry `c`` in the output a measurement rather than a coincidence: it appears
-    only if that file was read, and the escaped-symlink case proves by its
-    absence that bytes from outside the tree were not.
+    WHEREVER BYTES ARE REACHABLE AT ALL THEY NAME THE CHANGE, which is what
+    makes the register entry quoted in the output a measurement rather than a
+    coincidence: the run names entry `c` only if that file was read, and the
+    escaped-symlink case proves by its ABSENCE that bytes from outside the tree
+    were not.
     """
     root, declaration = _registered_scope_tree(tmp_path)
     scripts = root / "scripts"

@@ -369,15 +369,23 @@ def _os_environ():
 
 def test_a_SYMLINKED_DEFAULT_REGISTER_is_not_used_by_the_scan(tmp_path):
     """THE OTHER LINE THE BENCH FLAGGED, PINNED AS ALREADY CLOSED.
-    `REPO_ROOT/scripts/code-surface-register.yaml` is probed with `is_file()`,
-    which follows symlinks and answers True for a link pointing outside the
-    tree — but the probe grants nothing, because `code_surface.load_register`
+    `REPO_ROOT/scripts/code-surface-register.yaml` is probed for PRESENCE
+    (`is_symlink() or exists()`), which is true for a link pointing outside the
+    tree — as the `is_file()` probe this replaced also was, that one following
+    the link to the file at its far end — but the probe grants nothing, because
+    `code_surface.load_register`
     refuses a register that is a symlink OR has a symlinked ANCESTOR, and that
     guard is UNANCHORED and so strictly stronger than the path-boundary check.
+    THIS IS THE SHAPE THE TWO PROBES AGREE ON, and both are asserted below so
+    the test keeps saying which one it means; the shapes they DISAGREE on — a
+    DANGLING link and a DIRECTORY, present but not a regular file — are
+    `test_the_default_register_probe_is_PRESENCE_in_every_shape` in
+    `tests/code_surface/`, where the old probe read them as absent and the scan
+    judged with `NO_REGISTER` instead of refusing.
     WHAT THE TREE IS JUDGED AGAINST AFTERWARDS CHANGED BENEATH THIS TEST, and
     the assertion it was written for did not: the escaped register's entry `c`
-    is still NOT named. The register is PRESENT (`is_file()` follows the link)
-    and UNUSABLE, so the scan now REFUSES — exit 2, `CANNOT RUN`, naming the
+    is still NOT named. The register is PRESENT and UNUSABLE, so the scan now
+    REFUSES — exit 2, `CANNOT RUN`, naming the
     symlink — instead of continuing against the register beside the validator.
     A tree that carries a symlink where its exception file belongs is not a
     tree this gate can make a judgment about."""
@@ -395,7 +403,9 @@ def test_a_SYMLINKED_DEFAULT_REGISTER_is_not_used_by_the_scan(tmp_path):
     (root / "scripts").mkdir()
     (root / "scripts" / "code-surface-register.yaml").symlink_to(
         outside / "code-surface-register.yaml")
-    assert (root / "scripts" / "code-surface-register.yaml").is_file()  # follows
+    default = root / "scripts" / "code-surface-register.yaml"
+    assert default.is_file()                     # the old probe: follows the link
+    assert default.is_symlink() or default.exists()          # and the new one
     result = _scan(root)
     assert result.returncode == 2, result.stdout + result.stderr
     assert "CANNOT RUN" in result.stdout
