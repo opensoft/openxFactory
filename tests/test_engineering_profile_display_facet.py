@@ -2,17 +2,22 @@
 
 WHAT THIS FILE POLICES — § 3.4 slice S7's landing precondition
 (`opensoft/openxFactory#656` comment `5649744596`, CLAIM; `5649148461`, the S7
-slice this facet's shape conforms to): once openDox-code #21
-(`src/opendox/display_profile.py`, `PROFILE_FACET = "DISPLAY"`) lands, every
-class-C view in `src/opendox/web/` resolves its rendered vocabulary BY ROLE
-through the registered host's `DISPLAY` facet, or through openDox's own
-NEUTRAL words if the host declares none. Every profile in the estate is in the
-second state today. This file is what moves openxFactory's own dashboard out
-of it:
+slice this facet's shape conforms to): openDox-code #21
+(`src/opendox/display_profile.py`, `PROFILE_FACET = "DISPLAY"`) HAS landed and
+is what this repository pins — pin lockstep #2 moved the `code` leg to
+`1e469713` — so every class-C view in `src/opendox/web/` resolves its rendered
+vocabulary BY ROLE through the registered host's `DISPLAY` facet, or through
+openDox's own NEUTRAL words if the host declares none. Every profile in the
+estate is in the second state today. This file is what moves openxFactory's
+own dashboard out of it:
 
-  1. `profile_openxfactory.DISPLAY` conforms to #21's schema (structurally,
-     since the schema is not yet importable at this repository's pinned
-     openDox commit — see `test_facet_conforms_to_opendox_schema`).
+  1. `profile_openxfactory.DISPLAY` conforms to #21's schema — checked LIVE,
+     by handing the facet to `opendox.display_profile.normalize_display`
+     itself (see `test_facet_conforms_to_opendox_schema`). Until the pin
+     advanced past #21 the schema was not importable here at all and this
+     bullet read "structurally", against a vendored copy; that copy
+     (`tests/fixtures-opendox-display-facet-schema.yaml`) and the guard test
+     that watched for this moment are both gone.
   2. Every `areas` / `artifacts` prefix the facet declares ends in `/`
      (`display_profile._corpus_prefix`'s own refusal, added on Copilot review
      of #21 itself).
