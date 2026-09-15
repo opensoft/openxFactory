@@ -153,10 +153,15 @@ the one row that moves BOTH disposition counts and the carrier count at once.
 The PRE-EXISTING `openxdox_code` annotation (`#656` CLAIM `5656688910`) then
 added **+48 declared lines and moved nothing else**: the four rows it declares
 — three moved rows and the conftest replica — ALL carried `edits:` already, so
-neither disposition count nor the carrier count moves with it. It is the first
-act on this document that is not a slice: it declares edits that landed at
-openXdox-code BEFORE Q-L1's pairing became general (`#656` comment
-`5642758731`, 2026-09-12 02:07Z), which is why no slice ever owned them.
+neither disposition count nor the carrier count moves with it. It is not a
+slice's annotation — and not the FIRST act on this document that is not one
+either: § 2's dated history below records the earlier ASK-7 declared-edit
+window (`#656` comment `5635150678`, PR #995). The two differ in what they
+declare. ASK-7's four lines were RULED to be left and *"fixed at the next
+declared-edit window"*, so they were owed to someone from the day of that
+ruling; these were scheduled by no ruling at all — they landed at openXdox-code
+BEFORE Q-L1's pairing became general (`#656` comment `5642758731`, 2026-09-12
+02:07Z), which is why no slice ever owned them.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the

@@ -2426,8 +2426,14 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # test measures.
     #
     # AND THEN THE PRE-EXISTING `openxdox_code` ANNOTATION (`#656` CLAIM
-    # `5656688910`) moved the LINE figure alone. It is the first act on this
-    # document that is not a § 3.4 slice: openXdox-code#14 (`3840c167`) and #16
+    # `5656688910`) moved the LINE figure alone. It is not a § 3.4 slice's
+    # annotation, and not the FIRST act on this document that is not one —
+    # the ASK-7 declared-edit window (`#656` comment `5635150678`, PR #995) is
+    # earlier, and the runbook's § 2 history records it. It differs from that
+    # one in what it declares: ASK-7's four lines were RULED to be left and
+    # fixed "at the next declared-edit window", so they were owed to someone
+    # from the day of the ruling; these were scheduled by no ruling at all:
+    # openXdox-code#14 (`3840c167`) and #16
     # (`17384c07`) landed RULING C2's § 4.4 work at the destination BEFORE
     # Q-L1's pairing became general (`#656` comment `5642758731`,
     # 2026-09-12 02:07Z), so no slice ever owned their edits, and openxFactory
