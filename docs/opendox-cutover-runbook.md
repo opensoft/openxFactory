@@ -852,6 +852,15 @@ touched again, so they aged through every annotation act that moved the
 figures — the § 2 table's defect exactly, one section down, and the phase-B
 line below had drifted from the tool's wording as well as its numbers.
 
+**AND NO `--replica-at` AT PHASE A** (Copilot review, round eleven on PR
+#1030, reading § 5.6's "both `-code` legs owe" against this block). The copies
+are what COMMIT B places — § 5.6 is titled for it — so a phase-A run that
+declared one would refuse `arrival-missing` on a lawful tree. Measured in this
+leg's own history: `tests/conftest.py` and the three neutral-module copies the
+phase-B block declares are absent at commit A (`8e8983d`, the re-cut merged as
+`ce53b489`) and all four first appear at commit B (`749c926`). A replica is
+declarable exactly once it has been PLACED, which is the phase below.
+
 `--dest-base` defaults to the destination's own `origin/main`, which after the
 clone above is its PRE-CARVE main, and every SCAFFOLD admission's bytes are
 checked against it. If the line says `scaffold admissions by NAME ONLY` the
@@ -867,9 +876,10 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --allow-created pytest.ini --allow-created conftest.py \
     --replica-at scripts/output_boundary.py=src/opendox/output_boundary.py \
     --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
-    --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py
-# expect exit 0: 119 row(s) arrived, 35 digest(s) verified, 84 declared-edit
-# row(s) within their lines, 0 unapplied; 3 of 3 declared replica(s) verified
+    --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py \
+    --replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py
+# expect exit 0: 119 row(s) arrived, 35 digest(s) verified, 85 declared-edit
+# row(s) within their lines, 0 unapplied; 4 of 4 declared replica(s) verified
 # (byte-identical, or — where the row declares lines — differing only on them)
 ```
 
@@ -881,8 +891,13 @@ test composes these lines through `_print_ok` rather than matching them
 against a literal of its own. `0 unapplied` is not a manifest figure: it is
 the standard for a COMPLETE commit B — a declared-edit row the run finds
 byte-identical to the carve blob is an edit this leg did not apply, and the
-leg is not done until that count is zero (the one legitimate exception is the
-replica paragraph below, which this example does not place).
+leg is not done until that count is zero. **The `85` is `84` moved rows plus the Q-L7 replica the fourth `--replica-at`
+declares**: a replica whose ROW declares lines is answered exactly as a moved
+row is and is counted with the moved rows' edits at phase B (`check_replicas`
+-> `counts["diffed"]`), which is why this figure is ONE ABOVE the `verbatim /
+edited` column § 2's per-destination table states for this leg. A replica left
+`unapplied` is the one lawful way that count is not zero, and it is not this
+leg's state any more — see the replica paragraph below.
 
 **This `--allow-created pytest.ini --allow-created conftest.py` is the ad-hoc
 form on purpose, not a stale example** (Copilot review, PR #979; its PREMISE
@@ -907,10 +922,17 @@ line and a copy that arrived carrying it is not byte-identical. **A leg that
 places `tests/ideation-dashboard/conftest.py` declares it too** —
 `--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` — and at
 phase B the run then reports it as a declared-edit row: `diffed` where the `:25`
-depth line was applied, `unapplied` where it was not. Leg 1 (openDox-code #6,
-merge `ce53b489`) landed BEFORE that grammar existed and is **not re-cut** for
-it: openDox-code takes the depth fix in a later declared act, which is the
-ruling's own sequencing.
+depth line was applied, `unapplied` where it was not. Leg 1 (openDox-code #6, merge `ce53b489`) landed BEFORE that grammar existed
+and was **not re-cut** for it — **and the later declared act that ruling
+sequenced HAS SINCE HAPPENED**: openDox-code `3954d78` (#19, 2026-09-12) took
+the depth fix on the row's own `:25` and nothing else. So the flag is no
+longer optional at this leg and § 5.5's example above declares it (Copilot
+review, round eleven on PR #1030). MEASURED with the example's own other flags
+against openDox-code at `c7a216c7`: WITHOUT it the run refuses
+`arrival-undeclared-file` at `tests/conftest.py` — "its bytes are no replica's
+at the carve commit", the applied `:25` line being exactly why the
+byte-identity admission can no longer see it — and WITH it the run answers `OK
+… 4 of 4 declared replica(s) verified`.
 
 **§ 5.2-5.5 PROVED END TO END, 2026-09-09**, against the landed manifest and a
 fresh mirror: the `opendox_spec` leg's 112-line path file carved `carve-src`
@@ -981,7 +1003,8 @@ lands is not obliged to update this prose, only the declared file.
   `--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` (the
   replica whose row declares `:25`, so its copy must read
   `REPO_ROOT = HERE.parent`, and it is `arrival-undeclared-file` if placed
-  edited and left undeclared) and, **at openXdox-code only**,
+  edited and left undeclared — openDox-code took it at `3954d78`, #19)
+  and, **at openXdox-code only**,
   `--replica-at tests/ideation-dashboard/session_fixtures.py=tests/session_fixtures.py`
   (the moved row `also_replicated_to: [openxdox_code]`, with the same four
   `ideation_dashboard.X` → `opendox.X` rewrites its `opendox_code` arrival

@@ -33,20 +33,26 @@ conditional skip here would red the required job. When the first destination
 exists, this file gains a case that names it; the seat's own assertion is about
 the documented invocation and stays true either way.
 
-THE FIVE TESTS THAT READ THE LANDED MANIFEST DO NOT BRANCH ON IT (amended on
+THE SEVEN TESTS THAT READ THE LANDED MANIFEST DO NOT BRANCH ON IT (amended on
 a Copilot finding, `#1030`, the round after the same finding closed in
-`tests/carve_manifest/test_carve_manifest.py`). They had taken the seat above
-for a DIFFERENT absence than the one it describes — `if not
-manifest.is_file(): assert True; return` — and `assert True` REPORTS A PASS,
-the same green bar the paragraph above refuses a skip for, so a checkout that
-had lost `docs/opendox-carve-manifest.yaml` turned four pins on the landed
-document into four no-ops and passed the fifth on the verifier's apology line
-instead of its answer. The § 6 ceremony has happened: the manifest is
-committed, and there is no revision these five can run at without it. They read
-it through `the_landed_manifest()`, where the absence is a FAILURE. The absent
-manifest is pinned where a claim about it belongs — hermetically, on a path the
-test controls: `test_a_manifest_that_is_not_there_refuses` and the `--json`
-seat's `destinations_unreadable`.
+`tests/carve_manifest/test_carve_manifest.py`; the COUNT re-read on round
+eleven of the same review, which found this paragraph still saying FIVE two
+tests later). They had taken the seat above for a DIFFERENT absence than the
+one it describes — `if not manifest.is_file(): assert True; return` — and
+`assert True` REPORTS A PASS, the same green bar the paragraph above refuses a
+skip for, so a checkout that had lost `docs/opendox-carve-manifest.yaml`
+turned four pins on the landed document into four no-ops and passed the fifth
+— the five that existed then — on the verifier's apology line instead of its
+answer. The § 6 ceremony has happened: the manifest is committed, and there is
+no revision these seven can run at without it. They read it through
+`the_landed_manifest()`, where the absence is a FAILURE, and the NUMBER above
+is counted rather than transcribed:
+`test_the_module_docstring_counts_the_tests_that_read_the_landed_manifest`
+re-counts the call sites in this file and holds this paragraph to them,
+because a paragraph that states its own coverage is a claim like any other.
+The absent manifest is pinned where a claim about it belongs — hermetically,
+on a path the test controls: `test_a_manifest_that_is_not_there_refuses` and
+the `--json` seat's `destinations_unreadable`.
 
 Hermetic: no network and no `nlm`/`gh`/`omp` (`tests/hermeticity.py`'s guarded
 set); `git` is not guarded, and the environment it reads is PINNED rather than
@@ -1776,6 +1782,58 @@ def the_landed_manifest() -> tuple[str, dict[str, Any]]:
     return text, yaml.safe_load(text)
 
 
+# The word this file's own docstring uses for the number below. A map and not
+# an f-string of the digit, because the paragraph is PROSE and says "THE SEVEN
+# TESTS"; a count with no word here is a FAILURE that asks for one, never a
+# check that quietly stops looking.
+MANIFEST_READER_WORDS = {4: "FOUR", 5: "FIVE", 6: "SIX", 7: "SEVEN",
+                         8: "EIGHT", 9: "NINE", 10: "TEN", 11: "ELEVEN",
+                         12: "TWELVE"}
+
+
+def test_the_module_docstring_counts_the_tests_that_read_the_landed_manifest(
+        ) -> None:
+    """The docstring's own coverage claim, COUNTED from this file.
+
+    "THE FIVE TESTS THAT READ THE LANDED MANIFEST" was true when it was written
+    and stopped being true twice without anyone noticing (Copilot review, round
+    eleven on `#1030`): the per-destination table test and § 5.5's phase-example
+    test joined the five and the paragraph still said FIVE, while the sentence
+    under it — "there is no revision these five can run at without it" — named
+    a set two smaller than the one it describes.
+
+    IT IS THE FILE'S OWN SUBJECT, ONE LEVEL UP. Every test in the § 2 and § 5.5
+    group exists because a document stated a number nothing re-derived; a module
+    docstring that states its own coverage is the same claim in the same shape,
+    so it is re-counted here from the CALL SITES rather than maintained by hand.
+    """
+    source = Path(__file__).read_text(encoding="utf-8")
+    readers = sorted(
+        node.name for node in ast.parse(source, filename=__file__).body
+        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+        and any(isinstance(call, ast.Call)
+                and isinstance(call.func, ast.Name)
+                and call.func.id == the_landed_manifest.__name__
+                for call in ast.walk(node)))
+    word = MANIFEST_READER_WORDS.get(len(readers))
+    assert word is not None, (
+        f"{len(readers)} tests in this file read the landed manifest and this "
+        "check has no word for that many: extend MANIFEST_READER_WORDS rather "
+        f"than leaving the paragraph unchecked. {readers}")
+    # The module's docstring, named through `sys.modules` rather than the bare
+    # `__doc__` global, so a reader does not have to know which `__doc__` a
+    # name inside a function resolves to.
+    docstring = " ".join((sys.modules[__name__].__doc__ or "").split())
+    for sentence in (f"THE {word} TESTS THAT READ THE LANDED MANIFEST",
+                     f"no revision these {word.lower()} can run at without"):
+        assert sentence in docstring, (
+            f"the module docstring does not say {sentence!r}, and "
+            f"{len(readers)} tests in this file read the landed manifest: "
+            f"{readers}. The paragraph states its own coverage, so it moves "
+            "with the tests it describes or it is a transcription like any "
+            "other")
+
+
 def test_the_real_repository_answers_the_documented_invocation() -> None:
     """The seat, run from the repository root with no arguments.
 
@@ -2045,6 +2103,183 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
 
 
 # --------------------------------------------------------------------------
+# § 2's FIRST table and the sentence beneath it — the same measurement the
+# per-destination table states, stated over the WHOLE document
+# --------------------------------------------------------------------------
+
+# § 2's own two sentences bound the block, for the per-destination parser's
+# reason: every heuristic for "where the block ends" is a boundary the document
+# can move without anyone noticing it moved.
+DISPOSITION_MARKER = "mapping manifest. Measured in the landed file:"
+DISPOSITION_TERMINATOR = "**AND A MOVED ROW MAY CARRY `re_destined:`"
+DISPOSITION_HEADER = ("| disposition | rows | the proof owed at the "
+                      "destination |")
+DISPOSITION_RULER = "| --- | ---: | --- |"
+DISPOSITION_RECORD = re.compile(
+    r"\| `(?P<disposition>[a-z][a-z0-9_]*)` \| \*\*(?P<rows>\d+)\*\* \| "
+    r"(?P<proof>[^|]*) \|")
+# The totals sentence, whitespace-normalised: four numbers and the class list,
+# each of which is a sum over the landed manifest.
+TOTALS = re.compile(
+    r"\*\*(?P<moved>\d+) rows move\. (?P<lines>\d+) declared edit lines\*\*: "
+    r"(?P<classes>[^.]+)\. \*\*(?P<carriers>\d+) rows carry `edits:`\*\* — "
+    r"the (?P<edited>\d+) `moved_with_declared_edit` rows and, since RULED "
+    r"Q-L7 \(a\), one replica row\.")
+MOVED_DISPOSITIONS = ("moved_verbatim", "moved_with_declared_edit")
+
+
+def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
+        ) -> None:
+    """§ 2's FIRST table and the totals sentence under it, re-derived — the pin
+    the paragraph below them already claims to be.
+
+    § 2 says of these figures that they are "the same measurement
+    `scripts/validate-carve-manifest.py` prints and
+    `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
+    pins ... a transcribed count is a claim, a summed one is a measurement".
+    THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
+    PR). It pins the MANIFEST's own aggregate — `(2366, 176)` and the 20
+    replica rows — which is a claim about the file and not about the sentence
+    that transcribes it. So every cell here (three disposition counts, the
+    replica count, the three per-class totals, the moved-row total, the carrier
+    total) was a transcription nothing compared with the thing transcribed,
+    which is exactly how the per-destination table below rotted through two
+    acts while its own paragraph said it was re-derived.
+
+    THE BLOCK IS BOUNDED BY § 2'S OWN TWO SENTENCES and split into EXACTLY TWO
+    paragraphs, the table and the totals. A third paragraph between them, a
+    blank line inside the table, or a row that does not parse is a FAILURE here
+    rather than a way to move the bound — the per-destination parser's rule,
+    and for the reason its docstring gives.
+
+    WHAT IT DELIBERATELY DOES NOT PIN: the two DELTA sentences that follow
+    ("+162 declared lines", "+782 declared lines over 33 `opendox_code` rows,
+    17 of them converted"). A delta is a claim about the PREVIOUS state of the
+    file, which the landed manifest does not carry; those are pinned where the
+    previous state is known, in `tests/carve_manifest/test_carve_manifest.py`'s
+    slice window (`1584 + 782 == 2366`, `159 + 17 == 176`).
+    """
+    runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
+    assert runbook.is_file(), (
+        f"{runbook} is absent while the manifest is present: § 2's first table "
+        "is the floor's own summary, and a missing table is not a table that "
+        "agrees")
+    _text, doc = the_landed_manifest()
+    text = runbook.read_text(encoding="utf-8")
+    validator = _load_manifest_validator()
+
+    assert text.count(DISPOSITION_MARKER) == 1, (
+        f"§ 2's disposition table is bounded by {DISPOSITION_MARKER!r}, which "
+        f"this runbook states {text.count(DISPOSITION_MARKER)} times")
+    assert text.count(DISPOSITION_TERMINATOR) == 1, (
+        f"§ 2's totals paragraph is bounded by {DISPOSITION_TERMINATOR!r}, "
+        f"which this runbook states {text.count(DISPOSITION_TERMINATOR)} times")
+    start = text.index(DISPOSITION_MARKER) + len(DISPOSITION_MARKER)
+    stop = text.index(DISPOSITION_TERMINATOR)
+    assert stop > start, (
+        "§ 2 states the `re_destined:` grammar BEFORE it introduces the "
+        "disposition table; the two sentences bound the block, so their order "
+        "is part of the bound")
+    blocks = [block for block in text[start:stop].split("\n\n")
+              if block.strip()]
+    assert len(blocks) == 2, (
+        "§ 2's opening two sentences bound "
+        f"{len(blocks)} paragraphs and this check reads exactly two — the "
+        "disposition table and the totals sentence. A third paragraph between "
+        "them is a claim nothing here asserts, and a blank line inside the "
+        "table would end it early and hide every row below")
+
+    table = [line.rstrip() for line in blocks[0].strip("\n").split("\n")]
+    assert table[0] == DISPOSITION_HEADER, table[0]
+    assert table[1] == DISPOSITION_RULER, table[1]
+    stated: list[tuple[str, int]] = []
+    proofs: dict[str, str] = {}
+    for line in table[2:]:
+        found = DISPOSITION_RECORD.fullmatch(line)
+        assert found is not None, (
+            "§ 2's disposition table carries a line this check cannot read: "
+            f"{line!r}. A row that does not parse is a row nothing asserts, so "
+            "the table's own shape is refused here and not skipped")
+        assert found["disposition"] not in proofs, (
+            f"§ 2's disposition table names {found['disposition']!r} more than "
+            "once; a duplicate row is a stale figure standing behind a fresh "
+            "one")
+        stated.append((found["disposition"], int(found["rows"])))
+        proofs[found["disposition"]] = found["proof"]
+    # THE VOCABULARY IS THE VALIDATOR'S, verbatim AND IN ORDER (RULED OQ-1's
+    # own "three, not four"): a disposition the manifest can carry and this
+    # table does not state is a row class with no proof owed against it.
+    assert [name for name, _ in stated] == list(validator.DISPOSITIONS), (
+        [name for name, _ in stated], list(validator.DISPOSITIONS))
+
+    for name, claimed in stated:
+        summed = sum(1 for row in doc["rows"] if row["disposition"] == name)
+        assert claimed == summed, (name, claimed, summed)
+    assert sum(claimed for _, claimed in stated) == len(doc["rows"]), (
+        "§ 2's three disposition counts do not sum to the manifest's row "
+        f"count ({len(doc['rows'])}): the table claims to exhaust the "
+        "document, so a row in no stated class is a row nothing owes a proof "
+        "for")
+
+    # THE REPLICA CLAUSE inside the `not_moved` cell. Both halves are the
+    # manifest's: how many replica rows there are, and that exactly ONE of them
+    # declares a line (RULED Q-L7 (a)) — the second replica to declare one
+    # makes this sentence false, and says so here.
+    replicas = [row for row in doc["rows"]
+                if row.get("reason") == MODULE.REPLICA_REASON]
+    cell = proofs["not_moved"]
+    assert f"**{len(replicas)}** `{MODULE.REPLICA_REASON}` rows" in cell, (
+        f"§ 2's `not_moved` cell does not state the manifest's "
+        f"{len(replicas)} `{MODULE.REPLICA_REASON}` rows: {cell!r}")
+    declaring = [row for row in replicas if row.get("edits")]
+    assert len(declaring) == 1, (
+        "§ 2's `not_moved` cell says ONE replica row declares a line and the "
+        f"landed manifest has {len(declaring)}: "
+        f"{[row['source_path'] for row in declaring]}. The sentence is the "
+        "reason the human summary line reads `verified (byte-identical, or …)`")
+    assert "**one of them declares a line**" in cell, cell
+
+    # THE TOTALS SENTENCE — four numbers and a class list, each a sum.
+    prose = " ".join(blocks[1].split())
+    found = TOTALS.match(prose)
+    assert found is not None, (
+        "§ 2's totals sentence is not in the shape this check reads: "
+        f"{prose[:240]!r}. It states the document's four aggregate figures, so "
+        "a reshaped sentence is a claim nothing here compares with the "
+        "manifest")
+    lines_total = sum(len(edit["lines"]) for row in doc["rows"]
+                      for edit in row.get("edits") or [])
+    # THE CLASSES ARE THE LANDED MANIFEST'S OWN `edit_classes:` LIST, in its
+    # order — the list `validate-carve-manifest.py` asserts EQUAL to RULED
+    # OQ-1's three. A class with lines and no place in this sentence would
+    # otherwise be invisible here and visible in the total, which is the next
+    # assertion.
+    per_class = [
+        (name, sum(len(edit["lines"]) for row in doc["rows"]
+                   for edit in row.get("edits") or []
+                   if edit["class"] == name))
+        for name in doc["edit_classes"]]
+    assert found["classes"] == ", ".join(
+        f"`{name}` {total}" for name, total in per_class), (
+        found["classes"], per_class)
+    assert sum(total for _, total in per_class) == lines_total, (
+        per_class, lines_total)
+    assert int(found["lines"]) == lines_total, (found["lines"], lines_total)
+    moved = sum(1 for row in doc["rows"]
+                if row["disposition"] in MOVED_DISPOSITIONS)
+    assert int(found["moved"]) == moved, (found["moved"], moved)
+    carriers = sum(1 for row in doc["rows"] if row.get("edits"))
+    assert int(found["carriers"]) == carriers, (found["carriers"], carriers)
+    edited = sum(1 for row in doc["rows"]
+                 if row["disposition"] == "moved_with_declared_edit")
+    assert int(found["edited"]) == edited, (found["edited"], edited)
+    # AND THE SENTENCE'S OWN ARITHMETIC: the carriers are the edited rows plus
+    # the replica rows that declare lines, which is what makes 176 one more
+    # than 175 and the one figure a reader is most likely to "correct".
+    assert carriers == edited + len(declaring), (carriers, edited, declaring)
+
+
+# --------------------------------------------------------------------------
 # § 5.5's worked example — the invocation an operator copies, and the line the
 # runbook tells that operator to expect back
 # --------------------------------------------------------------------------
@@ -2157,6 +2392,34 @@ def _summary(doc: dict[str, Any], destination: str, phase: str, *,
     }
 
 
+def _declared_replica_row(doc: dict[str, Any], value: str,
+                          destination: str) -> dict[str, Any]:
+    """The manifest row `--replica-at VALUE` names, refused where there is none.
+
+    `parse_replica_placements` admits a left side that is a
+    `replicated_at_destination` row's `source_path` or — RULED Q-L7 (a) — a
+    moved row's where the manifest replicates it HERE, and refuses
+    `arrival-unreadable` for anything else: an example that named something
+    else would not run at all. The ROW is also what decides the figure below,
+    because a replica whose row declares lines is counted with the moved rows'
+    declared edits at phase B (`check_replicas` -> `counts["diffed"]`).
+    """
+    source_path = value.partition("=")[0]
+    admissible = {row["source_path"] for row in MODULE.replica_rows(doc)}
+    admissible |= {row["source_path"]
+                   for row in MODULE.also_replicated_rows(doc, destination)}
+    assert source_path in admissible, (
+        f"§ 5.5's example declares `--replica-at {value}`, and at "
+        f"{destination!r} that left side is neither a replica row of the "
+        "landed manifest nor a moved row it also replicates here. The "
+        "verifier refuses `arrival-unreadable` for exactly that, so the "
+        "invocation an operator copies would not run")
+    rows = [row for row in doc["rows"]
+            if row.get("source_path") == source_path]
+    assert len(rows) == 1, (source_path, len(rows))
+    return rows[0]
+
+
 def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
         capsys: pytest.CaptureFixture[str]) -> None:
     """§ 5.5's two worked invocations, held to the landed manifest AND to the
@@ -2181,6 +2444,13 @@ def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
     Each remaining fragment must appear, in order, in that line. A wording
     change in the tool, a figure moved by an annotation act, and a comment
     edited to say something the tool does not say are all the same failure.
+
+    AND THE EXAMPLE'S OWN REPLICA FLAGS ARE PART OF THE ARITHMETIC (Copilot
+    review, round eleven). A `--replica-at` whose ROW declares lines is a
+    declared-edit row at phase B, counted with the moved rows' edits, so the
+    phase-B figure is this leg's `moved_with_declared_edit` count PLUS one per
+    such flag — derived from the invocation rather than carried, which is what
+    let the fourth flag land in the same commit as the `85` it produces.
 
     THE MODULE IS IMPORTED HERE, against this file's subprocess rule, for the
     reason the docstring gives for the constant assertions: the claim is about
@@ -2233,11 +2503,52 @@ def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
         assert quotation.startswith(prefix), (
             f"§ 5.5's phase-{phase} expectation does not begin {prefix!r}: "
             f"{quotation!r}")
+        # THE EXAMPLE'S OWN `--replica-at` FLAGS MOVE ITS FIGURES (Copilot
+        # review, round eleven on this PR). A declared replica whose ROW
+        # declares lines is a DECLARED-EDIT ROW at phase B — `check_replicas`
+        # adds it to the same counter the moved rows use — so the phase-B
+        # expectation is one above this leg's `moved_with_declared_edit` count
+        # for each such flag. Held here rather than transcribed: the round that
+        # added the Q-L7 conftest flag to the phase-B example moved `84` to
+        # `85` and `3 of 3` to `4 of 4`, and a test whose expectation did not
+        # move with the example's own command line could not have checked
+        # either figure. At phase A the copies are not placed yet (§ 5.5's
+        # phase-A paragraph, measured at this leg's commit A), so a flag there
+        # would refuse `arrival-missing` and the arithmetic stays the rows'.
+        placements = _flag(argv, "--replica-at")
+        declaring = sum(
+            1 for value in placements
+            if _declared_replica_row(doc, value, destination).get("edits"))
+        # AND EVERY REPLICA ROW THAT DECLARES LINES IS DECLARED BY THE PHASE-B
+        # EXAMPLE (§ 5.6's "the two RULED Q-L7 (a) placements, which BOTH
+        # `-code` legs owe"; RULED Q-L7 (a)'s "applied identically at every
+        # replica"). This is the defect the round-eleven finding names, and it
+        # is not one the composition above can see: with the flag absent AND
+        # the figures matching, the composed line agreed with the runbook while
+        # the invocation itself had stopped running. Once a leg applies the
+        # declared line — `opendox_code` did, at `3954d78` (#19) — the copy's
+        # bytes are no blob at the carve commit, so an UNDECLARED copy is
+        # `arrival-undeclared-file` and the example refuses at the destination
+        # it is written for. A later line-declaring replica that this leg does
+        # NOT place makes this assertion the re-read it should be: § 5.6 names
+        # who owes which placement, and the example follows it.
+        if phase == "B":
+            declared_here = {value.partition("=")[0] for value in placements}
+            owed = {row["source_path"] for row in MODULE.replica_rows(doc)
+                    if row.get("edits")}
+            assert owed <= declared_here, (
+                "§ 5.5's phase-B example declares no `--replica-at` for "
+                f"{sorted(owed - declared_here)}, whose row(s) DECLARE LINES "
+                "(RULED Q-L7 (a)) and which § 5.6 says both `-code` legs "
+                "place. A copy carrying its declared line and left undeclared "
+                "is `arrival-undeclared-file`, so this example would refuse at "
+                "the leg it is written for")
         line = _composed(_summary(
             doc, destination, phase,
-            rows=expected[0], digests=expected[1], diffed=expected[2],
+            rows=expected[0], digests=expected[1],
+            diffed=expected[2] + (declaring if phase == "B" else 0),
             unapplied=expected[3],
-            replicas=len(_flag(argv, "--replica-at"))), capsys)
+            replicas=len(placements)), capsys)
         position = 0
         for fragment in ELISION.split(quotation[len(prefix):]):
             fragment = fragment.strip()
