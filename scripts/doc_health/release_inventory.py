@@ -31,6 +31,7 @@ by review before any code existed:
   member digest or mode differs .................. ERROR / INFO by editorial set
   every member matches ........................... no finding
   git unavailable or commit unresolvable ......... SKIP    (and never per-member)
+  a moved member's leg unreadable here ........... SKIP    (and never per-member)
 
 The skip is reserved for "the question could not be asked". A declared bundle
 naming an inventory that does not exist is an ANSWER — an invalid release
@@ -38,6 +39,18 @@ declaration, which is what a mistyped bundle name or a half-created release
 looks like — and a deleted member is the strongest form of the drift this
 family exists to catch. Collapsing either into a skip would make a defect
 indistinguishable from an absent capability.
+
+THE SEVENTH ARM IS THE SIXTH ONE'S, SPELLED OUT (`#1048`). Post-shed, four
+members of this repository's own bundle have their bytes in a PINNED LEG, and
+`_shed_member` reads them through `carved_reach`. A checkout that cannot reach
+that leg's object store has not learned that those members are gone — it has
+failed to consult version control about them, which is the sixth arm exactly.
+Until this was written down the refusal was swallowed into `(None, None)` and
+the member was reported ABSENT AT THE COMMIT: four `error`s naming files that a
+reader then cannot find in EITHER tree, because they are in neither — a verdict
+about the release read off a fact about the machine. It is reported as a
+repository-level skip carrying the leg's own remedy, never per member, for the
+same reason the sixth arm is.
 """
 
 from __future__ import annotations
@@ -142,9 +155,23 @@ _CUT_ACTION = ("cut a release through the bundle realization order; never "
                "this comparison pass")
 
 
+class LegUnavailable(Exception):
+    """A moved member's pinned leg could not be consulted at this commit.
+
+    RAISED, NOT RETURNED, and that asymmetry is the point: every OTHER failure
+    inside `_shed_member` means "this repository's own answer stands", which a
+    `(None, None)` says perfectly well, while this one means "no answer was
+    obtained at all" — which `(None, None)` says as `ABSENT AT THE COMMIT`, the
+    single most severe verdict this family has. `check_repo` turns it into the
+    repository-level skip the taxonomy's sixth arm reserves for exactly this.
+    """
+
+
 def _shed_member(repo_path: Path, git, commit: str, path: str):
     """A recorded member's bytes and mode at `commit` when the § 5.2 shed moved
-    it to a pinned leg — `(blob, git_mode)`, or `(None, None)`.
+    it to a pinned leg — `(blob, git_mode)`, or `(None, None)` where this
+    repository's own answer stands, or `LegUnavailable` where no answer was
+    obtained at all.
 
     RULED (a) POST-SHED MODE (`#656` comment `5625573095`). openxFactory's own
     `contract-v3.0` inventory records three members the shed moved
@@ -165,13 +192,22 @@ def _shed_member(repo_path: Path, git, commit: str, path: str):
     as it answers for the repository.
     """
     try:
-        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_commit_object
+        from carved_reach import (CarveReachUnavailable,
+                                  REPO_ROOT as CARVE_ROOT, shed_commit_object)
     except ImportError:
         return None, None
     try:
         if Path(repo_path).resolve() != CARVE_ROOT.resolve():
             return None, None
         located = shed_commit_object(commit, path)
+    except CarveReachUnavailable as unreadable:
+        # THE ONE REFUSAL THAT MUST NOT BECOME `(None, None)`. It says the
+        # leg's object store could not be read AT ALL, so nothing was learned
+        # about this member; the caller's absence finding would announce a
+        # deleted normative member on the strength of an uninitialized
+        # submodule. `LegUnavailable` carries the leg's own remedy up to
+        # `check_repo`, which skips the repository with it.
+        raise LegUnavailable(str(unreadable)) from unreadable
     except Exception:
         return None, None
     if located is None:
@@ -254,7 +290,17 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
         blob = blobs.get(path)
         shed_mode = None
         if blob is None:
-            blob, shed_mode = _shed_member(repo_path, git, commit, path)
+            try:
+                blob, shed_mode = _shed_member(repo_path, git, commit, path)
+            except LegUnavailable as unreadable:
+                # SIXTH ARM, NOT THIRD. Version control could not be consulted
+                # about this member, which is a fact about this checkout and
+                # not about the release — so the repository is skipped with the
+                # leg's own remedy as the reason, and `fam_` below records that
+                # reason as an `info` rather than omitting it. Reported once for
+                # the repository rather than per member, because a consultation
+                # failure is never per-member (`#1048`).
+                return Skip(FAMILY, f"{repo}: {unreadable}")
         if blob is None:
             # ABSENT AT THE COMMIT. Reported as drift, never as a skip: a
             # deleted normative member is the strongest form of what this

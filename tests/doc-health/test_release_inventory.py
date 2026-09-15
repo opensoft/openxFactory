@@ -30,6 +30,8 @@ import pytest
 
 from conftest import FakeGit  # noqa: F401  (sys.path side effect)
 
+import carved_reach
+
 from doc_health import ERROR, INFO, Skip
 from doc_health import release_inventory
 from doc_health.corpus import RealGit
@@ -662,3 +664,184 @@ def test_every_action_string_the_release_inventory_drift_family_can_emit_is_pinn
     }
     assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
                           family="release-inventory-drift")
+
+
+# ----------------------------------------- a linked worktree reads the same
+#
+# WHY THESE USE REAL GIT AND A REAL SUBMODULE RATHER THAN `FakeGit` (`#1048`).
+# The defect they pin is not in any code path a stubbed git reaches: it was in
+# how `carved_reach` LOCATED the pinned leg's object store, and the difference
+# between a checkout and a linked worktree of that checkout is a fact about
+# git's own on-disk layout. `git worktree add` writes the superproject's tracked
+# files and leaves every gitlink an EMPTY DIRECTORY, while the leg's objects
+# stay in the superproject's common git directory under `modules/<name>`. A
+# stub cannot have that shape, so a fixture built on one would pass against the
+# broken reader and prove nothing.
+#
+# THE FIXTURE MIRRORS `openxdox_spec`, two submodule levels deep, rather than a
+# one-level mount, because that is the shape the family actually reads:
+# `openXdox/spec` is a submodule OF A SUBMODULE, so the second level's parent is
+# itself a module store and not a working tree at all. A one-level fixture
+# exercises half the walk and the wrong half.
+
+BUNDLE_WT = "contract-v0.0-worktree-fixture"
+MOVED = "contracts/moved.schema.yaml"
+KEPT = "contracts/kept.yaml"
+MOVED_BYTES = b"kind: moved-by-the-shed\n"
+KEPT_BYTES = b"kind: never-moved\n"
+
+
+def _git_in(repo: Path, *args: str) -> None:
+    # `protocol.file.allow` because every remote here is a local path: git has
+    # refused the file transport for submodules since CVE-2022-39253, and the
+    # same opt-in is already how `tests/former_id_arrival` builds its fixtures.
+    subprocess.run(["git", "-c", "protocol.file.allow=always", "-C", str(repo),
+                    *args], check=True, capture_output=True)
+
+
+def _new_repo(path: Path) -> Path:
+    path.mkdir(parents=True)
+    _git_in(path, "init", "-q", "-b", "main")
+    _git_in(path, "config", "user.email", "t@example.invalid")
+    _git_in(path, "config", "user.name", "T")
+    return path
+
+
+def _write_file(repo: Path, relpath: str, data: bytes) -> None:
+    target = repo / relpath
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(data)
+
+
+def _worktree_inventory() -> bytes:
+    """Two members: one this repository still carries, and one the shed moved
+    into the pinned leg BYTE FOR BYTE — so a reader that reaches the leg finds
+    the digest matching and a reader that does not has an opinion to state."""
+    lines = ["schema_version: 1",
+             "kind: openxfactory-contract-release-digest-inventory",
+             f"bundle_tag: {BUNDLE_WT}",
+             "entries:"]
+    for path, data in ((KEPT, KEPT_BYTES), (MOVED, MOVED_BYTES)):
+        lines += [f"- artifact_id: {path.replace('/', '-')}",
+                  f"  path: {path}",
+                  "  type: schema",
+                  "  git_mode: '100644'",
+                  f"  digest: sha256:{_digest(data)}"]
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def _shed_fixture(tmp_path: Path) -> Path:
+    """A superproject declaring a bundle whose inventory records a member that
+    exists ONLY in a leg pinned two submodule levels down."""
+    spec = _new_repo(tmp_path / "origin-spec")
+    _write_file(spec, MOVED, MOVED_BYTES)
+    _git_in(spec, "add", "-A")
+    _git_in(spec, "commit", "-qm", "the leg carries the moved member")
+
+    leg = _new_repo(tmp_path / "origin-leg")
+    _git_in(leg, "submodule", "add", "-q", str(spec), "spec")
+    _git_in(leg, "commit", "-qm", "the leg pins its spec submodule")
+
+    root = _new_repo(tmp_path / "checkout")
+    _write_file(root, KEPT, KEPT_BYTES)
+    _write_file(root, MANIFEST, f"schema_version: 1\nkind: manifest\n"
+                                f"contract_bundle_version: {BUNDLE_WT}\n"
+                                .encode("utf-8"))
+    _write_file(root, inventory_path_for(BUNDLE_WT), _worktree_inventory())
+    _git_in(root, "submodule", "add", "-q", str(leg), "leg")
+    _git_in(root, "submodule", "update", "--init", "--recursive", "-q")
+    _git_in(root, "add", "-A")
+    _git_in(root, "commit", "-qm", "declare the bundle and pin the leg")
+    return root
+
+
+def _point_carve_at(monkeypatch, root: Path) -> None:
+    """`carved_reach` as it IS in the checkout being read, which is not a
+    fiction: the module is imported from that checkout's own `scripts/`, so its
+    `REPO_ROOT` really is whichever tree the run is reading — the worktree when
+    the run is in the worktree."""
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", root)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        {"leg_spec": root / "leg" / "spec"})
+    monkeypatch.setattr(carved_reach, "_rows", lambda: {
+        MOVED: {"source_path": MOVED, "disposition": "moved_verbatim",
+                "destination": "leg_spec", "destination_path": MOVED}})
+
+
+def test_a_linked_worktree_reads_the_same_release_surface(tmp_path, monkeypatch):
+    """ONE COMMIT, TWO CHECKOUTS, ONE VERDICT (`#1048`).
+
+    Measured on the real repository before the fix: the checkout reported one
+    error and a `git worktree add` of the SAME commit reported five — the four
+    extra naming members that exist in neither tree, because they live in a leg
+    the worktree was wrongly told it could not reach."""
+    root = _shed_fixture(tmp_path)
+    worktree = tmp_path / "worktree"
+    _git_in(root, "worktree", "add", "--quiet", "--detach", str(worktree),
+            "HEAD")
+    assert not (worktree / "leg" / ".git").exists(), (
+        "the fixture must reproduce the shape the defect needs: `git worktree "
+        "add` leaves every gitlink an EMPTY directory")
+
+    git = RealGit()
+    _point_carve_at(monkeypatch, root)
+    from_checkout = check_repo(REPO, root, git)
+    _point_carve_at(monkeypatch, worktree)
+    from_worktree = check_repo(REPO, worktree, git)
+
+    assert from_checkout == [], (
+        "the moved member is recorded byte for byte as the leg holds it, so a "
+        "checkout that can read the leg reports no drift at all")
+    assert from_worktree == from_checkout, (
+        "the worktree reported "
+        f"{[f.rule for f in from_worktree]} where its own checkout reported "
+        f"{[f.rule for f in from_checkout]}")
+
+
+def test_the_legs_object_store_is_found_through_gits_common_directory(tmp_path):
+    """THE ROOT CAUSE, ASSERTED ON THE RESOLVER ITSELF rather than only on the
+    family's verdict, so it fails on a working-tree test rather than merely
+    happening to agree — the same reason the raw-bytes rule above is pinned on
+    its reader."""
+    root = _shed_fixture(tmp_path)
+    worktree = tmp_path / "worktree"
+    _git_in(root, "worktree", "add", "--quiet", "--detach", str(worktree),
+            "HEAD")
+
+    assert carved_reach._leg_object_store(root, "leg") == root / "leg", (
+        "a checked-out submodule is still read from its working tree")
+    store = carved_reach._leg_object_store(worktree, "leg")
+    assert store == root / ".git" / "modules" / "leg", (
+        "a linked worktree shares the SUPERPROJECT's copy of the leg")
+    assert carved_reach._leg_object_store(store, "spec") == \
+        store / "modules" / "spec", (
+        "and past the first level the parent is a module store, not a "
+        "working tree — which is the level `openXdox/spec` reads at")
+
+
+def test_an_unreachable_leg_is_a_repository_skip_not_a_phantom_absence(
+        tmp_path, monkeypatch):
+    """THE SIXTH ARM, NOT THE THIRD (`#1048`).
+
+    A side clone that never initialized the submodule cannot read the leg at
+    all, and that is a fact about the checkout rather than about the release.
+    Before the fix the refusal was swallowed and every moved member was reported
+    ABSENT AT THE COMMIT — the family's most severe verdict, naming files a
+    reader then cannot find in EITHER tree."""
+    root = _shed_fixture(tmp_path)
+    side_clone = tmp_path / "side-clone"
+    subprocess.run(["git", "clone", "-q", str(root), str(side_clone)],
+                   check=True, capture_output=True)
+    assert list((side_clone / "leg").iterdir()) == [], (
+        "the fixture must reproduce an UNINITIALIZED submodule")
+
+    _point_carve_at(monkeypatch, side_clone)
+    outcome = check_repo(REPO, side_clone, RealGit())
+
+    assert isinstance(outcome, Skip), (
+        "the question could not be asked, so the repository is skipped — "
+        f"got {outcome!r}")
+    assert "leg_spec" in outcome.reason and "cannot be read" in outcome.reason
+    assert "git submodule update --init" in outcome.reason, (
+        "the skip must carry the leg's own remedy, which is the whole reason "
+        "it beats errors naming files that are in neither tree")

@@ -640,22 +640,21 @@ def _sanitized_git_environment() -> dict[str, str]:
     return environment
 
 
-def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
-    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when it is not
-    there. `None` is an ANSWER here, not a swallowed error: the one caller uses
-    it to mean "that commit's tree carries no such entry", which is exactly the
-    case of a commit from BEFORE the § 5.2 shed — where the file is still in
-    this repository's own tree and the caller's ordinary read already found it.
+def _git_text(repo: Path, *arguments: str) -> str | None:
+    """One `git -C <repo> ...` read's stripped stdout, or `None` when git
+    declines — the one spelling of the invocation both readers below share.
 
     Runs with `--no-replace-objects` and a sanitized environment (Copilot,
-    `PRRT_kwDOTAvnrs6hjE-c`): `<revision>:<path>` otherwise resolves through
+    `PRRT_kwDOTAvnrs6hjE-c`): a `<revision>:<path>` otherwise resolves through
     ambient `GIT_DIR`/alternate-object-directory/replace-ref configuration,
     which could make this read a leg commit the root commit does not actually
-    name.
+    name — and the same scrub is what makes the `--git-common-dir` read below
+    answer for the directory this module points git AT rather than for whatever
+    an ambient `GIT_COMMON_DIR` names.
     """
     try:
         done = subprocess.run(
-            ["git", "--no-replace-objects", "-C", str(repo), "rev-parse", f"{revision}:{path}"],
+            ["git", "--no-replace-objects", "-C", str(repo), *arguments],
             capture_output=True,
             text=True,
             check=False,
@@ -665,6 +664,58 @@ def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
         return None
     value = done.stdout.strip()
     return value if done.returncode == 0 and value else None
+
+
+def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
+    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when it is not
+    there. `None` is an ANSWER here, not a swallowed error: the one caller uses
+    it to mean "that commit's tree carries no such entry", which is exactly the
+    case of a commit from BEFORE the § 5.2 shed — where the file is still in
+    this repository's own tree and the caller's ordinary read already found it.
+    """
+    return _git_text(repo, "rev-parse", f"{revision}:{path}")
+
+
+def _leg_object_store(parent: Path, segment: str) -> Path | None:
+    """Where the `segment` submodule's OBJECT STORE is under `parent` — the
+    checked-out working tree when there is one, else the superproject's own
+    copy of it — or `None` when this checkout cannot reach it at all.
+
+    WHY THIS IS NOT `(parent / segment / ".git").exists()`, which is the test
+    the caller used to make inline (`#1048`). That question is "is the leg's
+    WORKING TREE checked out HERE", and a linked worktree never checks a
+    submodule out: `git worktree add` writes the superproject's own tracked
+    files and leaves every gitlink an empty directory. The store is not missing
+    there, it is merely somewhere else — git keeps a submodule's objects in the
+    SUPERPROJECT's common git directory at `modules/<name>`, and every linked
+    worktree of that superproject shares it. The old test therefore answered
+    "not materialized" for a checkout that could read the leg perfectly well,
+    and `doc-health`'s release-inventory family turned that refusal into four
+    members of `contract-v4.0` reported ABSENT AT HEAD from a worktree and
+    present from the checkout the worktree was made from: one commit, two
+    verdicts, neither of them about the release.
+
+    The working tree is preferred whenever it IS checked out, so an ordinary
+    checkout resolves exactly what it resolved before this existed.
+    `--git-common-dir` is asked OF GIT rather than assembled from `.git` by
+    hand, because the caller walks a CHAIN — `openXdox/spec` is a submodule of
+    a submodule — so `parent` is itself a module store at every level past the
+    first, and because this repository is mounted as a submodule in the
+    aggregation workspace, where its own `.git` is a file and its common
+    directory is `<agg>/.git/modules/openxFactory`.
+    """
+    checkout = parent / segment
+    if (checkout / ".git").exists():
+        return checkout
+    common = _git_text(parent, "rev-parse", "--git-common-dir")
+    if common is None:
+        return None
+    root = Path(common)
+    store = (root if root.is_absolute() else parent / root) / "modules" / segment
+    # `HEAD` is git's own first test for "this directory IS a git directory",
+    # and it is what separates a real module store from the empty `modules/`
+    # skeleton that a never-initialized submodule can leave behind.
+    return store if (store / "HEAD").is_file() else None
 
 
 def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] | None:
@@ -690,29 +741,38 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     which is every commit from BEFORE the shed: there the file is still in this
     repository's own tree and the ordinary read already succeeded.
 
-    It RAISES `CarveReachUnavailable` when the gitlink IS recorded and the leg is
-    not materialized, for the reason the module docstring gives: an object store
-    that is not on disk cannot be read, and a reader that quietly found nothing
-    reports as a green bar.
+    It RAISES `CarveReachUnavailable` when the gitlink IS recorded and the leg's
+    object store is not reachable from this checkout AT ALL — neither checked
+    out here nor held as the superproject's own `modules/<name>` copy — for the
+    reason the module docstring gives: an object store that is not on disk
+    cannot be read, and a reader that quietly found nothing reports as a green
+    bar. A LINKED WORKTREE IS NOT THAT CASE, and was refused as one until
+    `#1048`; `_leg_object_store` above carries the why. The MOUNT path is
+    tracked alongside the store so the refusal still names `openXdox` or
+    `openXdox/spec` — the thing a reader can go and initialize — rather than a
+    git directory nobody ever checked out.
     """
     key = str(path).replace("\\", "/")
     row = _rows().get(key)
     if row is None or row["disposition"] == "not_moved":
         return None
     repo = REPO_ROOT
+    mount = REPO_ROOT
     revision = commit
     for segment in MOUNTS[row["destination"]].relative_to(REPO_ROOT).parts:
         gitlink = _git_object_id(repo, revision, segment)
         if gitlink is None:
             return None
-        repo = repo / segment
-        revision = gitlink
-        if not (repo / ".git").exists():
+        mount = mount / segment
+        store = _leg_object_store(repo, segment)
+        if store is None:
             raise CarveReachUnavailable(
                 f"the pinned {row['destination']} leg is not materialized: "
-                f"{repo.relative_to(REPO_ROOT)} carries no Git object store, so "
+                f"{mount.relative_to(REPO_ROOT)} carries no Git object store, so "
                 f"{key} cannot be read at the commit that pins it. Run "
                 f"`{INIT_COMMAND}` from the repository root.")
+        repo = store
+        revision = gitlink
     return repo, revision, row["destination_path"]
 
 
