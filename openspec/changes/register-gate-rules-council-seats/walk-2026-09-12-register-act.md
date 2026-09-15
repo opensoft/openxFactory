@@ -1329,7 +1329,7 @@ C2 packet in its tree (`git cat-file -e cd5ee340:<packet path>` OK), and its
 pin post-dates every convening run this council has had, so it is unspent by
 construction — the same shape as the proof candidate. Fallback: #474 head
 `049455c054cc…` (single-parent, two test files, same properties). The
-2026-09-14 first-parent screen of #474/#473/#470/#469/#468/#466/#467/#448 found
+2026-09-15 head-shape screen of #474/#473/#470/#469/#468/#466/#467/#448 found
 every one T1-descended, packet-carrying and machinery-free; #470 and #474 are
 the two single-parent heads.
 
