@@ -247,14 +247,31 @@
 # prove is that the arrived test was the surface's only reader, or that no
 # other file should follow it.
 #
-# NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
-# and retires nothing: the three intent-feed suites RULED 5656343213 retires
-# are the act that uses it, under their own claim and their own pull requests,
-# so every count in this file is unmoved by this landing — exactly as RULED Q6
-# landed above with no row carrying `re_destined:`. `retired 0` is what
-# `scripts/validate-carve-manifest.py` prints for this document until then, on
-# every run, in both phases and at zero, so the state the file is in is never
-# the state no log records.
+# TWO ROWS BELOW CARRY THE FIELD, and this paragraph is where the act that
+# put them there is named. AS FIRST LANDED (openxFactory PR #1032) this
+# amendment carried the FORM and its gates and retired nothing — exactly as
+# RULED Q6 landed above with no row carrying `re_destined:` — so the grammar
+# could be reviewed apart from its use. THE FIRST USE is openxFactory PR
+# #1043 (`#656` CLAIM `5656690570`), the two intent-feed suites
+# `tests/ideation-dashboard/test_intent_tray_dom.py` and
+# `tests/ideation-dashboard/test_wheel_verbs_dom.py`: both retired at
+# `opendox_code`, both citing
+# `scripts/ideation_dashboard/web/views/intent-feed.js` — the RULED OQ-F
+# `not_moved` surface that stayed HERE and reached neither leg — and both
+# deleted at the leg by opensoft/openDox-code#24, the pull request this
+# annotation lands ahead of (cutover-runbook § 5.8 step 2). `retired 2` is
+# what `scripts/validate-carve-manifest.py` prints for this document today;
+# the count prints on every run, in both phases and at zero, so the state the
+# file is in is never the state no log records.
+#
+# THE RULING'S THIRD SUITE CARRIES NO BLOCK, and could not. RULED 5656343213
+# retires three, and the third is the ENDING REPLAY inside
+# `tests/ideation-dashboard/test_staging_workbench.py` — a PART of a file
+# whose other tests drive surfaces `openxdox_code` has, so its row goes on
+# arriving and there is nothing to retire. `retired:` retires a ROW and a row
+# is a FILE; that one is an ORDINARY declared edit on the row's own `edits[]`
+# (`adapter calls`, 177 lines), realized at opensoft/openXdox-code#20 and
+# stated at cutover-runbook § 5.8 "What the form CANNOT express".
 #
 # THE GATES, FIVE OF THEM: `retired:` on a `not_moved` row refuses
 # `carve-retired-not-moved` (a row that placed nothing has no arrival to
@@ -3377,6 +3394,12 @@ rows:
     sha256: "d790bae298aeb7a0c4feb21d9e71c39e66da18e275aef2d5eec5811efea0f342"
     destination: opendox_code
     destination_path: tests/test_intent_tray_dom.py
+    retired:
+      at: opendox_code
+      at_path: tests/test_intent_tray_dom.py
+      ruling: "opensoft/openxFactory#656 comment 5656343213 (RULED, Brett Heap, 2026-09-13, by interactive multi-choice, on the question slice S8's author put in `#656` comment 5650335573 § 2)"
+      surface: scripts/ideation_dashboard/web/views/intent-feed.js
+      note: "23 tests that copy `views/intent-feed.js` out of the bundle and drive it under node. That surface is RULED OQ-F `not_moved` — it STAYED at openxFactory and arrived at NEITHER leg — and § 3.4 slice S2 replaced the one openDox does have with `views/intent-binding.js` (RULED Q5, `#656` comment 5642758731), so the suite tests a surface that is not there and has NEVER been on the leg's validate.yml selection — that list is an allow-list and RULED Q-L5 (b') kept this suite off it from the day it arrived, which is what 'narrowed' means here and is not a claim that anything was removed from it. The retirement removes the FILE; the selection is untouched by it. Deleted at the leg by opensoft/openDox-code PR #24 (DRAFT), which also repairs the prose this deletion falsified in the files that leg OWNS — its `validate.yml` comment and the two intent-binding suites' docstrings — and leaves the two sentences inside CARVED files that name the deleted sibling, listed as a known cost there and in cutover-runbook § 5.8 ('the repair stops at a carved file'). The node-driven DOM-probe pattern it founded survives at that leg in tests/test_intent_binding_dom.py and tests/test_view_registry.py."
     edits:
       - class: path constants
         lines: [30]
@@ -3846,7 +3869,10 @@ rows:
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
       - class: adapter calls
         lines: [1895, 1896, 1897, 1898, 1900, 1906, 1907, 1918, 1926, 1928]
-        note: "§ 3.4 SLICE S5, RULED Q3 (`#656` comment `5648044785`): ONE mount signature, `mount(host, snapshot, ctx)`. `_ENDING_REPLAY_HARNESS` called `mountSessionAffordances(host, ctx, opts)` at :1926 and :1928, so the session context arrived as the SNAPSHOT and the seams as the `ctx` — the mount saw no `session` and no `model`, took the refusal path, and the replay failed before it exercised the ending behaviour it exists to measure. :1900/:1918 rename the two objects to RULED Q3's shape (`session` and `ctx`), :1897 adds the model namespace import RULED counterpart Q6 requires, and :1895-1896/:1906-1907 are the declaring lines beside them."
+        note: "§ 3.4 SLICE S5, RULED Q3 (`#656` comment `5648044785`): ONE mount signature, `mount(host, snapshot, ctx)`. `_ENDING_REPLAY_HARNESS` called `mountSessionAffordances(host, ctx, opts)` at :1926 and :1928, so the session context arrived as the SNAPSHOT and the seams as the `ctx` — the mount saw no `session` and no `model`, took the refusal path, and the replay failed before it exercised the ending behaviour it exists to measure. :1900/:1918 rename the two objects to RULED Q3's shape (`session` and `ctx`), :1897 adds the model namespace import RULED counterpart Q6 requires, and :1895-1896/:1906-1907 are the declaring lines beside them. AMENDED by RULED 5656343213 (2026-09-13): every line this entry names now sits INSIDE the block that ruling removed, so what the arrived file differs by at these lines is no longer S5's rename but the deletion the entry below names in full. The lines stay declared; the history stays readable."
+      - class: adapter calls
+        lines: [1833, 1834, 1835, 1836, 1837, 1838, 1839, 1840, 1841, 1842, 1843, 1844, 1845, 1846, 1847, 1848, 1849, 1850, 1851, 1852, 1853, 1854, 1855, 1856, 1857, 1858, 1859, 1860, 1861, 1862, 1863, 1864, 1865, 1866, 1867, 1868, 1869, 1870, 1871, 1872, 1873, 1874, 1875, 1876, 1877, 1878, 1879, 1880, 1881, 1882, 1883, 1884, 1885, 1886, 1887, 1888, 1889, 1890, 1891, 1892, 1893, 1894, 1895, 1896, 1897, 1898, 1899, 1900, 1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908, 1909, 1910, 1911, 1912, 1913, 1914, 1915, 1916, 1917, 1918, 1919, 1920, 1921, 1922, 1923, 1924, 1925, 1926, 1927, 1928, 1929, 1930, 1931, 1932, 1933, 1934, 1935, 1936, 1937, 1938, 1939, 1940, 1941, 1942, 1943, 1944, 1945, 1946, 1947, 1948, 1949, 1950, 1951, 1952, 1953, 1954, 1955, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2028, 2029, 2030]
+        note: "RULED 5656343213 (Brett Heap, 2026-09-13, by interactive multi-choice) RETIRES the ENDING REPLAY of this suite — `_DOM_SHIM`, `_ENDING_REPLAY_HARNESS`, `_run_ending_replay()` and `test_the_ending_report_really_reaches_the_slot_the_re_render_rebuilt`, carve lines 1833-2006 — plus the three-line docstring tail at 2028-2030 that named the removed probe as the owner of the behaviour. THIS IS NOT A `retired:` BLOCK, and cannot be: that form retires a ROW and a row is a FILE, while this file's other tests drive surfaces the leg has, so the row goes on arriving (cutover runbook § 5.8, 'What the form CANNOT express'). The harness copied `views/intent-feed.js` out of the bundle and that file is RULED OQ-F `not_moved`, at neither leg — the probe could never have run there. Filed under `adapter calls` because the closed RULED OQ-1 vocabulary has no class for a removal and this is the class the S5 entry above already gave these exact lines; the ten lines that entry names are inside this range and are declared twice on purpose, so the removed block's extent is readable in one place. Realized at opensoft/openXdox-code PR #20 (DRAFT)."
   - source_path: tests/ideation-dashboard/test_subcommand_extension.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -3909,6 +3935,12 @@ rows:
     sha256: "6a432e662aad8e16bb169d356a09ecd6b10034b1ac4c946e8c667aae3643e33b"
     destination: opendox_code
     destination_path: tests/test_wheel_verbs_dom.py
+    retired:
+      at: opendox_code
+      at_path: tests/test_wheel_verbs_dom.py
+      ruling: "opensoft/openxFactory#656 comment 5656343213 (RULED, Brett Heap, 2026-09-13, by interactive multi-choice, on the question slice S8's author put in `#656` comment 5650335573 § 2)"
+      surface: scripts/ideation_dashboard/web/views/intent-feed.js
+      note: "8 tests, the same instrument and the same surface: `views/intent-feed.js`, RULED OQ-F `not_moved`, at neither leg. Retired with its sibling under one ruling and deleted in the same commit at opensoft/openDox-code PR #24 (DRAFT). Its own declared edit — `path constants` at :26 — is untouched and stays: a retirement is a fact about a DESTINATION, and the row goes on recording the file that LEFT openxFactory and the line the leg rewrote while it was there."
     edits:
       - class: path constants
         lines: [26]

@@ -127,7 +127,7 @@ object this repository carries and an ANCESTOR of the revision under test — th
 shed deletes files from a tree, it does not delete a commit from a history, so
 `git cat-file blob b075fd91:<path>` answers after the shed exactly as before.
 Check 3 PASS 1 therefore still recomputes all 318 digests from the referent's
-real bytes and still bounds all 1584 declared lines against them; check 4 still
+real bytes and still bounds all 1761 declared lines against them; check 4 still
 walks the referent for completeness, still refuses a file that has APPEARED
 under the surface, and still requires every `stays_*` and
 `replicated_at_destination` row to be PRESENT; checks 1, 5 and 6 never read the
@@ -2556,8 +2556,12 @@ def validate(manifest_path: Path, repo: Path,
     # human line and whether the number is 0 or 48: a placement corrected by a
     # ruling is the one thing in this document that is not the carve's own act,
     # and a reader of a CI log must be able to see how many of them the
-    # manifest now carries without opening it. Zero is the state the file
-    # landed in and is as much a fact as any other.
+    # manifest now carries without opening it. Zero was the state the file
+    # landed in AT RULED Q6 (PR #1011) and is as much a fact as any other; it
+    # has printed 4 since § 3.4 slice S5 re-destined that many, and the
+    # retirement clause below prints 2 since RULED 5656343213's first use
+    # (PR #1043). One clause each, unconditional, so no count is ever the
+    # state no log records.
     re_destined = sum(1 for row in doc["rows"]
                       if isinstance(row.get("re_destined"), dict))
     # COUNTED SEPARATELY FROM `re_destined` AND FROM THE DISPOSITIONS (RULED
@@ -2704,8 +2708,10 @@ def main(argv: list[str] | None = None) -> int:
         # suppressed it, making the landed manifest's own state the one count
         # this line never showed); this clause is written with that lesson
         # already learned, and `test_the_human_line_prints_the_retirement_zero_
-        # state_too` holds it. Zero is the state this form lands in and is as
-        # much a fact as any other.
+        # state_too` holds it. Zero was the state this form LANDED in and is as
+        # much a fact as any other; since its first use (RULED 5656343213's own
+        # act, PR #1043) this document prints 2, and the clause that prints
+        # both is the same clause.
         retired_note = (
             f"; {summary['retired']} row(s) RETIRED by ruling "
             "(RULED 5656343213)")
