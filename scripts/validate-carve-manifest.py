@@ -32,11 +32,14 @@ Two of them read the revision under test and therefore read `phase:` — see
      passes), `kind`, the three consts, a 40-lowercase-hex `carve_commit`, a
      label `carve_tag`, the closed maps and lists, the CLOSED top-level and
      per-disposition key sets, and the per-disposition required keys
-     (`carve-shape-invalid`). Two arms here carry their own codes because the
+     (`carve-shape-invalid`). FOUR arms here carry their own codes because the
      defect they name is not a typo: `re_destined:` on a `not_moved` row is
      `carve-re-destined-not-moved` — there is no arrival to re-place — and a
      `re_destined:` without `ruling:` is `carve-re-destined-unruled`, RULED Q6
-     having scoped the form to a RULED mis-placement only.
+     having scoped the form to a RULED mis-placement only; `retired:` on a
+     `not_moved` row is `carve-retired-not-moved` and a `retired:` without
+     `ruling:` is `carve-retired-unruled`, RULED 5656343213 scoping that form
+     the same way (see THE FOURTH GRAMMAR EXTENSION below).
   2. REVISION — `carve_commit` must name a COMMIT OBJECT THIS REPOSITORY
      CARRIES (not an annotated tag's object id, which is also 40 hex and which
      git would peel silently) and be an ANCESTOR of the REVISION UNDER TEST
@@ -79,9 +82,9 @@ Two of them read the revision under test and therefore read `phase:` — see
      "a file in no row" sentence as running code — the one failure mode per-file
      digests cannot see, because they say nothing about a file nobody listed.
   5. CLOSED VOCABULARIES — `disposition`, `edits[].class`, `destination`,
-     `also_replicated_to[]`, `re_destined.from`, `re_destined.to` and `reason`
-     are each membership-tested against a closed list
-     (`carve-vocabulary-unknown`).
+     `also_replicated_to[]`, `re_destined.from`, `re_destined.to`,
+     `retired.at` and `reason` are each membership-tested against a closed
+     list (`carve-vocabulary-unknown`).
   6. DISPOSITION CONSISTENCY — `moved_with_declared_edit` with no `edits:` is
      `moved_verbatim` mislabelled; `moved_verbatim` with `edits:`, or
      `not_moved` with `edits:` under any reason but
@@ -91,9 +94,12 @@ Two of them read the revision under test and therefore read `phase:` — see
      `from`/`from_path` are not the row's own `destination`/`destination_path`
      or whose `to` equals its `from`. A row whose `(to, to_path)` is another
      row's `(from, from_path)` is a CHAIN and refuses
-     `carve-re-destined-chain`. Then the rows' file order must equal their
-     bytewise-UTF-8 sort, which is what the const `path_order: bytewise_utf8`
-     claims (`carve-path-order-violation`).
+     `carve-re-destined-chain`. So is a `retired:` whose `at`/`at_path` are
+     not the row's EFFECTIVE arrival; and a `retired.surface` that is not a
+     `not_moved` row of this manifest refuses `carve-retired-surface-live`.
+     Then the rows' file order must equal their bytewise-UTF-8 sort, which is
+     what the const `path_order: bytewise_utf8` claims
+     (`carve-path-order-violation`).
 
 THE TWO PHASES, AND WHY THE DECLARATION IS IN THE MANIFEST (`phase:`). This
 document outlives the tree it describes by exactly one act: § 5.2, the shed,
@@ -265,6 +271,93 @@ disposition and NEITHER OF THEM A PLACEMENT".
   the two errors this check exists to prevent, in both directions at once. The
   SURFACE walk is untouched: it is a claim about SOURCE paths, and a
   re-destination moves nothing at the source.
+
+THE FOURTH GRAMMAR EXTENSION, RULED 5656343213 (Brett Heap, 2026-09-13, by
+interactive multi-choice, on the question slice S8's author put in `#656`
+comment `5650335573` § 2). It is the SECOND extension about PLACEMENT, and it
+is the one Q6 could not be stretched to cover: Q6 moves an arrival BETWEEN two
+legs, and what S8 measured has no leg to move it to.
+
+  `retired: {at, at_path, ruling, surface, note}` ON A MOVED ROW, OPTIONAL.
+  It says: this row's bytes ARRIVED at `at:at_path`, a RULING has since
+  DELETED that arrival as a declared act, and the floor now asks for the file
+  to be ABSENT there. `at`/`at_path` are the row's EFFECTIVE arrival — its own
+  `destination`/`destination_path`, or `re_destined.to`/`to_path` where Q6 has
+  already moved the placement — so a row may be re-destined and THEN retired,
+  and the retirement lands at the leg the file actually reached. `surface:` is
+  the openxFactory path of the SURFACE the arrived file drove, held to a
+  `not_moved` row of this manifest. `ruling:` is required PRESENT, on Q6's own
+  scope reasoning.
+
+  WHAT DOES NOT MOVE, and the list is Q6's own plus the one that matters most
+  here: `carve_commit`, `carve_tag`, every `sha256`, every `git_mode`, the
+  row's `disposition`, its `edits[]` and the lines they name — AND EVERY
+  SOURCE-SIDE QUESTION. A retirement is a fact about a DESTINATION. Check 3's
+  two passes and check 4's surface walk go on asking of a retired row exactly
+  what they ask of any other moved row, in both phases: declared at the
+  referent, byte-identical there, and absent at the revision under test under
+  `post-shed`. A retired row is still a file that LEFT openxFactory, and the
+  document still records where the carve put it.
+
+  WHAT S8 NEEDS IT FOR. Three suites arrived at their legs driving
+  `views/intent-feed.js` — RULED OQ-F `not_moved`, so it stayed HERE and
+  arrived at NEITHER leg, and slice S2 replaced the surface openDox does have
+  with `views/intent-binding.js`. The suites test a surface that is not there.
+  `re_destined:` cannot say so: `to` is held to the CLOSED `destinations:`
+  keys, openxFactory is the SOURCE and not one of them, and `re_destined:` on
+  a `not_moved` row refuses `carve-re-destined-not-moved`. Deleting the
+  arrived file with no form at all was the other option, and it is the one
+  this floor exists to refuse — a file at no leg, in a row that says it
+  arrived there, is RULING OQ-1's UNDECLARED MOVEMENT read backwards.
+
+  WHY NOT A RE-CUT, and the argument is Q6's, unchanged: § 11 re-cuts at a NEW
+  `carve_commit` with every digest recomputed, this manifest is
+  `phase: post-shed`, and a manifest re-emitted at a post-shed commit would
+  carry no moved rows at all. A retirement is destination-side and corrects
+  what a RULING placed. Correcting a ruling is DECLARED, not re-cut.
+
+  THE FIVE REFUSALS, AND WHICH CHECK OWNS EACH — three of them this form's
+  OWN codes and two of them the codes the checks that already ask those
+  questions raise (the count is the failure modes, not the vocabulary; PR
+  #1032's Copilot review read the old heading against the list below and was
+  right to). `retired:` on a `not_moved`
+  row is `carve-retired-not-moved` in check 1, for the reason
+  `carve-re-destined-not-moved` is: a row that placed nothing has no arrival
+  to retire. A `retired:` with no `ruling:` is `carve-retired-unruled`, also
+  check 1 and for Q6's reason exactly — the citation is the one absence that
+  is a governance defect rather than a typo, so it is required PRESENT and
+  non-empty and its FORM is not constrained. `at` outside `destinations:` is
+  check 5's `carve-vocabulary-unknown`, the same membership test a row's own
+  `destination` gets. `at`/`at_path` disagreeing with the row's EFFECTIVE
+  arrival is check 6's `carve-disposition-inconsistent` — a row contradicting
+  itself. And a `surface:` that is not a `not_moved` row of this manifest is
+  check 6's `carve-retired-surface-live`.
+
+  WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON — AND WHAT
+  THAT DOES NOT PROVE. The claim a retirement rests on is that the surface the
+  arrived file drove is gone from BOTH legs, and the one way THIS document can
+  answer that without reading a leg is a disposition it already carries: a
+  `not_moved` row STAYED at openxFactory, so by the manifest's own declaration
+  it arrived at no destination at all. A MOVED surface is LIVE at a leg, and a
+  suite driving a live surface is not retired for the reason this form serves.
+  A `surface:` in NO row refuses under the same code rather than being
+  admitted: the manifest says nothing about a file it never declared, and
+  "this document cannot say" is not "gone" in a fail-closed floor. AND ONE
+  `not_moved` REASON IS EXCLUDED WITH THE MOVED ROWS: a
+  `replicated_at_destination` row is `not_moved` because the file is RETAINED
+  here, not because it is absent there — RULED OQ-C has every destination
+  place its own copy and RULED Q-L7 (a) lets the row declare the edits those
+  copies carry — so a surface cited against a replica row is live at each leg
+  that placed one. Widening any of the three is a ruling's act and not this
+  file's. What the check does NOT prove is that the arrived
+  test was the surface's only reader, or that no other suite should follow it.
+  The form RECORDS a ruled act and bounds it; it does not discover one.
+
+  CHECK 4 STOPS RESERVING A RETIRED ROW'S ARRIVAL. The duplicate-arrival map
+  skips a retired row, because that path is EMPTY once the act lands and
+  another row may lawfully move into it — the same reading, and the same
+  reason, that keyed the map on the EFFECTIVE arrival for Q6. Two retired rows
+  naming one path do not collide either: neither of them is there.
 
 WHY CHECK 2 IS ANCESTRY AND NOT IDENTITY (AMENDED 2026-09-09, before the
 manifest was authored). As landed, check 2 required the revision under test to
@@ -517,6 +610,15 @@ KNOWN_NOT_MOVED_REASONS: tuple[str, ...] = (
 # prefix as the OWNERSHIP split between the two tools ("every `carve-*` code is
 # a manifest that disagrees with openxFactory"), so a bare `re-destined-*` here
 # would be a manifest finding outside the namespace that sentence describes.
+# AND THREE MORE joined with the `retired:` row form (RULED 5656343213, Brett
+# Heap, 2026-09-13), on the same reasoning and with the same prefix:
+# `carve-retired-not-moved` (a row with no arrival retiring one),
+# `carve-retired-unruled` (the citation the form's scope answer requires,
+# absent) and `carve-retired-surface-live` (a retirement citing a surface this
+# manifest does not say is gone from both legs). The two pairs are deliberately
+# NOT one shared code apiece: a caller branching on the code is told WHICH form
+# it is reading, and the remedies differ — a re-destination is amended in
+# place, a retirement is withdrawn.
 # Extending it is a ruled act, it is visible in the diff that does it, and
 # `RATIFIED_CODES` in `tests/carve_manifest/test_carve_manifest.py` restates the
 # tuple as a literal, so no member can be added, removed or reordered in silence.
@@ -535,6 +637,9 @@ REFUSAL_CODES: tuple[str, ...] = (
     "carve-re-destined-not-moved",
     "carve-re-destined-unruled",
     "carve-re-destined-chain",
+    "carve-retired-not-moved",
+    "carve-retired-unruled",
+    "carve-retired-surface-live",
     "carve-unreadable",
 )
 
@@ -551,7 +656,11 @@ REMEDIATION = (
     "early — the shed and the flip land together or not at all. A "
     "`carve-re-destined-*` refusal is not a re-cut either: amend the one "
     "row's own `re_destined:` block in place, citing the ruling that ordered "
-    "the move — a row already re-destined is AMENDED, never re-destined twice."
+    "the move — a row already re-destined is AMENDED, never re-destined twice. "
+    "A `carve-retired-*` refusal is not a re-cut either: a retirement is a "
+    "DESTINATION-side act (RULED 5656343213), so the remedy is the `retired:` "
+    "block and the leg's own deletion — never a digest, never a disposition, "
+    "and never the source path, which a retirement does not touch."
 )
 
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -570,6 +679,20 @@ EDIT_KEYS = {"class", "lines", "note"}
 # entry's is.
 RE_DESTINED_KEYS = frozenset({"from", "from_path", "to", "to_path", "ruling",
                               "note"})
+
+# `retired:`' OWN KEY SET, CLOSED to exactly these five (RULED 5656343213).
+# Four are REQUIRED. `at`/`at_path` name the placement the act RETIRES, for
+# the reason `re_destined:`' `from`/`from_path` name the one it corrects: the
+# row keeps `destination`/`destination_path` unedited, so the block has to say
+# which arrival it is about, and saying it lets check 6 hold the claim to the
+# row's own EFFECTIVE arrival rather than trusting a reader to re-derive it.
+# `ruling:` is required on Q6's scope reasoning. `surface:` is the fourth, and
+# it is what makes the form a FLOOR rather than a licence to delete an arrived
+# file: it names the openxFactory path of the surface the arrived file drove,
+# and check 6 holds it to a `not_moved` row — the manifest's own way of saying
+# "this arrived at no leg". `note:` is the one optional key, prose, exactly as
+# an `edits[]` entry's and a `re_destined:`' are.
+RETIRED_KEYS = frozenset({"at", "at_path", "ruling", "surface", "note"})
 
 # A `destinations:` KEY is a label, never a referent — a row's own
 # `destination` is always a string (`_require_str` enforces it on every
@@ -629,6 +752,12 @@ TOP_LEVEL_KEYS = frozenset({
 # not the generic "carries a destination" message, because a row asking to be
 # re-destined is asking a coherent question with an incoherent premise.
 #
+# `retired` is on the MOVED dispositions ONLY (RULED 5656343213), by the same
+# sentence one step further on: a row that placed nothing has no arrival to
+# RETIRE either. Its refusal is its own arm too, under
+# `carve-retired-not-moved`, and for the same reason — the row is asking a
+# coherent question about a premise it does not have.
+#
 # `also_replicated_to` is on the MOVED dispositions ONLY (RULED Q-L7 (a)). A
 # `not_moved` row declares no destination at all, so it cannot declare an
 # ADDITIONAL one: a replica row is already replicated at every destination that
@@ -639,10 +768,12 @@ TOP_LEVEL_KEYS = frozenset({
 ROW_KEYS_BY_DISPOSITION: dict[str, frozenset[str]] = {
     "moved_verbatim": frozenset({
         "source_path", "disposition", "git_mode", "sha256", "destination",
-        "destination_path", "edits", "also_replicated_to", "re_destined"}),
+        "destination_path", "edits", "also_replicated_to", "re_destined",
+        "retired"}),
     "moved_with_declared_edit": frozenset({
         "source_path", "disposition", "git_mode", "sha256", "destination",
-        "destination_path", "edits", "also_replicated_to", "re_destined"}),
+        "destination_path", "edits", "also_replicated_to", "re_destined",
+        "retired"}),
     "not_moved": frozenset({
         "source_path", "disposition", "reason", "evidence", "edits"}),
 }
@@ -1118,6 +1249,8 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
                                          row["also_replicated_to"])
         if "re_destined" in row:
             _check_re_destined_shape(where, source_path, row["re_destined"])
+        if "retired" in row:
+            _check_retired_shape(where, source_path, row["retired"])
         for key in sorted(ROW_KEYS - ROW_KEYS_BY_DISPOSITION[disposition]):
             if key in row:
                 raise CarveRefusal(
@@ -1148,6 +1281,26 @@ def _check_row_shape(index: int, row: Any, moved_paths: list[str]) -> None:
                 "If the ruling really moves a file this manifest says stays, "
                 "that is a change of DISPOSITION and a re-cut question, not "
                 "this field")
+        # ITS OWN ARM, ahead of the generic loop, on the reasoning one
+        # paragraph up: a `not_moved` row placed nothing, so there is no
+        # arrival for a ruling to RETIRE, and the generic message ("a digest,
+        # a mode or a DESTINATION … is the claim that these bytes arrive
+        # somewhere") would answer a question this row did not ask.
+        if "retired" in row:
+            raise CarveRefusal(
+                "carve-retired-not-moved",
+                f"{where} ({source_path}) is `not_moved` and carries "
+                "`retired:`. RULED 5656343213 puts that field on a MOVED row, "
+                "to say that a RULING has DELETED an arrival the carve made; "
+                "a `not_moved` row placed nothing, so there is no arrival to "
+                "retire. A row that STAYS is openxFactory's own file and its "
+                "removal is an ordinary openxFactory commit, not a carve act; "
+                "a row already `deleted_at_carve` is gone by disposition; and "
+                f"a `{REPLICA_REASON}` row's copies are placed by the leg "
+                "(RULED OQ-C), so retiring one would be un-placing something "
+                "this manifest never placed. If the ruling really removes a "
+                "file this manifest says stays, that is a change of "
+                "DISPOSITION and a re-cut question, not this field")
         if "also_replicated_to" in row:
             raise CarveRefusal(
                 "carve-shape-invalid",
@@ -1333,6 +1486,116 @@ def _check_re_destined_shape(where: str, source_path: str, value: Any) -> None:
             "carve-shape-invalid",
             f"{where} ({source_path}) declares `re_destined.note: "
             f"{value['note']!r}`; a note is prose or it is absent")
+
+
+def _check_retired_shape(where: str, source_path: str, value: Any) -> None:
+    """`retired:` is a CLOSED mapping of four required strings and one
+    optional note (RULED 5656343213).
+
+    SHAPE ONLY, and the split is the one `re_destined:` already keeps. WHETHER
+    `at` is a key of `destinations:` is check 5's question. WHETHER `at`/
+    `at_path` are the row's own EFFECTIVE arrival, and whether `surface:`
+    names a `not_moved` row of this manifest, are check 6's — a row
+    contradicting itself, and a row contradicting the document, rather than a
+    document mis-shaped.
+
+    THE MISSING `ruling:` IS NOT `carve-shape-invalid`, for the reason
+    `_check_re_destined_shape` gives verbatim: every other absent key here is a
+    typo, and this one is the whole scope answer of the ruling that created the
+    field. Its FORM is unconstrained for the same reason — a citation in this
+    estate is a comment id, a `#656` reference or a pull request URL, and a
+    pattern here would refuse a legitimate one and teach the author to write
+    whatever the pattern wanted.
+
+    BOTH PATHS GO THROUGH `_require_closed_relative_path`. `at_path` is the
+    path `verify-carve-arrival.py` requires ABSENT at the retiring leg, so an
+    absolute or `../` value would ask that question about a file outside the
+    tree it is about; `surface:` is looked up as a `source_path` of this
+    manifest, and a value that could not be one is a typo worth naming here
+    rather than a "no such row" two checks later.
+    """
+    if not isinstance(value, dict):
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} ({source_path}) declares `retired: {value!r}`; a "
+            "mapping of `{at, at_path, ruling, surface, note?}` is required "
+            "(RULED 5656343213)")
+    stray = sorted(set(value) - RETIRED_KEYS, key=repr)
+    if stray:
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} ({source_path}) declares `retired:` with the unknown "
+            f"key(s) {stray!r}; the field is closed to "
+            f"{sorted(RETIRED_KEYS)!r}, so a field nobody validates is a "
+            "field nobody reads")
+    if "ruling" not in value or not isinstance(value.get("ruling"), str) \
+            or not value["ruling"].strip():
+        raise CarveRefusal(
+            "carve-retired-unruled",
+            f"{where} ({source_path}) declares `retired:` with "
+            f"`ruling: {value.get('ruling')!r}`. RULED 5656343213 scoped this "
+            "form to a RULED retirement and required the citation PRESENT — "
+            "without it the field is a quiet way to DELETE an arrived file "
+            "after the carve is closed, which is the one use the ruling "
+            "refused. Name the comment that ordered the retirement (a `#656` "
+            "comment id, or the pull request URL that carries the ruling); "
+            "the form of the citation is yours, its presence is not")
+    _require_str(value, "at", f"{where} ({source_path}) `retired`")
+    for key in ("at_path", "surface"):
+        _require_closed_relative_path(
+            value, key, f"{where} ({source_path}) `retired`")
+    if "note" in value and (not isinstance(value["note"], str)
+                            or not value["note"].strip()):
+        raise CarveRefusal(
+            "carve-shape-invalid",
+            f"{where} ({source_path}) declares `retired.note: "
+            f"{value['note']!r}`; a note is prose or it is absent")
+
+
+def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
+    """`(destination key, destination path)` a RULING has RETIRED this row's
+    arrival at (RULED 5656343213) — or `(None, None)` where the row carries no
+    usable retirement.
+
+    THE SAME PREDICATE LIVES IN `scripts/verify-carve-arrival.py` AND
+    `scripts/carved_reach.py`, kept in step the way `effective_arrival` is and
+    for the same reason: none of the three can import either of the others, so
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_all_three_tools_read_the_retirement_identically`
+    asserts the three copies equal over a table rather than trusting them to
+    agree.
+
+    GUARDED AT EVERY LEVEL, and the guard FAILS CLOSED IN THE OTHER DIRECTION
+    from `effective_arrival`'s, which is the whole reason it is spelled out.
+    Half a re-destination reads as no re-destination and the row stays owed at
+    its original leg; half a RETIREMENT must read as NO retirement, because
+    reading it as one would let `retired: {}` — or a block whose `at_path` is
+    a list — SILENCE the arrival check for that row at every leg. Both
+    defaults are the same sentence: where the block cannot be read, the answer
+    is the placement the CARVE made, and a mis-shaped block is
+    `validate-carve-manifest.py`'s `carve-shape-invalid`, never a licence.
+
+    ALL FOUR REQUIRED KEYS ARE THE GUARD, not the two a placement needs
+    (Copilot review of PR #1032, round 2). `retired: {at, at_path}` is half a
+    block: `validate-carve-manifest.py` refuses it — `carve-retired-unruled`,
+    then `carve-shape-invalid` on the missing `surface` — but THIS predicate is
+    read by tools that never run that validator. `verify-carve-arrival.py` is
+    run at a leg against a `--dest-root` and `carved_reach` is imported by
+    every retained consumer, so "the validator would have caught it" is not
+    true at the moment of reading; a half-written block would silence a
+    required arrival before anyone validated the document. Four non-empty
+    strings or no retirement — the same closed key set (`at`, `at_path`,
+    `ruling`, `surface`, and the optional `note`) the form itself declares.
+    """
+    retired = row.get("retired")
+    if isinstance(retired, dict):
+        at = retired.get("at")
+        at_path = retired.get("at_path")
+        ruling = retired.get("ruling")
+        surface = retired.get("surface")
+        if all(isinstance(value, str) and value.strip()
+               for value in (at, at_path, ruling, surface)):
+            return at, at_path
+    return None, None
 
 
 def effective_arrival(row: dict[str, Any]) -> tuple[Any, Any]:
@@ -1735,9 +1998,21 @@ def check_surface(doc: dict, referent: dict[str, TreeEntry],
     # a row re-destined off a path some other row still occupies is answered
     # at the destination instead, where the file either is or is not there:
     # `verify-carve-arrival.py`'s `arrival-not-vacated`.
+    #
+    # AND A RETIRED ROW RESERVES NOTHING (RULED 5656343213). Its arrival is
+    # DELETED by the act the block declares, so the path is empty and another
+    # row may lawfully move into it — the same reading, for the same reason,
+    # that keyed this map on the EFFECTIVE arrival rather than on the raw one.
+    # Keeping a retired row in the map would refuse that refill as a duplicate
+    # while the tree carries exactly one file; two retired rows at one path do
+    # not collide either, because neither of them is there. The un-retired
+    # half is the destination's question, where the file either is or is not:
+    # `verify-carve-arrival.py`'s `arrival-not-retired`.
     arrivals: dict[tuple[str, ...], int] = {}
     for index, row in enumerate(doc["rows"]):
         if row.get("disposition") not in MOVED_DISPOSITIONS:
+            continue
+        if retired_at(row)[1] is not None:
             continue
         dest_key, dest_path = effective_arrival(row)
         dest_entry = destinations.get(dest_key)
@@ -1897,6 +2172,22 @@ def check_vocabularies(doc: dict) -> None:
                         "an arrival between two DECLARED destinations; one "
                         "typo otherwise re-homes a file to a repository "
                         "nobody declared")
+        # AND ON A RETIREMENT'S ONE END (RULED 5656343213). `at` is where
+        # `verify-carve-arrival.py` requires the file ABSENT, so a key nobody
+        # declared is a retirement nobody can check — the same sentence
+        # `re_destined.from` gets one line up.
+        retired = row.get("retired")
+        if isinstance(retired, dict):
+            value = retired.get("at")
+            if value is not None and value not in destinations:
+                raise CarveRefusal(
+                    "carve-vocabulary-unknown",
+                    f"{where}.retired.at declares {value!r}, which is not a "
+                    f"key of `destinations:` ({sorted(destinations)!r}). A "
+                    "retirement DELETES an arrival at a DECLARED destination; "
+                    "one typo otherwise asks for an absence at a repository "
+                    "nobody declared, which every leg satisfies by never "
+                    "having existed")
         for position, edit in enumerate(row.get("edits") or []):
             if edit["class"] not in declared_classes:
                 raise CarveRefusal(
@@ -2017,6 +2308,126 @@ def _check_re_destined_chains(doc: dict) -> None:
             "destination the file actually ends at, citing the later ruling")
 
 
+def _check_retired_consistency(where: str, row: dict[str, Any]) -> None:
+    """A retirement must agree with the row it sits on (RULED 5656343213).
+
+    `at`/`at_path` ARE THE ROW'S EFFECTIVE ARRIVAL — its own
+    `destination`/`destination_path`, or `re_destined.to`/`to_path` where
+    RULED Q6 has already moved the placement. The row keeps every one of those
+    fields unedited, which is the whole reason this is a FIELD and not an edit
+    of them: the manifest goes on recording where the carve put the file and
+    where a ruling moved it, and `retired:` records what a later ruling
+    removed. An `at` naming some third destination would ask a leg this row
+    never placed anything at to prove an absence it was always going to have.
+
+    THE EFFECTIVE ARRIVAL AND NOT THE RAW ONE, stated because the two differ
+    exactly when it matters: a row re-destined by Q6 and retired afterwards
+    has its file at `re_destined.to:to_path`, and a retirement pinned to the
+    row's ORIGINAL `destination` would leave the real copy standing at the leg
+    the ruling actually reached while `verify-carve-arrival.py` checked an
+    absence at a leg that vacated the path long before. The two acts compose
+    in one order only — move, then retire — and this is the check that says so.
+    """
+    at, at_path = retired_at(row)
+    if at is None:
+        return
+    own_key, own_path = effective_arrival(row)
+    for label, got, expected in (("at", at, own_key),
+                                 ("at_path", at_path, own_path)):
+        if got != expected:
+            raise CarveRefusal(
+                "carve-disposition-inconsistent",
+                f"{where} declares `retired.{label}: {got!r}` where its own "
+                f"EFFECTIVE arrival is {expected!r}. A retirement names the "
+                "placement it DELETES, and the placement this row made is its "
+                "own `destination`/`destination_path` — or its "
+                "`re_destined.to`/`to_path` where RULED Q6 has already moved "
+                "it. Naming anything else asks the floor for an absence at a "
+                "leg this row never reached. The row keeps every placement "
+                "field unedited on purpose: the manifest goes on recording "
+                "what the carve did and what Q6 corrected, and `retired:` "
+                "records what a later ruling removed")
+
+
+def _check_retired_surfaces(doc: dict) -> None:
+    """Every `retired.surface` is a `not_moved` row of THIS manifest.
+
+    RULED 5656343213 retires three suites because the surface they drive —
+    `views/intent-feed.js`, RULED OQ-F `not_moved` — is present at NEITHER
+    leg. That is the claim the form rests on, and it is answerable from this
+    document alone: a `not_moved` row STAYED at openxFactory, so by the
+    manifest's own declaration it arrived at no destination. This check is
+    that sentence as running code, and it is the difference between a floor
+    act and a licence to delete an arrived file.
+
+    THREE ARMS, ONE CODE, because all three fail the SAME claim. A surface
+    that is a MOVED row is LIVE at a leg: the file the retirement removes is a
+    test of a surface that still exists, which is not what this form serves
+    and is a question for the leg that owns both. A surface in NO row is one
+    this document says nothing about — it was never under the carve surface —
+    and "this manifest cannot say" is not "gone" in a floor that refuses by
+    default. And a surface that is `not_moved` for the reason
+    `replicated_at_destination` IS LIVE AT THE LEGS TOO, which is the arm a
+    reading of "not_moved means it stayed here" misses (Copilot review of PR
+    #1032): RULED OQ-C makes a replica a file each destination PLACES ITS OWN
+    COPY OF — `verify-carve-arrival.py` admits those copies through
+    `--replica-at`, and RULED Q-L7 (a) lets the row declare the `edits:` they
+    are held to — so the one `not_moved` reason that is not an absence at the
+    legs is excluded by name rather than by the disposition alone. The other
+    reasons are absences: `stays_openxfactory_adapter` and
+    `stays_openxfactory_governance` keep the file HERE, `deleted_at_carve`
+    keeps it nowhere, and `superseded_by_split` is a file the split replaced.
+    Widening any arm (a surface a leg created after the carve, say) is a
+    ruling's act; the code and its message name which arm was hit so a reader
+    is never left guessing.
+
+    IT IS A CROSS-ROW CHECK and therefore its own pass, exactly as
+    `_check_re_destined_chains` is: the row carrying the block and the row
+    being cited are two rows, and a per-row walk would have to carry the whole
+    document into every call to answer.
+    """
+    by_source: dict[Any, dict[str, Any]] = {}
+    for row in doc["rows"]:
+        by_source.setdefault(row.get("source_path"), row)
+    for index, row in enumerate(doc["rows"]):
+        if retired_at(row)[1] is None:
+            continue
+        retired = row["retired"]
+        surface = retired.get("surface")
+        cited = by_source.get(surface)
+        if cited is not None and cited.get("disposition") == "not_moved" \
+                and cited.get("reason") != REPLICA_REASON:
+            continue
+        if cited is None:
+            why = ("names no row of this manifest at all, so nothing here "
+                   "says where it went — and a document that cannot say is "
+                   "not a document that says GONE")
+        elif cited.get("disposition") != "not_moved":
+            why = (f"is `{cited.get('disposition')}` to "
+                   f"{cited.get('destination')!r}, so the surface is LIVE at "
+                   "a leg — a suite driving a surface that still exists is "
+                   "not retired for the reason this form serves")
+        else:
+            why = (f"is `not_moved` for the reason `{REPLICA_REASON}` — the "
+                   "ONE `not_moved` reason that does not mean ABSENT AT THE "
+                   "LEGS. RULED OQ-C has each destination place its own copy "
+                   "of a replica, `verify-carve-arrival.py` admits those "
+                   "copies through `--replica-at` and a replica row may even "
+                   "declare the `edits:` they are held to (RULED Q-L7 (a)), "
+                   "so the surface is LIVE at every leg that placed one")
+        raise CarveRefusal(
+            "carve-retired-surface-live",
+            f"rows[{index}] ({row['source_path']}) declares "
+            f"`retired.surface: {surface!r}`, which {why}. RULED 5656343213 "
+            "retires an arrived file because the surface it drove is gone "
+            "from BOTH legs, and the one way this manifest can answer that "
+            "without reading a leg is a `not_moved` row under a reason that "
+            f"means ABSENT THERE — every one but `{REPLICA_REASON}`, whose "
+            "copies the legs place themselves. Cite such a row, or take the "
+            "retirement to a ruling "
+            "that widens this form")
+
+
 def check_disposition_consistency(doc: dict) -> None:
     for index, row in enumerate(doc["rows"]):
         where = f"rows[{index}] ({row['source_path']})"
@@ -2078,8 +2489,10 @@ def check_disposition_consistency(doc: dict) -> None:
                     "already declared, which is the one thing the manifest "
                     "is for")
         _check_re_destined_consistency(where, row)
+        _check_retired_consistency(where, row)
 
     _check_re_destined_chains(doc)
+    _check_retired_surfaces(doc)
 
     # `path_order: bytewise_utf8` is a claim about THIS document, and a const
     # nothing enforces is a comment. Bytewise on the UTF-8 encoding, not on
@@ -2147,6 +2560,16 @@ def validate(manifest_path: Path, repo: Path,
     # landed in and is as much a fact as any other.
     re_destined = sum(1 for row in doc["rows"]
                       if isinstance(row.get("re_destined"), dict))
+    # COUNTED SEPARATELY FROM `re_destined` AND FROM THE DISPOSITIONS (RULED
+    # 5656343213), and on the same reasoning: a retired row keeps its
+    # disposition — it is still exactly one `moved_verbatim` or
+    # `moved_with_declared_edit` — and it may ALSO be re-destined, so folding
+    # it into either total would count one row twice and hide the one fact
+    # about this document a reader cannot get anywhere else: how many arrivals
+    # the floor no longer asks for. Counted off `retired_at`, not off the raw
+    # key, so a half-written block is not reported as a retirement this file
+    # is about to refuse.
+    retired = sum(1 for row in doc["rows"] if retired_at(row)[1] is not None)
     return {
         "result": "ok",
         "manifest": str(manifest_path),
@@ -2161,6 +2584,7 @@ def validate(manifest_path: Path, repo: Path,
         "digests_recomputed": recomputed,
         "surface": surface,
         "re_destined": re_destined,
+        "retired": retired,
     }
 
 
@@ -2274,6 +2698,17 @@ def main(argv: list[str] | None = None) -> int:
         re_destined_note = (
             f"; {summary['re_destined']} row(s) RE-DESTINED by ruling "
             "(RULED Q6)")
+        # THE RETIREMENT COUNT, on the same terms and UNCONDITIONAL FROM THE
+        # START (RULED 5656343213). The `re_destined` clause had to be
+        # repaired to print at zero (Copilot review, PR #1011: a ternary
+        # suppressed it, making the landed manifest's own state the one count
+        # this line never showed); this clause is written with that lesson
+        # already learned, and `test_the_human_line_prints_the_retirement_zero_
+        # state_too` holds it. Zero is the state this form lands in and is as
+        # much a fact as any other.
+        retired_note = (
+            f"; {summary['retired']} row(s) RETIRED by ruling "
+            "(RULED 5656343213)")
         print(f"OK {manifest_path}: phase {summary['phase']}, "
               f"{summary['rows']} row(s) at "
               f"{where} — "
@@ -2282,7 +2717,7 @@ def main(argv: list[str] | None = None) -> int:
               f"{counts['not_moved']} not_moved; "
               f"{summary['digests_recomputed']} digest(s) recomputed; "
               f"{summary['surface']} file(s) in the declared surface with none "
-              "undeclared" + shed_note + re_destined_note)
+              "undeclared" + shed_note + re_destined_note + retired_note)
     return 0
 
 

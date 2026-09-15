@@ -101,6 +101,13 @@ RATIFIED_CODES = (
     "carve-re-destined-not-moved",
     "carve-re-destined-unruled",
     "carve-re-destined-chain",
+    # RULED 5656343213 (Brett Heap, 2026-09-13, by interactive multi-choice, on
+    # the question slice S8's author put in `#656` comment `5650335573` § 2) —
+    # the `retired:` row form's three own findings, same prefix and same
+    # reasoning as the Q6 trio above.
+    "carve-retired-not-moved",
+    "carve-retired-unruled",
+    "carve-retired-surface-live",
     "carve-unreadable",
 )
 
@@ -1989,6 +1996,747 @@ def test_a_re_destined_row_may_still_be_also_replicated_at_its_original_destinat
 
 
 # --------------------------------------------------------------------------
+# RULED 5656343213 — the `retired:` row form
+#
+# Brett Heap, 2026-09-13, by interactive multi-choice, on the question slice
+# S8's author put in `#656` comment `5650335573` § 2. The FOURTH grammar
+# extension and the SECOND about PLACEMENT — the one Q6 above could not be
+# stretched to cover, because Q6 moves an arrival BETWEEN two legs and what S8
+# measured has no leg to move it to. Every case below is a generated manifest
+# and a real tree; the landed manifest — which carries the form and uses it
+# NOWHERE — is asserted separately in the § 8.2 seat.
+# --------------------------------------------------------------------------
+
+RETIREMENT_CITATION = ("`#656` comment 5656343213 (RULED, Brett Heap "
+                       "2026-09-13)")
+
+#: The fixture's one `not_moved` row, by `source_path`. A retirement's
+#: `surface:` must be one, and the generator's `delta.py` is it — which is
+#: also the shape of the real act: `views/intent-feed.js`, RULED OQ-F
+#: `not_moved`, so the manifest's own declaration says it arrived nowhere.
+RETIRED_SURFACE = "scripts/pkg/delta.py"
+
+
+def _retire(doc: dict[str, Any], name: str = "beta.py",
+            surface: str = RETIRED_SURFACE, **override: Any) -> dict[str, Any]:
+    """Retire a generated row's EFFECTIVE arrival, and return the row.
+
+    `at`/`at_path` are READ OFF THE ROW rather than typed, for `_re_destine`'s
+    reason exactly — and read through `re_destined:` where one is present,
+    because that is what "EFFECTIVE" means and a fixture that took the raw
+    destination could not tell the composed case from the plain one.
+    `beta.py` by default: the `moved_with_declared_edit` row, so the cases
+    below retire a row that also carries `edits:` — which is the real act's
+    shape, the three retired suites being test files with declared lines.
+    """
+    row = row_named(doc, name)
+    re_destined = row.get("re_destined")
+    if isinstance(re_destined, dict):
+        at, at_path = re_destined["to"], re_destined["to_path"]
+    else:
+        at, at_path = row["destination"], row["destination_path"]
+    block: dict[str, Any] = {
+        "at": at,
+        "at_path": at_path,
+        "ruling": RETIREMENT_CITATION,
+        "surface": surface,
+    }
+    block.update(override)
+    row["retired"] = block
+    return row
+
+
+def test_a_moved_row_may_be_retired_by_a_ruling(scratch: Scratch) -> None:
+    """The form itself: `beta.py` arrived at `openxdox_code` and a ruling has
+    since DELETED that arrival, because the surface it drove is a `not_moved`
+    row — which is the three intent-feed suites' shape in miniature."""
+    doc = clean_manifest(scratch)
+    _retire(doc)
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert done.stdout.startswith("OK "), done.stdout
+    assert "1 row(s) RETIRED by ruling" in done.stdout, done.stdout
+
+
+def test_a_verbatim_row_may_be_retired_and_keeps_every_source_side_answer(
+        scratch: Scratch) -> None:
+    """The field is on BOTH moved dispositions, and it moves NOTHING at the
+    source: the same blobs are recomputed with the retirement as without it,
+    the disposition counts are the same, and the surface is the same. A
+    `sha256` is a claim about the SOURCE blob at the carve commit and a
+    retirement is a fact about a DESTINATION."""
+    before = _summary(scratch, clean_manifest(scratch))
+    doc = clean_manifest(scratch)
+    row = _retire(doc, "alpha.py")
+    after = _summary(scratch, doc)
+    assert row["disposition"] == "moved_verbatim", row
+    assert after["digests_recomputed"] == before["digests_recomputed"], after
+    assert after["dispositions"] == before["dispositions"], after
+    assert after["surface"] == before["surface"], after
+    assert after["carve_commit"] == before["carve_commit"], after
+
+
+def test_a_retired_rows_digest_still_binds(scratch: Scratch) -> None:
+    """"Every source-side question" as running code rather than as prose. A
+    retirement deletes a file at a LEG; the row still says which openxFactory
+    blob left, and a manifest that drifted from that blob still refuses."""
+    doc = clean_manifest(scratch)
+    row = _retire(doc)
+    row["sha256"] = "0" * 64
+    refuses(scratch, doc, "carve-digest-mismatch")
+
+
+def test_the_summary_counts_the_retired_rows(scratch: Scratch) -> None:
+    """Counted in `--json` and printed on the human line — and ZERO is a state
+    the log records too, which is what the landed manifest reads as until the
+    three suites' own pull requests land."""
+    clean = _summary(scratch, clean_manifest(scratch))
+    assert clean["retired"] == 0, clean
+    doc = clean_manifest(scratch)
+    _retire(doc)
+    _retire(doc, "gamma.py")
+    assert _summary(scratch, doc)["retired"] == 2
+
+
+def test_a_retirement_is_counted_apart_from_a_re_destination(
+        scratch: Scratch) -> None:
+    """One row may be BOTH — re-destined by Q6, then retired — and folding
+    either count into the other would report one row twice and hide the one
+    fact about this document a reader cannot get anywhere else: how many
+    arrivals the floor no longer asks for."""
+    doc = clean_manifest(scratch)
+    _re_destine(doc)                      # beta.py, openxdox_code -> opendox
+    _retire(doc)                          # ... and then retired, at the NEW leg
+    summary = _summary(scratch, doc)
+    assert summary["re_destined"] == 1, summary
+    assert summary["retired"] == 1, summary
+    assert summary["dispositions"]["moved_with_declared_edit"] == 1, summary
+
+
+def test_a_half_written_block_is_not_counted_as_a_retirement(
+        scratch: Scratch) -> None:
+    """The count is taken off `retired_at`, not off the raw key, so a block
+    this file is about to REFUSE is never first reported as a retirement —
+    and the refusal is the shape one, not a silent zero."""
+    doc = clean_manifest(scratch)
+    row = _retire(doc)
+    del row["retired"]["at_path"]
+    refuses(scratch, doc, "carve-shape-invalid")
+
+
+def test_retired_on_a_not_moved_row_refuses(scratch: Scratch) -> None:
+    """A row that placed nothing has no arrival to RETIRE — under EVERY
+    `not_moved` reason, the replica one included: a replica's copies are
+    placed by the leg (RULED OQ-C), so retiring one would un-place something
+    this manifest never placed."""
+    for make_replica in (False, True):
+        doc = clean_manifest(scratch)
+        row = _as_replica(doc) if make_replica else row_named(doc, "delta.py")
+        row["retired"] = {
+            "at": "opendox_code", "at_path": "src/opendox/delta.py",
+            "ruling": RETIREMENT_CITATION, "surface": RETIRED_SURFACE,
+        }
+        combined = refuses(scratch, doc, "carve-retired-not-moved")
+        assert "retired" in combined, combined
+
+
+def test_a_retirement_with_no_ruling_refuses(scratch: Scratch) -> None:
+    """Q6's scope answer, extended by 5656343213 to this form: the citation is
+    the one absence that is a GOVERNANCE defect rather than a typo, so it gets
+    its own code. Without it the field is a quiet way to delete an arrived
+    file after the carve is closed, which is the one use the ruling refused."""
+    for value in (None, "", "   ", 5656343213, ["#656"]):
+        doc = clean_manifest(scratch)
+        row = _retire(doc)
+        if value is None:
+            del row["retired"]["ruling"]
+        else:
+            row["retired"]["ruling"] = value
+        refuses(scratch, doc, "carve-retired-unruled")
+
+
+def test_the_retirement_citations_form_is_not_constrained(
+        scratch: Scratch) -> None:
+    """PRESENT is what the ruling asked for, on `re_destined:`' own reasoning:
+    a pattern here would refuse a legitimate citation and teach the author to
+    write whatever the pattern wanted."""
+    for citation in ("5656343213", "#656 comment 5656343213",
+                     "https://github.com/opensoft/openxFactory/pull/1011"):
+        doc = clean_manifest(scratch)
+        _retire(doc, ruling=citation)
+        scratch.write(doc)
+        done = run(scratch)
+        assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_retirement_must_name_the_arrival_the_row_made(
+        scratch: Scratch) -> None:
+    """`at`/`at_path` ARE the row's effective arrival, and the row keeps every
+    placement field unedited. An `at` naming some third leg would ask a leg
+    this row never placed anything at to prove an absence it was always going
+    to have."""
+    doc = clean_manifest(scratch)
+    _retire(doc)["retired"]["at"] = "opendox_code"
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "retired.at" in combined, combined
+    doc = clean_manifest(scratch)
+    _retire(doc)["retired"]["at_path"] = "src/openxdox/elsewhere.py"
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "at_path" in combined, combined
+
+
+def test_a_retirement_is_pinned_to_the_effective_arrival_and_not_the_raw_one(
+        scratch: Scratch) -> None:
+    """The two acts compose in ONE order — move, then retire — and this is the
+    check that says so. A row re-destined by Q6 has its file at
+    `re_destined.to:to_path`; a retirement pinned to the row's ORIGINAL
+    `destination` would leave the real copy standing at the leg the ruling
+    actually reached while the arrival verifier checked an absence at a leg
+    that vacated the path long before."""
+    doc = clean_manifest(scratch)
+    row = _re_destine(doc)            # beta.py: openxdox_code -> opendox_code
+    _retire(doc)                      # reads the re-destination: opendox_code
+    assert row["retired"]["at"] == "opendox_code", row
+    assert row["retired"]["at_path"] == row["re_destined"]["to_path"], row
+    summary = _summary(scratch, doc)
+    assert summary["retired"] == 1, summary
+
+    doc = clean_manifest(scratch)
+    row = _re_destine(doc)
+    _retire(doc)
+    row["retired"]["at"] = row["destination"]            # the RAW arrival
+    row["retired"]["at_path"] = row["destination_path"]
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "EFFECTIVE arrival" in combined, combined
+
+
+def test_a_retirement_at_a_destination_the_manifest_does_not_declare_refuses(
+        scratch: Scratch) -> None:
+    """The same membership test a row's own `destination` gets. A key nobody
+    declared is a retirement nobody can check — every leg satisfies an absence
+    at a repository that never existed."""
+    doc = clean_manifest(scratch)
+    _retire(doc)["retired"]["at"] = "openxdox_kode"
+    refuses(scratch, doc, "carve-vocabulary-unknown")
+
+
+def test_a_retirement_must_cite_a_surface_this_manifest_says_is_gone(
+        scratch: Scratch) -> None:
+    """The gate that makes the form a FLOOR rather than a licence to delete an
+    arrived file, in TWO of its three arms and under one code.
+
+    A surface that is a MOVED row is LIVE at a leg — a suite driving a surface
+    that still exists is not retired for the reason this form serves. A
+    surface in NO row is one this document says nothing about, and "this
+    manifest cannot say" is not "gone" in a floor that refuses by default. The
+    message names which arm was hit, so a reader is never left guessing. (The
+    third arm — a `not_moved` row that is a REPLICA — is the test below.)
+    """
+    doc = clean_manifest(scratch)
+    _retire(doc, surface="scripts/pkg/alpha.py")     # a MOVED row
+    combined = refuses(scratch, doc, "carve-retired-surface-live")
+    assert "LIVE at a" in combined, combined
+
+    doc = clean_manifest(scratch)
+    _retire(doc, surface="scripts/pkg/nowhere.py")   # no row at all
+    combined = refuses(scratch, doc, "carve-retired-surface-live")
+    assert "names no row of this manifest" in combined, combined
+
+
+def test_a_replicated_surface_is_not_a_surface_this_manifest_says_is_gone(
+        scratch: Scratch) -> None:
+    """THE THIRD ARM, and the one a reading of the disposition alone misses
+    (Copilot review of PR #1032, the one posted thread).
+
+    `not_moved` is not one claim. Four of its five reasons say the file is
+    ABSENT at the legs — it stayed here, or it is nowhere at all — and
+    `replicated_at_destination` says the opposite: RULED OQ-C has EVERY
+    destination place its own copy, `verify-carve-arrival.py` admits those
+    copies through `--replica-at`, and RULED Q-L7 (a) even lets the row
+    declare the `edits:` they carry. A retirement citing such a surface would
+    rest its whole claim — "the surface this arrived file drove is at no leg"
+    — on a row that says the surface is at every leg.
+
+    Before the fix this document VALIDATED: the check tested
+    `disposition == "not_moved"` and nothing else, so the one reason that
+    contradicts the claim satisfied it. The assertion below is that it does
+    not, and that the message says WHY rather than repeating the disposition.
+    """
+    doc = clean_manifest(scratch)
+    _as_replica(doc)                                 # delta.py, the surface
+    _retire(doc)                                     # cites delta.py
+    combined = refuses(scratch, doc, "carve-retired-surface-live")
+    assert "replicated_at_destination" in combined, combined
+    assert "LIVE at every leg that placed one" in combined, combined
+
+    # …and the SAME row under any other `not_moved` reason is still lawful, so
+    # the exclusion is one reason and not a retreat from the whole form.
+    doc = clean_manifest(scratch)
+    _retire(doc)
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "1 row(s) RETIRED by ruling" in done.stdout, done.stdout
+
+
+def test_a_malformed_retired_refuses(scratch: Scratch) -> None:
+    """Shape, in check 1: a CLOSED mapping of four required strings and one
+    optional prose note. BOTH paths go through the same canonical-relative
+    predicate `destination_path` does — `at_path` is the path the arrival
+    verifier requires ABSENT, and `surface:` is looked up as a `source_path`
+    of this manifest, so a value that could not be one is a typo worth naming
+    here rather than a "no such row" two checks later."""
+    cases: list[Any] = [
+        "opendox_code",                      # not a mapping at all
+        {"at": "openxdox_code", "at_path": "src/openxdox/beta.py",
+         "ruling": RETIREMENT_CITATION, "surface": RETIRED_SURFACE,
+         "why": "an unknown key"},
+    ]
+    for value in cases:
+        doc = clean_manifest(scratch)
+        row_named(doc, "beta.py")["retired"] = value
+        refuses(scratch, doc, "carve-shape-invalid")
+    for key in ("at", "at_path", "surface"):
+        for value in (None, "", 7, ["x"]):
+            doc = clean_manifest(scratch)
+            row = _retire(doc)
+            if value is None:
+                del row["retired"][key]
+            else:
+                row["retired"][key] = value
+            refuses(scratch, doc, "carve-shape-invalid")
+    for path in ("/etc/passwd", "../../escape.py", "src/./beta.py",
+                 "src/../../beta.py", "src\\beta.py"):
+        for key in ("at_path", "surface"):
+            doc = clean_manifest(scratch)
+            _retire(doc)["retired"][key] = path
+            refuses(scratch, doc, "carve-shape-invalid")
+    doc = clean_manifest(scratch)
+    _retire(doc, note="   ")
+    refuses(scratch, doc, "carve-shape-invalid")
+
+
+def test_a_retirement_may_carry_a_note(scratch: Scratch) -> None:
+    """`note:` is the one optional key, prose, exactly as an `edits[]` entry's
+    and a `re_destined:`' are — the place the reason a suite is retired is
+    written down beside the citation that ordered it."""
+    doc = clean_manifest(scratch)
+    _retire(doc, note="RULED OQ-F kept the surface at openxFactory; S2 "
+                      "replaced the one openDox has")
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_another_row_may_move_into_the_path_a_retirement_emptied(
+        scratch: Scratch) -> None:
+    """Check 4 stops RESERVING a retired row's arrival. That path is empty
+    once the act lands, and another row may lawfully move into it — the same
+    reading, and the same reason, that keyed the duplicate-arrival map on the
+    EFFECTIVE arrival for Q6. Keyed on the retired row too, this lawful refill
+    would refuse as a duplicate while the tree carries exactly one file."""
+    doc = clean_manifest(scratch)
+    beta = row_named(doc, "beta.py")
+    emptied = beta["destination_path"]
+    _retire(doc)
+    gamma = row_named(doc, "gamma.py")
+    gamma["destination"] = beta["destination"]
+    gamma["destination_path"] = emptied
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_two_retired_rows_at_one_path_do_not_collide(
+        scratch: Scratch) -> None:
+    """Neither of them is there. Two rows retired at one path is not an
+    overwrite, because the act each declares is a DELETION — and a map that
+    still held both would refuse a document describing an empty path."""
+    doc = clean_manifest(scratch)
+    beta = row_named(doc, "beta.py")
+    gamma = row_named(doc, "gamma.py")
+    gamma["destination"] = beta["destination"]
+    gamma["destination_path"] = beta["destination_path"]
+    _retire(doc, "beta.py")
+    _retire(doc, "gamma.py")
+    summary = _summary(scratch, doc)
+    assert summary["retired"] == 2, summary
+
+
+def test_a_retirement_onto_a_live_duplicate_still_refuses(
+        scratch: Scratch) -> None:
+    """The other direction of the same keying, kept: a retired row stops
+    reserving its path, but the rows that are NOT retired still collide there
+    exactly as they always did. `carve-file-duplicated` is unweakened by this
+    amendment."""
+    doc = clean_manifest(scratch)
+    alpha = row_named(doc, "alpha.py")
+    gamma = row_named(doc, "gamma.py")
+    gamma["destination"] = alpha["destination"]
+    gamma["destination_path"] = alpha["destination_path"]
+    _retire(doc, "beta.py")
+    refuses(scratch, doc, "carve-file-duplicated")
+
+
+def test_a_retirement_moves_no_source_path(scratch: Scratch) -> None:
+    """The surface walk is untouched by the field, exactly as it is by
+    `re_destined:`. The row's `source_path` is still the file openxFactory
+    carries, still in exactly one row, and still counted — a floor that let a
+    retirement move a source path would let a file leave the surface by being
+    deleted somewhere else."""
+    doc = clean_manifest(scratch)
+    _retire(doc)
+    summary = _summary(scratch, doc)
+    assert summary["surface"] == _summary(scratch, clean_manifest(scratch))[
+        "surface"], summary
+
+
+def test_a_retired_row_is_still_shed_at_the_source_under_post_shed(
+        scratch: Scratch) -> None:
+    """The post-shed arm asks a retired row exactly what it asks every other
+    moved row: the SOURCE path must be absent here. `shed()` is defined below
+    this block — the call resolves at run time — and it is the right helper
+    rather than a hand-written deletion because it derives the paths from the
+    document, so a retired row that stopped being shed would show up here."""
+    doc = clean_manifest(scratch)
+    _retire(doc)
+    doc["phase"] = MODULE.PHASE_POST_SHED
+    shed(scratch, doc)
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "1 row(s) RETIRED by ruling" in done.stdout, done.stdout
+    assert "shed row(s) absent at source as declared" in done.stdout, \
+        done.stdout
+
+
+def test_the_grammar_extension_names_the_ruling_and_what_it_does_not_move(
+        scratch: Scratch) -> None:
+    """The disclosure, asserted in the file that carries it: the ruling, the
+    field, and the sentence that separates this form from Q6's — a retirement
+    is a DESTINATION-side fact and every source-side question is unmoved."""
+    doc = MODULE.__doc__ or ""
+    assert "retired" in doc, doc
+    assert "5656343213" in doc, doc
+    assert "EVERY\nSOURCE-SIDE QUESTION" in doc or \
+        "SOURCE-SIDE QUESTION" in doc, doc
+    assert MODULE.RETIRED_KEYS == frozenset(
+        {"at", "at_path", "ruling", "surface", "note"})
+
+
+def test_the_human_line_prints_the_retirement_zero_state_too(
+        scratch: Scratch) -> None:
+    """`test_the_summary_counts_the_retired_rows` already reads `0` from
+    `--json`. The human line is a separate promise, and it is written
+    UNCONDITIONAL from the start rather than repaired later: the `re_destined`
+    clause had to be fixed in review on PR #1011 because a ternary suppressed
+    it, making the landed manifest's own state the one count that line never
+    showed. Zero is the state this form LANDS in."""
+    doc = clean_manifest(scratch)
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "0 row(s) RETIRED by ruling (RULED 5656343213)" in done.stdout, \
+        done.stdout
+
+
+def test_carved_reach_refuses_a_retired_row_by_name(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """The THIRD reader of the form, and the one whose failure would be
+    silent. `carved_reach.source()` can compute a perfectly well-formed path
+    for a retired row — the row keeps every field the carve wrote — and that
+    path names a file `verify-carve-arrival.py` has just finished proving
+    ABSENT. It refuses instead, with `CarveRowRetired`; `module()` and
+    `shed_relpath()` refuse through it; and `sources_under()` OMITS the row,
+    because one row that is nowhere must not take a whole compositor sweep
+    down with it.
+
+    The rows are a STUB rather than the landed manifest, for the reason every
+    other case in this file builds its own document: no row uses the form yet,
+    and a test that waited for one would be pinning nothing today.
+    """
+    import carved_reach
+
+    rows = {
+        "scripts/pkg/live.py": {
+            "source_path": "scripts/pkg/live.py",
+            "disposition": "moved_verbatim",
+            "destination": "opendox_code",
+            "destination_path": "src/opendox/live.py"},
+        "scripts/pkg/retired.py": {
+            "source_path": "scripts/pkg/retired.py",
+            "disposition": "moved_with_declared_edit",
+            "destination": "opendox_code",
+            "destination_path": "src/opendox/retired.py",
+            "retired": {"at": "opendox_code",
+                        "at_path": "src/opendox/retired.py",
+                        "ruling": RETIREMENT_CITATION,
+                        "surface": RETIRED_SURFACE}},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+
+    with pytest.raises(carved_reach.CarveRowRetired) as caught:
+        carved_reach.source("scripts/pkg/retired.py")
+    assert "5656343213" in str(caught.value), caught.value
+    assert RETIRED_SURFACE in str(caught.value), caught.value
+    # A SUBCLASS, so a caller that already handles "at no destination" needs
+    # no change the day a row is first retired.
+    assert isinstance(caught.value, carved_reach.ShedModuleHasNoDestination)
+
+    for call in (carved_reach.module, carved_reach.shed_relpath):
+        with pytest.raises(carved_reach.CarveRowRetired):
+            call("scripts/pkg/retired.py")
+
+    swept = carved_reach.sources_under("scripts/pkg/")
+    assert list(swept) == ["scripts/pkg/live.py"], swept
+
+
+def test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """`shed_commit_object()` does NOT refuse a retired row, and the
+    divergence from `source()` is a decision this test holds (Copilot review
+    of PR #1032 asked for the guard; the answer is here rather than in a
+    comment nobody runs).
+
+    The two functions answer two different questions. `source()` asks where a
+    file is in THE WORKING TREE — one tree, the one that exists now — so a row
+    a ruling has deleted has no answer and refusing is the only honest one.
+    This one asks where a row's bytes are AT A NAMED COMMIT, through the leg
+    THAT COMMIT pins, and a retirement is an EVENT: every commit from before
+    the leg's deletion pins a leg that still carries the file, and the
+    `retired:` block is read from the WORKING TREE's manifest and says nothing
+    about when the deletion landed. A guard here would apply today's
+    retirement to every commit ever asked about and would break the property
+    `hermes_runtime_validation/release.py` is built on — verifying an older
+    commit reads the leg that commit pinned.
+
+    At a commit whose pinned leg no longer has the file, the answer is a path
+    with no blob, and the CALLER's own absence finding stands: the release
+    inventory reports the member VANISHED, `resolve_git_object` raises. That
+    is why reporting, not deciding, is this resolver's job.
+    """
+    import carved_reach
+
+    leg = tmp_path / "openDox" / "code"
+    # An object store at EVERY level of the mount: the walk is one
+    # `rev-parse <revision>:<segment>` per gitlink (`openDox`, then `code`),
+    # and it refuses `CarveReachUnavailable` at the first level that is not
+    # materialized — which is the OTHER refusal this function keeps and this
+    # case must not be mistaken for.
+    (leg / ".git").mkdir(parents=True)
+    (tmp_path / "openDox" / ".git").mkdir(exist_ok=True)
+    rows = {
+        "scripts/pkg/retired.py": {
+            "source_path": "scripts/pkg/retired.py",
+            "disposition": "moved_verbatim",
+            "destination": "opendox_code",
+            "destination_path": "src/opendox/retired.py",
+            "retired": {"at": "opendox_code",
+                        "at_path": "src/opendox/retired.py",
+                        "ruling": RETIREMENT_CITATION,
+                        "surface": RETIRED_SURFACE}},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS, opendox_code=leg))
+    pinned = "b" * 40
+    monkeypatch.setattr(carved_reach, "_git_object_id",
+                        lambda repo, revision, path: pinned)
+
+    located = carved_reach.shed_commit_object("a" * 40,
+                                              "scripts/pkg/retired.py")
+    assert located == (leg, pinned, "src/opendox/retired.py"), located
+
+    # …while the WORKING-TREE resolver refuses the same row at the same
+    # moment, which is the pair this test exists to hold apart.
+    with pytest.raises(carved_reach.CarveRowRetired):
+        carved_reach.source("scripts/pkg/retired.py")
+
+
+def _cross_reference_validator():
+    """`scripts/validate-ideation-cross-reference.py` as a module, by path."""
+    return _load_by_path("validate-ideation-cross-reference.py",
+                         "validate_ideation_cross_reference")
+
+
+def _load_by_path(filename: str, module_name: str):
+    """A hyphenated `scripts/` entry point as a module, by path."""
+    spec = importlib.util.spec_from_file_location(
+        module_name, REPO_ROOT / "scripts" / filename)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_the_retirement_refusal_reaches_its_callers_as_their_own_error(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The five RETAINED-CONSUMER call sites translate `CarveRowRetired`
+    instead of letting it out as a traceback (Copilot review of PR #1032,
+    rounds 1 and 2 — round 1 found three, round 2 found the two that resolve
+    a path through a ROOT rather than by name).
+
+    `shed_destination()` is how a consumer of a file the § 5.2 shed MOVED
+    reads it from the pinned leg (RULED (a), `#656` comment `5625573095`). It
+    resolves through `source()`, so the day a row is first retired it raises —
+    and each of its three callers guards only the lazy IMPORT with
+    `except ImportError`, not the CALL. `CarveRowRetired` IS an `ImportError`
+    subclass, which is what makes the omission easy to miss and its
+    consequence bad: the refusal would have arrived as an uncaught traceback
+    in three validators that otherwise report every failure as a finding.
+
+    Each now answers in its own vocabulary — a `FAIL` line and a non-zero exit
+    for the digest sweep, `CatalogError` (HRC-CATALOG-INVALID) for the Hermes
+    family catalog, a named `RetiredSchema` finding for the cross-reference
+    validator whose `main()` would otherwise label it `harness failure`, which
+    is the one thing it is not, `ContractPinError` for the doxbench contract
+    pin — the refusal that function already raises for a pinned schema the
+    checkout does not have — and `ReleaseDependencyError` for the release
+    source, whose `exists()` would otherwise answer a plain FALSE for a file
+    that is not absent but DELETED BY RULING.
+
+    `scripts/sync-notebooklm-books.py` is deliberately NOT in this list: it
+    asks `module()` for a dotted name, its own docstring says a shed module
+    meets "the named shed refusal" there, and `CarveRowRetired` is exactly
+    that refusal one subclass further down.
+    """
+    import carved_reach
+
+    # IMPORTED BEFORE THE PATCH, every one of them: two of these modules read
+    # the manifest AT IMPORT TIME (`doxbench_contracts.VALIDATOR_IN_CHECKOUT`
+    # is computed from a row), and importing them under the stub rows below
+    # would cache an answer derived from a fixture for the rest of the
+    # session.
+    digests = _load_by_path("validate-manifest-digests.py",
+                            "validate_manifest_digests")
+    cross = _load_by_path("validate-ideation-cross-reference.py",
+                          "validate_ideation_cross_reference")
+    catalog = importlib.import_module("scripts.hermes_runtime_validation.catalog")
+    release = importlib.import_module("scripts.hermes_runtime_validation.release")
+    doxbench = importlib.import_module("ideation_dashboard.doxbench_contracts")
+
+    key = "scripts/ideation_dashboard/retired_reader.py"
+    rows = {key: {
+        "source_path": key,
+        "disposition": "moved_verbatim",
+        "destination": "opendox_code",
+        "destination_path": "src/opendox/retired_reader.py",
+        "retired": {"at": "opendox_code",
+                    "at_path": "src/opendox/retired_reader.py",
+                    "ruling": RETIREMENT_CITATION,
+                    "surface": RETIRED_SURFACE}}}
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    # A STAND-IN LEG, so the tail below measures the retirement and not
+    # whether this checkout happens to have its submodules materialized.
+    leg = tmp_path / "openDox" / "code"
+    (leg / ".git").mkdir(parents=True)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS, opendox_code=leg))
+    target = carved_reach.REPO_ROOT / key
+
+    with pytest.raises(digests.RetiredMember) as caught:
+        digests.shed_aware(target)
+    assert "5656343213" in str(caught.value), caught.value
+
+    with pytest.raises(cross.RetiredSchema) as raised:
+        cross.shed_aware(target)
+    assert "RETIRED" in str(raised.value), raised.value
+    assert not isinstance(raised.value, ImportError), (
+        "the whole point is that it stops being an ImportError at the caller")
+
+    with pytest.raises(catalog.CatalogError) as refused:
+        catalog._shed_destination(target, "contracts[0]")
+    assert "contracts[0]" in str(refused.value), refused.value
+    assert "5656343213" in str(refused.value), refused.value
+
+    with pytest.raises(release.ReleaseDependencyError) as owed:
+        release._shed_aware(target)
+    assert "RETIRED" in str(owed.value), owed.value
+    assert "5656343213" in str(owed.value), owed.value
+
+    with pytest.raises(doxbench.ContractPinError) as pinned:
+        doxbench._shed_aware(target)
+    assert "RETIRED" in str(pinned.value), pinned.value
+    assert "5656343213" in str(pinned.value), pinned.value
+
+    # …and with NO retirement on the row the five answer exactly as before.
+    rows[key].pop("retired")
+    assert digests.shed_aware(target) == carved_reach.source(key)
+    assert cross.shed_aware(target) == carved_reach.source(key)
+    assert catalog._shed_destination(target, "contracts[0]") \
+        == carved_reach.source(key)
+    assert release._shed_aware(target) == carved_reach.source(key)
+    assert doxbench._shed_aware(target) == carved_reach.source(key)
+
+
+def test_the_two_marker_call_sites_answer_a_retired_row_instead_of_raising(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The SIXTH and SEVENTH call sites, and the only two that must NOT
+    translate the refusal into a finding (Copilot review of PR #1032, round
+    4): they ask `shed_relpath()` for a NAME, and one of them asks it at
+    IMPORT TIME.
+
+    `doxbench_contracts._validator_in_checkout()` is evaluated into the
+    module constant `VALIDATOR_IN_CHECKOUT`, which is one of
+    `PUBLISHER_MARKERS`, so a `CarveRowRetired` out of it would not be a
+    finding at all — it would take down the import of the module whose whole
+    job is to answer `ContractPinError`-or-absence, for every consumer, on
+    the day the validator row was retired. `_composed_validator()` asks the
+    same question about the same row to decide whether there is anything to
+    compose. Both `except ImportError` blocks guard the lazy IMPORT and not
+    the CALL, exactly as the five in
+    `test_the_retirement_refusal_reaches_its_callers_as_their_own_error` did.
+
+    THE ANSWER IS THE MODULE'S OWN CONTROLLED ABSENCE, not a softer refusal:
+    a retirement means the file is at NO checkout, so the honest marker is
+    one that is not there — the pre-shed spelling, whose `exists()` answers
+    False and stops this tree reading as a publisher of a file a ruling
+    deleted. That is what a manifest-less consumer copy already gets, reached
+    by a different road. The composer answers with the validator it was
+    handed, which is its `moved is None` answer for the same reason.
+    """
+    import carved_reach
+    doxbench = importlib.import_module("ideation_dashboard.doxbench_contracts")
+
+    key = "scripts/validate-ideation-dashboard-contracts.py"
+    pre_shed = Path("scripts") / "validate-ideation-dashboard-contracts.py"
+    rows = {key: {
+        "source_path": key,
+        "disposition": "moved_with_declared_edit",
+        "destination": "openxdox_code",
+        "destination_path": key,
+        "retired": {"at": "openxdox_code",
+                    "at_path": key,
+                    "ruling": RETIREMENT_CITATION,
+                    "surface": RETIRED_SURFACE}}}
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+
+    assert doxbench._validator_in_checkout() == pre_shed
+
+    # A REAL FILE, because the composer returns before it asks anything of a
+    # path that is not one — and a fresh one per call, because the function is
+    # `lru_cache`d on its argument.
+    retired_validator = tmp_path / "retired" / pre_shed.name
+    retired_validator.parent.mkdir()
+    retired_validator.write_text("# a stand-in validator\n", encoding="utf-8")
+    assert doxbench._composed_validator(retired_validator) == retired_validator
+
+    # …and with the retirement off the row, the same two calls resolve through
+    # the row exactly as they always did, which is what makes the two answers
+    # above the RETIREMENT's and not the stub's.
+    rows[key].pop("retired")
+    moved = carved_reach.shed_relpath(key)
+    assert moved is not None and moved.endswith(key), moved
+    assert doxbench._validator_in_checkout() == Path(moved)
+    live_validator = tmp_path / "live" / pre_shed.name
+    live_validator.parent.mkdir()
+    live_validator.write_text("# a stand-in validator\n", encoding="utf-8")
+    assert doxbench._composed_validator(live_validator) == live_validator
+
+
+# --------------------------------------------------------------------------
 # `phase: post-shed` — the § 5.2 shed, declared IN the manifest
 #
 # The shed deletes every MOVED row's source path and the one
@@ -2717,6 +3465,85 @@ def test_carved_reach_resolves_the_four_re_destined_rows_at_their_arrival() -> N
         assert swept[key] == arrived, (
             f"{key}: sources_under() delegates to source(); a dashboard "
             f"compositor sweep must not link the vacated path either")
+
+
+def test_a_retired_schema_is_a_finding_and_not_a_harness_failure(
+        capsys: pytest.CaptureFixture[str],
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """WHERE the cross-reference validator's retirement lands (Copilot review
+    of PR #1032, round 2).
+
+    Round 1 gave the refusal a name so it would stop being an `ImportError`
+    at the caller. It was still a bare `RuntimeError`, and `main()` catches
+    every `Exception` and prints `ERROR harness failure: …` with exit 2 —
+    which says the tool broke. The tool did not break: it read the manifest,
+    found that a ruling had DELETED the schema it validates against, and said
+    so. That is a FINDING about the document set, so it is reported as one,
+    through the same `Findings`/`report` pair as every other error, with the
+    validator's own exit code 1 — and the two orchestrators are where it is
+    caught, because `main()` has no `Findings` to put it in.
+    """
+    cross = _cross_reference_validator()
+    message = ("a RULING has RETIRED the schema scratch.schema.yaml at its "
+               "leg (RULED 5656343213)")
+
+    def retired() -> None:
+        raise cross.RetiredSchema(message)
+
+    monkeypatch.setattr(cross, "build_registry", retired)
+
+    for run_one in (lambda: cross.run_default(REPO_ROOT, False),
+                    lambda: cross.run_path(REPO_ROOT / "ideation",
+                                           REPO_ROOT, False)):
+        capsys.readouterr()
+        assert run_one() == 1
+        printed = capsys.readouterr()
+        assert "ERROR [schema-retired]" in printed.out, printed
+        assert message in printed.out, printed
+        assert "harness failure" not in printed.out + printed.err, printed
+
+
+def test_the_real_manifest_carries_the_retirement_form_and_uses_it_nowhere() -> None:
+    """RULED 5656343213 against the LANDED manifest: the FORM, documented, and
+    ZERO rows using it.
+
+    THE ZERO IS THE ASSERTION, and it is the point of landing the form ahead
+    of its first use — the precedent is RULED Q6 itself, which landed at PR
+    #1011 with the grammar, the gates and no re-destined row, and was used
+    first by an act with its own claim and its own pull request. The three
+    intent-feed suites this ruling retires arrive the same way. A floor
+    amendment that landed WITH its first use could not be reviewed apart from
+    it, and this test is what stops the two from being quietly merged: the day
+    a row carries `retired:`, this assertion fails and the author must come
+    here and say which act did it, exactly as
+    `test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines`
+    records S5's four.
+
+    THE HEADER IS ASSERTED TOO, because a form nobody can find in the document
+    that carries it is a form the next author re-invents. A BRANCH and never a
+    skip, on the module docstring's reasoning.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    text = manifest.read_text(encoding="utf-8")
+    doc = yaml.safe_load(text)
+
+    using = [row["source_path"] for row in doc["rows"] if "retired" in row]
+    assert using == [], (
+        "the landed manifest now uses the `retired:` form; record the act "
+        f"that did it here, as S5's four re-destinations are recorded: {using}")
+
+    assert "retired:" in text, "the header does not document the form"
+    assert "5656343213" in text, "the header does not cite the ruling"
+    assert "A FOURTH GRAMMAR EXTENSION" in text, text[:200]
+
+    done = subprocess.run(
+        [sys.executable, str(SCRIPT), "--json"],
+        capture_output=True, text=True, check=False)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert json.loads(done.stdout)["retired"] == 0, done.stdout
 
 
 # --------------------------------------------------------------------------
