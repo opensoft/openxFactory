@@ -3665,10 +3665,13 @@ def test_carved_reach_refuses_the_two_landed_retired_rows() -> None:
     carve wrote, and that path names a file the arrival verifier has just
     finished proving absent.
 
-    IT NEEDS NO MATERIALIZED LEG, and that is asserted by being relied on:
-    `source()` refuses a retirement BEFORE it looks for a mount, so the
-    refusal holds in a checkout whose submodules were never initialized —
-    which is the state a retained consumer is most likely to be read in. The
+    THE REFUSAL HALF NEEDS NO MATERIALIZED LEG, and that is relied on rather
+    than described: `source()` refuses a retirement BEFORE it looks for a
+    mount, so the refusal holds in a checkout whose submodules were never
+    initialized — the state a retained consumer is most likely to be read in.
+    THE SWEEP HALF DOES need both legs, exactly as the Q6 companion above
+    does, because it resolves every row that is still arriving; the difference
+    is stated rather than left for the reader of a green run to infer. The
     stub case above (`test_carved_reach_refuses_a_retired_row_by_name`) drives
     the same three callers on a generated document, where both arms can be
     controlled; this one asks the real rows.
