@@ -222,7 +222,7 @@ the later realization pull request, and § 4 is the archive act.
 
 ## 3. Realization — a LATER pull request, after ratification
 
-- [ ] 3.1 `scripts/doc_health/families.py`: teach resolution the `pinned:`
+- [x] 3.1 `scripts/doc_health/families.py`: teach resolution the `pinned:`
   prefix — `_resolve_capability` (line 1317) gains the arm, or a sibling
   resolver is added and `fam_tag_hygiene`'s call sites (lines 1366, 1390)
   dispatch on the prefix. The regexes at 1308-1314 DO NOT MOVE. The arm judges
@@ -269,7 +269,7 @@ the later realization pull request, and § 4 is the archive act.
   `scripts/doc_health/families.py:1317-1321`, over `Context.repo_paths`,
   `scripts/doc_health/runner.py:39`) — invents no precedence of its own, and
   NAMES THE ROOT it resolved against in every finding the arm emits.
-- [ ] 3.2 The finding text for an unresolved PINNED target names the pin
+- [x] 3.2 The finding text for an unresolved PINNED target names the pin
   registry, not `openspec/specs/` — the present fixed string
   (`families.py:1523-1524`, measured on `origin/main` at `177ba819`) is the
   wrong instruction for this class. The
@@ -285,7 +285,7 @@ the later realization pull request, and § 4 is the archive act.
   the broken member, whose repair belongs to whoever wrote it; and where it is
   well formed without the named capability the finding names the enumeration.
   Each is a separate string in the pinned table of (j).
-- [ ] 3.3 Tests under `tests/doc-health/` (hyphen — the directory that
+- [x] 3.3 Tests under `tests/doc-health/` (hyphen — the directory that
   exists; `scripts/doc_health/` with an underscore is the package under
   test), extending `tests/doc-health/fixtures/tag-hygiene/`, and D-2's
   ENUMERATION PREREQUISITE gets BOTH
@@ -587,10 +587,10 @@ the later realization pull request, and § 4 is the archive act.
   `scripts/validate-openspec-cli-pin.py` — and the test is what keeps that
   baseline true as either side moves, rather than a comment asserting it was
   true once.
-- [ ] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
+- [x] 3.4 `docs/document-lifecycle.md` Prose Tagging Markers section: the new
   target form beside the existing `<capability>` bullet, its scope (candidate
   `target=` only, per D-1.1), and D-3's stale-target sentence.
-- [ ] 3.5 Retarget the four markers to `target=pinned:openxwallet/openxwallet`
+- [x] 3.5 Retarget the four markers to `target=pinned:openxwallet/openxwallet`
   — `ideation/staging/openxwallet-neutral-home/openxwallet-neutral-home.md`
   lines 222, 242, 280 and
   `ideation/staging/notebook-access-wallet-governance/notebook-access-wallet-governance.md`
@@ -606,10 +606,10 @@ the later realization pull request, and § 4 is the archive act.
   would clear them. The markers are retargeted anyway because the pinned form
   is the TRUE form for these blocks (D-3), and a true marker carrying a true
   finding is the outcome this packet exists to reach.
-- [ ] 3.6 Correct `ideation/staging/INDEX.md:2262-2265`, which still describes
+- [x] 3.6 Correct `ideation/staging/INDEX.md:2262-2265`, which still describes
   three `openxwallet` blocks as "all resolving" and has been false since
   2026-08-28.
-- [ ] 3.7 Evidence: a `--single-repo` doc-health run over the realization tree
+- [x] 3.7 Evidence: a `--single-repo` doc-health run over the realization tree
   showing `New regressions: 0` and the four `tag-hygiene` findings CHANGED IN
   FORM — unresolved PINNED targets naming `contracts/openxwallet-pin.yaml` and
   the publisher's remedy — together with the green required `pytest-suite` run,
@@ -617,6 +617,21 @@ the later realization pull request, and § 4 is the archive act.
   ZERO at realization, because under the fail-closed D-2 they do not**; a
   realization pull request asserting zero would be asserting something the tree
   does not show.
+  **TICKED 2026-09-14 by lane openxfactory-2 (openXfactory-2), realization PR
+  #1040, at the TREE grain (refreshed after review round 6, which changed
+  resolver behaviour):** the code tree is `da54bed4` — rounds 1–6 folded; the
+  ONE commit after it is this evidence refresh plus a test rename and touches no
+  code. Required `pytest-suite` GREEN at `da54bed4`: run 34897473169 (all six
+  required green). Doc-health `--single-repo . --as-of 2026-09-14`: `New
+  regressions vs previous report: 0`; finding-by-finding against the base
+  `dd073746` the ONLY content change is the four `tag-hygiene` findings CHANGED
+  IN FORM — from `unresolved target=openxwallet at line 107/222/242/280` to
+  `unresolved pinned target=pinned:openxwallet/openxwallet at line N:
+  contracts/openxwallet-pin.yaml in root <root> carries no capabilities:
+  enumeration` with the PUBLISHER's remedy — measured in full at `16ce87d9` and
+  re-measured with `--family tag-hygiene` at `9e40d749`, `62bc53e1`, `0138384f`
+  and `da54bed4`: exactly four, still `error`. **The four do NOT reach zero**, as
+  this box requires the evidence to say.
 **CLOSURE PREREQUISITE — RECORDED HERE AS PROSE, NOT AS A TASK, AND NOT
 FILED.** The four findings reach ZERO only when
 `contracts/openxwallet-pin.yaml` carries a well-formed `capabilities:`
