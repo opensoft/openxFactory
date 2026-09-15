@@ -1270,15 +1270,88 @@ closing α and all three carried-forward C2 words in one motion.
 convening at which the conjunction fires with this seat bound. Named here so it
 is not discovered afterwards.
 
+#### 13.5 — PRE-NOTE APPENDED 2026-09-15: C2-PREP § 3'S CANDIDATE RULE IS STALE UNDER T1 `eff9ae19`; A POST-T1 C2 CANDIDATE IS PRE-SELECTED; THE PROOF CONVENING STILL AWAITS BRETT HEAP'S DISPATCH
+
+Read 2026-09-15T22:3xZ by lane `codeXfactory-2` (session resumed
+2026-09-15T22:34:28Z after Brett Heap's usage reset), in a read-only
+codexFactory `main` worktree at `6294a5d7339abd9e27a5acf5e72c4dd888f29694`
+(2026-09-14T11:37:45Z, PR #474). Spends no pin. **Nothing is dispatched.**
+
+**Task 6.24 is still Brett Heap's undischarged act.** `gh run list --workflow
+gate-rules-convening-trigger.yml` shows 7 runs in the workflow's whole history,
+the latest 2026-09-11T09:56:58Z (run `34586762846`); none since. No convening
+record has landed under `hermes/domain/review-councils/records/` since the §
+13.4 pre-note.
+
+**The proof candidate and machinery re-verified against `6294a5d7`.** `git diff
+--stat 3cbb4bd9 6294a5d7` over
+`.github/workflows/gate-rules-convening-trigger.yml`,
+`.github/workflows/gate-rules-convening.yml`,
+`.github/workflows/scripts/deliberation_packet.py`,
+`hermes/domain/review-councils/gate-rules.yaml`,
+`hermes/domain/agent-mixes.yaml` and the 2026-09-09 packet is **empty** — the
+only `records/` change in that range is an addendum § 8.7 to
+`2026-09-11-gate-rules-provenance-axis-declaration.md` (another lane's,
+unrelated). codexFactory PR **#471** head
+`4a92ee67c97e896bc906c1dde89ffe0d2ce471d1` is still MERGED, still descends from
+T1 `eff9ae19`, and is still an ancestor of main; a `select-c2-candidate.sh` run
+at 2026-09-15T22:38:37Z rates the #471 landing CLEAN*. `resolved-seats` re-read
+(the same two commands as § 13.4):
+
+| packet | `required_seats` | conjunction `required` | `seat_identity` | `unbound_conjunction_seats` |
+|---|---|---|---|---|
+| 2026-09-09 (`2026-09-09-openxfactory-substantive-candidate-class-re-put.md`) | `lead-architect`, `lead-security`, `lead-quality`, `company-policy-lead` | `false` | `"declared"` | `[]` |
+| 2026-09-11 C2 packet (`2026-09-11-routine-code-clearance-repository-respelling.md`) | the same four **+ `client-security-compliance-officer`** (five) | `true` | `"declared"` | `[]` |
+
+**Identical to the 2026-09-14 reads in § 13.4.** The dispatch command handed to
+Brett Heap at cxF #279 comment `5661759632` stands unchanged.
+
+**THE FINDING (task 6.23's basis moved).** `c2-prep.md` § 3
+(`handoffs/xFactory/recovered-host-session-prompts/codexfactory-org-transfer/c2-prep.md`
+in brett-wip) recommends *"the C2 packet PR itself"* — cxF #407, head
+`772ec85dedac1246193e90eeeccdd3c0eef99b74` (MERGED 2026-09-11T14:01:10Z →
+`76f2e771`). That rule was written against the T1 of 2026-09-11 (`02e14c08`).
+Under the T1 now in force, `eff9ae19` (cxF #439, 2026-09-12T15:59:10Z), `git
+merge-base --is-ancestor eff9ae19 772ec85d` is **FALSE**: #407's head was
+branched from `982ff36a`, before #439 landed. **The packet PR's own head is no
+longer an admissible C2 candidate; C2 needs a post-T1 landing that carries the
+packet in its tree.** tasks.md 6.23 already says heads and pins will have
+moved; this names the specific way they moved.
+
+**Pre-selected C2 candidate, to be RE-VERIFIED at 6.23** (after the proof
+convening spends `4a92ee67`; recorded on cxF #279 comment `5689096294`): cxF
+**#470** head `cd5ee34082a63b59b4037a6732138602996a4f1f` — MERGED
+2026-09-14T08:55:47Z (`record/close-dependency-0-3`, merge commit `046e9c51`),
+a single-parent commit touching exactly one file (a `tasks.md` under
+`openspec/changes/`; neither `hermes/domain/review-councils/gate-rules.yaml`
+nor `hermes/domain/agent-mixes.yaml`), descends from T1 `eff9ae19`, carries the
+C2 packet in its tree (`git cat-file -e cd5ee340:<packet path>` OK), and its
+pin post-dates every convening run this council has had, so it is unspent by
+construction — the same shape as the proof candidate. Fallback: #474 head
+`049455c054cc…` (single-parent, two test files, same properties). The
+2026-09-15 head-shape screen of #474/#473/#470/#469/#468/#466/#467/#448 found
+every one T1-descended, packet-carrying and machinery-free; #470 and #474 are
+the two single-parent heads.
+
+**LQ2-C4's deadline** (§ 13.5 above) is unaffected: the reroute record
+`records/2026-09-12-lq2-c4-reroute.md` names
+`client-security-compliance-officer`; nothing further is owed before C2.
+
+**Nothing is ticked by this note.** Task 6.23 ticks at the moment of selection,
+after the proof convening — this section is appended so the finding and the
+pre-selection are on record before Brett Heap's dispatch, as § 13.4's pre-note
+was.
+
 ### 13.6 What is owed, and by whom
 
 | Owed | By | Gates what |
 |---|---|---|
 | ~~**the mint of the fifth keypair**~~ **DONE `2026-09-13T02:12:15Z`** | Brett Heap | **THIS ACT** — it no longer blocks anything (§ 6.8) |
-| ~~the fill~~ **DONE** + the merge (T2) — **STILL OWED** | the lane filled; **Brett Heap merges** | everything below |
+| ~~the fill~~ **DONE** + ~~the merge (T2)~~ **DONE `2026-09-13T22:30:20Z` (oxF #1006 → `765d8c6f`)** | the lane filled; Brett Heap merged | everything below |
 | ~~§ 13.1 window check~~ **DONE `2026-09-13T22:4xZ`** | the lane | § 13.3 |
 | ~~§ 13.2 5b read~~ **DONE `2026-09-14T08:56:47Z`** | Brett Heap's word, then the lane | § 13.3 |
 | ~~§ 13.3 lift~~ **DONE `2026-09-14T09:10:05Z`** | the lane, on his word | § 13.4 |
-| § 13.4 proof convening | Brett Heap dispatches | § 13.5 |
+| § 13.4 proof convening — re-verified 2026-09-15 (§ 13.5 pre-note) | Brett Heap dispatches | § 13.5 |
+| § 13.5 C2 candidate re-selection (6.23) — **pre-selected 2026-09-15: cxF #470 head `cd5ee340`, fallback #474 head `049455c0`; c2-prep § 3's #407 head fails T1 `eff9ae19`** | the lane, after § 13.4 | § 13.5's C2 dispatch (6.25) |
 | LQ2-C2 corroboration | the lane, ruled to follow T1 | nothing here |
 | LQ2-C4 re-route | the lane | § 13.5's convening |
