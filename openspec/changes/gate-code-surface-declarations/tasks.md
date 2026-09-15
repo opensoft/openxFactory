@@ -725,8 +725,8 @@ and is corrected in place where the number is now false.
       **136** AT THE LANDING TREE — AND THIS BOX
       SAYS WHICH FIFTEEN RATHER THAN RE-SPLITTING THE GROUPS IT CANNOT
       RE-DERIVE HONESTLY.** Measured the same way (`python3 -m pytest
-      tests/code_surface -q --collect-only` — *"130 tests collected"*; `python3
-      -m pytest tests/code_surface -q` — **130 passed**). The fifteen, each
+      tests/code_surface -q --collect-only` — *"136 tests collected"*; `python3
+      -m pytest tests/code_surface -q` — **136 passed**). The fifteen, each
       named with the finding it answers:
       **(a) an OMITTED key derives the promoted default's EMPTY SET** —
       `test_an_OMITTED_key_derives_the_EMPTY_SET_the_promoted_default_declares`,
