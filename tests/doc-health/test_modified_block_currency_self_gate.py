@@ -1325,10 +1325,14 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     the same day (openxFactory #992, filing PR #994), SIXTEEN since
     `add-target-release-deferred-allocation` added two on 2026-09-13 (PR
     #1022) — one per promoted requirement that states the `target_release:`
-    vocabulary, both widened by the third value that packet admits — and
+    vocabulary, both widened by the third value that packet admits —
     FOURTEEN since 2026-09-15, when `extend-prose-tagging-target-to-pinned-capabilities`
     ARCHIVED on merged-plus-green realization evidence (PR #1042) and its two
-    rows retired, their blocks promoted byte-identical into canon.
+    rows retired, their blocks promoted byte-identical into canon — and
+    FIFTEEN since 2026-09-15, when `scope-pinned-arm-root-naming` (openxFactory
+    #1047, PR #1052) opened ONE row over *Prose tagging marker hygiene*, the
+    successor packet scoping the root-naming sentence the archive had just
+    promoted.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
