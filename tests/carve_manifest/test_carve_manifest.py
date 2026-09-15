@@ -2094,9 +2094,11 @@ def test_the_summary_counts_the_retired_rows(scratch: Scratch) -> None:
     the log records too, which is what a manifest carrying no retirement reads
     as. THE ZERO HERE IS THE FIXTURE'S, not the landed document's: since RULED
     5656343213's first use (PR #1043) the landed manifest reads 2, the two
-    intent-feed suites, while the ruling's third suite is a declared edit and
-    no retirement at all. Both numbers matter, and this case is about the
-    counter rather than about either one of them."""
+    intent-feed suites, and it will never read 3: the ruling's third suite
+    KEEPS ITS ROW — the file goes on arriving — and only the ending replay
+    inside it is declared, as an ordinary edit on that row's `edits[]`. Both
+    numbers matter, and this case is about the counter rather than about
+    either one of them."""
     clean = _summary(scratch, clean_manifest(scratch))
     assert clean["retired"] == 0, clean
     doc = clean_manifest(scratch)
@@ -3178,7 +3180,9 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     #
     # AND THEN THE RETIREMENT ACT (RULED 5656343213, Brett Heap 2026-09-13,
     # `#656` CLAIM `5656690570`) moved `lines` once more and `carrying` not at
-    # all. The ruling retires three suites and only ONE of them is an edit:
+    # all. The ruling retires three suites, and the third one's ROW is not
+    # retired at all — the file goes on arriving, and what is declared is the
+    # block removed from inside it:
     # the ENDING REPLAY inside `tests/ideation-dashboard/test_staging_workbench.py`
     # — `_DOM_SHIM`, `_ENDING_REPLAY_HARNESS`, `_run_ending_replay()` and
     # `test_the_ending_report_really_reaches_the_slot_the_re_render_rebuilt`,

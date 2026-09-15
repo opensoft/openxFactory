@@ -243,8 +243,13 @@ test-layout files that carve leg 1 measured:
   the LINE: `verify-carve-arrival.py` verifies one destination per run and
   compares no two legs' copies with each other.
 
-The **one replica line belongs to no destination column below** (the 1422nd
-when this paragraph was written, the 1761st now): a replica row names no
+The **one replica line belongs to no destination column below** — it is the
+line that makes those four columns sum to ONE LESS than the aggregate, 1422
+when this paragraph was written and 1761 now. **That figure is the AGGREGATE
+and not an ordinal in this file's row order** (Copilot review, PR #1043): the
+replica's own declared line is the 990th in row order, measured, at `main` and
+after this act alike, because the 177 lines this act declares land on a row
+that FOLLOWS the conftest's. A replica row names no
 destination at all, so the per-leg declared-line figures still sum to one less
 than the total, and that line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
