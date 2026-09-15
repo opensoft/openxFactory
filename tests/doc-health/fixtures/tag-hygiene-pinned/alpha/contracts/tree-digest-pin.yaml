@@ -1,0 +1,15 @@
+# FIXTURE pin record, not a pin. `tests/` is outside every pin-class
+# scan root and outside the governed corpus, so this file adds no pin
+# byte and makes no provenance claim: its values are shaped, not real.
+
+schema_version: 1
+kind: pinned_contract_manifest
+revision_kind: commit
+commit: 0123456789abcdef0123456789abcdef01234567
+submodule_path: productX
+digest_algorithm: sha256
+digest_definition: sorted-ls-tree-r-v1
+digests:
+  tree_sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+capabilities:
+- tree-capability
