@@ -1148,6 +1148,18 @@ opposite.
    leg, which is a lawful refill exactly as § 5.7's is: the path a retirement
    empties may be legitimately re-occupied, and the entry there is then that
    row's or that replica's, verified on its own terms.
+
+   **And a block the leg cannot read refuses BEFORE it is believed**
+   (`arrival-unreadable`, naming `validate-carve-manifest.py`): an `at_path`
+   that is not a plain path inside `--dest-root`, and a block whose
+   `at`/`at_path` are not the row's own effective arrival. Step 3 is what
+   normally catches both — they are `_require_closed_relative_path` and check
+   6's `carve-disposition-inconsistent` — but the verifier runs at a LEG on a
+   manifest it deliberately does not revalidate, and the question it asks of a
+   retirement is "is this path EMPTY", to which every unread field answers
+   "yes": a `../` path is absent because it is outside the tree, and a block
+   naming another row's placement proves empty a path no ruling emptied. If
+   you meet either, the repair is in the openxFactory row, not at the leg.
 5. **The leg's own `validate` green, and both pull requests admin-merged on
    Brett's word** (§ 12 act 1), exactly as every other arrival is.
 

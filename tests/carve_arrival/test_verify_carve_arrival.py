@@ -1906,15 +1906,17 @@ def test_a_retirement_naming_another_leg_leaves_this_one_owed_the_file(
                "--dest-root", str(dest), "--phase", "A", "--json")
     assert refusal(done) == "arrival-missing"
 
-    # AND THE BLOCK IS STILL READ AT THE LEG IT NAMES, unchanged: the row is
-    # read TWICE rather than nowhere, and `retired_rows()` goes on asking the
-    # question the block asks without re-deciding the validator's finding.
+    # AND AT THE LEG THE BLOCK NAMES IT IS REFUSED — round 4's half of the
+    # same finding. `retired_rows()` still SELECTS it there, because where a
+    # row is CHECKED is a selection's question, but `check_retired` reads the
+    # block before joining its path and a retirement of a placement this row
+    # does not make retires nothing anywhere. Until then this run exited 0 and
+    # REPORTED the retirement: a path proved empty that no ruling emptied.
     named = carve.materialise(doc, RE_DESTINED_TO)
     done = run(carve, manifest, "--destination", RE_DESTINED_TO,
                "--dest-root", str(named), "--phase", "A", "--json")
-    assert done.returncode == 0, done.stdout + done.stderr
-    assert [r["source_path"] for r in json.loads(done.stdout)["retired"]] == \
-        [RETIRED_SOURCE], done.stdout
+    assert refusal(done) == "arrival-unreadable"
+    assert "carve-disposition-inconsistent" in json.loads(done.stdout)["detail"]
 
 
 def test_a_retirement_naming_another_path_here_leaves_the_arrival_owed(
@@ -1987,6 +1989,168 @@ def test_the_placement_question_is_this_files_own_and_the_shared_one_is_not(
     assert MODULE.rows_for(doc, RE_DESTINED_TO) == [], doc
     assert MODULE.rows_for(doc, "scratch_code") == [], doc
     assert MODULE.retired_rows(doc, RE_DESTINED_TO) == [row], doc
+
+
+# --------------------------------------------------------------------------
+# THE BLOCK IS READ BEFORE ITS PATH IS JOINED (Copilot review of PR #1032,
+# round 4)
+#
+# Round 3 asked the PLACEMENT question on `rows_for`'s side, where a deleted
+# file was passing silently. It left the other side unasked: `retired_rows()`
+# selects on `retired.at` — ONE field of five — so at the leg the BLOCK names,
+# nothing about the block had been read at all when its `at_path` was joined
+# to `--dest-root` and asserted ABSENT. Every reading a check like that fails
+# to make answers its question "yes".
+#
+# Three consequences, all measured below against the previous commit: a
+# malformed block passed BOTH destination runs whenever nobody had acted on it
+# yet; a run reported and counted a retirement whose emptied path no ruling
+# emptied; and where a live file sat at the named path the run refused
+# `arrival-not-retired`, a finding whose own sentence tells the reader to
+# DELETE it. `retired_placement` answers both readings in one place, as
+# `arrival-unreadable` naming `validate-carve-manifest.py` — which owns each
+# defect (`_require_closed_relative_path`, and check 6's
+# `carve-disposition-inconsistent`) for a document anyone ran it over. What is
+# refused here is not the document: it is the answer this run would otherwise
+# print about a leg.
+# --------------------------------------------------------------------------
+
+
+def test_a_misplaced_block_is_refused_before_anything_is_deleted(
+        carve: Carve) -> None:
+    """The case round 3 did not reach: nobody acted on the bad block.
+
+    The file is still at the placement the ROW makes, so `check_arrivals`
+    verifies it normally; the path the BLOCK names is empty, as it always was,
+    so the retirement "verified" too. Both destination runs exited 0 on a
+    document in which one row's retirement is about a file it is not about."""
+    doc = carve.manifest_doc()
+    row = _retire(doc)
+    row["retired"]["at_path"] = "src/pkg/beta-under-another-name.py"
+    manifest = carve.write_manifest(doc)
+
+    # `Carve.materialise` writes a retired row nowhere, so the arrival is put
+    # back by hand: this is the tree of a leg where the act has NOT happened.
+    dest = carve.materialise(doc, RETIRED_AT)
+    _write(dest, RETIRED_AT_PATH, SURFACE_FILES[RETIRED_SOURCE])
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    detail = json.loads(done.stdout)["detail"]
+    assert "src/pkg/beta-under-another-name.py" in detail, detail
+    assert "carve-disposition-inconsistent" in detail, detail
+
+
+def test_a_misplaced_block_can_neither_order_a_deletion_nor_hide_in_a_refill(
+        carve: Carve) -> None:
+    """The two shapes the un-read block took at the leg it named.
+
+    (a) A LIVE FILE AT THE NAMED PATH drew `arrival-not-retired`, whose text
+    reads "Delete it in the commit that lands the `retired:` block" — an
+    instruction to delete a file no ruling touched, issued on the strength of
+    a block that names another row's placement. A wrong finding that asks for
+    a deletion is worse than a missed one.
+
+    (b) THE NAMED PATH IS ANOTHER ROW'S OWN ARRIVAL, the `claimed` exclusion a
+    lawful refill needs (PR #1011). It must not swallow the defect, which is
+    why `check_retired` reads the block BEFORE it: a refill is a reason not to
+    ask the ABSENCE question, never a reason to stop reading the block that
+    asked it. Here the exclusion hid it completely and the run exited 0."""
+    doc = carve.manifest_doc()
+    row = _retire(doc)
+    row["retired"]["at"] = RE_DESTINED_TO
+    row["retired"]["at_path"] = "examples/unrelated.py"
+    manifest = carve.write_manifest(doc)
+
+    named = carve.materialise(doc, RE_DESTINED_TO)
+    _write(named, "examples/unrelated.py", "UNRELATED = 1\n")
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(named), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    # The refusal EXPLAINS the harm and never issues it: `arrival-not-retired`'s
+    # instruction — the sentence that would have a reader remove that file — is
+    # the one string this detail must not carry.
+    assert "Delete it in the commit" not in json.loads(done.stdout)["detail"]
+
+    # (b) — `examples/gamma.py` is the `scratch_spec` row's own arrival, so it
+    # is `claimed` and the absence question is skipped for it.
+    row["retired"]["at_path"] = "examples/gamma.py"
+    manifest = carve.write_manifest(doc)
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(named), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+
+
+def test_a_retirement_path_this_leg_cannot_join_is_not_an_empty_path(
+        carve: Carve) -> None:
+    """`read_manifest()` does not revalidate the document, so
+    `retired.at_path: ../elsewhere` reaches the join exactly as a malformed
+    `destination_path:` would — and here the join is the whole check.
+
+    The fixture's destination roots are siblings, which is the hazard drawn to
+    scale: `../dest-scratch_spec/examples/gamma.py` at the CODE leg is the
+    SPEC leg's live arrived file. Before this commit the run refused
+    `arrival-not-retired` about it — another repository's verified arrival,
+    reported as this leg's un-deleted retirement — and with nothing at the
+    other end of the `..` it exited 0, having proved a path outside the tree
+    empty and called that a retirement.
+
+    The row's own `destination_path` is moved with the block, because
+    `rows_for()` drops the row only where the block names the placement the
+    row makes: the document that reaches this join is malformed in both
+    fields, which is exactly what `_require_closed_relative_path` refuses in
+    `validate-carve-manifest.py` and what this leg cannot assume anyone ran."""
+    doc = carve.manifest_doc()
+    escape = "../dest-scratch_spec/examples/gamma.py"
+    row = _retire(doc)
+    row["destination_path"] = escape
+    row["retired"]["at_path"] = escape
+    manifest = carve.write_manifest(doc)
+
+    spec = carve.materialise(doc, RE_DESTINED_TO, name="dest-scratch_spec")
+    assert (spec / "examples/gamma.py").is_file(), spec
+    dest = carve.materialise(doc, RETIRED_AT, name="dest-scratch_code")
+    assert (dest / ".." / "dest-scratch_spec/examples/gamma.py").is_file()
+
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    detail = json.loads(done.stdout)["detail"]
+    assert "plain path inside --dest-root" in detail, detail
+    assert "_require_closed_relative_path" in detail, detail
+
+
+def test_the_block_is_read_before_its_path_is_joined(carve: Carve) -> None:
+    """`retired_placement` called directly, over one row read three ways —
+    the pairing `test_the_placement_question_is_this_files_own_and_the_shared_one_is_not`
+    states for the SELECTIONS, stated here for the READING each one's caller
+    is left owing. A well-placed block answers with the path; each defect
+    refuses by name, and names the tool whose finding the document defect is."""
+    doc = carve.manifest_doc()
+    row = _retire(doc)
+    assert MODULE.retired_placement(row) == RETIRED_AT_PATH, row
+
+    row["retired"]["at_path"] = "../outside.py"
+    with pytest.raises(MODULE.ArrivalRefusal) as unreadable:
+        MODULE.retired_placement(row)
+    assert unreadable.value.code == "arrival-unreadable"
+    assert "_require_closed_relative_path" in unreadable.value.detail
+
+    row["retired"]["at_path"] = "src/pkg/somewhere-else.py"
+    with pytest.raises(MODULE.ArrivalRefusal) as inconsistent:
+        MODULE.retired_placement(row)
+    assert inconsistent.value.code == "arrival-unreadable"
+    assert "carve-disposition-inconsistent" in inconsistent.value.detail
+
+    # AND THE RE-DESTINED CASE (RULED Q6 then RULED 5656343213): the placement
+    # a block must name is the EFFECTIVE one, so the same pair of readings is
+    # made against the leg the file actually reached.
+    row["re_destined"] = {"to": RE_DESTINED_TO, "to_path": RE_DESTINED_TO_PATH,
+                          "from": RETIRED_AT, "from_path": RETIRED_AT_PATH,
+                          "ruling": RE_DESTINED_RULING}
+    row["retired"]["at"] = RE_DESTINED_TO
+    row["retired"]["at_path"] = RE_DESTINED_TO_PATH
+    assert MODULE.retired_placement(row) == RE_DESTINED_TO_PATH, row
 
 
 def test_the_human_line_names_the_retirements_at_this_leg(

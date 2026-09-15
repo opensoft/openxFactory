@@ -2671,6 +2671,71 @@ def test_the_retirement_refusal_reaches_its_callers_as_their_own_error(
     assert doxbench._shed_aware(target) == carved_reach.source(key)
 
 
+def test_the_two_marker_call_sites_answer_a_retired_row_instead_of_raising(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The SIXTH and SEVENTH call sites, and the only two that must NOT
+    translate the refusal into a finding (Copilot review of PR #1032, round
+    4): they ask `shed_relpath()` for a NAME, and one of them asks it at
+    IMPORT TIME.
+
+    `doxbench_contracts._validator_in_checkout()` is evaluated into the
+    module constant `VALIDATOR_IN_CHECKOUT`, which is one of
+    `PUBLISHER_MARKERS`, so a `CarveRowRetired` out of it would not be a
+    finding at all — it would take down the import of the module whose whole
+    job is to answer `ContractPinError`-or-absence, for every consumer, on
+    the day the validator row was retired. `_composed_validator()` asks the
+    same question about the same row to decide whether there is anything to
+    compose. Both `except ImportError` blocks guard the lazy IMPORT and not
+    the CALL, exactly as the five in
+    `test_the_retirement_refusal_reaches_its_callers_as_their_own_error` did.
+
+    THE ANSWER IS THE MODULE'S OWN CONTROLLED ABSENCE, not a softer refusal:
+    a retirement means the file is at NO checkout, so the honest marker is
+    one that is not there — the pre-shed spelling, whose `exists()` answers
+    False and stops this tree reading as a publisher of a file a ruling
+    deleted. That is what a manifest-less consumer copy already gets, reached
+    by a different road. The composer answers with the validator it was
+    handed, which is its `moved is None` answer for the same reason.
+    """
+    import carved_reach
+    doxbench = importlib.import_module("ideation_dashboard.doxbench_contracts")
+
+    key = "scripts/validate-ideation-dashboard-contracts.py"
+    pre_shed = Path("scripts") / "validate-ideation-dashboard-contracts.py"
+    rows = {key: {
+        "source_path": key,
+        "disposition": "moved_with_declared_edit",
+        "destination": "openxdox_code",
+        "destination_path": key,
+        "retired": {"at": "openxdox_code",
+                    "at_path": key,
+                    "ruling": RETIREMENT_CITATION,
+                    "surface": RETIRED_SURFACE}}}
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+
+    assert doxbench._validator_in_checkout() == pre_shed
+
+    # A REAL FILE, because the composer returns before it asks anything of a
+    # path that is not one — and a fresh one per call, because the function is
+    # `lru_cache`d on its argument.
+    retired_validator = tmp_path / "retired" / pre_shed.name
+    retired_validator.parent.mkdir()
+    retired_validator.write_text("# a stand-in validator\n", encoding="utf-8")
+    assert doxbench._composed_validator(retired_validator) == retired_validator
+
+    # …and with the retirement off the row, the same two calls resolve through
+    # the row exactly as they always did, which is what makes the two answers
+    # above the RETIREMENT's and not the stub's.
+    rows[key].pop("retired")
+    moved = carved_reach.shed_relpath(key)
+    assert moved is not None and moved.endswith(key), moved
+    assert doxbench._validator_in_checkout() == Path(moved)
+    live_validator = tmp_path / "live" / pre_shed.name
+    live_validator.parent.mkdir()
+    live_validator.write_text("# a stand-in validator\n", encoding="utf-8")
+    assert doxbench._composed_validator(live_validator) == live_validator
+
+
 # --------------------------------------------------------------------------
 # `phase: post-shed` — the § 5.2 shed, declared IN the manifest
 #
