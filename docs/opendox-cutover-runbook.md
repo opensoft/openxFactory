@@ -1226,7 +1226,11 @@ openxFactory PR #1043), measured at openDox-code `4813b375` and openXdox-code
   and not openxFactory's own record:
   `docs/opendox-carve-admissions.yaml`'s `tests/test_intent_binding_dom.py`
   entry described the two retired suites as its "narrowed out of validate.yml"
-  siblings, which after this act they are not.
+  siblings. **Narrowing and retirement are different facts and the repair says
+  so**: the leg's allow-list never named those two and still does not — the
+  deletion deliberately leaves it alone — so what the entry now records is not
+  an un-narrowing but the retirement, the absence it makes the floor require,
+  and the pull request that answers it.
 * `views/intent-feed.js` STAYS here, RULED OQ-F. A retirement deletes an
   ARRIVAL, never a surface; this act asks nothing of the surface row except
   that it still read `not_moved`, which is the gate.

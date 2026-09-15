@@ -3669,12 +3669,16 @@ def test_carved_reach_refuses_the_two_landed_retired_rows() -> None:
     than described: `source()` refuses a retirement BEFORE it looks for a
     mount, so the refusal holds in a checkout whose submodules were never
     initialized — the state a retained consumer is most likely to be read in.
-    THE SWEEP HALF DOES need both legs, exactly as the Q6 companion above
-    does, because it resolves every row that is still arriving; the difference
-    is stated rather than left for the reader of a green run to infer. The
-    stub case above (`test_carved_reach_refuses_a_retired_row_by_name`) drives
-    the same three callers on a generated document, where both arms can be
-    controlled; this one asks the real rows.
+    SO NO PART OF IT RESOLVES A ROW IT IS NOT ABOUT. The sweep assertion this
+    case first carried called `sources_under()`, which resolves every OTHER
+    row under the prefix and therefore needs both legs materialized — the very
+    dependency the paragraph above says this case does not have (Copilot
+    review, this pull request). What it asserts now is the PREDICATE that
+    sweep filters on, asked of these two rows; the sweep's own end-to-end
+    behaviour is driven on controlled rows in
+    `test_carved_reach_refuses_a_retired_row_by_name` above, where both arms
+    can be controlled. That stub drives the same three callers on a generated
+    document; this one asks the real rows.
 
     A BRANCH and never a skip, on the module docstring's reasoning.
     """
@@ -3706,15 +3710,20 @@ def test_carved_reach_refuses_the_two_landed_retired_rows() -> None:
             with pytest.raises(carved_reach_direct.CarveRowRetired):
                 call(key)
 
-    # AND A SWEEP DOES NOT GO DOWN WITH THEM. Both rows sit under
-    # `tests/ideation-dashboard/` beside a hundred rows that still arrive: the
-    # sweep omits these two and answers for the rest, which is the whole
-    # difference between naming a file (the caller's own mistake) and walking
-    # a tree (an incident of the walk).
-    swept = carved_reach_direct.sources_under("tests/ideation-dashboard/")
+    # AND A SWEEP DOES NOT GO DOWN WITH THEM — asserted through the PREDICATE
+    # the sweep filters on rather than by running one. `sources_under()` skips
+    # a row where `retired_at(row)[1] is not None` and RESOLVES every other row
+    # under the prefix, so a real sweep of `tests/ideation-dashboard/` would
+    # drag a hundred moved rows, and their mounts, into a case that is about
+    # two rows and deliberately needs no mount at all (Copilot review, this
+    # pull request). The sweep's own behaviour is driven end-to-end on
+    # controlled rows in `test_carved_reach_refuses_a_retired_row_by_name`
+    # above; what the landed document owes is that these two rows answer the
+    # question that sweep asks.
     for row in retired:
-        assert row["source_path"] not in swept, row["source_path"]
-    assert len(swept) > 1, swept
+        assert carved_reach_direct.retired_at(row)[1] is not None, row
+        assert carved_reach_direct.retired_at(row) == (
+            row["retired"]["at"], row["retired"]["at_path"]), row
 
 
 # --------------------------------------------------------------------------
