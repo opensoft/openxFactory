@@ -66,6 +66,7 @@ import importlib.util
 import json
 import os
 import re
+import shlex
 import stat
 import subprocess
 import sys
@@ -2041,6 +2042,233 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     total = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     assert sum(claimed[3] for claimed in stated.values()) == total - 1, stated
+
+
+# --------------------------------------------------------------------------
+# § 5.5's worked example — the invocation an operator copies, and the line the
+# runbook tells that operator to expect back
+# --------------------------------------------------------------------------
+
+# Each example is the ```sh block that FOLLOWS one of § 5.5's own sentences.
+# The sentence is the bound, for the § 2 table test's reason: a heuristic for
+# "the block near here" is a boundary the document can move without anyone
+# noticing it moved.
+PHASE_A_MARKER = "`arrival-unreadable` rather than holding a seat:"
+PHASE_B_MARKER = ("**Only then** apply the declared edits as commit B, "
+                  "and re-verify at phase B:")
+# `…` elides, `<name>` stands for a value the operator supplies (`<origin/main>`
+# is a ref, and the verifier prints the sha it resolved to). Everything BETWEEN
+# them is the tool's own words and is compared with them.
+ELISION = re.compile(r"…|<[^>]+>")
+
+
+def _runbook_example(text: str, marker: str) -> tuple[list[str], str]:
+    """The fenced example after `marker`, as (argv, the quoted expectation).
+
+    FAIL-CLOSED AT EVERY STEP, because each way of being lenient here is a way
+    for the check to stop reading what it says it reads: the marker appears
+    exactly once, the fence opens immediately beneath it, the `# ` quotation is
+    a CONTIGUOUS run at the END of the block — a comment among the command's
+    own lines is a shape this parser refuses rather than silently drops — and
+    both halves are non-empty.
+    """
+    assert text.count(marker) == 1, (
+        f"§ 5.5's example is bounded by {marker!r}, which this runbook states "
+        f"{text.count(marker)} times")
+    rest = text[text.index(marker) + len(marker):]
+    opening = "\n\n```sh\n"
+    assert rest.startswith(opening), (
+        f"the fenced invocation does not open immediately under {marker!r}: "
+        f"{rest[:60]!r}")
+    body = rest[len(opening):]
+    closing = body.find("\n```\n")
+    assert closing != -1, f"the invocation under {marker!r} is never closed"
+    lines = body[:closing].split("\n")
+    quoted: list[str] = []
+    while lines and lines[-1].startswith("#"):
+        quoted.insert(0, lines.pop()[1:].strip())
+    assert lines, f"the block under {marker!r} is all comment and no command"
+    assert quoted, (
+        f"the block under {marker!r} states no `# expect exit 0:` line; an "
+        "example with no expectation is an invocation nobody can check a run "
+        "against")
+    assert not any(line.lstrip().startswith("#") for line in lines), (
+        f"the invocation under {marker!r} carries a comment among its own "
+        "lines; this check reads the trailing run as the expectation, so a "
+        "comment above the command would be read as part of it")
+    argv = shlex.split(" ".join(line.rstrip("\\ ") for line in lines))
+    return argv, " ".join(quoted)
+
+
+def _flag(argv: list[str], flag: str) -> list[str]:
+    """Every value given to `flag`, in the order the invocation gives them."""
+    return [argv[i + 1] for i, word in enumerate(argv)
+            if word == flag and i + 1 < len(argv)]
+
+
+def _composed(summary: dict[str, Any],
+              capsys: pytest.CaptureFixture[str]) -> str:
+    """The verifier's own summary line for `summary` — the tool's words."""
+    MODULE._print_ok(summary, False)
+    return capsys.readouterr().out.strip()
+
+
+def _summary(doc: dict[str, Any], destination: str, phase: str, *,
+             rows: int, digests: int, diffed: int, unapplied: int,
+             replicas: int) -> dict[str, Any]:
+    """A summary the verifier would build for a run of § 5.5's example.
+
+    Only the counted fields are asserted on; the rest are this destination's
+    own identity, so the composed line is the one this leg prints and not a
+    shape assembled out of nothing.
+    """
+    return {
+        "result": "ok",
+        "mode": "destination",
+        "destination": destination,
+        "repository": (doc["destinations"].get(destination) or {}).get(
+            "repository"),
+        "leg": None,
+        "dest_root": "../dest-openDox-code",
+        "phase": phase,
+        # A run that PRINTS the strong scaffold sentence is the one § 5.5's
+        # phase-A comment quotes; `None` here prints the weaker `by NAME ONLY`
+        # alternative, which is a different claim and a different line.
+        "dest_base": "0" * 40,
+        "carve_commit": doc["carve_commit"],
+        "carve_tag": doc.get("carve_tag"),
+        "source_repository": doc["source_repository"],
+        "rows": rows,
+        "digests_verified": digests,
+        "declared_edits_diffed": diffed,
+        "declared_edits_unapplied": unapplied,
+        "replicas_declared": replicas,
+        "replicas_verified": replicas,
+        "re_destined": {"arrived": [], "vacated": []},
+        "declared_roots": MODULE.declared_roots(
+            MODULE.rows_for(doc, destination)),
+        "files_walked": 0,
+        "admitted": {"scaffold": 0, "replica": 0, "created": 0},
+        "carved_from": None,
+        "admissions_file": None,
+        "declared_admissions_used": [],
+        "declared_admissions_unused": [],
+        "ad_hoc_allow_created": [],
+    }
+
+
+def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
+        capsys: pytest.CaptureFixture[str]) -> None:
+    """§ 5.5's two worked invocations, held to the landed manifest AND to the
+    line this verifier composes — § 2's pin, one section down.
+
+    § 2's per-destination table rotted through two acts because nothing read
+    it. THESE TWO COMMENTS HAD ROTTED FURTHER (Copilot review, round ten on
+    this PR): they were written when the runbook landed (`a970fd9d`) and never
+    touched again, so phase A still told an operator to expect `123 row(s)
+    arrived` after RULED Q6 re-destined four of `opendox_code`'s rows away,
+    and phase B still expected `62 edited row(s), declared-lines-only` —
+    a figure six annotation acts out of date, in words this verifier does not
+    print at all. An expectation the tool would never produce cannot be
+    compared with a run, so it fails silently forever: the operator reads the
+    difference as their own mistake, or does not read it.
+
+    SO THE EXPECTATION IS COMPOSED RATHER THAN MATCHED. The numbers come from
+    the landed manifest through `rows_for()` — the EFFECTIVE arrival, which is
+    what a run places and therefore what a run reports — and the WORDS come
+    from `_print_ok`, the verifier's own summary line, with the runbook's `…`
+    elisions and its one `<origin/main>` placeholder as the only wildcards.
+    Each remaining fragment must appear, in order, in that line. A wording
+    change in the tool, a figure moved by an annotation act, and a comment
+    edited to say something the tool does not say are all the same failure.
+
+    THE MODULE IS IMPORTED HERE, against this file's subprocess rule, for the
+    reason the docstring gives for the constant assertions: the claim is about
+    the LINE THE TOOL COMPOSES, not about a run. Every behavioural claim about
+    a real destination stays where it is — no destination checkout exists on
+    this machine, which is the seat the module docstring describes.
+
+    AND THE AD-HOC `--allow-created` FLAGS ARE READ AGAINST THE ADMISSIONS
+    FILE. § 5.5's note says in prose that those two flags are correct only
+    while `opendox_code` declares neither path — and the sentence under it
+    predicts its own expiry. That prediction is checked here, so the day a PR
+    declares `pytest.ini` or `conftest.py` is a red test rather than a note
+    nobody re-reads. (The note's OTHER premise had already expired unread: it
+    said the block was `created: []` long after BUILD slice 2 began filling
+    it.)
+    """
+    runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
+    assert runbook.is_file(), (
+        f"{runbook} is absent: § 5.5 is the procedure every leg runs, and a "
+        "missing procedure is not a procedure that agrees with the manifest")
+    _text, doc = the_landed_manifest()
+    text = runbook.read_text(encoding="utf-8")
+
+    destination = "opendox_code"
+    rows = MODULE.rows_for(doc, destination)
+    verbatim = sum(1 for row in rows
+                   if row["disposition"] == "moved_verbatim")
+    edited = sum(1 for row in rows
+                 if row["disposition"] == "moved_with_declared_edit")
+    assert len(rows) == verbatim + edited, (
+        "every row `rows_for` returns is a MOVED row, so the two dispositions "
+        "exhaust it; a third here would mean the arrival counts below no "
+        "longer sum to the rows the run walks")
+
+    for marker, phase, expected in (
+            # Phase A checks EVERY arrived row's digest, so its two figures
+            # are one figure twice. Phase B checks the verbatim rows' digests
+            # and diffs the declared-edit rows within their lines; `0
+            # unapplied` is the standard for a complete commit B, not a
+            # manifest figure.
+            (PHASE_A_MARKER, "A", (len(rows), len(rows), 0, 0)),
+            (PHASE_B_MARKER, "B", (len(rows), verbatim, edited, 0))):
+        argv, quotation = _runbook_example(text, marker)
+        assert _flag(argv, "--destination") == [destination], (
+            f"§ 5.5's phase-{phase} example does not run {destination!r}; the "
+            "figures below are that leg's and no other's")
+        assert _flag(argv, "--phase") == [phase], (
+            f"the example under {marker!r} does not run phase {phase}")
+        prefix = "expect exit 0: "
+        assert quotation.startswith(prefix), (
+            f"§ 5.5's phase-{phase} expectation does not begin {prefix!r}: "
+            f"{quotation!r}")
+        line = _composed(_summary(
+            doc, destination, phase,
+            rows=expected[0], digests=expected[1], diffed=expected[2],
+            unapplied=expected[3],
+            replicas=len(_flag(argv, "--replica-at"))), capsys)
+        position = 0
+        for fragment in ELISION.split(quotation[len(prefix):]):
+            fragment = fragment.strip()
+            if not fragment:
+                continue
+            found = line.find(fragment, position)
+            assert found != -1, (
+                f"§ 5.5's phase-{phase} example says a run reports "
+                f"{fragment!r}, and the line this verifier composes for that "
+                f"run — from the LANDED manifest — is {line!r}. The runbook "
+                "states what an operator compares their own run against, so "
+                "a figure or a phrase it states and this tool does not print "
+                "is an expectation no run can meet")
+            position = found + len(fragment)
+
+    # THE AD-HOC ADMISSION FLAGS, against the file that would replace them.
+    admissions = REPO_ROOT / "docs" / MODULE.ADMISSIONS_BASENAME
+    assert admissions.is_file(), (
+        f"{admissions} is absent while § 5.5 names it: the note under the "
+        "phase-B example is a claim about that file's contents")
+    declared = {
+        entry["path"] for entry in
+        ((yaml.safe_load(admissions.read_text(encoding="utf-8"))
+          ["destinations"].get(destination) or {}).get("created") or [])}
+    argv, _quotation = _runbook_example(text, PHASE_B_MARKER)
+    for path in _flag(argv, "--allow-created"):
+        assert path not in declared, (
+            f"§ 5.5's phase-B example still passes `--allow-created {path}` "
+            f"while {MODULE.ADMISSIONS_BASENAME} declares that path for "
+            f"{destination}. The note beneath the example says this is the "
+            "moment the flag should be dropped and the note deleted with it")
 
 
 # --------------------------------------------------------------------------

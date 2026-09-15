@@ -834,9 +834,23 @@ manifest validator this verifier is fail-closed about it and refuses
 python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --manifest "$OXF/docs/opendox-carve-manifest.yaml" \
     --dest-root ../dest-openDox-code --source-repo ../oxf-carve-src.git --phase A
-# expect exit 0: 123 row(s) arrived … 123 digest(s) verified …
+# expect exit 0: 119 row(s) arrived … 119 digest(s) verified …
 #                scaffold admissions checked against <origin/main>
 ```
+
+**Those two figures are this leg's EFFECTIVE arrival and not § 2's row count
+for it** (Copilot review, round ten on PR #1030). § 2's table counts a
+re-destined row at the `destination:` it still names; RULED Q6 moved four of
+`opendox_code`'s 123 rows AWAY; and a run reports what it PLACES — 119, the
+four fewer § 2's own paragraph names. At phase A every arrived row is
+digest-checked, so the two numbers are one number twice.
+`test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces`
+re-derives both of § 5.5's expected lines from the landed manifest and
+composes them with the verifier's OWN summary line, elision by elision: these
+two comments were written when the runbook landed (`a970fd9d`) and never
+touched again, so they aged through every annotation act that moved the
+figures — the § 2 table's defect exactly, one section down, and the phase-B
+line below had drifted from the tool's wording as well as its numbers.
 
 `--dest-base` defaults to the destination's own `origin/main`, which after the
 clone above is its PRE-CARVE main, and every SCAFFOLD admission's bytes are
@@ -854,23 +868,38 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --replica-at scripts/output_boundary.py=src/opendox/output_boundary.py \
     --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
     --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py
-# expect exit 0: 62 edited row(s), declared-lines-only; 3 of 3 declared
-# replica(s) verified (byte-identical, or — where the row declares lines —
-# differing only on them)
+# expect exit 0: 119 row(s) arrived, 35 digest(s) verified, 84 declared-edit
+# row(s) within their lines, 0 unapplied; 3 of 3 declared replica(s) verified
+# (byte-identical, or — where the row declares lines — differing only on them)
 ```
 
+The old comment here read `62 edited row(s), declared-lines-only`, which is
+not a phrase this verifier prints — neither script carries the words “edited
+row(s)” or “declared-lines-only” at all. A quotation of a tool's output that
+the tool would not produce cannot be compared with a run, which is why the
+test composes these lines through `_print_ok` rather than matching them
+against a literal of its own. `0 unapplied` is not a manifest figure: it is
+the standard for a COMPLETE commit B — a declared-edit row the run finds
+byte-identical to the carve blob is an edit this leg did not apply, and the
+leg is not done until that count is zero (the one legitimate exception is the
+replica paragraph below, which this example does not place).
+
 **This `--allow-created pytest.ini --allow-created conftest.py` is the ad-hoc
-form on purpose, not a stale example** (Copilot review, PR #979): RULED
-#656's first seeding declares `openxdox_code`'s two openXdox-code #7 files in
-`docs/opendox-carve-admissions.yaml` and NOTHING else — `opendox_code`'s own
-block there is `created: []`, so these two Phase-1 files have no reviewed
-declaration to read yet, and the command-line flag remains this leg's live,
-correct admission, exactly as § 5.6 and the admissions file's own header say
-`--allow-created` still does for a destination with none declared. It is not
-an operator falling back to a form the file has already replaced here; it
-becomes one only once a future PR adds `pytest.ini` and `conftest.py` to
-`opendox_code`'s `created:` list, at which point this example should drop
-the flag and this note should go with it.
+form on purpose, not a stale example** (Copilot review, PR #979; its PREMISE
+re-measured on Copilot's round-ten review of PR #1030). What keeps the flag
+correct is not that `opendox_code` declares no admissions — this note said
+its block in `docs/opendox-carve-admissions.yaml` was `created: []` long after
+BUILD slice 2 began filling it, and THIS act adds three more entries to it —
+but that neither `pytest.ini` nor `conftest.py` is among the paths it
+declares. Those two Phase-1 files still have no reviewed declaration to read,
+so the command-line flag remains this leg's live, correct admission, exactly
+as § 5.6 and the admissions file's own header say `--allow-created` still
+does for a path nothing declares. It is not an operator falling back to a
+form the file has already replaced here; it becomes one once a future PR adds
+`pytest.ini` and `conftest.py` to `opendox_code`'s `created:` list, at which
+point this example should drop the flag and this note should go with it — and
+the same test reads both of these flags against the landed admissions file,
+so that day is a FAILURE here rather than a sentence nobody re-reads.
 
 The human line says `verified (byte-identical, or …)` and not
 `byte-identical` since RULED Q-L7 (a), because one replica row now declares a
