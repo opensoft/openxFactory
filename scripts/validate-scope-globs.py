@@ -20,7 +20,24 @@ Usage:
     REPO_ROOT defaults to the current directory. Scans REPO_ROOT/openspec/changes/
     (active changes only, never archive/) and validates every proposal that
     declares `scope_globs`. Exit 0 when all pass; exit 1 (naming the offending
-    change, entry, and rule) otherwise.
+    change, entry, and rule) otherwise; exit 2 when the scan CANNOT RUN.
+
+    DISCOVERY IS THE SIBLING'S GUARDED WALK, NOT A BARE `is_file()` SCAN.
+    `code_surface._proposals` is called for the active corpus, so this gate and
+    the code-surface gate judge THE SAME PROPOSALS — every candidate path taken
+    through `code_surface._unescaped`, which resolves both sides and requires
+    the path to land where a symlink-free tree would have put it. `Path.is_dir()`
+    and `Path.is_file()` FOLLOW SYMLINKS, so the plain walk this replaced read a
+    symlinked `openspec/changes/<id>/proposal.md` — or an ordinary `proposal.md`
+    inside a symlinked CHANGE DIRECTORY, or anything under a symlinked
+    `openspec/` — as an active proposal of the scanned tree. That mattered here
+    once the cross-consistency check became a CODE-SURFACE CONSUMER: bytes
+    outside the tree supplied the `code_surface:` declaration the scope key is
+    checked against, and matched the register entry the refusal names, so the
+    escaped document could both grant an authorization the tree never declared
+    and be judged as one the tree carries. The escape is DROPPED rather than
+    reported, for `_unescaped`'s own reason: neither face of it is a judgment
+    about the scanned tree, which is the only thing this gate may make.
 
     --code-surface-register PATH
         Read the CODE-SURFACE register (`gate-code-surface-declarations`) from
@@ -77,16 +94,38 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import scope_globs as sg  # noqa: E402
 
 
-def _load_code_surface_register(path: Path) -> list[dict]:
-    """The code-surface register at `path`, loaded through the sibling reader.
+def _code_surface():
+    """The sibling `scripts/code_surface.py`, imported ON FIRST USE.
 
     IMPORTED HERE AND NOT AT MODULE LEVEL, on `scope_globs._code_surface()`'s
-    reason: this CLI must keep running in a tree that does not carry
-    `scripts/code_surface.py`, and it needs the sibling only when a register is
-    to be loaded at all.
+    reason: the import is paid only on the paths that need it, and an absent
+    sibling arrives as a NAMED FINDING rather than as an import traceback out
+    of a gate.
+
+    THE OLD CLAIM THAT THIS CLI "MUST KEEP RUNNING IN A TREE THAT DOES NOT
+    CARRY `scripts/code_surface.py`" IS CORRECTED HERE, WHERE IT WAS MADE, and
+    it never held for the corpus scan anyway: `code_surface_repositories` calls
+    the sibling for every proposal whose `code_surface:` is present and
+    readable, so a sibling-less tree already refused every real proposal in
+    this repository. What is true, and all that is claimed now, is that
+    `--archive-gate` needs NO `code_surface` (the scope-retention freeze reads
+    `scope_globs:` on both sides and nothing else; it DOES need
+    `sequenced_after`, a separate sibling and a separate fact — the first
+    wording of this paragraph said "sibling-free", and the test written to pin
+    it FAILED on that sibling, which is how the overclaim was caught), and that
+    module IMPORT needs neither.
+    THE CORPUS SCAN NOW REQUIRES THE SIBLING OUTRIGHT, because its guarded walk
+    is the sibling's, and a guard that silently disappears when a file is
+    missing is exactly the fail-closed-turned-fail-open this module refuses
+    elsewhere. Missing, the scan REFUSES (exit 2) and names what to copy.
     """
     import code_surface as cs  # deliberate local import, see the docstring
-    return cs.load_register(path)
+    return cs
+
+
+def _load_code_surface_register(path: Path) -> list[dict]:
+    """The code-surface register at `path`, loaded through the sibling reader."""
+    return _code_surface().load_register(path)
 
 
 def _validate_change(proposal: Path,
@@ -124,19 +163,49 @@ def _validate_change(proposal: Path,
     return []
 
 
+def _active_proposals(repo_root: Path) -> list[Path]:
+    """Every ACTIVE `proposal.md` the scanned tree REALLY carries.
+
+    THE SIBLING'S WALK, CALLED — NOT A SECOND COPY OF IT. `code_surface`
+    already owns the anchored path check (`_unescaped`: resolve `repo_root` and
+    the candidate, and require the candidate to land exactly where a
+    symlink-free tree would have put it, which closes an escape at EVERY
+    component in one comparison) and already applies it to `openspec/changes`,
+    to each change directory and to each `proposal.md`, one level deep, skipping
+    `archive/`. That is this walk, to the letter, and calling it is what makes
+    the two gates provably judge the SAME corpus rather than two corpora that
+    agree until a symlink separates them — which is pinned by
+    `test_the_two_gates_walk_THE_SAME_CORPUS`.
+
+    The returned paths are `repo_root / openspec / changes / <id> / proposal.md`
+    UNRESOLVED, so `proposal.parent.name` is still the change id.
+    """
+    return _code_surface()._proposals(repo_root, archived=False)
+
+
 def validate_corpus(repo_root: Path,
                     register: list[dict] | None = None) -> int:
-    changes = repo_root / "openspec" / "changes"
+    try:
+        proposals = _active_proposals(repo_root)
+    except Exception as exc:  # reported as a finding, never traced
+        # THE GUARD IS NOT OPTIONAL, SO ITS ABSENCE REFUSES. Scanning on with a
+        # bare `is_file()` walk would be a fail-closed silently becoming a
+        # fail-open — the precise thing the register resolution below refuses to
+        # do — so a sibling that cannot be loaded stops the scan and says what
+        # to copy, in this CLI's own "CANNOT RUN … exit 2" shape.
+        print("scope_globs validation CANNOT RUN:")
+        print(f"  - the corpus walk is guarded by the sibling module "
+              f"`code_surface` (its anchored `_unescaped` path check), and it "
+              f"could not be loaded: {exc}. Copy `scripts/code_surface.py` "
+              f"beside this validator. The scan does NOT fall back to an "
+              f"unguarded walk: a symlinked proposal or change directory would "
+              f"then supply a `code_surface:` declaration, and a register "
+              f"match, from bytes outside the tree being judged")
+        return 2
     problems: list[str] = []
-    if changes.is_dir():
-        for change_dir in sorted(changes.iterdir()):
-            if not change_dir.is_dir() or change_dir.name == "archive":
-                continue
-            proposal = change_dir / "proposal.md"
-            if not proposal.is_file():
-                continue
-            for problem in _validate_change(proposal, register):
-                problems.append(f"{change_dir.name}: {problem}")
+    for proposal in proposals:
+        for problem in _validate_change(proposal, register):
+            problems.append(f"{proposal.parent.name}: {problem}")
     if problems:
         print("scope_globs validation FAILED:")
         for p in problems:
