@@ -91,6 +91,7 @@ rows:
   add-customer-memory-gateway-architecture: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-dashboard-account-menu: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
   add-dashboard-repo-selector: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-declared-former-id: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1028", moved_on: "2026-09-13"}
   add-deployment-handoff-boundary: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-dispatch-credential-contract: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-doc-health-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -227,9 +228,10 @@ rows:
   disposition-codexfactory-floor-relocation-retitle: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#898", moved_on: "2026-09-10"}
   disposition-codexfactory-regular-pr-council-clearance-archive: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1004", moved_on: "2026-09-12"}
   enable-live-openxfactory: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  encode-wallet-authority-rulings-r6-r12: {state: active, class: sole, declares: [add-wallet-carried-review-authority, register-gate-rules-council-seats, amend-register-act-5b-projection-proof], depth: 3, prose: false, moved_by: "#1017", moved_on: "2026-09-12"}
   exclude-worktrees-from-notebook-projection: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   extend-merge-master-envelope-to-floor-bot-lanes: {state: active, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:add-floor-regeneration-automation, add-substantive-review-lane], depth: 2, prose: false, moved_by: "#959", moved_on: "2026-09-11"}
-  extend-prose-tagging-target-to-pinned-capabilities: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#994", moved_on: "2026-09-12"}
+  extend-prose-tagging-target-to-pinned-capabilities: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1042", moved_on: "2026-09-15"}
   fix-abandoned-session-cleanup-terminal-states: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-content-resolution-conflation: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-pin-value-boundary-and-sentinel-split: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}

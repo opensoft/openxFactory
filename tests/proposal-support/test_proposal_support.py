@@ -1760,6 +1760,419 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assert_walk_refuses(root, moved, "change-s", renamed_at,
                                      extra_substrings=("#849",))
 
+    # ----------------------------------------------------------------
+    # THE PACKET DECLARED WHERE IT CAME FROM (add-declared-former-id § 3)
+    #
+    # The refusal above is what a packet that declares NOTHING gets, and it
+    # stays exactly where it was. What follows is the lawful answer the
+    # declaration buys: the baseline is resolved across the current identity
+    # and every declared former identity together, EARLIEST wins, and the
+    # comparison itself does not move — so a rename is not a way to acquire a
+    # later baseline and therefore not a way to launder a mutation.
+    # ----------------------------------------------------------------
+
+    def declare(self, directory: Path, *ids: str) -> None:
+        """Append a top-level `former_ids:` to a packet — a SIBLING of
+        `origin:`, which is what keeps a lawful move from being a mutation of
+        the frozen declaration."""
+        packet = directory / ".openspec.yaml"
+        text = packet.read_text(encoding="utf-8")
+        rows = "".join(f"  - {identity}\n" for identity in ids)
+        packet.write_text(text + "former_ids:\n" + rows, encoding="utf-8")
+
+    def test_a_declared_move_resolves_the_baseline_to_the_first_ratification(
+            self):
+        """THE MECHANISM, AT ONE HOP. The same tree that refuses undeclared
+        (`test_a_ratified_change_renamed_afterwards_refuses_the_walk`) has a
+        lawful answer once the arriving packet declares where it came from:
+        the baseline is `change-r`'s own ratification, the declaration read
+        at the path THAT identity occupied, and the mutation standing between
+        is caught rather than waved through."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            moved = changes / "change-s"
+            self.declare(moved, "change-r")
+            commit_all(root, "rename the ratified packet and declare the move")
+
+            self.assertEqual(support.ratifying_commit(root, "change-s"),
+                             ratified_at)
+            self.assertEqual(
+                support.ratifying_baseline(
+                    root, "change-s", former_ids=["change-r"]),
+                (ratified_at, "change-r",
+                 "openspec/changes/change-r/proposal.md"))
+            errors = support.origin_retention_errors(root, moved,
+                                                     change="change-s")
+            self.assertEqual(len(errors), 2, errors)
+            self.assertIn("differs from the one this change was ratified "
+                          "over", errors[0])
+            self.assertIn("under the declared former identity change-r",
+                          errors[0])
+            # THE READ HAPPENED AT THE FORMER PATH, proved by the diff header
+            # rather than by the answer: deriving the path from the id the
+            # tree spells now would have read nothing at all.
+            self.assertIn("openspec/changes/change-r/.openspec.yaml",
+                          errors[0])
+            self.assertIn("changed keys: approved_by", errors[0])
+
+    def test_the_declaration_is_what_makes_the_difference(self):
+        """THE DISCRIMINATOR, BUILT TWICE. One tree, two histories differing
+        by the declaration alone: undeclared REFUSES (PR #846, unchanged),
+        declared RESOLVES. A gate whose answer did not turn on the
+        declaration would not be reading it."""
+        for declared in (False, True):
+            with self.subTest(declared=declared), TemporaryDirectory() as td:
+                root = Path(td)
+                self.packet(root)
+                ratified_at = subprocess.run(
+                    ["git", "-C", str(root), "rev-parse", "HEAD"],
+                    check=True, capture_output=True, text=True).stdout.strip()
+                changes = root / "openspec" / "changes"
+                git(root, "mv", str(changes / "change-r"),
+                    str(changes / "change-s"))
+                if declared:
+                    self.declare(changes / "change-s", "change-r")
+                commit_all(root, "rename the ratified packet")
+                if declared:
+                    self.assertEqual(
+                        support.ratifying_commit(root, "change-s"),
+                        ratified_at)
+                else:
+                    with self.assertRaises(support.OriginRetentionError):
+                        support.ratifying_commit(root, "change-s")
+
+    def test_an_undeclared_source_is_still_refused_when_another_is_declared(
+            self):
+        """A DECLARATION IS NOT A BLANKET PERMISSION. The refusal is silenced
+        only for the identity the packet actually names: a lineage that
+        declares some OTHER id does not admit this move, and the finding says
+        which ids were declared."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            self.declare(changes / "change-s", "change-q")
+            commit_all(root, "rename and declare the WRONG predecessor")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(root, "change-s")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-path-moved", message)
+            self.assertIn("DECLARES ['change-q']", message)
+            self.assertIn("is not among them", message)
+
+    def test_a_mutation_riding_in_the_declared_move_is_still_a_mutation(self):
+        """THE LAUNDERING CASE, which is the whole reason the comparison does
+        not move. A declared move that ALSO edits the origin is refused as an
+        origin mutated after ratification; the move having been lawfully
+        declared is not read as accepting the edit."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            moved = changes / "change-s"
+            self.declare(moved, "change-r")
+            self.mutate(moved, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "rename, declare, and edit the origin in one")
+            errors = support.origin_retention_errors(root, moved,
+                                                     change="change-s")
+            self.assertTrue(errors)
+            self.assertIn("differs from the one this change was ratified "
+                          "over", errors[0])
+            # …and the declared move is NOT read as accepting it: the refusal
+            # still names the disposition channel, which is the only thing
+            # that accepts a mutation.
+            self.assertEqual(len(errors), 2, errors)
+            self.assertIn("contested-class act requiring an explicit "
+                          "disposition", errors[-1])
+            self.assertIn(support.ORIGIN_DISPOSITIONS_REL, errors[-1])
+
+    def test_a_declared_move_with_no_mutation_retains_its_origin(self):
+        """THE LAWFUL MOVE PASSES, or the mechanism would have replaced one
+        refusal with another."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            moved = changes / "change-s"
+            self.declare(moved, "change-r")
+            commit_all(root, "rename the ratified packet and declare it")
+            self.assertEqual(
+                support.origin_retention_errors(root, moved,
+                                                change="change-s"), [])
+
+    def test_a_declared_rename_chain_is_baselined_at_the_first_ratification(
+            self):
+        """THE #1003 CHAIN, DECLARED — and the flip of
+        `test_an_unratifying_rename_chain_escapes_the_guard_a_stated_gap`,
+        which pinned this same chain's UNDECLARED answer until this packet
+        landed (PR #1027, the ruling's option 2).
+
+        `ratify r -> rename+un-ratify r->s -> rename s->t while draft ->
+        ratify t`, with every hop DECLARING where it came from. The walk
+        resolves `change-t`'s baseline across `change-r`, `change-s` and
+        `change-t` together and takes the EARLIEST — `change-r`'s own
+        ratification — so the mutation that used to sit between the real
+        ratification and the late one is now caught. NO CHAIN IS WALKED to
+        reach that: each id is asked directly, exactly as a single-hop
+        declaration is.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            s = changes / "change-s"
+            proposal_s = s / "proposal.md"
+            proposal_s.write_text(
+                proposal_s.read_text(encoding="utf-8").replace(
+                    "Status: ratified", "Status: draft", 1),
+                encoding="utf-8")
+            self.declare(s, "change-r")
+            commit_all(root, "rename r to s, un-ratify, and declare the move")
+
+            git(root, "mv", str(s), str(changes / "change-t"))
+            t = changes / "change-t"
+            # THE ARRIVING LIST IS THE SOURCE'S LIST WITH THE SOURCE ID
+            # APPENDED, so no move sheds a lineage.
+            (t / ".openspec.yaml").write_text(
+                (t / ".openspec.yaml").read_text(encoding="utf-8").replace(
+                    "former_ids:\n  - change-r\n",
+                    "former_ids:\n  - change-r\n  - change-s\n", 1),
+                encoding="utf-8")
+            commit_all(root, "rename s to t while draft, declaring both")
+
+            ratify(t / "proposal.md")
+            commit_all(root, "ratify t under its third name")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "change-t"),
+                ["change-r", "change-s"])
+            # WHAT FLIPPED: the first ratification, not the last
+            self.assertEqual(support.ratifying_commit(root, "change-t"),
+                             ratified_at)
+            self.assertNotEqual(support.ratifying_commit(root, "change-t"),
+                                head)
+            self.assertEqual(
+                support.ratifying_baseline(root, "change-t")[1], "change-r")
+            errors = support.origin_retention_errors(root, t,
+                                                     change="change-t")
+            self.assertTrue(errors)
+            self.assertIn("differs from the one this change was ratified "
+                          "over", errors[0])
+            self.assertIn("under the declared former identity change-r",
+                          errors[0])
+
+    def test_an_undeclared_rename_chain_is_the_landing_validators_to_refuse(
+            self):
+        """THE #1003 GAP AT THIS GATE, SILENT BY RULE AND NOT BY OVERSIGHT —
+        AND THE DIVISION IS NOW SETTLED RATHER THAN PENDING.
+        The chain above, with NOTHING declared, is not reachable from here and
+        this test pins that rather than hiding it: `git log` for `change-t`
+        never visits the r-to-s commit (it never touched `change-t`), and the
+        s-to-t commit's own parent is already a draft, so the one-hop-back
+        check finds nothing amiss either. Nothing in history connects
+        `change-t` to `change-r`, which IS the argument for a declaration.
+
+        THE REFUSAL IS THE LANDING GATE'S, AND IT IS BUILT.
+        `release-realization`'s *An undeclared rename arrival is refused at its
+        landing* is realized by `add-declared-former-id` § 4 —
+        `scripts/former_id_arrival.py` and its CLI
+        `scripts/validate-former-id-arrival.py` (slice 4, PR #1039, landed at
+        merge `92d519b0`) — which refuses the r-to-s
+        hop at its own landing, `former-id-undeclared`, exit 1, because that
+        hop's source identity had declared `Status: ratified` and the arriving
+        packet declares nothing. ONCE THAT GATE IS REQUIRED this history cannot
+        be created in the first place and the archive gate never has to reach
+        back for it — and until § 4.5 is performed (an operator act,
+        outstanding on 2026-09-15) the refusal is REPORTED but not ENFORCED:
+        `.github/workflows/former-id-arrival-gate.yml` runs the validator on
+        every pull request, so an undeclared move shows a red check, while the
+        check blocks no merge until the ruleset requires it — so a commit of
+        exactly this shape can still land. What does
+        not change either way is WHERE the refusal belongs: not here.
+
+        WHY THIS FIXTURE KEEPS ITS ASSERTIONS AND ITS NAME. The #999
+        convention (`2dd54b8e`) renames a fixture when ITS OWN answer flips:
+        `test_an_unratifying_rename_escapes_the_guard_a_stated_gap` became
+        `test_an_unratifying_rename_now_refuses_the_walk` because the walk
+        began raising. Nothing flips here — `ratifying_commit` still returns
+        the late ratification for an undeclared chain, deliberately, `tasks.md`
+        § 3.2 having ruled that the undeclared refusal stays exactly where it
+        is — so a name claiming a refusal would be a name this test does not
+        keep. The refusal has its OWN fixture, asserting both halves over one
+        tree — `ArrivalRefusalTests` in
+        `tests/former_id_arrival/test_former_id_arrival.py`, method
+        `test_an_undeclared_rename_chain_now_refuses_at_its_landing` — which
+        reads this gate's silence and that gate's refusal in the same history.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+            self.mutate(directory, "quoting the ratified prose",
+                        "quoting the corrected prose")
+            commit_all(root, "mutate the origin after ratification")
+
+            changes = root / "openspec" / "changes"
+            git(root, "mv", str(changes / "change-r"),
+                str(changes / "change-s"))
+            s = changes / "change-s"
+            proposal_s = s / "proposal.md"
+            proposal_s.write_text(
+                proposal_s.read_text(encoding="utf-8").replace(
+                    "Status: ratified", "Status: draft", 1),
+                encoding="utf-8")
+            commit_all(root, "rename r to s and un-ratify in one commit")
+
+            git(root, "mv", str(s), str(changes / "change-t"))
+            t = changes / "change-t"
+            commit_all(root, "rename s to t while draft")
+
+            ratify(t / "proposal.md")
+            commit_all(root, "ratify t under its third name")
+            head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True).stdout.strip()
+
+            here = support.origin_block_lines(
+                (t / ".openspec.yaml").read_text(encoding="utf-8"))
+            at_true_ratification = support.origin_block_lines(
+                support.git_show_text(
+                    root, ratified_at,
+                    "openspec/changes/change-r/.openspec.yaml"))
+            self.assertNotEqual(here, at_true_ratification)
+
+            self.assertEqual(support.declared_former_ids_in_tree(
+                root, "change-t"), [])
+            self.assertEqual(support.ratifying_commit(root, "change-t"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, t, change="change-t"),
+                [])
+
+    # ---- the two-candidate rule, and the ambiguity it must report --------
+
+    def test_an_identity_resolving_to_two_locations_refuses_cannot_run(self):
+        """TWO LOCATIONS FOR ONE ID IS AN AMBIGUITY TO REPORT, not a collision
+        to settle by preferring one — the line this estate's own
+        `archived_change_dirs` already draws by returning a LIST."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            # THE DUPLICATE STANDS BEFORE THE RATIFICATION, deliberately: the
+            # walk stops at the FIRST ratified blob, so a duplicate created
+            # after the baseline was already resolved is never reached — and
+            # a fixture that planted it later would assert nothing about the
+            # walk while looking as though it did.
+            directory = self.packet(root, ratified=False)
+            archived = (root / "openspec" / "changes" / "archive"
+                        / "2026-09-01-change-r")
+            archived.mkdir(parents=True)
+            (archived / "proposal.md").write_text(
+                "---\nStatus: draft\n---\n", encoding="utf-8")
+            commit_all(root, "a second location carrying the same id")
+            ratify(directory / "proposal.md")
+            commit_all(root, "record the ratification")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.proposal_path_at(root, "HEAD", "change-r")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-identity-ambiguous", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("MORE THAN ONE location", message)
+            self.assertIn("openspec/changes/change-r/proposal.md", message)
+            self.assertIn("2026-09-01-change-r/proposal.md", message)
+            with self.assertRaises(support.OriginRetentionError):
+                support.ratifying_commit(root, "change-r")
+
+    def test_an_identity_resolves_to_its_archived_location(self):
+        """The path is DERIVED from the id, at a ref as well as in the working
+        tree — the second of the two candidates."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            changes = root / "openspec" / "changes"
+            (changes / "archive").mkdir()
+            git(root, "mv", str(directory),
+                str(changes / "archive" / "2026-09-09-change-r"))
+            commit_all(root, "archive the packet, preserving the id")
+            self.assertEqual(
+                support.proposal_path_at(root, "HEAD", "change-r"),
+                "openspec/changes/archive/2026-09-09-change-r/proposal.md")
+            self.assertEqual(
+                support.identity_paths_at(root, "HEAD", "change-s"), [])
+
+    def test_an_archive_directory_that_merely_ends_with_the_id_is_not_it(self):
+        """`2026-09-09-other-change-r` carries the id `other-change-r`, and
+        the pathspec that enumerates commits is deliberately wider than the
+        convention — so every candidate is re-resolved against the convention
+        before it is read."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            archived = (root / "openspec" / "changes" / "archive"
+                        / "2026-09-09-other-change-r")
+            archived.mkdir(parents=True)
+            (archived / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            commit_all(root, "a neighbour whose name ends with the id")
+            self.assertEqual(
+                support.identity_paths_at(root, "HEAD", "change-r"),
+                ["openspec/changes/change-r/proposal.md"])
+
+    def test_the_declared_lineage_is_read_from_an_archived_packet_too(self):
+        """A DECLARATION TRAVELS WITH THE PACKET into the archived directory
+        the archive gate reads — otherwise the gate would lose the lineage at
+        exactly the moment it needs it."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            self.declare(directory, "change-q")
+            changes = root / "openspec" / "changes"
+            (changes / "archive").mkdir()
+            git(root, "mv", str(directory),
+                str(changes / "archive" / "2026-09-09-change-r"))
+            commit_all(root, "archive the packet with its lineage")
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "change-r"),
+                ["change-q"])
+
+    def test_packet_yaml_of_names_the_declaration_beside_the_proposal(self):
+        self.assertEqual(
+            support.packet_yaml_of("openspec/changes/change-r/proposal.md"),
+            "openspec/changes/change-r/.openspec.yaml")
+        self.assertEqual(
+            support.packet_yaml_of(
+                "openspec/changes/archive/2026-09-09-change-r/proposal.md"),
+            "openspec/changes/archive/2026-09-09-change-r/.openspec.yaml")
+
     def test_the_guard_reads_any_spelling_of_the_candidate_commit(self):
         """A REVISION IS A REVISION, however it is spelled — and getting that
         wrong is silent NON-detection, which is the failure class this whole
@@ -1843,6 +2256,834 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         # guard, and "nothing refused" would then mean "nothing was asked".
         self.assertTrue(resolved)
         self.assertTrue([sha for sha in resolved if sha is not None])
+
+    # ----------------------------------------------------------------
+    # EVERY READ BEHIND THE BASELINE FAILS CLOSED (`add-declared-former-id`
+    # § 3.4 — MODIFIED *Origin retention at archive*, scenario *The history
+    # holding the baseline cannot be read*)
+    #
+    # `design.md` M1, re-measured here as a fixture rather than quoted: at a
+    # commit where a path is PRESENT and its blob is not locally available,
+    # `git ls-tree` prints the row and exits 0 while `git show` exits 128 —
+    # and a GENUINELY ABSENT path answers `git show` with the same 128. So
+    # "there is nothing there" and "I cannot tell you" reach the walk as one
+    # value, and a walk that reads the second as the first takes a LATER
+    # baseline, or reports an unratified packet, over a history it never
+    # read.
+    #
+    # THE FIXTURES ARE TWO, because two different reads fail in two different
+    # partial clones, and each is PROVED on this git before anything is
+    # asserted about the code — a checkout that is merely empty asserts
+    # nothing:
+    #   * `--filter=blob:none` with the promisor cut — every TREE is local,
+    #     so `ls-tree` still answers and the BLOB read is what fails;
+    #   * `--filter=tree:0 --no-checkout` with the promisor cut — the trees
+    #     themselves are fetched lazily, so `ls-tree` and the pathspec-
+    #     limited `git log` enumeration fail too.
+    # ----------------------------------------------------------------
+
+    def a_ratified_packet_with_a_mutated_origin(self, root: Path) -> dict:
+        """A packet ratified under `change-r` whose origin is mutated
+        afterwards — so a baseline not resolved, or resolved anywhere later,
+        waves the mutation through.
+
+        THE EDITS ARE THE FIXTURE'S MECHANISM, not decoration. A blob is
+        unreadable in a partial checkout only where its content is not ALSO
+        at HEAD, so the packet has to say something at its ratification that
+        it does not say now: the draft `proposal.md` differs from the
+        ratified one, and the mutation makes the ratified `.openspec.yaml`
+        differ from the one on disk. Both are the ordinary shape of a packet
+        that was edited — which is why this is the common case and not an
+        exotic one.
+        """
+        directory = self.packet(root)
+        hops = {"created": self.sha(root, "HEAD~1"),
+                "ratified": self.sha(root)}
+        self.mutate(directory, "quoting the ratified prose",
+                    "quoting the corrected prose")
+        commit_all(root, "mutate the origin after ratification")
+        hops["mutated"] = self.sha(root)
+        return hops
+
+    def partial_checkout(self, source: Path, destination: Path,
+                         unreadable: tuple[str, str]) -> Path:
+        """A `--filter=blob:none` clone of `source` with its promisor cut.
+
+        The blobs the working tree needs are fetched while the promisor is
+        still reachable, so HEAD reads normally and HISTORY does not: a blob
+        whose content differs from anything at HEAD was never fetched and can
+        no longer be. `unreadable` is the (revision, path) the caller rests
+        on, and it is PROVED rather than assumed — a git that ignored the
+        filter would otherwise turn these tests green by being unable to pose
+        the question at all.
+
+        LIFTED FROM PR #1024's RETAINED BRANCH `2bc60386`, where it was
+        written against that pull request's NOT-SELECTED lineage walk;
+        `tasks.md` § 3.4 names it as a candidate to lift, and the fixture is
+        the half of that branch the ruling leaves standing.
+        """
+        git(source, "config", "uploadpack.allowFilter", "true")
+        subprocess.run(
+            ["git", "clone", "-q", "--filter=blob:none", f"file://{source}",
+             str(destination)], check=True, capture_output=True, text=True)
+        git(destination, "remote", "set-url", "origin",
+            f"file://{source.parent / 'no-such-promisor'}")
+        revision, rel = unreadable
+        probe = subprocess.run(
+            ["git", "-C", str(destination), "show", f"{revision}:{rel}"],
+            capture_output=True, text=True)
+        if probe.returncode == 0:
+            self.skipTest("this git did not honour --filter=blob:none over "
+                          "file://, so there is no unreadable blob to test")
+        # THE TREE STILL LISTS IT: presence and readability are two
+        # questions, and the whole finding is that one value was answering
+        # both.
+        self.assertEqual(support._tree_rows(destination, revision, rel),
+                         [rel])
+        self.assertIsNone(support.git_show_text(destination, revision, rel))
+        return destination
+
+    def treeless_checkout(self, source: Path, destination: Path,
+                          revision: str) -> Path:
+        """A `--filter=tree:0 --no-checkout` clone of `source` with its
+        promisor cut — the shape where the TREE READS themselves fail.
+
+        `blob:none` keeps every tree local, so `ls-tree` always answers
+        there; `tree:0` defers the trees as well, and with nothing to fetch
+        them from, `git ls-tree` and a pathspec-limited `git log` exit
+        non-zero. Proved on this git before any assertion rests on it, for
+        the same reason the fixture above is.
+        """
+        git(source, "config", "uploadpack.allowFilter", "true")
+        subprocess.run(
+            ["git", "clone", "-q", "--filter=tree:0", "--no-checkout",
+             f"file://{source}", str(destination)],
+            check=True, capture_output=True, text=True)
+        git(destination, "remote", "set-url", "origin",
+            f"file://{source.parent / 'no-such-promisor'}")
+        rel = "openspec/changes/change-r/proposal.md"
+        probe = subprocess.run(
+            ["git", "-C", str(destination), "ls-tree", "--name-only",
+             revision, "--", rel], capture_output=True, text=True)
+        if probe.returncode == 0:
+            self.skipTest("this git did not honour --filter=tree:0 over "
+                          "file://, so there is no unreadable tree to test")
+        self.assertIsNone(support._tree_rows(destination, revision, rel))
+        self.assertIsNone(support._tree_rows(
+            destination, revision, "openspec/changes/archive/"))
+        return destination
+
+    def test_an_unreadable_baseline_read_refuses_cannot_run(self):
+        """THE SHAPE THIS SLICE EXISTS FOR, END TO END. The same history that
+        refuses a mutated origin in a full clone ARCHIVED GREEN in a partial
+        one: the `.openspec.yaml` standing at the ratifying commit could not
+        be read, and "declares no origin" is what that silence was read as.
+
+        MEASURED against this branch's parent (`2a9cfbda`), on this fixture:
+        the partial checkout printed `ORIGIN RETENTION NOT COMPARABLE
+        change-r: the packet at the ratifying commit … declares no origin
+        (pre-contract packet); presence and shape are still gated` and
+        `origin_retention_errors` returned `[]` — over a tree whose origin
+        had been mutated after ratification, and which the full clone of the
+        SAME history refuses. The anti-vacuity assertion below is that full
+        clone.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            directory = root / "openspec" / "changes" / "change-r"
+            self.assertTrue(support.origin_retention_errors(root, directory))
+            rel = "openspec/changes/change-r/proposal.md"
+            clone = self.partial_checkout(root, Path(td) / "partial",
+                                          (hops["created"], rel))
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(clone, "change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("CANNOT RUN", str(caught.exception))
+            # AND NOT THE OTHER ANSWER: an unreadable history reported as an
+            # unratified one is the sentence the requirement forbids.
+            self.assertNotIn("not ratified", str(caught.exception))
+            moved = clone / "openspec" / "changes" / "change-r"
+            with self.assertRaises(support.OriginRetentionError):
+                support.origin_retention_errors(clone, moved,
+                                                change="change-r")
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(clone, "change-r", "2026-09-05",
+                                       False, True)
+
+    def test_an_unreadable_archive_listing_refuses_cannot_run(self):
+        """THE LISTING IS A READ LIKE ANY OTHER, and the quietest of the
+        three `identity_paths_at` takes. It asks the archive root which dated
+        directory carries this id, and a None from that read means "this
+        checkout cannot tell you what is archived here" — not "nothing is
+        archived here". Read flat, an identity that stands ONLY in the
+        archive resolves to no path at all and the walk passes its
+        ratification by without ever reporting that it could not look.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            clone = self.treeless_checkout(root, Path(td) / "treeless",
+                                           hops["ratified"])
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.identity_paths_at(clone, hops["ratified"], "change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("git ls-tree --name-only", str(caught.exception))
+
+            # AND THE ARCHIVE ARM ON ITS OWN. In a treeless clone the ACTIVE
+            # probe is the first read to fail, so the archive listing never
+            # gets its turn; it is driven here with the one value that clone
+            # was just proved to produce — a None from `_tree_rows` — and
+            # nothing else is stubbed. The probe's contract is measured two
+            # assertions above; this pins which CALLER carries it out.
+            rows = {"openspec/changes/change-r/proposal.md":
+                    ["openspec/changes/change-r/proposal.md"]}
+
+            def only_the_listing_is_unreadable(_root, _revision, path):
+                return rows.get(path)
+
+            with mock.patch.object(support, "_tree_rows",
+                                   side_effect=only_the_listing_is_unreadable):
+                with self.assertRaises(support.OriginRetentionError) as caught:
+                    support.identity_paths_at(root, hops["ratified"],
+                                              "change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("openspec/changes/archive/", str(caught.exception))
+            self.assertIn("change-r", str(caught.exception))
+
+    def test_a_present_path_whose_blob_is_unavailable_is_not_read_as_absent(
+            self):
+        """`design.md` M1 AS A RUNNING TEST. The tree prints the row and the
+        blob behind it cannot be produced, and the two halves of the gate
+        answer accordingly: `identity_paths_at` says the path STANDS there —
+        presence is a tree question — and the content read refuses rather
+        than reporting the packet as declaring nothing at that commit."""
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            rel = "openspec/changes/change-r/proposal.md"
+            clone = self.partial_checkout(root, Path(td) / "partial",
+                                          (hops["created"], rel))
+            # PRESENT — read off the tree, and unaffected by the blob
+            self.assertEqual(
+                support.identity_paths_at(clone, hops["created"], "change-r"),
+                [rel])
+            self.assertEqual(
+                support.proposal_path_at(clone, hops["created"], "change-r"),
+                rel)
+            # UNREADABLE — and never "absent", which is what a bare
+            # `git_show_text` None had been standing for
+            self.assertIsNone(
+                support.git_show_text(clone, hops["created"], rel))
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_baseline(clone, "change-r")
+            self.assertIn(rel, str(caught.exception))
+            self.assertIn(hops["created"][:12], str(caught.exception))
+
+    def test_a_genuinely_absent_path_is_still_read_as_absent(self):
+        """THE OTHER HALF, AND IT MUST NOT MOVE. Failing closed on a read
+        that could not be performed is only worth anything if a read that
+        CAN be performed and finds nothing still answers "nothing" — a gate
+        that refuses over absence refuses over every packet that ever moved,
+        and over every commit before the one that created it.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            ratified_at = self.sha(root)
+            head = ratified_at
+            # an id that never stood here resolves to nothing, and says so
+            self.assertEqual(
+                support.identity_paths_at(root, head, "change-absent"), [])
+            self.assertIsNone(
+                support.proposal_path_at(root, head, "change-absent"))
+            # an archive root that is genuinely empty is an ANSWER — `[]`,
+            # not a refusal — and the ordinary gate still runs over it
+            self.assertEqual(
+                support._tree_rows(root, head, "openspec/changes/archive/"),
+                [])
+            self.assertEqual(support.ratifying_commit(root, "change-r"), head)
+            self.assertEqual(
+                support.origin_retention_errors(root, directory), [])
+
+            # AND THE WALK STILL MOVES ON past a commit where the identity it
+            # carries NOW is genuinely absent: the declared move's baseline is
+            # `change-r`'s own ratification, reached by reading `change-t` as
+            # absent at every commit before the rename.
+            moved = self.rename(root, "change-r", "change-t")
+            self.declare(moved, "change-r")
+            commit_all(root, "declare where it came from")
+            self.assertEqual(
+                support.identity_paths_at(root, ratified_at, "change-t"), [])
+            self.assertEqual(
+                support.ratifying_commit(root, "change-t"), ratified_at)
+
+    def test_the_refusal_names_the_read_and_the_identity_it_was_for(self):
+        """THE REQUIREMENT'S OWN WORDS: "CANNOT RUN, naming the read that
+        failed and the identity it was for". A refusal that says only that
+        something could not be read leaves the operator to guess which of the
+        four reads behind a baseline it was, and over which of the identities
+        a declaring packet resolves together.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            rel = "openspec/changes/change-r/proposal.md"
+            clone = self.partial_checkout(root, Path(td) / "partial",
+                                          (hops["created"], rel))
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_baseline(clone, "change-r")
+            blob_refusal = str(caught.exception)
+            for named in ("origin-retention-read-unavailable", "CANNOT RUN",
+                          "change-r", f"git show {hops['created'][:12]}:{rel}",
+                          hops["created"][:12]):
+                self.assertIn(named, blob_refusal)
+            self.assertNotIn("not ratified", blob_refusal)
+
+            treeless = self.treeless_checkout(root, Path(td) / "treeless",
+                                              hops["ratified"])
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.identity_paths_at(treeless, hops["ratified"],
+                                          "change-r")
+            tree_refusal = str(caught.exception)
+            for named in ("origin-retention-read-unavailable", "CANNOT RUN",
+                          "change-r",
+                          f"git ls-tree --name-only {hops['ratified'][:12]} "
+                          f"-- {rel}"):
+                self.assertIn(named, tree_refusal)
+
+    def test_an_unreadable_commit_enumeration_is_not_an_unratified_packet(
+            self):
+        """THE FOURTH READ, AND THE ONE WHOSE FLAT ANSWER IS A SENTENCE THE
+        REQUIREMENT NAMES. `ratifying_baseline` enumerates the commits that
+        touched this packet before it reads anything, and a non-zero exit
+        from that `git log` returned None — which `origin_retention_errors`
+        prints as "not ratified — no commit in history carries `Status:
+        ratified`", the unreadable history reported as an unratified one.
+
+        This is the sixth test of the slice and beyond the five the brief
+        names, because § 3.4's fourth clause commissions the behaviour by
+        hand and a commissioned behaviour with no test is the defect this
+        packet's own plan warns about.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_with_a_mutated_origin(root)
+            treeless = self.treeless_checkout(root, Path(td) / "treeless",
+                                              hops["ratified"])
+            enumeration = subprocess.run(
+                ["git", "-C", str(treeless), "log", "--full-history",
+                 "--format=%H", "--", "openspec/changes/change-r/proposal.md"],
+                capture_output=True, text=True)
+            self.assertNotEqual(enumeration.returncode, 0)
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(treeless, "change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("git log --full-history", str(caught.exception))
+            self.assertNotIn("not ratified", str(caught.exception))
+
+    # ----------------------------------------------------------------
+    # AND THE UNDECLARED-MOVE PROBE IS TWO MORE SUCH READS (fix round 1,
+    # Codex P1 `PRRT_kwDOTAvnrs6iElb0` and Copilot `PRRT_kwDOTAvnrs6iEma3`
+    # on PR #1038)
+    #
+    # `_refuse_an_undeclared_move` is asked at EVERY commit the walk visits,
+    # before the answer at that commit may be taken, and it is not one read
+    # but two: the rename PAIRING at the commit, and the source packet's
+    # HEADER at that commit's parent. Both answered a checkout that could not
+    # perform them with the innocent value — "this commit moved nothing" and
+    # "the source was not ratified" — so the refusal that exists to stop a
+    # move becoming the baseline was skipped on exactly the checkout where
+    # nothing can be proved, and the walk took the rename commit.
+    # ----------------------------------------------------------------
+
+    def a_ratified_packet_moved_with_nothing_declared(self, root: Path
+                                                      ) -> dict:
+        """`change-r` ratified, its origin MUTATED, then renamed to
+        `change-s` by a commit that also edits one line of its prose.
+
+        THE PROSE IS LONG ON PURPOSE, and that is fixture mechanism rather
+        than padding. Git pairs a rename below an exact match FROM CONTENT,
+        and over the six-line fixture `packet()` writes, a one-line prose
+        edit falls under the similarity threshold: measured while writing
+        this, the FULL-clone control then did not refuse at all, because git
+        reported a plain `A` and there was no pairing to refuse over. With
+        the body appended below the same edit reports a rename and the
+        control refuses, so the partial-clone assertion is about the
+        checkout and not about git's threshold.
+
+        AND THE TWO BLOBS ARE ON OPPOSITE SIDES OF WHAT A PARTIAL CLONE
+        FETCHES. `--filter=blob:none` fetches what HEAD's worktree needs, so
+        the DESTINATION blob at the rename commit — which is HEAD's — reads
+        normally there, while the SOURCE blob at that commit's parent, which
+        differs from everything at HEAD, can never be fetched again. That is
+        the exact shape the P1 thread names: the destination readable, the
+        differing source at the parent not.
+        """
+        directory = self.packet(root)
+        proposal = directory / "proposal.md"
+        proposal.write_text(
+            proposal.read_text(encoding="utf-8")
+            + "".join(f"Paragraph {n} of the proposal, unchanged throughout.\n"
+                      for n in range(40)), encoding="utf-8")
+        commit_all(root, "write the body out in full")
+        self.mutate(directory, "quoting the ratified prose",
+                    "quoting the corrected prose")
+        commit_all(root, "mutate the origin after ratification")
+        hops = {"mutated": self.sha(root)}
+        changes = root / "openspec" / "changes"
+        git(root, "mv", str(changes / "change-r"), str(changes / "change-s"))
+        moved = changes / "change-s" / "proposal.md"
+        moved.write_text(
+            moved.read_text(encoding="utf-8").replace(
+                "Paragraph 0 of the proposal, unchanged throughout.",
+                "Paragraph 0, rewritten by the very commit that moved it.", 1),
+            encoding="utf-8")
+        commit_all(root, "rename change-r to change-s")
+        hops["rename"] = self.sha(root)
+        return hops
+
+    def test_an_unreadable_move_probe_refuses_rather_than_concluding_no_move(
+            self):
+        """THE PAIRING IS A READ BEHIND THE BASELINE, and its failure was the
+        innocent answer.
+
+        MEASURED against this branch's head `5859f053` on this fixture, on
+        git 2.43.0: in the partial checkout `git log --follow --find-renames
+        --name-status -1 <rename> -- <destination>` exits **128** (`fatal:
+        could not fetch … from promisor remote`), `renamed_from` returned
+        None, `ratifying_commit` returned THE RENAME COMMIT ITSELF, and
+        `origin_retention_errors` returned `[]` — printing `ORIGIN RETAINED
+        change-s` over a tree whose origin was mutated before the move. The
+        full clone of the same history refuses `origin-retention-path-moved`,
+        and that clone is this test's anti-vacuity assertion.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_moved_with_nothing_declared(root)
+            rel = "openspec/changes/change-s/proposal.md"
+            source = "openspec/changes/change-r/proposal.md"
+            # ANTI-VACUITY: the full clone sees the move and refuses over it.
+            self.assertEqual(
+                support.renamed_from(root, hops["rename"], rel), source)
+            with self.assertRaises(support.OriginRetentionError) as control:
+                support.ratifying_commit(root, "change-s")
+            self.assertIn("origin-retention-path-moved", str(control.exception))
+
+            clone = self.partial_checkout(
+                root, Path(td) / "partial", (hops["mutated"], source))
+            # THE PROBE'S OWN READ, proved to fail on this checkout before
+            # anything is asserted about what the gate does with it.
+            probe = subprocess.run(
+                ["git", "-C", str(clone), "log", "--follow", "--find-renames",
+                 "--name-status", "--format=%H", "-1", hops["rename"], "--",
+                 rel], capture_output=True, text=True)
+            self.assertNotEqual(probe.returncode, 0)
+            # …while the DESTINATION blob at that commit reads normally, so
+            # the walk gets as far as the probe rather than refusing earlier.
+            self.assertIsNotNone(
+                support.git_show_text(clone, hops["rename"], rel))
+
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.ratifying_commit(clone, "change-s")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-read-unavailable", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("git log --follow", message)
+            self.assertIn("change-s", message)
+            # AND NOT THE OTHER ANSWER: the rename commit taken as a baseline.
+            self.assertNotIn("ORIGIN RETAINED", message)
+            moved = clone / "openspec" / "changes" / "change-s"
+            with self.assertRaises(support.OriginRetentionError):
+                support.origin_retention_errors(clone, moved,
+                                                change="change-s")
+            with self.assertRaises(support.OriginRetentionError):
+                support.archive_change(clone, "change-s", "2026-09-14",
+                                       False, True)
+
+    def test_the_move_probes_source_header_read_refuses_where_it_stands(self):
+        """THE SECOND READ, driven with the one value the checkout above was
+        just proved to produce.
+
+        `ratified_under_a_former_path` asks the SOURCE packet what it
+        declared at the rename commit's PARENT, and `git show` answers a
+        genuinely absent path and an unreadable one with the same exit 128
+        (`design.md` M1) — so a None there read as "the source was not
+        ratified" and the refusal was skipped.
+
+        ON A REAL PARTIAL CLONE THIS READ IS UNREACHABLE, and the test says
+        so rather than pretending otherwise: a pairing git can still compute
+        without content is an EXACT one, whose source blob at the parent is
+        the SAME OBJECT as the destination blob at the commit — so either
+        both read or the destination read fails first. The two measured
+        values are therefore composed rather than found together: the
+        pairing the FULL clone reports, and the `_tree_rows`-says-present /
+        `git_show_text`-says-None pair the PARTIAL clone is asserted to
+        produce two lines below. That is the same technique
+        `test_an_unreadable_archive_listing_refuses_cannot_run` uses, and for
+        the same reason — it pins WHICH CALLER carries the refusal, over
+        values that were read off real repositories.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_moved_with_nothing_declared(root)
+            rel = "openspec/changes/change-s/proposal.md"
+            source = "openspec/changes/change-r/proposal.md"
+            parent = hops["rename"] + "^"
+            clone = self.partial_checkout(
+                root, Path(td) / "partial", (hops["mutated"], source))
+            # THE MEASURED PAIR: the tree says the source stands at the
+            # parent, and the checkout cannot produce what stands there.
+            self.assertEqual(support._tree_rows(clone, parent, source),
+                             [source])
+            self.assertIsNone(support.git_show_text(clone, parent, source))
+
+            rows = support._pairing_rows(root, hops["rename"], rel)
+            self.assertTrue(any(source in row for row in rows))
+            with mock.patch.object(support, "_pairing_rows",
+                                   return_value=rows):
+                with self.assertRaises(support.OriginRetentionError) as caught:
+                    support.ratified_under_a_former_path(
+                        clone, hops["rename"], rel, identity="change-s")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-read-unavailable", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn(source, message)
+            self.assertIn("change-s", message)
+
+    def test_an_unresolvable_candidate_commit_refuses_at_the_gate_door(self):
+        """A COMMIT THIS CHECKOUT CANNOT RESOLVE IS A READ THAT FAILED. The
+        first draft of the split answered `[]` here, reasoning that a question
+        about a commit that is not there is not a read that failed — true of a
+        MISSPELLED revision, and false of the shape that matters: the only
+        caller passes a full hash straight out of this repository's own `git
+        log`, so a `rev-parse` that fails on it means the object cannot be
+        read, and `[]` went on to `_pairing_or_refuse` as a successful read
+        with no pairing. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iIy3N`.)
+
+        THE TOLERANT DOOR IS UNCHANGED, which is the whole point of there
+        being two: `renamed_from` still answers None for a revision that
+        resolves to nothing, as
+        `test_the_guard_reads_any_spelling_of_the_candidate_commit` pins.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            rel = "openspec/changes/change-r/proposal.md"
+            self.assertIsNone(
+                support._pairing_rows(root, "no-such-revision", rel))
+            self.assertIsNone(
+                support.renamed_from(root, "no-such-revision", rel))
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support._pairing_or_refuse(root, "no-such-revision", rel,
+                                           kinds="RC", identity="change-r")
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("change-r", str(caught.exception))
+
+    def test_a_predecessor_absent_at_the_parent_is_still_no_move(self):
+        """AND THE FAIL-CLOSED READ IS NOT A FAIL-ALWAYS ONE. A source path
+        the tree says is GENUINELY ABSENT at the parent still answers "no
+        move" and refuses nothing — otherwise every packet whose pairing
+        points at a path that was not there would refuse, and the gate would
+        stop over histories it can read perfectly well.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "full"
+            root.mkdir(parents=True)
+            hops = self.a_ratified_packet_moved_with_nothing_declared(root)
+            rel = "openspec/changes/change-s/proposal.md"
+            source = "openspec/changes/change-r/proposal.md"
+            real_rows = support._tree_rows
+
+            def absent_only_at_the_parent(root_, revision, path):
+                if path == source and revision == hops["rename"] + "^":
+                    return []
+                return real_rows(root_, revision, path)
+
+            with mock.patch.object(support, "_tree_rows",
+                                   side_effect=absent_only_at_the_parent):
+                self.assertIsNone(support.ratified_under_a_former_path(
+                    root, hops["rename"], rel, identity="change-s"))
+
+    # ----------------------------------------------------------------
+    # AN ID THAT BEGINS WITH A DATE IS NOT THE ARCHIVE'S DATE PREFIX
+    # (fix round 1: Codex P2 `PRRT_kwDOTAvnrs6iElb4`, Copilot
+    # `PRRT_kwDOTAvnrs6iEmbV` and `PRRT_kwDOTAvnrs6iEmbp` on PR #1038, and
+    # Copilot `PRRT_kwDOTAvnrs6iEemp` on the stacked PR #1037)
+    #
+    # `archive_directory_name` states the pinned CLI's own rule in this very
+    # file: a change whose id ALREADY carries a `YYYY-MM-DD-` prefix is
+    # archived under that id UNCHANGED, and `names_this_change` says in as
+    # many words that the two readings of such a directory name "are
+    # indistinguishable from the name". The identity readers this packet
+    # added took only one of them — unconditionally, and for LIVE directories
+    # too, where there is no ambiguity at all and the name simply IS the id.
+    # ----------------------------------------------------------------
+
+    def test_an_active_id_that_begins_with_a_date_keeps_it(self):
+        """AN ACTIVE DIRECTORY'S NAME IS ITS ID. `CHANGE_ID_RE` admits a
+        leading date and `active_change_dir` resolves such an id verbatim —
+        the corpus's own pinned-CLI fixture uses `2026-08-04-add-dated` — so
+        stripping the prefix from a live packet renamed it.
+
+        MEASURED against `5859f053`: `change_id_of` returned `'add-dated'`
+        for `openspec/changes/2026-08-04-add-dated`, and
+        `former_identity_claimants`, which passes every live directory
+        through it, validated and attributed that packet's `former_ids:` as
+        `add-dated`'s — so the "an entry may not name the packet's OWN id"
+        refusal was asked about a packet that does not exist, and missed the
+        self-claim that was actually written.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            live = self.packet(root, change="2026-08-04-add-dated")
+            self.assertEqual(support.change_id_of(live),
+                             "2026-08-04-add-dated")
+            self.assertEqual(
+                support.active_change_dir(root, "2026-08-04-add-dated"), live)
+
+            # THE CONSEQUENCE, and the reason this is not cosmetic: the
+            # self-claim is refused because the packet is asked about itself.
+            self.declare(live, "2026-08-04-add-dated")
+            self.assertTrue(any(
+                "OWN id" in problem for problem in
+                support.former_id_problems(
+                    support.change_id_of(live), support.load_packet(live))))
+            # …and the sweep attributes the declaration to the real id.
+            claimants = support.former_identity_claimants(root)
+            self.assertIn("2026-08-04-add-dated", claimants)
+
+            # AND THE ARCHIVED HALF STILL STRIPS, because there the prefix is
+            # the archive's doing and the relocation preserves the identity.
+            archived = (root / "openspec" / "changes" / "archive"
+                        / "2026-09-09-add-x")
+            archived.mkdir(parents=True)
+            self.assertEqual(support.change_id_of(archived), "add-x")
+
+    def test_a_preserved_date_prefixed_archive_id_resolves_to_its_directory(
+            self):
+        """THE ARCHIVE WRAPPER KEEPS SUCH A NAME UNCHANGED, so the directory
+        `archive/2026-09-09-foo/` is the archived `foo` AND the archived
+        `2026-09-09-foo`. The resolver read only the first.
+
+        MEASURED against `5859f053`: `identity_paths_at(root, HEAD,
+        "2026-09-09-foo")` returned `[]` with
+        `openspec/changes/archive/2026-09-09-foo/proposal.md` standing in the
+        tree, and `proposal_path_at` therefore answered None — the identity
+        reported ABSENT at every commit it occupies, which is the silence the
+        baseline walk passes a ratification by.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            preserved = (root / "openspec" / "changes" / "archive"
+                         / "2026-09-09-foo")
+            preserved.mkdir(parents=True)
+            (preserved / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            commit_all(root, "archive a change whose id carried a date")
+            head = self.sha(root)
+            rel = "openspec/changes/archive/2026-09-09-foo/proposal.md"
+
+            self.assertEqual(
+                support.identity_paths_at(root, head, "2026-09-09-foo"), [rel])
+            self.assertEqual(
+                support.proposal_path_at(root, head, "2026-09-09-foo"), rel)
+            # the OTHER reading is still admitted — the name really is
+            # ambiguous, and this resolver reports rather than decides
+            self.assertEqual(
+                support.identity_paths_at(root, head, "foo"), [rel])
+            self.assertEqual(
+                support._change_ids_of_proposal_path(rel),
+                ["2026-09-09-foo", "foo"])
+
+    def test_an_identity_matching_two_archive_directories_still_refuses(self):
+        """AND ADMITTING BOTH READINGS DOES NOT ADMIT A CHOICE. The ratified
+        scenario *A declared identity resolves to two locations at one
+        commit* says the gate "MUST refuse as CANNOT RUN, naming the
+        candidates" and "MUST NOT resolve the ambiguity by preferring one of
+        them" — which is reachable for a date-prefixed id exactly once the
+        exact-name reading exists: `2026-09-09-foo` archived under its own
+        name, and re-archived on a later day as `2026-09-14-2026-09-09-foo`.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            archive = root / "openspec" / "changes" / "archive"
+            for name in ("2026-09-09-foo", "2026-09-14-2026-09-09-foo"):
+                (archive / name).mkdir(parents=True)
+                (archive / name / "proposal.md").write_text(
+                    "---\nStatus: ratified\n---\n", encoding="utf-8")
+            commit_all(root, "two archive directories for one identity")
+            head = self.sha(root)
+            self.assertEqual(
+                len(support.identity_paths_at(root, head, "2026-09-09-foo")),
+                2)
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.proposal_path_at(root, head, "2026-09-09-foo")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-identity-ambiguous", message)
+            self.assertIn("2026-09-14-2026-09-09-foo", message)
+
+    def test_a_preserved_dated_archive_id_is_enumerated_by_the_walk(self):
+        """RESOLUTION AND ENUMERATION MUST AGREE ABOUT WHERE AN ID CAN STAND.
+        `_archive_dir_carries` admits `archive/<id>` for a preserved dated
+        id, and `_identity_pathspecs` — which chooses the COMMITS TO VISIT —
+        could not reach it: its archive spec is the glob `*-<identity>`, and
+        `*-2026-09-09-foo` does not match `2026-09-09-foo`.
+
+        MEASURED against head `cce09fdd`: `ratifying_commit` returned None for
+        a packet standing ratified at
+        `openspec/changes/archive/2026-09-09-foo/proposal.md` — the walk
+        enumerated NO commit for it and reported it as never ratified, which
+        `origin_retention_errors` prints as "not ratified". (Copilot, PR #1038
+        `PRRT_kwDOTAvnrs6iG9tt`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)                      # a repo with a history
+            archived = (root / "openspec" / "changes" / "archive"
+                        / "2026-09-09-foo")
+            archived.mkdir(parents=True)
+            (archived / "proposal.md").write_text(
+                "---\nStatus: draft\n---\n\n## Why\n\nA dated id.\n",
+                encoding="utf-8")
+            commit_all(root, "create the dated packet, archived in place")
+            ratify(archived / "proposal.md")
+            commit_all(root, "ratify it")
+            ratified_at = self.sha(root)
+
+            self.assertIn(
+                "openspec/changes/archive/2026-09-09-foo/proposal.md",
+                support._identity_pathspecs("2026-09-09-foo"))
+            self.assertEqual(
+                support.ratifying_commit(root, "2026-09-09-foo"), ratified_at)
+            self.assertEqual(
+                support.ratifying_baseline(root, "2026-09-09-foo"),
+                (ratified_at, "2026-09-09-foo",
+                 "openspec/changes/archive/2026-09-09-foo/proposal.md"))
+
+    def test_an_archived_dated_directory_does_not_guess_its_own_identity(
+            self):
+        """THE REPLAY READS AN ARCHIVED DIRECTORY, and its default identity
+        was an unchecked strip. For `archive/2026-09-09-foo` the stripped
+        reading `foo` omits `openspec/changes/2026-09-09-foo/` from the
+        baseline walk entirely, so the later ARCHIVE commit can become the
+        baseline and a mutation made before archiving passes. (Copilot, PR
+        #1038 `PRRT_kwDOTAvnrs6iJHKd`.)
+
+        HISTORY SETTLES IT AND ONLY HISTORY. The two readings differ in
+        whether an ACTIVE packet by the directory's FULL name ever existed —
+        one path-limited `git log`, a fact rather than a preference. Measured
+        over this corpus: of 167 archived directories, ZERO have a full name
+        that ever stood as an active packet, so the refusal below fires on
+        nothing that stands today.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            changes = root / "openspec" / "changes"
+            unambiguous = changes / "archive" / "2026-09-09-add-x"
+            unambiguous.mkdir(parents=True)
+            self.assertEqual(
+                support.identity_of_packet_dir(root, unambiguous), "add-x")
+            # an ACTIVE directory's name IS its id, date prefix or not
+            dated_live = changes / "2026-08-04-add-dated"
+            dated_live.mkdir(parents=True)
+            self.assertEqual(
+                support.identity_of_packet_dir(root, dated_live),
+                "2026-08-04-add-dated")
+
+            # …and where BOTH readings name a packet this repository really
+            # carried, it refuses instead of picking one
+            ambiguous = changes / "archive" / "2026-09-09-foo"
+            ambiguous.mkdir(parents=True)
+            active = changes / "2026-09-09-foo"
+            active.mkdir(parents=True)
+            (active / "proposal.md").write_text(
+                "---\nStatus: draft\n---\n", encoding="utf-8")
+            commit_all(root, "the full name really stood as an active packet")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.identity_of_packet_dir(root, ambiguous)
+            message = str(caught.exception)
+            self.assertIn("origin-retention-identity-ambiguous", message)
+            self.assertIn("2026-09-09-foo", message)
+            self.assertIn("'foo'", message)
+            self.assertIn("pass the id explicitly", message)
+
+    def test_the_gate_resolves_its_lineage_through_the_tree_resolver(self):
+        """THE TWO-CANDIDATE RULE IS NOT BYPASSED BY THE CALLER'S DIRECTORY.
+        `origin_retention_errors` read the declaration straight off the
+        directory it was handed and passed it on as `former_ids=`, which skips
+        `declared_former_ids_in_tree`'s ambiguity refusal — a lineage read
+        from whichever of two locations the caller happened to name is the
+        resolver choosing. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHNGM`.)
+
+        The refusal that fires is named rather than merely counted, because
+        at head `cce09fdd` this fixture ALREADY refused — through
+        `proposal_path_at` at the commit the walk visits, the committed tree
+        happening to agree with the working one. What changes is that the
+        refusal no longer depends on that coincidence.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet(root)
+            archived = (root / "openspec" / "changes" / "archive"
+                        / "2026-09-09-change-r")
+            archived.mkdir(parents=True)
+            (archived / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            (archived / ".openspec.yaml").write_text(
+                "schema: spec-driven\n" + self.ORIGIN
+                + "former_ids:\n  - from-the-archived-copy\n",
+                encoding="utf-8")
+            commit_all(root, "leave a second location standing")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.origin_retention_errors(root, directory,
+                                                change="change-r")
+            self.assertIn("origin-retention-identity-ambiguous",
+                          str(caught.exception))
+
+    def test_an_archived_packet_under_a_preserved_dated_id_declares_lineage(
+            self):
+        """AND THE LINEAGE READER TOO, which is where the same assumption
+        does the most damage: `declared_former_ids_in_tree` found no
+        candidate directory for such a packet and returned `[]`, which
+        `ratifying_baseline` cannot tell from "this packet declares
+        nothing" — the UNDECLARED answer handed to a packet that declares,
+        which is the shed-lineage failure arriving through the reader.
+
+        MEASURED against `5859f053`: `declared_former_ids_in_tree(root,
+        "2026-09-10-bar")` returned `[]` for an archived packet whose
+        `.openspec.yaml` declares `former_ids: [old-bar]`.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet(root)
+            preserved = (root / "openspec" / "changes" / "archive"
+                         / "2026-09-10-bar")
+            preserved.mkdir(parents=True)
+            (preserved / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            (preserved / ".openspec.yaml").write_text(
+                "schema: spec-driven\n" + self.ORIGIN, encoding="utf-8")
+            self.declare(preserved, "old-bar")
+            commit_all(root, "archive a declaring packet under a dated id")
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-10-bar"),
+                ["old-bar"])
 
     # ----------------------------------------------------------------
     # THE EXPLICIT DISPOSITION THE REQUIREMENT PROMISES (issue #745)
@@ -1996,6 +3237,69 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
             self.assertNotIsInstance(caught.exception,
                                      support.OriginRetentionError)
             self.assertIn("incomplete tasks", str(caught.exception))
+
+    def test_an_unreadable_ratification_blob_cannot_authorise_an_acceptance(
+            self):
+        """THE ACCEPT CHANNEL'S OWN READ BEHIND THE BASELINE. The slice that
+        landed these doors said this read's flat answer only mis-described its
+        cause. It does more: `_origin_mapping(None)` is None and
+        `_changed_keys(None, …)` is `[]` by its own advisory contract, so an
+        entry declaring `changed_keys: []` compares EQUAL to a measurement
+        taken over a declaration that was never read — the acceptance
+        authorised, and the baseline moved to the accepted mutation, on a
+        checkout that could not read the ratification at all.
+
+        DRIVEN WITH THE ONE VALUE A PARTIAL CHECKOUT PRODUCES, measured in
+        this file two classes up and asserted here again: the tree says the
+        path stands and `git_show_text` cannot produce it. (Copilot, PR #1038
+        `PRRT_kwDOTAvnrs6iG9vA`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory, ratified_at, mutation_at = self.mutated_packet(root)
+            self.write_record(root, self.accept_entry(
+                "change-r", ratified_at, mutation_at))
+            commit_all(root, "record the owner's acceptance")
+            rel = "openspec/changes/change-r/.openspec.yaml"
+            entry = self.accept_entry("change-r", ratified_at, mutation_at)
+            now_text = (directory / ".openspec.yaml").read_text(
+                encoding="utf-8")
+            now_lines = support.origin_block_lines(now_text)
+            # ANTI-VACUITY: readable, this entry is accepted — no findings.
+            self.assertEqual(
+                support._accept_declaration_problems(
+                    root, "change-r", entry, now_lines, now_text, "the entry"),
+                [])
+
+            # THE ARM THE `changed_keys: []` ESCAPE RIDES ON, asserted rather
+            # than argued: with the ratified declaration unread, the measured
+            # diff is EMPTY, so an entry declaring nothing changed compares
+            # equal to it.
+            self.assertEqual(support._origin_mapping(None), None)
+            self.assertEqual(
+                support._changed_keys(None, {"approved_by": "x"}), [])
+
+            real = support.git_show_text
+
+            def only_the_ratification_is_unreadable(root_, revision, path):
+                if revision == ratified_at and path == rel:
+                    return None
+                return real(root_, revision, path)
+
+            # the tree still says it stands — presence and readability are two
+            # questions, which is the whole of `design.md` M1
+            self.assertEqual(support._tree_rows(root, ratified_at, rel), [rel])
+            with mock.patch.object(
+                    support, "git_show_text",
+                    side_effect=only_the_ratification_is_unreadable):
+                with self.assertRaises(support.OriginRetentionError) as caught:
+                    support._accept_declaration_problems(
+                        root, "change-r", entry, now_lines, now_text,
+                        "the entry")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-read-unavailable", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn(rel, message)
 
     def test_the_318_tense_only_approved_by_case_archives_with_the_record(self):
         """THE LIVE CASE, with #318's own bytes. The mutation is the TENSE of
@@ -2439,6 +3743,740 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
                      "--skip-origin-retention", "--no-origin-check"):
             self.assertNotIn(flag, result.stdout)
 
+
+class DeclaredFormerIdTests(unittest.TestCase):
+    """`release-realization` § "A moved packet declares the identity it was
+    ratified under" — the DECLARATION and its reader (add-declared-former-id
+    § 2, issues #1003 and #833).
+
+    THE MECHANISM IS A DECLARATION AND NOT A WALK, and these tests are over
+    the reader rather than over history for that reason: history records that
+    two paths are similar and cannot record what the author MEANT by the
+    similarity, so the intent bit is written down by the author and READ from
+    the tree. What history is still needed for is the ONE comparison that
+    cannot be taken from a single tree — append-only ACROSS COMMITS — and
+    that test carries a real repository.
+
+    WHAT IS DELIBERATELY NOT HERE. Binding a newly added entry to the move
+    that commit performs (§ 2.4) and refusing an undeclared arrival (§ 4) both
+    read a COMMIT RANGE, which this module never sees; they belong to the
+    landing validator and to its own suite.
+    """
+
+    HEADER = "schema: spec-driven\ncreated: 2026-09-13\n"
+    ORIGIN = (
+        "origin:\n"
+        "  kind: ad_hoc\n"
+        "  id: fixture:adhoc:2026-09-13-change-t\n"
+        "  reason: the fixture declares an ad-hoc origin\n"
+    )
+
+    def packet_yaml(self, root: Path, change: str, body: str = "") -> Path:
+        directory = root / "openspec" / "changes" / change
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory / ".openspec.yaml").write_text(
+            self.HEADER + self.ORIGIN + body, encoding="utf-8")
+        return directory
+
+    def read(self, change: str, body: str) -> list[str]:
+        loaded = support.yaml.safe_load(self.HEADER + self.ORIGIN + body)
+        return support.declared_former_ids(change, loaded)
+
+    def problems(self, change: str, body: str) -> list[str]:
+        loaded = support.yaml.safe_load(self.HEADER + self.ORIGIN + body)
+        return support.former_id_problems(change, loaded)
+
+    # ---------------------------------------------------------------- § 2.1
+
+    def test_a_packet_that_declares_nothing_reads_as_an_empty_lineage(self):
+        """THE ORDINARY CASE, and it must stay silent: every packet in this
+        corpus declares no former identity, so a reader that treated absence
+        as a defect would refuse the whole corpus."""
+        self.assertEqual(self.read("change-t", ""), [])
+        self.assertEqual(self.problems("change-t", ""), [])
+
+    def test_the_declared_list_is_read_oldest_first(self):
+        self.assertEqual(
+            self.read("change-t", "former_ids:\n  - change-r\n  - change-s\n"),
+            ["change-r", "change-s"])
+
+    def test_a_scalar_where_a_sequence_is_required_refuses(self):
+        """A packet may move more than once, so the declaration is a LIST
+        even when it carries one entry."""
+        problems = self.problems("change-t", "former_ids: change-r\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("SEQUENCE", problems[0])
+        self.assertIn("change-r", problems[0])
+        with self.assertRaises(support.FormerIdError):
+            self.read("change-t", "former_ids: change-r\n")
+
+    def test_a_mapping_where_a_sequence_is_required_refuses(self):
+        problems = self.problems("change-t", "former_ids:\n  change-r: yes\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("SEQUENCE", problems[0])
+
+    def test_an_entry_that_is_not_a_change_id_refuses(self):
+        """AN ENTRY NAMES AN ID AND NEVER A PATH. The path is derived from the
+        id, so a declared path would restate the archive-directory convention
+        in every packet that ever moved."""
+        body = "former_ids:\n  - openspec/changes/change-r\n"
+        problems = self.problems("change-t", body)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("not a change id", problems[0])
+        self.assertIn("never a PATH", " ".join(problems[0].split()))
+
+    def test_an_entry_that_is_not_a_string_refuses(self):
+        problems = self.problems("change-t", "former_ids:\n  - 7\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("CHANGE ID", problems[0])
+
+    def test_an_entry_naming_the_reserved_archive_segment_refuses(self):
+        """THE ONE SLUG UNDER `openspec/changes/` THAT IS NOT A PACKET, and
+        the grammar cannot say so: `archive` matches `CHANGE_ID_RE` like any
+        other id, so the pattern arm passes it and this arm has to refuse it
+        by name — which is what `active_change_dir` already does.
+
+        MEASURED against `5859f053`: `former_id_problems("x", {"former_ids":
+        ["archive"]})` returned `[]` — accepted — while `active_change_dir(
+        root, "archive")` refuses it and `identity_paths_at(root, HEAD,
+        "archive")` returns `[]`. The reader therefore admitted and indexed a
+        declared lineage that every resolution answers with silence.
+        (Copilot, PR #1037 `PRRT_kwDOTAvnrs6iEenD`; the reader is this
+        branch's, so the fix is here.)
+        """
+        problems = self.problems("change-t", "former_ids:\n  - archive\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("RESERVED", problems[0])
+        self.assertIn("'archive'", problems[0])
+        self.assertEqual(support.RESERVED_CHANGE_ID, "archive")
+
+    def test_an_entry_equal_to_the_packets_own_id_refuses(self):
+        """THE ARCHIVE RELOCATION IS NEVER DECLARED. It preserves the id, so
+        a packet declaring its own id would be declaring that it used to be
+        itself."""
+        problems = self.problems("change-t", "former_ids:\n  - change-t\n")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("OWN id", problems[0])
+        self.assertIn("archive", problems[0])
+
+    def test_a_duplicate_entry_refuses(self):
+        body = "former_ids:\n  - change-r\n  - change-s\n  - change-r\n"
+        problems = self.problems("change-t", body)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("repeats", problems[0])
+        self.assertIn("'change-r'", problems[0])
+
+    def test_a_declaration_nested_inside_origin_refuses(self):
+        """THE POSITION IS NORMATIVE. A member of `origin:` would make every
+        lawful move a mutation of a declaration frozen at ratification, and
+        would need a disposition for each one — a mechanism whose ordinary
+        use requires an exception."""
+        nested = (self.HEADER + self.ORIGIN + "  former_ids:\n    - change-r\n")
+        loaded = support.yaml.safe_load(nested)
+        problems = support.former_id_problems("change-t", loaded)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("INSIDE `origin:`", problems[0])
+        self.assertIn("SIBLING", problems[0])
+
+    def test_every_problem_is_reported_rather_than_the_first(self):
+        """An operator repairs a declaration by editing lines, so the reader
+        names every line that needs one."""
+        body = "former_ids:\n  - change-t\n  - not a change id\n  - change-t\n"
+        self.assertEqual(len(self.problems("change-t", body)), 3)
+
+    def test_a_malformed_declaration_raises_rather_than_reading_short(self):
+        """A reader that silently dropped a bad entry would hand the archive
+        gate a SHORTER lineage than the author wrote — the shed-lineage
+        defect arriving through the reader instead of through a move."""
+        body = "former_ids:\n  - change-r\n  - not a change id\n"
+        with self.assertRaises(support.FormerIdError) as caught:
+            self.read("change-t", body)
+        self.assertIn("not a change id", str(caught.exception))
+
+    # ---------------------------------------------------------------- § 2.2
+
+    def test_the_declaration_is_outside_the_frozen_origin_block(self):
+        """`design.md` M3, PINNED BY A TEST RATHER THAN BY A COMMENT. The
+        archive gate freezes the `origin:` block at ratification; a top-level
+        sibling must therefore read IDENTICALLY with and without the
+        declaration, or every lawful move would be a mutation."""
+        without = self.HEADER + self.ORIGIN
+        with_ids = without + "former_ids:\n  - change-r\n  - change-s\n"
+        self.assertEqual(support.origin_block_lines(with_ids),
+                         support.origin_block_lines(without))
+        # ANTI-VACUITY: the reader returns a real block, not None for both
+        self.assertTrue(support.origin_block_lines(without))
+
+    def test_a_declaration_before_the_origin_block_is_still_outside_it(self):
+        """Order in the file is not the mechanism — the block reader starts at
+        the `origin:` line, so a declaration ABOVE it is outside too."""
+        without = self.HEADER + self.ORIGIN
+        above = (self.HEADER + "former_ids:\n  - change-r\n" + self.ORIGIN)
+        self.assertEqual(support.origin_block_lines(above),
+                         support.origin_block_lines(without))
+
+    # ---------------------------------------------------------------- § 2.3
+
+    def test_a_declared_former_id_that_still_stands_refuses_naming_both(self):
+        """A PACKET THAT STILL STANDS WAS COPIED AND NOT MOVED, and a copy is
+        a new packet with its own origin. Both ids are named because the
+        repair is a choice between them."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-r")
+            self.packet_yaml(root, "change-t",
+                             "former_ids:\n  - change-r\n")
+            problems = support.standing_former_id_problems(
+                root, "change-t", ["change-r"])
+            self.assertEqual(len(problems), 1)
+            self.assertIn("change-t", problems[0])
+            self.assertIn("change-r", problems[0])
+            self.assertIn("STILL STANDS", problems[0])
+            self.assertIn("COPIED", problems[0])
+
+    def test_a_declared_former_id_with_no_live_directory_passes(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-t",
+                             "former_ids:\n  - change-r\n")
+            self.assertEqual(
+                support.standing_former_id_problems(
+                    root, "change-t", ["change-r"]), [])
+
+    # ---------------------------------------------------------------- § 2.5
+
+    def test_append_only_accepts_an_appended_entry(self):
+        self.assertEqual(
+            support.append_only_problems(
+                "change-t", ["change-r"], ["change-r", "change-s"]), [])
+
+    def test_append_only_accepts_an_unchanged_list(self):
+        self.assertEqual(
+            support.append_only_problems(
+                "change-t", ["change-r"], ["change-r"]), [])
+
+    def test_append_only_refuses_a_removed_entry(self):
+        problems = support.append_only_problems(
+            "change-t", ["change-r", "change-s"], ["change-s"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("APPEND-ONLY ACROSS COMMITS", problems[0])
+        self.assertIn("REMOVED 'change-r'", problems[0])
+
+    def test_append_only_refuses_a_reordered_entry(self):
+        problems = support.append_only_problems(
+            "change-t", ["change-r", "change-s"], ["change-s", "change-r"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("REORDERED", problems[0])
+
+    def test_append_only_refuses_a_respelled_entry(self):
+        problems = support.append_only_problems(
+            "change-t", ["change-r"], ["change-R"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("REMOVED 'change-r'", problems[0])
+
+    def test_a_declaration_deleted_the_day_after_a_move_is_refused(self):
+        """THE ATTACK APPEND-ONLY EXISTS TO STOP, as a repository rather than
+        as a pair of lists. The arrival check only ever runs at a MOVE, so a
+        commit the day AFTER a lawful move could delete the declaration and no
+        arrival check would ever look — handing the archive gate the later
+        ratification under the current id, the very baseline this mechanism
+        exists to keep it away from."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet_yaml(root, "change-t",
+                                         "former_ids:\n  - change-r\n")
+            (directory / "proposal.md").write_text(
+                "---\nStatus: ratified\n---\n", encoding="utf-8")
+            git(root, "init", "-q")
+            commit_all(root, "the declared move lands")
+            (directory / ".openspec.yaml").write_text(
+                self.HEADER + self.ORIGIN, encoding="utf-8")
+            commit_all(root, "delete the declaration the day after")
+
+            rel = "openspec/changes/change-t/.openspec.yaml"
+            established = support.declared_former_ids(
+                "change-t", support.load_packet_at(root, "HEAD^", rel))
+            current = support.declared_former_ids(
+                "change-t", support.load_packet_at(root, "HEAD", rel))
+            self.assertEqual(established, ["change-r"])
+            self.assertEqual(current, [])
+            problems = support.append_only_problems(
+                "change-t", established, current)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("REMOVED 'change-r'", problems[0])
+            self.assertIn("whether or not this commit moves anything",
+                          problems[0])
+
+    def test_load_packet_at_reads_none_for_a_path_absent_at_the_ref(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-t")
+            git(root, "init", "-q")
+            commit_all(root, "one packet")
+            self.assertIsNone(support.load_packet_at(
+                root, "HEAD", "openspec/changes/change-r/.openspec.yaml"))
+
+    # ---------------------------------------------------------------- § 2.6
+
+    def test_two_packets_claiming_one_former_identity_refuse(self):
+        """A FORMER IDENTITY HAS EXACTLY ONE OWNER. An identity claimed twice
+        resolves to a SET, and a baseline chosen from a set is chosen by the
+        resolver rather than by an author."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-s", "former_ids:\n  - change-r\n")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            problems = support.former_identity_ownership_problems(root)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("'change-r'", problems[0])
+            self.assertIn("openspec/changes/change-s", problems[0])
+            self.assertIn("openspec/changes/change-t", problems[0])
+            self.assertIn("EXACTLY ONE OWNER", problems[0])
+
+    def test_a_live_id_also_declared_as_a_former_id_refuses(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-r")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            problems = support.former_identity_ownership_problems(root)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("the live packet `openspec/changes/change-r`",
+                          problems[0])
+            self.assertIn("openspec/changes/change-t", problems[0])
+
+    def test_an_archived_packets_declaration_still_claims_its_lineage(self):
+        """A DECLARATION TRAVELS WITH THE PACKET into the archived directory
+        the archive gate reads, so an archived packet's lineage is still a
+        claim — otherwise archiving one claimant would silently free the
+        identity for another."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            archived = root / "openspec" / "changes" / "archive"
+            archived.mkdir(parents=True)
+            (archived / "2026-09-09-change-s").mkdir()
+            (archived / "2026-09-09-change-s" / ".openspec.yaml").write_text(
+                self.HEADER + self.ORIGIN + "former_ids:\n  - change-r\n",
+                encoding="utf-8")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            problems = support.former_identity_ownership_problems(root)
+            self.assertEqual(len(problems), 1)
+            self.assertIn("2026-09-09-change-s", problems[0])
+            self.assertIn("change-t", problems[0])
+
+    def test_one_owner_per_identity_reports_nothing(self):
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-s", "former_ids:\n  - change-q\n")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            self.assertEqual(
+                support.former_identity_ownership_problems(root), [])
+
+    def test_a_symlinked_archive_cannot_import_an_identity_from_outside(self):
+        """A SYMLINK IS `active_change_dir`'S TRAVERSAL REACHED FROM THE TREE
+        INSTEAD OF FROM THE CALLER, and git carries one through a pull request
+        like any other file — `git ls-files -s` shows it at mode `120000`.
+        `is_dir()` and `iterdir()` follow it silently.
+
+        MEASURED against head `30d40c1c`, with
+        `openspec/changes/archive` committed as a symlink to a directory
+        outside the checkout: the sweep claimed `'stolen-identity'` from an
+        `.openspec.yaml` nobody in this repository wrote, attributed to
+        ``openspec/changes/archive/2026-09-09-forged``, and
+        `declared_former_ids_in_tree` returned that outside packet's list as
+        this corpus's lineage — a forged declaration reaching the archive
+        gate through the reader. (Copilot, PR #1037 `PRRT_kwDOTAvnrs6iGr_N`.)
+        """
+        with TemporaryDirectory() as td:
+            outside = Path(td) / "outside"
+            forged = outside / "2026-09-09-forged"
+            forged.mkdir(parents=True)
+            (forged / ".openspec.yaml").write_text(
+                self.HEADER + self.ORIGIN
+                + "former_ids:\n  - stolen-identity\n", encoding="utf-8")
+            root = Path(td) / "repo"
+            self.packet_yaml(root, "change-x", "former_ids:\n  - old-x\n")
+            os.symlink(outside, root / "openspec" / "changes" / "archive")
+            # the fixture is only worth anything if the link really resolves
+            self.assertTrue(
+                (root / "openspec" / "changes" / "archive").is_dir())
+            self.assertTrue(
+                (root / "openspec" / "changes" / "archive"
+                 / "2026-09-09-forged" / ".openspec.yaml").is_file())
+
+            claimants = support.former_identity_claimants(root)
+            self.assertNotIn("stolen-identity", claimants)
+            # …and the packets this repository DOES contain are still swept,
+            # so the guard is containment and not a switched-off sweep
+            self.assertIn("old-x", claimants)
+            self.assertIn("change-x", claimants)
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-09-forged"),
+                [])
+
+    def test_an_identity_holding_a_packet_in_two_places_refuses_the_lineage(
+            self):
+        """TWO PLACES FOR ONE ID IS AN AMBIGUITY TO REPORT. Where the
+        identity stands both actively and in the archive, the two
+        `.openspec.yaml` files may declare DIFFERENT lineages, and returning
+        the first was the whole of the choice — a lineage chosen by this
+        reader's ordering rather than by an author, which `proposal_path_at`
+        already refuses one layer down.
+
+        MEASURED against head `30d40c1c`: with the active copy declaring
+        `[from-the-active-copy]` and the archived copy declaring
+        `[from-the-archived-copy]`, this returned `['from-the-active-copy']`
+        silently. The walk that consumes it happened to refuse afterwards
+        because both locations also stand at the commit it visits first —
+        but that is the COMMITTED tree agreeing with the working one, which a
+        reader of the WORKING tree may not assume. (Copilot, PR #1037
+        `PRRT_kwDOTAvnrs6iGr_s`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-x",
+                             "former_ids:\n  - from-the-active-copy\n")
+            self.packet_yaml(root, "archive/2026-09-09-change-x",
+                             "former_ids:\n  - from-the-archived-copy\n")
+            with self.assertRaises(support.OriginRetentionError) as caught:
+                support.declared_former_ids_in_tree(root, "change-x")
+            message = str(caught.exception)
+            self.assertIn("origin-retention-identity-ambiguous", message)
+            self.assertIn("CANNOT RUN", message)
+            self.assertIn("openspec/changes/change-x", message)
+            self.assertIn("openspec/changes/archive/2026-09-09-change-x",
+                          message)
+            # AND ONE LOCATION IS STILL AN ANSWER, not a refusal
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root,
+                                                    "2026-09-09-change-x"),
+                ["from-the-archived-copy"])
+
+    def test_a_symlinked_packet_header_cannot_import_a_lineage(self):
+        """THE DIRECTORY GUARD IS NOT THE WHOLE SURFACE. `load_packet` opens
+        `.openspec.yaml` through `is_file()`, which follows a symlink exactly
+        as `is_dir()` does, so a packet directory that IS contained can still
+        carry a header that is not.
+
+        MEASURED against head `cce09fdd`, with the header committed as a
+        symlink (`git ls-files -s` → mode `120000`): the sweep claimed
+        `'stolen-by-header'` and `declared_former_ids_in_tree` returned
+        `['stolen-by-header']`. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHNFa`.)
+        """
+        with TemporaryDirectory() as td:
+            outside = Path(td) / "outside"
+            outside.mkdir()
+            (outside / "forged.yaml").write_text(
+                self.HEADER + self.ORIGIN
+                + "former_ids:\n  - stolen-by-header\n", encoding="utf-8")
+            root = Path(td) / "repo"
+            directory = root / "openspec" / "changes" / "change-x"
+            directory.mkdir(parents=True)
+            os.symlink(outside / "forged.yaml", directory / ".openspec.yaml")
+            self.assertTrue((directory / ".openspec.yaml").is_file())
+            self.assertEqual(
+                support.load_packet(directory)[support.FORMER_IDS_KEY],
+                ["stolen-by-header"])
+
+            self.assertNotIn("stolen-by-header",
+                             support.former_identity_claimants(root))
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "change-x"), [])
+
+    def test_an_unrelated_live_dated_id_does_not_hide_an_archived_lineage(
+            self):
+        """THE ARCHIVE WRAPPER'S TRANSIENT COLLISION HEURISTIC IS NOT A
+        STATIC RESOLUTION RULE. `names_this_change`'s `other_change_ids` arm
+        answers "is this new directory MINE or a sibling lane's", read before
+        the child ran; reused for lineage it suppresses a legitimate match.
+
+        MEASURED against head `cce09fdd`: with archived `foo` at
+        `archive/2026-09-09-foo` and an unrelated ACTIVE packet whose valid id
+        is `2026-09-09-foo`, `declared_former_ids_in_tree(root, "foo")`
+        returned `[]` although the archived packet declares `['old-foo']`.
+        `declared_former_ids_in_tree` now uses `_archive_dir_carries` — the
+        same rule `identity_paths_at` resolves a location with — so the two
+        halves of one resolution cannot disagree. (Codex P2, PR #1038
+        `PRRT_kwDOTAvnrs6iHS5E`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "archive/2026-09-09-foo",
+                             "former_ids:\n  - old-foo\n")
+            self.packet_yaml(root, "2026-09-09-foo")
+            self.assertIn("2026-09-09-foo", support.change_dir_names(root))
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "foo"), ["old-foo"])
+            # …and the live packet is still resolved under its OWN id
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-09-foo"),
+                [])
+
+    def test_an_archived_self_claim_under_either_reading_is_not_indexed(self):
+        """A PACKET CANNOT BE THE MOVE OF ITSELF UNDER EITHER READING OF ITS
+        ARCHIVE NAME. `former_id_problems` can only be asked about one id, and
+        for the ambiguous archive shape the id it was asked about may be the
+        other one.
+
+        MEASURED against head `cce09fdd`: the directory
+        `archive/2026-09-09-foo` declaring `former_ids: [2026-09-09-foo]` —
+        a claim to be the move of itself — was validated as `foo`, passed
+        every arm, and the sweep indexed the self-claim as a legitimate
+        lineage. (Copilot `PRRT_kwDOTAvnrs6iG9vt`, Codex P2
+        `PRRT_kwDOTAvnrs6iHS5I`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet_yaml(
+                root, "archive/2026-09-09-foo",
+                "former_ids:\n  - 2026-09-09-foo\n")
+            self.assertEqual(support.packet_identities_of(directory),
+                             ["2026-09-09-foo", "foo"])
+            self.assertNotIn("2026-09-09-foo",
+                             support.former_identity_claimants(root))
+            # …and a LAWFUL archived declaration is still indexed, so the
+            # guard is the self-claim and not a switched-off sweep
+            self.packet_yaml(root, "archive/2026-09-10-bar",
+                             "former_ids:\n  - old-bar\n")
+            self.assertIn("old-bar", support.former_identity_claimants(root))
+
+    def test_an_uncontained_live_directory_cannot_hide_an_archived_lineage(
+            self):
+        """A CONTAINMENT GUARD THAT LEAVES ONE SET UNGUARDED GUARDS NOTHING.
+        `_archive_dir_carries` yields its EXACT reading to a live id of the
+        same name, so an entry in the live set does not merely add a name — it
+        SUPPRESSES one. Read from `change_dir_names`, which follows a symlink
+        as `is_dir()` does, an out-of-tree link named like a preserved dated
+        identity hid that identity's real archived directory.
+
+        MEASURED against head `018a65d3`, with
+        `openspec/changes/2026-09-09-foo` an out-of-tree symlink and the
+        packet standing at `archive/2026-09-09-foo`:
+        `declared_former_ids_in_tree(root, "2026-09-09-foo")` returned `[]`,
+        where without the link it returns `['old-foo']` — an empty lineage
+        sending the archive gate through the undeclared baseline. (Copilot,
+        PR #1038 `PRRT_kwDOTAvnrs6iHxAo`.)
+        """
+        with TemporaryDirectory() as td:
+            outside = Path(td) / "outside"
+            outside.mkdir()
+            root = Path(td) / "repo"
+            self.packet_yaml(root, "archive/2026-09-09-foo",
+                             "former_ids:\n  - old-foo\n")
+            # ANTI-VACUITY: without the link the lineage resolves
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-09-foo"),
+                ["old-foo"])
+            os.symlink(outside,
+                       root / "openspec" / "changes" / "2026-09-09-foo")
+            # the wrapper's own set still sees it; the resolver's does not
+            self.assertIn("2026-09-09-foo", support.change_dir_names(root))
+            self.assertNotIn("2026-09-09-foo",
+                             support.contained_change_dir_names(root))
+            self.assertEqual(
+                support.declared_former_ids_in_tree(root, "2026-09-09-foo"),
+                ["old-foo"])
+
+    def test_an_unreadable_parent_declaration_is_not_an_empty_one(self):
+        """THE APPEND-ONLY COMPARISON'S OWN READ BEHIND A GATE. Through a bare
+        `git_show_text` an UNREADABLE parent answered None exactly as an
+        ABSENT one does, `declared_former_ids` turned that into `[]`, and
+        `append_only_problems` compares against `[]` without complaint — so a
+        declaration DELETED or REORDERED is accepted whenever the established
+        list could not be read.
+
+        MEASURED at head `018a65d3`: `append_only_problems("change-t", [],
+        ["a"])` is `[]` while `append_only_problems("change-t", ["a", "b"],
+        ["a"])` refuses the removal, and `declared_former_ids("change-t",
+        None)` is `[]`. (Copilot, PR #1038 `PRRT_kwDOTAvnrs6iHw_y`.)
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = self.packet_yaml(root, "change-t",
+                                         "former_ids:\n  - change-r\n")
+            git(root, "init", "-q")
+            commit_all(root, "declare a lineage")
+            rel = "openspec/changes/change-t/.openspec.yaml"
+            self.assertEqual(
+                support.load_packet_at(root, "HEAD", rel)[
+                    support.FORMER_IDS_KEY], ["change-r"])
+            # a path GENUINELY ABSENT at the ref is still None, not a refusal
+            self.assertIsNone(support.load_packet_at(
+                root, "HEAD", "openspec/changes/change-q/.openspec.yaml"))
+
+            real = support.git_show_text
+
+            def unreadable(root_, revision, path):
+                return None if path == rel else real(root_, revision, path)
+
+            self.assertEqual(support._tree_rows(root, "HEAD", rel), [rel])
+            with mock.patch.object(support, "git_show_text",
+                                   side_effect=unreadable):
+                with self.assertRaises(support.OriginRetentionError) as caught:
+                    support.load_packet_at(root, "HEAD", rel)
+            self.assertIn("origin-retention-read-unavailable",
+                          str(caught.exception))
+            self.assertIn("change-t", str(caught.exception))
+            del directory
+
+    def test_a_header_that_stands_and_does_not_parse_is_not_an_empty_lineage(
+            self):
+        """THE THIRD SILENCE. Round three taught the history read to tell
+        ABSENT from UNREADABLE and left PRESENT-BUT-UNPARSEABLE answering
+        None with them — so `declared_former_ids` still read a broken
+        declaration as an empty one, and the append-only comparison accepts a
+        REMOVAL against an empty established list.
+
+        MEASURED at head `e6ff63fa`: `declared_former_ids_of` over a packet
+        whose `.openspec.yaml` is `[not: a, mapping]` returned `[]`, and
+        `load_packet_at` over the same blob at a ref returned None — the same
+        value a genuinely absent packet answers with. (Copilot, PR #1038
+        `PRRT_kwDOTAvnrs6iIM9m`.)
+
+        REFUSED AS A `FormerIdError`, which is the class the corpus sweep
+        already skips over by design — shape is `former_id_problems`'s to
+        report, not the ownership sweep's — and which every gate caller
+        propagates.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            directory = root / "openspec" / "changes" / "change-t"
+            directory.mkdir(parents=True)
+            (directory / ".openspec.yaml").write_text(
+                "- not\n- a mapping\n", encoding="utf-8")
+            with self.assertRaises(support.FormerIdError) as caught:
+                support.declared_former_ids_of(directory, "change-t")
+            self.assertIn("does not parse", str(caught.exception))
+            self.assertIn("change-t", str(caught.exception))
+            with self.assertRaises(support.FormerIdError):
+                support.declared_former_ids_in_tree(root, "change-t")
+
+            # a packet with NO header is still an empty lineage, not a refusal
+            other = root / "openspec" / "changes" / "change-u"
+            other.mkdir(parents=True)
+            self.assertEqual(
+                support.declared_former_ids_of(other, "change-u"), [])
+
+            # …and the ownership sweep still steps over the broken one
+            self.assertEqual(
+                support.former_identity_ownership_problems(root), [])
+
+            git(root, "init", "-q")
+            commit_all(root, "a packet whose header does not parse")
+            rel = "openspec/changes/change-t/.openspec.yaml"
+            with self.assertRaises(support.FormerIdError) as caught:
+                support.load_packet_at(root, "HEAD", rel)
+            self.assertIn("MAPPING", str(caught.exception))
+            # absent at the ref is STILL None
+            self.assertIsNone(support.load_packet_at(
+                root, "HEAD", "openspec/changes/change-q/.openspec.yaml"))
+
+    def test_the_six_suppressed_findings_of_the_last_copilot_round(self):
+        """SIX FINDINGS COPILOT SUPPRESSED RATHER THAN POSTED, taken anyway.
+
+        A suppressed comment opens no thread, so a FREEZE counting threads
+        would have recorded zero and been true and useless. Each is measured
+        here as its own assertion rather than its own test, because they are
+        one commit's worth of the same two families — containment, and an
+        identity read that guesses.
+        """
+        with TemporaryDirectory() as td:
+            root = Path(td) / "repo"
+            changes = root / "openspec" / "changes"
+            changes.mkdir(parents=True)
+
+            # (1) :1070 — `standing_former_id_problems` followed a symlink, so
+            # a link pointing OUTSIDE could reject a lawful move over a packet
+            # this repository does not contain.
+            outside = Path(td) / "outside"
+            outside.mkdir()
+            os.symlink(outside, changes / "change-r")
+            self.assertEqual(
+                support.standing_former_id_problems(root, "change-t",
+                                                    ["change-r"]), [])
+            # …and a REAL standing packet is still refused
+            (changes / "change-s").mkdir()
+            self.assertTrue(support.standing_former_id_problems(
+                root, "change-t", ["change-s"]))
+
+            # (3) :1538 — the exact archive arm is for a DATED identity only;
+            # `archive_directory_name` emits `<date>-<id>` for anything else,
+            # so `archive/foo/` is not a directory the archiver can produce.
+            self.assertFalse(support._archive_dir_carries("foo", "foo"))
+            self.assertTrue(support._archive_dir_carries("2026-09-09-foo",
+                                                         "2026-09-09-foo"))
+            self.assertTrue(support._archive_dir_carries("2026-09-09-foo",
+                                                         "foo"))
+
+            # (4) :1963 — the reserved segment is a lawful slug and an
+            # unlawful identity, so the walk must refuse it by name.
+            with self.assertRaises(support.SupportError):
+                support.ratifying_baseline(root, support.RESERVED_CHANGE_ID)
+
+    def test_a_missing_yaml_parser_is_not_an_absent_declaration(self):
+        """(2) :632 — with PyYAML unavailable `load_packet_at` returned None
+        for a path `_text_at` had just proved PRESENT, which is the documented
+        "None only when absent" contract broken by the import rather than by
+        the tree, and an empty established list handed to the append-only
+        rule."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            git(root, "init", "-q")
+            commit_all(root, "declare a lineage")
+            rel = "openspec/changes/change-t/.openspec.yaml"
+            with mock.patch.object(support, "yaml", None):
+                with self.assertRaises(support.FormerIdError) as caught:
+                    support.load_packet_at(root, "HEAD", rel)
+                self.assertIn("PyYAML", str(caught.exception))
+                # a genuinely absent path is STILL None, parser or no parser
+                self.assertIsNone(support.load_packet_at(
+                    root, "HEAD", "openspec/changes/change-q/.openspec.yaml"))
+
+    def test_a_malformed_declaration_does_not_crash_the_corpus_sweep(self):
+        """The sweep is about OWNERSHIP; shape is `former_id_problems`'s to
+        report, and one unreadable packet must not stop the others being
+        measured."""
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            self.packet_yaml(root, "change-s", "former_ids: change-r\n")
+            self.packet_yaml(root, "change-t", "former_ids:\n  - change-r\n")
+            self.assertEqual(
+                support.former_identity_ownership_problems(root), [])
+
+    @unittest.skipUnless((REPO_ROOT / "openspec" / "changes").is_dir(),
+                         "no corpus in this checkout")
+    def test_this_corpus_claims_no_identity_twice_today(self):
+        """THE SWEEP IS A NO-OP ON THE LAWFUL CORPUS, measured rather than
+        asserted. NO COUNT IS WRITTEN DOWN — the corpus gains and loses
+        packets with every landing — but the sweep must have SEEN packets,
+        or "nothing claimed twice" would only mean "nothing was asked"."""
+        claimants = support.former_identity_claimants(REPO_ROOT)
+        self.assertTrue(claimants)
+        self.assertEqual(
+            support.former_identity_ownership_problems(REPO_ROOT), [])
+
+    @unittest.skipUnless((REPO_ROOT / "openspec" / "changes").is_dir(),
+                         "no corpus in this checkout")
+    def test_every_packet_in_this_corpus_reads_its_declaration_cleanly(self):
+        """Anti-vacuity for the reader: every active and archived packet is
+        put to it, so a grammar this corpus cannot satisfy would be found
+        here rather than at somebody's archive."""
+        changes = REPO_ROOT / "openspec" / "changes"
+        directories = [d for d in sorted(changes.iterdir())
+                       if d.is_dir() and d.name != "archive"]
+        archive = changes / "archive"
+        if archive.is_dir():
+            directories += [d for d in sorted(archive.iterdir()) if d.is_dir()]
+        self.assertTrue(directories)
+        for directory in directories:
+            with self.subTest(packet=directory.name):
+                # NOT an assertion that the list is EMPTY: a lawful move
+                # would make one non-empty and this test must survive it.
+                # What is asserted is that every packet's declaration READS —
+                # a grammar this corpus cannot satisfy would be found here
+                # rather than at somebody's archive.
+                self.assertIsInstance(
+                    support.declared_former_ids_of(directory), list)
 
 if __name__ == "__main__":
     unittest.main()

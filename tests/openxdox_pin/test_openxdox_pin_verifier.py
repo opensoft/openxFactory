@@ -479,7 +479,7 @@ def test_ruling_q7_two_direct_upstreams_in_lockstep() -> None:
     derived_pin = yaml.safe_load(derived_blob)
 
     assert opendox_pin["commit"] == derived_pin["commit"]
-    assert opendox_pin["commit"] == "7cf6c143e65e0bde799a5135dfde2dd66df5d495"
+    assert opendox_pin["commit"] == "3819625e103ea6960d99cd98454d3b3aa43d8d52"
 
 
 def test_main_prints_one_success_line_and_returns_zero(capsys) -> None:

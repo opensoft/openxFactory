@@ -183,6 +183,36 @@ change):
   active change's `specs/` while the capability is pre-promotion);
   `<requirement-slug>` is the kebab-case requirement name, e.g.
   `document-lifecycle/explicit-delta-rule`.
+- A candidate marker's `target=` may instead take the **pinned form**,
+  `pinned:<pin-id>/<capability>`, naming a capability of a NEUTRAL PRODUCT THIS
+  REPOSITORY PINS: `<pin-id>` is the stem of a `contracts/<pin-id>-pin.yaml`
+  record and `<capability>` is the capability name as the pinned product holds
+  it — e.g. `target=pinned:openxwallet/openxwallet`. The literal prefix
+  `pinned:` is RESERVED and is the discriminator between the two forms; a
+  capability id contains no colon. The value after it is exactly TWO
+  `[a-z0-9]+(-[a-z0-9]+)*` components separated by exactly one `/`, checked
+  BEFORE any pin-record path is built, and a value that fails that grammar is
+  reported as a malformed pinned target with nothing read for it. A pinned
+  target RESOLVES only where all three hold: the pin id resolves to a
+  `kind: pinned_contract_manifest` record complete for its record shape, that
+  record carries a well-formed non-empty top-level `capabilities:` enumeration,
+  and `<capability>` is a member of it — so a pinned target whose record
+  enumerates nothing does not resolve, and its remedy is the PUBLISHER's
+  (`capabilities:` added through a `neutral-product-pin` change) rather than
+  this repository's. Ratified by
+  `extend-prose-tagging-target-to-pinned-capabilities`.
+- The pinned form is admitted in a CANDIDATE marker's `target=` attribute ONLY.
+  An `xspec:supersedes` marker's `spec=` value must not carry the `pinned:`
+  prefix — that value already splits at its first `/`, so a pinned parse for it
+  is undefined — and a `spec=` that carries it is reported.
+- **When a marker's target capability EXITS the corpus, the marker either takes
+  the pinned form naming the product that now holds the capability, or the
+  block is unfenced — never silently retargeted to a different capability, and
+  never silently deleted.** Retargeting makes the marker name a capability the
+  tagged prose is not about; deleting drops the block out of the conversion
+  queue without a record that it was dropped. Unfencing is a lawful outcome
+  that is CHOSEN and visible in the diff, not the thing that happens when
+  nobody decides.
 - Candidacy is **block-level only**: no `Status:` value expresses
   conversion candidacy — a document's lifecycle status and its conversion
   queue stay orthogonal. Only prose inside well-formed candidate blocks is
@@ -453,11 +483,36 @@ its own.>
   never re-basing onto the move. COPYING a ratified packet to a second id
   refuses identically — git pairs a copy the same way it pairs a move, and
   the duplicate's baseline is just as unestablishable — so the refusal names
-  a MOVE OR COPY rather than only a rename. Renaming a ratified change is
-  therefore blocked until a change declares a FORMER ID (issue #833, a
-  successor packet); renaming a DRAFT change, and a single commit that
-  renames a draft and ratifies it, are unaffected. The nightly `proposal-origin`
-  doc-health family
+  a MOVE OR COPY rather than only a rename. A ratified change's directory MAY
+  now MOVE, and what the move owes is a DECLARATION (`add-declared-former-id`,
+  the successor packet issue #833 named — RATIFIED 2026-09-13, its
+  `release-realization` delta promoting into canon at that packet's own
+  archive and not before; #1003): the arriving packet names the
+  id it moved FROM in a top-level `former_ids:` list in its own
+  `.openspec.yaml` — a SIBLING of `origin:` and never a member of it, so a
+  lawful move is never a mutation of the frozen origin block — naming change
+  IDS and never paths, oldest first, and APPEND-ONLY ACROSS COMMITS: the entry
+  is added by the COMMIT THAT PERFORMS THE MOVE, and the arriving list is the
+  source's list with the source id appended. The gate then resolves the
+  baseline across the current identity and every declared former identity
+  together and takes the EARLIEST commit at which any of them declares
+  `Status: ratified`, so a rename is not a way to acquire a later baseline and
+  therefore not a way to launder a mutation. An UNDECLARED arrival is refused
+  at the landing of the commit that performs it — one commit read and never a
+  chain — by the arrival gate `add-declared-former-id` § 4 builds
+  (`scripts/validate-former-id-arrival.py`, `former-id-undeclared`, exit 1, no
+  bypass flag). THE RULE IS CANON AND THE ENFORCEMENT IS NOT YET REQUIRED, AND
+  THE TWO ARE SAID SEPARATELY: as measured on 2026-09-15 that gate HAS landed
+  on `main` and RUNS on every pull request (§ 4.1–4.4), and it is named by no
+  branch ruleset (§ 4.5, an operator act, the live branch rules for `main`
+  read that day naming `former-id-arrival-gate` nowhere), so until that act is
+  taken an undeclared arrival sees a red check beside a merge button that
+  works and can still LAND — what stops one meanwhile is the archive refusal
+  above, `origin-retention-path-moved`, which reaches a single undeclared hop
+  at the archive and never the landing, and which the multi-hop chain escapes
+  entirely; renaming a DRAFT change, and a single commit that renames a draft
+  and ratifies it, are
+  unaffected. The nightly `proposal-origin` doc-health family
   (the fifteenth) reports drift — including post-ratification mutation, a
   `contested` finding — across active and archived proposals.
 - `proposed -> ratified -> implemented`: standard OpenSpec flow.
