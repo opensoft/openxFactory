@@ -886,53 +886,14 @@ _LEDGER_SUBJECTS = {
     # returns ZERO lines, at any path. The deleted row is the entire
     # difference — the remaining nine rows are byte-for-byte the ones already
     # named above, no other subject moved.
-    # ADDED 2026-09-12 BY `extend-prose-tagging-target-to-pinned-capabilities`
-    # (openxFactory #992, filing PR #994, lane `openxfactory-2`), the packet
-    # that extends the prose-tagging grammar with a target form for a
-    # capability which has LEFT this corpus and now lives in a pinned neutral
-    # product. A DELIBERATE EXTENSION, and the narrowest one the corpus
-    # admits: canon's requirement ENUMERATES WHAT THE FAMILY COVERS — "marker
-    # well-formedness, target and change-id resolution, candidate fence
-    # structure, the code-fence and inline-code example exclusion, the ban on
-    # doc-level candidacy status values, and supersedes `change=` aging" — and
-    # a packet that adds a SECOND declared target form cannot restate that
-    # sentence verbatim without falsifying its own delta. The 1 uncarried unit
-    # of 6 is exactly that sentence, and the block rewrites exactly one clause
-    # of it: "target and change-id resolution" becomes "target and change-id
-    # resolution IN BOTH DECLARED TARGET FORMS — the in-tree capability form
-    # and the pinned form `pinned:<pin-id>/<capability>`". Every other item of
-    # the list is carried in canon's own order and wording, and the other five
-    # promoted units — both of canon's scenarios among them — are carried
-    # verbatim. This arm cannot distinguish a ratified extension from drift
-    # and does not claim to; the finding is INFO and it is the audit trail for
-    # the extension. Retires when the packet archives on merged-plus-green
-    # realization evidence (its `code_surface` is non-empty) and its block is
-    # promoted.
-    ("extend-prose-tagging-target-to-pinned-capabilities", "doc-health",
-     "Tag hygiene enforced by reference"),
-    # AND ITS SIBLING BLOCK, ADDED IN THE SAME FIX ROUND AND FOR A REASON THAT
-    # IS NOT THE FIRST ROW'S. The same packet's `## MODIFIED` block on
-    # `document-lifecycle`'s *Prose tagging marker hygiene* opened NO row when
-    # the packet was first pushed: it carried every unit canon states and only
-    # ADDED beside them. It opened one when the review of `74e25f2d` found a
-    # CONTRADICTION INSIDE THE BLOCK — canon's scenario *A marker target does
-    # not resolve* reports any target that "does not exist under
-    # `openspec/specs/`", which every well-formed PINNED target satisfies, so
-    # carried verbatim it would have required a finding on exactly the markers
-    # the packet's own pinned-success scenario requires to resolve. The single
-    # uncarried unit of 10 is that scenario's `WHEN` bullet, and the block
-    # restates it to say IN-TREE explicitly, adding an `AND` bullet that sends
-    # a `pinned:`-prefixed target to the pinned scenarios instead. THE
-    # SCENARIO TITLE IS UNCHANGED AND DELIBERATELY SO: retitling it would have
-    # been a scenario-title-arm finding in the `error` band — the arm carrying
-    # this family's gate — and a retitle is declared with a `Merged into`
-    # marker, which is a different act from the narrowing this is. Every other
-    # unit of the requirement, the other three scenario titles among them, is
-    # carried. The finding is INFO and it is the audit trail for a narrowing
-    # that removes an internal contradiction rather than for drift. Retires on
-    # the same condition as the row above.
-    ("extend-prose-tagging-target-to-pinned-capabilities",
-     "document-lifecycle", "Prose tagging marker hygiene"),
+    # RETIRED 2026-09-15: the TWO rows `extend-prose-tagging-target-to-pinned-
+    # capabilities` opened on 2026-09-12 (doc-health *Tag hygiene enforced by
+    # reference*; document-lifecycle *Prose tagging marker hygiene*) retired
+    # together when that packet ARCHIVED on merged-plus-green realization
+    # evidence (realization PR #1040 → 74348374; archive PR #1042), its two
+    # MODIFIED blocks promoted BYTE-IDENTICAL into canon — the condition each
+    # row's own comment named for its retirement. Re-measured over this tree:
+    # the family reports neither subject and no unnamed one.
     # ADDED 2026-09-12 BY `repoint-chain-anchoring-medxchain-citation`
     # (openxFactory issue #791) — THREE ROWS, one per MODIFIED requirement,
     # because the packet repoints four dead MedxChain-notes citations across
@@ -1336,10 +1297,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     at 2026-09-11, twelve since `repoint-chain-anchoring-medxchain-citation`
     added three rows on 2026-09-12 (Copilot review, PR #998), fourteen
     since `extend-prose-tagging-target-to-pinned-capabilities` added two more
-    the same day (openxFactory #992, filing PR #994), and SIXTEEN since
+    the same day (openxFactory #992, filing PR #994), SIXTEEN since
     `add-target-release-deferred-allocation` added two on 2026-09-13 (PR
     #1022) — one per promoted requirement that states the `target_release:`
-    vocabulary, both widened by the third value that packet admits.
+    vocabulary, both widened by the third value that packet admits — and
+    FOURTEEN since 2026-09-15, when `extend-prose-tagging-target-to-pinned-capabilities`
+    ARCHIVED on merged-plus-green realization evidence (PR #1042) and its two
+    rows retired, their blocks promoted byte-identical into canon.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -1443,7 +1407,11 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "one packet, opened five minutes apart and for different reasons, the "
         "second of them the only row in this ledger opened by a block "
         "REMOVING A CONTRADICTION WITH ITSELF rather than by restating canon "
-        "in new terms)",
+        "in new terms; 14 again on 2026-09-15, when "
+        "extend-prose-tagging-target-to-pinned-capabilities ARCHIVED on "
+        "merged-plus-green realization evidence (realization PR #1040 → "
+        "74348374, archive PR #1042) and both its rows retired, their blocks "
+        "promoted byte-identical into canon)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
