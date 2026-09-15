@@ -1614,10 +1614,14 @@ def test_a_scanned_tree_register_that_CANNOT_BE_USED_refuses_not_falls_back(
 # exit 2, in the one direction the packet names — whether an entry tolerates a
 # declaration is UNKNOWN when nothing could be read, never `no`.
 #
-# The probe is now `is_symlink() or exists()` (`os.path.lexists`): present in ANY
-# form goes to `load_register`, and ABSENT is the only `NO_REGISTER`. That is the
-# SAME BOUNDARY `--code-surface-register` has always had, where a named path is
-# handed to the reader whatever shape it is in.
+# The probe is now `is_symlink() or exists()` (`os.path.lexists`) OVER the
+# loader's own ancestor climb: present in ANY form — or reached through a symlink
+# at ANY level — goes to `load_register`, and ABSENT WITH A CLEAN ANCESTRY is the
+# only `NO_REGISTER`. That is the SAME BOUNDARY `--code-surface-register` has
+# always had, where a named path is handed to the reader whatever shape it is in.
+# The leaf half is measured below; the ancestor half, which the leaf cannot see
+# at all, is `test_the_default_register_probe_asks_the_ANCESTRY_not_only_the_leaf`
+# beneath it.
 
 
 def _default_register_tree(tmp_path, shape: str) -> tuple[Path, Path]:
@@ -1704,6 +1708,155 @@ def test_the_default_register_probe_is_PRESENCE_in_every_shape(
     for text in forbidden:
         assert text not in result.stdout, result.stdout
     assert "Traceback" not in result.stderr, result.stderr
+
+
+# --- AND IT ASKS THE ANCESTRY, NOT ONLY THE LEAF ------------------------------
+#
+# `load_register` refuses a register reached through a symlink AT THE LEAF OR AT
+# ANY ANCESTOR, and the climb is UNANCHORED. The leaf probe above sees only the
+# first half of that: with `REPO_ROOT/scripts` a symlink to a directory that does
+# NOT carry `code-surface-register.yaml`, `is_symlink()` and `exists()` are BOTH
+# false at the leaf, so the scan called the path ABSENT and judged the tree with
+# `NO_REGISTER` — while THE SAME PATH named on `--code-surface-register` was
+# refused (exit 2) by that ancestor guard. Two safety boundaries for one path,
+# and the escape was in the direction the packet names: the tree let through is
+# the one whose register DIRECTORY points outside the checkout.
+#
+# So the probe asks the ancestry FIRST, with `code_surface._has_symlinked_
+# ancestor` — the loader's own function, imported rather than copied, because a
+# second copy of the rule is a copy that drifts.
+
+
+def _ancestor_linked_register_tree(tmp_path, shape: str) -> tuple[Path, Path]:
+    """A tree whose one proposal carries an unreadable head, with
+    `scripts/code-surface-register.yaml` reached — or not — through a SYMLINKED
+    ANCESTOR.
+
+    The register bytes, wherever they are reachable, name the change, so `entry
+    `c`` in the output is a measurement: it appears only if the file was read,
+    and its ABSENCE from the refusals proves bytes from the far side of a link
+    were not.
+
+    The returned root is the path the scan is HANDED, which for the deep shape
+    is the link and not the directory it points at.
+    """
+    root, declaration = _registered_scope_tree(tmp_path)
+    scripts = root / "scripts"
+    if shape == "scripts-is-a-link-to-a-dir-WITHOUT-the-register":
+        elsewhere = tmp_path / "elsewhere"
+        elsewhere.mkdir()
+        scripts.symlink_to(elsewhere, target_is_directory=True)
+    elif shape == "scripts-is-a-link-to-a-dir-WITH-the-register":
+        elsewhere = tmp_path / "elsewhere"
+        elsewhere.mkdir()
+        (elsewhere / "code-surface-register.yaml").write_text(
+            _entry_text("c", declaration), encoding="utf-8")
+        scripts.symlink_to(elsewhere, target_is_directory=True)
+    elif shape == "the-repo-root-itself-is-a-link":
+        scripts.mkdir()
+        link = tmp_path / "repo-link"
+        link.symlink_to(root, target_is_directory=True)
+        root = link
+    elif shape == "absent-under-a-clean-ancestry":
+        scripts.mkdir()
+    elif shape == "present-under-a-clean-ancestry":
+        scripts.mkdir()
+        (scripts / "code-surface-register.yaml").write_text(
+            _entry_text("c", declaration), encoding="utf-8")
+    else:  # pragma: no cover - the parametrization below is closed
+        raise AssertionError(f"unknown shape {shape!r}")
+    return root, root / "scripts" / "code-surface-register.yaml"
+
+
+@pytest.mark.parametrize(
+    "shape, leaf_present, ancestry_linked, code, expected, forbidden",
+    [
+        # THE DEFECT: an ancestor link with NOTHING at the leaf. Both halves of
+        # the leaf probe say absent, and the reader refuses the very same path.
+        ("scripts-is-a-link-to-a-dir-WITHOUT-the-register", False, True, 2,
+         ("CANNOT RUN", "the scanned tree's code-surface register",
+          "reached through a symlink", "any directory between it and the top",
+          "does NOT fall back"),
+         ("entry `c`", "NO REPOSITORY SET CAN BE DERIVED")),
+        # THE SAME ANCESTOR LINK ONE STEP HIGHER, where the leaf is likewise
+        # nothing: the climb is UNANCHORED, so it sees this too.
+        ("the-repo-root-itself-is-a-link", False, True, 2,
+         ("CANNOT RUN", "reached through a symlink", "does NOT fall back"),
+         ("entry `c`", "NO REPOSITORY SET CAN BE DERIVED")),
+        # ALREADY CLOSED, KEPT BESIDE THEM: the leaf probe reached this one on
+        # its own, and the refusal is the same reader's.
+        ("scripts-is-a-link-to-a-dir-WITH-the-register", True, True, 2,
+         ("CANNOT RUN", "reached through a symlink", "does NOT fall back"),
+         ("entry `c`", "NO REPOSITORY SET CAN BE DERIVED")),
+        # THE ONLY `NO_REGISTER` LEFT: nothing at the leaf AND a clean ancestry.
+        ("absent-under-a-clean-ancestry", False, False, 1,
+         ("NO REPOSITORY SET CAN BE DERIVED",
+          "not carried by the closed code-surface register"),
+         ("CANNOT RUN", "entry `c`")),
+        # AND THE ORDINARY TREE, so the climb is measured as a DISCRIMINATION
+        # rather than as a validator that refuses everything.
+        ("present-under-a-clean-ancestry", True, False, 1,
+         ("NO REPOSITORY SET CAN BE DERIVED", "CLOSED code-surface register",
+          "entry `c`"),
+         ("CANNOT RUN", "not carried by the closed code-surface register")),
+    ])
+def test_the_default_register_probe_asks_the_ANCESTRY_not_only_the_leaf(
+        tmp_path, shape, leaf_present, ancestry_linked, code, expected,
+        forbidden):
+    """Five paths, and the boundary each lands on once the ancestry is asked.
+
+    THE TWO HALVES ARE ASSERTED APART FIRST. `leaf_present` is what
+    `is_symlink() or exists()` answers and `ancestry_linked` what the loader's
+    climb does; they DIVERGE on exactly the two dangling-below-a-link shapes,
+    which is why those are the defect and why asserting the exit code alone
+    would not have caught it — `absent-under-a-clean-ancestry` produces the very
+    same leaf answer and must still be `NO_REGISTER`.
+    """
+    root, default = _ancestor_linked_register_tree(tmp_path, shape)
+    assert (default.is_symlink() or default.exists()) is leaf_present
+    assert cs._has_symlinked_ancestor(default) is ancestry_linked
+    result = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root)],
+        capture_output=True, text=True)
+    assert result.returncode == code, result.stdout + result.stderr
+    for text in expected:
+        assert text in result.stdout, result.stdout
+    for text in forbidden:
+        assert text not in result.stdout, result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+
+
+@pytest.mark.parametrize("shape", [
+    "scripts-is-a-link-to-a-dir-WITHOUT-the-register",
+    "the-repo-root-itself-is-a-link",
+    "scripts-is-a-link-to-a-dir-WITH-the-register",
+])
+def test_the_DEFAULT_and_the_NAMED_register_path_share_ONE_symlink_boundary(
+        tmp_path, shape):
+    """THE PARITY ITSELF, asserted as one path judged two ways rather than as
+    two expectations written down separately.
+
+    The documented claim for the default register is that it has "THE SAME
+    BOUNDARY as `--code-surface-register`, whose named path is handed to
+    `load_register` unconditionally". For a register below a symlinked ancestor
+    that was false before the climb: named exited 2 "reached through a symlink",
+    the default exited 1 and scanned on. Here the one path is run BOTH ways and
+    the two runs must agree — same code, same refusal."""
+    root, default = _ancestor_linked_register_tree(tmp_path, shape)
+    by_default = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root)],
+        capture_output=True, text=True)
+    by_name = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root),
+         "--code-surface-register", str(default)],
+        capture_output=True, text=True)
+    assert by_default.returncode == 2, by_default.stdout + by_default.stderr
+    assert by_name.returncode == by_default.returncode, by_name.stdout
+    for text in ("CANNOT RUN", "reached through a symlink"):
+        assert text in by_default.stdout, by_default.stdout
+        assert text in by_name.stdout, by_name.stdout
+    assert "Traceback" not in by_default.stderr, by_default.stderr
+    assert "Traceback" not in by_name.stderr, by_name.stderr
 
 
 def test_NO_REGISTER_is_the_absence_SPELLED_and_is_not_a_None(tmp_path):

@@ -249,14 +249,31 @@ def test_a_tree_REACHED_THROUGH_A_SYMLINK_still_finds_its_own_proposals(
     """`repo_root` is resolved on BOTH sides, so a scratch tree that is itself
     reached through a link (a `/tmp` symlink, a linked checkout) is not
     mistaken for the escape — the failure mode that would make the guard
-    unusable in exactly the trees it is tested in."""
+    unusable in exactly the trees it is tested in.
+
+    THE REGISTER IS NAMED HERE, AND THAT IS THE PACKET'S TWO SEMANTICS SHOWING
+    THROUGH ONE TREE (§ 3.2 (i) and (ii)). THE WALK is the ANCHORED test, which
+    resolves both sides and so forgives the caller's own approach to the tree —
+    the subject of this test, unchanged. THE REGISTER is the UNANCHORED climb,
+    "the `--register PATH` … and the default … ALIKE", which counts a linked
+    root as a symlinked ancestor and refuses the register UNREAD. Left to the
+    DEFAULT probe this tree would therefore exit 2 without the walk ever
+    running, which is `test_the_default_register_probe_asks_the_ANCESTRY_not_
+    only_the_leaf[the-repo-root-itself-is-a-link]` in `tests/code_surface/`;
+    naming a register at an ordinary path settles that question elsewhere and
+    leaves this one measuring the walk. It exited 1 here before the ancestor
+    climb reached the default probe too — but only because the probe could not
+    see an ancestor link at all, which is the gap that test closes."""
     real = tmp_path / "real"
     change = real / "openspec" / "changes" / "x"
     change.mkdir(parents=True)
     (change / "proposal.md").write_text(_ESCAPED_PROPOSAL, encoding="utf-8")
     linked = tmp_path / "linked"
     linked.symlink_to(real)
-    result = _scan(linked)
+    register = tmp_path / "register.yaml"
+    register.write_text("register: []\n", encoding="utf-8")
+    assert not register.is_symlink() and not register.parent.is_symlink()
+    result = _scan(linked, register)
     assert result.returncode == 1, result.stdout + result.stderr
     assert "x: scope_globs names repository 'codexFactory'" in result.stdout
 
@@ -370,10 +387,11 @@ def _os_environ():
 def test_a_SYMLINKED_DEFAULT_REGISTER_is_not_used_by_the_scan(tmp_path):
     """THE OTHER LINE THE BENCH FLAGGED, PINNED AS ALREADY CLOSED.
     `REPO_ROOT/scripts/code-surface-register.yaml` is probed for PRESENCE
-    (`is_symlink() or exists()`), which is true for a link pointing outside the
-    tree — as the `is_file()` probe this replaced also was, that one following
-    the link to the file at its far end — but the probe grants nothing, because
-    `code_surface.load_register`
+    (`is_symlink() or exists()`, over the loader's own ancestor climb), and the
+    leaf half alone answers this fixture: a link pointing outside the tree is
+    present — as the `is_file()` probe this replaced also found, that one
+    following the link to the file at its far end — but the probe grants
+    nothing, because `code_surface.load_register`
     refuses a register that is a symlink OR has a symlinked ANCESTOR, and that
     guard is UNANCHORED and so strictly stronger than the path-boundary check.
     THIS IS THE SHAPE THE TWO PROBES AGREE ON, and both are asserted below so
@@ -381,7 +399,10 @@ def test_a_SYMLINKED_DEFAULT_REGISTER_is_not_used_by_the_scan(tmp_path):
     DANGLING link and a DIRECTORY, present but not a regular file — are
     `test_the_default_register_probe_is_PRESENCE_in_every_shape` in
     `tests/code_surface/`, where the old probe read them as absent and the scan
-    judged with `NO_REGISTER` instead of refusing.
+    judged with `NO_REGISTER` instead of refusing. The half NEITHER leaf probe
+    can see — a register below a SYMLINKED ANCESTOR with nothing at the leaf —
+    is `test_the_default_register_probe_asks_the_ANCESTRY_not_only_the_leaf`
+    beside it.
     WHAT THE TREE IS JUDGED AGAINST AFTERWARDS CHANGED BENEATH THIS TEST, and
     the assertion it was written for did not: the escaped register's entry `c`
     is still NOT named. The register is PRESENT and UNUSABLE, so the scan now

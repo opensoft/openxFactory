@@ -766,12 +766,15 @@ and is corrected in place where the number is now false.
       SECOND FIX ROUND ADDED SIX MORE (the finding-class tests), SO IT WAS
       **136**; THE THIRD ROUND ADDED FOUR (the scanned tree's register or
       NONE, never the house one) AND THE FOURTH FIVE (the default register's
-      probe, one case per shape a path can be in), SO IT IS
-      **145** AT THE LANDING TREE — AND THIS BOX
+      probe, one case per shape a path can be in), SO IT WAS
+      **145**; AND THE FIFTH ROUND ADDED EIGHT (that same probe's ANCESTOR
+      half, and the parity it claims, five cases and three), SO IT IS
+      **153** AT THE LANDING TREE — AND THIS BOX
       SAYS WHICH FIFTEEN RATHER THAN RE-SPLITTING THE GROUPS IT CANNOT
-      RE-DERIVE HONESTLY.** Measured the same way (`python3 -m pytest
+      RE-DERIVE HONESTLY.** Measured the same way at each (`python3 -m pytest
       tests/code_surface -q --collect-only` — *"145 tests collected"*; `python3
-      -m pytest tests/code_surface -q` — **145 passed**). **EACH RE-MEASUREMENT
+      -m pytest tests/code_surface -q` — **145 passed**, at the fourth round;
+      **153 passed** at the fifth). **EACH RE-MEASUREMENT
       IS RECORDED WHERE IT HAPPENED RATHER THAN OVERWRITING THE LAST**: 130 was
       the fix round's, 136 the second's, and the third round's four landed
       without this box moving — a drift of four found by re-measuring here and
@@ -813,8 +816,37 @@ and is corrected in place where the number is now false.
       judged with `NO_REGISTER` where `load_register` would have refused — the
       defect), a symlink to a real file outside the tree and an ordinary file
       (both already right), and a genuinely absent path (the only
-      `NO_REGISTER`). The probe is now `is_symlink() or exists()`, which is the
-      same boundary `--code-surface-register` has always had.
+      `NO_REGISTER`). The probe was then `is_symlink() or exists()`, which is
+      the same boundary `--code-surface-register` has always had — AT THE LEAF.
+      **AND THE FIFTH ROUND'S EIGHT, WHICH CLOSED THE OTHER HALF OF THAT SAME
+      BOUNDARY.** The leaf probe cannot see an ANCESTOR link: with
+      `REPO_ROOT/scripts` a symlink to a directory that does not carry the
+      register, `is_symlink()` and `exists()` are BOTH false, so the scan called
+      the path ABSENT and judged the tree with `NO_REGISTER` — while the SAME
+      path named on `--code-surface-register` was refused (exit 2) by
+      `load_register`'s `_has_symlinked_ancestor` guard. Measured on one tree,
+      both ways, before the fix: named, exit 2; default, exit 1. That is § 3.2
+      (i) broken in the branch it names — "the `--register PATH` … and the
+      default … ALIKE … no branch treats a supplied path differently from the
+      default" — so the probe now asks the LOADER'S OWN unanchored climb before
+      the leaf, imported and not copied. **FIVE CASES** in
+      `test_the_default_register_probe_asks_the_ANCESTRY_not_only_the_leaf`
+      (`scripts` a link to a directory WITHOUT the register and one WITH it, the
+      REPO ROOT itself a link, and absent and present under a clean ancestry —
+      the last two the only `NO_REGISTER` and the only ordinary read left) and
+      **THREE** in
+      `test_the_DEFAULT_and_the_NAMED_register_path_share_ONE_symlink_boundary`,
+      which runs ONE path both ways and requires the two runs to agree.
+      **AND THE PACKET'S TWO SEMANTICS SHOWED THROUGH ONE OLDER TEST**, which is
+      the measurement worth keeping: `tests/scope_globs/…::test_a_tree_REACHED_
+      THROUGH_A_SYMLINK_still_finds_its_own_proposals` scans a tree through a
+      linked root, and it exited 1 only because the default probe could not see
+      the ancestor link at all. The WALK forgives that link (§ 3.2 (ii), the
+      ANCHORED test, which resolves both sides) and the REGISTER does not
+      (§ 3.2 (i), UNANCHORED), so the test now NAMES a register at an ordinary
+      path — leaving it measuring the walk it is about, and leaving the linked
+      root's register refusal to the fifth round's own case. No requirement
+      moved: both semantics are as § 3.2 landed them.
       **THE FIFTEEN-GROUP BREAKDOWN ABOVE IS LEFT AS THE RECORD OF THE FIRST
       LANDING** rather than re-derived: re-splitting 145 tests across fifteen
       authored groups would be a classification nobody measured, and a number

@@ -61,12 +61,19 @@ Usage:
           2. WITHOUT IT, `REPO_ROOT/scripts/code-surface-register.yaml` is used
              WHEN THE SCANNED TREE CARRIES ONE, so a tree is judged against ITS
              OWN exceptions (for REPO_ROOT `.` in this repository that is the
-             same file either way). CARRIES ONE MEANS PRESENT IN ANY FORM: the
-             probe is `is_symlink() or exists()` (`os.path.lexists`) and NOT
+             same file either way). CARRIES ONE MEANS PRESENT IN ANY FORM, OR
+             REACHED THROUGH A SYMLINK AT ALL: the probe is `is_symlink() or
+             exists()` (`os.path.lexists`) OVER THE LOADER'S OWN ANCESTOR CLIMB
+             (`code_surface._has_symlinked_ancestor`), and NOT
              `is_file()`, which follows the link and so read a DANGLING SYMLINK
              or a DIRECTORY at that name as absent — both of them
              `load_register` refusals, reported instead as a `NO_REGISTER`
-             judgment about a tree that carries something there. A PRESENT
+             judgment about a tree that carries something there. The climb is
+             the half the leaf cannot answer: a register below a SYMLINKED
+             ANCESTOR with nothing at the leaf is absent to `is_symlink()` and
+             `exists()` both, and is a `load_register` refusal all the same, so
+             without it the default path and the named one had DIFFERENT safety
+             boundaries for the same file. A PRESENT
              register that cannot be used REFUSES HERE TOO, on
              `code_surface.load_register`'s own rule — "a register
              that cannot be used REFUSES rather than being ignored: ignoring a
@@ -154,6 +161,49 @@ def _code_surface():
 def _load_code_surface_register(path: Path) -> list[dict]:
     """The code-surface register at `path`, loaded through the sibling reader."""
     return _code_surface().load_register(path)
+
+
+def _default_register_goes_to_the_reader(default: Path) -> bool:
+    """Whether the scanned tree's DEFAULT register path must be handed to
+    `code_surface.load_register`, rather than called ABSENT and left to
+    `NO_REGISTER`.
+
+    THE LEAF ANSWERS ONLY HALF THE QUESTION. `is_symlink() or exists()`
+    (`os.path.lexists`) is true for every shape the path ITSELF can be in — a
+    regular file, a directory, a dangling link — and false for a name the tree
+    does not carry. But a register is refused UNREAD when it is reached through
+    a symlink AT ANY ANCESTOR too, not only at its own name, and an ancestor
+    link with NOTHING at the leaf is invisible to both halves of the leaf
+    probe: with `REPO_ROOT/scripts` a symlink to a directory that does not
+    contain `code-surface-register.yaml`, `is_symlink()` and `exists()` are
+    BOTH false, so the scan called the path absent and went on with
+    `NO_REGISTER` — while THE SAME PATH named on `--code-surface-register` was
+    refused by `load_register`'s `_has_symlinked_ancestor` guard. Measured on
+    one tree, both ways: named, exit 2 "reached through a symlink"; default,
+    exit 1. Two safety boundaries for one path is the documented parity broken
+    in the direction that matters, since the tree that escaped is the one whose
+    register DIRECTORY points outside the checkout.
+
+    SO THE ANCESTRY IS ASKED FIRST, AND WITH THE LOADER'S OWN CLIMB —
+    `code_surface._has_symlinked_ancestor`, the function `load_register` itself
+    calls, imported rather than re-implemented: a second copy of the rule is a
+    copy that drifts, and this guard exists because a nearly-identical guard's
+    gaps were unmeasured. Any symlink in the ancestry hands the path to the
+    reader, whose refusal then fires WHATEVER the leaf is; only a CLEAN
+    ancestry with nothing at the leaf is the absence `NO_REGISTER` means.
+
+    THE SIBLING'S OWN ABSENCE DECIDES NOTHING HERE, and cannot turn this into a
+    pass. If `code_surface` will not import, the ancestry is unanswerable and
+    this probe says only what the leaf says — after which `validate_corpus`
+    refuses the scan outright (exit 2, naming the file to copy), because its
+    guarded walk is that same sibling's.
+    """
+    try:
+        reached_through_a_symlink = _code_surface()._has_symlinked_ancestor(
+            default)
+    except Exception:  # the corpus walk refuses on the same missing sibling
+        reached_through_a_symlink = False
+    return reached_through_a_symlink or default.is_symlink() or default.exists()
 
 
 def _validate_change(proposal: Path,
@@ -316,7 +366,8 @@ def main(argv: list[str] | None = None) -> int:
             return 2
     else:
         default = repo_root / "scripts" / "code-surface-register.yaml"
-        # PRESENT IN ANY FORM — THE ONE QUESTION `is_file()` DOES NOT ASK.
+        # PRESENT IN ANY FORM, OR REACHED THROUGH A SYMLINK AT ALL — THE TWO
+        # QUESTIONS `is_file()` DOES NOT ASK.
         # `Path.is_file()` FOLLOWS THE LINK and answers only "a regular file
         # is readable at the end of this path", so it reads a DANGLING SYMLINK
         # and a DIRECTORY at the register's own name as ABSENT, and the scan
@@ -329,16 +380,21 @@ def main(argv: list[str] | None = None) -> int:
         # module refuses elsewhere: whether an entry tolerates a declaration
         # is UNKNOWN when nothing could be read, never `no`.
         #
-        # SO THE PROBE IS PRESENCE AND NOTHING MORE. `is_symlink() or
-        # exists()` is `os.path.lexists` — true for every path the scanned
-        # tree actually carries, whatever shape it is in, and false only for
-        # one it does not — which gives the default path THE SAME BOUNDARY as
-        # `--code-surface-register`, whose named path is handed to
-        # `load_register` unconditionally. Deciding the shape here would be a
-        # SECOND, weaker copy of `load_register`'s rules; the probe's whole
-        # job is to tell ABSENT from PRESENT and to leave usability to the
+        # THE LEAF ALONE STILL MISSED ONE, AND IT IS THE SAME DEFECT ONE LEVEL
+        # UP: a SYMLINKED ANCESTOR with nothing at the leaf — `REPO_ROOT/
+        # scripts` a link to a directory that does not carry the register —
+        # is false for `is_symlink()` and for `exists()` alike, so the scan
+        # called ABSENT a path the reader REFUSES (its symlink guard covers
+        # every directory between the register and the top), and the same path
+        # named on `--code-surface-register` exited 2 where the default exited
+        # 1. `_default_register_goes_to_the_reader` asks the ancestry with the
+        # LOADER'S OWN climb before asking the leaf, so the two paths have ONE
+        # boundary rather than two, which is what the parity documented above
+        # claims. Deciding the shape here would still be a SECOND, weaker copy
+        # of `load_register`'s rules; the probe's whole job is to tell ABSENT
+        # from PRESENT-OR-REACHED-THROUGH-A-LINK and to leave usability to the
         # reader that owns it.
-        if default.is_symlink() or default.exists():
+        if _default_register_goes_to_the_reader(default):
             # UNNAMED BUT PRESENT, AND A PRESENT REGISTER THAT CANNOT BE USED
             # REFUSES — the named flag's semantics, because the file is the
             # SCANNED TREE'S OWN artifact whether or not an operator typed its
