@@ -2091,8 +2091,12 @@ def test_a_retired_rows_digest_still_binds(scratch: Scratch) -> None:
 
 def test_the_summary_counts_the_retired_rows(scratch: Scratch) -> None:
     """Counted in `--json` and printed on the human line — and ZERO is a state
-    the log records too, which is what the landed manifest reads as until the
-    three suites' own pull requests land."""
+    the log records too, which is what a manifest carrying no retirement reads
+    as. THE ZERO HERE IS THE FIXTURE'S, not the landed document's: since RULED
+    5656343213's first use (PR #1043) the landed manifest reads 2, the two
+    intent-feed suites, while the ruling's third suite is a declared edit and
+    no retirement at all. Both numbers matter, and this case is about the
+    counter rather than about either one of them."""
     clean = _summary(scratch, clean_manifest(scratch))
     assert clean["retired"] == 0, clean
     doc = clean_manifest(scratch)
@@ -2434,7 +2438,10 @@ def test_the_human_line_prints_the_retirement_zero_state_too(
     UNCONDITIONAL from the start rather than repaired later: the `re_destined`
     clause had to be fixed in review on PR #1011 because a ternary suppressed
     it, making the landed manifest's own state the one count that line never
-    showed. Zero is the state this form LANDS in."""
+    showed. Zero is the state this form LANDED in (PR #1032); the landed
+    document reads 2 since its first use (PR #1043), and this case asks the
+    GENERATED one, where zero is the baseline every other case in this section
+    starts from."""
     doc = clean_manifest(scratch)
     scratch.write(doc)
     done = run(scratch)

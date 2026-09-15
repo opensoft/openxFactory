@@ -2704,8 +2704,10 @@ def main(argv: list[str] | None = None) -> int:
         # suppressed it, making the landed manifest's own state the one count
         # this line never showed); this clause is written with that lesson
         # already learned, and `test_the_human_line_prints_the_retirement_zero_
-        # state_too` holds it. Zero is the state this form lands in and is as
-        # much a fact as any other.
+        # state_too` holds it. Zero was the state this form LANDED in and is as
+        # much a fact as any other; since its first use (RULED 5656343213's own
+        # act, PR #1043) this document prints 2, and the clause that prints
+        # both is the same clause.
         retired_note = (
             f"; {summary['retired']} row(s) RETIRED by ruling "
             "(RULED 5656343213)")
