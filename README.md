@@ -550,9 +550,12 @@ Active changes:
   [#833](https://github.com/opensoft/openxFactory/issues/833) by REFUSING to
   re-base the origin-retention baseline onto a rename, and its refusal text says
   why the refusal was the whole fix — *"Nothing in this corpus declares a FORMER
-  ID"*; `docs/document-lifecycle.md`, ratified by the same act, states the
-  consequence as canon — *"Renaming a ratified change is therefore blocked until
-  a change declares a FORMER ID (issue #833, a successor packet)"*. **ONE
+  ID"*; `docs/document-lifecycle.md`, ratified by the same act, THEN STATED the
+  consequence — *"Renaming a ratified change is therefore blocked until
+  a change declares a FORMER ID (issue #833, a successor packet)"* — **which is
+  the sentence this packet's `tasks.md` § 5.3 commissions the amendment of, and
+  which slice 6 has amended; it is quoted here as the text that stood, not as
+  the text that stands** (see the amendment at the end of this row). **ONE
   `## MODIFIED` BLOCK AND THREE `## ADDED` REQUIREMENTS** over
   `release-realization` — *Origin retention at archive* (MODIFIED; every
   promoted sentence and all three promoted scenarios carried verbatim, FOUR
@@ -594,10 +597,45 @@ Active changes:
   guard. `code_surface` is NON-EMPTY and **no byte of it moves in the filing** —
   no script, validator, register or test is added or edited — so per
   `release-realization` this packet archives only on merged-plus-green
-  realization evidence, and #1003 stays OPEN on Brett Heap's word and closes at
-  no pull request of this packet's. **RATIFIED AND NOT ARCHIVED**: `tasks.md`
-  § 1 is ticked and §§ 2-7 stay open; PR #1028 carries the ratification encode
-  and its merge is a separate word, Rule 6 applying at landing.
+  realization evidence, and #1003 stayed OPEN on Brett Heap's word, closing (as
+  ruled at filing, 2026-09-13) at no pull request of this packet's — **A CLAIM
+  THE AMENDMENT BELOW SUPERSEDES**, his later ruling closing it instead at this
+  packet's own PR #1041 landing. **RATIFIED AND NOT ARCHIVED**: at the
+  ratification `tasks.md` § 1 was ticked and §§ 2-7 stayed open; PR #1028
+  carried the ratification encode and its merge was a separate word, Rule 6
+  applying at landing.
+
+  **AMENDED 2026-09-15 BY THIS PACKET'S OWN REALIZATION** (lane
+  `openxfactory-1`), on Brett Heap's ruling of 2026-09-15T19:0xZ, verbatim
+  ***"Amend the row in #1041"***, recorded at
+  [#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5686628685):
+  **RATIFIED 2026-09-13; REALIZATION SLICES 1-5 ARE LANDED** — PR
+  [#1038](https://github.com/opensoft/openxFactory/pull/1038) →
+  `701c8fde` (the declaration's reader and the archive gate, `tasks.md` §§ 2.1,
+  2.2, 2.3, 2.5, 2.6 and § 3), PR
+  [#1037](https://github.com/opensoft/openxFactory/pull/1037) →
+  `8f393758` (the identity-based reference resolver and its named consumer,
+  §§ 5.0-5.2a) and PR
+  [#1039](https://github.com/opensoft/openxFactory/pull/1039) →
+  `92d519b0` (the landing validator `former-id-arrival-gate`, § 2.4 and
+  §§ 4.1-4.4) — **and slice 6, the documents and the ticks, is PR
+  [#1041](https://github.com/opensoft/openxFactory/pull/1041)**, which amends
+  the `docs/document-lifecycle.md` sentence quoted above on his Q4 ruling
+  ***"Yes, task 5.3 is authority"***
+  ([#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5686436893)).
+  **§ 4.5 — registering `former-id-arrival-gate` as a required check — IS HIS
+  OPERATOR ACT AND STAYS OUTSTANDING** (re-measured live 2026-09-15T19:41Z:
+  the branch rules for `main` name it nowhere, so the gate runs and refuses
+  nothing), and **§ 7, the archive and the promotion into
+  `openspec/specs/release-realization/spec.md`, is a further act on a further
+  word** — ruled admissible with § 4.5 open, as a disposition plus a
+  carry-forward issue (***"Yes, with disposition + carry-forward issue"***, the
+  `add-signed-execution-chain` precedent). **#1003 ITSELF CLOSES EARLIER, AT
+  THIS SLICE'S OWN LANDING, NOT AT THE ARCHIVE** — Brett Heap, same record,
+  verbatim ***"Close when #1041 lands"***; the § 4.5 ruleset act and the
+  archive stay tracked on this packet and on the Q2 carry-forward issue after
+  the issue itself is closed. Thirty-one of this packet's
+  thirty-nine boxes are ticked; the eight open are § 4.5, §§ 6.1-6.5 and § 7.
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
   — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
   (2026-09-13T01:0xZ, Brett Heap, openxFactory repository owner, given in
