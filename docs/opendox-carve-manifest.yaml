@@ -208,6 +208,18 @@
 #     request URL carrying the ruling — is REQUIRED, on Q6's own scope
 #     reasoning.
 #
+#     ALL FOUR ARE THE READING GUARD AND NOT ONLY THE VALIDATOR'S
+#     REQUIREMENT (Copilot review of PR #1032). Every tool that ACTS on this
+#     field — `scripts/verify-carve-arrival.py` at a leg,
+#     `scripts/carved_reach.py` inside a retained consumer — reads a block
+#     missing any of the four as NO RETIREMENT and goes on asking for the
+#     arrival. Those tools run without the manifest validator (the verifier
+#     takes a `--dest-root` at the leg; the resolver is an import away in
+#     anything that reads a moved file), so a half-written block would
+#     otherwise silence a required arrival before anyone validated this
+#     document. Half a retirement is no retirement, and the mis-shaped block
+#     is `carve-shape-invalid` when the validator does run.
+#
 # WHAT IT DOES NOT MOVE, and the list is Q6's own plus the one that matters
 # most here: `carve_commit`, `carve_tag`, every `sha256`, every `git_mode`,
 # the row's `disposition`, its `edits[]` and the lines they name — AND EVERY

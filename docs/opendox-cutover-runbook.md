@@ -1113,7 +1113,27 @@ opposite.
    reviewer reads the deletion by itself, in its own diff, and the repair
    beside it. Prose that is HISTORICAL — "this instrument came from X" — may
    stay as it is, and is worth a word saying the file is retired rather than
-   missing. Then
+   missing.
+
+   **AND THE REPAIR STOPS AT A CARVED FILE.** Measured one round later at
+   that same act: two of the falsified sentences sat in files that THEMSELVES
+   ARRIVED — `tests/test_account_menu_dom.py:4` and
+   `tests/test_doxbench_tile_verbs.py:18-20` — and at a leg every line on
+   which an arrived file differs from its carve blob must be declared in its
+   openxFactory row under one of RULING OQ-1's three CLOSED classes: `import
+   rewrites`, `path constants`, `adapter calls`. A comment naming a retired
+   sibling is none of the three, and filing it as one would put a false
+   description in the floor's own record to make a comment read better. The
+   verifier says so in the sentence it would use for any other undeclared
+   line — `arrival-undeclared-edit — tests/test_account_menu_dom.py was
+   edited at carve-commit line(s) [4] … it declares [30] under class(es) path
+   constants` — so the repair commit touches only the prose THE LEG OWNS: its
+   workflow files, and the files it created under a declared admission
+   (`docs/opendox-carve-admissions.yaml`). A stale sentence inside a CARVED
+   file STAYS, named in the pull request as a known cost, until a ruling
+   widens the class vocabulary or some other act amends that row for a reason
+   the vocabulary already covers. Withdrawing such a repair is not a retreat
+   — it is the floor holding, one act after the form that tested it. Then
 
    ```sh
    python3 scripts/verify-carve-arrival.py \
@@ -1128,6 +1148,18 @@ opposite.
    leg, which is a lawful refill exactly as § 5.7's is: the path a retirement
    empties may be legitimately re-occupied, and the entry there is then that
    row's or that replica's, verified on its own terms.
+
+   **And a block the leg cannot read refuses BEFORE it is believed**
+   (`arrival-unreadable`, naming `validate-carve-manifest.py`): an `at_path`
+   that is not a plain path inside `--dest-root`, and a block whose
+   `at`/`at_path` are not the row's own effective arrival. Step 3 is what
+   normally catches both — they are `_require_closed_relative_path` and check
+   6's `carve-disposition-inconsistent` — but the verifier runs at a LEG on a
+   manifest it deliberately does not revalidate, and the question it asks of a
+   retirement is "is this path EMPTY", to which every unread field answers
+   "yes": a `../` path is absent because it is outside the tree, and a block
+   naming another row's placement proves empty a path no ruling emptied. If
+   you meet either, the repair is in the openxFactory row, not at the leg.
 5. **The leg's own `validate` green, and both pull requests admin-merged on
    Brett's word** (§ 12 act 1), exactly as every other arrival is.
 

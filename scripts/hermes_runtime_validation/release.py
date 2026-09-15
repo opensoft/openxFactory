@@ -163,12 +163,30 @@ def _shed_aware(target: Path) -> Path:
     Answers `target` unchanged for any other repository, any path in no row, and
     any `not_moved` row — so a candidate-mode release run over a domain mirror
     is untouched.
+
+    A ROW THAT A RULING HAS RETIRED ARRIVES AS A `ReleaseDependencyError`
+    (RULED 5656343213; Copilot review of PR #1032, round 2). `shed_destination()`
+    refuses such a row by name — `CarveRowRetired`, an `ImportError` subclass —
+    and the `except` above guards the lazy IMPORT, not the CALL. Both callers
+    are `_RepositorySource` methods that answer for a REGISTERED release
+    member, and each would otherwise be wrong in its own way: `read_member`
+    would raise a bare `ImportError` where every other unreadable member is
+    this class's own exit-code-2 refusal, and `exists` would answer FALSE for
+    a file that is not absent but DELETED BY RULING — "not here yet" and
+    "never again" being the two answers a membership test must not merge. A
+    registration that still names a retired member is a stale registration,
+    and that is what the refusal says.
     """
     try:
-        from carved_reach import shed_destination
+        from carved_reach import CarveRowRetired, shed_destination
     except ImportError:
         return target
-    moved = shed_destination(target)
+    try:
+        moved = shed_destination(target)
+    except CarveRowRetired as exc:
+        raise ReleaseDependencyError(
+            f"release member is unavailable: a RULING has RETIRED "
+            f"{target.name} at its leg — {exc}") from exc
     return moved if moved is not None else target
 
 

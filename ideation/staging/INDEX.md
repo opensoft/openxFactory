@@ -2261,7 +2261,12 @@ repo scope.
 - Files:
   - [openxwallet-neutral-home.md](openxwallet-neutral-home/openxwallet-neutral-home.md)
     — primary: 11 claims, a measured evidence-and-inventory section, three live
-    `xspec:candidate` blocks (all targeting `openxwallet`, all resolving; the two
+    `xspec:candidate` blocks (all targeting `pinned:openxwallet/openxwallet` since
+    `extend-prose-tagging-target-to-pinned-capabilities` was realized — the TRUE
+    form for prose about a capability that left this corpus on 2026-08-28 — and
+    all three are UNRESOLVED PINNED TARGETS while `contracts/openxwallet-pin.yaml`
+    carries no `capabilities:` enumeration, which is the publisher's act to
+    publish through a `neutral-product-pin` change; the two
     ADDED capabilities are deliberately unfenced because neither resolves yet), a
     seven-item sequencing-constraints section, 5 idea notes, 5 conflicts, 5 open
     questions each with Context / Recommended answer / Explanation / Disposition

@@ -494,12 +494,27 @@ def retired_at(row: dict) -> tuple:
     would hand a caller a `Path` to a file the floor has just finished proving
     is NOT THERE. That is the silent-nothing this module's own docstring
     refuses to degrade into.
+
+    ALL FOUR REQUIRED KEYS ARE THE GUARD, not the two a placement needs
+    (Copilot review of PR #1032, round 2). `retired: {at, at_path}` is half a
+    block: `validate-carve-manifest.py` refuses it — `carve-retired-unruled`,
+    then `carve-shape-invalid` on the missing `surface` — but THIS predicate is
+    read by tools that never run that validator. `verify-carve-arrival.py` is
+    run at a leg against a `--dest-root` and `carved_reach` is imported by
+    every retained consumer, so "the validator would have caught it" is not
+    true at the moment of reading; a half-written block would silence a
+    required arrival before anyone validated the document. Four non-empty
+    strings or no retirement — the same closed key set (`at`, `at_path`,
+    `ruling`, `surface`, and the optional `note`) the form itself declares.
     """
     retired = row.get("retired")
     if isinstance(retired, dict):
         at = retired.get("at")
         at_path = retired.get("at_path")
-        if isinstance(at, str) and isinstance(at_path, str):
+        ruling = retired.get("ruling")
+        surface = retired.get("surface")
+        if all(isinstance(value, str) and value.strip()
+               for value in (at, at_path, ruling, surface)):
             return at, at_path
     return None, None
 

@@ -128,7 +128,7 @@ def _shed_destination(candidate: Path, context: str = "member") -> Path | None:
     with no carve manifest at all (a domain mirror, a consumer's pinned copy);
     `None` on ImportError keeps every one of those answering exactly as before.
 
-    A ROW A RULING HAS RETIRED ARRIVES AS A `CatalogError`, NOT AS AN
+    A ROW THAT A RULING HAS RETIRED ARRIVES AS A `CatalogError`, NOT AS AN
     `ImportError` (RULED 5656343213; Copilot review of PR #1032). The resolver
     refuses such a row by name — `CarveRowRetired`, a subclass of
     `ShedModuleHasNoDestination` and so of `ImportError` — and the `except`
