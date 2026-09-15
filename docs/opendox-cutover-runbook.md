@@ -256,9 +256,10 @@ test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
 **Measured directly against the landed manifest, 2026-09-12** (rather than
-hand-chained through every intervening amendment): the table and the two
-paragraphs above, and the per-destination table below, state the totals as of
-the § 3.4 SLICE-S3 row annotation (`#656` comment `5642758731`, openxFactory
+hand-chained through every intervening amendment) — **and it is a DATED
+RECORD, not a statement of the current totals.** On that day the table and the
+two paragraphs above, and the per-destination table below, stated the totals as
+of the § 3.4 SLICE-S3 row annotation (`#656` comment `5642758731`, openxFactory
 PR #1001) merged with every row annotation since RULED Q-L7 (a) above —
 among them BUILD slice 2's nine openDox-code back-imports, a second Q-L1
 annotation round (`#656` comment `5628560136`), the ASK-7 declared-edit
@@ -274,7 +275,14 @@ two rows' existing `edits:` and no new row, and the § 3.4 SLICE S4 annotation
 constants it counts across the three RULED `SPLIT` files — twelve travel to
 a new home or are removed, one (`ACTIONS_REFRESH_ROUTE`) stays in
 `repo-selector.js` — over seven rows (two already carriers, five new) and
-four admitted files, three of them class-B modules. Rather than
+four admitted files, three of them class-B modules. **ACTS HAVE MOVED THE
+AGGREGATE SINCE THAT DAY AND THIS LIST ENUMERATES NONE OF THEM**: the § 3.4
+slice-S5 annotation (+162), the pre-existing `openxdox_code` annotation
+(openxFactory PR #1031, landing before this one, with its own figure stated
+there), and RULED 5656343213's retirement act (+177). Each is stated ONCE, in
+the current-totals paragraph above this history, which is where the aggregate
+is read — they are not re-narrated into a second list here for the reason this
+paragraph already gives. Rather than
 re-narrate each one here — this table is exactly the hand-maintained
 copy RULED Q-L1's own "two acts restating one set of absolutes is how a
 count becomes wrong in a merge" warns about — the figures above are the
