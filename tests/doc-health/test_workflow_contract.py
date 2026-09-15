@@ -321,6 +321,14 @@ def test_readiness_evidence_guard_is_staged_in_the_same_commit_not_a_second_one(
     # evidence — not a second commit — matching the archived
     # add-ideation-cross-reference-readiness design intent of one shared
     # commit-back covering both lanes.
+    #
+    # Ordering must clear the "no submodule changes staged; exit 0" no-op
+    # check too, not just precede `git commit`: that check is the actual
+    # boundary a readiness-only run (nothing else changed) exits at, so a
+    # guard staged AFTER it would never run for such a run even though it
+    # would still, technically, precede `git commit` (Copilot review on
+    # PR #1044: an ordering assertion that stops at `git commit` lets a
+    # regression that moves the guard below the no-op check pass silently).
     finalize = workflow()["jobs"]["finalize"]
     commit_back = step(finalize, "Derive-possibles register commit-back "
                                  "(rolling PR; dormant until first lane "
@@ -338,11 +346,12 @@ def test_readiness_evidence_guard_is_staged_in_the_same_commit_not_a_second_one(
     readiness_guard_line = index_containing(
         "[ -d health/ideation-readiness/ ] && git add "
         "health/ideation-readiness/")
+    noop_check_line = index_containing("git diff --cached --quiet")
     commit_line = index_containing(
         'git commit -m "derive-possibles: merged register')
 
-    assert own_add_line < readiness_guard_line < commit_line
-    assert md_guard_line < commit_line
+    assert own_add_line < readiness_guard_line < noop_check_line < commit_line
+    assert md_guard_line < noop_check_line
     # Exactly one commit in this step — the fix stages more, it does not
     # commit twice.
     assert commit_back["run"].count("git commit -m") == 1
