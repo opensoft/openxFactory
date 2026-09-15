@@ -1855,8 +1855,9 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     and ruler are pinned, every remaining line of the block must `fullmatch`
     the record — so a key outside the character class, a sixth column or a
     reshaped cell is a FAILURE and not a skipped line — the roots cell must be
-    exactly a comma-separated sequence of backticked paths (or the one prose
-    cell that says "none"), a missing runbook — and, round eight, a missing
+    exactly a comma-separated sequence of backticked paths (or the one
+    empty-root marker, pinned WHOLE rather than by its first word), a missing
+    runbook — and, round eight, a missing
     MANIFEST — is a failure rather than a branch, the key grammar is the
     VALIDATOR's own `^[a-z][a-z0-9_]*$` rather than a narrower one that would
     refuse a destination the manifest accepts,
@@ -1946,9 +1947,20 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
         r"(?:(?P<verbatim>\d+) / (?P<edited>\d+)|—) \| "
         r"(?:(?P<lines>\d+)|—) \| (?P<roots>[^|]*) \|")
     # The roots cell is EXACTLY a comma-separated sequence of backticked paths,
-    # or prose that begins "none". Anything else — a path that lost its
+    # or THE one empty-root marker. Anything else — a path that lost its
     # backticks, a word appended after the list — is refused rather than
     # quietly dropped by the `findall` that follows.
+    #
+    # THE MARKER IS PINNED WHOLE AND NOT BY ITS FIRST WORD (Copilot review,
+    # round nine on this PR). `startswith("none")` read one word and let the
+    # rest of the cell say anything: `none — stale`, or a sentence that had
+    # stopped being true, still produced the EMPTY walk, still matched
+    # `declared_roots(...) == []` and still passed every numeric check — so the
+    # one cell whose shape this test could not check was the only cell it
+    # claims to check as PROSE. The header and the ruler above are pinned
+    # exactly for the same reason. When § 3.8 is renumbered this literal moves
+    # in the same commit, which is what a marker is for.
+    empty_roots = "none — the release identity only (§ 3.8)"
     roots_list = re.compile(r"`[^`]+`(?:, `[^`]+`)*")
     lines = [line.rstrip() for line in block]
     assert lines[0] == header, lines[0]
@@ -1984,7 +1996,8 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
         # THE FIFTH COLUMN IS A CLAIM TOO: every backticked path in the cell,
         # in the order the cell states them. A cell that names no path at all
         # (`opendox_root`'s "none — the release identity only") claims the
-        # EMPTY walk, and it is the only cell allowed to be prose.
+        # EMPTY walk, and it is the only cell allowed to be prose — that one
+        # prose cell being pinned whole, above.
         roots_cell = found["roots"]
         if "`" in roots_cell:
             assert roots_list.fullmatch(roots_cell), (
@@ -1994,9 +2007,12 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
                 "the comparison below")
             roots_stated[found["key"]] = re.findall(r"`([^`]+)`", roots_cell)
         else:
-            assert roots_cell.startswith("none"), (
-                f"the roots cell for {found['key']!r} names no path and does "
-                f"not say so: {roots_cell!r}")
+            assert roots_cell == empty_roots, (
+                f"the roots cell for {found['key']!r} names no path and is "
+                f"not the empty-root marker {empty_roots!r}: {roots_cell!r}. "
+                "A cell that begins 'none' and then says something else is a "
+                "cell this check would read as the empty walk while the "
+                "sentence beside it went unread")
             roots_stated[found["key"]] = []
     assert set(stated) == set(doc["destinations"]), sorted(stated)
 
