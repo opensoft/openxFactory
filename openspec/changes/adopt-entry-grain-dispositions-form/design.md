@@ -82,6 +82,41 @@ source pin enumerates its members in two different forms*: *"a
 packet's scenario is that sentence's counterpart for shape (c), and is placed
 immediately after it for that reason.
 
+**AND THE ENTRY RULES ARE NOT THE VERIFIER'S INVENTION — THEY ARE RATIFIED
+CANON, IN A SECOND CAPABILITY.** `neutral-product-pin`'s requirement *A
+dispositioned finding is cited, upgrade-coupled, and refused when stale*
+(`openspec/specs/neutral-product-pin/spec.md:577`) obliges every one of the
+readings D-1 measures, in its own words and before this packet:
+
+- `:578`, the requirement's first line — a disposition *"SHALL carry a non-empty
+  CITATION to the canon that makes the acceptance lawful and SHALL name the
+  authority that granted it; a disposition carrying neither is an UNCITED
+  EXCEPTION and the pin is REFUSED rather than the entry being skipped"* (rows 3,
+  4 and 6).
+- `:586-588` — *"A disposition SHALL identify ONE finding — the repository, the
+  item, the delta path, and the finding's own text compared whole after
+  whitespace normalization"* (row 3's six keys, four of them named outright).
+- `:633-636`, the scenario **A disposition carries no citation** — *"WHEN a
+  disposition records no `cited_to:`, an empty one, or no granting authority …
+  THEN the pin is REFUSED as malformed, before any artifact is fetched … AND the
+  entry is not silently skipped"*. It names the member, it names the empty case
+  the measurement turned up at row 3, and it states the PURITY — *before any
+  artifact is fetched* — that makes the guard transcribable at all.
+
+So the gap is sharper than the issue states it. The adapter does not merely
+admit what one verifier's local choice refuses: **it resolves a pinned target on
+a record that a ratified requirement of this estate says is REFUSED as
+malformed.** And the direction of the remedy is fixed by that: reaching the
+entry grain imposes NO new obligation on any pin's author — every obligation is
+already theirs under `neutral-product-pin` — it only lets the offline resolver
+read what that text already says.
+
+**WHICH IS ALSO WHY THIS PACKET CARRIES NO `neutral-product-pin` DELTA.** Issue
+#1045 offers the act as one against `document-lifecycle` "and/or
+`neutral-product-pin`". Measured, the second is not owed: that capability's text
+is already correct and already complete on this member. What is missing is the
+RESOLVER's reading, and the resolver is `document-lifecycle`'s grammar.
+
 ---
 
 ## D-2 — THIS IS THE OPTIONAL MEMBER'S *FORM*, NOT A NEW REQUIRED MEMBER
@@ -160,7 +195,10 @@ unanswered rather than a judgement that it was wrong.
 set into the requirement. **REFUSED, and by canon's own words:** the per-shape
 table *"is not restated as PROSE in this requirement, where a restatement could
 drift unreviewed"*, and *"Of two INDEPENDENTLY-AUTHORED lists the WEAKER is
-always the one that admits"*. The scenario therefore names the SOURCE of the
+always the one that admits"*. And it would be a THIRD copy rather than a second:
+`neutral-product-pin:577-636` already states these rules as canon (D-1), the
+verifier realizes them, and a restatement in `document-lifecycle` would add a
+list nobody reconciles with either. The scenario therefore names the SOURCE of the
 form — the shape's own pure guard — and the equivalence test pins the
 transcription to it. The six required keys appear in this design's MEASUREMENT
 and in no normative sentence.
@@ -182,9 +220,11 @@ leg, at a fixed authored path — and that is where this packet's new case lives
   rendering (`dispositions[2]`, the defect word, the rule string) is the
   realization's, inside the `MISSING`/`MALFORMED` vocabulary the adapter already
   has.
-- **It does not touch `neutral-product-pin`.** That capability's ratified text
-  does not name `dispositions:` at all; the member is the openspec-cli
-  verifier's, and the grammar that reads it is `document-lifecycle`'s.
+- **It does not touch `neutral-product-pin`, and it does not need to.** That
+  capability's ratified text already obliges every entry rule D-1 measures
+  (`:577`, `:578`, `:586-588`, `:633-636`) and is not wrong about any of them.
+  The defect is in the OFFLINE RESOLVER's reading, and the resolver is
+  `document-lifecycle`'s grammar — so the delta is there and only there.
 - **It does not oblige any pin record to carry or drop `dispositions:`.**
   `contracts/openspec-cli-pin.yaml` is the only record in this tree that carries
   the member (measured over all six `contracts/*-pin.yaml`), its six entries pass

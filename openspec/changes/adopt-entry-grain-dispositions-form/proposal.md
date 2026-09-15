@@ -67,6 +67,27 @@ has run at all. On a landed tree the gap is invisible, because every record in
 why this is a FINDING and not a defect, and why the remedy is a change rather
 than an edit.
 
+**AND THE ENTRY RULES ARE RATIFIED CANON, WHICH MAKES THE GAP SHARPER THAN THE
+ISSUE STATES IT.** `neutral-product-pin`'s requirement *A dispositioned finding
+is cited, upgrade-coupled, and refused when stale*
+(`openspec/specs/neutral-product-pin/spec.md:577`) already obliges every reading
+D-1 measures: a disposition *"SHALL carry a non-empty CITATION … and SHALL name
+the authority that granted it"* (`:578`), *"SHALL identify ONE finding — the
+repository, the item, the delta path, and the finding's own text"* (`:586-588`),
+and its scenario **A disposition carries no citation** (`:633-636`) says that a
+disposition recording *"no `cited_to:`, an empty one, or no granting authority"*
+makes the pin *"REFUSED as malformed, before any artifact is fetched"*. So the
+adapter today does not merely admit what one verifier's local choice refuses —
+**it resolves a pinned target on a record a ratified requirement of this estate
+says is refused as malformed.** It also follows that this packet imposes NO new
+obligation on any pin's author: every obligation is already theirs under that
+requirement, and this delta only lets the offline resolver read what it says.
+**Which is why no `neutral-product-pin` delta is carried:** issue #1045 offers
+the act as one against `document-lifecycle` "and/or `neutral-product-pin`", and
+measured, the second is not owed — that text is already correct and complete on
+this member. What is missing is the RESOLVER's reading, and the resolver is
+`document-lifecycle`'s grammar.
+
 **AND WHY IT IS NOT A WIDENING OF THE CONTRACT.** The adapter's boundary is
 that it judges a record's SHAPE and never its FAITHFULNESS TO ITS SOURCE. Every
 refusal this packet proposes to transcribe reads THE ENTRY ALONE, which is the
@@ -98,7 +119,9 @@ member is not one its ratified text names.
 ## Impact
 
 - **Affected capability:** `document-lifecycle` (ONE requirement, ONE added
-  scenario; every other promoted unit carried verbatim).
+  scenario; every other promoted unit carried verbatim). `neutral-product-pin`
+  is READ and CITED (`:577`, `:578`, `:586-588`, `:633-636`) and NOT modified:
+  its text already obliges these entry rules and is not wrong about any of them.
 - **Affected code, at realization and not here:**
   `scripts/doc_health/pin_shapes.py` and
   `tests/doc-health/test_pin_shape_adapter.py`.
