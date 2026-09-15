@@ -20,7 +20,81 @@ Usage:
     REPO_ROOT defaults to the current directory. Scans REPO_ROOT/openspec/changes/
     (active changes only, never archive/) and validates every proposal that
     declares `scope_globs`. Exit 0 when all pass; exit 1 (naming the offending
-    change, entry, and rule) otherwise.
+    change, entry, and rule) otherwise; exit 2 when the scan CANNOT RUN.
+
+    DISCOVERY IS THE SIBLING'S GUARDED WALK, NOT A BARE `is_file()` SCAN.
+    `code_surface._proposals` is called for the active corpus, so this gate and
+    the code-surface gate judge THE SAME PROPOSALS — every candidate path taken
+    through `code_surface._unescaped`, which resolves both sides and requires
+    the path to land where a symlink-free tree would have put it. `Path.is_dir()`
+    and `Path.is_file()` FOLLOW SYMLINKS, so the plain walk this replaced read a
+    symlinked `openspec/changes/<id>/proposal.md` — or an ordinary `proposal.md`
+    inside a symlinked CHANGE DIRECTORY, or anything under a symlinked
+    `openspec/` — as an active proposal of the scanned tree. That mattered here
+    once the cross-consistency check became a CODE-SURFACE CONSUMER: bytes
+    outside the tree supplied the `code_surface:` declaration the scope key is
+    checked against, and matched the register entry the refusal names, so the
+    escaped document could both grant an authorization the tree never declared
+    and be judged as one the tree carries. The escape is DROPPED rather than
+    reported, for `_unescaped`'s own reason: neither face of it is a judgment
+    about the scanned tree, which is the only thing this gate may make.
+
+    --code-surface-register PATH
+        Read the CODE-SURFACE register (`gate-code-surface-declarations`) from
+        PATH. The cross-consistency check derives each change's declared
+        repository set from its `code_surface:` HEAD, and where that head is one
+        the grammar cannot read the refusal must name the REGISTER ENTRY that
+        tolerates it — so the register has to be the one belonging to the tree
+        being SCANNED. THE FLAG IS SPELLED FOR THE FIELD IT BELONGS TO rather
+        than as the sibling's bare `--register`, because this validator's own
+        subject is `scope_globs:` and an unqualified "register" here would read
+        as a register of scopes.
+
+        RESOLUTION ORDER, AND THE REASON FOR EACH STEP. THE REGISTER IS THE
+        SCANNED TREE'S OR IT IS NOTHING — at no step is it the one beside this
+        validator, which is the scanned tree's register only when the scanned
+        tree is this one.
+
+          1. WITH THE FLAG, PATH is used, and a register that cannot be used
+             REFUSES (exit 2) — the sibling's semantics: an operator who named
+             a file is owed a refusal rather than a silent fallback.
+          2. WITHOUT IT, `REPO_ROOT/scripts/code-surface-register.yaml` is used
+             WHEN THE SCANNED TREE CARRIES ONE, so a tree is judged against ITS
+             OWN exceptions (for REPO_ROOT `.` in this repository that is the
+             same file either way). CARRIES ONE MEANS PRESENT IN ANY FORM, OR
+             REACHED THROUGH A SYMLINK AT ALL: the probe is `is_symlink() or
+             exists()` (`os.path.lexists`) OVER THE LOADER'S OWN ANCESTOR CLIMB
+             (`code_surface._has_symlinked_ancestor`), and NOT
+             `is_file()`, which follows the link and so read a DANGLING SYMLINK
+             or a DIRECTORY at that name as absent — both of them
+             `load_register` refusals, reported instead as a `NO_REGISTER`
+             judgment about a tree that carries something there. The climb is
+             the half the leaf cannot answer: a register below a SYMLINKED
+             ANCESTOR with nothing at the leaf is absent to `is_symlink()` and
+             `exists()` both, and is a `load_register` refusal all the same, so
+             without it the default path and the named one had DIFFERENT safety
+             boundaries for the same file. A PRESENT
+             register that cannot be used REFUSES HERE TOO, on
+             `code_surface.load_register`'s own rule — "a register
+             that cannot be used REFUSES rather than being ignored: ignoring a
+             malformed exception file would silently re-fail every declaration
+             it covers, or silently admit one it does not" — because the file
+             is the SCANNED TREE'S OWN artifact whether or not an operator
+             typed its path, and because whether an entry tolerates a
+             declaration is UNKNOWN when nothing could be read, never "no".
+          3. WITH NEITHER — no flag, and nothing at that path in any form —
+             the scan runs against `scope_globs.NO_REGISTER`: no entry
+             tolerates anything, and an unreadable head is refused as
+             UNREGISTERED. It does NOT fall
+             through to the derivation's own `register=None` on-demand load,
+             which reads the register beside the IMPORTED MODULE. MEASURED
+             before this was separated: a tree carrying no register at all,
+             whose one proposal reproduced a live house entry's change id and
+             declaration, was refused with "Its declaration is carried by the
+             CLOSED code-surface register — entry
+             `amend-kill-switch-to-declared-test-companion`" — this
+             repository's exception file, named in a judgment about a tree
+             that does not have it.
 
     --archive-gate CHANGE_DIR --ratified-ref REF
         Scope-retention (freeze) gate — see the `scope-globs-integrity` feature.
@@ -48,13 +122,93 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+from typing import Mapping, Sequence
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import scope_globs as sg  # noqa: E402
 
 
-def _validate_change(proposal: Path) -> list[str]:
+def _code_surface():
+    """The sibling `scripts/code_surface.py`, imported ON FIRST USE.
+
+    IMPORTED HERE AND NOT AT MODULE LEVEL, on `scope_globs._code_surface()`'s
+    reason: the import is paid only on the paths that need it, and an absent
+    sibling arrives as a NAMED FINDING rather than as an import traceback out
+    of a gate.
+
+    THE OLD CLAIM THAT THIS CLI "MUST KEEP RUNNING IN A TREE THAT DOES NOT
+    CARRY `scripts/code_surface.py`" IS CORRECTED HERE, WHERE IT WAS MADE, and
+    it never held for the corpus scan anyway: `code_surface_repositories` calls
+    the sibling for every proposal whose `code_surface:` is present and
+    readable, so a sibling-less tree already refused every real proposal in
+    this repository. What is true, and all that is claimed now, is that
+    `--archive-gate` needs NO `code_surface` (the scope-retention freeze reads
+    `scope_globs:` on both sides and nothing else; it DOES need
+    `sequenced_after`, a separate sibling and a separate fact — the first
+    wording of this paragraph said "sibling-free", and the test written to pin
+    it FAILED on that sibling, which is how the overclaim was caught), and that
+    module IMPORT needs neither.
+    THE CORPUS SCAN NOW REQUIRES THE SIBLING OUTRIGHT, because its guarded walk
+    is the sibling's, and a guard that silently disappears when a file is
+    missing is exactly the fail-closed-turned-fail-open this module refuses
+    elsewhere. Missing, the scan REFUSES (exit 2) and names what to copy.
+    """
+    import code_surface as cs  # deliberate local import, see the docstring
+    return cs
+
+
+def _load_code_surface_register(path: Path) -> list[dict]:
+    """The code-surface register at `path`, loaded through the sibling reader."""
+    return _code_surface().load_register(path)
+
+
+def _default_register_goes_to_the_reader(default: Path) -> bool:
+    """Whether the scanned tree's DEFAULT register path must be handed to
+    `code_surface.load_register`, rather than called ABSENT and left to
+    `NO_REGISTER`.
+
+    THE LEAF ANSWERS ONLY HALF THE QUESTION. `is_symlink() or exists()`
+    (`os.path.lexists`) is true for every shape the path ITSELF can be in — a
+    regular file, a directory, a dangling link — and false for a name the tree
+    does not carry. But a register is refused UNREAD when it is reached through
+    a symlink AT ANY ANCESTOR too, not only at its own name, and an ancestor
+    link with NOTHING at the leaf is invisible to both halves of the leaf
+    probe: with `REPO_ROOT/scripts` a symlink to a directory that does not
+    contain `code-surface-register.yaml`, `is_symlink()` and `exists()` are
+    BOTH false, so the scan called the path absent and went on with
+    `NO_REGISTER` — while THE SAME PATH named on `--code-surface-register` was
+    refused by `load_register`'s `_has_symlinked_ancestor` guard. Measured on
+    one tree, both ways: named, exit 2 "reached through a symlink"; default,
+    exit 1. Two safety boundaries for one path is the documented parity broken
+    in the direction that matters, since the tree that escaped is the one whose
+    register DIRECTORY points outside the checkout.
+
+    SO THE ANCESTRY IS ASKED FIRST, AND WITH THE LOADER'S OWN CLIMB —
+    `code_surface._has_symlinked_ancestor`, the function `load_register` itself
+    calls, imported rather than re-implemented: a second copy of the rule is a
+    copy that drifts, and this guard exists because a nearly-identical guard's
+    gaps were unmeasured. Any symlink in the ancestry hands the path to the
+    reader, whose refusal then fires WHATEVER the leaf is; only a CLEAN
+    ancestry with nothing at the leaf is the absence `NO_REGISTER` means.
+
+    THE SIBLING'S OWN ABSENCE DECIDES NOTHING HERE, and cannot turn this into a
+    pass. If `code_surface` will not import, the ancestry is unanswerable and
+    this probe says only what the leaf says — after which `validate_corpus`
+    refuses the scan outright (exit 2, naming the file to copy), because its
+    guarded walk is that same sibling's.
+    """
+    try:
+        reached_through_a_symlink = _code_surface()._has_symlinked_ancestor(
+            default)
+    except Exception:  # the corpus walk refuses on the same missing sibling
+        reached_through_a_symlink = False
+    return reached_through_a_symlink or default.is_symlink() or default.exists()
+
+
+def _validate_change(proposal: Path,
+                     register: Sequence[Mapping[str, object]] = sg.NO_REGISTER
+                     ) -> list[str]:
     """Return a list of problem strings for one proposal (empty when clean)."""
     try:
         front = sg.read_front_matter(proposal)
@@ -64,26 +218,74 @@ def _validate_change(proposal: Path) -> list[str]:
     if raw is None:
         return []  # absence is the fail-closed default, not an error
     try:
+        # THE CHANGE ID TRAVELS WITH THE FRONT MATTER (gate-code-surface-
+        # declarations § 3.5b). The derivation may return the ABSENCE of a
+        # head-derived repository set — for a declaration whose head the
+        # ratified `code_surface:` grammar cannot read — and the refusal that
+        # absence raises must name the PROPOSAL and the register entry carrying
+        # its declaration. The directory name is the change id, which this
+        # function already holds, so the consumer owes nothing it did not have.
+        #
+        # AND SO DOES THE REGISTER, FOR THE OTHER HALF OF THE SAME REFUSAL.
+        # Left to load itself, the derivation reads the register beside the
+        # IMPORTED MODULE, which is the right file only when the scanned tree
+        # IS this one — so for a temp or consuming tree an entry that tree
+        # carries reads as unregistered and the refusal cannot name it.
+        # `main` resolves the register against REPO_ROOT and passes it down.
         sg.validate_scope_globs(
-            raw, code_surface_repos=sg.code_surface_repositories(front)
+            raw,
+            code_surface_repos=sg.code_surface_repositories(
+                front, change=proposal.parent.name, register=register),
         )
     except sg.ScopeGlobsError as exc:
         return [str(exc)]
     return []
 
 
-def validate_corpus(repo_root: Path) -> int:
-    changes = repo_root / "openspec" / "changes"
+def _active_proposals(repo_root: Path) -> list[Path]:
+    """Every ACTIVE `proposal.md` the scanned tree REALLY carries.
+
+    THE SIBLING'S WALK, CALLED — NOT A SECOND COPY OF IT. `code_surface`
+    already owns the anchored path check (`_unescaped`: resolve `repo_root` and
+    the candidate, and require the candidate to land exactly where a
+    symlink-free tree would have put it, which closes an escape at EVERY
+    component in one comparison) and already applies it to `openspec/changes`,
+    to each change directory and to each `proposal.md`, one level deep, skipping
+    `archive/`. That is this walk, to the letter, and calling it is what makes
+    the two gates provably judge the SAME corpus rather than two corpora that
+    agree until a symlink separates them — which is pinned by
+    `test_the_two_gates_walk_THE_SAME_CORPUS`.
+
+    The returned paths are `repo_root / openspec / changes / <id> / proposal.md`
+    UNRESOLVED, so `proposal.parent.name` is still the change id.
+    """
+    return _code_surface()._proposals(repo_root, archived=False)
+
+
+def validate_corpus(repo_root: Path,
+                    register: Sequence[Mapping[str, object]] = sg.NO_REGISTER
+                    ) -> int:
+    try:
+        proposals = _active_proposals(repo_root)
+    except Exception as exc:  # reported as a finding, never traced
+        # THE GUARD IS NOT OPTIONAL, SO ITS ABSENCE REFUSES. Scanning on with a
+        # bare `is_file()` walk would be a fail-closed silently becoming a
+        # fail-open — the precise thing the register resolution below refuses to
+        # do — so a sibling that cannot be loaded stops the scan and says what
+        # to copy, in this CLI's own "CANNOT RUN … exit 2" shape.
+        print("scope_globs validation CANNOT RUN:")
+        print(f"  - the corpus walk is guarded by the sibling module "
+              f"`code_surface` (its anchored `_unescaped` path check), and it "
+              f"could not be loaded: {exc}. Copy `scripts/code_surface.py` "
+              f"beside this validator. The scan does NOT fall back to an "
+              f"unguarded walk: a symlinked proposal or change directory would "
+              f"then supply a `code_surface:` declaration, and a register "
+              f"match, from bytes outside the tree being judged")
+        return 2
     problems: list[str] = []
-    if changes.is_dir():
-        for change_dir in sorted(changes.iterdir()):
-            if not change_dir.is_dir() or change_dir.name == "archive":
-                continue
-            proposal = change_dir / "proposal.md"
-            if not proposal.is_file():
-                continue
-            for problem in _validate_change(proposal):
-                problems.append(f"{change_dir.name}: {problem}")
+    for proposal in proposals:
+        for problem in _validate_change(proposal, register):
+            problems.append(f"{proposal.parent.name}: {problem}")
     if problems:
         print("scope_globs validation FAILED:")
         for p in problems:
@@ -135,6 +337,10 @@ def main(argv: list[str] | None = None) -> int:
                         help="run the scope-retention freeze gate on one change dir")
     parser.add_argument("--ratified-ref", metavar="REF",
                         help="git ref carrying the ratified proposal (with --archive-gate)")
+    parser.add_argument("--code-surface-register", metavar="PATH", default=None,
+                        help="code-surface register for the scanned tree "
+                             "(default: REPO_ROOT/scripts/"
+                             "code-surface-register.yaml when it exists)")
     args = parser.parse_args(argv)
 
     if args.archive_gate:
@@ -142,7 +348,81 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("--archive-gate requires --ratified-ref")
         return _archive_gate(Path(args.archive_gate), args.ratified_ref)
 
-    return validate_corpus(Path(args.repo_root))
+    repo_root = Path(args.repo_root)
+    # NEVER `None`. `None` is the derivation's instruction to load the register
+    # beside the IMPORTED MODULE, which is the scanned tree's register only when
+    # the scanned tree is this one; the ABSENCE of a register is `NO_REGISTER`,
+    # a value that says so and cannot be mistaken for the other fact.
+    register: Sequence[Mapping[str, object]] = sg.NO_REGISTER
+    if args.code_surface_register:
+        # NAMED BY AN OPERATOR, SO A FAILURE IS A REFUSAL AND NOT A FALLBACK.
+        try:
+            register = _load_code_surface_register(
+                Path(args.code_surface_register))
+        except Exception as exc:  # reported as a finding, never traced
+            print("scope_globs validation CANNOT RUN:")
+            print(f"  - the code-surface register "
+                  f"{args.code_surface_register} cannot be used: {exc}")
+            return 2
+    else:
+        default = repo_root / "scripts" / "code-surface-register.yaml"
+        # PRESENT IN ANY FORM, OR REACHED THROUGH A SYMLINK AT ALL — THE TWO
+        # QUESTIONS `is_file()` DOES NOT ASK.
+        # `Path.is_file()` FOLLOWS THE LINK and answers only "a regular file
+        # is readable at the end of this path", so it reads a DANGLING SYMLINK
+        # and a DIRECTORY at the register's own name as ABSENT, and the scan
+        # went on with `NO_REGISTER` — the value that says NO ENTRY TOLERATES
+        # ANYTHING — about a tree that plainly carries something there. Both
+        # shapes are `load_register` REFUSALS (the link at the leaf is refused
+        # UNREAD by its symlink guard, which runs before any `is_file()` or
+        # `read_text()`; the directory by that same `is_file()` check inside
+        # it), and a refusal reported as a judgment is the fail-closed this
+        # module refuses elsewhere: whether an entry tolerates a declaration
+        # is UNKNOWN when nothing could be read, never `no`.
+        #
+        # THE LEAF ALONE STILL MISSED ONE, AND IT IS THE SAME DEFECT ONE LEVEL
+        # UP: a SYMLINKED ANCESTOR with nothing at the leaf — `REPO_ROOT/
+        # scripts` a link to a directory that does not carry the register —
+        # is false for `is_symlink()` and for `exists()` alike, so the scan
+        # called ABSENT a path the reader REFUSES (its symlink guard covers
+        # every directory between the register and the top), and the same path
+        # named on `--code-surface-register` exited 2 where the default exited
+        # 1. `_default_register_goes_to_the_reader` asks the ancestry with the
+        # LOADER'S OWN climb before asking the leaf, so the two paths have ONE
+        # boundary rather than two, which is what the parity documented above
+        # claims. Deciding the shape here would still be a SECOND, weaker copy
+        # of `load_register`'s rules; the probe's whole job is to tell ABSENT
+        # from PRESENT-OR-REACHED-THROUGH-A-LINK and to leave usability to the
+        # reader that owns it.
+        if _default_register_goes_to_the_reader(default):
+            # UNNAMED BUT PRESENT, AND A PRESENT REGISTER THAT CANNOT BE USED
+            # REFUSES — the named flag's semantics, because the file is the
+            # SCANNED TREE'S OWN artifact whether or not an operator typed its
+            # path, and `code_surface.load_register` rules it in terms: "a
+            # register that cannot be used REFUSES rather than being ignored".
+            # The wording this replaced said a fallback here could not turn a
+            # fail-closed into a fail-open; it could, in the direction nobody
+            # had measured — the fallback is the register BESIDE THIS
+            # VALIDATOR, so a tree whose own exception file is unreadable was
+            # judged against another tree's exceptions, and told its
+            # declaration is tolerated by an entry it does not carry.
+            try:
+                register = _load_code_surface_register(default)
+            except Exception as exc:  # reported as a finding, never traced
+                print("scope_globs validation CANNOT RUN:")
+                print(f"  - the scanned tree's code-surface register "
+                      f"{default} cannot be used: {exc}. The scan does NOT "
+                      f"fall back to the register beside this validator: the "
+                      f"tree would then be judged against another tree's "
+                      f"exceptions. Whether an entry tolerates a declaration "
+                      f"here is UNKNOWN, not `no`, until this file reads")
+                return 2
+        # ABSENT — nothing at that path in any form, which is the only case
+        # left: `NO_REGISTER` stands. No entry tolerates anything, an
+        # unreadable head is refused as UNREGISTERED, and the register beside
+        # this validator is never consulted about a tree that is not its own.
+
+    return validate_corpus(repo_root, register)
 
 
 if __name__ == "__main__":
