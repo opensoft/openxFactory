@@ -35,16 +35,26 @@ new answer was PROVEN to fail against `git show
 origin/main:scripts/validate-carve-manifest.py` and to pass against this one.
 
 THE REAL-REPOSITORY TEST IS THE § 8.2 SEAT AND IT DOES NOT SKIP.
-`docs/opendox-carve-manifest.yaml` does not exist yet — the § 6 ceremony
-authors it at the carve commit, AFTER this validator lands — so today the
-validator's seat-holding branch answers and the test asserts exit 0 with the
-`NO MANIFEST` line. The moment the manifest lands, the same test asserts exit 0
-with the `OK` line instead, and from then on a file that changes on `main`
-between the manifest and the move reds this suite as a `carve-digest-mismatch`,
-which is the intended pressure of the ceremony rather than a defect in it. It
-is a BRANCH and never a `pytest.skip`: a skip reports as a green bar, which is
-indistinguishable from a pass to every reader — and `pytest-suite.yml` pins the
-skip count exactly, so a conditional skip here would red the required job.
+`docs/opendox-carve-manifest.yaml` is authored by the § 6 ceremony at the
+carve commit, AFTER this validator lands: before it the seat-holding branch
+answered and the test asserted exit 0 with the `NO MANIFEST` line, and since it
+landed the same test asserts exit 0 with the `OK` line instead — and from then
+on a file that changes on `main` between the manifest and the move reds this
+suite as a `carve-digest-mismatch`, which is the intended pressure of the
+ceremony rather than a defect in it. It is a BRANCH and never a `pytest.skip`:
+a skip reports as a green bar, which is indistinguishable from a pass to every
+reader — and `pytest-suite.yml` pins the skip count exactly, so a conditional
+skip here would red the required job.
+
+THE FIVE TESTS THAT READ THE LANDED DOCUMENT NO LONGER BRANCH AT ALL (amended
+on a Copilot finding, `#1030`). They had taken the seat too — `if not
+manifest.is_file(): assert True; return` — and `assert True` REPORTS A PASS,
+the same green bar the paragraph above refuses a skip for, so a checkout that
+lost the file turned five pins on the landed document into five no-ops. They
+read it through `the_landed_manifest()`, where the absence is a FAILURE: those
+tests are about the document's contents, and there is no revision they can run
+at without it. The seat test is the only absent-manifest arm left in this
+module, and it must be — the absence is that test's own subject.
 
 Hermetic: no network and no `nlm`/`gh`/`omp` (`tests/hermeticity.py`'s guarded
 set); `git` is not guarded, and the environment it reads is PINNED rather than
@@ -2210,12 +2220,70 @@ def test_the_phase_is_the_manifests_and_not_a_command_line_flag() -> None:
 # the real repository — the § 8.2 seat
 # --------------------------------------------------------------------------
 
+def the_landed_manifest() -> tuple[str, dict[str, Any]]:
+    """The committed manifest's TEXT and document — and a failure if it is gone.
+
+    THE SEAT-HOLDING BRANCH HAS OUTLIVED ITS REASON (Copilot review, this pull
+    request). The module docstring's `if not manifest.is_file()` was written
+    while `docs/opendox-carve-manifest.yaml` did not exist — the § 6 ceremony
+    authors it at the carve commit, AFTER the validator lands — so every
+    assertion about its contents had to hold a seat until then. The ceremony
+    has happened: the manifest is committed, and there is no revision these
+    tests can run at where it is absent. What the seat had degraded into is
+    `assert True`, which REPORTS A PASS, so a checkout that lost the file
+    turned five pins on the landed document into five green no-ops. A green
+    bar that means "the check did not run" is the one thing this floor exists
+    to refuse, and these five are the tests that read the real document.
+
+    `test_the_real_repository_answers_at_the_ruled_path` below still branches,
+    and must: the absence is that test's own subject, and it answers it by
+    asserting the validator's `NO MANIFEST` line rather than by asserting
+    nothing.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    assert manifest.is_file(), (
+        f"{MODULE.MANIFEST_RELPATH} is not in this checkout. It landed at the "
+        "carve commit, and every assertion in this test is about its "
+        "contents: its absence is a FAILURE, not a seat to hold.")
+    text = manifest.read_text(encoding="utf-8")
+    return text, yaml.safe_load(text)
+
+
+def dict_literal_keys(path: Path, name: str) -> list[str]:
+    """Every key of the module-level dict literal `name`, in source order and
+    WITH ITS DUPLICATES, which the imported object can no longer report — a
+    dict literal collapses a repeated key at import and keeps the last value.
+    Read with `ast`, the same way `test_every_code_the_validator_can_emit_is_
+    in_the_vocabulary` reads the validator's own source.
+    """
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    for node in tree.body:
+        if isinstance(node, ast.AnnAssign):
+            target = node.target
+        elif isinstance(node, ast.Assign) and len(node.targets) == 1:
+            target = node.targets[0]
+        else:
+            continue
+        if not (isinstance(target, ast.Name) and target.id == name):
+            continue
+        assert isinstance(node.value, ast.Dict), ast.dump(node.value)
+        keys = [key.value for key in node.value.keys
+                if isinstance(key, ast.Constant) and isinstance(key.value, str)]
+        # `**other` and a computed key both arrive as a key node this walk
+        # cannot read, and either one would let entries escape the count.
+        assert len(keys) == len(node.value.keys), (name, len(node.value.keys))
+        return keys
+    raise AssertionError(f"{name} is not a module-level assignment in {path}")
+
+
 def test_the_real_repository_answers_at_the_ruled_path() -> None:
     """The documented invocation, from the repository root, with no arguments.
 
-    A BRANCH and never a skip: see the module docstring. Today the manifest
-    does not exist and the seat-holding line answers; once the § 6 ceremony
-    lands it at the carve commit, the same call must print `OK`.
+    A BRANCH and never a skip: see the module docstring. The § 6 ceremony has
+    landed the manifest at the carve commit, so the call prints `OK` today and
+    the seat-holding line is what answered before it. This is the ONE
+    absent-manifest arm left in this module; everywhere else the absence is a
+    failure (`the_landed_manifest()`).
     """
     done = subprocess.run([sys.executable, str(SCRIPT)], cwd=str(REPO_ROOT),
                           capture_output=True, text=True, check=False)
@@ -2521,9 +2589,8 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     The two rows the ruling names, read out of the real document: a moved row
     that is ALSO replicated at `openxdox_code`, and a replica row declaring the
-    one line its copies must differ on. A BRANCH and never a skip, on the
-    module docstring's reasoning — before the § 6 ceremony there is no manifest
-    to read.
+    one line its copies must differ on. The manifest is REQUIRED and not
+    branched on: see `the_landed_manifest()`.
 
     Also carries RULED Q-L1's own per-row contract for the two rows S2 (RULED
     Q5, `#656` comment 5642758731) annotated, added on Copilot review of PR
@@ -2531,11 +2598,7 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     if those three lines had landed on the wrong row or under the wrong edit
     class, so the exact row/disposition/class/lines are pinned here too.
     """
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    _text, doc = the_landed_manifest()
     rows = {row["source_path"]: row for row in doc["rows"]}
 
     moved = rows["tests/ideation-dashboard/session_fixtures.py"]
@@ -2910,17 +2973,36 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     whatever the row already carried — sixteen of these rows were already
     `moved_with_declared_edit` from S1-S6 and seventeen are converted here — and
     a tail read positionally is a claim about ORDER too, which matching on prose
-    would not be. A BRANCH and never a skip, on the module docstring's reasoning.
+    would not be. The manifest is REQUIRED and not branched on: see
+    `the_landed_manifest()`.
     """
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    _text, doc = the_landed_manifest()
     rows = {row["source_path"]: row for row in doc["rows"]}
 
     # 1. EVERY ROW IN THE WINDOW, by disposition, destination and tail.
-    assert len(S7_WINDOW) == 33, len(S7_WINDOW)
+    #
+    # THE COUNT IS READ OFF THE TABLE'S OWN SOURCE FIRST, because `S7_WINDOW`
+    # is a dict LITERAL and a dict literal collapses a repeated key at import,
+    # keeping the last value (Copilot review, this pull request). A second
+    # entry for a path already in the table is therefore invisible to every
+    # assertion below — the imported object is byte-identical to the table the
+    # author meant — and `len(S7_WINDOW) == 33` counts the SURVIVORS, so it is
+    # a claim about the collapsed dict rather than about the 33 rows this act
+    # declares. The duplicate survives in exactly one place, the text of the
+    # literal, which is where it is now read: 33 key nodes, all distinct, and
+    # the same set the imported table carries. That last line is what makes
+    # the source read evidence about THIS table rather than about a copy of it
+    # — a separately typed list of the same 33 paths would be a second
+    # transcription, changed by the same hand in the same commit.
+    #
+    # `S7_CONVERTED` needs no such read and gets none: a LIST keeps its
+    # duplicates, so § 2's `len(set(...)) == 17` sees them at run time.
+    declared = dict_literal_keys(Path(__file__).resolve(), "S7_WINDOW")
+    assert len(set(declared)) == len(declared), sorted(
+        path for path in declared if declared.count(path) > 1)
+    assert len(declared) == 33, len(declared)
+    assert set(declared) == set(S7_WINDOW), \
+        set(declared) ^ set(S7_WINDOW)
     for source_path, entries in S7_WINDOW.items():
         row = rows[source_path]
         assert row["disposition"] == "moved_with_declared_edit", row
@@ -2997,14 +3079,9 @@ def test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines(
     THE HEADER IS ASSERTED TOO, because a form nobody can find in the document
     that carries it is a form the next author re-invents: the ruling, the field
     and the citation requirement are all read out of the manifest's own prose.
-    A BRANCH and never a skip, on the module docstring's reasoning.
+    The manifest is REQUIRED and not branched on: see `the_landed_manifest()`.
     """
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    text = manifest.read_text(encoding="utf-8")
-    doc = yaml.safe_load(text)
+    text, doc = the_landed_manifest()
 
     re_destined = [row for row in doc["rows"] if "re_destined" in row]
     assert [row["source_path"] for row in re_destined] == [
@@ -3062,11 +3139,7 @@ def test_carved_reach_resolves_the_four_re_destined_rows_at_their_arrival() -> N
     moved, and only the legs a ruling actually moved them between can answer
     what `source()` names now.
     """
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    _text, doc = the_landed_manifest()
     re_destined = [row for row in doc["rows"] if "re_destined" in row]
     assert len(re_destined) == 4, re_destined  # the same four, guarded again
 
@@ -3310,14 +3383,10 @@ def test_the_real_manifests_declared_lines_are_the_floors_lines() -> None:
     Read as a CENSUS and not as two spot checks: every row is measured, and the
     set whose two numberings disagree must be exactly the three the leg-3 memo
     names — one of which declares no line and so owed no leg anything. A fourth
-    would be a row whose declarations nobody has checked. A BRANCH and never a
-    skip, on the module docstring's reasoning.
+    would be a row whose declarations nobody has checked. The manifest is
+    REQUIRED and not branched on: see `the_landed_manifest()`.
     """
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    _text, doc = the_landed_manifest()
     commit = doc["carve_commit"]
 
     def blob(path: str) -> bytes:
