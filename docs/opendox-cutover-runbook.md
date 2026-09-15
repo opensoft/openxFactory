@@ -157,11 +157,9 @@ own `edits[]`, and that row has carried `edits:` since slice S5, so neither
 disposition count nor the carrier count moves with it — and the two rows the
 same act RETIRES move no figure here at all, because `retired:` touches no
 `edits[]` and a retirement is a fact about a DESTINATION. **The
-per-destination table below is not moved by this act**, deliberately: its
-four `declared edit lines` cells already sum to 1421, the figure before slice
-S5's +162, so adding this act's +177 to a stale cell would state a number
-that is neither the old one nor the measured one. Slices S7 and S8 are in
-flight over those same cells and ONE act should redistribute them.
+per-destination table below is not moved by this act either**, deliberately,
+and that table's own lead sentence says why — stated once, where the operator
+who reads those cells will read it.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
