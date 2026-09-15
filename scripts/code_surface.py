@@ -348,13 +348,45 @@ class Head:
     is_none: bool
 
 
+#: THE TWO FINDING CLASSES, NAMED RATHER THAN INFERRED FROM THE TEXT.
+#:
+#: `scan` reports two different facts in one list and they call for two
+#: different remedies. OFF_GRAMMAR: the document was READ, it carries a
+#: declaration, and that declaration's head is one the grammar does not admit —
+#: the author re-punctuates it. UNREADABLE: the document could not be read AT
+#: ALL (a strict-loader refusal, bytes that are not UTF-8, an I/O failure, a
+#: field declared twice), so NOTHING IS KNOWN about what it declares — the
+#: author makes the document readable, and no statement about its declaration
+#: is available until they do.
+#:
+#: CARRIED AS A FIELD BECAUSE A CONSUMER MUST NOT HAVE TO GUESS. The classes
+#: were previously distinguishable only by `declaration` being the sentinel
+#: string `<unreadable>`, which is a text a real declaration could carry and
+#: which no caller was told to look for — and a caller that did not look
+#: (`validate-code-surface.py`'s same-event cross-reference) merged the two and
+#: told an author to re-register text nobody can read.
+OFF_GRAMMAR = "off-grammar"
+UNREADABLE = "unreadable"
+
+#: What `declaration` holds when the document could not be read at all.
+UNREADABLE_DECLARATION = "<unreadable>"
+
+
 @dataclass(frozen=True)
 class Finding:
-    """One active declaration whose head the grammar does not admit."""
+    """One active proposal this gate refuses, and WHY IT REFUSES IT.
+
+    `kind` is `OFF_GRAMMAR` (a declaration was read and its head is not
+    admitted) or `UNREADABLE` (the document could not be read, so no
+    declaration was obtained). It defaults to `OFF_GRAMMAR`, the class that
+    existed alone when this was introduced, so an existing constructor keeps
+    its meaning; both call sites pass it explicitly.
+    """
     change: str
     path: str
     declaration: str
     detail: str
+    kind: str = OFF_GRAMMAR
 
 
 @dataclass(frozen=True)
@@ -789,8 +821,9 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
             present, text = declaration(proposal)
         except CodeSurfaceError as exc:
             findings.append(Finding(
-                change, rel, "<unreadable>",
-                f"its front matter cannot be read — {exc}"))
+                change, rel, UNREADABLE_DECLARATION,
+                f"its front matter cannot be read — {exc}",
+                kind=UNREADABLE))
             continue
         if not present:
             continue  # the promoted default; declaring nothing declares it
@@ -804,7 +837,8 @@ def scan(repo_root: Path, register: list[dict] | None = None) -> Report:
                 matched.add(key)
                 registered.append((change, covered[key]["class"]))
                 continue
-            findings.append(Finding(change, rel, _excerpt(text), str(exc)))
+            findings.append(Finding(change, rel, _excerpt(text), str(exc),
+                                    kind=OFF_GRAMMAR))
             continue
         if head.is_none:
             inside_none += 1

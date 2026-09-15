@@ -52,6 +52,17 @@ Usage:
     entry in the same act) or to re-register the new text (an entry AND its
     baseline pair, in one diff), never to delete the stale entry alone.
 
+    THAT LINK IS DRAWN ONLY FOR AN OFF-GRAMMAR FINDING. A finding also stands
+    for a proposal that could not be READ at all (a strict-loader refusal,
+    bytes that are not UTF-8, an I/O failure), and a stale entry beside one of
+    those is a THIRD case with its own line: the entry shows as stale only
+    because the declaration it was granted for could not be fetched to compare
+    against, so whether the declaration changed is UNKNOWN rather than
+    answered. Neither half of the remedy above applies — there is nothing to
+    conform and nothing readable to re-register — and deleting the entry would
+    retire an exception on evidence nobody has. The document is made readable
+    first, and the entry's status becomes decidable only then.
+
     --register PATH
         Read the register from PATH instead of from
         `scripts/code-surface-register.yaml`. The pytest gate runs this
@@ -117,8 +128,22 @@ def main(argv: list[str] | None = None) -> int:
     # appending the new text to the register, is the closed-register violation
     # the baseline refuses. So the link is drawn explicitly, BEFORE either
     # block, and it names both halves of the remedy and the one that is not.
-    same_event = sorted(
-        set(report.stale_changes) & {f.change for f in report.findings})
+    #
+    # KEYED ON THE FINDING'S CLASS AS WELL AS ITS CHANGE, because `findings`
+    # carries TWO classes and only one of them is this event. An UNREADABLE
+    # proposal (a strict-loader refusal, bytes that are not UTF-8, an I/O
+    # failure) yields a finding too, and keyed on the change id alone a stale
+    # entry beside one was reported as "the declaration was edited without
+    # being brought into the grammar" — advising an author to conform or
+    # RE-REGISTER TEXT NOBODY CAN READ. Worse, the claim is not merely unhelpful
+    # but unfounded: nothing was read, so whether the declaration changed at all
+    # is UNKNOWN. That case gets its own line, below, saying exactly that.
+    off_grammar = {f.change for f in report.findings
+                   if f.kind == cs.OFF_GRAMMAR}
+    unreadable = {f.change for f in report.findings if f.kind == cs.UNREADABLE}
+    stale_changes = set(report.stale_changes)
+
+    same_event = sorted(stale_changes & off_grammar)
     if same_event:
         print("code_surface: the two reports below name the SAME CHANGE — one "
               "event, not two:")
@@ -130,6 +155,27 @@ def main(argv: list[str] | None = None) -> int:
                   f"RE-REGISTER the new text (an entry AND its baseline pair, "
                   f"in one reviewable diff). Do NOT just delete the entry: "
                   f"that leaves the finding standing.")
+
+    # THE UNREADABLE CASE IS A DIFFERENT EVENT AND SAYS SO. The entry shows as
+    # stale ONLY because the text it was granted for could not be fetched to
+    # compare against; that is not evidence the declaration was edited, and the
+    # remedy is neither half of the one above. Ordered AFTER the same-event
+    # block so a run reporting both keeps the actionable edit first.
+    unreadable_stale = sorted(stale_changes & unreadable)
+    if unreadable_stale:
+        print("code_surface: a register entry below names a change whose "
+              "proposal CANNOT BE READ — a THIRD case, and not the one above:")
+        for change in unreadable_stale:
+            print(f"  - {change}: the entry shows as stale ONLY because the "
+                  f"declaration it was granted for could not be fetched to "
+                  f"compare against — the document does not read at all. "
+                  f"WHETHER THE DECLARATION CHANGED IS UNKNOWN, not answered, "
+                  f"so this is NOT the edited-declaration event: do not "
+                  f"conform, and do not RE-REGISTER text no reader can read. "
+                  f"MAKE THE DOCUMENT READABLE FIRST — the finding below names "
+                  f"the defect — and the entry's status is decidable only "
+                  f"then. Deleting the entry now would retire an exception on "
+                  f"evidence nobody has.")
 
     if report.stale:
         print("code_surface register entries matched NOTHING (stale):")

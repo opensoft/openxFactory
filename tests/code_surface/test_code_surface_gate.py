@@ -898,6 +898,136 @@ def test_two_DIFFERENT_changes_are_NOT_cross_referenced(tmp_path):
     assert "validation FAILED" in result.stdout
 
 
+# --- ...AND THE SAME-EVENT LINK IS KEYED ON THE FINDING'S CLASS ---------------
+#
+# `Report.findings` carries TWO classes: OFF_GRAMMAR (the document was read and
+# its head is not admitted) and UNREADABLE (the document did not read at all --
+# a strict-loader refusal, non-UTF-8 bytes, an I/O failure). Only the first can
+# be the edited-declaration event. Keyed on the change id alone, a stale entry
+# beside an UNREADABLE proposal was reported as "the declaration was edited
+# without being brought into the grammar", which told an author to conform or
+# RE-REGISTER text nobody can read -- and the claim is not merely unhelpful but
+# unfounded, because nothing was read and whether the declaration changed at
+# all is UNKNOWN.
+
+
+def _unreadable_proposal(root: Path, change: str) -> Path:
+    """A proposal whose BYTES are not UTF-8, so the strict loader refuses it and
+    `declaration()` raises -- the UNREADABLE finding class, reached the way a
+    real one is reached rather than by constructing a `Finding` by hand."""
+    folder = root / "openspec" / "changes" / change
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / "proposal.md"
+    path.write_bytes(b"---\ncode_surface: \xff\xfe\n---\n\n# Proposal\n")
+    return path
+
+
+def test_the_finding_KIND_is_CARRIED_and_never_inferred_from_the_text(tmp_path):
+    """The classes are a FIELD, not a guess. Read straight off `scan`, because
+    the CLI behaviour below is only as sound as this distinction is."""
+    _proposal(tmp_path, "readable", "code_surface: openxFactory's half")
+    _unreadable_proposal(tmp_path, "broken")
+    report = cs.scan(tmp_path, cs.load_register(_register(tmp_path)))
+    assert {f.change: f.kind for f in report.findings} == {
+        "readable": cs.OFF_GRAMMAR, "broken": cs.UNREADABLE}
+
+
+def test_a_DECLARATION_whose_text_IS_the_sentinel_is_still_OFF_GRAMMAR(
+        tmp_path):
+    """WHY THE CLASS IS A FIELD AND NOT THE SENTINEL STRING. `<unreadable>` is
+    a text a real declaration CAN carry, and it reaches `_excerpt` unchanged --
+    so a consumer keying on `declaration == "<unreadable>"` would classify a
+    document it READ as one it could not read, and give the wrong remedy in the
+    one direction nothing else would catch. Keyed on `kind` it is what it is:
+    the ordinary edited-declaration event."""
+    _proposal(tmp_path, "c", "code_surface: <unreadable>")
+    report = cs.scan(tmp_path, cs.load_register(_register(tmp_path)))
+    assert [f.declaration for f in report.findings] == [
+        cs.UNREADABLE_DECLARATION]                        # the TEXT collides...
+    assert [f.kind for f in report.findings] == [cs.OFF_GRAMMAR]  # ...not the CLASS
+    result = _run(tmp_path, _register(
+        tmp_path, _entry_text("c", "openxFactory, and it is the OLD text")))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "SAME CHANGE" in result.stdout
+    assert "CANNOT BE READ" not in result.stdout
+
+
+def test_a_stale_entry_beside_an_UNREADABLE_proposal_is_NOT_the_edited_event(
+        tmp_path):
+    """THE DEFECT. A registered change whose proposal has become unreadable,
+    its entry left standing. Before, this printed "one event, not two" and told
+    the author to CONFORM or RE-REGISTER a declaration nobody can read."""
+    _unreadable_proposal(tmp_path, "c")
+    result = _run(tmp_path, _register(
+        tmp_path, _entry_text("c", "openxFactory, and it is the OLD text")))
+    assert result.returncode == 1, result.stdout + result.stderr
+    # the edited-declaration event is NOT claimed...
+    assert "SAME CHANGE" not in result.stdout
+    assert "one event, not two" not in result.stdout
+    assert "CONFORM THE DECLARATION" not in result.stdout
+    assert "RE-REGISTER the new text" not in result.stdout
+    # ...and the fact that IS true is stated in its place
+    assert "CANNOT BE READ" in result.stdout
+    assert "WHETHER THE DECLARATION CHANGED IS UNKNOWN" in result.stdout
+    assert "do not RE-REGISTER text no reader can read" in result.stdout
+    assert "MAKE THE DOCUMENT READABLE FIRST" in result.stdout
+    # both asymmetric blocks still print beneath it, unchanged
+    assert "matched NOTHING (stale)" in result.stdout
+    assert "validation FAILED" in result.stdout
+
+
+def test_the_unreadable_cross_reference_WARNS_OFF_DELETING_THE_ENTRY(tmp_path):
+    """The stale block's own advice -- "delete the entry: the exception
+    outlived its condition" -- is exactly what must NOT be done here, because
+    the condition was never observed. The cross-reference says so, so the two
+    lines cannot be read as agreeing."""
+    _unreadable_proposal(tmp_path, "c")
+    result = _run(tmp_path, _register(
+        tmp_path, _entry_text("c", "openxFactory, and it is the OLD text")))
+    assert ("Deleting the entry now would retire an exception on evidence "
+            "nobody has") in result.stdout
+    assert ("delete the entry: the exception outlived its condition"
+            in result.stdout)                  # the generic line still prints
+
+
+def test_an_UNREADABLE_proposal_with_NO_stale_entry_draws_NO_cross_reference(
+        tmp_path):
+    """The cross-reference is drawn only where a register entry is involved.
+    An unreadable proposal on its own is one fact and stays one."""
+    _unreadable_proposal(tmp_path, "c")
+    result = _run(tmp_path, _register(tmp_path))
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "SAME CHANGE" not in result.stdout
+    assert "CANNOT BE READ" not in result.stdout
+    assert "validation FAILED" in result.stdout
+
+
+def test_BOTH_cross_references_at_once_stay_TWO_DISTINCT_EVENTS(tmp_path):
+    """One change edited off-grammar, another unreadable, each with its own
+    stale entry. The blocks stay separate, each names only its own change, and
+    the edited one comes first because it is the actionable one."""
+    _proposal(tmp_path, "edited", "code_surface: openxFactory, and it is EDITED")
+    _unreadable_proposal(tmp_path, "broken")
+    register = tmp_path / "register.yaml"
+    register.write_text(yaml.safe_dump({"register": [
+        {"change": ch, "declaration": "openxFactory, the OLD text of " + ch,
+         "class": "list-runs-into-prose", "why": "a reason",
+         "cited_to": ["a document section"], "retires_when": "an event"}
+        for ch in ("edited", "broken")]}, sort_keys=False, allow_unicode=True,
+        width=10_000), encoding="utf-8")
+    result = _run(tmp_path, register)
+    assert result.returncode == 1, result.stdout + result.stderr
+    edited_line = result.stdout.split("SAME CHANGE")[1].splitlines()[1]
+    unread_line = result.stdout.split("CANNOT BE READ")[1].splitlines()[1]
+    # each block names ITS OWN change and not the other; matched on the
+    # `  - <id>:` prefix rather than on the bare word, because the unreadable
+    # block's own prose contains "edited-declaration event" by design.
+    assert edited_line.startswith("  - edited:") and "broken:" not in edited_line
+    assert unread_line.startswith("  - broken:") and "edited:" not in unread_line
+    assert (result.stdout.index("SAME CHANGE")
+            < result.stdout.index("CANNOT BE READ"))
+
+
 def test_the_corpus_moves_between_drafting_and_landing(tmp_path):
     """THE REGISTER REQUIREMENT'S THIRD SCENARIO, PINNED AS ITS OWN SHAPE.
 
