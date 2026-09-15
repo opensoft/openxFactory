@@ -501,12 +501,13 @@ its own.>
   at the landing of the commit that performs it — one commit read and never a
   chain — by the arrival gate `add-declared-former-id` § 4 builds
   (`scripts/validate-former-id-arrival.py`, `former-id-undeclared`, exit 1, no
-  bypass flag). THE RULE IS CANON AND THE ENFORCEMENT IS NOT YET IN PLACE, AND
-  THE TWO ARE SAID SEPARATELY: as measured on 2026-09-14 that gate had not
-  landed on `main` (§ 4.1–4.4) and was named by no branch ruleset (§ 4.5, an
-  operator act, the live branch rules for `main` naming
-  `former-id-arrival-gate` nowhere), so until both are done an undeclared
-  arrival can still LAND — what stops one meanwhile is the archive refusal
+  bypass flag). THE RULE IS CANON AND THE ENFORCEMENT IS NOT YET REQUIRED, AND
+  THE TWO ARE SAID SEPARATELY: as measured on 2026-09-15 that gate HAS landed
+  on `main` and RUNS on every pull request (§ 4.1–4.4), and it is named by no
+  branch ruleset (§ 4.5, an operator act, the live branch rules for `main`
+  read that day naming `former-id-arrival-gate` nowhere), so until that act is
+  taken an undeclared arrival sees a red check beside a merge button that
+  works and can still LAND — what stops one meanwhile is the archive refusal
   above, `origin-retention-path-moved`, which reaches a single undeclared hop
   at the archive and never the landing, and which the multi-hop chain escapes
   entirely; renaming a DRAFT change, and a single commit that renames a draft
