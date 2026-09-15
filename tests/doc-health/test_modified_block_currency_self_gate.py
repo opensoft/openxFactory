@@ -968,7 +968,7 @@ _LEDGER_SUBJECTS = {
     # #1047, lane `openxfactory-2`), THE SUCCESSOR THE ARCHIVE ACT COULD NOT
     # PERFORM: the defect was surfaced by Copilot on the archive pull request
     # #1042 and RULED STANDS there, the sentence being ratified canon promoted
-    # BYTE-IDENTICAL and an archive act no place to edit the text it promotes.
+    # BYTE-IDENTICAL and an archive act has no place to edit the text it promotes.
     # A DELIBERATE SCOPING, and the narrowest the corpus admits: canon obliges
     # EVERY finding the pinned arm emits to name the root or roots it resolved
     # against, or failed to, and TWO of the realized arm's fifteen findings are
