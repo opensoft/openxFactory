@@ -2455,8 +2455,13 @@ def test_carved_reach_refuses_a_retired_row_by_name(
     down with it.
 
     The rows are a STUB rather than the landed manifest, for the reason every
-    other case in this file builds its own document: no row uses the form yet,
-    and a test that waited for one would be pinning nothing today.
+    other case in this file builds its own document: this case needs BOTH arms
+    in ONE sweep — a live row and a retired one — and control over which is
+    which, which no real document owes it. Since RULED 5656343213's first use
+    (PR #1043) the landed manifest DOES carry two retired rows, and they are
+    driven through this same reader by
+    `test_carved_reach_refuses_the_two_landed_retired_rows` in the § 8.2 seat:
+    this case holds the shape, that one holds the act.
     """
     import carved_reach
 
@@ -3595,7 +3600,8 @@ def test_the_real_manifest_carries_the_retirement_form_and_the_two_rows_it_retir
     # reason the ruling made this a FIELD — and `at`/`at_path` are the row's
     # EFFECTIVE arrival, which for these two is their own destination pair
     # because RULED Q6 never moved them.
-    # The EXISTING declaration of each row, by class and exact lines, because
+    #
+    # AND EACH ROW'S EXISTING DECLARATION, by class and exact lines, because
     # "untouched" is the claim and a non-empty `edits:` is not that claim: a
     # later act could rewrite either entry and a truthiness check would go on
     # passing. These two are the lines the LEG rewrote while the file was
@@ -3645,6 +3651,67 @@ def test_the_real_manifest_carries_the_retirement_form_and_the_two_rows_it_retir
         capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stdout + done.stderr
     assert json.loads(done.stdout)["retired"] == 2, done.stdout
+
+
+def test_carved_reach_refuses_the_two_landed_retired_rows() -> None:
+    """The THIRD reader of the form, against the LANDED rows this act retires.
+
+    The companion for RULED Q6 is
+    `test_carved_reach_resolves_the_four_re_destined_rows_at_their_arrival`
+    above; this is the retirement's, and the two are not the same assertion —
+    a re-destination moves an answer, a retirement REFUSES one, and the
+    failure this guards would be SILENT: `source()` can compute a perfectly
+    well-formed path for a retired row, because the row keeps every field the
+    carve wrote, and that path names a file the arrival verifier has just
+    finished proving absent.
+
+    IT NEEDS NO MATERIALIZED LEG, and that is asserted by being relied on:
+    `source()` refuses a retirement BEFORE it looks for a mount, so the
+    refusal holds in a checkout whose submodules were never initialized —
+    which is the state a retained consumer is most likely to be read in. The
+    stub case above (`test_carved_reach_refuses_a_retired_row_by_name`) drives
+    the same three callers on a generated document, where both arms can be
+    controlled; this one asks the real rows.
+
+    A BRANCH and never a skip, on the module docstring's reasoning.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    if not manifest.is_file():
+        assert True
+        return
+    import carved_reach as carved_reach_direct
+
+    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    retired = [row for row in doc["rows"] if "retired" in row]
+    assert len(retired) == 2, [row["source_path"] for row in retired]
+
+    for row in retired:
+        key = row["source_path"]
+        with pytest.raises(carved_reach_direct.CarveRowRetired) as caught:
+            carved_reach_direct.source(key)
+        # The sentence names the RULING and the SURFACE rather than the
+        # filename, because a caller reading it needs to know what replaced
+        # the thing it asked for, not that a path is missing.
+        assert "5656343213" in str(caught.value), caught.value
+        assert row["retired"]["surface"] in str(caught.value), caught.value
+        # A SUBCLASS: a caller that already handles "at no destination" needs
+        # no change on the day a row is first retired — which is today.
+        assert isinstance(caught.value,
+                          carved_reach_direct.ShedModuleHasNoDestination)
+        for call in (carved_reach_direct.module,
+                     carved_reach_direct.shed_relpath):
+            with pytest.raises(carved_reach_direct.CarveRowRetired):
+                call(key)
+
+    # AND A SWEEP DOES NOT GO DOWN WITH THEM. Both rows sit under
+    # `tests/ideation-dashboard/` beside a hundred rows that still arrive: the
+    # sweep omits these two and answers for the rest, which is the whole
+    # difference between naming a file (the caller's own mistake) and walking
+    # a tree (an incident of the walk).
+    swept = carved_reach_direct.sources_under("tests/ideation-dashboard/")
+    for row in retired:
+        assert row["source_path"] not in swept, row["source_path"]
+    assert len(swept) > 1, swept
 
 
 # --------------------------------------------------------------------------
