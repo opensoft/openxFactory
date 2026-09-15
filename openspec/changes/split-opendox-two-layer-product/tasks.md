@@ -953,13 +953,21 @@ the bookkeeping that ticks this group.
   arrived and **656** short of what the carve commit held. Everything after
   that is the arc itself (five files in before S5, six out with S5, one in
   with S7), which is why the arc-complete bundle is 40 hand-authored files
-  again at 31,953 lines. **FOUR other occurrences carry this figure and NONE is
-  edited here** — `design.md`:52 and :351 and `proposal.md`'s `code_surface:`
-  line each pair *"40 files"* with *"30,410"*, and `proposal.md`:208 carries
-  the line count alone (*"30,410 lines of front end"*) — because a ratified
-  document is amended by an act that CLAIMS it, and this box claims neither.
-  What it does is record the measurement, so the act that amends them does not
-  have to re-derive it.
+  again at 31,953 lines. **FOUR other occurrences in the packet's LIVE
+  documents carry this figure and NONE is edited here** — `design.md`:52 and
+  :351 and `proposal.md`'s `code_surface:` line each pair *"40 files"* with
+  *"30,410"*, and `proposal.md`:208 carries the line count alone (*"30,410
+  lines of front end"*) — because a ratified document is amended by an act that
+  CLAIMS it, and this box claims neither. What it does is record the
+  measurement, so the act that amends them does not have to re-derive it.
+  **A FIFTH occurrence is in the packet and is of a different kind**, named so
+  that a later reader who greps for `30,410` and finds five does not read it as
+  one this box missed: `review/ratification-2026-09-05.md`:549 quotes the
+  figure inside the residual question `design.md` § D3 left open AT
+  ratification. That file is a RECORD — `Status: ratified`, decision date
+  2026-09-05, ratified baseline `6935fb8b` — of what the packet said on the day
+  it was ratified, so no later act amends it, including the act that corrects
+  the four live ones.
 
   **What the arc did NOT close, named so no later reader takes the tick for
   more than it is** — every item is someone else's act under its own claim and
