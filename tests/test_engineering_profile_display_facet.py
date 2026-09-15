@@ -355,11 +355,19 @@ def test_no_two_roles_share_one_word_within_acts_or_areas():
 # --------------------------------------------------------------------------
 
 def test_display_and_route_extensions_ride_the_identical_registered_object():
-    """`opendox.view_extension.host_profile_name()` is not importable at this
-    repository's PINNED openDox commit (`a99eba03` predates even the module it
-    lives in), so this proves the property it will rely on using what IS
-    pinned: `opendox.domain_profile.name_of()`, already present at `a99eba03`
-    (`profile_proxy.py`'s own refusal message already quotes it).
+    """`opendox.view_extension.host_profile_name()` IS importable now — pin
+    lockstep #2 advanced this repository's pinned `code` leg to `1e469713`,
+    which carries `view_extension.py`. It did not used to be: the pin named
+    `a99eba03` (which predates the module entirely) and later `05bbde80`, and
+    this docstring said as much.
+
+    The assertion below deliberately does NOT switch to it. What this test
+    proves is a REGISTRY property — that both facets ride one registered
+    object — and `opendox.domain_profile.name_of()` reads the name off the
+    object already in hand, which is exactly that property.
+    `host_profile_name()` instead asks the registry for the CURRENT profile's
+    name, re-entering the very lookup under test. So the mechanism stays, and
+    what was a limitation is now a choice.
 
     `_LateProfile.resolve()` calls `domain_profile.current()` fresh on every
     attribute access (no cache) — so this asserts the registry hands back the
