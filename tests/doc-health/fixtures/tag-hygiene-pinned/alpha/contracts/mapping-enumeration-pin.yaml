@@ -1,0 +1,16 @@
+# FIXTURE pin record, not a pin. `tests/` is outside every pin-class
+# scan root and outside the governed corpus, so this file adds no pin
+# byte and makes no provenance claim: its values are shaped, not real.
+
+schema_version: 1
+kind: pinned_contract_manifest
+revision_kind: commit
+commit: 0123456789abcdef0123456789abcdef01234567
+submodule_path: productX
+files:
+- path: contracts/manifest.yaml
+  sha256: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+pinned_by_commit_only:
+- docs/README.md
+capabilities:
+  wallet-carve: true

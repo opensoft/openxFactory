@@ -926,7 +926,17 @@ def test_the_live_pin_carries_citations_and_every_in_tree_path_resolves(
     cheerful count, indistinguishable from one that opened something. This names
     the corpus fact instead — the live pin DOES carry citations that resolve
     here — so deleting the last one reds this test rather than quietly emptying
-    the assertion."""
+    the assertion.
+
+    RESOLVED BY IDENTITY, NOT BY RAW PATH — the same swap
+    `test_the_live_pin_registration_citations_still_resolve` below makes for
+    the same reason, restated here rather than left as a second, unmoved
+    assertion that would red the day one of this pin's four actively-cited
+    packets archives. An assertion written against `.exists()` breaks on
+    exactly the lawful act this slice exists to stop breaking; one written
+    against the resolver keeps its meaning on both sides of the relocation.
+    (Copilot `PRRT_kwDOTAvnrs6iTGJw`.)
+    """
     module = _load_checker()
     text = (REPO_ROOT / LIVE_PIN_PATH).read_text(encoding="utf-8")
     pin = yaml.safe_load(text)
@@ -939,8 +949,10 @@ def test_the_live_pin_carries_citations_and_every_in_tree_path_resolves(
                for kind, referent in module.read_citation(line, declared)
                if kind == "tree-path"]
     assert len(in_tree) >= 2, in_tree
-    missing = [p for p in in_tree if not (REPO_ROOT / p).exists()]
-    assert not missing, f"citations naming paths that are gone: {missing}"
+    unresolved = [referent for referent in in_tree
+                  if not module.packet_reference.resolve(
+                      REPO_ROOT, referent).ok]
+    assert not unresolved, f"citations that do not resolve: {unresolved}"
 
 
 def test_the_live_pins_citation_bytes_align_with_its_parsed_structure() -> None:
@@ -1267,7 +1279,18 @@ def test_a_citation_naming_a_directory_resolves(
 def test_a_citation_naming_a_path_that_is_gone_is_reported(
         tmp_path, monkeypatch, capsys) -> None:
     """#834's drift, reproduced: the citation is well formed, the disposition is
-    ratified and cited, and the path it names was renamed away."""
+    ratified and cited, and the path it names was renamed away.
+
+    THE REFUSAL IS UNCHANGED AND ITS WORDING IS NOT (`add-declared-former-id`
+    § 5.0). This referent ADDRESSES A PACKET, so it is now resolved by identity,
+    and the finding says which half failed instead of saying only that a path is
+    absent — which is strictly more than #834's reader knew: the id `prepare-
+    openspec-1.12-readiness` is itself gone, not merely a file under it, and a
+    reader repairing the citation needs to be told that rather than left to
+    discover it. Exit 1, the citation named, the row's OK line withheld and the
+    footnote sentence are all as they were; this assertion moved WITH the text
+    it asserts, and is not an assertion loosened to keep a suite green.
+    """
     module = _load_checker()
     manifest = _raw_case(tmp_path, [
         f"openspec/changes/prepare-openspec-1.12-readiness/evidence/measured.md "
@@ -1280,8 +1303,11 @@ def test_a_citation_naming_a_path_that_is_gone_is_reported(
     assert exit_code == 1, captured.out
     assert ("FAIL scratch-pin: dispositions[1] (a-declared-change) cites "
             "`openspec/changes/prepare-openspec-1.12-readiness/evidence/"
-            "measured.md`, but no such path is in this tree") in captured.out, (
-        captured.out)
+            "measured.md`, and the packet id "
+            "`prepare-openspec-1.12-readiness` resolves to NOTHING in this "
+            "tree") in captured.out, captured.out
+    assert "IDENTITY half of this reference is the half that failed" in (
+        captured.out), captured.out
     assert "a suppression with a footnote" in captured.out, captured.out
     # And the row's OK line is withheld: a row with a dangling citation does not
     # cohere, whatever its entrypoint does.
@@ -1925,3 +1951,254 @@ def test_a_block_scalar_is_recognised_by_yamls_key_spellings_not_one_houses(
     assert module.citation_lines_by_entry(
         text.replace("INV-2:", "a:b:")) == [
         (1, "first — one"), (1, "second — two")]
+
+
+# --------------------------------------------------------------------------
+# A citation is resolved BY IDENTITY — `add-declared-former-id` § 5.0
+#
+# THE CONSUMER IS NAMED, AND IT ALREADY EXISTS. § 5.0 puts it plainly: "Without
+# this task the resolver would be a reader with no caller." The arm above was
+# landed for issue #840 and resolves the RAW PATH, and the raw path is exactly
+# what the archive relocation moves — so on the tree this group was written
+# against, SIX of the live pin's seventeen in-tree referents point into FOUR
+# ACTIVE packets (`prepare-openspec-1-12-readiness` x2, `add-chain-attestation`,
+# `disposition-codexfactory-floor-relocation-retitle`, and
+# `disposition-codexfactory-regular-pr-council-clearance-archive` x2), and the
+# next of those four to archive would turn a lawful act into an exit-1 refusal
+# of a gate nobody touched. That is the dated failure this group prevents, and
+# it is a MEASUREMENT of this corpus rather than a hypothetical.
+#
+# WHAT IS ASSERTED HERE AND WHAT IS ASSERTED IN `tests/packet_reference/`. The
+# resolver's own four outcomes, their reports and their boundaries are that
+# suite's; what is asserted HERE is that this checker CALLS it, on the three
+# cases § 5.0 names by hand — an archived-by-id referent PASSES where the raw
+# path is gone, a referent qualified to another repository is STILL out of
+# scope, and a referent whose identity resolves but whose file does not STILL
+# refuses — plus the ambiguity the requirement will not let a reader settle, and
+# the live-corpus arm that stops the whole group going vacuous.
+# --------------------------------------------------------------------------
+
+def _packet_in(tmp_path: Path, rel: str, *, files=("proposal.md",),
+               former_ids=None) -> Path:
+    """One packet directory inside a `_case_with_citations` scratch tree.
+
+    Written here rather than shared with `tests/packet_reference/`: each
+    directory under `tests/` is self-contained in this suite (the reason
+    `pytest.ini` refuses a per-directory conftest, in its own words), and a
+    ten-line fixture builder is not the thing to break that over.
+    """
+    directory = tmp_path / rel
+    directory.mkdir(parents=True, exist_ok=True)
+    for name in files:
+        member = directory / name
+        member.parent.mkdir(parents=True, exist_ok=True)
+        member.write_text(f"# {name}\n", encoding="utf-8")
+    document: dict = {"schema": "spec-driven", "created": "2026-09-14"}
+    if former_ids is not None:
+        document["former_ids"] = list(former_ids)
+    (directory / ".openspec.yaml").write_text(
+        yaml.safe_dump(document, allow_unicode=True, sort_keys=False),
+        encoding="utf-8")
+    return directory
+
+
+def test_an_archived_by_id_referent_passes_where_the_raw_path_is_gone(
+        tmp_path, monkeypatch, capsys) -> None:
+    """§ 5.0's first named case, and the one the four active packets are
+    heading for. The citation names the ACTIVE path; the packet stands in the
+    archive under the same id; the checker passes and says the reference
+    resolved by identity, owing the citing record no edit."""
+    module = _load_checker()
+    _packet_in(tmp_path, "openspec/changes/archive/2026-09-01-add-a-landed-one",
+               files=("proposal.md", "evidence/run-2026-09-01.md"))
+    cited = "openspec/changes/add-a-landed-one/evidence/run-2026-09-01.md"
+    assert not (tmp_path / cited).exists(), "the raw path must really be gone"
+    manifest = _case_with_citations(
+        tmp_path, [f"{cited} {DASH} the measurement this entry rests on"])
+
+    assert _run_over(module, monkeypatch, tmp_path, manifest) == 0
+    out = capsys.readouterr().out
+    assert "every in-tree path resolves" in out, out
+    assert "resolve BY IDENTITY" in out, out
+    assert "owes the citing record no edit" in out, out
+    assert "FAIL" not in out, out
+
+
+def test_a_referent_qualified_to_another_repository_is_still_out_of_scope(
+        tmp_path, monkeypatch, capsys) -> None:
+    """§ 5.2, asserted where it is decided. A reference to another repository's
+    packet "is no evidence about that reference" on the tree being read, and the
+    reader that keeps it out of scope is `read_citation`'s `qualified` kind —
+    not the resolver, which holds no repository vocabulary at all.
+
+    SO THE RESOLVER IS NEVER ASKED, and that is asserted with a spy rather than
+    inferred from the exit code: a resolver consulted about a foreign path would
+    report it DANGLING (its own suite pins that), and the run would go red for a
+    packet this tree was never meant to carry.
+    """
+    module = _load_checker()
+    asked: list[str] = []
+    real = module.packet_reference.resolve
+    monkeypatch.setattr(module.packet_reference, "resolve",
+                        lambda root, claimed, **kw: (asked.append(claimed)
+                                                     or real(root, claimed, **kw)))
+    cited = "openspec/changes/add-somebody-elses/proposal.md"
+    manifest = _case_with_citations(
+        tmp_path, [f"codexFactory {cited} {DASH} their packet, not ours"],
+        repo="codexFactory")
+
+    assert _run_over(module, monkeypatch, tmp_path, manifest) == 0
+    out = capsys.readouterr().out
+    assert "1 a path qualified to another repository" in out, out
+    assert asked == [], asked
+
+
+def test_a_referent_whose_identity_resolves_but_whose_file_does_not_still_refuses(
+        tmp_path, monkeypatch, capsys) -> None:
+    """§ 5.0's third named case, and § 5.1a's whole point. Resolving the
+    identity alone would accept a citation to a file deleted, renamed or never
+    written, so the packet resolving is not enough — and the finding names the
+    FILE as the half that failed, not the packet."""
+    module = _load_checker()
+    _packet_in(tmp_path, "openspec/changes/archive/2026-09-02-add-a-landed-one",
+               files=("proposal.md",))
+    manifest = _case_with_citations(
+        tmp_path,
+        [f"openspec/changes/add-a-landed-one/evidence/gone.md {DASH} the run"])
+
+    assert _run_over(module, monkeypatch, tmp_path, manifest) == 1
+    out = capsys.readouterr().out
+    assert "FAIL scratch-pin: dispositions[1]" in out, out
+    assert "RESOLVES" in out, out
+    assert "FILE half of this reference is the half that failed" in out, out
+    assert "evidence/gone.md" in out, out
+
+
+def test_a_referent_whose_identity_resolves_nowhere_still_refuses(
+        tmp_path, monkeypatch, capsys) -> None:
+    """The other half of the same sentence, so the two are told apart in the
+    OUTPUT and not only in the resolver: an id that stands nowhere is the
+    IDENTITY half, and it is the one outcome of the four that is a defect of the
+    citing record. Issue #840's original refusal, still exit 1, now saying which
+    half went."""
+    module = _load_checker()
+    _packet_in(tmp_path, "openspec/changes/add-a-standing-one")
+    manifest = _case_with_citations(
+        tmp_path, [f"openspec/changes/add-a-ghost/tasks.md {DASH} the ruling"])
+
+    assert _run_over(module, monkeypatch, tmp_path, manifest) == 1
+    out = capsys.readouterr().out
+    assert "IDENTITY half of this reference is the half that failed" in out, out
+    assert "add-a-ghost" in out, out
+    assert "suppression with a footnote" in out, out
+
+
+def test_an_ambiguous_referent_is_refused_against_the_declaration(
+        tmp_path, monkeypatch, capsys) -> None:
+    """§ 5.2a, through the caller. The citing record is sound — the path it
+    names exists, exactly as written — and the reference is still refused,
+    because an id that resolves twice has no answer to give. The finding places
+    the repair where the requirement places it: on the DECLARATION that made one
+    identity resolve twice, and not on the record that cited it.
+
+    THE CLOSING SENTENCE NAMES NO SINGLE CAUSE, moved with the wording it
+    pins: two dated archive directories can make one identity resolve twice
+    with no declaration involved at all, so `_ambiguous_report` no longer
+    says "the declaration" unconditionally — it says a duplicate packet
+    location "as much as" a `former_ids:` declaration, and this fixture's own
+    declaring packet (`add-the-claimant`) is still named in the candidate list
+    either way. (Copilot `PRRT_kwDOTAvnrs6iTWy0`.)
+    """
+    module = _load_checker()
+    _packet_in(tmp_path, "openspec/changes/add-a-contested-id",
+               files=("proposal.md", "tasks.md"))
+    _packet_in(tmp_path, "openspec/changes/add-the-claimant",
+               former_ids=["add-a-contested-id"])
+    cited = "openspec/changes/add-a-contested-id/tasks.md"
+    assert (tmp_path / cited).exists(), "the citing record's own path is sound"
+    manifest = _case_with_citations(tmp_path, [f"{cited} {DASH} the ruling"])
+
+    assert _run_over(module, monkeypatch, tmp_path, manifest) == 1
+    out = capsys.readouterr().out
+    assert "AMBIGUOUS" in out, out
+    assert "add-the-claimant" in out, out
+    assert "declares" in out, out
+    assert "WHATEVER MADE THIS IDENTITY RESOLVE TWICE" in out, out
+    assert "which owes no edit" in out, out
+
+
+def test_a_citation_that_names_no_packet_is_still_resolved_as_a_path(
+        tmp_path, monkeypatch, capsys) -> None:
+    """THE BOUNDARY, AND THE REGRESSION IT GUARDS. Most of this pin's in-tree
+    referents name no packet at all, and `openspec/changes/README.md` is a real
+    file in this repository whose second segment is not a change id — so the
+    identity route must not swallow the path route. A present non-packet path
+    passes; an absent one gets issue #840's own refusal, in its own words."""
+    module = _load_checker()
+    (tmp_path / "openspec" / "changes").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "openspec" / "changes" / "README.md").write_text(
+        "# changes\n", encoding="utf-8")
+    (tmp_path / "health").mkdir(exist_ok=True)
+    (tmp_path / "health" / "report.md").write_text("# r\n", encoding="utf-8")
+    manifest = _case_with_citations(
+        tmp_path, [f"openspec/changes/README.md {DASH} the index",
+                   f"health/report.md {DASH} the run"])
+    assert _run_over(module, monkeypatch, tmp_path, manifest) == 0
+    assert "every in-tree path resolves" in capsys.readouterr().out
+
+    manifest = _case_with_citations(
+        tmp_path, [f"health/gone.md {DASH} the run"])
+    assert _run_over(module, monkeypatch, tmp_path, manifest) == 1
+    out = capsys.readouterr().out
+    assert "but no such path is in this tree" in out, out
+    assert "half that failed" not in out, out
+
+
+def test_the_live_pin_registration_citations_still_resolve() -> None:
+    """THE LIVE CORPUS, AND THE ARM THAT STOPS THIS GROUP GOING VACUOUS.
+
+    Every in-tree referent of the real pin resolves — today by path, because
+    every one of them is still spelled where it stands, and tomorrow by identity
+    for the six that point into the four active packets above. This is the
+    assertion that must go on holding THROUGH each of those four archives, which
+    is the whole point of the slice: it is written against the resolver, so it
+    keeps its meaning on both sides of the relocation, where an assertion
+    written against `.exists()` would have to be edited by the archive that
+    broke it.
+    """
+    module = _load_checker()
+    text = (REPO_ROOT / LIVE_PIN_PATH).read_text(encoding="utf-8")
+    pin = yaml.safe_load(text)
+    declared = module.repository_qualifiers(pin)
+    index = module.packet_reference.PacketIndex(REPO_ROOT)
+    in_tree = [referent
+               for line in module.citation_lines_in(text)
+               for kind, referent in module.read_citation(line, declared)
+               if kind == "tree-path"]
+    assert len(in_tree) >= 2, in_tree
+
+    unresolved = []
+    packet_referents = []
+    for referent in in_tree:
+        resolution = module.packet_reference.resolve(
+            REPO_ROOT, referent, index=index)
+        if not resolution.ok:
+            unresolved.append(resolution.report)
+        if resolution.identity is not None:
+            packet_referents.append(resolution.identity)
+    assert unresolved == [], unresolved
+    assert len(packet_referents) >= 4, packet_referents
+
+
+def test_the_checker_reaches_the_resolver_and_not_a_second_copy_of_the_rule(
+) -> None:
+    """The reader is IMPORTED, not restated — the habit
+    `OWN_REPOSITORY_SPELLINGS` had to be pinned into step for, one comment
+    higher in this same file. A second spelling of "resolve a packet by id"
+    living inside the checker is the drift this asserts against."""
+    module = _load_checker()
+    assert module.packet_reference.__file__ == str(
+        REPO_ROOT / "scripts" / "packet_reference.py")
+    for name in ("RESOLVED", "DANGLING", "AMBIGUOUS",
+                 "NOT_A_PACKET_REFERENCE", "PacketIndex", "resolve"):
+        assert hasattr(module.packet_reference, name), name
