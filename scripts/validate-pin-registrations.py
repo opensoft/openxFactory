@@ -136,6 +136,7 @@ it, and they do not move the exit code.
 """
 from __future__ import annotations
 
+import importlib.util
 import re
 import string
 import sys
@@ -162,6 +163,34 @@ except ImportError:  # pragma: no cover
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "contracts" / "manifest.yaml"
+
+
+def _packet_reference():
+    """`scripts/packet_reference.py`, loaded by location.
+
+    IMPORTED AND NEVER RESTATED (`add-declared-former-id` § 5.0, which names
+    THIS reader as the resolver's caller). The rule that resolves a packet by
+    id — the active directory, every dated archive directory, every packet
+    declaring the id in `former_ids:`, and the refusal to prefer one of several
+    — has ONE spelling in this estate, and a second copy living inside this
+    checker is exactly the drift `OWN_REPOSITORY_SPELLINGS` above had to be
+    pinned into step for. `spec_from_file_location` rather than an ordinary
+    import because this file is itself loaded by location in
+    `tests/pin_registrations/`, where nothing puts `scripts/` on the path, and
+    without mutating `sys.path` here: that is the resolver's own business and
+    it discloses the one insertion it inherits.
+    """
+    path = Path(__file__).resolve().parent / "packet_reference.py"
+    spec = importlib.util.spec_from_file_location("packet_reference", path)
+    if spec is None or spec.loader is None:  # pragma: no cover - defensive
+        raise ImportError(f"cannot locate the packet reference resolver at {path}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules.setdefault("packet_reference", module)
+    spec.loader.exec_module(module)
+    return module
+
+
+packet_reference = _packet_reference()
 
 PIN_TYPE = "pin"
 ENTRYPOINT_FIELD = "consumer_entrypoint"
@@ -660,6 +689,23 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
     can open is a suppression with a footnote, and the footnote is the only
     difference the header rests the mechanism on.
 
+    AND THE SECOND GAP, WHICH IS THIS ARM'S OWN (`add-declared-former-id`
+    § 5.0). The first cut resolved the RAW PATH, and the raw path is precisely
+    what the archive relocation moves: six of this pin's in-tree referents point
+    into FOUR ACTIVE packets, and the next of those four to archive would turn a
+    lawful act into an exit-1 refusal of a gate nobody touched. So a referent
+    that ADDRESSES A PACKET is resolved BY ITS IDENTITY, through
+    `scripts/packet_reference.py` — against the location that id occupies now,
+    active or archived, and against any packet declaring it in `former_ids:` —
+    and a reference is dangling only when it resolves to nothing under that
+    rule. BOTH HALVES must resolve and the finding says WHICH HALF FAILED: an
+    identity that resolves to a packet not carrying the cited file is dangling
+    AGAINST THE FILE. An id that would resolve TWICE is refused as AMBIGUOUS and
+    never settled by preferring one, with the repair named against the
+    DECLARATION that made one identity resolve twice rather than against the
+    citing record — which, where a reference resolves, owes no edit at all.
+    A referent that addresses no packet keeps the path resolution it always had.
+
     WHAT IT ASSERTS. The pin's `cited_to:` LINES are read from its bytes
     (`citation_lines_by_entry`), each one BOUND to the `dispositions[]` entry
     whose block carries it, and ALIGNED in file order against the citations
@@ -668,10 +714,11 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
     admits. Every machine referent of every line is then read by
     `read_citation`; the referents that name an UNQUALIFIED repo-relative path
     are resolved inside this tree with the same containment helper the registered
-    `path` and `consumer_entrypoint:` go through; and a path that is absent — or
-    absolute, or `..`-escaping — is a named finding and exit 1. `.exists()` and
-    not `.is_file()`, because a citation legitimately names a change packet's
-    directory. The counts are printed so a pass cannot be vacuous: a reader is
+    `path` and `consumer_entrypoint:` go through, then BY IDENTITY where they
+    address a packet; and a reference that resolves to nothing — or a path that
+    is absolute or `..`-escaping — is a named finding and exit 1. `.exists()`
+    and not `.is_file()`, because a citation legitimately names a change
+    packet's directory. The counts are printed so a pass cannot be vacuous: a reader is
     told how many referents were read, how many of them this tree owns, and how
     many were recognised and left to a forge, a network or another repository.
 
@@ -716,6 +763,15 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
         return True
 
     declared = repository_qualifiers(pin)
+    # ONE CLAIM MAP FOR THE WHOLE ROW. Resolving by identity asks the same tree
+    # about a dozen ids; the index reads every packet's `.openspec.yaml` once
+    # and is lazy, so a row whose citations name no packet pays nothing. Built
+    # from the module-level `ROOT` at CALL time, not captured, because that is
+    # the name this checker's own lane monkeypatches onto a scratch tree.
+    # Named `packets` and not `index`: `index` is the `dispositions[]` entry
+    # number in the classification loop below, and shadowing it there is a
+    # `AttributeError` on the first citation (measured, not guessed).
+    packets = packet_reference.PacketIndex(ROOT)
     parsed = list(parsed_citations_of(dispositions))
     bound = citation_lines_by_entry(pin_text)
     lines = [line for _entry, line in bound]
@@ -765,6 +821,7 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
     ok = True
     counts = {"tree-path": 0, "url": 0, "reference": 0, "qualified": 0}
     referents = 0
+    relocated = 0
     unreferenced = 0
     truncated = 0
     mapped = 0
@@ -812,6 +869,35 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
                     f"and a path outside it is unreadable there")
                 ok = False
                 continue
+            # THE REFERENT IS RESOLVED BY IDENTITY, NOT BY ITS SPELLING
+            # (`release-realization` — *A packet reference resolves by
+            # identity, not by path*). A path written into a record is a
+            # spelling of an identity at one moment; the identity is what the
+            # record meant. A referent that addresses NO packet comes back
+            # `NOT_A_PACKET_REFERENCE` and falls through to the path question
+            # below, unchanged — `openspec/changes/README.md` is this corpus's
+            # own case and reading its second segment as a change id would
+            # report the README dangling.
+            resolution = packet_reference.resolve(ROOT, referent,
+                                                  index=packets)
+            if resolution.status == packet_reference.RESOLVED:
+                if resolution.relocated:
+                    relocated += 1
+                continue
+            if resolution.status == packet_reference.AMBIGUOUS:
+                findings.append(
+                    f"FAIL {row_id}: {where} ({item}) cites `{referent}`, and "
+                    f"{resolution.report}")
+                ok = False
+                continue
+            if resolution.status == packet_reference.DANGLING:
+                findings.append(
+                    f"FAIL {row_id}: {where} ({item}) cites `{referent}`, and "
+                    f"{resolution.report} — a disposition rests on its "
+                    f"citation, and a citation a reader cannot open is a "
+                    f"suppression with a footnote")
+                ok = False
+                continue
             if not target.exists():
                 findings.append(
                     f"FAIL {row_id}: {where} ({item}) cites `{referent}`, but no "
@@ -843,6 +929,17 @@ def check_citations(row_id, raw_path, pin, pin_text, findings):
               f"and it is vendored byte-identical into three sibling "
               f"repositories, so the fix carries a re-vendor cost. Named here "
               f"for a successor rather than silently passed or silently forced")
+    if relocated:
+        # NEVER A FINDING, AND NEVER AN INSTRUCTION. Printed so a reader can see
+        # the resolver working — silence on a behaviour change is the habit this
+        # file's own header refuses — and printed only when it happened, so the
+        # run is byte-identical on a corpus whose citations are all still
+        # spelled where they stand. The counts line above is NOT touched: it
+        # measures what the two readers read, which is unchanged.
+        print(f"OK {row_id}: {relocated} in-tree citation(s) resolve BY "
+              f"IDENTITY to a packet that no longer stands where the citation "
+              f"spells it — the archive relocation, or a declared rename. A "
+              f"reference that resolves owes the citing record no edit")
     if ok:
         print(f"OK {row_id}: {len(dispositions)} disposition(s) carry "
               f"{len(parsed)} citation(s) naming {referents} referent(s) — "
