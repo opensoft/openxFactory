@@ -531,6 +531,54 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-entry-grain-dispositions-form](openspec/changes/adopt-entry-grain-dispositions-form/proposal.md)
+  — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: draft`** — a PROPOSAL, unratified, with DRAFTING PROVENANCE ONLY
+  (`kind: ad_hoc`, `proposed_by` + `proposed_on`, no `approved_by`). Answers
+  openxFactory [#1045](https://github.com/opensoft/openxFactory/issues/1045),
+  the finding this lane filed on 2026-09-15 and did not claim at filing.
+  **ONE `## MODIFIED` BLOCK, ONE ADDED SCENARIO, OVER `document-lifecycle`** —
+  *Prose tagging marker hygiene* restated IN FULL with *A pin record's optional
+  dispositions member carries a malformed entry* added beside the shape-(a)
+  scenario that already states the same rule for the other optional member.
+  **THE MEASURED GAP.** `scripts/doc_health/pin_shapes.py`'s
+  `_is_disposition_list` judges the OPTIONAL shape-(c) member `dispositions:`
+  at the MEMBER grain only, while the full verifier's `pinned_dispositions`
+  (`scripts/validate-openspec-cli-pin.py:787-857`) refuses malformed ENTRIES in
+  the SAME pure, source-free pass called before any fetch (`:1966`, ahead of
+  `repository_identity` at `:1973`). Measured by calling both: EIGHT records the
+  guard refuses are accepted by the adapter — `[{}]`, `[null]`, `["a"]`, an
+  entry missing `cited_to`, `cited_to: []`, `cited_to: "x"`, `level: "WARNING"`
+  and an entry naming no authority — and ZERO in the other direction, so the
+  adapter is NARROWER than the guard on the entries and nowhere WIDER.
+  **AND THREE OF THE FIVE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES
+  THE GAP SHARPER THAN THE ISSUE STATES IT FOR THOSE THREE**: `neutral-product-pin`'s
+  *A dispositioned finding is cited, upgrade-coupled, and refused when stale*
+  (`:577`, `:578`, `:586-588`) and its scenario *A disposition carries no
+  citation* (`:633-636`) already say a disposition recording "no `cited_to:`,
+  an empty one, or no granting authority" makes the pin "REFUSED as malformed,
+  before any artifact is fetched" — covering the entry's identity keys, its
+  citation and its authority, so the adapter resolves a pinned target on a
+  record ratified canon calls malformed there. **THE OTHER TWO — `why` AND
+  `level` OUTSIDE `BLOCKING_LEVELS` — ARE NAMED BY NO SUCH CANON AND ARE THE
+  VERIFIER'S OWN PURE GUARD**: reaching them imposes no obligation BEYOND what
+  `pinned_dispositions` already enforces on every landed pin, never "none" and
+  never "already ratified" for those two. That capability is READ and CITED
+  here and NOT modified: the gap is the OFFLINE RESOLVER's reading, and the
+  resolver is `document-lifecycle`'s.
+  **`dispositions:` STAYS OPTIONAL**: it stays out of the shape-guard-required
+  set, canon's "`dispositions:` is NOT in the set" sentence is carried verbatim
+  and stays true, the measured `(29, 27, 2)` table split does not move, and
+  `null` and `[]` are still read as empty. **THE SUCCESSOR A RULING NAMED.**
+  Raised by review on PR [#1040](https://github.com/opensoft/openxFactory/pull/1040)
+  round 8 and RULED STANDS there, that ruling calling this "a legitimate later
+  delta … noted, not filed"; this packet is that delta and the first of them.
+  **RATIFICATION IS BRETT HEAP'S WORD AND `tasks.md` § 1 IS UNTICKED.** No byte
+  of `scripts/doc_health/pin_shapes.py`, of `tests/doc-health/`, of any pin
+  verifier, of any record under `contracts/` or of any file under
+  `openspec/specs/` moves in the filing; `code_surface:` is non-empty, so the
+  packet archives on merged-plus-green realization evidence and not on landing.
+
 - [add-declared-former-id](openspec/changes/add-declared-former-id/proposal.md)
   — filed 2026-09-13, lane `openxfactory-1` (display `openXfactory-1`),
   **`Status: ratified`** (2026-09-13T22:48Z, Brett Heap, openxFactory
