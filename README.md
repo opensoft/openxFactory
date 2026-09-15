@@ -3320,9 +3320,8 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/archive/2026-09-15-extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
-  — **ARCHIVED 2026-09-15** by this lane's archive pull request (branch
-  `chore/archive-extend-prose-tagging-target-to-pinned-capabilities`; its number
-  is recorded in the ledger row and below at landing), on Brett Heap's
+  — **ARCHIVED 2026-09-15** by
+  [PR #1042](https://github.com/opensoft/openxFactory/pull/1042), on Brett Heap's
   **SEPARATE ARCHIVE WORD** — verbatim *"archive it"*, 2026-09-15, in session to
   lane `openxfactory-2` (display `openXfactory-2`), recorded on
   [#992](https://github.com/opensoft/openxFactory/issues/992#issuecomment-5686413187)
