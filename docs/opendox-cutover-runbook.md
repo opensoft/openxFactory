@@ -1123,12 +1123,22 @@ opposite.
            one openDox has with views/intent-binding.js."
    ```
 
-   **Edit nothing else.** `destination:`, `destination_path:` and any
-   `re_destined:` stay exactly as they were — they are the record of where the
-   carve put the file and where a ruling moved it — and `disposition`,
-   `sha256`, `git_mode`, `edits[]`, `carve_commit` and `carve_tag` are
-   untouched. A retirement is a fact about a DESTINATION; the source side does
-   not move.
+   **Edit nothing else ON A ROW YOU RETIRE.** `destination:`,
+   `destination_path:` and any `re_destined:` stay exactly as they were — they
+   are the record of where the carve put the file and where a ruling moved it
+   — and `disposition`, `sha256`, `git_mode`, `edits[]`, `carve_commit` and
+   `carve_tag` are untouched. A retirement is a fact about a DESTINATION; the
+   source side does not move.
+
+   **THAT PROHIBITION IS THE RETIRED ROW'S, AND THE SAME ACT MAY STILL DECLARE
+   AN EDIT ELSEWHERE** — measured on the first act to use this form, which
+   retired two rows and declared a PARTIAL removal on a third. A ruling that
+   takes part of an arrived file out has no retirement to record (the row goes
+   on arriving), so it lands as an ORDINARY declared edit on THAT row's
+   `edits[]` under an existing class: a different row, a different grammar, and
+   nothing on it that this step forbids. The rule is one row at a time — what
+   a row that is RETIRED may not carry says nothing about a row that is not.
+   "What the form CANNOT express" below is that case in full.
 3. **Verify the document**: `python3 scripts/validate-carve-manifest.py` must
    print `OK` and end `; N row(s) RETIRED by ruling (RULED 5656343213)`. The
    count prints in every state, zero included, so the document's own state is
