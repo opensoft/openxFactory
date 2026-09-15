@@ -33,6 +33,21 @@ conditional skip here would red the required job. When the first destination
 exists, this file gains a case that names it; the seat's own assertion is about
 the documented invocation and stays true either way.
 
+THE FIVE TESTS THAT READ THE LANDED MANIFEST DO NOT BRANCH ON IT (amended on
+a Copilot finding, `#1030`, the round after the same finding closed in
+`tests/carve_manifest/test_carve_manifest.py`). They had taken the seat above
+for a DIFFERENT absence than the one it describes — `if not
+manifest.is_file(): assert True; return` — and `assert True` REPORTS A PASS,
+the same green bar the paragraph above refuses a skip for, so a checkout that
+had lost `docs/opendox-carve-manifest.yaml` turned four pins on the landed
+document into four no-ops and passed the fifth on the verifier's apology line
+instead of its answer. The § 6 ceremony has happened: the manifest is
+committed, and there is no revision these five can run at without it. They read
+it through `the_landed_manifest()`, where the absence is a FAILURE. The absent
+manifest is pinned where a claim about it belongs — hermetically, on a path the
+test controls: `test_a_manifest_that_is_not_there_refuses` and the `--json`
+seat's `destinations_unreadable`.
+
 Hermetic: no network and no `nlm`/`gh`/`omp` (`tests/hermeticity.py`'s guarded
 set); `git` is not guarded, and the environment it reads is PINNED rather than
 inherited — `GIT_CONFIG_GLOBAL=/dev/null`, `GIT_CONFIG_NOSYSTEM=1` and a
@@ -1734,6 +1749,32 @@ def test_no_destination_holds_the_seat_and_names_the_choices(
     assert "scratch_code" in done.stdout and "scratch_root" in done.stdout
 
 
+def the_landed_manifest() -> tuple[str, dict[str, Any]]:
+    """The committed manifest's TEXT and document — and a failure if it is gone.
+
+    THE SEAT-HOLDING BRANCH HAD OUTLIVED ITS REASON HERE TOO (Copilot review,
+    `#1030`). `docs/opendox-carve-manifest.yaml` is authored by the § 6
+    ceremony at the carve commit, AFTER both scripts land, so every assertion
+    about its contents held a seat until then. The ceremony has happened and
+    the seat has nothing left to hold, while what it had degraded into —
+    `assert True` — REPORTS A PASS. Absence is a FAILURE here, named, for the
+    module docstring's reason.
+
+    THE SEAT THE MODULE DOCSTRING DESCRIBES IS A DIFFERENT ABSENCE and it
+    stays: no destination CHECKOUT exists on this machine, so the documented
+    invocation is the one with no `--destination`, and `NO DESTINATION` is the
+    verifier's ANSWER to that — asserted rather than skipped, and true whether
+    or not a destination ever exists.
+    """
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    assert manifest.is_file(), (
+        f"{MODULE.MANIFEST_RELPATH} is not in this checkout. It landed at the "
+        "carve commit, and every assertion in the test that asked for it is "
+        "about its contents: its absence is a FAILURE, not a seat to hold.")
+    text = manifest.read_text(encoding="utf-8")
+    return text, yaml.safe_load(text)
+
+
 def test_the_real_repository_answers_the_documented_invocation() -> None:
     """The seat, run from the repository root with no arguments.
 
@@ -1743,32 +1784,36 @@ def test_the_real_repository_answers_the_documented_invocation() -> None:
     — so what this asserts is that the DOCUMENTED INVOCATION answers, exit 0,
     naming the destinations the landed manifest declares. When a destination
     exists, this file gains a case that names it; this assertion stays true.
+
+    THE MANIFEST, THOUGH, IS REQUIRED AND NOT BRANCHED ON: see
+    `the_landed_manifest()`. The two absences are not the same absence.
     """
     done = subprocess.run([sys.executable, str(SCRIPT)], cwd=str(REPO_ROOT),
                           capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stdout + done.stderr
     assert done.stdout.startswith("NO DESTINATION "), done.stdout
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if manifest.is_file():
-        for key in ("opendox_code", "opendox_spec", "opendox_root",
-                    "openxdox_code", "openxdox_spec"):
-            assert key in done.stdout, done.stdout
-    else:
-        assert "the manifest could not be read" in done.stdout, done.stdout
+    # THE `else` ARM ASSERTED THE APOLOGY INSTEAD OF THE ANSWER (Copilot
+    # review, `#1030`): on a checkout that had lost the landed manifest this
+    # test passed on the verifier's "the manifest could not be read" sentence,
+    # which is the one state where the five destination keys — the thing the
+    # documented invocation is being asserted to name — go unchecked. That
+    # sentence is pinned hermetically instead, on a manifest path the test
+    # controls (`test_a_manifest_that_is_not_there_refuses`, and the `--json`
+    # seat's `destinations_unreadable`), which is the only way to assert it
+    # without making this test green on it.
+    the_landed_manifest()
+    for key in ("opendox_code", "opendox_spec", "opendox_root",
+                "openxdox_code", "openxdox_spec"):
+        assert key in done.stdout, done.stdout
 
 
 def test_the_real_manifest_declares_the_roots_the_runbook_names() -> None:
     """The runbook's § 2 table is a claim about the LANDED manifest, and a table
     nothing checks is a comment. This reads the manifest and asserts the roots
     the verifier would walk for each destination — so a re-cut that moved a
-    destination's layout reds here rather than at 2am inside a carve."""
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        # Before the § 6 ceremony landed the manifest there is nothing to
-        # compare; a BRANCH, not a skip, for the module docstring's reason.
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    destination's layout reds here rather than at 2am inside a carve. The
+    manifest is REQUIRED and not branched on: see `the_landed_manifest()`."""
+    _text, doc = the_landed_manifest()
     expected = {
         "opendox_code": ["src/opendox", "tests"],
         "opendox_spec": ["contracts/schemas", "docs",
@@ -1811,9 +1856,10 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     the record — so a key outside the character class, a sixth column or a
     reshaped cell is a FAILURE and not a skipped line — the roots cell must be
     exactly a comma-separated sequence of backticked paths (or the one prose
-    cell that says "none"), a missing runbook is a failure rather than a
-    branch, the key grammar is the VALIDATOR's own `^[a-z][a-z0-9_]*$` rather
-    than a narrower one that would refuse a destination the manifest accepts,
+    cell that says "none"), a missing runbook — and, round eight, a missing
+    MANIFEST — is a failure rather than a branch, the key grammar is the
+    VALIDATOR's own `^[a-z][a-z0-9_]*$` rather than a narrower one that would
+    refuse a destination the manifest accepts,
     and the BLOCK is bounded by § 2's own two sentences rather than by any
     heuristic for where a table ends — so an interior blank line and a
     malformed row are both failures instead of ways to move the boundary. Each
@@ -1828,25 +1874,22 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     way would make the table disagree with itself. The ROOTS column is the walk
     the verifier performs, which IS `declared_roots(rows_for(...))` — effective,
     because a re-destined row lands in the gaining leg's tree and the walk that
-    reads that tree must cover it. A BRANCH and never a skip, on the module
-    docstring's reasoning.
+    reads that tree must cover it. NEITHER DOCUMENT IS BRANCHED ON: both are
+    required, and this test compares them.
     """
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
     runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
-    if not manifest.is_file():
-        # Before the § 6 ceremony landed the manifest there is nothing to
-        # compare; a BRANCH, not a skip, for the module docstring's reason.
-        assert True
-        return
-    # BUT A MISSING RUNBOOK IS A FAILURE, NOT A BRANCH (Copilot review, this
-    # PR). Branching on it too made this invariant VACUOUS exactly when § 2
-    # disappeared — the check would go green on a repository that had lost the
-    # document it checks, which is the one state it must not pass.
+    # NEITHER A MISSING RUNBOOK NOR A MISSING MANIFEST IS A BRANCH (Copilot
+    # review, this PR: the runbook half in round six, the manifest half in
+    # round eight). Branching on either made this invariant VACUOUS exactly
+    # when the document it compares disappeared — the check went green on a
+    # repository that had lost one of the two things it reads, which is the one
+    # state it must not pass. The manifest's absence is a named failure in
+    # `the_landed_manifest()`.
     assert runbook.is_file(), (
         f"{runbook} is absent while the manifest is present: § 2's "
         "per-destination table is the operator's comparison for every leg's "
         "arrival run, and a missing table is not a table that agrees")
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    _text, doc = the_landed_manifest()
     text = runbook.read_text(encoding="utf-8")
 
     marker = ("Per destination, and these are the numbers each leg's arrival "
@@ -2266,12 +2309,9 @@ def test_the_human_line_no_longer_calls_an_edited_replica_byte_identical(
 def test_the_real_manifest_carries_the_ruled_q_l7_rows(carve: Carve) -> None:
     """The LANDED manifest read through this verifier's own row readers, so the
     grammar the leg-3 run will depend on is asserted here and not only in the
-    manifest validator's suite. A BRANCH and never a skip."""
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    manifest validator's suite. The manifest is REQUIRED and not branched on:
+    see `the_landed_manifest()`."""
+    _text, doc = the_landed_manifest()
     also = MODULE.also_replicated_rows(doc, "openxdox_code")
     assert [row["source_path"] for row in also] == \
         ["tests/ideation-dashboard/session_fixtures.py"], also
@@ -2758,12 +2798,9 @@ def test_the_no_destination_json_names_the_destinations_as_a_list(
 def test_the_landed_manifest_gives_the_openxdox_root_no_key() -> None:
     """The measured fact the `--assembly-root` mode exists for, asserted
     against the LANDED manifest so that a re-cut which ADDS the key reds here
-    and the runbook's § 7 can go back to a `--destination`."""
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    and the runbook's § 7 can go back to a `--destination`. The manifest is
+    REQUIRED and not branched on: see `the_landed_manifest()`."""
+    _text, doc = the_landed_manifest()
     assert "opendox_root" in doc["destinations"]
     assert "openxdox_root" not in doc["destinations"]
     repositories = {entry["repository"] for entry in doc["destinations"].values()}

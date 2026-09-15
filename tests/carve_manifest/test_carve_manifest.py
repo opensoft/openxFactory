@@ -2735,6 +2735,20 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     lines = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
     carrying = sum(1 for row in doc["rows"] if row.get("edits"))
+    # AND THE SUM COUNTS LIST ENTRIES, SO THE ENTRIES MUST BE DISTINCT PER ROW
+    # (Copilot review, `#1030`). Neither tool refuses a line declared twice on
+    # one row — `validate-carve-manifest.py` bounds each number against the
+    # blob and says nothing about repetition, and `verify-carve-arrival.py`
+    # reads the row's declarations as a SET — so a duplicate raises this figure
+    # by one while leaving one genuinely edited line undeclared, and the act
+    # that did it would pass its own window pin, its own per-class figures and
+    # this aggregate together. Measured over the whole document, because this
+    # is the figure that is a MEASUREMENT of it.
+    for row in doc["rows"]:
+        flat = [number for edit in row.get("edits") or []
+                for number in edit["lines"]]
+        assert len(set(flat)) == len(flat), (row["source_path"], sorted(
+            number for number in flat if flat.count(number) > 1))
     # AND THEN THE § 3.4 SLICE-S5 ANNOTATION (`#656` comments `5648044785` /
     # `5648049748` / `5648065587`, whose Q-L1 obligation binds every § 3.4
     # slice, same as S2/S3/S4/S6 above) moved both once more: "contribute the
@@ -3012,6 +3026,23 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
         assert row["destination"] == "opendox_code", row
         landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
         assert landed[-len(entries):] == entries, (source_path, landed)
+        # AND THE ROW'S DECLARED LINES ARE DISTINCT (Copilot review, this pull
+        # request). § 3 below sums `len(nums)` — LIST ENTRIES — and nothing
+        # under this act refuses a repeated line number: the validator's
+        # `edits[].lines` check requires a non-empty list of positive integers
+        # and says nothing about repetition, and the arrival verifier reads a
+        # row's declarations as a SET (`_declared_line_set`), so the duplicate
+        # vanishes exactly where it would otherwise be caught. An entry naming
+        # one line TWICE in place of naming two would therefore keep the 782,
+        # keep the equality above and keep every per-class figure, while one
+        # really edited line went undeclared — and an undeclared edit is
+        # refused at the DESTINATION, an act later, as `arrival-undeclared-
+        # edit`. The claim is made over the WHOLE row rather than over S7's
+        # tail alone: a line this act declares that an earlier act already
+        # declared on the same row is the same double count, one act apart.
+        flat = [number for edit in row["edits"] for number in edit["lines"]]
+        assert len(set(flat)) == len(flat), (source_path, sorted(
+            number for number in flat if flat.count(number) > 1))
 
     # 2. THE SEVENTEEN CONVERSIONS, named. A conversion moves BOTH disposition
     # counts and the carrier count at once, so an act that converted a row it
