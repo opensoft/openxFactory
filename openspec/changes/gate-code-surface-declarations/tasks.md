@@ -206,9 +206,9 @@ RE-MEASUREMENT** — a number that moves every time `main` does and is
 RE-MEASURED rather than assumed each time it moves. `scripts/code_surface.py`'s
 `CLOSED_REGISTER` provenance comment and `scripts/code-surface-register.yaml`'s
 header name them in the same words, so the three records cannot drift apart
-again. As this transcript stands there have been SEVEN re-measurements
+again. As this transcript stands there have been EIGHT re-measurements
 (`54885296`, `bfa90db6`, `e6e1c968`, `dd073746`, `92d519b0`, `8944758c`,
-`79ac94b7`) and the scenario has FIRED ONCE, at the second.
+`79ac94b7`, `3c614d34`) and the scenario has FIRED ONCE, at the second.
 
 **EVERY FIGURE IN § 3 WAS RE-MEASURED AT THE MAIN HEAD MERGED AT THE FIRST
 RE-MEASUREMENT** — `origin/main` `54885296` — with the § 3.1 reader itself, and
@@ -343,6 +343,24 @@ register stands at EIGHT untouched. The 15 commits `main` gained are the
 `former_id` document-move realization and its bench rounds, touching no file
 this packet owns; the merge resolved **ZERO conflicts**. **THE SCENARIO FIRED A
 SIXTH TIME AND AGAIN COST NOTHING.**
+
+**AND MAIN MOVED AGAIN WHILE THE FIFTH ROUND WAS IN REVIEW. EIGHTH
+RE-MEASUREMENT, AT `origin/main` `3c614d34` — THE MAIN HEAD MERGED AT
+RE-MEASUREMENT AS THIS TRANSCRIPT STANDS** (merged at `76492170`), taken WITH
+the merge again rather than after it. `python3 scripts/validate-code-surface.py
+.` — **exit 0**, *"46 active proposals, 46 declaring — 4 `none`, 34 a repository
+list, 8 named by the register, 0 outside the grammar"*, archive *"168 proposals,
+122 declaring, 3 of them outside the grammar"* — **THE SIXTH AND SEVENTH
+RE-MEASUREMENTS' LINE, BYTE FOR BYTE, A THIRD TIME**. `python3
+scripts/validate-scope-globs.py .` — **exit 0**. **NO DECLARATION MOVED AT
+ALL**, measured rather than inferred: `git diff --name-status
+79ac94b7..3c614d34 -- 'openspec/changes/*/proposal.md'` is **EMPTY** — no `A`,
+no `M`, no `D`, no `R` — so no carrier arrived, no entry went stale and the
+register stands at EIGHT untouched. The 5 commits `main` gained are the
+openDox/openXdox pin lockstep (#1054), a Q-GRC-4 § 13.5 pre-note record and a
+§ 3.4 slice-S7 annotation (#1030), touching no file this packet owns; the merge
+resolved **ZERO conflicts**. **THE SCENARIO FIRED A SEVENTH TIME AND AGAIN COST
+NOTHING.**
 
 **TWO PROPOSALS LANDED IN BETWEEN AND NONE ARCHIVED**, which is a measurement
 and not an assumption: `git diff --name-status 54885296..bfa90db6 --
@@ -489,8 +507,8 @@ and is corrected in place where the number is now false.
       possessive 1, apposition 1, list-runs-into-prose 4) AT THE FIRST
       RE-MEASUREMENT `54885296`, **AND WITH EIGHT IN THE SAME FOUR CLASSES FROM
       THE SECOND RE-MEASUREMENT `bfa90db6` ONWARD — STILL EIGHT AT `e6e1c968`,
-      AT `dd073746`, AT `92d519b0`, AT `8944758c` AND AT `79ac94b7`, THE MAIN
-      HEAD MERGED AT RE-MEASUREMENT**
+      AT `dd073746`, AT `92d519b0`, AT `8944758c`, AT `79ac94b7` AND AT
+      `3c614d34`, THE MAIN HEAD MERGED AT RE-MEASUREMENT**
       (list-runs-into-prose 5) — the eighth being
       the carrier that arrived in between, disposed of at that re-measurement as
       the § 3 preamble's second re-measurement records and as the requirement's
