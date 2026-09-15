@@ -104,7 +104,7 @@ something Google will enforce.
 
 ## What changes
 
-<!-- xspec:candidate target=openxwallet -->
+<!-- xspec:candidate target=pinned:openxwallet/openxwallet -->
 The authority to grant access to a governed book becomes a held, attenuable
 thing rather than an implicit property of whoever can run the sync.
 `openxwallet` is the candidate holder: it already models authority travelling as

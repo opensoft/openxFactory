@@ -219,7 +219,7 @@ Added-by: Claude Opus 5 (session, Brett's direction) · 2026-08-26
 
 ## Why
 
-<!-- xspec:candidate target=openxwallet -->
+<!-- xspec:candidate target=pinned:openxwallet/openxwallet -->
 The wallet's contracts ARE a product, and they are currently filed as features
 of a factory layer. `openxwallet` and `openxwallet-agent-profile` are ratified
 holder-agnostic and non-substrate — the core deliberately says nothing about
@@ -239,7 +239,7 @@ standard.
 
 ## What changes
 
-<!-- xspec:candidate target=openxwallet -->
+<!-- xspec:candidate target=pinned:openxwallet/openxwallet -->
 Both wallet contract families, their validator and syntax gate, their conformance
 corpus, their CI workflow and their two promoted capabilities leave the
 openxFactory corpus for `opensoft/openXwallet`, carved with full path history and
@@ -277,7 +277,7 @@ reason the header states — they do not resolve yet.
 
 ## Impact
 
-<!-- xspec:candidate target=openxwallet -->
+<!-- xspec:candidate target=pinned:openxwallet/openxwallet -->
 - Affected specs: `openxwallet` (REMOVED — both promoted capabilities leave the
   openxFactory corpus with their successor location recorded),
   `openxwallet-agent-profile` (REMOVED — same), `domain-descendant-boundary`
