@@ -96,6 +96,9 @@ readings D-1 measures, in its own words and before this packet:
 - `:586-588` — *"A disposition SHALL identify ONE finding — the repository, the
   item, the delta path, and the finding's own text compared whole after
   whitespace normalization"* (row 3's six keys, four of them named outright).
+- `:622-624` — *"The run's output SHALL name every applied exception, its
+  reason, its citations and its granting authority"*, which is row 3's sixth
+  key, `why:`, and the second naming of the citation and the authority.
 - `:633-636`, the scenario **A disposition carries no citation** — *"WHEN a
   disposition records no `cited_to:`, an empty one, or no granting authority …
   THEN the pin is REFUSED as malformed, before any artifact is fetched … AND the

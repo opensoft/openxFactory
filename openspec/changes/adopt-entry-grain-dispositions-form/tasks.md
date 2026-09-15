@@ -65,7 +65,7 @@ of any pin verifier, of any record under `contracts/` or of any file under
       `## MODIFIED Requirements` delta over `document-lifecycle`.
 - [x] 2.5 **LIST the change in the README "OpenSpec Records → Active changes"
       block.**
-- [ ] 2.6 **SEED the per-change sweep-ledger row** in
+- [x] 2.6 **SEED the per-change sweep-ledger row** in
       `tests/sequenced_after/corpus-ledger.yaml` with
       `scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`,
       in a second commit once the pull request number exists.
