@@ -105,13 +105,12 @@ kind: code-surface-grammar-register
 # fourth nor the fifth re-measurement moved a declaration at all. BOTH of the
 # two CONFORM (each is one of the 35), and the
 # `M` is not one of the eight, so NO ENTRY IS STALE and NO ENTRY IS OWED. The scenario fired ONCE, at
-# the second re-measurement; it has cost nothing the FOUR times since (the
-# sixth below included), which is the shape it is supposed to have when the
-# corpus moves without a divergence in it.
+# the second re-measurement; it has cost nothing the FIVE times since (the
+# sixth and seventh below included), which is the shape it is supposed to have
+# when the corpus moves without a divergence in it.
 #
 # SIXTH re-measurement, at `origin/main` `8944758c` — THE MAIN HEAD MERGED AT
-# RE-MEASUREMENT as this file stands (merged at `d4c5a7f9`, measured at
-# `e3a4c051`): 46 active proposals, 46 declaring, 4 `none`, 34 a repository
+# THAT RE-MEASUREMENT (merged at `d4c5a7f9`, measured at `e3a4c051`): 46 active proposals, 46 declaring, 4 `none`, 34 a repository
 # list, EIGHT named by this register, 0 outside the grammar, with the archive
 # at 168 read / 122 declaring / 3 outside. THE FIRST RE-MEASUREMENT AT WHICH
 # THE ACTIVE CORPUS SHRANK, and a measurement rather than an assumption —
@@ -121,6 +120,16 @@ kind: code-surface-grammar-register
 # CONFORMS — it was one of the 35, which is where the 34 comes from — and it is
 # NOT one of the eight, so no carrier arrived, NO ENTRY IS STALE and NO ENTRY
 # IS OWED. The population is unmoved at EIGHT.
+#
+# SEVENTH re-measurement, at `origin/main` `79ac94b7` — THE MAIN HEAD MERGED AT
+# RE-MEASUREMENT as this file stands (merged at `556eac00`), taken WITH the
+# merge rather than left for a later round to find, which is the whole of what
+# went wrong at the sixth: 46 active proposals, 46 declaring, 4 `none`, 34 a
+# repository list, EIGHT named by this register, 0 outside the grammar, archive
+# 168/122/3 — the sixth's line byte for byte.
+# `git diff --name-status 8944758c..79ac94b7 -- 'openspec/changes/*/proposal.md'`
+# is EMPTY, so no declaration moved at all: no carrier arrived, NO ENTRY IS
+# STALE and the population is unmoved at EIGHT.
 #
 # Every entry declares:
 #   change       the ACTIVE change directory under `openspec/changes/`
