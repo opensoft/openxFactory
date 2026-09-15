@@ -983,10 +983,10 @@ the bookkeeping that ticks this group.
   each say in terms (S8 lifts it for the web suites only, and
   `tests/test_consumer_reach.py`'s `STILL_REACHING` asserts the openDox half
   still fails); (iv) the two floor acts above; and (v) **the packet's own
-  README entry, overtaken and NOT corrected here** — `README.md`:1875–1879
-  still reads *"IT STILL PERFORMS NOTHING. No repository is created, no code
-  moves …"*, written 2026-09-05 (`ceb6dc9e`, `8b297c2f`) when that was exactly
-  true and no longer is: `openDox-code` and `openXdox-code` exist and were cut
+  README entry, overtaken and NOT corrected here** — the packet's OpenSpec
+  Records entry in `README.md` still reads *"IT STILL PERFORMS NOTHING. No
+  repository is created, no code moves …"*, written 2026-09-05 (`ceb6dc9e`,
+  `8b297c2f`) when that was exactly true and no longer is: `openDox-code` and `openXdox-code` exist and were cut
   from the carve commit `b075fd91` (tag `opendox-carve-0`), and six of the
   eight slices above are merged. The staleness predates this amendment and is
   not made by it; it is left to the act that CLAIMS that text — the same rule
@@ -995,6 +995,20 @@ the bookkeeping that ticks this group.
   Records** block being both where an archived packet's entry is rewritten and
   (lane-collision protocol, Rule 6) the one block a landing window exists to
   serialize. Recorded here so that act does not have to rediscover it.
+  **That entry is cited by its SENTENCE and not by a line number, deliberately,
+  and it is the one citation in this box that could not be one.** Every other
+  measurement here names the tree it was read at; this one can name no line,
+  because the block it sits in is rewritten by every archival act and its line
+  numbers move under any citation that outlives one. Measured rather than
+  asserted: the entry opens at `README.md`:**1875** at this amendment's own
+  head and at :**1775** at openxFactory `main` `8944758c` — exactly **100**
+  lines apart, after `#1042` archived a sibling packet above it — while
+  `design.md`:52 and :351, `proposal.md`:208 and
+  `review/ratification-2026-09-05.md`:549, the four `30,410` citations above,
+  are each exact at BOTH heads, because no act has touched those three files
+  since. *(This clause read "`README.md`:1875–1879" until fix round 4, which
+  measured the drift rather than re-pointing a number that moves again at the
+  next archival.)*
   `#656` records: CLAIM
   `5656686020`; rulings `5642758731` · `5647678655` · `5648044785` ·
   `5648049748` · `5648065587` · `5649094228` · `5656343213`.
