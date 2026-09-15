@@ -145,10 +145,15 @@ realization evidence and a further word.
       `701c8fde`; fixtures
       `test_a_declared_former_id_that_still_stands_refuses_naming_both` and
       `test_a_declared_former_id_with_no_live_directory_passes`. **ITS
-      PRODUCTION CALLER IS SLICE 4'S**, `scripts/former_id_arrival.py`'s
-      corpus arm (PR #1039, in flight): on `main` today this reader is
-      exercised by its tests and by nothing else, which is stated here rather
-      than left for a reader to discover.
+      PRODUCTION CALLER LANDED WITH SLICE 4**, `scripts/former_id_arrival.py`'s
+      corpus arm (PR #1039, merge `92d519b0`, 2026-09-15T19:15:01Z): on `main`
+      today this reader IS called by that arm, on every pull request, through
+      `.github/workflows/former-id-arrival-gate.yml`. **WHAT IS STILL PENDING
+      IS ONLY § 4.5** — the branch-rule registration that would make the
+      call's refusal block a merge — so the call runs and a refusal is
+      reported today, but enforces nothing until that registration happens;
+      this distinction is stated here rather than left for a reader to
+      discover.
 - [x] 2.4 **BIND EVERY NEWLY ADDED ENTRY TO THE MOVE THAT COMMIT PERFORMS.**
       Absence of a live directory is NOT proof of predecessorship — an archived
       id and an id that never existed both lack one — so the entry a commit adds
@@ -195,7 +200,10 @@ realization evidence and a further word.
       UNREADABLE parent declaration is not an empty one
       (`test_an_unreadable_parent_declaration_is_not_an_empty_one`,
       `test_load_packet_at_reads_none_for_a_path_absent_at_the_ref`). **ITS
-      PRODUCTION CALLER IS SLICE 4'S** per-commit arm (PR #1039, in flight).
+      PRODUCTION CALLER LANDED WITH SLICE 4'S** per-commit arm (PR #1039,
+      merge `92d519b0`): it runs on `main` today through the same workflow,
+      under the same § 2.3 caveat — § 4.5's branch-rule registration is what
+      still remains pending, not the call itself.
 - [x] 2.6 **REFUSE A FORMER IDENTITY CLAIMED TWICE.** Two packets declaring the
       same former id, or an id that is at once a live packet id and a declared
       former id, is refused naming every claimant — an identity claimed twice

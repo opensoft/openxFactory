@@ -597,8 +597,10 @@ Active changes:
   guard. `code_surface` is NON-EMPTY and **no byte of it moves in the filing** —
   no script, validator, register or test is added or edited — so per
   `release-realization` this packet archives only on merged-plus-green
-  realization evidence, and #1003 stays OPEN on Brett Heap's word and closes at
-  no pull request of this packet's. **RATIFIED AND NOT ARCHIVED**: at the
+  realization evidence, and #1003 stayed OPEN on Brett Heap's word, closing (as
+  ruled at filing, 2026-09-13) at no pull request of this packet's — **A CLAIM
+  THE AMENDMENT BELOW SUPERSEDES**, his later ruling closing it instead at this
+  packet's own PR #1041 landing. **RATIFIED AND NOT ARCHIVED**: at the
   ratification `tasks.md` § 1 was ticked and §§ 2-7 stayed open; PR #1028
   carried the ratification encode and its merge was a separate word, Rule 6
   applying at landing.
@@ -628,7 +630,11 @@ Active changes:
   `openspec/specs/release-realization/spec.md`, is a further act on a further
   word** — ruled admissible with § 4.5 open, as a disposition plus a
   carry-forward issue (***"Yes, with disposition + carry-forward issue"***, the
-  `add-signed-execution-chain` precedent). Thirty-one of this packet's
+  `add-signed-execution-chain` precedent). **#1003 ITSELF CLOSES EARLIER, AT
+  THIS SLICE'S OWN LANDING, NOT AT THE ARCHIVE** — Brett Heap, same record,
+  verbatim ***"Close when #1041 lands"***; the § 4.5 ruleset act and the
+  archive stay tracked on this packet and on the Q2 carry-forward issue after
+  the issue itself is closed. Thirty-one of this packet's
   thirty-nine boxes are ticked; the eight open are § 4.5, §§ 6.1-6.5 and § 7.
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
   — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
