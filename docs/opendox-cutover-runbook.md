@@ -1196,6 +1196,44 @@ to a line range would put a SECOND line-bearing grammar beside `edits[]` and
 give one row two readings of what its bytes are; that is a ruling's act, not
 an author's.
 
+**WHAT THE FIRST ACT LEFT BEHIND, named here because the next reader greps
+for these names and finds a hole.** The rule above says a stale sentence
+inside a carved file STAYS and is named in the pull request as a known cost;
+this is that list for RULED 5656343213 (`#656` CLAIM `5656690570`,
+openxFactory PR #1043), measured at openDox-code `4813b375` and openXdox-code
+`9dfd7bee`.
+
+* `tests/test_account_menu_dom.py`:4 sends a reader to
+  `test_wheel_verbs_dom.py` for the DOM shim, and
+  `tests/test_doxbench_tile_verbs.py`:19 names it as an instrument in use.
+  Both files are `moved_with_declared_edit` rows whose only declared edit is
+  `path constants`, at carve lines [30] and [34]; the repair is refused by
+  name, and the second sentence is the sharper case — it also names
+  `test_staging_workbench.py`, which arrived at the OTHER leg, so before this
+  act it already named one file its reader could not open and after it names
+  two. Both stay, and openDox-code#24's `validate.yml` comment records them at
+  the leg as well.
+* The prose THIS repository owns is repaired in the ANNOTATION pull request
+  instead, because "the repair stops at a carved file" bounds the LEG's act
+  and not openxFactory's own record:
+  `docs/opendox-carve-admissions.yaml`'s `tests/test_intent_binding_dom.py`
+  entry described the two retired suites as its "narrowed out of validate.yml"
+  siblings, which after this act they are not.
+* `views/intent-feed.js` STAYS here, RULED OQ-F. A retirement deletes an
+  ARRIVAL, never a surface; this act asks nothing of the surface row except
+  that it still read `not_moved`, which is the gate.
+
+**THE WINDOW BETWEEN THE TWO MERGES, in both of its shapes.** The annotation
+lands first (step 2), so until the leg's deletion merges, that leg's own
+arrival run REFUSES — measured against openDox-code `8efb3cf5` with this
+manifest: `arrival-not-retired … still exists`, naming the ruling. It is
+§ 5.7's window in its other form, and it closes by merging the deletion,
+never by touching the manifest. The PARTIAL case is gentler: a declared edit
+that has not yet been applied is no refusal at all, so between the two merges
+the ending replay's lines simply read as not-yet-applied inside a row that is
+still within its declared lines (measured at openXdox-code `c1ad341a`: 29 of
+that row's 196 declared carve lines differ, none undeclared).
+
 **And what the floor does NOT prove, on § 5.7's own terms.**
 `verify-carve-arrival.py` verifies ONE destination per run, so a retirement at
 one leg says nothing about any other; nothing at the destination reads the
