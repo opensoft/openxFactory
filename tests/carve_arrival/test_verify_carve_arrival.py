@@ -1861,6 +1861,134 @@ def test_a_retirement_at_one_leg_says_nothing_about_another(
     assert json.loads(done.stdout)["retired"] == [], done.stdout
 
 
+# --------------------------------------------------------------------------
+# THE PLACEMENT A BLOCK NAMES vs THE PLACEMENT ITS ROW MAKES (Copilot review of
+# PR #1032, round 3)
+#
+# `rows_for()` and `retired_rows()` are deliberately ASYMMETRIC: the first
+# reads the ROW's effective arrival, the second reads the BLOCK's `at`. That
+# is the right pair of questions, and it left a hole the moment the two
+# disagreed — the row was dropped THERE for carrying a readable retirement and
+# declined HERE for naming another leg, so it was checked as neither an
+# arrival nor a retirement and its absent file passed silently. These cases
+# are that hole, from both sides, and they are end-to-end runs of the shipped
+# script rather than unit calls, because "passes silently" is a property of
+# the exit code and not of a predicate.
+#
+# `validate-carve-manifest.py`'s check 6 refuses such a document as
+# `carve-disposition-inconsistent`. It is not a defence here: this file is run
+# AT A LEG on a manifest `read_manifest()` deliberately does not revalidate,
+# which is the whole reason `effective_arrival`, `retired_at` and
+# `_also_replicated_labels` each guard their own reading rather than trusting
+# the other tool to have run.
+# --------------------------------------------------------------------------
+
+
+def test_a_retirement_naming_another_leg_leaves_this_one_owed_the_file(
+        carve: Carve) -> None:
+    """The block says `scratch_spec`; the row arrives at `scratch_code`. The
+    `scratch_code` run must still ASK for `src/pkg/beta.py` — and refuse its
+    absence — because nothing in this document retires the placement that leg
+    makes.
+
+    The tree is the one the fixture builds for an author who acted on the bad
+    block: `Carve.materialise` writes a retired row nowhere, so the file is
+    genuinely gone. Before the `retired_arrival` split this run exited 0."""
+    doc = carve.manifest_doc()
+    row = _retire(doc)
+    row["retired"]["at"] = RE_DESTINED_TO
+    row["retired"]["at_path"] = RE_DESTINED_TO_PATH
+    manifest = carve.write_manifest(doc)
+
+    dest = carve.materialise(doc, RETIRED_AT)
+    assert not (dest / RETIRED_AT_PATH).exists()
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-missing"
+
+    # AND THE BLOCK IS STILL READ AT THE LEG IT NAMES, unchanged: the row is
+    # read TWICE rather than nowhere, and `retired_rows()` goes on asking the
+    # question the block asks without re-deciding the validator's finding.
+    named = carve.materialise(doc, RE_DESTINED_TO)
+    done = run(carve, manifest, "--destination", RE_DESTINED_TO,
+               "--dest-root", str(named), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert [r["source_path"] for r in json.loads(done.stdout)["retired"]] == \
+        [RETIRED_SOURCE], done.stdout
+
+
+def test_a_retirement_naming_another_path_here_leaves_the_arrival_owed(
+        carve: Carve) -> None:
+    """The narrower half of the same hole, and the one a leg is likeliest to
+    hand-write: the right `at`, the wrong `at_path`.
+
+    `retired_rows()` selects the row here and proves the path the BLOCK named
+    empty — which it always was — while the placement the ROW makes goes
+    unasked. Nothing else in the file would mention `src/pkg/beta.py` again."""
+    doc = carve.manifest_doc()
+    row = _retire(doc)
+    row["retired"]["at_path"] = "src/pkg/beta-under-another-name.py"
+    manifest = carve.write_manifest(doc)
+
+    dest = carve.materialise(doc, RETIRED_AT)
+    assert not (dest / RETIRED_AT_PATH).exists()
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-missing"
+
+
+def test_the_placement_question_is_this_files_own_and_the_shared_one_is_not(
+        ) -> None:
+    """`retired_at` is the predicate the THREE tools mirror and it is
+    unchanged; `retired_arrival` is the fourth question only this file can
+    ask, because only this file is run against a destination.
+
+    Called directly, over one row read three ways, so the two selections'
+    pairing is visible as arithmetic rather than inferred from an exit code:
+    every row must be in exactly one of `rows_for` and `retired_rows` at the
+    leg it belongs to, and in `rows_for` wherever the block does not name the
+    row's own placement."""
+    row: dict[str, Any] = {
+        "source_path": "scripts/pkg/beta.py",
+        "disposition": "moved_verbatim",
+        "destination": "scratch_code",
+        "destination_path": "src/pkg/beta.py",
+        "retired": {"at": RE_DESTINED_TO, "at_path": RE_DESTINED_TO_PATH,
+                    "ruling": RETIREMENT_RULING, "surface": RETIRED_SURFACE},
+    }
+    doc: dict[str, Any] = {"rows": [row]}
+
+    # MIS-PLACED: readable, and about no placement this row makes.
+    assert MODULE.retired_at(row) == (RE_DESTINED_TO, RE_DESTINED_TO_PATH), row
+    assert MODULE.retired_arrival(row) == (None, None), row
+    assert MODULE.rows_for(doc, "scratch_code") == [row], doc
+    assert MODULE.retired_rows(doc, "scratch_code") == [], doc
+    assert MODULE.retired_rows(doc, RE_DESTINED_TO) == [row], doc
+
+    # WELL PLACED: the row's own arrival, and the pair swaps over.
+    row["retired"]["at"] = "scratch_code"
+    row["retired"]["at_path"] = "src/pkg/beta.py"
+    assert MODULE.retired_arrival(row) == ("scratch_code", "src/pkg/beta.py")
+    assert MODULE.rows_for(doc, "scratch_code") == [], doc
+    assert MODULE.retired_rows(doc, "scratch_code") == [row], doc
+
+    # COMPOSED (RULED Q6 then RULED 5656343213): the EFFECTIVE arrival is what
+    # `retired_arrival` compares against, so the pair swaps at the leg the file
+    # actually reached and the row is owed at neither.
+    row["re_destined"] = {"to": RE_DESTINED_TO, "to_path": RE_DESTINED_TO_PATH,
+                          "from": "scratch_code",
+                          "from_path": "src/pkg/beta.py",
+                          "ruling": RE_DESTINED_RULING}
+    assert MODULE.retired_arrival(row) == (None, None), row
+    assert MODULE.rows_for(doc, RE_DESTINED_TO) == [row], doc
+    row["retired"]["at"] = RE_DESTINED_TO
+    row["retired"]["at_path"] = RE_DESTINED_TO_PATH
+    assert MODULE.retired_arrival(row) == (RE_DESTINED_TO, RE_DESTINED_TO_PATH)
+    assert MODULE.rows_for(doc, RE_DESTINED_TO) == [], doc
+    assert MODULE.rows_for(doc, "scratch_code") == [], doc
+    assert MODULE.retired_rows(doc, RE_DESTINED_TO) == [row], doc
+
+
 def test_the_human_line_names_the_retirements_at_this_leg(
         carve: Carve) -> None:
     """A reader of a leg's log must be able to see that a row it used to owe

@@ -248,8 +248,11 @@ surface the arrived file drove is at NO leg to move it to. What this file does
 with such a row is the simplest thing and the most easily got wrong:
 
   THE ROW IS NOT OWED HERE, AND THE PATH MUST BE EMPTY. `rows_for()` drops a
-  retired row, so it is not asked for, not digested, not diffed, and — this is
-  the half a reader should check — NOT ADMITTED IN THE WALK EITHER. A form
+  row RETIRED AT ITS OWN EFFECTIVE ARRIVAL (`retired_arrival`, which is
+  `retired_at` plus that placement question — a block naming some other leg or
+  some other path retires nothing here and the arrival stays owed), so it is
+  not asked for, not digested, not diffed, and — this is the half a reader
+  should check — NOT ADMITTED IN THE WALK EITHER. A form
   that only stopped ASKING for the file would make `retired:` a licence to
   leave the arrived copy standing under a declared root with nothing left to
   declare it. `check_retired` closes that: the path is required ABSENT by
@@ -1122,6 +1125,51 @@ def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
     return None, None
 
 
+def retired_arrival(row: dict[str, Any]) -> tuple[Any, Any]:
+    """`retired_at(row)` where the block retires THIS ROW'S OWN EFFECTIVE
+    ARRIVAL, and `(None, None)` where it names any other placement.
+
+    THE PLACEMENT QUESTION, ASKED BEFORE THE ROW IS DROPPED (Copilot review of
+    PR #1032, round 3). `retired_at` answers "is this a readable retirement"
+    and is the predicate the other two tools mirror; it cannot answer "of
+    WHAT", because `carved_reach` holds no destination and the manifest
+    validator asks it of the document rather than of a leg. That left
+    `rows_for()` dropping a row on the strength of four non-empty strings
+    alone, while `retired_rows()` — keyed on `retired.at`, deliberately — then
+    declined it at every leg but the one the block named. A block whose
+    `at`/`at_path` disagreed with its own row was therefore checked NOWHERE:
+    not as an arrival at the leg the file really goes to, and not as a
+    retirement either. The deleted file passed silently, which is the one
+    outcome this whole form exists to refuse.
+
+    `validate-carve-manifest.py`'s check 6 holds the two equal and would refuse
+    such a document as `carve-disposition-inconsistent` — but THIS file is run
+    at a LEG, against a `--dest-root`, on a manifest `read_manifest()`
+    deliberately does not revalidate, so "the validator would have caught it"
+    is not true at the moment of reading. Here the answer is the fail-closed
+    one this file gives everywhere else: where the block does not name the
+    placement the row makes, it retires nothing HERE, the arrival stays owed,
+    and a missing file refuses `arrival-missing`. `retired_rows()` goes on
+    asking the question the BLOCK asks at the leg the BLOCK names, so a
+    mis-placed retirement is now read TWICE — as a live arrival at the row's
+    own leg and as a (vacuous) retirement at the named one — and refused by
+    the first of the two rather than excused by neither.
+
+    NOT FOLDED INTO `retired_at`, which would have been the shorter diff:
+    `test_all_three_tools_read_the_retirement_identically` holds that predicate
+    equal across three files, and `carved_reach`'s copy has no `destination` in
+    hand to compare against. Its fail-closed direction is the other one — it
+    RAISES `CarveRowRetired` rather than answering — so a mis-placed block
+    costs a caller there a refusal, never a silent path to a deleted file.
+    """
+    at, at_path = retired_at(row)
+    if at_path is None:
+        return None, None
+    if (at, at_path) != effective_arrival(row):
+        return None, None
+    return at, at_path
+
+
 def arrival_path(row: dict[str, Any]) -> Any:
     """The path half of `effective_arrival` — the one every check joins onto
     `--dest-root`.
@@ -1152,18 +1200,28 @@ def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     `arrival-missing`, which is exactly the pair of refusals the boundary
     note's § 6 measured stopping slice S6.
 
-    AND A RETIRED ROW IS OWED NOWHERE (RULED 5656343213). A ruling has DELETED
-    the arrival, so this leg is not asked for the file, and the row travels to
-    `retired_rows()` instead — which requires the path ABSENT here. Dropping
-    it from this list is what removes it from `check_arrivals`, from
-    `declared_roots` and, load-bearingly, from the walk's `placed` set: a form
-    that only stopped asking for the file would leave the arrived copy
-    standing under a declared root with nothing left to declare it.
+    AND A ROW RETIRED AT ITS OWN ARRIVAL IS OWED NOWHERE (RULED 5656343213).
+    A ruling has DELETED the arrival, so this leg is not asked for the file,
+    and the row travels to `retired_rows()` instead — which requires the path
+    ABSENT here. Dropping it from this list is what removes it from
+    `check_arrivals`, from `declared_roots` and, load-bearingly, from the
+    walk's `placed` set: a form that only stopped asking for the file would
+    leave the arrived copy standing under a declared root with nothing left to
+    declare it.
+
+    `retired_arrival` AND NOT `retired_at` IS THE TEST, and the difference is
+    the whole of Copilot's round-3 finding on PR #1032: a block that is
+    READABLE is not yet a block that retires THIS row's placement, and dropping
+    on readability alone let a `retired:` whose `at`/`at_path` disagreed with
+    its own row fall between this function and `retired_rows()` — asked for at
+    no leg and retired at none either. Where the block names some other
+    placement it retires nothing here, the row stays in this list, and its
+    absent file refuses `arrival-missing`.
     """
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
-            and retired_at(row)[1] is None
+            and retired_arrival(row)[1] is None
             and effective_arrival(row)[0] == destination]
 
 
@@ -1178,6 +1236,14 @@ def retired_rows(doc: dict[str, Any],
     BLOCK asks: a document whose `at` disagreed with its own row would be
     refused there, and asking it here at a leg the block never named would
     make this tool quietly re-decide the other tool's finding.
+
+    WHAT MAKES THAT SAFE IS `rows_for`'s SIDE OF THE PAIR, not this one. The
+    two selections are deliberately asymmetric — this one reads the BLOCK,
+    that one reads the ROW — and together they must leave no row unread. They
+    did not until `retired_arrival` was split out of `retired_at` (Copilot
+    round 3 on PR #1032): a mis-placed block was dropped there AND declined
+    here. Now it is read TWICE, and the leg the row really arrives at refuses
+    the missing file before this leg's vacuous retirement can excuse it.
     """
     out: list[dict[str, Any]] = []
     for row in doc["rows"]:
