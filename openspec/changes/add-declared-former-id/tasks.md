@@ -224,8 +224,11 @@ realization evidence and a further word.
       `test_this_corpus_claims_no_identity_twice_today` and
       `test_every_packet_in_this_corpus_reads_its_declaration_cleanly`, which
       pass over this repository's own active and archived packets today.
-      **ITS PRODUCTION CALLER IS SLICE 4'S** corpus arm (PR #1039, in
-      flight).
+      **ITS PRODUCTION CALLER LANDED WITH SLICE 4'S** corpus arm —
+      `scripts/former_id_arrival.py` calls `former_identity_ownership_problems`
+      on every run (PR #1039, merge `92d519b0`, 2026-09-15T19:15:01Z), so the
+      sweep runs on every pull request today; what is still outstanding is
+      § 4.5, the required-check registration, not the caller.
 
 ## 3. The archive gate — REALIZATION
 

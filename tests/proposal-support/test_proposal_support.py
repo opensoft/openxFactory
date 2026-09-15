@@ -2005,15 +2005,18 @@ class OriginRetentionAtArchiveTests(unittest.TestCase):
         `release-realization`'s *An undeclared rename arrival is refused at its
         landing* is realized by `add-declared-former-id` § 4 —
         `scripts/former_id_arrival.py` and its CLI
-        `scripts/validate-former-id-arrival.py` (slice 4, PR #1039, landing on
-        its own word) — which refuses the r-to-s
+        `scripts/validate-former-id-arrival.py` (slice 4, PR #1039, landed at
+        merge `92d519b0`) — which refuses the r-to-s
         hop at its own landing, `former-id-undeclared`, exit 1, because that
         hop's source identity had declared `Status: ratified` and the arriving
         packet declares nothing. ONCE THAT GATE IS REQUIRED this history cannot
         be created in the first place and the archive gate never has to reach
-        back for it — and until then (slice 4 landing, then § 4.5, an operator
-        act outstanding on 2026-09-14) the refusal is reported and enforced by
-        nothing, so a commit of exactly this shape can still land. What does
+        back for it — and until § 4.5 is performed (an operator act,
+        outstanding on 2026-09-15) the refusal is REPORTED but not ENFORCED:
+        `.github/workflows/former-id-arrival-gate.yml` runs the validator on
+        every pull request, so an undeclared move shows a red check, while the
+        check blocks no merge until the ruleset requires it — so a commit of
+        exactly this shape can still land. What does
         not change either way is WHERE the refusal belongs: not here.
 
         WHY THIS FIXTURE KEEPS ITS ASSERTIONS AND ITS NAME. The #999
