@@ -3200,9 +3200,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     assert len(replicas) == 20, len(replicas)
 
     # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
-    # review, PR #995) — the aggregate `(1422, 158)` above would still pass if
-    # these four had landed on the wrong rows, under the wrong class, or as a
-    # different four line numbers that happened to sum to the same total.
+    # review, PR #995) — the aggregate above, `(1422, 158)` on the day this pin
+    # was written and `(1761, 159)` today, would still pass if these four had
+    # landed on the wrong rows, under the wrong class, or as a different four
+    # line numbers that happened to sum to the same total. The dated figure is
+    # kept beside the current one because the REASON this pin exists is what
+    # that aggregate could not tell apart, and that reason is the same at
+    # either total.
     # Named individually, on the same `(class, lines)` idiom the replica row's
     # check above already uses.
     cli_row = rows["scripts/ideation_dashboard/cli.py"]

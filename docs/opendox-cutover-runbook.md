@@ -243,13 +243,19 @@ test-layout files that carve leg 1 measured:
   the LINE: `verify-carve-arrival.py` verifies one destination per run and
   compares no two legs' copies with each other.
 
-The **one replica line belongs to no destination column below** — it is the
-line that makes those four columns sum to ONE LESS than the aggregate, 1422
-when this paragraph was written and 1761 now. **That figure is the AGGREGATE
-and not an ordinal in this file's row order** (Copilot review, PR #1043): the
-replica's own declared line is the 990th in row order, measured, at `main` and
-after this act alike, because the 177 lines this act declares land on a row
-that FOLLOWS the conftest's. A replica row names no
+The **one replica line belongs to no destination column below**, and what
+that means is a RULE about what a replica row contributes rather than an
+arithmetic anyone can run on the cells today: **when the per-destination table
+is CURRENT its four declared-line cells sum to exactly ONE LESS than the
+aggregate**, and the missing one is this line. It is not current — the cells
+sum to 1421 against an aggregate of 1761, so today's gap is **340**: this
+replica's one line, plus the 339 the table has not taken (slice S5's 162 and
+this act's 177). The aggregate was 1422 when this paragraph was written, which
+is the day the rule and the arithmetic last agreed. **And 1422/1761 are
+AGGREGATES, not an ordinal in this file's row order** (Copilot review, PR
+#1043): the replica's own declared line is the 990th in row order, measured, at
+`main` and after this act alike, because the 177 lines this act declares land
+on a row that FOLLOWS the conftest's. A replica row names no
 destination at all, so the per-leg declared-line figures still sum to one less
 than the total, and that line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
