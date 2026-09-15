@@ -374,8 +374,13 @@ def test_a_SYMLINKED_DEFAULT_REGISTER_is_not_used_by_the_scan(tmp_path):
     tree — but the probe grants nothing, because `code_surface.load_register`
     refuses a register that is a symlink OR has a symlinked ANCESTOR, and that
     guard is UNANCHORED and so strictly stronger than the path-boundary check.
-    The unnamed default then falls back exactly as documented. The proof is the
-    refusal's wording: the escaped register's entry `c` is NOT named."""
+    WHAT THE TREE IS JUDGED AGAINST AFTERWARDS CHANGED BENEATH THIS TEST, and
+    the assertion it was written for did not: the escaped register's entry `c`
+    is still NOT named. The register is PRESENT (`is_file()` follows the link)
+    and UNUSABLE, so the scan now REFUSES — exit 2, `CANNOT RUN`, naming the
+    symlink — instead of continuing against the register beside the validator.
+    A tree that carries a symlink where its exception file belongs is not a
+    tree this gate can make a judgment about."""
     outside = tmp_path / "outside"
     outside.mkdir()
     _register_naming(outside / "code-surface-register.yaml", "c",
@@ -392,7 +397,9 @@ def test_a_SYMLINKED_DEFAULT_REGISTER_is_not_used_by_the_scan(tmp_path):
         outside / "code-surface-register.yaml")
     assert (root / "scripts" / "code-surface-register.yaml").is_file()  # follows
     result = _scan(root)
-    assert result.returncode == 1, result.stdout + result.stderr
-    assert "NO REPOSITORY SET CAN BE DERIVED" in result.stdout
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "CANNOT RUN" in result.stdout
+    assert "reached through a symlink" in result.stdout
+    assert "does NOT fall back" in result.stdout
     assert "entry `c`" not in result.stdout
-    assert "not carried by the closed code-surface register" in result.stdout
+    assert "Traceback" not in result.stderr, result.stderr

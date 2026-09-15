@@ -1494,6 +1494,145 @@ def test_the_scope_gate_defaults_the_register_to_the_SCANNED_tree(tmp_path):
     assert "not carried by the closed code-surface register" not in result.stdout
 
 
+# --- THE REGISTER IS THE SCANNED TREE'S OR IT IS NOTHING ----------------------
+#
+# The step above resolves `REPO_ROOT/scripts/code-surface-register.yaml` when the
+# scanned tree carries one. The two cases where it does NOT are these, and both
+# used to end at `register=None`, which is the derivation's instruction to load
+# the register BESIDE THE IMPORTED MODULE — this repository's own. A tree was
+# then judged against exceptions it does not carry, silently, in a message that
+# named an entry and told its author to delete it from a file they do not have.
+# `scope_globs.NO_REGISTER` is the absence spelled as itself; `None` keeps its
+# one meaning, and the CLI never passes it.
+
+
+def _a_live_house_entry() -> dict:
+    """One entry of THIS repository's own register, whose declaration is a
+    SINGLE LINE so a fixture proposal can reproduce it verbatim as the prose
+    header it is.
+
+    READ FROM THE LIVE FILE RATHER THAN PASTED, so the probe cannot rot into a
+    change id the house register stopped carrying and pass vacuously ever
+    after: the day no entry qualifies, this raises instead.
+    """
+    for entry in cs.load_register(REGISTER):
+        if "\n" not in entry["declaration"]:
+            return entry
+    raise AssertionError(
+        "the house register carries no single-line declaration; these probes "
+        "need one they can reproduce in a fixture proposal verbatim")
+
+
+def _house_entry_tree(tmp_path) -> tuple[Path, dict]:
+    """A tree carrying ONE proposal that reproduces a live house register
+    entry — its change id AND its declaration — and NO register of its own.
+
+    Every precondition that makes this a probe rather than a coincidence is
+    asserted here: the declaration round-trips through the reader unchanged,
+    the house register really would match it, and the tree really carries no
+    `scripts/` of its own. Without the middle one the tests below would pass
+    against the unfixed CLI too.
+    """
+    entry = _a_live_house_entry()
+    _proposal(tmp_path, entry["change"],
+              f"code_surface: {entry['declaration']}\n"
+              "scope_globs:\n  openxFactory:\n    - 'scripts/**'")
+    front = sg.read_front_matter(
+        tmp_path / "openspec" / "changes" / entry["change"] / "proposal.md")
+    assert front["code_surface"] == entry["declaration"]
+    assert cs.register_entry_for(entry["change"], front["code_surface"],
+                                 cs.load_register(REGISTER)) is not None
+    assert not (tmp_path / "scripts").exists()
+    return tmp_path, entry
+
+
+def test_a_scanned_tree_with_NO_register_is_NOT_judged_against_the_HOUSE_one(
+        tmp_path):
+    """THE DEFECT, PINNED. A tree carrying no exception file at all was told
+    its declaration is TOLERATED by the closed register — measured, before the
+    fix, on this exact fixture:
+
+        Its declaration is carried by the CLOSED code-surface register — entry
+        `amend-kill-switch-to-declared-test-companion`, class `possessive`,
+        retiring when the owning packet re-punctuates its declaration … and the
+        entry MUST be deleted in that same pull request.
+
+    None of that is about the tree being judged. The declaration is now refused
+    as UNREGISTERED, which is the fact: nothing in that tree tolerates it.
+    """
+    root, entry = _house_entry_tree(tmp_path)
+    result = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root)],
+        capture_output=True, text=True)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "NO REPOSITORY SET CAN BE DERIVED" in result.stdout
+    assert "not carried by the closed code-surface register" in result.stdout
+    # THE ASSERTIONS THAT FAIL ON A REVERT. `CLOSED` in capitals is the
+    # tolerated arm's own wording and appears nowhere else; the entry name is
+    # the house file's. (The entry's CLASS is deliberately not asserted on:
+    # `possessive` and `apposition` are words the grammar's own refusal uses.)
+    assert f"entry `{entry['change']}`" not in result.stdout
+    assert "CLOSED code-surface register" not in result.stdout
+
+
+def test_a_scanned_tree_register_that_CANNOT_BE_USED_refuses_not_falls_back(
+        tmp_path):
+    """A register PRESENT in the scanned tree and unusable REFUSES — the named
+    flag's semantics, for the file the tree carries whether or not an operator
+    typed its path. `code_surface.load_register`'s own rule is the authority
+    ("a register that cannot be used REFUSES rather than being ignored"), and
+    the direction the old comment missed is measured here: the fallback was not
+    to nothing, it was to the register BESIDE THE VALIDATOR."""
+    root, entry = _house_entry_tree(tmp_path)
+    (root / "scripts").mkdir()
+    (root / "scripts" / "code-surface-register.yaml").write_text(
+        "register: [this is not a closed sequence\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(SCOPE_VALIDATOR), str(root)],
+        capture_output=True, text=True)
+    assert result.returncode == 2, result.stdout + result.stderr
+    assert "CANNOT RUN" in result.stdout
+    assert "the scanned tree's code-surface register" in result.stdout
+    assert "does NOT fall back" in result.stdout
+    assert f"entry `{entry['change']}`" not in result.stdout
+    assert "CLOSED code-surface register" not in result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+
+
+def test_NO_REGISTER_is_the_absence_SPELLED_and_is_not_a_None(tmp_path):
+    """The sentinel's own properties, pinned where they are relied on: it is
+    NOT `None` (the derivation tests `is None`), it is EMPTY, and it is
+    IMMUTABLE — one shared value that no caller can append an entry to."""
+    assert sg.NO_REGISTER is not None
+    assert len(sg.NO_REGISTER) == 0
+    assert not isinstance(sg.NO_REGISTER, list)
+    with pytest.raises(AttributeError):
+        sg.NO_REGISTER.append({"change": "c"})          # type: ignore[attr-defined]
+
+
+def test_the_derivation_reads_NO_REGISTER_and_None_as_TWO_DIFFERENT_FACTS(
+        tmp_path):
+    """THE SEPARATION ITSELF, at the module rather than at the CLI: ONE front
+    matter, two register values, two different answers. `NO_REGISTER` yields a
+    carrier naming NO entry; `None` still means "load the house register on
+    demand" and yields the entry — which is what the CLI used to pass for a
+    tree that is not this one."""
+    root, entry = _house_entry_tree(tmp_path)
+    front = sg.read_front_matter(
+        root / "openspec" / "changes" / entry["change"] / "proposal.md")
+
+    entry_less = sg.code_surface_repositories(
+        front, change=entry["change"], register=sg.NO_REGISTER)
+    assert isinstance(entry_less, sg.NoDeclaredRepositories)
+    assert entry_less.register_entry is None
+
+    house = sg.code_surface_repositories(
+        front, change=entry["change"], register=None)
+    assert isinstance(house, sg.NoDeclaredRepositories)
+    assert house.register_entry is not None
+    assert house.register_entry["change"] == entry["change"]
+
+
 def test_an_operator_named_register_that_cannot_be_used_REFUSES_not_falls_back(
         tmp_path):
     """The sibling's semantics for a NAMED register: exit 2 and a named

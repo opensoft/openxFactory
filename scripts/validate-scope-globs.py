@@ -50,17 +50,37 @@ Usage:
         subject is `scope_globs:` and an unqualified "register" here would read
         as a register of scopes.
 
-        RESOLUTION ORDER, AND THE REASON FOR EACH STEP. With the flag, PATH is
-        used and a register that cannot be used REFUSES (exit 2), the sibling's
-        semantics: an operator who named a file is owed a refusal rather than a
-        silent fallback. Without it, `REPO_ROOT/scripts/code-surface-register.yaml`
-        is used when it exists — so a scanned tree is judged against ITS OWN
-        exceptions and not against whichever register happens to sit beside the
-        imported module, which for REPO_ROOT `.` in this repository is the same
-        file either way. With neither, the derivation's own on-demand load
-        applies: an absent exception file yields an entry-less refusal rather
-        than an exception, because the absence of an exception file may never
-        turn a fail-closed into a fail-open.
+        RESOLUTION ORDER, AND THE REASON FOR EACH STEP. THE REGISTER IS THE
+        SCANNED TREE'S OR IT IS NOTHING — at no step is it the one beside this
+        validator, which is the scanned tree's register only when the scanned
+        tree is this one.
+
+          1. WITH THE FLAG, PATH is used, and a register that cannot be used
+             REFUSES (exit 2) — the sibling's semantics: an operator who named
+             a file is owed a refusal rather than a silent fallback.
+          2. WITHOUT IT, `REPO_ROOT/scripts/code-surface-register.yaml` is used
+             WHEN IT EXISTS, so a tree is judged against ITS OWN exceptions
+             (for REPO_ROOT `.` in this repository that is the same file
+             either way). A PRESENT register that cannot be used REFUSES HERE
+             TOO, on `code_surface.load_register`'s own rule — "a register
+             that cannot be used REFUSES rather than being ignored: ignoring a
+             malformed exception file would silently re-fail every declaration
+             it covers, or silently admit one it does not" — because the file
+             is the SCANNED TREE'S OWN artifact whether or not an operator
+             typed its path, and because whether an entry tolerates a
+             declaration is UNKNOWN when nothing could be read, never "no".
+          3. WITH NEITHER — no flag and no such file — the scan runs against
+             `scope_globs.NO_REGISTER`: no entry tolerates anything, and an
+             unreadable head is refused as UNREGISTERED. It does NOT fall
+             through to the derivation's own `register=None` on-demand load,
+             which reads the register beside the IMPORTED MODULE. MEASURED
+             before this was separated: a tree carrying no register at all,
+             whose one proposal reproduced a live house entry's change id and
+             declaration, was refused with "Its declaration is carried by the
+             CLOSED code-surface register — entry
+             `amend-kill-switch-to-declared-test-companion`" — this
+             repository's exception file, named in a judgment about a tree
+             that does not have it.
 
     --archive-gate CHANGE_DIR --ratified-ref REF
         Scope-retention (freeze) gate — see the `scope-globs-integrity` feature.
@@ -88,6 +108,7 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+from typing import Mapping, Sequence
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -129,7 +150,8 @@ def _load_code_surface_register(path: Path) -> list[dict]:
 
 
 def _validate_change(proposal: Path,
-                     register: list[dict] | None = None) -> list[str]:
+                     register: Sequence[Mapping[str, object]] = sg.NO_REGISTER
+                     ) -> list[str]:
     """Return a list of problem strings for one proposal (empty when clean)."""
     try:
         front = sg.read_front_matter(proposal)
@@ -184,7 +206,8 @@ def _active_proposals(repo_root: Path) -> list[Path]:
 
 
 def validate_corpus(repo_root: Path,
-                    register: list[dict] | None = None) -> int:
+                    register: Sequence[Mapping[str, object]] = sg.NO_REGISTER
+                    ) -> int:
     try:
         proposals = _active_proposals(repo_root)
     except Exception as exc:  # reported as a finding, never traced
@@ -269,7 +292,11 @@ def main(argv: list[str] | None = None) -> int:
         return _archive_gate(Path(args.archive_gate), args.ratified_ref)
 
     repo_root = Path(args.repo_root)
-    register: list[dict] | None = None
+    # NEVER `None`. `None` is the derivation's instruction to load the register
+    # beside the IMPORTED MODULE, which is the scanned tree's register only when
+    # the scanned tree is this one; the ABSENCE of a register is `NO_REGISTER`,
+    # a value that says so and cannot be mistaken for the other fact.
+    register: Sequence[Mapping[str, object]] = sg.NO_REGISTER
     if args.code_surface_register:
         # NAMED BY AN OPERATOR, SO A FAILURE IS A REFUSAL AND NOT A FALLBACK.
         try:
@@ -283,14 +310,31 @@ def main(argv: list[str] | None = None) -> int:
     else:
         default = repo_root / "scripts" / "code-surface-register.yaml"
         if default.is_file():
-            # UNNAMED AND PRESENT: used, but a failure here falls back to the
-            # derivation's own on-demand load rather than refusing, because
-            # nobody named this file and an exception file that cannot be read
-            # must never turn a fail-closed into a fail-open.
+            # UNNAMED BUT PRESENT, AND A PRESENT REGISTER THAT CANNOT BE USED
+            # REFUSES — the named flag's semantics, because the file is the
+            # SCANNED TREE'S OWN artifact whether or not an operator typed its
+            # path, and `code_surface.load_register` rules it in terms: "a
+            # register that cannot be used REFUSES rather than being ignored".
+            # The wording this replaced said a fallback here could not turn a
+            # fail-closed into a fail-open; it could, in the direction nobody
+            # had measured — the fallback is the register BESIDE THIS
+            # VALIDATOR, so a tree whose own exception file is unreadable was
+            # judged against another tree's exceptions, and told its
+            # declaration is tolerated by an entry it does not carry.
             try:
                 register = _load_code_surface_register(default)
-            except Exception:  # see the comment above
-                register = None
+            except Exception as exc:  # reported as a finding, never traced
+                print("scope_globs validation CANNOT RUN:")
+                print(f"  - the scanned tree's code-surface register "
+                      f"{default} cannot be used: {exc}. The scan does NOT "
+                      f"fall back to the register beside this validator: the "
+                      f"tree would then be judged against another tree's "
+                      f"exceptions. Whether an entry tolerates a declaration "
+                      f"here is UNKNOWN, not `no`, until this file reads")
+                return 2
+        # ABSENT: `NO_REGISTER` stands. No entry tolerates anything, an
+        # unreadable head is refused as UNREGISTERED, and the register beside
+        # this validator is never consulted about a tree that is not its own.
 
     return validate_corpus(repo_root, register)
 

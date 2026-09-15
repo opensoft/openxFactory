@@ -58,7 +58,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Mapping
+from typing import Iterable, Mapping, Sequence
 
 
 def _sibling(name: str):
@@ -634,10 +634,21 @@ def validate_scope_globs(
     return validated
 
 
+#: THE TREE BEING JUDGED CARRIES NO USABLE REGISTER — the fact, SPELLED, so
+#: that it is never spelled as a `None` that already means something else here
+#: (see `code_surface_repositories`'s `register` argument, which lists all three
+#: values and what each one says). A TUPLE and not a list: it is shared by every
+#: caller and must not be appendable, and it is IDENTITY-distinct from `None`
+#: rather than merely falsy — the derivation tests `is None`, and an `if not
+#: register:` written later would re-conflate the exact two facts this value
+#: exists to separate.
+NO_REGISTER: tuple[Mapping[str, object], ...] = ()
+
+
 def code_surface_repositories(
     front_matter: Mapping[str, object],
     change: str | None = None,
-    register: list[dict] | None = None,
+    register: Sequence[Mapping[str, object]] | None = None,
 ) -> set[str] | NoDeclaredRepositories:
     """The repositories a change DECLARED, derived from the declaration's
     DECLARED HEAD and never from its prose gloss.
@@ -689,12 +700,32 @@ def code_surface_repositories(
 
     `change` is the change-directory name, which the one in-tree caller already
     holds (`proposal.parent.name`); it is what lets the refusal name the
-    proposal. `register` is the loaded code-surface register; when it is None
-    and a head cannot be read, the house register is loaded ON DEMAND — only on
-    that path, so the ordinary case does no file I/O, and a register that cannot
-    be loaded yields a carrier naming no entry rather than an exception, because
-    the absence of an exception file may never turn a fail-closed into a
-    fail-open.
+    proposal. `register` is the loaded code-surface register, AND ITS THREE
+    VALUES ARE THREE DIFFERENT FACTS:
+
+      * A LIST OF ENTRIES — "judge against THESE". The only value a caller
+        scanning a tree other than this module's own may pass.
+      * `NO_REGISTER` — "the tree being judged carries NO usable register", so
+        nothing tolerates an unreadable head and the carrier names no entry.
+      * `None` — "I hold no register; load the HOUSE one (the file beside the
+        imported `code_surface` module) if a head turns out to be unreadable."
+        The load is ON DEMAND, only on that path, so the ordinary case does no
+        file I/O, and a house register that cannot be loaded yields a carrier
+        naming no entry rather than an exception, because the absence of an
+        exception file may never turn a fail-closed into a fail-open.
+
+    `None` IS CORRECT ONLY WHERE THE SCANNED TREE IS THE MODULE'S OWN — a gate
+    judging the checkout it ships in — AND WRONG EVERYWHERE ELSE, which is why
+    the absence of a register is `NO_REGISTER` and not a `None`. MEASURED on the
+    CLI before the two were separated: a fixture tree carrying no
+    `scripts/code-surface-register.yaml` AT ALL, whose single proposal
+    reproduced a live house entry's change id and declaration, was refused with
+    *"Its declaration is carried by the CLOSED code-surface register — entry
+    `amend-kill-switch-to-declared-test-companion`, class `possessive`"* — an
+    exception file that tree does not have, named as though it did, telling its
+    author to delete an entry from a file they do not carry. That is the same
+    `None`-means-two-things conflation the absence CARRIER beside it exists to
+    undo (`None` vs an empty set vs the carrier), one argument to the left.
     """
     if "code_surface" not in front_matter:
         # THE PROMOTED DOC-ONLY DEFAULT, DERIVED RATHER THAN REFUSED. The key
@@ -729,10 +760,14 @@ def code_surface_repositories(
         if change is not None:
             entries = register
             if entries is None:
+                # `None` AND ONLY `None`: see the docstring. `NO_REGISTER` is
+                # the caller SAYING there is no register and is passed through
+                # untouched, so a scanned tree that carries none is never
+                # judged against the one beside this module.
                 try:
                     entries = cs.load_register()
                 except cs.CodeSurfaceError:
-                    entries = []
+                    entries = NO_REGISTER
             entry = cs.register_entry_for(change, raw, entries)
         return NoDeclaredRepositories(
             change=change, declaration=raw, register_entry=entry,
