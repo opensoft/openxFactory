@@ -1273,7 +1273,11 @@ never by touching the manifest. The PARTIAL case is gentler: a declared edit
 that has not yet been applied is no refusal at all, so between the two merges
 the ending replay's lines simply read as not-yet-applied inside a row that is
 still within its declared lines (measured at openXdox-code `c1ad341a`: 29 of
-that row's 196 declared carve lines differ, none undeclared).
+that row's **196 DISTINCT** declared carve lines differ, none undeclared —
+distinct because the row carries 206 line entries and slice S5's ten sit
+INSIDE this act's range, declared twice on purpose so the removed block's
+extent is readable in one place; the aggregate in § 2 counts entries and this
+sentence counts lines, and both are right about different questions).
 
 **And what the floor does NOT prove, on § 5.7's own terms.**
 `verify-carve-arrival.py` verifies ONE destination per run, so a retirement at
