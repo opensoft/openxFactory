@@ -140,16 +140,20 @@ mapping manifest. Measured in the landed file:
 
 | disposition | rows | the proof owed at the destination |
 | --- | ---: | --- |
-| `moved_verbatim` | **160** | the arrived blob's `sha256` and mode EQUAL the row's |
-| `moved_with_declared_edit` | **158** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
+| `moved_verbatim` | **143** | the arrived blob's `sha256` and mode EQUAL the row's |
+| `moved_with_declared_edit` | **175** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 1584 declared edit lines**: `import rewrites` 708, `path
-constants` 202, `adapter calls` 674. **159 rows carry `edits:`** — the 158
+**318 rows move. 2366 declared edit lines**: `import rewrites` 722, `path
+constants` 206, `adapter calls` 1438. **176 rows carry `edits:`** — the 175
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
 `views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
 the one row that moves BOTH disposition counts and the carrier count at once.
+The § 3.4 slice-S7 annotation moved them again and by the largest margin of
+any act so far: **+782 declared lines over 33 `opendox_code` rows, 17 of them
+converted `moved_verbatim` -> declared** — "parameterize class C" edits every
+file in the served bundle, because every one of them rendered a word.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
@@ -201,7 +205,7 @@ test-layout files that carve leg 1 measured:
   compares no two legs' copies with each other.
 
 The **one replica line belongs to no destination column below** (the 1422nd
-when this paragraph was written, the 1584th now): a replica row names no
+when this paragraph was written, the 2366th now): a replica row names no
 destination at all, so the per-leg declared-line figures still sum to one less
 than the total, and that line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
@@ -212,11 +216,14 @@ RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
 test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
-**Measured directly against the landed manifest, 2026-09-12** (rather than
-hand-chained through every intervening amendment): the table and the two
-paragraphs above, and the per-destination table below, state the totals as of
-the § 3.4 SLICE-S3 row annotation (`#656` comment `5642758731`, openxFactory
-PR #1001) merged with every row annotation since RULED Q-L7 (a) above —
+**Measured directly against the landed manifest, and CURRENT TO THE § 3.4
+SLICE-S7 ANNOTATION of 2026-09-13** (rather than hand-chained through every
+intervening amendment): the table and the two paragraphs above, and the
+per-destination table below, state the totals as of THIS act — the § 3.4
+slice-S7 row annotation (RULED Q1/Q2/Q7, `#656` comment `5648049748`; S7 CLAIM
+`#656` comment `5649148461`) — which is the § 3.4 SLICE-S3 row annotation
+(`#656` comment `5642758731`, openxFactory PR #1001) merged with every row
+annotation since RULED Q-L7 (a) above —
 among them BUILD slice 2's nine openDox-code back-imports, a second Q-L1
 annotation round (`#656` comment `5628560136`), the ASK-7 declared-edit
 window (`#656` comment `5635150678`, PR #995), the § 3.4 SLICE S2
@@ -231,7 +238,16 @@ two rows' existing `edits:` and no new row, and the § 3.4 SLICE S4 annotation
 constants it counts across the three RULED `SPLIT` files — twelve travel to
 a new home or are removed, one (`ACTIONS_REFRESH_ROUTE`) stays in
 `repo-selector.js` — over seven rows (two already carriers, five new) and
-four admitted files, three of them class-B modules. Rather than
+four admitted files, three of them class-B modules, the § 3.4 SLICE S5
+annotation (RULED Q5/Q6, `#656` comment `5648044785`, openxFactory PR #1023
+@ `ee251d6c`) — the first act to use the `re_destined:` form, +162 declared
+lines, and the one `views/staging-workbench.js` conversion that moves both
+disposition counts and the carrier count at once — and the § 3.4 SLICE S7
+annotation THIS ACT CARRIES: +782 declared lines over 33 `opendox_code` rows,
+17 of them converted `moved_verbatim` -> declared, and three admitted files.
+The list is now complete: S3 and every annotation after it is named here, so
+the paragraph dates the figures to the LAST act rather than to the first.
+Rather than
 re-narrate each one here — this table is exactly the hand-maintained
 copy RULED Q-L1's own "two acts restating one set of absolutes is how a
 count becomes wrong in a merge" warns about — the figures above are the
@@ -245,11 +261,40 @@ Per destination, and these are the numbers each leg's arrival run must report:
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 53 / 70 | 727 | `src/opendox`, `tests` |
+| `opendox_code` | 123 | 35 / 88 | 1656 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
-| `openxdox_code` | 92 | 9 / 83 | 659 | `scripts`, `src/openxdox`, `tests` |
+| `openxdox_code` | 92 | 9 / 83 | 674 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
+
+The numeric columns are summed over the rows whose `destination:` names that
+leg, re-derived here rather than carried forward. TWO ROWS OF IT WERE STALE
+and both are corrected in the same act, because the correction IS the
+measurement: the table was last current at `880c821c`, where `opendox_code`
+read `53 / 70 | 727` and `openxdox_code` read `9 / 83 | 659`; the § 3.4
+slice-S5 annotation (`ee251d6c`) moved BOTH — to `52 / 71 | 874` and
+`9 / 83 | 674` — and moved neither cell. The slice-S7 annotation moves
+`opendox_code` again, to `35 / 88 | 1656`, and leaves `openxdox_code` where S5
+put it. The four destination figures now sum to 2365, and the single line the
+replica row `tests/ideation-dashboard/conftest.py` declares — the one replica
+line, which names no destination at all — makes 2366.
+`tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`
+asserts all four numeric columns, the fifth ROOTS column and that sum against
+the landed manifest, so every cell of this table is now read FROM THE TABLE;
+until the slice-S7 annotation nothing checked the numbers, which is how two
+cells sat wrong through two acts. THE ROOTS COLUMN HAD ONLY LOOKED CHECKED:
+`test_the_real_manifest_declares_the_roots_the_runbook_names` holds the
+manifest to a list hard-coded in the test and never opens this file, so a roots
+cell gone stale or gone unbackticked passed it. It stays where it is — two pins
+on one fact, one either side of the runbook — and the roots cell is now
+compared with `declared_roots(rows_for(...))`, the walk each leg's arrival run
+actually performs.
+
+A row RE-DESTINED by ruling still counts at the `destination:` it declares,
+which is why a leg's arrival run reports FOUR fewer arrived rows than this
+table's count for `opendox_code` (119) and four fewer declared-edit rows (84),
+and why `openxdox_code`'s run reports four MORE of each: the ruling moved the
+placement, not the row.
 
 The declared-roots column is spelled **exactly as a run prints it** — no
 trailing slash — because an operator's first act after a leg lands is to read
@@ -308,7 +353,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 1584 now.
+from the start — 794 of them at this ruling's own landing, 2366 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738
@@ -789,9 +834,32 @@ manifest validator this verifier is fail-closed about it and refuses
 python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --manifest "$OXF/docs/opendox-carve-manifest.yaml" \
     --dest-root ../dest-openDox-code --source-repo ../oxf-carve-src.git --phase A
-# expect exit 0: 123 row(s) arrived … 123 digest(s) verified …
+# expect exit 0: 119 row(s) arrived … 119 digest(s) verified …
 #                scaffold admissions checked against <origin/main>
 ```
+
+**Those two figures are this leg's EFFECTIVE arrival and not § 2's row count
+for it** (Copilot review, round ten on PR #1030). § 2's table counts a
+re-destined row at the `destination:` it still names; RULED Q6 moved four of
+`opendox_code`'s 123 rows AWAY; and a run reports what it PLACES — 119, the
+four fewer § 2's own paragraph names. At phase A every arrived row is
+digest-checked, so the two numbers are one number twice.
+`test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces`
+re-derives both of § 5.5's expected lines from the landed manifest and
+composes them with the verifier's OWN summary line, elision by elision: these
+two comments were written when the runbook landed (`a970fd9d`) and never
+touched again, so they aged through every annotation act that moved the
+figures — the § 2 table's defect exactly, one section down, and the phase-B
+line below had drifted from the tool's wording as well as its numbers.
+
+**AND NO `--replica-at` AT PHASE A** (Copilot review, round eleven on PR
+#1030, reading § 5.6's "both `-code` legs owe" against this block). The copies
+are what COMMIT B places — § 5.6 is titled for it — so a phase-A run that
+declared one would refuse `arrival-missing` on a lawful tree. Measured in this
+leg's own history: `tests/conftest.py` and the three neutral-module copies the
+phase-B block declares are absent at commit A (`8e8983d`, the re-cut merged as
+`ce53b489`) and all four first appear at commit B (`749c926`). A replica is
+declarable exactly once it has been PLACED, which is the phase below.
 
 `--dest-base` defaults to the destination's own `origin/main`, which after the
 clone above is its PRE-CARVE main, and every SCAFFOLD admission's bytes are
@@ -808,24 +876,45 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --allow-created pytest.ini --allow-created conftest.py \
     --replica-at scripts/output_boundary.py=src/opendox/output_boundary.py \
     --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
-    --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py
-# expect exit 0: 62 edited row(s), declared-lines-only; 3 of 3 declared
-# replica(s) verified (byte-identical, or — where the row declares lines —
-# differing only on them)
+    --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py \
+    --replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py
+# expect exit 0: 119 row(s) arrived, 35 digest(s) verified, 85 declared-edit
+# row(s) within their lines, 0 unapplied; 4 of 4 declared replica(s) verified
+# (byte-identical, or — where the row declares lines — differing only on them)
 ```
 
+The old comment here read `62 edited row(s), declared-lines-only`, which is
+not a phrase this verifier prints — neither script carries the words “edited
+row(s)” or “declared-lines-only” at all. A quotation of a tool's output that
+the tool would not produce cannot be compared with a run, which is why the
+test composes these lines through `_print_ok` rather than matching them
+against a literal of its own. `0 unapplied` is not a manifest figure: it is
+the standard for a COMPLETE commit B — a declared-edit row the run finds
+byte-identical to the carve blob is an edit this leg did not apply, and the
+leg is not done until that count is zero. **The `85` is `84` moved rows plus the Q-L7 replica the fourth `--replica-at`
+declares**: a replica whose ROW declares lines is answered exactly as a moved
+row is and is counted with the moved rows' edits at phase B (`check_replicas`
+-> `counts["diffed"]`), which is why this figure is ONE ABOVE the `verbatim /
+edited` column § 2's per-destination table states for this leg. A replica left
+`unapplied` is the one lawful way that count is not zero, and it is not this
+leg's state any more — see the replica paragraph below.
+
 **This `--allow-created pytest.ini --allow-created conftest.py` is the ad-hoc
-form on purpose, not a stale example** (Copilot review, PR #979): RULED
-#656's first seeding declares `openxdox_code`'s two openXdox-code #7 files in
-`docs/opendox-carve-admissions.yaml` and NOTHING else — `opendox_code`'s own
-block there is `created: []`, so these two Phase-1 files have no reviewed
-declaration to read yet, and the command-line flag remains this leg's live,
-correct admission, exactly as § 5.6 and the admissions file's own header say
-`--allow-created` still does for a destination with none declared. It is not
-an operator falling back to a form the file has already replaced here; it
-becomes one only once a future PR adds `pytest.ini` and `conftest.py` to
-`opendox_code`'s `created:` list, at which point this example should drop
-the flag and this note should go with it.
+form on purpose, not a stale example** (Copilot review, PR #979; its PREMISE
+re-measured on Copilot's round-ten review of PR #1030). What keeps the flag
+correct is not that `opendox_code` declares no admissions — this note said
+its block in `docs/opendox-carve-admissions.yaml` was `created: []` long after
+BUILD slice 2 began filling it, and THIS act adds three more entries to it —
+but that neither `pytest.ini` nor `conftest.py` is among the paths it
+declares. Those two Phase-1 files still have no reviewed declaration to read,
+so the command-line flag remains this leg's live, correct admission, exactly
+as § 5.6 and the admissions file's own header say `--allow-created` still
+does for a path nothing declares. It is not an operator falling back to a
+form the file has already replaced here; it becomes one once a future PR adds
+`pytest.ini` and `conftest.py` to `opendox_code`'s `created:` list, at which
+point this example should drop the flag and this note should go with it — and
+the same test reads both of these flags against the landed admissions file,
+so that day is a FAILURE here rather than a sentence nobody re-reads.
 
 The human line says `verified (byte-identical, or …)` and not
 `byte-identical` since RULED Q-L7 (a), because one replica row now declares a
@@ -833,10 +922,17 @@ line and a copy that arrived carrying it is not byte-identical. **A leg that
 places `tests/ideation-dashboard/conftest.py` declares it too** —
 `--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` — and at
 phase B the run then reports it as a declared-edit row: `diffed` where the `:25`
-depth line was applied, `unapplied` where it was not. Leg 1 (openDox-code #6,
-merge `ce53b489`) landed BEFORE that grammar existed and is **not re-cut** for
-it: openDox-code takes the depth fix in a later declared act, which is the
-ruling's own sequencing.
+depth line was applied, `unapplied` where it was not. Leg 1 (openDox-code #6, merge `ce53b489`) landed BEFORE that grammar existed
+and was **not re-cut** for it — **and the later declared act that ruling
+sequenced HAS SINCE HAPPENED**: openDox-code `3954d78` (#19, 2026-09-12) took
+the depth fix on the row's own `:25` and nothing else. So the flag is no
+longer optional at this leg and § 5.5's example above declares it (Copilot
+review, round eleven on PR #1030). MEASURED with the example's own other flags
+against openDox-code at `c7a216c7`: WITHOUT it the run refuses
+`arrival-undeclared-file` at `tests/conftest.py` — "its bytes are no replica's
+at the carve commit", the applied `:25` line being exactly why the
+byte-identity admission can no longer see it — and WITH it the run answers `OK
+… 4 of 4 declared replica(s) verified`.
 
 **§ 5.2-5.5 PROVED END TO END, 2026-09-09**, against the landed manifest and a
 fresh mirror: the `opendox_spec` leg's 112-line path file carved `carve-src`
@@ -907,7 +1003,8 @@ lands is not obliged to update this prose, only the declared file.
   `--replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py` (the
   replica whose row declares `:25`, so its copy must read
   `REPO_ROOT = HERE.parent`, and it is `arrival-undeclared-file` if placed
-  edited and left undeclared) and, **at openXdox-code only**,
+  edited and left undeclared — openDox-code took it at `3954d78`, #19)
+  and, **at openXdox-code only**,
   `--replica-at tests/ideation-dashboard/session_fixtures.py=tests/session_fixtures.py`
   (the moved row `also_replicated_to: [openxdox_code]`, with the same four
   `ideation_dashboard.X` → `opendox.X` rewrites its `opendox_code` arrival
