@@ -32,10 +32,12 @@ of any pin verifier, of any record under `contracts/` or of any file under
       there re-opens the requirement rather than this scenario.
 - [ ] 1.3 **CONFIRM the `## MODIFIED` delta is the whole normative act** — ONE
       scenario added to *Prose tagging marker hygiene*, every other promoted
-      unit of that requirement carried VERBATIM (`diff` against
-      `openspec/specs/document-lifecycle/spec.md:218-688` shows exactly the
-      eight inserted lines), and no second capability touched. A veto here is a
-      veto of the scenario's wording and costs one block.
+      unit of that requirement carried VERBATIM (`git diff --numstat` of the
+      `## MODIFIED` block against `openspec/specs/document-lifecycle/spec.md:218-688`
+      shows exactly nine added lines and zero removed — the scenario's eight
+      content lines plus its one separating blank line), and no second
+      capability touched. A veto here is a veto of the scenario's wording and
+      costs one block.
 - [ ] 1.4 **CONFIRM that ratifying § 1 authorizes NO REALIZATION.** Ratification
       admits the scenario to the packet and nothing more: § 3 stays open, the
       adapter and its tests stay untouched, and the realization is a later pull
@@ -110,27 +112,44 @@ of any pin verifier, of any record under `contracts/` or of any file under
       each malformed entry, assert it raises `PinRefusal`, and assert
       `ps.judge(record, "openspec-cli")` refuses the SAME record naming
       `dispositions`. One case per D-1 row 2-6.
-- [ ] 3.5 **Regressions named in the finding, explicitly:** `[{}]`, `[null]`,
+- [ ] 3.5 **`tests/doc-health/test_tag_hygiene_pinned_targets.py`: a
+      FAMILY-LEVEL case, through `fam_tag_hygiene` over a `tmp_path` record** —
+      the module's own pattern for a tree no repository should carry (the
+      corrupt-record and symlink cases already use it). Build a `pinned:`
+      candidate marker resolving to a record whose `dispositions:` carries one
+      malformed entry, run it through the FAMILY (`_pinned_arm`, not
+      `pin_shapes.judge` called directly as 3.4 does), and assert the
+      resulting `Finding.rule` — rendered through `Verdict.render()`
+      (`pin_shapes.py:485-487`), the route
+      `test_an_invalid_pin_names_the_shape_tried_the_member_and_the_root`
+      already asserts finding text on — names BOTH `dispositions` AND the
+      offending entry, by index (`dispositions[N]`, the guard's own `where`
+      spelling) or by the missing/malformed key. 3.4's guard-and-adapter CALL
+      is necessary but not sufficient for the normative scenario: a
+      realization could satisfy it while the rendered finding names only
+      `dispositions` and drops which entry failed, and this case is what
+      closes that gap.
+- [ ] 3.6 **Regressions named in the finding, explicitly:** `[{}]`, `[null]`,
       and an entry missing `cited_to`. Plus the two boundary cases the
       measurement turned up: `cited_to: []` (reported as the missing key) and
       `level: "error"` (ADMITTED, case-folded).
-- [ ] 3.6 **The negative side, so the form does not drift WIDER:**
+- [ ] 3.7 **The negative side, so the form does not drift WIDER:**
       `dispositions:` absent, `null` and `[]` all still ACCEPTED, and
       `contracts/openspec-cli-pin.yaml` as it stands — six entries, all
       admitted by the guard today — still ACCEPTED by `judge`, which is the
       record leg's own assertion for this member.
-- [ ] 3.7 **Leave `test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two`
+- [ ] 3.8 **Leave `test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two`
       at `(29, 27, 2)`** and
       `test_the_adapter_is_necessary_and_not_sufficient_and_the_boundary_is_named`
       passing unchanged: the member is still absent-is-empty, so
       `judge(_without(RECORDS["openspec-cli"], "dispositions"), "openspec-cli")`
       is still ACCEPTED. A realization that moved either has changed the shape
       table and is outside this packet.
-- [ ] 3.8 **Update the adapter's own docstrings** — `_is_disposition_list`
+- [ ] 3.9 **Update the adapter's own docstrings** — `_is_disposition_list`
       (`:217-223`) and the `SHAPE_C.optional` comment (`:418-419`) — so the code
       states the entry grain and its citations, as `_is_path_only_list` already
       does for the other optional member.
-- [ ] 3.9 **Run the realization's evidence:** `pytest -q tests/doc-health`,
+- [ ] 3.10 **Run the realization's evidence:** `pytest -q tests/doc-health`,
       `pytest -q tests/openspec_cli_pin`, and
       `python3 scripts/doc-health.py --single-repo . --family tag-hygiene`,
       with no new finding on `contracts/`.

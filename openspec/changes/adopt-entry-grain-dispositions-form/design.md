@@ -37,15 +37,15 @@ the "raised at" column is the line the `PinRefusal` was raised from, read off
 the traceback, and the "condition" column is the line the test that reaches it
 is written on. `dispositions[N]` in the messages is ONE-BASED.
 
-| # | reading | condition | raised at | measured input | guard | adapter today |
-| --- | --- | --- | --- | --- | --- | --- |
-| 0 | member ABSENT or `null` is EMPTY — not a refusal | `:801-803` | — | absent; `null` | `[]` | ACCEPTS — agrees |
-| 1 | member PRESENT, non-null and NOT A LIST | `:804-809` | `:805` | `"not a list"`; `{a: 1}` | `pin-disposition-malformed` | REFUSES — agrees |
-| 2 | an ENTRY is not a mapping | `:813-817` | `:814` | `[null]`; `["a"]` | `pin-disposition-malformed` | **ACCEPTS — GAP** |
-| 3 | an entry MISSING any of `DISPOSITION_REQUIRED` — `repo`, `item`, `path`, `finding`, `why`, `cited_to` (`:353-354`), where "missing" is FALSEY and not merely absent (`not entry.get(key)`, `:818`) | `:818-827` | `:820` | `[{}]`; an entry without `cited_to`; `cited_to: []`; `why: ""` | `pin-disposition-malformed` | **ACCEPTS — GAP** |
-| 4 | an entry whose `cited_to` is truthy but NOT A NON-EMPTY LIST | `:828-836` | `:830` | `cited_to: "x"` | `pin-disposition-malformed` | **ACCEPTS — GAP** |
-| 5 | an entry declaring a `level` that is not `None` and, upper-cased, is not in `BLOCKING_LEVELS` (`:366`, exactly `{"ERROR"}`) | `:837-848` | `:843` | `level: "WARNING"`; `level: ""` | `pin-disposition-malformed` | **ACCEPTS — GAP** |
-| 6 | an entry naming NO AUTHORITY — neither `ratified_by` nor `recorded_by` truthy (`DISPOSITION_AUTHORITY`, `:361`) | `:849-855` | `:850` | entry without either | `pin-disposition-malformed` | **ACCEPTS — GAP** |
+| # | reading | condition | raised at | measured input | guard | adapter today | named by canon, or guard-only |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 0 | member ABSENT or `null` is EMPTY — not a refusal | `:801-803` | — | absent; `null` | `[]` | ACCEPTS — agrees | n/a — member grain, not one of the five |
+| 1 | member PRESENT, non-null and NOT A LIST | `:804-809` | `:805` | `"not a list"`; `{a: 1}` | `pin-disposition-malformed` | REFUSES — agrees | n/a — member grain, not one of the five |
+| 2 | an ENTRY is not a mapping | `:813-817` | `:814` | `[null]`; `["a"]` | `pin-disposition-malformed` | **ACCEPTS — GAP** | CANON-NAMED — a bare value cannot carry the identity keys `:586-588` names |
+| 3 | an entry MISSING any of `DISPOSITION_REQUIRED` — `repo`, `item`, `path`, `finding`, `why`, `cited_to` (`:353-354`), where "missing" is FALSEY and not merely absent (`not entry.get(key)`, `:818`) | `:818-827` | `:820` | `[{}]`; an entry without `cited_to`; `cited_to: []`; `why: ""` | `pin-disposition-malformed` | **ACCEPTS — GAP** | MIXED — CANON-NAMED for `repo`/`item`/`path`/`finding` (`:586-588`) and `cited_to` (`:578`); GUARD-ONLY for `why` (no ratified sentence names a `why:` member) |
+| 4 | an entry whose `cited_to` is truthy but NOT A NON-EMPTY LIST | `:828-836` | `:830` | `cited_to: "x"` | `pin-disposition-malformed` | **ACCEPTS — GAP** | CANON-NAMED (`:578`, `:633-636`) |
+| 5 | an entry declaring a `level` that is not `None` and, upper-cased, is not in `BLOCKING_LEVELS` (`:366`, exactly `{"ERROR"}`) | `:837-848` | `:843` | `level: "WARNING"`; `level: ""` | `pin-disposition-malformed` | **ACCEPTS — GAP** | GUARD-ONLY — no ratified sentence names `level:` or `BLOCKING_LEVELS` |
+| 6 | an entry naming NO AUTHORITY — neither `ratified_by` nor `recorded_by` truthy (`DISPOSITION_AUTHORITY`, `:361`) | `:849-855` | `:850` | entry without either | `pin-disposition-malformed` | **ACCEPTS — GAP** | CANON-NAMED (`:578`) |
 
 **TWO READINGS THE MEASUREMENT CORRECTED, AND THEY MATTER TO A TRANSCRIPTION.**
 (i) Row 3 SUBSUMES the falsey half of row 4: `cited_to: []` is refused at `:820`
@@ -82,23 +82,24 @@ source pin enumerates its members in two different forms*: *"a
 packet's scenario is that sentence's counterpart for shape (c), and is placed
 immediately after it for that reason.
 
-**AND THE ENTRY RULES ARE NOT THE VERIFIER'S INVENTION — THEY ARE RATIFIED
-CANON, IN A SECOND CAPABILITY.** `neutral-product-pin`'s requirement *A
+**AND THREE OF THE FIVE ENTRY-GRAIN REFUSALS ARE NOT THE VERIFIER'S
+INVENTION — THEY ARE RATIFIED CANON, IN A SECOND CAPABILITY; THE OTHER TWO
+ARE THE VERIFIER'S OWN PURE GUARD.** `neutral-product-pin`'s requirement *A
 dispositioned finding is cited, upgrade-coupled, and refused when stale*
-(`openspec/specs/neutral-product-pin/spec.md:577`) obliges every one of the
-readings D-1 measures, in its own words and before this packet:
+(`openspec/specs/neutral-product-pin/spec.md:577`) obliges the identity keys,
+the citation and the authority — rows 2, 4 and 6, and four of row 3's six
+keys — in its own words and before this packet:
 
 - `:578`, the requirement's first line — a disposition *"SHALL carry a non-empty
   CITATION to the canon that makes the acceptance lawful and SHALL name the
   authority that granted it; a disposition carrying neither is an UNCITED
   EXCEPTION and the pin is REFUSED rather than the entry being skipped"* (rows 3,
-  4 and 6).
+  4 and 6, for `cited_to` and the authority pair).
 - `:586-588` — *"A disposition SHALL identify ONE finding — the repository, the
   item, the delta path, and the finding's own text compared whole after
-  whitespace normalization"* (row 3's six keys, four of them named outright).
-- `:622-624` — *"The run's output SHALL name every applied exception, its
-  reason, its citations and its granting authority"*, which is row 3's sixth
-  key, `why:`, and the second naming of the citation and the authority.
+  whitespace normalization"* (row 3's six keys, four of them — `repo`, `item`,
+  `path`, `finding` — named outright; a bare value cannot carry them, which is
+  why row 2 is canon-named too).
 - `:633-636`, the scenario **A disposition carries no citation** — *"WHEN a
   disposition records no `cited_to:`, an empty one, or no granting authority …
   THEN the pin is REFUSED as malformed, before any artifact is fetched … AND the
@@ -106,13 +107,30 @@ readings D-1 measures, in its own words and before this packet:
   the measurement turned up at row 3, and it states the PURITY — *before any
   artifact is fetched* — that makes the guard transcribable at all.
 
-So the gap is sharper than the issue states it. The adapter does not merely
-admit what one verifier's local choice refuses: **it resolves a pinned target on
-a record that a ratified requirement of this estate says is REFUSED as
-malformed.** And the direction of the remedy is fixed by that: reaching the
-entry grain imposes NO new obligation on any pin's author — every obligation is
-already theirs under `neutral-product-pin` — it only lets the offline resolver
-read what that text already says.
+**THE REMAINING TWO OF ROW 3'S SIX KEYS, AND ALL OF ROW 5, ARE NAMED BY NO
+RATIFIED REQUIREMENT — THEY ARE THE VERIFIER'S OWN PURE GUARD.** `:622-624`
+requires the RUN'S OUTPUT to *"name every applied exception, its reason, its
+citations and its granting authority"* — an obligation on what a run REPORTS
+after APPLYING a disposition, not a requirement that the entry itself carry a
+`why:` member; no ratified sentence names a `why:` member. And no ratified
+sentence names `level:` or `BLOCKING_LEVELS` at all — row 5 is the verifier's
+own human-facing convenience, reconciling `ERROR` findings and nothing else.
+So `why` (part of row 3) and `level` (row 5) are GUARD-ONLY: reaching them
+imposes no obligation BEYOND what `pinned_dispositions` already enforces on
+every landed pin — `contracts/openspec-cli-pin.yaml`'s six entries clear both
+today, because the CLI itself refuses a record that does not.
+
+So the gap is sharper than the issue states it, for three of the five. The
+adapter does not merely admit what one verifier's local choice refuses on
+those three: **it resolves a pinned target on a record that a ratified
+requirement of this estate says is REFUSED as malformed.** On the other two —
+`why` and `level` — the adapter admits what the record's OWN verifier
+refuses, and reaching them costs a pin's author nothing beyond what that
+verifier already asks of every landed record; it does not follow that
+reaching them imposes NO obligation, only that the obligation is not a NEW
+one this packet invents. Either way the direction of the remedy is fixed: the
+entry grain reaches no member the guard does not already refuse, and the
+offline resolver mirroring it is NEVER wider than the guard.
 
 **WHICH IS ALSO WHY THIS PACKET CARRIES NO `neutral-product-pin` DELTA.** Issue
 #1045 offers the act as one against `document-lifecycle` "and/or
