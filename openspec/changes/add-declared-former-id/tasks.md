@@ -543,13 +543,21 @@ realization evidence and a further word.
       so the self-report on this packet is the workflow header plus this
       disposition, one place fewer than the precedent had. Adding it to the
       reader would be an edit to slice 4's file and is not taken here.
-      **THE PACKET MAY ARCHIVE WITH THIS BOX OPEN — RULED.** Brett Heap,
-      2026-09-15T19:00Z, verbatim ***"Yes, with disposition + carry-forward
-      issue"*** (same record): the archive carries this disposition AND a
-      carry-forward issue, on the `add-signed-execution-chain` precedent,
-      which archived with its own § 4.5/4.6 open at openxFactory issue #534 so
-      that an open operator act is not written down only inside an archived
-      packet. **THE CARRY-FORWARD ISSUE IS FILED BY THE ORCHESTRATOR AT THE
+      **THE PACKET MAY ARCHIVE WITH THIS ACT UNPERFORMED — RULED — AND THE
+      BOX IS TICKED WITH A DISPOSITION AT THE ARCHIVE, NOT LEFT `[ ]`.** Brett
+      Heap, 2026-09-15T19:00Z, verbatim ***"Yes, with disposition +
+      carry-forward issue"*** (same record). The mechanism is fixed by the
+      archive gate itself: `archive_change()` refuses any `tasks.md` line
+      matching `^- [ ]` with `change has incomplete tasks`
+      (`scripts/proposal-support.py`, the `incomplete tasks` check before the
+      pin is resolved) and carries no per-section exception — so this box
+      stays `[ ]` until the archive pull request, and THAT pull request ticks
+      it `[x]` with the disposition written beneath (*not performed at the
+      archive; carried as openxFactory#<carry-forward issue>*), exactly as
+      `add-signed-execution-chain` carried its § 4.5 at issue #534 (filed
+      2026-08-31 at its archive) so that an open operator act is not written
+      down only inside an archived packet. No exception to the gate is built
+      for this, and none is claimed. **THE CARRY-FORWARD ISSUE IS FILED BY THE ORCHESTRATOR AT THE
       ARCHIVE, ON HIS WORD — filing is a reserved act and no author on this
       lane performs it**, and until it exists this box and the archive pull
       request's own body are the only places the obligation stands.
@@ -795,14 +803,18 @@ realization evidence and a further word.
       are merged on the implemented target and `pytest-suite` has run green at
       the tree that merge carries. **Neither this pull request nor the
       ratification pull request may perform it.**
-      **THE ARCHIVE MAY PROCEED WITH § 4.5 OPEN — RULED.** Brett Heap,
+      **THE ARCHIVE MAY PROCEED WITH § 4.5 UNPERFORMED — RULED — BY TICKING
+      § 4.5 WITH A DISPOSITION, NEVER BY LEAVING IT `[ ]`.** Brett Heap,
       2026-09-15T19:00Z, verbatim ***"Yes, with disposition + carry-forward
       issue"***, recorded at
-      https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5686436893:
-      the packet archives carrying § 4.5's disposition (above) PLUS a
-      carry-forward issue, on the `add-signed-execution-chain` precedent —
-      that packet archived with its own § 4.5/4.6 open, carried at openxFactory
-      issue #534, and its requirement 9 reached canon MEETING ITS OWN DEGRADED
+      https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5686436893.
+      `archive_change()` refuses every `^- [ ]` in `tasks.md` (`change has
+      incomplete tasks`; `scripts/proposal-support.py`) with no per-section
+      exception, so the archive pull request ticks § 4.5 `[x]` with its
+      disposition beneath (*not performed; carried as openxFactory#<carry-
+      forward issue>*) — the `add-signed-execution-chain` precedent, whose
+      § 4.5 was carried at openxFactory issue #534 (filed 2026-08-31 at its
+      archive) and whose requirement 9 reached canon MEETING ITS OWN DEGRADED
       CASE rather than evading it, the capability conferring and refusing
       NOTHING until a named reader runs as a required check. The same is true
       here: an unrequired arrival gate refuses no landing. **WHAT THE ARCHIVE
