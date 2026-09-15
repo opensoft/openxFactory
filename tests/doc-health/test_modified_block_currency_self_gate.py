@@ -964,6 +964,31 @@ _LEDGER_SUBJECTS = {
      "Realization axis declaration"),
     ("add-target-release-deferred-allocation", "release-realization",
      "Realization axis vocabulary is gated"),
+    # ADDED 2026-09-15 BY `scope-pinned-arm-root-naming` (openxFactory issue
+    # #1047, lane `openxfactory-2`), THE SUCCESSOR THE ARCHIVE ACT COULD NOT
+    # PERFORM: the defect was surfaced by Copilot on the archive pull request
+    # #1042 and RULED STANDS there, the sentence being ratified canon promoted
+    # BYTE-IDENTICAL and an archive act no place to edit the text it promotes.
+    # A DELIBERATE SCOPING, and the narrowest the corpus admits: canon obliges
+    # EVERY finding the pinned arm emits to name the root or roots it resolved
+    # against, or failed to, and TWO of the realized arm's fifteen findings are
+    # emitted BEFORE ANY ROOT IS SELECTED — the lexically malformed pinned
+    # value (`scripts/doc_health/families.py:1573-1576`, refused at `:1572`,
+    # naming THE VALUE) and the document whose repository has no resolution
+    # root in the run (`:1587-1592`, naming THE REPOSITORY, `_pin_roots` having
+    # returned an empty list at `:1580`). The ONE uncarried unit of 186 is
+    # exactly that sentence, and its successor stands in the same paragraph
+    # saying MORE and never less — the obligation scoped to findings AFTER ROOT
+    # SELECTION, with the two exceptions named together with what each names
+    # instead. Every other promoted unit of the requirement, including all
+    # twenty-three of its scenarios, is carried verbatim, and ONE scenario is
+    # added. NO `Removed from canon` MARKER IS OWED, nothing being deleted.
+    # This arm cannot distinguish a deliberate scoping from drift and does not
+    # claim to; the finding is INFO and it is the audit trail for the
+    # amendment. Retires when the packet archives and its block is promoted
+    # onto `openspec/specs/document-lifecycle/spec.md` (its `tasks.md` § 3).
+    ("scope-pinned-arm-root-naming", "document-lifecycle",
+     "Prose tagging marker hygiene"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1411,7 +1436,15 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "extend-prose-tagging-target-to-pinned-capabilities ARCHIVED on "
         "merged-plus-green realization evidence (realization PR #1040 → "
         "74348374, archive PR #1042) and both its rows retired, their blocks "
-        "promoted byte-identical into canon)",
+        "promoted byte-identical into canon; 15 SINCE 2026-09-15, when "
+        "scope-pinned-arm-root-naming (openxFactory #1047) opened ONE row over "
+        "document-lifecycle's *Prose tagging marker hygiene* — the successor "
+        "packet that SCOPES the root-naming sentence the archived one had just "
+        "promoted, after the archive's own review found two findings the arm "
+        "emits before any root is selected and ruled the sentence STANDS as "
+        "promoted; its single uncarried unit IS that sentence, whose successor "
+        "in the same paragraph says MORE and never less; retires when the "
+        "packet archives and its block is promoted)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
