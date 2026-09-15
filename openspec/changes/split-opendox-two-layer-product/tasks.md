@@ -877,12 +877,160 @@ the bookkeeping that ticks this group.
   `serve_wire.py`, `serve_workbench.py`, `serve_project.py`, `cli.py`,
   `cli_project.py`, `cli_model_binding.py`; `src/` carries `route_extension.py`
   and `subcommand_extension.py` at top level.
-- [ ] 3.4 `[oD]` **INVENT the front-end package boundary** in `openDox-code` — 40
+- [x] 3.4 `[oD]` **INVENT the front-end package boundary** in `openDox-code` — 40
   files, 30,410 lines, and no boundary exists to discover. Account menu, canvas, editor, chat,
   docs tile and theme controls are openDox; the gate console and drill-in are the
   gate loop; the wheel, funnel and lens regions carry stage names. **This is where
   a student-usable openDox is won or lost**, and it is its own task rather than a
   consequence of the Python split.
+  **STATUS — 2026-09-14, tick JUDGED MET AT THIS AMENDMENT'S OWN LANDING: the
+  boundary was INVENTED as a design note and REALIZED in an eight-slice arc.**
+  **SEVEN** of the eight are merged as this is written; **S8 lands AHEAD of
+  this amendment** in the lane's recorded order — it is the one row still
+  carrying `[FILL AT LANDING]` below — so the tick is written for the state
+  this pull request lands INTO and not for the state it was authored in, and
+  the box is not ticked ahead of it. *(S7's row was filled in place at its own
+  landing, 2026-09-15, from the merged pull requests: `#1030` →
+  `b3a75537217d9b15684501684e9527f412d4e6b6` at **21:40:25Z** and openDox-code
+  `#21` → `1e4697130855e9695a6acc3344b7c925bb3eeb09` at **21:41:36Z** — Q-L1's
+  annotation-first rule holding a seventh time, by 71 seconds. The paragraph
+  read "Six of the eight … S7 and S8 land AHEAD" until then.)* That is the discipline `openDox-spec`'s
+  own amendment #3 applies to its § 5.0 landing record, which this table
+  mirrors.
+
+  **The boundary** is `openDox-spec` `docs/front-end-package-boundary.md` — the census,
+  the three destination classes (A openDox core / B the gate loop / C the
+  stage-named region), the registration mechanism, the four assertions and the
+  slice plan — landed at openDox-spec **#8 → `a44ac06d`** and amended three
+  times: **#9 → `61866d29`** (amendment #1, the five rulings Q1–Q5),
+  **#10 → `7d12428c`** (amendment #2, five corrections and Q6), and
+  **#11 → [FILL AT LANDING — merge sha]** (amendment #3, the S8 premise RULED,
+  the deferred re-measurement taken, a fifth declared class-A tail, and every
+  open question closed). Its § 6's SIX questions are all RULED and its § 5.1
+  counterpart's twelve are too. The realization, one row per slice, each leg
+  pull request paired under RULED **Q-L1** with the openxFactory row annotation
+  that lands FIRST — only S1 has none, because it creates files and edits no
+  carved row (the manifest names no slice S1); the order is visible in the
+  clock, S2's annotation merging 15:45:51Z and its leg 15:59:44Z on
+  2026-09-12:
+
+  | slice | what it did | openxFactory (Q-L1) | openDox-code | openXdox-code |
+  | --- | --- | --- | --- | --- |
+  | S1 | declare the census as DATA + the four assertions | — (created files) | `#13` → `e86deb2d` | — |
+  | S2 | the intent chips become an optional contributed binding (RULED Q5) | `#1002` → `b3cc0181` | `#15` → `c7ab3d87` | — |
+  | S3 | the view registry — `ViewBinding` + `collectViewBindings` | `#1001` → `f663b379` | `#14` → `c5edac88` | — |
+  | S4 | split the three RULED `SPLIT` files — thirteen route tails | `#1010` → `bcde1575` | `#17` → `69d27602` | — |
+  | S6 | `/source` becomes openDox's own fixed core arm (RULED Q4) | `#1009` → `468371dc` | `#16` → `3661345f` | `#17` → `d6e7bbe3` |
+  | S5 | contribute the gate loop — six class-B modules leave | `#1023` → `ee251d6c` | `#20` → `8efb3cf5` | `#18` → `c1ad341a` |
+  | S7 | parameterize class C — the display facet and the context hop | `#1030` → `b3a75537` | `#21` → `1e469713` | — |
+  | S8 | re-point the bundle paths, un-narrow `validate` for the web suites | `#1025` → **[FILL AT LANDING]** | `#23` → **[FILL AT LANDING]** | `#19` → **[FILL AT LANDING]** |
+
+  Two acts of the floor belong to the arc and are named with it: RULED **Q6**'s
+  `re_destined:` row form, built for S8 and landed at openxFactory
+  **#1011 → `880c821c`** — and then used by S5's four rows and by none of S8's,
+  which the note records as a finding; and the **`retired:` row form**, RULED at
+  `#656` comment `5656343213` as the NEXT carve-floor act, with the retirement
+  of the three intent-feed suites under it (openDox-code
+  `tests/test_intent_tray_dom.py` + `tests/test_wheel_verbs_dom.py`,
+  openXdox-code `tests/test_staging_workbench.py`'s ending replay, all three
+  driving `views/intent-feed.js`, RULED `not_moved` and present at neither leg).
+  Both are registered acts under their own claims, not conditions of this box.
+  **A THIRD act of the floor followed the arc's seventh slice and is named here
+  because it is what carries these landings into the aggregation** — the **pin
+  lockstep**, whose second run is openxFactory **`#1054` →
+  `3c614d340777cb1ff825c04dbc78d98af1dc875e`** (2026-09-15T23:27:40Z). Read
+  from that merge commit's own diff rather than from its title: it moves
+  `contracts/opendox-pin.yaml`'s `commit:` `7cf6c143` → **`3819625e`** (the
+  openDox assembly root, `opensoft/openDox` `#8` at 21:48:52Z, which names
+  `code` leg **`1e469713`** — slice S7's own merge) and
+  `contracts/openxdox-pin.yaml`'s `76df74c8` → **`a6500141`**
+  (`opensoft/openXdox` `#10` at 21:54:21Z), with BOTH gitlinks moving in that
+  one commit, which is the lockstep invariant §§ 4.2 and 5.1 of this file
+  describe. It is the bump the boundary note's § 1.2(d) SKIP waits on, arriving
+  at the aggregation level; like the two acts above it is its own claim and not
+  a condition of this box.
+
+  **THE PACKET FIGURE, AMENDED HERE — this box's own "40 files, 30,410 lines"
+  is a design-time reading no tree in the arc reproduces**, and the boundary
+  note defers its correction to the packet in terms (*"a packet figure is
+  amended in the packet"*, its § 1.1). Re-measured 2026-09-14 over every blob
+  under each tree's bundle root, each named with the tree it was read at:
+
+  | tree | blobs | lines | hand-authored |
+  | --- | ---: | ---: | --- |
+  | openxFactory `scripts/ideation_dashboard/web/` at the carve commit `b075fd91` (tag `opendox-carve-0`) | 43 | 31,068 | 41 files / 31,066 lines |
+  | openDox-code `a99eba03` — the note's census tree | 42 | 30,585 | 40 / 30,583 |
+  | openDox-code `main` `8efb3cf5` — S1–S6 landed | 41 | 30,477 | 39 / 30,475 |
+  | openDox-code `#21` head `c7a216c7` — the ARC-COMPLETE bundle | 42 | 31,955 | 40 / 31,953 |
+
+  **The FILE count is right; the LINE count is 173 short.** The carve step is
+  one file and is exactly accounted for: `views/intent-feed.js` (483 lines)
+  did not travel, RULED `not_moved / stays_openxfactory_adapter` under OQ-F,
+  and taking that one file out of 41 files / 31,066 lines leaves **40 /
+  30,583** — the
+  packet's "40 files" on the nose, its "30,410 lines" **173** short of what
+  arrived and **656** short of what the carve commit held. Everything after
+  that is the arc itself (five files in before S5, six out with S5, one in
+  with S7), which is why the arc-complete bundle is 40 hand-authored files
+  again at 31,953 lines. **FOUR other occurrences in the packet's LIVE
+  documents carry this figure and NONE is edited here** — `design.md`:52 and
+  :351 and `proposal.md`'s `code_surface:` line each pair *"40 files"* with
+  *"30,410"*, and `proposal.md`:208 carries the line count alone (*"30,410
+  lines of front end"*) — because a ratified document is amended by an act that
+  CLAIMS it, and this box claims neither. What it does is record the
+  measurement, so the act that amends them does not have to re-derive it.
+  **A FIFTH occurrence is in the packet and is of a different kind**, named so
+  that a later reader who greps for `30,410` and finds five does not read it as
+  one this box missed: `review/ratification-2026-09-05.md`:549 quotes the
+  figure inside the residual question `design.md` § D3 left open AT
+  ratification. That file is a RECORD — `Status: ratified`, decision date
+  2026-09-05, ratified baseline `6935fb8b` — of what the packet said on the day
+  it was ratified, so no later act amends it, including the act that corrects
+  the four live ones.
+
+  **What the arc did NOT close, named so no later reader takes the tick for
+  more than it is** — every item is someone else's act under its own claim and
+  none is a condition of this box: (i) the FIFTH declared class-A tail
+  (`views/viewer.js`:262, the rendered stage pill) is DECLARED by amendment #3
+  and not built — it owes a census `tail:`, the `18` → `19` constant in the
+  three places `tests/test_web_boundary.py` spells it, and a Q-L1 annotation,
+  because that file's carve row is `moved_verbatim` with no `edits:`; (ii)
+  `views/lens.js` stays class `?` with its two openxFactory-lane sites as
+  assertion 2's declared exception until a ruling names its destination — the
+  one RULING gap in the note; (iii) the FULL un-narrowing of both legs'
+  `validate` waits on the BUILD arc, which RULED **Q-L5 (b′)** and **Q-L8 (b′)**
+  each say in terms (S8 lifts it for the web suites only, and
+  `tests/test_consumer_reach.py`'s `STILL_REACHING` asserts the openDox half
+  still fails); (iv) the two floor acts above; and (v) **the packet's own
+  README entry, overtaken and NOT corrected here** — the packet's OpenSpec
+  Records entry in `README.md` still reads *"IT STILL PERFORMS NOTHING. No
+  repository is created, no code moves …"*, written 2026-09-05 (`ceb6dc9e`,
+  `8b297c2f`) when that was exactly true and no longer is: `openDox-code` and `openXdox-code` exist and were cut
+  from the carve commit `b075fd91` (tag `opendox-carve-0`), and six of the
+  eight slices above are merged. The staleness predates this amendment and is
+  not made by it; it is left to the act that CLAIMS that text — the same rule
+  this box applies to `design.md`'s and `proposal.md`'s four *"30,410"*
+  occurrences — which is the packet's ARCHIVAL act, the README **OpenSpec
+  Records** block being both where an archived packet's entry is rewritten and
+  (lane-collision protocol, Rule 6) the one block a landing window exists to
+  serialize. Recorded here so that act does not have to rediscover it.
+  **That entry is cited by its SENTENCE and not by a line number, deliberately,
+  and it is the one citation in this box that could not be one.** Every other
+  measurement here names the tree it was read at; this one can name no line,
+  because the block it sits in is rewritten by every archival act and its line
+  numbers move under any citation that outlives one. Measured rather than
+  asserted: the entry opens at `README.md`:**1875** at this amendment's own
+  head and at :**1775** at openxFactory `main` `8944758c` — exactly **100**
+  lines apart, after `#1042` archived a sibling packet above it — while
+  `design.md`:52 and :351, `proposal.md`:208 and
+  `review/ratification-2026-09-05.md`:549, the four `30,410` citations above,
+  are each exact at BOTH heads, because no act has touched those three files
+  since. *(This clause read "`README.md`:1875–1879" until fix round 4, which
+  measured the drift rather than re-pointing a number that moves again at the
+  next archival.)*
+  `#656` records: CLAIM
+  `5656686020`; rulings `5642758731` · `5647678655` · `5648044785` ·
+  `5648049748` · `5648065587` · `5649094228` · `5656343213`.
 - [ ] 3.5 `[oD]` The runtime, on the `xFactory-Hermes-Install` pattern (RULING
   Q2): FastAPI + Postgres, `migrations/` (ordered SQL, `0001` pinned canonical
   plus additive), `deploy/compose/` and `deploy/kubernetes/` — **all at the root
@@ -985,6 +1133,89 @@ the bookkeeping that ticks this group.
   § 4.3 routes/subcommands build, not one of `design.md`'s inventoried twelve
   modules. Box stays open until the residue carve resolves where the
   remaining imports land.
+  **STATUS — 2026-09-14, box STAYS OPEN, and the residue is now fully
+  accounted for: § 3.4 moved none of it, and five of the eleven were
+  DISCHARGED BY THE § 2 SEAM rather than relocated.** Re-measured 2026-09-14 at
+  four trees — openXdox-code `main` **`c1ad341a`** (S5 leg A landed),
+  openDox-code `main` **`8efb3cf5`** (S1–S6 landed), openxFactory `main`
+  **`e6e1c968`**, and the carve commit **`b075fd91`** both legs were cut
+  from — counting only real import statements
+  (`^\s*(from|import)\s+.*doc_health`), each under the root that repository
+  actually keeps the inventoried modules in: `src/openxdox/` at openXdox-code,
+  `src/opendox/` at openDox-code, and `scripts/ideation_dashboard/` at
+  openxFactory (both at `main` `e6e1c968` and at the carve commit — openxFactory
+  has no `src/`, which is why a single root spelling would not reproduce).
+  All 23 of
+  `design.md` § D3's inventoried outbound imports now have a position:
+
+  | where the 23 stand | count | sites |
+  | --- | ---: | --- |
+  | `openXdox-code` `src/openxdox/` (the adapter's implementation surface, as 4.1 asks) | **12** | `completeness` 1, `corpus_root` 1, `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1, `snapshot_registry` 1 |
+  | `openDox-code` `src/opendox/` | **5** | `serve.py`:710 `from doc_health.corpus import RealGit`; `workbench.py`:746, :1407, :1408, :1409 |
+  | RULED to stay at `openxFactory` (DQ-1) | **1** | `design.md` § D3 inventories it at `doxbench_packet`; the import had already moved by the carve commit and the LIVE site is `scripts/ideation_dashboard/doxbench_status_exemption.py`:63 — `from doc_health.lines import split_keepends`, the same line at `b075fd91` and at `main` `e6e1c968` (reading (ii) below) |
+  | **DISCHARGED at the § 2 seam** — the import became an adapter call or a late seam read, so there is nothing left to relocate | **5** | `authoring` 2 → `authoring.py`:317–318, `from .corpus_adapter import DocumentId` + `from corpus_adapter_openxfactory import home_corpus`; `cli` 1 → gone, only the path comment at `cli.py`:14 survives; `serve` 2 of 3 → gone before the carve (openxFactory `b075fd91` already reads one, at `serve.py`:618), the leg's own late seam reading `from opendox import consumer_reach` at `serve.py`:146 |
+
+  **The five DISCHARGED were discharged at the SEAM, before the carve, and the
+  carve commit proves it.** At openxFactory `b075fd91` (tag `opendox-carve-0`,
+  the tree all three legs were cut from) `scripts/ideation_dashboard/` carried
+  **21** `doc_health` import sites: `authoring` **0** (was 2), `cli` **0**
+  (was 1) and `serve` **1** (was 3) — the five already gone, taken by § 2.1's
+  neutral module and the § 2.2 / 2.2a adapter seam rather than by any carve;
+  the twelve adapter/projection sites intact; `workbench` 4 intact;
+  `doxbench_packet`'s one already relocated to
+  `doxbench_status_exemption.py`:63; **plus three sites outside `design.md`'s
+  inventoried 23** — `cli_gate.py`:251 (§ 4.3, which this box already records)
+  and `serve_openxfactory_lanes.py`:162 and :253, openxFactory's own lane
+  adapter, which stayed and is still there at `main` `e6e1c968` (:178, :277).
+  The arithmetic closes both ways: 12 + 4 + 1 + 1 = **18** = 23 − 5, and
+  18 + 3 = **21**. The carve then routed those 18 by column, which is the
+  table above; no later act moved any of them.
+
+  **Three readings.** (i) **The § 3.4 arc moved none of them.** openXdox-code
+  carries **13** live `doc_health` import sites across **8** modules — the
+  same files at the same line numbers at `af15f712` (this box's own
+  verification head), at `main` `c1ad341a` and at `#19`'s head `080dcfcd`.
+  The boundary arc is a WEB-tier act and never touched the adapter surface, so
+  nothing in 4.1 turns on it. The 13 are the 12 above plus `cli_gate.py`:251,
+  the § 4.3 site this box already records as outside `design.md`'s inventoried
+  twelve. **Exactly one of the 13 differs in TEXT across those heads, and not
+  by a § 3.4 act**: `generator.py`:66 reads `from doc_health import TAXONOMY,
+  corpus` at `af15f712` and `from doc_health import corpus` at `c1ad341a`,
+  because openXdox-code `#16` → `17384c07` (§ 4.4's vocabulary half) took
+  `TAXONOMY` out of it. Same site, same line, one name fewer. (ii) **`openxFactory` holds none of the
+  residue at the source any more, and the one RULED to stay is not where this
+  box assumed.** The § 5.2 shed has landed: `scripts/ideation_dashboard/` is
+  down to **10 files**, an identical set at `main` `a80f0e3c` and at `main`
+  `e6e1c968`, none of them `authoring`, `cli`, `serve`, `workbench` or
+  `doxbench_packet`. `doxbench_packet`'s one DID stay at openxFactory, as DQ-1
+  requires — but the module it stayed IN is the § 2.4 one rather than the DQ-1
+  adapter package: the `doc_health.lines.split_keepends` import travelled with
+  the `Status:` read that used it into
+  `scripts/ideation_dashboard/doxbench_status_exemption.py`:63 under RULED
+  OQ-1, which openDox-code's own `src/opendox/doxbench_packet.py`:136–142
+  states in terms (*"they took their `doc_health.lines.split_keepends` import
+  with them … it can no longer take an openxFactory-only `doc_health`
+  dependency along"*) and :66–67 asserts by a neutrality scan. Either module
+  is openxFactory, so the box's *"never comes here"* holds; the placement is
+  recorded because a citation of the DQ-1 package for this import would not
+  reproduce. Separately, that DQ-1 ENGINEERING ADAPTER imports `doc_health` in
+  **six** places of its own — `scripts/corpus_adapter_openxfactory/adapter.py`:58,
+  `check.py`:39–41, `classify.py`:38, `home.py`:59 — and that is where the
+  DISCHARGED `authoring` pair's dependency now sits, behind the § 2.2a seam
+  instead of travelling to a leg: `authoring.py`:317–318 calls
+  `corpus_adapter_openxfactory.home_corpus` (defined at `home.py`:160,
+  re-exported at `__init__.py`:32) and `home.py`:59 is the `doc_health` import
+  that call reaches. Importing doc-health THERE is lawful, which is the whole
+  of DQ-1. (iii) **This box's second sentence
+  cannot be met AS WRITTEN, and that is a reconciliation owed rather than a
+  residue still travelling.** *"The 23 outbound `doc_health` imports become the
+  adapter's IMPLEMENTATION SURFACE here"* is a design-time expectation that the
+  § 2.1 / 2.2 / 2.2a seam overtook: 12 arrived, 5 are lawfully openDox's, 1 is
+  RULED elsewhere, and 5 no longer exist as imports at all. No further carve
+  can move them, so the box is not waiting on § 3.4 (landed), and the wording
+  needs a RULING or an amendment rather than another measurement. Registered
+  here, decided nowhere: this amendment records the accounting and leaves the
+  box open on it. `#656` record: CLAIM `5656686020`.
 - [x] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
   and tree digest (`sorted-ls-tree-r-v1` over openDox's whole tree — the scaffold
   writes NO per-file `sha256`; the per-file `sha256`, `pinned_by_commit_only:`
