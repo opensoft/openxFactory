@@ -2003,8 +2003,10 @@ def test_a_re_destined_row_may_still_be_also_replicated_at_its_original_destinat
 # extension and the SECOND about PLACEMENT — the one Q6 above could not be
 # stretched to cover, because Q6 moves an arrival BETWEEN two legs and what S8
 # measured has no leg to move it to. Every case below is a generated manifest
-# and a real tree; the landed manifest — which carries the form and uses it
-# NOWHERE — is asserted separately in the § 8.2 seat.
+# and a real tree; the landed manifest — which carried the form and used it
+# NOWHERE as PR #1032 landed it, and carries TWO retired rows since its first
+# use (RULED 5656343213's own act, PR #1043) — is asserted separately in the
+# § 8.2 seat.
 # --------------------------------------------------------------------------
 
 RETIREMENT_CITATION = ("`#656` comment 5656343213 (RULED, Brett Heap "
@@ -3593,6 +3595,17 @@ def test_the_real_manifest_carries_the_retirement_form_and_the_two_rows_it_retir
     # reason the ruling made this a FIELD — and `at`/`at_path` are the row's
     # EFFECTIVE arrival, which for these two is their own destination pair
     # because RULED Q6 never moved them.
+    # The EXISTING declaration of each row, by class and exact lines, because
+    # "untouched" is the claim and a non-empty `edits:` is not that claim: a
+    # later act could rewrite either entry and a truthiness check would go on
+    # passing. These two are the lines the LEG rewrote while the file was
+    # there, and a retirement does not reach them.
+    untouched = {
+        "tests/ideation-dashboard/test_intent_tray_dom.py":
+            [("path constants", [30])],
+        "tests/ideation-dashboard/test_wheel_verbs_dom.py":
+            [("path constants", [26])],
+    }
     for row in retired:
         name = row["source_path"].rsplit("/", 1)[1]
         assert row["disposition"] == "moved_with_declared_edit", row
@@ -3605,8 +3618,8 @@ def test_the_real_manifest_carries_the_retirement_form_and_the_two_rows_it_retir
         assert "5656343213" in block["ruling"], row
         assert block["surface"] == surface, row
         assert block["note"].strip(), row
-        assert row["edits"], row          # untouched: a retirement is a fact
-                                          # about a DESTINATION
+        assert [(edit["class"], edit["lines"]) for edit in row["edits"]] == \
+            untouched[row["source_path"]], row
 
     # THE CLAIM THE WHOLE FORM RESTS ON, read out of the document rather than
     # trusted: the surface both rows cite is `not_moved` HERE, and under a
@@ -3700,7 +3713,8 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 1422 line numbers were written in the numbering this
+    The manifest's 1422 line numbers AT THAT RULING — 1761 today, and every
+    one of them still in this numbering — were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
     than invent a third, or every declared line in the landed document would

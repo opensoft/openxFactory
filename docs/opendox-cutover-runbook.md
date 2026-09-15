@@ -286,7 +286,17 @@ same measurement
 pins, computed the same way every time: a transcribed count is a claim, a
 summed one is a measurement.
 
-Per destination, and these are the numbers each leg's arrival run must report:
+Per destination — **and of the columns below only `declared roots` is a number
+an arrival run must report today.** The `rows`, `verbatim / edited` and
+`declared edit lines` cells are STALE: their four declared-line cells sum to
+1421, which is neither the aggregate above nor any leg's current output —
+slice S5's +162 and this act's +177 are both outside them, and RULED Q6
+re-destined four rows between the two `-code` legs without moving either row
+count. ONE act redistributes them; until it lands these cells are history, and
+the value to compare a run against is the run's own line and
+`scripts/validate-carve-manifest.py`. (openxFactory PR #1031, which lands
+before this one, registers the same at greater length; the two statements
+collapse into one at that merge.)
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
