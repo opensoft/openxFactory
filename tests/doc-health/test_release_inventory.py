@@ -845,3 +845,52 @@ def test_an_unreachable_leg_is_a_repository_skip_not_a_phantom_absence(
     assert "git submodule update --init" in outcome.reason, (
         "the skip must carry the leg's own remedy, which is the whole reason "
         "it beats errors naming files that are in neither tree")
+
+
+def test_a_store_without_the_pinned_commit_is_a_skip_not_a_phantom_absence(
+        tmp_path, monkeypatch):
+    """A STORE THAT EXISTS IS NOT YET A STORE THAT ANSWERS (Copilot on PR
+    #1051, `carved_reach.py:718`).
+
+    `_leg_object_store`'s `HEAD` test proves the DIRECTORY is a git directory
+    and nothing about its contents. A shallow clone, an interrupted fetch, and
+    a gitlink advanced past what the store was fetched at all leave the same
+    shape: a real module store that simply does not carry the pinned commit.
+    Without the probe the walk read `None` one layer lower — from the next
+    level's `rev-parse`, or from the caller's own blob read at the last level —
+    and the member was reported ABSENT AT THE COMMIT again, which is the single
+    misattribution this whole path exists to prevent."""
+    root = _shed_fixture(tmp_path)
+
+    stranger = _new_repo(tmp_path / "stranger")
+    _write_file(stranger, "unrelated.txt", b"a commit no leg store carries\n")
+    _git_in(stranger, "add", "-A")
+    _git_in(stranger, "commit", "-qm", "a commit the leg's store never fetched")
+    unknown = subprocess.run(["git", "-C", str(stranger), "rev-parse", "HEAD"],
+                             check=True, capture_output=True,
+                             text=True).stdout.strip()
+    # A gitlink may name a commit the recording repository does not have — that
+    # is what a gitlink IS — so this is the shape itself, not a simulation.
+    _git_in(root, "update-index", "--add", "--cacheinfo",
+            f"160000,{unknown},leg")
+    _git_in(root, "commit", "-qm", "pin the leg at a commit its store lacks")
+
+    worktree = tmp_path / "worktree-incomplete"
+    _git_in(root, "worktree", "add", "--quiet", "--detach", str(worktree),
+            "HEAD")
+    store = carved_reach._leg_object_store(worktree, "leg")
+    assert store is not None and (store / "HEAD").is_file(), (
+        "the fixture must reproduce a store that PASSES the directory test")
+    assert not carved_reach._git_ok(store, "cat-file", "-e",
+                                    f"{unknown}^{{commit}}"), (
+        "...and that does NOT carry the commit the superproject pins it at, "
+        "or this test proves nothing")
+
+    _point_carve_at(monkeypatch, worktree)
+    outcome = check_repo(REPO, worktree, RealGit())
+
+    assert isinstance(outcome, Skip), (
+        "a store that cannot answer for the pinned commit has learned nothing "
+        f"about the member — got {outcome!r}")
+    assert unknown in outcome.reason, "the skip must name the unreadable commit"
+    assert "leg_spec" in outcome.reason, "and the leg it was pinned in"

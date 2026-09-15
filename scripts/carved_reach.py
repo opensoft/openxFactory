@@ -640,9 +640,10 @@ def _sanitized_git_environment() -> dict[str, str]:
     return environment
 
 
-def _git_text(repo: Path, *arguments: str) -> str | None:
-    """One `git -C <repo> ...` read's stripped stdout, or `None` when git
-    declines — the one spelling of the invocation both readers below share.
+def _git_run(repo: Path, *arguments: str):
+    """The ONE scrubbed, replacement-free `git -C <repo> ...` invocation every
+    reader below shares — the finished process, or `None` when git could not be
+    run at all.
 
     Runs with `--no-replace-objects` and a sanitized environment (Copilot,
     `PRRT_kwDOTAvnrs6hjE-c`): a `<revision>:<path>` otherwise resolves through
@@ -653,7 +654,7 @@ def _git_text(repo: Path, *arguments: str) -> str | None:
     an ambient `GIT_COMMON_DIR` names.
     """
     try:
-        done = subprocess.run(
+        return subprocess.run(
             ["git", "--no-replace-objects", "-C", str(repo), *arguments],
             capture_output=True,
             text=True,
@@ -662,8 +663,29 @@ def _git_text(repo: Path, *arguments: str) -> str | None:
         )
     except OSError:  # pragma: no cover - no git on PATH is the caller's problem
         return None
+
+
+def _git_text(repo: Path, *arguments: str) -> str | None:
+    """One `git -C <repo> ...` read's stripped stdout, or `None` when git
+    declines — for the reads that ANSWER IN STDOUT."""
+    done = _git_run(repo, *arguments)
+    if done is None:
+        return None
     value = done.stdout.strip()
     return value if done.returncode == 0 and value else None
+
+
+def _git_ok(repo: Path, *arguments: str) -> bool:
+    """Whether a git probe SUCCEEDED — for the reads that answer by EXIT CODE
+    and print nothing.
+
+    `cat-file -e` is the one this module needs and `_git_text` cannot serve it:
+    there an empty stdout is indistinguishable from a failure, so a commit that
+    IS present would read as absent. Separate function rather than a flag,
+    because the two return types are what keep that confusion impossible.
+    """
+    done = _git_run(repo, *arguments)
+    return done is not None and done.returncode == 0
 
 
 def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
@@ -714,7 +736,11 @@ def _leg_object_store(parent: Path, segment: str) -> Path | None:
     store = (root if root.is_absolute() else parent / root) / "modules" / segment
     # `HEAD` is git's own first test for "this directory IS a git directory",
     # and it is what separates a real module store from the empty `modules/`
-    # skeleton that a never-initialized submodule can leave behind.
+    # skeleton that a never-initialized submodule can leave behind. It proves
+    # THE DIRECTORY and nothing about its contents, which is why the caller
+    # asks separately whether the pinned commit is actually in it (Copilot on
+    # PR #1051, `carved_reach.py:718`): a shallow or partially fetched store
+    # passes this test and still cannot answer for the commit.
     return store if (store / "HEAD").is_file() else None
 
 
@@ -751,6 +777,16 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     tracked alongside the store so the refusal still names `openXdox` or
     `openXdox/spec` — the thing a reader can go and initialize — rather than a
     git directory nobody ever checked out.
+
+    A STORE THAT EXISTS IS NOT YET A STORE THAT ANSWERS, and the pinned commit
+    is verified in it before the walk moves on (Copilot on PR #1051). A shallow
+    clone, an interrupted fetch, or a gitlink advanced past what the store was
+    fetched at all leave a real git directory that simply does not carry the
+    commit; without the probe the next level's `rev-parse` — or, at the last
+    level, the caller's own blob read — would answer a plain `None`, and
+    `release_inventory` would report the member ABSENT AT THE COMMIT. That is
+    the same misattribution this whole path exists to prevent, arriving one
+    layer lower, so it raises here and becomes the same repository-level skip.
     """
     key = str(path).replace("\\", "/")
     row = _rows().get(key)
@@ -771,6 +807,15 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
                 f"{mount.relative_to(REPO_ROOT)} carries no Git object store, so "
                 f"{key} cannot be read at the commit that pins it. Run "
                 f"`{INIT_COMMAND}` from the repository root.")
+        if not _git_ok(store, "cat-file", "-e", f"{gitlink}^{{commit}}"):
+            raise CarveReachUnavailable(
+                f"the pinned {row['destination']} leg is materialized but "
+                f"incomplete: {mount.relative_to(REPO_ROOT)}'s object store "
+                f"carries no commit {gitlink}, which is what the recorded "
+                f"gitlink names, so {key} cannot be read at the commit that "
+                f"pins it. Run `{INIT_COMMAND}` from the repository root; a "
+                f"shallow or partially fetched store needs its own "
+                f"`git fetch --unshallow` first.")
         repo = store
         revision = gitlink
     return repo, revision, row["destination_path"]
