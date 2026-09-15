@@ -206,9 +206,9 @@ RE-MEASUREMENT** — a number that moves every time `main` does and is
 RE-MEASURED rather than assumed each time it moves. `scripts/code_surface.py`'s
 `CLOSED_REGISTER` provenance comment and `scripts/code-surface-register.yaml`'s
 header name them in the same words, so the three records cannot drift apart
-again. As this transcript stands there have been FOUR re-measurements
-(`54885296`, `bfa90db6`, `e6e1c968`, `dd073746`) and the scenario has FIRED
-ONCE, at the second.
+again. As this transcript stands there have been FIVE re-measurements
+(`54885296`, `bfa90db6`, `e6e1c968`, `dd073746`, `92d519b0`) and the scenario
+has FIRED ONCE, at the second.
 
 **EVERY FIGURE IN § 3 WAS RE-MEASURED AT THE MAIN HEAD MERGED AT THE FIRST
 RE-MEASUREMENT** — `origin/main` `54885296` — with the § 3.1 reader itself, and
@@ -283,6 +283,25 @@ merge (`2c7aef40`) resolved **ZERO conflicts**. **THE SCENARIO FIRED A THIRD
 TIME AND AGAIN COST NOTHING** — which is now the rule and the second
 re-measurement the exception, exactly as a ratchet should behave once it has
 caught up with the corpus.
+
+**AND MAIN MOVED ONCE MORE, IN THE SECOND FIX ROUND. FIFTH RE-MEASUREMENT, AT
+`origin/main` `92d519b0` — THE MAIN HEAD MERGED AT RE-MEASUREMENT AS THIS
+TRANSCRIPT STANDS** (the brief named `74348374`; `main` had moved past it to
+`92d519b0` by the time the merge ran, and the head MEASURED is the head MERGED,
+never the head quoted). `python3 scripts/validate-code-surface.py .` — **exit
+0**, *"47 active proposals, 47 declaring — 4 `none`, 35 a repository list, 8
+named by the register, 0 outside the grammar"*, *"archive (read, never judged):
+167 proposals, 121 declaring, 3 of them outside the grammar"* — **BYTE FOR BYTE
+THE THIRD AND FOURTH RE-MEASUREMENTS' LINE**. `python3
+scripts/validate-scope-globs.py .` — **exit 0**. **NO DECLARATION MOVED AT
+ALL**, measured rather than inferred: `git diff --name-status
+dd073746..92d519b0 -- 'openspec/changes/*/proposal.md'` is **EMPTY** — no `A`,
+no `M`, no `D`, no `R` — so no carrier arrived, no entry went stale, and the
+register stands at EIGHT untouched (8 entries, `CLOSED_REGISTER` length 8,
+equal). The 55 commits `main` gained are the `former_id` arrival-gate and
+reference-resolver realizations, `packet_reference`, and doc-health
+pinned-target work; the merge (`8f8d709a`) resolved **ZERO conflicts**. **THE
+SCENARIO FIRED A FOURTH TIME AND AGAIN COST NOTHING.**
 
 **TWO PROPOSALS LANDED IN BETWEEN AND NONE ARCHIVED**, which is a measurement
 and not an assumption: `git diff --name-status 54885296..bfa90db6 --
@@ -652,7 +671,8 @@ and is corrected in place where the number is now false.
       `validate_scope_globs(..., code_surface_repos={"R"})` callers in
       `tests/scope_globs/` pass UNEDITED — proved by running that directory
       (`python3 -m pytest tests/scope_globs -q -m "not postgres"` — **88
-      passed**, not one file edited; **90 at the fix round**, the two added
+      passed**, not one file edited; **90 at the fix round** and **99 at the
+      second fix round** (the nine path-boundary tests), the two added
       being the deferral pins § 3.5 above records, and STILL not one shipped
       file edited) and pinned here by
       `test_a_bare_iterable_still_works_as_a_head_derived_set`. **THE CHEAPER
@@ -700,7 +720,9 @@ and is corrected in place where the number is now false.
       forbidden substitute (**7**), and the live corpus (**8**).
       `test_corpus_code_surface_validates` runs the CLI over the REAL tree, so a
       new divergence reds the required `pytest-suite`.
-      **AND THEN THE FIX ROUND ADDED FIFTEEN, SO THE FILE IS 130 AND THIS BOX
+      **AND THEN THE FIX ROUND ADDED FIFTEEN, SO THE FILE IS 130 — AND THE
+      SECOND FIX ROUND ADDED SIX MORE (the finding-class tests), SO IT IS
+      **136** AT THE LANDING TREE — AND THIS BOX
       SAYS WHICH FIFTEEN RATHER THAN RE-SPLITTING THE GROUPS IT CANNOT
       RE-DERIVE HONESTLY.** Measured the same way (`python3 -m pytest
       tests/code_surface -q --collect-only` — *"130 tests collected"*; `python3

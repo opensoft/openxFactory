@@ -91,19 +91,21 @@ kind: code-surface-grammar-register
 # moved `origin/main` it would answer a different question and read as a false
 # record of this one.)
 #
-# THIRD re-measurement, at `origin/main` `e6e1c968`, and FOURTH at `origin/main`
-# `dd073746` — THE MAIN HEAD MERGED AT RE-MEASUREMENT as this file stands. Main
-# moved twice more while the realization was in review and THE POPULATION DID
-# NOT: 47 active proposals, 47 declaring, 4 `none`, 35 a repository list, EIGHT
-# named by this register, 0 outside the grammar, at BOTH heads, with the archive
-# unmoved at 167/121/3. That is a measurement and not an assumption —
+# THIRD re-measurement, at `origin/main` `e6e1c968`; FOURTH at `origin/main`
+# `dd073746`; FIFTH at `origin/main` `92d519b0` — THE MAIN HEAD MERGED AT
+# RE-MEASUREMENT as this file stands. Main moved three times more while the
+# realization was in review and THE POPULATION DID NOT: 47 active proposals, 47
+# declaring, 4 `none`, 35 a repository list, EIGHT named by this register, 0
+# outside the grammar, at ALL THREE heads, with the archive unmoved at
+# 167/121/3. That is a measurement and not an assumption —
 # `git diff --name-status bfa90db6..dd073746 -- 'openspec/changes/*/proposal.md'`
 # is exactly one `A` (`add-declared-former-id`) and one `M`
 # (`extend-prose-tagging-target-to-pinned-capabilities`) — no `D`, no `R` — and
-# `e6e1c968..dd073746` is EMPTY, so the fourth re-measurement moved no
-# declaration at all. BOTH of the two CONFORM (each is one of the 35), and the
+# `e6e1c968..dd073746` and `dd073746..92d519b0` are BOTH EMPTY, so neither the
+# fourth nor the fifth re-measurement moved a declaration at all. BOTH of the
+# two CONFORM (each is one of the 35), and the
 # `M` is not one of the eight, so NO ENTRY IS STALE and NO ENTRY IS OWED. The scenario fired ONCE, at
-# the second re-measurement; it has cost nothing the two times since, which is
+# the second re-measurement; it has cost nothing the three times since, which is
 # the shape it is supposed to have when the corpus moves without a divergence
 # in it.
 #

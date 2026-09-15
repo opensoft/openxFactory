@@ -282,8 +282,9 @@ def declaration_digest(text: str) -> str:
 #: drafting and landing*). Seven at drafting (`origin/main` `bcde1575`); seven
 #: again at the FIRST re-measurement (`54885296`); EIGHT from the SECOND
 #: re-measurement (`bfa90db6`) onward, the scenario having FIRED while the
-#: realization was in review; EIGHT STILL at the THIRD (`e6e1c968`) and EIGHT
-#: STILL at THE MAIN HEAD MERGED AT RE-MEASUREMENT, `dd073746`.
+#: realization was in review; EIGHT STILL at the THIRD (`e6e1c968`), the FOURTH
+#: (`dd073746`) and the FIFTH, and EIGHT STILL at THE MAIN HEAD MERGED AT
+#: RE-MEASUREMENT, `92d519b0`.
 #: `encode-wallet-authority-rulings-r6-r12` landed between `54885296` and
 #: `bfa90db6` and declares a head the grammar cannot read, so it is disposed of
 #: AT THAT RE-MEASUREMENT on D3's ruled option — registered, not swept — and
@@ -297,8 +298,8 @@ def declaration_digest(text: str) -> str:
 #: what this comment names — and what `tasks.md` § 3's transcript names with it,
 #: in the same words — is THE MAIN HEAD MERGED AT RE-MEASUREMENT: a number that
 #: moves every time `main` does, and that is RE-MEASURED rather than assumed
-#: each time it moves. It has moved twice since the eighth entry and the
-#: population has not: the scenario fired once, and cost nothing the two times
+#: each time it moves. It has moved THREE times since the eighth entry and the
+#: population has not: the scenario fired once, and cost nothing the three times
 #: after.
 #: NONE OF THE SEVEN MOVED AT ANY RE-MEASUREMENT: no registered packet archived
 #: and no registered declaration was edited between any two of these heads.
