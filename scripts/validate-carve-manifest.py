@@ -1587,13 +1587,14 @@ def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
     `ruling`, `surface`, and the optional `note`) the form itself declares.
     """
     retired = row.get("retired")
-    if isinstance(retired, dict):
+    if isinstance(retired, dict) and set(retired) <= RETIRED_KEYS:
         at = retired.get("at")
         at_path = retired.get("at_path")
         ruling = retired.get("ruling")
         surface = retired.get("surface")
-        if all(isinstance(value, str) and value.strip()
-               for value in (at, at_path, ruling, surface)):
+        if (all(isinstance(value, str) and value.strip()
+                for value in (at, at_path, ruling, surface))
+                and isinstance(retired.get("note", ""), str)):
             return at, at_path
     return None, None
 

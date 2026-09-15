@@ -2492,6 +2492,61 @@ def test_carved_reach_refuses_a_retired_row_by_name(
     assert list(swept) == ["scripts/pkg/live.py"], swept
 
 
+def test_a_retirement_on_a_not_moved_row_hides_nothing_from_a_sweep(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """A SWEEP AND `source()` MUST AGREE ABOUT THE SAME ROW (Copilot review of
+    PR #1032, round 6).
+
+    `retired:` on a `not_moved` row is a document `validate-carve-manifest.py`
+    refuses — `carve-retired-not-moved`, because a row that placed nothing has
+    no arrival to retire — and `carved_reach` is imported by consumers that
+    never run that validator. `source()` has always read a `not_moved` row
+    correctly: it resolves HERE, unconditionally, before any retirement is
+    read. `sources_under()` omitted on the retirement alone, so for one
+    malformed row the two disagreed, and the sweep silently dropped a file
+    that is RETAINED in this tree — the one direction a fail-closed reader
+    must never fail in, since a caller walking a tree cannot see what it was
+    not given.
+
+    The moved row beside it is the control: its retirement IS honoured, so
+    what the assertion below measures is the disposition test and not a
+    disabled omission.
+    """
+    import carved_reach
+
+    rows = {
+        "scripts/pkg/stays.py": {
+            "source_path": "scripts/pkg/stays.py",
+            "disposition": "not_moved",
+            "reason": "replicated_at_destination",
+            "retired": {"at": "opendox_code",
+                        "at_path": "src/opendox/stays.py",
+                        "ruling": RETIREMENT_CITATION,
+                        "surface": RETIRED_SURFACE}},
+        "scripts/pkg/gone.py": {
+            "source_path": "scripts/pkg/gone.py",
+            "disposition": "moved_with_declared_edit",
+            "destination": "opendox_code",
+            "destination_path": "src/opendox/gone.py",
+            "retired": {"at": "opendox_code",
+                        "at_path": "src/opendox/gone.py",
+                        "ruling": RETIREMENT_CITATION,
+                        "surface": RETIRED_SURFACE}},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+
+    swept = carved_reach.sources_under("scripts/pkg/")
+    assert list(swept) == ["scripts/pkg/stays.py"], swept
+    assert swept["scripts/pkg/stays.py"] == (
+        carved_reach.REPO_ROOT / "scripts/pkg/stays.py")
+    # …and it is the SAME answer `source()` gives, which is the agreement this
+    # case exists to hold.
+    assert carved_reach.source("scripts/pkg/stays.py") == \
+        swept["scripts/pkg/stays.py"]
+    with pytest.raises(carved_reach.CarveRowRetired):
+        carved_reach.source("scripts/pkg/gone.py")
+
+
 def test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose(
         tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """`shed_commit_object()` does NOT refuse a retired row, and the

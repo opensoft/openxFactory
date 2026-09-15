@@ -1705,11 +1705,19 @@ def test_the_leftover_is_not_left_to_the_walk_to_find(carve: Carve) -> None:
     Left to `check_undeclared_files`, an un-deleted file would refuse as
     `arrival-undeclared-file` — true, and useless: it would send a reader
     looking for an admission rule for a file whose whole story is the
-    `retired:` block in its own row. Worse, the walk might not look at all:
-    here the retired row is the ONLY row under `examples`, so dropping it
-    closes that root and the leftover falls outside every directory the walk
-    reads. `check_retired` is then the only check that will ever mention the
-    file, and this case is the one that would pass in silence without it.
+    `retired:` block in its own row. `check_retired` answers FIRST and names
+    the ruling, which is the difference between a refusal an operator can act
+    on and one that starts a hunt.
+
+    AND THE WALK DOES LOOK, SINCE ROUND 6. This case is the destination where
+    the retired row is the ONLY row under `examples`, and the roots used to be
+    computed from the list the retirement had already been dropped from — so
+    that directory left the walk altogether and anything ELSE added there
+    passed in silence (`test_a_retired_rows_directory_stays_in_the_walk`
+    above is that hole, measured). The roots now keep a retired row's
+    directory while `placed` still excludes its path, so the two checks divide
+    the question properly: the retired path is `check_retired`'s, and every
+    other file under the same root is the walk's.
     """
     doc = carve.manifest_doc()
     _retire(doc, "scripts/pkg/gamma.py")     # the only `scratch_spec` row
@@ -1730,7 +1738,14 @@ def test_the_leftover_is_not_left_to_the_walk_to_find(carve: Carve) -> None:
     done = run(carve, manifest, "--destination", "scratch_spec",
                "--dest-root", str(clean), "--phase", "A", "--json")
     assert done.returncode == 0, done.stdout + done.stderr
-    assert json.loads(done.stdout)["declared_roots"] == [], done.stdout
+    # THE ROOT SURVIVES THE RETIREMENT and the row does not: `rows: 0` with
+    # `declared_roots: ["examples"]` is the whole of round 6's repair in two
+    # fields — nothing is owed at that path any more, and the directory is
+    # still read.
+    clean_summary = json.loads(done.stdout)
+    assert clean_summary["declared_roots"] == ["examples"], done.stdout
+    assert clean_summary["rows"] == 0, done.stdout
+    assert clean_summary["files_walked"] == 0, done.stdout
 
 
 def test_a_symlink_left_at_the_retired_path_is_not_invisible(
@@ -2300,6 +2315,22 @@ def test_all_three_tools_read_the_retirement_identically() -> None:
          "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
                      "ruling": {"comment": 5656343213},
                      "surface": RETIRED_SURFACE}},
+        # …and the CLOSED KEY SET, which the docstrings of all three copies
+        # already claimed and none of them enforced (Copilot review of PR
+        # #1032, round 6): a block carrying a key outside
+        # {at, at_path, ruling, surface, note} — a misspelled `notes:`, a
+        # field somebody invented — is a document the manifest validator
+        # refuses (`carve-shape-invalid`), and these three tools run without
+        # it. A `note` that is not a string is the same defect in the one
+        # OPTIONAL key.
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "ruling": RETIREMENT_RULING,
+                     "surface": RETIRED_SURFACE, "notes": "misspelled"}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "ruling": RETIREMENT_RULING,
+                     "surface": RETIRED_SURFACE, "note": ["not a string"]}},
         {},
     ]
     for row in table:
@@ -2308,6 +2339,20 @@ def test_all_three_tools_read_the_retirement_identically() -> None:
     assert MODULE.retired_at(table[1]) == ("scratch_code", "src/pkg/a.py")
     for row in table[2:]:
         assert MODULE.retired_at(row) == (None, None), row
+
+    # AND THE OPTIONAL KEY IS STILL ADMITTED, in all three — the guard closes
+    # the SET, it does not close the form. Without this control the two rows
+    # above would also pass against a predicate that had simply dropped
+    # `note:` from the grammar.
+    with_note = {"destination": "scratch_code",
+                 "destination_path": "src/pkg/a.py",
+                 "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                             "ruling": RETIREMENT_RULING,
+                             "surface": RETIRED_SURFACE,
+                             "note": "23 tests of a surface at neither leg"}}
+    assert MODULE.retired_at(with_note) == ("scratch_code", "src/pkg/a.py")
+    assert other.retired_at(with_note) == MODULE.retired_at(with_note)
+    assert carved_reach.retired_at(with_note) == MODULE.retired_at(with_note)
 
 
 def test_a_half_written_retirement_leaves_the_arrival_owed(
@@ -2351,6 +2396,47 @@ def test_a_half_written_retirement_leaves_the_arrival_owed(
     done = run(carve, whole, "--destination", RETIRED_AT,
                "--dest-root", str(dest), "--phase", "A", "--json")
     assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_retired_rows_directory_stays_in_the_walk(carve: Carve) -> None:
+    """RETIREMENT SUPPRESSES ONE ARRIVAL, NEVER THE REST OF THE TREE (Copilot
+    review of PR #1032, round 6).
+
+    `rows_for()` drops a retired row so the arrived copy cannot ride into the
+    walk's `placed` set — that is the point of the drop, and
+    `test_the_leg_no_longer_owes_a_retired_row` is where it is asserted. But
+    the walk's ROOTS were computed from the same list, so a directory whose
+    LAST arrival was retired left the walk altogether: `check_retired()` asked
+    about that one path, `check_undeclared_files()` walked nothing, and any
+    other file in that directory passed as a clean destination.
+
+    `scratch_spec` is the destination that can say so: exactly one row lands
+    there, `examples/gamma.py`, so retiring it empties `examples/` of
+    declarations while leaving the directory in the tree for anything else to
+    be added to. The stray file below is what an operator would most want the
+    floor to catch — something added where a retirement had just made room.
+    """
+    doc = carve.manifest_doc()
+    _retire(doc, "scripts/pkg/gamma.py")
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_spec")
+    assert not (dest / "examples" / "gamma.py").exists()
+
+    # The control FIRST, on the same tree: with the directory empty the run is
+    # clean, so what the refusal below measures is the stray file and not the
+    # retirement.
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "B", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+
+    stray = dest / "examples" / "stray.py"
+    stray.parent.mkdir(parents=True, exist_ok=True)
+    stray.write_text("# added after a retirement emptied this directory\n",
+                     encoding="utf-8")
+    done = run(carve, manifest, "--destination", "scratch_spec",
+               "--dest-root", str(dest), "--phase", "B", "--json")
+    assert refusal(done) == "arrival-undeclared-file"
+    assert "examples/stray.py" in json.loads(done.stdout)["detail"], done.stdout
 
 
 def test_the_module_records_the_retirement_and_what_it_does_not_prove(

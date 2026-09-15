@@ -1099,6 +1099,17 @@ def effective_arrival(row: dict[str, Any]) -> tuple[Any, Any]:
     return row.get("destination"), row.get("destination_path")
 
 
+# THE CLOSED KEY SET, HERE TOO, because this predicate ENFORCES it and cannot
+# import the copy in `scripts/validate-carve-manifest.py` (that file is a
+# hyphenated entry point loaded by `spec_from_file_location`; this one is
+# imported bare). A block carrying a key outside it — a misspelled `notes:`, a
+# field somebody invented — reads as NO retirement and the arrival stays owed,
+# on the same fail-closed reasoning the four required keys already have: a
+# document this predicate cannot fully read is one the manifest validator must
+# be run against before anything acts on it.
+RETIRED_KEYS = frozenset({"at", "at_path", "ruling", "surface", "note"})
+
+
 def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
     """`(destination key, destination path)` a RULING has RETIRED this row's
     arrival at (RULED 5656343213) — or `(None, None)` where the row carries no
@@ -1134,13 +1145,14 @@ def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
     `ruling`, `surface`, and the optional `note`) the form itself declares.
     """
     retired = row.get("retired")
-    if isinstance(retired, dict):
+    if isinstance(retired, dict) and set(retired) <= RETIRED_KEYS:
         at = retired.get("at")
         at_path = retired.get("at_path")
         ruling = retired.get("ruling")
         surface = retired.get("surface")
-        if all(isinstance(value, str) and value.strip()
-               for value in (at, at_path, ruling, surface)):
+        if (all(isinstance(value, str) and value.strip()
+                for value in (at, at_path, ruling, surface))
+                and isinstance(retired.get("note", ""), str)):
             return at, at_path
     return None, None
 
@@ -2501,7 +2513,14 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     counts["unapplied"] += replica_counts["unapplied"]
     replicas_verified = replica_counts["verified"]
 
-    roots = declared_roots(rows)
+    # THE WALK'S SCOPE KEEPS A RETIRED ROW'S DIRECTORY, and only its PATH is
+    # dropped (Copilot review of PR #1032, round 6). `rows_for()` drops a
+    # retired row so the arrived copy cannot ride into `placed` — that is the
+    # point of the drop — but the roots are computed from the same list, so a
+    # directory whose LAST arrival was retired left the walk altogether and an
+    # unrelated file added there would have passed as a clean destination.
+    # Retirement suppresses the retired arrival, never the rest of the tree.
+    roots = declared_roots(rows + retired)
     # A DECLARED replica is admitted BY NAME, so it no longer rides into the
     # walk on a coincidence of bytes: the operator said where it is, and that
     # path is the one admitted.
