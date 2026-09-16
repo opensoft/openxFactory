@@ -703,8 +703,15 @@ EXPRESSION_FORMS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("the `github` context as a whole value",
      re.compile(r"\bgithub\b(?!\s*[.\[])", re.IGNORECASE)),
     ("`github.token`", re.compile(r"\bgithub\s*\.\s*token\b", re.IGNORECASE)),
-    ("`github['token']`",
-     re.compile(r"""\bgithub\s*\[\s*['"]token['"]\s*\]""", re.IGNORECASE)),
+    # ANY index on the context, literal or COMPUTED. Requiring the literal
+    # `'token'` left `${{ github[format('{0}', 'token')] }}` — and every other
+    # expression that builds the property name — reading the bearer through a
+    # guard that saw nothing. A dotted dereference says what it reads and is
+    # judged on that; an index that has to be evaluated does not, so this fails
+    # closed on all of them. `${{ github['ref'] }}` is refused too: write
+    # `github.ref`, which the case below pins as clean.
+    ("the `github` context indexed",
+     re.compile(r"\bgithub\s*\[", re.IGNORECASE)),
 )
 
 #: Not expressions: an environment variable name and the two URL/user forms a
@@ -718,18 +725,26 @@ LITERAL_FORMS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 
-def bearer_forms_found(blob: str) -> list[str]:
+def bearer_forms_found(blob: str, *, unwrapped: bool = False) -> list[str]:
     """Every bearer form in one piece of workflow text, named as it is found.
 
-    The literal forms are matched anywhere in the blob; the context rules only
-    inside `${{ … }}`, which is the only place a context resolves — so prose
-    may go on discussing secrets and tokens in a comment without failing the
-    guard that refuses them.
+    The literal forms are matched anywhere in the blob. The context rules are
+    matched inside `${{ … }}` — so prose may go on discussing secrets and
+    tokens in a comment without failing the guard that refuses them — and,
+    when `unwrapped` is set, over the whole blob as well.
+
+    `unwrapped` is for `if:`, which Actions evaluates as an expression WITH OR
+    WITHOUT the braces: `if: github.token != ''` resolves the context exactly
+    as `if: ${{ github.token != '' }}` does. A guard that only reads braced
+    text would call that step clean, so the caller marks the key.
     """
     found = [label for label, form in LITERAL_FORMS if form.search(blob)]
-    for expression in EXPRESSION.findall(blob):
+    expressions = EXPRESSION.findall(blob)
+    if unwrapped:
+        expressions = [*expressions, blob]
+    for expression in expressions:
         found.extend(
-            f"{label} in `${{{{{expression}}}}}`"
+            f"{label} in `{expression.strip()}`"
             for label, form in EXPRESSION_FORMS if form.search(expression))
     return found
 
@@ -762,17 +777,18 @@ def bearer_sites(text: str) -> list[str]:
     sites.extend(f"the raw job body carries {found}"
                  for found in bearer_forms_found(raw))
 
-    def walk(node: object, path: str) -> None:
+    def walk(node: object, path: str, *, unwrapped: bool = False) -> None:
         if isinstance(node, dict):
             for key, value in node.items():
                 walk(str(key), f"{path}.{key}")
-                walk(value, f"{path}.{key}")
+                walk(value, f"{path}.{key}", unwrapped=str(key) == "if")
         elif isinstance(node, list):
             for index, value in enumerate(node):
-                walk(value, f"{path}[{index}]")
+                walk(value, f"{path}[{index}]", unwrapped=unwrapped)
         else:
-            sites.extend(f"{path} carries {found}"
-                         for found in bearer_forms_found(str(node)))
+            sites.extend(
+                f"{path} carries {found}"
+                for found in bearer_forms_found(str(node), unwrapped=unwrapped))
 
     walk(yaml.safe_load(text), "<workflow>")
     return sites
@@ -872,6 +888,8 @@ EXPRESSION_CASES = (
     ("${{ toJSON(github) }}", True),
     ("${{ toJSON(secrets) }}", True),
     ("${{ format('{0}', github) }}", True),
+    ("${{ github[format('{0}', 'token')] }}", True),
+    ("${{ github[env.PROPERTY] }}", True),
 )
 
 
@@ -913,6 +931,31 @@ def test_the_credential_guard_reads_the_expression_not_the_spelling(
         f"{expression!r} went unseen; sites={sites}")
 
 
+@pytest.mark.parametrize("condition", (
+    "github.token != ''",
+    "secrets.DEPLOY_KEY != ''",
+    "${{ github.token != '' }}",
+))
+def test_the_credential_guard_reads_an_unwrapped_if_as_an_expression(
+        condition: str) -> None:
+    """`if:` resolves contexts with or without the braces, and so must this.
+
+    Actions evaluates an `if:` value as an expression either way: `if:
+    github.token != ''` reads the context exactly as `if: ${{ github.token !=
+    '' }}` does. A guard that only looked inside `${{ … }}` would call the
+    first one clean — so `bearer_forms_found` takes an `unwrapped` flag and the
+    walk sets it for the `if` key, which is the only key Actions treats that
+    way.
+    """
+    text = WORKFLOW.read_text(encoding="utf-8")
+    doctored = text.replace(
+        "      - uses: actions/checkout@",
+        f"      - if: {condition}\n        uses: actions/checkout@", 1)
+    sites = bearer_sites(doctored)
+    assert any(".if carries" in site for site in sites), (
+        f"an `if:` reading a bearer went unseen; sites={sites}")
+
+
 def test_a_non_secret_dereference_is_not_a_bearer(tmp_path: Path) -> None:
     """The guard must not refuse what Actions workflows legitimately do.
 
@@ -927,6 +970,12 @@ def test_a_non_secret_dereference_is_not_a_bearer(tmp_path: Path) -> None:
                   "${{ hashFiles('requirements/*.lock') }}"):
         assert bearer_forms_found(f"concurrency:\n  group: {clean}\n") == [], (
             f"{clean} is a non-secret dereference and must not be refused")
+
+    for condition in ("github.event_name == 'pull_request'",
+                      "github.ref == 'refs/heads/main'",
+                      "success()"):
+        assert bearer_forms_found(condition, unwrapped=True) == [], (
+            f"`if: {condition}` reads no bearer and must not be refused")
 
 
 # --------------------------------------------------------------------------
