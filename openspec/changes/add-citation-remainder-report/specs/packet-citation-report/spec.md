@@ -106,6 +106,20 @@ file both misstates the population's size and invites an implementation to
 recover text from it. Skipping it is also the population's half of the rule that
 nothing cross-repository is resolved.
 
+A TRACKED ENTRY WHOSE PATH LEAVES THE REPOSITORY ROOT ONCE RESOLVED SHALL BE
+SKIPPED TOO, AND THE POPULATION RULE SHALL SAY SO RATHER THAN LEAVE IT TO THE
+IMPLEMENTATION. A tracked entry may be a SYMBOLIC LINK, and the ordinary
+"is this a file?" test follows the link and answers about its TARGET — so an
+implementation that asks only that question reads whatever the link points at,
+including a file outside this repository, and reports text that is not this
+corpus's as this corpus's citations. The report SHALL therefore admit a link's
+text ONLY after resolving the entry and finding it still inside the repository
+root, and SHALL skip it otherwise. This is not a new boundary: it is the
+containment test the RESOLUTION RULE ITSELF already applies to every path it
+touches — resolve the path, then require it to stay under the root — and the
+population owes the same test for the same reason, since a reader cannot
+distinguish a citation this repository wrote from one it merely links to.
+
 THE FILE POPULATION SHALL BE the repository's tracked files, less three
 exclusions, each excluded for a stated reason: the ARCHIVED corpus
 (`openspec/changes/archive/`), because an archived packet is frozen record whose
@@ -134,6 +148,11 @@ as defective for a fact about a regular expression. The report therefore
 normalizes, states which normalization it applied to which token, and treats a
 token it cannot complete — one severed mid-path — as `truncated` rather than
 resolving it as though it were whole.
+
+#### Scenario: A tracked entry is a link whose target leaves the tree
+- **WHEN** a tracked entry is a symbolic link whose target, once resolved, stands outside the repository root
+- **THEN** the report MUST skip the entry and take no token from it
+- **AND** it MUST NOT report text read from outside the root as a citation carried by this corpus
 
 #### Scenario: A citation is followed by sentence punctuation
 - **WHEN** a citation token is extracted with a trailing full stop that ended the sentence carrying it

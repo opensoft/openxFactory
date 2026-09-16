@@ -446,6 +446,27 @@ binary files read with character replacement", is DIFFERENT CODE and a different
 fixture in § 2.1: measured on both trees, **no in-scope file is binary at all**
 — zero carry a NUL byte, zero fail a strict UTF-8 decode.
 
+**AND THE ENTRY CLASS THAT IS NOT HERE TODAY BUT WHOSE RULE MUST BE, BECAUSE THE
+NAIVE IMPLEMENTATION IS WRONG ON IT: A SYMBOLIC LINK.** Measured rather than
+assumed, at `b1df95ee` and again at this branch's head: `git ls-files -s | awk
+'$1=="120000"'` returns **ZERO** at both. This repository tracks no symlink at
+all today — at `b1df95ee` its 5,466 tracked entries are 5,462 regular files
+(5,415 `100644` and 47 `100755`) and the 4 gitlinks above, and nothing else.
+**THE RULE IS STATED ANYWAY, AND IT IS STATED IN THE
+REQUIREMENT RATHER THAN LEFT TO THE REALIZATION**, because the obvious
+implementation of D3(a) — `Path.is_file()` then `read_text()` — is a WRONG
+implementation the day one link arrives: both tests FOLLOW the link and answer
+about the target, so a link pointing out of the tree is read as though its
+target's text were this corpus's, and its citations are reported as this
+repository's. The report admits a link's text only after RESOLVING the entry and
+finding it still under the root. **THAT IS THE RESOLVER'S OWN BOUNDARY, NOT A
+NEW ONE**: `scripts/packet_reference.py`'s `_contained` (`:260-284`) resolves a
+path "following every symlink in the chain" and returns it "only where it still
+stands inside `root`", crediting the same idiom to
+`scripts/validate-pin-registrations.py`'s `resolve_in_tree`. A population that
+did not apply it would hand the resolver text the resolver would refuse to walk
+to. (openxFactory PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jCbwO`.)
+
 **AND ONE THE REPORT MUST ADD THE MOMENT D5 EVER CHANGES: the report's OWN
 OUTPUT PATH.** `health/` is INSIDE this population — 7 tracked files at
 `b1df95ee`, contributing **0** citation tokens. A committed remainder report
