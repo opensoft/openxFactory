@@ -2392,9 +2392,13 @@ movements claimed at the time they land.
   `tests/test_dox_workload_set.py`, and
   `opensoft-keycloak-qa-broker-bringup-plan.yaml` names the `dox` namespace in a
   gateway list). **So the fourth axis answers NONE YET for every registered
-  domain too** — three of the five trees hold no dox record at all, and the
-  fourth's eight are one estate-tenant plane, which is read below rather than
-  counted.
+  domain too** — **FOUR** of the five trees hold no dox record at all
+  (codexFactory, MedxFactory, LedgerxFactory, AdxFactory) and the **FIFTH**'s
+  eight are one estate-tenant plane, which is read below rather than counted.
+  *(The sentence said "three … and the fourth", which left one tree
+  unaccounted and contradicted the table four lines above it — a Copilot finding
+  on this amendment's own pull request, round 11, and a miscount of this
+  amendment's own.)*
   *(ADDED at Copilot review round 8 on this amendment's own pull request, which
   was right that the three content axes measure `kind:`/axis content and none of
   them detects a committed tenant install, while the detailed reading that
@@ -2478,8 +2482,8 @@ movements claimed at the time they land.
   amendment makes, and it is written down here so the question is ASKED rather
   than rediscovered by somebody who finds `opensoft-dox-intent-plane-intake.yaml`
   after the box is ticked.
-  **The content mentions that DO exist are named rather than hidden**, since a
-  path-only census would have missed them.
+  **The mentions that DO exist in file CONTENT are named rather than hidden**,
+  since a path-only census would have missed them.
   Matched case-INSENSITIVELY, `openxdox` is in **32** tracked files and `opendox`
   in **28** — **but 17 files carry both, so the union is 43 files**, not the 60
   that adding the two columns would give. The 32 `openxdox` files sit
