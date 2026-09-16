@@ -65,7 +65,7 @@ operator drive the flow or does the tenant click through? — is one of the two
 questions its exit path names as needing a decision. Only Q1 was ruled.
 
 The delta is authored so the answer changes nothing it says. Its clauses bind
-WHERE the identity is created (the tenant's organization), WHOSE it is (the
+WHERE the identity is created (the tenant's own seat), WHOSE it is (the
 tenant's), what it MAY REACH (one content-free repository), and what the record
 may CARRY (no material). RULING Q3's *"in both cases"* and the topic's own claim
 3 (*"the Apps are tenant-owned"* — *"the manifest flow structurally avoids"* an
@@ -110,7 +110,7 @@ reasons are structural rather than aesthetic. First, the provider's App name is 
 GLOBAL slug: two tenants cannot both hold `openXdox`, so a convention is not a
 preference but the only way the flow completes for the second tenant. Second, a
 per-tenant, pattern-discoverable name is what makes the "never shared" clause
-AUDITABLE without reading the tenant's organization — an identity named for one
+AUDITABLE without reading the tenant's own account — an identity named for one
 tenant appearing in another's binding is visible from the binding alone.
 
 The delta therefore states the convention's PROPERTIES (unique per tenant,

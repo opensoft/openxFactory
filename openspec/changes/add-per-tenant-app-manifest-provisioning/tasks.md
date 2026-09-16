@@ -21,7 +21,7 @@
 - [x] 1.4 `specs/credential-contracts/spec.md`: ONE `## MODIFIED` block on
   *Dispatch-only credential least privilege and serving-tier separation* —
   canon's body paragraph and all three promoted scenarios restated VERBATIM, five
-  clauses added (the first carrying an explicit scoping rider), eight
+  clauses added (the first carrying an explicit scoping rider), nine
   scenarios added. The delta-currency check is stated in the
   delta's own preamble: two active changes carry a `credential-contracts` delta
   and NEITHER writes this requirement, so the block is over canon and no
@@ -29,8 +29,8 @@
   not repeal — canon's *"Both cases SHALL remain legitimate"*
   (`openspec/specs/credential-contracts/spec.md:141`) and the ratified
   operator-hosted Case A of `docs/openxdox-dispatch-credential-binding.md:31-37`
-  — and two of the eight added scenarios ASSERT that reconciliation rather than
-  leaving it to prose.
+  — and three of the nine added scenarios ASSERT that reconciliation rather than
+  leaving it to prose, the third being the self-hosted individual's.
 - [x] 1.5 README **OpenSpec Records** row.
 - [x] 1.6 The per-change sweep-ledger row, written by
   `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`

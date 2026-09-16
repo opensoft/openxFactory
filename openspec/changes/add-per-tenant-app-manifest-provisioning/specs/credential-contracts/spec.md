@@ -55,8 +55,10 @@ governed custody and reached only by reference* forbids
 obligation lives in the contract, the concrete estate fact lives in the
 binding"*). Whether and when Case A migrates to the manifest shape is the
 installer's act and the staged topic's unruled managed-flow question, and this
-packet decides neither. Two of the added scenarios assert this reconciliation
-rather than leaving it to the preamble.
+packet decides neither. THREE of the added scenarios assert this reconciliation
+rather than leaving it to the preamble — the operator-executed flow conforming,
+the self-hosted individual conforming from their own account, and the pair
+already in service not being retroactively refused.
 
 ## MODIFIED Requirements
 
@@ -64,12 +66,21 @@ rather than leaving it to the preamble.
 A dispatch-only credential — one that exists to TRIGGER execution (a workflow dispatch or job kickoff) — SHALL be scoped to exactly the minimal permission required to trigger its one named target and nothing more (for a GitHub-hosted factory, `actions: write` on the single repository that owns the workflow), carrying no repository-contents authority. It SHALL be a DISTINCT binding from any content-write credential the same capability uses, and a zero-write-authority serving surface holding a dispatch-only credential MUST NOT hold — nor hold key material capable of minting — a content-write credential.
 
 **WHERE THE SEPARATED PAIR IS PROVISIONED FOR A TENANT THROUGH A PROVISIONING
-MANIFEST, EACH CREDENTIAL'S IDENTITY SHALL BE CREATED IN THE TENANT'S OWN
-ORGANIZATION, AND SHALL NOT BE AN OPERATOR-OWNED IDENTITY INSTALLED INTO IT.** A
-provisioning manifest is a committed, credential-free record that pre-fills the
-identity's requested permissions, its subscribed events and its callback, and the
-provider creates the identity only after a seat that administers the tenant's own
-organization names and confirms it. The manifest SHALL pre-fill, per identity, NO
+MANIFEST, EACH CREDENTIAL'S IDENTITY SHALL BE CREATED IN THE TENANT'S OWN SEAT AT
+THE PROVIDER, AND SHALL NOT BE AN OPERATOR-OWNED IDENTITY INSTALLED INTO IT.**
+The tenant's own seat is the tenant's ORGANIZATION where the tenant is
+organization-backed, and it is the INDIVIDUAL'S OWN ACCOUNT for the self-hosted
+individual this capability already protects — who *"carries no
+organizational-identity obligation"* and whose *"own identity is a complete and
+legitimate binding"*. What this clause fixes is that the identity is the
+TENANT'S and not an operator's; it does not oblige a tenant to stand up an
+organization the capability says they need not have. Where a binding IS
+operator-hosted, this capability's existing refusal of a personal identity merely
+designated as the organization's continues to apply unchanged, and nothing here
+softens it. A provisioning manifest is a committed, credential-free record that
+pre-fills the identity's requested permissions, its subscribed events and its
+callback, and the provider creates the identity only after a seat that
+administers that tenant's own account or organization names and confirms it. The manifest SHALL pre-fill, per identity, NO
 MORE THAN THE SCOPE THAT IDENTITY'S BINDING MAY HOLD — for the dispatch identity
 that is the scope the paragraph above already fixes, its one named target and no
 repository-contents authority; for the content-write identity it is the scope
@@ -102,7 +113,7 @@ CONVENTION of the form `<product> — <tenant>` that is discoverable by pattern 
 whose TENANT COMPONENT IS AN IDENTIFIER UNIQUE IN THAT PROVIDER'S OWN NAMESPACE,
 canonicalized to what the provider's names admit — a display name two tenants may
 share is not such an identifier — so that the identities belonging to one tenant
-can be enumerated without reading that tenant's organization, and so that two
+can be enumerated without reading that tenant's own account, and so that two
 tenants CANNOT contend for one name rather than merely being expected not to.
 WHICH GRAIN carries that uniqueness — a slug, an account handle, an issued
 identifier — is the install's to choose and is not fixed here; what is fixed is
@@ -143,8 +154,8 @@ will live, and a record carrying the material itself is refused.
 - **WHEN** a dispatch-only credential is scoped to trigger exactly one named workflow on one repository, held as a binding distinct from the content-write credential
 - **THEN** it is valid
 
-#### Scenario: An install provisions the pair inside the tenant's organization
-- **WHEN** a per-tenant install provisions the dispatch and content identities from committed provisioning manifests, each confirmed by the tenant's own seat, each created in the tenant's organization under a name unique to that tenant
+#### Scenario: An install provisions the pair inside the tenant's own seat
+- **WHEN** a per-tenant install provisions the dispatch and content identities from committed provisioning manifests, each confirmed by the tenant's own seat, each created in that tenant's own organization or account under a name unique to that tenant
 - **THEN** the provisioning is valid, and the separation the pair already owes is preserved by construction rather than by configuration
 
 #### Scenario: A manifest-provisioned identity turns out to be the operator's own
@@ -171,9 +182,14 @@ will live, and a record carrying the material itself is refused.
 - **THEN** it MUST be rejected, and the record is remediated rather than redacted in place
 
 #### Scenario: An operator-executed install drives the manifest flow
-- **WHEN** an install whose execution binding is operator-executed drives the provisioning manifest flow on the tenant's behalf, the identity created being the TENANT'S OWN in the tenant's own organization rather than an operator-owned identity installed into it, and its material landing in the custody that install's binding declares
+- **WHEN** an install whose execution binding is operator-executed drives the provisioning manifest flow on the tenant's behalf, the identity created being the TENANT'S OWN in the tenant's own seat at the provider rather than an operator-owned identity installed into it, and its material landing in the custody that install's binding declares
 - **THEN** it conforms, because this requirement fixes where the identity lives and whose it is and how its material is reached, and leaves who operates the install a per-install execution binding
 - **AND** an otherwise identical flow whose created identity is the operator's own is refused by the clause above, which this scenario does not soften
+
+#### Scenario: A self-hosted individual provisions the pair from their own account
+- **WHEN** an individual operating their own install provisions the pair from committed manifests confirmed by their own seat, each identity created in their own account because they have no organization and this capability obliges them to stand up none
+- **THEN** it conforms, and the pair is still two DISTINCT identities under the separation this requirement already fixes
+- **AND** the same personal identity offered for an OPERATOR-HOSTED binding remains refused on the ground this capability already states, which this scenario does not disturb
 
 #### Scenario: A pair already in service was created without a manifest
 - **WHEN** a dispatch and content pair in service predates this shape and was created by hand rather than from a provisioning manifest

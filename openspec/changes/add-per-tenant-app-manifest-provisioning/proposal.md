@@ -58,7 +58,9 @@ the shape is expressible at all: **the provider has no app-creates-app API**, so
 the mechanism is the App Manifest flow — a committed manifest with permissions,
 events and callback pre-filled, redirecting the tenant to the provider where
 their own seat names and confirms it, the provider creating the identity IN THE
-TENANT'S ORGANIZATION and returning its secrets once, within a bounded window.
+TENANT'S OWN SEAT — their organization, or their own account where they have no
+organization and canon obliges them to stand up none — and returning its secrets
+once, within a bounded window.
 Tenant ownership is therefore STRUCTURAL rather than promised. And because the
 provider's App names are a GLOBAL namespace, the convention is a per-tenant name
 (`openXdox — <tenant>`, `openxFactory — <tenant>`) rather than one name every
@@ -69,14 +71,16 @@ tenant contends for.
 **ONE `## MODIFIED` block, on ONE requirement, over CANON.** *Dispatch-only
 credential least privilege and serving-tier separation* is restated in full — its
 promoted body paragraph and all three promoted scenarios verbatim — and grown by
-five clauses and eight scenarios — the first two
+five clauses and nine scenarios — the first two
 being the provisioning rule and the scoping rider that keeps it case-neutral,
 and every clause scoped to provisioning through a manifest rather than written
 over every pair that exists:
 
 1. **Where the pair is provisioned through a manifest, creation is in the
-   tenant's organization and the identity is never an operator-owned one
-   installed into it** — and never one provisioned identity creating the other,
+   tenant's own seat at the provider — their organization where they are
+   organization-backed, their own account where canon's self-hosted individual
+   applies — and the identity is never an operator-owned one installed into
+   it** — and never one provisioned identity creating the other,
    which the promoted sentence already forbids the serving tier to be capable of.
    The clause binds WHERE the identity lives, not who drives the flow and not who
    holds its material.
@@ -117,8 +121,10 @@ non-obvious.
   `docs/openxdox-dispatch-credential-binding.md:31-37` records a LIVE Case A in
   which the operator creates the dispatch App and holds its key in the operator's
   vault. The added clauses are scoped to provisioning THROUGH A MANIFEST, name no
-  custody party, and do not retroactively refuse a pair already in service — two
-  of the eight added scenarios assert exactly that. Whether Case A migrates to
+  custody party, and do not retroactively refuse a pair already in service — three
+  of the nine added scenarios assert exactly that — including the self-hosted
+  individual provisioning from their own account, which canon protects and an
+  organization-only clause would have made non-conforming. Whether Case A migrates to
   the manifest shape is the installer's act and the topic's unruled Q2.
 - **Any schema, validator arm, warning code or contract bundle.** See the
   `code_surface:` declaration: the record these clauses constrain does not exist
@@ -148,7 +154,7 @@ non-obvious.
   the tenant's behalf, or does the tenant always click through their own? The
   delta is written CASE-NEUTRAL and does not turn on the answer: what it binds is
   WHERE the identity is created and WHOSE it is, and both cases put it in the
-  tenant's organization under the tenant's ownership. The answer changes the
+  tenant's own seat under the tenant's ownership. The answer changes the
   installer's sequence, which is `Omnigent-Install`'s change to write. Recommended
   when it is put: the tenant's own seat always confirms, because the clause's
   refusal is about the created identity being an operator's OWN, and a
