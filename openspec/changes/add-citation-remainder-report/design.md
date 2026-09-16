@@ -239,23 +239,28 @@ this tree, at this commit". It is cited from `scripts/packet_reference.py` and
 **(iv) AND THIS PACKET'S OWN EFFECT ON THE POPULATION, MEASURED AFTER THE
 PACKET EXISTED RATHER THAN PREDICTED BEFORE IT — AND STATED AS A DELTA AGAINST A
 NAMED BASE, BECAUSE THE ABSOLUTE FIGURES MOVE EVERY TIME `main` DOES.** The same
-recipe re-run on this branch at its head against the base that head merges,
-`origin/main` **`00b1e93b`**: **+6** files in scope (this packet's own six
-files; `README.md` was already tracked and the ledger row sits under the excluded
-`tests/`), **+8** distinct tokens, **+6** `RESOLVED`, and the remainder **+1**.
-In absolutes at that pair — base **2,974 / 587 / 499 / 81**, branch **2,980 /
-595 / 505 / 82**, the branch's remainder being 75 identity-half, 7 file-half, 0
-ambiguous, with 8 `NOT_A_PACKET_REFERENCE` and 70 citing files. **BEFORE THE
+recipe re-run on this branch at its head against the base that head merges:
+**+6** entries in scope (this packet's own six files; `README.md` was already
+tracked and the ledger row sits under the excluded `tests/`), **+8** distinct
+tokens, **+6** `RESOLVED`, and the remainder **+1**. In absolutes at the pair
+this bench round measured — base `origin/main` **`fa39141c`** reading **2,986 /
+597 / 509 / 81**, branch reading **2,992 / 605 / 515 / 82**, the branch's
+remainder being 75 identity-half, 7 file-half, 0 ambiguous, with 8
+`NOT_A_PACKET_REFERENCE` and 70 citing files. **THE ABSOLUTE PAIR IS LABELLED
+WITH ITS BASE AND IS A HISTORICAL READING; THE DELTA IS THE CLAIM.** To re-take
+the absolutes at any later base, run the recipe against
+`$(git merge-base origin/main HEAD)` and this branch's head. **BEFORE THE
 EVIDENCE REPORT LANDED THE BRANCH'S REMAINDER DELTA WAS ZERO** — the branch read
 its base's 81 — and the whole +1 arrives with `evidence/measurement-b1df95ee.md`;
 the table below shows every step, each row pinned to the commit it was taken at
 so no row moves when a base does.
 
 **THE DELTA IS THE INVARIANT AND THAT IS MEASURED, NOT ASSERTED.** These figures
-have now been taken at three different bases — `b1df95ee`, `d5dd1ca5` and
-`00b1e93b` — across two merges from `main`, thirteen fix-round commits and the
-bench round this paragraph was last rewritten in. The absolutes moved with the
-base every time; **`+6 / +8 / +6 / +1` did not move once.** Neither a merge nor a
+have now been taken at FOUR different bases — `b1df95ee`, `d5dd1ca5`, `00b1e93b`
+and `fa39141c` — across three merges from `main`, thirteen fix-round commits and
+the two bench rounds this paragraph was last rewritten in. The absolutes moved
+with the base every time, twice inside this one round; **`+6 / +8 / +6 / +1` did
+not move once.** Neither a merge nor a
 prose correction mints a citation token the branch did not already carry.
 **That is the fence working rather than a coincidence**: the tokens a packet adds
 are the ones it QUOTES, and a correction that re-words a sentence about a token
