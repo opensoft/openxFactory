@@ -2652,10 +2652,21 @@ def test_the_retirement_refusal_reaches_its_callers_as_their_own_error(
     source, whose `exists()` would otherwise answer a plain FALSE for a file
     that is not absent but DELETED BY RULING.
 
-    `scripts/sync-notebooklm-books.py` is deliberately NOT in this list: it
-    asks `module()` for a dotted name, its own docstring says a shed module
-    meets "the named shed refusal" there, and `CarveRowRetired` is exactly
-    that refusal one subclass further down.
+    `scripts/sync-notebooklm-books.py` is deliberately NOT in this list, and
+    the reason is a MEASUREMENT rather than a reading of its docstring
+    (Copilot review of PR #1032, round 8, which was right to ask). Its
+    `_dashboard_module()` asks `module()` for exactly three names, every one of
+    them a MOVED row no ruling has retired, so the refusal is unreachable
+    there — not caught, unreachable. That is worth less than the five
+    translations above, because it is a property of the manifest and not of the
+    code, so it is PINNED:
+    `test_no_module_the_notebook_sync_asks_for_is_retired` derives the names
+    from the source with `ast` and fails the day a retirement reaches one of
+    them. The measurement behind the pin: of the sixteen `_dashboard_module()`
+    call sites, FIFTEEN sit under no `try` at all — the one exception is the
+    orphan sweep, which is the site the review named, and which is inside
+    `except Exception`. So the answer to "is it handled" is no; the answer to
+    "can it happen" is no, and the pin is what keeps the second answer honest.
     """
     import carved_reach
 
@@ -2724,6 +2735,80 @@ def test_the_retirement_refusal_reaches_its_callers_as_their_own_error(
         == carved_reach.source(key)
     assert release._shed_aware(target) == carved_reach.source(key)
     assert doxbench._shed_aware(target) == carved_reach.source(key)
+
+
+def test_no_module_the_notebook_sync_asks_for_is_retired() -> None:
+    """THE EIGHTH CALL SITE, kept safe by the manifest rather than by a handler
+    (Copilot review of PR #1032, round 8).
+
+    `scripts/sync-notebooklm-books.py::_dashboard_module()` calls
+    `carved_reach.module()` and translates nothing, so a `CarveRowRetired` out
+    of it would arrive as an uncaught traceback at fifteen of its sixteen call
+    sites — measured with `ast`, and the sixteenth is the orphan sweep, which
+    is inside `except Exception`. The review asked for a translation there.
+    This act does not write one, and this test is the reason it does not have
+    to: THE REFUSAL IS UNREACHABLE AT THAT CONSUMER, because every name it can
+    ask for is a MOVED row that no ruling has retired.
+
+    "Unreachable" is a claim about the MANIFEST, not about the code, and a
+    claim about the manifest can stop being true in somebody else's pull
+    request without anyone re-reading this one. So it is asserted here, and the
+    names are DERIVED FROM THE SOURCE rather than typed: the day an act retires
+    a row the notebook sync reads, this test fails and names it, which is the
+    moment to write the translation the review asked for — at that act, where
+    the vocabulary to translate INTO is known.
+
+    THE COLLECTOR MUST NOT UNDER-REPORT, which is the one way a test like this
+    passes while being wrong: a call whose argument is not a string literal
+    would be invisible to it and the row behind it unchecked. Every argument is
+    required to be a literal, and the set is required to be non-empty, so a
+    renamed helper or a computed name fails here rather than quietly narrowing
+    what is asked.
+    """
+    source = REPO_ROOT / "scripts" / "sync-notebooklm-books.py"
+    tree = ast.parse(source.read_text(encoding="utf-8"))
+
+    names: set[str] = set()
+    calls = 0
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if not (isinstance(func, ast.Name) and func.id == "_dashboard_module"):
+            continue
+        calls += 1
+        assert len(node.args) == 1 and not node.keywords, ast.dump(node)
+        arg = node.args[0]
+        assert isinstance(arg, ast.Constant) and isinstance(arg.value, str), (
+            f"{source.name}:{node.lineno} asks _dashboard_module() for "
+            f"{ast.unparse(arg)}, which this test cannot resolve — either make "
+            "it a literal or check the row it names by hand")
+        names.add(arg.value)
+    assert calls, "no _dashboard_module() call sites found — has it been renamed?"
+    assert names, "call sites found but no names — the collector is wrong"
+
+    # THE SPELLING THE LOADER BUILDS, read off the loader and not assumed: it
+    # asks for `scripts/ideation_dashboard/<name>.py`, which is a manifest
+    # `source_path`.
+    loader = source.read_text(encoding="utf-8")
+    assert 'carved_module(f"scripts/ideation_dashboard/{name}.py")' in loader, (
+        "the loader no longer builds the path this test checks rows for")
+
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+    rows = {row["source_path"]: row
+            for row in yaml.safe_load(manifest.read_text(encoding="utf-8"))["rows"]}
+    for name in sorted(names):
+        key = f"scripts/ideation_dashboard/{name}.py"
+        row = rows.get(key)
+        assert row is not None, f"{key} is asked for and is in no manifest row"
+        assert MODULE.retired_at(row) == (None, None), (
+            f"{key} carries a retirement and `_dashboard_module()` translates "
+            "nothing — write the translation Copilot round 8 on PR #1032 asked "
+            "for, in the act that retires it")
+        # …and the OTHER branch of `module()` that refuses, so this test is
+        # about "the loader answers" and not only about retirement.
+        assert row["disposition"] != "not_moved" \
+            or row.get("reason") != "deleted_at_carve", row
 
 
 def test_the_two_marker_call_sites_answer_a_retired_row_instead_of_raising(
