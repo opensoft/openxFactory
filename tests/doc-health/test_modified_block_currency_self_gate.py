@@ -966,21 +966,6 @@ _LEDGER_SUBJECTS = {
      "Realization axis vocabulary is gated"),
 }
 
-# `adopt-entry-grain-dispositions-form` (PR #1050) BRIEFLY needed a row here,
-# ROUND 5 of its own ratification pull request, when it edited an EXISTING
-# promoted scenario's body — *A marker names a capability of a pinned neutral
-# product* — to partition it from its own added scenario. ROUND 6 REVERTED
-# that edit: ratified normative text is the ratifier's to amend, not the
-# lane's (precedent: `add-requirement-ref-resolution-integrity`'s 2026-09-01
-# amendment, ruled by the ratifier), so the overlap Copilot found — the
-# positive scenario, canon restated, accepts a record whose optional
-# `dispositions` is `[{}]` while the packet's new refusal scenario refuses it
-# — is filed on openxFactory #1045 as a RULING NEEDED comment for Brett
-# Heap's word instead, and the `## MODIFIED` block's promoted scenario is
-# byte-identical to canon again. The self-gate re-ran clean at zero without
-# this row (confirmed: "1 named subject(s) NO LONGER reported" before its
-# removal), so no row is carried.
-
 _OWN_CHANGE = "add-modified-block-currency-check"
 
 # WHERE THE PACKET'S OWN BLOCK WAS UNTIL 2026-08-27, AND WHERE IT IS NOW. The
