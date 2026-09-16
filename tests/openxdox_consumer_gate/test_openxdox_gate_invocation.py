@@ -330,6 +330,32 @@ def test_node_is_installed_because_the_js_probes_skip_without_it(
         "as")
 
 
+def test_the_dependency_install_is_hash_pinned_and_refuses_sdists(
+        runs: list[str]) -> None:
+    """Hashes bind WHICH artifact; `--only-binary :all:` binds WHAT KIND.
+
+    A gate that judges other people's landings should not run a stranger's
+    `setup.py` while installing itself, and a hash cannot express that — it
+    pins the sdist's bytes, then the build executes them.
+    `former-id-arrival-gate.yml` made this the rule for a hashed-lockfile
+    install in this repository; measured against the same lock on python 3.12,
+    the flag resolves 17 packages, 17 wheels, zero sdists, exit 0, so it
+    changes what may EXECUTE and nothing about what is installed.
+    """
+    installs = [r for r in runs if "pip install" in r]
+    assert len(installs) == 1, (
+        f"exactly one dependency install; found {len(installs)}")
+    install = " ".join(installs[0].split())
+    assert "--require-hashes" in install, (
+        "the install must be hash-pinned: an unpinned `pip install` resolves "
+        "whatever PyPI serves at run time, with no version and no hash")
+    assert "--only-binary :all:" in install, (
+        "the install must refuse sdists — no setup script may run while a "
+        "gate installs itself. The lock is all wheels, so this costs nothing")
+    assert "requirements/hermes-runtime-contracts.lock" in install, (
+        "the gate installs the same locked set the required suite does")
+
+
 # --------------------------------------------------------------------------
 # the invocations, and their order
 # --------------------------------------------------------------------------
@@ -350,7 +376,8 @@ def test_both_pins_are_verified_before_anything_pinned_is_trusted(
 def test_the_openxdox_pin_is_verified_first(runs: list[str]) -> None:
     """The direction the LOCKSTEP runs.
 
-    `verify-opendox-pin.py`'s sixth check reads openXdox's own DERIVED
+    `verify-opendox-pin.py`'s CHECK 5 — its last, and the one check with no
+    analogue in the elder verifier — reads openXdox's own DERIVED
     `contracts/opendox-pin.yaml` as a git blob at the gitlinked commit. Both
     verifiers are offline and order-independent in principle; running the elder
     pin (RULING F) before the second direct upstream (RULED Q7) means the
@@ -560,7 +587,22 @@ def test_no_two_test_modules_resolve_to_the_same_import_name(
     `tests/openxdox_consumer_gate/test_gate_invocation.py`, it collided with
     `tests/openxwallet_consumer_gate/test_gate_invocation.py`, and
     `pytest-suite` went red on 2 collected tests. The file was renamed; this
-    test is the reason the next one cannot repeat it.
+    test names the RULE for whoever writes the third consumer gate.
+
+    WHAT IT CANNOT DO, said here rather than left to be discovered: it cannot
+    pre-empt the interruption in the same session. Collection runs before any
+    test does, so in a full-tree run a live collision aborts before this
+    assertion executes — MEASURED, by restoring a colliding pair: `pytest
+    tests/` reports `Interrupted: 1 error during collection` and `2 skipped,
+    338 deselected, 1 error`, and this test does not run. What follows from
+    that is the useful half: **the required suite never goes green on a
+    collision** — it goes red, naming the offending file, which is exactly how
+    this one was caught. This guard is for the run where collection SUCCEEDS —
+    the scoped `pytest tests/openxdox_consumer_gate` of the authoring loop,
+    where it fails with the rule, both colliding paths and the two remedies
+    instead of an `import file mismatch` an author must decode. A scan that
+    ran before collection for the whole tree would be a repository-wide hook
+    in a shared `conftest.py`; that is a different act than this gate.
 
     IT IS NOT A BAN ON REPEATED BASENAMES, and it must not become one: SIX
     basenames repeat lawfully today (`test_gate_wiring`, `test_integrity`,

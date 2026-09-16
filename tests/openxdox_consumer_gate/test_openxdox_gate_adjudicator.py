@@ -27,6 +27,7 @@ report as well as a single-suite one.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import textwrap
 import xml.etree.ElementTree as ET
@@ -100,12 +101,23 @@ def report_xml(*, tests: int, skipped: int = 0, failures: int = 0,
     return f"<testsuites>{one}</testsuites>" if wrap else one
 
 
+def step_env(env: dict[str, str]) -> dict[str, str]:
+    """The step's `env:` OVER the ambient one, which is what Actions does.
+
+    Passing the five pins alone would also strip `PATH`, and the body's
+    `python3` is then whatever `bash` happens to fall back to — a difference
+    between this suite and the runner that has nothing to do with what is
+    under test.
+    """
+    return {**os.environ, **env}
+
+
 def adjudicate(tmp_path: Path, env: dict[str, str],
                xml: str) -> subprocess.CompletedProcess[str]:
     """Run the SHIPPED body over `xml`, as the runner would."""
     (tmp_path / env["REPORT"]).write_text(xml, encoding="utf-8")
-    return subprocess.run(["bash", "-c", BODY], cwd=tmp_path, env=env,
-                          capture_output=True, text=True)
+    return subprocess.run(["bash", "-c", BODY], cwd=tmp_path,
+                          env=step_env(env), capture_output=True, text=True)
 
 
 def at_the_pins(env: dict[str, str], **over) -> str:
@@ -314,8 +326,9 @@ def test_a_report_that_cannot_be_parsed_fails_the_step(
 
 def test_a_missing_report_fails_the_step(tmp_path: Path) -> None:
     """The suite never ran, or wrote elsewhere; both are the same finding."""
-    done = subprocess.run(["bash", "-c", BODY], cwd=tmp_path, env=PIN_ENV,
-                          capture_output=True, text=True)
+    done = subprocess.run(["bash", "-c", BODY], cwd=tmp_path,
+                          env=step_env(PIN_ENV), capture_output=True,
+                          text=True)
     assert done.returncode != 0
     assert "No such file" in done.stderr or "FileNotFound" in done.stderr
 

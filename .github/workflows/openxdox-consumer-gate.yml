@@ -155,9 +155,10 @@
 # so the RULE is written once and the PINS are written twice, which is the
 # split `pytest-suite.yml` makes for the same reason ("two callers of one rule,
 # so they cannot drift from each other"). `tests/openxdox_consumer_gate/
-# test_gate_invocation.py` asserts the two `run:` strings equal, so an edit to
-# one that is not made to the other fails the REQUIRED suite rather than
-# leaving two silently divergent adjudicators. GitHub Actions supports no YAML
+# test_openxdox_gate_invocation.py` asserts the two `run:` strings equal, and
+# `test_openxdox_gate_adjudicator.py` EXECUTES the body it extracts, so an edit
+# to one copy that is not made to the other fails the REQUIRED suite rather
+# than leaving two silently divergent adjudicators. GitHub Actions supports no YAML
 # anchor and no include, so identity-under-test is the mechanism available.
 name: openxdox-consumer-gate
 
@@ -230,13 +231,33 @@ jobs:
       # The same hash-pinned set the required suite installs. `pytest` itself
       # is IN this lock (9.1.1), so nothing here depends on what happens to be
       # preinstalled on the image.
-      - run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
+      #
+      # AND `--only-binary :all:` BESIDE THE HASHES, so no sdist's setup script
+      # runs during the install of a gate that judges other people's landings —
+      # `former-id-arrival-gate.yml`'s rule, taken here for its reason rather
+      # than copied: "the hashes already bind WHICH artifact may be installed;
+      # this binds WHAT KIND, which is the half a hash cannot express". It
+      # changes nothing about WHAT is installed: measured against this same
+      # lock on python 3.12, `pip install --require-hashes --only-binary :all:
+      # --dry-run` resolves 17 packages, 17 wheels, ZERO sdists, exit 0.
+      # `pytest-suite.yml` and `review-lane-repin.yml` still carry the older
+      # form; this file does not follow them there, and a divergence in a FLAG
+      # is not a divergence in the dependency SET.
+      # (A literal block because `--only-binary :all: -r` carries a colon and a
+      # space, which a plain YAML scalar may not.)
+      - name: Install the pinned dependency set
+        run: |
+          pip install --require-hashes --only-binary :all: \
+            -r requirements/hermes-runtime-contracts.lock
 
       # FIRST, before anything pinned is trusted, and in the direction the
       # LOCKSTEP runs. `scripts/verify-openxdox-pin.py` adjudicates the elder
       # pin (RULING F — openxFactory pins the openXdox assembly root);
       # `scripts/verify-opendox-pin.py` adjudicates the second direct upstream
-      # (RULED Q7) and its sixth check reads openXdox's OWN derived
+      # (RULED Q7) and its fifth and last check — `verify-opendox-pin.py`
+      # labels it "check 5: LOCKSTEP with openXdox's own derived reading", the
+      # one check with no analogue in the elder verifier — reads openXdox's OWN
+      # derived
       # `contracts/opendox-pin.yaml` as a git BLOB out of the openXdox
       # submodule's object store at the gitlinked commit, refusing
       # `opendox-pin-lockstep-mismatch` when the two disagree. Each prints one
