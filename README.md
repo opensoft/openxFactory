@@ -3254,10 +3254,10 @@ Archived changes:
 
 - [add-declared-former-id](openspec/changes/archive/2026-09-15-add-declared-former-id/proposal.md)
   — **ARCHIVED 2026-09-15** by
-  [PR #TBD-archive-pr](https://github.com/opensoft/openxFactory/pull/TBD-archive-pr),
+  [PR #1064](https://github.com/opensoft/openxFactory/pull/1064),
   on Brett Heap's **SEPARATE ARCHIVE WORD** — verbatim
-  *"<ARCHIVE-WORD-VERBATIM>"*, <ARCHIVE-WORD-DATE>, recorded at
-  <ARCHIVE-WORD-URL> — a different word from the ratification of
+  *"archive it, open the PR"*, 2026-09-16 (~12:4xZ, in session to lane `openxfactory-1`, display `openXfactory-1`), recorded at
+  [#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5697795401) — a different word from the ratification of
   2026-09-13T22:48Z (*"ratify 1028 as encoded"*, PR
   [#1028](https://github.com/opensoft/openxFactory/pull/1028) → `28ad27af`) and
   from every realization merge, exactly as `tasks.md` § 7.1 requires.

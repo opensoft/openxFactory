@@ -347,8 +347,8 @@ carried forward at openxFactory#1061, the shape
 canon MEETING ITS OWN DEGRADED CASE: an unrequired arrival gate runs on every
 pull request and refuses no landing.
 
-**THE ARCHIVE WORD.** Brett Heap, <ARCHIVE-WORD-DATE>, verbatim
-***"<ARCHIVE-WORD-VERBATIM>"***, recorded at <ARCHIVE-WORD-URL> — a SEPARATE
+**THE ARCHIVE WORD.** Brett Heap, 2026-09-16 (~12:4xZ, in session to lane `openxfactory-1`, display `openXfactory-1`), verbatim
+***"archive it, open the PR"***, recorded at [#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5697795401) — a SEPARATE
 word from the ratification of 2026-09-13T22:48Z and from every realization
 merge, exactly as § 7.1 requires. The archive was performed with
 `python3 scripts/proposal-support.py . archive add-declared-former-id --yes`
