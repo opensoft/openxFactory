@@ -189,8 +189,11 @@ edits), independently of how the delta was produced:
    ```
    reads `canon units: 209`, `block units: 215`, `uncarried: 2`, `new: 8`.
 4. The same fact as a live finding rather than a script: `python3
-   scripts/doc-health.py --single-repo . --as-of <today> --family
-   modified-block-currency` reports the block "does not carry 2 of the 186
+   scripts/doc-health.py --single-repo . --as-of 2026-09-16 --family
+   modified-block-currency` (the date measured against, pinned rather than
+   left as a placeholder — `runner.py` passes it straight to
+   `date.fromisoformat`, so an unpinned `<today>` fails when copied) reports
+   the block "does not carry 2 of the 186
    body units and scenario bullets ... currently states for it", quoting both
    uncarried units by text.
 
