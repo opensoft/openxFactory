@@ -1,6 +1,20 @@
 # Tasks: adopt-entry-grain-dispositions-form
 
-Status: draft
+Status: ratified
+Ratified by: adopt-entry-grain-dispositions-form — Brett Heap (openxFactory
+repository owner), first-hand, in session, lane `openxfactory-2`
+(display `openXfactory-2`), verbatim ***"ratify 1052 when green, then
+1050"*** — the "then 1050" half of that word, `code_surface` non-empty so
+realization (§ 3) and archive (§ 4) stay separate later acts. THE ONE
+CITATION: openxFactory #1045, comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+Record: `review/ratification-2026-09-16.md`. BOXES TICKED BY THIS RATIFYING
+COMMIT: 1.1, 1.2, 1.3, 1.4 — AND NO OTHERS: § 2's boxes stand exactly as the
+filing pull request left them, and § 3 and § 4 stay open.
+
+**THE PARAGRAPH IMMEDIATELY BELOW RECORDS THE AT-FILING STATE AND IS KEPT
+VERBATIM AS HISTORY.** Its present-tense "this lane ticks no box in it" was
+true before this ratifying commit and is superseded by the four ticks above.
 
 **NOTHING IN § 1 IS TICKED, AND THAT IS THE STATE OF THE WORK RATHER THAN AN
 OVERSIGHT.** This pull request FILES a proposal. § 1 is Brett Heap's ratify or
@@ -15,7 +29,7 @@ anywhere in this pull request.
 
 ## 1. Ratification — BRETT HEAP'S WORD, NOT THIS LANE'S
 
-- [ ] 1.1 **RULE `design.md` D-2 — the entry-grain reading is the OPTIONAL
+- [x] 1.1 **RULE `design.md` D-2 — the entry-grain reading is the OPTIONAL
       member's FORM and not a new required member.** Recommended: (a), change
       the optional member's FORM — `_is_disposition_list` (3.1) and the
       diagnostic FAILURE REPRESENTATION that renders which entry failed
@@ -26,7 +40,8 @@ anywhere in this pull request.
       WIDER than the guard, two canon passages rewritten, a carriage-ledger
       row owed, and a guard leg asserting a refusal the verifier does not
       make.
-- [ ] 1.2 **RULE `design.md` D-3 — act at all, rather than leave it as it
+      **RATIFIED 2026-09-16T13:43:18Z by Brett Heap** (openxFactory repository owner), first-hand, in session, lane `openxfactory-2`, verbatim ***"ratify 1052 when green, then 1050"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+- [x] 1.2 **RULE `design.md` D-3 — act at all, rather than leave it as it
       stands.** Recommended: adopt. (a) LEAVE AS IS is the round-8 ruling's own
       position and is priced there, including what it costs: the adapter stays
       NARROWER than the guard on exactly the trees it exists for, and the
@@ -34,7 +49,8 @@ anywhere in this pull request.
       the verifier's entry rules as PROSE in canon and (d) having the adapter
       CALL the verifier are both refused in D-3 on canon's own words; a veto
       there re-opens the requirement rather than this scenario.
-- [ ] 1.3 **CONFIRM the `## MODIFIED` delta is the whole normative act** — ONE
+      **RATIFIED 2026-09-16T13:43:18Z by Brett Heap** (openxFactory repository owner), first-hand, in session, lane `openxfactory-2`, verbatim ***"ratify 1052 when green, then 1050"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+- [x] 1.3 **CONFIRM the `## MODIFIED` delta is the whole normative act** — ONE
       scenario added to *Prose tagging marker hygiene*, every other promoted
       unit of that requirement carried VERBATIM (`git diff --numstat` of the
       `## MODIFIED` block against `openspec/specs/document-lifecycle/spec.md:218-688`
@@ -42,10 +58,12 @@ anywhere in this pull request.
       content lines plus its one separating blank line), and no second
       capability touched. A veto here is a veto of the scenario's wording and
       costs one block.
-- [ ] 1.4 **CONFIRM that ratifying § 1 authorizes NO REALIZATION.** Ratification
+      **RATIFIED 2026-09-16T13:43:18Z by Brett Heap** (openxFactory repository owner), first-hand, in session, lane `openxfactory-2`, verbatim ***"ratify 1052 when green, then 1050"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+- [x] 1.4 **CONFIRM that ratifying § 1 authorizes NO REALIZATION.** Ratification
       admits the scenario to the packet and nothing more: § 3 stays open, the
       adapter and its tests stay untouched, and the realization is a later pull
       request on a separate word.
+      **RATIFIED 2026-09-16T13:43:18Z by Brett Heap** (openxFactory repository owner), first-hand, in session, lane `openxfactory-2`, verbatim ***"ratify 1052 when green, then 1050"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 
 ## 2. The filing — THIS PULL REQUEST, AND THE WHOLE OF IT
 

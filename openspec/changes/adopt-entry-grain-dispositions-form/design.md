@@ -1,6 +1,20 @@
 # Design: adopt-entry-grain-dispositions-form
 
-Status: draft
+Status: ratified
+Ratified by: adopt-entry-grain-dispositions-form — Brett Heap (openxFactory
+repository owner), first-hand, in session, lane `openxfactory-2` (display
+`openXfactory-2`), verbatim ***"ratify 1052 when green, then 1050"*** — the
+"then 1050" half of that word. THE ONE CITATION: openxFactory #1045, comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+D-1, D-2 and D-3 stand AS FILED — no decision here is reopened. This ratifying
+commit also folds in two conforming fixes RULED ACCEPT by the lane from
+Copilot's suppressed review comments at the ratified head, neither one a
+design decision: D-1's "THE GAP, COUNTED" tally and enumerated list corrected
+from EIGHT to TEN measured records (the table above it always carried
+`why: ""` and `level: ""`; the tally had dropped them), and, in `proposal.md`,
+the "moves no byte of … any test" claim narrowed to name the realization test
+files and the sweep-ledger bookkeeping separately. Record:
+`review/ratification-2026-09-16.md`.
 
 **WHAT THIS DOCUMENT IS FOR.** D-1 is the MEASUREMENT this packet rests on —
 the verifier's PURE, SOURCE-FREE entry-grain guard, refusal by refusal, with
@@ -56,11 +70,12 @@ in the finding. (ii) Row 5 is CASE-FOLDED and `None`-guarded, not truthy-guarded
 REFUSED — an empty string is not `None`. A transcription reading `if level:`
 would be NARROWER than the guard on `""`.
 
-**THE GAP, COUNTED.** EIGHT measured records the guard REFUSES and the adapter
-`judge(record, "openspec-cli")` ACCEPTS: `[{}]`, `[null]`, `["a"]`, an entry
-without `cited_to`, `cited_to: []`, `cited_to: "x"`, `level: "WARNING"`, and an
-entry naming no authority. ZERO in the other direction — nothing the adapter
-refuses is admitted by the guard. So the adapter is NARROWER than the guard on
+**THE GAP, COUNTED.** TEN measured records the guard REFUSES and the adapter
+`judge(record, "openspec-cli")` ACCEPTS — row 2's two: `[null]`, `["a"]`; row
+3's four: `[{}]`, an entry without `cited_to`, `cited_to: []`, `why: ""`; row
+4's one: `cited_to: "x"`; row 5's two: `level: "WARNING"`, `level: ""`; and
+row 6's one: an entry naming no authority. ZERO in the other direction —
+nothing the adapter refuses is admitted by the guard. So the adapter is NARROWER than the guard on
 the entries and nowhere WIDER, which is exactly the one-directional defect canon
 names: *"a resolver that ACCEPTED what the shape's own GUARD REFUSES would … admit a
 record the repository's own gate rejects at its first shape check"*.
