@@ -3351,7 +3351,15 @@ Archived changes:
   [#656](https://github.com/opensoft/openxFactory/issues/656)), encoded at
   `split-opendox-two-layer-product` `tasks.md` § 6.4 and `design.md` § D9. **THE
   FIRST OF THE FIVE FROZEN CHANGES TO CLOSE**, and the cheapest — one `## MODIFIED`
-  requirement, `target_release: none`, no contract bytes. **NOT AN ORDINARY
+  requirement, *"`target_release: none`, no contract bytes"* in § 6.4's words.
+  **THE PACKET'S OWN RETAINED FRONT MATTER DECLARES `target_release: implemented`**
+  (`proposal.md:3`, unedited by this closure): § 6.4's phrase is the split box's
+  shorthand for *no named release to wait on* — no contract bundle, no release
+  identity, and no `scripts/target-release-register.yaml` entry, `implemented`
+  being the one value the promoted sentence names outright. The two lines that
+  carry the shorthand (`tasks.md` § 6.4, `design.md` § D9) are the packet's own to
+  amend; this record reports the declaration rather than repeating the shorthand.
+  **NOT AN ORDINARY
   ARCHIVE:** the packet's own delta states the two admissible dispositions —
   *"archived, or closed as re-homed with its successor destination named in the
   receiving repository"* — and this closure takes the second, so **NO DELTA IS
@@ -3372,10 +3380,13 @@ Archived changes:
   attaches the promotion obligation to the archive act, so the non-promotion is
   registered as DELIBERATE through the discharge `promotion_fidelity.py`'s own
   action text names, an entry in the xFactory aggregation's
-  `health/dispositions.yaml`, batched across the five closures with § 6.6; a
+  `health/dispositions.yaml`, filed once for the five closures rather than five
+  times (the gate this feeds is `tasks.md` § 8.5, and the severity reading is
+  § 8.9's; § 6.6 is the separate rule that no new dashboard change opens); a
   `--single-repo` self-gate run cannot read that file and will report the finding
-  until § 5 removes the capability, which the closing pull request reports rather
-  than suppresses. Full reasoning:
+  until § 5 removes the capability — **measured at this head: 1 error, against 0
+  at `main` `cb2d3a2c`** — which the closing pull request reports rather than
+  suppresses. Full reasoning:
   [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-composed-view-authoring/review/rehome-2026-09-16.md).
   **§ 3.2 travels OPEN**: "Brett creates the first real document from a project
   view" was this packet's one unticked box and is carried open at the destination.
