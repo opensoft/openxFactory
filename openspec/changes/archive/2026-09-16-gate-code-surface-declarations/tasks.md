@@ -1260,8 +1260,10 @@ already draws.
       answering § 6.2 is still a `## MODIFIED` block sequenced after it, authored
       nowhere in this pull request. **THE FIGURE THAT MOVED, DISCLOSED:** the
       ratified body says "45 active packets already write" the declaration form;
-      on the archive tree it is FORTY-SIX, the corpus having grown by six and
-      this packet having left it. The argument is unchanged by the count.
+      on the archive tree it is FORTY-SIX, the arithmetic being 45 at the
+      drafting measurement, FORTY-SEVEN on `origin/main` at this head (two net
+      arrivals since), less this packet, which leaves the active corpus here.
+      The argument is unchanged by the count.
       **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
 - [x] 6.3 **THE ARCHIVE IS NOT TOUCHED.** The 3 archived declarations outside
       the grammar, and the 28 archived packets whose `code_surface:` line sits
