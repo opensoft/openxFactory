@@ -32,7 +32,7 @@ from conftest import FakeGit  # noqa: F401  (sys.path side effect)
 
 import carved_reach
 
-from doc_health import ERROR, Finding, INFO, Skip
+from doc_health import ERROR, Finding, INFO, PartialSkip, Skip
 from doc_health import release_inventory
 from doc_health.corpus import RealGit
 from doc_health.families import FAMILIES, FAMILY_RESOLUTION
@@ -667,8 +667,9 @@ def test_every_action_string_the_release_inventory_drift_family_can_emit_is_pinn
         "no action — this repository's release surface was not evaluated, "
         "and the reason is recorded rather than omitted",
         "no action on this line — the question it names could not be asked, "
-        "and the findings this repository HAD established before it are "
-        "reported beside it rather than discarded with it",
+        "and the members this repository HAD compared before it stand, with "
+        "whatever they established reported beside it rather than discarded "
+        "with it",
     }
     assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
                           family="release-inventory-drift")
@@ -726,19 +727,27 @@ def _write_file(repo: Path, relpath: str, data: bytes) -> None:
     target.write_bytes(data)
 
 
-def _worktree_inventory(drifting=()) -> bytes:
+def _worktree_inventory(drifting=(), members=(KEPT, MOVED)) -> bytes:
     """Two members: one this repository still carries, and one the shed moved
     into the pinned leg BYTE FOR BYTE — so a reader that reaches the leg finds
     the digest matching and a reader that does not has an opinion to state.
 
     `drifting` records a WRONG digest for the members it names, which is how
     the carrying-skip arm below gets a repository that has established a
-    finding BEFORE its leg stops being readable."""
+    finding BEFORE its leg stops being readable.
+
+    `members` narrows the recorded set. Comparison runs in SORTED path order,
+    so recording the moved member ALONE is how the round-3 arm gets a
+    repository whose very first member is the unreadable one and which
+    therefore evaluated nothing at all — the other side of the partly-evaluated
+    distinction."""
     lines = ["schema_version: 1",
              "kind: openxfactory-contract-release-digest-inventory",
              f"bundle_tag: {BUNDLE_WT}",
              "entries:"]
     for path, data in ((KEPT, KEPT_BYTES), (MOVED, MOVED_BYTES)):
+        if path not in members:
+            continue
         recorded = _digest(data + b"drifted" if path in drifting else data)
         lines += [f"- artifact_id: {path.replace('/', '-')}",
                   f"  path: {path}",
@@ -748,7 +757,7 @@ def _worktree_inventory(drifting=()) -> bytes:
     return ("\n".join(lines) + "\n").encode("utf-8")
 
 
-def _shed_fixture(tmp_path: Path, drifting=()) -> Path:
+def _shed_fixture(tmp_path: Path, drifting=(), members=(KEPT, MOVED)) -> Path:
     """A superproject declaring a bundle whose inventory records a member that
     exists ONLY in a leg pinned two submodule levels down."""
     spec = _new_repo(tmp_path / "origin-spec")
@@ -766,7 +775,7 @@ def _shed_fixture(tmp_path: Path, drifting=()) -> Path:
                                 f"contract_bundle_version: {BUNDLE_WT}\n"
                                 .encode("utf-8"))
     _write_file(root, inventory_path_for(BUNDLE_WT),
-                _worktree_inventory(drifting))
+                _worktree_inventory(drifting, members))
     _git_in(root, "submodule", "add", "-q", str(leg), "leg")
     _git_in(root, "submodule", "update", "--init", "--recursive", "-q")
     _git_in(root, "add", "-A")
@@ -1249,3 +1258,165 @@ def test_a_carrying_skip_is_reported_WITH_its_findings_not_instead_of_them(
         notices[0].action, (
         "and the notice says the repository was PARTLY evaluated, because "
         f"'not evaluated' would be false of it — got {notices[0].action!r}")
+
+
+# -------------------------------------------- round 3: the probe asks about
+#                                               the path the read asked about
+#
+# `git ls-tree` resolves its pathspec RELATIVE TO THE CURRENT PREFIX unless
+# `--full-tree` is given; `git rev-parse <revision>:<path>` is relative to the
+# ROOT of the tree always. `_tree_entry_absent` exists to say which of two
+# facts a `rev-parse` that answered nothing carries, so under any non-empty
+# prefix it was answering about a DIFFERENT path than the read it arbitrates —
+# and its "exit 0 and no output" answer, the one shape it treats as git's
+# unambiguous "no such entry", is exactly what a prefixed pathspec that matches
+# nothing produces for an entry that IS there.
+
+
+def test_the_tree_probe_answers_from_the_ROOT_of_the_tree_not_the_prefix(
+        tmp_path):
+    """THE PREFIX SHAPE, MEASURED ON A MODULE STORE (Copilot on PR #1051,
+    `carved_reach.py:746`).
+
+    A module store is where the walk reads every level past the first, and it
+    is a git directory with a `core.worktree` of its own. Where that worktree
+    resolves to a directory CONTAINING the store — a relocated superproject, a
+    store reached through a path git computes a prefix for — `ls-tree` prepends
+    that prefix to the pathspec and quietly matches nothing."""
+    root = _shed_fixture(tmp_path)
+    worktree = tmp_path / "worktree"
+    _git_in(root, "worktree", "add", "--quiet", "--detach", str(worktree),
+            "HEAD")
+    store = carved_reach._leg_object_store(worktree, "leg")
+    assert store == root / ".git" / "modules" / "leg"
+    # The shape itself: a store whose own work tree contains it, which is what
+    # makes git compute a prefix for the directory the reader points it at.
+    _git_in(store, "config", "core.worktree", str(root))
+    prefix = carved_reach._git_text(store, "rev-parse", "--show-prefix")
+    assert prefix, ("the fixture must reproduce a NON-EMPTY prefix, or this "
+                    "test proves nothing about prefix independence")
+
+    pinned = _gitlink(worktree, "HEAD", "leg")
+    old_form = carved_reach._git_run(store, "ls-tree", pinned, "--", "spec")
+    assert old_form.returncode == 0 and not old_form.stdout.strip(), (
+        "MEASURED: the prefix-relative form answers EXIT 0 AND NOTHING — git's "
+        "own unambiguous 'this tree carries no such entry' — for the `spec` "
+        "gitlink this very commit records, which is the phantom absence "
+        "`_tree_entry_absent` exists to refuse")
+
+    absent, said = carved_reach._tree_entry_absent(store, pinned, "spec")
+    assert absent is False, (
+        "the tree DOES carry `spec` at that commit, so the probe may not "
+        f"report it absent — got ({absent!r}, {said!r})")
+    assert carved_reach._tree_entry_absent(
+        store, pinned, "no-such-entry") == (True, ""), (
+        "...and a genuine absence read from the SAME prefixed store is still "
+        "the answer it always was, which is what keeps this a fix rather than "
+        "a blanket refusal")
+
+
+def test_the_tree_probe_reads_a_segment_as_a_NAME_not_as_pathspec_magic(
+        tmp_path):
+    """`:(literal)` comes with `--full-tree` for the reason `content.py` pairs
+    them. MEASURED, git 2.43.0: `ls-tree --full-tree HEAD -- :!leg` exits 128
+    (`pathspec magic not supported by this command: 'exclude'`) while
+    `:(literal):!leg` exits 0 — a segment whose name begins with `:` is read as
+    MAGIC otherwise, and this probe would report git's parse refusal as the
+    leg's tree being unreadable."""
+    root = _shed_fixture(tmp_path)
+    assert carved_reach._tree_entry_absent(root, "HEAD", ":!leg") == (True, ""), (
+        "a segment spelled `:!leg` is a NAME this tree does not carry, which "
+        "is an answer; parsed as exclusion magic git refuses outright and the "
+        "probe reports an unreadable tree instead")
+
+
+# ------------------------------------ round 3: evaluated is not established
+#
+# `check_repo` can stop being able to ask partway through a repository's
+# members. What the members BEFORE that point established rides out on the skip
+# (round 2) — but a member that was compared and MATCHED establishes nothing,
+# and reading "was anything evaluated" off "was anything established" put the
+# family's own `info` line over such a repository saying its release surface
+# WAS NOT EVALUATED, when most of it had just been evaluated and found clean.
+
+
+def test_members_that_MATCHED_before_the_unreadable_one_still_count_as_evaluated(
+        tmp_path, monkeypatch):
+    """THE ORDINARY CASE, and the one the wording was wrong for.
+
+    `contracts/kept.yaml` sorts first, is in this repository's own tree, and
+    its digest is recorded correctly — so it is compared, it matches, and it
+    contributes NOTHING to carry before `contracts/moved.schema.yaml` sends the
+    repository to a skip."""
+    root = _shed_fixture(tmp_path)
+    side = _side_clone(tmp_path, root, "side")
+    _point_carve_at(monkeypatch, side)
+
+    outcome = check_repo(REPO, side, RealGit())
+
+    assert isinstance(outcome, PartialSkip), (
+        "one member was compared before the leg went unreadable, so this is "
+        f"the partial form even though it carries nothing — got {outcome!r}")
+    assert getattr(outcome, "findings", ()) == (), (
+        "and it carries nothing, which is the whole point: the evaluated "
+        "member MATCHED")
+
+
+def test_a_repository_whose_FIRST_member_is_unreadable_evaluated_nothing(
+        tmp_path, monkeypatch):
+    """THE OTHER SIDE, unchanged down to its type — a NEGATIVE CONTROL, and it
+    passes against the reader this round replaces on purpose.
+
+    An inventory recording the moved member ALONE makes the unreadable one the
+    first thing compared, so nothing was evaluated and the plain `Skip` — and
+    the wording that says the surface was not evaluated — is exactly right.
+    Without this, `_skip` answering `PartialSkip` unconditionally would satisfy
+    every other arm above."""
+    root = _shed_fixture(tmp_path, members=(MOVED,))
+    side = _side_clone(tmp_path, root, "side-first")
+    _point_carve_at(monkeypatch, side)
+
+    outcome = check_repo(REPO, side, RealGit())
+
+    assert isinstance(outcome, Skip) and not isinstance(outcome, PartialSkip), (
+        "nothing was asked of this repository at all, so the skip is the plain "
+        f"one it has always been — got {type(outcome).__name__}")
+
+
+def test_a_partly_evaluated_repository_is_not_reported_as_UNEVALUATED(
+        monkeypatch):
+    """THE LINE THE READER ACTUALLY SEES, asserted on `fam_` with `check_repo`
+    stubbed — the same separation `test_a_carrying_skip_is_reported_WITH_its_
+    findings_not_instead_of_them` makes, for the same reason: the branch under
+    test is what the FAMILY does with a partial skip, and the two arms above
+    prove how one is produced.
+
+    A second, askable repository is required or the family collapses to an
+    all-skip and never emits a per-repository row at all."""
+    from doc_health.release_inventory import fam_release_inventory_drift
+
+    def _rows_for(outcome):
+        monkeypatch.setattr(release_inventory, "check_repo",
+                            lambda repo, path, git: (
+                                outcome if repo == "skipping" else []))
+
+        class Ctx:
+            repo_paths = {"askable": Path("askable"),
+                          "skipping": Path("skipping")}
+            git = FakeGit()
+
+        return [f for f in fam_release_inventory_drift(Ctx())
+                if f.rule.startswith("not checked:")]
+
+    reason = "skipping: the leg is unreadable here"
+    partly = _rows_for(PartialSkip(FAMILY, reason, ()))
+    assert len(partly) == 1 and partly[0].severity == INFO
+    assert partly[0].action == release_inventory._PARTLY_EVALUATED_ACTION, (
+        "members were compared and merely matched, so 'was not evaluated' is "
+        f"false of this repository — got {partly[0].action!r}")
+
+    unevaluated = _rows_for(Skip(FAMILY, reason))
+    assert len(unevaluated) == 1
+    assert unevaluated[0].action == release_inventory._NOT_EVALUATED_ACTION, (
+        "and a repository nothing was asked of still takes the wording it "
+        f"always had — got {unevaluated[0].action!r}")

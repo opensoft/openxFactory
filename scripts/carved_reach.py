@@ -742,8 +742,30 @@ def _tree_entry_absent(repo: Path, revision: str,
     `rev-parse` could not resolve; two reads that disagree have established
     nothing, and the one thing this function may never do is manufacture an
     absence out of a disagreement.
+
+    AND IT ASKS ABOUT THE PATH THE OTHER READ ASKED ABOUT (`#1048` round 3,
+    Copilot on PR #1051, `carved_reach.py:746`). `git ls-tree` resolves its
+    pathspec RELATIVE TO THE CURRENT PREFIX unless `--full-tree` is given,
+    while `git rev-parse <revision>:<path>` — the read this probe exists to
+    explain — is relative to the ROOT of the tree always. Under any non-empty
+    prefix the two are asking about DIFFERENT paths, so this one's answer is
+    not evidence about the other's entry at all. MEASURED, git 2.43.0: in a
+    module store whose `core.worktree` resolves to a directory CONTAINING the
+    store, `rev-parse --show-prefix` answers `.git/modules/leg/` and
+    `ls-tree <pin> -- spec` then EXITS 0 AND PRINTS NOTHING for a `spec`
+    gitlink that tree really carries — git's own unambiguous "no such entry",
+    returned for an entry that is there, which is precisely the phantom
+    absence this function was added to refuse. `--full-tree` with a
+    `:(literal)` pathspec is the root-relative form every other tree reader
+    here already uses (`scripts/hermes_runtime_validation/content.py:148-155`),
+    and `:(literal)` is what makes the segment a NAME rather than a pathspec
+    expression — MEASURED on the same git: `ls-tree --full-tree HEAD -- :!leg`
+    exits 128 with `pathspec magic not supported by this command: 'exclude'`
+    where `:(literal):!leg` exits 0, so a segment beginning with `:` would
+    otherwise arrive here as an unreadable tree rather than as its own name.
     """
-    done = _git_run(repo, "ls-tree", revision, "--", path)
+    done = _git_run(repo, "ls-tree", "--full-tree", revision, "--",
+                    f":(literal){path}")
     if done is None:
         return False, "git could not be run"
     if done.returncode != 0:

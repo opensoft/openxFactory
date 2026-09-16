@@ -169,26 +169,42 @@ _CUT_ACTION = ("cut a release through the bundle realization order; never "
 _NOT_EVALUATED_ACTION = ("no action — this repository's release surface was "
                          "not evaluated, and the reason is recorded rather "
                          "than omitted")
-# AND THE ACTION SAYS SO when the skip carries findings, because "was not
-# evaluated" would be false of the repository this line sits above: part of it
-# WAS, and those findings are printed with it.
+# AND THE ACTION SAYS SO when the repository was PARTLY evaluated, because
+# "was not evaluated" would be false of the repository this line sits above:
+# part of it WAS. CHOSEN ON EVALUATION RATHER THAN ON FINDINGS (`#1048` round
+# 3, Copilot on PR #1051): members compared before the unreadable one that
+# simply MATCHED establish nothing to carry, and picking this text off a
+# non-empty carried list called such a repository unevaluated for the most
+# ordinary reason there is — its evaluated members were clean.
 _PARTLY_EVALUATED_ACTION = (
     "no action on this line — the question it names could not be asked, and "
-    "the findings this repository HAD established before it are reported "
-    "beside it rather than discarded with it")
+    "the members this repository HAD compared before it stand, with whatever "
+    "they established reported beside it rather than discarded with it")
 
 
-def _skip(reason: str, findings=()):
+def _skip(reason: str, findings=(), evaluated: int = 0):
     """This family's skip.
 
-    PLAIN WHERE NOTHING WAS ESTABLISHED — every arm that carries nothing
-    answers the byte-identical `Skip` it always did, down to its type — and
-    CARRYING otherwise (`#1048` round 2, following `#766`'s precedent in
-    `release_tag_publication`). A carrying skip IS a skip at every call site in
-    the estate, so nothing that fails closed on one changes.
+    PLAIN WHERE NOTHING WAS ASKED AT ALL — every arm that reaches this before a
+    single member was compared answers the byte-identical `Skip` it always did,
+    down to its type — and `PartialSkip` otherwise (`#1048` round 2, following
+    `#766`'s precedent in `release_tag_publication`; `evaluated` added in round
+    3). A carrying skip IS a skip at every call site in the estate, so nothing
+    that fails closed on one changes.
+
+    TWO INDEPENDENT FACTS, which is why `evaluated` is a parameter and not
+    `bool(findings)` (Copilot on PR #1051). "Some member was EVALUATED" and
+    "some member produced a FINDING" come apart in the everyday case: a
+    repository whose earlier members were compared and all MATCHED has been
+    evaluated and has nothing to carry. Reading the first fact off the second
+    reported that repository as NOT EVALUATED — a verdict about the repository
+    read off the wrong fact, which is the species of claim this family refuses
+    everywhere else.
     """
-    return PartialSkip(FAMILY, reason, tuple(findings)) if findings \
-        else Skip(FAMILY, reason)
+    carried = tuple(findings)
+    if carried or evaluated:
+        return PartialSkip(FAMILY, reason, carried)
+    return Skip(FAMILY, reason)
 
 
 class LegUnavailable(Exception):
@@ -382,7 +398,12 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
                             f"at {commit}")
 
     findings: list[Finding] = []
-    for path in paths:
+    # ENUMERATED SO THE SKIP BELOW CAN SAY HOW MUCH WAS EVALUATED (round 3).
+    # `paths` is sorted and compared in order, so when member `index` sends the
+    # repository to a skip, members `0..index-1` were compared — whether or not
+    # any of them had anything to report. That count is a DIFFERENT fact from
+    # `findings`, and `fam_` needs both (see `_skip` above).
+    for index, path in enumerate(paths):
         editorial = path in EDITORIAL
         severity = INFO if editorial else ERROR
         recorded = members[path]
@@ -407,9 +428,13 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
                 # drifting, discarded because a LATER member's leg could not be
                 # looked up, which is a second verdict about the release read
                 # off the same fact about the machine. `_skip` answers the
-                # plain `Skip` when nothing was established yet, so the
-                # everyday case is unchanged down to its type.
-                return _skip(f"{repo}: {unreadable}", findings)
+                # plain `Skip` only where NOTHING was asked — nothing
+                # established AND nothing evaluated — so the case where this is
+                # the very first member is unchanged down to its type, while a
+                # repository whose earlier members were compared and matched is
+                # reported as the partly-evaluated thing it is (round 3).
+                return _skip(f"{repo}: {unreadable}", findings,
+                             evaluated=index)
         if blob is None:
             # ABSENT AT THE COMMIT. Reported as drift, never as a skip: a
             # deleted normative member is the strongest form of what this
@@ -502,9 +527,18 @@ def fam_release_inventory_drift(ctx):
     round 2, the `#766` precedent). A repository can stop being askable partway
     through its members — a pinned leg that goes unreadable at member N — and
     its skip then carries the findings the earlier members established.
-    `getattr` rather than `isinstance` because the only question here is
-    whether anything was established: a plain `Skip` answers the empty tuple
-    and takes the wording it always had.
+
+    TWO QUESTIONS, ASKED SEPARATELY (round 3, Copilot on PR #1051). WHAT WAS
+    ESTABLISHED is read with `getattr(outcome, "findings", ())`, because a
+    plain `Skip` answers the empty tuple by construction and every family in
+    the estate reads a skip that way. WHETHER ANYTHING WAS EVALUATED is a
+    different question and `isinstance(outcome, PartialSkip)` is the one that
+    answers it: `check_repo` returns the partial form whenever members were
+    compared before the unreadable one, and compared-and-MATCHED members
+    establish nothing at all. Deriving the second question from the first put
+    "this repository's release surface was not evaluated" over a repository
+    most of whose surface had just been evaluated and found clean — the same
+    misattribution this family exists to refuse, in its own reporting line.
     """
     results: list[Finding] = []
     # WHAT THE REPOSITORIES ESTABLISHED, kept apart from `results` because
@@ -524,7 +558,12 @@ def fam_release_inventory_drift(ctx):
             skips.append(outcome.reason)
             carried = list(getattr(outcome, "findings", ()))
             rule = f"not checked: {outcome.reason}"
-            if carried:
+            # THE CONDITION IS "WAS ANYTHING EVALUATED", NOT "IS ANYTHING
+            # CARRIED" (round 3). Both action strings stay NAMES in the
+            # argument position so `action_pins.harvest_static` can still
+            # resolve each to its literal and pin it verbatim; only the test
+            # that picks between them moved.
+            if isinstance(outcome, PartialSkip):
                 results.append(_finding(INFO, repo, MANIFEST, rule,
                                         _PARTLY_EVALUATED_ACTION))
             else:

@@ -213,6 +213,15 @@ class PartialSkip(Skip):
     leg stops being readable at member N must not discard what members 1..N-1
     established — and a second copy of a shared shape is how two readers of one
     concept drift apart. One definition, two importers, no behaviour moved.
+
+    AN EMPTY `findings` ON THIS CLASS IS NOT A CONTRADICTION (round 3). The
+    class says the question stopped being askable PARTWAY THROUGH, and members
+    compared before that point which simply MATCHED establish nothing to carry
+    — so `release_inventory` reads the CLASS to know that evaluation began and
+    `.findings` to know what it produced, two facts it must not derive from
+    each other. `runner.run_suite` and `report.py` both turn on the findings
+    rather than on the class, so an empty one is byte-identical to a plain
+    `Skip` everywhere outside the family that made the distinction.
     """
 
     findings: tuple[Finding, ...] = ()
