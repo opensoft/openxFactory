@@ -116,6 +116,16 @@ which moves a decision rather than decorating one:
    is PRESENT, so **the class of a citation moves with the tree**. It is cited
    from `scripts/packet_reference.py` and `scripts/validate-pin-registrations.py`.
 
+**AND THE PACKET MEASURED ITS OWN EFFECT ON THE POPULATION, AFTER IT EXISTED.**
+Re-run on this branch: 2,978 files in scope (+5), 587 distinct tokens (+1), 499
+`RESOLVED` (+1), **remainder UNCHANGED at 81**. The packet mints no remainder —
+but it JOINS THE CITING SET OF THREE REMAINDER ENTRIES simply by quoting them as
+examples. **A document that discusses a dangling citation becomes a record that
+carries one.** At this size it is three citing-file counts and nothing else; at
+the size of a nightly report committed into the tree it is one such quotation
+per remainder line, every night, which is the measured reason `design.md` D5
+recommends artifact-only.
+
 ## What changes
 
 **FIVE `## ADDED` REQUIREMENTS IN A NEW CAPABILITY, AND A REALIZATION THIS PULL

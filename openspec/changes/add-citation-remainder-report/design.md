@@ -137,6 +137,24 @@ this tree, at this commit". It is cited from `scripts/packet_reference.py` and
 `scripts/validate-pin-registrations.py`, which makes it an instance of #1053's
 "self-referential illustrative example" class as well.
 
+**(iv) AND THIS PACKET'S OWN EFFECT ON THE POPULATION, MEASURED AFTER THE
+PACKET EXISTED RATHER THAN PREDICTED BEFORE IT.** The same recipe re-run on
+this branch: **2,978** files in scope (+5, this packet's own), **587** distinct
+tokens (+1), **499** `RESOLVED` (+1), and the remainder **UNCHANGED at 81
+tokens** — 74 identity-half, 7 file-half, 0 ambiguous. The packet carries FOUR
+citation tokens and mints no new remainder: the one token it adds to the corpus
+is `…/add-citation-remainder-report/proposal.md`, cited from `README.md`, and it
+resolves. **BUT IT JOINS THE CITING SET OF THREE REMAINDER ENTRIES**, all three
+by QUOTING them as examples — `openspec/changes/README.md` (from four of this
+packet's own files), `…/add-composition-drift-cascade/` and
+`…/foo/./proposal.md` (from `design.md`). **A DOCUMENT THAT DISCUSSES A
+DANGLING CITATION BECOMES A RECORD THAT CARRIES ONE**, which is #1053's
+"self-referential illustrative example" class being created, live, by the
+packet that characterizes it. It is a real effect at a trivial size here — three
+citing-file counts, no new remainder — and it is the same mechanism D5 refuses
+at a serious size, where a nightly report would carry one such quotation per
+remainder line, every night, forever.
+
 ## D1 — RECOMMENDED: (b), a report CLI outside doc-health
 
 **The question.** Where does the remainder get reported: a twenty-fourth
@@ -432,7 +450,10 @@ contribute **0** `openspec/changes/…` tokens — measured, not assumed. A
 committed report listing the remainder would be the FIRST file under `health/`
 to carry such tokens, and it would carry one per remainder line: the next
 night's run would find them, count them as citations FROM `health/…`, and
-inflate the very series D6 measures stability on. The fence (D3(a)) closes it,
+inflate the very series D6 measures stability on. **THE MECHANISM IS NOT
+HYPOTHETICAL AND THIS PACKET DEMONSTRATES IT ON ITSELF**: D0(iv) measures this
+packet joining the citing set of three remainder entries purely by quoting them,
+which is the same act a report performs mechanically and at scale. The fence (D3(a)) closes it,
 but a design whose correctness depends on remembering a fence is worse than one
 that never opens the hole.
 

@@ -38,7 +38,11 @@ OPEN.**
       **74** `DANGLING`(identity-half), **7** `DANGLING`(file-half), **0**
       `AMBIGUOUS`, **7** `NOT_A_PACKET_REFERENCE` — **inclusive remainder 81
       tokens**, carried by **65** distinct citing files. `design.md` D0 carries
-      the table and the commands.
+      the table and the commands. **AND THE SAME RECIPE WAS RE-RUN ON THIS
+      BRANCH, AFTER THE PACKET EXISTED**: 2,978 files in scope, 587 tokens, 499
+      RESOLVED, **remainder UNCHANGED at 81** — this packet mints no remainder,
+      and the three remainder entries whose citing set it joins, it joins by
+      QUOTING them (`design.md` D0(iv)).
 - [x] 1.2 **THREE FACTS #1053 DOES NOT CARRY WERE FOUND AND EACH MOVED A
       DECISION.** (i) the 74 identity-half tokens collapse to **48 DISTINCT
       IDENTITIES**, 18 identities cited more than once — which is why D3
