@@ -603,8 +603,14 @@ NEVER DROP.** #1053's automated check uses FIVE adjacency signals — a
 path-joined prefix (`xFactories/LedgerxFactory/…`), a GitHub blob or tree URL, a
 bare qualifier word immediately before the token (`codexFactory
 openspec/changes/…`), **the `opsx:opensoft/…` CUSTODY-LOCATOR SCHEME this corpus
-writes OpsxFactory citations in** (25 occurrences at `b1df95ee`, and six of the
-evidence's fourteen hand-found cross-repository tokens are that register's), and
+writes OpsxFactory citations in** (**24** occurrences across the tracked tree at
+`b1df95ee`, **19** of them inside D3(a)'s own file population; and **FOUR** of
+the evidence's fourteen hand-found cross-repository tokens are OpsxFactory's —
+and worth saying because it is the kind of thing a signal list gets credited
+with wrongly: NONE of those four is caught BY this scheme, the evidence
+attributing all four to an adjacent qualifier word or a parenthetical. The
+scheme is in the set because #1053's automated check uses it and because this
+corpus writes citations in it, not because it is what found these), and
 a trailing `(RepoName)` parenthetical — and #1053 itself measures their limit: *"the automated qualifier check only catches a
 qualifier immediately adjacent to the token; several citations name the other
 repository one to three lines above instead"*, which a manual read found for at
