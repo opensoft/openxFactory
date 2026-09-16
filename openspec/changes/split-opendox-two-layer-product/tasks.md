@@ -1276,7 +1276,7 @@ the bookkeeping that ticks this group.
   | `openXdox-code` `src/openxdox/` (the adapter's implementation surface, as 4.1 asks) | **12** | `completeness` 1, `corpus_root` 1, `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1, `snapshot_registry` 1 |
   | `openDox-code` `src/opendox/` | **5** | `serve.py`:**710** `from doc_health.corpus import RealGit` — that position is `8efb3cf5`'s, and the same import is at **:713** at `main` `0b4e8bbf` (the re-run above); `workbench.py`:746, :1407, :1408, :1409, identical at both |
   | RULED to stay at `openxFactory` (DQ-1) | **1** | `design.md` § D3 inventories it at `doxbench_packet`; the import had already moved by the carve commit and the LIVE site is `scripts/ideation_dashboard/doxbench_status_exemption.py`:63 — `from doc_health.lines import split_keepends`, the same line at `b075fd91` and at `main` `e6e1c968` (reading (ii) below) |
-  | **DISCHARGED at the § 2 seam** — the import became an adapter call or a late seam read, so there is nothing left to relocate | **5** | `authoring` 2 → `authoring.py`:317–318, `from .corpus_adapter import DocumentId` + `from corpus_adapter_openxfactory import home_corpus`; `cli` 1 → gone, only the path comment at `cli.py`:14 survives; `serve` 2 of 3 → gone before the carve (openxFactory `b075fd91` already reads one, at `serve.py`:618), the leg's own late seam reading `from opendox import consumer_reach` at `serve.py`:146 |
+  | **DISCHARGED at the § 2 seam** — the import became an adapter call or a late seam read, so there is nothing left to relocate | **5** | `authoring` 2 → `authoring.py`:317–318, `from .corpus_adapter import DocumentId` + `from corpus_adapter_openxfactory import home_corpus`; `cli` 1 → gone, only the path comment at `cli.py`:14 survives; `serve` 2 of 3 → gone before the carve, which the carve tree itself measures: openxFactory `b075fd91`'s `scripts/ideation_dashboard/serve.py` contains exactly ONE `doc_health` import, `from doc_health.corpus import RealGit` at `:618`, so two of the three inventoried are already absent there. **That surviving `:618` reach belongs to the RELOCATED five, not to this row** — it travels to the leg and is `src/opendox/serve.py`:713 at openDox-code `main` `0b4e8bbf`, which is the line this box's re-run names. *(Two corrections at fix round 13, both Copilot findings and both accurate. The cell cited `:618` as if it evidenced the discharge, when what it evidences is the arithmetic 3 − 1 = 2; and it named `from opendox import consumer_reach` at `serve.py`:146 as a late seam reading in the same breath, which is not a `doc_health` site at all — measured: it is openDox-code's OWN internal import of `opendox.consumer_reach`, present at `src/opendox/serve.py`:146 of `0b4e8bbf` and absent from the openxFactory file at the carve, where `consumer_reach` does not appear once. It is struck from this row. The two discharged `serve` imports left no replacement to cite, which is what DISCHARGED means here.)* **The instrument needs its scope, as ever**: `grep -n doc_health` on the carve file returns TWO lines and only one is an import — `:529` is a docstring naming `doc_health.corpus`, `:618` is the import |
 
   **The five DISCHARGED were discharged at the SEAM, before the carve, and the
   carve commit proves it.** At openxFactory `b075fd91` (tag `opendox-carve-0`,
@@ -1312,8 +1312,11 @@ the bookkeeping that ticks this group.
   10, where a Copilot finding — accurate — read the unqualified half as denying
   the RULED import that DID stay; the scope was always the five modules the next
   sentence names, and it is now written rather than implied.)* The § 5.2 shed has landed: `scripts/ideation_dashboard/` is
-  down to **10 files**, an identical set at `main` `a80f0e3c` and at `main`
-  `e6e1c968`, none of them `authoring`, `cli`, `serve`, `workbench` or
+  down to **nine `.py` modules and one subdirectory, `web/` — TEN tree entries**,
+  an identical set at `main` `a80f0e3c` and at `main` `e6e1c968` *(this read "10
+  files" until fix round 13, counting `web/` as a file; a Copilot finding on
+  #1035, accurate, and the count is `git ls-tree` entries, nine of them blobs)*,
+  none of the nine `authoring`, `cli`, `serve`, `workbench` or
   `doxbench_packet`. `doxbench_packet`'s one DID stay at openxFactory, as DQ-1
   requires — but the module it stayed IN is the § 2.4 one rather than the DQ-1
   adapter package: the `doc_health.lines.split_keepends` import travelled with
@@ -1322,8 +1325,17 @@ the bookkeeping that ticks this group.
   OQ-1, which openDox-code's own `src/opendox/doxbench_packet.py`:136–142
   states in terms (*"they took their `doc_health.lines.split_keepends` import
   with them … it can no longer take an openxFactory-only `doc_health`
-  dependency along"*) and :66–67 asserts by a neutrality scan. Either module
-  is openxFactory, so the box's *"never comes here"* holds; the placement is
+  dependency along"*) and :66–67 asserts by a neutrality scan. **The two
+  candidate homes were the § 2.4 module and the DQ-1 adapter package —
+  `scripts/ideation_dashboard/doxbench_status_exemption.py` and
+  `scripts/corpus_adapter_openxfactory/` — and BOTH are openxFactory**, so the
+  box's *"never comes here"* holds whichever of the two it turned out to be.
+  *(This read "Either module is openxFactory" until fix round 13, with
+  openDox-code's `src/opendox/doxbench_packet.py` named in the sentence before
+  it; a Copilot finding on #1035 read "either" as reaching that openDox-code
+  path — which is cited only as the file that STATES this, never as a home for
+  the import — so the two are now named instead of implied. Accurate as a
+  reading, and the claim it doubted is unchanged.)* the placement is
   recorded because a citation of the DQ-1 package for this import would not
   reproduce. Separately, that DQ-1 ENGINEERING ADAPTER imports `doc_health` in
   **six** places of its own — `scripts/corpus_adapter_openxfactory/adapter.py`:58,
