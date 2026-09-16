@@ -3111,7 +3111,11 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     # was false of the two legs RULED Q6 touches: this table counts a
     # re-destined row at the `destination:` it still names — and a RETIRED one
     # too, which is why the marker sentence names BOTH rulings and this constant
-    # moves with it (Copilot review, this pull request): the qualifier said only
+    # moves with it (Copilot review, this pull request). Both clauses are
+    # PLURAL and deliberately so: the first wording read "re-destined a row or
+    # ... retired one", where "one" meant "a row" and a careful reader took it
+    # for the NUMBER one — a cardinality this sentence never meant to state and
+    # which is wrong either way (four re-destined, two retired). The qualifier said only
     # RULED Q6 while the paragraph below the table had already grown a second
     # subtraction — so `opendox_code`'s run reports 117 arrived where the table says 123
     # (four re-destined away under RULED Q6 and two retired under RULED
@@ -3122,8 +3126,8 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     # rather than quietly moving the block's boundary.
     marker = ("Per destination, counted at the `destination:` each row names "
               "— which is what\neach leg's arrival run reports, save where "
-              "RULED Q6 re-destined a row or RULED\n5656343213 retired one "
-              "(below):")
+              "RULED Q6 has re-destined rows or\nRULED 5656343213 has retired "
+              "them (below):")
     # THE BLOCK IS BOUNDED BY TWO FIXED SENTENCES, not by anything about where
     # a table LOOKS like it ends (Copilot review, rounds five and six on this
     # PR). Round five's extent walked forward across a blank line for as long

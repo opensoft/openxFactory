@@ -388,8 +388,8 @@ pins, computed the same way every time: a transcribed count is a claim, a
 summed one is a measurement.
 
 Per destination, counted at the `destination:` each row names — which is what
-each leg's arrival run reports, save where RULED Q6 re-destined a row or RULED
-5656343213 retired one (below):
+each leg's arrival run reports, save where RULED Q6 has re-destined rows or
+RULED 5656343213 has retired them (below):
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
