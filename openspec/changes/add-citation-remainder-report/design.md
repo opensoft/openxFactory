@@ -321,7 +321,8 @@ in order of weight:
 
 ```text
 python3 scripts/report-citation-remainder.py [REPO_ROOT]
-    [--json] [--all] [--identities] [--include PREFIX ...] [--exclude PREFIX ...]
+    [--json] [--all] [--tokens] [--history]
+    [--include PREFIX ...] [--exclude PREFIX ...]
 
 REPO_ROOT       repository root to scan (default: cwd), as every sibling
                 scripts/validate-*.py already spells it

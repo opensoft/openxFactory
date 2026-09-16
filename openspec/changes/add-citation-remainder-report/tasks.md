@@ -233,8 +233,9 @@ added, edited, renamed or deleted here.
       has no CLI"* stays TRUE under the recommended option, so under D2 option 1
       that line does NOT change and the correction is owed only if D2 is vetoed.
       Argument surface exactly as D2 fixes it (`[REPO_ROOT] [--json] [--all]
-      [--identities] [--include] [--exclude]`), exit code always 0, no
-      `--fail-on`. `tests/citation_remainder/` (NEW): unit tests over a
+      [--tokens] [--history] [--include] [--exclude]` — grouping is by IDENTITY
+      by default and `--tokens` ungroups it; `--history` is OPT-IN on D2's
+      measured cost), exit code always 0, no `--fail-on`. `tests/citation_remainder/` (NEW): unit tests over a
       THROWAWAY FIXTURE CORPUS built in a `tmp_path` git tree — the shape
       `add-declared-former-id` used for `tests/packet_reference/`, so the tests
       assert against a corpus they construct rather than against the live one,
