@@ -489,7 +489,10 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   …"), never as a declared descendant name (the packet's own registration in
   `tasks.md` § 1.7 spells it `MedxDox`); and `openxDox`, the case-folded
   ALSO-ACCEPTED spelling of `openXdox` itself named twice in the pin-chain
-  discussion (`tasks.md`:347, `design.md`:868 — "`openXdox`.casefold() equals
+  discussion (`tasks.md`:595 and `design.md`:981, both read at this
+  amendment's base `cbc3a2c6` and cited with their tree because line numbers
+  in these two files move under every amendment — the quotation is the
+  durable half of the citation: "`openXdox`.casefold() equals
   `openxDox`.casefold()"), not a sixth descendant. Excluding those two
   artifacts, `grep -owhE 'MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox' proposal.md design.md tasks.md | sort -u | wc -l` — the pattern is POSIX ERE
   with no Perl-style escapes, so no `\b` is needed; the `-o`/`-h`/`-w` options
@@ -499,6 +502,17 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   five descendants × three names each, the assembly name plus its two leg
   names — plus one install name, zero repositories" in place of the
   eighteen-count above; the rest of the sentence is unaffected.)*
+  *(THE TWO COORDINATES WERE STALE AND ARE CORRECTED, amendment #5,
+  registered on amendment #4's pull request at comment `5702495415`. They
+  read `tasks.md`:347 and `design.md`:868; measured, `:347` of this file is a
+  `gh api` tree read of the openDox root and the casefold discussion is at
+  `:595`, and in `design.md` it is at `:981`. Neither number was right at any
+  tree checked. The repair is taken here — rather than left to the act that
+  claims this paragraph — because a stale COORDINATE is a currency fix that
+  changes no normative reading, which is the line this estate keeps between a
+  non-normative correction and a change to ratified wording; § 7.3's *"When
+  the ruling lands"*, which IS ratified wording, is recorded below and left
+  alone.)*
 
   **DONE — this pull request; registered by Amendment 3's own paragraph
   (`docs/openxdox-naming.md` has no separate names table/list — the whole file
@@ -1130,14 +1144,28 @@ the bookkeeping that ticks this group.
   measurement here names the tree it was read at; this one can name no line,
   because the block it sits in is rewritten by every archival act and its line
   numbers move under any citation that outlives one. Measured rather than
-  asserted, and now at FOUR trees rather than two: the entry opens at
-  `README.md`:**1775** at openxFactory `main` `8944758c`, at :**1875** at this
-  amendment's pre-merge head `0a835098` — after `#1042` archived a sibling
-  packet above it — and at :**1813** at `main` `cb2d3a2c` and at this
-  amendment's own head, which merges that `main` in: **three positions across
-  four trees, 100 lines down and then 62 back up**, both moves made by acts
-  with nothing to do with this one. The `30,410` citations beside it are
-  **exact at every one of those four trees** — the FOUR LIVE occurrences
+  asserted, and now at SIX trees rather than two: the entry opens at
+  `README.md`:**1775** at openxFactory `main` `8944758c`, at :**1875** at
+  amendment #3's pre-merge head `0a835098` — after `#1042` archived a sibling
+  packet above it — at :**1813** at `main` `cb2d3a2c`, at :**1708** at `main`
+  `c5f68457` and at amendment #4's head `cbc3a2c6` which merges it, and at
+  :**1836** at `main` `4cef77af`: **five positions across six trees**, every
+  move made by acts with nothing to do with this one.
+  *(THIS SENTENCE SUFFERED ITS OWN THESIS, and the repair is amendment #5's,
+  registered on amendment #4's pull request at comment `5702674145` — found
+  by this lane's own sweep rather than by a review. It read *"three positions
+  across four trees"* and extended the `cb2d3a2c` reading to *"this
+  amendment's own head"*; at that head the entry had already moved to
+  :**1708**, because the `main` amendment #4 merged (`c5f68457`) took 105
+  lines out above it. A box whose whole point is that this block's line
+  numbers move under every archival act had, within three commits, cited one
+  that moved. The values above are each bound to a NAMED tree and none of
+  them is "today"; the count will keep growing and that is the box working,
+  not failing.)* The `30,410` citations beside it are
+  **exact at every one of those six trees** — re-measured by amendment #5 at
+  all six (`design.md` 2, `proposal.md` 2, the RECORD 1, at `8944758c`,
+  `0a835098`, `cb2d3a2c`, `c5f68457`, `cbc3a2c6` and `4cef77af` alike) — the
+  FOUR LIVE occurrences
   `design.md`:52 and :351, `proposal.md`'s `code_surface:` front-matter line
   (:2) and `proposal.md`:208, and the FIFTH, `review/ratification-2026-09-05.md`:549,
   which is the RECORD no later act amends — because no act has touched those
@@ -1471,10 +1499,12 @@ the bookkeeping that ticks this group.
   import where *"the dependency has reversed"*. Whether a lazily-resolved read of
   the corpus through the ADAPTER INTERFACE is such an import, or is the
   interface working, is exactly what **§ 3.7 (FLOOR PART 3)** asks and answers
-  mechanically — the neutral conformance corpus green in EVERY destination,
-  openDox included — and **§ 3.7 is `[ ]` and records that the answer it returns
-  today is NO.** **The result it records is one pass and four refusals, said here
-  rather than left to be looked up**: at each destination's then-current `main`
+  mechanically. **THE CRITERION § 3.7 APPLIES** is the neutral conformance
+  corpus green in EVERY destination, openDox included — that clause states
+  the TEST and not its outcome — and **§ 3.7 is `[ ]` and records that the
+  answer the test returns today is NO.** **The result it records is one pass
+  and four refusals, said here rather than left to be looked up**: at each
+  destination's then-current `main`
   on 2026-09-10, `openxfactory` (the § 2.2a adapter) is **OK — 17 of 17**, while
   `opendox_code` `8e9ffa62`, `openxdox_code` `59600412`, `opendox_spec`
   `41d570e9` and `openxdox_spec` `03eacc61` each return
@@ -1485,7 +1515,14 @@ the bookkeeping that ticks this group.
   seam question waits on a gate that has not gone green.
   *(A Copilot finding on this amendment's own pull request, round 13: the
   sentence named the gate and its verdict but not its measured result, which
-  reads as a green floor to anyone who does not scroll up.)* So the obligation is open where it belongs, at a box that can
+  reads as a green floor to anyone who does not scroll up.)*
+  *(GRAMMAR MADE EXPLICIT, amendment #5, registered at comment `5702227094`
+  item 9: the criterion clause and the result clause were joined by a pair of
+  dashes, so the first could be read alone as a measured PASS — the exact
+  opposite of what the next clause records. The two are now separated into
+  what § 3.7 ASKS and what it ANSWERS. No figure moves and no gate loosens;
+  the result is still one pass and four refusals.)*
+  So the obligation is open where it belongs, at a box that can
   run it, and § 4.1's tick claims the accounting and nothing else. § 8.2's
   archive-gate line reads § 3.7's evidence, so no gate is loosened by this tick.
   `#656` records: CLAIM `5690461589`; RULED R-1 `5690428146`.
@@ -1688,6 +1725,24 @@ the bookkeeping that ticks this group.
   is a distinct key and the REMOVED delta stays visible to the checker. The only
   edit they take is re-expressing path literals as `adapter calls` — one of
   RULING OQ-1's three classes, by name.
+  **THE ID THIS TASK OWES IS AUTHORED: `openxfactory-engineering-adapter`**
+  (recorded by `tasks.md` amendment #5, 2026-09-16; the box still does not
+  tick). The act is `opensoft/openxFactory` **#1071**, *"Propose
+  `repromote-engineering-vocabulary`: § 5.2a's successor capability, and the
+  fifteen carried into it"*, opened 2026-09-16T19:22:04Z under CLAIM
+  `5703096449`, carrying the delta at
+  `specs/openxfactory-engineering-adapter/spec.md` inside
+  `openspec/changes/repromote-engineering-vocabulary/`. It is a **FILING
+  ONLY** —
+  `Status: draft` on all three lifecycle documents, no ratification, no
+  archive — so this box ticks on ITS landing and not on its opening. The id
+  keeps its `openxfactory-` qualifier deliberately: `corpus-adapter-seam`
+  requirement 4 makes the neutral capability openDox's under RULING Q4, and
+  an unqualified `engineering-adapter` would read as that one.
+  *(Recorded here because three live acts were blocked on the id's absence —
+  § 5.6's de-floor, § 8.4's both-directions accounting, and the two open § 6
+  closures #1060 and #1065, each of which carried its delta whole rather than
+  re-author it against an unnamed successor.)*
 - [x] 5.2 `[oxF]` **Shed the dashboard corpus down to RULED DQ-1's KEPT SET.**
   The list is `docs/opendox-carve-manifest.yaml` and not a prose inventory: every
   row it routes to a destination LEAVES — **except the twenty
@@ -1701,10 +1756,10 @@ the bookkeeping that ticks this group.
   NAMED — which is what these figures walk, and NOT the whole kept set: 107 of
   the 117 kept rows sit in those nine and the other TEN sit outside them,
   enumerated in the STATUS below — measured at the carve commit `b075fd91` and at
-  `#940`'s merge `cc4ae9d3`, files at the carve → files kept:
+  `#940`'s merge `cc4ae9d3`, files at the carve → **files PRESENT after it**:
   `scripts/ideation_dashboard/` 63 → **9**, its `web/` 43 → **1**
   (`views/intent-feed.js`, RULED `not_moved / stays_openxfactory_adapter` under
-  OQ-F), `tests/ideation-dashboard/` 157 → **42**,
+  OQ-F), `tests/ideation-dashboard/` 157 → **42 present, 40 KEPT ROWS**,
   `tests/ideation_dashboard/` (the four-file underscore spelling) 4 → **0**,
   `scripts/ideation-dashboard-nightly.py` 1 → **1** (it STAYS,
   `stays_openxfactory_adapter`), `scripts/validate-ideation-dashboard-contracts.py`
@@ -1712,6 +1767,39 @@ the bookkeeping that ticks this group.
   `examples/ideation-dashboard/` 140 → **44**, and the dashboard governance docs
   7 → **6** (one leaves: `docs/ideation-dashboard-session-runbook.md`,
   `moved_with_declared_edit` to `opendox_spec`).
+  *(COLUMN RE-LABELLED, amendment #5, registered at comment `5702227094`
+  item 5 — a Copilot finding whose critique was right and whose figure was
+  not. The heading read *"files kept"* over a column whose unit is FILES
+  PRESENT, and the two coincide almost everywhere, which is what let the wrong
+  word stand. Measured cell by cell at `b075fd91` and `cc4ae9d3` against the
+  manifest's own kept set, across the five surfaces named by DIRECTORY — the
+  only ones where "kept ROWS" is even the same population as "files":
+  `scripts/ideation_dashboard/` 63 → 9 present = 9 kept rows, its `web/`
+  43 → 1 = 1, `tests/ideation_dashboard/` 4 → 0 = 0,
+  `examples/ideation-dashboard/` 140 → 44 = 44 — and
+  `tests/ideation-dashboard/` 157 → **42 present against 40 kept rows**, the
+  two being `conftest.py` and `staging_shapes.py`, both `not_moved /
+  replicated_at_destination`, which is the distinction this box already
+  discloses three lines above the table (*"which is why the STATUS below
+  counts them present without counting them kept"*). **The four cells named by
+  FILE are counted on the OLD DELETION LIST's own populations** — the six
+  dashboard contract schemas it names, the governance docs it names — which
+  amendment #4 already reconciled as subsets by design in the STATUS below, so
+  "kept rows" was never their unit either and re-labelling the column is the
+  whole repair. **ONE HEADING was wrong and NO NUMBER was**, which is worth
+  saying plainly: the finding asked for a figure to change and the answer is a
+  word.)*
+  *(AND THE DISPOSITION VECTOR IS RE-READ AT THREE TREES AND RECORDED HERE SO
+  THE NEXT READER DOES NOT RE-RUN IT, amendment #5, registered at comment
+  `5702227094` item 6.* `docs/opendox-carve-manifest.yaml` yields **456 rows,
+  `moved_verbatim` 143 / `moved_with_declared_edit` 175 / `not_moved` 138,
+  kept 117** (103 `stays_openxfactory_adapter` + 14
+  `stays_openxfactory_governance`) at `main` `cb2d3a2c`, at `main`
+  `c5f68457`, and at this amendment's base `cbc3a2c6` — **identical at all
+  three**, which is what the row's own label *"`main` `cb2d3a2c`, and this
+  branch"* asserts and had not been verified across the two base merges that
+  happened under it. Twenty rows carry `replicated_at_destination` in
+  total.)*
   *(RE-SCOPED 2026-09-16 by RULED **R-2**, `#656` comment `5690428146`, which
   supersedes this box's own deferral of the reconciliation to "a sweep at § 8".
   It read "Delete `scripts/ideation_dashboard/` (48 modules), `web/` (40 files),
@@ -1929,7 +2017,7 @@ the bookkeeping that ticks this group.
   missing — and the window covers everything it is required to cover.
   `#656` records: CLAIM `5690461589`; RULED R-2 `5690428146`; the discharging
   act #940 → `cc4ae9d3`.
-- [ ] 5.3 `[oxF]` **AUTHOR `.github/workflows/openxdox-consumer-gate.yml` in
+- [x] 5.3 `[oxF]` **AUTHOR `.github/workflows/openxdox-consumer-gate.yml` in
   `openxFactory`** — a NEW consumer gate over the pinned tools, on the
   `openxwallet-consumer-gate` shape (a `<product>-consumer-gate.yml` whose job id
   is the stable required-check token, as that file's own `wallet-validation` is).
@@ -1957,21 +2045,46 @@ the bookkeeping that ticks this group.
   **276** commits that have nothing to do with `.github/`. The finding was right
   about the command and the command was doing no work; re-run scoped, both
   patterns return **0** adds, which is the same answer honestly derived.)*
+  *(AND THE INSTRUMENT ITSELF IS REPLACED, amendment #5, registered on
+  amendment #4's pull request at comment `5702227094` item 8 — a Copilot
+  finding that was right about the METHOD while the conclusion survived it.
+  `--diff-filter=A` cannot carry *"never carried a dashboard-named
+  workflow"*, because a rename reports as `R` and not as `A`, so a file added
+  under a dashboard name and later renamed would be invisible to it. **The
+  query that cannot miss a rename is `git log --all --no-renames
+  --pretty=format: --name-only -- .github/workflows/`** — `--no-renames`
+  decomposes every rename into a delete plus an add, so both the old and the
+  new path appear in the log. Run at this amendment's base `cbc3a2c6`, it
+  returns **16 distinct paths ever**: `clearing-dispatch-gate`,
+  `doc-health-reusable`, `former-id-arrival-gate`, `lane-line`,
+  `merge-master-approval`, `openreposhape-pin-gate`, `openspec-cli-pin-gate`,
+  `openxdox-consumer-gate`, `openxwallet-consumer-gate`,
+  `proof-1-6a-codexfactory-app-install`, `pytest-suite`, `release-tag-gate`,
+  `review-lane-repin`, `session-open-pr`, `signed-execution-chain-gate`,
+  `wallet-validation` — and **not one of the sixteen matches
+  `dashboard|ideation`**. Independently, `git log --all --diff-filter=R --
+  .github/workflows/` returns **nothing at all**: no rename has ever touched
+  that directory, which is precisely why the weaker query happened to be
+  complete. The sixteen exceed the thirteen counted at `main` `cb2d3a2c`
+  above because that count is FILES PRESENT at one tree and this one is PATHS
+  EVER across all refs — `openxdox-consumer-gate` and `wallet-validation`
+  landed after it, and `proof-1-6a-codexfactory-app-install` no longer
+  exists.)*
   The SHAPE, the pinned-tools reading and the job-id obligation
-  are unchanged; only the act is. **This box does NOT tick with this amendment**:
+  are unchanged; only the act is. **This box does NOT tick with AMENDMENT #4**:
   the workflow is its own declared act under its own claim, and that act is
   `opensoft/openxFactory` **#1059** — *Wire the pinned openDox/openXdox
   tools into a consumer gate of their own (task 5.3, RULING R-4)*, opened
   2026-09-16T01:24:55Z against `main`. This box ticks on THAT pull request's
-  merge and on the new gate reporting, not on this one.
+  merge and on the new gate reporting, not on amendment #4's.
   **#1059 MERGED WHILE THIS AMENDMENT WAS OPEN — `7ab3dd80`,
   2026-09-16T16:27:36Z**, and both halves of that condition are now met:
   `.github/workflows/openxdox-consumer-gate.yml` stands at `main` with `name:`
   and job id the single token `openxdox-consumer-gate`, and the gate HAS
   REPORTED — it is a required check on this very pull request, SUCCESS at
-  `d1314f4d` (run `35134189330`). **THE TICK IS THEREFORE OWED, AND IT IS NOT
-  TAKEN HERE.** This box's own sentence, four lines up, says it ticks on that
-  pull request and *"not on this one"*; this amendment's CLAIM (`5690461589`)
+  `d1314f4d` (run `35134189330`). **THE TICK IS THEREFORE OWED, AND AMENDMENT
+  #4 DOES NOT TAKE IT.** This box's own sentence, four lines up, says it ticks
+  on that pull request and not on amendment #4's; amendment #4's CLAIM (`5690461589`)
   and RULED R-4 reach the PREMISE only; and its ledger is declared 47/23/1 in
   the claim, the description and the squash body alike. The tick belongs to the
   act that records #1059's discharge — with this box's required-check WIRING,
@@ -1992,6 +2105,40 @@ the bookkeeping that ticks this group.
   lands — a check is not selectable in a ruleset until a workflow has reported
   under it once, and making it required is a human act on a human-only surface —
   so the required-check WIRING is named as owed there rather than claimed here.)*
+  **TICKED 2026-09-16 BY `tasks.md` AMENDMENT #5 (CLAIM `5704937336`) — THE
+  TICK THIS BOX ITSELF DECLARED OWED, AND THE OBLIGATION IT NAMED AS STILL
+  OPEN IS CLOSED TOO.** Amendment #4 recorded both halves of the condition as
+  met and declined the tick, correctly: this box says in its own words that it
+  ticks on #1059 and *"not on this one"*, and amendment #4's claim and RULED
+  R-4 reach the PREMISE only. Amendment #5 is the act that records #1059's
+  discharge, which is what the box names as the tick's owner. **Re-measured
+  here rather than carried forward:** #1059 is MERGED as `7ab3dd80`
+  (2026-09-16T16:27:36Z), its merge commit is on `main`, and
+  `.github/workflows/openxdox-consumer-gate.yml` stands there with `name:` and
+  job id both the single token `openxdox-consumer-gate` and no job display
+  name. **And the WIRING — *"a human act on a human-only surface"* in this
+  box's own closing line — was done six minutes after that merge**: ruleset
+  **`23554310`**, *"openxFactory consumer-gate (require
+  openxdox-consumer-gate)"*, `target: branch`, `enforcement: active`,
+  `conditions.ref_name.include: ["~DEFAULT_BRANCH"]`, a single
+  `required_status_checks` rule whose sole context is
+  `openxdox-consumer-gate`, `created_at` **2026-09-16T16:33:22Z** (read live
+  at `gh api repos/opensoft/openxFactory/rulesets`). The gate has therefore
+  not only REPORTED, it is REQUIRED — it was a required check on amendment
+  #4's own pull request, SUCCESS at `d1314f4d` (run `35134189330`) and at
+  `cbc3a2c6`. Nothing in this box is left owed to a later act.
+  *(Amendment #4's three self-references above — *"this amendment"*, *"not on
+  this one"*, *"NOT TAKEN HERE"* — are re-spelled as *amendment #4* by this
+  amendment, and nothing else in them moves. They were unambiguous while #4
+  was the only amendment in the box; with a second one below them a reader
+  meets a `[x]` box that says three times it does not tick. Disambiguating a
+  pronoun is a currency fix, not a re-wording of what was ratified — the same
+  line § 1's stale coordinates are repaired on and § 7.3's ratified sentence
+  is left alone on.)*
+  *(Recorded with the ruleset's own identifiers rather than as "the wiring
+  landed", because a ruleset is the one kind of evidence in this packet that
+  lives outside git and cannot be read back from any tree: the id, the
+  enforcement and the creation stamp are what a later reader can re-query.)*
 - [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
   source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
   equality. Four clauses, the full text at `design.md` § D6 (2):
@@ -2302,6 +2449,25 @@ movements claimed at the time they land.
 - [ ] 6.4 `[oxF]` `[oD]` **`add-composed-view-authoring`** → openDox. One MODIFIED
   requirement, `target_release: none`, no contract bytes — the cheapest of the
   five.
+  **THE DESTINATION HALF HAS LANDED AND THE BOX STILL DOES NOT TICK**
+  (recorded by `tasks.md` amendment #5, 2026-09-16). **`opensoft/openDox-spec`
+  #12 MERGED — `edeed08c`, 2026-09-16T17:37:41Z**: `add-composed-view-authoring`
+  now stands at `openspec/changes/add-composed-view-authoring/` in the
+  receiving repository, and the carry is BYTE-IDENTICAL — verified by this
+  amendment at both ends rather than quoted from #12: the delta reads **3,557
+  bytes** with digest
+  **`1754e5d3f9803ea80b4e8a177fda8359a96d6c4b1024fce69893ee3cb3d716e1`** at
+  openxFactory `cb2d3a2c` and at openDox-spec `main` alike. That is the
+  *"destination named in the receiving repository"* half of § 8.5's gate.
+  **The CLOSING half is `opensoft/openxFactory` #1056**, *"Close
+  `add-composed-view-authoring` as re-homed to openDox (split-opendox § 6.4,
+  RULING Q6)"*, open against `main` and Rule-6 sequenced. A § 6 disposition
+  is TWO acts and it is the CLOSURE that discharges the box, so this ticks on
+  #1056's merge and not on its receiving half — the same ordering discipline
+  § 5.3 applies to #1059.
+  *(Worth the sentence because only one half has landed: a reader who finds
+  the change standing in openDox-spec and the box unticked here has every
+  reason to read the box as stale, and it is not.)*
 - [ ] 6.5 `[oxF]` `[oD]` **`add-lens-document-selection`** → SPLIT. The
   set-builder half to openDox; its `doc_health.staging_seed` drafter and route
   STAY in `openxFactory`'s own adapter (RULING DQ-1 — no longer a `codexDox`
@@ -2534,7 +2700,8 @@ movements claimed at the time they land.
   **THAT ONE NEAR MISS IS NAMED RATHER THAN LEFT FOR A LATER READER TO FIND,
   because it is the only thing in 14,051 files that can be read against this
   tick.** `OpsxFactory`'s `tenants/` carries a REAL, non-fixture, COMMITTED
-  record of a LIVE dox deployment: `tenants/opensoft-dox-intent-plane-intake.yaml`
+  record DECLARING AN ACTIVE dox deployment:
+  `tenants/opensoft-dox-intent-plane-intake.yaml`
   and `tenants/opensoft-dox-dispatch-minter-intake.yaml` (both
   `kind: opsx_client_infrastructure_execution_case`), and `tenants/opensoft.yaml`
   (`kind: opsx_client`) registering the subject `opensoft-aks-qa-dox-plane` /
@@ -2544,6 +2711,27 @@ movements claimed at the time they land.
   TENANT INSTALL a profile artifact** — so a committed install sitting inside a
   registered domain tree is exactly the shape that would trigger the laziness
   rule.
+  *("LIVE" WAS THIS PACKET'S OWN WORD AND IT IS WITHDRAWN, amendment #5,
+  registered at comment `5702227094` item 10 — a Copilot finding that is half
+  right in a way worth landing the distinction on. The QUOTATION above is
+  verbatim-accurate at OpsxFactory `6aa1512c`: `tenants/opensoft.yaml` does
+  carry `lifecycle_state: active` and the stable key
+  `dox-opensoft-qa.xforge.us`. But `openxFactory`'s own canonical naming
+  record retires the HOST — `docs/openxdox-naming.md` **Amendment 1
+  (2026-08-14)**, `:84-89` at this amendment's base `cbc3a2c6`:
+  *"`openxdox.opensoft.dev` replaces
+  `dox-opensoft-qa.xforge.us` … the legacy names are cut dead at switchover
+  — no dual-host period and no redirect"*. **So the RECORD is active and the
+  HOST is retired**, and the word "LIVE" was this packet's characterisation
+  rather than anything the record claims. The census VERDICT is invariant
+  either way, which is why this is a wording repair and not a re-measurement:
+  the predicate § 7.1 turns on is a `<Domainx>Dox` DESCENDANT instance and
+  never liveness — an install of the NEUTRAL product openDox for the estate's
+  own tenant is not a descendant whether its host answers or not. **That
+  OpsxFactory's record is stale against `openxdox-naming` Amendment 1 is a
+  finding about OpsxFactory's tree**, raised there rather than repaired from
+  here: a neutral packet does not edit a domain factory's own ledger to keep
+  its own quotation tidy.)*
   **It does not trigger it, and the reason is in the delta's own sentence.**
   `design.md`:741-743 says what that clause reconciles: *"a committed TENANT
   INSTALL is a profile artifact, which is what reconciles **Q3's commissioned
@@ -2750,6 +2938,27 @@ movements claimed at the time they land.
   built. What the ruling carries over from § 4.5 is the STANDING — open, owned,
   not lapsed, not gating — not the character in the box. This is the first `[~]`
   in this packet.)*
+  **A DEFECT IN THIS BOX'S RATIFIED TEXT IS REGISTERED HERE AND DELIBERATELY
+  NOT REPAIRED** (amendment #5, registered on amendment #4's pull request at
+  comment `5702227094` item 7, from a Copilot finding that is correct). The
+  specification below opens *"When the ruling lands"*, and the ruling has
+  landed — RULED **R-3**, 2026-09-16, `#656` comment `5690428146` — so the
+  phrase now reads as a past event while the act it governs has not run. The
+  true trigger is stated in the sentence that immediately precedes the phrase,
+  one line below this note: *"the successor act that runs when a domain
+  acquires its first profile artifact"*. **Measured, the phrase
+  is the packet's OWN RATIFIED TEXT and no amendment authored it**: it enters
+  at `ceb6dc9e`, the commit that ratified this packet (`#666`), stands
+  identically at `main`, and amendment #4 only MOVED it — out of the box
+  header `- [ ] 7.3 [?] When the ruling lands: …` into this body — while
+  re-marking the box `[~]`. **Re-wording ratified specification text is a
+  SPEC-DELTA-CLASS ACT**, which is exactly the disposition RULED
+  `5700622683` (2026-09-16T16:06:59Z, by interactive multi-choice) gave §
+  7.1's scenario-4 delta defect: recorded, repair owed from a later act that
+  CLAIMS the delta, not silently corrected by a prose sweep. A bookkeeping
+  amendment fixes stale COORDINATES (§ 1's two cites, § 1.8's positions) and
+  does not re-word what ratification was over. Registered, with the correct
+  trigger already quoted here, so the act that repairs it re-derives nothing.
   It is the successor act that runs when a domain acquires its first profile
   artifact, and § 7.1's laziness rule is what starts it. The text below is its
   specification, unchanged and unticked, and § 8's gate reads it as deferred
@@ -2789,6 +2998,55 @@ movements claimed at the time they land.
   as a SECURITY INVARIANT, and the `dox` workload set
   (`workflows/aks-administration.yaml:412-431`) becoming per-tenant. The ungoverned
   `openxdox` DNS record is governed here.
+  **SPLIT AND NARROWED 2026-09-16 — RULED `5704187317`** (`#656` comment
+  `5704187317`, 2026-09-16T20:40:06Z; Brett Heap, by interactive
+  multi-choice, on one question from this lane's § 7.4 actor;
+  measurement banked at `brett-wip` `fb3e0821`
+  `attachments/lane-opendox/ops74/measurements.md`; no claim was posted and
+  nothing was authored before the ruling). **THE BOX DOES NOT TICK HERE.** The
+  ruling divides it four ways:
+  **(A) A SECOND § 7.4 DELTA-TEXT DEFECT IS RECORDED, IN THE CLASS OF RULED
+  `5700622683`, AND NOT SILENTLY CORRECTED.** This packet's `design.md`
+  lists under **## Non-goals**, verbatim at `:133-134`, *"Resolving
+  codexFactory's false `stack.yaml` digest declaration, or the `openxdox` DNS
+  record's ungoverned status, **beyond naming them**"* — while the closing
+  sentence of this box says that record *"is governed here"*. **Two pieces of
+  ratified text in ONE packet that cannot both be executed**, and `design.md`
+  `:95-102` supplies the measured state they disagree about (*"the `openxdox`
+  DNS A record exists on the live zone and is ungoverned"*). The
+  contradiction is recorded for repair by a later act that CLAIMS the delta,
+  on the same disposition § 7.1's scenario-4 defect took two hours earlier.
+  **(B) THE DNS SENTENCE IS READ AS DISCHARGED BY NAMING**, per the packet's
+  own Non-goal. The reach widening — governing the record itself — belongs to
+  lane `opsXfactory-4`'s ACTIVE `add-governed-dns-administration` under Brett
+  Heap's OQ-E word `5649809425`, and the act is a five-place lockstep reaching
+  `opensoft/Opensoft-Tenant`. This packet names it and stops.
+  **(D) THE `dox` WORKLOAD SET'S PER-TENANT DECLARATION IS LEFT FOR THE § 3.5
+  REALIZATION** — there is no second tenant to describe until openDox's
+  runtime exists, and the requirement it sits under is inside lane
+  `opsXfactory-3`'s claim `5638511222`. *(The coordinate this box quotes has
+  moved. Measured by this lane's § 7.4 actor at OpsxFactory `7e15da58` and
+  banked at `brett-wip` `fb3e0821`: the `dox` workload set sits at
+  `workflows/aks-administration.yaml`:733-753 there, not at the `:412-431`
+  this box and `design.md`:102 both quote. Recorded, NOT re-pointed — for the
+  same reason as (A), it is ratified text, and a quotation is bound to the
+  tree the packet was written against.)*
+  **(E) THIS LANE'S ONLY AUTHORED ACT UNDER § 7.4 IS A `credential-contracts`
+  MODIFIED DELTA IN `openxFactory`** carrying the per-tenant App-Manifest
+  PROVISIONING shape (tenant-org creation, `openXdox — <tenant>` naming,
+  apply-repo home, credential capture) — OQ-1 option (a) of the staged topic
+  `openxdox-install-app-provisioning`. The two-App dispatch/content
+  SEPARATION is already canon — the promoted `credential-contracts` spec, at
+  its line 169 — and what is missing is the provisioning shape. One repository,
+  no Ops collision, CLAUDE.md working rule 1 satisfied. Options (2) hand the
+  DNS and workload halves to lanes `opsXfactory-4`/`-3` and (3) hold all of
+  § 7.4 were DECLINED.
+  **THE TICK CONDITION, STATED SO A LATER READER NEED NOT RE-DERIVE IT:** this
+  box ticks on (i) this ruling, (ii) the landed `credential-contracts` delta
+  of (E), and (iii) § 3.5's per-tenant evidence when it exists. **Only (i) is
+  in hand**, which is why the marker is untouched. It is `[ ]` and not `[~]`:
+  the deferred form § 7.3 wears is for an act with no subject to perform on,
+  and this one has a subject and an authored next step.
 
 ## 8. The archive gate
 
