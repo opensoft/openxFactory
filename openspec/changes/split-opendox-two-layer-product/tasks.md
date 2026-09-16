@@ -2071,8 +2071,9 @@ movements claimed at the time they land.
   **STATUS — 2026-09-16, RULED R-3** (`#656` comment `5690428146`, Brett Heap, by
   interactive multi-choice): *"the first descendant is NONE YET … 7.1/7.2 tick as
   ruled: not yet, § 7.3 becomes a deferred successor as § 4.5 was."*
-  **The test the requirement states, and what codexFactory actually holds.** The
-  promoted requirement *A descendant is created on its first profile, not before*
+  **The test the requirement states, and what the five registered domain trees
+  actually hold** — codexFactory first, because it is the one R-3 reasoned from,
+  then all five. The promoted requirement *A descendant is created on its first profile, not before*
   (`openspec/specs/domain-descendant-boundary/spec.md`:128-137) keys on **an
   artifact of the product's PROFILE KIND**, not on the word "dashboard". For a
   `<Domainx>Dox` the profile kind is what § 7.3 names — ONE domain-mapping
