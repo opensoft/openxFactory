@@ -3322,7 +3322,7 @@ Archived changes:
   issue"***
   ([#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5686436893))
   — so `tasks.md` § 4.5 is ticked WITH ITS DISPOSITION and carried forward at
-  openxFactory#TBD-carry-forward, the shape `add-signed-execution-chain`
+  openxFactory#1061, the shape `add-signed-execution-chain`
   established at issue #534. **UNTIL THAT ACT THE GATE RUNS ON EVERY PULL
   REQUEST AND REFUSES NO LANDING.** §§ 6.1–6.5 are ticked NOT TAKEN,
   dispositioned where they stand — § 6.1's successor filed as openxFactory

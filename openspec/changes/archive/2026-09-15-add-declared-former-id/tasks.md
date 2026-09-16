@@ -8,7 +8,7 @@ Ratified by: add-declared-former-id — 2026-09-13T22:48Z, Brett Heap, verbatim 
 PERFORMED.** A tick here is a claim about what the box's own text is now
 answered by, never a claim that every box was carried out. § 4.5 is ticked
 with a DISPOSITION and is **NOT PERFORMED** — Brett Heap's console act is
-outstanding and carried forward at openxFactory#TBD-carry-forward. § 6.1
+outstanding and carried forward at openxFactory#1061. § 6.1
 through § 6.5 are ticked as **NOT TAKEN**, dispositioned where they stand,
 § 6.1 with its successor filed as openxFactory#1053 and § 6.2 with the
 separate pull request that carried it. § 7.1 and § 7.2 are **PERFORMED** —
@@ -603,7 +603,7 @@ realization evidence and a further word.
     `release-tag-gate`. The literal `former-id-arrival-gate` occurs **0** times
     in that response. This is the LIVE RULESET STATE the box asks for, taken at
     the archive and not inherited from the 19:41Z reading above.
-  - **CARRIED FORWARD AT openxFactory#TBD-carry-forward**, filed by the
+  - **CARRIED FORWARD AT openxFactory#1061**, filed by the
     orchestrator at this archive on Brett Heap's word — filing is a reserved
     act and no author on this lane performs one. It is the
     `add-signed-execution-chain` precedent exactly: that packet's § 4.5 was

@@ -342,7 +342,7 @@ is in none of them. Brett Heap ruled the packet may archive anyway —
 2026-09-15T19:00Z, verbatim ***"Yes, with disposition + carry-forward
 issue"***, [issuecomment-5686436893](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5686436893)
 — so `tasks.md` § 4.5 is ticked WITH ITS DISPOSITION and the obligation is
-carried forward at openxFactory#TBD-carry-forward, the shape
+carried forward at openxFactory#1061, the shape
 `add-signed-execution-chain` established at issue #534. The packet reaches
 canon MEETING ITS OWN DEGRADED CASE: an unrequired arrival gate runs on every
 pull request and refuses no landing.
