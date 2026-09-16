@@ -957,7 +957,7 @@ def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
     assert {entry["repo"] for entry, _ in applied} == {"openxFactory"}
     assert [row for row in undispositioned
             if not _departed_since_the_capture(
-                ("openxFactory", row["item"], row["path"]))] == [], (
+                mod, "openxFactory", row)] == [], (
         "a finding in the capture is neither dispositioned by the live pin nor "
         "accounted for by a change that has left the corpus")
     assert stale == [], (
@@ -981,9 +981,36 @@ def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
 #: against the real tree on every run. A change that is still active, or one
 #: named here without an archive to point at, fails exactly as an undispositioned
 #: finding always did.
+#:
+#: AND THE ENTRY CARRIES THE CAPTURED FINDING ITSELF, not only the archive it
+#: points at. The first draft of this map keyed the exemption on
+#: `(repo, item, path)` alone — which is the triple the VERIFIER matches on, but
+#: not the whole of what `reconcile` compares: it keys on the normalized finding
+#: TEXT as well. An exemption narrower than the matcher would have been fine; one
+#: WIDER than it is a hole, because any other blocking finding at that same path
+#: in the frozen capture — a transcription slip in this suite's own fixture, or a
+#: second issue raised against the same delta — would have been swallowed by the
+#: departure arm and the two tests below would still have read green. That is
+#: exactly the class of failure this map's own header says a departure is NOT.
+#: So the value is the pair (archive directory, captured finding) and the finding
+#: is asserted before the exemption applies. Raised by Copilot on PR #1056 and
+#: taken rather than answered, because the reading was right.
 DEPARTED_SINCE_THE_CAPTURE = {
-    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"):
-        "openspec/changes/archive/2026-09-16-add-composed-view-authoring",
+    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"): {
+        "archive": "openspec/changes/archive/2026-09-16-add-composed-view-authoring",
+        # Quoted from the frozen capture
+        # `openspec-1.12.0-validate-changes-strict-report-findings.json`, which
+        # is real bytes from `@fission-ai/openspec@1.12.0` on the corpus of
+        # 2026-09-05 and is never re-cut. Compared through the verifier's own
+        # `normalized_finding`, so whitespace folding is the tool's and not this
+        # suite's second opinion about it.
+        "finding": (
+            'MODIFIED "Composed views are read-only with a repository jump" '
+            'omits scenario(s) the current spec still has: "Gate verbs hide on '
+            'a composed view". Copy them into the MODIFIED block (a MODIFIED '
+            'requirement replaces the whole block, so archive refuses to drop '
+            'them).'),
+    },
 }
 
 #: This suite lives at `tests/openspec_cli_pin/`, so the repository root is two
@@ -991,24 +1018,39 @@ DEPARTED_SINCE_THE_CAPTURE = {
 PIN_REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
-def _departed_since_the_capture(key):
-    """True iff `key` names a change this tree really has let go.
+def _departed_since_the_capture(mod, identity, row):
+    """True iff `row` IS the captured finding of a change this tree has let go.
 
-    The claim is checked against the working tree, never taken on the map's
-    word: the active directory must be ABSENT and the named archive directory
-    must be PRESENT. That is what keeps this map from becoming the blanket the
-    pin's own `dispositions:` list is so careful not to be.
+    THREE CHECKS, and none of them is taken on the map's word:
+
+      1. the finding TEXT matches the one the map records, compared through the
+         verifier's own `normalized_finding` — so the exemption is exactly as
+         narrow as `reconcile`'s own key and cannot swallow a different blocking
+         finding that happens to share the item and the path;
+      2. the active directory is ABSENT from the working tree;
+      3. the named archive directory is PRESENT in it.
+
+    Together they keep this map from becoming the blanket the pin's own
+    `dispositions:` list is so careful not to be.
     """
-    archived = DEPARTED_SINCE_THE_CAPTURE.get(key)
-    if archived is None:
+    key = (identity, row["item"], row["path"])
+    entry = DEPARTED_SINCE_THE_CAPTURE.get(key)
+    if entry is None:
         return False
-    _, item, _ = key
-    active = PIN_REPO_ROOT / "openspec" / "changes" / item
+    expected = mod.normalized_finding(entry["finding"])
+    assert row["normalized"] == expected, (
+        f"{key} is listed as departed, but the capture's finding at that path "
+        "is not the one this map records. A departure exempts ONE captured "
+        "finding, never a path:\n"
+        f"  recorded: {expected}\n"
+        f"  captured: {row['normalized']}")
+    active = PIN_REPO_ROOT / "openspec" / "changes" / row["item"]
     assert not active.is_dir(), (
         f"{key} is listed as departed but {active} still stands; a live change "
         "may not borrow this exemption")
-    assert (PIN_REPO_ROOT / archived).is_dir(), (
-        f"{key} names {archived} as its archive and no such directory exists")
+    assert (PIN_REPO_ROOT / entry["archive"]).is_dir(), (
+        f"{key} names {entry['archive']} as its archive and no such directory "
+        "exists")
     return True
 
 
@@ -1321,7 +1363,11 @@ def test_the_real_pin_disposes_exactly_the_captured_findings(mod, pin):
     parting is accounted for by `DEPARTED_SINCE_THE_CAPTURE`, which is checked
     against the real tree rather than believed — see
     `_departed_since_the_capture`. THE SUM, NOT EACH ARM, is what stays pinned at
-    two, so a transcription slip still shows up here as loudly as before.
+    two, so a transcription slip still shows up here as loudly as before —
+    and that last clause is now load-bearing rather than hopeful: the departure
+    arm asserts the CAPTURED FINDING's normalized text before it exempts
+    anything, so a slip in the departed row's message fails here instead of
+    being absorbed by the exemption.
     """
     payload = (FIXTURES /
                "openspec-1.12.0-validate-changes-strict-report-findings.json"
@@ -1332,8 +1378,7 @@ def test_the_real_pin_disposes_exactly_the_captured_findings(mod, pin):
         findings, mod.pinned_dispositions(pin), "openxFactory",
         corpus_wide=True)
     departed = [row for row in undispositioned
-                if _departed_since_the_capture(
-                    ("openxFactory", row["item"], row["path"]))]
+                if _departed_since_the_capture(mod, "openxFactory", row)]
     assert len(applied) + len(departed) == 2, (
         "the capture holds two blocking openxFactory findings; each must be "
         "either disposed by the live pin or accounted for by a departure")

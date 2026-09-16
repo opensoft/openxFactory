@@ -1347,6 +1347,99 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     assert mbc.norm(scenario) != mbc.norm(_RENAME_DESTINATION)
 
 
+#: THE § 6 CLOSURES THIS FILE HAS SEEN, AND WHAT EACH MUST STILL BE TRUE OF.
+#:
+#: `_LEDGER_SUBJECTS` loses a row when a change leaves the ACTIVE corpus, and it
+#: loses that row identically whether the packet was RE-HOMED (relocated into
+#: `openspec/changes/archive/`, its delta intact and unpromoted) or simply
+#: DELETED. Those two are not the same act and only one of them is what RULING
+#: Q6 ordered, so the ledger's silence cannot be the only thing standing behind
+#: the claim. The composed-view row has had a positive assertion since its own
+#: closure — the scenario-arm test reads its block back out of the archive — and
+#: this constant gives the same standing to every later one.
+#:
+#: Raised by Copilot on PR #1057, in those terms: "if the active packet were
+#: deleted (and its ledger row omitted) rather than moved to `archive/`, this
+#: assertion would still pass". Taken rather than answered.
+#:
+#: EACH ROW: (change, archived delta path, capability, the MODIFIED title that
+#: held the ledger row, the ADDED titles that must still stand in the delta).
+_REHOMED_AND_STILL_WHOLE = (
+    ("add-doxchat-model-intake",
+     "openspec/changes/archive/2026-09-16-add-doxchat-model-intake/"
+     "specs/ideation-dashboard/spec.md",
+     "ideation-dashboard",
+     "doxBench model catalog and provider boundary",
+     ("Intake proposes a model; approval stays a recorded human act",
+      "Model intake hands the credential to the broker and keeps only a binding",
+      "The intake affordance ships with the flow behind it",
+      "The model selector offers intake first and defaults to it when nothing "
+      "is approved")),
+)
+
+
+def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_archive():
+    """THE CLOSURE ITSELF, ASSERTED — not inferred from a row that is no longer
+    there.
+
+    Three things, in this order, because the order is what makes them evidence:
+
+      1. the packet is ABSENT from `openspec/changes/` — the departure;
+      2. the archived delta EXISTS — the relocation, not a deletion;
+      3. the delta still parses through the family's own `parse_delta` and still
+         carries every requirement it carried when it was active — the MODIFIED
+         block that held the `_LEDGER_SUBJECTS` row, and each ADDED title whose
+         non-promotion this closure recorded as deliberate.
+
+    (3) is the one that makes this more than bookkeeping. RULING Q6 re-homes the
+    content; a closure that lost an ADDED requirement on the way into the
+    archive would leave the receiving repository's copy as the only copy, and
+    nothing in this repository would ever say so. The four ADDED titles are
+    exactly the four `promotion_fidelity` reports as absent from canon at every
+    head after this closure, so the same four are load-bearing in two places and
+    a drift in either shows up here.
+
+    NOT A COUNT. Each title is named; the population is bounded by the same
+    named set rather than by its size.
+    """
+    for change, delta, capability, requirement, added in _REHOMED_AND_STILL_WHOLE:
+        active = ROOT / "openspec" / "changes" / change
+        assert not active.is_dir(), _moved(
+            f"{change} ABSENT from the active corpus (CLOSED AS RE-HOMED under "
+            "RULING Q6 on 2026-09-16)",
+            f"{active} still stands")
+
+        archived = ROOT / delta
+        assert archived.is_file(), _moved(
+            f"the archived delta {delta}",
+            "no such file — the closure was a DELETION or the packet moved "
+            "again; a re-home relocates the delta, it does not drop it")
+
+        requirements, _renames = mbc.parse_delta(
+            archived.read_text(encoding="utf-8", errors="replace"))
+        modified = [r for r in requirements
+                    if r.op == "MODIFIED"
+                    and mbc.norm(r.title) == mbc.norm(requirement)]
+        assert len(modified) == 1, _moved(
+            f"the MODIFIED block {requirement!r} in {delta}",
+            f"{len(modified)} matching block(s)")
+
+        present = {mbc.norm(r.title) for r in requirements if r.op == "ADDED"}
+        missing = [title for title in added if mbc.norm(title) not in present]
+        assert not missing, _moved(
+            f"the {len(added)} ADDED requirements of {change} standing in the "
+            "archived delta",
+            f"absent: {missing}")
+
+        live = [b for b in mbc.active_blocks(ROOT)
+                if (b.change, b.capability, mbc.norm(b.title))
+                == (change, capability, mbc.norm(requirement))]
+        assert not live, _moved(
+            f"no ACTIVE block carrying {change} / {requirement!r}",
+            f"{len(live)} still active — the ledger row was removed while the "
+            "block is still read by `active_blocks`")
+
+
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     """PACKET § 4.1's editorial arm, as an EXACT SET of named subjects — nine
     at 2026-09-11, twelve since `repoint-chain-anchoring-medxchain-citation`
