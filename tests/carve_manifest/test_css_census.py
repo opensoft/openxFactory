@@ -429,6 +429,59 @@ def test_a_dotted_word_in_a_sentence_is_not_a_selector() -> None:
     assert CENSUS.is_selector_text("see .gatebar") is False
 
 
+def test_a_class_equals_inside_another_attribute_is_that_attributes(
+        tmp_path: Path) -> None:
+    """`<div title='class="gatebar"'>` IS A TITLE (Copilot review, round 8).
+
+    "the last `<` with no `>` between" said yes to it, and a false class run on
+    the gate side moves an openDox rule. The tag is walked with quote state
+    carried now, so `>` inside a value no longer closes it either.
+    """
+    js = """host.innerHTML = `<span title='class="gatebar"'>see</span>`;\n"""
+    assert CENSUS.narrow_refs(js, ".js") == set()
+    assert CENSUS.prefix_refs('`<i alt="class=chip-">x</i>`;\n', ".js",
+                              class_bearing_only=True) == set()
+    # the real attribute is still read, including past a `>` inside a value
+    assert CENSUS.narrow_refs(
+        """`<i data-q='a>b' class="gatebar">`;\n""", ".js") == {"gatebar"}
+    # and end to end: the block does not leave on the strength of a title
+    dox, xdox = _tree(
+        tmp_path,
+        styles=".gatebar { color: red; }\n.gatebtn { color: blue; }\n",
+        own={},
+        gate={"gate.js": """host.innerHTML = `<b title='class="gatebar"'>x</b>`;\n"""
+                         'el("button", "gatebtn");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
+
+
+def test_a_selector_literal_counts_only_at_a_selector_api() -> None:
+    """A DIAGNOSTIC WRITTEN AS A SELECTOR IS STILL A DIAGNOSTIC (Copilot
+    review, round 8). `showError(".gatebar")` passes both the shape test and
+    the element-name test, so the branch has to ask for the context as well."""
+    assert CENSUS.narrow_refs('showError(".gatebar");\n', ".js") == set()
+    assert CENSUS.narrow_refs('const SEL = ".gatebar";\n', ".js") == set()
+    for call in ("root.querySelector", "root.querySelectorAll",
+                 "ev.target.closest", "el.matches"):
+        assert CENSUS.narrow_refs(f'{call}(".gatebar");\n', ".js") \
+            == {"gatebar"}, call
+    assert CENSUS.narrow_refs('ev.target.closest?.(".gatebar");\n',
+                              ".js") == {"gatebar"}
+
+
+def test_a_class_built_from_two_literals_is_still_named() -> None:
+    """`"gate" + "bar"` NAMES `gatebar` (Copilot review, round 8).
+
+    Neither literal contains it and `_PREFIX` cannot see it — a prefix has to
+    end in `-` or run into a `${…}`. This is the BROAD scan, the KEEP side of
+    the decision, so a reference missed here is a rule wrongly EXTRACTED.
+    """
+    text = CENSUS.js_literal_text('el("div", "gate" + "bar");\n')
+    assert "gatebar" in text.split()
+    assert "gate" in text.split() and "bar" in text.split()   # beside, not instead
+    assert "gatebar" not in CENSUS.js_literal_text('el("div", "gate", "bar");\n')
+
+
 def test_a_class_equals_in_prose_is_not_markup() -> None:
     """`class=` ANYWHERE IN A STRING IS NOT MARKUP (Copilot review, round 7,
     thread `PRRT_kwDOTAvnrs6jCcPV`).

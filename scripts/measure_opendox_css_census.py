@@ -138,9 +138,27 @@ def _js_spans(text: str) -> list[tuple[str, int, int]]:
 
 
 def js_literal_text(text: str) -> str:
-    """Every string literal of a module, concatenated — comments and regexes out."""
-    return "\n".join(text[a + 1:b - 1] for kind, a, b in _js_spans(text)
-                     if kind == "string")
+    """Every string literal of a module — comments and regexes out.
+
+    AND EVERY ADJACENT PAIR JOINED ACROSS A `+` (Copilot review of openxFactory
+    #1068, round 8). `el("div", "gate" + "bar")` writes a class NEITHER literal
+    contains, and `_PREFIX` does not see it either — a prefix has to end in `-`
+    or run into a `${…}`. This is the BROAD scan, the one the KEEP side of the
+    decision runs on, so a reference it misses is a rule wrongly EXTRACTED:
+    exactly the error direction the asymmetry exists to prevent, arriving
+    through the seam instead of the token.
+
+    The join is emitted BESIDE the literals, never instead of them, so nothing
+    a literal names stops being named. MEASURED at openDox-code `0b4e8bbf` /
+    openXdox-code `0a0265f7`: 294 adjacent pairs, all of them prose messages
+    split across source lines, and the census is UNCHANGED.
+    """
+    spans = [(a, b) for kind, a, b in _js_spans(text) if kind == "string"]
+    out = [text[a + 1:b - 1] for a, b in spans]
+    for (a1, b1), (a2, b2) in zip(spans, spans[1:]):
+        if re.fullmatch(r"\s*\+\s*", text[b1:a2]):
+            out.append(text[a1 + 1:b1 - 1] + text[a2 + 1:b2 - 1])
+    return "\n".join(out)
 
 
 # --------------------------------------------------------------------------
@@ -279,6 +297,23 @@ _SELECTOR_SHAPED = re.compile(r"^[A-Za-z0-9_\-.#>+~*:\[\]=\"',()\s]+$")
 #: 89 lines, 10 reading a token — so nothing this tool reports today rests on
 #: a dotted sentence. The rule is narrowed anyway, because "no message in this
 #: tree happens to carry a dotted word" is not a guarantee about the next one.
+#: AND A SELECTOR IS WHAT A SELECTOR API IS GIVEN (Copilot review of
+#: openxFactory #1068, round 8). Shape and element names still leave
+#: `showError(".gatebar")` — a DIAGNOSTIC MESSAGE that happens to be written as
+#: a selector — claiming a class on the side of the census where a claim MOVES
+#: an openDox rule. The branch now asks for the context as well: the literal
+#: must be the argument of an API that takes a selector.
+#:
+#: MEASURED over the 44 scanned files at `0b4e8bbf` / `0a0265f7`: EVERY
+#: selector-shaped literal that yields a class token on the gate side sits at
+#: `querySelector`, `querySelectorAll` or `closest` — 6 in `wheel.js`, 2 in
+#: `doc-wheel.js`, 2 in `viewer.js`, and one each in `dispose.js`, `lens.js`,
+#: `app.js` and the rest — so the census is UNCHANGED by the requirement. What
+#: it refuses are the literals that reach this branch from a concatenation or a
+#: message, which is the whole finding.
+_SELECTOR_CALL = re.compile(
+    r"\b(?:querySelector|querySelectorAll|closest|matches)\??\.?\(\s*$")
+
 _HTML_ELEMENTS = frozenset("""
 a abbr address area article aside audio b base bdi bdo blockquote body br
 button canvas caption cite code col colgroup data datalist dd del details dfn
@@ -391,13 +426,44 @@ def markup_class_runs(s: str, group: str) -> list[str]:
     is UNCHANGED — 54 / 18 / 59 blocks / 89 lines — because every `class=` in
     these six modules and this bundle is written inside its own tag.
     """
-    out: list[str] = []
-    for m in re.finditer(rf'class\s*=\s*"?({group})', s):
-        lt = s.rfind("<", 0, m.start())
-        if lt < 0 or not _TAG_OPEN.match(s, lt) or ">" in s[lt:m.start()]:
+    live = _tag_name_positions(s)
+    return [m.group(1) for m in re.finditer(rf'class\s*=\s*"?({group})', s)
+            if live[m.start()]]
+
+
+def _tag_name_positions(s: str) -> list[bool]:
+    """Which offsets of `s` sit where an ATTRIBUTE NAME can be written.
+
+    AND `class=` INSIDE ANOTHER ATTRIBUTE'S VALUE IS THAT ATTRIBUTE'S (Copilot
+    review of openxFactory #1068, round 8). A `rfind("<")` plus "no `>` in
+    between" test says yes to `<div title='class="gatebar"'>`, where `class=`
+    is part of the TITLE — and a false class run on the gate side moves an
+    openDox rule. The tag is walked instead, with quote state carried, so an
+    offset counts only where it is inside an open tag AND outside every quoted
+    value. `>` inside a quoted value no longer closes the tag either, which the
+    substring test also got wrong.
+    """
+    live = [False] * (len(s) + 1)
+    i, n = 0, len(s)
+    while i < n:
+        if s[i] == "<" and _TAG_OPEN.match(s, i):
+            j, quote = i + 1, ""
+            while j < n:
+                c = s[j]
+                if quote:
+                    if c == quote:
+                        quote = ""
+                elif c in "\"'":
+                    quote = c
+                elif c == ">":
+                    break
+                else:
+                    live[j] = True
+                j += 1
+            i = j + 1
             continue
-        out.append(m.group(1))
-    return out
+        i += 1
+    return live
 
 
 def prefix_refs(text: str, suffix: str, *,
@@ -469,7 +535,8 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
         # dotted word in it moves an openDox rule.
         stripped = s.strip()
         if stripped and _SELECTOR_SHAPED.match(stripped) \
-                and is_selector_text(stripped):
+                and is_selector_text(stripped) \
+                and (suffix != ".js" or _SELECTOR_CALL.search(text[max(0, start - 60):start])):
             out.update(selector_class_tokens(stripped))
         # A `class="…"` INSIDE A TAG is class-bearing by construction; one in
         # prose is prose (`markup_class_runs`).
