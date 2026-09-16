@@ -1,6 +1,12 @@
 # Design — scope-pinned-arm-root-naming
 
 Status: ratified
+Ratified by: scope-pinned-arm-root-naming — Brett Heap (openxFactory
+repository owner), first-hand, in session, lane `openxfactory-2` (display
+`openXfactory-2`), verbatim ***"ratify 1052 when green, then 1050"*** — the
+"1052" half of that word. THE ONE CITATION: openxFactory #1047, comment
+https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379.
+Record: `review/ratification-2026-09-16.md`.
 Kind: design
 
 Three decisions, each put with the recommendation first. `proposal.md` § *The
