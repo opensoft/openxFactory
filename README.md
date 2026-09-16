@@ -1006,8 +1006,9 @@ Active changes:
   archive pull request [#1042](https://github.com/opensoft/openxFactory/pull/1042)
   and RULED STANDS there — the sentence is ratified canon promoted
   byte-identical, which an archive act may not edit — so the remedy is a
-  successor packet. `sequenced_after: []`, corroborated: no active change holds
-  a `## MODIFIED` block over that requirement. Filing PR
+  successor packet. `sequenced_after: []`, corroborated: no OTHER active
+  change holds a `## MODIFIED` block over that requirement — this packet is
+  itself the one active change that now does. Filing PR
   [#1052](https://github.com/opensoft/openxFactory/pull/1052), whose second
   commit — this one — seeds the packet's per-change sweep-ledger row and writes
   the number here, the pull request not having existed when the packet was

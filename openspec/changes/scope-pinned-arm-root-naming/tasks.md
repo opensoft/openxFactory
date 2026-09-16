@@ -52,10 +52,13 @@ for openxFactory #1047 belong to the archive pull request.
       family's own derivation (canon 209 units, block 215, TWO uncarried
       units, eight new).
 - [x] 2.3 Sibling search for a co-writer of this requirement, taken at
-      authoring on `8944758c`: no active change holds a `## MODIFIED` block
-      over *Prose tagging marker hygiene*; the only active `document-lifecycle`
-      delta is `prepare-openspec-1-12-readiness`, an `## ADDED` requirement
-      touching nothing this packet writes. `sequenced_after: []` is therefore a
+      authoring on `8944758c` (before this packet's own delta existed): no
+      OTHER active change holds a `## MODIFIED` block over *Prose tagging
+      marker hygiene* — read in the indexed tree this packet is itself the one
+      active change that now does, so the qualifier is load-bearing; the only
+      OTHER active `document-lifecycle` delta is `prepare-openspec-1-12-readiness`,
+      an `## ADDED` requirement touching nothing this packet writes.
+      `sequenced_after: []` is therefore a
       CORROBORATED root claim rather than an assumed one.
 - [x] 2.4 README "OpenSpec Records → Active changes" bullet added.
 - [x] 2.5 Validation recorded in the pull request body —

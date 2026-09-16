@@ -128,16 +128,66 @@ at all.
 
 ## Measurement — how the block was produced
 
-Generated, never transcribed (`tasks.md` § 2.2): a script slices the promoted
-requirement from `openspec/specs/document-lifecycle/spec.md` whole (heading to
-the next `### Requirement:`), asserts the target sentence occurs EXACTLY ONCE,
-replaces it, asserts the sibling scenario's WHEN occurs EXACTLY ONCE and
-narrows it by the one clause above, appends the one scenario, and writes the
-delta. The verification is a unified diff of the generated block against
-canon's block — THREE hunks, the sentence, the one WHEN clause and the one
-scenario, and nothing else — and a `derive_units` comparison (2 uncarried, 8
-new). Both are re-runnable from the packet and are recorded in the pull
-request body.
+GENERATION — A ONE-TIME AUTHORING STEP, ITS SCRIPT NOT COMMITTED TO THIS
+REPOSITORY. A script sliced the promoted requirement from
+`openspec/specs/document-lifecycle/spec.md` whole (heading to the next
+`### Requirement:`), asserted the target sentence occurred EXACTLY ONCE and
+replaced it, asserted the sibling scenario's WHEN occurred EXACTLY ONCE and
+narrowed it by the one clause above, appended the one scenario, and wrote the
+delta at `specs/document-lifecycle/spec.md`. Say so plainly: that script is an
+authoring tool, not part of the packet, and is not reproducible from the
+committed tree alone. What follows IS.
+
+VERIFICATION — REPRODUCIBLE FROM THE COMMITTED TREE ALONE (canon's spec, this
+packet's own delta, and `scripts/doc_health/`, none of which this measurement
+edits), independently of how the delta was produced:
+
+1. Extract canon's block and this packet's block as plain text:
+   ```
+   python3 -c "
+   import pathlib
+   text = pathlib.Path('openspec/specs/document-lifecycle/spec.md').read_text()
+   title = '### Requirement: Prose tagging marker hygiene\n'
+   start = text.index(title)
+   end = text.index('\n### Requirement: ', start + len(title)) + 1
+   pathlib.Path('/tmp/canon-block.txt').write_text(text[start:end].rstrip('\n') + '\n')
+   "
+   tail -n +5 openspec/changes/scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md \
+     > /tmp/packet-block.txt
+   ```
+2. `git diff --no-index --numstat /tmp/canon-block.txt /tmp/packet-block.txt`
+   reads **18  5** (18 added, 5 removed); `diff -u /tmp/canon-block.txt
+   /tmp/packet-block.txt | grep -c '^@@'` reads **3** — the sentence, the one
+   WHEN clause, and the appended scenario, each at a different place in the
+   file, and nothing else.
+3. The `derive_units` comparison, through the modified-block-currency
+   family's own derivation, over the live tree rather than the two extracted
+   files:
+   ```
+   python3 -c "
+   import sys, pathlib
+   sys.path.insert(0, 'scripts')
+   from doc_health import modified_block_currency as mbc
+   from doc_health import promotion_fidelity as pf
+   root = pathlib.Path('.').resolve()
+   canon_req = mbc.promoted(root, 'document-lifecycle')[pf.norm('Prose tagging marker hygiene')]
+   block = [b for b in mbc.active_blocks(root) if b.change == 'scope-pinned-arm-root-naming'][0]
+   print('canon units:', len(canon_req.units))
+   print('block units:', len(block.units))
+   print('uncarried:', len(mbc.carried(canon_req.units, block.units)))
+   have = {u.pair() for u in canon_req.units}
+   print('new:', len([u for u in block.units if u.pair() not in have]))
+   "
+   ```
+   reads `canon units: 209`, `block units: 215`, `uncarried: 2`, `new: 8`.
+4. The same fact as a live finding rather than a script: `python3
+   scripts/doc-health.py --single-repo . --as-of <today> --family
+   modified-block-currency` reports the block "does not carry 2 of the 186
+   body units and scenario bullets ... currently states for it", quoting both
+   uncarried units by text.
+
+All four commands were re-run against this commit and reproduce the numbers
+stated above and in the pull request body exactly.
 
 Base of measurement: `origin/main` @ `8944758c` (the archive of
 `extend-prose-tagging-target-to-pinned-capabilities`, PR #1042, merged

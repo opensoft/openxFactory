@@ -138,10 +138,13 @@ transcribed (`tasks.md` § 2.2).
 ## Sequencing
 
 `sequenced_after: []` is a CORROBORATED ROOT CLAIM, taken at authoring on
-`8944758c`: NO ACTIVE CHANGE HOLDS A `## MODIFIED` BLOCK OVER *Prose tagging
-marker hygiene* — that is the fact the claim rests on, not a count of where
-the title appears. Measured at `8944758c` (before this packet's own delta
-existed), the requirement title occurs under `openspec/specs/` and
+`8944758c`: NO OTHER ACTIVE CHANGE HOLDS A `## MODIFIED` BLOCK OVER *Prose
+tagging marker hygiene* — that is the fact the claim rests on, not a count of
+where the title appears, and the qualifier is load-bearing: read in the
+indexed tree, this packet IS the one active change that now holds such a
+block, so the claim is about every OTHER active change and not about this one.
+Measured at `8944758c` (before this packet's own delta existed), the
+requirement title occurs under `openspec/specs/` and
 `openspec/changes/` in exactly THREE places: canon itself
 (`openspec/specs/document-lifecycle/spec.md:218`) and TWO ARCHIVED
 packets — the one that promoted this very sentence
@@ -152,7 +155,7 @@ an `## ADDED` requirement). NEITHER ARCHIVED PACKET IS ACTIVE AND NEITHER
 CARRIES A LIVE `## MODIFIED` BLOCK, so neither is a sibling this packet must
 sequence after; once this packet's own delta exists it is a fourth occurrence
 of the title, and it is the writer in question rather than a co-writer of it.
-The only active change carrying a `document-lifecycle` delta at all is
+The only OTHER active change carrying a `document-lifecycle` delta at all is
 `prepare-openspec-1-12-readiness`, whose delta is an `## ADDED` requirement
 (*A promoted specification carries a written Purpose, repaired in the
 promoted specification*) and touches no requirement this packet writes.
