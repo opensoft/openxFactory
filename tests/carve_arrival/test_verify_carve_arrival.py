@@ -3664,19 +3664,18 @@ def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
     below — expects 117: an operator running the two sections in order met an
     `arrival-not-vacated` refusal instead of the result the document promised,
     and then five more, one run each, because both checks raise on the first
-    row they find. The same key failed the other half in
-    silence, emitting 92 rows at `openxdox_code` where the verifier requires
-    96, which would leave the four files RULED Q6 sent there out of the carve
-    ref that is supposed to place them.
+    row they find. The same key failed the other half in silence, emitting 92
+    rows at `openxdox_code` where the verifier requires 96, which would leave
+    the four files RULED Q6 sent there out of the carve ref that is supposed
+    to place them.
 
     SO THE PROGRAM IS RUN, NOT READ. `_runbook_path_file_program` lifts the
     heredoc out of the document — bounded on § 5.3's COMMAND LINE, because the
     runbook quotes a second `<<'PY'` program in § 8 and a parser that took the
     first marker would be reading the wrong one — and this case feeds it to
     `python3 -` with the arguments that command line gives it, then compares
-    the two lines
-    it prints per row with `rows_for()` and `effective_arrival()` — the
-    predicate the arrival verifier applies at the leg. A generator and a
+    the two lines it prints per row with `rows_for()` and `effective_arrival()`
+    — the predicate the arrival verifier applies at the leg. A generator and a
     verifier that disagree about which rows a destination is owed is the
     defect above in its general form, and neither file can be read alone to
     find it.
@@ -3690,10 +3689,17 @@ def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
     compares the resolved identity, and a generator comparing LABELS answers
     the other spelling with an EMPTY path file while the verifier goes on
     expecting every row. The landed manifest declares five keys and no alias,
-    so the case is BUILT here rather than waited for. AND THE
-    PARAGRAPH'S OWN SIX FIGURES ARE DERIVED HERE TOO, for § 2's reason one
-    section down — a number in prose that nothing re-derives is the rot this
-    whole group of tests exists for, and this paragraph states two per leg.
+    so the case is BUILT here rather than waited for.
+
+    AND EVERY FIGURE § 5.3 STATES IS DERIVED HERE TOO, for § 2's reason one
+    section down: a number in prose that nothing re-derives is the rot this
+    whole group of tests exists for. Four of them for `opendox_code`'s two
+    keys, two for `openxdox_code`'s, one for each `-spec` leg no ruling has
+    touched, the count the selector-vs-rename sentence publishes, and the
+    `wc -l` control's own pair — enumerated by what each belongs to rather
+    than totalled, because a docstring that states its own coverage as a
+    NUMBER is one more figure nothing re-derives (this one said SIX until
+    round 26 added the seventh assertion under it).
     """
     runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
     assert runbook.is_file(), (
