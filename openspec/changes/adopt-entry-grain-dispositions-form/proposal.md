@@ -26,7 +26,9 @@ immediately below narrowed to name the realization test files under
 separate later acts on Brett Heap's word: no byte of
 `scripts/doc_health/pin_shapes.py` moves, no pin verifier is edited, no record
 under `contracts/` changes, and only boxes 1.1, 1.2, 1.3 and 1.4 of `tasks.md`
-§ 1 are ticked — § 2 stands exactly as the filing pull request left it, and
+§ 1 are ticked — § 2's CHECKBOXES stand exactly as the filing pull request
+left them (§ 2.2's own evidence line was separately corrected to name TEN, a
+non-checkbox consistency fix), and
 § 3 and § 4 stay open, `code_surface` being non-empty.
 
 Proposed: 2026-09-15, in lane `openxfactory-2` (display `openXfactory-2`),

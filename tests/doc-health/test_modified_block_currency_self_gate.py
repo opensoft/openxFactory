@@ -964,6 +964,26 @@ _LEDGER_SUBJECTS = {
      "Realization axis declaration"),
     ("add-target-release-deferred-allocation", "release-realization",
      "Realization axis vocabulary is gated"),
+
+    # ADDED 2026-09-16 BY `adopt-entry-grain-dispositions-form`, ROUND 5 of its
+    # own ratification pull request (#1050). The packet's `## MODIFIED` block
+    # ADDS one scenario (a pure addition, no title canon carries, so it opens
+    # no row) and, from this round, also EDITS an EXISTING promoted scenario's
+    # body — *A marker names a capability of a pinned neutral product* — to
+    # partition it from the added one: AS FILED, that scenario's WHEN said
+    # nothing about optional members, so a record complete for its required
+    # shape members and capabilities enumeration but carrying a malformed
+    # `dispositions: [{}]` satisfied BOTH it (THEN resolve) and the added
+    # scenario (THEN refuse) — two normative outcomes for one input, found by
+    # Copilot at 55db4a3c and RULED ACCEPT. The fix adds one WHEN clause
+    # ("every OPTIONAL member ... conforms at its entry grain") and one
+    # disjointness bullet to the positive scenario; review/ratification-2026-
+    # 09-16.md records it as the packet's ONE NORMATIVE PARTITION, reopening no
+    # design decision (D-2's boundary is unmoved; only the positive scenario's
+    # text now agrees with it). This row retires when the packet archives and
+    # its block promotes byte-identical into canon.
+    ("adopt-entry-grain-dispositions-form", "document-lifecycle",
+     "Prose tagging marker hygiene"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"

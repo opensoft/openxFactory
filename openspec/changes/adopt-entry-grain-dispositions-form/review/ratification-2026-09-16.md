@@ -104,8 +104,40 @@ a checkbox, and none reopens D-1, D-2, D-3 or any other scope:
    TICKED … this lane ticks no box in it" under a "kept verbatim as history"
    marker, is rewritten to state the ratified fact directly instead of
    preserving that now-stale framing: ratified 2026-09-16 on the citation
-   above, § 1 ticked (1.1-1.4); § 2 stands as filed; § 3 realization and § 4
-   archive stay open.
+   above, § 1 ticked (1.1-1.4); § 2's CHECKBOXES stand as filed (item 3
+   above is § 2.2's own non-checkbox evidence-line correction, not a
+   checkbox move); § 3 realization and § 4 archive stay open.
+
+**THIS RATIFYING ACT ALSO CARRIES ONE NORMATIVE PARTITION**, distinct in
+KIND from the five corrections above because it changes NORMATIVE SCENARIO
+TEXT rather than a tally, a process-state claim, or a citation line — found
+by the lane from Copilot's one substantive review comment on this pull
+request, RULED ACCEPT, and reopening no design decision:
+
+`specs/document-lifecycle/spec.md`'s scenario *A marker names a capability of
+a pinned neutral product* and the added scenario *A pin record's optional
+dispositions member carries a malformed entry*, AS FILED, prescribed TWO
+DIFFERENT OUTCOMES FOR THE SAME INPUT — a record complete for its required
+shape members, carrying a well-formed, non-empty `capabilities:` enumeration
+naming `<capability>`, whose OPTIONAL `dispositions:` is `[{}]`: the first
+scenario's WHEN said nothing about optional members, so this record satisfied
+it and its THEN required the target to RESOLVE; the second scenario's WHEN
+was written exactly for this record and its THEN required the target NOT TO
+RESOLVE. Partitioned: the first scenario's WHEN gains "AND every OPTIONAL
+member the matched shape admits that is PRESENT conforms at its entry grain
+to that shape's own in-tree verifier's pure, source-free guard" — naming
+`dispositions:` and `pinned_by_commit_only:` as the two such members, in D-1's
+own vocabulary — and its closing disjointness bullet now also excludes "a
+PRESENT optional member malformed at its entry grain"; the second scenario's
+WHEN is UNCHANGED, having already been exactly the malformed-entry case.
+Every OTHER scenario in the block was checked for the same overlap and none
+has it: each already excludes, in its own WHEN, every condition another
+scenario's WHEN requires. **D-1, D-2 AND D-3 ARE NOT REOPENED BY THIS
+PARTITION**: it corrects the DRAFTING of D-2's own boundary rather than
+moving it — `dispositions:` stays optional, out of the shape-guard-required
+set, and a present-and-malformed entry stays a refusal, exactly what D-2
+already ratified; only the POSITIVE scenario's text now says so too, instead
+of contradicting it.
 
 ## What this ratification does NOT do
 

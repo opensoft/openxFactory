@@ -586,8 +586,10 @@ Active changes:
   round 8 and RULED STANDS there, that ruling calling this "a legitimate later
   delta … noted, not filed"; this packet is that delta and the first of them.
   **RATIFIED — D-1, D-2 AND D-3 AS FILED; NO DECISION REOPENED.** Boxes
-  ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4 — and no others; § 2
-  stands exactly as the filing pull request left it, and § 3 and § 4 stay
+  ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4 — and no others; § 2's
+  CHECKBOXES stand exactly as the filing pull request left them (§ 2.2's own
+  evidence line was separately corrected to name TEN, a non-checkbox
+  consistency fix), and § 3 and § 4 stay
   open. REALIZATION AND ARCHIVE ARE NOT AUTHORIZED BY THIS WORD and remain
   separate later acts on Brett Heap's word: no byte of
   `scripts/doc_health/pin_shapes.py`, of `tests/doc-health/`, of any pin
