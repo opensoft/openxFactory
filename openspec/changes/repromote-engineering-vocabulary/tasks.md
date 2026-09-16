@@ -95,7 +95,15 @@ performs only the first.
       difference) against the then-current promoted spec first: if
       `main` has moved the promoted text of any of the fifteen, the carry is re-proved or the
       difference is declared before anything promotes.
-- [ ] 3.4 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run
+- [ ] 3.4 **README, BY HAND AND IN THE SAME COMMIT — the wrapper does not do it.**
+      `scripts/proposal-support.py archive` moves and applies the packet; it does not touch
+      `README.md`, so the *Active changes* bullet is RETIRED and an entry is added to the
+      archived-changes ledger, newest-first, pointing at
+      `openspec/changes/archive/<date>-repromote-engineering-vocabulary/`. Precedent: the § 6
+      closures' own archive acts, which record the pair as one step ("the active bullet retired; the
+      archived-ledger entry added"). Leaving it undone points the corpus's own index at a path that
+      no longer exists.
+- [ ] 3.5 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run
       `--ledger-diff`; the row moves `active` → `archived`.
 
 ## 4. What this packet leaves to its neighbours, by name
