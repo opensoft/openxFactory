@@ -3,6 +3,25 @@
 Status: ratified
 Ratified by: add-declared-former-id — 2026-09-13T22:48Z, Brett Heap, verbatim "ratify 1028 as encoded" (record `review/ratification-2026-09-13.md`)
 
+**AMENDED AGAIN AT THE ARCHIVE, 2026-09-15: EVERY BOX IN THIS FILE IS NOW
+`[x]`, AND THREE CLASSES OF TICK ARE IN IT — PERFORMED, NOT TAKEN, AND NOT
+PERFORMED.** A tick here is a claim about what the box's own text is now
+answered by, never a claim that every box was carried out. § 4.5 is ticked
+with a DISPOSITION and is **NOT PERFORMED** — Brett Heap's console act is
+outstanding and carried forward at openxFactory#1061. § 6.1
+through § 6.5 are ticked as **NOT TAKEN**, dispositioned where they stand,
+§ 6.1 with its successor filed as openxFactory#1053 and § 6.2 with the
+separate pull request that carried it. § 7.1 and § 7.2 are **PERFORMED** —
+the archive this amendment rides in, and the closing of openxFactory #1003 on
+2026-09-15T21:24:38Z. The mechanism that forces all of them to `[x]` is named
+rather than worked around: `archive_change()` refuses every `^- [ ]` in this
+file with `change has incomplete tasks`, with no per-section exception, and
+Brett Heap ruled the disposition shape for exactly that reason
+(2026-09-15T19:00Z, verbatim *"Yes, with disposition + carry-forward issue"*).
+**WHAT THIS AMENDMENT TOUCHED: the eight remaining boxes, the dispositions
+beneath them, and this paragraph.** Everything below is left as the earlier
+landings wrote it.
+
 **AMENDED 2026-09-14 AT THE FIRST REALIZATION LANDING AND AGAIN 2026-09-15 AT
 THE LAST: EVERY BOX IN §§ 2, 3, 4 AND 5 IS NOW TICKED EXCEPT § 4.5, AND
 § 5.3/§ 5.4 ARE PERFORMED BY THE PULL REQUEST THIS AMENDMENT RIDES IN.**
@@ -496,7 +515,7 @@ realization evidence and a further word.
       two halves of the rule — with `test_a_grafted_boundary_takes_no_refusal`
       holding § 6.4's line, and in `ArrivalRefusalTests`
       `test_the_pairing_is_read_from_every_file_and_not_from_the_proposal_alone`.
-- [ ] 4.5 **REGISTER IT AS A REQUIRED CHECK** and record the run it adds.
+- [x] 4.5 **REGISTER IT AS A REQUIRED CHECK** and record the run it adds.
       **OPEN, AND IT IS NOT AN AUTHOR'S TO CLOSE — BRETT HEAP'S OPERATOR ACT.**
       A merged workflow file is not evidence; the evidence is the LIVE RULESET
       STATE, on the terms `add-wallet-carried-review-authority` task 2.5 and
@@ -564,6 +583,54 @@ realization evidence and a further word.
       ARCHIVE, ON HIS WORD — filing is a reserved act and no author on this
       lane performs it**, and until it exists this box and the archive pull
       request's own body are the only places the obligation stands.
+
+      **TICKED AT THE ARCHIVE ACT, 2026-09-15, AND THE ACT IS NOT PERFORMED.
+      THE TICK IS A DISPOSITION AND IT IS NOT A PERFORMANCE.** It is written
+      here rather than left `[ ]` on Brett Heap's ruling of 2026-09-15T19:00Z,
+      verbatim ***"Yes, with disposition + carry-forward issue"***
+      (https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5686436893),
+      and because the paragraph above states the mechanism: `archive_change()`
+      refuses every `^- [ ]` in this file with `change has incomplete tasks`
+      and carries no per-section exception, so the box could not stay open and
+      the archive still happen. **No exception to that gate was built for this
+      packet and none is claimed.**
+  - **RE-READ LIVE AT THE ARCHIVE, 2026-09-15T23:35:31Z, AND NOTHING HAS
+    MOVED.** `GET /repos/opensoft/openxFactory/rules/branches/main` returns the
+    same three `required_status_checks` rules and `former-id-arrival-gate` is
+    in none of them: ruleset **21957695** → `signed-execution-chain-gate`,
+    `lane-line`; ruleset **22551797** → `openspec-cli-pin`; ruleset
+    **21538893** → `wallet-validation`, `pytest-suite`, `lane-line`,
+    `release-tag-gate`. The literal `former-id-arrival-gate` occurs **0** times
+    in that response. This is the LIVE RULESET STATE the box asks for, taken at
+    the archive and not inherited from the 19:41Z reading above.
+  - **CARRIED FORWARD AT openxFactory#1061**, filed by the
+    orchestrator at this archive on Brett Heap's word — filing is a reserved
+    act and no author on this lane performs one. It is the
+    `add-signed-execution-chain` precedent exactly: that packet's § 4.5 was
+    carried at openxFactory issue **#534**, filed 2026-08-31 at its own
+    archive, *"so that an open operator act is not written down only inside an
+    archived packet"*. The carried issue holds the console-act sequence (org
+    ruleset → `openxFactory` `~DEFAULT_BRANCH` → require the context
+    `former-id-arrival-gate`, `strict_required_status_checks_policy: false`,
+    enforcement `active`, the `OrganizationAdmin` bypass kept) and the canary
+    evidence sequence (a pull request carrying an undeclared rename of a
+    ratified packet, the check red with exactly one `former-id-undeclared`,
+    GitHub reporting **BLOCKED**, closed unmerged with its branch deleted —
+    the shape of canary #549, run 33455808456).
+  - **WHAT THIS PACKET CONFERS MEANWHILE, SAID PLAINLY RATHER THAN SOFTENED.**
+    The gate RUNS on every pull request and REFUSES NO LANDING: a merge button
+    beside its red check still works. `add-signed-execution-chain`'s requirement
+    9 reached canon MEETING ITS OWN DEGRADED CASE rather than evading it, and
+    the same is true here — the promoted requirement *An undeclared rename
+    arrival is refused at its landing* describes a reader that is built, wired
+    and running, and an estate that does not yet require it. The one
+    enforcement that does stand today is the ARCHIVE refusal
+    `origin-retention-path-moved`: a single undeclared hop, caught at the
+    archive, never at the landing.
+  - **THE SELF-REPORT IS WHERE IT WAS AND IT IS NOT MOVED BY THIS ARCHIVE**:
+    `.github/workflows/former-id-arrival-gate.yml:13-21` and `:23-32`. Adding
+    a standing warning to the reader would be an edit to slice 4's file and is
+    not taken here either.
 
 ## 5. The reference resolver and the documents — REALIZATION
 
@@ -756,7 +823,7 @@ realization evidence and a further word.
 
 ## 6. Residue — named here, taken nowhere
 
-- [ ] 6.1 **NOT TAKEN — THE REPORTING SWEEP FOR UNRESOLVABLE REFERENCES.**
+- [x] 6.1 **NOT TAKEN — THE REPORTING SWEEP FOR UNRESOLVABLE REFERENCES.**
       `design.md` D4 rules that a check family reporting the remainder is a
       second governed surface: a `## MODIFIED Requirements` block over
       `doc-health`'s *Deterministic check families*, whose promoted numeral
@@ -780,24 +847,63 @@ realization evidence and a further word.
       that word and no author on this lane performs it, which is why this box
       stays open at this landing rather than being ticked against an
       intention.
-- [ ] 6.2 **NOT TAKEN — THE INTERIM DOCSTRING-AND-FIXTURE PIN.** Part 2 of the
+      **TICKED AT THE ARCHIVE, 2026-09-15: STILL NOT TAKEN, AND NOW FILED.**
+      The successor is openxFactory
+      [#1053](https://github.com/opensoft/openxFactory/issues/1053) —
+      *"add-declared-former-id § 6.1 successor: the citation remainder has no
+      reporting sweep (unclaimed)"* — filed 2026-09-15T21:24:40Z by the
+      orchestrator on Brett Heap's word *"File it after #1041 lands"*, AS A
+      ROUTING RECORD and NOT CLAIMED, seconds after slice 6's merge
+      `79ac94b7`. The tick records that this box's own instruction — *"File it
+      with a sibling search at the realization, not here"* — is DISCHARGED;
+      the sweep itself is still not taken, and is #1053's to take.
+- [x] 6.2 **NOT TAKEN — THE INTERIM DOCSTRING-AND-FIXTURE PIN.** Part 2 of the
       ruling, a plain fix on `fix/1003-interim-pin-multi-hop-gap`, deliberately
       not carried in this packet.
-- [ ] 6.3 **NOT TAKEN — WHETHER A RE-RATIFICATION AFTER A RETURN TO DRAFT IS A
+      **TICKED AT THE ARCHIVE, 2026-09-15: NOT TAKEN HERE, AND TAKEN
+      ELSEWHERE.** It landed as openxFactory PR
+      [#1027](https://github.com/opensoft/openxFactory/pull/1027) → merge
+      `04340d77db45563c066e095a3c9973814065867b` (2026-09-13T22:42:58Z; the
+      commit on the branch is `d6e5969e`), and § 7 of
+      `realization-plan-former-id.md` records how its fixture was divided
+      between that pull request and slice 2. The tick records that this box is
+      answered — deliberately not carried in this packet, and carried in a
+      separate one — not that the packet performed it.
+- [x] 6.3 **NOT TAKEN — WHETHER A RE-RATIFICATION AFTER A RETURN TO DRAFT IS A
       NEW BASELINE.** PR #1024's stated gap. This mechanism reaches the MOVE
       rather than the ratification, so the undeclared move is refused whatever
       the blob says; the governance question behind it is not answered here.
-- [ ] 6.4 **NOT TAKEN — A SHALLOW-CHECKOUT REFUSAL CLASS.** At a grafted
+      **TICKED AT THE ARCHIVE, 2026-09-15: STILL NOT TAKEN, AND STILL OPEN AS
+      A QUESTION.** No successor is filed for it and none is claimed — it is a
+      governance question about what a ratification MEANS after a return to
+      draft, not a defect in anything this packet built, and it belongs to a
+      change that puts it. Recorded here so a reader of the archived packet
+      finds the question rather than rediscovering it.
+- [x] 6.4 **NOT TAKEN — A SHALLOW-CHECKOUT REFUSAL CLASS.** At a grafted
       boundary git reports no parents and therefore no pairing. Refusing every
       shallow checkout outright is a new refusal class on a gate with no bypass
       flag and belongs to a change that says so.
-- [ ] 6.5 **NOT TAKEN — NO OTHER ESTATE REPOSITORY IS SWEPT.** Every rule here is
+      **TICKED AT THE ARCHIVE, 2026-09-15: STILL NOT TAKEN, AND THE LINE IT
+      HOLDS IS PINNED BY A TEST.** Slice 4 landed
+      `test_a_grafted_boundary_takes_no_refusal` (`FailClosedTests`,
+      `tests/former_id_arrival/test_former_id_arrival.py`), which keeps this
+      box's decision true rather than leaving it as prose: a grafted boundary
+      takes no refusal today, and a change that wants the opposite must say so
+      and move that test. No successor is filed.
+- [x] 6.5 **NOT TAKEN — NO OTHER ESTATE REPOSITORY IS SWEPT.** Every rule here is
       scoped to the corpus of the repository being read; no other governed
       repository's corpus, register or CI is read, written or referenced.
+      **TICKED AT THE ARCHIVE, 2026-09-15: STILL NOT TAKEN, AND IT HELD
+      THROUGH EVERY SLICE.** Nothing this packet realized reads, writes or
+      references another repository's corpus, register or workflow; the
+      cross-repository referent is explicitly OUT OF SCOPE at both the resolver
+      and its caller (§ 5.2, with a SPY fixture proving the resolver is never
+      asked). Extending any of it to another governed repository is a change
+      that says so, and none is filed.
 
 ## 7. Archive — owed on this packet's own terms
 
-- [ ] 7.1 **PROMOTE THE ONE MODIFIED AND THREE ADDED REQUIREMENTS INTO CANON**,
+- [x] 7.1 **PROMOTE THE ONE MODIFIED AND THREE ADDED REQUIREMENTS INTO CANON**,
       byte-for-byte, in a SEPARATE pull request on a separate word, AFTER § 1 is
       ruled and AFTER the realization evidence this packet's `target_release:`
       names. `code_surface` is NON-EMPTY, so under *Realization archive gate*
@@ -830,7 +936,7 @@ realization evidence and a further word.
       half), and `openspec validate --all --strict` showing the two
       pre-existing failures and no third. **Filing the carry-forward issue is
       the orchestrator's act on Brett Heap's word, not an author's.**
-- [ ] 7.2 **THE GOVERNING ISSUE CLOSES AT THE ARCHIVE PULL REQUEST AND NOWHERE
+- [x] 7.2 **THE GOVERNING ISSUE CLOSES AT THE ARCHIVE PULL REQUEST AND NOWHERE
       ELSE — AND ONLY ON BRETT HEAP'S WORD.** openxFactory #1003 stays OPEN by
       his ruling of 2026-09-13; whether and when it closes is his call and not
       this packet's. No commit message, body or reply on this packet's branches
@@ -849,3 +955,17 @@ realization evidence and a further word.
       is not left to reconcile the two alone. **THE BOX STAYS OPEN**: the act
       has not happened, it is the orchestrator's on his word, and nothing on
       this branch carries a closing keyword against #1003 in any form.
+      **TICKED AT THE ARCHIVE, 2026-09-15: THE ACT HAS NOW HAPPENED, AND IT
+      HAPPENED WHERE HIS RULING PUT IT AND NOT WHERE THIS BOX'S FIRST SENTENCE
+      DID.** openxFactory
+      [#1003](https://github.com/opensoft/openxFactory/issues/1003) was CLOSED
+      at **2026-09-15T21:24:38Z** (`state: closed`, `state_reason:
+      completed`), by `brettheap` at 21:24:39Z, eleven seconds after slice 6's
+      merge `79ac94b7` landed at 21:24:27Z — on his word *"Close when #1041
+      lands"*. The closing record is
+      [issuecomment-5688297797](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5688297797),
+      which names each realization merge and lists what stayed outstanding on
+      the packet: § 4.5, § 7.1 and § 6.1. **NOTHING ON THIS PACKET'S BRANCHES
+      EVER CARRIED A CLOSING KEYWORD AGAINST #1003**, and the archive pull
+      request this tick rides in does not either — it says `refs #1003`. The
+      issue was closed by an act on the issue, which is what this box required.
