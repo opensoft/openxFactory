@@ -140,7 +140,7 @@ import re
 import subprocess
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -1365,6 +1365,11 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 #:
 #: EACH ROW: (change, archived delta path, capability, the MODIFIED title that
 #: held the ledger row, the ADDED titles that must still stand in the delta).
+#: The one file in an archived § 6 packet that was NOT carried: the closure
+#: record the closure itself wrote. Everything else in the directory moved
+#: byte-identical under RULING Q6, so everything else is pinned.
+_CLOSURE_RECORD = "review/rehome-2026-09-16.md"
+
 _REHOMED_AND_STILL_WHOLE = (
     ("add-doxchat-model-intake",
      "openspec/changes/archive/2026-09-16-add-doxchat-model-intake/"
@@ -1376,7 +1381,16 @@ _REHOMED_AND_STILL_WHOLE = (
       "The intake affordance ships with the flow behind it",
       "The model selector offers intake first and defaults to it when nothing "
       "is approved"),
-     ("3168ad8f6f31c8dbacdc772d933508943f7b2c7cf373de2357eb8958d4bebee1", 16813)),
+     ((".openspec.yaml",
+       "1a98c5302d07bfa3ddb0d0a8e879cffd163c020395c3faa5716be5c8d7feefd2", 2018),
+      ("design.md",
+       "ee00bdbd78499fb752a2daf0e8266dd8c96fcb177f92812a9c9044269d033be0", 9790),
+      ("proposal.md",
+       "1b7dd8456b4905367d3a64c99e856b5413cda2c6c3f11d594d2a13f892ab3bc7", 16693),
+      ("specs/ideation-dashboard/spec.md",
+       "3168ad8f6f31c8dbacdc772d933508943f7b2c7cf373de2357eb8958d4bebee1", 16813),
+      ("tasks.md",
+       "45d341e8f08baff5e6d1cbe393c9b43e80aba92930df0b470f87cb40cd192d0a", 20805))),
 )
 
 
@@ -1401,18 +1415,32 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
     head after this closure, so the same four are load-bearing in two places and
     a drift in either shows up here.
 
-    AND THE SIXTH FIELD IS THE BYTES. Naming the titles proves the delta still
-    carries the right REQUIREMENTS; it proves nothing about their text, and a
-    closure that archived a gutted block with the headings intact would pass
-    every assertion above. So the row also pins the archived delta's `sha256`
-    and its length, and this arm reads the file as BYTES rather than through
-    `parse_delta` — the digest is taken before any decoding, so an encoding
-    change fails here rather than passing invisibly. THE PIN IS NOT A CHECKSUM
-    OF CONVENIENCE: it is the same digest the closure record quotes and the same
-    one the receiving repository's copy was `diff`-ed against, so a drift on
-    either side lands on this assertion. RULING Q6 CARRIES; IT DOES NOT AUTHOR,
-    and this is the only place that sentence is enforceable rather than merely
-    written down.
+    AND THE SIXTH FIELD IS THE BYTES — OF THE WHOLE PACKET, NOT THE DELTA ALONE.
+    Naming the titles proves the delta still carries the right REQUIREMENTS; it
+    proves nothing about their text, and a closure that archived a gutted block
+    with the headings intact would pass every assertion above. So the row pins
+    `sha256` and length for EVERY FILE the packet carried — `.openspec.yaml`,
+    `proposal.md`, `design.md` where there is one, `tasks.md` and the delta —
+    and the arm compares the pinned MAP against the measured one, so a file
+    added or removed under the archive fails exactly as loudly as a file edited.
+    The closure record this closure wrote is the one exclusion, by name, because
+    it is the only file that did NOT travel.
+
+    It reads with `read_bytes()` rather than through `parse_delta`, so the
+    digests are taken before any decoding and an encoding change fails here
+    instead of passing invisibly. THE PINS ARE NOT CHECKSUMS OF CONVENIENCE: the
+    delta's is the digest the closure record quotes and the one the receiving
+    repository's copy was `diff`-ed against, and every file's was verified
+    IDENTICAL to that file's bytes on `main` before the move. So a drift on
+    either side of the re-home lands on this assertion. RULING Q6 CARRIES; IT
+    DOES NOT AUTHOR, and this is the only place that sentence is enforceable
+    rather than merely written down.
+
+    It began as the delta's digest alone. Copilot's reading of openxFactory
+    #1057 pointed out that a closure claiming a byte-identical move of the whole
+    packet was proving it of one file, so `proposal.md`, `design.md`, `tasks.md`
+    or `.openspec.yaml` could have been edited under a green suite. The widening
+    is that reading taken.
 
     NOT A COUNT. Each title is named; the population is bounded by the same
     named set rather than by its size.
@@ -1431,18 +1459,36 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
             "no such file — the closure was a DELETION or the packet moved "
             "again; a re-home relocates the delta, it does not drop it")
 
-        expected_digest, expected_size = carriage
-        raw = archived.read_bytes()
-        actual_digest = hashlib.sha256(raw).hexdigest()
-        assert (actual_digest, len(raw)) == (expected_digest, expected_size), _moved(
-            f"the archived delta {delta} byte-identical to what RULING Q6 "
-            f"carried — sha256 {expected_digest[:12]}…, {expected_size} bytes",
-            f"sha256 {actual_digest[:12]}…, {len(raw)} bytes. Q6 CARRIES; IT "
-            "DOES NOT AUTHOR. A delta that changed on its way into the archive, "
-            "or after it, has been edited where the ruling forbids editing — "
-            "and the receiving repository's copy, which was diffed against "
-            "these exact bytes, no longer says the same thing. Re-derive "
-            "against the receiving change before touching this pin")
+        packet = ROOT / PurePosixPath(delta).parents[2]
+        measured = {}
+        for path in sorted(q for q in packet.rglob("*") if q.is_file()):
+            rel = path.relative_to(packet).as_posix()
+            if rel == _CLOSURE_RECORD:
+                continue
+            body = path.read_bytes()
+            measured[rel] = (hashlib.sha256(body).hexdigest(), len(body))
+        pinned = {rel: (digest, size) for rel, digest, size in carriage}
+        if measured != pinned:
+            drift = []
+            for rel in sorted(set(pinned) | set(measured)):
+                was, now = pinned.get(rel), measured.get(rel)
+                if was == now:
+                    continue
+                drift.append(
+                    "  %-34s pinned %s  archived %s" % (
+                        rel,
+                        "absent" if was is None else f"{was[0][:12]}../{was[1]}B",
+                        "absent" if now is None else f"{now[0][:12]}../{now[1]}B"))
+            raise AssertionError(_moved(
+                f"every file of {packet.name} byte-identical to what RULING Q6 "
+                f"carried ({len(pinned)} files, the closure record excluded)",
+                "these did not match:\n" + "\n".join(drift) + "\n"
+                "Q6 CARRIES; IT DOES NOT AUTHOR. A packet edited on its way "
+                "into the archive, or after it, has been changed where the "
+                "ruling forbids changing it -- and the receiving repository's "
+                "copy, diffed against these exact bytes, no longer says the "
+                "same thing. Re-derive against the receiving change before "
+                "touching this pin"))
 
         requirements, _renames = mbc.parse_delta(
             archived.read_text(encoding="utf-8", errors="replace"))
