@@ -1,6 +1,6 @@
 # Tasks — scope-pinned-arm-root-naming
 
-Status: draft
+Status: ratified
 Kind: tasks
 
 `code_surface: none`, `target_release: implemented`. Under
@@ -9,16 +9,18 @@ task list rather than on merged-plus-green realization evidence — **and that
 archive is a separate act on a separate word, not performed here** (§ 3).
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
-this pull request or a measurement recorded verbatim in its body. **§ 1 IS
-BRETT HEAP'S ACT AND IS NOT TICKED BY THIS LANE** — no ratifying word has been
-given for this packet, and the lane that authored it does not tick a box that
-records someone else's decision. **§ 3 STAYS ENTIRELY OPEN**: the promotion of
-the block into `openspec/specs/document-lifecycle/spec.md` and the closing line
-for openxFactory #1047 belong to the archive pull request.
+this pull request or a measurement recorded verbatim in its body, save 1.1's
+RATIFIED annotation. **§ 1 IS BRETT HEAP'S ACT, TICKED HERE ONLY ON HIS
+WORD** — recorded at openxFactory #1047, comment
+https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379,
+and transcribed rather than decided by this lane. **§ 3 STAYS ENTIRELY OPEN**:
+the promotion of the block into `openspec/specs/document-lifecycle/spec.md`
+and the closing line for openxFactory #1047 belong to the archive pull
+request.
 
-## 1. Ratification — OPEN (Brett Heap's word)
+## 1. Ratification — RATIFIED (Brett Heap's word)
 
-- [ ] 1.1 **(OPERATOR)** Ratify or refuse `design.md` D-1 (the reading, as
+- [x] 1.1 **(OPERATOR)** Ratify or refuse `design.md` D-1 (the reading, as
       encoded), D-2 (widen the arm instead — not taken) and D-3 (delete the
       sentence — rejected), put as one multiple choice at `proposal.md` § *The
       decision, put for a veto* (OQ-1) with the recommendation first. Ratifying
@@ -26,6 +28,9 @@ for openxFactory #1047 belong to the archive pull request.
       `Status: ratified` with one citation line each, `.openspec.yaml` gains
       `approved_by`/`approved_on` ADDED BESIDE the unmoved drafting pair, and a
       `review/ratification-<date>.md` record is written.
+      RATIFIED 2026-09-16T13:43:18Z by Brett Heap, verbatim "ratify 1052
+      when green, then 1050" — citation openxFactory #1047, comment
+      https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379.
 
 ## 2. Filing — this pull request
 

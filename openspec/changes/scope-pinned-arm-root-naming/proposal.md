@@ -1,5 +1,5 @@
 ---
-Status: draft
+Status: ratified
 code_surface: none — MEASURED, not assumed, on the clone of `main` @ `8944758c` this packet was authored against. THE PACKET STATES IN CANON WHAT THE REALIZED ARM ALREADY DOES, and no production file is touched. The two findings this delta names are emitted today, by the shipped code, exactly as the clarified sentence reads — the lexically malformed pinned target at `scripts/doc_health/families.py:1573-1576` (refused at `:1572`, BEFORE the `value.split("/", 1)` of `:1578` and the `_pin_roots(...)` call of `:1580`), naming the VALUE; and the empty-root-set finding at `:1587-1592` (reached only where `_pin_roots` returned nothing at `:1580-1581`), naming the REPOSITORY. Every one of the arm's other thirteen findings names its root already (`:1606-1611`, `:1618-1625`, `:1634-1638`, and all ten of `_judge_pinned_record`, `:1653-1736`), so the clarified obligation refuses nothing the arm emits and demands nothing it does not. Evidence for the negative — the diff is `openspec/changes/scope-pinned-arm-root-naming/**`, one README bullet and one per-change sweep-ledger row, plus (if the corpus opens one) a named row in `tests/doc-health/test_modified_block_currency_self_gate.py`'s `_LEDGER_SUBJECTS`, which is bookkeeping this repository's own self-gate demands of every active MODIFIED block and never a predicate, a severity, a threshold or an assertion. No script under `scripts/doc_health/` is edited, no test asserts new behaviour, and nothing is left to realize after this pull request lands, which is the test `release-realization`'s archive gate applies to an empty code surface.
 target_release: implemented — the affected repository's main line (openxFactory) and nothing else. `release-realization`'s *Realization axis declaration* admits `implemented`, a named aggregation release, or `deferred-allocation`, and makes a doc-only change (`code_surface: none`, `target_release: implemented`) the DEFAULT; `none` is NOT a sanctioned token and the house gate refuses it (`scripts/target_release.py:93,110,155` — the same reading the sibling packet `repoint-chain-anchoring-medxchain-citation` recorded on PR #998). No contract bundle is cut, nothing under `contracts/` moves, no release tag is owed and no consumer's pin advances to receive this. The realization of a wording amendment IS its promotion at archive, which is a separate act on a separate word.
 sequenced_after: []
@@ -7,7 +7,25 @@ sequenced_after: []
 
 # Proposal: scope-pinned-arm-root-naming
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-16T13:43:18Z by Brett Heap (openxFactory repository
+owner), first-hand, in session to lane `openxfactory-2` (display
+`openXfactory-2`, session c0d09b6d) — A TYPED SENTENCE, NOT A SELECTION,
+verbatim: "ratify 1052 when green, then 1050". THE ONE CITATION: openxFactory
+#1047, comment
+https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379.
+Record: `review/ratification-2026-09-16.md`. **RATIFIED — OQ-1 OPTION (a) AS
+FILED, AT THE HEAD THE WORD MET (`92d3e0e2`).** No byte of the delta moves by
+this act; `tasks.md` § 1.1 is ticked on this word and no other box moves.
+Realization and archive remain separate later acts on Brett Heap's word
+(`#1050` is a separate packet, named by the word's ordering clause and
+outside the scope of this origin).
+
+**THE PARAGRAPH IMMEDIATELY BELOW RECORDS THE AT-FILING STATE (2026-09-15)
+AND IS KEPT VERBATIM AS HISTORY.** Its present-tense claims — "NO RATIFYING
+WORD HAS BEEN GIVEN", carrying `Status: draft` — were true at filing and are
+superseded by the ratification recorded above.
+
 Proposed: 2026-09-15, in lane `openxfactory-2` (display `openXfactory-2`), from
 openxFactory [#1047](https://github.com/opensoft/openxFactory/issues/1047), a
 finding FILED UNCLAIMED at the completion of the

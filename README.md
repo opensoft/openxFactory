@@ -980,7 +980,12 @@ Active changes:
 
 - [scope-pinned-arm-root-naming](openspec/changes/scope-pinned-arm-root-naming/proposal.md)
   — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
-  **`Status: draft`**. A small `## MODIFIED Requirements` amendment to promoted
+  **`Status: ratified`** (2026-09-16T13:43:18Z, Brett Heap, openxFactory
+  repository owner, first-hand, in session — A TYPED SENTENCE, verbatim
+  ***"ratify 1052 when green, then 1050"***, recorded on openxFactory
+  [#1047](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379)) — record
+  [`review/ratification-2026-09-16.md`](openspec/changes/scope-pinned-arm-root-naming/review/ratification-2026-09-16.md).
+  A small `## MODIFIED Requirements` amendment to promoted
   `document-lifecycle` canon (`openspec/specs/document-lifecycle/spec.md`,
   *Prose tagging marker hygiene*), SCOPING ONE SENTENCE, NARROWING ONE CLAUSE
   OF A SIBLING SCENARIO'S WHEN, AND ADDING ONE SCENARIO. Canon says "EVERY

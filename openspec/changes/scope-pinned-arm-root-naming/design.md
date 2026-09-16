@@ -1,11 +1,16 @@
 # Design — scope-pinned-arm-root-naming
 
-Status: draft
+Status: ratified
 Kind: design
 
 Three decisions, each put with the recommendation first. `proposal.md` § *The
 decision, put for a veto* carries them as one multiple choice (OQ-1); this file
-carries the reasoning and the measurements. Nothing here is ratified.
+carries the reasoning and the measurements. RATIFIED 2026-09-16 by Brett
+Heap, verbatim "ratify 1052 when green, then 1050" — openxFactory #1047,
+comment https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379.
+D-1 stands AS FILED (OQ-1 option (a)); D-2 and D-3 remain refused, exactly
+as filed. See `proposal.md` for the ratifying word in full and
+`review/ratification-2026-09-16.md` for the record.
 
 ## D-1 — THE READING (RECOMMENDED, AND WHAT THE DELTA ENCODES)
 
