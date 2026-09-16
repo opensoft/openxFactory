@@ -175,9 +175,12 @@ off it (Copilot review, round 2, which found the act narrated before the
 annotation whose 2454 it adds to): +89 `adapter calls` lines on the single
 `web/styles.css` row, which slice S7 had already converted and which was
 already a carrier, so no disposition count, no carrier count and no replica
-count moves with them. **2454 + 89 = 2543.** The 89 are DELETIONS: the 59 rule
-blocks the gate loop's own selectors occupied, leaving for the four sheets
-openXdox-code ships beside the bindings that name them. A deletion has been a
+count moves with them. **2454 + 89 = 2543.** EIGHTY-EIGHT of the 89 are
+DELETIONS — the lines the 59 rule blocks occupied, leaving for the four sheets
+openXdox-code ships beside the bindings that name them — and ONE, carve `:161`,
+is a REPLACEMENT in place: the single selector LIST this act splits, so openDox
+keeps `.filterpop[hidden]` and the gate half is re-stated in the contributed
+sheet. A deletion has been a
 declared edit in this vocabulary since § 3.4 slice S6 declared 122
 `serve_projection.py` deletions under the same class and landed; what `#1023`
 § 6 called a wall was the `moved_verbatim` disposition, which slice S7 had

@@ -5019,7 +5019,12 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
     WHY THIS WINDOW IS THE FLOOR'S FIRST WHOLE-BLOCK REMOVAL, and why it is
     lawful. RULED Q7 (`#656` comment `5648049748`) sends a contributed
     binding's CSS to the binding's own sheet; 59 rule blocks therefore LEAVE
-    `src/opendox/web/styles.css`, and every line they occupied is a DELETION.
+    `src/opendox/web/styles.css`, and 88 of the 89 lines are the DELETIONS that
+    makes. The 89th is carve `:161`, a REPLACEMENT in place — the one selector
+    LIST this act splits, so openDox keeps `.filterpop[hidden]` while the gate
+    half is re-stated in the contributed sheet. Two acts, one declared-line set,
+    and the distinction is stated because a window described as "all deletions"
+    does not match the leg diff (Copilot review, round 4).
     `#1023` § 6 recorded that no OQ-1 class covers "a stylesheet block leaves
     for another leg", and it was right about the document it read: that row was
     `moved_verbatim`, carrying no `edits:` at all. Slice S7 converted it and
@@ -5102,6 +5107,8 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
             by_class[edit_class] = by_class.get(edit_class, 0) + len(nums)
     assert (lines, entries_count) == (89, 1), (lines, entries_count)
     assert by_class == {"adapter calls": 89}, by_class
+    # 88 DELETED + 1 REPLACED = 89, the split this window is two acts in.
+    assert 88 + 1 == lines
     # 2454 + 89 = 2543 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDS
     # IT, which is what a window total is: a DELTA against the document the act
     # found, and so a figure a later act cannot move.
