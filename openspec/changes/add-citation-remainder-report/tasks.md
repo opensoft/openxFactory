@@ -118,11 +118,16 @@ OPEN.**
       `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by …`
       wrote the `add-citation-remainder-report` row in
       `tests/sequenced_after/corpus-ledger.yaml`; the row was not hand-written
-      and no other row moved. **THE `moved_by` VALUE IS A PLACEHOLDER AND SAYS
-      SO IN § 3.1**: the pull request does not exist at authoring time and the
-      ledger's own contract states the field is *"AUTHOR-SUPPLIED AND
-      UNVERIFIED: only its SHAPE is checked (`#<digits>`)… a pointer for a
-      human reading the history, not evidence."*
+      and no other row moved. **THE `moved_by` VALUE IS THE GOVERNING ISSUE
+      `#1053`, NOT A PLACEHOLDER** — and it could not be one: the ledger's
+      grammar is `MOVED_BY = re.compile(r"^#[0-9]+$")`
+      (`scripts/sequenced_after.py:1211`) and the validator refuses anything
+      else, so a `#TBD-<what>` spelling is inadmissible here. An issue number
+      stands in until § 3.1 re-seeds the row with the pull request that actually
+      moves it. The ledger's own contract is why that is safe rather than
+      urgent: the field is *"AUTHOR-SUPPLIED AND UNVERIFIED: only its SHAPE is
+      checked (`#<digits>`)… a pointer for a human reading the history, not
+      evidence."*
 - [x] 1.7 **THE README *OpenSpec Records* ACTIVE BULLET IS WRITTEN**, in the
       house form the neighbouring bullets use, marked **DRAFT and HELD**.
 - [x] 1.8 **THE FRONT-MATTER `code_surface:` HEAD IS THE BARE REPOSITORY
@@ -269,15 +274,17 @@ added, edited, renamed or deleted here.
 ## 3. Records, and the archive
 
 - [ ] 3.1 **THE SWEEP-LEDGER ROW IS RE-SEEDED WITH THE REAL PULL REQUEST
-      NUMBER AT OPEN.** The row seeded in § 1.6 carries a PLACEHOLDER
-      `moved_by`, because this packet was authored by a writer that opens no
-      pull request and invents no number. **Whoever opens the pull request runs
+      NUMBER AT OPEN.** The row seeded in § 1.6 carries the GOVERNING ISSUE
+      `#1053` in `moved_by`, because this packet was authored by a writer that
+      opens no pull request and invents no number, and the field's grammar
+      (`^#[0-9]+$`) admits no `#TBD-…` spelling to mark the gap with. **Whoever opens the pull request runs
       `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
       '#<the real PR>'` and commits the one-line diff.** The ledger's own
       contract makes this safe rather than urgent — the field is
       author-supplied, shape-checked only, and *"a pointer for a human reading
-      the history, not evidence"* — but a placeholder left standing is a
-      pointer to nothing.
+      the history, not evidence"* — but an issue number left standing where a
+      pull request number belongs points a reader at the commission rather than
+      at the act.
 - [ ] 3.2 **#1053 IS COMMENTED ON AT RATIFICATION**, naming the word, its
       timestamp, and which of D1 through D7 it took or vetoed. The issue is
       NOT closed there.
