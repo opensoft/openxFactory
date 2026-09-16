@@ -1618,7 +1618,9 @@ the bookkeeping that ticks this group.
   promotion, or an amendment that names it — not from a `tasks.md` amendment,
   on the same rule this amendment applies to `design.md`, `proposal.md` and the
   scenario-4 defect recorded at § 7.1.
-  `python3 scripts/verify-openxdox-pin.py` passes live at that commit:
+  `python3 scripts/verify-openxdox-pin.py` passes live at **#917's `edf0e24f`**, the
+  commit this box TICKED on (named rather than left as "that commit", which three
+  paragraphs of amendment now separate from its referent):
   `OK openxdox-pin verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from HEAD, sorted-ls-tree-r-v1 tree digest recomputed (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
 - [ ] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
   re-promoted HERE (RULING DQ-1), not shed.** They leave the capability
