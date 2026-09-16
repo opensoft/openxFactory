@@ -2031,8 +2031,20 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     _text, doc = the_landed_manifest()
     text = runbook.read_text(encoding="utf-8")
 
-    marker = ("Per destination, and these are the numbers each leg's arrival "
-              "run must report:")
+    # THE MARKER SPANS TWO LINES OF THE RUNBOOK and is pinned with its own
+    # newline (Copilot review, round eleven on this PR). The sentence it
+    # replaced — "these are the numbers each leg's arrival run must report" —
+    # was false of the two legs RULED Q6 touches: this table counts a
+    # re-destined row at the `destination:` it still names, so `opendox_code`'s
+    # run reports 119 arrived where the table says 123 and `openxdox_code`'s
+    # reports 96 where it says 92. A floor that overstated that would be worse
+    # than one that says where it stops, which is the rule
+    # `test_two_legs_may_apply_one_replicas_line_differently` is written under.
+    # A re-wrap of the sentence breaks this anchor LOUDLY, by the count below,
+    # rather than quietly moving the block's boundary.
+    marker = ("Per destination, counted at the `destination:` each row names "
+              "— which is what\neach leg's arrival run reports, save where "
+              "RULED Q6 re-destined a row (below):")
     # THE BLOCK IS BOUNDED BY TWO FIXED SENTENCES, not by anything about where
     # a table LOOKS like it ends (Copilot review, rounds five and six on this
     # PR). Round five's extent walked forward across a blank line for as long

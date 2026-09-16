@@ -224,11 +224,14 @@ test-layout files that carve leg 1 measured:
   outside the destination repository once the copy lands one directory
   shallower at `tests/conftest.py`, and must read `HERE.parent`; that one both
   `-code` legs owe, because both place the file at that depth — and where a
-  line IS applied its text is the same at every replica of this row, for the
-  same reason. That identity is the PLACING LEGS' CLAIM plus each leg's own
-  suite and not a check the grammar makes: `verify-carve-arrival.py` proves
-  none of it across legs, because it verifies one destination per run and
-  compares no two legs' copies with each other.
+  line IS applied, its text is THAT PLACING LEG'S CLAIM and its own suite's,
+  never an identity the grammar checks. What makes the two `-code` legs' `:25`
+  the same text is the depth they share, the reason just given, and not a rule
+  the floor enforces: two legs that applied one declared line DIFFERENTLY would
+  both pass here all the same — § 5.5 says so, and
+  `tests/carve_arrival/test_verify_carve_arrival.py::test_two_legs_may_apply_one_replicas_line_differently`
+  records it — because `verify-carve-arrival.py` verifies one destination per
+  run and compares no two legs' copies with each other.
 
 The **two replica lines belong to no destination column below** — `:25` (the
 1422nd declared line when this paragraph was written) and, since the
@@ -247,10 +250,11 @@ later act" because slices S7 and S8 were in flight over the same cells. The
 § 3.4 slice-S7 annotation IS that act: it re-derived every cell and pinned all
 five columns with
 `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`.
-So the cells are a MEASUREMENT again, a run can be compared against them, and
-an act that moves the aggregate moves them with it — 47 of this act's 48 lines
-fall on three `openxdox_code` rows, and the forty-eighth is the `:271` above,
-which belongs to no column at all.
+So the cells are a MEASUREMENT again, a run can be compared against them once
+the RULED Q6 four are read off the paragraph under the table, and an act that
+moves the aggregate moves them with it — 47 of this act's 48 lines fall on
+three `openxdox_code` rows, and the forty-eighth is the `:271` above, which
+belongs to no column at all.
 **Under every other `not_moved`
 reason `edits:` is still a refusal**: RULING OQ-B's three
 `stays_openxfactory_governance` rows stay here and take their import rewrite in
@@ -308,7 +312,8 @@ same measurement
 pins, computed the same way every time: a transcribed count is a claim, a
 summed one is a measurement.
 
-Per destination, and these are the numbers each leg's arrival run must report:
+Per destination, counted at the `destination:` each row names — which is what
+each leg's arrival run reports, save where RULED Q6 re-destined a row (below):
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
@@ -352,7 +357,8 @@ actually performs.
 A row RE-DESTINED by ruling still counts at the `destination:` it declares,
 which is why a leg's arrival run reports FOUR fewer arrived rows than this
 table's count for `opendox_code` (119) and four fewer declared-edit rows (84),
-and why `openxdox_code`'s run reports four MORE of each: the ruling moved the
+and why `openxdox_code`'s run reports four MORE of each — 96 arrived rows and
+87 declared-edit — where this table says 92 and 83: the ruling moved the
 placement, not the row.
 
 The declared-roots column is spelled **exactly as a run prints it** — no
