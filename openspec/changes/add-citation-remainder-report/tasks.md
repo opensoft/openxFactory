@@ -234,10 +234,10 @@ added, edited, renamed or deleted here.
 
 - [ ] 2.1 **THE REPORT CLI AND ITS UNIT TESTS.**
       `scripts/report-citation-remainder.py` (NEW), importing
-      `scripts/packet_reference.py` unchanged except for the one-line docstring
-      correction D2 owes it — the sentence *"Run: this module is a library and
-      has no CLI"* stays TRUE under the recommended option, so under D2 option 1
-      that line does NOT change and the correction is owed only if D2 is vetoed.
+      `scripts/packet_reference.py` UNCHANGED: under D2's recommended option 1
+      its docstring sentence *"Run: this module is a library and has no CLI"*
+      stays true and no line of that module moves. The one-line docstring
+      correction is owed ONLY if D2 is vetoed for option 2.
       Argument surface exactly as D2 fixes it (`[REPO_ROOT] [--json] [--all]
       [--tokens] [--history] [--include] [--exclude]` — grouping is by IDENTITY
       by default and `--tokens` ungroups it; `--history` is OPT-IN on D2's
