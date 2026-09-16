@@ -3000,8 +3000,7 @@ Archived changes:
 
 - [retire-doxbench-chat-turn-v1](openspec/changes/archive/2026-09-16-retire-doxbench-chat-turn-v1/proposal.md)
   — **ARCHIVED 2026-09-16 ON ITS OWN EVIDENCE** by
-  [PR #PENDING](https://github.com/opensoft/openxFactory/pulls) — the number is
-  filled in the commit after the pull request exists — closing
+  [PR #1066](https://github.com/opensoft/openxFactory/pull/1066), closing
   `split-opendox-two-layer-product` `tasks.md` § 6.2 — the fifth and last of the
   § 6 boxes, and **THE ONE THAT IS NOT A RE-HOME**. The four above it stop where
   they stand under RULING Q6 and promote nothing here; this one's realization
