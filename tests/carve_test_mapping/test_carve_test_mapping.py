@@ -758,6 +758,65 @@ def test_an_unusable_invocation_refuses_rather_than_reporting_nothing(
     refused(missing, "test-mapping-unreadable")
 
 
+def test_a_source_path_carrying_a_line_terminator_refuses() -> None:
+    """The one failure mode a floor must not have is a SILENT MIS-COUNT.
+
+    `git cat-file --batch` is asked one path per line and answers in order, so
+    a `source_path` holding a newline would desync the reply parse and start
+    attributing blobs to the wrong rows — every count wrong, nothing refused.
+    Git permits such a path and `tests/carve_manifest` already carries paths
+    UTF-8 cannot hold, so the guard is a refusal rather than an assumption.
+
+    Asserted IN PROCESS, the one case that is: the guard runs BEFORE git is
+    invoked, and building the manifest through the CLI would mean writing a
+    YAML document whose own reader is the thing under test rather than the
+    guard.
+    """
+    doc = {"carve_commit": "0" * 40,
+           "rows": [{"source_path": "scripts/pkg/te\nst.py"}]}
+    with pytest.raises(MODULE.TestMappingRefusal) as raised:
+        MODULE.tests_at_carve(REPO_ROOT, doc)
+    assert raised.value.code == "test-mapping-unreadable"
+    assert "line terminator" in raised.value.detail
+
+
+def test_a_declared_home_outside_the_manifests_repositories_refuses(
+        scratch: Scratch) -> None:
+    """The two vocabularies are different — `DECLARED_REPLICA_SETS` spells
+    REPOSITORIES and the manifest spells `destinations:` keys — and this is the
+    one drift nothing else would catch: a repository renamed in one and not the
+    other opens a SECOND per-repository column carrying the replica's tests.
+    The identity still holds, every total is wrong, and the run prints an extra
+    line nobody reads as an alarm."""
+    doc = scratch.clean()
+    doc["source_repository"] = "opensoft/openxFactory-renamed"
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "opensoft/openxFactory" in payload["detail"]
+    assert "REPOSITORIES" in payload["detail"]
+
+
+def test_the_tree_figure_skips_a_nested_checkout(scratch: Scratch) -> None:
+    """The context figure counts the destination's OWN files and no others.
+
+    Measured at openxFactory: the carve suites require `openDox/` and
+    `openXdox/` materialized, so a naive walk counts two other repositories'
+    suites into a number captioned "the tree carries". A directory holding a
+    `.git` entry is another repository's root — a FILE for a submodule, which
+    is why "`.git` in the path parts" was not enough."""
+    dest = scratch.destination("dox", ARRIVALS)
+    nested = dest / "vendored"
+    nested.mkdir(parents=True, exist_ok=True)
+    (nested / ".git").write_text("gitdir: ../.git/modules/vendored\n",
+                                 encoding="utf-8")
+    (nested / "test_someone_elses.py").write_text(_tests(11, "theirs"),
+                                                  encoding="utf-8")
+    summary = verified(scratch.run(None, "--destination", "dox_code",
+                                   "--dest-root", str(dest)))
+    assert summary["collected"] == 3
+    assert summary["tree_tests"] == 3, \
+        "the nested checkout's eleven tests are not this destination's"
+
+
 # --------------------------------------------------------------------------
 # the landed document — the § 8.2 seat
 # --------------------------------------------------------------------------

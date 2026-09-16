@@ -457,6 +457,18 @@ def tests_at_carve(repo: Path, doc: dict[str, Any]) -> dict[str, int]:
     """
     paths = [row["source_path"] for row in doc["rows"]]
     commit = doc["carve_commit"]
+    # THE BATCH PROTOCOL IS NEWLINE-DELIMITED, so a path holding one would
+    # desync the reply parse and start attributing blobs to the wrong rows —
+    # a silent MIS-COUNT, which is the one failure mode a floor must never
+    # have. Git permits such a path and FLOOR PART 1's own tests carry paths
+    # UTF-8 cannot hold, so this is refused rather than assumed away.
+    newlined = [path for path in paths if "\n" in path or "\r" in path]
+    if newlined:
+        raise TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{len(newlined)} row source_path(s) carry a line terminator, "
+            "which `git cat-file --batch` cannot be asked about one per line: "
+            f"{newlined[0]!r}")
     request = "".join(f"{commit}:{path}\n" for path in paths)
     done = subprocess.run(["git", "-C", str(repo), "cat-file", "--batch"],
                           input=request.encode("utf-8", "surrogateescape"),
@@ -537,8 +549,44 @@ def refuse_lost_tests(mapped: list[RowMapping]) -> None:
                 "reason that constitutes one. That is a LOST TEST")
 
 
+def known_repositories(doc: dict[str, Any]) -> tuple[str, ...]:
+    """Every repository this manifest can speak for: its own, plus each
+    `destinations:` entry's."""
+    return tuple(dict.fromkeys(
+        [repository_of(doc, RETAINED_TOKEN)]
+        + [repository_of(doc, key) for key in (doc.get("destinations") or {})]))
+
+
+def refuse_unknown_declared_homes(doc: dict[str, Any],
+                                  mapped: list[RowMapping]) -> None:
+    """A declared replica set may only name repositories THIS manifest knows.
+
+    Without this the two vocabularies could drift apart in the one way nothing
+    else would catch: `DECLARED_REPLICA_SETS` spells repositories and the
+    manifest spells `destinations:` keys, so a repository renamed in one and
+    not the other would quietly open a SECOND per-repository column carrying
+    the replica's tests — the identity would still hold, every total would be
+    wrong, and the run would print an extra line nobody reads as an alarm.
+    """
+    known = set(known_repositories(doc))
+    for record in mapped:
+        if record.kind != "replicated":
+            continue
+        unknown = [home for home in record.homes if home not in known]
+        if unknown:
+            raise TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"{record.source_path} declares replica home(s) "
+                f"{', '.join(sorted(unknown))}, which this manifest does not "
+                "know: its repositories are "
+                f"{', '.join(sorted(known))}. The declaration names "
+                "REPOSITORIES and the manifest names `destinations:` keys, so "
+                "the two are kept in step here rather than left to drift")
+
+
 def totals(doc: dict[str, Any], mapped: list[RowMapping]) -> dict[str, Any]:
     """Clause (c), every term computed from the manifest and none assumed."""
+    refuse_unknown_declared_homes(doc, mapped)
     per_repository: dict[str, int] = {}
     for key in list(doc.get("destinations") or {}) + [RETAINED_TOKEN]:
         per_repository.setdefault(repository_of(doc, key), 0)

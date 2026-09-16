@@ -209,6 +209,45 @@ def _tests_in(path: Path) -> int | None:
         return None
 
 
+def _tree_tests(dest_root: Path) -> tuple[int, int]:
+    """The CONTEXT figure: every `def test_` this checkout carries, in ITS OWN
+    files. Never part of the floor — the floor is the declared arrivals — and
+    printed beside them so a reader can see how much of a destination's suite
+    the manifest speaks for.
+
+    NESTED GIT CHECKOUTS ARE SKIPPED, and the openxFactory run is why: with
+    `openDox/` and `openXdox/` materialized (which the carve suites require)
+    a naive walk counts two other repositories' suites into a figure captioned
+    "the tree carries", and the reader has no way to tell. A directory holding
+    a `.git` entry is another repository's root, and everything under it is
+    that repository's.
+    """
+    total = 0
+    files = 0
+    stack = [dest_root]
+    while stack:
+        directory = stack.pop()
+        try:
+            entries = sorted(directory.iterdir())
+        except OSError:
+            continue
+        for entry in entries:
+            if entry.is_symlink():
+                continue
+            if entry.is_dir():
+                if entry.name == ".git":
+                    continue
+                if (entry / ".git").exists():
+                    continue
+                stack.append(entry)
+            elif entry.suffix == ".py":
+                found = _tests_in(entry)
+                if found:
+                    files += 1
+                    total += found
+    return total, files
+
+
 def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
                        dest_root: Path,
                        replica_values: list[str]) -> dict[str, Any]:
@@ -236,15 +275,7 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
             below.append({"source_path": source_path, "path": relpath,
                           "declared": want, "found": found})
 
-    tree = 0
-    tree_files = 0
-    for candidate in sorted(dest_root.rglob("*.py")):
-        if ".git" in candidate.parts:
-            continue
-        found = _tests_in(candidate)
-        if found:
-            tree_files += 1
-            tree += found
+    tree, tree_files = _tree_tests(dest_root)
 
     summary = {
         "result": "ok",
