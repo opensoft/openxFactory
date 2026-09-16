@@ -76,6 +76,24 @@ JOB_ID = "openxdox-consumer-gate"
 #: UP for an `openxFactory/`-shaped ancestor.
 CHECKOUT_PATH = "openxFactory"
 
+#: The install, normalized (the workflow writes it as a folded literal). Matched
+#: EXACTLY rather than by the substring `pip install`, which
+#: `run: echo 'pip install --require-hashes …'` also satisfies — leaving the
+#: gate to adjudicate with whatever the runner image carried while this suite
+#: reported the lock installed.
+INSTALL_RUN = ("pip install --require-hashes --only-binary :all: "
+               "-r requirements/hermes-runtime-contracts.lock")
+
+
+def normalized_run(run: str) -> str:
+    """One line, single-spaced, with shell line-continuations folded away.
+
+    The install is written as a continued line because
+    `--only-binary :all: -r …` is long; comparing the WHOLE command means
+    comparing it the way bash reads it, not the way YAML stores it.
+    """
+    return " ".join(run.replace("\\\n", " ").split())
+
 OPENXDOX_PIN_RUN = "python3 scripts/verify-openxdox-pin.py"
 OPENDOX_PIN_RUN = "python3 scripts/verify-opendox-pin.py"
 SCOPED_INIT_RUN = "git submodule update --init --recursive openDox openXdox"
@@ -409,10 +427,12 @@ def test_the_dependency_install_is_hash_pinned_and_refuses_sdists(
     the flag resolves 17 packages, 17 wheels, zero sdists, exit 0, so it
     changes what may EXECUTE and nothing about what is installed.
     """
-    installs = [r for r in runs if "pip install" in r]
+    installs = [r for r in runs if normalized_run(r) == INSTALL_RUN]
     assert len(installs) == 1, (
-        f"exactly one dependency install; found {len(installs)}")
-    install = " ".join(installs[0].split())
+        f"exactly one step must run EXACTLY {INSTALL_RUN!r}; found "
+        f"{len(installs)}. The whole command is matched because "
+        f"`echo 'pip install …'` contains the words and installs nothing")
+    install = normalized_run(installs[0])
     assert "--require-hashes" in install, (
         "the install must be hash-pinned: an unpinned `pip install` resolves "
         "whatever PyPI serves at run time, with no version and no hash")
@@ -511,12 +531,33 @@ def test_the_two_suites_are_invoked_exactly_and_separately(
     assert "consumer-suite-report.xml" not in PIN_SUITES_RUN
 
 
-def test_no_suite_invocation_swallows_its_own_exit_code(
-        runs: list[str]) -> None:
-    """`|| true` over a pytest run makes every assertion below it decorative."""
-    for invocation in (PIN_SUITES_RUN, CONSUMER_SUITE_RUN,
-                       OPENXDOX_PIN_RUN, OPENDOX_PIN_RUN):
-        assert "||" not in invocation and "; true" not in invocation
+def test_nothing_here_swallows_its_own_exit_code(steps: list[dict]) -> None:
+    """`|| true` makes every assertion below it decorative — in ANY step.
+
+    The four command constants are not where this can hide. The two JUnit
+    assertion steps are heredocs whose last line is `sys.exit(rc)`, and a
+    `|| true` appended to `python3 - <<\'PY\' … PY` would exit 0 on a refusal
+    while `continue-on-error` stayed absent and the floors, the exact skip and
+    the named verdicts all stayed in the file — the gate green having
+    adjudicated the report and thrown the verdict away. So EVERY `run:` in the
+    job is read, not a list of the ones thought to matter, and the finding
+    names the step.
+
+    The workflow's one legitimate `||` is in a COMMENT — "`|| true` is
+    deliberately ABSENT" — which is why this reads the parsed `run:` values
+    and not the file's text.
+    """
+    for step in steps:
+        run = step.get("run")
+        if run is None:
+            continue
+        label = step.get("name") or step.get("uses")
+        for swallow in ("||", "; true", "|| true", "set +e"):
+            assert swallow not in run, (
+                f"step {label!r} carries {swallow!r} in its `run:` — a "
+                f"non-zero exit would be swallowed, which is "
+                f"`continue-on-error` written in shell and just as invisible "
+                f"to every pin in this gate")
 
 
 def test_nothing_here_continues_on_error(gate_job: dict,
@@ -569,8 +610,9 @@ def test_the_equipment_is_installed_before_the_work_that_needs_it(
     setup_node = index(
         lambda s: str(s.get("uses", "")).startswith("actions/setup-node"),
         "setup-node")
-    install = index(lambda s: "pip install" in s.get("run", ""),
-                    "dependency install")
+    install = index(
+        lambda s: normalized_run(s.get("run", "")) == INSTALL_RUN,
+        "dependency install")
 
     assert setup_python < install, (
         "`setup-python` must run BEFORE the install, or the lock lands in the "
@@ -579,14 +621,16 @@ def test_the_equipment_is_installed_before_the_work_that_needs_it(
                       (OPENDOX_PIN_RUN, "openDox verifier"),
                       (PIN_SUITES_RUN, "pin suites"),
                       (CONSUMER_SUITE_RUN, "consumer suite")):
-        at = index(lambda s, r=run: r in s.get("run", ""), what)
+        at = index(lambda s, r=run: normalized_run(s.get("run", "")) == r,
+                   what)
         assert install < at, (
             f"the dependency install must run BEFORE the {what}; this gate's "
             f"pinned numbers were measured on the locked set, and a gate that "
             f"adjudicates with the image's packages and installs the lock "
             f"afterwards reports on something else entirely")
-    consumer = index(lambda s: CONSUMER_SUITE_RUN in s.get("run", ""),
-                     "consumer suite")
+    consumer = index(
+        lambda s: normalized_run(s.get("run", "")) == CONSUMER_SUITE_RUN,
+        "consumer suite")
     assert setup_node < consumer, (
         "`setup-node` must run BEFORE the consumer suite, or its fourteen "
         "JS-probe cases skip and the exact skip pin refuses the run")
