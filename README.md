@@ -542,12 +542,17 @@ Active changes:
   `validate-pin-registrations.py`'s `check_citations`, resolves ONE field of
   registered pins rather than the corpus. **RE-MEASURED AT `b1df95ee`, NOT
   QUOTED** — 2,973 files in scope of 5,466 tracked, **586** distinct
-  `openspec/changes/…` tokens, **498** RESOLVED (76 of them RELOCATED, the rule
-  working), **74** DANGLING(identity-half), **7** DANGLING(file-half), **0**
-  AMBIGUOUS: an **inclusive remainder of 81 tokens** carried by 65 citing files,
-  which collapse onto **48 distinct identities**. **AND THE DEEP RE-MEASUREMENT
-  IS COMMITTED AS EVIDENCE** (`evidence/measurement-b1df95ee.md`, by a sibling
-  writer at the same head): INCLUSIVE **78**, THIS-TREE-ONLY **57**, TRUE
+  `openspec/changes/…` tokens, which divide exactly and are printed so they
+  reconcile: **498** RESOLVED (76 of them RELOCATED, the rule working), **74**
+  DANGLING(identity-half), **7** DANGLING(file-half), **0** AMBIGUOUS and **7**
+  NOT_A_PACKET_REFERENCE — `498 + 74 + 7 + 0 + 7 = 586`. The **inclusive
+  remainder is 81 tokens** (the DANGLING and AMBIGUOUS ones; the resolver's
+  fifth answer is counted beside it, never inside it), carried by 65 citing
+  files and collapsing onto **53 distinct remainder identities** — 48 of them
+  the identity-half tokens', 5 the file-half tokens', with no identity in both.
+  **AND THE DEEP RE-MEASUREMENT IS COMMITTED AS EVIDENCE**
+  (`evidence/measurement-b1df95ee.md`, by a sibling writer at the same head):
+  INCLUSIVE **78**, THIS-TREE-ONLY **57**, TRUE
   in-tree by manual read **39**, `AMBIGUOUS` **0** — and the METHODOLOGY IS
   PROVED NOT TO BE THE VARIABLE, the same instrument reproducing **all twelve**
   of #1053's published figures exactly against a control clone at `8944758c`,
