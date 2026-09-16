@@ -2149,6 +2149,46 @@ movements claimed at the time they land.
   §§ 7.1/7.2 tick a conclusion about all five. § 7.2's REPORT proves zero
   descendant REPOSITORIES exist anywhere in the estate; this table proves zero
   PROFILE ARTIFACTS exist in any registered domain to trigger one.)*
+  **ONE NEAR MISS IN THAT TABLE IS NAMED RATHER THAN LEFT FOR A LATER READER TO
+  FIND, because it is the only thing in 14,051 files that can be read against
+  this tick.** `OpsxFactory`'s `tenants/` carries a REAL, non-fixture, COMMITTED
+  record of a LIVE dox deployment: `tenants/opensoft-dox-intent-plane-intake.yaml`
+  and `tenants/opensoft-dox-dispatch-minter-intake.yaml` (both
+  `kind: opsx_client_infrastructure_execution_case`), and `tenants/opensoft.yaml`
+  (`kind: opsx_client`) registering the subject `opensoft-aks-qa-dox-plane` /
+  `dox-opensoft-qa.xforge.us`, display name *"Opensoft openDox Hosted Plane (AKS,
+  namespace dox)"*, `lifecycle_state: active`, registered 2026-08-10. That is
+  worth stopping on, because this packet's own MODIFIED delta makes **a committed
+  TENANT INSTALL a profile artifact** — so a committed install sitting inside a
+  registered domain tree is exactly the shape that would trigger the laziness
+  rule.
+  **It does not trigger it, and the reason is in the delta's own sentence.**
+  `design.md`:741-743 says what that clause reconciles: *"a committed TENANT
+  INSTALL is a profile artifact, which is what reconciles **Q3's commissioned
+  descendants** with the standard's own laziness rule"* — the install that counts
+  is an install OF A DESCENDANT, `<Domainx>Dox`. What OpsxFactory holds is an
+  install of **the NEUTRAL PRODUCT openDox, for the estate's own tenant
+  `opensoft`**, recorded in OpsxFactory's CLIENT-INFRASTRUCTURE intake ledger as
+  the work product of the IT-operations factory that provisions infrastructure
+  for everyone. Its own `kind:` literals say so —
+  `opsx_client_infrastructure_execution_case` and `opsx_client`, neither of them
+  an artifact of the dox product's profile kind — and the requirement's own
+  second scenario settles it: *"the descendant is created AND THAT ARTIFACT
+  RELOCATES INTO IT"* (`domain-descendant-boundary`:139-141). An intake case
+  whose `request_ref_file` points at
+  `installs/hermes-install/config/clients/opensoft/requests/` does not relocate
+  into an `OpsxDox` repository; it belongs to OpsxFactory's own intake ledger.
+  There is no `OpsxDox` instance, no `OpsxDox` database and no domain-mapping
+  declaration anywhere in that tree.
+  **And the per-tenant install has its own OPEN box in this packet, which is
+  where any other reading belongs**: § 7.4, `[OmI]` `[Opsx]`, still `[ ]` — *"one
+  instance and one database per tenant in both cases (RULING Q3) … the `dox`
+  workload set becoming per-tenant"*. If the tenant-install clause is ever read
+  to cover an ops-provisioned plane for the estate's own tenant, that reading
+  lands at § 7.4 and moves § 7.1's answer with it. It is not a reading this
+  amendment makes, and it is written down here so the question is ASKED rather
+  than rediscovered by somebody who finds `opensoft-dox-intent-plane-intake.yaml`
+  after the box is ticked.
   **The content mentions that DO exist are named rather than hidden**, since a
   path-only census would have missed them.
   Matched case-INSENSITIVELY, `openxdox` is in **32** tracked files and `opendox`
