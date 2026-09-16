@@ -3234,8 +3234,7 @@ Archived changes:
   requirements — is asserted by a test of its own rather than implied by the
   missing row. The non-promotion is registered as DELIBERATE through the
   discharge `promotion_fidelity.py`'s own action text names, an entry in the
-  xFactory aggregation's `health/dispositions.yaml`, filed once for the five
-  closures rather than five times (the gate this feeds is `tasks.md` § 8.5 and
+  xFactory aggregation's `health/dispositions.yaml`, filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the gate this feeds is `tasks.md` § 8.5 and
   the severity reading is § 8.9's; § 6.6 is the separate rule that no new
   dashboard change opens). **THE SELF-GATE COUNT THIS CLOSURE MOVES IS FIVE, NOT
   ONE** — `promotion_fidelity` emits one finding per authoritative requirement,
