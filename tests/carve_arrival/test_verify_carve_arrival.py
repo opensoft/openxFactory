@@ -3109,9 +3109,10 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     # newline (Copilot review, round eleven on this PR). The sentence it
     # replaced — "these are the numbers each leg's arrival run must report" —
     # was false of the two legs RULED Q6 touches: this table counts a
-    # re-destined row at the `destination:` it still names, so `opendox_code`'s
-    # run reports 119 arrived where the table says 123 and `openxdox_code`'s
-    # reports 96 where it says 92. A floor that overstated that would be worse
+    # re-destined row at the `destination:` it still names — and a RETIRED one
+    # too — so `opendox_code`'s run reports 117 arrived where the table says 123
+    # (four re-destined away under RULED Q6 and two retired under RULED
+    # 5656343213) and `openxdox_code`'s reports 96 where it says 92. A floor that overstated that would be worse
     # than one that says where it stops, which is the rule
     # `test_two_legs_may_apply_one_replicas_line_differently` is written under.
     # A re-wrap of the sentence breaks this anchor LOUDLY, by the count below,
@@ -3643,9 +3644,12 @@ def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
     AND THE EXAMPLE'S OWN REPLICA FLAGS ARE PART OF THE ARITHMETIC (Copilot
     review, round eleven). A `--replica-at` whose ROW declares lines is a
     declared-edit row at phase B, counted with the moved rows' edits, so the
-    phase-B figure is this leg's `moved_with_declared_edit` count PLUS one per
-    such flag — derived from the invocation rather than carried, which is what
-    let the fourth flag land in the same commit as the `85` it produces.
+    phase-B figure is this leg's EFFECTIVE `moved_with_declared_edit` count PLUS
+    one per such flag — derived from the invocation and from the manifest rather
+    than carried, which is what let the fourth flag land in the same commit as the
+    figure it produces, `85` then and `83` since RULED 5656343213 retired two of
+    this leg's edited rows. A derivation is what makes a figure survive an act
+    nobody was thinking about when the example was written.
 
     THE MODULE IS IMPORTED HERE, against this file's subprocess rule, for the
     reason the docstring gives for the constant assertions: the claim is about
@@ -3707,7 +3711,10 @@ def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
         # added the Q-L7 conftest flag to the phase-B example moved `84` to
         # `85` and `3 of 3` to `4 of 4`, and a test whose expectation did not
         # move with the example's own command line could not have checked
-        # either figure. At phase A the copies are not placed yet (§ 5.5's
+        # either figure. BOTH LINE FIGURES HAVE SINCE FALLEN BY TWO — `82` + 1
+        # = `83` — because RULED 5656343213 retired two of this leg's edited
+        # rows; the replica arithmetic is untouched, which is the whole point
+        # of deriving it. At phase A the copies are not placed yet (§ 5.5's
         # phase-A paragraph, measured at this leg's commit A), so a flag there
         # would refuse `arrival-missing` and the arithmetic stays the rows'.
         placements = _flag(argv, "--replica-at")

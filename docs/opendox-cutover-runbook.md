@@ -418,14 +418,19 @@ on one fact, one either side of the runbook — and the roots cell is now
 compared with `declared_roots(rows_for(...))`, the walk each leg's arrival run
 actually performs.
 
-A row RE-DESTINED by ruling still counts at the `destination:` it declares, so
-this table and a leg's arrival run count different sets — by exactly those four
-rows. In ARRIVED ROWS, the first figure a run prints, `opendox_code` reports
-FOUR FEWER than this table's count, 119 against 123, and `openxdox_code` FOUR
-MORE, 96 against 92: the ruling moved the placement, not the row. All four
-carry `edits:`, so they take the `verbatim / edited` split and the declared
-edit lines with them, and the EFFECTIVE edited counts are 84 and 87 against
-this table's 88 and 83. What a run PRINTS as `declared-edit row(s) within their
+A row RE-DESTINED by ruling still counts at the `destination:` it declares, and
+so does a row a ruling RETIRED, so this table and a leg's arrival run count
+different sets — **by two subtractions now, not one**. RULED Q6 moved four rows
+off `opendox_code` and onto `openxdox_code`; RULED 5656343213 RETIRED two more of
+`opendox_code`'s, and a retired row is owed at no leg at all. In ARRIVED ROWS,
+the first figure a run prints, `opendox_code` reports SIX FEWER than this table's
+count, 117 against 123, and `openxdox_code` FOUR MORE, 96 against 92: one ruling
+moved the placement and the other deleted it, and neither moved the row. All six
+carry `edits:`, so they take the `verbatim / edited` split with them — the four
+re-destined ones carrying their declared lines to the other leg and the two
+retired ones taking theirs out of every leg's reckoning while the row goes on
+recording them — and the EFFECTIVE edited counts are 82 and 87 against this
+table's 88 and 83. What a run PRINTS as `declared-edit row(s) within their
 lines` is a THIRD count again — the rows that arrived CARRYING the edit, so the
 `unapplied` rows and the declared replicas each move it — and § 5.5 is where
 that line is read, against the phase-B example's own four figures.
@@ -1029,8 +1034,9 @@ test composes these lines through `_print_ok` rather than matching them
 against a literal of its own. `0 unapplied` is not a manifest figure: it is
 the standard for a COMPLETE commit B — a declared-edit row the run finds
 byte-identical to the carve blob is an edit this leg did not apply, and the
-leg is not done until that count is zero. **The `85` is `84` moved rows plus the Q-L7 replica the fourth `--replica-at`
-declares**: a replica whose ROW declares lines is answered exactly as a moved
+leg is not done until that count is zero. **The `83` is `82` moved rows plus the Q-L7 replica the fourth `--replica-at`
+declares** (it read `85` = `84` + 1 until RULED 5656343213 retired two of this
+leg's edited rows; the replica's own contribution is unchanged and always was): a replica whose ROW declares lines is answered exactly as a moved
 row is and is counted with the moved rows' edits at phase B (`check_replicas`
 -> `counts["diffed"]`), which is why this figure is ONE ABOVE the `verbatim /
 edited` column § 2's per-destination table states for this leg. A replica left
