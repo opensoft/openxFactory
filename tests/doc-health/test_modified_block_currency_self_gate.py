@@ -1499,6 +1499,14 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
             "again; a re-home relocates the delta, it does not drop it")
 
         packet = ROOT / PurePosixPath(delta).parents[2]
+        record = packet / _CLOSURE_RECORD
+        assert record.is_file(), _moved(
+            f"{packet.name} carrying its closure record at {_CLOSURE_RECORD}",
+            "no such file. THE ONE FILE THE HASH WALK SKIPS MUST EXIST. It is "
+            "skipped because it did not travel — not because it is optional: "
+            "README's archived-ledger entry points a reader at it for the "
+            "closure's reasoning, and a rename or a deletion would leave that "
+            "pointer dangling while every byte assertion below still passed")
         measured = {}
         for path in sorted(q for q in packet.rglob("*") if q.is_file()):
             rel = path.relative_to(packet).as_posix()

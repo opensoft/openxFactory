@@ -3078,7 +3078,7 @@ Archived changes:
   declaration — the same correction § 6.4's record makes for `tasks.md` § 6.4's
   shorthand. The non-promotion is registered as DELIBERATE through
   `promotion_fidelity.py`'s own second discharge, an entry in the xFactory
-  aggregation's `health/dispositions.yaml` filed once for the five closures (the
+  aggregation's `health/dispositions.yaml` filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the
   gate is `tasks.md` § 8.5, the severity reading § 8.9's; § 6.6 is the separate
   no-new-change rule) — **measured at this head: 20 errors, five of them this
   packet's, against 15 at § 6.1's head**. Full reasoning:
@@ -3162,8 +3162,7 @@ Archived changes:
   requirements — is asserted by a test of its own rather than implied by the
   missing row. The non-promotion is registered as DELIBERATE through the
   discharge `promotion_fidelity.py`'s own action text names, an entry in the
-  xFactory aggregation's `health/dispositions.yaml`, filed once for the five
-  closures rather than five times (the gate this feeds is `tasks.md` § 8.5 and
+  xFactory aggregation's `health/dispositions.yaml`, filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the gate this feeds is `tasks.md` § 8.5 and
   the severity reading is § 8.9's; § 6.6 is the separate rule that no new
   dashboard change opens). **THE SELF-GATE COUNT THIS CLOSURE MOVES IS FIVE, NOT
   ONE** — `promotion_fidelity` emits one finding per authoritative requirement,
@@ -3208,8 +3207,7 @@ Archived changes:
   attaches the promotion obligation to the archive act, so the non-promotion is
   registered as DELIBERATE through the discharge `promotion_fidelity.py`'s own
   action text names, an entry in the xFactory aggregation's
-  `health/dispositions.yaml`, filed once for the five closures rather than five
-  times (the gate this feeds is `tasks.md` § 8.5, and the severity reading is
+  `health/dispositions.yaml`, filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the gate this feeds is `tasks.md` § 8.5, and the severity reading is
   § 8.9's; § 6.6 is the separate rule that no new dashboard change opens); a
   `--single-repo` self-gate run cannot read that file and will report the finding
   until § 5 removes the capability — **measured at this head: 1 error, against 0
