@@ -50,7 +50,7 @@ OPERATES the install exactly where canon already puts it — a per-install
 execution binding. Nothing below refuses a pair already in service that was
 created by hand, and nothing below names a custody party: naming one in a
 contract artifact is precisely what *An operated identity's credential is held in
-governed custody and reached only by reference* forbids (`:216` — *"the neutral
+governed custody and reached only by reference* forbids (`:215` — *"the neutral
 obligation lives in the contract, the concrete estate fact lives in the
 binding"*). Whether and when Case A migrates to the manifest shape is the
 installer's act and the staged topic's unruled managed-flow question, and this
@@ -156,8 +156,9 @@ will live, and a record carrying the material itself is refused.
 - **THEN** it MUST be rejected, and the record is remediated rather than redacted in place
 
 #### Scenario: An operator-executed install drives the manifest flow
-- **WHEN** an install whose execution binding is operator-executed drives the provisioning manifest flow on the tenant's behalf, the identity still being created in the tenant's own organization and its material landing in the custody that install's binding declares
-- **THEN** it conforms, because this requirement fixes where the identity lives and how its material is reached and leaves who operates the install a per-install execution binding
+- **WHEN** an install whose execution binding is operator-executed drives the provisioning manifest flow on the tenant's behalf, the identity created being the TENANT'S OWN in the tenant's own organization rather than an operator-owned identity installed into it, and its material landing in the custody that install's binding declares
+- **THEN** it conforms, because this requirement fixes where the identity lives and whose it is and how its material is reached, and leaves who operates the install a per-install execution binding
+- **AND** an otherwise identical flow whose created identity is the operator's own is refused by the clause above, which this scenario does not soften
 
 #### Scenario: A pair already in service was created without a manifest
 - **WHEN** a dispatch and content pair in service predates this shape and was created by hand rather than from a provisioning manifest

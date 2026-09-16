@@ -548,8 +548,9 @@ Active changes:
   here) and a further gate on the opensoft QA dispatch migration (**not asserted
   met**). What authorizes authoring anyway is clause (E) DIRECTING it in the
   operator's own words rather than any finding by the author that Q2 is
-  dispensable; the fragment STAYS STAGED and the topic closes when Q2 is ruled
-  and the installer change exists. **ONE `## MODIFIED` BLOCK, OVER CANON.**
+  dispensable; the fragment STAYS STAGED and the topic closes only when ALL THREE
+  of its stated conditions are met — Q2 ruled, the installer change in existence,
+  AND the QA dispatch migration complete. **ONE `## MODIFIED` BLOCK, OVER CANON.**
   *Dispatch-only credential least privilege and serving-tier separation*
   ([`openspec/specs/credential-contracts/spec.md:169`](openspec/specs/credential-contracts/spec.md))
   restated with its promoted body paragraph and all three promoted scenarios

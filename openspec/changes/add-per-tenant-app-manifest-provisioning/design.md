@@ -40,8 +40,10 @@ tenant, exchange the temporary code, capture app id and private key within the
 hour, wire them to the minter. Almost none of that belongs in a neutral contract.
 
 What this delta takes is the part that is FALSIFIABLE FROM A COMMITTED ARTIFACT:
-a manifest exists, it is credential-free, it declares exactly the scope the
-binding is allowed, it names the tenant-unique identity name, and it names the
+a manifest exists, it is credential-free, it pre-fills NO MORE THAN the scope
+the binding may hold — an upper bound rather than an equality, which is what the
+requirement sets and what a reviewer can actually refuse against — it names the
+tenant-unique identity name, and it names the
 one repository the dispatch identity may trigger. Those are readable from the
 tree. What it leaves to `Omnigent-Install` is everything only observable at
 install time: the redirect, the exchange, the retry, the ordering, which seat

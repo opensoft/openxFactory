@@ -24,8 +24,9 @@ the authoring in the operator's own words — *"this lane authors ONLY a
 and an authoring gate that exists to make the authoring wait on the operator is
 dispositioned by the operator ordering it. The fragment therefore STAYS STAGED
 (`tasks.md` § 4.2), its `ideation/staging/INDEX.md` row is where the position is
-recorded, and the topic closes when Q2 is ruled and the named `Omnigent-Install`
-realization change exists.
+recorded, and the topic closes when ALL THREE of its stated conditions are met —
+Q2 ruled, the named `Omnigent-Install` realization change in existence, AND the
+opensoft QA dispatch migration complete — not when the first two are.
 
 ## Why
 

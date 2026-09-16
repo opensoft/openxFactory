@@ -108,18 +108,24 @@ half is named here so it is a debt with an address rather than an assumption.
 - [ ] 4.1 Under `release-realization` an empty code surface archives ON LANDING
   plus this task list — and the mechanism is stated here exactly rather than
   approximately, because it was got wrong once. `archive_change()` scans the
-  WHOLE task file and refuses on any literal `- [ ]` with no section-level
+  WHOLE task file and refuses on any literal `- [ ]`, with no section-level
   exception (`scripts/proposal-support.py:4609`, *"change has incomplete
   tasks"*). **§ 1 and § 2 are therefore the gate in the operative sense: they are
   this repository's surface and they must be TICKED.** § 3 and § 5 are not this
   repository's surface and cannot be ticked from here, so each carries the
-  house's reserved DEFERRED marker `- [~]` with its holder named in the box —
-  the form this repository already uses for open-but-not-ours work
-  (`README.md:4790`, and `openspec/changes/archive/2026-09-09-pin-openspec-cli-dependency-closure/tasks.md:353`
-  and `.../2026-09-10-adopt-codexfactory-repository-identity/tasks.md:466`).
+  house's reserved DEFERRED marker `- [~]` with its holder named in the box.
+  That is the form this repository already uses for open-but-not-ours work:
+  the README's own record of the `pin-openspec-cli-dependency-closure` archive
+  reads *"WHAT STAYS OPEN, NAMED RATHER THAN IMPLIED, AND CARRYING THE RESERVED
+  `- [~]` DEFERRED MARKER RATHER THAN A TICK"* — quoted by its words rather than
+  cited by line, because this change's own **OpenSpec Records** row shifts every
+  README line below it — and the two archived packets carry the boxes themselves
+  at `openspec/changes/archive/2026-09-09-pin-openspec-cli-dependency-closure/tasks.md:353`
+  and `openspec/changes/archive/2026-09-10-adopt-codexfactory-repository-identity/tasks.md:466`.
   That marker is what makes the archive executable while the debt stays open and
   addressed, and it is why § 3 is named-and-owed rather than gating — the same
   reason the `code_surface:` head reads `none`.
+
 - [ ] 4.2 The staged fragment STAYS staged and its `ideation/staging/INDEX.md`
   row records the exit (the fold into `opendox-two-layer-product` is recorded
   there and deleting the folder would delete the fold's provenance).
