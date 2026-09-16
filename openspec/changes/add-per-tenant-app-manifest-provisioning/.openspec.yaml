@@ -1,0 +1,64 @@
+schema: spec-driven
+created: 2026-09-16
+origin:
+  kind: staged
+  id: openxFactory:staging:openxdox-install-app-provisioning
+  path: ideation/staging/openxdox-install-app-provisioning
+  reason: >-
+    THE TOPIC'S OWN DECLARED EXIT PATH, taken on the day its hardest open
+    question was ruled. `kind: staged` is the honest spelling and is checked
+    rather than defaulted: the fragment's Exit section names exactly this
+    shape — "Likely a MODIFIED `credential-contracts` delta (the two-App
+    manifest-provisioning shape + naming convention + apply-repo home) plus a
+    named `Omnigent-Install` realization change" — and this packet is the first
+    half of that sentence, with the second half named as owed and authored
+    nowhere here.
+    THE ONE EXIT PRECONDITION THIS PACKET NEEDED IS MET. The fragment's exit is
+    gated on two of its five open questions being "decided with Brett": Q1, the
+    contract home, and Q2, the managed-versus-self-hosted flow. **Q1 IS RULED**
+    — `opensoft/openxFactory` issue #656 comment `5704187317`, 2026-09-16, by
+    interactive multi-choice: option (a), a MODIFIED `credential-contracts`
+    delta in `openxFactory`, and NOT the new `install-app-provisioning`
+    capability the topic offered beside it. **Q2 IS NOT RULED AND IS NOT
+    NEEDED**, which is stated here rather than discovered later: the delta is
+    written CASE-NEUTRAL — it binds whichever seat drives the provisioning —
+    because the topic's own claim 3 ("the Apps are tenant-owned") and RULING Q3
+    ("one instance and one database per tenant, always … in both cases") make
+    the created identity the tenant's either way. Q2 decides who CLICKS, and
+    nothing in this delta turns on that. Q3, Q4 and Q5 of the fragment are
+    carried into the requirement as SHAPE (the apply-repo home, credential
+    capture, the naming convention) with their remaining operational forks left
+    to the installer change.
+    THE FRAGMENT STAYS STAGED AND IS NOT MOVED INTO `supporting-docs/`, on the
+    precedent of the two packets this one sits beside: `split-openxwallet-repo`
+    exited `ideation/staging/openxwallet-neutral-home/` by declaring this origin
+    block and leaving the folder in place, and `split-opendox-two-layer-product`
+    did the same for `opendox-two-layer-product`. This topic is additionally
+    FOLDED into that second packet (`ideation/staging/INDEX.md`, the
+    `opendox-two-layer-product` row: "Folds `openxdox-install-app-provisioning`
+    and codexFactory #89"), so its INDEX row is where the exit is recorded and
+    deleting the folder would delete the fold's own provenance.
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — RULING `5704187317` on
+    `opensoft/openxFactory` issue #656, 2026-09-16, by interactive multi-choice,
+    option (1) SPLIT AND NARROW, clause (E) verbatim: "this lane authors ONLY a
+    `credential-contracts` MODIFIED delta in `openxFactory` carrying that shape
+    (OQ-1 option a: tenant-org creation, `openXdox — <tenant>` naming,
+    apply-repo home, credential capture), one repo, no Ops collision, CLAUDE.md
+    working rule 1 satisfied."
+    THIS RECORDS AUTHORIZATION TO AUTHOR AND IS NOT RATIFICATION. The ruling
+    fixes the contract home, the capability, the block form and the four
+    contents; it decides no requirement text. The MODIFIED block's wording, its
+    six added scenarios and the four clauses it grows onto canon are DECLARED
+    and not decided by this authorization, and the ratification read is over
+    them.
+    THE SAME RULING BOUNDS WHAT THIS PACKET MAY NOT DO, and the bound is part of
+    the authorization rather than a caveat on it: clause (B) leaves the
+    `openxdox` DNS record's governance to lane opsXfactory-4's
+    `add-governed-dns-administration` (Brett's OQ-E word, `opensoft/OpsxFactory`
+    issue #207 comment `5649809425`), and clause (D) leaves the `dox` workload
+    set's per-tenant declaration to the § 3.5 realization, its requirement
+    standing under lane opsXfactory-3's claim `5638511222`. Neither
+    `opensoft/OpsxFactory` nor `opensoft/Omnigent-Install` is touched by a byte
+    of this change.
+  approved_on: 2026-09-16

@@ -531,6 +531,52 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
+  — filed 2026-09-16, lane `openxfactory-4` (display
+  `openXfactory-4-openDox_extraction`), `Status: draft`. **Exits the staged topic
+  `openxdox-install-app-provisioning`** (staged 2026-08-14, gate met 2026-08-15,
+  exit unraised for thirty-three days) on **RULING `5704187317`**
+  ([#656](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5704187317),
+  2026-09-16, by interactive multi-choice, option (1) SPLIT AND NARROW,
+  clause (E)), which takes that topic's OQ-1 **option (a)** — a MODIFIED
+  `credential-contracts` delta — and declines the new `install-app-provisioning`
+  capability it offered beside it. **ONE `## MODIFIED` BLOCK, OVER CANON.**
+  *Dispatch-only credential least privilege and serving-tier separation*
+  ([`openspec/specs/credential-contracts/spec.md:169`](openspec/specs/credential-contracts/spec.md))
+  restated with its promoted body paragraph and all three promoted scenarios
+  VERBATIM, grown by four clauses and six scenarios: creation of each identity IN
+  THE TENANT'S OWN ORGANIZATION through a declared, credential-free provisioning
+  manifest and never by an operator identity (nor by one provisioned identity
+  creating the other); ONE PAIR PER TENANT, never shared, under a per-tenant
+  pattern-discoverable naming convention of the form `<product> — <tenant>` where
+  the provider's namespace is global; the dispatch identity's one named target
+  being a repository that holds NO GOVERNED CONTENT; and a time-bound capture
+  landing in the tenant's own custody by reference, with no manifest, record or
+  template carrying a secret value, private key or installation token.
+  **DELTA-CURRENCY CHECK, STATED IN THE DELTA'S OWN PREAMBLE:** two active
+  changes carry a `credential-contracts` delta at `4cef77af` —
+  `add-credential-escrow-checkout` (MODIFIED *Canonical credential record shapes*
+  plus nine ADDED) and `add-requirement-ref-resolution-integrity` (two ADDED) —
+  and NEITHER writes this requirement, so the block is over canon and **no
+  `Modified over` marker is owed**. `code_surface: none` with four measured
+  negatives (no validator arm, because a provisioning manifest is a record kind no
+  corpus this repository validates carries; no schema, manifest row, digest cut or
+  CHANGELOG line; no promoted text deleted; and not one byte in
+  `opensoft/OpsxFactory` or `opensoft/Omnigent-Install`), and NO contract bundle
+  number reserved — the two siblings above each owe an additive minor on the same
+  schema file. **WHAT IT DOES NOT DO, ON THE SAME RULING:** clause (B) reads
+  `split-opendox-two-layer-product` § 7.4's `openxdox` DNS sentence as discharged
+  by NAMING, per that packet's own `design.md` § Non-goals, leaving the
+  ceremony-reach widening inside `opensoft/OpsxFactory`'s active
+  `add-governed-dns-administration` on Brett Heap's OQ-E word; clause (D) leaves
+  the `dox` workload set's per-tenant declaration to that packet's § 3.5. The
+  installer is named as owed in `opensoft/Omnigent-Install` (tasks § 3.1) and
+  authored nowhere here, on that repository's own README boundary and CLAUDE.md
+  working rule 1. Two open questions carried, neither blocking: the managed
+  `opsxfactory_executed` flow (the topic's Q2, unruled — the delta is written
+  CASE-NEUTRAL and does not turn on it) and the apply-workflow repository's
+  provenance.
+
 - [adopt-entry-grain-dispositions-form](openspec/changes/adopt-entry-grain-dispositions-form/proposal.md)
   — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: ratified`** (2026-09-16, Brett Heap, openxFactory repository

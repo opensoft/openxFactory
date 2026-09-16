@@ -1,0 +1,99 @@
+# Tasks: add-per-tenant-app-manifest-provisioning
+
+## 1. The packet (THIS PULL REQUEST)
+
+- [x] 1.1 `.openspec.yaml` declaring `kind: staged`, the fragment's path, the
+  exit-precondition measurement (Q1 RULED by `5704187317`; Q2 unruled and not
+  needed, with the case-neutrality reason stated), and `approved_by` recording
+  that the ruling authorizes AUTHORING and is not ratification.
+- [x] 1.2 `proposal.md` with the realization-axis front matter — `code_surface:
+  none` with its four measured negatives, `target_release: implemented` with the
+  reason NO bundle number is reserved (the two active siblings on this capability
+  each owe an additive minor on the same schema file).
+- [x] 1.3 `design.md`: D1 why the growth goes ON the requirement, D2 the
+  shape/runbook line and its one deliberate exception, D3 case-neutrality against
+  the unruled Q2, D4 why the naming convention is a requirement clause, D5 what
+  this packet refuses and where each piece went, D6 the per-tenant multiplicity
+  and the bill it implies.
+- [x] 1.4 `specs/credential-contracts/spec.md`: ONE `## MODIFIED` block on
+  *Dispatch-only credential least privilege and serving-tier separation* —
+  canon's body paragraph and all three promoted scenarios restated VERBATIM, four
+  clauses added, six scenarios added. The delta-currency check is stated in the
+  delta's own preamble: two active changes carry a `credential-contracts` delta
+  and NEITHER writes this requirement, so the block is over canon and no
+  `Modified over` marker is owed.
+- [x] 1.5 README **OpenSpec Records** row.
+- [x] 1.6 The per-change sweep-ledger row, written by
+  `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`
+  and never hand-edited; the diff read to confirm it moved THIS change's row and
+  no other.
+- [ ] 1.7 Gates green at the pull request head: `openspec validate
+  add-per-tenant-app-manifest-provisioning --strict` and `openspec validate --all
+  --strict`; `python3 -m pytest tests/doc-health tests/sequenced_after -q`.
+  **One inherited failure is expected and is NOT this packet's:**
+  `tests/doc-health/test_modified_block_currency_self_gate.py` is RED on `main`
+  itself over two carriage-ledger subjects opened by another lane, with a fix in
+  flight. This packet must not add a THIRD subject — which it does not, because
+  its block carries every promoted unit of the requirement it modifies, so the
+  carriage-ledger arm has nothing to report about it. Measured both ways at the
+  head rather than argued.
+
+## 2. Ratification
+
+- [ ] 2.1 Ratification read by Brett Heap over the block as it stands, the two
+  open questions put with recommendations, and the ruling recorded at
+  `review/ratification-<date>.md` with `Status: ratified` and `Ratified by:` on
+  `proposal.md` and `design.md`.
+- [ ] 2.2 **OQ-1 (the staged topic's Q2 — the managed flow).** Put with the
+  recommendation the proposal carries; it blocks nothing here and its answer is
+  the installer's sequence.
+- [ ] 2.3 **OQ-2 (the apply-workflow repository's provenance).** Put with the
+  recommendation the proposal carries; the requirement binds the property, not the
+  provenance.
+
+## 3. Realization — OWED ELSEWHERE, AUTHORED NOWHERE HERE
+
+The staged topic's exit path names two halves and this packet is the first. The
+second is named here so it is a debt with an address rather than an assumption.
+
+- [ ] 3.1 **`opensoft/Omnigent-Install` — the installer change.** The flow that
+  drives the manifest, exchanges the temporary code inside the provider's window,
+  lands the material in the tenant's own custody by reference, and wires the two
+  bindings — under that repository's own change, its own code surface and its own
+  realization evidence. NOT this packet's surface, and NOT authorable here: that
+  repository's README states it *"should not contain … canonical shared contracts
+  that belong in `openxFactory/contracts`"*, which is CLAUDE.md working rule 1
+  from the other side.
+- [ ] 3.2 **The first consuming domain repository — the manifest files and the
+  install-doc pointer.** The staged topic names `codexFactory` as the first case.
+- [ ] 3.3 **A validator arm, IF and WHEN a provisioning manifest becomes a record
+  this repository carries.** Deliberately not authored now: the record shape does
+  not exist in any corpus `openxFactory` validates, so an arm authored today would
+  be an arm with only invented fixtures. Whoever gives the record a shape at 3.1
+  owns the question of whether it comes home here.
+
+## 4. Archive gate
+
+- [ ] 4.1 Under `release-realization` an empty code surface archives ON LANDING
+  plus this task list. § 1 and § 2 are the gate; § 3 is named-and-owed and is
+  NOT a precondition of this archive, because none of it is this repository's
+  surface — which is the same reason the `code_surface:` head reads `none`.
+- [ ] 4.2 The staged fragment STAYS staged and its `ideation/staging/INDEX.md`
+  row records the exit (the fold into `opendox-two-layer-product` is recorded
+  there and deleting the folder would delete the fold's provenance).
+
+## 5. Not this change's business, recorded so nobody re-derives it
+
+- [ ] 5.1 The `openxdox` DNS record's governance — RULED `5704187317` (B),
+  discharged by NAMING; the act is lane opsXfactory-4's inside
+  `opensoft/OpsxFactory`'s active `add-governed-dns-administration`, on Brett's
+  OQ-E word (`opensoft/OpsxFactory` issue #207 comment `5649809425`). **Nothing
+  here waits on it and nothing here performs it.**
+- [ ] 5.2 The `dox` workload set becoming per-tenant — RULED `5704187317` (D),
+  left to `split-opendox-two-layer-product` § 3.5's realization; its requirement
+  stands under lane opsXfactory-3's claim `5638511222`.
+- [ ] 5.3 `split-opendox-two-layer-product`'s own `tasks.md` § 7.4 tick and the
+  RECORDED second delta-text defect (`design.md:133-134` *"beyond naming them"*
+  against `tasks.md:1979` *"is governed here"*, in the class of ruling
+  `5700622683`) — the bookkeeper's amendment #5. **This packet edits that packet
+  by not one byte.**
