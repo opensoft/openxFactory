@@ -142,22 +142,25 @@ VERIFICATION — REPRODUCIBLE FROM THE COMMITTED TREE ALONE (canon's spec, this
 packet's own delta, and `scripts/doc_health/`, none of which this measurement
 edits), independently of how the delta was produced:
 
-1. Extract canon's block and this packet's block as plain text:
+1. Extract canon's block and this packet's block as plain text, into a
+   shell-created temporary directory rather than a fixed host-absolute path
+   (`.specify/memory/constitution.md` § IV, Schema and Artifact Discipline):
    ```
+   tmp=$(mktemp -d)
    python3 -c "
    import pathlib
    text = pathlib.Path('openspec/specs/document-lifecycle/spec.md').read_text()
    title = '### Requirement: Prose tagging marker hygiene\n'
    start = text.index(title)
    end = text.index('\n### Requirement: ', start + len(title)) + 1
-   pathlib.Path('/tmp/canon-block.txt').write_text(text[start:end].rstrip('\n') + '\n')
+   pathlib.Path('$tmp/canon-block.txt').write_text(text[start:end].rstrip('\n') + '\n')
    "
    tail -n +5 openspec/changes/scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md \
-     > /tmp/packet-block.txt
+     > "$tmp/packet-block.txt"
    ```
-2. `git diff --no-index --numstat /tmp/canon-block.txt /tmp/packet-block.txt`
-   reads **18  5** (18 added, 5 removed); `diff -u /tmp/canon-block.txt
-   /tmp/packet-block.txt | grep -c '^@@'` reads **3** — the sentence, the one
+2. `git diff --no-index --numstat "$tmp/canon-block.txt" "$tmp/packet-block.txt"`
+   reads **18  5** (18 added, 5 removed); `diff -u "$tmp/canon-block.txt"
+   "$tmp/packet-block.txt" | grep -c '^@@'` reads **3** — the sentence, the one
    WHEN clause, and the appended scenario, each at a different place in the
    file, and nothing else.
 3. The `derive_units` comparison, through the modified-block-currency
