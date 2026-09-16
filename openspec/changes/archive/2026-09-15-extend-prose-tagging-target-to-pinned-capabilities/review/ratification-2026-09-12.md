@@ -209,3 +209,18 @@ compares against from here on. Every other origin key is unmoved.
   its `tasks.md` measured the four findings, rejected both mechanical fixes and
   named this grammar extension as the honest one; its README archived-ledger
   entry carries the owed successor as numbered item (7), UNTICKED by this act.
+
+## Addendum — the separate archive word (2026-09-15)
+
+Appended at the archive, after everything above and editing none of it. The
+packet was REALIZED by PR #1040 → `74348374bcf999b80ac2e442b3fd3bf98473a20a`
+(2026-09-14T22:14:26Z; `main`'s own `pytest-suite` run 34903098178 green on that
+merge commit; REALIZED record #992 5671554584) on Brett Heap's words
+"realize it" (#992 5662218844) and "merge 1040 when green, then post the
+records" (#992 5670841396), and ARCHIVED on his SEPARATE word — verbatim
+**"archive it"**, 2026-09-15, #992 5686413187 (mirror #745 5686413478) — via
+`scripts/proposal-support.py . archive`, promoting the two `## MODIFIED` blocks
+into `openspec/specs/document-lifecycle/spec.md` and
+`openspec/specs/doc-health/spec.md`. The four `tag-hygiene` findings the packet
+was filed for CHANGED FORM and stay FOUR until openXwallet's pin record publishes
+a `capabilities:` enumeration — the publisher's act, no part of this packet.

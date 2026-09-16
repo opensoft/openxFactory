@@ -650,8 +650,9 @@ def test_a_self_looping_symlink_record_cannot_be_resolved_and_reads_nothing(
         "contracts/loop-pin.yaml in root alpha cannot be resolved "
         "(unresolvable)"]
     assert findings[0].action == (
-        "keep the pin record inside its root's contracts/ directory rather "
-        "than a symlink out of it (document-lifecycle grammar)")
+        "make the pin record's path resolvable inside its root's "
+        "contracts/ — no symlink loop, no unreadable link, no malformed "
+        "path (document-lifecycle grammar)")
     assert seams["_pin_record_text"].calls == [], "nothing was read"
 
 
