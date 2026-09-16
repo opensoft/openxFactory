@@ -3346,7 +3346,7 @@ Archived changes:
 
 - [add-composed-view-authoring](openspec/changes/archive/2026-09-16-add-composed-view-authoring/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
-  [PR #PRNUM](https://github.com/opensoft/openxFactory/pull/PRNUM), under **RULING
+  [PR #1056](https://github.com/opensoft/openxFactory/pull/1056), under **RULING
   Q6** (Brett Heap, 2026-09-04T17:49Z,
   [#656](https://github.com/opensoft/openxFactory/issues/656)), encoded at
   `split-opendox-two-layer-product` `tasks.md` § 6.4 and `design.md` § D9. **THE
