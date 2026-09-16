@@ -3110,7 +3110,10 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     # replaced — "these are the numbers each leg's arrival run must report" —
     # was false of the two legs RULED Q6 touches: this table counts a
     # re-destined row at the `destination:` it still names — and a RETIRED one
-    # too — so `opendox_code`'s run reports 117 arrived where the table says 123
+    # too, which is why the marker sentence names BOTH rulings and this constant
+    # moves with it (Copilot review, this pull request): the qualifier said only
+    # RULED Q6 while the paragraph below the table had already grown a second
+    # subtraction — so `opendox_code`'s run reports 117 arrived where the table says 123
     # (four re-destined away under RULED Q6 and two retired under RULED
     # 5656343213) and `openxdox_code`'s reports 96 where it says 92. A floor that overstated that would be worse
     # than one that says where it stops, which is the rule
@@ -3119,7 +3122,8 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     # rather than quietly moving the block's boundary.
     marker = ("Per destination, counted at the `destination:` each row names "
               "— which is what\neach leg's arrival run reports, save where "
-              "RULED Q6 re-destined a row (below):")
+              "RULED Q6 re-destined a row or RULED\n5656343213 retired one "
+              "(below):")
     # THE BLOCK IS BOUNDED BY TWO FIXED SENTENCES, not by anything about where
     # a table LOOKS like it ends (Copilot review, rounds five and six on this
     # PR). Round five's extent walked forward across a blank line for as long
