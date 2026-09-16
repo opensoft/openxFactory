@@ -67,12 +67,12 @@
 # NO APP TOKEN, AND YET THE URL REWRITE IS STILL REQUIRED — the wallet gate's
 # own two facts, and they hold here for the same two reasons. All three
 # gitlinks are PUBLIC (`openXwallet` flipped 2026-09-07T15:24:11Z; `openXdox`
-# and `openDox` were re-measured `visibility: public` on 2026-09-11), so plain
-# `github.token` resolves them and this gate mints nothing; `.gitmodules` still
-# spells every gitlink `git@github.com:` deliberately, so that a human clone
-# uses the operator's key instead of prompting, and a runner has no such key —
-# which is what makes the `insteadOf` rewrite BEFORE checkout the step that
-# makes the gitlinks fetchable at all.
+# and `openDox` were re-measured `visibility: public` on 2026-09-11), so this
+# gate mints nothing and reads them over plain HTTPS; `.gitmodules` still spells
+# every gitlink `git@github.com:` deliberately, so that a human clone uses the
+# operator's key instead of prompting, and a runner has no such key — which is
+# what makes the `insteadOf` rewrite BEFORE checkout the step that makes the
+# gitlinks fetchable at all.
 #
 # TWO DEPARTURES FROM THE WALLET SHAPE. Both are FORCED by what this gate
 # consumes, both are stated, and neither weakens anything.
@@ -173,14 +173,12 @@ jobs:
       # BEFORE CHECKOUT, and the ordering is the property: `insteadOf` applied
       # after checkout is `insteadOf` too late for the nested clone the init
       # below performs. No mint stands in front of it — see the header; all
-      # three gitlinks are public and `github.token` is what the retired App
-      # expression already fell back to.
-      - name: Rewrite ssh submodule URLs for token auth
+      # three gitlinks are public and the rewrite must not leave any bearer in
+      # the runner's git config before pull-request-controlled tests execute.
+      - name: Rewrite ssh submodule URLs for anonymous https
         working-directory: .
         run: |
-          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
-        env:
-          TOKEN: ${{ github.token }}
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
 
       # `path: openxFactory` is load-bearing — header departure (b).
       # `fetch-depth: 0` mirrors `pytest-suite.yml`: the consumer suite reads
@@ -196,6 +194,7 @@ jobs:
         with:
           path: openxFactory
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Init the openDox and openXdox gitlinks only, RECURSIVELY
         run: git submodule update --init --recursive openDox openXdox

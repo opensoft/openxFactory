@@ -214,10 +214,17 @@ def test_the_ssh_url_is_rewritten_before_checkout(steps: list[dict]) -> None:
     checkout = next(i for i, s in enumerate(steps)
                     if str(s.get("uses", "")).startswith("actions/checkout"))
     assert rewrite < checkout
+    assert steps[rewrite]["run"].strip() == (
+        'git config --global url."https://github.com/".insteadOf '
+        '"git@github.com:"')
     assert steps[rewrite].get("working-directory") == ".", (
         "the rewrite runs BEFORE the checkout, so it cannot run inside the "
         "directory the checkout has not created yet; it must override the "
         "job's `defaults.run.working-directory` with `.`")
+    assert "env" not in steps[rewrite], (
+        "the rewrite step must not inject a bearer into the global git config; "
+        "the initialized gitlinks are public and an anonymous HTTPS rewrite is "
+        "sufficient")
 
 
 def test_the_checkout_lands_at_the_aggregation_shaped_path(
@@ -253,6 +260,10 @@ def test_the_checkout_does_not_use_a_blanket_submodule_init(
             assert not step.get("with", {}).get("submodules"), (
                 "the checkout must not declare `submodules:`; the init is a "
                 "separate, scoped step")
+            assert step.get("with", {}).get("persist-credentials") is False, (
+                "the checkout must set `persist-credentials: false` so the "
+                "runner does not leave a bearer in the repository config before "
+                "pytest executes pull-request-controlled code")
 
 
 def test_the_submodule_init_is_scoped_to_the_two_consumed_gitlinks(
