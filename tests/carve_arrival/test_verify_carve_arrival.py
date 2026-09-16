@@ -1538,6 +1538,85 @@ def test_both_tools_read_the_effective_arrival_identically() -> None:
                                                   "src/pkg/a.py")
 
 
+def test_both_tools_resolve_a_destination_key_identically() -> None:
+    """THE SECOND SHARED DEFINITION, held equal the way `effective_arrival`
+    already is (§ 3.4 slice S8; the follow-up REGISTERED at `#1011`'s landing).
+
+    A `destinations:` KEY IS A LABEL, NEVER A REFERENT, and the validator's
+    `check_shape` deliberately admits two keys sharing one `{repository, leg}`
+    body. Both tools therefore resolve a key to that body before asking whether
+    two destinations are "the same" — and if the two readings ever drifted, one
+    tool would gate a document the other could not satisfy, which is precisely
+    what RULED Q-L8 (c) cost six declared lines to repair.
+    """
+    other = _load_manifest_validator()
+    destinations = {
+        "scratch_code": {"repository": "opensoft/scratch-code", "leg": "code"},
+        "scratch_code_alias": {"repository": "opensoft/scratch-code",
+                               "leg": "code"},
+        "scratch_spec": {"repository": "opensoft/scratch-spec", "leg": "spec"},
+        "half": {"repository": "opensoft/scratch-code"},
+        "not_a_mapping": ["opensoft/scratch-code", "code"],
+    }
+    for key in (*destinations, "absent", None, 7):
+        assert (MODULE._resolved_destination(key, destinations)
+                == other._resolved_destination(key, destinations)), key
+    # the claim the two tools are making, spelled out once
+    resolve = MODULE._resolved_destination
+    assert resolve("scratch_code", destinations) == \
+        resolve("scratch_code_alias", destinations)
+    assert resolve("scratch_code", destinations) != \
+        resolve("scratch_spec", destinations)
+    # an UNKNOWN key is a 1-tuple of itself: it can never equal a resolved
+    # 2-tuple, and two different unknown keys never equal each other
+    assert resolve("absent", destinations) == ("absent",)
+    assert resolve("absent", destinations) != resolve("other", destinations)
+    # a malformed `destinations:` degrades to the label comparison rather than
+    # crashing — this file READS the manifest and does not revalidate it
+    for broken in (None, [], "scratch_code"):
+        assert resolve("scratch_code", broken) == ("scratch_code",)
+
+
+def test_two_keys_for_one_leg_are_read_as_one_destination(
+        carve: Carve) -> None:
+    """The behaviour that reading matters for. A row re-destined from
+    `scratch_code` to an ALIAS of `scratch_code` does not LEAVE that leg, so
+    the file must stay exactly where it is — and reading the keys as strings
+    made this file demand it both PRESENT (this row's own arrival) and ABSENT
+    (its vacation) at one real destination, an unsatisfiable pair that would
+    have refused `arrival-not-vacated` on a file the manifest still says the
+    leg carries. `validate-carve-manifest.py` refuses such a document at the
+    gate that runs first; this file must not ACT on one either.
+    """
+    doc = carve.manifest_doc()
+    doc["destinations"]["scratch_code_alias"] = dict(
+        doc["destinations"]["scratch_code"])
+    row = _re_destine(doc, to="scratch_code_alias",
+                      to_path=RE_DESTINED_FROM_PATH)
+    assert row["re_destined"]["from"] == "scratch_code", row
+    manifest = carve.write_manifest(doc)
+    # ONE tree, built from both spellings — the fixture's own `_placement`
+    # reading is a string comparison by design (it is the test's third reading
+    # of the field, deliberately the naive one), so the alias half is laid down
+    # by a second call into the same directory rather than by teaching the
+    # fixture what the subject is supposed to know.
+    dest = carve.materialise(doc, "scratch_code")
+    carve.materialise(doc, "scratch_code_alias", name="dest-scratch_code")
+    # the file is where the carve put it, because nothing moved
+    assert (dest / RE_DESTINED_FROM_PATH).is_file()
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert done.returncode == 0, done.stdout + done.stderr
+    summary = json.loads(done.stdout)
+    assert summary["re_destined"]["vacated"] == [], summary
+    # and the row is still OWED here, counted as this leg's arrival
+    assert summary["rows"] == len(
+        [r for r in doc["rows"]
+         if r["disposition"] in ("moved_verbatim", "moved_with_declared_edit")
+         and r["destination"] in ("scratch_code", "scratch_code_alias")]), \
+        summary
+
+
 def test_the_module_records_the_effective_arrival_and_its_limit() -> None:
     """The disclosure, asserted in the file that carries it: what the field
     moves, and the limit that ONE destination is verified per run, so the two
@@ -1952,8 +2031,20 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     _text, doc = the_landed_manifest()
     text = runbook.read_text(encoding="utf-8")
 
-    marker = ("Per destination, and these are the numbers each leg's arrival "
-              "run must report:")
+    # THE MARKER SPANS TWO LINES OF THE RUNBOOK and is pinned with its own
+    # newline (Copilot review, round eleven on this PR). The sentence it
+    # replaced — "these are the numbers each leg's arrival run must report" —
+    # was false of the two legs RULED Q6 touches: this table counts a
+    # re-destined row at the `destination:` it still names, so `opendox_code`'s
+    # run reports 119 arrived where the table says 123 and `openxdox_code`'s
+    # reports 96 where it says 92. A floor that overstated that would be worse
+    # than one that says where it stops, which is the rule
+    # `test_two_legs_may_apply_one_replicas_line_differently` is written under.
+    # A re-wrap of the sentence breaks this anchor LOUDLY, by the count below,
+    # rather than quietly moving the block's boundary.
+    marker = ("Per destination, counted at the `destination:` each row names "
+              "— which is what\neach leg's arrival run reports, save where "
+              "RULED Q6 re-destined a row (below):")
     # THE BLOCK IS BOUNDED BY TWO FIXED SENTENCES, not by anything about where
     # a table LOOKS like it ends (Copilot review, rounds five and six on this
     # PR). Round five's extent walked forward across a blank line for as long
@@ -2095,11 +2186,27 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
 
     # AND THE ONE INVARIANT THAT TIES THE TABLE TO THE AGGREGATE ABOVE IT: a
     # replica row names no destination at all, so the per-leg figures sum to
-    # exactly one less than the manifest's declared-line total (RULED Q-L7 (a),
-    # § 2's own "the one replica line belongs to no destination column below").
+    # the manifest's declared-line total MINUS the lines such rows declare
+    # (RULED Q-L7 (a), § 2's own "the two replica lines belong to no
+    # destination column below").
+    #
+    # THE SUBTRAHEND IS RE-DERIVED AND USED TO BE THE CONSTANT `1` (the
+    # pre-existing `openxdox_code` annotation, `#656` CLAIM `5656688910`). The
+    # replica row declared exactly one line from RULED Q-L7 (a) until that act
+    # declared openXdox-code#14's `:271` beside it, and the constant would have
+    # refused a lawful document for the one thing the grammar explicitly
+    # permits: `edits:` is a field of a ROW, so a replica row may declare as
+    # many lines as its copies differ on, and Q-L7 (a) bounds the LINE and
+    # never the count. What must hold is that the columns exhaust exactly the
+    # rows that HAVE a destination — which is what this now states, and what
+    # the sentence beneath the table says in words.
     total = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
-    assert sum(claimed[3] for claimed in stated.values()) == total - 1, stated
+    no_destination = sum(len(edit["lines"]) for row in doc["rows"]
+                         if not row.get("destination")
+                         for edit in row.get("edits") or [])
+    assert sum(claimed[3] for claimed in stated.values()) == (
+        total - no_destination), (stated, total, no_destination)
 
 
 # --------------------------------------------------------------------------
@@ -2110,6 +2217,13 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
 # § 2's own two sentences bound the block, for the per-destination parser's
 # reason: every heuristic for "where the block ends" is a boundary the document
 # can move without anyone noticing it moved.
+# § 2 spells small counts as WORDS, so the check that the cell states the
+# current one has to spell it the same way. Beyond this table the digits are
+# compared instead — a runbook that reaches eleven declared lines on one
+# replica row has a bigger problem than its spelling.
+NUMBER_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five",
+                6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+
 DISPOSITION_MARKER = "mapping manifest. Measured in the landed file:"
 DISPOSITION_TERMINATOR = "**AND A MOVED ROW MAY CARRY `re_destined:`"
 DISPOSITION_HEADER = ("| disposition | rows | the proof owed at the "
@@ -2138,7 +2252,7 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
     `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
     pins ... a transcribed count is a claim, a summed one is a measurement".
     THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
-    PR). It pins the MANIFEST's own aggregate — `(2366, 176)` and the 20
+    PR). It pins the MANIFEST's own aggregate — `(2454, 176)` and the 20
     replica rows — which is a claim about the file and not about the sentence
     that transcribes it. So every cell here (three disposition counts, the
     replica count, the three per-class totals, the moved-row total, the carrier
@@ -2221,10 +2335,12 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
         "document, so a row in no stated class is a row nothing owes a proof "
         "for")
 
-    # THE REPLICA CLAUSE inside the `not_moved` cell. Both halves are the
-    # manifest's: how many replica rows there are, and that exactly ONE of them
-    # declares a line (RULED Q-L7 (a)) — the second replica to declare one
-    # makes this sentence false, and says so here.
+    # THE REPLICA CLAUSE inside the `not_moved` cell. All three halves are the
+    # manifest's: how many replica rows there are, that exactly ONE of them
+    # declares lines (RULED Q-L7 (a)) — the second replica to declare any makes
+    # this sentence false, and says so here — and HOW MANY that one declares,
+    # which moved from one to two at the pre-existing `openxdox_code`
+    # annotation (`#656` CLAIM `5656688910`) and is pinned rather than reworded.
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     cell = proofs["not_moved"]
@@ -2233,11 +2349,16 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
         f"{len(replicas)} `{MODULE.REPLICA_REASON}` rows: {cell!r}")
     declaring = [row for row in replicas if row.get("edits")]
     assert len(declaring) == 1, (
-        "§ 2's `not_moved` cell says ONE replica row declares a line and the "
+        "§ 2's `not_moved` cell says ONE replica row declares lines and the "
         f"landed manifest has {len(declaring)}: "
         f"{[row['source_path'] for row in declaring]}. The sentence is the "
         "reason the human summary line reads `verified (byte-identical, or …)`")
-    assert "**one of them declares a line**" in cell, cell
+    assert "**one of them declares lines**" in cell, cell
+    declared_on_it = sum(len(edit["lines"]) for edit in declaring[0]["edits"])
+    spelled = NUMBER_WORDS.get(declared_on_it, str(declared_on_it))
+    assert f"one line at that ruling, {spelled} today" in cell, (
+        f"§ 2's `not_moved` cell does not state the {declared_on_it} line(s) "
+        f"the one declaring replica row carries today: {cell!r}")
 
     # THE TOTALS SENTENCE — four numbers and a class list, each a sum.
     prose = " ".join(blocks[1].split())
@@ -3392,6 +3513,65 @@ def test_admissions_file_default_path_resolves_and_admits(carve: Carve
     assert payload["admissions_file"] == str(admissions)
 
 
+def test_an_admission_declared_under_an_ALIAS_of_the_destination_admits(
+        carve: Carve) -> None:
+    """THE GOVERNED ADMISSIONS PATH READS THE REAL DESTINATION, not the CLI
+    label (Copilot review, PR #1025, accurate).
+
+    `check_shape` admits two `destinations:` keys sharing one
+    `{repository, leg}` body on purpose, and every other reader in the tool
+    resolves a key to that body. The admissions selection did not: it was
+    `.get(args.destination)`, so a `created:` entry filed under one alias made
+    the SAME CHECKOUT pass through that key and refuse
+    `arrival-undeclared-file` through the other. A verdict that depends on
+    which name the caller typed is not a verdict about the tree."""
+    doc = carve.manifest_doc()
+    doc["destinations"]["scratch_code_alias"] = dict(
+        doc["destinations"]["scratch_code"])
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    (dest / "src/pkg/created.py").write_text("CREATED = 1\n", encoding="utf-8")
+    admissions = _admissions_doc({"scratch_code": []})
+    admissions["destinations"]["scratch_code_alias"] = {
+        "created": [_entry("src/pkg/created.py")]}
+    carve.write_admissions(admissions)
+    for key in ("scratch_code", "scratch_code_alias"):
+        done = run(carve, manifest, "--destination", key,
+                   "--dest-root", str(dest), "--phase", "A", "--json")
+        assert done.returncode == 0, (key, done.stdout + done.stderr)
+        payload = json.loads(done.stdout)
+        assert payload["declared_admissions_used"] == [
+            "src/pkg/created.py"], (key, payload)
+
+
+def test_one_path_admitted_under_TWO_aliases_of_one_leg_refuses(
+        carve: Carve) -> None:
+    """The explicit duplicate rule the union needs. `read_admissions` already
+    refuses a repeat WITHIN one destination's list because a file cannot have
+    two provenances; the same claim spelled under an alias is the same claim
+    about the same leg, with two `since` values and no rule saying which is the
+    file's. Refused rather than silently collapsed — two entries are two review
+    decisions, and this file's whole design is that an admission is a one-line
+    diff somebody read."""
+    doc = carve.manifest_doc()
+    doc["destinations"]["scratch_code_alias"] = dict(
+        doc["destinations"]["scratch_code"])
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, "scratch_code")
+    (dest / "src/pkg/created.py").write_text("CREATED = 1\n", encoding="utf-8")
+    admissions = _admissions_doc(
+        {"scratch_code": [_entry("src/pkg/created.py")]})
+    admissions["destinations"]["scratch_code_alias"] = {
+        "created": [_entry("src/pkg/created.py", reason="the alias's copy")]}
+    carve.write_admissions(admissions)
+    done = run(carve, manifest, "--destination", "scratch_code",
+               "--dest-root", str(dest), "--phase", "A", "--json")
+    assert refusal(done) == "arrival-unreadable"
+    detail = json.loads(done.stdout)["detail"]
+    assert "scratch_code_alias" in detail, detail
+    assert "twice for one real destination" in detail, detail
+
+
 def test_a_declared_admission_admits_exactly_the_file_it_names(
         carve: Carve) -> None:
     """Declaring `created.py` must not admit a DIFFERENT undeclared file: the
@@ -3795,6 +3975,20 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     without an exact path+`since` pin, swapping one for another well-formed
     entry, or dropping one while adding another, passes every local test and
     lets the governed admission claim drift silently.
+    AMENDED A SEVENTH TIME by § 3.4 SLICE S8's own annotation PR (`#656`
+    comment `5649985838`): one more `openxdox_code` file,
+    `tests/opendox_bundle.py` — the module through which that leg's 31
+    mis-pointed suites read the PINNED openDox bundle (§ 1.2(d)'s measured
+    defect: they resolved `REPO_ROOT / "src" / "openxdox" / "web"`, a
+    directory openXdox-code does not have), and which builds RULED Q5's
+    COMPOSED root for the four suites asserting across the seam. Admitted the
+    governed way because the leg PR that lands it (opensoft/openXdox-code#19)
+    pairs with — and lands after — this annotation PR. Checked by PRESENCE and
+    by its own `since`, the same footing as every bump above; added to these
+    durable assertions in the same act that declared it, on Copilot's review of
+    PR #1025 (accurate: the generic shape checks below admit any well-formed
+    entry, so this path and its provenance commit could have been changed or
+    dropped without a failure).
 
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
@@ -3838,6 +4032,18 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             "is no longer declared for openxdox_code")
         assert seed[path]["since"] == (
             "bfd95063b2a71be097a04bb6a3a99c4c131dd322")
+    # THE SEVENTH BUMP: § 3.4 SLICE S8's own `openxdox_code` file (`#656`
+    # comment `5649985838`), admitted the GOVERNED way on the same Q-L1
+    # footing as every bump below (the leg PR, opensoft/openXdox-code#19,
+    # pairs with — and lands after — this annotation PR). `since` is the
+    # file's OWN introducing commit (`git log --diff-filter=A`), not the leg
+    # branch's later tip — the provenance contract the FOURTH and FIFTH bumps
+    # below state.
+    assert "tests/opendox_bundle.py" in seed, (
+        "tests/opendox_bundle.py is § 3.4 SLICE S8's own new file (`#656` "
+        "comment 5649985838) and is no longer declared for openxdox_code")
+    assert seed["tests/opendox_bundle.py"]["since"] == (
+        "c8e4a59bd8eab231e5903e26b2a9b08e9e527fba")
     # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2):
     # `opendox_code`'s own three new files, admitted the GOVERNED way per
     # Q-L1 (the leg PR pairs with this annotation PR, which lands first) —

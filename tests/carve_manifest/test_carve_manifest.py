@@ -1791,6 +1791,95 @@ def test_a_re_destination_to_the_destination_it_came_from_refuses(
     assert "re_destined" in combined, combined
 
 
+def test_a_re_destination_between_two_aliases_of_one_leg_refuses(
+        scratch: Scratch) -> None:
+    """THE RESOLVED-IDENTITY READING of `to != from` (§ 3.4 slice S8; the
+    follow-up REGISTERED at `#1011`'s landing, `opensoft/openxFactory#656`,
+    lane `openxfactory-4-opendox-extraction`).
+
+    `check_shape` deliberately ADMITS two `destinations:` keys sharing one
+    `{repository, leg}` body — its own comment says why — and a key is a LABEL,
+    never a referent. So `to != from` compared as STRINGS left exactly one
+    hole in the check that is supposed to guarantee a re-destination MOVES the
+    file: an ALIAS PAIR passed. The document that results is unsatisfiable at
+    the destination, which is the point — `verify-carve-arrival.py` would
+    require these bytes PRESENT (this row's arrival) and ABSENT (its vacation)
+    at ONE real leg, and the leg would refuse `arrival-not-vacated` on a file
+    the manifest still says it carries. Refused here, at the gate that runs
+    first, in the same shape `check_surface`'s duplicate-arrival map already
+    uses.
+    """
+    doc = clean_manifest(scratch)
+    doc["destinations"]["openxdox_code_alias"] = dict(
+        doc["destinations"]["openxdox_code"])
+    row = _re_destine(doc, to="openxdox_code_alias",
+                      to_path="src/openxdox/relocated.py")
+    assert row["re_destined"]["from"] == "openxdox_code", row
+    assert row["re_destined"]["to"] != row["re_destined"]["from"], row
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "openxdox_code_alias" in combined, combined
+    assert "ONE REAL DESTINATION" in combined, combined
+    assert "opensoft/openXdox-code" in combined, combined
+
+
+def test_an_alias_that_is_a_DIFFERENT_leg_is_a_lawful_re_destination(
+        scratch: Scratch) -> None:
+    """The other side of the same reading, so the check is a discriminator and
+    not a blanket refusal: two keys whose `{repository, leg}` bodies DIFFER are
+    two destinations, and a re-destination between them moves the file. Only
+    the resolved IDENTITY is compared — never the spelling of the key."""
+    doc = clean_manifest(scratch)
+    doc["destinations"]["opendox_root"] = {
+        "repository": "opensoft/openDox-code", "leg": "assembly"}
+    _re_destine(doc, to="opendox_root", to_path="src/opendox/beta.py")
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "1 row(s) RE-DESTINED by ruling" in done.stdout, done.stdout
+
+
+def test_a_chain_spelled_across_two_aliases_of_one_leg_refuses(
+        scratch: Scratch) -> None:
+    """The chain check takes the same reading, for the same reason: the arrival
+    one row CREATES is the arrival the other MOVES ON even where the two rows
+    spell that one real leg with two different keys. A reader would still have
+    to compose two hops to learn where one file is, and the two vacation
+    questions would still contradict each other."""
+    doc = clean_manifest(scratch)
+    doc["destinations"]["opendox_code_alias"] = dict(
+        doc["destinations"]["opendox_code"])
+    _re_destine(doc, "beta.py", to="opendox_code",
+                to_path="src/opendox/relay.py")
+    alpha = row_named(doc, "alpha.py")
+    alpha["re_destined"] = {
+        "from": alpha["destination"], "from_path": alpha["destination_path"],
+        "to": "openxdox_code", "to_path": "src/openxdox/alpha.py",
+        "ruling": RULING_CITATION,
+    }
+    # `alpha.py` vacates `opendox_code:<its path>`; `beta.py` lands on it — but
+    # spelled with the ALIAS, which the string comparison could not see.
+    beta = row_named(doc, "beta.py")
+    beta["re_destined"]["to"] = "opendox_code_alias"
+    beta["re_destined"]["to_path"] = alpha["destination_path"]
+    combined = refuses(scratch, doc, "carve-re-destined-chain")
+    assert "AMENDED IN PLACE" in combined, combined
+
+
+def test_an_unknown_destination_key_still_falls_to_the_vocabulary_refusal(
+        scratch: Scratch) -> None:
+    """The resolver's own guard, asserted rather than assumed: a key
+    `destinations:` does not carry resolves to a 1-TUPLE of the key itself — a
+    shape that can never equal a resolved 2-tuple — so two unknown keys never
+    compare equal to each other by accident, and `check_vocabulary` keeps its
+    own refusal instead of having it pre-empted by a crash here."""
+    doc = clean_manifest(scratch)
+    row = _re_destine(doc)
+    row["re_destined"]["to"] = "opendox_kode"
+    row["re_destined"]["from"] = "openxdox_kode"
+    row["destination"] = "openxdox_kode"
+    refuses(scratch, doc, "carve-vocabulary-unknown")
+
+
 def test_a_re_destination_must_name_the_placement_the_row_made(
         scratch: Scratch) -> None:
     """`from`/`from_path` ARE the row's own `destination`/`destination_path`,
@@ -1996,6 +2085,50 @@ def test_a_re_destined_row_may_still_be_also_replicated_at_its_original_destinat
     row["also_replicated_to"] = [original_destination]
     summary = _summary(scratch, doc)
     assert summary["re_destined"] == 1, summary
+
+
+def test_a_row_may_not_be_also_replicated_at_an_ALIAS_of_its_own_destination(
+        scratch: Scratch) -> None:
+    """THE SAME RESOLVED-IDENTITY READING, ONE CHECK OVER (Copilot review of
+    PR #1025, accurate).
+
+    The self-replica refusal above compared `also_replicated_to`'s entries
+    against `effective_arrival(row)` AS RAW LABELS, while this slice made
+    `verify-carve-arrival.py::also_replicated_rows` resolve both sides. A row
+    listing an ALIAS of the destination it arrives at therefore passed HERE and
+    was DROPPED THERE — the manifest claiming a replica no run can verify and
+    `--replica-at` cannot declare, which is the self-replica refusal bypassed by
+    spelling. A `destinations:` key is a LABEL and `check_shape` admits two keys
+    for one `{repository, leg}` body on purpose, so the two tools must agree on
+    what "the same destination" means or the asymmetry is the finding.
+    """
+    doc = clean_manifest(scratch)
+    doc["destinations"]["openxdox_code_alias"] = dict(
+        doc["destinations"]["openxdox_code"])
+    row = row_named(doc, "beta.py")
+    assert row["destination"] == "openxdox_code", row
+    row["also_replicated_to"] = ["openxdox_code_alias"]
+    combined = refuses(scratch, doc, "carve-disposition-inconsistent")
+    assert "also_replicated_to" in combined, combined
+    assert "openxdox_code_alias" in combined, combined
+    assert "ONE REAL DESTINATION" in combined, combined
+
+
+def test_an_also_replicated_alias_naming_a_DIFFERENT_leg_stays_lawful(
+        scratch: Scratch) -> None:
+    """The discriminator, so the check above is not a blanket refusal of every
+    alias: two keys whose `{repository, leg}` bodies DIFFER are two real
+    destinations, and a replica declared at one of them is somewhere ELSE — the
+    thing `also_replicated_to:` is for."""
+    doc = clean_manifest(scratch)
+    doc["destinations"]["openxdox_root"] = {
+        "repository": "opensoft/openXdox-code", "leg": "assembly"}
+    row = row_named(doc, "beta.py")
+    assert row["destination"] == "openxdox_code", row
+    row["also_replicated_to"] = ["openxdox_root"]
+    scratch.write(doc)
+    done = run(scratch)
+    assert done.returncode == 0, done.stdout + done.stderr
 
 
 # --------------------------------------------------------------------------
@@ -2331,7 +2464,7 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
 # Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `5628560136`).
 #
 # WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion
-# `(2366, 176)` would still pass if any of these 782 lines had landed on the
+# `(2454, 176)` would still pass if any of these 782 lines had landed on the
 # wrong row, under the wrong class, or as a different set summing to the same
 # total — which is the reason every slice since ASK-7 has pinned its own window
 # by row and class. S7 edits 33 rows where S5 edited 11, so the pins are a TABLE
@@ -2589,8 +2722,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     The two rows the ruling names, read out of the real document: a moved row
     that is ALSO replicated at `openxdox_code`, and a replica row declaring the
-    one line its copies must differ on. The manifest is REQUIRED and not
-    branched on: see `the_landed_manifest()`.
+    lines its copies may differ on. That replica row declares TWO since the
+    pre-existing `openxdox_code` annotation (`#656` CLAIM `5656688910`) — Q-L7
+    (a)'s own `:25` depth constant and openXdox-code#14's `:271` § 4.4 fixture
+    — and the assertion below pins both, in order, with their classes: `edits:`
+    is a field of a ROW, so each is permitted at EVERY replica of this file and
+    obligatory at none. The manifest is REQUIRED and not branched on: see
+    `the_landed_manifest()`.
 
     Also carries RULED Q-L1's own per-row contract for the two rows S2 (RULED
     Q5, `#656` comment 5642758731) annotated, added on Copilot review of PR
@@ -2609,8 +2747,15 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     replica = rows["tests/ideation-dashboard/conftest.py"]
     assert replica["disposition"] == "not_moved", replica
     assert replica["reason"] == MODULE.REPLICA_REASON, replica
+    # The SECOND entry comes from the pre-existing `openxdox_code` annotation
+    # (`#656` CLAIM `5656688910`): openXdox-code#14 appends a 27-line § 4.4
+    # pytest fixture beside this file's LAST carve line, and an insertion at
+    # the end of a file has ONE neighbour. A replica has no row of its own, so the
+    # declaration is row-wide and openDox-code's copy simply does not take it
+    # (measured at `05bbde80`: 271 lines, the `:25` depth fix and nothing
+    # else) — a permission, never an obligation.
     assert [(edit["class"], edit["lines"]) for edit in replica["edits"]] == \
-        [("path constants", [25])], replica
+        [("path constants", [25]), ("adapter calls", [271])], replica
 
     # The ruling's own pairing: the replica IMPORTS the moved row's module
     # unconditionally, which is why one amendment carries both.
@@ -2770,7 +2915,66 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # `opendox_code`, and converts SEVENTEEN of them from `moved_verbatim`.
     # Every file in the served bundle is edited because every file in it
     # rendered a word. 1584 + 782 = 2366 on 159 + 17 = 176 rows.
-    assert (lines, carrying) == (2366, 176), (lines, carrying)
+    #
+    # AND THEN THE § 3.4 SLICE-S8 ANNOTATION (`#656` comment `5642758731`,
+    # whose Q-L1 paragraph binds every § 3.4 slice; S8 CLAIM `#656` comment
+    # `5649985838`) moved `lines` once more, on ZERO new rows. S8 is "re-home
+    # the 48 test files and un-narrow `validate`", and it carries NO
+    # `re_destined:` row: measured at both leg heads, not one of the 48 may
+    # lawfully change leg, because every one of the 23 at `openxdox_code`
+    # imports a real `openxdox` module and RULED OQ-G's TEST HOMES rule places
+    # a mixed file there for exactly that reason. The defect is the PATH
+    # CONSTANT, which is § 1.2(d)'s own sentence — and that reading is now
+    # RULED: `#656` comment `5656343213`, Brett Heap, 2026-09-13, by
+    # interactive multi-choice, "the path constant moves, the file does
+    # not", with boundary-note amendment #3 rewriting § 5's S8 row and
+    # § 1.2(d) to it (48 re-measured to 43). THIRTEEN rows gain a
+    # `path constants` entry — one each, and TWO for
+    # `test_doxbench_mutation_boundary.py`, whose first entry the same slice
+    # corrects — and every one of the thirteen was ALREADY a carrier, so
+    # `carrying` does not move: six at `opendox_code` (`test_outline_model.py`
+    # 1, `test_doxbench_view.py` 3, `test_doxbench_knowledge.py` 2,
+    # `test_doxbench_document_abstract.py` 2, `test_doxbench_memory_gateway.py`
+    # 2, `test_bullseye_widget.py` 1 = 11) and seven at `openxdox_code`
+    # (`test_doxbench_mutation_boundary.py` 2 + 10, `test_doxbench_save.py` 5,
+    # `test_doxbench_scope.py` 2, `test_renderer.py` 2,
+    # `test_doxbench_abstract_store.py` 3, `test_doxbench_telemetry.py` 3,
+    # `test_doxbench_turns.py` 2 = 29). The other edited sites across the two
+    # legs needed no new line: the carve's own `import rewrites` pass already
+    # declared the roots it rewrote, and an import inserted beside an
+    # already-declared import line is declared by its neighbour
+    # (`_check_declared_lines`' insertion rule). 2366 + 40 = 2406 on the same
+    # 176 rows. One new file is admitted at `openxdox_code`:
+    # `tests/opendox_bundle.py`.
+    #
+    # TEN OF THE FORTY ARE A CORRECTION TO THIS SLICE'S OWN FIRST PUSH, and
+    # they are why the second push re-ran `_check_declared_lines` file-by-file
+    # against both leg heads instead of reading the sweep's diff:
+    # `test_doxbench_mutation_boundary.py` and `test_renderer.py` were short,
+    # and nothing would have said so until a phase-B run at a tree carrying
+    # every other slice's declarations too.
+    #
+    # AND THEN THE PRE-EXISTING `openxdox_code` ANNOTATION (`#656` CLAIM
+    # `5656688910`) moved the LINE figure alone. It is not a § 3.4 slice's
+    # annotation, and not the FIRST act on this document that is not one —
+    # the ASK-7 declared-edit window (`#656` comment `5635150678`, PR #995) is
+    # earlier, and the runbook's § 2 history records it. It differs from that
+    # one in what it declares: ASK-7's four lines were RULED to be left and
+    # fixed "at the next declared-edit window", so they were owed to someone
+    # from the day of the ruling; these were scheduled by no ruling at all:
+    # openXdox-code#14 (`3840c167`) and #16
+    # (`17384c07`) landed RULING C2's § 4.4 work at the destination BEFORE
+    # Q-L1's pairing became general (`#656` comment `5642758731`,
+    # 2026-09-12 02:07Z), so no slice ever owned their edits, and openxFactory
+    # #1023 § 5 listed them as `openxdox_code`'s remaining refusals rather than
+    # absorbing them. Four rows are declared — `gate_console.py` (26 lines),
+    # `generator.py` (17, split into the two acts that made them),
+    # `test_generator.py` (4) and the conftest REPLICA (:271, the fourth and
+    # the one #1023 could not see, because `--allow-created` had been used
+    # where the runbook's `--replica-at` belongs and that suppresses the
+    # replica's own line check). All four carried `edits:` already, so the
+    # carrier count does not move: 2406 + 48 = 2454 on the same 176 rows.
+    assert (lines, carrying) == (2454, 176), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -2790,6 +2994,63 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     ask7_serve = [(edit["class"], edit["lines"]) for edit in serve_row["edits"]
                   if edit["lines"] == [155, 725, 1338]]
     assert ask7_serve == [("path constants", [155, 725, 1338])], serve_row
+
+    # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
+    # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
+    # the aggregate `(2454, 176)` would still pass if these forty lines had
+    # landed on the wrong rows, under the wrong class, or as a different forty
+    # that summed the same. Every one is `path constants` (a path literal
+    # naming a location the destination does not have — this manifest's own
+    # reading), and every one of the thirteen rows already carried an unrelated
+    # edit, so each new entry is picked out by its lines exactly as
+    # `test_bullseye_widget.py`'s S3 entry is.
+    for source_path, expected in (
+            ("tests/ideation-dashboard/test_outline_model.py", [22]),
+            ("tests/ideation-dashboard/test_doxbench_view.py", [302, 303, 306]),
+            ("tests/ideation-dashboard/test_doxbench_knowledge.py", [31, 32]),
+            ("tests/ideation-dashboard/test_doxbench_document_abstract.py",
+             [44, 45]),
+            ("tests/ideation-dashboard/test_doxbench_memory_gateway.py",
+             [32, 33]),
+            ("tests/ideation-dashboard/test_bullseye_widget.py", [1674]),
+            ("tests/ideation-dashboard/test_doxbench_mutation_boundary.py",
+             [45, 46]),
+            ("tests/ideation-dashboard/test_doxbench_save.py",
+             [524, 525, 526, 1075, 1077]),
+            ("tests/ideation-dashboard/test_doxbench_scope.py", [27, 28]),
+            # The second push's five, four of them new sites and the first a
+            # CORRECTION to the `mutation_boundary` entry above: re-running
+            # `_check_declared_lines` against the leg head found the four
+            # `Path` expressions REPLACED and not merely re-rooted.
+            ("tests/ideation-dashboard/test_doxbench_mutation_boundary.py",
+             [47, 48, 49, 51, 52, 55, 56, 57, 59, 60]),
+            ("tests/ideation-dashboard/test_renderer.py", [610, 1078]),
+            ("tests/ideation-dashboard/test_doxbench_abstract_store.py",
+             [36, 46, 47]),
+            ("tests/ideation-dashboard/test_doxbench_telemetry.py",
+             [15, 22, 23]),
+            ("tests/ideation-dashboard/test_doxbench_turns.py", [35, 103])):
+        row = rows[source_path]
+        assert row["disposition"] == "moved_with_declared_edit", row
+        s8 = [(edit["class"], edit["lines"]) for edit in row["edits"]
+              if edit["lines"] == expected]
+        assert s8 == [("path constants", expected)], (source_path, row)
+        note = s8 and [edit["note"] for edit in row["edits"]
+                       if edit["lines"] == expected][0]
+        assert "SLICE S8" in note, (source_path, note)
+        assert "5649985838" in note, (source_path, note)
+
+    # AND THE SLICE CARRIES NO RE-DESTINATION, asserted rather than left to the
+    # summary line: S8 is the act RULED Q6 was built for, and it measured that
+    # the move the note infers is unlawful for every one of the 48 files —
+    # RULED on that measurement, `#656` comment `5656343213` (Brett Heap,
+    # 2026-09-13, by interactive multi-choice): "the path constant moves, the
+    # file does not". The S5 annotation's four rows therefore stay this
+    # document's only uses of the field.
+    re_destined = [row["source_path"] for row in doc["rows"]
+                   if isinstance(row.get("re_destined"), dict)]
+    assert all(path.startswith("scripts/ideation_dashboard/web/views/")
+               for path in re_destined), re_destined
 
     # THE § 3.4 SLICE-S3 ANNOTATION'S OWN ROWS, PINNED BY DISPOSITION, CLASS
     # AND EXACT LINES (Copilot review, openxFactory PR #1001) — on the same
@@ -2971,20 +3232,91 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
           596, 601, 609]),
     ], swb_session_row
 
+    # THE PRE-EXISTING `openxdox_code` ANNOTATION, PINNED THE SAME WAY (`#656`
+    # CLAIM `5656688910`) — on the same reasoning as every pin above: the
+    # aggregate would still pass if these 48 lines had landed on the wrong
+    # rows, under the wrong class, or split across a different set of counts
+    # summing to 48. Each row carried `edits:` before this act, so every new
+    # entry is picked out by its exact lines, the idiom the S3/S4/S6 pins use.
+    # The conftest replica's entry is pinned with the rest of its row above.
+    gate_console_row = rows["scripts/ideation_dashboard/gate_console.py"]
+    # DISPOSITION AND DESTINATION PINNED TOO, on all three rows (Copilot
+    # review, round 8). The `(class, lines)` assertions below would stay green
+    # through a re-destination: `destination:` is the field
+    # `verify-carve-arrival.py --destination openxdox_code` reads to decide
+    # whether a row is its business at all, so a row re-destined to
+    # `opendox_code` would carry these declarations to the OTHER leg with
+    # every line still where this test looks for it — and `disposition:`
+    # is what makes `edits:` legal on the row in the first place. Same form
+    # as the S2 pins (`dispose.js`, `wheel.js`) above.
+    assert gate_console_row["disposition"] == "moved_with_declared_edit", \
+        gate_console_row
+    assert gate_console_row["destination"] == "openxdox_code", gate_console_row
+    preexisting_gate_console_adapters = [
+        167, 168, 169, 170, 171, 826, 903, 968, 1012, 1135, 1150, 1151, 1154,
+        1155, 1157, 1339, 1351, 1374, 1487, 1550, 1551, 1569, 1651, 2241]
+    assert len(preexisting_gate_console_adapters) == 24, \
+        preexisting_gate_console_adapters
+    preexisting_gate_console = [
+        (edit["class"], edit["lines"]) for edit in gate_console_row["edits"]
+        if edit["lines"] in ([64, 65], preexisting_gate_console_adapters)]
+    assert preexisting_gate_console == [
+        # `from . import domain_profile`, inserted between :64 and :65 — BOTH
+        # neighbours named, which is the form every insertion slice S5
+        # declared at this destination already takes.
+        ("import rewrites", [64, 65]),
+        ("adapter calls", preexisting_gate_console_adapters),
+    ], gate_console_row
+
+    generator_row = rows["scripts/ideation_dashboard/generator.py"]
+    assert generator_row["disposition"] == "moved_with_declared_edit", \
+        generator_row
+    assert generator_row["destination"] == "openxdox_code", generator_row
+    preexisting_generator = [
+        (edit["class"], edit["lines"]) for edit in generator_row["edits"]
+        if edit["lines"] in ([326, 327, 348, 366, 891, 892, 893],
+                             [76, 77, 78, 79, 80, 81, 438, 439, 456, 459])]
+    assert preexisting_generator == [
+        # TWO entries on one row, because they are two acts by two pull
+        # requests: openXdox-code#14's two resolvers and their three call
+        # sites, then #16's exclusion-check vocabulary. One entry, one commit.
+        ("adapter calls", [326, 327, 348, 366, 891, 892, 893]),
+        ("adapter calls", [76, 77, 78, 79, 80, 81, 438, 439, 456, 459]),
+    ], generator_row
+
+    test_generator_row = rows["tests/ideation-dashboard/test_generator.py"]
+    assert test_generator_row["disposition"] == "moved_with_declared_edit", \
+        test_generator_row
+    assert test_generator_row["destination"] == "openxdox_code", \
+        test_generator_row
+    preexisting_test_generator = [
+        (edit["class"], edit["lines"]) for edit in test_generator_row["edits"]
+        if edit["lines"] in ([7, 8], [352, 353])]
+    assert preexisting_test_generator == [
+        # `from types import SimpleNamespace` is an insertion of NOTHING BUT an
+        # import statement; the 76-line block beside :352/:353 is the new
+        # tests, four of whose lines are function-local imports — the class of
+        # an insertion is what the insertion IS.
+        ("import rewrites", [7, 8]),
+        ("adapter calls", [352, 353]),
+    ], test_generator_row
+
 
 def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None:
     """The § 3.4 slice-S7 window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
-    AGGREGATE `(2366, 176)`, and that pair would stay green if any of these 782
+    AGGREGATE `(2454, 176)`, and that pair would stay green if any of these 782
     lines had landed on the wrong row, under the wrong one of RULING OQ-1's
     three classes, or as a different set summing to the same total — which is
     why every slice since ASK-7 pins its own window. S7 edits THIRTY-THREE rows
     where S5 edited eleven, so the window is the `S7_WINDOW` table above rather
     than a run of hand-written asserts; it is the same claim, made once per row.
 
-    THE ENTRIES ARE THE LAST ONES ON EACH ROW, because an annotation APPENDS to
-    whatever the row already carried — sixteen of these rows were already
+    THE ENTRIES ARE A CONTIGUOUS RUN, AND WERE EACH ROW'S LAST WHEN SLICE S7
+    LANDED (amended by slice S8 in the merge that brought the two acts
+    together — see § 1), because an annotation APPENDS to whatever the row
+    already carried — sixteen of these rows were already
     `moved_with_declared_edit` from S1-S6 and seventeen are converted here — and
     a tail read positionally is a claim about ORDER too, which matching on prose
     would not be. The manifest is REQUIRED and not branched on: see
@@ -2993,7 +3325,7 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     _text, doc = the_landed_manifest()
     rows = {row["source_path"]: row for row in doc["rows"]}
 
-    # 1. EVERY ROW IN THE WINDOW, by disposition, destination and tail.
+    # 1. EVERY ROW IN THE WINDOW, by disposition, destination and contiguous run.
     #
     # THE COUNT IS READ OFF THE TABLE'S OWN SOURCE FIRST, because `S7_WINDOW`
     # is a dict LITERAL and a dict literal collapses a repeated key at import,
@@ -3025,7 +3357,23 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
         # landing on an `openxdox_code` row would be a different slice.
         assert row["destination"] == "opendox_code", row
         landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
-        assert landed[-len(entries):] == entries, (source_path, landed)
+        # AMENDED BY SLICE S8 IN THE MERGE THAT BROUGHT THE TWO ACTS TOGETHER
+        # (openxFactory #1025, `#656` comment `5649985838`). This read
+        # `landed[-len(entries):] == entries` — a TAIL — and a tail is only S7's
+        # claim for as long as S7 is the newest act on all thirty-three rows.
+        # It is not: this document is APPENDED TO IN LANDING ORDER (this
+        # docstring says so), S7 lands first and S8 second, and S8 annotates
+        # THREE of these rows — `test_bullseye_widget.py`,
+        # `test_doxbench_view.py`, `test_outline_model.py` — so on those three a
+        # tail read fails on a manifest in which nothing whatever is wrong.
+        # Pinned as a CONTIGUOUS RUN OCCURRING EXACTLY ONCE, which keeps every
+        # claim the tail made — these entries, under these classes, in this
+        # order, adjacent, and not duplicated elsewhere on the row — and drops
+        # only the accident of being last, which belongs to whichever slice
+        # annotated the row most recently and to no slice permanently.
+        runs = [i for i in range(len(landed) - len(entries) + 1)
+                if landed[i:i + len(entries)] == entries]
+        assert len(runs) == 1, (source_path, landed, entries)
         # AND THE ROW'S DECLARED LINES ARE DISTINCT (Copilot review, this pull
         # request). § 3 below sums `len(nums)` — LIST ENTRIES — and nothing
         # under this act refuses a repeated line number: the validator's
@@ -3077,8 +3425,14 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     assert (lines, entries_count) == (782, 48), (lines, entries_count)
     assert by_class == {"import rewrites": 14, "path constants": 4,
                         "adapter calls": 764}, by_class
-    # 1584 + 782 = 2366 and 159 + 17 = 176, which is the aggregate the
-    # amendment test asserts against the same document.
+    # 1584 + 782 = 2366 and 159 + 17 = 176 — THE AGGREGATE AS SLICE S7 LANDED
+    # IT, which is what a window total is: a DELTA against the document the
+    # act found, and so a figure a later slice cannot move. The carrying half
+    # is still the amendment test's own figure, because neither slice S8
+    # (openxFactory #1025) nor the pre-existing `openxdox_code` annotation
+    # (#1031) added a carrier; the line half is not — S8's forty carry it to
+    # 2406 and that annotation's forty-eight to 2454, and that test
+    # re-derives it rather than reading it here.
     assert 1584 + lines == 2366, lines
     assert 159 + len(S7_CONVERTED) == 176, len(S7_CONVERTED)
 
