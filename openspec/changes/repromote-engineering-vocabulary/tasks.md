@@ -1,0 +1,88 @@
+# Tasks: repromote-engineering-vocabulary
+
+Status: draft
+Authored: 2026-09-16, lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
+`substrate52a`. Realizes `split-opendox-two-layer-product` § 5.2a and nothing else.
+
+THREE ACTS, AND THEY ARE SEPARATE: the FILING (§ 2, this pull request), RATIFICATION (§ 1, Brett
+Heap's word) and the ARCHIVE (§ 3, which is where the fifteen actually reach canon). This packet
+performs only the first.
+
+## 1. Ratification — BRETT HEAP'S WORD, NOT THIS LANE'S
+
+- [ ] 1.1 The id `openxfactory-engineering-adapter` is accepted, or another is ruled. `design.md`
+      § D1 derives it from the packet's own 22 uses of "engineering adapter", the ratified map's
+      fifteen identical destination phrases, and the two LANDED machine names that fix its spelling.
+      Four candidates are rejected there with reasons. **A different id is a one-command rebuild**:
+      the delta is generated, not typed.
+- [ ] 1.2 `design.md` § D2's six disclosed edits are accepted as the re-expression § 5.2a permits —
+      including the DISCLOSED asymmetry that four of the six name an adapter operation and two
+      (edits 5 and 6) name none, no read or write happening at those words.
+- [ ] 1.3 `design.md` § D2's two recorded NON-edits are accepted: `proposal.md` (×4) as document
+      identity rather than location, `OPENXFACTORY_ROOT` (×3) as a rung of requirement 10's own
+      precedence ladder.
+- [ ] 1.4 `design.md` § D3 — NO second `## REMOVED Requirements` block on `ideation-dashboard` — is
+      accepted, or the opposite is ruled and this lane authors the block. **This is the one judgment
+      in the packet that a reasonable reader could take the other way**, and it is put here rather
+      than resolved silently.
+- [ ] 1.5 `design.md` § D4's archive ORDER — this packet archives BEFORE
+      `split-opendox-two-layer-product` — is accepted.
+- [ ] 1.6 On the word: `Status: ratified` + the citation on all three lifecycle documents, a
+      `review/ratification-<date>.md` record, and the README bullet updated. Nothing else moves.
+
+## 2. The filing — THIS PULL REQUEST, AND THE WHOLE OF IT
+
+- [x] 2.1 The fifteen are SELECTED by the ratified map rather than by hand: all 102 `## REMOVED`
+      rows of `openspec/changes/split-opendox-two-layer-product/specs/ideation-dashboard/spec.md`
+      classified by the destination each **Reason** paragraph names — **openDox 71 / openXdox 16 /
+      openxFactory 15**, reproducing RULING DQ-1's own map exactly.
+- [x] 2.2 The fifteen are LIFTED BY TITLE from `openspec/specs/ideation-dashboard/spec.md` (102
+      requirements there; **0 of 15 missing**; every title character-for-character identical, which
+      is what makes the successor a distinct `promotion_fidelity` key). Carried: **15 requirements,
+      49,829 source bytes, 84 scenarios**; all fifteen carry `SHALL` on the FIRST body line, which
+      is the only line the strict parser reads for the keyword.
+- [x] 2.3 The SIX declared path-literal edits each matched EXACTLY ONCE, and the REVERSAL PROOF
+      passes: reversing all six reproduces the promoted bytes for all fifteen requirements. The
+      build aborts on either failure, so this is a gate and not a claim.
+- [x] 2.4 The packet: `proposal.md` (with `code_surface: none`, `target_release: implemented`,
+      `sequenced_after: []`), `design.md`, `tasks.md`, `.openspec.yaml` (`kind: ad_hoc`, drafting
+      pair, no approval pair), and ONE `## ADDED Requirements` delta at
+      `specs/openxfactory-engineering-adapter/spec.md`.
+- [x] 2.5 README *Active changes* bullet added under **OpenSpec Records**.
+- [x] 2.6 The per-change sweep row seeded by tool, never by hand:
+      `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`. The row seeds
+      **`class: sole`** — the corpus's own machinery agreeing that none of the fifteen requirement
+      keys this change writes is written by any other change (`design.md` § D3).
+- [x] 2.7 GATES RUN ON THIS BRANCH, each recorded with its number in the pull-request body:
+      the PINNED CLI (`1.12.0`, the version `contracts/openspec-cli-pin.yaml` names) on this change
+      and on `--all --strict`; `python3 -m pytest tests/doc-health tests/sequenced_after`;
+      `python3 scripts/validate-sequenced-after.py . --ledger-diff`; and the promotion-fidelity
+      family single-repo run, whose count MUST NOT move — this packet promotes nothing.
+
+## 3. Archive — AFTER RATIFICATION, AND BEFORE THE SPLIT PACKET'S
+
+- [ ] 3.1 On a separate word: `openspec archive repromote-engineering-vocabulary`, creating
+      `openspec/specs/openxfactory-engineering-adapter/spec.md` with the fifteen.
+- [ ] 3.2 **ORDER (`design.md` § D4): this archive precedes `split-opendox-two-layer-product`'s.**
+      Re-promotion first leaves the fifteen titles carried by two capabilities — distinct keys,
+      no finding on either side. Removal first leaves fifteen ratified requirements in NO capability,
+      which is the loss `promotion_fidelity` exists to prevent.
+- [ ] 3.3 At that archive, re-run `build_delta.py` against the then-current promoted spec first: if
+      `main` has moved the promoted text of any of the fifteen, the carry is re-proved or the
+      difference is declared before anything promotes.
+- [ ] 3.4 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run
+      `--ledger-diff`; the row moves `active` → `archived`.
+
+## 4. What this packet leaves to its neighbours, by name
+
+- [ ] 4.1 **§ 5.2a's TICK** rides the packet bookkeeper's own `tasks.md` amendment. No byte of
+      `openspec/changes/split-opendox-two-layer-product/` is touched here — not a tick, not a map
+      row, not a design line.
+- [ ] 4.2 **§ 5.6 (the de-floor)** and **§ 8.4 (the floor accounting)** can now name the capability
+      directory `openspec/specs/openxfactory-engineering-adapter/` in the ADDED direction. This
+      packet does not move the codexFactory floor or any of the five openxFactory pin sites.
+- [ ] 4.3 **§ 5.2 (the shed), § 5.4 and § 5.5 (floor parts 2 and 4)** are untouched: no module, test,
+      example or governance doc is deleted here, and `docs/opendox-carve-manifest.yaml` is not edited.
+- [ ] 4.4 **§ 6.1's seven `doc-health` requirements** and **§ 6.5's intra-requirement narrowing**,
+      both of which were carried whole at their destinations for want of this id, are their own
+      changes in their own repositories. This packet declares the id; it re-authors nothing there.
