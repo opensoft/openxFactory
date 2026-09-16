@@ -1102,10 +1102,19 @@ the bookkeeping that ticks this group.
 > `opensoft/openXdox-spec`, pins and the release identity in the assembly root
 > `opensoft/openXdox`.
 
-- [ ] 4.1 `[oXd]` Carve openXdox's ~10.9K **into `openXdox-code`** per `design.md` § D3: the adapter
+- [x] 4.1 `[oXd]` Carve openXdox's ~10.9K **into `openXdox-code`** per `design.md` § D3: the adapter
   implementation and projection mechanism, the gate-and-commission loop, and
-  `doxbench_scope`. The 23 outbound `doc_health` imports become the adapter's
-  IMPLEMENTATION SURFACE here, where importing doc-health is lawful.
+  `doxbench_scope`. Of `design.md` § D3's 23 outbound `doc_health` imports,
+  **TWELVE become the adapter's IMPLEMENTATION SURFACE here**, where importing
+  doc-health is lawful; **FIVE are lawfully `openDox`'s**, **ONE stays in
+  `openxFactory`** under RULED DQ-1, and **FIVE were DISCHARGED at the § 2 seam**
+  and no longer exist as imports at all. *(AMENDED 2026-09-16 by RULED **R-1**,
+  `#656` comment `5690428146`. This sentence read "The 23 outbound `doc_health`
+  imports become the adapter's IMPLEMENTATION SURFACE here, where importing
+  doc-health is lawful" — a design-time expectation that the § 2.1 / 2.2 / 2.2a
+  seam overtook before any carve ran, which the STATUS below measured and
+  registered without deciding. The ruling settles it on that measured accounting
+  and orders **no further carve**.)*
   **STATUS — 2026-09-11, tick NOT YET DUE (partially met), verified against
   `openXdox-code` main (`af15f71207797214ffd6340267b5cb2ecb40bf6a`, the pin
   landed at `#656` comment `5640535165`).** MET: all thirteen named modules
@@ -1216,6 +1225,37 @@ the bookkeeping that ticks this group.
   needs a RULING or an amendment rather than another measurement. Registered
   here, decided nowhere: this amendment records the accounting and leaves the
   box open on it. `#656` record: CLAIM `5656686020`.
+  **STATUS — 2026-09-16, RULED R-1 DECIDES WHAT THE STATUS ABOVE REGISTERED, AND
+  THE BOX TICKS** (`#656` comment `5690428146`, Brett Heap, by interactive
+  multi-choice): *"the residue is settled by the measured accounting … amend the
+  box to that accounting and tick it. No further carve."* The note above is left
+  unedited as the record of what was registered; its closing "the box stays open"
+  is superseded by this line and by the amendment to the box's own second
+  sentence. **The accounting was re-derived at TODAY's heads before the tick, not
+  carried forward from that note** — each tree named with the head it was read
+  at, because two of the three have moved since:
+  — `openXdox-code` `main` **`c1ad341a`**: **13** live `doc_health` import sites
+  across **8** modules under `src/openxdox/` — the **twelve** inventoried
+  (`completeness` 1, `corpus_root` 1, `gate_console` 4, `gate_routes` 1,
+  `generator` 3, `round_trip` 1, `snapshot_registry` 1) plus `cli_gate.py`:251,
+  the § 4.3 site outside `design.md`'s inventoried twelve modules.
+  — `openDox-code` `main` **`1e469713`**: **5** sites in **2** modules —
+  `serve.py`:**713** and `workbench.py`:746, :1407, :1408, :1409. **One drift
+  found by re-measuring rather than transcribing:** that `serve.py` site is
+  :**710** at `8efb3cf5` (the head the note above cites) and :**713** at
+  `1e469713`, moved three lines by slice S7's landing. Same site, same import,
+  different line — each number is right at the head beside it, which is why both
+  are written down.
+  — `openxFactory` `main` **`cb2d3a2c`**: **3** sites, none of them residue —
+  `scripts/ideation_dashboard/doxbench_status_exemption.py`:63 (the ONE RULED by
+  DQ-1 to stay) and `serve_openxfactory_lanes.py`:178 and :277 (openxFactory's
+  own lane adapter, never inventoried among the 23). Ten files survive under
+  `scripts/ideation_dashboard/` there, nine `.py` and `web/views/intent-feed.js`.
+  12 + 5 + 1 + 5 = **23**, `design.md` § D3's inventory exactly. **No further
+  carve can move any of them**, which is the ruling's own finding: the five
+  DISCHARGED stopped being imports at the § 2 seam before the carve ran, and the
+  five at openDox-code are lawfully openDox's under the split this packet
+  performed. `#656` records: CLAIM `5690461589`; RULED R-1 `5690428146`.
 - [x] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
   and tree digest (`sorted-ls-tree-r-v1` over openDox's whole tree — the scaffold
   writes NO per-file `sha256`; the per-file `sha256`, `pinned_by_commit_only:`
@@ -1347,8 +1387,20 @@ the bookkeeping that ticks this group.
   `scripts/doc_health/pin_class.py`, and added
   `scripts/verify-openxdox-pin.py`. 5.1's own text holds regardless: the pin
   file and the gitlink moved in the SAME commit, which is what this task
-  requires). No `contracts/opendox-pin.yaml`
-  and no second gitlink exist anywhere in the tree.
+  requires). **Both `contracts/opendox-pin.yaml` and a second gitlink NOW EXIST
+  in this tree, and their existence does not disturb this box's own tick.**
+  *(AMENDED 2026-09-16 by RULED **R-5**, `#656` comment `5690428146`. This read
+  "No `contracts/opendox-pin.yaml` and no second gitlink exist anywhere in the
+  tree", which was true when RULING F was written and stopped being true at
+  **`#932` → `f4fb4ffc010a8fc2b5e101a8426316486fd5fd37`** (2026-09-11T01:42:09Z),
+  where RULED **Q7** mounted `opensoft/openDox` as a SECOND submodule and pinned
+  it in lockstep. At `main` `cb2d3a2c` the tree carries gitlinks `openDox` →
+  `3819625e` and `openXdox` → `a6500141`, `.gitmodules` names both ASSEMBLY
+  ROOTS, and `contracts/opendox-pin.yaml` sits beside `contracts/openxdox-pin.yaml`.
+  What this box ticked on is unchanged — `contracts/openxdox-pin.yaml` and its
+  gitlink moved in the SAME commit — and RULING F's own holding is unchanged:
+  `openxFactory` declares its DIRECT upstreams, which Q7 made two. § 8.7 takes
+  the same amendment.)*
   `python3 scripts/verify-openxdox-pin.py` passes live at that commit:
   `OK openxdox-pin verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from HEAD, sorted-ls-tree-r-v1 tree digest recomputed (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
 - [ ] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
@@ -1359,12 +1411,34 @@ the bookkeeping that ticks this group.
   is a distinct key and the REMOVED delta stays visible to the checker. The only
   edit they take is re-expressing path literals as `adapter calls` — one of
   RULING OQ-1's three classes, by name.
-- [ ] 5.2 `[oxF]` Delete `scripts/ideation_dashboard/` (48 modules), `web/` (40
-  files), `tests/ideation-dashboard/` (125 files) and `tests/ideation_dashboard/`
-  (the four-file underscore spelling), `scripts/ideation-dashboard-nightly.py`,
+- [x] 5.2 `[oxF]` **Shed the dashboard corpus down to RULED DQ-1's KEPT SET.**
+  The list is `docs/opendox-carve-manifest.yaml` and not a prose inventory: every
+  row it routes to a destination LEAVES, and the **117** rows carrying a
+  `stays_openxfactory_*` reason (**103** `stays_openxfactory_adapter` + **14**
+  `stays_openxfactory_governance`) STAY, because `openxFactory` keeps its own
+  adapter and its own governance. Across the manifest's surface, measured at the
+  carve commit `b075fd91` and at `#940`'s merge `cc4ae9d3` — files at the carve →
+  files kept: `scripts/ideation_dashboard/` 63 → **9**, its `web/` 43 → **1**
+  (`views/intent-feed.js`, RULED `not_moved / stays_openxfactory_adapter` under
+  OQ-F), `tests/ideation-dashboard/` 157 → **42**,
+  `tests/ideation_dashboard/` (the four-file underscore spelling) 4 → **0**,
+  `scripts/ideation-dashboard-nightly.py` 1 → **1** (it STAYS,
+  `stays_openxfactory_adapter`), `scripts/validate-ideation-dashboard-contracts.py`
+  1 → **0**, the dashboard contract schemas under `contracts/schemas/` **6 → 0**,
+  `examples/ideation-dashboard/` 140 → **44**, and the dashboard governance docs
+  7 → **6** (one leaves: `docs/ideation-dashboard-session-runbook.md`,
+  `moved_with_declared_edit` to `opendox_spec`).
+  *(RE-SCOPED 2026-09-16 by RULED **R-2**, `#656` comment `5690428146`, which
+  supersedes this box's own deferral of the reconciliation to "a sweep at § 8".
+  It read "Delete `scripts/ideation_dashboard/` (48 modules), `web/` (40 files),
+  `tests/ideation-dashboard/` (125 files) and `tests/ideation_dashboard/` (the
+  four-file underscore spelling), `scripts/ideation-dashboard-nightly.py`,
   `scripts/validate-ideation-dashboard-contracts.py`, the four dashboard contract
   schemas, the 142 packaged examples under `examples/ideation-dashboard/`, and the
-  five dashboard governance docs.
+  five dashboard governance docs" — a pre-DQ-1 deletion list wrong in SCOPE (it
+  deletes 117 rows DQ-1 keeps) and in five of its own six counts. Every figure
+  above is measured at a named tree; the STATUS below records each one, and
+  records where the measurement and the ruling's own parenthetical part company.)*
   **STATUS — 2026-09-10, `#656` comment `5625573095` (Brett Heap, verbatim
   "rule (a) post-shed mode, merge 924 when green").** RULING (a) resolves this
   box's own prerequisite — `design.md` § D6 (1)'s amendment. Realization is two
@@ -1424,9 +1498,98 @@ the bookkeeping that ticks this group.
   own listed clauses — neither fixed here. Reconciling the wording (or
   re-scoping the box to what RULING DQ-1 actually kept) is for a sweep at
   § 8, the archive gate, not a silent edit of this box's original text.
-- [ ] 5.3 `[oxF]` Convert the dashboard workflows to CONSUMER GATES over the pinned
+  **STATUS — 2026-09-16, RULED R-2 TAKES THE RE-SCOPING OUT OF THE § 8 SWEEP AND
+  DOES IT HERE, AND THE BOX TICKS ON `#940` → `cc4ae9d3`** (`#656` comment
+  `5690428146`, Brett Heap, by interactive multi-choice): *"re-scope to RULING
+  DQ-1's kept set (the manifest's `stays_openxfactory_*` rows; FIVE schemas, not
+  four) and tick on #940 → cc4ae9d3."* The two notes above are left unedited; the
+  edit is not silent because this line and the box's own parenthetical say what
+  was replaced and why. **The ruling's discharging act, read from the merged pull
+  request rather than from the ruling:** `opensoft/openxFactory` **#940 →
+  `cc4ae9d35b2dbd56743c8c19699fd685d4e49343`**, merged **2026-09-11T17:33:38Z**.
+  **Every figure in the re-scoped box is measured at a named tree, at the carve
+  commit `b075fd91` (tag `opendox-carve-0`) and at `cc4ae9d3`, and re-read at
+  `main` `cb2d3a2c` where it is identical:**
+
+  | manifest surface | rows | at `b075fd91` | kept at `cc4ae9d3` | at `main` `cb2d3a2c` | what the old list said |
+  | --- | ---: | ---: | ---: | ---: | --- |
+  | `scripts/ideation_dashboard/` excluding `web/` | 63 | 63 (all `.py`) | **9** | 9 | "48 modules" |
+  | `scripts/ideation_dashboard/web/` | 43 | 43 (41 hand-authored) | **1** | 1 | "40 files" |
+  | `tests/ideation-dashboard/` | 157 | 157 (140 `.py`) | **42** | 42 | "125 files" |
+  | `tests/ideation_dashboard/` (underscore) | 4 | 4 | **0** | 0 | "the four-file underscore spelling" — exact |
+  | `scripts/ideation-dashboard-nightly.py` | 1 | 1 | **1** | 1 | "delete" — DQ-1 keeps it |
+  | `scripts/validate-ideation-dashboard-contracts.py` | 1 | 1 | **0** | 0 | "delete" — it left |
+  | `contracts/schemas/` | 12 | 6 dashboard schemas present | **0 of the 6** | 0 | "the four dashboard contract schemas" |
+  | `examples/ideation-dashboard/` | 140 | 140 (139 `.yaml`) | **44** | 44 | "the 142 packaged examples" |
+  | `docs/` governance | 7 | 7 | **6** | 6 | "the five dashboard governance docs" |
+
+  **DQ-1's kept set is 117 rows**: of the manifest's 456 rows (`phase: post-shed`)
+  the dispositions are `moved_verbatim` **160**, `moved_with_declared_edit`
+  **158**, `not_moved` **138** — and the `not_moved` reasons are
+  `stays_openxfactory_adapter` **103**, `replicated_at_destination` **20**,
+  `stays_openxfactory_governance` **14**, `deleted_at_carve` **1**. 103 + 14 =
+  **117**, which is the set the ruling names and the box now keeps. The other
+  twenty-one `not_moved` rows are not a kept set: a `replicated_at_destination`
+  row arrives somewhere and a `deleted_at_carve` row arrives nowhere.
+
+  **THE SCHEMA COUNT IS SIX, AND THIS IS WHERE THE MEASUREMENT AND THE RULING'S
+  OWN PARENTHETICAL PART COMPANY — RECORDED, NOT QUIETLY RESOLVED.** The ruling
+  says *"FIVE schemas, not four"*, which is § 5.6a defect (a)'s list carried
+  forward: `gate-action-record`, `ideation-dashboard-snapshot-index`,
+  `ideation-dashboard-snapshot`, `xfactory-workbench-chat-turn`,
+  `xfactory-workbench-model-catalog`. The manifest moves **SIX**. The sixth is
+  **`ideation-workbench.schema.yaml` → `opendox_spec`**, and § 5.6a's own
+  parenthetical for it — *"`ideation-workbench.schema.yaml` moves as well while
+  carrying no independent manifest row"* — is false at every head checked: the
+  row is present at **`45bd9ee2^`** (the commit BEFORE #970, the pull request
+  whose review raised the defect), at **`45bd9ee2`** itself, at **`cc4ae9d3`**
+  and at **`cb2d3a2c`**. Two of the five are also no longer `moved_verbatim`:
+  `ideation-dashboard-snapshot` and `ideation-dashboard-snapshot-index` are
+  `moved_with_declared_edit` at `cc4ae9d3` and after, having been
+  `moved_verbatim` at #970. So the six that leave, each with its destination
+  read from its own row, are `gate-action-record` → `openxdox_spec`,
+  `ideation-dashboard-snapshot-index` → `openxdox_spec`,
+  `ideation-dashboard-snapshot` → `openxdox_spec`, `ideation-workbench` →
+  `opendox_spec`, `xfactory-workbench-chat-turn` → `opendox_spec` and
+  `xfactory-workbench-model-catalog` → `opendox_spec`; all six are present at
+  `b075fd91` and absent at `cc4ae9d3` and at `main`. The six that stay are
+  `gate-intent`, `ideation-cross-reference` and `ideation-possibles-register`
+  (adapter) and `project-register`,
+  `xfactory-ideation-organizer-recommendations` and
+  `xfactory-ideation-routing-index` (governance). **The box therefore reads SIX**,
+  because a ticked box whose count does not reproduce is the defect this packet's
+  tick standard exists to refuse — and § 5.6a's defect (a), which is a different
+  box's wording and already `[x]`, is NOT edited here: it is left to the act that
+  claims it, with the sixth schema and the false parenthetical named for it. **The
+  deprecation window is where this matters and it is unaffected**:
+  `contract-v3.7`'s `relocating:` markers and the `contract-v4.0` BREAKING entry
+  cover the schemas that left, and whether the prose around them says five or six
+  changes no digest. `#656` records: CLAIM `5690461589`; RULED R-2 `5690428146`;
+  the discharging act #940 → `cc4ae9d3`.
+- [ ] 5.3 `[oxF]` **AUTHOR `.github/workflows/openxdox-consumer-gate.yml` in
+  `openxFactory`** — a NEW consumer gate over the pinned tools, on the
+  `openxwallet-consumer-gate` shape (a `<product>-consumer-gate.yml` whose job id
+  is the stable required-check token, as that file's own `wallet-validation` is).
+  There is **nothing to CONVERT**: `openxFactory` has never carried a
+  dashboard-named workflow, and the workers that run the dashboard live in the
+  `xFactory` aggregation, not here. **"Retaining the job id" is discharged by
+  leaving `pytest-suite` UNTOUCHED** — workflow name, job id and required check
+  are all the one token `pytest-suite`, and a token survives a rename that never
+  happens.
+  *(PREMISE REWRITTEN 2026-09-16 by RULED **R-4**, `#656` comment `5690428146`.
+  It read "Convert the dashboard workflows to CONSUMER GATES over the pinned
   tools, on the `openxwallet-consumer-gate` shape, **retaining the job id** so a
-  ruleset-pinned token survives a file rename.
+  ruleset-pinned token survives a file rename" — which presumes workflows this
+  repository does not have and never had: at `main` `cb2d3a2c` its thirteen
+  workflows are `clearing-dispatch-gate`, `doc-health-reusable`,
+  `former-id-arrival-gate`, `lane-line`, `merge-master-approval`,
+  `openreposhape-pin-gate`, `openspec-cli-pin-gate`, `openxwallet-consumer-gate`,
+  `pytest-suite`, `release-tag-gate`, `review-lane-repin`, `session-open-pr` and
+  `signed-execution-chain-gate`, and `git log --all --diff-filter=A` over
+  `.github/workflows/*dashboard*` and `*ideation*` returns nothing — no such file
+  was ever added. The SHAPE, the pinned-tools reading and the job-id obligation
+  are unchanged; only the act is. **This box does NOT tick with this amendment**:
+  the workflow is its own declared act under its own claim.)*
 - [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
   source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
   equality. Four clauses, the full text at `design.md` § D6 (2):
@@ -1756,21 +1919,92 @@ movements claimed at the time they land.
 > adapter, so its `-code` leg carries deploy configuration and branding rather
 > than an adapter of its own.
 
-- [ ] 7.1 `[oxF]` **§ 7 FOLLOWS § 5, RULED (DQ-1).** The shed no longer waits on a
+- [x] 7.1 `[oxF]` **§ 7 FOLLOWS § 5, RULED (DQ-1).** The shed no longer waits on a
   descendant: `openxFactory` keeps its own adapter, so the carve completes on its
   own account and the first `<Domainx>Dox` follows when a domain has a profile.
-  **RULING STILL OWED: which domain gets the first one, and when.** On the
-  brainstorm's evidence the answer is likely **`codexDox`** — engineering is the
-  only corpus with a live consumer — but codexFactory holds **zero** tracked
-  dashboard files today, so `domain-descendant-boundary`'s laziness rule says no
-  descendant exists yet, and under DQ-1 `codexDox` is a THIN descendant that pins
-  openXdox and reuses `openxFactory`'s adapter rather than owning one. **This is
-  put, not decided, and nothing in § 1–§ 6 waits on it.**
-- [ ] 7.2 `[oxF]` Until that ruling, descendant NAMES are registered (§ 1.7) and no
+  **THE RULING THIS BOX OWED IS ANSWERED: NONE YET.** On the brainstorm's
+  evidence the first one is likely **`codexDox`** — engineering is the only
+  corpus with a live consumer — but codexFactory holds **no artifact of the
+  product's PROFILE KIND** today, so `domain-descendant-boundary`'s laziness rule
+  says no descendant exists yet, and under DQ-1 `codexDox` is a THIN descendant
+  that pins openXdox and reuses `openxFactory`'s adapter rather than owning one.
+  **Ticked as *ruled: not yet*** — the box asked which domain gets the first
+  descendant and when, and the answer is that no domain does yet and the laziness
+  rule is what decides when one does. *(AMENDED AND TICKED 2026-09-16 by RULED
+  **R-3**, `#656` comment `5690428146`. Two clauses changed: "**RULING STILL
+  OWED: which domain gets the first one, and when.**" is now that ruling's
+  answer; and "codexFactory holds **zero** tracked dashboard files today" is
+  replaced by the test the requirement actually states, because the old clause
+  does not reproduce — see the STATUS below, which measures 32 tracked
+  dashboard-named paths in codexFactory and shows why not one of them is a
+  profile artifact. The conclusion the ruling adopts is unaffected; the sentence
+  that a tick makes load-bearing is the one that had to be measured.)*
+  **STATUS — 2026-09-16, RULED R-3** (`#656` comment `5690428146`, Brett Heap, by
+  interactive multi-choice): *"the first descendant is NONE YET … 7.1/7.2 tick as
+  ruled: not yet, § 7.3 becomes a deferred successor as § 4.5 was."*
+  **The test the requirement states, and what codexFactory actually holds.** The
+  promoted requirement *A descendant is created on its first profile, not before*
+  (`openspec/specs/domain-descendant-boundary/spec.md`:128-137) keys on **an
+  artifact of the product's PROFILE KIND**, not on the word "dashboard". For a
+  `<Domainx>Dox` the profile kind is what § 7.3 names — ONE domain-mapping
+  declaration, five axes, per `domain-mapping-declaration` — and, under this
+  packet's own MODIFIED delta (`proposal.md`:298-299, `design.md`:741, NOT yet
+  promoted, since this packet archives later), a committed TENANT INSTALL.
+  Measured at codexFactory `main` **`761f49d0`**, 1,995 tracked blobs: paths
+  matching `(?i)domain.mapping` **0**, `(?i)codexdox` **0**, `(?i)openxdox`
+  **0**, `(?i)opendox` **0**. **Zero artifacts of the profile kind, so the
+  laziness rule holds and the answer is NONE YET.**
+  **The clause this box carried does NOT reproduce, which is why it was
+  amended rather than ticked around.** codexFactory holds **32** tracked paths
+  whose name contains "dashboard", in four classes, and naming them is what makes
+  the tick safe: (1) `specs/002-ideation-dashboard/` — four Speckit files
+  (evidence, plan, spec, tasks); (2)
+  `tests/browser-ui-repair/baselines/ideation-dashboard/brand/codexfactory-linux-chromium-v1/`
+  — seventeen files, a visual-regression baseline corpus (baseline PNG,
+  candidates, dispositions, history, index); (3)
+  `scripts/browser_ui_repair/dashboard_adapter.py`; (4) ten documents — two
+  `ideation/brainstorm/dashboard-*.md` and eight
+  `openspec/changes/add-repo-enrollment/supporting-docs/repo-enrollment-dashboard-deployment-*.md`.
+  **Not one is a profile artifact.** Class (2) is the closest thing and is worth
+  saying why it is not: a baseline of a RENDERED dashboard is evidence that
+  codexFactory CONSUMES the product — which is exactly § 7.1's own reason for
+  expecting `codexDox` to be first — and consumption is what the laziness rule
+  defers on, not what it triggers on. A further 26 paths match `(?i)dox`, every
+  one of them under `specs/010-doxbench-editor-chat/`.
+  **And no descendant exists to be empty.** The `opensoft` organization carries
+  exactly six `*Dox*` repositories — `openDox`, `openDox-spec`, `openDox-code`,
+  `openXdox`, `openXdox-spec`, `openXdox-code`, the product's own — and **zero
+  `<Domainx>Dox`**. § 7.2's REPORT is the record of that, posted on `#656` before
+  these boxes moved. `#656` records: CLAIM `5690461589`; RULED R-3 `5690428146`.
+- [x] 7.2 `[oxF]` Until that ruling, descendant NAMES are registered (§ 1.7) and no
   repository is created. An empty descendant is REPORTED under the promoted
   requirement, not cited as precedent for creating more.
-- [ ] 7.3 `[?]` When the ruling lands: the descendant carries ONE domain-mapping
-  declaration (five axes, per `domain-mapping-declaration`), deploy configuration,
+  **TICKED 2026-09-16 on RULED R-3 (`#656` comment `5690428146`) AND ON THE
+  REPORT ITSELF, which is posted before the box moves rather than asserted in
+  it** — `#656` comment **`[FILL AT LANDING — the § 7.2 empty-boundary REPORT
+  comment id]`**, written against the PROMOTED requirement *A descendant is
+  created on its first profile, not before*
+  (`openspec/specs/domain-descendant-boundary/spec.md`:128-145) and in
+  particular its scenario **An empty descendant exists** (:143-145). What the
+  report finds, measured rather than asserted: the `opensoft` organization
+  carries exactly SIX `*Dox*` repositories, the product's own
+  (`openDox`, `openDox-spec`, `openDox-code`, `openXdox`, `openXdox-spec`,
+  `openXdox-code`) and **ZERO `<Domainx>Dox` descendants**, so the :143-145
+  scenario has no instance to report — which is itself the reportable fact, and
+  the strongest form of "not cited as precedent for creating more" this box can
+  reach. The fifteen descendant names plus one install name of § 1.7 stay
+  registered with no repository behind any of them.
+- [ ] 7.3 `[?]` **DEFERRED SUCCESSOR (RULED R-3, 2026-09-16, `#656` comment
+  `5690428146`) — carried out of this packet in the form § 4.5 was carried under
+  openxFactory #714 and § 0.6's RULED PATH A**: the ruling § 7.1 owed has landed
+  and its answer is NONE YET, so the act this box describes has no subject to
+  perform on, and it does not tick here, block § 8's archive gate, or lapse. It
+  is the successor act that runs when a domain acquires its first profile
+  artifact, and § 7.1's laziness rule is what starts it. The text below is its
+  specification, unchanged and unticked, and § 8's gate reads it as deferred
+  rather than open. **When the ruling lands**: the descendant carries ONE
+  domain-mapping declaration (five axes, per `domain-mapping-declaration`),
+  deploy configuration,
   branding, its double pin of openXdox (gitlink + pin file, SAME commit), and its
   DECLARED per-tenant operating cost — migration run per release, backup and
   restore policy, credential set — per the MODIFIED `domain-descendant-boundary`.
@@ -1840,14 +2074,40 @@ realization evidence, never on landing. Each line is its own evidence.
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence first.
 - [ ] 8.6 `ideation-intent-plane` in canon, or its non-promotion recorded (§ 0.6).
-- [ ] 8.7 The aggregation's openXdox gitlink landed and equal to `openxFactory`'s
-  (one) nested gitlink, both naming the assembly root (RULING F — `openxFactory`
-  nests openXdox only; the aggregation's openDox gitlink has no `openxFactory`-
-  side counterpart to check), and the two derived `project-register.yaml`
-  election rows landed with them (§ 1.9, amended 2026-09-05).
+- [ ] 8.7 The aggregation's **openXdox AND openDox** gitlinks landed, **each
+  equal to `openxFactory`'s own nested gitlink of the same name**, all four
+  naming an ASSEMBLY ROOT, and the two derived `project-register.yaml` election
+  rows landed with them (§ 1.9, amended 2026-09-05).
+  *(AMENDED 2026-09-16 by RULED **R-5**, `#656` comment `5690428146`. It read
+  "The aggregation's openXdox gitlink landed and equal to `openxFactory`'s (one)
+  nested gitlink, both naming the assembly root (RULING F — `openxFactory` nests
+  openXdox only; the aggregation's openDox gitlink has no `openxFactory`-side
+  counterpart to check)". That parenthetical stopped being true at **`#932` →
+  `f4fb4ffc`**, where RULED **Q7** mounted `opensoft/openDox` as `openxFactory`'s
+  SECOND submodule: the counterpart exists, so it is checked. RULING F is not
+  reversed — it settled that `openxFactory` declares only its DIRECT upstreams,
+  and Q7 made those two. Live at the time of this amendment, which is why the
+  check is worth having: the aggregation `opensoft/xFactory` `main` `784a7c6e`
+  reads `openXdox` **`eca0b597`** against `openxFactory` `main` `cb2d3a2c`'s
+  **`a6500141`**, and `openDox` **`8ec3036c`** against **`3819625e`** — both
+  stale, both moved by the aggregation re-point Brett admin-lands, which is the
+  act this line gates and not an act of this amendment. A THIRD gitlink moves in
+  that same re-point — the aggregation's own `openxFactory`, `75484b67` against
+  `main` `cb2d3a2c` — and this line does NOT check it, because it is not one of
+  the two the descendant pin chain is about; named here so the re-point does not
+  read this line as its whole checklist.)*
 - [ ] 8.8 Amendment 3 applied with the SIX repository names and the election,
   and the descendant names — each with its two leg names — registered with no
   repository created (amended 2026-09-05).
 - [ ] 8.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health
-  run whose severity counts move by exactly the amount the packet predicts.
+  run whose severity counts move by the amount **the archive pull request RECORDS
+  AND EXPLAINS**.
+  *(THIRD CLAUSE REWRITTEN 2026-09-16 by RULED **R-6**, `#656` comment
+  `5690428146`. It read "a doc-health run whose severity counts move by exactly
+  the amount the packet predicts" — and the packet predicts no amount: the word
+  "severity" occurs exactly twice in the whole packet, at `design.md`:225, a
+  glossary row, and in this line itself, so the clause as written could never be
+  satisfied or falsified. The obligation is not weakened, it is relocated to the
+  act that can discharge it: the archive pull request states the movement it
+  caused and why, and a movement it does not explain fails this line.)*
