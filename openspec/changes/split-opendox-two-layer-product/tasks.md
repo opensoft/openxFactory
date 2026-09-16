@@ -883,8 +883,29 @@ the bookkeeping that ticks this group.
   gate loop; the wheel, funnel and lens regions carry stage names. **This is where
   a student-usable openDox is won or lost**, and it is its own task rather than a
   consequence of the Python split.
-  **STATUS — 2026-09-14, tick JUDGED MET AT THIS AMENDMENT'S OWN LANDING: the
-  boundary was INVENTED as a design note and REALIZED in an eight-slice arc.**
+  **STATUS — authored 2026-09-14; tick JUDGED MET AT THIS AMENDMENT'S OWN
+  LANDING, 2026-09-16: the boundary was INVENTED as a design note and REALIZED
+  in an eight-slice arc.** *(The date is the AUTHORING SNAPSHOT and is labelled
+  as one rather than moved forward, on the precedent `openDox-spec`'s own § 7
+  header sets at its fix round 13: an amendment whose tick is judged AT ITS
+  LANDING cannot be dated to the day it was written, and re-dating it would
+  erase which of these statements were authored before the slices they record
+  had merged. The acts recorded below ran on 2026-09-12/13 (S1–S6), 2026-09-15
+  (S7 and the pin lockstep) and **2026-09-15/16** for S8 — its annotation `#1025`
+  at 23:50:29Z on the 15th, leg A at 01:11:37Z and leg B at 01:23:16Z on the
+  16th — with openDox-spec `#11` at **13:24:51Z** on the 16th, each of the acts
+  this parenthetical dates carrying its own clock beside it. Fix round 10 added
+  `#11`'s, which alone read as a bare date while the sentence claimed a clock
+  for each, and corrected this marker's own arithmetic in the same round: round
+  6 took **THREE** Copilot findings, all three in the suppressed block of review
+  `5223334808` at head `4355f0bd` — this date (`:887`, the same point the thread
+  of 13:07:18Z had already raised, which is why the marker first read "two
+  findings, one raised as a thread and one suppressed"), the stale *"six of the
+  eight"* at `:1024`, taken at item (v) below, and the pull request's own
+  DESCRIPTION, taken there and not in this file. Both corrections are Copilot
+  findings on #1035, accurate, taken at fix round 10. The `#8`–`#11` amendment
+  list below carries shas and not clocks for all four alike, so `#11`'s time is
+  recorded here, where the claim that needs it is made.)*
   **ALL EIGHT are merged and every sha in the table below is final**, each one
   read from the merged pull request itself rather than from a report of it. The
   tick is therefore written for the state this pull request lands INTO, which is
@@ -902,9 +923,10 @@ the bookkeeping that ticks this group.
   at **2026-09-16T01:23:16Z** — the same rule holding for the **SEVENTH and LAST** time. The
   count is one holding per ANNOTATED slice, in landing order — S2, S3, S6, S4,
   S5, S7, S8 — S1 being the one slice correctly exempt because it creates files
-  and edits no ARRIVED row; counted per annotation→LEG pairing instead, where S6,
-  S5 and S8 carry two legs each, they are the eighth and the ninth and tenth of
-  ten, and all ten are ordered right. These two ordinals read "a seventh" and
+  and edits no ARRIVED row; counted per annotation→LEG pairing instead — S6, S5
+  and S8 carry two legs each, so the ten pairings run **S2 1 · S3 2 · S6 3–4 ·
+  S4 5 · S5 6–7 · S7 8 · S8 9–10** — S7's is the EIGHTH and S8's the NINTH and
+  TENTH of ten, and all ten are ordered right. These two ordinals read "a seventh" and
   "an EIGHTH" until openDox-spec `#11`'s fix round 18, where a Copilot finding
   caught that S7 and S8 could not both be the seventh: both had been minted by
   counting SLICES LANDED, S1 included.)* That is the
@@ -966,8 +988,11 @@ the bookkeeping that ticks this group.
   **THE PACKET FIGURE, AMENDED HERE — this box's own "40 files, 30,410 lines"
   is a design-time reading no tree in the arc reproduces**, and the boundary
   note defers its correction to the packet in terms (*"a packet figure is
-  amended in the packet"*, its § 1.1). Re-measured 2026-09-14 over every blob
-  under each tree's bundle root, each named with the tree it was read at:
+  amended in the packet"*, its § 1.1). Re-measured over every blob under each
+  tree's bundle root, each row named with the tree it was read at — **the first
+  four on 2026-09-14, the fifth at this amendment's landing on 2026-09-16**,
+  which is why the table's introduction no longer carries one date for all of
+  them (a Copilot finding on #1035, accurate):
 
   | tree | blobs | lines | hand-authored |
   | --- | ---: | ---: | --- |
@@ -975,6 +1000,7 @@ the bookkeeping that ticks this group.
   | openDox-code `a99eba03` — the note's census tree | 42 | 30,585 | 40 / 30,583 |
   | openDox-code `main` `8efb3cf5` — S1–S6 landed | 41 | 30,477 | 39 / 30,475 |
   | openDox-code `#21` head `c7a216c7` — the ARC-COMPLETE bundle | 42 | 31,955 | 40 / 31,953 |
+  | openDox-code `main` **`0b4e8bbf`** — **ALL EIGHT landed**, read at this amendment's own landing | 42 | 31,955 | 40 / 31,953 |
 
   **The FILE count is right; the LINE count is 173 short.** The carve step is
   one file and is exactly accounted for: `views/intent-feed.js` (483 lines)
@@ -985,7 +1011,13 @@ the bookkeeping that ticks this group.
   arrived and **656** short of what the carve commit held. Everything after
   that is the arc itself (five files in before S5, six out with S5, one in
   with S7), which is why the arc-complete bundle is 40 hand-authored files
-  again at 31,953 lines. **FOUR other occurrences in the packet's LIVE
+  again at 31,953 lines. *(The last row was added at this amendment's landing
+  and is the check that the arc ENDED where `#21`'s head said it would: S8 leg
+  B merged after the first four rows were taken (2026-09-14) and before this
+  fifth one was, and it moves not one byte under
+  `src/opendox/web/`, so `main` `0b4e8bbf` reproduces the arc-complete figure
+  exactly — 42 blobs / 31,955 lines, 40 hand-authored / 31,953 — which is what
+  the boundary note's § 1.1 predicted and then read.)* **FOUR other occurrences in the packet's LIVE
   documents carry this figure and NONE is edited here** — `design.md`:52 and
   :351 and `proposal.md`'s `code_surface:` line each pair *"40 files"* with
   *"30,410"*, and `proposal.md`:208 carries the line count alone (*"30,410
@@ -1014,13 +1046,23 @@ the bookkeeping that ticks this group.
   `validate` waits on the BUILD arc, which RULED **Q-L5 (b′)** and **Q-L8 (b′)**
   each say in terms (S8 lifts it for the web suites only, and
   `tests/test_consumer_reach.py`'s `STILL_REACHING` asserts the openDox half
-  still fails); (iv) the two floor acts above; and (v) **the packet's own
+  still fails); (iv) the **THREE** floor acts above — RULED **Q6**'s
+  `re_destined:` row form (`#1011` → `880c821c`) and the pin lockstep (`#1054` →
+  `3c614d34`) have LANDED, and the `retired:` row form is the next carve-floor
+  act and has not; all three are listed because each is its own claim rather
+  than a condition of this box, which is what this list records *(the item read
+  "the two floor acts above" from before the pin lockstep was named as a third
+  act in the paragraph above it — a Copilot finding on #1035, accurate, taken at
+  fix round 10)*; and (v) **the packet's own
   README entry, overtaken and NOT corrected here** — the packet's OpenSpec
   Records entry in `README.md` still reads *"IT STILL PERFORMS NOTHING. No
   repository is created, no code moves …"*, written 2026-09-05 (`ceb6dc9e`,
   `8b297c2f`) when that was exactly true and no longer is: `openDox-code` and `openXdox-code` exist and were cut
-  from the carve commit `b075fd91` (tag `opendox-carve-0`), and six of the
-  eight slices above are merged. The staleness predates this amendment and is
+  from the carve commit `b075fd91` (tag `opendox-carve-0`), and **ALL EIGHT
+  slices above are merged** *(this read "six of the eight" when it was authored
+  and stayed stale through S7's and S8's landings — a suppressed Copilot finding
+  on #1035, accurate, taken at fix round 6; the count is the one § 3.4's STATUS
+  paragraph and the table above both carry)*. The staleness predates this amendment and is
   not made by it; it is left to the act that CLAIMS that text — the same rule
   this box applies to `design.md`'s and `proposal.md`'s four *"30,410"*
   occurrences — which is the packet's ARCHIVAL act, the README **OpenSpec
@@ -1167,7 +1209,8 @@ the bookkeeping that ticks this group.
   § 4.3 routes/subcommands build, not one of `design.md`'s inventoried twelve
   modules. Box stays open until the residue carve resolves where the
   remaining imports land.
-  **STATUS — 2026-09-14, box STAYS OPEN, and the residue is now fully
+  **STATUS — authored 2026-09-14, re-verified at this amendment's landing,
+  2026-09-16; box STAYS OPEN, and the residue is now fully
   accounted for: § 3.4 moved none of it, and five of the eleven were
   DISCHARGED BY THE § 2 SEAM rather than relocated.** Re-measured 2026-09-14 at
   four trees — openXdox-code `main` **`c1ad341a`** (S5 leg A landed),
@@ -1179,13 +1222,30 @@ the bookkeeping that ticks this group.
   `src/opendox/` at openDox-code, and `scripts/ideation_dashboard/` at
   openxFactory (both at `main` `e6e1c968` and at the carve commit — openxFactory
   has no `src/`, which is why a single root spelling would not reproduce).
+  **RE-RUN AT THE FINAL HEADS for this landing (2026-09-16)**, because a header
+  that says re-verified has to name what it re-verified and the rows below were
+  taken at the S5-era trees: openXdox-code `main` **`0a0265f7`** (S8 leg A
+  landed) returns the same **13** sites in the same **8** modules, per file
+  identical to `c1ad341a` — `cli_gate` 1, `completeness` 1, `corpus_root` 1,
+  `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1,
+  `snapshot_registry` 1; openDox-code `main` **`0b4e8bbf`** (ALL EIGHT landed)
+  returns the same **5** — `serve.py` 1 and `workbench.py` 4 — with
+  `workbench`'s four at **:746, :1407, :1408, :1409** unmoved and `serve`'s one
+  at **:713** where `8efb3cf5` had :710, three lines down under the leg edits
+  above it and the same import; and openxFactory `main` **`a499061e`** returns
+  the same **3** — `doxbench_status_exemption.py`:63 and
+  `serve_openxfactory_lanes.py`:178, :277. **Every COUNT below is unchanged at
+  the landed heads; exactly one line number moved, and it is named here.**
+  (A Copilot finding on #1035, accurate: the intervening slices are what a
+  re-verification claim has to rule out, and this is the path-level check that
+  rules them out.)
   All 23 of
   `design.md` § D3's inventoried outbound imports now have a position:
 
   | where the 23 stand | count | sites |
   | --- | ---: | --- |
   | `openXdox-code` `src/openxdox/` (the adapter's implementation surface, as 4.1 asks) | **12** | `completeness` 1, `corpus_root` 1, `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1, `snapshot_registry` 1 |
-  | `openDox-code` `src/opendox/` | **5** | `serve.py`:710 `from doc_health.corpus import RealGit`; `workbench.py`:746, :1407, :1408, :1409 |
+  | `openDox-code` `src/opendox/` | **5** | `serve.py`:**710** `from doc_health.corpus import RealGit` — that position is `8efb3cf5`'s, and the same import is at **:713** at `main` `0b4e8bbf` (the re-run above); `workbench.py`:746, :1407, :1408, :1409, identical at both |
   | RULED to stay at `openxFactory` (DQ-1) | **1** | `design.md` § D3 inventories it at `doxbench_packet`; the import had already moved by the carve commit and the LIVE site is `scripts/ideation_dashboard/doxbench_status_exemption.py`:63 — `from doc_health.lines import split_keepends`, the same line at `b075fd91` and at `main` `e6e1c968` (reading (ii) below) |
   | **DISCHARGED at the § 2 seam** — the import became an adapter call or a late seam read, so there is nothing left to relocate | **5** | `authoring` 2 → `authoring.py`:317–318, `from .corpus_adapter import DocumentId` + `from corpus_adapter_openxfactory import home_corpus`; `cli` 1 → gone, only the path comment at `cli.py`:14 survives; `serve` 2 of 3 → gone before the carve (openxFactory `b075fd91` already reads one, at `serve.py`:618), the leg's own late seam reading `from opendox import consumer_reach` at `serve.py`:146 |
 
@@ -1217,8 +1277,12 @@ the bookkeeping that ticks this group.
   corpus` at `af15f712` and `from doc_health import corpus` at `c1ad341a`,
   because openXdox-code `#16` → `17384c07` (§ 4.4's vocabulary half) took
   `TAXONOMY` out of it. Same site, same line, one name fewer. (ii) **`openxFactory` holds none of the
-  residue at the source any more, and the one RULED to stay is not where this
-  box assumed.** The § 5.2 shed has landed: `scripts/ideation_dashboard/` is
+  residue in the FIVE SOURCE MODULES it was inventoried in any more, and the one
+  RULED to stay at openxFactory is not in the module this box assumed.**
+  *(This read "holds none of the residue at the source any more" until fix round
+  10, where a Copilot finding — accurate — read the unqualified half as denying
+  the RULED import that DID stay; the scope was always the five modules the next
+  sentence names, and it is now written rather than implied.)* The § 5.2 shed has landed: `scripts/ideation_dashboard/` is
   down to **10 files**, an identical set at `main` `a80f0e3c` and at `main`
   `e6e1c968`, none of them `authoring`, `cli`, `serve`, `workbench` or
   `doxbench_packet`. `doxbench_packet`'s one DID stay at openxFactory, as DQ-1
@@ -1245,9 +1309,23 @@ the bookkeeping that ticks this group.
   residue still travelling.** *"The 23 outbound `doc_health` imports become the
   adapter's IMPLEMENTATION SURFACE here"* is a design-time expectation that the
   § 2.1 / 2.2 / 2.2a seam overtook: 12 arrived, 5 routed to openDox, 1 is
-  RULED elsewhere, and 5 no longer exist as imports at all. No further carve
+  RULED elsewhere, and 5 no longer exist as imports IN THOSE MODULES at all —
+  what ended is the outbound import SITE and not the dependency, which reading
+  (ii) above places behind the § 2.2a seam at
+  `scripts/corpus_adapter_openxfactory/home.py`:59, where importing doc-health
+  is lawful and is the whole of DQ-1 *(the unqualified "at all" reads as the
+  dependency itself vanishing — a Copilot finding on #1035, accurate, taken at
+  fix round 10)*. No further carve
   can move them, so the box is not waiting on § 3.4 (landed), and the wording
-  needs a RULING or an amendment rather than another measurement. Registered
+  needs a RULING or an amendment rather than another measurement. **The sentence
+  that needs it is the box's own closing one** — *"Box stays open until the
+  residue carve resolves where the remaining imports land"* — kept as written
+  above under this file's no-deletion discipline and SUPERSEDED here: no carve
+  can resolve it, because five of the eleven stopped being imports at the § 2
+  seam and the other six are placed, so what this box now waits on is that
+  reconciliation and not a carve. *(The two exit conditions read as
+  incompatible until this paragraph named which one is live — a Copilot finding
+  on #1035, accurate.)* Registered
   here, decided nowhere: this amendment records the accounting and leaves the
   box open on it. `#656` record: CLAIM `5656686020`.
   **STATUS — 2026-09-16, RULED R-1 DECIDES WHAT THE STATUS ABOVE REGISTERED, AND
