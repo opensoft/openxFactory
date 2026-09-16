@@ -10,9 +10,12 @@ implementation of openDox's corpus-adapter seam over this repository's own corpu
 
 **THE FIFTEEN ARE NOT AUTHORED HERE; THEY ARE CARRIED.** Each requirement below was
 lifted from `openspec/specs/ideation-dashboard/spec.md` BY TITLE rather than by line or
-by hand, and carries every byte of its promoted text except at the SIX sites
+by hand, and carries every byte of its promoted text except at the TWO sites
 `design.md` § D2 discloses, where a path literal becomes the seam operation that answers
-for it. Titles are therefore character-for-character identical to the promoted spec — the
+for it. The other FOUR path-literal occurrences in the fifteen are RECORDED NON-EDITS,
+each with its reason: no operation of the six-wide seam answers the question its
+requirement asks at those words, and replacing a literal with prose that names no call
+would be authoring rather than re-expressing. Titles are therefore character-for-character identical to the promoted spec — the
 same discipline the packet's own removal block states for the same reason:
 `scripts/doc_health/promotion_fidelity.py` keys on (capability, normalized title), so
 the successor is a DISTINCT key, this re-promotion masks nothing, and the packet's
@@ -58,7 +61,7 @@ Where no machine-resolved preservation evidence exists, cleanup MAY proceed only
 - **AND** no proposal artifact is authored by the console itself
 
 #### Scenario: A missing topic is refused
-- **WHEN** propose is invoked for a topic id the corpus adapter's `list_documents` returns nothing for in the pinned checkout's staging area
+- **WHEN** propose is invoked for a topic id with no directory under the checkout's `ideation/staging/`
 - **THEN** the console MUST refuse with the reason and persist nothing
 
 #### Scenario: A duplicate commission is refused
@@ -277,7 +280,7 @@ The gate console SHALL expose `demote` as an executing dashboard verb — a loop
 - **THEN** the call MUST be rejected and reported, like every gate action
 
 ### Requirement: Accepted-possible promotion to staging
-The gate console SHALL offer a human-only `promote-to-staging` action on a possible that commissions the organization of that possible into a staging topic of the corpus the adapter resolves, as a fragment — a `workflow-job` descriptor naming the staging-fragment authoring workflow and targeting the possible's register id (optionally carrying a proposed topic slug), plus a `promote-to-staging` gate-action record — and the console MUST NOT author the fragment or mutate the possibles register: the possible's `latent → picked` pick edge is recorded only when the commissioned fragment is delivered, never at commission time. Promotion SHALL presuppose an accepted disposition — the console MUST refuse a derived possible still `pending_review` (it must be disposed first), a `rejected` or `superseded` possible, an already-`picked` possible, and a register id absent from the pinned checkout — and MUST refuse a duplicate commission while a dispatched `promote-to-staging` job for the same possible remains undelivered.
+The gate console SHALL offer a human-only `promote-to-staging` action on a possible that commissions the organization of that possible into `ideation/staging/<topic>/` as a fragment — a `workflow-job` descriptor naming the staging-fragment authoring workflow and targeting the possible's register id (optionally carrying a proposed topic slug), plus a `promote-to-staging` gate-action record — and the console MUST NOT author the fragment or mutate the possibles register: the possible's `latent → picked` pick edge is recorded only when the commissioned fragment is delivered, never at commission time. Promotion SHALL presuppose an accepted disposition — the console MUST refuse a derived possible still `pending_review` (it must be disposed first), a `rejected` or `superseded` possible, an already-`picked` possible, and a register id absent from the pinned checkout — and MUST refuse a duplicate commission while a dispatched `promote-to-staging` job for the same possible remains undelivered.
 
 #### Scenario: An accepted possible is commissioned into staging
 - **WHEN** a human runs promote-to-staging on an accepted (`latent`) possible
@@ -379,7 +382,7 @@ The honest empty-catalog posture SHALL remain distinct from a contract failure. 
 ### Requirement: Demote refreshes a staged topic's outline and never silently replaces it
 The reverse transition SHALL leave the demoted topic's primary fragment carrying the ACTUAL text of the last attempted `proposal.md` and the demoted change's own provenance, and MUST NOT reset that fragment to the pre-proposal aspirational snapshot the change folder holds. The primary fragment is the file the existing deterministic, path-only selection already names; this requirement adds no second candidate file and MUST NOT change that selection.
 
-A returning file whose destination is the topic's declared primary fragment SHALL keep `Status: staged`. It MUST NOT be flipped to `Status: draft`: the same selection rule still calls that file the staged topic's outline, so a draft status there makes the document disagree with every reader of it. The `Status: draft` flip remains correct and unchanged for the proposal documents returning to the topic's OpenSpec workspace.
+A returning file whose destination is the topic's declared primary fragment SHALL keep `Status: staged`. It MUST NOT be flipped to `Status: draft`: the same selection rule still calls that file the staged topic's outline, so a draft status there makes the document disagree with every reader of it. The `Status: draft` flip remains correct and unchanged for the proposal documents returning to the topic's `openspec/` workspace.
 
 The reverse transition SHALL fill the fragment's round-trip provenance slots from values it holds when it executes — the change id, the date demoted, the demote reason, the date the change was raised, and the change's state at demote. The state-at-demote slot SHALL carry the change's status TOGETHER WITH its task progress where the change records tasks, because the status alone is a constant: the reverse transition refuses any change that is not active, so a status-only slot can never distinguish one demote from another. Where the change records no tasks, the slot SHALL carry the status alone rather than a fabricated count. A value that is genuinely unavailable SHALL be recorded as unavailable and MUST NOT be fabricated or left reading as an unused placeholder.
 
@@ -404,7 +407,7 @@ The refresh SHALL be idempotent: applying it twice with the same inputs SHALL pr
 #### Scenario: The returning outline keeps its staged status
 - **WHEN** a demote returns a file whose destination is the topic's declared primary fragment
 - **THEN** that file MUST keep `Status: staged`
-- **AND** the proposal documents returning to the topic's OpenSpec workspace MUST still continue as `Status: draft`
+- **AND** the proposal documents returning to the topic's `openspec/` workspace MUST still continue as `Status: draft`
 
 #### Scenario: The proposal-element sections carry the real prior text
 - **WHEN** a topic that reached proposal is demoted and the change carries a `proposal.md`

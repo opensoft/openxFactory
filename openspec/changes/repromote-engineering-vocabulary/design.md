@@ -5,6 +5,11 @@ Authored: 2026-09-16, lane `openxfactory-4` (display `openXfactory-4-openDox_ext
 `substrate52a`, against a fresh clone of `main` at `fa39141c`. Every count below was produced by a
 script over that tree and is reproducible from it; none is read off prose.
 
+**EVERY `design.md`/`tasks.md`/`proposal.md` CITATION BELOW IS THE GOVERNING PACKET'S, NOT THIS
+ONE'S**, and each is written with its full path the first time it is used;
+`openspec/changes/split-opendox-two-layer-product/` is meant wherever a bare `tasks.md § …` or
+`design.md § D…` appears after that.
+
 Governing text, in the order it binds: **RULING DQ-1** (`opensoft/openxFactory` issue #656,
 2026-09-04T22:14Z, comment `5547049745`) · **RULING OQ-1** (22:15Z, comment `5547060378`, the CLOSED
 edit-class list) · `split-opendox-two-layer-product` `tasks.md` **§ 5.2a** (:1527-1535) and **§ 2.2a**
@@ -21,11 +26,11 @@ it, so the id is read off what the packet CALLS the thing, not off preference.
 
 | measured at `fa39141c` | what it names the adapter |
 |---|---|
-| the ratified per-requirement map, **15 of 15** openxFactory rows, identical phrasing | *"openxFactory's OWN ENGINEERING ADAPTER, the small package beside `scripts/doc_health/` that implements openDox's corpus-adapter seam (RULING DQ-1)"* |
-| `design.md` § D3 column head (:290) | *"`openxFactory`'s OWN ENGINEERING ADAPTER — the engineering mapping"* |
-| `design.md` § D1 topology block (:172) | *"its OWN engineering adapter, one conformant implementation of openDox's seam"* |
-| `proposal.md` (9) | *"a small ENGINEERING ADAPTER PACKAGE beside `scripts/doc_health/`"* |
-| `tasks.md` :1248, :1356 | *"openxFactory's own engineering adapter"* · *"that DQ-1 ENGINEERING ADAPTER"* |
+| the ratified per-requirement map, **15 of 15** openxFactory rows, identical phrasing (`openspec/changes/split-opendox-two-layer-product/specs/ideation-dashboard/spec.md`) | *"openxFactory's OWN ENGINEERING ADAPTER, the small package beside `scripts/doc_health/` that implements openDox's corpus-adapter seam (RULING DQ-1)"* |
+| the governing packet's `design.md` § D3 column head (`openspec/changes/split-opendox-two-layer-product/design.md`:290) | *"`openxFactory`'s OWN ENGINEERING ADAPTER — the engineering mapping"* |
+| the governing packet's `design.md` § D1 topology block (`openspec/changes/split-opendox-two-layer-product/design.md`:172) | *"its OWN engineering adapter, one conformant implementation of openDox's seam"* |
+| the governing packet's `proposal.md`, clause (9) (`openspec/changes/split-opendox-two-layer-product/proposal.md`) | *"a small ENGINEERING ADAPTER PACKAGE beside `scripts/doc_health/`"* |
+| the governing packet's `tasks.md` (`openspec/changes/split-opendox-two-layer-product/tasks.md`:1248, :1356) | *"openxFactory's own engineering adapter"* · *"that DQ-1 ENGINEERING ADAPTER"* |
 | bigram count over the whole packet | **"engineering adapter" 22** · "engineering mapping" 1 · "corpus adapter" used as ITS name **0** |
 | the LANDED § 2.2a package (#725 → `ea4e6ff2`) | directory `scripts/corpus_adapter_openxfactory/`; sole public class `OpenxFactoryCorpusAdapter`; tests `tests/corpus-adapter/` |
 | the LANDED § 4.4 profile (#984 → `a1ef886f`) | `contracts/domain-profiles/openxfactory-engineering.yaml`, `mapping_id: openxfactory-engineering` |
@@ -60,40 +65,45 @@ subject: `medxchart-overlay-boundary`, `medxpractice-overlay-boundary`, `omnigen
 **Collision check at `fa39141c`**: 62 capabilities under `openspec/specs/`, none of them this;
 `grep -rI "openxfactory-engineering-adapter"` over the tree returns **0** hits.
 
-## D2 — THE SIX PATH LITERALS, AND THE SEAM OPERATION THAT ANSWERS FOR EACH
+## D2 — SIX PATH LITERALS, TWO OF WHICH A SEAM OPERATION ANSWERS FOR — AND THAT IS THE FINDING
 
-`tasks.md` § 5.2a: *"The only edit they take is re-expressing path literals as `adapter calls` — one of
-RULING OQ-1's three classes, by name."* So the census comes first, and it is complete: of the 49
-distinct backticked tokens in the fifteen, SEVEN are path-shaped, and they occur in four requirements.
+`tasks.md` § 5.2a: *"The only edit they take is re-expressing path literals as `adapter calls` — one
+of RULING OQ-1's three classes, by name."* So the census comes first, and it is complete: of the 49
+distinct backticked tokens in the fifteen, SEVEN are path-shaped, occurring in four requirements.
 
-**THE EDIT IS A REPLACEMENT OF A LAYOUT FACT BY THE OPERATION THAT HOLDS IT.** This is not a
-stylistic de-pathing: every literal below is a datum the § 2.2a adapter ALREADY owns as data —
-`scripts/corpus_adapter_openxfactory/home.py` carries `OBLIGED_PREFIX = "ideation/"`,
-`PROMOTED_ROOT = "openspec"` and `REPO_ROOT`, and its module docstring names `home.py` as *"the only
-module naming the home layout"*. A requirement that spells the layout states in canon what DQ-1 moved
-into the adapter.
+**NARROWED AFTER MEASUREMENT, AND THE NARROWING IS THE POINT.** This packet first re-expressed six
+occurrences. An automated review contested two of them and, separately and more sharply, the
+existence semantics of a third; both objections are CORRECT against the interface's own text, and
+the packet was narrowed to what the seam can actually answer rather than argued into place. **The
+finding stands on the record for § 3.7 and § 5.4 and for openDox, which owns the interface under
+RULING Q4: four of the six path literals in the fifteen name a question the six-wide seam does not
+answer as the requirement states it.**
 
-| # | requirement | OLD (promoted) | NEW (here) | operation |
-|---|---|---|---|---|
-| 1 | Staged-topic proposal commissioning | ``for a topic id with no directory under the checkout's `ideation/staging/` `` | ``for a topic id the corpus adapter's `list_documents` returns nothing for in the pinned checkout's staging area`` | `list_documents` |
-| 2 | Accepted-possible promotion to staging | ``commissions the organization of that possible into `ideation/staging/<topic>/` as a fragment`` | `commissions the organization of that possible into a staging topic of the corpus the adapter resolves, as a fragment` | `resolve` |
-| 3 | doxBench resolves its released contract … | ``then the existing walk up to an aggregation-relative `openxFactory/` `` | ``then the corpus adapter's `resolve` of the aggregation-relative home corpus`` | `resolve` |
-| 4 | doxBench resolves its released contract … | ``the hosting repository is a publisher release and an aggregation-relative `openxFactory/` checkout also exists`` | `the hosting repository is a publisher release and an aggregation-relative home corpus the adapter could resolve also exists` | `resolve` |
-| 5 | Demote refreshes a staged topic's outline … | ``for the proposal documents returning to the topic's `openspec/` workspace.`` | `for the proposal documents returning to the topic's OpenSpec workspace.` | promoted-root datum |
-| 6 | Demote refreshes a staged topic's outline … | ``the proposal documents returning to the topic's `openspec/` workspace MUST still continue`` | `the proposal documents returning to the topic's OpenSpec workspace MUST still continue` | promoted-root datum |
+### The two edits — both `resolve`, both in *doxBench resolves its released contract from the checkout it runs in*
 
-**FOUR OF THE SIX NAME AN OPERATION; TWO NAME NO CALL, AND THAT IS DISCLOSED RATHER THAN DRESSED UP.**
-Edits 1–4 sit where a READER looks, so the operation that looks is named: `list_documents` (design
-§ D2's *list*, which must not know *"that `ideation/staging` or `openspec/changes` are meaningful
-paths"*) and `resolve` (*"given a corpus reference, which checkout and which revision — the operation
-`corpus_root.py` performs today with a path literal"*). Edits 5–6 sit in a STATUS rule about documents
-a demote returns; no read and no write happens at those words, and inventing a call there would be
-authoring rather than re-expressing. The path literal is removed and the governance noun the adapter
-holds as its `PROMOTED_ROOT` datum stands in its place. Both shapes are inside OQ-1's one class — the
-class is about which side of the seam the layout lives on — and the difference is stated here so a
-reviewer counts four calls and two nouns and finds the packet said so first.
+| # | OLD (promoted) | NEW (here) |
+|---|---|---|
+| 1 | ``then the existing walk up to an aggregation-relative `openxFactory/` `` | ``then the corpus adapter's `resolve` of the aggregation-relative home corpus`` |
+| 2 | ``the hosting repository is a publisher release and an aggregation-relative `openxFactory/` checkout also exists`` | `the hosting repository is a publisher release and an aggregation-relative home corpus the adapter could resolve also exists` |
 
-**TWO RECORDED NON-EDITS, because a silent omission is the defect here.**
+These two are unambiguous: the governing `design.md` § D2 names `resolve` for exactly this literal —
+*"**resolve** (given a corpus reference, which checkout and which revision — the operation
+`corpus_root.py` performs today with a path literal)"* — and the requirement's whole subject is a
+resolution ladder. Every rung survives, including the `OPENXFACTORY_ROOT` override; what changes is
+which side of the seam holds the directory's name. The adapter already holds it:
+`scripts/corpus_adapter_openxfactory/home.py` carries `REPO_ROOT`, `PROMOTED_ROOT = "openspec"` and
+`OBLIGED_PREFIX = "ideation/"`, and its own docstring names `home.py` *"the only module naming the
+home layout"*.
+
+### The four recorded NON-edits, each with the operation it would have needed
+
+| occurrence | requirement | why no adapter call answers for it |
+|---|---|---|
+| ``ideation/staging/`` (scenario *A missing topic is refused*) | Staged-topic proposal commissioning | The question is a topic's EXISTENCE. `list_documents` lists documents under a DECLARED scope; the home adapter declares `documents` and `lifecycle` (`home.py`), not a staging-topic scope, and the interface's own docstring insists *"an empty corpus is a legal `()` and must stay distinguishable from an unreadable one"* — so listing-emptiness cannot distinguish an ABSENT topic from an EMPTY one, which is precisely the distinction this scenario turns on. Re-expressing it through `list_documents` would state a refusal the seam cannot make. |
+| ``ideation/staging/<topic>/`` | Accepted-possible promotion to staging | It names the DESTINATION of authoring the console explicitly must not perform (*"the console MUST NOT author the fragment"*). No seam operation is invoked at that word: `write_back` is a dispatch of a proposed document and this is a `workflow-job` commission. |
+| ``openspec/`` ×2 (body and scenario) | Demote refreshes a staged topic's outline… | Both sit inside a STATUS rule about documents a demote returns. No read and no write happens there, so no operation answers; `PROMOTED_ROOT` is the adapter's implementation datum and not a call, and naming it in canon would state an implementation detail where the requirement states an obligation. |
+
+**AND TWO FURTHER NON-EDITS, for completeness of the census.**
 
 * ``proposal.md`` (×4, requirement 11) is a DOCUMENT'S OWN IDENTITY, not a location. The seam's
   `read` returns *"the bytes of one document"* against a `DocumentId` whose `key` is declared OPAQUE
@@ -103,19 +113,26 @@ reviewer counts four calls and two nouns and finds the packet said so first.
 * ``OPENXFACTORY_ROOT`` (×3, requirement 10) is an OPERATOR OVERRIDE's name and a rung of the very
   precedence ladder that requirement exists to state. `CorpusRef.location` is *"opaque here; the
   implementation interprets it"*, so the override is what a caller PASSES rather than a layout the
-  reader walks. Deleting the rung's name would delete requirement content, which § 5.2a forbids.
+  reader walks. Deleting the rung's name would delete requirement content.
 * (``main``, ×1, requirement 1 — *"a main-resident cleanup record"* — is a git ref, not a path.)
 
-**THE CARRY IS PROVED, NOT ASSERTED.** The delta is built by script
-(`build_delta.py`, persisted with this lane's helpers): the fifteen are selected by the destination
-the ratified map names, lifted from the promoted spec BY TITLE (never by line), each of the six edits
-must match EXACTLY ONCE or the build aborts, and the build then REVERSES all six and asserts byte
-equality against the promoted text. Measured: **102 promoted requirements; 71/16/15 map; 15 carried;
-49,829 source bytes; 84 scenarios; 6/6 edits matched once; reversal proof passes.** Re-running it
-after any merge from `main` re-proves the carry against the moved base — which is how this packet
-stays current against `#1066`, the one open pull request that edits
-`openspec/specs/ideation-dashboard/spec.md` (hunks at :2249, :2267 and an append after :2590; it
-touches none of the fifteen).
+**WHAT WOULD UNBLOCK THE FOUR**, named so the next box does not have to rediscover it: a scope the
+corpus DECLARES for staged topics (`ResolvedCorpus.scopes` is return data, so a home adapter may
+declare one without widening the six), or an existence-capable answer that keeps *absent* and *empty*
+apart. Both are openDox's to declare under RULING Q4 and neither is § 5.2a's to invent. `tasks.md`
+§ 4.5 carries it as a BLOCKED box, in the shape § 6.1's and § 6.5's closures used for the same class
+of "named, not performed" work.
+
+**THE CARRY IS PROVED, NOT ASSERTED.** The delta is built by
+`review/build-delta.py`, committed INSIDE this packet so the proof is reproducible from this checkout
+alone: the fifteen are selected by the destination the ratified map names, lifted from the promoted
+spec BY TITLE (never by line), each declared edit must match EXACTLY ONCE or the build aborts, and
+the build then REVERSES every edit and asserts byte equality against the promoted text. Measured:
+**102 promoted requirements; 71/16/15 map; 15 carried; 49,829 source bytes; 84 scenarios; 2/2 edits
+matched once; reversal proof passes.** Re-running it after any merge from `main` re-proves the carry
+against the moved base — which is how this packet stays current against **#1066**, the one open pull
+request that edits `openspec/specs/ideation-dashboard/spec.md` (hunks at `:2249`, `:2267` and an
+append after `:2590`; it touches none of the fifteen).
 
 ## D3 — WHY THIS PACKET AUTHORS NO SECOND `## REMOVED` BLOCK
 

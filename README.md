@@ -542,9 +542,12 @@ Active changes:
   **`openxfactory-engineering-adapter`** — the id § 5.6's de-floor and § 8.4's
   floor accounting were both waiting on. ONE `## ADDED Requirements` block; the
   fifteen are CARRIED by script from the promoted spec, every byte preserved
-  except at the six disclosed sites where a path literal becomes the seam
+  except at the two disclosed sites where a path literal becomes the seam
   operation that answers for it (RULING OQ-1's `adapter calls`), and the carry
-  proved by reversing those six edits and asserting byte equality. It removes
+  proved by reversing those edits and asserting byte equality. Of the six
+  path-literal occurrences only those two name a question the six-wide seam
+  answers; the other four are recorded non-edits with their reasons, which is
+  this packet's second finding. It removes
   nothing — the packet's own ratified per-requirement map is the removal's
   single writer (`design.md` § D3). CLAIMED on openxFactory #656 comment
   [`5703096449`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5703096449).
