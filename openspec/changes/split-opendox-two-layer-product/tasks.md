@@ -2278,8 +2278,14 @@ movements claimed at the time they land.
   tracked file under a `tenants/`, `clients/`, `installs/` or `deployments/`
   directory, UNION every file whose top-level `kind:` names a tenant, client,
   install or deployment (`git grep -ilE
-  '^\s*kind:\s*["']?[a-z_]*(tenant|client|install|deployment)'`), each record in
-  it then read for an instance of a dox product.
+  '^\s*kind:\s*["']?[a-z_]*(tenant|client|install|deployment)' -- '*.yaml'
+  '*.yml'`), each record in it then read for an instance of a dox product. The
+  pathspec is stated because the count is sensitive to it in exactly one place
+  and the verdict is not: dropping it adds ONE codexFactory file —
+  `openspec/changes/add-software-team-execution-lane/supporting-docs/01-tenant-and-approved-intent.md`,
+  a markdown supporting-doc quoting a `kind: codex_tenant` block — which carries
+  no mention of dox, so the population reads 10 / 8 / 142 / 7 / 124 instead of
+  9 / 8 / 142 / 7 / 124 and every other column is unmoved.
 
   | domain tree | head | tenant/client/install records | naming `dox` | declaring a `<Domainx>Dox` instance |
   | --- | --- | ---: | ---: | ---: |
@@ -2289,13 +2295,14 @@ movements claimed at the time they land.
   | `opensoft/AdxFactory` | `e794dc2f` | 7 | 0 | **0** |
   | `opensoft/OpsxFactory` | `6aa1512c` | 124 | **8** | **0** |
 
-  **290 committed tenant-install records across the five, and not one of them
-  declares an instance of a descendant.** `git grep -ilE
+  **290 committed tenant-install records across the five (291 without the
+  pathspec), and not one of them declares an instance of a descendant.** `git grep -ilE
   '(codex|medx|ledgerx|adx|opsx)dox'` returns **zero files** in all five trees —
   zero FILES, not merely zero records — and so does
   `dox_(instance|database|migration)`. The only `[a-z]+xdox` string anywhere in
-  the five is `openxdox`, the NEUTRAL product, in codexFactory (32 files) and
-  OpsxFactory (14). *(The bare string `dox` is not the probe and could not be:
+  the five is `openxdox`, the NEUTRAL product, in codexFactory (32 files, 84
+  occurrences) and OpsxFactory (14 files, 23) — `git grep -hoiE '[a-z]+xdox'`
+  returns that one token and no other in either tree. *(The bare string `dox` is not the probe and could not be:
   MedxFactory's 158 `dox`-matching files are `doxorubicin` (174 occurrences),
   `doxycycline` (52), `doxylamine`, `doxepin`, `pralidoxime`,
   `doxercalciferol`, `doxazosin` and `cefpodoxime` — a drug vocabulary, not a
