@@ -1,0 +1,613 @@
+"""The consumer gate's JUnit adjudicator, EXECUTED rather than read.
+
+`test_openxdox_gate_invocation.py` pins the gate's shape: that the two
+assertion bodies are byte-identical, that each carries its five `env:` pins,
+that the pinned numbers are the measured ones. None of that runs the
+adjudicator. A symmetric edit to both copies — an aggregate summed over the
+wrong nodes, a named verdict that stops rejecting `absent`, a floor compared
+with `>` instead of `<` — would leave every one of those assertions green and
+be found only when the gate itself next ran, which on the day this lands is a
+gate no ruleset pins.
+
+SO THIS MODULE EXTRACTS THE SHIPPED BODY AND RUNS IT. The body under test is
+read out of `.github/workflows/openxdox-consumer-gate.yml` at test time, never
+copied here: a copy would be a second implementation to keep in step, and the
+one thing this file must not do is go green against an adjudicator the gate
+does not use. The reports are synthesized in `tmp_path` — this suite is
+hermetic, reads no network, needs neither submodule, and takes about a second.
+
+AND IT READS THE WORKFLOW LAZILY, never at import. A module-level read that
+raised would be a COLLECTION error, and a collection error interrupts the
+whole required run — `2 skipped, 338 deselected, 1 error`, nothing reported
+about the other seven thousand tests. That is the same class this suite's
+sibling documents, and it must not be re-shipped by the file that documents
+it: a workflow this suite cannot parse has to fail THESE tests, loudly, while
+the rest of the tree still reports. Measured both ways, which is why it is
+written this way — see `REPORTS`.
+
+WHAT IT PROVES, case by case, is the anti-vacuity contract itself: that a
+report at the pins passes; that a watched case which went ABSENT, SKIPPED or
+FAILING is refused EVEN WHEN THE AGGREGATES STILL LOOK PERFECT (the sum cannot
+see one case, which is the entire reason names are watched); that the exact
+skip count refuses the root-shaped 13; that the floors refuse a collection
+loss; that failures and errors refuse; and that the walk sums a multi-suite
+report as well as a single-suite one.
+"""
+
+from __future__ import annotations
+
+import functools
+import os
+import subprocess
+import textwrap
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+import pytest
+import yaml
+
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+WORKFLOW = (REPO_ROOT / ".github" / "workflows" /
+            "openxdox-consumer-gate.yml")
+JOB_ID = "openxdox-consumer-gate"
+
+
+#: The two reports, named as literals so that NOTHING in this module reads the
+#: workflow at import time. Parametrizing over extracted `env:` blocks would
+#: move the read into COLLECTION, and a workflow this suite could not parse
+#: would then raise `Interrupted: 1 error during collection` and report nothing
+#: about the other 7000 tests in the required run — the exact class
+#: `test_no_two_test_modules_resolve_to_the_same_import_name` documents. A
+#: broken gate must fail THESE tests, loudly, and leave the rest of the tree
+#: reporting.
+REPORTS = ("pin-suites-report.xml", "consumer-suite-report.xml")
+PIN_REPORT, CONSUMER_REPORT = REPORTS
+
+#: The only environment keys this harness carries into the executed body — the
+#: five the assertion reads. See `step_env`: anything else in a step's `env:`
+#: is refused rather than merged over the isolation.
+STEP_PINS = frozenset({"REPORT", "MIN_SELECTED", "MIN_PASSED", "EXPECT_SKIPPED",
+                       "NAMED_VERDICTS"})
+
+
+@functools.lru_cache(maxsize=None)
+def _extracted() -> tuple[str, dict[str, dict[str, str]]]:
+    """`(body, {report: env})`, read LAZILY — see `REPORTS` for why lazily.
+
+    The two bodies must be identical here as well as in the invocation suite:
+    without that check this module would silently exercise whichever copy the
+    extraction reached first, which is the drift it exists to refuse.
+    """
+    loaded = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    found = [s for s in loaded["jobs"][JOB_ID]["steps"]
+             if "import xml.etree" in s.get("run", "")]
+    if len(found) != 2:
+        raise AssertionError(
+            f"expected one adjudicator per suite in {WORKFLOW.name}; found "
+            f"{len(found)}")
+    if found[0]["run"] != found[1]["run"]:
+        raise AssertionError(
+            "the two adjudicator bodies differ; this module would otherwise "
+            "test only one of them. Diff them and make the edit in both")
+    envs = {str(step["env"]["REPORT"]):
+            {k: str(v) for k, v in step["env"].items()} for step in found}
+    if sorted(envs) != sorted(REPORTS):
+        raise AssertionError(
+            f"the gate adjudicates {sorted(envs)}, not {sorted(REPORTS)}; a "
+            f"new report arrives with its own measured pins, in this module "
+            f"too")
+    return found[0]["run"], envs
+
+
+def body() -> str:
+    return _extracted()[0]
+
+
+def env_for(report: str) -> dict[str, str]:
+    return _extracted()[1][report]
+
+
+def watched(env: dict[str, str]) -> list[tuple[str, str]]:
+    """The `(classname, name)` pairs this env block watches by name."""
+    return [tuple(line.partition("::")[::2])  # type: ignore[misc]
+            for line in env["NAMED_VERDICTS"].split()]
+
+
+def report_xml(*, tests: int, skipped: int = 0, failures: int = 0,
+               errors: int = 0, cases: list[tuple[str, str, str]],
+               wrap: bool = True, split: bool = False,
+               root_tag: str = "testsuites") -> str:
+    """A JUnit report with the aggregates DECLARED rather than derived.
+
+    Declaring them is the point: the defects this adjudicator exists to catch
+    are exactly the ones where the aggregate attributes look right and an
+    individual `<testcase>` does not, so the two must be settable apart.
+    `wrap=False` emits pytest's single-`testsuite` root; `split=True` emits two
+    sibling suites whose attributes sum to the totals.
+    """
+    body = "".join(
+        f'<testcase classname="{c}" name="{n}">'
+        + ("" if outcome == "passed" else f'<{outcome} message="synthetic"/>')
+        + "</testcase>"
+        for c, n, outcome in cases)
+
+    def suite(attrs: dict[str, int], inner: str) -> str:
+        rendered = " ".join(f'{k}="{v}"' for k, v in attrs.items())
+        return f'<testsuite name="pytest" {rendered}>{inner}</testsuite>'
+
+    totals = {"tests": tests, "skipped": skipped, "failures": failures,
+              "errors": errors}
+    if split:
+        head = {k: v // 2 for k, v in totals.items()}
+        tail = {k: v - head[k] for k, v in totals.items()}
+        inner = suite(head, body) + suite(tail, "")
+        return f"<{root_tag}>{inner}</{root_tag}>"
+    one = suite(totals, body)
+    return f"<{root_tag}>{one}</{root_tag}>" if wrap else one
+
+
+def step_env(env: dict[str, str], home: Path) -> dict[str, str]:
+    """The step's `env:` over a MINIMAL one — never over the ambient one.
+
+    WHAT THIS MODULE EXECUTES IS PULL-REQUEST-CONTROLLED TEXT. The body comes
+    out of `.github/workflows/openxdox-consumer-gate.yml` as it stands in the
+    branch under review, and `bash -c` runs it — inside the REQUIRED
+    `pytest-suite` job, which at `.github/workflows/pytest-suite.yml` (its
+    "Rewrite ssh submodule URLs for token auth" step) has already written
+    `https://x-access-token:${{ github.token }}@github.com/` into the runner's
+    GLOBAL git config. Inheriting `os.environ` and `HOME` into that child was
+    therefore handing a proposed workflow body the runner's credential and
+    calling the result hermetic.
+
+    So the child gets `PATH` — without it the body's `python3` is whatever
+    `bash` falls back to, which is a difference from the runner that has
+    nothing to do with what is under test — a `HOME` of its own inside
+    `tmp_path`, `GIT_CONFIG_GLOBAL` and `GIT_CONFIG_SYSTEM` pointed at
+    `os.devnull`, a locale, and the step's five pins. Nothing else: no
+    `GITHUB_TOKEN`, no `ACTIONS_RUNTIME_TOKEN`, no rewritten git config to
+    read a bearer out of.
+
+    AND THE STEP'S ENV IS AN ALLOWLIST, not a merge. `{**isolation, **env}`
+    put the workflow's own values LAST, so an assertion step that declared
+    `HOME` or `GIT_CONFIG_GLOBAL` in its `env:` would have overridden the
+    isolation it was supposed to be subject to — the same pull-request-
+    controlled text, reaching the same credential by a shorter road. Only the
+    five pins in `STEP_PINS` are carried, and anything else in the step's
+    `env:` fails this harness by name rather than being passed through.
+
+    This does not make the required job safe from a hostile pull request —
+    `pytest-suite` runs every test module in that tree, and a module is
+    Python — but it stops THIS module from being the shovel, and it makes the
+    hermeticity this file claims something it actually does.
+    """
+    carried = {key: value for key, value in env.items() if key in STEP_PINS}
+    unknown = sorted(set(env) - STEP_PINS)
+    assert not unknown, (
+        f"the assertion step declares {unknown} beside its five pins. This "
+        f"harness passes ONLY the pins, so a new one must be added to "
+        f"`STEP_PINS` deliberately — and a step that declares `HOME`, "
+        f"`GIT_CONFIG_GLOBAL` or any other control variable would otherwise "
+        f"undo the isolation below by being merged over it")
+    return {
+        "PATH": os.environ.get("PATH", ""),
+        "HOME": str(home),
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+        "LC_ALL": os.environ.get("LC_ALL", "C.UTF-8"),
+        **carried,
+    }
+
+
+def adjudicate(tmp_path: Path, env: dict[str, str],
+               xml: str) -> subprocess.CompletedProcess[str]:
+    """Run the SHIPPED body over `xml`, as the runner would — minus the runner's
+    credential: see `step_env`."""
+    (tmp_path / env["REPORT"]).write_text(xml, encoding="utf-8")
+    home = tmp_path / "home"
+    home.mkdir(exist_ok=True)
+    return subprocess.run(["bash", "-c", body()], cwd=tmp_path,
+                          env=step_env(env, home), capture_output=True,
+                          text=True)
+
+
+def at_the_pins(env: dict[str, str], **over) -> str:
+    """A report that satisfies every pin in `env` — the passing baseline."""
+    fields = {
+        "tests": int(env["MIN_SELECTED"]),
+        "skipped": int(env["EXPECT_SKIPPED"]),
+        "cases": [(c, n, "passed") for c, n in watched(env)],
+    }
+    fields.update(over)
+    return report_xml(**fields)
+
+
+# --------------------------------------------------------------------------
+# the body under test is the one the gate ships
+# --------------------------------------------------------------------------
+
+def test_the_body_under_test_is_extracted_from_the_workflow() -> None:
+    """Never a copy: a copy is a second implementation, and it drifts.
+
+    The comparison re-indents by the ten spaces the block scalar strips —
+    BOTH copies must be found, because finding one would mean the two had
+    diverged and this suite was exercising whichever the extraction reached
+    first.
+    """
+    assert "xml.etree.ElementTree" in body()
+    indented = textwrap.indent(body(), " " * 10, lambda line: bool(line.strip()))
+    assert WORKFLOW.read_text(encoding="utf-8").count(indented) == 2, (
+        "the adjudicator executed by this suite must be the text the workflow "
+        "ships, in both of its copies; if this fails, either the extraction "
+        "stopped matching the file or the two bodies have drifted")
+
+
+# --------------------------------------------------------------------------
+# the passing case, for both shipped pin sets
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("report", REPORTS)
+def test_a_report_at_the_pins_is_accepted(tmp_path: Path,
+                                          report: str) -> None:
+    """Both shipped `env:` blocks, through the one body."""
+    env = env_for(report)
+    done = adjudicate(tmp_path, env, at_the_pins(env))
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert f"skipped={env['EXPECT_SKIPPED']}" in done.stdout
+    for classname, name in watched(env):
+        assert f"named verdict {classname}::{name}: passed" in done.stdout
+
+
+@pytest.mark.parametrize("report", REPORTS)
+def test_a_margin_above_the_floors_is_accepted(tmp_path: Path,
+                                               report: str) -> None:
+    """Floors are floors: a suite that GREW must not red the gate."""
+    env = env_for(report)
+    grown = int(env["MIN_SELECTED"]) + 7
+    done = adjudicate(tmp_path, env, at_the_pins(env, tests=grown))
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "(margin 7)" in done.stdout
+
+
+def test_a_single_testsuite_root_is_read(tmp_path: Path) -> None:
+    """pytest emits `<testsuites>`; a bare `<testsuite>` is still a report."""
+    env = env_for(PIN_REPORT)
+    xml = (at_the_pins(env).replace("<testsuites>", "")
+           .replace("</testsuites>", ""))
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert f"selected={env['MIN_SELECTED']}" in done.stdout
+
+
+def test_a_multi_suite_report_is_summed_not_sampled(tmp_path: Path) -> None:
+    """The walk adds every `<testsuite>`; reading only the first halves it."""
+    env = env_for(PIN_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]),
+                     cases=[(c, n, "passed") for c, n in watched(env)],
+                     split=True)
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert f"selected={env['MIN_SELECTED']}" in done.stdout
+
+
+def test_an_unexpected_root_is_refused_rather_than_treated_as_a_container(
+        tmp_path: Path) -> None:
+    """FAIL CLOSED on a report shape this gate does not understand.
+
+    "Anything that is not `<testsuite>` is a container of testsuites" reads
+    like a kindness and is a hole: a report rooted at `<unexpected>` with one
+    `<testsuite tests="105" …>` inside would satisfy every floor, every exact
+    skip and every named verdict, because the walk would sum its children and
+    `iter("testcase")` would find the cases anyway.
+    """
+    env = env_for(PIN_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]),
+                     cases=[(c, n, "passed") for c, n in watched(env)],
+                     root_tag="unexpected")
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0
+    assert "root <unexpected>" in done.stdout
+    assert "refusing to adjudicate" in done.stdout
+
+
+def test_a_non_testsuite_child_is_not_summed(tmp_path: Path) -> None:
+    """`<testsuites>` may carry `<properties>`; only `<testsuite>` counts."""
+    env = env_for(PIN_REPORT)
+    inner = ('<properties><property name="x" value="y"/></properties>'
+             f'<testsuite name="pytest" tests="{env["MIN_SELECTED"]}" '
+             'skipped="0" failures="0" errors="0">'
+             + "".join(f'<testcase classname="{c}" name="{n}"></testcase>'
+                       for c, n in watched(env))
+             + "</testsuite>")
+    done = adjudicate(tmp_path, env, f"<testsuites>{inner}</testsuites>")
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert f"selected={env['MIN_SELECTED']}" in done.stdout
+
+
+@pytest.mark.parametrize("placement", ("beside the counted suite",
+                                       "inside it, under a container"))
+def test_a_watched_case_outside_the_counted_suites_is_not_a_verdict(
+        tmp_path: Path, placement: str) -> None:
+    """The root hole in its second shape: floors from one child, verdict from another.
+
+    `test_an_unexpected_root_is_refused_rather_than_treated_as_a_container`
+    closed the SUM side by refusing a root this gate does not understand. The
+    VERDICT side stayed open one commit longer, because the walk was
+    `root.iter("testcase")` — the whole document, not the suites that supplied
+    the aggregate. A `<testsuites>` carrying one real `<testsuite>` and one
+    `<elsewhere>` therefore took its floors from the suite and its named
+    verdicts from cases the suite never ran. MEASURED against that body: both
+    documents below exited 0 under it, every floor met and every watched name
+    reported `passed`. The walk is now `suite.findall("testcase")` over the
+    counted suites, so both red — and nothing real is refused with them, since
+    pytest writes every case as a direct child of the one `<testsuite>` it
+    declares (1137 direct = 1137 in the whole tree; 105 likewise).
+    """
+    env = env_for(PIN_REPORT)
+    cases = "".join(f'<testcase classname="{c}" name="{n}"></testcase>'
+                    for c, n in watched(env))
+    opened = (f'<testsuite name="pytest" tests="{env["MIN_SELECTED"]}" '
+              f'skipped="{env["EXPECT_SKIPPED"]}" failures="0" errors="0">')
+    if placement.startswith("beside"):
+        inner = f"{opened}</testsuite><elsewhere>{cases}</elsewhere>"
+    else:
+        inner = f"{opened}<elsewhere>{cases}</elsewhere></testsuite>"
+    done = adjudicate(tmp_path, env, f"<testsuites>{inner}</testsuites>")
+    assert done.returncode != 0, done.stdout + done.stderr
+    assert "is 'absent'" in done.stdout
+    assert f"selected={env['MIN_SELECTED']}" in done.stdout, (
+        "the floors must still be MET on this document — otherwise the case "
+        "proves the sums, not the verdict scope")
+
+
+# --------------------------------------------------------------------------
+# the named verdicts — what a sum cannot see
+# --------------------------------------------------------------------------
+
+def test_an_absent_watched_case_is_refused_though_the_sums_are_perfect(
+        tmp_path: Path) -> None:
+    """A deleted or renamed watch must red the gate, never vanish from it."""
+    env = env_for(CONSUMER_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]), cases=[])
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0
+    assert "is 'absent'" in done.stdout
+    assert "::error::" in done.stdout
+
+
+def test_a_skipped_watched_case_is_refused_though_the_sums_are_perfect(
+        tmp_path: Path) -> None:
+    """THE case this watch exists for.
+
+    `node` absent, or a leg not materialized, turns
+    `test_recipe_request_carries_recipe_and_reasoned_overrides` into a skip.
+    Here the aggregate `skipped` attribute is left at zero on purpose — a
+    report can under-report, and a gate that trusted the sum would go green on
+    a run that adjudicated nothing.
+    """
+    env = env_for(CONSUMER_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]), skipped=0,
+                     cases=[(c, n, "skipped") for c, n in watched(env)])
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0
+    assert "is 'skipped'" in done.stdout
+
+
+def test_a_failing_watched_case_is_refused(tmp_path: Path) -> None:
+    env = env_for(CONSUMER_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]),
+                     cases=[(c, n, "failure") for c, n in watched(env)])
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0
+    assert "is 'failure'" in done.stdout
+
+
+def test_an_erroring_watched_case_is_refused(tmp_path: Path) -> None:
+    """The third outcome, exercised — `<error/>` with the aggregate at zero.
+
+    `verdict()` reads three child tags: `skipped`, `failure` and `error`. The
+    first two have cases above; `error` had only the AGGREGATE test, which
+    fires on `errors="1"` — so a report that under-reported that attribute
+    while a watched case carried an `<error/>` child would have been accepted
+    if `"error"` were ever dropped from the outcome tuple. A collection error
+    inside a watched module is exactly how an uninitialized leg reports, which
+    makes this the outcome least safe to leave untested.
+    """
+    env = env_for(CONSUMER_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]),
+                     cases=[(c, n, "error") for c, n in watched(env)])
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0, done.stdout + done.stderr
+    assert "is 'error'" in done.stdout
+    assert "errors=0" in done.stdout, (
+        "the aggregate must stay at zero, or this case proves the error "
+        "counter rather than the named verdict")
+
+
+def test_one_passing_occurrence_does_not_excuse_a_skipped_one(
+        tmp_path: Path) -> None:
+    """The rule that a rerun cannot launder: any non-passing occurrence wins.
+
+    A case that passed once and skipped once adjudicated nothing that run.
+    """
+    env = env_for(CONSUMER_REPORT)
+    classname, name = watched(env)[0]
+    xml = report_xml(tests=int(env["MIN_SELECTED"]),
+                     cases=[(classname, name, "passed"),
+                            (classname, name, "skipped")])
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0
+    assert "is 'skipped'" in done.stdout
+
+
+def test_every_watched_name_is_adjudicated_not_just_the_first(
+        tmp_path: Path) -> None:
+    """The pin suites watch FOUR names; the loop must reach the last of them."""
+    env = env_for(PIN_REPORT)
+    names = watched(env)
+    assert len(names) == 4
+    kept = [(c, n, "passed") for c, n in names[:-1]]
+    done = adjudicate(tmp_path, env,
+                      report_xml(tests=int(env["MIN_SELECTED"]), cases=kept))
+    assert done.returncode != 0
+    assert f"{names[-1][0]}::{names[-1][1]}: absent" in done.stdout
+
+
+# --------------------------------------------------------------------------
+# the counts
+# --------------------------------------------------------------------------
+
+def test_the_root_shaped_skip_count_is_refused(tmp_path: Path) -> None:
+    """DEPARTURE (b), adjudicated: `tests=1137 skipped=13` must not pass.
+
+    Identical selection, thirteen passes turned into skips. This is the one
+    reading a floor cannot see, so it is the one the exact pin exists for.
+    """
+    env = env_for(CONSUMER_REPORT)
+    done = adjudicate(tmp_path, env, at_the_pins(env, skipped=13))
+    assert done.returncode != 0
+    assert "skipped 13, pinned exactly 0" in done.stdout
+
+
+def test_a_collection_loss_below_the_floor_is_refused(tmp_path: Path) -> None:
+    env = env_for(CONSUMER_REPORT)
+    short = int(env["MIN_SELECTED"]) - 1
+    done = adjudicate(tmp_path, env, at_the_pins(env, tests=short))
+    assert done.returncode != 0
+    assert "is BELOW the floor" in done.stdout
+    assert "do not lower the floor" in done.stdout
+
+
+def test_failures_and_errors_are_refused(tmp_path: Path) -> None:
+    """An ERROR is how an uninitialized leg reports — `carved_reach` refuses."""
+    env = env_for(PIN_REPORT)
+    total = int(env["MIN_SELECTED"])
+    failing = adjudicate(tmp_path, env, at_the_pins(env, failures=1))
+    assert failing.returncode != 0
+    assert "1 failure(s)" in failing.stdout
+    erroring = adjudicate(tmp_path, env, at_the_pins(env, errors=1))
+    assert erroring.returncode != 0
+    assert "1 error(s)" in erroring.stdout
+    assert f"passed={total - 1}" in erroring.stdout
+
+
+def test_every_defect_is_reported_not_only_the_first(tmp_path: Path) -> None:
+    """The adjudicator accumulates: one run, the whole list of what is wrong."""
+    env = env_for(CONSUMER_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]) - 5, skipped=13,
+                     cases=[])
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0
+    errors = [line for line in done.stdout.splitlines()
+              if line.startswith("::error::")]
+    assert len(errors) >= 3, textwrap.indent(done.stdout, "  ")
+
+
+def test_a_report_that_cannot_be_parsed_fails_the_step(
+        tmp_path: Path) -> None:
+    """`set -euo pipefail` plus a raising parse: never a silent green."""
+    done = adjudicate(tmp_path, env_for(PIN_REPORT), "<testsuites>")
+    assert done.returncode != 0
+    assert "ParseError" in done.stderr or "Error" in done.stderr
+
+
+def test_a_missing_report_fails_the_step(tmp_path: Path) -> None:
+    """The suite never ran, or wrote elsewhere; both are the same finding."""
+    home = tmp_path / "home"
+    home.mkdir()
+    done = subprocess.run(["bash", "-c", body()], cwd=tmp_path,
+                          env=step_env(env_for(PIN_REPORT), home),
+                          capture_output=True, text=True)
+    assert done.returncode != 0
+    assert "No such file" in done.stderr or "FileNotFound" in done.stderr
+
+
+def test_the_executed_body_cannot_read_the_runner_credential(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The isolation `step_env` claims, measured against a planted credential.
+
+    `pytest-suite` writes `https://x-access-token:${{ github.token }}@
+    github.com/` into the runner's GLOBAL git config before it runs this tree,
+    and the text this module executes comes from the workflow file of the
+    branch under review. So the ambient environment is planted here the way a
+    runner's is — a `HOME` holding exactly that rewrite, `GITHUB_TOKEN` and
+    `ACTIONS_RUNTIME_TOKEN` in the environment — and the child is asked for
+    both. It must see neither.
+    """
+    ambient = tmp_path / "ambient-home"
+    ambient.mkdir()
+    (ambient / ".gitconfig").write_text(
+        '[url "https://x-access-token:PLANTED-BEARER@github.com/"]\n'
+        '\tinsteadOf = git@github.com:\n', encoding="utf-8")
+    monkeypatch.setenv("HOME", str(ambient))
+    monkeypatch.setenv("GITHUB_TOKEN", "PLANTED-BEARER")
+    monkeypatch.setenv("ACTIONS_RUNTIME_TOKEN", "PLANTED-BEARER")
+
+    home = tmp_path / "home"
+    home.mkdir()
+    env = step_env(env_for(PIN_REPORT), home)
+    assert "GITHUB_TOKEN" not in env, (
+        "the child environment must not carry the runner's token; it is built "
+        "from a minimal base, not from `os.environ`")
+    assert "ACTIONS_RUNTIME_TOKEN" not in env
+
+    probe = subprocess.run(
+        ["bash", "-c",
+         'echo "token=${GITHUB_TOKEN-unset}"; '
+         'echo "home=$HOME"; '
+         'echo "config:"; git config --global --list 2>/dev/null; '
+         'echo "end-of-config"'],
+        cwd=tmp_path, env=env, capture_output=True, text=True)
+    assert "token=unset" in probe.stdout, probe.stdout
+    assert f"home={home}" in probe.stdout, probe.stdout
+    listed = probe.stdout.split("config:\n", 1)[1].split("end-of-config")[0]
+    assert listed.strip() == "", (
+        f"the child sees a global git config: {listed!r}")
+    assert "PLANTED-BEARER" not in probe.stdout + probe.stderr, (
+        "the planted credential reached the executed body")
+
+    # …and the real body still adjudicates correctly under that environment.
+    done = adjudicate(tmp_path, env_for(PIN_REPORT),
+                      at_the_pins(env_for(PIN_REPORT)))
+    assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_step_env_cannot_override_the_isolation(tmp_path: Path) -> None:
+    """The isolation must not be undone by the text it is isolating.
+
+    `{**isolation, **env}` put the workflow's own values LAST. MEASURED on that
+    order: an assertion step declaring `HOME: /hostile` and
+    `GIT_CONFIG_GLOBAL: /hostile/.gitconfig` in its `env:` produced a child
+    environment carrying exactly those — the same pull-request-controlled text,
+    reaching the runner's credential by a shorter road than rewriting the body.
+    Only the five pins are carried now, and anything else fails by name.
+    """
+    home = tmp_path / "home"
+    home.mkdir()
+    pins = env_for(PIN_REPORT)
+
+    with pytest.raises(AssertionError, match="beside its five pins"):
+        step_env({**pins, "HOME": "/hostile",
+                  "GIT_CONFIG_GLOBAL": "/hostile/.gitconfig"}, home)
+
+    kept = step_env(pins, home)
+    assert kept["HOME"] == str(home)
+    assert kept["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert kept["GIT_CONFIG_SYSTEM"] == os.devnull
+    assert set(pins) <= set(kept), "the five pins must still reach the body"
+
+
+# --------------------------------------------------------------------------
+# the synthesizer itself, which must not be the thing that is wrong
+# --------------------------------------------------------------------------
+
+def test_the_synthesized_reports_parse_as_the_real_ones_do() -> None:
+    """A fixture builder that emitted nonsense would make every case above
+    vacuous in the other direction."""
+    env = env_for(CONSUMER_REPORT)
+    root = ET.fromstring(at_the_pins(env))
+    assert root.tag == "testsuites"
+    suites = list(root)
+    assert sum(int(s.get("tests", 0)) for s in suites) == int(
+        env["MIN_SELECTED"])
+    assert [(c.get("classname"), c.get("name"))
+            for c in root.iter("testcase")] == watched(env)
