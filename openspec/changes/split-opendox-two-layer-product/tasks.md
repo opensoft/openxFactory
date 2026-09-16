@@ -2219,21 +2219,26 @@ the bookkeeping that ticks this group.
   landed", because a ruleset is the one kind of evidence in this packet that
   lives outside git and cannot be read back from any tree: the id, the
   enforcement and the creation stamp are what a later reader can re-query.)*
-  *(FIVE of amendment #4's own sentences above are re-scoped by this
-  amendment, and nothing else in them moves: three PRONOUNS ("this
-  amendment", "not on this one", "NOT TAKEN HERE"), one STATUS (the wiring
-  "is still owed"), and one SNAPSHOT clause ("It is ADVISORY on the day it
-  lands … named as owed there rather than claimed here"). A sixth repair is
-  positional rather than temporal — a "four lines up" cross-reference that
-  this amendment's own inserted evidence falsified, now anchored to the
-  sentence it means. All six were unambiguous while #4 was the only amendment
-  in the box; with a second one below them a reader meets a `[x]` box that
-  says three times it does not tick and twice that the wiring is open.
-  Re-scoping a pronoun, a date-bound status or a line offset is a currency
-  fix, not a re-wording of what was ratified — the same line § 1's stale
-  coordinates are repaired on and § 7.3's ratified sentence is left alone on.
-  The count itself is stated because it went stale twice while this amendment
-  was open: it read "three" through Copilot rounds 2, 3 and 5.)*
+  *(SEVEN of amendment #4's own sentences above are bound to amendment #4 by
+  this one, in FOUR classes, and nothing else in them moves. **Three
+  PRONOUNS**: "this amendment", "not on this one", "NOT TAKEN HERE".
+  **Two STATUSES**: the wiring "is still owed", and "It is ADVISORY on the
+  day it lands … named as owed there rather than claimed here". **One PULL
+  REQUEST**: "a required check on this very pull request", which in this
+  amendment's copy would name #1078 and attribute to it a run that happened
+  on #1058. **One POSITION**: a "four lines up" cross-reference that this
+  amendment's own inserted evidence falsified, now anchored to the sentence
+  it means. All seven were unambiguous while #1058 was the only pull request
+  carrying this box; with a second amendment below them a reader meets a
+  `[x]` box that says three times it does not tick, twice that the wiring is
+  open, and once that a run on another pull request happened here. Binding a
+  pronoun, a date-bound status, a pull-request reference or a line offset to
+  the act that wrote it is a currency fix, not a re-wording of what was
+  ratified — the same line § 1's stale coordinates are repaired on and § 7.3's
+  ratified sentence is left alone on. **The count is stated with its own
+  history because it went stale three times inside one pull request**: it
+  read "three" through Copilot rounds 2, 3 and 5, and "five" through round
+  6, each time because the next round found another member of the class.)*
 - [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
   source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
   equality. Four clauses, the full text at `design.md` § D6 (2):
