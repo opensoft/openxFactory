@@ -67,13 +67,15 @@
 
 ## 3. Realization — OWED ELSEWHERE, AUTHORED NOWHERE HERE
 
-The staged topic's exit path names two halves and this packet is the first. The
-second is named here so it is a debt with an address rather than an assumption.
+The staged topic's exit path names two halves and this packet is the first; it
+does not close the topic (`proposal.md`, the lifecycle paragraph). The second
+half is named here so it is a debt with an address rather than an assumption.
 
 - [~] 3.1 **DEFERRED — `opensoft/Omnigent-Install` — the installer change. Owner: whoever opens that repository's change.** The flow that
   drives the manifest, exchanges the temporary code inside the provider's window,
-  lands the material in the tenant's own custody by reference, and wires the two
-  bindings — under that repository's own change, its own code surface and its own
+  lands the material in the DECLARED custody by reference — whose operator is
+  that install's own execution binding, not a party this contract names — and
+  wires the two bindings — under that repository's own change, its own code surface and its own
   realization evidence. NOT this packet's surface, and NOT authorable here: that
   repository's README states it *"should not contain … canonical shared contracts
   that belong in `openxFactory/contracts`"*, which is CLAUDE.md working rule 1
