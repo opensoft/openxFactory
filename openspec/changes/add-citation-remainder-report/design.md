@@ -510,6 +510,17 @@ spelling: five rows are one packet spelled five ways, four are one
 questionnaire's sketch, three are one OpsxFactory register spelled active and
 archived. A flat token list makes one act look like five findings.
 
+**AND GROUPING NESTS RATHER THAN COLLAPSES — EVERY TOKEN IS LISTED IN EVERY
+MODE** (PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jIP3K`). The promoted
+requirement is explicit that where several tokens address one identity *"each
+token MUST still appear in the itemized remainder"*, so the default cannot show
+one identity row carrying the first spelling and a count and call the other
+spellings reported. Under the default the IDENTITY is the row and ITS TOKENS
+ARE LISTED BENEATH IT, each with its own occurrences; `--tokens` changes the
+ORDER things are grouped in and NEVER what is listed. The identity total still
+counts the identity once — that is what the grouping is for — and the token
+total still counts every spelling.
+
 **THE OUTPUT, SHAPED BY THE HAND CLASSIFICATION RATHER THAN IMAGINED.** A human
 table grouped by CLASS then by IDENTITY — counts first, then the remainder
 itemized — plus, under `--json`, one object per token carrying `token`,
