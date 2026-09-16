@@ -192,6 +192,77 @@ def test_a_missing_or_empty_checkout_refuses_instead_of_reporting_zero(
     assert "carries no `.js` file" in blank.stderr
 
 
+def test_a_compound_selector_names_both_of_its_classes() -> None:
+    """`.foo.bar` IS TWO CLASSES (Copilot review, round 6).
+
+    The position rule that stops `gate.lens` naming `lens` must not also stop
+    `.foo.bar` naming `bar` — the second dot follows an identifier character in
+    both, and only whether THAT identifier was itself a class tells them apart.
+    A gate module using a compound selector would otherwise have had its rule
+    read as mixed and kept.
+    """
+    assert CENSUS.selector_class_tokens(".foo.bar") == {"foo", "bar"}
+    assert CENSUS.selector_class_tokens(".a.b.c") == {"a", "b", "c"}
+    assert CENSUS.selector_class_tokens(".gatebar .swb-ch") == {"gatebar", "swb-ch"}
+    # and the forms the position rule refuses, including the one real selector
+    # among them: `div.foo` is ELEMENT-QUALIFIED and reads exactly like
+    # `error.foo`, so it goes with them. A loss in the SAFE direction —
+    # under-reading the gate side KEEPS a rule in openDox.
+    assert CENSUS.selector_class_tokens("div.foo") == set()
+    assert CENSUS.selector_class_tokens("gate.lens") == set()
+    assert CENSUS.selector_class_tokens("error.foo") == set()
+    assert CENSUS.selector_class_tokens("proposal.md") == set()
+    # through `narrow_refs`, which is where it is used
+    assert CENSUS.narrow_refs('root.querySelector(".gatebar.is-live");\n',
+                              ".js") == {"gatebar", "is-live"}
+
+
+def test_an_attribute_value_that_looks_like_a_selector_names_nothing() -> None:
+    """`[data-state=".gatebar"]` is an attribute VALUE (Copilot review, round
+    6). `selector_tokens` already stripped `[...]`; the JavaScript-side scan
+    did not, so the same string in a `querySelector` call still claimed the
+    class — and on the GATE side a false claim MOVES a rule."""
+    assert CENSUS.narrow_refs(
+        'root.querySelector(\'[data-state=".gatebar"]\');\n', ".js") == set()
+    # a real class beside an attribute selector is still read
+    assert CENSUS.narrow_refs(
+        'root.querySelector(".gatebtn[hidden]");\n', ".js") == {"gatebtn"}
+
+
+def test_a_block_that_declares_a_design_token_never_leaves(
+        tmp_path: Path) -> None:
+    """RULED Q7 makes the `--st-*` family openDox's ONE stable styling surface,
+    so a rule that DEFINES one is openDox's however gate-only its selector
+    reads (Copilot review, round 6: `declares_st_token` was computed after
+    classification and nothing consulted it)."""
+    dox, xdox = _tree(
+        tmp_path,
+        styles=(".gatebar { --st-proposed: #123; }\n"
+                ".gatebtn { color: red; }\n"),
+        own={},
+        gate={"gate.js": 'el("div", "gatebar"); el("button", "gatebtn");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert report["gate_exclusive"] == ["gatebar", "gatebtn"]
+    assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
+    assert [b["selector"] for b in report["blocks_kept_for_declaring_a_token"]] \
+        == [".gatebar"]
+    # MEASURED at the cited base commits this list is EMPTY, so the 59 are the
+    # 59; the guard is for the act that gives a gate-only rule a declaration.
+
+
+def test_a_missing_opendox_views_directory_refuses_too(tmp_path: Path) -> None:
+    """The openDox side is the side that KEEPS rules, so an empty scan of it is
+    the UNSAFE emptiness (Copilot review, round 6)."""
+    dox, xdox = _tree(tmp_path, styles=".gatebar { color: red; }\n", own={},
+                      gate={"gate.js": 'el("div", "gatebar");\n'})
+    (dox / "src" / "opendox" / "web" / "views").rmdir()
+    proc = subprocess.run(
+        [sys.executable, str(SCRIPT), str(dox), str(xdox)],
+        capture_output=True, text=True, timeout=300)
+    assert proc.returncode != 0
+    assert "is not a directory" in proc.stderr
+
+
 def test_a_prefix_counts_only_from_a_class_bearing_position() -> None:
     """THE ASYMMETRY REACHES PREFIXES TOO (Copilot review, round 5).
 

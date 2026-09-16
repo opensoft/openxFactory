@@ -5175,9 +5175,14 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     # RULED Q7's two commits are what is counted now, so an extra one fails.
     q7_commits = {since for wanted in q7_expected.values()
                   for since in wanted.values()}
+    # EVERY DESTINATION, not just the two this act declares (Copilot review,
+    # round 6): an extra admission introduced at a Q7 commit but filed under
+    # some other destination — `opendox_spec`, say — was invisible to a set
+    # built from `q7_expected`'s own keys, which is the exact riding-in this
+    # count exists to catch.
     q7_committed = {(destination, entry["path"])
-                    for destination in q7_expected
-                    for entry in admissions.get(destination, [])
+                    for destination, entries in admissions.items()
+                    for entry in (entries or [])
                     if entry["since"] in q7_commits}
     assert q7_committed == {(destination, path)
                             for destination, wanted in q7_expected.items()

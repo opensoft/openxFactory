@@ -143,10 +143,12 @@ def js_literal_text(text: str) -> str:
 #          is the scan the "does this block leave?" decision runs on, and being
 #          over-inclusive on openDox's side is exactly the direction an
 #          extraction wants to err in.
-# NARROW — the token appears in a CLASS-BEARING position: after a `.` (a
-#          selector string, `div.foo`, `.foo.bar`), inside a `class="…"`
-#          attribute of a template literal or of `index.html`, or as one of a
-#          literal that is a bare class list. This is what `STYLE_RESIDUE`'s
+# NARROW — the token appears in a CLASS-BEARING position: after a `.` in a
+#          literal that IS a selector (`.foo`, `.foo.bar`, `.a .b` — NOT
+#          `div.foo`, which reads exactly like `error.foo`; see
+#          `selector_class_tokens`), inside a `class="…"` attribute of a
+#          template literal or of `index.html`, or as one of a literal that is
+#          a bare class list. This is what `STYLE_RESIDUE`'s
 #          51 / 24 at `cb343ae8` counted — reproduced exactly by this tool at
 #          that commit — so it is the figure the record moves forward.
 # --------------------------------------------------------------------------
@@ -246,7 +248,50 @@ def _bare_literal_is_class_bearing(text: str, start: int) -> bool:
 #:           `gate-projects.js`) and `lens` (from `"gate.lens: …"`, a view id)
 #:           stop being counted shared, which is the finding biting.
 _SELECTOR_SHAPED = re.compile(r"^[A-Za-z0-9_\-.#>+~*:\[\]=\"',()\s]+$")
-_SELECTOR_CLASS = re.compile(r"(?<![A-Za-z0-9_-])\.([A-Za-z_][A-Za-z0-9_-]*)")
+_IDENT = re.compile(r"[A-Za-z0-9_-]+")
+_CLASS_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*")
+
+
+def selector_class_tokens(selector: str) -> set[str]:
+    """The CLASS tokens of a selector, walked left to right.
+
+    A regex with a "not after an identifier character" lookbehind got
+    `.foo.bar` wrong — the second dot follows `o`, so only `foo` came back
+    (Copilot review of openxFactory #1068, round 6), and a gate module using a
+    compound selector would have had its rule read as mixed and kept. The walk
+    below carries the one bit a lookbehind cannot: WHETHER THE IDENTIFIER RUN
+    JUST CONSUMED WAS ITSELF A CLASS. `.foo.bar` is two classes; `div.foo` is
+    an element and a class, and `gate.lens` / `error.foo` / `proposal.md` are a
+    view id, a message and a filename — none of them selectors.
+
+    Attribute selectors are removed first, for the reason `selector_tokens`
+    removes them: `[data-state=".gatebar"]` is an attribute VALUE and not a
+    class, and reading one as a class can make a rule with no class selector at
+    all look gate-exclusive.
+    """
+    text = re.sub(r"\[[^\]]*\]", " ", selector)
+    out: set[str] = set()
+    i, n, prev_was_class = 0, len(text), False
+    while i < n:
+        ch = text[i]
+        if ch == ".":
+            name = _CLASS_NAME.match(text, i + 1)
+            starts_here = i == 0 or not _IDENT.match(text[i - 1]) or prev_was_class
+            if name and starts_here:
+                out.add(name.group(0))
+                prev_was_class = True
+                i = name.end()
+                continue
+            prev_was_class = False
+            i = name.end() if name else i + 1
+            continue
+        run = _IDENT.match(text, i)
+        if run:
+            prev_was_class = False
+            i = run.end()
+            continue
+        i += 1
+    return out
 
 
 def prefix_refs(text: str, suffix: str, *,
@@ -312,7 +357,7 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
         # BE a selector: shape and position both, see `_SELECTOR_SHAPED`.
         stripped = s.strip()
         if stripped and _SELECTOR_SHAPED.match(stripped):
-            out.update(_SELECTOR_CLASS.findall(stripped))
+            out.update(selector_class_tokens(stripped))
         # A `class="…"` inside a template is class-bearing by construction.
         for m in re.finditer(r'class\s*=\s*"?([A-Za-z0-9_ -]*)', s):
             out.update(p for p in m.group(1).split() if _CLASSTOK.match(p))
@@ -500,7 +545,13 @@ def main() -> int:
     # report `0 gate-exclusive classes, 0 blocks` — a mistyped argument reading
     # as a measured "nothing to extract", which is the worst answer this tool
     # can give: it is the same output a COMPLETED extraction produces.
+    # `web/views` IS CHECKED TOO (Copilot review, round 6): openDox's own view
+    # modules live there, and a missing subdirectory globs to nothing — so
+    # every class only openDox's views name would read as named by nobody, and
+    # a gate class would look exclusive when it is shared. The openDox side is
+    # the side that KEEPS rules; an empty scan of it is the unsafe emptiness.
     for label, path in (("openDox-code's served bundle", web),
+                        ("openDox-code's own view modules", web / "views"),
                         ("openXdox-code's contributed modules", gate_dir)):
         if not path.is_dir():
             raise SystemExit(
@@ -611,7 +662,6 @@ def main() -> int:
         return "opendox"
 
     for b in rules:
-        b["block_class"] = block_class(b)
         b["tokens"] = selector_tokens(b["selector"])
         # A COMMENT IS NOT A DEPENDENCY (Copilot review of openxFactory #1068,
         # round 5): `/* var(--st-proposed) */` or a commented-out `--st-x:`
@@ -621,6 +671,16 @@ def main() -> int:
         live = _blank_comments(b["body"])
         b["reads_st_token"] = bool(re.search(r"var\(\s*--st-", live))
         b["declares_st_token"] = bool(re.search(r"^\s*--st-", live, re.M))
+        # AND A BLOCK THAT DECLARES A TOKEN NEVER LEAVES — computed BEFORE the
+        # classification that reads it (Copilot review, round 6: it used to be
+        # computed after, and nothing consulted it, so `.gatebar { --st-x: red }`
+        # was an extractable exclusive block). RULED Q7 makes the `--st-*`
+        # family openDox's ONE stable styling surface; a rule that DEFINES one
+        # is openDox's by that sentence however gate-only its selector reads,
+        # and moving it would take the surface with it.
+        b["block_class"] = block_class(b)
+        if b["block_class"] == "exclusive" and b["declares_st_token"]:
+            b["block_class"] = "declares_st_token"
 
     kinds = ("gate_exclusive", "shared", "opendox_only", "unreferenced")
     counts = {k: sum(1 for v in census.values() if v["class"] == k) for k in kinds}
@@ -630,6 +690,8 @@ def main() -> int:
                      for k in kinds}
     exclusive_blocks = [b for b in rules if b["block_class"] == "exclusive"]
     mixed_blocks = [b for b in rules if b["block_class"] == "mixed"]
+    token_declaring_blocks = [b for b in rules
+                              if b["block_class"] == "declares_st_token"]
 
     report = {
         "styles_css": {"path": "src/opendox/web/styles.css",
@@ -668,6 +730,15 @@ def main() -> int:
              "shared_tokens": [c for c in b["tokens"]["classes"]
                                if census.get(c, {}).get("class") == "shared"]}
             for b in mixed_blocks],
+        # KEPT DESPITE A GATE-ONLY SELECTOR, because the block DECLARES an
+        # `--st-*` token (RULED Q7's stable surface). MEASURED at the cited
+        # base commits: this list is EMPTY, so the 59 are the 59 — but a later
+        # act that gives a gate-only rule a token declaration will see it here
+        # instead of in the extraction.
+        "blocks_kept_for_declaring_a_token": [
+            {"selector": b["selector"], "at_rule": b["at_rule"],
+             "start": b["start"], "end": b["end"]}
+            for b in token_declaring_blocks],
         "exclusive_block_lines": sum(b["end"] - b["start"] + 1 for b in exclusive_blocks),
         "exclusive_blocks_reading_st": sum(1 for b in exclusive_blocks if b["reads_st_token"]),
         "census": census,
