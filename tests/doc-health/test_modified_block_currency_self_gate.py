@@ -1454,9 +1454,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "packet that SCOPES the root-naming sentence the archived one had just "
         "promoted, after the archive's own review found two findings the arm "
         "emits before any root is selected and ruled the sentence STANDS as "
-        "promoted; its single uncarried unit IS that sentence, whose successor "
-        "in the same paragraph says MORE and never less; retires when the "
-        "packet archives and its block is promoted)",
+        "promoted; ITS TWO UNCARRIED UNITS are that sentence and — since fix "
+        "round 1 — the sibling scenario *A pinned target names a pin no "
+        "resolution root carries*'s original WHEN bullet, narrowed by one "
+        "clause so the empty-root case the packet's new scenario covers keeps "
+        "one outcome and not two; each has a successor in the same block that "
+        "says MORE and never less; retires when the packet archives and its "
+        "block is promoted)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
