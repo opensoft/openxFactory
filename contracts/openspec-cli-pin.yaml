@@ -354,7 +354,7 @@ lockfile_packages: "80"
 # THE MECHANISM SURVIVES THE ROLLBACK: `1.2.0` and `1.12.0` emit the SAME
 # machine-readable report shape (verified by running both), so a pin returned to
 # `1.2.0` still parses. Its `dispositions:` list, however, does NOT survive: the
-# six entries below exist only because 1.12.0 raises those findings and 1.2.0
+# five entries below exist only because 1.12.0 raises those findings and 1.2.0
 # does not, so a rollback that kept them would refuse `pin-disposition-stale` on
 # its first run — on EVERY tree, since a rollback un-raises the findings in both
 # repositories at once. A rollback deletes the dispositions with the version.
@@ -433,15 +433,18 @@ resync_runbook: docs/contract-versioning-policy.md
 # cover the same finding; and it refuses `pin-disposition-stale` when a declared
 # finding no longer occurs, so an exception cannot outlive its condition.
 #
-# THE SIX ENTRIES BELOW ARE NOT ONE DISAGREEMENT REPEATED. They are TWO CLASSES,
+# THE FIVE ENTRIES BELOW ARE NOT ONE DISAGREEMENT REPEATED. They are TWO CLASSES,
 # told apart by CAUSE and not by repository, and a reader who reads them as one
-# list will mis-read four of them. UNTIL 2026-09-11 THERE WAS ONLY THE FIRST
+# list will mis-read one class or the other — three entries or two, depending
+# which cause is assumed. UNTIL 2026-09-11 THERE WAS ONLY THE FIRST
 # CLASS, and this paragraph is where the second is declared.
 #
-#   * MARKER-BLINDNESS, four entries. 1.12.0's scenario-currency check cannot
+#   * MARKER-BLINDNESS, three entries — FOUR until 2026-09-16, when
+#     `add-composed-view-authoring` left with its packet (see the retirement
+#     above). 1.12.0's scenario-currency check cannot
 #     read this estate's reserved narrowing marker, and so demands the
-#     restoration of scenario titles four declared changes deliberately
-#     narrowed. Each of the four CITES the promoted `Merged into` marker
+#     restoration of scenario titles three declared changes deliberately
+#     narrowed. Each of the three CITES the promoted `Merged into` marker
 #     requirement in `doc-health`, because the marker is what makes its omission
 #     a declaration.
 #   * CANON MOVED UNDER AN UN-RE-DERIVED DELTA, two entries. An archive PROMOTED
@@ -457,7 +460,8 @@ resync_runbook: docs/contract-versioning-policy.md
 #     nothing in either is written to survive its change's re-derivation.
 #
 # THEY ARE ALSO TWO GROUPS IN TWO REPOSITORIES, kept apart by `repo:` and by
-# nothing else: TWO in openxFactory (#677, "take exit 2") and FOUR in
+# nothing else: ONE in openxFactory (#677, "take exit 2" — `add-chain-attestation`,
+# the second having left with `add-composed-view-authoring`) and FOUR in
 # codexFactory — of the pair `disposition-codexfactory-declared-renames` wrote
 # ("use recommended name, go on 3 repo shape") ONE now stands, its sibling
 # retired on 2026-09-11 by the archive its own `retires_when:` named; the entry
