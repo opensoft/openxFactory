@@ -893,10 +893,24 @@ the bookkeeping that ticks this group.
   had merged. The acts recorded below ran on 2026-09-12/13 (S1–S6), 2026-09-15
   (S7 and the pin lockstep) and **2026-09-15/16** for S8 — its annotation `#1025`
   at 23:50:29Z on the 15th, leg A at 01:11:37Z and leg B at 01:23:16Z on the
-  16th — with openDox-spec `#11` at **13:24:51Z** on the 16th, each of the acts
-  this parenthetical dates carrying its own clock beside it. Fix round 10 added
-  `#11`'s, which alone read as a bare date while the sentence claimed a clock
-  for each, and corrected this marker's own arithmetic in the same round: round
+  16th — with openDox-spec `#11` at **13:24:51Z** on the 16th. **This
+  parenthetical gives DATES for the arc and a clock only where the ORDERING
+  turns on one**: S8's three acts, which straddle midnight, and `#11`, which
+  merged the same day this amendment lands. Every other clock sits beside the
+  act it belongs to rather than here — S7's two in its own landing record below
+  (21:40:25Z and 21:41:36Z, 71 seconds apart), S2's pair in the Q-L1 paragraph
+  (15:45:51Z and 15:59:44Z) and the pin lockstep's at 2026-09-15T23:27:40Z —
+  and **S1, S3, S4, S5 and S6 carry a date only**, their merge times readable
+  from the pull requests the table names. *(This sentence claimed a clock for
+  EACH act it dates, twice over: as "each with its own clock beside it" until
+  fix round 10, and as "each of the acts this parenthetical dates carrying its
+  own clock beside it" after it — while eight of the acts it dates carry no
+  clock in it. A Copilot finding on #1035, accurate, taken at fix round 12,
+  which also replaced that participial clause with finite sentences on the same
+  review's wording note. The round-10 correction was right about `#11` and wrong
+  to keep the word "each": narrowing a claim is not the same as measuring it.)*
+  Fix round 10 added `#11`'s clock, which alone read as a bare date beside S8's
+  three, and corrected this marker's own arithmetic in the same round: round
   6 took **THREE** Copilot findings, all three in the suppressed block of review
   `5223334808` at head `4355f0bd` — this date (`:887`, the same point the thread
   of 13:07:18Z had already raised, which is why the marker first read "two
@@ -980,8 +994,24 @@ the bookkeeping that ticks this group.
   `code` leg **`1e469713`** — slice S7's own merge) and
   `contracts/openxdox-pin.yaml`'s `76df74c8` → **`a6500141`**
   (`opensoft/openXdox` `#10` at 21:54:21Z), with BOTH gitlinks moving in that
-  one commit, which is the lockstep invariant §§ 4.2 and 5.1 of this file
-  describe. It is the bump the boundary note's § 1.2(d) SKIP waits on, arriving
+  one commit — the lockstep invariant **§ 4.2** of this file describes and
+  `#1054` performs. **§ 5.1 is NOT a second description of it, and citing it as
+  one is corrected here.** That box, ticked under RULING F (`#656`, Brett Heap,
+  *"rule F openXdox only, then do the corrections PR"*), records that
+  `openxFactory` declares only its DIRECT upstreams and closes: *"No
+  `contracts/opendox-pin.yaml` and no second gitlink exist anywhere in the
+  tree."* **Measured at `main` `b1df95ee`, that closing sentence has been
+  OVERTAKEN by the tree**: `contracts/opendox-pin.yaml` exists and carries its
+  own `commit:`, its header saying in terms that *"openxFactory now has TWO ways
+  to learn openDox's commit"*, and `git ls-tree -r` returns FOUR gitlinks —
+  `installs/omnigent-install`, **`openDox`**, **`openXdox`**, `openXwallet`.
+  **REGISTERED here, not corrected**: § 5.1 is a ticked box carrying a RULING,
+  so the act that amends it is its own act with its own claim — the same rule
+  this amendment applies to `design.md`, to `proposal.md` and to the packet's
+  README entry. *(A Copilot finding on #1035, accurate about the
+  cross-reference, taken at fix round 14. The invariant itself — the pin file
+  and its gitlink moving in the SAME commit — is unchanged, and `#1054` shows it
+  twice over.)* It is the bump the boundary note's § 1.2(d) SKIP waits on, arriving
   at the aggregation level; like the two acts above it is its own claim and not
   a condition of this box.
 
@@ -1273,7 +1303,7 @@ the bookkeeping that ticks this group.
   | `openXdox-code` `src/openxdox/` (the adapter's implementation surface, as 4.1 asks) | **12** | `completeness` 1, `corpus_root` 1, `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1, `snapshot_registry` 1 |
   | `openDox-code` `src/opendox/` | **5** | `serve.py`:**710** `from doc_health.corpus import RealGit` — that position is `8efb3cf5`'s, and the same import is at **:713** at `main` `0b4e8bbf` (the re-run above); `workbench.py`:746, :1407, :1408, :1409, identical at both |
   | RULED to stay at `openxFactory` (DQ-1) | **1** | `design.md` § D3 inventories it at `doxbench_packet`; the import had already moved by the carve commit and the LIVE site is `scripts/ideation_dashboard/doxbench_status_exemption.py`:63 — `from doc_health.lines import split_keepends`, the same line at `b075fd91` and at `main` `e6e1c968` (reading (ii) below) |
-  | **DISCHARGED at the § 2 seam** — the import became an adapter call or a late seam read, so there is nothing left to relocate | **5** | `authoring` 2 → `authoring.py`:317–318, `from .corpus_adapter import DocumentId` + `from corpus_adapter_openxfactory import home_corpus`; `cli` 1 → gone, only the path comment at `cli.py`:14 survives; `serve` 2 of 3 → gone before the carve (openxFactory `b075fd91` already reads one, at `serve.py`:618), the leg's own late seam reading `from opendox import consumer_reach` at `serve.py`:146 |
+  | **DISCHARGED at the § 2 seam** — the import became an adapter call or a late seam read, so there is nothing left to relocate | **5** | `authoring` 2 → `authoring.py`:317–318, `from .corpus_adapter import DocumentId` + `from corpus_adapter_openxfactory import home_corpus`; `cli` 1 → gone, only the path comment at `cli.py`:14 survives; `serve` 2 of 3 → gone before the carve, which the carve tree itself measures: openxFactory `b075fd91`'s `scripts/ideation_dashboard/serve.py` contains exactly ONE `doc_health` import, `from doc_health.corpus import RealGit` at `:618`, so two of the three inventoried are already absent there. **That surviving `:618` reach belongs to the RELOCATED five, not to this row** — and it did NOT travel in the § 3.4 arc. `src/opendox/serve.py` arrived at openDox-code with the Tranche-B adoption commit **`30c6baf`** (*"adopt the ideation dashboard runtime"*), carrying that import with it: `git log --follow --diff-filter=A` names that commit for the file and `git log -S "from doc_health.corpus import RealGit"` names it for the line. What the ARC moved was the line NUMBER — `:710` at `8efb3cf5`, `:713` at `main` `0b4e8bbf`, three lines down under the leg edits above it, the same import — which is what this box's own re-run records and why *"the § 3.4 arc moved none of them"* stands. *(Fix round 13 wrote "travels to the leg" and a Copilot finding on #1035 read that as the arc relocating it, and so as a contradiction of this box's own sentence: the reading of the wording is fair and the wording is now measured. Its attribution of the move to slice S6 is not what the history shows.)* *(Two corrections at fix round 13, both Copilot findings and both accurate. The cell cited `:618` as if it evidenced the discharge, when what it evidences is the arithmetic 3 − 1 = 2; and it named `from opendox import consumer_reach` at `serve.py`:146 as a late seam reading in the same breath, which is not a `doc_health` site at all — measured: it is openDox-code's OWN internal import of `opendox.consumer_reach`, present at `src/opendox/serve.py`:146 of `0b4e8bbf` and absent from the openxFactory file at the carve, where `consumer_reach` does not appear once. It is struck from this row. The two discharged `serve` imports left no replacement to cite, which is what DISCHARGED means here.)* **The instrument needs its scope, as ever**: `grep -n doc_health` on the carve file returns TWO lines and only one is an import — `:529` is a docstring naming `doc_health.corpus`, `:618` is the import |
 
   **The five DISCHARGED were discharged at the SEAM, before the carve, and the
   carve commit proves it.** At openxFactory `b075fd91` (tag `opendox-carve-0`,
@@ -1309,8 +1339,11 @@ the bookkeeping that ticks this group.
   10, where a Copilot finding — accurate — read the unqualified half as denying
   the RULED import that DID stay; the scope was always the five modules the next
   sentence names, and it is now written rather than implied.)* The § 5.2 shed has landed: `scripts/ideation_dashboard/` is
-  down to **10 files**, an identical set at `main` `a80f0e3c` and at `main`
-  `e6e1c968`, none of them `authoring`, `cli`, `serve`, `workbench` or
+  down to **nine `.py` modules and one subdirectory, `web/` — TEN tree entries**,
+  an identical set at `main` `a80f0e3c` and at `main` `e6e1c968` *(this read "10
+  files" until fix round 13, counting `web/` as a file; a Copilot finding on
+  #1035, accurate, and the count is `git ls-tree` entries, nine of them blobs)*,
+  none of the nine `authoring`, `cli`, `serve`, `workbench` or
   `doxbench_packet`. `doxbench_packet`'s one DID stay at openxFactory, as DQ-1
   requires — but the module it stayed IN is the § 2.4 one rather than the DQ-1
   adapter package: the `doc_health.lines.split_keepends` import travelled with
@@ -1319,8 +1352,17 @@ the bookkeeping that ticks this group.
   OQ-1, which openDox-code's own `src/opendox/doxbench_packet.py`:136–142
   states in terms (*"they took their `doc_health.lines.split_keepends` import
   with them … it can no longer take an openxFactory-only `doc_health`
-  dependency along"*) and :66–67 asserts by a neutrality scan. Either module
-  is openxFactory, so the box's *"never comes here"* holds; the placement is
+  dependency along"*) and :66–67 asserts by a neutrality scan. **The two
+  candidate homes were the § 2.4 module and the DQ-1 adapter package —
+  `scripts/ideation_dashboard/doxbench_status_exemption.py` and
+  `scripts/corpus_adapter_openxfactory/` — and BOTH are openxFactory**, so the
+  box's *"never comes here"* holds whichever of the two it turned out to be.
+  *(This read "Either module is openxFactory" until fix round 13, with
+  openDox-code's `src/opendox/doxbench_packet.py` named in the sentence before
+  it; a Copilot finding on #1035 read "either" as reaching that openDox-code
+  path — which is cited only as the file that STATES this, never as a home for
+  the import — so the two are now named instead of implied. Accurate as a
+  reading, and the claim it doubted is unchanged.)* the placement is
   recorded because a citation of the DQ-1 package for this import would not
   reproduce. Separately, that DQ-1 ENGINEERING ADAPTER imports `doc_health` in
   **six** places of its own — `scripts/corpus_adapter_openxfactory/adapter.py`:58,
@@ -1328,7 +1370,11 @@ the bookkeeping that ticks this group.
   DISCHARGED `authoring` pair's dependency now sits, behind the § 2.2a seam
   instead of travelling to a leg: `authoring.py`:317–318 calls
   `corpus_adapter_openxfactory.home_corpus` (defined at `home.py`:160,
-  re-exported at `__init__.py`:32) and `home.py`:59 is the `doc_health` import
+  and reached through the package's own FORWARDING WRAPPER of the same name at
+  `__init__.py`:32–40, which is NOT a re-export — it imports `.home` **on the
+  call**, at `:39`, deliberately, so the package can be imported without pulling
+  the home layout in; the module docstring says why) and `home.py`:59 is the
+  `doc_health` import
   that call reaches. Importing doc-health THERE is lawful, which is the whole
   of DQ-1. (iii) **This box's second sentence
   cannot be met AS WRITTEN, and that is a reconciliation owed rather than a

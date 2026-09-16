@@ -167,6 +167,22 @@ def load_yaml(path: Path) -> Any:
 
 # --------------------------- schema registry ---------------------------
 
+class RetiredSchema(RuntimeError):
+    """A schema this validator reads was RETIRED at its leg by a ruling.
+
+    NAMED, and caught by `run_default`/`run_path` rather than by `main()`
+    (RULED 5656343213; Copilot review of PR #1032, rounds 1 and 2). Round 1
+    stopped the resolver's `CarveRowRetired` — an `ImportError` subclass —
+    from leaving this validator as a traceback, but a bare `RuntimeError`
+    still landed in `main()`'s blanket handler and printed as `ERROR harness
+    failure`, which is the one thing it is not: the harness ran perfectly and
+    reported the truth. It is a FINDING about the document set — the schema
+    the cross-reference indices are validated against no longer exists at the
+    leg that holds it — so it is reported as one, `ERROR [schema-retired]`
+    through `Findings`, with the validator's own exit code 1.
+    """
+
+
 def shed_aware(target: Path) -> Path:
     """`target`, or the pinned-leg copy of it when the § 5.2 shed moved it.
 
@@ -179,10 +195,27 @@ def shed_aware(target: Path) -> Path:
     answers exactly as it did before.
     """
     try:
-        from carved_reach import shed_destination
+        from carved_reach import CarveRowRetired, shed_destination
     except ImportError:  # pragma: no cover - no manifest, nothing to resolve
         return target
-    moved = shed_destination(target)
+    try:
+        moved = shed_destination(target)
+    except CarveRowRetired as exc:
+        # NAMED RATHER THAN LEFT TO `main()`'s BLANKET HANDLER (RULED
+        # 5656343213; Copilot review of PR #1032). The resolver's refusal is
+        # an `ImportError` subclass, so the `except` above — which guards the
+        # lazy IMPORT — does not catch it at the CALL. `main()` would still
+        # print it, as `ERROR harness failure: …`, and that label would be
+        # wrong in the one way that matters: nothing failed in the harness. A
+        # schema this validator needs was DELETED at its leg by a ruling, and
+        # the fix is an amendment to the schema set, not a rerun. Round 2 of
+        # the same review closed the other half: a bare `RuntimeError` still
+        # WAS that blanket handler's, so the class is named above and the two
+        # orchestrators catch it into `Findings` — where a reader of the
+        # report meets it beside every other error the run found.
+        raise RetiredSchema(
+            f"a RULING has RETIRED the schema {target.name} at its leg, so "
+            f"this validator has no document to read — {exc}") from exc
     return moved if moved is not None else target
 
 
@@ -497,7 +530,12 @@ def run_default(repo: Path, strict: bool) -> int:
     if not SCHEMAS_DIR.is_dir():
         print(f"ERROR {SCHEMAS_DIR} not found", file=sys.stderr)
         return 2
-    registry, docs = build_registry()
+    try:
+        registry, docs = build_registry()
+    except RetiredSchema as exc:
+        # A FINDING, NOT A HARNESS FAILURE — see `RetiredSchema`.
+        f.error("schema-retired", str(exc))
+        return report(f, strict)
     for name, doc in docs.items():
         try:
             Draft202012Validator.check_schema(doc)
@@ -513,7 +551,12 @@ def run_default(repo: Path, strict: bool) -> int:
 
 def run_path(path: Path, repo: Path, strict: bool) -> int:
     f = Findings()
-    registry, docs = build_registry()
+    try:
+        registry, docs = build_registry()
+    except RetiredSchema as exc:
+        # A FINDING, NOT A HARNESS FAILURE — see `RetiredSchema`.
+        f.error("schema-retired", str(exc))
+        return report(f, strict)
     capability_set = resolve_capability_set(repo)
     if path.is_dir():
         checked = 0
