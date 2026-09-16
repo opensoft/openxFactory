@@ -309,19 +309,23 @@ cannot say so**: `:25` is owed by every leg that places that conftest — both
 `-code` legs — while `:271` is openXdox-code#14's § 4.4 fixture, PERMITTED at
 every replica by the same row-wide grammar and owed at none. openXdox-code
 takes it; openDox-code does not, and its arrival run answers `OK` all the same
-(measured at `8efb3cf5`). **This act MOVES the per-destination cell it owes —
-`openxdox_code`'s declared-line figure, 703 -> 750 — and that is a change of
-kind from how it was written**: when it was, that table was stale, this
-paragraph registered it as stale, and the redistribution was reserved for "one
-later act" because slices S7 and S8 were in flight over the same cells. The
+(measured at `8efb3cf5`). **The PRE-EXISTING `openxdox_code` ANNOTATION moved
+the per-destination cell it owed — that destination's declared-line figure,
+703 -> 750 — and that was
+a change of kind from how this paragraph was written** (Copilot review, round
+twenty-six: the sentence said "this act", which in THIS pull request is the
+retirement, whose own figures are the paragraph below's 167 and 750 -> 917):
+when it was written, that table was stale, this paragraph registered it as
+stale, and the redistribution was reserved for "one later act" because slices
+S7 and S8 were in flight over the same cells. The
 § 3.4 slice-S7 annotation IS that act: it re-derived every cell and pinned all
 five columns with
 `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`.
 So the cells are a MEASUREMENT again, a run can be compared against them once
 the RULED Q6 four are read off the paragraph under the table, and an act that
-moves the aggregate moves them with it — 47 of this act's 48 lines fall on
-three `openxdox_code` rows, and the forty-eighth is the `:271` above, which
-belongs to no column at all.
+moves the aggregate moves them with it — 47 of that annotation's 48 lines
+fall on three `openxdox_code` rows, and the forty-eighth is the `:271` above,
+which belongs to no column at all.
 **THE RETIREMENT ACT MOVES ONE CELL AND NEITHER REPLICA LINE.** Its 167
 declared lines all fall on a SINGLE `openxdox_code` row — the ending replay
 inside `tests/ideation-dashboard/test_staging_workbench.py` — so the only cell
@@ -911,9 +915,10 @@ it names and **keeps everything else**. Measured on a scratch repository of
 three files with one listed: the rename-only file kept all three; the file
 carrying the bare path beside the rename kept exactly one. Against openxFactory
 that is the difference between publishing the 117 files this leg's path file
-names and publishing the repository — `openspec/`, `contracts/`, `.github/` and every other path would
-ride into a PUBLIC destination, and the arrival verifier would not catch them,
-because its walk is scoped to that destination's declared roots. So emit BOTH:
+names and publishing the repository — `openspec/`, `contracts/`, `.github/`
+and every other path would ride into a PUBLIC destination, and the arrival
+verifier would not catch them, because its walk is scoped to that
+destination's declared roots. So emit BOTH:
 the bare `source_path` to SELECT it, and the rename to PLACE it. **0 rows
 change a basename**, so every rename here is a relocation.
 
@@ -927,21 +932,35 @@ CARVE's placement and not today's. Measured on the landed manifest: at
 `opendox_code` that key emits 123 rows / 246 lines where the leg is owed
 117 / 234, the four rows RULED Q6 re-destined away and the two RULED
 5656343213 retired among them, and commit A below would place all six for
-the phase-A run to refuse before it can print the line § 5.5 promises. **ONE refusal per
-run**: both checks raise on the first row they find, so the six leftovers
-cost six runs — `arrival-not-vacated` while any re-destined file stands
-(§ 5.7's order: the losing half is asked first), then `arrival-not-retired`
-for each retired one. The other half fails SILENTLY: `openxdox_code` reads 92
-where `rows_for()` requires 96, so the four files that ruling sent there
-would be missing from the carve ref that is supposed to place them. The
-generator therefore asks the question the verifier asks —
+the phase-A run to refuse before it can print the line § 5.5 promises. **ONE
+refusal per run**: both checks raise on the first row they find, so the six
+leftovers cost six runs — `arrival-not-vacated` while any re-destined file
+stands (§ 5.7's order: the losing half is asked first), then
+`arrival-not-retired` for each retired one. The other half fails SILENTLY:
+`openxdox_code` reads 92 where `rows_for()` requires 96, so the four files
+that ruling sent there would be missing from the carve ref that is supposed
+to place them. The generator therefore asks the question the verifier asks —
 `verify-carve-arrival.py`'s own `rows_for()`, spelled out because a heredoc
 cannot import a hyphenated script — and the two `-spec` legs, which no
 ruling has touched, are unchanged at 56 and 47.
-`test_the_runbook_path_file_generator_is_the_verifiers_own_predicate` RUNS
-this program on the landed manifest for every destination and compares its
-lines with that predicate, because a generator and a verifier that disagree
-about which rows a leg is owed cannot be caught by reading either alone.
+
+**And it resolves the KEY rather than comparing it** (Copilot review, round
+twenty-six). A `destinations:` key is a LABEL and never a referent —
+`check_shape` deliberately admits two keys sharing one `{repository, leg}`
+body — so `$DEST` given as the other spelling of a leg would match no row at
+all and emit an EMPTY path file, while the verifier, which resolves both to
+one identity, goes on expecting every row. That is the label-comparison
+defect RULED Q-L8 (c) repaired in the tools and `#1032`'s round 9 found in
+the last selector still making it; this generator was making it too. The
+RETIREMENT half below still compares labels, deliberately and like
+`retired_arrival()`: the block names the placement ITS OWN ROW makes, and
+`validate-carve-manifest.py`'s check 6 is where a block naming another one is
+refused. `test_the_runbook_path_file_generator_is_the_verifiers_own_predicate`
+RUNS this program on the landed manifest for every destination — and on a
+generated document carrying an ALIAS, because the landed one carries none —
+and compares its lines with that predicate, because a generator and a
+verifier that disagree about which rows a leg is owed cannot be caught by
+reading either alone.
 
 **The two `-code` legs were carved BEFORE both rulings**, which is why their
 real history carries those six removals as later commits — § 5.7 step 4's
@@ -953,13 +972,19 @@ python3 - "$DEST" "$OXF/docs/opendox-carve-manifest.yaml" > paths-$DEST.txt <<'P
 import sys, yaml
 dest = sys.argv[1]
 doc = yaml.safe_load(open(sys.argv[2]))
+def resolved(key):                                       # a KEY is a LABEL:
+    body = (doc.get("destinations") or {}).get(key)      # two of them may
+    if isinstance(body, dict):                           # share one body
+        return (body.get("repository"), body.get("leg"))
+    return (key,)                                        # unknown: itself
+here = resolved(dest)
 for row in doc["rows"]:
     moved = row.get("re_destined") or {}                 # RULED Q6, § 5.7
     if moved.get("to") and moved.get("to_path"):
         at, at_path = moved["to"], moved["to_path"]
     else:
         at, at_path = row.get("destination"), row.get("destination_path")
-    if at != dest:                                       # not this leg's today
+    if resolved(at) != here:                             # not this leg's today
         continue
     gone = row.get("retired") or {}                      # RULED 5656343213
     if (gone.get("at"), gone.get("at_path")) == (at, at_path):

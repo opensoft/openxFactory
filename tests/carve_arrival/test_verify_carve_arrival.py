@@ -3653,7 +3653,7 @@ def _runbook_path_file_program(text: str) -> tuple[str, str]:
 
 
 def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
-        ) -> None:
+        tmp_path: Path) -> None:
     """§ 5.3's generator, RUN on the landed manifest, against `rows_for()`.
 
     THE PROCEDURE PRODUCED A TREE THE PROCEDURE THEN REFUSED (Copilot review,
@@ -3683,7 +3683,14 @@ def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
 
     EVERY DESTINATION THE MANIFEST DECLARES, `opendox_root` among them, whose
     whole answer is no lines at all: a leg that is owed nothing is where a
-    generator emitting the wrong set is least likely to be noticed. AND THE
+    generator emitting the wrong set is least likely to be noticed. AND ON A
+    GENERATED DOCUMENT CARRYING AN ALIAS, because no run of the LANDED one can
+    show that case (Copilot review, round twenty-six): `check_shape` admits two
+    `destinations:` keys sharing one `{repository, leg}` body, `rows_for()`
+    compares the resolved identity, and a generator comparing LABELS answers
+    the other spelling with an EMPTY path file while the verifier goes on
+    expecting every row. The landed manifest declares five keys and no alias,
+    so the case is BUILT here rather than waited for. AND THE
     PARAGRAPH'S OWN SIX FIGURES ARE DERIVED HERE TOO, for § 2's reason one
     section down — a number in prose that nothing re-derives is the rot this
     whole group of tests exists for, and this paragraph states two per leg.
@@ -3716,6 +3723,39 @@ def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
             f"{len(expected)}, and the first line they differ on is "
             + (f"{differing[0]}" if differing
                else "(none — one list is a prefix of the other)"))
+
+    # THE ALIAS CASE, on a document this test makes: the same leg under two
+    # keys must give the same path file, and a LABEL comparison gives the
+    # second spelling nothing at all.
+    aliased_doc = copy.deepcopy(doc)
+    aliased_doc["destinations"]["opendox_code_other_spelling"] = dict(
+        aliased_doc["destinations"]["opendox_code"])
+    aliased = tmp_path / "aliased-manifest.yaml"
+    aliased.write_text(yaml.safe_dump(aliased_doc, sort_keys=False),
+                       encoding="utf-8")
+    under_alias = {}
+    for spelling in ("opendox_code", "opendox_code_other_spelling"):
+        done = subprocess.run(
+            [sys.executable, "-", spelling, str(aliased)],
+            input=program, capture_output=True, text=True, check=False)
+        assert done.returncode == 0, done.stdout + done.stderr
+        expected = []
+        for row in MODULE.rows_for(aliased_doc, spelling):
+            _at, at_path = MODULE.effective_arrival(row)
+            expected.append(row["source_path"])
+            expected.append(f'{row["source_path"]}==>{at_path}')
+        assert expected, (
+            f"`rows_for` is owed nothing at {spelling!r} on the aliased "
+            "document, so this case would assert two empty lists")
+        assert done.stdout.splitlines() == expected, (
+            f"§ 5.3's generator answers {spelling!r} with "
+            f"{len(done.stdout.splitlines())} lines where `rows_for()` is owed "
+            f"{len(expected)}. A `destinations:` key is a LABEL: two of them "
+            "may share one `{repository, leg}` body, and the verifier resolves "
+            "both to one leg")
+        under_alias[spelling] = done.stdout.splitlines()
+    assert under_alias["opendox_code_other_spelling"] == \
+        under_alias["opendox_code"], "one leg, two keys, two different answers"
 
     owed = len(MODULE.rows_for(doc, "opendox_code"))
     assert f"2 x {owed} = {2 * owed} for opendox_code" in control, (
