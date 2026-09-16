@@ -3074,6 +3074,16 @@ jobs:
         # would smuggle unreviewed content past openxFactory's own gate.
         # Dormant until a host advertises the derive-possibles profile (the
         # merge above reports SKIPPED and writes persisted=false).
+        #
+        # #1034: this is also the ONLY commit step on this branch path, and
+        # the Ideation readiness lane above (which runs first, so
+        # derive-possibles sees this run's freshest index) mutates the SAME
+        # ideation/cross-reference.yaml without any commit step of its own —
+        # so its health/ideation-readiness/ evidence is staged HERE too,
+        # below, or that lane's index mutation rides along in this commit
+        # while its evidence record is silently orphaned on the runner disk
+        # (the archived add-ideation-cross-reference-readiness design intent
+        # was one shared commit-back covering both lanes, not a second one).
         if: always()
         continue-on-error: true
         env:
@@ -3090,6 +3100,7 @@ jobs:
           git config user.email "openxfactory[bot]@users.noreply.github.com"
           git add ideation/cross-reference.yaml health/derive-possibles/
           [ -f ideation/cross-reference.md ] && git add ideation/cross-reference.md
+          [ -d health/ideation-readiness/ ] && git add health/ideation-readiness/
           git diff --cached --quiet && { echo "no submodule changes staged"; exit 0; }
           git commit -m "derive-possibles: merged register (${RUN_DATE}, ${CORRELATION_ID:-manual})"
           NEW_COMMIT="$(git rev-parse HEAD)"
