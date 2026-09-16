@@ -123,8 +123,11 @@ non-obvious.
   `dox` workload set's per-tenant declaration to § 3.5, its requirement standing
   under lane opsXfactory-3's claim `5638511222`.
 - **The installer itself.** `Omnigent-Install` owns the flow that drives the
-  manifest, wires the bindings and hands the material to the minter, under its own
-  change and its own code surface; § 3 names it as owed and authors none of it.
+  manifest and wires the two bindings so the minter REACHES the material by
+  reference from the custody the install declares — not a hand-off of the
+  material to the minter, which is the wording the corrected clause removed and
+  which would make the flow's driver a custodian — under its own change and its
+  own code surface; § 3 names it as owed and authors none of it.
   That repository's own README forbids the alternative in terms — it *"should not
   contain … canonical shared contracts that belong in `openxFactory/contracts`"* —
   which is the same boundary CLAUDE.md working rule 1 states.
