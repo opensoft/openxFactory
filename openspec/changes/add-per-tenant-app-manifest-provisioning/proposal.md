@@ -68,7 +68,8 @@ tenant contends for.
 **ONE `## MODIFIED` block, on ONE requirement, over CANON.** *Dispatch-only
 credential least privilege and serving-tier separation* is restated in full — its
 promoted body paragraph and all three promoted scenarios verbatim — and grown by
-four clauses and eight scenarios:
+five clauses and eight scenarios — the first two being the
+provisioning rule and the scoping rider that keeps it case-neutral:
 
 1. **Where the pair is provisioned through a manifest, creation is in the
    tenant's organization and the identity is never an operator-owned one

@@ -17,8 +17,9 @@
   and the bill it implies.
 - [x] 1.4 `specs/credential-contracts/spec.md`: ONE `## MODIFIED` block on
   *Dispatch-only credential least privilege and serving-tier separation* —
-  canon's body paragraph and all three promoted scenarios restated VERBATIM, four
-  clauses added, eight scenarios added. The delta-currency check is stated in the
+  canon's body paragraph and all three promoted scenarios restated VERBATIM, five
+  clauses added (the first carrying an explicit scoping rider), eight
+  scenarios added. The delta-currency check is stated in the
   delta's own preamble: two active changes carry a `credential-contracts` delta
   and NEITHER writes this requirement, so the block is over canon and no
   `Modified over` marker is owed. The preamble ALSO states what the block does

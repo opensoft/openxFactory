@@ -113,9 +113,9 @@ that window and the DECLARED CUSTODY the material lands in — reached by refere
 under the reference-delivered rule this capability already carries, its operator
 the per-install execution binding this capability already fixes rather than a
 party this contract names — and whoever drives the flow SHALL NOT retain the
-material after the hand-off unless it IS that declared custodian. A provisioning manifest,
-record or template SHALL carry NO secret value, private key or installation
-token; it carries the SHAPE of the grant and the reference to where the material
+material after the hand-off unless it IS that declared custodian. A provisioning
+manifest, record or template SHALL carry NO secret value, private key or
+installation token; it carries the SHAPE of the grant and the reference to where the material
 will live, and a record carrying the material itself is refused.
 
 #### Scenario: A dispatch credential requests contents authority

@@ -553,7 +553,7 @@ Active changes:
   *Dispatch-only credential least privilege and serving-tier separation*
   ([`openspec/specs/credential-contracts/spec.md:169`](openspec/specs/credential-contracts/spec.md))
   restated with its promoted body paragraph and all three promoted scenarios
-  VERBATIM, grown by four clauses and eight scenarios: where the pair is
+  VERBATIM, grown by five clauses and eight scenarios: where the pair is
   provisioned THROUGH A MANIFEST, creation of each identity IN THE TENANT'S OWN
   ORGANIZATION, never an operator-owned identity installed into it (nor one
   provisioned identity creating the other); ONE PAIR PER TENANT, never shared,
