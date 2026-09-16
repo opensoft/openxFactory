@@ -591,6 +591,7 @@ def test_the_equipment_is_installed_before_the_work_that_needs_it(
         "`setup-node` must run BEFORE the consumer suite, or its fourteen "
         "JS-probe cases skip and the exact skip pin refuses the run")
 
+
 def test_nothing_here_may_be_skipped_by_a_condition(gate_job: dict,
                                                     steps: list[dict]) -> None:
     """A SKIPPED step reports success, which is `continue-on-error` by another road.
@@ -625,6 +626,7 @@ def test_nothing_here_may_be_skipped_by_a_condition(gate_job: dict,
 # --------------------------------------------------------------------------
 # the positive assertions
 # --------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module")
 def assertion_steps(steps: list[dict]) -> list[dict]:
