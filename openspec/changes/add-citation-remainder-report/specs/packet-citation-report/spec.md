@@ -275,6 +275,29 @@ an id ever existed, whether a name was renamed before renames were tracked,
 whether a draft-named file was since finalized — is a human's, and a report that
 guessed would put its guesses into the series a later gate is measured against.
 
+THE CLASS VOCABULARY SHALL BE CLOSED AND NAMED IN THIS SPECIFICATION, and an
+implementation SHALL NOT add a member to it or rename one. It is `truncated` —
+a token the extraction severed mid-path; `punctuation-stripped` — a token whose
+trailing prose punctuation the report removed; `fixture-path` — an entry every
+occurrence of which stands where this corpus keeps fixtures and worked examples;
+and `unclassified`. Labels are what two readings are compared by, so a report
+whose labels differ from another's cannot be a later point in its series, and
+the series is the whole reason a class is asserted at all.
+
+AND A FLAG IS NOT A CLASS, AND SHALL BE CARRIED IN A FIELD OF ITS OWN. A
+suspicion the report reports without asserting — a suspected cross-repository
+citation above all — SHALL NOT be written into the class field, SHALL NOT
+displace the class an entry's own evidence supports, and SHALL NOT be counted in
+any class total. An entry carries exactly one class and any number of flags, and
+a reader summing the classes SHALL find every remainder entry counted once.
+
+AND WHERE AN ENTRY'S EVIDENCE SUPPORTS MORE THAN ONE CLASS, THE ONE ABOUT THE
+REPORT'S OWN NORMALIZATION SHALL WIN over the one about a LOCATION. A token the
+report itself severed or stripped is a fact about the TOOL, and filing it under
+where it happened to be written would attribute the tool's own grammar to a
+record. The precedence SHALL be stated with the vocabulary so that two readings
+classify one entry the same way.
+
 `unclassified` SHALL NOT be treated as a defect of the report. It is the report
 declining to assert what it cannot see, and an implementation SHALL NOT reduce
 the `unclassified` count by widening a mechanical class to cover a judgment.
@@ -293,6 +316,16 @@ illustrate what unresolvable means.
 - **WHEN** a remainder entry's class follows from the citing file's location or from a normalization the report applied
 - **THEN** the report MUST assign that class
 - **AND** it MUST name the evidence, so a reader can check it
+
+#### Scenario: An entry carries a suspicion and a class at once
+- **WHEN** a remainder entry is flagged as suspected cross-repository and its own evidence supports a class
+- **THEN** the flag MUST be carried in its own field and the class field MUST keep the class the evidence supports
+- **AND** the flag MUST NOT be counted in any class total
+
+#### Scenario: Two classes fit one entry
+- **WHEN** an entry's evidence supports both a class about the report's own normalization and a class about a location
+- **THEN** the report MUST assign the normalization class
+- **AND** it MUST NOT report the entry under the location class instead
 
 #### Scenario: The evidence is a fact about intent
 - **WHEN** deciding a remainder entry's class would require judging what the citing record meant

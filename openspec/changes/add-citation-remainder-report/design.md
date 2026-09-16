@@ -756,6 +756,19 @@ suspicion alongside.
 | stale draft name, since finalized | **HUMAN** — `unclassified` | needs somebody to recognize the finalized file |
 | unclassified | **HUMAN** — `unclassified` | it is already the honest answer |
 
+**AND THE VOCABULARY, THE FLAG FIELDS AND THE PRECEDENCE ARE NOW IN THE PROMOTED
+TEXT**, not only in this table: the spec's *The report classifies only what it
+can decide mechanically* closes the vocabulary at `truncated`,
+`punctuation-stripped`, `fixture-path` and `unclassified`, forbids a flag being
+written into the class field or counted in a class total, and fixes the
+precedence — a class about the report's own NORMALIZATION beats one about a
+LOCATION. That precedence is not invented here: it is the order the evidence's
+own § 5.1 decision rule uses, where *tokenization artifact* is read before
+*synthetic example/fixture* so a token re-read lands in the same class twice.
+An entry's DANGLING half is reported as a resolver OUTCOME under the first
+requirement and is not re-spelled as a class name (PR #1069, Copilot thread
+`PRRT_kwDOTAvnrs6jEu3i`).
+
 **WHY THE SPLIT FALLS THERE.** A class is MECHANICAL when the evidence is a
 fact about a PATH or about the tool's own normalization, and HUMAN when the
 evidence is a fact about INTENT. `unclassified` is not a failure of the report —
