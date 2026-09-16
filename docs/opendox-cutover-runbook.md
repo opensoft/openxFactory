@@ -183,6 +183,22 @@ below DOES move with it**: slice S7 made that table a measurement again and
 pinned it cell by cell, so this act takes its own cell rather than registering
 the table as stale, which is what an earlier draft of this paragraph did and
 what S7's pin now forbids.
+**AND THE TABLE ABOVE IS THE CARVE'S RECORD, NOT A LIST OF ARRIVAL
+OBLIGATIONS** — a distinction this act is the first to make visible, because it
+is the first whose rows owe the OPPOSITE of the proof written beside them. A
+`disposition` says what the CARVE did with a file. Two of the **175**
+`moved_with_declared_edit` rows are now RETIRED, and at their leg neither
+half of that proof is owed: `rows_for()` drops a retired row before the
+destination is asked anything, so no commit-A identity and no commit-B
+declared-line diff is required of it, and what § 5.8 requires instead is that
+`retired.at_path` be ABSENT — `arrival-not-retired`, whose remedy is the
+deletion and not a diff. The row keeps its disposition, its digest and its
+`edits[]`, which is the whole reason the ruling made a retirement a FIELD, so
+the count above does not move. RULED Q6's **4** re-destined rows make the
+milder version of the same point: their proof is owed at the leg
+`re_destined.to` names and not at the one `destination:` still does. Read the
+counts as the carve's ledger and the per-destination table below — with the two
+subtractions its own paragraph states — as what each leg is actually asked for.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
