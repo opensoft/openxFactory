@@ -4708,8 +4708,19 @@ def test_carved_reach_refuses_the_two_landed_retired_rows() -> None:
     finished proving absent.
 
     THE REFUSAL HALF NEEDS NO MATERIALIZED LEG, and that is relied on rather
-    than described: `source()` refuses a retirement BEFORE it looks for a
-    mount, so the refusal holds in a checkout whose submodules were never
+    than described. MEASURED at this revision in a checkout whose `openDox`
+    and `openXdox` directories are EMPTY: all three callers driven below raise
+    `CarveRowRetired` for both rows, while a non-retired moved row's
+    `source()` raises `CarveReachUnavailable` in that same checkout. THE ORDER
+    IS NOT THE SAME IN ALL THREE, and an earlier wording here said it was
+    (Copilot review, this pull request, reading the claim through `module()`):
+    `source()` refuses the retirement before it resolves a mount at all and
+    `shed_relpath()` reads the row and stops, but `module()` calls `install()`
+    FIRST and `install()` DOES probe both legs — it records a missing one on
+    `sys.meta_path` rather than raising, deferring that error to an import of
+    a name inside it, so the retirement is still the refusal a caller gets.
+    What all three share is the OUTCOME, which is the property this case
+    relies on: the refusal holds in a checkout whose submodules were never
     initialized — the state a retained consumer is most likely to be read in.
     SO NO PART OF IT RESOLVES A ROW IT IS NOT ABOUT. The sweep assertion this
     case first carried called `sources_under()`, which resolves every OTHER

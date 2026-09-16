@@ -917,17 +917,54 @@ because its walk is scoped to that destination's declared roots. So emit BOTH:
 the bare `source_path` to SELECT it, and the rename to PLACE it. **0 rows
 change a basename**, so every rename here is a relocation.
 
+**AND BY THE EFFECTIVE, NOT-RETIRED ARRIVAL — `destination:` ALONE IS NOT THE
+KEY** (Copilot review, round twenty-five on PR #1043). A RULED re-destination
+(§ 5.7) and a RULED retirement (§ 5.8) both leave `destination:` and
+`destination_path:` exactly as the carve wrote them — they are the record of
+what MOVED, which is what § 2's table counts and what every digest is keyed
+by — so a file keyed on that field alone states the CARVE's placement and not
+today's. Measured on the landed manifest: at `opendox_code` that key emits
+123 rows / 246 lines where the leg is owed 117 / 234, the four rows RULED Q6
+re-destined away and the two RULED 5656343213 retired among them, and commit
+A below would place all six for the phase-A run to refuse — four
+`arrival-not-vacated` and two `arrival-not-retired`, before it can print the
+line § 5.5 promises. The other half fails SILENTLY: `openxdox_code` reads 92
+where `rows_for()` requires 96, so the four files that ruling sent there
+would be missing from the carve ref that is supposed to place them. The
+generator therefore asks the question the verifier asks —
+`verify-carve-arrival.py`'s own `rows_for()`, spelled out because a heredoc
+cannot import a hyphenated script — and the two `-spec` legs, which no ruling
+has touched, are unchanged at 56 and 47.
+`test_the_runbook_path_file_generator_is_the_verifiers_own_predicate` RUNS
+this program on the landed manifest for every destination and compares its
+lines with that predicate, because a generator and a verifier that disagree
+about which rows a leg is owed cannot be caught by reading either alone.
+
+**The two `-code` legs were carved BEFORE both rulings**, which is why their
+real history carries those six removals as later commits — § 5.7 step 4's
+LOSING half and § 5.8 step 4 — rather than as an arrival that never placed
+them. A leg carved today never places them and has nothing there to delete.
+
 ```sh
 python3 - "$DEST" "$OXF/docs/opendox-carve-manifest.yaml" > paths-$DEST.txt <<'PY'
 import sys, yaml
 dest = sys.argv[1]
 doc = yaml.safe_load(open(sys.argv[2]))
 for row in doc["rows"]:
-    if row.get("destination") == dest:
-        print(row["source_path"])                                   # SELECT
-        print(f'{row["source_path"]}==>{row["destination_path"]}')  # PLACE
+    moved = row.get("re_destined") or {}                 # RULED Q6, § 5.7
+    if moved.get("to") and moved.get("to_path"):
+        at, at_path = moved["to"], moved["to_path"]
+    else:
+        at, at_path = row.get("destination"), row.get("destination_path")
+    if at != dest:                                       # not this leg's today
+        continue
+    gone = row.get("retired") or {}                      # RULED 5656343213
+    if (gone.get("at"), gone.get("at_path")) == (at, at_path):
+        continue                                         # deleted, never placed
+    print(row["source_path"])                            # SELECT
+    print(f'{row["source_path"]}==>{at_path}')           # PLACE
 PY
-wc -l paths-$DEST.txt        # 2 x 123 = 246 for opendox_code; see § 2's table
+wc -l paths-$DEST.txt        # 2 x 117 = 234 for opendox_code today
 ```
 
 ### 5.4 The carve, onto a NAMED ref

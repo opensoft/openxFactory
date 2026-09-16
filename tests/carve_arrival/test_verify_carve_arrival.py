@@ -33,7 +33,7 @@ conditional skip here would red the required job. When the first destination
 exists, this file gains a case that names it; the seat's own assertion is about
 the documented invocation and stays true either way.
 
-THE SEVEN TESTS THAT READ THE LANDED MANIFEST DO NOT BRANCH ON IT (amended on
+THE EIGHT TESTS THAT READ THE LANDED MANIFEST DO NOT BRANCH ON IT (amended on
 a Copilot finding, `#1030`, the round after the same finding closed in
 `tests/carve_manifest/test_carve_manifest.py`; the COUNT re-read on round
 eleven of the same review, which found this paragraph still saying FIVE two
@@ -44,7 +44,7 @@ skip for, so a checkout that had lost `docs/opendox-carve-manifest.yaml`
 turned four pins on the landed document into four no-ops and passed the fifth
 — the five that existed then — on the verifier's apology line instead of its
 answer. The § 6 ceremony has happened: the manifest is committed, and there is
-no revision these seven can run at without it. They read it through
+no revision these eight can run at without it. They read it through
 `the_landed_manifest()`, where the absence is a FAILURE, and the NUMBER above
 is counted rather than transcribed:
 `test_the_module_docstring_counts_the_tests_that_read_the_landed_manifest`
@@ -3622,6 +3622,123 @@ def _declared_replica_row(doc: dict[str, Any], value: str,
             if row.get("source_path") == source_path]
     assert len(rows) == 1, (source_path, len(rows))
     return rows[0]
+
+
+# § 5.3's generator is the one program in this runbook a leg runs BEFORE it has
+# anything to verify, and it is quoted as a heredoc rather than shipped as a
+# script, so the document itself is the only place to read it from. BOUNDED ON
+# THE COMMAND LINE AND NOT ON `<<'PY'`: this runbook quotes TWO such heredocs —
+# § 8's shed `def test_` count is the other — and a parser bounded on the marker
+# takes whichever comes first, which is the failure this whole test is about.
+# The line below is also the invocation the case reproduces, so a change to
+# either argument reds here rather than drifting past a run.
+PATH_FILE_COMMAND = ('python3 - "$DEST" '
+                     '"$OXF/docs/opendox-carve-manifest.yaml"'
+                     " > paths-$DEST.txt <<'PY'\n")
+
+
+def _runbook_path_file_program(text: str) -> tuple[str, str]:
+    """§ 5.3's path-file generator, as (the program, its `wc -l` control)."""
+    assert text.count(PATH_FILE_COMMAND) == 1, (
+        f"§ 5.3's generator is bounded by {PATH_FILE_COMMAND!r}, which this "
+        f"runbook states {text.count(PATH_FILE_COMMAND)} times")
+    rest = text[text.index(PATH_FILE_COMMAND) + len(PATH_FILE_COMMAND):]
+    closing = rest.find("\nPY\n")
+    assert closing != -1, "§ 5.3's heredoc is opened and never terminated"
+    control = rest[closing + len("\nPY\n"):].split("\n")[0]
+    assert control.startswith("wc -l "), (
+        "§ 5.3's heredoc is not followed by the `wc -l` control that states "
+        f"what it should have produced: {control!r}")
+    return rest[:closing + 1], control
+
+
+def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
+        ) -> None:
+    """§ 5.3's generator, RUN on the landed manifest, against `rows_for()`.
+
+    THE PROCEDURE PRODUCED A TREE THE PROCEDURE THEN REFUSED (Copilot review,
+    round twenty-five on this pull request). § 5.3 keyed the path file on
+    `destination:`, which a RULED re-destination and a RULED retirement both
+    leave exactly as the carve wrote it, so for `opendox_code` it emitted 123
+    rows where § 5.5's phase-A example — one section down, pinned by the test
+    below — expects 117: an operator running the two sections in order met
+    four `arrival-not-vacated` and two `arrival-not-retired` refusals instead
+    of the result the document promised. The same key failed the other half in
+    silence, emitting 92 rows at `openxdox_code` where the verifier requires
+    96, which would leave the four files RULED Q6 sent there out of the carve
+    ref that is supposed to place them.
+
+    SO THE PROGRAM IS RUN, NOT READ. `_runbook_path_file_program` lifts the
+    heredoc out of the document — bounded on § 5.3's COMMAND LINE, because the
+    runbook quotes a second `<<'PY'` program in § 8 and a parser that took the
+    first marker would be reading the wrong one — and this case feeds it to
+    `python3 -` with the arguments that command line gives it, then compares
+    the two lines
+    it prints per row with `rows_for()` and `effective_arrival()` — the
+    predicate the arrival verifier applies at the leg. A generator and a
+    verifier that disagree about which rows a destination is owed is the
+    defect above in its general form, and neither file can be read alone to
+    find it.
+
+    EVERY DESTINATION THE MANIFEST DECLARES, `opendox_root` among them, whose
+    whole answer is no lines at all: a leg that is owed nothing is where a
+    generator emitting the wrong set is least likely to be noticed. AND THE
+    PARAGRAPH'S OWN SIX FIGURES ARE DERIVED HERE TOO, for § 2's reason one
+    section down — a number in prose that nothing re-derives is the rot this
+    whole group of tests exists for, and this paragraph states two per leg.
+    """
+    runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
+    assert runbook.is_file(), (
+        f"{runbook} is absent: § 5.3 is the program every leg runs before it "
+        "has anything to verify, and a missing program is not a program that "
+        "agrees with the verifier")
+    text = runbook.read_text(encoding="utf-8")
+    _manifest_text, doc = the_landed_manifest()
+    program, control = _runbook_path_file_program(text)
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+
+    for destination in sorted(doc["destinations"]):
+        done = subprocess.run(
+            [sys.executable, "-", destination, str(manifest)],
+            input=program, capture_output=True, text=True, check=False)
+        assert done.returncode == 0, done.stdout + done.stderr
+        expected: list[str] = []
+        for row in MODULE.rows_for(doc, destination):
+            _at, at_path = MODULE.effective_arrival(row)
+            expected.append(row["source_path"])                       # SELECT
+            expected.append(f'{row["source_path"]}==>{at_path}')      # PLACE
+        produced = done.stdout.splitlines()
+        differing = [(a, b) for a, b in zip(produced, expected) if a != b]
+        assert produced == expected, (
+            f"§ 5.3's generator and `rows_for({destination!r})` disagree: it "
+            f"prints {len(produced)} lines where the verifier is owed "
+            f"{len(expected)}, and the first line they differ on is "
+            + (f"{differing[0]}" if differing
+               else "(none — one list is a prefix of the other)"))
+
+    owed = len(MODULE.rows_for(doc, "opendox_code"))
+    assert f"2 x {owed} = {2 * owed} for opendox_code" in control, (
+        f"§ 5.3's `wc -l` control states {control!r}, and this leg is owed "
+        f"{owed} rows / {2 * owed} lines today")
+
+    section = " ".join(
+        text[text.index("### 5.3 "):text.index("### 5.4 ")].split())
+    keyed = {key: sum(1 for row in doc["rows"]
+                      if row.get("destination") == key)
+             for key in doc["destinations"]}
+    for phrase in (
+            f"emits {keyed['opendox_code']} rows / "
+            f"{2 * keyed['opendox_code']} lines where the leg is owed "
+            f"{owed} / {2 * owed}",
+            f"`openxdox_code` reads {keyed['openxdox_code']} where "
+            f"`rows_for()` requires "
+            f"{len(MODULE.rows_for(doc, 'openxdox_code'))}",
+            f"unchanged at {len(MODULE.rows_for(doc, 'opendox_spec'))} and "
+            f"{len(MODULE.rows_for(doc, 'openxdox_spec'))}"):
+        assert phrase in section, (
+            f"§ 5.3 does not say {phrase!r}. The paragraph states what the two "
+            "keys emit at four legs, and a figure it carries that the manifest "
+            "no longer produces is the rot this file was written for")
 
 
 def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
