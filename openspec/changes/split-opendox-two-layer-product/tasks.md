@@ -1129,9 +1129,10 @@ the bookkeeping that ticks this group.
   implementation and projection mechanism, the gate-and-commission loop, and
   `doxbench_scope`. Of `design.md` § D3's 23 outbound `doc_health` imports,
   **TWELVE become the adapter's IMPLEMENTATION SURFACE here**, where importing
-  doc-health is lawful; **FIVE are lawfully `openDox`'s**, **ONE stays in
-  `openxFactory`** under RULED DQ-1, and **FIVE were DISCHARGED at the § 2 seam**
-  and no longer exist as imports at all. *(AMENDED 2026-09-16 by RULED **R-1**,
+  doc-health is lawful; **FIVE ROUTED TO `openDox` UNDER THE CARVE** (routed
+  there, which is a disposition, not a finding that they satisfy the seam — see
+  the STATUS), **ONE stays in `openxFactory`** under RULED DQ-1, and **FIVE were
+  DISCHARGED at the § 2 seam** and no longer exist as imports at all. *(AMENDED 2026-09-16 by RULED **R-1**,
   `#656` comment `5690428146`. This sentence read "The 23 outbound `doc_health`
   imports become the adapter's IMPLEMENTATION SURFACE here, where importing
   doc-health is lawful" — a design-time expectation that the § 2.1 / 2.2 / 2.2a
@@ -1242,7 +1243,7 @@ the bookkeeping that ticks this group.
   cannot be met AS WRITTEN, and that is a reconciliation owed rather than a
   residue still travelling.** *"The 23 outbound `doc_health` imports become the
   adapter's IMPLEMENTATION SURFACE here"* is a design-time expectation that the
-  § 2.1 / 2.2 / 2.2a seam overtook: 12 arrived, 5 are lawfully openDox's, 1 is
+  § 2.1 / 2.2 / 2.2a seam overtook: 12 arrived, 5 routed to openDox, 1 is
   RULED elsewhere, and 5 no longer exist as imports at all. No further carve
   can move them, so the box is not waiting on § 3.4 (landed), and the wording
   needs a RULING or an amendment rather than another measurement. Registered
@@ -1277,8 +1278,35 @@ the bookkeeping that ticks this group.
   12 + 5 + 1 + 5 = **23**, `design.md` § D3's inventory exactly. **No further
   carve can move any of them**, which is the ruling's own finding: the five
   DISCHARGED stopped being imports at the § 2 seam before the carve ran, and the
-  five at openDox-code are lawfully openDox's under the split this packet
-  performed. `#656` records: CLAIM `5690461589`; RULED R-1 `5690428146`.
+  five at openDox-code sit where the carve manifest routes their modules.
+  **WHAT THIS TICK DOES NOT DECIDE, said here because the word it replaces
+  claimed it.** The box first read that those five *"are lawfully openDox's"*,
+  and "lawfully" is a verdict R-1 did not give: R-1 settled the ACCOUNTING —
+  which imports went where, and that no further carve moves any — not whether
+  openDox-code's five satisfy the ratified `corpus-adapter-seam`. **They are a
+  live question, and the measurement is written down rather than left for the
+  next reader to take.** `openDox-code` carries NO `doc_health` package of its
+  own — `git ls-tree -r --name-only` over the whole tree returns no such path, at
+  `1e469713` and at today's `main` `0b4e8bb` alike — so its five sites resolve to
+  `openxFactory`'s own `scripts/doc_health/` when the tool runs inside an
+  openxFactory checkout. The five, identical in line and in text at both heads:
+  `serve.py`:713 `from doc_health.corpus import RealGit`; `workbench.py`:746
+  `from doc_health import corpus`, :1407 `from doc_health import
+  DEFAULT_THRESHOLDS, corpus as dh_corpus`, :1408 `from doc_health.families
+  import FAMILIES`, :1409 `from doc_health.runner import Context, run_suite`.
+  **All five are inside function bodies, none at module scope**, and :746 says
+  why in its own comment (*"lazy: keeps this module's graph flat"*). Requirement 4 of `corpus-adapter-seam`
+  (`specs/corpus-adapter-seam/spec.md`:37-53) says *"no neutral product
+  `openxFactory` pins SHALL import `openxFactory`'s own tooling"* and refuses the
+  import where *"the dependency has reversed"*. Whether a lazily-resolved read of
+  the corpus through the ADAPTER INTERFACE is such an import, or is the
+  interface working, is exactly what **§ 3.7 (FLOOR PART 3)** asks and answers
+  mechanically — the neutral conformance corpus green in EVERY destination,
+  openDox included — and **§ 3.7 is `[ ]` and records that the answer it returns
+  today is NO.** So the obligation is open where it belongs, at a box that can
+  run it, and § 4.1's tick claims the accounting and nothing else. § 8.2's
+  archive-gate line reads § 3.7's evidence, so no gate is loosened by this tick.
+  `#656` records: CLAIM `5690461589`; RULED R-1 `5690428146`.
 - [x] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
   and tree digest (`sorted-ls-tree-r-v1` over openDox's whole tree — the scaffold
   writes NO per-file `sha256`; the per-file `sha256`, `pinned_by_commit_only:`
@@ -1633,9 +1661,15 @@ the bookkeeping that ticks this group.
   `former-id-arrival-gate`, `lane-line`, `merge-master-approval`,
   `openreposhape-pin-gate`, `openspec-cli-pin-gate`, `openxwallet-consumer-gate`,
   `pytest-suite`, `release-tag-gate`, `review-lane-repin`, `session-open-pr` and
-  `signed-execution-chain-gate`, and `git log --all --diff-filter=A` over
-  `.github/workflows/*dashboard*` and `*ideation*` returns nothing — no such file
-  was ever added. The SHAPE, the pinned-tools reading and the job-id obligation
+  `signed-execution-chain-gate`, and `git log --all --diff-filter=A --
+  '.github/workflows/*dashboard*' '.github/workflows/*ideation*'` returns
+  nothing over either pattern — no such file was ever added.
+  *(BOTH PATTERNS SCOPED, corrected at Copilot review round 5 on this
+  amendment's own pull request: this first ran the second pattern as a bare
+  `*ideation*`, which is repository-wide rather than workflow-scoped and matches
+  **276** commits that have nothing to do with `.github/`. The finding was right
+  about the command and the command was doing no work; re-run scoped, both
+  patterns return **0** adds, which is the same answer honestly derived.)* The SHAPE, the pinned-tools reading and the job-id obligation
   are unchanged; only the act is. **This box does NOT tick with this amendment**:
   the workflow is its own declared act under its own claim, and that act is now
   open as `opensoft/openxFactory` **#1059** — *Wire the pinned openDox/openXdox
@@ -2338,11 +2372,24 @@ realization evidence, never on landing. Each line is its own evidence.
   be created in its own domain's org (`codexFactory` lives in `codeXfactory`,
   `MedxFactory` in `MedxSoft`, `LedgerxFactory` in `ledgerXfactory`). So the
   listing was taken org-wide across all four estate orgs for ANY repository whose
-  name contains `dox`: `opensoft` 401 repositories, `codeXfactory` 1, `MedxSoft`
-  13, `ledgerXfactory` 1 — **416 in total, and the only six `dox`-named
-  repositories in the estate are the six § 8.1 requires to exist.** Not one
-  descendant name, not one leg name, not `openXdox-Install`, in any casing,
-  anywhere. `#656` records: CLAIM `5690461589`; evidence `5690559647`.
+  name contains `dox`. **The two columns are separate and are reported
+  separately**, because a repository TOTAL is not a `dox` result:
+
+  | org | repositories enumerated | of those, `dox`-named (case-insensitive) |
+  | --- | ---: | --- |
+  | `opensoft` | 402 | **6** — `openDox`, `openDox-spec`, `openDox-code`, `openXdox`, `openXdox-spec`, `openXdox-code` |
+  | `codeXfactory` | 1 | **0** |
+  | `MedxSoft` | 13 | **0** |
+  | `ledgerXfactory` | 1 | **0** |
+
+  **417 repositories enumerated, six `dox`-named, and all six are the six § 8.1
+  requires to exist.** Not one descendant name, not one leg name, not
+  `openXdox-Install`, in any casing, in any of the four orgs. *(The evidence
+  comment reports 401 and 416 at 01:1xZ; this re-read at 13:3xZ finds 402 and
+  417 because `opensoft` gained one repository in the interval. The `dox` column
+  is unchanged at 6/0/0/0, which is the column this box turns on — recorded
+  rather than quietly re-stated, since a total that moves and a result that does
+  not is exactly the distinction this line needs to make.)* `#656` records: CLAIM `5690461589`; evidence `5690559647`.
 - [ ] 8.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health
   run whose severity counts move by the amount **the archive pull request RECORDS
