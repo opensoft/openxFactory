@@ -1019,15 +1019,25 @@ the bookkeeping that ticks this group.
   measurement here names the tree it was read at; this one can name no line,
   because the block it sits in is rewritten by every archival act and its line
   numbers move under any citation that outlives one. Measured rather than
-  asserted: the entry opens at `README.md`:**1875** at this amendment's own
-  head and at :**1775** at openxFactory `main` `8944758c` — exactly **100**
-  lines apart, after `#1042` archived a sibling packet above it — while
-  `design.md`:52 and :351, `proposal.md`:208 and
-  `review/ratification-2026-09-05.md`:549, the four `30,410` citations above,
-  are each exact at BOTH heads, because no act has touched those three files
-  since. *(This clause read "`README.md`:1875–1879" until fix round 4, which
-  measured the drift rather than re-pointing a number that moves again at the
-  next archival.)*
+  asserted, and now at FOUR trees rather than two: the entry opens at
+  `README.md`:**1775** at openxFactory `main` `8944758c`, at :**1875** at this
+  amendment's pre-merge head `0a835098` — after `#1042` archived a sibling
+  packet above it — and at :**1813** at `main` `cb2d3a2c` and at this
+  amendment's own head, which merges that `main` in: **three positions across
+  four trees, 100 lines down and then 62 back up**, both moves made by acts
+  with nothing to do with this one. The `30,410` citations beside it are
+  **exact at every one of those four trees** — the FOUR LIVE occurrences
+  `design.md`:52 and :351, `proposal.md`'s `code_surface:` front-matter line
+  (:2) and `proposal.md`:208, and the FIFTH, `review/ratification-2026-09-05.md`:549,
+  which is the RECORD no later act amends — because no act has touched those
+  three files since. *(This clause read "`README.md`:1875–1879" until fix round
+  4, which measured the drift rather than re-pointing a number that moves again
+  at the next archival — as it now has, twice. Until fix round 5 the list here
+  named FOUR and had swapped the RECORD in for the `code_surface:` line while
+  calling them "the four citations above", where the inventory above
+  distinguishes four live from one record: a Copilot finding on openxFactory
+  `#1035`, accurate, and the same set stated two ways is exactly the defect the
+  fifth-occurrence paragraph above exists to prevent.)*
   `#656` records: CLAIM
   `5656686020`; rulings `5642758731` · `5647678655` · `5648044785` ·
   `5648049748` · `5648065587` · `5649094228` · `5656343213`.
