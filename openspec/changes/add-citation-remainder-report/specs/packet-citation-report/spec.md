@@ -130,6 +130,25 @@ touches — resolve the path, then require it to stay under the root — and the
 population owes the same test for the same reason, since a reader cannot
 distinguish a citation this repository wrote from one it merely links to.
 
+AND A FILE THE REPORT CANNOT DECODE AS TEXT SHALL BE SKIPPED, COUNTED AND
+REPORTED, NEVER REPLACEMENT-DECODED AND NEVER FATAL. A repository may track a
+binary file or a file that is not valid UTF-8, and three realizations could
+replacement-decode it, skip it silently, or abort on it — producing three
+readings of one tree that are not comparable, which is the one thing this
+capability cannot afford. The report SHALL decode each file in the population
+strictly; a file that does not decode SHALL contribute no token, SHALL NOT be
+read with character replacement (bytes that are not text can yield matches that
+no record wrote), SHALL NOT end the run, and SHALL be counted in a stated
+SKIPPED total. The population arithmetic SHALL therefore close: the tracked
+ENTRIES in scope equal the FILES read, plus the entries skipped as non-files,
+plus the files skipped as undecodable.
+
+#### Scenario: A tracked file in the population is not valid text
+- **WHEN** a file in the population cannot be decoded as UTF-8
+- **THEN** the report MUST skip it and take no token from it
+- **AND** it MUST count it in the skipped total it states, rather than in the files it read
+- **AND** it MUST NOT read the file with character replacement and MUST NOT end the run
+
 THE FILE POPULATION SHALL BE the repository's tracked files, less three
 exclusions, each excluded for a stated reason: the ARCHIVED corpus
 (`openspec/changes/archive/`), because an archived packet is frozen record whose

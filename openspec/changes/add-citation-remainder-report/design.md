@@ -112,6 +112,15 @@ mode-160000 SUBMODULE GITLINKS — `installs/omnigent-install`, `openDox`,
 contribute no token. Measured on both trees: zero in-scope files carry a NUL
 byte and zero fail a strict UTF-8 decode, so "read binary with character
 replacement" describes code this report does not need and would not exercise.
+**THE RULE IS PROMOTED ANYWAY, BECAUSE A POPULATION RULE THAT IS TRUE TODAY BY
+LUCK IS NOT A RULE** (PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jIP45`): the
+delta now says a file the report cannot decode is SKIPPED, COUNTED and REPORTED
+— never replacement-decoded, because bytes that are not text can yield matches
+no record wrote, and never fatal — and that the arithmetic closes, entries in
+scope = files read + entries skipped as non-files + files skipped as
+undecodable. At `b1df95ee` that third term is **0** and at this branch's head it
+is **0**, so no published figure moves; the rule exists so that the day it is
+not zero, two readings still agree.
 The open question a gitlink raises — whether another repository's tracked
 content belongs in this repository's citation population at all — is answered NO
 here by D7 fence 2, which forbids resolving anything cross-repository.
