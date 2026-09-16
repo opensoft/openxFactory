@@ -1617,12 +1617,17 @@ def _pinned_arm(ctx, doc, target, lineno, hit):
             if code in (OUTSIDE_ROOT, OUTSIDE_BOUNDARY):
                 rule = (f"pinned target={target} at line {lineno}: {record} "
                         f"resolves outside root {name}'s contracts/ directory")
+                hit(ERROR, doc, rule,
+                    "keep the pin record inside its root's contracts/ "
+                    "directory rather than a symlink out of it "
+                    "(document-lifecycle grammar)")
             else:
                 rule = (f"pinned target={target} at line {lineno}: {record} "
                         f"in root {name} cannot be resolved ({code})")
-            hit(ERROR, doc, rule,
-                "keep the pin record inside its root's contracts/ directory "
-                "rather than a symlink out of it (document-lifecycle grammar)")
+                hit(ERROR, doc, rule,
+                    "make the pin record's path resolvable inside its "
+                    "root's contracts/ — no symlink loop, no unreadable "
+                    "link, no malformed path (document-lifecycle grammar)")
             return
         if not candidate.is_file():
             continue          # this root carries no such record; try the next

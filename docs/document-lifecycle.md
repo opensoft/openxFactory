@@ -483,11 +483,36 @@ its own.>
   never re-basing onto the move. COPYING a ratified packet to a second id
   refuses identically — git pairs a copy the same way it pairs a move, and
   the duplicate's baseline is just as unestablishable — so the refusal names
-  a MOVE OR COPY rather than only a rename. Renaming a ratified change is
-  therefore blocked until a change declares a FORMER ID (issue #833, a
-  successor packet); renaming a DRAFT change, and a single commit that
-  renames a draft and ratifies it, are unaffected. The nightly `proposal-origin`
-  doc-health family
+  a MOVE OR COPY rather than only a rename. A ratified change's directory MAY
+  now MOVE, and what the move owes is a DECLARATION (`add-declared-former-id`,
+  the successor packet issue #833 named — RATIFIED 2026-09-13, its
+  `release-realization` delta promoting into canon at that packet's own
+  archive and not before; #1003): the arriving packet names the
+  id it moved FROM in a top-level `former_ids:` list in its own
+  `.openspec.yaml` — a SIBLING of `origin:` and never a member of it, so a
+  lawful move is never a mutation of the frozen origin block — naming change
+  IDS and never paths, oldest first, and APPEND-ONLY ACROSS COMMITS: the entry
+  is added by the COMMIT THAT PERFORMS THE MOVE, and the arriving list is the
+  source's list with the source id appended. The gate then resolves the
+  baseline across the current identity and every declared former identity
+  together and takes the EARLIEST commit at which any of them declares
+  `Status: ratified`, so a rename is not a way to acquire a later baseline and
+  therefore not a way to launder a mutation. An UNDECLARED arrival is refused
+  at the landing of the commit that performs it — one commit read and never a
+  chain — by the arrival gate `add-declared-former-id` § 4 builds
+  (`scripts/validate-former-id-arrival.py`, `former-id-undeclared`, exit 1, no
+  bypass flag). THE RULE IS CANON AND THE ENFORCEMENT IS NOT YET REQUIRED, AND
+  THE TWO ARE SAID SEPARATELY: as measured on 2026-09-15 that gate HAS landed
+  on `main` and RUNS on every pull request (§ 4.1–4.4), and it is named by no
+  branch ruleset (§ 4.5, an operator act, the live branch rules for `main`
+  read that day naming `former-id-arrival-gate` nowhere), so until that act is
+  taken an undeclared arrival sees a red check beside a merge button that
+  works and can still LAND — what stops one meanwhile is the archive refusal
+  above, `origin-retention-path-moved`, which reaches a single undeclared hop
+  at the archive and never the landing, and which the multi-hop chain escapes
+  entirely; renaming a DRAFT change, and a single commit that renames a draft
+  and ratifies it, are
+  unaffected. The nightly `proposal-origin` doc-health family
   (the fifteenth) reports drift — including post-ratification mutation, a
   `contested` finding — across active and archived proposals.
 - `proposed -> ratified -> implemented`: standard OpenSpec flow.
