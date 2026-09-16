@@ -1561,10 +1561,23 @@ the bookkeeping that ticks this group.
   tick standard exists to refuse — and § 5.6a's defect (a), which is a different
   box's wording and already `[x]`, is NOT edited here: it is left to the act that
   claims it, with the sixth schema and the false parenthetical named for it. **The
-  deprecation window is where this matters and it is unaffected**:
-  `contract-v3.7`'s `relocating:` markers and the `contract-v4.0` BREAKING entry
-  cover the schemas that left, and whether the prose around them says five or six
-  changes no digest. `#656` records: CLAIM `5690461589`; RULED R-2 `5690428146`;
+  deprecation window is where this matters, and measuring it is what finally
+  RECONCILES five with six rather than leaving them as a disagreement.** The
+  window is `contracts/manifest.yaml`'s, and that file registers RELEASE
+  CONTRACTS: `contract-v3.7` marked **five** rows `relocating:` and
+  `contract-v4.0` removed them as BREAKING, which the file states about itself —
+  *"this file's five `relocating.at:` values"* (:1778). **`ideation-workbench`
+  was never in that file at all**: `grep -c ideation-workbench contracts/manifest.yaml`
+  → **0**, `contracts/CHANGELOG.md` → **0**, and `git log -S ideation-workbench --
+  contracts/manifest.yaml` returns NO commit, so it was never registered and never
+  de-registered. Its schema `contracts/schemas/ideation-workbench.schema.yaml` is
+  present at `b075fd91` and absent at `cc4ae9d3` on its CARVE-MANIFEST row alone.
+  **The two numbers therefore count two populations and both are right**: FIVE is
+  the release contracts inside the deprecation window, which is what RULING R-2's
+  parenthetical and § 5.6a defect (a) are about; SIX is the schemas the carve
+  manifest moves, which is what this box is about. A sixth `relocating:` marker
+  was never owed for a file that was never a registered contract, so none is
+  missing — and the window covers everything it is required to cover. `#656` records: CLAIM `5690461589`; RULED R-2 `5690428146`;
   the discharging act #940 → `cc4ae9d3`.
 - [ ] 5.3 `[oxF]` **AUTHOR `.github/workflows/openxdox-consumer-gate.yml` in
   `openxFactory`** — a NEW consumer gate over the pinned tools, on the
@@ -1593,7 +1606,20 @@ the bookkeeping that ticks this group.
   open as `opensoft/openxFactory` **#1059** — *Wire the pinned openDox/openXdox
   tools into a consumer gate of their own (task 5.3, RULING R-4)*, opened
   2026-09-16T01:24:55Z against `main`. This box ticks on THAT pull request's
-  merge and on the new gate reporting, not on this one.)*
+  merge and on the new gate reporting, not on this one.
+  **AND R-4's discharge is of the OLD clause, not of the NEW file's own
+  obligation** — worth separating, because the two are easy to read as one.
+  What R-4 discharges is *"retaining the job id **so a ruleset-pinned token
+  survives a file rename**"*: there is no rename here and no token to carry
+  across one, and `pytest-suite` — whose workflow name, job id and required check
+  are the single token `pytest-suite` — is untouched by #1059, so nothing this
+  repository already reports under moves. The NEW gate still owes a stable token
+  of its own, and #1059 carries it: job id **`openxdox-consumer-gate`**, no job
+  display name, on the `openxwallet-consumer-gate` lesson that *"a distinct job
+  display name silently de-advises the gate"*. It is ADVISORY on the day it
+  lands — a check is not selectable in a ruleset until a workflow has reported
+  under it once, and making it required is a human act on a human-only surface —
+  so the required-check WIRING is named as owed there rather than claimed here.)*
 - [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
   source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
   equality. Four clauses, the full text at `design.md` § D6 (2):
@@ -1966,7 +1992,33 @@ movements claimed at the time they land.
   `codex_deployment_profile` and `artifact_kind` — and `codex_tenant` (**3**, all
   under `tenants/`): **ten distinct literals over seventeen declarations, and not
   one of them is `domain-profile`.** **No `kind:` anywhere in the tree names dox**
-  (`git grep -iE '^\s*kind:.*dox'` → empty). The content mentions that DO exist
+  (`git grep -iE '^\s*kind:.*dox'` → empty).
+  **AND THE LITERAL IS NOT LEFT AS THE ONLY DISCRIMINATOR**, because it cannot
+  be: the requirement keys on an artifact KIND, and this packet's own
+  `domain-mapping-declaration` defines that kind STRUCTURALLY — *"The declaration
+  SHALL cover exactly five axes: the domain's ARTIFACT KINDS; the LIFECYCLE
+  VOCABULARY each kind travels …; the ACTS and the GATE each act passes; the
+  EVIDENCE CLASSES a derived statement must cite; and the PROMOTING
+  AUTHORITIES"* (`specs/domain-mapping-declaration/spec.md`:31-42). A file could
+  carry that structure under any `kind:` word it liked, so the census was taken
+  a THIRD way, over the AXES themselves, using the top-level keys the one real
+  instance spells them with (`artifact_kinds:`, `lifecycle:`, `gates:`, `acts:`,
+  `evidence_classes:`, `authorities:` at
+  `contracts/domain-profiles/openxfactory-engineering.yaml`:80, :147, :361, :371,
+  :396, :406). Across all 1,995 tracked files: `artifact_kinds:` **0**,
+  `lifecycle:` **0**, `acts:` **0**, `evidence_classes:` **0**, `authorities:`
+  **0**, `gates:` **2**. **No file reaches two of the five axes**, and the two
+  that reach ONE are
+  `hermes/domain/review-councils/templates/operator-exercise-gates.template.yaml`
+  and its own test fixture under `tests/merge-master/` — the autonomous-merge
+  operator-attestation template, which is a gate roster for a merge axis and not
+  a domain's mapping. Broadened to any indentation and to hyphenated spellings,
+  `artifact[_-]kinds`, `evidence[_-]classes`, `promoting[_-]authorit`,
+  `lifecycle[_-]vocabular` and the declaration's own identity fields
+  `mapping[_-]id` and `domain[_-]label` return **zero files each**. **So the
+  answer does not rest on one `kind:` string**: by the literal, by the ten
+  `kind:` words actually declared, and by the five-axis STRUCTURE independent of
+  any naming, codexFactory holds no profile artifact. The content mentions that DO exist
   are named rather than hidden, since a path-only census would have missed them.
   Matched case-INSENSITIVELY, `openxdox` is in **32** tracked files and `opendox`
   in **28** — **but 17 files carry both, so the union is 43 files**, not the 60
@@ -2274,6 +2326,21 @@ realization evidence, never on landing. Each line is its own evidence.
   carve, six repositories and a shed. The obligation is not weakened, it is
   relocated to the act that can discharge it: the archive pull request states the
   movement it caused and why, and a movement it does not explain fails this line.
+  **"RECORDS AND EXPLAINS" IS NOT "SAYS SOMETHING AFTERWARDS", AND THE FORM IS
+  FIXED HERE SO THE LINE STAYS FALSIFIABLE.** The archive pull request SHALL
+  carry: (a) the BASELINE it measured against, named as a tree — a commit, and
+  the doc-health invocation used; (b) the per-severity BEFORE and AFTER vectors,
+  every family and every severity, `info` included; and (c) a named reason for
+  EVERY finding that entered or left, diffed finding by finding rather than
+  netted. A record that gives a total without the vector, or a vector without the
+  findings behind a moved count, does not discharge this line. That is the form
+  the house already uses where it works — the archived
+  `2026-08-25-add-projection-title-uniqueness` § 4.6 (`tasks.md`:315-328) reports
+  *"before 5 critical, 5 error, 46 warning, 4 info and after 5 critical, 5 error,
+  43 warning, 4 info"* and then names the three warnings that left and what
+  closed them — and it is what the three review records of THIS packet did with
+  their own zero. Fixing the form is what keeps R-6's relocation from becoming
+  the licence to choose an amount after seeing the run.
   *(TWO rounds of this count were wrong and both are recorded rather than
   silently repaired. It claimed "exactly twice" until Copilot review round 1 on
   this amendment's own pull request, and that finding was right: the grep behind
