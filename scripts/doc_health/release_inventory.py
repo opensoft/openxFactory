@@ -254,7 +254,8 @@ def _shed_member(repo_path: Path, git, commit: str, path: str):
     as it answers for the repository.
     """
     try:
-        from carved_reach import (CarveReachUnavailable, INIT_COMMAND,
+        from carved_reach import (CarveReachUnavailable,
+                                  INCOMPLETE_STORE_REMEDY,
                                   REPO_ROOT as CARVE_ROOT, shed_commit_object)
     except ImportError:
         return None, None
@@ -285,9 +286,12 @@ def _shed_member(repo_path: Path, git, commit: str, path: str):
     # what an ABSENT path answers. Both used to become `(None, None)` and then
     # ABSENT AT THE COMMIT, which is the phantom absence `shed_commit_object`
     # refuses, arriving one layer lower.
-    remedy = (f"Run `{INIT_COMMAND}` from the repository root; a shallow or "
-              f"partially fetched store needs its own `git fetch --unshallow` "
-              f"first.")
+    # Shared verbatim with `carved_reach.py`'s own `CarveReachUnavailable`
+    # messages, split so it no longer tells a `--filter=tree:0`/`blob:none`
+    # PARTIAL store — which is not shallow — to run `git fetch --unshallow`,
+    # a command that refuses any non-shallow store outright (`#1048` round 4,
+    # Copilot on PR #1051, `carved_reach.py:921` / here at line 290).
+    remedy = INCOMPLETE_STORE_REMEDY
     blobs = git.blobs_at(leg_repo, leg_commit, [leg_path])
     if blobs is None:
         raise LegUnavailable(

@@ -127,6 +127,29 @@ SCRIPTS_DIR = REPO_ROOT / "scripts"
 
 INIT_COMMAND = "git submodule update --init --recursive openDox openXdox"
 
+#: The remedy for a leg whose object store exists but cannot answer for the
+#: pinned commit, or for the tree/blobs under it — every `CarveReachUnavailable`
+#: raise below that reaches this point shares this text verbatim, and so does
+#: `doc_health.release_inventory`'s own `LegUnavailable` (`#1048` round 4,
+#: Copilot on PR #1051, `carved_reach.py:921` / `release_inventory.py:290`).
+#: `git fetch --unshallow` ALONE WAS WRONG HERE: it is the fix for a
+#: GENUINELY SHALLOW clone only (`git rev-parse --is-shallow-repository`
+#: prints `true`) — MEASURED, git 2.43.0: a `--filter=tree:0`/`blob:none`
+#: store is not shallow, and `--unshallow` there only answers `fatal:
+#: --unshallow on a complete repository does not make sense` and fixes
+#: nothing, because the two are orthogonal git features and a partial clone
+#: never went shallow to begin with.
+INCOMPLETE_STORE_REMEDY = (
+    f"Run `{INIT_COMMAND}` from the repository root. A store that is "
+    f"GENUINELY SHALLOW (`git rev-parse --is-shallow-repository` prints "
+    f"`true`) needs its own `git fetch --unshallow` first; a "
+    f"`--filter=tree:0` or `blob:none` PARTIAL store is not shallow, and "
+    f"`--unshallow` there only answers `fatal: --unshallow on a complete "
+    f"repository does not make sense` — fetch the pinned objects from a "
+    f"remote that still carries them instead (`git -C <store> fetch "
+    f"origin <sha>`, or `git fetch --refetch`), or re-run the command "
+    f"above to re-initialize the leg.")
+
 
 class CarveReachUnavailable(ImportError):
     """A pinned leg is not materialized, so a shed module cannot be read."""
@@ -898,10 +921,8 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
                     f"read where {mount.relative_to(REPO_ROOT)}'s gitlink is "
                     f"recorded, so whether that gitlink is there is "
                     f"UNESTABLISHED rather than answered, and {key} cannot be "
-                    f"read at the commit that pins it — git said: {said}. Run "
-                    f"`{INIT_COMMAND}` from the repository root; a shallow or "
-                    f"partially fetched store needs its own "
-                    f"`git fetch --unshallow` first.")
+                    f"read at the commit that pins it — git said: {said}. "
+                    f"{INCOMPLETE_STORE_REMEDY}")
             return None
         store = _leg_object_store(repo, segment)
         if store is None:
@@ -916,9 +937,7 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
                 f"incomplete: {mount.relative_to(REPO_ROOT)}'s object store "
                 f"carries no commit {gitlink}, which is what the recorded "
                 f"gitlink names, so {key} cannot be read at the commit that "
-                f"pins it. Run `{INIT_COMMAND}` from the repository root; a "
-                f"shallow or partially fetched store needs its own "
-                f"`git fetch --unshallow` first.")
+                f"pins it. {INCOMPLETE_STORE_REMEDY}")
         repo = store
         revision = gitlink
     return repo, revision, row["destination_path"]
