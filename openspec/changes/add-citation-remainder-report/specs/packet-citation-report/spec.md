@@ -99,6 +99,13 @@ lives only in code cannot be reproduced by hand and therefore cannot be checked.
 Two readings taken by different recipes are not comparable, and this capability
 exists to produce a SERIES.
 
+A TRACKED ENTRY THAT IS NOT A FILE SHALL BE SKIPPED AND SHALL CONTRIBUTE NO
+TOKEN. A repository's tracked-entry listing names submodule links as well as
+files; a link is a directory, it has no text, and counting one as an unreadable
+file both misstates the population's size and invites an implementation to
+recover text from it. Skipping it is also the population's half of the rule that
+nothing cross-repository is resolved.
+
 THE FILE POPULATION SHALL BE the repository's tracked files, less three
 exclusions, each excluded for a stated reason: the ARCHIVED corpus
 (`openspec/changes/archive/`), because an archived packet is frozen record whose

@@ -55,8 +55,16 @@ extracted from each file's text (**586** distinct), and each resolved through
 | **inclusive remainder** | **81**, carried by **65** distinct citing files |
 | tokens with no raw path in the tree | **162**, of which the rule REPAIRS **76** |
 
-Four of the 2,973 in-scope files are binary and are read with character
-replacement rather than skipped; none contributed a token.
+**NO FILE IN THE POPULATION IS BINARY, AND THE FOUR ENTRIES THAT CANNOT BE READ
+AS TEXT ARE NOT FILES.** Four of the 2,973 `git ls-files` entries in scope are
+mode-160000 SUBMODULE GITLINKS — `installs/omnigent-install`, `openDox`,
+`openXdox`, `openXwallet` — directories, not files. They are SKIPPED and
+contribute no token. Measured on both trees: zero in-scope files carry a NUL
+byte and zero fail a strict UTF-8 decode, so "read binary with character
+replacement" describes code this report does not need and would not exercise.
+The open question a gitlink raises — whether another repository's tracked
+content belongs in this repository's citation population at all — is answered NO
+here by D7 fence 2, which forbids resolving anything cross-repository.
 
 **#1053'S TABLE BESIDE IT, AND THE DIFFERENCE IS NOT CLAIMED AS A CORRECTION:**
 
@@ -407,6 +415,15 @@ stated reason rather than an inherited one:
 | `openspec/changes/archive/` | FROZEN RECORD. An archived packet's prose is not editable and its citations are not repairable, so reporting them is reporting work nobody may do. #1053 and M4 both exclude it. |
 | `tests/` | FIXTURES. Test corpora deliberately carry synthetic ids (`add-x`, `foo`, `change-r`) and deliberately-absent files; every one would report as remainder. |
 | `specs/` | SPEC KIT FEATS, a different tool's artifacts that cite packets illustratively. |
+
+**AND ONE ENTRY CLASS THE POPULATION SKIPS RATHER THAN EXCLUDES: A TRACKED
+ENTRY THAT IS NOT A FILE.** `git ls-files` names four mode-160000 SUBMODULE
+GITLINKS in scope (`installs/omnigent-install`, `openDox`, `openXdox`,
+`openXwallet`) — directories with no text of their own. They are skipped and
+contribute no token. This is stated because the alternative reading, "four
+binary files read with character replacement", is DIFFERENT CODE and a different
+fixture in § 2.1: measured on both trees, **no in-scope file is binary at all**
+— zero carry a NUL byte, zero fail a strict UTF-8 decode.
 
 **AND ONE THE REPORT MUST ADD THE MOMENT D5 EVER CHANGES: the report's OWN
 OUTPUT PATH.** `health/` is INSIDE this population — 7 tracked files at
