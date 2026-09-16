@@ -316,6 +316,11 @@ legs, and what S8 measured has no leg to move it to.
   so it stayed HERE and
   arrived at NEITHER leg, and slice S2 replaced the surface openDox does have
   with `views/intent-binding.js`. The suites test a surface that is not there.
+  TWO of the three are the rows this check reads; the THIRD is the ending
+  replay inside `tests/test_staging_workbench.py`, whose row goes on arriving
+  — a PARTIAL removal has no form here and is an ordinary declared edit
+  (cutover runbook § 5.8), so a reader of this check should expect two
+  `retired:` rows and not three.
   `re_destined:` cannot say so: `to` is held to the CLOSED `destinations:`
   keys, openxFactory is the SOURCE and not one of them, and `re_destined:` on
   a `not_moved` row refuses `carve-re-destined-not-moved`. Deleting the

@@ -1026,10 +1026,18 @@ withdrawn, and the mirror is disposable rather than de-fanged.
 
 **Move first, edit second, at the destination, in the same pull request.**
 
-* **Commit A** places every row's blob byte-identical to `carve_commit`, so the
-  arrival verifier can prove **every moved row of that destination at phase A**
-  — the strongest statement available, and the analogue of the wallet's
-  *"100/100 at the carve layer"*.
+* **Commit A** places every EFFECTIVE, NOT-RETIRED arrival's blob
+  byte-identical to `carve_commit` — exactly the set § 5.3's path file selects
+  — so the arrival verifier can prove **every moved row of that destination
+  NOT RETIRED BY RULING at phase A**: the strongest statement available, and
+  the analogue of the wallet's *"100/100 at the carve layer"*. **The
+  qualification is RULED 5656343213's** (Copilot review, round twenty-seven),
+  and it is the same one `rows_for()`, the verifier's module docstring and
+  `--phase`'s own `--help` now carry: a row retired at its own effective
+  arrival is dropped before either phase asks anything, so it is not placed,
+  not digested and not diffed, and what is required of it instead is that its
+  path be ABSENT (§ 5.8). An unqualified "every row" here and a 117-row
+  expectation below are two incompatible placement contracts in one section.
 * **Commit B** applies that destination's declared edits AND NOTHING ELSE. Its
   diff is then mechanically checkable line-for-line against `edits[].lines`, and
   a reviewer reads 239 lines rather than 97,120.
@@ -1393,7 +1401,13 @@ comment says it "rides along because dispose.js imports it" and that the probe
 `surface:` asks for what an arrival NEEDS and cannot obtain — see the manifest
 header) — and slice S2 replaced the surface openDox
 does have with `views/intent-binding.js`. The suites test a surface that is
-not there. **§ 5.7 cannot say so**: `re_destined.to` is held to the closed
+not there. **TWO of the three end as RETIREMENTS here, and the third does
+not** (Copilot review, round twenty-seven): openXdox-code's
+`tests/test_staging_workbench.py` loses only the ENDING REPLAY inside it and
+the rest of that file goes on arriving and driving surfaces that leg HAS, so
+it takes an ordinary declared edit and no `retired:` block at all — "What the
+form CANNOT express" below is that case, and a retirement is a fact about a
+FILE's arrival. **§ 5.7 cannot say so**: `re_destined.to` is held to the closed
 `destinations:` keys, openxFactory is the SOURCE and not one of them, and
 `re_destined:` on a `not_moved` row refuses `carve-re-destined-not-moved`.
 Deleting the arrived file with NO form at all was the other option, and it is
