@@ -2488,13 +2488,13 @@ realization evidence, never on landing. Each line is its own evidence.
   AFTER run is bound the same way and for the same reason**: it names the
   archive pull request's OWN HEAD as a sha — or, once it exists, the resulting
   merge commit — so the pair is BASE→HEAD of one pull request and neither end
-  can be swapped for a convenient tree. (b) the
-  per-severity BEFORE and AFTER vectors, every family and every severity, `info`
-  included; and (c) a named reason for EVERY finding that entered or left,
-  diffed finding by finding rather than netted. A record that gives a total
-  without the vector, or a vector without the findings behind a moved count,
-  does not discharge this line. That is the form
-  the house already uses where it works — the archived
+  can be swapped for a convenient tree.
+  (b) the per-severity BEFORE and AFTER vectors, every family and every
+  severity, `info` included; and (c) a named reason for EVERY finding that
+  entered or left, diffed finding by finding rather than netted. A record that
+  gives a total without the vector, or a vector without the findings behind a
+  moved count, does not discharge this line. That is the form the house already
+  uses where it works — the archived
   `2026-08-25-add-projection-title-uniqueness` § 4.6 (`tasks.md`:315-328) reports
   *"before 5 critical, 5 error, 46 warning, 4 info and after 5 critical, 5 error,
   43 warning, 4 info"* and then names the three warnings that left and what
