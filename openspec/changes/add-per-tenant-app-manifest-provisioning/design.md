@@ -75,7 +75,11 @@ a sequence, which is the installer's.
 
 **The reading NOT taken:** waiting for Q2 before authoring. That would have left
 a ruled Q1 unexecuted on a question the delta does not ask, and the topic has
-already sat thirty-three days past its gate. What authorizes the authoring is
+already sat from 2026-08-15 to 2026-09-16 past its gate — stated as the two
+dates rather than as a day-count, because a count is a figure that goes stale the
+day after it is written, which is exactly what happened to the *"exit unraised
+twenty days on"* line another topic's fold note carries for this one
+(`ideation/staging/INDEX.md:2526-2527`, true when written and not now). What authorizes the authoring is
 the ruling's clause (E) directing it, not a finding by this author that Q2 is
 dispensable; the topic's gate is not amended here and the topic is not closed
 (`proposal.md`, the lifecycle paragraph).

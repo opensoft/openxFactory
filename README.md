@@ -536,7 +536,8 @@ Active changes:
   `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
   the staged topic `openxdox-install-app-provisioning`'s declared exit path and
   does NOT close that topic** (staged 2026-08-14, gate met 2026-08-15,
-  exit unraised for thirty-three days), on **RULING `5704187317`**
+  exit unraised from that day until this one — stated as dates rather than a
+  day-count, which stales), on **RULING `5704187317`**
   ([#656](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5704187317),
   2026-09-16, by interactive multi-choice, option (1) SPLIT AND NARROW,
   clause (E)), which takes that topic's OQ-1 **option (a)** — a MODIFIED

@@ -130,7 +130,11 @@ half is named here so it is a debt with an address rather than an assumption.
   reason the `code_surface:` head reads `none`.
 
 - [ ] 4.2 The staged fragment STAYS staged and its `ideation/staging/INDEX.md`
-  row records the exit (the fold into `opendox-two-layer-product` is recorded
+  row records the position, **and while that row is being written, correct the
+  stale figure beside it**: the `opendox-two-layer-product` fold note says this
+  topic's *"exit unraised twenty days on"* (`ideation/staging/INDEX.md:2526-2527`),
+  which was true when written around 2026-09-03 and is not now. This packet
+  publishes no competing day-count for that reason — it states the dates (the fold into `opendox-two-layer-product` is recorded
   there and deleting the folder would delete the fold's provenance).
 
 ## 5. Not this change's business, recorded so nobody re-derives it

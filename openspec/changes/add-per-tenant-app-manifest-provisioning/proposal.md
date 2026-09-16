@@ -9,7 +9,7 @@ Status: draft
 
 TAKES THE FIRST HALF of the declared exit path of
 `ideation/staging/openxdox-install-app-provisioning/` (staged 2026-08-14, gate
-met 2026-08-15, exit unraised for thirty-three days) and **does not close that
+met 2026-08-15, exit unraised from that day until this one) and **does not close that
 topic**, on **RULING `5704187317`** — `opensoft/openxFactory` issue #656,
 2026-09-16, by interactive multi-choice, option (1) SPLIT AND NARROW, clause (E).
 
