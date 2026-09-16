@@ -1334,9 +1334,9 @@ the bookkeeping that ticks this group.
   box to that accounting and tick it. No further carve."* The note above is left
   unedited as the record of what was registered; its closing "the box stays open"
   is superseded by this line and by the amendment to the box's own second
-  sentence. **The accounting was re-derived at TODAY's heads before the tick, not
-  carried forward from that note** — each tree named with the head it was read
-  at, because two of the three have moved since:
+  sentence. **The accounting was re-derived before the tick, not carried forward
+  from that note** — each tree named with the head it was READ at, because two of
+  the three had moved since that note was written:
   — `openXdox-code` `main` **`c1ad341a`**: **13** live `doc_health` import sites
   across **8** modules under `src/openxdox/` — the **twelve** inventoried
   (`completeness` 1, `corpus_root` 1, `gate_console` 4, `gate_routes` 1,
@@ -1354,6 +1354,21 @@ the bookkeeping that ticks this group.
   DQ-1 to stay) and `serve_openxfactory_lanes.py`:178 and :277 (openxFactory's
   own lane adapter, never inventoried among the 23). Ten files survive under
   `scripts/ideation_dashboard/` there, nine `.py` and `web/views/intent-feed.js`.
+  **RE-READ AT THE THREE NEWEST HEADS, AND NOT ONE FIGURE MOVES.** The trees moved
+  again while this amendment was open — the S8 legs landed and this branch merged
+  the base that records them — so each reading was taken a SECOND time at the heads
+  § 3.4's own re-run names: `openXdox-code` **`0a0265f7`**, the same **13** sites
+  in the same **8** modules, line for line; `openDox-code` **`0b4e8bbf`**, the same
+  **5** — `serve.py`:713 and `workbench.py`:746, :1407, :1408, :1409;
+  `openxFactory` **`a499061e`** and again at `main` **`d5dd1ca5`**, the same **3**
+  (`doxbench_status_exemption.py`:63, `serve_openxfactory_lanes.py`:178 and :277)
+  and the same ten files (nine `.py`) under `scripts/ideation_dashboard/`. The
+  older three heads are kept beside the newer because that is where each number
+  was FIRST read, which is this packet's own discipline.
+  *(A Copilot finding on this amendment's own pull request, round 10, and it
+  arrived through the base merge: § 3.4's block above this one names the newer
+  heads while this one named the older, which reads as stale evidence even where
+  every count agrees. It does agree — measured, not assumed.)*
   12 + 5 + 1 + 5 = **23**, `design.md` § D3's inventory exactly. **No further
   carve can move any of them**, which is the ruling's own finding: the five
   DISCHARGED stopped being imports at the § 2 seam before the carve ran, and the
@@ -2196,7 +2211,11 @@ movements claimed at the time they land.
   **The test the requirement states, and what the five registered domain trees
   actually hold** — codexFactory first, because it is the one R-3 reasoned from,
   then all five. The promoted requirement *A descendant is created on its first profile, not before*
-  (`openspec/specs/domain-descendant-boundary/spec.md`:128-137) keys on **an
+  (the **PROMOTED** `openspec/specs/domain-descendant-boundary/spec.md`:128-137
+  — this packet's own MODIFIED delta carries the same requirement at
+  `openspec/changes/split-opendox-two-layer-product/specs/domain-descendant-boundary/spec.md`:75-102,
+  which is why two different line ranges for one requirement appear in this box;
+  both are cited by path, and neither is stale) keys on **an
   artifact of the product's PROFILE KIND**, not on the word "dashboard". For a
   `<Domainx>Dox` the profile kind is what § 7.3 names — ONE domain-mapping
   declaration, five axes, per `domain-mapping-declaration` — and, under this
@@ -2289,7 +2308,18 @@ movements claimed at the time they land.
   '*.yml'` — DOUBLE-quoted, because the pattern contains a single quote and a
   single-quoted shell string cannot hold one; this is the form that was run,
   verbatim, and it is written that way so a reader can paste it), each record in
-  it then read for an instance of a dox product. The
+  it then read for an instance of a dox product.
+  **THAT PATTERN TOLERATES INDENTATION, SO IT IS WIDER THAN "top-level" AND BOTH
+  POPULATIONS ARE GIVEN** (a Copilot finding on this amendment's own pull request,
+  round 10). Anchored strictly at column one — `^kind:` — the five populations read
+  **9 / 8 / 142 / 7 / 117** instead of 9 / 8 / 142 / 7 / 124. **Four of the five
+  are identical and the seven that drop are all OpsxFactory TEST FIXTURES** under
+  `tests/fixtures/business-central-administration/` (six `negative/` adjudication
+  and consent cases, one `positive/`), where the `kind:` sits nested inside a
+  case. **Not one of the seven mentions dox**, so the `dox` column is **8** and the
+  descendant column **0** under either anchoring, and the verdict does not depend
+  on the choice. The wider pattern is the one reported above because a record
+  whose `kind:` is nested is still a committed record. The
   pathspec is stated because the count is sensitive to it in exactly one place
   and the verdict is not: dropping it adds ONE codexFactory file —
   `openspec/changes/add-software-team-execution-lane/supporting-docs/01-tenant-and-approved-intent.md`,
@@ -2370,7 +2400,9 @@ movements claimed at the time they land.
   `opsx_client_infrastructure_execution_case` and `opsx_client`, neither of them
   an artifact of the dox product's profile kind — and the requirement's own
   second scenario settles it: *"the descendant is created AND THAT ARTIFACT
-  RELOCATES INTO IT"* (`domain-descendant-boundary`:139-141). An intake case
+  RELOCATES INTO IT"* (PROMOTED
+  `openspec/specs/domain-descendant-boundary/spec.md`:139-141; the delta's
+  counterpart scenario is its :107-109). An intake case
   whose `request_ref_file` points at
   `installs/hermes-install/config/clients/opensoft/requests/` does not relocate
   into an `OpsxDox` repository; it belongs to OpsxFactory's own intake ledger.
@@ -2391,7 +2423,13 @@ movements claimed at the time they land.
   declaration"* (`specs/domain-descendant-boundary/spec.md`:82-89). Scenario 2
   says it from the other side — the artifact *"RELOCATES INTO"* the descendant
   (:107-109) — and `design.md`:741-743 names what the clause was written to
-  reconcile, *"Q3's commissioned descendants"*. **On the body's reading nothing
+  reconcile, *"Q3's commissioned descendants"*. **And this packet's `proposal.md`
+  says the same thing in the line that ANNOUNCES the clause**: the requirement
+  *"grows the DEPLOYMENT-UNIT clause (a committed tenant install IS a profile
+  artifact, which reconciles RULING Q3 with the laziness rule the standard already
+  carries)"* (`proposal.md`:297-300) — RULING Q3 being the ruling whose content is
+  *one descendant instance and one database per tenant*, which is what the body
+  spells out. **On the body's reading nothing
   triggers here**: those records declare no descendant instance and no
   descendant database, and nothing in them can relocate into an `OpsxDox` that
   does not exist. **On scenario 4's stand-alone reading something does**, and
@@ -2488,7 +2526,8 @@ movements claimed at the time they land.
   REPORT ITSELF, which is posted before the box moves rather than asserted in
   it** — `#656` comment **`5690553188`**, written against the PROMOTED
   requirement *A descendant is created on its first profile, not before*
-  (`openspec/specs/domain-descendant-boundary/spec.md`:128-145) and in
+  (the **PROMOTED** `openspec/specs/domain-descendant-boundary/spec.md`:128-145,
+  not this packet's delta, whose counterpart runs :75-122) and in
   particular its scenario **An empty descendant exists** (:143-145). What the
   report finds, measured rather than asserted: the `opensoft` organization
   carries exactly SIX `*Dox*` repositories, the product's own
