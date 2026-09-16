@@ -3,8 +3,32 @@
 **Subject:** openxFactory issue #1053, the `add-declared-former-id` § 6.1 successor.
 **Tree measured:** `opensoft/openxFactory` at `b1df95ee80633339907c9e661164a783885a5d30`
 (= `origin/main` at 2026-09-16T14:2xZ), in a dedicated clone, working tree clean, nothing committed.
-**Instrument:** `measure.py` beside this file, run as
+**Instrument:** `measure.py`, run as
 `python3 measure.py <clone> --json measurement-b1df95ee.json --classification classification-b1df95ee.json`.
+**THE INSTRUMENT IS NOT COMMITTED AND IS NOT IN THIS PULL REQUEST.** It sat
+beside this file in the writer's own attachments directory, which is where that
+line was written and where it was true; only this READING was vendored into the
+packet. The instrument, its run record and the two JSON dumps stand uncommitted
+in the repository `opensoft/brett-wip` at
+`handoffs/xFactory/attachments/openxfactory-1-2026-09-13/1053/`.
+**WHAT A CLEAN CHECKOUT CAN AND CANNOT REPRODUCE WITHOUT IT, STATED PLAINLY
+RATHER THAN IMPLIED.** Three different answers, and they are worth keeping
+apart. (1) The OUTCOME COUNTS the packet's own `design.md` D0 states at
+`b1df95ee` — the file population, the distinct-token count and the five resolver
+outcomes — are reproducible from a recipe that is STATED rather than referenced,
+and have been reproduced TWICE by independent re-implementations that never read
+this instrument: the packet's adversarial verifier, and the bench round's
+`recount.py`. (2) The readings THIS file adds on top of those — the
+`issue-native` normalization of § 1.2 and the automated cross-repository
+set-aside of § 1.3, which are what separate 78 from 81 from 86 and 57 from 78 —
+are reproducible from the rules those two sections state, and those sections are
+in this committed file rather than only in the instrument. (3) The
+CLASSIFICATION in § 5 is a HAND READ, and NO instrument reproduces it — by
+design rather than by omission, because `design.md` D4's whole recommendation is
+that *never-existed* versus *synthetic*, *self-referential* and the two
+file-half repair classes are questions about INTENT that nothing in the tree
+answers. What § 5 offers in place of re-execution is an evidence line per token,
+quoted at `path:line`, which is what a reader checks a judgment with.
 **Control:** the same instrument at `8944758c`, the revision #1053 itself measured.
 **Lane:** openxfactory-1 (openXfactory-1), writer `measure-1053`, session 393ade52.
 
@@ -296,7 +320,10 @@ bound the issue could state.
 Machine-readable, with `path:line` for every occurrence and the resolver's own
 `report` sentence, in `measurement-b1df95ee.json`
 (`tokens[].classification` / `.classification_evidence`); the classification
-map alone is `classification-b1df95ee.json`. In brief:
+map alone is `classification-b1df95ee.json`. **NEITHER JSON IS COMMITTED** —
+both stand with the instrument in `opensoft/brett-wip` at the path the header
+names, which is why the enumeration below is given in full here rather than
+cited to a file this pull request does not carry. In brief:
 
 **cross-repository, missed by the automated adjacency check (14)** — the check
 only reads a qualifier IMMEDIATELY adjacent on the same line:

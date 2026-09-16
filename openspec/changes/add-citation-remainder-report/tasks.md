@@ -162,8 +162,16 @@ OPEN.**
       stale draft 2 — so #1053's two unclassified tokens are resolved and its
       "≥10" cross-repository lower bound becomes a complete enumeration. The
       run record, the instrument `measure.py`, the 1.5 MB per-token JSON and the
-      classification JSON are NOT committed and are cited by their path in this
-      lane's handoff attachments: a packet needs the reading, not the dump.
+      classification JSON are NOT committed and are cited by repository and
+      repo-relative path (`opensoft/brett-wip`,
+      `handoffs/xFactory/attachments/openxfactory-1-2026-09-13/1053/`): a packet
+      needs the reading, not the dump. **AND WHAT A CLEAN CHECKOUT REPRODUCES
+      WITHOUT THE INSTRUMENT IS STATED IN THE EVIDENCE'S OWN HEADER RATHER THAN
+      LEFT TO BE ASSUMED** — D0's outcome counts, twice, by independent
+      re-implementations of the stated recipe; the § 1.2 and § 1.3 readings, from
+      rules those committed sections state; and the § 5 CLASSIFICATION not at
+      all, because it is a hand read of INTENT and D4's whole recommendation is
+      that no machine may assert it.
 
 ### What is held for Brett Heap's word — SEVEN DECISIONS, EACH VETOABLE ALONE
 

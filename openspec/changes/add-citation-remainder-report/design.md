@@ -927,6 +927,41 @@ register does not move. The verification record is `1053/head-verify.md` in
 this lane's handoff attachments; the shape is the one the shape twin
 `gate-code-surface-declarations` already uses for its own declaration.
 
+**AND ONE THING FENCE 1 DOES NOT FORBID BUT THIS PACKET STILL DECLINES: VENDORING
+THE MEASUREMENT INSTRUMENT.** `evidence/measurement-b1df95ee.md` is committed and
+its 862-line instrument `measure.py` is not, which a reviewer reasonably reads as
+a reproducibility gap (PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jCby5`). Putting
+the instrument in `evidence/` would breach no fence above — a file under
+`openspec/changes/…/evidence/` is a PACKET ARTEFACT and not a member of
+`scripts/`, so no validator arm, no gate import and no `scripts/` surface moves —
+and the option is nonetheless declined on two measured costs:
+
+1. **IT WOULD RAISE THE NUMBER THIS PACKET REPORTS.** `measure.py` carries five
+   `openspec/changes/…` tokens; measured against this branch's token set, TWO are
+   new, and one of them — the UNSLASHED spelling of the same `foo` docstring
+   example this branch already carries with a trailing slash — resolves
+   `DANGLING`(identity-half). Committing the instrument is **+1 remainder**, a
+   second instance of D5's own mechanism taken for no additional reading. The
+   packet would be manufacturing remainder in order to document remainder.
+   *(That spelling is described rather than written out, deliberately: writing it
+   here would mint the very token this sentence is about, which is D3(a)'s lesson
+   and not a hypothetical — D0(iv) records the branch doing exactly that once
+   already.)*
+2. **IT WOULD MOVE THE `code_surface:` DECLARATION**, which is the one
+   front-matter value in this packet that was RUN against a live reader rather
+   than reasoned about (the probes above). `.openspec.yaml` says this pull request
+   "adds no script, no workflow and no test" and the declaration's gloss says
+   "THIS pull request carries the PACKET ONLY"; both would have to change, and the
+   changed head would owe a fresh probe against PR #1029's
+   `scripts/validate-code-surface.py`. That is a scope move, and a bench round is
+   not where a scope moves.
+
+*What is done instead:* the evidence's header now states where the instrument
+stands (`opensoft/brett-wip`, repo-relative path), and separates what a clean
+checkout reproduces without it — D0's outcome counts, reproduced twice by
+independent re-implementations — from what no instrument reproduces, which is the
+§ 5 hand read of INTENT that D4 exists to keep out of a machine's hands.
+
 *OPTION 2 — leave the fences to the realization's own judgment.* Cost: the
 realization is a later pull request on a later word, possibly by a different
 hand; a fence written after the fact is a post-mortem.
