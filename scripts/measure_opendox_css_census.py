@@ -369,7 +369,15 @@ def selector_class_tokens(selector: str) -> set[str]:
     class, and reading one as a class can make a rule with no class selector at
     all look gate-exclusive.
     """
-    text = re.sub(r"\[[^\]]*\]", " ", selector)
+    # AN ATTRIBUTE IS PART OF THE COMPOUND, so removing it must leave NO GAP
+    # (Copilot review of openxFactory #1068, round 12). Blanking it to a SPACE
+    # turned `div[data-state="x"].gatebar` into `div .gatebar`, where the dot
+    # follows whitespace and reads as the start of a compound — so a selector
+    # the element-qualified rule refuses as `div.gatebar` was accepted with an
+    # attribute in the middle, and on the gate side that MOVES a rule. Removed
+    # outright, the two spell the same thing. A DESCENDANT attribute selector
+    # keeps its gap either way, because the space sits outside the brackets.
+    text = re.sub(r"\[[^\]]*\]", "", selector)
     out: set[str] = set()
     i, n, prev_was_class = 0, len(text), False
     while i < n:
@@ -763,6 +771,32 @@ def _selector_branches(selector: str) -> list[str]:
     return [part.strip() for part in out if part.strip()]
 
 
+def _outside_pseudo_functions(selector: str) -> str:
+    """`selector` with every `:pseudo(…)` argument removed, nesting included.
+
+    What is left is what the branch SELECTS ON at the top level. A class inside
+    `:not(…)`, `:is(…)` or `:where(…)` is a condition on the match, not the
+    hook the rule is anchored by, and the two must not be confused where the
+    answer decides whether a block leaves the bundle.
+    """
+    out, i, n = [], 0, len(selector)
+    while i < n:
+        m = re.match(r"::?[A-Za-z-]+\(", selector[i:])
+        if m:
+            depth, j = 1, i + m.end()
+            while j < n and depth:
+                if selector[j] == "(":
+                    depth += 1
+                elif selector[j] == ")":
+                    depth -= 1
+                j += 1
+            i = j
+            continue
+        out.append(selector[i])
+        i += 1
+    return "".join(out)
+
+
 def selector_tokens(selector: str) -> dict:
     """What a selector list is MADE of — the census's whole discrimination.
 
@@ -944,9 +978,14 @@ def main() -> int:
         # leg. A branch with no class of its own (`button`, `:root`,
         # `[hidden]`) styles something this census cannot attribute, so the
         # block stays.
-        branches = [selector_tokens(part)
-                    for part in _selector_branches(b["selector"])]
-        anchored = bool(branches) and all(part["classes"] for part in branches)
+        # AND THE ANCHOR MUST BE A TOP-LEVEL CLASS (Copilot review, round 12):
+        # `:not(.gatebar)` carries a class token but applies to nearly every
+        # element, so counting it as the branch's anchor let a rule that styles
+        # the whole page leave on the strength of what it EXCLUDES.
+        branches = _selector_branches(b["selector"])
+        anchored = bool(branches) and all(
+            selector_tokens(_outside_pseudo_functions(part))["classes"]
+            for part in branches)
         if kinds == {"gate_exclusive"} and not t["ids"] and anchored:
             return "exclusive"
         if "gate_exclusive" in kinds or "shared" in kinds:

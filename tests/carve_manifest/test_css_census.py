@@ -455,6 +455,42 @@ def test_a_class_equals_inside_another_attribute_is_that_attributes(
     assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
 
 
+def test_an_attribute_in_the_middle_does_not_open_a_compound() -> None:
+    """`div[data-state="x"].gatebar` IS `div.gatebar` (Copilot review, round
+    12). Blanking the attribute to a SPACE made the dot follow whitespace, so
+    a selector the element-qualified rule refuses was accepted with an
+    attribute in the middle — and on the gate side that MOVES a rule."""
+    assert CENSUS.selector_class_tokens('div[data-state="x"].gatebar') == set()
+    assert CENSUS.selector_class_tokens('.foo[hidden].bar') == {"foo", "bar"}
+    # a DESCENDANT attribute selector keeps its gap: the space is outside it
+    assert CENSUS.selector_class_tokens('[data-state="x"] .gatebar') \
+        == {"gatebar"}
+    assert CENSUS.narrow_refs(
+        'root.querySelector(\'div[data-state="x"].gatebar\');\n', ".js") == set()
+
+
+def test_a_class_inside_a_pseudo_function_does_not_anchor_a_branch(
+        tmp_path: Path) -> None:
+    """`:not(.gatebar) { … }` STAYS (Copilot review, round 12). The class is a
+    CONDITION on the match, not the hook the rule is anchored by — the rule
+    styles nearly every element on the page."""
+    assert CENSUS._outside_pseudo_functions(":not(.gatebar)").strip() == ""
+    assert CENSUS._outside_pseudo_functions(".gatebar:not(.is-live)") \
+        == ".gatebar"
+    assert CENSUS._outside_pseudo_functions(":is(:not(.a)).gatebar") \
+        == ".gatebar"
+    dox, xdox = _tree(
+        tmp_path,
+        styles=(":not(.gatebar) { color: red; }\n"
+                ".gatebar:not(.is-live) { color: blue; }\n"),
+        own={},
+        gate={"gate.js": 'root.querySelectorAll(":not(.gatebar)");\n'
+                         'root.querySelector(".gatebar:not(.is-live)");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert [b["selector"] for b in report["exclusive_blocks"]] \
+        == [".gatebar:not(.is-live)"]
+
+
 def test_a_selector_list_with_a_classless_branch_never_leaves(
         tmp_path: Path) -> None:
     """`.gatebar, button { … }` STAYS (Copilot review, round 11).
