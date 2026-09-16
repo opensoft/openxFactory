@@ -44,6 +44,16 @@ import re
 import sys
 from pathlib import Path
 
+# ONE DEFINITION OF A LINE, the floor's (RULED Q-L8 (c), `scripts/carve_lines.py`).
+# This census reports a line COUNT and a line EXTENT per block, and the
+# manifest's `web/styles.css` row cites both — so they have to be numbered in
+# the definition `validate-carve-manifest.py` bounds declared lines against and
+# `verify-carve-arrival.py` checks them at the destination. `sys.path` rather
+# than a package import because `scripts/` is a directory of programs, and this
+# one is also loaded by file location from `tests/carve_manifest/`.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import carve_lines  # noqa: E402
+
 # --------------------------------------------------------------------------
 # openDox-code tests/test_web_boundary.py's span walk, behaviour-for-behaviour.
 #
@@ -248,6 +258,37 @@ def _bare_literal_is_class_bearing(text: str, start: int) -> bool:
 #:           `gate-projects.js`) and `lens` (from `"gate.lens: …"`, a view id)
 #:           stop being counted shared, which is the finding biting.
 _SELECTOR_SHAPED = re.compile(r"^[A-Za-z0-9_\-.#>+~*:\[\]=\"',()\s]+$")
+
+#: AND SHAPE ALONE IS NOT SELECTORHOOD (Copilot review of openxFactory #1068,
+#: round 7). `showError("see .gatebar")` is on the selector alphabet from end
+#: to end — letters, a space and a dot — so the shape test passed it and
+#: `.gatebar` was read as a selector: an ordinary message in a contributed
+#: module could MOVE an openDox rule, which is the one error the gate side of
+#: this census is built to refuse.
+#:
+#: THE MISSING CONDITION is the one a selector satisfies by construction and
+#: prose does not: a bare word in a selector can only be a TYPE SELECTOR, and
+#: a type selector is an ELEMENT NAME. `see`, `expected` and `commission` are
+#: not element names; `div`, `h2` and `button` are, so `h2 .gate-title` and
+#: `button.gatebar` are read exactly as before (the latter still naming
+#: nothing, by the element-qualified rule). Anything led by `.`, `#`, `[`,
+#: `*`, `:` or a combinator is selector text on its face and is not asked.
+#:
+#: MEASURED at openDox-code `0b4e8bbf` / openXdox-code `0a0265f7`: the census
+#: is UNCHANGED — 54 gate-exclusive classes, 18 shared, 59 exclusive blocks,
+#: 89 lines, 10 reading a token — so nothing this tool reports today rests on
+#: a dotted sentence. The rule is narrowed anyway, because "no message in this
+#: tree happens to carry a dotted word" is not a guarantee about the next one.
+_HTML_ELEMENTS = frozenset("""
+a abbr address area article aside audio b base bdi bdo blockquote body br
+button canvas caption cite code col colgroup data datalist dd del details dfn
+dialog div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4
+h5 h6 head header hgroup hr html i iframe img input ins kbd label legend li
+link main map mark menu meta meter nav noscript object ol optgroup option
+output p picture pre progress q rp rt ruby s samp script search section select
+slot small source span strong style sub summary sup table tbody td template
+textarea tfoot th thead time title tr track u ul var video wbr
+""".split())
 _IDENT = re.compile(r"[A-Za-z0-9_-]+")
 _CLASS_NAME = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*")
 
@@ -285,12 +326,77 @@ def selector_class_tokens(selector: str) -> set[str]:
             prev_was_class = False
             i = name.end() if name else i + 1
             continue
+        if ch == ":":
+            # A PSEUDO-CLASS DOES NOT BREAK A COMPOUND (Copilot review of
+            # openxFactory #1068, round 7). `hover` in `.foo:hover.bar` was
+            # consumed as an ordinary identifier run, which cleared the bit
+            # saying the run before `.bar` began with a dot — so `bar` was
+            # lost, the gate module using that selector was under-read, and
+            # its block stayed behind as mixed.
+            #
+            # It does not MAKE a compound either: `prev_was_class` is carried
+            # ACROSS the pseudo unchanged, so `div:hover.foo` stays
+            # element-qualified and still names nothing, exactly as `div.foo`
+            # does. `:not(.bar)`'s own argument is reached by the ordinary
+            # walk, because `(` is not an identifier character.
+            j = i + 2 if text[i:i + 2] == "::" else i + 1
+            name = _IDENT.match(text, j)
+            i = name.end() if name else j
+            continue
         run = _IDENT.match(text, i)
         if run:
             prev_was_class = False
             i = run.end()
             continue
         i += 1
+    return out
+
+
+def is_selector_text(s: str) -> bool:
+    """True where `s` could only be selector text — see `_HTML_ELEMENTS`.
+
+    Every whitespace- or combinator-separated piece that BEGINS with a bare
+    word must begin with an element name. A piece led by `.`, `#`, `[`, `*`,
+    `:` or nothing at all is selector text on its face.
+    """
+    for piece in re.split(r"[\s,>+~]+", s):
+        head = re.match(r"[A-Za-z][A-Za-z0-9-]*", piece)
+        if head and head.group(0).lower() not in _HTML_ELEMENTS:
+            return False
+    return True
+
+
+_TAG_OPEN = re.compile(r"<[A-Za-z][A-Za-z0-9-]*")
+
+
+def markup_class_runs(s: str, group: str) -> list[str]:
+    """The `class="…"` runs of `s` THAT SIT INSIDE AN HTML TAG.
+
+    `class=` ANYWHERE IN A STRING IS NOT MARKUP (Copilot review of
+    openxFactory #1068, round 7, thread `PRRT_kwDOTAvnrs6jCcPV`). The scans
+    below read a `class="…"` run as class-bearing by construction, which is
+    true of a template that writes markup and false of a message that talks
+    about one: `const message = 'expected class="dispose-"'` registered
+    `dispose-` as a concatenation PREFIX, and on the gate's narrow prefix
+    table a prefix claims every declared class beginning with it — 20-odd
+    `dispose-*` rules, moved by a sentence.
+
+    The condition is the markup itself: an unclosed `<tag` must open before
+    the `class`, with no `>` between them, which is exactly where an attribute
+    can sit. A literal whose opening tag is in a DIFFERENT literal (markup
+    concatenated in pieces) is read as prose — under-reading the gate side,
+    which KEEPS a rule, the direction this tool errs in on purpose.
+
+    MEASURED at openDox-code `0b4e8bbf` / openXdox-code `0a0265f7`: the census
+    is UNCHANGED — 54 / 18 / 59 blocks / 89 lines — because every `class=` in
+    these six modules and this bundle is written inside its own tag.
+    """
+    out: list[str] = []
+    for m in re.finditer(rf'class\s*=\s*"?({group})', s):
+        lt = s.rfind("<", 0, m.start())
+        if lt < 0 or not _TAG_OPEN.match(s, lt) or ">" in s[lt:m.start()]:
+            continue
+        out.append(m.group(1))
     return out
 
 
@@ -327,9 +433,12 @@ def prefix_refs(text: str, suffix: str, *,
             out.add(m.group(1))
 
     for s, start in spans:
-        # A `class="…"` run inside the literal is class-bearing either way.
-        for m in re.finditer(r'class\s*=\s*"?([A-Za-z0-9_ -]*(?:\$\{)?)', s):
-            for piece in m.group(1).split():
+        # A `class="…"` run INSIDE A TAG is class-bearing either way; one in
+        # ordinary prose is prose — see `markup_class_runs`. (An `index.html`
+        # span is an attribute VALUE already, so it carries no `class=` of its
+        # own and this loop is the JavaScript side's.)
+        for run in markup_class_runs(s, r"[A-Za-z0-9_ -]*(?:\$\{)?"):
+            for piece in run.split():
                 register(piece)
         parts = s.split()
         if class_bearing_only and suffix == ".js" and not (
@@ -354,13 +463,18 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
                   re.finditer(r"class\s*=\s*'([^']*)'", text)]
     for s, start in spans:
         # A SELECTOR STRING is class-bearing wherever it sits — but it has to
-        # BE a selector: shape and position both, see `_SELECTOR_SHAPED`.
+        # BE a selector: SHAPE (`_SELECTOR_SHAPED`), a bare word only where an
+        # element name can stand (`is_selector_text`), and the dot's own
+        # position (`selector_class_tokens`). All three, or a sentence with a
+        # dotted word in it moves an openDox rule.
         stripped = s.strip()
-        if stripped and _SELECTOR_SHAPED.match(stripped):
+        if stripped and _SELECTOR_SHAPED.match(stripped) \
+                and is_selector_text(stripped):
             out.update(selector_class_tokens(stripped))
-        # A `class="…"` inside a template is class-bearing by construction.
-        for m in re.finditer(r'class\s*=\s*"?([A-Za-z0-9_ -]*)', s):
-            out.update(p for p in m.group(1).split() if _CLASSTOK.match(p))
+        # A `class="…"` INSIDE A TAG is class-bearing by construction; one in
+        # prose is prose (`markup_class_runs`).
+        for run in markup_class_runs(s, r"[A-Za-z0-9_ -]*"):
+            out.update(p for p in run.split() if _CLASSTOK.match(p))
         # A BARE class list only where a class is PASSED or ASSIGNED.
         parts = s.split()
         if not parts or not all(_CLASSTOK.match(p) for p in parts):
@@ -535,7 +649,10 @@ def main() -> int:
 
     web = dox / "src" / "opendox" / "web"
     css_path = web / "styles.css"
-    css = css_path.read_text(encoding="utf-8")
+    # The BYTES are what the floor counts lines in; the text is what the
+    # parser walks. Read once, so the two cannot be of different revisions.
+    css_bytes = css_path.read_bytes()
+    css = css_bytes.decode("utf-8")
 
     gate_dir = xdox / "src" / "openxdox" / "web" / "views"
     if "--gate-dir" in sys.argv:
@@ -670,7 +787,15 @@ def main() -> int:
         # up. The same blanking pass answers both.
         live = _blank_comments(b["body"])
         b["reads_st_token"] = bool(re.search(r"var\(\s*--st-", live))
-        b["declares_st_token"] = bool(re.search(r"^\s*--st-", live, re.M))
+        # A DECLARATION BOUNDARY, NOT A LINE START (Copilot review of
+        # openxFactory #1068, round 7): `^\s*--st-` saw only a token declared
+        # first on its line, and `.gatebar { color: red; --st-proposed: #123 }`
+        # is the same declaration written after another. The block was then
+        # extractable and the stable surface left with it — the exact failure
+        # the flag was added to stop, one comma away. A custom property can
+        # begin only at the start of the body or after a `;`, and `{` opens the
+        # body of a block whose braces this parser has already balanced.
+        b["declares_st_token"] = bool(re.search(r"(?:^|[;{])\s*--st-", live))
         # AND A BLOCK THAT DECLARES A TOKEN NEVER LEAVES — computed BEFORE the
         # classification that reads it (Copilot review, round 6: it used to be
         # computed after, and nothing consulted it, so `.gatebar { --st-x: red }`
@@ -695,13 +820,20 @@ def main() -> int:
 
     report = {
         "styles_css": {"path": "src/opendox/web/styles.css",
-                       # THE RECORD CONVENTION, not a newline tally (Copilot
-                       # review of openxFactory #1068, round 5): `line_of`
-                       # numbers a final line that carries no trailing
-                       # newline, and `count("\n")` does not, so the two
-                       # disagreed by one on a stylesheet without a trailing
-                       # newline. `splitlines()` is what `line_of` counts.
-                       "lines": len(css.splitlines()),
+                       # THE CARVE FLOOR'S LINE, and not this file's own
+                       # (Copilot review of openxFactory #1068, rounds 5 and
+                       # 7). Round 5's `splitlines()` fixed the real half —
+                       # `line_of` numbers a final line that carries no
+                       # trailing newline and `count("\n")` does not — but
+                       # `splitlines()` also breaks on U+2028, U+2029, `\v`,
+                       # `\f`, `\x85` and a lone `\r`, which `line_of` does
+                       # not, so a stylesheet carrying one of those would have
+                       # reported a total the block extents are not numbered
+                       # in. `carve_lines.count` IS `line_of`'s numbering
+                       # (`\n`-terminated records, `scripts/carve_lines.py`),
+                       # which is also the numbering the manifest declares
+                       # this file's 89 lines in.
+                       "lines": carve_lines.count(css_bytes),
                        "rule_blocks": len(rules),
                        "declared_class_tokens": len(declared)},
         "gate_modules": [p.name for p in gate_files],

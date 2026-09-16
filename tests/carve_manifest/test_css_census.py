@@ -229,6 +229,26 @@ def test_an_attribute_value_that_looks_like_a_selector_names_nothing() -> None:
         'root.querySelector(".gatebtn[hidden]");\n', ".js") == {"gatebtn"}
 
 
+def test_a_token_declared_after_another_declaration_still_keeps_its_block(
+        tmp_path: Path) -> None:
+    """A DECLARATION BOUNDARY, NOT A LINE START (Copilot review, round 7).
+
+    `^\\s*--st-` saw only a token declared first on its line, so
+    `.gatebar { color: red; --st-proposed: #123; }` was extractable and RULED
+    Q7's one stable styling surface left with it.
+    """
+    dox, xdox = _tree(
+        tmp_path,
+        styles=(".gatebar { color: red; --st-proposed: #123; }\n"
+                ".gatebtn { color: blue; }\n"),
+        own={},
+        gate={"gate.js": 'el("div", "gatebar"); el("button", "gatebtn");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
+    assert [b["selector"] for b in report["blocks_kept_for_declaring_a_token"]] \
+        == [".gatebar"]
+
+
 def test_a_block_that_declares_a_design_token_never_leaves(
         tmp_path: Path) -> None:
     """RULED Q7 makes the `--st-*` family openDox's ONE stable styling surface,
@@ -348,6 +368,84 @@ def test_the_reported_line_count_is_the_one_the_extents_are_numbered_in(
     report = _run(dox, xdox, tmp_path / "out.json")
     assert report["styles_css"]["lines"] == 1
     assert report["exclusive_blocks"][0]["end"] == 1
+
+
+def test_the_line_count_is_the_carve_floors_and_not_pythons(
+        tmp_path: Path) -> None:
+    """AND IT IS THE FLOOR'S DEFINITION (Copilot review, round 7).
+
+    `line_of` counts `\n`s; `splitlines()` also breaks on U+2028, U+2029,
+    `\v`, `\f`, `\x85` and a lone `\r`. A stylesheet carrying one would have
+    reported a total the block extents are not numbered in — and the manifest
+    declares this file's lines in the floor's numbering
+    (`scripts/carve_lines.py`, RULED Q-L8 (c)), which is the one the arrival
+    verifier checks them against at the destination.
+    """
+    styles = (".gatebar { color: red; }\n"
+              "/* a separator \u2028 inside a comment */\n"
+              ".gatebtn { color: blue; }\n")
+    assert len(styles.splitlines()) == 4          # Python's opinion
+    dox, xdox = _tree(tmp_path, styles=styles, own={},
+                      gate={"gate.js": 'el("div", "gatebar");\n'
+                                       'el("button", "gatebtn");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert report["styles_css"]["lines"] == 3     # the floor's, and `line_of`'s
+    ends = {b["selector"]: b["end"] for b in report["exclusive_blocks"]}
+    assert ends == {".gatebar": 1, ".gatebtn": 3}
+
+
+def test_a_pseudo_class_does_not_break_a_compound_selector() -> None:
+    """`.foo:hover.bar` IS TWO CLASSES (Copilot review, round 7).
+
+    Consuming `hover` as an ordinary identifier run cleared the bit saying the
+    run before `.bar` began with a dot, so `bar` was lost and the gate module
+    using that selector was under-read.
+    """
+    assert CENSUS.selector_class_tokens(".foo:hover.bar") == {"foo", "bar"}
+    assert CENSUS.selector_class_tokens(".foo::before.bar") == {"foo", "bar"}
+    assert CENSUS.selector_class_tokens(".gatebar:not(.is-live).swb-ch") \
+        == {"gatebar", "is-live", "swb-ch"}
+    # and it does not MAKE a compound: element-qualified stays refused
+    assert CENSUS.selector_class_tokens("div:hover.foo") == set()
+    assert CENSUS.narrow_refs('root.querySelector(".gatebtn:focus.is-live");\n',
+                              ".js") == {"gatebtn", "is-live"}
+
+
+def test_a_dotted_word_in_a_sentence_is_not_a_selector() -> None:
+    """SHAPE IS NOT SELECTORHOOD (Copilot review, round 7).
+
+    `showError("see .gatebar")` is on the selector alphabet end to end, so the
+    shape test passed it and an ordinary message could MOVE an openDox rule. A
+    bare word in a selector can only be a TYPE selector, and a type selector is
+    an element name.
+    """
+    assert CENSUS.narrow_refs('showError("see .gatebar");\n', ".js") == set()
+    assert CENSUS.narrow_refs('log("commission .dispose-note now");\n',
+                              ".js") == set()
+    # a real selector led by a real element name is read exactly as before
+    assert CENSUS.narrow_refs('root.querySelector("h2 .gate-title");\n',
+                              ".js") == {"gate-title"}
+    assert CENSUS.is_selector_text("button.gatebar") is True
+    assert CENSUS.is_selector_text("see .gatebar") is False
+
+
+def test_a_class_equals_in_prose_is_not_markup() -> None:
+    """`class=` ANYWHERE IN A STRING IS NOT MARKUP (Copilot review, round 7,
+    thread `PRRT_kwDOTAvnrs6jCcPV`).
+
+    A message that TALKS about markup registered a concatenation prefix, and on
+    the gate's narrow prefix table a prefix claims every declared class
+    beginning with it — every `dispose-*` rule, moved by a sentence.
+    """
+    prose = 'const message = \'expected class="dispose-"\';\n'
+    assert CENSUS.prefix_refs(prose, ".js", class_bearing_only=True) == set()
+    assert CENSUS.narrow_refs('warn(\'write class="gatebar" here\');\n',
+                              ".js") == set()
+    # the markup itself still counts, prefix and token alike
+    markup = '`<i class="chip chip-${state}">`;\n'
+    assert CENSUS.prefix_refs(markup, ".js", class_bearing_only=True) == {"chip-"}
+    assert CENSUS.narrow_refs('`<div class="gatebar is-live">`;\n',
+                              ".js") == {"gatebar", "is-live"}
 
 
 def test_a_template_substitution_is_a_prefix_too() -> None:
