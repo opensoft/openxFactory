@@ -284,10 +284,30 @@ added, edited, renamed or deleted here.
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
-      adding no branch and asking no write permission. Under D5 option 2 it is
-      instead a date-partitioned commit-back on a lane-owned branch in the
-      derive-possibles shape, and D3(a)'s output-path exclusion becomes LIVE
-      rather than structural and MUST land in the same pull request.
+      adding no branch and asking no write permission. **AND THE STEP RUNS IN
+      THE AGGREGATION CHECKOUT, NOT IN THIS ONE, SO THE PATHS ARE NAMED HERE
+      RATHER THAN LEFT TO A DEFAULT.** That workflow is REUSABLE: the caller is
+      the xFactory aggregation repository's thin nightly, the checkout is the
+      AGGREGATION tree, and this repository is a SUBMODULE inside it. Every
+      existing step already spells it out and the new one spells it the same
+      way — `python3 openxFactory/scripts/<script>.py` from the aggregation
+      root (`doc-health-reusable.yml:582`, `:1045`, `:2233`, `:2498`, `:2875`,
+      `:3152` …), never a bare `scripts/…`. So the step is
+      `python3 openxFactory/scripts/report-citation-remainder.py openxFactory
+      --json <out>`: the SCRIPT path is submodule-qualified and the `REPO_ROOT`
+      POSITIONAL IS `openxFactory` — a default of `cwd` would scan the
+      aggregation tree, which is a different corpus with a different remainder
+      and would read as this repository's. (Contrast `doc-health.py --repo-root .`
+      at `:583`, which is multi-repo and MEANS the aggregation root; this report
+      is single-repo and does not.) **AND THE OUTPUT IS WRITTEN AT THE
+      AGGREGATION ROOT, OUTSIDE `openxFactory/`** — which is D3(a)'s output-path
+      fence holding STRUCTURALLY under the recommended option: a file that never
+      enters the scanned root cannot be read by the next night's run, whatever
+      the exclusion list says. Under D5 option 2 it is instead a
+      date-partitioned commit-back on a lane-owned branch in the
+      derive-possibles shape, the output moves INSIDE the scanned root, and
+      D3(a)'s output-path exclusion becomes LIVE rather than structural and MUST
+      land in the same pull request.
 - [ ] 2.3 **THE FIRST MEASUREMENT THE REPORT ITSELF PRODUCES, AS EVIDENCE.**
       § 1.9's `evidence/measurement-b1df95ee.md` is the HAND-INSTRUMENTED
       reading and it is already committed; what § 2.3 owes is the first reading
