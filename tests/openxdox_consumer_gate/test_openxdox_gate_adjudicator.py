@@ -272,6 +272,42 @@ def test_a_non_testsuite_child_is_not_summed(tmp_path: Path) -> None:
     assert f"selected={env['MIN_SELECTED']}" in done.stdout
 
 
+@pytest.mark.parametrize("placement", ("beside the counted suite",
+                                       "inside it, under a container"))
+def test_a_watched_case_outside_the_counted_suites_is_not_a_verdict(
+        tmp_path: Path, placement: str) -> None:
+    """The root hole in its second shape: floors from one child, verdict from another.
+
+    `test_an_unexpected_root_is_refused_rather_than_treated_as_a_container`
+    closed the SUM side by refusing a root this gate does not understand. The
+    VERDICT side stayed open one commit longer, because the walk was
+    `root.iter("testcase")` — the whole document, not the suites that supplied
+    the aggregate. A `<testsuites>` carrying one real `<testsuite>` and one
+    `<elsewhere>` therefore took its floors from the suite and its named
+    verdicts from cases the suite never ran. MEASURED against that body: both
+    documents below exited 0 under it, every floor met and every watched name
+    reported `passed`. The walk is now `suite.findall("testcase")` over the
+    counted suites, so both red — and nothing real is refused with them, since
+    pytest writes every case as a direct child of the one `<testsuite>` it
+    declares (1137 direct = 1137 in the whole tree; 105 likewise).
+    """
+    env = env_for(PIN_REPORT)
+    cases = "".join(f'<testcase classname="{c}" name="{n}"></testcase>'
+                    for c, n in watched(env))
+    opened = (f'<testsuite name="pytest" tests="{env["MIN_SELECTED"]}" '
+              f'skipped="{env["EXPECT_SKIPPED"]}" failures="0" errors="0">')
+    if placement.startswith("beside"):
+        inner = f"{opened}</testsuite><elsewhere>{cases}</elsewhere>"
+    else:
+        inner = f"{opened}<elsewhere>{cases}</elsewhere></testsuite>"
+    done = adjudicate(tmp_path, env, f"<testsuites>{inner}</testsuites>")
+    assert done.returncode != 0, done.stdout + done.stderr
+    assert "is 'absent'" in done.stdout
+    assert f"selected={env['MIN_SELECTED']}" in done.stdout, (
+        "the floors must still be MET on this document — otherwise the case "
+        "proves the sums, not the verdict scope")
+
+
 # --------------------------------------------------------------------------
 # the named verdicts — what a sum cannot see
 # --------------------------------------------------------------------------

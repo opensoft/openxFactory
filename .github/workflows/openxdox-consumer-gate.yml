@@ -393,15 +393,28 @@ jobs:
           def verdict(classname, name):
               wanted = (classname, name)
               seen = []
-              for case in root.iter("testcase"):
-                  if (case.get("classname"), case.get("name")) != wanted:
-                      continue
-                  outcome = "passed"
-                  for child in case:
-                      if child.tag in ("skipped", "failure", "error"):
-                          outcome = child.tag
-                          break
-                  seen.append(outcome)
+              # SCOPED TO THE COUNTED SUITES, and to their DIRECT
+              # `<testcase>` children. A verdict read from anywhere else in
+              # the document is the root hole again in a second shape:
+              # `<testsuites><testsuite tests="105" …/><elsewhere><testcase
+              # …/></elsewhere></testsuites>` takes every floor from the first
+              # child and every named verdict from the second, so the gate
+              # would pass having adjudicated a case that contributed nothing
+              # to anything it counted. MEASURED on this gate's own reports:
+              # pytest writes every case as a direct child of the single
+              # `<testsuite>` it declares (1137 direct = 1137 in the whole
+              # tree; 105 likewise), so nothing a real run produces is lost by
+              # refusing the rest.
+              for suite in suites:
+                  for case in suite.findall("testcase"):
+                      if (case.get("classname"), case.get("name")) != wanted:
+                          continue
+                      outcome = "passed"
+                      for child in case:
+                          if child.tag in ("skipped", "failure", "error"):
+                              outcome = child.tag
+                              break
+                      seen.append(outcome)
               if not seen:
                   return "absent"
               # Any non-passing occurrence wins: a case that passed once and
@@ -567,15 +580,28 @@ jobs:
           def verdict(classname, name):
               wanted = (classname, name)
               seen = []
-              for case in root.iter("testcase"):
-                  if (case.get("classname"), case.get("name")) != wanted:
-                      continue
-                  outcome = "passed"
-                  for child in case:
-                      if child.tag in ("skipped", "failure", "error"):
-                          outcome = child.tag
-                          break
-                  seen.append(outcome)
+              # SCOPED TO THE COUNTED SUITES, and to their DIRECT
+              # `<testcase>` children. A verdict read from anywhere else in
+              # the document is the root hole again in a second shape:
+              # `<testsuites><testsuite tests="105" …/><elsewhere><testcase
+              # …/></elsewhere></testsuites>` takes every floor from the first
+              # child and every named verdict from the second, so the gate
+              # would pass having adjudicated a case that contributed nothing
+              # to anything it counted. MEASURED on this gate's own reports:
+              # pytest writes every case as a direct child of the single
+              # `<testsuite>` it declares (1137 direct = 1137 in the whole
+              # tree; 105 likewise), so nothing a real run produces is lost by
+              # refusing the rest.
+              for suite in suites:
+                  for case in suite.findall("testcase"):
+                      if (case.get("classname"), case.get("name")) != wanted:
+                          continue
+                      outcome = "passed"
+                      for child in case:
+                          if child.tag in ("skipped", "failure", "error"):
+                              outcome = child.tag
+                              break
+                      seen.append(outcome)
               if not seen:
                   return "absent"
               # Any non-passing occurrence wins: a case that passed once and

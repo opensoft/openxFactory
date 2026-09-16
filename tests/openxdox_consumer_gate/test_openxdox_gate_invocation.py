@@ -619,16 +619,74 @@ def test_every_watched_name_resolves_to_a_test_that_exists() -> None:
 # the credential that is not here
 # --------------------------------------------------------------------------
 
+#: EVERY SPELLING OF A BEARER, not just `secrets.`: this gate SHIPPED the hole
+#: once. Its first push wrote `https://x-access-token:${{ github.token }}@
+#: github.com/` into the runner's global git config and then ran two pytest
+#: suites over pull-request-controlled code, and a `secrets.`-only guard was
+#: green through all of it — the automatic token is not a secret reference.
+BEARER_SPELLINGS = ("secrets.", "github.token", "GITHUB_TOKEN",
+                    "x-access-token", "ACTIONS_RUNTIME_TOKEN")
+
+
+def bearer_sites(text: str) -> list[str]:
+    """Every place in a workflow document where a bearer could reach a step.
+
+    TWO READINGS, because each is blind where the other sees.
+
+    The RAW one scans from `\njobs:` down, which catches a spelling arriving
+    by a route no schema names — a shell interpolation inside a `run:` body, a
+    line of `git config`, a comment that is really a re-enabling instruction —
+    and it starts at `jobs:` so that the header prose above may go on quoting
+    the hole this gate shipped without failing the guard that closed it.
+
+    That scoping is itself a hole, and this is the half that closes it: a
+    workflow-level `env:` block written ABOVE `jobs:` is inherited by every
+    step of every job while appearing in none of them. So the PARSED reading
+    walks the whole document — every key and every scalar of `on:`,
+    `permissions:`, `concurrency:`, a workflow-level `env:`, each job's `env:`,
+    each step's `with:` and `run:` — where comments do not exist at all and
+    position cannot hide anything.
+
+    Returns the sites, `[]` when the document is clean, so that a failure names
+    WHERE rather than only THAT.
+    """
+    sites: list[str] = []
+    raw = text[text.index("\njobs:"):]
+    sites.extend(f"the raw job body carries {s!r}"
+                 for s in BEARER_SPELLINGS if s in raw)
+
+    def walk(node: object, path: str) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                walk(str(key), f"{path}.{key}")
+                walk(value, f"{path}.{key}")
+        elif isinstance(node, list):
+            for index, value in enumerate(node):
+                walk(value, f"{path}[{index}]")
+        else:
+            sites.extend(f"{path} carries {s!r}"
+                         for s in BEARER_SPELLINGS if s in str(node))
+
+    walk(yaml.safe_load(text), "<workflow>")
+    return sites
+
+
 def test_the_gate_mints_no_credential_for_public_gitlinks(
         steps: list[dict]) -> None:
-    """All three gitlinks are public; `github.token` resolves them.
+    """All three gitlinks are public; no bearer of any spelling belongs here.
 
-    ASSERTED AT BOTH LEVELS, on the wallet suite's own reasoning: the parsed
-    form catches a mint step under any name, and the raw-text form catches a
-    secret arriving by some other route — an `env` guard, a `with` value, a
-    shell interpolation — which a step-shaped probe alone would miss. It is
-    CONSUMPTION that is forbidden and not the NAME, so `${{ secrets. }}` is the
-    only spelling asserted absent.
+    ASSERTED AT THREE LEVELS, on the wallet suite's own reasoning extended by
+    what this gate then got wrong. The step-shaped probe catches a mint under
+    any name. `bearer_sites` catches the two routes a step-shaped probe cannot
+    see: a spelling arriving as raw text inside the job body, and a spelling
+    arriving as a parsed value ANYWHERE in the document — including the
+    workflow-level `env:` block that sits above `jobs:` and reaches every step
+    without appearing in one.
+
+    The wallet suite asserts `${{ secrets. }}` alone absent, and that reading
+    is NOT inherited here: it is CONSUMPTION that is forbidden and not the
+    name, and `${{ github.token }}` is consumption that never passes through
+    `secrets.` — which is exactly the hole this gate's first push shipped.
     """
     mints = [s.get("name") or s.get("uses") for s in steps
              if "create-github-app-token" in str(s.get("uses", ""))]
@@ -637,22 +695,15 @@ def test_the_gate_mints_no_credential_for_public_gitlinks(
         f"If openDox or openXdox ever goes private, add the mint with its "
         f"reason rather than around this test")
 
-    # EVERY SPELLING OF A BEARER, not just `secrets.` — this gate SHIPPED the
-    # hole once. Its first push wrote `https://x-access-token:${{ github.token
-    # }}@github.com/` into the runner's global git config and then ran two
-    # pytest suites over pull-request-controlled code; `secrets.` alone was
-    # green through all of it, because the automatic token is not a secret
-    # reference. The reads here are public and need no bearer at all.
-    text = WORKFLOW.read_text(encoding="utf-8")
-    body = text[text.index("\njobs:"):]
-    for spelling in ("secrets.", "github.token", "GITHUB_TOKEN",
-                     "x-access-token", "ACTIONS_RUNTIME_TOKEN"):
-        assert spelling not in body, (
-            f"the gate's job body references {spelling!r}. Every gitlink it "
-            f"reads is PUBLIC, so it needs no bearer; putting one in the "
-            f"runner's environment or git config exposes it to the suites "
-            f"this gate then runs. If a leg ever goes private, add the "
-            f"credential WITH its reason rather than around this test")
+    # The reads here are public and need no bearer at all, in the job body or
+    # above it.
+    sites = bearer_sites(WORKFLOW.read_text(encoding="utf-8"))
+    assert sites == [], (
+        f"the gate references a bearer: {sites}. Every gitlink it reads is "
+        f"PUBLIC, so it needs no bearer; putting one in the runner's "
+        f"environment or git config exposes it to the suites this gate then "
+        f"runs over pull-request-controlled code. If a leg ever goes private, "
+        f"add the credential WITH its reason rather than around this test")
 
     # …and no checkout may take a token or leave one behind.
     for step in steps:
@@ -667,6 +718,31 @@ def test_the_gate_mints_no_credential_for_public_gitlinks(
                 "pull-request-controlled code")
 
 
+def test_the_credential_guard_sees_a_bearer_written_above_the_jobs_key() -> None:
+    """The guard's own blind spot, closed and PROVED BOTH WAYS on this document.
+
+    A raw scan that starts at `\njobs:` cannot see a workflow-level `env:`
+    block, and Actions hands that block to every step of every job: a later
+    edit could put `GITHUB_TOKEN: ${{ github.token }}` four lines above `jobs:`
+    and every step of this gate would run holding a bearer while the guard that
+    exists to refuse one stayed green. So the doctoring below is inserted ABOVE
+    the key, and the test asserts BOTH halves — that the raw window really is
+    clean of it (so the old reading would have passed this document) and that
+    `bearer_sites` names it anyway.
+    """
+    text = WORKFLOW.read_text(encoding="utf-8")
+    doctored = text.replace(
+        "\njobs:", '\nenv:\n  GITHUB_TOKEN: "${{ github.token }}"\njobs:', 1)
+    window = doctored[doctored.index("\njobs:"):]
+    assert not any(s in window for s in BEARER_SPELLINGS), (
+        "the doctored bearer must land ABOVE `jobs:`; inside the window the "
+        "raw reading already covers it and this case proves nothing")
+
+    sites = bearer_sites(doctored)
+    assert any(site.startswith("<workflow>.env") for site in sites), (
+        f"a workflow-level `env:` bearer went unseen; sites={sites}")
+    assert bearer_sites(text) == [], (
+        "the shipped document must be clean — this case doctors a copy")
 # --------------------------------------------------------------------------
 # the collision this suite shipped, pinned as a rule
 # --------------------------------------------------------------------------
