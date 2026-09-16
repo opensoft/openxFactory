@@ -1405,16 +1405,26 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
       2. the archived delta EXISTS — the relocation, not a deletion;
       3. the delta still parses through the family's own `parse_delta` and still
          carries every requirement it carried when it was active — the MODIFIED
-         block that held the `_LEDGER_SUBJECTS` row, and each ADDED title whose
-         non-promotion this closure recorded as deliberate.
+         block that held the `_LEDGER_SUBJECTS` row where there was one, and
+         each ADDED title whose non-promotion its closure recorded as
+         deliberate.
 
     (3) is the one that makes this more than bookkeeping. RULING Q6 re-homes the
     content; a closure that lost an ADDED requirement on the way into the
     archive would leave the receiving repository's copy as the only copy, and
-    nothing in this repository would ever say so. The four ADDED titles are
-    exactly the four `promotion_fidelity` reports as absent from canon at every
-    head after this closure, so the same four are load-bearing in two places and
-    a drift in either shows up here.
+    nothing in this repository would ever say so. **Each row's ADDED titles are
+    exactly the ones `promotion_fidelity` reports as absent from canon at every
+    head after that closure** — four for `add-doxchat-model-intake`, five for
+    `add-lens-document-selection` — so the same titles are load-bearing in two
+    places and a drift in either shows up here.
+
+    THE ROWS ARE NOT ALIKE, AND THE FOURTH FIELD IS WHERE THEY DIFFER.
+    `add-doxchat-model-intake` held a `_LEDGER_SUBJECTS` row through its MODIFIED
+    block, so its departure was at least IMPLIED by a row going missing;
+    `add-lens-document-selection` is ADDED-only, never held one, and its
+    departure was implied by nothing at all. A `None` there is asserted rather
+    than skipped — the archived delta must carry NO MODIFIED block, which is why
+    it held no row.
 
     NOT A COUNT. Each title is named; the population is bounded by the same
     named set rather than by its size.
