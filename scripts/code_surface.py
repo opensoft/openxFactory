@@ -288,9 +288,12 @@ def declaration_digest(text: str) -> str:
 #: `extend-prose-tagging-target-to-pinned-capabilities` archived, a CONFORMING
 #: carrier and not one of the eight, so nothing went stale); EIGHT at the
 #: SEVENTH, `79ac94b7`, whose line is the sixth's byte for byte and which moved
-#: no declaration at all; and EIGHT STILL at THE MAIN HEAD MERGED AT
-#: RE-MEASUREMENT, `3c614d34` — the EIGHTH, that same line a third time and
-#: again not one declaration moved.
+#: no declaration at all; EIGHT STILL at the EIGHTH, `3c614d34`, that same line
+#: a third time and again not one declaration moved; and EIGHT STILL at THE
+#: MAIN HEAD MERGED AT RE-MEASUREMENT, `b1df95ee` — the NINTH, the SECOND
+#: re-measurement at which the ACTIVE corpus SHRANK (46 active to 45, archive
+#: 168 to 169: `add-declared-former-id` archived, a CONFORMING carrier and not
+#: one of the eight, so nothing went stale).
 #: `encode-wallet-authority-rulings-r6-r12` landed between `54885296` and
 #: `bfa90db6` and declares a head the grammar cannot read, so it is disposed of
 #: AT THAT RE-MEASUREMENT on D3's ruled option — registered, not swept — and
@@ -304,9 +307,9 @@ def declaration_digest(text: str) -> str:
 #: what this comment names — and what `tasks.md` § 3's transcript names with it,
 #: in the same words — is THE MAIN HEAD MERGED AT RE-MEASUREMENT: a number that
 #: moves every time `main` does, and that is RE-MEASURED rather than assumed
-#: each time it moves. It has moved SIX times since the eighth entry and the
-#: population has not: the scenario fired once, and cost nothing the six times
-#: after.
+#: each time it moves. It has moved SEVEN times since the eighth entry and the
+#: population has not: the scenario fired once, and cost nothing the seven
+#: times after.
 #: NONE OF THE SEVEN MOVED AT ANY RE-MEASUREMENT: no registered packet archived
 #: and no registered declaration was edited between any two of these heads.
 CLOSED_REGISTER = (

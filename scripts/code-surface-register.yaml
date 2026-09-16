@@ -105,9 +105,9 @@ kind: code-surface-grammar-register
 # fourth nor the fifth re-measurement moved a declaration at all. BOTH of the
 # two CONFORM (each is one of the 35), and the
 # `M` is not one of the eight, so NO ENTRY IS STALE and NO ENTRY IS OWED. The scenario fired ONCE, at
-# the second re-measurement; it has cost nothing the SIX times since (the
-# sixth, seventh and eighth below included), which is the shape it is supposed
-# to have when the corpus moves without a divergence in it.
+# the second re-measurement; it has cost nothing the SEVEN times since (the
+# sixth, seventh, eighth and ninth below included), which is the shape it is
+# supposed to have when the corpus moves without a divergence in it.
 #
 # SIXTH re-measurement, at `origin/main` `8944758c` — THE MAIN HEAD MERGED AT
 # THAT RE-MEASUREMENT (merged at `d4c5a7f9`, measured at `e3a4c051`): 46 active proposals, 46 declaring, 4 `none`, 34 a repository
@@ -132,13 +132,26 @@ kind: code-surface-grammar-register
 # STALE and the population is unmoved at EIGHT.
 #
 # EIGHTH re-measurement, at `origin/main` `3c614d34` — THE MAIN HEAD MERGED AT
-# RE-MEASUREMENT as this file stands (merged at `76492170`), taken WITH the
-# merge again: 46 active proposals, 46 declaring, 4 `none`, 34 a repository
+# THAT RE-MEASUREMENT (merged at `76492170`), taken WITH the merge again: 46
+# active proposals, 46 declaring, 4 `none`, 34 a repository
 # list, EIGHT named by this register, 0 outside the grammar, archive 168/122/3 —
 # the sixth's and seventh's line byte for byte, a third time.
 # `git diff --name-status 79ac94b7..3c614d34 -- 'openspec/changes/*/proposal.md'`
 # is EMPTY, so no declaration moved at all: no carrier arrived, NO ENTRY IS
 # STALE and the population is unmoved at EIGHT.
+#
+# NINTH re-measurement, at `origin/main` `b1df95ee` — THE MAIN HEAD MERGED AT
+# RE-MEASUREMENT as this file stands (merged at `48bc7de7`), taken WITH the
+# merge again: 45 active proposals, 45 declaring, 4 `none`, 33 a repository
+# list, EIGHT named by this register, 0 outside the grammar, with the archive
+# at 169 read / 123 declaring / 3 outside. THE SECOND RE-MEASUREMENT AT WHICH
+# THE ACTIVE CORPUS SHRANK, and a measurement rather than an assumption —
+# `git diff --name-status 3c614d34..b1df95ee -- 'openspec/changes/*/proposal.md'`
+# is exactly one `R100`, the second `R` of this record:
+# `add-declared-former-id` archived (#1064). It CONFORMS — it was one of the
+# 34, which is where the 33 comes from — and it is NOT one of the eight, so no
+# carrier arrived, NO ENTRY IS STALE and NO ENTRY IS OWED. The population is
+# unmoved at EIGHT.
 #
 # Every entry declares:
 #   change       the ACTIVE change directory under `openspec/changes/`

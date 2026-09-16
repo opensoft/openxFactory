@@ -206,9 +206,10 @@ RE-MEASUREMENT** — a number that moves every time `main` does and is
 RE-MEASURED rather than assumed each time it moves. `scripts/code_surface.py`'s
 `CLOSED_REGISTER` provenance comment and `scripts/code-surface-register.yaml`'s
 header name them in the same words, so the three records cannot drift apart
-again. As this transcript stands there have been EIGHT re-measurements
+again. As this transcript stands there have been NINE re-measurements
 (`54885296`, `bfa90db6`, `e6e1c968`, `dd073746`, `92d519b0`, `8944758c`,
-`79ac94b7`, `3c614d34`) and the scenario has FIRED ONCE, at the second.
+`79ac94b7`, `3c614d34`, `b1df95ee`) and the scenario has FIRED ONCE, at the
+second.
 
 **EVERY FIGURE IN § 3 WAS RE-MEASURED AT THE MAIN HEAD MERGED AT THE FIRST
 RE-MEASUREMENT** — `origin/main` `54885296` — with the § 3.1 reader itself, and
@@ -346,7 +347,7 @@ SIXTH TIME AND AGAIN COST NOTHING.**
 
 **AND MAIN MOVED AGAIN WHILE THE FIFTH ROUND WAS IN REVIEW. EIGHTH
 RE-MEASUREMENT, AT `origin/main` `3c614d34` — THE MAIN HEAD MERGED AT
-RE-MEASUREMENT AS THIS TRANSCRIPT STANDS** (merged at `76492170`), taken WITH
+THAT RE-MEASUREMENT** (merged at `76492170`), taken WITH
 the merge again rather than after it. `python3 scripts/validate-code-surface.py
 .` — **exit 0**, *"46 active proposals, 46 declaring — 4 `none`, 34 a repository
 list, 8 named by the register, 0 outside the grammar"*, archive *"168 proposals,
@@ -361,6 +362,38 @@ openDox/openXdox pin lockstep (#1054), a Q-GRC-4 § 13.5 pre-note record and a
 § 3.4 slice-S7 annotation (#1030), touching no file this packet owns; the merge
 resolved **ZERO conflicts**. **THE SCENARIO FIRED A SEVENTH TIME AND AGAIN COST
 NOTHING.**
+
+**AND MAIN MOVED AGAIN, THIS TIME WITH AN ARCHIVE IN IT. NINTH
+RE-MEASUREMENT, AT `origin/main` `b1df95ee` — THE MAIN HEAD MERGED AT
+RE-MEASUREMENT AS THIS TRANSCRIPT STANDS** (merged at `48bc7de7`), taken WITH
+the merge again. `python3 scripts/validate-code-surface.py .` — **exit 0**,
+*"45 active proposals, 45 declaring — 4 `none`, 33 a repository list, 8 named
+by the register, 0 outside the grammar"*, archive *"169 proposals, 123
+declaring, 3 of them outside the grammar"*. `python3
+scripts/validate-scope-globs.py .` — **exit 0**. **THIS IS THE SECOND
+RE-MEASUREMENT AT WHICH THE ACTIVE CORPUS SHRANK**, and a measurement rather
+than an inference: `git diff --name-status 3c614d34..b1df95ee --
+'openspec/changes/*/proposal.md'` is exactly one `R100` — the second `R` of
+the whole record — `add-declared-former-id` moving to
+`archive/2026-09-15-add-declared-former-id/` (#1064), which is why 46 active /
+46 declaring / 34 a repository list reads 45 / 45 / 33 and the archive
+168/122/3 reads 169/123/3. That carrier CONFORMS — it was one of the 34,
+which is where the 33 comes from — and it is NOT one of the eight, so no
+carrier arrived, NO ENTRY WENT STALE (`scan().stale` is empty, and the CLI's
+own exit 0 says the same) and the register stands at EIGHT untouched (8
+entries, `CLOSED_REGISTER` length 8, equal). Of the 12 commits `main` gained,
+eight are PR #1064 itself (the archival, on its "merged-plus-green
+realization evidence"), three reached `main` directly while it was in
+flight — a § 3.4 slice-S8 row annotation (#1025), a pinned-arm refusal-code
+split (#1049) and an openXdox-code row annotation (#1031) — and one is this
+lane's own ideation-readiness derive-possibles commit-back (#1044, merged and
+gated above); besides the one `R100` already named, none touches
+`gate-code-surface-declarations/`, `code_surface.py` or
+`code-surface-register.yaml`, and the merge resolved **ZERO conflicts**.
+**THE SCENARIO FIRED AN EIGHTH TIME AND AGAIN COST NOTHING** — the arm the
+sixth exercised once now answers a second time the same way: an ARCHIVING
+packet makes its entry stale only if it has one, and this one, like the
+sixth's, was never registered.
 
 **TWO PROPOSALS LANDED IN BETWEEN AND NONE ARCHIVED**, which is a measurement
 and not an assumption: `git diff --name-status 54885296..bfa90db6 --
@@ -507,8 +540,8 @@ and is corrected in place where the number is now false.
       possessive 1, apposition 1, list-runs-into-prose 4) AT THE FIRST
       RE-MEASUREMENT `54885296`, **AND WITH EIGHT IN THE SAME FOUR CLASSES FROM
       THE SECOND RE-MEASUREMENT `bfa90db6` ONWARD — STILL EIGHT AT `e6e1c968`,
-      AT `dd073746`, AT `92d519b0`, AT `8944758c`, AT `79ac94b7` AND AT
-      `3c614d34`, THE MAIN HEAD MERGED AT RE-MEASUREMENT**
+      AT `dd073746`, AT `92d519b0`, AT `8944758c`, AT `79ac94b7`, AT
+      `3c614d34` AND AT `b1df95ee`, THE MAIN HEAD MERGED AT RE-MEASUREMENT**
       (list-runs-into-prose 5) — the eighth being
       the carrier that arrived in between, disposed of at that re-measurement as
       the § 3 preamble's second re-measurement records and as the requirement's
