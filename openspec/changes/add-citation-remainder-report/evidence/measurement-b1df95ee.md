@@ -453,6 +453,49 @@ difference is whether a test asserts the absence or a rename left it behind.
   `raw-missing = by-identity + identity-half + file-half + ambiguous` without
   re-deriving it. A remainder that does not sum is the first sign a reading
   changed.
+
+  > **CORRECTION — 2026-09-16, lane `openxfactory-1`, openxFactory PR #1069
+  > (Copilot review thread `PRRT_kwDOTAvnrs6jFQm8`). THE IDENTITY IN THE BULLET
+  > ABOVE IS SHORT ONE TERM. The original sentence is kept rather than
+  > replaced, because this file is a RECORD of a measurement taken on
+  > 2026-09-16 and what it recommended is part of that record.**
+  >
+  > `by-identity` above is this file's name for the **76** the identity rule
+  > REPAIRS. RE-MEASURED, on a fresh clone at this file's own tree
+  > `b1df95ee80633339907c9e661164a783885a5d30` (working tree clean), by
+  > partitioning the raw-path-absent token set by the resolver's own outcome —
+  > which is the one thing the original run did not print:
+  >
+  > | the token has no raw path, and the resolver answers | tokens |
+  > | --- | ---: |
+  > | `RESOLVED` — repaired by the identity rule (`by-identity`) | 76 |
+  > | `DANGLING`, half `identity` | 74 |
+  > | `DANGLING`, half `file` | 7 |
+  > | `AMBIGUOUS` | 0 |
+  > | `NOT_A_PACKET_REFERENCE` | **5** of the 7 — the other 2 DO have a raw path |
+  > | **raw-missing** | **162** |
+  >
+  > `76 + 74 + 7 + 0 = 157`, and the raw-absent set this file measures is
+  > **162** (§ 2.3). The five the four-term identity omits are exactly the
+  > NOT_A_PACKET_REFERENCE tokens with no raw path —
+  > `openspec/changes/archive/...` (in `scripts/validate-ideation-cross-reference.py`),
+  > `openspec/changes/archive/proposal.md` (in `scripts/proposal-support.py`),
+  > `openspec/changes/archive/2026-09-01-` (in `README.md`) and
+  > `openspec/changes/archive/2026-09-11-` / `openspec/changes/archive/2026-09-11-...`
+  > (in `amend-register-act-5b-projection-proof`). A report printing the
+  > four-term check would fail it or conceal those five, which is the review's
+  > point exactly. The identity a CLI should print is
+  > **`raw-missing = repaired + identity-half + file-half + ambiguous +
+  > not-a-reference-with-no-raw-path`**; `design.md` D0 and D2 now carry it in
+  > that form.
+  >
+  > **NO FIGURE THIS FILE MEASURED MOVES**, and its own § 2.3 already sums
+  > correctly under the five-term reading: the LITERAL remainder at `b1df95ee`
+  > is **86 = 74 + 7 + 0 + 5**, and `162 = 76 + 86`. The defect was in the
+  > CHECK this section recommends to a future CLI, not in a measurement.
+  > Instrument for the re-measurement: `partition.py`, uncommitted, standing
+  > with this file's own instrument in `opensoft/brett-wip` at
+  > `handoffs/xFactory/attachments/openxfactory-1-2026-09-13/1053/`.
 * **State the reading in the header** (dedup normalization; whether
   `NOT_A_PACKET_REFERENCE` is inside or outside the population; ANY-vs-ALL
   qualifier aggregation). § 1.2 exists because #1053 did not, and three
