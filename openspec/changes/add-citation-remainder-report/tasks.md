@@ -302,18 +302,31 @@ added, edited, renamed or deleted here.
 
 ## 3. Records, and the archive
 
-- [ ] 3.1 **THE SWEEP-LEDGER ROW IS RE-SEEDED WITH THE REAL PULL REQUEST
-      NUMBER AT OPEN.** The row seeded in § 1.6 carries the GOVERNING ISSUE
-      `#1053` in `moved_by`, because this packet was authored by a writer that
-      opens no pull request and invents no number, and the field's grammar
-      (`^#[0-9]+$`) admits no `#TBD-…` spelling to mark the gap with. **Whoever opens the pull request runs
-      `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
-      '#<the real PR>'` and commits the one-line diff.** The ledger's own
-      contract makes this safe rather than urgent — the field is
-      author-supplied, shape-checked only, and *"a pointer for a human reading
-      the history, not evidence"* — but an issue number left standing where a
-      pull request number belongs points a reader at the commission rather than
-      at the act.
+- [x] 3.1 **THE SWEEP-LEDGER ROW IS RE-SEEDED WITH THE REAL PULL REQUEST
+      NUMBER — DONE AT OPEN, `moved_by: "#1069"`.** The row seeded in § 1.6
+      carried the GOVERNING ISSUE `#1053`, because this packet was authored by
+      a writer that opens no pull request and invents no number, and the field's
+      grammar (`^#[0-9]+$`) admits no `#TBD-…` spelling to mark the gap with.
+      The pull request is [#1069](https://github.com/opensoft/openxFactory/pull/1069)
+      and the row now names it. **AND THE RECIPE THIS ITEM ORIGINALLY GAVE DOES
+      NOT WORK, WHICH IS WORTH RECORDING RATHER THAN QUIETLY REPLACING**: a bare
+      `--seed-ledger --moved-by '#1069'` stamps only the rows that MOVED, and a
+      row already present and already agreeing with the live corpus has not
+      moved — the run reports `217 rows, 0 moved by #1069` and writes no diff.
+      The row must therefore be REMOVED from the ledger first, so the seeder
+      re-derives it as a move and stamps it:
+      `python3 - <<< "remove the one row"` then
+      `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#1069'`
+      → `wrote tests/sequenced_after/corpus-ledger.yaml (217 rows, 1 moved by
+      #1069)`, a ONE-LINE diff changing `moved_by` alone, and
+      `--ledger-diff` → `per-change sweep ledger consistent with the corpus (217
+      rows)`, exit 0. **NO VALUE IS HAND-WRITTEN**: the machine re-derives every
+      field of the row, which is what the house rule against hand-editing the
+      ledger protects. The ledger's own contract makes this a pointer rather
+      than evidence — the field is author-supplied, shape-checked only, and
+      *"a pointer for a human reading the history, not evidence"* — but an issue
+      number left standing where a pull request number belongs points a reader
+      at the commission rather than at the act.
 - [ ] 3.2 **#1053 IS COMMENTED ON AT RATIFICATION**, naming the word, its
       timestamp, and which of D1 through D7 it took or vetoed. The issue is
       NOT closed there.
