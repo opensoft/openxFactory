@@ -193,8 +193,12 @@ OPEN.**
       library's contract stays a library's. Against giving
       `scripts/packet_reference.py` a `__main__` — cost: its own docstring says
       *"this module is a library and has no CLI"*, and a gate
-      (`validate-pin-registrations.py`) imports it. Exit code **always 0** and
-      **no `--fail-on`**, which is reserved for D1 option (a).
+      (`validate-pin-registrations.py`) imports it. **Exit 0 WHATEVER IT FINDS,
+      and no `--fail-on`** — which is reserved for D1 option (a). The only
+      non-zero exit is the ordinary one for a tool that CANNOT RUN (an
+      unreadable tree, a root that is not a repository it can walk), which the
+      spec requires and which is a different fact from a finding: "A NON-ZERO
+      EXIT SHALL MEAN THE REPORT COULD NOT RUN, never that it found something."
 - [ ] 1.12 **`design.md` D3 — THE RECIPE.** RECOMMENDED: the stated file
       population (three exclusions, each with a reason, plus the report's own
       output path the moment D5 ever changes), the stated token grammar with
