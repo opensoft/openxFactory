@@ -541,7 +541,9 @@ Active changes:
   own docstring that it *"is a library and has no CLI"*, and its one consumer,
   `validate-pin-registrations.py`'s `check_citations`, resolves ONE field of
   registered pins rather than the corpus. **RE-MEASURED AT `b1df95ee`, NOT
-  QUOTED** — 2,973 files in scope of 5,466 tracked, **586** distinct
+  QUOTED** — **2,973** tracked ENTRIES in scope of the 5,466 tracked, four of
+  them submodule gitlinks skipped as non-files, so **2,969** FILES are read and
+  tokenized; **586** distinct
   `openspec/changes/…` tokens, which divide exactly and are printed so they
   reconcile: **498** RESOLVED (76 of them RELOCATED, the rule working), **74**
   DANGLING(identity-half), **7** DANGLING(file-half), **0** AMBIGUOUS and **7**

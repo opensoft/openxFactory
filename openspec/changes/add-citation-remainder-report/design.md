@@ -67,10 +67,15 @@ extracted from each file's text (**586** distinct), and each resolved through
 FOUR AND THE PACKET SAYS WHICH IT MEANS.** The `2,973` above is what the
 `git ls-files` listing leaves after the three exclusions: tracked ENTRIES. Four
 of them are skipped as non-files (below), so the report READS **2,969** files
-and tokenizes those. Every "files in scope" figure in this packet, in
-`.openspec.yaml`, in `README.md` and in `tasks.md` § 1.1, is the ENTRY count,
+and tokenizes those. Every "in scope" figure in this packet is the ENTRY count
 and the read count is four fewer at every revision named here — the gitlink
-count has been 4 at `b1df95ee`, at `origin/main` and at this branch's head. The
+count has been 4 at `b1df95ee`, at `origin/main` and at this branch's head.
+`.openspec.yaml` and `tasks.md` § 1.1 carry the entry count with the gitlink
+skip stated beside it; **`README.md`'s bullet, which is read on its own without
+this packet beside it, now carries BOTH numbers rather than a label a reader
+has to come here to disambiguate** (PR #1069, Copilot thread
+`PRRT_kwDOTAvnrs6jFG02`); and the delta's own output scenario asks a report for
+the pair rather than for "files in scope". The
 spec's population requirement now makes the pair NORMATIVE rather than leaving a
 CLI to pick one: a report states both, labelled, and presents neither as the
 other (PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jEUvn`).
@@ -502,7 +507,8 @@ classification by hand, each adopted here:
    omits its zero teaches readers not to look for it.
 5. **Carry every occurrence into `--json`**, because the manual read is where
    the time goes and it is done in an editor over the JSON, not over the table.
-6. **Both formats carry the four headline numbers**: files in scope, distinct
+6. **Both formats carry the headline numbers**: the POPULATION PAIR — tracked
+   ENTRIES in scope and FILES read, neither standing for the other — distinct
    tokens, remainder TOKENS, remainder IDENTITIES.
 
 **THE EXIT CODE IS ALWAYS 0, AND A `--fail-on` IS EXPLICITLY NOT BUILT.** Exit 0

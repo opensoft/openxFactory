@@ -77,7 +77,7 @@ look for it, so its absence and its zero become indistinguishable.
 #### Scenario: The report is taken over a corpus
 - **WHEN** the report runs against a repository root
 - **THEN** it MUST print the head the reading was taken at
-- **AND** it MUST print the number of files in scope, the number of distinct citation tokens, the remainder in TOKENS and the remainder in IDENTITIES
+- **AND** it MUST print the number of tracked ENTRIES in scope and the number of FILES it read, the number of distinct citation tokens, the remainder in TOKENS and the remainder in IDENTITIES
 - **AND** every remainder entry MUST name the files that cite it
 
 #### Scenario: One identity is cited by several tokens
