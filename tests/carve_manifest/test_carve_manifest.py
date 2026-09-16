@@ -46,8 +46,10 @@ a skip reports as a green bar, which is indistinguishable from a pass to every
 reader — and `pytest-suite.yml` pins the skip count exactly, so a conditional
 skip here would red the required job.
 
-THE FIVE TESTS THAT READ THE LANDED DOCUMENT NO LONGER BRANCH AT ALL (amended
-on a Copilot finding, `#1030`). They had taken the seat too — `if not
+THE TESTS THAT READ THE LANDED DOCUMENT NO LONGER BRANCH AT ALL (amended on a
+Copilot finding, `#1030`, and again on one in `#1032` — the retirement seat
+test was authored beside that cleanup rather than after it and arrived carrying
+a SIXTH copy of the idiom). They had taken the seat too — `if not
 manifest.is_file(): assert True; return` — and `assert True` REPORTS A PASS,
 the same green bar the paragraph above refuses a skip for, so a checkout that
 lost the file turned five pins on the landed document into five no-ops. They
@@ -4587,15 +4589,21 @@ def test_the_real_manifest_carries_the_retirement_form_and_the_two_rows_it_retir
     assertion is that nobody later stretched `retired:` over it.
 
     THE HEADER IS ASSERTED TOO, because a form nobody can find in the document
-    that carries it is a form the next author re-invents. A BRANCH and never a
-    skip, on the module docstring's reasoning.
+    that carries it is a form the next author re-invents.
+
+    THE MANIFEST IS REQUIRED AND NOT BRANCHED ON (Copilot review, this pull
+    request). This test was written with `if not manifest.is_file(): assert
+    True; return` -- a SIXTH copy of the seat idiom that `#1030`'s review had
+    just removed from five tests in this module, reintroduced by an act written
+    beside that cleanup rather than after it. `assert True` REPORTS A PASS, so
+    a checkout that lost the file would turn this pin into a green no-op, and
+    the pin's whole job is to fail the day a row carries `retired:`. It reads
+    the document through `the_landed_manifest()`, where the absence is a
+    FAILURE with a message naming the ceremony that authored the file -- the
+    same seat `test_the_real_repository_answers_at_the_ruled_path` still holds,
+    and must, because there the absence IS the subject.
     """
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
-    text = manifest.read_text(encoding="utf-8")
-    doc = yaml.safe_load(text)
+    text, doc = the_landed_manifest()
     rows = {row["source_path"]: row for row in doc["rows"]}
 
     surface = "scripts/ideation_dashboard/web/views/intent-feed.js"
