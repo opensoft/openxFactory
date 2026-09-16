@@ -58,11 +58,17 @@ performs only the first.
       `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`. The row seeds
       **`class: sole`** — the corpus's own machinery agreeing that none of the fifteen requirement
       keys this change writes is written by any other change (`design.md` § D3).
-- [x] 2.7 GATES RUN ON THIS BRANCH, each recorded with its number in the pull-request body:
-      the PINNED CLI (`1.12.0`, the version `contracts/openspec-cli-pin.yaml` names) on this change
-      and on `--all --strict`; `python3 -m pytest tests/doc-health tests/sequenced_after`;
-      `python3 scripts/validate-sequenced-after.py . --ledger-diff`; and the promotion-fidelity
-      family single-repo run, whose count MUST NOT move — this packet promotes nothing.
+- [x] 2.7 GATES RUN ON THIS BRANCH, each with its measured result in the pull-request body: the
+      PINNED CLI (`1.12.0`, the version `contracts/openspec-cli-pin.yaml` names) on this change and
+      on `--all --strict`; `python3 scripts/validate-sequenced-after.py . --ledger-diff` and its
+      plain run; `python3 scripts/validate-code-surface.py .` (the gate #1029 landed while this
+      branch was open); `python3 scripts/proposal-support.py . verify`; the promotion-fidelity
+      family single-repo run, whose count MUST NOT move because this packet promotes nothing; and
+      `python3 -m pytest tests/code_surface tests/sequenced_after` (**439 passed**), the suites this
+      packet's own files are read by. **The AUTHORITATIVE full-suite run is CI's `pytest-suite`**, not
+      a local one: a local `tests/doc-health` run in a `--filter=blob:none` clone reports failures
+      that are artifacts of the checkout (the pinned carve legs, a pin-site census) and CI's run is
+      the one the gate reads.
 - [x] 2.8 **THE DELTA CARRIES A WRITTEN `## Purpose`, BECAUSE THIS CAPABILITY DOES NOT EXIST YET.**
       `prepare-openspec-1-12-readiness`'s `document-lifecycle` delta states the rule and the trap:
       *"A `## Purpose` in a change's spec delta is read ONLY when the capability is created; on any
@@ -82,6 +88,14 @@ performs only the first.
 
 ## 3. Archive — AFTER RATIFICATION, AND BEFORE THE SPLIT PACKET'S
 
+- [ ] 3.0 **FIRST, RESOLVE EVERY REMAINING `- [ ]` IN THIS FILE — the wrapper refuses otherwise.**
+      `scripts/proposal-support.py` archives only when no literal `- [ ]` is left
+      (`re.search(r"^- \[ \]", tasks.read_text(), re.M)` → `SupportError("change has incomplete
+      tasks")`, `:4609-4610`), and the boxes of this section and of § 4 cannot be ticked BEFORE the
+      act they describe. So at the archive each remaining box is either ticked because it has been
+      performed or re-marked `- [~]` with its reason — the deferred marker the gate does not match —
+      and § 3.5's ledger re-seed, which can only run AFTER the directory moves, is deferred that way
+      by construction. Named here rather than discovered at the refusal.
 - [ ] 3.1 On a separate word, through the SANCTIONED WRAPPER and never a bare `openspec archive`:
       `python3 scripts/proposal-support.py . archive repromote-engineering-vocabulary --date <YYYY-MM-DD> --yes`,
       so the origin, retention, task, pin and archive-date gates run. It creates
@@ -90,11 +104,14 @@ performs only the first.
       Re-promotion first leaves the fifteen titles carried by two capabilities — distinct keys,
       no finding on either side. Removal first leaves fifteen ratified requirements in NO capability,
       which is the loss `promotion_fidelity` exists to prevent.
-- [ ] 3.3 At that archive, re-run `python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py .`
-      (no `--write`, so it CHECKS the committed delta against a fresh build and exits non-zero on any
-      difference) against the then-current promoted spec first: if
-      `main` has moved the promoted text of any of the fifteen, the carry is re-proved or the
-      difference is declared before anything promotes.
+- [ ] 3.3 **BEFORE § 3.1 RUNS, from the ACTIVE path** (after the move the same file is at
+      `openspec/changes/archive/<date>-repromote-engineering-vocabulary/review/build-delta.py`, and
+      its `CHANGE` constant would then need the dated id): re-run
+      `python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py .` — no
+      `--write`, so it CHECKS the committed delta against a fresh build off the THEN-CURRENT promoted
+      spec and exits non-zero on any difference, byte for byte. If `main` has moved the promoted text
+      of any of the fifteen, the carry is re-proved or the difference is declared before anything
+      promotes. This is the box § 3.0's marker sweep ticks last among the pre-archive ones.
 - [ ] 3.4 **README, BY HAND AND IN THE SAME COMMIT — the wrapper does not do it.**
       `scripts/proposal-support.py archive` moves and applies the packet; it does not touch
       `README.md`, so the *Active changes* bullet is RETIRED and an entry is added to the
@@ -119,11 +136,12 @@ performs only the first.
 - [ ] 4.4 **§ 6.1's seven `doc-health` requirements** and **§ 6.5's intra-requirement narrowing**,
       both of which were carried whole at their destinations for want of this id, are their own
       changes in their own repositories. This packet declares the id; it re-authors nothing there.
-- [ ] 4.5 **BLOCKED, and named rather than performed: the four path literals no seam operation
-      answers for.** `design.md` § D2 measures them and says what would unblock each — a scope the
-      corpus DECLARES for staged topics (`ResolvedCorpus.scopes` is return data, so a home adapter
-      may declare one without widening the six operations), or an answer that keeps *absent* and
-      *empty* apart for a topic that exists and holds nothing. Both are openDox's to declare under
-      RULING Q4 and neither is § 5.2a's to invent, so they are carried here with their literals
-      intact and their reasons recorded — the same shape § 6.1 and § 6.5 used for work that was
-      named and not performed.
+- [ ] 4.5 **ONE blocked case, named rather than performed — and three that are not blocked at all.**
+      BLOCKED: the STAGING-EXISTENCE literal in *Staged-topic proposal commissioning*. What would
+      unblock it is a scope the corpus DECLARES for staged topics (`ResolvedCorpus.scopes` is return
+      data, so a home adapter may declare one without widening the six operations), or an answer that
+      keeps *absent* and *empty* apart for a topic that exists and holds nothing — openDox's to
+      declare under RULING Q4, not § 5.2a's to invent. NOT BLOCKED, and owed to nobody: the
+      commission DESTINATION and the two `openspec/` status occurrences sit where no operation is
+      invoked at all, so no seam decision gives them a call to name; they carry their promoted text
+      because that is the correct state. `design.md` § D2 measures all four.

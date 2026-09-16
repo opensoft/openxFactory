@@ -123,12 +123,19 @@ home layout"*.
   reader walks. Deleting the rung's name would delete requirement content.
 * (``main``, ×1, requirement 1 — *"a main-resident cleanup record"* — is a git ref, not a path.)
 
-**WHAT WOULD UNBLOCK THE FOUR**, named so the next box does not have to rediscover it: a scope the
-corpus DECLARES for staged topics (`ResolvedCorpus.scopes` is return data, so a home adapter may
-declare one without widening the six), or an existence-capable answer that keeps *absent* and *empty*
-apart. Both are openDox's to declare under RULING Q4 and neither is § 5.2a's to invent. `tasks.md`
-§ 4.5 carries it as a BLOCKED box, in the shape § 6.1's and § 6.5's closures used for the same class
-of "named, not performed" work.
+**WHAT WOULD UNBLOCK ONE OF THE FOUR — and only one, which is worth saying precisely.** The
+STAGING-EXISTENCE case is the only one a seam decision reaches: a scope the corpus DECLARES for staged
+topics (`ResolvedCorpus.scopes` is return data, so a home adapter may declare one without widening the
+six operations), or an existence-capable answer that keeps *absent* and *empty* apart. Both are
+openDox's to declare under RULING Q4 and neither is § 5.2a's to invent.
+
+**The other three are not blocked on anything and are not follow-up work at all.** The commission
+DESTINATION and the two `openspec/` status occurrences sit where NO operation is invoked — the console
+must not author the fragment, and a status rule reads and writes nothing — so no seam decision, present
+or future, gives them a call to name. They carry their promoted text because that is the correct
+state, not because something is owed. `tasks.md` § 4.5 carries the one blocked case in the shape
+§ 6.1's and § 6.5's closures used for "named, not performed" work, and says the same thing about the
+other three.
 
 **THE CARRY IS PROVED, NOT ASSERTED, AND THE PROOF VERIFIES THE COMMITTED ARTIFACT.** The delta is
 built by `review/build-delta.py`, committed INSIDE this packet so the proof is reproducible from this

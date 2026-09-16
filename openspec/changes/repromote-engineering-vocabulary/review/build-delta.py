@@ -89,12 +89,7 @@ def main():
         print(f"  edit [{klass}] in {title[:52]!r}: OK")
 
     # (4) prove nothing else moved: reverse the edits, expect byte equality
-    for title, old, new, _ in EDITS:
-        edited_back = edited[title].replace(new, old)
-        edited[title + "\x00back"] = edited_back
     for t in fifteen:
-        back = edited.get(t + "\x00back", edited[t])
-        # apply ALL reversals for this title
         back = edited[t]
         for title, old, new, _ in EDITS:
             if title == t:
@@ -123,15 +118,18 @@ def main():
     if not out.exists():
         raise SystemExit(f"CHECK FAILED: {out.relative_to(root)} does not exist; "
                          f"re-run with --write to author it.")
-    committed = out.read_text(encoding="utf-8")
-    if committed != delta:
+    # BYTES, NOT TEXT. `read_text()` applies universal-newline translation, so a
+    # committed delta whose line endings had been changed would read back equal
+    # and pass a str comparison. The guard exists to catch exactly that class.
+    committed = out.read_bytes()
+    if committed != delta.encode("utf-8"):
         diff = "\n".join(list(difflib.unified_diff(
-            committed.split("\n"), delta.split("\n"),
+            committed.decode("utf-8", "replace").split("\n"), delta.split("\n"),
             fromfile="committed", tofile="rebuilt", lineterm=""))[:40])
         raise SystemExit("CHECK FAILED: the committed delta is not what this build "
-                         f"produces.\n{diff}")
+                         f"produces (byte comparison).\n{diff}")
     print(f"CHECK PASSED: {out.relative_to(root)} is byte-identical to this build "
-          f"({len(committed.encode())} bytes, sha256 {digest[:16]}…).")
+          f"({len(committed)} bytes, sha256 {digest[:16]}…).")
 
 HEADER = """# openxfactory-engineering-adapter Specification
 

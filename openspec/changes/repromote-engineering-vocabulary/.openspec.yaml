@@ -19,12 +19,11 @@ origin:
     `5547049745`, 2026-09-04T22:14Z) and RULING OQ-1 (`5547060378`, 22:15Z) — not
     an `ideation/staging/` topic folder. No staging topic holds this subject, and
     declaring one would name a source that does not resolve.
-    WHY IT IS FILED NOW. The id is a dependency of three other boxes and two
-    landed-and-open closures named the gap in terms: § 5.6's de-floor and § 8.4's
-    both-directions floor accounting must both name the capability directory, and
-    the § 6.1 (#1060) and § 6.5 (#1065) closures each carried a delta whole
-    rather than re-author it against "the successor capability id … § 5.2a,
-    unbuilt and assigned to another actor".
+    WHY IT IS FILED NOW. The id has FOUR live dependents — TWO BOXES and TWO OPEN
+    CLOSURES: § 5.6's de-floor and § 8.4's both-directions floor accounting must
+    both name the capability directory, and the § 6.1 (#1060) and § 6.5 (#1065)
+    closures each carried a delta whole rather than re-author it against "the
+    successor capability id … § 5.2a, unbuilt and assigned to another actor".
     WHAT THE PACKET PROPOSES. ONE `## ADDED Requirements` block, under the new
     capability `openxfactory-engineering-adapter`, carrying the fifteen
     requirements the packet's ratified per-requirement map assigns to

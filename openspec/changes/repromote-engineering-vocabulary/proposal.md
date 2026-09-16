@@ -23,7 +23,7 @@ openxFactory**. For the fifteen the map says, fifteen times and in the same word
 requirement *"is re-promoted in `openxFactory`'s own corpus under that adapter's successor
 capability, **whose id the realization authors** (`tasks.md` § 5.2a)"*.
 
-**That id is this packet, and three live pieces of work are blocked on it.** § 5.6's de-floor and
+**That id is this packet, and FOUR live dependents are blocked on it — two boxes and two open closures.** § 5.6's de-floor and
 § 8.4's both-directions floor accounting both have to name the capability directory that appears
 under `openspec/specs/`; and two § 6 closures already in flight named the gap in terms while
 declining to guess at it — § 6.1 (`#1060`) carried seven doc-health requirements into openXdox
