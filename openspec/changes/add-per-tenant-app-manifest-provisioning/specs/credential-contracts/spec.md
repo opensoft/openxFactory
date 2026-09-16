@@ -117,7 +117,11 @@ can be enumerated without reading that tenant's own account, and so that two
 tenants CANNOT contend for one name rather than merely being expected not to.
 WHICH GRAIN carries that uniqueness — a slug, an account handle, an issued
 identifier — is the install's to choose and is not fixed here; what is fixed is
-that the chosen grain must be unique where the provider's namespace is.
+that the chosen grain must be unique where the provider's namespace is. **AND
+EACH PROVISIONED IDENTITY'S NAME AT THE PROVIDER SHALL MATCH THE CONVENTION ITS
+MANIFEST DECLARES**, because a convention the manifest declares and the created
+identity does not follow secures neither of the two things the convention exists
+for: the second tenant still collides, and the pattern still enumerates nothing.
 
 **THE DISPATCH IDENTITY'S REACH IS THE ONE REPOSITORY THAT OWNS THE APPLY
 WORKFLOW, AND THAT REPOSITORY IS PART OF THE PROVISIONING.** Provisioning under
@@ -170,7 +174,11 @@ will live, and a record carrying the material itself is refused.
 - **WHEN** a provisioned identity is reused, copied or re-scoped to reach a second tenant's repositories
 - **THEN** it is refused, because the separation would become per-estate rather than per-tenant
 - **AND** a naming convention that does not distinguish the two tenants is itself a finding, because it makes the reuse unreadable
-- **AND** a convention whose tenant component is not unique in the provider's namespace — a display name two tenants may share — is a finding BEFORE any reuse occurs, because the second tenant's provisioning cannot complete under it
+
+#### Scenario: The convention cannot distinguish two tenants, or the created identity does not follow it
+- **WHEN** provisioning declares a naming convention whose tenant component is not unique in the provider's namespace — a display name two tenants may share — or creates an identity whose name at the provider does not match the convention its own manifest declares
+- **THEN** it is a finding at PROVISIONING TIME, before any reuse has occurred, because a convention the second tenant cannot satisfy and a name the created identity does not follow each defeat the collision avoidance and the pattern-auditability the clause exists for
+- **AND** the finding does not wait for a second tenant to appear, which is what distinguishes it from the cross-tenant reuse above
 
 #### Scenario: The apply workflow is placed in a repository holding governed content
 - **WHEN** provisioning names a content-bearing repository as the dispatch identity's one named target

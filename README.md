@@ -555,7 +555,7 @@ Active changes:
   *Dispatch-only credential least privilege and serving-tier separation*
   ([`openspec/specs/credential-contracts/spec.md:169`](openspec/specs/credential-contracts/spec.md))
   restated with its promoted body paragraph and all three promoted scenarios
-  VERBATIM, grown by five clauses and nine scenarios: where the pair is
+  VERBATIM, grown by five clauses and ten scenarios: where the pair is
   provisioned THROUGH A MANIFEST, creation of each identity IN THE TENANT'S OWN
   SEAT AT THE PROVIDER — their organization where they are organization-backed,
   their own account where canon's self-hosted individual applies — never an
@@ -567,7 +567,7 @@ Active changes:
   and a time-bound capture landing in the DECLARED custody by reference, with no
   manifest, record or template carrying a secret value, private key or
   installation token. **WHAT THE BLOCK DOES NOT REPEAL, ASSERTED IN THREE OF THE
-  NINE SCENARIOS RATHER THAN ARGUED IN PROSE:** canon keeps both operating
+  TEN SCENARIOS RATHER THAN ARGUED IN PROSE:** canon keeps both operating
   models legitimate (*"Both cases SHALL remain legitimate"*,
   [`openspec/specs/credential-contracts/spec.md:141`](openspec/specs/credential-contracts/spec.md))
   and `docs/openxdox-dispatch-credential-binding.md:31-37` records a live

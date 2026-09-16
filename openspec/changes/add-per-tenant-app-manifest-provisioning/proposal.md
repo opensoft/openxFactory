@@ -71,7 +71,7 @@ tenant contends for.
 **ONE `## MODIFIED` block, on ONE requirement, over CANON.** *Dispatch-only
 credential least privilege and serving-tier separation* is restated in full — its
 promoted body paragraph and all three promoted scenarios verbatim — and grown by
-five clauses and nine scenarios — the first two
+five clauses and ten scenarios — the first two
 being the provisioning rule and the scoping rider that keeps it case-neutral,
 and every clause scoped to provisioning through a manifest rather than written
 over every pair that exists:
@@ -122,7 +122,7 @@ non-obvious.
   which the operator creates the dispatch App and holds its key in the operator's
   vault. The added clauses are scoped to provisioning THROUGH A MANIFEST, name no
   custody party, and do not retroactively refuse a pair already in service — three
-  of the nine added scenarios assert exactly that — including the self-hosted
+  of the ten added scenarios assert exactly that — including the self-hosted
   individual provisioning from their own account, which canon protects and an
   organization-only clause would have made non-conforming. Whether Case A migrates to
   the manifest shape is the installer's act and the topic's unruled Q2.
