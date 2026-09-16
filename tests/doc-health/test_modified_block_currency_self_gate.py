@@ -1332,6 +1332,19 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     assert archived.is_file(), _moved(
         f"the archived delta {_DEPARTED_BLOCK_DELTA}",
         "no such file — the closure moved or was reverted")
+    # AND IT IS REALLY THERE. `is_file()` and `read_text()` below both FOLLOW
+    # symlinks, so without this the positive half of the proof could be served by
+    # a `spec.md` symlink — or a symlinked ANCESTOR — pointing at some other file
+    # inside or outside this checkout, and the block it parsed would not be the
+    # delta this packet carried. Resolved-path equality is the containment guard
+    # `scripts/target_release.py:358-385` settles on, and it subsumes a leaf-only
+    # `is_symlink()` check, which an ancestor symlink walks straight past. The
+    # negative half above guards the ACTIVE path the same way; the two halves of
+    # one proof should not disagree about what "really there" means.
+    assert archived.resolve(strict=True) == ROOT.resolve() / _DEPARTED_BLOCK_DELTA, _moved(
+        f"the archived delta {_DEPARTED_BLOCK_DELTA} reached without a symlink",
+        f"it resolves to {archived.resolve(strict=True)}, so the bytes parsed "
+        "below are not provably this packet's")
     requirements, _renames = mbc.parse_delta(
         archived.read_text(encoding="utf-8", errors="replace"))
     blocks = [r for r in requirements

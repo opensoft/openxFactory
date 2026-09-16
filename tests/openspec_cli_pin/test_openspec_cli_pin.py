@@ -44,6 +44,7 @@ from __future__ import annotations
 import ast
 import base64
 import binascii
+import datetime
 import hashlib
 import importlib.util
 import json
@@ -1024,6 +1025,25 @@ PIN_REPO_ROOT = Path(__file__).resolve().parents[2]
 _ARCHIVE_DIR_NAME = re.compile(r"\d{4}-\d{2}-\d{2}-.+")
 
 
+def _real_calendar_date(value: str) -> bool:
+    """A REAL ISO date, not merely a digit-shaped one.
+
+    `_ARCHIVE_DIR_NAME` alone accepts `2026-99-99-<item>`, and this estate has
+    already ruled on that exact hazard for its provenance dates:
+    `scripts/sequenced_after.py:1215-1224` (`is_moved_on`) says *"A REAL ISO
+    date, not merely a digit-shaped one: the pattern alone accepts `2026-13-45`,
+    and a provenance date nobody can place is no provenance."* The same two
+    checks are applied here for the same reason — the shape regex above, then
+    `datetime.date.fromisoformat` — so a date this map will not place cannot
+    stand as the archive that proves a departure.
+    """
+    try:
+        datetime.date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
 def _departed_since_the_capture(mod, identity, row):
     """True iff `row` IS the captured finding of a change this tree has let go.
 
@@ -1093,6 +1113,12 @@ def _departed_since_the_capture(mod, identity, row):
         "a stale or mistyped value that happened to name some OTHER archived "
         "change would otherwise exempt this capture's finding on the strength "
         "of an unrelated directory existing")
+    assert _real_calendar_date(archive.name[:len("YYYY-MM-DD")]), (
+        f"{key} names {archive.name} as its archive, whose date prefix "
+        f"{archive.name[:len('YYYY-MM-DD')]!r} is DIGIT-SHAPED BUT NOT A DATE. "
+        "A dated archive nobody can place is no date, and the regex above cannot "
+        "tell the difference — see `scripts/sequenced_after.py:1215-1224`, where "
+        "this estate already refused the same thing for provenance dates")
     assert archive.is_dir(), (
         f"{key} names {entry['archive']} as its archive and no such directory "
         "exists")
