@@ -633,11 +633,12 @@ def bearer_sites(text: str) -> list[str]:
 
     TWO READINGS, because each is blind where the other sees.
 
-    The RAW one scans from `\njobs:` down, which catches a spelling arriving
-    by a route no schema names — a shell interpolation inside a `run:` body, a
-    line of `git config`, a comment that is really a re-enabling instruction —
-    and it starts at `jobs:` so that the header prose above may go on quoting
-    the hole this gate shipped without failing the guard that closed it.
+    The RAW one scans from the `jobs:` key down, which catches a spelling
+    arriving by a route no schema names — a shell interpolation inside a
+    `run:` body, a line of `git config`, a comment that is really a re-enabling
+    instruction — and it starts at that key so that the header prose above may
+    go on quoting the hole this gate shipped without failing the guard that
+    closed it.
 
     That scoping is itself a hole, and this is the half that closes it: a
     workflow-level `env:` block written ABOVE `jobs:` is inherited by every
@@ -721,14 +722,14 @@ def test_the_gate_mints_no_credential_for_public_gitlinks(
 def test_the_credential_guard_sees_a_bearer_written_above_the_jobs_key() -> None:
     """The guard's own blind spot, closed and PROVED BOTH WAYS on this document.
 
-    A raw scan that starts at `\njobs:` cannot see a workflow-level `env:`
-    block, and Actions hands that block to every step of every job: a later
-    edit could put `GITHUB_TOKEN: ${{ github.token }}` four lines above `jobs:`
-    and every step of this gate would run holding a bearer while the guard that
-    exists to refuse one stayed green. So the doctoring below is inserted ABOVE
-    the key, and the test asserts BOTH halves — that the raw window really is
-    clean of it (so the old reading would have passed this document) and that
-    `bearer_sites` names it anyway.
+    A raw scan that starts at the `jobs:` key cannot see a workflow-level
+    `env:` block, and Actions hands that block to every step of every job: a
+    later edit could put `GITHUB_TOKEN: ${{ github.token }}` four lines above
+    that key and every step of this gate would run holding a bearer, while the
+    guard that exists to refuse one stayed green. So the doctoring below is
+    inserted ABOVE that key, and the test asserts BOTH halves — that the raw
+    window really is clean of it (so the old reading would have passed this
+    document) and that `bearer_sites` names it anyway.
     """
     text = WORKFLOW.read_text(encoding="utf-8")
     doctored = text.replace(
