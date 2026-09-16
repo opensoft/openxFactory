@@ -53,6 +53,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import stat
 import sys
 from pathlib import Path
 from typing import Any
@@ -269,6 +270,26 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
 
 
 def _tests_in(path: Path) -> int | None:
+    """The `def test_` a DECLARED ARRIVAL carries, or None where nothing
+    regular is at that path.
+
+    `lstat`, AND SYMLINKS ARE NOT FOLLOWED (Copilot, second round on #1080).
+    `read_bytes()` follows a link, so an arrival path that is a symlink to a
+    test-bearing file elsewhere would satisfy a row's declaration with a file
+    that never arrived — the floor's own evasion, and one no digest check at
+    this level would notice. It is also the right reading of the manifest's
+    own grammar: `git_mode: 120000` is admitted, and a symlink's BYTES are its
+    target path, which carries no `def test_` — so a link row declares zero
+    and collects zero either way, and a link standing in for a REAL row is an
+    absent arrival. `verify-carve-arrival.py` reads the destination with
+    `lstat` and treats a link as a git link blob, for the same reason.
+    """
+    try:
+        status = path.lstat()
+    except OSError:
+        return None
+    if not stat.S_ISREG(status.st_mode):
+        return None
     try:
         return mapping.count(path.read_bytes())
     except OSError:

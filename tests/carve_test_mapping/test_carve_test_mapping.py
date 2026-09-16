@@ -162,6 +162,15 @@ SOURCE_FILES = {
     "scripts/pkg/test_kept.py": _tests(4, "kept"),
     "scripts/pkg/gone.py": _tests(0, "gone"),
     "tests/corpus-adapter/test_conformance.py": _tests(5, "conformance"),
+    # THE OTHER TWO DECLARED REPLICAS, carrying NO tests, and both are here
+    # because the tool holds the declared key set and the manifest's replica
+    # rows equal in BOTH directions (Copilot, second round on #1080): a
+    # declared key naming no row at all is stale. Zero tests keeps every
+    # arithmetic assertion below unmoved — a zero-test replica is outside
+    # clause (b) by its own words and contributes `(m − 1) × 0` — while the
+    # fixture stops being a manifest the declaration cannot describe.
+    "tests/corpus-adapter/test_interface_closure.py": _tests(0, "closure"),
+    "tests/corpus-adapter/test_no_home_vocabulary.py": _tests(0, "vocab"),
 }
 
 
@@ -216,6 +225,14 @@ class Scratch:
                  "disposition": "not_moved",
                  "reason": "deleted_at_carve"},
                 {"source_path": "tests/corpus-adapter/test_conformance.py",
+                 "disposition": "not_moved",
+                 "reason": "replicated_at_destination"},
+                {"source_path":
+                    "tests/corpus-adapter/test_interface_closure.py",
+                 "disposition": "not_moved",
+                 "reason": "replicated_at_destination"},
+                {"source_path":
+                    "tests/corpus-adapter/test_no_home_vocabulary.py",
                  "disposition": "not_moved",
                  "reason": "replicated_at_destination"},
             ],
@@ -1048,6 +1065,41 @@ def test_the_carve_blobs_are_read_in_the_named_repository_not_an_ambient_one(
     summary = verified(done)
     assert summary["source_count"] == 14, \
         "the ambient GIT_DIR must not decide which object store answers"
+
+
+def test_a_symlink_may_not_stand_in_for_an_arrival(scratch: Scratch) -> None:
+    """The floor's own evasion, and one no digest check at this level would
+    notice: `read_bytes()` follows a link, so an arrival path that is a
+    symlink to a test-bearing file elsewhere satisfied a row's declaration
+    with a file that never arrived. `verify-carve-arrival.py` reads the
+    destination with `lstat` and treats a link as a git link blob."""
+    dest = scratch.destination("dox", {"src/mod.py": "scripts/pkg/mod.py"})
+    elsewhere = dest / "vendored_alpha.py"
+    elsewhere.write_text(SOURCE_FILES["scripts/pkg/test_alpha.py"],
+                         encoding="utf-8")
+    (dest / "tests").mkdir(parents=True, exist_ok=True)
+    (dest / "tests/test_alpha.py").symlink_to(elsewhere)
+    payload = refused(scratch.run(None, "--destination", "dox_code",
+                                  "--dest-root", str(dest)),
+                      "destination-test-shortfall")
+    assert "ABSENT" in payload["detail"]
+    assert "tests/test_alpha.py" in payload["detail"]
+
+
+def test_a_declared_key_naming_no_row_at_all_refuses(
+        scratch: Scratch) -> None:
+    """The stale-key arm, on the runtime path rather than in a pytest
+    assertion (Copilot, second round on #1080). The declaration is § 5.4's
+    enumeration FOR THIS CARVE and a re-cut of it still carries these rows, so
+    a key with no row means the table and the document have come apart —
+    which is the drift the module said it refused and did not."""
+    doc = scratch.clean()
+    doc["rows"] = [row for row in doc["rows"]
+                   if row["source_path"]
+                   != "tests/corpus-adapter/test_no_home_vocabulary.py"]
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "no row for it at all" in payload["detail"] or \
+        "no row for at all" in payload["detail"], payload["detail"]
 
 
 # --------------------------------------------------------------------------

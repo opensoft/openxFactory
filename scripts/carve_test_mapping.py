@@ -385,11 +385,13 @@ def closed_relative(value: Any, where: str) -> str:
 # grammar question the packet assigns to another one. Two pins keep it honest
 # and both are in `tests/carve_test_mapping/`:
 #
-#   * its KEYS are pinned to the MANIFEST — they must be exactly the
-#     test-bearing `replicated_at_destination` rows, machine-derived — so a
-#     replica that starts carrying tests, or a new one, is a REFUSAL
-#     (`replica-multiplicity-undeclared`) until it is declared, and a stale key
-#     is `test-mapping-unreadable`; and
+#   * its KEYS are held equal to the MANIFEST's replica rows BY THE TOOL, in
+#     both directions: a test-bearing replica with no declaration refuses
+#     `replica-multiplicity-undeclared`, and a declared key that names no row —
+#     or names one under another disposition — refuses
+#     `test-mapping-unreadable` (`refuse_stale_declarations`). The pytest
+#     assertion that the keys are exactly the LANDED manifest's test-bearing
+#     replicas is kept beside them and is now the narrower of the two; and
 #   * its VALUES are pinned to the PACKET'S OWN declaration text, so the three
 #     repositories and `m = 3` cannot drift from § 5.4 silently.
 #
@@ -704,18 +706,30 @@ def refuse_stale_declarations(doc: dict[str, Any]) -> None:
     verifier green while its declaration went on describing nothing. It is a
     refusal here.
 
-    KEYS THE MANIFEST DOES NOT MENTION AT ALL ARE NOT STALE, and that is not a
-    loophole: the table is keyed by openxFactory source path and a manifest —
-    a generated one under test, a manifest re-cut at a later commit — need not
-    carry every path. What it may not do is carry the path under a disposition
-    that makes the declaration false.
+    A KEY THAT NAMES NO ROW AT ALL IS STALE TOO (Copilot, second round on
+    #1080). Tolerating it was the wrong reading: the declaration is a
+    transcription of § 5.4's enumeration FOR THIS CARVE, and a re-cut manifest
+    of this carve still carries these three `tests/corpus-adapter/` rows, so a
+    key with no row means the table and the document have come apart — which
+    is exactly the drift the tool was said to refuse and did not. Together
+    with `replica-multiplicity-undeclared` in the other direction, the two
+    arms hold the declared set and the manifest's replicas equal ON THE
+    RUNTIME PATH, where before only a pytest assertion did.
     """
     rows = {row["source_path"]: row for row in doc["rows"]
             if isinstance(row, dict) and isinstance(row.get("source_path"),
                                                     str)}
     for source_path in DECLARED_REPLICA_SETS:
         row = rows.get(source_path)
-        if row is None or is_replica(row):
+        if row is None:
+            raise TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"a replica set is declared for {source_path!r}, which this "
+                "manifest carries no row for at all. The declaration is "
+                "§ 5.4's enumeration for THIS carve and a re-cut of it still "
+                "carries that row, so the table and the document have come "
+                f"apart. {MULTIPLICITY_DECLARATION}")
+        if is_replica(row):
             continue
         raise TestMappingRefusal(
             "test-mapping-unreadable",
