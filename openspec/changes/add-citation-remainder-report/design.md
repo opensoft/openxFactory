@@ -273,8 +273,8 @@ recipe re-run on this branch at its head against the base that head merges:
 **+6** entries in scope (this packet's own six files; `README.md` was already
 tracked and the ledger row sits under the excluded `tests/`), **+8** distinct
 tokens, **+6** `RESOLVED`, and the remainder **+1**. In absolutes at the pair
-this bench round measured — base `origin/main` **`fa39141c`** reading **2,986 /
-597 / 509 / 81**, branch reading **2,992 / 605 / 515 / 82**, the branch's
+this bench round measured last — base `origin/main` **`4cef77af`** reading
+**2,989 / 600 / 512 / 81**, branch reading **2,995 / 608 / 518 / 82**, the branch's
 remainder being 75 identity-half, 7 file-half, 0 ambiguous, with 8
 `NOT_A_PACKET_REFERENCE` and 70 citing files. **THE ABSOLUTE PAIR IS LABELLED
 WITH ITS BASE AND IS A HISTORICAL READING; THE DELTA IS THE CLAIM.** To re-take
@@ -286,11 +286,11 @@ the table below shows every step, each row pinned to the commit it was taken at
 so no row moves when a base does.
 
 **THE DELTA IS THE INVARIANT AND THAT IS MEASURED, NOT ASSERTED.** These figures
-have now been taken at FOUR different bases — `b1df95ee`, `d5dd1ca5`, `00b1e93b`
-and `fa39141c` — across three merges from `main`, thirteen fix-round commits and
-the two bench rounds this paragraph was last rewritten in. The absolutes moved
-with the base every time, twice inside this one round; **`+6 / +8 / +6 / +1` did
-not move once.** Neither a merge nor a
+have now been taken at FIVE different bases — `b1df95ee`, `d5dd1ca5`,
+`00b1e93b`, `fa39141c` and `4cef77af` — across four merges from `main`, thirteen
+fix-round commits and the three bench rounds this paragraph has been rewritten
+in. The absolutes moved with the base every time, three times inside this one
+round; **`+6 / +8 / +6 / +1` did not move once.** Neither a merge nor a
 prose correction mints a citation token the branch did not already carry.
 **That is the fence working rather than a coincidence**: the tokens a packet adds
 are the ones it QUOTES, and a correction that re-words a sentence about a token

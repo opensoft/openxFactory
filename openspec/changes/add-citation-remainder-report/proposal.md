@@ -142,10 +142,10 @@ which moves a decision rather than decorating one:
 **AND THE PACKET MEASURED ITS OWN EFFECT ON THE POPULATION, AFTER IT EXISTED.**
 Re-run on this branch against the base its head merges: **+6** entries in
 scope, **+8** distinct tokens, **+6** `RESOLVED`, **remainder +1** — at the pair
-this reading was taken over, `origin/main` `fa39141c` reading 2,986 / 597 / 509
-/ 81 and this branch 2,992 / 605 / 515 / **82**. **UP BY ONE.** The DELTA is
+this reading was last taken over, `origin/main` `4cef77af` reading 2,989 / 600 /
+512 / 81 and this branch 2,995 / 608 / 518 / **82**. **UP BY ONE.** The DELTA is
 what is claimed and the absolutes are labelled with their base, because the
-absolutes move every time `main` does and the delta has not moved across four
+absolutes move every time `main` does and the delta has not moved across five
 bases (`design.md` D0(iv)). The packet's five
 documents mint no remainder at all. **THE COMMITTED EVIDENCE REPORT MINTS ONE**:
 `openspec/changes/foo/`, a dangling identity-half token produced by the report's

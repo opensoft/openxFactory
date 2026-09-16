@@ -77,10 +77,10 @@ OPEN.**
       tokens**, carried by **65** distinct citing files. `design.md` D0 carries
       the table and the commands. **AND THE SAME RECIPE WAS RE-RUN ON THIS
       BRANCH, AFTER THE PACKET EXISTED**, against the base its head merges —
-      at the pair this reading was taken over (`origin/main` `fa39141c`):
-      **2,992** entries in scope, **605** tokens, **515** RESOLVED,
+      at the pair this reading was last taken over (`origin/main` `4cef77af`):
+      **2,995** entries in scope, **608** tokens, **518** RESOLVED,
       **remainder 82 — UP BY ONE** from that base's 81
-      (`+6 / +8 / +6 / +1`, the delta D0(iv) shows unmoved across four bases;
+      (`+6 / +8 / +6 / +1`, the delta D0(iv) shows unmoved across five bases;
       the absolutes carry their base because they move with it), and the one is
       `openspec/changes/foo/`, minted by the COMMITTED EVIDENCE REPORT's own
       enumeration of the resolver's docstring examples and then carried by this
