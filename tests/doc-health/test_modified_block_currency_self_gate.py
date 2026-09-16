@@ -431,8 +431,19 @@ _LEDGER_SUBJECTS = {
     # longer reads the block — not because the block's obligation was carried.
     # The block itself is unchanged and still readable at
     # `_DISCHARGED_BLOCK_DELTA`, where the scenario-arm test now reads it.
-    ("add-doxchat-model-intake", "ideation-dashboard",
-     "doxBench model catalog and provider boundary"),
+    # REMOVED 2026-09-16 BY THE SECOND CLOSURE ACT —
+    # ('add-doxchat-model-intake', 'ideation-dashboard', 'doxBench model catalog
+    # and provider boundary'). Same route as the row above it: CLOSED AS
+    # RE-HOMED to `opensoft/openDox` under RULING Q6
+    # (`split-opendox-two-layer-product` `tasks.md` § 6.3), so the row leaves
+    # because `active_blocks` no longer reads the block, NOT because the block's
+    # obligation was carried. The block itself is unchanged at
+    # `openspec/changes/archive/2026-09-16-add-doxchat-model-intake/specs/`
+    # `ideation-dashboard/spec.md`. Two of the five § 6 closures have now left
+    # this ledger by departure rather than discharge; the remaining three
+    # (`add-nightly-dashboard-refresh`, `add-lens-document-selection`,
+    # `retire-doxbench-chat-turn-v1`) hold no row here, so this is the last
+    # movement § 6 makes to this constant.
     # ADDED 2026-08-28 BY `add-credential-escrow-checkout`, when Brett VETOED
     # that packet's OD-2 over PR #479 and moved a schema surface into it that it
     # had been authored to defer. A DELIBERATE AMENDMENT, and the narrowest one
@@ -1358,6 +1369,11 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     DISCHARGE, and the note standing where the row used to says so. The
     distinction matters to a reader of this ledger: a promoted row's obligation
     was carried, and this row's obligation moved to another repository.
+
+    TWELVE SINCE THE SECOND CLOSURE THE SAME DAY: `add-doxchat-model-intake`
+    left by the same route (§ 6.3). Two of the five § 6 closures held a row here
+    and both are now gone; the other three hold none, so § 6 makes no further
+    movement to this population.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
