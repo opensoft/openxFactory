@@ -92,23 +92,40 @@
 #       the init names them rather than saying `submodules: true`.
 #
 #   (b) THE CHECKOUT LANDS AT `openxFactory/`, NOT AT THE WORKSPACE ROOT, and
-#       this one is the difference between a gate and a green bar. The consumer
-#       suite's validator locators walk UP from the repository root looking for
-#       an AGGREGATION-SHAPED parent: `human_seen.find_cross_reference_
-#       validator` searches each ancestor for `openxFactory/scripts/validate-
-#       ideation-cross-reference.py`, and `tests/ideation-dashboard/conftest.py`'s
-#       `find_openxfactory_validator` does the same for the dashboard
-#       validator. A checkout at the workspace root has no such ancestor, both
-#       locators answer `None`, and THIRTEEN assertions across four modules
-#       turn into `pytest.mark.skipif` SKIPS. MEASURED AT `cb2d3a2c`, BOTH
-#       WAYS, AND THE NUMBER THAT MOVES IS NOT THE ONE A READER EXPECTS: the
+#       this one is the difference between a gate and a green bar. The locator
+#       that decides it is the CROSS-REFERENCE one:
+#       `human_seen.find_cross_reference_validator` walks UP from the current
+#       directory and answers the first ancestor carrying `openxFactory/
+#       scripts/validate-ideation-cross-reference.py`. A checkout at the
+#       workspace root has no such ancestor, that locator answers `None`, and
+#       THIRTEEN assertions across four modules turn into
+#       `pytest.mark.skipif` SKIPS.
+#
+#       IT IS THAT LOCATOR AND NOT THE DASHBOARD ONE, stated exactly because
+#       the two do NOT fail together and a future edit aimed at the wrong one
+#       would be aimed at nothing. `tests/ideation-dashboard/conftest.py`'s
+#       `find_openxfactory_validator` also ends in an `openxFactory/`-shaped
+#       parent walk, but only as its THIRD rung: since the § 5.2 shed its
+#       second rung COMPOSES the validator out of the pinned leg
+#       (`_shed_validator()` joins the moved `validate-ideation-dashboard-
+#       contracts.py` to this repository's own `contracts/schemas/`), so it
+#       resolves under EITHER layout once the legs are on disk. MEASURED at
+#       `cb2d3a2c`: twelve of the thirteen are gated `VALIDATOR is None or
+#       XREF_VALIDATOR is None` and the thirteenth (`test_human_seen::
+#       test_submission_validates_clean_on_the_pinned_cross_reference_schema`)
+#       on `XREF_VALIDATOR is None` alone — while
+#       `test_lens::test_manifest_with_new_candidates_validates_clean`, gated
+#       on `VALIDATOR is None` ALONE, PASSES in the root-shaped run. XREF is
+#       the only term that moves.
+#
+#       AND THE NUMBER THAT MOVES IS NOT THE ONE A READER EXPECTS: the
 #       same 1137 cases are SELECTED either way — `skipif` marks a collected
 #       test, it does not uncollect it — and what changes is 13 of them
 #       reporting `skipped` instead of `passed`. Root-shaped: `tests=1137
 #       skipped=13`. Aggregation-shaped: `tests=1137 skipped=0`. So a FLOOR ON
 #       SELECTED CANNOT SEE THIS AT ALL, which is precisely why the pin below
 #       is an EXACT skipped count and not only a floor. The thirteen are the
-#       validator-gated cases of `test_gate_routes`, `test_lens`,
+#       cross-reference-gated cases of `test_gate_routes`, `test_lens`,
 #       `test_lens_gate_cli` and `test_human_seen`. `pytest-suite.yml` already
 #       checks out to `path: openxFactory` for exactly this reason; this gate
 #       mirrors it rather than re-discovering it, and the exact pin is what
@@ -419,10 +436,29 @@ jobs:
           MIN_PASSED: "1137"
           # EXACT, AND ZERO IS THE WHOLE POINT OF DEPARTURE (b). Every skip
           # this suite can produce is a capability that went missing rather
-          # than a test that chose not to run: an unreachable pinned validator
-          # (13 of them), an absent `node` (41 files' DOM and JS probes), a leg
-          # that was not materialized. Pinning it at zero means this gate
-          # cannot go green having quietly stopped adjudicating any of them.
+          # than a test that chose not to run: an unreachable cross-reference
+          # validator (13 of them), an absent `node` (41 files' DOM and JS
+          # probes), a leg that was not materialized. Pinning it at zero means
+          # this gate cannot go green having quietly stopped adjudicating any
+          # of them.
+          #
+          # ZERO IS ALSO WHAT THE RECURSIVE INIT BUYS, and this is the reading
+          # a code review is most likely to get backwards, so it is measured
+          # here rather than argued. `tests/ideation-dashboard` carries a
+          # RELEASED-CONTRACT rung — 28 test functions in
+          # `test_doxbench_contracts.py` behind the `released_root` fixture and
+          # 12 in `test_doxbench_routes.py` behind `@released_only` — and both
+          # gates ask `doxbench_contracts.is_publisher_checkout(REPO_ROOT)`,
+          # which requires ALL THREE of `PUBLISHER_MARKERS`:
+          # `contracts/manifest.yaml`, `contracts/schemas/`, and
+          # `openXdox/code/scripts/validate-ideation-dashboard-contracts.py`.
+          # The third marker is INSIDE THE openXdox LEG, put there by the § 5.2
+          # shed. So those 40 test functions skip on a checkout whose gitlinks
+          # were not initialized recursively, and they do not skip here —
+          # measured in this gate's own run, `skipped=0` over 1137. No
+          # `OPENXFACTORY_ROOT` is set and none is wanted: the fixture's OTHER
+          # rung is "the hosting repository when it IS a release", and this
+          # repository is the publisher.
           EXPECT_SKIPPED: "0"
           # ONE NAMED VERDICT THAT PROVES THREE FACTS AT ONCE, which is why it
           # is this test and not a tidier-looking one.

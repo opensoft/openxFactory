@@ -14,12 +14,12 @@ WHAT THE GATE CAN LOSE WITHOUT FAILING, which is the whole class these
 assertions close. Every one of its steps can go green having adjudicated
 nothing:
 
-  * a checkout at the workspace root instead of `openxFactory/` makes both
-    validator locators answer `None` and turns thirteen assertions across four
-    modules into SKIPS — measured at `cb2d3a2c` both ways, `tests=1137
-    skipped=13` root-shaped against `tests=1137 skipped=0` aggregation-shaped,
-    IDENTICAL SELECTION either way, which is why the gate pins an exact skipped
-    count and not only a floor;
+  * a checkout at the workspace root instead of `openxFactory/` makes the
+    CROSS-REFERENCE validator locator answer `None` and turns thirteen
+    assertions across four modules into SKIPS — measured at `cb2d3a2c` both
+    ways, `tests=1137 skipped=13` root-shaped against `tests=1137 skipped=0`
+    aggregation-shaped, IDENTICAL SELECTION either way, which is why the gate
+    pins an exact skipped count and not only a floor;
   * a missing `node` turns 41 files' DOM and JS probes into SKIPS;
   * a non-recursive init leaves both `code` legs empty, and
     `scripts/carved_reach.py` refuses BY NAME — which reports as a collection
@@ -102,6 +102,24 @@ CONSUMER_NAMED_VERDICTS = (
     "tests.ideation-dashboard.test_lens"
     "::test_recipe_request_carries_recipe_and_reasoned_overrides",
 )
+
+#: THE MEASURED PINS THEMSELVES, per report: `(MIN_SELECTED, MIN_PASSED,
+#: EXPECT_SKIPPED)`, taken from this gate's own CI run (35044247836, head
+#: `e4602a4c`) — `pin-suites-report.xml: selected=105 passed=105 skipped=0` and
+#: `consumer-suite-report.xml: selected=1137 passed=1137 skipped=0`.
+#:
+#: PINNED AS LITERALS AND NOT MERELY AS SHAPES, which is a distinction with a
+#: defect behind it. A guard that only asks `MIN_SELECTED > 0` stays green
+#: while both floors are lowered to `1` and the consumer `EXPECT_SKIPPED` is
+#: moved from `0` to `13` — which is precisely the root-shaped reading
+#: departure (b) exists to refuse, and the gate would then pass having
+#: adjudicated nothing while its only REQUIRED guard still passed. The floors
+#: may still only RISE; this makes moving them a two-file diff a reviewer sees
+#: rather than a one-character edit inside a workflow nobody reads.
+MEASURED_PINS = {
+    "pin-suites-report.xml": ("105", "105", "0"),
+    "consumer-suite-report.xml": ("1137", "1137", "0"),
+}
 
 
 @pytest.fixture(scope="module")
@@ -231,11 +249,21 @@ def test_the_checkout_lands_at_the_aggregation_shaped_path(
         gate_job: dict, steps: list[dict]) -> None:
     """DEPARTURE (b), and the one that separates a gate from a green bar.
 
+    THE LOCATOR THAT DECIDES IT IS THE CROSS-REFERENCE ONE.
     `human_seen.find_cross_reference_validator` walks each ancestor looking for
-    `openxFactory/scripts/validate-ideation-cross-reference.py`, and
-    `tests/ideation-dashboard/conftest.py`'s `find_openxfactory_validator` does
-    the same for the dashboard validator. A workspace-root checkout has no such
-    ancestor; both answer `None`; thirteen assertions turn into skips.
+    `openxFactory/scripts/validate-ideation-cross-reference.py`; a
+    workspace-root checkout has no such ancestor, it answers `None`, and
+    thirteen assertions turn into skips.
+    `tests/ideation-dashboard/conftest.py`'s `find_openxfactory_validator` is
+    NOT the one that moves, and saying otherwise would send a later edit at the
+    wrong dependency: since the § 5.2 shed its second rung COMPOSES the
+    dashboard validator out of the pinned leg (`_shed_validator()`), so it
+    resolves under either layout once the legs are on disk. Measured at
+    `cb2d3a2c`: twelve of the thirteen are gated
+    `VALIDATOR is None or XREF_VALIDATOR is None`, the thirteenth on
+    `XREF_VALIDATOR is None` alone, and
+    `test_lens::test_manifest_with_new_candidates_validates_clean` — gated on
+    `VALIDATOR is None` ALONE — passes in the root-shaped run.
     `pytest-suite.yml` already checks out to this path for this reason.
 
     A FLOOR CANNOT SEE THIS: `skipif` marks a collected test rather than
@@ -245,8 +273,8 @@ def test_the_checkout_lands_at_the_aggregation_shaped_path(
                     if str(s.get("uses", "")).startswith("actions/checkout"))
     assert checkout["with"]["path"] == CHECKOUT_PATH, (
         f"the checkout must land at {CHECKOUT_PATH!r}; a root checkout makes "
-        f"both validator locators answer None and turns the consumer suite's "
-        f"validator-gated cases into skips")
+        f"the cross-reference validator locator answer None and turns the "
+        f"consumer suite's cross-reference-gated cases into skips")
     assert gate_job["defaults"]["run"]["working-directory"] == CHECKOUT_PATH, (
         "the job's default working directory must be the checkout path, or "
         "every `run:` below executes in an empty workspace root")
@@ -411,6 +439,13 @@ def test_the_two_assertion_bodies_are_byte_identical(
 
 def test_every_assertion_pins_floors_an_exact_skip_and_named_verdicts(
         assertion_steps: list[dict]) -> None:
+    """The five keys are present, and the three numbers are the MEASURED ones.
+
+    Presence alone is not the property. The numbers are what make the gate
+    non-vacuous, so they are asserted as the literals `MEASURED_PINS` records
+    and not as `> 0` — see that constant for the exact weakening a shape-only
+    guard leaves open.
+    """
     for step in assertion_steps:
         env = step["env"]
         for key in ("REPORT", "MIN_SELECTED", "MIN_PASSED", "EXPECT_SKIPPED",
@@ -421,9 +456,17 @@ def test_every_assertion_pins_floors_an_exact_skip_and_named_verdicts(
                 f"collected, without the exact skip a suite can turn into a "
                 f"green bar, and without the named verdicts a sum can hide a "
                 f"case that stopped running")
-        assert int(env["MIN_SELECTED"]) > 0
-        assert int(env["MIN_PASSED"]) > 0
-        assert int(env["EXPECT_SKIPPED"]) >= 0
+        report = env["REPORT"]
+        assert report in MEASURED_PINS, (
+            f"{report!r} has no measured pin recorded here; a new report must "
+            f"arrive with its own measurement, not with a shape")
+        pinned = (env["MIN_SELECTED"], env["MIN_PASSED"], env["EXPECT_SKIPPED"])
+        assert pinned == MEASURED_PINS[report], (
+            f"{report}: the gate pins (MIN_SELECTED, MIN_PASSED, "
+            f"EXPECT_SKIPPED) = {pinned}, measured {MEASURED_PINS[report]}. "
+            f"Floors may only RISE and the skip count is EXACT — if the "
+            f"measurement really moved, move it HERE in the same diff, with "
+            f"the CI run that measured it in the commit message")
         assert env["NAMED_VERDICTS"].split(), "NAMED_VERDICTS may not be empty"
 
 
@@ -500,7 +543,8 @@ def test_the_gate_mints_no_credential_for_public_gitlinks(
 # the collision this suite shipped, pinned as a rule
 # --------------------------------------------------------------------------
 
-def test_no_two_test_modules_resolve_to_the_same_import_name() -> None:
+def test_no_two_test_modules_resolve_to_the_same_import_name(
+        pytestconfig: pytest.Config) -> None:
     """A basename collision INTERRUPTS the required run; it does not fail one file.
 
     pytest's default `prepend` import mode names a test module by walking UP
@@ -526,7 +570,18 @@ def test_no_two_test_modules_resolve_to_the_same_import_name() -> None:
     pytest actually collides on — so `tests/opendox_pin/` and
     `tests/openxdox_pin/` name their modules distinctly instead, which is the
     convention this directory now follows.
+
+    THE SCAN ASKS PYTEST WHAT IT COLLECTS RATHER THAN ASSUMING `test_*.py`.
+    `python_files` defaults to BOTH `test_*.py` and `*_test.py`, and this
+    repository's `pytest.ini` overrides neither, so a file named
+    `gate_invocation_test.py` is collected too and can collide exactly the same
+    way — while a scan of the first pattern alone would stay green and let the
+    required run be interrupted anyway. Reading the ini value also keeps this
+    honest if the patterns are ever narrowed or widened.
     """
+    patterns = list(pytestconfig.getini("python_files"))
+    assert patterns, "pytest collects no test files under any pattern"
+
     def import_name(path: Path) -> str:
         parts = [path.stem]
         directory = path.parent
@@ -535,8 +590,11 @@ def test_no_two_test_modules_resolve_to_the_same_import_name() -> None:
             directory = directory.parent
         return ".".join(reversed(parts))
 
+    modules = {module
+               for pattern in patterns
+               for module in (REPO_ROOT / "tests").rglob(pattern)}
     by_name: dict[str, list[str]] = collections.defaultdict(list)
-    for module in (REPO_ROOT / "tests").rglob("test_*.py"):
+    for module in sorted(modules):
         by_name[import_name(module)].append(
             str(module.relative_to(REPO_ROOT)))
     collisions = {name: sorted(paths)
