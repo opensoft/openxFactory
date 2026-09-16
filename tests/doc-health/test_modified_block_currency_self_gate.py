@@ -1487,10 +1487,16 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
     for (change, delta, capability, requirement, added,
          carriage) in _REHOMED_AND_STILL_WHOLE:
         active = ROOT / "openspec" / "changes" / change
-        assert not active.is_dir(), _moved(
+        assert not active.exists() and not active.is_symlink(), _moved(
             f"{change} ABSENT from the active corpus (CLOSED AS RE-HOMED under "
-            "RULING Q6 on 2026-09-16)",
-            f"{active} still stands")
+            "RULING Q6 on 2026-09-16) — nothing at all at that path",
+            f"{active} still stands. THE CHECK IS ABSENCE, NOT 'NOT A "
+            "DIRECTORY': it was `is_dir()` until 2026-09-16, and a stale "
+            "regular file or a symlink resolving anywhere but a directory "
+            "answered False to that while still standing where the packet was. "
+            "`mbc.active_blocks()` skips such a path too, so the two agreed on "
+            "a departure that had not happened. `exists()` alone is not enough "
+            "either — it follows symlinks, so a dangling one reads as absent")
 
         archived = ROOT / delta
         assert archived.is_file(), _moved(
