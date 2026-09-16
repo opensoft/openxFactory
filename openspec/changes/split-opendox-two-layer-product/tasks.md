@@ -1132,7 +1132,8 @@ the bookkeeping that ticks this group.
   doc-health is lawful; **FIVE ROUTED TO `openDox` UNDER THE CARVE** (routed
   there, which is a disposition, not a finding that they satisfy the seam — see
   the STATUS), **ONE stays in `openxFactory`** under RULED DQ-1, and **FIVE were
-  DISCHARGED at the § 2 seam** and no longer exist as imports at all. *(AMENDED 2026-09-16 by RULED **R-1**,
+  DISCHARGED at the § 2 seam** and no longer exist as imports at all.
+  *(AMENDED 2026-09-16 by RULED **R-1**,
   `#656` comment `5690428146`. This sentence read "The 23 outbound `doc_health`
   imports become the adapter's IMPLEMENTATION SURFACE here, where importing
   doc-health is lawful" — a design-time expectation that the § 2.1 / 2.2 / 2.2a
@@ -1295,7 +1296,8 @@ the bookkeeping that ticks this group.
   DEFAULT_THRESHOLDS, corpus as dh_corpus`, :1408 `from doc_health.families
   import FAMILIES`, :1409 `from doc_health.runner import Context, run_suite`.
   **All five are inside function bodies, none at module scope**, and :746 says
-  why in its own comment (*"lazy: keeps this module's graph flat"*). Requirement 4 of `corpus-adapter-seam`
+  why in its own comment (*"lazy: keeps this module's graph flat"*).
+  Requirement 4 of `corpus-adapter-seam`
   (`specs/corpus-adapter-seam/spec.md`:37-53) says *"no neutral product
   `openxFactory` pins SHALL import `openxFactory`'s own tooling"* and refuses the
   import where *"the dependency has reversed"*. Whether a lazily-resolved read of
@@ -1669,7 +1671,8 @@ the bookkeeping that ticks this group.
   `*ideation*`, which is repository-wide rather than workflow-scoped and matches
   **276** commits that have nothing to do with `.github/`. The finding was right
   about the command and the command was doing no work; re-run scoped, both
-  patterns return **0** adds, which is the same answer honestly derived.)* The SHAPE, the pinned-tools reading and the job-id obligation
+  patterns return **0** adds, which is the same answer honestly derived.)*
+  The SHAPE, the pinned-tools reading and the job-id obligation
   are unchanged; only the act is. **This box does NOT tick with this amendment**:
   the workflow is its own declared act under its own claim, and that act is now
   open as `opensoft/openxFactory` **#1059** — *Wire the pinned openDox/openXdox
@@ -2389,7 +2392,8 @@ realization evidence, never on landing. Each line is its own evidence.
   417 because `opensoft` gained one repository in the interval. The `dox` column
   is unchanged at 6/0/0/0, which is the column this box turns on — recorded
   rather than quietly re-stated, since a total that moves and a result that does
-  not is exactly the distinction this line needs to make.)* `#656` records: CLAIM `5690461589`; evidence `5690559647`.
+  not is exactly the distinction this line needs to make.)*
+  `#656` records: CLAIM `5690461589`; evidence `5690559647`.
 - [ ] 8.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health
   run whose severity counts move by the amount **the archive pull request RECORDS
@@ -2423,8 +2427,9 @@ realization evidence, never on landing. Each line is its own evidence.
   choice of baseline can manufacture whatever delta the record wants; (b) the
   per-severity BEFORE and AFTER vectors, every family and every severity, `info`
   included; and (c) a named reason for EVERY finding that entered or left,
-  diffed finding by finding rather than netted. A record that gives a total without the vector, or a vector without the
-  findings behind a moved count, does not discharge this line. That is the form
+  diffed finding by finding rather than netted. A record that gives a total
+  without the vector, or a vector without the findings behind a moved count,
+  does not discharge this line. That is the form
   the house already uses where it works — the archived
   `2026-08-25-add-projection-title-uniqueness` § 4.6 (`tasks.md`:315-328) reports
   *"before 5 critical, 5 error, 46 warning, 4 info and after 5 critical, 5 error,
