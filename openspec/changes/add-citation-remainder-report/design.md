@@ -824,9 +824,13 @@ hand; a fence written after the fact is a post-mortem.
 
 ## What is NOT decided here
 
-- **The nine manual classes are not re-derived.** D0's named slot carries that
-  work; until `evidence/measurement-<sha8>.md` exists, #1053's classification is
-  quoted and attributed, never restated.
+- **The nine manual classes ARE re-derived, and this line used to say they were
+  not.** D0's named slot is FILLED: `evidence/measurement-b1df95ee.md` § 5 carries
+  a hand read of all 57 this-tree tokens with an evidence line each, and D4 ships
+  every probe's measured precision against that read. What is NOT re-derived is
+  #1053's own classification of its own 59 at its own revision; where the two
+  differ, the evidence's § 5.2 names why and this packet quotes both rather than
+  overwriting one with the other.
 - **`N = 14` and "at most 3 arrivals" in D6 are proposed numbers.** They are
   derived from nothing but the shape of a two-week window and are the most
   vetoable figures in this packet.
