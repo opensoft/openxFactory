@@ -60,15 +60,30 @@ from opendox.workbench import WorkbenchError
 LENS_MODEL_JS = carved_source("scripts/ideation_dashboard/web/views/lens-model.js")
 LENS_JS = carved_source("scripts/ideation_dashboard/web/views/lens.js")
 # `gate-lens.js` and `helpers.js` are NOT `carved_source()`-reachable: both are
-# post-carve CREATIONS at openDox-code (`gate-lens.js` since § 3.4 slice S4;
-# `helpers.js` predates S4) with no row in `docs/opendox-carve-manifest.yaml`
+# post-carve CREATIONS at a destination leg (`gate-lens.js` since § 3.4 slice
+# S4; `helpers.js` predates S4) with no row in `docs/opendox-carve-manifest.yaml`
 # (RULED OQ-C — the manifest declares what LEFT openxFactory, never what a
 # destination assembles since). `carved_source()` raises `NotACarvedPath` for
 # exactly this reason, so these two are addressed directly at the mount
 # `carved_reach.MOUNTS` itself names, the same lookup `source()` uses one
 # layer down.
+#
+# THEY NO LONGER SHARE A MOUNT. § 3.4 slice S5 — "contribute the gate loop",
+# RULED Q5 (`#656` comment `5648044785`) — moved `gate-lens.js` from openDox-
+# code `src/opendox/web/views/` to openXdox-code `src/openxdox/web/views/`,
+# where it ships as PACKAGE DATA the composed install copies into openDox's one
+# `--web-dir` at assembly. Having no manifest row (OQ-C again) it moves by
+# ADMISSION rather than by a `re_destined:` field, and that admission is
+# already asserted BOTH WAYS in `tests/carve_arrival/test_verify_carve_arrival.py`
+# — `src/opendox/web/views/gate-lens.js` gone from `opendox_code`, `src/
+# openxdox/web/views/gate-lens.js` present for `openxdox_code`. This reader is
+# the other half of that fact: the file is read where it now is.
+# `helpers.js` did NOT move — RULED counterpart Q6 (`#656` comment
+# `5649094228`) makes it the one bundle module a contributed view may import,
+# so it stays openDox's and keeps the openDox-code mount.
 _OPENDOX_CODE_WEB = MOUNTS["opendox_code"] / "src" / "opendox" / "web" / "views"
-GATE_LENS_JS = _OPENDOX_CODE_WEB / "gate-lens.js"
+_OPENXDOX_CODE_WEB = MOUNTS["openxdox_code"] / "src" / "openxdox" / "web" / "views"
+GATE_LENS_JS = _OPENXDOX_CODE_WEB / "gate-lens.js"
 HELPERS_JS = _OPENDOX_CODE_WEB / "helpers.js"
 NODE = shutil.which("node")
 VALIDATOR = find_openxfactory_validator()
@@ -195,7 +210,9 @@ def _run_node(snapshot, tmp_path):
 # "a route constant travels with the binding that calls it, never with the
 # model that happens to declare it") moved both out of `lens-model.js` —
 # which never called them, `lens.js` did — into the class-B module that owns
-# the gate verbs. `recipeRequest`/`clusterRequest` themselves did NOT move
+# the gate verbs — which is openXdox's module since S5, so the harness below
+# reaches ACROSS THE TWO LEGS in one import graph, exactly as the composed
+# deployment does. `recipeRequest`/`clusterRequest` themselves did NOT move
 # (Q3 moves the ROUTE, not the arithmetic; `gate-lens.js`'s own header says
 # so) and are still read from `lens-model.mjs` below.
 # ----------------------------------------------------------------------------
@@ -230,14 +247,23 @@ def _run_request_node(snapshot, tmp_path):
     if not NODE:
         pytest.skip("node not available for the JS derivation probe")
     shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.mjs")
-    # `gate-lens.js` imports `./lens-model.js` and `./helpers.js` BY THOSE
-    # EXACT NAMES (it is copied verbatim, unlike the harness's own `.mjs`
-    # rename of lens-model.js above) — so both are ALSO placed under their
-    # real names, and a minimal `package.json` makes Node parse plain `.js`
-    # here as ESM (harness*.mjs and lens-model.mjs already are, by extension
-    # alone; this only newly applies to gate-lens.js/helpers.js/lens-model.js).
+    # `gate-lens.js` imports `./helpers.js` BY THAT EXACT NAME (it is copied
+    # verbatim, unlike the harness's own `.mjs` rename of lens-model.js above)
+    # — so helpers is ALSO placed under its real name, and a minimal
+    # `package.json` makes Node parse plain `.js` here as ESM (harness*.mjs and
+    # lens-model.mjs already are, by extension alone; this applies to
+    # gate-lens.js and helpers.js).
+    #
+    # THE `./lens-model.js` COPY IS GONE, and its absence is the assertion.
+    # It was here only because `gate-lens.js` statically imported
+    # `clusterRequest`/`recipeRequest` from it; § 3.4 slice S5 removed that
+    # import under RULED counterpart Q6 (`#656` comment `5649094228` —
+    # "`./views/helpers.js` AND NOTHING ELSE"), and both names now reach the
+    # binding as `ctx.model`. Keeping the copy would let the old static reach
+    # resolve here for years after it stopped being legal. The harness still
+    # reads the two builders from `lens-model.mjs`, openDox's own unmoved
+    # module, below.
     (tmp_path / "package.json").write_text('{"type": "module"}\n', encoding="utf-8")
-    shutil.copy(LENS_MODEL_JS, tmp_path / "lens-model.js")
     shutil.copy(HELPERS_JS, tmp_path / "helpers.js")
     shutil.copy(GATE_LENS_JS, tmp_path / "gate-lens.js")
     (tmp_path / "reqharness.mjs").write_text(_REQUEST_HARNESS, encoding="utf-8")

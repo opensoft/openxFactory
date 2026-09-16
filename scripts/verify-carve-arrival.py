@@ -116,7 +116,7 @@ match openxFactory at the carve commit, or whose surface is incomplete is
 opinion about the same bytes. Both are run; neither substitutes for the other.
 
 WHAT A LINE IS, AND WHY IT IS DEFINED IN A THIRD FILE (RULED Q-L8 (c)). The
-manifest declares 1761 edit lines BY NUMBER, this file decides whether a diff
+manifest declares 2621 edit lines BY NUMBER, this file decides whether a diff
 touches only them, and `validate-carve-manifest.py` bounds them against the
 carve blob — so a number must mean the same thing in both tools, and it did
 not: this one split with `str.splitlines()` and that one counted `b"\\n"`, which
@@ -1099,6 +1099,17 @@ def effective_arrival(row: dict[str, Any]) -> tuple[Any, Any]:
     return row.get("destination"), row.get("destination_path")
 
 
+# THE CLOSED KEY SET, HERE TOO, because this predicate ENFORCES it and cannot
+# import the copy in `scripts/validate-carve-manifest.py` (that file is a
+# hyphenated entry point loaded by `spec_from_file_location`; this one is
+# imported bare). A block carrying a key outside it — a misspelled `notes:`, a
+# field somebody invented — reads as NO retirement and the arrival stays owed,
+# on the same fail-closed reasoning the four required keys already have: a
+# document this predicate cannot fully read is one the manifest validator must
+# be run against before anything acts on it.
+RETIRED_KEYS = frozenset({"at", "at_path", "ruling", "surface", "note"})
+
+
 def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
     """`(destination key, destination path)` a RULING has RETIRED this row's
     arrival at (RULED 5656343213) — or `(None, None)` where the row carries no
@@ -1132,15 +1143,30 @@ def retired_at(row: dict[str, Any]) -> tuple[Any, Any]:
     required arrival before anyone validated the document. Four non-empty
     strings or no retirement — the same closed key set (`at`, `at_path`,
     `ruling`, `surface`, and the optional `note`) the form itself declares.
+
+    AND THE OPTIONAL KEY IS READ AS THE GRAMMAR WRITES IT, not as a type
+    (Copilot review of PR #1032, round 7). `_check_retired_shape` refuses a
+    PRESENT `note:` that is not a non-empty string — *a note is prose or it is
+    absent* — and this predicate asked only `isinstance`, so `note: ""` and
+    `note: "   "` read as usable retirements here and as `carve-shape-invalid`
+    there. That is the fail-OPEN direction again, arriving through the one key
+    the form makes OPTIONAL: a block the validator would refuse silenced this
+    row's arrival check at a leg that had not run the validator. ABSENT, OR
+    PROSE — the same rule, in the same words, in all three copies and in the
+    grammar, held together by
+    `test_the_note_is_prose_or_absent_in_the_grammar_and_in_all_three_readers`.
     """
     retired = row.get("retired")
-    if isinstance(retired, dict):
+    if isinstance(retired, dict) and set(retired) <= RETIRED_KEYS:
         at = retired.get("at")
         at_path = retired.get("at_path")
         ruling = retired.get("ruling")
         surface = retired.get("surface")
-        if all(isinstance(value, str) and value.strip()
-               for value in (at, at_path, ruling, surface)):
+        if (all(isinstance(value, str) and value.strip()
+                for value in (at, at_path, ruling, surface))
+                and ("note" not in retired
+                     or (isinstance(retired["note"], str)
+                         and retired["note"].strip()))):
             return at, at_path
     return None, None
 
@@ -1284,6 +1310,96 @@ def arrival_path(row: dict[str, Any]) -> Any:
     return path
 
 
+def _resolved_destination(key: Any, destinations: Any) -> tuple:
+    """A destination key's REAL identity — its `(repository, leg)` body.
+
+    THE MIRROR OF `validate-carve-manifest.py`'s function of the same name, and
+    kept in step by
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_both_tools_resolve_a_destination_key_identically`
+    — the same discipline `effective_arrival` is held to, and for the same
+    reason: two tools quietly disagreeing about one definition is what RULED
+    Q-L8 (c) had to repair when a line meant two things.
+
+    WHY IT EXISTS HERE (the follow-up REGISTERED at `#1011`'s landing and
+    carried by slice S8, the act that first READS live `re_destined:` rows —
+    slice S5's four, at `#1023`; S8 writes none of its own, RULED
+    `opensoft/openxFactory#656` comment 5656343213). A `destinations:` KEY IS A
+    LABEL, NEVER A REFERENT, and the
+    validator's `check_shape` deliberately ADMITS two keys sharing one
+    `{repository, leg}` body. `--destination` names a key, so every question
+    this file asks about "is this row THIS leg's" was being answered by a
+    string comparison against a label: a row re-destined between two ALIASES of
+    one real leg would be read here as both an arrival (file must be PRESENT)
+    and a vacation (file must be ABSENT), at one real destination, which
+    nothing can satisfy — and the leg would refuse `arrival-not-vacated` on a
+    file the manifest still says it carries. The validator now refuses that
+    document at the gate that runs first; this file must not ACT on one either
+    if it is handed a manifest that was never gated.
+
+    GUARDED AT EVERY LEVEL, exactly as `_also_replicated_labels` is: a key
+    `destinations:` does not carry resolves to a 1-tuple of the key itself — a
+    shape that can never equal a resolved 2-tuple — so an unknown key never
+    accidentally compares EQUAL to a known one, and a malformed
+    `destinations:` block degrades to the label comparison this file used to
+    make rather than crashing.
+    """
+    entry = destinations.get(key) if isinstance(destinations, dict) else None
+    if isinstance(entry, dict):
+        return (entry.get("repository"), entry.get("leg"))
+    return (key,)
+
+
+def admissions_for(admissions: dict[str, list[dict[str, str]]],
+                   destination: str,
+                   destinations: Any) -> list[dict[str, str]]:
+    """Every `created:` entry declared for the REAL destination `destination`
+    names — the UNION over every `destinations:` key that resolves to the same
+    `{repository, leg}` body.
+
+    BY RESOLVED IDENTITY AND NOT BY THE CLI LABEL (Copilot review, PR #1025,
+    accurate). Every other reader in this file — `rows_for`, `vacated_rows`,
+    `also_replicated_rows`, and `validate-carve-manifest.py`'s own checks —
+    resolves a key to its body, because `check_shape` admits two keys sharing
+    one body on purpose and a key is a LABEL, never a referent. This one
+    selected with `.get(args.destination)`, so a `created:` entry filed under
+    one of two aliases of a single leg made the SAME CHECKOUT pass when
+    verified through that key and refuse `arrival-undeclared-file` through its
+    alias. A verdict that depends on which name the caller typed is not a
+    verdict about the tree.
+
+    A PATH DECLARED UNDER TWO ALIASES OF ONE LEG IS `arrival-unreadable`, and
+    that is the explicit duplicate rule the union needs: `read_admissions`
+    already refuses a repeat WITHIN a destination's list, for the reason that
+    one file cannot have two provenances, and spelling the second entry under
+    an alias is the same claim made twice about one leg. Identical duplicates
+    are refused too rather than silently collapsed — two entries are two
+    review decisions, and the file's whole design is that an admission is a
+    one-line diff somebody read.
+    """
+    here = _resolved_destination(destination, destinations)
+    seen: dict[str, str] = {}
+    out: list[dict[str, str]] = []
+    for key in sorted(admissions):
+        if _resolved_destination(key, destinations) != here:
+            continue
+        for entry in admissions[key]:
+            path = entry["path"]
+            if path in seen:
+                raise ArrivalRefusal(
+                    "arrival-unreadable",
+                    f"the admissions file declares {path!r} twice for one real "
+                    f"destination — under {seen[path]!r} and under {key!r}, "
+                    f"two `destinations:` keys for {here!r}. A key is a LABEL "
+                    "and this tool reads a destination by its "
+                    "`{repository, leg}` body, so the two entries are one "
+                    "claim made twice about one leg, with two `since` "
+                    "provenances and no rule for which is the file's. Declare "
+                    "it once, under the key that leg's pull requests use")
+            seen[path] = key
+            out.append(entry)
+    return sorted(out, key=lambda entry: entry["path"])
+
+
 def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     """The MOVED rows this destination is owed, in manifest order.
 
@@ -1314,11 +1430,13 @@ def rows_for(doc: dict[str, Any], destination: str) -> list[dict[str, Any]]:
     placement it retires nothing here, the row stays in this list, and its
     absent file refuses `arrival-missing`.
     """
+    here = _resolved_destination(destination, doc.get("destinations"))
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
             and retired_arrival(row)[1] is None
-            and effective_arrival(row)[0] == destination]
+            and _resolved_destination(effective_arrival(row)[0],
+                                      doc.get("destinations")) == here]
 
 
 def retired_rows(doc: dict[str, Any],
@@ -1345,15 +1463,35 @@ def retired_rows(doc: dict[str, Any],
     where a row is checked is the question a SELECTION answers, and whether
     the block could be read at all is `check_retired`'s, one frame from the
     join it decides.
+
+    KEYED ON THE BLOCK, AND ON THE BLOCK'S RESOLVED LEG (Copilot review of PR
+    #1032, round 9). Selecting on the block is one question; comparing a
+    `destinations:` KEY as a string is another, and it was the wrong answer to
+    it. A key is a LABEL, never a referent — `check_shape` deliberately admits
+    two keys sharing one `{repository, leg}` body — so a run invoked with the
+    OTHER spelling of the leg the block names skipped the retirement
+    altogether: the absence was never required, and a file left at the retired
+    path fell through to the walk, where it draws `arrival-undeclared-file`,
+    whose remedy is DECLARE IT. That is the opposite of the remedy a ruling
+    ordered. `vacated_rows` — the Q6 sibling that asks the same shape of
+    question about a re-destination's losing leg — already resolves
+    `re_destined.from` this way, and `rows_for` resolves the arrival side, so
+    this was the one selector in the file still comparing labels.
+
+    RESOLVING IS NOT RE-KEYING. `at` still decides WHICH placement is asked and
+    the effective arrival still does not; all that changes is that two
+    spellings of one real leg stop being two legs here.
     """
     out: list[dict[str, Any]] = []
+    destinations = doc.get("destinations")
+    here = _resolved_destination(destination, destinations)
     for row in doc["rows"]:
         if not isinstance(row, dict):
             continue
         if row.get("disposition") not in MOVED_DISPOSITIONS:
             continue
         at, _at_path = retired_at(row)
-        if at != destination:
+        if _resolved_destination(at, destinations) != here:
             continue
         out.append(row)
     return out
@@ -1364,6 +1502,8 @@ def vacated_rows(doc: dict[str, Any],
     """The MOVED rows a ruling has re-destined AWAY from this destination —
     the ones whose `re_destined.from_path` must now be absent here."""
     out: list[dict[str, Any]] = []
+    destinations = doc.get("destinations")
+    here = _resolved_destination(destination, destinations)
     for row in doc["rows"]:
         if not isinstance(row, dict):
             continue
@@ -1372,14 +1512,15 @@ def vacated_rows(doc: dict[str, Any],
         re_destined = row.get("re_destined")
         if not isinstance(re_destined, dict):
             continue
-        if (re_destined.get("from") != destination
+        if (_resolved_destination(re_destined.get("from"), destinations) != here
                 or not isinstance(re_destined.get("from_path"), str)):
             continue
         # A `to` that is not a usable string is no re-destination at all
         # (`effective_arrival`'s own reading), and demanding a vacation on the
         # strength of half a field would refuse a leg for a document defect
         # `validate-carve-manifest.py` owns.
-        if effective_arrival(row)[0] == destination:
+        if _resolved_destination(effective_arrival(row)[0],
+                                 destinations) == here:
             continue
         out.append(row)
     return out
@@ -1430,11 +1571,15 @@ def also_replicated_rows(doc: dict[str, Any],
     a replica would let `--replica-at` re-point it — the single thing that flag
     was narrowed to prevent.
     """
+    destinations = doc.get("destinations")
+    here = _resolved_destination(destination, destinations)
     return [row for row in doc["rows"]
             if isinstance(row, dict)
             and row.get("disposition") in MOVED_DISPOSITIONS
-            and effective_arrival(row)[0] != destination
-            and destination in _also_replicated_labels(row)]
+            and _resolved_destination(effective_arrival(row)[0],
+                                      destinations) != here
+            and any(_resolved_destination(label, destinations) == here
+                    for label in _also_replicated_labels(row))]
 
 
 def declared_roots(rows: list[dict[str, Any]]) -> list[str]:
@@ -2501,7 +2646,14 @@ def verify(doc: dict[str, Any], destination: str, dest_root: Path,
     counts["unapplied"] += replica_counts["unapplied"]
     replicas_verified = replica_counts["verified"]
 
-    roots = declared_roots(rows)
+    # THE WALK'S SCOPE KEEPS A RETIRED ROW'S DIRECTORY, and only its PATH is
+    # dropped (Copilot review of PR #1032, round 6). `rows_for()` drops a
+    # retired row so the arrived copy cannot ride into `placed` — that is the
+    # point of the drop — but the roots are computed from the same list, so a
+    # directory whose LAST arrival was retired left the walk altogether and an
+    # unrelated file added there would have passed as a clean destination.
+    # Retirement suppresses the retired arrival, never the rest of the tree.
+    roots = declared_roots(rows + retired)
     # A DECLARED replica is admitted BY NAME, so it no longer rides into the
     # walk on a coincidence of bytes: the operator said where it is, and that
     # path is the one admitted.
@@ -2763,7 +2915,8 @@ def main(argv: list[str] | None = None) -> int:
                 "silently")
         declared_created = {
             entry["path"] for entry in
-            read_admissions(admissions_path, doc).get(args.destination, [])}
+            admissions_for(read_admissions(admissions_path, doc),
+                           args.destination, doc.get("destinations"))}
         cli_created = {dest_relative(p, "--allow-created")
                        for p in args.allow_created}
         # THE NOTICE (RULED #656): --allow-created still works for an ad-hoc

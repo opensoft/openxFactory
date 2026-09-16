@@ -474,6 +474,17 @@ def effective_arrival(row: dict) -> tuple[str, str]:
     return row.get("destination"), row.get("destination_path")
 
 
+# THE CLOSED KEY SET, HERE TOO, because this predicate ENFORCES it and cannot
+# import the copy in `scripts/validate-carve-manifest.py` (that file is a
+# hyphenated entry point loaded by `spec_from_file_location`; this one is
+# imported bare). A block carrying a key outside it — a misspelled `notes:`, a
+# field somebody invented — reads as NO retirement and the arrival stays owed,
+# on the same fail-closed reasoning the four required keys already have: a
+# document this predicate cannot fully read is one the manifest validator must
+# be run against before anything acts on it.
+RETIRED_KEYS = frozenset({"at", "at_path", "ruling", "surface", "note"})
+
+
 def retired_at(row: dict) -> tuple:
     """`(destination key, destination path)` a RULING has RETIRED this row's
     arrival at (RULED 5656343213, `#656` comment `5656343213`) — or
@@ -506,15 +517,30 @@ def retired_at(row: dict) -> tuple:
     required arrival before anyone validated the document. Four non-empty
     strings or no retirement — the same closed key set (`at`, `at_path`,
     `ruling`, `surface`, and the optional `note`) the form itself declares.
+
+    AND THE OPTIONAL KEY IS READ AS THE GRAMMAR WRITES IT, not as a type
+    (Copilot review of PR #1032, round 7). `_check_retired_shape` refuses a
+    PRESENT `note:` that is not a non-empty string — *a note is prose or it is
+    absent* — and this predicate asked only `isinstance`, so `note: ""` and
+    `note: "   "` read as usable retirements here and as `carve-shape-invalid`
+    there. That is the fail-OPEN direction again, arriving through the one key
+    the form makes OPTIONAL: a block the validator would refuse silenced this
+    row's arrival check at a leg that had not run the validator. ABSENT, OR
+    PROSE — the same rule, in the same words, in all three copies and in the
+    grammar, held together by
+    `test_the_note_is_prose_or_absent_in_the_grammar_and_in_all_three_readers`.
     """
     retired = row.get("retired")
-    if isinstance(retired, dict):
+    if isinstance(retired, dict) and set(retired) <= RETIRED_KEYS:
         at = retired.get("at")
         at_path = retired.get("at_path")
         ruling = retired.get("ruling")
         surface = retired.get("surface")
-        if all(isinstance(value, str) and value.strip()
-               for value in (at, at_path, ruling, surface)):
+        if (all(isinstance(value, str) and value.strip()
+                for value in (at, at_path, ruling, surface))
+                and ("note" not in retired
+                     or (isinstance(retired["note"], str)
+                         and retired["note"].strip()))):
             return at, at_path
     return None, None
 
@@ -875,7 +901,17 @@ def sources_under(prefix: str) -> dict[str, Path]:
             continue
         if row.get("reason") == "deleted_at_carve":
             continue
-        if retired_at(row)[1] is not None:
+        # THE RETIREMENT OMISSION IS A MOVED ROW'S, and the disposition test is
+        # load-bearing rather than defensive (Copilot review of PR #1032,
+        # round 6). `retired:` on a `not_moved` row is a document
+        # `validate-carve-manifest.py` refuses (`carve-retired-not-moved`) —
+        # but this module is imported by consumers that never run it, and
+        # `source()` above resolves a `not_moved` row HERE, unconditionally,
+        # before it reads any retirement. Omitting on `retired_at` alone made
+        # this sweep disagree with `source()` about the same row and, worse,
+        # silently drop a file that is RETAINED in this tree.
+        if (row.get("disposition") != "not_moved"
+                and retired_at(row)[1] is not None):
             continue
         out[key] = source(key)
     return out
