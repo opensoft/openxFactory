@@ -976,13 +976,21 @@ _LEDGER_SUBJECTS = {
     # value (`scripts/doc_health/families.py:1573-1576`, refused at `:1572`,
     # naming THE VALUE) and the document whose repository has no resolution
     # root in the run (`:1587-1592`, naming THE REPOSITORY, `_pin_roots` having
-    # returned an empty list at `:1580`). The ONE uncarried unit of 186 is
-    # exactly that sentence, and its successor stands in the same paragraph
-    # saying MORE and never less — the obligation scoped to findings AFTER ROOT
+    # returned an empty list at `:1580`). FIX ROUND 1 (Copilot review of PR
+    # #1052) found the restated sibling scenario *A pinned target names a pin
+    # no resolution root carries*'s WHEN — carried unchanged from canon — was
+    # ALSO true of the empty-root-set case the new scenario below covers with
+    # a DIFFERENT outcome, so it gained one clause too: "…and at least one
+    # resolution root was selected for the run". THE TWO UNCARRIED UNITS OF
+    # 186 ARE EXACTLY THOSE TWO — the body sentence and that one WHEN
+    # bullet — and each has a successor in the same block saying MORE and
+    # never less: the body sentence's obligation scoped to findings AFTER ROOT
     # SELECTION, with the two exceptions named together with what each names
-    # instead. Every other promoted unit of the requirement, including all
-    # twenty-three of its scenarios, is carried verbatim, and ONE scenario is
-    # added. NO `Removed from canon` MARKER IS OWED, nothing being deleted.
+    # instead; the WHEN's empty-root case handed whole to the new scenario
+    # below. Every other promoted unit of the requirement, including all
+    # twenty-three of its scenarios' titles and every other bullet, is carried
+    # verbatim, and ONE scenario is added. NO `Removed from canon` MARKER IS
+    # OWED, nothing being deleted.
     # This arm cannot distinguish a deliberate scoping from drift and does not
     # claim to; the finding is INFO and it is the audit trail for the
     # amendment. Retires when the packet archives and its block is promoted

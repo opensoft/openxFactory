@@ -982,7 +982,8 @@ Active changes:
   — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
   **`Status: draft`**. A small `## MODIFIED Requirements` amendment to promoted
   `document-lifecycle` canon (`openspec/specs/document-lifecycle/spec.md`,
-  *Prose tagging marker hygiene*), SCOPING ONE SENTENCE. Canon says "EVERY
+  *Prose tagging marker hygiene*), SCOPING ONE SENTENCE, NARROWING ONE CLAUSE
+  OF A SIBLING SCENARIO'S WHEN, AND ADDING ONE SCENARIO. Canon says "EVERY
   finding the pinned arm emits SHALL NAME THE ROOT OR ROOTS it resolved
   against, or failed to"; TWO of the realized arm's fifteen findings are
   emitted BEFORE ANY ROOT IS SELECTED and cannot obey it — the lexically
@@ -991,14 +992,17 @@ Active changes:
   and the document whose repository has no resolution root in the run (naming
   THE REPOSITORY at `:1587-1592`, `_pin_roots` having returned an empty list).
   The delta scopes the obligation to findings that REACH ROOT SELECTION, names
-  the two exceptions with what each names instead, and adds ONE scenario, *A
-  finding emitted before root selection names what it judged*. **THE REALIZED
-  BEHAVIOUR ALREADY MATCHES THE CLARIFIED READING** — `code_surface: none`,
-  measured rather than assumed; the other thirteen findings name their root
-  today. The block is GENERATED from canon and verified two ways: a unified
-  diff against canon's block (TWO hunks) and a `derive_units` comparison
-  through the modified-block-currency family's own derivation (canon 209
-  units, block 215, ONE uncarried unit, seven new). Surfaced by Copilot on the
+  the two exceptions with what each names instead; narrows the restated
+  sibling scenario *A pinned target names a pin no resolution root carries*'s
+  WHEN by ONE clause (fix round 1), so the empty-root case keeps one outcome
+  and not two; and adds ONE scenario, *A finding emitted before root selection
+  names what it judged*. **THE REALIZED BEHAVIOUR ALREADY MATCHES THE
+  CLARIFIED READING** — `code_surface: none`, measured rather than assumed;
+  the other thirteen findings name their root today. The block is GENERATED
+  from canon and verified two ways: a unified diff against canon's block
+  (THREE hunks, 18 added / 5 removed) and a `derive_units` comparison through
+  the modified-block-currency family's own derivation (canon 209 units, block
+  215, TWO uncarried units, eight new). Surfaced by Copilot on the
   archive pull request [#1042](https://github.com/opensoft/openxFactory/pull/1042)
   and RULED STANDS there — the sentence is ratified canon promoted
   byte-identical, which an archive act may not edit — so the remedy is a
