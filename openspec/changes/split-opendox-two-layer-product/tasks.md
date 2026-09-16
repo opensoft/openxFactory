@@ -883,8 +883,17 @@ the bookkeeping that ticks this group.
   gate loop; the wheel, funnel and lens regions carry stage names. **This is where
   a student-usable openDox is won or lost**, and it is its own task rather than a
   consequence of the Python split.
-  **STATUS — 2026-09-14, tick JUDGED MET AT THIS AMENDMENT'S OWN LANDING: the
-  boundary was INVENTED as a design note and REALIZED in an eight-slice arc.**
+  **STATUS — authored 2026-09-14; tick JUDGED MET AT THIS AMENDMENT'S OWN
+  LANDING, 2026-09-16: the boundary was INVENTED as a design note and REALIZED
+  in an eight-slice arc.** *(The date is the AUTHORING SNAPSHOT and is labelled
+  as one rather than moved forward, on the precedent `openDox-spec`'s own § 7
+  header sets at its fix round 13: an amendment whose tick is judged AT ITS
+  LANDING cannot be dated to the day it was written, and re-dating it would
+  erase which of these statements were authored before the slices they record
+  had merged. The acts recorded below ran on 2026-09-12/13 (S1–S6), 2026-09-15
+  (S7 and the pin lockstep) and 2026-09-16 (S8's three and openDox-spec #11),
+  each with its own clock beside it. Two Copilot findings on #1035, one raised
+  as a thread and one suppressed, both accurate; taken at fix round 6.)*
   **ALL EIGHT are merged and every sha in the table below is final**, each one
   read from the merged pull request itself rather than from a report of it. The
   tick is therefore written for the state this pull request lands INTO, which is
@@ -1019,8 +1028,11 @@ the bookkeeping that ticks this group.
   Records entry in `README.md` still reads *"IT STILL PERFORMS NOTHING. No
   repository is created, no code moves …"*, written 2026-09-05 (`ceb6dc9e`,
   `8b297c2f`) when that was exactly true and no longer is: `openDox-code` and `openXdox-code` exist and were cut
-  from the carve commit `b075fd91` (tag `opendox-carve-0`), and six of the
-  eight slices above are merged. The staleness predates this amendment and is
+  from the carve commit `b075fd91` (tag `opendox-carve-0`), and **ALL EIGHT
+  slices above are merged** *(this read "six of the eight" when it was authored
+  and stayed stale through S7's and S8's landings — a suppressed Copilot finding
+  on #1035, accurate, taken at fix round 6; the count is the one § 3.4's STATUS
+  paragraph and the table above both carry)*. The staleness predates this amendment and is
   not made by it; it is left to the act that CLAIMS that text — the same rule
   this box applies to `design.md`'s and `proposal.md`'s four *"30,410"*
   occurrences — which is the packet's ARCHIVAL act, the README **OpenSpec
@@ -1156,7 +1168,8 @@ the bookkeeping that ticks this group.
   § 4.3 routes/subcommands build, not one of `design.md`'s inventoried twelve
   modules. Box stays open until the residue carve resolves where the
   remaining imports land.
-  **STATUS — 2026-09-14, box STAYS OPEN, and the residue is now fully
+  **STATUS — authored 2026-09-14, re-verified at this amendment's landing,
+  2026-09-16; box STAYS OPEN, and the residue is now fully
   accounted for: § 3.4 moved none of it, and five of the eleven were
   DISCHARGED BY THE § 2 SEAM rather than relocated.** Re-measured 2026-09-14 at
   four trees — openXdox-code `main` **`c1ad341a`** (S5 leg A landed),
