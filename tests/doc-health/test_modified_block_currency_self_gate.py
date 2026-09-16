@@ -1363,7 +1363,14 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 #: assertion would still pass". Taken rather than answered.
 #:
 #: EACH ROW: (change, archived delta path, capability, the MODIFIED title that
-#: held the ledger row, the ADDED titles that must still stand in the delta).
+#: held the ledger row — or None where the packet carried no MODIFIED block at
+#: all — and the ADDED titles that must still stand in the delta).
+#:
+#: A `None` IN THE FOURTH FIELD IS NOT A WEAKER ROW. `add-lens-document-selection`
+#: (§ 6.5) is five ADDED requirements and nothing else, so it never held a
+#: `_LEDGER_SUBJECTS` row and its departure was implied by NOTHING at all — not
+#: even by a row going missing. The first three checks still apply to it, and the
+#: fourth (the ADDED titles) is the whole of what a re-home could lose there.
 _REHOMED_AND_STILL_WHOLE = (
     ("add-doxchat-model-intake",
      "openspec/changes/archive/2026-09-16-add-doxchat-model-intake/"
@@ -1375,6 +1382,16 @@ _REHOMED_AND_STILL_WHOLE = (
       "The intake affordance ships with the flow behind it",
       "The model selector offers intake first and defaults to it when nothing "
       "is approved")),
+    ("add-lens-document-selection",
+     "openspec/changes/archive/2026-09-16-add-lens-document-selection/"
+     "specs/ideation-dashboard/spec.md",
+     "ideation-dashboard",
+     None,
+     ("Every view of a document is one hover away from the others",
+      "A document selection drafts a staging-queue seed",
+      "A finding is stated before it is drawn",
+      "A panel in contested space carries one row of chrome",
+      "The theme owns every colour a view chooses")),
 )
 
 
@@ -1402,6 +1419,9 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
     NOT A COUNT. Each title is named; the population is bounded by the same
     named set rather than by its size.
     """
+    assert _REHOMED_AND_STILL_WHOLE, (
+        "the § 6 closures this file has seen; empty means the constant was "
+        "cleared rather than a closure being reverted")
     for change, delta, capability, requirement, added in _REHOMED_AND_STILL_WHOLE:
         active = ROOT / "openspec" / "changes" / change
         assert not active.is_dir(), _moved(
@@ -1417,12 +1437,18 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
 
         requirements, _renames = mbc.parse_delta(
             archived.read_text(encoding="utf-8", errors="replace"))
-        modified = [r for r in requirements
-                    if r.op == "MODIFIED"
-                    and mbc.norm(r.title) == mbc.norm(requirement)]
-        assert len(modified) == 1, _moved(
-            f"the MODIFIED block {requirement!r} in {delta}",
-            f"{len(modified)} matching block(s)")
+        if requirement is None:
+            assert not [r for r in requirements if r.op == "MODIFIED"], _moved(
+                f"{change} carrying NO MODIFIED block (it is ADDED-only, which "
+                "is why it never held a ledger row)",
+                "the archived delta now carries one")
+        else:
+            modified = [r for r in requirements
+                        if r.op == "MODIFIED"
+                        and mbc.norm(r.title) == mbc.norm(requirement)]
+            assert len(modified) == 1, _moved(
+                f"the MODIFIED block {requirement!r} in {delta}",
+                f"{len(modified)} matching block(s)")
 
         present = {mbc.norm(r.title) for r in requirements if r.op == "ADDED"}
         missing = [title for title in added if mbc.norm(title) not in present]
@@ -1431,13 +1457,11 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
             "archived delta",
             f"absent: {missing}")
 
-        live = [b for b in mbc.active_blocks(ROOT)
-                if (b.change, b.capability, mbc.norm(b.title))
-                == (change, capability, mbc.norm(requirement))]
+        live = [b for b in mbc.active_blocks(ROOT) if b.change == change]
         assert not live, _moved(
-            f"no ACTIVE block carrying {change} / {requirement!r}",
-            f"{len(live)} still active — the ledger row was removed while the "
-            "block is still read by `active_blocks`")
+            f"no ACTIVE block carrying {change}",
+            f"{len(live)} still active — the packet is archived while "
+            "`active_blocks` still reads a block under its id")
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():

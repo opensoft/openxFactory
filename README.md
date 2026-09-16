@@ -3194,7 +3194,7 @@ Archived changes:
 
 - [add-lens-document-selection](openspec/changes/archive/2026-09-16-add-lens-document-selection/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
-  [PR #<this PR — filled in the ledger-seed commit>](https://github.com/opensoft/openxFactory/pulls),
+  [PR #1065](https://github.com/opensoft/openxFactory/pull/1065),
   under **RULING Q6** (Brett Heap, 2026-09-04T17:49Z,
   [#656](https://github.com/opensoft/openxFactory/issues/656)) **and RULING DQ-1**
   (same day, 22:14Z), encoded at `split-opendox-two-layer-product` `tasks.md`
