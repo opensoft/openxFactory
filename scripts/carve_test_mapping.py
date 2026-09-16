@@ -108,6 +108,18 @@ and the tree carries 1,324; at `openXdox-code 0a0265f`, 2,319 against 2,555. A
 floor resting on the larger number drifts with another repository's unrelated
 commits and stops being a claim about the carve.
 
+**THIS FLOOR COMPARES NO BYTES, WHICH IS WHY IT TAKES A REPLICA THE ARRIVAL
+VERIFIER MUST NOT BE GIVEN.** `docs/opendox-cutover-runbook.md` § 2 instructs
+the operator NOT to declare `tests/corpus-adapter/test_conformance.py` to
+`verify-carve-arrival.py`, because its implementation-aware block (`:72-84`)
+imports the home factory and must be rewritten at each destination — neither
+verbatim nor declared-edit, so a declaration would refuse on the digest. A
+`def test_` count survives that rewrite untouched, so the same row is the one
+THIS floor most needs declared: 20 of the 30 replicated test functions are in
+it. Same flag spelling, different question, opposite instruction — said here
+because an operator reading § 2 across would drop two thirds of the replica
+term.
+
 **AND WHY THE REFUSAL IS THE DESTINATION TOTAL AND NOT A PER-ROW EQUALITY, also
 decided by measurement.** `tests/ideation-dashboard/test_serve_column_split.py`
 is a `not_moved / stays_openxfactory_adapter` row declaring 9 `def test_` at
@@ -399,6 +411,19 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
         if retired_at(row)[1] is not None:
             return RowMapping(source_path, 0, extra, "retired", ruling_of(row))
         key, _path = effective_arrival(row)
+        # A MOVED ROW THAT NAMES NO DESTINATION HAS NO HOME, and that is
+        # clause (a)'s FIRST LIMB verbatim — "its row names no home — no
+        # `destination`". FLOOR PART 1 refuses the same row
+        # `carve-shape-invalid`, and this floor must not hide behind that: the
+        # two tools are run in different places (this one at a destination
+        # too), and "validate the manifest first" is not an answer to "where
+        # did 35 tests go". An absent or non-string key is NO HOME; a
+        # non-empty key that is not in `destinations:` is a VOCABULARY error
+        # and stays unreadable here, because FLOOR PART 1 answers it by name
+        # (`carve-vocabulary-unknown`) and a second name for it would be a
+        # second vocabulary.
+        if not isinstance(key, str) or not key:
+            return RowMapping(source_path, 0, extra, "moved", None)
         return RowMapping(source_path, 0,
                           (repository_of(doc, key),) + extra, "moved", None)
     if disposition == NOT_MOVED:
