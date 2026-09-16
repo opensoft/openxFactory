@@ -126,7 +126,7 @@ anywhere in this pull request.
       (`pinned_dispositions`) where the absent-is-empty line could not.
       `test_guard_leg_every_cited_line_still_reads_the_member_it_was_measured_from`
       asserts `pin.get("<spelling>")` appears on a CITED line and ranges over
-      the REQUIRED table only (`_tracked_table`, `test_pin_shape_adapter.py:99`),
+      the REQUIRED table only (`_tracked_table`, `test_pin_shape_adapter.py:86`),
       so the realization decides — and states — whether the optional arm gets a
       route of its own or a parallel helper; either way `:813` onwards does not
       read `pin.get("dispositions")` and MUST NOT be cited as though it did.

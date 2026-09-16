@@ -204,7 +204,7 @@ Four reasons, in order of force.
    `dispositions:` would rewrite two prose passages and the count, and the
    carriage-ledger self-gate would need a row recording the generalization.
 3. **THE TABLE'S MEASURED SPLIT DOES NOT MOVE.** `_tracked_table`
-   (`tests/doc-health/test_pin_shape_adapter.py:99`) ranges over
+   (`tests/doc-health/test_pin_shape_adapter.py:86`) ranges over
    `shape.required`, and `test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two`
    pins the result at `(29, 27, 2)`. Option (a) touches neither number; option
    (b) moves both and re-opens the per-shape table in canon.

@@ -67,12 +67,15 @@ decisions `design.md` carries:
   of transcribing it — are both refused on canon's own words.
 
 **BOXES TICKED BY THIS RATIFICATION: 1.1, 1.2, 1.3, 1.4.** No box in
-`tasks.md` § 1 stays open. § 2 stands exactly as the filing pull request left
-it, and § 3 and § 4 stay open.
+`tasks.md` § 1 stays open. § 2's CHECKBOXES stand exactly as the filing pull
+request left them, and § 3 and § 4 stay open — the non-checkbox consistency
+corrections below touch prose inside § 1's header and § 2.2's evidence line,
+and move no box.
 
-**THIS RATIFYING ACT ALSO ACCEPTS TWO CONFORMING FIXES**, found by the lane
-from Copilot's suppressed review comments at the ratified head, neither one a
-design decision and neither reopening D-1, D-2 or D-3:
+**THIS RATIFYING ACT ALSO CARRIES FIVE NON-DECISION CONSISTENCY
+CORRECTIONS**, found by the lane from Copilot's suppressed review comments at
+successive heads on this pull request. None is a design decision, none moves
+a checkbox, and none reopens D-1, D-2, D-3 or any other scope:
 
 1. `design.md` D-1's "THE GAP, COUNTED" tally and enumerated list corrected
    from EIGHT to TEN measured records — the table above it always carried
@@ -86,6 +89,23 @@ design decision and neither reopening D-1, D-2 or D-3:
    sweep-ledger bookkeeping the filing pull request already moved (task 2.6)
    — bookkeeping the self-gate requires of any filing that touches a
    promoted block, not test implementation for this arm.
+3. `tasks.md` task 2.2's own evidence line corrected the same way, from EIGHT
+   to TEN accepted-that-the-guard-refuses, naming `why: ""` and `level: ""`
+   as the two the first tally dropped. The task's checkbox — already `[x]`
+   from the filing pull request — does not move.
+4. `.openspec.yaml`'s `origin.reason` carried the same pre-correction tally in
+   two places — the main enumerated list and the closing "the eight measured
+   entry-grain records … still accepted" sentence — both corrected to TEN to
+   match. Pre-landing text corrections of the packet's own evidence, made
+   before the ratifying merge exists, so neither is an origin mutation; every
+   other origin key, including `proposed_by`'s filing-time wording, is
+   unmoved.
+5. `tasks.md`'s post-header paragraph, which had read "NOTHING IN § 1 IS
+   TICKED … this lane ticks no box in it" under a "kept verbatim as history"
+   marker, is rewritten to state the ratified fact directly instead of
+   preserving that now-stale framing: ratified 2026-09-16 on the citation
+   above, § 1 ticked (1.1-1.4); § 2 stands as filed; § 3 realization and § 4
+   archive stay open.
 
 ## What this ratification does NOT do
 
