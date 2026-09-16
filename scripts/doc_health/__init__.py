@@ -196,6 +196,29 @@ class Skip:
 
 
 @dataclass
+class PartialSkip(Skip):
+    """A `Skip` carrying the findings established before the question stopped
+    being askable.
+
+    A `Skip` FIRST AND BY INHERITANCE, so nothing that reads a skip has to
+    learn a new shape to go on failing closed on one; the findings are an
+    addition a reader may consult, never a substitution a reader must handle.
+    `runner.run_suite` reads them with `getattr(out, "findings", ())`, so every
+    plain `Skip` in the estate contributes an empty tuple BY CONSTRUCTION.
+
+    HERE RATHER THAN IN ONE FAMILY (`#1048` round 2). The shape was written for
+    `release_tag_publication` (`#766`, PR #871) and is still spelled
+    `release_tag_publication._PartialSkip` wherever the estate refers to it;
+    `release_inventory` needs the identical thing — a repository whose pinned
+    leg stops being readable at member N must not discard what members 1..N-1
+    established — and a second copy of a shared shape is how two readers of one
+    concept drift apart. One definition, two importers, no behaviour moved.
+    """
+
+    findings: tuple[Finding, ...] = ()
+
+
+@dataclass
 class RunResult:
     findings: list = field(default_factory=list)
     skips: list = field(default_factory=list)

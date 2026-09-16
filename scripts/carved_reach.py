@@ -666,8 +666,8 @@ def _git_run(repo: Path, *arguments: str):
 
 
 def _git_text(repo: Path, *arguments: str) -> str | None:
-    """One `git -C <repo> ...` read's stripped stdout, or `None` when git
-    declines — for the reads that ANSWER IN STDOUT."""
+    """The stripped stdout of one `git -C <repo> ...` read, or `None` when
+    git declines — for the reads that ANSWER IN STDOUT."""
     done = _git_run(repo, *arguments)
     if done is None:
         return None
@@ -689,13 +689,70 @@ def _git_ok(repo: Path, *arguments: str) -> bool:
 
 
 def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
-    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when it is not
-    there. `None` is an ANSWER here, not a swallowed error: the one caller uses
-    it to mean "that commit's tree carries no such entry", which is exactly the
-    case of a commit from BEFORE the § 5.2 shed — where the file is still in
-    this repository's own tree and the caller's ordinary read already found it.
+    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when that read
+    DID NOT ANSWER — which is not the same fact as "it is not there".
+
+    `None` IS TWO FACTS AND THE CALLER MUST SEPARATE THEM (`#1048` round 2).
+    One is the ANSWER the one caller wants: that commit's tree carries no such
+    entry, which is exactly the case of a commit from BEFORE the § 5.2 shed —
+    there the file is still in this repository's own tree and the caller's
+    ordinary read already found it. The other is a FAILURE: the tree object
+    this read has to walk is not in the store, and a `--filter=tree:0` clone
+    whose promisor remote is unreachable is the everyday shape of that. git
+    spells the two IDENTICALLY to a reader of stdout — exit 128 and nothing
+    printed, differing only in a `fatal:` line — so `_tree_entry_absent` below
+    asks which one arrived, and this `None` is never read as an absence alone.
     """
     return _git_text(repo, "rev-parse", f"{revision}:{path}")
+
+
+def _tree_entry_absent(repo: Path, revision: str,
+                       path: str) -> tuple[bool, str]:
+    """Did `revision`'s tree ANSWER that it carries no entry at `path`?
+
+    `(True, "")` for git's own unambiguous answer, `(False, <what git said>)`
+    for every other outcome. MEASURED, git 2.43.0, in a throwaway store — the
+    four shapes this separates:
+
+      A PATH GENUINELY NOT IN THE TREE. `rev-parse <commit>:<path>` exits 128
+      (`fatal: path 'x' does not exist in 'HEAD'`); `ls-tree <commit> --
+      <path>` EXITS 0 AND PRINTS NOTHING. This is the answer, and the only
+      shape that returns one.
+
+      THE COMMIT'S ROOT TREE OBJECT MISSING — a `--filter=tree:0` clone whose
+      promisor remote is unreachable, or a pruned store. `rev-parse` exits 128
+      again (`fatal: path 'leg' exists on disk, but not in 'HEAD'`), the same
+      empty stdout for the opposite fact; `ls-tree` exits 128 (`fatal: not a
+      tree object`, or git's own `could not fetch <tree> from promisor
+      remote`). `cat-file -e <commit>^{commit}` still exits 0 there, which is
+      why the commit probe in `shed_commit_object` passes and this case
+      reaches the walk at all.
+
+      A SUBTREE MISSING UNDER A READABLE ROOT TREE. `ls-tree` exits 1
+      (`error: Could not read <sha>`) while `cat-file -e <commit>^{tree}`
+      exits 0 — which is why the root-tree probe is NOT the discriminator
+      here: it passes on a store that cannot answer for the path.
+
+      AN UNRESOLVABLE REVISION. `ls-tree` exits 128 (`fatal: not a tree
+      object`), so an unreadable commit lands here as a failure rather than as
+      an absence, which is the taxonomy's "git unavailable or commit
+      unresolvable" arm rather than its "member absent" one.
+
+    EXIT 0 WITH OUTPUT IS A FAILURE TOO. The tree listed an entry that
+    `rev-parse` could not resolve; two reads that disagree have established
+    nothing, and the one thing this function may never do is manufacture an
+    absence out of a disagreement.
+    """
+    done = _git_run(repo, "ls-tree", revision, "--", path)
+    if done is None:
+        return False, "git could not be run"
+    if done.returncode != 0:
+        said = " ".join(done.stderr.split())
+        return False, said or f"`git ls-tree` exited {done.returncode}"
+    if done.stdout.strip():
+        return False, (f"`git ls-tree` lists an entry at {path} that "
+                       f"`git rev-parse {revision}:{path}` could not resolve")
+    return True, ""
 
 
 def _leg_object_store(parent: Path, segment: str) -> Path | None:
@@ -763,9 +820,21 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     the older leg's bytes, and nothing is read from the working tree.
 
     It answers `None` — and the caller's own answer stands — for a path in no
-    row, a `not_moved` row, and a commit whose tree carries no such gitlink,
-    which is every commit from BEFORE the shed: there the file is still in this
-    repository's own tree and the ordinary read already succeeded.
+    row, a `not_moved` row, and a commit whose tree ANSWERS that it carries no
+    such gitlink, which is every commit from BEFORE the shed: there the file is
+    still in this repository's own tree and the ordinary read already
+    succeeded.
+
+    THAT ABSENCE IS CONFIRMED RATHER THAN INFERRED (`#1048` round 2). A
+    `rev-parse <revision>:<segment>` that answers nothing says either "this
+    tree has no such entry" or "this tree could not be read", and a store
+    cloned `--filter=tree:0` whose promisor is unreachable is the second while
+    looking exactly like the first — the commit object present, the tree
+    object not. Taking that for an absence returned `None` here, which
+    `release_inventory` reports as the member being ABSENT AT THE COMMIT: the
+    phantom absence this path exists to refuse, arriving through the one read
+    that had no probe. `_tree_entry_absent` above asks `ls-tree` which fact it
+    is, and only the tree's own "no such entry" still answers `None`.
 
     It RAISES `CarveReachUnavailable` when the gitlink IS recorded and the leg's
     object store is not reachable from this checkout AT ALL — neither checked
@@ -796,10 +865,22 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     mount = REPO_ROOT
     revision = commit
     for segment in MOUNTS[row["destination"]].relative_to(REPO_ROOT).parts:
+        mount = mount / segment
         gitlink = _git_object_id(repo, revision, segment)
         if gitlink is None:
+            absent, said = _tree_entry_absent(repo, revision, segment)
+            if not absent:
+                raise CarveReachUnavailable(
+                    f"the pinned {row['destination']} leg cannot be located "
+                    f"at this commit: the tree {revision} names could not be "
+                    f"read where {mount.relative_to(REPO_ROOT)}'s gitlink is "
+                    f"recorded, so whether that gitlink is there is "
+                    f"UNESTABLISHED rather than answered, and {key} cannot be "
+                    f"read at the commit that pins it — git said: {said}. Run "
+                    f"`{INIT_COMMAND}` from the repository root; a shallow or "
+                    f"partially fetched store needs its own "
+                    f"`git fetch --unshallow` first.")
             return None
-        mount = mount / segment
         store = _leg_object_store(repo, segment)
         if store is None:
             raise CarveReachUnavailable(

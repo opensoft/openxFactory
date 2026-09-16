@@ -32,7 +32,7 @@ from conftest import FakeGit  # noqa: F401  (sys.path side effect)
 
 import carved_reach
 
-from doc_health import ERROR, INFO, Skip
+from doc_health import ERROR, Finding, INFO, Skip
 from doc_health import release_inventory
 from doc_health.corpus import RealGit
 from doc_health.families import FAMILIES, FAMILY_RESOLUTION
@@ -598,20 +598,25 @@ def test_a_well_formed_entry_is_still_compared_on_both_fields():
 
 
 def test_every_action_string_the_release_inventory_drift_family_can_emit_is_pinned_verbatim():
-    """`release_inventory.check_repo`/`fam_release_inventory_drift` raise FIVE
+    """`release_inventory.check_repo`/`fam_release_inventory_drift` raise SIX
     distinct action strings. `#448` (`cadc05ec`) pinned one
     (`test_non_editorial_drift_is_an_error`, above — its VERBATIM pin, not
     the two substring checks beside it, which cannot catch a mutation that
     preserves both phrases). Steward follow-up (Brett, 2026-08-28) widens
     that to the whole set, table-driven.
 
-    ALL FIVE are pinned BEHAVIOURALLY, reusing this suite's own `_run`,
+    FIVE are pinned BEHAVIOURALLY, reusing this suite's own `_run`,
     `_world`, `_world_missing` and `BASE` fixture helpers exactly as the
     existing per-arm tests above use them, plus one `fam_release_inventory_drift`
     call (the family-level per-repository skip precedent,
     `test_a_skipped_repository_is_REPORTED_not_silently_omitted`) for the
-    "no action" INFO action a bare `check_repo` call never reaches. No
-    static fallback is needed.
+    "no action" INFO action a bare `check_repo` call never reaches. THE SIXTH
+    — the `info` action a CARRYING skip takes instead (`#1048` round 2), where
+    the repository was PARTLY evaluated — is pinned STATICALLY: producing it
+    behaviourally needs a repository whose pinned leg goes unreadable partway
+    through its members, which is a real-git fixture rather than a `FakeGit`
+    world. It is reached, and separately asserted, by
+    `test_a_carrying_skip_is_reported_WITH_its_findings_not_instead_of_them`.
     """
     from doc_health.release_inventory import fam_release_inventory_drift
 
@@ -661,6 +666,9 @@ def test_every_action_string_the_release_inventory_drift_family_can_emit_is_pinn
         "build; an entry that cannot answer is not an entry that matches",
         "no action — this repository's release surface was not evaluated, "
         "and the reason is recorded rather than omitted",
+        "no action on this line — the question it names could not be asked, "
+        "and the findings this repository HAD established before it are "
+        "reported beside it rather than discarded with it",
     }
     assert_actions_pinned(EXPECTED_ACTIONS, behavioral, static,
                           family="release-inventory-drift")
@@ -704,6 +712,11 @@ def _new_repo(path: Path) -> Path:
     _git_in(path, "init", "-q", "-b", "main")
     _git_in(path, "config", "user.email", "t@example.invalid")
     _git_in(path, "config", "user.name", "T")
+    # A PARTIAL CLONE OF THIS REPO IS A FIXTURE THE ROUND-2 ARMS NEED, and the
+    # server side has to allow the filter or `--filter=tree:0` is answered with
+    # a full pack. Harmless everywhere else: it changes nothing for a clone
+    # that asks for no filter.
+    _git_in(path, "config", "uploadpack.allowfilter", "true")
     return path
 
 
@@ -713,24 +726,29 @@ def _write_file(repo: Path, relpath: str, data: bytes) -> None:
     target.write_bytes(data)
 
 
-def _worktree_inventory() -> bytes:
+def _worktree_inventory(drifting=()) -> bytes:
     """Two members: one this repository still carries, and one the shed moved
     into the pinned leg BYTE FOR BYTE — so a reader that reaches the leg finds
-    the digest matching and a reader that does not has an opinion to state."""
+    the digest matching and a reader that does not has an opinion to state.
+
+    `drifting` records a WRONG digest for the members it names, which is how
+    the carrying-skip arm below gets a repository that has established a
+    finding BEFORE its leg stops being readable."""
     lines = ["schema_version: 1",
              "kind: openxfactory-contract-release-digest-inventory",
              f"bundle_tag: {BUNDLE_WT}",
              "entries:"]
     for path, data in ((KEPT, KEPT_BYTES), (MOVED, MOVED_BYTES)):
+        recorded = _digest(data + b"drifted" if path in drifting else data)
         lines += [f"- artifact_id: {path.replace('/', '-')}",
                   f"  path: {path}",
                   "  type: schema",
                   "  git_mode: '100644'",
-                  f"  digest: sha256:{_digest(data)}"]
+                  f"  digest: sha256:{recorded}"]
     return ("\n".join(lines) + "\n").encode("utf-8")
 
 
-def _shed_fixture(tmp_path: Path) -> Path:
+def _shed_fixture(tmp_path: Path, drifting=()) -> Path:
     """A superproject declaring a bundle whose inventory records a member that
     exists ONLY in a leg pinned two submodule levels down."""
     spec = _new_repo(tmp_path / "origin-spec")
@@ -747,7 +765,8 @@ def _shed_fixture(tmp_path: Path) -> Path:
     _write_file(root, MANIFEST, f"schema_version: 1\nkind: manifest\n"
                                 f"contract_bundle_version: {BUNDLE_WT}\n"
                                 .encode("utf-8"))
-    _write_file(root, inventory_path_for(BUNDLE_WT), _worktree_inventory())
+    _write_file(root, inventory_path_for(BUNDLE_WT),
+                _worktree_inventory(drifting))
     _git_in(root, "submodule", "add", "-q", str(leg), "leg")
     _git_in(root, "submodule", "update", "--init", "--recursive", "-q")
     _git_in(root, "add", "-A")
@@ -894,3 +913,339 @@ def test_a_store_without_the_pinned_commit_is_a_skip_not_a_phantom_absence(
         f"about the member — got {outcome!r}")
     assert unknown in outcome.reason, "the skip must name the unreadable commit"
     assert "leg_spec" in outcome.reason, "and the leg it was pinned in"
+
+
+# ------------------------------------- round 2: an unreadable leg is never an
+#                                       absence, and never a discarded finding
+#
+# WHAT THESE ADD TO THE FOUR ABOVE (`#1048` round 2). Those pin the case where
+# the leg's object store cannot be FOUND or does not carry the pinned COMMIT.
+# Every read after that point still failed open: a `rev-parse <commit>:<segment>`
+# that answered nothing was read as "no gitlink there", and the blob and mode
+# reads in `release_inventory._shed_member` answered `(None, None)` and `{}` on
+# failure. Each of those is a fact about the MACHINE reported as a fact about
+# the RELEASE — the identical misattribution, one layer lower each time.
+#
+# MEASURED BEFORE THEY WERE WRITTEN, git 2.43.0, throwaway stores:
+#
+#   a path genuinely not in a tree ....... `rev-parse` exit 128, `ls-tree`
+#                                          EXIT 0 AND NO OUTPUT
+#   the commit's tree object missing ..... `rev-parse` exit 128 (a different
+#                                          `fatal:`, the same empty stdout),
+#                                          `ls-tree` exit 128; and
+#                                          `cat-file -e <commit>^{commit}`
+#                                          STILL EXIT 0, which is why round 1's
+#                                          commit probe passes this through
+#   a subtree missing below a good root .. `ls-tree` exit 1, while
+#                                          `cat-file -e <commit>^{tree}` exits
+#                                          0 — so the root-tree probe is not
+#                                          the discriminator, and `ls-tree` is
+#   a blob the store does not hold ....... `cat-file --batch` answers
+#                                          `<spec> missing` WITH EXIT 0 where
+#                                          nothing can fetch it, and FAILS
+#                                          OUTRIGHT (exit 128) where a promisor
+#                                          remote is configured and unreachable
+#
+# The fixtures below reproduce those shapes with real git rather than simulate
+# them: a `--filter=tree:0` store really is a store with the commit and without
+# its tree, and a `--filter=blob:none` store really is one whose trees list a
+# member it cannot serve.
+
+
+def _side_clone(tmp_path: Path, root: Path, name: str) -> Path:
+    """A clone that initialized no submodule — a side checkout, a CI job, a
+    fresh box — and therefore the place a DEGRADED leg store can be put where
+    `_leg_object_store` will find it."""
+    side = tmp_path / name
+    subprocess.run(["git", "clone", "-q", str(root), str(side)],
+                   check=True, capture_output=True)
+    return side
+
+
+def _store_clone(source: Path, target: Path, *filters: str) -> None:
+    """Build a leg's OBJECT STORE at the path `_leg_object_store` computes.
+
+    `--bare`, because a module store IS a git directory rather than a checkout,
+    and `file://` because git says `--filter is ignored in local clones; use
+    file:// instead` — a path-spelled source would silently hand back a
+    COMPLETE store and the fixture would prove nothing."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "clone", "-q", "--bare", *filters,
+                    f"file://{source}", str(target)],
+                   check=True, capture_output=True)
+
+
+def _dead_promisor(store: Path) -> None:
+    """Point the partial clone's promisor remote at nothing.
+
+    A live promisor REPAIRS the fixture on first read — git fetches the missing
+    object and the test passes against any reader. Pointed at nothing, the lazy
+    fetch fails loudly, which is what an offline box, a deleted remote and a
+    credential-less CI job all look like."""
+    _git_in(store, "remote", "set-url", "origin",
+            f"file://{store}-no-such-remote")
+
+
+def _forget_promisor(store: Path) -> None:
+    """Make the same store a plain one that is simply MISSING objects.
+
+    The other half of the measurement: with no promisor to try, `cat-file
+    --batch` answers `<spec> missing` and EXITS 0 — the answer an absent path
+    gives, for an object the store cannot serve. That indistinguishability is
+    the whole reason the tree is asked."""
+    for key in ("extensions.partialclone", "remote.origin.promisor",
+                "remote.origin.partialclonefilter"):
+        subprocess.run(["git", "-C", str(store), "config", "--unset", key],
+                       capture_output=True)  # exit 5 where the key is absent
+
+
+def _leg_store_of(side: Path) -> Path:
+    return side / ".git" / "modules" / "leg"
+
+
+def _spec_store_of(side: Path) -> Path:
+    return _leg_store_of(side) / "modules" / "spec"
+
+
+def _gitlink(repo: Path, rev: str, path: str) -> str:
+    return subprocess.run(["git", "-C", str(repo), "rev-parse", f"{rev}:{path}"],
+                          check=True, capture_output=True,
+                          text=True).stdout.strip()
+
+
+def test_the_tree_probe_separates_a_missing_entry_from_an_unreadable_tree(
+        tmp_path):
+    """THE DISCRIMINATOR ITSELF, asserted on `carved_reach` rather than only
+    through the family's verdict — the same reason the object-store resolver is
+    pinned above rather than left to be implied by a green run.
+
+    `rev-parse <commit>:<segment>` returns nothing for BOTH facts, so this is
+    the read that has to tell them apart."""
+    root = _shed_fixture(tmp_path)
+    side = _side_clone(tmp_path, root, "side")
+    _store_clone(tmp_path / "origin-leg", _leg_store_of(side), "--filter=tree:0")
+    _dead_promisor(_leg_store_of(side))
+    pinned = _gitlink(side, "HEAD", "leg")
+
+    assert carved_reach._tree_entry_absent(side, "HEAD", "no-such-path") == \
+        (True, ""), ("a tree that can be read and carries no such entry is an "
+                     "ANSWER — git exits 0 and prints nothing")
+    assert carved_reach._git_ok(_leg_store_of(side), "cat-file", "-e",
+                                f"{pinned}^{{commit}}"), (
+        "the fixture must reproduce a store that carries the pinned COMMIT — "
+        "round 1's probe passes here, which is why this case reaches the walk")
+    assert carved_reach._git_object_id(_leg_store_of(side), pinned, "spec") \
+        is None, ("...and whose TREE it cannot read, so the gitlink read "
+                  "answers exactly what a missing entry answers")
+    readable, said = carved_reach._tree_entry_absent(_leg_store_of(side),
+                                                     pinned, "spec")
+    assert readable is False, (
+        "an unreadable tree is a FAILURE, never an absence — got a claim that "
+        "the leg's own tree carries no `spec` entry")
+    assert said, "and the refusal quotes what git actually said"
+
+
+def test_a_tree_the_store_cannot_read_is_a_skip_not_an_absent_gitlink(
+        tmp_path, monkeypatch):
+    """A STORE WITH THE COMMIT AND WITHOUT ITS TREE (`#1048` round 2).
+
+    A `--filter=tree:0` clone whose promisor is unreachable is exactly that,
+    and it is not exotic: it is what a partial CI checkout of a leg leaves
+    behind. `shed_commit_object` read the gitlink with `rev-parse
+    <commit>:<segment>`, got nothing, and returned `None` — "this commit
+    records no such leg" — so `_shed_member` answered `(None, None)` and the
+    family reported the member ABSENT AT THE COMMIT: a deleted normative
+    contract, announced on the strength of an object nobody fetched."""
+    root = _shed_fixture(tmp_path)
+    side = _side_clone(tmp_path, root, "side")
+    _store_clone(tmp_path / "origin-leg", _leg_store_of(side), "--filter=tree:0")
+    _dead_promisor(_leg_store_of(side))
+
+    _point_carve_at(monkeypatch, side)
+    outcome = check_repo(REPO, side, RealGit())
+
+    assert isinstance(outcome, Skip), (
+        "the leg's tree could not be read, so nothing was learned about the "
+        f"member it holds — got {outcome!r}")
+    assert "leg_spec" in outcome.reason, "the skip names the leg"
+    assert "UNESTABLISHED" in outcome.reason, (
+        "and says what is unestablished rather than asserting an absence")
+    assert "git submodule update --init" in outcome.reason, (
+        "and carries the leg's own remedy")
+
+
+def test_a_leg_store_that_cannot_serve_the_blob_is_a_skip_not_an_absence(
+        tmp_path, monkeypatch):
+    """THE READ AFTER THE PROBE (`#1048` round 2).
+
+    Everything `shed_commit_object` checks passes here: the store is found, it
+    carries the pinned commit, and both levels of the walk resolve. The BLOB is
+    what the store cannot serve — a `--filter=blob:none` leg with an unreachable
+    promisor — and `git.blobs_at` answers `None` for it, which `_shed_member`
+    turned into `(None, None)` and the family into ABSENT AT THE COMMIT."""
+    root = _shed_fixture(tmp_path)
+    side = _side_clone(tmp_path, root, "side")
+    _store_clone(tmp_path / "origin-leg", _leg_store_of(side))
+    _store_clone(tmp_path / "origin-spec", _spec_store_of(side),
+                 "--filter=blob:none")
+    _dead_promisor(_spec_store_of(side))
+
+    assert RealGit().blobs_at(_spec_store_of(side),
+                              _gitlink(_leg_store_of(side),
+                                       _gitlink(side, "HEAD", "leg"), "spec"),
+                              [MOVED]) is None, (
+        "the fixture must reproduce a store whose blob read FAILS, or this "
+        "test proves nothing")
+
+    _point_carve_at(monkeypatch, side)
+    outcome = check_repo(REPO, side, RealGit())
+
+    assert isinstance(outcome, Skip), (
+        f"git declined the read, so the member is unknown — got {outcome!r}")
+    assert MOVED in outcome.reason and "could not be read" in outcome.reason
+    assert "git submodule update --init" in outcome.reason
+
+
+def test_a_leg_tree_that_lists_a_member_it_cannot_serve_is_a_skip(
+        tmp_path, monkeypatch):
+    """THE HARDER HALF OF THE SAME READ, and the reason the tree is consulted.
+
+    With nothing to fetch from, `cat-file --batch` reports the unserveable blob
+    as `<spec> missing` AND EXITS 0 — byte for byte what it reports for a path
+    that is not in the tree at all. The result alone cannot tell a pruned store
+    from a deleted member; the TREE can, because it lists what the commit
+    names rather than what the store holds."""
+    root = _shed_fixture(tmp_path)
+    side = _side_clone(tmp_path, root, "side")
+    _store_clone(tmp_path / "origin-leg", _leg_store_of(side))
+    _store_clone(tmp_path / "origin-spec", _spec_store_of(side),
+                 "--filter=blob:none")
+    _forget_promisor(_spec_store_of(side))
+
+    spec_commit = _gitlink(_leg_store_of(side),
+                           _gitlink(side, "HEAD", "leg"), "spec")
+    git = RealGit()
+    assert git.blobs_at(_spec_store_of(side), spec_commit, [MOVED]) == \
+        {MOVED: None}, (
+        "the fixture must reproduce the INDISTINGUISHABLE shape: the batch "
+        "read succeeds and answers `missing`, exactly as it would for a "
+        "member the leg genuinely does not carry")
+    assert MOVED in (git.ls_tree_paths(_spec_store_of(side), spec_commit,
+                                       MOVED) or []), (
+        "...while the tree at that commit LISTS the member, which is what "
+        "makes this a read that FAILED rather than an absence")
+
+    _point_carve_at(monkeypatch, side)
+    outcome = check_repo(REPO, side, RealGit())
+
+    assert isinstance(outcome, Skip), (
+        f"a listed member with no readable blob is unknown — got {outcome!r}")
+    assert "FAILED rather than an absent member" in outcome.reason
+
+
+def test_a_member_a_READABLE_leg_does_not_carry_is_still_reported_absent(
+        tmp_path, monkeypatch):
+    """THE ANSWER STILL STANDS, which is what keeps the arms above from being
+    a blanket amnesty.
+
+    A leg that can be read and does not carry the member has ANSWERED, and the
+    answer is the drift this family exists to catch: a recorded member that is
+    in neither tree. Nothing about the refusals above may turn that into a
+    skip, or the family would stop reporting the deletion of a moved member
+    altogether."""
+    root = _shed_fixture(tmp_path)
+    _point_carve_at(monkeypatch, root)
+    monkeypatch.setattr(carved_reach, "_rows", lambda: {
+        MOVED: {"source_path": MOVED, "disposition": "moved_verbatim",
+                "destination": "leg_spec",
+                "destination_path": "contracts/never-arrived.yaml"}})
+
+    outcome = check_repo(REPO, root, RealGit())
+
+    assert not isinstance(outcome, Skip), (
+        f"the leg answered; that is not a skip — got {outcome!r}")
+    assert [f.rule for f in outcome] == [
+        f"inventory member is absent at HEAD but recorded in {BUNDLE_WT!r}"], (
+        "a readable leg that does not carry the member is the absence arm, "
+        f"unchanged — got {[f.rule for f in outcome]}")
+    assert outcome[0].severity == ERROR
+
+
+def test_an_unreadable_leg_does_not_discard_the_members_already_compared(
+        tmp_path, monkeypatch):
+    """A LATE SKIP MUST NOT TAKE THE EARLIER FINDINGS WITH IT (`#1048` round 2,
+    the `#766` carrying-skip precedent).
+
+    Members are compared in sorted order, so `contracts/kept.yaml` is graded —
+    and found drifted — before `contracts/moved.schema.yaml` sends the whole
+    repository to a skip. A bare `Skip` there discards a real, established
+    finding about a normative member BECAUSE A LATER MEMBER could not be
+    looked up: a second verdict about the release read off the same fact about
+    the machine."""
+    root = _shed_fixture(tmp_path, drifting=(KEPT,))
+    side = _side_clone(tmp_path, root, "side")
+    assert list((side / "leg").iterdir()) == [], (
+        "the fixture must reproduce an UNINITIALIZED leg")
+
+    _point_carve_at(monkeypatch, side)
+    outcome = check_repo(REPO, side, RealGit())
+
+    assert isinstance(outcome, Skip), "the leg is unreadable, so: a skip"
+    assert "leg_spec" in outcome.reason
+    carried = list(getattr(outcome, "findings", ()))
+    assert [(f.path, f.severity) for f in carried] == [(KEPT, ERROR)], (
+        "the drift established BEFORE the unreadable member must ride out on "
+        f"the skip — got {[(f.path, f.severity) for f in carried]}")
+    assert "bytes differ from the digest" in carried[0].rule
+
+    class Ctx:
+        repo_paths = {REPO: side}
+        git = RealGit()
+
+    from doc_health.release_inventory import fam_release_inventory_drift
+    family = fam_release_inventory_drift(Ctx())
+    assert isinstance(family, Skip), (
+        "one repository in scope and it skipped, so the family skips — the "
+        "shape `--single-repo` and the cut-time gate both see")
+    assert [f.path for f in getattr(family, "findings", ())] == [KEPT], (
+        "and what that repository DID establish travels with it, which is "
+        "what `runner.run_suite` reports beside the skip")
+
+
+def test_a_carrying_skip_is_reported_WITH_its_findings_not_instead_of_them(
+        monkeypatch):
+    """THE MIXED RUN, where the family returns findings rather than a skip.
+
+    The per-repository `info` row is the family's own promise that a skipped
+    repository is "reported, not silently omitted"; a carrying skip makes that
+    row's own text false if it still says the release surface WAS NOT
+    EVALUATED, because part of it was — and the findings are printed right
+    beside it. Asserted on `fam_` directly, with `check_repo` stubbed, because
+    the branch is about what the FAMILY does with a partial skip rather than
+    about how one is produced (the arms above prove that)."""
+    from doc_health import PartialSkip
+    from doc_health.release_inventory import fam_release_inventory_drift
+
+    established = Finding(ERROR, FAMILY, "skipping", "contracts/a.yaml",
+                          "bytes differ from the digest 'contract-v0.0' "
+                          "records", "cut a release")
+    outcomes = {"skipping": PartialSkip(FAMILY, "skipping: the leg is "
+                                        "unreadable here", (established,)),
+                "askable": []}
+    monkeypatch.setattr(release_inventory, "check_repo",
+                        lambda repo, path, git: outcomes[repo])
+
+    class Ctx:
+        repo_paths = {"askable": Path("askable"), "skipping": Path("skipping")}
+        git = FakeGit()
+
+    out = fam_release_inventory_drift(Ctx())
+
+    assert established in out, (
+        "the finding the skipping repository established is reported")
+    notices = [f for f in out if f.rule.startswith("not checked:")]
+    assert len(notices) == 1 and notices[0].severity == INFO
+    assert "reported beside it rather than discarded with it" in \
+        notices[0].action, (
+        "and the notice says the repository was PARTLY evaluated, because "
+        f"'not evaluated' would be false of it — got {notices[0].action!r}")
