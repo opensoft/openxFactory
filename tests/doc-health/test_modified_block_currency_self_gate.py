@@ -1496,12 +1496,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
 
 # ============================================================================
 #
-# THE TWO-WRITERS ORDERING CLASS STOPPED READING ZERO ON 2026-09-05 AND READS
-# ZERO AGAIN THE SAME DAY, and its subjects stay NAMED HERE rather than the
-# assertion loosened — `_LEDGER_SUBJECTS` and `_PAIRING_SUBJECTS`' own
-# discipline, `==` and never `<=`, both directions failing by name. The set is
-# EMPTY, on `_PAIRING_SUBJECTS`' precedent, which is a stated zero and not a
-# dropped assertion: a fresh subject fails here by name the moment one appears.
+# THE TWO-WRITERS ORDERING CLASS STOPPED READING ZERO ON 2026-09-05, READ ZERO
+# AGAIN THE SAME DAY, AND STOPPED AGAIN ON 2026-09-16 — and its subjects stay
+# NAMED HERE rather than the assertion loosened: `_LEDGER_SUBJECTS` and
+# `_PAIRING_SUBJECTS`' own discipline, `==` and never `<=`, both directions
+# failing by name. The set held a stated ZERO between those two dates, which is
+# why the fresh pair below failed here BY NAME the moment it appeared, which is
+# what the discipline is for.
 #
 # **WHAT MOVED, IN ORDER, AND IT IS TWO ACTS AND NOT A CORPUS DRIFT.** The arm
 # scopes to ACTIVE RATIFIED writers — `_arm_ordering` returns early below two —
@@ -1536,7 +1537,35 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
 # for that arm to report and `_LEDGER_SUBJECTS` is unchanged. A carriage row
 # appearing here later is the signal that a re-based block has started dropping
 # its basis.
-_ORDERING_SUBJECTS: set[tuple[str, str, str]] = set()
+_ORDERING_SUBJECTS: set[tuple[str, str, str]] = {
+    # NON-ZERO AGAIN SINCE 2026-09-16, and this is TWO ACTS AND NOT A CORPUS
+    # DRIFT. `scope-pinned-arm-root-naming` (PR #1052, merged `f8eba345` at
+    # 18:33Z) and `adopt-entry-grain-dispositions-form` (PR #1050, merged
+    # `fa39141c` at 18:35Z) landed RATIFIED two minutes apart, each carrying a
+    # MODIFIED block for `document-lifecycle`'s *Prose tagging marker
+    # hygiene*, and NEITHER PROPOSAL NAMES THE OTHER — so the arm reports one
+    # finding per block and the ordering is UNSTATED, the same shape as the
+    # 2026-09-05 pair above. `main` has failed this test from `fa39141c`
+    # onward, and with it every pull request whose merge ref carries it.
+    #
+    # NAMED HERE AND DELIBERATELY NOT RESOLVED HERE. The resolution is the
+    # LATER ratified writer's `proposal.md` naming the earlier — this band's
+    # own written retirement condition, and the 2026-09-05 precedent — and it
+    # is an edit inside those two packets under `openspec/changes/`, which
+    # belongs to the lane that authored them (openXfactory-2) and to no other.
+    # This commit does one thing: it stops a red `main` refusing pull requests
+    # over a finding none of them introduced.
+    #
+    # WHOEVER LANDS THAT RESOLUTION REMOVES THESE TWO NAMES IN THE SAME
+    # COMMIT, and this band enforces it rather than trusting it: `ordering_gone`
+    # fails by name the moment a NAMED subject stops being reported, so a
+    # resolution that leaves them here reds this test exactly as their
+    # appearance did. They also retire if either change archives.
+    ("adopt-entry-grain-dispositions-form", "document-lifecycle",
+     "Prose tagging marker hygiene"),
+    ("scope-pinned-arm-root-naming", "document-lifecycle",
+     "Prose tagging marker hygiene"),
+}
 
 # The ordering arm quotes its title in its OWN wording, which is not the
 # carriage arms' "active MODIFIED block for" opening, so `_subject` cannot read
@@ -1575,19 +1604,23 @@ def _ordering_subject(finding) -> tuple[str, str, str]:
 
 
 def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree():
-    """THE FOUR CLASSES THIS TEST COVERS — ALL FOUR READ ZERO, ONE OF THEM
-    AGAIN — each identified by the module's OWN wording and each with a POSITIVE
-    CONTROL on its probe.
+    """THE FOUR CLASSES THIS TEST COVERS — THREE READ ZERO AND THE ORDERING
+    CLASS READS TWO NAMED SUBJECTS — each identified by the module's OWN
+    wording and each with a POSITIVE CONTROL on its probe.
 
-    **THE ORDERING CLASS STOPPED READING ZERO ON 2026-09-05 AND READS ZERO AGAIN
-    THE SAME DAY.** It is asserted against `_ORDERING_SUBJECTS`, a NAMED EXACT
-    SET on `_LEDGER_SUBJECTS`' discipline, which now reads EMPTY on
-    `_PAIRING_SUBJECTS`' precedent rather than reverting to a bare band: the two
-    rows it named retired on the ordering declaration Brett Heap ruled
-    ("declare and land", 2026-09-05T12:49Z, `opensoft/openxFactory` issue #656),
-    which is the retirement condition the band itself wrote down. An empty exact
-    set is a STATED zero — a fresh subject fails by name — and not a dropped
-    assertion. The function keeps its name because that name is pinned in
+    **THE ORDERING CLASS STOPPED READING ZERO ON 2026-09-05, READ ZERO AGAIN
+    THE SAME DAY, AND STOPPED AGAIN ON 2026-09-16.** It is asserted against
+    `_ORDERING_SUBJECTS`, a NAMED EXACT SET on `_LEDGER_SUBJECTS`' discipline
+    rather than a bare band: the 2026-09-05 pair retired on the ordering
+    declaration Brett Heap ruled ("declare and land", 2026-09-05T12:49Z,
+    `opensoft/openxFactory` issue #656), the band read a STATED zero from then
+    until 2026-09-16, and the pair that landed that afternoon
+    (`scope-pinned-arm-root-naming` and `adopt-entry-grain-dispositions-form`,
+    each a ratified writer of one `document-lifecycle` requirement with neither
+    proposal naming the other) failed here BY NAME the moment it appeared,
+    which is what an exact set is for. Both are named in the set above with the
+    condition that retires them. The function keeps its name because that name
+    is pinned in
     `specs/021-modified-block-currency-self-gate/
     contracts/self-gate-contract.md` and in two archived packets, and a rename
     would move more text than the fact does; the docstring and the contract row
@@ -1603,8 +1636,8 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
 
     Zero here was always a fact about this tree and never a structural
     guarantee: an unresolved title, an undecided two-writers group and a
-    defective marker are all reportable, and the undecided group WAS reported for
-    one day. The packet's § 6.7 measured the ordering arm at zero twice — once
+    defective marker are all reportable, the undecided group WAS reported for
+    one day in September 2026 and is reported again now. The packet's § 6.7 measured the ordering arm at zero twice — once
     under the withdrawn date reading and once under the ruled by-declaration one
     — and the by-declaration reading is exactly what reported the pair on
     2026-09-05 and exactly what cleared it hours later, the declaration being a
@@ -1665,7 +1698,13 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
         "neutral-product-pin's 'An external neutral product is pinned by commit "
         "and digest, never by tag' beside add-openspec-cli-pin and neither "
         "proposal named the other; back to 0 the same day, the later writer's "
-        "proposal now naming add-openspec-cli-pin)",
+        "proposal naming add-openspec-cli-pin; TWO NAMED SUBJECTS AGAIN SINCE "
+        "2026-09-16, when scope-pinned-arm-root-naming (#1052) and "
+        "adopt-entry-grain-dispositions-form (#1050) landed ratified two "
+        "minutes apart over one document-lifecycle requirement with neither "
+        "proposal naming the other — they retire when the later writer's "
+        "proposal names the earlier, and whoever lands that removes both names "
+        "here in the same commit)",
         f"{len(ordering_gone)} named subject(s) NO LONGER reported "
         f"{sorted(ordering_gone)}; {len(ordering_fresh)} unnamed subject(s) "
         f"NEWLY reported {sorted(ordering_fresh)}")
@@ -2595,11 +2634,13 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     ordering class stopped reading zero and its subjects had to be NAMED; a
     widened `_TITLE` was the alternative and was rejected, because `_subject`
     feeds two other exact sets that must not silently start collecting this
-    arm's findings. IT IS KEPT NOW THAT `_ORDERING_SUBJECTS` READS EMPTY AGAIN —
-    the ordering declaration of 2026-09-05 discharged both rows — because an
-    exact set that reads empty still needs the reader that NAMES the first
-    subject to reappear, and deleting it would make the next occurrence fail
-    with an unnamed row.
+    arm's findings. IT WAS KEPT THROUGH THE YEAR `_ORDERING_SUBJECTS` READ
+    EMPTY — the ordering declaration of 2026-09-05 discharged both rows —
+    because an exact set that reads empty still needs the reader that NAMES the
+    first subject to reappear, and deleting it would make the next occurrence
+    fail with an unnamed row. THAT NEXT OCCURRENCE ARRIVED on 2026-09-16 and
+    this reader is what named it, rather than an unnamed row nobody could
+    place.
 
     MATCHED ON USE, NOT ON MENTION, which is a lesson this test file inherited
     rather than learned: F1's `test_the_promoted_reader_cannot_reach_a_measurement_basis`
