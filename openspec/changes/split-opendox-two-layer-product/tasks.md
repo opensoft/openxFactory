@@ -1789,15 +1789,15 @@ the bookkeeping that ticks this group.
   whole repair. **ONE HEADING was wrong and NO NUMBER was**, which is worth
   saying plainly: the finding asked for a figure to change and the answer is a
   word.)*
-  *(AND THE DISPOSITION VECTOR IS RE-READ AT THREE TREES AND RECORDED HERE SO
-  THE NEXT READER DOES NOT RE-RUN IT, amendment #5, registered at comment
-  `5702227094` item 6.* `docs/opendox-carve-manifest.yaml` yields **456 rows,
+  *(THE DISPOSITION VECTOR IS RE-READ AT THREE TREES AND RECORDED HERE SO THE
+  NEXT READER DOES NOT RE-RUN IT — amendment #5, registered at comment
+  `5702227094` item 6. `docs/opendox-carve-manifest.yaml` yields **456 rows,
   `moved_verbatim` 143 / `moved_with_declared_edit` 175 / `not_moved` 138,
   kept 117** (103 `stays_openxfactory_adapter` + 14
   `stays_openxfactory_governance`) at `main` `cb2d3a2c`, at `main`
   `c5f68457`, and at this amendment's base `cbc3a2c6` — **identical at all
-  three**, which is what the row's own label *"`main` `cb2d3a2c`, and this
-  branch"* asserts and had not been verified across the two base merges that
+  three**, which is what the row's own label "`main` `cb2d3a2c`, and this
+  branch" asserts and had never been verified across the two base merges that
   happened under it. Twenty rows carry `replicated_at_destination` in
   total.)*
   *(RE-SCOPED 2026-09-16 by RULED **R-2**, `#656` comment `5690428146`, which
@@ -2050,19 +2050,39 @@ the bookkeeping that ticks this group.
   finding that was right about the METHOD while the conclusion survived it.
   `--diff-filter=A` cannot carry *"never carried a dashboard-named
   workflow"*, because a rename reports as `R` and not as `A`, so a file added
-  under a dashboard name and later renamed would be invisible to it. **The
-  query that cannot miss a rename is `git log --all --no-renames
-  --pretty=format: --name-only -- .github/workflows/`** — `--no-renames`
-  decomposes every rename into a delete plus an add, so both the old and the
-  new path appear in the log. Run at this amendment's base `cbc3a2c6`, it
-  returns **16 distinct paths ever**: `clearing-dispatch-gate`,
+  under a dashboard name and later renamed would be invisible to it.
+  **`--no-renames` is the option that closes it**: it decomposes every rename
+  into a delete plus an add, so both the old and the new path appear in the
+  log. **Quoted here exactly as it was RUN, pipeline included** — because a
+  bare `git log … --name-only` prints one line per matching COMMIT and not one
+  per path, and without the pipeline this command emits **177** path lines,
+  not sixteen: `git log --all --full-history --no-renames --pretty=format:
+  --name-only -- .github/workflows/ | sed '/^$/d' | sort -u`. It returns
+  **16 distinct paths ever**: `clearing-dispatch-gate`,
   `doc-health-reusable`, `former-id-arrival-gate`, `lane-line`,
   `merge-master-approval`, `openreposhape-pin-gate`, `openspec-cli-pin-gate`,
   `openxdox-consumer-gate`, `openxwallet-consumer-gate`,
   `proof-1-6a-codexfactory-app-install`, `pytest-suite`, `release-tag-gate`,
   `review-lane-repin`, `session-open-pr`, `signed-execution-chain-gate`,
   `wallet-validation` — and **not one of the sixteen matches
-  `dashboard|ideation`**. Independently, `git log --all --diff-filter=R --
+  `dashboard|ideation`**.
+  *(THREE INSTRUMENT CHOICES, each measured rather than assumed, after a
+  Copilot finding on this amendment's own pull request (round 1) that the
+  command as first quoted was not reproducible. **`sort -u` is part of the
+  query and is now inside it** — 177 raw lines against 16 distinct paths.
+  **`--all` is DELIBERATE and makes the claim STRONGER than the box needs**:
+  it asks what any ref has ever held, not what one history holds. The
+  base-scoped form `git log cbc3a2c6 --full-history --no-renames
+  --pretty=format: --name-only -- .github/workflows/ | sed '/^$/d' | sort -u`
+  returns **15**, and the ONE path that drops is
+  `proof-1-6a-codexfactory-app-install.yml` — already named below as gone —
+  with `dashboard|ideation` matching **0 either way**. **`--full-history` was
+  added on that finding and changes nothing**: 16 with it and 16 without,
+  because history simplification drops only commits whose change did not
+  survive a merge, and every add in this directory did. The finding was right
+  about the QUOTATION and the answer is unmoved by every variant of the
+  instrument.)*
+  Independently, `git log --all --full-history --diff-filter=R --
   .github/workflows/` returns **nothing at all**: no rename has ever touched
   that directory, which is precisely why the weaker query happened to be
   complete. The sixteen exceed the thirteen counted at `main` `cb2d3a2c`
@@ -2071,7 +2091,7 @@ the bookkeeping that ticks this group.
   landed after it, and `proof-1-6a-codexfactory-app-install` no longer
   exists.)*
   The SHAPE, the pinned-tools reading and the job-id obligation
-  are unchanged; only the act is. **This box does NOT tick with AMENDMENT #4**:
+  are unchanged; only the act is. **This box does NOT tick with amendment #4**:
   the workflow is its own declared act under its own claim, and that act is
   `opensoft/openxFactory` **#1059** — *Wire the pinned openDox/openXdox
   tools into a consumer gate of their own (task 5.3, RULING R-4)*, opened
@@ -2126,19 +2146,46 @@ the bookkeeping that ticks this group.
   at `gh api repos/opensoft/openxFactory/rulesets`). The gate has therefore
   not only REPORTED, it is REQUIRED — it was a required check on amendment
   #4's own pull request, SUCCESS at `d1314f4d` (run `35134189330`) and at
-  `cbc3a2c6`. Nothing in this box is left owed to a later act.
-  *(Amendment #4's three self-references above — *"this amendment"*, *"not on
-  this one"*, *"NOT TAKEN HERE"* — are re-spelled as *amendment #4* by this
+  `cbc3a2c6`.
+  **WHAT IS DISCHARGED IS THIS BOX'S OBLIGATION — THE REPOSITORY'S OWN RECORDS
+  HAVE NOT CAUGHT UP, AND THAT IS SAID HERE RATHER THAN LEFT FOR A READER TO
+  TRIP OVER.** #1059's shipped files still describe the gate as it stood on the
+  day it landed, six minutes before the ruleset existed. Measured at this
+  amendment's base: `.github/workflows/openxdox-consumer-gate.yml`:48-56
+  (*"THE GATE IS ADVISORY ON THE DAY IT LANDS … Nothing pins this one … It is
+  owed and it is named"*);
+  `tests/openxdox_consumer_gate/test_openxdox_gate_invocation.py`:8-11
+  (*"ADVISORY on the day it lands — no ruleset pins its token yet"*) and
+  `test_openxdox_gate_adjudicator.py`:10 (*"a gate no ruleset pins"*); and the
+  *"Not yet wired into any required check"* comments at
+  `contracts/openxdox-pin.yaml`:119-120 and `contracts/opendox-pin.yaml`
+  :156-158. **All five were TRUE AT AUTHORING and are STALE FROM
+  2026-09-16T16:33:22Z.** Their repair belongs to an act that CLAIMS those
+  files and not to this packet's `tasks.md` — which is not a deferral invented
+  here but the course this repository already took for the identical class:
+  `split-openxwallet-repo` corrected `README.md`'s *"advisory until an operator
+  marks it required"* IN PLACE, *"with its own history stated (true at
+  authoring, stale from 2026-08-26)"*, from the act that owned the surface
+  (`openspec/changes/archive/2026-08-28-split-openxwallet-repo/tasks.md`
+  :972-974; the corrected text stands at `README.md`:3026-3029). Registered
+  here with every coordinate measured, so that act re-derives nothing.
+  *(A Copilot finding on this amendment's own pull request, round 1, and the
+  sharpest kind: it read the tick's *"nothing is left owed"* against the
+  shipped gate's own comment and found them contradicting. They did. **The
+  tick stands** — the box's condition is about the ruleset and the ruleset is
+  live — and the sentence that over-reached is narrowed to what was measured.)*
+  *(Recorded with the ruleset's own identifiers rather than as "the wiring
+  landed", because a ruleset is the one kind of evidence in this packet that
+  lives outside git and cannot be read back from any tree: the id, the
+  enforcement and the creation stamp are what a later reader can re-query.)*
+  *(Amendment #4's three self-references above — "this amendment", "not on
+  this one", "NOT TAKEN HERE" — are re-spelled as amendment #4 by this
   amendment, and nothing else in them moves. They were unambiguous while #4
   was the only amendment in the box; with a second one below them a reader
   meets a `[x]` box that says three times it does not tick. Disambiguating a
   pronoun is a currency fix, not a re-wording of what was ratified — the same
   line § 1's stale coordinates are repaired on and § 7.3's ratified sentence
   is left alone on.)*
-  *(Recorded with the ruleset's own identifiers rather than as "the wiring
-  landed", because a ruleset is the one kind of evidence in this packet that
-  lives outside git and cannot be read back from any tree: the id, the
-  enforcement and the creation stamp are what a later reader can re-query.)*
 - [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
   source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
   equality. Four clauses, the full text at `design.md` § D6 (2):
