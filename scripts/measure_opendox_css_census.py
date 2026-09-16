@@ -361,6 +361,15 @@ def selector_class_tokens(selector: str) -> set[str]:
             prev_was_class = False
             i = name.end() if name else i + 1
             continue
+        if ch == "#":
+            # AN ID DOES NOT BREAK A COMPOUND EITHER (Copilot review of
+            # openxFactory #1068, round 9), for the same reason a pseudo-class
+            # does not: `.foo#id.bar` is two classes and an id, and consuming
+            # `id` as an ordinary identifier run lost `bar`. `div#id.foo` stays
+            # element-qualified and still names nothing.
+            name = _IDENT.match(text, i + 1)
+            i = name.end() if name else i + 1
+            continue
         if ch == ":":
             # A PSEUDO-CLASS DOES NOT BREAK A COMPOUND (Copilot review of
             # openxFactory #1068, round 7). `hover` in `.foo:hover.bar` was
@@ -427,8 +436,21 @@ def markup_class_runs(s: str, group: str) -> list[str]:
     these six modules and this bundle is written inside its own tag.
     """
     live = _tag_name_positions(s)
-    return [m.group(1) for m in re.finditer(rf'class\s*=\s*"?({group})', s)
+    return [m.group(1) for m in _CLASS_ATTR(group).finditer(s)
             if live[m.start()]]
+
+
+def _CLASS_ATTR(group: str) -> re.Pattern[str]:
+    """`class="…"`, `class='…'` or `class=…`, and NOT `data-class=…`.
+
+    TWO CORRECTIONS, both Copilot review of openxFactory #1068, round 9:
+    a SINGLE-QUOTED attribute is as valid as a double-quoted one and was
+    skipped (`<div class='gatebar'>` named nothing, so a gate-owned rule would
+    have been left behind), and `class` must be a WHOLE ATTRIBUTE NAME —
+    `<div data-class="gatebar">` matched on its suffix and claimed a class the
+    template never applies, which on the gate side MOVES a rule.
+    """
+    return re.compile(rf'(?<![A-Za-z0-9_-])class\s*=\s*["\']?({group})')
 
 
 def _tag_name_positions(s: str) -> list[bool]:

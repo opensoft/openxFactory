@@ -455,6 +455,31 @@ def test_a_class_equals_inside_another_attribute_is_that_attributes(
     assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
 
 
+def test_an_id_does_not_break_a_compound_selector() -> None:
+    """`.foo#id.bar` IS TWO CLASSES (Copilot review, round 9) — the same shape
+    the pseudo-class fix answered, with an ID in the middle instead."""
+    assert CENSUS.selector_class_tokens(".foo#id.bar") == {"foo", "bar"}
+    assert CENSUS.selector_class_tokens(".gatebar#gate:hover.is-live") \
+        == {"gatebar", "is-live"}
+    assert CENSUS.selector_class_tokens("div#id.foo") == set()
+    assert CENSUS.narrow_refs('root.querySelector(".gatebtn#g.is-live");\n',
+                              ".js") == {"gatebtn", "is-live"}
+
+
+def test_the_class_attribute_is_matched_by_name_and_by_either_quote() -> None:
+    """A SINGLE-QUOTED ATTRIBUTE IS AN ATTRIBUTE, and `data-class` IS NOT
+    `class` (Copilot review, round 9). The first omission leaves a gate-owned
+    rule behind; the second claims a class the template never applies, which on
+    the gate side MOVES one."""
+    assert CENSUS.narrow_refs("""`<div class='gatebar is-live'>`;\n""",
+                              ".js") == {"gatebar", "is-live"}
+    assert CENSUS.narrow_refs('`<div data-class="gatebar">`;\n', ".js") == set()
+    assert CENSUS.prefix_refs("`<i class='chip-${state}'>`;\n", ".js",
+                              class_bearing_only=True) == {"chip-"}
+    assert CENSUS.prefix_refs('`<i data-class="chip-">`;\n', ".js",
+                              class_bearing_only=True) == set()
+
+
 def test_a_selector_literal_counts_only_at_a_selector_api() -> None:
     """A DIAGNOSTIC WRITTEN AS A SELECTOR IS STILL A DIAGNOSTIC (Copilot
     review, round 8). `showError(".gatebar")` passes both the shape test and
