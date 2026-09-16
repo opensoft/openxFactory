@@ -284,8 +284,13 @@
 # whose other tests drive surfaces `openxdox_code` has, so its row goes on
 # arriving and there is nothing to retire. `retired:` retires a ROW and a row
 # is a FILE; that one is an ORDINARY declared edit on the row's own `edits[]`
-# (`adapter calls`, 177 lines), realized at opensoft/openXdox-code#20 and
-# stated at cutover-runbook § 5.8 "What the form CANNOT express".
+# under `adapter calls`. TWO FIGURES, AND THEY ARE NOT THE SAME ONE: the removed
+# block SPANS 177 carve lines, and this act's ENTRY declares 167 of them —
+# slice S5 already declared the other ten on this same row, and a line is
+# declared once per row, so the entry omits them and the row's declaration is
+# 196 distinct lines. 177 is the block, 167 is the entry, 196 is the row.
+# Realized at opensoft/openXdox-code#20 and stated at cutover-runbook § 5.8
+# "What the form CANNOT express".
 #
 # THE GATES, FIVE OF THEM: `retired:` on a `not_moved` row refuses
 # `carve-retired-not-moved` (a row that placed nothing has no arrival to

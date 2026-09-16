@@ -228,7 +228,11 @@ no block**: only the ENDING REPLAY inside
 `tests/ideation-dashboard/test_staging_workbench.py` goes, a PART of a file
 whose other tests drive surfaces `openxdox_code` has, so that row goes on
 arriving and the removal is an ORDINARY declared edit on its own `edits[]`
-(`adapter calls`, 177 lines, realized at opensoft/openXdox-code#20). § 5.8 is
+under `adapter calls` — the block SPANS **177** carve lines and the entry
+declares **167** of them, slice S5 having already declared the other ten on
+this row, which leaves the row declaring **196** distinct lines (the same three
+figures the paragraph under the table states, and they are three questions, not
+one); realized at opensoft/openXdox-code#20. § 5.8 is
 the general procedure a retirement follows, and its "What the form CANNOT
 express" is that third case, written from this act.
 
@@ -1454,10 +1458,15 @@ that has not yet been applied is no refusal at all, so between the two merges
 the ending replay's lines simply read as not-yet-applied inside a row that is
 still within its declared lines (measured at openXdox-code `c1ad341a`: 29 of
 that row's **196 DISTINCT** declared carve lines differ, none undeclared —
-distinct because the row carries 206 line entries and slice S5's ten sit
-INSIDE this act's range, declared twice on purpose so the removed block's
-extent is readable in one place; the aggregate in § 2 counts entries and this
-sentence counts lines, and both are right about different questions).
+distinct because A LINE IS DECLARED ONCE PER ROW: slice S5's ten sit INSIDE
+this act's range and this act's entry deliberately does NOT repeat them, so the
+row's four entries carry 196 line entries over the same 196 lines — 12 `import
+rewrites`, 7 `path constants`, S5's 10 `adapter calls` and this act's 167 — and
+the removed block's 177-line extent is stated in the two entries' NOTES rather
+than by declaring ten numbers twice. The aggregate in § 2 sums line ENTRIES, so
+a repeat would have published ten lines this act does not add while the row's
+declared SET stood still, which is the defect
+`test_the_real_manifest_carries_the_ruled_q_l7_amendment` pins against).
 
 **And what the floor does NOT prove, on § 5.7's own terms.**
 `verify-carve-arrival.py` verifies ONE destination per run, so a retirement at

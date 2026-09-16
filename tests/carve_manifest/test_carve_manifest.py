@@ -47,9 +47,14 @@ reader — and `pytest-suite.yml` pins the skip count exactly, so a conditional
 skip here would red the required job.
 
 THE TESTS THAT READ THE LANDED DOCUMENT NO LONGER BRANCH AT ALL (amended on a
-Copilot finding, `#1030`, and again on one in `#1032` — the retirement seat
-test was authored beside that cleanup rather than after it and arrived carrying
-a SIXTH copy of the idiom). They had taken the seat too — `if not
+Copilot finding, `#1030`, again on one in `#1032` — the retirement seat test was
+authored beside that cleanup rather than after it and arrived carrying a SIXTH
+copy of the idiom — and a third time on one in `#1043`, whose
+`test_carved_reach_refuses_the_two_landed_retired_rows` was authored beside BOTH
+and arrived carrying a SEVENTH. Three acts in a row is not three accidents: the
+idiom is read off the neighbouring test that still legitimately branches, so
+the cleanup has to be re-made by every act that adds a landed-document pin until
+the seat test is the only branch left to copy). They had taken the seat too — `if not
 manifest.is_file(): assert True; return` — and `assert True` REPORTS A PASS,
 the same green bar the paragraph above refuses a skip for, so a checkout that
 lost the file turned five pins on the landed document into five no-ops. They
@@ -3908,9 +3913,10 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
     # review, PR #995) — the aggregate above, `(1422, 158)` on the day this pin
-    # was written and `(1761, 159)` today, would still pass if these four had
+    # was written, `(1761, 159)` at the RULED Q-L7 (a) amendment and
+    # `(2621, 176)` today, would still pass if these four had
     # landed on the wrong rows, under the wrong class, or as a different four
-    # line numbers that happened to sum to the same total. The dated figure is
+    # line numbers that happened to sum to the same total. The dated figures are
     # kept beside the current one because the REASON this pin exists is what
     # that aggregate could not tell apart, and that reason is the same at
     # either total.
@@ -4709,15 +4715,20 @@ def test_carved_reach_refuses_the_two_landed_retired_rows() -> None:
     can be controlled. That stub drives the same three callers on a generated
     document; this one asks the real rows.
 
-    A BRANCH and never a skip, on the module docstring's reasoning.
+    AND IT DOES NOT BRANCH ON THE MANIFEST'S ABSENCE — a SEVENTH copy of that
+    idiom, caught one act after the sixth (Copilot review, this pull request).
+    `#1030`'s review took `if not manifest.is_file(): assert True; return` out
+    of five tests that read the landed document; `#1032`'s round 10 took it out
+    of a sixth, the retirement seat, which had been authored beside that
+    cleanup rather than after it; and this test — authored beside BOTH — arrived
+    carrying it a seventh time. `assert True` REPORTS A PASS, so a checkout
+    without the document would have turned the FIRST USE of the whole form into
+    a green bar meaning "the check did not run". It reads through
+    `the_landed_manifest()`, where the absence is a FAILURE.
     """
-    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
-    if not manifest.is_file():
-        assert True
-        return
     import carved_reach as carved_reach_direct
 
-    doc = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+    _text, doc = the_landed_manifest()
     retired = [row for row in doc["rows"] if "retired" in row]
     assert len(retired) == 2, [row["source_path"] for row in retired]
 
@@ -4821,7 +4832,8 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
         ) -> None:
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
-    The manifest's 1422 line numbers AT THAT RULING — 1761 today, and every
+    The manifest's 1422 line numbers AT THAT RULING — 1761 at the RULED
+    Q-L7 (a) amendment, 2621 today, and every
     one of them still in this numbering — were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
