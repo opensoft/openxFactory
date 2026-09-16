@@ -2031,8 +2031,20 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     _text, doc = the_landed_manifest()
     text = runbook.read_text(encoding="utf-8")
 
-    marker = ("Per destination, and these are the numbers each leg's arrival "
-              "run must report:")
+    # THE MARKER SPANS TWO LINES OF THE RUNBOOK and is pinned with its own
+    # newline (Copilot review, round eleven on this PR). The sentence it
+    # replaced — "these are the numbers each leg's arrival run must report" —
+    # was false of the two legs RULED Q6 touches: this table counts a
+    # re-destined row at the `destination:` it still names, so `opendox_code`'s
+    # run reports 119 arrived where the table says 123 and `openxdox_code`'s
+    # reports 96 where it says 92. A floor that overstated that would be worse
+    # than one that says where it stops, which is the rule
+    # `test_two_legs_may_apply_one_replicas_line_differently` is written under.
+    # A re-wrap of the sentence breaks this anchor LOUDLY, by the count below,
+    # rather than quietly moving the block's boundary.
+    marker = ("Per destination, counted at the `destination:` each row names "
+              "— which is what\neach leg's arrival run reports, save where "
+              "RULED Q6 re-destined a row (below):")
     # THE BLOCK IS BOUNDED BY TWO FIXED SENTENCES, not by anything about where
     # a table LOOKS like it ends (Copilot review, rounds five and six on this
     # PR). Round five's extent walked forward across a blank line for as long
@@ -2174,11 +2186,27 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
 
     # AND THE ONE INVARIANT THAT TIES THE TABLE TO THE AGGREGATE ABOVE IT: a
     # replica row names no destination at all, so the per-leg figures sum to
-    # exactly one less than the manifest's declared-line total (RULED Q-L7 (a),
-    # § 2's own "the one replica line belongs to no destination column below").
+    # the manifest's declared-line total MINUS the lines such rows declare
+    # (RULED Q-L7 (a), § 2's own "the two replica lines belong to no
+    # destination column below").
+    #
+    # THE SUBTRAHEND IS RE-DERIVED AND USED TO BE THE CONSTANT `1` (the
+    # pre-existing `openxdox_code` annotation, `#656` CLAIM `5656688910`). The
+    # replica row declared exactly one line from RULED Q-L7 (a) until that act
+    # declared openXdox-code#14's `:271` beside it, and the constant would have
+    # refused a lawful document for the one thing the grammar explicitly
+    # permits: `edits:` is a field of a ROW, so a replica row may declare as
+    # many lines as its copies differ on, and Q-L7 (a) bounds the LINE and
+    # never the count. What must hold is that the columns exhaust exactly the
+    # rows that HAVE a destination — which is what this now states, and what
+    # the sentence beneath the table says in words.
     total = sum(len(edit["lines"]) for row in doc["rows"]
                 for edit in row.get("edits") or [])
-    assert sum(claimed[3] for claimed in stated.values()) == total - 1, stated
+    no_destination = sum(len(edit["lines"]) for row in doc["rows"]
+                         if not row.get("destination")
+                         for edit in row.get("edits") or [])
+    assert sum(claimed[3] for claimed in stated.values()) == (
+        total - no_destination), (stated, total, no_destination)
 
 
 # --------------------------------------------------------------------------
@@ -2189,6 +2217,13 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
 # § 2's own two sentences bound the block, for the per-destination parser's
 # reason: every heuristic for "where the block ends" is a boundary the document
 # can move without anyone noticing it moved.
+# § 2 spells small counts as WORDS, so the check that the cell states the
+# current one has to spell it the same way. Beyond this table the digits are
+# compared instead — a runbook that reaches eleven declared lines on one
+# replica row has a bigger problem than its spelling.
+NUMBER_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five",
+                6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+
 DISPOSITION_MARKER = "mapping manifest. Measured in the landed file:"
 DISPOSITION_TERMINATOR = "**AND A MOVED ROW MAY CARRY `re_destined:`"
 DISPOSITION_HEADER = ("| disposition | rows | the proof owed at the "
@@ -2217,7 +2252,7 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
     `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
     pins ... a transcribed count is a claim, a summed one is a measurement".
     THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
-    PR). It pins the MANIFEST's own aggregate — `(2366, 176)` and the 20
+    PR). It pins the MANIFEST's own aggregate — `(2454, 176)` and the 20
     replica rows — which is a claim about the file and not about the sentence
     that transcribes it. So every cell here (three disposition counts, the
     replica count, the three per-class totals, the moved-row total, the carrier
@@ -2300,10 +2335,12 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
         "document, so a row in no stated class is a row nothing owes a proof "
         "for")
 
-    # THE REPLICA CLAUSE inside the `not_moved` cell. Both halves are the
-    # manifest's: how many replica rows there are, and that exactly ONE of them
-    # declares a line (RULED Q-L7 (a)) — the second replica to declare one
-    # makes this sentence false, and says so here.
+    # THE REPLICA CLAUSE inside the `not_moved` cell. All three halves are the
+    # manifest's: how many replica rows there are, that exactly ONE of them
+    # declares lines (RULED Q-L7 (a)) — the second replica to declare any makes
+    # this sentence false, and says so here — and HOW MANY that one declares,
+    # which moved from one to two at the pre-existing `openxdox_code`
+    # annotation (`#656` CLAIM `5656688910`) and is pinned rather than reworded.
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     cell = proofs["not_moved"]
@@ -2312,11 +2349,16 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
         f"{len(replicas)} `{MODULE.REPLICA_REASON}` rows: {cell!r}")
     declaring = [row for row in replicas if row.get("edits")]
     assert len(declaring) == 1, (
-        "§ 2's `not_moved` cell says ONE replica row declares a line and the "
+        "§ 2's `not_moved` cell says ONE replica row declares lines and the "
         f"landed manifest has {len(declaring)}: "
         f"{[row['source_path'] for row in declaring]}. The sentence is the "
         "reason the human summary line reads `verified (byte-identical, or …)`")
-    assert "**one of them declares a line**" in cell, cell
+    assert "**one of them declares lines**" in cell, cell
+    declared_on_it = sum(len(edit["lines"]) for edit in declaring[0]["edits"])
+    spelled = NUMBER_WORDS.get(declared_on_it, str(declared_on_it))
+    assert f"one line at that ruling, {spelled} today" in cell, (
+        f"§ 2's `not_moved` cell does not state the {declared_on_it} line(s) "
+        f"the one declaring replica row carries today: {cell!r}")
 
     # THE TOTALS SENTENCE — four numbers and a class list, each a sum.
     prose = " ".join(blocks[1].split())
