@@ -785,9 +785,20 @@ moved_paths:
 # `scripts/ideation_dashboard/web/styles.css` gains ONE `adapter calls` entry of
 # 89 lines. The row was ALREADY `moved_with_declared_edit` and already a
 # carrier, so rows, dispositions, the carrier count and the 20 replicas all
-# stand exactly where the slice-S8 annotation left them; the only absolutes that
-# move are the declared-line total (2406 -> 2495), `adapter calls`
-# (1438 -> 1527) and `opendox_code`'s per-destination figure (1667 -> 1756).
+# stand exactly where the PRE-EXISTING `openxdox_code` annotation (`#656` CLAIM
+# `5656688910`) left them; the only absolutes that move are the declared-line
+# total (2454 -> 2543), `adapter calls` (1482 -> 1571) and `opendox_code`'s
+# per-destination figure (1667 -> 1756).
+#
+# THIS PARAGRAPH CARRIED THE PRE-MERGE FIGURES AND A MERGE DID NOT CORRECT IT
+# (Copilot review, round 1, which read `2406 -> 2495` against a branch whose
+# baseline had become 2454). The branch was opened on a main that has since
+# taken `#1031` (+48 declared lines) and `#1032`, and merging it re-derived the
+# runbook, the three scripts, README and the aggregate test while leaving this
+# header's own delta alone — a number in prose that no test reads, which is the
+# failure class § 2's re-derivation tests exist for. All four figures above are
+# now `measure_totals.py`'s over the MERGED document, and `2454 + 89 = 2543` is
+# a CHECK on that derivation rather than its source.
 #
 # THE 89 ARE DELETIONS. 59 rule blocks leave openDox's stylesheet for the four
 # sheets openXdox-code ships beside the bindings that own them — RULED Q7's own
