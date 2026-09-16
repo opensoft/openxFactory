@@ -981,16 +981,29 @@ _LEDGER_SUBJECTS = {
     # no resolution root carries*'s WHEN — carried unchanged from canon — was
     # ALSO true of the empty-root-set case the new scenario below covers with
     # a DIFFERENT outcome, so it gained one clause too: "…and at least one
-    # resolution root was selected for the run". THE TWO UNCARRIED UNITS OF
-    # 186 ARE EXACTLY THOSE TWO — the body sentence and that one WHEN
-    # bullet — and each has a successor in the same block saying MORE and
-    # never less: the body sentence's obligation scoped to findings AFTER ROOT
-    # SELECTION, with the two exceptions named together with what each names
-    # instead; the WHEN's empty-root case handed whole to the new scenario
-    # below. Every other promoted unit of the requirement, including all
-    # twenty-three of its scenarios' titles and every other bullet, is carried
-    # verbatim, and ONE scenario is added. NO `Removed from canon` MARKER IS
-    # OWED, nothing being deleted.
+    # resolution root was selected for the run" — AS RATIFIED, 2026-09-16.
+    # FIX ROUND 5 refreshed one stale source-citation pointer canon itself
+    # carries in the body sentence (`scripts/doc_health/families.py:1317-1321`,
+    # which is `_topic_outcome` on `main` now, not the root-precedence code)
+    # to name `_resolve_capability`/`_pin_roots` directly — KEPT — and ALSO
+    # briefly narrowed the same WHEN clause FURTHER on a real Copilot finding;
+    # FIX ROUND 6 REVERTED that narrowing, ratified normative scenario text
+    # being the ratifier's to amend and not the lane's, so the WHEN is
+    # BYTE-IDENTICAL to the ratified text again (RULING NEEDED posted to
+    # openxFactory #1047). THE THREE UNCARRIED UNITS OF 186 ARE EXACTLY
+    # THREE — the body sentence, the pointer-bearing sentence beside it
+    # (added by fix round 5's refresh), and that one WHEN bullet, which has
+    # been uncarried against canon since fix round 1 regardless of which of
+    # round 1's or round 5's wordings it holds, canon carrying no such clause
+    # at all — and each has a successor in the same block saying MORE, or a
+    # truer citation, and never less: the body sentence's obligation scoped
+    # to findings AFTER ROOT SELECTION, with the two exceptions named together
+    # with what each names instead; the pointer sentence's corrected citation;
+    # the WHEN's empty-root case handed whole to the new scenario below. Every
+    # other promoted unit of the requirement, including all twenty-three of
+    # its scenarios' titles and every other bullet, is carried verbatim, and
+    # ONE scenario is added. NO `Removed from canon` MARKER IS OWED, nothing
+    # being deleted.
     # This arm cannot distinguish a deliberate scoping from drift and does not
     # claim to; the finding is INFO and it is the audit trail for the
     # amendment. Retires when the packet archives and its block is promoted
@@ -1454,13 +1467,21 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "packet that SCOPES the root-naming sentence the archived one had just "
         "promoted, after the archive's own review found two findings the arm "
         "emits before any root is selected and ruled the sentence STANDS as "
-        "promoted; ITS TWO UNCARRIED UNITS are that sentence and — since fix "
-        "round 1 — the sibling scenario *A pinned target names a pin no "
-        "resolution root carries*'s original WHEN bullet, narrowed by one "
-        "clause so the empty-root case the packet's new scenario covers keeps "
-        "one outcome and not two; each has a successor in the same block that "
-        "says MORE and never less; retires when the packet archives and its "
-        "block is promoted)",
+        "promoted; AS RATIFIED 2026-09-16, ITS TWO UNCARRIED UNITS were that "
+        "sentence and — since fix round 1 — the sibling scenario *A pinned "
+        "target names a pin no resolution root carries*'s original WHEN "
+        "bullet, narrowed by one clause so the empty-root case the packet's "
+        "new scenario covers keeps one outcome and not two; FIX ROUND 5 "
+        "refreshed one stale source-citation pointer canon itself carries in "
+        "the body sentence (KEPT, a THIRD uncarried unit) and briefly "
+        "narrowed the WHEN clause further, which FIX ROUND 6 REVERTED — "
+        "ratified normative scenario text being the ratifier's to amend, not "
+        "the lane's (RULING NEEDED posted to openxFactory #1047) — so ITS "
+        "THREE UNCARRIED UNITS, CURRENTLY, are the body sentence, the "
+        "pointer-bearing sentence, and the WHEN bullet AS RATIFIED; each has "
+        "a successor in the same block that says MORE, or a truer citation, "
+        "and never less; retires when the packet archives and its block is "
+        "promoted)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")

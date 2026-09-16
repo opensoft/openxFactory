@@ -1000,14 +1000,28 @@ Active changes:
   the two exceptions with what each names instead; narrows the restated
   sibling scenario *A pinned target names a pin no resolution root carries*'s
   WHEN by ONE clause (fix round 1), so the empty-root case keeps one outcome
-  and not two; and adds ONE scenario, *A finding emitted before root selection
-  names what it judged*. **THE REALIZED BEHAVIOUR ALREADY MATCHES THE
-  CLARIFIED READING** — `code_surface: none`, measured rather than assumed;
-  the other thirteen findings name their root today. The block is GENERATED
-  from canon and verified two ways: a unified diff against canon's block
-  (THREE hunks, 18 added / 5 removed) and a `derive_units` comparison through
-  the modified-block-currency family's own derivation (canon 209 units, block
-  215, TWO uncarried units, eight new). Surfaced by Copilot on the
+  and not two — fix round 5 briefly narrowed that same clause FURTHER on a
+  real Copilot finding, but ratified normative scenario text is the
+  ratifier's to amend, not the lane's, so fix round 6 REVERTED it; the WHEN
+  lands BYTE-IDENTICAL to what was ratified at `92d3e0e2`, and a RULING
+  NEEDED comment asking Brett Heap for the word is posted on
+  [#1047](https://github.com/opensoft/openxFactory/issues/1047); and adds ONE
+  scenario, *A finding emitted before root selection names what it judged*.
+  Fix round 5 ALSO refreshed one stale source-citation pointer canon itself
+  carries (`scripts/doc_health/families.py:1317-1321`, which is
+  `_topic_outcome` on `main` today) to name `_resolve_capability` and
+  `_pin_roots` directly — mechanical, KEPT, and no normative claim moves.
+  **THE REALIZED BEHAVIOUR ALREADY MATCHES THE CLARIFIED READING** —
+  `code_surface: none`, measured rather than assumed; the other thirteen
+  findings name their root today. The block is GENERATED from canon and
+  verified two ways, CURRENT AS OF fix round 6: a unified diff against
+  canon's block (FOUR hunks, 21 added / 8 removed) and a `derive_units`
+  comparison through the modified-block-currency family's own derivation
+  (canon 209 units, block 215, THREE uncarried units — the root-naming
+  sentence, the pointer-bearing sentence, and the WHEN bullet, the last
+  uncarried against canon since fix round 1 regardless of wording — nine
+  new). (At filing: THREE hunks, 18 added / 5 removed, canon 209, block 215,
+  TWO uncarried, eight new — `tasks.md` § 2.2.) Surfaced by Copilot on the
   archive pull request [#1042](https://github.com/opensoft/openxFactory/pull/1042)
   and RULED STANDS there — the sentence is ratified canon promoted
   byte-identical, which an archive act may not edit — so the remedy is a

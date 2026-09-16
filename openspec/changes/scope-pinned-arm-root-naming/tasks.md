@@ -56,12 +56,20 @@ request.
       ONCE and narrows it by one clause (round 1, R2: "…and at least one
       resolution root was selected for the run", so the empty-root-set case
       the new scenario covers keeps one outcome, not two), and appends ONE
-      scenario. Verified two ways and both recorded in the pull request
-      body — a unified diff of the generated block against canon's (THREE
-      hunks: the sentence, the one WHEN clause, and the scenario, nothing
-      else), and a `derive_units` comparison through the modified-block-currency
-      family's own derivation (canon 209 units, block 215, TWO uncarried
-      units, eight new).
+      scenario. AT FILING, verified two ways and both recorded in the pull
+      request body — a unified diff of the generated block against canon's
+      (THREE hunks: the sentence, the one WHEN clause, and the scenario,
+      nothing else), and a `derive_units` comparison through the
+      modified-block-currency family's own derivation (canon 209 units,
+      block 215, TWO uncarried units, eight new). ROUND HISTORY, IN ONE
+      SENTENCE: fix round 5 refreshed one stale source-citation pointer
+      canon itself carries (KEPT) and briefly narrowed the same WHEN clause
+      FURTHER on a real Copilot finding, which fix round 6 REVERTED because
+      ratified normative text is the ratifier's to amend and not the lane's
+      (`review/ratification-2026-09-16.md` § Addendum; RULING NEEDED posted
+      to openxFactory #1047) — CURRENTLY (post round 6, the pointer kept and
+      the WHEN as ratified): FOUR hunks, 21 added / 8 removed, canon 209
+      units, block 215, THREE uncarried units, nine new.
 - [x] 2.3 Sibling search for a co-writer of this requirement, taken at
       authoring on `8944758c` (before this packet's own delta existed): no
       OTHER active change holds a `## MODIFIED` block over *Prose tagging

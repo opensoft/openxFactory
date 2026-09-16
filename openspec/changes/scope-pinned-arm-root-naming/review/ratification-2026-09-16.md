@@ -49,11 +49,16 @@ left exactly as measured; it is not a description of the branch tip. This
 differs from a landed ratification amended by its ratifier after the merge:
 no merge of this packet exists yet, and the word itself — "ratify 1052 WHEN
 GREEN, then 1050" — conditions on green and leaves the lane to land the
-corrected head, not the `92d3e0e2` head the word was first given over. THREE
-commits have moved packet text since, none reopening a decision, a scope or
-a `tasks.md` § 1 box: see "Addendum, 2026-09-16" at the foot of this record,
-which also flags the ONE exception — a normative scenario WHEN, corrected at
-fix round 5 — put here for Brett Heap's veto rather than asserted as settled.
+corrected head, not the `92d3e0e2` head the word was first given over. FOUR
+commits have moved packet text since: see "Addendum, 2026-09-16" at the
+foot of this record. ALL FOUR ARE NON-NORMATIVE. One of them — fix round
+5 — briefly applied a narrower reading of a ratified scenario's WHEN; that
+was WRONG (ratified normative text is the ratifier's act to amend, not the
+lane's) and fix round 6 REVERTED it in full, so the block lands with its
+normative content BYTE-IDENTICAL to what was ratified at `92d3e0e2`. No
+decision, scope or `tasks.md` § 1 box is reopened by any of the four. The
+gap round 5 surfaced is real and is put to Brett Heap directly, by a RULING
+NEEDED comment on openxFactory #1047 posted 2026-09-16.
 
 ## What is ratified
 
@@ -114,7 +119,7 @@ stays entirely open — it is a separate act on a separate word.
 
 **WHY AN ADDENDUM AND NOT A SILENT REWRITE OF THE RECORD ABOVE.** The body of
 this record freezes the ratification at `92d3e0e2` and states that no text
-this packet carries at that head is excepted. Three commits have moved packet
+this packet carries at that head is excepted. Four commits have moved packet
 text since that head. Rewriting the freeze paragraph to chase them would
 destroy the evidence of what the word was actually given over; recording the
 movement here instead keeps both facts visible.
@@ -122,70 +127,95 @@ movement here instead keeps both facts visible.
 **THIS DIFFERS FROM A LANDED RATIFICATION LATER AMENDED BY ITS RATIFIER**
 (compare `add-requirement-ref-resolution-integrity`'s
 `review/ratification-2026-09-01.md`, whose own "Addendum, 2026-09-01" records
-a POST-MERGE scope amendment the ratifying owner ruled on directly, in
-session). No merge of this packet exists yet. The word — "ratify 1052 WHEN
-GREEN, then 1050" — is conditioned on green and instructs the lane to land
-the corrected head, not necessarily `92d3e0e2` itself; these are the
-corrections made getting that head to green, under the same word, before any
-landing.
+a POST-MERGE scope amendment the ratifying owner RULED ON DIRECTLY, IN
+SESSION, WITH THE CONTRADICTION BEFORE HIM, before any text moved). No merge
+of this packet exists yet. The word — "ratify 1052 WHEN GREEN, then 1050" —
+is conditioned on green and instructs the lane to land the corrected head;
+these are the corrections made getting that head to green, under the same
+word, before any landing.
 
-**THE THREE COMMITS, AND WHAT EACH MOVED.**
+**THE FOUR COMMITS, AND WHAT EACH MOVED.**
 
 1. `db03f283` — pinned `design.md`'s reproduction-command placeholder
    `--as-of <today>` to the literal date it was actually run with,
    `2026-09-16` (Copilot at `376313b9`, RULED ACCEPT by the lane): the
    committed command was uncopyable, since `runner.py` passes `--as-of`
-   straight to `date.fromisoformat`. BOOKKEEPING ONLY — no decision, no
-   scope, no `tasks.md` § 1 box moved.
+   straight to `date.fromisoformat`. NON-NORMATIVE — no decision, no scope,
+   no `tasks.md` § 1 box moved.
 2. `2a613e88` — added the sanctioned `Ratified by:` header line to
    `design.md` and `tasks.md`, directly after `Status: ratified` in each
    (Copilot at `db03f283`, RULED ACCEPT by the lane): `Status: ratified`
-   carried no header-line citation the lifecycle citation parser reads,
-   only lower prose. BOOKKEEPING ONLY — no decision, no scope, no
-   `tasks.md` § 1 box moved.
-3. **This commit (fix round 5; Copilot at `2a613e88`, three findings, all
-   RULED ACCEPT by the lane) — TWO corrections, of two different kinds:**
-   - **Mechanical: refreshed a stale source-citation pointer.** The restated
-     body sentence cited `scripts/doc_health/families.py:1317-1321` for
-     where capability resolution reads the root precedence. THAT POINTER IS
-     STALE IN CANON ITSELF — `:1317-1321` is `_topic_outcome` on `main`
-     today; the logic now lives in `_resolve_capability` (~:1490) and
+   carried no header-line citation the lifecycle citation parser reads, only
+   lower prose. NON-NORMATIVE — no decision, no scope, no `tasks.md` § 1 box
+   moved.
+3. `7055e475` (fix round 5; Copilot at `2a613e88`, three findings, all RULED
+   ACCEPT by the lane) — TWO corrections, ONE of them WRONG:
+   - **Kept — mechanical: refreshed a stale source-citation pointer.** The
+     restated body sentence cited `scripts/doc_health/families.py:1317-1321`
+     for where capability resolution reads the root precedence. THAT
+     POINTER IS STALE IN CANON ITSELF — `:1317-1321` is `_topic_outcome` on
+     `main` today; the logic now lives in `_resolve_capability` (~:1490) and
      `_pin_roots` (~:1548). Corrected to name the two functions directly, no
-     line numbers to drift again. No SHALL, obligation, scenario or
-     precedence claim moves — see `proposal.md`'s new "CORRECTED" bullet
-     under § What Changes.
-   - **THE ONE CORRECTION IN THIS PACKET THAT TOUCHES NORMATIVE SCENARIO
-     TEXT AFTER RATIFICATION, PUT HERE FOR BRETT HEAP'S VETO.** The sibling
-     scenario *A pinned target names a pin no resolution root carries*'s
-     WHEN, as fix round 1 narrowed it, read "…and at least one resolution
-     root was selected for the run" — satisfied by `_pin_roots` alone. But
-     `_pinned_arm` only appends a root to `searched` AFTER its `contracts/`
-     directory clears `boundary_dir`; a root whose boundary check fails
-     draws its own finding (*A root's contracts directory is itself a
-     symlink*) and is never added to `searched`. Where EVERY root
-     `_pin_roots` returns fails that check, `searched` stays empty, the
-     function's trailing `if searched:` guard never fires, and NO
-     "unresolved pinned target: no record under root(s)" finding is emitted
-     at all. The round-1 WHEN therefore described a hygiene finding the
-     implementation does not emit on that path — a collision with this same
-     packet's own D-1 intent (`design.md` D-1), which this record ratified.
-     The WHEN now reads "…and at least one selected root whose boundary was
-     successfully searched", narrowing out the all-roots-boundary-refused
-     case; the THEN and both other AND bullets are untouched, and the
-     independent *A root's contracts directory is itself a symlink* scenario
-     already covers every boundary-refused root on its own, so no coverage
-     is lost. **THIS PACKET'S RATIFICATION, ABOVE, IS NOT EXTENDED TO COVER
-     THIS TEXT BY THIS ADDENDUM.** It is recorded here, plainly, as a
-     correction the lane RULED ACCEPT from Copilot review and applied before
-     landing — and it stands open to Brett Heap's veto in this same RATIFIED
-     record until the packet lands or he says otherwise.
+     line numbers to drift again. NON-NORMATIVE — no SHALL, obligation,
+     scenario or precedence claim moves; see `proposal.md`'s "CORRECTED"
+     bullet under § What Changes. KEPT by this commit.
+   - **Reverted — the lane narrowed ratified normative scenario text on its
+     own authority, which it does not have.** Fix round 5 narrowed the
+     sibling scenario *A pinned target names a pin no resolution root
+     carries*'s WHEN from its ratified text ("…and at least one resolution
+     root was selected for the run") to "…and at least one selected root
+     whose boundary was successfully searched", on a real finding: a root
+     whose `contracts/` directory fails `boundary_dir` is never added to
+     `_pinned_arm`'s `searched` list, so where EVERY returned root fails
+     that check the function's trailing `if searched:` guard never fires
+     and no aggregate "unresolved pinned target: no record under root(s)"
+     finding is emitted — the ratified WHEN describes a finding the
+     implementation does not emit on that one path. **THE FINDING STANDS;
+     THE FIX WAS THE WRONG ACTOR'S.** Ratified normative text is the
+     ratifier's to amend, not the lane's — precisely the shape
+     `add-requirement-ref-resolution-integrity`'s 2026-09-01 amendment
+     observed: that packet's ratifier RULED on the contradiction, IN
+     SESSION, BEFORE its scenario text changed, and only then did the text
+     move. Fix round 5 moved the text FIRST and framed asking Brett Heap
+     as a follow-up "veto" — backwards, and REVERTED here in full.
+4. **This commit (fix round 6; Copilot review thread `PRRT_kwDOTAvnrs6jB5Uc`
+   on `7055e475`, RULED by the lane) — reverts item 3's WHEN narrowing and
+   re-measures:**
+   - The WHEN of *A pinned target names a pin no resolution root carries* is
+     restored to its text AS RATIFIED at `92d3e0e2`
+     (`git show 92d3e0e2:openspec/changes/scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md`),
+     BYTE-IDENTICAL. Every paraphrase of it in `proposal.md` and `design.md`
+     that fix round 5 changed is restored to describe that ratified text and
+     no more.
+   - The pointer refresh (item 3, first bullet) is KEPT, as is the `Ratified
+     by:` header convention (`2a613e88`) and the `--as-of` pin (`db03f283`).
+   - The committed block is RE-MEASURED after the revert: `derive_units`
+     reads canon 209 units, block 215, **THREE uncarried units** — the
+     root-naming sentence, the pointer-bearing sentence (kept from round 5),
+     and the sibling scenario's WHEN bullet (its wording as ratified; this
+     bullet has been uncarried against canon since round 1 regardless of
+     which wording it holds, canon carrying no such clause at all) — and
+     NINE new units. The canon-diff is FOUR hunks, 21 added / 8 removed,
+     UNCHANGED from round 5's own figures — a `git diff --numstat`
+     line-count property, the WHEN clause being one physical line under
+     either wording. README, `tasks.md` § 2.2 and the self-gate's own
+     narrative (`tests/doc-health/test_modified_block_currency_self_gate.py`)
+     are updated to match.
+   - **THE RULING NEEDED comment on openxFactory #1047, posted 2026-09-16,**
+     asks Brett Heap directly for the word this text needs: whether to
+     ratify the round-5 narrowing (or an equivalent), leave the WHEN exactly
+     as ratified, or something else. Until that word comes, the block lands
+     with its normative content EXACTLY as ratified at `92d3e0e2`.
 
-**WHAT DID NOT MOVE.** No `tasks.md` § 1 box (still 1.1, and only 1.1). No
-OQ-1 disposition — option (a) stands exactly as ratified, D-2 and D-3 remain
-refused. No `.openspec.yaml` origin field. No README ratified-bullet claim.
-The `code_surface: none` / `target_release: implemented` declaration. The
-scenario count (still twenty-four, one added over canon's twenty-three) and
-every scenario title, other than the one WHEN clause named above.
+**WHAT DID NOT MOVE, ACROSS ALL FOUR COMMITS.** No `tasks.md` § 1 box (still
+1.1, and only 1.1). No OQ-1 disposition — option (a) stands exactly as
+ratified, D-2 and D-3 remain refused. No `.openspec.yaml` origin field. No
+README ratified-bullet claim. The `code_surface: none` /
+`target_release: implemented` declaration. The scenario count (still
+twenty-four, one added over canon's twenty-three) and every scenario title.
+And, after item 4's revert, every normative SHALL, WHEN, THEN and AND bullet
+of the block — the block's normative content is EXACTLY what `92d3e0e2` was
+ratified with, the citation refresh being the one non-normative exception.
 
 **GATES AT EACH COMMIT ABOVE**, recorded in that commit rather than
 pre-asserted here: `OPENSPEC_TELEMETRY=0 openspec validate
