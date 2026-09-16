@@ -259,18 +259,26 @@ kind: pinned_contract_manifest
 #     scripts/validate-openspec-cli-pin.py: an unmatched FINDING is a statement
 #     about the deltas, an unmatched DISPOSITION is a statement about this file.
 #     `add-composed-view-authoring` was the worked example here, written while
-#     it had ONE open task left: "on that day its finding vanishes from every
-#     run and this pin must fail until its entry is deleted, so that the archive
-#     itself is the event that forces the re-reading." THAT DAY WAS 2026-09-16
-#     AND THE MECHANISM FIRED EXACTLY AS WRITTEN. The change did not archive on
-#     its open task being taken — it was CLOSED AS RE-HOMED to `opensoft/openDox`
+#     it had ONE open task left. The module's own words were that the change
+#     "archives the moment a human takes it, at which point its finding
+#     disappears from every run and its disposition would sit here forever,
+#     suppressing a class of finding nobody re-examined" — and that "refusing
+#     makes the archive itself the event that forces the re-examination."
+#     (An earlier draft of this paragraph rendered that passage as a quotation
+#     it was not; the words above are the module's, checked against it, and the
+#     correction is recorded here rather than made silently.) THE DAY CAME ON
+#     2026-09-16 AND THE MECHANISM FIRED, THOUGH NOT BY THE ROUTE THE SENTENCE
+#     NAMED. The change did not archive on its open task being taken — it was
+#     CLOSED AS RE-HOMED to `opensoft/openDox`
 #     under RULING Q6 (`split-opendox-two-layer-product` `tasks.md` § 6.4), which
 #     freezes it where it stands and carries task 3.2 open to the receiving
 #     repository; the corpus effect is the same one this paragraph predicted, and
 #     `--all` refused `pin-disposition-stale` naming this entry before it was
 #     deleted. The entry is gone; the doctrine it illustrated is not, and the
 #     illustration is kept in the past tense rather than replaced with a live
-#     change nobody has agreed to make an example of. ONLY A WHOLE-CORPUS
+#     change nobody has agreed to make an example of. THE MODULE'S PARAGRAPH IS
+#     NOW IN THE PAST TENSE TOO, so the pin and its validator report one
+#     lifecycle state for this change rather than two. ONLY A WHOLE-CORPUS
 #     (`--all`) RUN DECIDES THIS: a `--change <id>` run legitimately never
 #     opens the items it was not asked about, so it applies its dispositions,
 #     decides no staleness, and says in its output that it checked none.
