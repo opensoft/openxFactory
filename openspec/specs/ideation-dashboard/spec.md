@@ -2695,6 +2695,35 @@ own reference closure rather than assumed.
 - **WHEN** documentation states that a condition holds "until the removal target `contract-v2.0` retires the fixtures with the family"
 - **THEN** it MUST be repaired in the same cut as the removal, that sentence having been false since `contract-v2.0` shipped on 2026-08-27 and nothing having noticed
 
+> **ERRATUM, 2026-09-16 — NOT PART OF THE RATIFIED REQUIREMENT ABOVE, AND THE
+> REQUIREMENT IS UNEDITED.** One clause of "THE SHARED DEFINITIONS DO NOT LEAVE
+> WITH THE ENVELOPES" was measured FALSE by this requirement's own realization:
+> `typed_proposal` is **not** reachable from the surviving `-v2` family. The
+> widened family restates the shape as `keyed_typed_proposal` and never points at
+> `typed_proposal`, so the reference closure puts it outside. The measurement is
+> `retire-doxbench-chat-turn-v1` `tasks.md` § 2.1 — *"the premise is false for one
+> of the six"* — and the disposition is that packet's § 6.8, added at the
+> `contract-v3.0` cut for this purpose.
+>
+> **THE OUTCOME THE SENTENCE ASSERTS STILL HOLDS; ITS REASON DOES NOT.**
+> `typed_proposal` did not leave, and is **RETAINED, unreferenced, with the
+> reason recorded** — not because the surviving family reaches it, but because
+> removing a definition from a published contract file that no deprecation entry
+> announced and no minor warned on is what § Change Classes *Breaking (major)*
+> forbids at this major. A removal owes its own deprecating minor first. The
+> decision stands in `contracts/CHANGELOG.md` § `contract-v3.0` and in the
+> Executed row of `docs/contract-versioning-policy.md`.
+>
+> **WHY THE CLAUSE STANDS UNEDITED.** It is ratified text, carried here by the
+> archive act that closed `split-opendox-two-layer-product` § 6.2, and a closure
+> is not a licence to rewrite what was ratified. It also caught its own error:
+> the requirement demands that each removal be *"measured from the surviving
+> family's own reference closure rather than assumed"*, and applying that rule is
+> exactly what falsified the list beside it. The rule is sound; one of its
+> examples was not, and that is recorded here so a reader of canon meets the
+> correction where the claim is, rather than two directories away.
+
+
 ### Requirement: An unrecognized chat-turn kind is refused in the SURVIVING family, never coerced into a removed one
 An unrecognized or absent chat-turn `kind` SHALL be answered in the SURVIVING envelope family's failure shape, carrying an explicit unknown-kind error code, and MUST NOT be coerced into any family the release has removed; where the request carries no wire-valid turn identity, the existing pre-identity refusal shape SHALL be used unchanged, because the surviving failure envelope requires a `client_turn_id` and no identity may be invented to obtain one.
 

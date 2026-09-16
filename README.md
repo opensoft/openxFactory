@@ -3027,9 +3027,13 @@ Archived changes:
   tag — both directions answered `unrecognized_turn_kind` at HTTP 400, the
   identity-bearing one in the surviving family's failure envelope and the
   pre-identity one in the fixed shape, the model port never reached, and a
-  never-existed kind answering byte-identically to the retired one; 8.1 merged,
-  with the merge commit's single red **proven inherited** (the same assertion
-  fails at the parent `a951be76`, and `main`'s own `d308c012` re-derives why);
+  never-existed kind answering byte-identically to the retired one; **8.1 merged
+  AND GREEN, with the green run named** — `6856f502`'s single red is proven
+  inherited (the same assertion fails at its parent `a951be76`), and the
+  realization's own green `pytest-suite` is `d308c012`, which CONTAINS
+  `6856f502` and differs from it by one file that belongs to neither this packet
+  nor its code surface, so "merged plus green realization evidence" is
+  discharged by a run rather than waived by an excuse;
   8.3 `0 UNDISPOSITIONED failures`, exit 0; 8.4 met, with an erratum explaining
   § 4.7's "81" against the validator's 80 (files versus checks, the
   duplicate-turn pair being one check over two files); 8.5 already recorded in
