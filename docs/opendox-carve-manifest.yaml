@@ -53,8 +53,10 @@
 # carve commit are what make `moved_with_declared_edit` falsifiable at the
 # destination instead of a label. A moved row may additionally carry
 # `also_replicated_to:` and a `replicated_at_destination` row may carry
-# `edits:`, both RULED Q-L7 (a); and a moved row whose placement a RULING has
-# corrected may carry `re_destined:`, RULED Q6. All three are explained below.
+# `edits:`, both RULED Q-L7 (a); a moved row whose placement a RULING has
+# corrected may carry `re_destined:`, RULED Q6; and a moved row whose arrival
+# a RULING has DELETED may carry `retired:`, RULED 5656343213. All four are
+# explained below.
 #
 # THE THREE JUDGEMENTS THAT DECIDE MOST ROWS, all ruled on `#656` 2026-09-09:
 #
@@ -109,11 +111,25 @@
 #     `opendox_code` that the replicated `tests/ideation-dashboard/conftest.py`
 #     imports UNCONDITIONALLY at `:106` — so collecting `tests/` at openXdox-code
 #     would have failed at import, on a file no row placed there.
-#   * `edits:` ON A `replicated_at_destination` ROW, applied identically at
-#     every replica, with the lines bounded by the SOURCE BLOB at the carve
-#     commit exactly as a moved row's are. The row here is that same
-#     `conftest.py`, whose `:25` `REPO_ROOT = HERE.parent.parent` must read
-#     `HERE.parent` because the replica arrives one directory shallower. Under
+#   * `edits:` ON A `replicated_at_destination` ROW: each declared line is
+#     PERMITTED at every replica of that file and OBLIGATORY at none — the
+#     field belongs to the ROW and a replica has no row of its own — with the
+#     lines bounded by the SOURCE BLOB at the carve commit exactly as a moved
+#     row's are. That the applied TEXT is the same wherever a line IS applied
+#     is the PLACING LEGS' CLAIM plus each leg's own suite, NOT a check this
+#     grammar makes: `scripts/verify-carve-arrival.py` verifies ONE
+#     DESTINATION PER RUN and compares no two legs' copies with each other, so
+#     two legs applying one declared line differently BOTH pass — which
+#     `test_two_legs_may_apply_one_replicas_line_differently` records rather
+#     than leaving a reader to infer it from a passing run. It asks ONE
+#     question of the declared SET: `diffed` where a copy differs from the carve blob at all,
+#     and then every differing line must be one of them; `unapplied` only where
+#     the copy is byte-identical. The row here is that same `conftest.py`,
+#     which declares TWO — `:25`, whose `REPO_ROOT = HERE.parent.parent` must
+#     read `HERE.parent` because the replica arrives one directory shallower,
+#     and which both `-code` legs owe because both place the file at that
+#     depth; and `:271`, openXdox-code#14's § 4.4 fixture, which openXdox-code's
+#     copy takes and openDox-code's does not. Under
 #     every OTHER `not_moved` reason `edits:` is still the refusal it was: the
 #     bytes arrive nowhere, so there is no replica for a line to be applied at,
 #     which is why RULING OQ-B's three `stays_openxfactory_governance` rows go
@@ -184,6 +200,97 @@
 # — while a mis-placement is destination-side and is a correction to a RULED
 # placement. Correcting a ruling is DECLARED, not re-cut; and a re-homed file
 # never leaves its row, which is what keeps the ruling's own sentence true.
+#
+# A FOURTH GRAMMAR EXTENSION, RULED 5656343213 (Brett Heap, 2026-09-13, by
+# interactive multi-choice, on the question slice S8's author put in `#656`
+# comment `5650335573` § 2). It is the SECOND extension about PLACEMENT, and
+# it is the one Q6 above could not be stretched to cover: Q6 moves an arrival
+# BETWEEN two legs, and what S8 measured has no leg to move it to.
+#
+#   * `retired: {at, at_path, ruling, surface, note}` ON A MOVED ROW,
+#     OPTIONAL. It says: this row's bytes ARRIVED at `at`:`at_path`, a RULING
+#     has since DELETED that arrival as a declared act, and the floor now asks
+#     for the file to be ABSENT there. `at`/`at_path` are the row's EFFECTIVE
+#     arrival — its own `destination`/`destination_path`, or
+#     `re_destined.to`/`to_path` where Q6 has already moved the placement — so
+#     a row may be re-destined and THEN retired, and the retirement lands at
+#     the leg the file actually reached. The row keeps every placement field
+#     unedited, for Q6's reason exactly: the manifest goes on recording what
+#     the carve did and what Q6 corrected, and `retired:` records what a later
+#     ruling removed. `surface:` is the openxFactory path of the SURFACE the
+#     arrived file drove, and `ruling:` — a `#656` comment id, or the pull
+#     request URL carrying the ruling — is REQUIRED, on Q6's own scope
+#     reasoning.
+#
+#     ALL FOUR ARE THE READING GUARD AND NOT ONLY THE VALIDATOR'S
+#     REQUIREMENT (Copilot review of PR #1032). Every tool that ACTS on this
+#     field — `scripts/verify-carve-arrival.py` at a leg,
+#     `scripts/carved_reach.py` inside a retained consumer — reads a block
+#     missing any of the four as NO RETIREMENT and goes on asking for the
+#     arrival. Those tools run without the manifest validator (the verifier
+#     takes a `--dest-root` at the leg; the resolver is an import away in
+#     anything that reads a moved file), so a half-written block would
+#     otherwise silence a required arrival before anyone validated this
+#     document. Half a retirement is no retirement, and the mis-shaped block
+#     is `carve-shape-invalid` when the validator does run.
+#
+# WHAT IT DOES NOT MOVE, and the list is Q6's own plus the one that matters
+# most here: `carve_commit`, `carve_tag`, every `sha256`, every `git_mode`,
+# the row's `disposition`, its `edits[]` and the lines they name — AND EVERY
+# SOURCE-SIDE QUESTION. A retirement is a fact about a DESTINATION. The digest
+# passes and the surface walk go on asking of a retired row exactly what they
+# ask of any other moved row, in both phases: declared at the referent,
+# byte-identical there, and absent at the revision under test under
+# `post-shed`. A retired row is still a file that LEFT openxFactory, and this
+# document still records where the carve put it.
+#
+# WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON. The claim a
+# retirement rests on is that the surface the arrived file drove is gone from
+# BOTH legs, and the one way THIS document can answer that without reading a
+# leg is a disposition it already carries: a `not_moved` row STAYED at
+# openxFactory, so by the manifest's own declaration it arrived at no
+# destination at all. A MOVED surface is LIVE at a leg, and a suite driving a
+# live surface is not retired for the reason this form serves; a `surface:` in
+# NO row is one this document says nothing about, and "this manifest cannot
+# say" is not "gone" in a fail-closed floor. AND ONE `not_moved` REASON IS
+# EXCLUDED WITH THE MOVED ROWS: `replicated_at_destination` says the file is
+# RETAINED here, not that it is absent there — RULED OQ-C has every
+# destination place its own copy, `--replica-at` admits them and RULED Q-L7
+# (a) lets the row declare the edits they carry — so a surface cited against a
+# replica row is live at each leg that placed one. What the check does NOT
+# prove is that the arrived test was the surface's only reader, or that no
+# other file should follow it.
+#
+# NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
+# and retires nothing: the three intent-feed suites RULED 5656343213 retires
+# are the act that uses it, under their own claim and their own pull requests,
+# so every count in this file is unmoved by this landing — exactly as RULED Q6
+# landed above with no row carrying `re_destined:`. `retired 0` is what
+# `scripts/validate-carve-manifest.py` prints for this document until then, on
+# every run, in both phases and at zero, so the state the file is in is never
+# the state no log records.
+#
+# THE GATES, FIVE OF THEM: `retired:` on a `not_moved` row refuses
+# `carve-retired-not-moved` (a row that placed nothing has no arrival to
+# retire); a missing or empty `ruling:` refuses `carve-retired-unruled`; an
+# `at` outside `destinations:` refuses `carve-vocabulary-unknown`; `at`/
+# `at_path` disagreeing with the row's EFFECTIVE arrival refuses
+# `carve-disposition-inconsistent`; and a `surface:` that is not a `not_moved`
+# row of this manifest under a reason that means ABSENT AT THE LEGS refuses
+# `carve-retired-surface-live`, under one code for all three arms — a MOVED
+# surface is live at a leg, a `replicated_at_destination` surface is live at
+# every leg that placed a copy, and a surface in no row is one this document
+# cannot speak for. At the destination
+# `scripts/verify-carve-arrival.py` stops owing the row, requires
+# `at_path` ABSENT (`arrival-not-retired`) and admits a lawful refill there;
+# `scripts/carved_reach.py` refuses a retired row by name (`CarveRowRetired`,
+# a subclass of `ShedModuleHasNoDestination`) and omits it from a sweep.
+#
+# WHY NOT A RE-CUT, and the argument is Q6's, unchanged: § 11 re-cuts at a NEW
+# `carve_commit` with every digest recomputed, this manifest is
+# `phase: post-shed`, and a manifest re-emitted at a post-shed commit would
+# carry no moved rows at all. A retirement is destination-side and corrects
+# what a RULING placed. Correcting a ruling is DECLARED, not re-cut.
 #
 # THIS IS NOT RULING OQ-K'S OWED FLOOR PART 2 FIELD, and the two must not be
 # read as one. Design § D6 (2) clause (b) owes FLOOR PART 1 a field on a
@@ -1907,6 +2014,12 @@ rows:
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
       - class: adapter calls
         lines: [63, 1195, 2047, 2093]
+      - class: import rewrites
+        lines: [64, 65]
+        note: "PRE-EXISTING DECLARED-EDIT WINDOW, declared after the fact and in its own act. The edit is openXdox-code's § 4.4 RULING C2 work — PR #14 (`3840c1670771e2dc7bcd64eaafbc43169e0f383d`, landed 2026-09-11 20:41Z) and its follow-up PR #16 (`17384c07dd6aadaa30c35d333e7e83d5298dda43`, 2026-09-12 00:21Z) — and BOTH landed BEFORE the § 3.4 clause that binds a leg to a row annotation (`#656` comment `5642758731`, 2026-09-12 02:07Z: \"each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\"), which is why no slice ever declared it. Slice S5's annotation (openxFactory #1023, `ee251d6c`) § 5 LISTED these three rows as `openxdox_code`'s remaining refusals and deliberately did not absorb them — \"this PR does not invent declared-edit notes for work this lane did not do\"; this is that declaration, measured at openXdox-code `main` `c1ad341a`. CLAIM `#656` comment `5656688910`. THE ONE NEW MODULE IMPORT. `from . import domain_profile` is inserted between carve :64 and :65 so the late resolution below has the registry in scope. BOTH neighbours are named because an insertion has no carve line of its own — `verify-carve-arrival.py::_check_declared_lines` accepts either neighbour and its refusal prints both — and because naming both is the form slice S5's eleven insertions at this destination already take, measured row by row rather than assumed. The row's existing `import rewrites` entry (:67, :689, :700) is the CARVE's own `.boundary` re-pointing and says nothing about a module the carve never imported. Landed at opensoft/openXdox-code#14 `3840c167`; nothing in this file moved again between that commit and `c1ad341a`."
+      - class: adapter calls
+        lines: [167, 168, 169, 170, 171, 826, 903, 968, 1012, 1135, 1150, 1151, 1154, 1155, 1157, 1339, 1351, 1374, 1487, 1550, 1551, 1569, 1651, 2241]
+        note: "PRE-EXISTING DECLARED-EDIT WINDOW, declared after the fact and in its own act. The edit is openXdox-code's § 4.4 RULING C2 work — PR #14 (`3840c1670771e2dc7bcd64eaafbc43169e0f383d`, landed 2026-09-11 20:41Z) and its follow-up PR #16 (`17384c07dd6aadaa30c35d333e7e83d5298dda43`, 2026-09-12 00:21Z) — and BOTH landed BEFORE the § 3.4 clause that binds a leg to a row annotation (`#656` comment `5642758731`, 2026-09-12 02:07Z: \"each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\"), which is why no slice ever declared it. Slice S5's annotation (openxFactory #1023, `ee251d6c`) § 5 LISTED these three rows as `openxdox_code`'s remaining refusals and deliberately did not absorb them — \"this PR does not invent declared-edit notes for work this lane did not do\"; this is that declaration, measured at openXdox-code `main` `c1ad341a`. CLAIM `#656` comment `5656688910`. RULING C2's § 4.4 ENGINE HALF: two module constants become two resolver calls, at every site. `DRAFT_STATUS = \"draft\"` (:167) and `STAGED_STATUS = \"staged\"` (:171), with the comment between them (:168–:170), were openxFactory's OWN `Status:` taxonomy living inside the domain-neutral `openxdox` package — verbatim the failure `domain-mapping-declaration` names — and every read of them now resolves through the registered profile at the moment the word is needed: `_draft_status()` (:826, :1012, :1339, :1569), `_staged_status()` (:903, :1351, :1374), `_demote_destination()` (:968, :1651), the register-state literals `\"latent\"` and `\"picked\"` (:1135, :1150, :1151, :1154, :1155, :1157) and the `Status: staged` README seam the § 4.4 design note's own sweep missed (:1487, :1550, :1551). The 32-line PEP 562 tail inserted beside :2241 is the same act's compatibility half — a module-level `__getattr__` keeps `STAGED_STATUS` and `DRAFT_STATUS` readable as module attributes for an importer entitled to them, while `import openxdox.gate_console` still registers nothing, resolves nothing and refuses nothing. NOT `path constants`: no path literal moves here, and this row's carve-time path work is already declared at :567. Landed at opensoft/openXdox-code#14 `3840c167`; nothing in this file moved again between that commit and `c1ad341a`."
   - source_path: scripts/ideation_dashboard/gate_routes.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -1929,6 +2042,12 @@ rows:
         lines: [70]
       - class: adapter calls
         lines: [66, 67, 68]
+      - class: adapter calls
+        lines: [326, 327, 348, 366, 891, 892, 893]
+        note: "PRE-EXISTING DECLARED-EDIT WINDOW, declared after the fact and in its own act. The edit is openXdox-code's § 4.4 RULING C2 work — PR #14 (`3840c1670771e2dc7bcd64eaafbc43169e0f383d`, landed 2026-09-11 20:41Z) and its follow-up PR #16 (`17384c07dd6aadaa30c35d333e7e83d5298dda43`, 2026-09-12 00:21Z) — and BOTH landed BEFORE the § 3.4 clause that binds a leg to a row annotation (`#656` comment `5642758731`, 2026-09-12 02:07Z: \"each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\"), which is why no slice ever declared it. Slice S5's annotation (openxFactory #1023, `ee251d6c`) § 5 LISTED these three rows as `openxdox_code`'s remaining refusals and deliberately did not absorb them — \"this PR does not invent declared-edit notes for work this lane did not do\"; this is that declaration, measured at openXdox-code `main` `c1ad341a`. CLAIM `#656` comment `5656688910`. THE SAME ENGINE HALF, this file's share. Two resolvers are inserted beside carve :326/:327 — `_picked_register_state()` and `_declared_origin_kind()`, each reading `domain_profile.current()` PER CALL and never at import time — and the three sites that spelled those words as literals take them: the declared-`origin:` kind comparison at :348 and its return at :366 (the literal `\"staged\"`), and the cluster-lineage funnel at :893, whose `\"picked\"` becomes the `picked_state` hoisted in the line inserted beside :891/:892. The hoist is a line of its own rather than an inline call because the funnel runs per possible per cluster and the leg kept the walk's cost where the carve had it. Landed at opensoft/openXdox-code#14 `3840c167`; nothing in this file moved again between that commit and `c1ad341a`."
+      - class: adapter calls
+        lines: [76, 77, 78, 79, 80, 81, 438, 439, 456, 459]
+        note: "PRE-EXISTING DECLARED-EDIT WINDOW, declared after the fact and in its own act. The edit is openXdox-code's § 4.4 RULING C2 work — PR #14 (`3840c1670771e2dc7bcd64eaafbc43169e0f383d`, landed 2026-09-11 20:41Z) and its follow-up PR #16 (`17384c07dd6aadaa30c35d333e7e83d5298dda43`, 2026-09-12 00:21Z) — and BOTH landed BEFORE the § 3.4 clause that binds a leg to a row annotation (`#656` comment `5642758731`, 2026-09-12 02:07Z: \"each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\"), which is why no slice ever declared it. Slice S5's annotation (openxFactory #1023, `ee251d6c`) § 5 LISTED these three rows as `openxdox_code`'s remaining refusals and deliberately did not absorb them — \"this PR does not invent declared-edit notes for work this lane did not do\"; this is that declaration, measured at openXdox-code `main` `c1ad341a`. CLAIM `#656` comment `5656688910`. THE RULING C2 FOLLOW-UP, the exclusion check's own vocabulary. `LIFECYCLE_STATUSES = TAXONOMY` (:81), the four comment lines above it (:77–:80) and the blank line that separates the block from `HEADER_SCAN_LINES` (:76) are DELETED — SIX carve lines, which is one `delete` opcode over :76–:81 and is why the entry declares all six rather than the five the prose names one by one: that constant imported openxFactory's controlled `Status:` taxonomy wholesale into the neutral package, the same defect the engine half repaired one file over. `_document_status_vocabulary()` is inserted beside :438/:439 in its place — `profile.statuses(kind=profile.kind_declaring(\"demote\"))`, resolved late, REFUSING where no profile is registered rather than answering with a hardcoded fallback — and the check reads it at :459, :456 being the docstring line its new paragraph continues. These lines are a SECOND `adapter calls` entry on this row rather than an extension of the first because they are a second act by a second pull request: one entry, one commit, so a reader who follows the attribution lands somewhere. Landed at opensoft/openXdox-code#16 `17384c07`; nothing in this file moved again between that commit and `c1ad341a`."
   - source_path: scripts/ideation_dashboard/human_seen.py
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -2723,11 +2842,14 @@ rows:
   - source_path: tests/ideation-dashboard/conftest.py
     disposition: not_moved
     reason: replicated_at_destination
-    evidence: "RULED OQ-C (#656, 2026-09-09): the disposition list stays three and the reason carries the nuance. The pytest conftest is per-directory harness — it imports tests/hermeticity.py, staging_shapes and scripts/wire_messages and builds the base-repo world — and both destinations' suites need one, so it is replicated rather than moved. AMENDED under RULING Q-L7 (a) (Brett Heap, 2026-09-10, `#656` comment `5618683833`, verbatim \"rule Q-L7 (a)\") to declare ONE line, which is the first `edits:` any replica row has carried: the replica arrives at `tests/conftest.py`, ONE DIRECTORY SHALLOWER than this source, so `:23`'s `HERE` is the destination's `tests/` and `:25`'s `REPO_ROOT = HERE.parent.parent` resolves OUTSIDE the destination repository — it must read `HERE.parent`. Measured in carve leg 1's own tree (openDox-code #6, merge `ce53b489`), and the record's own two figures for it are carried here rather than re-derived: **391 node-gated errors**, which is RULING Q-L7 (a)'s own citation, and **405 conftest-depth setup errors** in the leg-1 landing census (`#656` comment `5618797424`, which splits that leg's 982 setup errors into 577 openXdox reaches plus 405 conftest-depth). The reaches this line feeds are `:26`'s `sys.path.insert(0, str(REPO_ROOT / \"scripts\"))`, `:46`'s validator walk and `:245`'s `REPO_ROOT / \"scripts\" / \"ideation_dashboard\"`. LEG 1 IS NOT RE-CUT FOR IT (the ruling's own sequencing): the fix arrives with the next leg that places the replica, and openDox-code takes it in a later declared act. `:24`'s `TESTS_ROOT = HERE.parent` is DELIBERATELY NOT DECLARED and needs no edit: measured under pytest's default prepend import mode, pytest itself puts the arrived conftest's own directory (`tests/`) on `sys.path` before the module body runs, so `:106`'s `from session_fixtures import …` and `:94`'s `from staging_shapes import …` resolve at the destination while `:27`'s own insert adds the repository root — harmless there, and declaring a line no destination needs edited would be a claim the arrival verifier then has to be told to ignore. THE ROW THIS AMENDMENT PAIRS WITH is `tests/ideation-dashboard/session_fixtures.py`, whose `also_replicated_to: [openxdox_code]` exists because `:106` imports it UNCONDITIONALLY and it was a moved row to `opendox_code` alone — collecting `tests/` at openXdox-code would have failed at import, on a file no row placed there."
+    evidence: "RULED OQ-C (#656, 2026-09-09): the disposition list stays three and the reason carries the nuance. The pytest conftest is per-directory harness — it imports tests/hermeticity.py, staging_shapes and scripts/wire_messages and builds the base-repo world — and both destinations' suites need one, so it is replicated rather than moved. AMENDED under RULING Q-L7 (a) (Brett Heap, 2026-09-10, `#656` comment `5618683833`, verbatim \"rule Q-L7 (a)\") to declare ONE line — the first `edits:` any replica row has carried, and the row's WHOLE bound only until the pre-existing `openxdox_code` annotation added a second (`:271`, the `adapter calls` entry below; this row now declares TWO lines, and the bound of each is ROW-WIDE — permitted at every replica of this file and obligatory at none): the replica arrives at `tests/conftest.py`, ONE DIRECTORY SHALLOWER than this source, so `:23`'s `HERE` is the destination's `tests/` and `:25`'s `REPO_ROOT = HERE.parent.parent` resolves OUTSIDE the destination repository — it must read `HERE.parent`. Measured in carve leg 1's own tree (openDox-code #6, merge `ce53b489`), and the record's own two figures for it are carried here rather than re-derived: **391 node-gated errors**, which is RULING Q-L7 (a)'s own citation, and **405 conftest-depth setup errors** in the leg-1 landing census (`#656` comment `5618797424`, which splits that leg's 982 setup errors into 577 openXdox reaches plus 405 conftest-depth). The reaches this line feeds are `:26`'s `sys.path.insert(0, str(REPO_ROOT / \"scripts\"))`, `:46`'s validator walk and `:245`'s `REPO_ROOT / \"scripts\" / \"ideation_dashboard\"`. LEG 1 IS NOT RE-CUT FOR IT (the ruling's own sequencing): the fix arrives with the next leg that places the replica, and openDox-code takes it in a later declared act. `:24`'s `TESTS_ROOT = HERE.parent` is DELIBERATELY NOT DECLARED and needs no edit: measured under pytest's default prepend import mode, pytest itself puts the arrived conftest's own directory (`tests/`) on `sys.path` before the module body runs, so `:106`'s `from session_fixtures import …` and `:94`'s `from staging_shapes import …` resolve at the destination while `:27`'s own insert adds the repository root — harmless there, and declaring a line no destination needs edited would be a claim the arrival verifier then has to be told to ignore. THE ROW THIS AMENDMENT PAIRS WITH is `tests/ideation-dashboard/session_fixtures.py`, whose `also_replicated_to: [openxdox_code]` exists because `:106` imports it UNCONDITIONALLY and it was a moved row to `opendox_code` alone — collecting `tests/` at openXdox-code would have failed at import, on a file no row placed there. THE ROW'S BOUND TODAY IS TWO LINES, not the one Q-L7 (a) amended it to: `:25` and `:271`, in the two `edits:` entries below, each of them a PERMISSION at every replica of this file and an obligation at none — openDox-code's copy takes `:25` alone (measured at `05bbde80`, unchanged at `8efb3cf5`) and openXdox-code's takes both (`c1ad341a`). `verify-carve-arrival.py` answers the pair as it answers a moved row's: `diffed` where the copy differs from the carve blob at all, and then every differing line must be one of these two; `unapplied` only where the copy is byte-identical."
     edits:
       - class: path constants
         lines: [25]
-        note: "`path constants` and not `adapter calls` under RULING OQ-1's own reservation of that class for PACKAGE-INTERNAL asset and module paths: `gate_console.py:567`'s `parents[2]` arithmetic is the ruling's own example and this is the same shape — the depth of this file's own home, not a corpus-shaped literal being resolved. APPLIED IDENTICALLY AT EVERY REPLICA (RULED Q-L7 (a)): both `-code` legs place this file at `tests/conftest.py`, at the same depth, so the same one-line edit is the correct text at both. The grammar bounds the LINE; the identity of the applied text is the placing pull request's claim and each leg's own suite, because `verify-carve-arrival.py` verifies one destination per run and compares no two legs' copies with each other."
+        note: "`path constants` and not `adapter calls` under RULING OQ-1's own reservation of that class for PACKAGE-INTERNAL asset and module paths: `gate_console.py:567`'s `parents[2]` arithmetic is the ruling's own example and this is the same shape — the depth of this file's own home, not a corpus-shaped literal being resolved. APPLIED IDENTICALLY AT EVERY REPLICA (RULED Q-L7 (a)) — true of THIS line and a property of IT rather than of the grammar, which permits a declared line at every replica and obliges it at none (see this row's `evidence:`, and `:271` below, which openDox-code's copy does not take): both `-code` legs place this file at `tests/conftest.py`, at the same depth, so the same one-line edit is the correct text at both. The grammar bounds the LINE; the identity of the applied text is the placing pull request's claim and each leg's own suite, because `verify-carve-arrival.py` verifies one destination per run and compares no two legs' copies with each other."
+      - class: adapter calls
+        lines: [271]
+        note: "PRE-EXISTING DECLARED-EDIT WINDOW, declared after the fact and in its own act. The edit is openXdox-code's § 4.4 RULING C2 work — PR #14 (`3840c1670771e2dc7bcd64eaafbc43169e0f383d`, landed 2026-09-11 20:41Z) and its follow-up PR #16 (`17384c07dd6aadaa30c35d333e7e83d5298dda43`, 2026-09-12 00:21Z) — and BOTH landed BEFORE the § 3.4 clause that binds a leg to a row annotation (`#656` comment `5642758731`, 2026-09-12 02:07Z: \"each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\"), which is why no slice ever declared it. Slice S5's annotation (openxFactory #1023, `ee251d6c`) § 5 LISTED these three rows as `openxdox_code`'s remaining refusals and deliberately did not absorb them — \"this PR does not invent declared-edit notes for work this lane did not do\"; this is that declaration, measured at openXdox-code `main` `c1ad341a`. CLAIM `#656` comment `5656688910`. THE FOURTH PRE-EXISTING EDIT — the one #1023 could not see, and the reason it could not. That PR read `tests/conftest.py` and `tests/session_fixtures.py` as two `arrival-undeclared-file` gaps \"admitted ad hoc on the command line\" with `--allow-created`. They are neither created nor undeclared: they are THIS row's declared replica and `tests/ideation-dashboard/session_fixtures.py`'s (`also_replicated_to: [openxdox_code]`), and `docs/opendox-cutover-runbook.md` § 5.6 already names the `--replica-at` pair that makes both checkable. `--allow-created` SUPPRESSES the replica check, so reading them that way admitted the NAME and never looked at the bytes — which is the single failure mode `--replica-at`'s own reasoning exists to prevent, and it hid this edit for three days. What is declared: openXdox-code #14 appends a 27-line pytest fixture beside this file's LAST carve line (:271 — an insertion at the end of a file has ONE neighbour, not two), the § 4.4 fixture that takes the registered domain profile AWAY for the duration of one test so `domain_profile.current()`'s refusal can be exercised rather than simulated; the registration itself is made by the repository-root `conftest.py`, which sits outside this destination's declared roots and carries no row. WHAT THIS DECLARATION COSTS, stated here rather than discovered later: `edits:` is a field of a ROW and a replica has no row of its own (RULED Q-L7 (a)), so :271 is now permitted at EVERY replica of this file — and openDox-code's replica does not take it. Measured at openDox-code `main` `05bbde80`: 271 lines, one opcode, the declared :25 and nothing else. A per-replica declaration would need a grammar this manifest does not have, and inventing one inside an annotation PR is the kind of floor edit RULED OQ-1 forbids. Landed at opensoft/openXdox-code#14 `3840c167`; nothing in this file moved again between that commit and `c1ad341a`."
   - source_path: tests/ideation-dashboard/fixtures/base-repo/ideation/brainstorm/avatar-client-lab.md
     disposition: not_moved
     reason: stays_openxfactory_adapter
@@ -3612,6 +3734,12 @@ rows:
       - class: import rewrites
         lines: [14, 15, 16, 17]
         note: "`ideation_dashboard.X` becomes `openxdox.X`; scout memo § 3.1 measured that most travelling test files are moved_with_declared_edit under this class alone"
+      - class: import rewrites
+        lines: [7, 8]
+        note: "PRE-EXISTING DECLARED-EDIT WINDOW, declared after the fact and in its own act. The edit is openXdox-code's § 4.4 RULING C2 work — PR #14 (`3840c1670771e2dc7bcd64eaafbc43169e0f383d`, landed 2026-09-11 20:41Z) and its follow-up PR #16 (`17384c07dd6aadaa30c35d333e7e83d5298dda43`, 2026-09-12 00:21Z) — and BOTH landed BEFORE the § 3.4 clause that binds a leg to a row annotation (`#656` comment `5642758731`, 2026-09-12 02:07Z: \"each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\"), which is why no slice ever declared it. Slice S5's annotation (openxFactory #1023, `ee251d6c`) § 5 LISTED these three rows as `openxdox_code`'s remaining refusals and deliberately did not absorb them — \"this PR does not invent declared-edit notes for work this lane did not do\"; this is that declaration, measured at openXdox-code `main` `c1ad341a`. CLAIM `#656` comment `5656688910`. `from types import SimpleNamespace`, inserted between carve :7 and :8 — the stand-in profile object the new tests register. `import rewrites` because the insertion is NOTHING BUT an import statement. The row's existing entry (:14–:17) is the carve's own `ideation_dashboard.X` → `openxdox.X` re-pointing and covers no line this insertion sits on. Landed at opensoft/openXdox-code#16 `17384c07`; nothing in this file moved again between that commit and `c1ad341a`."
+      - class: adapter calls
+        lines: [352, 353]
+        note: "PRE-EXISTING DECLARED-EDIT WINDOW, declared after the fact and in its own act. The edit is openXdox-code's § 4.4 RULING C2 work — PR #14 (`3840c1670771e2dc7bcd64eaafbc43169e0f383d`, landed 2026-09-11 20:41Z) and its follow-up PR #16 (`17384c07dd6aadaa30c35d333e7e83d5298dda43`, 2026-09-12 00:21Z) — and BOTH landed BEFORE the § 3.4 clause that binds a leg to a row annotation (`#656` comment `5642758731`, 2026-09-12 02:07Z: \"each slice that edits such a file pairs its leg PR with an openxFactory row-annotation PR that lands FIRST\"), which is why no slice ever declared it. Slice S5's annotation (openxFactory #1023, `ee251d6c`) § 5 LISTED these three rows as `openxdox_code`'s remaining refusals and deliberately did not absorb them — \"this PR does not invent declared-edit notes for work this lane did not do\"; this is that declaration, measured at openXdox-code `main` `c1ad341a`. CLAIM `#656` comment `5656688910`. THE FOLLOW-UP'S OWN TESTS: a 76-line block inserted between carve :352 and :353 that drives the exclusion check through a REGISTERED profile — the status vocabulary read by role, an unregistered process refused rather than defaulted, and a descendant profile's own spellings honoured. It is `adapter calls` and not `import rewrites` even though four of its lines are `import` statements: those are function-local imports inside the new test bodies, and the class of an insertion is what the insertion IS. The lane's `classify.py` reads ANY import line in an inserted block as an import rewrite; that heuristic mis-reads this block, and mis-reads a `generator.py` docstring line beginning \"import time:\", so the rule applied in this act — stated here rather than left to be inferred from a passing run — is the tighter one: an insertion is an `import rewrites` edit only where EVERY non-blank line of it is an import statement. Landed at opensoft/openXdox-code#16 `17384c07`; nothing in this file moved again between that commit and `c1ad341a`."
   - source_path: tests/ideation-dashboard/test_grouping.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
