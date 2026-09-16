@@ -134,6 +134,7 @@ that reddened the gate-bearing test.
 from __future__ import annotations
 
 import functools
+import hashlib
 import inspect
 import re
 import subprocess
@@ -1374,7 +1375,8 @@ _REHOMED_AND_STILL_WHOLE = (
       "Model intake hands the credential to the broker and keeps only a binding",
       "The intake affordance ships with the flow behind it",
       "The model selector offers intake first and defaults to it when nothing "
-      "is approved")),
+      "is approved"),
+     ("3168ad8f6f31c8dbacdc772d933508943f7b2c7cf373de2357eb8958d4bebee1", 16813)),
 )
 
 
@@ -1399,10 +1401,24 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
     head after this closure, so the same four are load-bearing in two places and
     a drift in either shows up here.
 
+    AND THE SIXTH FIELD IS THE BYTES. Naming the titles proves the delta still
+    carries the right REQUIREMENTS; it proves nothing about their text, and a
+    closure that archived a gutted block with the headings intact would pass
+    every assertion above. So the row also pins the archived delta's `sha256`
+    and its length, and this arm reads the file as BYTES rather than through
+    `parse_delta` — the digest is taken before any decoding, so an encoding
+    change fails here rather than passing invisibly. THE PIN IS NOT A CHECKSUM
+    OF CONVENIENCE: it is the same digest the closure record quotes and the same
+    one the receiving repository's copy was `diff`-ed against, so a drift on
+    either side lands on this assertion. RULING Q6 CARRIES; IT DOES NOT AUTHOR,
+    and this is the only place that sentence is enforceable rather than merely
+    written down.
+
     NOT A COUNT. Each title is named; the population is bounded by the same
     named set rather than by its size.
     """
-    for change, delta, capability, requirement, added in _REHOMED_AND_STILL_WHOLE:
+    for (change, delta, capability, requirement, added,
+         carriage) in _REHOMED_AND_STILL_WHOLE:
         active = ROOT / "openspec" / "changes" / change
         assert not active.is_dir(), _moved(
             f"{change} ABSENT from the active corpus (CLOSED AS RE-HOMED under "
@@ -1414,6 +1430,19 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
             f"the archived delta {delta}",
             "no such file — the closure was a DELETION or the packet moved "
             "again; a re-home relocates the delta, it does not drop it")
+
+        expected_digest, expected_size = carriage
+        raw = archived.read_bytes()
+        actual_digest = hashlib.sha256(raw).hexdigest()
+        assert (actual_digest, len(raw)) == (expected_digest, expected_size), _moved(
+            f"the archived delta {delta} byte-identical to what RULING Q6 "
+            f"carried — sha256 {expected_digest[:12]}…, {expected_size} bytes",
+            f"sha256 {actual_digest[:12]}…, {len(raw)} bytes. Q6 CARRIES; IT "
+            "DOES NOT AUTHOR. A delta that changed on its way into the archive, "
+            "or after it, has been edited where the ruling forbids editing — "
+            "and the receiving repository's copy, which was diffed against "
+            "these exact bytes, no longer says the same thing. Re-derive "
+            "against the receiving change before touching this pin")
 
         requirements, _renames = mbc.parse_delta(
             archived.read_text(encoding="utf-8", errors="replace"))
