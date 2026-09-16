@@ -53,8 +53,10 @@
 # carve commit are what make `moved_with_declared_edit` falsifiable at the
 # destination instead of a label. A moved row may additionally carry
 # `also_replicated_to:` and a `replicated_at_destination` row may carry
-# `edits:`, both RULED Q-L7 (a); and a moved row whose placement a RULING has
-# corrected may carry `re_destined:`, RULED Q6. All three are explained below.
+# `edits:`, both RULED Q-L7 (a); a moved row whose placement a RULING has
+# corrected may carry `re_destined:`, RULED Q6; and a moved row whose arrival
+# a RULING has DELETED may carry `retired:`, RULED 5656343213. All four are
+# explained below.
 #
 # THE THREE JUDGEMENTS THAT DECIDE MOST ROWS, all ruled on `#656` 2026-09-09:
 #
@@ -198,6 +200,97 @@
 # — while a mis-placement is destination-side and is a correction to a RULED
 # placement. Correcting a ruling is DECLARED, not re-cut; and a re-homed file
 # never leaves its row, which is what keeps the ruling's own sentence true.
+#
+# A FOURTH GRAMMAR EXTENSION, RULED 5656343213 (Brett Heap, 2026-09-13, by
+# interactive multi-choice, on the question slice S8's author put in `#656`
+# comment `5650335573` § 2). It is the SECOND extension about PLACEMENT, and
+# it is the one Q6 above could not be stretched to cover: Q6 moves an arrival
+# BETWEEN two legs, and what S8 measured has no leg to move it to.
+#
+#   * `retired: {at, at_path, ruling, surface, note}` ON A MOVED ROW,
+#     OPTIONAL. It says: this row's bytes ARRIVED at `at`:`at_path`, a RULING
+#     has since DELETED that arrival as a declared act, and the floor now asks
+#     for the file to be ABSENT there. `at`/`at_path` are the row's EFFECTIVE
+#     arrival — its own `destination`/`destination_path`, or
+#     `re_destined.to`/`to_path` where Q6 has already moved the placement — so
+#     a row may be re-destined and THEN retired, and the retirement lands at
+#     the leg the file actually reached. The row keeps every placement field
+#     unedited, for Q6's reason exactly: the manifest goes on recording what
+#     the carve did and what Q6 corrected, and `retired:` records what a later
+#     ruling removed. `surface:` is the openxFactory path of the SURFACE the
+#     arrived file drove, and `ruling:` — a `#656` comment id, or the pull
+#     request URL carrying the ruling — is REQUIRED, on Q6's own scope
+#     reasoning.
+#
+#     ALL FOUR ARE THE READING GUARD AND NOT ONLY THE VALIDATOR'S
+#     REQUIREMENT (Copilot review of PR #1032). Every tool that ACTS on this
+#     field — `scripts/verify-carve-arrival.py` at a leg,
+#     `scripts/carved_reach.py` inside a retained consumer — reads a block
+#     missing any of the four as NO RETIREMENT and goes on asking for the
+#     arrival. Those tools run without the manifest validator (the verifier
+#     takes a `--dest-root` at the leg; the resolver is an import away in
+#     anything that reads a moved file), so a half-written block would
+#     otherwise silence a required arrival before anyone validated this
+#     document. Half a retirement is no retirement, and the mis-shaped block
+#     is `carve-shape-invalid` when the validator does run.
+#
+# WHAT IT DOES NOT MOVE, and the list is Q6's own plus the one that matters
+# most here: `carve_commit`, `carve_tag`, every `sha256`, every `git_mode`,
+# the row's `disposition`, its `edits[]` and the lines they name — AND EVERY
+# SOURCE-SIDE QUESTION. A retirement is a fact about a DESTINATION. The digest
+# passes and the surface walk go on asking of a retired row exactly what they
+# ask of any other moved row, in both phases: declared at the referent,
+# byte-identical there, and absent at the revision under test under
+# `post-shed`. A retired row is still a file that LEFT openxFactory, and this
+# document still records where the carve put it.
+#
+# WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON. The claim a
+# retirement rests on is that the surface the arrived file drove is gone from
+# BOTH legs, and the one way THIS document can answer that without reading a
+# leg is a disposition it already carries: a `not_moved` row STAYED at
+# openxFactory, so by the manifest's own declaration it arrived at no
+# destination at all. A MOVED surface is LIVE at a leg, and a suite driving a
+# live surface is not retired for the reason this form serves; a `surface:` in
+# NO row is one this document says nothing about, and "this manifest cannot
+# say" is not "gone" in a fail-closed floor. AND ONE `not_moved` REASON IS
+# EXCLUDED WITH THE MOVED ROWS: `replicated_at_destination` says the file is
+# RETAINED here, not that it is absent there — RULED OQ-C has every
+# destination place its own copy, `--replica-at` admits them and RULED Q-L7
+# (a) lets the row declare the edits they carry — so a surface cited against a
+# replica row is live at each leg that placed one. What the check does NOT
+# prove is that the arrived test was the surface's only reader, or that no
+# other file should follow it.
+#
+# NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
+# and retires nothing: the three intent-feed suites RULED 5656343213 retires
+# are the act that uses it, under their own claim and their own pull requests,
+# so every count in this file is unmoved by this landing — exactly as RULED Q6
+# landed above with no row carrying `re_destined:`. `retired 0` is what
+# `scripts/validate-carve-manifest.py` prints for this document until then, on
+# every run, in both phases and at zero, so the state the file is in is never
+# the state no log records.
+#
+# THE GATES, FIVE OF THEM: `retired:` on a `not_moved` row refuses
+# `carve-retired-not-moved` (a row that placed nothing has no arrival to
+# retire); a missing or empty `ruling:` refuses `carve-retired-unruled`; an
+# `at` outside `destinations:` refuses `carve-vocabulary-unknown`; `at`/
+# `at_path` disagreeing with the row's EFFECTIVE arrival refuses
+# `carve-disposition-inconsistent`; and a `surface:` that is not a `not_moved`
+# row of this manifest under a reason that means ABSENT AT THE LEGS refuses
+# `carve-retired-surface-live`, under one code for all three arms — a MOVED
+# surface is live at a leg, a `replicated_at_destination` surface is live at
+# every leg that placed a copy, and a surface in no row is one this document
+# cannot speak for. At the destination
+# `scripts/verify-carve-arrival.py` stops owing the row, requires
+# `at_path` ABSENT (`arrival-not-retired`) and admits a lawful refill there;
+# `scripts/carved_reach.py` refuses a retired row by name (`CarveRowRetired`,
+# a subclass of `ShedModuleHasNoDestination`) and omits it from a sweep.
+#
+# WHY NOT A RE-CUT, and the argument is Q6's, unchanged: § 11 re-cuts at a NEW
+# `carve_commit` with every digest recomputed, this manifest is
+# `phase: post-shed`, and a manifest re-emitted at a post-shed commit would
+# carry no moved rows at all. A retirement is destination-side and corrects
+# what a RULING placed. Correcting a ruling is DECLARED, not re-cut.
 #
 # THIS IS NOT RULING OQ-K'S OWED FLOOR PART 2 FIELD, and the two must not be
 # read as one. Design § D6 (2) clause (b) owes FLOOR PART 1 a field on a
