@@ -4,7 +4,9 @@ comment `5648049748`): *"a contributed binding's CSS lives WITH THE BINDING, in
 its own sheet; openDox's declared design tokens (the `--st-*` family, S7) are
 the one stable styling surface; nothing else in `styles.css` is."*
 
-    measure-css-census.py <opendox-code checkout> <openxdox-code checkout> [--json out.json]
+    python3 scripts/measure_opendox_css_census.py \\
+        <openDox-code checkout> <openXdox-code checkout> [--json out.json]
+        [--gate-dir <dir>]
 
 `openxdox.view_extensions.STYLE_RESIDUE` records 51 exclusive / 24 shared
 classes MEASURED at openDox-code `cb343ae8` — three slices ago. This re-derives
@@ -152,6 +154,42 @@ def _literals(text: str, suffix: str) -> list[str]:
             + re.findall(r"class\s*=\s*'([^']*)'", text))
 
 
+#: A BARE LITERAL IS A CLASS ONLY IN ARGUMENT OR ASSIGNMENT POSITION, and this
+#: is the parser-free discriminator that makes the gate side safe to act on
+#: (Copilot review of openxFactory #1068, round 3). `el("div", "gatebar")` and
+#: `node.className = "gatebar"` name a class; `{ kind: "summary" }` and
+#: `state === "summary"` name a VALUE, and under a rule that counted every bare
+#: literal a value equal to a selector token could send an openDox rule to
+#: another leg.
+#:
+#: WHY THE RULE CANNOT SIMPLY BE DROPPED INSTEAD: 46 of the 54 classes this
+#: census finds at `0b4e8bbf`/`0a0265f7` rest on a bare literal and nothing
+#: else, because this bundle's element helper takes the class as its SECOND
+#: ARGUMENT (`el(tag, className, text)`). A scan without bare literals answers
+#: 5 where the truth is 54 — it is the dominant class-bearing form here, not
+#: noise to be filtered out.
+#:
+#: `=` IS ASSIGNMENT AND NOT COMPARISON: `==`, `!=`, `<=` and `>=` all end in
+#: `=` and none of them is a class being set.
+#:
+#: AND A VALUE UNDER A CLASS-NAMING KEY IS CLASS-BEARING, which is the one
+#: context an argument/assignment rule alone gets wrong here: `dispose.js`:202-206
+#: declares its five outcome classes as `{ ok: { label: "applied", cls: "is-ok" } }`
+#: — a TABLE of classes, and the key says what the value is. Without this
+#: clause the census loses exactly those five (`is-ok`, `is-queued`,
+#: `is-stalled`, `is-refused`, `is-error`) and answers 49 where the truth is 54.
+#: `{ kind: "summary" }` is still a value and still names nothing, because
+#: `kind` is not a class-naming key — which is the distinction the whole rule
+#: is for.
+_ARG_OR_ASSIGN = re.compile(
+    r"(?:[(,]|(?<![=!<>])=|\b(?:cls|class|className|classes)\s*:)\s*$")
+
+
+def _bare_literal_is_class_bearing(text: str, start: int) -> bool:
+    """True where the literal opening at `start` sits where a class is passed."""
+    return bool(_ARG_OR_ASSIGN.search(text[max(0, start - 40):start]))
+
+
 def prefix_refs(text: str, suffix: str) -> set[str]:
     """Every class-name PREFIX this file concatenates onto."""
     out: set[str] = set()
@@ -167,17 +205,25 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
     """Every class token `text` names in a class-bearing position."""
     out: set[str] = set()
     if suffix == ".js":
-        literals = [text[a + 1:b - 1] for kind, a, b in _js_spans(text)
-                    if kind == "string"]
+        spans = [(text[a + 1:b - 1], a) for kind, a, b in _js_spans(text)
+                 if kind == "string"]
     else:
-        literals = (re.findall(r'class\s*=\s*"([^"]*)"', text)
-                    + re.findall(r"class\s*=\s*'([^']*)'", text))
-    for s in literals:
+        spans = [(m.group(1), m.start(1)) for m in
+                 re.finditer(r'class\s*=\s*"([^"]*)"', text)]
+        spans += [(m.group(1), m.start(1)) for m in
+                  re.finditer(r"class\s*=\s*'([^']*)'", text)]
+    for s, start in spans:
+        # A SELECTOR STRING is class-bearing wherever it sits: `.foo`, `div.foo`
+        # — the leading dot is the declaration.
         out.update(re.findall(r"\.([A-Za-z_][A-Za-z0-9_-]*)", s))
+        # A `class="…"` inside a template is class-bearing by construction.
         for m in re.finditer(r'class\s*=\s*"?([A-Za-z0-9_ -]*)', s):
             out.update(p for p in m.group(1).split() if _CLASSTOK.match(p))
+        # A BARE class list only where a class is PASSED or ASSIGNED.
         parts = s.split()
-        if parts and all(_CLASSTOK.match(p) for p in parts):
+        if not parts or not all(_CLASSTOK.match(p) for p in parts):
+            continue
+        if suffix != ".js" or _bare_literal_is_class_bearing(text, start):
             out.update(parts)
     return out
 
