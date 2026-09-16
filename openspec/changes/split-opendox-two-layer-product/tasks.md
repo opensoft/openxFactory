@@ -1500,7 +1500,11 @@ the bookkeeping that ticks this group.
   `scripts/validate-ideation-dashboard-contracts.py`, the four dashboard contract
   schemas, the 142 packaged examples under `examples/ideation-dashboard/`, and the
   five dashboard governance docs" — a pre-DQ-1 deletion list wrong in SCOPE (it
-  deletes 117 rows DQ-1 keeps) and in five of its own six counts. Every figure
+  deletes 117 rows DQ-1 keeps) and in **six of its own seven counts** — "48
+  modules" (63), "40 files" (43), "125 files" (157), "the four dashboard contract
+  schemas" (six), "the 142 packaged examples" (140) and "the five dashboard
+  governance docs" (seven); only *"the four-file underscore spelling"* is exact.
+  Every figure
   above is measured at a named tree; the STATUS below records each one, and
   records where the measurement and the ruling's own parenthetical part company.)*
   **STATUS — 2026-09-10, `#656` comment `5625573095` (Brett Heap, verbatim
@@ -1587,14 +1591,37 @@ the bookkeeping that ticks this group.
   | `examples/ideation-dashboard/` | 140 | 140 (139 `.yaml`) | **44** | 44 | "the 142 packaged examples" |
   | `docs/` governance | 7 | 7 | **6** | 6 | "the five dashboard governance docs" |
 
-  **DQ-1's kept set is 117 rows**: of the manifest's 456 rows (`phase: post-shed`)
-  the dispositions are `moved_verbatim` **160**, `moved_with_declared_edit`
-  **158**, `not_moved` **138** — and the `not_moved` reasons are
+  **DQ-1's kept set is 117 rows**, and the manifest's 456 rows (`phase:
+  post-shed`) split like this — **at TWO heads, because the moving half moved and
+  the kept half did not**:
+
+  | head | `moved_verbatim` | `moved_with_declared_edit` | `not_moved` |
+  | --- | ---: | ---: | ---: |
+  | `cc4ae9d3` (#940's merge) | 169 | 149 | **138** |
+  | `main` `cb2d3a2c`, and this branch | **143** | **175** | **138** |
+
+  **Twenty-six rows crossed from `moved_verbatim` to `moved_with_declared_edit`
+  between those heads** — 169 − 143 = 26 = 175 − 149 — and the commits that moved
+  them are named: the § 3.4 slice annotations `ee251d6c` (S5), `b3a75537` (S7)
+  and `e5896455` (S8), each declaring edit lines on rows that had been verbatim.
+  `docs/opendox-cutover-runbook.md`:143-145 carries the current split, and
+  `tests/carve_manifest/test_carve_manifest.py` pins 176 edit-carrying rows (the
+  175 plus one replica row under RULED Q-L7 (a)).
+  **`not_moved` is 138 at BOTH heads and so is every one of its four reasons** —
   `stays_openxfactory_adapter` **103**, `replicated_at_destination` **20**,
   `stays_openxfactory_governance` **14**, `deleted_at_carve` **1**. 103 + 14 =
-  **117**, which is the set the ruling names and the box now keeps. The other
-  twenty-one `not_moved` rows are not a kept set: a `replicated_at_destination`
-  row arrives somewhere and a `deleted_at_carve` row arrives nowhere.
+  **117**, which is the set the ruling names and the box now keeps, and it is
+  untouched by the twenty-six. The other twenty-one `not_moved` rows are not a
+  kept set: a `replicated_at_destination` row arrives somewhere and a
+  `deleted_at_carve` row arrives nowhere.
+  *(CORRECTED at Copilot review round 6 on this amendment's own pull request,
+  which was right that `160 / 158 / 138` reproduces at neither head. The figure
+  was a transcription that predates the slice annotations, and the paragraph
+  claimed a re-read at `cb2d3a2c` it had not taken for this line — exactly the
+  defect this amendment corrects elsewhere, found in its own text. The kept-set
+  conclusion never depended on the moving half, which is why the error survived
+  three rounds: 117 is read from the `not_moved` reasons, and those are identical
+  at both heads.)*
 
   **THE SCHEMA COUNT IS SIX, AND THIS IS WHERE THE MEASUREMENT AND THE RULING'S
   OWN PARENTHETICAL PART COMPANY — RECORDED, NOT QUIETLY RESOLVED.** The ruling
@@ -2091,6 +2118,36 @@ movements claimed at the time they land.
   answer does not rest on one `kind:` string**: by the literal, by the ten
   `kind:` words actually declared, and by the five-axis STRUCTURE independent of
   any naming, codexFactory holds no profile artifact.
+  **AND THE CENSUS IS NOT codexFactory's ALONE, because the answer this box
+  gives is GLOBAL** — *no domain gets the first descendant yet*, not *not this
+  one*. Each of § 1.7's FIVE registered domain trees was censused the same three
+  ways at its own `main`:
+
+  | domain tree | head | tracked | `kind: domain-profile` | `kind:` naming dox | `mapping_id:`/`domain_label:` | most of the five AXES in any ONE file |
+  | --- | --- | ---: | ---: | ---: | ---: | ---: |
+  | `codeXfactory/codexFactory` | `761f49d0` | 1,995 | 0 | 0 | 0 | **1** |
+  | `MedxSoft/MedxFactory` | `9f125a6a` | 8,562 | 0 | 0 | 0 | **1** |
+  | `ledgerXfactory/LedgerxFactory` | `090d1f50` | 1,245 | 0 | 0 | 0 | **1** |
+  | `opensoft/AdxFactory` | `e794dc2f` | 85 | 0 | 0 | 0 | **1** |
+  | `opensoft/OpsxFactory` | `6aa1512c` | 2,164 | 0 | 0 | 0 | **1** |
+
+  **14,051 tracked files across the five: not one declares `kind:
+  domain-profile`, no `kind:` anywhere names dox, `mapping_id:` and
+  `domain_label:` do not occur at all, and NO SINGLE FILE reaches two of the five
+  axes.** `artifact_kinds:`, `evidence_classes:` and `authorities:` are absent
+  from every one of the five trees; the axis words that do occur are `gates:`
+  (codexFactory 2, MedxFactory 52, LedgerxFactory 15, AdxFactory 8),
+  `lifecycle:` (LedgerxFactory 7, OpsxFactory 1) and `acts:` (LedgerxFactory 2,
+  OpsxFactory 4) — each ALONE, in templates, fixtures and archived proposals of
+  those domains' own products, never two together and never beside a mapping
+  identity. **So the laziness rule's answer is NONE YET for every registered
+  domain**, which is the answer R-3 gives.
+  *(ADDED at Copilot review round 6 on this amendment's own pull request, and it
+  is the difference between a scoped claim and the global one this box makes:
+  R-3 reasoned from codexFactory — the domain most likely to be first — while
+  §§ 7.1/7.2 tick a conclusion about all five. § 7.2's REPORT proves zero
+  descendant REPOSITORIES exist anywhere in the estate; this table proves zero
+  PROFILE ARTIFACTS exist in any registered domain to trigger one.)*
   **The content mentions that DO exist are named rather than hidden**, since a
   path-only census would have missed them.
   Matched case-INSENSITIVELY, `openxdox` is in **32** tracked files and `opendox`
@@ -2181,9 +2238,9 @@ movements claimed at the time they land.
   and its answer is NONE YET, so the act this box describes has no subject to
   perform on, and it does not tick here, block § 8's archive gate, or lapse.
   **The marker is `[~]`, the house's RESERVED DEFERRED FORM, and that is load
-  bearing rather than cosmetic**: `scripts/proposal-support.py`:4592 refuses an
-  archive whose `tasks.md` still matches `^- \[ \]` — *"change has incomplete
-  tasks"* — so a deferred successor left at `[ ]` would contradict, in the
+  bearing rather than cosmetic**: `scripts/proposal-support.py`:**4609-4610**
+  refuses an archive whose `tasks.md` still matches `^- \[ \]` — *"change has
+  incomplete tasks"* — so a deferred successor left at `[ ]` would contradict, in the
   archive machinery itself, the sentence before this one. The form is the one the
   archived packets use for exactly this standing:
   `archive/2026-09-09-add-openspec-cli-pin/tasks.md`:244-255 (which names it
@@ -2403,8 +2460,10 @@ realization evidence, never on landing. Each line is its own evidence.
   the amount the packet predicts" — **and the packet predicts no amount
   anywhere**. Measured across the whole packet OUTSIDE THIS BOX, `review/`
   included — the only framing of this count that stays true while the box is
-  being written — "severity" occurs **SEVEN** times in **FIVE** files, and
-  nowhere else in `tasks.md` at all: `design.md`:225 (a glossary row),
+  being written — "severity" occurs **SEVEN** times in **FIVE** files, with **no
+  further occurrence anywhere in `tasks.md` outside this box** (inside it there
+  are several, this sentence among them, which is the whole reason the count is
+  scoped this way): `design.md`:225 (a glossary row),
   `review/ratification-2026-09-05.md`:649, :691 and :783,
   `review/reality-check-2026-09-05.md`:302,
   `review/amendment-2026-09-05-repository-shape.md`:246, and
@@ -2424,7 +2483,11 @@ realization evidence, never on landing. Each line is its own evidence.
   as a sha** together with the doc-health invocation, both stated before the
   AFTER run is taken; a baseline selected afterwards, or any tree other than the
   one the archive merges into, does not discharge this clause, because a free
-  choice of baseline can manufacture whatever delta the record wants; (b) the
+  choice of baseline can manufacture whatever delta the record wants. **The
+  AFTER run is bound the same way and for the same reason**: it names the
+  archive pull request's OWN HEAD as a sha — or, once it exists, the resulting
+  merge commit — so the pair is BASE→HEAD of one pull request and neither end
+  can be swapped for a convenient tree. (b) the
   per-severity BEFORE and AFTER vectors, every family and every severity, `info`
   included; and (c) a named reason for EVERY finding that entered or left,
   diffed finding by finding rather than netted. A record that gives a total
