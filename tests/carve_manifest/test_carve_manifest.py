@@ -5141,6 +5141,18 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
         "carve `:161` is the REPLACEMENT in place — the split selector list "
         "the row note names — and it is no longer in the declared window")
     assert len(q7_lines - {161}) == 88, len(q7_lines - {161})
+    # AND THE OTHER MIXED RULE IS IN THE WINDOW TOO (Copilot review, round
+    # 17). `.swb-draftchrome .swb-cactions` at carve `:2514` MOVES WHOLE, and
+    # it is NOT one of the 59 exclusive blocks — the census reports it in
+    # `mixed_blocks`. That is why the window's 89 carve lines and the census's
+    # 89-line union are the same SIZE and not the same SET, which the row note
+    # now decomposes: 78 lines inside those blocks, 9 comment and brace lines
+    # they carry out, and these two mixed ones. This is the half of that
+    # difference this repository can pin, the leg diff carrying the rest.
+    assert 2514 in q7_lines, (
+        "carve `:2514` is the mixed rule that moves WHOLE — the row note names "
+        "it, and the census reports it in `mixed_blocks` rather than among the "
+        "59 exclusive blocks")
     # 2454 + 89 = 2543 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDS
     # IT, which is what a window total is: a DELTA against the document the act
     # found, and so a figure a later act cannot move.
