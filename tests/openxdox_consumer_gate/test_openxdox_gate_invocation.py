@@ -302,7 +302,9 @@ def test_the_submodule_init_is_scoped_to_the_two_consumed_gitlinks(
     """DEPARTURE (a): recursive, because the consumer suite reads both legs.
 
     `scripts/carved_reach.py`'s `install()` needs `openDox/code/src` AND
-    `openXdox/code/src` on disk and REFUSES rather than degrading. The SCOPING
+    `openXdox/code/src` on disk and REFUSES rather than degrading — and 42
+    files in this repository reach a carved module through it, at 207 helper
+    sites, so the refusal is not a corner case. The SCOPING
     the wallet gate is really asserting is kept: `openXwallet` and
     `installs/omnigent-install` are not initialized, because nothing here reads
     them.
@@ -631,8 +633,9 @@ def test_no_two_test_modules_resolve_to_the_same_import_name(
     Two plain directories holding the same basename therefore claim one
     `sys.modules` entry, and the second one collected raises `import file
     mismatch` — a COLLECTION error, which stops the whole run at
-    "Interrupted: 1 error during collection" and reports nothing about the
-    other 260 modules.
+    "Interrupted: 1 error during collection" and reports nothing about ANY
+    other module in the tree — no number is quoted here on purpose, because
+    the count moves with every file added and the property does not.
 
     THIS SUITE CAUSED EXACTLY THAT. Authored as
     `tests/openxdox_consumer_gate/test_gate_invocation.py`, it collided with

@@ -79,9 +79,14 @@
 #
 #   (a) THE INIT IS `--recursive`. `openxwallet-consumer-gate.yml` rejects
 #       `--recursive` because nothing in it reads a nested gitlink. This gate's
-#       consumer suite does: the § 5.2 shed left 38 files in this repository
-#       naming 39 carved modules at 125 import sites, all of them reached
-#       through `scripts/carved_reach.py`, whose `install()` needs
+#       consumer suite does, and the reach is wide: MEASURED HERE, 42 files in
+#       this repository reach a carved module through
+#       `scripts/carved_reach.py`, at 207 helper sites. (The § 5.2 shed's own
+#       accounting of the same surface, counted ITS way — files naming carved
+#       MODULES rather than files calling the helper — is 38 files, 39 carved
+#       modules, 125 import sites; both are cited because the methods differ
+#       and a borrowed number with a borrowed method is how the node figure in
+#       this header went wrong once already.) `carved_reach.install()` needs
 #       `openDox/code/src` AND `openXdox/code/src` on disk and REFUSES rather
 #       than degrading when either is absent ("a single-leg install would
 #       appear to work and then fail on the seventeenth import"). It is the
