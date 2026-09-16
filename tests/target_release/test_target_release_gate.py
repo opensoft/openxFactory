@@ -1080,7 +1080,20 @@ def test_the_admitted_token_is_the_registers_own_class_word():
 def test_admitting_the_value_did_not_move_the_closed_baseline():
     """A VALUE WAS ADMITTED, NOT AN EXCEPTION. The promoted requirement makes
     closure enforced rather than declared, so the admission must be visible in
-    the vocabulary and invisible in the baseline."""
+    the vocabulary and invisible in the baseline.
+
+    THE SECOND ASSERTION IS THAT CLAIM AND THE FIRST IS NOT, which this
+    docstring now says out loud because from 2026-09-16 the two move for
+    different reasons. `DEFERRED_ALLOCATION` being absent from every pair is the
+    admission's own invisibility, and it is invariant. The SIZE literal is a
+    separate pin on the baseline's population: the register is REMOVABLE, NEVER
+    ADDABLE, so that number falls when a retirement lawfully shrinks the
+    ceiling — as § 6.1's closure shrinks it here — and refuses to rise. Neither
+    movement is an admission, and a shrink is not evidence that admission
+    touched the baseline. (Raised by Copilot on PR #1060, which read the name and
+    the new literal as contradicting each other. The name is right for what it
+    asserts; what was missing was this paragraph.)
+    """
     # 21 UNTIL 2026-09-16, when `split-opendox-two-layer-product` § 6.1 closed
     # `add-nightly-dashboard-refresh` AS RE-HOMED to `opensoft/openXdox` under
     # RULING Q6 and the packet left the active corpus. That retired its
