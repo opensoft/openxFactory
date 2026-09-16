@@ -3320,8 +3320,8 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [gate-code-surface-declarations](openspec/changes/archive/2026-09-16-gate-code-surface-declarations/proposal.md)
-  — **ARCHIVE PREPARED 2026-09-16** by the archive pull request this lane opens
-  at this head (ARCHIVE-PR-NUMBER-PENDING, written in by the next commit), lane
+  — **ARCHIVE PREPARED 2026-09-16** by
+  [PR #1076](https://github.com/opensoft/openxFactory/pull/1076), lane
   `openxfactory-5` (display `openXfactory-5`), and **HELD AS A DRAFT: THE
   SEPARATE ARCHIVE WORD IS OWED AND THE GREEN HALF OF THE REALIZATION EVIDENCE
   IS OWED.** This entry records an act PREPARED in advance, not an act
