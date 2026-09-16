@@ -2424,12 +2424,28 @@ movements claimed at the time they land.
   the five trees over one population defined the same way in every one: every
   tracked file under a `tenants/`, `clients/`, `installs/` or `deployments/`
   directory, UNION every file whose top-level `kind:` names a tenant, client,
-  install or deployment (`git grep -ilE
-  "^\s*kind:\s*[\"']?[a-z_]*(tenant|client|install|deployment)" -- '*.yaml'
-  '*.yml'` — DOUBLE-quoted, because the pattern contains a single quote and a
-  single-quoted shell string cannot hold one; this is the form that was run,
-  verbatim, and it is written that way so a reader can paste it), each record in
-  it then read for an instance of a dox product.
+  install or deployment. **BOTH HALVES OF THAT UNION ARE WRITTEN OUT, AND IN
+  POSIX CHARACTER CLASSES, BECAUSE A PASTEABLE COMMAND IS THE WHOLE POINT OF
+  QUOTING ONE.** The directory half is `git ls-files | grep -iE
+  '(^|/)(tenants?|clients?|installs?|deployments?)/'`; the `kind:` half is
+  `git grep -ilE "^[[:space:]]*kind:[[:space:]]*[\"']?[a-z_]*(tenant|client|install|deployment)" -- '*.yaml' '*.yml'`
+  — DOUBLE-quoted, because the pattern contains a single quote and a
+  single-quoted shell string cannot hold one — and the two are `sort -u`'d
+  together, which is the population. The `kind:` half was RUN with GNU `\s` where
+  `[[:space:]]` stands here, and the two forms return the **byte-identical file
+  list in all five trees** (measured, md5-equal, not assumed), so no count in this
+  box moves — but `\s` is a GNU extension POSIX ERE does not define, and this
+  packet writes its other patterns in POSIX classes for exactly that reason
+  (:479-483, :494-497, both naming macOS). It is not a style point: on a BSD/macOS
+  grep `\s` is a literal `s`, the `kind:` half then matches **nothing at all**
+  and returns zero files WITHOUT AN ERROR, and a reader pasting the GNU form there
+  would read this census as unreproducible rather than as measured.
+  *(A Copilot finding on this amendment's own pull request, and the most repeated
+  one of the series: the missing directory half in rounds 14, 15, 16 and 17, the
+  non-POSIX escape in round 17. Fixed rather than registered because what it
+  falsifies is not prose but the box's own promise that the command can be
+  pasted.)*
+  Each record in the population is then read for an instance of a dox product.
   **THAT PATTERN TOLERATES INDENTATION, SO IT IS WIDER THAN "top-level" AND BOTH
   POPULATIONS ARE GIVEN** (a Copilot finding on this amendment's own pull request,
   round 10). Anchored strictly at column one — `^kind:` — the five populations read
