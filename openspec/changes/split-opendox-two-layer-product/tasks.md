@@ -885,18 +885,31 @@ the bookkeeping that ticks this group.
   consequence of the Python split.
   **STATUS — 2026-09-14, tick JUDGED MET AT THIS AMENDMENT'S OWN LANDING: the
   boundary was INVENTED as a design note and REALIZED in an eight-slice arc.**
-  **SEVEN** of the eight are merged as this is written; **S8 lands AHEAD of
-  this amendment** in the lane's recorded order — it is the one row still
-  carrying `[FILL AT LANDING]` below — so the tick is written for the state
-  this pull request lands INTO and not for the state it was authored in, and
-  the box is not ticked ahead of it. *(S7's row was filled in place at its own
-  landing, 2026-09-15, from the merged pull requests: `#1030` →
+  **ALL EIGHT are merged and every sha in the table below is final**, each one
+  read from the merged pull request itself rather than from a report of it. The
+  tick is therefore written for the state this pull request lands INTO, which is
+  what this paragraph said it would be, and no box is ticked ahead of its act.
+  *(The paragraph read "Six of the eight … S7 and S8 land AHEAD" until S7
+  merged, then "SEVEN of the eight … S8 lands AHEAD of this amendment … it is
+  the one row still carrying `[FILL AT LANDING]` below" until S8 merged. Both
+  rows were filled IN PLACE at their own landings. **S7**, 2026-09-15: `#1030` →
   `b3a75537217d9b15684501684e9527f412d4e6b6` at **21:40:25Z** and openDox-code
-  `#21` → `1e4697130855e9695a6acc3344b7c925bb3eeb09` at **21:41:36Z** — Q-L1's
-  annotation-first rule holding a seventh time, by 71 seconds. The paragraph
-  read "Six of the eight … S7 and S8 land AHEAD" until then.)* That is the discipline `openDox-spec`'s
-  own amendment #3 applies to its § 5.0 landing record, which this table
-  mirrors.
+  `#21` → `1e4697130855e9695a6acc3344b7c925bb3eeb09` at **21:41:36Z** — RULED
+  Q-L1's annotation-first rule holding for the SIXTH time, by 71 seconds. **S8**, in
+  three acts across 2026-09-15/16: the annotation openxFactory `#1025` →
+  `e5896455ac74e126b7baa2ba81cf1cc9ae4d37f1` at **2026-09-15T23:50:29Z**, then leg A openXdox-code `#19` →
+  `0a0265f7e53a1db30a0f51deb556231c2001285f` at **2026-09-16T01:11:37Z**, then leg B openDox-code `#23` → `0b4e8bbf68fabfcd65d4f0d80e619c20a013e888`
+  at **2026-09-16T01:23:16Z** — the same rule holding for the **SEVENTH and LAST** time. The
+  count is one holding per ANNOTATED slice, in landing order — S2, S3, S6, S4,
+  S5, S7, S8 — S1 being the one slice correctly exempt because it creates files
+  and edits no ARRIVED row; counted per annotation→LEG pairing instead, where S6,
+  S5 and S8 carry two legs each, they are the eighth and the ninth and tenth of
+  ten, and all ten are ordered right. These two ordinals read "a seventh" and
+  "an EIGHTH" until openDox-spec `#11`'s fix round 18, where a Copilot finding
+  caught that S7 and S8 could not both be the seventh: both had been minted by
+  counting SLICES LANDED, S1 included.)* That is the
+  discipline `openDox-spec`'s own amendment #3 applies to its § 5.0 landing
+  record, which this table mirrors.
 
   **The boundary** is `openDox-spec` `docs/front-end-package-boundary.md` — the census,
   the three destination classes (A openDox core / B the gate loop / C the
@@ -904,7 +917,7 @@ the bookkeeping that ticks this group.
   slice plan — landed at openDox-spec **#8 → `a44ac06d`** and amended three
   times: **#9 → `61866d29`** (amendment #1, the five rulings Q1–Q5),
   **#10 → `7d12428c`** (amendment #2, five corrections and Q6), and
-  **#11 → [FILL AT LANDING — merge sha]** (amendment #3, the S8 premise RULED,
+  **#11 → `54e910735b97b326d05250100104b3af07d3f5ae`** (amendment #3, the S8 premise RULED,
   the deferred re-measurement taken, a fifth declared class-A tail, and every
   open question closed). Its § 6's SIX questions are all RULED and its § 5.1
   counterpart's twelve are too. The realization, one row per slice, each leg
@@ -923,7 +936,7 @@ the bookkeeping that ticks this group.
   | S6 | `/source` becomes openDox's own fixed core arm (RULED Q4) | `#1009` → `468371dc` | `#16` → `3661345f` | `#17` → `d6e7bbe3` |
   | S5 | contribute the gate loop — six class-B modules leave | `#1023` → `ee251d6c` | `#20` → `8efb3cf5` | `#18` → `c1ad341a` |
   | S7 | parameterize class C — the display facet and the context hop | `#1030` → `b3a75537` | `#21` → `1e469713` | — |
-  | S8 | re-point the bundle paths, un-narrow `validate` for the web suites | `#1025` → **[FILL AT LANDING]** | `#23` → **[FILL AT LANDING]** | `#19` → **[FILL AT LANDING]** |
+  | S8 | re-point the bundle paths, un-narrow `validate` for the web suites | `#1025` → `e5896455` | `#23` → `0b4e8bbf` | `#19` → `0a0265f7` |
 
   Two acts of the floor belong to the arc and are named with it: RULED **Q6**'s
   `re_destined:` row form, built for S8 and landed at openxFactory
