@@ -144,8 +144,8 @@ mapping manifest. Measured in the landed file:
 | `moved_with_declared_edit` | **175** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares a line** (RULED Q-L7 (a)) and its copies are held to it |
 
-**318 rows move. 2406 declared edit lines**: `import rewrites` 722, `path
-constants` 246, `adapter calls` 1438. **176 rows carry `edits:`** — the 175
+**318 rows move. 2495 declared edit lines**: `import rewrites` 722, `path
+constants` 246, `adapter calls` 1527. **176 rows carry `edits:`** — the 175
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
 `views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
@@ -156,7 +156,16 @@ converted `moved_verbatim` -> declared** — "parameterize class C" edits every
 file in the served bundle, because every one of them rendered a word.
 The § 3.4 slice-S8 annotation then moved ONE figure only: +40 `path constants`
 lines over thirteen rows that were already carriers, so the row counts and the
-carrier count stand where slice S7 left them.
+carrier count stand where slice S7 left them. **RULED Q7's CSS extraction moves
+ONE FIGURE AND ONE ROW**: +89 `adapter calls` lines on the single
+`web/styles.css` row, which slice S7 had already converted, so nothing else in
+this paragraph or the table below moves — and that is the act's own point. The
+89 are DELETIONS: the 59 rule blocks the gate loop's own selectors occupied,
+leaving for the four sheets openXdox-code ships beside the bindings that name
+them. A deletion has been a declared edit in this vocabulary since § 3.4 slice
+S6 declared 122 `serve_projection.py` deletions under the same class and
+landed; what `#1023` § 6 called a wall was the `moved_verbatim` disposition,
+which slice S7 had already taken this row past.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
@@ -208,7 +217,7 @@ test-layout files that carve leg 1 measured:
   compares no two legs' copies with each other.
 
 The **one replica line belongs to no destination column below** (the 1422nd
-when this paragraph was written, the 2406th now): a replica row names no
+when this paragraph was written, the 2495th now): a replica row names no
 destination at all, so the per-leg declared-line figures still sum to one less
 than the total, and that line is owed by every leg
 that places that conftest — both `-code` legs. **Under every other `not_moved`
@@ -264,7 +273,7 @@ Per destination, and these are the numbers each leg's arrival run must report:
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 35 / 88 | 1667 | `src/opendox`, `tests` |
+| `opendox_code` | 123 | 35 / 88 | 1756 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
 | `openxdox_code` | 92 | 9 / 83 | 703 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
@@ -281,10 +290,14 @@ slice-S5 annotation (`ee251d6c`) moved BOTH — to `52 / 71 | 874` and
 put it. The slice-S8 annotation then moves BOTH declared-line cells and
 NEITHER `verbatim / edited` cell: its forty `path constants` lines fall
 11 at `opendox_code` and 29 at `openxdox_code`, every one of them on a row
-that already carried `edits:`, giving the `1667` and `703` the table above
-carries. The four destination figures now sum to 2405, and the single line the
-replica row `tests/ideation-dashboard/conftest.py` declares — the one replica
-line, which names no destination at all — makes 2406.
+that already carried `edits:`, giving the `1667` and `703` it carried before
+this act. RULED Q7's CSS extraction then moves ONE cell and no other: its 89
+`adapter calls` lines all fall on `opendox_code`'s `web/styles.css` row, a row
+that already carried `edits:` and was already `moved_with_declared_edit`, so
+`opendox_code`'s declared-line figure goes `1667` -> `1756` and every other
+cell of this table stands. The four destination figures now sum to 2494, and
+the single line the replica row `tests/ideation-dashboard/conftest.py` declares
+— the one replica line, which names no destination at all — makes 2495.
 `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`
 asserts all four numeric columns, the fifth ROOTS column and that sum against
 the landed manifest, so every cell of this table is now read FROM THE TABLE;
@@ -360,7 +373,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 2406 now.
+from the start — 794 of them at this ruling's own landing, 2495 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738

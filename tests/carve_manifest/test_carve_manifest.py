@@ -2942,7 +2942,21 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # and nothing would have said so until a phase-B run at a tree carrying
     # every other slice's declarations too.
     #
-    assert (lines, carrying) == (2406, 176), (lines, carrying)
+    # AND THEN RULED Q7's CSS EXTRACTION of 2026-09-16 (`#656` comment
+    # `5648049748`, the FORM Q-L1's at `5628560136`) moved `lines` ONE LAST
+    # TIME and `carrying` not at all: 89 `adapter calls` lines on the single
+    # `scripts/ideation_dashboard/web/styles.css` row, which slice S7 had
+    # already converted and which was already a carrier. They are DELETIONS —
+    # the 59 rule blocks whose every selector class belongs to openXdox's six
+    # contributed modules and to no file of openDox's own bundle — and a
+    # deletion has been a declared edit in this vocabulary since slice S6
+    # declared 122 `serve_projection.py` deletions under the same class.
+    # 2406 + 89 = 2495 on the same 176 rows. Five new files are admitted: one
+    # at `opendox_code` (`tests/test_binding_stylesheets.py`) and four at
+    # `openxdox_code` (`src/openxdox/web/views/{dispose,gate-projects,gate,
+    # swb}.css`). Its own window is pinned by row and class in
+    # `test_the_real_manifest_carries_the_q7_css_extraction_declared_edits`.
+    assert (lines, carrying) == (2495, 176), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -3309,8 +3323,21 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
         set(S7_CONVERTED) - set(S7_WINDOW)
     for source_path in S7_CONVERTED:
         row = rows[source_path]
-        assert [(edit["class"], edit["lines"]) for edit in row["edits"]] == \
-            S7_WINDOW[source_path], row
+        landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
+        # AMENDED BY RULED Q7's CSS EXTRACTION, for § 1's reason one paragraph
+        # on. This read `landed == S7_WINDOW[source_path]` — the row's WHOLE
+        # entry list — on the argument quoted above: "a converted row carried
+        # no `edits:` before this act, so S7's entries are its ONLY entries".
+        # The first half of that is permanent and the second half was true only
+        # while S7 was the newest act on all seventeen. It is not:
+        # `web/styles.css` is one of them, and RULED Q7 (`#656` comment
+        # `5648049748`) appends an eighteenth entry to it. What a CONVERSION
+        # claims, and claims for good, is that S7's entries are the row's
+        # FIRST — nothing preceded them, because nothing was there — so that
+        # is what is asserted, and the equality is kept for every row no later
+        # act has appended to.
+        assert landed[:len(S7_WINDOW[source_path])] == S7_WINDOW[source_path], \
+            row
 
     # 3. THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures
     # the runbook's § 2 paragraph and this pull request's body both state.
@@ -3862,3 +3889,137 @@ def test_the_git_environment_scrub_list_agrees_across_content_and_carved_reach()
             == content._SCRUBBED_GIT_ENVIRONMENT)
     assert (carved_reach_direct._INDEXED_GIT_CONFIG_ENVIRONMENT.pattern
             == content._INDEXED_GIT_CONFIG_ENVIRONMENT.pattern)
+
+
+# ---------------------------------------------------------------------------
+# RULED Q7 — THE CSS EXTRACTION's own declared-edit window.
+# ---------------------------------------------------------------------------
+
+#: The 89 carve-commit lines RULED Q7's CSS extraction declares on the ONE row
+#: it touches. Not transcribed from a draft: they are
+#: `scripts/verify-carve-arrival.py`'s own `arrival-undeclared-edit` output
+#: against a throwaway prototype of the extraction, re-derived by
+#: `_check_declared_lines`' algorithm (`carve_lines.text_records` + `difflib`
+#: opcodes) against the leg head.
+Q7_WINDOW: dict[str, list[tuple[str, list[int]]]] = {
+    "scripts/ideation_dashboard/web/styles.css": [
+        ("adapter calls", [
+    161, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232,
+    233, 234, 235, 236, 237, 238, 774, 775, 777, 1139, 1140, 1145, 1146,
+    1147, 1148, 1152, 1253, 1254, 1255, 1256, 1257, 1258, 1259, 1260, 1261,
+    1262, 1263, 1264, 1265, 1266, 1267, 1268, 1269, 1270, 1271, 1272, 1274,
+    1275, 1276, 1285, 1296, 1523, 1526, 1527, 1529, 1530, 1531, 1532, 1533,
+    1534, 1541, 1542, 1543, 1545, 1546, 1547, 1548, 1549, 1550, 1551, 1552,
+    1553, 1587, 1588, 1589, 1590, 2514, 2549, 2550, 2551, 2552, 2553, 2554,
+    2555, 2556,
+        ]),
+    ],
+}
+
+#: This act CONVERTS NOTHING. Its one row was already
+#: `moved_with_declared_edit` and already a carrier — slice S7 converted it —
+#: so the disposition counts, the carrier count and the replica count all stand
+#: where slice S8 left them, and the empty list below is that claim written
+#: down rather than left as the absence of an assertion.
+Q7_CONVERTED: list[str] = []
+
+
+def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> None:
+    """RULED Q7's window against the LANDED manifest, row by row.
+
+    `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts the
+    AGGREGATE `(2495, 176)`, and that pair would stay green if these 89 lines
+    had landed on the wrong row, under the wrong one of RULING OQ-1's three
+    classes, or as a different set summing to the same total — which is why
+    every slice since ASK-7 pins its own window.
+
+    WHY THIS WINDOW IS THE FLOOR'S FIRST WHOLE-BLOCK REMOVAL, and why it is
+    lawful. RULED Q7 (`#656` comment `5648049748`) sends a contributed
+    binding's CSS to the binding's own sheet; 59 rule blocks therefore LEAVE
+    `src/opendox/web/styles.css`, and every line they occupied is a DELETION.
+    `#1023` § 6 recorded that no OQ-1 class covers "a stylesheet block leaves
+    for another leg", and it was right about the document it read: that row was
+    `moved_verbatim`, carrying no `edits:` at all. Slice S7 converted it and
+    declared 152 of its lines `adapter calls`, so the surviving question is
+    narrower — is a DELETION declarable? — and the floor answers it twice: the
+    § 3.4 slice-S6 annotation declared 122 `serve_projection.py` deletions
+    under this same class and landed, and the arrival verifier accepts these 89
+    under it, which is measurement rather than argument.
+
+    The manifest is REQUIRED and not branched on: see `the_landed_manifest()`.
+    """
+    _text, doc = the_landed_manifest()
+    rows = {row["source_path"]: row for row in doc["rows"]}
+
+    # THE COUNT IS READ OFF THE TABLE'S OWN SOURCE FIRST, for S7's reason: a
+    # dict literal collapses a repeated key at import and keeps the last value,
+    # so a second entry for a path already in the table is invisible to every
+    # assertion below.
+    declared = dict_literal_keys(Path(__file__).resolve(), "Q7_WINDOW")
+    assert len(set(declared)) == len(declared), sorted(
+        path for path in declared if declared.count(path) > 1)
+    assert len(declared) == 1, len(declared)
+    assert set(declared) == set(Q7_WINDOW), set(declared) ^ set(Q7_WINDOW)
+
+    for source_path, entries in Q7_WINDOW.items():
+        row = rows[source_path]
+        assert row["disposition"] == "moved_with_declared_edit", row
+        # A ONE-LEG ACT: the served bundle arrives at openDox-code, and the
+        # sheets that RECEIVE these blocks are CREATED files at openxdox_code
+        # with no row at all (RULED OQ-C), admitted by name in
+        # `docs/opendox-carve-admissions.yaml`. A window entry landing on an
+        # `openxdox_code` row would be a different act.
+        assert row["destination"] == "opendox_code", row
+        landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
+        # A CONTIGUOUS RUN OCCURRING EXACTLY ONCE — S7's own form, and for its
+        # reason: a tail read is a claim about being LAST, which belongs to
+        # whichever act annotated the row most recently and to no act
+        # permanently.
+        runs = [i for i in range(len(landed) - len(entries) + 1)
+                if landed[i:i + len(entries)] == entries]
+        assert len(runs) == 1, (source_path, landed, entries)
+        # THIS ACT'S ENTRIES FOLLOW SLICE S7's on the same row, which is the
+        # order the document is appended in and therefore a claim worth making:
+        # a window that landed BEFORE S7's would mean the two acts had been
+        # applied out of their landing order.
+        assert runs[0] == len(landed) - len(entries), (source_path, landed)
+        # AND THE ROW'S DECLARED LINES ARE DISTINCT (round 8's rule, and the
+        # reason it is made over the WHOLE row): nothing in the floor refuses a
+        # repeated line — the validator checks only that `edits[].lines` is a
+        # non-empty list of positive integers, and the arrival verifier reads a
+        # row's declarations as a SET — so an entry naming one line twice in
+        # place of two would keep the 89, keep the aggregate and keep every
+        # per-class figure while one really deleted line went undeclared. A
+        # line THIS act declares that slice S7 already declared on the same row
+        # is the same double count, one act apart, and it is what this catches:
+        # S7's 152 and this act's 89 must be 241 distinct numbers.
+        flat = [number for edit in row["edits"] for number in edit["lines"]]
+        assert len(set(flat)) == len(flat), (source_path, sorted(
+            number for number in flat if flat.count(number) > 1))
+
+    # NOTHING IS CONVERTED, asserted rather than assumed: a conversion moves
+    # both disposition counts and the carrier count at once, so an act that
+    # converted a row it did not mean to would still sum correctly.
+    assert Q7_CONVERTED == [], Q7_CONVERTED
+    assert doc["rows"] and sum(
+        1 for row in doc["rows"] if row["disposition"] == "moved_verbatim") == 143
+    assert sum(1 for row in doc["rows"]
+               if row["disposition"] == "moved_with_declared_edit") == 175
+
+    # THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures the
+    # runbook's § 2 paragraph and this pull request's body both state. `lines`
+    # counts LIST ENTRIES, which is why the distinctness check above is what
+    # makes it a count of edited lines.
+    lines = sum(len(nums) for entries in Q7_WINDOW.values()
+                for _class, nums in entries)
+    entries_count = sum(len(entries) for entries in Q7_WINDOW.values())
+    by_class: dict[str, int] = {}
+    for entries in Q7_WINDOW.values():
+        for edit_class, nums in entries:
+            by_class[edit_class] = by_class.get(edit_class, 0) + len(nums)
+    assert (lines, entries_count) == (89, 1), (lines, entries_count)
+    assert by_class == {"adapter calls": 89}, by_class
+    # 2406 + 89 = 2495 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDS
+    # IT, which is what a window total is: a DELTA against the document the act
+    # found, and so a figure a later act cannot move.
+    assert lines + 2406 == 2495
