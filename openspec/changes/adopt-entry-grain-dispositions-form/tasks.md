@@ -12,16 +12,17 @@ Record: `review/ratification-2026-09-16.md`. BOXES TICKED BY THIS RATIFYING
 COMMIT: 1.1, 1.2, 1.3, 1.4 — AND NO OTHERS: § 2's boxes stand exactly as the
 filing pull request left them, and § 3 and § 4 stay open.
 
-**THE PARAGRAPH IMMEDIATELY BELOW RECORDS THE AT-FILING STATE AND IS KEPT
-VERBATIM AS HISTORY.** Its present-tense "this lane ticks no box in it" was
-true before this ratifying commit and is superseded by the four ticks above.
-
-**NOTHING IN § 1 IS TICKED, AND THAT IS THE STATE OF THE WORK RATHER THAN AN
-OVERSIGHT.** This pull request FILES a proposal. § 1 is Brett Heap's ratify or
-refuse and this lane ticks no box in it; § 2 is the filing itself and is the
-only section this pull request performs; § 3 is the realization, a SEPARATE
-later pull request on a separate word; § 4 is the archive, held behind
-merged-plus-green realization evidence and a further word. No byte of
+**§ 1 IS TICKED, ON BRETT HEAP'S WORD, AND THAT IS THE STATE OF THE WORK.**
+This pull request FILED a proposal, and this ratifying commit answers § 1 in
+full: ratified 2026-09-16 by Brett Heap (openxFactory repository owner),
+first-hand, in session, lane `openxfactory-2`, verbatim ***"ratify 1052 when
+green, then 1050"*** — citation openxFactory #1045, comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+§ 2 is the filing itself and is the section the filing pull request
+performed; § 3 is the realization, a SEPARATE later pull request on a
+separate word, and stays open; § 4 is the archive, held behind
+merged-plus-green realization evidence and a further word, and stays open.
+No byte of
 `scripts/doc_health/pin_shapes.py`, of `tests/doc-health/test_pin_shape_adapter.py`,
 of `tests/doc-health/test_tag_hygiene_pinned_targets.py`, of any pin verifier,
 of any record under `contracts/` or of any file under `openspec/specs/` moves
@@ -76,8 +77,9 @@ anywhere in this pull request.
       was raised from (row 0 accepts the member and raises none).
 - [x] 2.2 **MEASURE the adapter's verdict on the same records**
       (`judge(record, "openspec-cli")` over `contracts/openspec-cli-pin.yaml`
-      with each value substituted): EIGHT accepted that the guard refuses, ZERO
-      refused that the guard admits.
+      with each value substituted): TEN accepted that the guard refuses —
+      including `why: ""` and `level: ""`, the two the first tally of this
+      task dropped — ZERO refused that the guard admits.
 - [x] 2.3 **MEASURE the other optional member for comparison** —
       `pinned_by_commit_only:`, whose verifiers refuse a non-string entry
       (`scripts/verify-openxwallet-pin.py:449-454`,

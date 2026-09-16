@@ -13,12 +13,13 @@ origin:
     (`scripts/validate-openspec-cli-pin.py:787-857`) ALSO refuses malformed ENTRIES
     in the SAME pure, source-free pass. Measured in this packet's authoring session
     on a fresh clone of `main` at `8944758c`, by importing the verifier at its fixed
-    authored path and calling the guard on in-memory records: EIGHT records the
+    authored path and calling the guard on in-memory records: TEN records the
     guard REFUSES are ACCEPTED by `judge(record, "openspec-cli")` — `[{}]`,
-    `[null]`, `["a"]`, an entry missing `cited_to`, `cited_to: []`, `cited_to: "x"`,
-    `level: "WARNING"`, and an entry naming neither `ratified_by` nor `recorded_by`
-    — and ZERO in the other direction. The adapter is therefore NARROWER than the
-    guard on the entries and nowhere WIDER.
+    `[null]`, `["a"]`, an entry missing `cited_to`, `cited_to: []`, `why: ""`,
+    `cited_to: "x"`, `level: "WARNING"`, `level: ""`, and an entry naming
+    neither `ratified_by` nor `recorded_by` — and ZERO in the other direction.
+    The adapter is therefore NARROWER than the guard on the entries and
+    nowhere WIDER.
     WHY THAT DIRECTION IS THE ONE THAT MATTERS, IN CANON'S OWN WORDS. `document-
     lifecycle`'s *Prose tagging marker hygiene* says a resolver "that ACCEPTED what
     the shape's own GUARD REFUSES would, on exactly those trees, admit a record the
