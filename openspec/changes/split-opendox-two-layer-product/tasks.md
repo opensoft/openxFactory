@@ -1427,7 +1427,19 @@ the bookkeeping that ticks this group.
   interface working, is exactly what **§ 3.7 (FLOOR PART 3)** asks and answers
   mechanically — the neutral conformance corpus green in EVERY destination,
   openDox included — and **§ 3.7 is `[ ]` and records that the answer it returns
-  today is NO.** So the obligation is open where it belongs, at a box that can
+  today is NO.** **The result it records is one pass and four refusals, said here
+  rather than left to be looked up**: at each destination's then-current `main`
+  on 2026-09-10, `openxfactory` (the § 2.2a adapter) is **OK — 17 of 17**, while
+  `opendox_code` `8e9ffa62`, `openxdox_code` `59600412`, `opendox_spec`
+  `41d570e9` and `openxdox_spec` `03eacc61` each return
+  `conformance-adapter-undeclared` (`tasks.md`:1164-1176 above, which is § 3.7's
+  own evidence and closes with *"ONE of the three named destinations passes, so
+  the box stays open"*). So the floor this tick declines to lean on is RED where
+  openDox is concerned, which is the point: § 4.1 claims the accounting, and the
+  seam question waits on a gate that has not gone green.
+  *(A Copilot finding on this amendment's own pull request, round 13: the
+  sentence named the gate and its verdict but not its measured result, which
+  reads as a green floor to anyone who does not scroll up.)* So the obligation is open where it belongs, at a box that can
   run it, and § 4.1's tick claims the accounting and nothing else. § 8.2's
   archive-gate line reads § 3.7's evidence, so no gate is loosened by this tick.
   `#656` records: CLAIM `5690461589`; RULED R-1 `5690428146`.
@@ -2878,9 +2890,26 @@ realization evidence, never on landing. Each line is its own evidence.
   can be swapped for a convenient tree.
   (b) the per-severity BEFORE and AFTER vectors, every family and every
   severity, `info` included; and (c) a named reason for EVERY finding that
-  entered or left, diffed finding by finding rather than netted. A record that
-  gives a total without the vector, or a vector without the findings behind a
-  moved count, does not discharge this line. That is the form the house already
+  entered or left **OR CHANGED SEVERITY**, diffed finding by finding rather than
+  netted. A record that gives a total without the vector, or a vector without the
+  findings behind a moved count, does not discharge this line.
+  **THE "CHANGED SEVERITY" ARM IS NOT BELT-AND-BRACES; WITHOUT IT THE CLAUSE HAS
+  A HOLE THE CHECKER ITSELF OPENS** (a Copilot finding on this amendment's own
+  pull request, round 13, and it is right in the code):
+  `doc_health.Finding.match_key()` is `(self.family, self.repo, self.path)` —
+  `scripts/doc_health/__init__.py`:187-189, whose own docstring says *"Regression-rule
+  identity: contract matches by family + path"* — so SEVERITY is not part of a
+  finding's identity. And the family that exploits that is
+  `_honour_grandfather_dispositions` (`scripts/doc_health/families.py`:529, read
+  at :1005-1014): a finding whose `(family, repo, path)` carries a dated, cited
+  entry in the aggregation's `health/dispositions.yaml` is **reported at `info`
+  with the citation quoted — a DOWNGRADE rather than a suppression, on purpose**,
+  and the pass is documented as preserving *"its family, its repository and its
+  path"* so that *"the key set of `findings` is identical before and after"*
+  (:588-593). A finding that moves `critical` → `info` that way ENTERS nothing
+  and LEAVES nothing: it shifts two counts in the vector while the entered/left
+  diff stays empty, which is exactly a changed vector with no accounting behind
+  it. The arm closes that by name. That is the form the house already
   uses where it works — the archived
   `2026-08-25-add-projection-title-uniqueness` § 4.6 (`tasks.md`:315-328) reports
   *"before 5 critical, 5 error, 46 warning, 4 info and after 5 critical, 5 error,
