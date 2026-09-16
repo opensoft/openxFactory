@@ -163,14 +163,14 @@ REQUEST DOES NOT PERFORM.** The delta is `specs/packet-citation-report/spec.md`:
    are stated in the requirement rather than left to the implementation, so a
    figure the report prints can be reproduced by hand.
 3. **`### Requirement: A suspected cross-repository citation is flagged and
-   never silently dropped`** — the qualifier heuristics are a SUSPICION and are
+   never dropped`** — the qualifier heuristics are a SUSPICION and are
    reported as one.
 4. **`### Requirement: The report classifies only what it can decide
    mechanically`** — a small mechanical class set, an honest `unclassified`, and
    the rule that nothing is repaired.
-5. **`### Requirement: The report is advisory and gates nothing`** — exit code
-   always 0, no `--fail-on`, and promoting it to a gate is a separate act on a
-   separate word.
+5. **`### Requirement: The citation remainder report is advisory and gates
+   nothing`** — exit code always 0, no `--fail-on`, and promoting it to a gate
+   is a separate act on a separate word.
 
 **NO `## MODIFIED` BLOCK, AND THAT IS THE POINT OF THE SHAPE.** A twenty-fourth
 doc-health family would be a MODIFIED block restating doc-health's whole
