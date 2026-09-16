@@ -401,6 +401,28 @@ def test_a_failing_watched_case_is_refused(tmp_path: Path) -> None:
     assert "is 'failure'" in done.stdout
 
 
+def test_an_erroring_watched_case_is_refused(tmp_path: Path) -> None:
+    """The third outcome, exercised — `<error/>` with the aggregate at zero.
+
+    `verdict()` reads three child tags: `skipped`, `failure` and `error`. The
+    first two have cases above; `error` had only the AGGREGATE test, which
+    fires on `errors="1"` — so a report that under-reported that attribute
+    while a watched case carried an `<error/>` child would have been accepted
+    if `"error"` were ever dropped from the outcome tuple. A collection error
+    inside a watched module is exactly how an uninitialized leg reports, which
+    makes this the outcome least safe to leave untested.
+    """
+    env = env_for(CONSUMER_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]),
+                     cases=[(c, n, "error") for c, n in watched(env)])
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0, done.stdout + done.stderr
+    assert "is 'error'" in done.stdout
+    assert "errors=0" in done.stdout, (
+        "the aggregate must stay at zero, or this case proves the error "
+        "counter rather than the named verdict")
+
+
 def test_one_passing_occurrence_does_not_excuse_a_skipped_one(
         tmp_path: Path) -> None:
     """The rule that a rerun cannot launder: any non-passing occurrence wins.

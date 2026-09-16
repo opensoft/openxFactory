@@ -196,6 +196,27 @@ def test_the_gate_job_carries_no_display_name(gate_job: dict) -> None:
         "will select, and a display name silently renames it")
 
 
+def test_the_token_is_narrowed_to_contents_read(workflow: dict) -> None:
+    """The one permission this gate needs, pinned so a later edit cannot widen it.
+
+    `permissions: {contents: read}` is what the automatic token carries into a
+    job that runs two pytest suites over pull-request-controlled code. A later
+    `contents: write` — or an added `packages:`, `id-token:` or `pull-requests:`
+    scope — would widen that token silently: nothing else in this file reads the
+    block, and `pytest-suite` would stay green. `tests/clearing/
+    test_clearing_gate_wiring.py` pins its own gate's permissions the same way.
+
+    Asserted as EQUALITY, not as "contains contents: read", so an added scope
+    fails here rather than being tolerated.
+    """
+    assert workflow["permissions"] == {"contents": "read"}, (
+        f"the gate's `permissions:` must be exactly {{'contents': 'read'}}; "
+        f"found {workflow['permissions']!r}. This job runs pull-request-"
+        f"controlled test code — every scope beyond reading this repository "
+        f"is a capability handed to it, and widening one belongs in the act "
+        f"that needs it, with its reason")
+
+
 def test_the_gate_runs_on_pull_requests_to_main(workflow: dict) -> None:
     """The wallet gate's trigger set, mirrored — RULING R-4's named shape."""
     triggers = workflow[True] if True in workflow else workflow["on"]
@@ -488,14 +509,17 @@ def test_the_watched_consumer_case_really_depends_on_node() -> None:
 def test_both_pins_are_verified_before_anything_pinned_is_trusted(
         runs: list[str]) -> None:
     """Neither pinned tree may be read by a suite before its pin verifies."""
+    normalized = [normalized_run(r) for r in runs]
     for invocation in (OPENXDOX_PIN_RUN, OPENDOX_PIN_RUN):
-        assert invocation in runs, (
-            f"the gate must run {invocation!r} — this gate exists because "
-            f"NOTHING in `.github/workflows/` invoked either verifier, which "
-            f"`pytest-suite.yml`'s own comment and both pin files' "
-            f"`verify_pin:` comments name as owed to task 5.3")
-        assert runs.index(invocation) < runs.index(PIN_SUITES_RUN)
-        assert runs.index(invocation) < runs.index(CONSUMER_SUITE_RUN)
+        assert normalized.count(invocation) == 1, (
+            f"exactly one step must run EXACTLY {invocation!r} — this gate "
+            f"exists because NOTHING in `.github/workflows/` invoked either "
+            f"verifier, which `pytest-suite.yml`'s own comment and both pin "
+            f"files' `verify_pin:` comments name as owed to task 5.3. The "
+            f"WHOLE command is compared: `python3 scripts/verify-openxdox-"
+            f"pin.py; echo ok` contains the text and proves nothing")
+        assert normalized.index(invocation) < normalized.index(PIN_SUITES_RUN)
+        assert normalized.index(invocation) < normalized.index(CONSUMER_SUITE_RUN)
 
 
 def test_the_openxdox_pin_is_verified_first(runs: list[str]) -> None:
@@ -519,15 +543,18 @@ def test_the_two_suites_are_invoked_exactly_and_separately(
     which is the wallet gate's "add one for the new wallet, do not widen the
     existing one" rule applied to suites.
     """
-    assert PIN_SUITES_RUN in runs, (
-        f"the pin verifiers' own suites must be run exactly as "
-        f"{PIN_SUITES_RUN!r}; they are what make each shipped digest a "
-        f"MEASURED fact rather than a self-consistent one")
-    assert CONSUMER_SUITE_RUN in runs, (
-        f"the consumer suite must be run exactly as {CONSUMER_SUITE_RUN!r}; a "
-        f"pin whose bytes verify while the code that consumes them cannot "
-        f"import is a green check that proved half its claim")
-    assert runs.index(PIN_SUITES_RUN) < runs.index(CONSUMER_SUITE_RUN)
+    normalized = [normalized_run(r) for r in runs]
+    assert normalized.count(PIN_SUITES_RUN) == 1, (
+        f"exactly one step must run EXACTLY {PIN_SUITES_RUN!r}; they are what "
+        f"make each shipped digest a MEASURED fact rather than a "
+        f"self-consistent one. Compared whole, because a trailing shell "
+        f"action on the same line could write a report of its own for the "
+        f"assertion below to accept")
+    assert normalized.count(CONSUMER_SUITE_RUN) == 1, (
+        f"exactly one step must run EXACTLY {CONSUMER_SUITE_RUN!r}; a pin "
+        f"whose bytes verify while the code that consumes them cannot import "
+        f"is a green check that proved half its claim")
+    assert normalized.index(PIN_SUITES_RUN) < normalized.index(CONSUMER_SUITE_RUN)
     assert "pin-suites-report.xml" not in CONSUMER_SUITE_RUN
     assert "consumer-suite-report.xml" not in PIN_SUITES_RUN
 
@@ -1106,6 +1133,37 @@ def test_the_credential_guard_reads_an_unwrapped_if_as_an_expression(
     sites = bearer_sites(doctored)
     assert any(".if carries" in site for site in sites), (
         f"an `if:` reading a bearer went unseen; sites={sites}")
+
+
+@pytest.mark.parametrize("literal,where", (
+    ("GITHUB_TOKEN", "env"),
+    ("x-access-token", "run"),
+    ("ACTIONS_RUNTIME_TOKEN", "env"),
+))
+def test_the_literal_forms_are_exercised_and_not_merely_listed(
+        literal: str, where: str) -> None:
+    """`LITERAL_FORMS` is the only path for the non-expression spellings.
+
+    The expression cases above all go through `EXPRESSION_FORMS`, so weakening
+    or deleting one of the three literal patterns — the environment-variable
+    name and the two URL/user spellings, none of which needs `${{ }}` to reach
+    a runner — would have left this suite green. Each is injected here the way
+    it would really arrive: as an `env:` value, or inside a `run:` line of the
+    shape this gate's first push actually shipped.
+    """
+    text = WORKFLOW.read_text(encoding="utf-8")
+    if where == "env":
+        doctored = text.replace(
+            "\njobs:", f'\nenv:\n  FOO: "{literal}-value"\njobs:', 1)
+        expected = "<workflow>.env.FOO"
+    else:
+        doctored = text.replace(
+            'git config --global url."https://github.com/"',
+            f'git config --global url."https://{literal}:x@github.com/"', 1)
+        expected = "the raw job body"
+    sites = bearer_sites(doctored)
+    assert any(site.startswith(expected) for site in sites), (
+        f"the literal {literal!r} went unseen in the {where}; sites={sites}")
 
 
 def test_a_non_secret_dereference_is_not_a_bearer(tmp_path: Path) -> None:
