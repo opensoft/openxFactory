@@ -2126,10 +2126,15 @@ the bookkeeping that ticks this group.
   repository already reports under moves. The NEW gate still owes a stable token
   of its own, and #1059 carries it: job id **`openxdox-consumer-gate`**, no job
   display name, on the `openxwallet-consumer-gate` lesson that *"a distinct job
-  display name silently de-advises the gate"*. It is ADVISORY on the day it
-  lands — a check is not selectable in a ruleset until a workflow has reported
+  display name silently de-advises the gate"*. It WAS ADVISORY ON THE DAY IT
+  LANDED — a check is not selectable in a ruleset until a workflow has reported
   under it once, and making it required is a human act on a human-only surface —
-  so the required-check WIRING is named as owed there rather than claimed here.)*
+  so amendment #4 named the required-check WIRING as owed there rather than
+  claiming it here. **That sentence is amendment #4's SNAPSHOT of 2026-09-16
+  before 16:33:22Z, and it is superseded by the record immediately below**,
+  which measures the wiring done. The RULE it states — a check must report
+  before it can be pinned, and pinning is a human act — is unchanged and still
+  true; what changed is that this gate has now been through it.)*
   **TICKED 2026-09-16 BY `tasks.md` AMENDMENT #5 (CLAIM `5704937336`) — THE
   TICK THIS BOX ITSELF DECLARED OWED, AND THE OBLIGATION IT NAMED AS STILL
   OPEN IS CLOSED TOO.** Amendment #4 recorded both halves of the condition as
@@ -3050,9 +3055,9 @@ movements claimed at the time they land.
   as a SECURITY INVARIANT, and the `dox` workload set
   (`workflows/aks-administration.yaml:412-431`) becoming per-tenant. The ungoverned
   `openxdox` DNS record is governed here.
-  **SPLIT AND NARROWED 2026-09-16 — RULED `5704187317`** (`#656` comment
-  `5704187317`, 2026-09-16T20:40:06Z; Brett Heap, by interactive
-  multi-choice, on one question from this lane's § 7.4 actor;
+  **SPLIT AND NARROWED 2026-09-16 — RULED `5704187317`** (`#656` comment,
+  2026-09-16T20:40:06Z; Brett Heap, by interactive multi-choice, on one
+  question from this lane's § 7.4 actor;
   measurement banked at `brett-wip` `fb3e0821`
   `attachments/lane-opendox/ops74/measurements.md`; no claim was posted and
   nothing was authored before the ruling). **THE BOX DOES NOT TICK HERE.** The
