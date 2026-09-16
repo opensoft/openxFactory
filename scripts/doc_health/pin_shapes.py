@@ -397,29 +397,29 @@ SHAPE_C = Shape(
     revision_kinds=CONTENT_ADDRESSED_KINDS,
     required=(
         Member(("revision_kind",), _one_of(CONTENT_ADDRESSED_KINDS),
-               (Citation(_OPENSPEC_CLI, 592, guard="pinned_version"),)),
+               (Citation(_OPENSPEC_CLI, 599, guard="pinned_version"),)),
         Member(("version",), _is_version,
-               (Citation(_OPENSPEC_CLI, 601, guard="pinned_version"),)),
+               (Citation(_OPENSPEC_CLI, 608, guard="pinned_version"),)),
         Member(("integrity",), _is_integrity,
-               (Citation(_OPENSPEC_CLI, 619, guard="pinned_integrity"),)),
+               (Citation(_OPENSPEC_CLI, 626, guard="pinned_integrity"),)),
         Member(("shasum",), _is_shasum,
-               (Citation(_OPENSPEC_CLI, 646, guard="pinned_integrity"),)),
+               (Citation(_OPENSPEC_CLI, 653, guard="pinned_integrity"),)),
         Member(("package",), _is_package,
-               (Citation(_OPENSPEC_CLI, 658, guard="pinned_package"),)),
+               (Citation(_OPENSPEC_CLI, 665, guard="pinned_package"),)),
         Member(("lockfile",), _is_lockfile_name,
-               (Citation(_OPENSPEC_CLI, 698, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 705, guard="pinned_lockfile"),)),
         Member(("lockfile_integrity",), _is_integrity,
-               (Citation(_OPENSPEC_CLI, 708, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 715, guard="pinned_lockfile"),)),
         Member(("lockfile_packages",), _is_lockfile_packages,
-               (Citation(_OPENSPEC_CLI, 731, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 738, guard="pinned_lockfile"),)),
         Member(("binary",), _is_binary,
-               (Citation(_OPENSPEC_CLI, 748, guard="pinned_binary"),)),
+               (Citation(_OPENSPEC_CLI, 755, guard="pinned_binary"),)),
     ),
     # Absent-is-empty at its guard (`:801-803`), so NOT required and not on the
     # guard leg; refused only when PRESENT and not a list.
     optional=(
         Member(("dispositions",), _is_disposition_list,
-               (Citation(_OPENSPEC_CLI, 801),)),
+               (Citation(_OPENSPEC_CLI, 808),)),
     ))
 
 SHAPES: tuple[Shape, ...] = (SHAPE_A, SHAPE_B, SHAPE_C)
