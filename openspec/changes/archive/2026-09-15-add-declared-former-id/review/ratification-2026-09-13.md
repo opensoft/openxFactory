@@ -244,3 +244,117 @@ ratification* governs a `review/ratification-*` file, and the single
 `ratified-provenance` family counts — `Ratifier:` and `Decision date:`
 accompany it and never stand in place of it. Every repository path in this file
 is repo-relative.
+
+## Addendum — the realization, and the separate archive word (2026-09-15)
+
+Appended at the archive, AFTER everything above and editing none of it. Nothing
+above this line was true only until now; it was written at the ratification and
+it is kept as it stood.
+
+**REALIZED ON `main`, FOUR PULL REQUESTS, EACH BY NUMBER AND MERGE SHA.**
+`code_surface: openxFactory` is non-empty, so under `release-realization`'s
+*Realization archive gate* this packet archives on merged-plus-green
+realization evidence and never on landing or on ratification:
+
+| slice | PR | merge sha | merged (UTC) |
+| --- | --- | --- | --- |
+| 1–3 — the declaration, its reader, the identity baseline, the fail-closed reads | [#1038](https://github.com/opensoft/openxFactory/pull/1038) | `701c8fded24963a855d7f34155821cd4ec70c100` | 2026-09-14T21:09:32Z |
+| 5 — the reference resolver and its named consumer | [#1037](https://github.com/opensoft/openxFactory/pull/1037) | `8f3937584da8c4ba734ec087c9d613552a9cb217` | 2026-09-15T19:02:27Z |
+| 4 — the landing validator `former-id-arrival-gate` | [#1039](https://github.com/opensoft/openxFactory/pull/1039) | `92d519b0c9e700f288c7d8e19cdf0b8312353f60` | 2026-09-15T19:15:02Z |
+| 6 — the documents and the ticks | [#1041](https://github.com/opensoft/openxFactory/pull/1041) | `79ac94b74ec6418b9fb149f9ba70767ac2635773` | 2026-09-15T21:24:28Z |
+
+**THE GREEN RUN, AND THE THREE MERGES THAT HAVE NO DECIDED RUN OF THEIR OWN —
+SAID EXACTLY, NOT GLOSSED.** `pytest-suite` triggers on `push: main` as well as
+on `pull_request`, so each merge commit starts its own run; but the workflow's
+concurrency group is `pytest-suite-${{ github.ref }}` with
+`cancel-in-progress: true` (`.github/workflows/pytest-suite.yml:287-289`), and
+on `main` that ref is the same string for every push, so each landing CANCELS
+the previous main run. Measured from
+`GET /repos/opensoft/openxFactory/commits/<sha>/check-runs?check_name=pytest-suite`:
+
+| merge | main's own run on it | verdict | what covers it |
+| --- | --- | --- | --- |
+| `701c8fde` | [34897189477](https://github.com/opensoft/openxFactory/actions/runs/34897189477) | **completed / SUCCESS**, `selected=7626 passed=7620 skipped=6 failures=0 errors=0` | itself — no fallback needed |
+| `8f393758` | [35011209877](https://github.com/opensoft/openxFactory/actions/runs/35011209877) | completed / **CANCELLED** by the push of `92d519b0` | the pull request's own green run on `refs/pull/1037/merge`, TREE-EQUAL to this merge |
+| `92d519b0` | [35012492979](https://github.com/opensoft/openxFactory/actions/runs/35012492979) | completed / **CANCELLED** by the push of `8944758c` | **NO tree-equal green run exists.** `main`'s own next decided run, and its newest — see below |
+| `79ac94b7` | [35025437085](https://github.com/opensoft/openxFactory/actions/runs/35025437085) | completed / **CANCELLED** by the push of `b3a75537` | the pull request's own green run on `refs/pull/1041/merge`, TREE-EQUAL to this merge |
+
+**THE TREE-EQUALITY HALF, READ RATHER THAN ASSERTED.** Each pull-request run
+checked out `refs/pull/<n>/merge`, whose sha and parents its own log names, and
+those objects are still fetchable by sha:
+
+* **#1037**, run [34905703945](https://github.com/opensoft/openxFactory/actions/runs/34905703945)
+  (job `104182031635`, SUCCESS, `selected=7745 passed=7739 skipped=6
+  failures=0 errors=0`) — log: *"HEAD is now at 34ab52f3 Merge
+  `c48b91ae…` into `74348374…`"*.
+  `git rev-parse 34ab52f3…^{tree}` = `1ee37ec026163f225f95fd7fb7f4aeb49e10a422`
+  = `git rev-parse 8f393758^{tree}`. **EQUAL**, and the same two parents.
+* **#1041**, run [35023330889](https://github.com/opensoft/openxFactory/actions/runs/35023330889)
+  (job `104564236583`, SUCCESS, `selected=7809 passed=7803 skipped=6
+  failures=0 errors=0`) — log: *"HEAD is now at 018aa2ed Merge
+  `f7fda10e…` into `8944758c…`"*.
+  `git rev-parse 018aa2ed…^{tree}` = `cce4586019aefe3a266cb730c2df0b4329af028f`
+  = `git rev-parse 79ac94b7^{tree}`. **EQUAL**, and the same two parents.
+* **#1039 IS THE ONE THAT DOES NOT CLOSE THIS WAY, AND IT IS NAMED RATHER THAN
+  STRETCHED.** Its run [34909231418](https://github.com/opensoft/openxFactory/actions/runs/34909231418)
+  (job `104192844791`, SUCCESS, `selected=7773 passed=7767 skipped=6
+  failures=0 errors=0`) checked out `a7fc93e9` — *"Merge `24cd42a1…` into
+  `74348374…`"* — but the merge commit `92d519b0` is `merge(8f393758,
+  24cd42a1)`, #1037 having landed in between. `git rev-parse a7fc93e9…^{tree}`
+  = `bd318880cda3206da49f0b9f6f2a9637fa0caab3`, `git rev-parse
+  92d519b0^{tree}` = `8857c32dc42a30daaf3d4ef39f2be3779543b3ee`: **DIFFERENT**.
+  So the pull-request run is NOT evidence at the tree this merge carries, and
+  it is not offered as such.
+
+**WHAT COVERS `92d519b0`, AND WHAT COVERS ALL FOUR TOGETHER.** No `pytest-suite`
+run in this repository is decided green at a commit whose tree equals
+`8857c32d`; `92d519b0` is the only commit carrying that tree and its own run was
+cancelled. Two decided green runs on `main` stand behind it instead, both cited
+as what they are — runs at DESCENDANT commits, not at this tree:
+
+1. **`main`'s next decided run, [35014513335](https://github.com/opensoft/openxFactory/actions/runs/35014513335)** at
+   `8944758c739e6658d2ef7a9be03549e33b415db2`, `event: push`,
+   `conclusion: success`, 2026-09-15T19:35:14Z→19:49:15Z,
+   `selected=7809 passed=7803 skipped=6 failures=0 errors=0`. `git rev-parse
+   8944758c^1` is `92d519b0` — it is the merge's own first-parent child — and
+   `git diff --stat 92d519b0 8944758c` is the `extend-prose-tagging…` archive
+   and nothing else, with slice 4's entire surface
+   (`scripts/former_id_arrival.py`, `scripts/validate-former-id-arrival.py`,
+   `tests/former_id_arrival/`, `.github/workflows/former-id-arrival-gate.yml`)
+   BYTE-IDENTICAL between the two trees (empty diff).
+2. **`main`'s newest decided run, [35026939157](https://github.com/opensoft/openxFactory/actions/runs/35026939157)** at
+   `b3a755374…`, `event: push`, `conclusion: success`,
+   2026-09-15T21:40:28Z→22:00:07Z,
+   `selected=7814 passed=7808 skipped=6 failures=0 errors=0`.
+   `git merge-base --is-ancestor <merge> b3a75537` exits 0 for **all four**
+   merges, so this one run is green over a tree that contains every one of
+   them, and slice 4's surface is again byte-identical to `92d519b0`'s.
+   (`main`'s runs at `96be520a` and later were themselves cancelled or still
+   running when this was read, 2026-09-15T23:3xZ; `b3a75537` is the newest
+   DECIDED one.)
+
+**THE OPERATOR HALF, IN ITS HONEST DEGRADED CASE.** § 4.5 —
+registering `former-id-arrival-gate` as a required check — is **NOT PERFORMED**.
+Re-read live at 2026-09-15T23:35:31Z, `GET
+/repos/opensoft/openxFactory/rules/branches/main` returns three
+`required_status_checks` rules (21957695, 22551797, 21538893) and that context
+is in none of them. Brett Heap ruled the packet may archive anyway —
+2026-09-15T19:00Z, verbatim ***"Yes, with disposition + carry-forward
+issue"***, [issuecomment-5686436893](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5686436893)
+— so `tasks.md` § 4.5 is ticked WITH ITS DISPOSITION and the obligation is
+carried forward at openxFactory#1061, the shape
+`add-signed-execution-chain` established at issue #534. The packet reaches
+canon MEETING ITS OWN DEGRADED CASE: an unrequired arrival gate runs on every
+pull request and refuses no landing.
+
+**THE ARCHIVE WORD.** Brett Heap, 2026-09-16 (~12:4xZ, in session to lane `openxfactory-1`, display `openXfactory-1`), verbatim
+***"archive it, open the PR"***, recorded at [#1003](https://github.com/opensoft/openxFactory/issues/1003#issuecomment-5697795401) — a SEPARATE
+word from the ratification of 2026-09-13T22:48Z and from every realization
+merge, exactly as § 7.1 requires. The archive was performed with
+`python3 scripts/proposal-support.py . archive add-declared-former-id --yes`
+and never a bare `openspec archive`.
+
+**AND THE GOVERNING ISSUE HAD ALREADY CLOSED.** openxFactory #1003 was closed
+2026-09-15T21:24:38Z, eleven seconds after slice 6's merge, on Brett Heap's
+word *"Close when #1041 lands"* — earlier than `tasks.md` § 7.2's own first
+sentence put it, which that box now records rather than reconciles.
