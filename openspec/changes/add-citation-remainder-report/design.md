@@ -207,10 +207,17 @@ the same recipe on the same branch, at the commit named:
 | + `tasks.md`'s mechanical fence proof (`3b4f1e12`) | 2,978 | 587 | 499 | **81** |
 | + `evidence/measurement-b1df95ee.md` (`b07a4885`) | **2,979** | **594** | **504** | **82** |
 
-**THE MEASUREMENT REPORT RAISED THE MEASURED REMAINDER BY ONE.** The new entry
-is `openspec/changes/foo/`, a `DANGLING`(identity-half) token the evidence file
-mints out of its own § 5.3 enumeration of the resolver's docstring examples; a
-second new token, `…/archive/2026-09-15-`, lands as `NOT_A_PACKET_REFERENCE`.
+**THE MEASUREMENT REPORT RAISED THE MEASURED REMAINDER BY ONE.** Diffing the
+token sets at `1dd7b37d` and `b07a4885` gives SEVEN new tokens exactly: five name
+the packet's own files (carried by `tasks.md`'s fence proof, all `RESOLVED`),
+`…/archive/2026-09-15-` lands as `NOT_A_PACKET_REFERENCE`, and the seventh is the
+remainder — `openspec/changes/foo/`, a `DANGLING`(identity-half) token minted out
+of the evidence report's § 5.3 enumeration of the resolver's docstring examples.
+**AND IT IS NOT THE EVIDENCE REPORT ALONE THAT CARRIES IT.** At that commit the
+token's citing set is FOUR files — the evidence report, and `design.md`,
+`proposal.md` and `tasks.md`'s own paragraphs ABOUT the +1, which quote the token
+to say what it is. That is the same mechanism one level up, and it is why D3(a)'s
+output-path fence is written before any output exists rather than after.
 The packet's FOURTEEN citation tokens divide exactly: SIX name its own files
 (the five documents and the committed evidence report) and all six resolve; THREE are `openspec/changes/archive…` debris the resolver
 correctly hands back as `NOT_A_PACKET_REFERENCE`; and the remaining FIVE are
@@ -664,9 +671,12 @@ night's run would find them, count them as citations FROM `health/…`, and
 inflate the very series D6 measures stability on. **THE MECHANISM IS NOT
 HYPOTHETICAL AND THIS PACKET PROVED IT ON ITSELF**: committing ONE measurement
 report — `evidence/measurement-b1df95ee.md`, a single file, once — took the
-measured remainder from **81 to 82** (D0(iv) carries the four readings). The new
-entry is `openspec/changes/foo/`, minted by the report's own enumeration of the
-resolver's docstring examples. One report, one night, one point of remainder;
+measured remainder from **81 to 82** (D0(iv) carries the five readings, each at
+the commit it was taken at). The new entry is `openspec/changes/foo/`, minted by
+the report's own enumeration of the resolver's docstring examples — and carried,
+at that commit, by the evidence report **and by this design's, the proposal's and
+the tasks file's own paragraphs about it**, which is the same act at packet scale
+rather than a different one. One report, one night, one point of remainder;
 a nightly report is that act repeated forever, and every point of it is
 manufactured rather than found. The fence (D3(a)) closes it,
 but a design whose correctness depends on remembering a fence is worse than one

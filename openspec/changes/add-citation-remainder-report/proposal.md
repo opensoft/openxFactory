@@ -142,7 +142,9 @@ Re-run on this branch: 2,979 files in scope (+6), 594 distinct tokens (+8), 504
 `RESOLVED` (+6), **remainder 82 — UP BY ONE FROM 81**. The packet's five
 documents mint no remainder at all. **THE COMMITTED EVIDENCE REPORT MINTS ONE**:
 `openspec/changes/foo/`, a dangling identity-half token produced by the report's
-own enumeration of the resolver's docstring examples. **A document that
+own enumeration of the resolver's docstring examples — and then carried by this
+packet's own paragraphs about it as well, which is the mechanism repeating one
+level up. **A document that
 discusses a dangling citation becomes a record that carries one**, and one
 report committed once is worth one point of remainder — which is exactly the
 mechanism `design.md` D5 refuses at nightly scale, no longer as a prediction

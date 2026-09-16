@@ -73,8 +73,9 @@ OPEN.**
       BRANCH, AFTER THE PACKET EXISTED**: 2,979 files in scope, 594 tokens, 504
       RESOLVED, **remainder 82 — UP BY ONE**, and the one is
       `openspec/changes/foo/`, minted by the COMMITTED EVIDENCE REPORT's own
-      enumeration of the resolver's docstring examples. `design.md` D0(iv)
-      carries all four readings. **That is D5's argument stopping being a
+      enumeration of the resolver's docstring examples and then carried by this
+      packet's own paragraphs about it too. `design.md` D0(iv)
+      carries all five readings, each at the commit it was taken at. **That is D5's argument stopping being a
       prediction**: one report, committed once, +1 remainder.
 - [x] 1.2 **THREE FACTS #1053 DOES NOT CARRY WERE FOUND AND EACH MOVED A
       DECISION.** (i) the 74 identity-half tokens collapse to **48 DISTINCT
