@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import ast
 import collections
+import re
 from pathlib import Path
 
 import pytest
@@ -192,6 +193,17 @@ def test_the_required_pytest_suite_token_is_untouched_by_this_gate() -> None:
     discharged by `pytest-suite` keeping its job id — and by this gate not
     declaring that id, which would make two workflows report one token and let
     whichever ran the weaker gate satisfy it.
+
+    WHAT IS PINNED HERE IS THE TOKEN, NOT THE FILE, and the difference is
+    deliberate. This asserts that `pytest-suite.yml` still declares the job id
+    a ruleset selects and that this gate does not declare it too; it does NOT
+    pin that workflow's bytes, and a digest of it here would red on every
+    lawful later edit to somebody else's required workflow — which is a
+    different act from wiring a consumer gate, and would make this suite the
+    reason that act could not land. The byte-untouchedness claimed for THIS
+    act is a property of its diff, not of the tree: the pull request that adds
+    this gate touches three files and none of them is `pytest-suite.yml`,
+    which a reader verifies in the diff rather than here.
     """
     pytest_suite = WORKFLOWS / "pytest-suite.yml"
     assert pytest_suite.is_file()
@@ -214,9 +226,17 @@ def test_no_dashboard_named_workflow_was_converted() -> None:
     live in the `opensoft/xFactory` aggregation. If one ever arrives in this
     repository, § 5.3's original "convert" verb becomes live again and this
     gate's header stops being the whole story.
+
+    BOTH SUFFIXES, because Actions loads `.yaml` as readily as `.yml` and this
+    repository's fourteen workflow files happen to use only the one. A premise
+    guard that globs `*.yml` alone would report "no dashboard workflow exists"
+    over a real `ideation-dashboard.yaml` — MEASURED by dropping exactly that
+    file in: the single-suffix reading returns `[]` and this one names it.
     """
+    workflow_files = [p for suffix in ("*.yml", "*.yaml")
+                      for p in WORKFLOWS.glob(suffix)]
     dashboard_named = sorted(
-        p.name for p in WORKFLOWS.glob("*.yml")
+        p.name for p in workflow_files
         if "dashboard" in p.name or "ideation" in p.name)
     assert dashboard_named == [], (
         f"a dashboard-named workflow exists in this repository: "
@@ -603,6 +623,15 @@ def test_every_watched_name_resolves_to_a_test_that_exists() -> None:
     HERE, on a developer machine, rather than discovered on a runner: the
     classname is a dotted path to the module file and the name is a `def` in
     it.
+
+    PARSED, NOT GREPPED. A `"def {name}(" in source` reading is satisfied by
+    the name appearing in a docstring, in a comment, or as a nested helper
+    inside another function — none of which pytest collects and none of which
+    produces the `<testcase>` the gate then demands, so the guard would be
+    green while the gate went "absent" on the runner. MEASURED both ways
+    against a real module: with `test_ruling_q7_two_direct_upstreams_in_lockstep`
+    renamed and its old name left in the docstring above it, the substring
+    reading passes and this one fails naming the module.
     """
     for watched in PIN_NAMED_VERDICTS + CONSUMER_NAMED_VERDICTS:
         classname, _, name = watched.partition("::")
@@ -610,22 +639,44 @@ def test_every_watched_name_resolves_to_a_test_that_exists() -> None:
         assert module.is_file(), (
             f"{watched} names {module}, which does not exist — a watch on a "
             f"module that moved reds the gate on every run")
-        assert f"def {name}(" in module.read_text(encoding="utf-8"), (
-            f"{module} carries no `def {name}(` — the watched case was renamed "
-            f"or removed without moving NAMED_VERDICTS with it")
+        defined = {node.name
+                   for node in ast.parse(module.read_text(encoding="utf-8")).body
+                   if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))}
+        assert name in defined, (
+            f"{module} defines no top-level `{name}` — the watched case was "
+            f"renamed or removed without moving NAMED_VERDICTS with it. A "
+            f"mention of the name in a docstring, a comment or a nested helper "
+            f"does not count: the JUnit `<testcase>` this watch reads is "
+            f"written for a module-level test function, so anything else is "
+            f"green here and 'absent' in the gate")
 
 
 # --------------------------------------------------------------------------
 # the credential that is not here
 # --------------------------------------------------------------------------
 
-#: EVERY SPELLING OF A BEARER, not just `secrets.`: this gate SHIPPED the hole
+#: EVERY FORM OF A BEARER, not just `secrets.`: this gate SHIPPED the hole
 #: once. Its first push wrote `https://x-access-token:${{ github.token }}@
 #: github.com/` into the runner's global git config and then ran two pytest
 #: suites over pull-request-controlled code, and a `secrets.`-only guard was
 #: green through all of it — the automatic token is not a secret reference.
-BEARER_SPELLINGS = ("secrets.", "github.token", "GITHUB_TOKEN",
-                    "x-access-token", "ACTIONS_RUNTIME_TOKEN")
+#:
+#: MATCHED AS PATTERNS AND NOT AS SUBSTRINGS, because an Actions expression has
+#: more than one spelling for the same value: `${{ github.token }}` is also
+#: `${{ github['token'] }}` and `${{ github . token }}`, and `${{ secrets.X }}`
+#: is also `${{ secrets['X'] }}`. A substring guard reads all three of those as
+#: clean, which is a bypass of the guard and not a gap in it. Each form carries
+#: the label a failure should print.
+BEARER_FORMS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("secrets.<NAME>", re.compile(r"secrets\s*\.")),
+    ("secrets['<NAME>']", re.compile(r"secrets\s*\[")),
+    ("github.token", re.compile(r"github\s*\.\s*token", re.IGNORECASE)),
+    ("github['token']",
+     re.compile(r"""github\s*\[\s*['"]token['"]""", re.IGNORECASE)),
+    ("GITHUB_TOKEN", re.compile(r"GITHUB_TOKEN")),
+    ("x-access-token", re.compile(r"x-access-token", re.IGNORECASE)),
+    ("ACTIONS_RUNTIME_TOKEN", re.compile(r"ACTIONS_RUNTIME_TOKEN")),
+)
 
 
 def bearer_sites(text: str) -> list[str]:
@@ -653,8 +704,8 @@ def bearer_sites(text: str) -> list[str]:
     """
     sites: list[str] = []
     raw = text[text.index("\njobs:"):]
-    sites.extend(f"the raw job body carries {s!r}"
-                 for s in BEARER_SPELLINGS if s in raw)
+    sites.extend(f"the raw job body carries {label}"
+                 for label, form in BEARER_FORMS if form.search(raw))
 
     def walk(node: object, path: str) -> None:
         if isinstance(node, dict):
@@ -665,8 +716,9 @@ def bearer_sites(text: str) -> list[str]:
             for index, value in enumerate(node):
                 walk(value, f"{path}[{index}]")
         else:
-            sites.extend(f"{path} carries {s!r}"
-                         for s in BEARER_SPELLINGS if s in str(node))
+            sites.extend(f"{path} carries {label}"
+                         for label, form in BEARER_FORMS
+                         if form.search(str(node)))
 
     walk(yaml.safe_load(text), "<workflow>")
     return sites
@@ -735,7 +787,7 @@ def test_the_credential_guard_sees_a_bearer_written_above_the_jobs_key() -> None
     doctored = text.replace(
         "\njobs:", '\nenv:\n  GITHUB_TOKEN: "${{ github.token }}"\njobs:', 1)
     window = doctored[doctored.index("\njobs:"):]
-    assert not any(s in window for s in BEARER_SPELLINGS), (
+    assert not any(form.search(window) for _, form in BEARER_FORMS), (
         "the doctored bearer must land ABOVE `jobs:`; inside the window the "
         "raw reading already covers it and this case proves nothing")
 
@@ -744,6 +796,45 @@ def test_the_credential_guard_sees_a_bearer_written_above_the_jobs_key() -> None
         f"a workflow-level `env:` bearer went unseen; sites={sites}")
     assert bearer_sites(text) == [], (
         "the shipped document must be clean — this case doctors a copy")
+
+
+@pytest.mark.parametrize("expression", (
+    "${{ github['token'] }}",
+    '${{ secrets["DEPLOY_KEY"] }}',
+    "${{ github . token }}",
+    "${{ GitHub['Token'] }}",
+))
+def test_the_credential_guard_sees_the_indexed_expression_forms(
+        expression: str) -> None:
+    """One value, several spellings — a substring guard sees only one of them.
+
+    An Actions expression dereferences with a dot OR indexes with brackets, and
+    whitespace inside `${{ }}` is insignificant: `${{ github.token }}`,
+    `${{ github['token'] }}` and `${{ github . token }}` are the same bearer,
+    and `${{ secrets['DEPLOY_KEY'] }}` is the same secret as
+    `${{ secrets.DEPLOY_KEY }}`. Context names are matched case-insensitively
+    by Actions too. The literal-substring reading this suite shipped one commit
+    earlier reads every one of these as CLEAN — a bypass of the guard rather
+    than a gap in it — so each is a case here instead of a line of prose.
+
+    PROVED BOTH WAYS in the body: the first assertion IS the previous reading,
+    run over the doctored document verbatim, and it finds nothing.
+    """
+    text = WORKFLOW.read_text(encoding="utf-8")
+    doctored = text.replace(
+        "\njobs:", f"\nenv:\n  FOO: {expression}\njobs:", 1)
+
+    previously = ("secrets.", "github.token", "GITHUB_TOKEN", "x-access-token",
+                  "ACTIONS_RUNTIME_TOKEN")
+    assert not any(spelling in doctored for spelling in previously), (
+        f"{expression!r} must be a form the literal-substring reading could "
+        f"not see, or this case proves nothing about the patterns")
+
+    sites = bearer_sites(doctored)
+    assert any(site.startswith("<workflow>.env.FOO") for site in sites), (
+        f"{expression!r} went unseen; sites={sites}")
+
+
 # --------------------------------------------------------------------------
 # the collision this suite shipped, pinned as a rule
 # --------------------------------------------------------------------------
