@@ -211,8 +211,16 @@ OPEN.**
       number that reads as a defect count).
 - [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
       ASSERTS are the three the tool can evidence from a path or from its own
-      normalization — `truncated`, `punctuation-stripped`, `fixture-path` — plus
-      `half == file`, which is free, being `Resolution.half`; and
+      normalization — `truncated`, `punctuation-stripped`, `fixture-path` — and
+      the vocabulary is CLOSED at those three plus `unclassified`. A DANGLING
+      entry's FAILING HALF is reported too — free, being `Resolution.half`, and
+      measured 5 of 5 with no false positives — but as the RESOLVER'S OWN
+      OUTCOME, which the delta's first requirement itemizes, and NOT as a fifth
+      asserted label: every file-half entry is still named, counted and
+      itemized, and its class is whatever its own evidence supports. **RULE
+      OTHERWISE AND D4 TAKES IT** — a named `file-half` class counted in the
+      class totals — because minting a member of a closed vocabulary is a
+      decision for the word and not for a review round. And
       `possibly-cross-repo` ships BESIDE them as an ADVISORY FLAG and NEVER as a
       class, measured at 13 of 14 caught with 2 false positives among the other
       43, which is a reason for a reader to look rather than a verdict. The

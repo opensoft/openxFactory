@@ -810,6 +810,21 @@ An entry's DANGLING half is reported as a resolver OUTCOME under the first
 requirement and is not re-spelled as a class name (PR #1069, Copilot thread
 `PRRT_kwDOTAvnrs6jEu3i`).
 
+**AND D4's OWN PRECISION TABLE BELOW IS CORRECTED TO SAY THE SAME** (PR #1069,
+Copilot thread `PRRT_kwDOTAvnrs6jFQnV`): the `half == file` probe is free and
+perfect — 5 of 5, no false positives — and it SHIPS, but as the OUTCOME the
+resolver already returns and not as a member of the closed class vocabulary. A
+document that closes the vocabulary at four labels, requires exactly one class
+per entry, and then calls a fifth thing a class leaves a realization unable to
+satisfy both halves and its class totals ambiguous. **NOTHING IS LOST BY THE
+CORRECTION**: every file-half entry is still named, still counted, still
+itemized under its own outcome, and its `class` is whatever its own evidence
+supports — `fixture-path` for the nested-fixture ones, `unclassified` for the
+rest. **AND THE OTHER READING IS STILL RATIFIABLE**: rule for a named
+`file-half` CLASS, counted in the class totals, and D4 takes it — minting a
+member of a closed vocabulary is a decision for the word, not for a review
+round.
+
 **WHY THE SPLIT FALLS THERE.** A class is MECHANICAL when the evidence is a
 fact about a PATH or about the tool's own normalization, and HUMAN when the
 evidence is a fact about INTENT. `unclassified` is not a failure of the report —
@@ -825,7 +840,7 @@ suggests it):
 | --- | ---: | ---: | --- |
 | synthetic fixture, by occurrence LOCATION (`examples/`, `ideation/dashboard/gate-records/`, `contracts/**/examples/`) | 17 of 18 | **0** | **a CLASS** |
 | tokenization artifact, three sub-probes (a longer path on the line ends with the token and EXISTS; the next character is `<`; the token ends a string literal and the rejoined path resolves) | **4 of 4** | **0** | **a CLASS** |
-| `half == file` | 5 of 5 | 0 | **a CLASS** — it is free, being `Resolution.half` |
+| `half == file` | 5 of 5 | 0 | **AN OUTCOME, NOT A CLASS** — free, being `Resolution.half`, and already itemized as the resolver's own answer under the delta's first requirement; the class vocabulary is CLOSED at `truncated`, `punctuation-stripped`, `fixture-path` and `unclassified`, and minting a fifth member is a RULING (below), not a bench round's act |
 | `possibly-cross-repo`, adjacency plus the three lines above | 13 of 14 | 2 of 43 | **an ADVISORY FLAG** |
 | self-referential, by occurrence under `scripts/` | 10 of 12 | 2 | **an ADVISORY FLAG** |
 
@@ -862,8 +877,9 @@ and several of the 81 are deliberately dangling by their own file's design.
 cannot see, and every wrong guess becomes a number in D6's stability series.
 *OPTION 3 — classify nothing, print the raw list.* Cost: it hands the reader the
 same 81 lines the issue already has, and the asserted classes — `truncated`,
-`punctuation-stripped`, `fixture-path` and the free `half == file` — are exactly
-the ones a human should never have to re-derive.
+`punctuation-stripped` and `fixture-path`, with the free `half == file`
+itemized beside them as the resolver's own outcome — are exactly the ones a
+human should never have to re-derive.
 
 ## D5 — RECOMMENDED: artifact-only, and the reason is not merely merge conflicts
 
