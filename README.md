@@ -3218,19 +3218,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [add-composed-view-authoring](openspec/changes/add-composed-view-authoring/proposal.md)
-  — ratified 2026-08-08 ("yes, we need to draft from a project view").
-  `Composed views are read-only with a repository jump` states its reason as
-  "a gate verb binds to one served checkout, and a composed view has none" —
-  true of a TILE-BOUND verb, false of creating a NEW document, which binds to
-  no tile and lands in the serve's own checkout. The blanket rule made the one
-  view where cross-repository convergence is visible the one view unable to
-  act on it. MODIFIED to distinguish the two, plus: the serve now DECLARES the
-  repository it writes to on `/capabilities`, from the same authority a write
-  is refused against, because the browser was inferring it and under a
-  composed view inferred the PROJECT id. (code surface: openxFactory; target
-  release: none)
-
 - [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
   — ratified 2026-08-08 from three annotations on the keyword lens. A
   document has three views (the radar's dot, the matrix's row, the signature
@@ -3356,6 +3343,42 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-composed-view-authoring](openspec/changes/archive/2026-09-16-add-composed-view-authoring/proposal.md)
+  — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
+  [PR #PRNUM](https://github.com/opensoft/openxFactory/pull/PRNUM), under **RULING
+  Q6** (Brett Heap, 2026-09-04T17:49Z,
+  [#656](https://github.com/opensoft/openxFactory/issues/656)), encoded at
+  `split-opendox-two-layer-product` `tasks.md` § 6.4 and `design.md` § D9. **THE
+  FIRST OF THE FIVE FROZEN CHANGES TO CLOSE**, and the cheapest — one `## MODIFIED`
+  requirement, `target_release: none`, no contract bytes. **NOT AN ORDINARY
+  ARCHIVE:** the packet's own delta states the two admissible dispositions —
+  *"archived, or closed as re-homed with its successor destination named in the
+  receiving repository"* — and this closure takes the second, so **NO DELTA IS
+  PROMOTED HERE**. That is the packet's instruction, twice over: *"their `## ADDED`
+  blocks never promote HERE and their content is re-authored in the receiving
+  repository"*, and, in this requirement's own successor row, *"the requirement is
+  re-promoted in `opensoft/openDox`'s own OpenSpec instance"*. **THE DESTINATION,
+  NAMED, WHICH IS WHAT `tasks.md` § 8.5 REQUIRES:**
+  [openDox-spec #12](https://github.com/opensoft/openDox-spec/pull/12), change
+  `openspec/changes/add-composed-view-authoring` — openDox's FIRST OpenSpec change,
+  its corpus having held only `.gitkeep` until now — carrying the `## MODIFIED`
+  block **byte-identical**, 3,557 B / `sha256 1754e5d3…`, `diff`-verified against
+  the archived copy here. The packet is relocated by `git mv` and otherwise
+  UNEDITED, including its `Status: ratified` header (Brett, 2026-08-08, *"yes, we
+  need to draft from a project view"*): a closure is not a licence to restate what
+  was ratified. **THE COST IS RECORDED RATHER THAN HIDDEN** —
+  `document-lifecycle`'s *Ratified spec deltas reach the promoted specification*
+  attaches the promotion obligation to the archive act, so the non-promotion is
+  registered as DELIBERATE through the discharge `promotion_fidelity.py`'s own
+  action text names, an entry in the xFactory aggregation's
+  `health/dispositions.yaml`, batched across the five closures with § 6.6; a
+  `--single-repo` self-gate run cannot read that file and will report the finding
+  until § 5 removes the capability, which the closing pull request reports rather
+  than suppresses. Full reasoning:
+  [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-composed-view-authoring/review/rehome-2026-09-16.md).
+  **§ 3.2 travels OPEN**: "Brett creates the first real document from a project
+  view" was this packet's one unticked box and is carried open at the destination.
 
 - [extend-prose-tagging-target-to-pinned-capabilities](openspec/changes/archive/2026-09-15-extend-prose-tagging-target-to-pinned-capabilities/proposal.md)
   — **ARCHIVED 2026-09-15** by
