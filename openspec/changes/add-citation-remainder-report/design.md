@@ -225,22 +225,31 @@ this tree, at this commit". It is cited from `scripts/packet_reference.py` and
 "self-referential illustrative example" class as well.
 
 **(iv) AND THIS PACKET'S OWN EFFECT ON THE POPULATION, MEASURED AFTER THE
-PACKET EXISTED RATHER THAN PREDICTED BEFORE IT.** The same recipe re-run on
-this branch at its final committed state: **2,979** files in scope (+6 — this
-packet's own six files; `README.md` was already tracked and the ledger row sits
-under the excluded `tests/`), **594** distinct tokens (+8), **504** `RESOLVED`
-(+6), and the remainder **82** (+1) — 75 identity-half, 7 file-half, 0
-ambiguous. **BEFORE THE EVIDENCE REPORT LANDED THE BRANCH READ 2,978 / 587 /
-499 / 81**, the remainder unmoved from `origin/main`'s; the whole +1 arrives
-with `evidence/measurement-b1df95ee.md` and the table below shows every step.
-The figures are taken at the branch head that carries the merge of `origin/main`
-`d5dd1ca5` AND the thirteen commits of this packet's fix round; neither the merge
-nor the fix round moved any of them — re-measured after both, the reading is the
-same 2,979 / 594 / 504 / 82, because thirteen commits of prose corrections minted
-no citation token the branch did not already carry. **That is the fence working
-rather than a coincidence**: the tokens a packet adds are the ones it QUOTES, and
-a correction that re-words a sentence about a token quotes the token that was
-already there.
+PACKET EXISTED RATHER THAN PREDICTED BEFORE IT — AND STATED AS A DELTA AGAINST A
+NAMED BASE, BECAUSE THE ABSOLUTE FIGURES MOVE EVERY TIME `main` DOES.** The same
+recipe re-run on this branch at its head against the base that head merges,
+`origin/main` **`00b1e93b`**: **+6** files in scope (this packet's own six
+files; `README.md` was already tracked and the ledger row sits under the excluded
+`tests/`), **+8** distinct tokens, **+6** `RESOLVED`, and the remainder **+1**.
+In absolutes at that pair — base **2,974 / 587 / 499 / 81**, branch **2,980 /
+595 / 505 / 82**, the branch's remainder being 75 identity-half, 7 file-half, 0
+ambiguous, with 8 `NOT_A_PACKET_REFERENCE` and 70 citing files. **BEFORE THE
+EVIDENCE REPORT LANDED THE BRANCH'S REMAINDER DELTA WAS ZERO** — the branch read
+its base's 81 — and the whole +1 arrives with `evidence/measurement-b1df95ee.md`;
+the table below shows every step, each row pinned to the commit it was taken at
+so no row moves when a base does.
+
+**THE DELTA IS THE INVARIANT AND THAT IS MEASURED, NOT ASSERTED.** These figures
+have now been taken at three different bases — `b1df95ee`, `d5dd1ca5` and
+`00b1e93b` — across two merges from `main`, thirteen fix-round commits and the
+bench round this paragraph was last rewritten in. The absolutes moved with the
+base every time; **`+6 / +8 / +6 / +1` did not move once.** Neither a merge nor a
+prose correction mints a citation token the branch did not already carry.
+**That is the fence working rather than a coincidence**: the tokens a packet adds
+are the ones it QUOTES, and a correction that re-words a sentence about a token
+quotes the token that was already there — which is also why the one place this
+round had to describe a new token rather than spell it (D7's note on vendoring
+the instrument) describes it.
 
 **AND THE COMMITTED EVIDENCE REPORT DID WHAT D5 SAYS A COMMITTED REPORT DOES.**
 Watch the population move as this packet was assembled, each reading taken with

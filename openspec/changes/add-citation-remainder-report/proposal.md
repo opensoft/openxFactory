@@ -112,8 +112,10 @@ asked. That is the whole argument for D3 stating the recipe in the requirement.
 **THREE FACTS THIS RE-MEASUREMENT FOUND THAT #1053 DOES NOT CARRY**, each of
 which moves a decision rather than decorating one:
 
-1. **The 74 identity-half tokens collapse to 48 DISTINCT IDENTITIES.** Eighteen
-   identities are cited by more than one remainder token — `add-council-clearance-rule-template`
+1. **The 74 identity-half tokens collapse to 48 DISTINCT IDENTITIES, and all 81
+   remainder tokens onto 53** — the other 5 being the file-half tokens', which
+   resolved their packet and carry an identity too. Eighteen of the 48
+   identities are cited by more than one identity-half token — `add-council-clearance-rule-template`
    by six, `add-openxfactory-tui-installer` by four, `add-pre-archive-citation-gate`
    by three. Fifteen of the 81 remainder tokens are a bare directory path ending
    in `/` whose sibling token names the same identity without the slash. **A
@@ -138,8 +140,12 @@ which moves a decision rather than decorating one:
    from `scripts/packet_reference.py` and `scripts/validate-pin-registrations.py`.
 
 **AND THE PACKET MEASURED ITS OWN EFFECT ON THE POPULATION, AFTER IT EXISTED.**
-Re-run on this branch: 2,979 files in scope (+6), 594 distinct tokens (+8), 504
-`RESOLVED` (+6), **remainder 82 — UP BY ONE FROM 81**. The packet's five
+Re-run on this branch against the base its head merges, `origin/main`
+`00b1e93b`: **+6** files in scope, **+8** distinct tokens, **+6** `RESOLVED`,
+**remainder +1** — 2,980 / 595 / 505 / **82** against that base's 2,974 / 587 /
+499 / 81. **UP BY ONE.** The delta is what is stated and the base is named,
+because the absolutes move every time `main` does and the delta has not moved
+across three bases (`design.md` D0(iv)). The packet's five
 documents mint no remainder at all. **THE COMMITTED EVIDENCE REPORT MINTS ONE**:
 `openspec/changes/foo/`, a dangling identity-half token produced by the report's
 own enumeration of the resolver's docstring examples — and then carried by this

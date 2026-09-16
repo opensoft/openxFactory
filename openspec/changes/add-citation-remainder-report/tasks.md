@@ -76,8 +76,11 @@ OPEN.**
       `AMBIGUOUS`, **7** `NOT_A_PACKET_REFERENCE` — **inclusive remainder 81
       tokens**, carried by **65** distinct citing files. `design.md` D0 carries
       the table and the commands. **AND THE SAME RECIPE WAS RE-RUN ON THIS
-      BRANCH, AFTER THE PACKET EXISTED**: 2,979 files in scope, 594 tokens, 504
-      RESOLVED, **remainder 82 — UP BY ONE**, and the one is
+      BRANCH, AFTER THE PACKET EXISTED**, against the base its head merges
+      (`origin/main` `00b1e93b`): **2,980** files in scope, **595** tokens,
+      **505** RESOLVED, **remainder 82 — UP BY ONE** from that base's 81
+      (`+6 / +8 / +6 / +1`, the delta D0(iv) shows unmoved across three bases),
+      and the one is
       `openspec/changes/foo/`, minted by the COMMITTED EVIDENCE REPORT's own
       enumeration of the resolver's docstring examples and then carried by this
       packet's own paragraphs about it too. `design.md` D0(iv)
@@ -85,8 +88,10 @@ OPEN.**
       prediction**: one report, committed once, +1 remainder.
 - [x] 1.2 **THREE FACTS #1053 DOES NOT CARRY WERE FOUND AND EACH MOVED A
       DECISION.** (i) the 74 identity-half tokens collapse to **48 DISTINCT
-      IDENTITIES**, 18 identities cited more than once — which is why D3
-      requires both counts; (ii) the token grammar manufactures remainder in
+      IDENTITIES** and all 81 remainder tokens onto **53** (the other 5 are the
+      file-half tokens', which resolved their packet), 18 of the 48 cited more
+      than once — which is why D3 requires both counts and why every identity
+      count in this packet names its scope; (ii) the token grammar manufactures remainder in
       **four** shapes (15 trailing `/`, 2 trailing `-`, 1 trailing `.`, 1
       `/./`), where #1053 names one — which is why D3's normalization is stated
       and printed; (iii) `openspec/changes/README.md`, the resolver docstring's
