@@ -1712,6 +1712,87 @@ def _retire(doc: dict[str, Any], source_path: str = RETIRED_SOURCE,
     return row
 
 
+def test_a_retirement_is_asked_at_THE_LEG_and_not_only_at_the_spelling(
+        carve: Carve) -> None:
+    """A `destinations:` KEY IS A LABEL and the retirement is about a LEG
+    (Copilot review of PR #1032, round 9).
+
+    `check_shape` deliberately admits two keys sharing one
+    `{repository, leg}` body, and `--destination` names a key. `retired_rows()`
+    compared that key as a STRING, so a run invoked with the other spelling of
+    the very leg the block names skipped the retirement: the absence was never
+    required at all.
+
+    AND THE FAILURE IS NOT SILENCE — IT IS THE WRONG REMEDY, which is worse. A
+    file left at the retired path is not claimed by any row, so the walk finds
+    it and refuses `arrival-undeclared-file`, whose sentence tells the operator
+    to DECLARE it. A ruling said to DELETE it. This test pins the CODE and not
+    merely the exit status, because the two codes send an operator in opposite
+    directions.
+
+    The manifest here is one the validator ACCEPTS: `retired.at` is the row's
+    own `destination` spelling, verbatim, because `_check_retired_consistency`
+    compares those two as strings and refuses any document that spells them
+    differently. So the alias never enters the document — it enters on the
+    COMMAND LINE, which is exactly where nothing had checked it.
+    """
+    doc = carve.manifest_doc()
+    doc["destinations"]["scratch_code_alias"] = dict(
+        doc["destinations"][RETIRED_AT])
+    row = _retire(doc)
+    assert row["retired"]["at"] == RETIRED_AT, row
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    # The act's OTHER half, not done: the leg still has the file.
+    _write(dest, RETIRED_AT_PATH, "STILL HERE\n")
+
+    # THE LEG'S OWN SPELLING answers correctly, and always did.
+    done = run(carve, manifest, "--destination", RETIRED_AT,
+               "--dest-root", str(dest), "--phase", "B", "--json")
+    assert refusal(done) == "arrival-not-retired", done.stdout
+    assert "5656343213" in json.loads(done.stdout)["detail"], done.stdout
+
+    # THE ALIAS must reach the same finding. Before round 9 it reached
+    # `arrival-undeclared-file` instead — same exit code, opposite instruction.
+    aliased = run(carve, manifest, "--destination", "scratch_code_alias",
+                  "--dest-root", str(dest), "--phase", "B", "--json")
+    assert refusal(aliased) == "arrival-not-retired", aliased.stdout
+    detail = json.loads(aliased.stdout)["detail"]
+    assert "5656343213" in detail, detail
+    assert RETIRED_AT_PATH in detail, detail
+
+
+def test_a_retirement_reached_through_an_alias_reports_its_refill(
+        carve: Carve) -> None:
+    """The passing half of round 9's finding, and the half that shows the two
+    selectors now agree.
+
+    With the retired path lawfully refilled by a declared `--replica-at`
+    replica, the run must REPORT the retirement as `absence: refilled` — not
+    omit it. Under the alias spelling the row was not selected at all, so the
+    `retired` list came back EMPTY and a reader was told nothing about a
+    retirement this leg owes: the silent direction of the same defect.
+    """
+    doc = carve.manifest_doc()
+    doc["destinations"]["scratch_code_alias"] = dict(
+        doc["destinations"][RETIRED_AT])
+    _retire(doc)
+    manifest = carve.write_manifest(doc)
+    dest = carve.materialise(doc, RETIRED_AT)
+    _write(dest, RETIRED_AT_PATH, SURFACE_FILES["scripts/pkg/neutral.py"])
+
+    for spelling in (RETIRED_AT, "scratch_code_alias"):
+        done = run(carve, manifest, "--destination", spelling,
+                   "--dest-root", str(dest), "--phase", "B", "--json",
+                   "--replica-at", f"scripts/pkg/neutral.py={RETIRED_AT_PATH}")
+        assert done.returncode == 0, (spelling, done.stdout + done.stderr)
+        retired = json.loads(done.stdout)["retired"]
+        assert [r["source_path"] for r in retired] == [RETIRED_SOURCE], \
+            (spelling, retired)
+        assert retired[0]["absence"] == "refilled", (spelling, retired)
+        assert retired[0]["refilled_by"], (spelling, retired)
+
+
 def test_the_leg_no_longer_owes_a_retired_row(carve: Carve) -> None:
     """The whole act, passing: the row is not owed here any more, the tree
     that no longer carries it verifies, and the retirement is REPORTED rather

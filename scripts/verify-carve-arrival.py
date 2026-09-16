@@ -1463,15 +1463,35 @@ def retired_rows(doc: dict[str, Any],
     where a row is checked is the question a SELECTION answers, and whether
     the block could be read at all is `check_retired`'s, one frame from the
     join it decides.
+
+    KEYED ON THE BLOCK, AND ON THE BLOCK'S RESOLVED LEG (Copilot review of PR
+    #1032, round 9). Selecting on the block is one question; comparing a
+    `destinations:` KEY as a string is another, and it was the wrong answer to
+    it. A key is a LABEL, never a referent — `check_shape` deliberately admits
+    two keys sharing one `{repository, leg}` body — so a run invoked with the
+    OTHER spelling of the leg the block names skipped the retirement
+    altogether: the absence was never required, and a file left at the retired
+    path fell through to the walk, where it draws `arrival-undeclared-file`,
+    whose remedy is DECLARE IT. That is the opposite of the remedy a ruling
+    ordered. `vacated_rows` — the Q6 sibling that asks the same shape of
+    question about a re-destination's losing leg — already resolves
+    `re_destined.from` this way, and `rows_for` resolves the arrival side, so
+    this was the one selector in the file still comparing labels.
+
+    RESOLVING IS NOT RE-KEYING. `at` still decides WHICH placement is asked and
+    the effective arrival still does not; all that changes is that two
+    spellings of one real leg stop being two legs here.
     """
     out: list[dict[str, Any]] = []
+    destinations = doc.get("destinations")
+    here = _resolved_destination(destination, destinations)
     for row in doc["rows"]:
         if not isinstance(row, dict):
             continue
         if row.get("disposition") not in MOVED_DISPOSITIONS:
             continue
         at, _at_path = retired_at(row)
-        if at != destination:
+        if _resolved_destination(at, destinations) != here:
             continue
         out.append(row)
     return out
