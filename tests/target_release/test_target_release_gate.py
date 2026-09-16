@@ -1108,6 +1108,21 @@ def test_admitting_the_value_did_not_move_the_closed_baseline():
     # literal is the baseline's SIZE: it falls with a removal exactly as it would
     # refuse an addition, and it is the assertion that keeps the shrink honest.
     assert len(tr.CLOSED_REGISTER) == 20
+    # THE SIZE ALONE DOES NOT SAY WHICH PAIR LEFT, and that is what this change
+    # claims. A later edit could restore this pair and drop an unrelated one
+    # while 20 still held, so the retirement is asserted by IDENTITY as well —
+    # added 2026-09-16 on Copilot's reading of #1060, which is right that a
+    # count verifies the shrink's magnitude and not the shrink.
+    assert ("add-nightly-dashboard-refresh", "implementation_pending") \
+        not in tr.CLOSED_REGISTER, (
+            "the `implementation_pending` baseline pair for "
+            "`add-nightly-dashboard-refresh` is back in CLOSED_REGISTER. It "
+            "retired on 2026-09-16 with the packet, on the second limb of its "
+            "own `retires_when:` — 'or the packet archives' — and the packet is "
+            "archived at "
+            "`openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh`. "
+            "A baseline entry for a change that is no longer active admits a "
+            "token nothing can be measured against")
     assert not [e for e in tr.CLOSED_REGISTER
                 if e[1] == tr.DEFERRED_ALLOCATION]
 
