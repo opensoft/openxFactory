@@ -47,6 +47,7 @@ import binascii
 import hashlib
 import importlib.util
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -1017,6 +1018,11 @@ DEPARTED_SINCE_THE_CAPTURE = {
 #: parents up. Read once here rather than recomputed per assertion.
 PIN_REPO_ROOT = Path(__file__).resolve().parents[2]
 
+#: The dated-archive directory spelling every closure in this estate uses:
+#: `<YYYY-MM-DD>-<change id>`. Used to tie a departure's archive path back to
+#: the item it claims to be the archive OF.
+_ARCHIVE_DIR_NAME = re.compile(r"\d{4}-\d{2}-\d{2}-.+")
+
 
 def _departed_since_the_capture(mod, identity, row):
     """True iff `row` IS the captured finding of a change this tree has let go.
@@ -1028,7 +1034,13 @@ def _departed_since_the_capture(mod, identity, row):
          narrow as `reconcile`'s own key and cannot swallow a different blocking
          finding that happens to share the item and the path;
       2. the active directory is ABSENT from the working tree;
-      3. the named archive directory is PRESENT in it.
+      3. the named archive directory is PRESENT in it, AND ITS PATH IS
+         DERIVABLE FROM THE ITEM — a direct child of `openspec/changes/archive/`
+         named `<YYYY-MM-DD>-<item>`. Existence alone was the check until
+         2026-09-16; it proved only that the map named SOME directory, so a
+         stale or mistyped value pointing at an unrelated archived change would
+         have exempted this capture's finding on the strength of that other
+         change having been archived.
 
     Together they keep this map from becoming the blanket the pin's own
     `dispositions:` list is so careful not to be.
@@ -1048,7 +1060,21 @@ def _departed_since_the_capture(mod, identity, row):
     assert not active.is_dir(), (
         f"{key} is listed as departed but {active} still stands; a live change "
         "may not borrow this exemption")
-    assert (PIN_REPO_ROOT / entry["archive"]).is_dir(), (
+    archive = PIN_REPO_ROOT / entry["archive"]
+    archive_root = PIN_REPO_ROOT / "openspec" / "changes" / "archive"
+    assert archive.parent == archive_root, (
+        f"{key} names {entry['archive']} as its archive, which is not a direct "
+        f"child of {archive_root.relative_to(PIN_REPO_ROOT)}. An exemption is "
+        "granted for a packet that moved INTO the dated archive, so a path "
+        "anywhere else is a typo or a different kind of move")
+    assert _ARCHIVE_DIR_NAME.fullmatch(archive.name) and (
+        archive.name[len("YYYY-MM-DD-"):] == row["item"]), (
+        f"{key} names {archive.name} as its archive, which is not "
+        f"<YYYY-MM-DD>-{row['item']}. THE PATH MUST BE DERIVABLE FROM THE ITEM: "
+        "a stale or mistyped value that happened to name some OTHER archived "
+        "change would otherwise exempt this capture's finding on the strength "
+        "of an unrelated directory existing")
+    assert archive.is_dir(), (
         f"{key} names {entry['archive']} as its archive and no such directory "
         "exists")
     return True
