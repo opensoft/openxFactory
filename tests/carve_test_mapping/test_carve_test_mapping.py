@@ -1108,6 +1108,62 @@ def test_a_symlinked_PARENT_may_not_stand_in_for_an_arrival_either(
     assert "tests/test_alpha.py" in payload["detail"]
 
 
+def test_two_aliases_of_one_home_are_not_two_homes(scratch: Scratch) -> None:
+    """The alias defect on the SOURCE side, and it is an arithmetic one rather
+    than a naming one: two `destinations:` keys may share a `{repository,
+    leg}` body — `check_shape` admits it — so a row listing two ALIASES of one
+    home counted two homes and added an extra `(m − 1) × tests` term, while
+    the destination verifier's own `any(...)` counted that physical home
+    ONCE."""
+    doc = scratch.clean()
+    doc["destinations"]["xdox_alias"] = {
+        "repository": "opensoft/openXdox-code", "leg": "code"}
+    scratch.row(doc, "scripts/pkg/test_alpha.py")["also_replicated_to"] = \
+        ["xdox_code", "xdox_alias"]
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "not distinct homes" in payload["detail"]
+
+
+def test_a_row_is_not_also_replicated_where_it_already_moves(
+        scratch: Scratch) -> None:
+    """The same defect wearing the row's own placement: an
+    `also_replicated_to:` entry that resolves to the row's OWN effective
+    arrival would count that home twice."""
+    doc = scratch.clean()
+    doc["destinations"]["dox_alias"] = {
+        "repository": "opensoft/openDox-code", "leg": "code"}
+    scratch.row(doc, "scripts/pkg/test_alpha.py")["also_replicated_to"] = \
+        ["dox_alias"]
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "already moves" in payload["detail"]
+
+
+def test_an_absent_arrival_is_printed_even_when_the_total_balances(
+        scratch: Scratch) -> None:
+    """A MISSING FILE WAS THE SILENT ONE. `absent` was collected and never
+    printed on a passing run, so a declared arrival that is NOT THERE could be
+    hidden by another path carrying extra tests: `collected == declared`,
+    exit 0, and the per-row delta the runbook promises by name was not shown.
+
+    Built exactly that way: `tests/test_alpha.py` (3 declared) never arrives,
+    and `src/mod.py` — declared 0 — carries 3 of the destination's own, so the
+    totals match. The run passes, and it SAYS what is missing."""
+    dest = scratch.destination("dox", {})
+    (dest / "src").mkdir(parents=True, exist_ok=True)
+    (dest / "src/mod.py").write_text(_tests(3, "the_legs_own"),
+                                     encoding="utf-8")
+    manifest = scratch.write(scratch.clean())
+    done = subprocess.run(
+        [sys.executable, str(SCRIPT), "--manifest", str(manifest),
+         "--repo", str(scratch.repo), "--destination", "dox_code",
+         "--dest-root", str(dest)],
+        capture_output=True, text=True, check=False)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "declared arrivals ABSENT: 1" in done.stdout, done.stdout
+    assert "tests/test_alpha.py" in done.stdout
+    assert "nothing regular at that path" in done.stdout
+
+
 def test_a_declared_key_naming_no_row_at_all_refuses(
         scratch: Scratch) -> None:
     """The stale-key arm, on the runtime path rather than in a pytest

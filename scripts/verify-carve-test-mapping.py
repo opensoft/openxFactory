@@ -515,6 +515,16 @@ def _print_destination(summary: dict[str, Any]) -> None:
           f"{summary['replicas_declared']} replica placement(s) declared; "
           f"the tree carries {summary['tree_tests']} across "
           f"{summary['tree_files']} file(s)")
+    # BOTH LISTS, ALWAYS, AT ZERO TOO (Copilot, round 4 on #1080). `absent`
+    # was collected and never printed on a passing run, so a declared arrival
+    # that is NOT THERE could be hidden by another path carrying extra tests:
+    # `collected == declared`, exit 0, and the per-row delta the runbook
+    # promises by name was not shown. A missing file is the more serious of
+    # the two and was the silent one.
+    print(f"  declared arrivals ABSENT: {len(summary['absent'])}")
+    for item in summary["absent"]:
+        print(f"      {item['path']} — declared {item['declared']}, "
+              "nothing regular at that path")
     print(f"  rows below their declaration: {len(summary['below_declaration'])}")
     for item in summary["below_declaration"]:
         print(f"      {item['path']} — declared {item['declared']}, "

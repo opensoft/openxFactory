@@ -1907,11 +1907,24 @@ was amended 2026-09-09, the `retired:` form was RULED `5656343213` on
 rows carrying **31** between them, so
 
 ```
-Σ(destinations) = source_count
-                + Σ over replicated rows of (m − 1) × row_test_count
-                − Σ over RETIRED rows of row_test_count
-     4,440      = 4,411 + 60 − 31
+Σ(destinations) = source_count + Σ over EVERY row of (|homes| − 1) × tests
+
+  source_count             4,411
++ replica excess (m − 1)      60   `replicated_at_destination` rows
++ also-replicated excess       0   RULED Q-L7 (a) moved-AND-replicated rows
++ retired term               −31   the same rule over retired rows
+= Σ(destinations)          4,440
 ```
+
+**ONE RULE, four buckets, and the tool prints all of them on every run.**
+§ 5.4 states the last two as a subtraction — *"− Σ over RETIRED rows of
+row_test_count"* — and that is exact for every row that has landed, because
+each retired row's only home is the one the ruling deleted. It is NOT exact
+for a row that is retired AND replicated: retirement deletes the row's own
+ARRIVAL and not the copies its `also_replicated_to:` places elsewhere, so
+such a row's term is `(1 − 1) × tests = 0` rather than `−tests`. Apply the
+one rule, not the subtraction, and the two agree wherever the subtraction is
+right.
 
 A retired row is not a lost test: the form REQUIRES a `ruling:` and reads as no
 retirement without one, so the deletion is the RULED decision clause (a)

@@ -87,9 +87,30 @@ rows — `tests/ideation-dashboard/test_intent_tray_dom.py` (23 `def test_`) and
 the box's three-term identity is false by exactly 31 from that landing onward.
 The check carries the term and prints it:
 
-    Σ(destinations) = source_count
-                    + Σ over replicated rows of (m − 1) × row_test_count
-                    − Σ over RETIRED rows of row_test_count
+    Σ(destinations) = source_count + Σ over EVERY row of
+                      (|homes| − 1) × row_test_count
+
+ONE RULE, and the report splits that sum into the buckets § 5.4 names:
+
+    replica_excess           (m − 1) × tests over `replicated_at_destination`
+    also_replicated_excess   the same over RULED Q-L7 (a)'s moved-and-also-
+                             replicated rows — 0 today, printed anyway
+    retired_excess           the same over retired rows, which is −tests for a
+                             row whose only home the ruling deleted (−31
+                             today) and 0 for one whose `also_replicated_to:`
+                             copies survive
+
+    Σ(destinations) = source_count + replica_excess
+                    + also_replicated_excess + retired_excess
+          4,440     = 4,411 + 60 + 0 + (−31)
+
+**THE THREE-TERM FORM § 5.4 STATES IS THIS ONE WITH THE LAST TWO BUCKETS
+SPELLED AS A SUBTRACTION**, and it is exact for every row that has landed —
+but it is not exact for a row that is retired AND replicated, because
+retirement deletes the row's own ARRIVAL and not its copies. Writing the
+design record in the three-term form while the code computed the one rule was
+itself a defect (Copilot, round 4 on #1080): a reader would have applied a
+different arithmetic to the same document.
 
 A retired row is NOT `test-home-missing`. The form REQUIRES a `ruling:` and
 reads as no retirement without one (`retired_at`'s guard), so the deletion is
@@ -541,8 +562,37 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
                 "A field that is present and unreadable is not an absent one: "
                 "reading past it would UNDERCOUNT the row's multiplicity while "
                 "the sum went on balancing")
-        extra = tuple(repository_of(doc, key) for key in also) \
-            if isinstance(also, list) else ()
+        # AND DISTINCT BY IDENTITY, NOT BY LABEL (Copilot, round 4 on #1080).
+        # Two `destinations:` keys may share one `{repository, leg}` body —
+        # `check_shape` admits it — so a row listing two ALIASES of one home
+        # counted two homes here and added an extra `(m − 1) × tests` term,
+        # while the destination verifier's own `any(...)` counted that
+        # physical home ONCE. An alias of the row's OWN effective arrival is
+        # the same defect wearing the row's own placement.
+        extra = ()
+        if isinstance(also, list):
+            destinations = doc.get("destinations")
+            own = resolved_destination(effective_arrival(row)[0], destinations)
+            seen: list[tuple] = []
+            for key in also:
+                identity = resolved_destination(key, destinations)
+                if identity == own:
+                    raise TestMappingRefusal(
+                        "test-mapping-unreadable",
+                        f"{source_path!r} lists {key!r} in "
+                        "`also_replicated_to:`, which resolves to the same "
+                        "`{repository, leg}` as the row's own arrival. A row "
+                        "is not ALSO replicated where it already moves")
+                if identity in seen:
+                    raise TestMappingRefusal(
+                        "test-mapping-unreadable",
+                        f"{source_path!r} lists two `also_replicated_to:` "
+                        f"keys that resolve to one destination ({key!r}); a "
+                        "`destinations:` key is a LABEL, so distinct labels "
+                        "are not distinct homes, and counting them twice "
+                        "would add a multiplicity term no repository carries")
+                seen.append(identity)
+            extra = tuple(repository_of(doc, key) for key in also)
         if retirement_of(row) is not None:
             return RowMapping(source_path, 0, extra, "retired", ruling_of(row))
         key, _path = effective_arrival(row)
