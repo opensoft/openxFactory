@@ -478,8 +478,11 @@ REMEDIATION = (
     "left behind is the same bytes at two legs with the floor standing "
     "behind one. For `arrival-not-retired`, delete the file the ruling "
     "RETIRED at this leg (RULED 5656343213) — the row's `retired:` says which "
-    "ruling ordered it and which surface it needed and could not obtain here; "
-    "the deletion and the block land together or not at all."
+    "ruling ordered it and which surface it needed and could not obtain here. "
+    "THIS REFUSAL IS THE EXPECTED STATE OF THE WINDOW the two merges open: the "
+    "block lands FIRST at openxFactory and this leg refuses until its own "
+    "deletion merges (cutover runbook 5.8 step 4), so the remedy is that pull "
+    "request and never an edit to the manifest."
 )
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")

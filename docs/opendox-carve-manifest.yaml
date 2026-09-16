@@ -310,7 +310,7 @@
 # whose other tests drive surfaces `openxdox_code` has, so its row goes on
 # arriving and there is nothing to retire. `retired:` retires a ROW and a row
 # is a FILE; that one is an ORDINARY declared edit on the row's own `edits[]`
-# under `adapter calls`. TWO FIGURES, AND THEY ARE NOT THE SAME ONE: the removed
+# under `adapter calls`. THREE FIGURES, AND NO TWO OF THEM ARE THE SAME: the removed
 # block SPANS 177 carve lines, and this act's ENTRY declares 167 of them —
 # slice S5 already declared the other ten on this same row, and a line is
 # declared once per row, so the entry omits them and the row's declaration is
