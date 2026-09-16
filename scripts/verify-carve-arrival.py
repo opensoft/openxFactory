@@ -1832,10 +1832,16 @@ def check_retired(rows: list[dict[str, Any]], dest_root: Path,
     load-bearing rather than cosmetic: `rows_for()` has already dropped the
     row, so nothing else here would ever mention the file again.
 
-    `os.path.lexists`, NOT `exists`, on `check_vacated`'s reasoning verbatim:
-    a dangling symlink reads as absent and one pointing elsewhere reads as a
-    live file, and either way the leg carries an entry at a path the ruling
-    emptied and git would commit it.
+    `os.path.lexists`, NOT `exists`, on `check_vacated`'s reasoning verbatim,
+    and stated in the right direction after a Copilot round found this sentence
+    reversed: `lexists` answers about the ENTRY and `exists` about its TARGET.
+    Under `exists` a DANGLING symlink reads as absent and the check would pass
+    over it; under `lexists` it reads as present, which is the answer that
+    matters here, because the leg still carries a directory entry at a path the
+    ruling emptied and git would commit it. A symlink pointing ELSEWHERE is
+    present under both. So `lexists` refuses both cases and `exists` refuses
+    only one -- which is why this is a deliberate `lexists` and not a spelling
+    to be simplified away.
 
     `arriving_rows` and `declared_replica_paths` EXCLUDE A LAWFUL REFILL, and
     they are here from the first line of this function rather than after two
