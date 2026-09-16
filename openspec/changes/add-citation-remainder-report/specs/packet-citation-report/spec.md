@@ -53,6 +53,27 @@ THE REPORT SHALL NAME THE CITING FILES of every remainder entry. A dangling
 citation is a fact about a RECORD, not about a packet, and a reader who cannot
 see which record carries it cannot act on it at all.
 
+THE REPORT SHALL REPORT EVERY OUTCOME THE RESOLUTION RULE RETURNS, AND SHALL
+NAME THEM AS THE RULE NAMES THEM. A rule that distinguishes a reference which
+RESOLVED, one which is DANGLING, one which is AMBIGUOUS and one which was NOT A
+PACKET REFERENCE at all has made four different statements, and a report that
+collapses them has thrown away the distinction its own remainder is defined by.
+The report SHALL ITEMIZE the DANGLING outcome — separately for each half the
+rule reports, because the rule's own contract is that a failure says WHICH HALF
+failed and the two halves want different repairs — and SHALL ITEMIZE the
+AMBIGUOUS outcome. It SHALL COUNT, without itemizing, the outcomes that owe
+nobody anything: RESOLVED, with the count of those that resolved somewhere other
+than the path they were spelled as reported within it, because that count is the
+rule working and is the one figure a reader weighing whether the rule earns its
+keep needs; and NOT A PACKET REFERENCE, which is a statement about the caller's
+own path resolution and not about any packet.
+
+AND THE AMBIGUOUS COUNT SHALL BE PRINTED EVEN WHEN IT IS ZERO. It is the only
+outcome that indicts a DECLARATION rather than a citation — two packets claiming
+one identity is a defect in the claims, not in the record that cites them — and
+a report that omits the row when the count is zero teaches its readers not to
+look for it, so its absence and its zero become indistinguishable.
+
 #### Scenario: The report is taken over a corpus
 - **WHEN** the report runs against a repository root
 - **THEN** it MUST print the head the reading was taken at
@@ -64,6 +85,12 @@ see which record carries it cannot act on it at all.
 - **THEN** the identity MUST be counted ONCE in the identity total
 - **AND** each token MUST still appear in the itemized remainder
 - **AND** the report MUST NOT present the token total as a count of packets
+
+#### Scenario: No identity in the corpus is claimed by two packets
+- **WHEN** the report runs and the resolution rule returns no AMBIGUOUS outcome
+- **THEN** it MUST print the AMBIGUOUS count as zero rather than omit the row
+- **AND** it MUST print the DANGLING count for each half, and the RESOLVED and NOT-A-PACKET-REFERENCE counts, in the same reading
+- **AND** a reader MUST NOT be able to mistake an omitted outcome for a measured zero
 
 ### Requirement: The reported population is derived from a stated recipe
 The report's FILE POPULATION and TOKEN GRAMMAR SHALL be stated in this
