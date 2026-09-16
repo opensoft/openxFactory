@@ -2081,8 +2081,9 @@ movements claimed at the time they land.
   the tick safe: (1) `specs/002-ideation-dashboard/` — four Speckit files
   (evidence, plan, spec, tasks); (2)
   `tests/browser-ui-repair/baselines/ideation-dashboard/brand/codexfactory-linux-chromium-v1/`
-  — seventeen files, a visual-regression baseline corpus (baseline PNG,
-  candidates, dispositions, history, index); (3)
+  — seventeen files, a visual-regression baseline corpus: `baseline.png` and
+  four hash-named candidate PNGs, `index.json` and ten hash-named JSON
+  sidecars, and one `.gitkeep`; (3)
   `scripts/browser_ui_repair/dashboard_adapter.py`; (4) ten documents — two
   `ideation/brainstorm/dashboard-*.md` and eight
   `openspec/changes/add-repo-enrollment/supporting-docs/repo-enrollment-dashboard-deployment-*.md`.
