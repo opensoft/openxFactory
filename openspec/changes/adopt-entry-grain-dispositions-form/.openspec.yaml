@@ -95,7 +95,7 @@ origin:
     table in its own words, and having the ADAPTER call the verifier, which its
     constitutional no-import rule forbids).
     NOTHING IS REALIZED BY THE FILING — no adapter byte, no test, no verifier byte,
-    no pin record, no digest, no contract bundle, no capability. The eight measured
+    no pin record, no digest, no contract bundle, no capability. The ten measured
     entry-grain records the adapter accepts today are still accepted after this
     pull request lands, and stay accepted until a realization on a separate word.
   proposed_on: 2026-09-15
