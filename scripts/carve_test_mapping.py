@@ -256,9 +256,12 @@ def under_surface(path: str, moved_paths: list[str]) -> bool:
     exactly? Segment-aware, so `scripts/ideation_dashboard` does not swallow
     `scripts/ideation_dashboard_old/x.py`.
 
-    The fourth reading of FLOOR PART 1's `in_surface`, and the one predicate
-    here that IS a copy — `validate-carve-manifest.py` is hyphenated and holds
-    the only other one. `tests/carve_test_mapping/` compares the two over every
+    THE SECOND READING of FLOOR PART 1's `in_surface`, and the one predicate
+    here that IS a copy: measured, `scripts/` holds exactly one other
+    (`validate-carve-manifest.py`'s — `verify-carve-arrival.py`'s
+    `under_roots` answers a different question, about a DESTINATION's declared
+    roots), and it is hyphenated and unimportable, which is why the sharing
+    taken for `effective_arrival` and `retired_at` above is unavailable here. `tests/carve_test_mapping/` compares the two over every
     row of the landed manifest and over the adversarial prefix case, the idiom
     `test_both_tools_read_the_effective_arrival_identically` sets.
     """
