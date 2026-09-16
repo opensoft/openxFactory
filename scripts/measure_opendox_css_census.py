@@ -19,6 +19,14 @@ verbatim in behaviour from openDox-code `tests/test_web_boundary.py` (slice S7's
 regex-literal-aware span walk) rather than from a fresh regex, so a token this
 tool says a module names is a token that leg's own suite would see.
 
+THE EXTRACTION READS THE TWO SIDES DIFFERENTLY, and the asymmetry is the whole
+safety argument: the GATE side must be a CLASS-BEARING position (or a
+concatenation prefix), because a stray label equal to a selector token would
+otherwise move an openDox rule to another leg; the openDox side is the BROAD
+scan, because over-including there only KEEPS a rule. `extract_class` is that
+rule and is what decides which blocks leave; `class` and `narrow_class` are
+reported beside it so the difference is visible rather than asserted.
+
 CLASSIFICATION, per class token declared as a real selector in `styles.css`:
   gate_exclusive  named by >=1 of openXdox's six contributed modules and by NO
                   file of openDox's own bundle (app.js, index.html, views/*.js)
@@ -353,16 +361,33 @@ def main() -> int:
         d = sorted(set(namers(token, dox_text)) | set(pd))
         ng = sorted({n for n, s in gate_narrow.items() if token in s} | set(pg))
         nd = sorted({n for n, s in dox_narrow.items() if token in s} | set(pd))
+        # THE EXTRACTION DECISION IS ASYMMETRIC, ON PURPOSE (Copilot review of
+        # openxFactory #1068, round 3). It reads the GATE side NARROW and the
+        # openDox side BROAD, because the two errors are not the same error:
+        # over-including on openDox's side KEEPS a rule, and over-including on
+        # the gate's side MOVES one. A label, route or message string that
+        # happens to equal a selector token must not be able to send an
+        # openDox rule to another leg, so only a CLASS-BEARING position (and a
+        # concatenation prefix) counts as the gate naming a class.
+        #
+        # MEASURED: at openDox-code `0b4e8bbf` / openXdox-code `0a0265f7` this
+        # asymmetric rule and the all-broad one both answer 54 — the finding
+        # has no effect on this tree, and the rule is narrowed anyway because
+        # "it happens not to bite here" is not a guarantee.
         census[token] = {"class": classify(g, d), "gate": g, "opendox": d,
                          "narrow_class": classify(ng, nd),
                          "narrow_gate": ng, "narrow_opendox": nd,
+                         "extract_class": classify(ng, d),
                          "by_concatenation": bool(pg or pd)}
 
     def block_class(b: dict) -> str:
         t = selector_tokens(b["selector"])
         if not t["classes"]:
             return "no_class"
-        kinds = {census[c]["class"] for c in t["classes"] if c in census}
+        # `extract_class`, not `class`: the gate side read NARROW so a stray
+        # literal cannot move an openDox rule, the openDox side read BROAD so
+        # any mention at all keeps one. See the note where it is computed.
+        kinds = {census[c]["extract_class"] for c in t["classes"] if c in census}
         if kinds == {"gate_exclusive"} and not t["ids"]:
             return "exclusive"
         if "gate_exclusive" in kinds or "shared" in kinds:
@@ -377,6 +402,8 @@ def main() -> int:
 
     kinds = ("gate_exclusive", "shared", "opendox_only", "unreferenced")
     counts = {k: sum(1 for v in census.values() if v["class"] == k) for k in kinds}
+    extract_counts = {k: sum(1 for v in census.values() if v["extract_class"] == k)
+                      for k in kinds}
     narrow_counts = {k: sum(1 for v in census.values() if v["narrow_class"] == k)
                      for k in kinds}
     exclusive_blocks = [b for b in rules if b["block_class"] == "exclusive"]
@@ -390,11 +417,12 @@ def main() -> int:
         "gate_modules": [p.name for p in gate_files],
         "opendox_bundle_files": len(dox_files),
         "class_counts_broad": counts,
+        "class_counts_extraction": extract_counts,
         "class_counts_narrow": narrow_counts,
         "narrow_shared": sorted(t for t, v in census.items()
                                 if v["narrow_class"] == "shared"),
         "gate_exclusive": sorted(t for t, v in census.items()
-                                 if v["class"] == "gate_exclusive"),
+                                 if v["extract_class"] == "gate_exclusive"),
         "shared": sorted(t for t, v in census.items() if v["class"] == "shared"),
         "unreferenced": sorted(t for t, v in census.items()
                                if v["class"] == "unreferenced"),

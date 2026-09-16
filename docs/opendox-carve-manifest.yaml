@@ -828,7 +828,16 @@ moved_paths:
 # `scripts/measure_opendox_css_census.py` (IN THIS REPOSITORY, added by this act — a citation a reader cannot open is not a citation, and a pull-request comment is not the diff (Copilot review, round 1). Run it as `python3 scripts/measure_opendox_css_census.py <openDox-code at 0b4e8bbf> <openXdox-code at 0a0265f7>` — the BASE of the leg that applies this window, because at the leg's own head the blocks have already left and it answers 0, which is the extraction working. At the base it prints exactly the figures here: 54 gate-exclusive, 22 shared, 59 blocks, 89 lines. openDox-code's own `tests/test_binding_stylesheets.py` then RE-DERIVES the same set from the six contributed modules wherever an assembly has placed them, and its ORPHAN REGISTER makes the after-state falsifiable with no assembly at all) classifies every class token
 # `styles.css` declares in a selector by which side of the seam names it, and a
 # block leaves only when EVERY class in its selector is named by openXdox's six
-# contributed modules and by no file of openDox's own bundle. At openDox-code
+# contributed modules and by no file of openDox's own bundle — and the two
+# sides of that test are read DIFFERENTLY, which is the whole safety argument
+# (Copilot review, round 3): the GATE side must be a CLASS-BEARING position or
+# a concatenation prefix, because a label or message string that happens to
+# equal a selector token would otherwise send an openDox rule to another leg;
+# the openDox side is the BROAD scan, because over-including there only KEEPS a
+# rule. MEASURED at these two commits, the asymmetric rule and the all-broad
+# one both answer 54 over 59 blocks and 89 lines — the narrowing changes no
+# byte of this act and is made because "it happens not to bite here" is not a
+# guarantee. At openDox-code
 # `0b4e8bbf` / openXdox-code `0a0265f7`: 54 exclusive, 22 shared. The tool
 # reproduces `STYLE_RESIDUE`'s `51 / 24` EXACTLY at `cb343ae8` under its
 # literal-only scan, which is how the `51` is known to have been three short —
