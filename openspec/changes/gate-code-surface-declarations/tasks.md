@@ -206,10 +206,10 @@ RE-MEASUREMENT** — a number that moves every time `main` does and is
 RE-MEASURED rather than assumed each time it moves. `scripts/code_surface.py`'s
 `CLOSED_REGISTER` provenance comment and `scripts/code-surface-register.yaml`'s
 header name them in the same words, so the three records cannot drift apart
-again. As this transcript stands there have been NINE re-measurements
+again. As this transcript stands there have been TEN re-measurements
 (`54885296`, `bfa90db6`, `e6e1c968`, `dd073746`, `92d519b0`, `8944758c`,
-`79ac94b7`, `3c614d34`, `b1df95ee`) and the scenario has FIRED ONCE, at the
-second.
+`79ac94b7`, `3c614d34`, `b1df95ee`, `fa39141c`) and the scenario has FIRED
+ONCE, at the second.
 
 **EVERY FIGURE IN § 3 WAS RE-MEASURED AT THE MAIN HEAD MERGED AT THE FIRST
 RE-MEASUREMENT** — `origin/main` `54885296` — with the § 3.1 reader itself, and
@@ -365,7 +365,7 @@ NOTHING.**
 
 **AND MAIN MOVED AGAIN, THIS TIME WITH AN ARCHIVE IN IT. NINTH
 RE-MEASUREMENT, AT `origin/main` `b1df95ee` — THE MAIN HEAD MERGED AT
-RE-MEASUREMENT AS THIS TRANSCRIPT STANDS** (merged at `48bc7de7`), taken WITH
+THAT RE-MEASUREMENT** (merged at `48bc7de7`), taken WITH
 the merge again. `python3 scripts/validate-code-surface.py .` — **exit 0**,
 *"45 active proposals, 45 declaring — 4 `none`, 33 a repository list, 8 named
 by the register, 0 outside the grammar"*, archive *"169 proposals, 123
@@ -394,6 +394,37 @@ gated above); besides the one `R100` already named, none touches
 sixth exercised once now answers a second time the same way: an ARCHIVING
 packet makes its entry stale only if it has one, and this one, like the
 sixth's, was never registered.
+
+**AND MAIN MOVED AGAIN, THIS TIME WITH TWO FILINGS IN IT. TENTH
+RE-MEASUREMENT, AT `origin/main` `fa39141c` — THE MAIN HEAD MERGED AT
+RE-MEASUREMENT AS THIS TRANSCRIPT STANDS** (merged at `49007dc4`), taken WITH
+the merge again, and THE RE-MEASUREMENT AT WHICH BRETT HEAP'S RULING ON THE
+EIGHTH ENTRY IS RECORDED (§ 3.4 below). `python3
+scripts/validate-code-surface.py .` — **exit 0**, *"47 active proposals, 47
+declaring — 5 `none`, 34 a repository list, 8 named by the register, 0 outside
+the grammar"*, archive *"169 proposals, 123 declaring, 3 of them outside the
+grammar"*. `python3 scripts/validate-scope-globs.py .` — **exit 0**. **THIS IS
+THE FIRST RE-MEASUREMENT SINCE THE SECOND AT WHICH THE ACTIVE CORPUS GREW**,
+and a measurement rather than an inference: `git diff --name-status
+b1df95ee..fa39141c -- 'openspec/changes/*/proposal.md'` is exactly two `A`
+lines and nothing else — no `M`, no `D`, no `R` — which is why 45 active /
+45 declaring / 33 a repository list reads 47 / 47 / 34 and the archive is
+UNMOVED at 169/123/3. `adopt-entry-grain-dispositions-form` (#1050) declares a
+repository list, which is where the 34 comes from;
+`scope-pinned-arm-root-naming` (#1052) declares `none`, which is where the 5
+comes from. **BOTH CONFORM** and NEITHER is one of the eight, so no carrier
+arrived, NO ENTRY WENT STALE (`scan().stale` is `()`, and the CLI's own exit 0
+says the same) and the register stands at EIGHT untouched (8 entries,
+`CLOSED_REGISTER` length 8, equal). Of the 6 commits `main` gained — the two
+filings above, an openDox walked-root admission (#1067), another packet's
+`tasks.md` § 3.4 amendment (#1035), the openDox/openXdox consumer gate (#1059)
+and the `retired:` row-form carve (#1032) — NOT ONE touches
+`gate-code-surface-declarations/`, `code_surface.py` or
+`code-surface-register.yaml`, and the merge resolved **ZERO conflicts**.
+**THE SCENARIO FIRED A NINTH TIME AND AGAIN COST NOTHING** — and this is the
+first firing since the SECOND at which a proposal ARRIVED rather than archived
+or nothing moving at all, which is the very arm that produced the eighth entry:
+it answers differently here only because both arrivals CONFORM.
 
 **TWO PROPOSALS LANDED IN BETWEEN AND NONE ARCHIVED**, which is a measurement
 and not an assumption: `git diff --name-status 54885296..bfa90db6 --
@@ -541,7 +572,8 @@ and is corrected in place where the number is now false.
       RE-MEASUREMENT `54885296`, **AND WITH EIGHT IN THE SAME FOUR CLASSES FROM
       THE SECOND RE-MEASUREMENT `bfa90db6` ONWARD — STILL EIGHT AT `e6e1c968`,
       AT `dd073746`, AT `92d519b0`, AT `8944758c`, AT `79ac94b7`, AT
-      `3c614d34` AND AT `b1df95ee`, THE MAIN HEAD MERGED AT RE-MEASUREMENT**
+      `3c614d34`, AT `b1df95ee` AND AT `fa39141c`, THE MAIN HEAD MERGED AT
+      RE-MEASUREMENT**
       (list-runs-into-prose 5) — the eighth being
       the carrier that arrived in between, disposed of at that re-measurement as
       the § 3 preamble's second re-measurement records and as the requirement's
@@ -608,6 +640,23 @@ and is corrected in place where the number is now false.
       entry — the "second, deliberate, reviewable edit HERE, in the module,
       beside the reason" the baseline's own comment demands, and the remedy the
       refusal itself names.
+      **AND THE EIGHTH IS NOT THIS LANE'S JUDGMENT ALONE: IT IS RULED.** The
+      7→8 growth was put to Brett Heap as a governance note rather than
+      performed on this lane's own reading — the note quotes the four texts
+      that bear on it and states the strongest reading AGAINST keeping the
+      entry (PR #1029, `issuecomment-5662333218`) — and he RULED it in session
+      on 2026-09-16 in a multichoice round, verbatim **"Keep the eighth
+      entry"** (recorded at `issuecomment-5702650701`). The ruling's reasons
+      are the packet's own: D3's ruling line fixes the DISPOSITION and never
+      the count, the scenario *The corpus moves between drafting and landing*
+      orders a new carrier disposed of AT THE LANDING HEAD, and the baseline is
+      "the entries the register holds WHEN the gate lands". **SO THE REGISTER
+      LANDS AT EIGHT ON BRETT HEAP'S WORD AND NOT MERELY ON THIS LANE'S**, and
+      the ruling is recorded in all three records that keep this packet's
+      register facts — this transcript, the entry's own `why:` in
+      `scripts/code-surface-register.yaml`, and `CLOSED_REGISTER`'s provenance
+      comment in `scripts/code_surface.py` — so they cannot drift apart on
+      the ruling either.
 - [x] 3.5 **NARROW `scripts/scope_globs.py`'s `code_surface_repositories`** to
       derive its set from the DECLARED HEAD, through the reader § 3.1 adds, so
       the field has one derivation and not two — **OWED, § 1.4 having ruled D4

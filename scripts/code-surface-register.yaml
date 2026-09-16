@@ -105,9 +105,9 @@ kind: code-surface-grammar-register
 # fourth nor the fifth re-measurement moved a declaration at all. BOTH of the
 # two CONFORM (each is one of the 35), and the
 # `M` is not one of the eight, so NO ENTRY IS STALE and NO ENTRY IS OWED. The scenario fired ONCE, at
-# the second re-measurement; it has cost nothing the SEVEN times since (the
-# sixth, seventh, eighth and ninth below included), which is the shape it is
-# supposed to have when the corpus moves without a divergence in it.
+# the second re-measurement; it has cost nothing the EIGHT times since (the
+# sixth, seventh, eighth, ninth and tenth below included), which is the shape
+# it is supposed to have when the corpus moves without a divergence in it.
 #
 # SIXTH re-measurement, at `origin/main` `8944758c` — THE MAIN HEAD MERGED AT
 # THAT RE-MEASUREMENT (merged at `d4c5a7f9`, measured at `e3a4c051`): 46 active proposals, 46 declaring, 4 `none`, 34 a repository
@@ -141,7 +141,7 @@ kind: code-surface-grammar-register
 # STALE and the population is unmoved at EIGHT.
 #
 # NINTH re-measurement, at `origin/main` `b1df95ee` — THE MAIN HEAD MERGED AT
-# RE-MEASUREMENT as this file stands (merged at `48bc7de7`), taken WITH the
+# THAT RE-MEASUREMENT (merged at `48bc7de7`), taken WITH the
 # merge again: 45 active proposals, 45 declaring, 4 `none`, 33 a repository
 # list, EIGHT named by this register, 0 outside the grammar, with the archive
 # at 169 read / 123 declaring / 3 outside. THE SECOND RE-MEASUREMENT AT WHICH
@@ -152,6 +152,26 @@ kind: code-surface-grammar-register
 # 34, which is where the 33 comes from — and it is NOT one of the eight, so no
 # carrier arrived, NO ENTRY IS STALE and NO ENTRY IS OWED. The population is
 # unmoved at EIGHT.
+#
+# TENTH re-measurement, at `origin/main` `fa39141c` — THE MAIN HEAD MERGED AT
+# RE-MEASUREMENT as this file stands (merged at `49007dc4`), taken WITH the
+# merge again: 47 active proposals, 47 declaring, 5 `none`, 34 a repository
+# list, EIGHT named by this register, 0 outside the grammar, with the archive
+# UNMOVED at 169 read / 123 declaring / 3 outside. THE FIRST RE-MEASUREMENT
+# SINCE THE SECOND AT WHICH THE ACTIVE CORPUS GREW, and a measurement rather
+# than an assumption —
+# `git diff --name-status b1df95ee..fa39141c -- 'openspec/changes/*/proposal.md'`
+# is exactly two `A` lines and nothing else — no `M`, no `D`, no `R`:
+# `adopt-entry-grain-dispositions-form` (#1050), which declares a repository
+# list and is where the 34 comes from, and `scope-pinned-arm-root-naming`
+# (#1052), which declares `none` and is where the 5 comes from. BOTH CONFORM
+# and NEITHER is one of the eight, so no carrier arrived, NO ENTRY IS STALE
+# and NO ENTRY IS OWED. The population is unmoved at EIGHT — and EIGHT is the
+# population this register lands with: RULED 2026-09-16 by Brett Heap, in
+# session (multichoice round), "Keep the eighth entry", on the governance note
+# that put the 7→8 growth to him (PR #1029, `issuecomment-5662333218`; the
+# ruling recorded at `issuecomment-5702650701`). The eighth entry's own `why:`
+# carries the ruling below.
 #
 # Every entry declares:
 #   change       the ACTIVE change directory under `openspec/changes/`
@@ -403,6 +423,11 @@ register:
       why its correction is a judgment: what the packet declares is the four
       artifacts that move, and which repository they belong to is a fact the
       declaration never states.
+
+      RULED 2026-09-16 by Brett Heap, in session (multichoice round): "Keep the
+      eighth entry" — the growth 7→8 before landing is D3's disposition applied
+      at the landing head, not a count the ruling fixed (governance note: PR
+      #1029 issuecomment-5662333218).
     cited_to:
       - >-
         openspec/changes/gate-code-surface-declarations/specs/release-realization/spec.md § Standing code-surface divergence is named in a closed register — scenario *The corpus moves between drafting and landing*

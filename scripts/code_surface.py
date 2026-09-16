@@ -289,17 +289,25 @@ def declaration_digest(text: str) -> str:
 #: carrier and not one of the eight, so nothing went stale); EIGHT at the
 #: SEVENTH, `79ac94b7`, whose line is the sixth's byte for byte and which moved
 #: no declaration at all; EIGHT STILL at the EIGHTH, `3c614d34`, that same line
-#: a third time and again not one declaration moved; and EIGHT STILL at THE
-#: MAIN HEAD MERGED AT RE-MEASUREMENT, `b1df95ee` — the NINTH, the SECOND
-#: re-measurement at which the ACTIVE corpus SHRANK (46 active to 45, archive
-#: 168 to 169: `add-declared-former-id` archived, a CONFORMING carrier and not
-#: one of the eight, so nothing went stale).
+#: a third time and again not one declaration moved; EIGHT STILL at the NINTH,
+#: `b1df95ee`, the SECOND re-measurement at which the ACTIVE corpus SHRANK (46
+#: active to 45, archive 168 to 169: `add-declared-former-id` archived, a
+#: CONFORMING carrier and not one of the eight, so nothing went stale); and
+#: EIGHT STILL at THE MAIN HEAD MERGED AT RE-MEASUREMENT, `fa39141c` — the
+#: TENTH, the FIRST since the second at which the ACTIVE corpus GREW (45 active
+#: to 47, archive unmoved at 169: `adopt-entry-grain-dispositions-form` and
+#: `scope-pinned-arm-root-naming` filed, BOTH CONFORMING and neither one of the
+#: eight, so again nothing went stale).
 #: `encode-wallet-authority-rulings-r6-r12` landed between `54885296` and
 #: `bfa90db6` and declares a head the grammar cannot read, so it is disposed of
 #: AT THAT RE-MEASUREMENT on D3's ruled option — registered, not swept — and
 #: its pair is added HERE, in the same pull request as its register entry,
 #: which is the second deliberate reviewable edit the closure demands and the
-#: one the refusal below names.
+#: one the refusal below names. THAT DISPOSITION IS NOW RULED AND NOT MERELY
+#: REASONED: Brett Heap, in session on 2026-09-16 (multichoice round), ruled
+#: "Keep the eighth entry" on the governance note that put the 7→8 growth to
+#: him, so the pair below STANDS and this baseline lands at EIGHT (PR #1029,
+#: `issuecomment-5662333218` the note, `issuecomment-5702650701` the ruling).
 #:
 #: `bfa90db6` IS NOT THE HEAD THIS GATE LANDS ON, AND IS NOT CLAIMED AS ONE.
 #: It is the re-measurement at which the eighth entry ARRIVED and was DISPOSED
@@ -307,8 +315,8 @@ def declaration_digest(text: str) -> str:
 #: what this comment names — and what `tasks.md` § 3's transcript names with it,
 #: in the same words — is THE MAIN HEAD MERGED AT RE-MEASUREMENT: a number that
 #: moves every time `main` does, and that is RE-MEASURED rather than assumed
-#: each time it moves. It has moved SEVEN times since the eighth entry and the
-#: population has not: the scenario fired once, and cost nothing the seven
+#: each time it moves. It has moved EIGHT times since the eighth entry and the
+#: population has not: the scenario fired once, and cost nothing the eight
 #: times after.
 #: NONE OF THE SEVEN MOVED AT ANY RE-MEASUREMENT: no registered packet archived
 #: and no registered declaration was edited between any two of these heads.
