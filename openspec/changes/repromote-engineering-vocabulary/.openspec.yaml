@@ -31,9 +31,15 @@ origin:
     openxFactory (the map's own split: 71 openDox / 16 openXdox / 15
     openxFactory). They are CARRIED, not authored: lifted from
     `openspec/specs/ideation-dashboard/spec.md` by TITLE by a script, every byte
-    preserved except at the six disclosed sites where a path literal becomes the
-    seam operation that answers for it, and the carry proved by reversing those
-    six edits and asserting byte equality against the promoted text.
+    preserved except at the TWO disclosed sites where a path literal becomes the
+    seam operation that answers for it — both `resolve` — and the carry proved by
+    reversing those two edits and asserting byte equality against the promoted
+    text. THE EDIT COUNT IS ITSELF A FINDING: six path-literal occurrences sit in
+    the fifteen and only two name a question the six-wide seam answers as its
+    requirement states it; the other four are RECORDED NON-EDITS with their
+    reasons in `design.md` § D2, because replacing a literal with prose that names
+    no call would be authoring rather than re-expressing, and `tasks.md` § 4.5
+    carries what would unblock them as a BLOCKED box.
     WHAT IT DOES NOT PROPOSE. No second `## REMOVED` block on
     `ideation-dashboard` — the packet's ratified map is that removal's single
     writer, a sixth writer would be an undeclared sibling collision this box
@@ -59,9 +65,11 @@ origin:
     to match.
     THE DECISIONS MOST WORTH A VETO are D1 (the id itself, derived in a table from
     the packet's own 22 uses of "engineering adapter" and the two landed machine
-    names, with four candidates rejected by reason), D2's edits 5 and 6 (the two
-    of the six path literals whose sites name NO adapter call, because no read or
-    write happens at those words — disclosed rather than dressed up as calls), D3
+    names, with four candidates rejected by reason), D2's NARROWING (the carry keeps
+    only the two path-literal edits the seam answers for, and records the other
+    four as non-edits with the operation each would have needed — a narrowing
+    taken after an automated review contested the wider reading and was right
+    against the interface's own text), D3
     (no second `## REMOVED` block) and D4 (this packet archives BEFORE the split
     packet, so the fifteen are never in no capability at all).
   proposed_on: 2026-09-16

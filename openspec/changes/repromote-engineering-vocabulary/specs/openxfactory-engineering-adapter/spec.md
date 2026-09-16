@@ -15,7 +15,9 @@ by hand, and carries every byte of its promoted text except at the TWO sites
 for it. The other FOUR path-literal occurrences in the fifteen are RECORDED NON-EDITS,
 each with its reason: no operation of the six-wide seam answers the question its
 requirement asks at those words, and replacing a literal with prose that names no call
-would be authoring rather than re-expressing. Titles are therefore character-for-character identical to the promoted spec — the
+would be authoring rather than re-expressing.
+
+Titles are therefore character-for-character identical to the promoted spec — the
 same discipline the packet's own removal block states for the same reason:
 `scripts/doc_health/promotion_fidelity.py` keys on (capability, normalized title), so
 the successor is a DISTINCT key, this re-promotion masks nothing, and the packet's

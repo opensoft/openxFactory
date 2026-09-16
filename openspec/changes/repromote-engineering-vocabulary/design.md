@@ -69,7 +69,11 @@ subject: `medxchart-overlay-boundary`, `medxpractice-overlay-boundary`, `omnigen
 
 `tasks.md` § 5.2a: *"The only edit they take is re-expressing path literals as `adapter calls` — one
 of RULING OQ-1's three classes, by name."* So the census comes first, and it is complete: of the 49
-distinct backticked tokens in the fifteen, SEVEN are path-shaped, occurring in four requirements.
+distinct backticked tokens in the fifteen, SEVEN are candidates — and only FOUR of the seven are
+path literals, in four requirements, at SIX occurrences. The other three are classified out below
+with their reasons (`proposal.md` is a document's identity, `OPENXFACTORY_ROOT` an operator
+override's name, `main` a git ref), and they are named rather than dropped so the census can be
+checked against the tree.
 
 **NARROWED AFTER MEASUREMENT, AND THE NARROWING IS THE POINT.** This packet first re-expressed six
 occurrences. An automated review contested two of them and, separately and more sharply, the
