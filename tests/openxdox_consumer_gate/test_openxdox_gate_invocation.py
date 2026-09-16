@@ -94,6 +94,7 @@ def normalized_run(run: str) -> str:
     """
     return " ".join(run.replace("\\\n", " ").split())
 
+
 OPENXDOX_PIN_RUN = "python3 scripts/verify-openxdox-pin.py"
 OPENDOX_PIN_RUN = "python3 scripts/verify-opendox-pin.py"
 SCOPED_INIT_RUN = "git submodule update --init --recursive openDox openXdox"
