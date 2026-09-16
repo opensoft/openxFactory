@@ -87,10 +87,13 @@ ITS MATERIAL.** Who operates the install remains a per-install execution binding
 under the vault-operator requirement this capability already carries; an
 operator-executed install MAY drive the manifest flow on the tenant's behalf, the
 identity it obtains being the tenant's either way; and a pair already in service
-that was created without a manifest is NOT retroactively refused by this clause.
+that was created without a manifest is NOT retroactively refused — not by this
+clause and not by ANY of the provisioning clauses below, all of which bind the
+act of provisioning through a manifest and none of which is a finding against a
+pair that predates the shape.
 
-**THE PAIR IS PROVISIONED ONCE PER TENANT AND SHALL NOT BE SHARED ACROSS
-TENANTS.** One tenant's pair SHALL NOT be reused, copied, or re-scoped to reach
+**A PAIR PROVISIONED UNDER THESE CLAUSES IS PROVISIONED ONCE PER TENANT AND SHALL
+NOT BE SHARED ACROSS TENANTS.** One such pair SHALL NOT be reused, copied, or re-scoped to reach
 another tenant's repositories, because a shared identity makes the separation
 per-estate rather than per-tenant and puts one tenant's dispatch surface one
 misconfiguration away from another tenant's contents. Where the provider's naming
@@ -106,8 +109,9 @@ identifier — is the install's to choose and is not fixed here; what is fixed i
 that the chosen grain must be unique where the provider's namespace is.
 
 **THE DISPATCH IDENTITY'S REACH IS THE ONE REPOSITORY THAT OWNS THE APPLY
-WORKFLOW, AND THAT REPOSITORY IS PART OF THE PROVISIONING.** Provisioning SHALL
-name the single repository the dispatch identity may trigger and SHALL NOT place
+WORKFLOW, AND THAT REPOSITORY IS PART OF THE PROVISIONING.** Provisioning under
+these clauses SHALL name the single repository the dispatch identity may trigger,
+and SHALL NOT place
 that workflow in a repository holding governed content. The defect is the
 TARGET'S PROPERTY and not its count: the identity still names exactly one
 repository, but a trigger on a content-bearing one puts the zero-write-authority
