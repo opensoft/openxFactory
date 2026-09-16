@@ -99,6 +99,16 @@ lives only in code cannot be reproduced by hand and therefore cannot be checked.
 Two readings taken by different recipes are not comparable, and this capability
 exists to produce a SERIES.
 
+AND THE POPULATION SHALL BE REPORTED AS TWO NUMBERS, NEVER ONE. A report that
+skips entries it counted has two different populations — the tracked ENTRIES the
+exclusions leave, and the FILES it actually read and tokenized — and a single
+"files in scope" figure is ambiguous between them by exactly the number of
+entries skipped. The report SHALL state BOTH, labelled, and SHALL NOT present
+either as the other; a reader reproducing a published figure can then tell which
+one they are reproducing, and an implementation that skips a different set of
+entries is visible in the gap between them rather than hidden inside one
+number.
+
 A TRACKED ENTRY THAT IS NOT A FILE SHALL BE SKIPPED AND SHALL CONTRIBUTE NO
 TOKEN. A repository's tracked-entry listing names submodule links as well as
 files; a link is a directory, it has no text, and counting one as an unreadable
@@ -180,6 +190,11 @@ reason; requiring all of them switches the flag off precisely where a citation
 is spelled several ways, which is the case the flag exists for.
 A READING THAT APPLIED A DIFFERENT CHOICE SHALL NOT BE PRESENTED AS A LATER
 POINT IN THE SAME SERIES.
+
+#### Scenario: Some tracked entries in scope are not files
+- **WHEN** the population's exclusions leave tracked entries that the report skips because they are not files it can read
+- **THEN** the report MUST state the number of tracked ENTRIES in scope and the number of FILES it read, separately and labelled
+- **AND** it MUST NOT report either number as the other
 
 #### Scenario: A tracked entry is a link whose target leaves the tree
 - **WHEN** a tracked entry is a symbolic link whose target, once resolved, stands outside the repository root

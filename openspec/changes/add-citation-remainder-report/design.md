@@ -63,6 +63,18 @@ extracted from each file's text (**586** distinct), and each resolved through
 | **inclusive remainder** | **81**, carried by **65** distinct citing files |
 | tokens with no raw path in the tree | **162**, of which the rule REPAIRS **76** |
 
+**AND "IN SCOPE" MEANS TRACKED ENTRIES, NOT FILES READ — THE TWO DIFFER BY
+FOUR AND THE PACKET SAYS WHICH IT MEANS.** The `2,973` above is what the
+`git ls-files` listing leaves after the three exclusions: tracked ENTRIES. Four
+of them are skipped as non-files (below), so the report READS **2,969** files
+and tokenizes those. Every "files in scope" figure in this packet, in
+`.openspec.yaml`, in `README.md` and in `tasks.md` § 1.1, is the ENTRY count,
+and the read count is four fewer at every revision named here — the gitlink
+count has been 4 at `b1df95ee`, at `origin/main` and at this branch's head. The
+spec's population requirement now makes the pair NORMATIVE rather than leaving a
+CLI to pick one: a report states both, labelled, and presents neither as the
+other (PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jEUvn`).
+
 **NO FILE IN THE POPULATION IS BINARY, AND THE FOUR ENTRIES THAT CANNOT BE READ
 AS TEXT ARE NOT FILES.** Four of the 2,973 `git ls-files` entries in scope are
 mode-160000 SUBMODULE GITLINKS — `installs/omnigent-install`, `openDox`,
