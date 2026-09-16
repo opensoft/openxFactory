@@ -690,9 +690,18 @@ many of them does a machine get to assert?
 **RECOMMENDED — OPTION 1: A SMALL MECHANICAL SET, AND AN HONEST `unclassified`
 FOR EVERYTHING ELSE.**
 
+**AND A CLASS AND A FLAG ARE DIFFERENT THINGS HERE, SAID ONCE SO THE TWO TABLES
+BELOW READ THE SAME WAY.** A CLASS is what the report ASSERTS about an entry and
+is counted in the class totals D6's series is read from. A FLAG is what the
+report SUSPECTS, carried in its own `--json` field beside `class` (D2's output
+model) and never folded into a class count. `possibly-cross-repo` is a FLAG on
+that split, not a class, everywhere in this packet: the entry keeps whatever
+class its own evidence supports — usually `unclassified` — and carries the
+suspicion alongside.
+
 | #1053's class | report's verdict | why |
 | --- | --- | --- |
-| cross-repository (adjacency-missed) | **MECHANICAL, as a SUSPICION** — `possibly-cross-repo` | D3(c): the window is stated, the hit is flagged, the token stays in the count |
+| cross-repository (adjacency-missed) | **MECHANICAL, but a FLAG and NEVER a class** — `possibly-cross-repo` | D3(c): the window is stated, the hit is FLAGGED, the token stays in the count — and the flag sits in its own `--json` field beside `class`, so a suspicion is never counted as a classification |
 | pure tokenization artifact | **MECHANICAL** — `truncated` / `punctuation-stripped` | D3(b): the tool knows what it did to the token, and three sub-probes catch 4 of 4 with ZERO false positives — where #1053's hand read found 1 of the 4 |
 | DANGLING file-half, nested test fixture | **MECHANICAL** — `fixture-path` | the citing file's own path is under a `tests/` directory nested below the top-level exclusion; that is a path fact |
 | synthetic fixture id under `examples/` or `ideation/dashboard/gate-records/` | **MECHANICAL** — `fixture-path` | same: the CITING file's location is knowable |
@@ -753,7 +762,8 @@ and several of the 81 are deliberately dangling by their own file's design.
 `git log` miss and "illustrative example" from a filename would assert intent it
 cannot see, and every wrong guess becomes a number in D6's stability series.
 *OPTION 3 — classify nothing, print the raw list.* Cost: it hands the reader the
-same 81 lines the issue already has, and the four mechanical classes are exactly
+same 81 lines the issue already has, and the asserted classes — `truncated`,
+`punctuation-stripped`, `fixture-path` and the free `half == file` — are exactly
 the ones a human should never have to re-derive.
 
 ## D5 — RECOMMENDED: artifact-only, and the reason is not merely merge conflicts

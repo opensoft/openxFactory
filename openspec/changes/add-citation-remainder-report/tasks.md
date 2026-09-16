@@ -199,10 +199,16 @@ OPEN.**
       silently (cost: an unauditable window sets the headline number); against
       counting it unflagged (cost: the largest known class hides inside a
       number that reads as a defect count).
-- [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: four MECHANICAL
-      classes (`possibly-cross-repo`, `truncated`, `punctuation-stripped`,
-      `fixture-path`) and an honest `unclassified` for the five that need a
-      reading of INTENT. Against mechanizing all nine (cost: a machine
+- [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
+      ASSERTS are the three the tool can evidence from a path or from its own
+      normalization — `truncated`, `punctuation-stripped`, `fixture-path` — plus
+      `half == file`, which is free, being `Resolution.half`; and
+      `possibly-cross-repo` ships BESIDE them as an ADVISORY FLAG and NEVER as a
+      class, measured at 13 of 14 caught with 2 false positives among the other
+      43, which is a reason for a reader to look rather than a verdict. The
+      `--json` object carries `class` and every flag as SEPARATE fields (D2), so
+      a suspicion never enters a class count and D6's series never counts one.
+      And an honest `unclassified` for the five that need a reading of INTENT. Against mechanizing all nine (cost: a machine
       asserting "never existed" from a `git log` miss puts a wrong guess into
       D6's series); against classifying nothing (cost: hands the reader the
       list they already have). **And the rule that governs all nine: NOTHING IS
