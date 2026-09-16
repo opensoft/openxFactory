@@ -2464,7 +2464,7 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
 # Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `5628560136`).
 #
 # WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion
-# `(2406, 176)` would still pass if any of these 782 lines had landed on the
+# `(2454, 176)` would still pass if any of these 782 lines had landed on the
 # wrong row, under the wrong class, or as a different set summing to the same
 # total — which is the reason every slice since ASK-7 has pinned its own window
 # by row and class. S7 edits 33 rows where S5 edited 11, so the pins are a TABLE
@@ -2722,8 +2722,13 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     The two rows the ruling names, read out of the real document: a moved row
     that is ALSO replicated at `openxdox_code`, and a replica row declaring the
-    one line its copies must differ on. The manifest is REQUIRED and not
-    branched on: see `the_landed_manifest()`.
+    lines its copies may differ on. That replica row declares TWO since the
+    pre-existing `openxdox_code` annotation (`#656` CLAIM `5656688910`) — Q-L7
+    (a)'s own `:25` depth constant and openXdox-code#14's `:271` § 4.4 fixture
+    — and the assertion below pins both, in order, with their classes: `edits:`
+    is a field of a ROW, so each is permitted at EVERY replica of this file and
+    obligatory at none. The manifest is REQUIRED and not branched on: see
+    `the_landed_manifest()`.
 
     Also carries RULED Q-L1's own per-row contract for the two rows S2 (RULED
     Q5, `#656` comment 5642758731) annotated, added on Copilot review of PR
@@ -2742,8 +2747,15 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     replica = rows["tests/ideation-dashboard/conftest.py"]
     assert replica["disposition"] == "not_moved", replica
     assert replica["reason"] == MODULE.REPLICA_REASON, replica
+    # The SECOND entry comes from the pre-existing `openxdox_code` annotation
+    # (`#656` CLAIM `5656688910`): openXdox-code#14 appends a 27-line § 4.4
+    # pytest fixture beside this file's LAST carve line, and an insertion at
+    # the end of a file has ONE neighbour. A replica has no row of its own, so the
+    # declaration is row-wide and openDox-code's copy simply does not take it
+    # (measured at `05bbde80`: 271 lines, the `:25` depth fix and nothing
+    # else) — a permission, never an obligation.
     assert [(edit["class"], edit["lines"]) for edit in replica["edits"]] == \
-        [("path constants", [25])], replica
+        [("path constants", [25]), ("adapter calls", [271])], replica
 
     # The ruling's own pairing: the replica IMPORTS the moved row's module
     # unconditionally, which is why one amendment carries both.
@@ -2942,7 +2954,27 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # and nothing would have said so until a phase-B run at a tree carrying
     # every other slice's declarations too.
     #
-    assert (lines, carrying) == (2406, 176), (lines, carrying)
+    # AND THEN THE PRE-EXISTING `openxdox_code` ANNOTATION (`#656` CLAIM
+    # `5656688910`) moved the LINE figure alone. It is not a § 3.4 slice's
+    # annotation, and not the FIRST act on this document that is not one —
+    # the ASK-7 declared-edit window (`#656` comment `5635150678`, PR #995) is
+    # earlier, and the runbook's § 2 history records it. It differs from that
+    # one in what it declares: ASK-7's four lines were RULED to be left and
+    # fixed "at the next declared-edit window", so they were owed to someone
+    # from the day of the ruling; these were scheduled by no ruling at all:
+    # openXdox-code#14 (`3840c167`) and #16
+    # (`17384c07`) landed RULING C2's § 4.4 work at the destination BEFORE
+    # Q-L1's pairing became general (`#656` comment `5642758731`,
+    # 2026-09-12 02:07Z), so no slice ever owned their edits, and openxFactory
+    # #1023 § 5 listed them as `openxdox_code`'s remaining refusals rather than
+    # absorbing them. Four rows are declared — `gate_console.py` (26 lines),
+    # `generator.py` (17, split into the two acts that made them),
+    # `test_generator.py` (4) and the conftest REPLICA (:271, the fourth and
+    # the one #1023 could not see, because `--allow-created` had been used
+    # where the runbook's `--replica-at` belongs and that suppresses the
+    # replica's own line check). All four carried `edits:` already, so the
+    # carrier count does not move: 2406 + 48 = 2454 on the same 176 rows.
+    assert (lines, carrying) == (2454, 176), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -2965,7 +2997,7 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
     # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
-    # the aggregate `(2406, 176)` would still pass if these forty lines had
+    # the aggregate `(2454, 176)` would still pass if these forty lines had
     # landed on the wrong rows, under the wrong class, or as a different forty
     # that summed the same. Every one is `path constants` (a path literal
     # naming a location the destination does not have — this manifest's own
@@ -3200,12 +3232,81 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
           596, 601, 609]),
     ], swb_session_row
 
+    # THE PRE-EXISTING `openxdox_code` ANNOTATION, PINNED THE SAME WAY (`#656`
+    # CLAIM `5656688910`) — on the same reasoning as every pin above: the
+    # aggregate would still pass if these 48 lines had landed on the wrong
+    # rows, under the wrong class, or split across a different set of counts
+    # summing to 48. Each row carried `edits:` before this act, so every new
+    # entry is picked out by its exact lines, the idiom the S3/S4/S6 pins use.
+    # The conftest replica's entry is pinned with the rest of its row above.
+    gate_console_row = rows["scripts/ideation_dashboard/gate_console.py"]
+    # DISPOSITION AND DESTINATION PINNED TOO, on all three rows (Copilot
+    # review, round 8). The `(class, lines)` assertions below would stay green
+    # through a re-destination: `destination:` is the field
+    # `verify-carve-arrival.py --destination openxdox_code` reads to decide
+    # whether a row is its business at all, so a row re-destined to
+    # `opendox_code` would carry these declarations to the OTHER leg with
+    # every line still where this test looks for it — and `disposition:`
+    # is what makes `edits:` legal on the row in the first place. Same form
+    # as the S2 pins (`dispose.js`, `wheel.js`) above.
+    assert gate_console_row["disposition"] == "moved_with_declared_edit", \
+        gate_console_row
+    assert gate_console_row["destination"] == "openxdox_code", gate_console_row
+    preexisting_gate_console_adapters = [
+        167, 168, 169, 170, 171, 826, 903, 968, 1012, 1135, 1150, 1151, 1154,
+        1155, 1157, 1339, 1351, 1374, 1487, 1550, 1551, 1569, 1651, 2241]
+    assert len(preexisting_gate_console_adapters) == 24, \
+        preexisting_gate_console_adapters
+    preexisting_gate_console = [
+        (edit["class"], edit["lines"]) for edit in gate_console_row["edits"]
+        if edit["lines"] in ([64, 65], preexisting_gate_console_adapters)]
+    assert preexisting_gate_console == [
+        # `from . import domain_profile`, inserted between :64 and :65 — BOTH
+        # neighbours named, which is the form every insertion slice S5
+        # declared at this destination already takes.
+        ("import rewrites", [64, 65]),
+        ("adapter calls", preexisting_gate_console_adapters),
+    ], gate_console_row
+
+    generator_row = rows["scripts/ideation_dashboard/generator.py"]
+    assert generator_row["disposition"] == "moved_with_declared_edit", \
+        generator_row
+    assert generator_row["destination"] == "openxdox_code", generator_row
+    preexisting_generator = [
+        (edit["class"], edit["lines"]) for edit in generator_row["edits"]
+        if edit["lines"] in ([326, 327, 348, 366, 891, 892, 893],
+                             [76, 77, 78, 79, 80, 81, 438, 439, 456, 459])]
+    assert preexisting_generator == [
+        # TWO entries on one row, because they are two acts by two pull
+        # requests: openXdox-code#14's two resolvers and their three call
+        # sites, then #16's exclusion-check vocabulary. One entry, one commit.
+        ("adapter calls", [326, 327, 348, 366, 891, 892, 893]),
+        ("adapter calls", [76, 77, 78, 79, 80, 81, 438, 439, 456, 459]),
+    ], generator_row
+
+    test_generator_row = rows["tests/ideation-dashboard/test_generator.py"]
+    assert test_generator_row["disposition"] == "moved_with_declared_edit", \
+        test_generator_row
+    assert test_generator_row["destination"] == "openxdox_code", \
+        test_generator_row
+    preexisting_test_generator = [
+        (edit["class"], edit["lines"]) for edit in test_generator_row["edits"]
+        if edit["lines"] in ([7, 8], [352, 353])]
+    assert preexisting_test_generator == [
+        # `from types import SimpleNamespace` is an insertion of NOTHING BUT an
+        # import statement; the 76-line block beside :352/:353 is the new
+        # tests, four of whose lines are function-local imports — the class of
+        # an insertion is what the insertion IS.
+        ("import rewrites", [7, 8]),
+        ("adapter calls", [352, 353]),
+    ], test_generator_row
+
 
 def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None:
     """The § 3.4 slice-S7 window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
-    AGGREGATE `(2406, 176)`, and that pair would stay green if any of these 782
+    AGGREGATE `(2454, 176)`, and that pair would stay green if any of these 782
     lines had landed on the wrong row, under the wrong one of RULING OQ-1's
     three classes, or as a different set summing to the same total — which is
     why every slice since ASK-7 pins its own window. S7 edits THIRTY-THREE rows
@@ -3327,9 +3428,11 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     # 1584 + 782 = 2366 and 159 + 17 = 176 — THE AGGREGATE AS SLICE S7 LANDED
     # IT, which is what a window total is: a DELTA against the document the
     # act found, and so a figure a later slice cannot move. The carrying half
-    # is still the amendment test's own figure, because slice S8 (openxFactory
-    # #1025) added no carrier; the line half is not — S8's forty carry it to
-    # 2406, and that test re-derives it rather than reading it here.
+    # is still the amendment test's own figure, because neither slice S8
+    # (openxFactory #1025) nor the pre-existing `openxdox_code` annotation
+    # (#1031) added a carrier; the line half is not — S8's forty carry it to
+    # 2406 and that annotation's forty-eight to 2454, and that test
+    # re-derives it rather than reading it here.
     assert 1584 + lines == 2366, lines
     assert 159 + len(S7_CONVERTED) == 176, len(S7_CONVERTED)
 
