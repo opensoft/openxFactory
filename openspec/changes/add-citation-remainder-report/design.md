@@ -156,24 +156,45 @@ against M4 and PR #1041.
 **THREE FACTS THIS RE-MEASUREMENT FOUND THAT #1053 DOES NOT CARRY.** Each moves
 a decision below rather than decorating it.
 
-**(i) 74 remainder TOKENS are 48 distinct IDENTITIES.** Eighteen identities are
-cited by more than one remainder token:
+**(i) THE 74 IDENTITY-HALF TOKENS ARE 48 DISTINCT IDENTITIES, AND ALL 81
+REMAINDER TOKENS ARE 53 — TWO FIGURES, BOTH PRINTED, BECAUSE THEY ANSWER
+DIFFERENT QUESTIONS.** The 74 is `DANGLING`(identity-half) ALONE, and 48 is what
+it collapses onto; the sentence must say which half it counts, because the other
+7 remainder tokens are `DANGLING`(file-half) and those DID resolve their packet —
+their identity half succeeded and only the file under it is missing — so they
+carry identities too. Those are **5** more, and measured, they are DISJOINT from
+the 48. **Under the spec's own definition** — *"a remainder IDENTITY is one
+packet id that at least one remainder token addresses"* — the remainder identity
+total over all 81 tokens is therefore **53 = 48 + 5**, and the 48 is the
+identity-half reading of it. Eighteen of the 48 are cited by more than one
+identity-half token; twenty of the 53 by more than one remainder token of either
+half:
 
-| identity | remainder tokens |
-| --- | ---: |
-| `add-council-clearance-rule-template` | 6 |
-| `add-openxfactory-tui-installer` | 4 |
-| `add-pre-archive-citation-gate` | 3 |
-| `foo` | 3 |
-| twelve more (`add-x`, `change-x`, `neg-neg-lin`, `add-demo-capability`, `2026-09-09-foo`, `add-assembly-plane-separation`, `add-ideation-governance`, `add-managed-service-inventory`, `add-managed-service-mapping`, `add-regular-pr-council-clearance`, `add-tenant-reader-grant-pipeline`, `clarify-gate-rules-decline-position`, `prepare-openspec-1.12-readiness`, `relocate-review-authority-floor`) | 2 each |
+| identity | remainder tokens | half |
+| --- | ---: | --- |
+| `add-council-clearance-rule-template` | 6 | identity |
+| `add-openxfactory-tui-installer` | 4 | identity |
+| `add-pre-archive-citation-gate` | 3 | identity |
+| `foo` | 3 | identity |
+| fourteen more (`2026-09-09-foo`, `add-assembly-plane-separation`, `add-demo-capability`, `add-ideation-governance`, `add-managed-service-inventory`, `add-managed-service-mapping`, `add-regular-pr-council-clearance`, `add-tenant-reader-grant-pipeline`, `add-x`, `change-x`, `clarify-gate-rules-decline-position`, `neg-neg-lin`, `prepare-openspec-1.12-readiness`, `relocate-review-authority-floor`) | 2 each | identity |
+| `extend-merge-master-envelope-to-floor-bot-lanes`, `register-gate-rules-council-seats` | 2 each | file |
+
+The five file-half identities are `define-avatar-client-contract-kernel`,
+`disposition-codexfactory-floor-relocation-retitle`,
+`extend-merge-master-envelope-to-floor-bot-lanes`,
+`qualify-avatar-brokered-call-feasibility` and
+`register-gate-rules-council-seats`.
 
 Fifteen of the 81 tokens are a bare directory path ending in `/` whose sibling
 token names the same identity without the slash. This is why D3 requires BOTH
 counts: **a reader repairs identities, and the token count tells them nothing
 about how much work that is.** That 48 equals #1053's hand-read "about 48" is a
 COINCIDENCE OF TWO DIFFERENT QUANTITIES — #1053's 48 is 59 survivors minus
-cross-repository misses and artifacts, and this 48 is 74 tokens collapsed onto
-their identities. Recorded as a coincidence, never as a confirmation.
+cross-repository misses and artifacts, and this 48 is 74 identity-half tokens
+collapsed onto their identities. Recorded as a coincidence, never as a
+confirmation; and the coincidence is one more reason the packet prints the scope
+of every identity count it states, because the inclusive figure, 53, collides
+with nothing.
 
 **(ii) The token grammar manufactures remainder, in at least four shapes.**
 #1053 names one (Python implicit string concatenation). Measured across the 81:
@@ -777,9 +798,9 @@ proposed as a number to be vetoed rather than derived.
    number of remainder identities that were NOT in the remainder N runs earlier
    is at most a small number (proposed: 3), and each one is attributable to a
    landed pull request the report's own diff can name. *Rationale:* a gate reds
-   on ARRIVALS, not on the standing population; a standing 48 that never moves
-   costs a gate nothing, while three unexplained arrivals a week is what a gate
-   is for.
+   on ARRIVALS, not on the standing population; a standing 53 (D0(i)'s inclusive
+   remainder identity count) that never moves costs a gate nothing, while three
+   unexplained arrivals a week is what a gate is for.
 3. **THE MECHANICAL CLASSES ARE STABLE AT ZERO NET.** `truncated`,
    `punctuation-stripped` and `fixture-path` do not grow, because those are the
    classes a gate would red on that NOBODY SHOULD FIX — they are artifacts of
