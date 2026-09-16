@@ -354,15 +354,17 @@ on one fact, one either side of the runbook — and the roots cell is now
 compared with `declared_roots(rows_for(...))`, the walk each leg's arrival run
 actually performs.
 
-A row RE-DESTINED by ruling still counts at the `destination:` it declares,
-which is why a leg's arrival run reports FOUR fewer arrived rows than this
-table's count for `opendox_code` (119) and four fewer declared-edit rows (84),
-and why `openxdox_code`'s run reports four MORE of each — 96 arrived rows where
-this table says 92: the ruling moved the placement, not the row. What a run
-PRINTS as `declared-edit row(s) within their lines` is a third count again —
-the rows that arrived CARRYING the edit — so the `unapplied` rows and the
-declared replicas each move it away from this column, and § 5.5 is where that
-line is read.
+A row RE-DESTINED by ruling still counts at the `destination:` it declares, so
+this table and a leg's arrival run count different sets — by exactly those four
+rows. In ARRIVED ROWS, the first figure a run prints, `opendox_code` reports
+FOUR FEWER than this table's count, 119 against 123, and `openxdox_code` FOUR
+MORE, 96 against 92: the ruling moved the placement, not the row. All four
+carry `edits:`, so they take the `verbatim / edited` split and the declared
+edit lines with them, and the EFFECTIVE edited counts are 84 and 87 against
+this table's 88 and 83. What a run PRINTS as `declared-edit row(s) within their
+lines` is a THIRD count again — the rows that arrived CARRYING the edit, so the
+`unapplied` rows and the declared replicas each move it — and § 5.5 is where
+that line is read, against the phase-B example's own four figures.
 
 The declared-roots column is spelled **exactly as a run prints it** — no
 trailing slash — because an operator's first act after a leg lands is to read
