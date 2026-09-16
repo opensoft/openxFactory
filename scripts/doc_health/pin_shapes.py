@@ -73,10 +73,10 @@ _SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")        # verify-openxwallet-pin.py
 _VERSION_RE = re.compile(                            # validate-openspec-cli-pin.py:379
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
-_INTEGRITY_RE = re.compile(r"^sha512-[A-Za-z0-9+/]+={0,2}$")   # :375
-_SHA1_RE = re.compile(r"^[0-9a-fA-F]{40}$")                    # :376
-_PACKAGE_RE = re.compile(r"^(?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*$")   # :377
-_LOCKFILE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.json$")  # :671
+_INTEGRITY_RE = re.compile(r"^sha512-[A-Za-z0-9+/]+={0,2}$")   # :382
+_SHA1_RE = re.compile(r"^[0-9a-fA-F]{40}$")                    # :383
+_PACKAGE_RE = re.compile(r"^(?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*$")   # :384
+_LOCKFILE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.json$")  # :678
 
 #: The digest kinds a published-artifact pin may declare as its referent
 #: (`validate-openspec-cli-pin.py:389`).

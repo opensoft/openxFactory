@@ -372,7 +372,15 @@ _SCENARIO_SUBJECT = None
 # newly asserted is the departure — the block must be absent from the ACTIVE
 # corpus — because a test that read only the archive would pass just as well if
 # the packet had never moved.
-_DISCHARGED_BLOCK_DELTA = (
+#
+# NAMED FOR THE DEPARTURE, NOT FOR A DISCHARGE, and the two are different events.
+# `_DISCHARGED_SCENARIO_SUBJECT` below keeps its older name correctly: what was
+# discharged is the FINDING, by the `Merged into` marker declared on 2026-08-27,
+# which is true whether or not this packet ever moved. THIS constant names the
+# path of a delta that LEFT WITHOUT PROMOTING — RULING Q6 forbids its blocks
+# promoting here — so calling it "discharged" would invite the one reading this
+# whole closure exists to refuse: that the delta reached canon.
+_DEPARTED_BLOCK_DELTA = (
     "openspec/changes/archive/2026-09-16-add-composed-view-authoring/"
     "specs/ideation-dashboard/spec.md")
 
@@ -430,7 +438,7 @@ _LEDGER_SUBJECTS = {
     # delta to canon, so the row leaves this ledger because `active_blocks` no
     # longer reads the block — not because the block's obligation was carried.
     # The block itself is unchanged and still readable at
-    # `_DISCHARGED_BLOCK_DELTA`, where the scenario-arm test now reads it.
+    # `_DEPARTED_BLOCK_DELTA`, where the scenario-arm test now reads it.
     ("add-doxchat-model-intake", "ideation-dashboard",
      "doxBench model catalog and provider boundary"),
     # ADDED 2026-08-28 BY `add-credential-escrow-checkout`, when Brett VETOED
@@ -1291,6 +1299,21 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     # re-homed, so its block must be absent from the ACTIVE corpus. Asserting
     # this before reading the archive is what stops the archive read from
     # passing on a tree where the packet never moved.
+    # THE PATH FIRST, because `active_blocks()` CANNOT prove this on its own: it
+    # yields nothing for a packet whose delta file is missing, and nothing for a
+    # dangling symlink at `openspec/changes/<change>`, so `not live` alone would
+    # read a half-deleted or symlinked tree as a clean departure. Same guard, and
+    # for the same reason, as `_departed_since_the_capture()` in
+    # `tests/openspec_cli_pin/` — absence means ABSENT, not "not a directory":
+    # `exists()` answers for what a symlink POINTS AT, so `is_symlink()` is asked
+    # beside it to catch the dangling link that exists as a tree entry while
+    # `exists()` says no.
+    active = ROOT / "openspec" / "changes" / change
+    assert not active.exists() and not active.is_symlink(), _moved(
+        f"the active packet {active.relative_to(ROOT)} GONE from the tree "
+        "(closed as re-homed to opensoft/openDox on 2026-09-16 under RULING Q6)",
+        "it still stands, so the block below proves nothing about a departure")
+
     live = [b for b in mbc.active_blocks(ROOT)
             if (b.change, b.capability, mbc.norm(b.title))
             == (change, capability, mbc.norm(requirement))]
@@ -1305,9 +1328,9 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     # (capability, requirement) pair the finding used to carry, and it must hold
     # a `Merged into` marker naming canon's title and pointing at the
     # destination the block does carry.
-    archived = ROOT / _DISCHARGED_BLOCK_DELTA
+    archived = ROOT / _DEPARTED_BLOCK_DELTA
     assert archived.is_file(), _moved(
-        f"the archived delta {_DISCHARGED_BLOCK_DELTA}",
+        f"the archived delta {_DEPARTED_BLOCK_DELTA}",
         "no such file — the closure moved or was reverted")
     requirements, _renames = mbc.parse_delta(
         archived.read_text(encoding="utf-8", errors="replace"))
