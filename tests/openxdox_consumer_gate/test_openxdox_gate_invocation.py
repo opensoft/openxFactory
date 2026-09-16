@@ -468,6 +468,29 @@ def test_no_suite_invocation_swallows_its_own_exit_code(
         assert "||" not in invocation and "; true" not in invocation
 
 
+def test_nothing_here_continues_on_error(gate_job: dict,
+                                         steps: list[dict]) -> None:
+    """`continue-on-error: true` is `|| true` spelled in YAML, and worse.
+
+    A shell swallow at least leaves the step red-able by the next command;
+    this flag marks a NON-ZERO EXIT SUCCESSFUL. On a pin verifier it would
+    ignore a named refusal; on an assertion step it would ignore the whole
+    anti-vacuity layer while the check still reported green. Neither the job
+    nor any step may carry it — and the assertion is over EVERY step rather
+    than a list of the critical ones, because the list would be the thing that
+    goes stale when a step is added.
+    """
+    assert gate_job.get("continue-on-error") in (None, False), (
+        "the job must not continue on error; a failing step would then be "
+        "reported as a successful check")
+    for step in steps:
+        label = step.get("name") or step.get("uses")
+        assert step.get("continue-on-error") in (None, False), (
+            f"step {label!r} carries `continue-on-error` — a non-zero exit "
+            f"would be marked successful, which is exactly what this gate's "
+            f"refusals exist to prevent")
+
+
 # --------------------------------------------------------------------------
 # the positive assertions
 # --------------------------------------------------------------------------
@@ -613,10 +636,35 @@ def test_the_gate_mints_no_credential_for_public_gitlinks(
         f"the gate must mint no App token for PUBLIC gitlinks; found {mints}. "
         f"If openDox or openXdox ever goes private, add the mint with its "
         f"reason rather than around this test")
-    assert "secrets." not in WORKFLOW.read_text(encoding="utf-8"), (
-        "the gate consumes a repository or organization secret; it needs none, "
-        "and a token minted for a public read widens its permissions for "
-        "nothing — `openreposhape-pin-gate.yml`'s own rule")
+
+    # EVERY SPELLING OF A BEARER, not just `secrets.` — this gate SHIPPED the
+    # hole once. Its first push wrote `https://x-access-token:${{ github.token
+    # }}@github.com/` into the runner's global git config and then ran two
+    # pytest suites over pull-request-controlled code; `secrets.` alone was
+    # green through all of it, because the automatic token is not a secret
+    # reference. The reads here are public and need no bearer at all.
+    text = WORKFLOW.read_text(encoding="utf-8")
+    body = text[text.index("\njobs:"):]
+    for spelling in ("secrets.", "github.token", "GITHUB_TOKEN",
+                     "x-access-token", "ACTIONS_RUNTIME_TOKEN"):
+        assert spelling not in body, (
+            f"the gate's job body references {spelling!r}. Every gitlink it "
+            f"reads is PUBLIC, so it needs no bearer; putting one in the "
+            f"runner's environment or git config exposes it to the suites "
+            f"this gate then runs. If a leg ever goes private, add the "
+            f"credential WITH its reason rather than around this test")
+
+    # …and no checkout may take a token or leave one behind.
+    for step in steps:
+        if str(step.get("uses", "")).startswith("actions/checkout"):
+            with_block = step.get("with", {})
+            assert "token" not in with_block, (
+                "the checkout must take no `token:` input; the repository and "
+                "both pinned gitlinks are public")
+            assert with_block.get("persist-credentials") is False, (
+                "the checkout must set `persist-credentials: false` so no "
+                "bearer is left in the repository config before pytest runs "
+                "pull-request-controlled code")
 
 
 # --------------------------------------------------------------------------

@@ -364,7 +364,21 @@ jobs:
 
           report = os.environ["REPORT"]
           root = ET.parse(report).getroot()
-          suites = [root] if root.tag == "testsuite" else list(root)
+          # FAIL CLOSED ON AN UNEXPECTED ROOT. pytest writes `<testsuites>`
+          # wrapping one `<testsuite>`; older writers emit the bare
+          # `<testsuite>`. Anything else is a report shape this gate does not
+          # understand, and "treat every other root as a container" would let
+          # `<unexpected><testsuite tests="105" …/></unexpected>` satisfy every
+          # floor and every named verdict.
+          if root.tag == "testsuite":
+              suites = [root]
+          elif root.tag == "testsuites":
+              suites = [s for s in root if s.tag == "testsuite"]
+          else:
+              print(f"::error::{report} has root <{root.tag}>, not "
+                    f"<testsuites> or <testsuite> — refusing to adjudicate a "
+                    f"report shape this gate does not understand")
+              sys.exit(1)
           selected = sum(int(s.get("tests", 0)) for s in suites)
           skipped = sum(int(s.get("skipped", 0)) for s in suites)
           failures = sum(int(s.get("failures", 0)) for s in suites)
@@ -524,7 +538,21 @@ jobs:
 
           report = os.environ["REPORT"]
           root = ET.parse(report).getroot()
-          suites = [root] if root.tag == "testsuite" else list(root)
+          # FAIL CLOSED ON AN UNEXPECTED ROOT. pytest writes `<testsuites>`
+          # wrapping one `<testsuite>`; older writers emit the bare
+          # `<testsuite>`. Anything else is a report shape this gate does not
+          # understand, and "treat every other root as a container" would let
+          # `<unexpected><testsuite tests="105" …/></unexpected>` satisfy every
+          # floor and every named verdict.
+          if root.tag == "testsuite":
+              suites = [root]
+          elif root.tag == "testsuites":
+              suites = [s for s in root if s.tag == "testsuite"]
+          else:
+              print(f"::error::{report} has root <{root.tag}>, not "
+                    f"<testsuites> or <testsuite> — refusing to adjudicate a "
+                    f"report shape this gate does not understand")
+              sys.exit(1)
           selected = sum(int(s.get("tests", 0)) for s in suites)
           skipped = sum(int(s.get("skipped", 0)) for s in suites)
           failures = sum(int(s.get("failures", 0)) for s in suites)

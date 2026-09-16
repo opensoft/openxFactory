@@ -109,7 +109,8 @@ def watched(env: dict[str, str]) -> list[tuple[str, str]]:
 
 def report_xml(*, tests: int, skipped: int = 0, failures: int = 0,
                errors: int = 0, cases: list[tuple[str, str, str]],
-               wrap: bool = True, split: bool = False) -> str:
+               wrap: bool = True, split: bool = False,
+               root_tag: str = "testsuites") -> str:
     """A JUnit report with the aggregates DECLARED rather than derived.
 
     Declaring them is the point: the defects this adjudicator exists to catch
@@ -133,10 +134,10 @@ def report_xml(*, tests: int, skipped: int = 0, failures: int = 0,
     if split:
         head = {k: v // 2 for k, v in totals.items()}
         tail = {k: v - head[k] for k, v in totals.items()}
-        return ("<testsuites>" + suite(head, body) + suite(tail, "")
-                + "</testsuites>")
+        inner = suite(head, body) + suite(tail, "")
+        return f"<{root_tag}>{inner}</{root_tag}>"
     one = suite(totals, body)
-    return f"<testsuites>{one}</testsuites>" if wrap else one
+    return f"<{root_tag}>{one}</{root_tag}>" if wrap else one
 
 
 def step_env(env: dict[str, str]) -> dict[str, str]:
@@ -233,6 +234,40 @@ def test_a_multi_suite_report_is_summed_not_sampled(tmp_path: Path) -> None:
                      cases=[(c, n, "passed") for c, n in watched(env)],
                      split=True)
     done = adjudicate(tmp_path, env, xml)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert f"selected={env['MIN_SELECTED']}" in done.stdout
+
+
+def test_an_unexpected_root_is_refused_rather_than_treated_as_a_container(
+        tmp_path: Path) -> None:
+    """FAIL CLOSED on a report shape this gate does not understand.
+
+    "Anything that is not `<testsuite>` is a container of testsuites" reads
+    like a kindness and is a hole: a report rooted at `<unexpected>` with one
+    `<testsuite tests="105" …>` inside would satisfy every floor, every exact
+    skip and every named verdict, because the walk would sum its children and
+    `iter("testcase")` would find the cases anyway.
+    """
+    env = env_for(PIN_REPORT)
+    xml = report_xml(tests=int(env["MIN_SELECTED"]),
+                     cases=[(c, n, "passed") for c, n in watched(env)],
+                     root_tag="unexpected")
+    done = adjudicate(tmp_path, env, xml)
+    assert done.returncode != 0
+    assert "root <unexpected>" in done.stdout
+    assert "refusing to adjudicate" in done.stdout
+
+
+def test_a_non_testsuite_child_is_not_summed(tmp_path: Path) -> None:
+    """`<testsuites>` may carry `<properties>`; only `<testsuite>` counts."""
+    env = env_for(PIN_REPORT)
+    inner = ('<properties><property name="x" value="y"/></properties>'
+             f'<testsuite name="pytest" tests="{env["MIN_SELECTED"]}" '
+             'skipped="0" failures="0" errors="0">'
+             + "".join(f'<testcase classname="{c}" name="{n}"></testcase>'
+                       for c, n in watched(env))
+             + "</testsuite>")
+    done = adjudicate(tmp_path, env, f"<testsuites>{inner}</testsuites>")
     assert done.returncode == 0, done.stdout + done.stderr
     assert f"selected={env['MIN_SELECTED']}" in done.stdout
 
