@@ -531,6 +531,47 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
+  — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),
+  **`Status: draft`** — answers openxFactory
+  [#1053](https://github.com/opensoft/openxFactory/issues/1053), the successor
+  `add-declared-former-id` `tasks.md` § 6.1 owed and that packet's archive act
+  filed as a ROUTING RECORD. **THE RESOLUTION RULE LANDED AND THE REPORT OF WHAT
+  IT STILL CANNOT RESOLVE DID NOT**: `scripts/packet_reference.py` states in its
+  own docstring that it *"is a library and has no CLI"*, and its one consumer,
+  `validate-pin-registrations.py`'s `check_citations`, resolves ONE field of
+  registered pins rather than the corpus. **RE-MEASURED AT `b1df95ee`, NOT
+  QUOTED** — 2,973 files in scope of 5,466 tracked, **586** distinct
+  `openspec/changes/…` tokens, **498** RESOLVED (76 of them RELOCATED, the rule
+  working), **74** DANGLING(identity-half), **7** DANGLING(file-half), **0**
+  AMBIGUOUS: an **inclusive remainder of 81 tokens** carried by 65 citing files,
+  which collapse onto **48 distinct identities**. #1053's own reading at
+  `8944758c` was 80, and both are reported because they are taken at different
+  commits and are approximately, not exactly, comparable. The packet authors
+  under #1053's RECOMMENDED option **(b)** — a report CLI outside doc-health —
+  and SIZES option (a), the twenty-fourth doc-health family, from the promoted
+  text rather than estimating it: a `## MODIFIED` block restating the whole
+  *"twenty-three check families"* enumeration, a `families.py` registry edit, a
+  numeral, and a severity decision doc-health's own advisory-launch rule says
+  must *"follow a measurement of the population the gate would red rather than
+  precede it"*. **FIVE `## ADDED` REQUIREMENTS IN A NEW CAPABILITY**
+  `specs/packet-citation-report/` — the remainder is reported by token AND by
+  identity; the population and token grammar are stated so a figure reproduces;
+  a suspected cross-repository citation is FLAGGED and never dropped; the report
+  classifies only what it can decide mechanically and leaves the rest
+  `unclassified`; and it is advisory, exiting 0 whatever it finds with no
+  `--fail-on`. No `## MODIFIED` block, so `sequenced_after: []` is the POSITIVE
+  root claim and no promoted byte moves. **SEVEN DECISIONS ARE PUT FOR A WORD**,
+  each with its RECOMMENDED option first and the alternatives costed —
+  `design.md` D1 the HOME, D2 the SURFACE (a sibling script, so the library's
+  contract stays a library's), D3 the RECIPE, D4 the CLASSES, D5 the NIGHTLY
+  WIRING (artifact-only, because `health/` is INSIDE the measured population and
+  carries 0 citation tokens today, so a committed report would be counted by the
+  next run), D6 what STABLE means before (a) is takeable, D7 the SCOPE FENCES.
+  `code_surface` is non-empty and NOTHING OF IT MOVES HERE — no script, no
+  workflow, no test — so the archive is a separate act on merged-plus-green
+  realization evidence and a separate word, and #1053 closes THERE.
+  **DRAFT and HELD for Brett Heap's ratification.**
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
   — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
   (2026-09-13T01:0xZ, Brett Heap, openxFactory repository owner, given in
