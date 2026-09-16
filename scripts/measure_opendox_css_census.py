@@ -155,9 +155,24 @@ def js_literal_text(text: str) -> str:
     """
     spans = [(a, b) for kind, a, b in _js_spans(text) if kind == "string"]
     out = [text[a + 1:b - 1] for a, b in spans]
-    for (a1, b1), (a2, b2) in zip(spans, spans[1:]):
-        if re.fullmatch(r"\s*\+\s*", text[b1:a2]):
-            out.append(text[a1 + 1:b1 - 1] + text[a2 + 1:b2 - 1])
+    run: list[str] = []
+
+    def flush() -> None:
+        # EVERY CONTIGUOUS SUB-RUN, not only the pairs and not only the whole
+        # chain (Copilot review, round 10): `"ga" + "te" + "bar"` writes
+        # `gatebar`, which a pairwise join (`gate`, `tebar`) never produces.
+        # The class can be any contiguous stretch of the chain, and a MISS on
+        # this side EXTRACTS a rule openDox still uses.
+        for i in range(len(run)):
+            for j in range(i + 2, len(run) + 1):
+                out.append("".join(run[i:j]))
+        run.clear()
+
+    for k, (a, b) in enumerate(spans):
+        if run and not re.fullmatch(r"\s*\+\s*", text[spans[k - 1][1]:a]):
+            flush()
+        run.append(text[a + 1:b - 1])
+    flush()
     return "\n".join(out)
 
 
@@ -413,7 +428,7 @@ def is_selector_text(s: str) -> bool:
 _TAG_OPEN = re.compile(r"<[A-Za-z][A-Za-z0-9-]*")
 
 
-def markup_class_runs(s: str, group: str) -> list[str]:
+def markup_class_runs(s: str, group: str, unquoted: str) -> list[str]:
     """The `class="…"` runs of `s` THAT SIT INSIDE AN HTML TAG.
 
     `class=` ANYWHERE IN A STRING IS NOT MARKUP (Copilot review of
@@ -436,11 +451,12 @@ def markup_class_runs(s: str, group: str) -> list[str]:
     these six modules and this bundle is written inside its own tag.
     """
     live = _tag_name_positions(s)
-    return [m.group(1) for m in _CLASS_ATTR(group).finditer(s)
+    return [next(g for g in m.groups() if g is not None)
+            for m in _CLASS_ATTR(group, unquoted).finditer(s)
             if live[m.start()]]
 
 
-def _CLASS_ATTR(group: str) -> re.Pattern[str]:
+def _CLASS_ATTR(group: str, group_unquoted: str) -> re.Pattern[str]:
     """`class="…"`, `class='…'` or `class=…`, and NOT `data-class=…`.
 
     TWO CORRECTIONS, both Copilot review of openxFactory #1068, round 9:
@@ -450,7 +466,15 @@ def _CLASS_ATTR(group: str) -> re.Pattern[str]:
     `<div data-class="gatebar">` matched on its suffix and claimed a class the
     template never applies, which on the gate side MOVES a rule.
     """
-    return re.compile(rf'(?<![A-Za-z0-9_-])class\s*=\s*["\']?({group})')
+    # QUOTED AND UNQUOTED ARE DIFFERENT GRAMMARS (Copilot review, round 10):
+    # with one optional quote, `<i class=gatebar data-state=summary>` captured
+    # `gatebar data-state`, because the class alphabet includes the space that
+    # ENDS an unquoted value — and a false token on the gate side moves a rule.
+    # An unquoted value stops at whitespace (and at `>`); a quoted one runs to
+    # its own quote.
+    return re.compile(
+        rf'(?<![A-Za-z0-9_-])class\s*=\s*'
+        rf'(?:"({group})|\'({group})|({group_unquoted}))')
 
 
 def _tag_name_positions(s: str) -> list[bool]:
@@ -525,7 +549,8 @@ def prefix_refs(text: str, suffix: str, *,
         # ordinary prose is prose — see `markup_class_runs`. (An `index.html`
         # span is an attribute VALUE already, so it carries no `class=` of its
         # own and this loop is the JavaScript side's.)
-        for run in markup_class_runs(s, r"[A-Za-z0-9_ -]*(?:\$\{)?"):
+        for run in markup_class_runs(s, r"[A-Za-z0-9_ -]*(?:\$\{)?",
+                                     r"[A-Za-z0-9_-]*(?:\$\{)?"):
             for piece in run.split():
                 register(piece)
         parts = s.split()
@@ -562,7 +587,7 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
             out.update(selector_class_tokens(stripped))
         # A `class="…"` INSIDE A TAG is class-bearing by construction; one in
         # prose is prose (`markup_class_runs`).
-        for run in markup_class_runs(s, r"[A-Za-z0-9_ -]*"):
+        for run in markup_class_runs(s, r"[A-Za-z0-9_ -]*", r"[A-Za-z0-9_-]*"):
             out.update(p for p in run.split() if _CLASSTOK.match(p))
         # A BARE class list only where a class is PASSED or ASSIGNED.
         parts = s.split()
@@ -738,10 +763,10 @@ def main() -> int:
 
     web = dox / "src" / "opendox" / "web"
     css_path = web / "styles.css"
-    # The BYTES are what the floor counts lines in; the text is what the
-    # parser walks. Read once, so the two cannot be of different revisions.
-    css_bytes = css_path.read_bytes()
-    css = css_bytes.decode("utf-8")
+    # READ AFTER THE PATH CHECKS BELOW (Copilot review, round 10): reading
+    # here turned a missing or mistyped openDox checkout into an unhandled
+    # `FileNotFoundError` traceback, where a missing contributed-module
+    # directory gets the named refusal this tool is careful about.
 
     gate_dir = xdox / "src" / "openxdox" / "web" / "views"
     if "--gate-dir" in sys.argv:
@@ -765,6 +790,16 @@ def main() -> int:
                 "checkouts, and a path that is not there yields an empty scan "
                 "and a census of zero — indistinguishable from a bundle with "
                 "nothing left to extract")
+    # AND THE STYLESHEET ITSELF IS A NAMED REFUSAL TOO. The BYTES are what the
+    # floor counts lines in, the text is what the parser walks; read once, so
+    # the two cannot be of different revisions.
+    if not css_path.is_file():
+        raise SystemExit(
+            f"openDox-code's served stylesheet: {css_path} is not a file. "
+            "This tool measures a stylesheet against two checkouts, and a "
+            "missing one is a mistyped path, never an empty census")
+    css_bytes = css_path.read_bytes()
+    css = css_bytes.decode("utf-8")
     gate_files = sorted(p for p in gate_dir.glob("*.js"))
     if not gate_files:
         raise SystemExit(
@@ -960,7 +995,12 @@ def main() -> int:
             {"selector": b["selector"], "at_rule": b["at_rule"],
              "start": b["start"], "end": b["end"]}
             for b in token_declaring_blocks],
-        "exclusive_block_lines": sum(b["end"] - b["start"] + 1 for b in exclusive_blocks),
+        # THE UNION OF THE EXTENTS, not the sum (Copilot review, round 10).
+        # Two rules can share a physical line (`.a{…} .b{…}` on one line), and
+        # the declared-edit window can name that line ONCE — a sum would report
+        # an extraction larger than any set of line numbers could express.
+        "exclusive_block_lines": len({n for b in exclusive_blocks
+                                      for n in range(b["start"], b["end"] + 1)}),
         "exclusive_blocks_reading_st": sum(1 for b in exclusive_blocks if b["reads_st_token"]),
         "census": census,
     }

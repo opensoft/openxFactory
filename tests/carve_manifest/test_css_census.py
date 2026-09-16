@@ -455,6 +455,64 @@ def test_a_class_equals_inside_another_attribute_is_that_attributes(
     assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
 
 
+def test_a_class_built_from_a_chain_of_literals_is_still_named() -> None:
+    """EVERY CONTIGUOUS SUB-RUN of a `+` chain (Copilot review, round 10).
+
+    `"ga" + "te" + "bar"` writes `gatebar`, which a pairwise join (`gate`,
+    `tebar`) never produces. This is the KEEP side, so a miss EXTRACTS a rule
+    openDox still uses.
+    """
+    text = CENSUS.js_literal_text('el("div", "ga" + "te" + "bar");\n').split()
+    for token in ("ga", "te", "bar", "gate", "tebar", "gatebar"):
+        assert token in text, token
+    # a chain broken by something that is not a `+` does not join across it
+    assert "gatebar" not in CENSUS.js_literal_text(
+        'f("gate", "bar");\n').split()
+
+
+def test_an_unquoted_class_attribute_stops_at_the_next_attribute(
+        tmp_path: Path) -> None:
+    """`<i class=gatebar data-state=summary>` NAMES ONE CLASS (Copilot review,
+    round 10). With one optional quote the capture ran through the space into
+    the next attribute name, and a false token on the gate side moves a rule.
+    """
+    assert CENSUS.narrow_refs('`<i class=gatebar data-state=summary>`;\n',
+                              ".js") == {"gatebar"}
+    assert CENSUS.prefix_refs('`<i class=chip- data-state=summary>`;\n', ".js",
+                              class_bearing_only=True) == {"chip-"}
+    # the quoted form still carries a whole class LIST
+    assert CENSUS.narrow_refs('`<i class="gatebar is-live">`;\n',
+                              ".js") == {"gatebar", "is-live"}
+
+
+def test_two_exclusive_rules_on_one_line_are_one_line(tmp_path: Path) -> None:
+    """THE UNION OF THE EXTENTS, NOT THE SUM (Copilot review, round 10). A
+    declared-edit window can name a physical line once, so a sum would report
+    an extraction no set of line numbers could express."""
+    dox, xdox = _tree(
+        tmp_path,
+        styles=".gatebar { color: red; } .gatebtn { color: blue; }\n",
+        own={},
+        gate={"gate.js": 'el("div", "gatebar"); el("button", "gatebtn");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert len(report["exclusive_blocks"]) == 2
+    assert report["exclusive_block_lines"] == 1
+
+
+def test_a_missing_stylesheet_refuses_instead_of_raising(tmp_path: Path) -> None:
+    """A mistyped openDox checkout gets the same NAMED refusal a missing
+    contributed-module directory gets (Copilot review, round 10), not a
+    `FileNotFoundError` traceback."""
+    dox, xdox = _tree(tmp_path, styles=".gatebar { color: red; }\n", own={},
+                      gate={"gate.js": 'el("div", "gatebar");\n'})
+    (dox / "src" / "opendox" / "web" / "styles.css").unlink()
+    proc = subprocess.run([sys.executable, str(SCRIPT), str(dox), str(xdox)],
+                          capture_output=True, text=True, timeout=300)
+    assert proc.returncode != 0
+    assert "is not a file" in proc.stderr
+    assert "Traceback" not in proc.stderr
+
+
 def test_an_id_does_not_break_a_compound_selector() -> None:
     """`.foo#id.bar` IS TWO CLASSES (Copilot review, round 9) — the same shape
     the pseudo-class fix answered, with an ID in the middle instead."""

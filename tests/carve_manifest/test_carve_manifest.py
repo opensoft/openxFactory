@@ -5088,7 +5088,27 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
     # NOTHING IS CONVERTED, asserted rather than assumed: a conversion moves
     # both disposition counts and the carrier count at once, so an act that
     # converted a row it did not mean to would still sum correctly.
+    #
+    # AND THE COUNTS ALONE DO NOT SAY IT (Copilot review of openxFactory
+    # #1068, round 10). `Q7_CONVERTED == []` asserts the empty constant
+    # declared four lines up and nothing about the manifest, and 143/175 stay
+    # 143/175 under any SWAP — one row converted to `moved_with_declared_edit`
+    # and another converted back would pass all three. What a swap cannot
+    # survive is the PAIRING, so the pairing is what is pinned: the digest of
+    # every row's `(source_path, disposition)`, sorted. It moves when, and only
+    # when, some row's disposition moves — which is the claim this block makes.
     assert Q7_CONVERTED == [], Q7_CONVERTED
+    dispositions = sorted((row["source_path"], row["disposition"])
+                          for row in doc["rows"])
+    assert len(dispositions) == 456
+    assert hashlib.sha256(
+        "\n".join(f"{path}\t{kind}" for path, kind in dispositions)
+        .encode("utf-8")).hexdigest() == (
+        "2c48fa07d2ebcf7125cd16a8fdac198e4c01554ae4fdde36a3a1211aa431c2c6"), (
+        "a row's disposition moved. RULED Q7's CSS extraction converts nothing "
+        "(Q7_CONVERTED is empty), so either this act changed one it did not "
+        "mean to, or a later act converted a row and owes this pin an update "
+        "beside its own conversion record")
     assert doc["rows"] and sum(
         1 for row in doc["rows"] if row["disposition"] == "moved_verbatim") == 143
     assert sum(1 for row in doc["rows"]
