@@ -39,6 +39,7 @@ CLASSIFICATION, per class token declared as a real selector in `styles.css`:
 """
 from __future__ import annotations
 
+import functools
 import json
 import re
 import sys
@@ -141,6 +142,22 @@ _BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 _LINE_COMMENT = re.compile(r"//[^\n]*")
 
 
+@functools.lru_cache(maxsize=8)
+def _code_view(text: str) -> str:
+    """`text` with every comment, string and regex literal blanked to spaces.
+
+    Same length, same offsets, so a walk over it can be indexed with positions
+    measured in the source — and a delimiter inside a comment or a string can
+    no longer close or open a grouping (Copilot review, round 18).
+    """
+    out = list(text)
+    for _kind, a, b in _js_spans(text):
+        for i in range(a, b):
+            if out[i] != "\n":
+                out[i] = " "
+    return "".join(out)
+
+
 def _is_concatenation(text: str, lo: int, hi: int) -> bool:
     r"""True where the two string literals around `text[lo:hi]` are joined by
     `+` and nothing else.
@@ -161,6 +178,19 @@ def _is_concatenation(text: str, lo: int, hi: int) -> bool:
     Anything with a NAME in the separator is still not a concatenation of
     these two: `f("a") + g("b")` has `g` between them, which is the
     conservative half of the same rule.
+
+    AND THE MATCHING WALK READS CODE, NOT SOURCE (Copilot review, round 18).
+    Round 16 matched each `)` back to its `(` over the RAW text, so a
+    parenthesis written inside a comment or a string could stand in for the
+    call's own: `label("ga" /* ( */) + "te"` found the commented `(`, saw a
+    space before it rather than the name `label`, and joined a CALL RESULT into
+    `gate` — round 16's defect returning through the one place round 16 did not
+    blank. The walk now runs over `_code_view`, where every comment, string and
+    regular-expression literal is blanked to spaces of the same length, so only
+    a delimiter the parser would see can close or open anything. The separator
+    test above it deliberately keeps its comment-only blanking: a regex literal
+    between the two operands must go on refusing the join, and blanking it
+    would let `(` and `)` from inside it read as grouping.
     """
     raw = text[lo:hi]
     blanked = _LINE_COMMENT.sub(lambda m: " " * len(m.group(0)),
@@ -168,17 +198,18 @@ def _is_concatenation(text: str, lo: int, hi: int) -> bool:
                                     lambda m: " " * len(m.group(0)), raw))
     if not re.fullmatch(r"[\s()]*\+[\s()]*", blanked):
         return False
+    code = _code_view(text)
     for k, ch in enumerate(blanked):
         if ch != ")":
             continue
         depth, j = 1, lo + k - 1
         while j >= 0 and depth:
-            if text[j] == ")":
+            if code[j] == ")":
                 depth += 1
-            elif text[j] == "(":
+            elif code[j] == "(":
                 depth -= 1
             j -= 1
-        if j >= 0 and re.match(r"[A-Za-z0-9_$\]\)]", text[j]):
+        if j >= 0 and re.match(r"[A-Za-z0-9_$\]\)]", code[j]):
             return False
     return True
 

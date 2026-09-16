@@ -802,6 +802,41 @@ def test_a_template_substitution_is_a_prefix_too() -> None:
         == {"chip-"}
 
 
+def test_a_parenthesis_inside_a_comment_is_not_the_calls_own(
+        tmp_path: Path) -> None:
+    """THE DELIMITER WALK READS CODE, NOT SOURCE (Copilot review, round 18).
+
+    Round 16 taught the join that a CALL's `)` is not a grouping one by
+    matching each `)` back to its `(` — over the RAW text, so a parenthesis
+    written inside a comment could stand in for the call's own.
+    `label("ga" /* ( */) + "te"` then found the commented `(`, read the space
+    before it instead of the name `label`, and joined the call result into
+    `gate`. This is the BROAD scan, but the gate side reads it too, and a class
+    the gate does not own is a rule wrongly EXTRACTED.
+    """
+    assert CENSUS.narrow_refs('el("div", label("ga" /* ( */) + "te");\n',
+                              ".js") == {"div", "ga"}
+    # a parenthesis inside a STRING is no opener either
+    assert CENSUS.narrow_refs('el("div", f("(")  + "te");\n', ".js") == {"div"}
+    # and rounds 10, 13 and 16 still hold exactly as they did
+    assert CENSUS.narrow_refs('el("div", label("ga") + "te");\n', ".js") \
+        == {"div", "ga"}
+    assert CENSUS.narrow_refs('el("div", ("ga" /* c */ + "te") + "bar");\n',
+                              ".js") == {"div", "ga", "gate", "gatebar"}
+    # the blanked view keeps every offset, so nothing else shifts
+    source = 'el("div", label("ga" /* ( */) + "te");\n'
+    assert len(CENSUS._code_view(source)) == len(source)
+    assert CENSUS._code_view(source).count("\n") == source.count("\n")
+    # THE BLOCK FOLLOWS: the rule the comment would have handed the gate stays
+    dox, xdox = _tree(
+        tmp_path,
+        styles=".gate { color: red; }\n",
+        own={"own.js": 'el("span", "gate");\n'},
+        gate={"gate.js": 'el("div", label("ga" /* ( */) + "te");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert report["exclusive_blocks"] == []
+
+
 def test_a_class_bearing_template_is_read_like_the_string_it_is(
         tmp_path: Path) -> None:
     """A TEMPLATE IN A CLASS-BEARING POSITION IS A CLASS LIST (Copilot review,
