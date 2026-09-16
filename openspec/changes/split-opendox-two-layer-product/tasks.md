@@ -489,10 +489,12 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   …"), never as a declared descendant name (the packet's own registration in
   `tasks.md` § 1.7 spells it `MedxDox`); and `openxDox`, the case-folded
   ALSO-ACCEPTED spelling of `openXdox` itself named twice in the pin-chain
-  discussion (`tasks.md`:595 and `design.md`:981, both read at this
-  amendment's base `cbc3a2c6` and cited with their tree because line numbers
-  in these two files move under every amendment — the quotation is the
-  durable half of the citation: "`openXdox`.casefold() equals
+  discussion (`design.md`:981 at this amendment's base `cbc3a2c6`, and — in
+  THIS file — § 1.10's pin-chain paragraph, the one that reads *"the referent
+  test compares CASE-FOLDED, and `openXdox`.casefold() equals
+  `openxDox`.casefold() — so a pin on the INTEGRATION layer satisfies the
+  referent test for the NEUTRAL CORE"*, cited by its SENTENCE and NOT by a
+  line number: "`openXdox`.casefold() equals
   `openxDox`.casefold()"), not a sixth descendant. Excluding those two
   artifacts, `grep -owhE 'MedxDox|codexDox|LedgerxDox|AdxDox|OpsxDox' proposal.md design.md tasks.md | sort -u | wc -l` — the pattern is POSIX ERE
   with no Perl-style escapes, so no `\b` is needed; the `-o`/`-h`/`-w` options
@@ -506,7 +508,15 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   registered on amendment #4's pull request at comment `5702495415`. They
   read `tasks.md`:347 and `design.md`:868; measured, `:347` of this file is a
   `gh api` tree read of the openDox root and the casefold discussion is at
-  `:595`, and in `design.md` it is at `:981`. Neither number was right at any
+  `:595` at the base — **and `:595` had already become `:609` by the time this
+  amendment's own insertions above it landed, inside ONE pull request** — and
+  in `design.md` it is at `:981`, which does not move because this branch does
+  not touch that file. So the first attempt at a numeric repair went stale
+  under the very act that wrote it, which is § 1.8's thesis demonstrated a
+  third time and the reason the in-file half of the citation is now a SENTENCE
+  (Copilot round 5 on this amendment's own pull request caught it; `design.md`
+  keeps its number because the file is stable and the tree is named).
+  Neither original number was right at any
   tree checked. The repair is taken here — rather than left to the act that
   claims this paragraph — because a stale COORDINATE is a currency fix that
   changes no normative reading, which is the line this estate keeps between a
@@ -1780,8 +1790,8 @@ the bookkeeping that ticks this group.
   `tests/ideation-dashboard/` 157 → **42 present against 40 kept rows**, the
   two being `conftest.py` and `staging_shapes.py`, both `not_moved /
   replicated_at_destination`, which is the distinction this box already
-  discloses three lines above the table (*"which is why the STATUS below
-  counts them present without counting them kept"*). **The four cells named by
+  discloses above the table (*"which is why the STATUS below counts them
+  present without counting them kept"*). **The four cells named by
   FILE are counted on the OLD DELETION LIST's own populations** — the six
   dashboard contract schemas it names, the governance docs it names — which
   amendment #4 already reconciled as subsets by design in the STATUS below, so
@@ -2082,10 +2092,17 @@ the bookkeeping that ticks this group.
   survive a merge, and every add in this directory did. The finding was right
   about the QUOTATION and the answer is unmoved by every variant of the
   instrument.)*
-  Independently, `git log --all --full-history --diff-filter=R --
-  .github/workflows/` returns **nothing at all**: no rename has ever touched
-  that directory, which is precisely why the weaker query happened to be
-  complete. The sixteen exceed the thirteen counted at `main` `cb2d3a2c`
+  Independently — and **with rename detection EXPLICITLY ON, because
+  `--diff-filter=R` does not enable it by itself and an empty `R` set from a
+  plain `git log` proves nothing** — `git log --all --full-history
+  --find-renames --diff-filter=R -- .github/workflows/` returns **nothing at
+  all**, and so do `-M` and `-M50%`; no rename has ever touched that
+  directory, which is precisely why the weaker query happened to be
+  complete. *(The flag was added at Copilot round 5 on this amendment's own
+  pull request, which was right that the check was non-deterministic as
+  written. The answer does not move under any of the three thresholds, and
+  the same query over all of `.github/` finds no rename either.)*
+  The sixteen exceed the thirteen counted at `main` `cb2d3a2c`
   above because that count is FILES PRESENT at one tree and this one is PATHS
   EVER across all refs — `openxdox-consumer-gate` and `wallet-validation`
   landed after it, and `proof-1-6a-codexfactory-app-install` no longer
@@ -2103,8 +2120,10 @@ the bookkeeping that ticks this group.
   and job id the single token `openxdox-consumer-gate`, and the gate HAS
   REPORTED — it is a required check on this very pull request, SUCCESS at
   `d1314f4d` (run `35134189330`). **THE TICK IS THEREFORE OWED, AND AMENDMENT
-  #4 DOES NOT TAKE IT.** This box's own sentence, four lines up, says it ticks
-  on that pull request and not on amendment #4's; amendment #4's CLAIM (`5690461589`)
+  #4 DOES NOT TAKE IT.** This box's own sentence earlier in this paragraph —
+  *"This box ticks on THAT pull request's merge and on the new gate
+  reporting"* — says it ticks on that pull request and not on amendment #4's;
+  amendment #4's CLAIM (`5690461589`)
   and RULED R-4 reach the PREMISE only; and its ledger is declared 47/23/1 in
   the claim, the description and the squash body alike. The tick belongs to the
   act that records #1059's discharge — with this box's required-check WIRING,
@@ -2188,14 +2207,21 @@ the bookkeeping that ticks this group.
   landed", because a ruleset is the one kind of evidence in this packet that
   lives outside git and cannot be read back from any tree: the id, the
   enforcement and the creation stamp are what a later reader can re-query.)*
-  *(Amendment #4's three self-references above — "this amendment", "not on
-  this one", "NOT TAKEN HERE" — are re-spelled as amendment #4 by this
-  amendment, and nothing else in them moves. They were unambiguous while #4
-  was the only amendment in the box; with a second one below them a reader
-  meets a `[x]` box that says three times it does not tick. Disambiguating a
-  pronoun is a currency fix, not a re-wording of what was ratified — the same
-  line § 1's stale coordinates are repaired on and § 7.3's ratified sentence
-  is left alone on.)*
+  *(FIVE of amendment #4's own sentences above are re-scoped by this
+  amendment, and nothing else in them moves: three PRONOUNS ("this
+  amendment", "not on this one", "NOT TAKEN HERE"), one STATUS (the wiring
+  "is still owed"), and one SNAPSHOT clause ("It is ADVISORY on the day it
+  lands … named as owed there rather than claimed here"). A sixth repair is
+  positional rather than temporal — a "four lines up" cross-reference that
+  this amendment's own inserted evidence falsified, now anchored to the
+  sentence it means. All six were unambiguous while #4 was the only amendment
+  in the box; with a second one below them a reader meets a `[x]` box that
+  says three times it does not tick and twice that the wiring is open.
+  Re-scoping a pronoun, a date-bound status or a line offset is a currency
+  fix, not a re-wording of what was ratified — the same line § 1's stale
+  coordinates are repaired on and § 7.3's ratified sentence is left alone on.
+  The count itself is stated because it went stale twice while this amendment
+  was open: it read "three" through Copilot rounds 2, 3 and 5.)*
 - [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
   source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
   equality. Four clauses, the full text at `design.md` § D6 (2):
@@ -3002,8 +3028,8 @@ movements claimed at the time they land.
   landed — RULED **R-3**, 2026-09-16, `#656` comment `5690428146` — so the
   phrase now reads as a past event while the act it governs has not run. The
   true trigger is stated in the sentence that immediately precedes the phrase,
-  one line below this note: *"the successor act that runs when a domain
-  acquires its first profile artifact"*. **Measured, the phrase
+  later in this box: *"the successor act that runs when a domain acquires its
+  first profile artifact"*. **Measured, the phrase
   is the packet's OWN RATIFIED TEXT and no amendment authored it**: it enters
   at `ceb6dc9e`, the commit that ratified this packet (`#666`), stands
   identically at `main`, and amendment #4 only MOVED it — out of the box
