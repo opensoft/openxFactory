@@ -3124,7 +3124,7 @@ Archived changes:
   declaration — the same correction § 6.4's record makes for `tasks.md` § 6.4's
   shorthand. The non-promotion is registered as DELIBERATE through
   `promotion_fidelity.py`'s own second discharge, an entry in the xFactory
-  aggregation's `health/dispositions.yaml` filed once for the five closures (the
+  aggregation's `health/dispositions.yaml` filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the
   gate is `tasks.md` § 8.5, the severity reading § 8.9's; § 6.6 is the separate
   no-new-change rule) — **measured at this head: 20 errors, five of them this
   packet's, against 15 at § 6.1's head**. Full reasoning:
