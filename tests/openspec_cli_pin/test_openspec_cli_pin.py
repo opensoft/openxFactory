@@ -1033,14 +1033,31 @@ def _departed_since_the_capture(mod, identity, row):
          verifier's own `normalized_finding` — so the exemption is exactly as
          narrow as `reconcile`'s own key and cannot swallow a different blocking
          finding that happens to share the item and the path;
-      2. the active directory is ABSENT from the working tree;
-      3. the named archive directory is PRESENT in it, AND ITS PATH IS
-         DERIVABLE FROM THE ITEM — a direct child of `openspec/changes/archive/`
-         named `<YYYY-MM-DD>-<item>`. Existence alone was the check until
-         2026-09-16; it proved only that the map named SOME directory, so a
-         stale or mistyped value pointing at an unrelated archived change would
-         have exempted this capture's finding on the strength of that other
-         change having been archived.
+      2. the active path is ABSENT from the working tree — absent, not merely
+         "not a directory". `is_dir()` was the check until 2026-09-16 and it
+         answered False for a DANGLING SYMLINK and for a stale regular file at
+         `openspec/changes/<item>`, either of which is a tree that still carries
+         the change's name while this map calls it gone;
+      3. the named archive directory is PRESENT in it, ITS PATH IS DERIVABLE
+         FROM THE ITEM — a direct child of `openspec/changes/archive/` named
+         `<YYYY-MM-DD>-<item>` — and IT IS REALLY THERE rather than reached
+         through a symlink. Existence alone was the check until 2026-09-16; it
+         proved only that the map named SOME directory, so a stale or mistyped
+         value pointing at an unrelated archived change would have exempted this
+         capture's finding on the strength of that other change having been
+         archived.
+
+    ON THE SYMLINK LEG OF (2) AND (3), the estate has already written the rule
+    down: `scripts/target_release.py:358-385` — *"never a bare `.is_dir()` and
+    never only `.is_symlink()` on the leaf"*. `Path.is_dir()` FOLLOWS symlinks,
+    so a `2026-09-16-<item>` symlink pointing at any directory in or out of this
+    tree satisfied the old proof; and checking the leaf's own symlink-ness would
+    still miss an ANCESTOR being the symlink, because `archive.parent ==
+    archive_root` above is a LEXICAL comparison of two paths built from
+    `PIN_REPO_ROOT` and touches the filesystem not at all. The guard that
+    subsumes both is the one that file settles on: resolving every symlink
+    between the named path and the repository root must land back exactly where
+    a symlink-free tree would have put it.
 
     Together they keep this map from becoming the blanket the pin's own
     `dispositions:` list is so careful not to be.
@@ -1057,9 +1074,11 @@ def _departed_since_the_capture(mod, identity, row):
         f"  recorded: {expected}\n"
         f"  captured: {row['normalized']}")
     active = PIN_REPO_ROOT / "openspec" / "changes" / row["item"]
-    assert not active.is_dir(), (
+    assert not active.exists() and not active.is_symlink(), (
         f"{key} is listed as departed but {active} still stands; a live change "
-        "may not borrow this exemption")
+        "may not borrow this exemption. (`exists()` answers for what a symlink "
+        "POINTS AT, so `is_symlink()` is asked beside it: a DANGLING link is the "
+        "one entry that exists as a tree entry while `exists()` says no.)")
     archive = PIN_REPO_ROOT / entry["archive"]
     archive_root = PIN_REPO_ROOT / "openspec" / "changes" / "archive"
     assert archive.parent == archive_root, (
@@ -1077,6 +1096,12 @@ def _departed_since_the_capture(mod, identity, row):
     assert archive.is_dir(), (
         f"{key} names {entry['archive']} as its archive and no such directory "
         "exists")
+    assert archive.resolve(strict=True) == PIN_REPO_ROOT / entry["archive"], (
+        f"{key} names {entry['archive']} as its archive, but resolving that "
+        f"path lands at {archive.resolve(strict=True)} instead of "
+        f"{PIN_REPO_ROOT / entry['archive']}. A symlink — at the leaf or at any "
+        "ancestor — means the directory this proof read is not the one the map "
+        "named, so the departure is unproven")
     return True
 
 
