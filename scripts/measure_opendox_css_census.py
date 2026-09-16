@@ -385,21 +385,57 @@ def selector_class_tokens(selector: str) -> set[str]:
     an element and a class, and `gate.lens` / `error.foo` / `proposal.md` are a
     view id, a message and a filename — none of them selectors.
 
-    Attribute selectors are removed first, for the reason `selector_tokens`
-    removes them: `[data-state=".gatebar"]` is an attribute VALUE and not a
-    class, and reading one as a class can make a rule with no class selector at
-    all look gate-exclusive.
+    WHAT IS NOT PART OF THE COMPOUND IS REMOVED FIRST, AND WITHOUT LEAVING A
+    GAP — attribute selectors, IDs, pseudo-classes and pseudo-elements, each
+    for the same reason and each found by a review round:
+
+    * `[data-state=".gatebar"]` is an attribute VALUE and not a class (round
+      5), and blanking it to a SPACE turned `div[x].gatebar` into
+      `div .gatebar`, which reads as a compound the element-qualified rule
+      refuses (round 12). Removed outright, the two spell the same thing.
+    * `:hover` (round 7) and `#id` (round 9) do not break a compound —
+      `.foo:hover.bar` and `.foo#id.bar` are two classes each — and do not MAKE
+      one either: `div:hover.foo` and `div#id.foo` stay element-qualified.
+    * A PSEUDO-FUNCTION'S ARGUMENT IS A SELECTOR OF ITS OWN (round 14). Walking
+      it inline let `div:not(.bar).foo` accept `.foo`, because `.bar` set the
+      compound bit for a compound it is not in. The argument is parsed
+      SEPARATELY — its classes are still named, since the module does name
+      them — and what remains at the top level is `div.foo`, refused.
+
+    A descendant combinator survives all of this, because its space sits
+    outside the brackets and parentheses that are removed.
     """
-    # AN ATTRIBUTE IS PART OF THE COMPOUND, so removing it must leave NO GAP
-    # (Copilot review of openxFactory #1068, round 12). Blanking it to a SPACE
-    # turned `div[data-state="x"].gatebar` into `div .gatebar`, where the dot
-    # follows whitespace and reads as the start of a compound — so a selector
-    # the element-qualified rule refuses as `div.gatebar` was accepted with an
-    # attribute in the middle, and on the gate side that MOVES a rule. Removed
-    # outright, the two spell the same thing. A DESCENDANT attribute selector
-    # keeps its gap either way, because the space sits outside the brackets.
     text = re.sub(r"\[[^\]]*\]", "", selector)
     out: set[str] = set()
+
+    # Pseudo parts out (arguments parsed on their own), then IDs out.
+    stripped: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        m = re.match(r"::?[A-Za-z-]+", text[i:])
+        if m:
+            j = i + m.end()
+            if j < n and text[j] == "(":
+                depth, k = 1, j + 1
+                while k < n and depth:
+                    if text[k] == "(":
+                        depth += 1
+                    elif text[k] == ")":
+                        depth -= 1
+                    k += 1
+                out |= selector_class_tokens(text[j + 1:k - 1])
+                i = k
+            else:
+                i = j
+            continue
+        if text[i] == "#":
+            name = _IDENT.match(text, i + 1)
+            i = name.end() if name else i + 1
+            continue
+        stripped.append(text[i])
+        i += 1
+    text = "".join(stripped)
+
     i, n, prev_was_class = 0, len(text), False
     while i < n:
         ch = text[i]
@@ -413,32 +449,6 @@ def selector_class_tokens(selector: str) -> set[str]:
                 continue
             prev_was_class = False
             i = name.end() if name else i + 1
-            continue
-        if ch == "#":
-            # AN ID DOES NOT BREAK A COMPOUND EITHER (Copilot review of
-            # openxFactory #1068, round 9), for the same reason a pseudo-class
-            # does not: `.foo#id.bar` is two classes and an id, and consuming
-            # `id` as an ordinary identifier run lost `bar`. `div#id.foo` stays
-            # element-qualified and still names nothing.
-            name = _IDENT.match(text, i + 1)
-            i = name.end() if name else i + 1
-            continue
-        if ch == ":":
-            # A PSEUDO-CLASS DOES NOT BREAK A COMPOUND (Copilot review of
-            # openxFactory #1068, round 7). `hover` in `.foo:hover.bar` was
-            # consumed as an ordinary identifier run, which cleared the bit
-            # saying the run before `.bar` began with a dot — so `bar` was
-            # lost, the gate module using that selector was under-read, and
-            # its block stayed behind as mixed.
-            #
-            # It does not MAKE a compound either: `prev_was_class` is carried
-            # ACROSS the pseudo unchanged, so `div:hover.foo` stays
-            # element-qualified and still names nothing, exactly as `div.foo`
-            # does. `:not(.bar)`'s own argument is reached by the ordinary
-            # walk, because `(` is not an identifier character.
-            j = i + 2 if text[i:i + 2] == "::" else i + 1
-            name = _IDENT.match(text, j)
-            i = name.end() if name else j
             continue
         run = _IDENT.match(text, i)
         if run:
@@ -550,6 +560,39 @@ def _tag_name_positions(s: str) -> list[bool]:
     return live
 
 
+def js_class_spans(text: str) -> list[tuple[str, int]]:
+    """Every string literal, AND every contiguous `+` chain of them.
+
+    THE CHAIN RULE REACHES BOTH SCANS (Copilot review of openxFactory #1068,
+    round 14). Round 10 taught the BROAD scan that `"ga" + "te" + "bar"` writes
+    `gatebar`, but the class-bearing scans still read one literal at a time, so
+    a contributed module writing `el("div", "ga" + "te" + "bar")` named no
+    class and `"dispose" + "-" + outcome` registered no prefix — a gate-owned
+    block would have been left in openDox's sheet as unreferenced.
+
+    Each chain is reported at the offset of its FIRST literal, which is where
+    the whole expression sits, so `_bare_literal_is_class_bearing` asks its
+    question about the position the value is written into.
+    """
+    spans = [(a, b) for kind, a, b in _js_spans(text) if kind == "string"]
+    out = [(text[a + 1:b - 1], a) for a, b in spans]
+    run: list[tuple[int, int]] = []
+
+    def flush() -> None:
+        for i in range(len(run)):
+            for j in range(i + 2, len(run) + 1):
+                out.append(("".join(text[a + 1:b - 1] for a, b in run[i:j]),
+                            run[i][0]))
+        run.clear()
+
+    for k, (a, b) in enumerate(spans):
+        if run and not _is_concatenation(text[spans[k - 1][1]:a]):
+            flush()
+        run.append((a, b))
+    flush()
+    return out
+
+
 def prefix_refs(text: str, suffix: str, *,
                 class_bearing_only: bool = False) -> set[str]:
     """Every class-name PREFIX this file concatenates onto.
@@ -569,8 +612,7 @@ def prefix_refs(text: str, suffix: str, *,
     """
     out: set[str] = set()
     if suffix == ".js":
-        spans = [(text[a + 1:b - 1], a) for kind, a, b in _js_spans(text)
-                 if kind == "string"]
+        spans = js_class_spans(text)
     else:
         spans = [(m.group(1) or m.group(2),
                   m.start(1) if m.group(1) is not None else m.start(2))
@@ -604,8 +646,7 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
     """Every class token `text` names in a class-bearing position."""
     out: set[str] = set()
     if suffix == ".js":
-        spans = [(text[a + 1:b - 1], a) for kind, a, b in _js_spans(text)
-                 if kind == "string"]
+        spans = js_class_spans(text)
     else:
         spans = [(m.group(1) or m.group(2),
                   m.start(1) if m.group(1) is not None else m.start(2))
@@ -1076,13 +1117,26 @@ def main() -> int:
         "class_counts_broad": counts,
         "class_counts_extraction": extract_counts,
         "class_counts_narrow": narrow_counts,
+        # THE PUBLIC LISTS ARE ONE CLASSIFICATION, NAMED (Copilot review of
+        # openxFactory #1068, round 14). `gate_exclusive` came from
+        # `extract_class` while `shared` and `unreferenced` came from the BROAD
+        # `class`, so the report's own three lists answered two different
+        # questions and its `shared` did not match the 18 the manifest cites.
+        # All three are `extract_class` now — the classification the extraction
+        # DECIDES on — and the broad reading is still published beside them
+        # under a name that says which it is.
         "narrow_shared": sorted(t for t, v in census.items()
                                 if v["narrow_class"] == "shared"),
         "gate_exclusive": sorted(t for t, v in census.items()
                                  if v["extract_class"] == "gate_exclusive"),
-        "shared": sorted(t for t, v in census.items() if v["class"] == "shared"),
+        "shared": sorted(t for t, v in census.items()
+                         if v["extract_class"] == "shared"),
         "unreferenced": sorted(t for t, v in census.items()
-                               if v["class"] == "unreferenced"),
+                               if v["extract_class"] == "unreferenced"),
+        "shared_broad": sorted(t for t, v in census.items()
+                               if v["class"] == "shared"),
+        "unreferenced_broad": sorted(t for t, v in census.items()
+                                     if v["class"] == "unreferenced"),
         "exclusive_blocks": [
             {"selector": b["selector"], "at_rule": b["at_rule"],
              "start": b["start"], "end": b["end"],

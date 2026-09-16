@@ -20,8 +20,10 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -455,6 +457,46 @@ def test_a_class_equals_inside_another_attribute_is_that_attributes(
     assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
 
 
+def test_a_pseudo_functions_argument_is_a_selector_of_its_own() -> None:
+    """`div:not(.bar).foo` NAMES `bar` AND NOT `foo` (Copilot review, round
+    14). Walking the argument inline let `.bar` set the compound bit for a
+    compound it is not in, so the element-qualified `.foo` was accepted —
+    contrary to the `div.foo` rejection the whole position rule rests on."""
+    assert CENSUS.selector_class_tokens("div:not(.bar).foo") == {"bar"}
+    assert CENSUS.selector_class_tokens(".gatebar:not(.is-live).swb-ch") \
+        == {"gatebar", "is-live", "swb-ch"}
+    assert CENSUS.selector_class_tokens("div:is(.a, .b)") == {"a", "b"}
+    assert CENSUS.narrow_refs('root.querySelector("div:not(.bar).foo");\n',
+                              ".js") == {"bar"}
+
+
+def test_a_gate_class_built_from_a_chain_is_named_in_position(
+        tmp_path: Path) -> None:
+    """THE CHAIN RULE REACHES THE CLASS-BEARING SCANS TOO (Copilot review,
+    round 14). Round 10 taught the BROAD scan that `"ga" + "te" + "bar"`
+    writes `gatebar`; the narrow and prefix scans still read one literal at a
+    time, so a contributed module writing it named no class and its block
+    stayed behind as unreferenced."""
+    # the chain is named at the position ITS FIRST literal sits in, and the
+    # position rule still applies to every span: `"te"` and `"bar"` follow a
+    # `+`, which is not a class-bearing position, so only the runs that BEGIN
+    # in argument position count.
+    assert CENSUS.narrow_refs('el("div", "ga" + "te" + "bar");\n', ".js") \
+        == {"div", "ga", "gate", "gatebar"}
+    assert CENSUS.prefix_refs('el("b", "dispose" + "-" + outcome);\n', ".js",
+                              class_bearing_only=True) == {"dispose-"}
+    # and the position rule still holds over a chain: a comparison names nothing
+    assert CENSUS.narrow_refs('if (state === "ga" + "tebar") {}\n',
+                              ".js") == set()
+    dox, xdox = _tree(
+        tmp_path,
+        styles=".gatebar { color: red; }\n",
+        own={},
+        gate={"gate.js": 'el("div", "ga" + "te" + "bar");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebar"]
+
+
 def test_an_attribute_in_the_middle_does_not_open_a_compound() -> None:
     """`div[data-state="x"].gatebar` IS `div.gatebar` (Copilot review, round
     12). Blanking the attribute to a SPACE made the dot follow whitespace, so
@@ -775,3 +817,60 @@ def test_the_usage_line_names_the_committed_filename() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     assert "scripts/measure_opendox_css_census.py" in text
     assert "measure-css-census.py" not in text
+
+
+# ---------------------------------------------------------------------------
+# THE MEASUREMENT ITSELF, PINNED (Copilot review, round 14).
+# ---------------------------------------------------------------------------
+
+#: The census as measured at the two revisions the manifest cites, MINUS its
+#: per-token `census` map (which is 180 kB of namers and says nothing this file
+#: asserts). Everything above this line tests the tool's DECISION RULE on
+#: fixtures; nothing tested the ANSWER, so a parser regression could have moved
+#: the 59 blocks or the 89 lines while every fixture stayed green and the
+#: manifest pin — which only compares the manifest with a literal in
+#: `test_carve_manifest.py` — stayed green with it.
+PINNED_CENSUS = (Path(__file__).resolve().parent / "fixtures"
+                 / "q7-css-census-0b4e8bbf-0a0265f7.json")
+
+#: The two revisions it was measured at. `verify-carve-arrival.py`'s own
+#: `--dest-root` convention: a checkout, named by environment variable,
+#: because this repository carries neither leg.
+PINNED_AT = ("0b4e8bbf", "0a0265f7")
+
+
+def test_the_pinned_census_is_the_figure_the_manifest_cites() -> None:
+    """The manifest's `54 gate-exclusive, 18 shared, 59 blocks, 89 lines` and
+    the committed measurement are the same four numbers, and the 89 is the
+    UNION of the 59 extents rather than a sum of them."""
+    report = json.loads(PINNED_CENSUS.read_text(encoding="utf-8"))
+    assert report["class_counts_extraction"]["gate_exclusive"] == 54
+    assert report["class_counts_extraction"]["shared"] == 18
+    assert len(report["gate_exclusive"]) == 54
+    assert len(report["shared"]) == 18
+    assert len(report["exclusive_blocks"]) == 59
+    assert report["exclusive_block_lines"] == 89
+    assert report["exclusive_blocks_reading_st"] == 10
+    assert report["blocks_kept_for_declaring_a_token"] == []
+    assert report["styles_css"]["lines"] == 2595
+    union = {line for block in report["exclusive_blocks"]
+             for line in range(block["start"], block["end"] + 1)}
+    assert len(union) == 89
+    assert len(report["gate_modules"]) == 6
+
+
+def test_the_pinned_census_re_derives_at_the_cited_revisions() -> None:
+    """And the tool still ANSWERS it, wherever the two checkouts are.
+
+    Skipped where they are not — this repository carries neither leg — so the
+    pin above is what a green run here proves, and this is what proves the pin.
+    Point `Q7_OPENDOX_CODE` and `Q7_OPENXDOX_CODE` at checkouts of
+    `0b4e8bbf` and `0a0265f7` to re-derive it.
+    """
+    dox, xdox = os.environ.get("Q7_OPENDOX_CODE"), os.environ.get("Q7_OPENXDOX_CODE")
+    if not dox or not xdox:
+        pytest.skip(f"set Q7_OPENDOX_CODE / Q7_OPENXDOX_CODE to {PINNED_AT}")
+    with tempfile.TemporaryDirectory() as tmp:
+        report = _run(Path(dox), Path(xdox), Path(tmp) / "out.json")
+    pinned = json.loads(PINNED_CENSUS.read_text(encoding="utf-8"))
+    assert {k: v for k, v in report.items() if k != "census"} == pinned
