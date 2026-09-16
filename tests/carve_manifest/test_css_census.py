@@ -552,6 +552,14 @@ def test_a_class_built_from_a_chain_of_literals_is_still_named() -> None:
     # a chain broken by something that is not a `+` does not join across it
     assert "gatebar" not in CENSUS.js_literal_text(
         'f("gate", "bar");\n').split()
+    # GROUPING AND COMMENTS ARE NOT OPERANDS (Copilot review, round 13)
+    for source in ('el("div", ("ga" + "te") + "bar");\n',
+                   'el("div", "ga" /* join */ + "te" + "bar");\n',
+                   'el("div", "ga" +\n    // continued\n    "te" + "bar");\n'):
+        assert "gatebar" in CENSUS.js_literal_text(source).split(), source
+    # and a NAME between them still breaks the run
+    assert "gatebar" not in CENSUS.js_literal_text(
+        'f("gate") + g("bar");\n').split()
 
 
 def test_an_unquoted_class_attribute_stops_at_the_next_attribute(

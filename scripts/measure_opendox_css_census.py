@@ -137,6 +137,27 @@ def _js_spans(text: str) -> list[tuple[str, int, int]]:
     return spans
 
 
+_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
+_LINE_COMMENT = re.compile(r"//[^\n]*")
+
+
+def _is_concatenation(between: str) -> bool:
+    """True where two string literals are joined by `+` and nothing else.
+
+    GROUPING AND COMMENTS ARE NOT OPERANDS (Copilot review of openxFactory
+    #1068, round 13): `("ga" + "te") + "bar"` and `"ga" /* c */ + "te"` are
+    concatenations, and a separator test of `\s*\+\s*` alone saw an
+    unrelated pair. This is the BROAD scan — the KEEP side — so a chain missed
+    here can mark a class unreferenced and EXTRACT the block that styles it.
+
+    Anything with a NAME in it is still not a concatenation of these two:
+    `f("a") + g("b")` has `g` between them and the run breaks, which is the
+    conservative half of the same rule.
+    """
+    stripped = _LINE_COMMENT.sub(" ", _BLOCK_COMMENT.sub(" ", between))
+    return bool(re.fullmatch(r"[\s()]*\+[\s()]*", stripped))
+
+
 def js_literal_text(text: str) -> str:
     """Every string literal of a module — comments and regexes out.
 
@@ -169,7 +190,7 @@ def js_literal_text(text: str) -> str:
         run.clear()
 
     for k, (a, b) in enumerate(spans):
-        if run and not re.fullmatch(r"\s*\+\s*", text[spans[k - 1][1]:a]):
+        if run and not _is_concatenation(text[spans[k - 1][1]:a]):
             flush()
         run.append(text[a + 1:b - 1])
     flush()
