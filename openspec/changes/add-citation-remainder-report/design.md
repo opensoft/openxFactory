@@ -635,7 +635,18 @@ REPORTED rather than hidden:
   (1 token), which is the `contracts/openspec-cli-pin.yaml` case;
 - a token ending in `-` is FLAGGED `truncated` and NOT resolved as if complete
   (2 tokens), because the citation it came from is a line-broken or
-  concatenation-split path and the tool cannot know the rest;
+  concatenation-split path and the tool cannot know the rest — **BUT THE
+  TRAILING HYPHEN IS A SUSPICION AND NOT A VERDICT, AND RESOLUTION IS TRIED
+  FIRST** (PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jIP4S`): this estate's
+  canonical change-id grammar is `[A-Za-z0-9][A-Za-z0-9._-]*`
+  (`scripts/proposal-support.py`'s `CHANGE_ID_RE`, the one spelling all three
+  readers share), and it ADMITS an id that ends in `-`, so a blanket rule would
+  suppress a valid citation as a tokenization artifact. The report therefore
+  RESOLVES the token first and classes it `truncated` only where it does not
+  resolve; a valid resolver match WINS. Measured, nothing in this reading moves:
+  **no id ends in `-` today** — 0 of the 48 active and 0 of the 169 archived
+  packet directories — and both `-`-terminated remainder tokens at `b1df95ee`
+  are genuinely severed paths that resolve to nothing;
 - a `/./` segment is left exactly as it is, because `packet_reference`'s own
   `_normalised` already drops it.
 

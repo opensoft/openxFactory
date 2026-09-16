@@ -171,6 +171,15 @@ normalizes, states which normalization it applied to which token, and treats a
 token it cannot complete — one severed mid-path — as `truncated` rather than
 resolving it as though it were whole.
 
+AND A TRAILING HYPHEN IS A SUSPICION, NOT A VERDICT: RESOLUTION SHALL BE TRIED
+FIRST AND A TOKEN THAT RESOLVES SHALL NEVER BE CLASSED `truncated`. The
+repository's own change-id grammar admits an identifier that ends in `-`, so a
+report that classed every such token as severed would suppress a VALID citation
+as an artifact of its own regular expression, and the suppression would be
+invisible — the entry would neither resolve nor appear as a defect of the
+record. The order is therefore fixed: resolve, and class `truncated` only where
+the token does not resolve.
+
 THE EXTRACTION PATTERN ITSELF SHALL BE WRITTEN IN THIS SPECIFICATION AND NOT
 ONLY DESCRIBED BY ITS EFFECTS. A requirement that promises a stated grammar and
 then states only what the grammar is afterwards corrected for has not stated it:
@@ -220,6 +229,11 @@ POINT IN THE SAME SERIES.
 - **WHEN** a citation token ends in `-` because the path continued on the next line or in the next concatenated string literal
 - **THEN** the report MUST class the token `truncated`
 - **AND** it MUST NOT resolve the severed token as if it were a complete citation
+
+#### Scenario: A citation ends in a hyphen the packet id actually carries
+- **WHEN** a citation token ends in `-` and the token RESOLVES to a packet under the resolution rule
+- **THEN** the report MUST report the resolved outcome
+- **AND** it MUST NOT class the token `truncated`
 
 #### Scenario: A reading is compared against an earlier reading
 - **WHEN** a reading of the remainder is presented beside an earlier reading of the same corpus
