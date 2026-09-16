@@ -314,6 +314,21 @@ def test_the_checkout_lands_at_the_aggregation_shaped_path(
         f"the checkout must land at {CHECKOUT_PATH!r}; a root checkout makes "
         f"the cross-reference validator locator answer None and turns the "
         f"consumer suite's cross-reference-gated cases into skips")
+
+    # WHICH TREE, not just where it lands. `actions/checkout` defaults to THIS
+    # repository at the pull request's MERGE ref, which is the only tree whose
+    # adjudication means anything on a pull request. `ref: main` would judge
+    # the base, `ref: ${{ github.event.pull_request.head.sha }}` the unmerged
+    # head, and `repository:` somebody else's tree entirely — each of them
+    # leaving every assertion in this file green while the gate reported on
+    # something other than what is being landed.
+    for defaulted in ("ref", "repository"):
+        assert defaulted not in checkout["with"], (
+            f"the checkout must not declare `{defaulted}:`. Its defaults — "
+            f"this repository, at the pull request's merge ref — are what "
+            f"make a green report evidence about the landing; overriding "
+            f"either one leaves this suite passing over a gate that "
+            f"adjudicated a different tree")
     assert gate_job["defaults"]["run"]["working-directory"] == CHECKOUT_PATH, (
         "the job's default working directory must be the checkout path, or "
         "every `run:` below executes in an empty workspace root")
@@ -526,6 +541,86 @@ def test_nothing_here_continues_on_error(gate_job: dict,
             f"would be marked successful, which is exactly what this gate's "
             f"refusals exist to prevent")
 
+
+def test_the_equipment_is_installed_before_the_work_that_needs_it(
+        steps: list[dict]) -> None:
+    """ORDER, not just presence — a shape check cannot see a reordering.
+
+    "The gate installs a hash-pinned, wheel-only lock" is satisfied by a
+    workflow that installs it AFTER the verifiers and both suites have already
+    run against whatever the runner image happened to carry. The numbers this
+    gate pins were measured on the locked set; adjudicating with another one
+    and installing the lock afterwards would leave every assertion in this
+    file green and the report meaningless. The same holds for the interpreter
+    and for `node`: `setup-python` after the install would pip into one
+    interpreter and test in another, and `setup-node` after the consumer suite
+    would turn the fourteen JS-probe cases into skips that `EXPECT_SKIPPED: 0`
+    would then refuse — loudly, but one CI cycle later than here.
+    """
+    def index(predicate, what: str) -> int:
+        found = [i for i, step in enumerate(steps) if predicate(step)]
+        assert len(found) == 1, (
+            f"expected exactly one {what} step; found {len(found)}")
+        return found[0]
+
+    setup_python = index(
+        lambda s: str(s.get("uses", "")).startswith("actions/setup-python"),
+        "setup-python")
+    setup_node = index(
+        lambda s: str(s.get("uses", "")).startswith("actions/setup-node"),
+        "setup-node")
+    install = index(lambda s: "pip install" in s.get("run", ""),
+                    "dependency install")
+
+    assert setup_python < install, (
+        "`setup-python` must run BEFORE the install, or the lock lands in the "
+        "image's interpreter and the suites run in another")
+    for run, what in ((OPENXDOX_PIN_RUN, "openXdox verifier"),
+                      (OPENDOX_PIN_RUN, "openDox verifier"),
+                      (PIN_SUITES_RUN, "pin suites"),
+                      (CONSUMER_SUITE_RUN, "consumer suite")):
+        at = index(lambda s, r=run: r in s.get("run", ""), what)
+        assert install < at, (
+            f"the dependency install must run BEFORE the {what}; this gate's "
+            f"pinned numbers were measured on the locked set, and a gate that "
+            f"adjudicates with the image's packages and installs the lock "
+            f"afterwards reports on something else entirely")
+    consumer = index(lambda s: CONSUMER_SUITE_RUN in s.get("run", ""),
+                     "consumer suite")
+    assert setup_node < consumer, (
+        "`setup-node` must run BEFORE the consumer suite, or its fourteen "
+        "JS-probe cases skip and the exact skip pin refuses the run")
+
+def test_nothing_here_may_be_skipped_by_a_condition(gate_job: dict,
+                                                    steps: list[dict]) -> None:
+    """A SKIPPED step reports success, which is `continue-on-error` by another road.
+
+    `if: false` on the openXdox verifier, on either JUnit assertion, or on the
+    job itself does not fail anything: Actions skips the step and the check
+    reports SUCCESS. The gate would then be green having verified no pin, or
+    having adjudicated no report — the same vacuity the floors, the exact skip
+    count and the named verdicts exist to refuse, arriving through the one
+    mechanism none of them can see, because a step that did not run writes
+    nothing for them to read.
+
+    So NO step and not the job may carry `if:` at all. The stricter rule is
+    the honest one here: this gate has no conditional work in it — every step
+    must run on every pull request or the report means nothing — and a rule
+    that allowed "only harmless conditions" would need a reader to adjudicate
+    harmlessness on each edit. A future act that genuinely needs one moves this
+    assertion deliberately, with its reason, in the same diff.
+    """
+    assert "if" not in gate_job, (
+        "the job must not be conditional: a skipped job reports SUCCESS, so "
+        "`if:` here would let the gate pass having run nothing at all")
+    conditioned = [step.get("name") or step.get("uses")
+                   for step in steps if "if" in step]
+    assert conditioned == [], (
+        f"these steps are conditional: {conditioned}. A skipped step reports "
+        f"success — on a verifier that means no pin was checked, on an "
+        f"assertion step that means no report was adjudicated, and the check "
+        f"goes green either way. Every step in this gate must run on every "
+        f"pull request")
 
 # --------------------------------------------------------------------------
 # the positive assertions
