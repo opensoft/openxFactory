@@ -17,12 +17,15 @@ anywhere in this pull request.
 
 - [ ] 1.1 **RULE `design.md` D-2 — the entry-grain reading is the OPTIONAL
       member's FORM and not a new required member.** Recommended: (a), change
-      `_is_disposition_list` only; `dispositions:` stays optional, stays out of
-      the shape-guard-required set, and the measured `(29, 27, 2)` table split
-      does not move. The alternative (b) — make `dispositions:` REQUIRED — is
-      priced in D-2: WIDER than the guard, two canon passages rewritten, a
-      carriage-ledger row owed, and a guard leg asserting a refusal the verifier
-      does not make.
+      the optional member's FORM — `_is_disposition_list` (3.1) and the
+      diagnostic FAILURE REPRESENTATION that renders which entry failed
+      (3.4, admitted alongside it) — while admitting no new required member;
+      `dispositions:` stays optional, stays out of the shape-guard-required
+      set, and the measured `(29, 27, 2)` table split does not move. The
+      alternative (b) — make `dispositions:` REQUIRED — is priced in D-2:
+      WIDER than the guard, two canon passages rewritten, a carriage-ledger
+      row owed, and a guard leg asserting a refusal the verifier does not
+      make.
 - [ ] 1.2 **RULE `design.md` D-3 — act at all, rather than leave it as it
       stands.** Recommended: adopt. (a) LEAVE AS IS is the round-8 ruling's own
       position and is priced there, including what it costs: the adapter stays
@@ -50,8 +53,9 @@ anywhere in this pull request.
       anything**, by importing `scripts/validate-openspec-cli-pin.py` at its
       fixed authored path and CALLING `pinned_dispositions` on in-memory records
       — no file, no `git`, no network. Recorded as `design.md` D-1: seven
-      readings, each with its condition line, the line the `PinRefusal` was
-      raised from, and the input that reached it.
+      readings, each with its condition line and the input that reached it,
+      and — for the six REFUSAL readings only — the line the `PinRefusal`
+      was raised from (row 0 accepts the member and raises none).
 - [x] 2.2 **MEASURE the adapter's verdict on the same records**
       (`judge(record, "openspec-cli")` over `contracts/openspec-cli-pin.yaml`
       with each value substituted): EIGHT accepted that the guard refuses, ZERO
@@ -117,23 +121,37 @@ anywhere in this pull request.
       only, so a bare "`dispositions` malformed" is the whole rendered text
       today, with NO index and NO key. Give the optional-member entry check a
       way to report WHICH entry failed — its ONE-BASED index
-      (`dispositions[N]`, the guard's own `where` spelling, D-1) and the
-      missing/malformed key (a `DISPOSITION_REQUIRED`/`DISPOSITION_AUTHORITY`
-      name, or `level`) — and carry that through `Failure` (an added field,
-      or `member` itself carrying `dispositions[N]`) into `Verdict.render()`,
-      so the family's rendered rule text names BOTH, exactly as the scenario
-      requires and 3.6's family-level case asserts. `Failure.render()`'s
-      shape/member/defect order and `Verdict.names()`'s substring match
-      (`:489-490`) stay valid for every OTHER member, present or required,
-      that still reports a bare spelling — this task ADDS a capability to the
-      representation and narrows nothing already passing.
+      (`dispositions[N]`, the guard's own `where` spelling, computed once per
+      entry at `:812`) ALWAYS, and — CONDITIONAL ON THE ENTRY BEING A
+      MAPPING — the missing/malformed key (a
+      `DISPOSITION_REQUIRED`/`DISPOSITION_AUTHORITY` name, or `level`). A BARE
+      entry (row 2's `[null]`, `["a"]`) has no key to report: the verifier's
+      own refusal there (`:813-817`) names only `where` and the entry's raw
+      VALUE, never a key, so the realization reports the index and the value
+      for that case rather than inventing a key. Carry whichever applies
+      through `Failure` (an added field, or `member` itself carrying
+      `dispositions[N]`) into `Verdict.render()`, so the family's rendered
+      rule text names the member and the entry AT WHATEVER GRAIN THE GUARD
+      ITSELF NAMES THEM, exactly as the scenario requires and 3.6's
+      family-level case asserts. `Failure.render()`'s shape/member/defect
+      order and `Verdict.names()`'s substring match (`:489-490`) stay valid
+      for every OTHER member, present or required, that still reports a bare
+      spelling — this task ADDS a capability to the representation and
+      narrows nothing already passing.
 - [ ] 3.5 **`tests/doc-health/test_pin_shape_adapter.py`: the optional arm's
       ENTRY case, as a CALL.** Import `scripts/validate-openspec-cli-pin.py` at
       its fixed authored path (the way the guard leg already imports verifiers),
       call `pinned_dispositions` on `contracts/openspec-cli-pin.yaml` carrying
       each malformed entry, assert it raises `PinRefusal`, and assert
       `ps.judge(record, "openspec-cli")` refuses the SAME record naming
-      `dispositions`. One case per D-1 row 2-6.
+      `dispositions`. PARAMETERIZE over every measured entry form and key
+      rather than one representative case per row: row 2's two bare forms
+      (`[null]`, `["a"]`); row 3's six `DISPOSITION_REQUIRED` branches, one
+      per key missing (`repo`, `item`, `path`, `finding`, `why`, `cited_to`);
+      row 4's `cited_to: "x"`; row 5's two refusal boundaries (`level:
+      "WARNING"`, `level: ""`); and row 6's authority-missing case. A test
+      covering only a subset of row 3's keys or row 5's boundaries would pass
+      while leaving the gap D-1 measured on the others untested.
 - [ ] 3.6 **`tests/doc-health/test_tag_hygiene_pinned_targets.py`: a
       FAMILY-LEVEL case, through `fam_tag_hygiene` over a `tmp_path` record** —
       the module's own pattern for a tree no repository should carry (the

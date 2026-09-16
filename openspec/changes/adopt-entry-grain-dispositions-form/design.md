@@ -149,6 +149,20 @@ it is NEVER wider than the guard.
 is already correct and already complete on this member. What is missing is the
 RESOLVER's reading, and the resolver is `document-lifecycle`'s grammar.
 
+**THE ENTRY-GRAIN CHECK IS REACHED ONLY AFTER THE ENUMERATION PREREQUISITES
+HOLD.** The scenario's WHEN clause requires the same well-formed, non-empty
+`capabilities:` enumeration naming `<capability>` that *A marker names a
+capability of a pinned neutral product* and *A pin record addresses its whole
+tree by one digest* require, so a record carrying NO `capabilities:` member,
+or a malformed one, is judged by *A pin record named by a pinned target
+carries no capability enumeration* or *A pin record's capability enumeration
+is malformed* and never reaches this scenario. Without that precondition the
+shape arm would judge the record's SHAPE before the enumeration is asked for,
+so a record combining an absent or malformed `capabilities:` with a malformed
+`dispositions:` entry would satisfy two scenarios at once; with it, this
+scenario and its siblings stay DISJOINT the same way the digest scenario
+already is.
+
 ---
 
 ## D-2 — THIS IS THE OPTIONAL MEMBER'S *FORM*, NOT A NEW REQUIRED MEMBER
