@@ -1053,7 +1053,20 @@ the standard for a COMPLETE commit B — a declared-edit row the run finds
 byte-identical to the carve blob is an edit this leg did not apply, and the
 leg is not done until that count is zero. **The `83` is `82` moved rows plus the Q-L7 replica the fourth `--replica-at`
 declares** (it read `85` = `84` + 1 until RULED 5656343213 retired two of this
-leg's edited rows; the replica's own contribution is unchanged and always was): a replica whose ROW declares lines is answered exactly as a moved
+leg's edited rows; the replica's own contribution is unchanged and always was).
+**AND THE TWO FIGURES ARE THE SAME CLAIM, so a real run today prints neither**
+— measured against openDox-code#24 at `e2d5ac46`, the head that carries this
+act's deletion, the command above prints `117 row(s) arrived, 35 digest(s)
+verified, **82** declared-edit row(s) within their lines, **1** unapplied; 4 of
+4 declared replica(s) verified`. That is the same leg one edit short of done:
+`82` effective edited rows of which ONE is byte-identical to its carve blob
+(so it counts as `unapplied` and not as `diffed`), plus the line-declaring
+replica, which DOES differ on its declared line 25 and is counted with the
+moved rows — `81 + 1 = 82` today, `82 + 1 = 83` the day that last edit lands.
+An operator comparing a run with the example reads the gap as the leg's
+remaining work, which is what `0 unapplied` is for; the pin composes this line
+from the MANIFEST and holds no destination checkout, so it cannot see a leg's
+progress and deliberately does not try (Copilot review, PR #1043): a replica whose ROW declares lines is answered exactly as a moved
 row is and is counted with the moved rows' edits at phase B (`check_replicas`
 -> `counts["diffed"]`), which is why this figure is ONE ABOVE the `verbatim /
 edited` column § 2's per-destination table states for this leg. A replica left
