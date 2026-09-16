@@ -2108,7 +2108,12 @@ the bookkeeping that ticks this group.
   and RULED R-4 reach the PREMISE only; and its ledger is declared 47/23/1 in
   the claim, the description and the squash body alike. The tick belongs to the
   act that records #1059's discharge — with this box's required-check WIRING,
-  which is still owed and still a human act on a human-only surface.
+  which was STILL OWED WHEN AMENDMENT #4 WROTE THIS (2026-09-16, before
+  16:33:22Z) and is a human act on a human-only surface. *(Scoped to its own
+  moment by amendment #5 — a fourth present-tense self-reference of #4's, and
+  the one that mattered most, because the record below closes exactly this
+  obligation and the packet cannot carry two present-tense answers to one
+  question. A Copilot finding on this amendment's own pull request, round 2.)*
   *(A Copilot finding on this amendment's own pull request, round 19. What it
   caught is a fact that went stale between one commit and the next, not a
   reading: the sentence said "is now open" for two hours after the merge.)*
@@ -3051,7 +3056,17 @@ movements claimed at the time they land.
   measurement banked at `brett-wip` `fb3e0821`
   `attachments/lane-opendox/ops74/measurements.md`; no claim was posted and
   nothing was authored before the ruling). **THE BOX DOES NOT TICK HERE.** The
-  ruling divides it four ways:
+  ruling disposes of it in FOUR NAMED PARTS — **(A)**, **(B)**, **(D)** and
+  **(E)**, the RULING'S OWN labels over the five measured reads the actor put
+  to it. **There is no (C) here and the gap is load bearing rather than a
+  typo**: read **(C)** was the DNS widening's MECHANICS — that it is a
+  five-place lockstep whose first place, `infra/aks-security/
+  prod-network-security/dns-ceremony-reach.yaml`, sits in
+  `opensoft/Opensoft-Tenant`, a repository this lane holds no clone of and no
+  claim in — and the ruling folds it into **(B)** rather than disposing of it
+  separately, which is why (B)'s sentence below names the lockstep and that
+  repository by name. Four dispositions over five reads, with the fifth's
+  content inside the second:
   **(A) A SECOND § 7.4 DELTA-TEXT DEFECT IS RECORDED, IN THE CLASS OF RULED
   `5700622683`, AND NOT SILENTLY CORRECTED.** This packet's `design.md`
   lists under **## Non-goals**, verbatim at `:133-134`, *"Resolving
@@ -3089,9 +3104,12 @@ movements claimed at the time they land.
   *Dispatch-only credential least privilege and serving-tier separation*
   (`openspec/specs/credential-contracts/spec.md`:169 at this amendment's base)
   — and what is missing is the provisioning shape. One repository,
-  no Ops collision, CLAUDE.md working rule 1 satisfied. Options (2) hand the
-  DNS and workload halves to lanes `opsXfactory-4`/`-3` and (3) hold all of
-  § 7.4 were DECLINED.
+  no Ops collision, CLAUDE.md working rule 1 satisfied. **The options are a
+  SECOND enumeration and not a re-labelling of the reads** — they are what was
+  put to the ruling as a multi-choice: **(1) SPLIT AND NARROW, which is what
+  (A)-(E) above record and what was TAKEN**; **(2)** hand the DNS and workload
+  halves to lanes `opsXfactory-4`/`-3`; **(3)** hold all of § 7.4. **(2) and
+  (3) were DECLINED.**
   **THE TICK CONDITION, STATED SO A LATER READER NEED NOT RE-DERIVE IT:** this
   box ticks on (i) this ruling, (ii) the landed `credential-contracts` delta
   of (E), and (iii) § 3.5's per-tenant evidence when it exists. **Only (i) is
