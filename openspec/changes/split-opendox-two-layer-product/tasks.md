@@ -1950,10 +1950,47 @@ movements claimed at the time they land.
   declaration, five axes, per `domain-mapping-declaration` — and, under this
   packet's own MODIFIED delta (`proposal.md`:298-299, `design.md`:741, NOT yet
   promoted, since this packet archives later), a committed TENANT INSTALL.
-  Measured at codexFactory `main` **`761f49d0`**, 1,995 tracked blobs: paths
-  matching `(?i)domain.mapping` **0**, `(?i)codexdox` **0**, `(?i)openxdox`
-  **0**, `(?i)opendox` **0**. **Zero artifacts of the profile kind, so the
-  laziness rule holds and the answer is NONE YET.**
+  **Censused BY CONTENT, not by filename**, at codexFactory `main`
+  **`761f49d0`**, 1,995 tracked files — because the requirement names an artifact
+  KIND, and a declaration need not carry the word in its path: **ZERO files
+  declare `kind: domain-profile`**, which is the literal the one real instance
+  carries (`openxFactory` `contracts/domain-profiles/openxfactory-engineering.yaml`:61,
+  `schema_version: 1` / `kind: domain-profile`). The `kind:` literals codexFactory
+  DOES declare under `contracts/`, `profiles/`, `schemas/` and `tenants/` are
+  `policy_allowance_registry` (5), `policy_allowance` (2), `veto_class_vocabulary`,
+  `policy_allowance_revocation`, the three `intent_compliance_*`,
+  `codex_deployment_profile` and `artifact_kind` — and `codex_tenant` under
+  `tenants/`. **No `kind:` anywhere in the tree names dox**
+  (`git grep -iE '^\s*kind:.*dox'` → empty). The content mentions that DO exist
+  are named rather than hidden, since a path-only census would have missed them:
+  `openXdox` appears in **32** files and `openDox` in **28**, distributed
+  `openspec/changes` 14, `hermes/domain` 12 (council records and their evidence
+  dumps), `specs/013-project-intake-provisioning` 3 (which excludes the openXdox
+  migration from its scope in terms), `tests/merge-master` 2 and
+  `scripts/merge_master/openxfactory_floor.py` 1 — that last one being
+  `openxFactory`'s SUBMODULE GITLINK NAMES in a floor prober (:290), which is
+  this packet's own § 5.1 / § 8.7 subject seen from codexFactory's side. The
+  three `domain-profiles` hits and the one `domain-mapping-declaration` hit are
+  all inside **path-listing fixtures and evidence dumps of openxFactory's own
+  tree** (`tests/merge-master/fixtures/tree-floor-probe/openxFactory.tracked-paths.txt`,
+  `hermes/domain/review-councils/records/*/evidence/openxfactory-*paths*.txt`) —
+  another repository's filenames recorded as data, not artifacts of this one.
+  **On the tenant-install half the nearest miss is named too**: codexFactory
+  carries `profiles/software-team.yaml` (`kind: codex_deployment_profile`) and
+  two `kind: codex_tenant` descriptors including a LIVE pilot
+  (`tenants/pilots/project-alfa.yaml`) — tenancy for codexFactory's OWN product,
+  with no dox instance, no dox database and no `openXdox — <tenant>` App
+  anywhere. **Zero artifacts of the product's profile kind by content and by
+  kind literal, so the laziness rule holds and the answer is NONE YET.**
+  *(This paragraph replaced a PATH-ONLY census — `(?i)domain.mapping` 0,
+  `(?i)codexdox` 0, `(?i)openxdox` 0, `(?i)opendox` 0 over path names — at
+  Copilot review round 1 on this amendment's own pull request. The finding was
+  right and is recorded rather than quietly fixed: those four greps read
+  FILENAMES, the requirement reads ARTIFACT KIND, and the content census above
+  finds 60 file-level mentions the path census could not see. The conclusion is
+  unchanged and is now established by the evidence that would have overturned
+  it. The § 7.2 REPORT carried the same path-only census and is corrected by its
+  own erratum, cited there.)*
   **The clause this box carried does NOT reproduce, which is why it was
   amended rather than ticked around.** codexFactory holds **32** tracked paths
   whose name contains "dashboard", in four classes, and naming them is what makes
@@ -1993,11 +2030,29 @@ movements claimed at the time they land.
   the strongest form of "not cited as precedent for creating more" this box can
   reach. The fifteen descendant names plus one install name of § 1.7 stay
   registered with no repository behind any of them.
-- [ ] 7.3 `[?]` **DEFERRED SUCCESSOR (RULED R-3, 2026-09-16, `#656` comment
+- [~] 7.3 `[?]` **DEFERRED SUCCESSOR (RULED R-3, 2026-09-16, `#656` comment
   `5690428146`) — carried out of this packet in the form § 4.5 was carried under
   openxFactory #714 and § 0.6's RULED PATH A**: the ruling § 7.1 owed has landed
   and its answer is NONE YET, so the act this box describes has no subject to
-  perform on, and it does not tick here, block § 8's archive gate, or lapse. It
+  perform on, and it does not tick here, block § 8's archive gate, or lapse.
+  **The marker is `[~]`, the house's RESERVED DEFERRED FORM, and that is load
+  bearing rather than cosmetic**: `scripts/proposal-support.py`:4592 refuses an
+  archive whose `tasks.md` still matches `^- \[ \]` — *"change has incomplete
+  tasks"* — so a deferred successor left at `[ ]` would contradict, in the
+  archive machinery itself, the sentence before this one. The form is the one the
+  archived packets use for exactly this standing:
+  `archive/2026-09-09-add-openspec-cli-pin/tasks.md`:244-255 (which names it
+  *"the house's reserved DEFERRED form"* and cites
+  `archive/2026-08-21-add-doxbench-editing-phase-a/tasks.md` § 5.3 for it),
+  `archive/2026-09-09-pin-openspec-cli-dependency-closure` §§ 6.1/6.2 and
+  `archive/2026-09-10-adopt-codexfactory-repository-identity` §§ 5.7, 8.4, 9.1-9.6.
+  *(Measured rather than assumed, because "as § 4.5 was" invites the opposite
+  reading: § 4.5 wore `- [ ]` while it was the recorded deferred successor — it
+  reads `- [ ]` at `56e69a11`, the #832 archive commit that recorded the
+  deferral, and `- [x]` at this packet's merge-base `8f393758` after it was
+  built. What the ruling carries over from § 4.5 is the STANDING — open, owned,
+  not lapsed, not gating — not the character in the box. This is the first `[~]`
+  in this packet.)* It
   is the successor act that runs when a domain acquires its first profile
   artifact, and § 7.1's laziness rule is what starts it. The text below is its
   specification, unchanged and unticked, and § 8's gate reads it as deferred
@@ -2104,9 +2159,25 @@ realization evidence, never on landing. Each line is its own evidence.
   AND EXPLAINS**.
   *(THIRD CLAUSE REWRITTEN 2026-09-16 by RULED **R-6**, `#656` comment
   `5690428146`. It read "a doc-health run whose severity counts move by exactly
-  the amount the packet predicts" — and the packet predicts no amount: the word
-  "severity" occurs exactly twice in the whole packet, at `design.md`:225, a
-  glossary row, and in this line itself, so the clause as written could never be
-  satisfied or falsified. The obligation is not weakened, it is relocated to the
-  act that can discharge it: the archive pull request states the movement it
-  caused and why, and a movement it does not explain fails this line.)*
+  the amount the packet predicts" — **and the packet predicts no amount
+  anywhere**. Measured across the WHOLE packet, `review/` included:
+  "severity" occurs **ten** times in six files — `design.md`:225 (a glossary
+  row), this line and the two above it, `review/ratification-2026-09-05.md`:649,
+  :691 and :783, `review/reality-check-2026-09-05.md`:302,
+  `review/amendment-2026-09-05-repository-shape.md`:246, and
+  `review/amendment-2026-09-09-floor-part-2-mapping.md`:45 (which is a CHANGE
+  NAME, `2026-09-03-amend-owner-layer-severity`, not a count at all). **Not one
+  is a prediction.** The three review records each report a MEASURED
+  doc-health delta of **ZERO** across every family and every severity for a
+  packet that, at ratification, performed nothing — which is exactly why "the
+  amount the packet predicts" has no referent for an archive that follows a
+  carve, six repositories and a shed. The obligation is not weakened, it is
+  relocated to the act that can discharge it: the archive pull request states the
+  movement it caused and why, and a movement it does not explain fails this line.
+  *(This passage claimed "exactly twice" until Copilot review round 1 on this
+  amendment's own pull request, and the finding was right: the grep behind it was
+  `grep -rn severity *.md` from the packet root, whose glob never entered
+  `review/`. Recorded rather than silently repaired — a count that does not
+  reproduce is the same defect this amendment corrects in five other boxes, and
+  the corrected measurement makes the point more strongly than the wrong one
+  did.)*)*
