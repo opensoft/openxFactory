@@ -31,6 +31,20 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "contracts" / "manifest.yaml"
 
 
+class RetiredMember(Exception):
+    """A manifest member whose arrival a RULING has DELETED (RULED 5656343213).
+
+    `carved_reach.source()` refuses a retired row by name, and the refusal is
+    an `ImportError` subclass — so `shed_aware`'s `except ImportError` around
+    the lazy IMPORT would not have caught it at the CALL, and this script
+    would have ended in a traceback and exit 1 instead of its own FAIL line
+    and exit 1 (Copilot review of PR #1032). Translated here so the finding
+    reads as what it is: a digest this file cannot verify because the bytes it
+    pins were deleted by a ruling, which is an amendment owed to
+    `contracts/manifest.yaml` and not a corrupted file.
+    """
+
+
 def shed_aware(target: Path) -> Path:
     """`target`, or the pinned-leg copy of it when the § 5.2 shed moved it.
 
@@ -43,10 +57,13 @@ def shed_aware(target: Path) -> Path:
     answers exactly as it did before.
     """
     try:
-        from carved_reach import shed_destination
+        from carved_reach import CarveRowRetired, shed_destination
     except ImportError:  # pragma: no cover - no manifest, nothing to resolve
         return target
-    moved = shed_destination(target)
+    try:
+        moved = shed_destination(target)
+    except CarveRowRetired as exc:
+        raise RetiredMember(str(exc)) from exc
     return moved if moved is not None else target
 
 
@@ -66,9 +83,15 @@ def main() -> int:
     failures = 0
     checked = 0
     for entry in iter_entries(doc):
-        path = shed_aware(ROOT / str(entry["path"]))
         recorded = str(entry["sha256"])
         checked += 1
+        try:
+            path = shed_aware(ROOT / str(entry["path"]))
+        except RetiredMember as exc:
+            print(f"FAIL {entry['path']}: the carve manifest says a RULING "
+                  f"RETIRED this member's arrival — {exc}")
+            failures += 1
+            continue
         if not path.is_file():
             print(f"FAIL {entry['path']}: recorded in the manifest but missing on disk")
             failures += 1
