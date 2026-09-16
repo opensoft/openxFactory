@@ -2452,9 +2452,12 @@ def _check_retired_consistency(where: str, row: dict[str, Any]) -> None:
 def _check_retired_surfaces(doc: dict) -> None:
     """Every `retired.surface` is a `not_moved` row of THIS manifest.
 
-    RULED 5656343213 retires three suites because the surface they drive —
+    RULED 5656343213 retires three suites because the surface they NEED —
     `views/intent-feed.js`, RULED OQ-F `not_moved` — is present at NEITHER
-    leg. That is the claim the form rests on, and it is answerable from this
+    leg. NEED and not `drive`: of the ruling's three, one DROVE that module,
+    one only loads it (its own manifest note says so), and the third is not a
+    `retired:` row at all — it loses PART of an arrived file and lands as an
+    ordinary declared edit, so exactly TWO rows reach this check. That is the claim the form rests on, and it is answerable from this
     document alone: a `not_moved` row STAYED at openxFactory, so by the
     manifest's own declaration it arrived at no destination. This check is
     that sentence as running code, and it is the difference between a floor

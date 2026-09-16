@@ -1297,8 +1297,13 @@ two pull requests — that closes the pair, not the tool.
 **RULED 5656343213** (Brett Heap, 2026-09-13, by interactive multi-choice, on
 the question slice S8's author put in `#656` comment `5650335573` § 2). An
 arrival may turn out to have nothing left to be: three suites reached their
-legs driving `views/intent-feed.js`, RULED OQ-F `not_moved` — so it stayed
-HERE and arrived at NEITHER leg — and slice S2 replaced the surface openDox
+legs NEEDING `views/intent-feed.js`, RULED OQ-F `not_moved` — so it stayed
+HERE and arrived at NEITHER leg. (NEEDING, not driving, and the distinction is
+the first use's own: the tray suite DROVE that module, while the wheel suite's
+comment says it "rides along because dispose.js imports it" and that the probe
+"drives the LOCAL path only". Both need it; one drives it; and the grammar's
+`surface:` asks for what an arrival NEEDS and cannot obtain — see the manifest
+header) — and slice S2 replaced the surface openDox
 does have with `views/intent-binding.js`. The suites test a surface that is
 not there. **§ 5.7 cannot say so**: `re_destined.to` is held to the closed
 `destinations:` keys, openxFactory is the SOURCE and not one of them, and
@@ -1323,8 +1328,11 @@ placed one, and citing it would rest the claim on a row that says the
 opposite.
 
 1. **The ruling first.** Brett Heap's word, on `#656` or on the pull request
-   that asks for it, naming the rows, the surface they drive, and the evidence
-   that the surface is at no leg. Record the comment id — it is what every row
+   that asks for it, naming the rows, the surface they NEED and cannot obtain
+   at their leg, and the evidence that the surface is at no leg. (A ruling
+   asked for the surface they DRIVE would be asked a narrower question than
+   the grammar answers, and the first act to use this form had one row of two
+   that could not answer it.) Record the comment id — it is what every row
    below cites.
 2. **ONE openxFactory row-amendment pull request, and it lands FIRST** — the
    same pairing § 5.7 requires. On each affected row add:
