@@ -68,6 +68,13 @@ subject: `medxchart-overlay-boundary`, `medxpractice-overlay-boundary`, `omnigen
 **Collision check at `fa39141c`**: 62 capabilities under `openspec/specs/`, none of them this;
 `grep -rI "openxfactory-engineering-adapter"` over the tree returns **0** hits.
 
+**AND A DIFFERENT ID COSTS ONE CONSTANT.** The capability appears in `review/build-delta.py` exactly
+once, as `CAP`; the output path and the delta's `# <id> Specification` heading are both derived from
+it. Proved against a throwaway copy with `CAP` changed: the build wrote
+`specs/some-other-successor-id/spec.md` whose first line is `# some-other-successor-id Specification`,
+fifteen requirements intact. So ruling a different id at § 1.1 is a one-line edit and a rebuild, not a
+re-authoring.
+
 ## D2 — SIX PATH LITERALS, TWO OF WHICH A SEAM OPERATION ANSWERS FOR — AND THAT IS THE FINDING
 
 `tasks.md` § 5.2a: *"The only edit they take is re-expressing path literals as `adapter calls` — one

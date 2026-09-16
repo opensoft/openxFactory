@@ -13,8 +13,12 @@ performs only the first.
 - [ ] 1.1 The id `openxfactory-engineering-adapter` is accepted, or another is ruled. `design.md`
       § D1 derives it from the packet's own 22 uses of "engineering adapter", the ratified map's
       fifteen identical destination phrases, and the two LANDED machine names that fix its spelling.
-      Four candidates are rejected there with reasons. **A different id is a one-command rebuild**:
-      the delta is generated, not typed.
+      Four candidates are rejected there with reasons. **A different id is a one-command rebuild, and
+      that is proved rather than claimed**: the capability appears in the generator ONCE, as `CAP`,
+      and both the output path and the delta's `# <id> Specification` heading are derived from it —
+      run against a throwaway copy with `CAP` changed, the build writes
+      `specs/some-other-successor-id/spec.md` whose first line is
+      `# some-other-successor-id Specification`, with all fifteen requirements intact.
 - [ ] 1.2 `design.md` § D2's TWO disclosed edits are accepted as the re-expression § 5.2a permits —
       both `resolve`, both in *doxBench resolves its released contract from the checkout it runs in*.
 - [ ] 1.3 `design.md` § D2's RECORDED NON-EDITS are accepted, with the finding they carry: four of

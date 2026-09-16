@@ -35,14 +35,26 @@ EDITS = [
   "resolve"),
 ]
 
-def requirements(text):
-    """(title -> body) for every '### Requirement:' block, in file order."""
+def requirements(text, path="<text>"):
+    """(title -> body) for every '### Requirement:' block, in file order.
+
+    Refuses a duplicate title rather than overwriting it — see the guard below.
+    """
     lines = text.split("\n")
     idx = [(i, l[len("### Requirement: "):].strip())
            for i, l in enumerate(lines) if l.startswith("### Requirement: ")]
     out = {}
     for n, (i, t) in enumerate(idx):
         j = idx[n + 1][0] if n + 1 < len(idx) else len(lines)
+        # FAIL CLOSED ON A DUPLICATE TITLE. `promotion_fidelity` keys on
+        # (capability, normalized title), so two requirements sharing one title
+        # are indistinguishable to it — and to this selection. Overwriting
+        # silently would emit one body twice under a title that means two
+        # things, and the reversal proof would still pass. Refuse instead.
+        if t in out:
+            raise SystemExit(f"REFUSED: duplicate requirement title in "
+                             f"{path}: {t!r} — the title-keyed selection this "
+                             f"build performs cannot be trusted over it.")
         out[t] = "\n".join(lines[i:j]).rstrip("\n")
     return out, [t for _, t in idx]
 
@@ -69,7 +81,7 @@ def main():
 
     # (2) lift by title from the promoted spec
     pr = promoted.read_text(encoding="utf-8")
-    reqs, order = requirements(pr)
+    reqs, order = requirements(pr, promoted)
     print(f"promoted requirements: {len(order)}")
     missing = [t for t in fifteen if t not in reqs]
     assert not missing, missing
@@ -131,7 +143,7 @@ def main():
     print(f"CHECK PASSED: {out.relative_to(root)} is byte-identical to this build "
           f"({len(committed)} bytes, sha256 {digest[:16]}…).")
 
-HEADER = """# openxfactory-engineering-adapter Specification
+HEADER = f"""# {CAP} Specification
 
 This delta is the RE-PROMOTION half of `split-opendox-two-layer-product` § 5.2a: the
 FIFTEEN engineering-vocabulary requirements that leave the capability
