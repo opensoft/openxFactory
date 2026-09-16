@@ -81,12 +81,33 @@ comparable — the same caveat #1053 records against its own two predecessors
 (M4's 36 at `9378eca5`, PR #1041's 40 at `701c8fde`). Nothing here claims one
 corrects the other.
 
-**THE CLASSIFIED FIGURES ARE #1053'S AND ARE CITED TO IT, NOT RE-DERIVED HERE.**
-The refined this-tree-only reading (22 cross-repository tokens removed by an
-automated qualifier check, leaving 59; a manual read of all 59 finding about 48
-true in-tree remainder in nine classes) is #1053's hand work. The DEEP
-re-measurement is a sibling writer's and lands beside this packet as
-`evidence/measurement-<sha8>.md`; `design.md` D0 holds the named slot for it.
+**AND THE DEEP RE-MEASUREMENT IS IN THIS PACKET**, taken by a sibling writer in
+this lane at the same head and committed at
+`evidence/measurement-b1df95ee.md`:
+
+| | #1053 @ `8944758c` | evidence @ `b1df95ee` |
+| --- | ---: | ---: |
+| INCLUSIVE remainder | 80 | **78** |
+| THIS-TREE-ONLY (qualifier check applied) | 59 | **57** |
+| TRUE in-tree remainder (every token read by hand) | "about 48" | **39** |
+| `AMBIGUOUS` | 0 | **0** |
+
+**THE METHODOLOGY IS PROVED NOT TO BE THE VARIABLE.** Run against a control
+clone at `8944758c`, the same instrument reproduces **all twelve** of #1053's
+published figures exactly — so every delta is corpus movement, and the whole −2
+is PR #1064's archive of `add-declared-former-id` moving its `design.md` M1/M2
+fixture citations under the excluded `archive/` path. **ALL 57 ARE CLASSIFIED
+AND NONE IS LEFT `unclassified`** (cross-repository 14, tokenization artifact 4,
+self-referential 10, synthetic fixture 18, never-existed 6, pre-tracking rename
+1, file-half fixture 2, file-half stale draft 2), so #1053's two unclassified
+tokens are resolved and its "≥10" cross-repository lower bound becomes a
+complete enumeration of 14.
+
+**AND THREE HONEST READINGS OF ONE CORPUS GIVE 78, 81 AND 86**, differing only
+in whether trailing punctuation is stripped before dedup and whether
+`NOT_A_PACKET_REFERENCE` sits inside the raw-absent population. None is wrong;
+they answer three different questions, and #1053's prose does not say which it
+asked. That is the whole argument for D3 stating the recipe in the requirement.
 
 **THREE FACTS THIS RE-MEASUREMENT FOUND THAT #1053 DOES NOT CARRY**, each of
 which moves a decision rather than decorating one:
@@ -117,14 +138,15 @@ which moves a decision rather than decorating one:
    from `scripts/packet_reference.py` and `scripts/validate-pin-registrations.py`.
 
 **AND THE PACKET MEASURED ITS OWN EFFECT ON THE POPULATION, AFTER IT EXISTED.**
-Re-run on this branch: 2,978 files in scope (+5), 587 distinct tokens (+1), 499
-`RESOLVED` (+1), **remainder UNCHANGED at 81**. The packet mints no remainder —
-but it JOINS THE CITING SET OF THREE REMAINDER ENTRIES simply by quoting them as
-examples. **A document that discusses a dangling citation becomes a record that
-carries one.** At this size it is three citing-file counts and nothing else; at
-the size of a nightly report committed into the tree it is one such quotation
-per remainder line, every night, which is the measured reason `design.md` D5
-recommends artifact-only.
+Re-run on this branch: 2,979 files in scope (+6), 594 distinct tokens (+8), 504
+`RESOLVED` (+6), **remainder 82 — UP BY ONE FROM 81**. The packet's five
+documents mint no remainder at all. **THE COMMITTED EVIDENCE REPORT MINTS ONE**:
+`openspec/changes/foo/`, a dangling identity-half token produced by the report's
+own enumeration of the resolver's docstring examples. **A document that
+discusses a dangling citation becomes a record that carries one**, and one
+report committed once is worth one point of remainder — which is exactly the
+mechanism `design.md` D5 refuses at nightly scale, no longer as a prediction
+but as a measurement taken inside this pull request.
 
 ## What changes
 

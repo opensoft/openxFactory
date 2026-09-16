@@ -16,6 +16,37 @@ verbatim in this packet and reproducible from the command named beside it.
 Nothing is ticked against an intention, against a plan, or against work another
 pull request will do.
 
+**AND `design.md` D7'S SCOPE FENCES ARE PROVED MECHANICALLY RATHER THAN
+ASSERTED.** Every fence is a `git diff` anybody can re-run against this branch,
+and every one of them is EMPTY:
+
+```text
+$ git diff origin/main..HEAD -- scripts/packet_reference.py | wc -l
+0
+$ git diff origin/main..HEAD -- scripts/validate-pin-registrations.py | wc -l
+0
+$ git diff origin/main..HEAD -- scripts/doc_health | wc -l
+0
+$ git diff origin/main..HEAD -- openspec/specs | wc -l
+0
+$ git diff origin/main..HEAD -- .github/workflows | wc -l
+0
+$ git diff --name-only origin/main..HEAD
+README.md
+openspec/changes/add-citation-remainder-report/.openspec.yaml
+openspec/changes/add-citation-remainder-report/design.md
+openspec/changes/add-citation-remainder-report/evidence/measurement-b1df95ee.md
+openspec/changes/add-citation-remainder-report/proposal.md
+openspec/changes/add-citation-remainder-report/specs/packet-citation-report/spec.md
+openspec/changes/add-citation-remainder-report/tasks.md
+tests/sequenced_after/corpus-ledger.yaml
+```
+
+EIGHT FILES: the packet's five documents, its committed evidence report, the
+README bullet, and the machine-seeded ledger row. No script, no workflow, no test, no promoted byte. A reviewer does
+not have to take "nothing is realized" on trust, and neither does a later
+reader of the archived packet.
+
 **§ 1 IS OPEN WHERE IT DEPENDS ON A WORD AND TICKED WHERE IT DEPENDS ON A
 DIFF.** No word of Brett Heap's ratifies any wording in this packet: #1053 was
 filed AS A ROUTING RECORD and NOT CLAIMED, and the word that commissioned this
@@ -39,10 +70,12 @@ OPEN.**
       `AMBIGUOUS`, **7** `NOT_A_PACKET_REFERENCE` — **inclusive remainder 81
       tokens**, carried by **65** distinct citing files. `design.md` D0 carries
       the table and the commands. **AND THE SAME RECIPE WAS RE-RUN ON THIS
-      BRANCH, AFTER THE PACKET EXISTED**: 2,978 files in scope, 587 tokens, 499
-      RESOLVED, **remainder UNCHANGED at 81** — this packet mints no remainder,
-      and the three remainder entries whose citing set it joins, it joins by
-      QUOTING them (`design.md` D0(iv)).
+      BRANCH, AFTER THE PACKET EXISTED**: 2,979 files in scope, 594 tokens, 504
+      RESOLVED, **remainder 82 — UP BY ONE**, and the one is
+      `openspec/changes/foo/`, minted by the COMMITTED EVIDENCE REPORT's own
+      enumeration of the resolver's docstring examples. `design.md` D0(iv)
+      carries all four readings. **That is D5's argument stopping being a
+      prediction**: one report, committed once, +1 remainder.
 - [x] 1.2 **THREE FACTS #1053 DOES NOT CARRY WERE FOUND AND EACH MOVED A
       DECISION.** (i) the 74 identity-half tokens collapse to **48 DISTINCT
       IDENTITIES**, 18 identities cited more than once — which is why D3
@@ -101,9 +134,28 @@ OPEN.**
       `_GLOSS_OPENER_RE` (`code_surface.py:166`) admits. **No register entry is
       owed and none is requested.** `design.md` D7 records it.
 
+- [x] 1.9 **THE DEEP RE-MEASUREMENT IS TAKEN AND COMMITTED AS EVIDENCE.**
+      `evidence/measurement-b1df95ee.md`, by a sibling writer in this lane at
+      the same head `b1df95ee`, is IN this pull request. **INCLUSIVE remainder
+      78** (#1053: 80), **THIS-TREE-ONLY 57** (59), **TRUE in-tree remainder by
+      manual read 39** ("about 48"), **`AMBIGUOUS` still 0**. **THE
+      METHODOLOGY IS PROVED NOT TO BE THE VARIABLE**: run against a control
+      clone at `8944758c`, the same instrument reproduces ALL TWELVE of #1053's
+      published figures exactly, so every delta is corpus movement and the whole
+      −2 is PR #1064's archive of `add-declared-former-id` moving its M1/M2
+      fixture citations under the excluded `archive/` path. **ALL 57 ARE
+      CLASSIFIED and none is left `unclassified`** — cross-repository 14,
+      tokenization artifact 4, self-referential 10, synthetic fixture 18,
+      never-existed 6, pre-tracking rename 1, file-half fixture 2, file-half
+      stale draft 2 — so #1053's two unclassified tokens are resolved and its
+      "≥10" cross-repository lower bound becomes a complete enumeration. The
+      run record, the instrument `measure.py`, the 1.5 MB per-token JSON and the
+      classification JSON are NOT committed and are cited by their path in this
+      lane's handoff attachments: a packet needs the reading, not the dump.
+
 ### What is held for Brett Heap's word — SEVEN DECISIONS, EACH VETOABLE ALONE
 
-- [ ] 1.9 **`design.md` D1 — THE HOME OF THE REPORT.** RECOMMENDED: **(b)** a
+- [ ] 1.10 **`design.md` D1 — THE HOME OF THE REPORT.** RECOMMENDED: **(b)** a
       report CLI outside doc-health, which is #1053's own recommendation.
       Against **(a)** a twenty-fourth doc-health family NOW — cost: a
       `## MODIFIED` block restating the whole twenty-three-family enumeration,
@@ -111,14 +163,14 @@ OPEN.**
       says must FOLLOW a population measurement; against **(c)** nothing —
       cost: the posture that let #840's dangling `cited_to` citations go
       unnoticed, now measured at 81 tokens nobody looks at.
-- [ ] 1.10 **`design.md` D2 — THE SURFACE.** RECOMMENDED: a sibling
+- [ ] 1.11 **`design.md` D2 — THE SURFACE.** RECOMMENDED: a sibling
       `scripts/report-citation-remainder.py` importing the library, so the
       library's contract stays a library's. Against giving
       `scripts/packet_reference.py` a `__main__` — cost: its own docstring says
       *"this module is a library and has no CLI"*, and a gate
       (`validate-pin-registrations.py`) imports it. Exit code **always 0** and
       **no `--fail-on`**, which is reserved for D1 option (a).
-- [ ] 1.11 **`design.md` D3 — THE RECIPE.** RECOMMENDED: the stated file
+- [ ] 1.12 **`design.md` D3 — THE RECIPE.** RECOMMENDED: the stated file
       population (three exclusions, each with a reason, plus the report's own
       output path the moment D5 ever changes), the stated token grammar with
       its four normalizations PRINTED rather than hidden, and — the decision
@@ -127,7 +179,7 @@ OPEN.**
       silently (cost: an unauditable window sets the headline number); against
       counting it unflagged (cost: the largest known class hides inside a
       number that reads as a defect count).
-- [ ] 1.12 **`design.md` D4 — THE CLASSES.** RECOMMENDED: four MECHANICAL
+- [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: four MECHANICAL
       classes (`possibly-cross-repo`, `truncated`, `punctuation-stripped`,
       `fixture-path`) and an honest `unclassified` for the five that need a
       reading of INTENT. Against mechanizing all nine (cost: a machine
@@ -137,7 +189,7 @@ OPEN.**
       REPAIRED** — a dangling reference owes the citing record no edit from
       this tool, which is the other half of the sentence
       `add-declared-former-id` D4 wrote.
-- [ ] 1.13 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
+- [ ] 1.14 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
       one step in `.github/workflows/doc-health-reusable.yml`, committing
       nothing. The reason is measured and is not merely merge conflicts:
       `health/` is INSIDE the file population and carries **0** citation tokens
@@ -147,7 +199,7 @@ OPEN.**
       derive-possibles shape; named as the promotion step, its real advantage
       being that D6's series is then read with one `git log`); against a
       committed rolling `health/citation-remainder.md`, **REFUSED BY NAME**.
-- [ ] 1.14 **`design.md` D6 — WHAT "STABLE" MEANS** before option (a) becomes
+- [ ] 1.15 **`design.md` D6 — WHAT "STABLE" MEANS** before option (a) becomes
       takeable: three conditions on the nightly series over `N = 14` runs —
       `unclassified` identities not growing; at most **3** new remainder
       identities, each attributable to a named pull request; the mechanical
@@ -155,13 +207,13 @@ OPEN.**
       are the most vetoable figures in this packet.** Against "the count is
       unchanged" (cost: unmeetable — the count moves on every archive) and
       against no condition at all (cost: "later" becomes "never").
-- [ ] 1.15 **`design.md` D7 — THE SCOPE FENCES.** RECOMMENDED: four, each named
+- [ ] 1.16 **`design.md` D7 — THE SCOPE FENCES.** RECOMMENDED: four, each named
       with the file it protects — no citation edited anywhere by anything; no
       cross-repository reference resolved (only suspected);
       `scripts/validate-pin-registrations.py`'s `check_citations` untouched by
       name; no file under `scripts/doc_health/` or
       `openspec/specs/doc-health/spec.md` moved.
-- [ ] 1.16 **THE RATIFICATION RECORD IS CUT WHEN THE WORD IS GIVEN**, and not
+- [ ] 1.17 **THE RATIFICATION RECORD IS CUT WHEN THE WORD IS GIVEN**, and not
       before: `.openspec.yaml` gains `approved_by` and `approved_on` as a pure
       ADDITION beside a byte-unmoved drafting provenance (`kind` and `id` never
       move — the shape `add-drafted-proposal-origin` defined), and
@@ -199,12 +251,14 @@ added, edited, renamed or deleted here.
       instead a date-partitioned commit-back on a lane-owned branch in the
       derive-possibles shape, and D3(a)'s output-path exclusion becomes LIVE
       rather than structural and MUST land in the same pull request.
-- [ ] 2.3 **THE FIRST COMMITTED MEASUREMENT, AS EVIDENCE.**
-      `evidence/measurement-<sha8>.md` (packet-relative), the deep
-      re-measurement this lane's sibling writer takes, committed into this
-      packet as the first reading the report itself produced rather than a
-      hand-rolled one. It is what D6's series starts from, and it is what
-      replaces the #1053 citations that stand in `design.md` D0 today.
+- [ ] 2.3 **THE FIRST MEASUREMENT THE REPORT ITSELF PRODUCES, AS EVIDENCE.**
+      § 1.9's `evidence/measurement-b1df95ee.md` is the HAND-INSTRUMENTED
+      reading and it is already committed; what § 2.3 owes is the first reading
+      the SHIPPED CLI produces, taken at the realization head and checked
+      AGAINST § 1.9's figures at the same commit. **The two must agree or the
+      CLI is not the instrument this packet measured with**, and a disagreement
+      is a defect in the CLI rather than a new fact about the corpus. It is what
+      D6's series starts from.
 - [ ] 2.4 **THE REALIZATION EVIDENCE IS GREEN BEFORE IT IS CLAIMED.** The
       realization pull request merged into `main`, and a `pytest-suite` run at
       the tree that merge carries GREEN. That pair is what § 3.4 archives on

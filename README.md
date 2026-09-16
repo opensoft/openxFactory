@@ -545,9 +545,18 @@ Active changes:
   `openspec/changes/…` tokens, **498** RESOLVED (76 of them RELOCATED, the rule
   working), **74** DANGLING(identity-half), **7** DANGLING(file-half), **0**
   AMBIGUOUS: an **inclusive remainder of 81 tokens** carried by 65 citing files,
-  which collapse onto **48 distinct identities**. #1053's own reading at
-  `8944758c` was 80, and both are reported because they are taken at different
-  commits and are approximately, not exactly, comparable. The packet authors
+  which collapse onto **48 distinct identities**. **AND THE DEEP RE-MEASUREMENT
+  IS COMMITTED AS EVIDENCE** (`evidence/measurement-b1df95ee.md`, by a sibling
+  writer at the same head): INCLUSIVE **78**, THIS-TREE-ONLY **57**, TRUE
+  in-tree by manual read **39**, `AMBIGUOUS` **0** — and the METHODOLOGY IS
+  PROVED NOT TO BE THE VARIABLE, the same instrument reproducing **all twelve**
+  of #1053's published figures exactly against a control clone at `8944758c`,
+  so every delta is corpus movement (the whole −2 is PR #1064's archive of
+  `add-declared-former-id`). **ALL 57 ARE CLASSIFIED, none `unclassified`.**
+  Three honest readings of one corpus give **78, 81 and 86**, differing only in
+  whether trailing punctuation is stripped before dedup and whether
+  `NOT_A_PACKET_REFERENCE` sits inside the raw-absent population — which is the
+  whole argument for stating the recipe in the requirement. The packet authors
   under #1053's RECOMMENDED option **(b)** — a report CLI outside doc-health —
   and SIZES option (a), the twenty-fourth doc-health family, from the promoted
   text rather than estimating it: a `## MODIFIED` block restating the whole

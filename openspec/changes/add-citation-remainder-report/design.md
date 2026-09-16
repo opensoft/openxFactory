@@ -70,22 +70,60 @@ The four readings are at four commits and only the last two used the landed
 resolver. They are approximately and not exactly comparable, which is the caveat
 #1053 records against its own predecessors and this one records against #1053.
 
-**THE NAMED SLOT FOR THE DEEP RE-MEASUREMENT.** This is the CHEAP reading: it
-counts and classifies by OUTCOME, and it does not re-derive #1053's nine manual
-classes. The deep re-measurement is a sibling writer's work in the same lane and
-lands beside this packet as:
+**THE DEEP RE-MEASUREMENT IS IN, AND THE SLOT IS FILLED.** The figures above are
+the CHEAP reading — outcome counts, no manual classification. The DEEP one was
+taken by a sibling writer in this lane at the same head and is committed in this
+packet at `evidence/measurement-b1df95ee.md`, with its run record, its
+instrument (`measure.py`), a 1.5 MB per-token JSON and a classification JSON
+held in this lane's handoff attachments at
+`~/projects/brett-wip/handoffs/xFactory/attachments/openxfactory-1-2026-09-13/1053/`
+rather than committed, because the packet needs the reading and not the raw
+dump.
 
-`evidence/measurement-<sha8>.md`, packet-relative, where `<sha8>` is the head
-it was taken at. **THE PATH IS WRITTEN PACKET-RELATIVE ON PURPOSE**: spelled in
-full it would be a `openspec/changes/…` token whose file-half does not yet
-exist, so naming the slot would mint a remainder entry in the very population
-this packet measures. **UNTIL THAT FILE EXISTS, EVERY
-CLASSIFIED FIGURE IN THIS PACKET IS CITED TO #1053 AND TO NOTHING ELSE** — the
-22 qualifier-removed cross-repository tokens, the 59 survivors, the ~48 true
-in-tree remainder, and the nine classes are all #1053's hand work, quoted with
-attribution and never restated as this packet's own measurement. `tasks.md`
-§ 2.3 is where that file becomes the first COMMITTED measurement, and the ruling
-on D6 is what it is measured against.
+**ITS HEADLINE IS THREE NUMBERS, AND ONLY THE THIRD IS A CLASSIFICATION:**
+
+| | #1053 @ `8944758c` | evidence @ `b1df95ee` |
+| --- | ---: | ---: |
+| INCLUSIVE remainder (cross-repository left in) | 80 | **78** |
+| THIS-TREE-ONLY (automated qualifier check applied) | 59 | **57** |
+| TRUE in-tree remainder (every token read by hand) | "about 48" | **39** |
+| `AMBIGUOUS` | 0 | **0** |
+
+**AND IT PROVES THE METHODOLOGY IS NOT THE VARIABLE, WHICH IS THE PART THAT
+MATTERS.** Run against a control clone at `8944758c` — the revision #1053 itself
+measured — the same instrument reproduces **ALL TWELVE** of #1053's published
+figures exactly. So every delta is CORPUS MOVEMENT, and the movement has one
+cause: PR #1064 archived `add-declared-former-id` on 2026-09-16, moving its
+`design.md` M1/M2 fixture citations (`change-r`, `change-s`) under the excluded
+`openspec/changes/archive/` path. Eight distinct tokens left, one arrived, and
+only those two were ever counted — which is the whole −2.
+
+**ALL 57 ARE CLASSIFIED AND NONE IS LEFT `unclassified`:** cross-repository 14,
+tokenization artifact 4, self-referential illustrative 10, synthetic fixture 18,
+never-existed 6, pre-tracking rename 1, file-half nested fixture 2, file-half
+stale draft name 2. #1053's own two `unclassified` tokens are both resolved on
+quoted evidence, and its "≥10" cross-repository lower bound becomes a complete
+enumeration of 14. **THE DROP FROM 57 TO 39 IS NOT A REPAIR**: it is what a
+human reading finds the 57 already were — 14 another repository's records, 4 not
+citations at all.
+
+**THREE HONEST READINGS OF ONE CORPUS GIVE THREE DIFFERENT REMAINDERS, AND THAT
+IS THE SINGLE MOST IMPORTANT FINDING FOR D3.** At `b1df95ee`:
+
+| reading | what it counts | remainder |
+| --- | --- | ---: |
+| `issue-native` (the evidence's PRIMARY) | trailing `.`/`/` stripped before dedup; `NOT_A_PACKET_REFERENCE` held OUT of the raw-absent population | **78** |
+| this design's D0 table | the prose regex as written, `DANGLING` + `AMBIGUOUS` only | **81** |
+| `literal` (the evidence's carried alternative) | the prose regex as written, remainder = raw-absent minus repaired | **86** |
+
+The 81-to-86 gap is EXACTLY the five `NOT_A_PACKET_REFERENCE` tokens whose raw
+path is also absent — re-derived here and confirmed at 5. The 78-to-81 gap is
+the trailing-punctuation normalization of D0(ii). **None of the three is wrong;
+they answer three different questions, and #1053's prose does not say which one
+it asked.** That is why D3 states the recipe IN THE REQUIREMENT rather than
+leaving it to an implementation: three re-implementations of one recipe have now
+produced three numbers, which is precisely the drift #1053 predicted of itself
+against M4 and PR #1041.
 
 **THREE FACTS THIS RE-MEASUREMENT FOUND THAT #1053 DOES NOT CARRY.** Each moves
 a decision below rather than decorating it.
@@ -139,21 +177,45 @@ this tree, at this commit". It is cited from `scripts/packet_reference.py` and
 
 **(iv) AND THIS PACKET'S OWN EFFECT ON THE POPULATION, MEASURED AFTER THE
 PACKET EXISTED RATHER THAN PREDICTED BEFORE IT.** The same recipe re-run on
-this branch: **2,978** files in scope (+5, this packet's own), **587** distinct
-tokens (+1), **499** `RESOLVED` (+1), and the remainder **UNCHANGED at 81
-tokens** — 74 identity-half, 7 file-half, 0 ambiguous. The packet carries FOUR
-citation tokens and mints no new remainder: the one token it adds to the corpus
-is `…/add-citation-remainder-report/proposal.md`, cited from `README.md`, and it
-resolves. **BUT IT JOINS THE CITING SET OF THREE REMAINDER ENTRIES**, all three
-by QUOTING them as examples — `openspec/changes/README.md` (from four of this
-packet's own files), `…/add-composition-drift-cascade/` and
-`…/foo/./proposal.md` (from `design.md`). **A DOCUMENT THAT DISCUSSES A
-DANGLING CITATION BECOMES A RECORD THAT CARRIES ONE**, which is #1053's
+this branch: **2,978** files in scope (+5, this packet's own), **591** distinct
+tokens (+5), **503** `RESOLVED` (+5), and the remainder **UNCHANGED at 81
+tokens** — 74 identity-half, 7 file-half, 0 ambiguous.
+
+**AND THE COMMITTED EVIDENCE REPORT DID WHAT D5 SAYS A COMMITTED REPORT DOES.**
+Watch the population move as this packet was assembled, each reading taken with
+the same recipe on the same branch:
+
+| tree | files | tokens | `RESOLVED` | remainder |
+| --- | ---: | ---: | ---: | ---: |
+| `origin/main` `b1df95ee` | 2,973 | 586 | 498 | **81** |
+| + the packet's five documents | 2,978 | 591 | 503 | **81** |
+| + `tasks.md`'s mechanical fence proof | 2,978 | 591 | 503 | **81** |
+| + `evidence/measurement-b1df95ee.md` | **2,979** | **594** | **504** | **82** |
+
+**THE MEASUREMENT REPORT RAISED THE MEASURED REMAINDER BY ONE.** The new entry
+is `openspec/changes/foo/`, a `DANGLING`(identity-half) token the evidence file
+mints out of its own § 5.3 enumeration of the resolver's docstring examples; a
+second new token, `…/archive/2026-09-15-`, lands as `NOT_A_PACKET_REFERENCE`.
+The packet's FOURTEEN citation tokens divide exactly: SIX name its own files
+(the five documents and the committed evidence report) and all six resolve; THREE are `openspec/changes/archive…` debris the resolver
+correctly hands back as `NOT_A_PACKET_REFERENCE`; and the remaining FIVE are
+REMAINDER ENTRIES it joins the citing set of by QUOTING them — `README.md`,
+`add-composition-drift-cascade/`, `add-ideation-governance/proposal.md`,
+`foo/` and `foo/./proposal.md`.
+
+**THIS IS NO LONGER A PREDICTION.** D5 argues that a report committed into the
+corpus is counted by the next run, and here is the smallest possible instance
+of it, measured: ONE report, ONE night, **+1 remainder**. A nightly report
+would carry one such quotation per remainder line, every night, and D3(a)'s
+output-path exclusion is the fence that closes it. **A DOCUMENT THAT DISCUSSES
+A DANGLING CITATION BECOMES A RECORD THAT CARRIES ONE** — which is #1053's
 "self-referential illustrative example" class being created, live, by the
-packet that characterizes it. It is a real effect at a trivial size here — three
-citing-file counts, no new remainder — and it is the same mechanism D5 refuses
-at a serious size, where a nightly report would carry one such quotation per
-remainder line, every night, forever.
+packet that characterizes it. **THE FIGURES IN THIS PARAGRAPH MOVED THREE TIMES
+WHILE IT WAS BEING WRITTEN** — the last time because `tasks.md`'s fence proof
+came to list the evidence file itself, which is one more self-citation that
+resolves. Every move is in the table above rather than quietly re-typed, and the
+reading is taken at this packet's final committed state, the act of recording it
+being part of what it records.
 
 ## D1 — RECOMMENDED: (b), a report CLI outside doc-health
 
@@ -259,16 +321,52 @@ REPO_ROOT       repository root to scan (default: cwd), as every sibling
 --json          machine-readable output instead of the human table
 --all           also list RESOLVED and NOT_A_PACKET_REFERENCE tokens, which
                 the default output only COUNTS
---identities    group the remainder by identity rather than by token
+--tokens        group by TOKEN; the DEFAULT groups by IDENTITY (see below)
+--history       OPT-IN: run the `git log --all --diff-filter=A` probe per
+                identity. OFF by default, on a MEASURED 8.5x cost
 --include/--exclude   override the default file population, so the recipe in
                 D3 is a DEFAULT and not a hard-coding
 ```
 
-**THE OUTPUT.** A human table by resolver outcome — counts first, then the
-remainder itemized with its citing files — plus, under `--json`, one object per
-token carrying `token`, `status`, `half`, `identity`, `remainder`, `citing_files`,
-`class`, and `cross_repo_suspected`. Both carry the four headline numbers: files
-in scope, distinct tokens, remainder TOKENS, remainder IDENTITIES.
+**`--history` IS OPT-IN ON A MEASURED COST, NOT A PREFERENCE.** In the
+evidence run the per-identity `git log --all --diff-filter=A` probe was **17.0
+of 19.0 seconds — 90% of the whole run** — and it returned empty for 51 of the
+57 tokens, which the resolver had already said. It decides exactly ONE thing
+the resolver cannot: an id that STOOD here and was renamed before former-id
+tracking, against one that never stood here at all. Worth a flag; not worth the
+default. **Without it the sweep is 2.0 seconds over 2,973 files**, which is the
+difference between a report somebody runs and a report somebody schedules.
+
+**GROUPING IS BY IDENTITY BY DEFAULT, AND THAT IS MEASURED TOO.** The evidence's
+57 this-tree tokens are **38 identities**, twelve carrying more than one
+spelling: five rows are one packet spelled five ways, four are one
+questionnaire's sketch, three are one OpsxFactory register spelled active and
+archived. A flat token list makes one act look like five findings.
+
+**THE OUTPUT, SHAPED BY THE HAND CLASSIFICATION RATHER THAN IMAGINED.** A human
+table grouped by CLASS then by IDENTITY — counts first, then the remainder
+itemized — plus, under `--json`, one object per token carrying `token`,
+`status`, `half`, `identity`, `remainder`, every OCCURRENCE as `path:line`,
+`class` and every flag. Six rules the evidence's § 6.3 derives from doing the
+classification by hand, each adopted here:
+
+1. **Print the resolver's own `report` sentence** for the first occurrence, and
+   do not re-write it in a second voice — that is how two descriptions of one
+   rule drift apart.
+2. **Print the counted rows AND their arithmetic**, so a reader can check
+   `raw-missing = repaired + identity-half + file-half + ambiguous` without
+   re-deriving it. A remainder that does not sum is the first sign the reading
+   changed.
+3. **State the READING in the header** — the dedup normalization, whether
+   `NOT_A_PACKET_REFERENCE` sits inside or outside the population, and the
+   ANY-vs-ALL qualifier aggregation. D0's three-readings table is why.
+4. **Show `AMBIGUOUS` even when it is zero.** It is the only outcome that
+   indicts a `former_ids:` DECLARATION rather than a citation, and a report that
+   omits its zero teaches readers not to look for it.
+5. **Carry every occurrence into `--json`**, because the manual read is where
+   the time goes and it is done in an editor over the JSON, not over the table.
+6. **Both formats carry the four headline numbers**: files in scope, distinct
+   tokens, remainder TOKENS, remainder IDENTITIES.
 
 **THE EXIT CODE IS ALWAYS 0, AND A `--fail-on` IS EXPLICITLY NOT BUILT.** Exit 0
 is what makes this a report rather than a gate: nothing about the 81 tokens has
@@ -330,6 +428,25 @@ REPORTED rather than hidden:
 **Every normalization the report applies is printed in its own row.** A reader
 who cannot see that the tool changed the token cannot check the tool.
 
+**AND THREE STEPS #1053'S PROSE DOES NOT STATE MUST BE STATED HERE, BECAUSE
+THEY ARE WORTH EIGHT POINTS OF REMAINDER BETWEEN THEM.** The evidence
+measurement re-ran #1053's recipe EXACTLY AS ITS PROSE READS IT and got 593
+distinct tokens at `8944758c`, not the published 578; three decisions close the
+gap, and each is a CHOICE a shipped report must make on purpose:
+
+| step | the choice | what it is worth |
+| --- | --- | ---: |
+| trailing `.` and `/` stripped BEFORE dedup | **strip** — otherwise one citation is two tokens | 593 → 578 at `8944758c`, the issue's count to the token |
+| `NOT_A_PACKET_REFERENCE` held OUT of the raw-absent population | **out** — the resolver's fifth answer hands the path back to the caller, so it was never a remainder | 156 → 153 raw-absent; and at `b1df95ee` it is exactly the 5 tokens separating this design's 81 from the literal reading's 86 |
+| a token cited in several places, ONE of them qualified | **ANY occurrence qualified sets it aside** — which is the rule that reproduces #1053's own 22 | ANY sets aside 22 and leaves 57; ALL sets aside 16 and leaves 60 |
+
+**THE REPORT DECLARES ITS READING IN ITS OWN HEADER** (D2 output rule 3), so
+two runs that disagree can be told apart by a reader rather than by an
+archaeologist. #1053 itself predicted this class of drift — *"a
+RE-IMPLEMENTATION of M4's stated recipe, not the authoring script, which was
+never committed"* — and three readings of one corpus have now produced 78, 81
+and 86.
+
 **(c) THE CROSS-REPOSITORY QUALIFIER, AND THE DECISION THAT MATTERS HERE: FLAG,
 NEVER DROP.** #1053's automated check uses four adjacency heuristics — a
 path-joined prefix (`xFactories/LedgerxFactory/…`), a GitHub blob or tree URL, a
@@ -357,6 +474,25 @@ INSIDE the remainder rather than removing them from it.** Three reasons:
    cross-repository reading is printed BESIDE it as a second row, not
    substituted for it.
 
+**AND THE WIDENED WINDOW IS NOW MEASURED RATHER THAN PROPOSED.** The evidence
+ran exactly this rule — `validate-pin-registrations.py`'s own adjacency rule
+plus any repository name in the THREE LINES ABOVE — over the classified corpus:
+it catches **13 of the 14** hand-found cross-repository tokens, with **2 false
+positives** among the other 43. That precision is why it ships as an ADVISORY
+FLAG and never as a verdict, and it is the measured form of the recommendation
+above rather than a hope about it. The one token no adjacency rule can reach is
+`…/archive/2026-08-27-modify-ledgerx-document-estate-warrant-scope/design.md`,
+whose evidence block names no repository at all — the only tell is that a
+SIBLING path in the same block does not exist in this tree. That one is human,
+and the report's job is to make it cheap to check rather than to decide it.
+
+**ONE ARITHMETIC POINT THE REPORT MUST NOT GET WRONG**, because #1053's own
+table reads oddly without it: the "22 cross-repository tokens set aside" is
+counted over the WHOLE token population, and only **21** of the 22 sit in the
+raw-absent population — the 22nd is a cross-repository citation whose raw path
+happens to exist here. That is why `153 − 22 ≠ 132` while `153 − 21 = 132`.
+Both counts hold unchanged at `b1df95ee`.
+
 *OPTION 2 — drop them silently, as the issue's own automated pass did.* Cost: it
 makes the headline number depend on an unauditable window, and the number is the
 input to D6's stability condition.
@@ -373,6 +509,26 @@ only, with `relocated` counted within `RESOLVED` — that count is the rule
 working, and it is the single most useful number for a reader wondering whether
 the resolver earns its keep (76 of 498 at `b1df95ee`).
 
+**(e) THE HISTORY PROBE'S PATHSPEC, CORRECTED.** #1053 states its never-existed
+confirmation as
+
+```text
+git log --all --diff-filter=A -- "openspec/changes/<id>" "openspec/changes/archive/*-<id>"
+```
+
+**The SECOND pathspec matches nothing, on any input.** Git matches a wildcard
+pathspec with wildmatch under `WM_PATHNAME`, where `*` does not cross a `/`, so
+`openspec/changes/archive/*-<id>` is tested against full file paths like
+`openspec/changes/archive/2026-09-15-<id>/proposal.md` and never matches one.
+Proven on a packet known to be archived: `…/archive/*-add-declared-former-id`
+returns 0 commits and `…/archive/*-add-declared-former-id/*` returns 1. **The
+conclusion #1053 drew is nonetheless sound** — the evidence ran BOTH forms over
+every remainder identity and they agree on all 57, because every archived packet
+was active first, so the only case the broken half could hide is a packet that
+appeared in the archive without ever being active, and this corpus has none.
+**A shipped report spells it `…/archive/*-<id>/*`**, and runs it only under
+`--history` (D2).
+
 ## D4 — RECOMMENDED: classify only what can be decided mechanically
 
 **The question.** #1053's manual read puts the remainder in nine classes. How
@@ -384,10 +540,10 @@ FOR EVERYTHING ELSE.**
 | #1053's class | report's verdict | why |
 | --- | --- | --- |
 | cross-repository (adjacency-missed) | **MECHANICAL, as a SUSPICION** — `possibly-cross-repo` | D3(c): the window is stated, the hit is flagged, the token stays in the count |
-| pure tokenization artifact | **MECHANICAL** — `truncated` / `punctuation-stripped` | D3(b): the tool knows what it did to the token, so it can say so |
+| pure tokenization artifact | **MECHANICAL** — `truncated` / `punctuation-stripped` | D3(b): the tool knows what it did to the token, and three sub-probes catch 4 of 4 with ZERO false positives — where #1053's hand read found 1 of the 4 |
 | DANGLING file-half, nested test fixture | **MECHANICAL** — `fixture-path` | the citing file's own path is under a `tests/` directory nested below the top-level exclusion; that is a path fact |
 | synthetic fixture id under `examples/` or `ideation/dashboard/gate-records/` | **MECHANICAL** — `fixture-path` | same: the CITING file's location is knowable |
-| self-referential illustrative example in a docstring | **HUMAN** — `unclassified` | it needs a reading of what the prose is DOING; `add-x` in a docstring and `add-x` in a record look identical to a machine |
+| self-referential illustrative example in a docstring | **HUMAN** — `unclassified`, with an ADVISORY `scripts/`-location flag beside it | the class needs a reading of what the prose is DOING; measured, location alone catches 10 of 12 but with 2 false positives, so it suggests and never asserts |
 | id that never existed | **HUMAN** — `unclassified` | needs `git log --all --diff-filter=A` over two spellings, and a negative result is not proof of intent |
 | pre-tracking rename | **HUMAN** — `unclassified` | needs the rename's history and a judgment that no `former_ids:` covers it |
 | stale draft name, since finalized | **HUMAN** — `unclassified` | needs somebody to recognize the finalized file |
@@ -396,8 +552,38 @@ FOR EVERYTHING ELSE.**
 **WHY THE SPLIT FALLS THERE.** A class is MECHANICAL when the evidence is a
 fact about a PATH or about the tool's own normalization, and HUMAN when the
 evidence is a fact about INTENT. `unclassified` is not a failure of the report —
-it is the report declining to assert what it cannot see, and #1053's own manual
-read is the proof that the human classes need a human.
+it is the report declining to assert what it cannot see.
+
+**AND THE SPLIT IS NOW MEASURED RATHER THAN REASONED.** The evidence
+measurement classified all 57 this-tree tokens by hand and then ran each
+candidate probe against that ground truth. The precision decides whether a probe
+ships as a CLASS (the report asserts it) or as an ADVISORY FLAG (the report
+suggests it):
+
+| probe | catches | false positives | ships as |
+| --- | ---: | ---: | --- |
+| synthetic fixture, by occurrence LOCATION (`examples/`, `ideation/dashboard/gate-records/`, `contracts/**/examples/`) | 17 of 18 | **0** | **a CLASS** |
+| tokenization artifact, three sub-probes (a longer path on the line ends with the token and EXISTS; the next character is `<`; the token ends a string literal and the rejoined path resolves) | **4 of 4** | **0** | **a CLASS** |
+| `half == file` | 5 of 5 | 0 | **a CLASS** — it is free, being `Resolution.half` |
+| `possibly-cross-repo`, adjacency plus the three lines above | 13 of 14 | 2 of 43 | **an ADVISORY FLAG** |
+| self-referential, by occurrence under `scripts/` | 10 of 12 | 2 | **an ADVISORY FLAG** |
+
+**TWO THINGS MOVED ON THE MEASUREMENT AND ARE RECORDED AS HAVING MOVED.** The
+tokenization-artifact probe catches **4 of 4 with zero false positives**, where
+#1053 read that class by hand and found ONE of the four — so it earns a class
+rather than a flag. And *self-referential*, which this design's first draft
+placed in the HUMAN column, turns out to be 10-of-12 detectable by location
+alone — but at 2 false positives it ships ADVISORY, not as a class, which is the
+same verdict for a different reason.
+
+**WHAT STAYS HUMAN, ON THE EVIDENCE'S OWN WORDS.** *never-existed* versus
+*synthetic* is a question about INTENT and nothing in the tree answers it:
+`add-invoice-retrieval` and `add-openxfactory-tui-installer` are both absent
+from history and both live under `docs/`, and only reading the surrounding
+sentence separates a worked example from a forward-looking sketch. The two
+file-half repair classes are likewise human — both resolve their packet and
+neither carries its file, and the difference is whether a test ASSERTS the
+absence or a rename left it behind.
 
 **AND THE ONE RULE THAT GOVERNS ALL NINE: NOTHING IS REPAIRED.**
 `add-declared-former-id` D4 and `packet_reference.py` both hold that *"a
@@ -451,9 +637,13 @@ committed report listing the remainder would be the FIRST file under `health/`
 to carry such tokens, and it would carry one per remainder line: the next
 night's run would find them, count them as citations FROM `health/…`, and
 inflate the very series D6 measures stability on. **THE MECHANISM IS NOT
-HYPOTHETICAL AND THIS PACKET DEMONSTRATES IT ON ITSELF**: D0(iv) measures this
-packet joining the citing set of three remainder entries purely by quoting them,
-which is the same act a report performs mechanically and at scale. The fence (D3(a)) closes it,
+HYPOTHETICAL AND THIS PACKET PROVED IT ON ITSELF**: committing ONE measurement
+report — `evidence/measurement-b1df95ee.md`, a single file, once — took the
+measured remainder from **81 to 82** (D0(iv) carries the four readings). The new
+entry is `openspec/changes/foo/`, minted by the report's own enumeration of the
+resolver's docstring examples. One report, one night, one point of remainder;
+a nightly report is that act repeated forever, and every point of it is
+manufactured rather than found. The fence (D3(a)) closes it,
 but a design whose correctness depends on remembering a fence is worse than one
 that never opens the hole.
 
