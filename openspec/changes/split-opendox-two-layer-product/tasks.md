@@ -3012,8 +3012,10 @@ movements claimed at the time they land.
   record's ungoverned status, **beyond naming them**"* — while the closing
   sentence of this box says that record *"is governed here"*. **Two pieces of
   ratified text in ONE packet that cannot both be executed**, and `design.md`
-  `:95-102` supplies the measured state they disagree about (*"the `openxdox`
-  DNS A record exists on the live zone and is ungoverned"*). The
+  `:101-103` supplies the measured state they disagree about, in the same
+  sentence that carries the workload coordinate: *"OpsxFactory declares the
+  four `dox` workloads at `workflows/aks-administration.yaml:412-431`; the
+  `openxdox` DNS A record exists on the live zone and is ungoverned"*. The
   contradiction is recorded for repair by a later act that CLAIMS the delta,
   on the same disposition § 7.1's scenario-4 defect took two hours earlier.
   **(B) THE DNS SENTENCE IS READ AS DISCHARGED BY NAMING**, per the packet's
@@ -3036,8 +3038,10 @@ movements claimed at the time they land.
   PROVISIONING shape (tenant-org creation, `openXdox — <tenant>` naming,
   apply-repo home, credential capture) — OQ-1 option (a) of the staged topic
   `openxdox-install-app-provisioning`. The two-App dispatch/content
-  SEPARATION is already canon — the promoted `credential-contracts` spec, at
-  its line 169 — and what is missing is the provisioning shape. One repository,
+  SEPARATION is already canon — the promoted `credential-contracts` requirement
+  *Dispatch-only credential least privilege and serving-tier separation*
+  (`openspec/specs/credential-contracts/spec.md`:169 at this amendment's base)
+  — and what is missing is the provisioning shape. One repository,
   no Ops collision, CLAUDE.md working rule 1 satisfied. Options (2) hand the
   DNS and workload halves to lanes `opsXfactory-4`/`-3` and (3) hold all of
   § 7.4 were DECLINED.
