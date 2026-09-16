@@ -3349,7 +3349,7 @@ Archived changes:
   `tests/doc-health/test_modified_block_currency_self_gate.py::test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`,
   the self-gate collision lane `openxfactory-2`'s #1050 and #1052 opened one
   merge EARLIER at `fa39141c` (it fails identically there, run 35135352984) and
-  that that lane is repairing. It is unrelated to this packet and names no file
+  that the same lane is repairing. It is unrelated to this packet and names no file
   this packet or its realization authored. The archive lands when that run is
   green at a head containing `4cef77af` and when Brett Heap words the archive,
   and not before.
