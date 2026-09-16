@@ -242,7 +242,10 @@ def test_a_failing_watched_case_is_refused(tmp_path: Path) -> None:
 
 def test_one_passing_occurrence_does_not_excuse_a_skipped_one(
         tmp_path: Path) -> None:
-    """"Any non-passing occurrence wins" — a rerun that skipped is a finding."""
+    """The rule that a rerun cannot launder: any non-passing occurrence wins.
+
+    A case that passed once and skipped once adjudicated nothing that run.
+    """
     env = CONSUMER_ENV
     classname, name = watched(env)[0]
     xml = report_xml(tests=int(env["MIN_SELECTED"]),
