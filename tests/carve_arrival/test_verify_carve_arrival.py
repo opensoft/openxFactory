@@ -1662,7 +1662,7 @@ def test_the_module_records_the_effective_arrival_and_its_limit() -> None:
 # S8's author put in `#656` comment `5650335573` § 2. A moved row may carry
 # `retired: {at, at_path, ruling, surface, note}` saying that a RULING has
 # DELETED the arrival itself — not moved it, as Q6 does, because the surface
-# the arrived file drove is at NO leg to move it to. This file then asks the
+# the arrived file needed is at NO leg to move it to. This file then asks the
 # INVERSE of its usual question at that leg: the row is not owed, and the path
 # must be empty.
 #

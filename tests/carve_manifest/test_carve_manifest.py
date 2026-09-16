@@ -2413,7 +2413,7 @@ def test_a_replicated_surface_is_not_a_surface_this_manifest_says_is_gone(
     destination place its own copy, `verify-carve-arrival.py` admits those
     copies through `--replica-at`, and RULED Q-L7 (a) even lets the row
     declare the `edits:` they carry. A retirement citing such a surface would
-    rest its whole claim — "the surface this arrived file drove is at no leg"
+    rest its whole claim — "the surface this arrived file needed is at no leg"
     — on a row that says the surface is at every leg.
 
     Before the fix this document VALIDATED: the check tested

@@ -75,7 +75,7 @@ ideation_dashboard/` split across BOTH legs and partly stayed here.
 AND THE ROWS A RULING HAS RETIRED (RULED 5656343213, `#656` comment
 `5656343213`). A moved row may carry a `retired:` block saying that a ruling
 DELETED its arrival at the leg — not moved it, as RULED Q6's `re_destined:`
-does, but removed it, because the surface the arrived file drove is at no leg
+does, but removed it, because the surface the arrived file needed is at no leg
 at all. The row keeps every field the carve wrote, so this module can still
 compute a perfectly well-formed path for it under a materialized leg — and
 that path would name a file `verify-carve-arrival.py` has just finished

@@ -292,8 +292,10 @@ legs, and what S8 measured has no leg to move it to.
   `destination`/`destination_path`, or `re_destined.to`/`to_path` where Q6 has
   already moved the placement — so a row may be re-destined and THEN retired,
   and the retirement lands at the leg the file actually reached. `surface:` is
-  the openxFactory path of the SURFACE the arrived file drove, held to a
-  `not_moved` row of this manifest. `ruling:` is required PRESENT, on Q6's own
+  the openxFactory path of the SURFACE the arrived file NEEDED AND CANNOT
+  OBTAIN at its leg, held to a `not_moved` row of this manifest. NEEDED and not
+  `drove`: the first use retired one row that drove its cited surface and one
+  that only loaded it, and the manifest header carries the measurement. `ruling:` is required PRESENT, on Q6's own
   scope reasoning.
 
   WHAT DOES NOT MOVE, and the list is Q6's own plus the one that matters most
@@ -342,7 +344,7 @@ legs, and what S8 measured has no leg to move it to.
 
   WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON — AND WHAT
   THAT DOES NOT PROVE. The claim a retirement rests on is that the surface the
-  arrived file drove is gone from BOTH legs, and the one way THIS document can
+  arrived file NEEDED is gone from BOTH legs, and the one way THIS document can
   answer that without reading a leg is a disposition it already carries: a
   `not_moved` row STAYED at openxFactory, so by the manifest's own declaration
   it arrived at no destination at all. A MOVED surface is LIVE at a leg, and a
@@ -695,7 +697,7 @@ RE_DESTINED_KEYS = frozenset({"from", "from_path", "to", "to_path", "ruling",
 # row's own EFFECTIVE arrival rather than trusting a reader to re-derive it.
 # `ruling:` is required on Q6's scope reasoning. `surface:` is the fourth, and
 # it is what makes the form a FLOOR rather than a licence to delete an arrived
-# file: it names the openxFactory path of the surface the arrived file drove,
+# file: it names the openxFactory path of the surface the arrived file needed,
 # and check 6 holds it to a `not_moved` row — the manifest's own way of saying
 # "this arrived at no leg". `note:` is the one optional key, prose, exactly as
 # an `edits[]` entry's and a `re_destined:`' are.

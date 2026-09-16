@@ -244,7 +244,7 @@ multi-choice, on the question slice S8's author put in `#656` comment
 `5650335573` § 2). A moved row may carry an optional
 `retired: {at, at_path, ruling, surface, note}` saying that a RULING has
 DELETED the arrival itself — not moved it, as RULED Q6 does, because the
-surface the arrived file drove is at NO leg to move it to. What this file does
+surface the arrived file needed is at NO leg to move it to. What this file does
 with such a row is the simplest thing and the most easily got wrong:
 
   THE ROW IS NOT OWED HERE, AND THE PATH MUST BE EMPTY. `rows_for()` drops a

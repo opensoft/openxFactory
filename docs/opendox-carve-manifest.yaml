@@ -217,10 +217,36 @@
 #     the leg the file actually reached. The row keeps every placement field
 #     unedited, for Q6's reason exactly: the manifest goes on recording what
 #     the carve did and what Q6 corrected, and `retired:` records what a later
-#     ruling removed. `surface:` is the openxFactory path of the SURFACE the
-#     arrived file drove, and `ruling:` — a `#656` comment id, or the pull
-#     request URL carrying the ruling — is REQUIRED, on Q6's own scope
-#     reasoning.
+#     ruling removed. `surface:` is the openxFactory path of the SURFACE THE
+#     ARRIVED FILE NEEDED AND CANNOT OBTAIN AT ITS LEG, and `ruling:` — a
+#     `#656` comment id, or the pull request URL carrying the ruling — is
+#     REQUIRED, on Q6's own scope reasoning.
+#
+#     NEEDED, NOT `DROVE` — WIDENED BY THE FIRST USE, WHICH THE NARROWER WORD
+#     WAS FALSE OF (Copilot review of PR #1043). This gloss read "the SURFACE
+#     the arrived file drove" when the form landed at PR #1032 with no row
+#     using it. Its first use retired two rows, and the two do not stand in the
+#     same relation to the surface they both cite: the TRAY suite drove
+#     `views/intent-feed.js`, while the WHEEL suite's own comment says the
+#     module "rides along because dispose.js imports it" and that the probe
+#     "drives the LOCAL path only — no `opts.intent` is ever passed". It NEEDS
+#     the module — its copy loop lifts it out of the bundle and the import
+#     fails without it — and does not drive it. Under the narrow word the
+#     wheel row's `surface:` recorded a relationship its own `note:` denies;
+#     under NEEDED both rows are exact and the gate is unchanged, because what
+#     `carve-retired-surface-live` asks is whether the cited row is `not_moved`
+#     — which is how THIS document answers "gone from both legs" — and not how
+#     the arrived file used it.
+#
+#     WHAT `surface:` STILL CANNOT SAY, and the same row is the proof: a
+#     retirement may rest on TWO absences and the field names one. The wheel
+#     suite also drives `views/dispose.js`, which § 3.4 slice S5 moved to
+#     `openxdox_code` — absent at openDox-code, but at a leg, so a `surface:`
+#     naming it would refuse `carve-retired-surface-live` and would be right
+#     to: "gone from BOTH legs" is false of it. The field names the `not_moved`
+#     absence this document can answer for; the row's `note:` carries the
+#     other, in prose, and cutover-runbook § 5.8 says so under "What the form
+#     CANNOT express".
 #
 #     ALL FOUR ARE THE READING GUARD AND NOT ONLY THE VALIDATOR'S
 #     REQUIREMENT (Copilot review of PR #1032). Every tool that ACTS on this
@@ -245,7 +271,7 @@
 # document still records where the carve put it.
 #
 # WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON. The claim a
-# retirement rests on is that the surface the arrived file drove is gone from
+# retirement rests on is that the surface the arrived file NEEDED is gone from
 # BOTH legs, and the one way THIS document can answer that without reading a
 # leg is a disposition it already carries: a `not_moved` row STAYED at
 # openxFactory, so by the manifest's own declaration it arrived at no

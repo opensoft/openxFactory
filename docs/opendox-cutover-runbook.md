@@ -219,7 +219,7 @@ general procedure this and any later re-destination follows.
 2026-09-13, `#656` comment `5656343213`, on the question slice S8's author put
 in `#656` comment `5650335573` § 2).** Where a RULING has DELETED an arrival
 the carve made — not moved it, as Q6 does, because the surface the arrived
-file drove is at NO leg to move it to — the row records it: `{at, at_path,
+file needed is at NO leg to move it to — the row records it: `{at, at_path,
 ruling, surface, note}`, `at`/`at_path` held to the row's **EFFECTIVE**
 arrival (so a row may be re-destined and THEN retired), `surface:` held to a
 `not_moved` row of this manifest — under any reason but
@@ -1311,7 +1311,7 @@ arrived there, is RULING OQ-1's UNDECLARED MOVEMENT read backwards.
 gated twice rather than once. `ruling:` is required and validated PRESENT, on
 § 5.7's reasoning exactly (`carve-retired-unruled`). And `surface:` must name
 a `not_moved` row of this manifest (`carve-retired-surface-live`): the claim a
-retirement rests on is that the surface the arrived file drove is gone from
+retirement rests on is that the surface the arrived file NEEDED is gone from
 BOTH legs, and a `not_moved` row is the one way this document can answer that
 without reading a leg. A surface that is a MOVED row is LIVE at a leg; a
 surface in no row is one the manifest never declared, and "this document
@@ -1439,12 +1439,24 @@ to a line range would put a SECOND line-bearing grammar beside `edits[]` and
 give one row two readings of what its bytes are; that is a ruling's act, not
 an author's.
 
+**And `surface:` names ONE absence where a retirement may rest on two**, which
+the first act also hit. The field is held to a `not_moved` row because that is
+how THIS document answers "gone from BOTH legs" without reading a leg. The
+wheel suite RULED 5656343213 retires is unrunnable at `opendox_code` for two
+reasons, and only one of them is sayable: `views/intent-feed.js` is RULED OQ-F
+`not_moved`, at neither leg, and is the `surface:` the row cites; and
+`views/dispose.js`, which that suite really drives, went to `openxdox_code` at
+§ 3.4 slice S5 — absent at this leg, but present at a leg, so naming it would
+refuse `carve-retired-surface-live` and would be right to. The row's `note:`
+carries the second absence in prose. A `surface:` list, or a second field for
+"moved to another leg", would be the fix; both are a ruling's act.
+
 **WHAT THE FIRST ACT LEFT BEHIND, named here because the next reader greps
 for these names and finds a hole.** The rule above says a stale sentence
 inside a carved file STAYS and is named in the pull request as a known cost;
 this is that list for RULED 5656343213 (`#656` CLAIM `5656690570`,
-openxFactory PR #1043), measured at openDox-code `4813b375` and openXdox-code
-`9dfd7bee`.
+openxFactory PR #1043), measured at the leg heads that carry the deletion —
+openDox-code#24 at `e2d5ac46` and openXdox-code#20 at `15e8115d`.
 
 * `tests/test_account_menu_dom.py`:4 sends a reader to
   `test_wheel_verbs_dom.py` for the DOM shim, and
