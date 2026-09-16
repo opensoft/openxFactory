@@ -201,7 +201,13 @@ ambiguous. **BEFORE THE EVIDENCE REPORT LANDED THE BRANCH READ 2,978 / 587 /
 499 / 81**, the remainder unmoved from `origin/main`'s; the whole +1 arrives
 with `evidence/measurement-b1df95ee.md` and the table below shows every step.
 The figures are taken at the branch head that carries the merge of `origin/main`
-`d5dd1ca5`; that merge moved none of them.
+`d5dd1ca5` AND the thirteen commits of this packet's fix round; neither the merge
+nor the fix round moved any of them — re-measured after both, the reading is the
+same 2,979 / 594 / 504 / 82, because thirteen commits of prose corrections minted
+no citation token the branch did not already carry. **That is the fence working
+rather than a coincidence**: the tokens a packet adds are the ones it QUOTES, and
+a correction that re-words a sentence about a token quotes the token that was
+already there.
 
 **AND THE COMMITTED EVIDENCE REPORT DID WHAT D5 SAYS A COMMITTED REPORT DOES.**
 Watch the population move as this packet was assembled, each reading taken with
