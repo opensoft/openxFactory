@@ -238,7 +238,14 @@ repository — and the window in which they are looked for SHALL be stated. The
 signal set SHALL be stated with it, because a repository that writes its
 cross-repository citations in a locator scheme of its own has a signal no
 adjacency word supplies, and a report that omits that scheme misses the class it
-was written to catch. A citation whose qualifier sits outside that window is a MISS
+was written to catch. **THE WINDOW AND THE SIGNAL SET ARE PROPERTIES OF THE
+CAPABILITY AND NOT OF A RUN**: both SHALL be FIXED, both SHALL be CLOSED, and
+the report SHALL NOT offer a caller an option that varies either, because a
+suspicion whose reach moves between runs makes two readings of one corpus
+disagree for a reason neither reading records. What neither can move is the
+HEADLINE: the requirement below fixes that as the INCLUSIVE remainder, so a
+disagreement about the window changes which entries carry a flag and what the
+filtered count beside the headline reads, and never the series itself. A citation whose qualifier sits outside that window is a MISS
 and a paragraph that merely mentions another repository above an in-tree
 citation is a FALSE POSITIVE; both are inevitable, which is precisely why the
 verdict is a flag and not a deletion.
