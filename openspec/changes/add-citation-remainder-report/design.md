@@ -16,6 +16,14 @@ each stands whichever way the others go — no two rest on a shared predicate.
 **BRETT HEAP RATIFIES OR VETOES BY NAME.** D0 is a measurement rather than a
 decision and is carried beside them, available to be vetoed in the same word.
 
+**AND WHAT A BARE WORD TAKES IS STATED RATHER THAN LEFT TO BE GUESSED**, because
+seven independent decisions make "ratify" ambiguous unless somebody says: **a
+bare ratifying word takes the RECOMMENDED option at all seven; a veto NAMES the
+decision, and costs that section alone.** That is the reading the shape twin
+`gate-code-surface-declarations` records Brett Heap giving on 2026-09-13 — *the
+bare word "ratify" takes the packet as encoded* — cited here as the house
+reading this packet asks for, not as a ruling already given over this packet.
+
 ## 0. The brief
 
 #1053 states the gap, re-measures it, sizes the alternatives, and RECOMMENDS
