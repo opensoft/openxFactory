@@ -131,10 +131,26 @@
 #       mirrors it rather than re-discovering it, and the exact pin is what
 #       refuses the root-shaped layout if anyone ever "simplifies" it back.
 #
-# WHY NODE IS INSTALLED. 41 test files gate their DOM and JS probes on
-# `shutil.which("node")` and SKIP without it — and a skip reports as a green
-# bar. The named verdict below watches one of those probes BY NAME, so a
-# runner without node fails this gate instead of passing it quietly.
+# WHY NODE IS INSTALLED. The consumer suite's JS derivation probes live in ONE
+# file — `tests/ideation-dashboard/test_lens.py` — whose two harness helpers
+# `_run_node` and `_run_request_node` `pytest.skip` outright when
+# `shutil.which("node")` is `None`, and a skip reports as a green bar.
+# MEASURED, not counted by eye. Run with node off `PATH`, the WHOLE consumer
+# suite reports `tests=1137 skipped=14 failures=0 errors=0` — every one of the
+# fourteen in `test_lens`, every one with the message "node not available for
+# the JS derivation probe" — and an `ast` walk finds the same fourteen test
+# functions routing through those two helpers. That is also the second reading
+# `EXPECT_SKIPPED: "0"` refuses, beside the root-shaped thirteen. The named
+# verdict below watches one of the fourteen BY NAME, so a runner without node
+# fails this gate instead of passing it quietly.
+#
+# THE FIGURE IS ABOUT THE SUITES THIS GATE RUNS, which is a correction an
+# earlier draft of this header needed: it said "41 test files", a number that
+# belongs to neither side of the line. The two pinned LEGS carry 50 node-gated
+# test files of their own (28 in `openDox/code/tests`, 22 in
+# `openXdox/code/tests`) and this gate does not run the legs' own suites at
+# all; openxFactory's own `tests/` tree has exactly one such file, the one
+# above.
 #
 # WHY THE COUNTS ARE PINNED AT ALL. Every suite here can fail OPEN rather than
 # red: a locator that answers `None` turns assertions into skips, an absent
@@ -458,8 +474,9 @@ jobs:
           # EXACT, AND ZERO IS THE WHOLE POINT OF DEPARTURE (b). Every skip
           # this suite can produce is a capability that went missing rather
           # than a test that chose not to run: an unreachable cross-reference
-          # validator (13 of them), an absent `node` (41 files' DOM and JS
-          # probes), a leg that was not materialized. Pinning it at zero means
+          # validator (13 of them), an absent `node` (the FOURTEEN JS-probe
+          # cases of `test_lens.py`, measured with node off `PATH`), a leg that
+          # was not materialized. Pinning it at zero means
           # this gate cannot go green having quietly stopped adjudicating any
           # of them.
           #

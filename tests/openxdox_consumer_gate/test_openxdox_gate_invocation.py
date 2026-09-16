@@ -20,7 +20,9 @@ nothing:
     ways, `tests=1137 skipped=13` root-shaped against `tests=1137 skipped=0`
     aggregation-shaped, IDENTICAL SELECTION either way, which is why the gate
     pins an exact skipped count and not only a floor;
-  * a missing `node` turns 41 files' DOM and JS probes into SKIPS;
+  * a missing `node` turns the FOURTEEN JS-probe cases of
+    `tests/ideation-dashboard/test_lens.py` into SKIPS — measured with node off
+    `PATH`: the whole consumer suite reports `tests=1137 skipped=14`;
   * a non-recursive init leaves both `code` legs empty, and
     `scripts/carved_reach.py` refuses BY NAME — which reports as a collection
     ERROR, not as a pass, but only for as long as the suite that reaches the
@@ -53,6 +55,7 @@ a developer machine, for whoever writes the third consumer gate.
 
 from __future__ import annotations
 
+import ast
 import collections
 from pathlib import Path
 
@@ -317,12 +320,23 @@ def test_the_submodule_init_is_scoped_to_the_two_consumed_gitlinks(
 
 def test_node_is_installed_because_the_js_probes_skip_without_it(
         steps: list[dict]) -> None:
-    """The named verdict below depends on it; a skip reports as a green bar."""
+    """The named verdict below depends on it; a skip reports as a green bar.
+
+    MEASURED rather than counted by eye, because an earlier draft of this
+    suite and of the workflow header said "41 test files" — a figure that
+    belongs to the pinned LEGS' own suites (28 node-gated files in
+    `openDox/code/tests`, 22 in `openXdox/code/tests`), which this gate does
+    not run. openxFactory's own `tests/` tree has exactly ONE such file, and
+    with node off `PATH` the whole consumer suite reports `tests=1137
+    skipped=14`, every skip in that module and every one of them reading "node
+    not available for the JS derivation probe".
+    """
     node = [s for s in steps
             if str(s.get("uses", "")).startswith("actions/setup-node")]
     assert len(node) == 1, (
-        "the gate must set up node: 41 test files gate their DOM and JS probes "
-        "on `shutil.which('node')` and SKIP without it, and the consumer "
+        "the gate must set up node: fourteen test functions in "
+        "`tests/ideation-dashboard/test_lens.py` route through harness helpers "
+        "that `pytest.skip` without `shutil.which('node')`, and the consumer "
         "suite's named verdict is one of them")
     assert str(node[0]["with"]["node-version"]) == "22", (
         "node is pinned to the same major `pytest-suite.yml` installs so the "
@@ -354,6 +368,43 @@ def test_the_dependency_install_is_hash_pinned_and_refuses_sdists(
         "gate installs itself. The lock is all wheels, so this costs nothing")
     assert "requirements/hermes-runtime-contracts.lock" in install, (
         "the gate installs the same locked set the required suite does")
+
+
+def test_the_watched_consumer_case_really_depends_on_node() -> None:
+    """The load-bearing half of the node claim, asserted rather than counted.
+
+    A COUNT rots — this suite shipped "41 test files" and the number was never
+    right for the suites this gate runs. What actually matters is narrower and
+    stable: the one consumer case watched BY NAME routes through a harness
+    helper that `pytest.skip`s when `shutil.which("node")` is `None`. That is
+    the whole reason installing node keeps that verdict from being a green
+    bar, and if the watched case is ever rewired to a node-free path, this
+    fails and the `setup-node` step must be re-justified rather than kept out
+    of habit.
+    """
+    classname, _, name = CONSUMER_NAMED_VERDICTS[0].partition("::")
+    module = REPO_ROOT / (classname.replace(".", "/") + ".py")
+    source = module.read_text(encoding="utf-8")
+    assert 'shutil.which("node")' in source, (
+        f"{module} no longer resolves node with `shutil.which`; the gate's "
+        f"`setup-node` step is justified by that gate")
+    tree = ast.parse(source)
+    node_helpers = {
+        fn.name for fn in tree.body
+        if isinstance(fn, ast.FunctionDef)
+        and "NODE" in ast.dump(fn) and "skip" in ast.dump(fn)}
+    assert node_helpers, (
+        f"{module} carries no helper that skips without node; re-measure the "
+        f"claim in this gate's header before trusting it")
+    watched = next(fn for fn in tree.body
+                   if isinstance(fn, ast.FunctionDef) and fn.name == name)
+    called = {call.func.id for call in ast.walk(watched)
+              if isinstance(call, ast.Call) and isinstance(call.func, ast.Name)}
+    assert called & node_helpers, (
+        f"the watched case {name} no longer routes through any of "
+        f"{sorted(node_helpers)} — it does not depend on node any more, so a "
+        f"`passed` verdict on it no longer proves node was installed. Move "
+        f"the watch, or re-justify the `setup-node` step")
 
 
 # --------------------------------------------------------------------------
