@@ -91,10 +91,22 @@ the CHEAP reading — outcome counts, no manual classification. The DEEP one was
 taken by a sibling writer in this lane at the same head and is committed in this
 packet at `evidence/measurement-b1df95ee.md`, with its run record, its
 instrument (`measure.py`), a 1.5 MB per-token JSON and a classification JSON
-held in this lane's handoff attachments at
-`~/projects/brett-wip/handoffs/xFactory/attachments/openxfactory-1-2026-09-13/1053/`
-rather than committed, because the packet needs the reading and not the raw
-dump.
+held UNCOMMITTED in this lane's handoff attachments — the repository
+`opensoft/brett-wip`, path
+`handoffs/xFactory/attachments/openxfactory-1-2026-09-13/1053/` — because the
+packet needs the reading and not the raw dump. **THE ATTACHMENTS ARE CITED AS A
+REPOSITORY AND A REPO-RELATIVE PATH, NEVER AS A CHECKOUT ON SOMEBODY'S
+MACHINE**, which is not a style preference: this repository's own constitution
+requires that *"Committed files MUST NOT contain host-absolute paths; use
+repo-relative paths or runtime resolution"* (`.specify/memory/constitution.md`
+Principle IV, `:72-73`), and it is the form this corpus already uses for this
+same registry — `README.md:777`,
+`openspec/changes/disposition-codexfactory-regular-pr-council-clearance-archive/proposal.md:10`
+and the `register-gate-rules-council-seats` walk records all spell it
+`` `opensoft/brett-wip` commit `<sha>` `` plus a repo-relative path. The
+discipline is recorded discharged the same way in
+`specs/017-openxwallet-carve/plan.md:103`: *"No host-absolute paths in any
+committed file … the scratch clone location never appears in a commit."*
 
 **ITS HEADLINE IS THREE NUMBERS, AND ONLY THE THIRD IS A CLASSIFICATION:**
 
