@@ -129,6 +129,27 @@ def read_manifest(path: Path) -> dict[str, Any]:
             f"{path} carries an EMPTY `rows:` list. A floor computed over no "
             "rows reports `0 = 0` and has examined nothing; an empty mapping "
             "is not a mapping that holds")
+    # THE SCALARS ARE TYPED, NOT MERELY PRESENT (Copilot, round 4 on #1080).
+    # `repository_of` coerced a non-string `source_repository:` with `str()`,
+    # so a list reached the report as `"['opensoft/openxFactory']"` — measured
+    # to REFUSE downstream (`refuse_unknown_declared_homes`, because the
+    # declared homes then match nothing), which is a right answer arrived at
+    # by the wrong road and a message an operator would have to decode. The
+    # presence checks above are what this floor needs to COMPUTE; these are
+    # what it needs to compute the truth.
+    for key, kind in (("carve_commit", str), ("source_repository", str)):
+        if not isinstance(doc[key], kind) or not doc[key]:
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"{path} carries `{key}: {doc[key]!r}`, which is not a "
+                "non-empty string. FLOOR PART 1 refuses that document; this "
+                "one cannot compute a true mapping over it either")
+    if not isinstance(doc["destinations"], dict) or not doc["destinations"]:
+        raise mapping.TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{path} carries `destinations: {doc['destinations']!r}`, which "
+            "is not a non-empty map. Every home this floor names is resolved "
+            "through it")
     if not isinstance(doc["moved_paths"], list) or not doc["moved_paths"] \
             or not all(isinstance(entry, str) and entry
                        for entry in doc["moved_paths"]):

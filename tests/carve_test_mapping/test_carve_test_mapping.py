@@ -1200,6 +1200,28 @@ def test_a_floor_over_nothing_does_not_pass(scratch: Scratch, mutate, fragment
     assert fragment in payload["detail"], payload["detail"]
 
 
+@pytest.mark.parametrize("key,value", [
+    ("source_repository", ["opensoft/openxFactory"]),
+    ("source_repository", ""),
+    ("carve_commit", 12345),
+    ("destinations", []),
+    ("destinations", {}),
+])
+def test_the_scalars_are_typed_and_not_merely_present(
+        scratch: Scratch, key: str, value) -> None:
+    """A present key of the wrong TYPE reached the mapping. `repository_of`
+    coerced a non-string `source_repository:` with `str()`, so a list arrived
+    in the report as `"['opensoft/openxFactory']"` — measured to refuse
+    downstream, because the declared homes then match nothing, which is a
+    right answer by the wrong road and a message an operator has to decode.
+    The presence checks are what this floor needs to COMPUTE; these are what
+    it needs to compute the truth."""
+    doc = scratch.clean()
+    doc[key] = value
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert key in payload["detail"]
+
+
 @pytest.mark.parametrize("value", ["dox_code", [], ["dox_code", "dox_code"],
                                    [""], [3]])
 def test_a_present_also_replicated_to_is_read_or_refused_never_dropped(
