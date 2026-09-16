@@ -140,23 +140,52 @@ def report_xml(*, tests: int, skipped: int = 0, failures: int = 0,
     return f"<{root_tag}>{one}</{root_tag}>" if wrap else one
 
 
-def step_env(env: dict[str, str]) -> dict[str, str]:
-    """The step's `env:` OVER the ambient one, which is what Actions does.
+def step_env(env: dict[str, str], home: Path) -> dict[str, str]:
+    """The step's `env:` over a MINIMAL one — never over the ambient one.
 
-    Passing the five pins alone would also strip `PATH`, and the body's
-    `python3` is then whatever `bash` happens to fall back to — a difference
-    between this suite and the runner that has nothing to do with what is
-    under test.
+    WHAT THIS MODULE EXECUTES IS PULL-REQUEST-CONTROLLED TEXT. The body comes
+    out of `.github/workflows/openxdox-consumer-gate.yml` as it stands in the
+    branch under review, and `bash -c` runs it — inside the REQUIRED
+    `pytest-suite` job, which at `.github/workflows/pytest-suite.yml` (its
+    "Rewrite ssh submodule URLs for token auth" step) has already written
+    `https://x-access-token:${{ github.token }}@github.com/` into the runner's
+    GLOBAL git config. Inheriting `os.environ` and `HOME` into that child was
+    therefore handing a proposed workflow body the runner's credential and
+    calling the result hermetic.
+
+    So the child gets `PATH` — without it the body's `python3` is whatever
+    `bash` falls back to, which is a difference from the runner that has
+    nothing to do with what is under test — a `HOME` of its own inside
+    `tmp_path`, `GIT_CONFIG_GLOBAL` and `GIT_CONFIG_SYSTEM` pointed at
+    `os.devnull`, a locale, and the step's five pins. Nothing else: no
+    `GITHUB_TOKEN`, no `ACTIONS_RUNTIME_TOKEN`, no rewritten git config to
+    read a bearer out of.
+
+    This does not make the required job safe from a hostile pull request —
+    `pytest-suite` runs every test module in that tree, and a module is
+    Python — but it stops THIS module from being the shovel, and it makes the
+    hermeticity this file claims something it actually does.
     """
-    return {**os.environ, **env}
+    return {
+        "PATH": os.environ.get("PATH", ""),
+        "HOME": str(home),
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "GIT_CONFIG_SYSTEM": os.devnull,
+        "LC_ALL": os.environ.get("LC_ALL", "C.UTF-8"),
+        **env,
+    }
 
 
 def adjudicate(tmp_path: Path, env: dict[str, str],
                xml: str) -> subprocess.CompletedProcess[str]:
-    """Run the SHIPPED body over `xml`, as the runner would."""
+    """Run the SHIPPED body over `xml`, as the runner would — minus the runner's
+    credential: see `step_env`."""
     (tmp_path / env["REPORT"]).write_text(xml, encoding="utf-8")
+    home = tmp_path / "home"
+    home.mkdir(exist_ok=True)
     return subprocess.run(["bash", "-c", body()], cwd=tmp_path,
-                          env=step_env(env), capture_output=True, text=True)
+                          env=step_env(env, home), capture_output=True,
+                          text=True)
 
 
 def at_the_pins(env: dict[str, str], **over) -> str:
@@ -439,11 +468,63 @@ def test_a_report_that_cannot_be_parsed_fails_the_step(
 
 def test_a_missing_report_fails_the_step(tmp_path: Path) -> None:
     """The suite never ran, or wrote elsewhere; both are the same finding."""
+    home = tmp_path / "home"
+    home.mkdir()
     done = subprocess.run(["bash", "-c", body()], cwd=tmp_path,
-                          env=step_env(env_for(PIN_REPORT)),
+                          env=step_env(env_for(PIN_REPORT), home),
                           capture_output=True, text=True)
     assert done.returncode != 0
     assert "No such file" in done.stderr or "FileNotFound" in done.stderr
+
+
+def test_the_executed_body_cannot_read_the_runner_credential(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The isolation `step_env` claims, measured against a planted credential.
+
+    `pytest-suite` writes `https://x-access-token:${{ github.token }}@
+    github.com/` into the runner's GLOBAL git config before it runs this tree,
+    and the text this module executes comes from the workflow file of the
+    branch under review. So the ambient environment is planted here the way a
+    runner's is — a `HOME` holding exactly that rewrite, `GITHUB_TOKEN` and
+    `ACTIONS_RUNTIME_TOKEN` in the environment — and the child is asked for
+    both. It must see neither.
+    """
+    ambient = tmp_path / "ambient-home"
+    ambient.mkdir()
+    (ambient / ".gitconfig").write_text(
+        '[url "https://x-access-token:PLANTED-BEARER@github.com/"]\n'
+        '\tinsteadOf = git@github.com:\n', encoding="utf-8")
+    monkeypatch.setenv("HOME", str(ambient))
+    monkeypatch.setenv("GITHUB_TOKEN", "PLANTED-BEARER")
+    monkeypatch.setenv("ACTIONS_RUNTIME_TOKEN", "PLANTED-BEARER")
+
+    home = tmp_path / "home"
+    home.mkdir()
+    env = step_env(env_for(PIN_REPORT), home)
+    assert "GITHUB_TOKEN" not in env, (
+        "the child environment must not carry the runner's token; it is built "
+        "from a minimal base, not from `os.environ`")
+    assert "ACTIONS_RUNTIME_TOKEN" not in env
+
+    probe = subprocess.run(
+        ["bash", "-c",
+         'echo "token=${GITHUB_TOKEN-unset}"; '
+         'echo "home=$HOME"; '
+         'echo "config:"; git config --global --list 2>/dev/null; '
+         'echo "end-of-config"'],
+        cwd=tmp_path, env=env, capture_output=True, text=True)
+    assert "token=unset" in probe.stdout, probe.stdout
+    assert f"home={home}" in probe.stdout, probe.stdout
+    listed = probe.stdout.split("config:\n", 1)[1].split("end-of-config")[0]
+    assert listed.strip() == "", (
+        f"the child sees a global git config: {listed!r}")
+    assert "PLANTED-BEARER" not in probe.stdout + probe.stderr, (
+        "the planted credential reached the executed body")
+
+    # …and the real body still adjudicates correctly under that environment.
+    done = adjudicate(tmp_path, env_for(PIN_REPORT),
+                      at_the_pins(env_for(PIN_REPORT)))
+    assert done.returncode == 0, done.stdout + done.stderr
 
 
 # --------------------------------------------------------------------------
