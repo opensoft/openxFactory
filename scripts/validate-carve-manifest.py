@@ -308,8 +308,12 @@ legs, and what S8 measured has no leg to move it to.
   `post-shed`. A retired row is still a file that LEFT openxFactory, and the
   document still records where the carve put it.
 
-  WHAT S8 NEEDS IT FOR. Three suites arrived at their legs driving
-  `views/intent-feed.js` — RULED OQ-F `not_moved`, so it stayed HERE and
+  WHAT S8 NEEDS IT FOR. Three suites arrived at their legs NEEDING
+  `views/intent-feed.js` — NEEDING and not driving, because the two that carry
+  `retired:` do not stand in the same relation to it (the tray suite DROVE the
+  module; the wheel suite only loads it, measured in its own manifest note),
+  which is why the grammar's word is NEEDED; RULED OQ-F left it `not_moved`,
+  so it stayed HERE and
   arrived at NEITHER leg, and slice S2 replaced the surface openDox does have
   with `views/intent-binding.js`. The suites test a surface that is not there.
   `re_destined:` cannot say so: `to` is held to the CLOSED `destinations:`
