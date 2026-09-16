@@ -55,6 +55,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -359,7 +360,8 @@ def test_the_generated_miniature_verifies_and_prints_every_term(
     assert summary["source_count"] == 14
     assert summary["replica_excess"] == 10
     assert summary["also_replicated_excess"] == 0
-    assert summary["retired_total"] == 0
+    assert summary["retired_tests"] == 0
+    assert summary["retired_excess"] == 0
     assert summary["destinations_sum"] == 24
     assert summary["identity_holds"] is True
     assert summary["per_repository"] == {
@@ -562,7 +564,10 @@ def test_a_retired_row_is_admitted_named_and_subtracted(
     assert summary["retired"] == [
         {"source_path": "scripts/pkg/test_alpha.py", "tests": 3,
          "ruling": RETIREMENT["ruling"]}]
-    assert summary["retired_total"] == 3
+    assert summary["retired_tests"] == 3
+    assert summary["retired_excess"] == -3, \
+        "a plain retired row has no home, so its `(0 − 1) × tests` IS the "\
+        "subtraction — the fourth term is arithmetic, not a special case"
     assert summary["source_count"] == 14, "the source still carried them"
     assert summary["per_repository"]["opensoft/openDox-code"] == 5, \
         "the three retired tests leave the destination's declared total"
@@ -585,7 +590,7 @@ def test_half_a_retirement_reads_as_no_retirement_and_the_row_owes_again(
     scratch.row(doc, "scripts/pkg/test_alpha.py")["retired"] = retirement
     summary = verified(scratch.run(doc))
     assert summary["retired"] == []
-    assert summary["retired_total"] == 0
+    assert summary["retired_tests"] == 0
     assert summary["per_repository"]["opensoft/openDox-code"] == 3 + 5
 
 
@@ -822,6 +827,230 @@ def test_the_tree_figure_skips_a_nested_checkout(scratch: Scratch) -> None:
 
 
 # --------------------------------------------------------------------------
+# the Copilot round on #1080 — nine suppressed findings and six threads, each
+# of them a hole in the reading rather than a matter of taste, and each closed
+# with the case below.
+# --------------------------------------------------------------------------
+
+def test_a_retirement_that_names_another_placement_is_no_retirement(
+        scratch: Scratch) -> None:
+    """`retired_at` validates the block's SHAPE; it cannot ask whether the
+    block retires THIS ROW'S arrival. Taking a shape-valid block that names
+    somewhere else as a retirement would DELETE a live arrival from the
+    mapping — the sum balances while a real leg quietly stops being asked for
+    a real file. FLOOR PART 1 refuses that document
+    (`carve-disposition-inconsistent`), but this floor runs at a leg and
+    inside a consumer, where that validator never runs."""
+    doc = scratch.clean()
+    retirement = copy.deepcopy(RETIREMENT)
+    retirement["at_path"] = "tests/somewhere_else.py"
+    scratch.row(doc, "scripts/pkg/test_alpha.py")["retired"] = retirement
+    summary = verified(scratch.run(doc))
+    assert summary["retired"] == []
+    assert summary["per_repository"]["opensoft/openDox-code"] == 3 + 5, \
+        "the row goes on owing the arrival the manifest places"
+    dest = scratch.destination("dox", {"src/mod.py": "scripts/pkg/mod.py"})
+    payload = refused(scratch.run(doc, "--destination", "dox_code",
+                                  "--dest-root", str(dest)),
+                      "destination-test-shortfall")
+    assert "tests/test_alpha.py" in payload["detail"]
+
+
+def test_a_moved_row_with_no_destination_cannot_be_homed_by_a_replica(
+        scratch: Scratch) -> None:
+    """A malformed moved row could pass clause (a) merely by LISTING an
+    `also_replicated_to:` destination. The row's own placement is the home the
+    clause is about, and RULED Q-L7 (a)'s own sentence about that field is
+    that it is "neither a fourth disposition and NEITHER OF THEM A
+    PLACEMENT"."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row.pop("destination")
+    row.pop("destination_path")
+    row["also_replicated_to"] = ["xdox_code"]
+    refused(scratch.run(doc), "test-home-missing")
+
+
+def test_a_retired_row_that_also_replicates_keeps_its_replicas(
+        scratch: Scratch) -> None:
+    """The hole the fourth term opened when it was written as a whole-row
+    subtraction: retirement deletes the row's own ARRIVAL, not the copies its
+    `also_replicated_to:` places elsewhere. Subtracting the row's tests while
+    still counting them at the surviving home made the printed identity false
+    — and nothing refused, because the identity was computed and never
+    enforced. One rule now computes every term: `(|homes| − 1) × tests`."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row["also_replicated_to"] = ["xdox_code"]
+    row["retired"] = copy.deepcopy(RETIREMENT)
+    summary = verified(scratch.run(doc))
+    assert summary["identity_holds"] is True
+    assert summary["retired_tests"] == 3
+    assert summary["retired_excess"] == 0, \
+        "one surviving home: (1 − 1) × 3 — nothing to subtract"
+    assert summary["per_repository"]["opensoft/openXdox-code"] == 2 + 5 + 3
+    assert summary["per_repository"]["opensoft/openDox-code"] == 5
+
+
+def test_a_declaration_for_a_row_this_manifest_dispositions_otherwise_refuses(
+        scratch: Scratch) -> None:
+    """THE MACHINE HALF OF THE KEY PIN. The table's keys being exactly the
+    manifest's test-bearing replicas is a pytest assertion, and a pytest
+    assertion is not a check the runbook's invocation makes — so a row that
+    stopped being a replica left the verifier green while its declaration went
+    on describing nothing."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "tests/corpus-adapter/test_conformance.py")
+    row["disposition"] = "moved_verbatim"
+    row.pop("reason")
+    row["destination"] = "dox_code"
+    row["destination_path"] = "tests/test_conformance.py"
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "declaration about nothing" in payload["detail"]
+
+
+def test_two_destination_keys_for_one_leg_are_one_destination(
+        scratch: Scratch) -> None:
+    """A `destinations:` KEY IS A LABEL, NEVER A REFERENT, and FLOOR PART 1's
+    `check_shape` deliberately ADMITS two keys sharing one `{repository, leg}`
+    body — which is why `verify-carve-arrival.py` grew `_resolved_destination`
+    in the first place. A string comparison here would skip every row written
+    under the other alias and report a leg with no owed arrivals: a floor that
+    passes by asking nothing."""
+    doc = scratch.clean()
+    doc["destinations"]["dox_code_alias"] = {
+        "repository": "opensoft/openDox-code", "leg": "code"}
+    scratch.row(doc, "scripts/pkg/test_alpha.py")["destination"] = \
+        "dox_code_alias"
+    dest = scratch.destination("dox", ARRIVALS)
+    summary = verified(scratch.run(doc, "--destination", "dox_code",
+                                   "--dest-root", str(dest)))
+    assert summary["declared"] == 3, \
+        "the row under the alias is this destination's"
+    assert summary["collected"] == 3
+
+
+def test_one_file_may_not_answer_for_two_rows(scratch: Scratch) -> None:
+    """Two declarations naming one destination path had that file's tests
+    counted once per declaration — one physical suite satisfying two
+    obligations, which is a MISSING ARRIVAL wearing a total that balances."""
+    doc = scratch.clean()
+    scratch.row(doc, "scripts/pkg/test_beta.py")["destination"] = "dox_code"
+    scratch.row(doc, "scripts/pkg/test_beta.py")["destination_path"] = \
+        "tests/test_alpha.py"
+    dest = scratch.destination("dox", ARRIVALS)
+    payload = refused(scratch.run(doc, "--destination", "dox_code",
+                                  "--dest-root", str(dest)),
+                      "test-mapping-unreadable")
+    assert "cannot answer for two rows" in payload["detail"]
+
+
+def test_a_replica_may_not_be_placed_outside_its_declared_set(
+        scratch: Scratch) -> None:
+    """A declared set is a CLOSED list of homes, so a placement at a
+    repository outside it is not a late arrival — it is a copy the
+    multiplicity never counted, and admitting it would raise a destination's
+    floor by tests no term of clause (c) carries."""
+    doc = scratch.clean()
+    doc["destinations"]["dox_spec"] = {"repository": "opensoft/openDox-spec",
+                                       "leg": "spec"}
+    dest = scratch.destination("spec", {})
+    payload = refused(
+        scratch.run(doc, "--destination", "dox_spec", "--dest-root",
+                    str(dest), "--replica-at",
+                    "tests/corpus-adapter/test_conformance.py="
+                    "tests/test_conformance.py"),
+        "test-mapping-unreadable")
+    assert "declared replica set" in payload["detail"]
+
+
+def test_replica_at_is_refused_at_the_retained_column_not_discarded(
+        scratch: Scratch) -> None:
+    """Silently ignoring the flag reported a passing retained summary for a
+    question the operator thought they had asked."""
+    payload = refused(
+        scratch.run(None, "--destination", "openxFactory", "--dest-root",
+                    str(scratch.repo), "--replica-at",
+                    "tests/corpus-adapter/test_conformance.py=x.py"),
+        "test-mapping-unreadable")
+    assert "means nothing at the retained column" in payload["detail"]
+
+
+@pytest.mark.parametrize("relpath", ["/etc/passwd", "../outside.py",
+                                     "tests/./x.py"])
+def test_a_destination_path_that_escapes_the_root_refuses(
+        scratch: Scratch, relpath: str) -> None:
+    """`Path("/dest") / "/etc/passwd"` is `/etc/passwd`: an absolute value
+    REPLACES the root it is joined to and `..` walks out of it. On this floor
+    that is not a wrong error message — it is a WRONG NUMBER in a passing
+    report."""
+    dest = scratch.destination("dox", ARRIVALS)
+    refused(scratch.run(None, "--destination", "dox_code", "--dest-root",
+                        str(dest), "--replica-at",
+                        f"tests/corpus-adapter/test_conformance.py={relpath}"),
+            "test-mapping-unreadable")
+
+
+def test_a_manifest_that_is_not_utf8_refuses_instead_of_raising(
+        scratch: Scratch) -> None:
+    """`Path.read_text` raises `UnicodeDecodeError`, which is NOT an
+    `OSError`, so it escaped the CLI's only catch as a traceback and exit 1 —
+    the documented contract being a named refusal and exit 2, for exactly the
+    input most likely to be a corrupted file."""
+    scratch.manifest_path.write_bytes(b"carve_commit: \xff\xfe\n")
+    done = subprocess.run(
+        [sys.executable, str(SCRIPT), "--manifest", str(scratch.manifest_path),
+         "--repo", str(scratch.repo), "--json"],
+        capture_output=True, text=True, check=False)
+    refused(done, "test-mapping-unreadable")
+
+
+def test_a_yaml_valid_but_malformed_shape_refuses_instead_of_raising(
+        scratch: Scratch) -> None:
+    """`read_manifest` accepts many YAML-valid shapes FLOOR PART 1 refuses —
+    a row that is not a mapping, a `destinations:` value that is not one — and
+    those raised out as a traceback and exit 1, which is a shape no caller can
+    branch on. This floor does not say WHICH shape is wrong; it says it cannot
+    compute over the document, which is still a refusal."""
+    doc = scratch.clean()
+    doc["rows"].append("not a mapping at all")
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "validate-carve-manifest.py" in payload["detail"]
+    doc = scratch.clean()
+    doc["destinations"]["dox_code"] = "not a mapping either"
+    refused(scratch.run(doc), "test-mapping-unreadable")
+
+
+def test_the_carve_blobs_are_read_in_the_named_repository_not_an_ambient_one(
+        scratch: Scratch) -> None:
+    """An ambient `GIT_DIR`, alternate object directory, indexed
+    `GIT_CONFIG_KEY/VALUE_N` or replace-ref would let `cat-file` read a
+    DIFFERENT object store than `--repo` names, and the counts would then be a
+    claim about a tree nobody asked about. The scrub list is
+    `carved_reach._sanitized_git_environment`'s, REUSED rather than copied a
+    fourth time — `validate-carve-manifest.py` and
+    `scripts/validate-contract-release.py` set that precedent."""
+    manifest = scratch.write(scratch.clean())
+    decoy = scratch.root / "decoy"
+    decoy.mkdir()
+    _git(decoy, "init", "-q", "-b", "main")
+    (decoy / "README.md").write_text("no carve commit here\n",
+                                     encoding="utf-8")
+    _git(decoy, "add", "-A")
+    _git(decoy, "commit", "-qm", "decoy")
+    poisoned = dict(os.environ)
+    poisoned["GIT_DIR"] = str(decoy / ".git")
+    poisoned["GIT_WORK_TREE"] = str(decoy)
+    done = subprocess.run(
+        [sys.executable, str(SCRIPT), "--manifest", str(manifest),
+         "--repo", str(scratch.repo), "--json"],
+        capture_output=True, text=True, check=False, env=poisoned)
+    summary = verified(done)
+    assert summary["source_count"] == 14, \
+        "the ambient GIT_DIR must not decide which object store answers"
+
+
+# --------------------------------------------------------------------------
 # the landed document — the § 8.2 seat
 # --------------------------------------------------------------------------
 
@@ -860,11 +1089,12 @@ def test_the_real_repository_verifies_and_the_box_arithmetic_reproduces(
     assert summary["per_repository"]["opensoft/openXdox-code"] == 2345
     assert summary["per_repository"]["opensoft/openxFactory"] == 998
     assert summary["per_repository"]["opensoft/openDox-code"] + \
-        summary["retired_total"] == 1128
+        summary["retired_tests"] == 1128
     assert [item["source_path"] for item in summary["retired"]] == [
         "tests/ideation-dashboard/test_intent_tray_dom.py",
         "tests/ideation-dashboard/test_wheel_verbs_dom.py"]
-    assert summary["retired_total"] == 31
+    assert summary["retired_tests"] == 31
+    assert summary["retired_excess"] == -31
     for item in summary["retired"]:
         assert "5656343213" in item["ruling"]
     assert summary["destinations_sum"] == 4411 + 60 - 31

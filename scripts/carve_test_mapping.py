@@ -137,6 +137,9 @@ aggregate pin, and a number nobody prints is a number nobody checks.
 
 from __future__ import annotations
 
+import ntpath
+import os
+import posixpath
 import subprocess
 import sys
 from pathlib import Path
@@ -272,13 +275,91 @@ def under_surface(path: str, moved_paths: list[str]) -> bool:
     return False
 
 
-def ruling_of(row: dict[str, Any]) -> str | None:
-    """The `retired:` block's citation, read ONLY where `retired_at` has
-    already accepted the block — so a half-written retirement can never
-    contribute a ruling to a report that says the deletion was ruled."""
-    if retired_at(row)[1] is None:
+def resolved_destination(key: Any, destinations: Any) -> tuple:
+    """A `destinations:` key's REAL identity — its `(repository, leg)` body.
+
+    THE THIRD READING of `verify-carve-arrival.py`'s and
+    `validate-carve-manifest.py`'s function of the same name, and it exists
+    for the reason theirs do: **a `destinations:` key is a LABEL, never a
+    referent**, and FLOOR PART 1's `check_shape` deliberately ADMITS two keys
+    sharing one `{repository, leg}` body. Comparing `--destination` to a row's
+    key as a STRING would then skip every row written under the other alias
+    and report a leg with no owed arrivals — a floor that passes by asking
+    nothing. Degrades to a 1-tuple of the key for a malformed
+    `destinations:` block, which can never equal a resolved 2-tuple, so an
+    unknown key never compares EQUAL to a known one.
+    """
+    entry = destinations.get(key) if isinstance(destinations, dict) else None
+    if isinstance(entry, dict):
+        return (entry.get("repository"), entry.get("leg"))
+    return (key,)
+
+
+def retirement_of(row: dict[str, Any]) -> tuple[Any, Any, Any] | None:
+    """`(at, at_path, ruling)` where a RULING has deleted THIS ROW'S OWN
+    arrival, else None.
+
+    TWO CONDITIONS, NOT ONE, and the second is the one `retired_at` cannot
+    ask. `carved_reach.retired_at` validates the block's SHAPE — all four
+    required keys, the reading guard RULED 5656343213 — and a shape-valid
+    block may still name a placement that is NOT this row's effective
+    arrival. FLOOR PART 1 refuses that document
+    (`carve-disposition-inconsistent`), but this floor is run at a leg and
+    inside a consumer where that validator never runs, and taking a mislocated
+    block as a retirement would DELETE a live arrival from the mapping: the
+    sum would balance while a real leg quietly stopped being asked for a real
+    file. So the block must retire the arrival the row actually has, and where
+    it does not, the row goes on owing it — the same direction
+    `retired_at`'s own guard fails in.
+    """
+    at, at_path = retired_at(row)
+    if at_path is None:
         return None
-    return row["retired"].get("ruling")
+    if (at, at_path) != effective_arrival(row):
+        return None
+    return at, at_path, row["retired"].get("ruling")
+
+
+def ruling_of(row: dict[str, Any]) -> str | None:
+    """The `retired:` block's citation, read ONLY where `retirement_of` has
+    accepted it — so neither a half-written nor a mislocated retirement can
+    contribute a ruling to a report that says the deletion was ruled."""
+    retirement = retirement_of(row)
+    return None if retirement is None else retirement[2]
+
+
+def closed_relative(value: Any, where: str) -> str:
+    """A plain path INSIDE a destination root, or a refusal.
+
+    `_plain_relative_path`'s rule, third reading (`verify-carve-arrival.py`
+    holds it for `--replica-at` and every admissions `path:`), because the
+    hazard is identical and arrives here by two routes — a manifest
+    `destination_path:` and the right-hand side of this floor's own
+    `--replica-at`. `Path("/dest") / "/etc/passwd"` is `/etc/passwd`: an
+    absolute value REPLACES the root it is joined to and a `..` segment walks
+    out of it, so a typo would count a file the run is not about as a
+    destination's arrival — which on this floor is not a wrong error message
+    but a WRONG NUMBER in a passing report.
+    """
+    if not isinstance(value, str):
+        raise TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{where} is {value!r}, which is not a path")
+    relpath = value.replace(os.sep, "/")
+    normalised = posixpath.normpath(relpath) if relpath else ""
+    if (not relpath or "\\" in relpath or posixpath.isabs(relpath)
+            or ntpath.splitdrive(relpath)[0] or relpath != normalised
+            or normalised in (".", "..") or normalised.startswith("../")):
+        raise TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{where} is {value!r}, which is not a plain path inside the "
+            "destination root: it is empty, absolute (POSIX-absolute, or "
+            "carrying a `C:` drive or a `//server/share` UNC prefix), or "
+            "carries `.`/`..` segments or a `\\` this host does not treat as "
+            "a separator. An absolute value REPLACES the root when it is "
+            "joined and `..` walks out of it, so such a path would be counted "
+            "as an arrival this run is not about")
+    return relpath
 
 
 # --------------------------------------------------------------------------
@@ -418,7 +499,7 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
         also = row.get("also_replicated_to")
         extra = tuple(repository_of(doc, key) for key in also) \
             if isinstance(also, list) else ()
-        if retired_at(row)[1] is not None:
+        if retirement_of(row) is not None:
             return RowMapping(source_path, 0, extra, "retired", ruling_of(row))
         key, _path = effective_arrival(row)
         # A MOVED ROW THAT NAMES NO DESTINATION HAS NO HOME, and that is
@@ -433,7 +514,14 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
         # (`carve-vocabulary-unknown`) and a second name for it would be a
         # second vocabulary.
         if not isinstance(key, str) or not key:
-            return RowMapping(source_path, 0, extra, "moved", None)
+            # AND THE `also_replicated_to:` HOMES GO WITH IT (Copilot review of
+            # #1080). Returning them would let a malformed moved row pass
+            # clause (a) merely by LISTING a replica somewhere: the row's own
+            # placement is the home the clause is about, and a replica is not
+            # a substitute for it — RULED Q-L7 (a)'s own sentence about the
+            # field is that it is "neither a fourth disposition and neither of
+            # them a PLACEMENT".
+            return RowMapping(source_path, 0, (), "moved", None)
         return RowMapping(source_path, 0,
                           (repository_of(doc, key),) + extra, "moved", None)
     if disposition == NOT_MOVED:
@@ -480,9 +568,20 @@ def tests_at_carve(repo: Path, doc: dict[str, Any]) -> dict[str, int]:
             "which `git cat-file --batch` cannot be asked about one per line: "
             f"{newlined[0]!r}")
     request = "".join(f"{commit}:{path}\n" for path in paths)
-    done = subprocess.run(["git", "-C", str(repo), "cat-file", "--batch"],
+    # `--no-replace-objects` AGAINST A SANITIZED ENVIRONMENT, the treatment
+    # `validate-carve-manifest.py::_git` and `carved_reach._git_object_id`
+    # already give every carve read (register item, `#656` comment
+    # `5638315691`): an ambient `GIT_DIR`, alternate object directory, indexed
+    # `GIT_CONFIG_KEY/VALUE_N` or replace-ref would let this read a DIFFERENT
+    # object store than `repo` names, and the counts would then be a claim
+    # about a tree nobody asked about. `carved_reach._sanitized_git_environment`
+    # is REUSED rather than copied a fourth time — `validate-carve-manifest.py`
+    # and `scripts/validate-contract-release.py` set that precedent.
+    done = subprocess.run(["git", "--no-replace-objects", "-C", str(repo),
+                           "cat-file", "--batch"],
                           input=request.encode("utf-8", "surrogateescape"),
-                          capture_output=True, check=False)
+                          capture_output=True, check=False,
+                          env=carved_reach._sanitized_git_environment())
     if done.returncode != 0:
         raise TestMappingRefusal(
             "test-mapping-unreadable",
@@ -594,8 +693,53 @@ def refuse_unknown_declared_homes(doc: dict[str, Any],
                 "the two are kept in step here rather than left to drift")
 
 
+def refuse_stale_declarations(doc: dict[str, Any]) -> None:
+    """A declared replica set may not describe a row this manifest gives a
+    different disposition.
+
+    THE MACHINE HALF OF THE KEY PIN (Copilot review of #1080, accurate). The
+    table's keys being EXACTLY the manifest's test-bearing replicas is asserted
+    in `tests/carve_test_mapping/`, and a pytest assertion is not a check the
+    runbook's invocation makes — so a row that stops being a replica left the
+    verifier green while its declaration went on describing nothing. It is a
+    refusal here.
+
+    KEYS THE MANIFEST DOES NOT MENTION AT ALL ARE NOT STALE, and that is not a
+    loophole: the table is keyed by openxFactory source path and a manifest —
+    a generated one under test, a manifest re-cut at a later commit — need not
+    carry every path. What it may not do is carry the path under a disposition
+    that makes the declaration false.
+    """
+    rows = {row["source_path"]: row for row in doc["rows"]
+            if isinstance(row, dict) and isinstance(row.get("source_path"),
+                                                    str)}
+    for source_path in DECLARED_REPLICA_SETS:
+        row = rows.get(source_path)
+        if row is None or is_replica(row):
+            continue
+        raise TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"a replica set is declared for {source_path!r}, which this "
+            f"manifest dispositions {row.get('disposition')!r} / "
+            f"{row.get('reason')!r} rather than `{NOT_MOVED} / "
+            f"{REPLICA_REASON}`. The declaration and the document have "
+            "diverged, and a multiplicity declared for a row that is not a "
+            "replica is a declaration about nothing")
+
+
 def totals(doc: dict[str, Any], mapped: list[RowMapping]) -> dict[str, Any]:
-    """Clause (c), every term computed from the manifest and none assumed."""
+    """Clause (c), every term computed from the manifest and none assumed.
+
+    ONE RULE COMPUTES EVERY TERM: a row contributes `(|homes| − 1) ×
+    row_test_count` to the excess, and the buckets below only SAY WHICH KIND
+    OF ROW each contribution came from. That is what makes the fourth
+    (retirement) term arithmetic rather than a special case — a plain retired
+    row has no home, so its `(0 − 1) × tests` IS the subtraction — and it is
+    what closes the hole a retired row with `also_replicated_to:` copies
+    opened when the retirement was subtracted as a whole while its surviving
+    replicas were still counted at their homes (Copilot review of #1080).
+    """
+    refuse_stale_declarations(doc)
     refuse_unknown_declared_homes(doc, mapped)
     per_repository: dict[str, int] = {}
     for key in list(doc.get("destinations") or {}) + [RETAINED_TOKEN]:
@@ -603,26 +747,35 @@ def totals(doc: dict[str, Any], mapped: list[RowMapping]) -> dict[str, Any]:
     source_count = 0
     replica_excess = 0
     also_replicated_excess = 0
-    retired_total = 0
+    retired_excess = 0
+    retired_tests = 0
     for record in mapped:
         source_count += record.tests
         for home in record.homes:
             per_repository[home] = per_repository.get(home, 0) + record.tests
+        delta = (len(record.homes) - 1) * record.tests
         if record.kind == "retired":
-            retired_total += record.tests
-        elif record.kind == "replicated" and record.homes:
-            replica_excess += (len(record.homes) - 1) * record.tests
-        elif len(record.homes) > 1:
-            also_replicated_excess += (len(record.homes) - 1) * record.tests
+            retired_excess += delta
+            retired_tests += record.tests
+        elif record.kind == "replicated":
+            replica_excess += delta
+        else:
+            also_replicated_excess += delta
     destinations_sum = sum(per_repository.values())
     return {
         "per_repository": per_repository,
         "source_count": source_count,
         "replica_excess": replica_excess,
         "also_replicated_excess": also_replicated_excess,
-        "retired_total": retired_total,
+        # THE TESTS whose own arrival a RULING deleted — the figure the report
+        # names row by row — and, separately, the TERM that enters the
+        # identity. They are equal and opposite for every retirement that has
+        # landed (`-31` against `31`) and they come apart the moment a retired
+        # row also carries replicas, which is exactly why both are printed.
+        "retired_tests": retired_tests,
+        "retired_excess": retired_excess,
         "destinations_sum": destinations_sum,
         "identity_holds": destinations_sum == (source_count + replica_excess
                                                + also_replicated_excess
-                                               - retired_total),
+                                               + retired_excess),
     }

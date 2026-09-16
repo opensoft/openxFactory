@@ -80,6 +80,16 @@ def read_manifest(path: Path) -> dict[str, Any]:
             "test-mapping-unreadable",
             f"{path} cannot be read ({exc.strerror}); FLOOR PART 2 is computed "
             "FROM the mapping manifest and has no answer without it")
+    except UnicodeDecodeError as exc:
+        # NOT AN `OSError` (Copilot review of #1080, accurate): a non-UTF-8
+        # manifest raised out of the CLI's only catch as a traceback and
+        # exit 1, so the documented named-refusal-and-exit-2 contract was
+        # false for exactly the input most likely to be a corrupted file.
+        raise mapping.TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{path} is not UTF-8 ({exc.reason} at byte {exc.start}); the "
+            "mapping manifest is a YAML document and this floor is computed "
+            "FROM it")
     try:
         doc = yaml.safe_load(raw)
     except yaml.YAMLError as exc:
@@ -110,6 +120,24 @@ def verify_source(doc: dict[str, Any], repo: Path) -> dict[str, Any]:
     mapped = mapping.map_rows(doc, counts)
     mapping.refuse_lost_tests(mapped)
     sums = mapping.totals(doc, mapped)
+    if not sums["identity_holds"]:
+        # A COMPUTED CHECK THAT IS NEVER ENFORCED IS PROSE (Copilot review of
+        # #1080). `identity_holds` was reported and the run still exited 0, so
+        # the one arithmetic § 5.4 states could be false in a passing report.
+        # It is built to hold by construction — every row contributes
+        # `(|homes| − 1) × tests` — so a false one means this floor's own
+        # reading of the mapping is inconsistent, and an uncomputable check is
+        # never a pass.
+        raise mapping.TestMappingRefusal(
+            "test-mapping-unreadable",
+            "the mapping does not balance: Σ(destinations) "
+            f"{sums['destinations_sum']} against source_count "
+            f"{sums['source_count']} + replica excess "
+            f"{sums['replica_excess']} + also-replicated excess "
+            f"{sums['also_replicated_excess']} + retired term "
+            f"{sums['retired_excess']}. Every term is read from the manifest, "
+            "so this is an inconsistency in the mapping itself and not a "
+            "number to be adjusted")
     retired = [{"source_path": record.source_path, "tests": record.tests,
                 "ruling": record.ruling}
                for record in mapped if record.kind == "retired" and record.tests]
@@ -149,6 +177,8 @@ def arrivals_for(doc: dict[str, Any], destination: str) -> list[tuple[str, str]]
     at the retained column, the `stays_openxfactory_*` and replica rows at
     their own `source_path`. A RETIRED row owes nothing (RULED 5656343213)."""
     pairs: list[tuple[str, str]] = []
+    destinations = doc.get("destinations")
+    wanted = mapping.resolved_destination(destination, destinations)
     for row in doc["rows"]:
         if not mapping.under_surface(row["source_path"], doc["moved_paths"]):
             continue
@@ -156,15 +186,30 @@ def arrivals_for(doc: dict[str, Any], destination: str) -> list[tuple[str, str]]
             if row.get("disposition") == mapping.NOT_MOVED and \
                     row.get("reason") in (mapping.STAYS_REASONS
                                           + (mapping.REPLICA_REASON,)):
-                pairs.append((row["source_path"], row["source_path"]))
+                pairs.append((row["source_path"],
+                              mapping.closed_relative(
+                                  row["source_path"], "a retained row's path")))
             continue
         if row.get("disposition") not in mapping.MOVED_DISPOSITIONS:
             continue
-        if mapping.retired_at(row)[1] is not None:
+        # PLACEMENT-AWARE, not shape-only (Copilot review of #1080): a
+        # readable retirement block naming somewhere OTHER than this row's
+        # effective arrival used to make this verifier skip the row, so a leg
+        # could pass while never being asked for a file the manifest still
+        # places there. `retirement_of` requires the block to retire the
+        # arrival the row actually has.
+        if mapping.retirement_of(row) is not None:
             continue
         key, path = mapping.effective_arrival(row)
-        if key == destination:
-            pairs.append((row["source_path"], path))
+        # RESOLVED IDENTITY, not the label (Copilot review of #1080). FLOOR
+        # PART 1's `check_shape` admits two `destinations:` keys sharing one
+        # `{repository, leg}` body, so a string comparison against
+        # `--destination` skips every row written under the other alias — and
+        # a floor that asks nothing passes.
+        if mapping.resolved_destination(key, destinations) == wanted:
+            pairs.append((row["source_path"],
+                          mapping.closed_relative(
+                              path, f"{row['source_path']}'s arrival path")))
     return pairs
 
 
@@ -173,12 +218,17 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
     """`--replica-at SOURCE=DESTPATH`, on `verify-carve-arrival.py`'s rule: the
     left side is a replica row's `source_path`, or a moved row whose
     `also_replicated_to:` names THIS destination (RULED Q-L7 (a))."""
-    replicas = {row["source_path"] for row in doc["rows"]
+    destinations = doc.get("destinations")
+    wanted = mapping.resolved_destination(destination, destinations)
+    repository = mapping.repository_of(doc, destination)
+    replicas = {row["source_path"]: row for row in doc["rows"]
                 if mapping.is_replica(row)}
     also = {row["source_path"] for row in doc["rows"]
             if isinstance(row.get("also_replicated_to"), list)
-            and destination in row["also_replicated_to"]
-            and mapping.effective_arrival(row)[0] != destination}
+            and any(mapping.resolved_destination(key, destinations) == wanted
+                    for key in row["also_replicated_to"])
+            and mapping.resolved_destination(
+                mapping.effective_arrival(row)[0], destinations) != wanted}
     placements: dict[str, str] = {}
     for value in values:
         source_path, sep, relpath = value.partition("=")
@@ -186,6 +236,22 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
             raise mapping.TestMappingRefusal(
                 "test-mapping-unreadable",
                 f"--replica-at {value!r} is not SOURCE=DESTPATH")
+        relpath = mapping.closed_relative(relpath, f"--replica-at {value!r}")
+        declared = mapping.DECLARED_REPLICA_SETS.get(source_path)
+        if declared is not None and repository not in declared:
+            # A DECLARED SET IS A CLOSED LIST OF HOMES, so a placement at a
+            # repository outside it is not a late arrival, it is a copy the
+            # multiplicity never counted — and admitting it here would raise a
+            # destination's floor by tests no term of clause (c) carries
+            # (Copilot review of #1080). A replica with NO declared set is a
+            # ZERO-TEST one, outside clause (b) by its own words, and it is
+            # admitted exactly as `verify-carve-arrival.py` admits it.
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"--replica-at names {source_path!r} at {repository}, which "
+                "is not one of the repositories its declared replica set "
+                f"names ({', '.join(declared)}). "
+                f"{mapping.MULTIPLICITY_DECLARATION}")
         if source_path not in replicas and source_path not in also:
             raise mapping.TestMappingRefusal(
                 "test-mapping-unreadable",
@@ -253,9 +319,41 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
                        replica_values: list[str]) -> dict[str, Any]:
     repository = mapping.repository_of(doc, destination)
     counts = mapping.tests_at_carve(repo, doc)
-    placements = parse_replica_placements(replica_values, doc, destination) \
-        if destination != mapping.RETAINED_TOKEN else {}
+    if destination == mapping.RETAINED_TOKEN:
+        # REFUSED, NOT DISCARDED (Copilot review of #1080). The retained
+        # column needs no placement — a `not_moved` row stays at its own
+        # `source_path` — so a `--replica-at` here is a mistaken invocation,
+        # and silently ignoring it would report a passing retained summary
+        # for a question the operator thought they had asked.
+        if replica_values:
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"--replica-at means nothing at the retained column "
+                f"{mapping.RETAINED_TOKEN!r}: a `not_moved` row stays HERE, at "
+                "its own source_path, and FLOOR PART 1 requires it present in "
+                "both phases. Drop the flag, or name a destination that "
+                "places a copy")
+        placements: dict[str, str] = {}
+    else:
+        placements = parse_replica_placements(replica_values, doc,
+                                              destination)
     owed = arrivals_for(doc, destination) + list(placements.items())
+    # ONE FILE ANSWERS FOR ONE ROW (Copilot review of #1080). Two rows, or a
+    # row and a `--replica-at`, naming one destination path would have that
+    # file's tests counted once per declaration — one physical suite
+    # satisfying two obligations, which is a MISSING ARRIVAL wearing a passing
+    # total. `verify-carve-arrival.py` refuses the same shape with its
+    # claimed-path check.
+    seen: dict[str, str] = {}
+    for source_path, relpath in owed:
+        if relpath in seen:
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"{relpath!r} is claimed at {destination!r} by both "
+                f"{seen[relpath]!r} and {source_path!r}; one file cannot "
+                "answer for two rows, and counting it twice would hide a "
+                "missing arrival behind a total that balances")
+        seen[relpath] = source_path
 
     declared = 0
     collected = 0
@@ -325,7 +423,8 @@ def _print_source(summary: dict[str, Any]) -> None:
     print(f"+ replica excess (m − 1)       {summary['replica_excess']:>6}")
     print("+ also-replicated excess       "
           f"{summary['also_replicated_excess']:>6}")
-    print(f"− retired (RULED deletions)    {summary['retired_total']:>6}")
+    print("+ retired term (RULED deletions) "
+          f"{summary['retired_excess']:>4}")
     print(f"= Σ(destinations)              {summary['destinations_sum']:>6}"
           f"   {'✔' if summary['identity_holds'] else '✘'}")
     for repository, total in sorted(summary["per_repository"].items()):
@@ -333,7 +432,8 @@ def _print_source(summary: dict[str, Any]) -> None:
     # PRINTED UNCONDITIONALLY, AT ZERO TOO, on `validate-carve-manifest.py`'s
     # own rule for its `re-destined`/`retired` counts: the state this floor is
     # in must never be the state no log records.
-    print(f"  retired test-bearing rows: {len(summary['retired'])}")
+    print(f"  retired test-bearing rows: {len(summary['retired'])} "
+          f"carrying {summary['retired_tests']} `def test_`")
     for item in summary["retired"]:
         print(f"      {item['source_path']} — {item['tests']} `def test_`, "
               f"RULED {item['ruling']}")
@@ -352,6 +452,19 @@ def _print_destination(summary: dict[str, Any]) -> None:
     for item in summary["below_declaration"]:
         print(f"      {item['path']} — declared {item['declared']}, "
               f"found {item['found']}")
+
+
+def _refused(exc: mapping.TestMappingRefusal, where: str,
+             as_json: bool) -> int:
+    """The ONE refusal exit — `verify-carve-arrival.py::_refused`'s shape, so
+    the remediation trailer cannot be dropped by a caller that forgot it
+    exists."""
+    if as_json:
+        print(json.dumps({"result": "refused", "code": exc.code,
+                          "detail": exc.detail}))
+    else:
+        print(exc.render(where), file=sys.stderr)
+    return 2
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -415,12 +528,27 @@ def main(argv: list[str] | None = None) -> int:
             summary = verify_destination(doc, repo, args.destination,
                                          dest_root, args.replica_at)
     except mapping.TestMappingRefusal as exc:
-        if args.json:
-            print(json.dumps({"result": "refused", "code": exc.code,
-                              "detail": exc.detail}))
-        else:
-            print(exc.render(where), file=sys.stderr)
-        return 2
+        return _refused(exc, where, args.json)
+    except (TypeError, AttributeError, KeyError, ValueError,
+            IndexError) as exc:
+        # THE DOCUMENTED CONTRACT IS A NAMED REFUSAL AND EXIT 2 (Copilot review
+        # of #1080). `read_manifest` accepts many YAML-valid but malformed
+        # shapes — a row that is not a mapping, a `destinations:` value that is
+        # not one — and those raised out of here as a traceback and exit 1,
+        # which is a shape no caller can branch on. FLOOR PART 1 is the tool
+        # that says WHICH shape is wrong; this one says only that it cannot
+        # compute over the document, which is still a refusal and never a
+        # pass. ORDERED AFTER the refusal arm above so a named refusal is
+        # never swallowed as an unexpected one — `TestMappingRefusal` does not
+        # inherit from any of these, and the order says so anyway.
+        return _refused(
+            mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                "this manifest cannot be read as a mapping "
+                f"({type(exc).__name__}: {exc}); validate it with "
+                "`scripts/validate-carve-manifest.py`, which is the tool that "
+                "names the shape defect"),
+            where, args.json)
     if args.json:
         print(json.dumps(summary))
     elif summary["mode"] == "source":

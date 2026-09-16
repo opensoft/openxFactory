@@ -1895,8 +1895,10 @@ PART 1.
 
 **MEASURED 2026-09-16, and every figure re-derived rather than recited.**
 Source **4,411** `def test_` over **146** test-bearing rows of the declared
-surface; **no row carries tests and no home**; three test-bearing replicas
-carrying **30** at `m = 3`. At the destinations, against their own rows'
+surface — **144 homed and 2 RULED-retired, and no row carries tests and
+neither** (the sentence is written that way because the two retirements below
+DO carry tests and DO have no home, which is the whole reason they are named
+rather than counted); three test-bearing replicas carrying **30** at `m = 3`. At the destinations, against their own rows'
 declarations: openDox-code `0b4e8bb` **1,067 / 1,067**, openXdox-code
 `0a0265f` **2,315 / 2,319**, the retained openxFactory column **998 / 1,018**.
 The sum carries a FOURTH term, which is arithmetic and not an amendment: § 5.4
