@@ -431,12 +431,29 @@ def _shed_aware(target: Path) -> Path:
 
     Imported lazily and never required: a consumer's pinned copy of this module
     sits in a checkout with no carve manifest and answers exactly as before.
+
+    A ROW THAT A RULING HAS RETIRED ARRIVES AS A `ContractPinError` (RULED
+    5656343213; Copilot review of PR #1032, round 2). `shed_destination()`
+    refuses such a row by name — `CarveRowRetired`, a subclass of
+    `ShedModuleHasNoDestination` and so of `ImportError` — and the `except`
+    above guards the lazy IMPORT, not the CALL, so without this the refusal
+    would leave `_pinned_schema_bytes` as an uncaught traceback in the one
+    function whose entire job is to refuse in this family's own vocabulary.
+    Nothing is downgraded by the translation: a pinned schema whose bytes a
+    ruling deleted at its leg IS the "pinned schema is absent from the
+    checkout" this module already refuses, arrived by a different road, and
+    the refusal names the road.
     """
     try:
-        from carved_reach import shed_destination
+        from carved_reach import CarveRowRetired, shed_destination
     except ImportError:  # pragma: no cover - no manifest, nothing to resolve
         return target
-    moved = shed_destination(target)
+    try:
+        moved = shed_destination(target)
+    except CarveRowRetired as exc:
+        raise ContractPinError(
+            f"{target.name}: a RULING has RETIRED this pinned file at its "
+            f"leg, so there are no bytes to verify — {exc}") from exc
     return moved if moved is not None else target
 
 
@@ -466,14 +483,31 @@ def _composed_validator(validator: Path) -> Path:
     if not validator.is_file():
         return validator
     try:
-        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_relpath, sources_under
+        from carved_reach import (CarveRowRetired, REPO_ROOT as CARVE_ROOT,
+                                  shed_relpath, sources_under)
     except ImportError:  # pragma: no cover - no manifest, nothing to compose
         return validator
     # Compose for EXACTLY one validator: this repository's own, at the path the
     # shed moved it to. A stub in a fake root, an external released checkout and
     # a pre-shed tree all answer unchanged, so nothing that resolves today stops
     # resolving.
-    moved = shed_relpath("scripts/validate-ideation-dashboard-contracts.py")
+    #
+    # A RETIRED VALIDATOR ROW IS "NOT THIS REPOSITORY'S OWN", NOT AN ERROR
+    # (RULED 5656343213; Copilot review of openxFactory PR #1032, round 4).
+    # `shed_relpath()` RAISES `CarveRowRetired` for such a row rather than
+    # answering, deliberately — "not here yet" and "never again" are the two
+    # answers a marker must not confuse — and the `except` above guards the
+    # lazy IMPORT, not the CALL. Caught here it means there is no shed path to
+    # compose against, so the caller's own `validator` stands: the same answer
+    # `moved is None` already gives, reached for a different reason. It is a
+    # NAMED catch and not a wider `except ImportError` around the call, even
+    # though `CarveRowRetired` is one: folding the two together would conflate
+    # "this checkout carries no manifest" with "a ruling deleted this row",
+    # and would swallow a genuine import failure inside the resolver as well.
+    try:
+        moved = shed_relpath("scripts/validate-ideation-dashboard-contracts.py")
+    except CarveRowRetired:
+        return validator
     if moved is None or validator != CARVE_ROOT / moved:
         return validator
     farm = Path(tempfile.mkdtemp(prefix="doxbench-released-"))
@@ -514,13 +548,30 @@ def _validator_in_checkout() -> Path:
     `exists()` is what decides presence. A checkout with no carve manifest at
     all — a consumer's pinned copy of this module — keeps the pre-shed spelling,
     which is the right answer there for the same reason.
+
+    AND A RETIRED ROW IS ANSWERED, NEVER RAISED (RULED 5656343213; Copilot
+    review of openxFactory PR #1032, round 4). This function's result is a
+    MODULE-LEVEL CONSTANT — `VALIDATOR_IN_CHECKOUT`, one of
+    `PUBLISHER_MARKERS` — so it runs at IMPORT, and `shed_relpath()` raises
+    `CarveRowRetired` for a retired row rather than answering. Uncaught, the
+    day that row was retired every importer of this module would die on an
+    exception instead of getting the `ContractPinError`-or-absence handling
+    the module exists to provide, and the `except` above guards the lazy
+    IMPORT, not the CALL. A retirement means the file is at NO checkout, so
+    the honest marker is one that is not there: the pre-shed spelling, whose
+    `exists()` answers False and stops this tree reading as a publisher of a
+    file a ruling deleted. That is the same controlled absence a manifest-less
+    consumer copy already gets, arrived by a different road.
     """
     pre_shed = Path("scripts") / "validate-ideation-dashboard-contracts.py"
     try:
-        from carved_reach import shed_relpath
+        from carved_reach import CarveRowRetired, shed_relpath
     except ImportError:  # pragma: no cover - no manifest, nothing to resolve
         return pre_shed
-    moved = shed_relpath(pre_shed.as_posix())
+    try:
+        moved = shed_relpath(pre_shed.as_posix())
+    except CarveRowRetired:
+        return pre_shed
     return pre_shed if moved is None else Path(moved)
 
 

@@ -77,9 +77,9 @@ Core domain-neutral docs:
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
 - [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`; Cloud PC template `%USERNAME:7%-%RAND:5%`, rendering `Omni001-XEAON` — **amended 2026-09-08, see that record's Amendments § A1**, which supersedes the `CPC-OXF-%USERNAME:7%` this line carried: Windows 365 requires a random `%RAND:y%` segment in every device-name template)
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
-- [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
+- [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; and, under the two RULED corrections to a PLACEMENT, a moved row may declare `re_destined:` where a ruling moved its arrival between legs (RULED Q6, 2026-09-12, `#656` comment 5648044785) or `retired:` where a ruling DELETED that arrival because the surface it drove is at no leg at all (RULED 5656343213, 2026-09-13) — both leave every digest, disposition and declared line untouched, because both are facts about a DESTINATION, and both are gated at the leg by `scripts/verify-carve-arrival.py` (`arrival-not-vacated`, `arrival-not-retired`) and documented as procedures at the cutover runbook's § 5.7 and § 5.8; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
 - [The openDox carve admissions](docs/opendox-carve-admissions.yaml) (RULED — the arrival-admission repair, Brett Heap, 2026-09-11, `#656` comment 5639058687: the DECLARED per-destination `created:` list `scripts/verify-carve-arrival.py` reads beside the manifest by default, applied exactly as `--allow-created` admits, so a file a leg legitimately assembles is a reviewed one-line diff in the pin-bump pull request rather than a flag typed on a command line and recorded nowhere; seeded with the two `opensoft/openXdox-code#7` files; `--allow-created` remains the ad-hoc fallback)
-- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2454 declared edit lines over 176 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
+- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, § 5.7's and § 5.8's two RULED corrections to a placement (a re-destination and a retirement), and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2454 declared edit lines over 176 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
 - [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, five refusal codes, a `--json` seat), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 and the other two named destinations have authored no reader yet, so § 3.7 is not ticked)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
@@ -531,6 +531,72 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [adopt-entry-grain-dispositions-form](openspec/changes/adopt-entry-grain-dispositions-form/proposal.md)
+  — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: ratified`** (2026-09-16, Brett Heap, openxFactory repository
+  owner, first-hand, in session, verbatim ***"ratify 1052 when green, then
+  1050"*** — this packet is the "then 1050" half; recorded on openxFactory
+  #1045 comment
+  https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736,
+  THE ONE CITATION; record
+  [`review/ratification-2026-09-16.md`](openspec/changes/adopt-entry-grain-dispositions-form/review/ratification-2026-09-16.md))
+  — an APPROVED packet: the drafting pair (`proposed_by` / `proposed_on`)
+  stands unmoved and `approved_by` / `approved_on` are ADDED beside it,
+  approval being a pure addition. Answers openxFactory
+  [#1045](https://github.com/opensoft/openxFactory/issues/1045), the finding
+  this lane filed on 2026-09-15 and did not claim at filing.
+  **ONE `## MODIFIED` BLOCK, ONE ADDED SCENARIO, OVER `document-lifecycle`** —
+  *Prose tagging marker hygiene* restated IN FULL with *A pin record's optional
+  dispositions member carries a malformed entry* added beside the shape-(a)
+  scenario that already states the same rule for the other optional member.
+  **THE MEASURED GAP.** `scripts/doc_health/pin_shapes.py`'s
+  `_is_disposition_list` judges the OPTIONAL shape-(c) member `dispositions:`
+  at the MEMBER grain only, while the full verifier's `pinned_dispositions`
+  (`scripts/validate-openspec-cli-pin.py:787-857`) refuses malformed ENTRIES in
+  the SAME pure, source-free pass called before any fetch (`:1966`, ahead of
+  `repository_identity` at `:1973`). Measured by calling both: TEN records the
+  guard refuses are accepted by the adapter — `[{}]`, `[null]`, `["a"]`, an
+  entry missing `cited_to`, `cited_to: []`, `why: ""`, `cited_to: "x"`,
+  `level: "WARNING"`, `level: ""` and an entry naming no authority — and ZERO
+  in the other direction, so the adapter is NARROWER than the guard on the
+  entries and nowhere WIDER.
+  **AND MOST OF THE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES THE
+  GAP SHARPER THAN THE ISSUE STATES IT THERE**: `neutral-product-pin`'s
+  *A dispositioned finding is cited, upgrade-coupled, and refused when stale*
+  (`:577`, `:578`, `:586-588`) and its scenario *A disposition carries no
+  citation* (`:633-636`) already say a disposition recording "no `cited_to:`,
+  an empty one, or no granting authority" makes the pin "REFUSED as malformed,
+  before any artifact is fetched" — covering the entry's identity keys, its
+  citation's NON-EMPTY requirement and its authority, so the adapter resolves
+  a pinned target on a record ratified canon calls malformed there. **THE
+  REST — THE CITATION'S LIST SHAPE, `why` AND `level` OUTSIDE
+  `BLOCKING_LEVELS` — ARE NAMED BY NO SUCH CANON AND ARE THE VERIFIER'S OWN
+  PURE GUARD**: `cited_to: "x"` already satisfies `:578`'s non-empty-citation
+  requirement and is refused only because the verifier separately demands a
+  LIST. Reaching any of the three imposes no obligation BEYOND what
+  `pinned_dispositions` already enforces on every landed pin, never "none" and
+  never "already ratified" for them. That capability is READ and CITED
+  here and NOT modified: the gap is the OFFLINE RESOLVER's reading, and the
+  resolver is `document-lifecycle`'s.
+  **`dispositions:` STAYS OPTIONAL**: it stays out of the shape-guard-required
+  set, canon's "`dispositions:` is NOT in the set" sentence is carried verbatim
+  and stays true, the measured `(29, 27, 2)` table split does not move, and
+  `null` and `[]` are still read as empty. **THE SUCCESSOR A RULING NAMED.**
+  Raised by review on PR [#1040](https://github.com/opensoft/openxFactory/pull/1040)
+  round 8 and RULED STANDS there, that ruling calling this "a legitimate later
+  delta … noted, not filed"; this packet is that delta and the first of them.
+  **RATIFIED — D-1, D-2 AND D-3 AS FILED; NO DECISION REOPENED.** Boxes
+  ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4 — and no others; § 2's
+  CHECKBOXES stand exactly as the filing pull request left them (§ 2.2's own
+  evidence line was separately corrected to name TEN, a non-checkbox
+  consistency fix), and § 3 and § 4 stay
+  open. REALIZATION AND ARCHIVE ARE NOT AUTHORIZED BY THIS WORD and remain
+  separate later acts on Brett Heap's word: no byte of
+  `scripts/doc_health/pin_shapes.py`, of `tests/doc-health/`, of any pin
+  verifier, of any record under `contracts/` or of any file under
+  `openspec/specs/` moves; `code_surface:` is non-empty, so the packet
+  archives on merged-plus-green realization evidence and not on landing.
+
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
   — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
   (2026-09-13T01:0xZ, Brett Heap, openxFactory repository owner, given in
@@ -910,6 +976,68 @@ Active changes:
   (its new row sorts under `decide-disposition-reading-per-family`, far from
   this row's `add-chain-anchoring` / `repoint-chain-anchoring-medxchain-citation`
   keys), so that file needed no such mitigation.
+
+- [scope-pinned-arm-root-naming](openspec/changes/scope-pinned-arm-root-naming/proposal.md)
+  — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: ratified`** (2026-09-16T13:43:18Z, Brett Heap, openxFactory
+  repository owner, first-hand, in session — A TYPED SENTENCE, verbatim
+  ***"ratify 1052 when green, then 1050"***, recorded on openxFactory
+  [#1047](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379)) — record
+  [`review/ratification-2026-09-16.md`](openspec/changes/scope-pinned-arm-root-naming/review/ratification-2026-09-16.md).
+  A small `## MODIFIED Requirements` amendment to promoted
+  `document-lifecycle` canon (`openspec/specs/document-lifecycle/spec.md`,
+  *Prose tagging marker hygiene*), SCOPING ONE SENTENCE, NARROWING ONE CLAUSE
+  OF A SIBLING SCENARIO'S WHEN, AND ADDING ONE SCENARIO. Canon says "EVERY
+  finding the pinned arm emits SHALL NAME THE ROOT OR ROOTS it resolved
+  against, or failed to"; TWO of the realized arm's fifteen findings are
+  emitted BEFORE ANY ROOT IS SELECTED and cannot obey it — the lexically
+  malformed pinned value (refused at `scripts/doc_health/families.py:1572`,
+  naming THE VALUE at `:1573-1576`, before the `_pin_roots(...)` of `:1580`)
+  and the document whose repository has no resolution root in the run (naming
+  THE REPOSITORY at `:1587-1592`, `_pin_roots` having returned an empty list).
+  The delta scopes the obligation to findings that REACH ROOT SELECTION, names
+  the two exceptions with what each names instead; narrows the restated
+  sibling scenario *A pinned target names a pin no resolution root carries*'s
+  WHEN by ONE clause (fix round 1), so the empty-root case keeps one outcome
+  and not two — fix round 5 briefly narrowed that same clause FURTHER on a
+  real Copilot finding, but ratified normative scenario text is the
+  ratifier's to amend, not the lane's, so fix round 6 REVERTED it; the WHEN
+  lands BYTE-IDENTICAL to what was ratified at `92d3e0e2`, and a RULING
+  NEEDED comment asking Brett Heap for the word is posted on
+  [#1047](https://github.com/opensoft/openxFactory/issues/1047); and adds ONE
+  scenario, *A finding emitted before root selection names what it judged*.
+  Fix round 5 ALSO refreshed one stale source-citation pointer canon itself
+  carries (`scripts/doc_health/families.py:1317-1321`, which is
+  `_topic_outcome` on `main` today) to name `_resolve_capability` and
+  `_pin_roots` directly — mechanical, KEPT, and no normative claim moves.
+  **THE REALIZED BEHAVIOUR ALREADY MATCHES THE CLARIFIED READING** —
+  `code_surface: none`, measured rather than assumed; the other thirteen
+  findings name their root today. The block is GENERATED from canon and
+  verified two ways, CURRENT AS OF fix round 6: a unified diff against
+  canon's block (FOUR hunks, 21 added / 8 removed) and a `derive_units`
+  comparison through the modified-block-currency family's own derivation
+  (canon 209 units, block 215, THREE uncarried units — the root-naming
+  sentence, the pointer-bearing sentence, and the WHEN bullet, the last
+  uncarried against canon since fix round 1 regardless of wording — nine
+  new). (At filing: THREE hunks, 18 added / 5 removed, canon 209, block 215,
+  TWO uncarried, eight new — `tasks.md` § 2.2.) Surfaced by Copilot on the
+  archive pull request [#1042](https://github.com/opensoft/openxFactory/pull/1042)
+  and RULED STANDS there — the sentence is ratified canon promoted
+  byte-identical, which an archive act may not edit — so the remedy is a
+  successor packet. `sequenced_after: []`, corroborated: no OTHER active
+  change holds a `## MODIFIED` block over that requirement — this packet is
+  itself the one active change that now does. Filing PR
+  [#1052](https://github.com/opensoft/openxFactory/pull/1052), whose second
+  commit — this one — seeds the packet's per-change sweep-ledger row and writes
+  the number here, the pull request not having existed when the packet was
+  committed. Refs
+  [#1047](https://github.com/opensoft/openxFactory/issues/1047). **Inserted
+  here rather than at the top of this list on purpose**, on the same reasoning
+  the entry above records: the `Active changes:`-then-blank-line context at the
+  top of this block is the well-known same-anchor-insertion merge-conflict
+  shape, and anchoring on the tail of this lane's own
+  `repoint-chain-anchoring-medxchain-citation` entry keeps this pull request's
+  README hunk disjoint from any other lane's.
 
 - [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
   — filed 2026-09-11, **`Status: ratified`** (2026-09-11T13:09:12Z, Brett
