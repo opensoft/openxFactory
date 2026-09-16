@@ -677,22 +677,61 @@ def test_every_watched_name_resolves_to_a_test_that_exists() -> None:
 #: suites over pull-request-controlled code, and a `secrets.`-only guard was
 #: green through all of it — the automatic token is not a secret reference.
 #:
-#: MATCHED AS PATTERNS AND NOT AS SUBSTRINGS, because an Actions expression has
-#: more than one spelling for the same value: `${{ github.token }}` is also
-#: `${{ github['token'] }}` and `${{ github . token }}`, and `${{ secrets.X }}`
-#: is also `${{ secrets['X'] }}`. A substring guard reads all three of those as
-#: clean, which is a bypass of the guard and not a gap in it. Each form carries
-#: the label a failure should print.
-BEARER_FORMS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    ("secrets.<NAME>", re.compile(r"secrets\s*\.")),
-    ("secrets['<NAME>']", re.compile(r"secrets\s*\[")),
-    ("github.token", re.compile(r"github\s*\.\s*token", re.IGNORECASE)),
-    ("github['token']",
-     re.compile(r"""github\s*\[\s*['"]token['"]""", re.IGNORECASE)),
-    ("GITHUB_TOKEN", re.compile(r"GITHUB_TOKEN")),
-    ("x-access-token", re.compile(r"x-access-token", re.IGNORECASE)),
-    ("ACTIONS_RUNTIME_TOKEN", re.compile(r"ACTIONS_RUNTIME_TOKEN")),
+#: READ STRUCTURALLY RATHER THAN ENUMERATED, because enumeration lost three
+#: times running here: the dot form missed `${{ github['token'] }}` and
+#: `${{ github . token }}`; case-sensitivity missed `${{ SECRETS.KEY }}`, which
+#: Actions resolves exactly as `${{ secrets.KEY }}`; and naming PROPERTIES
+#: missed `${{ toJSON(github) }}`, which serializes the whole context — token
+#: included — without spelling the token at all. So the rules below are about
+#: the CONTEXT, not its spelling, and they are applied inside `${{ … }}` where
+#: an expression is the only thing that can resolve:
+#:
+#:   * the `secrets` context in any case and any syntax — this gate reads three
+#:     PUBLIC gitlinks and needs no secret at all, so mentioning the context is
+#:     itself the finding;
+#:   * the `github` context used as a VALUE rather than dereferenced — the
+#:     shape of `toJSON(github)` and `format('{0}', github)` — because the
+#:     serialized context carries the token;
+#:   * and `github.token` however it is spelled or spaced.
+#:
+#: `${{ github.ref }}`, the one expression this workflow contains, is a
+#: dereference of a non-secret property and stays clean.
+EXPRESSION = re.compile(r"\$\{\{(.*?)\}\}", re.DOTALL)
+
+EXPRESSION_FORMS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("the `secrets` context", re.compile(r"\bsecrets\b", re.IGNORECASE)),
+    ("the `github` context as a whole value",
+     re.compile(r"\bgithub\b(?!\s*[.\[])", re.IGNORECASE)),
+    ("`github.token`", re.compile(r"\bgithub\s*\.\s*token\b", re.IGNORECASE)),
+    ("`github['token']`",
+     re.compile(r"""\bgithub\s*\[\s*['"]token['"]\s*\]""", re.IGNORECASE)),
 )
+
+#: Not expressions: an environment variable name and the two URL/user forms a
+#: bearer arrives under. Matched anywhere, because they need no `${{ }}` to
+#: reach the runner.
+LITERAL_FORMS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("`GITHUB_TOKEN`", re.compile(r"GITHUB_TOKEN")),
+    ("`x-access-token`", re.compile(r"x-access-token", re.IGNORECASE)),
+    ("`ACTIONS_RUNTIME_TOKEN`",
+     re.compile(r"ACTIONS_RUNTIME_TOKEN", re.IGNORECASE)),
+)
+
+
+def bearer_forms_found(blob: str) -> list[str]:
+    """Every bearer form in one piece of workflow text, named as it is found.
+
+    The literal forms are matched anywhere in the blob; the context rules only
+    inside `${{ … }}`, which is the only place a context resolves — so prose
+    may go on discussing secrets and tokens in a comment without failing the
+    guard that refuses them.
+    """
+    found = [label for label, form in LITERAL_FORMS if form.search(blob)]
+    for expression in EXPRESSION.findall(blob):
+        found.extend(
+            f"{label} in `${{{{{expression}}}}}`"
+            for label, form in EXPRESSION_FORMS if form.search(expression))
+    return found
 
 
 def bearer_sites(text: str) -> list[str]:
@@ -720,8 +759,8 @@ def bearer_sites(text: str) -> list[str]:
     """
     sites: list[str] = []
     raw = text[text.index("\njobs:"):]
-    sites.extend(f"the raw job body carries {label}"
-                 for label, form in BEARER_FORMS if form.search(raw))
+    sites.extend(f"the raw job body carries {found}"
+                 for found in bearer_forms_found(raw))
 
     def walk(node: object, path: str) -> None:
         if isinstance(node, dict):
@@ -732,9 +771,8 @@ def bearer_sites(text: str) -> list[str]:
             for index, value in enumerate(node):
                 walk(value, f"{path}[{index}]")
         else:
-            sites.extend(f"{path} carries {label}"
-                         for label, form in BEARER_FORMS
-                         if form.search(str(node)))
+            sites.extend(f"{path} carries {found}"
+                         for found in bearer_forms_found(str(node)))
 
     walk(yaml.safe_load(text), "<workflow>")
     return sites
@@ -803,7 +841,7 @@ def test_the_credential_guard_sees_a_bearer_written_above_the_jobs_key() -> None
     doctored = text.replace(
         "\njobs:", '\nenv:\n  GITHUB_TOKEN: "${{ github.token }}"\njobs:', 1)
     window = doctored[doctored.index("\njobs:"):]
-    assert not any(form.search(window) for _, form in BEARER_FORMS), (
+    assert bearer_forms_found(window) == [], (
         "the doctored bearer must land ABOVE `jobs:`; inside the window the "
         "raw reading already covers it and this case proves nothing")
 
@@ -814,41 +852,81 @@ def test_the_credential_guard_sees_a_bearer_written_above_the_jobs_key() -> None
         "the shipped document must be clean — this case doctors a copy")
 
 
-@pytest.mark.parametrize("expression", (
-    "${{ github['token'] }}",
-    '${{ secrets["DEPLOY_KEY"] }}',
-    "${{ github . token }}",
-    "${{ GitHub['Token'] }}",
-))
-def test_the_credential_guard_sees_the_indexed_expression_forms(
-        expression: str) -> None:
-    """One value, several spellings — a substring guard sees only one of them.
+#: `(expression, was invisible to the literal-SUBSTRING reading)` — the one
+#: this suite shipped at `08f438b7`, the tuple `enumerated` below. The `False`
+#: rows are the forms it DID catch, kept so a structural rule is shown to lose
+#: nothing the enumeration held. The PATTERN reading that replaced it one
+#: commit later still missed five of these — `${{ SECRETS.X }}`,
+#: `${{ Secrets['X'] }}`, `${{ toJSON(github) }}`, `${{ toJSON(secrets) }}` and
+#: `${{ format('{0}', github) }}` — which is why the rules are now about the
+#: CONTEXT rather than about any spelling of it.
+EXPRESSION_CASES = (
+    ("${{ github['token'] }}", True),
+    ('${{ github["token"] }}', True),
+    ("${{ github . token }}", True),
+    ("${{ GitHub['Token'] }}", True),
+    ("${{ secrets.DEPLOY_KEY }}", False),
+    ("${{ github.token }}", False),
+    ("${{ SECRETS.DEPLOY_KEY }}", True),
+    ("${{ Secrets['DEPLOY_KEY'] }}", True),
+    ("${{ toJSON(github) }}", True),
+    ("${{ toJSON(secrets) }}", True),
+    ("${{ format('{0}', github) }}", True),
+)
 
-    An Actions expression dereferences with a dot OR indexes with brackets, and
-    whitespace inside `${{ }}` is insignificant: `${{ github.token }}`,
-    `${{ github['token'] }}` and `${{ github . token }}` are the same bearer,
-    and `${{ secrets['DEPLOY_KEY'] }}` is the same secret as
-    `${{ secrets.DEPLOY_KEY }}`. Context names are matched case-insensitively
-    by Actions too. The literal-substring reading this suite shipped one commit
-    earlier reads every one of these as CLEAN — a bypass of the guard rather
-    than a gap in it — so each is a case here instead of a line of prose.
 
-    PROVED BOTH WAYS in the body: the first assertion IS the previous reading,
-    run over the doctored document verbatim, and it finds nothing.
+@pytest.mark.parametrize("expression,unseen_before", EXPRESSION_CASES)
+def test_the_credential_guard_reads_the_expression_not_the_spelling(
+        expression: str, unseen_before: bool) -> None:
+    """One value, many spellings — and two of them name no token at all.
+
+    Actions dereferences with a dot OR indexes with brackets, ignores
+    whitespace inside `${{ }}`, and matches context and property names
+    case-insensitively: `${{ github.token }}`, `${{ github['token'] }}`,
+    `${{ github . token }}` and `${{ GitHub['Token'] }}` are one bearer, and
+    `${{ SECRETS.X }}` is `${{ secrets.X }}`. Worse for an enumeration,
+    `${{ toJSON(github) }}` and `${{ format('{0}', github) }}` hand the WHOLE
+    context — token included — to whatever reads the value, while spelling
+    neither `token` nor `secrets`.
+
+    Each doctored document below is a workflow-level `env:` written the way a
+    person would write it, and each is asserted TWICE: that the
+    literal-substring reading this suite shipped at `08f438b7` saw it exactly
+    as its row says (the `True` rows are the ones it MISSED; the `False` rows
+    it caught, kept so the structural rule is shown to lose nothing), and that
+    the structural reading names every one of them.
     """
     text = WORKFLOW.read_text(encoding="utf-8")
     doctored = text.replace(
         "\njobs:", f"\nenv:\n  FOO: {expression}\njobs:", 1)
 
-    previously = ("secrets.", "github.token", "GITHUB_TOKEN", "x-access-token",
+    enumerated = ("secrets.", "github.token", "GITHUB_TOKEN", "x-access-token",
                   "ACTIONS_RUNTIME_TOKEN")
-    assert not any(spelling in doctored for spelling in previously), (
-        f"{expression!r} must be a form the literal-substring reading could "
-        f"not see, or this case proves nothing about the patterns")
+    seen_before = any(spelling in expression for spelling in enumerated)
+    assert seen_before != unseen_before, (
+        f"{expression!r} is marked "
+        f"{'unseen' if unseen_before else 'seen'} by the literal enumeration "
+        f"and the enumeration says otherwise — fix the row, not the guard")
 
     sites = bearer_sites(doctored)
     assert any(site.startswith("<workflow>.env.FOO") for site in sites), (
         f"{expression!r} went unseen; sites={sites}")
+
+
+def test_a_non_secret_dereference_is_not_a_bearer(tmp_path: Path) -> None:
+    """The guard must not refuse what Actions workflows legitimately do.
+
+    A rule about the CONTEXT rather than the spelling has to earn its keep in
+    both directions, or the next editor routes around it: `${{ github.ref }}`
+    — the one expression this workflow contains, in its `concurrency` group —
+    and its neighbours are dereferences of non-secret properties, and they stay
+    clean. The shipped document passing is the other half of the same claim.
+    """
+    for clean in ("${{ github.ref }}", "${{ github.event_name }}",
+                  "${{ github.event.pull_request.head.sha }}",
+                  "${{ hashFiles('requirements/*.lock') }}"):
+        assert bearer_forms_found(f"concurrency:\n  group: {clean}\n") == [], (
+            f"{clean} is a non-secret dereference and must not be refused")
 
 
 # --------------------------------------------------------------------------
