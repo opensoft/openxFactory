@@ -1587,6 +1587,37 @@ the bookkeeping that ticks this group.
   gitlink moved in the SAME commit — and RULING F's own holding is unchanged:
   `openxFactory` declares its DIRECT upstreams, which Q7 made two. § 8.7 takes
   the same amendment.)*
+  **TWO OLDER TEXTS IN THIS PACKET'S REACH STILL SAY THE PRE-Q7 THING, AND THEY
+  ARE NAMED HERE RATHER THAN LEFT TO COLLIDE WITH THIS CLAUSE** (a Copilot
+  finding on this amendment's own pull request, round 12, in both of its halves).
+  **(i) § 1.8 above**, `[x]` and DONE, QUOTES the sentence `opensoft/xFactory`
+  **#284 → `05cb5abf`** appended to the aggregation's `CLAUDE.md`, and that
+  sentence contains *"inside the openDox family, `openxFactory` pins `openXdox`
+  ONLY; openDox's commit is read through openXdox's own pin — RULING F"*. The box
+  is a RECORD of what landed and stays verbatim; what is overtaken is the
+  AGGREGATION'S OWN FILE, which now describes a pin chain the estate no longer
+  has. Repairing it is an act on `opensoft/xFactory`, the same class as the § 8.7
+  re-point, and it is not this amendment's to make.
+  **(ii) This packet's own `neutral-product-pin` DELTA**, whose RULED OQ-2
+  narrative (`specs/neutral-product-pin/spec.md`:61-73, 2026-09-04T22:16Z) records
+  *"openDox is pinned only by openXdox … No third MODIFIED requirement is added"*,
+  and whose CHAIN scenario (:220-223) refuses *"a second declaration of A's commit
+  at the consuming level"*. **The NORMATIVE rule is not contradicted, and the
+  reason is the word DIRECT**: :195-199 requires each level to declare ITS OWN
+  DIRECT UPSTREAM and forbids re-declaring a TRANSITIVE one, and Q7 made openDox
+  a DIRECT upstream of `openxFactory` — a mounted submodule it consumes, not a
+  product it merely reaches through openXdox. **The refusal shape at :225-227
+  cannot fire either, measured live at `main` `d5dd1ca5`**: `openxFactory`'s
+  `contracts/opendox-pin.yaml` reads `commit: 3819625e…`, its `openDox` gitlink
+  reads `3819625e…`, and openXdox's OWN `contracts/opendox-pin.yaml` at the
+  pinned `a6500141` reads `commit: 3819625e…` — three declarations, one answer,
+  kept equal by the lockstep pin act (`#1054` → `3c614d34`, openDox `#8`,
+  openXdox `#10`). **What IS owed is a dated amendment to the delta's OQ-2
+  narrative**, which still reads as though a direct openDox pin were ruled out,
+  and it is owed from the act that CLAIMS that spec — this packet's own
+  promotion, or an amendment that names it — not from a `tasks.md` amendment,
+  on the same rule this amendment applies to `design.md`, `proposal.md` and the
+  scenario-4 defect recorded at § 7.1.
   `python3 scripts/verify-openxdox-pin.py` passes live at that commit:
   `OK openxdox-pin verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from HEAD, sorted-ls-tree-r-v1 tree digest recomputed (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
 - [ ] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
