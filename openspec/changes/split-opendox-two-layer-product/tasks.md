@@ -1480,9 +1480,12 @@ the bookkeeping that ticks this group.
   row it routes to a destination LEAVES, and the **117** rows carrying a
   `stays_openxfactory_*` reason (**103** `stays_openxfactory_adapter` + **14**
   `stays_openxfactory_governance`) STAY, because `openxFactory` keeps its own
-  adapter and its own governance. Across the manifest's surface, measured at the
-  carve commit `b075fd91` and at `#940`'s merge `cc4ae9d3` — files at the carve →
-  files kept: `scripts/ideation_dashboard/` 63 → **9**, its `web/` 43 → **1**
+  adapter and its own governance. Across the NINE SURFACES THE OLD DELETION LIST
+  NAMED — which is what these figures walk, and NOT the whole kept set: 107 of
+  the 117 kept rows sit in those nine and the other TEN sit outside them,
+  enumerated in the STATUS below — measured at the carve commit `b075fd91` and at
+  `#940`'s merge `cc4ae9d3`, files at the carve → files kept:
+  `scripts/ideation_dashboard/` 63 → **9**, its `web/` 43 → **1**
   (`views/intent-feed.js`, RULED `not_moved / stays_openxfactory_adapter` under
   OQ-F), `tests/ideation-dashboard/` 157 → **42**,
   `tests/ideation_dashboard/` (the four-file underscore spelling) 4 → **0**,
@@ -1590,6 +1593,40 @@ the bookkeeping that ticks this group.
   | `contracts/schemas/` | 12 | 6 dashboard schemas present | **0 of the 6** | 0 | "the four dashboard contract schemas" |
   | `examples/ideation-dashboard/` | 140 | 140 (139 `.yaml`) | **44** | 44 | "the 142 packaged examples" |
   | `docs/` governance | 7 | 7 | **6** | 6 | "the five dashboard governance docs" |
+
+  **THE TABLE WALKS THE OLD LIST'S NINE SURFACES IN FILES; THE KEPT SET IS 117
+  ROWS; THE TWO RECONCILE HERE RATHER THAN BY EYE.** (Raised at Copilot review
+  round 8 on this amendment's own pull request, which was right that the kept
+  column sums to **103** while the kept set is **117** — a sum that is not the
+  kept set and was never meant to be one.) Two cells are deliberately narrower
+  than their surface, and one is a different unit:
+  - **`contracts/schemas/` reads "0 of the 6"** — a statement about the six
+    dashboard schemas that LEAVE, not about the surface. That surface's twelve
+    rows also carry **six KEPT rows**: `gate-intent`, `ideation-cross-reference`
+    and `ideation-possibles-register` (`stays_openxfactory_adapter`), and
+    `project-register`, `xfactory-ideation-organizer-recommendations` and
+    `xfactory-ideation-routing-index` (`stays_openxfactory_governance`).
+  - **`tests/ideation-dashboard/` holds 42 FILES at `cc4ae9d3` and 40 kept
+    ROWS.** The two extra files are `conftest.py` and `staging_shapes.py`,
+    `not_moved / replicated_at_destination` — the source stays here AND a replica
+    arrives at the destination, so they are present without belonging to the
+    kept set. Every other surface matches its own rows one for one: 9/9, 1/1,
+    44/44, 0/0 (the underscore spelling), 1/1 (the nightly), 0/0
+    (`validate-ideation-dashboard-contracts.py`), and `docs/` 6 of 7 — the
+    seventh, `docs/ideation-dashboard-session-runbook.md`, is
+    `moved_with_declared_edit` and absent at `cc4ae9d3`.
+  **By ROWS the nine surfaces hold 107 of the 117** — 9 + 1 + 40 + 0 + 1 + 0 + 6
+  + 44 + 6 — **and the other TEN sit outside the old deletion list entirely**,
+  which is why no table of ITS surfaces can sum to 117:
+  `examples/ideation-cross-reference/` **4** (its README, the example and two
+  negative fixtures) and `tests/corpus-adapter/` **2**
+  (`test_no_privileged_route.py`, `test_openxfactory_adapter.py`), six
+  `stays_openxfactory_adapter` rows; `tests/notebooklm/` **3**
+  (`test_hermeticity_guard.py`, `test_sync_notebooklm_books.py`,
+  `test_workbench_sweep_wiring.py`) and `tests/header_contract_oracle.py` **1**,
+  four `stays_openxfactory_governance` rows. **107 + 10 = 117**, and by reason it
+  is 97 adapter + 10 governance inside the nine and 6 adapter + 4 governance
+  outside them — the **103 + 14** this box names.
 
   **DQ-1's kept set is 117 rows**, and the manifest's 456 rows (`phase:
   post-shed`) split like this — **at TWO heads, because the moving half moved and
@@ -2122,7 +2159,9 @@ movements claimed at the time they land.
   **AND THE CENSUS IS NOT codexFactory's ALONE, because the answer this box
   gives is GLOBAL** — *no domain gets the first descendant yet*, not *not this
   one*. Each of § 1.7's FIVE registered domain trees was censused the same three
-  ways at its own `main`:
+  CONTENT ways at its own `main` — and then a FOURTH way, the MODIFIED delta's
+  TENANT INSTALL, which no content probe reaches and which is censused for all
+  five below this table:
 
   | domain tree | head | tracked | `kind: domain-profile` | `kind:` naming dox | `mapping_id:`/`domain_label:` | most of the five AXES in any ONE file |
   | --- | --- | ---: | ---: | ---: | ---: | ---: |
@@ -2149,9 +2188,64 @@ movements claimed at the time they land.
   §§ 7.1/7.2 tick a conclusion about all five. § 7.2's REPORT proves zero
   descendant REPOSITORIES exist anywhere in the estate; this table proves zero
   PROFILE ARTIFACTS exist in any registered domain to trigger one.)*
-  **ONE NEAR MISS IN THAT TABLE IS NAMED RATHER THAN LEFT FOR A LATER READER TO
-  FIND, because it is the only thing in 14,051 files that can be read against
-  this tick.** `OpsxFactory`'s `tenants/` carries a REAL, non-fixture, COMMITTED
+  **AND A FOURTH WAY, BECAUSE THE THREE ABOVE ALL MEASURE CONTENT AND THIS
+  PACKET'S OWN MODIFIED DELTA ADDS A PREDICATE NO CONTENT PROBE REACHES: A
+  COMMITTED TENANT INSTALL.** The MODIFIED requirement's fourth scenario reads
+  *"WHEN a DomainxFactory install stands up an instance of a runtime neutral
+  product for a tenant THEN the tenant's instance declaration IS the domain's
+  first profile artifact"*
+  (`specs/domain-descendant-boundary/spec.md`:115-118). That is a RECORD, not a
+  `kind:` literal and not an axis word, so it was censused separately in each of
+  the five trees over one population defined the same way in every one: every
+  tracked file under a `tenants/`, `clients/`, `installs/` or `deployments/`
+  directory, UNION every file whose top-level `kind:` names a tenant, client,
+  install or deployment (`git grep -ilE
+  '^\s*kind:\s*["']?[a-z_]*(tenant|client|install|deployment)'`), each record in
+  it then read for an instance of a dox product.
+
+  | domain tree | head | tenant/client/install records | naming `dox` | declaring a `<Domainx>Dox` instance |
+  | --- | --- | ---: | ---: | ---: |
+  | `codeXfactory/codexFactory` | `761f49d0` | 9 | 0 | **0** |
+  | `MedxSoft/MedxFactory` | `9f125a6a` | 8 | 0 | **0** |
+  | `ledgerXfactory/LedgerxFactory` | `090d1f50` | 142 | 0 | **0** |
+  | `opensoft/AdxFactory` | `e794dc2f` | 7 | 0 | **0** |
+  | `opensoft/OpsxFactory` | `6aa1512c` | 124 | **8** | **0** |
+
+  **290 committed tenant-install records across the five, and not one of them
+  declares an instance of a descendant.** `git grep -ilE
+  '(codex|medx|ledgerx|adx|opsx)dox'` returns **zero files** in all five trees —
+  zero FILES, not merely zero records — and so does
+  `dox_(instance|database|migration)`. The only `[a-z]+xdox` string anywhere in
+  the five is `openxdox`, the NEUTRAL product, in codexFactory (32 files) and
+  OpsxFactory (14). *(The bare string `dox` is not the probe and could not be:
+  MedxFactory's 158 `dox`-matching files are `doxorubicin` (174 occurrences),
+  `doxycycline` (52), `doxylamine`, `doxepin`, `pralidoxime`,
+  `doxercalciferol`, `doxazosin` and `cefpodoxime` — a drug vocabulary, not a
+  product.)* **Eight of OpsxFactory's 124 records name dox, and all eight are
+  ONE tenant (`opensoft`, the estate's own) and ONE plane**: the two REAL intake
+  cases (`tenants/opensoft-dox-intent-plane-intake.yaml`,
+  `tenants/opensoft-dox-dispatch-minter-intake.yaml`, both
+  `kind: opsx_client_infrastructure_execution_case`), `tenants/opensoft.yaml`
+  (`kind: opsx_client`) registering the subject, the two DNS discovery dumps
+  carrying the `A` records `dox-opensoft-qa` and `openxdox`, and three records
+  about something else that mention it in passing
+  (`opensoft-hermes-runtime-refresh-intake.yaml` cites the dox intake as a
+  driven-shape precedent, `opensoft-codexfactory-mcp-hosting-plan.yaml` cites
+  `tests/test_dox_workload_set.py`, and
+  `opensoft-keycloak-qa-broker-bringup-plan.yaml` names the `dox` namespace in a
+  gateway list). **So the fourth axis answers NONE YET for every registered
+  domain too** — three of the five trees hold no dox record at all, and the
+  fourth's eight are one estate-tenant plane, which is read below rather than
+  counted.
+  *(ADDED at Copilot review round 8 on this amendment's own pull request, which
+  was right that the three content axes measure `kind:`/axis content and none of
+  them detects a committed tenant install, while the detailed reading that
+  follows covers OpsxFactory alone — so a GLOBAL answer rested on a predicate
+  never censused for MedxFactory, LedgerxFactory or AdxFactory. It is censused
+  for all five now.)*
+  **THAT ONE NEAR MISS IS NAMED RATHER THAN LEFT FOR A LATER READER TO FIND,
+  because it is the only thing in 14,051 files that can be read against this
+  tick.** `OpsxFactory`'s `tenants/` carries a REAL, non-fixture, COMMITTED
   record of a LIVE dox deployment: `tenants/opensoft-dox-intent-plane-intake.yaml`
   and `tenants/opensoft-dox-dispatch-minter-intake.yaml` (both
   `kind: opsx_client_infrastructure_execution_case`), and `tenants/opensoft.yaml`
