@@ -802,6 +802,70 @@ def test_a_template_substitution_is_a_prefix_too() -> None:
         == {"chip-"}
 
 
+def test_a_class_bearing_template_is_read_like_the_string_it_is(
+        tmp_path: Path) -> None:
+    """A TEMPLATE IN A CLASS-BEARING POSITION IS A CLASS LIST (Copilot review,
+    round 17).
+
+    `node.className = `gate-${state}`` failed the class-list test that gates
+    both narrow scans, because `${state}` is not on the class alphabet — so
+    the gate side registered no `gate-` prefix, and every `.gate-*` rule a
+    contributed module builds that way read as unreferenced and STAYED in
+    openDox's sheet. The markup form (`class="chip chip-${state}"`) was already
+    read; the bare one was not.
+    """
+    assert CENSUS.prefix_refs('node.className = `gate-${state}`;\n', ".js",
+                              class_bearing_only=True) == {"gate-"}
+    assert CENSUS.prefix_refs('el("div", `gate-${state}`);\n', ".js",
+                              class_bearing_only=True) == {"gate-"}
+    # a substitution carries an expression, and an expression carries spaces
+    # and braces of its own — it is ONE part, not five
+    assert CENSUS.prefix_refs('n.classList.add(`is-${ok ? "ok" : "bad"}`);\n',
+                              ".js", class_bearing_only=True) == {"is-"}
+    assert CENSUS._parts_outside_substitutions('is-${ok ? "ok" : "bad"}') \
+        == ['is-${ok ? "ok" : "bad"}']
+    # and the POSITION rule still holds: a template that is returned, not
+    # passed or assigned to a class, names nothing on the gate side
+    assert CENSUS.prefix_refs('return `gate-${state}`;\n', ".js",
+                              class_bearing_only=True) == set()
+    # THE BLOCK FOLLOWS THE READING: the rule the gate builds by substitution
+    # is the gate's own, and it leaves
+    dox, xdox = _tree(
+        tmp_path,
+        styles=".gate-live { color: red; }\n",
+        own={},
+        gate={"gate.js": 'node.className = `gate-${state}`;\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert [b["selector"] for b in report["exclusive_blocks"]] == [".gate-live"]
+
+
+def test_a_prose_template_is_no_more_a_class_list_than_a_sentence() -> None:
+    """A SUBSTITUTION IS NOT EVIDENCE (Copilot review, round 17).
+
+    Masking every `${…}` out and requiring what remains to STILL be a class
+    token is what holds a template to exactly the strictness of the plain
+    string of the same shape: `` `${name} must be an object` `` — openDox's own
+    shape, six of them at `0b4e8bbf` — is refused, and `` `gatebar ${extra}` ``
+    is refused with it. That second one is the price: a class not read on the
+    GATE side keeps a rule in openDox's sheet, where the opposite error moves
+    one out of it.
+    """
+    prose = 'throw new Error(`${name} must be an object`);\n'
+    assert CENSUS.narrow_refs(prose, ".js") == set()
+    assert CENSUS.prefix_refs(prose, ".js", class_bearing_only=True) == set()
+    assert CENSUS.class_list_parts("${name} must be an object") == []
+    assert CENSUS.class_list_parts("gatebar ${extra}") == []
+    assert CENSUS.class_list_parts("gate-${state}") == ["gate-${state}"]
+    # a template the rule DOES accept names its static parts as classes and
+    # leaves the dynamic one to the prefix, which is the family it names
+    js = 'el("div", `chip chip-${state}`);\n'
+    assert CENSUS.narrow_refs(js, ".js") == {"div", "chip"}
+    assert CENSUS.prefix_refs(js, ".js", class_bearing_only=True) == {"chip-"}
+    # and openDox's side is ungated either way: over-reading there KEEPS a rule
+    assert CENSUS.prefix_refs('log(`status-${n} written`);\n', ".js") \
+        == {"status-"}
+
+
 # ---------------------------------------------------------------------------
 # The decision, and its asymmetry — the safety argument.
 # ---------------------------------------------------------------------------

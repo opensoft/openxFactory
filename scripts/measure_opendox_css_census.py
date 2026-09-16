@@ -255,6 +255,108 @@ _CLASSTOK = re.compile(r"^[A-Za-z_][A-Za-z0-9_-]*$")
 _PREFIX = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*-)(?:\$\{|$)")
 
 
+#: A TEMPLATE LITERAL IS A CLASS LIST TOO (Copilot review of openxFactory
+#: #1068, round 17). `_CLASSTOK` reads one whitespace-separated part of a bare
+#: literal, and a `${…}` substitution is not on the class alphabet — so
+#: `node.className = `gate-${state}`` failed the class-list test that gates
+#: both NARROW scans, and neither the token scan nor the gated prefix scan read
+#: anything from it. The `.gate-*` rules a contributed module builds that way
+#: are then named by nobody on the gate side and stay in openDox's sheet. That
+#: is the SAFE direction of the asymmetry — an under-read on the gate side
+#: KEEPS a rule, it never moves one — which is why no extraction was ever
+#: wrong; it is still a class the census cannot see, and the next contributed
+#: module is where it bites.
+#:
+#: A SUBSTITUTION IS NOT EVIDENCE, and the rule says exactly that: mask every
+#: `${…}` out, and what remains must STILL be a class token. `gate-${state}`
+#: leaves `gate-` — a class token, and the open-ended prefix `_PREFIX` already
+#: knows how to read — while `${extra}` leaves nothing and refuses the literal
+#: it sits in. So a prose template (``${name} must be an object``) is refused
+#: for the same reason the plain string `"the run is 5 of 9"` is: this rule
+#: reads a template exactly as strictly as the string of the same shape, never
+#: more loosely.
+#:
+#: AND THE PRICE IS NAMED: ``el("div", `gatebar ${extra}`)`` is refused too,
+#: because `${extra}` masks to nothing and no rule can tell those static words
+#: from a sentence's. The cost is a class not read on the gate side — a rule
+#: KEPT in openDox's sheet, never one moved out of it — which is the direction
+#: this census is built to fail in.
+#:
+#: MEASURED at `0b4e8bbf` / `0a0265f7`: the six contributed modules carry 9
+#: template literals and NONE of them is in a class-bearing position, and
+#: openDox's own six class-bearing templates are all prose this rule still
+#: refuses — the census is byte-identical, per token and per block.
+
+
+def _parts_outside_substitutions(s: str) -> list[str]:
+    """`s` split on whitespace, with every `${…}` substitution kept WHOLE.
+
+    A substitution carries an expression, and an expression carries spaces
+    (`${ok ? "live" : "idle"}`) and braces of its own. `str.split()` cuts
+    through one and leaves halves that are neither class tokens nor prose.
+    """
+    parts: list[str] = []
+    buf: list[str] = []
+    i, n = 0, len(s)
+    while i < n:
+        c = s[i]
+        if c == "$" and i + 1 < n and s[i + 1] == "{":
+            depth, j = 1, i + 2
+            while j < n and depth:
+                if s[j] == "{":
+                    depth += 1
+                elif s[j] == "}":
+                    depth -= 1
+                j += 1
+            buf.append(s[i:j])
+            i = j
+            continue
+        if c.isspace():
+            if buf:
+                parts.append("".join(buf))
+                buf = []
+            i += 1
+            continue
+        buf.append(c)
+        i += 1
+    if buf:
+        parts.append("".join(buf))
+    return parts
+
+
+def _without_substitutions(part: str) -> str:
+    """`part` with every `${…}` REMOVED, braces matched."""
+    out: list[str] = []
+    i, n = 0, len(part)
+    while i < n:
+        if part[i] == "$" and i + 1 < n and part[i + 1] == "{":
+            depth, j = 1, i + 2
+            while j < n and depth:
+                if part[j] == "{":
+                    depth += 1
+                elif part[j] == "}":
+                    depth -= 1
+                j += 1
+            i = j
+            continue
+        out.append(part[i])
+        i += 1
+    return "".join(out)
+
+
+def class_list_parts(s: str) -> list[str]:
+    """`s`'s parts where EVERY one reads as a class token, else `[]`.
+
+    The single test both bare-literal scans put a literal to before reading it
+    as a class list, substitutions masked out first — see the note above.
+    """
+    parts = _parts_outside_substitutions(s)
+    if not parts or not all(_CLASSTOK.match(_without_substitutions(q))
+                            for q in parts):
+        return []
+    return parts
+
+
 def _literals(text: str, suffix: str) -> list[str]:
     if suffix == ".js":
         return [text[a + 1:b - 1] for kind, a, b in _js_spans(text)
@@ -673,9 +775,13 @@ def prefix_refs(text: str, suffix: str, *,
                                      r"[A-Za-z0-9_-]*(?:\$\{)?"):
             for piece in run.split():
                 register(piece)
-        parts = s.split()
+        # A TEMPLATE IS A CLASS LIST UNDER THE SAME TEST as a plain string
+        # (round 17): `class_list_parts` masks the substitutions out and asks
+        # `_CLASSTOK` of what is left, so `gate-${state}` registers `gate-`
+        # and `${name} must be an object` still registers nothing.
+        parts = _parts_outside_substitutions(s)
         if class_bearing_only and suffix == ".js" and not (
-                parts and all(_CLASSTOK.match(q) for q in parts)
+                class_list_parts(s)
                 and _bare_literal_is_class_bearing(text, start)):
             continue
         for piece in parts:
@@ -706,12 +812,15 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
         # prose is prose (`markup_class_runs`).
         for run in markup_class_runs(s, r"[A-Za-z0-9_ -]*", r"[A-Za-z0-9_-]*"):
             out.update(p for p in run.split() if _CLASSTOK.match(p))
-        # A BARE class list only where a class is PASSED or ASSIGNED.
-        parts = s.split()
-        if not parts or not all(_CLASSTOK.match(p) for p in parts):
+        # A BARE class list only where a class is PASSED or ASSIGNED — and a
+        # TEMPLATE is one under the same test (round 17).
+        parts = class_list_parts(s)
+        if not parts:
             continue
         if suffix != ".js" or _bare_literal_is_class_bearing(text, start):
-            out.update(parts)
+            # A part carrying a substitution names no COMPLETE class: what it
+            # names is the family `prefix_refs` registers from its `…-` head.
+            out.update(q for q in parts if "${" not in q)
     return out
 
 
