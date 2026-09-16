@@ -298,29 +298,42 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
     return placements
 
 
-def _tests_in(path: Path) -> int | None:
-    """The `def test_` a DECLARED ARRIVAL carries, or None where nothing
-    regular is at that path.
+def _tests_in(dest_root: Path, relpath: str) -> int | None:
+    """The `def test_` a DECLARED ARRIVAL carries, or None where no regular
+    file of `dest_root`'s own reaches that path.
 
-    `lstat`, AND SYMLINKS ARE NOT FOLLOWED (Copilot, second round on #1080).
-    `read_bytes()` follows a link, so an arrival path that is a symlink to a
-    test-bearing file elsewhere would satisfy a row's declaration with a file
-    that never arrived — the floor's own evasion, and one no digest check at
-    this level would notice. It is also the right reading of the manifest's
-    own grammar: `git_mode: 120000` is admitted, and a symlink's BYTES are its
-    target path, which carries no `def test_` — so a link row declares zero
-    and collects zero either way, and a link standing in for a REAL row is an
-    absent arrival. `verify-carve-arrival.py` reads the destination with
-    `lstat` and treats a link as a git link blob, for the same reason.
+    NO COMPONENT MAY BE A SYMLINK, not merely the last one (Copilot, second
+    round on #1080, and its third-round restatement — which was right about a
+    half the first fix did not cover and this lane's own reply got wrong).
+    `read_bytes()` follows a link, so an arrival path that is a link to a
+    test-bearing file elsewhere satisfied a row's declaration with a file that
+    never arrived; `lstat` closes that, but `lstat` does not follow only the
+    FINAL component, so `tests/` being a link to a directory full of suites
+    was still counted. Measured: `lstat` on a path whose PARENT is a link
+    reports a regular file. Every component below `dest_root` is therefore
+    checked, from the top down.
+
+    It is also the right reading of the manifest's own grammar: `git_mode:
+    120000` is admitted, and a symlink's BYTES are its target path, which
+    carries no `def test_` — so a link row declares zero and collects zero
+    either way, while a link standing in for a REAL row is an absent arrival.
+    `verify-carve-arrival.py` reads the destination with `lstat` and treats a
+    link as a git link blob, for the same reason.
     """
-    try:
-        status = path.lstat()
-    except OSError:
-        return None
+    current = dest_root
+    parts = relpath.split("/")
+    for name in parts:
+        current = current / name
+        try:
+            status = current.lstat()
+        except OSError:
+            return None
+        if stat.S_ISLNK(status.st_mode):
+            return None
     if not stat.S_ISREG(status.st_mode):
         return None
     try:
-        return mapping.count(path.read_bytes())
+        return current.read_bytes()
     except OSError:
         return None
 
@@ -357,7 +370,10 @@ def _tree_tests(dest_root: Path) -> tuple[int, int]:
                     continue
                 stack.append(entry)
             elif entry.suffix == ".py":
-                found = _tests_in(entry)
+                try:
+                    found = mapping.count(entry.read_bytes())
+                except OSError:
+                    continue
                 if found:
                     files += 1
                     total += found
@@ -412,7 +428,8 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
     for source_path, relpath in owed:
         want = counts[source_path]
         declared += want
-        found = _tests_in(dest_root / relpath)
+        blob = _tests_in(dest_root, relpath)
+        found = None if blob is None else mapping.count(blob)
         if found is None:
             if want:
                 absent.append({"source_path": source_path, "path": relpath,

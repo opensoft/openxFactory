@@ -1087,6 +1087,27 @@ def test_a_symlink_may_not_stand_in_for_an_arrival(scratch: Scratch) -> None:
     assert "tests/test_alpha.py" in payload["detail"]
 
 
+def test_a_symlinked_PARENT_may_not_stand_in_for_an_arrival_either(
+        scratch: Scratch) -> None:
+    """The half the first symlink fix did not cover, and which this lane's own
+    reply to the finding got WRONG before measuring it: `lstat` does not
+    follow only the FINAL component, so `tests/` being a link to a directory
+    full of suites was still counted. Measured — `lstat` on a path whose
+    PARENT is a link reports a regular file — so every component below
+    `--dest-root` is checked, from the top down."""
+    dest = scratch.destination("dox", {"src/mod.py": "scripts/pkg/mod.py"})
+    elsewhere = dest / "vendored"
+    elsewhere.mkdir(parents=True, exist_ok=True)
+    (elsewhere / "test_alpha.py").write_text(
+        SOURCE_FILES["scripts/pkg/test_alpha.py"], encoding="utf-8")
+    (dest / "tests").symlink_to(elsewhere)
+    payload = refused(scratch.run(None, "--destination", "dox_code",
+                                  "--dest-root", str(dest)),
+                      "destination-test-shortfall")
+    assert "ABSENT" in payload["detail"]
+    assert "tests/test_alpha.py" in payload["detail"]
+
+
 def test_a_declared_key_naming_no_row_at_all_refuses(
         scratch: Scratch) -> None:
     """The stale-key arm, on the runtime path rather than in a pytest
