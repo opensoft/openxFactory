@@ -18,20 +18,26 @@ pull request will do.
 
 **AND `design.md` D7'S SCOPE FENCES ARE PROVED MECHANICALLY RATHER THAN
 ASSERTED.** Every fence is a `git diff` anybody can re-run against this branch,
-and every one of them is EMPTY:
+and every one of them is EMPTY. **THE BASE IS PINNED TO THIS BRANCH'S MERGE
+BASE RATHER THAN SPELLED `origin/main`**, because `origin/main` is a moving ref:
+spelled literally, the file-list proof below reads worse every time `main`
+advances past this branch, and reads right again the moment the branch takes a
+merge — which is a property of the ref and not of the fences. `$(git merge-base
+origin/main HEAD)` names the same tree on both sides of that.
 
 ```text
-$ git diff origin/main..HEAD -- scripts/packet_reference.py | wc -l
+$ BASE=$(git merge-base origin/main HEAD)
+$ git diff $BASE..HEAD -- scripts/packet_reference.py | wc -l
 0
-$ git diff origin/main..HEAD -- scripts/validate-pin-registrations.py | wc -l
+$ git diff $BASE..HEAD -- scripts/validate-pin-registrations.py | wc -l
 0
-$ git diff origin/main..HEAD -- scripts/doc_health | wc -l
+$ git diff $BASE..HEAD -- scripts/doc_health | wc -l
 0
-$ git diff origin/main..HEAD -- openspec/specs | wc -l
+$ git diff $BASE..HEAD -- openspec/specs | wc -l
 0
-$ git diff origin/main..HEAD -- .github/workflows | wc -l
+$ git diff $BASE..HEAD -- .github/workflows | wc -l
 0
-$ git diff --name-only origin/main..HEAD
+$ git diff --name-only $BASE..HEAD
 README.md
 openspec/changes/add-citation-remainder-report/.openspec.yaml
 openspec/changes/add-citation-remainder-report/design.md
