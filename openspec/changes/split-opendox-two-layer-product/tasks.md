@@ -1589,7 +1589,11 @@ the bookkeeping that ticks this group.
   `.github/workflows/*dashboard*` and `*ideation*` returns nothing — no such file
   was ever added. The SHAPE, the pinned-tools reading and the job-id obligation
   are unchanged; only the act is. **This box does NOT tick with this amendment**:
-  the workflow is its own declared act under its own claim.)*
+  the workflow is its own declared act under its own claim, and that act is now
+  open as `opensoft/openxFactory` **#1059** — *Wire the pinned openDox/openXdox
+  tools into a consumer gate of their own (task 5.3, RULING R-4)*, opened
+  2026-09-16T01:24:55Z against `main`. This box ticks on THAT pull request's
+  merge and on the new gate reporting, not on this one.)*
 - [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
   source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
   equality. Four clauses, the full text at `design.md` § D6 (2):
@@ -1959,35 +1963,50 @@ movements claimed at the time they land.
   DOES declare under `contracts/`, `profiles/`, `schemas/` and `tenants/` are
   `policy_allowance_registry` (5), `policy_allowance` (2), `veto_class_vocabulary`,
   `policy_allowance_revocation`, the three `intent_compliance_*`,
-  `codex_deployment_profile` and `artifact_kind` — and `codex_tenant` under
-  `tenants/`. **No `kind:` anywhere in the tree names dox**
+  `codex_deployment_profile` and `artifact_kind` — and `codex_tenant` (**3**, all
+  under `tenants/`): **ten distinct literals over seventeen declarations, and not
+  one of them is `domain-profile`.** **No `kind:` anywhere in the tree names dox**
   (`git grep -iE '^\s*kind:.*dox'` → empty). The content mentions that DO exist
-  are named rather than hidden, since a path-only census would have missed them:
-  `openXdox` appears in **32** files and `openDox` in **28**, distributed
+  are named rather than hidden, since a path-only census would have missed them.
+  Matched case-INSENSITIVELY, `openxdox` is in **32** tracked files and `opendox`
+  in **28** — **but 17 files carry both, so the union is 43 files**, not the 60
+  that adding the two columns would give. The 32 `openxdox` files sit
   `openspec/changes` 14, `hermes/domain` 12 (council records and their evidence
   dumps), `specs/013-project-intake-provisioning` 3 (which excludes the openXdox
   migration from its scope in terms), `tests/merge-master` 2 and
-  `scripts/merge_master/openxfactory_floor.py` 1 — that last one being
-  `openxFactory`'s SUBMODULE GITLINK NAMES in a floor prober (:290), which is
+  `scripts/merge_master/openxfactory_floor.py` 1; the 28 `opendox` files sit
+  `openspec/changes` 18, `hermes/domain` 4, `tests/merge-master` 2, and one each
+  in `specs/047-openxfactory-tree-floor-probe`, `scripts/merge_master`,
+  `scripts/browser_ui_repair` and `README.md`. **The file that is the singleton
+  of both columns is `scripts/merge_master/openxfactory_floor.py`**, which carries
+  seven dox lines, of which :290–291 are `openxFactory`'s SUBMODULE GITLINK NAMES
+  in a floor prober — declared as such at :275, beside `openXwallet` — and that is
   this packet's own § 5.1 / § 8.7 subject seen from codexFactory's side. The
-  three `domain-profiles` hits and the one `domain-mapping-declaration` hit are
-  all inside **path-listing fixtures and evidence dumps of openxFactory's own
-  tree** (`tests/merge-master/fixtures/tree-floor-probe/openxFactory.tracked-paths.txt`,
+  **four** `domain-profiles` line hits, across **three** files, and the one
+  `domain-mapping-declaration` hit are all inside **path-listing fixtures and
+  evidence dumps of openxFactory's own tree**
+  (`tests/merge-master/fixtures/tree-floor-probe/openxFactory.tracked-paths.txt`
+  twice, one of them :702 — the very
+  `contracts/domain-profiles/openxfactory-engineering.yaml` named above, recorded
+  there as a path string — and
   `hermes/domain/review-councils/records/*/evidence/openxfactory-*paths*.txt`) —
   another repository's filenames recorded as data, not artifacts of this one.
   **On the tenant-install half the nearest miss is named too**: codexFactory
   carries `profiles/software-team.yaml` (`kind: codex_deployment_profile`) and
-  two `kind: codex_tenant` descriptors including a LIVE pilot
-  (`tenants/pilots/project-alfa.yaml`) — tenancy for codexFactory's OWN product,
-  with no dox instance, no dox database and no `openXdox — <tenant>` App
-  anywhere. **Zero artifacts of the product's profile kind by content and by
+  **two `kind: codex_tenant` DESCRIPTORS** — `tenants/examples/software-team.yaml`
+  and the LIVE pilot `tenants/pilots/project-alfa.yaml`; the literal appears twice
+  more and neither is a descriptor (`tenants/README.md`:11 shows the form, and
+  `openspec/changes/add-software-team-execution-lane/supporting-docs/01-tenant-and-approved-intent.md`:55
+  quotes it) — tenancy for codexFactory's OWN product, with no dox instance, no
+  dox database and no `openXdox — <tenant>` App anywhere. **Zero artifacts of the product's profile kind by content and by
   kind literal, so the laziness rule holds and the answer is NONE YET.**
   *(This paragraph replaced a PATH-ONLY census — `(?i)domain.mapping` 0,
   `(?i)codexdox` 0, `(?i)openxdox` 0, `(?i)opendox` 0 over path names — at
   Copilot review round 1 on this amendment's own pull request. The finding was
   right and is recorded rather than quietly fixed: those four greps read
   FILENAMES, the requirement reads ARTIFACT KIND, and the content census above
-  finds 60 file-level mentions the path census could not see. The conclusion is
+  finds 43 files mentioning the product that the path census could not see. The
+  conclusion is
   unchanged and is now established by the evidence that would have overturned
   it. The § 7.2 REPORT carried the same path-only census and is corrected by its
   own erratum, cited there.)*
@@ -2098,12 +2117,36 @@ movements claimed at the time they land.
 Under `release-realization` this change archives ONLY on merged plus green
 realization evidence, never on landing. Each line is its own evidence.
 
-- [ ] 8.1 **All SIX repositories exist** (amended 2026-09-05 — this first said
+- [x] 8.1 **All SIX repositories exist** (amended 2026-09-05 — this first said
   "Both repositories"), PUBLIC, Apache-2.0, each with a required check that has
   reported at least once and a ruleset promoted from EVALUATE to ACTIVE; each
   assembly root's `project.yaml` records the election (`elected_by: Brett Heap`,
   `elected_on: 2026-09-05`, `reference: openxFactory docs/project-repo-schema.md`) and its
   `validate` gate is green over its own legs.
+  **TICKED 2026-09-16 ON EVIDENCE TAKEN THE SAME DAY, NOT ON THE 2026-09-06 READ
+  IT SUPERSEDES** — `#656` comment **`5690559647`**, which carries each command
+  and its output. All six of `opensoft/openDox{,-spec,-code}` and
+  `opensoft/openXdox{,-spec,-code}` read `visibility=public`, `private=false`,
+  `license=Apache-2.0`, `default=main`. The six ruleset ids this packet recorded
+  at the 2026-09-06T08:56Z promotion (this file's :411-424) read back live as
+  `enforcement: active`, `target: branch`, required check `validate` — the same
+  six ids, ten days on. The EVALUATE→ACTIVE **transition** is § 1.5's record
+  (created EVALUATE 2026-09-06, promoted on Brett Heap's ruling `5558170462`);
+  both are cited because a live read proves the STATE and cannot re-prove a past
+  transition. **A trap the evidence records rather than trips on:** `validate` is
+  a `pull_request` gate in all six, so NOTHING attaches to any `main` head and a
+  naive re-check reads six reds. This box's clause is *"has REPORTED at least
+  once"*, and where it reported is the pull requests — **265 `validate` runs
+  across the six** (11 + 45 + 94 + 12 + 43 + 60), the latest `success` in every
+  one. The clause *"its `validate` gate is green over its own legs"* is the two
+  ASSEMBLY-root runs, and they are pin lockstep #2's own pull requests —
+  `opensoft/openDox#8` run `35027390906` and `opensoft/openXdox#10` run
+  `35027756247`, both `success` — whose `validate` IS the leg-pin verification.
+  The election reads live out of each assembly root's own `project.yaml` at
+  `main`, the SOURCE from which the register row is derived (§ 1.9):
+  `elected_by: "Brett Heap"`, `elected_on: 2026-09-05`,
+  `reference: "openxFactory docs/project-repo-schema.md"`, verbatim in both.
+  `#656` records: CLAIM `5690461589`; evidence `5690559647`.
 - [ ] 8.2 **The RULED four-part floor (OQ-1), one evidence line per part:** the
   carve manifest with every file in exactly one disposition and every edit in one
   of the three closed classes; the source→destination TEST MAPPING closing on
@@ -2127,7 +2170,18 @@ realization evidence, never on landing. Each line is its own evidence.
 - [ ] 8.5 All five re-homed changes dispositioned, each with its destination named
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence first.
-- [ ] 8.6 `ideation-intent-plane` in canon, or its non-promotion recorded (§ 0.6).
+- [x] 8.6 `ideation-intent-plane` in canon, or its non-promotion recorded (§ 0.6).
+  **TICKED 2026-09-16 ON THE FIRST OF THE TWO DISCHARGES, RE-READ LIVE** —
+  `#656` comment **`5690559647`**. `openspec/specs/ideation-intent-plane/spec.md`
+  is present at `openxFactory` `main` **`cb2d3a2c`** (7,606 bytes, **seven**
+  `### Requirement` headings), and there is no active change directory of that
+  name: the change is archived at
+  `openspec/changes/archive/2026-09-09-add-ideation-intent-plane/`. That is RULED
+  PATH A (`5555554097`) reaching canon, so **no non-promotion disposition is owed
+  and none should be written** — this box's `or` branch is the one that must stay
+  empty. § 0.6's own DONE line (openxFactory #832 → `56e69a11`) is therefore
+  still true of `main` today and not only of the day it landed, which is what
+  re-reading it establishes and what a ticked archive-gate line has to mean.
 - [ ] 8.7 The aggregation's **openXdox AND openDox** gitlinks landed, **each
   equal to `openxFactory`'s own nested gitlink of the same name**, all four
   naming an ASSEMBLY ROOT, and the two derived `project-register.yaml` election
@@ -2140,19 +2194,63 @@ realization evidence, never on landing. Each line is its own evidence.
   `f4fb4ffc`**, where RULED **Q7** mounted `opensoft/openDox` as `openxFactory`'s
   SECOND submodule: the counterpart exists, so it is checked. RULING F is not
   reversed — it settled that `openxFactory` declares only its DIRECT upstreams,
-  and Q7 made those two. Live at the time of this amendment, which is why the
-  check is worth having: the aggregation `opensoft/xFactory` `main` `784a7c6e`
-  reads `openXdox` **`eca0b597`** against `openxFactory` `main` `cb2d3a2c`'s
-  **`a6500141`**, and `openDox` **`8ec3036c`** against **`3819625e`** — both
-  stale, both moved by the aggregation re-point Brett admin-lands, which is the
-  act this line gates and not an act of this amendment. A THIRD gitlink moves in
-  that same re-point — the aggregation's own `openxFactory`, `75484b67` against
-  `main` `cb2d3a2c` — and this line does NOT check it, because it is not one of
-  the two the descendant pin chain is about; named here so the re-point does not
-  read this line as its whole checklist.)*
-- [ ] 8.8 Amendment 3 applied with the SIX repository names and the election,
+  and Q7 made those two.
+  **THE RE-POINT LANDED WHILE THIS AMENDMENT WAS OPEN, AND THE EQUALITY THIS LINE
+  CHECKS WAS KEPT THROUGH IT RATHER THAN RESTORED BY IT.** The act is
+  `opensoft/xFactory` **#453 → `514605fb396d4ebd52914c58d7e22370309278ba`**,
+  merged **2026-09-16T12:46:00Z** on Brett Heap's word by interactive
+  multi-choice (CLAIM `5690483061`; four sites in one commit — the two gitlinks,
+  the aggregation's own `openxFactory` gitlink, and
+  `.github/clearing/openxfactory/PIN.yaml` beside it). Measured on BOTH sides of
+  it, which is the point:
+  — **BEFORE**, at the aggregation's own `784a7c6e` against `openxFactory`
+  `75484b67`, all three readings of each name already agreed — aggregation
+  gitlink `openDox` `8ec3036c` == `openxFactory`'s nested `openDox` `8ec3036c`
+  == `contracts/opendox-pin.yaml`'s `commit:`, and `openXdox` `eca0b597` across
+  the same three.
+  — **AFTER**, at `514605fb` against `cb2d3a2c`, the same three agree again at
+  `3819625e` and `a6500141`.
+  **So the sync moved the pointers forward without ever breaking the equality —
+  an invariant KEPT, not repaired**, which is worth writing down because a check
+  that only ever runs after a re-point cannot tell those two apart. The
+  ASSEMBLY-ROOT clause holds on both sides: `.gitmodules` at `514605fb` names
+  `git@github.com:opensoft/openDox.git` and `git@github.com:opensoft/openXdox.git`,
+  and `openxFactory`'s own `.gitmodules` at `cb2d3a2c` names the same two — four
+  declarations, four assembly roots, no leg. The register clause is § 1.9's and
+  already `[x]`: the two derived rows landed at `opensoft/xFactory` **#442 →
+  `41d6d7ae`** and remain true across this re-point, because each assembly root's
+  `project.yaml` — the SOURCE the rows are derived from — is **byte-identical at
+  the old pointer and the new** (`openDox` 7,999 bytes at `8ec3036c` and at
+  `3819625e`; `openXdox` 8,015 bytes at `eca0b597` and at `a6500141`), so no
+  re-derivation was owed and none was made. A THIRD gitlink moved in that same
+  re-point — the aggregation's own `openxFactory`, `75484b67` → `cb2d3a2c` — and
+  this line does NOT check it, because it is not one of the two the descendant pin
+  chain is about; named here so the re-point does not read this line as its whole
+  checklist. **This box is NOT ticked by this amendment.** R-5 ruled the WORDING
+  of the check, not the verdict on it, and the packet's tick standard puts a tick
+  in the act that claims it — the same treatment § 5.2's STATUS gives § 5.6a
+  defect (a). What is owed for that tick is now measured and on the record here.)*
+- [x] 8.8 Amendment 3 applied with the SIX repository names and the election,
   and the descendant names — each with its two leg names — registered with no
   repository created (amended 2026-09-05).
+  **TICKED 2026-09-16, AND ITS SECOND HALF IS NOW PROVEN BY ENUMERATION RATHER
+  THAN BY SIXTEEN NEGATIVE LOOKUPS** — `#656` comment **`5690559647`**. FIRST
+  HALF: § 1.6 applied Amendment 3 to `docs/openxdox-naming.md` carrying the SIX
+  repository names and the election, and § 1.7's own DONE record registers the
+  fifteen descendant names (five bases × three) plus `openXdox-Install` inside
+  Amendment 3's own paragraph, that paragraph being the registration because the
+  file has no separate names table. Both boxes are `[x]` on their own evidence.
+  SECOND HALF, re-measured today: all sixteen names return `404 Not Found`
+  individually, as on 2026-09-06 — **and sixteen 404s prove only that those
+  sixteen spellings are absent from ONE org**, while a descendant would plausibly
+  be created in its own domain's org (`codexFactory` lives in `codeXfactory`,
+  `MedxFactory` in `MedxSoft`, `LedgerxFactory` in `ledgerXfactory`). So the
+  listing was taken org-wide across all four estate orgs for ANY repository whose
+  name contains `dox`: `opensoft` 401 repositories, `codeXfactory` 1, `MedxSoft`
+  13, `ledgerXfactory` 1 — **416 in total, and the only six `dox`-named
+  repositories in the estate are the six § 8.1 requires to exist.** Not one
+  descendant name, not one leg name, not `openXdox-Install`, in any casing,
+  anywhere. `#656` records: CLAIM `5690461589`; evidence `5690559647`.
 - [ ] 8.9 `python3 -m pytest tests/doc-health tests/sequenced_after -q` green,
   `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` green, and a doc-health
   run whose severity counts move by the amount **the archive pull request RECORDS
@@ -2161,8 +2259,10 @@ realization evidence, never on landing. Each line is its own evidence.
   `5690428146`. It read "a doc-health run whose severity counts move by exactly
   the amount the packet predicts" — **and the packet predicts no amount
   anywhere**. Measured across the WHOLE packet, `review/` included:
-  "severity" occurs **ten** times in six files — `design.md`:225 (a glossary
-  row), this line and the two above it, `review/ratification-2026-09-05.md`:649,
+  **OUTSIDE THIS BOX** — the only count of this word that stays true while this
+  box is being written — "severity" occurs **SEVEN** times in **FIVE** files, and
+  nowhere else in `tasks.md` at all: `design.md`:225 (a glossary
+  row), `review/ratification-2026-09-05.md`:649,
   :691 and :783, `review/reality-check-2026-09-05.md`:302,
   `review/amendment-2026-09-05-repository-shape.md`:246, and
   `review/amendment-2026-09-09-floor-part-2-mapping.md`:45 (which is a CHANGE
@@ -2174,10 +2274,16 @@ realization evidence, never on landing. Each line is its own evidence.
   carve, six repositories and a shed. The obligation is not weakened, it is
   relocated to the act that can discharge it: the archive pull request states the
   movement it caused and why, and a movement it does not explain fails this line.
-  *(This passage claimed "exactly twice" until Copilot review round 1 on this
-  amendment's own pull request, and the finding was right: the grep behind it was
-  `grep -rn severity *.md` from the packet root, whose glob never entered
-  `review/`. Recorded rather than silently repaired — a count that does not
-  reproduce is the same defect this amendment corrects in five other boxes, and
-  the corrected measurement makes the point more strongly than the wrong one
-  did.)*)*
+  *(TWO rounds of this count were wrong and both are recorded rather than
+  silently repaired. It claimed "exactly twice" until Copilot review round 1 on
+  this amendment's own pull request, and that finding was right: the grep behind
+  it was `grep -rn severity *.md` from the packet root, whose glob never entered
+  `review/`. The repair then claimed "ten times in six files" and THAT was wrong
+  too, for a different and more interesting reason — **a whole-packet count of a
+  word is not stable while the prose doing the counting keeps using the word**:
+  the corrected paragraph added three further occurrences to `tasks.md` and made
+  its own measurement read thirteen the moment it landed. Hence the count is now
+  taken OUTSIDE this box, where editing this box cannot move it, and it is stated
+  as such. A count that does not reproduce is the same defect this amendment
+  corrects in five other boxes; a count that cannot be made to stop reproducing
+  is what this one needed.)*)*
