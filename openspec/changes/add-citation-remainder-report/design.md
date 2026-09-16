@@ -394,8 +394,10 @@ REPO_ROOT       repository root to scan (default: cwd), as every sibling
 --tokens        group by TOKEN; the DEFAULT groups by IDENTITY (see below)
 --history       OPT-IN: run the `git log --all --diff-filter=A` probe per
                 identity. OFF by default, on a MEASURED 8.5x cost
---include/--exclude   override the default file population, so the recipe in
-                D3 is a DEFAULT and not a hard-coding
+--include/--exclude   REFINE the default file population — prefix semantics,
+                precedence and the one exclusion neither can lift are fixed
+                immediately below — so the recipe in D3 is a DEFAULT and not a
+                hard-coding
 ```
 
 **`--history` IS OPT-IN ON A MEASURED COST, NOT A PREFERENCE.** In the
@@ -406,6 +408,45 @@ the resolver cannot: an id that STOOD here and was renamed before former-id
 tracking, against one that never stood here at all. Worth a flag; not worth the
 default. **Without it the sweep is 2.0 seconds over 2,973 files**, which is the
 difference between a report somebody runs and a report somebody schedules.
+
+**`--include` AND `--exclude` ARE GIVEN THEIR SEMANTICS HERE, BECAUSE A FLAG
+NAMED IN A SURFACE THAT EXISTS SO THE REALIZATION CANNOT DRIFT, AND THEN NOT
+DEFINED, IS A FLAG TWO REALIZATIONS WILL IMPLEMENT DIFFERENTLY.** A population
+that differs between two runs breaks the only thing this capability produces — a
+SERIES — and "override the default file population" answers none of the three
+questions an implementer actually has. Four rules, and they are the whole of it:
+
+1. **A PREFIX MATCHES ON PATH SEGMENT BOUNDARIES**, never as a bare string
+   prefix: a path matches when it EQUALS the prefix with any trailing `/`
+   removed, or begins with that plus `/`. This is the estate's own idiom rather
+   than a new one — `scripts/validate-carve-manifest.py`'s `in_surface`
+   (`:1653-1663`), whose docstring states the reason in one line: *"Segment-aware:
+   `scripts/ideation_dashboard` does not swallow
+   `scripts/ideation_dashboard_old/x.py`, which a bare `startswith` would."*
+2. **BOTH FLAGS REFINE D3(a)'s POPULATION AND NEITHER REPLACES IT.** `--include`
+   RE-ADMITS tracked entries under its prefixes that one of D3(a)'s three default
+   exclusions removed — `--include tests/packet_reference` is how a reader asks
+   about one fixture corpus deliberately — and `--exclude` REMOVES more. Passing
+   neither leaves D3(a) exactly as written. *The alternative, `--include`
+   REPLACING the population, is declined:* it makes a single `--include`
+   silently DISCARD the corpus rather than widen it, which is the opposite of
+   what a reader narrowing a question expects, and it would let a caller produce
+   a headline remainder over three files that reads like a headline remainder
+   over the corpus.
+3. **`--exclude` IS APPLIED LAST AND WINS** on any path both flags name, so the
+   pair is order-independent: a reader predicts the population without knowing
+   which flag was typed first, and a wrapper that appends an `--exclude` cannot
+   have it undone by an earlier `--include`.
+4. **NEITHER FLAG CAN RE-ADMIT THE REPORT'S OWN OUTPUT PATH.** That exclusion is
+   not a default and is not the caller's to lift: it is a promoted requirement —
+   *"THE REPORT'S OWN OUTPUT SHALL BE EXCLUDED FROM THE POPULATION wherever that
+   output is committed"* — and a flag that could turn it off is a flag that can
+   restart the self-counting D5 exists to prevent.
+
+**AND WHATEVER THE FLAGS SAY, THE REPORT STATES THE POPULATION IT ACTUALLY USED
+AND THE OVERRIDES IT WAS GIVEN**, which the spec's population requirement
+demands, so a reading taken under a refined population can never be read as one
+taken under D3(a).
 
 **GROUPING IS BY IDENTITY BY DEFAULT, AND THAT IS MEASURED TOO.** The evidence's
 57 this-tree tokens are **38 identities**, twelve carrying more than one

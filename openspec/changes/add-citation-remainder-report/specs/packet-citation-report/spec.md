@@ -126,8 +126,11 @@ exclusions, each excluded for a stated reason: the ARCHIVED corpus
 citations may not be repaired; the TEST corpus (`tests/`), because fixtures
 deliberately carry synthetic ids and deliberately-absent files; and SPEC KIT
 FEATS (`specs/`), because they are another tool's artifacts citing packets
-illustratively. An implementation MAY let a caller override the population, and
-the report SHALL then state the population it actually used.
+illustratively. An implementation MAY let a caller refine the population, and
+the report SHALL then state both the population it actually used AND the
+refinements it was given, because a reading taken over a different population is
+not a later point in the same series and a reader who cannot see the difference
+will treat it as one.
 
 THE REPORT'S OWN OUTPUT SHALL BE EXCLUDED FROM THE POPULATION wherever that
 output is committed into the repository. A report that lists remainder citations
