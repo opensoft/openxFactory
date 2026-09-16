@@ -150,6 +150,15 @@ counting its own output, and the series it produces drifting upward by its own
 act. The exclusion SHALL be declared BEFORE any such output is committed and not
 after the first inflated reading.
 
+AND NO REFINEMENT A CALLER SUPPLIES SHALL RE-ADMIT IT. The output exclusion is
+not one of the defaults a caller refines: a report that admits refinements SHALL
+either preserve that exclusion under every one of them or REFUSE a refinement
+naming the output path, and SHALL NOT produce a reading in which the report
+counted its own output. The refinement surface exists so a reader can ask a
+narrower question, and the one thing it may not do is switch the self-counting
+back on — a loop this requirement prevents is not prevented if any caller can
+lift it with a flag.
+
 THE TOKEN GRAMMAR SHALL BE STATED, AND EVERY NORMALIZATION IT APPLIES SHALL BE
 PRINTED rather than applied silently. A citation extracted from free text
 carries the punctuation of the prose around it: a trailing `/` on a directory
@@ -221,6 +230,11 @@ POINT IN THE SAME SERIES.
 - **WHEN** a repository commits the remainder report into its own tree
 - **THEN** the committed report's path MUST be excluded from the file population
 - **AND** the exclusion MUST be in force in the same change that first commits it
+
+#### Scenario: A caller's refinement names the report's own output
+- **WHEN** a caller passes a population refinement that would re-admit the committed report
+- **THEN** the report MUST either keep its own output excluded or refuse the refinement
+- **AND** it MUST NOT publish a reading that counted its own output
 
 ### Requirement: A suspected cross-repository citation is flagged and never dropped
 A citation this repository judges to address ANOTHER repository's packet SHALL
