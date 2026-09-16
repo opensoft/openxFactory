@@ -518,9 +518,13 @@ def test_the_declaration_tables_values_are_the_packets_own_words() -> None:
     findable in the box itself. Whitespace-normalized, because a re-wrap of
     that paragraph is not a change to the declaration."""
     text = " ".join(the_packet_tasks().read_text(encoding="utf-8").split())
-    start = text.find("FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K)")
-    assert start >= 0, "the § 5.4 box has been retitled"
-    box = text[start:start + 12000]
+    # ANCHORED ON `FLOOR PART 2` ALONE and not on the box's full title. The
+    # packet is amended often and by another actor, and a re-title is not a
+    # change to the declaration — but if the phrase itself goes, the
+    # declaration really has moved and a failing test is the right answer.
+    start = text.find("FLOOR PART 2")
+    assert start >= 0, "the packet no longer names FLOOR PART 2"
+    box = text[start:start + 14000]
     assert "`m = 3`" in box
     assert "`openxFactory` (retained)" in box
     assert "`opensoft/openDox-code`" in box

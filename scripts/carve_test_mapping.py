@@ -337,8 +337,15 @@ MULTIPLICITY_DECLARATION = (
 
 
 def declared_replica_set(row: dict[str, Any]) -> tuple[str, ...] | None:
-    """The repositories a replica row's copies land in, or None where the row
-    is not a replica at all.
+    """The repositories a replica row's copies land in.
+
+    `None` FOR BOTH OF THE TWO WAYS THERE IS NO ANSWER — the row is not a
+    replica, or it is one and nothing declares its set — and the caller
+    distinguishes them, because only the second is a refusal: `homes_of` asks
+    only after `is_replica`, so a `None` reaching it is always an UNDECLARED
+    set and becomes an empty `homes`, which `refuse_lost_tests` turns into
+    `replica-multiplicity-undeclared` for a test-bearing row and passes over
+    for a zero-test one (clause (b) binds test-bearing rows only).
 
     THE ROW WINS WHERE IT SPEAKS, which is nowhere today: the field is FLOOR
     PART 1's to add and this function is the single seam that act edits.
