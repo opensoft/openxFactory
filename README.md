@@ -911,6 +911,68 @@ Active changes:
   this row's `add-chain-anchoring` / `repoint-chain-anchoring-medxchain-citation`
   keys), so that file needed no such mitigation.
 
+- [scope-pinned-arm-root-naming](openspec/changes/scope-pinned-arm-root-naming/proposal.md)
+  — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
+  **`Status: ratified`** (2026-09-16T13:43:18Z, Brett Heap, openxFactory
+  repository owner, first-hand, in session — A TYPED SENTENCE, verbatim
+  ***"ratify 1052 when green, then 1050"***, recorded on openxFactory
+  [#1047](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379)) — record
+  [`review/ratification-2026-09-16.md`](openspec/changes/scope-pinned-arm-root-naming/review/ratification-2026-09-16.md).
+  A small `## MODIFIED Requirements` amendment to promoted
+  `document-lifecycle` canon (`openspec/specs/document-lifecycle/spec.md`,
+  *Prose tagging marker hygiene*), SCOPING ONE SENTENCE, NARROWING ONE CLAUSE
+  OF A SIBLING SCENARIO'S WHEN, AND ADDING ONE SCENARIO. Canon says "EVERY
+  finding the pinned arm emits SHALL NAME THE ROOT OR ROOTS it resolved
+  against, or failed to"; TWO of the realized arm's fifteen findings are
+  emitted BEFORE ANY ROOT IS SELECTED and cannot obey it — the lexically
+  malformed pinned value (refused at `scripts/doc_health/families.py:1572`,
+  naming THE VALUE at `:1573-1576`, before the `_pin_roots(...)` of `:1580`)
+  and the document whose repository has no resolution root in the run (naming
+  THE REPOSITORY at `:1587-1592`, `_pin_roots` having returned an empty list).
+  The delta scopes the obligation to findings that REACH ROOT SELECTION, names
+  the two exceptions with what each names instead; narrows the restated
+  sibling scenario *A pinned target names a pin no resolution root carries*'s
+  WHEN by ONE clause (fix round 1), so the empty-root case keeps one outcome
+  and not two — fix round 5 briefly narrowed that same clause FURTHER on a
+  real Copilot finding, but ratified normative scenario text is the
+  ratifier's to amend, not the lane's, so fix round 6 REVERTED it; the WHEN
+  lands BYTE-IDENTICAL to what was ratified at `92d3e0e2`, and a RULING
+  NEEDED comment asking Brett Heap for the word is posted on
+  [#1047](https://github.com/opensoft/openxFactory/issues/1047); and adds ONE
+  scenario, *A finding emitted before root selection names what it judged*.
+  Fix round 5 ALSO refreshed one stale source-citation pointer canon itself
+  carries (`scripts/doc_health/families.py:1317-1321`, which is
+  `_topic_outcome` on `main` today) to name `_resolve_capability` and
+  `_pin_roots` directly — mechanical, KEPT, and no normative claim moves.
+  **THE REALIZED BEHAVIOUR ALREADY MATCHES THE CLARIFIED READING** —
+  `code_surface: none`, measured rather than assumed; the other thirteen
+  findings name their root today. The block is GENERATED from canon and
+  verified two ways, CURRENT AS OF fix round 6: a unified diff against
+  canon's block (FOUR hunks, 21 added / 8 removed) and a `derive_units`
+  comparison through the modified-block-currency family's own derivation
+  (canon 209 units, block 215, THREE uncarried units — the root-naming
+  sentence, the pointer-bearing sentence, and the WHEN bullet, the last
+  uncarried against canon since fix round 1 regardless of wording — nine
+  new). (At filing: THREE hunks, 18 added / 5 removed, canon 209, block 215,
+  TWO uncarried, eight new — `tasks.md` § 2.2.) Surfaced by Copilot on the
+  archive pull request [#1042](https://github.com/opensoft/openxFactory/pull/1042)
+  and RULED STANDS there — the sentence is ratified canon promoted
+  byte-identical, which an archive act may not edit — so the remedy is a
+  successor packet. `sequenced_after: []`, corroborated: no OTHER active
+  change holds a `## MODIFIED` block over that requirement — this packet is
+  itself the one active change that now does. Filing PR
+  [#1052](https://github.com/opensoft/openxFactory/pull/1052), whose second
+  commit — this one — seeds the packet's per-change sweep-ledger row and writes
+  the number here, the pull request not having existed when the packet was
+  committed. Refs
+  [#1047](https://github.com/opensoft/openxFactory/issues/1047). **Inserted
+  here rather than at the top of this list on purpose**, on the same reasoning
+  the entry above records: the `Active changes:`-then-blank-line context at the
+  top of this block is the well-known same-anchor-insertion merge-conflict
+  shape, and anchoring on the tail of this lane's own
+  `repoint-chain-anchoring-medxchain-citation` entry keeps this pull request's
+  README hunk disjoint from any other lane's.
+
 - [amend-register-act-5b-projection-proof](openspec/changes/amend-register-act-5b-projection-proof/proposal.md)
   — filed 2026-09-11, **`Status: ratified`** (2026-09-11T13:09:12Z, Brett
   Heap, openxFactory operator authority, first-hand, in session — a
