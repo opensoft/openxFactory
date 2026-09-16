@@ -1,0 +1,528 @@
+# The openDox/openXdox CONSUMER gate: openxFactory no longer owns the ideation
+# dashboard, so this gate initializes the two pinned gitlinks, refuses to
+# proceed unless BOTH pins verify, and then runs the suites that read the
+# pinned tools over openxFactory's own tree.
+#
+# TASK 5.3 OF `split-opendox-two-layer-product`, AUTHORED UNDER RULING R-4.
+# The box (`openspec/changes/split-opendox-two-layer-product/tasks.md`
+# :1196-1198) reads: "Convert the dashboard workflows to CONSUMER GATES over
+# the pinned tools, on the `openxwallet-consumer-gate` shape, retaining the job
+# id so a ruleset-pinned token survives a file rename." RULING R-4 (Brett Heap,
+# `opensoft/openxFactory#656` comment `5690428146`, 2026-09-16, by interactive
+# multi-choice) settles what that means HERE, verbatim: "the box means a NEW
+# `openxdox-consumer-gate.yml` in openxFactory on the `openxwallet-consumer-
+# gate` shape; 'retaining the job id' is discharged by leaving `pytest-suite`
+# untouched (no dashboard-named workflow ever existed here)."
+#
+# SO NEITHER VERB IS A CONVERSION, and that is a measured fact rather than a
+# reading. There is no dashboard-named workflow in this repository to convert:
+# before this file, `.github/workflows/` held thirteen files —
+# `clearing-dispatch-gate`, `doc-health-reusable`, `former-id-arrival-gate`,
+# `lane-line`, `merge-master-approval`, `openreposhape-pin-gate`,
+# `openspec-cli-pin-gate`, `openxwallet-consumer-gate`, `pytest-suite`,
+# `release-tag-gate`, `review-lane-repin`, `session-open-pr`,
+# `signed-execution-chain-gate` — and not one of them is named for the
+# dashboard. The dashboard WORKERS live in the `opensoft/xFactory` aggregation,
+# which is a different repository with its own gitlinks. "Retaining the job id"
+# therefore protects nothing here, and R-4 discharges it the only way it can be
+# discharged: `pytest-suite.yml` is not touched by the act that adds this file,
+# so the one ruleset-adjacent token this repository's required suite reports
+# under cannot move.
+#
+# THE GAP THIS CLOSES IS NAMED IN THE TREE, BY THE TREE, IN THREE PLACES.
+#   1. `pytest-suite.yml`'s own comment, above its scoped init: "THIS IS NOT
+#      THE TASK 5.3 CONSUMER GATE. Materializing a submodule so the test suite
+#      can read it is a different act from wiring `scripts/verify-openxdox-
+#      pin.py` or `scripts/verify-opendox-pin.py` as its own required check;
+#      that gate is Phase 5's, is unwritten, and stays named as owed."
+#   2. `contracts/openxdox-pin.yaml`'s `verify_pin:` comment: "Not yet wired
+#      into any required check: a consumer gate that runs it is task 5.3,
+#      Phase 5."
+#   3. `contracts/opendox-pin.yaml`'s: "Not yet wired into any required check —
+#      wiring a consumer gate is Phase 5's task 5.3."
+# MEASURED at `cb2d3a2c`, before this file existed: `grep -rn
+# 'verify-opendox-pin\|verify-openxdox-pin' .github/` returned exactly ONE
+# line — pytest-suite's own comment naming the gap. NEITHER VERIFIER WAS
+# INVOKED BY ANY WORKFLOW. That is the hole, and this file is it filled.
+#
+# THE GATE IS ADVISORY ON THE DAY IT LANDS, SAID HERE RATHER THAN DISCOVERED
+# LATER. `openxwallet-consumer-gate.yml` inherited a REQUIRED token (org ruleset
+# 21538893 pins the check `wallet-validation`). Nothing pins this one: a check
+# is not selectable in a ruleset until a workflow has reported under it once,
+# so this gate must run green on a pull request BEFORE an operator can make it
+# required, and making it required is a human act on a human-only surface that
+# no pull request can perform. It is owed and it is named. Until it is taken,
+# this gate refuses on its own and blocks nothing — which is still strictly
+# more than the zero checks that read either pin before it.
+#
+# THE JOB ID IS THE TOKEN AN OPERATOR WILL PIN, so it is `openxdox-consumer-
+# gate` and the job carries NO DISPLAY NAME. `openxwallet-consumer-gate.yml`
+# learned this the expensive way — "the status check must surface as exactly
+# `wallet-validation`, the literal token the ruleset pins; a distinct job
+# display name silently de-advises the gate" — and the lesson is cheaper to
+# apply before the pin exists than after. Renaming this job after an operator
+# has pinned it is the same defect the wallet gate's file rename had to be
+# designed around.
+#
+# NO APP TOKEN, AND YET THE URL REWRITE IS STILL REQUIRED — the wallet gate's
+# own two facts, and they hold here for the same two reasons. All three
+# gitlinks are PUBLIC (`openXwallet` flipped 2026-09-07T15:24:11Z; `openXdox`
+# and `openDox` were re-measured `visibility: public` on 2026-09-11), so plain
+# `github.token` resolves them and this gate mints nothing; `.gitmodules` still
+# spells every gitlink `git@github.com:` deliberately, so that a human clone
+# uses the operator's key instead of prompting, and a runner has no such key —
+# which is what makes the `insteadOf` rewrite BEFORE checkout the step that
+# makes the gitlinks fetchable at all.
+#
+# TWO DEPARTURES FROM THE WALLET SHAPE. Both are FORCED by what this gate
+# consumes, both are stated, and neither weakens anything.
+#
+#   (a) THE INIT IS `--recursive`. `openxwallet-consumer-gate.yml` rejects
+#       `--recursive` because nothing in it reads a nested gitlink. This gate's
+#       consumer suite does: the § 5.2 shed left 38 files in this repository
+#       naming 39 carved modules at 125 import sites, all of them reached
+#       through `scripts/carved_reach.py`, whose `install()` needs
+#       `openDox/code/src` AND `openXdox/code/src` on disk and REFUSES rather
+#       than degrading when either is absent ("a single-leg install would
+#       appear to work and then fail on the seventeenth import"). It is the
+#       same reason `pytest-suite.yml` moved to `--init --recursive openXdox
+#       openDox`. THE SCOPING DISCIPLINE THE WALLET GATE IS ACTUALLY ASSERTING
+#       IS KEPT EXACTLY: this gate initializes the two gitlinks it consumes and
+#       leaves `openXwallet` and `installs/omnigent-install` alone, which is why
+#       the init names them rather than saying `submodules: true`.
+#
+#   (b) THE CHECKOUT LANDS AT `openxFactory/`, NOT AT THE WORKSPACE ROOT, and
+#       this one is the difference between a gate and a green bar. The consumer
+#       suite's validator locators walk UP from the repository root looking for
+#       an AGGREGATION-SHAPED parent: `human_seen.find_cross_reference_
+#       validator` searches each ancestor for `openxFactory/scripts/validate-
+#       ideation-cross-reference.py`, and `tests/ideation-dashboard/conftest.py`'s
+#       `find_openxfactory_validator` does the same for the dashboard
+#       validator. A checkout at the workspace root has no such ancestor, both
+#       locators answer `None`, and THIRTEEN assertions across four modules
+#       turn into `pytest.mark.skipif` SKIPS. MEASURED AT `cb2d3a2c`, BOTH
+#       WAYS, AND THE NUMBER THAT MOVES IS NOT THE ONE A READER EXPECTS: the
+#       same 1137 cases are SELECTED either way — `skipif` marks a collected
+#       test, it does not uncollect it — and what changes is 13 of them
+#       reporting `skipped` instead of `passed`. Root-shaped: `tests=1137
+#       skipped=13`. Aggregation-shaped: `tests=1137 skipped=0`. So a FLOOR ON
+#       SELECTED CANNOT SEE THIS AT ALL, which is precisely why the pin below
+#       is an EXACT skipped count and not only a floor. The thirteen are the
+#       validator-gated cases of `test_gate_routes`, `test_lens`,
+#       `test_lens_gate_cli` and `test_human_seen`. `pytest-suite.yml` already
+#       checks out to `path: openxFactory` for exactly this reason; this gate
+#       mirrors it rather than re-discovering it, and the exact pin is what
+#       refuses the root-shaped layout if anyone ever "simplifies" it back.
+#
+# WHY NODE IS INSTALLED. 41 test files gate their DOM and JS probes on
+# `shutil.which("node")` and SKIP without it — and a skip reports as a green
+# bar. The named verdict below watches one of those probes BY NAME, so a
+# runner without node fails this gate instead of passing it quietly.
+#
+# WHY THE COUNTS ARE PINNED AT ALL. Every suite here can fail OPEN rather than
+# red: a locator that answers `None` turns assertions into skips, an absent
+# `node` turns JS probes into skips, and a directory that stopped being
+# collected reports nothing at all. `pytest` exiting non-zero catches a FAILING
+# test; it catches none of those. So each suite is followed by a positive
+# assertion over its own JUnit report — floors that may only rise, an EXACT
+# skipped count, zero failures and zero errors, and named verdicts for the
+# handful of tests that can only pass if the pinned trees are really on disk.
+# Two assertion steps and not one widened step, on the wallet gate's own rule
+# for its two wallets: "add one for the new wallet, do not widen the existing
+# one" — a single assertion covering both suites would go green on a tree that
+# lost one of them.
+#
+# AND THE TWO ASSERTION BODIES ARE BYTE-IDENTICAL, WHICH IS AN INVARIANT RATHER
+# THAN AN ACCIDENT. They differ only in the `env:` block above each — the
+# report path, the two floors, the exact skipped count and the watched names —
+# so the RULE is written once and the PINS are written twice, which is the
+# split `pytest-suite.yml` makes for the same reason ("two callers of one rule,
+# so they cannot drift from each other"). `tests/openxdox_consumer_gate/
+# test_gate_invocation.py` asserts the two `run:` strings equal, so an edit to
+# one that is not made to the other fails the REQUIRED suite rather than
+# leaving two silently divergent adjudicators. GitHub Actions supports no YAML
+# anchor and no include, so identity-under-test is the mechanism available.
+name: openxdox-consumer-gate
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+# NOT COPIED FROM THE WALLET GATE, WHICH HAS NONE, AND THE REASON IS THE
+# RUNTIME. That gate is a one-minute reader; this one runs two pytest suites
+# and takes minutes, so a superseded push would otherwise leave a stale run
+# holding a runner. `pytest-suite.yml` carries the same block for the same
+# reason. It cancels only runs on a ref that has already moved, so it can
+# retire no answer this gate has given about a head that still exists.
+concurrency:
+  group: openxdox-consumer-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  openxdox-consumer-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: openxFactory
+    steps:
+      # BEFORE CHECKOUT, and the ordering is the property: `insteadOf` applied
+      # after checkout is `insteadOf` too late for the nested clone the init
+      # below performs. No mint stands in front of it — see the header; all
+      # three gitlinks are public and `github.token` is what the retired App
+      # expression already fell back to.
+      - name: Rewrite ssh submodule URLs for token auth
+        working-directory: .
+        run: |
+          git config --global url."https://x-access-token:${TOKEN}@github.com/".insteadOf "git@github.com:"
+        env:
+          TOKEN: ${{ github.token }}
+
+      # `path: openxFactory` is load-bearing — header departure (b).
+      # `fetch-depth: 0` mirrors `pytest-suite.yml`: the consumer suite reads
+      # the carve manifest's rows against real history through
+      # `scripts/carved_reach.py`, and this gate does not guess at the depth
+      # that would still satisfy it.
+      #
+      # `submodules:` is deliberately ABSENT: a blanket init would also fetch
+      # `installs/omnigent-install`, which nothing here reads, and it could not
+      # resolve the SSH spelling without the rewrite above in any case. The
+      # init is its own scoped step.
+      - uses: actions/checkout@v4
+        with:
+          path: openxFactory
+          fetch-depth: 0
+
+      - name: Init the openDox and openXdox gitlinks only, RECURSIVELY
+        run: git submodule update --init --recursive openDox openXdox
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The DOM and JS probes, which SKIP without it — see the header. Pinned
+      # to the same major `pytest-suite.yml` installs so the two gates cannot
+      # disagree about what the browser-side modules parse as.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # The same hash-pinned set the required suite installs. `pytest` itself
+      # is IN this lock (9.1.1), so nothing here depends on what happens to be
+      # preinstalled on the image.
+      - run: pip install --require-hashes -r requirements/hermes-runtime-contracts.lock
+
+      # FIRST, before anything pinned is trusted, and in the direction the
+      # LOCKSTEP runs. `scripts/verify-openxdox-pin.py` adjudicates the elder
+      # pin (RULING F — openxFactory pins the openXdox assembly root);
+      # `scripts/verify-opendox-pin.py` adjudicates the second direct upstream
+      # (RULED Q7) and its sixth check reads openXdox's OWN derived
+      # `contracts/opendox-pin.yaml` as a git BLOB out of the openXdox
+      # submodule's object store at the gitlinked commit, refusing
+      # `opendox-pin-lockstep-mismatch` when the two disagree. Each prints one
+      # OK line or exits 2 with a named refusal code and a fixed remediation
+      # trailer; neither reads the network.
+      #
+      # THIS GATE FAILS CLOSED. If either gitlink cannot be read the init above
+      # errors, the verifiers never run, and the gate goes red — it cannot
+      # adjudicate openxFactory's tree against trees nobody could fetch, and
+      # nothing here degrades to a fallback.
+      - name: Verify the openXdox pin
+        run: python3 scripts/verify-openxdox-pin.py
+
+      - name: Verify the openDox pin
+        run: python3 scripts/verify-opendox-pin.py
+
+      # THE VERIFIERS' OWN SUITES, which is what makes each shipped
+      # `sorted-ls-tree-r-v1` digest a MEASURED fact rather than a
+      # self-consistent one: each recomputes the digest over the pinned tree
+      # with a SECOND implementation living in the test file, and each replays
+      # the lockstep read independently of the code it checks.
+      #
+      # `-m "not postgres"` deselects NOTHING in these two directories today
+      # (neither carries a postgres marker) and is carried so that a
+      # postgres-marked test arriving here behaves exactly as it would in the
+      # required suite rather than differently.
+      #
+      # `|| true` is deliberately ABSENT — a failing suite must fail this step,
+      # and the assertion below is a SECOND gate on top of it, never a
+      # substitute for it.
+      - name: Re-derive both pins with the verifiers' own suites
+        run: python3 -m pytest tests/opendox_pin tests/openxdox_pin -q -m "not postgres" --junitxml=pin-suites-report.xml
+
+      # THE ASSERTION IS POSITIVE. "pytest exited 0" is satisfied by a run that
+      # collected nothing it was supposed to collect; these numbers are not.
+      - name: Assert the pin suites adjudicated the REAL checkout
+        shell: bash
+        env:
+          REPORT: pin-suites-report.xml
+          # FLOORS — may only rise, and only with the reason in the commit
+          # message. Measured at `cb2d3a2c` in a fresh clone with
+          # `git submodule update --init --recursive openDox openXdox`:
+          # `pytest -q -m "not postgres" tests/opendox_pin tests/openxdox_pin`
+          # -> `105 passed`, JUnit `tests=105 skipped=0 failures=0 errors=0`.
+          # 105 is also the figure pin lockstep #1 and #2 both landed on.
+          #
+          # NO SUBTEST JITTER HERE, which is why the floor sits ON the
+          # measurement rather than below it the way `pytest-suite.yml`'s does:
+          # `pytest-subtests` emits a `<testcase>` per subtest and moves the
+          # JUnit `tests` attribute run to run, but neither of these two
+          # directories contains a single `subTest`, so the count is stable.
+          MIN_SELECTED: "105"
+          MIN_PASSED: "105"
+          # EXACT, and zero is not an accident of the environment — it is what
+          # both suites are built to guarantee. Their own docstrings say so:
+          # "A `pytest.skip` reports as a green bar, indistinguishable from a
+          # pass … Every case is hermetic: no network, no ambient git", and
+          # "a conditionally-skipped test here would red the required check on
+          # every tree that skipped it". A skip appearing here means a case
+          # that was hermetic stopped being hermetic, which is a finding.
+          EXPECT_SKIPPED: "0"
+          # THE NAMED VERDICTS — the four cases that CANNOT pass unless the two
+          # pinned trees are really on disk, watched as themselves rather than
+          # as four units of an aggregate they can hide inside. A count is a
+          # sum, and a sum cannot tell "the digest re-derivation stopped
+          # running" from "it stopped running and something else started".
+          #
+          # Each pair is one product's two irreducible facts: the whole-tree
+          # digest recomputed by a second implementation over the REAL
+          # submodule, and the two-direct-upstream lockstep replayed out of the
+          # openXdox object store at the gitlinked commit (RULED Q7).
+          NAMED_VERDICTS: |
+            tests.opendox_pin.test_opendox_pin_verifier::test_the_shipped_digest_is_recomputed_by_an_independent_implementation
+            tests.opendox_pin.test_opendox_pin_verifier::test_the_real_pin_is_in_lockstep_with_openxdox_own_derived_reading
+            tests.openxdox_pin.test_openxdox_pin_verifier::test_the_shipped_digest_is_recomputed_by_an_independent_implementation
+            tests.openxdox_pin.test_openxdox_pin_verifier::test_ruling_q7_two_direct_upstreams_in_lockstep
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          report = os.environ["REPORT"]
+          root = ET.parse(report).getroot()
+          suites = [root] if root.tag == "testsuite" else list(root)
+          selected = sum(int(s.get("tests", 0)) for s in suites)
+          skipped = sum(int(s.get("skipped", 0)) for s in suites)
+          failures = sum(int(s.get("failures", 0)) for s in suites)
+          errors = sum(int(s.get("errors", 0)) for s in suites)
+          passed = selected - skipped - failures - errors
+
+          # A NAMED verdict for one `<testcase>`, by classname and name. A case
+          # with no skipped/failure/error child RAN AND PASSED; that is the only
+          # acceptable outcome, and "no such testcase in the report" is one of
+          # the outcomes it rejects — a deleted or renamed test must red this
+          # gate rather than vanish from it.
+          def verdict(classname, name):
+              wanted = (classname, name)
+              seen = []
+              for case in root.iter("testcase"):
+                  if (case.get("classname"), case.get("name")) != wanted:
+                      continue
+                  outcome = "passed"
+                  for child in case:
+                      if child.tag in ("skipped", "failure", "error"):
+                          outcome = child.tag
+                          break
+                  seen.append(outcome)
+              if not seen:
+                  return "absent"
+              # Any non-passing occurrence wins: a case that passed once and
+              # skipped once did not adjudicate anything this run.
+              return next((v for v in seen if v != "passed"), "passed")
+
+          min_selected = int(os.environ["MIN_SELECTED"])
+          min_passed = int(os.environ["MIN_PASSED"])
+          expect_skipped = int(os.environ["EXPECT_SKIPPED"])
+          rc = 0
+
+          def fail(message):
+              global rc
+              print(f"::error::{message}")
+              rc = 1
+
+          print(f"{report}: selected={selected} passed={passed} "
+                f"skipped={skipped} failures={failures} errors={errors}")
+          print(f"floors: selected>={min_selected} "
+                f"(margin {selected - min_selected}) passed>={min_passed} "
+                f"(margin {passed - min_passed}) skipped=={expect_skipped}")
+
+          if failures:
+              fail(f"{failures} failure(s) in {report}; see the suite output above")
+          if errors:
+              fail(f"{errors} error(s) in {report} — a collection error is how an "
+                   f"uninitialized leg reports, and `scripts/carved_reach.py` "
+                   f"refuses by name rather than degrading")
+          if selected < min_selected:
+              fail(f"selected {selected} is BELOW the floor {min_selected} — tests "
+                   f"stopped being collected. Find them; do not lower the floor")
+          if passed < min_passed:
+              fail(f"passed {passed} is BELOW the floor {min_passed} — find the "
+                   f"tests that stopped passing or stopped being collected; do not "
+                   f"lower the floor")
+          if skipped != expect_skipped:
+              fail(f"skipped {skipped}, pinned exactly {expect_skipped} — a suite "
+                   f"that silently turned into skips is exactly what this pin "
+                   f"exists to catch (an unreachable validator, an absent node, a "
+                   f"root-shaped checkout). If the change is intended, move the "
+                   f"pin WITH the reason")
+
+          for line in os.environ["NAMED_VERDICTS"].split():
+              classname, _, name = line.partition("::")
+              answer = verdict(classname, name)
+              print(f"named verdict {classname}::{name}: {answer}")
+              if answer != "passed":
+                  fail(f"{classname}::{name} is '{answer}' in {report}, wanted "
+                       f"'passed' — this case is watched BY NAME because the "
+                       f"counts above are sums and a sum cannot tell a case that "
+                       f"stopped running from one that started. Do not delete the "
+                       f"watch; if the test was deliberately renamed or moved, "
+                       f"move NAMED_VERDICTS with it in the same diff")
+
+          sys.exit(rc)
+          PY
+
+      # THE CONSUMER SUITE — the surface the § 5.2 shed left reaching INTO both
+      # pinned legs. A pin whose bytes verify while the code that consumes them
+      # cannot import is a green check that proved half of its claim, and this
+      # is the half the two verifiers above cannot make.
+      - name: Run the consumer suite over the pinned legs
+        run: python3 -m pytest tests/ideation-dashboard -q -m "not postgres" --junitxml=consumer-suite-report.xml
+
+      - name: Assert the consumer suite adjudicated both legs
+        shell: bash
+        env:
+          REPORT: consumer-suite-report.xml
+          # FLOORS — measured at `cb2d3a2c` in an AGGREGATION-SHAPED tree (the
+          # layout the checkout above produces), with both legs materialized
+          # recursively and node present: `pytest -q -m "not postgres"
+          # tests/ideation-dashboard` -> `1137 passed`, JUnit `tests=1137
+          # skipped=0 failures=0 errors=0`. The SAME commit in a ROOT-shaped
+          # tree measures `tests=1137 skipped=13` — identical selection, 13
+          # passes turned into skips — which is the reading the exact pin
+          # below refuses and the floors cannot see.
+          #
+          # SELECTED AND PASSED ARE FLOORS because `tests/ideation-dashboard`
+          # is a live consumer surface that gains tests, and the collection
+          # loss they exist to catch is a directory — hundreds, never one or
+          # two. They may only rise, and only with the reason in the commit
+          # message.
+          #
+          # NO SUBTEST JITTER HERE EITHER: `tests/ideation-dashboard` contains
+          # no `subTest`, so the JUnit `tests` attribute does not move run to
+          # run and the floor can sit ON the measurement.
+          MIN_SELECTED: "1137"
+          MIN_PASSED: "1137"
+          # EXACT, AND ZERO IS THE WHOLE POINT OF DEPARTURE (b). Every skip
+          # this suite can produce is a capability that went missing rather
+          # than a test that chose not to run: an unreachable pinned validator
+          # (13 of them), an absent `node` (41 files' DOM and JS probes), a leg
+          # that was not materialized. Pinning it at zero means this gate
+          # cannot go green having quietly stopped adjudicating any of them.
+          EXPECT_SKIPPED: "0"
+          # ONE NAMED VERDICT THAT PROVES THREE FACTS AT ONCE, which is why it
+          # is this test and not a tidier-looking one.
+          # `test_recipe_request_carries_recipe_and_reasoned_overrides` runs
+          # through `_run_request_node`, which (1) `pytest.skip`s outright
+          # without `node`, (2) copies `helpers.js` from the openDox-code
+          # mount, and (3) copies `gate-lens.js` from the openXdox-code mount —
+          # the two files that stopped sharing a mount at § 3.4 slice S5. A
+          # `passed` verdict on it is the conjunction: node was installed, BOTH
+          # legs were materialized recursively, and `carved_reach` resolved
+          # each file at the mount its own manifest row names.
+          NAMED_VERDICTS: |
+            tests.ideation-dashboard.test_lens::test_recipe_request_carries_recipe_and_reasoned_overrides
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          report = os.environ["REPORT"]
+          root = ET.parse(report).getroot()
+          suites = [root] if root.tag == "testsuite" else list(root)
+          selected = sum(int(s.get("tests", 0)) for s in suites)
+          skipped = sum(int(s.get("skipped", 0)) for s in suites)
+          failures = sum(int(s.get("failures", 0)) for s in suites)
+          errors = sum(int(s.get("errors", 0)) for s in suites)
+          passed = selected - skipped - failures - errors
+
+          # A NAMED verdict for one `<testcase>`, by classname and name. A case
+          # with no skipped/failure/error child RAN AND PASSED; that is the only
+          # acceptable outcome, and "no such testcase in the report" is one of
+          # the outcomes it rejects — a deleted or renamed test must red this
+          # gate rather than vanish from it.
+          def verdict(classname, name):
+              wanted = (classname, name)
+              seen = []
+              for case in root.iter("testcase"):
+                  if (case.get("classname"), case.get("name")) != wanted:
+                      continue
+                  outcome = "passed"
+                  for child in case:
+                      if child.tag in ("skipped", "failure", "error"):
+                          outcome = child.tag
+                          break
+                  seen.append(outcome)
+              if not seen:
+                  return "absent"
+              # Any non-passing occurrence wins: a case that passed once and
+              # skipped once did not adjudicate anything this run.
+              return next((v for v in seen if v != "passed"), "passed")
+
+          min_selected = int(os.environ["MIN_SELECTED"])
+          min_passed = int(os.environ["MIN_PASSED"])
+          expect_skipped = int(os.environ["EXPECT_SKIPPED"])
+          rc = 0
+
+          def fail(message):
+              global rc
+              print(f"::error::{message}")
+              rc = 1
+
+          print(f"{report}: selected={selected} passed={passed} "
+                f"skipped={skipped} failures={failures} errors={errors}")
+          print(f"floors: selected>={min_selected} "
+                f"(margin {selected - min_selected}) passed>={min_passed} "
+                f"(margin {passed - min_passed}) skipped=={expect_skipped}")
+
+          if failures:
+              fail(f"{failures} failure(s) in {report}; see the suite output above")
+          if errors:
+              fail(f"{errors} error(s) in {report} — a collection error is how an "
+                   f"uninitialized leg reports, and `scripts/carved_reach.py` "
+                   f"refuses by name rather than degrading")
+          if selected < min_selected:
+              fail(f"selected {selected} is BELOW the floor {min_selected} — tests "
+                   f"stopped being collected. Find them; do not lower the floor")
+          if passed < min_passed:
+              fail(f"passed {passed} is BELOW the floor {min_passed} — find the "
+                   f"tests that stopped passing or stopped being collected; do not "
+                   f"lower the floor")
+          if skipped != expect_skipped:
+              fail(f"skipped {skipped}, pinned exactly {expect_skipped} — a suite "
+                   f"that silently turned into skips is exactly what this pin "
+                   f"exists to catch (an unreachable validator, an absent node, a "
+                   f"root-shaped checkout). If the change is intended, move the "
+                   f"pin WITH the reason")
+
+          for line in os.environ["NAMED_VERDICTS"].split():
+              classname, _, name = line.partition("::")
+              answer = verdict(classname, name)
+              print(f"named verdict {classname}::{name}: {answer}")
+              if answer != "passed":
+                  fail(f"{classname}::{name} is '{answer}' in {report}, wanted "
+                       f"'passed' — this case is watched BY NAME because the "
+                       f"counts above are sums and a sum cannot tell a case that "
+                       f"stopped running from one that started. Do not delete the "
+                       f"watch; if the test was deliberately renamed or moved, "
+                       f"move NAMED_VERDICTS with it in the same diff")
+
+          sys.exit(rc)
+          PY
