@@ -40,12 +40,17 @@ for openxFactory #1047 belong to the archive pull request.
       TRANSCRIBED.** A script slices the promoted requirement *Prose tagging
       marker hygiene* whole (`openspec/specs/document-lifecycle/spec.md:218`
       through the next `### Requirement:`), asserts the target sentence occurs
-      EXACTLY ONCE, replaces it, and appends ONE scenario. Verified two ways
-      and both recorded in the pull request body — a unified diff of the
-      generated block against canon's (TWO hunks, one sentence and one
-      scenario, nothing else), and a `derive_units` comparison through the
-      modified-block-currency family's own derivation (canon 209 units, block
-      215, ONE uncarried unit, seven new).
+      EXACTLY ONCE and replaces it, asserts the sibling scenario *A pinned
+      target names a pin no resolution root carries*'s WHEN occurs EXACTLY
+      ONCE and narrows it by one clause (round 1, R2: "…and at least one
+      resolution root was selected for the run", so the empty-root-set case
+      the new scenario covers keeps one outcome, not two), and appends ONE
+      scenario. Verified two ways and both recorded in the pull request
+      body — a unified diff of the generated block against canon's (THREE
+      hunks: the sentence, the one WHEN clause, and the scenario, nothing
+      else), and a `derive_units` comparison through the modified-block-currency
+      family's own derivation (canon 209 units, block 215, TWO uncarried
+      units, eight new).
 - [x] 2.3 Sibling search for a co-writer of this requirement, taken at
       authoring on `8944758c`: no active change holds a `## MODIFIED` block
       over *Prose tagging marker hygiene*; the only active `document-lifecycle`

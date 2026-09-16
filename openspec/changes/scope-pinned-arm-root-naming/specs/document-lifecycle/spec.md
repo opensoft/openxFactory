@@ -457,7 +457,7 @@ not the thing that happens when nobody decides.
 - **AND** the pass MUST complete rather than abort
 
 #### Scenario: A pinned target names a pin no resolution root carries
-- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence
+- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence, and at least one resolution root was selected for the run
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
 - **AND** the finding MUST name the pin registry as the thing that failed to resolve, not `openspec/specs/`
 - **AND** the finding MUST name the root or roots searched

@@ -80,10 +80,11 @@ there would be inventing evidence rather than supplying it.
 ## What Changes
 
 **ONE `## MODIFIED` BLOCK OVER `document-lifecycle` *Prose tagging marker
-hygiene*, RESTATING CANON IN FULL, MOVING ONE SENTENCE AND ADDING ONE
-SCENARIO.** The block is GENERATED from canon by a script that slices the
-promoted requirement whole and applies exactly one single-occurrence
-replacement, never transcribed (`tasks.md` § 2.2).
+hygiene*, RESTATING CANON IN FULL, MOVING THE ROOT-NAMING SENTENCE, NARROWING
+ONE CLAUSE OF A SIBLING SCENARIO'S WHEN, AND ADDING ONE SCENARIO.** The block
+is GENERATED from canon by a script that slices the promoted requirement
+whole and applies exactly TWO single-occurrence replacements, never
+transcribed (`tasks.md` § 2.2).
 
 - **CHANGED — ONE BODY SENTENCE.** The root-naming obligation is scoped to the
   findings that reach root selection, and the two that do not are named with
@@ -93,18 +94,38 @@ replacement, never transcribed (`tasks.md` § 2.2).
   REPOSITORY, the run's root set for it being empty. The sentence's first half
   (the root set is the run's input, not the arm's choice) and its whole
   rationale clause are carried word for word.
+- **CHANGED — ONE CLAUSE OF A SIBLING SCENARIO'S WHEN.** The restated scenario
+  *A pinned target names a pin no resolution root carries* keeps its THEN and
+  both its other AND bullets untouched; only its WHEN moves. Unscoped, that
+  WHEN — "no pin record for `<pin-id>` exists under any root of the run's
+  precedence" — is ALSO true of the empty-root-set case, which the new
+  scenario below gives a DIFFERENT outcome (no root named, by design), so the
+  two scenarios would disagree about that one case. The WHEN now reads
+  "…and at least one resolution root was selected for the run", which excludes
+  the empty-root-set case and leaves the scenario's own subject — a `<pin-id>`
+  that resolves under no root the run's precedence carries, where at least one
+  root WAS searched — exactly as it was, still requiring the finding to name
+  the root or roots searched.
 - **ADDED — ONE SCENARIO**, at the end of the block: *A finding emitted before
   root selection names what it judged* — five bullets, naming what each of the
   two findings names, that neither is required to name a root, and that the run
   completes; the last bullet restates that every finding AFTER root selection
   still names its root, so no reader takes the exception for the rule.
 - **MEASURED THROUGH THE FAMILY'S OWN `derive_units`**, over canon's block and
-  this block alike — canon 209 units, this block 215, **EXACTLY ONE UNCARRIED
-  UNIT** (the sentence being scoped) and seven new ones (its successor, the
-  scenario title and its five bullets). No scenario title, no scenario bullet
-  and no other body sentence moves. No `Removed from canon` or `Merged into`
-  marker is owed: nothing is deleted — the uncarried sentence has a successor
-  in the same paragraph that says MORE and never less (`design.md` D-1).
+  this block alike — canon 209 units (unchanged: canon is not edited), this
+  block 215 (unchanged: a bullet's TEXT moved, not its count), **EXACTLY TWO
+  UNCARRIED UNITS** (the body sentence being scoped, and the sibling
+  scenario's original WHEN bullet, narrowed by the one clause above) and
+  EIGHT new ones (the body sentence's successor, the sibling scenario's
+  narrowed WHEN bullet, and the new scenario's title and its five bullets). A
+  unified diff of the generated block against canon's is now THREE hunks, not
+  two — the sentence, the one WHEN clause, and the appended scenario, each at
+  a different place in the file — and `git diff --numstat` against canon's
+  block reads **18 added, 5 removed** (17/4 before this clause moved). No
+  scenario title, no OTHER scenario bullet and no other body sentence moves.
+  No `Removed from canon` or `Merged into` marker is owed: nothing is
+  deleted — both uncarried units have a successor in the same block that says
+  MORE and never less (`design.md` D-1).
 - **NOT CHANGED — BEHAVIOUR.** No predicate, severity, threshold, finding
   class, remedy line, marker grammar or root precedence moves, and no line of
   `scripts/doc_health/` is edited. The realized arm already matches the
@@ -117,14 +138,24 @@ replacement, never transcribed (`tasks.md` § 2.2).
 ## Sequencing
 
 `sequenced_after: []` is a CORROBORATED ROOT CLAIM, taken at authoring on
-`8944758c`: no active change holds a `## MODIFIED` block over *Prose tagging
-marker hygiene*, and the requirement title occurs under `openspec/specs/` and
-`openspec/changes/` in exactly two places — canon itself
-(`openspec/specs/document-lifecycle/spec.md:218`) and the archived packet that
-promoted it. The only active change carrying a `document-lifecycle` delta at
-all is `prepare-openspec-1-12-readiness`, whose delta is an `## ADDED`
-requirement (*A promoted specification carries a written Purpose, repaired in
-the promoted specification*) and touches no requirement this packet writes.
+`8944758c`: NO ACTIVE CHANGE HOLDS A `## MODIFIED` BLOCK OVER *Prose tagging
+marker hygiene* — that is the fact the claim rests on, not a count of where
+the title appears. Measured at `8944758c` (before this packet's own delta
+existed), the requirement title occurs under `openspec/specs/` and
+`openspec/changes/` in exactly THREE places: canon itself
+(`openspec/specs/document-lifecycle/spec.md:218`) and TWO ARCHIVED
+packets — the one that promoted this very sentence
+(`openspec/changes/archive/2026-09-15-extend-prose-tagging-target-to-pinned-capabilities/specs/document-lifecycle/spec.md:5`)
+and the earlier one that first added the requirement
+(`openspec/changes/archive/2026-07-09-concretize-prose-tagging-syntax/specs/document-lifecycle/spec.md:35`,
+an `## ADDED` requirement). NEITHER ARCHIVED PACKET IS ACTIVE AND NEITHER
+CARRIES A LIVE `## MODIFIED` BLOCK, so neither is a sibling this packet must
+sequence after; once this packet's own delta exists it is a fourth occurrence
+of the title, and it is the writer in question rather than a co-writer of it.
+The only active change carrying a `document-lifecycle` delta at all is
+`prepare-openspec-1-12-readiness`, whose delta is an `## ADDED` requirement
+(*A promoted specification carries a written Purpose, repaired in the
+promoted specification*) and touches no requirement this packet writes.
 
 ## Impact
 
@@ -148,7 +179,9 @@ the promoted specification*) and touches no requirement this packet writes.
 
 - **(a) RECOMMENDED, AND WHAT THIS DELTA ENCODES.** Scope the sentence to
   findings that reach root selection and name the two pre-selection findings
-  with what each names instead, plus one scenario. No code surface.
+  with what each names instead; narrow one clause of a sibling scenario's WHEN
+  so the empty-root case keeps one outcome, not two; and add one scenario. No
+  code surface.
 - **(b) Widen the ARM instead**, so that both findings name a root. REFUSED in
   `design.md` D-2 — a root cannot be named before it exists, and reaching one
   would require selecting roots before the lexical grammar refuses the value,

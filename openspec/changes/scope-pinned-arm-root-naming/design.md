@@ -29,18 +29,38 @@ The other thirteen already name a root: `:1606-1611` (`root {name}`),
 (`:1653-1736`, `in root {root}`). So the clarified sentence refuses nothing the
 realized arm emits and demands nothing it does not do.
 
-**THE DELTA IS ONE SENTENCE AND ONE SCENARIO, AND THE SENTENCE IS A SCOPING
-RATHER THAN A DELETION.** The obligation's first half (the root set is the
-run's INPUT, not the arm's choice) and its whole rationale clause are carried
-word for word; what moves is the quantifier — `EVERY finding … emits` becomes
+**THE DELTA IS THE ROOT-NAMING SENTENCE, ONE CLAUSE OF A SIBLING SCENARIO'S
+WHEN, AND ONE SCENARIO — AND EVERY ONE OF THE THREE IS A SCOPING RATHER THAN A
+DELETION.** The obligation's first half (the root set is the run's INPUT, not
+the arm's choice) and its whole rationale clause are carried word for word;
+what moves in the body is the quantifier — `EVERY finding … emits` becomes
 `EVERY finding … emits AFTER ROOT SELECTION` — with the two exceptions named
 together with what each names instead, so the sentence can be checked against
-the code rather than read against it. Measured through the family's own
-`derive_units`: canon 209 units, this block 215, ONE uncarried unit and seven
-new ones. **NO `Removed from canon` OR `Merged into` MARKER IS OWED**: the
-uncarried sentence has a successor in the same paragraph that says MORE and
-never less, so nothing is deleted and a marker would declare a loss that did
-not happen.
+the code rather than read against it.
+
+THE SECOND MOVE IS NARROWER STILL, AND IT EXISTS TO REPAIR A COLLISION THE
+FIRST MOVE CREATED. The restated scenario *A pinned target names a pin no
+resolution root carries* keeps its THEN and both its other AND bullets
+untouched, and its WHEN gains ONE clause: "…and at least one resolution root
+was selected for the run". Unscoped, that WHEN — "no pin record for
+`<pin-id>` exists under any root of the run's precedence" — is ALSO true where
+the run selected NO root at all, which is exactly the case the new scenario
+below names with a DIFFERENT outcome (no root required, by design, since none
+was selected). Left as canon states it, the two scenarios would give the
+empty-root case two outcomes; the one clause gives it back to exactly one.
+
+Measured through the family's own `derive_units`: canon 209 units (unchanged —
+canon is not edited), this block 215 (unchanged — a bullet's TEXT moved, not
+its count), TWO uncarried units (the body sentence, and the sibling
+scenario's original WHEN bullet) and EIGHT new ones (the body sentence's
+successor, the sibling scenario's narrowed WHEN bullet, and the new scenario's
+title and its five bullets). The unified diff against canon's block is THREE
+hunks — the sentence, the one WHEN clause, and the appended scenario, each at
+a different place in the file — and `git diff --numstat` against canon's block
+reads 18 added / 5 removed (17/4 before this clause moved). **NO `Removed from
+canon` OR `Merged into` MARKER IS OWED**: both uncarried units have a
+successor in the same block that says MORE and never less, so nothing is
+deleted and a marker would declare a loss that did not happen.
 
 **AND THE SUPERSEDES REFUSAL IS OUTSIDE THIS SENTENCE, BEFORE AND AFTER.** The
 reserved-prefix refusal for an `xspec:supersedes` `spec=` value
@@ -111,11 +131,13 @@ at all.
 Generated, never transcribed (`tasks.md` § 2.2): a script slices the promoted
 requirement from `openspec/specs/document-lifecycle/spec.md` whole (heading to
 the next `### Requirement:`), asserts the target sentence occurs EXACTLY ONCE,
-replaces it, appends the one scenario, and writes the delta. The verification
-is a unified diff of the generated block against canon's block — two hunks, one
-sentence and one scenario, and nothing else — and a `derive_units` comparison
-(1 uncarried, 7 new). Both are re-runnable from the packet and are recorded in
-the pull request body.
+replaces it, asserts the sibling scenario's WHEN occurs EXACTLY ONCE and
+narrows it by the one clause above, appends the one scenario, and writes the
+delta. The verification is a unified diff of the generated block against
+canon's block — THREE hunks, the sentence, the one WHEN clause and the one
+scenario, and nothing else — and a `derive_units` comparison (2 uncarried, 8
+new). Both are re-runnable from the packet and are recorded in the pull
+request body.
 
 Base of measurement: `origin/main` @ `8944758c` (the archive of
 `extend-prose-tagging-target-to-pinned-capabilities`, PR #1042, merged
