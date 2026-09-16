@@ -910,31 +910,34 @@ directive rather than a selector, and a file of rename directives renames what
 it names and **keeps everything else**. Measured on a scratch repository of
 three files with one listed: the rename-only file kept all three; the file
 carrying the bare path beside the rename kept exactly one. Against openxFactory
-that is the difference between publishing 123 files and publishing the
-repository — `openspec/`, `contracts/`, `.github/` and every other path would
+that is the difference between publishing the 117 files this leg's path file
+names and publishing the repository — `openspec/`, `contracts/`, `.github/` and every other path would
 ride into a PUBLIC destination, and the arrival verifier would not catch them,
 because its walk is scoped to that destination's declared roots. So emit BOTH:
 the bare `source_path` to SELECT it, and the rename to PLACE it. **0 rows
 change a basename**, so every rename here is a relocation.
 
-**AND BY THE EFFECTIVE, NOT-RETIRED ARRIVAL — `destination:` ALONE IS NOT THE
-KEY** (Copilot review, round twenty-five on PR #1043). A RULED re-destination
-(§ 5.7) and a RULED retirement (§ 5.8) both leave `destination:` and
-`destination_path:` exactly as the carve wrote them — they are the record of
-what MOVED, which is what § 2's table counts and what every digest is keyed
-by — so a file keyed on that field alone states the CARVE's placement and not
-today's. Measured on the landed manifest: at `opendox_code` that key emits
-123 rows / 246 lines where the leg is owed 117 / 234, the four rows RULED Q6
-re-destined away and the two RULED 5656343213 retired among them, and commit
-A below would place all six for the phase-A run to refuse — four
-`arrival-not-vacated` and two `arrival-not-retired`, before it can print the
-line § 5.5 promises. The other half fails SILENTLY: `openxdox_code` reads 92
+**AND BY THE EFFECTIVE, NOT-RETIRED ARRIVAL — `destination:` ALONE IS NOT
+THE KEY** (Copilot review, round twenty-five on PR #1043). A RULED
+re-destination (§ 5.7) and a RULED retirement (§ 5.8) both leave
+`destination:` and `destination_path:` exactly as the carve wrote them —
+they are the record of what MOVED, which is what § 2's table counts and what
+every digest is keyed by — so a file keyed on that field alone states the
+CARVE's placement and not today's. Measured on the landed manifest: at
+`opendox_code` that key emits 123 rows / 246 lines where the leg is owed
+117 / 234, the four rows RULED Q6 re-destined away and the two RULED
+5656343213 retired among them, and commit A below would place all six for
+the phase-A run to refuse before it can print the line § 5.5 promises. **ONE refusal per
+run**: both checks raise on the first row they find, so the six leftovers
+cost six runs — `arrival-not-vacated` while any re-destined file stands
+(§ 5.7's order: the losing half is asked first), then `arrival-not-retired`
+for each retired one. The other half fails SILENTLY: `openxdox_code` reads 92
 where `rows_for()` requires 96, so the four files that ruling sent there
 would be missing from the carve ref that is supposed to place them. The
 generator therefore asks the question the verifier asks —
 `verify-carve-arrival.py`'s own `rows_for()`, spelled out because a heredoc
-cannot import a hyphenated script — and the two `-spec` legs, which no ruling
-has touched, are unchanged at 56 and 47.
+cannot import a hyphenated script — and the two `-spec` legs, which no
+ruling has touched, are unchanged at 56 and 47.
 `test_the_runbook_path_file_generator_is_the_verifiers_own_predicate` RUNS
 this program on the landed manifest for every destination and compares its
 lines with that predicate, because a generator and a verifier that disagree
@@ -983,7 +986,7 @@ git -C oxf-carve-src.git filter-repo \
     --paths-from-file ../paths-$DEST.txt --refs carve-src
 
 # the control on the carve itself, before anything is fetched from it
-git -C oxf-carve-src.git ls-tree -r --name-only carve-src | wc -l   # = the row count
+git -C oxf-carve-src.git ls-tree -r --name-only carve-src | wc -l   # = § 5.3's row count
 ```
 
 `--refs` implies filter-repo's PARTIAL mode, and two of its consequences bite at
@@ -1016,7 +1019,7 @@ git remote add carved ../oxf-carve-src.git
 # reach of a mistyped merge.
 git fetch carved carve-src:refs/remotes/carved/carve-src
 git merge --allow-unrelated-histories carved/carve-src \
-    -m "Commit A — the openDox-code arrival at opendox-carve-0 (123 rows, byte-identical)"
+    -m "Commit A — the openDox-code arrival at opendox-carve-0 (117 rows, byte-identical)"
 ```
 
 Then, in openxFactory, with the destination checkout in hand. `--manifest` is

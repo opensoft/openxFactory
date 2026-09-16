@@ -3661,9 +3661,10 @@ def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
     `destination:`, which a RULED re-destination and a RULED retirement both
     leave exactly as the carve wrote it, so for `opendox_code` it emitted 123
     rows where § 5.5's phase-A example — one section down, pinned by the test
-    below — expects 117: an operator running the two sections in order met
-    four `arrival-not-vacated` and two `arrival-not-retired` refusals instead
-    of the result the document promised. The same key failed the other half in
+    below — expects 117: an operator running the two sections in order met an
+    `arrival-not-vacated` refusal instead of the result the document promised,
+    and then five more, one run each, because both checks raise on the first
+    row they find. The same key failed the other half in
     silence, emitting 92 rows at `openxdox_code` where the verifier requires
     96, which would leave the four files RULED Q6 sent there out of the carve
     ref that is supposed to place them.
@@ -3734,11 +3735,29 @@ def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
             f"`rows_for()` requires "
             f"{len(MODULE.rows_for(doc, 'openxdox_code'))}",
             f"unchanged at {len(MODULE.rows_for(doc, 'opendox_spec'))} and "
-            f"{len(MODULE.rows_for(doc, 'openxdox_spec'))}"):
+            f"{len(MODULE.rows_for(doc, 'openxdox_spec'))}",
+            # § 5.3's OTHER figure: what the wrong file shape would publish
+            # instead of this leg's rows. A selector-vs-rename paragraph that
+            # states a count is stating this count.
+            f"publishing the {owed} files this leg's path file names"):
         assert phrase in section, (
             f"§ 5.3 does not say {phrase!r}. The paragraph states what the two "
             "keys emit at four legs, and a figure it carries that the manifest "
             "no longer produces is the rot this file was written for")
+
+    # WHAT THE PATH FILE FEEDS, one and two sections down (Copilot round 25's
+    # own carriers, found by enumeration rather than by being told). § 5.4's
+    # control on the carve ref is worded to carry no figure of its own — it
+    # names § 5.3's — but § 5.5's commit A message states the count it placed,
+    # and an operator pastes that message verbatim.
+    assert f"({owed} rows, byte-identical)" in text, (
+        f"§ 5.5's commit A message does not say {owed} rows, which is what "
+        "§ 5.3's path file now selects for this leg; the message is pasted "
+        "verbatim by whoever runs it")
+    assert "# = § 5.3's row count" in text, (
+        "§ 5.4's control on the carve ref no longer names § 5.3's count. It "
+        "carried its own words for it (`the row count`) while § 2's table and "
+        "the path file meant two different numbers by that phrase")
 
 
 def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
