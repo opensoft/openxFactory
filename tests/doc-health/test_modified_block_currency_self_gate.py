@@ -360,6 +360,22 @@ def _findings():
 
 _SCENARIO_SUBJECT = None
 
+# AND ON 2026-09-16 THE CHANGE ITSELF LEFT THE ACTIVE CORPUS. It was CLOSED AS
+# RE-HOMED to `opensoft/openDox` under RULING Q6
+# (`split-opendox-two-layer-product` `tasks.md` § 6.4), so `active_blocks` —
+# which excludes `openspec/changes/archive/` in its own reader, deliberately —
+# stops seeing the block that carries the discharge. The band it was discharged
+# out of is STILL empty and is still asserted, and the declaration is STILL
+# asserted positively: it is now read from the archived delta named below,
+# through the same `parse_delta` / `derive_units` pair `active_blocks` itself
+# uses, so "delete the marker and both halves fail" survives the move. What is
+# newly asserted is the departure — the block must be absent from the ACTIVE
+# corpus — because a test that read only the archive would pass just as well if
+# the packet had never moved.
+_DISCHARGED_BLOCK_DELTA = (
+    "openspec/changes/archive/2026-09-16-add-composed-view-authoring/"
+    "specs/ideation-dashboard/spec.md")
+
 # The subject that WAS reported, kept as a named constant rather than deleted:
 # the discharge is asserted positively below (the block carries the marker that
 # declares it), and the corpus's own containment case is still true of these two
@@ -405,8 +421,16 @@ _LEDGER_SUBJECTS = {
     # Retires when the packet archives and its block is promoted.
     ("add-chain-attestation", "signed-execution-chain",
      "A gate validates the short chain as a hash-linked chain"),
-    ("add-composed-view-authoring", "ideation-dashboard",
-     "Composed views are read-only with a repository jump"),
+    # REMOVED 2026-09-16 BY THE CLOSURE ACT —
+    # ('add-composed-view-authoring', 'ideation-dashboard', 'Composed views are
+    # read-only with a repository jump'). NOT promoted and NOT retired by an
+    # ordinary archive: the change was CLOSED AS RE-HOMED to `opensoft/openDox`
+    # under RULING Q6 (`split-opendox-two-layer-product` `tasks.md` § 6.4), which
+    # relocates the packet to `openspec/changes/archive/` without applying its
+    # delta to canon, so the row leaves this ledger because `active_blocks` no
+    # longer reads the block — not because the block's obligation was carried.
+    # The block itself is unchanged and still readable at
+    # `_DISCHARGED_BLOCK_DELTA`, where the scenario-arm test now reads it.
     ("add-doxchat-model-intake", "ideation-dashboard",
      "doxBench model catalog and provider boundary"),
     # ADDED 2026-08-28 BY `add-credential-escrow-checkout`, when Brett VETOED
@@ -1263,23 +1287,43 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
         f"{len(scenario_arm)} finding(s): "
         f"{[(_subject(f), f.rule[:80]) for f in scenario_arm]}")
 
-    # THE DISCHARGE ITSELF, read back through the family rather than assumed.
-    # The block is found by the same (change, capability, requirement) triple the
-    # finding used to carry, and it must hold a `Merged into` marker naming
-    # canon's title and pointing at the destination the block does carry.
-    blocks = [b for b in mbc.active_blocks(ROOT)
-              if (b.change, b.capability, mbc.norm(b.title))
-              == (change, capability, mbc.norm(requirement))]
+    # THE DEPARTURE, asserted first. From 2026-09-16 the change is closed as
+    # re-homed, so its block must be absent from the ACTIVE corpus. Asserting
+    # this before reading the archive is what stops the archive read from
+    # passing on a tree where the packet never moved.
+    live = [b for b in mbc.active_blocks(ROOT)
+            if (b.change, b.capability, mbc.norm(b.title))
+            == (change, capability, mbc.norm(requirement))]
+    assert not live, _moved(
+        f"{change} ABSENT from the active corpus (closed as re-homed to "
+        "opensoft/openDox on 2026-09-16 under RULING Q6)",
+        f"{len(live)} matching MODIFIED block(s) still active")
+
+    # THE DISCHARGE ITSELF, read back through the family rather than assumed —
+    # from the archived delta now, through the same two functions
+    # `active_blocks` uses on a live one. The block is found by the same
+    # (capability, requirement) pair the finding used to carry, and it must hold
+    # a `Merged into` marker naming canon's title and pointing at the
+    # destination the block does carry.
+    archived = ROOT / _DISCHARGED_BLOCK_DELTA
+    assert archived.is_file(), _moved(
+        f"the archived delta {_DISCHARGED_BLOCK_DELTA}",
+        "no such file — the closure moved or was reverted")
+    requirements, _renames = mbc.parse_delta(
+        archived.read_text(encoding="utf-8", errors="replace"))
+    blocks = [r for r in requirements
+              if r.op == "MODIFIED" and mbc.norm(r.title) == mbc.norm(requirement)]
     assert len(blocks) == 1, _moved(
         f"the block that carried the discharged finding ({change} / "
         f"{requirement!r})", f"{len(blocks)} matching MODIFIED block(s)")
-    merged = [m for m in blocks[0].markers if m.form == "merged"]
+    units, markers = mbc.derive_units(blocks[0].body)
+    merged = [m for m in markers if m.form == "merged"]
     assert [(m.destination, m.names) for m in merged] == [
         (_RENAME_DESTINATION, [scenario])], _moved(
         f"the `Merged into` marker declaring {scenario!r} superseded by "
         f"{_RENAME_DESTINATION!r}",
-        f"the block carries markers {[(m.form, m.destination, m.names) for m in blocks[0].markers]}")
-    titles = [u.text for u in blocks[0].units if u.kind == mbc.SCENARIO_TITLE]
+        f"the block carries markers {[(m.form, m.destination, m.names) for m in markers]}")
+    titles = [u.text for u in units if u.kind == mbc.SCENARIO_TITLE]
     assert _RENAME_DESTINATION in titles, _moved(
         f"the destination scenario title {_RENAME_DESTINATION!r} in the block",
         f"the block's scenario titles are {titles}")
@@ -1304,6 +1348,16 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     FOURTEEN since 2026-09-15, when `extend-prose-tagging-target-to-pinned-capabilities`
     ARCHIVED on merged-plus-green realization evidence (PR #1042) and its two
     rows retired, their blocks promoted byte-identical into canon.
+
+    THIRTEEN SINCE 2026-09-16, and this one left by a route the ledger had not
+    seen before: `add-composed-view-authoring` was CLOSED AS RE-HOMED to
+    `opensoft/openDox` under RULING Q6 (`split-opendox-two-layer-product`
+    `tasks.md` § 6.4), the first of the five frozen changes to go. Its row
+    retired WITHOUT its block being promoted — the closure relocates the packet
+    and applies nothing to canon — so this is a DEPARTURE rather than a
+    DISCHARGE, and the note standing where the row used to says so. The
+    distinction matters to a reader of this ledger: a promoted row's obligation
+    was carried, and this row's obligation moved to another repository.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
