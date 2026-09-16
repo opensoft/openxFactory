@@ -1137,6 +1137,25 @@ def _departed_since_the_capture(mod, identity, row):
         f"{PIN_REPO_ROOT / entry['archive']}. A symlink — at the leaf or at any "
         "ancestor — means the directory this proof read is not the one the map "
         "named, so the departure is unproven")
+    # AND THE DELTA ITSELF, not merely the directory that should contain it.
+    # Everything above proves the PACKET moved; none of it proves the file the
+    # captured finding is ABOUT came with it, so the exemption would still be
+    # granted over an empty shell — a directory whose
+    # `specs/<capability>/spec.md` had been deleted, or replaced by a symlink
+    # out of the tree. For a change whose whole claim is that the re-homed delta
+    # is preserved BYTE-IDENTICALLY, a departure proof that passes with that
+    # delta missing proves the wrong thing. `row["path"]` is the finding's own
+    # capability-relative path, so this is the very file the capture complained
+    # about, reached under the archive the map named.
+    delta = archive / "specs" / row["path"]
+    assert delta.is_file(), (
+        f"{key} names an archive that does not carry the delta the captured "
+        f"finding is about: {delta} is not a regular file. The packet may have "
+        "moved, but the finding's own subject did not come with it")
+    assert delta.resolve(strict=True) == archive / "specs" / row["path"], (
+        f"{key}: {delta} resolves to {delta.resolve(strict=True)}, outside the "
+        "archive the map named. The bytes this exemption rests on are not the "
+        "archived packet's")
     return True
 
 
