@@ -85,6 +85,36 @@ destinations:
       - path: src/opendox/profile_proxy.py
         reason: "added by openDox-code #11 (the 4.3 lazy proxy)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: src/opendox/runtime/__init__.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the subpackage's two closures — `API_V1` and the six `COLLECTIONS` RULING Q1 names — and the import-weight contract the rest of the package is held to"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/app.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the FastAPI application: the six coordination collections behind a bearer token verified against the Keycloak broker, `/livez` the only unauthenticated route, and no route that reads a document"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/cli.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the one lifecycle CLI — `runtime init|migrate|serve|status|reset` — reached by `[project.scripts] opendox-runtime` and by `RuntimeSubcommand`, which conforms to `subcommand_extension.SubcommandExtension` structurally"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/config.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — every setting as an environment variable named in `deploy/compose/.env.example`, with no credential default and a redacting `__repr__`"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/db.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the psycopg connection pool and the unit of work, on the `xFactory-Hermes-Install` `persistence/database.py` shape"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/identity.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the six tables RULING Q1 names and one store over them; SQL composed only from module-level constants, every runtime value a `%s` parameter"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/local_git_adapter.py
+        reason: "added by opensoft/openDox-code `build/3-6-repository-act` (split-opendox-two-layer-product § 3.6, RULED C3 `#656` comment `5544381563`) — RULING C3's plain local git repository as the TRIVIAL CONFORMANT implementation of `opendox.corpus_adapter.CorpusAdapter` (`LocalGitCorpus`, six operations, structural conformance); the import path `split-opendox-two-layer-product` § 3.7's neutral conformance corpus needs"
+        since: "a34601a0dfcfef1d8124cbab472bb5e2d6bd114f"
+      - path: src/opendox/runtime/migrations.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the fail-closed ordered-SQL runner: `0001` byte-pinned by `CANONICAL_MIGRATION_SHA256` and gated before the first mutation, `0002+` additive, checksum drift fatal"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/oidc.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — bearer-token verification against the broker's JWKS — an asymmetric algorithm allow-list, a monotonic-clock key cache, typed non-disclosing errors — and the first-login user upsert that is design § D5's inversion"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/repository_act.py
+        reason: "added by opensoft/openDox-code `build/3-6-repository-act` (split-opendox-two-layer-product § 3.6, RULED C3 `#656` comment `5544381563`) — the repository-creation act — the map row and the repository together or not at all — plus `attach_remote` and `push_to_remote`, RULING C3's 'a remote can be attached later' and 'a push, not a migration'"
+        since: "a34601a0dfcfef1d8124cbab472bb5e2d6bd114f"
       - path: src/opendox/view_extension.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the server-side view registry, `ViewBinding` + `collectViewBindings`, mirroring `route_extension.collect_bindings` (openDox-spec `docs/front-end-package-boundary.md` § 4.1); this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "e6c65ed757bfc3f9b6664e27c85111bfe5f0d465"
