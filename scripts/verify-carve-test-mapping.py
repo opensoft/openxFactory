@@ -45,8 +45,13 @@ inconsistency: a `not_moved` row STAYS at `openxFactory`, at its own
 `source_path`, and FLOOR PART 1 requires it present there in both phases. The
 flag exists for placements the manifest cannot name, and this one it names.
 
-EXIT CODES, the family's: 0 verified, 2 refused (`FAIL <where>: <code> — …`),
-1 for a usage error argparse itself rejects.
+EXIT CODES: 0 verified, 2 refused. **ARGPARSE ALSO EXITS 2** for an
+invocation it rejects itself — corrected here from "1" (Copilot, round 3 on
+#1080), because a caller classifying by status alone would have filed a usage
+error as a clean run. The two are told apart by the OUTPUT, not the status: a
+refusal prints `FAIL <where>: <code> — …` and its remediation on stderr, or a
+`{"result": "refused", "code": …}` object on stdout under `--json`, while
+argparse prints its own usage block and no code at all.
 """
 
 from __future__ import annotations
@@ -109,6 +114,30 @@ def read_manifest(path: Path) -> dict[str, Any]:
                 "test-mapping-unreadable",
                 f"{path} carries no `{key}:`; FLOOR PART 1 refuses that "
                 "document and FLOOR PART 2 cannot be computed over it")
+    # AN EMPTY DOCUMENT IS A NO-OP FLOOR, AND A NO-OP FLOOR MUST NOT PASS
+    # (Copilot, round 3 on #1080). With `rows: []` the batch read and the
+    # mapping are empty, `totals()` computes `0 = 0`, and the source command
+    # exited 0 having examined no carve surface at all — a check that passes
+    # by asking nothing, which is the shape this whole design refuses. An
+    # empty or mistyped `moved_paths:` is the same failure one level down:
+    # every row falls outside the surface and the mapping is empty again.
+    # FLOOR PART 1 refuses both (`carve-surface-vacuous` among them) and this
+    # tool is run where that validator is not.
+    if not doc["rows"]:
+        raise mapping.TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{path} carries an EMPTY `rows:` list. A floor computed over no "
+            "rows reports `0 = 0` and has examined nothing; an empty mapping "
+            "is not a mapping that holds")
+    if not isinstance(doc["moved_paths"], list) or not doc["moved_paths"] \
+            or not all(isinstance(entry, str) and entry
+                       for entry in doc["moved_paths"]):
+        raise mapping.TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{path} carries `moved_paths: {doc['moved_paths']!r}`, which is "
+            "not a non-empty list of paths. The declared surface is what "
+            "clause (a) is quantified over, so an empty or mistyped one puts "
+            "every row outside it and the floor examines nothing")
     return doc
 
 
@@ -238,7 +267,7 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
                 "test-mapping-unreadable",
                 f"--replica-at {value!r} is not SOURCE=DESTPATH")
         relpath = mapping.closed_relative(relpath, f"--replica-at {value!r}")
-        declared = mapping.DECLARED_REPLICA_SETS.get(source_path)
+        declared = mapping.declared_homes(source_path)
         if declared is not None and repository not in declared:
             # A DECLARED SET IS A CLOSED LIST OF HOMES, so a placement at a
             # repository outside it is not a late arrival, it is a copy the

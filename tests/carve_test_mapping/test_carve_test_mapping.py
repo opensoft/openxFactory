@@ -52,6 +52,7 @@ config can carry `core.hooksPath` or `commit.gpgsign`.
 
 from __future__ import annotations
 
+import ast
 import copy
 import importlib.util
 import json
@@ -1100,6 +1101,107 @@ def test_a_declared_key_naming_no_row_at_all_refuses(
     payload = refused(scratch.run(doc), "test-mapping-unreadable")
     assert "no row for it at all" in payload["detail"] or \
         "no row for at all" in payload["detail"], payload["detail"]
+
+
+@pytest.mark.parametrize("mutate,fragment", [
+    (lambda doc: doc.__setitem__("rows", []), "EMPTY `rows:`"),
+    (lambda doc: doc.__setitem__("moved_paths", []), "moved_paths"),
+    (lambda doc: doc.__setitem__("moved_paths", "scripts/pkg/"), "moved_paths"),
+    (lambda doc: doc.__setitem__("moved_paths", ["", "x/"]), "moved_paths"),
+])
+def test_a_floor_over_nothing_does_not_pass(scratch: Scratch, mutate, fragment
+                                            ) -> None:
+    """A CHECK THAT PASSES BY ASKING NOTHING is the shape this whole design
+    refuses, and both spellings of it reached an `ok` report: with `rows: []`
+    the mapping is empty and `totals()` computes `0 = 0`; with an empty or
+    mistyped `moved_paths:` every row falls outside the declared surface and
+    the mapping is empty again. Clause (a) is quantified over that surface, so
+    an empty one makes the quantifier vacuous rather than satisfied."""
+    doc = scratch.clean()
+    mutate(doc)
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert fragment in payload["detail"], payload["detail"]
+
+
+@pytest.mark.parametrize("value", ["dox_code", [], ["dox_code", "dox_code"],
+                                   [""], [3]])
+def test_a_present_also_replicated_to_is_read_or_refused_never_dropped(
+        scratch: Scratch, value) -> None:
+    """Treating every non-list — and `[]` — as "no replicas" let a malformed
+    row UNDERCOUNT its own multiplicity while the sum went on balancing, which
+    is the one failure shape this floor exists to make impossible. A field
+    that is present and unreadable is not an absent one."""
+    doc = scratch.clean()
+    scratch.row(doc, "scripts/pkg/test_alpha.py")["also_replicated_to"] = value
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "also_replicated_to" in payload["detail"]
+
+
+def _names_the_table(node: ast.AST) -> bool:
+    """Does this node READ `DECLARED_REPLICA_SETS`, under EITHER spelling?
+
+    A bare `Name` inside the module, and `mapping.DECLARED_REPLICA_SETS` —
+    an `Attribute` — from the verifier. The first version of this scan looked
+    for the `Name` only and so passed over the verifier's own direct read,
+    which was the very site the finding was about.
+    """
+    return ((isinstance(node, ast.Name)
+             and node.id == "DECLARED_REPLICA_SETS")
+            or (isinstance(node, ast.Attribute)
+                and node.attr == "DECLARED_REPLICA_SETS"))
+
+
+def test_every_read_of_the_declaration_goes_through_the_one_seam() -> None:
+    """THE MIGRATION SEAM, ASSERTED RATHER THAN CLAIMED (Copilot, round 3 on
+    #1080, accurate about a claim this module made and did not keep).
+    `declared_replica_set` was called the single place FLOOR PART 1's
+    successor pull request edits, while `refuse_stale_declarations` and the
+    verifier's `--replica-at` admission read the table directly — so migrating
+    the reader would have moved the SOURCE homes and left the stale check and
+    the destination admission on the obsolete table, with nothing red.
+
+    The scan is over the two SHIPPED files. `DECLARED_REPLICA_SETS` may appear
+    only where it is defined and inside the two accessors; every other reader
+    goes through `declared_homes()` or `declared_source_paths()`.
+    """
+    tree = ast.parse(MODULE_PATH.read_text(encoding="utf-8"))
+    seam = {"declared_source_paths", "declared_homes"}
+    readers: dict[str, int] = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        for inner in ast.walk(node):
+            if _names_the_table(inner):
+                readers[node.name] = readers.get(node.name, 0) + 1
+    assert set(readers) == seam, (
+        "every read of the declaration must go through "
+        f"{sorted(seam)}; these functions read it directly: {sorted(readers)}")
+    verifier = ast.parse(SCRIPT.read_text(encoding="utf-8"))
+    assert not [n for n in ast.walk(verifier) if _names_the_table(n)], \
+        "the verifier must reach the declaration through the accessors"
+    assert MODULE.declared_source_paths() == \
+        tuple(MODULE.DECLARED_REPLICA_SETS)
+    assert MODULE.declared_homes("tests/corpus-adapter/test_conformance.py") \
+        == RULED_REPLICA_HOMES
+    assert MODULE.declared_homes("no/such/path.py") is None
+
+
+def test_argparse_rejects_an_invocation_with_status_two_and_no_code(
+        scratch: Scratch) -> None:
+    """The docstring said argparse exits 1. It exits 2 — the same status a
+    REFUSAL uses — so a caller classifying by status alone would file a usage
+    error as a clean run, or a refusal as one. They are told apart by the
+    OUTPUT: a refusal prints `FAIL <where>: <code>` (or a `{"result":
+    "refused"}` object under `--json`) and argparse prints its own usage block
+    with no code at all."""
+    done = subprocess.run(
+        [sys.executable, str(SCRIPT), "--no-such-flag"],
+        capture_output=True, text=True, check=False)
+    assert done.returncode == 2
+    assert "usage:" in done.stderr
+    assert "FAIL" not in done.stderr
+    for code in RATIFIED_CODES:
+        assert code not in done.stderr
 
 
 # --------------------------------------------------------------------------

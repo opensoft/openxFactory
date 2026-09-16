@@ -422,6 +422,30 @@ MULTIPLICITY_DECLARATION = (
 )
 
 
+def declared_source_paths() -> tuple[str, ...]:
+    """Every source path the declaration speaks for.
+
+    THE SECOND HALF OF THE ONE SEAM (Copilot, round 3 on #1080, accurate about
+    a claim this file made and did not keep): `declared_replica_set` was
+    called the single place FLOOR PART 1's successor edits, while
+    `refuse_stale_declarations` and the verifier's `--replica-at` admission
+    both read `DECLARED_REPLICA_SETS` directly — so migrating the reader would
+    have moved the SOURCE homes and left the stale check and the destination
+    admission on the obsolete table. Every read now goes through this pair.
+    """
+    return tuple(DECLARED_REPLICA_SETS)
+
+
+def declared_homes(source_path: str) -> tuple[str, ...] | None:
+    """The repositories declared for `source_path`, or None where none is.
+
+    The other half of the seam. A caller that has a ROW asks
+    `declared_replica_set`; a caller that has only a PATH — the `--replica-at`
+    admission, which is handed one on the command line — asks here.
+    """
+    return DECLARED_REPLICA_SETS.get(source_path)
+
+
 def declared_replica_set(row: dict[str, Any]) -> tuple[str, ...] | None:
     """The repositories a replica row's copies land in.
 
@@ -438,7 +462,7 @@ def declared_replica_set(row: dict[str, Any]) -> tuple[str, ...] | None:
     """
     if not is_replica(row):
         return None
-    return DECLARED_REPLICA_SETS.get(row["source_path"])
+    return declared_homes(row["source_path"])
 
 
 def is_replica(row: dict[str, Any]) -> bool:
@@ -499,6 +523,24 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
         # carries ZERO tests, so the term is 0 today and is computed anyway,
         # because a zero that is assumed is a zero nobody re-measures.
         also = row.get("also_replicated_to")
+        # A PRESENT FIELD IS READ OR REFUSED, NEVER DROPPED (Copilot, round 3
+        # on #1080). Treating every non-list — and `[]` — as "no replicas"
+        # meant a malformed row UNDERCOUNTED its multiplicity while the sum
+        # went on balancing, which is the one failure shape this floor exists
+        # to make impossible. FLOOR PART 1 refuses such a row
+        # `carve-shape-invalid`; this tool is run where that validator is not,
+        # so it refuses rather than reading past it.
+        if also is not None and not (
+                isinstance(also, list) and also
+                and all(isinstance(key, str) and key for key in also)
+                and len(set(also)) == len(also)):
+            raise TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"{source_path!r} carries `also_replicated_to: {also!r}`, "
+                "which is not a non-empty list of distinct destination keys. "
+                "A field that is present and unreadable is not an absent one: "
+                "reading past it would UNDERCOUNT the row's multiplicity while "
+                "the sum went on balancing")
         extra = tuple(repository_of(doc, key) for key in also) \
             if isinstance(also, list) else ()
         if retirement_of(row) is not None:
@@ -719,7 +761,7 @@ def refuse_stale_declarations(doc: dict[str, Any]) -> None:
     rows = {row["source_path"]: row for row in doc["rows"]
             if isinstance(row, dict) and isinstance(row.get("source_path"),
                                                     str)}
-    for source_path in DECLARED_REPLICA_SETS:
+    for source_path in declared_source_paths():
         row = rows.get(source_path)
         if row is None:
             raise TestMappingRefusal(
