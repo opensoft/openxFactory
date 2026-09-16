@@ -177,20 +177,27 @@ this tree, at this commit". It is cited from `scripts/packet_reference.py` and
 
 **(iv) AND THIS PACKET'S OWN EFFECT ON THE POPULATION, MEASURED AFTER THE
 PACKET EXISTED RATHER THAN PREDICTED BEFORE IT.** The same recipe re-run on
-this branch: **2,978** files in scope (+5, this packet's own), **591** distinct
-tokens (+5), **503** `RESOLVED` (+5), and the remainder **UNCHANGED at 81
-tokens** — 74 identity-half, 7 file-half, 0 ambiguous.
+this branch at its final committed state: **2,979** files in scope (+6 — this
+packet's own six files; `README.md` was already tracked and the ledger row sits
+under the excluded `tests/`), **594** distinct tokens (+8), **504** `RESOLVED`
+(+6), and the remainder **82** (+1) — 75 identity-half, 7 file-half, 0
+ambiguous. **BEFORE THE EVIDENCE REPORT LANDED THE BRANCH READ 2,978 / 587 /
+499 / 81**, the remainder unmoved from `origin/main`'s; the whole +1 arrives
+with `evidence/measurement-b1df95ee.md` and the table below shows every step.
+The figures are taken at the branch head that carries the merge of `origin/main`
+`d5dd1ca5`; that merge moved none of them.
 
 **AND THE COMMITTED EVIDENCE REPORT DID WHAT D5 SAYS A COMMITTED REPORT DOES.**
 Watch the population move as this packet was assembled, each reading taken with
-the same recipe on the same branch:
+the same recipe on the same branch, at the commit named:
 
 | tree | files | tokens | `RESOLVED` | remainder |
 | --- | ---: | ---: | ---: | ---: |
 | `origin/main` `b1df95ee` | 2,973 | 586 | 498 | **81** |
-| + the packet's five documents | 2,978 | 591 | 503 | **81** |
-| + `tasks.md`'s mechanical fence proof | 2,978 | 591 | 503 | **81** |
-| + `evidence/measurement-b1df95ee.md` | **2,979** | **594** | **504** | **82** |
+| + the packet's five documents (`e87afeb1`) | 2,978 | 586 | 498 | **81** |
+| + the README bullet and the ledger row (`daea4c34`) | 2,978 | 587 | 499 | **81** |
+| + `tasks.md`'s mechanical fence proof (`3b4f1e12`) | 2,978 | 587 | 499 | **81** |
+| + `evidence/measurement-b1df95ee.md` (`b07a4885`) | **2,979** | **594** | **504** | **82** |
 
 **THE MEASUREMENT REPORT RAISED THE MEASURED REMAINDER BY ONE.** The new entry
 is `openspec/changes/foo/`, a `DANGLING`(identity-half) token the evidence file
