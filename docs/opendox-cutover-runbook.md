@@ -357,9 +357,12 @@ actually performs.
 A row RE-DESTINED by ruling still counts at the `destination:` it declares,
 which is why a leg's arrival run reports FOUR fewer arrived rows than this
 table's count for `opendox_code` (119) and four fewer declared-edit rows (84),
-and why `openxdox_code`'s run reports four MORE of each — 96 arrived rows and
-87 declared-edit — where this table says 92 and 83: the ruling moved the
-placement, not the row.
+and why `openxdox_code`'s run reports four MORE of each — 96 arrived rows where
+this table says 92: the ruling moved the placement, not the row. What a run
+PRINTS as `declared-edit row(s) within their lines` is a third count again —
+the rows that arrived CARRYING the edit — so the `unapplied` rows and the
+declared replicas each move it away from this column, and § 5.5 is where that
+line is read.
 
 The declared-roots column is spelled **exactly as a run prints it** — no
 trailing slash — because an operator's first act after a leg lands is to read
