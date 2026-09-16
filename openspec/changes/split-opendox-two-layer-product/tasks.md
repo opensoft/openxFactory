@@ -1719,8 +1719,12 @@ the bookkeeping that ticks this group.
   four-file underscore spelling), `scripts/ideation-dashboard-nightly.py`,
   `scripts/validate-ideation-dashboard-contracts.py`, the four dashboard contract
   schemas, the 142 packaged examples under `examples/ideation-dashboard/`, and the
-  five dashboard governance docs" — a pre-DQ-1 deletion list wrong in SCOPE (it
-  deletes 117 rows DQ-1 keeps) and in **six of its own seven counts** — "48
+  five dashboard governance docs" — a pre-DQ-1 deletion list wrong in SCOPE (the
+  nine surfaces it names hold **107** of the 117 rows DQ-1 keeps — **94** in the
+  five it names by DIRECTORY and **13** in the four it names by FILE, where a
+  literal reading reaches fewer still — while the other **TEN** sit outside every
+  surface it names and survive it untouched; 107 + 10 = 117, enumerated in the
+  STATUS below) and in **six of its own seven counts** — "48
   modules" (63), "40 files" (43), "125 files" (157), "the four dashboard contract
   schemas" (six), "the 142 packaged examples" (140) and "the five dashboard
   governance docs" (seven); only *"the four-file underscore spelling"* is exact.
@@ -2819,7 +2823,23 @@ realization evidence, never on landing. Each line is its own evidence.
   is present at `openxFactory` `main` **`cb2d3a2c`** (7,606 bytes, **seven**
   `### Requirement` headings), and there is no active change directory of that
   name: the change is archived at
-  `openspec/changes/archive/2026-09-09-add-ideation-intent-plane/`. That is RULED
+  `openspec/changes/archive/2026-09-09-add-ideation-intent-plane/`.
+  **RE-READ AT THE `main` THIS BRANCH MERGED — `c5f68457`, amendment #3's own
+  landing, merged here at `f7a15723` — AND NOT ONE FIGURE MOVES**: the same
+  **7,606** bytes, the same **seven** `### Requirement` headings, still no active
+  change directory of that name, still archived at the same path. That re-read is
+  bound to a commit IN THIS PULL REQUEST'S OWN HISTORY, which is what a claim
+  about the CURRENT head needs in order to stay true between this line and the
+  merge.
+  *(A Copilot finding on this amendment's own pull request, raised in four
+  consecutive rounds, 14-17. It is the one repetition that reaches a TICK, and
+  that is why it is fixed rather than registered: everywhere else in this packet
+  a figure measured at a NAMED tree is exactly right, but a box asserting that a
+  gate is "still true of `main` today" is a claim about the current head, and
+  `main` moved twice while this amendment was open — `cb2d3a2c` → `d5dd1ca5` →
+  `c5f68457`. The first read is kept beside the re-read because that is where the
+  figures were FIRST taken, which is this packet's own discipline.)*
+  That is RULED
   PATH A (`5555554097`) reaching canon, so **no non-promotion disposition is owed
   and none should be written** — this box's `or` branch is the one that must stay
   empty. § 0.6's own DONE line (openxFactory #832 → `56e69a11`) is therefore
