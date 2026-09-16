@@ -819,9 +819,12 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     <revision>:<segment>` per level — `openXdox/spec` is two levels, because
     `openXdox` is a submodule of this repository and `spec` is a submodule of
     THAT — and answers the leg repository, the commit that repository is pinned
-    at BY THIS COMMIT, and the row's own `destination_path`. The answer is
-    therefore as exact as the caller's: a commit that pinned an older leg reads
-    the older leg's bytes, and nothing is read from the working tree.
+    at BY THIS COMMIT, and `effective_arrival(row)`'s `destination_path`: the
+    row's own, unless a `re_destined:` block (RULED Q6) says a ruling has since
+    moved the placement, in which case its `to_path` — `source()`'s own
+    precedent, read here for the same reason. The answer is therefore as exact
+    as the caller's: a commit that pinned an older leg reads the older leg's
+    bytes, and nothing is read from the working tree.
 
     It answers `None` — and the caller's own answer stands — for a path in no
     row, a `not_moved` row, and a commit whose tree carries no such gitlink,
