@@ -563,16 +563,32 @@ verbatim *"ratify"*), and its realization — `scripts/code_surface.py` and
 `scripts/validate-code-surface.py` — is in flight as openxFactory PR #1029 and
 is NOT on `main` at `b1df95ee`. A sibling writer in this lane verified this
 packet's front-matter shape against that reader on the realization branch at
-`48bc7de7` rather than against the prose grammar: the declaration's HEAD here is
-the single bare repository identifier `openxFactory`, and the gloss is
-introduced by a whitespace-preceded em dash, which is one of the openers
-`scripts/code_surface.py:166` admits (`_GLOSS_OPENER_RE`). A COMMA after the
-head would NOT have been admitted — it parses as a list separator and the
-declaration then reads as a head running into prose, which is the
-`list-runs-into-prose` class that packet's register carries five entries of.
-**SO NO REGISTER ENTRY IS OWED BY THIS PACKET AND NONE IS REQUESTED.** The
-verification record is `1053/head-verify.md` in this lane's handoff
-attachments, and the shape it prescribes is the one the shape twin
+`48bc7de7` rather than against the prose grammar — and it was RUN rather than
+reasoned about, as five probes on a throwaway packet, one `code_surface:` value
+at a time:
+
+| probe | value | `validate-code-surface.py` |
+| --- | --- | ---: |
+| a | `openxFactory` | exit **0** |
+| b | `openxFactory — <gloss>` | exit **0** |
+| c | `openxFactory (<gloss>)` | exit **0** |
+| d | `openxFactory: <gloss>` | exit **0** |
+| e | `openxFactory, <gloss>` | exit **1** |
+
+**THIS PACKET'S DECLARATION IS PROBE (b) EXACTLY**, which the reader admitted
+with *"0 outside the grammar"* and *"code_surface validation passed (every
+active declaration's head is admitted)"*. The HEAD is the single bare
+repository identifier `openxFactory`; the gloss is introduced by a
+whitespace-preceded em dash, which `_GLOSS_OPENER_RE`
+(`scripts/code_surface.py:166`) admits, and the head parse STOPS at the opener
+so nothing in the gloss — its semicolon, its colon, its full stops — is ever
+judged. **A COMMA WOULD HAVE BEEN REFUSED** (probe (e)): a comma is a LIST
+separator, so the reader tries to read the next word as a second repository
+name and then runs into prose with no opener — the `list-runs-into-prose`
+class that packet's closed register carries five of its eight entries in.
+**SO NO REGISTER ENTRY IS OWED BY THIS PACKET AND NONE IS REQUESTED**, and the
+register does not move. The verification record is `1053/head-verify.md` in
+this lane's handoff attachments; the shape is the one the shape twin
 `gate-code-surface-declarations` already uses for its own declaration.
 
 *OPTION 2 — leave the fences to the realization's own judgment.* Cost: the
