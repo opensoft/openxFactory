@@ -36,6 +36,18 @@ EDITS = [
   "resolve"),
 ]
 
+def norm(title: str) -> str:
+    """The corpus's own comparison spelling — `scripts/doc_health/promotion_fidelity.py`
+    `norm()`, quoted rather than approximated: *"Whitespace-collapsed and
+    casefolded, and NOTHING ELSE."* Re-implemented here because this helper
+    imports nothing from the tree it verifies, and pinned by the guards below:
+    every duplicate check in this file is keyed exactly the way the archive
+    family keys `(capability, requirement)`, so a collision this build passes is
+    not one that family would call a collision.
+    """
+    return " ".join(title.split()).casefold()
+
+
 def _require_lf(path: Path) -> None:
     """Refuse a CR anywhere in a source this build reads.
 
@@ -57,18 +69,22 @@ def requirements(text, path="<text>"):
     lines = text.split("\n")
     idx = [(i, l[len("### Requirement: "):].strip())
            for i, l in enumerate(lines) if l.startswith("### Requirement: ")]
-    out = {}
+    out, seen = {}, {}
     for n, (i, t) in enumerate(idx):
         j = idx[n + 1][0] if n + 1 < len(idx) else len(lines)
-        # FAIL CLOSED ON A DUPLICATE TITLE. `promotion_fidelity` keys on
-        # (capability, normalized title), so two requirements sharing one title
-        # are indistinguishable to it — and to this selection. Overwriting
-        # silently would emit one body twice under a title that means two
-        # things, and the reversal proof would still pass. Refuse instead.
-        if t in out:
-            raise SystemExit(f"REFUSED: duplicate requirement title in "
-                             f"{path}: {t!r} — the title-keyed selection this "
-                             f"build performs cannot be trusted over it.")
+        # FAIL CLOSED ON A DUPLICATE TITLE, KEYED THE WAY THE CORPUS KEYS.
+        # `promotion_fidelity` keys on (capability, NORMALIZED title), so a
+        # pair differing only in case or run-of-whitespace is ONE key there and
+        # must be one here: a raw-string check would pass a collision the
+        # archive family calls a collision. Overwriting silently would emit one
+        # body twice under a title that means two things, and the reversal
+        # proof would still pass. Refuse instead.
+        if norm(t) in seen:
+            raise _refuse(f"duplicate requirement title in {path}: {t!r} "
+                          f"collides with {seen[norm(t)]!r} under the corpus's "
+                          f"own normalization — the title-keyed selection this "
+                          f"build performs cannot be trusted over it.")
+        seen[norm(t)] = t
         out[t] = "\n".join(lines[i:j]).rstrip("\n")
     return out, [t for _, t in idx]
 
@@ -93,14 +109,20 @@ def main():
     _require_lf(packet)
     pk = packet.read_text(encoding="utf-8")
     blocks = re.split(r"^### Requirement: ", pk, flags=re.M)[1:]
-    fifteen, dest_count = [], {}
+    fifteen, dest_count, all_titles = [], {}, []
     for b in blocks:
         title = b.split("\n", 1)[0].strip()
+        all_titles.append(title)
         m = re.search(r"reads as \*\*(open[A-Za-z]+)", b)
         d = m.group(1) if m else "NOMATCH"
         dest_count[d] = dest_count.get(d, 0) + 1
         if d == "openxFactory":
             fifteen.append(title)
+    dup = [t for t in set(map(norm, all_titles)) if list(map(norm, all_titles)).count(t) > 1]
+    if dup:
+        raise _refuse(f"the ratified map carries {len(dup)} duplicated title(s) "
+                      f"under the corpus's normalization: {dup} — the row counts "
+                      f"below would pass while a row was silently lost.")
     print(f"map: {dest_count}  (expect openDox 71 / openXdox 16 / openxFactory 15)")
     if dest_count != {"openDox": 71, "openXdox": 16, "openxFactory": 15}:
         raise _refuse(f"the destination map is not 71/16/15: {dest_count}")
@@ -115,7 +137,14 @@ def main():
     missing = [t for t in fifteen if t not in reqs]
     if missing:
         raise _refuse(f"titles absent from the promoted spec: {missing}")
-    fifteen = [t for t in order if t in set(fifteen)]      # promoted-file order
+    wanted = {norm(t) for t in fifteen}
+    if len(wanted) != len(fifteen):
+        raise _refuse("the openxFactory column carries a normalized-title "
+                      "duplicate; the ordered selection would silently shrink.")
+    fifteen = [t for t in order if norm(t) in wanted]      # promoted-file order
+    if len(fifteen) != 15:
+        raise _refuse(f"the ordered selection is {len(fifteen)}, not 15 — a "
+                      f"title in the map does not match one in the promoted spec")
     carried = {t: reqs[t] for t in fifteen}
     src_bytes = sum(len(carried[t].encode()) for t in fifteen)
     scen = sum(carried[t].count("#### Scenario:") for t in fifteen)

@@ -150,6 +150,17 @@ checkout alone: the fifteen are selected by the destination the ratified map nam
 promoted spec BY TITLE (never by line), each declared edit must match EXACTLY ONCE or the build
 aborts, and the build then REVERSES every edit and asserts byte equality against the promoted text.
 
+**AND THE DUPLICATE GUARDS ARE KEYED THE WAY THE CORPUS KEYS.** `promotion_fidelity.norm()` is
+*"whitespace-collapsed and casefolded, and NOTHING ELSE"*; this build quotes that spelling (it imports
+nothing from the tree it verifies) and uses it for BOTH duplicate checks — a repeated row in the
+ratified map, and two promoted requirements whose titles differ only in case or run-of-whitespace.
+A raw-string check would have passed exactly the collision the archive family calls a collision.
+Proved by mutation, under `-O`: a case-and-space variant of a promoted title exits **1**
+(`REFUSED: duplicate requirement title … collides with … under the corpus's own normalization`);
+a duplicated map row exits **1** (`REFUSED: the ratified map carries 1 duplicated title(s) … the row
+counts below would pass while a row was silently lost`); the clean tree exits **0** with the delta's
+sha256 unchanged.
+
 **EVERY GATE RAISES; NONE ASSERTS.** `python3 -O` deletes `assert`, and a verifier whose gates vanish
 under a common interpreter flag is not a gate — so the destination-map count, the title presence, the
 exactly-once matching, the reversal proof and the committed-artifact comparison all raise. Proved
