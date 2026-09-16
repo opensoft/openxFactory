@@ -458,6 +458,37 @@ def test_a_class_equals_inside_another_attribute_is_that_attributes(
     assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
 
 
+def test_a_calls_parenthesis_is_not_a_grouping_parenthesis() -> None:
+    """`label("ga") + "te"` IS NOT `gate` (Copilot review, round 16).
+
+    Round 13 allowed parentheses in the separator so `("ga" + "te") + "bar"`
+    would join; allowing ANY of them let a CALL RESULT join too, and the
+    literal inside the call is that call's ARGUMENT, not the left operand.
+    """
+    assert "gate" not in CENSUS.js_literal_text(
+        'el("div", label("ga") + "te");\n').split()
+    assert "gate" in CENSUS.js_literal_text(
+        'el("div", ("ga" + "te"));\n').split()
+    assert "gatebar" in CENSUS.js_literal_text(
+        'el("div", ("ga" + "te") + "bar");\n').split()
+    assert CENSUS._is_concatenation('"a" + "b"', 3, 6) is True
+    assert CENSUS._is_concatenation('f("a") + "b"', 5, 9) is False
+
+
+def test_markup_inside_a_comment_or_a_script_is_not_markup() -> None:
+    """`<!-- <div class="gatebar"> -->` NAMES NOTHING (Copilot review, round
+    16), and neither does the same string inside a `<script>` body — a class
+    the page never applies, claimed on the side where a claim MOVES a rule."""
+    template = ('`<!-- <div class="gatebar"> -->'
+                '<i class="gatebtn"></i>`;\n')
+    assert CENSUS.narrow_refs(template, ".js") == {"gatebtn"}
+    page = ('<script>var s = "<div class=\'gatebar\'>";</script>\n'
+            '<style>/* <b class="stylebar"> */</style>\n'
+            '<i class="gatebtn"></i>\n')
+    assert CENSUS.narrow_refs(page, ".html") == {"gatebtn"}
+    assert CENSUS._literals(page, ".html") == ["gatebtn"]
+
+
 def test_a_quoted_bracket_does_not_end_an_attribute_selector() -> None:
     """`[data-label="x] .gatebar"]` HAS NO CLASS (Copilot review, round 15).
 

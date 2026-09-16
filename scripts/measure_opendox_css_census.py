@@ -141,21 +141,46 @@ _BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 _LINE_COMMENT = re.compile(r"//[^\n]*")
 
 
-def _is_concatenation(between: str) -> bool:
-    r"""True where two string literals are joined by `+` and nothing else.
+def _is_concatenation(text: str, lo: int, hi: int) -> bool:
+    r"""True where the two string literals around `text[lo:hi]` are joined by
+    `+` and nothing else.
 
     GROUPING AND COMMENTS ARE NOT OPERANDS (Copilot review of openxFactory
     #1068, round 13): `("ga" + "te") + "bar"` and `"ga" /* c */ + "te"` are
-    concatenations, and a separator test of `\s*\+\s*` alone saw an
-    unrelated pair. This is the BROAD scan — the KEEP side — so a chain missed
-    here can mark a class unreferenced and EXTRACT the block that styles it.
+    concatenations, and a separator test of `\s*\+\s*` alone saw an unrelated
+    pair. This is the BROAD scan — the KEEP side — so a chain missed here can
+    mark a class unreferenced and EXTRACT the block that styles it.
 
-    Anything with a NAME in it is still not a concatenation of these two:
-    `f("a") + g("b")` has `g` between them and the run breaks, which is the
+    AND A CALL'S `)` IS NOT A GROUPING `)` (round 16). Allowing any
+    parenthesis let `label("ga") + "te"` join into `gate`: the left operand is
+    a CALL RESULT and the literal inside it is that call's argument, so the
+    concatenation the join claims never happens. Each `)` in the separator is
+    matched back to its `(`, and a `(` that follows an identifier, a `]` or a
+    `)` opens a CALL — the run breaks there.
+
+    Anything with a NAME in the separator is still not a concatenation of
+    these two: `f("a") + g("b")` has `g` between them, which is the
     conservative half of the same rule.
     """
-    stripped = _LINE_COMMENT.sub(" ", _BLOCK_COMMENT.sub(" ", between))
-    return bool(re.fullmatch(r"[\s()]*\+[\s()]*", stripped))
+    raw = text[lo:hi]
+    blanked = _LINE_COMMENT.sub(lambda m: " " * len(m.group(0)),
+                                _BLOCK_COMMENT.sub(
+                                    lambda m: " " * len(m.group(0)), raw))
+    if not re.fullmatch(r"[\s()]*\+[\s()]*", blanked):
+        return False
+    for k, ch in enumerate(blanked):
+        if ch != ")":
+            continue
+        depth, j = 1, lo + k - 1
+        while j >= 0 and depth:
+            if text[j] == ")":
+                depth += 1
+            elif text[j] == "(":
+                depth -= 1
+            j -= 1
+        if j >= 0 and re.match(r"[A-Za-z0-9_$\]\)]", text[j]):
+            return False
+    return True
 
 
 def js_literal_text(text: str) -> str:
@@ -190,7 +215,7 @@ def js_literal_text(text: str) -> str:
         run.clear()
 
     for k, (a, b) in enumerate(spans):
-        if run and not _is_concatenation(text[spans[k - 1][1]:a]):
+        if run and not _is_concatenation(text, spans[k - 1][1], a):
             flush()
         run.append(text[a + 1:b - 1])
     flush()
@@ -473,6 +498,10 @@ def is_selector_text(s: str) -> bool:
 
 _TAG_OPEN = re.compile(r"<[A-Za-z][A-Za-z0-9-]*")
 
+#: Elements whose CONTENT is text and not markup. A `class="…"` inside one of
+#: these is a string the page displays or runs, never an attribute it applies.
+_RAW_TEXT_ELEMENTS = frozenset({"script", "style", "textarea", "title"})
+
 
 def markup_class_runs(s: str, group: str, unquoted: str) -> list[str]:
     """The `class="…"` runs of `s` THAT SIT INSIDE AN HTML TAG.
@@ -538,7 +567,17 @@ def _tag_name_positions(s: str) -> list[bool]:
     live = [False] * (len(s) + 1)
     i, n = 0, len(s)
     while i < n:
-        if s[i] == "<" and _TAG_OPEN.match(s, i):
+        # A COMMENT IS NOT MARKUP, AND NEITHER IS RAW TEXT (Copilot review,
+        # round 16): `<!-- <div class="gatebar"> -->` and a `<script>` body
+        # carrying the same string were walked as live tags, so a class the
+        # page never applies was named — and on the gate side that MOVES a
+        # rule.
+        if s.startswith("<!--", i):
+            j = s.find("-->", i + 4)
+            i = n if j < 0 else j + 3
+            continue
+        m = _TAG_OPEN.match(s, i)
+        if m:
             j, quote = i + 1, ""
             while j < n:
                 c = s[j]
@@ -553,6 +592,11 @@ def _tag_name_positions(s: str) -> list[bool]:
                     live[j] = True
                 j += 1
             i = j + 1
+            name = m.group(0)[1:].lower()
+            if name in _RAW_TEXT_ELEMENTS:
+                close = re.compile(rf"</{re.escape(name)}\b",
+                                   re.I).search(s, i)
+                i = close.start() if close else n
             continue
         i += 1
     return live
@@ -584,7 +628,7 @@ def js_class_spans(text: str) -> list[tuple[str, int]]:
         run.clear()
 
     for k, (a, b) in enumerate(spans):
-        if run and not _is_concatenation(text[spans[k - 1][1]:a]):
+        if run and not _is_concatenation(text, spans[k - 1][1], a):
             flush()
         run.append((a, b))
     flush()
