@@ -1959,11 +1959,26 @@ the bookkeeping that ticks this group.
   patterns return **0** adds, which is the same answer honestly derived.)*
   The SHAPE, the pinned-tools reading and the job-id obligation
   are unchanged; only the act is. **This box does NOT tick with this amendment**:
-  the workflow is its own declared act under its own claim, and that act is now
-  open as `opensoft/openxFactory` **#1059** — *Wire the pinned openDox/openXdox
+  the workflow is its own declared act under its own claim, and that act is
+  `opensoft/openxFactory` **#1059** — *Wire the pinned openDox/openXdox
   tools into a consumer gate of their own (task 5.3, RULING R-4)*, opened
   2026-09-16T01:24:55Z against `main`. This box ticks on THAT pull request's
   merge and on the new gate reporting, not on this one.
+  **#1059 MERGED WHILE THIS AMENDMENT WAS OPEN — `7ab3dd80`,
+  2026-09-16T16:27:36Z**, and both halves of that condition are now met:
+  `.github/workflows/openxdox-consumer-gate.yml` stands at `main` with `name:`
+  and job id the single token `openxdox-consumer-gate`, and the gate HAS
+  REPORTED — it is a required check on this very pull request, SUCCESS at
+  `d1314f4d` (run `35134189330`). **THE TICK IS THEREFORE OWED, AND IT IS NOT
+  TAKEN HERE.** This box's own sentence, four lines up, says it ticks on that
+  pull request and *"not on this one"*; this amendment's CLAIM (`5690461589`)
+  and RULED R-4 reach the PREMISE only; and its ledger is declared 47/23/1 in
+  the claim, the description and the squash body alike. The tick belongs to the
+  act that records #1059's discharge — with this box's required-check WIRING,
+  which is still owed and still a human act on a human-only surface.
+  *(A Copilot finding on this amendment's own pull request, round 19. What it
+  caught is a fact that went stale between one commit and the next, not a
+  reading: the sentence said "is now open" for two hours after the merge.)*
   **AND R-4's discharge is of the OLD clause, not of the NEW file's own
   obligation** — worth separating, because the two are easy to read as one.
   What R-4 discharges is *"retaining the job id **so a ruleset-pinned token
