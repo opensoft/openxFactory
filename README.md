@@ -3334,11 +3334,19 @@ Archived changes:
   than an exception to one. The packet is relocated by `git mv` and otherwise
   UNEDITED, `Status: ratified` header included (Brett Heap, 2026-08-21,
   *"proposal approved"*). Its `modified-block-currency` carriage-ledger row
-  retires with it (thirteen named subjects → twelve). The non-promotion is
-  registered as DELIBERATE through the discharge `promotion_fidelity.py`'s own
-  action text names, an entry in the xFactory aggregation's
-  `health/dispositions.yaml`, batched across the five closures with § 6.6. Full
-  reasoning:
+  retires with it (thirteen named subjects → twelve), and the departure itself —
+  gone from the active corpus, standing in the archive with all five
+  requirements — is asserted by a test of its own rather than implied by the
+  missing row. The non-promotion is registered as DELIBERATE through the
+  discharge `promotion_fidelity.py`'s own action text names, an entry in the
+  xFactory aggregation's `health/dispositions.yaml`, filed once for the five
+  closures rather than five times (the gate this feeds is `tasks.md` § 8.5 and
+  the severity reading is § 8.9's; § 6.6 is the separate rule that no new
+  dashboard change opens). **THE SELF-GATE COUNT THIS CLOSURE MOVES IS FIVE, NOT
+  ONE** — `promotion_fidelity` emits one finding per authoritative requirement,
+  so the four ADDED titles absent from canon and the MODIFIED block's one
+  uncarried scenario read as five errors, taking the family from 1 at § 6.4's
+  head to 6 at this one. Full reasoning:
   [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-doxchat-model-intake/review/rehome-2026-09-16.md).
 
 - [add-composed-view-authoring](openspec/changes/archive/2026-09-16-add-composed-view-authoring/proposal.md)
