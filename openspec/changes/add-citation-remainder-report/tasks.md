@@ -302,13 +302,24 @@ added, edited, renamed or deleted here.
       root (`doc-health-reusable.yml:582`, `:1045`, `:2233`, `:2498`, `:2875`,
       `:3152` …), never a bare `scripts/…`. So the step is
       `python3 openxFactory/scripts/report-citation-remainder.py openxFactory
-      --json <out>`: the SCRIPT path is submodule-qualified and the `REPO_ROOT`
+      --json > citation-remainder.json`, and **THE REDIRECT IS PART OF THE STEP
+      RATHER THAN SHELL DECORATION**: `--json` is a BOOLEAN output-format flag
+      on D2's fixed surface and TAKES NO PATH, so the spelling this item first
+      carried — `--json <out>` — would hand the CLI a second positional, or, run
+      literally by a shell, redirect into a file called `out`; either way the
+      artifact-only step has no report to upload. The report writes to STDOUT
+      and the step redirects it to ONE named file; the upload step names that
+      same path, and the RUN'S DATE belongs in the artifact NAME, not in the
+      file name, which is the house convention next door
+      (`doc-health-reusable.yml:2251`: `name: doc-health-report-${{ steps.run.outputs.run_date }}`,
+      `path:` a plain output path). The SCRIPT path is submodule-qualified and the `REPO_ROOT`
       POSITIONAL IS `openxFactory` — a default of `cwd` would scan the
       aggregation tree, which is a different corpus with a different remainder
       and would read as this repository's. (Contrast `doc-health.py --repo-root .`
       at `:583`, which is multi-repo and MEANS the aggregation root; this report
       is single-repo and does not.) **AND THE OUTPUT IS WRITTEN AT THE
-      AGGREGATION ROOT, OUTSIDE `openxFactory/`** — which is D3(a)'s output-path
+      AGGREGATION ROOT, OUTSIDE `openxFactory/`** — `citation-remainder.json`
+      beside the submodule checkout and never inside it — which is D3(a)'s output-path
       fence holding STRUCTURALLY under the recommended option: a file that never
       enters the scanned root cannot be read by the next night's run, whatever
       the exclusion list says. Under D5 option 2 it is instead a
