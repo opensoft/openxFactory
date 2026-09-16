@@ -601,7 +601,7 @@ def source(path: str | Path) -> Path:
         raise CarveRowRetired(
             f"{key} was RETIRED at {at}:{at_path} by ruling "
             f"{retired.get('ruling')!r} (RULED 5656343213), because the "
-            f"surface it drove ({retired.get('surface')!r}) arrived at no "
+            f"surface it needed ({retired.get('surface')!r}) arrived at no "
             "leg. The row still records the move the carve made — that is "
             "what the manifest is for — but the ARRIVAL this function "
             "resolves is gone, and a path computed from the row would name a "

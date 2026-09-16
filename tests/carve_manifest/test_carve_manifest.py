@@ -2200,7 +2200,7 @@ def _retire(doc: dict[str, Any], name: str = "beta.py",
 
 def test_a_moved_row_may_be_retired_by_a_ruling(scratch: Scratch) -> None:
     """The form itself: `beta.py` arrived at `openxdox_code` and a ruling has
-    since DELETED that arrival, because the surface it drove is a `not_moved`
+    since DELETED that arrival, because the surface it needed is a `not_moved`
     row — which is the three intent-feed suites' shape in miniature."""
     doc = clean_manifest(scratch)
     _retire(doc)
@@ -4621,7 +4621,9 @@ def test_the_real_manifest_carries_the_retirement_form_and_the_two_rows_it_retir
 
     # BOTH SAY THE SAME THING, which is what makes this a form rather than two
     # hand-written paragraphs: the suite ARRIVED at openDox-code, the surface
-    # it drove is `views/intent-feed.js`, and a RULING deleted the arrival. The
+    # it NEEDED is `views/intent-feed.js` — the tray suite drove that module
+    # and the wheel suite only loads it, which is why the grammar says NEEDED
+    # (Copilot review, this pull request) — and a RULING deleted the arrival. The
     # row keeps every placement field and its own `edits[]` — that is the whole
     # reason the ruling made this a FIELD — and `at`/`at_path` are the row's
     # EFFECTIVE arrival, which for these two is their own destination pair

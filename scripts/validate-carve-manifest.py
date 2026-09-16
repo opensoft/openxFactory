@@ -2519,7 +2519,7 @@ def _check_retired_surfaces(doc: dict) -> None:
             "carve-retired-surface-live",
             f"rows[{index}] ({row['source_path']}) declares "
             f"`retired.surface: {surface!r}`, which {why}. RULED 5656343213 "
-            "retires an arrived file because the surface it drove is gone "
+            "retires an arrived file because the surface it NEEDED is gone "
             "from BOTH legs, and the one way this manifest can answer that "
             "without reading a leg is a `not_moved` row under a reason that "
             f"means ABSENT THERE — every one but `{REPLICA_REASON}`, whose "

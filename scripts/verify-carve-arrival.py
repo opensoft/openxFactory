@@ -478,8 +478,8 @@ REMEDIATION = (
     "left behind is the same bytes at two legs with the floor standing "
     "behind one. For `arrival-not-retired`, delete the file the ruling "
     "RETIRED at this leg (RULED 5656343213) — the row's `retired:` says which "
-    "ruling ordered it and which surface it drove; the deletion and the block "
-    "land together or not at all."
+    "ruling ordered it and which surface it needed and could not obtain here; "
+    "the deletion and the block land together or not at all."
 )
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -2577,7 +2577,7 @@ def _re_destined_record(row: dict[str, Any]) -> dict[str, Any]:
 def _retired_record(row: dict[str, Any],
                     refilled: dict[str, str] | None = None) -> dict[str, Any]:
     """One retired row as the summary reports it: the source path, the
-    placement the ruling deleted, the SURFACE it drove, the ruling that
+    placement the ruling deleted, the SURFACE it needed, the ruling that
     ordered it (RULED 5656343213), and WHICH ANSWER THIS RUN GOT at the path.
 
     The surface travels with the citation because it is the whole ground of
