@@ -213,16 +213,24 @@ unanswered rather than a judgement that it was wrong.
 
 **(c) RESTATE THE VERIFIER'S ENTRY RULES AS PROSE IN CANON** — spell `repo`,
 `item`, `path`, `finding`, `why`, `cited_to`, the authority pair and the level
-set into the requirement. **REFUSED, and by canon's own words:** the per-shape
-table *"is not restated as PROSE in this requirement, where a restatement could
-drift unreviewed"*, and *"Of two INDEPENDENTLY-AUTHORED lists the WEAKER is
-always the one that admits"*. And it would be a THIRD copy rather than a second:
-`neutral-product-pin:577-636` already states these rules as canon (D-1), the
-verifier realizes them, and a restatement in `document-lifecycle` would add a
-list nobody reconciles with either. The scenario therefore names the SOURCE of the
-form — the shape's own pure guard — and the equivalence test pins the
-transcription to it. The six required keys appear in this design's MEASUREMENT
-and in no normative sentence.
+set into the requirement. **REFUSED, and by canon's own words, for both halves
+D-1 splits them into — though the count of existing copies differs.** The
+identity keys, `cited_to` and the authority pair are CANON-NAMED already:
+`neutral-product-pin:577-636` is one independently-authored list and the
+verifier is a second (D-1), so a restatement here would be a THIRD copy nobody
+reconciles with the other two — exactly what *"is not restated as PROSE in
+this requirement, where a restatement could drift unreviewed"* refuses. `why`
+and the level set are GUARD-ONLY — named by no ratified sentence, so the
+verifier is their ONLY existing list — and a restatement here would still be
+refused, but as the SECOND independently-authored copy of those two, which is
+the same hazard *"Of two INDEPENDENTLY-AUTHORED lists the WEAKER is always the
+one that admits"* names: the count starts at two, not three. Either way the
+scenario names the SOURCE of the form — the shape's own pure guard — and the
+equivalence test pins the transcription to it. Of the six
+`DISPOSITION_REQUIRED` keys, five — `repo`, `item`, `path`, `finding` and
+`cited_to` — appear in `neutral-product-pin`'s normative text as well as in
+this design's MEASUREMENT; `why` and the level set appear in the MEASUREMENT
+alone, no ratified sentence naming either.
 
 **(d) HAVE THE ADAPTER CALL THE VERIFIER INSTEAD OF TRANSCRIBING IT.**
 **REFUSED, constitutionally.** `pin_shapes.py:13-16`: the adapter *"READS THE
@@ -242,10 +250,14 @@ leg, at a fixed authored path — and that is where this packet's new case lives
   realization's, inside the `MISSING`/`MALFORMED` vocabulary the adapter already
   has.
 - **It does not touch `neutral-product-pin`, and it does not need to.** That
-  capability's ratified text already obliges every entry rule D-1 measures
-  (`:577`, `:578`, `:586-588`, `:633-636`) and is not wrong about any of them.
-  The defect is in the OFFLINE RESOLVER's reading, and the resolver is
-  `document-lifecycle`'s grammar — so the delta is there and only there.
+  capability's ratified text (`:577`, `:578`, `:586-588`, `:633-636`) already
+  names the identity keys, the citation and the authority (D-1) and is not
+  wrong about any of them; the entry's `why` member and its `level` value
+  outside `BLOCKING_LEVELS` are named by no such ratified text and are the
+  verifier's own guard, so reaching them imposes no obligation BEYOND what
+  that guard already enforces on every landed pin. The defect is in the
+  OFFLINE RESOLVER's reading, and the resolver is `document-lifecycle`'s
+  grammar — so the delta is there and only there.
 - **It does not oblige any pin record to carry or drop `dispositions:`.**
   `contracts/openspec-cli-pin.yaml` is the only record in this tree that carries
   the member (measured over all six `contracts/*-pin.yaml`), its six entries pass

@@ -9,8 +9,9 @@ only section this pull request performs; § 3 is the realization, a SEPARATE
 later pull request on a separate word; § 4 is the archive, held behind
 merged-plus-green realization evidence and a further word. No byte of
 `scripts/doc_health/pin_shapes.py`, of `tests/doc-health/test_pin_shape_adapter.py`,
-of any pin verifier, of any record under `contracts/` or of any file under
-`openspec/specs/` moves anywhere in this pull request.
+of `tests/doc-health/test_tag_hygiene_pinned_targets.py`, of any pin verifier,
+of any record under `contracts/` or of any file under `openspec/specs/` moves
+anywhere in this pull request.
 
 ## 1. Ratification — BRETT HEAP'S WORD, NOT THIS LANE'S
 
@@ -105,51 +106,73 @@ of any pin verifier, of any record under `contracts/` or of any file under
       so the realization decides — and states — whether the optional arm gets a
       route of its own or a parallel helper; either way `:813` onwards does not
       read `pin.get("dispositions")` and MUST NOT be cited as though it did.
-- [ ] 3.4 **`tests/doc-health/test_pin_shape_adapter.py`: the optional arm's
+- [ ] 3.4 **Extend the FAILURE REPRESENTATION so the rendered finding can
+      name the entry, not only the member.** 3.1's `_is_disposition_list`
+      returns a bare `bool` (`:217-223`), and `_first_failure`'s
+      optional-member loop (`:532-535`) turns any `False` into
+      `Failure(shape.title, name, MALFORMED)` with `name` the member's bare
+      spelling (`"dispositions"`); `Failure` (`:466-469`, fields
+      `shape`/`member`/`defect`) and its `render()` (`:471-473`), plus
+      `Verdict.render()` (`:485-487`), carry and print `member` and `defect`
+      only, so a bare "`dispositions` malformed" is the whole rendered text
+      today, with NO index and NO key. Give the optional-member entry check a
+      way to report WHICH entry failed — its ONE-BASED index
+      (`dispositions[N]`, the guard's own `where` spelling, D-1) and the
+      missing/malformed key (a `DISPOSITION_REQUIRED`/`DISPOSITION_AUTHORITY`
+      name, or `level`) — and carry that through `Failure` (an added field,
+      or `member` itself carrying `dispositions[N]`) into `Verdict.render()`,
+      so the family's rendered rule text names BOTH, exactly as the scenario
+      requires and 3.6's family-level case asserts. `Failure.render()`'s
+      shape/member/defect order and `Verdict.names()`'s substring match
+      (`:489-490`) stay valid for every OTHER member, present or required,
+      that still reports a bare spelling — this task ADDS a capability to the
+      representation and narrows nothing already passing.
+- [ ] 3.5 **`tests/doc-health/test_pin_shape_adapter.py`: the optional arm's
       ENTRY case, as a CALL.** Import `scripts/validate-openspec-cli-pin.py` at
       its fixed authored path (the way the guard leg already imports verifiers),
       call `pinned_dispositions` on `contracts/openspec-cli-pin.yaml` carrying
       each malformed entry, assert it raises `PinRefusal`, and assert
       `ps.judge(record, "openspec-cli")` refuses the SAME record naming
       `dispositions`. One case per D-1 row 2-6.
-- [ ] 3.5 **`tests/doc-health/test_tag_hygiene_pinned_targets.py`: a
+- [ ] 3.6 **`tests/doc-health/test_tag_hygiene_pinned_targets.py`: a
       FAMILY-LEVEL case, through `fam_tag_hygiene` over a `tmp_path` record** —
       the module's own pattern for a tree no repository should carry (the
       corrupt-record and symlink cases already use it). Build a `pinned:`
       candidate marker resolving to a record whose `dispositions:` carries one
       malformed entry, run it through the FAMILY (`_pinned_arm`, not
-      `pin_shapes.judge` called directly as 3.4 does), and assert the
+      `pin_shapes.judge` called directly as 3.5 does), and assert the
       resulting `Finding.rule` — rendered through `Verdict.render()`
-      (`pin_shapes.py:485-487`), the route
+      (`pin_shapes.py:485-487`) as 3.4 extends it, the route
       `test_an_invalid_pin_names_the_shape_tried_the_member_and_the_root`
       already asserts finding text on — names BOTH `dispositions` AND the
       offending entry, by index (`dispositions[N]`, the guard's own `where`
-      spelling) or by the missing/malformed key. 3.4's guard-and-adapter CALL
+      spelling) or by the missing/malformed key. 3.5's guard-and-adapter CALL
       is necessary but not sufficient for the normative scenario: a
       realization could satisfy it while the rendered finding names only
-      `dispositions` and drops which entry failed, and this case is what
-      closes that gap.
-- [ ] 3.6 **Regressions named in the finding, explicitly:** `[{}]`, `[null]`,
+      `dispositions` and drops which entry failed; 3.4's representation
+      change is what makes naming the entry possible at all, and this case is
+      what asserts it actually happens.
+- [ ] 3.7 **Regressions named in the finding, explicitly:** `[{}]`, `[null]`,
       and an entry missing `cited_to`. Plus the two boundary cases the
       measurement turned up: `cited_to: []` (reported as the missing key) and
       `level: "error"` (ADMITTED, case-folded).
-- [ ] 3.7 **The negative side, so the form does not drift WIDER:**
+- [ ] 3.8 **The negative side, so the form does not drift WIDER:**
       `dispositions:` absent, `null` and `[]` all still ACCEPTED, and
       `contracts/openspec-cli-pin.yaml` as it stands — six entries, all
       admitted by the guard today — still ACCEPTED by `judge`, which is the
       record leg's own assertion for this member.
-- [ ] 3.8 **Leave `test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two`
+- [ ] 3.9 **Leave `test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two`
       at `(29, 27, 2)`** and
       `test_the_adapter_is_necessary_and_not_sufficient_and_the_boundary_is_named`
       passing unchanged: the member is still absent-is-empty, so
       `judge(_without(RECORDS["openspec-cli"], "dispositions"), "openspec-cli")`
       is still ACCEPTED. A realization that moved either has changed the shape
       table and is outside this packet.
-- [ ] 3.9 **Update the adapter's own docstrings** — `_is_disposition_list`
+- [ ] 3.10 **Update the adapter's own docstrings** — `_is_disposition_list`
       (`:217-223`) and the `SHAPE_C.optional` comment (`:418-419`) — so the code
       states the entry grain and its citations, as `_is_path_only_list` already
       does for the other optional member.
-- [ ] 3.10 **Run the realization's evidence:** `pytest -q tests/doc-health`,
+- [ ] 3.11 **Run the realization's evidence:** `pytest -q tests/doc-health`,
       `pytest -q tests/openspec_cli_pin`, and
       `python3 scripts/doc-health.py --single-repo . --family tag-hygiene`,
       with no new finding on `contracts/`.

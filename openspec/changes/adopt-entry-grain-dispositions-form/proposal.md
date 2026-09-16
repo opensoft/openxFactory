@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory — `scripts/doc_health/pin_shapes.py`, whose `_is_disposition_list` (`:217-223`) and shape (c) `optional` entry (`:418-423`) gain the ENTRY-GRAIN arm of an OPTIONAL member's present-and-malformed reading, plus that arm's tests under `tests/doc-health/` (hyphen: the tests directory is `tests/doc-health/`, the package under test is `scripts/doc_health/`) — specifically `tests/doc-health/test_pin_shape_adapter.py`, which holds the adapter to the verifiers with its two-leg equivalence test. THAT IS THE WHOLE SURFACE AND NO FURTHER FILE IS ADMITTED. NO BYTE OF EITHER FILE MOVES IN THIS PULL REQUEST: the filing carries the packet only — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, ONE `## MODIFIED` spec delta, one README "Active changes" bullet, and the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml`. NOT THIS PACKET'S SURFACE, each for a stated reason: the five per-product pin verifiers, of which `scripts/validate-openspec-cli-pin.py` is READ AND MEASURED here (`pinned_dispositions`, `:787-857`) and NEVER edited — the adapter tracks those guards and does not author them; no pin record, no `contracts/` byte, no digest, no contract bundle; no schema member added and no `dispositions:` key added to any record; no capability created, renamed or deleted; nothing under `openspec/specs/` edited, this packet's delta being a change-packet delta that reaches canon only at the archive.
+code_surface: openxFactory — `scripts/doc_health/pin_shapes.py`, whose `_is_disposition_list` (`:217-223`), shape (c) `optional` entry (`:418-423`), and shared failure representation (`Failure`, `Verdict.render()`, `_first_failure`, `:465-536`) gain the ENTRY-GRAIN arm of an OPTIONAL member's present-and-malformed reading and the entry index/key it renders, plus that arm's tests under `tests/doc-health/` (hyphen: the tests directory is `tests/doc-health/`, the package under test is `scripts/doc_health/`) — `tests/doc-health/test_pin_shape_adapter.py`, which holds the adapter to the verifiers with its two-leg equivalence test, AND `tests/doc-health/test_tag_hygiene_pinned_targets.py`, whose family-level case asserts the rendered finding names the entry (`tasks.md` § 3). THAT IS THE WHOLE SURFACE AND NO FURTHER FILE IS ADMITTED. NO BYTE OF ANY NAMED FILE MOVES IN THIS PULL REQUEST: the filing carries the packet only — `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, ONE `## MODIFIED` spec delta, one README "Active changes" bullet, and the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml`. NOT THIS PACKET'S SURFACE, each for a stated reason: the five per-product pin verifiers, of which `scripts/validate-openspec-cli-pin.py` is READ AND MEASURED here (`pinned_dispositions`, `:787-857`) and NEVER edited — the adapter tracks those guards and does not author them; no pin record, no `contracts/` byte, no digest, no contract bundle; no schema member added and no `dispositions:` key added to any record; no capability created, renamed or deleted; nothing under `openspec/specs/` edited, this packet's delta being a change-packet delta that reaches canon only at the archive.
 target_release: implemented
 sequenced_after: [extend-prose-tagging-target-to-pinned-capabilities]
 ---
@@ -67,25 +67,29 @@ has run at all. On a landed tree the gap is invisible, because every record in
 why this is a FINDING and not a defect, and why the remedy is a change rather
 than an edit.
 
-**AND THE ENTRY RULES ARE RATIFIED CANON, WHICH MAKES THE GAP SHARPER THAN THE
-ISSUE STATES IT.** `neutral-product-pin`'s requirement *A dispositioned finding
-is cited, upgrade-coupled, and refused when stale*
-(`openspec/specs/neutral-product-pin/spec.md:577`) already obliges every reading
-D-1 measures: a disposition *"SHALL carry a non-empty CITATION … and SHALL name
-the authority that granted it"* (`:578`), *"SHALL identify ONE finding — the
-repository, the item, the delta path, and the finding's own text"* (`:586-588`),
-and its scenario **A disposition carries no citation** (`:633-636`) says that a
-disposition recording *"no `cited_to:`, an empty one, or no granting authority"*
-makes the pin *"REFUSED as malformed, before any artifact is fetched"*. So the
-adapter today does not merely admit what one verifier's local choice refuses —
-**it resolves a pinned target on a record a ratified requirement of this estate
-says is refused as malformed.** It also follows that this packet imposes NO new
-obligation on any pin's author: every obligation is already theirs under that
-requirement, and this delta only lets the offline resolver read what it says.
+**AND THREE OF THE FIVE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES
+THE GAP SHARPER THAN THE ISSUE STATES IT FOR THOSE THREE.**
+`neutral-product-pin`'s requirement *A dispositioned finding is cited,
+upgrade-coupled, and refused when stale*
+(`openspec/specs/neutral-product-pin/spec.md:577`) already obliges the
+entry's identity keys, its citation and its authority (D-1): a disposition
+*"SHALL carry a non-empty CITATION … and SHALL name the authority that granted
+it"* (`:578`), *"SHALL identify ONE finding — the repository, the item, the
+delta path, and the finding's own text"* (`:586-588`), and its scenario **A
+disposition carries no citation** (`:633-636`) says that a disposition
+recording *"no `cited_to:`, an empty one, or no granting authority"* makes the
+pin *"REFUSED as malformed, before any artifact is fetched"*. So on those
+three, the adapter today does not merely admit what one verifier's local
+choice refuses — **it resolves a pinned target on a record a ratified
+requirement of this estate says is refused as malformed.** The other two —
+the entry's `why` member and its `level` value outside `BLOCKING_LEVELS` — are
+named by no such ratified requirement and are that guard's OWN pure rule;
+reaching them imposes no obligation BEYOND what the verifier already enforces
+on every landed pin, never "none" and never "already ratified" for those two.
 **Which is why no `neutral-product-pin` delta is carried:** issue #1045 offers
-the act as one against `document-lifecycle` "and/or `neutral-product-pin`", and
-measured, the second is not owed — that text is already correct and complete on
-this member. What is missing is the RESOLVER's reading, and the resolver is
+the act as one against `document-lifecycle` "and/or `neutral-product-pin`",
+and measured, the second is not owed — its text is READ and CITED here and
+NOT modified: the gap is the OFFLINE RESOLVER's reading, and the resolver is
 `document-lifecycle`'s grammar.
 
 **AND WHY IT IS NOT A WIDENING OF THE CONTRACT.** The adapter's boundary is
@@ -121,10 +125,14 @@ member is not one its ratified text names.
 - **Affected capability:** `document-lifecycle` (ONE requirement, ONE added
   scenario; every other promoted unit carried verbatim). `neutral-product-pin`
   is READ and CITED (`:577`, `:578`, `:586-588`, `:633-636`) and NOT modified:
-  its text already obliges these entry rules and is not wrong about any of them.
+  its text already names the identity keys, the citation and the authority
+  (D-1) and is not wrong about any of them; the entry's `why` member and its
+  `level` value outside `BLOCKING_LEVELS` are named by no such ratified text
+  and are the verifier's own guard, so reaching them imposes no obligation
+  BEYOND what that guard already enforces on every landed pin.
 - **Affected code, at realization and not here:**
-  `scripts/doc_health/pin_shapes.py` and
-  `tests/doc-health/test_pin_shape_adapter.py`.
+  `scripts/doc_health/pin_shapes.py`, `tests/doc-health/test_pin_shape_adapter.py`,
+  and `tests/doc-health/test_tag_hygiene_pinned_targets.py`.
 - **Affected records:** none. `contracts/openspec-cli-pin.yaml` is the ONLY
   record in this tree carrying `dispositions:` (measured, all six `*-pin.yaml`
   files), its six entries all pass the guard today, and they pass the proposed
