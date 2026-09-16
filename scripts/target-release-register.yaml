@@ -229,18 +229,15 @@ register:
   # approved-but-unrealized intent by the *Realization archive gate* until its
   # code is merged and has run green.
 
-  - change: add-nightly-dashboard-refresh
-    token: "implementation_pending"
-    class: realization-state
-    why: >-
-      "implementation_pending — the requirements land now; the change archives
-      only on merged code with green realization evidence" states the archive
-      gate's own condition in the target field.
-    cited_to:
-      - openspec/specs/release-realization/spec.md § Realization archive gate
-    retires_when: >-
-      the declaration is corrected to the target it realizes on, or the packet
-      archives.
+  # RETIRED 2026-09-16 — `add-nightly-dashboard-refresh` on the second limb of
+  # its own `retires_when:` ("or the packet archives"). It did not archive by
+  # realizing its target: `split-opendox-two-layer-product` § 6.1 CLOSED IT AS
+  # RE-HOMED to `opensoft/openXdox` under RULING Q6, which freezes the packet
+  # where it stands and moves its deltas. The register effect is the one the
+  # entry's own text named — the declaration leaves the ACTIVE corpus this
+  # register scans — so the entry goes and `CLOSED_REGISTER` loses the same pair
+  # in the same pull request (openxFactory #1058), which is where
+  # `target_release.py` says such a movement must be visible.
 
   - change: add-roster-directory-admission-surface
     token: "implementation_pending"
