@@ -1749,10 +1749,16 @@ the bookkeeping that ticks this group.
   keeps its `openxfactory-` qualifier deliberately: `corpus-adapter-seam`
   requirement 4 makes the neutral capability openDox's under RULING Q4, and
   an unqualified `engineering-adapter` would read as that one.
-  *(Recorded here because three live acts were blocked on the id's absence —
-  § 5.6's de-floor, § 8.4's both-directions accounting, and the two open § 6
-  closures #1060 and #1065, each of which carried its delta whole rather than
-  re-author it against an unnamed successor.)*
+  *(Recorded here because live work was blocked on the id's absence — **three
+  classes, FOUR open acts**: § 5.6's de-floor, § 8.4's both-directions
+  accounting, and the two § 6 closures already open, **#1060** and **#1065**,
+  each of which carried its delta WHOLE rather than re-author it against an
+  unnamed successor. #1071's own body counts THREE, treating the pair of
+  closures as one class; the enumeration is identical either way and both
+  counts are said here so neither reading contradicts the list — a Copilot
+  finding on this amendment's own pull request, round 6, which was right that
+  a bare "three" over four named items is a count contradicting its own
+  evidence.)*
 - [x] 5.2 `[oxF]` **Shed the dashboard corpus down to RULED DQ-1's KEPT SET.**
   The list is `docs/opendox-carve-manifest.yaml` and not a prose inventory: every
   row it routes to a destination LEAVES — **except the twenty
@@ -2118,8 +2124,14 @@ the bookkeeping that ticks this group.
   2026-09-16T16:27:36Z**, and both halves of that condition are now met:
   `.github/workflows/openxdox-consumer-gate.yml` stands at `main` with `name:`
   and job id the single token `openxdox-consumer-gate`, and the gate HAS
-  REPORTED — it is a required check on this very pull request, SUCCESS at
-  `d1314f4d` (run `35134189330`). **THE TICK IS THEREFORE OWED, AND AMENDMENT
+  REPORTED — it is a required check on **amendment #4's own pull request,
+  `opensoft/openxFactory` #1058**, SUCCESS at `d1314f4d` (run `35134189330`).
+  *(This read "this very pull request" while #1058 was the only pull request
+  carrying the box. In amendment #5's copy that would name #1078 and
+  mis-attribute a run that never happened there — a Copilot finding on this
+  amendment's own pull request, round 6, and the last of amendment #4's
+  self-references to be bound to its own act.)*
+  **THE TICK IS THEREFORE OWED, AND AMENDMENT
   #4 DOES NOT TAKE IT.** This box's own sentence earlier in this paragraph —
   *"This box ticks on THAT pull request's merge and on the new gate
   reporting"* — says it ticks on that pull request and not on amendment #4's;
