@@ -1577,8 +1577,9 @@ the bookkeeping that ticks this group.
   parenthetical and § 5.6a defect (a) are about; SIX is the schemas the carve
   manifest moves, which is what this box is about. A sixth `relocating:` marker
   was never owed for a file that was never a registered contract, so none is
-  missing — and the window covers everything it is required to cover. `#656` records: CLAIM `5690461589`; RULED R-2 `5690428146`;
-  the discharging act #940 → `cc4ae9d3`.
+  missing — and the window covers everything it is required to cover.
+  `#656` records: CLAIM `5690461589`; RULED R-2 `5690428146`; the discharging
+  act #940 → `cc4ae9d3`.
 - [ ] 5.3 `[oxF]` **AUTHOR `.github/workflows/openxdox-consumer-gate.yml` in
   `openxFactory`** — a NEW consumer gate over the pinned tools, on the
   `openxwallet-consumer-gate` shape (a `<product>-consumer-gate.yml` whose job id
@@ -2018,8 +2019,9 @@ movements claimed at the time they land.
   `mapping[_-]id` and `domain[_-]label` return **zero files each**. **So the
   answer does not rest on one `kind:` string**: by the literal, by the ten
   `kind:` words actually declared, and by the five-axis STRUCTURE independent of
-  any naming, codexFactory holds no profile artifact. The content mentions that DO exist
-  are named rather than hidden, since a path-only census would have missed them.
+  any naming, codexFactory holds no profile artifact.
+  **The content mentions that DO exist are named rather than hidden**, since a
+  path-only census would have missed them.
   Matched case-INSENSITIVELY, `openxdox` is in **32** tracked files and `opendox`
   in **28** — **but 17 files carry both, so the union is 43 files**, not the 60
   that adding the two columns would give. The 32 `openxdox` files sit
@@ -2050,17 +2052,17 @@ movements claimed at the time they land.
   more and neither is a descriptor (`tenants/README.md`:11 shows the form, and
   `openspec/changes/add-software-team-execution-lane/supporting-docs/01-tenant-and-approved-intent.md`:55
   quotes it) — tenancy for codexFactory's OWN product, with no dox instance, no
-  dox database and no `openXdox — <tenant>` App anywhere. **Zero artifacts of the product's profile kind by content and by
-  kind literal, so the laziness rule holds and the answer is NONE YET.**
+  dox database and no `openXdox — <tenant>` App anywhere. **Zero artifacts of
+  the product's profile kind — by content, by kind literal and by structure — so
+  the laziness rule holds and the answer is NONE YET.**
   *(This paragraph replaced a PATH-ONLY census — `(?i)domain.mapping` 0,
   `(?i)codexdox` 0, `(?i)openxdox` 0, `(?i)opendox` 0 over path names — at
   Copilot review round 1 on this amendment's own pull request. The finding was
   right and is recorded rather than quietly fixed: those four greps read
   FILENAMES, the requirement reads ARTIFACT KIND, and the content census above
   finds 43 files mentioning the product that the path census could not see. The
-  conclusion is
-  unchanged and is now established by the evidence that would have overturned
-  it. The § 7.2 REPORT carried the same path-only census and is corrected by its
+  conclusion is unchanged and is now established by the evidence that would have
+  overturned it. The § 7.2 REPORT carried the same path-only census and is corrected by its
   own erratum, cited there.)*
   **The clause this box carried does NOT reproduce, which is why it was
   amended rather than ticked around.** codexFactory holds **32** tracked paths
@@ -2089,8 +2091,8 @@ movements claimed at the time they land.
   requirement, not cited as precedent for creating more.
   **TICKED 2026-09-16 on RULED R-3 (`#656` comment `5690428146`) AND ON THE
   REPORT ITSELF, which is posted before the box moves rather than asserted in
-  it** — `#656` comment **`5690553188`**, written against the PROMOTED requirement *A descendant is
-  created on its first profile, not before*
+  it** — `#656` comment **`5690553188`**, written against the PROMOTED
+  requirement *A descendant is created on its first profile, not before*
   (`openspec/specs/domain-descendant-boundary/spec.md`:128-145) and in
   particular its scenario **An empty descendant exists** (:143-145). What the
   report finds, measured rather than asserted: the `opensoft` organization
@@ -2115,16 +2117,19 @@ movements claimed at the time they land.
   `archive/2026-09-09-add-openspec-cli-pin/tasks.md`:244-255 (which names it
   *"the house's reserved DEFERRED form"* and cites
   `archive/2026-08-21-add-doxbench-editing-phase-a/tasks.md` § 5.3 for it),
-  `archive/2026-09-09-pin-openspec-cli-dependency-closure` §§ 6.1/6.2 and
-  `archive/2026-09-10-adopt-codexfactory-repository-identity` §§ 5.7, 8.4, 9.1-9.6.
+  `archive/2026-09-09-pin-openspec-cli-dependency-closure` §§ 6.1/6.2,
+  `archive/2026-09-10-adopt-codexfactory-repository-identity` §§ 5.7, 8.4, 9.1-9.6,
+  and `archive/2026-09-10-accept-sequenced-after-header-line` § 4.4 — **five
+  archived packets, thirteen boxes, and that is every `^- \[~\]` in
+  `openspec/changes/archive/`.**
   *(Measured rather than assumed, because "as § 4.5 was" invites the opposite
   reading: § 4.5 wore `- [ ]` while it was the recorded deferred successor — it
   reads `- [ ]` at `56e69a11`, the #832 archive commit that recorded the
   deferral, and `- [x]` at this packet's merge-base `8f393758` after it was
   built. What the ruling carries over from § 4.5 is the STANDING — open, owned,
   not lapsed, not gating — not the character in the box. This is the first `[~]`
-  in this packet.)* It
-  is the successor act that runs when a domain acquires its first profile
+  in this packet.)*
+  It is the successor act that runs when a domain acquires its first profile
   artifact, and § 7.1's laziness rule is what starts it. The text below is its
   specification, unchanged and unticked, and § 8's gate reads it as deferred
   rather than open. **When the ruling lands**: the descendant carries ONE
@@ -2310,12 +2315,12 @@ realization evidence, never on landing. Each line is its own evidence.
   *(THIRD CLAUSE REWRITTEN 2026-09-16 by RULED **R-6**, `#656` comment
   `5690428146`. It read "a doc-health run whose severity counts move by exactly
   the amount the packet predicts" — **and the packet predicts no amount
-  anywhere**. Measured across the WHOLE packet, `review/` included:
-  **OUTSIDE THIS BOX** — the only count of this word that stays true while this
-  box is being written — "severity" occurs **SEVEN** times in **FIVE** files, and
-  nowhere else in `tasks.md` at all: `design.md`:225 (a glossary
-  row), `review/ratification-2026-09-05.md`:649,
-  :691 and :783, `review/reality-check-2026-09-05.md`:302,
+  anywhere**. Measured across the whole packet OUTSIDE THIS BOX, `review/`
+  included — the only framing of this count that stays true while the box is
+  being written — "severity" occurs **SEVEN** times in **FIVE** files, and
+  nowhere else in `tasks.md` at all: `design.md`:225 (a glossary row),
+  `review/ratification-2026-09-05.md`:649, :691 and :783,
+  `review/reality-check-2026-09-05.md`:302,
   `review/amendment-2026-09-05-repository-shape.md`:246, and
   `review/amendment-2026-09-09-floor-part-2-mapping.md`:45 (which is a CHANGE
   NAME, `2026-09-03-amend-owner-layer-severity`, not a count at all). **Not one
@@ -2352,5 +2357,6 @@ realization evidence, never on landing. Each line is its own evidence.
   its own measurement read thirteen the moment it landed. Hence the count is now
   taken OUTSIDE this box, where editing this box cannot move it, and it is stated
   as such. A count that does not reproduce is the same defect this amendment
-  corrects in five other boxes; a count that cannot be made to stop reproducing
-  is what this one needed.)*)*
+  corrects in five other boxes; a count that MOVES WHEN YOU WRITE ABOUT IT is a
+  different defect, and it is fixed by reframing the measurement rather than by
+  running it again.)*)*
