@@ -297,12 +297,17 @@ RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
 test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
-**Measured directly against the landed manifest, and CURRENT TO THE
-PRE-EXISTING `openxdox_code` ANNOTATION of 2026-09-16** (rather than
-hand-chained through every intervening amendment): the table and the two
-paragraphs above, and the per-destination table below, state the totals as of
-THIS act — the pre-existing `openxdox_code` row annotation (`#656` CLAIM
-`5656688910`), and behind it the § 3.4 slice-S8 annotation (RULED `#656`
+**Measured directly against the landed manifest, and CURRENT TO RULED Q7's
+CSS EXTRACTION of 2026-09-16** (rather than hand-chained through every
+intervening amendment): the table and the two paragraphs above, and the
+per-destination table below, state the totals as of THIS act — RULED Q7's CSS
+extraction (`#656` comment `5648049748`, the FORM Q-L1's at `5628560136`), the
+one act on this document whose whole window is a DELETION: 89 `adapter calls`
+lines on one already-declared row, as the 59 rule blocks the gate loop's own
+selectors occupied leave for the four sheets openXdox-code ships beside the
+bindings that name them. Behind it, the pre-existing `openxdox_code` row
+annotation (`#656` CLAIM `5656688910`), and behind that the § 3.4 slice-S8
+annotation (RULED `#656`
 comment `5656343213`) and the § 3.4 slice-S7 row annotation (RULED Q1/Q2/Q7,
 `#656` comment `5648049748`; S7 CLAIM `#656` comment `5649148461`) — which is
 the § 3.4 SLICE-S3 row annotation

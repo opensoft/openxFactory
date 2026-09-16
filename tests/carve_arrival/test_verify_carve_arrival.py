@@ -5126,6 +5126,51 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     # this the way an equality check broke on the FIRST bump).
     opendox_seed = {entry["path"]: entry
                     for entry in admissions.get("opendox_code", [])}
+
+    # RULED Q7's CSS EXTRACTION (`#656` comment `5648049748`) — FIVE new
+    # admissions, each pinned by PATH AND `since` (Copilot review of this act,
+    # round 1: the generic shape/sort/hex checks above would pass a dropped
+    # entry, a swapped one, or an incorrect introducing commit, and this file's
+    # own docstring already records that every bump owes exact assertions).
+    #
+    # `since` IS THE FILE'S OWN INTRODUCING COMMIT and not the leg branch's
+    # later tip — the provenance contract stated above, and it is why these two
+    # shas do not move when the leg takes a review round.
+    q7_expected = {
+        "opendox_code": {
+            # the extraction's running proof, on `validate.yml`'s explicit list
+            "tests/test_binding_stylesheets.py":
+                "144a4a338f3e1017662fbde0f2e3e7916231baea",
+        },
+        "openxdox_code": {
+            # FOUR sheets for SIX bindings, and both departures are measured:
+            # `gate-lens.js` owns no selector of its own, and the two workbench
+            # bindings name ONE sheet because eleven of its nineteen blocks are
+            # named by both.
+            "src/openxdox/web/views/dispose.css":
+                "b18687ced9f7bb98bbb6bbfe1257dea7149305a0",
+            "src/openxdox/web/views/gate-projects.css":
+                "b18687ced9f7bb98bbb6bbfe1257dea7149305a0",
+            "src/openxdox/web/views/gate.css":
+                "b18687ced9f7bb98bbb6bbfe1257dea7149305a0",
+            "src/openxdox/web/views/swb.css":
+                "b18687ced9f7bb98bbb6bbfe1257dea7149305a0",
+        },
+    }
+    for destination, wanted in q7_expected.items():
+        declared = {entry["path"]: entry
+                    for entry in admissions.get(destination, [])}
+        for path, since in wanted.items():
+            assert path in declared, (
+                f"{path} is one of RULED Q7's five admissions (`#656` comment "
+                f"`5648049748`) at {destination} and is no longer declared")
+            assert declared[path]["since"] == since, (
+                f"{path}'s `since` is {declared[path]['since']!r} and RULED Q7 "
+                f"introduced it at {since!r}: `since` is the file's OWN "
+                "introducing commit, so a leg review round must not move it")
+    # FIVE, counted rather than implied: a sixth would be an admission this act
+    # did not declare riding in on its name.
+    assert sum(len(v) for v in q7_expected.values()) == 5
     for path in ("src/opendox/web/views/intent-binding.js",
                  "tests/test_intent_binding_dom.py",
                  "tests/test_intent_binding_shape.py"):

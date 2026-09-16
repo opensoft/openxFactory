@@ -4210,7 +4210,11 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     """The § 3.4 slice-S7 window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
-    AGGREGATE `(2454, 176)`, and that pair would stay green if any of these 782
+    AGGREGATE — `(2543, 176)` since RULED Q7's CSS extraction, `(2454, 176)`
+    before it, and a figure this docstring has now been caught carrying stale
+    TWICE (Copilot review of that act, round 1). It moves with every annotation
+    and this window does not, which is the whole reason the window is pinned
+    separately: that pair would stay green if any of these 782
     lines had landed on the wrong row, under the wrong one of RULING OQ-1's
     three classes, or as a different set summing to the same total — which is
     why every slice since ASK-7 pins its own window. S7 edits THIRTY-THREE rows
@@ -4345,11 +4349,12 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     # 1584 + 782 = 2366 and 159 + 17 = 176 — THE AGGREGATE AS SLICE S7 LANDED
     # IT, which is what a window total is: a DELTA against the document the
     # act found, and so a figure a later slice cannot move. The carrying half
-    # is still the amendment test's own figure, because neither slice S8
-    # (openxFactory #1025) nor the pre-existing `openxdox_code` annotation
-    # (#1031) added a carrier; the line half is not — S8's forty carry it to
-    # 2406 and that annotation's forty-eight to 2454, and that test
-    # re-derives it rather than reading it here.
+    # is still the amendment test's own figure, because none of slice S8
+    # (openxFactory #1025), the pre-existing `openxdox_code` annotation (#1031)
+    # or RULED Q7's CSS extraction added a carrier; the line half is not —
+    # S8's forty carry it to 2406, that annotation's forty-eight to 2454 and
+    # Q7's eighty-nine to 2543, and that test re-derives it rather than reading
+    # it here.
     assert 1584 + lines == 2366, lines
     assert 159 + len(S7_CONVERTED) == 176, len(S7_CONVERTED)
 
