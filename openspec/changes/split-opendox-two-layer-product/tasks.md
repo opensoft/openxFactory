@@ -1025,13 +1025,27 @@ the bookkeeping that ticks this group.
   CLAIMS it, and this box claims neither. What it does is record the
   measurement, so the act that amends them does not have to re-derive it.
   **A FIFTH occurrence is in the packet and is of a different kind**, named so
-  that a later reader who greps for `30,410` and finds five does not read it as
+  that a later reader who greps the packet for that figure does not read it as
   one this box missed: `review/ratification-2026-09-05.md`:549 quotes the
   figure inside the residual question `design.md` § D3 left open AT
   ratification. That file is a RECORD — `Status: ratified`, decision date
   2026-09-05, ratified baseline `6935fb8b` — of what the packet said on the day
   it was ratified, so no later act amends it, including the act that corrects
-  the four live ones.
+  the four live ones. **The grep is named WITH ITS SCOPE, because the bare
+  instrument does not reproduce that five.** Run over the whole packet —
+  `grep -rn "30,410" openspec/changes/split-opendox-two-layer-product/` — it
+  returns **TWELVE** lines at this head, and they decompose exactly: **seven**
+  are `tasks.md`'s own (the box's design-time figure in the § 3.4 text above,
+  and six lines of this STATUS's prose about it — a share that GROWS with every
+  fix round, this sentence included), **four** are the LIVE citations named in
+  the paragraph above, and **one** is the RECORD named here. **The five this
+  paragraph counts are those last five: every occurrence OUTSIDE the box's own
+  text**, which is the scope an act that amends them works on. *(The sentence
+  said "finds five" against an unscoped grep that returns twelve — a Copilot
+  finding on #1035, accurate, taken at fix round 11. It is the same lesson as
+  the hunk positions, the placeholder-marker grep and the README line numbers
+  below: an instrument cited without its scope and its head stops reproducing,
+  and here the amendment's own prose is what moved the count.)*
 
   **What the arc did NOT close, named so no later reader takes the tick for
   more than it is** — every item is someone else's act under its own claim and
@@ -1069,6 +1083,18 @@ the bookkeeping that ticks this group.
   Records** block being both where an archived packet's entry is rewritten and
   (lane-collision protocol, Rule 6) the one block a landing window exists to
   serialize. Recorded here so that act does not have to rediscover it.
+  **An in-place correction at a realization landing HAS a precedent in this very
+  block, and the precedent is a RULING**: the `add-declared-former-id` entry
+  (`README.md`:534 at this head) was amended by its own realization, lane
+  `openxfactory-1`, on Brett Heap's word of 2026-09-15 — verbatim *"Amend the
+  row in #1041"*, recorded at `#1003` comment `5686628685` and quoted in the
+  entry itself. So the path is open, and it is not this box's to take: it needs
+  its own ruling and its own claim, and it lands on the one block a landing
+  window serializes. *(A Copilot finding on #1035 asked for the correction to be
+  made IN this landing rather than deferred; this paragraph is the answer,
+  registered at fix round 11 and declined here on the rule this box applies to
+  `design.md` and `proposal.md` alike — a document is amended by the act that
+  CLAIMS it.)*
   **That entry is cited by its SENTENCE and not by a line number, deliberately,
   and it is the one citation in this box that could not be one.** Every other
   measurement here names the tree it was read at; this one can name no line,
