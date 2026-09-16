@@ -5168,9 +5168,21 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
                 f"{path}'s `since` is {declared[path]['since']!r} and RULED Q7 "
                 f"introduced it at {since!r}: `since` is the file's OWN "
                 "introducing commit, so a leg review round must not move it")
-    # FIVE, counted rather than implied: a sixth would be an admission this act
-    # did not declare riding in on its name.
-    assert sum(len(v) for v in q7_expected.values()) == 5
+    # FIVE, COUNTED IN THE COMMITTED FILE — not in the expectation above.
+    # `sum(len(v) for v in q7_expected.values())` compared a local constant
+    # with itself, so a SIXTH admission riding in on this act's name still
+    # passed (Copilot review, round 5). The committed entries introduced at
+    # RULED Q7's two commits are what is counted now, so an extra one fails.
+    q7_commits = {since for wanted in q7_expected.values()
+                  for since in wanted.values()}
+    q7_committed = {(destination, entry["path"])
+                    for destination in q7_expected
+                    for entry in admissions.get(destination, [])
+                    if entry["since"] in q7_commits}
+    assert q7_committed == {(destination, path)
+                            for destination, wanted in q7_expected.items()
+                            for path in wanted}, sorted(q7_committed)
+    assert len(q7_committed) == 5, sorted(q7_committed)
     for path in ("src/opendox/web/views/intent-binding.js",
                  "tests/test_intent_binding_dom.py",
                  "tests/test_intent_binding_shape.py"):

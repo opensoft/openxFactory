@@ -46,6 +46,23 @@ from pathlib import Path
 
 # --------------------------------------------------------------------------
 # openDox-code tests/test_web_boundary.py's span walk, behaviour-for-behaviour.
+#
+# ITS ONE KNOWN LIMIT, MEASURED AND LEFT DELIBERATELY (Copilot review of
+# openxFactory #1068, round 5). The `${...}` walk counts braces without lexing
+# the interpolation's own strings, so `${cond ? "{" : ""}` would never balance
+# and the span would swallow the rest of the file. It does not bite here: over
+# the 44 JavaScript files this census reads (openXdox-code `0a0265f7`'s six
+# contributed modules and openDox-code `0b4e8bbf`'s bundle) there are 34
+# interpolations and NONE carries a brace inside a string inside one, and no
+# string span exceeds 1,500 characters — a runaway would be visible as a span
+# reaching the end of the file.
+#
+# AND IT IS NOT THIS ACT'S TO REPAIR. The walk is copied behaviour-for-
+# behaviour from openDox-code's own `tests/test_web_boundary.py`, which is the
+# tool's whole guarantee: a token this census says a module names is a token
+# that leg's own suite would see. Diverging here would break that in the
+# direction that matters, so the repair belongs in that suite and this copy
+# together — REGISTERED FOR A LATER DECLARED ACT.
 # --------------------------------------------------------------------------
 _JS_REGEX_PREFIX = re.compile(
     r"(?:[=(,:;!&|?{}\[\+\-*%<>~^]|^|\breturn\b|\btypeof\b|\bcase\b|\bin\b|\bof\b"
@@ -169,8 +186,22 @@ def _literals(text: str, suffix: str) -> list[str]:
 #: 5 where the truth is 54 — it is the dominant class-bearing form here, not
 #: noise to be filtered out.
 #:
-#: `=` IS ASSIGNMENT AND NOT COMPARISON: `==`, `!=`, `<=` and `>=` all end in
-#: `=` and none of them is a class being set.
+#: AND AN ASSIGNMENT COUNTS ONLY WHERE THE TARGET SAYS IT IS A CLASS (Copilot
+#: review of openxFactory #1068, round 5). A bare `x = "…"` rule made every
+#: assigned string a class write, so `const message = "gatebar"` — or
+#: `btn.title = "commission this staging topic"`, whose every word is on the
+#: class alphabet and two of which (`topic`, `staging`) `styles.css` declares —
+#: claimed ownership of an openDox rule. The target is now named: `className`,
+#: `class`, `cls`, `classes`, `classList` (`+=` included, which is how a class
+#: is appended). MEASURED at `0b4e8bbf`/`0a0265f7`: the census is UNCHANGED at
+#: 54 gate-exclusive classes / 59 exclusive blocks / 89 lines — WHAT LEAVES IS
+#: UNCHANGED — because every one of the 46 bare-literal classes here arrives in
+#: ARGUMENT position (`el(tag, className, text)`), not by assignment. What does
+#: change is the SHARED count: `topic` was shared only through
+#: `btn.title = "commission proposal authoring for this staging topic "`
+#: (`dispose.js`:402), and shared classes STAY either way. Comparison is
+#: excluded by construction — `==`, `!=`, `<=`, `>=` end in `=` but none of
+#: them follows a class-named target.
 #:
 #: AND A VALUE UNDER A CLASS-NAMING KEY IS CLASS-BEARING, which is the one
 #: context an argument/assignment rule alone gets wrong here: `dispose.js`:202-206
@@ -182,7 +213,9 @@ def _literals(text: str, suffix: str) -> list[str]:
 #: `kind` is not a class-naming key — which is the distinction the whole rule
 #: is for.
 _ARG_OR_ASSIGN = re.compile(
-    r"(?:[(,]|(?<![=!<>])=|\b(?:cls|class|className|classes)\s*:)\s*$")
+    r"(?:[(,]"
+    r"|\b(?:cls|class|className|classes|classList)\s*\+?="
+    r"|\b(?:cls|class|className|classes)\s*:)\s*$")
 
 
 def _bare_literal_is_class_bearing(text: str, start: int) -> bool:
@@ -190,14 +223,76 @@ def _bare_literal_is_class_bearing(text: str, start: int) -> bool:
     return bool(_ARG_OR_ASSIGN.search(text[max(0, start - 40):start]))
 
 
-def prefix_refs(text: str, suffix: str) -> set[str]:
-    """Every class-name PREFIX this file concatenates onto."""
+#: A DOT IS A SELECTOR ONLY INSIDE A SELECTOR (Copilot review of openxFactory
+#: #1068, round 5). Reading `\.token` out of ANY string literal made every
+#: dotted route, module specifier, filename and sentence a class declaration:
+#: `"/api/gate.css"` handed the gate `css`, `"./helpers.js"` handed it `js`,
+#: `"gate.lens: ctx.model."` handed it `lens` and `model`, `"proposal.md"`
+#: handed it `md`. MEASURED over openXdox-code `0a0265f7`'s six contributed
+#: modules: the old rule found 14 dotted tokens, and 13 of them were of exactly
+#: that kind. Two conditions now hold together, and both are things a selector
+#: satisfies by construction:
+#:   SHAPE — the whole literal is on the selector alphabet. A path or a URL
+#:           carries `/`, which no selector outside an attribute value does, and
+#:           a sentence carries punctuation and stops.
+#:   POSITION — the `.` does not follow an identifier character. `.gatebar` and
+#:           `.a .b` are selectors; `gate.lens` and `error.foo` are a view id
+#:           and a message, and `div.foo` is the one real selector form this
+#:           refuses — a loss in the SAFE direction, since under-reading the
+#:           gate side KEEPS a rule in openDox (the asymmetry `extract_class`
+#:           is built on). MEASURED: what leaves is unchanged — 54
+#:           gate-exclusive classes, 59 exclusive blocks, 89 lines, the same 59
+#:           selectors at the same extents. `g` (from `"e.g. Field Pilots"`,
+#:           `gate-projects.js`) and `lens` (from `"gate.lens: …"`, a view id)
+#:           stop being counted shared, which is the finding biting.
+_SELECTOR_SHAPED = re.compile(r"^[A-Za-z0-9_\-.#>+~*:\[\]=\"',()\s]+$")
+_SELECTOR_CLASS = re.compile(r"(?<![A-Za-z0-9_-])\.([A-Za-z_][A-Za-z0-9_-]*)")
+
+
+def prefix_refs(text: str, suffix: str, *,
+                class_bearing_only: bool = False) -> set[str]:
+    """Every class-name PREFIX this file concatenates onto.
+
+    `class_bearing_only` puts prefixes under THE SAME ASYMMETRY the token scans
+    already obey (Copilot review of openxFactory #1068, round 5): an ungated
+    prefix rule let any hyphen-terminated word in any string — `"status-"` in a
+    sentence, a route fragment — claim every declared class starting with it,
+    and on the GATE side that claim MOVES an openDox rule. Gated, a prefix
+    counts only from a `class="…"` run (class-bearing by construction, which is
+    how a template writes one) or from a literal in argument/assignment
+    position AND ITSELF A BARE CLASS LIST — the same two conditions
+    `narrow_refs` puts on a bare literal, so the prefix rule and the token rule
+    agree about what a class-bearing literal is. The openDox side stays
+    ungated, because over-reading there only
+    KEEPS a rule — the same direction the broad token scan errs in.
+    """
     out: set[str] = set()
-    for s in _literals(text, suffix):
-        for piece in s.split():
-            m = _PREFIX.match(piece)
-            if m:
-                out.add(m.group(1))
+    if suffix == ".js":
+        spans = [(text[a + 1:b - 1], a) for kind, a, b in _js_spans(text)
+                 if kind == "string"]
+    else:
+        spans = [(m.group(1), m.start(1)) for m in
+                 re.finditer(r'class\s*=\s*"([^"]*)"', text)]
+        spans += [(m.group(1), m.start(1)) for m in
+                  re.finditer(r"class\s*=\s*'([^']*)'", text)]
+
+    def register(piece: str) -> None:
+        m = _PREFIX.match(piece)
+        if m:
+            out.add(m.group(1))
+
+    for s, start in spans:
+        # A `class="…"` run inside the literal is class-bearing either way.
+        for m in re.finditer(r'class\s*=\s*"?([A-Za-z0-9_ -]*(?:\$\{)?)', s):
+            for piece in m.group(1).split():
+                register(piece)
+        parts = s.split()
+        if class_bearing_only and suffix == ".js" and not (
+                parts and all(_CLASSTOK.match(q) for q in parts)
+                and _bare_literal_is_class_bearing(text, start)):
+            continue
+        for piece in parts:
+            register(piece)
     return out
 
 
@@ -213,9 +308,11 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
         spans += [(m.group(1), m.start(1)) for m in
                   re.finditer(r"class\s*=\s*'([^']*)'", text)]
     for s, start in spans:
-        # A SELECTOR STRING is class-bearing wherever it sits: `.foo`, `div.foo`
-        # — the leading dot is the declaration.
-        out.update(re.findall(r"\.([A-Za-z_][A-Za-z0-9_-]*)", s))
+        # A SELECTOR STRING is class-bearing wherever it sits — but it has to
+        # BE a selector: shape and position both, see `_SELECTOR_SHAPED`.
+        stripped = s.strip()
+        if stripped and _SELECTOR_SHAPED.match(stripped):
+            out.update(_SELECTOR_CLASS.findall(stripped))
         # A `class="…"` inside a template is class-bearing by construction.
         for m in re.finditer(r'class\s*=\s*"?([A-Za-z0-9_ -]*)', s):
             out.update(p for p in m.group(1).split() if _CLASSTOK.match(p))
@@ -235,11 +332,33 @@ _TOKEN = re.compile(r"\.([A-Za-z_][A-Za-z0-9_-]*)")
 
 
 def _blank_comments(css: str) -> str:
+    """The scan copy: COMMENTS AND STRINGS blanked, every newline kept.
+
+    Strings are blanked for the same reason comments are, and the omission was
+    a real defect (Copilot review of openxFactory #1068, round 5): the brace
+    walk below counts `{` and `}` characters, and a declaration as ordinary as
+    `content: "}"` or `content: "{"` moved the count inside a string — closing
+    the block early or swallowing the rules after it, and every line extent
+    from there on would be wrong. Blanking preserves OFFSETS and LINES exactly,
+    so `line_of` and every `css[...]` slice still read the real file.
+    """
     out, i, n = [], 0, len(css)
     while i < n:
         if css[i] == "/" and i + 1 < n and css[i + 1] == "*":
             j = css.find("*/", i + 2)
             j = n if j < 0 else j + 2
+            out.append(re.sub(r"[^\n]", " ", css[i:j]))
+            i = j
+            continue
+        if css[i] in "\"'":
+            quote, j = css[i], i + 1
+            while j < n:
+                if css[j] == "\\":
+                    j += 2; continue
+                if css[j] == quote or css[j] == "\n":   # CSS strings do not span lines
+                    break
+                j += 1
+            j = min(j + 1, n)
             out.append(re.sub(r"[^\n]", " ", css[i:j]))
             i = j
             continue
@@ -299,6 +418,15 @@ def parse_blocks(css: str) -> list[dict]:
 
 def parse_nested(css: str, scan: str, lo: int, hi: int, at_rule: str,
                  line_of) -> list[dict]:
+    """The rules inside an at-rule — RECURSIVELY, at every depth.
+
+    A single level was a real defect (Copilot review of openxFactory #1068,
+    round 5): `@media … { @supports (…) { .gatebar { … } } }` recorded the
+    `@supports` prelude AS A RULE and never emitted `.gatebar`, so an exclusive
+    block nested two deep would be missed and left in the wrong leg. The
+    ancestry is kept as the at-rule preludes joined, so a nested block reports
+    WHERE it sits as well as what it is.
+    """
     out: list[dict] = []
     i, seg_start = lo, lo
     while i < hi:
@@ -312,9 +440,18 @@ def parse_nested(css: str, scan: str, lo: int, hi: int, at_rule: str,
                 elif scan[j] == "}":
                     depth -= 1
                 j += 1
-            out.append({"selector": prelude, "at_rule": at_rule, "kind": "rule",
-                        "start": line_of(pre_off), "end": line_of(j - 1),
-                        "body": css[i + 1:j - 1]})
+            if prelude.startswith("@") and "{" in scan[i + 1:j - 1]:
+                out.extend(parse_nested(css, scan, i + 1, j - 1,
+                                        f"{at_rule} {prelude}", line_of))
+                out.append({"selector": prelude, "at_rule": at_rule,
+                            "kind": "at_rule_wrapper",
+                            "start": line_of(pre_off), "end": line_of(j - 1),
+                            "body": css[i + 1:j - 1]})
+            else:
+                out.append({"selector": prelude, "at_rule": at_rule,
+                            "kind": "rule",
+                            "start": line_of(pre_off), "end": line_of(j - 1),
+                            "body": css[i + 1:j - 1]})
             i = j
             seg_start = j
             continue
@@ -325,12 +462,20 @@ def parse_nested(css: str, scan: str, lo: int, hi: int, at_rule: str,
 
 
 def selector_tokens(selector: str) -> dict:
-    """What a selector list is MADE of — the census's whole discrimination."""
-    classes = sorted(set(_TOKEN.findall(selector)))
-    without = _TOKEN.sub(" ", selector)
+    """What a selector list is MADE of — the census's whole discrimination.
+
+    ATTRIBUTE VALUES ARE NOT SELECTOR TEXT, and reading class tokens before
+    removing them was a real defect (Copilot review of openxFactory #1068,
+    round 5): `[data-state=".gatebar"]` yielded the class `gatebar`, so a rule
+    with no class selector at all could be classified gate-exclusive and
+    extracted. `[...]` goes first now, for classes as it already did for
+    elements.
+    """
+    outside = re.sub(r"\[[^\]]*\]", " ", selector)
+    classes = sorted(set(_TOKEN.findall(outside)))
+    without = _TOKEN.sub(" ", outside)
     ids = sorted(set(re.findall(r"#([A-Za-z_][A-Za-z0-9_-]*)", without)))
     without = re.sub(r"#[A-Za-z_][A-Za-z0-9_-]*", " ", without)
-    without = re.sub(r"\[[^\]]*\]", " ", without)
     without = re.sub(r"::?[A-Za-z-]+(\([^)]*\))?", " ", without)
     elements = sorted({t for t in re.findall(r"[A-Za-z][A-Za-z0-9-]*", without)})
     return {"classes": classes, "ids": ids, "elements": elements}
@@ -350,7 +495,25 @@ def main() -> int:
     gate_dir = xdox / "src" / "openxdox" / "web" / "views"
     if "--gate-dir" in sys.argv:
         gate_dir = Path(sys.argv[sys.argv.index("--gate-dir") + 1]).resolve()
+    # A MISSING CHECKOUT IS A REFUSAL, NOT A ZERO (Copilot review, round 5).
+    # `glob` on a path that does not exist yields nothing, and the run would
+    # report `0 gate-exclusive classes, 0 blocks` — a mistyped argument reading
+    # as a measured "nothing to extract", which is the worst answer this tool
+    # can give: it is the same output a COMPLETED extraction produces.
+    for label, path in (("openDox-code's served bundle", web),
+                        ("openXdox-code's contributed modules", gate_dir)):
+        if not path.is_dir():
+            raise SystemExit(
+                f"{label}: {path} is not a directory. This tool measures TWO "
+                "checkouts, and a path that is not there yields an empty scan "
+                "and a census of zero — indistinguishable from a bundle with "
+                "nothing left to extract")
     gate_files = sorted(p for p in gate_dir.glob("*.js"))
+    if not gate_files:
+        raise SystemExit(
+            f"{gate_dir} carries no `.js` file. The contributed modules are "
+            "what the gate side of this census is measured FROM; an empty set "
+            "reports every class as openDox's own and no block as leaving")
     #: A gate module is NEVER counted on openDox's side of the census, wherever
     #: it physically sits. Before slice S5 landed the six lived in openDox's own
     #: `views/`, so a name-blind sweep would call every gate class `shared` and
@@ -380,6 +543,12 @@ def main() -> int:
     dox_prefix = {p.name: prefix_refs(p.read_text(encoding="utf-8",
                                                   errors="replace"), p.suffix)
                   for p in dox_files}
+    # The NARROW prefix table, for the side of the decision where an
+    # over-reading moves a rule. See `prefix_refs`' own note.
+    gate_prefix_narrow = {p.name: prefix_refs(p.read_text(encoding="utf-8",
+                                                          errors="replace"),
+                                              p.suffix, class_bearing_only=True)
+                          for p in gate_files}
 
     def by_prefix(token: str, table: dict[str, set[str]]) -> list[str]:
         return sorted(n for n, ps in table.items()
@@ -403,9 +572,10 @@ def main() -> int:
     census: dict[str, dict] = {}
     for token in declared:
         pg, pd = by_prefix(token, gate_prefix), by_prefix(token, dox_prefix)
+        png = by_prefix(token, gate_prefix_narrow)
         g = sorted(set(namers(token, gate_text)) | set(pg))
         d = sorted(set(namers(token, dox_text)) | set(pd))
-        ng = sorted({n for n, s in gate_narrow.items() if token in s} | set(pg))
+        ng = sorted({n for n, s in gate_narrow.items() if token in s} | set(png))
         nd = sorted({n for n, s in dox_narrow.items() if token in s} | set(pd))
         # THE EXTRACTION DECISION IS ASYMMETRIC, ON PURPOSE (Copilot review of
         # openxFactory #1068, round 3). It reads the GATE side NARROW and the
@@ -443,8 +613,14 @@ def main() -> int:
     for b in rules:
         b["block_class"] = block_class(b)
         b["tokens"] = selector_tokens(b["selector"])
-        b["reads_st_token"] = bool(re.search(r"var\(\s*--st-", b["body"]))
-        b["declares_st_token"] = bool(re.search(r"^\s*--st-", b["body"], re.M))
+        # A COMMENT IS NOT A DEPENDENCY (Copilot review of openxFactory #1068,
+        # round 5): `/* var(--st-proposed) */` or a commented-out `--st-x:`
+        # declaration was reported as a live design-token use, which is the
+        # same mistake the selector parser was written to avoid one function
+        # up. The same blanking pass answers both.
+        live = _blank_comments(b["body"])
+        b["reads_st_token"] = bool(re.search(r"var\(\s*--st-", live))
+        b["declares_st_token"] = bool(re.search(r"^\s*--st-", live, re.M))
 
     kinds = ("gate_exclusive", "shared", "opendox_only", "unreferenced")
     counts = {k: sum(1 for v in census.values() if v["class"] == k) for k in kinds}
@@ -457,7 +633,13 @@ def main() -> int:
 
     report = {
         "styles_css": {"path": "src/opendox/web/styles.css",
-                       "lines": css.count("\n"),
+                       # THE RECORD CONVENTION, not a newline tally (Copilot
+                       # review of openxFactory #1068, round 5): `line_of`
+                       # numbers a final line that carries no trailing
+                       # newline, and `count("\n")` does not, so the two
+                       # disagreed by one on a stylesheet without a trailing
+                       # newline. `splitlines()` is what `line_of` counts.
+                       "lines": len(css.splitlines()),
                        "rule_blocks": len(rules),
                        "declared_class_tokens": len(declared)},
         "gate_modules": [p.name for p in gate_files],

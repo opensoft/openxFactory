@@ -5020,7 +5020,7 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
     lawful. RULED Q7 (`#656` comment `5648049748`) sends a contributed
     binding's CSS to the binding's own sheet; 59 rule blocks therefore LEAVE
     `src/opendox/web/styles.css`, and 88 of the 89 lines are the DELETIONS that
-    makes. The 89th is carve `:161`, a REPLACEMENT in place — the one selector
+    make. The 89th is carve `:161`, a REPLACEMENT in place — the one selector
     LIST this act splits, so openDox keeps `.filterpop[hidden]` while the gate
     half is re-stated in the contributed sheet. Two acts, one declared-line set,
     and the distinction is stated because a window described as "all deletions"
@@ -5107,8 +5107,20 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
             by_class[edit_class] = by_class.get(edit_class, 0) + len(nums)
     assert (lines, entries_count) == (89, 1), (lines, entries_count)
     assert by_class == {"adapter calls": 89}, by_class
-    # 88 DELETED + 1 REPLACED = 89, the split this window is two acts in.
-    assert 88 + 1 == lines
+    # THE SPLIT, PINNED WHERE THIS REPOSITORY CAN PIN IT. `assert 88 + 1 ==
+    # lines` asserted nothing — it compared two constants, and a 89-line window
+    # of pure deletions passed it (Copilot review, round 5). What is real here
+    # is WHICH line is the replacement: carve `:161` is the one selector LIST
+    # this act splits, so it is named, and the other 88 are the deletions. The
+    # OPCODES live in the leg diff, which this repository does not carry;
+    # openDox-code #27's `tests/test_binding_stylesheets.py` is where the
+    # after-state is executed.
+    q7_lines = {number for entries in Q7_WINDOW.values()
+                for _class, numbers in entries for number in numbers}
+    assert 161 in q7_lines, (
+        "carve `:161` is the REPLACEMENT in place — the split selector list "
+        "the row note names — and it is no longer in the declared window")
+    assert len(q7_lines - {161}) == 88, len(q7_lines - {161})
     # 2454 + 89 = 2543 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDS
     # IT, which is what a window total is: a DELTA against the document the act
     # found, and so a figure a later act cannot move.

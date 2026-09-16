@@ -143,6 +143,142 @@ def test_a_bare_literal_counts_only_where_a_class_is_passed_or_assigned() -> Non
     assert CENSUS.narrow_refs('if (state === "summary") return;\n', ".js") == set()
 
 
+def test_an_assignment_counts_only_where_the_target_is_a_class() -> None:
+    """A BARE `x = "…"` IS NOT A CLASS WRITE (Copilot review, round 5).
+
+    `btn.title = "commission proposal authoring for this staging topic "` — an
+    ordinary sentence — has every word matching the class alphabet, and two of
+    them (`proposal`, `topic`) are declared classes in the real stylesheet. The
+    target has to say it is a class.
+    """
+    assert CENSUS.narrow_refs('node.className = "gatebar";\n', ".js") == {"gatebar"}
+    assert CENSUS.narrow_refs('o.cls = "is-ok";\n', ".js") == {"is-ok"}
+    assert CENSUS.narrow_refs('btn.title = "a staging topic here";\n', ".js") == set()
+    assert CENSUS.narrow_refs('if (x == "gatebar") return;\n', ".js") == set()
+
+
+def test_a_dot_inside_a_path_is_a_file_extension_and_not_a_selector() -> None:
+    """A selector never carries a `/`; a path always does (Copilot review,
+    round 5). `"/api/gate.css"` must not hand the gate the class `css`."""
+    assert CENSUS.narrow_refs('fetch("/api/gate.css");\n', ".js") == set()
+    assert CENSUS.narrow_refs('import("./views/swb-create.js");\n', ".js") == set()
+    # a real selector string still reads as one
+    assert CENSUS.narrow_refs('root.querySelector(".gatebar");\n', ".js") \
+        == {"gatebar"}
+
+
+def test_a_missing_or_empty_checkout_refuses_instead_of_reporting_zero(
+        tmp_path: Path) -> None:
+    """THE WORST ANSWER THIS TOOL CAN GIVE IS `0` (Copilot review, round 5).
+
+    A mistyped path globs to nothing and would report `0 gate-exclusive
+    classes, 0 blocks` — which is the SAME output a completed extraction
+    produces, so an invalid argument would read as a measured result.
+    """
+    dox, xdox = _tree(tmp_path, styles=".gatebar { color: red; }\n", own={},
+                      gate={"gate.js": 'el("div", "gatebar");\n'})
+    missing = subprocess.run(
+        [sys.executable, str(SCRIPT), str(dox), str(tmp_path / "absent")],
+        capture_output=True, text=True, timeout=300)
+    assert missing.returncode != 0
+    assert "is not a directory" in missing.stderr
+
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    blank = subprocess.run(
+        [sys.executable, str(SCRIPT), str(dox), str(xdox), "--gate-dir", str(empty)],
+        capture_output=True, text=True, timeout=300)
+    assert blank.returncode != 0
+    assert "carries no `.js` file" in blank.stderr
+
+
+def test_a_prefix_counts_only_from_a_class_bearing_position() -> None:
+    """THE ASYMMETRY REACHES PREFIXES TOO (Copilot review, round 5).
+
+    An ungated prefix rule let any hyphen-terminated word claim every declared
+    class starting with it, and on the gate side that claim MOVES a rule.
+    """
+    js = ('el("button", "disposebtn dispose-" + v.outcome);\n'
+          'log("the run is status- prefixed, per the audit log.");\n')
+    # ungated (the openDox side): both, because over-reading there only KEEPS
+    assert CENSUS.prefix_refs(js, ".js") == {"dispose-", "status-"}
+    # gated (the gate side): only the one a class is built from
+    assert CENSUS.prefix_refs(js, ".js", class_bearing_only=True) == {"dispose-"}
+    # and a `class="…"` run is class-bearing by construction, wherever it sits
+    assert CENSUS.prefix_refs('`<i class="chip chip-${state}">`;\n', ".js",
+                              class_bearing_only=True) == {"chip-"}
+
+
+# ---------------------------------------------------------------------------
+# The stylesheet parser's own blind spots (Copilot review, round 5).
+# ---------------------------------------------------------------------------
+
+def test_a_brace_inside_a_css_string_does_not_close_a_block() -> None:
+    """`content: "}"` is a DECLARATION, not the end of the rule. Counting it
+    truncated the block and moved every extent after it."""
+    css = ('.one::before { content: "}"; color: red; }\n'
+           '.two { content: "{"; color: blue; }\n'
+           '.three { color: green; }\n')
+    rules = {b["selector"]: b for b in CENSUS.parse_blocks(css)
+             if b["kind"] == "rule"}
+    assert set(rules) == {".one::before", ".two", ".three"}
+    assert (rules[".three"]["start"], rules[".three"]["end"]) == (3, 3)
+
+
+def test_a_rule_nested_two_at_rules_deep_is_still_found() -> None:
+    """`@media { @supports { .gatebar {…} } }` recorded `@supports` as a rule
+    and never emitted `.gatebar` — an exclusive block left in the wrong leg."""
+    css = ("@media (min-width: 40rem) {\n"
+           "  @supports (display: grid) {\n"
+           "    .gatebar { color: red; }\n"
+           "  }\n"
+           "}\n")
+    rules = {b["selector"]: b for b in CENSUS.parse_blocks(css)
+             if b["kind"] == "rule"}
+    assert list(rules) == [".gatebar"]
+    assert (rules[".gatebar"]["start"], rules[".gatebar"]["end"]) == (3, 3)
+    assert rules[".gatebar"]["at_rule"].startswith("@media")
+    assert "@supports" in rules[".gatebar"]["at_rule"]
+
+
+def test_a_class_named_inside_an_attribute_value_is_not_a_class_selector() -> None:
+    """`[data-state=".gatebar"]` yielded the class `gatebar`, so a rule with no
+    class selector at all could be classified gate-exclusive and extracted."""
+    parts = CENSUS.selector_tokens('div[data-state=".gatebar"]')
+    assert parts["classes"] == []
+    assert parts["elements"] == ["div"]
+    # a real class beside an attribute selector is still read
+    assert CENSUS.selector_tokens('.gatebtn[hidden]')["classes"] == ["gatebtn"]
+
+
+def test_a_commented_out_token_use_is_not_a_token_dependency(
+        tmp_path: Path) -> None:
+    """RULED Q7 makes `--st-*` the one stable styling surface, so "this block
+    reads a token" has to mean the block reads it — not that someone wrote it
+    in a comment."""
+    dox, xdox = _tree(
+        tmp_path,
+        styles=(".gatebar { /* was var(--st-proposed) */ color: red; }\n"
+                ".gatebtn { color: var(--st-proposed); }\n"),
+        own={},
+        gate={"gate.js": 'el("div", "gatebar"); el("button", "gatebtn");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    reads = {b["selector"]: b["reads_st_token"] for b in report["exclusive_blocks"]}
+    assert reads == {".gatebar": False, ".gatebtn": True}
+    assert report["exclusive_blocks_reading_st"] == 1
+
+
+def test_the_reported_line_count_is_the_one_the_extents_are_numbered_in(
+        tmp_path: Path) -> None:
+    """A final line without a trailing newline IS a line to `line_of`, and the
+    report has to count it the same way or the two disagree by one."""
+    dox, xdox = _tree(tmp_path, styles=".gatebar { color: red; }",   # no \n
+                      own={}, gate={"gate.js": 'el("div", "gatebar");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert report["styles_css"]["lines"] == 1
+    assert report["exclusive_blocks"][0]["end"] == 1
+
+
 def test_a_template_substitution_is_a_prefix_too() -> None:
     assert CENSUS.prefix_refs('`<i class="chip chip-${state}">`;\n', ".js") \
         == {"chip-"}
