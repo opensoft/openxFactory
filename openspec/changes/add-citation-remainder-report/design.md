@@ -63,6 +63,31 @@ extracted from each file's text (**586** distinct), and each resolved through
 | **inclusive remainder** | **81**, carried by **65** distinct citing files |
 | tokens with no raw path in the tree | **162**, of which the rule REPAIRS **76** |
 
+**AND THE 162 PARTITIONS FIVE WAYS, NOT FOUR.** `raw-missing` is every distinct
+token whose literal path does not exist in the tree, and the resolver's answer
+for such a token can be any of FIVE things — the fifth being the one it declines
+to read as a packet reference at all, which is counted beside the remainder and
+never inside it but is a raw-missing path just the same:
+
+| the token has no raw path, and the resolver answers | tokens |
+| --- | ---: |
+| `RESOLVED` — the identity rule REPAIRED it | **76** |
+| `DANGLING`, half `identity` | **74** |
+| `DANGLING`, half `file` | **7** |
+| `AMBIGUOUS` | **0** |
+| `NOT_A_PACKET_REFERENCE` | **5** of the 7 (the other 2 DO have a raw path) |
+| **raw-missing** | **162** — `76 + 74 + 7 + 0 + 5` |
+
+The five are the SHAPES this corpus writes inside its own tooling and prose
+rather than citations — `openspec/changes/archive/...` in
+`scripts/validate-ideation-cross-reference.py`,
+`openspec/changes/archive/proposal.md` in `scripts/proposal-support.py`,
+`openspec/changes/archive/2026-09-01-` in `README.md`, and
+`openspec/changes/archive/2026-09-11-` and `openspec/changes/archive/2026-09-11-...`
+in `amend-register-act-5b-projection-proof` — which the resolver refuses as
+references and which have no path either. D2's output rule 2 states the identity
+with all five terms for exactly this reason.
+
 **AND "IN SCOPE" MEANS TRACKED ENTRIES, NOT FILES READ — THE TWO DIFFER BY
 FOUR AND THE PACKET SAYS WHICH IT MEANS.** The `2,973` above is what the
 `git ls-files` listing leaves after the three exclusions: tracked ENTRIES. Four
@@ -496,9 +521,14 @@ classification by hand, each adopted here:
    do not re-write it in a second voice — that is how two descriptions of one
    rule drift apart.
 2. **Print the counted rows AND their arithmetic**, so a reader can check
-   `raw-missing = repaired + identity-half + file-half + ambiguous` without
-   re-deriving it. A remainder that does not sum is the first sign the reading
-   changed.
+   `raw-missing = repaired + identity-half + file-half + ambiguous +
+   not-a-reference-with-no-raw-path` without re-deriving it. A remainder that
+   does not sum is the first sign the reading changed — **AND THE FIFTH TERM IS
+   NOT OPTIONAL**: a token the resolver declines to read as a packet reference
+   at all can still have no path in the tree, and at `b1df95ee` five do. A
+   four-term identity reads `76 + 74 + 7 + 0 = 157` against a raw-missing set
+   of **162** and would either fail or conceal exactly those five (D0's
+   partition above; PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jFQmQ`).
 3. **State the READING in the header** — the dedup normalization, whether
    `NOT_A_PACKET_REFERENCE` sits inside or outside the population, and the
    ANY-vs-ALL qualifier aggregation. D0's three-readings table is why.
