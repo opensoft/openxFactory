@@ -2564,6 +2564,17 @@ movements claimed at the time they land.
   DESCENDANT* if the body means what it says, and only the act that promotes the
   delta can repair it — and (b) file the live reading where it can be decided,
   which is the next paragraph.
+  **AND IT WAS DECIDED WHILE THIS AMENDMENT WAS OPEN, SO THE DISPOSITION IS CITED
+  HERE RATHER THAN LEFT AS THIS BOX'S OWN READING** — **RULED 2026-09-16T16:06:59Z**,
+  `#656` comment **`5700622683`** (Brett Heap, by interactive multi-choice):
+  *"scenario 4 of the MODIFIED `domain-descendant-boundary` delta, read alone,
+  would make OpsxFactory's committed openDox plane a 'profile artifact'; it is
+  RECORDED as a defect in the packet's own delta text (it should read an instance
+  OF THE DESCENDANT), to be fixed by a later spec-delta amendment; §§ 7.1/7.2 tick
+  on R-3 (NONE YET) unchanged."* That is the disposition this box had already
+  taken, now carrying the authority it lacked: the defect is recorded and not
+  repaired here, the repair is owed from a later SPEC-DELTA amendment rather than
+  from this one, and the ticks stand.
   **And the per-tenant install has its own OPEN box in this packet, which is
   where any other reading belongs**: § 7.4, `[OmI]` `[Opsx]`, still `[ ]` — *"one
   instance and one database per tenant in both cases (RULING Q3) … the `dox`
