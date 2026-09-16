@@ -3007,8 +3007,15 @@ Archived changes:
   merged in this repository (PR #564, squash `6856f502`) and its `contract-v3.0`
   cut is published (annotated tag `59f4f51f`, peeling to `ff9ed815`), so **its
   delta PROMOTES**: all three blocks reach
-  `openspec/specs/ideation-dashboard/spec.md`, +157 lines and 0 deletions, every
-  byte taken from the ratified delta. Measured both ways — the move alone leaves
+  `openspec/specs/ideation-dashboard/spec.md`, **+186 lines and 0 deletions** —
+  **157** the promotion, every byte taken from the ratified delta by script, and
+  **29** a dated ERRATUM below the first requirement, marked in its own first
+  line as no part of the ratified text: one clause of that requirement names
+  `typed_proposal` as reachable from the surviving `-v2` family, which the
+  packet's own § 2.1 measured FALSE and its § 6.8 dispositioned (RETAINED,
+  unreferenced). The clause stands unedited because it is ratified; the
+  correction stands beside it because promoting it moved it into canon, where
+  nothing else would. Measured both ways — the move alone leaves
   **23** doc-health `promotion-fidelity` errors, the move with the promotion
   leaves **20**, which are the four re-homed closures' own and none of them this
   packet's — so this change takes **no** `health/dispositions.yaml` entry, and
