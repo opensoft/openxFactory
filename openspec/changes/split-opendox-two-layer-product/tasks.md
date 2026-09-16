@@ -2349,11 +2349,10 @@ realization evidence, never on landing. Each line is its own evidence.
   as a sha** together with the doc-health invocation, both stated before the
   AFTER run is taken; a baseline selected afterwards, or any tree other than the
   one the archive merges into, does not discharge this clause, because a free
-  choice of baseline can manufacture whatever delta the record wants;
-  (b) the per-severity BEFORE and AFTER vectors,
-  every family and every severity, `info` included; and (c) a named reason for
-  EVERY finding that entered or left, diffed finding by finding rather than
-  netted. A record that gives a total without the vector, or a vector without the
+  choice of baseline can manufacture whatever delta the record wants; (b) the
+  per-severity BEFORE and AFTER vectors, every family and every severity, `info`
+  included; and (c) a named reason for EVERY finding that entered or left,
+  diffed finding by finding rather than netted. A record that gives a total without the vector, or a vector without the
   findings behind a moved count, does not discharge this line. That is the form
   the house already uses where it works — the archived
   `2026-08-25-add-projection-title-uniqueness` § 4.6 (`tasks.md`:315-328) reports
