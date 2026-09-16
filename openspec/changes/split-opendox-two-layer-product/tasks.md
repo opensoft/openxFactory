@@ -1981,8 +1981,7 @@ movements claimed at the time they land.
   requirement, not cited as precedent for creating more.
   **TICKED 2026-09-16 on RULED R-3 (`#656` comment `5690428146`) AND ON THE
   REPORT ITSELF, which is posted before the box moves rather than asserted in
-  it** — `#656` comment **`[FILL AT LANDING — the § 7.2 empty-boundary REPORT
-  comment id]`**, written against the PROMOTED requirement *A descendant is
+  it** — `#656` comment **`5690553188`**, written against the PROMOTED requirement *A descendant is
   created on its first profile, not before*
   (`openspec/specs/domain-descendant-boundary/spec.md`:128-145) and in
   particular its scenario **An empty descendant exists** (:143-145). What the
