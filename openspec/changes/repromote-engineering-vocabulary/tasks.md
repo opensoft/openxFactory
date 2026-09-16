@@ -90,7 +90,9 @@ performs only the first.
       Re-promotion first leaves the fifteen titles carried by two capabilities — distinct keys,
       no finding on either side. Removal first leaves fifteen ratified requirements in NO capability,
       which is the loss `promotion_fidelity` exists to prevent.
-- [ ] 3.3 At that archive, re-run `review/build-delta.py` against the then-current promoted spec first: if
+- [ ] 3.3 At that archive, re-run `python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py .`
+      (no `--write`, so it CHECKS the committed delta against a fresh build and exits non-zero on any
+      difference) against the then-current promoted spec first: if
       `main` has moved the promoted text of any of the fifteen, the carry is re-proved or the
       difference is declared before anything promotes.
 - [ ] 3.4 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run

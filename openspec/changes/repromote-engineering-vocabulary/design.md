@@ -127,11 +127,18 @@ apart. Both are openDox's to declare under RULING Q4 and neither is § 5.2a's to
 § 4.5 carries it as a BLOCKED box, in the shape § 6.1's and § 6.5's closures used for the same class
 of "named, not performed" work.
 
-**THE CARRY IS PROVED, NOT ASSERTED.** The delta is built by
-`review/build-delta.py`, committed INSIDE this packet so the proof is reproducible from this checkout
-alone: the fifteen are selected by the destination the ratified map names, lifted from the promoted
-spec BY TITLE (never by line), each declared edit must match EXACTLY ONCE or the build aborts, and
-the build then REVERSES every edit and asserts byte equality against the promoted text. Measured:
+**THE CARRY IS PROVED, NOT ASSERTED, AND THE PROOF VERIFIES THE COMMITTED ARTIFACT.** The delta is
+built by `review/build-delta.py`, committed INSIDE this packet so the proof is reproducible from this
+checkout alone: the fifteen are selected by the destination the ratified map names, lifted from the
+promoted spec BY TITLE (never by line), each declared edit must match EXACTLY ONCE or the build
+aborts, and the build then REVERSES every edit and asserts byte equality against the promoted text.
+
+**Run WITHOUT `--write` it is a CHECK rather than a dry run**: it reads the committed
+`specs/openxfactory-engineering-adapter/spec.md` and compares, so a delta somebody had edited by hand
+— which is the artifact an archive would promote — cannot pass. Proved by mutation, three runs:
+`CHECK PASSED … byte-identical` and exit **0** on the committed tree; one word changed in the
+committed delta gives `CHECK FAILED: the committed delta is not what this build produces` with the
+diff, exit **1**; the file deleted gives `CHECK FAILED: … does not exist`, exit **1**. Measured:
 **102 promoted requirements; 71/16/15 map; 15 carried; 49,829 source bytes; 84 scenarios; 2/2 edits
 matched once; reversal proof passes.** Re-running it after any merge from `main` re-proves the carry
 against the moved base — which is how this packet stays current against **#1066**, the one open pull

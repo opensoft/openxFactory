@@ -108,11 +108,30 @@ def main():
         body.append(edited[t])
     delta = HEADER + "\n\n## ADDED Requirements\n\n" + "\n\n".join(body) + "\n"
     out = root / f"openspec/changes/{CHANGE}/specs/{CAP}/spec.md"
-    print(f"delta: {len(delta.encode())} bytes, sha256 {hashlib.sha256(delta.encode()).hexdigest()[:16]}…")
+    digest = hashlib.sha256(delta.encode()).hexdigest()
+    print(f"delta: {len(delta.encode())} bytes, sha256 {digest[:16]}…")
     if write:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(delta, encoding="utf-8")
         print(f"WROTE {out.relative_to(root)}")
+        return
+
+    # (5) WITHOUT --write THIS IS A CHECK, NOT A DRY RUN. Rebuilding in memory and
+    # printing a hash would pass over a committed delta somebody had edited by
+    # hand, which is exactly the artifact the archive promotes. So the committed
+    # file is READ and compared, and a mismatch or an absence is a non-zero exit.
+    if not out.exists():
+        raise SystemExit(f"CHECK FAILED: {out.relative_to(root)} does not exist; "
+                         f"re-run with --write to author it.")
+    committed = out.read_text(encoding="utf-8")
+    if committed != delta:
+        diff = "\n".join(list(difflib.unified_diff(
+            committed.split("\n"), delta.split("\n"),
+            fromfile="committed", tofile="rebuilt", lineterm=""))[:40])
+        raise SystemExit("CHECK FAILED: the committed delta is not what this build "
+                         f"produces.\n{diff}")
+    print(f"CHECK PASSED: {out.relative_to(root)} is byte-identical to this build "
+          f"({len(committed.encode())} bytes, sha256 {digest[:16]}…).")
 
 HEADER = """# openxfactory-engineering-adapter Specification
 
