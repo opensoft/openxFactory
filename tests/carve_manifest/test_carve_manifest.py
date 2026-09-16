@@ -3353,8 +3353,9 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
 # row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`,
 # Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `5628560136`).
 #
-# WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion
-# `(2454, 176)` would still pass if any of these 782 lines had landed on the
+# WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion —
+# `(2454, 176)` when this slice landed, `(2543, 176)` since RULED Q7's CSS
+# extraction — would still pass if any of these 782 lines had landed on the
 # wrong row, under the wrong class, or as a different set summing to the same
 # total — which is the reason every slice since ASK-7 has pinned its own window
 # by row and class. S7 edits 33 rows where S5 edited 11, so the pins are a TABLE
@@ -3901,7 +3902,8 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
     # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
-    # the aggregate `(2454, 176)` would still pass if these forty lines had
+    # the aggregate (`(2454, 176)` when this slice landed, `(2543, 176)` since
+    # RULED Q7's CSS extraction) would still pass if these forty lines had
     # landed on the wrong rows, under the wrong class, or as a different forty
     # that summed the same. Every one is `path constants` (a path literal
     # naming a location the destination does not have — this manifest's own

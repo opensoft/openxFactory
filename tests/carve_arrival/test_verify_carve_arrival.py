@@ -3326,9 +3326,11 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
     `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
     pins ... a transcribed count is a claim, a summed one is a measurement".
     THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
-    PR). It pins the MANIFEST's own aggregate — `(2454, 176)` and the 20
-    replica rows — which is a claim about the file and not about the sentence
-    that transcribes it. So every cell here (three disposition counts, the
+    PR). It pins the MANIFEST's own aggregate — `(2543, 176)` since RULED Q7's
+    CSS extraction and `(2454, 176)` before it (Copilot review, round 19: this
+    sentence describes what that test pins TODAY, so the act that moves the
+    aggregate moves this number with it) and the 20 replica rows — which is a
+    claim about the file and not about the sentence that transcribes it. So every cell here (three disposition counts, the
     replica count, the three per-class totals, the moved-row total, the carrier
     total) was a transcription nothing compared with the thing transcribed,
     which is exactly how the per-destination table below rotted through two
