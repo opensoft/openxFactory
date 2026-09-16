@@ -58,6 +58,20 @@ performs only the first.
       and on `--all --strict`; `python3 -m pytest tests/doc-health tests/sequenced_after`;
       `python3 scripts/validate-sequenced-after.py . --ledger-diff`; and the promotion-fidelity
       family single-repo run, whose count MUST NOT move — this packet promotes nothing.
+- [x] 2.8 **THE DELTA CARRIES A WRITTEN `## Purpose`, BECAUSE THIS CAPABILITY DOES NOT EXIST YET.**
+      `prepare-openspec-1-12-readiness`'s `document-lifecycle` delta states the rule and the trap:
+      *"A `## Purpose` in a change's spec delta is read ONLY when the capability is created; on any
+      later archive it is ignored"*, and the archive act otherwise writes `TBD - created by archiving
+      change <X>. Update Purpose after archive.` — undischarged on 39 of this corpus's promoted
+      specifications when they were last counted. This delta creates the capability, so its Purpose
+      IS read, and it is written.
+- [x] 2.9 **ARCHIVE DRY RUN, in a throwaway copy of `openspec/` and never in the repository** (pinned
+      CLI 1.12.0, `archive --yes`). Measured: `openxfactory-engineering-adapter: create` · `+ 15
+      added` · `Totals: + 15, ~ 0, - 0, → 0`; the created promoted spec carries **0** occurrences of
+      the placeholder sentence and **15 requirements / 84 scenarios**; all fifteen promote
+      BYTE-IDENTICAL to this delta's text; and `openspec/specs/ideation-dashboard/spec.md` comes out
+      of the run with an UNCHANGED sha256 — the mechanical proof of `design.md` § D3's claim that
+      this packet removes nothing.
 
 ## 3. Archive — AFTER RATIFICATION, AND BEFORE THE SPLIT PACKET'S
 

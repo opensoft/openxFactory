@@ -23,6 +23,26 @@ own ratified per-requirement map — 71 openDox / 16 openXdox / 15 openxFactory,
 2026-09-05T01:38Z — and that map is the single writer of the removal. See `design.md`
 § D3 for why a second `## REMOVED` block over the same fifteen titles is refused here.
 
+## Purpose
+
+Carry the requirements of `openxFactory`'s OWN ENGINEERING ADAPTER — the one
+conformant implementation of openDox's corpus-adapter seam that reads THIS
+repository's corpus, and the engineering mapping it serves: staged topics and
+their health, the promotion funnel to proposal, the possibles register, the
+reverse transition that demotes a change back to its topic, the register-edit
+fulfilment lane, and the released-contract resolution the runtime performs
+before it serves any of them. RULING DQ-1 (`opensoft/openxFactory` issue #656,
+2026-09-04T22:14Z) kept that adapter and that vocabulary HERE when the
+document-and-ideation workbench left: these fifteen requirements are the part of
+`ideation-dashboard` that did not travel, and they state what this repository's
+own gate console, its reverse transitions and its runtime must do over a corpus
+reached THROUGH the seam rather than through a path literal.
+
+The seam itself is NOT this capability. The interface is openDox's under RULING
+Q4, declared as `corpus-adapter-seam`; this capability holds one implementation's
+obligations under it, and under that interface's fourth requirement it is one
+implementation among others with no privileged route to its home corpus.
+
 ## ADDED Requirements
 
 ### Requirement: Staged-topic proposal commissioning

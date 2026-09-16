@@ -175,6 +175,24 @@ floor to account for *"`openspec/specs/ideation-dashboard/` removed, AND the two
 directories plus the § 5.2a adapter successor capability ADDED"* — the successor directory existing at
 that moment is that clause's premise.
 
+## D5 — THE `## Purpose` IS WRITTEN IN THE DELTA, BECAUSE THIS IS THE ONE ARCHIVE THAT READS ONE
+
+A capability-CREATING delta is the only place a `## Purpose` is ever read.
+`prepare-openspec-1-12-readiness`'s `document-lifecycle` delta states it and states the trap: *"A
+`## Purpose` in a change's spec delta is read ONLY when the capability is created; on any later
+archive it is ignored"*, and where none is supplied the archive act writes `TBD - created by
+archiving change <X>. Update Purpose after archive.` — a sentence that *"tells a reader nothing the
+directory name did not"* and that was undischarged on 39 of this corpus's promoted specifications
+when they were counted on 2026-09-05. This delta creates the capability, so it carries a written
+Purpose and the placeholder never lands.
+
+**PROVED, in a throwaway copy of `openspec/` and never in the repository** (pinned CLI 1.12.0,
+`archive --yes`): `openxfactory-engineering-adapter: create`, `+ 15 added`, `Totals: + 15, ~ 0, - 0,
+→ 0`; the created promoted specification carries the written Purpose and **0** occurrences of the
+placeholder sentence, **15 requirements and 84 scenarios**, all fifteen byte-identical to this
+delta's text; and `openspec/specs/ideation-dashboard/spec.md` comes out of that run with an
+UNCHANGED sha256 — which is § D3's claim, measured rather than argued.
+
 ## What this packet does NOT decide
 
 * It does not TICK § 5.2a. Ticks ride the packet bookkeeper's own `tasks.md` amendment; no byte of
