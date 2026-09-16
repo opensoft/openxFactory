@@ -893,10 +893,24 @@ the bookkeeping that ticks this group.
   had merged. The acts recorded below ran on 2026-09-12/13 (S1–S6), 2026-09-15
   (S7 and the pin lockstep) and **2026-09-15/16** for S8 — its annotation `#1025`
   at 23:50:29Z on the 15th, leg A at 01:11:37Z and leg B at 01:23:16Z on the
-  16th — with openDox-spec `#11` at **13:24:51Z** on the 16th, each of the acts
-  this parenthetical dates carrying its own clock beside it. Fix round 10 added
-  `#11`'s, which alone read as a bare date while the sentence claimed a clock
-  for each, and corrected this marker's own arithmetic in the same round: round
+  16th — with openDox-spec `#11` at **13:24:51Z** on the 16th. **This
+  parenthetical gives DATES for the arc and a clock only where the ORDERING
+  turns on one**: S8's three acts, which straddle midnight, and `#11`, which
+  merged the same day this amendment lands. Every other clock sits beside the
+  act it belongs to rather than here — S7's two in its own landing record below
+  (21:40:25Z and 21:41:36Z, 71 seconds apart), S2's pair in the Q-L1 paragraph
+  (15:45:51Z and 15:59:44Z) and the pin lockstep's at 2026-09-15T23:27:40Z —
+  and **S1, S3, S4, S5 and S6 carry a date only**, their merge times readable
+  from the pull requests the table names. *(This sentence claimed a clock for
+  EACH act it dates, twice over: as "each with its own clock beside it" until
+  fix round 10, and as "each of the acts this parenthetical dates carrying its
+  own clock beside it" after it — while eight of the acts it dates carry no
+  clock in it. A Copilot finding on #1035, accurate, taken at fix round 12,
+  which also replaced that participial clause with finite sentences on the same
+  review's wording note. The round-10 correction was right about `#11` and wrong
+  to keep the word "each": narrowing a claim is not the same as measuring it.)*
+  Fix round 10 added `#11`'s clock, which alone read as a bare date beside S8's
+  three, and corrected this marker's own arithmetic in the same round: round
   6 took **THREE** Copilot findings, all three in the suppressed block of review
   `5223334808` at head `4355f0bd` — this date (`:887`, the same point the thread
   of 13:07:18Z had already raised, which is why the marker first read "two
