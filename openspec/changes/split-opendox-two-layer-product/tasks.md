@@ -1373,8 +1373,19 @@ the bookkeeping that ticks this group.
   gitlink, which the rest of this same task already contradicted). `openxFactory`
   never pins or mounts a leg, which is the assembly root's own job.
   Per the MODIFIED `neutral-product-pin`, `openxFactory` declares only its DIRECT
-  upstreams; openDox's commit is READ from openXdox's own pin and recorded, if at
-  all, as a DERIVED value. **TICKED — #917 → `edf0e24f45b6e7baf5322023cbc1c43d28ff46cd`**,
+  upstreams — **and since RULED Q7 (`#932` → `f4fb4ffc`) those upstreams are TWO**:
+  openDox is pinned DIRECTLY, in `contracts/opendox-pin.yaml` beside its own
+  gitlink, not read out of openXdox's pin.
+  *(SECOND CLAUSE AMENDED 2026-09-16 by RULED **R-5**, with the clause below. It
+  read "openDox's commit is READ from openXdox's own pin and recorded, if at all,
+  as a DERIVED value" — true under RULING F, when openXdox was the only direct
+  upstream, and false after Q7 mounted openDox as the second. The RULE is
+  unchanged and is the reason the sentence had to move: `openxFactory` declares
+  its DIRECT upstreams, and the set of those changed. openXdox's own
+  `contracts/opendox-pin.yaml` still pins openDox for openXdox — that is the § 4.2
+  chain and it is untouched; what is no longer true is that `openxFactory` reads
+  openDox only through it.)*
+  **TICKED — #917 → `edf0e24f45b6e7baf5322023cbc1c43d28ff46cd`**,
   the § 5-remainder lane's own live re-verification (2026-09-10, on this packet's
   tick standard, PR #897 → `021c3d3607a626730ae8d2027ca68c58ed14a3b6`): at that
   commit the `openXdox` gitlink reads `db58fffa58d49d92f58db40bd7e63cad3205052f`,
@@ -2333,8 +2344,13 @@ realization evidence, never on landing. Each line is its own evidence.
   movement it caused and why, and a movement it does not explain fails this line.
   **"RECORDS AND EXPLAINS" IS NOT "SAYS SOMETHING AFTERWARDS", AND THE FORM IS
   FIXED HERE SO THE LINE STAYS FALSIFIABLE.** The archive pull request SHALL
-  carry: (a) the BASELINE it measured against, named as a tree — a commit, and
-  the doc-health invocation used; (b) the per-severity BEFORE and AFTER vectors,
+  carry: (a) the BASELINE, **fixed before the run rather than chosen after it —
+  the archive pull request's OWN BASE commit, the last pre-archive `main`, named
+  as a sha** together with the doc-health invocation, both stated before the
+  AFTER run is taken; a baseline selected afterwards, or any tree other than the
+  one the archive merges into, does not discharge this clause, because a free
+  choice of baseline can manufacture whatever delta the record wants;
+  (b) the per-severity BEFORE and AFTER vectors,
   every family and every severity, `info` included; and (c) a named reason for
   EVERY finding that entered or left, diffed finding by finding rather than
   netted. A record that gives a total without the vector, or a vector without the
