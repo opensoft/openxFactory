@@ -517,6 +517,18 @@ def retired_at(row: dict) -> tuple:
     required arrival before anyone validated the document. Four non-empty
     strings or no retirement — the same closed key set (`at`, `at_path`,
     `ruling`, `surface`, and the optional `note`) the form itself declares.
+
+    AND THE OPTIONAL KEY IS READ AS THE GRAMMAR WRITES IT, not as a type
+    (Copilot review of PR #1032, round 7). `_check_retired_shape` refuses a
+    PRESENT `note:` that is not a non-empty string — *a note is prose or it is
+    absent* — and this predicate asked only `isinstance`, so `note: ""` and
+    `note: "   "` read as usable retirements here and as `carve-shape-invalid`
+    there. That is the fail-OPEN direction again, arriving through the one key
+    the form makes OPTIONAL: a block the validator would refuse silenced this
+    row's arrival check at a leg that had not run the validator. ABSENT, OR
+    PROSE — the same rule, in the same words, in all three copies and in the
+    grammar, held together by
+    `test_the_note_is_prose_or_absent_in_the_grammar_and_in_all_three_readers`.
     """
     retired = row.get("retired")
     if isinstance(retired, dict) and set(retired) <= RETIRED_KEYS:
@@ -526,7 +538,9 @@ def retired_at(row: dict) -> tuple:
         surface = retired.get("surface")
         if (all(isinstance(value, str) and value.strip()
                 for value in (at, at_path, ruling, surface))
-                and isinstance(retired.get("note", ""), str)):
+                and ("note" not in retired
+                     or (isinstance(retired["note"], str)
+                         and retired["note"].strip()))):
             return at, at_path
     return None, None
 

@@ -2331,6 +2331,20 @@ def test_all_three_tools_read_the_retirement_identically() -> None:
          "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
                      "ruling": RETIREMENT_RULING,
                      "surface": RETIRED_SURFACE, "note": ["not a string"]}},
+        # …and the OPTIONAL key's own grammar (Copilot review of PR #1032,
+        # round 7). `_check_retired_shape` writes it as "a note is prose or it
+        # is absent" and refuses a PRESENT blank one; the predicate asked only
+        # `isinstance`, so these two blocks read as usable retirements in the
+        # three tools and as `carve-shape-invalid` in the grammar. A key the
+        # form makes optional is not a key it makes empty.
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "ruling": RETIREMENT_RULING,
+                     "surface": RETIRED_SURFACE, "note": ""}},
+        {"destination": "scratch_code", "destination_path": "src/pkg/a.py",
+         "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                     "ruling": RETIREMENT_RULING,
+                     "surface": RETIRED_SURFACE, "note": "   "}},
         {},
     ]
     for row in table:
@@ -2353,6 +2367,62 @@ def test_all_three_tools_read_the_retirement_identically() -> None:
     assert MODULE.retired_at(with_note) == ("scratch_code", "src/pkg/a.py")
     assert other.retired_at(with_note) == MODULE.retired_at(with_note)
     assert carved_reach.retired_at(with_note) == MODULE.retired_at(with_note)
+
+
+def test_the_note_is_prose_or_absent_in_the_grammar_and_in_all_three_readers(
+) -> None:
+    """The GRAMMAR and the three READERS, asked about the same `note:` (Copilot
+    review of PR #1032, round 7).
+
+    The identity test holds the three copies of `retired_at` equal TO EACH
+    OTHER; three copies can agree and all three be wrong about the document
+    they read. This one holds them to `_check_retired_shape`, which is where
+    the form is actually written — *a note is prose or it is absent* — over the
+    one key the form makes optional.
+
+    THE DIRECTION IS WHY IT MATTERS. A block the validator refuses and the
+    readers accept is not a disagreement about style: `rows_for()` DROPS the
+    row, `check_retired` then asks for the file to be ABSENT, and
+    `carved_reach` raises `CarveRowRetired` at every retained consumer — a
+    required arrival silenced by a key nobody was required to write. The
+    grammar is the authority and the readers follow it, in both answers: a
+    present blank note is no retirement anywhere, and real prose is a
+    retirement everywhere.
+    """
+    other = _load_manifest_validator()
+    import carved_reach  # noqa: E402 — local: only this test needs it here
+
+    def block(**extra: Any) -> dict[str, Any]:
+        return {"destination": "scratch_code",
+                "destination_path": "src/pkg/a.py",
+                "retired": {"at": "scratch_code", "at_path": "src/pkg/a.py",
+                            "ruling": RETIREMENT_RULING,
+                            "surface": RETIRED_SURFACE, **extra}}
+
+    for note in ("", "   ", "\t\n"):
+        row = block(note=note)
+        with pytest.raises(other.CarveRefusal) as refusal:
+            other._check_retired_shape("row 0", "src/pkg/a.py",
+                                       row["retired"])
+        assert refusal.value.code == "carve-shape-invalid"
+        assert "a note is prose or it is absent" in str(refusal.value)
+        assert MODULE.retired_at(row) == (None, None), note
+        assert other.retired_at(row) == (None, None), note
+        assert carved_reach.retired_at(row) == (None, None), note
+
+    # AND THE OTHER ANSWER, in the same shape: prose the grammar admits is a
+    # retirement in all three readers. Without this the loop above would also
+    # pass against a predicate that had dropped `note:` from the form.
+    told = block(note="23 tests of a surface at neither leg (RULED OQ-F)")
+    other._check_retired_shape("row 0", "src/pkg/a.py", told["retired"])
+    for reader in (MODULE, other, carved_reach):
+        assert reader.retired_at(told) == ("scratch_code", "src/pkg/a.py")
+
+    # …and ABSENT is the third answer the grammar names, admitted by all three.
+    bare = block()
+    other._check_retired_shape("row 0", "src/pkg/a.py", bare["retired"])
+    for reader in (MODULE, other, carved_reach):
+        assert reader.retired_at(bare) == ("scratch_code", "src/pkg/a.py")
 
 
 def test_a_half_written_retirement_leaves_the_arrival_owed(
