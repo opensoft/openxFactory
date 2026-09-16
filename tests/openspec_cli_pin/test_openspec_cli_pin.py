@@ -872,7 +872,7 @@ def test_the_installers_options_are_exactly_the_three_it_needs(installer):
 # its condition REFUSES.
 
 
-def test_the_real_pin_declares_exactly_the_six_dispositions_two_repos_carry(
+def test_the_real_pin_declares_exactly_the_five_dispositions_two_repos_carry(
         mod, pin):
     """The pin's own entries, read through the pin's own reader.
 
@@ -900,6 +900,17 @@ def test_the_real_pin_declares_exactly_the_six_dispositions_two_repos_carry(
     in which one codexFactory CHANGE carries TWO entries under two different
     delta paths, retiring on two different events.
 
+    It fired a FOURTH time for `split-opendox-two-layer-product` § 6.4 (6 -> 5),
+    and this is the FIRST SHRINK THIS REPOSITORY'S OWN CORPUS CAUSED. The
+    openxFactory entry for `add-composed-view-authoring` retired on exactly the
+    event its own `retires_when:` named — the change leaving the `--all` corpus —
+    though not by the route that text predicted: it did not archive on its one
+    open task being taken, it was CLOSED AS RE-HOMED to `opensoft/openDox` under
+    RULING Q6, which freezes it where it stands and carries task 3.2 open at the
+    receiving repository. `--all` refused `pin-disposition-stale` naming the
+    entry before it was deleted, which is the mechanism doing the one job it was
+    built for.
+
     WHY THE SPLIT AND NOT A COUNT. The first version asserted
     `{repo} == {"openxFactory"}`, which a growing fleet loosens once and then
     forever. Pinning WHICH item belongs to WHICH repository keeps the fleet
@@ -910,8 +921,6 @@ def test_the_real_pin_declares_exactly_the_six_dispositions_two_repos_carry(
     assert [(entry["repo"], entry["item"], entry["path"]) for entry in entries] == [
         ("openxFactory", "add-chain-attestation",
          "signed-execution-chain/spec.md"),
-        ("openxFactory", "add-composed-view-authoring",
-         "ideation-dashboard/spec.md"),
         ("codexFactory", "amend-composition-selector-labelling",
          "domain-hermes-content/spec.md"),
         ("codexFactory", "relocate-review-authority-floor",
@@ -946,10 +955,61 @@ def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
     applied, undispositioned, stale = mod.reconcile(
         findings, entries, "openxFactory", corpus_wide=True)
     assert {entry["repo"] for entry, _ in applied} == {"openxFactory"}
-    assert undispositioned == []
+    assert [row for row in undispositioned
+            if not _departed_since_the_capture(
+                ("openxFactory", row["item"], row["path"]))] == [], (
+        "a finding in the capture is neither dispositioned by the live pin nor "
+        "accounted for by a change that has left the corpus")
     assert stale == [], (
         "a disposition naming another repository went stale on this tree; "
         "openxFactory's own gate would refuse on a consumer's corpus")
+
+
+#: FINDINGS IN THE FROZEN CAPTURE WHOSE CHANGE HAS SINCE LEFT THE ACTIVE CORPUS.
+#:
+#: The captured report is EVIDENCE — real bytes from `@fission-ai/openspec@1.12.0`
+#: on the corpus of 2026-09-05 — so it is never re-cut to match today's tree, and
+#: the pin it is reconciled against is LIVE. Those two facts part company the
+#: first time a dispositioned openxFactory change leaves the corpus, because the
+#: pin RETIRES that entry (`pin-disposition-stale` forces it) while the capture
+#: still carries the finding. Before this map the two tests below read that
+#: parting as a transcription slip, which is the one thing it is not.
+#:
+#: AN ENTRY HERE IS NOT A SUPPRESSION AND CANNOT BE USED AS ONE. It is admitted
+#: only while the change is genuinely gone from `openspec/changes/` AND its
+#: archive directory is present, and `_departed_since_the_capture` asserts BOTH
+#: against the real tree on every run. A change that is still active, or one
+#: named here without an archive to point at, fails exactly as an undispositioned
+#: finding always did.
+DEPARTED_SINCE_THE_CAPTURE = {
+    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"):
+        "openspec/changes/archive/2026-09-16-add-composed-view-authoring",
+}
+
+#: This suite lives at `tests/openspec_cli_pin/`, so the repository root is two
+#: parents up. Read once here rather than recomputed per assertion.
+PIN_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _departed_since_the_capture(key):
+    """True iff `key` names a change this tree really has let go.
+
+    The claim is checked against the working tree, never taken on the map's
+    word: the active directory must be ABSENT and the named archive directory
+    must be PRESENT. That is what keeps this map from becoming the blanket the
+    pin's own `dispositions:` list is so careful not to be.
+    """
+    archived = DEPARTED_SINCE_THE_CAPTURE.get(key)
+    if archived is None:
+        return False
+    _, item, _ = key
+    active = PIN_REPO_ROOT / "openspec" / "changes" / item
+    assert not active.is_dir(), (
+        f"{key} is listed as departed but {active} still stands; a live change "
+        "may not borrow this exemption")
+    assert (PIN_REPO_ROOT / archived).is_dir(), (
+        f"{key} names {archived} as its archive and no such directory exists")
+    return True
 
 
 #: THE MEASUREMENT EACH ENTRY RESTS ON — and THE CANON THAT MAKES IT LAWFUL —
@@ -973,8 +1033,6 @@ def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
 #: entry.
 DISPOSITION_MEASUREMENT = {
     ("openxFactory", "add-chain-attestation", "signed-execution-chain/spec.md"):
-        "openspec-1.12-readiness-2026-09-05.md",
-    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"):
         "openspec-1.12-readiness-2026-09-05.md",
     ("codexFactory", "amend-composition-selector-labelling",
      "domain-hermes-content/spec.md"):
@@ -1022,8 +1080,6 @@ DISPOSITION_CLASS_CITATION = {
 DISPOSITION_CLASS = {
     ("openxFactory", "add-chain-attestation", "signed-execution-chain/spec.md"):
         MARKER_BLINDNESS,
-    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"):
-        MARKER_BLINDNESS,
     ("codexFactory", "amend-composition-selector-labelling",
      "domain-hermes-content/spec.md"): MARKER_BLINDNESS,
     ("codexFactory", "relocate-review-authority-floor",
@@ -1042,8 +1098,6 @@ DISPOSITION_CLASS = {
 #: rolled past the session-local date the packet is named for).
 DISPOSITION_AUTHORITY_PREFIX = {
     ("openxFactory", "add-chain-attestation", "signed-execution-chain/spec.md"):
-        "Brett Heap, 2026-09-05",
-    ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"):
         "Brett Heap, 2026-09-05",
     ("codexFactory", "amend-composition-selector-labelling",
      "domain-hermes-content/spec.md"):
@@ -1259,6 +1313,15 @@ def test_the_real_pin_disposes_exactly_the_captured_findings(mod, pin):
     of that report. A transcription slip in either — a smart quote, a dropped
     clause — shows up as an undispositioned finding plus a stale disposition on
     a developer's machine rather than as a red gate.
+
+    THE CAPTURE IS FROZEN AND THE PIN IS LIVE, so from 2026-09-16 one of the two
+    captured findings is disposed by neither: `add-composed-view-authoring` left
+    the corpus (closed as re-homed to `opensoft/openDox` under RULING Q6) and its
+    entry retired with it, exactly as its `retires_when:` said it would. That
+    parting is accounted for by `DEPARTED_SINCE_THE_CAPTURE`, which is checked
+    against the real tree rather than believed — see
+    `_departed_since_the_capture`. THE SUM, NOT EACH ARM, is what stays pinned at
+    two, so a transcription slip still shows up here as loudly as before.
     """
     payload = (FIXTURES /
                "openspec-1.12.0-validate-changes-strict-report-findings.json"
@@ -1268,8 +1331,13 @@ def test_the_real_pin_disposes_exactly_the_captured_findings(mod, pin):
     applied, undispositioned, stale = mod.reconcile(
         findings, mod.pinned_dispositions(pin), "openxFactory",
         corpus_wide=True)
-    assert len(applied) == 2
-    assert undispositioned == []
+    departed = [row for row in undispositioned
+                if _departed_since_the_capture(
+                    ("openxFactory", row["item"], row["path"]))]
+    assert len(applied) + len(departed) == 2, (
+        "the capture holds two blocking openxFactory findings; each must be "
+        "either disposed by the live pin or accounted for by a departure")
+    assert [row for row in undispositioned if row not in departed] == []
     assert stale == []
 
 

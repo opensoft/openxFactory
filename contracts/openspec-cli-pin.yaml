@@ -258,10 +258,19 @@ kind: pinned_contract_manifest
 #     with an undispositioned finding (exit 1) is deliberate and is argued in
 #     scripts/validate-openspec-cli-pin.py: an unmatched FINDING is a statement
 #     about the deltas, an unmatched DISPOSITION is a statement about this file.
-#     `add-composed-view-authoring` has ONE open task left and archives the
-#     moment a human takes it; on that day its finding vanishes from every run
-#     and this pin must fail until its entry is deleted, so that the archive
-#     itself is the event that forces the re-reading. ONLY A WHOLE-CORPUS
+#     `add-composed-view-authoring` was the worked example here, written while
+#     it had ONE open task left: "on that day its finding vanishes from every
+#     run and this pin must fail until its entry is deleted, so that the archive
+#     itself is the event that forces the re-reading." THAT DAY WAS 2026-09-16
+#     AND THE MECHANISM FIRED EXACTLY AS WRITTEN. The change did not archive on
+#     its open task being taken — it was CLOSED AS RE-HOMED to `opensoft/openDox`
+#     under RULING Q6 (`split-opendox-two-layer-product` `tasks.md` § 6.4), which
+#     freezes it where it stands and carries task 3.2 open to the receiving
+#     repository; the corpus effect is the same one this paragraph predicted, and
+#     `--all` refused `pin-disposition-stale` naming this entry before it was
+#     deleted. The entry is gone; the doctrine it illustrated is not, and the
+#     illustration is kept in the past tense rather than replaced with a live
+#     change nobody has agreed to make an example of. ONLY A WHOLE-CORPUS
 #     (`--all`) RUN DECIDES THIS: a `--change <id>` run legitimately never
 #     opens the items it was not asked about, so it applies its dispositions,
 #     decides no staleness, and says in its output that it checked none.
@@ -475,29 +484,6 @@ dispositions:
       remain open, including §5.8, the canary pair is not producible, and
       issue #579 is unresolved — so this entry is expected to be long-lived and
       is still re-derived at every bump.
-
-  - repo: openxFactory
-    item: add-composed-view-authoring
-    path: ideation-dashboard/spec.md
-    level: ERROR
-    finding: 'MODIFIED "Composed views are read-only with a repository jump" omits scenario(s) the current spec still has: "Gate verbs hide on a composed view". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
-    why: >-
-      "Gate verbs hide on a composed view" became "Tile-bound gate verbs hide on
-      a composed view" because the same change deliberately ADMITS document
-      creation there; this exact pair is the worked example canon uses to define
-      the marker, so restoring the old title contradicts both the sibling
-      scenario and the requirement that governs the form.
-    cited_to:
-      - openspec/specs/doc-health/spec.md:1770 — canon's worked example IS this rename, byte for byte
-      - PR #444 — the landed change that declared the rename with the `Merged into` marker
-      - council LA-A1 — the ruling that reserved the marker forms
-      - openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
-    ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'
-    retires_when: >-
-      add-composed-view-authoring archives, which needs ONE open box (task 3.2, a
-      Brett act). ON THAT DAY THIS ENTRY GOES STALE AND EVERY RUN REFUSES until
-      it is deleted. That is the mechanism working, not a defect: the archive is
-      the event that forces somebody to re-read the exception.
 
   # ---- codexFactory, added 2026-09-05 by disposition-codexfactory-declared-renames.
   # THE SECOND PAIR, IN A SECOND REPOSITORY, AND THE FIRST TIME THIS MECHANISM
