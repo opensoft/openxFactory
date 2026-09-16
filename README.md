@@ -3238,8 +3238,14 @@ Archived changes:
   ratifying the seven until it lands. **THE LOCKSTEP PAIR THE ARCHIVE RETIRES:**
   `scripts/target-release-register.yaml`'s `implementation_pending` entry —
   whose own `retires_when:` reads *"or the packet archives"* — and
-  `scripts/target_release.py`'s `CLOSED_REGISTER` tuple, moved in this one pull
-  request as that module requires, 21 pairs to 20. **WHAT STAYS:** the
+  `scripts/target_release.py`'s `CLOSED_REGISTER` tuple, 21 pairs to 20. **THE
+  TWO HALVES ARE NOT THE SAME OBLIGATION:** the ENTRY's deletion is required
+  (`Report.stale` refuses while it stands), while the baseline pair's is a
+  DELIBERATE SHRINK — `target_release.py` says a baseline *"MAY BE A STRICT
+  SUPERSET, AND USUALLY WILL BE … a ceiling, never a floor"*, and its
+  same-pull-request sentence governs ADMITTING a pair, not removing one. Both
+  move here anyway, in one diff, because that is where the movement is legible.
+  **WHAT STAYS:** the
   aggregation-side artifact-only worker (§ 6.1); no workflow moves. **NO DELTA IS
   PROMOTED HERE.** The packet is relocated by `git mv` and otherwise UNEDITED.
   Full reasoning:

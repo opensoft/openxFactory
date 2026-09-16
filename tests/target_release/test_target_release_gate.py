@@ -1085,11 +1085,15 @@ def test_admitting_the_value_did_not_move_the_closed_baseline():
     # `add-nightly-dashboard-refresh` AS RE-HOMED to `opensoft/openXdox` under
     # RULING Q6 and the packet left the active corpus. That retired its
     # `implementation_pending` entry on the second limb of its own
-    # `retires_when:` ("or the packet archives"), and the register is REMOVABLE:
-    # the entry and this pair moved together in openxFactory #1060, which is the
-    # movement `target_release.py` requires to be visible in one diff. This
-    # literal is the baseline's SIZE and it falls with a removal exactly as it
-    # would refuse an addition.
+    # `retires_when:` ("or the packet archives"), and the register is REMOVABLE.
+    # THE ENTRY HAD TO GO (`Report.stale` refuses while a stale one stands);
+    # THIS PAIR DID NOT. The module's own note says a baseline "MAY BE A STRICT
+    # SUPERSET, AND USUALLY WILL BE … a ceiling, never a floor", and its "in the
+    # same pull request" sentence governs ADMITTING a pair rather than removing
+    # one. The pair moved with the entry in openxFactory #1060 as a deliberate
+    # shrink, in one diff because that is where the choice is legible. This
+    # literal is the baseline's SIZE: it falls with a removal exactly as it would
+    # refuse an addition, and it is the assertion that keeps the shrink honest.
     assert len(tr.CLOSED_REGISTER) == 20
     assert not [e for e in tr.CLOSED_REGISTER
                 if e[1] == tr.DEFERRED_ALLOCATION]
