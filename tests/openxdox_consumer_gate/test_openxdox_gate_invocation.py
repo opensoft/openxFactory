@@ -291,9 +291,25 @@ def test_the_checkout_lands_at_the_aggregation_shaped_path(
 
     A FLOOR CANNOT SEE THIS: `skipif` marks a collected test rather than
     uncollecting it, so selection is 1137 under either layout.
+
+    EXACTLY ONE CHECKOUT, asserted before its path is read. "The first
+    `actions/checkout` lands at `openxFactory/`" is satisfied by a job that
+    checks out twice — the second one at the workspace root, where a later
+    `working-directory`, a submodule init or a bare `pytest` would then run —
+    and every other assertion in this file that says "the checkout" reads the
+    first as well. The count is the assertion that makes those readings true,
+    so it is made here, once, rather than assumed five times.
     """
-    checkout = next(s for s in steps
-                    if str(s.get("uses", "")).startswith("actions/checkout"))
+    checkouts = [s for s in steps
+                 if str(s.get("uses", "")).startswith("actions/checkout")]
+    assert len(checkouts) == 1, (
+        f"the gate must take exactly ONE checkout; found {len(checkouts)}. A "
+        f"second one materializes a second tree — at the workspace root, most "
+        f"likely — and every guard here that reads 'the checkout' reads the "
+        f"first, so a root-shaped tree could arrive with all of them green. "
+        f"If a second checkout is ever needed, give it a path and re-aim these "
+        f"assertions at the one that hosts the suites")
+    checkout = checkouts[0]
     assert checkout["with"]["path"] == CHECKOUT_PATH, (
         f"the checkout must land at {CHECKOUT_PATH!r}; a root checkout makes "
         f"the cross-reference validator locator answer None and turns the "
