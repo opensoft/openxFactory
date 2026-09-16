@@ -480,11 +480,13 @@ never committed"* — and three readings of one corpus have now produced 78, 81
 and 86.
 
 **(c) THE CROSS-REPOSITORY QUALIFIER, AND THE DECISION THAT MATTERS HERE: FLAG,
-NEVER DROP.** #1053's automated check uses four adjacency heuristics — a
+NEVER DROP.** #1053's automated check uses FIVE adjacency signals — a
 path-joined prefix (`xFactories/LedgerxFactory/…`), a GitHub blob or tree URL, a
 bare qualifier word immediately before the token (`codexFactory
-openspec/changes/…`), and a trailing `(RepoName)` parenthetical — and #1053
-itself measures their limit: *"the automated qualifier check only catches a
+openspec/changes/…`), **the `opsx:opensoft/…` CUSTODY-LOCATOR SCHEME this corpus
+writes OpsxFactory citations in** (25 occurrences at `b1df95ee`, and six of the
+evidence's fourteen hand-found cross-repository tokens are that register's), and
+a trailing `(RepoName)` parenthetical — and #1053 itself measures their limit: *"the automated qualifier check only catches a
 qualifier immediately adjacent to the token; several citations name the other
 repository one to three lines above instead"*, which a manual read found for at
 least ten more.

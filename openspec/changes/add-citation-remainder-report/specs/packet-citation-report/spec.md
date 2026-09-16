@@ -161,9 +161,13 @@ that basis would be asserting a fact it cannot check.
 
 THE SUSPICION IS A HEURISTIC AND SHALL BE REPORTED AS ONE. The signals are
 adjacency signals — a path-joined prefix naming another repository, a forge URL
-naming another repository, a qualifier word near the token, a trailing
-parenthetical naming a repository — and the window in which they are looked for
-SHALL be stated. A citation whose qualifier sits outside that window is a MISS
+naming another repository, a qualifier word near the token, a locator scheme
+whose own prefix names another repository, a trailing parenthetical naming a
+repository — and the window in which they are looked for SHALL be stated. The
+signal set SHALL be stated with it, because a repository that writes its
+cross-repository citations in a locator scheme of its own has a signal no
+adjacency word supplies, and a report that omits that scheme misses the class it
+was written to catch. A citation whose qualifier sits outside that window is a MISS
 and a paragraph that merely mentions another repository above an in-tree
 citation is a FALSE POSITIVE; both are inevitable, which is precisely why the
 verdict is a flag and not a deletion.
