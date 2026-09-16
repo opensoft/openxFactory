@@ -862,9 +862,10 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     row = _rows().get(key)
     if row is None or row["disposition"] == "not_moved":
         return None
+    destination, destination_path = effective_arrival(row)
     repo = REPO_ROOT
     revision = commit
-    for segment in MOUNTS[row["destination"]].relative_to(REPO_ROOT).parts:
+    for segment in MOUNTS[destination].relative_to(REPO_ROOT).parts:
         gitlink = _git_object_id(repo, revision, segment)
         if gitlink is None:
             return None
@@ -872,11 +873,11 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
         revision = gitlink
         if not (repo / ".git").exists():
             raise CarveReachUnavailable(
-                f"the pinned {row['destination']} leg is not materialized: "
+                f"the pinned {destination} leg is not materialized: "
                 f"{repo.relative_to(REPO_ROOT)} carries no Git object store, so "
                 f"{key} cannot be read at the commit that pins it. Run "
                 f"`{INIT_COMMAND}` from the repository root.")
-    return repo, revision, row["destination_path"]
+    return repo, revision, destination_path
 
 
 def sources_under(prefix: str) -> dict[str, Path]:
