@@ -3,7 +3,10 @@
 Status: draft
 Authored: 2026-09-16, lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
 `substrate52a`, against a fresh clone of `main` at `fa39141c`. Every count below was produced by a
-script over that tree and is reproducible from it; none is read off prose.
+script over that tree and is reproducible from it; none is read off prose. **Currency**: this branch
+has since merged `main` at `4cef77af` (a merge, never a rebase) and the carry was re-built and
+re-proved against that tree with an identical result — the promoted text of the fifteen did not move,
+and `review/build-delta.py` re-proves it on demand at any later base.
 
 **EVERY `design.md`/`tasks.md`/`proposal.md` CITATION BELOW IS THE GOVERNING PACKET'S, NOT THIS
 ONE'S**, and each is written with its full path the first time it is used;
