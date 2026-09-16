@@ -891,8 +891,9 @@ the bookkeeping that ticks this group.
   LANDING cannot be dated to the day it was written, and re-dating it would
   erase which of these statements were authored before the slices they record
   had merged. The acts recorded below ran on 2026-09-12/13 (S1–S6), 2026-09-15
-  (S7 and the pin lockstep) and 2026-09-16 (S8's three and openDox-spec #11),
-  each with its own clock beside it. Two Copilot findings on #1035, one raised
+  (S7 and the pin lockstep) and **2026-09-15/16** for S8 — its annotation `#1025`
+  at 23:50:29Z on the 15th, leg A at 01:11:37Z and leg B at 01:23:16Z on the
+  16th — with openDox-spec `#11` on the 16th, each with its own clock beside it. Two Copilot findings on #1035, one raised
   as a thread and one suppressed, both accurate; taken at fix round 6.)*
   **ALL EIGHT are merged and every sha in the table below is final**, each one
   read from the merged pull request itself rather than from a report of it. The
@@ -911,9 +912,10 @@ the bookkeeping that ticks this group.
   at **2026-09-16T01:23:16Z** — the same rule holding for the **SEVENTH and LAST** time. The
   count is one holding per ANNOTATED slice, in landing order — S2, S3, S6, S4,
   S5, S7, S8 — S1 being the one slice correctly exempt because it creates files
-  and edits no ARRIVED row; counted per annotation→LEG pairing instead, where S6,
-  S5 and S8 carry two legs each, they are the eighth and the ninth and tenth of
-  ten, and all ten are ordered right. These two ordinals read "a seventh" and
+  and edits no ARRIVED row; counted per annotation→LEG pairing instead — S6, S5
+  and S8 carry two legs each, so the ten pairings run **S2 1 · S3 2 · S6 3–4 ·
+  S4 5 · S5 6–7 · S7 8 · S8 9–10** — S7's is the EIGHTH and S8's the NINTH and
+  TENTH of ten, and all ten are ordered right. These two ordinals read "a seventh" and
   "an EIGHTH" until openDox-spec `#11`'s fix round 18, where a Copilot finding
   caught that S7 and S8 could not both be the seventh: both had been minted by
   counting SLICES LANDED, S1 included.)* That is the
@@ -1000,7 +1002,8 @@ the bookkeeping that ticks this group.
   with S7), which is why the arc-complete bundle is 40 hand-authored files
   again at 31,953 lines. *(The last row was added at this amendment's landing
   and is the check that the arc ENDED where `#21`'s head said it would: S8 leg
-  B merged after this table was taken and moves not one byte under
+  B merged after the first four rows were taken (2026-09-14) and before this
+  fifth one was, and it moves not one byte under
   `src/opendox/web/`, so `main` `0b4e8bbf` reproduces the arc-complete figure
   exactly — 42 blobs / 31,955 lines, 40 hand-authored / 31,953 — which is what
   the boundary note's § 1.1 predicted and then read.)* **FOUR other occurrences in the packet's LIVE
@@ -1213,7 +1216,7 @@ the bookkeeping that ticks this group.
   | where the 23 stand | count | sites |
   | --- | ---: | --- |
   | `openXdox-code` `src/openxdox/` (the adapter's implementation surface, as 4.1 asks) | **12** | `completeness` 1, `corpus_root` 1, `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1, `snapshot_registry` 1 |
-  | `openDox-code` `src/opendox/` | **5** | `serve.py`:710 `from doc_health.corpus import RealGit`; `workbench.py`:746, :1407, :1408, :1409 |
+  | `openDox-code` `src/opendox/` | **5** | `serve.py`:**710** `from doc_health.corpus import RealGit` — that position is `8efb3cf5`'s, and the same import is at **:713** at `main` `0b4e8bbf` (the re-run above); `workbench.py`:746, :1407, :1408, :1409, identical at both |
   | RULED to stay at `openxFactory` (DQ-1) | **1** | `design.md` § D3 inventories it at `doxbench_packet`; the import had already moved by the carve commit and the LIVE site is `scripts/ideation_dashboard/doxbench_status_exemption.py`:63 — `from doc_health.lines import split_keepends`, the same line at `b075fd91` and at `main` `e6e1c968` (reading (ii) below) |
   | **DISCHARGED at the § 2 seam** — the import became an adapter call or a late seam read, so there is nothing left to relocate | **5** | `authoring` 2 → `authoring.py`:317–318, `from .corpus_adapter import DocumentId` + `from corpus_adapter_openxfactory import home_corpus`; `cli` 1 → gone, only the path comment at `cli.py`:14 survives; `serve` 2 of 3 → gone before the carve (openxFactory `b075fd91` already reads one, at `serve.py`:618), the leg's own late seam reading `from opendox import consumer_reach` at `serve.py`:146 |
 
