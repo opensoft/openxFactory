@@ -984,6 +984,7 @@ the bookkeeping that ticks this group.
   | openDox-code `a99eba03` — the note's census tree | 42 | 30,585 | 40 / 30,583 |
   | openDox-code `main` `8efb3cf5` — S1–S6 landed | 41 | 30,477 | 39 / 30,475 |
   | openDox-code `#21` head `c7a216c7` — the ARC-COMPLETE bundle | 42 | 31,955 | 40 / 31,953 |
+  | openDox-code `main` **`0b4e8bbf`** — **ALL EIGHT landed**, read at this amendment's own landing | 42 | 31,955 | 40 / 31,953 |
 
   **The FILE count is right; the LINE count is 173 short.** The carve step is
   one file and is exactly accounted for: `views/intent-feed.js` (483 lines)
@@ -994,7 +995,12 @@ the bookkeeping that ticks this group.
   arrived and **656** short of what the carve commit held. Everything after
   that is the arc itself (five files in before S5, six out with S5, one in
   with S7), which is why the arc-complete bundle is 40 hand-authored files
-  again at 31,953 lines. **FOUR other occurrences in the packet's LIVE
+  again at 31,953 lines. *(The last row was added at this amendment's landing
+  and is the check that the arc ENDED where `#21`'s head said it would: S8 leg
+  B merged after this table was taken and moves not one byte under
+  `src/opendox/web/`, so `main` `0b4e8bbf` reproduces the arc-complete figure
+  exactly — 42 blobs / 31,955 lines, 40 hand-authored / 31,953 — which is what
+  the boundary note's § 1.1 predicted and then read.)* **FOUR other occurrences in the packet's LIVE
   documents carry this figure and NONE is edited here** — `design.md`:52 and
   :351 and `proposal.md`'s `code_surface:` line each pair *"40 files"* with
   *"30,410"*, and `proposal.md`:208 carries the line count alone (*"30,410
