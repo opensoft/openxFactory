@@ -73,7 +73,29 @@ a sequence, which is the installer's.
 
 **The reading NOT taken:** waiting for Q2 before authoring. That would have left
 a ruled Q1 unexecuted on a question the delta does not ask, and the topic has
-already sat thirty-three days past its gate.
+already sat thirty-three days past its gate. What authorizes the authoring is
+the ruling's clause (E) directing it, not a finding by this author that Q2 is
+dispensable; the topic's gate is not amended here and the topic is not closed
+(`proposal.md`, the lifecycle paragraph).
+
+**CASE-NEUTRALITY IS A PROPERTY OF THE WORDING, AND THE FIRST DRAFT DID NOT HAVE
+IT.** The clauses as first written said the identity is created "in the tenant's
+own organization … and never by an operator identity acting inside it", and that
+the captured material lands in "the tenant's own vault". Both are stronger than
+case-neutral: canon keeps BOTH operating models legitimate in terms — *"Both
+cases SHALL remain legitimate"*
+(`openspec/specs/credential-contracts/spec.md:141`) — the ratified runbook
+`docs/openxdox-dispatch-credential-binding.md:31-37` records a live
+operator-hosted Case A in which the operator creates the App and holds its key
+in the OPERATOR's vault, and *An operated identity's credential is held in
+governed custody and reached only by reference* puts the custody party in the
+BINDING and forbids a contract artifact from naming one. A delta claiming
+neutrality while repealing one of the two cases in passing would have been the
+worst of both. The clauses now bind the manifest SHAPE and the identity's HOME,
+leave the operating model to the per-install execution binding canon already
+fixes, and assert the reconciliation in two added scenarios — an operator-
+executed install driving the flow conforms; a pair already in service that was
+created by hand is not retroactively refused.
 
 ## D4 — Why the naming convention is a REQUIREMENT clause and not a runbook line
 

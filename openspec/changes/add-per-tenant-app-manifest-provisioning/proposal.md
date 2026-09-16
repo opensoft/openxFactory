@@ -1,5 +1,5 @@
 ---
-code_surface: none — MEASURED, not assumed, against the clone of `main` @ `4cef77af` this packet was authored on. The whole diff is governance text in `openxFactory`: this packet's five files, one README **OpenSpec Records** row, and one generated row in `tests/sequenced_after/corpus-ledger.yaml` (written by the sanctioned `scripts/validate-sequenced-after.py . --seed-ledger`, derived from the packet's existence rather than authored). Evidence for the negative, each check run rather than asserted: (1) `scripts/validate-credential-contracts.py` gains NO arm — the clauses this delta adds are about a PROVISIONING MANIFEST, a record kind that exists in NO corpus this repository validates (`grep -rn "provisioning manifest" contracts/ schemas/ examples/` returns nothing), so there is no committed record for a validator to read and an arm authored now would have no fixture that is not invented; (2) `contracts/schemas/xfactory-credential-contracts.schema.yaml` is UNTOUCHED, no `contracts/manifest.yaml` row moves, no digest inventory is cut and no `contracts/CHANGELOG.md` line is owed — nothing this packet writes is a field, a shape or a warning code; (3) NO existing requirement text is deleted — the promoted body paragraph and all three promoted scenarios of the modified requirement are restated VERBATIM, which is checked by the carriage-ledger arm of `doc-health`'s modified-block-currency family rather than claimed here; (4) the two repositories § 7.4 of `split-opendox-two-layer-product` tags, `opensoft/OpsxFactory` and `opensoft/Omnigent-Install`, are not touched by a byte, on RULING `5704187317` clauses (B) and (D). Under `release-realization` an empty code surface archives ON LANDING plus its own task list — and the installer realization is a TASK in that list (§ 3) owed in `Omnigent-Install` under its own change and its own code surface, so the archive is still gated on it.
+code_surface: none — MEASURED, not assumed, against the clone of `main` @ `4cef77af` this packet was authored on. The whole diff is governance text in `openxFactory`: this packet's five files, one README **OpenSpec Records** row, and one generated row in `tests/sequenced_after/corpus-ledger.yaml` (written by the sanctioned `scripts/validate-sequenced-after.py . --seed-ledger`, derived from the packet's existence rather than authored). Evidence for the negative, each check run rather than asserted: (1) `scripts/validate-credential-contracts.py` gains NO arm — the clauses this delta adds are about a PROVISIONING MANIFEST, a record kind that exists in NO corpus this repository validates (`grep -rn "provisioning manifest" contracts/ examples/ templates/ requirements/` returns nothing, exit 0 over four roots that all EXIST — an earlier spelling of this command named a root `schemas/` that this repository does not have, so it warned on the missing path instead of proving the zero; the schemas live at `contracts/schemas/` and are inside the first root), so there is no committed record for a validator to read and an arm authored now would have no fixture that is not invented; (2) `contracts/schemas/xfactory-credential-contracts.schema.yaml` is UNTOUCHED, no `contracts/manifest.yaml` row moves, no digest inventory is cut and no `contracts/CHANGELOG.md` line is owed — nothing this packet writes is a field, a shape or a warning code; (3) NO existing requirement text is deleted — the promoted body paragraph and all three promoted scenarios of the modified requirement are restated VERBATIM, which is checked by the carriage-ledger arm of `doc-health`'s modified-block-currency family rather than claimed here; (4) the two repositories § 7.4 of `split-opendox-two-layer-product` tags, `opensoft/OpsxFactory` and `opensoft/Omnigent-Install`, are not touched by a byte, on RULING `5704187317` clauses (B) and (D). Under `release-realization` an empty code surface archives ON LANDING plus its own task list, and the gate is mechanical: `archive_change()` refuses on any literal `- [ ]` anywhere in `tasks.md` (`scripts/proposal-support.py:4609`). § 1 and § 2 are this repository's surface and must be TICKED; the installer realization (§ 3) is owed in `Omnigent-Install` under its own change and its own code surface, cannot be ticked from here, and therefore carries the house's reserved DEFERRED marker `- [~]` with its holder named — open and addressed rather than gating.
 target_release: implemented — an empty code surface archives on landing plus this packet's own task list (`release-realization`), and NO contract bundle number is reserved here. This is deliberate and is the difference between this packet and its two active siblings on this capability: `add-credential-escrow-checkout` and `add-requirement-ref-resolution-integrity` each owe an additive minor on the SAME schema file, and a number written here would be a number one of them is already spending. Nothing this delta says is expressible as a schema field today, because the record it constrains — a provisioning manifest — is not a record this repository carries; when the installer change in `Omnigent-Install` gives that record a shape, the bundle question is ITS to answer against a real artifact rather than this packet's to pre-empt against none.
 ---
 
@@ -7,10 +7,25 @@ target_release: implemented — an empty code surface archives on landing plus t
 
 Status: draft
 
-Exits `ideation/staging/openxdox-install-app-provisioning/` (staged 2026-08-14,
-gate met 2026-08-15, exit unraised for thirty-three days), on **RULING
-`5704187317`** — `opensoft/openxFactory` issue #656, 2026-09-16, by interactive
-multi-choice, option (1) SPLIT AND NARROW, clause (E).
+TAKES THE FIRST HALF of the declared exit path of
+`ideation/staging/openxdox-install-app-provisioning/` (staged 2026-08-14, gate
+met 2026-08-15, exit unraised for thirty-three days) and **does not close that
+topic**, on **RULING `5704187317`** — `opensoft/openxFactory` issue #656,
+2026-09-16, by interactive multi-choice, option (1) SPLIT AND NARROW, clause (E).
+
+The topic's Exit path states three things and this packet is straight about which
+it meets. The contract home (Q1) is **RULED**. The managed-versus-self-hosted
+flow (Q2) is **NOT ruled**, and is neither decided nor waived here. The further
+condition — *"Gated on the opensoft QA dispatch migration completing"* — is **not
+asserted met** by this packet. What authorizes the authoring anyway is not this
+author's judgment that Q2 is dispensable, but the ruling's clause (E) DIRECTING
+the authoring in the operator's own words — *"this lane authors ONLY a
+`credential-contracts` MODIFIED delta in `openxFactory` carrying that shape"* —
+and an authoring gate that exists to make the authoring wait on the operator is
+dispositioned by the operator ordering it. The fragment therefore STAYS STAGED
+(`tasks.md` § 4.2), its `ideation/staging/INDEX.md` row is where the position is
+recorded, and the topic closes when Q2 is ruled and the named `Omnigent-Install`
+realization change exists.
 
 ## Why
 
@@ -53,19 +68,23 @@ tenant contends for.
 **ONE `## MODIFIED` block, on ONE requirement, over CANON.** *Dispatch-only
 credential least privilege and serving-tier separation* is restated in full — its
 promoted body paragraph and all three promoted scenarios verbatim — and grown by
-four clauses and six scenarios:
+four clauses and eight scenarios:
 
-1. **Creation is in the tenant's organization, through a declared manifest,
-   never by an operator identity** — and never by one provisioned identity
-   creating the other, which the promoted sentence already forbids the serving
-   tier to be capable of.
+1. **Where the pair is provisioned through a manifest, creation is in the
+   tenant's organization and the identity is never an operator-owned one
+   installed into it** — and never one provisioned identity creating the other,
+   which the promoted sentence already forbids the serving tier to be capable of.
+   The clause binds WHERE the identity lives, not who drives the flow and not who
+   holds its material.
 2. **One pair per tenant, never shared**, with a per-tenant, pattern-discoverable
    naming convention where the provider's namespace is global.
 3. **The dispatch identity's one named target is a repository that holds no
    governed content**, and that repository is part of the provisioning.
-4. **Capture is time-bound, lands in the tenant's own custody by reference, and
-   leaves the installer not a custodian** — and no manifest, record or template
-   carries a secret value, private key or installation token.
+4. **Capture is time-bound, lands in the DECLARED custody by reference, and
+   leaves whoever drives the flow not an UNDECLARED custodian** — the custody's
+   operator being the per-install execution binding this capability already
+   fixes rather than a party this contract names — and no manifest, record or
+   template carries a secret value, private key or installation token.
 
 **No new capability.** The topic's OQ-1 offered a new `install-app-provisioning`
 capability beside the MODIFIED delta; RULING `5704187317` (E) took the delta.
@@ -80,6 +99,16 @@ non-obvious.
   six-condition shared-`secret_ref` lift; `A credential binding declares the
   consuming system that holds it and the identity it fetches with` is untouched
   and already covers what the bindings then declare.
+- **Canon's two legitimate operating models, and the ratified operator-hosted
+  runbook.** *The credential vault operator is an execution binding, never
+  contract content* keeps BOTH cases legitimate
+  (`openspec/specs/credential-contracts/spec.md:141`) and
+  `docs/openxdox-dispatch-credential-binding.md:31-37` records a LIVE Case A in
+  which the operator creates the dispatch App and holds its key in the operator's
+  vault. The added clauses are scoped to provisioning THROUGH A MANIFEST, name no
+  custody party, and do not retroactively refuse a pair already in service — two
+  of the eight added scenarios assert exactly that. Whether Case A migrates to
+  the manifest shape is the installer's act and the topic's unruled Q2.
 - **Any schema, validator arm, warning code or contract bundle.** See the
   `code_surface:` declaration: the record these clauses constrain does not exist
   in a corpus this repository validates.
@@ -108,8 +137,8 @@ non-obvious.
   tenant's organization under the tenant's ownership. The answer changes the
   installer's sequence, which is `Omnigent-Install`'s change to write. Recommended
   when it is put: the tenant's own seat always confirms, because the clause's
-  refusal is about an operator identity CREATING or HOLDING the identity, and a
-  confirmation the operator performs is the shortest path to one that does.
+  refusal is about the created identity being an operator's OWN, and a
+  confirmation the operator performs is the shortest path to one that is.
 - **OQ-2 — the apply-workflow repository's provenance (the topic's Q3, second
   half).** Created fresh per install, or a template the tenant forks; and does
   `opensoft`'s own `intent-apply.yml` migrate to the small-repo pattern for parity

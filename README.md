@@ -533,26 +533,45 @@ Active changes:
 
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
-  `openXfactory-4-openDox_extraction`), `Status: draft`. **Exits the staged topic
-  `openxdox-install-app-provisioning`** (staged 2026-08-14, gate met 2026-08-15,
-  exit unraised for thirty-three days) on **RULING `5704187317`**
+  `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
+  the staged topic `openxdox-install-app-provisioning`'s declared exit path and
+  does NOT close that topic** (staged 2026-08-14, gate met 2026-08-15,
+  exit unraised for thirty-three days), on **RULING `5704187317`**
   ([#656](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5704187317),
   2026-09-16, by interactive multi-choice, option (1) SPLIT AND NARROW,
   clause (E)), which takes that topic's OQ-1 **option (a)** — a MODIFIED
   `credential-contracts` delta — and declines the new `install-app-provisioning`
-  capability it offered beside it. **ONE `## MODIFIED` BLOCK, OVER CANON.**
+  capability it offered beside it. **THE LIFECYCLE CLAIM IS NARROW AND STATED AS
+  SUCH:** the topic's Exit path names the contract home (Q1, **RULED**), the
+  managed-versus-self-hosted flow (Q2, **unruled, neither decided nor waived
+  here**), a named `Omnigent-Install` realization change (owed, authored nowhere
+  here) and a further gate on the opensoft QA dispatch migration (**not asserted
+  met**). What authorizes authoring anyway is clause (E) DIRECTING it in the
+  operator's own words rather than any finding by the author that Q2 is
+  dispensable; the fragment STAYS STAGED and the topic closes when Q2 is ruled
+  and the installer change exists. **ONE `## MODIFIED` BLOCK, OVER CANON.**
   *Dispatch-only credential least privilege and serving-tier separation*
   ([`openspec/specs/credential-contracts/spec.md:169`](openspec/specs/credential-contracts/spec.md))
   restated with its promoted body paragraph and all three promoted scenarios
-  VERBATIM, grown by four clauses and six scenarios: creation of each identity IN
-  THE TENANT'S OWN ORGANIZATION through a declared, credential-free provisioning
-  manifest and never by an operator identity (nor by one provisioned identity
-  creating the other); ONE PAIR PER TENANT, never shared, under a per-tenant
-  pattern-discoverable naming convention of the form `<product> — <tenant>` where
-  the provider's namespace is global; the dispatch identity's one named target
-  being a repository that holds NO GOVERNED CONTENT; and a time-bound capture
-  landing in the tenant's own custody by reference, with no manifest, record or
-  template carrying a secret value, private key or installation token.
+  VERBATIM, grown by four clauses and eight scenarios: where the pair is
+  provisioned THROUGH A MANIFEST, creation of each identity IN THE TENANT'S OWN
+  ORGANIZATION, never an operator-owned identity installed into it (nor one
+  provisioned identity creating the other); ONE PAIR PER TENANT, never shared,
+  under a per-tenant pattern-discoverable naming convention of the form
+  `<product> — <tenant>` where the provider's namespace is global; the dispatch
+  identity's one named target being a repository that holds NO GOVERNED CONTENT;
+  and a time-bound capture landing in the DECLARED custody by reference, with no
+  manifest, record or template carrying a secret value, private key or
+  installation token. **WHAT THE BLOCK DOES NOT REPEAL, ASSERTED IN TWO OF THE
+  EIGHT SCENARIOS RATHER THAN ARGUED IN PROSE:** canon keeps both operating
+  models legitimate (*"Both cases SHALL remain legitimate"*,
+  [`openspec/specs/credential-contracts/spec.md:141`](openspec/specs/credential-contracts/spec.md))
+  and `docs/openxdox-dispatch-credential-binding.md:31-37` records a live
+  operator-hosted Case A, so the clauses bind WHERE the identity lives and HOW
+  its material is reached, name no custody party — the operator of the custody
+  stays the per-install execution binding canon already fixes — leave who DRIVES
+  the flow to the unruled Q2, and do not retroactively refuse a pair already in
+  service.
   **DELTA-CURRENCY CHECK, STATED IN THE DELTA'S OWN PREAMBLE:** two active
   changes carry a `credential-contracts` delta at `4cef77af` —
   `add-credential-escrow-checkout` (MODIFIED *Canonical credential record shapes*

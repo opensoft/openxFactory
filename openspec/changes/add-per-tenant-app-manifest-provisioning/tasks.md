@@ -18,15 +18,29 @@
 - [x] 1.4 `specs/credential-contracts/spec.md`: ONE `## MODIFIED` block on
   *Dispatch-only credential least privilege and serving-tier separation* —
   canon's body paragraph and all three promoted scenarios restated VERBATIM, four
-  clauses added, six scenarios added. The delta-currency check is stated in the
+  clauses added, eight scenarios added. The delta-currency check is stated in the
   delta's own preamble: two active changes carry a `credential-contracts` delta
   and NEITHER writes this requirement, so the block is over canon and no
-  `Modified over` marker is owed.
+  `Modified over` marker is owed. The preamble ALSO states what the block does
+  not repeal — canon's *"Both cases SHALL remain legitimate"*
+  (`openspec/specs/credential-contracts/spec.md:141`) and the ratified
+  operator-hosted Case A of `docs/openxdox-dispatch-credential-binding.md:31-37`
+  — and two of the eight added scenarios ASSERT that reconciliation rather than
+  leaving it to prose.
 - [x] 1.5 README **OpenSpec Records** row.
 - [x] 1.6 The per-change sweep-ledger row, written by
   `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`
-  and never hand-edited; the diff read to confirm it moved THIS change's row and
-  no other.
+  and never hand-edited; the diff read to confirm WHICH rows it moved. It moved
+  TWO, both of them this change's to move: this change's own new `active` row,
+  and the archived `add-dispatch-credential-contract` row flipped `sole` →
+  `co-modifier` with this pull request's provenance. The partner flip is the
+  generator's documented behaviour, not a stray edit — *"a pull request moves ITS
+  OWN ROW (and a partner's row when its `## MODIFIED Requirements` block flips
+  that partner from sole to co-modifier)"* (`scripts/sequenced_after.py:2244`) —
+  and the September `moved_on` on an August-archived row is likewise the
+  documented form (`:2386-2392`: *"A September pull request that flips an
+  already-archived row from sole to co-modifier moved it in September"*). No
+  third row moved.
 - [ ] 1.7 Gates green at the pull request head: `openspec validate
   add-per-tenant-app-manifest-provisioning --strict` and `openspec validate --all
   --strict`; `python3 -m pytest tests/doc-health tests/sequenced_after -q`.
@@ -56,7 +70,7 @@
 The staged topic's exit path names two halves and this packet is the first. The
 second is named here so it is a debt with an address rather than an assumption.
 
-- [ ] 3.1 **`opensoft/Omnigent-Install` — the installer change.** The flow that
+- [~] 3.1 **DEFERRED — `opensoft/Omnigent-Install` — the installer change. Owner: whoever opens that repository's change.** The flow that
   drives the manifest, exchanges the temporary code inside the provider's window,
   lands the material in the tenant's own custody by reference, and wires the two
   bindings — under that repository's own change, its own code surface and its own
@@ -64,10 +78,11 @@ second is named here so it is a debt with an address rather than an assumption.
   repository's README states it *"should not contain … canonical shared contracts
   that belong in `openxFactory/contracts`"*, which is CLAUDE.md working rule 1
   from the other side.
-- [ ] 3.2 **The first consuming domain repository — the manifest files and the
-  install-doc pointer.** The staged topic names `codexFactory` as the first case.
-- [ ] 3.3 **A validator arm, IF and WHEN a provisioning manifest becomes a record
-  this repository carries.** Deliberately not authored now: the record shape does
+- [~] 3.2 **DEFERRED — the first consuming domain repository: the manifest files
+  and the install-doc pointer. Owner: that repository's own lane.** The staged topic names `codexFactory` as the first case.
+- [~] 3.3 **DEFERRED, CONDITIONAL — a validator arm IF and WHEN a provisioning
+  manifest becomes a record this repository carries. Owner: whoever gives the
+  record a shape at 3.1.** Deliberately not authored now: the record shape does
   not exist in any corpus `openxFactory` validates, so an arm authored today would
   be an arm with only invented fixtures. Whoever gives the record a shape at 3.1
   owns the question of whether it comes home here.
@@ -75,24 +90,35 @@ second is named here so it is a debt with an address rather than an assumption.
 ## 4. Archive gate
 
 - [ ] 4.1 Under `release-realization` an empty code surface archives ON LANDING
-  plus this task list. § 1 and § 2 are the gate; § 3 is named-and-owed and is
-  NOT a precondition of this archive, because none of it is this repository's
-  surface — which is the same reason the `code_surface:` head reads `none`.
+  plus this task list — and the mechanism is stated here exactly rather than
+  approximately, because it was got wrong once. `archive_change()` scans the
+  WHOLE task file and refuses on any literal `- [ ]` with no section-level
+  exception (`scripts/proposal-support.py:4609`, *"change has incomplete
+  tasks"*). **§ 1 and § 2 are therefore the gate in the operative sense: they are
+  this repository's surface and they must be TICKED.** § 3 and § 5 are not this
+  repository's surface and cannot be ticked from here, so each carries the
+  house's reserved DEFERRED marker `- [~]` with its holder named in the box —
+  the form this repository already uses for open-but-not-ours work
+  (`README.md:4790`, and `openspec/changes/archive/2026-09-09-pin-openspec-cli-dependency-closure/tasks.md:353`
+  and `.../2026-09-10-adopt-codexfactory-repository-identity/tasks.md:466`).
+  That marker is what makes the archive executable while the debt stays open and
+  addressed, and it is why § 3 is named-and-owed rather than gating — the same
+  reason the `code_surface:` head reads `none`.
 - [ ] 4.2 The staged fragment STAYS staged and its `ideation/staging/INDEX.md`
   row records the exit (the fold into `opendox-two-layer-product` is recorded
   there and deleting the folder would delete the fold's provenance).
 
 ## 5. Not this change's business, recorded so nobody re-derives it
 
-- [ ] 5.1 The `openxdox` DNS record's governance — RULED `5704187317` (B),
+- [~] 5.1 **NOT THIS CHANGE'S. Owner: lane opsXfactory-4.** The `openxdox` DNS record's governance — RULED `5704187317` (B),
   discharged by NAMING; the act is lane opsXfactory-4's inside
   `opensoft/OpsxFactory`'s active `add-governed-dns-administration`, on Brett's
   OQ-E word (`opensoft/OpsxFactory` issue #207 comment `5649809425`). **Nothing
   here waits on it and nothing here performs it.**
-- [ ] 5.2 The `dox` workload set becoming per-tenant — RULED `5704187317` (D),
+- [~] 5.2 **NOT THIS CHANGE'S. Owner: lane opsXfactory-3 / § 3.5's realization.** The `dox` workload set becoming per-tenant — RULED `5704187317` (D),
   left to `split-opendox-two-layer-product` § 3.5's realization; its requirement
   stands under lane opsXfactory-3's claim `5638511222`.
-- [ ] 5.3 `split-opendox-two-layer-product`'s own `tasks.md` § 7.4 tick and the
+- [~] 5.3 **NOT THIS CHANGE'S. Owner: this lane's bookkeeper, amendment #5.** `split-opendox-two-layer-product`'s own `tasks.md` § 7.4 tick and the
   RECORDED second delta-text defect (`design.md:133-134` *"beyond naming them"*
   against `tasks.md:1979` *"is governed here"*, in the class of ruling
   `5700622683`) — the bookkeeper's amendment #5. **This packet edits that packet
