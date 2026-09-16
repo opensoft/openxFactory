@@ -1171,7 +1171,7 @@ the bookkeeping that ticks this group.
   implementation and projection mechanism, the gate-and-commission loop, and
   `doxbench_scope`. Of `design.md` § D3's 23 outbound `doc_health` imports,
   **TWELVE become the adapter's IMPLEMENTATION SURFACE here**, where importing
-  doc-health is lawful; **FIVE ROUTED TO `openDox` UNDER THE CARVE** (routed
+  doc-health is lawful; **FIVE ARE ROUTED TO `openDox` UNDER THE CARVE** (routed
   there, which is a disposition, not a finding that they satisfy the seam — see
   the STATUS), **ONE stays in `openxFactory`** under RULED DQ-1, and **FIVE were
   DISCHARGED at the § 2 seam** and no longer exist as imports at all.
@@ -1368,7 +1368,10 @@ the bookkeeping that ticks this group.
   own — `git ls-tree -r --name-only` over the whole tree returns no such path, at
   `1e469713` and at today's `main` `0b4e8bb` alike — so its five sites resolve to
   `openxFactory`'s own `scripts/doc_health/` when the tool runs inside an
-  openxFactory checkout. The five, identical in line and in text at both heads:
+  openxFactory checkout. The five, identical in line and in text at **both
+  `openDox-code` heads named in this paragraph — `1e469713` and `0b4e8bb`** (and
+  NOT at the earlier `8efb3cf5`, where `serve.py`'s site is :710; that three-line
+  drift is the one recorded above, between a different pair of heads):
   `serve.py`:713 `from doc_health.corpus import RealGit`; `workbench.py`:746
   `from doc_health import corpus`, :1407 `from doc_health import
   DEFAULT_THRESHOLDS, corpus as dh_corpus`, :1408 `from doc_health.families
@@ -1555,7 +1558,11 @@ the bookkeeping that ticks this group.
   RULING OQ-1's three classes, by name.
 - [x] 5.2 `[oxF]` **Shed the dashboard corpus down to RULED DQ-1's KEPT SET.**
   The list is `docs/opendox-carve-manifest.yaml` and not a prose inventory: every
-  row it routes to a destination LEAVES, and the **117** rows carrying a
+  row it routes to a destination LEAVES — **except the twenty
+  `not_moved / replicated_at_destination` rows the manifest names**, whose source
+  STAYS here while a copy arrives there (`tests/ideation-dashboard/conftest.py`
+  and `staging_shapes.py` are two of them, which is why the STATUS below counts
+  them present without counting them kept) — and the **117** rows carrying a
   `stays_openxfactory_*` reason (**103** `stays_openxfactory_adapter` + **14**
   `stays_openxfactory_governance`) STAY, because `openxFactory` keeps its own
   adapter and its own governance. Across the NINE SURFACES THE OLD DELETION LIST
@@ -2278,8 +2285,11 @@ movements claimed at the time they land.
   tracked file under a `tenants/`, `clients/`, `installs/` or `deployments/`
   directory, UNION every file whose top-level `kind:` names a tenant, client,
   install or deployment (`git grep -ilE
-  '^\s*kind:\s*["']?[a-z_]*(tenant|client|install|deployment)' -- '*.yaml'
-  '*.yml'`), each record in it then read for an instance of a dox product. The
+  "^\s*kind:\s*[\"']?[a-z_]*(tenant|client|install|deployment)" -- '*.yaml'
+  '*.yml'` — DOUBLE-quoted, because the pattern contains a single quote and a
+  single-quoted shell string cannot hold one; this is the form that was run,
+  verbatim, and it is written that way so a reader can paste it), each record in
+  it then read for an instance of a dox product. The
   pathspec is stated because the count is sensitive to it in exactly one place
   and the verdict is not: dropping it adds ONE codexFactory file —
   `openspec/changes/add-software-team-execution-lane/supporting-docs/01-tenant-and-approved-intent.md`,
@@ -2296,13 +2306,20 @@ movements claimed at the time they land.
   | `opensoft/OpsxFactory` | `6aa1512c` | 124 | **8** | **0** |
 
   **290 committed tenant-install records across the five (291 without the
-  pathspec), and not one of them declares an instance of a descendant.** `git grep -ilE
+  pathspec), and not one of them declares an instance of a descendant.**
+  `git grep -ilE
   '(codex|medx|ledgerx|adx|opsx)dox'` returns **zero files** in all five trees —
   zero FILES, not merely zero records — and so does
-  `dox_(instance|database|migration)`. The only `[a-z]+xdox` string anywhere in
+  `dox_(instance|database|migration)`. **The `-i` is load-bearing and is why the
+  packet's own CamelCase spellings are inside the probe**, not outside it:
+  `codexDox`, `MedxDox`, `LedgerxDox`, `AdxDox` and `OpsxDox` all match that
+  pattern case-insensitively, and run CASE-SENSITIVELY against those five
+  literals (`git grep -lE '(codexDox|MedxDox|LedgerxDox|AdxDox|OpsxDox)'`) the
+  answer is the same: **zero files in all five trees**. The only `[a-z]+xdox` string anywhere in
   the five is `openxdox`, the NEUTRAL product, in codexFactory (32 files, 84
   occurrences) and OpsxFactory (14 files, 23) — `git grep -hoiE '[a-z]+xdox'`
-  returns that one token and no other in either tree. *(The bare string `dox` is not the probe and could not be:
+  returns that one token and no other in either tree. *(The bare string `dox`
+  is not the probe and could not be:
   MedxFactory's 158 `dox`-matching files are `doxorubicin` (174 occurrences),
   `doxycycline` (52), `doxylamine`, `doxepin`, `pralidoxime`,
   `doxercalciferol`, `doxazosin` and `cefpodoxime` — a drug vocabulary, not a
@@ -2359,6 +2376,35 @@ movements claimed at the time they land.
   into an `OpsxDox` repository; it belongs to OpsxFactory's own intake ledger.
   There is no `OpsxDox` instance, no `OpsxDox` database and no domain-mapping
   declaration anywhere in that tree.
+  **THE DELTA'S OWN TWO SENTENCES POINT DIFFERENT WAYS HERE, AND THE ONE THIS
+  READING RESTS ON IS NAMED RATHER THAN PICKED SILENTLY** (raised at Copilot
+  review round 9 on this amendment's own pull request — the sharpest reading
+  taken against this box in nine rounds). Scenario 4 read ALONE covers what
+  OpsxFactory did: *"WHEN a DomainxFactory install stands up an instance of a
+  runtime neutral product for a tenant"* — openDox and openXdox ARE runtime
+  neutral products, `opensoft` IS a tenant, and the install IS committed.
+  **The requirement's own BODY, a few lines above that scenario, says which
+  instance the clause is about**: *"RULING Q3 … is that every domain install
+  brings its own DESCENDANT INSTANCE and its own database inside the tenant"*,
+  and then *"A domain that has committed to standing an instance up for a tenant
+  therefore HAS its first profile artifact: the tenant's own instance
+  declaration"* (`specs/domain-descendant-boundary/spec.md`:82-89). Scenario 2
+  says it from the other side — the artifact *"RELOCATES INTO"* the descendant
+  (:107-109) — and `design.md`:741-743 names what the clause was written to
+  reconcile, *"Q3's commissioned descendants"*. **On the body's reading nothing
+  triggers here**: those records declare no descendant instance and no
+  descendant database, and nothing in them can relocate into an `OpsxDox` that
+  does not exist. **On scenario 4's stand-alone reading something does**, and
+  the consequence is written down rather than left implicit — § 7.1's answer
+  would become *not codexFactory first but OpsxFactory*, § 7.2's report would
+  have an instance to report, and § 7.3 would have a subject. **This amendment
+  does not make that call.** §§ 7.1/7.2 tick on RULED **R-3**, which answered
+  NONE YET on the laziness rule, and an amendment records a ruling rather than
+  re-litigating its premise. What it does is (a) name the tension as a defect in
+  THIS PACKET'S OWN DELTA — scenario 4 should read *an instance OF THE
+  DESCENDANT* if the body means what it says, and only the act that promotes the
+  delta can repair it — and (b) file the live reading where it can be decided,
+  which is the next paragraph.
   **And the per-tenant install has its own OPEN box in this packet, which is
   where any other reading belongs**: § 7.4, `[OmI]` `[Opsx]`, still `[ ]` — *"one
   instance and one database per tenant in both cases (RULING Q3) … the `dox`
@@ -2452,6 +2498,26 @@ movements claimed at the time they land.
   the strongest form of "not cited as precedent for creating more" this box can
   reach. The fifteen descendant names plus one install name of § 1.7 stay
   registered with no repository behind any of them.
+  **AND THE ENUMERATION IS NOT `opensoft`'s ALONE, because those fifteen names
+  are not all `opensoft`'s** (raised at Copilot review round 9 on this
+  amendment's own pull request, which was right that a one-org report cannot
+  carry a claim about names belonging to three others). Re-enumerated LIVE
+  **2026-09-16T14:37Z**, every org § 1.7's registry names:
+
+  | org | repositories enumerated | `dox`-named |
+  | --- | ---: | --- |
+  | `opensoft` | 402 | **6** — `openDox`, `openDox-spec`, `openDox-code`, `openXdox`, `openXdox-spec`, `openXdox-code` |
+  | `codeXfactory` | 1 | **0** |
+  | `MedxSoft` | 13 | **0** |
+  | `ledgerXfactory` | 1 | **0** |
+
+  **417 repositories across the four orgs, six `dox`-named, and all six are the
+  product's own** — the six § 8.1 requires to exist. `AdxFactory` and
+  `OpsxFactory` have no org of their own; both live in `opensoft` and are inside
+  its 402. So **no `<Domainx>Dox` repository exists in any org of this estate**,
+  which is what the sentence above claims and what a one-org report could not
+  establish. (`gh api orgs/<org>/repos --paginate --jq '.[].name'`, the same
+  invocation § 8.8 uses, at the same reading.)
 - [~] 7.3 `[?]` **DEFERRED SUCCESSOR (RULED R-3, 2026-09-16, `#656` comment
   `5690428146`) — carried out of this packet in the form § 4.5 was carried under
   openxFactory #714 and § 0.6's RULED PATH A**: the ruling § 7.1 owed has landed
