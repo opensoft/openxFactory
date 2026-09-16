@@ -975,8 +975,11 @@ the bookkeeping that ticks this group.
   **THE PACKET FIGURE, AMENDED HERE — this box's own "40 files, 30,410 lines"
   is a design-time reading no tree in the arc reproduces**, and the boundary
   note defers its correction to the packet in terms (*"a packet figure is
-  amended in the packet"*, its § 1.1). Re-measured 2026-09-14 over every blob
-  under each tree's bundle root, each named with the tree it was read at:
+  amended in the packet"*, its § 1.1). Re-measured over every blob under each
+  tree's bundle root, each row named with the tree it was read at — **the first
+  four on 2026-09-14, the fifth at this amendment's landing on 2026-09-16**,
+  which is why the table's introduction no longer carries one date for all of
+  them (a Copilot finding on #1035, accurate):
 
   | tree | blobs | lines | hand-authored |
   | --- | ---: | ---: | --- |
@@ -1187,6 +1190,23 @@ the bookkeeping that ticks this group.
   `src/opendox/` at openDox-code, and `scripts/ideation_dashboard/` at
   openxFactory (both at `main` `e6e1c968` and at the carve commit — openxFactory
   has no `src/`, which is why a single root spelling would not reproduce).
+  **RE-RUN AT THE FINAL HEADS for this landing (2026-09-16)**, because a header
+  that says re-verified has to name what it re-verified and the rows below were
+  taken at the S5-era trees: openXdox-code `main` **`0a0265f7`** (S8 leg A
+  landed) returns the same **13** sites in the same **8** modules, per file
+  identical to `c1ad341a` — `cli_gate` 1, `completeness` 1, `corpus_root` 1,
+  `gate_console` 4, `gate_routes` 1, `generator` 3, `round_trip` 1,
+  `snapshot_registry` 1; openDox-code `main` **`0b4e8bbf`** (ALL EIGHT landed)
+  returns the same **5** — `serve.py` 1 and `workbench.py` 4 — with
+  `workbench`'s four at **:746, :1407, :1408, :1409** unmoved and `serve`'s one
+  at **:713** where `8efb3cf5` had :710, three lines down under the leg edits
+  above it and the same import; and openxFactory `main` **`a499061e`** returns
+  the same **3** — `doxbench_status_exemption.py`:63 and
+  `serve_openxfactory_lanes.py`:178, :277. **Every COUNT below is unchanged at
+  the landed heads; exactly one line number moved, and it is named here.**
+  (A Copilot finding on #1035, accurate: the intervening slices are what a
+  re-verification claim has to rule out, and this is the path-level check that
+  rules them out.)
   All 23 of
   `design.md` § D3's inventoried outbound imports now have a position:
 
@@ -1255,7 +1275,15 @@ the bookkeeping that ticks this group.
   § 2.1 / 2.2 / 2.2a seam overtook: 12 arrived, 5 are lawfully openDox's, 1 is
   RULED elsewhere, and 5 no longer exist as imports at all. No further carve
   can move them, so the box is not waiting on § 3.4 (landed), and the wording
-  needs a RULING or an amendment rather than another measurement. Registered
+  needs a RULING or an amendment rather than another measurement. **The sentence
+  that needs it is the box's own closing one** — *"Box stays open until the
+  residue carve resolves where the remaining imports land"* — kept as written
+  above under this file's no-deletion discipline and SUPERSEDED here: no carve
+  can resolve it, because five of the eleven stopped being imports at the § 2
+  seam and the other six are placed, so what this box now waits on is that
+  reconciliation and not a carve. *(The two exit conditions read as
+  incompatible until this paragraph named which one is live — a Copilot finding
+  on #1035, accurate.)* Registered
   here, decided nowhere: this amendment records the accounting and leaves the
   box open on it. `#656` record: CLAIM `5656686020`.
 - [x] 4.2 `[oXd]` `contracts/opendox-pin.yaml` — openXdox pins openDox by commit
