@@ -1086,7 +1086,7 @@ def test_admitting_the_value_did_not_move_the_closed_baseline():
     # RULING Q6 and the packet left the active corpus. That retired its
     # `implementation_pending` entry on the second limb of its own
     # `retires_when:` ("or the packet archives"), and the register is REMOVABLE:
-    # the entry and this pair moved together in openxFactory #1058, which is the
+    # the entry and this pair moved together in openxFactory #1060, which is the
     # movement `target_release.py` requires to be visible in one diff. This
     # literal is the baseline's SIZE and it falls with a removal exactly as it
     # would refuse an addition.

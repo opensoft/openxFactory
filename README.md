@@ -3209,7 +3209,7 @@ Archived changes:
 
 - [add-nightly-dashboard-refresh](openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openXdox` by
-  [PR #1058](https://github.com/opensoft/openxFactory/pull/1058), under **RULING
+  [PR #1060](https://github.com/opensoft/openxFactory/pull/1060), under **RULING
   Q6** (Brett Heap, 2026-09-04T17:49Z,
   [#656](https://github.com/opensoft/openxFactory/issues/656)), encoded at
   `split-opendox-two-layer-product` `tasks.md` § 6.1 and `design.md` § D9. **THE

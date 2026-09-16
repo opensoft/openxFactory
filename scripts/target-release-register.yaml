@@ -236,7 +236,7 @@ register:
   # where it stands and moves its deltas. The register effect is the one the
   # entry's own text named — the declaration leaves the ACTIVE corpus this
   # register scans — so the entry goes and `CLOSED_REGISTER` loses the same pair
-  # in the same pull request (openxFactory #1058), which is where
+  # in the same pull request (openxFactory #1060), which is where
   # `target_release.py` says such a movement must be visible.
 
   - change: add-roster-directory-admission-surface
