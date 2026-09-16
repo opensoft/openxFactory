@@ -98,11 +98,14 @@ there would be inventing evidence rather than supplying it.
 ## What Changes
 
 **ONE `## MODIFIED` BLOCK OVER `document-lifecycle` *Prose tagging marker
-hygiene*, RESTATING CANON IN FULL, MOVING THE ROOT-NAMING SENTENCE, NARROWING
-ONE CLAUSE OF A SIBLING SCENARIO'S WHEN, AND ADDING ONE SCENARIO.** The block
-is GENERATED from canon by a script that slices the promoted requirement
-whole and applies exactly TWO single-occurrence replacements, never
-transcribed (`tasks.md` § 2.2).
+hygiene*, RESTATING CANON IN FULL, MOVING THE ROOT-NAMING SENTENCE, REFRESHING
+ONE STALE SOURCE-CITATION POINTER BESIDE IT (fix round 5), NARROWING ONE
+CLAUSE OF A SIBLING SCENARIO'S WHEN (round 1, narrowed FURTHER at round 5),
+AND ADDING ONE SCENARIO.** The block was GENERATED from canon at filing by a
+script that sliced the promoted requirement whole and applied exactly TWO
+single-occurrence replacements, never transcribed (`tasks.md` § 2.2); fix
+round 5 then hand-applied the pointer refresh and the further WHEN narrowing
+below, each a single-occurrence textual correction over the filed block.
 
 - **CHANGED — ONE BODY SENTENCE.** The root-naming obligation is scoped to the
   findings that reach root selection, and the two that do not are named with
@@ -112,38 +115,71 @@ transcribed (`tasks.md` § 2.2).
   REPOSITORY, the run's root set for it being empty. The sentence's first half
   (the root set is the run's input, not the arm's choice) and its whole
   rationale clause are carried word for word.
-- **CHANGED — ONE CLAUSE OF A SIBLING SCENARIO'S WHEN.** The restated scenario
-  *A pinned target names a pin no resolution root carries* keeps its THEN and
-  both its other AND bullets untouched; only its WHEN moves. Unscoped, that
-  WHEN — "no pin record for `<pin-id>` exists under any root of the run's
-  precedence" — is ALSO true of the empty-root-set case, which the new
-  scenario below gives a DIFFERENT outcome (no root named, by design), so the
-  two scenarios would disagree about that one case. The WHEN now reads
-  "…and at least one resolution root was selected for the run", which excludes
-  the empty-root-set case and leaves the scenario's own subject — a `<pin-id>`
-  that resolves under no root the run's precedence carries, where at least one
-  root WAS searched — exactly as it was, still requiring the finding to name
-  the root or roots searched.
+- **CORRECTED — ONE STALE SOURCE-CITATION POINTER, MECHANICAL AND NOT A
+  NORMATIVE CHANGE (fix round 5).** The paragraph carrying the root-naming
+  obligation opens with canon's own citation of where capability resolution
+  reads the root precedence: `scripts/doc_health/families.py:1317-1321`.
+  THAT POINTER IS STALE IN CANON ITSELF — line range `:1317-1321` is
+  `_topic_outcome` on `main` today, an unrelated function; the root-precedence
+  logic this sentence describes now lives in `_resolve_capability` (~:1490)
+  and `_pin_roots` (~:1548), moved there since the sentence was written. This
+  delta corrects the citation to name the two functions directly, with no
+  line numbers to drift again, SO THE BLOCK PROMOTES A TRUE CITATION RATHER
+  THAN REPEATING CANON'S DRIFTED ONE. Nothing else in the sentence moves — no
+  SHALL, no obligation, no root-precedence claim, and no scenario.
+- **CHANGED — ONE CLAUSE OF A SIBLING SCENARIO'S WHEN, NARROWED TWICE (round 1,
+  then round 5).** The restated scenario *A pinned target names a pin no
+  resolution root carries* keeps its THEN and both its other AND bullets
+  untouched; only its WHEN moves. Unscoped, that WHEN — "no pin record for
+  `<pin-id>` exists under any root of the run's precedence" — is ALSO true of
+  the empty-root-set case, which the new scenario below gives a DIFFERENT
+  outcome (no root named, by design), so round 1 added "…and at least one
+  resolution root was selected for the run".
+  **FIX ROUND 5 NARROWS IT FURTHER, AND THIS IS THE ONE CORRECTION IN THIS
+  PACKET THAT TOUCHES NORMATIVE SCENARIO TEXT AFTER RATIFICATION — put to
+  Brett Heap IN THE RATIFIED RECORD FOR VETO
+  (`review/ratification-2026-09-16.md` § Addendum), not asserted as settled by
+  the lane alone.** `_pin_roots` returning a root is not by itself enough: in
+  `_pinned_arm` (`scripts/doc_health/families.py`), a root is appended to
+  `searched` only AFTER its `contracts/` directory clears `boundary_dir` — a
+  root whose boundary check fails draws its OWN finding (*A root's contracts
+  directory is itself a symlink*) and is never added to `searched`. Where
+  EVERY root `_pin_roots` returns fails that boundary check, `searched` stays
+  empty, the function's trailing `if searched:` guard never fires, and NO
+  "unresolved pinned target: no record under root(s)" finding is emitted at
+  all — so the round-1 WHEN, satisfied merely by `_pin_roots` returning a
+  root, described a hygiene finding the implementation does not emit on that
+  path, which is the exact kind of collision this packet's own D-1 exists to
+  prevent (`design.md` D-1). The WHEN now reads "…and at least one selected
+  root whose boundary was successfully searched", which excludes the
+  all-roots-boundary-refused case and leaves the scenario's own subject — a
+  `<pin-id>` that resolves under no root the run's precedence carries, where
+  at least one root WAS actually searched — exactly as it was, still
+  requiring the finding to name the root or roots searched.
 - **ADDED — ONE SCENARIO**, at the end of the block: *A finding emitted before
   root selection names what it judged* — five bullets, naming what each of the
   two findings names, that neither is required to name a root, and that the run
   completes; the last bullet restates that every finding AFTER root selection
   still names its root, so no reader takes the exception for the rule.
-- **MEASURED THROUGH THE FAMILY'S OWN `derive_units`**, over canon's block and
-  this block alike — canon 209 units (unchanged: canon is not edited), this
-  block 215 (unchanged: a bullet's TEXT moved, not its count), **EXACTLY TWO
-  UNCARRIED UNITS** (the body sentence being scoped, and the sibling
-  scenario's original WHEN bullet, narrowed by the one clause above) and
-  EIGHT new ones (the body sentence's successor, the sibling scenario's
-  narrowed WHEN bullet, and the new scenario's title and its five bullets). A
-  unified diff of the generated block against canon's is now THREE hunks, not
-  two — the sentence, the one WHEN clause, and the appended scenario, each at
-  a different place in the file — and `git diff --numstat` against canon's
-  block reads **18 added, 5 removed** (17/4 before this clause moved). No
-  scenario title, no OTHER scenario bullet and no other body sentence moves.
-  No `Removed from canon` or `Merged into` marker is owed: nothing is
-  deleted — both uncarried units have a successor in the same block that says
-  MORE and never less (`design.md` D-1).
+- **MEASURED THROUGH THE FAMILY'S OWN `derive_units`**, RE-RUN AFTER FIX ROUND
+  5, over canon's block and this block alike — canon 209 units (unchanged:
+  canon is not edited), this block 215 (unchanged: fix round 5 corrected TEXT
+  within existing units and added none), **EXACTLY THREE UNCARRIED UNITS**
+  (the pointer-bearing sentence, newly uncarried at round 5; the sibling
+  root-naming sentence being scoped; and the sibling scenario's WHEN bullet,
+  narrowed twice) and NINE new ones (the pointer sentence's corrected
+  successor; the root-naming sentence's successor; the twice-narrowed WHEN
+  bullet; and the new scenario's title and its five bullets). A unified diff
+  of the generated block against canon's is now FOUR hunks, not three — the
+  pointer-bearing sentence (new at round 5), the root-naming sentence, the one
+  WHEN clause, and the appended scenario, each at a different place in the
+  file — and `git diff --numstat` against canon's block reads **21 added, 8
+  removed** (18/5 before round 5's pointer fix and further WHEN narrowing;
+  17/4 before round 1's clause). No scenario title, no OTHER scenario bullet
+  and no other body sentence moves. No `Removed from canon` or `Merged into`
+  marker is owed: nothing is deleted — every uncarried unit has a successor in
+  the same block that says MORE, or a truer citation, and never less
+  (`design.md` D-1).
 - **NOT CHANGED — BEHAVIOUR.** No predicate, severity, threshold, finding
   class, remedy line, marker grammar or root precedence moves, and no line of
   `scripts/doc_health/` is edited. The realized arm already matches the

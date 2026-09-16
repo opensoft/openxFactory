@@ -52,24 +52,48 @@ the code rather than read against it.
 THE SECOND MOVE IS NARROWER STILL, AND IT EXISTS TO REPAIR A COLLISION THE
 FIRST MOVE CREATED. The restated scenario *A pinned target names a pin no
 resolution root carries* keeps its THEN and both its other AND bullets
-untouched, and its WHEN gains ONE clause: "…and at least one resolution root
-was selected for the run". Unscoped, that WHEN — "no pin record for
-`<pin-id>` exists under any root of the run's precedence" — is ALSO true where
-the run selected NO root at all, which is exactly the case the new scenario
-below names with a DIFFERENT outcome (no root required, by design, since none
-was selected). Left as canon states it, the two scenarios would give the
-empty-root case two outcomes; the one clause gives it back to exactly one.
+untouched, and its WHEN gains ONE clause, ROUND 1: "…and at least one
+resolution root was selected for the run". Unscoped, that WHEN — "no pin
+record for `<pin-id>` exists under any root of the run's precedence" — is
+ALSO true where the run selected NO root at all, which is exactly the case
+the new scenario below names with a DIFFERENT outcome (no root required, by
+design, since none was selected). Left as canon states it, the two scenarios
+would give the empty-root case two outcomes; the one clause gives it back to
+exactly one.
 
-Measured through the family's own `derive_units`: canon 209 units (unchanged —
-canon is not edited), this block 215 (unchanged — a bullet's TEXT moved, not
-its count), TWO uncarried units (the body sentence, and the sibling
-scenario's original WHEN bullet) and EIGHT new ones (the body sentence's
-successor, the sibling scenario's narrowed WHEN bullet, and the new scenario's
-title and its five bullets). The unified diff against canon's block is THREE
-hunks — the sentence, the one WHEN clause, and the appended scenario, each at
-a different place in the file — and `git diff --numstat` against canon's block
-reads 18 added / 5 removed (17/4 before this clause moved). **NO `Removed from
-canon` OR `Merged into` MARKER IS OWED**: both uncarried units have a
+**ROUND 5 NARROWS THE SAME CLAUSE FURTHER, AND IT IS THE ONE CORRECTION IN
+THIS PACKET THAT TOUCHES NORMATIVE SCENARIO TEXT AFTER RATIFICATION** — put
+to Brett Heap in `review/ratification-2026-09-16.md` § Addendum for veto,
+not asserted as settled by the lane alone. "At least one resolution root was
+selected" is satisfied by `_pin_roots` alone, but `_pinned_arm` only appends a
+root to `searched` AFTER its `contracts/` directory clears `boundary_dir`
+(`:1604-1613`); a root whose boundary check fails draws its own finding
+instead (*A root's contracts directory is itself a symlink*) and is never
+added to `searched`. Where EVERY root `_pin_roots` returns fails that check,
+`searched` stays empty, the trailing `if searched:` guard (`:1633`) never
+fires, and NO "unresolved pinned target: no record under root(s)" finding is
+emitted — so the round-1 WHEN described a finding the implementation does not
+emit on that path, precisely the collision D-1 exists to prevent. The WHEN
+now reads "…and at least one selected root whose boundary was successfully
+searched", which excludes the all-roots-boundary-refused case and leaves the
+scenario's subject — a `<pin-id>` absent from every root actually searched —
+exactly as it was.
+
+Measured through the family's own `derive_units`, RE-RUN AFTER ROUND 5's
+pointer refresh and further WHEN narrowing: canon 209 units (unchanged —
+canon is not edited), this block 215 (unchanged — round 5 corrected TEXT
+within existing units, adding none), THREE uncarried units (the root-naming
+sentence; the pointer-bearing sentence beside it, newly uncarried at round 5;
+and the sibling scenario's WHEN bullet, now narrowed twice) and NINE new ones
+(the root-naming sentence's successor, the pointer sentence's corrected
+successor, the twice-narrowed WHEN bullet, and the new scenario's title and
+its five bullets). The unified diff against canon's block is FOUR hunks, not
+three — the pointer-bearing sentence (new at round 5), the root-naming
+sentence, the one WHEN clause, and the appended scenario, each at a different
+place in the file — and `git diff --numstat` against canon's block reads 21
+added / 8 removed (18/5 before round 5; 17/4 before round 1's clause). **NO
+`Removed from canon` OR `Merged into` MARKER IS OWED**: every uncarried unit
+has a
 successor in the same block that says MORE and never less, so nothing is
 deleted and a marker would declare a loss that did not happen.
 
@@ -170,10 +194,12 @@ edits), independently of how the delta was produced:
      > "$tmp/packet-block.txt"
    ```
 2. `git diff --no-index --numstat "$tmp/canon-block.txt" "$tmp/packet-block.txt"`
-   reads **18  5** (18 added, 5 removed); `diff -u "$tmp/canon-block.txt"
-   "$tmp/packet-block.txt" | grep -c '^@@'` reads **3** — the sentence, the one
-   WHEN clause, and the appended scenario, each at a different place in the
-   file, and nothing else.
+   reads **21  8** (21 added, 8 removed, RE-RUN AFTER ROUND 5); `diff -u
+   "$tmp/canon-block.txt" "$tmp/packet-block.txt" | grep -c '^@@'` reads **4**
+   — the pointer-bearing sentence (new at round 5), the root-naming sentence,
+   the one WHEN clause, and the appended scenario, each at a different place
+   in the file, and nothing else. (18 added / 5 removed, 3 hunks, before
+   round 5's pointer refresh and further WHEN narrowing.)
 3. The `derive_units` comparison, through the modified-block-currency
    family's own derivation, over the live tree rather than the two extracted
    files:
@@ -193,18 +219,22 @@ edits), independently of how the delta was produced:
    print('new:', len([u for u in block.units if u.pair() not in have]))
    "
    ```
-   reads `canon units: 209`, `block units: 215`, `uncarried: 2`, `new: 8`.
+   reads `canon units: 209`, `block units: 215`, `uncarried: 3`, `new: 9`
+   (RE-RUN AFTER ROUND 5; was `uncarried: 2`, `new: 8` before round 5's
+   pointer refresh and further WHEN narrowing).
 4. The same fact as a live finding rather than a script: `python3
    scripts/doc-health.py --single-repo . --as-of 2026-09-16 --family
    modified-block-currency` (the date measured against, pinned rather than
    left as a placeholder — `runner.py` passes it straight to
    `date.fromisoformat`, so an unpinned `<today>` fails when copied) reports
-   the block "does not carry 2 of the 186
-   body units and scenario bullets ... currently states for it", quoting both
-   uncarried units by text.
+   the block "does not carry 3 of the 186
+   body units and scenario bullets ... currently states for it", quoting all
+   three uncarried units by text.
 
-All four commands were re-run against this commit and reproduce the numbers
-stated above and in the pull request body exactly.
+All four commands were RE-RUN against this commit (round 5) and reproduce the
+numbers stated above; the filing-time numbers (18/5, 3 hunks, uncarried 2, new
+8) are recorded historically at `tasks.md` § 2.2 and in the pull request body,
+and are not restated here as current.
 
 Base of measurement: `origin/main` @ `8944758c` (the archive of
 `extend-prose-tagging-target-to-pinned-capabilities`, PR #1042, merged

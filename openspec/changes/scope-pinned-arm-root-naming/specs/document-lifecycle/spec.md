@@ -250,9 +250,9 @@ terms as the corrupt-record rule below.
 THE PASS RESOLVES A PIN RECORD AGAINST EXACTLY THE ROOT PRECEDENCE THE
 IN-TREE ARM ALREADY USES, AND NAMES THE ROOT IT USED. Capability resolution
 today reads the DOCUMENT'S OWN REPOSITORY ROOT FIRST AND THE `openxFactory`
-ROOT SECOND (`scripts/doc_health/families.py:1317-1321`, over
-`Context.repo_paths`, `scripts/doc_health/runner.py:39`); a single-repository
-run has one root and no fallback. The pinned arm SHALL use that precedence
+ROOT SECOND (`scripts/doc_health/families.py`'s `_resolve_capability` and
+`_pin_roots`, over `Context.repo_paths`, `scripts/doc_health/runner.py:39`); a
+single-repository run has one root and no fallback. The pinned arm SHALL use that precedence
 UNCHANGED and SHALL invent none of its own, so the ORDER IS UNCHANGED AND
 DETERMINISTIC FOR THE ROOTS PRESENT in the run — the document's own repository
 root first, then the `openxFactory` root where the run is an aggregate whose
@@ -457,7 +457,7 @@ not the thing that happens when nobody decides.
 - **AND** the pass MUST complete rather than abort
 
 #### Scenario: A pinned target names a pin no resolution root carries
-- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence, and at least one resolution root was selected for the run
+- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence, and at least one selected root whose boundary was successfully searched
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
 - **AND** the finding MUST name the pin registry as the thing that failed to resolve, not `openspec/specs/`
 - **AND** the finding MUST name the root or roots searched

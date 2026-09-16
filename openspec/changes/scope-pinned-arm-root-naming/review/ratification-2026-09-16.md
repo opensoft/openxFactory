@@ -43,6 +43,18 @@ and why the sentence must be scoped rather than deleted or the arm widened,
 `design.md`'s D-1/D-2/D-3, and the one `## MODIFIED` spec delta against
 `document-lifecycle` *Prose tagging marker hygiene*.
 
+**AMENDED SINCE — PRE-LANDING CONFORMING CORRECTIONS UNDER THE SAME WORD.**
+The baseline stated above is the baseline AS RATIFIED at `92d3e0e2` and is
+left exactly as measured; it is not a description of the branch tip. This
+differs from a landed ratification amended by its ratifier after the merge:
+no merge of this packet exists yet, and the word itself — "ratify 1052 WHEN
+GREEN, then 1050" — conditions on green and leaves the lane to land the
+corrected head, not the `92d3e0e2` head the word was first given over. THREE
+commits have moved packet text since, none reopening a decision, a scope or
+a `tasks.md` § 1 box: see "Addendum, 2026-09-16" at the foot of this record,
+which also flags the ONE exception — a normative scenario WHEN, corrected at
+fix round 5 — put here for Brett Heap's veto rather than asserted as settled.
+
 ## What is ratified
 
 The proposal as written at `92d3e0e2a5a3fddacf02f460277c2b90eb846421`,
@@ -97,3 +109,91 @@ stays entirely open — it is a separate act on a separate word.
   its archive pull request [#1042](https://github.com/opensoft/openxFactory/pull/1042)
   is where the defect was surfaced and ruled STANDS, naming this packet as
   the successor.
+
+## Addendum, 2026-09-16 — pre-landing conforming corrections under the same word
+
+**WHY AN ADDENDUM AND NOT A SILENT REWRITE OF THE RECORD ABOVE.** The body of
+this record freezes the ratification at `92d3e0e2` and states that no text
+this packet carries at that head is excepted. Three commits have moved packet
+text since that head. Rewriting the freeze paragraph to chase them would
+destroy the evidence of what the word was actually given over; recording the
+movement here instead keeps both facts visible.
+
+**THIS DIFFERS FROM A LANDED RATIFICATION LATER AMENDED BY ITS RATIFIER**
+(compare `add-requirement-ref-resolution-integrity`'s
+`review/ratification-2026-09-01.md`, whose own "Addendum, 2026-09-01" records
+a POST-MERGE scope amendment the ratifying owner ruled on directly, in
+session). No merge of this packet exists yet. The word — "ratify 1052 WHEN
+GREEN, then 1050" — is conditioned on green and instructs the lane to land
+the corrected head, not necessarily `92d3e0e2` itself; these are the
+corrections made getting that head to green, under the same word, before any
+landing.
+
+**THE THREE COMMITS, AND WHAT EACH MOVED.**
+
+1. `db03f283` — pinned `design.md`'s reproduction-command placeholder
+   `--as-of <today>` to the literal date it was actually run with,
+   `2026-09-16` (Copilot at `376313b9`, RULED ACCEPT by the lane): the
+   committed command was uncopyable, since `runner.py` passes `--as-of`
+   straight to `date.fromisoformat`. BOOKKEEPING ONLY — no decision, no
+   scope, no `tasks.md` § 1 box moved.
+2. `2a613e88` — added the sanctioned `Ratified by:` header line to
+   `design.md` and `tasks.md`, directly after `Status: ratified` in each
+   (Copilot at `db03f283`, RULED ACCEPT by the lane): `Status: ratified`
+   carried no header-line citation the lifecycle citation parser reads,
+   only lower prose. BOOKKEEPING ONLY — no decision, no scope, no
+   `tasks.md` § 1 box moved.
+3. **This commit (fix round 5; Copilot at `2a613e88`, three findings, all
+   RULED ACCEPT by the lane) — TWO corrections, of two different kinds:**
+   - **Mechanical: refreshed a stale source-citation pointer.** The restated
+     body sentence cited `scripts/doc_health/families.py:1317-1321` for
+     where capability resolution reads the root precedence. THAT POINTER IS
+     STALE IN CANON ITSELF — `:1317-1321` is `_topic_outcome` on `main`
+     today; the logic now lives in `_resolve_capability` (~:1490) and
+     `_pin_roots` (~:1548). Corrected to name the two functions directly, no
+     line numbers to drift again. No SHALL, obligation, scenario or
+     precedence claim moves — see `proposal.md`'s new "CORRECTED" bullet
+     under § What Changes.
+   - **THE ONE CORRECTION IN THIS PACKET THAT TOUCHES NORMATIVE SCENARIO
+     TEXT AFTER RATIFICATION, PUT HERE FOR BRETT HEAP'S VETO.** The sibling
+     scenario *A pinned target names a pin no resolution root carries*'s
+     WHEN, as fix round 1 narrowed it, read "…and at least one resolution
+     root was selected for the run" — satisfied by `_pin_roots` alone. But
+     `_pinned_arm` only appends a root to `searched` AFTER its `contracts/`
+     directory clears `boundary_dir`; a root whose boundary check fails
+     draws its own finding (*A root's contracts directory is itself a
+     symlink*) and is never added to `searched`. Where EVERY root
+     `_pin_roots` returns fails that check, `searched` stays empty, the
+     function's trailing `if searched:` guard never fires, and NO
+     "unresolved pinned target: no record under root(s)" finding is emitted
+     at all. The round-1 WHEN therefore described a hygiene finding the
+     implementation does not emit on that path — a collision with this same
+     packet's own D-1 intent (`design.md` D-1), which this record ratified.
+     The WHEN now reads "…and at least one selected root whose boundary was
+     successfully searched", narrowing out the all-roots-boundary-refused
+     case; the THEN and both other AND bullets are untouched, and the
+     independent *A root's contracts directory is itself a symlink* scenario
+     already covers every boundary-refused root on its own, so no coverage
+     is lost. **THIS PACKET'S RATIFICATION, ABOVE, IS NOT EXTENDED TO COVER
+     THIS TEXT BY THIS ADDENDUM.** It is recorded here, plainly, as a
+     correction the lane RULED ACCEPT from Copilot review and applied before
+     landing — and it stands open to Brett Heap's veto in this same RATIFIED
+     record until the packet lands or he says otherwise.
+
+**WHAT DID NOT MOVE.** No `tasks.md` § 1 box (still 1.1, and only 1.1). No
+OQ-1 disposition — option (a) stands exactly as ratified, D-2 and D-3 remain
+refused. No `.openspec.yaml` origin field. No README ratified-bullet claim.
+The `code_surface: none` / `target_release: implemented` declaration. The
+scenario count (still twenty-four, one added over canon's twenty-three) and
+every scenario title, other than the one WHEN clause named above.
+
+**GATES AT EACH COMMIT ABOVE**, recorded in that commit rather than
+pre-asserted here: `OPENSPEC_TELEMETRY=0 openspec validate
+scope-pinned-arm-root-naming --strict` and `--all --strict` (the two
+pre-existing `origin/main` failures, `add-chain-attestation` and
+`add-composed-view-authoring`, and no other); `python3
+scripts/proposal-support.py . verify`; `pytest -q tests/proposal-support
+tests/doc-health/test_modified_block_currency_self_gate.py`; and a same-clock
+`doc-health.py --single-repo . --family ratified-provenance` comparison
+against an `origin/main` baseline showing the SAME pre-existing findings and
+none naming this packet.
