@@ -551,19 +551,22 @@ Active changes:
   entry missing `cited_to`, `cited_to: []`, `cited_to: "x"`, `level: "WARNING"`
   and an entry naming no authority — and ZERO in the other direction, so the
   adapter is NARROWER than the guard on the entries and nowhere WIDER.
-  **AND THREE OF THE FIVE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES
-  THE GAP SHARPER THAN THE ISSUE STATES IT FOR THOSE THREE**: `neutral-product-pin`'s
+  **AND MOST OF THE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES THE
+  GAP SHARPER THAN THE ISSUE STATES IT THERE**: `neutral-product-pin`'s
   *A dispositioned finding is cited, upgrade-coupled, and refused when stale*
   (`:577`, `:578`, `:586-588`) and its scenario *A disposition carries no
   citation* (`:633-636`) already say a disposition recording "no `cited_to:`,
   an empty one, or no granting authority" makes the pin "REFUSED as malformed,
   before any artifact is fetched" — covering the entry's identity keys, its
-  citation and its authority, so the adapter resolves a pinned target on a
-  record ratified canon calls malformed there. **THE OTHER TWO — `why` AND
-  `level` OUTSIDE `BLOCKING_LEVELS` — ARE NAMED BY NO SUCH CANON AND ARE THE
-  VERIFIER'S OWN PURE GUARD**: reaching them imposes no obligation BEYOND what
+  citation's NON-EMPTY requirement and its authority, so the adapter resolves
+  a pinned target on a record ratified canon calls malformed there. **THE
+  REST — THE CITATION'S LIST SHAPE, `why` AND `level` OUTSIDE
+  `BLOCKING_LEVELS` — ARE NAMED BY NO SUCH CANON AND ARE THE VERIFIER'S OWN
+  PURE GUARD**: `cited_to: "x"` already satisfies `:578`'s non-empty-citation
+  requirement and is refused only because the verifier separately demands a
+  LIST. Reaching any of the three imposes no obligation BEYOND what
   `pinned_dispositions` already enforces on every landed pin, never "none" and
-  never "already ratified" for those two. That capability is READ and CITED
+  never "already ratified" for them. That capability is READ and CITED
   here and NOT modified: the gap is the OFFLINE RESOLVER's reading, and the
   resolver is `document-lifecycle`'s.
   **`dispositions:` STAYS OPTIONAL**: it stays out of the shape-guard-required

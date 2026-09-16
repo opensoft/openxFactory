@@ -51,10 +51,11 @@ origin:
     packet adds the counterpart scenario, immediately after that one.
     WHAT THE PACKET PROPOSES, AND WHAT IT DOES NOT. ONE `## MODIFIED Requirements`
     block over `document-lifecycle`'s *Prose tagging marker hygiene*, restating the
-    promoted requirement IN FULL and adding EXACTLY ONE scenario: a valid, complete
-    published-artifact record whose OPTIONAL `dispositions:` sequence carries an
-    entry that shape's own pure guard refuses MUST be reported as an invalid pin
-    naming the member AND the entry, MUST NOT resolve, and an absent member, an
+    promoted requirement IN FULL and adding EXACTLY ONE scenario: a
+    published-artifact record COMPLETE FOR ITS REQUIRED SHAPE MEMBERS, whose
+    OPTIONAL `dispositions:` entry is the SOLE MALFORMED PART — an entry that
+    shape's own pure guard refuses — MUST be reported as an invalid pin naming
+    the member AND the entry, MUST NOT resolve, and an absent member, an
     explicit `null` and an empty sequence MUST each still be read as EMPTY.
     `dispositions:` stays OPTIONAL and stays OUT of the shape-guard-required set, so
     canon's sentence "`dispositions:` is NOT in the set: it is read with an

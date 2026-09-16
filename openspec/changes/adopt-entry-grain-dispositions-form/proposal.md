@@ -67,25 +67,28 @@ has run at all. On a landed tree the gap is invisible, because every record in
 why this is a FINDING and not a defect, and why the remedy is a change rather
 than an edit.
 
-**AND THREE OF THE FIVE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES
-THE GAP SHARPER THAN THE ISSUE STATES IT FOR THOSE THREE.**
+**AND MOST OF THE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES THE
+GAP SHARPER THAN THE ISSUE STATES IT THERE.**
 `neutral-product-pin`'s requirement *A dispositioned finding is cited,
 upgrade-coupled, and refused when stale*
 (`openspec/specs/neutral-product-pin/spec.md:577`) already obliges the
-entry's identity keys, its citation and its authority (D-1): a disposition
-*"SHALL carry a non-empty CITATION … and SHALL name the authority that granted
-it"* (`:578`), *"SHALL identify ONE finding — the repository, the item, the
-delta path, and the finding's own text"* (`:586-588`), and its scenario **A
-disposition carries no citation** (`:633-636`) says that a disposition
-recording *"no `cited_to:`, an empty one, or no granting authority"* makes the
-pin *"REFUSED as malformed, before any artifact is fetched"*. So on those
-three, the adapter today does not merely admit what one verifier's local
-choice refuses — **it resolves a pinned target on a record a ratified
-requirement of this estate says is refused as malformed.** The other two —
-the entry's `why` member and its `level` value outside `BLOCKING_LEVELS` — are
-named by no such ratified requirement and are that guard's OWN pure rule;
-reaching them imposes no obligation BEYOND what the verifier already enforces
-on every landed pin, never "none" and never "already ratified" for those two.
+entry's identity keys, its citation's NON-EMPTY requirement, and its
+authority (D-1): a disposition *"SHALL carry a non-empty CITATION … and SHALL
+name the authority that granted it"* (`:578`), *"SHALL identify ONE finding —
+the repository, the item, the delta path, and the finding's own text"*
+(`:586-588`), and its scenario **A disposition carries no citation**
+(`:633-636`) says that a disposition recording *"no `cited_to:`, an empty
+one, or no granting authority"* makes the pin *"REFUSED as malformed, before
+any artifact is fetched"*. So there, the adapter today does not merely admit
+what one verifier's local choice refuses — **it resolves a pinned target on a
+record a ratified requirement of this estate says is refused as malformed.**
+The rest — the citation's LIST SHAPE (`cited_to: "x"` already satisfies
+`:578`'s non-empty requirement and is refused only because the verifier
+separately demands a LIST), the entry's `why` member, and its `level` value
+outside `BLOCKING_LEVELS` — are named by no such ratified requirement and are
+that guard's OWN pure rule; reaching any of the three imposes no obligation
+BEYOND what the verifier already enforces on every landed pin, never "none"
+and never "already ratified" for them.
 **Which is why no `neutral-product-pin` delta is carried:** issue #1045 offers
 the act as one against `document-lifecycle` "and/or `neutral-product-pin`",
 and measured, the second is not owed — its text is READ and CITED here and
@@ -105,11 +108,12 @@ round-8 ruling put it.
 ONE `## MODIFIED Requirements` block, over `document-lifecycle`'s *Prose tagging
 marker hygiene*, restating the promoted requirement IN FULL and adding EXACTLY
 ONE scenario: **A pin record's optional dispositions member carries a malformed
-entry**. The scenario says that where a valid, complete published-artifact
-record's OPTIONAL `dispositions:` sequence carries an entry that shape's own
-PURE, SOURCE-FREE guard refuses, the pass MUST report an invalid pin naming the
-member AND the entry, the target MUST NOT resolve, and an absent member, an
-explicit `null` and an empty sequence MUST each still be read as EMPTY.
+entry**. The scenario says that where a published-artifact record COMPLETE FOR
+ITS REQUIRED SHAPE MEMBERS has its OPTIONAL `dispositions:` entry as the SOLE
+MALFORMED PART — an entry that shape's own PURE, SOURCE-FREE guard refuses —
+the pass MUST report an invalid pin naming the member AND the entry, the
+target MUST NOT resolve, and an absent member, an explicit `null` and an
+empty sequence MUST each still be read as EMPTY.
 
 **NOT CHANGED, AND DELIBERATELY SO.** `dispositions:` stays OPTIONAL and stays
 OUT of the shape-guard-required set; canon's own sentence *"`dispositions:` is
@@ -125,11 +129,12 @@ member is not one its ratified text names.
 - **Affected capability:** `document-lifecycle` (ONE requirement, ONE added
   scenario; every other promoted unit carried verbatim). `neutral-product-pin`
   is READ and CITED (`:577`, `:578`, `:586-588`, `:633-636`) and NOT modified:
-  its text already names the identity keys, the citation and the authority
-  (D-1) and is not wrong about any of them; the entry's `why` member and its
-  `level` value outside `BLOCKING_LEVELS` are named by no such ratified text
-  and are the verifier's own guard, so reaching them imposes no obligation
-  BEYOND what that guard already enforces on every landed pin.
+  its text already names the identity keys, the citation's NON-EMPTY
+  requirement, and the authority (D-1) and is not wrong about any of them;
+  the citation's LIST SHAPE, the entry's `why` member and its `level` value
+  outside `BLOCKING_LEVELS` are named by no such ratified text and are the
+  verifier's own guard, so reaching them imposes no obligation BEYOND what
+  that guard already enforces on every landed pin.
 - **Affected code, at realization and not here:**
   `scripts/doc_health/pin_shapes.py`, `tests/doc-health/test_pin_shape_adapter.py`,
   and `tests/doc-health/test_tag_hygiene_pinned_targets.py`.
