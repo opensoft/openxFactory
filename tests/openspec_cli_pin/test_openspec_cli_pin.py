@@ -1463,6 +1463,69 @@ def test_the_real_pin_disposes_exactly_the_captured_findings(mod, pin):
     assert stale == []
 
 
+def test_every_departure_entry_is_matched_by_exactly_one_captured_finding(mod):
+    """THE REVERSE DIRECTION, and it is this pull request's own doctrine turned
+    on this pull request's own map.
+
+    `_departed_since_the_capture` is only ever REACHED by a capture row that
+    already matched an entry, so the forward direction proves that a row which
+    claims an exemption really earned it. It proves nothing about an entry NO
+    ROW REACHES. A stale or invented key would sit here green — documenting an
+    exemption the reconciliation suite never exercises — which is precisely what
+    `validate-openspec-cli-pin.py` refuses for the pin's own `dispositions:`
+    list with `pin-disposition-stale`: *"A disposition matched by nothing is a
+    statement about the PIN — the exception outlived the condition it was
+    granted for."* This map is a suppression list of the same kind and gets the
+    same rule, derived from the FROZEN CAPTURE rather than from the map.
+
+    BOTH failure modes are named, because they are different bugs. UNUSED means
+    the entry outlived its finding (retire it). MULTIPLY MATCHED means one key
+    covers more than one captured finding, so the exemption is wider than the
+    one finding a departure is allowed to excuse — the blanket the header of
+    this map says a departure is NOT.
+
+    Raised by Copilot on PR #1056 and taken rather than answered, for the same
+    reason the pair-valued form above was: the reading was right.
+    """
+    payload = (FIXTURES /
+               "openspec-1.12.0-validate-changes-strict-report-findings.json"
+               ).read_text(encoding="utf-8")
+    items, _ = mod.parse_report(payload, ["validate", "--changes"])
+    captured = [row for row in mod.collect_findings(items, "--changes")
+                if row["blocking"]]
+    matched: dict[tuple[str, str, str], list[dict]] = {
+        key: [] for key in DEPARTED_SINCE_THE_CAPTURE}
+    for row in captured:
+        key = ("openxFactory", row["item"], row["path"])
+        if key in matched:
+            matched[key].append(row)
+
+    unused = sorted(key for key, rows in matched.items() if not rows)
+    assert not unused, (
+        f"{len(unused)} departure entr(y/ies) match NOTHING in the frozen "
+        f"capture: {unused}. The capture is never re-cut, so an entry nothing "
+        "matches did not become stale — it was never right, or the finding it "
+        "names was edited. Retire it or correct it; a departure that excuses no "
+        "captured finding is a statement about this map, not about the tree")
+    multiple = sorted((key, len(rows)) for key, rows in matched.items()
+                      if len(rows) > 1)
+    assert not multiple, (
+        f"{len(multiple)} departure entr(y/ies) match MORE THAN ONE captured "
+        f"finding: {multiple}. A departure exempts ONE captured finding, never "
+        "a path — the same narrowing `_departed_since_the_capture` enforces "
+        "forward with `normalized_finding`")
+
+    # AND THE RECORDED TEXT IS THE CAPTURED TEXT, checked here rather than only
+    # on the forward path, so this test stands alone: it does not depend on the
+    # reconciliation above having routed that row through the departure arm.
+    for key, rows in matched.items():
+        expected = mod.normalized_finding(DEPARTED_SINCE_THE_CAPTURE[key]["finding"])
+        assert rows[0]["normalized"] == expected, (
+            f"{key} records a finding that is not the capture's at that path:\n"
+            f"  recorded: {expected}\n"
+            f"  captured: {rows[0]['normalized']}")
+
+
 def test_an_unparseable_verdict_refuses_rather_than_degrading(mod):
     with pytest.raises(mod.PinRefusal) as exc:
         mod.parse_report("openspec: something went wrong", ["validate", "--all"])
