@@ -581,6 +581,16 @@ gap, and each is a CHOICE a shipped report must make on purpose:
 | `NOT_A_PACKET_REFERENCE` held OUT of the raw-absent population | **out** — the resolver's fifth answer hands the path back to the caller, so it was never a remainder | 156 → 153 raw-absent; and at `b1df95ee` it is exactly the 5 tokens separating this design's 81 from the literal reading's 86 |
 | a token cited in several places, ONE of them qualified | **ANY occurrence qualified sets it aside** — which is the rule that reproduces #1053's own 22 | ANY sets aside 22 and leaves 57; ALL sets aside 16 and leaves 60 |
 
+**AND ALL THREE ARE NOW IN THE PROMOTED TEXT AND NOT ONLY HERE**, together with
+the extraction pattern itself. D3's recommendation is that the recipe live in
+the REQUIREMENT; a requirement that promised a stated grammar and then stated
+only the corrections applied to it would not have kept that promise, and
+`design.md` is a working file that no realization is measured against. The spec
+delta's *The reported population is derived from a stated recipe* now carries the
+pattern verbatim and fixes the three choices above, with a scenario refusing a
+reading taken under different ones a place in the same series (PR #1069, Copilot
+thread `PRRT_kwDOTAvnrs6jCbzN`).
+
 **THE REPORT DECLARES ITS READING IN ITS OWN HEADER** (D2 output rule 3), so
 two runs that disagree can be told apart by a reader rather than by an
 archaeologist. #1053 itself predicted this class of drift — *"a

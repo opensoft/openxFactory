@@ -152,6 +152,35 @@ normalizes, states which normalization it applied to which token, and treats a
 token it cannot complete — one severed mid-path — as `truncated` rather than
 resolving it as though it were whole.
 
+THE EXTRACTION PATTERN ITSELF SHALL BE WRITTEN IN THIS SPECIFICATION AND NOT
+ONLY DESCRIBED BY ITS EFFECTS. A requirement that promises a stated grammar and
+then states only what the grammar is afterwards corrected for has not stated it:
+two implementations can honour every normalization above and still extract
+different tokens, and their remainders are then incomparable for a reason
+neither report can show. The pattern is
+`openspec/changes/[A-Za-z0-9][A-Za-z0-9._\-/]*`, applied to the TEXT of every
+file in the population; the normalizations above are applied to each match, and
+the matches are deduplicated afterwards.
+
+AND THE THREE CHOICES THAT DECIDE WHICH NUMBER THE REPORT PRINTS SHALL BE FIXED
+IN THIS SPECIFICATION AND DECLARED IN EVERY READING'S HEADER. They are choices
+and not details: on the corpus this capability was measured against they
+separate three honest readings of one tree by eight points of remainder, and the
+recipe that produced the earliest of those readings stated none of them.
+**(1) NORMALIZATION HAPPENS BEFORE DEDUPLICATION**, so one citation spelled both
+with and without a trailing separator is ONE token and not two.
+**(2) THE NOT-A-PACKET-REFERENCE OUTCOME SITS OUTSIDE THE REMAINDER** and is
+counted beside it: it is the rule handing a path back to its caller, never a
+citation the rule failed on, and counting it inside reports a caller's own path
+resolution as this corpus's unresolved citation.
+**(3) A TOKEN CITED IN SEVERAL PLACES CARRIES THE CROSS-REPOSITORY FLAG WHERE
+ANY ONE OCCURRENCE CARRIES THE SIGNAL**, not only where every occurrence does. A
+suspicion is a reason for a reader to look and one qualified occurrence is that
+reason; requiring all of them switches the flag off precisely where a citation
+is spelled several ways, which is the case the flag exists for.
+A READING THAT APPLIED A DIFFERENT CHOICE SHALL NOT BE PRESENTED AS A LATER
+POINT IN THE SAME SERIES.
+
 #### Scenario: A tracked entry is a link whose target leaves the tree
 - **WHEN** a tracked entry is a symbolic link whose target, once resolved, stands outside the repository root
 - **THEN** the report MUST skip the entry and take no token from it
@@ -167,6 +196,11 @@ resolving it as though it were whole.
 - **WHEN** a citation token ends in `-` because the path continued on the next line or in the next concatenated string literal
 - **THEN** the report MUST class the token `truncated`
 - **AND** it MUST NOT resolve the severed token as if it were a complete citation
+
+#### Scenario: A reading is compared against an earlier reading
+- **WHEN** a reading of the remainder is presented beside an earlier reading of the same corpus
+- **THEN** each reading MUST state the extraction pattern and the three fixed choices it applied
+- **AND** a reading that applied a different pattern or a different choice MUST NOT be presented as a later point in the same series
 
 #### Scenario: The report's own output is committed into the corpus
 - **WHEN** a repository commits the remainder report into its own tree
