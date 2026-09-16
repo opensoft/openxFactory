@@ -156,16 +156,7 @@ converted `moved_verbatim` -> declared** — "parameterize class C" edits every
 file in the served bundle, because every one of them rendered a word.
 The § 3.4 slice-S8 annotation then moved ONE figure only: +40 `path constants`
 lines over thirteen rows that were already carriers, so the row counts and the
-carrier count stand where slice S7 left them. **RULED Q7's CSS extraction moves
-ONE FIGURE AND ONE ROW**: +89 `adapter calls` lines on the single
-`web/styles.css` row, which slice S7 had already converted, so nothing else in
-this paragraph moves — and that is the act's own point. The 89 are DELETIONS:
-the 59 rule blocks the gate loop's own selectors occupied, leaving for the four
-sheets openXdox-code ships beside the bindings that name them. A deletion has
-been a declared edit in this vocabulary since § 3.4 slice S6 declared 122
-`serve_projection.py` deletions under the same class and landed; what `#1023`
-§ 6 called a wall was the `moved_verbatim` disposition, which slice S7 had
-already taken this row past.
+carrier count stand where slice S7 left them.
 The PRE-EXISTING `openxdox_code` annotation (`#656` CLAIM `5656688910`) then
 added **+48 declared lines and moved nothing else**: the four rows it declares
 — three moved rows and the conftest replica — ALL carried `edits:` already, so
@@ -178,6 +169,19 @@ declared-edit window"*, so they were owed to someone from the day of that
 ruling; these were scheduled by no ruling at all — they landed at openXdox-code
 BEFORE Q-L1's pairing became general (`#656` comment `5642758731`, 2026-09-12
 02:07Z), which is why no slice ever owned them.
+**RULED Q7's CSS extraction moves ONE FIGURE AND ONE ROW, and it moves them
+LAST** — this paragraph is in LANDING ORDER and the arithmetic below is read
+off it (Copilot review, round 2, which found the act narrated before the
+annotation whose 2454 it adds to): +89 `adapter calls` lines on the single
+`web/styles.css` row, which slice S7 had already converted and which was
+already a carrier, so no disposition count, no carrier count and no replica
+count moves with them. **2454 + 89 = 2543.** The 89 are DELETIONS: the 59 rule
+blocks the gate loop's own selectors occupied, leaving for the four sheets
+openXdox-code ships beside the bindings that name them. A deletion has been a
+declared edit in this vocabulary since § 3.4 slice S6 declared 122
+`serve_projection.py` deletions under the same class and landed; what `#1023`
+§ 6 called a wall was the `moved_verbatim` disposition, which slice S7 had
+already taken this row past.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
