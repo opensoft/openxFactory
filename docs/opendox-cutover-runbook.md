@@ -410,8 +410,9 @@ slice-S5 annotation (`ee251d6c`) moved BOTH — to `52 / 71 | 874` and
 put it. The slice-S8 annotation then moves BOTH declared-line cells and
 NEITHER `verbatim / edited` cell: its forty `path constants` lines fall
 11 at `opendox_code` and 29 at `openxdox_code`, every one of them on a row
-that already carried `edits:`, giving the `1667` and `703` the table carried
-until this act. The pre-existing `openxdox_code` annotation then moves
+that already carried `edits:`, giving the `1667` this table still carries and
+the `703` it carried until the act below. The pre-existing `openxdox_code`
+annotation then moves
 `openxdox_code`'s declared-line cell ALONE, to `750`: 47 of its 48 lines fall
 on three rows this leg already edits, and the forty-eighth is a second line on
 the conftest REPLICA row, which names no destination and belongs in no column.

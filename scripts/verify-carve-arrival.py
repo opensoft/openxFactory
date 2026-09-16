@@ -21,8 +21,12 @@ with one document. It runs from here with a destination checkout in hand:
 
 THE TWO PHASES ARE THE TWO COMMITS, and the runbook § 5.5 explains why the leg
 lands as two. Commit A places every row's blob byte-identical to `carve_commit`,
-so `--phase A` can prove EVERY moved row of a destination at its strongest — the
-analogue of the openXwallet extraction's "100/100 at the carve layer". Commit B
+so `--phase A` can prove every moved row a ruling has not RETIRED at its
+strongest — the analogue of the openXwallet extraction's "100/100 at the carve
+layer". (Not EVERY moved row, since RULED 5656343213: `rows_for()` drops a row
+retired at its own effective arrival before either phase asks anything, so such
+a row is not placed, not digested and not diffed at this leg, and what is
+required of it instead is that its `retired.at_path` be ABSENT.) Commit B
 applies that destination's declared edits and nothing else, so `--phase B`
 checks that the arrived blob differs from the carve blob ONLY on lines the row's
 own `edits[].lines` declare. A reviewer then reads the declared lines rather
@@ -2796,9 +2800,10 @@ def main(argv: list[str] | None = None) -> int:
               "alone and the summary says so)"))
     parser.add_argument(
         "--phase", choices=PHASES, default=None,
-        help=("A: every moved row byte-identical to the carve commit (commit "
-              "A). B: declared-edit rows may differ ONLY on their declared "
-              "lines (commit B)"))
+        help=("A: every moved row NOT RETIRED by ruling byte-identical to the "
+              "carve commit (commit A). B: declared-edit rows may differ ONLY "
+              "on their declared lines (commit B). A retired row is asked for "
+              "at neither phase — its `retired.at_path` must be ABSENT"))
     parser.add_argument(
         "--allow-created", metavar="PATH", action="append", default=[],
         help=("a file the destination legitimately assembles and no row places "
