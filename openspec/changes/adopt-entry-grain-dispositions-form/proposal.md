@@ -6,7 +6,29 @@ sequenced_after: [extend-prose-tagging-target-to-pinned-capabilities]
 
 # Proposal: adopt-entry-grain-dispositions-form
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-16 by Brett Heap (openxFactory repository owner),
+first-hand, in session, lane `openxfactory-2` (display `openXfactory-2`),
+verbatim ***"ratify 1052 when green, then 1050"*** — the "then 1050" half of
+that word. THE ONE CITATION: openxFactory #1045, comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+Record: `review/ratification-2026-09-16.md`. **RATIFIED — D-1, D-2 AND D-3 AS
+FILED; NO DECISION REOPENED.** This ratifying commit also folds in two
+conforming fixes RULED ACCEPT by the lane from Copilot's suppressed review
+comments at the ratified head, neither one a design decision: `design.md`
+D-1's "THE GAP, COUNTED" tally and enumerated list corrected from EIGHT to TEN
+measured records (the table always carried `why: ""` and `level: ""`; the
+tally had dropped them, and this proposal's own headline count below is
+corrected the same way), and the "moves no byte of … any test" claim
+immediately below narrowed to name the realization test files under
+`tests/doc-health/` and the sweep-ledger bookkeeping separately.
+**REALIZATION AND ARCHIVE ARE NOT AUTHORIZED BY THIS WORD** and remain
+separate later acts on Brett Heap's word: no byte of
+`scripts/doc_health/pin_shapes.py` moves, no pin verifier is edited, no record
+under `contracts/` changes, and only boxes 1.1, 1.2, 1.3 and 1.4 of `tasks.md`
+§ 1 are ticked — § 2 stands exactly as the filing pull request left it, and
+§ 3 and § 4 stay open, `code_surface` being non-empty.
+
 Proposed: 2026-09-15, in lane `openxfactory-2` (display `openXfactory-2`),
 session `c0d09b6d`, as the standing claim holder of openxFactory
 [#1045](https://github.com/opensoft/openxFactory/issues/1045) (CLAIMED
@@ -17,16 +39,20 @@ arc (FILED #994 → RATIFIED #1019 → REALIZED #1040 → ARCHIVED #1042 →
 `8944758c`) and RULED STANDS on that arc's own realization pull request, PR
 #1040 round 8.
 
-**THIS PACKET IS A PROPOSAL AND RATIFICATION IS BRETT HEAP'S WORD.** Nothing
-here is ratified. It admits no text to canon, moves no byte of
-`scripts/doc_health/pin_shapes.py` or of any test, edits no file under
-`openspec/specs/`, and ticks no box in § 1 of `tasks.md`. The three lifecycle
-documents carry `Status: draft` and `.openspec.yaml` carries DRAFTING
-PROVENANCE ONLY — `kind: ad_hoc`, `proposed_by`, `proposed_on`, and NO
-`approved_by`/`approved_on` — which is the lawful unapproved shape
-`add-drafted-proposal-origin` defined; approval, when and if it comes, is a pure
-ADDITION beside a fixed `kind` and `id`. The spec delta carries no lifecycle
-header, as 308 of the 312 spec-delta files measured on `origin/main` do not.
+**RATIFICATION ADMITS THE SCENARIO TO THE PACKET AND AUTHORIZES NO
+REALIZATION.** It admits no text to canon, moves no byte of
+`scripts/doc_health/pin_shapes.py` or of the realization test files under
+`tests/doc-health/` (`test_pin_shape_adapter.py`,
+`test_tag_hygiene_pinned_targets.py`) — the sweep-ledger row this filing
+seeded in `tests/sequenced_after/corpus-ledger.yaml` (task 2.6) is bookkeeping
+the self-gate requires of any filing that touches a promoted block, not test
+implementation for this arm — edits no file under `openspec/specs/`, and
+ticks only boxes 1.1-1.4 of `tasks.md` § 1. `.openspec.yaml` now carries
+`approved_by`/`approved_on` ADDED beside the untouched drafting pair
+(`kind: ad_hoc`, `proposed_by`, `proposed_on`), which is the lawful approved
+shape `add-drafted-proposal-origin` defined; approval was a pure ADDITION
+beside a fixed `kind` and `id`. The spec delta carries no lifecycle header, as
+308 of the 312 spec-delta files measured on `origin/main` do not.
 
 ## Why
 
@@ -46,11 +72,11 @@ capability, not this realization's — noted, not filed."* This packet is that
 later delta, and it is the first: a corpus search for a successor returns only
 issue #1045 itself.
 
-**THE GAP IS MEASURED, IT IS ONE-DIRECTIONAL, AND IT IS EIGHT CASES.** Called
+**THE GAP IS MEASURED, IT IS ONE-DIRECTIONAL, AND IT IS TEN CASES.** Called
 in memory with no file, no `git` and no network — `pinned_dispositions(pin)` is
 a pure function of the record, evaluated as part of check 1 at
 `scripts/validate-openspec-cli-pin.py:1966`, BEFORE `repository_identity`
-(`:1973`) and before any fetch — the verifier's own guard REFUSES eight
+(`:1973`) and before any fetch — the verifier's own guard REFUSES ten
 entry-grain records that the adapter ACCEPTS today, and refuses NOTHING the
 adapter refuses. The adapter is therefore NARROWER than the guard on the
 entries and is nowhere WIDER. `design.md` D-1 carries the measurement, case by

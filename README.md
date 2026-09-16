@@ -533,10 +533,18 @@ Active changes:
 
 - [adopt-entry-grain-dispositions-form](openspec/changes/adopt-entry-grain-dispositions-form/proposal.md)
   — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
-  **`Status: draft`** — a PROPOSAL, unratified, with DRAFTING PROVENANCE ONLY
-  (`kind: ad_hoc`, `proposed_by` + `proposed_on`, no `approved_by`). Answers
-  openxFactory [#1045](https://github.com/opensoft/openxFactory/issues/1045),
-  the finding this lane filed on 2026-09-15 and did not claim at filing.
+  **`Status: ratified`** (2026-09-16, Brett Heap, openxFactory repository
+  owner, first-hand, in session, verbatim ***"ratify 1052 when green, then
+  1050"*** — this packet is the "then 1050" half; recorded on openxFactory
+  #1045 comment
+  https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736,
+  THE ONE CITATION; record
+  [`review/ratification-2026-09-16.md`](openspec/changes/adopt-entry-grain-dispositions-form/review/ratification-2026-09-16.md))
+  — an APPROVED packet: the drafting pair (`proposed_by` / `proposed_on`)
+  stands unmoved and `approved_by` / `approved_on` are ADDED beside it,
+  approval being a pure addition. Answers openxFactory
+  [#1045](https://github.com/opensoft/openxFactory/issues/1045), the finding
+  this lane filed on 2026-09-15 and did not claim at filing.
   **ONE `## MODIFIED` BLOCK, ONE ADDED SCENARIO, OVER `document-lifecycle`** —
   *Prose tagging marker hygiene* restated IN FULL with *A pin record's optional
   dispositions member carries a malformed entry* added beside the shape-(a)
@@ -546,11 +554,12 @@ Active changes:
   at the MEMBER grain only, while the full verifier's `pinned_dispositions`
   (`scripts/validate-openspec-cli-pin.py:787-857`) refuses malformed ENTRIES in
   the SAME pure, source-free pass called before any fetch (`:1966`, ahead of
-  `repository_identity` at `:1973`). Measured by calling both: EIGHT records the
+  `repository_identity` at `:1973`). Measured by calling both: TEN records the
   guard refuses are accepted by the adapter — `[{}]`, `[null]`, `["a"]`, an
-  entry missing `cited_to`, `cited_to: []`, `cited_to: "x"`, `level: "WARNING"`
-  and an entry naming no authority — and ZERO in the other direction, so the
-  adapter is NARROWER than the guard on the entries and nowhere WIDER.
+  entry missing `cited_to`, `cited_to: []`, `why: ""`, `cited_to: "x"`,
+  `level: "WARNING"`, `level: ""` and an entry naming no authority — and ZERO
+  in the other direction, so the adapter is NARROWER than the guard on the
+  entries and nowhere WIDER.
   **AND MOST OF THE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES THE
   GAP SHARPER THAN THE ISSUE STATES IT THERE**: `neutral-product-pin`'s
   *A dispositioned finding is cited, upgrade-coupled, and refused when stale*
@@ -576,11 +585,15 @@ Active changes:
   Raised by review on PR [#1040](https://github.com/opensoft/openxFactory/pull/1040)
   round 8 and RULED STANDS there, that ruling calling this "a legitimate later
   delta … noted, not filed"; this packet is that delta and the first of them.
-  **RATIFICATION IS BRETT HEAP'S WORD AND `tasks.md` § 1 IS UNTICKED.** No byte
-  of `scripts/doc_health/pin_shapes.py`, of `tests/doc-health/`, of any pin
+  **RATIFIED — D-1, D-2 AND D-3 AS FILED; NO DECISION REOPENED.** Boxes
+  ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4 — and no others; § 2
+  stands exactly as the filing pull request left it, and § 3 and § 4 stay
+  open. REALIZATION AND ARCHIVE ARE NOT AUTHORIZED BY THIS WORD and remain
+  separate later acts on Brett Heap's word: no byte of
+  `scripts/doc_health/pin_shapes.py`, of `tests/doc-health/`, of any pin
   verifier, of any record under `contracts/` or of any file under
-  `openspec/specs/` moves in the filing; `code_surface:` is non-empty, so the
-  packet archives on merged-plus-green realization evidence and not on landing.
+  `openspec/specs/` moves; `code_surface:` is non-empty, so the packet
+  archives on merged-plus-green realization evidence and not on landing.
 
 - [add-declared-former-id](openspec/changes/add-declared-former-id/proposal.md)
   — filed 2026-09-13, lane `openxfactory-1` (display `openXfactory-1`),

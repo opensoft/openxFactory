@@ -98,3 +98,29 @@ origin:
     entry-grain records the adapter accepts today are still accepted after this
     pull request lands, and stay accepted until a realization on a separate word.
   proposed_on: 2026-09-15
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — first-hand, in session, lane
+    `openxfactory-2` (display `openXfactory-2`), verbatim ***"ratify 1052
+    when green, then 1050"*** — the "then 1050" half of that word. Recorded on
+    openxFactory #1045, comment
+    https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736,
+    THE ONE CITATION. AS FILED, WITH NO AMENDMENT AND NO VETO: D-1, D-2 and
+    D-3 stand exactly as `design.md` states them, and the word carries no
+    condition on any later act and reopens no decision. THIS RATIFYING ACT
+    ALSO ACCEPTS TWO CONFORMING FIXES the lane found from Copilot's
+    suppressed review comments at the ratified head, neither one a design
+    decision: `design.md` D-1's "THE GAP, COUNTED" tally and enumerated list
+    corrected from EIGHT to TEN measured records (the table above it always
+    carried `why: ""` and `level: ""`; the tally had dropped them), and, in
+    `proposal.md`, the "moves no byte of … any test" claim narrowed to name
+    the realization test files under `tests/doc-health/` and the
+    sweep-ledger bookkeeping separately. THE WORD PERFORMS NO REALIZATION AND
+    NO ARCHIVE: no byte of `scripts/doc_health/pin_shapes.py` moves, no byte
+    of `tests/doc-health/test_pin_shape_adapter.py` or
+    `tests/doc-health/test_tag_hygiene_pinned_targets.py` moves, no pin
+    verifier is edited, no record under
+    `contracts/` changes, no file under `openspec/specs/` moves, and only
+    boxes 1.1, 1.2, 1.3 and 1.4 of `tasks.md` § 1 are ticked — § 2 stands
+    exactly as the filing pull request left it, and § 3 and § 4 stay open,
+    `code_surface` being non-empty. Record: review/ratification-2026-09-16.md.
+  approved_on: 2026-09-16
