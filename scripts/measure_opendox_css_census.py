@@ -197,6 +197,12 @@ def js_literal_text(text: str) -> str:
 # --------------------------------------------------------------------------
 _CLASSTOK = re.compile(r"^[A-Za-z_][A-Za-z0-9_-]*$")
 
+#: `index.html`'s class attributes, by NAME and in either quote — the HTML
+#: side of `_CLASS_ATTR`'s rule, so `data-class="…"` is not read as a class
+#: here either (Copilot review of openxFactory #1068, round 11).
+_HTML_CLASS_ATTR = re.compile(
+    r"""(?<![A-Za-z0-9_-])class\s*=\s*(?:"([^"]*)"|'([^']*)')""")
+
 #: A class token BUILT BY CONCATENATION — `el("button", "disposebtn dispose-" +
 #: v.outcome, …)` (`dispose.js`:275) — is named by no literal a word-boundary
 #: search can see, and `STYLE_RESIDUE`'s 51 is exactly what that blindness
@@ -212,8 +218,11 @@ def _literals(text: str, suffix: str) -> list[str]:
     if suffix == ".js":
         return [text[a + 1:b - 1] for kind, a, b in _js_spans(text)
                 if kind == "string"]
-    return (re.findall(r'class\s*=\s*"([^"]*)"', text)
-            + re.findall(r"class\s*=\s*'([^']*)'", text))
+    # THE SAME ATTRIBUTE-NAME BOUNDARY THE JAVASCRIPT SIDE USES (Copilot
+    # review of openxFactory #1068, round 11): `data-class="gatebar"` is not a
+    # class attribute here either, and one rule for both sides is how the two
+    # scans are kept from disagreeing about what a class attribute is.
+    return [m.group(1) or m.group(2) for m in _HTML_CLASS_ATTR.finditer(text)]
 
 
 #: A BARE LITERAL IS A CLASS ONLY IN ARGUMENT OR ASSIGNMENT POSITION, and this
@@ -534,10 +543,9 @@ def prefix_refs(text: str, suffix: str, *,
         spans = [(text[a + 1:b - 1], a) for kind, a, b in _js_spans(text)
                  if kind == "string"]
     else:
-        spans = [(m.group(1), m.start(1)) for m in
-                 re.finditer(r'class\s*=\s*"([^"]*)"', text)]
-        spans += [(m.group(1), m.start(1)) for m in
-                  re.finditer(r"class\s*=\s*'([^']*)'", text)]
+        spans = [(m.group(1) or m.group(2),
+                  m.start(1) if m.group(1) is not None else m.start(2))
+                 for m in _HTML_CLASS_ATTR.finditer(text)]
 
     def register(piece: str) -> None:
         m = _PREFIX.match(piece)
@@ -570,10 +578,9 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
         spans = [(text[a + 1:b - 1], a) for kind, a, b in _js_spans(text)
                  if kind == "string"]
     else:
-        spans = [(m.group(1), m.start(1)) for m in
-                 re.finditer(r'class\s*=\s*"([^"]*)"', text)]
-        spans += [(m.group(1), m.start(1)) for m in
-                  re.finditer(r"class\s*=\s*'([^']*)'", text)]
+        spans = [(m.group(1) or m.group(2),
+                  m.start(1) if m.group(1) is not None else m.start(2))
+                 for m in _HTML_CLASS_ATTR.finditer(text)]
     for s, start in spans:
         # A SELECTOR STRING is class-bearing wherever it sits — but it has to
         # BE a selector: SHAPE (`_SELECTOR_SHAPED`), a bare word only where an
@@ -734,6 +741,28 @@ def parse_nested(css: str, scan: str, lo: int, hi: int, at_rule: str,
     return out
 
 
+def _selector_branches(selector: str) -> list[str]:
+    """A selector LIST, split at its top-level commas.
+
+    A comma inside `[…]` or `:not(…)` is not a branch separator, which is why
+    this is a walk and not `selector.split(",")`.
+    """
+    out: list[str] = []
+    depth, cur = 0, []
+    for ch in selector:
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth = max(0, depth - 1)
+        if ch == "," and depth == 0:
+            out.append("".join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+    out.append("".join(cur))
+    return [part.strip() for part in out if part.strip()]
+
+
 def selector_tokens(selector: str) -> dict:
     """What a selector list is MADE of — the census's whole discrimination.
 
@@ -800,6 +829,17 @@ def main() -> int:
             "missing one is a mistyped path, never an empty census")
     css_bytes = css_path.read_bytes()
     css = css_bytes.decode("utf-8")
+    # AND SO ARE THE TWO FILES THE BUNDLE ALWAYS HAS (Copilot review, round
+    # 11): `app.js` and `index.html` are added unconditionally below, so a
+    # checkout missing either passed every check above and then raised
+    # `FileNotFoundError` out of `haystack`.
+    for label, path in (("openDox-code's shell module", web / "app.js"),
+                        ("openDox-code's served page", web / "index.html")):
+        if not path.is_file():
+            raise SystemExit(
+                f"{label}: {path} is not a file. Both are read as openDox's "
+                "own side of the census, and a bundle without one is an "
+                "incomplete checkout, never a bundle that names nothing")
     gate_files = sorted(p for p in gate_dir.glob("*.js"))
     if not gate_files:
         raise SystemExit(
@@ -896,7 +936,18 @@ def main() -> int:
         # literal cannot move an openDox rule, the openDox side read BROAD so
         # any mention at all keeps one. See the note where it is computed.
         kinds = {census[c]["extract_class"] for c in t["classes"] if c in census}
-        if kinds == {"gate_exclusive"} and not t["ids"]:
+        # AND EVERY BRANCH OF THE LIST MUST BE ANCHORED BY A CLASS (Copilot
+        # review of openxFactory #1068, round 11). `selector_tokens` aggregates
+        # over the WHOLE list, so `.gatebar, button { … }` read as
+        # gate-exclusive on the strength of `.gatebar` alone — and extracting
+        # it would have taken openDox's generic `button` styling to another
+        # leg. A branch with no class of its own (`button`, `:root`,
+        # `[hidden]`) styles something this census cannot attribute, so the
+        # block stays.
+        branches = [selector_tokens(part)
+                    for part in _selector_branches(b["selector"])]
+        anchored = bool(branches) and all(part["classes"] for part in branches)
+        if kinds == {"gate_exclusive"} and not t["ids"] and anchored:
             return "exclusive"
         if "gate_exclusive" in kinds or "shared" in kinds:
             return "mixed"

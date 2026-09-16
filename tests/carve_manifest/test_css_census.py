@@ -455,6 +455,54 @@ def test_a_class_equals_inside_another_attribute_is_that_attributes(
     assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
 
 
+def test_a_selector_list_with_a_classless_branch_never_leaves(
+        tmp_path: Path) -> None:
+    """`.gatebar, button { … }` STAYS (Copilot review, round 11).
+
+    `selector_tokens` aggregates over the whole list, so the rule read as
+    gate-exclusive on the strength of `.gatebar` alone — and extracting it
+    would have taken openDox's generic `button` styling to another leg.
+    """
+    dox, xdox = _tree(
+        tmp_path,
+        styles=(".gatebar, button { color: red; }\n"
+                ".gatebtn, .gatebar span { color: blue; }\n"
+                ".gatebar, [hidden] { color: green; }\n"),
+        own={},
+        gate={"gate.js": 'el("div", "gatebar"); el("button", "gatebtn");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    # only the list whose EVERY branch is anchored by a class leaves
+    assert [b["selector"] for b in report["exclusive_blocks"]] \
+        == [".gatebtn, .gatebar span"]
+    assert CENSUS._selector_branches(".gatebar:not(a, b), button") \
+        == [".gatebar:not(a, b)", "button"]
+
+
+def test_a_bundle_missing_a_required_file_refuses_instead_of_raising(
+        tmp_path: Path) -> None:
+    """`app.js` and `index.html` are read unconditionally, so a checkout
+    without one passed every path check and then raised `FileNotFoundError`
+    (Copilot review, round 11)."""
+    for missing in ("app.js", "index.html"):
+        dox, xdox = _tree(tmp_path / missing, styles=".gatebar { color: red; }\n",
+                          own={}, gate={"gate.js": 'el("div", "gatebar");\n'})
+        (dox / "src" / "opendox" / "web" / missing).unlink()
+        proc = subprocess.run([sys.executable, str(SCRIPT), str(dox), str(xdox)],
+                              capture_output=True, text=True, timeout=300)
+        assert proc.returncode != 0, missing
+        assert "is not a file" in proc.stderr, missing
+        assert "Traceback" not in proc.stderr, missing
+
+
+def test_the_page_names_a_class_only_under_a_class_attribute() -> None:
+    """`data-class="gatebar"` is not `class="gatebar"` in `index.html` either
+    (Copilot review, round 11) — one rule for both sides, so the two scans
+    cannot disagree about what a class attribute is."""
+    html = '<div data-class="gatebar"><i class=\'gatebtn is-live\'></i></div>'
+    assert CENSUS.narrow_refs(html, ".html") == {"gatebtn", "is-live"}
+    assert CENSUS._literals(html, ".html") == ["gatebtn is-live"]
+
+
 def test_a_class_built_from_a_chain_of_literals_is_still_named() -> None:
     """EVERY CONTIGUOUS SUB-RUN of a `+` chain (Copilot review, round 10).
 
