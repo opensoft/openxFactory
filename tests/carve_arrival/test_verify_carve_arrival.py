@@ -4174,7 +4174,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             == opendox_seed["src/opendox/web/views/display.js"]["since"]), (
         "§ 3.4 SLICE S7's two DISPLAY-facet halves were introduced by one "
         "commit and no longer declare the same `since`")
-    # THE SEVENTH BUMP: ten more `opendox_code` files, RULED into this file by
+    # THE EIGHTH BUMP: ten more `opendox_code` files, RULED into this file by
     # `split-opendox-two-layer-product` § 3.5 (RULED Q2, `#656` comment
     # 5542792997, and RULED Q1, comment 5542694957) and § 3.6 (RULED C3,
     # comment 5544381563) — the `src/opendox/runtime/` subpackage: the runtime
@@ -4182,6 +4182,14 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     # tables, the psycopg pool, the broker token verifier, the FastAPI
     # application, the lifecycle CLI) and the repository-creation act with its
     # conformant local-git adapter. CLAIM `#656` comment 5699629780.
+    #
+    # EIGHTH AND NOT SEVENTH, and the ordinal is worth a sentence because it
+    # was wrong first: line ~3993 already labels § 3.4 slice S8's own
+    # `openxdox_code` file THE SEVENTH BUMP, so a second seventh would make the
+    # provenance history of this file ambiguous exactly where it is supposed to
+    # be readable (Copilot review of openxFactory#1067). The ordinals count
+    # AMENDMENTS to the admissions document, across destinations — not
+    # `opendox_code`'s own bumps, of which this is the sixth.
     #
     # PINNED HERE FOR THE REASON THE SIXTH BUMP STATES, and Copilot's review of
     # the admission PR (opensoft/openxFactory#1067) named the gap exactly: the
