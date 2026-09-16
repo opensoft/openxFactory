@@ -1659,8 +1659,13 @@ def test_the_grammar_extension_names_the_ruling_and_not_the_owed_field(
 # grammar extension and the FIRST about PLACEMENT: a moved row whose
 # placement a ruling has corrected carries where it went, and the floor asks
 # its arrival question there instead. Every case below is a generated
-# manifest and a real tree, and the landed manifest — which carries the form
-# and uses it nowhere — is asserted separately in the § 8.2 seat.
+# manifest and a real tree; the landed manifest — which carried the form and
+# used it NOWHERE as PR #1011 landed it, and carries FOUR re-destined rows
+# since § 3.4 slice S5 (PR #1023) — is asserted separately in the § 8.2 seat.
+# (Stated in the same shape as the retirement section below, on the same
+# reading: this sentence said "uses it nowhere" in the PRESENT tense until
+# slice S5 made it false, and it was found while sweeping for exactly that
+# defect in THIS act's own vocabulary — openxFactory PR #1043.)
 # --------------------------------------------------------------------------
 
 RULING_CITATION = "`#656` comment 5648044785 (RULED Q6, Brett Heap 2026-09-12)"
