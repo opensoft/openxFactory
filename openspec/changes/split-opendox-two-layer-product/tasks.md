@@ -1273,8 +1273,8 @@ the bookkeeping that ticks this group.
   openDox-code `main` **`8efb3cf5`** (S1–S6 landed), openxFactory `main`
   **`e6e1c968`**, and the carve commit **`b075fd91`** both legs were cut
   from — counting only real import statements
-  (`^\s*(from|import)\s+.*doc_health`), each under the root that repository
-  actually keeps the inventoried modules in: `src/openxdox/` at openXdox-code,
+  (`^[[:space:]]*(from|import)[[:space:]]+.*doc_health`), each under the root that
+  repository actually keeps them in: `src/openxdox/` at openXdox-code,
   `src/opendox/` at openDox-code, and `scripts/ideation_dashboard/` at
   openxFactory (both at `main` `e6e1c968` and at the carve commit — openxFactory
   has no `src/`, which is why a single root spelling would not reproduce).
@@ -1478,8 +1478,8 @@ the bookkeeping that ticks this group.
   on 2026-09-10, `openxfactory` (the § 2.2a adapter) is **OK — 17 of 17**, while
   `opendox_code` `8e9ffa62`, `openxdox_code` `59600412`, `opendox_spec`
   `41d570e9` and `openxdox_spec` `03eacc61` each return
-  `conformance-adapter-undeclared` (`tasks.md`:1164-1176 above, which is § 3.7's
-  own evidence and closes with *"ONE of the three named destinations passes, so
+  `conformance-adapter-undeclared` (`tasks.md`:1194-1205 above, which is § 3.7's
+  own evidence, and :1206, where it closes with *"ONE of the three named destinations passes, so
   the box stays open"*). So the floor this tick declines to lean on is RED where
   openDox is concerned, which is the point: § 4.1 claims the accounting, and the
   seam question waits on a gate that has not gone green.
@@ -2354,7 +2354,7 @@ movements claimed at the time they land.
   `codex_deployment_profile` and `artifact_kind` — and `codex_tenant` (**3**, all
   under `tenants/`): **ten distinct literals over seventeen declarations, and not
   one of them is `domain-profile`.** **No `kind:` anywhere in the tree names dox**
-  (`git grep -iE '^\s*kind:.*dox'` → empty).
+  (`git grep -iE '^[[:space:]]*kind:.*dox'` → empty).
   **AND THE LITERAL IS NOT LEFT AS THE ONLY DISCRIMINATOR**, because it cannot
   be: the requirement keys on an artifact KIND, and this packet's own
   `domain-mapping-declaration` defines that kind STRUCTURALLY — *"The declaration
