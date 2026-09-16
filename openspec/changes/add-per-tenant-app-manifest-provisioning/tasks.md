@@ -3,9 +3,12 @@
 ## 1. The packet (THIS PULL REQUEST)
 
 - [x] 1.1 `.openspec.yaml` declaring `kind: staged`, the fragment's path, the
-  exit-precondition measurement (Q1 RULED by `5704187317`; Q2 unruled and not
-  needed, with the case-neutrality reason stated), and `approved_by` recording
-  that the ruling authorizes AUTHORING and is not ratification.
+  exit-precondition measurement (Q1 RULED by `5704187317`; Q2 unruled — NOT a
+  precondition of THIS packet's authoring, which clause (E) directs, but STILL
+  REQUIRED for the staged topic's own exit, which this packet does not claim;
+  with the case-neutrality reason stated separately, because the delta not
+  turning on Q2 is a different fact from Q2 being discharged), and `approved_by`
+  recording that the ruling authorizes AUTHORING and is not ratification.
 - [x] 1.2 `proposal.md` with the realization-axis front matter — `code_surface:
   none` with its four measured negatives, `target_release: implemented` with the
   reason NO bundle number is reserved (the two active siblings on this capability

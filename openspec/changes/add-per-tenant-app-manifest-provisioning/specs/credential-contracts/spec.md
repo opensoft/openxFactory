@@ -50,7 +50,8 @@ OPERATES the install exactly where canon already puts it — a per-install
 execution binding. Nothing below refuses a pair already in service that was
 created by hand, and nothing below names a custody party: naming one in a
 contract artifact is precisely what *An operated identity's credential is held in
-governed custody and reached only by reference* forbids (`:215` — *"the neutral
+governed custody and reached only by reference* forbids
+(`openspec/specs/credential-contracts/spec.md:215` — *"the neutral
 obligation lives in the contract, the concrete estate fact lives in the
 binding"*). Whether and when Case A migrates to the manifest shape is the
 installer's act and the staged topic's unruled managed-flow question, and this
@@ -94,17 +95,25 @@ another tenant's repositories, because a shared identity makes the separation
 per-estate rather than per-tenant and puts one tenant's dispatch surface one
 misconfiguration away from another tenant's contents. Where the provider's naming
 space is GLOBAL, the provisioning manifest SHALL carry a DECLARED NAMING
-CONVENTION that is unique per tenant and discoverable by pattern — the form
-`<product> — <tenant>` — so that the identities belonging to one tenant can be
-enumerated without reading that tenant's organization, and so that two tenants
-never contend for one name.
+CONVENTION of the form `<product> — <tenant>` that is discoverable by pattern and
+whose TENANT COMPONENT IS AN IDENTIFIER UNIQUE IN THAT PROVIDER'S OWN NAMESPACE,
+canonicalized to what the provider's names admit — a display name two tenants may
+share is not such an identifier — so that the identities belonging to one tenant
+can be enumerated without reading that tenant's organization, and so that two
+tenants CANNOT contend for one name rather than merely being expected not to.
+WHICH GRAIN carries that uniqueness — a slug, an account handle, an issued
+identifier — is the install's to choose and is not fixed here; what is fixed is
+that the chosen grain must be unique where the provider's namespace is.
 
 **THE DISPATCH IDENTITY'S REACH IS THE ONE REPOSITORY THAT OWNS THE APPLY
 WORKFLOW, AND THAT REPOSITORY IS PART OF THE PROVISIONING.** Provisioning SHALL
 name the single repository the dispatch identity may trigger and SHALL NOT place
-that workflow in a repository holding governed content, because a dispatch
-identity scoped to a content-bearing repository is scoped to more than its one
-named target however narrow its permission set reads.
+that workflow in a repository holding governed content. The defect is the
+TARGET'S PROPERTY and not its count: the identity still names exactly one
+repository, but a trigger on a content-bearing one puts the zero-write-authority
+serving tier one workflow away from the content-write authority the paragraph
+above forbids it to hold, which is the separation defeated by routing rather than
+by permission.
 
 **CREDENTIAL CAPTURE IS TIME-BOUND AND LEAVES WHOEVER DRIVES THE FLOW NOT AN
 UNDECLARED CUSTODIAN.** Where the provider returns the created identity's secrets
@@ -146,10 +155,12 @@ will live, and a record carrying the material itself is refused.
 - **WHEN** a provisioned identity is reused, copied or re-scoped to reach a second tenant's repositories
 - **THEN** it is refused, because the separation would become per-estate rather than per-tenant
 - **AND** a naming convention that does not distinguish the two tenants is itself a finding, because it makes the reuse unreadable
+- **AND** a convention whose tenant component is not unique in the provider's namespace — a display name two tenants may share — is a finding BEFORE any reuse occurs, because the second tenant's provisioning cannot complete under it
 
 #### Scenario: The apply workflow is placed in a repository holding governed content
 - **WHEN** provisioning names a content-bearing repository as the dispatch identity's one named target
-- **THEN** it is refused, because the dispatch identity would reach more than its one named target whatever its permission set reads
+- **THEN** it is refused on the TARGET'S PROPERTY rather than on any count — the identity still names one repository, and the refusal is that a trigger on a content-bearing repository leaves the serving tier one workflow away from content-write authority it must not hold
+- **AND** an implementation that checks the number of named targets instead of the named target's content-bearing property has not implemented this clause
 
 #### Scenario: A provisioning record carries the captured material
 - **WHEN** a provisioning manifest, record or template carries a secret value, a private key or an installation token rather than a reference to the custody it lands in
