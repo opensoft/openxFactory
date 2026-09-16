@@ -69,8 +69,10 @@ tenant contends for.
 **ONE `## MODIFIED` block, on ONE requirement, over CANON.** *Dispatch-only
 credential least privilege and serving-tier separation* is restated in full — its
 promoted body paragraph and all three promoted scenarios verbatim — and grown by
-five clauses and eight scenarios — the first two being the
-provisioning rule and the scoping rider that keeps it case-neutral:
+five clauses and eight scenarios — the first two
+being the provisioning rule and the scoping rider that keeps it case-neutral,
+and every clause scoped to provisioning through a manifest rather than written
+over every pair that exists:
 
 1. **Where the pair is provisioned through a manifest, creation is in the
    tenant's organization and the identity is never an operator-owned one
@@ -78,10 +80,17 @@ provisioning rule and the scoping rider that keeps it case-neutral:
    which the promoted sentence already forbids the serving tier to be capable of.
    The clause binds WHERE the identity lives, not who drives the flow and not who
    holds its material.
-2. **One pair per tenant, never shared**, with a per-tenant, pattern-discoverable
-   naming convention where the provider's namespace is global.
+2. **A pair provisioned under these clauses is provisioned once per tenant and
+   never shared**, under a pattern-discoverable naming convention whose TENANT
+   COMPONENT is an identifier unique in the provider's own namespace — a display
+   name two tenants may share is not one — with the grain that carries the
+   uniqueness (slug, handle, issued id) left to the install.
 3. **The dispatch identity's one named target is a repository that holds no
-   governed content**, and that repository is part of the provisioning.
+   governed content**, and that repository is part of the provisioning. The
+   refusal is on the TARGET'S PROPERTY and never on a count: the identity still
+   names exactly one repository, and what is wrong is that a trigger on a
+   content-bearing one leaves the serving tier one workflow away from the
+   content-write authority it must not hold.
 4. **Capture is time-bound, lands in the DECLARED custody by reference, and
    leaves whoever drives the flow not an UNDECLARED custodian** — the custody's
    operator being the per-install execution binding this capability already
