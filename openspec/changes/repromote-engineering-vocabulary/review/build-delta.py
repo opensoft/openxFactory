@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Build § 5.2a's ADDED delta from the PROMOTED spec, title-keyed, and PROVE the carry.
 
-Run from an openxFactory checkout root:  python3 build_delta.py <checkout> [--write]
+Run from an openxFactory checkout root:
+  python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py . [--write]
 
 It (1) selects the fifteen by the destination the packet's ratified map names for each
 removed title, (2) lifts each requirement out of openspec/specs/ideation-dashboard/spec.md
@@ -35,6 +36,19 @@ EDITS = [
   "resolve"),
 ]
 
+def _require_lf(path: Path) -> None:
+    """Refuse a CR anywhere in a source this build reads.
+
+    Extraction and the reversal proof compare TEXT, and `read_text()` applies
+    universal-newline translation, so a source carrying CRLF would compare equal
+    while the emitted delta was not byte-identical to it. This corpus is LF; a
+    CR here is a fact worth refusing on rather than normalising past.
+    """
+    if b"\r" in path.read_bytes():
+        raise _refuse(f"{path} carries a CR: this build compares text and would "
+                      f"report a byte-identical carry it cannot guarantee.")
+
+
 def requirements(text, path="<text>"):
     """(title -> body) for every '### Requirement:' block, in file order.
 
@@ -58,6 +72,17 @@ def requirements(text, path="<text>"):
         out[t] = "\n".join(lines[i:j]).rstrip("\n")
     return out, [t for _, t in idx]
 
+def _refuse(message: str) -> "SystemExit":
+    """Every gate in this file raises; none of them asserts.
+
+    `python3 -O` deletes `assert`, and a verifier whose gates vanish under a
+    common interpreter flag is not a gate. The exact-once matching, the
+    destination-map count, the title presence, the reversal proof and the
+    committed-artifact comparison all come through here instead.
+    """
+    return SystemExit(f"REFUSED: {message}")
+
+
 def main():
     root = Path(sys.argv[1]).resolve()
     write = "--write" in sys.argv
@@ -65,6 +90,7 @@ def main():
     promoted = root / "openspec/specs/ideation-dashboard/spec.md"
 
     # (1) the fifteen, from the ratified map
+    _require_lf(packet)
     pk = packet.read_text(encoding="utf-8")
     blocks = re.split(r"^### Requirement: ", pk, flags=re.M)[1:]
     fifteen, dest_count = [], {}
@@ -76,15 +102,19 @@ def main():
         if d == "openxFactory":
             fifteen.append(title)
     print(f"map: {dest_count}  (expect openDox 71 / openXdox 16 / openxFactory 15)")
-    assert dest_count == {"openDox": 71, "openXdox": 16, "openxFactory": 15}, dest_count
-    assert len(fifteen) == 15, len(fifteen)
+    if dest_count != {"openDox": 71, "openXdox": 16, "openxFactory": 15}:
+        raise _refuse(f"the destination map is not 71/16/15: {dest_count}")
+    if len(fifteen) != 15:
+        raise _refuse(f"the openxFactory column is {len(fifteen)}, not 15")
 
     # (2) lift by title from the promoted spec
+    _require_lf(promoted)
     pr = promoted.read_text(encoding="utf-8")
     reqs, order = requirements(pr, promoted)
     print(f"promoted requirements: {len(order)}")
     missing = [t for t in fifteen if t not in reqs]
-    assert not missing, missing
+    if missing:
+        raise _refuse(f"titles absent from the promoted spec: {missing}")
     fifteen = [t for t in order if t in set(fifteen)]      # promoted-file order
     carried = {t: reqs[t] for t in fifteen}
     src_bytes = sum(len(carried[t].encode()) for t in fifteen)
@@ -94,9 +124,12 @@ def main():
     # (3) the two edits, each exactly once
     edited = dict(carried)
     for title, old, new, klass in EDITS:
-        assert title in edited, title
+        if title not in edited:
+            raise _refuse(f"edit names a requirement not carried: {title!r}")
         n = edited[title].count(old)
-        assert n == 1, f"edit matched {n}x (expected 1): {title} :: {old[:60]}"
+        if n != 1:
+            raise _refuse(f"edit matched {n}x (expected exactly 1): "
+                          f"{title!r} :: {old[:60]}")
         edited[title] = edited[title].replace(old, new)
         print(f"  edit [{klass}] in {title[:52]!r}: OK")
 
@@ -106,8 +139,11 @@ def main():
         for title, old, new, _ in EDITS:
             if title == t:
                 back = back.replace(new, old)
-        assert back == carried[t], f"BYTES MOVED outside the declared edits in: {t}\n" + \
-            "\n".join(difflib.unified_diff(carried[t].split("\n"), back.split("\n"), lineterm="", n=1))
+        if back != carried[t]:
+            raise _refuse(
+                f"BYTES MOVED outside the declared edits in: {t}\n" +
+                "\n".join(difflib.unified_diff(carried[t].split("\n"),
+                                                back.split("\n"), lineterm="", n=1)))
     print("REVERSAL PROOF: every byte outside the two declared edits is carried identical.")
 
     body = []

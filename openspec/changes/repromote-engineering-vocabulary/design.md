@@ -150,6 +150,14 @@ checkout alone: the fifteen are selected by the destination the ratified map nam
 promoted spec BY TITLE (never by line), each declared edit must match EXACTLY ONCE or the build
 aborts, and the build then REVERSES every edit and asserts byte equality against the promoted text.
 
+**EVERY GATE RAISES; NONE ASSERTS.** `python3 -O` deletes `assert`, and a verifier whose gates vanish
+under a common interpreter flag is not a gate — so the destination-map count, the title presence, the
+exactly-once matching, the reversal proof and the committed-artifact comparison all raise. Proved
+under `-O`: a mutated committed delta exits **1**, a broken edit-match exits **1**
+(`REFUSED: edit matched 0x (expected exactly 1)`), the clean tree exits **0**. The sources are also
+refused if they carry a CR, because extraction compares TEXT and `read_text()`'s newline translation
+would otherwise let a CRLF source pass a byte-identity claim this build could not honour.
+
 **Run WITHOUT `--write` it is a CHECK rather than a dry run**: it reads the committed
 `specs/openxfactory-engineering-adapter/spec.md` and compares, so a delta somebody had edited by hand
 — which is the artifact an archive would promote — cannot pass. Proved by mutation, three runs:
