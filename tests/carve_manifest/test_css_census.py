@@ -27,6 +27,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "measure_opendox_css_census.py"
@@ -457,6 +458,53 @@ def test_a_class_equals_inside_another_attribute_is_that_attributes(
     assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebtn"]
 
 
+def test_a_quoted_bracket_does_not_end_an_attribute_selector() -> None:
+    """`[data-label="x] .gatebar"]` HAS NO CLASS (Copilot review, round 15).
+
+    A regex that closes at the first `]` reduced it to text carrying
+    `.gatebar`, so the census invented a class selector for a rule that has
+    none — and a rule with no class selector at all could be extracted.
+    """
+    assert CENSUS.selector_class_tokens('[data-label="x] .gatebar"]') == set()
+    assert CENSUS.selector_tokens('[data-label="x] .gatebar"]')["classes"] == []
+    assert CENSUS.selector_class_tokens('[data-label="x] y"] .gatebtn') \
+        == {"gatebtn"}
+    assert CENSUS._without_attribute_selectors('div[a="]"].foo') == "div.foo"
+
+
+def test_an_element_qualified_selector_with_an_attribute_never_leaves(
+        tmp_path: Path) -> None:
+    """`div[data-state].gatebar { … }` STAYS (Copilot review, round 15). The
+    ANCHOR question is the narrow one `selector_class_tokens` answers, where
+    that form is element-qualified and names nothing; asking the wide
+    `selector_tokens` let the decision extract exactly the shape the position
+    rule refuses."""
+    dox, xdox = _tree(
+        tmp_path,
+        styles=("div[data-state].gatebar { color: red; }\n"
+                ".gatebar[data-state] { color: blue; }\n"),
+        own={},
+        gate={"gate.js": 'el("div", "gatebar");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert [b["selector"] for b in report["exclusive_blocks"]] \
+        == [".gatebar[data-state]"]
+
+
+def test_the_page_is_read_with_the_same_tag_aware_parser(tmp_path: Path) -> None:
+    """ONE PARSER FOR BOTH SIDES (Copilot review, rounds 11 and 15). A regex
+    over the whole page read `class=` inside a `title`, inside a comment and
+    inside `<script>` text as live attributes, and could not see an unquoted
+    value at all."""
+    page = ("<!-- class=\"commentbar\" -->\n"
+            "<div title='class=\"titlebar\"'>\n"
+            "  <i class=gatebar></i><b class='gatebtn is-live'></b>\n"
+            "</div>\n")
+    assert CENSUS.narrow_refs(page, ".html") \
+        == {"gatebar", "gatebtn", "is-live"}
+    assert sorted(CENSUS._literals(page, ".html")) \
+        == ["gatebar", "gatebtn is-live"]
+
+
 def test_a_pseudo_functions_argument_is_a_selector_of_its_own() -> None:
     """`div:not(.bar).foo` NAMES `bar` AND NOT `foo` (Copilot review, round
     14). Walking the argument inline let `.bar` set the compound bit for a
@@ -857,6 +905,20 @@ def test_the_pinned_census_is_the_figure_the_manifest_cites() -> None:
              for line in range(block["start"], block["end"] + 1)}
     assert len(union) == 89
     assert len(report["gate_modules"]) == 6
+    # AND THE FIXTURE IS TIED TO THE MANIFEST, not merely internally consistent
+    # (Copilot review, round 15): the row declares 89 `adapter calls` lines and
+    # the census measures an 89-line union. The two are counts in DIFFERENT
+    # numberings — the manifest's are carve-commit lines, the census's are the
+    # leg's own — so what is asserted is the SIZE the act claims in both, which
+    # is the claim a stale fixture would break.
+    manifest = yaml.safe_load(
+        (REPO_ROOT / "docs" / "opendox-carve-manifest.yaml").read_text(
+            encoding="utf-8"))
+    row = next(r for r in manifest["rows"]
+               if r["source_path"] == "scripts/ideation_dashboard/web/styles.css")
+    q7 = next(edit for edit in row["edits"]
+              if "RULED Q7 — THE CSS EXTRACTION" in edit["note"])
+    assert len(q7["lines"]) == len(set(q7["lines"])) == 89 == len(union)
 
 
 def test_the_pinned_census_re_derives_at_the_cited_revisions() -> None:

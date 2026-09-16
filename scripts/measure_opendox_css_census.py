@@ -142,7 +142,7 @@ _LINE_COMMENT = re.compile(r"//[^\n]*")
 
 
 def _is_concatenation(between: str) -> bool:
-    """True where two string literals are joined by `+` and nothing else.
+    r"""True where two string literals are joined by `+` and nothing else.
 
     GROUPING AND COMMENTS ARE NOT OPERANDS (Copilot review of openxFactory
     #1068, round 13): `("ga" + "te") + "bar"` and `"ga" /* c */ + "te"` are
@@ -218,11 +218,6 @@ def js_literal_text(text: str) -> str:
 # --------------------------------------------------------------------------
 _CLASSTOK = re.compile(r"^[A-Za-z_][A-Za-z0-9_-]*$")
 
-#: `index.html`'s class attributes, by NAME and in either quote — the HTML
-#: side of `_CLASS_ATTR`'s rule, so `data-class="…"` is not read as a class
-#: here either (Copilot review of openxFactory #1068, round 11).
-_HTML_CLASS_ATTR = re.compile(
-    r"""(?<![A-Za-z0-9_-])class\s*=\s*(?:"([^"]*)"|'([^']*)')""")
 
 #: A class token BUILT BY CONCATENATION — `el("button", "disposebtn dispose-" +
 #: v.outcome, …)` (`dispose.js`:275) — is named by no literal a word-boundary
@@ -239,11 +234,14 @@ def _literals(text: str, suffix: str) -> list[str]:
     if suffix == ".js":
         return [text[a + 1:b - 1] for kind, a, b in _js_spans(text)
                 if kind == "string"]
-    # THE SAME ATTRIBUTE-NAME BOUNDARY THE JAVASCRIPT SIDE USES (Copilot
-    # review of openxFactory #1068, round 11): `data-class="gatebar"` is not a
-    # class attribute here either, and one rule for both sides is how the two
-    # scans are kept from disagreeing about what a class attribute is.
-    return [m.group(1) or m.group(2) for m in _HTML_CLASS_ATTR.finditer(text)]
+    # ONE TAG-AWARE PARSER FOR BOTH SIDES (Copilot review of openxFactory
+    # #1068, rounds 11 and 15). A regex over the whole page read `class=`
+    # inside a `title`, inside a comment and inside `<script>` text as live
+    # attributes, and could not see `<i class=gatebar>` at all. The markup
+    # walk the JavaScript templates already go through answers both: inside an
+    # open tag, outside every quoted value, `class` a whole attribute name,
+    # and the value in either quote or none.
+    return markup_class_runs(text, r"[A-Za-z0-9_ -]*", r"[A-Za-z0-9_-]*")
 
 
 #: A BARE LITERAL IS A CLASS ONLY IN ARGUMENT OR ASSIGNMENT POSITION, and this
@@ -405,7 +403,7 @@ def selector_class_tokens(selector: str) -> set[str]:
     A descendant combinator survives all of this, because its space sits
     outside the brackets and parentheses that are removed.
     """
-    text = re.sub(r"\[[^\]]*\]", "", selector)
+    text = _without_attribute_selectors(selector)
     out: set[str] = set()
 
     # Pseudo parts out (arguments parsed on their own), then IDs out.
@@ -614,9 +612,8 @@ def prefix_refs(text: str, suffix: str, *,
     if suffix == ".js":
         spans = js_class_spans(text)
     else:
-        spans = [(m.group(1) or m.group(2),
-                  m.start(1) if m.group(1) is not None else m.start(2))
-                 for m in _HTML_CLASS_ATTR.finditer(text)]
+        spans = [(run, 0) for run in
+                 markup_class_runs(text, r"[A-Za-z0-9_ -]*", r"[A-Za-z0-9_-]*")]
 
     def register(piece: str) -> None:
         m = _PREFIX.match(piece)
@@ -648,9 +645,8 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
     if suffix == ".js":
         spans = js_class_spans(text)
     else:
-        spans = [(m.group(1) or m.group(2),
-                  m.start(1) if m.group(1) is not None else m.start(2))
-                 for m in _HTML_CLASS_ATTR.finditer(text)]
+        spans = [(run, 0) for run in
+                 markup_class_runs(text, r"[A-Za-z0-9_ -]*", r"[A-Za-z0-9_-]*")]
     for s, start in spans:
         # A SELECTOR STRING is class-bearing wherever it sits — but it has to
         # BE a selector: SHAPE (`_SELECTOR_SHAPED`), a bare word only where an
@@ -811,6 +807,44 @@ def parse_nested(css: str, scan: str, lo: int, hi: int, at_rule: str,
     return out
 
 
+def _without_attribute_selectors(selector: str) -> str:
+    """`selector` with every `[…]` removed, QUOTES AND ESCAPES RESPECTED.
+
+    `re.sub(r"\\[[^\\]]*\\]", …)` closes at the first `]` wherever it sits,
+    so `[data-label="x] .gatebar"]` was reduced to text carrying `.gatebar`
+    and the census invented a class selector for a rule that has none
+    (Copilot review of openxFactory #1068, round 15). An attribute value is a
+    CSS string and ends at its own quote.
+
+    Removed rather than blanked, because an attribute is part of the compound
+    (round 12): `div[x].gatebar` must read as `div.gatebar` and not as
+    `div .gatebar`. A descendant combinator keeps its space, which sits
+    outside the brackets.
+    """
+    out, i, n = [], 0, len(selector)
+    while i < n:
+        if selector[i] == "[":
+            j, quote = i + 1, ""
+            while j < n:
+                c = selector[j]
+                if c == "\\":
+                    j += 2
+                    continue
+                if quote:
+                    if c == quote:
+                        quote = ""
+                elif c in "\"'":
+                    quote = c
+                elif c == "]":
+                    break
+                j += 1
+            i = min(j + 1, n)
+            continue
+        out.append(selector[i])
+        i += 1
+    return "".join(out)
+
+
 def _selector_branches(selector: str) -> list[str]:
     """A selector LIST, split at its top-level commas.
 
@@ -869,7 +903,7 @@ def selector_tokens(selector: str) -> dict:
     extracted. `[...]` goes first now, for classes as it already did for
     elements.
     """
-    outside = re.sub(r"\[[^\]]*\]", " ", selector)
+    outside = _without_attribute_selectors(selector)
     classes = sorted(set(_TOKEN.findall(outside)))
     without = _TOKEN.sub(" ", outside)
     ids = sorted(set(re.findall(r"#([A-Za-z_][A-Za-z0-9_-]*)", without)))
@@ -1045,8 +1079,14 @@ def main() -> int:
         # element, so counting it as the branch's anchor let a rule that styles
         # the whole page leave on the strength of what it EXCLUDES.
         branches = _selector_branches(b["selector"])
+        # …AND IT ASKS THE CONSERVATIVE WALKER (Copilot review, round 15).
+        # `selector_tokens` reports every class token the selector carries,
+        # which is what `kinds` wants; the ANCHOR question is the narrower one
+        # `selector_class_tokens` answers, where `div[data-state].gatebar` is
+        # element-qualified and names nothing. Asking the wide one here let the
+        # decision extract exactly the form the position rule refuses.
         anchored = bool(branches) and all(
-            selector_tokens(_outside_pseudo_functions(part))["classes"]
+            selector_class_tokens(_outside_pseudo_functions(part))
             for part in branches)
         if kinds == {"gate_exclusive"} and not t["ids"] and anchored:
             return "exclusive"
