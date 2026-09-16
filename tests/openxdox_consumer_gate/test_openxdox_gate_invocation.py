@@ -39,10 +39,21 @@ RULING R-4 (Brett Heap, `opensoft/openxFactory#656` comment `5690428146`,
 `pytest-suite` untouched, there being no dashboard-named workflow here to
 rename. `test_the_required_pytest_suite_token_is_untouched_by_this_gate` is that
 discharge asserted rather than asserted-in-prose.
+
+ON THIS FILE'S OWN NAME, WHICH IS A DEFECT THIS SUITE SHIPPED AND THEN PINNED.
+It was born as `test_gate_invocation.py` — the wallet suite's basename, copied
+along with its shape — and `pytest-suite` refused it on the first push with
+`import file mismatch`, INTERRUPTING THE WHOLE REQUIRED RUN at 2 collected
+rather than failing one file. Neither consumer-gate directory carries an
+`__init__.py`, so pytest's prepend import mode named both modules
+`test_gate_invocation` and only one could exist. The rename fixes this file;
+`test_no_two_test_modules_resolve_to_the_same_import_name` fixes the CLASS, on
+a developer machine, for whoever writes the third consumer gate.
 """
 
 from __future__ import annotations
 
+import collections
 from pathlib import Path
 
 import pytest
@@ -472,3 +483,55 @@ def test_the_gate_mints_no_credential_for_public_gitlinks(
         "the gate consumes a repository or organization secret; it needs none, "
         "and a token minted for a public read widens its permissions for "
         "nothing — `openreposhape-pin-gate.yml`'s own rule")
+
+
+# --------------------------------------------------------------------------
+# the collision this suite shipped, pinned as a rule
+# --------------------------------------------------------------------------
+
+def test_no_two_test_modules_resolve_to_the_same_import_name() -> None:
+    """A basename collision INTERRUPTS the required run; it does not fail one file.
+
+    pytest's default `prepend` import mode names a test module by walking UP
+    from the file while `__init__.py` exists: a file in a package directory
+    gets a dotted name, and a file in a plain directory gets its BARE BASENAME.
+    Two plain directories holding the same basename therefore claim one
+    `sys.modules` entry, and the second one collected raises `import file
+    mismatch` — a COLLECTION error, which stops the whole run at
+    "Interrupted: 1 error during collection" and reports nothing about the
+    other 260 modules.
+
+    THIS SUITE CAUSED EXACTLY THAT. Authored as
+    `tests/openxdox_consumer_gate/test_gate_invocation.py`, it collided with
+    `tests/openxwallet_consumer_gate/test_gate_invocation.py`, and
+    `pytest-suite` went red on 2 collected tests. The file was renamed; this
+    test is the reason the next one cannot repeat it.
+
+    IT IS NOT A BAN ON REPEATED BASENAMES, and it must not become one: SIX
+    basenames repeat lawfully today (`test_gate_wiring`, `test_integrity`,
+    `test_release_inventory`, `test_schema`, `test_topology_lifecycle`,
+    `test_validate`), each pair distinguished because at least one side sits in
+    a package directory. The rule is about the IMPORT NAME, which is what
+    pytest actually collides on — so `tests/opendox_pin/` and
+    `tests/openxdox_pin/` name their modules distinctly instead, which is the
+    convention this directory now follows.
+    """
+    def import_name(path: Path) -> str:
+        parts = [path.stem]
+        directory = path.parent
+        while (directory / "__init__.py").is_file():
+            parts.append(directory.name)
+            directory = directory.parent
+        return ".".join(reversed(parts))
+
+    by_name: dict[str, list[str]] = collections.defaultdict(list)
+    for module in (REPO_ROOT / "tests").rglob("test_*.py"):
+        by_name[import_name(module)].append(
+            str(module.relative_to(REPO_ROOT)))
+    collisions = {name: sorted(paths)
+                  for name, paths in by_name.items() if len(paths) > 1}
+    assert collisions == {}, (
+        f"two or more test modules resolve to one import name: {collisions}. "
+        f"pytest will interrupt the REQUIRED run with `import file mismatch` "
+        f"and report nothing about the rest of the tree. Rename one file, or "
+        f"make one directory a package with `__init__.py`")
