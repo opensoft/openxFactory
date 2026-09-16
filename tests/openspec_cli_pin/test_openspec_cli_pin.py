@@ -1093,7 +1093,16 @@ def _departed_since_the_capture(mod, identity, row):
         "finding, never a path:\n"
         f"  recorded: {expected}\n"
         f"  captured: {row['normalized']}")
-    active = PIN_REPO_ROOT / "openspec" / "changes" / row["item"]
+    changes_dir = PIN_REPO_ROOT / "openspec" / "changes"
+    assert changes_dir.resolve(strict=True) == changes_dir, (
+        f"{key}: {changes_dir} resolves to {changes_dir.resolve(strict=True)}, "
+        "so an ANCESTOR of the active path is a symlink. Absence measured "
+        "through it is absence from SOME OTHER TREE — both predicates below go "
+        "false for an item that simply is not in the tree the link points at, "
+        "and the exemption would be granted on the strength of that. "
+        "`PIN_REPO_ROOT` is already resolved, so this equality is the same "
+        "containment the archive side asserts")
+    active = changes_dir / row["item"]
     assert not active.exists() and not active.is_symlink(), (
         f"{key} is listed as departed but {active} still stands; a live change "
         "may not borrow this exemption. (`exists()` answers for what a symlink "

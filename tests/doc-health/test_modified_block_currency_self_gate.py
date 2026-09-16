@@ -1308,7 +1308,12 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     # `exists()` answers for what a symlink POINTS AT, so `is_symlink()` is asked
     # beside it to catch the dangling link that exists as a tree entry while
     # `exists()` says no.
-    active = ROOT / "openspec" / "changes" / change
+    changes_dir = ROOT / "openspec" / "changes"
+    assert changes_dir.resolve(strict=True) == ROOT.resolve() / "openspec" / "changes", _moved(
+        f"openspec/changes reached without a symlinked ancestor",
+        f"it resolves to {changes_dir.resolve(strict=True)}, so the absence "
+        "below would be absence from some other tree")
+    active = changes_dir / change
     assert not active.exists() and not active.is_symlink(), _moved(
         f"the active packet {active.relative_to(ROOT)} GONE from the tree "
         "(closed as re-homed to opensoft/openDox on 2026-09-16 under RULING Q6)",
