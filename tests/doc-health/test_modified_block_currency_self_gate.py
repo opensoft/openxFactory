@@ -1557,8 +1557,9 @@ _ORDERING_SUBJECTS: set[tuple[str, str, str]] = {
     # over a finding none of them introduced.
     #
     # WHOEVER LANDS THAT RESOLUTION REMOVES THESE TWO NAMES IN THE SAME
-    # COMMIT, and this band enforces it rather than trusting it: `ordering_gone`
-    # fails by name the moment a NAMED subject stops being reported, so a
+    # COMMIT, and this band enforces it rather than trusting it:
+    # `ordering_gone` fails by name the moment a NAMED subject stops being
+    # reported, so a
     # resolution that leaves them here reds this test exactly as their
     # appearance did. They also retire if either change archives.
     ("adopt-entry-grain-dispositions-form", "document-lifecycle",
@@ -1637,7 +1638,8 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
     Zero here was always a fact about this tree and never a structural
     guarantee: an unresolved title, an undecided two-writers group and a
     defective marker are all reportable, the undecided group WAS reported for
-    one day in September 2026 and is reported again now. The packet's § 6.7 measured the ordering arm at zero twice — once
+    one day in September 2026 and is reported again now. The packet's § 6.7
+    measured the ordering arm at zero twice — once
     under the withdrawn date reading and once under the ruled by-declaration one
     — and the by-declaration reading is exactly what reported the pair on
     2026-09-05 and exactly what cleared it hours later, the declaration being a
@@ -1703,8 +1705,8 @@ def test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree
         "adopt-entry-grain-dispositions-form (#1050) landed ratified two "
         "minutes apart over one document-lifecycle requirement with neither "
         "proposal naming the other — they retire when the later writer's "
-        "proposal names the earlier, and whoever lands that removes both names "
-        "here in the same commit)",
+        "proposal names the earlier, and whoever lands that removes both "
+        "names here in the same commit)",
         f"{len(ordering_gone)} named subject(s) NO LONGER reported "
         f"{sorted(ordering_gone)}; {len(ordering_fresh)} unnamed subject(s) "
         f"NEWLY reported {sorted(ordering_fresh)}")
@@ -2634,13 +2636,14 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     ordering class stopped reading zero and its subjects had to be NAMED; a
     widened `_TITLE` was the alternative and was rejected, because `_subject`
     feeds two other exact sets that must not silently start collecting this
-    arm's findings. IT WAS KEPT THROUGH THE YEAR `_ORDERING_SUBJECTS` READ
-    EMPTY — the ordering declaration of 2026-09-05 discharged both rows —
-    because an exact set that reads empty still needs the reader that NAMES the
-    first subject to reappear, and deleting it would make the next occurrence
-    fail with an unnamed row. THAT NEXT OCCURRENCE ARRIVED on 2026-09-16 and
-    this reader is what named it, rather than an unnamed row nobody could
-    place.
+    arm's findings. IT WAS KEPT THROUGH THE ELEVEN DAYS `_ORDERING_SUBJECTS`
+    READ EMPTY — 2026-09-05, when the ordering declaration discharged both
+    rows, to 2026-09-16 — because an exact set that reads empty still needs
+    the reader that NAMES the first subject to reappear, and deleting it would
+    make
+    the next occurrence fail with an unnamed row. THAT NEXT OCCURRENCE ARRIVED
+    on 2026-09-16 and this reader is what named it, rather than an unnamed row
+    nobody could place.
 
     MATCHED ON USE, NOT ON MENTION, which is a lesson this test file inherited
     rather than learned: F1's `test_the_promoted_reader_cannot_reach_a_measurement_basis`
