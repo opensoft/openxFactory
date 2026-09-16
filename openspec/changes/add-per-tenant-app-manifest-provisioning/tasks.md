@@ -42,16 +42,27 @@
   documented form (`:2386-2392`: *"A September pull request that flips an
   already-archived row from sole to co-modifier moved it in September"*). No
   third row moved.
-- [ ] 1.7 Gates green at the pull request head: `openspec validate
-  add-per-tenant-app-manifest-provisioning --strict` and `openspec validate --all
-  --strict`; `python3 -m pytest tests/doc-health tests/sequenced_after -q`.
-  **One inherited failure is expected and is NOT this packet's:**
-  `tests/doc-health/test_modified_block_currency_self_gate.py` is RED on `main`
-  itself over two carriage-ledger subjects opened by another lane, with a fix in
-  flight. This packet must not add a THIRD subject — which it does not, because
-  its block carries every promoted unit of the requirement it modifies, so the
-  carriage-ledger arm has nothing to report about it. Measured both ways at the
-  head rather than argued.
+- [ ] 1.7 Gates MEASURED at the pull request head — *measured* rather than
+  *green*, because two of the three do not read zero on `main` either and that
+  distinction is the whole content of this box.
+  **(a)** `openspec validate add-per-tenant-app-manifest-provisioning --strict`
+  → **valid**. That is the packet-local gate and it is the one that must be
+  clean.
+  **(b)** `openspec validate --all --strict` → **108 passed, 2 failed**, and the
+  two are `add-chain-attestation` (its MODIFIED block omits the canon scenario
+  *"a tranche-two link does not exist yet"*) and `add-composed-view-authoring`
+  (omits *"Gate verbs hide on a composed view"*) — both PRE-EXISTING on `main`
+  at the base commit, neither of them this change. This change's ABSENCE from
+  that list is not a silence to read past: it is the tool confirming that this
+  MODIFIED block carries every promoted scenario of the requirement it restates.
+  **(c)** `python3 -m pytest tests/doc-health tests/sequenced_after -q` → ONE
+  inherited failure, `tests/doc-health/test_modified_block_currency_self_gate.py`,
+  RED on `main` itself over two carriage-ledger subjects opened by another lane,
+  with a fix in flight. This packet must not add a THIRD subject, and does not —
+  `python3 scripts/doc-health.py --single-repo . --family modified-block-currency`
+  finds this change id ZERO times across the whole family report, and the two
+  ordering warnings it does raise name the other lane's two subjects.
+  All three read at the head rather than argued.
 
 ## 2. Ratification
 
@@ -72,17 +83,19 @@ The staged topic's exit path names two halves and this packet is the first; it
 does not close the topic (`proposal.md`, the lifecycle paragraph). The second
 half is named here so it is a debt with an address rather than an assumption.
 
-- [~] 3.1 **DEFERRED — `opensoft/Omnigent-Install` — the installer change. Owner: whoever opens that repository's change.** The flow that
-  drives the manifest, exchanges the temporary code inside the provider's window,
-  lands the material in the DECLARED custody by reference — whose operator is
-  that install's own execution binding, not a party this contract names — and
-  wires the two bindings — under that repository's own change, its own code surface and its own
-  realization evidence. NOT this packet's surface, and NOT authorable here: that
+- [~] 3.1 **DEFERRED — `opensoft/Omnigent-Install`, the installer change.
+  Owner: whoever opens that repository's change.** The flow that drives the
+  manifest, exchanges the temporary code inside the provider's window, lands the
+  material in the DECLARED custody by reference — whose operator is that
+  install's own execution binding, not a party this contract names — and wires
+  the two bindings, under that repository's own change, its own code surface and
+  its own realization evidence. NOT this packet's surface, and NOT authorable here: that
   repository's README states it *"should not contain … canonical shared contracts
   that belong in `openxFactory/contracts`"*, which is CLAUDE.md working rule 1
   from the other side.
-- [~] 3.2 **DEFERRED — the first consuming domain repository: the manifest files
-  and the install-doc pointer. Owner: that repository's own lane.** The staged topic names `codexFactory` as the first case.
+- [~] 3.2 **DEFERRED — the first consuming domain repository: the manifest
+  files and the install-doc pointer. Owner: that repository's own lane.** The
+  staged topic names `codexFactory` as the first case.
 - [~] 3.3 **DEFERRED, CONDITIONAL — a validator arm IF and WHEN a provisioning
   manifest becomes a record this repository carries. Owner: whoever gives the
   record a shape at 3.1.** Deliberately not authored now: the record shape does
@@ -113,15 +126,17 @@ half is named here so it is a debt with an address rather than an assumption.
 
 ## 5. Not this change's business, recorded so nobody re-derives it
 
-- [~] 5.1 **NOT THIS CHANGE'S. Owner: lane opsXfactory-4.** The `openxdox` DNS record's governance — RULED `5704187317` (B),
-  discharged by NAMING; the act is lane opsXfactory-4's inside
+- [~] 5.1 **NOT THIS CHANGE'S. Owner: lane opsXfactory-4.** The `openxdox` DNS
+  record's governance — RULED `5704187317` (B), discharged by NAMING; the act is lane opsXfactory-4's inside
   `opensoft/OpsxFactory`'s active `add-governed-dns-administration`, on Brett's
   OQ-E word (`opensoft/OpsxFactory` issue #207 comment `5649809425`). **Nothing
   here waits on it and nothing here performs it.**
-- [~] 5.2 **NOT THIS CHANGE'S. Owner: lane opsXfactory-3 / § 3.5's realization.** The `dox` workload set becoming per-tenant — RULED `5704187317` (D),
-  left to `split-opendox-two-layer-product` § 3.5's realization; its requirement
+- [~] 5.2 **NOT THIS CHANGE'S. Owner: lane opsXfactory-3, at § 3.5's
+  realization.** The `dox` workload set becoming per-tenant — RULED
+  `5704187317` (D), left to `split-opendox-two-layer-product` § 3.5's realization; its requirement
   stands under lane opsXfactory-3's claim `5638511222`.
-- [~] 5.3 **NOT THIS CHANGE'S. Owner: this lane's bookkeeper, amendment #5.** `split-opendox-two-layer-product`'s own `tasks.md` § 7.4 tick and the
+- [~] 5.3 **NOT THIS CHANGE'S. Owner: this lane's bookkeeper, amendment #5.**
+  `split-opendox-two-layer-product`'s own `tasks.md` § 7.4 tick and the
   RECORDED second delta-text defect (`design.md:133-134` *"beyond naming them"*
   against `tasks.md:1979` *"is governed here"*, in the class of ruling
   `5700622683`) — the bookkeeper's amendment #5. **This packet edits that packet
