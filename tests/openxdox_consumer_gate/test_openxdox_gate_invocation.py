@@ -833,8 +833,18 @@ def test_the_gate_mints_no_credential_for_public_gitlinks(
         if str(step.get("uses", "")).startswith("actions/checkout"):
             with_block = step.get("with", {})
             assert "token" not in with_block, (
-                "the checkout must take no `token:` input; the repository and "
-                "both pinned gitlinks are public")
+                "the checkout must declare no `token:` input. WHAT THIS DOES "
+                "AND DOES NOT SAY: `actions/checkout` DEFAULTS `token` to "
+                "`${{ github.token }}`, so the action's own fetch is "
+                "authenticated whether or not the key appears — what is "
+                "pinned here is that no OTHER credential is introduced, and "
+                "`persist-credentials: false` below is what keeps the default "
+                "out of the tree these suites then read. All three "
+                "repositories are public (measured 2026-09-16), so a "
+                "genuinely anonymous `token: \'\'` checkout is available; it "
+                "changes the transport this gate has proved on thirteen runs, "
+                "so it is registered in the pull request rather than taken "
+                "here")
             assert with_block.get("persist-credentials") is False, (
                 "the checkout must set `persist-credentials: false` so no "
                 "bearer is left in the repository config before pytest runs "

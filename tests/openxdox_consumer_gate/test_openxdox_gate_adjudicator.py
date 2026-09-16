@@ -63,6 +63,12 @@ JOB_ID = "openxdox-consumer-gate"
 REPORTS = ("pin-suites-report.xml", "consumer-suite-report.xml")
 PIN_REPORT, CONSUMER_REPORT = REPORTS
 
+#: The only environment keys this harness carries into the executed body — the
+#: five the assertion reads. See `step_env`: anything else in a step's `env:`
+#: is refused rather than merged over the isolation.
+STEP_PINS = frozenset({"REPORT", "MIN_SELECTED", "MIN_PASSED", "EXPECT_SKIPPED",
+                       "NAMED_VERDICTS"})
+
 
 @functools.lru_cache(maxsize=None)
 def _extracted() -> tuple[str, dict[str, dict[str, str]]]:
@@ -161,18 +167,34 @@ def step_env(env: dict[str, str], home: Path) -> dict[str, str]:
     `GITHUB_TOKEN`, no `ACTIONS_RUNTIME_TOKEN`, no rewritten git config to
     read a bearer out of.
 
+    AND THE STEP'S ENV IS AN ALLOWLIST, not a merge. `{**isolation, **env}`
+    put the workflow's own values LAST, so an assertion step that declared
+    `HOME` or `GIT_CONFIG_GLOBAL` in its `env:` would have overridden the
+    isolation it was supposed to be subject to — the same pull-request-
+    controlled text, reaching the same credential by a shorter road. Only the
+    five pins in `STEP_PINS` are carried, and anything else in the step's
+    `env:` fails this harness by name rather than being passed through.
+
     This does not make the required job safe from a hostile pull request —
     `pytest-suite` runs every test module in that tree, and a module is
     Python — but it stops THIS module from being the shovel, and it makes the
     hermeticity this file claims something it actually does.
     """
+    carried = {key: value for key, value in env.items() if key in STEP_PINS}
+    unknown = sorted(set(env) - STEP_PINS)
+    assert not unknown, (
+        f"the assertion step declares {unknown} beside its five pins. This "
+        f"harness passes ONLY the pins, so a new one must be added to "
+        f"`STEP_PINS` deliberately — and a step that declares `HOME`, "
+        f"`GIT_CONFIG_GLOBAL` or any other control variable would otherwise "
+        f"undo the isolation below by being merged over it")
     return {
         "PATH": os.environ.get("PATH", ""),
         "HOME": str(home),
         "GIT_CONFIG_GLOBAL": os.devnull,
         "GIT_CONFIG_SYSTEM": os.devnull,
         "LC_ALL": os.environ.get("LC_ALL", "C.UTF-8"),
-        **env,
+        **carried,
     }
 
 
@@ -525,6 +547,31 @@ def test_the_executed_body_cannot_read_the_runner_credential(
     done = adjudicate(tmp_path, env_for(PIN_REPORT),
                       at_the_pins(env_for(PIN_REPORT)))
     assert done.returncode == 0, done.stdout + done.stderr
+
+
+def test_a_step_env_cannot_override_the_isolation(tmp_path: Path) -> None:
+    """The isolation must not be undone by the text it is isolating.
+
+    `{**isolation, **env}` put the workflow's own values LAST. MEASURED on that
+    order: an assertion step declaring `HOME: /hostile` and
+    `GIT_CONFIG_GLOBAL: /hostile/.gitconfig` in its `env:` produced a child
+    environment carrying exactly those — the same pull-request-controlled text,
+    reaching the runner's credential by a shorter road than rewriting the body.
+    Only the five pins are carried now, and anything else fails by name.
+    """
+    home = tmp_path / "home"
+    home.mkdir()
+    pins = env_for(PIN_REPORT)
+
+    with pytest.raises(AssertionError, match="beside its five pins"):
+        step_env({**pins, "HOME": "/hostile",
+                  "GIT_CONFIG_GLOBAL": "/hostile/.gitconfig"}, home)
+
+    kept = step_env(pins, home)
+    assert kept["HOME"] == str(home)
+    assert kept["GIT_CONFIG_GLOBAL"] == os.devnull
+    assert kept["GIT_CONFIG_SYSTEM"] == os.devnull
+    assert set(pins) <= set(kept), "the five pins must still reach the body"
 
 
 # --------------------------------------------------------------------------
