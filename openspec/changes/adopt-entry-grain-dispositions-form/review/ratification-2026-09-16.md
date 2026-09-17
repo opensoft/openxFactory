@@ -13,7 +13,9 @@ and THE ONE CITATION for this record: openxFactory #1045, comment
 https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 
 **AMENDED SINCE — BY THE RATIFIER, 2026-09-17. See § "Addendum,
-2026-09-17" at the foot of this record.** ONE post-ratification act has
+2026-09-17 — THE POST-RATIFICATION CONSENTED AMENDMENT" at the foot of
+this record — NOT the OTHER 2026-09-17 addendum below it, which records an
+unrelated carriage.** ONE post-ratification act has
 moved normative text since this ratifying commit:
 `specs/document-lifecycle/spec.md`'s `## MODIFIED` block, positive-resolution
 scenario *A marker names a capability of a pinned neutral product* — its
@@ -328,8 +330,12 @@ guard the ratified D-1 already reaches treats `pinned_by_commit_only:` as
 having an ABSENT-IS-EMPTY default (`verify-openxwallet-pin.py:443-448`,
 `validate-openreposhape-pin.py:487-491`, `pin_shapes.py:154-171`), so a
 FALSEY value — `null`, `""` — must count as EMPTY and not as a present,
-malformed sequence, while `dispositions:` carries no such coercion and keeps
-its non-null rule.
+malformed sequence, while `dispositions:` draws that line differently: only
+an explicit `null` is EMPTY, by its own guard's `raw is None` check
+(`scripts/validate-openspec-cli-pin.py:801-803`), and every other falsey
+value that is not `null` — `""`, `0`, `false` — stays malformed, there being
+no broader falsey-is-empty rule for this member the way `_is_path_only_list`
+gives `pinned_by_commit_only:`.
 
 **THE RULING — APPLY THE PARTITION.** Brett Heap, 2026-09-17, in session to
 lane `openxfactory-2`, by interactive multi-choice:
@@ -360,10 +366,12 @@ only it:
   well-formed, NON-EMPTY `capabilities:` member in which `<capability>`
   appears, AND every OPTIONAL member the matched shape admits that is
   PRESENT conforms at its entry grain to that shape's own in-tree verifier's
-  pure, source-free guard (`dispositions:` a sequence whose every entry that
-  guard accepts; `pinned_by_commit_only:` a sequence of path-only strings, a
-  falsey value — `null`, `""` — counting as EMPTY, as the verifiers and
-  `_is_path_only_list` coerce it)"*.
+  pure, source-free guard (`dispositions:` an explicit `null` counting as
+  EMPTY exactly as absence does, and otherwise a sequence whose every entry
+  that guard accepts — every other falsey value that is not `null`, such as
+  `""`, `0` or `false`, stays malformed; `pinned_by_commit_only:` a sequence
+  of path-only strings, a falsey value — `null`, `""` — counting as EMPTY,
+  as the verifiers and `_is_path_only_list` coerce it)"*.
 - Its disjointness bullet gained the matching exclusion. AS RATIFIED it read
   *"an ABSENT enumeration, a malformed enumeration, and a well-formed
   enumeration in which `<capability>` does not appear, are OUTSIDE this

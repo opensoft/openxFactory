@@ -1028,8 +1028,13 @@ _LEDGER_SUBJECTS = {
     # entry grain to that shape's own in-tree verifier's pure, source-free
     # guard" — naming `dispositions:` and `pinned_by_commit_only:`, with a
     # FALSEY `pinned_by_commit_only:` (`null`, `""`) counting as EMPTY because
-    # the tracked verifiers and the adapter's `_is_path_only_list` coerce it to
-    # `[]`; its disjointness bullet gains the matching exclusion for a
+    # the tracked verifiers coerce a falsey raw value to `[]` (`… or []`) and
+    # the adapter's `_is_path_only_list` accepts any falsey value outright,
+    # before it ever checks for a list — a wider net than `null`/`""` alone,
+    # also catching `false`, `0` and `{}` (`pin_shapes.py:167-171`); for
+    # `dispositions:` only an explicit `null` is EMPTY, by the guard's own
+    # `raw is None` check, and every other falsey value stays malformed. Its
+    # disjointness bullet gains the matching exclusion for a
     # present-and-malformed optional member. The refusal scenario, D-1, D-2,
     # D-3 and every other promoted unit of the requirement are unchanged.
     # Recorded in `review/ratification-2026-09-16.md`'s AMENDED SINCE pointer
@@ -1383,7 +1388,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     FIFTEEN since 2026-09-15, when `scope-pinned-arm-root-naming` (openxFactory
     #1047, PR #1052) opened ONE row over *Prose tagging marker hygiene*, the
     successor packet scoping the root-naming sentence the archive had just
-    promoted.
+    promoted. MEASURED DIRECTLY AT THIS COMMIT, rather than derived from the
+    chain above: SEVENTEEN. The set already held SIXTEEN — one more than
+    FIFTEEN, a gap this docstring's own chronology does not trace and that
+    predates this packet — before `adopt-entry-grain-dispositions-form`'s own
+    ratifier's amendment (openxFactory #1045, comment 5714433011) opened one
+    more row over the SAME requirement `scope-pinned-arm-root-naming`'s row
+    already sits in, on the "Apply the partition" ruling.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
