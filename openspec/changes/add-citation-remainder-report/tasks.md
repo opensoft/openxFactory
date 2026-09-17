@@ -57,8 +57,11 @@ reader of the archived packet.
 DIFF.** No word of Brett Heap's ratifies any wording in this packet: #1053 was
 filed AS A ROUTING RECORD and NOT CLAIMED, and the word that commissioned this
 lane's claim — 2026-09-16, verbatim **"claim #1053 and #1013, fan out wide"** —
-commissions the CLAIM and decides no wording. Every document carries
-`Status: draft`.
+commissions the CLAIM and decides no wording. Every document carried
+`Status: draft` until Brett Heap's ratification of 2026-09-17, recorded at
+[PR #1069, comment
+5714138459](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459),
+and now carries `Status: ratified`.
 
 **§ 2 (REALIZATION) IS ENTIRELY OPEN.** **§ 3 (RECORDS AND ARCHIVE) IS ENTIRELY
 OPEN.**
@@ -306,11 +309,14 @@ added, edited, renamed or deleted here.
       `add-declared-former-id` used for `tests/packet_reference/`, so the tests
       assert against a corpus they construct rather than against the live one,
       which moves under them. Fixtures must cover, at minimum: each of the four
-      normalizations; a cross-repository qualifier at each of the four
-      adjacency positions AND one three lines above; an identity cited by two
-      tokens; a file-half dangler; a deliberately-absent scope-isolation
-      fixture; and the `README.md`-shaped case where the raw path's presence
-      decides the outcome.
+      normalizations; a cross-repository qualifier for each of the five
+      signals — a path-joined prefix, a GitHub blob or tree URL, a bare
+      qualifier word immediately before the token, the `opsx:opensoft/…`
+      custody-locator scheme, and a trailing `(RepoName)` parenthetical — AND
+      one three lines above; an identity cited by two tokens; a file-half
+      dangler; a deliberately-absent scope-isolation fixture; and the
+      `README.md`-shaped case where the raw path's presence decides the
+      outcome.
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
