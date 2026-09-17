@@ -538,31 +538,57 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
         return record
 
     # THE ANCHOR IS THE REQUEST, NOT WHAT CAME BACK (Copilot, round 6). Every
-    # identity below is held to `corpus.ref.name` — and `ResolvedCorpus.ref`
-    # is the reader's own return value, so a reader could resolve under
-    # `name="other"`, list and read every document under `"other"`, and
-    # satisfy both this proof AND the seventeen, which read the same returned
-    # ref. The interface's contract is that `ref` is the REQUEST ("the
-    # caller's REQUEST for a corpus, before anything has been resolved"), so
-    # it is compared with the request this runner made before anything is
-    # anchored to it. `ResolvedCorpus.location` is deliberately NOT compared:
-    # that one is documented as "resolved, absolute" and is allowed to differ
-    # from the location asked for.
+    # identity below is held to the reference the resolution carries — and
+    # `ResolvedCorpus.ref` is the reader's own return value, so a reader
+    # could resolve under `name="other"`, list and read every document under
+    # `"other"`, and satisfy both this proof AND the seventeen, which read
+    # the same returned ref. The interface's contract is that `ref` is the
+    # REQUEST ("the caller's REQUEST for a corpus, before anything has been
+    # resolved"), so it is compared with the request this runner made before
+    # anything is anchored to it — ALL THREE of its fields, `revision`
+    # INCLUDED (Copilot, round 7). `CorpusRef.revision` is part of what a
+    # caller asks for ("None means 'whatever the location currently is'"), so
+    # a resolution that comes back carrying a different revision than the one
+    # requested has answered a question nobody asked, and every later
+    # comparison here would be anchored to that substitution.
+    # `ResolvedCorpus.location` is deliberately NOT compared: that one is
+    # documented as "resolved, absolute" and is allowed to differ from the
+    # location asked for.
     ref = getattr(corpus, "ref", None)
     ref_name = getattr(ref, "name", _ABSENT)
     ref_location = getattr(ref, "location", _ABSENT)
-    if ref_name != requested.name or ref_location != requested.location:
+    ref_revision = getattr(ref, "revision", _ABSENT)
+    if ((ref_name, ref_location, ref_revision)
+            != (requested.name, requested.location, requested.revision)):
+        shown = tuple("(absent)" if value is _ABSENT else value
+                      for value in (ref_name, ref_location, ref_revision))
         _unfaithful(corpus_root, shipped,
                     f"it was asked to resolve "
-                    f"{(requested.name, requested.location)!r} and came back "
-                    f"carrying the reference "
-                    f"{(ref_name if ref_name is not _ABSENT else '(absent)', ref_location if ref_location is not _ABSENT else '(absent)')!r}. "
+                    f"{(requested.name, requested.location, requested.revision)!r}"
+                    f" and came back carrying the reference {shown!r}. "
                     "Every identity below is anchored to the reference a "
                     "resolution carries, so a reference that is not the one "
                     "asked for anchors nothing")
-    record["revision"] = (str(corpus.revision)
-                          if getattr(corpus, "revision", None) is not None
-                          else None)
+    # READ ONCE, AND EVERY COMPARISON BELOW READS THIS LOCAL (Copilot, round
+    # 7). `ResolvedCorpus.revision` is a REQUIRED field of the interface
+    # whose `None` is legal ("None where this corpus carries no revision
+    # notion"), so a resolution that omits it altogether is MALFORMED rather
+    # than a corpus without revisions — and reading it straight off `corpus`
+    # at the per-document comparison would raise `AttributeError` out of a
+    # proof whose whole contract is to refuse by name, which `main()` would
+    # then report as the generic `conformance-unreadable`. Reading it once
+    # also denies a reader the trick of answering one revision at the top of
+    # the proof and another inside the loop.
+    corpus_revision = getattr(corpus, "revision", _ABSENT)
+    if corpus_revision is _ABSENT:
+        _unfaithful(corpus_root, shipped,
+                    "the resolution it answered with carries no `revision` "
+                    "field at all. `None` is a legal answer there — a corpus "
+                    "that carries no revision notion — and silence is not: a "
+                    "transposition cannot be proven at a revision nobody "
+                    "reports")
+    record["revision"] = (str(corpus_revision)
+                          if corpus_revision is not None else None)
 
     served: dict[str, str] = {}
     for document in documents:
@@ -579,15 +605,16 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
         # corpus name and then echoed that same identity back from `read`
         # would satisfy the comparison below, the key/bytes table AND
         # `read-round-trip` — all three compare against the same wrong
-        # object. The resolved corpus is the only thing here that did not
-        # come from the reader, so it is what the listing is held to.
+        # object. The name it is held to is the one the anchor above already
+        # proved equal to the REQUEST, read from that local rather than back
+        # through `corpus.ref` on every pass.
         listed_corpus = getattr(document, "corpus", _ABSENT)
-        if listed_corpus != corpus.ref.name:
+        if listed_corpus != ref_name:
             _unfaithful(corpus_root, shipped,
                         f"it listed {key!r} under corpus "
                         f"{'(absent)' if listed_corpus is _ABSENT else repr(listed_corpus)}"
                         f", and the corpus it resolved is "
-                        f"{corpus.ref.name!r}. A listing under another "
+                        f"{ref_name!r}. A listing under another "
                         "corpus's identity says nothing about this one")
         try:
             got = reader.read(corpus, document)
@@ -641,10 +668,10 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
                         "there and silence is not: the interface's contract "
                         "is that a document reports the revision it was read "
                         "at")
-        if served_at != corpus.revision:
+        if served_at != corpus_revision:
             _unfaithful(corpus_root, shipped,
                         f"it served {key!r} at revision {served_at!r} while "
-                        f"the corpus it resolved declares {corpus.revision!r}. "
+                        f"the corpus it resolved declares {corpus_revision!r}. "
                         "A reader answering out of a revision the caller did "
                         "not ask for has not shown that the transposition "
                         "holds anything")

@@ -1687,3 +1687,133 @@ def test_the_SHIPPED_corpus_moving_under_the_run_is_caught(tmp_path,
     assert caught.value.code == "conformance-corpus-unfaithful"
     assert "ships MOVED under the measurement" in caught.value.detail
     assert before["digest"] in caught.value.detail
+
+
+# ==========================================================================
+# 11. Copilot's round-7 findings — the third field, and a field that is gone
+# ==========================================================================
+
+
+def test_a_resolution_that_changes_the_requested_REVISION_anchors_nothing(
+        tmp_path):
+    """Copilot round 7, and it completes round 6's anchor. `CorpusRef` has
+    THREE fields and `revision` is one of them — "None means 'whatever the
+    location currently is'" — so a resolution that comes back carrying a
+    revision the caller never asked for has changed the question, and every
+    identity the proof anchors to that reference is anchored to the
+    substitution. The anchor compares the whole request."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ResolvesAtAnotherRevision(_GitBacked):
+        def resolve(self, ref):
+            resolved = self._inner.resolve(ref)
+            return replace(resolved,
+                           ref=CorpusRef(name=ref.name, location=ref.location,
+                                         revision="deadbeefdeadbeef"))
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ResolvesAtAnotherRevision, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "deadbeefdeadbeef" in caught.value.detail
+    # the request this runner makes carries no revision, and the detail says so
+    assert "None" in caught.value.detail
+
+
+def test_a_resolution_with_NO_revision_field_refuses_by_name(tmp_path):
+    """Copilot round 7: `ResolvedCorpus.revision` is a REQUIRED field whose
+    `None` is legal, so a resolution that omits it is malformed rather than
+    revisionless — and reading it straight off the object at the per-document
+    comparison raised `AttributeError` out of a proof whose whole contract is
+    to refuse BY NAME, which `main()` reports as the generic
+    `conformance-unreadable`. It is read once, through the sentinel, and the
+    malformed answer stays inside the fidelity refusal."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _NoRevisionField:
+        """A resolved corpus with no `revision` attribute at all."""
+
+        def __init__(self, real):
+            self._real = real
+            self.ref = real.ref
+            self.location = real.location
+            self.scopes = real.scopes
+            self.write_path = real.write_path
+            self.write_path_available = real.write_path_available
+
+    class OmitsTheResolvedRevision(_GitBacked):
+        def resolve(self, ref):
+            return _NoRevisionField(self._inner.resolve(ref))
+
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return self._inner.list_documents(corpus_._real, scope)
+
+        def read(self, corpus_, document, revision=None):
+            return self._inner.read(corpus_._real, document, revision)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            OmitsTheResolvedRevision, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "the resolution it answered with carries no `revision` field" \
+        in caught.value.detail
+
+
+def test_a_reference_that_SHIFTS_after_the_anchor_still_anchors_nothing(
+        tmp_path):
+    """The other half of round 7's second finding, and the reason the anchored
+    name is read ONCE into a local. `corpus.ref` is reader-controlled code:
+    re-reading `corpus.ref.name` on every pass let a reader answer the
+    request at the anchor and something else afterwards, and the listing
+    comparison — which is held to that same re-read value — would then move
+    with the lie instead of catching it. Held to the local, a listing under
+    another corpus's identity refuses however the reference shifts."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _ShiftingRef:
+        """Answers the request once, then answers `"other"` forever."""
+
+        def __init__(self, real):
+            self._real = real
+            self._reads = 0
+            self.location = real.location
+            self.revision = real.revision
+
+        @property
+        def name(self):
+            self._reads += 1
+            return self._real.name if self._reads == 1 else "other"
+
+    class _ShiftingResolved:
+        def __init__(self, real):
+            self._real = real
+            self.ref = _ShiftingRef(real.ref)
+            self.location = real.location
+            self.revision = real.revision
+            self.scopes = real.scopes
+            self.write_path = real.write_path
+            self.write_path_available = real.write_path_available
+
+    class ShiftsAfterTheAnchor(_GitBacked):
+        def resolve(self, ref):
+            return _ShiftingResolved(self._inner.resolve(ref))
+
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return tuple(
+                replace(document, corpus="other")
+                for document in self._inner.list_documents(corpus_._real,
+                                                           scope))
+
+        def read(self, corpus_, document, revision=None):
+            asked = replace(document, corpus=corpus_._real.ref.name)
+            got = self._inner.read(corpus_._real, asked, revision)
+            return replace(got, id=document)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ShiftsAfterTheAnchor, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "'other'" in caught.value.detail
