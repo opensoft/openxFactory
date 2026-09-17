@@ -286,6 +286,11 @@ plus re-base" word — and is not a second ratification of this packet.
 
 ## Addendum 2, 2026-09-17 — THE CARRIED WHEN RE-BASED ON ITS RATIFIER'S AMENDMENT
 
+**THE SECOND ADDENDUM OF THE SAME DAY, AND IT FOLLOWS THE ONE ABOVE.** The
+addendum above records the ROUTE PLUS RE-BASE carriage (PR #1082 → `98b172e5`,
+word 5714145269). This one records a LATER word of the same ratifier, given
+after it, moving ONE bullet of the text that carriage brought in.
+
 PR [#1075](https://github.com/opensoft/openxFactory/pull/1075) → `a93d2682`
 ordered this packet AFTER `scope-pinned-arm-root-naming` and carried that
 packet's ratified units into this block VERBATIM, one of them the sibling

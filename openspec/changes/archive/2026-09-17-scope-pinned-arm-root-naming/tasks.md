@@ -128,7 +128,7 @@ verbatim in its body.
       IN THAT MODULE MOVED. It retires when this packet archives and its block
       is promoted.
 
-## 3. Archive — OPEN (a separate act on a separate word)
+## 3. Archive — ARCHIVED (Brett Heap's separate archive word)
 
 - [x] 3.1 **(OPERATOR)** Promote the `## MODIFIED` block onto
       `openspec/specs/document-lifecycle/spec.md` byte-identically and archive
@@ -152,8 +152,11 @@ verbatim in its body.
       **PROMOTION MEASURED BYTE-IDENTICAL, not asserted:** the promoted
       requirement *Prose tagging marker hygiene* in
       `openspec/specs/document-lifecycle/spec.md` and this packet's `##
-      MODIFIED` block are both **41,970 bytes, sha256
-      `f4f2e807234b3ea1…`**; canon's `git diff --numstat` reads **21 added,
+      MODIFIED` block are both **41,984 bytes, sha256
+      `c009f5cc3e4aa5aa…`** (the requirement text from its `### Requirement:`
+      line, canon's trailing blank separator before the next `### Requirement:`
+      excluded on both sides, which is the convention PR #1042's archive used);
+      canon's `git diff --numstat` reads **21 added,
       8 removed** — exactly the block's own measured canon-diff. The text
       promoted carries the RATIFIER'S 2026-09-17 AMENDMENT of the sibling
       scenario's WHEN (§ 2.2; `review/ratification-2026-09-16.md` § Addendum,

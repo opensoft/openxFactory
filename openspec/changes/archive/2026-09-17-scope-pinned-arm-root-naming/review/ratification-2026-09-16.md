@@ -354,7 +354,10 @@ the WHEN as ratified-and-unamended after this date.**
 ordered `adopt-entry-grain-dispositions-form` AFTER this packet and carried
 this scenario's WHEN into that packet's own `## MODIFIED` block VERBATIM. That
 carried copy is re-based to the amended WHEN in the same commit as this
-amendment, under this same ruling — recorded by a one-line addendum entry in
-`openspec/changes/adopt-entry-grain-dispositions-form/review/ratification-2026-09-16.md`.
+amendment, under this same ruling — recorded by a dated addendum entry,
+§ "Addendum 2, 2026-09-17", in
+`openspec/changes/adopt-entry-grain-dispositions-form/review/ratification-2026-09-16.md`,
+which follows that record's own "Addendum, 2026-09-17 — carriage on the
+ratifier's word" (PR #1082 → `98b172e5`, the earlier word of the same day).
 A carried copy left at the superseded wording would be the very drift the
 carriage was performed to prevent.

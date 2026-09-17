@@ -3368,7 +3368,9 @@ Archived changes:
   ordered `adopt-entry-grain-dispositions-form` AFTER this packet and carried
   this scenario into that packet's block verbatim, so that carried copy is
   re-based to the amended WHEN in the same commit, under the same ruling
-  (a one-line addendum entry in its own ratification record); measured against
+  (a dated addendum entry, § "Addendum 2, 2026-09-17", in its own
+  ratification record, after the earlier same-day carriage addendum PR #1082
+  landed there); measured against
   canon as promoted, that block reads canon 215 units, block 223, **ZERO
   uncarried** and eight new — its own ratified scenario and nothing else.
   `tasks.md` § 3.1 and § 3.2 tick on this recording, § 3.2 having found and
