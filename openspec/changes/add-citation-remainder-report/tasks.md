@@ -335,7 +335,17 @@ OPEN.**
 **NONE OF § 2 IS IN THIS PULL REQUEST.** No script, no workflow and no test is
 added, edited, renamed or deleted here.
 
-- [ ] 2.1 **THE REPORT CLI AND ITS UNIT TESTS.**
+**REALIZATION HAS SINCE OPENED, IN THE LATER PULL REQUEST THIS SECTION'S OWN
+HEADING NAMES, ON THE LATER WORD § 1.17 RECORDS** (2026-09-17, lane
+`openxfactory-1`, realization slice R1). The sentence above is the PROPOSAL pull
+request's scope statement and is left exactly as it was ratified; this note is
+an addendum beside it and moves no decision. § 2.1 is ticked below because its
+diff lands in the realization pull request that carries this tick, which is the
+tick rule's own first clause. §§ 2.2, 2.3 and 2.4 stay open: the nightly wiring
+is a later slice, the committed reading is the slice after that, and the green
+evidence is a fact about a merge that has not happened.
+
+- [x] 2.1 **THE REPORT CLI AND ITS UNIT TESTS.**
       `scripts/report-citation-remainder.py` (NEW), importing
       `scripts/packet_reference.py` UNCHANGED: under D2's recommended option 1
       its docstring sentence *"Run: this module is a library and has no CLI"*
@@ -388,6 +398,39 @@ added, edited, renamed or deleted here.
       filtered token count — with the arithmetic row asserted in TOKENS against
       the number of REMAINDER ENTRIES carrying the flag and never against the
       corpus-wide flagged figure.
+      **LANDED, 2026-09-17, realization slice R1.**
+      `scripts/report-citation-remainder.py` (NEW, 1,580 lines) and
+      `tests/citation_remainder/test_report_citation_remainder.py` (NEW, 1,852
+      lines, 96 tests, all green). ONE TEST PER SCENARIO, its docstring naming
+      the scenario verbatim: 63 of 63 across the five requirements, counted
+      mechanically against `specs/packet-citation-report/spec.md` rather than
+      by hand. `scripts/packet_reference.py` is imported UNCHANGED and the D7
+      fences are each empty.
+      **AND THE INSTRUMENT IS THE ONE THIS PACKET MEASURED WITH, PROVED AT
+      `b1df95ee` RATHER THAN ASSERTED.** Run against a worktree at
+      `b1df95ee80633339907c9e661164a783885a5d30`, the shipped CLI reproduces
+      `evidence/measurement-b1df95ee.md`'s § 2.1 reading to the token: 2,973
+      tracked entries in scope, 2,969 files read, 571 distinct tokens, 151
+      raw-path-absent holding NOT-A-PACKET-REFERENCE out, 73 repaired by the
+      identity rule, INCLUSIVE remainder 78 — 72 identity half, 6 file half, 0
+      AMBIGUOUS — and 4 NOT-A-PACKET-REFERENCE. It is the NORMALIZED
+      `issue-native` reading, which is what this delta's three fixed choices
+      produce; the 586/162/81 and 586/162/86 figures beside it in the evidence
+      are the unnormalized recipe and literal readings, which choice (1)
+      forecloses. The three mechanical probes reproduce the hand
+      classification's own precision: `truncated` lands on EXACTLY the 4 tokens
+      the hand read classed tokenization artifacts, `fixture-path` on 19 — the
+      17 of 18 synthetic-fixture entries D4's precision table measures plus the
+      2 nested file-half fixtures D4 assigns to it — and the cross-repository
+      flag catches 13 of the 14 hand-found cross-repository tokens with 2 false
+      positives among the other 43, which is D3(c)'s measured figure, the one
+      miss being the token D3(c) already names as reachable by no adjacency
+      rule at all.
+      **AND THE CLI MINTS NO REMAINDER OF ITS OWN**, which is the acceptance
+      check this packet uniquely owes: the hand instrument's `issue-native`
+      block reads identically at this branch's merge base and at its head — 602
+      distinct tokens, 154 raw-path-absent, 81 inclusive remainder on both
+      sides. Δ = 0.
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
