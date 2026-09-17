@@ -45,9 +45,12 @@
   documented form (`:2386-2392`: *"A September pull request that flips an
   already-archived row from sole to co-modifier moved it in September"*). No
   third row moved.
-- [ ] 1.7 Gates MEASURED at the pull request head — *measured* rather than
-  *green*, because two of the three do not read zero on `main` either and that
-  distinction is the whole content of this box.
+- [ ] 1.7 Gates MEASURED, recorded BY HEAD AND RUN rather than as "the head" —
+  a gate record that says *the head* is false the moment the next commit lands,
+  which is the same defect of FORM the README row's day-count had. *Measured*
+  rather than *green*, because (b) does not read zero on `main` either, and (c)
+  did not until `main`'s own repair landed; that distinction is the content of
+  this box.
   **(a)** `openspec validate add-per-tenant-app-manifest-provisioning --strict`
   → **valid**. That is the packet-local gate and it is the one that must be
   clean.
@@ -58,14 +61,26 @@
   at the base commit, neither of them this change. This change's ABSENCE from
   that list is not a silence to read past: it is the tool confirming that this
   MODIFIED block carries every promoted scenario of the requirement it restates.
-  **(c)** `python3 -m pytest tests/doc-health tests/sequenced_after -q` → ONE
-  inherited failure, `tests/doc-health/test_modified_block_currency_self_gate.py`,
-  RED on `main` itself over two carriage-ledger subjects opened by another lane,
-  with a fix in flight. This packet must not add a THIRD subject, and does not —
+  **(c)** the suite — `python3 -m pytest tests/doc-health tests/sequenced_after -q`
+  locally and the `pytest-suite` gate in CI — at each head this branch has had:
+  - `b383098d`, based on `4cef77af` before `main`'s repair: CI run `35159631088`
+    read `1 failed, 7715 passed, 6 skipped, 338 deselected`. The one failure,
+    `tests/doc-health/test_modified_block_currency_self_gate.py`, was INHERITED —
+    RED on `main` itself over two carriage-ledger subjects opened by another lane.
+  - `5e84904b`, this branch merged with `main` `a93d2682`, which carries that
+    lane's repair (#1075): CI run `35221707064` **SUCCESS**; locally on the same
+    tree `tests/doc-health` **1826 passed, 0 failed**, and the self-gate,
+    `tests/carve_manifest` and `tests/sequenced_after` trio **486 passed, 0 failed**.
+  - `a642a3c5`, round 13's two prose corrections: CI run `35223896296` **SUCCESS**.
+
+  This packet must not add a THIRD carriage-ledger subject, and does not —
   `python3 scripts/doc-health.py --single-repo . --family modified-block-currency`
-  finds this change id ZERO times across the whole family report, and the two
-  ordering warnings it does raise name the other lane's two subjects.
-  All three read at the head rather than argued.
+  finds this change id ZERO times across the whole family report at every head
+  above, and the ordering warnings it raised while `main` was red named the other
+  lane's two subjects, never this change.
+  The box is TICKED in the ratification commit against the head then current,
+  which is the only way a head measurement is both recorded and still true when
+  it is read.
 
 ## 2. Ratification
 
