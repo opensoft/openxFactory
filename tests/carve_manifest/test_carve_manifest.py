@@ -4553,7 +4553,18 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
     assert by_class == {"adapter calls": 7}, by_class
     # 2454 + 7 = 2461 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDED
     # IT, a DELTA against the document it found, and so a figure a later act
-    # cannot move.
+    # cannot move. THE BASE IS NAMED AND IT IS PRE-Q7 (Copilot review of this
+    # pull request, round 2), which is deliberate and is a TRIPWIRE rather than
+    # an oversight: RULED Q7's annotation (openxFactory #1068) declares 89
+    # further lines on `web/styles.css` and lands FIRST, so when this branch
+    # takes its merge from `main` the base becomes 2543 and this line must read
+    # `2543 + lines == 2550` — with `docs/opendox-cutover-runbook.md`'s
+    # `opendox_code` cell moving 1667 -> 1756 -> 1763 and its destination sum
+    # with it. Hard-coding the base is what MAKES that re-derive compulsory: a
+    # form that floated with whatever the manifest happened to sum would let
+    # the merge land silently with every synchronized document stale, which is
+    # the transcription failure § 2 of the runbook exists to end. The pull
+    # request's own body states the order and the obligation.
     assert 2454 + lines == 2461, lines
 
     # 4. AND EVERY OTHER ACT'S WINDOW IN THIS FILE IS DISJOINT FROM THIS ONE,
