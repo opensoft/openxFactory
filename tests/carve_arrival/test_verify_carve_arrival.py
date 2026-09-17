@@ -3337,10 +3337,13 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
     THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
     PR). It pins the MANIFEST's own aggregate — `(2717, 176)` since the § 3.4
     SLICE-S7 RESIDUE annotation, `(2710, 176)` since RULED Q7's CSS extraction
-    before it and `(2454, 176)` when this paragraph was written (Copilot
+    before it and `(2621, 176)` since the retirement act before that (Copilot
     review, round 19 on the Q7 act: this sentence describes what that test
-    pins TODAY, so the act that moves the aggregate moves this number with
-    it) — and the 20
+    pins TODAY, so the act that moves the aggregate moves this number with it;
+    and its review of the residue act, which caught a sibling docstring calling
+    a remembered `when this was written` figure a LANDING state — the figures
+    here are the pinned sequence instead, each one a sum this module asserts
+    somewhere) — and the 20
     replica rows — which is a claim about the file and not about the sentence
     that transcribes it. So every cell here (three disposition counts, the
     replica count, the three per-class totals, the moved-row total, the carrier

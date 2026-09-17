@@ -3610,13 +3610,13 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
 # row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`,
 # Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `5628560136`).
 #
-# WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion
-# (`(2454, 176)` when this was written, `(2717, 176)` since the retirement
-# act, RULED Q7's CSS extraction and the § 3.4 SLICE-S7 RESIDUE annotation;
-# the CURRENT figure is the one
-# `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts, and the
-# one here is the aggregate THIS window was a delta against)
-# would still pass if any of these 782 lines had landed on the
+# WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion —
+# `(2366, 176)` AS SLICE S7 LANDED IT, which is the figure § 3 of the test
+# below pins as `1584 + 782`, and `(2717, 176)` today, the figure
+# `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts after S8's
+# forty, the pre-existing `openxdox_code` annotation's forty-eight, the
+# retirement act's hundred and sixty-seven, RULED Q7's eighty-nine and this
+# residue's seven — would still pass if any of these 782 lines had landed on the
 # wrong row, under the wrong class, or as a different set summing to the same
 # total — which is the reason every slice since ASK-7 has pinned its own window
 # by row and class. S7 edits 33 rows where S5 edited 11, so the pins are a TABLE
@@ -4202,9 +4202,11 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
     # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
-    # the aggregate (`(2454, 176)` when this was written; `(2717, 176)` since
-    # the retirement act, RULED Q7's CSS extraction and the § 3.4 SLICE-S7
-    # RESIDUE) would still pass if these forty lines had
+    # the aggregate (`(2406, 176)` AS SLICE S8 LANDED IT — `2366 + 40`, the
+    # sum stated four hunks above — and `(2717, 176)` today, after the
+    # pre-existing `openxdox_code` annotation, the retirement act, RULED Q7's
+    # CSS extraction and the § 3.4 SLICE-S7 RESIDUE) would still pass if these
+    # forty lines had
     # landed on the wrong rows, under the wrong class, or as a different forty
     # that summed the same. Every one is `path constants` (a path literal
     # naming a location the destination does not have — this manifest's own
@@ -4553,13 +4555,18 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     """The § 3.4 slice-S7 window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
-    AGGREGATE — `(2454, 176)` when this window landed and `(2717, 176)` since
-    the retirement act, RULED Q7's CSS extraction and the § 3.4 SLICE-S7
-    RESIDUE annotation, the last of those having appended seven lines to four
-    of these very rows; a figure this docstring has now been caught carrying
-    stale TWICE (Copilot review of the Q7 act, round 1). It moves with every
-    annotation and this window does not, which is the whole reason the window
-    is pinned separately: that pair would stay green if any of these 782
+    AGGREGATE — `(2366, 176)` AS THIS WINDOW LANDED IT, which is exactly what
+    § 3 below pins as `1584 + 782` and `159 + 17`, and `(2717, 176)` today,
+    after slice S8's forty, the pre-existing `openxdox_code` annotation's
+    forty-eight, the retirement act's hundred and sixty-seven, RULED Q7's
+    eighty-nine and the § 3.4 SLICE-S7 RESIDUE's seven (the last of those
+    appending to four of these very rows). This docstring has been caught
+    carrying a stale or wrong figure THREE times — twice by Copilot's review of
+    the Q7 act and once by its review of the residue act, which found `2454`
+    called this window's landing state when 2454 is a total S8 and the
+    pre-existing annotation reached afterwards — so the landing figure is now
+    stated as the one this file PINS rather than as a remembered date: that
+    pair would stay green if any of these 782
     lines had landed on the wrong row, under the wrong one of RULING OQ-1's
     three classes, or as a different set summing to the same total — which is
     why every slice since ASK-7 pins its own window. S7 edits THIRTY-THREE rows
