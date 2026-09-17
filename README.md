@@ -3319,8 +3319,9 @@ Hermes/domains/audits + pilot; structurally last) — see the
 Archived changes:
 
 - [scope-pinned-arm-root-naming](openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/proposal.md)
-  — **ARCHIVED 2026-09-17** by this pull request, on Brett Heap's **SEPARATE
-  ARCHIVE WORD** — verbatim *"merge 1051 when green, then archive 1047"*,
+  — **ARCHIVED 2026-09-17** by
+  [PR #1089](https://github.com/opensoft/openxFactory/pull/1089), on Brett
+  Heap's **SEPARATE ARCHIVE WORD** — verbatim *"merge 1051 when green, then archive 1047"*,
   2026-09-17, first-hand, in session to lane `openxfactory-2` (display
   `openXfactory-2`) — recorded on
   [#1047](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714241892),

@@ -277,7 +277,7 @@ rows:
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   rule-inherited-unit-naming-marker-spent: {state: archived, class: co-modifier, declares: [amend-merged-into-empty-tail-standing], depth: 1, prose: false, moved_by: "#1012", moved_on: "2026-09-12"}
   sanction-ratified-record-spelling: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  scope-pinned-arm-root-naming: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1052", moved_on: "2026-09-15"}
+  scope-pinned-arm-root-naming: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1089", moved_on: "2026-09-17"}
   settle-aging-staging-topics: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-ideation-book-per-repo: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-opendox-two-layer-product: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
