@@ -75,6 +75,7 @@ rows:
   add-capability-steward: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-chain-anchoring: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#998", moved_on: "2026-09-12"}
   add-chain-attestation: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-citation-remainder-report: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1069", moved_on: "2026-09-16"}
   add-clearing-dispatch-boundary: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-client-identity-roster: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-client-infrastructure-liaison: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
