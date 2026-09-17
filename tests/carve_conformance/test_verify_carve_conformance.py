@@ -1817,3 +1817,144 @@ def test_a_reference_that_SHIFTS_after_the_anchor_still_anchors_nothing(
             ShiftsAfterTheAnchor, str(populated), corpus, CORPUS)
     assert caught.value.code == "conformance-corpus-unfaithful"
     assert "'other'" in caught.value.detail
+
+
+# ==========================================================================
+# 12. Copilot's round-8 findings — the identity re-read, the revision's TYPE,
+#     and the instance the seventeen actually measured
+# ==========================================================================
+
+
+def test_a_read_that_MUTATES_the_listed_identity_is_unfaithful(tmp_path):
+    """Copilot round 8: the identity asked for was re-read off the reader's
+    own object AFTER `read` had run. `DocumentId` is frozen in this
+    repository's replica, and a destination holds its own — a mutable one can
+    be rewritten by the `read` call itself, so that what came back and what
+    is re-read agree perfectly, on a document nobody listed. The comparison
+    is against the identity as it was LISTED, captured before the call."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _MutableId:
+        """A foreign `DocumentId` — same shape, no `frozen=True`."""
+
+        def __init__(self, corpus, key):
+            self.corpus = corpus
+            self.key = key
+
+    class MutatesTheIdentity(_GitBacked):
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return tuple(_MutableId(d.corpus, d.key)
+                         for d in self._inner.list_documents(corpus_, scope))
+
+        def read(self, corpus_, document, revision=None):
+            real = DocumentId(corpus=corpus_.ref.name, key=document.key)
+            got = self._inner.read(corpus_, real, revision)
+            document.corpus = "other"   # the rewrite the finding names
+            return replace(got, id=document)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            MutatesTheIdentity, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "'other'" in caught.value.detail
+
+
+def test_a_revision_that_is_not_a_STRING_is_unfaithful(tmp_path):
+    """Copilot round 8: `ResolvedCorpus.revision` is declared `str | None`
+    and none of the seam's return types is enforced at runtime. A reader
+    answering an int consistently — from `resolve` and from `read` — passed
+    every comparison, and the evidence then laundered it into a string with
+    `str()`, so the verdict line named a revision that is not the object the
+    reader used."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class AnIntRevision(_GitBacked):
+        def resolve(self, ref):
+            self._real = self._inner.resolve(ref)
+            return replace(self._real, revision=5)
+
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return self._inner.list_documents(self._real, scope)
+
+        def read(self, corpus_, document, revision=None):
+            return replace(self._inner.read(self._real, document, revision),
+                           revision=5)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            AnIntRevision, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "`str | None`" in caught.value.detail
+    assert "int" in caught.value.detail
+
+
+def test_a_factory_that_lies_ONLY_to_the_seventeen_is_caught(tmp_path):
+    """Copilot round 8, and it is the last gap between the proof and the
+    measurement. `carve_conformance.run` builds its OWN readers, so the
+    instance the seventeen measure was never the instance the proof read. A
+    stateful factory could therefore serve the shipped bytes to the proof and
+    altered bytes to the run — `CorpusExpectation` is counts and explicitly
+    "not the documents' names and not their bytes", so a document whose
+    content moved without changing its classification passes all seventeen —
+    and the verdict would have read FAITHFUL over bytes nothing proved.
+
+    The reader the run built is kept and the post-run proof is put to THAT
+    instance. Measured with a factory that lies in its SECOND construction
+    only: the proof's instance is faithful, and so is any fresh one built
+    afterwards, so nothing but the witness can catch it.
+    """
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    (tmp_path / "stateful.py").write_text(
+        "import home_factory\n"
+        "from corpus_adapter import SCOPE_ALL\n"
+        "\n"
+        "_built = []\n"
+        "\n"
+        "\n"
+        "class Lying:\n"
+        "    def __init__(self, name, location):\n"
+        "        self._inner = home_factory.neutral_reader(name, location)\n"
+        "        _built.append(name)\n"
+        "        # the SECOND construction is the run's populated reader\n"
+        "        self._lies = len(_built) == 2\n"
+        "\n"
+        "    def resolve(self, ref):\n"
+        "        return self._inner.resolve(ref)\n"
+        "\n"
+        "    def list_documents(self, corpus, scope=SCOPE_ALL):\n"
+        "        return self._inner.list_documents(corpus, scope)\n"
+        "\n"
+        "    def read(self, corpus, document, revision=None):\n"
+        "        got = self._inner.read(corpus, document, revision)\n"
+        "        if self._lies and document.key == 'papers/gamma.md':\n"
+        "            return type(got)(id=got.id, content=got.content + b'\\n',\n"
+        "                             revision=got.revision)\n"
+        "        return got\n"
+        "\n"
+        "    def classify(self, corpus, document):\n"
+        "        return self._inner.classify(corpus, document)\n"
+        "\n"
+        "    def check(self, corpus, subjects=None):\n"
+        "        return self._inner.check(corpus, subjects)\n"
+        "\n"
+        "    def write_back(self, corpus, document, content, *, actor,\n"
+        "                   basis_revision, reason=''):\n"
+        "        return self._inner.write_back(corpus, document, content,\n"
+        "                                      actor=actor,\n"
+        "                                      basis_revision=basis_revision,\n"
+        "                                      reason=reason)\n"
+        "\n"
+        "\n"
+        "def factory(name, location):\n"
+        "    return Lying(name, location)\n",
+        encoding="utf-8")
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(tmp_path), "--adapter", "stateful:factory",
+                "--sys-path", str(REPO_ROOT / "tests" / "carve_conformance"),
+                "--corpus", str(corpus))
+    assert done.returncode == 2, done.stdout + done.stderr
+    assert "conformance-corpus-unfaithful" in done.stderr
+    assert "papers/gamma.md" in done.stderr

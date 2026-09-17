@@ -474,7 +474,7 @@ def _unfaithful(corpus_root: Path, shipped: Path,
 
 
 def prove_transposition(factory: Any, populated: str, corpus_root: Path,
-                        shipped: Path) -> dict[str, Any]:
+                        shipped: Path, reader: Any = None) -> dict[str, Any]:
     """Hold a `--corpus` that is not the shipped one to the shipped one's
     documents, keys and bytes — RULED Q-F1 (a), and the whole of what that
     ruling buys a destination.
@@ -529,7 +529,11 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
 
     requested = CorpusRef(name="populated", location=populated)
     try:
-        reader = factory(requested.name, populated)
+        # `reader` is the instance the SEVENTEEN used, when a caller has one
+        # to hand (Copilot, round 8); otherwise the factory builds a fresh
+        # one, which is the ordinary before-the-checks case.
+        if reader is None:
+            reader = factory(requested.name, populated)
         corpus = reader.resolve(requested)
         documents = tuple(reader.list_documents(corpus))
     except Exception as exc:  # noqa: BLE001 - see the docstring
@@ -587,6 +591,21 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
                     "that carries no revision notion — and silence is not: a "
                     "transposition cannot be proven at a revision nobody "
                     "reports")
+    # AND IT MUST BE OF THE TYPE THE INTERFACE DECLARES (Copilot, round 8).
+    # `ResolvedCorpus.revision` is `str | None`, and none of these return
+    # types is enforced at runtime — the seam is structural. A reader
+    # answering an int, consistently from `resolve` and from `read`, would
+    # satisfy every comparison here and be recorded at a revision the
+    # EVIDENCE then laundered into a string through `str()`: the verdict line
+    # would name a revision that is not the object the reader used.
+    if corpus_revision is not None and not isinstance(corpus_revision, str):
+        _unfaithful(corpus_root, shipped,
+                    f"the resolution it answered with carries revision "
+                    f"{corpus_revision!r}, which is "
+                    f"{type(corpus_revision).__name__} where the interface's "
+                    "`ResolvedCorpus.revision` is `str | None`. A revision "
+                    "this runner has to stringify before it can be recorded "
+                    "is not the revision anything was proven at")
     record["revision"] = (str(corpus_revision)
                           if corpus_revision is not None else None)
 
@@ -641,10 +660,16 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
                         f"reading {key!r} returned an object carrying no "
                         "document identity, so what it answered for cannot "
                         "be compared with what was asked for")
-        if (got_corpus, got_key) != (document.corpus, key):
+        # AGAINST THE IDENTITY AS IT WAS LISTED, captured before `read` ran
+        # (Copilot, round 8). `document` is the READER's object and the
+        # interface's `DocumentId` is frozen only in this repository's
+        # replica; a foreign mutable one could be rewritten by the `read`
+        # call itself, so that the identity answered for and the identity
+        # re-read here agree — on a document nobody listed.
+        if (got_corpus, got_key) != (listed_corpus, key):
             _unfaithful(corpus_root, shipped,
                         f"it was asked for "
-                        f"{(document.corpus, key)!r} and answered for "
+                        f"{(listed_corpus, key)!r} and answered for "
                         f"{(got_corpus, got_key)!r}. Bytes served under an "
                         "identity nobody asked for say nothing about the "
                         "document that was requested")
@@ -719,9 +744,43 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
     return record
 
 
+def witnessed_factory(factory: Any, seen: dict[str, Any]) -> Any:
+    """Hand `carve_conformance.run` the REAL reader and keep a reference.
+
+    COPILOT'S ROUND-8 FINDING, AND IT IS THE LAST GAP BETWEEN THE PROOF AND
+    THE MEASUREMENT. `carve_conformance.run` builds its own readers —
+    `factory("populated", ...)` and one per other state — so the instance the
+    seventeen measure is not the instance the proof read. A STATEFUL FACTORY
+    could serve the shipped bytes to the proof and altered bytes to the run:
+    `CorpusExpectation` is counts and explicitly "not the documents' names
+    and not their bytes", so a document whose content moved without changing
+    its classification passes all seventeen, and the verdict would read
+    FAITHFUL over bytes nothing proved.
+
+    THIS IS A FUNCTION AND NOT A PROXY OBJECT, deliberately. A wrapper object
+    would become what `structural-conformance` inspects — that check is
+    `isinstance(reader, CorpusAdapter)` on whatever the factory returned — and
+    the first of the seventeen would then measure this file instead of the
+    destination's reader. What comes back here is the reader itself,
+    unwrapped; only a reference to it is kept.
+
+    WHAT IT STILL DOES NOT CATCH, named rather than left to be discovered: a
+    reader that answers differently on two CALLS to the same instance. No
+    bracketing can close that one — the proof and the checks are different
+    calls by construction — and a destination doing it is forging its own
+    § 3.7 evidence rather than defeating a measurement.
+    """
+    def make(name: str, location: str) -> Any:
+        reader = factory(name, location)
+        seen.setdefault(name, reader)
+        return reader
+    return make
+
+
 def confirm_transposition_unmoved(factory: Any, populated: str,
                                   corpus_root: Path, shipped: Path,
-                                  record: dict[str, Any]) -> None:
+                                  record: dict[str, Any],
+                                  reader: Any = None) -> None:
     """Re-prove the transposition AFTER the seventeen, and refuse if it moved.
 
     COPILOT'S ROUND-1 FINDING, AND IT IS A REAL WINDOW. `prove_transposition`
@@ -750,7 +809,8 @@ def confirm_transposition_unmoved(factory: Any, populated: str,
     that moved under the write-back would have failed that check and never
     reached here.
     """
-    after = prove_transposition(factory, populated, corpus_root, shipped)
+    after = prove_transposition(factory, populated, corpus_root, shipped,
+                                reader=reader)
     if not after["proven"]:
         _unfaithful(corpus_root, shipped,
                     "it was proven faithful before the seventeen checks and "
@@ -981,12 +1041,17 @@ def main(argv: list[str] | None = None) -> int:
         if corpus_root != shipped:
             transposition = prove_transposition(
                 factory, locations["populated"], corpus_root, shipped)
-        summary = run_corpus(factory, locations, args.destination, dest_root,
-                             corpus_root, args.adapter, transposition)
+        #: The instances `carve_conformance.run` built, by corpus state. The
+        #: re-proof below is put to the POPULATED one — the reader the
+        #: seventeen actually measured (Copilot, round 8).
+        seen: dict[str, Any] = {}
+        summary = run_corpus(witnessed_factory(factory, seen), locations,
+                             args.destination, dest_root, corpus_root,
+                             args.adapter, transposition)
         if transposition is not None and transposition["proven"]:
             confirm_transposition_unmoved(
                 factory, locations["populated"], corpus_root, shipped,
-                transposition)
+                transposition, reader=seen.get("populated"))
         if transposition is not None and not transposition["proven"]:
             # The seventeen passed over a corpus this run could not compare.
             # Every ordinary way of reaching here fails a check first
