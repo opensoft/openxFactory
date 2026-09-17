@@ -99,9 +99,31 @@ def _refuse(message: str) -> "SystemExit":
     return SystemExit(f"REFUSED: {message}")
 
 
-def main():
-    root = Path(sys.argv[1]).resolve()
-    write = "--write" in sys.argv
+USAGE = ("usage: python3 openspec/changes/repromote-engineering-vocabulary/review/"
+         "build-delta.py <openxFactory-checkout> [--write]\n"
+         "  without --write it CHECKS the committed delta and exits non-zero on "
+         "any difference.")
+
+
+def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    # FAIL CLOSED ON THE INVOCATION TOO. A bare run, or `-h`, used to raise
+    # IndexError from `sys.argv[1]` — an integrity gate that crashes on its own
+    # usage tells a reader nothing about what it checks.
+    if any(a in ("-h", "--help") for a in argv):
+        print(USAGE)
+        return
+    positional = [a for a in argv if not a.startswith("-")]
+    unknown = [a for a in argv if a.startswith("-") and a != "--write"]
+    if len(positional) != 1 or unknown:
+        raise _refuse(("no checkout given" if not positional else
+                       f"unexpected argument(s): {unknown or positional[1:]}")
+                      + "\n" + USAGE)
+    root = Path(positional[0]).resolve()
+    if not (root / "openspec").is_dir():
+        raise _refuse(f"{root} is not an openxFactory checkout "
+                      f"(no openspec/ directory)\n" + USAGE)
+    write = "--write" in argv
     packet = root / "openspec/changes/split-opendox-two-layer-product/specs/ideation-dashboard/spec.md"
     promoted = root / "openspec/specs/ideation-dashboard/spec.md"
 
@@ -146,7 +168,7 @@ def main():
         raise _refuse(f"the ordered selection is {len(fifteen)}, not 15 — a "
                       f"title in the map does not match one in the promoted spec")
     carried = {t: reqs[t] for t in fifteen}
-    src_bytes = sum(len(carried[t].encode()) for t in fifteen)
+    src_bytes = sum(len(carried[t].encode("utf-8")) for t in fifteen)
     scen = sum(carried[t].count("#### Scenario:") for t in fifteen)
     print(f"carried: {len(fifteen)} requirements, {src_bytes} source bytes, {scen} scenarios")
 
@@ -180,8 +202,8 @@ def main():
         body.append(edited[t])
     delta = HEADER + "\n\n## ADDED Requirements\n\n" + "\n\n".join(body) + "\n"
     out = root / f"openspec/changes/{CHANGE}/specs/{CAP}/spec.md"
-    digest = hashlib.sha256(delta.encode()).hexdigest()
-    print(f"delta: {len(delta.encode())} bytes, sha256 {digest[:16]}…")
+    digest = hashlib.sha256(delta.encode("utf-8")).hexdigest()
+    print(f"delta: {len(delta.encode('utf-8'))} bytes, sha256 {digest[:16]}…")
     if write:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(delta, encoding="utf-8")
@@ -258,4 +280,6 @@ Q4, declared as `corpus-adapter-seam`; this capability holds one implementation'
 obligations under it, and under that interface's fourth requirement it is one
 implementation among others with no privileged route to its home corpus."""
 
-main()
+
+if __name__ == "__main__":
+    main()

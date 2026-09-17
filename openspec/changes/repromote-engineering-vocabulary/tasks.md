@@ -76,15 +76,17 @@ performs only the first.
 - [x] 2.8 **THE DELTA CARRIES A WRITTEN `## Purpose`, BECAUSE THIS CAPABILITY DOES NOT EXIST YET.**
       `prepare-openspec-1-12-readiness`'s `document-lifecycle` delta states the rule and the trap:
       *"A `## Purpose` in a change's spec delta is read ONLY when the capability is created; on any
-      later archive it is ignored"*, and the archive act otherwise writes `TBD - created by archiving
-      change <X>. Update Purpose after archive.` — undischarged on 39 of this corpus's promoted
+      later archive it is ignored"*, and the archive act otherwise writes
+      `TBD - created by archiving change <X>. Update Purpose after archive.` — undischarged on 39 of
+      this corpus's promoted
       specifications when they were last counted. This delta creates the capability, so its Purpose
       IS read, and it is written.
 - [x] 2.9 **ARCHIVE DRY RUN, in a throwaway copy of `openspec/` and never in the repository** — the
       CLI's SPEC-APPLICATION step alone (pinned CLI 1.12.0, `archive --yes`), run to see what the
       promoted specification comes out as; the real archive goes through the sanctioned wrapper at
-      § 3.1, whose gates this copy cannot run. Measured: `openxfactory-engineering-adapter: create` · `+ 15
-      added` · `Totals: + 15, ~ 0, - 0, → 0`; the created promoted spec carries **0** occurrences of
+      § 3.1, whose gates this copy cannot run. Measured: `openxfactory-engineering-adapter: create`
+      · `+ 15 added` · `Totals: + 15, ~ 0, - 0, → 0`; the created promoted spec carries **0**
+      occurrences of
       the placeholder sentence and **15 requirements / 84 scenarios**; all fifteen promote
       BYTE-IDENTICAL to this delta's text; and `openspec/specs/ideation-dashboard/spec.md` comes out
       of the run with an UNCHANGED sha256 — the mechanical proof of `design.md` § D3's claim that
@@ -94,8 +96,9 @@ performs only the first.
 
 - [ ] 3.0 **FIRST, RESOLVE EVERY REMAINING `- [ ]` IN THIS FILE — the wrapper refuses otherwise.**
       `scripts/proposal-support.py` archives only when no literal `- [ ]` is left
-      (`re.search(r"^- \[ \]", tasks.read_text(), re.M)` → `SupportError("change has incomplete
-      tasks")`, `:4609-4610`), and the boxes of this section and of § 4 cannot be ticked BEFORE the
+      (`re.search(r"^- \[ \]", tasks.read_text(), re.M)` →
+      `SupportError("change has incomplete tasks")`, `:4609-4610`), and the boxes of this section
+      and of § 4 cannot be ticked BEFORE the
       act they describe. So at the archive each remaining box is either ticked because it has been
       performed or re-marked `- [~]` with its reason — the deferred marker the gate does not match —
       and § 3.5's ledger re-seed, which can only run AFTER the directory moves, is deferred that way

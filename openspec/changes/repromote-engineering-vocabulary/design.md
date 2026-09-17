@@ -157,8 +157,9 @@ ratified map, and two promoted requirements whose titles differ only in case or 
 A raw-string check would have passed exactly the collision the archive family calls a collision.
 Proved by mutation, under `-O`: a case-and-space variant of a promoted title exits **1**
 (`REFUSED: duplicate requirement title … collides with … under the corpus's own normalization`);
-a duplicated map row exits **1** (`REFUSED: the ratified map carries 1 duplicated title(s) … the row
-counts below would pass while a row was silently lost`); the clean tree exits **0** with the delta's
+a duplicated map row exits **1**
+(`REFUSED: the ratified map carries 1 duplicated title(s) … the row counts below would pass while a row was silently lost`);
+the clean tree exits **0** with the delta's
 sha256 unchanged.
 
 **EVERY GATE RAISES; NONE ASSERTS.** `python3 -O` deletes `assert`, and a verifier whose gates vanish
@@ -168,6 +169,15 @@ under `-O`: a mutated committed delta exits **1**, a broken edit-match exits **1
 (`REFUSED: edit matched 0x (expected exactly 1)`), the clean tree exits **0**. The sources are also
 refused if they carry a CR, because extraction compares TEXT and `read_text()`'s newline translation
 would otherwise let a CRLF source pass a byte-identity claim this build could not honour.
+
+**AND THE INVOCATION FAILS CLOSED TOO.** A bare run used to raise `IndexError` from `sys.argv[1]`, the
+byte counts and the sha256 were taken with an implicit `str.encode()` whose result is
+interpreter-dependent, and the module called `main()` at import so any linter or static analyser that
+loaded it would have run a build. All three are fixed and proved: no argument gives
+`REFUSED: no checkout given` plus the usage line (exit **1**), `-h`/`--help` prints the usage (exit
+**0**), a path that is not an openxFactory checkout and an unknown flag each exit **1**, every
+`encode("utf-8")` is explicit, and importing the file executes nothing (`norm()` is callable from an
+import with no side effect).
 
 **Run WITHOUT `--write` it is a CHECK rather than a dry run**: it reads the committed
 `specs/openxfactory-engineering-adapter/spec.md` and compares, so a delta somebody had edited by hand
@@ -199,15 +209,17 @@ three, any one of which is sufficient.
    *"a second writer would be a collision this change does not need"*.
 3. **IN ONE OF THE TWO POSSIBLE ARCHIVE ORDERS IT BECOMES A REMOVAL OF NOTHING.** If this packet
    archived first with such a block, the split packet's own rows for those fifteen titles would later
-   apply against a promoted document that no longer holds them — *"a removal of nothing, and `openspec
-   archive` would apply it against a document that never held the title"*, which is the packet's own
+   apply against a promoted document that no longer holds them — *"a removal of nothing, and
+   `openspec archive` would apply it against a document that never held the title"*, which is the
+   packet's own
    stated reason for NOT removing the twelve sibling-added titles in its block (b).
 
 **AND THE FIDELITY SENTENCE IS SATISFIED WITHOUT IT.** § 5.2a's mechanism is
 *"`promotion_fidelity.py` keys on (capability, normalized title), so the successor is a distinct key
 and the REMOVED delta stays visible to the checker"* — the visibility being of the PACKET's removal.
-Verified in the checker's own text: `promotion_fidelity.py` builds `writers.setdefault((capability,
-norm(req.title)), [])` and resolves a latest writer per (capability, requirement) pair. The
+Verified in the checker's own text: `promotion_fidelity.py` builds
+`writers.setdefault((capability, norm(req.title)), [])` and resolves a latest writer per
+(capability, requirement) pair. The
 re-promotion under a different capability therefore cannot mask the removal, and does not have to
 perform it.
 
@@ -244,15 +256,17 @@ that moment is that clause's premise.
 A capability-CREATING delta is the only place a `## Purpose` is ever read.
 `prepare-openspec-1-12-readiness`'s `document-lifecycle` delta states it and states the trap: *"A
 `## Purpose` in a change's spec delta is read ONLY when the capability is created; on any later
-archive it is ignored"*, and where none is supplied the archive act writes `TBD - created by
-archiving change <X>. Update Purpose after archive.` — a sentence that *"tells a reader nothing the
+archive it is ignored"*, and where none is supplied the archive act writes
+`TBD - created by archiving change <X>. Update Purpose after archive.` — a sentence that *"tells a
+reader nothing the
 directory name did not"* and that was undischarged on 39 of this corpus's promoted specifications
 when they were counted on 2026-09-05. This delta creates the capability, so it carries a written
 Purpose and the placeholder never lands.
 
 **PROVED, in a throwaway copy of `openspec/` and never in the repository** (pinned CLI 1.12.0,
-`archive --yes`): `openxfactory-engineering-adapter: create`, `+ 15 added`, `Totals: + 15, ~ 0, - 0,
-→ 0`; the created promoted specification carries the written Purpose and **0** occurrences of the
+`archive --yes`): `openxfactory-engineering-adapter: create`, `+ 15 added`,
+`Totals: + 15, ~ 0, - 0, → 0`; the created promoted specification carries the written Purpose and
+**0** occurrences of the
 placeholder sentence, **15 requirements and 84 scenarios**, all fifteen byte-identical to this
 delta's text; and `openspec/specs/ideation-dashboard/spec.md` comes out of that run with an
 UNCHANGED sha256 — which is § D3's claim, measured rather than argued.
