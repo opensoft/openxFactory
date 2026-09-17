@@ -649,6 +649,27 @@ def signal_forge_url(line: str, start: int, end: int) -> bool:
     return match.group("repo").lower() in REPOSITORY_VOCABULARY
 
 
+def word_immediately_before(before: str) -> str:
+    """The WORD immediately before the token, decoration and all.
+
+    A word is a whitespace-delimited run, and DECORATION IS NOT PART OF ONE:
+    the decoration set is stripped from the text between the word and the token
+    before the run is read, so that `` <name> `<token>` `` — the spelling this
+    corpus actually writes a qualified citation in, the qualifier and the token
+    separated by a backtick rather than by a space — reads the qualifier as the
+    word immediately before the token. A run that is nothing BUT decoration is
+    not a word; the word before it is.
+
+    A GLUED PATH PREFIX IS NOT A WORD EITHER, and needs no special case: `/` is
+    not decoration, so `xFactories/LedgerxFactory/` survives the strip whole,
+    fails the vocabulary as the path it is, and is judged by the path-joined
+    signal, which is the signal written for it.
+    """
+    trimmed = before.rstrip(TOKEN_DECORATION + " \t")
+    words = trimmed.split()
+    return words[-1] if words else ""
+
+
 def signal_bare_qualifier_word(lines, lineno: int, start: int) -> bool:
     """(3) A BARE QUALIFIER WORD naming another repository, inside the window.
 
@@ -662,12 +683,10 @@ def signal_bare_qualifier_word(lines, lineno: int, start: int) -> bool:
     `lines` is the file's lines, `lineno` the citing line's 1-based number.
     """
     line = lines[lineno - 1]
-    before = line[:start]
-    words = before.split()
-    if words and before[-1:].isspace():
-        previous = words[-1]
-        if _is_vocabulary_name(previous) and not _names_this_repository(previous):
-            return True
+    previous = word_immediately_before(line[:start])
+    if previous and _is_vocabulary_name(previous) \
+            and not _names_this_repository(previous):
+        return True
     first = max(0, lineno - 1 - WINDOW_LINES_ABOVE)
     for above in lines[first:lineno - 1]:
         for word in above.split():
