@@ -489,7 +489,7 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   …"), never as a declared descendant name (the packet's own registration in
   `tasks.md` § 1.7 spells it `MedxDox`); and `openxDox`, the case-folded
   ALSO-ACCEPTED spelling of `openXdox` itself named twice in the pin-chain
-  discussion (`design.md`:981 at this amendment's base `cbc3a2c6`, and — in
+  discussion (`design.md`:981 at this amendment's ORIGINAL base `cbc3a2c6`, and — in
   THIS file — § 1.10's pin-chain paragraph, the one that reads *"the referent
   test compares CASE-FOLDED, and `openXdox`.casefold() equals
   `openxDox`.casefold() — so a pin on the INTEGRATION layer satisfies the
@@ -2002,7 +2002,7 @@ the bookkeeping that ticks this group.
   `moved_verbatim` 143 / `moved_with_declared_edit` 175 / `not_moved` 138,
   kept 117** (103 `stays_openxfactory_adapter` + 14
   `stays_openxfactory_governance`) at `main` `cb2d3a2c`, at `main`
-  `c5f68457`, and at this amendment's base `cbc3a2c6` — **identical at all
+  `c5f68457`, and at this amendment's ORIGINAL base `cbc3a2c6` — **identical at all
   three**, which is what the row's own label "`main` `cb2d3a2c`, and this
   branch" asserts and had never been verified across the two base merges that
   happened under it. Twenty rows carry `replicated_at_destination` in
@@ -2266,7 +2266,10 @@ the bookkeeping that ticks this group.
   of the distinct set, and the pipeline is what turns the one into the other:
   `git log --all --full-history --no-renames --pretty=format:
   --name-only -- .github/workflows/ | sed '/^$/d' | sort -u`. It returns
-  **16 distinct paths ever**: `clearing-dispatch-gate`,
+  **16 distinct paths ever**, listed here as BARE STEMS where the command
+  itself emits full paths (`.github/workflows/clearing-dispatch-gate.yml`
+  and so on, directory prefix and `.yml` included), the prefix being the same
+  sixteen times and carrying nothing: `clearing-dispatch-gate`,
   `doc-health-reusable`, `former-id-arrival-gate`, `lane-line`,
   `merge-master-approval`, `openreposhape-pin-gate`, `openspec-cli-pin-gate`,
   `openxdox-consumer-gate`, `openxwallet-consumer-gate`,
@@ -2402,7 +2405,7 @@ the bookkeeping that ticks this group.
   HAVE NOT CAUGHT UP, AND THAT IS SAID HERE RATHER THAN LEFT FOR A READER TO
   TRIP OVER.** #1059's shipped files still describe the gate as it stood on the
   day it landed, six minutes before the ruleset existed. Measured at this
-  amendment's base `cbc3a2c6`:
+  amendment's ORIGINAL base `cbc3a2c6`:
   `.github/workflows/openxdox-consumer-gate.yml`:48-56
   (*"THE GATE IS ADVISORY ON THE DAY IT LANDS … Nothing pins this one … It is
   owed and it is named"*);
@@ -2413,7 +2416,10 @@ the bookkeeping that ticks this group.
   was read at `cbc3a2c6` or at whichever `main` arrived later, so the
   stale-record claim would not be reproducible from the ledger. Raised at
   review; three of this amendment's six uses already named the tree and three
-  did not, and all six now do.)*
+  did not, and all six now do. **And all six say ORIGINAL**, because after the
+  retarget the amendment's base IS `main`: naming the tree made the reads
+  reproducible, and naming it ORIGINAL stops the label contradicting the
+  merge-forward this very note records.)*
   `tests/openxdox_consumer_gate/test_openxdox_gate_invocation.py`:8-11
   (*"ADVISORY on the day it lands — no ruleset pins its token yet"*) and
   `test_openxdox_gate_adjudicator.py`:10 (*"a gate no ruleset pins"*); and the
@@ -3073,7 +3079,7 @@ movements claimed at the time they land.
   carry `lifecycle_state: active` and the stable key
   `dox-opensoft-qa.xforge.us`. But `openxFactory`'s own canonical naming
   record retires the HOST — `docs/openxdox-naming.md` **Amendment 1
-  (2026-08-14)**, `:84-89` at this amendment's base `cbc3a2c6`:
+  (2026-08-14)**, `:84-89` at this amendment's ORIGINAL base `cbc3a2c6`:
   *"`openxdox.opensoft.dev` replaces
   `dox-opensoft-qa.xforge.us` … the legacy names are cut dead at switchover
   — no dual-host period and no redirect"*. **So the RECORD is active and the
@@ -3405,7 +3411,7 @@ movements claimed at the time they land.
   `openxdox-install-app-provisioning`. The two-App dispatch/content
   SEPARATION is already canon — the promoted `credential-contracts` requirement
   *Dispatch-only credential least privilege and serving-tier separation*
-  (`openspec/specs/credential-contracts/spec.md`:169 at this amendment's base
+  (`openspec/specs/credential-contracts/spec.md`:169 at this amendment's ORIGINAL base
   `cbc3a2c6`)
   — and what is missing is the provisioning shape. One repository,
   no Ops collision, CLAUDE.md working rule 1 satisfied. **The options are a
@@ -3708,7 +3714,7 @@ realization evidence, never on landing. Each line is its own evidence.
   pull request, round 13, and it is right in the code):
   `doc_health.Finding.match_key()` is `(self.family, self.repo, self.path)` —
   `scripts/doc_health/__init__.py`, the method of that name (`:187-189` at
-  this amendment's base `cbc3a2c6`) — so SEVERITY is not part of a finding's
+  this amendment's ORIGINAL base `cbc3a2c6`) — so SEVERITY is not part of a finding's
   identity.
   **That method's own docstring UNDERSTATES the key it returns, and the
   discrepancy is named here rather than quoted past**: it reads
