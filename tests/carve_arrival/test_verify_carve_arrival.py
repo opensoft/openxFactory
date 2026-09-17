@@ -3326,7 +3326,9 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
     `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
     pins ... a transcribed count is a claim, a summed one is a measurement".
     THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
-    PR). It pins the MANIFEST's own aggregate — `(2454, 176)` and the 20
+    PR). It pins the MANIFEST's own aggregate — `(2461, 176)` since the § 3.4
+    SLICE-S7 RESIDUE annotation, `(2454, 176)` when this paragraph was written
+    — and the 20
     replica rows — which is a claim about the file and not about the sentence
     that transcribes it. So every cell here (three disposition counts, the
     replica count, the three per-class totals, the moved-row total, the carrier
@@ -5290,6 +5292,33 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             == opendox_seed["src/opendox/web/views/display.js"]["since"]), (
         "§ 3.4 SLICE S7's two DISPLAY-facet halves were introduced by one "
         "commit and no longer declare the same `since`")
+    # THE § 3.4 SLICE-S7 RESIDUE BUMP: ONE more `opendox_code` file, the proof
+    # for the seven display-facet LEAVES slice S7's own review found inside the
+    # modules S7 had already parameterized at their mounts — two threads
+    # Copilot opened on opensoft/openDox-code#21 at `c7a216c7` and five it left
+    # SUPPRESSED in review `5192900474`'s body (S7 LANDED note `#656` comment
+    # `5688498049`; FORM RULED Q-L1, comment `5628560136`; CLAIM `#656` comment
+    # `5714327188`). Pinned to its own introducing commit for the SIXTH BUMP's
+    # stated reason and not left to the generic shape checks: a created file
+    # carries no manifest row (RULED OQ-C), so the admission is the only
+    # governed record that it may be at the destination at all, and a
+    # well-formed replacement or a `since` naming the leg branch's tip rather
+    # than the introducing commit would otherwise pass every check in this
+    # file. Admitted on the same Q-L1 footing: the leg, opensoft/openDox-code
+    # #28, pairs with — and lands after — this annotation.
+    assert "tests/test_display_facet_leaves.py" in opendox_seed, (
+        "tests/test_display_facet_leaves.py is the § 3.4 SLICE S7 RESIDUE's "
+        "one created file (`#656` comment 5688498049) and is no longer "
+        "declared for opendox_code")
+    assert opendox_seed["tests/test_display_facet_leaves.py"]["since"] == (
+        "338143a30856f7d572a2473ae7a5d6ac81dfdb7a"), (
+        "tests/test_display_facet_leaves.py declares since="
+        f"{opendox_seed['tests/test_display_facet_leaves.py']['since']!r}; the "
+        "§ 3.4 SLICE S7 RESIDUE introduced it at "
+        "338143a30856f7d572a2473ae7a5d6ac81dfdb7a (`git log --diff-filter=A` "
+        "on opensoft/openDox-code `build/s7-residue-leaf-facet`), and an "
+        "admission whose `since` is not the introducing commit is not a "
+        "falsifiable claim")
     # THE EIGHTH BUMP: ten more `opendox_code` files, RULED into this file by
     # `split-opendox-two-layer-product` § 3.5 (RULED Q2, `#656` comment
     # 5542792997, and RULED Q1, comment 5542694957) and § 3.6 (RULED C3,

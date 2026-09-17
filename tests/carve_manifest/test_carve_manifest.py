@@ -3407,7 +3407,11 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
 # Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `5628560136`).
 #
 # WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion
-# `(2454, 176)` would still pass if any of these 782 lines had landed on the
+# (`(2454, 176)` when this was written, `(2461, 176)` since the § 3.4
+# SLICE-S7 RESIDUE annotation; the CURRENT figure is the one
+# `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts, and the
+# one here is the aggregate THIS window was a delta against)
+# would still pass if any of these 782 lines had landed on the
 # wrong row, under the wrong class, or as a different set summing to the same
 # total — which is the reason every slice since ASK-7 has pinned its own window
 # by row and class. S7 edits 33 rows where S5 edited 11, so the pins are a TABLE
@@ -3943,7 +3947,8 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
     # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
-    # the aggregate `(2454, 176)` would still pass if these forty lines had
+    # the aggregate (`(2454, 176)` when this was written; `(2461, 176)` since
+    # the § 3.4 SLICE-S7 RESIDUE) would still pass if these forty lines had
     # landed on the wrong rows, under the wrong class, or as a different forty
     # that summed the same. Every one is `path constants` (a path literal
     # naming a location the destination does not have — this manifest's own
@@ -4252,7 +4257,9 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     """The § 3.4 slice-S7 window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
-    AGGREGATE `(2454, 176)`, and that pair would stay green if any of these 782
+    AGGREGATE — `(2454, 176)` when this window landed, `(2461, 176)` since the
+    § 3.4 SLICE-S7 RESIDUE annotation appended seven lines to four of these very
+    rows — and that pair would stay green if any of these 782
     lines had landed on the wrong row, under the wrong one of RULING OQ-1's
     three classes, or as a different set summing to the same total — which is
     why every slice since ASK-7 pins its own window. S7 edits THIRTY-THREE rows
@@ -4390,10 +4397,11 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     # IT, which is what a window total is: a DELTA against the document the
     # act found, and so a figure a later slice cannot move. The carrying half
     # is still the amendment test's own figure, because neither slice S8
-    # (openxFactory #1025) nor the pre-existing `openxdox_code` annotation
-    # (#1031) added a carrier; the line half is not — S8's forty carry it to
-    # 2406 and that annotation's forty-eight to 2454, and that test
-    # re-derives it rather than reading it here.
+    # (openxFactory #1025), the pre-existing `openxdox_code` annotation
+    # (#1031) nor the § 3.4 SLICE-S7 RESIDUE added a carrier; the line half is
+    # not — S8's forty carry it to 2406, that annotation's forty-eight to 2454
+    # and the residue's seven to 2461, and that test re-derives it rather than
+    # reading it here.
     assert 1584 + lines == 2366, lines
     assert 159 + len(S7_CONVERTED) == 176, len(S7_CONVERTED)
 

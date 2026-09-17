@@ -796,6 +796,24 @@ moved_paths:
 # (`arrival-undeclared-edit`). It is the same disposition Act 1 gave slice S8's
 # two path constants.
 #
+# SEVEN FINDINGS, FOUR ROWS, SEVEN LINES, and the arithmetic is worth stating
+# because two of the seven are declared by neither an entry below nor an
+# omission (Copilot review of this pull request, threads 1 and 2).
+# `views/staging-workbench.js` carries TWO of the findings, which is why six
+# files give four rows. `views/display.js` is an ADMITTED created file with no
+# manifest row at all, so its `applyTokens` fix is declared as an admission.
+# And `views/lineage.js`'s `renderStats` reset needs NO NEW LINE: slice S7
+# introduced that whole function body, so the leg's edit falls inside the
+# `replace` opcode on carve line `:52`
+# (`export function renderStats(root, snapshot) {`) — which the S7 window
+# ALREADY declares on that row, along with 13, 41, 47, 62-65, 76-83, 104,
+# 115-117, 124, 129-130 and 138. Declaring `:52` a second time is exactly the
+# repeated line number
+# `test_the_real_manifest_carries_the_s7_display_facet_declared_edits`'s
+# row-wide distinctness assertion refuses and the arrival verifier collapses
+# into a SET, and the verifier's own answer for that row at the leg's head is
+# ZERO undeclared lines.
+#
 # SIX OF THE SEVEN ARE INVISIBLE TO `tests/test_web_boundary.py` ASSERTION 4
 # and always would have been — `captured` is in neither of its word lists,
 # a mount that forwards no option spells nothing at all, and a fallback that
