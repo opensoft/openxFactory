@@ -800,7 +800,6 @@ Active changes:
   word; PR [#1022](https://github.com/opensoft/openxFactory/pull/1022) is
   **RATIFIED and marked READY**, merge needs its own word, and Rule 6 applies at
   landing.
-  **DRAFT and HELD for Brett Heap's ratification.**
 - [encode-wallet-authority-rulings-r6-r12](openspec/changes/encode-wallet-authority-rulings-r6-r12/proposal.md)
   — filed 2026-09-12, lane `hermes-wallet-exercise` (session `codeXfactory-2`,
   workstation Eagle), **`Status: ratified`** (2026-09-12T23:58Z, Brett Heap,
