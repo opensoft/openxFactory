@@ -75,7 +75,7 @@ ideation_dashboard/` split across BOTH legs and partly stayed here.
 AND THE ROWS A RULING HAS RETIRED (RULED 5656343213, `#656` comment
 `5656343213`). A moved row may carry a `retired:` block saying that a ruling
 DELETED its arrival at the leg — not moved it, as RULED Q6's `re_destined:`
-does, but removed it, because the surface the arrived file drove is at no leg
+does, but removed it, because the surface the arrived file needed is at no leg
 at all. The row keeps every field the carve wrote, so this module can still
 compute a perfectly well-formed path for it under a materialized leg — and
 that path would name a file `verify-carve-arrival.py` has just finished
@@ -601,7 +601,7 @@ def source(path: str | Path) -> Path:
         raise CarveRowRetired(
             f"{key} was RETIRED at {at}:{at_path} by ruling "
             f"{retired.get('ruling')!r} (RULED 5656343213), because the "
-            f"surface it drove ({retired.get('surface')!r}) arrived at no "
+            f"surface it needed ({retired.get('surface')!r}) arrived at no "
             "leg. The row still records the move the carve made — that is "
             "what the manifest is for — but the ARRIVAL this function "
             "resolves is gone, and a path computed from the row would name a "
@@ -634,9 +634,13 @@ def module(path: str | Path):
     those names live at one leg, some at the other and some still here. The
     dotted name is DERIVED from the row instead:
 
-      * a MOVED row's `destination_path` (`src/opendox/workbench.py`) becomes
-        the dotted name the leg's `src/` makes importable (`opendox.workbench`)
-        — which is why the day a row moves between the two legs no caller
+      * a MOVED row's `effective_arrival(row)` `destination_path`
+        (`src/opendox/workbench.py`) becomes the dotted name the leg's `src/`
+        makes importable (`opendox.workbench`): the row's own, unless a
+        `re_destined:` block (RULED Q6) says a ruling has since moved the
+        placement, in which case its `to_path` — `source()`'s own precedent,
+        read here for the same reason, and why the day a row moves between
+        the two legs, or is re-destined between them afterward, no caller
         changes;
       * a `not_moved` row keeps the spelling it has HERE
         (`scripts/ideation_dashboard/intent_feed.py` → the
@@ -660,7 +664,7 @@ def module(path: str | Path):
     else:
         if retired_at(row)[1] is not None:
             source(key)  # raises CarveRowRetired with the sentence for it
-        relative = row["destination_path"]
+        destination, relative = effective_arrival(row)
         if relative.startswith("src/"):
             relative = relative[len("src/"):]
     if not relative.endswith(".py"):
@@ -697,8 +701,9 @@ def shed_relpath(path: str | Path) -> str | None:
         return None
     if retired_at(row)[1] is not None:
         source(key)  # raises CarveRowRetired with the sentence for it
-    mount = MOUNTS[row["destination"]].relative_to(REPO_ROOT)
-    return (mount / _closed_relative_path(row["destination_path"], source_path=key)).as_posix()
+    destination, destination_path = effective_arrival(row)
+    mount = MOUNTS[destination].relative_to(REPO_ROOT)
+    return (mount / _closed_relative_path(destination_path, source_path=key)).as_posix()
 
 
 def shed_destination(path: str | Path) -> Path | None:
