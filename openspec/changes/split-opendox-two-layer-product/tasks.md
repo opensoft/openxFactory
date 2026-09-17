@@ -508,11 +508,14 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   registered on amendment #4's pull request at comment `5702495415`. They
   read `tasks.md`:347 and `design.md`:868; measured, `:347` of this file is a
   `gh api` tree read of the openDox root and the casefold discussion is at
-  `:595` at the base — **and that number has held THREE different values
-  inside this one pull request**: `:595` at `cbc3a2c6`, `:609` from this
-  amendment's first commit (which is where Copilot round 5 correctly flagged
-  it as wrong in the tree under review), and `:619` from fix round 4 onward,
-  each move made by this amendment's own insertions above it — and in
+  `:595` at the base `cbc3a2c6` — **and it has taken a DIFFERENT value at four
+  of this branch's own heads since, every move made by this amendment's own
+  insertions above the line. The values are deliberately NOT enumerated here,
+  because the list would age exactly as the number did**: an earlier draft of
+  this very sentence named three values and was already wrong about the last
+  of them when a review read it, which is the third time the defect this
+  paragraph documents has been committed by the paragraph documenting it — and
+  in
   `design.md` it is at `:981`, which does not move because this branch does
   not touch that file. So the first attempt at a numeric repair went stale
   under the very act that wrote it, twice, which is § 1.8's thesis proved on
@@ -1157,16 +1160,21 @@ the bookkeeping that ticks this group.
   measurement here names the tree it was read at; this one can name no line,
   because the block it sits in is rewritten by every archival act and its line
   numbers move under any citation that outlives one. Measured rather than
-  asserted, and now at EIGHT trees rather than two: the entry opens at
+  asserted, and now at SEVEN NAMED COMMITS rather than two: the entry opens at
   `README.md`:**1775** at openxFactory `main` `8944758c`, at :**1875** at
   amendment #3's pre-merge head `0a835098` — after `#1042` archived a sibling
   packet above it — at :**1813** at `main` `cb2d3a2c`, at :**1708** at `main`
   `c5f68457` and at amendment #4's head `cbc3a2c6` which merges it, and at
   :**1836** at `main` `4cef77af`, and :**1836** again at `main` **`ec5069bc`**
   — the `main` this branch merged, and therefore a commit in this pull
-  request's own history that cannot go stale before the merge — and at this
-  amendment's own merged head: **five positions across EIGHT trees**, every
-  move made by acts with nothing to do with this one.
+  request's own history that cannot go stale before the merge: **five
+  positions across SEVEN NAMED COMMITS**, every move made by acts with nothing
+  to do with this one. **This branch's own head is deliberately NOT an eighth
+  entry**: it is not an immutable ref while the pull request is open, the
+  paragraph's whole claim is that every value here names a tree, and the
+  position it would report is `ec5069bc`'s anyway, inherited by merge rather
+  than measured afresh. *(A Copilot finding on this amendment's own pull
+  request, raised at two heads running, and correct both times.)*
   *(THIS SENTENCE SUFFERED ITS OWN THESIS, and the repair is amendment #5's,
   registered on amendment #4's pull request at comment `5702674145` — found
   by this lane's own sweep rather than by a review. It read *"three positions
@@ -1178,10 +1186,10 @@ the bookkeeping that ticks this group.
   that moved. The values above are each bound to a NAMED tree and none of
   them is "today"; the count will keep growing and that is the box working,
   not failing.)* The `30,410` citations beside it are
-  **exact at every one of those eight trees** — re-measured by amendment #5 at
-  all eight (`design.md` 2, `proposal.md` 2, the RECORD 1, at `8944758c`,
-  `0a835098`, `cb2d3a2c`, `c5f68457`, `cbc3a2c6`, `4cef77af`, `ec5069bc` and
-  this amendment's merged head alike) — the
+  **exact at every one of those seven commits** — re-measured by amendment #5
+  at all seven (`design.md` 2, `proposal.md` 2, the RECORD 1, at `8944758c`,
+  `0a835098`, `cb2d3a2c`, `c5f68457`, `cbc3a2c6`, `4cef77af` and `ec5069bc`
+  alike) — the
   FOUR LIVE occurrences
   `design.md`:52 and :351, `proposal.md`'s `code_surface:` front-matter line
   (:2) and `proposal.md`:208, and the FIFTH, `review/ratification-2026-09-05.md`:549,
@@ -1553,8 +1561,9 @@ the bookkeeping that ticks this group.
   import where *"the dependency has reversed"*. Whether a lazily-resolved read of
   the corpus through the ADAPTER INTERFACE is such an import, or is the
   interface working, is exactly what **§ 3.7 (FLOOR PART 3)** asks and answers
-  mechanically. **THE CRITERION § 3.7 APPLIES** is the neutral conformance
-  corpus green in EVERY destination, openDox included — that clause states
+  mechanically. **THE CRITERION § 3.7 APPLIES IS THIS:** the neutral
+  conformance corpus green in EVERY destination, openDox included — that
+  clause states
   the TEST and not its outcome — and **§ 3.7 is `[ ]` and records that the
   answer the test returns today is NO.** **The result it records is one pass
   and four refusals, said here rather than left to be looked up**: at each
@@ -2287,7 +2296,7 @@ the bookkeeping that ticks this group.
   `required_status_checks` rule whose sole context is
   `openxdox-consumer-gate`, `created_at` **2026-09-16T16:33:22Z** (read live
   at `gh api repos/opensoft/openxFactory/rulesets`). The gate has therefore
-  not only REPORTED, it is REQUIRED — it was a required check on amendment
+  not only REPORTED; it is REQUIRED — it was a required check on amendment
   #4's own pull request, SUCCESS at `d1314f4d` (run `35134189330`) and at
   `cbc3a2c6`.
   **WHAT IS DISCHARGED IS THIS BOX'S OBLIGATION — THE REPOSITORY'S OWN RECORDS
