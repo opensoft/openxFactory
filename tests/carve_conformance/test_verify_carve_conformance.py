@@ -1280,7 +1280,7 @@ def test_the_transposition_fixture_ignores_an_ambient_git_pointer(
         "environment named")
 
 
-def test_the_fixture_reuses_the_repositorys_own_git_scrubber():
+def test_the_fixture_reuses_the_repository_git_scrubber():
     """Guards the guard, and pins the RULE rather than a list.
 
     `validate-carve-manifest.py:856` states it — the scrub list is "REUSED
@@ -1512,3 +1512,85 @@ def test_a_MISSING_revision_field_is_not_a_revision_of_None(tmp_path):
             OmitsTheField, str(populated), corpus, CORPUS)
     assert caught.value.code == "conformance-corpus-unfaithful"
     assert "no `revision` field at all" in caught.value.detail
+
+
+# ==========================================================================
+# 9. Copilot's round-5 findings — identity is PER CORPUS, on both sides
+# ==========================================================================
+
+
+def test_a_listing_under_ANOTHER_corpus_identity_is_unfaithful(tmp_path):
+    """Copilot round 5, and it is the sharpest of the identity findings: the
+    proof checked what `read` ANSWERED with and never what `list_documents`
+    ASKED under. A reader that listed every key under some other corpus name
+    and then echoed that same identity back from `read` satisfies the
+    read-side comparison, the key/bytes table AND `read-round-trip` — all
+    three compare against the same wrong object. The resolved corpus name is
+    the only thing in the loop that did not come from the reader, so it is
+    what the listing is held to.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ListsUnderAnotherCorpus(_GitBacked):
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return tuple(
+                DocumentId(corpus="some-other-corpus", key=d.key)
+                for d in self._inner.list_documents(corpus_, scope))
+
+        def read(self, corpus_, document, revision=None):
+            # echoes the WRONG identity back, which is what makes the
+            # read-side comparison and `read-round-trip` agree with it
+            got = self._inner.read(
+                corpus_, DocumentId(corpus=corpus_.ref.name, key=document.key),
+                revision)
+            return Document(id=document, content=got.content,
+                            revision=got.revision)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ListsUnderAnotherCorpus, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "some-other-corpus" in caught.value.detail
+    assert "populated" in caught.value.detail
+
+
+def test_a_listing_whose_identity_has_no_corpus_field_is_unfaithful(tmp_path):
+    """The absent case, which the sentinel separates from a wrong value."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _KeyOnly:
+        def __init__(self, key):
+            self.key = key
+
+    class ListsKeysWithoutACorpus(_GitBacked):
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return tuple(_KeyOnly(d.key)
+                         for d in self._inner.list_documents(corpus_, scope))
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ListsKeysWithoutACorpus, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "(absent)" in caught.value.detail
+
+
+def test_the_fixture_refuses_an_identity_naming_another_corpus(tmp_path):
+    """Copilot round 5, the other half: the fixture's own `read` used only
+    `document.key`, so it served an existing key for an identity that named a
+    DIFFERENT corpus — answering a question about somebody else's tree.
+    `tests/corpus-adapter/test_conformance.py:449` holds every listed
+    identity to the resolved corpus name for the same reason."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+    reader = GH.reader("populated", str(populated))
+    resolved = reader.resolve(CorpusRef(name="populated",
+                                        location=str(populated)))
+    here = reader.list_documents(resolved)[0]
+    # the same key, under another corpus's identity
+    with pytest.raises(Exception) as caught:
+        reader.read(resolved, DocumentId(corpus="elsewhere", key=here.key))
+    assert CC._refusal_of(caught.value) == DOCUMENT_UNKNOWN
+    # and the identity this corpus DOES hold still reads
+    assert reader.read(resolved, here).content

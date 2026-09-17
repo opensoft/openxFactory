@@ -548,6 +548,23 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
                         f"the listing served {document!r}, which carries no "
                         "string key, so what it holds cannot be compared with "
                         "what the corpus holds")
+        # THE LISTING'S OWN IDENTITIES ARE CHECKED TOO, not only what `read`
+        # answers with (Copilot, round 5). `DocumentId.corpus` is half of the
+        # interface's identity and every adapter builds it from
+        # `corpus.ref.name`; a reader that listed every key under some OTHER
+        # corpus name and then echoed that same identity back from `read`
+        # would satisfy the comparison below, the key/bytes table AND
+        # `read-round-trip` — all three compare against the same wrong
+        # object. The resolved corpus is the only thing here that did not
+        # come from the reader, so it is what the listing is held to.
+        listed_corpus = getattr(document, "corpus", _ABSENT)
+        if listed_corpus != corpus.ref.name:
+            _unfaithful(corpus_root, shipped,
+                        f"it listed {key!r} under corpus "
+                        f"{'(absent)' if listed_corpus is _ABSENT else repr(listed_corpus)}"
+                        f", and the corpus it resolved is "
+                        f"{corpus.ref.name!r}. A listing under another "
+                        "corpus's identity says nothing about this one")
         try:
             got = reader.read(corpus, document)
         except Exception as exc:  # noqa: BLE001

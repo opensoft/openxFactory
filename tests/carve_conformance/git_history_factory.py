@@ -209,6 +209,17 @@ class GitHistoryCorpus:
 
     # -- read -------------------------------------------------------------
     def read(self, corpus, document, revision: str | None = None) -> Document:
+        # IDENTITY IS PER CORPUS, so the corpus half is checked before the key
+        # (Copilot, round 5): serving an existing key for an identity that
+        # names a DIFFERENT corpus would answer a question about somebody
+        # else's tree. `tests/corpus-adapter/test_conformance.py:449` holds
+        # every listed identity to the resolved corpus name for the same
+        # reason.
+        if document.corpus != corpus.ref.name:
+            raise CorpusRefused(Refusal(
+                kind=DOCUMENT_UNKNOWN, subject=document.key,
+                detail=f"that identity names corpus {document.corpus!r} and "
+                       f"this is {corpus.ref.name!r}"))
         at = corpus.revision if revision is None else revision
         if revision is not None and revision != corpus.revision:
             known = _git("rev-parse", "--verify", f"{revision}^{{commit}}",
