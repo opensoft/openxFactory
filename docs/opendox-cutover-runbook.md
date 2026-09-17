@@ -1889,16 +1889,35 @@ The four refusals are `test-home-missing`, `test-home-deleted-at-carve`,
 `replica-multiplicity-undeclared` and `destination-test-shortfall`, with
 `test-mapping-unreadable` for a question the floor cannot ask — and an
 uncomputable check is never a pass.
+
+**AND THE DOCUMENT IS READ BEFORE IT IS BELIEVED**, because every one of
+these was measured to pass on the landed manifest before it was refused:
+a `carve_commit:` that is not 40 lowercase hex (it is interpolated into a
+`git cat-file --batch` request, so a line terminator in it injects a second
+request per row — measured: `source_count 0`, identity `0 = 0`, **exit 0**
+over a surface carrying 4,411 `def test_`); a `source_path:` declared by two
+rows (counted twice, 4,411 → 4,446, identity still balancing); a row with no
+`source_path:` at all (a traceback, where the contract is a named refusal);
+a `moved_paths:` naming a prefix NO row lies under (every row outside the
+surface, `rows_in_surface 0`, exit 0); and, at a destination, a `retired:`
+block or a `destination:` naming a key the manifest does not carry — which
+took the openDox-code leg from 117 rows / 1,067 declared to 116 / 1,045 and
+exited 0, a leg passing because a live arrival had been silenced by a key
+naming nothing. A `--replica-at` placement is admitted only for a row under
+the declared surface, for the same reason in the other direction: a floor is
+neither lowered inside the set it is quantified over nor raised outside it.
 `tests/carve_test_mapping/test_carve_test_mapping.py` drives the source side on
 every required-suite pass, the seat `tests/carve_manifest/` holds for FLOOR
 PART 1.
 
 **MEASURED 2026-09-16, and every figure re-derived rather than recited.**
 Source **4,411** `def test_` over **146** test-bearing rows of the declared
-surface — **144 homed and 2 RULED-retired, and no row carries tests and
-neither** (the sentence is written that way because the two retirements below
-DO carry tests and DO have no home, which is the whole reason they are named
-rather than counted); three test-bearing replicas carrying **30** at `m = 3`. At the destinations, against their own rows'
+surface — **144 homed and 2 RULED-retired, and the two counts are disjoint
+and exhaust the 146**: a retirement deletes the row's OWN arrival, so a
+retired row is never counted among the homed — not even where
+`also_replicated_to:` copies of it survive elsewhere, which is the case the
+report now names copy by copy. Three test-bearing replicas carry **30** at
+`m = 3`. At the destinations, against their own rows'
 declarations: openDox-code `0b4e8bb` **1,067 / 1,067**, openXdox-code
 `0a0265f` **2,315 / 2,319**, the retained openxFactory column **998 / 1,018**.
 The sum carries a FOURTH term, which is arithmetic and not an amendment: § 5.4

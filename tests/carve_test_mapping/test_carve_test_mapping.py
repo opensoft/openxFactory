@@ -581,7 +581,14 @@ def test_a_retired_row_is_admitted_named_and_subtracted(
     summary = verified(scratch.run(doc))
     assert summary["retired"] == [
         {"source_path": "scripts/pkg/test_alpha.py", "tests": 3,
-         "ruling": RETIREMENT["ruling"]}]
+         "ruling": RETIREMENT["ruling"],
+         # EMPTY HERE AND NOT ABSENT: a plain retirement deletes the
+         # row's only home, and a row that keeps `also_replicated_to:`
+         # copies is the case
+         # `test_a_retired_row_with_surviving_copies_is_counted_once`
+         # holds. The report names them because they are the difference
+         # between this row's negative term and that one's zero.
+         "homes": []}]
     assert summary["retired_tests"] == 3
     assert summary["retired_excess"] == -3, \
         "a plain retired row has no home, so its `(0 − 1) × tests` IS the "\
@@ -1028,12 +1035,19 @@ def test_a_yaml_valid_but_malformed_shape_refuses_instead_of_raising(
     """`read_manifest` accepts many YAML-valid shapes FLOOR PART 1 refuses —
     a row that is not a mapping, a `destinations:` value that is not one — and
     those raised out as a traceback and exit 1, which is a shape no caller can
-    branch on. This floor does not say WHICH shape is wrong; it says it cannot
-    compute over the document, which is still a refusal."""
+    branch on.
+
+    A ROW IS NOW NAMED BY ITS INDEX (Copilot, round 6 on #1080) and the
+    rest still fall to the generic refusal: every question this floor asks
+    is keyed by `source_path:`, so a row without one is worth pointing at,
+    while a malformed `destinations:` entry is answered where it is
+    resolved. What the two have in common is the contract — a named
+    refusal and exit 2, never a traceback."""
     doc = scratch.clean()
     doc["rows"].append("not a mapping at all")
     payload = refused(scratch.run(doc), "test-mapping-unreadable")
-    assert "validate-carve-manifest.py" in payload["detail"]
+    assert "source_path" in payload["detail"]
+    assert f"rows[{len(doc['rows']) - 1}]" in payload["detail"]
     doc = scratch.clean()
     doc["destinations"]["dox_code"] = "not a mapping either"
     refused(scratch.run(doc), "test-mapping-unreadable")
@@ -1301,6 +1315,238 @@ def test_argparse_rejects_an_invocation_with_status_two_and_no_code(
     assert "FAIL" not in done.stderr
     for code in RATIFIED_CODES:
         assert code not in done.stderr
+
+
+# --------------------------------------------------------------------------
+# Copilot rounds 5 and 6 — the key nobody resolved, the surface nobody
+# bounded, the commit nobody shaped, and the row counted twice
+# --------------------------------------------------------------------------
+
+def test_a_retirement_may_not_be_at_a_destination_the_manifest_lacks(
+        scratch: Scratch) -> None:
+    """The retirement branch returned before `repository_of` was ever asked,
+    so a moved row could name a FABRICATED `destinations:` key, point a
+    shape-valid `retired:` block at that same fabricated placement, and have
+    its tests SUBTRACTED from the identity as a RULED deletion. Measured on
+    the landed manifest with one row mutated that way: `retired_tests` 31 →
+    53 and exit 0.
+
+    `retirement_of` already requires the block to retire the arrival the row
+    ACTUALLY has, which is what makes the repair one line: the arrival's key
+    is the same key the moved path resolves, so it is resolved before either
+    branch."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row["destination"] = "made_up_leg"
+    row["destination_path"] = "tests/test_alpha.py"
+    retirement = copy.deepcopy(RETIREMENT)
+    retirement["at"] = "made_up_leg"
+    row["retired"] = retirement
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "made_up_leg" in payload["detail"]
+
+
+def test_a_fabricated_retirement_does_not_silence_the_leg_that_owed_it(
+        scratch: Scratch) -> None:
+    """The same document at the leg, which is where it matters: the source
+    side is not running there. Before the fix this run simply stopped asking
+    for the file — on the landed manifest, 117 rows / 1,067 `def test_` became
+    116 / 1,045 and the run exited 0, a leg passing because a live arrival had
+    been deleted by a key naming nothing."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row["destination"] = "made_up_leg"
+    row["destination_path"] = "tests/test_alpha.py"
+    retirement = copy.deepcopy(RETIREMENT)
+    retirement["at"] = "made_up_leg"
+    row["retired"] = retirement
+    dest = scratch.destination("dox", ARRIVALS)
+    payload = refused(scratch.run(doc, "--destination", "dox_code",
+                                  "--dest-root", str(dest)),
+                      "test-mapping-unreadable")
+    assert "made_up_leg" in payload["detail"]
+
+
+def test_a_misspelled_destination_key_refuses_at_the_leg_and_not_only_at_source(
+        scratch: Scratch) -> None:
+    """`resolved_destination` degrades an unknown key to a 1-tuple that can
+    never equal a resolved 2-tuple — which is right for TELLING THEM APART and
+    was wrong as the only reading, because the row was then dropped as another
+    leg's business. Only the source invocation called `repository_of`, and a
+    leg does not run the source invocation."""
+    doc = scratch.clean()
+    scratch.row(doc, "scripts/pkg/test_alpha.py")["destination"] = "dox_kode"
+    dest = scratch.destination("dox", ARRIVALS)
+    payload = refused(scratch.run(doc, "--destination", "dox_code",
+                                  "--dest-root", str(dest)),
+                      "test-mapping-unreadable")
+    assert "dox_kode" in payload["detail"]
+    source = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "dox_kode" in source["detail"]
+
+
+def test_an_absent_destination_stays_a_lost_test_and_is_not_a_leg_s_refusal(
+        scratch: Scratch) -> None:
+    """THE LINE THE FIX DRAWS, pinned so a later reading cannot move it
+    quietly. `homes_of` draws it already: an absent or non-string
+    `destination:` is NO HOME and the SOURCE side names it
+    `test-home-missing`; a PRESENT key the manifest does not carry is a
+    vocabulary error, and a leg is where that one is found. A leg refusing
+    both would make every homeless row every destination's failure."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row.pop("destination")
+    row.pop("destination_path")
+    refused(scratch.run(doc), "test-home-missing")
+    dest = scratch.destination("dox", ARRIVALS)
+    summary = verified(scratch.run(doc, "--destination", "dox_code",
+                                   "--dest-root", str(dest)))
+    assert summary["rows_owed"] == 1, "src/mod.py alone; the homeless row is " \
+        "not this leg's business"
+
+
+def test_a_replica_outside_the_declared_surface_may_not_be_placed(
+        scratch: Scratch) -> None:
+    """`arrivals_for` filters its rows through `under_surface` and the two
+    `--replica-at` admission sets did not, so a replica row OUTSIDE
+    `moved_paths:` was admitted, counted from `tests_at_carve` and added to
+    this destination's declared total — an obligation the SOURCE mapping does
+    not carry, because `map_rows` skips exactly those rows. Measured on the
+    landed manifest with one replica moved out of the surface: the
+    openDox-code declaration rose 1,067 → 1,138 and the leg was refused a
+    shortfall it did not have."""
+    doc = scratch.clean()
+    doc["moved_paths"] = ["scripts/pkg/"]
+    dest = scratch.destination("dox", ARRIVALS)
+    payload = refused(
+        scratch.run(doc, "--destination", "dox_code", "--dest-root",
+                    str(dest), "--replica-at",
+                    "tests/corpus-adapter/test_conformance.py="
+                    "tests/test_conformance.py"),
+        "test-mapping-unreadable")
+    assert "tests/corpus-adapter/test_conformance.py" in payload["detail"]
+    assert verified(scratch.run(doc, "--destination", "dox_code",
+                                "--dest-root", str(dest)))["declared"] == 3, \
+        "and the same document without the flag is unchanged"
+
+
+@pytest.mark.parametrize("value,fragment", [
+    ("HEAD", "HEAD"),
+    ("{commit}^{{tree}}", "^{tree}"),
+    ("{commit}:scripts/pkg/mod.py\n{commit}", "\\n"),
+    ("{COMMIT}", "40 lowercase hex"),
+])
+def test_the_carve_commit_is_a_commit_and_not_a_revision_expression(
+        scratch: Scratch, value: str, fragment: str) -> None:
+    """`carve_commit:` is interpolated into a newline-delimited `git cat-file
+    --batch` request, so a TYPE is not enough: it is a REF INJECTION seat, the
+    `source_path` newline defect this file already pins, wearing the other
+    field.
+
+    Measured on the landed manifest before the fix, no other mutation:
+    `carve_commit: "<sha>:contracts/schemas/gate-intent.schema.yaml\n<sha>"`
+    doubled every request line, the replies desynced, and the source side
+    reported `source_count 0`, `Σ(destinations) 0`, `identity_holds true` and
+    EXIT 0 over a surface carrying 4,411 `def test_`. A floor that reports
+    zero and passes is the failure shape the whole design refuses."""
+    doc = scratch.clean()
+    doc["carve_commit"] = value.format(commit=scratch.commit,
+                                       COMMIT=scratch.commit.upper())
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "40 lowercase hex" in payload["detail"]
+    assert fragment in payload["detail"] or fragment == "40 lowercase hex"
+
+
+def test_the_commit_shape_is_floor_part_1_s_own() -> None:
+    """Two tools that disagreed about what a commit id IS would disagree about
+    which documents are readable. FLOOR PART 1 owns the shape; this one is
+    held equal to it here rather than by a comment claiming it."""
+    assert MODULE.COMMIT_RE.pattern == PART_1.COMMIT_RE.pattern
+
+
+def test_a_source_path_declared_twice_is_refused_not_counted_twice(
+        scratch: Scratch) -> None:
+    """`tests_at_carve` keys its counts BY PATH and collapses a duplicate,
+    while `map_rows` emits one mapping per ROW — so both copies were counted
+    and the identity went on balancing. Measured on the landed manifest with
+    one 35-test row duplicated: `source_count` 4,411 → 4,446, `identity_holds`
+    true, exit 0. FLOOR PART 1 calls the same document
+    `carve-file-duplicated`; this tool runs where that validator does not."""
+    doc = scratch.clean()
+    doc["rows"].append(copy.deepcopy(
+        scratch.row(doc, "scripts/pkg/test_alpha.py")))
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "scripts/pkg/test_alpha.py" in payload["detail"]
+    assert "carve-file-duplicated" in payload["detail"]
+
+
+@pytest.mark.parametrize("row", [
+    {"disposition": "moved_verbatim", "destination": "dox_code",
+     "destination_path": "tests/test_nameless.py"},
+    {"source_path": "", "disposition": "not_moved",
+     "reason": "deleted_at_carve"},
+    {"source_path": ["scripts/pkg/test_alpha.py"],
+     "disposition": "not_moved", "reason": "deleted_at_carve"},
+    "a string where a row should be",
+])
+def test_a_row_without_a_usable_source_path_refuses_rather_than_raising(
+        scratch: Scratch, row: Any) -> None:
+    """Every question this floor asks is keyed by `source_path:`, and four
+    readers subscripted it raw — a TRACEBACK and exit 1 against a documented
+    contract of a named refusal and exit 2, for exactly the input most likely
+    to be a hand-edited document."""
+    doc = scratch.clean()
+    doc["rows"].append(copy.deepcopy(row) if isinstance(row, dict) else row)
+    done = scratch.run(doc)
+    payload = refused(done, "test-mapping-unreadable")
+    assert "source_path" in payload["detail"]
+    assert "Traceback" not in done.stderr
+
+
+def test_a_surface_that_selects_no_row_does_not_pass(
+        scratch: Scratch) -> None:
+    """Round 3 refused an EMPTY or mistyped `moved_paths:`; a well-formed one
+    naming a prefix no row lies under is the same vacuum one step further on,
+    and round 6 was right that the claim had been made and not kept. Measured
+    on the landed manifest with `moved_paths: ["contracts/policies/"]`:
+    `rows_in_surface 0`, `source_count 0`, exit 0. Clause (a) is a QUANTIFIER
+    and a quantifier over the empty set is not a floor that holds."""
+    doc = scratch.clean()
+    doc["moved_paths"] = ["docs/", "openspec/changes/"]
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "NOT ONE" in payload["detail"]
+    doc["moved_paths"] = ["scripts/pkg/"]
+    assert verified(scratch.run(doc))["rows_in_surface"] == 5, \
+        "a surface that selects SOME rows is the operator's business, not " \
+        "this refusal's"
+
+
+def test_a_retired_row_with_surviving_copies_is_counted_once(
+        scratch: Scratch) -> None:
+    """`homed_rows` and `retired` are documented to add to
+    `test_bearing_rows`, and a retired row KEEPS the homes its
+    `also_replicated_to:` copies stand at — the identity `totals()` was
+    corrected to compute two rounds ago — so such a row was counted in BOTH
+    and the two summed to 147 of 146 on the landed manifest. The kinds
+    partition the mapping; the homes do not."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row["also_replicated_to"] = ["xdox_code"]
+    row["retired"] = copy.deepcopy(RETIREMENT)
+    summary = verified(scratch.run(doc))
+    assert summary["homed_rows"] + len(summary["retired"]) == \
+        summary["test_bearing_rows"]
+    assert summary["retired"][0]["homes"] == ["opensoft/openXdox-code"], \
+        "and the copies the retirement did NOT delete are named in the report"
+
+
+def test_the_arrival_reader_is_annotated_for_the_bytes_it_returns() -> None:
+    """It said `int | None` while returning `read_bytes()`, so a type checker
+    read the `mapping.count(blob)` at its one call site as an incompatible
+    argument — a claim about its own signature, wrong in the direction that
+    makes a reader distrust the checker rather than the code."""
+    verifier = _load(SCRIPT, "verify_carve_test_mapping_under_test")
+    assert verifier._tests_in.__annotations__["return"] == "bytes | None"
 
 
 # --------------------------------------------------------------------------
