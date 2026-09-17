@@ -1783,14 +1783,27 @@ the bookkeeping that ticks this group.
   test files. **The box does not tick on the filing; it ticks on the
   landing.**
   Measured before the claim at `openXdox-code` `main` **`589adee7`**:
-  `--destination openxdox_code` refuses **`conformance-adapter-undeclared`**
-  and no check is reached — which is the same verdict § 3.7 recorded on
-  2026-09-10 and is why this box exists. Branch
-  `build/corpus-adapter-implementation` off `589adee7`: three NEW
-  stdlib-only modules (`corpus_shape.py` carrying the construction data and
+  `--destination openxdox_code --dest-root <the openXdox-code checkout>`
+  refuses **`conformance-adapter-undeclared`** and no check is reached
+  — which is the same verdict § 3.7 recorded on
+  2026-09-10 and is why this box exists.
+  *(THE `--dest-root` IS PART OF THE QUOTED COMMAND AND WAS MISSING — without
+  it the runner refuses `conformance-unreadable` FIRST and never reaches the
+  adapter check at all, exactly as the exit-evidence paragraph above this box
+  records. Both refusals are real and they are DIFFERENT refusals; quoting the
+  shorter command against the longer one's result made this measurement
+  unreproducible and put the box at odds with its own neighbour. Re-measured
+  here: bare, `conformance-unreadable — --dest-root is required`; with a
+  destination root and no `--adapter`, `conformance-adapter-undeclared`.)*
+  Branch
+  `build/corpus-adapter-implementation` off `589adee7`: three NEW modules,
+  **stdlib plus the PINNED `opendox.corpus_adapter`** and nothing else
+  (`corpus_shape.py` carrying the construction data and
   a `from_profile()` over § 4.4's `DomainProfile`, `domain_corpus_adapter.py`
   implementing the six operations against the PINNED `opendox.corpus_adapter`
-  under RULED OQ-2/OQ-Q, and `conformance_corpus.py` as the declared
+  under RULED OQ-2/OQ-Q — which is why the dependency line says *plus the
+  pinned interface* and not *stdlib-only*, a contradiction this box carried
+  between one line and the next — and `conformance_corpus.py` as the declared
   `--adapter` factory), no existing module edited and no `doc_health` reach
   added. Its arrival admissions rows land at `openxFactory` on
   `chore/admit-openxdox-corpus-adapter`. **Q-X4 needed no question**: its
@@ -2415,8 +2428,10 @@ the bookkeeping that ticks this group.
   Once this lands, the phrase alone cannot tell a reader whether a coordinate
   was read at `cbc3a2c6` or at whichever `main` arrived later, so the
   stale-record claim would not be reproducible from the ledger. Raised at
-  review; three of this amendment's six uses already named the tree and three
-  did not, and all six now do. **And all six say ORIGINAL**, because after the
+  review; three of this amendment's six uses OF THAT PHRASE already named the
+  tree and three did not, and all six now do — **a claim about the PHRASE and
+  not about the citation list below, whose five reads are bound instead by the
+  single lead-in they all sit under**. **And all six say ORIGINAL**, because after the
   retarget the amendment's base IS `main`: naming the tree made the reads
   reproducible, and naming it ORIGINAL stops the label contradicting the
   merge-forward this very note records.)*
