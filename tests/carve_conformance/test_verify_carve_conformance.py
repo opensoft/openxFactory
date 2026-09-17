@@ -908,6 +908,12 @@ def test_the_table_digest_depends_on_the_pairing_and_not_on_the_order():
         {"papers/gamma.md": "bb", "notes/alpha.md": "aa"})
     swapped = {"notes/alpha.md": "bb", "papers/gamma.md": "aa"}
     assert MODULE.fingerprint_digest(a) != MODULE.fingerprint_digest(swapped)
+    # and the separator between a key and its digest carries its weight: drop
+    # it and a key that ENDS where the next value BEGINS produces the same
+    # byte stream as a shorter key with a longer value, so two different
+    # corpora would be reported under one number.
+    assert MODULE.fingerprint_digest({"ab": "c" * 64}) != \
+        MODULE.fingerprint_digest({"a": "b" + "c" * 64})
 
 
 def test_a_transposition_with_one_byte_changed_refuses_and_names_the_key(
