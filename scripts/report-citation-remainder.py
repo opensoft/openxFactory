@@ -180,9 +180,23 @@ def git_status(root: Path, *args: str):
     EXIT CODE rather than its output — `diff --quiet HEAD`, whose non-zero is
     the answer "the tracked content differs from the head" and not a failure to
     read the tree.
+
+    THE ROOT IS RESOLVED TO AN ABSOLUTE PATH BEFORE IT REACHES `git`, AT THE
+    SINK AND NOT ONLY AT THE CALLER. `REPO_ROOT` is caller-supplied text and
+    every one of this report's gits is this one call, so the one place the
+    normalization cannot be forgotten is here: an absolute path cannot begin
+    with `-` and therefore cannot be read by git as an option however the
+    caller spelled it. The refusal below is unreachable for a resolved path and
+    is kept as the assertion it is — a root that somehow reached `git` as an
+    option would be a run this report could not take, which is the one
+    non-zero exit it has.
     """
+    where = str(Path(root).resolve())
+    if where.startswith("-"):  # pragma: no cover - an absolute path cannot
+        raise CouldNotRun(
+            f"refusing a repository root that reads as an option: {root!r}")
     try:
-        result = subprocess.run(["git", "-C", str(root), *args],
+        result = subprocess.run(["git", "-C", where, *args],
                                 capture_output=True, text=True)
     except OSError as error:  # pragma: no cover - no git on PATH
         raise CouldNotRun(f"git could not be run: {error}") from error
@@ -1047,6 +1061,10 @@ def take_reading(root: Path, *, include=(), exclude=()) -> Reading:
     remainder."""
     if not root.exists():
         raise CouldNotRun(f"{root} does not exist")
+    # THE ROOT IS ABSOLUTE FROM HERE DOWN, so every path this reading joins onto
+    # it and every containment test the resolver applies to one answers about
+    # the same tree whatever directory the report was run from.
+    root = root.resolve()
     git(root, "rev-parse", "--is-inside-work-tree")
     code, out, _ = git_status(root, "rev-parse", "HEAD")
     head = out.strip() if code == 0 else "(no commit at HEAD)"
