@@ -768,6 +768,15 @@ def map_rows(doc: dict[str, Any],
     check 4 walks that surface from the other direction. The landed manifest
     has none outside it, which `tests/carve_test_mapping/` asserts rather than
     this function assuming.
+
+    AND THE ENTRY POINT REFUSES SUCH A DOCUMENT OUTRIGHT (Copilot, round 7 on
+    #1080), so the two records do not disagree about which reading is
+    authoritative: `verify-carve-test-mapping.py::read_manifest` will not
+    answer about a manifest any of whose rows lies outside its own declared
+    surface, because a surface covering part of its document reports `0 = 0`
+    over the part it omits. THIS function keeps the skip because it is the
+    § 5.4 reading a module consumer imports, and because a skip that is
+    counted (`rows_in_surface`) is what makes the refusal above measurable.
     """
     moved_paths = doc["moved_paths"]
     mapped: list[RowMapping] = []
