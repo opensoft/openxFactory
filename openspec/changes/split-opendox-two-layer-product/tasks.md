@@ -1195,10 +1195,10 @@ the bookkeeping that ticks this group.
   **exact at every one of those seven commits** — re-measured by amendment #5
   at all seven (`design.md` 2, `proposal.md` 2, the RECORD 1, at `8944758c`,
   `0a835098`, `cb2d3a2c`, `c5f68457`, `cbc3a2c6`, `4cef77af` and `ec5069bc`
-  alike) — the
-  FOUR LIVE occurrences
-  `design.md`:52 and :351, `proposal.md`'s `code_surface:` front-matter line
-  (:2) and `proposal.md`:208, and the FIFTH, `review/ratification-2026-09-05.md`:549,
+  alike). **FIVE occurrences in all: FOUR LIVE plus ONE RECORD.** The four live
+  ones are `design.md`:52 and :351, `proposal.md`'s `code_surface:` front-matter
+  line (:2) and `proposal.md`:208; the fifth is
+  `review/ratification-2026-09-05.md`:549,
   which is the RECORD no later act amends — because no act has touched those
   three files since. *(This clause read "`README.md`:1875–1879" until fix round
   4, which measured the drift rather than re-pointing a number that moves again
@@ -1289,7 +1289,9 @@ the bookkeeping that ticks this group.
   **The clock is on the reading and not on the sentence** — a pull
   request's draft state is the most perishable thing this file cites, and an
   unbound *"is a draft"* turns false the hour somebody marks it ready.
-  **Q-F2 (a) and Q-F3 (a) land IN `openDox-code` #26**: `LocalGitCorpus`
+  **Q-F2 (a) and Q-F3 (a) ARE TO LAND IN `openDox-code` #26, which is OPEN as
+  a DRAFT at head `2f4f8114`, read 2026-09-17T14:36Z** — *to land*, not landed,
+  and the figures below are the measurement, not the merge: `LocalGitCorpus`
   GROWS the three per-corpus construction data (`write_path`, `kind_field`,
   `required_fields`, defaults = today's values) and takes the
   `CORPUS_UNREADABLE` refusal-kind fix — measured **17 of 17** with a
@@ -1715,8 +1717,9 @@ the bookkeeping that ticks this group.
   `verify-carve-conformance.py --destination openxdox_code --dest-root
   <the openXdox-code checkout> --adapter <module>:<factory> --corpus
   <the transposition>` → **`OK — 17 of 17`**. `--dest-root` and
-  `--adapter` are each REFUSED-IF-ABSENT by the runner, in that order; the
-  `<module>` is this box's own `conformance_corpus.py` above. `--corpus` is
+  `--adapter` are each REFUSED-IF-ABSENT by the runner, in that order. The
+  `<module>:<factory>` is the DESTINATION'S OWN READER, named by this box's
+  module list below and not by this sentence. `--corpus` is
   not refused but is needed for correctness wherever the destination's
   reader is history-backed, because the default is the plain fixture tree
   (`tests/corpus-adapter/fixtures`) and RULED Q-F1 puts the transposition
@@ -3352,9 +3355,15 @@ movements claimed at the time they land.
   `5715385370`). It carries exactly (E)'s object and nothing else: the
   `credential-contracts` MODIFIED delta restates the `:169` invariant
   *Dispatch-only credential least privilege and serving-tier separation*
-  VERBATIM — body and all three promoted scenarios — and grows it by four
-  clauses and six scenarios: tenant-org creation through a declared
-  credential-free manifest and never by an operator identity; one App pair per
+  VERBATIM — body and all three promoted scenarios — and grows it by FIVE
+  clauses and TEN scenarios, counted in the landed tree at `74647dfc` rather
+  than estimated: the requirement carries **13** `#### Scenario:` blocks where
+  the promoted one carried **3**, and all three of those survive by title. The
+  five clauses are tenant-org creation through a declared
+  credential-free manifest and never by an operator identity; that the clause
+  binds where the identity LIVES and not who drives the flow, so an
+  operator-executed install may still drive it and a pair already in service
+  is not retroactively refused; one App pair per
   tenant under a pattern-discoverable `<product> — <tenant>` name; the dispatch
   identity's one named target holding no governed content; and time-bound
   capture into the tenant's own custody BY REFERENCE, no material in any
