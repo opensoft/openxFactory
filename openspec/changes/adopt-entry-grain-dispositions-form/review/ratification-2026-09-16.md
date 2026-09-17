@@ -12,6 +12,34 @@ a separate change in this repository and is no part of this record. Recorded,
 and THE ONE CITATION for this record: openxFactory #1045, comment
 https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 
+**AMENDED SINCE — BY THE RATIFIER, TWICE, 2026-09-17.** TWO
+post-ratification acts have moved normative text since this ratifying
+commit, IN ORDER, and this pointer does not contradict either by naming
+only one.
+
+FIRST, THE CARRIAGE: on Brett Heap's word ***"route plus re-base"***
+(openxFactory #1050, comment 5714145269, 2026-09-17T12:12:49Z),
+`specs/document-lifecycle/spec.md`'s `## MODIFIED` block was re-based onto
+`scope-pinned-arm-root-naming`'s own ratified outcome, its measurement
+against this record's ratified tip moving from EMPTY to 21 insertions / 8
+deletions — see § "Addendum, 2026-09-17 — carriage on the ratifier's word"
+at the foot of this record.
+
+SECOND, THE AMENDMENT THIS POINTER PRIMARILY TRACKS: the SAME block's
+positive-resolution scenario *A marker names a capability of a pinned
+neutral product* — its WHEN and disjointness bullet partitioned against
+this packet's own added refusal scenario over the SAME input (the overlap
+this record itself filed below, unresolved, for Brett Heap's word) — ruled
+by Brett Heap on 2026-09-17T12:34:55Z, ***"Apply the partition"***
+(openxFactory #1045, comment 5714433011), with the contradiction before him
+and consented to as the amendment of a ratified packet BY ITS OWN RATIFIER
+— see § "Addendum, 2026-09-17 — THE POST-RATIFICATION CONSENTED AMENDMENT"
+at the foot of this record.
+
+The citation immediately above remains THE ONE CITATION for the ORIGINAL
+ratifying act and is UNCHANGED; each of the two amendments carries its own
+citation, given in its own Addendum.
+
 ## Decision
 
 **RATIFIED — D-1, D-2 AND D-3 AS FILED; NO DECISION REOPENED**, by Brett
@@ -283,3 +311,179 @@ openxFactory #1045 comment
 https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 The citation immediately above names a SEPARATE, LATER ruling — the "route
 plus re-base" word — and is not a second ratification of this packet.
+
+## Addendum, 2026-09-17 — THE POST-RATIFICATION CONSENTED AMENDMENT
+
+**A SECOND ACT OF THE SAME RATIFIER, THE DAY AFTER THE FIRST, ON THE ONE
+OVERLAP THE RATIFYING RECORD LEFT UNRESOLVED.** It is recorded as an
+addendum rather than folded into the body above, because a record that
+quietly rewrites itself to match a later ruling destroys the evidence that
+the ruling was needed.
+
+**WHAT WAS PUT, AND WITH WHAT IN FRONT OF HIM.** The body above already
+records the overlap Copilot found on this pull request: the ratified
+positive-resolution scenario *A marker names a capability of a pinned
+neutral product*, AS RATIFIED, says nothing about optional members, so it
+RESOLVES a record complete for its required shape members and a well-formed,
+non-empty `capabilities:` enumeration even where that record's OPTIONAL
+`dispositions:` is `[{}]`; the packet's own added scenario, *A pin record's
+optional dispositions member carries a malformed entry*, judges the SAME
+record and REFUSES it — two normative outcomes for one input. Round 5
+(`a2640c9d`) partitioned the two by editing the ratified scenario's WHEN and
+disjointness bullet; round 6 (`73864686`) reverted that edit, because a
+packet carrying `Status: ratified` cannot itself amend ratified normative
+text on a reviewer's finding, and filed the overlap instead as a RULING
+NEEDED comment on openxFactory
+[#1045](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5701323247),
+with an addendum
+([#1045](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5701410009))
+adding one further fact for whichever way the ruling went. THAT ADDENDUM
+ASSERTED that a FALSEY `pinned_by_commit_only:` — `null`, `""` — must count
+as EMPTY rather than as a present, malformed sequence, because the
+entry-grain guard the ratified D-1 already reaches reads that member with an
+ABSENT-IS-EMPTY default; and it contrasted `dispositions:`, which draws the
+line differently: OF VALUES PRESENT, only an explicit `null` is EMPTY — the
+same `pin.get(...)` call that yields `None` for an ABSENT member yields it
+for an explicit `null` too, so the two are one case under the guard's `raw
+is None` check (`scripts/validate-openspec-cli-pin.py:801-803`), not two —
+and every other PRESENT falsey NON-SEQUENCE value that is not `null` —
+`""`, `0`, `false`, `{}` — stays malformed, an empty sequence `[]` being
+EMPTY, accepted as absence is. **THE `dispositions:` HALF OF THAT ADDENDUM IS
+MEASURED AND STANDS; THE `pinned_by_commit_only:` HALF WAS THE LANE'S OWN
+PREMISE AND IS WRONG**, and the NOTE below records what is measured instead.
+It is left standing here, reported rather than rewritten, because the
+correction is only legible against the claim it corrects.
+
+**THE RULING — APPLY THE PARTITION.** Brett Heap, 2026-09-17, in session to
+lane `openxfactory-2`, by interactive multi-choice:
+[openxFactory #1045, comment
+5714433011](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011)
+— ***"Apply the partition"***: the positive-resolution scenario's WHEN
+additionally requires every OPTIONAL member the matched shape admits that is
+PRESENT to conform at its entry grain to the shape's own in-tree verifier's
+PURE guard; the refusal scenario is unchanged; the disjointness bullet
+extended. The same comment also carries the second, independent word on
+realization timing (`tasks.md` § 3), which is no part of this record.
+
+**THE PARTITION IS DEFINED BY THE GUARD, SO IT REACHES ONLY MEMBERS THAT
+HAVE ONE — TODAY `dispositions:` ALONE.** The clause as first drafted named
+`pinned_by_commit_only:` too, on the lane's addendum above. Measured on this
+tree, that member has NO pure, source-free guard: both verifiers judge it
+inside their source-dependent `verify()`, after the source is resolved and
+reaching `source.read()` / `target.exists()`
+(`scripts/validate-openreposhape-pin.py:481-508`,
+`scripts/verify-openxwallet-pin.py:443-457`), and the shared adapter's own
+citations for it carry NO `guard` name for exactly that reason, the comment
+above them saying so in terms (`scripts/doc_health/pin_shapes.py:355-365`).
+`dispositions:` does have one — `pinned_dispositions`, whose only input is
+the record (`scripts/validate-openspec-cli-pin.py:787-803`) — which is why
+the packet's own refusal scenario could already name it. The clause is
+therefore narrowed to members for which such a guard exists; the ruling's
+substance is untouched, the positive scenario still ceasing to accept the
+one input the refusal scenario refuses. Recorded, with the lane's own
+premise named as the thing corrected, on openxFactory
+[#1045, comment 5715775376](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5715775376).
+
+**NOTE — `pinned_by_commit_only:`, AND WHAT THIS AMENDMENT DOES NOT SAY
+ABOUT IT.** Nothing here changes how that member is read. The shared
+adapter's `_is_path_only_list` accepts ANY falsey value outright — `if not
+value: return True`, before it ever checks for a list, so `None`, `""`,
+`false`, `0` and `{}` are all empty to the adapter
+(`scripts/doc_health/pin_shapes.py:151-171`) — and that is unchanged by this
+amendment. The two verifiers, however, DIFFER AT THE FILE BOUNDARY, which is
+why the amendment states no falsey-is-empty rule about them:
+`validate-openreposhape-pin.read_pin()` parses the pin's own narrow grammar
+and keeps top-level scalars as STRINGS (`:201`), so `pinned_by_commit_only:
+null`, `false`, `0` or `{}` reaches `verify()` as a truthy string and is
+refused there despite `pin.get(...) or []`, only a quoted `""` parsing as
+empty; the wallet verifier loads the same member with `yaml.safe_load`
+(`scripts/verify-openxwallet-pin.py:171`) and therefore does see Python
+falsey values. Both facts are measurements of today's tree, recorded so no
+reader takes the narrowed clause for a claim about either verifier.
+
+**THIS IS A CONSENTED AMENDMENT, AND THE CONSENT IS THE WHOLE OF ITS
+AUTHORITY.** Brett Heap is the ratifying owner of this packet; he ruled with
+the contradiction already before him, recorded in this same file since
+2026-09-16, rather than being asked to approve a repair he had not seen; and
+the amendment is applied in a separate, ordinary pull request on the
+2026-09-01 `add-requirement-ref-resolution-integrity` precedent's form,
+landing under this repository's Rule 6 when its required checks are green.
+
+**WHAT MOVED.** The `## MODIFIED` block's positive-resolution scenario, and
+only it:
+
+- The scenario's WHEN gained one clause. AS RATIFIED it read (in relevant
+  part) *"…AND which carries a well-formed, NON-EMPTY `capabilities:` member
+  in which `<capability>` appears"*. It now reads *"…AND which carries a
+  well-formed, NON-EMPTY `capabilities:` member in which `<capability>`
+  appears, AND every OPTIONAL member the matched shape admits that is
+  PRESENT and for which that shape's own in-tree verifier exposes a PURE,
+  SOURCE-FREE guard — one whose only input is the record, callable before any
+  checkout, `git` call or network read — conforms at its entry grain to that
+  guard: today `dispositions:` alone, whose guard reads an explicit `null` as
+  EMPTY exactly as absence does and otherwise requires a sequence whose every
+  entry it accepts, every other PRESENT falsey NON-SEQUENCE value (`""`,
+  `0`, `false`, `{}`) staying malformed — an empty sequence `[]` is EMPTY,
+  accepted as absence is; an optional member for which NO such guard exists,
+  `pinned_by_commit_only:` today, is NOT reached by this clause"*.
+- Its disjointness bullet gained the matching exclusion. AS RATIFIED it read
+  *"an ABSENT enumeration, a malformed enumeration, and a well-formed
+  enumeration in which `<capability>` does not appear, are OUTSIDE this
+  scenario…"*. It now reads *"an ABSENT enumeration, a malformed
+  enumeration, a well-formed enumeration in which `<capability>` does not
+  appear, and a PRESENT optional member malformed at its entry grain against
+  a pure, source-free guard this scenario's WHEN reaches, are OUTSIDE this
+  scenario…"*.
+- `tests/doc-health/test_modified_block_currency_self_gate.py`'s
+  `_LEDGER_SUBJECTS` gains one row for
+  `("adopt-entry-grain-dispositions-form", "document-lifecycle", "Prose
+  tagging marker hygiene")`, with a comment recording why — bookkeeping the
+  self-gate requires of editing an already-promoted scenario's body, not
+  realization work, the same convention `scope-pinned-arm-root-naming`'s own
+  row on this requirement already uses.
+
+**WHAT DID NOT MOVE, stated so no reader has to diff for it.** The packet's
+OWN added scenario — *A pin record's optional dispositions member carries a
+malformed entry* — is BYTE-UNCHANGED: its WHEN, its THEN and all five of its
+AND bullets stand exactly as ratified, and this amendment reopens no part of
+it. D-1, D-2 and D-3 stand as ratified. `tasks.md` § 1's four ticked boxes
+(1.1–1.4) are untouched, as is every non-checkbox correction the ratifying
+commit made. § 2 stands exactly as the filing pull request left it, and § 3
+and § 4 stay open — this amendment realizes and archives nothing.
+`proposal.md`, `design.md` and the README carry no paraphrase of the
+positive scenario's WHEN (checked again against the current, rebased block);
+none needed alignment. And the block's OTHER content — the root-selection
+prose and the two scenarios PR #1075 (`a93d2682`) carried in on
+`scope-pinned-arm-root-naming`'s ordering — is untouched by this amendment,
+which reaches only the one scenario the overlap named.
+
+**THE OVERLAP IS NOW RESOLVED, NOT ROUTED.** Where the body above filed the
+contradiction for Brett Heap's word and left both scenarios standing in
+tension, this addendum records that word taken: a record complete for its
+required shape members and capabilities enumeration, whose optional
+`dispositions:` is `[{}]`, now satisfies ONLY the refusal scenario, the
+positive scenario's WHEN no longer matching it. No other scenario in the
+block shares this overlap; each already excludes what the others require.
+
+**NO BENCH HAD READ THIS AMENDMENT AT THIS ADDENDUM'S WRITING.** It was new
+text as of this addendum, carried on its own pull request under Rule 6, and
+gated at that commit — `openspec validate` strict on this change and
+`--all --strict`, the self-gate, `proposal-support.py . verify` and
+`validate-sequenced-after.py . --ledger-diff` — were recorded there and not
+pre-asserted here.
+
+**ROUND 5, 2026-09-17: MEASURED, NOT PRE-ASSERTED.** Run in the foreground
+at this round's head, after a plain `git merge origin/main` that landed no
+new commits (`origin/main` was already an ancestor):
+`pytest -q -p no:cacheprovider tests/doc-health/test_modified_block_currency_self_gate.py`
+— NINETEEN passed; `python3 scripts/doc-health.py --single-repo . --family
+modified-block-currency` — 0 critical, 0 error, 0 warning, SIXTEEN info,
+the SAME sixteen named subjects this file's own self-gate asserts;
+`OPENSPEC_TELEMETRY=0 openspec validate adopt-entry-grain-dispositions-form
+--strict` — valid; `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`
+— 109 passed, 2 failed (111 items), the SAME pre-existing pair as
+`origin/main` and neither this amendment's — `add-chain-attestation` and
+`add-composed-view-authoring`; `python3 scripts/proposal-support.py .
+verify` — "proposal support verification ok"; `python3
+scripts/validate-sequenced-after.py . --ledger-diff` — the per-change sweep
+ledger consistent with the corpus, 218 rows.
