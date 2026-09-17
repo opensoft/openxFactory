@@ -1301,15 +1301,24 @@ the bookkeeping that ticks this group.
   **WHERE THE TWO DESTINATIONS STAND, each figure bound to the tree it was
   read at** — because a reader who re-runs these at a later head of a moving
   draft and gets a different number should be able to tell drift from error:
-  openDox's reader was **11 of 17** at `openDox-code` **#26** `6c8f19e7`
-  (`floor37`'s read of 2026-09-17T12:11Z, the measurement RULED Q-F1..F3 was
-  given on) **and reads `OK — 17 of 17 check(s)`, exit 0, once Q-F2's
+  openDox's reader read **11 of 17** at `openDox-code` **#26** `6c8f19e7`
+  **when pointed at a TRANSPOSITION of the corpus** (`floor37`'s read of
+  2026-09-17T12:11Z, the measurement RULED Q-F1..F3 was given on). **A TREE
+  IS NOT ENOUGH TO BIND A FIGURE — THE INPUTS BIND IT TOO**: the SAME reader
+  at the SAME commit reads **1 of 17** when pointed at the fixtures AS THEY
+  SHIP, refusing at resolution with `corpus-unclassifiable — the directory is
+  not a git repository` and leaving sixteen *"not reached"*, which is the
+  figure `openxFactory` #1086 records and the whole reason RULED Q-F1 exists.
+  Neither number is the other's correction. It **reads `OK — 17 of 17
+  check(s)`, exit 0, once Q-F2's
   construction data is applied in #26** — the REAL class, not the diagnostic
   subclass 17 of 17 was first reached with. **#26 does not thereby claim this
   box and says so in terms**: § 3.7 also owes a DECLARED factory and Q-F1's
-  transposition, which is a separate act at `openxFactory` (#1086); **openXdox has no
+  transposition, which is a separate act at `openxFactory` (#1086); **openXdox had no
   reader at all** at `openXdox-code` `589adee7`, where the runner refuses
-  `conformance-adapter-undeclared` — its build is § 4.5a above, entered by
+  `conformance-adapter-undeclared` — **and now has one IN FLIGHT and not yet
+  landed**, `openXdox-code` **#23**, OPEN as a draft at head `70ea05a9` read
+  2026-09-17T14:45Z; its build is § 4.5a above, entered by
   this amendment on 2026-09-17; and the control, `openxFactory`'s own
   § 2.2a adapter, is
   **17 of 17**. **This box
@@ -1712,18 +1721,20 @@ the bookkeeping that ticks this group.
 - [ ] 4.5a `[oXd]` **BUILD the corpus-adapter IMPLEMENTATION** — `design.md`
   § D4 machinery **(1)**, the one of the seven that § 4.5 did not name —
   **parameterized by the § 4.4 domain profile, and proved on § 3.7's neutral
-  corpus.** Exit evidence is one command and one line, and the command takes
-  FOUR arguments and not the one an earlier draft of this box showed:
-  `verify-carve-conformance.py --destination openxdox_code --dest-root
-  <the openXdox-code checkout> --adapter <module>:<factory> --corpus
-  <the transposition>` → **`OK — 17 of 17`**. `--dest-root` and
-  `--adapter` are each REFUSED-IF-ABSENT by the runner, in that order. The
-  `<module>:<factory>` is the DESTINATION'S OWN READER, named by this box's
-  module list below and not by this sentence. `--corpus` is
-  not refused but is needed for correctness wherever the destination's
-  reader is history-backed, because the default is the plain fixture tree
-  (`tests/corpus-adapter/fixtures`) and RULED Q-F1 puts the transposition
-  there instead.
+  corpus.** Exit evidence is one command and one line, taken from the
+  IMPLEMENTATION rather than composed here:
+  `python3 scripts/verify-carve-conformance.py --destination openxdox_code
+  --dest-root <the openXdox-code checkout> --adapter
+  openxdox.conformance_corpus:reader` → **`OK — 17 of 17`**.
+  **THREE arguments, not four and not one.** `--dest-root` and `--adapter`
+  are each REFUSED-IF-ABSENT by the runner, in that order; the package sits
+  under `src/`, which the runner already adds to the import roots, so no
+  `--sys-path` is needed. **`--corpus` is deliberately ABSENT**: it defaults
+  to the fixture tree (`tests/corpus-adapter/fixtures`) and THIS reader's
+  location vocabulary IS a directory tree, so it reads the corpus as it
+  ships. RULED Q-F1's `--corpus <transposition>` is for a HISTORY-backed
+  reader — openDox's `LocalGitCorpus`, not this one — and passing it here
+  would hand a filesystem reader a corpus built for somebody else.
   *(THE ABBREVIATED FORM WAS THIS BOX'S OWN AND IT DOES NOT RUN — measured,
   not supposed: `--destination openxdox_code` alone exits **2** with
   `conformance-unreadable — --dest-root is required with --destination`.
@@ -1763,8 +1774,14 @@ the bookkeeping that ticks this group.
   `openxFactory`'s § 2.2a shape already does. **No spec change and no schema
   change**: the domain profile stays the vocabulary and lifecycle authority,
   and the shape only carries what a reader needs to read.
-  **STATUS — CLAIMED AND BUILDING, 2026-09-17T13:33:17Z, CLAIM
-  `5715212503`** (this lane, authored by the helper's `xdoxbuild` actor).
+  **STATUS — CLAIMED 2026-09-17T13:33:17Z (CLAIM `5715212503`, this lane,
+  authored by the helper's `xdoxbuild` actor) AND NOW FILED: `openXdox-code`
+  **#23** (*"BUILD the corpus-adapter IMPLEMENTATION … answers the
+  conformance corpus 17 of 17"*), opened 2026-09-17T13:53:24Z, **OPEN as a
+  DRAFT at head `70ea05a9` when read at 2026-09-17T14:45Z**. It carries
+  exactly the three modules named below under `src/openxdox/`, plus their two
+  test files. **The box does not tick on the filing; it ticks on the
+  landing.**
   Measured before the claim at `openXdox-code` `main` **`589adee7`**:
   `--destination openxdox_code` refuses **`conformance-adapter-undeclared`**
   and no check is reached — which is the same verdict § 3.7 recorded on
@@ -1891,10 +1908,17 @@ the bookkeeping that ticks this group.
   ONLY** —
   `Status: draft` on all three lifecycle documents, no ratification, no
   archive — so this box ticks on ITS landing and not on its opening.
-  **#1071 is READY and not yet landed. TWO readings, BOTH KEPT**: at
+  **#1071 IS FILED AND LANDED — `repromote-engineering-vocabulary`, merged
+  2026-09-17T14:43:42Z as `e83f8cd7` (note `5716296239`)**, carrying the
+  successor id `openxfactory-engineering-adapter`. **THE BOX STILL DOES NOT
+  TICK**: this box ticks on its landing AND on Brett Heap's RATIFICATION of
+  that change, for which two judgments are declared — no second REMOVED block
+  on `ideation-dashboard`, and it archives BEFORE the split packet. Arc F
+  (§ 5.6) waits on its ARCHIVE, which is later still.
+  **THREE readings, ALL KEPT**: at
   **2026-09-17T13:58Z** it was non-draft and `CONFLICTING` against `main`; at
-  **14:34Z** it is non-draft and `MERGEABLE`, the merge-from-main having
-  happened in between. It CONFLICTED because it collided with
+  **14:34Z** non-draft and `MERGEABLE`; at **14:43:42Z** merged. It
+  CONFLICTED because it collided with
   § 7.4's own #1073 on the README **OpenSpec Records** block — the one block
   the lane-collision protocol's Rule 6 landing window exists to serialize, and
   two acts of the SAME lane hit it on the same afternoon. The conflict is
@@ -2312,7 +2336,12 @@ the bookkeeping that ticks this group.
   moment by amendment #5 — a fourth present-tense self-reference of #4's, and
   the one that mattered most, because the record below closes exactly this
   obligation and the packet cannot carry two present-tense answers to one
-  question. A Copilot finding on this amendment's own pull request, round 2.)*
+  question. A Copilot finding on **#1078**, amendment #5's own pull request,
+  round 2 — bound to a NUMBER because the inherited sentence immediately
+  below says "this amendment's own pull request, round 19", written by
+  amendment #4 about **#1058**, which is where that round 19 happened.
+  Amendment #5 has no round 19, and two neighbouring sentences using one
+  phrase for two different pull requests is a trap for the next reader.)*
   *(A Copilot finding on this amendment's own pull request, round 19. What it
   caught is a fact that went stale between one commit and the next, not a
   reading: the sentence said "is now open" for two hours after the merge.)*
