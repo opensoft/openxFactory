@@ -237,30 +237,6 @@ def read_manifest(path: Path) -> dict[str, Any]:
     # `moved_paths: ["contracts/policies/"]`: `rows_in_surface 0`,
     # `source_count 0`, exit 0. Clause (a) is a QUANTIFIER, and a quantifier
     # over the empty set is not a floor that holds.
-    # EVERY ROW'S DISPOSITION IS IN THE VOCABULARY, AND THE DESTINATION SIDE
-    # IS WHY (Copilot, round 10 on #1080). `homes_of` refuses an unknown
-    # `disposition:`/`reason:` — but ONLY the source invocation calls it. At a
-    # leg, `arrivals_for` reads the disposition to decide whether a row is
-    # owed here, so a row spelled `disposition: typo` simply fell out of the
-    # loop as somebody else's business and the leg passed WITHOUT EVER
-    # CHECKING THAT ARRIVAL. The vocabulary is FLOOR PART 1's, closed, and
-    # this is the one place both modes pass through.
-    for index, row in enumerate(doc["rows"]):
-        disposition = row.get("disposition")
-        reason = row.get("reason")
-        if disposition in mapping.MOVED_DISPOSITIONS:
-            continue
-        if disposition == mapping.NOT_MOVED and reason in (
-                mapping.STAYS_REASONS
-                + (mapping.REPLICA_REASON, mapping.DELETED_REASON)):
-            continue
-        raise mapping.TestMappingRefusal(
-            "test-mapping-unreadable",
-            f"{path} rows[{index}] ({row['source_path']}) carries "
-            f"disposition {disposition!r} / reason {reason!r}, which FLOOR "
-            "PART 1's own vocabulary does not hold. The source side refuses "
-            "such a row by name; a DESTINATION run would read it as another "
-            "leg's business and pass without ever asking for its arrival")
     outside = [source_path for source_path in seen
                if not mapping.under_surface(source_path, doc["moved_paths"])]
     if len(outside) == len(seen):
@@ -298,6 +274,23 @@ def read_manifest(path: Path) -> dict[str, Any]:
             "it is a file this floor would answer about by not asking — and a "
             "surface that covers only part of its own document reports "
             "`0 = 0` over the part it omits")
+    # AND EVERY ROW IS READ THE WAY THE SOURCE SIDE READS IT (Copilot, rounds
+    # 5, 8, 10 and 11 on #1080 — four rounds of the SAME class, closed here
+    # rather than one instance at a time). `homes_of` is the § 5.4 reading:
+    # the closed disposition/reason vocabulary, the `also_replicated_to:`
+    # shape, its aliases, the retained SELECTOR that is not a destination key,
+    # and a retirement's own placement. Every one of those refusals was
+    # reached ONLY by `verify_source`, because `arrivals_for` reads a row to
+    # decide whether THIS leg owes it and a row it does not understand looks
+    # exactly like another leg's business. A leg is the documented standalone
+    # check, so it must refuse what the source side refuses.
+    #
+    # THE FUNCTION ITSELF, not a transcription of its rules: `homes_of` is
+    # pure and cheap (no I/O — the counts are filled in by the caller), so
+    # calling it and discarding the result is the only way to keep the two
+    # readings identical as either changes.
+    for row in doc["rows"]:
+        mapping.homes_of(doc, row)
     return doc
 
 
@@ -487,6 +480,17 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
             # was admitted here and counted at a destination while the source
             # mapping gave it no such home at all.
             if row.get("disposition") in mapping.MOVED_DISPOSITIONS
+            # AND IT HAS A PLACEMENT OF ITS OWN (Copilot, round 11 on #1080).
+            # With `destination:`/`destination_path:` absent,
+            # `effective_arrival` is `(None, None)`, which resolves to a tuple
+            # that matches no destination — so the row slipped past the
+            # "already moves here" clause below, entered this set, and
+            # `--replica-at` could then carry a leg on the COPY alone while
+            # the row's primary arrival was missing. `also_replicated_to:` is
+            # "neither a fourth disposition and neither of them a PLACEMENT"
+            # (RULED Q-L7 (a)); a row with no placement has no replica.
+            and isinstance(mapping.effective_arrival(row)[0], str)
+            and mapping.effective_arrival(row)[0]
             and isinstance(row.get("also_replicated_to"), list)
             and any(mapping.resolved_destination(key, destinations) == wanted
                     for key in row["also_replicated_to"])

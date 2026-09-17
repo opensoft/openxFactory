@@ -1777,6 +1777,82 @@ def test_a_destinations_key_that_is_not_a_string_refuses(
 
 
 # --------------------------------------------------------------------------
+# Copilot round 11 — the one placement nothing checked, a replica with no
+# row, and the leg reading every row the way the source side reads it
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("escape", ["/etc/passwd", "../outside.py",
+                                    "tests/../../outside.py"])
+def test_a_retirement_may_not_name_a_path_outside_the_destination_root(
+        scratch: Scratch, escape: str) -> None:
+    """`retired_at` validates the block's SHAPE — four non-empty strings — and
+    a string is not a path. A moved row could set `destination_path:` and
+    `retired: at_path:` to the same escaping value: the retirement matched,
+    its tests were subtracted from the identity, and the leg skipped the row.
+    It is the ONE placement in this floor nothing checked, because a moved
+    row's own path is put through `closed_relative` where the LEG joins it to
+    a root and a retired row is never joined to anything."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row["destination_path"] = escape
+    retirement = copy.deepcopy(RETIREMENT)
+    retirement["at_path"] = escape
+    row["retired"] = retirement
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "retired: at_path" in payload["detail"]
+    dest = scratch.destination("dox", {"src/mod.py": "scripts/pkg/mod.py"})
+    refused(scratch.run(doc, "--destination", "dox_code", "--dest-root",
+                        str(dest)), "test-mapping-unreadable")
+
+
+def test_a_moved_row_with_no_placement_of_its_own_is_not_a_replica(
+        scratch: Scratch) -> None:
+    """With `destination:`/`destination_path:` absent, `effective_arrival` is
+    `(None, None)` and resolves to a tuple matching no destination — so the
+    row slipped past the "already moves here" clause, entered the
+    `--replica-at` admission set, and a leg could pass on the COPY alone while
+    the row's primary arrival was missing. `also_replicated_to:` is "neither a
+    fourth disposition and neither of them a PLACEMENT" (RULED Q-L7 (a))."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row.pop("destination")
+    row.pop("destination_path")
+    row["also_replicated_to"] = ["dox_code"]
+    dest = scratch.destination("dox", ARRIVALS)
+    payload = refused(
+        scratch.run(doc, "--destination", "dox_code", "--dest-root",
+                    str(dest), "--replica-at",
+                    "scripts/pkg/test_alpha.py=tests/test_alpha.py"),
+        "test-mapping-unreadable")
+    assert "scripts/pkg/test_alpha.py" in payload["detail"]
+
+
+@pytest.mark.parametrize("mutate", [
+    {"also_replicated_to": ["typo"]},
+    {"also_replicated_to": ["dox_code", "dox_code"]},
+    {"also_replicated_to": "dox_code"},
+    {"destination": "openxFactory"},
+])
+def test_a_leg_refuses_every_row_the_source_side_refuses(
+        scratch: Scratch, mutate: dict[str, Any]) -> None:
+    """FOUR ROUNDS OF ONE CLASS, closed at the reading rather than one
+    instance at a time. Each of these is a `homes_of` refusal — the closed
+    vocabulary, the `also_replicated_to:` shape, its aliases, the retained
+    SELECTOR — and every one of them was reached ONLY by `verify_source`,
+    because `arrivals_for` reads a row to decide whether THIS leg owes it and
+    a row it does not understand looks exactly like another leg's business.
+    `read_manifest` now runs `homes_of` over every row and discards the
+    result: the function itself, so the two readings cannot drift."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row.update(mutate)
+    dest = scratch.destination("dox", ARRIVALS)
+    refused(scratch.run(doc, "--destination", "dox_code", "--dest-root",
+                        str(dest)), "test-mapping-unreadable")
+    refused(scratch.run(doc), "test-mapping-unreadable")
+
+
+# --------------------------------------------------------------------------
 # the landed document — the § 8.2 seat
 # --------------------------------------------------------------------------
 

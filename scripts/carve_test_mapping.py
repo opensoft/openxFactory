@@ -360,6 +360,17 @@ def retirement_of(row: dict[str, Any]) -> tuple[Any, Any, Any] | None:
         return None
     if (at, at_path) != effective_arrival(row):
         return None
+    # AND THE PLACEMENT IT NAMES IS A PLACEMENT (Copilot, round 11 on #1080).
+    # `retired_at` validates the block's SHAPE — four non-empty strings — and
+    # a string is not a path: `retired: {at_path: "/etc/passwd"}` matched a
+    # row whose `destination_path:` said the same thing, and the retirement
+    # was accepted, its tests subtracted from the identity, and the row
+    # skipped at the leg. It is the ONE placement in this floor that nothing
+    # checked: a moved row's own `destination_path` is put through
+    # `closed_relative` where the leg joins it to a root, and a retired row is
+    # never joined to anything. `validate-carve-manifest.py` refuses such a
+    # document; this predicate is read where that validator is not.
+    closed_relative(at_path, f"{row['source_path']}'s `retired: at_path`")
     return at, at_path, row["retired"].get("ruling")
 
 
