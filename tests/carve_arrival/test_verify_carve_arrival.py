@@ -3335,9 +3335,12 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
     `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
     pins ... a transcribed count is a claim, a summed one is a measurement".
     THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
-    PR). It pins the MANIFEST's own aggregate — `(2628, 176)` since the § 3.4
-    SLICE-S7 RESIDUE annotation, `(2454, 176)` when this paragraph was written
-    — and the 20
+    PR). It pins the MANIFEST's own aggregate — `(2717, 176)` since the § 3.4
+    SLICE-S7 RESIDUE annotation, `(2710, 176)` since RULED Q7's CSS extraction
+    before it and `(2454, 176)` when this paragraph was written (Copilot
+    review, round 19 on the Q7 act: this sentence describes what that test
+    pins TODAY, so the act that moves the aggregate moves this number with
+    it) — and the 20
     replica rows — which is a claim about the file and not about the sentence
     that transcribes it. So every cell here (three disposition counts, the
     replica count, the three per-class totals, the moved-row total, the carrier
@@ -5325,6 +5328,68 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     # this the way an equality check broke on the FIRST bump).
     opendox_seed = {entry["path"]: entry
                     for entry in admissions.get("opendox_code", [])}
+
+    # RULED Q7's CSS EXTRACTION (`#656` comment `5648049748`) — FIVE new
+    # admissions, each pinned by PATH AND `since` (Copilot review of this act,
+    # round 1: the generic shape/sort/hex checks above would pass a dropped
+    # entry, a swapped one, or an incorrect introducing commit, and this file's
+    # own docstring already records that every bump owes exact assertions).
+    #
+    # `since` IS THE FILE'S OWN INTRODUCING COMMIT and not the leg branch's
+    # later tip — the provenance contract stated above, and it is why these two
+    # shas do not move when the leg takes a review round.
+    q7_expected = {
+        "opendox_code": {
+            # the extraction's running proof, on `validate.yml`'s explicit list
+            "tests/test_binding_stylesheets.py":
+                "144a4a338f3e1017662fbde0f2e3e7916231baea",
+        },
+        "openxdox_code": {
+            # FOUR sheets for SIX bindings, and both departures are measured:
+            # `gate-lens.js` owns no selector of its own, and the two workbench
+            # bindings name ONE sheet because eleven of its nineteen blocks are
+            # named by both.
+            "src/openxdox/web/views/dispose.css":
+                "b18687ced9f7bb98bbb6bbfe1257dea7149305a0",
+            "src/openxdox/web/views/gate-projects.css":
+                "b18687ced9f7bb98bbb6bbfe1257dea7149305a0",
+            "src/openxdox/web/views/gate.css":
+                "b18687ced9f7bb98bbb6bbfe1257dea7149305a0",
+            "src/openxdox/web/views/swb.css":
+                "b18687ced9f7bb98bbb6bbfe1257dea7149305a0",
+        },
+    }
+    for destination, wanted in q7_expected.items():
+        declared = {entry["path"]: entry
+                    for entry in admissions.get(destination, [])}
+        for path, since in wanted.items():
+            assert path in declared, (
+                f"{path} is one of RULED Q7's five admissions (`#656` comment "
+                f"`5648049748`) at {destination} and is no longer declared")
+            assert declared[path]["since"] == since, (
+                f"{path}'s `since` is {declared[path]['since']!r} and RULED Q7 "
+                f"introduced it at {since!r}: `since` is the file's OWN "
+                "introducing commit, so a leg review round must not move it")
+    # FIVE, COUNTED IN THE COMMITTED FILE — not in the expectation above.
+    # `sum(len(v) for v in q7_expected.values())` compared a local constant
+    # with itself, so a SIXTH admission riding in on this act's name still
+    # passed (Copilot review, round 5). The committed entries introduced at
+    # RULED Q7's two commits are what is counted now, so an extra one fails.
+    q7_commits = {since for wanted in q7_expected.values()
+                  for since in wanted.values()}
+    # EVERY DESTINATION, not just the two this act declares (Copilot review,
+    # round 6): an extra admission introduced at a Q7 commit but filed under
+    # some other destination — `opendox_spec`, say — was invisible to a set
+    # built from `q7_expected`'s own keys, which is the exact riding-in this
+    # count exists to catch.
+    q7_committed = {(destination, entry["path"])
+                    for destination, entries in admissions.items()
+                    for entry in (entries or [])
+                    if entry["since"] in q7_commits}
+    assert q7_committed == {(destination, path)
+                            for destination, wanted in q7_expected.items()
+                            for path in wanted}, sorted(q7_committed)
+    assert len(q7_committed) == 5, sorted(q7_committed)
     for path in ("src/opendox/web/views/intent-binding.js",
                  "tests/test_intent_binding_dom.py",
                  "tests/test_intent_binding_shape.py"):

@@ -2255,3 +2255,133 @@ def test_the_distinction_is_carried_by_the_declared_code_not_by_the_message() ->
     )
     assert "CONTENT_PATH_ABSENT" in source
     assert "exact Git path is unavailable" not in source
+
+
+# --- an unreadable pinned leg refuses as a dependency, never as a traceback ---
+#
+# `#1048` round 3 (Copilot on openxFactory PR #1051, `carved_reach.py:895`).
+# `_shed_aware_commit` is the SECOND caller of `carved_reach.shed_commit_object`
+# — `scripts/doc_health/release_inventory._shed_member` is the first — and that
+# resolver raises `CarveReachUnavailable` when the pinned leg's object store
+# cannot be reached or does not carry the commit its gitlink names. The first
+# caller turns that into its repository-level skip. This one had no boundary at
+# all: `_CommitSource.exists` and `.read_member` catch only
+# `ContentResolutionError`, and `scripts/validate-contract-release.py` catches
+# only that and `ReleaseDependencyError`, so an unreadable leg escaped every
+# handler between the resolver and `main()` and surfaced as a stack trace
+# instead of the documented exit-code-2 dependency failure.
+#
+# THE SHAPE IS NOT EXOTIC: a gitlink may name a commit the recording repository
+# does not have — that is what a gitlink IS — so a shallow store, an
+# interrupted fetch, and a superproject whose pin moved ahead of what the leg
+# was fetched at all leave a real module store that simply cannot answer.
+
+SHED_MEMBER = "contracts/moved.schema.yaml"
+SHED_MEMBER_BYTES = "kind: moved-by-the-shed\n"
+
+
+def _shed_leg_repository(tmp_path: Path) -> tuple[Path, str, str, str]:
+    """A superproject with a pinned leg, a linked worktree of it, and the pin
+    advanced to a commit the leg's MODULE STORE does not carry.
+
+    Returns the worktree, the commit whose gitlink the store CAN answer for,
+    the commit whose gitlink it cannot, and that unreachable leg commit — the
+    worktree rather than the checkout because `git worktree add` leaves every
+    gitlink an empty directory, which is what puts the read on the module store
+    under the superproject's common git directory.
+    """
+    leg = support.init_git_repo(tmp_path / "leg-origin")
+    support.commit_files(leg, {SHED_MEMBER: SHED_MEMBER_BYTES})
+
+    root = support.init_git_repo(tmp_path / "shed-root")
+    support.commit_files(root, {"README.md": "root\n"})
+    _git(root, "-c", "protocol.file.allow=always", "submodule", "add",
+         "--quiet", str(leg), "leg")
+    readable = _commit_all(root, "pin the leg at a commit its store carries")
+
+    stranger = support.init_git_repo(tmp_path / "stranger")
+    unreachable = support.commit_files(
+        stranger, {"unrelated.txt": "a commit no leg store ever fetched\n"})
+    # `update-index` STAGES the advanced gitlink and `git add -A` would put it
+    # straight back, because the working tree's `leg` is still checked out at
+    # the old commit — so this commits the index as it stands rather than
+    # going through `_commit_all`.
+    _git(root, "update-index", "--add", "--cacheinfo",
+         f"160000,{unreachable},leg")
+    _git(root, "commit", "--quiet", "-m",
+         "advance the pin past what the store has")
+    incomplete = _git(root, "rev-parse", "HEAD")
+
+    worktree = tmp_path / "shed-worktree"
+    _git(root, "worktree", "add", "--quiet", "--detach", str(worktree),
+         incomplete)
+    return worktree, readable, incomplete, unreachable
+
+
+def _point_carve_at(monkeypatch, root: Path) -> None:
+    import carved_reach
+
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", root)
+    monkeypatch.setattr(carved_reach, "MOUNTS", {"leg_spec": root / "leg"})
+    monkeypatch.setattr(carved_reach, "_rows", lambda: {
+        SHED_MEMBER: {"source_path": SHED_MEMBER,
+                      "disposition": "moved_verbatim",
+                      "destination": "leg_spec",
+                      "destination_path": SHED_MEMBER}})
+
+
+def test_a_leg_store_without_the_pinned_commit_refuses_as_a_dependency(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """THE REFUSAL REACHES THE CLI'S OWN HANDLER (`#1048` round 3).
+
+    An unreadable leg is a fact about the machine, and the one thing it must
+    never become here is an ANSWER: a `None` would send the reader to this
+    repository's own tree for a member whose bytes are in the leg, and a
+    post-shed tree does not carry it — the phantom absence, arriving in the
+    release verifier instead of in doc-health."""
+    from carved_reach import CarveReachUnavailable
+
+    worktree, readable, incomplete, unreachable = _shed_leg_repository(tmp_path)
+    _point_carve_at(monkeypatch, worktree)
+
+    # The fixture is a leg that CAN be read at one commit and cannot at the
+    # next, so the refusal below is about the pin rather than about the setup.
+    data, mode, _ = release._CommitSource(worktree, readable).read_member(
+        SHED_MEMBER)
+    assert data.decode("utf-8") == SHED_MEMBER_BYTES
+    assert mode == "100644"
+
+    for operation in (
+        lambda: release._CommitSource(worktree, incomplete).read_member(
+            SHED_MEMBER),
+        lambda: release._CommitSource(worktree, incomplete).exists(SHED_MEMBER),
+    ):
+        with pytest.raises(release.ReleaseDependencyError) as caught:
+            operation()
+        message = str(caught.value)
+        assert caught.value.exit_code == 2
+        assert SHED_MEMBER in message, message
+        assert unreachable in message, (
+            "the refusal names the commit the store could not answer for: "
+            + message
+        )
+        assert "git submodule update --init" in message, (
+            "and carries the leg's own remedy, which is what makes it "
+            "actionable rather than merely loud: " + message
+        )
+        # The reason names the condition observed, never a conclusion about
+        # the release — the discipline `_resolution_established_absence` keeps
+        # for the resolver's own fifteen refusals.
+        assert "drift" not in message.lower(), message
+        assert "absent" not in message.lower(), message
+        assert isinstance(caught.value.__cause__, CarveReachUnavailable)
+
+    assert not issubclass(
+        CarveReachUnavailable,
+        (release.ReleaseDependencyError, ContentResolutionError),
+    ), (
+        "the refusal being translated is outside every class the readers above "
+        "and `scripts/validate-contract-release.py::main` catch, which is why "
+        "an untranslated one left a traceback instead of exit code 2"
+    )

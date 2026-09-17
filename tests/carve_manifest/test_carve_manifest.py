@@ -2748,8 +2748,8 @@ def test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose(
     # An object store at EVERY level of the mount: the walk is one
     # `rev-parse <revision>:<segment>` per gitlink (`openDox`, then `code`),
     # and it refuses `CarveReachUnavailable` at the first level that is not
-    # materialized — which is the OTHER refusal this function keeps and this
-    # case must not be mistaken for.
+    # materialized — which is one of the THREE refusals this function keeps
+    # (`#1048` added the other two) and this case must not be mistaken for.
     (leg / ".git").mkdir(parents=True)
     (tmp_path / "openDox" / ".git").mkdir(exist_ok=True)
     rows = {
@@ -2770,6 +2770,18 @@ def test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose(
     pinned = "b" * 40
     monkeypatch.setattr(carved_reach, "_git_object_id",
                         lambda repo, revision, path: pinned)
+    # …and the STORE-COMPLETENESS probe `#1048` added beside it. The two
+    # `.git` entries above are bare directories, not repositories, so the real
+    # `cat-file -e <gitlink>^{commit}` answers no and the walk would refuse
+    # `CarveReachUnavailable` for an INCOMPLETE STORE — one more thing this
+    # case must not be mistaken for. `#1048`'s OTHER new refusal, "the tree
+    # this gitlink would be recorded in could not be READ", is already out of
+    # the walk's way and needs no stub of its own: it is reached only where
+    # `_git_object_id` answers `None`, and the stub above never does.
+    # Stubbed for exactly the reason `_git_object_id` above is: what this case
+    # measures is the DISPOSITION, and git is not the question.
+    monkeypatch.setattr(carved_reach, "_git_ok",
+                        lambda repo, *arguments: True)
 
     located = carved_reach.shed_commit_object("a" * 40,
                                               "scripts/pkg/retired.py")
@@ -2829,9 +2841,175 @@ def test_the_exact_commit_resolver_reads_the_effective_arrival_of_a_re_destined_
     pinned = "c" * 40
     monkeypatch.setattr(carved_reach, "_git_object_id",
                         lambda repo, revision, path: pinned)
+    # …and the STORE-COMPLETENESS probe `#1048` added beside it, stubbed for
+    # exactly the reason `_git_object_id` above is: the four `.git` entries
+    # this fixture makes are bare directories and not repositories, so the real
+    # `cat-file -e <gitlink>^{commit}` answers no and the walk would refuse
+    # `CarveReachUnavailable` for an INCOMPLETE STORE at `openDox` — the WRONG
+    # answer to measure a case whose whole question is WHICH LEG the walk
+    # reaches, and which leaves the ORIGINAL leg materialized on purpose so
+    # that a resolver reading the raw `destination` answers rather than
+    # raising. Git is not the question here; the effective arrival is.
+    monkeypatch.setattr(carved_reach, "_git_ok",
+                        lambda repo, *arguments: True)
 
     located = carved_reach.shed_commit_object("a" * 40, "scripts/pkg/moved.py")
     assert located == (effective_leg, pinned, "src/opendox/moved.py"), located
+
+
+def test_a_probe_that_times_out_is_UNAVAILABLE_never_absent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Round 5 (`#1048`, Copilot on PR #1051, `carved_reach.py:826`): the
+    `cat-file`/`ls-tree` probes below `_git_run` are also the paths a partial
+    clone or an unreachable promisor remote can HANG rather than fail, and the
+    pre-round-5 `_git_run` had no timeout to turn a hang into an answer.
+    `scripts/hermes_runtime_validation/content.py:103-116` already bounds its
+    own equivalent read at `timeout=30`; this pins the same bound here, and
+    that a timeout is read as UNANSWERED — never as the tree's own "no such
+    entry", the phantom-absence thesis this whole file exists to refuse, one
+    layer lower than every other case in this section.
+
+    `subprocess.run` is mocked to RAISE `subprocess.TimeoutExpired` rather than
+    built as a slow real git call: the property under test is that `_git_run`
+    catches the timeout and answers `None`, and that the READER built on it
+    raises `CarveReachUnavailable` rather than returning `None` as if the tree
+    had answered — not that git itself can be made to hang inside a test's own
+    time budget. No leg is materialized here at all: the timeout fires on the
+    very FIRST probe, the gitlink lookup, which is the earliest a real hang
+    could reach.
+    """
+    import carved_reach
+
+    def timed_out(argv, **kwargs):
+        assert kwargs.get("timeout") == 30, (
+            "the probe must be bounded at the same 30s "
+            "scripts/hermes_runtime_validation/content.py uses")
+        raise subprocess.TimeoutExpired(cmd=argv, timeout=30)
+
+    monkeypatch.setattr(subprocess, "run", timed_out)
+
+    # `_git_run` ITSELF: the same failed-probe result an unrunnable git
+    # already answers with, so every existing `is None` check above it goes on
+    # working unchanged.
+    assert carved_reach._git_run(tmp_path, "cat-file", "-e",
+                                 "deadbeef^{commit}") is None
+
+    # ...and the READER built on it. `_git_object_id` answers `None` (the
+    # mocked `_git_run` behind it timed out), which sends the walk to
+    # `_tree_entry_absent` — ALSO built on the timed-out `_git_run` — and ITS
+    # `(False, ...)` answer must raise rather than let the walk read a `None`
+    # gitlink as "this tree has no such entry".
+    rows = {
+        "scripts/pkg/timed_out.py": {
+            "source_path": "scripts/pkg/timed_out.py",
+            "disposition": "moved_verbatim",
+            "destination": "opendox_code",
+            "destination_path": "src/opendox/timed_out.py"},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS,
+                             opendox_code=tmp_path / "leg"))
+
+    with pytest.raises(carved_reach.CarveReachUnavailable) as caught:
+        carved_reach.shed_commit_object("a" * 40, "scripts/pkg/timed_out.py")
+    assert "30s" in str(caught.value), (
+        "the raised message must name the timeout where it surfaces git's "
+        f"own stderr — got {caught.value}")
+
+
+def test_the_module_loader_reads_the_effective_arrival_of_a_re_destined_row(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """Regression, `#1079`. `module()` read `row["destination_path"]` directly
+    — the row's ORIGINAL arrival — instead of `effective_arrival(row)`, the
+    same three-line predicate `source()` reads at line 616 and
+    `shed_commit_object()` was fixed to read by `#1077`. Latent while no
+    `re_destined` row named a module-importable file; this fixture gives it
+    one.
+
+    The row below carved to `openxdox_code` and a ruling (RULED Q6) has since
+    re-destined it to `opendox_code` — a DIFFERENT leg entirely, so a resolver
+    reading the raw `destination_path` derives the dotted name the ORIGINAL
+    leg would have made importable (`openxdox.moved`) rather than the one the
+    EFFECTIVE leg makes importable (`opendox.moved`). `install()` and the real
+    `importlib.import_module` are both stood down here — what this function
+    is answerable for is which dotted name it ASKS for, not whether either
+    leg is materialized in this checkout.
+    """
+    import carved_reach
+
+    rows = {
+        "scripts/pkg/moved.py": {
+            "source_path": "scripts/pkg/moved.py",
+            "disposition": "moved_verbatim",
+            "destination": "openxdox_code",
+            "destination_path": "src/openxdox/moved.py",
+            "re_destined": {
+                "from": "openxdox_code",
+                "from_path": "src/openxdox/moved.py",
+                "to": "opendox_code",
+                "to_path": "src/opendox/moved.py",
+                "ruling": RULING_CITATION,
+            }},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "install", lambda **kwargs: None)
+    asked: list[str] = []
+    sentinel = object()
+    monkeypatch.setattr(importlib, "import_module",
+                        lambda name: asked.append(name) or sentinel)
+
+    result = carved_reach.module("scripts/pkg/moved.py")
+    assert result is sentinel
+    assert asked == ["opendox.moved"], asked
+
+
+def test_the_relative_path_reader_reads_the_effective_arrival_of_a_re_destined_row(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Regression, `#1079`. `shed_relpath()` walked
+    `MOUNTS[row["destination"]]` and returned `row["destination_path"]` — the
+    row's ORIGINAL arrival — instead of `effective_arrival(row)`, on the same
+    defect `#1077` fixed in `shed_commit_object()`. Latent while no
+    `re_destined` row named a file a marker asks the relative path of; this
+    fixture gives it one.
+
+    The row below carved to `openxdox_code` and a ruling (RULED Q6) has since
+    re-destined it to `opendox_code` — a DIFFERENT leg entirely, not merely a
+    different path at the same one, so a resolver reading the raw
+    `destination` answers a well-formed relative path under the mount the row
+    no longer names, which a marker's `exists()` check against the CORRECT leg
+    reads as absent rather than present — the same silent-wrong-answer shape
+    `#1077`'s own regression named for `shed_commit_object()`.
+    """
+    import carved_reach
+
+    original_leg = tmp_path / "openXdox" / "code"
+    effective_leg = tmp_path / "openDox" / "code"
+
+    rows = {
+        "scripts/pkg/moved.py": {
+            "source_path": "scripts/pkg/moved.py",
+            "disposition": "moved_verbatim",
+            "destination": "openxdox_code",
+            "destination_path": "src/openxdox/moved.py",
+            "re_destined": {
+                "from": "openxdox_code",
+                "from_path": "src/openxdox/moved.py",
+                "to": "opendox_code",
+                "to_path": "src/opendox/moved.py",
+                "ruling": RULING_CITATION,
+            }},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS,
+                             openxdox_code=original_leg,
+                             opendox_code=effective_leg))
+
+    relpath = carved_reach.shed_relpath("scripts/pkg/moved.py")
+    assert relpath == "openDox/code/src/opendox/moved.py", relpath
 
 
 def _cross_reference_validator():
@@ -3433,8 +3611,9 @@ def test_the_real_repository_answers_at_the_ruled_path() -> None:
 # Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `5628560136`).
 #
 # WHY THE WHOLE WINDOW IS HERE AND NOT A SAMPLE. The aggregate assertion
-# (`(2454, 176)` when this was written, `(2628, 176)` since the retirement act
-# and the § 3.4 SLICE-S7 RESIDUE annotation; the CURRENT figure is the one
+# (`(2454, 176)` when this was written, `(2717, 176)` since the retirement
+# act, RULED Q7's CSS extraction and the § 3.4 SLICE-S7 RESIDUE annotation;
+# the CURRENT figure is the one
 # `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts, and the
 # one here is the aggregate THIS window was a delta against)
 # would still pass if any of these 782 lines had landed on the
@@ -3969,12 +4148,32 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # figure — `retired:` touches no `edits[]`, a retirement is a fact about a
     # DESTINATION, and the first-use pin below measures them.
     #
+    # AND THEN RULED Q7's CSS EXTRACTION of 2026-09-16 (`#656` comment
+    # `5648049748`, the FORM Q-L1's at `5628560136`) moved `lines` again and
+    # `carrying` not at all: 89 `adapter calls` lines on the single
+    # `scripts/ideation_dashboard/web/styles.css` row, which slice S7 had
+    # already converted and which was already a carrier. They are DELETIONS —
+    # the 59 rule blocks whose every selector class belongs to openXdox's six
+    # contributed modules and to no file of openDox's own bundle — and a
+    # deletion has been a declared edit in this vocabulary since slice S6
+    # declared 122 `serve_projection.py` deletions under the same class.
+    # 2621 + 89 = 2710 on the same 176 rows. Five new files are admitted: one
+    # at `opendox_code` (`tests/test_binding_stylesheets.py`) and four at
+    # `openxdox_code` (`src/openxdox/web/views/{dispose,gate-projects,gate,
+    # swb}.css`). Its own window is pinned by row and class in
+    # `test_the_real_manifest_carries_the_q7_css_extraction_declared_edits`.
+    #
     # AND THE § 3.4 SLICE-S7 RESIDUE ANNOTATION's seven `adapter calls` lines
-    # then make 2628 on the same 176 again — its four `opendox_code` rows were
-    # every one of them already a carrier, so nothing converts. The two acts
-    # are disjoint by destination and by row, which is why this figure is the
-    # sum of two independent deltas and not an ordering.
-    assert (lines, carrying) == (2628, 176), (lines, carrying)
+    # then make 2717 on the same 176 again — its four `opendox_code` rows were
+    # every one of them already a carrier, so nothing converts, and its four
+    # rows are disjoint from Q7's one (`web/styles.css` against four view
+    # modules), so this figure is the sum of two independent deltas and not an
+    # ordering. 2710 + 7 = 2717, SUMMED over the merged document rather than
+    # added from the two sides — `2621 + 89 + 7` is the CHECK on that sum and
+    # never its source, which is the rule the Q7 paragraph above states for
+    # its own figures and the rule the manifest header's movement paragraph
+    # states for all of them.
+    assert (lines, carrying) == (2717, 176), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -4002,9 +4201,9 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # THE § 3.4 SLICE-S8 ANNOTATION'S OWN FOURTEEN ENTRIES, PINNED BY ROW,
     # CLASS AND EXACT LINES — on the same reasoning as the ASK-7 and S3 pins:
-    # the aggregate (`(2454, 176)` when this was written; `(2628, 176)` since
-    # the retirement act and the § 3.4 SLICE-S7 RESIDUE) would still pass if
-    # these forty lines had
+    # the aggregate (`(2454, 176)` when this was written; `(2717, 176)` since
+    # the retirement act, RULED Q7's CSS extraction and the § 3.4 SLICE-S7
+    # RESIDUE) would still pass if these forty lines had
     # landed on the wrong rows, under the wrong class, or as a different forty
     # that summed the same. Every one is `path constants` (a path literal
     # naming a location the destination does not have — this manifest's own
@@ -4353,10 +4552,13 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     """The § 3.4 slice-S7 window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
-    AGGREGATE — `(2454, 176)` when this window landed, `(2628, 176)` since the
-    retirement act and the § 3.4 SLICE-S7 RESIDUE annotation, the latter having
-    appended seven lines to four of these very rows — and that pair would stay
-    green if any of these 782
+    AGGREGATE — `(2454, 176)` when this window landed and `(2717, 176)` since
+    the retirement act, RULED Q7's CSS extraction and the § 3.4 SLICE-S7
+    RESIDUE annotation, the last of those having appended seven lines to four
+    of these very rows; a figure this docstring has now been caught carrying
+    stale TWICE (Copilot review of the Q7 act, round 1). It moves with every
+    annotation and this window does not, which is the whole reason the window
+    is pinned separately: that pair would stay green if any of these 782
     lines had landed on the wrong row, under the wrong one of RULING OQ-1's
     three classes, or as a different set summing to the same total — which is
     why every slice since ASK-7 pins its own window. S7 edits THIRTY-THREE rows
@@ -4459,24 +4661,28 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     assert set(S7_CONVERTED) <= set(S7_WINDOW), \
         set(S7_CONVERTED) - set(S7_WINDOW)
     #
-    # AMENDED BY THE § 3.4 SLICE-S7 RESIDUE ANNOTATION, on exactly the ground
-    # slice S8 amended the run above: this read `row["edits"] ==
-    # S7_WINDOW[source_path]` — the row's WHOLE list — and that equality is
-    # S7's claim only for as long as S7 is the newest act on all seventeen
-    # converted rows. It is not: the residue annotation appends an `adapter
-    # calls` entry to three of them (`board.js`, `docs.js`, `explorer.js`), so
-    # a whole-list read fails on a manifest in which nothing whatever is wrong.
+    # AMENDED BY RULED Q7's CSS EXTRACTION AND AGAIN BY THE § 3.4 SLICE-S7
+    # RESIDUE ANNOTATION, on exactly the ground slice S8 amended the run
+    # above: this read `row["edits"] == S7_WINDOW[source_path]` — the row's
+    # WHOLE list — and that equality is S7's claim only for as long as S7 is
+    # the newest act on all seventeen converted rows. It is not, twice over:
+    # RULED Q7 (`#656` comment `5648049748`) appends an eighteenth entry to
+    # `web/styles.css`, and the residue annotation appends an `adapter calls`
+    # entry to three more (`board.js`, `docs.js`, `explorer.js`), so a
+    # whole-list read fails on a manifest in which nothing whatever is wrong.
     # What the conversion actually claims is that the row carried NO entries
     # BEFORE slice S7 — which, in a document appended to in landing order, is
     # that S7's entries are the row's FIRST, a PREFIX. That is asserted here,
     # and it keeps every claim the equality made bar the accident of being the
     # whole list, which belongs to whichever act annotated the row most
-    # recently and to no act permanently.
+    # recently and to no act permanently. The two acts made this same
+    # amendment independently, in the same words and for the same reason; the
+    # merge that brought them together keeps ONE note and Q7's assertion.
     for source_path in S7_CONVERTED:
         row = rows[source_path]
         landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
-        entries = S7_WINDOW[source_path]
-        assert landed[:len(entries)] == entries, (source_path, landed, entries)
+        assert landed[:len(S7_WINDOW[source_path])] == S7_WINDOW[source_path], \
+            row
 
     # 3. THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures
     # the runbook's § 2 paragraph and this pull request's body both state.
@@ -4493,12 +4699,13 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
     # 1584 + 782 = 2366 and 159 + 17 = 176 — THE AGGREGATE AS SLICE S7 LANDED
     # IT, which is what a window total is: a DELTA against the document the
     # act found, and so a figure a later slice cannot move. The carrying half
-    # is still the amendment test's own figure, because neither slice S8
+    # is still the amendment test's own figure, because none of slice S8
     # (openxFactory #1025), the pre-existing `openxdox_code` annotation
-    # (#1031), the retirement act nor the § 3.4 SLICE-S7 RESIDUE added a
-    # carrier; the line half is not — S8's forty carry it to 2406, that
-    # annotation's forty-eight to 2454, the retirement's one hundred and
-    # sixty-seven to 2621 and the residue's seven to the figure that test
+    # (#1031), the retirement act (RULED 5656343213), RULED Q7's CSS
+    # extraction or the § 3.4 SLICE-S7 RESIDUE added a carrier; the line half
+    # is not — S8's forty carry it to 2406, that annotation's forty-eight to
+    # 2454, the retirement act's one hundred and sixty-seven to 2621, Q7's
+    # eighty-nine to 2710 and the residue's seven to the figure that test
     # asserts, and that test re-derives it rather than reading it here.
     assert 1584 + lines == 2366, lines
     assert 159 + len(S7_CONVERTED) == 176, len(S7_CONVERTED)
@@ -4649,26 +4856,30 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
     # facet, which is RULING OQ-1's `adapter calls` and neither of its other
     # two: no import moves and no path is spelled.
     assert by_class == {"adapter calls": 7}, by_class
-    # 2621 + 7 = 2628 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDS
+    # 2710 + 7 = 2717 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDS
     # IT, a DELTA against the document it FOUND, and so a figure a later act
     # cannot move. THE BASE IS HARD-CODED ON PURPOSE AND IT IS A TRIPWIRE
-    # (Copilot review of this pull request, round 2), and it has already fired
-    # once: this line read `2454 + lines == 2461` against the pre-retirement
-    # base, and the merge from `main` that brought RULED 5656343213's
+    # (Copilot review of this pull request, round 2), and it has now fired
+    # TWICE, both times as designed. It read `2454 + lines == 2461` against the
+    # pre-retirement base until the merge that brought RULED 5656343213's
     # retirement act in (+167 `adapter calls` lines on one `openxdox_code` row,
-    # openxFactory #1043) turned it red until the base and every synchronized
-    # document were re-derived together — the runbook's § 2 totals and
-    # per-destination narrative, README's doc-index line and the three script
-    # docstrings. A form that floated with whatever the manifest happened to
-    # sum would have let that merge land silently with all of them stale, which
-    # is the transcription failure § 2 of the runbook exists to end.
-    #
-    # IT WILL FIRE AGAIN, and the next act is named: RULED Q7's annotation
-    # (openxFactory #1068) declares 89 further lines on `web/styles.css`, an
-    # `opendox_code` row, so a merge that brings it in makes the base 2710 and
-    # this line `2710 + lines == 2717`, with the runbook's `opendox_code` cell
-    # moving 1674 -> 1763.
-    assert 2621 + lines == 2628, lines
+    # openxFactory #1043) turned it red; and it read `2621 + lines == 2628`
+    # until the merge that brought RULED Q7's CSS extraction in (+89 `adapter
+    # calls` lines on one `opendox_code` row, openxFactory #1068 -> main
+    # `24f7a213`) turned it red again. Each time the base and every
+    # synchronized document were re-derived together — the runbook's § 2
+    # totals, its per-destination table and narrative, README's doc-index line,
+    # the three script docstrings and the aggregate assertion above — and each
+    # time the new base was SUMMED over the merged manifest rather than added
+    # from the two sides. A form that floated with whatever the manifest
+    # happened to sum would have let either merge land silently with all of
+    # them stale, which is the transcription failure § 2 of the runbook exists
+    # to end. The PREDICTION written here at the first firing named this second
+    # one exactly — base 2710, `2710 + lines == 2717`, the `opendox_code` cell
+    # 1674 -> 1763 — and it is recorded as a prediction MET rather than as the
+    # source of the figures: all three were re-measured at the merged head
+    # before this line was rewritten.
+    assert 2710 + lines == 2717, lines
 
     # 4. AND EVERY OTHER ACT'S WINDOW IN THIS FILE IS DISJOINT FROM THIS ONE,
     # ROW BY ROW — except slice S7's, which § 1 above orders against instead.
@@ -4677,10 +4888,11 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
     # this module's own namespace rather than named one by one, so an act that
     # lands a window AFTER this one is held to the same disjointness without
     # amending this test: RULED Q7's `Q7_WINDOW` (openxFactory #1068, one row,
-    # `web/styles.css`) is the next one due and is covered by this sweep the
-    # moment it merges, which is the whole reason the sweep is written this way
+    # `web/styles.css`) was named here as the next one due and the sweep picked
+    # it up on the merge that brought it in — at `24f7a213`, with no edit to
+    # this loop — which is the whole reason the sweep is written this way
     # rather than as an `assert not (set(Q7_WINDOW) & set(S7R_WINDOW))` that
-    # would be a NameError until then.
+    # would have been a NameError until then.
     siblings = {name: value for name, value in globals().items()
                 if name.endswith("_WINDOW") and isinstance(value, dict)
                 and name not in ("S7R_WINDOW", "S7_WINDOW")}
@@ -5459,3 +5671,191 @@ def test_the_git_environment_scrub_list_agrees_across_content_and_carved_reach()
             == content._SCRUBBED_GIT_ENVIRONMENT)
     assert (carved_reach_direct._INDEXED_GIT_CONFIG_ENVIRONMENT.pattern
             == content._INDEXED_GIT_CONFIG_ENVIRONMENT.pattern)
+
+
+# ---------------------------------------------------------------------------
+# RULED Q7 — THE CSS EXTRACTION's own declared-edit window.
+# ---------------------------------------------------------------------------
+
+#: The 89 carve-commit lines RULED Q7's CSS extraction declares on the ONE row
+#: it touches. Not transcribed from a draft: they are
+#: `scripts/verify-carve-arrival.py`'s own `arrival-undeclared-edit` output
+#: against a throwaway prototype of the extraction, re-derived by
+#: `_check_declared_lines`' algorithm (`carve_lines.text_records` + `difflib`
+#: opcodes) against the leg head.
+Q7_WINDOW: dict[str, list[tuple[str, list[int]]]] = {
+    "scripts/ideation_dashboard/web/styles.css": [
+        ("adapter calls", [
+    161, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232,
+    233, 234, 235, 236, 237, 238, 774, 775, 777, 1139, 1140, 1145, 1146,
+    1147, 1148, 1152, 1253, 1254, 1255, 1256, 1257, 1258, 1259, 1260, 1261,
+    1262, 1263, 1264, 1265, 1266, 1267, 1268, 1269, 1270, 1271, 1272, 1274,
+    1275, 1276, 1285, 1296, 1523, 1526, 1527, 1529, 1530, 1531, 1532, 1533,
+    1534, 1541, 1542, 1543, 1545, 1546, 1547, 1548, 1549, 1550, 1551, 1552,
+    1553, 1587, 1588, 1589, 1590, 2514, 2549, 2550, 2551, 2552, 2553, 2554,
+    2555, 2556,
+        ]),
+    ],
+}
+
+#: This act CONVERTS NOTHING. Its one row was already
+#: `moved_with_declared_edit` and already a carrier — slice S7 converted it —
+#: so the disposition counts, the carrier count and the replica count all stand
+#: where slice S8 left them, and the empty list below is that claim written
+#: down rather than left as the absence of an assertion.
+Q7_CONVERTED: list[str] = []
+
+
+def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> None:
+    """RULED Q7's window against the LANDED manifest, row by row.
+
+    `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts the
+    AGGREGATE `(2710, 176)`, and that pair would stay green if these 89 lines
+    had landed on the wrong row, under the wrong one of RULING OQ-1's three
+    classes, or as a different set summing to the same total — which is why
+    every slice since ASK-7 pins its own window.
+
+    WHY THIS WINDOW IS THE FLOOR'S FIRST WHOLE-BLOCK REMOVAL, and why it is
+    lawful. RULED Q7 (`#656` comment `5648049748`) sends a contributed
+    binding's CSS to the binding's own sheet; 59 rule blocks therefore LEAVE
+    `src/opendox/web/styles.css`, and 88 of the 89 lines are the DELETIONS that
+    make. The 89th is carve `:161`, a REPLACEMENT in place — the one selector
+    LIST this act splits, so openDox keeps `.filterpop[hidden]` while the gate
+    half is re-stated in the contributed sheet. Two acts, one declared-line set,
+    and the distinction is stated because a window described as "all deletions"
+    does not match the leg diff (Copilot review, round 4).
+    `#1023` § 6 recorded that no OQ-1 class covers "a stylesheet block leaves
+    for another leg", and it was right about the document it read: that row was
+    `moved_verbatim`, carrying no `edits:` at all. Slice S7 converted it and
+    declared 152 of its lines `adapter calls`, so the surviving question is
+    narrower — is a DELETION declarable? — and the floor answers it twice: the
+    § 3.4 slice-S6 annotation declared 122 `serve_projection.py` deletions
+    under this same class and landed, and the arrival verifier accepts these 89
+    under it, which is measurement rather than argument.
+
+    The manifest is REQUIRED and not branched on: see `the_landed_manifest()`.
+    """
+    _text, doc = the_landed_manifest()
+    rows = {row["source_path"]: row for row in doc["rows"]}
+
+    # THE COUNT IS READ OFF THE TABLE'S OWN SOURCE FIRST, for S7's reason: a
+    # dict literal collapses a repeated key at import and keeps the last value,
+    # so a second entry for a path already in the table is invisible to every
+    # assertion below.
+    declared = dict_literal_keys(Path(__file__).resolve(), "Q7_WINDOW")
+    assert len(set(declared)) == len(declared), sorted(
+        path for path in declared if declared.count(path) > 1)
+    assert len(declared) == 1, len(declared)
+    assert set(declared) == set(Q7_WINDOW), set(declared) ^ set(Q7_WINDOW)
+
+    for source_path, entries in Q7_WINDOW.items():
+        row = rows[source_path]
+        assert row["disposition"] == "moved_with_declared_edit", row
+        # A ONE-LEG ACT: the served bundle arrives at openDox-code, and the
+        # sheets that RECEIVE these blocks are CREATED files at openxdox_code
+        # with no row at all (RULED OQ-C), admitted by name in
+        # `docs/opendox-carve-admissions.yaml`. A window entry landing on an
+        # `openxdox_code` row would be a different act.
+        assert row["destination"] == "opendox_code", row
+        landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
+        # A CONTIGUOUS RUN OCCURRING EXACTLY ONCE — S7's own form, and for its
+        # reason: a tail read is a claim about being LAST, which belongs to
+        # whichever act annotated the row most recently and to no act
+        # permanently.
+        runs = [i for i in range(len(landed) - len(entries) + 1)
+                if landed[i:i + len(entries)] == entries]
+        assert len(runs) == 1, (source_path, landed, entries)
+        # THIS ACT'S ENTRIES FOLLOW SLICE S7's on the same row, which is the
+        # order the document is appended in and therefore a claim worth making:
+        # a window that landed BEFORE S7's would mean the two acts had been
+        # applied out of their landing order.
+        assert runs[0] == len(landed) - len(entries), (source_path, landed)
+        # AND THE ROW'S DECLARED LINES ARE DISTINCT (round 8's rule, and the
+        # reason it is made over the WHOLE row): nothing in the floor refuses a
+        # repeated line — the validator checks only that `edits[].lines` is a
+        # non-empty list of positive integers, and the arrival verifier reads a
+        # row's declarations as a SET — so an entry naming one line twice in
+        # place of two would keep the 89, keep the aggregate and keep every
+        # per-class figure while one really deleted line went undeclared. A
+        # line THIS act declares that slice S7 already declared on the same row
+        # is the same double count, one act apart, and it is what this catches:
+        # S7's 152 and this act's 89 must be 241 distinct numbers.
+        flat = [number for edit in row["edits"] for number in edit["lines"]]
+        assert len(set(flat)) == len(flat), (source_path, sorted(
+            number for number in flat if flat.count(number) > 1))
+
+    # NOTHING IS CONVERTED, asserted rather than assumed: a conversion moves
+    # both disposition counts and the carrier count at once, so an act that
+    # converted a row it did not mean to would still sum correctly.
+    #
+    # AND THE COUNTS ALONE DO NOT SAY IT (Copilot review of openxFactory
+    # #1068, round 10). `Q7_CONVERTED == []` asserts the empty constant
+    # declared four lines up and nothing about the manifest, and 143/175 stay
+    # 143/175 under any SWAP — one row converted to `moved_with_declared_edit`
+    # and another converted back would pass all three. What a swap cannot
+    # survive is the PAIRING, so the pairing is what is pinned: the digest of
+    # every row's `(source_path, disposition)`, sorted. It moves when, and only
+    # when, some row's disposition moves — which is the claim this block makes.
+    assert Q7_CONVERTED == [], Q7_CONVERTED
+    dispositions = sorted((row["source_path"], row["disposition"])
+                          for row in doc["rows"])
+    assert len(dispositions) == 456
+    assert hashlib.sha256(
+        "\n".join(f"{path}\t{kind}" for path, kind in dispositions)
+        .encode("utf-8")).hexdigest() == (
+        "2c48fa07d2ebcf7125cd16a8fdac198e4c01554ae4fdde36a3a1211aa431c2c6"), (
+        "a row's disposition moved. RULED Q7's CSS extraction converts nothing "
+        "(Q7_CONVERTED is empty), so either this act changed one it did not "
+        "mean to, or a later act converted a row and owes this pin an update "
+        "beside its own conversion record")
+    assert doc["rows"] and sum(
+        1 for row in doc["rows"] if row["disposition"] == "moved_verbatim") == 143
+    assert sum(1 for row in doc["rows"]
+               if row["disposition"] == "moved_with_declared_edit") == 175
+
+    # THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures the
+    # runbook's § 2 paragraph and this pull request's body both state. `lines`
+    # counts LIST ENTRIES, which is why the distinctness check above is what
+    # makes it a count of edited lines.
+    lines = sum(len(nums) for entries in Q7_WINDOW.values()
+                for _class, nums in entries)
+    entries_count = sum(len(entries) for entries in Q7_WINDOW.values())
+    by_class: dict[str, int] = {}
+    for entries in Q7_WINDOW.values():
+        for edit_class, nums in entries:
+            by_class[edit_class] = by_class.get(edit_class, 0) + len(nums)
+    assert (lines, entries_count) == (89, 1), (lines, entries_count)
+    assert by_class == {"adapter calls": 89}, by_class
+    # THE SPLIT, PINNED WHERE THIS REPOSITORY CAN PIN IT. `assert 88 + 1 ==
+    # lines` asserted nothing — it compared two constants, and a 89-line window
+    # of pure deletions passed it (Copilot review, round 5). What is real here
+    # is WHICH line is the replacement: carve `:161` is the one selector LIST
+    # this act splits, so it is named, and the other 88 are the deletions. The
+    # OPCODES live in the leg diff, which this repository does not carry;
+    # openDox-code #27's `tests/test_binding_stylesheets.py` is where the
+    # after-state is executed.
+    q7_lines = {number for entries in Q7_WINDOW.values()
+                for _class, numbers in entries for number in numbers}
+    assert 161 in q7_lines, (
+        "carve `:161` is the REPLACEMENT in place — the split selector list "
+        "the row note names — and it is no longer in the declared window")
+    assert len(q7_lines - {161}) == 88, len(q7_lines - {161})
+    # AND THE OTHER MIXED RULE IS IN THE WINDOW TOO (Copilot review, round
+    # 17). `.swb-draftchrome .swb-cactions` at carve `:2514` MOVES WHOLE, and
+    # it is NOT one of the 59 exclusive blocks — the census reports it in
+    # `mixed_blocks`. That is why the window's 89 carve lines and the census's
+    # 89-line union are the same SIZE and not the same SET, which the row note
+    # now decomposes: 78 lines inside those blocks, 9 comment and brace lines
+    # they carry out, and these two mixed ones. This is the half of that
+    # difference this repository can pin, the leg diff carrying the rest.
+    assert 2514 in q7_lines, (
+        "carve `:2514` is the mixed rule that moves WHOLE — the row note names "
+        "it, and the census reports it in `mixed_blocks` rather than among the "
+        "59 exclusive blocks")
+    # 2621 + 89 = 2710 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDS
+    # IT, which is what a window total is: a DELTA against the document the act
+    # found, and so a figure a later act cannot move. The baseline moved from
+    # 2454 to 2621 under this branch when the RETIREMENT ACT landed on main and
+    # was merged in; the window did not, which is the distinction this pin and
+    # the aggregate one are split over.
+    assert lines + 2621 == 2710
