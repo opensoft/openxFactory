@@ -1179,8 +1179,22 @@ def _departed_since_the_capture(mod, identity, row):
         f"{row['path']!r}. An absolute path makes `archive / \"specs\" / path` "
         "discard the archive entirely, and `..` walks out of it; either way the "
         "proof below would be about a file this map never named")
-    delta = archive / "specs" / rel
-    specs_root = (archive / "specs").resolve(strict=True)
+    # THE ROOT MUST BE PROVEN BEFORE IT CAN BE TRUSTED AS ONE. Resolving
+    # `archive/specs` and then comparing against the RESULT makes a symlink there
+    # the trusted root: an external file would satisfy both the equality and the
+    # `is_relative_to` below, because both would be measured against the escaped
+    # directory. `archive` itself is already asserted to resolve to its lexical
+    # path above; this completes the chain for the one segment between it and the
+    # delta. Same shape as the repository-wide guard in
+    # `scripts/target_release.py:354-396`.
+    # (Found by Copilot's review at `26a8ed26` — my own round-17 fix, one segment short.)
+    specs_root = archive / "specs"
+    assert specs_root.resolve(strict=True) == specs_root, (
+        f"{key}: {specs_root} resolves to {specs_root.resolve(strict=True)}, so "
+        "the directory this proof would treat as the archive's spec root is not "
+        "the archive's spec root. Containment measured against an escaped root "
+        "is not containment")
+    delta = specs_root / rel
     assert delta.is_file(), (
         f"{key} names an archive that does not carry the delta the captured "
         f"finding is about: {delta} is not a regular file. The packet may have "
