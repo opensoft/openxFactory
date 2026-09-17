@@ -1254,14 +1254,52 @@ def test_the_transposition_fixture_ignores_an_ambient_git_pointer(
     decoy = tmp_path / "decoy"
     GH._git("init", "--quiet", "--bare", "--initial-branch=main", str(decoy))
     before = sorted(p.name for p in decoy.rglob("*") if p.is_file())
+    # EVERY ambient control the repository's own scrubber owns, not a subset
+    # (Copilot, round 3): a pointer at another repository, an ALTERNATE OBJECT
+    # STORE, and injected configuration both ways round. Any one of them
+    # left inherited lets this fixture certify a history it never wrote.
     monkeypatch.setenv("GIT_DIR", str(decoy))
     monkeypatch.setenv("GIT_WORK_TREE", str(tmp_path))
+    monkeypatch.setenv("GIT_OBJECT_DIRECTORY", str(decoy / "objects"))
+    monkeypatch.setenv("GIT_ALTERNATE_OBJECT_DIRECTORIES",
+                       str(decoy / "objects"))
+    monkeypatch.setenv("GIT_COMMON_DIR", str(decoy))
+    monkeypatch.setenv("GIT_INDEX_FILE", str(decoy / "index"))
+    monkeypatch.setenv("GIT_REPLACE_REF_BASE", "refs/replace-decoy")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "core.bare")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "false")
+    monkeypatch.setenv("GIT_CONFIG_PARAMETERS", "'core.bare=false'")
     corpus = _transposed(tmp_path)
     record = MODULE.prove_transposition(
         GH.reader, str(corpus / MODULE.POPULATED), corpus, CORPUS)
     assert record["proven"] is True, record["reason"]
     assert sorted(p.name for p in decoy.rglob("*") if p.is_file()) == before, (
-        "the transposition wrote into the repository GIT_DIR named")
+        "the transposition wrote into the repository the ambient git "
+        "environment named")
+
+
+def test_the_fixture_reuses_the_repositorys_own_git_scrubber():
+    """Guards the guard, and pins the RULE rather than a list.
+
+    `validate-carve-manifest.py:856` states it — the scrub list is "REUSED
+    rather than a third copy" — and a copy is how the case above starts
+    passing while a new ambient control goes unscrubbed. This asserts the
+    fixture builds its environment from that one helper, so a name added to
+    `carved_reach._SCRUBBED_GIT_ENVIRONMENT` reaches here for free.
+    """
+    import carved_reach
+    assert GH._sanitized_git_environment is \
+        carved_reach._sanitized_git_environment
+    source = (REPO_ROOT / "tests" / "carve_conformance" /
+              "git_history_factory.py").read_text(encoding="utf-8")
+    assert "env = _sanitized_git_environment()" in source
+    assert "os.environ" not in source, (
+        "the fixture built its own environment again; the scrubber owns it")
+    # and the identity fields it adds on top do not re-open what was scrubbed
+    assert set(GH.GIT_ENV) <= {
+        "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL",
+        "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"}
 
 
 # ==========================================================================

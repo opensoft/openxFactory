@@ -53,6 +53,17 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
+#: The repository's OWN sanitized-git environment, REUSED rather than copied
+#: (Copilot, round 3; `validate-carve-manifest.py:856` states the rule: "is
+#: REUSED rather than a third copy of its scrub list"). It scrubs
+#: `GIT_ALTERNATE_OBJECT_DIRECTORIES`, `GIT_COMMON_DIR`, `GIT_CONFIG_COUNT`,
+#: `GIT_CONFIG_PARAMETERS`, `GIT_DIR`, `GIT_INDEX_FILE`,
+#: `GIT_OBJECT_DIRECTORY`, `GIT_REPLACE_REF_BASE`, `GIT_WORK_TREE` and every
+#: indexed `GIT_CONFIG_KEY_n` / `GIT_CONFIG_VALUE_n`, then pins
+#: `GIT_CONFIG_GLOBAL`, `GIT_CONFIG_SYSTEM`, `GIT_CONFIG_NOSYSTEM` and
+#: `GIT_NO_REPLACE_OBJECTS`. `carved_reach` is stdlib plus PyYAML and imports
+#: in 0.07s, measured, so the fixture stays cheap.
+from carved_reach import _sanitized_git_environment  # noqa: E402
 from corpus_adapter import (  # noqa: E402
     CORPUS_ABSENT,
     CORPUS_READ_ONLY,
@@ -80,31 +91,30 @@ HEADER_SCAN_LINES = 6
 
 #: Enough to author a commit where no ambient git identity exists, which is
 #: the state `pytest-suite.yml` deliberately runs in
-#: (`GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`).
+#: (`GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1`). It is applied ON TOP
+#: of the sanitized environment above, which owns everything that could point
+#: git at another object store.
 GIT_ENV = {
     "GIT_AUTHOR_NAME": "the conformance corpus transposition",
     "GIT_AUTHOR_EMAIL": "transposition@example.invalid",
     "GIT_COMMITTER_NAME": "the conformance corpus transposition",
     "GIT_COMMITTER_EMAIL": "transposition@example.invalid",
-    "GIT_CONFIG_GLOBAL": "/dev/null",
-    "GIT_CONFIG_NOSYSTEM": "1",
 }
 
 
 def _git(*args: str, cwd: Path | None = None, stdin: bytes | None = None,
          env_extra: dict[str, str] | None = None
          ) -> subprocess.CompletedProcess:
-    import os
-    env = dict(os.environ)
-    # AMBIENT GIT POINTERS ARE DROPPED, NOT INHERITED. `GIT_DIR` and
-    # `GIT_WORK_TREE` would override every `cwd=` below and silently aim
-    # these plumbing calls at whatever repository the process was started
-    # in — the same class of environment dependence `pytest-suite.yml`
-    # denies with `GIT_CONFIG_GLOBAL=/dev/null`, and the one this file can
-    # least afford, since what it writes are commits.
-    for pointer in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE",
-                    "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR"):
-        env.pop(pointer, None)
+    # THE WHOLE AMBIENT GIT ENVIRONMENT IS DROPPED, NOT A SUBSET OF IT
+    # (Copilot, rounds 2 and 3). `GIT_DIR` and `GIT_WORK_TREE` would override
+    # every `cwd=` below; an alternate object directory or an injected
+    # `GIT_CONFIG_KEY_n` would let these reads come out of a DIFFERENT object
+    # store than the repository this file just wrote — so the fixture could
+    # certify a history it never laid down. A hand-picked list is how that
+    # arrives, so the repository's own scrubber is reused instead of copied:
+    # it is the same helper `validate-carve-manifest.py` and
+    # `carved_reach._git_object_id` run every carve read through.
+    env = _sanitized_git_environment()
     env.update(GIT_ENV)
     if env_extra:
         env.update(env_extra)
