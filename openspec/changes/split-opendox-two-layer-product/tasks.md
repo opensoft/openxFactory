@@ -1929,13 +1929,14 @@ the bookkeeping that ticks this group.
   CONFLICTED because it collided with
   § 7.4's own #1073 on the README **OpenSpec Records** block — the one block
   the lane-collision protocol's Rule 6 landing window exists to serialize, and
-  two acts of the SAME lane hit it on the same afternoon. The conflict is
-  cleared; the landing is not, and this box does not move until it lands.
-  *(BOTH readings are kept rather than the later one replacing the earlier,
-  and that is exactly why the earlier was stamped: between the two the state
-  CHANGED, so a claim bound to its clock stayed true where an unbound one
-  would have turned false. The remedy this amendment argues for, demonstrated
-  on its own page.)* The id
+  two acts of the SAME lane hit it on the same afternoon. **The conflict and
+  the landing are both behind it now; the RATIFICATION named above is not**,
+  and that is what this box waits on.
+  *(ALL THREE readings are kept rather than each replacing the last, and that
+  is exactly why the earliest was stamped: the state CHANGED TWICE inside
+  three quarters of an hour, so claims bound to their clocks all stayed true
+  where a single unbound one would have been false twice over. The remedy
+  this amendment argues for, demonstrated on its own page.)* The id
   keeps its `openxfactory-` qualifier deliberately: `corpus-adapter-seam`
   requirement 4 makes the neutral capability openDox's under RULING Q4, and
   an unqualified `engineering-adapter` would read as that one.
