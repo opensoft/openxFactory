@@ -713,6 +713,18 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
             # field is that it is "neither a fourth disposition and neither of
             # them a PLACEMENT".
             return RowMapping(source_path, 0, (), "moved", None)
+        # AND THE PLACEMENT IT NAMES IS A PLACEMENT (Copilot, round 12 on
+        # #1080 — the retirement repair of round 11, on the other branch).
+        # Only the KEY was read here: a row with `destination: dox_code` and a
+        # missing, non-string or escaping `destination_path:` was reported
+        # HOMED by the standalone source invocation, though it names no
+        # arrival anywhere. The leg caught it later, where `arrivals_for`
+        # joins the path to a root — but the source side is a standalone check
+        # and clause (a) is about a home the row NAMES.
+        closed_relative(row.get("destination_path")
+                        if row.get("re_destined") is None
+                        else effective_arrival(row)[1],
+                        f"{source_path}'s arrival path")
         return RowMapping(source_path, 0,
                           (repository_of_arrival(doc, key),) + extra,
                           "moved", None)

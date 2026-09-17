@@ -1853,6 +1853,89 @@ def test_a_leg_refuses_every_row_the_source_side_refuses(
 
 
 # --------------------------------------------------------------------------
+# Copilot round 12 — the last three: an uncomputable mapping a LEG could
+# verify, a home with no placement, and a file the walk must not open
+# --------------------------------------------------------------------------
+
+def test_a_test_bearing_replica_with_no_declared_set_refuses_at_the_leg_too(
+        scratch: Scratch) -> None:
+    """`parse_replica_placements` read an undeclared set as "a zero-test
+    replica, outside clause (b) by its own words" — true only of a row that
+    carries no tests, and nothing there had read the carve blob. So a NEW
+    test-bearing replica absent from the declaration could be supplied with
+    `--replica-at`, counted, and exit 0 at a leg, while the source invocation
+    refuses it `replica-multiplicity-undeclared`. A leg verifying an
+    uncomputable mapping is the same defect as a source side doing it."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_beta.py")
+    row["disposition"] = "not_moved"
+    row["reason"] = "replicated_at_destination"
+    row.pop("destination")
+    row.pop("destination_path")
+    dest = scratch.destination("dox", ARRIVALS)
+    (dest / "tests/test_beta.py").write_text(
+        SOURCE_FILES["scripts/pkg/test_beta.py"], encoding="utf-8")
+    payload = refused(
+        scratch.run(doc, "--destination", "dox_code", "--dest-root",
+                    str(dest), "--replica-at",
+                    "scripts/pkg/test_beta.py=tests/test_beta.py"),
+        "replica-multiplicity-undeclared")
+    assert "scripts/pkg/test_beta.py" in payload["detail"]
+    assert "2 `def test_`" in payload["detail"]
+    refused(scratch.run(doc), "replica-multiplicity-undeclared")
+
+
+@pytest.mark.parametrize("placement", [None, 7, "", "/etc/passwd",
+                                       "../outside.py"])
+def test_a_moved_row_is_not_homed_by_a_key_alone(
+        scratch: Scratch, placement: Any) -> None:
+    """Round 11's retirement repair, on the other branch: only the KEY was
+    read here, so a row with a usable `destination:` and a missing,
+    non-string or escaping `destination_path:` was reported HOMED by the
+    standalone SOURCE invocation though it names no arrival anywhere. The leg
+    caught it later, where `arrivals_for` joins the path to a root — and the
+    source side is a standalone check."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    if placement is None:
+        row.pop("destination_path")
+    else:
+        row["destination_path"] = placement
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "arrival path" in payload["detail"]
+
+
+def test_the_tree_figure_does_not_open_a_non_regular_file(
+        scratch: Scratch) -> None:
+    """The population is the working tree, untracked files included — so a
+    FIFO named `*.py` is in it, and `read_bytes()` on one BLOCKS until
+    something writes. A leg's verification would hang on a CONTEXT figure that
+    is not part of the floor at all. `_tests_in` already refuses a non-regular
+    arrival; the walk asks the same question now.
+
+    The subprocess carries a timeout so the regression is a FAILURE and not a
+    hung suite."""
+    dest = scratch.destination("dox", ARRIVALS)
+    fifo = dest / "test_blocking.py"
+    os.mkfifo(fifo)
+    manifest = scratch.write(scratch.clean())
+    try:
+        done = subprocess.run(
+            [sys.executable, str(SCRIPT), "--manifest", str(manifest),
+             "--repo", str(scratch.repo), "--json", "--destination",
+             "dox_code", "--dest-root", str(dest)],
+            capture_output=True, text=True, check=False, timeout=120)
+    finally:
+        # REMOVED WHATEVER HAPPENS: a FIFO left in `tmp_path` outlives this
+        # test, and the next session's cleanup of that directory is not this
+        # test's to break.
+        fifo.unlink()
+    summary = verified(done)
+    assert summary["tree_tests"] == 3, \
+        "the FIFO is not opened, and the arrivals' own counts are unchanged"
+
+
+# --------------------------------------------------------------------------
 # the landed document — the § 8.2 seat
 # --------------------------------------------------------------------------
 

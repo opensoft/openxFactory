@@ -448,7 +448,9 @@ def arrivals_for(doc: dict[str, Any], destination: str) -> list[tuple[str, str]]
 
 
 def parse_replica_placements(values: list[str], doc: dict[str, Any],
-                             destination: str) -> dict[str, str]:
+                             destination: str,
+                             counts: dict[str, int] | None = None
+                             ) -> dict[str, str]:
     """`--replica-at SOURCE=DESTPATH`, on `verify-carve-arrival.py`'s rule: the
     left side is a replica row's `source_path`, or a moved row whose
     `also_replicated_to:` names THIS destination (RULED Q-L7 (a))."""
@@ -504,7 +506,33 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
                 "test-mapping-unreadable",
                 f"--replica-at {value!r} is not SOURCE=DESTPATH")
         relpath = mapping.closed_relative(relpath, f"--replica-at {value!r}")
+        if source_path not in replicas and source_path not in also:
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"--replica-at names {source_path!r}, which at destination "
+                f"{destination!r} is neither a `not_moved / "
+                f"{mapping.REPLICA_REASON}` row nor a moved row whose "
+                "`also_replicated_to:` lists this destination")
         declared = mapping.declared_homes(source_path)
+        # A REPLICA WITH NO DECLARED SET IS A ZERO-TEST ONE — ASKED, NOT
+        # ASSUMED (Copilot, round 12 on #1080). The clause below reads an
+        # undeclared set as "outside clause (b) by its own words", which is
+        # true ONLY of a row carrying no tests; nothing here had read the
+        # carve blob, so a NEW test-bearing replica absent from the
+        # declaration could be supplied with `--replica-at`, counted, and
+        # exit 0 at a leg — while the source invocation refuses it
+        # `replica-multiplicity-undeclared`. The counts are already computed
+        # by `verify_destination` before this call; they are passed in rather
+        # than re-read.
+        if declared is None and counts and counts.get(source_path):
+            raise mapping.TestMappingRefusal(
+                "replica-multiplicity-undeclared",
+                f"--replica-at names {source_path!r}, which carries "
+                f"{counts[source_path]} `def test_` at the carve commit and "
+                "has no declared replica set, so `Σ over replicated rows of "
+                "(m − 1) × row_test_count` is UNCOMPUTABLE — and an "
+                "uncomputable check is never a pass, at a leg no less than at "
+                f"the source. The declaration is {mapping.MULTIPLICITY_DECLARATION}")
         if declared is not None and repository not in declared:
             # A DECLARED SET IS A CLOSED LIST OF HOMES, so a placement at a
             # repository outside it is not a late arrival, it is a copy the
@@ -519,13 +547,6 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
                 "is not one of the repositories its declared replica set "
                 f"names ({', '.join(declared)}). "
                 f"{mapping.MULTIPLICITY_DECLARATION}")
-        if source_path not in replicas and source_path not in also:
-            raise mapping.TestMappingRefusal(
-                "test-mapping-unreadable",
-                f"--replica-at names {source_path!r}, which at destination "
-                f"{destination!r} is neither a `not_moved / "
-                f"{mapping.REPLICA_REASON}` row nor a moved row whose "
-                "`also_replicated_to:` lists this destination")
         if source_path in placements:
             raise mapping.TestMappingRefusal(
                 "test-mapping-unreadable",
@@ -623,7 +644,16 @@ def _tree_tests(dest_root: Path) -> tuple[int, int]:
                     continue
                 stack.append(entry)
             elif entry.suffix == ".py":
+                # REGULAR FILES ONLY (Copilot, round 12 on #1080). The
+                # population is the working tree, untracked files included —
+                # so a FIFO named `*.py` is in it, and `read_bytes()` on one
+                # BLOCKS until something writes, which would hang a leg's
+                # verification on a context figure that is not part of the
+                # floor at all. `_tests_in` already refuses a non-regular
+                # arrival; this walk now asks the same question.
                 try:
+                    if not stat.S_ISREG(entry.lstat().st_mode):
+                        continue
                     found = mapping.count(entry.read_bytes())
                 except OSError:
                     continue
@@ -655,7 +685,7 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
         placements: dict[str, str] = {}
     else:
         placements = parse_replica_placements(replica_values, doc,
-                                              destination)
+                                              destination, counts)
     owed = arrivals_for(doc, destination) + list(placements.items())
     # ONE FILE ANSWERS FOR ONE ROW (Copilot review of #1080). Two rows, or a
     # row and a `--replica-at`, naming one destination path would have that
