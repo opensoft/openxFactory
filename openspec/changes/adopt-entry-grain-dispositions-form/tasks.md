@@ -60,6 +60,26 @@ anywhere in this pull request.
       capability touched. A veto here is a veto of the scenario's wording and
       costs one block.
       **RATIFIED 2026-09-16T13:43:18Z by Brett Heap** (openxFactory repository owner), first-hand, in session, lane `openxfactory-2`, verbatim ***"ratify 1052 when green, then 1050"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+      **AT RATIFICATION, `4c32b183`, THIS EVIDENCE LINE WAS EXACT AND IS KEPT
+      AS HISTORY:** nine added / zero removed, measured the way this task
+      states. **CARRIED, 2026-09-17, ON BRETT HEAP'S WORD *"route plus
+      re-base"*** — openxFactory #1050, comment
+      https://github.com/opensoft/openxFactory/pull/1050#issuecomment-5714145269:
+      the block was ORDERED AFTER `scope-pinned-arm-root-naming` and re-based
+      to carry that packet's ratified outcome whole (openxFactory #1075,
+      `chore/order-adopt-entry-grain-after-scope-pinned`). The SAME `git diff
+      --numstat` of the `## MODIFIED` block against
+      `openspec/specs/document-lifecycle/spec.md:218-688`, measured fresh at
+      that branch's head `67cfa06e`, now shows **30 added / 8 removed** — the
+      widening is `scope-pinned-arm-root-naming`'s own carried units (the
+      root-precedence citation, the root-naming sentence's AFTER-ROOT-SELECTION
+      scoping with its before-selection clause, the selected-root narrowing of
+      *A pinned target names a pin no resolution root carries*, and the
+      scenario *A finding emitted before root selection names what it
+      judged*), none of them this packet's authorship, added on top of this
+      packet's original nine. This packet's own delta is still the ONE
+      scenario named above, unmoved by the carry, and this box is NOT
+      reopened by this note.
 - [x] 1.4 **CONFIRM that ratifying § 1 authorizes NO REALIZATION.** Ratification
       admits the scenario to the packet and nothing more: § 3 stays open, the
       adapter and its tests stay untouched, and the realization is a later pull
