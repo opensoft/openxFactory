@@ -551,10 +551,13 @@ Active changes:
   (`.github/workflows/pytest-suite.yml:556`, `python-version: "3.12"`; measuring
   shell `Python 3.12.3`), at the candidate's leaf and at any parent component
   alike. Four path-containment guards in three modules absorb only `OSError`
-  (one absorbs `OSError` and `ValueError`) and so traceback where their own
-  docstrings promise a DROP: `scripts/code_surface.py:777` (`_unescaped`),
-  `scripts/target_release.py:630` (`_unescaped`) and `:394`
-  (`_registry_present`), `scripts/proposal-support.py:347` (`_contained`).
+  (one absorbs `OSError` and `ValueError`), and THREE OF THE FOUR traceback where
+  their own docstrings promise a DROP: `scripts/code_surface.py:777`
+  (`_unescaped`), `scripts/target_release.py:630` (`_unescaped`) and
+  `scripts/proposal-support.py:347` (`_contained`). The FOURTH,
+  `scripts/target_release.py:394` (`_registry_present`), carries the same narrow
+  clause but is fronted by an `is_dir()` pre-check that no measured tree state
+  gets past, which is the correction recorded below.
   Driven end to end on a minimal tree carrying a committed-shape loop,
   `scripts/validate-code-surface.py` and `scripts/validate-target-release.py`
   both end in a traceback, and so do `former_identity_claimants` and

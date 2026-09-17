@@ -100,31 +100,40 @@ and a test that passes on both sides is not the proof.**
       written claim that `target_release._unescaped` "is the exact shape this
       mirrors" TRUE.
 - [ ] 3.2 `tests/code_surface/`: one test that builds an `a -> b -> a` loop under
-      `tmp_path`, in BOTH exposed positions (the candidate's own leaf, and a
-      parent component above an ordinary leaf), and asserts `_unescaped` returns
-      `None`. Recorded failing against `c6997f12`'s clause.
+      `tmp_path`, in ALL THREE exposed positions the first requirement names (the
+      candidate's own leaf; a parent component above an ordinary leaf; and the
+      SCANNED ROOT itself, `spec.md`'s third scenario, where `_unescaped`
+      resolves BOTH sides and it is the root side that fails), and asserts
+      `_unescaped` returns `None` in each. Recorded failing against `c6997f12`'s
+      clause.
 - [ ] 3.3 `scripts/target_release.py`: `_unescaped`'s clause and
       `_registry_present`'s clause both widened to `except (OSError, RuntimeError):`,
       and both docstrings amended, `_unescaped`'s keeping its claim to generalize
       `_registry_present`'s test TRUE.
-- [ ] 3.4 `tests/target_release/`: one test for `_unescaped` in both positions, as
-      3.2; and one for `_registry_present` DECLARED AS A TEST OF THE CLAUSE
-      (`design.md` D3, D0.5), since no tree state reaches it, with the declaration
-      in the test's own docstring and not only in this packet.
+- [ ] 3.4 `tests/target_release/`: one test for `_unescaped` in all three
+      positions, as 3.2; and one for `_registry_present` DECLARED AS A TEST OF THE
+      CLAUSE (`design.md` D3, D0.5), since no tree state reaches it, with the
+      declaration in the test's own docstring and not only in this packet. The
+      scanned-root position is no exception for that guard: measured, a root set
+      to the loop returns `False` at the `is_dir()` pre-check exactly as the other
+      positions do, so it is D3's one case and not a fourth.
 - [ ] 3.5 `scripts/proposal-support.py`: `_contained`'s clause widened to
       `except (OSError, ValueError, RuntimeError):`, the `ValueError` guarding the
       relative-path computation's own failure and STAYING; `contained_dir` and
       `contained_file` docstrings amended to name the set.
 - [ ] 3.6 `tests/proposal-support/`: one test that builds the loop under `tmp_path`
-      and asserts `contained_dir` and `contained_file` return `False`, in both
-      positions.
+      and asserts `contained_dir` and `contained_file` return `False`, in all
+      three positions. The scanned-root position is reachable HERE even when the
+      candidate resolves cleanly, `_contained` resolving the root separately for
+      its `relative_to` comparison, so that sub-case is asserted too.
 - [ ] 3.7 **NO SYMLINK IS ADDED TO THE TRACKED TREE.** Verified in the realization
       pull request by `git ls-files -s | awk '$1 == "120000"'` returning nothing,
       and recorded in its body.
 - [ ] 3.8 **NO OTHER FILE MOVES.** No validator arm, no existing test, no
       workflow, no contract member, no schema, no report field, no promoted byte,
-      and none of the ten non-containment `except OSError`-family clauses
-      `design.md` D4 enumerates.
+      and none of the ELEVEN non-containment `except OSError`-family clauses
+      `design.md` D4 enumerates (`proposal-support.py:3724` among them), nor
+      `proposal-support.py:3939`'s already-wider `except Exception:`.
 
 ## 4. Verification (OPEN; taken at the realization head)
 
@@ -159,19 +168,27 @@ and a test that passes on both sides is not the proof.**
 
 ## 6. Measured and NOT taken (OPEN; successors, not work owed)
 
-- [ ] 6.1 **The other ten `except OSError`-family clauses in these three modules**
-      (`design.md` D4) guard reads, writes and subprocesses. They are read,
-      enumerated and deliberately left, and widening them is refused rather than
-      deferred: absorbing a `RuntimeError` out of a YAML load or a subprocess
-      helper would swallow a defect in this repository's own code.
+- [ ] 6.1 **The other ELEVEN `except OSError`-family clauses in these three
+      modules** (`design.md` D4, the count taken by an AST scan and including
+      `proposal-support.py:3724`, the support-archive read) guard reads, writes
+      and subprocesses. They are read, enumerated and deliberately left, and
+      widening them is refused rather than deferred: absorbing a `RuntimeError`
+      out of a YAML load or a subprocess helper would swallow a defect in this
+      repository's own code. `proposal-support.py:3939`'s entrypoint
+      `except Exception:` is outside that count, being already wider than the
+      obligation, and is retained rather than narrowed.
 - [ ] 6.2 **The same shape elsewhere in the estate.** `scripts/` carries other
       modules that resolve caller-supplied or tree-supplied paths
       (`scripts/pin_containment.py` among them, which `document-lifecycle`'s own
       containment requirement governs). They were NOT measured by this packet and
       no claim is made about them; a sweep across the whole `scripts/` tree is a
       successor with its own measurement.
-- [ ] 6.3 **A house helper.** Four guards now share one exception tuple by
-      convention. Whether the estate should carry ONE resolution helper the four
-      call, rather than four clauses kept equal by a docstring claim, is a
-      successor: it changes four ratified surfaces at once and is out of scope for
-      a correction.
+- [ ] 6.3 **A house helper.** The four guards do NOT end up with one identical
+      tuple: three read `except (OSError, RuntimeError):` and `_contained` reads
+      `except (OSError, ValueError, RuntimeError):`, its `ValueError` answering a
+      DIFFERENT operation and staying (§ 3.5, and the first requirement's
+      retention paragraph). What the four share after § 3 is the `RuntimeError`
+      COVERAGE, held equal by convention and by a docstring claim. Whether the
+      estate should carry ONE resolution helper the four call, rather than four
+      clauses kept equal that way, is a successor: it changes four ratified
+      surfaces at once and is out of scope for a correction.

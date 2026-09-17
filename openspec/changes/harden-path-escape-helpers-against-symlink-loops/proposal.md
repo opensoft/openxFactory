@@ -148,10 +148,14 @@ and #1074 is the follow-up it promised.
   same registry is absent and the same paths are uncontained as before; what
   changes is that a failure which used to end the run now produces the answer the
   guard already promised.
-- **It does not touch the other `except OSError:` clauses in these modules.**
-  `code_surface.py:568`, `:656`, `target_release.py:337`, `:528` and
-  `proposal-support.py:162`, `:416`, `:2541`, `:4290`, `:4312`, `:4511` guard
-  reads, writes and subprocess calls rather than containment resolutions;
+- **It does not touch the other ELEVEN `except OSError`-family clauses in these
+  modules.** `code_surface.py:568`, `:656`, `target_release.py:337`, `:528` and
+  `proposal-support.py:162`, `:416`, `:2541`, `:3724`, `:4290`, `:4312`, `:4511`
+  guard reads, writes and subprocess calls rather than containment resolutions,
+  `:3724` being the support-archive read inside `verify_archive`. The eleven are
+  counted by an AST scan of the three files rather than by eye. Nor does it
+  narrow `proposal-support.py:3939`'s entrypoint `except Exception:`, which is
+  already WIDER than this obligation and is RETAINED for that reason.
   `design.md` D4 records why the scope is the containment role and not the token
   `except OSError`.
 - **It does not close the origin issue.** `code_surface` is non-empty, so the

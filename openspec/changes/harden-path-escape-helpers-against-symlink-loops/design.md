@@ -179,12 +179,20 @@ The other three sites carry ordinary fails-then-passes tree tests.
 candidate path is really inside the scanned tree, by resolving and comparing) and
 not by the token `except OSError:`.**
 
-The three modules carry TEN other `except OSError`-family clauses
+The three modules carry ELEVEN other `except OSError`-family clauses, counted by
+an AST scan of the three files rather than read off by eye
 (`code_surface.py:568`, `:656`; `target_release.py:337`, `:528`;
-`proposal-support.py:162`, `:416`, `:2541`, `:4290`, `:4312`, `:4511`). Every one
-of them guards a READ, a WRITE or a SUBPROCESS, where an `OSError` is the failure
-and a `RuntimeError` is not a thing the operation produces. Widening them would
-absorb real defects: a `RuntimeError` out of a YAML load or a subprocess helper is
+`proposal-support.py:162`, `:416`, `:2541`, `:3724`, `:4290`, `:4312`, `:4511`).
+Every one of them guards a READ, a WRITE or a SUBPROCESS, where an `OSError` is
+the failure and a `RuntimeError` is not a thing the operation produces.
+`proposal-support.py:3724` (`except (SupportError, tarfile.TarError, OSError)`,
+the support-archive read inside `verify_archive`) is a READ like the rest and
+stands with them; it was missed by the first hand count and the number above is
+the scan's. ONE FURTHER CATCH in these modules is deliberately NOT in that count
+because it is already WIDER than this obligation rather than narrower:
+`proposal-support.py:3939`'s entrypoint `except Exception:`, which the first
+requirement's fourth paragraph RETAINS and never narrows to match. Widening the
+eleven would absorb real defects: a `RuntimeError` out of a YAML load or a subprocess helper is
 a bug in this repository's own code, and swallowing it is how a gate starts
 passing for the wrong reason.
 
@@ -215,6 +223,25 @@ defect was real. `tasks.md` § 3 records, per module, the failing run against th
 unfixed clause and the passing run against the widened one.
 
 **Where the loop is built matters as much as when.** Each test builds its loop in
-BOTH exposed positions the guard has: at the candidate's leaf, and in a parent
-component above an ordinary leaf. The second is the one a reviewer's intuition
-misses, because the leaf is a perfectly ordinary file.
+ALL THREE exposed positions the first requirement names: at the candidate's leaf,
+in a parent component above an ordinary leaf, and at the SCANNED ROOT itself. The
+second is the one a reviewer's intuition misses, because the leaf is a perfectly
+ordinary file; the third is the one where the guard resolves BOTH sides and it is
+the ROOT side that fails, which for `_contained` is reachable even when the
+candidate itself resolves cleanly, since that guard resolves the root separately
+for its `relative_to` comparison. Measured at `c6997f12` with the root set to the
+loop (`Python 3.12.3`):
+
+```
+code_surface._unescaped(LOOPROOT, 'x.md')                  -> RAISED RuntimeError
+target_release._unescaped(LOOPROOT, 'x.md')                -> RAISED RuntimeError
+target_release._registry_present(LOOPROOT)                 -> returned False
+proposal_support.contained_file(LOOPROOT, LOOPROOT/'x.md') -> RAISED RuntimeError
+proposal_support.contained_file(LOOPROOT, real/'x.md')     -> RAISED RuntimeError
+proposal_support.contained_dir(LOOPROOT, real)             -> RAISED RuntimeError
+```
+
+The last two are the sub-case above: the candidate is an ordinary real path and
+only the ROOT resolution fails. `_registry_present` answers `False` at its
+pre-check in this position exactly as in the others, which is D3's one case and
+not a fourth.
