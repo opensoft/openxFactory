@@ -1,0 +1,129 @@
+schema: spec-driven
+created: 2026-09-15
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-15-adopt-entry-grain-dispositions-form
+  reason: >-
+    THE FINDING, AND IT IS A MEASUREMENT RATHER THAN A PREFERENCE. openxFactory
+    issue #1045, filed 2026-09-15 by lane `openxfactory-2` (display
+    `openXfactory-2`) and NOT claimed at filing: `scripts/doc_health/pin_shapes.py`'s
+    shape adapter judges the OPTIONAL shape-(c) member `dispositions:` only at the
+    MEMBER grain — `_is_disposition_list` (`:217-223`) is `value is None or
+    isinstance(value, list)` — while the full verifier's `pinned_dispositions`
+    (`scripts/validate-openspec-cli-pin.py:787-857`) ALSO refuses malformed ENTRIES
+    in the SAME pure, source-free pass. Measured in this packet's authoring session
+    on a fresh clone of `main` at `8944758c`, by importing the verifier at its fixed
+    authored path and calling the guard on in-memory records: TEN records the
+    guard REFUSES are ACCEPTED by `judge(record, "openspec-cli")` — `[{}]`,
+    `[null]`, `["a"]`, an entry missing `cited_to`, `cited_to: []`, `why: ""`,
+    `cited_to: "x"`, `level: "WARNING"`, `level: ""`, and an entry naming
+    neither `ratified_by` nor `recorded_by` — and ZERO in the other direction.
+    The adapter is therefore NARROWER than the guard on the entries and
+    nowhere WIDER.
+    WHY THAT DIRECTION IS THE ONE THAT MATTERS, IN CANON'S OWN WORDS. `document-
+    lifecycle`'s *Prose tagging marker hygiene* says a resolver "that ACCEPTED what
+    the shape's own GUARD REFUSES would, on exactly those trees, admit a record the
+    repository's own gate rejects at its first shape check". Those trees are the
+    ones the adapter exists for — a doc-health fixture tree, an aggregate run, a
+    `--single-repo` run over an arbitrary checkout, an added
+    `contracts/evil-pin.yaml` — where no pin verifier has run at all. On a landed
+    tree the gap is invisible, every record in `contracts/` having already passed
+    its full verifier as a required check, which is why #1045 is a FINDING and not a
+    defect.
+    THE PREDECESSOR RULED IT STANDS AND NAMED THIS SUCCESSOR, VERBATIM. The point
+    was raised by an automated review on PR #1040 (round 8) against
+    `pin_shapes.py:223` and RULED STANDS by the lane, on grounds that still hold:
+    the ratified design D-2 of `extend-prose-tagging-target-to-pinned-capabilities`
+    cites exactly `:801-803` and `:804-809` for this member, the two-leg equivalence
+    test holds the adapter to the CITED guards, and a record carrying
+    `dispositions: [{}]` resolves nothing without a well-formed `capabilities:`
+    enumeration naming the capability. That ruling also named what it declined:
+    "Extending the optional-member form to the entry grain is a legitimate later
+    delta against `neutral-product-pin`/this capability, not this realization's —
+    noted, not filed." This packet is that later delta and it is the first; a corpus
+    search returns only issue #1045 itself.
+    AND THE ASYMMETRY IS INTERNAL TO THE ADAPTER, MEASURED. The table carries
+    exactly TWO optional members. For shape (a)'s `pinned_by_commit_only:` the
+    adapter ALREADY reaches the entry grain — `_is_path_only_list` refuses `[{}]`,
+    matching `scripts/verify-openxwallet-pin.py:449-454` and
+    `scripts/validate-openreposhape-pin.py:493-498` — and canon ALREADY states that
+    rule in the scenario *A source pin enumerates its members in two different
+    forms*. For shape (c)'s `dispositions:` it does not, and canon is silent. This
+    packet adds the counterpart scenario, immediately after that one.
+    WHAT THE PACKET PROPOSES, AND WHAT IT DOES NOT. ONE `## MODIFIED Requirements`
+    block over `document-lifecycle`'s *Prose tagging marker hygiene*, restating the
+    promoted requirement IN FULL and adding EXACTLY ONE scenario: a
+    published-artifact record COMPLETE FOR ITS REQUIRED SHAPE MEMBERS, whose
+    OPTIONAL `dispositions:` entry is the SOLE MALFORMED PART — an entry that
+    shape's own pure guard refuses — MUST be reported as an invalid pin naming
+    the member AND the entry, MUST NOT resolve, and an absent member, an
+    explicit `null` and an empty sequence MUST each still be read as EMPTY.
+    `dispositions:` stays OPTIONAL and stays OUT of the shape-guard-required set, so
+    canon's sentence "`dispositions:` is NOT in the set: it is read with an
+    absent-is-empty default (`:801-803`)" is carried VERBATIM and stays true.
+    FILING IS NOT RATIFYING. This packet is a PROPOSAL. It admits no text to canon,
+    ratifies no design decision, moves no byte of `scripts/doc_health/pin_shapes.py`
+    or of `tests/doc-health/test_pin_shape_adapter.py`, edits no pin verifier, no
+    record under `contracts/` and no file under `openspec/specs/`, and ticks no box
+    in `tasks.md` section 1. The three lifecycle documents carry `Status: draft`;
+    the spec delta carries no lifecycle header, as 308 of the 312 spec-delta files
+    measured on `origin/main` do not. Ratification, realization and archive are
+    three separate acts on Brett Heap's word, and this filing has none of the three.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`. The organized source is an ISSUE and
+    a landed pull request's review record — openxFactory #1045 and the round-8
+    ruling on PR #1040 — not an `ideation/staging/` topic folder. No staging topic
+    holds this subject, and declaring one would name a source that does not resolve.
+  proposed_by: >-
+    Lane `openxfactory-2` (display `openXfactory-2`), session `c0d09b6d`, as the
+    standing claim holder of openxFactory issue #1045 (CLAIMED 2026-09-15T20:43:06Z,
+    after the three reads lane-collision-protocol Rule 1 requires, all three empty).
+    NO APPROVAL PAIR IS DECLARED AND NONE IS IMPLIED. Nobody has ruled on this
+    packet: `approved_by` and `approved_on` are ABSENT, which is the lawful
+    unapproved shape `add-drafted-proposal-origin` added — drafting provenance, no
+    approval — and the packet's three lifecycle documents carry `Status: draft` to
+    match. Approval, when and if it comes, is a pure ADDITION beside a fixed `kind`
+    and `id`.
+    THE DECISIONS MOST WORTH A VETO are D-2 (the entry-grain reading is the OPTIONAL
+    member's FORM and NOT a new required member: `dispositions:` stays out of the
+    shape-guard-required set, the measured table split `(29, 27, 2)` does not move,
+    and the two-leg equivalence test's OPTIONAL arm gains an ENTRY case held by a
+    CALL to `pinned_dispositions` — source-free, the verifier imported in the test
+    at its fixed authored path — rather than by the weaker citation re-read the two
+    `files:` entries use) and D-3 (act at all, rather than leave the adapter as the
+    round-8 ruling left it; the two refused alternatives are restating the
+    verifier's entry rules as PROSE in canon, which canon forbids of the per-shape
+    table in its own words, and having the ADAPTER call the verifier, which its
+    constitutional no-import rule forbids).
+    NOTHING IS REALIZED BY THE FILING — no adapter byte, no test, no verifier byte,
+    no pin record, no digest, no contract bundle, no capability. The ten measured
+    entry-grain records the adapter accepts today are still accepted after this
+    pull request lands, and stay accepted until a realization on a separate word.
+  proposed_on: 2026-09-15
+  approved_by: >-
+    Brett Heap (openxFactory repository owner) — first-hand, in session, lane
+    `openxfactory-2` (display `openXfactory-2`), verbatim ***"ratify 1052
+    when green, then 1050"*** — the "then 1050" half of that word. Recorded on
+    openxFactory #1045, comment
+    https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736,
+    THE ONE CITATION. AS FILED, WITH NO AMENDMENT AND NO VETO: D-1, D-2 and
+    D-3 stand exactly as `design.md` states them, and the word carries no
+    condition on any later act and reopens no decision. THIS RATIFYING ACT
+    ALSO ACCEPTS TWO CONFORMING FIXES the lane found from Copilot's
+    suppressed review comments at the ratified head, neither one a design
+    decision: `design.md` D-1's "THE GAP, COUNTED" tally and enumerated list
+    corrected from EIGHT to TEN measured records (the table above it always
+    carried `why: ""` and `level: ""`; the tally had dropped them), and, in
+    `proposal.md`, the "moves no byte of … any test" claim narrowed to name
+    the realization test files under `tests/doc-health/` and the
+    sweep-ledger bookkeeping separately. THE WORD PERFORMS NO REALIZATION AND
+    NO ARCHIVE: no byte of `scripts/doc_health/pin_shapes.py` moves, no byte
+    of `tests/doc-health/test_pin_shape_adapter.py` or
+    `tests/doc-health/test_tag_hygiene_pinned_targets.py` moves, no pin
+    verifier is edited, no record under
+    `contracts/` changes, no file under `openspec/specs/` moves, and only
+    boxes 1.1, 1.2, 1.3 and 1.4 of `tasks.md` § 1 are ticked — § 2's
+    CHECKBOXES stand exactly as the filing pull request left them (§ 2.2's
+    own evidence line was separately corrected to name TEN, a non-checkbox
+    consistency fix), and § 3 and § 4 stay open,
+    `code_surface` being non-empty. Record: review/ratification-2026-09-16.md.
+  approved_on: 2026-09-16
