@@ -471,8 +471,9 @@ of 19.0 seconds — 90% of the whole run** — and it returned empty for 51 of t
 57 tokens, which the resolver had already said. It decides exactly ONE thing
 the resolver cannot: an id that STOOD here and was renamed before former-id
 tracking, against one that never stood here at all. Worth a flag; not worth the
-default. **Without it the sweep is 2.0 seconds over 2,973 files**, which is the
-difference between a report somebody runs and a report somebody schedules.
+default. **Without it the sweep is 2.0 seconds over 2,973 entries in scope
+(2,969 files read)**, which is the difference between a report somebody runs
+and a report somebody schedules.
 
 **`--include` AND `--exclude` ARE GIVEN THEIR SEMANTICS HERE, BECAUSE A FLAG
 NAMED IN A SURFACE THAT EXISTS SO THE REALIZATION CANNOT DRIFT, AND THEN NOT

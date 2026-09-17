@@ -70,11 +70,12 @@ OPEN.**
 - [x] 1.1 **THE CORPUS WAS RE-MEASURED, NOT QUOTED.** Fresh clone at
       `origin/main` `b1df95ee80633339907c9e661164a783885a5d30`; #1053's own
       recipe re-run through the LANDED `packet_reference.resolve()`: **5,466**
-      tracked files, **2,973** in scope, **586** distinct
-      `openspec/changes/…` tokens, **498** `RESOLVED` (**76** relocated),
-      **74** `DANGLING`(identity-half), **7** `DANGLING`(file-half), **0**
-      `AMBIGUOUS`, **7** `NOT_A_PACKET_REFERENCE` — **inclusive remainder 81
-      tokens**, carried by **65** distinct citing files. `design.md` D0 carries
+      tracked entries, **2,973** entries in scope (**2,969** files read),
+      **586** distinct `openspec/changes/…` tokens, **498** `RESOLVED`
+      (**76** relocated), **74** `DANGLING`(identity-half), **7**
+      `DANGLING`(file-half), **0** `AMBIGUOUS`, **7**
+      `NOT_A_PACKET_REFERENCE` — **inclusive remainder 81 tokens**, carried by
+      **65** distinct citing files. `design.md` D0 carries
       the table and the commands. **AND THE SAME RECIPE WAS RE-RUN ON THIS
       BRANCH, AFTER THE PACKET EXISTED**, against the base its head merges —
       at the pair this reading was last taken over (`origin/main` `4cef77af`):

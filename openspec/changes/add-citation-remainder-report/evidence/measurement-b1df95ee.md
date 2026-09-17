@@ -63,6 +63,34 @@ rather than citations at all.
    `tests/`, `specs/`. At `8944758c` that is **2979 of 5467** tracked files,
    which is #1053's own count, reproduced exactly. At `b1df95ee` it is
    **2973 of 5466**.
+
+   > **CORRECTION — 2026-09-17, lane `openxfactory-1`, openxFactory PR #1069
+   > (Copilot review thread `PRRT_kwDOTAvnrs6jJO-y`). THE COUNTS ABOVE ARE
+   > RIGHT AND THE WORD BESIDE THEM IS WRONG. The original sentence is kept
+   > rather than replaced, because this file is a RECORD of a measurement
+   > taken on 2026-09-16, and what it called its own count is part of that
+   > record.**
+   >
+   > `git ls-files` returns TRACKED ENTRIES, not files: a mode-160000
+   > submodule gitlink is an entry with no text, and this tree carries four
+   > of them inside every population this file states —
+   > `installs/omnigent-install`, `openDox`, `openXdox`, `openXwallet`.
+   > RE-MEASURED on both trees (fresh clones, working tree clean, via
+   > `git ls-files -s | awk '$1=="160000"'`, both listing the same four
+   > paths): so **2979 of 5467** above is 2,979 ENTRIES IN SCOPE of 5,467
+   > TRACKED ENTRIES, and the sweep at `8944758c` actually READ **2,975
+   > files**; **2973 of 5466** is 2,973 entries in scope of 5,466 tracked
+   > entries, and the sweep at `b1df95ee` actually read **2,969 files**.
+   >
+   > **NO FIGURE THIS FILE MEASURED MOVES.** Neither pair above changes;
+   > only the noun beside it does, and only in this note — the sentence
+   > above is untouched. `design.md` D3(a) states the same arithmetic
+   > (entries in scope = files read + gitlinks skipped, the gitlink count
+   > held at 4 at every revision named in this packet); `README.md`'s
+   > bullet, `proposal.md`'s comparison table, `tasks.md` § 1.1 and
+   > `.openspec.yaml` now all carry the same pair, labelled the same way
+   > (this same round).
+
 2. **Token population** — every `openspec/changes/[A-Za-z0-9][A-Za-z0-9._\-/]*`
    match in each population file's text, deduplicated.
 3. **Resolution** — each distinct token through the LANDED
@@ -513,6 +541,20 @@ difference is whether a test asserts the absence or a rename left it behind.
   and was renamed before former-id tracking (`prepare-openspec-1.12-readiness`)
   from one that never stood here at all. Worth a flag, not worth the default.
   Without it the whole sweep is **2.0 seconds** over 2973 files.
+
+  > **CORRECTION — 2026-09-17, lane `openxfactory-1`, openxFactory PR #1069.
+  > THE SAME AMBIGUITY AS § 1.1 ABOVE, found by grepping this packet for it
+  > while taking Copilot review thread `PRRT_kwDOTAvnrs6jJO-y` rather than
+  > flagged here directly. The original sentence is kept rather than
+  > replaced, for the same reason as the § 1.1 note: this file is a RECORD
+  > of a measurement taken on 2026-09-16.**
+  >
+  > "2973 files" above is 2,973 TRACKED ENTRIES IN SCOPE (§ 1.1), four of
+  > them mode-160000 submodule gitlinks contributing no token; the sweep this
+  > bullet times — without the `--history` probe — actually reads
+  > **2,969 files**. The 2.0-second figure does not move — it is wall-clock
+  > time over the same run this file already measured — only the noun
+  > beside the entry count does.
 
 ### 6.4 One correction the issue's own evidence command needs
 

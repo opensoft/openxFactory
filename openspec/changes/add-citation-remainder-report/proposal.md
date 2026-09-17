@@ -63,8 +63,9 @@ hand-rolled raw-path check. The commands are in `design.md` D0.
 
 | measure | #1053 at filing (`8944758c`) | re-measured (`b1df95ee`) |
 | --- | ---: | ---: |
-| tracked files | 5,467 | **5,466** |
-| files in scope | 2,979 | **2,973** |
+| tracked entries | 5,467 | **5,466** |
+| entries in scope | 2,979 | **2,973** |
+| files read (entries in scope minus 4 gitlinks) | 2,975 | **2,969** |
 | distinct `openspec/changes/…` tokens | 578 | **586** |
 | tokens with no raw path in the tree | 153 | **162** |
 | of those, REPAIRED by the identity rule | 73 | **76** |
