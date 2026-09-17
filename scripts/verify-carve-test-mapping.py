@@ -205,14 +205,43 @@ def read_manifest(path: Path) -> dict[str, Any]:
     # `moved_paths: ["contracts/policies/"]`: `rows_in_surface 0`,
     # `source_count 0`, exit 0. Clause (a) is a QUANTIFIER, and a quantifier
     # over the empty set is not a floor that holds.
-    if not any(mapping.under_surface(source_path, doc["moved_paths"])
-               for source_path in seen):
+    outside = [source_path for source_path in seen
+               if not mapping.under_surface(source_path, doc["moved_paths"])]
+    if len(outside) == len(seen):
         raise mapping.TestMappingRefusal(
             "test-mapping-unreadable",
             f"{path} carries {len(seen)} row(s) and NOT ONE of them lies "
             f"under the declared surface {doc['moved_paths']!r}. The mapping "
             "would be empty and the identity `0 = 0` would hold over nothing; "
             "a floor that passes by asking nothing is not a floor")
+    # AND A PARTIAL SURFACE IS THE SAME VACUUM, PRO RATA (Copilot, round 7 on
+    # #1080, taking the round-6 finding one step further and rightly). A
+    # prefix covering only SOME rows leaves the rest unquantified — at the
+    # limit, a prefix matching one zero-test row reports `0 = 0` over a
+    # document declaring thousands. `map_rows` skips out-of-surface rows
+    # BY DESIGN, because § 5.4 binds "every file in the manifest's DECLARED
+    # SURFACE"; what was missing is that the two never disagree in a document
+    # this floor will answer about, and only a pytest assertion said so.
+    #
+    # THIS FILE'S OWN PRECEDENT, and the reason it is a refusal and not an
+    # assertion: `refuse_stale_declarations` was raised to the runtime path
+    # two rounds ago in exactly these words — "a pytest assertion is not a
+    # check the runbook's invocation makes". The landed manifest carries 456
+    # rows and 456 of them are under its surface; a document where that stops
+    # being true is FLOOR PART 1 and this floor reading two different
+    # surfaces, which is drift, and drift is refused here rather than skipped
+    # quietly.
+    if outside:
+        raise mapping.TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{path} places {len(outside)} of its {len(seen)} rows OUTSIDE "
+            f"the declared surface {doc['moved_paths']!r}: "
+            f"{', '.join(outside[:5])}"
+            + (", …" if len(outside) > 5 else "")
+            + ". Clause (a) is quantified over that surface, so a row outside "
+            "it is a file this floor would answer about by not asking — and a "
+            "surface that covers only part of its own document reports "
+            "`0 = 0` over the part it omits")
     return doc
 
 
@@ -489,6 +518,15 @@ def _tree_tests(dest_root: Path) -> tuple[int, int]:
     printed beside them so a reader can see how much of a destination's suite
     the manifest speaks for.
 
+    THE POPULATION IS THE WORKING TREE, said exactly because the number moves
+    (Copilot, round 7 on #1080): every `.py` file PRESENT under `--dest-root`,
+    tracked or not, minus nested checkouts and symlinks. An untracked scratch
+    file therefore raises it, and that is the honest reading for a figure
+    captioned "the tree carries" — a leg is verified where it stands, not
+    where its index says it stands. Nothing is asserted against it: the floor
+    is `declared` against `collected`, both of which are read from the
+    manifest's own rows.
+
     NESTED GIT CHECKOUTS ARE SKIPPED, and the openxFactory run is why: with
     `openDox/` and `openXdox/` materialized (which the carve suites require)
     a naive walk counts two other repositories' suites into a figure captioned
@@ -570,6 +608,7 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
     collected = 0
     absent: list[dict[str, Any]] = []
     below: list[dict[str, Any]] = []
+    above: list[dict[str, Any]] = []
     for source_path, relpath in owed:
         want = counts[source_path]
         declared += want
@@ -583,6 +622,18 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
         collected += found
         if found < want:
             below.append({"source_path": source_path, "path": relpath,
+                          "declared": want, "found": found})
+        elif found > want:
+            # BOTH SIGNS, BECAUSE THE RUNBOOK PROMISES BOTH (Copilot, round 7
+            # on #1080). The documented reason the REFUSAL is a total and not
+            # a per-row equality is that "a canceling pair holds a total while
+            # a file loses coverage" — and only the negative half was
+            # reported, so the retained column's real `+20` named no arrival
+            # at all and the pair could not be inspected. A row ABOVE its
+            # declaration is not a fault (a leg may add tests to a file it
+            # received, and § 3.4's RULED re-homings do exactly that); it is
+            # the other half of the evidence.
+            above.append({"source_path": source_path, "path": relpath,
                           "declared": want, "found": found})
 
     tree, tree_files = _tree_tests(dest_root)
@@ -600,6 +651,7 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
         "collected": collected,
         "absent": absent,
         "below_declaration": below,
+        "above_declaration": above,
         "tree_tests": tree,
         "tree_files": tree_files,
     }
@@ -681,6 +733,11 @@ def _print_destination(summary: dict[str, Any]) -> None:
     for item in summary["below_declaration"]:
         print(f"      {item['path']} — declared {item['declared']}, "
               f"found {item['found']}")
+    print("  rows above their declaration: "
+          f"{len(summary['above_declaration'])}")
+    for item in summary["above_declaration"]:
+        print(f"      {item['path']} — declared {item['declared']}, "
+              f"found {item['found']} (+{item['found'] - item['declared']})")
 
 
 def _refused(exc: mapping.TestMappingRefusal, where: str,

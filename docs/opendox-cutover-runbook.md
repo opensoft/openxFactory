@@ -1906,6 +1906,11 @@ exited 0, a leg passing because a live arrival had been silenced by a key
 naming nothing. A `--replica-at` placement is admitted only for a row under
 the declared surface, for the same reason in the other direction: a floor is
 neither lowered inside the set it is quantified over nor raised outside it.
+And the surface must cover the WHOLE document — a `moved_paths:` that omits
+some of its own rows reports `0 = 0` over the part it omits, which at the limit
+is a prefix matching one zero-test row; the landed manifest's 456 rows are all
+under its surface, and that was asserted only in pytest until this round made
+it a refusal the runbook's own invocation makes.
 `tests/carve_test_mapping/test_carve_test_mapping.py` drives the source side on
 every required-suite pass, the seat `tests/carve_manifest/` holds for FLOOR
 PART 1.
@@ -1959,7 +1964,13 @@ successor runs at `opensoft/openDox-code`'s
 `tests/test_source_core_arm.py::test_route_dispatches_the_exact_arm_before_the_prefix_arm`.
 A per-row equality would go red on a RULED re-homing that lost nothing. So the
 total is the refusal and the per-row deltas are REPORTED BY NAME on every run,
-because a canceling pair holds a total while a file loses coverage.
+because a canceling pair holds a total while a file loses coverage — **and in
+BOTH SIGNS, which cost a round to get right**: only the shortfalls were printed
+until 2026-09-17, so the retained column's `+20` named no arrival at all and
+the canceling pair the sentence above is about could not be inspected. It
+resolves to SIX rows carrying `+21` between them, each named with its declared
+and its found count, against that one `−1`. A row ABOVE its declaration is not a fault — a leg may add tests
+to a file it received — it is the other half of the evidence.
 
 **CLAUSE (d) — HALF BUILT, HALF BLOCKED, and the blocker is the BUILD arc.**
 openxFactory's half is `.github/workflows/pytest-suite.yml`'s pinned triple —

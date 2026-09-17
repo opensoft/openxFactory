@@ -1418,6 +1418,8 @@ def test_a_replica_outside_the_declared_surface_may_not_be_placed(
     doc = scratch.clean()
     doc["moved_paths"] = ["scripts/pkg/"]
     dest = scratch.destination("dox", ARRIVALS)
+    # GATE ONE, added in round 7: such a document is refused before any flag
+    # is read, because a manifest whose surface omits its own rows is drift.
     payload = refused(
         scratch.run(doc, "--destination", "dox_code", "--dest-root",
                     str(dest), "--replica-at",
@@ -1425,9 +1427,29 @@ def test_a_replica_outside_the_declared_surface_may_not_be_placed(
                     "tests/test_conformance.py"),
         "test-mapping-unreadable")
     assert "tests/corpus-adapter/test_conformance.py" in payload["detail"]
-    assert verified(scratch.run(doc, "--destination", "dox_code",
-                                "--dest-root", str(dest)))["declared"] == 3, \
-        "and the same document without the flag is unchanged"
+    assert "OUTSIDE" in payload["detail"]
+    # GATE TWO, the one this case is named for: the admission itself, asserted
+    # against `parse_replica_placements` directly so that it is proved
+    # independently of the document check above — the module is importable and
+    # a consumer may call it with a document `read_manifest` never saw.
+    verifier = _load(SCRIPT, "verify_carve_test_mapping_admission")
+    # ITS OWN copy of the module, not this file's: a script loaded by
+    # `spec_from_file_location` imports `carve_test_mapping` afresh, so the
+    # refusal it raises is not an instance of `MODULE`'s class. Catching the
+    # wrong one would pass this case for the wrong reason on the day the
+    # refusal stopped being raised at all.
+    with pytest.raises(verifier.mapping.TestMappingRefusal) as raised:
+        verifier.parse_replica_placements(
+            ["tests/corpus-adapter/test_conformance.py="
+             "tests/test_conformance.py"], doc, "dox_code")
+    assert raised.value.code == "test-mapping-unreadable"
+    assert "tests/corpus-adapter/test_conformance.py" in raised.value.detail
+    doc["moved_paths"] = ["scripts/pkg/", "tests/corpus-adapter/"]
+    assert verifier.parse_replica_placements(
+        ["tests/corpus-adapter/test_conformance.py="
+         "tests/test_conformance.py"], doc, "dox_code") == {
+        "tests/corpus-adapter/test_conformance.py": "tests/test_conformance.py"
+    }, "and the same placement inside the surface is admitted"
 
 
 @pytest.mark.parametrize("value,fragment", [
@@ -1516,9 +1538,13 @@ def test_a_surface_that_selects_no_row_does_not_pass(
     payload = refused(scratch.run(doc), "test-mapping-unreadable")
     assert "NOT ONE" in payload["detail"]
     doc["moved_paths"] = ["scripts/pkg/"]
-    assert verified(scratch.run(doc))["rows_in_surface"] == 5, \
-        "a surface that selects SOME rows is the operator's business, not " \
-        "this refusal's"
+    partial = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "3 of its 8 rows OUTSIDE" in partial["detail"], \
+        "a surface covering only part of its own document reports `0 = 0` " \
+        "over the part it omits, at the limit of one zero-test row"
+    doc["moved_paths"] = ["scripts/pkg/", "tests/corpus-adapter/"]
+    assert verified(scratch.run(doc))["rows_in_surface"] == 8, \
+        "and the document whose surface covers it verifies"
 
 
 def test_a_retired_row_with_surviving_copies_is_counted_once(
@@ -1538,6 +1564,27 @@ def test_a_retired_row_with_surviving_copies_is_counted_once(
         summary["test_bearing_rows"]
     assert summary["retired"][0]["homes"] == ["opensoft/openXdox-code"], \
         "and the copies the retirement did NOT delete are named in the report"
+
+
+def test_a_row_above_its_declaration_is_named_as_well_as_one_below(
+        scratch: Scratch) -> None:
+    """The documented reason the refusal is a TOTAL and not a per-row equality
+    is that "a canceling pair holds a total while a file loses coverage" — and
+    only the negative half of the pair was reported, so the retained column's
+    real `+20` named no arrival at all and the pair could not be inspected.
+    Measured on this repository after the fix, the +20 resolves to eight named
+    rows against the one `−1` the runbook has always named."""
+    dest = scratch.destination("dox", ARRIVALS)
+    (dest / "tests/test_alpha.py").write_text(_tests(5, "alpha"),
+                                              encoding="utf-8")
+    summary = verified(scratch.run(None, "--destination", "dox_code",
+                                   "--dest-root", str(dest)))
+    assert summary["declared"] == 3
+    assert summary["collected"] == 5
+    assert summary["below_declaration"] == []
+    assert summary["above_declaration"] == [
+        {"source_path": "scripts/pkg/test_alpha.py",
+         "path": "tests/test_alpha.py", "declared": 3, "found": 5}]
 
 
 def test_the_arrival_reader_is_annotated_for_the_bytes_it_returns() -> None:
