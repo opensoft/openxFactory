@@ -94,7 +94,7 @@ OPEN.**
 - [x] 1.2 **THREE FACTS #1053 DOES NOT CARRY WERE FOUND AND EACH MOVED A
       DECISION.** (i) the 74 identity-half tokens collapse to **48 DISTINCT
       IDENTITIES** and all 81 remainder tokens onto **53** (the other 5 are the
-      file-half tokens', which resolved their packet), 18 of the 48 cited more
+      file-half tokens, which resolved their packet), 18 of the 48 cited more
       than once — which is why D3 requires both counts and why every identity
       count in this packet names its scope; (ii) the token grammar manufactures remainder in
       **four** shapes (15 trailing `/`, 2 trailing `-`, 1 trailing `.`, 1
@@ -310,7 +310,7 @@ added, edited, renamed or deleted here.
       stays true and no line of that module moves. The one-line docstring
       correction is owed ONLY if D2 is vetoed for option 2.
       Argument surface exactly as D2 fixes it (`[REPO_ROOT] [--json] [--all]
-      [--tokens] [--history] [--include] [--exclude]` — grouping is by IDENTITY
+      [--tokens] [--history] [--include PREFIX ...] [--exclude PREFIX ...]` — grouping is by IDENTITY
       by default and `--tokens` ungroups it; `--history` is OPT-IN on D2's
       measured cost), exit code always 0, no `--fail-on`. `tests/citation_remainder/` (NEW): unit tests over a
       THROWAWAY FIXTURE CORPUS built in a `tmp_path` git tree — the shape

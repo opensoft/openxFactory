@@ -556,7 +556,7 @@ Active changes:
   remainder is 81 tokens** (the DANGLING and AMBIGUOUS ones; the resolver's
   fifth answer is counted beside it, never inside it), carried by 65 citing
   files and collapsing onto **53 distinct remainder identities** — 48 of them
-  the identity-half tokens', 5 the file-half tokens', with no identity in both.
+  the identity-half tokens, 5 the file-half tokens, with no identity in both.
   **AND THE DEEP RE-MEASUREMENT IS COMMITTED AS EVIDENCE**
   (`evidence/measurement-b1df95ee.md`, by a sibling writer at the same head):
   INCLUSIVE **78**, THIS-TREE-ONLY **57**, TRUE

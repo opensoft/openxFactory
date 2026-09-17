@@ -129,7 +129,7 @@ asked. That is the whole argument for D3 stating the recipe in the requirement.
 which moves a decision rather than decorating one:
 
 1. **The 74 identity-half tokens collapse to 48 DISTINCT IDENTITIES, and all 81
-   remainder tokens onto 53** — the other 5 being the file-half tokens', which
+   remainder tokens onto 53** — the other 5 being the file-half tokens, which
    resolved their packet and carry an identity too. Eighteen of the 48
    identities are cited by more than one identity-half token — `add-council-clearance-rule-template`
    by six, `add-openxfactory-tui-installer` by four, `add-pre-archive-citation-gate`
