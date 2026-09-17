@@ -77,9 +77,9 @@ Core domain-neutral docs:
 - [openXdox — Capability Naming Record](docs/openxdox-naming.md) (the neutral review-and-disposition workbench; handle `dox`, surface `doxBench`)
 - [omniWorker — Product And Machine Naming Record](docs/omniworker-naming.md) (the worker-host product; repository `OmniWorker-Install`, machine keys `omniworker`; Cloud PC template `%USERNAME:7%-%RAND:5%`, rendering `Omni001-XEAON` — **amended 2026-09-08, see that record's Amendments § A1**, which supersedes the `CPC-OXF-%USERNAME:7%` this line carried: Windows 365 requires a random `%RAND:y%` segment in every device-name template)
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
-- [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; and, under the two RULED corrections to a PLACEMENT, a moved row may declare `re_destined:` where a ruling moved its arrival between legs (RULED Q6, 2026-09-12, `#656` comment 5648044785) or `retired:` where a ruling DELETED that arrival because the surface it drove is at no leg at all (RULED 5656343213, 2026-09-13) — both leave every digest, disposition and declared line untouched, because both are facts about a DESTINATION, and both are gated at the leg by `scripts/verify-carve-arrival.py` (`arrival-not-vacated`, `arrival-not-retired`) and documented as procedures at the cutover runbook's § 5.7 and § 5.8; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
+- [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; and, under the two RULED corrections to a PLACEMENT, a moved row may declare `re_destined:` where a ruling moved its arrival between legs (RULED Q6, 2026-09-12, `#656` comment 5648044785) or `retired:` where a ruling DELETED that arrival because the surface it needed is at no leg at all (RULED 5656343213, 2026-09-13) — both leave every digest, disposition and declared line untouched, because both are facts about a DESTINATION, and both are gated at the leg by `scripts/verify-carve-arrival.py` (`arrival-not-vacated`, `arrival-not-retired`) and documented as procedures at the cutover runbook's § 5.7 and § 5.8; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
 - [The openDox carve admissions](docs/opendox-carve-admissions.yaml) (RULED — the arrival-admission repair, Brett Heap, 2026-09-11, `#656` comment 5639058687: the DECLARED per-destination `created:` list `scripts/verify-carve-arrival.py` reads beside the manifest by default, applied exactly as `--allow-created` admits, so a file a leg legitimately assembles is a reviewed one-line diff in the pin-bump pull request rather than a flag typed on a command line and recorded nowhere; seeded with the two `opensoft/openXdox-code#7` files; `--allow-created` remains the ad-hoc fallback)
-- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, § 5.7's and § 5.8's two RULED corrections to a placement (a re-destination and a retirement), and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2454 declared edit lines over 176 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
+- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, § 5.7's and § 5.8's two RULED corrections to a placement (a re-destination and a retirement), and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2621 declared edit lines over 176 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
 - [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, five refusal codes, a `--json` seat), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 and the other two named destinations have authored no reader yet, so § 3.7 is not ticked)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
@@ -551,6 +551,75 @@ Active changes:
   nothing — the packet's own ratified per-requirement map is the removal's
   single writer (`design.md` § D3). CLAIMED on openxFactory #656 comment
   [`5703096449`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5703096449).
+
+- [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
+  — filed 2026-09-16, lane `openxfactory-4` (display
+  `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
+  the staged topic `openxdox-install-app-provisioning`'s declared exit path and
+  does NOT close that topic** (staged 2026-08-14, gate met 2026-08-15,
+  exit unraised from that day until this one — stated as dates rather than a
+  day-count, which stales), on **RULING `5704187317`**
+  ([#656](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5704187317),
+  2026-09-16, by interactive multi-choice, option (1) SPLIT AND NARROW,
+  clause (E)), which takes that topic's OQ-1 **option (a)** — a MODIFIED
+  `credential-contracts` delta — and declines the new `install-app-provisioning`
+  capability it offered beside it. **THE LIFECYCLE CLAIM IS NARROW AND STATED AS
+  SUCH:** the topic's Exit path names the contract home (Q1, **RULED**), the
+  managed-versus-self-hosted flow (Q2, **unruled, neither decided nor waived
+  here**), a named `Omnigent-Install` realization change (owed, authored nowhere
+  here) and a further gate on the opensoft QA dispatch migration (**not asserted
+  met**). What authorizes authoring anyway is clause (E) DIRECTING it in the
+  operator's own words rather than any finding by the author that Q2 is
+  dispensable; the fragment STAYS STAGED and the topic closes only when ALL THREE
+  of its stated conditions are met — Q2 ruled, the installer change in existence,
+  AND the QA dispatch migration complete. **ONE `## MODIFIED` BLOCK, OVER CANON.**
+  *Dispatch-only credential least privilege and serving-tier separation*
+  ([`openspec/specs/credential-contracts/spec.md:169`](openspec/specs/credential-contracts/spec.md))
+  restated with its promoted body paragraph and all three promoted scenarios
+  VERBATIM, grown by five clauses and ten scenarios: where the pair is
+  provisioned THROUGH A MANIFEST, creation of each identity IN THE TENANT'S OWN
+  SEAT AT THE PROVIDER — their organization where they are organization-backed,
+  their own account where canon's self-hosted individual applies — never an
+  operator-owned identity installed into it (nor one
+  provisioned identity creating the other); ONE PAIR PER TENANT, never shared,
+  under a per-tenant pattern-discoverable naming convention of the form
+  `<product> — <tenant>` where the provider's namespace is global; the dispatch
+  identity's one named target being a repository that holds NO GOVERNED CONTENT;
+  and a time-bound capture landing in the DECLARED custody by reference, with no
+  manifest, record or template carrying a secret value, private key or
+  installation token. **WHAT THE BLOCK DOES NOT REPEAL, ASSERTED IN THREE OF THE
+  TEN SCENARIOS RATHER THAN ARGUED IN PROSE:** canon keeps both operating
+  models legitimate (*"Both cases SHALL remain legitimate"*,
+  [`openspec/specs/credential-contracts/spec.md:141`](openspec/specs/credential-contracts/spec.md))
+  and `docs/openxdox-dispatch-credential-binding.md:31-37` records a live
+  operator-hosted Case A, so the clauses bind WHERE the identity lives and HOW
+  its material is reached, name no custody party — the operator of the custody
+  stays the per-install execution binding canon already fixes — leave who DRIVES
+  the flow to the unruled Q2, and do not retroactively refuse a pair already in
+  service.
+  **DELTA-CURRENCY CHECK, STATED IN THE DELTA'S OWN PREAMBLE:** two active
+  changes carry a `credential-contracts` delta at `4cef77af` —
+  `add-credential-escrow-checkout` (MODIFIED *Canonical credential record shapes*
+  plus nine ADDED) and `add-requirement-ref-resolution-integrity` (two ADDED) —
+  and NEITHER writes this requirement, so the block is over canon and **no
+  `Modified over` marker is owed**. `code_surface: none` with four measured
+  negatives (no validator arm, because a provisioning manifest is a record kind no
+  corpus this repository validates carries; no schema, manifest row, digest cut or
+  CHANGELOG line; no promoted text deleted; and not one byte in
+  `opensoft/OpsxFactory` or `opensoft/Omnigent-Install`), and NO contract bundle
+  number reserved — the two siblings above each owe an additive minor on the same
+  schema file. **WHAT IT DOES NOT DO, ON THE SAME RULING:** clause (B) reads
+  `split-opendox-two-layer-product` § 7.4's `openxdox` DNS sentence as discharged
+  by NAMING, per that packet's own `design.md` § Non-goals, leaving the
+  ceremony-reach widening inside `opensoft/OpsxFactory`'s active
+  `add-governed-dns-administration` on Brett Heap's OQ-E word; clause (D) leaves
+  the `dox` workload set's per-tenant declaration to that packet's § 3.5. The
+  installer is named as owed in `opensoft/Omnigent-Install` (tasks § 3.1) and
+  authored nowhere here, on that repository's own README boundary and CLAUDE.md
+  working rule 1. Two open questions carried, neither blocking: the managed
+  `opsxfactory_executed` flow (the topic's Q2, unruled — the delta is written
+  CASE-NEUTRAL and does not turn on it) and the apply-workflow repository's
+  provenance.
 
 - [adopt-entry-grain-dispositions-form](openspec/changes/adopt-entry-grain-dispositions-form/proposal.md)
   — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
