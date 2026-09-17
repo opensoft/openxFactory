@@ -2748,8 +2748,8 @@ def test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose(
     # An object store at EVERY level of the mount: the walk is one
     # `rev-parse <revision>:<segment>` per gitlink (`openDox`, then `code`),
     # and it refuses `CarveReachUnavailable` at the first level that is not
-    # materialized — which is the OTHER refusal this function keeps and this
-    # case must not be mistaken for.
+    # materialized — which is one of the THREE refusals this function keeps
+    # (`#1048` added the other two) and this case must not be mistaken for.
     (leg / ".git").mkdir(parents=True)
     (tmp_path / "openDox" / ".git").mkdir(exist_ok=True)
     rows = {
@@ -2770,6 +2770,18 @@ def test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose(
     pinned = "b" * 40
     monkeypatch.setattr(carved_reach, "_git_object_id",
                         lambda repo, revision, path: pinned)
+    # …and the STORE-COMPLETENESS probe `#1048` added beside it. The two
+    # `.git` entries above are bare directories, not repositories, so the real
+    # `cat-file -e <gitlink>^{commit}` answers no and the walk would refuse
+    # `CarveReachUnavailable` for an INCOMPLETE STORE — one more thing this
+    # case must not be mistaken for. `#1048`'s OTHER new refusal, "the tree
+    # this gitlink would be recorded in could not be READ", is already out of
+    # the walk's way and needs no stub of its own: it is reached only where
+    # `_git_object_id` answers `None`, and the stub above never does.
+    # Stubbed for exactly the reason `_git_object_id` above is: what this case
+    # measures is the DISPOSITION, and git is not the question.
+    monkeypatch.setattr(carved_reach, "_git_ok",
+                        lambda repo, *arguments: True)
 
     located = carved_reach.shed_commit_object("a" * 40,
                                               "scripts/pkg/retired.py")
@@ -2829,9 +2841,175 @@ def test_the_exact_commit_resolver_reads_the_effective_arrival_of_a_re_destined_
     pinned = "c" * 40
     monkeypatch.setattr(carved_reach, "_git_object_id",
                         lambda repo, revision, path: pinned)
+    # …and the STORE-COMPLETENESS probe `#1048` added beside it, stubbed for
+    # exactly the reason `_git_object_id` above is: the four `.git` entries
+    # this fixture makes are bare directories and not repositories, so the real
+    # `cat-file -e <gitlink>^{commit}` answers no and the walk would refuse
+    # `CarveReachUnavailable` for an INCOMPLETE STORE at `openDox` — the WRONG
+    # answer to measure a case whose whole question is WHICH LEG the walk
+    # reaches, and which leaves the ORIGINAL leg materialized on purpose so
+    # that a resolver reading the raw `destination` answers rather than
+    # raising. Git is not the question here; the effective arrival is.
+    monkeypatch.setattr(carved_reach, "_git_ok",
+                        lambda repo, *arguments: True)
 
     located = carved_reach.shed_commit_object("a" * 40, "scripts/pkg/moved.py")
     assert located == (effective_leg, pinned, "src/opendox/moved.py"), located
+
+
+def test_a_probe_that_times_out_is_UNAVAILABLE_never_absent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Round 5 (`#1048`, Copilot on PR #1051, `carved_reach.py:826`): the
+    `cat-file`/`ls-tree` probes below `_git_run` are also the paths a partial
+    clone or an unreachable promisor remote can HANG rather than fail, and the
+    pre-round-5 `_git_run` had no timeout to turn a hang into an answer.
+    `scripts/hermes_runtime_validation/content.py:103-116` already bounds its
+    own equivalent read at `timeout=30`; this pins the same bound here, and
+    that a timeout is read as UNANSWERED — never as the tree's own "no such
+    entry", the phantom-absence thesis this whole file exists to refuse, one
+    layer lower than every other case in this section.
+
+    `subprocess.run` is mocked to RAISE `subprocess.TimeoutExpired` rather than
+    built as a slow real git call: the property under test is that `_git_run`
+    catches the timeout and answers `None`, and that the READER built on it
+    raises `CarveReachUnavailable` rather than returning `None` as if the tree
+    had answered — not that git itself can be made to hang inside a test's own
+    time budget. No leg is materialized here at all: the timeout fires on the
+    very FIRST probe, the gitlink lookup, which is the earliest a real hang
+    could reach.
+    """
+    import carved_reach
+
+    def timed_out(argv, **kwargs):
+        assert kwargs.get("timeout") == 30, (
+            "the probe must be bounded at the same 30s "
+            "scripts/hermes_runtime_validation/content.py uses")
+        raise subprocess.TimeoutExpired(cmd=argv, timeout=30)
+
+    monkeypatch.setattr(subprocess, "run", timed_out)
+
+    # `_git_run` ITSELF: the same failed-probe result an unrunnable git
+    # already answers with, so every existing `is None` check above it goes on
+    # working unchanged.
+    assert carved_reach._git_run(tmp_path, "cat-file", "-e",
+                                 "deadbeef^{commit}") is None
+
+    # ...and the READER built on it. `_git_object_id` answers `None` (the
+    # mocked `_git_run` behind it timed out), which sends the walk to
+    # `_tree_entry_absent` — ALSO built on the timed-out `_git_run` — and ITS
+    # `(False, ...)` answer must raise rather than let the walk read a `None`
+    # gitlink as "this tree has no such entry".
+    rows = {
+        "scripts/pkg/timed_out.py": {
+            "source_path": "scripts/pkg/timed_out.py",
+            "disposition": "moved_verbatim",
+            "destination": "opendox_code",
+            "destination_path": "src/opendox/timed_out.py"},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS,
+                             opendox_code=tmp_path / "leg"))
+
+    with pytest.raises(carved_reach.CarveReachUnavailable) as caught:
+        carved_reach.shed_commit_object("a" * 40, "scripts/pkg/timed_out.py")
+    assert "30s" in str(caught.value), (
+        "the raised message must name the timeout where it surfaces git's "
+        f"own stderr — got {caught.value}")
+
+
+def test_the_module_loader_reads_the_effective_arrival_of_a_re_destined_row(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """Regression, `#1079`. `module()` read `row["destination_path"]` directly
+    — the row's ORIGINAL arrival — instead of `effective_arrival(row)`, the
+    same three-line predicate `source()` reads at line 616 and
+    `shed_commit_object()` was fixed to read by `#1077`. Latent while no
+    `re_destined` row named a module-importable file; this fixture gives it
+    one.
+
+    The row below carved to `openxdox_code` and a ruling (RULED Q6) has since
+    re-destined it to `opendox_code` — a DIFFERENT leg entirely, so a resolver
+    reading the raw `destination_path` derives the dotted name the ORIGINAL
+    leg would have made importable (`openxdox.moved`) rather than the one the
+    EFFECTIVE leg makes importable (`opendox.moved`). `install()` and the real
+    `importlib.import_module` are both stood down here — what this function
+    is answerable for is which dotted name it ASKS for, not whether either
+    leg is materialized in this checkout.
+    """
+    import carved_reach
+
+    rows = {
+        "scripts/pkg/moved.py": {
+            "source_path": "scripts/pkg/moved.py",
+            "disposition": "moved_verbatim",
+            "destination": "openxdox_code",
+            "destination_path": "src/openxdox/moved.py",
+            "re_destined": {
+                "from": "openxdox_code",
+                "from_path": "src/openxdox/moved.py",
+                "to": "opendox_code",
+                "to_path": "src/opendox/moved.py",
+                "ruling": RULING_CITATION,
+            }},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "install", lambda **kwargs: None)
+    asked: list[str] = []
+    sentinel = object()
+    monkeypatch.setattr(importlib, "import_module",
+                        lambda name: asked.append(name) or sentinel)
+
+    result = carved_reach.module("scripts/pkg/moved.py")
+    assert result is sentinel
+    assert asked == ["opendox.moved"], asked
+
+
+def test_the_relative_path_reader_reads_the_effective_arrival_of_a_re_destined_row(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Regression, `#1079`. `shed_relpath()` walked
+    `MOUNTS[row["destination"]]` and returned `row["destination_path"]` — the
+    row's ORIGINAL arrival — instead of `effective_arrival(row)`, on the same
+    defect `#1077` fixed in `shed_commit_object()`. Latent while no
+    `re_destined` row named a file a marker asks the relative path of; this
+    fixture gives it one.
+
+    The row below carved to `openxdox_code` and a ruling (RULED Q6) has since
+    re-destined it to `opendox_code` — a DIFFERENT leg entirely, not merely a
+    different path at the same one, so a resolver reading the raw
+    `destination` answers a well-formed relative path under the mount the row
+    no longer names, which a marker's `exists()` check against the CORRECT leg
+    reads as absent rather than present — the same silent-wrong-answer shape
+    `#1077`'s own regression named for `shed_commit_object()`.
+    """
+    import carved_reach
+
+    original_leg = tmp_path / "openXdox" / "code"
+    effective_leg = tmp_path / "openDox" / "code"
+
+    rows = {
+        "scripts/pkg/moved.py": {
+            "source_path": "scripts/pkg/moved.py",
+            "disposition": "moved_verbatim",
+            "destination": "openxdox_code",
+            "destination_path": "src/openxdox/moved.py",
+            "re_destined": {
+                "from": "openxdox_code",
+                "from_path": "src/openxdox/moved.py",
+                "to": "opendox_code",
+                "to_path": "src/opendox/moved.py",
+                "ruling": RULING_CITATION,
+            }},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS,
+                             openxdox_code=original_leg,
+                             opendox_code=effective_leg))
+
+    relpath = carved_reach.shed_relpath("scripts/pkg/moved.py")
+    assert relpath == "openDox/code/src/opendox/moved.py", relpath
 
 
 def _cross_reference_validator():

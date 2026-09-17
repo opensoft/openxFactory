@@ -349,9 +349,14 @@ current.
 
    (d) The live-finding check of command 4, post-archive: `python3
    scripts/doc-health.py --single-repo . --as-of 2026-09-17 --family
-   modified-block-currency` reports **14 `info` rows and NOT ONE naming this
+   modified-block-currency` reports **15 `info` rows and NOT ONE naming this
    change** — the finding command 4 quoted is gone because the block is canon
-   now, which is the retirement condition `tasks.md` § 3.2 discharges. And
+   now, which is the retirement condition `tasks.md` § 3.2 discharges. (It read
+   **14** when this section was first written, before `origin/main` was merged
+   in at `5dd0a8dc`; the fifteenth row is `adopt-entry-grain-dispositions-form`'s
+   own, opened over the SAME requirement by PR #1088 → `893abe97` on its
+   ratifier's "Apply the partition" word — not this change's, and named in
+   `_LEDGER_SUBJECTS`.) And
    `--family promotion-fidelity`, the family that DOES read
    `openspec/changes/archive/`, reports **0 findings**: the archived block and
    canon agree.

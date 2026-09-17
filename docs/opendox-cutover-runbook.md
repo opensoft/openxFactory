@@ -1850,6 +1850,159 @@ destination. The equality reading fails on its first run and would be "fixed" by
 deleting replicas, which is the wrong repair. RULED OQ-K is carried by a small
 amendment pull request to the change, not by this runbook.
 
+**HOW TO VERIFY IT**, and it is TWO questions rather than one asked twice.
+`scripts/verify-carve-test-mapping.py` (design record in
+`scripts/carve_test_mapping.py`'s docstring) answers the SOURCE side from the
+manifest and this repository's history alone —
+
+```
+python3 scripts/verify-carve-test-mapping.py
+```
+
+— printing every term of the sum, and the DESTINATION side one leg per run,
+never as a cross-repository equality:
+
+```
+python3 scripts/verify-carve-test-mapping.py \
+    --destination openxdox_code --dest-root ../openXdox-code
+```
+
+and, where a replica is placed at that destination, the same command with the
+placement declared — the flag is repeatable and the block above is COPYABLE,
+which the bracketed form it replaces was not (argparse reads `[--replica-at`
+as a flag and fails before the destination is looked at):
+
+```
+python3 scripts/verify-carve-test-mapping.py \
+    --destination openxdox_code --dest-root ../openXdox-code \
+    --replica-at tests/corpus-adapter/test_conformance.py=tests/test_conformance.py
+```
+
+`--destination` takes a `destinations:` key or the literal `openxFactory` for
+the retained column, whose `--dest-root` defaults to this repository. A replica
+joins a destination's floor only where `--replica-at` declares its placement,
+on the rule § 2.1 already states for `verify-carve-arrival.py`: RULED OQ-C
+gives a replica no `destination_path`, so there is nothing to derive one from.
+
+**THE SAME FLAG SPELLING, A DIFFERENT QUESTION, and the one row where the two
+tools give OPPOSITE instructions is the row that matters most.** § 2 tells the
+operator NOT to declare `tests/corpus-adapter/test_conformance.py` to
+`verify-carve-arrival.py` — its implementation-aware block (`:72-84`) imports
+the home factory and MUST be rewritten at each destination, so it is neither
+verbatim nor declared-edit by construction and a declaration would refuse it on
+its digest. THIS floor compares no bytes: it counts `def test_`, which that
+rewrite does not touch. So the row the arrival verifier must not be given is
+exactly the row this one must — **20 of the 30 replicated test functions are in
+it** — and an operator who carries § 2's instruction across to this flag would
+silently leave two thirds of the replica term out of every leg's floor.
+The four refusals are `test-home-missing`, `test-home-deleted-at-carve`,
+`replica-multiplicity-undeclared` and `destination-test-shortfall`, with
+`test-mapping-unreadable` for a question the floor cannot ask — and an
+uncomputable check is never a pass.
+
+**AND THE DOCUMENT IS READ BEFORE IT IS BELIEVED**, because every one of
+these was measured to pass on the landed manifest before it was refused:
+a `carve_commit:` that is not 40 lowercase hex (it is interpolated into a
+`git cat-file --batch` request, so a line terminator in it injects a second
+request per row — measured: `source_count 0`, identity `0 = 0`, **exit 0**
+over a surface carrying 4,411 `def test_`); a `source_path:` declared by two
+rows (counted twice, 4,411 → 4,446, identity still balancing); a row with no
+`source_path:` at all (a traceback, where the contract is a named refusal);
+a `moved_paths:` naming a prefix NO row lies under (every row outside the
+surface, `rows_in_surface 0`, exit 0); and, at a destination, a `retired:`
+block or a `destination:` naming a key the manifest does not carry — which
+took the openDox-code leg from 117 rows / 1,067 declared to 116 / 1,045 and
+exited 0, a leg passing because a live arrival had been silenced by a key
+naming nothing. A `--replica-at` placement is admitted only for a row under
+the declared surface, for the same reason in the other direction: a floor is
+neither lowered inside the set it is quantified over nor raised outside it.
+Every row's `disposition:`/`reason:` must be IN FLOOR PART 1's vocabulary — the
+source side refuses an unknown one by name, and a LEG read it as another
+destination's business and passed without ever asking for that arrival — and
+every `destinations:` key must be a non-empty string naming a map with both a
+`repository:` and a `leg:`, because an incomplete identity compares equal to
+nothing and a leg named by it is asked for no arrival at all. And the surface
+must cover the WHOLE document — a `moved_paths:` that omits
+some of its own rows reports `0 = 0` over the part it omits, which at the limit
+is a prefix matching one zero-test row; the landed manifest's 456 rows are all
+under its surface, and that was asserted only in pytest until this round made
+it a refusal the runbook's own invocation makes.
+`tests/carve_test_mapping/test_carve_test_mapping.py` drives the source side on
+every required-suite pass, the seat `tests/carve_manifest/` holds for FLOOR
+PART 1.
+
+**MEASURED 2026-09-16, and every figure re-derived rather than recited.**
+Source **4,411** `def test_` over **146** test-bearing rows of the declared
+surface — **144 homed and 2 RULED-retired, and the two counts are disjoint
+and exhaust the 146**: a retirement deletes the row's OWN arrival, so a
+retired row is never counted among the homed — not even where
+`also_replicated_to:` copies of it survive elsewhere, which is the case the
+report now names copy by copy. Three test-bearing replicas carry **30** at
+`m = 3`. At the destinations, against their own rows'
+declarations: openDox-code `0b4e8bb` **1,067 / 1,067**, openXdox-code
+`0a0265f` **2,315 / 2,319**, the retained openxFactory column **998 / 1,018**.
+The sum carries a FOURTH term, which is arithmetic and not an amendment: § 5.4
+was amended 2026-09-09, the `retired:` form was RULED `5656343213` on
+2026-09-13, and its first use (openxFactory PR #1043) retires two TEST-BEARING
+rows carrying **31** between them, so
+
+```
+Σ(destinations) = source_count + Σ over EVERY row of (|homes| − 1) × tests
+
+  source_count             4,411
++ replica excess (m − 1)      60   `replicated_at_destination` rows
++ also-replicated excess       0   RULED Q-L7 (a) moved-AND-replicated rows
++ retired term               −31   the same rule over retired rows
+= Σ(destinations)          4,440
+```
+
+**ONE RULE, four buckets, and the tool prints all of them on every run.**
+§ 5.4 states the last two as a subtraction — *"− Σ over RETIRED rows of
+row_test_count"* — and that is exact for every row that has landed, because
+each retired row's only home is the one the ruling deleted. It is NOT exact
+for a row that is retired AND replicated: retirement deletes the row's own
+ARRIVAL and not the copies its `also_replicated_to:` places elsewhere, so
+such a row's term is `(1 − 1) × tests = 0` rather than `−tests`. Apply the
+one rule, not the subtraction, and the two agree wherever the subtraction is
+right.
+
+A retired row is not a lost test: the form REQUIRES a `ruling:` and reads as no
+retirement without one, so the deletion is the RULED decision clause (a)
+demands rather than one inferred from a disposition — and the tool NAMES every
+one of them, with its path, its count and its ruling, on every run.
+
+**THE REFUSAL IS THE DESTINATION TOTAL AND NOT A PER-ROW EQUALITY, decided by
+measurement.** `tests/ideation-dashboard/test_serve_column_split.py` is a
+`not_moved / stays_openxfactory_adapter` row declaring 9 `def test_` at the
+carve commit and carrying 8 today: § 3.4 slice S6 (RULED Q4, `#656` comment
+`5642758731`) moved that test's SUBJECT out of the file's domain and the
+successor runs at `opensoft/openDox-code`'s
+`tests/test_source_core_arm.py::test_route_dispatches_the_exact_arm_before_the_prefix_arm`.
+A per-row equality would go red on a RULED re-homing that lost nothing. So the
+total is the refusal and the per-row deltas are REPORTED BY NAME on every run,
+because a canceling pair holds a total while a file loses coverage — **and in
+BOTH SIGNS, which cost a round to get right**: only the shortfalls were printed
+until 2026-09-17, so the retained column's `+20` named no arrival at all and
+the canceling pair the sentence above is about could not be inspected. It
+resolves to SIX rows carrying `+21` between them, each named with its declared
+and its found count, against that one `−1`. A row ABOVE its declaration is not a fault — a leg may add tests
+to a file it received — it is the other half of the evidence.
+
+**CLAUSE (d) — HALF BUILT, HALF BLOCKED, and the blocker is the BUILD arc.**
+openxFactory's half is `.github/workflows/pytest-suite.yml`'s pinned triple —
+SKIPPED exactly, SELECTED and PASSED as floors, failures and errors zero.
+Neither leg can carry its half today: `opensoft/openDox-code` and
+`opensoft/openXdox-code` both run `python -m pytest -q <named files>
+--noconftest` in `validate.yml`, with no JUnit report and no totals, and both
+workflows record the reason in their own words — *"with the root conftest in
+play the tree is 1188 errors and 0 passed"* and *"THIRTY-SEVEN of this leg's 88
+test files fail COLLECTION"*, each naming `split-opendox` § 3.5/§ 3.6 as what
+the narrowing waits on. A triple pinned over a tree that cannot be collected is
+a required check held red by another act's defect, which is the deadlock class
+clause (d) itself refuses by name. **The leg half of clause (d) is therefore
+owed to each leg's own pull request AFTER the BUILD arc lands, and § 5.4 does
+not close until it does.**
+
 ---
 
 ## 10. Rollback, collected per phase

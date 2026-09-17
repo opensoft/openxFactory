@@ -179,10 +179,15 @@ verbatim in its body.
       `tests/doc-health/test_modified_block_currency_self_gate.py` — opened by
       § 2.7 at filing under the condition this box discharges. It is RETIRED in
       the archive commit with a note in its place, and the gate's population
-      narrative and docstring say which subject moved and why (fifteen →
-      fourteen), as the gate's own failure message directs. Measured over the
-      archived tree: `--family modified-block-currency` reports 14 `info` rows,
-      none naming this packet, none unnamed.
+      narrative and docstring say which subject moved and why (sixteen →
+      fifteen), as the gate's own failure message directs. Measured over the
+      archived tree, AFTER the merge of `origin/main` at `5dd0a8dc`:
+      `--family modified-block-currency` reports 15 `info` rows, none naming
+      this packet, none unnamed. (Sixteen → fifteen, not the fifteen →
+      fourteen this box read before that merge: PR #1088 → `893abe97` landed
+      `adopt-entry-grain-dispositions-form`'s own row over the SAME
+      requirement on its ratifier's "Apply the partition" word, one row this
+      archive neither opens nor retires.)
       **THE ISSUE CLOSES BY THE LANE'S HAND, NOT BY A KEYWORD.** This pull
       request's body carries `refs #1047` and NO closing keyword, so the merge
       does not close it; the lane closes openxFactory #1047 itself immediately
