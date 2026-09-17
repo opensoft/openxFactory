@@ -8,12 +8,18 @@ leans on and nothing executes is the defect § 2's re-derivation tests exist for
 one directory over (Copilot review of openxFactory #1068, round 3).
 
 FIXTURES, NOT THE TWO LEGS. This repository carries neither `openDox-code` nor
-`openXdox-code`, so a test that pointed the tool at them would be a skip on
-every run here. What is asserted instead is the tool's DECISION RULE, on
+`openXdox-code`, and standing a test down because they are absent is not
+available here: a skip reports as a green bar and `pytest-suite.yml` pins the
+skip count EXACTLY, so one more of them reds the required job — measured, run
+`105209771859`, `skipped=7` against the pinned `6`. What is asserted instead is
+the tool's DECISION RULE, on
 stylesheets and modules small enough to read: the CSS block parser, the
 class-bearing scan, the concatenation-prefix rule that `STYLE_RESIDUE`'s own
 `51` was three short without, and — the one that matters most — the ASYMMETRY
-between the two sides of the extraction decision.
+between the two sides of the extraction decision. The one test that names the
+two revisions re-derives the WHOLE report when checkouts are handed to it
+(`Q7_OPENDOX_CODE` / `Q7_OPENXDOX_CODE`) and otherwise holds its seat with
+assertions about that re-derivation's own inputs — never a skip.
 """
 
 from __future__ import annotations
@@ -26,7 +32,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import pytest
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -1051,17 +1056,64 @@ def test_the_pinned_census_is_the_figure_the_manifest_cites() -> None:
     assert len(q7["lines"]) == len(set(q7["lines"])) == 89 == len(union)
 
 
-def test_the_pinned_census_re_derives_at_the_cited_revisions() -> None:
+def test_the_pinned_census_re_derives_at_the_cited_revisions(
+        tmp_path: Path) -> None:
     """And the tool still ANSWERS it, wherever the two checkouts are.
 
-    Skipped where they are not — this repository carries neither leg — so the
-    pin above is what a green run here proves, and this is what proves the pin.
-    Point `Q7_OPENDOX_CODE` and `Q7_OPENXDOX_CODE` at checkouts of
-    `0b4e8bbf` and `0a0265f7` to re-derive it.
+    Point `Q7_OPENDOX_CODE` and `Q7_OPENXDOX_CODE` at checkouts of `0b4e8bbf`
+    and `0a0265f7` and the whole report is re-derived and compared field for
+    field with the committed one.
+
+    WITHOUT THEM THIS HOLDS THE SEAT WITH ASSERTIONS AND NEVER A SKIP, which is
+    this family's own rule and not a preference — `tests/carve_arrival/
+    test_verify_carve_arrival.py` states it of the real-repository test there:
+    a skip "reports as a green bar, indistinguishable from a pass to every
+    reader, and `pytest-suite.yml` pins the skip count EXACTLY, so a
+    conditional skip here would red the required job". MEASURED, because it is
+    not hypothetical: this file's first version stood down here, and the first
+    CI run of the merged branch reported `skipped=7` against the pinned `6`
+    (run `105209771859`, `selected=8181 passed=8174 failures=0 errors=0`) — the
+    suite otherwise clean, this test the seventh skip.
+    `tests/openxdox_pin/test_openxdox_pin_verifier.py` gives the same rule its
+    one-line form: "a check that cannot be reached reports as satisfied" is the
+    defect class this suite exists to close.
+
+    WHAT THE SEAT CAN CHECK WITHOUT THE CHECKOUTS is the re-derivation's own
+    INPUTS. Four places name the two revisions — the fixture's FILENAME,
+    `PINNED_AT`, the manifest row's citation and the census tool's own source —
+    and the seat asserts they agree, so a census re-pinned at another pair
+    fails here until all four move together instead of leaving an instruction
+    nobody can follow. It also asserts the thing a missing checkout must never
+    do, which is why this test is where those inputs are named: the documented
+    invocation against paths that are not there REFUSES BY NAME rather than
+    reporting a census of zero.
+
+    WHAT IT CANNOT DO IS RE-DERIVE, and that is REGISTERED rather than hidden
+    (Copilot review of openxFactory #1068, rounds 15 and 17): running the tool
+    at two external revisions needs a cross-repository checkout job, whose home
+    is `.github/workflows/openxdox-consumer-gate.yml` and not this file.
     """
     dox, xdox = os.environ.get("Q7_OPENDOX_CODE"), os.environ.get("Q7_OPENXDOX_CODE")
     if not dox or not xdox:
-        pytest.skip(f"set Q7_OPENDOX_CODE / Q7_OPENXDOX_CODE to {PINNED_AT}")
+        assert PINNED_CENSUS.name == "q7-css-census-{}-{}.json".format(*PINNED_AT)
+        manifest = yaml.safe_load(
+            (REPO_ROOT / "docs" / "opendox-carve-manifest.yaml").read_text(
+                encoding="utf-8"))
+        row = next(r for r in manifest["rows"]
+                   if r["source_path"] == "scripts/ideation_dashboard/web/styles.css")
+        q7 = next(edit for edit in row["edits"]
+                  if "RULED Q7 — THE CSS EXTRACTION" in edit["note"])
+        assert all(revision in q7["note"] for revision in PINNED_AT), PINNED_AT
+        source = SCRIPT.read_text(encoding="utf-8")
+        assert all(revision in source for revision in PINNED_AT), PINNED_AT
+        refusal = subprocess.run(
+            [sys.executable, str(SCRIPT), str(tmp_path / "no-opendox-checkout"),
+             str(tmp_path / "no-openxdox-checkout")],
+            capture_output=True, text=True, timeout=300)
+        assert refusal.returncode != 0, refusal.stdout
+        assert "is not a directory" in refusal.stderr, refusal.stderr
+        assert "census of zero" in refusal.stderr, refusal.stderr
+        return
     with tempfile.TemporaryDirectory() as tmp:
         report = _run(Path(dox), Path(xdox), Path(tmp) / "out.json")
     pinned = json.loads(PINNED_CENSUS.read_text(encoding="utf-8"))
