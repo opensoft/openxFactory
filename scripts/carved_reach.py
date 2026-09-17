@@ -75,7 +75,7 @@ ideation_dashboard/` split across BOTH legs and partly stayed here.
 AND THE ROWS A RULING HAS RETIRED (RULED 5656343213, `#656` comment
 `5656343213`). A moved row may carry a `retired:` block saying that a ruling
 DELETED its arrival at the leg — not moved it, as RULED Q6's `re_destined:`
-does, but removed it, because the surface the arrived file drove is at no leg
+does, but removed it, because the surface the arrived file needed is at no leg
 at all. The row keeps every field the carve wrote, so this module can still
 compute a perfectly well-formed path for it under a materialized leg — and
 that path would name a file `verify-carve-arrival.py` has just finished
@@ -624,7 +624,7 @@ def source(path: str | Path) -> Path:
         raise CarveRowRetired(
             f"{key} was RETIRED at {at}:{at_path} by ruling "
             f"{retired.get('ruling')!r} (RULED 5656343213), because the "
-            f"surface it drove ({retired.get('surface')!r}) arrived at no "
+            f"surface it needed ({retired.get('surface')!r}) arrived at no "
             "leg. The row still records the move the carve made — that is "
             "what the manifest is for — but the ARRIVAL this function "
             "resolves is gone, and a path computed from the row would name a "
@@ -998,9 +998,12 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     <revision>:<segment>` per level — `openXdox/spec` is two levels, because
     `openXdox` is a submodule of this repository and `spec` is a submodule of
     THAT — and answers the leg repository, the commit that repository is pinned
-    at BY THIS COMMIT, and the row's own `destination_path`. The answer is
-    therefore as exact as the caller's: a commit that pinned an older leg reads
-    the older leg's bytes, and nothing is read from the working tree.
+    at BY THIS COMMIT, and `effective_arrival(row)`'s `destination_path`: the
+    row's own, unless a `re_destined:` block (RULED Q6) says a ruling has since
+    moved the placement, in which case its `to_path` — `source()`'s own
+    precedent, read here for the same reason. The answer is therefore as exact
+    as the caller's: a commit that pinned an older leg reads the older leg's
+    bytes, and nothing is read from the working tree.
 
     It answers `None` — and the caller's own answer stands — for a path in no
     row, a `not_moved` row, and a commit whose tree ANSWERS that it carries no
@@ -1069,17 +1072,18 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     row = _rows().get(key)
     if row is None or row["disposition"] == "not_moved":
         return None
+    destination, destination_path = effective_arrival(row)
     repo = REPO_ROOT
     mount = REPO_ROOT
     revision = commit
-    for segment in MOUNTS[row["destination"]].relative_to(REPO_ROOT).parts:
+    for segment in MOUNTS[destination].relative_to(REPO_ROOT).parts:
         mount = mount / segment
         gitlink = _git_object_id(repo, revision, segment)
         if gitlink is None:
             absent, said = _tree_entry_absent(repo, revision, segment)
             if not absent:
                 raise CarveReachUnavailable(
-                    f"the pinned {row['destination']} leg cannot be located "
+                    f"the pinned {destination} leg cannot be located "
                     f"at this commit: the tree {revision} names could not be "
                     f"read where {mount.relative_to(REPO_ROOT)}'s gitlink is "
                     f"recorded, so whether that gitlink is there is "
@@ -1090,20 +1094,20 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
         store = _leg_object_store(repo, segment)
         if store is None:
             raise CarveReachUnavailable(
-                f"the pinned {row['destination']} leg is not materialized: "
+                f"the pinned {destination} leg is not materialized: "
                 f"{mount.relative_to(REPO_ROOT)} carries no Git object store, so "
                 f"{key} cannot be read at the commit that pins it. Run "
                 f"`{INIT_COMMAND}` from the repository root.")
         if not _git_ok(store, "cat-file", "-e", f"{gitlink}^{{commit}}"):
             raise CarveReachUnavailable(
-                f"the pinned {row['destination']} leg is materialized but "
+                f"the pinned {destination} leg is materialized but "
                 f"incomplete: {mount.relative_to(REPO_ROOT)}'s object store "
                 f"carries no commit {gitlink}, which is what the recorded "
                 f"gitlink names, so {key} cannot be read at the commit that "
                 f"pins it. {INCOMPLETE_STORE_REMEDY}")
         repo = store
         revision = gitlink
-    return repo, revision, row["destination_path"]
+    return repo, revision, destination_path
 
 
 def sources_under(prefix: str) -> dict[str, Path]:

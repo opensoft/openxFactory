@@ -33,7 +33,7 @@ conditional skip here would red the required job. When the first destination
 exists, this file gains a case that names it; the seat's own assertion is about
 the documented invocation and stays true either way.
 
-THE SEVEN TESTS THAT READ THE LANDED MANIFEST DO NOT BRANCH ON IT (amended on
+THE EIGHT TESTS THAT READ THE LANDED MANIFEST DO NOT BRANCH ON IT (amended on
 a Copilot finding, `#1030`, the round after the same finding closed in
 `tests/carve_manifest/test_carve_manifest.py`; the COUNT re-read on round
 eleven of the same review, which found this paragraph still saying FIVE two
@@ -44,7 +44,7 @@ skip for, so a checkout that had lost `docs/opendox-carve-manifest.yaml`
 turned four pins on the landed document into four no-ops and passed the fifth
 — the five that existed then — on the verifier's apology line instead of its
 answer. The § 6 ceremony has happened: the manifest is committed, and there is
-no revision these seven can run at without it. They read it through
+no revision these eight can run at without it. They read it through
 `the_landed_manifest()`, where the absence is a FAILURE, and the NUMBER above
 is counted rather than transcribed:
 `test_the_module_docstring_counts_the_tests_that_read_the_landed_manifest`
@@ -1662,7 +1662,7 @@ def test_the_module_records_the_effective_arrival_and_its_limit() -> None:
 # S8's author put in `#656` comment `5650335573` § 2. A moved row may carry
 # `retired: {at, at_path, ruling, surface, note}` saying that a RULING has
 # DELETED the arrival itself — not moved it, as Q6 does, because the surface
-# the arrived file drove is at NO leg to move it to. This file then asks the
+# the arrived file needed is at NO leg to move it to. This file then asks the
 # INVERSE of its usual question at that leg: the row is not owed, and the path
 # must be empty.
 #
@@ -3109,16 +3109,25 @@ def test_the_runbook_per_destination_table_is_the_manifests_own_sum() -> None:
     # newline (Copilot review, round eleven on this PR). The sentence it
     # replaced — "these are the numbers each leg's arrival run must report" —
     # was false of the two legs RULED Q6 touches: this table counts a
-    # re-destined row at the `destination:` it still names, so `opendox_code`'s
-    # run reports 119 arrived where the table says 123 and `openxdox_code`'s
-    # reports 96 where it says 92. A floor that overstated that would be worse
+    # re-destined row at the `destination:` it still names — and a RETIRED one
+    # too, which is why the marker sentence names BOTH rulings and this constant
+    # moves with it (Copilot review, this pull request). Both clauses are
+    # PLURAL and deliberately so: the first wording read "re-destined a row or
+    # ... retired one", where "one" meant "a row" and a careful reader took it
+    # for the NUMBER one — a cardinality this sentence never meant to state and
+    # which is wrong either way (four re-destined, two retired). The qualifier said only
+    # RULED Q6 while the paragraph below the table had already grown a second
+    # subtraction — so `opendox_code`'s run reports 117 arrived where the table says 123
+    # (four re-destined away under RULED Q6 and two retired under RULED
+    # 5656343213) and `openxdox_code`'s reports 96 where it says 92. A floor that overstated that would be worse
     # than one that says where it stops, which is the rule
     # `test_two_legs_may_apply_one_replicas_line_differently` is written under.
     # A re-wrap of the sentence breaks this anchor LOUDLY, by the count below,
     # rather than quietly moving the block's boundary.
     marker = ("Per destination, counted at the `destination:` each row names "
               "— which is what\neach leg's arrival run reports, save where "
-              "RULED Q6 re-destined a row (below):")
+              "RULED Q6 has re-destined rows or\nRULED 5656343213 has retired "
+              "them (below):")
     # THE BLOCK IS BOUNDED BY TWO FIXED SENTENCES, not by anything about where
     # a table LOOKS like it ends (Copilot review, rounds five and six on this
     # PR). Round five's extent walked forward across a blank line for as long
@@ -3326,7 +3335,7 @@ def test_the_runbook_disposition_table_and_totals_are_the_manifests_own(
     `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`
     pins ... a transcribed count is a claim, a summed one is a measurement".
     THAT TEST NEVER OPENS THIS DOCUMENT (Copilot review, round eleven on this
-    PR). It pins the MANIFEST's own aggregate — `(2454, 176)` and the 20
+    PR). It pins the MANIFEST's own aggregate — `(2621, 176)` and the 20
     replica rows — which is a claim about the file and not about the sentence
     that transcribes it. So every cell here (three disposition counts, the
     replica count, the three per-class totals, the moved-row total, the carrier
@@ -3615,6 +3624,188 @@ def _declared_replica_row(doc: dict[str, Any], value: str,
     return rows[0]
 
 
+# § 5.3's generator is the one program in this runbook a leg runs BEFORE it has
+# anything to verify, and it is quoted as a heredoc rather than shipped as a
+# script, so the document itself is the only place to read it from. BOUNDED ON
+# THE COMMAND LINE AND NOT ON `<<'PY'`: this runbook quotes TWO such heredocs —
+# § 8's shed `def test_` count is the other — and a parser bounded on the marker
+# takes whichever comes first, which is the failure this whole test is about.
+# The line below is also the invocation the case reproduces, so a change to
+# either argument reds here rather than drifting past a run.
+PATH_FILE_COMMAND = ('python3 - "$DEST" '
+                     '"$OXF/docs/opendox-carve-manifest.yaml"'
+                     " > paths-$DEST.txt <<'PY'\n")
+
+
+def _runbook_path_file_program(text: str) -> tuple[str, str]:
+    """§ 5.3's path-file generator, as (the program, its `wc -l` control)."""
+    assert text.count(PATH_FILE_COMMAND) == 1, (
+        f"§ 5.3's generator is bounded by {PATH_FILE_COMMAND!r}, which this "
+        f"runbook states {text.count(PATH_FILE_COMMAND)} times")
+    rest = text[text.index(PATH_FILE_COMMAND) + len(PATH_FILE_COMMAND):]
+    closing = rest.find("\nPY\n")
+    assert closing != -1, "§ 5.3's heredoc is opened and never terminated"
+    control = rest[closing + len("\nPY\n"):].split("\n")[0]
+    assert control.startswith("wc -l "), (
+        "§ 5.3's heredoc is not followed by the `wc -l` control that states "
+        f"what it should have produced: {control!r}")
+    return rest[:closing + 1], control
+
+
+def test_the_runbook_path_file_generator_is_the_verifiers_own_predicate(
+        tmp_path: Path) -> None:
+    """§ 5.3's generator, RUN on the landed manifest, against `rows_for()`.
+
+    THE PROCEDURE PRODUCED A TREE THE PROCEDURE THEN REFUSED (Copilot review,
+    round twenty-five on this pull request). § 5.3 keyed the path file on
+    `destination:`, which a RULED re-destination and a RULED retirement both
+    leave exactly as the carve wrote it, so for `opendox_code` it emitted 123
+    rows where § 5.5's phase-A example — one section down, pinned by the test
+    below — expects 117: an operator running the two sections in order met an
+    `arrival-not-vacated` refusal instead of the result the document promised,
+    and then five more, one run each, because both checks raise on the first
+    row they find. The same key failed the other half in silence, emitting 92
+    rows at `openxdox_code` where the verifier requires 96, which would leave
+    the four files RULED Q6 sent there out of the carve ref that is supposed
+    to place them.
+
+    SO THE PROGRAM IS RUN, NOT READ. `_runbook_path_file_program` lifts the
+    heredoc out of the document — bounded on § 5.3's COMMAND LINE, because the
+    runbook quotes a second `<<'PY'` program in § 8 and a parser that took the
+    first marker would be reading the wrong one — and this case feeds it to
+    `python3 -` with the arguments that command line gives it, then compares
+    the two lines it prints per row with `rows_for()` and `effective_arrival()`
+    — the predicate the arrival verifier applies at the leg. A generator and a
+    verifier that disagree about which rows a destination is owed is the
+    defect above in its general form, and neither file can be read alone to
+    find it.
+
+    EVERY DESTINATION THE MANIFEST DECLARES, `opendox_root` among them, whose
+    whole answer is no lines at all: a leg that is owed nothing is where a
+    generator emitting the wrong set is least likely to be noticed. AND ON A
+    GENERATED DOCUMENT CARRYING AN ALIAS, because no run of the LANDED one can
+    show that case (Copilot review, round twenty-six): `check_shape` admits two
+    `destinations:` keys sharing one `{repository, leg}` body, `rows_for()`
+    compares the resolved identity, and a generator comparing LABELS answers
+    the other spelling with an EMPTY path file while the verifier goes on
+    expecting every row. The landed manifest declares five keys and no alias,
+    so the case is BUILT here rather than waited for.
+
+    AND EVERY FIGURE § 5.3 STATES IS DERIVED HERE TOO, for § 2's reason one
+    section down: a number in prose that nothing re-derives is the rot this
+    whole group of tests exists for. Four of them for `opendox_code`'s two
+    keys, two for `openxdox_code`'s, one for each `-spec` leg no ruling has
+    touched, the count the selector-vs-rename sentence publishes, and the
+    `wc -l` control's own pair — enumerated by what each belongs to rather
+    than totalled, because a docstring that states its own coverage as a
+    NUMBER is one more figure nothing re-derives (this one said SIX until
+    round 26 added the seventh assertion under it).
+    """
+    runbook = REPO_ROOT / "docs" / "opendox-cutover-runbook.md"
+    assert runbook.is_file(), (
+        f"{runbook} is absent: § 5.3 is the program every leg runs before it "
+        "has anything to verify, and a missing program is not a program that "
+        "agrees with the verifier")
+    text = runbook.read_text(encoding="utf-8")
+    _manifest_text, doc = the_landed_manifest()
+    program, control = _runbook_path_file_program(text)
+    manifest = REPO_ROOT / MODULE.MANIFEST_RELPATH
+
+    for destination in sorted(doc["destinations"]):
+        done = subprocess.run(
+            [sys.executable, "-", destination, str(manifest)],
+            input=program, capture_output=True, text=True, check=False)
+        assert done.returncode == 0, done.stdout + done.stderr
+        expected: list[str] = []
+        for row in MODULE.rows_for(doc, destination):
+            _at, at_path = MODULE.effective_arrival(row)
+            expected.append(row["source_path"])                       # SELECT
+            expected.append(f'{row["source_path"]}==>{at_path}')      # PLACE
+        produced = done.stdout.splitlines()
+        differing = [(a, b) for a, b in zip(produced, expected) if a != b]
+        assert produced == expected, (
+            f"§ 5.3's generator and `rows_for({destination!r})` disagree: it "
+            f"prints {len(produced)} lines where the verifier is owed "
+            f"{len(expected)}, and the first line they differ on is "
+            + (f"{differing[0]}" if differing
+               else "(none — one list is a prefix of the other)"))
+
+    # THE ALIAS CASE, on a document this test makes: the same leg under two
+    # keys must give the same path file, and a LABEL comparison gives the
+    # second spelling nothing at all.
+    aliased_doc = copy.deepcopy(doc)
+    aliased_doc["destinations"]["opendox_code_other_spelling"] = dict(
+        aliased_doc["destinations"]["opendox_code"])
+    aliased = tmp_path / "aliased-manifest.yaml"
+    aliased.write_text(yaml.safe_dump(aliased_doc, sort_keys=False),
+                       encoding="utf-8")
+    under_alias = {}
+    for spelling in ("opendox_code", "opendox_code_other_spelling"):
+        done = subprocess.run(
+            [sys.executable, "-", spelling, str(aliased)],
+            input=program, capture_output=True, text=True, check=False)
+        assert done.returncode == 0, done.stdout + done.stderr
+        expected = []
+        for row in MODULE.rows_for(aliased_doc, spelling):
+            _at, at_path = MODULE.effective_arrival(row)
+            expected.append(row["source_path"])
+            expected.append(f'{row["source_path"]}==>{at_path}')
+        assert expected, (
+            f"`rows_for` is owed nothing at {spelling!r} on the aliased "
+            "document, so this case would assert two empty lists")
+        assert done.stdout.splitlines() == expected, (
+            f"§ 5.3's generator answers {spelling!r} with "
+            f"{len(done.stdout.splitlines())} lines where `rows_for()` is owed "
+            f"{len(expected)}. A `destinations:` key is a LABEL: two of them "
+            "may share one `{repository, leg}` body, and the verifier resolves "
+            "both to one leg")
+        under_alias[spelling] = done.stdout.splitlines()
+    assert under_alias["opendox_code_other_spelling"] == \
+        under_alias["opendox_code"], "one leg, two keys, two different answers"
+
+    owed = len(MODULE.rows_for(doc, "opendox_code"))
+    assert f"2 x {owed} = {2 * owed} for opendox_code" in control, (
+        f"§ 5.3's `wc -l` control states {control!r}, and this leg is owed "
+        f"{owed} rows / {2 * owed} lines today")
+
+    section = " ".join(
+        text[text.index("### 5.3 "):text.index("### 5.4 ")].split())
+    keyed = {key: sum(1 for row in doc["rows"]
+                      if row.get("destination") == key)
+             for key in doc["destinations"]}
+    for phrase in (
+            f"emits {keyed['opendox_code']} rows / "
+            f"{2 * keyed['opendox_code']} lines where the leg is owed "
+            f"{owed} / {2 * owed}",
+            f"`openxdox_code` reads {keyed['openxdox_code']} where "
+            f"`rows_for()` requires "
+            f"{len(MODULE.rows_for(doc, 'openxdox_code'))}",
+            f"unchanged at {len(MODULE.rows_for(doc, 'opendox_spec'))} and "
+            f"{len(MODULE.rows_for(doc, 'openxdox_spec'))}",
+            # § 5.3's OTHER figure: what the wrong file shape would publish
+            # instead of this leg's rows. A selector-vs-rename paragraph that
+            # states a count is stating this count.
+            f"publishing the {owed} files this leg's path file names"):
+        assert phrase in section, (
+            f"§ 5.3 does not say {phrase!r}. The paragraph states what the two "
+            "keys emit at four legs, and a figure it carries that the manifest "
+            "no longer produces is the rot this file was written for")
+
+    # WHAT THE PATH FILE FEEDS, one and two sections down (Copilot round 25's
+    # own carriers, found by enumeration rather than by being told). § 5.4's
+    # control on the carve ref is worded to carry no figure of its own — it
+    # names § 5.3's — but § 5.5's commit A message states the count it placed,
+    # and an operator pastes that message verbatim.
+    assert f"({owed} rows, byte-identical)" in text, (
+        f"§ 5.5's commit A message does not say {owed} rows, which is what "
+        "§ 5.3's path file now selects for this leg; the message is pasted "
+        "verbatim by whoever runs it")
+    assert "# = § 5.3's row count" in text, (
+        "§ 5.4's control on the carve ref no longer names § 5.3's count. It "
+        "carried its own words for it (`the row count`) while § 2's table and "
+        "the path file meant two different numbers by that phrase")
+
+
 def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
         capsys: pytest.CaptureFixture[str]) -> None:
     """§ 5.5's two worked invocations, held to the landed manifest AND to the
@@ -3643,9 +3834,12 @@ def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
     AND THE EXAMPLE'S OWN REPLICA FLAGS ARE PART OF THE ARITHMETIC (Copilot
     review, round eleven). A `--replica-at` whose ROW declares lines is a
     declared-edit row at phase B, counted with the moved rows' edits, so the
-    phase-B figure is this leg's `moved_with_declared_edit` count PLUS one per
-    such flag — derived from the invocation rather than carried, which is what
-    let the fourth flag land in the same commit as the `85` it produces.
+    phase-B figure is this leg's EFFECTIVE `moved_with_declared_edit` count PLUS
+    one per such flag — derived from the invocation and from the manifest rather
+    than carried, which is what let the fourth flag land in the same commit as the
+    figure it produces, `85` then and `83` since RULED 5656343213 retired two of
+    this leg's edited rows. A derivation is what makes a figure survive an act
+    nobody was thinking about when the example was written.
 
     THE MODULE IS IMPORTED HERE, against this file's subprocess rule, for the
     reason the docstring gives for the constant assertions: the claim is about
@@ -3707,7 +3901,10 @@ def test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces(
         # added the Q-L7 conftest flag to the phase-B example moved `84` to
         # `85` and `3 of 3` to `4 of 4`, and a test whose expectation did not
         # move with the example's own command line could not have checked
-        # either figure. At phase A the copies are not placed yet (§ 5.5's
+        # either figure. BOTH LINE FIGURES HAVE SINCE FALLEN BY TWO — `82` + 1
+        # = `83` — because RULED 5656343213 retired two of this leg's edited
+        # rows; the replica arithmetic is untouched, which is the whole point
+        # of deriving it. At phase A the copies are not placed yet (§ 5.5's
         # phase-A paragraph, measured at this leg's commit A), so a flag there
         # would refuse `arrival-missing` and the arithmetic stays the rows'.
         placements = _flag(argv, "--replica-at")
@@ -5290,6 +5487,81 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             == opendox_seed["src/opendox/web/views/display.js"]["since"]), (
         "§ 3.4 SLICE S7's two DISPLAY-facet halves were introduced by one "
         "commit and no longer declare the same `since`")
+    # THE EIGHTH BUMP: ten more `opendox_code` files, RULED into this file by
+    # `split-opendox-two-layer-product` § 3.5 (RULED Q2, `#656` comment
+    # 5542792997, and RULED Q1, comment 5542694957) and § 3.6 (RULED C3,
+    # comment 5544381563) — the `src/opendox/runtime/` subpackage: the runtime
+    # itself (config, the fail-closed migration runner, the six coordination
+    # tables, the psycopg pool, the broker token verifier, the FastAPI
+    # application, the lifecycle CLI) and the repository-creation act with its
+    # conformant local-git adapter. CLAIM `#656` comment 5699629780.
+    #
+    # EIGHTH AND NOT SEVENTH, and the ordinal is worth a sentence because it
+    # was wrong first: line ~3993 already labels § 3.4 slice S8's own
+    # `openxdox_code` file THE SEVENTH BUMP, so a second seventh would make the
+    # provenance history of this file ambiguous exactly where it is supposed to
+    # be readable (Copilot review of openxFactory#1067). The ordinals count
+    # AMENDMENTS to the admissions document, across destinations — not
+    # `opendox_code`'s own bumps, of which this is the sixth.
+    #
+    # PINNED HERE FOR THE REASON THE SIXTH BUMP STATES, and Copilot's review of
+    # the admission PR (opensoft/openxFactory#1067) named the gap exactly: the
+    # generic shape checks below would let a future edit drop one of these ten
+    # paths, rename it, or move its `since` and still pass. None of the ten
+    # carries a manifest row (RULED OQ-C), so the admission is the only
+    # governed record that they may be at the destination at all.
+    #
+    # TWO INTRODUCING COMMITS, not ten: the eight § 3.5 modules arrive in one
+    # commit on `build/3-5-runtime` and the two § 3.6 modules in one commit on
+    # `build/3-6-repository-act`, because neither group means anything a module
+    # at a time — the same argument the sixth bump makes about the DISPLAY
+    # facet's two halves. Admitted on the same Q-L1 footing as every bump
+    # above: the leg PRs (openDox-code#25 and #26) pair with — and land after —
+    # this admission PR.
+    RUNTIME_SINCE = "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+    REPOSITORY_ACT_SINCE = "a34601a0dfcfef1d8124cbab472bb5e2d6bd114f"
+    for path, since in (
+            ("src/opendox/runtime/__init__.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/app.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/cli.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/config.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/db.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/identity.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/migrations.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/oidc.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/local_git_adapter.py", REPOSITORY_ACT_SINCE),
+            ("src/opendox/runtime/repository_act.py", REPOSITORY_ACT_SINCE)):
+        assert path in opendox_seed, (
+            f"{path} is one of `split-opendox-two-layer-product` § 3.5/§ 3.6's "
+            "ten created files (`#656` comments 5542792997 / 5542694957 / "
+            "5544381563) and is no longer declared for opendox_code")
+        assert opendox_seed[path]["since"] == since, (
+            f"{path} declares since={opendox_seed[path]['since']!r}; the act "
+            f"introduced it at {since}, and an admission whose `since` is not "
+            "the introducing commit is not a falsifiable claim")
+    # THE EIGHT AND THE TWO ARE EACH ONE ADMISSION, and the pins say so: a
+    # future act that re-homes one module of either group must move the rest of
+    # its group or state why not.
+    assert len({opendox_seed[path]["since"] for path in (
+        "src/opendox/runtime/__init__.py", "src/opendox/runtime/app.py",
+        "src/opendox/runtime/cli.py", "src/opendox/runtime/config.py",
+        "src/opendox/runtime/db.py", "src/opendox/runtime/identity.py",
+        "src/opendox/runtime/migrations.py", "src/opendox/runtime/oidc.py")}
+    ) == 1, (
+        "§ 3.5's eight runtime modules were introduced by one commit and no "
+        "longer declare the same `since`")
+    assert (opendox_seed["src/opendox/runtime/local_git_adapter.py"]["since"]
+            == opendox_seed["src/opendox/runtime/repository_act.py"]["since"]), (
+        "§ 3.6's adapter and the act that creates its corpus were introduced "
+        "by one commit and no longer declare the same `since`")
+    # THE ADAPTER'S IMPORT PATH IS PART OF THE CLAIM. § 3.7's neutral
+    # conformance corpus resolves `opendox.runtime.local_git_adapter`, so a
+    # re-homing of that one file is a change to what § 3.7 can import and must
+    # not pass as a routine rename.
+    assert "src/opendox/runtime/local_git_adapter.py" in opendox_seed, (
+        "the file `split-opendox-two-layer-product` § 3.7 imports as "
+        "`opendox.runtime.local_git_adapter` is no longer declared")
+
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
     # could not survive a pin bump, and an accumulating file with no checked
