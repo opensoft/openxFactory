@@ -160,6 +160,25 @@ comparable, as both #1053 and PR #1041 say of their own predecessors. The
 `73 → 73` column is the interesting one: the number of citations the archive
 relocation broke and the identity rule repairs did not move at all.
 
+> **CORRECTION — 2026-09-17, lane `openxfactory-1`, openxFactory PR #1069
+> (Copilot review thread `PRRT_kwDOTAvnrs6jafyB`). THE TABLE ABOVE DID NOT
+> NAME ITS OWN READING, AND BESIDE THIS PACKET'S OTHER FIGURES THAT READS AS A
+> CONTRADICTION RATHER THAN A DIFFERENT QUESTION. The original table is kept
+> rather than replaced, because this file is a RECORD of a measurement taken
+> on 2026-09-16.**
+>
+> § 2.1 above is the **NORMALIZED `issue-native` reading** — trailing `.`/`/`
+> stripped before dedup, `NOT_A_PACKET_REFERENCE` held OUT of the raw-absent
+> population — the same reading `design.md` D0 names its PRIMARY. The
+> identical corpus at `b1df95ee` reads **586/162/81** under this design's own
+> recipe reading (the prose regex as written, `DANGLING` + `AMBIGUOUS` only)
+> and **586/162/86** under the `literal` reading stated in full at § 2.3
+> below. None of the three is wrong; they answer three different questions,
+> and this section did not say which one it asked.
+>
+> **NO FIGURE THIS FILE MEASURED MOVES.** 571/151/78 is unchanged; only the
+> label naming its reading is new.
+
 ### 2.2 The control: this instrument at #1053's own revision
 
 Run at `8944758c` the instrument reproduces **all twelve** published figures:
@@ -474,6 +493,22 @@ difference is whether a test asserts the absence or a rename left it behind.
   `AMBIGUOUS`) · citing `path:line` (first, plus a count) · flags
   (`possibly-cross-repo=<repo>`, `synthetic-location`, `tokenization-artifact`)
   · the class where mechanically decided.
+
+  > **CORRECTION — 2026-09-17, lane `openxfactory-1`, openxFactory PR #1069
+  > (Copilot review thread `PRRT_kwDOTAvnrs6jafyB`, which names the two
+  > bullets above as carrying the same unlabelled-reading issue as § 2.1's
+  > table). The original bullets are kept rather than replaced, for the same
+  > reason as § 2.1's correction: this file is a RECORD of a measurement
+  > taken on 2026-09-16.**
+  >
+  > The **57** rows and **38** identities above are the **NORMALIZED
+  > `issue-native` reading, THIS-TREE-ONLY** (§ 3) — cross-repository
+  > citations already set aside, trailing `.`/`/` stripped before dedup. It is
+  > not the INCLUSIVE **78** of § 2.1, nor the `literal` **86**, nor this
+  > design's own **81** (§ 2.1's correction above reconciles those three); it
+  > is the population § 5's hand read classifies. **NO FIGURE THIS FILE
+  > MEASURED MOVES** — 57 and 38 are unchanged; only the label naming their
+  > reading is new.
 * **Print the resolver's own `report` sentence for the first occurrence only.**
   It already names which half failed and why, in the estate's own words, and
   re-writing it in a second voice is how two descriptions of one rule drift.

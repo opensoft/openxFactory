@@ -581,7 +581,8 @@ Active changes:
   a suspected cross-repository citation is FLAGGED and never dropped; the report
   classifies only what it can decide mechanically and leaves the rest
   `unclassified`; and it is advisory, exiting 0 whatever it finds with no
-  `--fail-on`. No `## MODIFIED` block, so `sequenced_after: []` is the POSITIVE
+  `--fail-on` — a non-zero exit means the report could not run, never that it
+  found something. No `## MODIFIED` block, so `sequenced_after: []` is the POSITIVE
   root claim and no promoted byte moves. **SEVEN DECISIONS ARE PUT FOR A WORD**,
   each with its RECOMMENDED option first and the alternatives costed —
   `design.md` D1 the HOME, D2 the SURFACE (a sibling script, so the library's

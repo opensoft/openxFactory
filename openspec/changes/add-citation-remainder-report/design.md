@@ -546,14 +546,25 @@ each identity heading listing its tokens beneath it with each token's own
 class and flags as per-entry labels, or grouped by TOKEN under `--tokens`;
 CLASS IS NEVER A GROUPING LEVEL in either mode) — counts first, then the
 remainder itemized — plus, under `--json`, one object per token carrying
-`raw`, `token`, `status`, `half`, `identity`, `remainder`, every OCCURRENCE as
-`path:line`, `class` and every flag. **`raw` IS THE TOKEN EXACTLY AS EXTRACTED
-FROM THE LINE, BEFORE ANY NORMALIZATION; `token` IS THE NORMALIZED FORM THE
-RESOLVER WAS ACTUALLY ASKED ABOUT.** The normalizations D3(b) applies are
-exactly the difference between the two, and `raw == token` when none fired —
-so a token that is BOTH stripped (a trailing `/` or `.` removed) and severed
-(classed `truncated` by D4's precedence over `punctuation-stripped`) still
-SHOWS the stripping instead of losing it to the class that wins. Seven rules —
+`token`, `status`, `half`, `identity`, `remainder`, `class` and every flag,
+and every OCCURRENCE as its own `{path:line, raw}` pair. **`raw` IS A
+PER-OCCURRENCE VALUE, NEVER A SINGULAR FIELD ON THE TOKEN: EACH OCCURRENCE
+CARRIES ITS OWN `raw`, THE SPELLING EXACTLY AS EXTRACTED AT THAT LINE, BEFORE
+ANY NORMALIZATION; `token` IS THE NORMALIZED FORM THE RESOLVER WAS ACTUALLY
+ASKED ABOUT, CARRIED ONCE ON THE TOKEN OBJECT.** Normalization happens before
+dedup, so raw spellings that differ — a slash-terminated citation and its
+unslashed sibling — CAN AND DO collapse into one `token`; that is what merging
+is for, and D2 does not pick a representative and lose the other spelling to
+it: it is the OCCURRENCE, not the token, that owns `raw`, so every raw
+spelling survives, each beside its own `path:line`. The normalizations D3(b)
+applies at an occurrence are exactly the difference between THAT occurrence's
+`raw` and the token's `token`, and `raw == token` at an occurrence where none
+fired — so an occurrence that is BOTH stripped (a trailing `/` or `.`
+removed) and severed (classed `truncated` by D4's precedence over
+`punctuation-stripped`) still SHOWS the stripping instead of losing it to the
+class that wins. **THE HUMAN TABLE'S ITEMIZED ENTRY SHOWS AN OCCURRENCE'S
+`raw` ONLY WHERE IT DIFFERS FROM `token`** — an occurrence with nothing to
+show is the ordinary case, not an omission. Seven rules —
 six the evidence's § 6.3 derives from doing the classification by hand, and a
 seventh this section states for `--history` — each adopted here:
 
@@ -1249,12 +1260,17 @@ the instrument in `evidence/` would breach no fence above — a file under
 and the option is nonetheless declined on two measured costs:
 
 1. **IT WOULD RAISE THE NUMBER THIS PACKET REPORTS.** `measure.py` carries five
-   `openspec/changes/…` tokens; measured against this branch's token set, TWO are
-   new, and one of them — the UNSLASHED spelling of the same `foo` docstring
-   example this branch already carries with a trailing slash — resolves
-   `DANGLING`(identity-half). Committing the instrument is **+1 remainder**, a
-   second instance of D5's own mechanism taken for no additional reading. The
-   packet would be manufacturing remainder in order to document remainder.
+   `openspec/changes/…` raw occurrences; measured against this branch's token
+   set, TWO are raw spellings not already on record. One of the two — the
+   UNSLASHED spelling of the same `foo` docstring example this branch already
+   carries with a trailing slash — normalizes to the identical `token` the
+   evidence report, this design, the proposal and `tasks.md` already share for
+   a single **+1** (D0(iv)): under D2's fix above it is a new OCCURRENCE,
+   carrying its own per-occurrence `raw`, not a second identity, so on its
+   own it costs this packet nothing. The other of the two is what still makes
+   committing the instrument **+1 remainder**, a second instance of D5's own
+   mechanism taken for no additional reading. The packet would be
+   manufacturing remainder in order to document remainder.
    *(That spelling is described rather than written out, deliberately: writing it
    here would mint the very token this sentence is about, which is D3(a)'s lesson
    and not a hypothetical — D0(iv) records the branch doing exactly that once

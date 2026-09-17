@@ -348,9 +348,11 @@ added, edited, renamed or deleted here.
       successfully whatever it finds, and SHALL NOT provide an option that
       makes a finding fail a run"*, and *"A NON-ZERO EXIT SHALL MEAN THE REPORT
       COULD NOT RUN, never that it found something"* (`design.md` D2) — no
-      `--fail-on`. **TWO FIELDS D2 OWES A TEST EACH**: every JSON record's
-      `raw` field (the token exactly as extracted, before normalization; `raw
-      == token` when none fired) and, under `--history`, each identity's
+      `--fail-on`. **TWO FIELDS D2 OWES A TEST EACH**: every occurrence's
+      `raw` field (the spelling exactly as extracted at that occurrence's
+      line, before normalization — carried per occurrence, never a singular
+      field on the token; `raw == token` at an occurrence where none fired)
+      and, under `--history`, each identity's
       `history` object (`probed`, `ever_tracked`, `first_commit`,
       `last_commit`) — ABSENT, never `null`, when `--history` is not given,
       which is its own test. `tests/citation_remainder/` (NEW): unit tests over a
