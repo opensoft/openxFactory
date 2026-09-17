@@ -819,9 +819,12 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     <revision>:<segment>` per level — `openXdox/spec` is two levels, because
     `openXdox` is a submodule of this repository and `spec` is a submodule of
     THAT — and answers the leg repository, the commit that repository is pinned
-    at BY THIS COMMIT, and the row's own `destination_path`. The answer is
-    therefore as exact as the caller's: a commit that pinned an older leg reads
-    the older leg's bytes, and nothing is read from the working tree.
+    at BY THIS COMMIT, and `effective_arrival(row)`'s `destination_path`: the
+    row's own, unless a `re_destined:` block (RULED Q6) says a ruling has since
+    moved the placement, in which case its `to_path` — `source()`'s own
+    precedent, read here for the same reason. The answer is therefore as exact
+    as the caller's: a commit that pinned an older leg reads the older leg's
+    bytes, and nothing is read from the working tree.
 
     It answers `None` — and the caller's own answer stands — for a path in no
     row, a `not_moved` row, and a commit whose tree carries no such gitlink,
@@ -862,9 +865,10 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     row = _rows().get(key)
     if row is None or row["disposition"] == "not_moved":
         return None
+    destination, destination_path = effective_arrival(row)
     repo = REPO_ROOT
     revision = commit
-    for segment in MOUNTS[row["destination"]].relative_to(REPO_ROOT).parts:
+    for segment in MOUNTS[destination].relative_to(REPO_ROOT).parts:
         gitlink = _git_object_id(repo, revision, segment)
         if gitlink is None:
             return None
@@ -872,11 +876,11 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
         revision = gitlink
         if not (repo / ".git").exists():
             raise CarveReachUnavailable(
-                f"the pinned {row['destination']} leg is not materialized: "
+                f"the pinned {destination} leg is not materialized: "
                 f"{repo.relative_to(REPO_ROOT)} carries no Git object store, so "
                 f"{key} cannot be read at the commit that pins it. Run "
                 f"`{INIT_COMMAND}` from the repository root.")
-    return repo, revision, row["destination_path"]
+    return repo, revision, destination_path
 
 
 def sources_under(prefix: str) -> dict[str, Path]:

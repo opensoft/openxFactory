@@ -298,6 +298,65 @@ def test_the_sequenced_after_sibling_is_NOT_imported_at_module_import_time():
     assert result.stdout.strip() == "False", result.stdout
 
 
+def test_the_code_surface_sibling_is_NOT_imported_at_module_import_time():
+    # THE SECOND DEFERRAL, PINNED IN ITS OWN RIGHT RATHER THAN ASSUMED TO RIDE
+    # ALONG WITH THE FIRST. `gate-code-surface-declarations` § 3.5 added
+    # `_code_surface()` beside `_sequenced_after()` for the same vendoring
+    # reason, and the docstring above it claimed "the same probe covers this
+    # one". IT DID NOT: the sibling's probe asserts only that
+    # `sequenced_after`/`sequenced_after_substrate` are absent from
+    # `sys.modules`, so a module-level `import code_surface` written in this
+    # repository's own `scripts/` idiom —
+    #     sys.path.insert(0, str(Path(__file__).resolve().parent))
+    #     import code_surface
+    # — leaves that test GREEN while making the VENDORED copy unimportable.
+    # Measured, not assumed: with that hoist applied,
+    # `test_the_sequenced_after_sibling_is_NOT_imported_at_module_import_time`
+    # passes and a scope_globs.py copied out beside only frontmatter_strict.py
+    # raises `ModuleNotFoundError: No module named 'code_surface'`. So the new
+    # sibling gets its own assertion, in the same bare-subprocess shape.
+    probe = (
+        "import importlib.util, sys\n"
+        f"spec = importlib.util.spec_from_file_location('scope_globs', {str(MODULE)!r})\n"
+        "module = importlib.util.module_from_spec(spec)\n"
+        "sys.modules['scope_globs'] = module\n"
+        "spec.loader.exec_module(module)\n"
+        "print('code_surface' in sys.modules)\n"
+    )
+    result = subprocess.run([sys.executable, "-c", probe],
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.strip() == "False", result.stdout
+
+
+def test_the_module_IMPORTS_IN_THE_VENDORED_SHAPE_with_NEITHER_sibling_present(
+        tmp_path):
+    # THE CONTRACT ITSELF, not a proxy for it. codexFactory's merge gate
+    # vendors exactly two files — this module and `frontmatter_strict.py` — so
+    # the fact the deferrals exist to protect is that THOSE TWO ALONE import.
+    # A `sys.modules` probe can be defeated by a hoist that happens to resolve
+    # in the house tree; this one cannot, because there is no sibling on disk
+    # to resolve against.
+    for name in ("scope_globs.py", "frontmatter_strict.py"):
+        (tmp_path / name).write_text(
+            (ROOT / "scripts" / name).read_text(encoding="utf-8"),
+            encoding="utf-8")
+    for name in ("code_surface.py", "sequenced_after.py"):
+        assert not (tmp_path / name).exists(), name
+    probe = (
+        "import importlib.util, sys\n"
+        f"spec = importlib.util.spec_from_file_location('scope_globs', {str(tmp_path / 'scope_globs.py')!r})\n"
+        "module = importlib.util.module_from_spec(spec)\n"
+        "sys.modules['scope_globs'] = module\n"
+        "spec.loader.exec_module(module)\n"
+        "print(hasattr(module, 'validate_scope_globs'))\n"
+    )
+    result = subprocess.run([sys.executable, "-c", probe],
+                            capture_output=True, text=True, cwd=str(tmp_path))
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.stdout.strip() == "True", result.stdout
+
+
 # --- the gate's OWN refusals are findings, never tracebacks ------------------
 #
 # #705 was an operator running the gate on a real archived directory and being
