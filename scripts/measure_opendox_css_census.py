@@ -450,8 +450,23 @@ _ARG_OR_ASSIGN = re.compile(
 
 
 def _bare_literal_is_class_bearing(text: str, start: int) -> bool:
-    """True where the literal opening at `start` sits where a class is passed."""
-    return bool(_ARG_OR_ASSIGN.search(text[max(0, start - 40):start]))
+    """True where the literal opening at `start` sits where a class is passed.
+
+    THE LOOK-BACK READS CODE, NOT SOURCE (Copilot review of openxFactory #1068,
+    round 21) — round 18's rule reaching the OTHER reader that walks backwards
+    from a literal. `const values = [ // cls =` followed by `"gatebar"` on the
+    next line put `cls =` in this window from inside a COMMENT, and an array
+    VALUE then read as a class write; on the gate side that is the direction
+    which MOVES an openDox rule. `_code_view` blanks comments, strings and
+    regexes to spaces of the same length, so the window is indexed by the same
+    offsets and only code can answer it.
+
+    MEASURED at `0b4e8bbf` / `0a0265f7`: over all 44 scanned files and every
+    literal span of each, the raw window and the code window answer the SAME in
+    every case — 0 differences. The repair is a guarantee about the next
+    contributed module, not a correction to this one.
+    """
+    return bool(_ARG_OR_ASSIGN.search(_code_view(text)[max(0, start - 40):start]))
 
 
 #: A DOT IS A SELECTOR ONLY INSIDE A SELECTOR (Copilot review of openxFactory

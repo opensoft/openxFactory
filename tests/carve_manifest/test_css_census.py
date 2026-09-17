@@ -807,6 +807,38 @@ def test_a_template_substitution_is_a_prefix_too() -> None:
         == {"chip-"}
 
 
+def test_a_comment_cannot_manufacture_a_class_assignment(
+        tmp_path: Path) -> None:
+    """THE LOOK-BACK READS CODE TOO (Copilot review, round 21, thread
+    `PRRT_kwDOTAvnrs6jYCsW`).
+
+    Round 18 gave the concatenation walk `_code_view`; the other backwards
+    reader — the one that decides whether a bare literal sits where a class is
+    PASSED — still searched the raw source, so a line comment could put
+    `cls =` in its forty-character window and an array value would read as a
+    class write. On the gate side that is the direction that MOVES an openDox
+    rule, which is the one error this census is built to refuse.
+    """
+    js = 'const values = [ // cls =\n  "gatebar" ];\n'
+    assert CENSUS.narrow_refs(js, ".js") == set()
+    assert CENSUS.prefix_refs('const v = [ // cls =\n  "gate-" ];\n', ".js",
+                              class_bearing_only=True) == set()
+    # the real assignment and the real argument are untouched
+    assert CENSUS.narrow_refs('node.className = "gatebar";\n', ".js") == {"gatebar"}
+    assert CENSUS.narrow_refs('el("div", "gatebar");\n', ".js") == {"div", "gatebar"}
+    # …and a string in the window is no longer part of it either, which is the
+    # same blanking: the comma before this literal is code and still counts
+    assert CENSUS.narrow_refs('el("di/*v*/", "gatebar");\n', ".js") >= {"gatebar"}
+    # THE BLOCK FOLLOWS: the rule the comment would have handed the gate stays
+    dox, xdox = _tree(
+        tmp_path,
+        styles=".gatebar { color: red; }\n",
+        own={"own.js": 'el("span", "gatebar");\n'},
+        gate={"gate.js": 'const values = [ // cls =\n  "gatebar" ];\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert report["exclusive_blocks"] == []
+
+
 def test_a_parenthesis_inside_a_comment_is_not_the_calls_own(
         tmp_path: Path) -> None:
     """THE DELIMITER WALK READS CODE, NOT SOURCE (Copilot review, round 18).
