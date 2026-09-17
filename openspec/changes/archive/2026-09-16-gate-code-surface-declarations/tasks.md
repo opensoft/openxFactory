@@ -1123,18 +1123,19 @@ opened as a DRAFT.
       the round the un-draft fires, are dispositioned the same way and are not
       claimed by this box.**
 
-## 5. Archive — OWED, NOT GIVEN
+## 5. Archive — GIVEN 2026-09-17
 
-**THE ACT IS PERFORMED BY THIS PULL REQUEST AND THIS PULL REQUEST IS HELD, WHICH
-IS WHY BOTH BOXES TICK AND BOTH CARRY WHAT THEY STILL OWE.** A box ticks for the
-act its own text names, and the act each names is done here: the packet is moved
-and the three requirements are promoted in the same governed operation. The two
-things that ENTITLE the act are named rather than assumed, and NEITHER is in hand
-at this head — Brett Heap's SEPARATE ARCHIVE WORD, which is OWED, and a GREEN
-`pytest-suite` run on `main` at a head carrying the realization merge, which is
-OWED and is marked below in the exact place its run id goes. This pull request is
-opened as a DRAFT and stays one until both arrive; it is prepared in advance so
-that the word, when it comes, is a merge and not a night's authoring.
+**THE ACT IS PERFORMED BY THIS PULL REQUEST, WHICH WAS HELD UNTIL BOTH THINGS IT
+OWED WERE IN HAND, AND IS HELD NO LONGER.** A box ticks for the act its own text
+names, and the act each names is done here: the packet is moved and the three
+requirements are promoted in the same governed operation. The two things that
+ENTITLE the act were named rather than assumed, and BOTH are now in hand — Brett
+Heap's SEPARATE ARCHIVE WORD, 'archive it', given 2026-09-17 ~12:20Z, and a GREEN
+`pytest-suite` run on `main` at a head carrying the realization merge, run
+35219872882 at `a93d2682`, decided green 2026-09-17T12:34:10Z and marked below in
+the exact place its run id goes. This pull request was opened as a DRAFT and
+stayed one until both arrived; it was un-drafted 2026-09-17 13:29Z, the word
+having come as a merge and not a night's authoring.
 
 - [x] 5.1 **PROMOTE THE THREE ADDED REQUIREMENTS INTO CANON**, byte-for-byte, in
       a SEPARATE pull request on a separate word, after § 1 is ruled and after
@@ -1179,13 +1180,16 @@ that the word, when it comes, is a merge and not a night's authoring.
       modified-block-currency` reads zero on the gate-bearing arm
       (scenario-title completeness and title resolution and ordering both `0`).
       So pytest-suite decided green on `main` at `a93d2682`, run `35219872882`,
-      which CONTAINS the realization merge `4cef77af`: the MERGED-PLUS-GREEN
-      pair this box requires is COMPLETE. The archive word and the un-draft are
-      a separate act and remain owed, per this box's own clause.
+      which CONTAINS the realization merge `4cef77af`: the MERGED-PLUS-GREEN pair
+      this box requires is COMPLETE. The archive word and the un-draft were a
+      separate act and are owed no longer: Brett Heap's word 'archive it' was
+      given 2026-09-17 ~12:20Z and this pull request was un-drafted 2026-09-17
+      13:29Z, per this box's own clause.
 - [x] 5.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
-      ELSE**, by a closing keyword written THERE against openxFactory issue
-      1013. No closing keyword appears in this pull request's body or in any
-      commit message on this branch, in any form, quoted or otherwise.
+      ELSE**, by a closing keyword written THERE against openxFactory issue 1013.
+      The closing keyword now stands in this pull request's body, written there at
+      the un-draft by the landing lane; none appears in any commit message on this
+      branch, in any form, quoted or otherwise.
       **THIS IS THAT PULL REQUEST, AND #1013 CLOSES AT ITS LANDING ON BRETT
       HEAP'S ARCHIVE WORD — NOT AT ITS OPENING.** While the pull request is a
       HELD DRAFT its body carries `Refs #1013` and NO closing keyword in any
