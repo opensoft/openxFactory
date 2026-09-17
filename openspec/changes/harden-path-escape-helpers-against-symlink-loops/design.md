@@ -266,11 +266,21 @@ both sides of it, proves the fixed code works and says nothing about whether the
 defect was real. `tasks.md` § 3 records, per module, the failing run against the
 unfixed clause and the passing run against the widened one.
 
-**Where the loop is built matters as much as when.** Each test builds its loop in
-ALL THREE exposed positions the first requirement names: at the candidate's leaf,
-in a parent component above an ordinary leaf, and at the SCANNED ROOT itself. The
-second is the one a reviewer's intuition misses, because the leaf is a perfectly
-ordinary file. The third is NOT ONE SHAPE BUT TWO, and WHICH RESOLUTION FAILS
+**Where the loop is built matters as much as when, FOR THE THREE REACHABLE GUARDS.**
+Each test OF A REACHABLE GUARD, which is the case in `tests/code_surface/`, the
+`_unescaped` case in `tests/target_release/` and the case in
+`tests/proposal-support/`, builds its loop in ALL THREE exposed positions the
+first requirement names: at the candidate's leaf, in a parent component above an
+ordinary leaf, and at the SCANNED ROOT itself. THE FOURTH CASE IS NOT ONE OF
+THEM AND THIS PARAGRAPH DOES NOT REACH IT: `_registry_present`'s proof is D3's
+CLAUSE test, driven by a seam that makes the pre-check pass while the resolution
+fails, and building it as a filesystem tree in any of these three positions
+would produce a test that passes against the UNFIXED clause, which D5's own
+fails-then-passes standard refuses. D0.5 measures all three positions for that
+guard and gets `False` from every one; that measurement is the reason the case
+is a clause test, and it is not a fourth tree fixture. (Copilot, PR #1083
+`PRRT_kwDOTAvnrs6jcrL_`.) The second position is the one a reviewer's intuition
+misses, because the leaf is a perfectly ordinary file. The third is NOT ONE SHAPE BUT TWO, and WHICH RESOLUTION FAILS
 DIFFERS BY GUARD, which is why the transcript records the raising line and not
 only the outcome. Measured at `c6997f12` on `Python 3.12.3`, root set to the loop:
 
