@@ -125,7 +125,27 @@ anywhere in this pull request.
 
 ## 3. Realization — ONE LATER PULL REQUEST, ON A SEPARATE WORD
 
-- [ ] 3.1 **`scripts/doc_health/pin_shapes.py`: extend `_is_disposition_list`
+**REALIZED 2026-09-17 by Brett Heap** (openxFactory repository owner),
+first-hand, in session, lane `openxfactory-2` (display `openXfactory-2`),
+verbatim ***"Realize now, land when green"***. THE ONE CITATION: openxFactory
+#1045, comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+**THE PARAGRAPH ABOVE § 1 IS THE RATIFYING COMMIT'S OWN RECORD AND IS KEPT AS
+HISTORY:** at `4c32b183` § 3 did stand open and ratification authorized
+no realization — this is the separate later act on the separate word that
+paragraph named. § 3's ELEVEN BOXES ARE TICKED BY THE REALIZATION PULL REQUEST
+AND BY NOTHING ELSE, and that pull request moves FOUR files and no other:
+`scripts/doc_health/pin_shapes.py`, `tests/doc-health/test_pin_shape_adapter.py`,
+`tests/doc-health/test_tag_hygiene_pinned_targets.py` and this `tasks.md`. **§ 4
+STAYS OPEN** — the archive is a further act on a further word, held behind this
+pull request being MERGED AND GREEN — and NO BYTE of the `## MODIFIED` spec
+delta, of `proposal.md`, of `design.md`, of `.openspec.yaml`, of any pin
+verifier, of any record under `contracts/` or of any file under
+`openspec/specs/` moves in it. The delta's own partition amendment is a
+SEPARATE pull request and owns that text; this realization encodes its
+semantics in tests and authors none of it.
+
+- [x] 3.1 **`scripts/doc_health/pin_shapes.py`: extend `_is_disposition_list`
       to the entry grain**, transcribing D-1 rows 2-6 and NOTHING ELSE. Keep
       `value is None or ...` and the empty list accepted; keep the member in
       `SHAPE_C.optional` and out of `SHAPE_C.required`. Transcribe the two
@@ -133,12 +153,35 @@ anywhere in this pull request.
       required keys (so `cited_to: []` is reported as the MISSING key, matching
       `:818-827`), and the `is not None` + case-folded test for `level` (so
       `"error"` is admitted and `""` refused, matching `:837-848`).
-- [ ] 3.2 **Carry the constants BY TRANSCRIPTION, beside the existing ones**
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `_disposition_entry_failure` transcribes D-1 rows 2-6 IN THE GUARD'S OWN
+      ORDER and `_is_disposition_list` is its BOOLEAN FACE (`if value is None:
+      return True`, then `not isinstance(value, list)` refused, then
+      `_disposition_entry_failure(value) is None`), so the two readings cannot
+      drift apart. `None` and `[]` stay ACCEPTED; the member stays in
+      `SHAPE_C.optional` and out of `SHAPE_C.required`. BOTH CORRECTED READINGS
+      ARE TRANSCRIBED EXACTLY: the FALSEY test `not entry.get(key)` over
+      `DISPOSITION_REQUIRED` (so `cited_to: []` and `why: ""` are reported as
+      the MISSING key at row 3 and never reach row 4) and `level is not None and
+      str(level).upper() not in BLOCKING_LEVELS` (so `"error"` is ADMITTED and
+      `""` REFUSED). Asserted by
+      `test_the_two_corrected_readings_are_transcribed_exactly`.
+- [x] 3.2 **Carry the constants BY TRANSCRIPTION, beside the existing ones**
       (`pin_shapes.py:65-93`), each with its measured citation:
       `DISPOSITION_REQUIRED` (`:353-354`), `DISPOSITION_AUTHORITY` (`:361`),
       `BLOCKING_LEVELS` (`:366`). A transcription, never an import: the adapter
       imports no verifier.
-- [ ] 3.3 **Move the member's guard-leg citation with it.** The entry today
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `DISPOSITION_REQUIRED` (`:353-354`), `DISPOSITION_AUTHORITY` (`:361`) and
+      `BLOCKING_LEVELS` (`:366`) carried beside the adapter's other transcribed
+      forms, each with the line it was measured at. A TRANSCRIPTION, NEVER AN
+      IMPORT: the adapter's import set is unchanged and
+      `test_the_adapter_reads_the_record_and_nothing_else` still passes
+      unedited. `test_the_three_disposition_constants_are_transcribed_from_the_verifier`
+      imports the verifier at its FIXED, AUTHORED path and compares all three,
+      so a verifier admitting a seventh required key, a third authority spelling
+      or a second blocking level reds that test.
+- [x] 3.3 **Move the member's guard-leg citation with it.** The entry today
       carries `Citation(_OPENSPEC_CLI, 801)` (`pin_shapes.py:421-422`) — the
       absent-is-empty line. Give the entry-grain reading its own measured
       citation(s) at the lines D-1 names, and note in code why the optional
@@ -150,7 +193,20 @@ anywhere in this pull request.
       so the realization decides — and states — whether the optional arm gets a
       route of its own or a parallel helper; either way `:813` onwards does not
       read `pin.get("dispositions")` and MUST NOT be cited as though it did.
-- [ ] 3.4 **Extend the FAILURE REPRESENTATION so the rendered finding can
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      THE CITATIONS SPLIT. `Citation(_OPENSPEC_CLI, 801)` is KEPT, GUARDLESS, as
+      the absent-is-empty line — it is the one that reads
+      `pin.get("dispositions")` — and FIVE entry-grain citations are ADDED at
+      `:813`, `:818`, `:829`, `:838` and `:849`, each naming the IMPORTABLE,
+      SOURCE-FREE `pinned_dispositions` and each carrying the CONDITION text
+      measured at that line. THE REALIZATION'S CHOICE, STATED as this task
+      requires: the optional arm gets A ROUTE OF ITS OWN — the parallel helper
+      `test_the_optional_arms_citations_split_absent_is_empty_from_the_entry_grain`
+      — and NOT a widening of the guard leg, which still ranges over the
+      REQUIRED table (`_tracked_table`) and still measures `(29, 27, 2)`. That
+      helper asserts this task's own prohibition: NO entry-grain cited line
+      reads `pin.get("dispositions")`, so none is cited as though it did.
+- [x] 3.4 **Extend the FAILURE REPRESENTATION so the rendered finding can
       name the entry, not only the member.** 3.1's `_is_disposition_list`
       returns a bare `bool` (`:217-223`), and `_first_failure`'s
       optional-member loop (`:532-535`) turns any `False` into
@@ -178,7 +234,25 @@ anywhere in this pull request.
       for every OTHER member, present or required, that still reports a bare
       spelling — this task ADDS a capability to the representation and
       narrows nothing already passing.
-- [ ] 3.5 **`tests/doc-health/test_pin_shape_adapter.py`: the optional arm's
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `Failure` gains ONE field, `detail: str = ""`, and `render()` appends
+      ` (<detail>)` ONLY when it is non-empty — so every member-grain finding
+      renders BYTE-IDENTICALLY to the way it rendered before, asserted over all
+      three shapes' required tables by
+      `test_the_failure_representation_gained_a_grain_and_narrowed_nothing`, and
+      `Failure.render()`'s shape/member/defect order and `Verdict.names()`'s
+      substring match stay valid. `EntryFailure(where, defect, detail)` carries
+      the guard's own ONE-BASED `dispositions[N]` ALWAYS; the DETAIL is the
+      missing or malformed KEY where the entry IS a mapping and the RAW VALUE
+      where it is not, so a bare entry reports the index and the value and no
+      key is invented. `Member.entries` is the general hook, populated for this
+      member alone; `_first_failure`'s OPTIONAL loop consults it and falls back
+      to the member-grain `Failure` wherever it answers `None` — which is every
+      present NON-sequence, so `dispositions: ""` still names the bare
+      `dispositions`. The REQUIRED loop is untouched: canon reports a malformed
+      `files:` entry "as a malformed member naming the list it came from", and
+      moving that grain is outside this packet.
+- [x] 3.5 **`tests/doc-health/test_pin_shape_adapter.py`: the optional arm's
       ENTRY case, as a CALL.** Import `scripts/validate-openspec-cli-pin.py` at
       its fixed authored path (the way the guard leg already imports verifiers),
       call `pinned_dispositions` on `contracts/openspec-cli-pin.yaml` carrying
@@ -192,7 +266,21 @@ anywhere in this pull request.
       "WARNING"`, `level: ""`); and row 6's authority-missing case. A test
       covering only a subset of row 3's keys or row 5's boundaries would pass
       while leaving the gap D-1 measured on the others untested.
-- [ ] 3.6 **`tests/doc-health/test_tag_hygiene_pinned_targets.py`: a
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `test_optional_arm_the_guard_refuses_the_entry_and_so_does_the_adapter`,
+      SIXTEEN parameterized cases over `contracts/openspec-cli-pin.yaml` with
+      each malformed entry substituted: row 2's two bare forms (`[null]`,
+      `["a"]`); row 3's SIX `DISPOSITION_REQUIRED` branches (`repo`, `item`,
+      `path`, `finding`, `why`, `cited_to`) PLUS `[{}]`, `cited_to: []` and
+      `why: ""`; row 4's `cited_to: "x"`; row 5's two boundaries (`"WARNING"`,
+      `""`); row 6's authority case; and a ONE-BASED case whose SECOND entry is
+      the failing one, which a zero-based transcription would report as
+      `dispositions[1]`. Each case CALLS `pinned_dispositions` on the record,
+      asserts it raises `PinRefusal` with code `pin-disposition-malformed`,
+      asserts THE GUARD'S OWN MESSAGE names the same `where`, and asserts
+      `ps.judge(record, "openspec-cli")` refuses the same record at the same
+      grain with the same key or value.
+- [x] 3.6 **`tests/doc-health/test_tag_hygiene_pinned_targets.py`: a
       FAMILY-LEVEL case, through `fam_tag_hygiene` over a `tmp_path` record** —
       the module's own pattern for a tree no repository should carry (the
       corrupt-record and symlink cases already use it). Build a `pinned:`
@@ -210,31 +298,100 @@ anywhere in this pull request.
       `dispositions` and drops which entry failed; 3.4's representation
       change is what makes naming the entry possible at all, and this case is
       what asserts it actually happens.
-- [ ] 3.7 **Regressions named in the finding, explicitly:** `[{}]`, `[null]`,
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `test_a_malformed_disposition_entry_is_an_invalid_pin_naming_the_entry`,
+      FOUR cases through `fam_tag_hygiene` over a `tmp_path` record — the
+      module's own pattern for a tree no repository should carry — complete for
+      its nine required members and carrying a well-formed, NON-EMPTY
+      `capabilities:` enumeration naming the capability, so the scenario's
+      prerequisites hold and it stays DISJOINT from its siblings. Each asserts
+      ONE `ERROR` finding whose `rule` ends with the rendered verdict and names
+      BOTH the member AND the entry: ``dispositions[1]` missing (repo, item,
+      path, finding, why, cited_to)`, ``dispositions[1]` not-a-mapping (None)`,
+      ``dispositions[1]` missing (cited_to)` and ``dispositions[2]` malformed
+      (cited_to 'x' is not a non-empty list)`.
+- [x] 3.7 **Regressions named in the finding, explicitly:** `[{}]`, `[null]`,
       and an entry missing `cited_to`. Plus the two boundary cases the
       measurement turned up: `cited_to: []` (reported as the missing key) and
       `level: "error"` (ADMITTED, case-folded).
-- [ ] 3.8 **The negative side, so the form does not drift WIDER:**
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `[{}]`, `[null]` and an entry missing `cited_to` are the parameterized
+      cases `row3-empty-mapping`, `row2-null` and `row3-no-cited_to`, and `[{}]`
+      is a case of the family-level test as well. The two boundary cases are
+      asserted by name in
+      `test_the_two_corrected_readings_are_transcribed_exactly`: `cited_to: []`
+      reported as the MISSING key — defect `missing`, detail `cited_to`, and the
+      citation-shape wording absent from the render — and `level: "error"`
+      ADMITTED by the guard AND the adapter, case-folded.
+- [x] 3.8 **The negative side, so the form does not drift WIDER:**
       `dispositions:` absent, `null` and `[]` all still ACCEPTED, and
       `contracts/openspec-cli-pin.yaml` as it stands — six entries, all
       admitted by the guard today — still ACCEPTED by `judge`, which is the
       record leg's own assertion for this member.
-- [ ] 3.9 **Leave `test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two`
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `test_optional_arm_the_guard_admits_the_entry_and_so_does_the_adapter`,
+      NINE cases — absent, `null`, `[]`, one and two well-formed entries, a
+      lower-case `level`, an ABSENT `level`, `recorded_by` instead of
+      `ratified_by`, and a key the guard does not read — each CALLING the guard
+      and asserting it RETURNS as well as asserting `judge` accepts.
+      `test_the_real_record_still_resolves_at_both_the_guard_and_the_adapter`
+      holds `contracts/openspec-cli-pin.yaml`'s SIX entries at both. THE FALSEY
+      SEMANTICS ARE MEASURED AT THE GUARD AND NOT READ OFF THE WORD:
+      `test_dispositions_is_empty_only_when_it_is_null_or_a_sequence` pins
+      `null` and `[]` ACCEPTED and `""`, `0` and `False` REFUSED at the MEMBER
+      grain (`:801-803` tests `raw is None`, an identity test), while
+      `test_pinned_by_commit_only_is_empty_for_every_falsey_value` pins EVERY
+      falsey value accepted for the other optional member (`pin.get(...) or []`,
+      a coercion) and re-reads both cited lines. The family's own positive half
+      is `test_a_well_formed_or_empty_dispositions_member_still_resolves` and
+      `test_an_absent_dispositions_member_resolves_and_is_no_missing_member`.
+- [x] 3.9 **Leave `test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two`
       at `(29, 27, 2)`** and
       `test_the_adapter_is_necessary_and_not_sufficient_and_the_boundary_is_named`
       passing unchanged: the member is still absent-is-empty, so
       `judge(_without(RECORDS["openspec-cli"], "dispositions"), "openspec-cli")`
       is still ACCEPTED. A realization that moved either has changed the shape
       table and is outside this packet.
-- [ ] 3.10 **Update the adapter's own docstrings** — `_is_disposition_list`
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      Both tests pass UNCHANGED AND UNEDITED: the entry-grain citations sit on
+      the OPTIONAL entry, which `_tracked_table` does not range over, so
+      `(29, 27, 2)` does not move, and `dispositions:` is still absent-is-empty,
+      so `judge(_without(RECORDS["openspec-cli"], "dispositions"),
+      "openspec-cli")` is still ACCEPTED.
+      `test_the_member_stays_optional_and_out_of_the_shape_guard_required_set`
+      asserts the two facts that split rests on.
+- [x] 3.10 **Update the adapter's own docstrings** — `_is_disposition_list`
       (`:217-223`) and the `SHAPE_C.optional` comment (`:418-419`) — so the code
       states the entry grain and its citations, as `_is_path_only_list` already
       does for the other optional member.
-- [ ] 3.11 **Run the realization's evidence:** `pytest -q tests/doc-health`,
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `_is_disposition_list`'s docstring now states BOTH grains with their
+      citations and names `_disposition_entry_failure` as the single place the
+      five readings are transcribed; `EntryFailure` and
+      `_disposition_entry_failure` carry those readings line by line, including
+      why a bare entry reports no key; and the `SHAPE_C.optional` comment states
+      the citation split and why THIS optional arm can be a CALL where the guard
+      leg cannot — as `_is_path_only_list` already documents the other optional
+      member's entry grain.
+- [x] 3.11 **Run the realization's evidence:** `pytest -q tests/doc-health`,
       `pytest -q tests/openspec_cli_pin`, and
       `python3 scripts/doc-health.py --single-repo . --family tag-hygiene`,
       with no new finding on `contracts/`.
-
+      **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+      `pytest -q tests/doc-health`: **1881 passed** (1826 at the merge base
+      `7e074ac9`; the 55 added are this realization's). `pytest -q
+      tests/openspec_cli_pin`: **154 passed**. `python3 scripts/doc-health.py
+      --single-repo . --family tag-hygiene`: **0 critical, 5 error, 0 warning, 0
+      info**, the report BYTE-IDENTICAL to the same command run on the same
+      clone at the same base with the adapter unmodified — the same five
+      unrelated errors (one malformed `xspec:` marker, four `openxwallet-pin.yaml`
+      no-`capabilities:`), ZERO `dispositions:` findings, and NO NEW FINDING ON
+      `contracts/`. FAILING-THEN-PASSING: with `pin_shapes.py` reverted to the
+      merge base and the two test files as this pull request leaves them, **27
+      of the 55 fail**; with the adapter as this pull request leaves it, all
+      137 tests of the two files pass. The other 28 are the ACCEPTING and
+      NEGATIVE cases, which pass in both states by design — that is what makes
+      them the no-WIDER half of the equivalence.
 ## 4. Archive — ON MERGED-PLUS-GREEN REALIZATION EVIDENCE
 
 - [ ] 4.1 **Archive on the realization pull request being MERGED and GREEN**,

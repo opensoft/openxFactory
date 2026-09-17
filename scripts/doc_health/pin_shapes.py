@@ -91,6 +91,42 @@ DIGEST_DEFINITION = "sorted-ls-tree-r-v1"
 
 COMMIT_REVISION_KIND = "commit"
 
+# ---------------------------------------------------------------------------
+# THE DEFECT VOCABULARY — one word per way a member can fail. Hoisted ABOVE the
+# forms by `adopt-entry-grain-dispositions-form` because a FORM now names one:
+# the entry-grain reading of `dispositions:` reports WHICH entry failed and WHY,
+# and the why is one of these words.
+# ---------------------------------------------------------------------------
+
+MISSING = "missing"
+MALFORMED = "malformed"
+MIXED = "mixed"
+UNKNOWN_REVISION_KIND = "unknown-revision-kind"
+NOT_A_MAPPING = "not-a-mapping"
+
+# ---------------------------------------------------------------------------
+# THE DISPOSITION ENTRY'S THREE FORMS, transcribed from the shape-(c) verifier's
+# own module constants with the line each was measured at. A TRANSCRIPTION,
+# NEVER AN IMPORT — this module imports no verifier — and checkable rather than
+# trusted: `tests/doc-health/test_pin_shape_adapter.py` imports
+# `scripts/validate-openspec-cli-pin.py` at its fixed authored path and compares
+# all three, so a verifier that admits a seventh required key, a third authority
+# spelling or a second blocking level reds that test.
+# ---------------------------------------------------------------------------
+
+#: The keys a disposition entry must carry, all six, TRUTHY and not merely
+#: present (`validate-openspec-cli-pin.py:353-354`, read by `:818`).
+DISPOSITION_REQUIRED: tuple[str, ...] = (
+    "repo", "item", "path", "finding", "why", "cited_to")
+
+#: Either spelling of the granting authority; exactly one is required
+#: (`validate-openspec-cli-pin.py:361`, read by `:849`).
+DISPOSITION_AUTHORITY: tuple[str, ...] = ("ratified_by", "recorded_by")
+
+#: The finding levels that verifier RECONCILES, compared UPPER-CASED
+#: (`validate-openspec-cli-pin.py:366`, read by `:838`).
+BLOCKING_LEVELS: frozenset[str] = frozenset({"ERROR"})
+
 
 def _is_text(value) -> bool:
     return isinstance(value, str) and bool(value.strip())
@@ -214,13 +250,101 @@ def _is_binary(value) -> bool:
     return isinstance(value, str) and bool(value.strip()) and "/" not in value
 
 
+@dataclass(frozen=True)
+class EntryFailure:
+    """WHICH ENTRY of a sequence member failed, and why, at the grain the
+    member's own guard names it.
+
+    `where` is the GUARD'S OWN spelling and it is ONE-BASED
+    (`validate-openspec-cli-pin.py:812`, over `enumerate(raw, start=1)`), so a
+    finding and that verifier's own refusal point at the SAME entry of the same
+    record; a zero-based transcription would name the entry before the one that
+    failed. `detail` carries what the refusal turns on and nothing this module
+    invents: the missing or malformed KEY where the entry is a mapping, and the
+    raw VALUE where it is not — a bare entry has no key to report, that guard's
+    refusal there (`:813-817`) naming only `where` and the value.
+    """
+    where: str
+    defect: str
+    detail: str
+
+
+def _disposition_entry_failure(value) -> EntryFailure | None:
+    """The FIRST entry of a PRESENT `dispositions:` sequence the shape's own
+    pure guard refuses, or `None` where it refuses none of them.
+
+    D-1 ROWS 2-6 OF `adopt-entry-grain-dispositions-form`, TRANSCRIBED IN THE
+    GUARD'S OWN ORDER — the order decides which reading a finding names:
+
+    - `:813-817` an entry that is NOT A MAPPING, a bare value being unable to
+      carry the identity keys a disposition is required to carry;
+    - `:818-827` an entry MISSING any of `DISPOSITION_REQUIRED`, where "missing"
+      is FALSEY and not merely absent (`not entry.get(key)`), so `cited_to: []`
+      and `why: ""` are reported HERE as the missing key and never reach the
+      citation-shape reading below;
+    - `:828-836` a `cited_to` that is TRUTHY and still not a NON-EMPTY LIST,
+      which the row above leaves reachable only for a value such as `"x"`;
+    - `:837-848` a `level` that is not `None` and, UPPER-CASED, is outside
+      `BLOCKING_LEVELS` — so `"error"` is ADMITTED and `""` is REFUSED, an empty
+      string not being `None`;
+    - `:849-855` an entry naming NEITHER spelling of the authority.
+
+    THE MEMBER-GRAIN READINGS ARE NOT HERE. Row 0 (absent or `null` is EMPTY,
+    `:801-803`) and row 1 (present, non-null and not a list, `:804-809`) are
+    `_is_disposition_list`'s, and this function answers `None` for both so the
+    member-grain `Failure` keeps its bare spelling.
+    """
+    if value is None or not isinstance(value, list):
+        return None
+    for index, entry in enumerate(value, start=1):
+        where = f"dispositions[{index}]"
+        if not isinstance(entry, dict):
+            return EntryFailure(where, NOT_A_MAPPING, f"{entry!r}")
+        missing = [key for key in DISPOSITION_REQUIRED if not entry.get(key)]
+        if missing:
+            return EntryFailure(where, MISSING, ", ".join(missing))
+        citations = entry.get("cited_to")
+        if not isinstance(citations, list) or not citations:
+            return EntryFailure(
+                where, MALFORMED,
+                f"cited_to {citations!r} is not a non-empty list")
+        level = entry.get("level")
+        if level is not None and str(level).upper() not in BLOCKING_LEVELS:
+            levels = "/".join(sorted(BLOCKING_LEVELS))
+            return EntryFailure(
+                where, MALFORMED, f"level {level!r} is outside {levels}")
+        if not any(entry.get(key) for key in DISPOSITION_AUTHORITY):
+            return EntryFailure(where, MISSING,
+                                " or ".join(DISPOSITION_AUTHORITY))
+    return None
+
+
 def _is_disposition_list(value) -> bool:
-    """A list of entries, or `None`. Absent OR NULL is EMPTY at this guard
+    """A list whose every ENTRY that shape's own guard admits, or `None`.
+
+    THE MEMBER GRAIN, UNCHANGED. Absent OR NULL is EMPTY
     (`validate-openspec-cli-pin.py:801-803`: `raw = pin.get("dispositions")`
     then `if raw is None: return []`), so `dispositions:` is not a required
     member and an explicit `null` is no more malformed than an absent key;
-    present, non-null and not a list is refused (`:804-809`)."""
-    return value is None or isinstance(value, list)
+    present, non-null and not a list is refused (`:804-809`).
+
+    THE ENTRY GRAIN, ADDED BY `adopt-entry-grain-dispositions-form` (§ 3.1).
+    The SAME pure guard also refuses malformed ENTRIES of a present sequence
+    (`:813-855`), reading THE ENTRY ALONE exactly as the member-grain refusal
+    reads the member alone, so an adapter admitting them is NARROWER than the
+    guard it tracks on precisely the trees this adapter exists for — and canon's
+    own consequence is that such a resolver "would … admit a record the
+    repository's own gate rejects at its first shape check".
+    `_disposition_entry_failure` is the single place those five readings are
+    transcribed and this function is its boolean face, so the two cannot drift
+    apart; the other optional member's form, `_is_path_only_list`, already
+    reaches its own entries this way.
+    """
+    if value is None:
+        return True
+    if not isinstance(value, list):
+        return False
+    return _disposition_entry_failure(value) is None
 
 
 # ---------------------------------------------------------------------------
@@ -261,6 +385,16 @@ class Member:
     #: Per-spelling forms, where the two spellings are not judged alike: each
     #: guard reads its own member and refuses its own shape.
     forms: dict = field(default_factory=dict)
+    #: THE ENTRY-GRAIN READING, for a SEQUENCE member whose guard judges its
+    #: ENTRIES as well as the member itself: given the member's value, the FIRST
+    #: entry that guard refuses, as an `EntryFailure`, or `None`. `form` still
+    #: answers the MEMBER-grain question — is this value of the member's form at
+    #: all — and this answers WHICH ENTRY, so a finding can name it. `None`
+    #: wherever the refusals are reported at the member grain, which is every
+    #: entry of every REQUIRED table: canon reports a malformed `files:` entry
+    #: "as a malformed member naming the list it came from", and moving THAT
+    #: grain is outside this packet.
+    entries: Callable | None = None
 
     # NO `name` ACCESSOR. One flattening both spellings into a single string
     # was exactly what made the entry regime-blind; the live name of an entry is
@@ -416,10 +550,45 @@ SHAPE_C = Shape(
                (Citation(_OPENSPEC_CLI, 748, guard="pinned_binary"),)),
     ),
     # Absent-is-empty at its guard (`:801-803`), so NOT required and not on the
-    # guard leg; refused only when PRESENT and not a list.
+    # guard leg's REQUIRED table; refused when PRESENT and not a list
+    # (`:804-809`) and — since `adopt-entry-grain-dispositions-form` § 3.3 —
+    # when a PRESENT sequence carries an ENTRY that same pure guard refuses
+    # (`:813-855`, D-1 rows 2-6).
+    #
+    # THE CITATIONS SPLIT, AND THE SPLIT IS THE WHOLE POINT. `:801` is the
+    # ABSENT-IS-EMPTY line, it is the one that reads `pin.get("dispositions")`,
+    # and it carries NO guard: there is nothing to CALL for an absent member,
+    # which is exactly why the equivalence test's guard leg ranges over the
+    # REQUIRED table. The ENTRY-GRAIN lines DO have something to call —
+    # `pinned_dispositions(record)` is pure, takes the record and reads nothing
+    # else — so each names that guard and the test's OPTIONAL arm CALLS it on a
+    # record carrying each malformed entry, the strongest available form rather
+    # than the weaker citation re-read. Those lines read the ENTRY and NOT
+    # `pin.get("dispositions")`, so none is cited as though it did: each carries
+    # the CONDITION it was measured at, and the test re-reads that line.
     optional=(
         Member(("dispositions",), _is_disposition_list,
-               (Citation(_OPENSPEC_CLI, 801),)),
+               (Citation(_OPENSPEC_CLI, 801),
+                Citation(_OPENSPEC_CLI, 813, guard="pinned_dispositions",
+                         quote="if not isinstance(entry, dict):",
+                         quote_line=813),
+                Citation(_OPENSPEC_CLI, 818, guard="pinned_dispositions",
+                         quote="for key in DISPOSITION_REQUIRED "
+                               "if not entry.get(key)",
+                         quote_line=818),
+                Citation(_OPENSPEC_CLI, 829, guard="pinned_dispositions",
+                         quote="if not isinstance(citations, list) "
+                               "or not citations:",
+                         quote_line=829),
+                Citation(_OPENSPEC_CLI, 838, guard="pinned_dispositions",
+                         quote="if level is not None and str(level).upper() "
+                               "not in BLOCKING_LEVELS:",
+                         quote_line=838),
+                Citation(_OPENSPEC_CLI, 849, guard="pinned_dispositions",
+                         quote="if not any(entry.get(key) "
+                               "for key in DISPOSITION_AUTHORITY):",
+                         quote_line=849)),
+               entries=_disposition_entry_failure),
     ))
 
 SHAPES: tuple[Shape, ...] = (SHAPE_A, SHAPE_B, SHAPE_C)
@@ -451,26 +620,29 @@ PRODUCT_IDENTITY_BY_PIN: dict[str, str] = {
     "openreposhape": "source_repository",
 }
 
+
 # ---------------------------------------------------------------------------
 # The judgement
 # ---------------------------------------------------------------------------
-
-MISSING = "missing"
-MALFORMED = "malformed"
-MIXED = "mixed"
-UNKNOWN_REVISION_KIND = "unknown-revision-kind"
-NOT_A_MAPPING = "not-a-mapping"
-
 
 @dataclass(frozen=True)
 class Failure:
     shape: str | None          # the shape TRIED, or None where none could be
     member: str
     defect: str
+    #: WHAT the defect turned on where the member's guard names something FINER
+    #: than the member — the missing or malformed KEY of a disposition entry, or
+    #: the raw VALUE an entry carried instead of a mapping. EMPTY for every
+    #: member-grain failure, which is why every finding rendered before this
+    #: field existed renders BYTE-IDENTICALLY after it, and why
+    #: `Verdict.names()`'s substring match stays valid for every member that
+    #: still reports a bare spelling.
+    detail: str = ""
 
     def render(self) -> str:
         where = f"{self.shape}: " if self.shape else ""
-        return f"{where}`{self.member}` {self.defect}"
+        detail = f" ({self.detail})" if self.detail else ""
+        return f"{where}`{self.member}` {self.defect}{detail}"
 
 
 @dataclass(frozen=True)
@@ -531,8 +703,21 @@ def _first_failure(shape: Shape, record: dict,
                                MALFORMED)
     for member in shape.optional:
         for name in member.spellings:
-            if name in record and not member.form_for(name)(record.get(name)):
+            if name not in record or member.form_for(name)(record.get(name)):
+                continue
+            # PRESENT AND MALFORMED. Where the member carries an ENTRY-GRAIN
+            # reading and the defect is one of that grain's, the failure names
+            # the ENTRY the guard names — its ONE-BASED index, and the key or
+            # the value the refusal turned on — rather than the bare member
+            # spelling. Where it carries none, or where the defect is the
+            # MEMBER's own form (a present value that is not a sequence at all),
+            # `entries` answers `None` and the member-grain failure stands
+            # exactly as it did before.
+            entry = (member.entries(record.get(name))
+                     if member.entries is not None else None)
+            if entry is None:
                 return Failure(shape.title, name, MALFORMED)
+            return Failure(shape.title, entry.where, entry.defect, entry.detail)
     return None
 
 
