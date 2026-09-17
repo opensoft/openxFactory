@@ -1024,20 +1024,30 @@ _LEDGER_SUBJECTS = {
     # NEEDED comment on #1045 rather than fixed by the lane, ratified normative
     # text being the RATIFIER's to amend. Brett Heap ruled the overlap on
     # 2026-09-17: the positive scenario's WHEN gains one clause — "AND every
-    # OPTIONAL member the matched shape admits that is PRESENT conforms at its
-    # entry grain to that shape's own in-tree verifier's pure, source-free
-    # guard" — naming `dispositions:` and `pinned_by_commit_only:`, with a
-    # FALSEY `pinned_by_commit_only:` (`null`, `""`) counting as EMPTY because
-    # the tracked verifiers coerce a falsey raw value to `[]` (`… or []`) and
-    # the adapter's `_is_path_only_list` accepts any falsey value outright,
-    # before it ever checks for a list — a wider net than `null`/`""` alone,
-    # also catching `false`, `0` and `{}` (`pin_shapes.py:167-171`); for
-    # `dispositions:`, OF VALUES PRESENT, only an explicit `null` is EMPTY —
-    # the same `pin.get(...)` that yields `None` for an ABSENT member yields
-    # it for an explicit `null` too, one case under `raw is None`, not two —
-    # and every other PRESENT falsey value stays malformed. Its
+    # OPTIONAL member the matched shape admits that is PRESENT and for which
+    # that shape's own in-tree verifier exposes a PURE, SOURCE-FREE guard …
+    # conforms at its entry grain to that guard". THE PARTITION IS DEFINED BY
+    # THE GUARD, SO IT REACHES ONLY MEMBERS THAT HAVE ONE — TODAY
+    # `dispositions:` ALONE, at `pinned_dispositions`, whose only input is the
+    # record (`validate-openspec-cli-pin.py:787-803`): OF VALUES PRESENT, only
+    # an explicit `null` is EMPTY — the same `pin.get(...)` that yields `None`
+    # for an ABSENT member yields it for an explicit `null` too, one case under
+    # `raw is None`, not two — and every other PRESENT falsey value stays
+    # malformed. `pinned_by_commit_only:` is NOT reached: it has no pure,
+    # source-free guard, both verifiers judging it inside their
+    # source-dependent `verify()` (`validate-openreposhape-pin.py:481-508`,
+    # `verify-openxwallet-pin.py:443-457`), which is why this adapter's own
+    # citations for it carry no `guard` name (`pin_shapes.py:355-365`). NOTHING
+    # ABOUT THAT MEMBER MOVES HERE: `_is_path_only_list` still accepts any
+    # falsey value outright, before it ever checks for a list
+    # (`pin_shapes.py:151-171`), while the two verifiers differ at the FILE
+    # boundary — `validate-openreposhape-pin.read_pin()` keeps top-level
+    # scalars as strings (`:201`), so `null`, `false`, `0` and `{}` reach
+    # `verify()` as truthy strings and are refused there and only a quoted `""`
+    # parses empty, whereas the `yaml.safe_load`-ed wallet verifier
+    # (`verify-openxwallet-pin.py:171`) does see Python falsey values. Its
     # disjointness bullet gains the matching exclusion for a
-    # present-and-malformed optional member. The refusal scenario, D-1, D-2,
+    # present-and-malformed optional member the clause reaches. The refusal scenario, D-1, D-2,
     # D-3 and every other promoted unit of the requirement are unchanged.
     # Recorded in `review/ratification-2026-09-16.md`'s AMENDED SINCE pointer
     # and its dated Addendum, 2026-09-17. This arm cannot distinguish a

@@ -337,19 +337,21 @@ NEEDED comment on openxFactory
 [#1045](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5701323247),
 with an addendum
 ([#1045](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5701410009))
-adding one further fact for whichever way the ruling went: the entry-grain
-guard the ratified D-1 already reaches treats `pinned_by_commit_only:` as
-having an ABSENT-IS-EMPTY default (`verify-openxwallet-pin.py:443-448`,
-`validate-openreposhape-pin.py:487-491`, `pin_shapes.py:154-171`), so a
-FALSEY value — `null`, `""` — must count as EMPTY and not as a present,
-malformed sequence, while `dispositions:` draws that line differently: OF
-VALUES PRESENT, only an explicit `null` is EMPTY — the same `pin.get(...)`
-call that yields `None` for an ABSENT member yields it for an explicit
-`null` too, so the two are one case under the guard's `raw is None` check
-(`scripts/validate-openspec-cli-pin.py:801-803`), not two — and every other
-PRESENT falsey value that is not `null` — `""`, `0`, `false` — stays
-malformed, there being no broader falsey-is-empty rule for this member the
-way `_is_path_only_list` gives `pinned_by_commit_only:`.
+adding one further fact for whichever way the ruling went. THAT ADDENDUM
+ASSERTED that a FALSEY `pinned_by_commit_only:` — `null`, `""` — must count
+as EMPTY rather than as a present, malformed sequence, because the
+entry-grain guard the ratified D-1 already reaches reads that member with an
+ABSENT-IS-EMPTY default; and it contrasted `dispositions:`, which draws the
+line differently: OF VALUES PRESENT, only an explicit `null` is EMPTY — the
+same `pin.get(...)` call that yields `None` for an ABSENT member yields it
+for an explicit `null` too, so the two are one case under the guard's `raw
+is None` check (`scripts/validate-openspec-cli-pin.py:801-803`), not two —
+and every other PRESENT falsey value that is not `null` — `""`, `0`,
+`false` — stays malformed. **THE `dispositions:` HALF OF THAT ADDENDUM IS
+MEASURED AND STANDS; THE `pinned_by_commit_only:` HALF WAS THE LANE'S OWN
+PREMISE AND IS WRONG**, and the NOTE below records what is measured instead.
+It is left standing here, reported rather than rewritten, because the
+correction is only legible against the claim it corrects.
 
 **THE RULING — APPLY THE PARTITION.** Brett Heap, 2026-09-17, in session to
 lane `openxfactory-2`, by interactive multi-choice:
@@ -358,10 +360,45 @@ lane `openxfactory-2`, by interactive multi-choice:
 — ***"Apply the partition"***: the positive-resolution scenario's WHEN
 additionally requires every OPTIONAL member the matched shape admits that is
 PRESENT to conform at its entry grain to the shape's own in-tree verifier's
-pure guard, with a falsey `pinned_by_commit_only:` counting as EMPTY per the
-addendum above; the refusal scenario is unchanged; the disjointness bullet
+PURE guard; the refusal scenario is unchanged; the disjointness bullet
 extended. The same comment also carries the second, independent word on
 realization timing (`tasks.md` § 3), which is no part of this record.
+
+**THE PARTITION IS DEFINED BY THE GUARD, SO IT REACHES ONLY MEMBERS THAT
+HAVE ONE — TODAY `dispositions:` ALONE.** The clause as first drafted named
+`pinned_by_commit_only:` too, on the lane's addendum above. Measured on this
+tree, that member has NO pure, source-free guard: both verifiers judge it
+inside their source-dependent `verify()`, after the source is resolved and
+reaching `source.read()` / `target.exists()`
+(`scripts/validate-openreposhape-pin.py:481-508`,
+`scripts/verify-openxwallet-pin.py:443-457`), and the shared adapter's own
+citations for it carry NO `guard` name for exactly that reason, the comment
+above them saying so in terms (`scripts/doc_health/pin_shapes.py:355-365`).
+`dispositions:` does have one — `pinned_dispositions`, whose only input is
+the record (`scripts/validate-openspec-cli-pin.py:787-803`) — which is why
+the packet's own refusal scenario could already name it. The clause is
+therefore narrowed to members for which such a guard exists; the ruling's
+substance is untouched, the positive scenario still ceasing to accept the
+one input the refusal scenario refuses. Recorded, with the lane's own
+premise named as the thing corrected, on openxFactory
+[#1045, comment 5715775376](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5715775376).
+
+**NOTE — `pinned_by_commit_only:`, AND WHAT THIS AMENDMENT DOES NOT SAY
+ABOUT IT.** Nothing here changes how that member is read. The shared
+adapter's `_is_path_only_list` accepts ANY falsey value outright — `if not
+value: return True`, before it ever checks for a list, so `None`, `""`,
+`false`, `0` and `{}` are all empty to the adapter
+(`scripts/doc_health/pin_shapes.py:151-171`) — and that is unchanged by this
+amendment. The two verifiers, however, DIFFER AT THE FILE BOUNDARY, which is
+why the amendment states no falsey-is-empty rule about them:
+`validate-openreposhape-pin.read_pin()` parses the pin's own narrow grammar
+and keeps top-level scalars as STRINGS (`:201`), so `pinned_by_commit_only:
+null`, `false`, `0` or `{}` reaches `verify()` as a truthy string and is
+refused there despite `pin.get(...) or []`, only a quoted `""` parsing as
+empty; the wallet verifier loads the same member with `yaml.safe_load`
+(`scripts/verify-openxwallet-pin.py:171`) and therefore does see Python
+falsey values. Both facts are measurements of today's tree, recorded so no
+reader takes the narrowed clause for a claim about either verifier.
 
 **THIS IS A CONSENTED AMENDMENT, AND THE CONSENT IS THE WHOLE OF ITS
 AUTHORITY.** Brett Heap is the ratifying owner of this packet; he ruled with
@@ -379,21 +416,22 @@ only it:
   in which `<capability>` appears"*. It now reads *"…AND which carries a
   well-formed, NON-EMPTY `capabilities:` member in which `<capability>`
   appears, AND every OPTIONAL member the matched shape admits that is
-  PRESENT conforms at its entry grain to that shape's own in-tree verifier's
-  pure, source-free guard (`dispositions:` an explicit `null` counting as
-  EMPTY exactly as absence does, and otherwise a sequence whose every entry
-  that guard accepts — every other falsey value that is not `null`, such as
-  `""`, `0` or `false`, stays malformed; `pinned_by_commit_only:` a sequence
-  of path-only strings, a falsey value — `null`, `""`, `false`, `0`, `{}` —
-  counting as EMPTY (the verifiers coerce it with `or []`; the adapter
-  accepts it directly))"*.
+  PRESENT and for which that shape's own in-tree verifier exposes a PURE,
+  SOURCE-FREE guard — one whose only input is the record, callable before any
+  checkout, `git` call or network read — conforms at its entry grain to that
+  guard: today `dispositions:` alone, whose guard reads an explicit `null` as
+  EMPTY exactly as absence does and otherwise requires a sequence whose every
+  entry it accepts, every other PRESENT falsey value (`""`, `0`, `false`)
+  staying malformed; an optional member for which NO such guard exists,
+  `pinned_by_commit_only:` today, is NOT reached by this clause"*.
 - Its disjointness bullet gained the matching exclusion. AS RATIFIED it read
   *"an ABSENT enumeration, a malformed enumeration, and a well-formed
   enumeration in which `<capability>` does not appear, are OUTSIDE this
   scenario…"*. It now reads *"an ABSENT enumeration, a malformed
   enumeration, a well-formed enumeration in which `<capability>` does not
-  appear, and a PRESENT optional member malformed at its entry grain, are
-  OUTSIDE this scenario…"*.
+  appear, and a PRESENT optional member malformed at its entry grain against
+  a pure, source-free guard this scenario's WHEN reaches, are OUTSIDE this
+  scenario…"*.
 - `tests/doc-health/test_modified_block_currency_self_gate.py`'s
   `_LEDGER_SUBJECTS` gains one row for
   `("adopt-entry-grain-dispositions-form", "document-lifecycle", "Prose
