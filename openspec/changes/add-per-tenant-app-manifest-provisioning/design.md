@@ -99,9 +99,11 @@ BINDING and forbids a contract artifact from naming one. A delta claiming
 neutrality while repealing one of the two cases in passing would have been the
 worst of both. The clauses now bind the manifest SHAPE and the identity's HOME,
 leave the operating model to the per-install execution binding canon already
-fixes, and assert the reconciliation in two added scenarios — an operator-
-executed install driving the flow conforms; a pair already in service that was
-created by hand is not retroactively refused.
+fixes, and assert the reconciliation in THREE added scenarios — an operator-
+executed install driving the flow conforms; the self-hosted individual conforms
+from their own account, which is the case canon protects and round 10 found this
+block had left without a conforming identity; and a pair already in service that
+was created by hand is not retroactively refused.
 
 ## D4 — Why the naming convention is a REQUIREMENT clause and not a runbook line
 
