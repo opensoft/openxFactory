@@ -3452,11 +3452,25 @@ movements claimed at the time they land.
   The remedy is the one this amendment applies to positions: quote both
   figures and let a reader subtract, rather than assert the relation between
   them and ask to be believed.)*
-  **And it proves (B) and (D) by omission**: `opensoft/OpsxFactory` and
+  **And it HONOURS (B) and (D) by omission**: `opensoft/OpsxFactory` and
   `opensoft/Omnigent-Install` are not touched by a byte, which is what the
-  ruling narrowed this lane to. It is `[ ]` and not `[~]`:
-  the deferred form § 7.3 wears is for an act with no subject to perform on,
-  and this one has a subject and an authored next step.
+  ruling narrowed this lane to. **That is evidence about THIS act's SCOPE and
+  not about those dispositions, neither of which is discharged**: (B)'s reach
+  widening is lane `opsXfactory-4`'s ACTIVE `add-governed-dns-administration`,
+  and (D) waits on the § 3.5 realization by its own terms. *(This read "PROVES
+  (B) and (D)" until review. An act's SILENCE about a repository proves only
+  that the act stayed inside its narrowing; it says nothing about whether the
+  work those clauses name has been done.)*
+  It is `[ ]` and not `[~]` because this box is an IN-SCOPE GATING PREREQUISITE
+  of this packet, where `[~]` is the reserved form for open, OWNED, NON-GATING
+  successor work. *(The earlier wording here — that `[~]` is for "an act with
+  no subject to perform on" — was a WRONG RULE, and a wrong rule in a ledger
+  propagates to every amendment that reads it. Measured against the house's own
+  use rather than recalled: EVERY `[~]` in the active corpus names an OWNER —
+  `add-per-tenant-app-manifest-provisioning/tasks.md` carries six, among them
+  *"Owner: lane `opsXfactory-4`"* and *"Owner: this lane's bookkeeper,
+  amendment #5"* — so a deferred box plainly HAS a subject. What it does not
+  have is a claim on THIS packet's gate.)*
 
 ## 8. The archive gate
 
