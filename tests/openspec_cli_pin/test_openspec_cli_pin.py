@@ -50,7 +50,7 @@ import importlib.util
 import json
 import re
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -1163,15 +1163,36 @@ def _departed_since_the_capture(mod, identity, row):
     # delta missing proves the wrong thing. `row["path"]` is the finding's own
     # capability-relative path, so this is the very file the capture complained
     # about, reached under the archive the map named.
-    delta = archive / "specs" / row["path"]
+    # THE PATH IS DATA, AND `/` TRUSTS IT. `row["path"]` comes out of the frozen
+    # capture, and `Path("/a") / "specs" / "/elsewhere"` is `/elsewhere` — the
+    # archive prefix is DISCARDED when the right-hand side is absolute. The
+    # containment equality below would then compare the escaped path with
+    # ITSELF and pass, and the departure would be proved against a file outside
+    # the archive the map named. Not theoretical: this very capture already
+    # holds an absolute value under a `path` key (a scratchpad root from the
+    # run that produced it), so the reader must not assume the shape it wants.
+    # `..` is refused for the same reason from the other direction.
+    # (Found by Copilot's review at `25988caf`.)
+    rel = PurePosixPath(row["path"])
+    assert not rel.is_absolute() and ".." not in rel.parts, (
+        f"{key} names a delta path that is not archive-relative: "
+        f"{row['path']!r}. An absolute path makes `archive / \"specs\" / path` "
+        "discard the archive entirely, and `..` walks out of it; either way the "
+        "proof below would be about a file this map never named")
+    delta = archive / "specs" / rel
+    specs_root = (archive / "specs").resolve(strict=True)
     assert delta.is_file(), (
         f"{key} names an archive that does not carry the delta the captured "
         f"finding is about: {delta} is not a regular file. The packet may have "
         "moved, but the finding's own subject did not come with it")
-    assert delta.resolve(strict=True) == archive / "specs" / row["path"], (
-        f"{key}: {delta} resolves to {delta.resolve(strict=True)}, outside the "
-        "archive the map named. The bytes this exemption rests on are not the "
-        "archived packet's")
+    resolved = delta.resolve(strict=True)
+    assert resolved == specs_root / rel and resolved.is_relative_to(specs_root), (
+        f"{key}: {delta} resolves to {resolved}, outside the archive the map "
+        f"named ({specs_root}). The bytes this exemption rests on are not the "
+        "archived packet's. Containment is asserted against the RESOLVED "
+        "archive root rather than against a path rebuilt from the same "
+        "untrusted string, so an escape cannot satisfy this by being compared "
+        "with itself")
     # AND WHAT IS IN IT. Everything above is about WHERE the file is, and a
     # departure granted on location alone is granted to ANY regular in-tree file
     # that happens to sit at the path. The exemption says a captured finding may
