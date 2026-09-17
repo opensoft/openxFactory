@@ -21,8 +21,12 @@ with one document. It runs from here with a destination checkout in hand:
 
 THE TWO PHASES ARE THE TWO COMMITS, and the runbook § 5.5 explains why the leg
 lands as two. Commit A places every row's blob byte-identical to `carve_commit`,
-so `--phase A` can prove EVERY moved row of a destination at its strongest — the
-analogue of the openXwallet extraction's "100/100 at the carve layer". Commit B
+so `--phase A` can prove every moved row a ruling has not RETIRED at its
+strongest — the analogue of the openXwallet extraction's "100/100 at the carve
+layer". (Not EVERY moved row, since RULED 5656343213: `rows_for()` drops a row
+retired at its own effective arrival before either phase asks anything, so such
+a row is not placed, not digested and not diffed at this leg, and what is
+required of it instead is that its `retired.at_path` be ABSENT.) Commit B
 applies that destination's declared edits and nothing else, so `--phase B`
 checks that the arrived blob differs from the carve blob ONLY on lines the row's
 own `edits[].lines` declare. A reviewer then reads the declared lines rather
@@ -116,7 +120,7 @@ match openxFactory at the carve commit, or whose surface is incomplete is
 opinion about the same bytes. Both are run; neither substitutes for the other.
 
 WHAT A LINE IS, AND WHY IT IS DEFINED IN A THIRD FILE (RULED Q-L8 (c)). The
-manifest declares 2461 edit lines BY NUMBER, this file decides whether a diff
+manifest declares 2628 edit lines BY NUMBER, this file decides whether a diff
 touches only them, and `validate-carve-manifest.py` bounds them against the
 carve blob — so a number must mean the same thing in both tools, and it did
 not: this one split with `str.splitlines()` and that one counted `b"\\n"`, which
@@ -244,7 +248,7 @@ multi-choice, on the question slice S8's author put in `#656` comment
 `5650335573` § 2). A moved row may carry an optional
 `retired: {at, at_path, ruling, surface, note}` saying that a RULING has
 DELETED the arrival itself — not moved it, as RULED Q6 does, because the
-surface the arrived file drove is at NO leg to move it to. What this file does
+surface the arrived file needed is at NO leg to move it to. What this file does
 with such a row is the simplest thing and the most easily got wrong:
 
   THE ROW IS NOT OWED HERE, AND THE PATH MUST BE EMPTY. `rows_for()` drops a
@@ -478,8 +482,11 @@ REMEDIATION = (
     "left behind is the same bytes at two legs with the floor standing "
     "behind one. For `arrival-not-retired`, delete the file the ruling "
     "RETIRED at this leg (RULED 5656343213) — the row's `retired:` says which "
-    "ruling ordered it and which surface it drove; the deletion and the block "
-    "land together or not at all."
+    "ruling ordered it and which surface it needed and could not obtain here. "
+    "THIS REFUSAL IS THE EXPECTED STATE OF THE WINDOW the two merges open: the "
+    "block lands FIRST at openxFactory and this leg refuses until its own "
+    "deletion merges (cutover runbook 5.8 step 4), so the remedy is that pull "
+    "request and never an edit to the manifest."
 )
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -1912,9 +1919,13 @@ def check_retired(rows: list[dict[str, Any]], dest_root: Path,
             f"arrived at no leg — and {target} still exists. A retirement is "
             "a DELETION: unlike a re-destination there is no other leg this "
             "PLACEMENT'S bytes went to, so a file left here is an arrival the "
-            "floor no longer stands behind and no row declares. Delete it in "
-            "the commit that lands the `retired:` block — the block and the "
-            "deletion are one act. (The row's `also_replicated_to` copies, if "
+            "floor no longer stands behind and no row declares. Delete it at "
+            "THIS LEG, in the pull request cutover runbook § 5.8 step 4 "
+            "names: the block and the deletion are ONE ACT IN TWO "
+            "REPOSITORIES, so they are two merges and can never be one "
+            "commit, and until the second one lands this refusal is the "
+            "window's expected state rather than a defect here. (The row's "
+            "`also_replicated_to` copies, if "
             "it declares any, are a separate question: RULED OQ-C makes them "
             "the legs' own placements, declared here with `--replica-at`, and "
             "this finding is about the ARRIVAL at "
@@ -2577,7 +2588,7 @@ def _re_destined_record(row: dict[str, Any]) -> dict[str, Any]:
 def _retired_record(row: dict[str, Any],
                     refilled: dict[str, str] | None = None) -> dict[str, Any]:
     """One retired row as the summary reports it: the source path, the
-    placement the ruling deleted, the SURFACE it drove, the ruling that
+    placement the ruling deleted, the SURFACE it needed, the ruling that
     ordered it (RULED 5656343213), and WHICH ANSWER THIS RUN GOT at the path.
 
     The surface travels with the citation because it is the whole ground of
@@ -2793,9 +2804,10 @@ def main(argv: list[str] | None = None) -> int:
               "alone and the summary says so)"))
     parser.add_argument(
         "--phase", choices=PHASES, default=None,
-        help=("A: every moved row byte-identical to the carve commit (commit "
-              "A). B: declared-edit rows may differ ONLY on their declared "
-              "lines (commit B)"))
+        help=("A: every moved row NOT RETIRED by ruling byte-identical to the "
+              "carve commit (commit A). B: declared-edit rows may differ ONLY "
+              "on their declared lines (commit B). A retired row is asked for "
+              "at neither phase — its `retired.at_path` must be ABSENT"))
     parser.add_argument(
         "--allow-created", metavar="PATH", action="append", default=[],
         help=("a file the destination legitimately assembles and no row places "
