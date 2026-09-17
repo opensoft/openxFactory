@@ -1042,8 +1042,7 @@ def truncation_probes_at(root: Path, lines, lineno: int, start: int, end: int,
     return tuple(fired), evidence
 
 
-def take_reading(root: Path, *, include=(), exclude=(), history: bool = False
-                 ) -> Reading:
+def take_reading(root: Path, *, include=(), exclude=()) -> Reading:
     """The whole reading, from the tracked-entry listing to the classified
     remainder."""
     if not root.exists():
@@ -1110,15 +1109,11 @@ def take_reading(root: Path, *, include=(), exclude=(), history: bool = False
                 record.class_evidence = record.normalizations
         records.append(record)
 
-    reading = Reading(root=root, head=head, tree_unmodified=tree_unmodified,
-                      population=population, records=records)
-    if history:
-        reading.history_probed = True
-        reading.history = probe_history(root, reading)
-    return reading
+    return Reading(root=root, head=head, tree_unmodified=tree_unmodified,
+                   population=population, records=records)
 
 
-def probe_history(root: Path, reading: Reading) -> dict:
+def probe_history(root: Path, records) -> dict:
     """`git log --all --diff-filter=A --reverse` PER IDENTITY, cached.
 
     OPT-IN ON A MEASURED COST: in the evidence run the probe was 17.0 of 19.0
@@ -1132,9 +1127,16 @@ def probe_history(root: Path, reading: Reading) -> dict:
     end in `/*` or it matches nothing on any input. `--reverse` so the FIRST
     line is the OLDEST add-event, `--abbrev=8` so both shas are eight
     characters everywhere.
+
+    `records` IS WHAT THE READING WILL LIST AND NEVER EVERY TOKEN IN THE
+    CORPUS. The probe is opt-in on a measured cost, and probing the identities
+    of the hundreds of tokens a reading COUNTS rather than lists would multiply
+    that cost by an order of magnitude to answer a question about entries the
+    output does not carry. Under `--all` the listing is every token, and the
+    probe follows it there.
     """
     probed: dict[str, dict] = {}
-    for record in reading.records:
+    for record in records:
         identity = record.identity
         if identity is None or identity in probed:
             continue
@@ -1561,8 +1563,11 @@ def main(argv=None) -> int:
     args = parser().parse_args(argv)
     try:
         reading = take_reading(Path(args.root), include=tuple(args.include),
-                               exclude=tuple(args.exclude),
-                               history=args.history)
+                               exclude=tuple(args.exclude))
+        if args.history:
+            reading.history_probed = True
+            reading.history = probe_history(
+                reading.root, listed_records(reading, args.all))
     except CouldNotRun as error:
         print(f"THE REPORT DID NOT RUN: {error}", file=sys.stderr)
         print("This is not a finding. No reading was taken.", file=sys.stderr)
