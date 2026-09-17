@@ -141,9 +141,46 @@ SCRIPTS_DIR = REPO_ROOT / "scripts"
 
 INIT_COMMAND = "git submodule update --init --recursive openDox openXdox"
 
+#: The remedy for a leg whose object store exists but cannot answer for the
+#: pinned commit, or for the tree/blobs under it — every `CarveReachUnavailable`
+#: raise below that reaches this point shares this text verbatim, and so does
+#: `doc_health.release_inventory`'s own `LegUnavailable` (`#1048` round 4,
+#: Copilot on PR #1051, `carved_reach.py:921` / `release_inventory.py:290`).
+#: `git fetch --unshallow` ALONE WAS WRONG HERE: it is the fix for a
+#: GENUINELY SHALLOW clone only (`git rev-parse --is-shallow-repository`
+#: prints `true`) — MEASURED, git 2.43.0: a `--filter=tree:0`/`blob:none`
+#: store is not shallow, and `--unshallow` there only answers `fatal:
+#: --unshallow on a complete repository does not make sense` and fixes
+#: nothing, because the two are orthogonal git features and a partial clone
+#: never went shallow to begin with.
+INCOMPLETE_STORE_REMEDY = (
+    f"Run `{INIT_COMMAND}` from the repository root. A store that is "
+    f"GENUINELY SHALLOW (`git rev-parse --is-shallow-repository` prints "
+    f"`true`) needs its own `git fetch --unshallow` first; a "
+    f"`--filter=tree:0` or `blob:none` PARTIAL store is not shallow, and "
+    f"`--unshallow` there only answers `fatal: --unshallow on a complete "
+    f"repository does not make sense` — fetch the pinned objects from a "
+    f"remote that still carries them instead (`git -C <store> fetch "
+    f"origin <sha>`, or `git fetch --refetch`), or re-run the command "
+    f"above to re-initialize the leg.")
+
 
 class CarveReachUnavailable(ImportError):
-    """A pinned leg is not materialized, so a shed module cannot be read."""
+    """A pinned leg's object store is missing, incomplete, or otherwise
+    unreadable — the query was unanswerable, not answered.
+
+    THREE PATHS RAISE THIS, all inside `shed_commit_object`'s gitlink walk
+    (`#1048` round 5, Copilot on PR #1051, `carved_reach.py:1105`, widening
+    this from the original "not materialized" alone): the leg is NOT
+    MATERIALIZED — `_leg_object_store` finds no Git object store on disk at
+    all; the store IS materialized but INCOMPLETE — it exists but does not
+    carry the pinned commit; or the TREE that would record the gitlink itself
+    could not be READ — an unresolvable revision, a `--filter=tree:0` clone
+    whose promisor remote is unreachable, or (round 5) a probe that hit its
+    30s timeout rather than answering. Every path means the same thing to a
+    caller: nothing was learned, so the caller's own absence finding must
+    never stand in for it.
+    """
 
 
 class ShedModuleHasNoDestination(ImportError):
@@ -783,31 +820,210 @@ def _sanitized_git_environment() -> dict[str, str]:
     return environment
 
 
-def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
-    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when it is not
-    there. `None` is an ANSWER here, not a swallowed error: the one caller uses
-    it to mean "that commit's tree carries no such entry", which is exactly the
-    case of a commit from BEFORE the § 5.2 shed — where the file is still in
-    this repository's own tree and the caller's ordinary read already found it.
+def _git_run(repo: Path, *arguments: str):
+    """The ONE scrubbed, replacement-free `git -C <repo> ...` invocation every
+    reader below shares — the finished process, or `None` when git could not be
+    run at all, OR WHEN IT DID NOT ANSWER IN TIME.
 
     Runs with `--no-replace-objects` and a sanitized environment (Copilot,
-    `PRRT_kwDOTAvnrs6hjE-c`): `<revision>:<path>` otherwise resolves through
+    `PRRT_kwDOTAvnrs6hjE-c`): a `<revision>:<path>` otherwise resolves through
     ambient `GIT_DIR`/alternate-object-directory/replace-ref configuration,
     which could make this read a leg commit the root commit does not actually
-    name.
+    name — and the same scrub is what makes the `--git-common-dir` read below
+    answer for the directory this module points git AT rather than for whatever
+    an ambient `GIT_COMMON_DIR` names.
+
+    BOUNDED AT `timeout=30`, THE SAME 30 SECONDS `scripts/hermes_runtime_
+    validation/content.py:103-116` already gives its own equivalent read
+    (`#1048` round 5, Copilot on PR #1051, `carved_reach.py:826`). The
+    `cat-file -e`/`ls-tree` probes this function serves are exactly the reads a
+    partial clone or an unreachable promisor remote can make HANG rather than
+    fail, and every caller above this one exists to turn a git FAILURE into an
+    answer — `_tree_entry_absent`'s whole taxonomy, `_leg_object_store`'s
+    materialization check, the incomplete-store probe in the walk below — none
+    of which get a turn if the process never returns. `subprocess.TimeoutExpired`
+    is therefore caught beside `OSError` and answered with the SAME `None` a
+    missing git binary already produces, so every reader above this line
+    reaches its EXISTING unavailable path unchanged: a probe that timed out is
+    a query that went UNANSWERED, never the tree's own answer that an entry is
+    absent — the phantom-absence thesis `#1048` exists to refuse, one layer
+    lower than every other case in this module.
     """
     try:
-        done = subprocess.run(
-            ["git", "--no-replace-objects", "-C", str(repo), "rev-parse", f"{revision}:{path}"],
+        return subprocess.run(
+            ["git", "--no-replace-objects", "-C", str(repo), *arguments],
             capture_output=True,
             text=True,
             check=False,
+            timeout=30,
             env=_sanitized_git_environment(),
         )
+    except subprocess.TimeoutExpired:
+        return None
     except OSError:  # pragma: no cover - no git on PATH is the caller's problem
+        return None
+
+
+def _git_text(repo: Path, *arguments: str) -> str | None:
+    """The stripped stdout of one `git -C <repo> ...` read, or `None` when
+    git declines — for the reads that ANSWER IN STDOUT."""
+    done = _git_run(repo, *arguments)
+    if done is None:
         return None
     value = done.stdout.strip()
     return value if done.returncode == 0 and value else None
+
+
+def _git_ok(repo: Path, *arguments: str) -> bool:
+    """Whether a git probe SUCCEEDED — for the reads that answer by EXIT CODE
+    and print nothing.
+
+    `cat-file -e` is the one this module needs and `_git_text` cannot serve it:
+    there an empty stdout is indistinguishable from a failure, so a commit that
+    IS present would read as absent. Separate function rather than a flag,
+    because the two return types are what keep that confusion impossible.
+    """
+    done = _git_run(repo, *arguments)
+    return done is not None and done.returncode == 0
+
+
+def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
+    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when that read
+    DID NOT ANSWER — which is not the same fact as "it is not there".
+
+    `None` IS TWO FACTS AND THE CALLER MUST SEPARATE THEM (`#1048` round 2).
+    One is the ANSWER the one caller wants: that commit's tree carries no such
+    entry, which is exactly the case of a commit from BEFORE the § 5.2 shed —
+    there the file is still in this repository's own tree and the caller's
+    ordinary read already found it. The other is a FAILURE: the tree object
+    this read has to walk is not in the store, and a `--filter=tree:0` clone
+    whose promisor remote is unreachable is the everyday shape of that. git
+    spells the two IDENTICALLY to a reader of stdout — exit 128 and nothing
+    printed, differing only in a `fatal:` line — so `_tree_entry_absent` below
+    asks which one arrived, and this `None` is never read as an absence alone.
+    """
+    return _git_text(repo, "rev-parse", f"{revision}:{path}")
+
+
+def _tree_entry_absent(repo: Path, revision: str,
+                       path: str) -> tuple[bool, str]:
+    """Did `revision`'s tree ANSWER that it carries no entry at `path`?
+
+    `(True, "")` for git's own unambiguous answer, `(False, <what git said>)`
+    for every other outcome. MEASURED, git 2.43.0, in a throwaway store — the
+    four shapes this separates:
+
+      A PATH GENUINELY NOT IN THE TREE. `rev-parse <commit>:<path>` exits 128
+      (`fatal: path 'x' does not exist in 'HEAD'`); `ls-tree <commit> --
+      <path>` EXITS 0 AND PRINTS NOTHING. This is the answer, and the only
+      shape that returns one.
+
+      THE COMMIT'S ROOT TREE OBJECT MISSING — a `--filter=tree:0` clone whose
+      promisor remote is unreachable, or a pruned store. `rev-parse` exits 128
+      again (`fatal: path 'leg' exists on disk, but not in 'HEAD'`), the same
+      empty stdout for the opposite fact; `ls-tree` exits 128 (`fatal: not a
+      tree object`, or git's own `could not fetch <tree> from promisor
+      remote`). `cat-file -e <commit>^{commit}` still exits 0 there, which is
+      why the commit probe in `shed_commit_object` passes and this case
+      reaches the walk at all.
+
+      A SUBTREE MISSING UNDER A READABLE ROOT TREE. `ls-tree` exits 1
+      (`error: Could not read <sha>`) while `cat-file -e <commit>^{tree}`
+      exits 0 — which is why the root-tree probe is NOT the discriminator
+      here: it passes on a store that cannot answer for the path.
+
+      AN UNRESOLVABLE REVISION. `ls-tree` exits 128 (`fatal: not a tree
+      object`), so an unreadable commit lands here as a failure rather than as
+      an absence, which is the taxonomy's "git unavailable or commit
+      unresolvable" arm rather than its "member absent" one.
+
+    EXIT 0 WITH OUTPUT IS A FAILURE TOO. The tree listed an entry that
+    `rev-parse` could not resolve; two reads that disagree have established
+    nothing, and the one thing this function may never do is manufacture an
+    absence out of a disagreement.
+
+    AND IT ASKS ABOUT THE PATH THE OTHER READ ASKED ABOUT (`#1048` round 3,
+    Copilot on PR #1051, `carved_reach.py:746`). `git ls-tree` resolves its
+    pathspec RELATIVE TO THE CURRENT PREFIX unless `--full-tree` is given,
+    while `git rev-parse <revision>:<path>` — the read this probe exists to
+    explain — is relative to the ROOT of the tree always. Under any non-empty
+    prefix the two are asking about DIFFERENT paths, so this one's answer is
+    not evidence about the other's entry at all. MEASURED, git 2.43.0: in a
+    module store whose `core.worktree` resolves to a directory CONTAINING the
+    store, `rev-parse --show-prefix` answers `.git/modules/leg/` and
+    `ls-tree <pin> -- spec` then EXITS 0 AND PRINTS NOTHING for a `spec`
+    gitlink that tree really carries — git's own unambiguous "no such entry",
+    returned for an entry that is there, which is precisely the phantom
+    absence this function was added to refuse. `--full-tree` with a
+    `:(literal)` pathspec is the root-relative form every other tree reader
+    here already uses (`scripts/hermes_runtime_validation/content.py:148-155`),
+    and `:(literal)` is what makes the segment a NAME rather than a pathspec
+    expression — MEASURED on the same git: `ls-tree --full-tree HEAD -- :!leg`
+    exits 128 with `pathspec magic not supported by this command: 'exclude'`
+    where `:(literal):!leg` exits 0, so a segment beginning with `:` would
+    otherwise arrive here as an unreadable tree rather than as its own name.
+    """
+    done = _git_run(repo, "ls-tree", "--full-tree", revision, "--",
+                    f":(literal){path}")
+    if done is None:
+        # `_git_run` answers this SAME `None` for a missing git binary and for
+        # a probe that hit its 30s timeout (`#1048` round 5) — indistinguishable
+        # from here, so the text says both rather than misnaming a timeout as
+        # the rarer "no git on PATH" case or silently dropping the commoner one.
+        return False, "git could not be run, or the probe timed out after 30s"
+    if done.returncode != 0:
+        said = " ".join(done.stderr.split())
+        return False, said or f"`git ls-tree` exited {done.returncode}"
+    if done.stdout.strip():
+        return False, (f"`git ls-tree` lists an entry at {path} that "
+                       f"`git rev-parse {revision}:{path}` could not resolve")
+    return True, ""
+
+
+def _leg_object_store(parent: Path, segment: str) -> Path | None:
+    """Where the `segment` submodule's OBJECT STORE is under `parent` — the
+    checked-out working tree when there is one, else the superproject's own
+    copy of it — or `None` when this checkout cannot reach it at all.
+
+    WHY THIS IS NOT `(parent / segment / ".git").exists()`, which is the test
+    the caller used to make inline (`#1048`). That question is "is the leg's
+    WORKING TREE checked out HERE", and a linked worktree never checks a
+    submodule out: `git worktree add` writes the superproject's own tracked
+    files and leaves every gitlink an empty directory. The store is not missing
+    there, it is merely somewhere else — git keeps a submodule's objects in the
+    SUPERPROJECT's common git directory at `modules/<name>`, and every linked
+    worktree of that superproject shares it. The old test therefore answered
+    "not materialized" for a checkout that could read the leg perfectly well,
+    and `doc-health`'s release-inventory family turned that refusal into four
+    members of `contract-v4.0` reported ABSENT AT HEAD from a worktree and
+    present from the checkout the worktree was made from: one commit, two
+    verdicts, neither of them about the release.
+
+    The working tree is preferred whenever it IS checked out, so an ordinary
+    checkout resolves exactly what it resolved before this existed.
+    `--git-common-dir` is asked OF GIT rather than assembled from `.git` by
+    hand, because the caller walks a CHAIN — `openXdox/spec` is a submodule of
+    a submodule — so `parent` is itself a module store at every level past the
+    first, and because this repository is mounted as a submodule in the
+    aggregation workspace, where its own `.git` is a file and its common
+    directory is `<agg>/.git/modules/openxFactory`.
+    """
+    checkout = parent / segment
+    if (checkout / ".git").exists():
+        return checkout
+    common = _git_text(parent, "rev-parse", "--git-common-dir")
+    if common is None:
+        return None
+    root = Path(common)
+    store = (root if root.is_absolute() else parent / root) / "modules" / segment
+    # `HEAD` is git's own first test for "this directory IS a git directory",
+    # and it is what separates a real module store from the empty `modules/`
+    # skeleton that a never-initialized submodule can leave behind. It proves
+    # THE DIRECTORY and nothing about its contents, which is why the caller
+    # asks separately whether the pinned commit is actually in it (Copilot on
+    # PR #1051, `carved_reach.py:718`): a shallow or partially fetched store
+    # passes this test and still cannot answer for the commit.
+    return store if (store / "HEAD").is_file() else None
 
 
 def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] | None:
@@ -832,14 +1048,42 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     bytes, and nothing is read from the working tree.
 
     It answers `None` — and the caller's own answer stands — for a path in no
-    row, a `not_moved` row, and a commit whose tree carries no such gitlink,
-    which is every commit from BEFORE the shed: there the file is still in this
-    repository's own tree and the ordinary read already succeeded.
+    row, a `not_moved` row, and a commit whose tree ANSWERS that it carries no
+    such gitlink, which is every commit from BEFORE the shed: there the file is
+    still in this repository's own tree and the ordinary read already
+    succeeded.
 
-    It RAISES `CarveReachUnavailable` when the gitlink IS recorded and the leg is
-    not materialized, for the reason the module docstring gives: an object store
-    that is not on disk cannot be read, and a reader that quietly found nothing
-    reports as a green bar.
+    THAT ABSENCE IS CONFIRMED RATHER THAN INFERRED (`#1048` round 2). A
+    `rev-parse <revision>:<segment>` that answers nothing says either "this
+    tree has no such entry" or "this tree could not be read", and a store
+    cloned `--filter=tree:0` whose promisor is unreachable is the second while
+    looking exactly like the first — the commit object present, the tree
+    object not. Taking that for an absence returned `None` here, which
+    `release_inventory` reports as the member being ABSENT AT THE COMMIT: the
+    phantom absence this path exists to refuse, arriving through the one read
+    that had no probe. `_tree_entry_absent` above asks `ls-tree` which fact it
+    is, and only the tree's own "no such entry" still answers `None`.
+
+    It RAISES `CarveReachUnavailable` when the gitlink IS recorded and the leg's
+    object store is not reachable from this checkout AT ALL — neither checked
+    out here nor held as the superproject's own `modules/<name>` copy — for the
+    reason the module docstring gives: an object store that is not on disk
+    cannot be read, and a reader that quietly found nothing reports as a green
+    bar. A LINKED WORKTREE IS NOT THAT CASE, and was refused as one until
+    `#1048`; `_leg_object_store` above carries the why. The MOUNT path is
+    tracked alongside the store so the refusal still names `openXdox` or
+    `openXdox/spec` — the thing a reader can go and initialize — rather than a
+    git directory nobody ever checked out.
+
+    A STORE THAT EXISTS IS NOT YET A STORE THAT ANSWERS, and the pinned commit
+    is verified in it before the walk moves on (Copilot on PR #1051). A shallow
+    clone, an interrupted fetch, or a gitlink advanced past what the store was
+    fetched at all leave a real git directory that simply does not carry the
+    commit; without the probe the next level's `rev-parse` — or, at the last
+    level, the caller's own blob read — would answer a plain `None`, and
+    `release_inventory` would report the member ABSENT AT THE COMMIT. That is
+    the same misattribution this whole path exists to prevent, arriving one
+    layer lower, so it raises here and becomes the same repository-level skip.
 
     A RETIRED ROW IS NOT GUARDED HERE, AND THE DIVERGENCE FROM `source()` IS
     DELIBERATE (Copilot review of PR #1032, which asked for the guard). This
@@ -872,19 +1116,39 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
         return None
     destination, destination_path = effective_arrival(row)
     repo = REPO_ROOT
+    mount = REPO_ROOT
     revision = commit
     for segment in MOUNTS[destination].relative_to(REPO_ROOT).parts:
+        mount = mount / segment
         gitlink = _git_object_id(repo, revision, segment)
         if gitlink is None:
+            absent, said = _tree_entry_absent(repo, revision, segment)
+            if not absent:
+                raise CarveReachUnavailable(
+                    f"the pinned {destination} leg cannot be located "
+                    f"at this commit: the tree {revision} names could not be "
+                    f"read where {mount.relative_to(REPO_ROOT)}'s gitlink is "
+                    f"recorded, so whether that gitlink is there is "
+                    f"UNESTABLISHED rather than answered, and {key} cannot be "
+                    f"read at the commit that pins it — git said: {said}. "
+                    f"{INCOMPLETE_STORE_REMEDY}")
             return None
-        repo = repo / segment
-        revision = gitlink
-        if not (repo / ".git").exists():
+        store = _leg_object_store(repo, segment)
+        if store is None:
             raise CarveReachUnavailable(
                 f"the pinned {destination} leg is not materialized: "
-                f"{repo.relative_to(REPO_ROOT)} carries no Git object store, so "
+                f"{mount.relative_to(REPO_ROOT)} carries no Git object store, so "
                 f"{key} cannot be read at the commit that pins it. Run "
                 f"`{INIT_COMMAND}` from the repository root.")
+        if not _git_ok(store, "cat-file", "-e", f"{gitlink}^{{commit}}"):
+            raise CarveReachUnavailable(
+                f"the pinned {destination} leg is materialized but "
+                f"incomplete: {mount.relative_to(REPO_ROOT)}'s object store "
+                f"carries no commit {gitlink}, which is what the recorded "
+                f"gitlink names, so {key} cannot be read at the commit that "
+                f"pins it. {INCOMPLETE_STORE_REMEDY}")
+        repo = store
+        revision = gitlink
     return repo, revision, destination_path
 
 

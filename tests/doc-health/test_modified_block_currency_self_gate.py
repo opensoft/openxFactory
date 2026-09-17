@@ -1010,6 +1010,54 @@ _LEDGER_SUBJECTS = {
     # onto `openspec/specs/document-lifecycle/spec.md` (its `tasks.md` § 3).
     ("scope-pinned-arm-root-naming", "document-lifecycle",
      "Prose tagging marker hygiene"),
+    # ADDED 2026-09-17 BY THE RATIFIER'S AMENDMENT of
+    # `adopt-entry-grain-dispositions-form` (openxFactory issue #1045, lane
+    # `openxfactory-2`), on Brett Heap's word "Apply the partition",
+    # https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+    # At ratification (2026-09-16) this packet's `## MODIFIED` block carried
+    # the promoted scenario *A marker names a capability of a pinned neutral
+    # product* BYTE-IDENTICAL to canon — a same-input overlap Copilot found
+    # against the packet's OWN new scenario (a record complete for its required
+    # shape members and capabilities enumeration, whose optional
+    # `dispositions:` is `[{}]`, satisfying both the positive scenario's
+    # THEN-resolve and the new scenario's THEN-refuse) was filed as a RULING
+    # NEEDED comment on #1045 rather than fixed by the lane, ratified normative
+    # text being the RATIFIER's to amend. Brett Heap ruled the overlap on
+    # 2026-09-17: the positive scenario's WHEN gains one clause — "AND every
+    # OPTIONAL member the matched shape admits that is PRESENT and for which
+    # that shape's own in-tree verifier exposes a PURE, SOURCE-FREE guard …
+    # conforms at its entry grain to that guard". THE PARTITION IS DEFINED BY
+    # THE GUARD, SO IT REACHES ONLY MEMBERS THAT HAVE ONE — TODAY
+    # `dispositions:` ALONE, at `pinned_dispositions`, whose only input is the
+    # record (`validate-openspec-cli-pin.py:787-803`): OF VALUES PRESENT, only
+    # an explicit `null` is EMPTY — the same `pin.get(...)` that yields `None`
+    # for an ABSENT member yields it for an explicit `null` too, one case under
+    # `raw is None`, not two — and every other PRESENT falsey NON-SEQUENCE
+    # value stays malformed — an empty sequence `[]` is EMPTY, accepted as
+    # absence is. `pinned_by_commit_only:` is NOT reached: it has no pure,
+    # source-free guard, both verifiers judging it inside their
+    # source-dependent `verify()` (`validate-openreposhape-pin.py:481-508`,
+    # `verify-openxwallet-pin.py:443-457`), which is why this adapter's own
+    # citations for it carry no `guard` name (`pin_shapes.py:355-365`). NOTHING
+    # ABOUT THAT MEMBER MOVES HERE: `_is_path_only_list` still accepts any
+    # falsey value outright, before it ever checks for a list
+    # (`pin_shapes.py:151-171`), while the two verifiers differ at the FILE
+    # boundary — `validate-openreposhape-pin.read_pin()` keeps top-level
+    # scalars as strings (`:201`), so `null`, `false`, `0` and `{}` reach
+    # `verify()` as truthy strings and are refused there and only a quoted `""`
+    # parses empty, whereas the `yaml.safe_load`-ed wallet verifier
+    # (`verify-openxwallet-pin.py:171`) does see Python falsey values. Its
+    # disjointness bullet gains the matching exclusion for a
+    # present-and-malformed optional member the clause reaches. The refusal scenario, D-1, D-2,
+    # D-3 and every other promoted unit of the requirement are unchanged.
+    # Recorded in `review/ratification-2026-09-16.md`'s AMENDED SINCE pointer
+    # and its dated Addendum, 2026-09-17. This arm cannot distinguish a
+    # deliberate amendment from drift and does not claim to; the finding is
+    # INFO and it is the audit trail for the amendment. Retires when the packet
+    # archives and its block is promoted onto
+    # `openspec/specs/document-lifecycle/spec.md` (its `tasks.md` § 3).
+    ("adopt-entry-grain-dispositions-form", "document-lifecycle",
+     "Prose tagging marker hygiene"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1353,7 +1401,23 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     FIFTEEN since 2026-09-15, when `scope-pinned-arm-root-naming` (openxFactory
     #1047, PR #1052) opened ONE row over *Prose tagging marker hygiene*, the
     successor packet scoping the root-naming sentence the archive had just
-    promoted.
+    promoted, matching the chain above exactly: `len(_LEDGER_SUBJECTS)`
+    MEASURED on `origin/main`, before this packet, is FIFTEEN — not the
+    SIXTEEN this docstring once claimed here. That SIXTEEN counted
+    `_LEDGER_SUBJECTS`'s RAW LITERAL ENTRIES in the source rather than its
+    deduplicated membership, over-counted by exactly the one row the set
+    literal collapses: `add-chain-attestation` is written TWICE (`:406`,
+    `:620`, both `("add-chain-attestation", "signed-execution-chain", "A
+    gate validates the short chain as a hash-linked chain")`), a
+    PRE-EXISTING duplicate this chronology never traced, that PREDATES this
+    packet, and that this amendment does not remove — a separate,
+    pre-existing bookkeeping matter, left alone. Then
+    `adopt-entry-grain-dispositions-form`'s own ratifier's amendment
+    (openxFactory #1045, comment 5714433011) opened one more row over the
+    SAME requirement `scope-pinned-arm-root-naming`'s row already sits in,
+    on the "Apply the partition" ruling, taking the RAW LITERAL count to
+    SEVENTEEN — but `len(_LEDGER_SUBJECTS)` MEASURED DIRECTLY AT THIS
+    COMMIT is SIXTEEN, the same duplicate collapsing exactly as before.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
