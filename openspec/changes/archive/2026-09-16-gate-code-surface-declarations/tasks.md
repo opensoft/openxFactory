@@ -1165,25 +1165,23 @@ that the word, when it comes, is a merge and not a night's authoring.
       head"*, MERGED into `main` at
       `4cef77af53131f36f4d62f3e7dac550360b1d28d` on 2026-09-16T19:11:39Z; taken
       with the merge, `4cef77af`.
-      **EVIDENCE OWED: pytest-suite run id on main at/after 4cef77af.** `main`'s
-      own required `pytest-suite` at exactly that head is run
-      [35139068743](https://github.com/opensoft/openxFactory/actions/runs/35139068743)
-      (`event: push`, head the merge commit ITSELF, 2026-09-16T19:11:42Z) and
-      its conclusion is **failure**: `1 failed, 7715 passed, 6 skipped, 338
-      deselected, 401 subtests passed`. The ONE failure is
+      **THE GREEN HALF, IN HAND:** `main`'s own required `pytest-suite` at a
+      head containing `4cef77af` is run
+      [35219872882](https://github.com/opensoft/openxFactory/actions/runs/35219872882)
+      (`event: push`, head `a93d2682e51493e6e1c4c5ce7d3537d23948a283`, completed
+      2026-09-17T12:34:10Z) and its conclusion is **success**: `7717 passed, 6
+      skipped, 338 deselected, 401 subtests passed`, zero failed. The self-gate
+      collision named above,
       `tests/doc-health/test_modified_block_currency_self_gate.py::test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`,
-      the self-gate collision that lane `openxfactory-2`'s two filings #1050 and
-      #1052 opened at the earlier merge `fa39141c` (18:35Z) and that that lane is
-      repairing. IT IS UNRELATED TO THIS PACKET AND THE CLAIM IS CHECKED RATHER
-      THAN ASSERTED: it fails identically at `fa39141c`, one merge BEFORE this
-      packet's realization landed (run 35135352984, also `failure`), and it names
-      no file this packet or its realization authored. So the MERGED-PLUS-GREEN
-      pair this box requires is INCOMPLETE at this head, this pull request is a
-      HELD DRAFT, and the run id of a GREEN `pytest-suite` on `main` at a head
-      CONTAINING `4cef77af` is written in place of the marker above before the
-      un-draft. An archive act that cited this branch's own checks as the
-      realization evidence would be citing the wrong run, exactly as the
-      ratified body of this box says.
+      is repaired: `#1075` orders `adopt-entry-grain-dispositions-form` after
+      `scope-pinned-arm-root-naming` and merged into `main` at `a93d2682`
+      itself, and this same head's `doc-health.py --family
+      modified-block-currency` reads zero on the gate-bearing arm
+      (scenario-title completeness and title resolution and ordering both `0`).
+      So pytest-suite decided green on `main` at `a93d2682`, run `35219872882`,
+      which CONTAINS the realization merge `4cef77af`: the MERGED-PLUS-GREEN
+      pair this box requires is COMPLETE. The archive word and the un-draft are
+      a separate act and remain owed, per this box's own clause.
 - [x] 5.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
       ELSE**, by a closing keyword written THERE against openxFactory issue
       1013. No closing keyword appears in this pull request's body or in any
