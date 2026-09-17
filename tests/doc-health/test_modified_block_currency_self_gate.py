@@ -401,6 +401,36 @@ _DISCHARGED_SCENARIO_SUBJECT = (
 # the family's title normalization, and the family still reports it.
 _RENAME_DESTINATION = "Tile-bound gate verbs hide on a composed view"
 
+#: THE NON-PROMOTION INVARIANT, made checkable. `_DEPARTED_BLOCK_DELTA`'s comment
+#: already says this delta "LEFT WITHOUT PROMOTING — RULING Q6 forbids its blocks
+#: promoting here", and the closure states it outright: *"no delta is promoted
+#: here."* Nothing asserted it. Absence from `active_blocks()` proves the packet
+#: is not an ACTIVE writer, and the archived marker proves the block travelled —
+#: neither is disturbed if the delta's scenarios were ALSO copied into
+#: `openspec/specs/ideation-dashboard/spec.md`. That promotion would make
+#: promotion-fidelity go QUIET rather than loud, because a promoted block is the
+#: condition that family checks FOR, so the closure could be recorded as a
+#: re-home while doing the one thing it forbids, with every gate green.
+#: These are the scenario titles the delta carries that CANON DOES NOT, measured
+#: 2026-09-17 against `openspec/specs/ideation-dashboard/spec.md`. The delta's
+#: sixth, *"A tile jumps to its repository"*, is deliberately NOT here: canon
+#: already states it, so its presence proves nothing either way and asserting its
+#: absence would fail against a correct tree.
+#: (Found by Copilot's review at `0e6df66c`.)
+_SCENARIOS_CANON_MUST_NOT_GAIN = (
+    "Tile-bound gate verbs hide on a composed view",
+    "A staged tile opens its packet",
+    "A new document may be drafted from a composed view",
+    "The serve declares what it can write",
+    "No writable repository, no offer",
+)
+
+#: The positive control for the check above: canon's OWN scenario, the one the
+#: delta declares superseded. If this is absent the canon block was not found —
+#: renamed, moved, or reshaped — and the absence assertions below would pass
+#: vacuously over a file that no longer says what this test thinks it says.
+_CANON_SCENARIO_CONTROL = "Gate verbs hide on a composed view"
+
 _LEDGER_SUBJECTS = {
     # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
     # signed-execution-chain arc, whose proposal merged to `main` via PR #510
@@ -1421,6 +1451,31 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     # EXACT, never containment — the reason the declaration was needed at all.
     assert mbc.norm(scenario) in mbc.norm(_RENAME_DESTINATION)
     assert mbc.norm(scenario) != mbc.norm(_RENAME_DESTINATION)
+
+    # AND CANON DID NOT GAIN THE BLOCK. Everything above proves the packet LEFT.
+    # None of it proves it did not ALSO ARRIVE — and "closed as re-homed, nothing
+    # promoted here" is this closure's stated disposition, not an incidental
+    # property of it.
+    canon = ROOT / "openspec" / "specs" / capability / "spec.md"
+    assert canon.is_file(), _moved(
+        f"the promoted capability {canon.relative_to(ROOT)}",
+        "no such file, so the non-promotion assertion below would be vacuous")
+    canon_text = canon.read_text(encoding="utf-8", errors="replace")
+    assert f"#### Scenario: {_CANON_SCENARIO_CONTROL}" in canon_text, _moved(
+        f"canon's own scenario {_CANON_SCENARIO_CONTROL!r}, the control that "
+        "proves this file is still the one the assertions below read",
+        "it is absent, so the absences below prove nothing")
+    arrived = [t for t in _SCENARIOS_CANON_MUST_NOT_GAIN
+               if f"#### Scenario: {t}" in canon_text]
+    assert not arrived, _moved(
+        f"the delta's own scenarios ABSENT from {canon.relative_to(ROOT)} "
+        "(RULING Q6 re-homes this block to opensoft/openDox and promotes "
+        "NOTHING here)",
+        f"{len(arrived)} of them now stand in canon: {arrived}. Either the "
+        "delta was promoted after all — which contradicts the closure and the "
+        "archived packet's own words — or canon gained those titles by another "
+        "act that must be declared, because this test cannot tell the two "
+        "apart and will not guess")
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
