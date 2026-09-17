@@ -1594,3 +1594,96 @@ def test_the_fixture_refuses_an_identity_naming_another_corpus(tmp_path):
     assert CC._refusal_of(caught.value) == DOCUMENT_UNKNOWN
     # and the identity this corpus DOES hold still reads
     assert reader.read(resolved, here).content
+
+
+# ==========================================================================
+# 10. Copilot's round-6 findings — the anchor, and the reference side
+# ==========================================================================
+
+
+def test_a_resolution_under_ANOTHER_reference_anchors_nothing(tmp_path):
+    """Copilot round 6, and it is the identity finding one level up: every
+    identity in the proof is held to `corpus.ref.name`, and `ResolvedCorpus`
+    is the READER's return value. A reader could resolve under `name="other"`,
+    list and read every document under `"other"`, and satisfy both this proof
+    and the seventeen — which read the same returned ref. The interface's own
+    words are that `ref` is "the caller's REQUEST for a corpus", so it is
+    compared with the request this runner actually made.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ResolvesUnderAnotherName(_GitBacked):
+        def resolve(self, ref):
+            resolved = self._inner.resolve(ref)
+            return replace(resolved,
+                           ref=CorpusRef(name="other", location=ref.location))
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ResolvesUnderAnotherName, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "'other'" in caught.value.detail
+    assert "populated" in caught.value.detail
+
+
+def test_a_resolution_under_another_LOCATION_anchors_nothing(tmp_path):
+    """The other half of the reference, and `ResolvedCorpus.location` is
+    deliberately not the thing compared: that one is documented as "resolved,
+    absolute" and may differ from what was asked for. `ref.location` is the
+    request and may not."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ResolvesUnderAnotherLocation(_GitBacked):
+        def resolve(self, ref):
+            resolved = self._inner.resolve(ref)
+            return replace(resolved, ref=CorpusRef(name=ref.name,
+                                                   location="/elsewhere"))
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ResolvesUnderAnotherLocation, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "/elsewhere" in caught.value.detail
+
+    # and the ordinary reader, whose resolved `location` IS absolute and
+    # therefore differs from the relative one it may have been handed, passes
+    record = MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]
+
+
+def test_the_SHIPPED_corpus_moving_under_the_run_is_caught(tmp_path,
+                                                           monkeypatch):
+    """Copilot round 6: the post-run proof recomputes the reference table as
+    well, so a run where the SHIPPED fixtures changed underneath — a
+    transposition sharing files through hard links, a reader that wrote both
+    sides — could have the candidate match the NEW reference while the
+    verdict still carried the OLD digest, naming a corpus that no longer
+    exists. The reference side is compared too.
+
+    Measured over a COPY of the fixtures standing in for the shipped corpus,
+    so the real ones are never written.
+    """
+    shipped = tmp_path / "shipped"
+    shutil.copytree(CORPUS, shipped)
+    corpus = tmp_path / "candidate"
+    shutil.copytree(CORPUS, corpus)
+    populated = corpus / MODULE.POPULATED
+
+    before = MODULE.prove_transposition(
+        neutral_reader, str(populated), corpus, shipped)
+    assert before["proven"] is True
+
+    # both sides move together, so the candidate still MATCHES the reference
+    for root in (shipped, corpus):
+        document = root / MODULE.POPULATED / "notes" / "alpha.md"
+        document.write_bytes(document.read_bytes() + b"x")
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.confirm_transposition_unmoved(
+            neutral_reader, str(populated), corpus, shipped, before)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "ships MOVED under the measurement" in caught.value.detail
+    assert before["digest"] in caught.value.detail

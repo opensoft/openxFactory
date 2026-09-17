@@ -527,15 +527,39 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
         "reason": None,
     }
 
+    requested = CorpusRef(name="populated", location=populated)
     try:
-        reader = factory("populated", populated)
-        corpus = reader.resolve(CorpusRef(name="populated",
-                                          location=populated))
+        reader = factory(requested.name, populated)
+        corpus = reader.resolve(requested)
         documents = tuple(reader.list_documents(corpus))
     except Exception as exc:  # noqa: BLE001 - see the docstring
         record["reason"] = (f"the reader could not be put to it: "
                             f"{type(exc).__name__}: {exc}")
         return record
+
+    # THE ANCHOR IS THE REQUEST, NOT WHAT CAME BACK (Copilot, round 6). Every
+    # identity below is held to `corpus.ref.name` — and `ResolvedCorpus.ref`
+    # is the reader's own return value, so a reader could resolve under
+    # `name="other"`, list and read every document under `"other"`, and
+    # satisfy both this proof AND the seventeen, which read the same returned
+    # ref. The interface's contract is that `ref` is the REQUEST ("the
+    # caller's REQUEST for a corpus, before anything has been resolved"), so
+    # it is compared with the request this runner made before anything is
+    # anchored to it. `ResolvedCorpus.location` is deliberately NOT compared:
+    # that one is documented as "resolved, absolute" and is allowed to differ
+    # from the location asked for.
+    ref = getattr(corpus, "ref", None)
+    ref_name = getattr(ref, "name", _ABSENT)
+    ref_location = getattr(ref, "location", _ABSENT)
+    if ref_name != requested.name or ref_location != requested.location:
+        _unfaithful(corpus_root, shipped,
+                    f"it was asked to resolve "
+                    f"{(requested.name, requested.location)!r} and came back "
+                    f"carrying the reference "
+                    f"{(ref_name if ref_name is not _ABSENT else '(absent)', ref_location if ref_location is not _ABSENT else '(absent)')!r}. "
+                    "Every identity below is anchored to the reference a "
+                    "resolution carries, so a reference that is not the one "
+                    "asked for anchors nothing")
     record["revision"] = (str(corpus.revision)
                           if getattr(corpus, "revision", None) is not None
                           else None)
@@ -704,6 +728,20 @@ def confirm_transposition_unmoved(factory: Any, populated: str,
         _unfaithful(corpus_root, shipped,
                     "it was proven faithful before the seventeen checks and "
                     f"could not be read after them: {after['reason']}")
+    if after["digest"] != record["digest"]:
+        # THE REFERENCE SIDE CAN MOVE TOO (Copilot, round 6). `after` is a
+        # whole fresh proof, so it recomputed the SHIPPED table as well; if
+        # that table changed under the run — a transposition sharing files
+        # with the fixtures through hard links, a reader that wrote both
+        # sides — the candidate could match the NEW reference while the
+        # verdict still carried the old digest. Then "faithful to
+        # <digest>" would name a corpus that no longer exists.
+        _unfaithful(corpus_root, shipped,
+                    f"the corpus this runner ships MOVED under the "
+                    f"measurement: its key/sha256 table was "
+                    f"{record['digest']} when the transposition was proven "
+                    f"against it and is {after['digest']} now, so the "
+                    "verdict's digest names a corpus that is no longer there")
     if after["revision"] != record["revision"]:
         _unfaithful(corpus_root, shipped,
                     f"it moved UNDER the measurement: proven at revision "
