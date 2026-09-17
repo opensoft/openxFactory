@@ -339,11 +339,17 @@ semantics in tests and authors none of it.
       SEMANTICS ARE MEASURED AT THE GUARD AND NOT READ OFF THE WORD:
       `test_dispositions_is_empty_only_when_it_is_null_or_a_sequence` pins
       `null` and `[]` ACCEPTED and `""`, `0` and `False` REFUSED at the MEMBER
-      grain (`:801-803` tests `raw is None`, an identity test), while
-      `test_pinned_by_commit_only_is_empty_for_every_falsey_value` pins EVERY
-      falsey value accepted for the other optional member (`pin.get(...) or []`,
-      a coercion) and re-reads both cited lines. The family's own positive half
-      is `test_a_well_formed_or_empty_dispositions_member_still_resolves` and
+      grain (`:801-803` tests `raw is None`, an identity test). THE SCOPE IS
+      `dispositions:` ALONE, on the ratifier's own precision of the partition
+      (#1045 comment 5715775376): `pinned_by_commit_only:` has NO pure,
+      source-free guard — both shape-(a) verifiers judge it inside a
+      source-dependent `verify()` and DIFFER at the file boundary — so this
+      realization transcribes NO guard for it, `_is_path_only_list` is UNMOVED,
+      and NO test added here asserts verifier parity for that member;
+      `test_the_partition_reaches_only_the_optional_member_with_a_pure_guard`
+      states that scope and asserts the `dispositions:` half only. The family's
+      own positive half is
+      `test_a_well_formed_or_empty_dispositions_member_still_resolves` and
       `test_an_absent_dispositions_member_resolves_and_is_no_missing_member`.
 - [x] 3.9 **Leave `test_the_table_ranges_over_twenty_nine_member_entries_split_twenty_seven_two`
       at `(29, 27, 2)`** and
@@ -372,26 +378,37 @@ semantics in tests and authors none of it.
       why a bare entry reports no key; and the `SHAPE_C.optional` comment states
       the citation split and why THIS optional arm can be a CALL where the guard
       leg cannot — as `_is_path_only_list` already documents the other optional
-      member's entry grain.
+      member's entry grain. `_is_path_only_list` ITSELF IS UNTOUCHED: that
+      member has no pure guard to transcribe (#1045 comment 5715775376), and
+      `_is_disposition_list`'s docstring carries that boundary as a NOTE.
 - [x] 3.11 **Run the realization's evidence:** `pytest -q tests/doc-health`,
       `pytest -q tests/openspec_cli_pin`, and
       `python3 scripts/doc-health.py --single-repo . --family tag-hygiene`,
       with no new finding on `contracts/`.
       **REALIZED 2026-09-17 on Brett Heap's word** ***"Realize now, land when green"*** — citation https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
-      `pytest -q tests/doc-health`: **1881 passed** (1826 at the merge base
-      `7e074ac9`; the 55 added are this realization's). `pytest -q
-      tests/openspec_cli_pin`: **154 passed**. `python3 scripts/doc-health.py
-      --single-repo . --family tag-hygiene`: **0 critical, 5 error, 0 warning, 0
-      info**, the report BYTE-IDENTICAL to the same command run on the same
-      clone at the same base with the adapter unmodified — the same five
-      unrelated errors (one malformed `xspec:` marker, four `openxwallet-pin.yaml`
-      no-`capabilities:`), ZERO `dispositions:` findings, and NO NEW FINDING ON
-      `contracts/`. FAILING-THEN-PASSING: with `pin_shapes.py` reverted to the
-      merge base and the two test files as this pull request leaves them, **27
-      of the 55 fail**; with the adapter as this pull request leaves it, all
-      137 tests of the two files pass. The other 28 are the ACCEPTING and
-      NEGATIVE cases, which pass in both states by design — that is what makes
-      them the no-WIDER half of the equivalence.
+      `pytest -q tests/doc-health`: **1876 passed** (`origin/main` at
+      `4b53ea99` collects **1826**, and the two test files **82** there against
+      **132** here; the **50** added are this realization's, and main added
+      none). `pytest -q tests/openspec_cli_pin`: **154 passed**. `pytest -q
+      tests/proposal-support`: **199 passed, 296 subtests passed**. `python3
+      scripts/proposal-support.py . verify`: **ok**. `OPENSPEC_TELEMETRY=0
+      openspec validate --all --strict`: **109 passed, 2 failed (111 items)**,
+      the two failures the pre-existing `add-chain-attestation` and
+      `add-composed-view-authoring` this branch does not touch. `python3
+      scripts/doc-health.py --single-repo . --family tag-hygiene`: **0 critical,
+      5 error, 0 warning, 0 info**, every FINDING LINE byte-identical to the
+      persisted run at `a93d2682` once the clone's own directory name is
+      normalized — the same five unrelated errors (one malformed `xspec:`
+      marker, four `openxwallet-pin.yaml` no-`capabilities:`), ZERO
+      `dispositions:` findings, and NO NEW FINDING ON `contracts/`; the only
+      other lines that move are the corpus word counts, which main's own new
+      documents moved. FAILING-THEN-PASSING: with `pin_shapes.py` replaced by
+      `origin/main`'s and the two test files as this pull request leaves them,
+      **27 of the 50 fail** (105 passed, 27 failed); with the adapter as this
+      pull request leaves it, all **132** tests of the two files pass. The other
+      23 are the ACCEPTING and NEGATIVE cases, which pass in both states by
+      design — that is what makes them the no-WIDER half of the equivalence.
+
 ## 4. Archive — ON MERGED-PLUS-GREEN REALIZATION EVIDENCE
 
 - [ ] 4.1 **Archive on the realization pull request being MERGED and GREEN**,

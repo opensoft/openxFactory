@@ -337,8 +337,17 @@ def _is_disposition_list(value) -> bool:
     repository's own gate rejects at its first shape check".
     `_disposition_entry_failure` is the single place those five readings are
     transcribed and this function is its boolean face, so the two cannot drift
-    apart; the other optional member's form, `_is_path_only_list`, already
-    reaches its own entries this way.
+    apart.
+
+    AND THE OTHER OPTIONAL MEMBER IS NOT REACHED — RULED, #1045 comment
+    5715775376. The partition is DEFINED BY THE GUARD, so it reaches only a
+    member that HAS a pure one, and `pinned_by_commit_only:` has none: both
+    shape-(a) verifiers judge it inside a source-dependent `verify()`, and they
+    DIFFER at the file boundary (`validate-openreposhape-pin.read_pin()` keeps
+    top-level scalars as strings, so `null`/`false`/`0` are refused there as
+    truthy strings, while the YAML-loaded wallet verifier sees Python falsey
+    values). `_is_path_only_list` stands exactly as it did — it accepts EVERY
+    falsey value as empty — and nothing here transcribes a guard for it.
     """
     if value is None:
         return True

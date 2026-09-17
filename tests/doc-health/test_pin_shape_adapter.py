@@ -847,56 +847,30 @@ def test_dispositions_is_empty_only_when_it_is_null_or_a_sequence(
     assert [f.member for f in verdict.failures] == [named], verdict.render()
 
 
-#: AND WHAT "EMPTY" MEANS FOR THE OTHER OPTIONAL MEMBER, WHICH IS NOT THE SAME
-#: THING. Both shape-(a) verifiers read `pin.get("pinned_by_commit_only") or []`
-#: (`verify-openxwallet-pin.py:443`, `validate-openreposhape-pin.py:487`) — a
-#: COERCION, not an identity test — so EVERY falsey value is empty there,
-#: `""`, `0` and `False` included, and an adapter refusing any of them would be
-#: WIDER than the guards it tracks.
-_PATH_ONLY_FALSEY: tuple[tuple, ...] = (
-    ("null", None), ("empty-string", ""), ("empty-sequence", []),
-    ("zero", 0), ("false", False),
-)
-
-
-@pytest.mark.parametrize("value", [pytest.param(value, id=case)
-                                   for case, value in _PATH_ONLY_FALSEY])
-def test_pinned_by_commit_only_is_empty_for_every_falsey_value(value):
-    """The coercion, case by case, and the cited line re-read: this member's
-    citations carry NO guard — both verifiers read it with an absent-is-empty
-    default — so the measurement is a READ of the cited line rather than a call
-    of it, which is the same route the required table's two `files:` entries
-    use."""
-    assert ps.judge(dict(_base("a"), pinned_by_commit_only=value)).accepted
-    for citation in {m.spellings[0]: m
-                     for m in ps.SHAPE_A.optional}["pinned_by_commit_only"] \
-            .citations:
-        assert citation.guard is None
-        line = (REPO_ROOT / citation.script).read_text(
-            encoding="utf-8").splitlines()[citation.line - 1]
-        assert 'pin.get("pinned_by_commit_only") or []' in line, line.strip()
-
-
-def test_the_partition_every_present_optional_member_conforms_at_its_entry_grain():
+def test_the_partition_reaches_only_the_optional_member_with_a_pure_guard():
     """THE PARTITION, RULED by Brett Heap 2026-09-17 — *"Apply the partition"*
-    (openxFactory #1045 comment 5714433011).
+    (openxFactory #1045 comment 5714433011) — AND ITS SCOPE, RULED THE SAME DAY
+    in the ratifier's own precision (comment 5715775376): the partition is
+    DEFINED BY THE GUARD, so it reaches only an optional member that HAS one.
 
-    The positive-resolution reading requires every PRESENT optional member to
-    conform AT ITS ENTRY GRAIN, and the two optional members PART on what EMPTY
-    means for each, because their guards part there: `pinned_by_commit_only:` is
-    COERCED (`pin.get(...) or []`), so every FALSEY value is empty;
-    `dispositions:` keeps the NON-NULL rule (`if raw is None`), so `null` and an
-    empty sequence are empty and `""` is a present non-sequence. Both tables
-    above measure that against the guards themselves; this is the statement of
-    the ruling the two of them realize, and the four values the ruling names.
+    TODAY THAT IS `dispositions:` AND NOTHING ELSE. `pinned_dispositions` is
+    PURE and SOURCE-FREE (`:787`, called at CHECK 1 before anything is fetched),
+    so the positive-resolution reading can hold a PRESENT `dispositions:` to its
+    ENTRY grain: `null` and an empty sequence stay EMPTY (`:801-803` tests
+    `raw is None`, an identity test), any OTHER falsey non-null value is a
+    present non-sequence and is refused at the MEMBER grain, and a sequence
+    carrying an entry that guard refuses is refused at the ENTRY grain.
+
+    NOTE — `pinned_by_commit_only:` IS NOT REACHED BY THE PARTITION, AND THIS
+    TEST ASSERTS NOTHING ABOUT IT. That member has NO pure, source-free guard:
+    both shape-(a) verifiers judge it inside a source-dependent `verify()`, and
+    they DIFFER at the file boundary — `validate-openreposhape-pin.read_pin()`
+    keeps top-level scalars as strings, so `null`, `false` and `0` are refused
+    there as truthy strings, while the YAML-loaded wallet verifier sees Python
+    falsey values. The adapter's `_is_path_only_list` accepts EVERY falsey value
+    as empty and is UNCHANGED by this realization; reaching that member would
+    need a shared pure guard first — a separate finding, and a separate word.
     """
-    shape_a = _base("a")
-    assert ps.judge(dict(shape_a, pinned_by_commit_only=None)).accepted
-    assert ps.judge(dict(shape_a, pinned_by_commit_only="")).accepted
-    assert ps.judge(dict(shape_a,
-                         pinned_by_commit_only=[{"path": "docs/a.md"}])) \
-        .names("pinned_by_commit_only")
-
     base = RECORDS["openspec-cli"]
     assert ps.judge(dict(base, dispositions=None), "openspec-cli").accepted
     assert ps.judge(dict(base, dispositions=[]), "openspec-cli").accepted
