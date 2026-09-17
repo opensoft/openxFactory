@@ -1,6 +1,6 @@
 # Tasks: add-citation-remainder-report
 
-Status: draft
+Status: ratified
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -258,13 +258,21 @@ OPEN.**
       `scripts/validate-pin-registrations.py`'s `check_citations` untouched by
       name; no file under `scripts/doc_health/` or
       `openspec/specs/doc-health/spec.md` moved.
-- [ ] 1.17 **THE RATIFICATION RECORD IS CUT WHEN THE WORD IS GIVEN**, and not
-      before: `.openspec.yaml` gains `approved_by` and `approved_on` as a pure
-      ADDITION beside a byte-unmoved drafting provenance (`kind` and `id` never
-      move — the shape `add-drafted-proposal-origin` defined), and
-      `proposal.md`, `design.md` and this file flip to `Status: ratified` with
-      ONE citation each, the ruling comment URL. **THE FLIP IS NOT
-      HEADER-ONLY**: the draft-voiced prose in all three moves with it.
+- [x] 1.17 **THE RATIFICATION RECORD IS CUT: THE WORD WAS GIVEN 2026-09-17.**
+      Brett Heap ratified this packet, verbatim **"ratify #1069"**, recorded at
+      [PR #1069, comment
+      5714138459](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459).
+      `.openspec.yaml` gains `approved_by` and `approved_on` as a pure ADDITION
+      beside a byte-unmoved drafting provenance (`kind` and `id` never move —
+      the shape `add-drafted-proposal-origin` defined), and `proposal.md`,
+      `design.md` and this file flip to `Status: ratified`, each citing this
+      same comment. **THE FLIP IS NOT HEADER-ONLY IN `proposal.md`**: its
+      draft-voiced prose moves with it. `design.md`'s and this file's flip is
+      header-only, which is where `docs/document-lifecycle.md`'s own Status
+      Claim Rules leave them: *"the REST of the packet is not ruled …
+      `tasks.md`, `design.md` … are working files of the change rather than
+      documents making a standing claim, and no finding is emitted against
+      them under these rules."*
 
 ## 2. Realization — A LATER PULL REQUEST, ON A LATER WORD
 

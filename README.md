@@ -533,7 +533,12 @@ Active changes:
 
 - [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
   — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),
-  **`Status: draft`** — answers openxFactory
+  **`Status: ratified`** — **RATIFIED 2026-09-17 at 12:12Z by Brett Heap
+  (openxFactory operator authority), verbatim *"ratify #1069"***, recorded at
+  [#1069](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459).
+  **THE WORD IS BARE**: it ratifies the PACKET and names no option
+  individually, so each of the seven declared veto points stands at the option
+  the packet encodes — the RECOMMENDED one in all seven. Answers openxFactory
   [#1053](https://github.com/opensoft/openxFactory/issues/1053), the successor
   `add-declared-former-id` `tasks.md` § 6.1 owed and that packet's archive act
   filed as a ROUTING RECORD. **THE RESOLUTION RULE LANDED AND THE REPORT OF WHAT
@@ -586,8 +591,8 @@ Active changes:
   next run), D6 what STABLE means before (a) is takeable, D7 the SCOPE FENCES.
   `code_surface` is non-empty and NOTHING OF IT MOVES HERE — no script, no
   workflow, no test — so the archive is a separate act on merged-plus-green
-  realization evidence and a separate word, and #1053 closes THERE.
-  **DRAFT and HELD for Brett Heap's ratification.**
+  realization evidence and a separate word, and #1053 closes THERE. Filing PR
+  [#1069](https://github.com/opensoft/openxFactory/pull/1069).
 
 - [adopt-entry-grain-dispositions-form](openspec/changes/adopt-entry-grain-dispositions-form/proposal.md)
   — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),

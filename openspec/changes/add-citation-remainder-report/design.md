@@ -1,6 +1,6 @@
 # Design: add-citation-remainder-report
 
-Status: draft
+Status: ratified
 Kind: design
 
 **EVERY DECISION THIS AUTHORING SESSION TOOK IS HERE, WITH ITS ALTERNATIVES AND

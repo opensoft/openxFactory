@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: add-citation-remainder-report
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-17 by Brett Heap (openxFactory operator authority), verbatim **"ratify #1069"** — recorded at [PR #1069, comment 5714138459](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459)
 
 Proposed: 2026-09-16, in lane `openxfactory-1` (display `openXfactory-1`),
 session `393ade52`, in answer to openxFactory
@@ -18,19 +19,33 @@ CLAIMED #1053 before authoring.
 
 Origin: openxFactory
 
-**THE AUTHORING WAS COMMISSIONED BY TAKING A ROUTING RECORD; THE WORDING IS
-OWED A RULING AND HAS NOT HAD ONE.** #1053 was filed by the orchestrator AS A
-ROUTING RECORD and NOT CLAIMED. Taking it commissions the AUTHORING and ratifies
-nothing, and Brett Heap's word of 2026-09-16, verbatim **"claim #1053 and #1013,
-fan out wide"**, commissions the CLAIM and decides no wording either. Every
-document in this packet therefore carries `Status: draft`, and `.openspec.yaml`
-carries drafting provenance with NO `approved_by` and NO `approved_on` — the
-lawful unapproved shape `add-drafted-proposal-origin` (issue #318) defined.
-**THE SEVEN DECISIONS MOST WORTH A VETO ARE `design.md` D1 THROUGH D7**, each
-put with its RECOMMENDED option first and the alternatives' costs written out
-beside it. **NOTHING IS PROMOTED**: this pull request edits no file under
-`openspec/specs/`. **NOTHING IS REALIZED**: it adds no script, no workflow and
-no test, and `tasks.md` § 2 stays entirely open.
+**THE AUTHORING WAS COMMISSIONED BY TAKING A ROUTING RECORD; THE WORDING WAS
+OWED A RULING, AND THE RULING HAS BEEN GIVEN.** #1053 was filed by the
+orchestrator AS A ROUTING RECORD and NOT CLAIMED. Taking it commissioned the
+AUTHORING and ratified nothing, and Brett Heap's word of 2026-09-16, verbatim
+**"claim #1053 and #1013, fan out wide"**, commissioned the CLAIM and decided
+no wording either. Brett Heap ratified this packet on 2026-09-17, verbatim
+**"ratify #1069"**, recorded at
+[#1069](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459).
+**THE WORD IS BARE — IT RATIFIES THE PACKET AND NAMES NO OPTION
+INDIVIDUALLY**, which `design.md`'s own bare-word paragraph states in advance
+of any ruling over this packet: *"a bare ratifying word takes the RECOMMENDED
+option at all seven; a veto NAMES the decision, and costs that section
+alone."* So each of `design.md`'s seven declared veto points stands at the
+option this packet encodes, which is the RECOMMENDED one in all seven: **D1**
+the HOME — a report CLI outside doc-health, **D2** the SURFACE — a sibling
+script importing the library, exit 0 whatever it finds, **D3** the RECIPE — a
+suspected cross-repository citation FLAGGED and left IN the count, both the
+token count and the identity count printed, **D4** the CLASSES — a small
+MECHANICAL set plus an honest `unclassified`, and NOTHING REPAIRED, **D5** the
+NIGHTLY WIRING — artifact-only, committing nothing, **D6** what STABLE means —
+`N = 14` runs, at most 3 new remainder identities, mechanical classes at zero
+net growth, **D7** the SCOPE FENCES — four, each proved by an empty `git
+diff`. The alternatives and their costs are retained in `design.md` as the
+record of what was put and declined, not as work owed; D0 was carried beside
+them and was not vetoed. **NOTHING IS PROMOTED**: this pull request edits no
+file under `openspec/specs/`. **NOTHING IS REALIZED**: it adds no script, no
+workflow and no test, and `tasks.md` § 2 stays entirely open.
 
 ## Why
 
