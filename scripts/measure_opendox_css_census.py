@@ -1180,6 +1180,20 @@ def main() -> int:
                 f"{label}: {path} is not a file. Both are read as openDox's "
                 "own side of the census, and a bundle without one is an "
                 "incomplete checkout, never a bundle that names nothing")
+    # AND AN EMPTY `views/` IS A REFUSAL TOO, NOT A ZERO (Copilot review, round
+    # 23). Round 6 made the DIRECTORY's absence a named refusal; a directory
+    # that exists and carries no `.js` file passed it and then scanned nothing,
+    # so every class only openDox's own views name would read as named by
+    # nobody and a SHARED class would look gate-exclusive — the one error
+    # direction this census exists to refuse, arriving through an incomplete
+    # checkout instead of through a parse.
+    own_view_files = sorted((web / "views").glob("*.js"))
+    if not own_view_files:
+        raise SystemExit(
+            f"openDox-code's own view modules: {web / 'views'} carries no "
+            "`.js` file. openDox's side of this census is the side that KEEPS "
+            "rules, so an empty scan of it reports every class as the gate's "
+            "own — a census that would extract rules openDox uses")
     gate_files = sorted(p for p in gate_dir.glob("*.js"))
     if not gate_files:
         raise SystemExit(
@@ -1192,8 +1206,8 @@ def main() -> int:
     #: the tool would answer differently at `cb343ae8` for a reason that is not
     #: about the stylesheet at all.
     gate_names = {p.name for p in gate_files}
-    dox_files = [web / "app.js", web / "index.html"] + sorted(
-        p for p in (web / "views").glob("*.js") if p.name not in gate_names)
+    dox_files = [web / "app.js", web / "index.html"] + [
+        p for p in own_view_files if p.name not in gate_names]
 
     def haystack(path: Path) -> str:
         text = path.read_text(encoding="utf-8", errors="replace")

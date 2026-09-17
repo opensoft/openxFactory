@@ -27,6 +27,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -56,7 +57,12 @@ def _tree(tmp_path: Path, styles: str, own: dict[str, str],
     (web / "styles.css").write_text(styles, encoding="utf-8")
     (web / "app.js").write_text("// shell\n", encoding="utf-8")
     (web / "index.html").write_text(index, encoding="utf-8")
-    for name, source in own.items():
+    # openDox ALWAYS HAS A VIEW MODULE, even where a case names none: the tool
+    # refuses an empty `views/` scan (round 23), because openDox's side is the
+    # side that keeps rules and an empty one reports every class as the gate's.
+    # This placeholder names no class, so a case that passes `own={}` still
+    # measures "openDox references nothing".
+    for name, source in (own or {"_no_own_view_names_a_class.js": "// none\n"}).items():
         (web / "views" / name).write_text(source, encoding="utf-8")
     views = tmp_path / "xdox" / "src" / "openxdox" / "web" / "views"
     views.mkdir(parents=True)
@@ -283,7 +289,7 @@ def test_a_missing_opendox_views_directory_refuses_too(tmp_path: Path) -> None:
     the UNSAFE emptiness (Copilot review, round 6)."""
     dox, xdox = _tree(tmp_path, styles=".gatebar { color: red; }\n", own={},
                       gate={"gate.js": 'el("div", "gatebar");\n'})
-    (dox / "src" / "opendox" / "web" / "views").rmdir()
+    shutil.rmtree(dox / "src" / "opendox" / "web" / "views")
     proc = subprocess.run(
         [sys.executable, str(SCRIPT), str(dox), str(xdox)],
         capture_output=True, text=True, timeout=300)
@@ -807,6 +813,60 @@ def test_a_template_substitution_is_a_prefix_too() -> None:
         == {"chip-"}
 
 
+def test_an_empty_own_views_directory_refuses_too(tmp_path: Path) -> None:
+    """A DIRECTORY THAT EXISTS AND CARRIES NOTHING IS STILL AN EMPTY SCAN
+    (Copilot review, round 23).
+
+    Round 6 made the openDox `views/` directory's ABSENCE a named refusal. A
+    directory that exists and holds no `.js` passed that check and then scanned
+    nothing, so every class only openDox's own views name read as named by
+    nobody and a SHARED class would look gate-exclusive — this census's one
+    forbidden error direction, arriving through an incomplete checkout rather
+    than through a parse. The gate side has refused its own empty scan since
+    round 5; this is the same rule on the side that KEEPS rules.
+    """
+    dox, xdox = _tree(tmp_path, styles=".gatebar { color: red; }\n",
+                      own={"own.js": 'el("p", "note");\n'},
+                      gate={"gate.js": 'el("div", "gatebar");\n'})
+    for stale in (dox / "src" / "opendox" / "web" / "views").glob("*.js"):
+        stale.unlink()
+    proc = subprocess.run(
+        [sys.executable, str(SCRIPT), str(dox), str(xdox)],
+        capture_output=True, text=True, timeout=300)
+    assert proc.returncode != 0, proc.stdout
+    assert "carries no `.js` file" in proc.stderr, proc.stderr
+    assert "KEEPS" in proc.stderr, proc.stderr
+
+
+def test_a_one_sided_re_derivation_environment_fails_closed(
+        tmp_path: Path) -> None:
+    """BOTH CHECKOUT VARIABLES OR NEITHER (Copilot review, round 23).
+
+    `if not dox or not xdox` took the seat when exactly ONE was set, so a
+    half-wired CI job would pass without re-deriving anything and its green
+    would say the census had been checked. One set and one absent is a
+    misconfiguration, and it now fails where it used to hold the seat.
+    """
+    saved = {name: os.environ.get(name)
+             for name in ("Q7_OPENDOX_CODE", "Q7_OPENXDOX_CODE")}
+    try:
+        os.environ["Q7_OPENDOX_CODE"] = str(tmp_path)
+        os.environ.pop("Q7_OPENXDOX_CODE", None)
+        try:
+            test_the_pinned_census_re_derives_at_the_cited_revisions(tmp_path)
+        except AssertionError as refusal:
+            assert "one of them is set" in str(refusal), refusal
+        else:
+            raise AssertionError(
+                "a one-sided environment took the seat and re-derived nothing")
+    finally:
+        for name, value in saved.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
+
+
 def test_a_selector_api_authorizes_only_the_literal_it_opens(
         tmp_path: Path) -> None:
     """THE SELECTOR-API WINDOW IS ANCHORED, AND IT READS CODE (Copilot review,
@@ -1188,6 +1248,14 @@ def test_the_pinned_census_re_derives_at_the_cited_revisions(
     is `.github/workflows/openxdox-consumer-gate.yml` and not this file.
     """
     dox, xdox = os.environ.get("Q7_OPENDOX_CODE"), os.environ.get("Q7_OPENXDOX_CODE")
+    # A ONE-SIDED ENVIRONMENT FAILS CLOSED (Copilot review, round 23): the seat
+    # is for a run that was never asked to re-derive, and a half-wired CI job
+    # that sets one variable and not the other is a MISCONFIGURATION wearing
+    # the seat's green. Both or neither.
+    assert bool(dox) == bool(xdox), (
+        "set BOTH Q7_OPENDOX_CODE and Q7_OPENXDOX_CODE or neither — one of "
+        f"them is set ({'Q7_OPENDOX_CODE' if dox else 'Q7_OPENXDOX_CODE'}), "
+        "which would take the seat and re-derive nothing")
     if not dox or not xdox:
         assert PINNED_CENSUS.name == "q7-css-census-{}-{}.json".format(*PINNED_AT)
         manifest = yaml.safe_load(
