@@ -5290,6 +5290,81 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
             == opendox_seed["src/opendox/web/views/display.js"]["since"]), (
         "§ 3.4 SLICE S7's two DISPLAY-facet halves were introduced by one "
         "commit and no longer declare the same `since`")
+    # THE EIGHTH BUMP: ten more `opendox_code` files, RULED into this file by
+    # `split-opendox-two-layer-product` § 3.5 (RULED Q2, `#656` comment
+    # 5542792997, and RULED Q1, comment 5542694957) and § 3.6 (RULED C3,
+    # comment 5544381563) — the `src/opendox/runtime/` subpackage: the runtime
+    # itself (config, the fail-closed migration runner, the six coordination
+    # tables, the psycopg pool, the broker token verifier, the FastAPI
+    # application, the lifecycle CLI) and the repository-creation act with its
+    # conformant local-git adapter. CLAIM `#656` comment 5699629780.
+    #
+    # EIGHTH AND NOT SEVENTH, and the ordinal is worth a sentence because it
+    # was wrong first: line ~3993 already labels § 3.4 slice S8's own
+    # `openxdox_code` file THE SEVENTH BUMP, so a second seventh would make the
+    # provenance history of this file ambiguous exactly where it is supposed to
+    # be readable (Copilot review of openxFactory#1067). The ordinals count
+    # AMENDMENTS to the admissions document, across destinations — not
+    # `opendox_code`'s own bumps, of which this is the sixth.
+    #
+    # PINNED HERE FOR THE REASON THE SIXTH BUMP STATES, and Copilot's review of
+    # the admission PR (opensoft/openxFactory#1067) named the gap exactly: the
+    # generic shape checks below would let a future edit drop one of these ten
+    # paths, rename it, or move its `since` and still pass. None of the ten
+    # carries a manifest row (RULED OQ-C), so the admission is the only
+    # governed record that they may be at the destination at all.
+    #
+    # TWO INTRODUCING COMMITS, not ten: the eight § 3.5 modules arrive in one
+    # commit on `build/3-5-runtime` and the two § 3.6 modules in one commit on
+    # `build/3-6-repository-act`, because neither group means anything a module
+    # at a time — the same argument the sixth bump makes about the DISPLAY
+    # facet's two halves. Admitted on the same Q-L1 footing as every bump
+    # above: the leg PRs (openDox-code#25 and #26) pair with — and land after —
+    # this admission PR.
+    RUNTIME_SINCE = "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+    REPOSITORY_ACT_SINCE = "a34601a0dfcfef1d8124cbab472bb5e2d6bd114f"
+    for path, since in (
+            ("src/opendox/runtime/__init__.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/app.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/cli.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/config.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/db.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/identity.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/migrations.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/oidc.py", RUNTIME_SINCE),
+            ("src/opendox/runtime/local_git_adapter.py", REPOSITORY_ACT_SINCE),
+            ("src/opendox/runtime/repository_act.py", REPOSITORY_ACT_SINCE)):
+        assert path in opendox_seed, (
+            f"{path} is one of `split-opendox-two-layer-product` § 3.5/§ 3.6's "
+            "ten created files (`#656` comments 5542792997 / 5542694957 / "
+            "5544381563) and is no longer declared for opendox_code")
+        assert opendox_seed[path]["since"] == since, (
+            f"{path} declares since={opendox_seed[path]['since']!r}; the act "
+            f"introduced it at {since}, and an admission whose `since` is not "
+            "the introducing commit is not a falsifiable claim")
+    # THE EIGHT AND THE TWO ARE EACH ONE ADMISSION, and the pins say so: a
+    # future act that re-homes one module of either group must move the rest of
+    # its group or state why not.
+    assert len({opendox_seed[path]["since"] for path in (
+        "src/opendox/runtime/__init__.py", "src/opendox/runtime/app.py",
+        "src/opendox/runtime/cli.py", "src/opendox/runtime/config.py",
+        "src/opendox/runtime/db.py", "src/opendox/runtime/identity.py",
+        "src/opendox/runtime/migrations.py", "src/opendox/runtime/oidc.py")}
+    ) == 1, (
+        "§ 3.5's eight runtime modules were introduced by one commit and no "
+        "longer declare the same `since`")
+    assert (opendox_seed["src/opendox/runtime/local_git_adapter.py"]["since"]
+            == opendox_seed["src/opendox/runtime/repository_act.py"]["since"]), (
+        "§ 3.6's adapter and the act that creates its corpus were introduced "
+        "by one commit and no longer declare the same `since`")
+    # THE ADAPTER'S IMPORT PATH IS PART OF THE CLAIM. § 3.7's neutral
+    # conformance corpus resolves `opendox.runtime.local_git_adapter`, so a
+    # re-homing of that one file is a change to what § 3.7 can import and must
+    # not pass as a routine rename.
+    assert "src/opendox/runtime/local_git_adapter.py" in opendox_seed, (
+        "the file `split-opendox-two-layer-product` § 3.7 imports as "
+        "`opendox.runtime.local_git_adapter` is no longer declared")
+
     # THE FILE'S OWN STATED INVARIANTS, over whatever has accumulated. Each
     # replaces nothing: the frozen-content assertions these stand in for
     # could not survive a pin bump, and an accumulating file with no checked
