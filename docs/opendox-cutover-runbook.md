@@ -183,10 +183,13 @@ below DOES move with it**: slice S7 made that table a measurement again and
 pinned it cell by cell, so this act takes its own cell rather than registering
 the table as stale, which is what an earlier draft of this paragraph did and
 what S7's pin now forbids.
-**RULED Q7's CSS extraction moves ONE FIGURE AND ONE ROW, and it moves them
-LAST** — this paragraph is in LANDING ORDER and the arithmetic below is read
+**RULED Q7's CSS extraction moves ONE FIGURE AND ONE ROW, and it moved them
+LAST UNTIL THE § 3.4 SLICE-S7 RESIDUE BELOW** — this paragraph is in LANDING
+ORDER and the arithmetic below is read
 off it (Copilot review, round 2, which found the act narrated before the
-annotation whose 2621 it adds to): +89 `adapter calls` lines on the single
+annotation whose 2621 it adds to; and Copilot review of the residue act, which
+found this sentence still claiming the last word after a later act had taken
+it): +89 `adapter calls` lines on the single
 `web/styles.css` row, which slice S7 had already converted and which was
 already a carrier, so no disposition count, no carrier count and no replica
 count moves with them. **2621 + 89 = 2710.** EIGHTY-EIGHT of the 89 are
@@ -199,6 +202,22 @@ declared edit in this vocabulary since § 3.4 slice S6 declared 122
 `serve_projection.py` deletions under the same class and landed; what `#1023`
 § 6 called a wall was the `moved_verbatim` disposition, which slice S7 had
 already taken this row past.
+**THE § 3.4 SLICE-S7 RESIDUE ANNOTATION then moves ONE FIGURE over FOUR ROWS**:
++7 `adapter calls` lines on the `opendox_code` view modules slice S7's own
+review found LEAVES inside — `web/views/board.js`, `web/views/docs.js`,
+`web/views/explorer.js` and `web/views/staging-workbench.js`, every one already
+`moved_with_declared_edit` and already a carrier — so no disposition count, no
+carrier count and no replica count moves with them. **2710 + 7 = 2717.** Its
+window is ROW-DISJOINT from RULED Q7's one `web/styles.css` row, so the two
+figures are independent and this sum states an ARITHMETIC and not an ordering;
+the merge that brought the two acts together re-derived the total from the
+merged manifest rather than adding their deltas. Two of the SEVEN findings
+declare no line here and say why: `web/views/display.js` is an ADMITTED created
+file with no row at all, declared in `docs/opendox-carve-admissions.yaml`
+instead, and `web/views/lineage.js`'s `renderStats` reset falls inside the
+`replace` opcode on carve `:52` that slice S7 ALREADY declares — a second
+declaration would be the repeated line number the row-wide distinctness
+assertion refuses.
 **AND THE TABLE ABOVE IS THE CARVE'S RECORD, NOT A LIST OF ARRIVAL
 OBLIGATIONS** — a distinction this act is the first to make visible, because it
 is the first whose rows owe the OPPOSITE of the proof written beside them. A

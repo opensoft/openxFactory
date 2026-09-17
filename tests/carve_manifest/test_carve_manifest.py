@@ -5710,7 +5710,11 @@ def test_the_real_manifest_carries_the_q7_css_extraction_declared_edits() -> Non
     """RULED Q7's window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` asserts the
-    AGGREGATE `(2710, 176)`, and that pair would stay green if these 89 lines
+    AGGREGATE — `(2717, 176)` today and `(2710, 176)` when this window landed,
+    which is this act's own delta and a figure a later act cannot move (the
+    § 3.4 SLICE-S7 RESIDUE's seven lines moved the current one, and the residue
+    window's hard-coded base is that same 2710) — and that pair would stay
+    green if these 89 lines
     had landed on the wrong row, under the wrong one of RULING OQ-1's three
     classes, or as a different set summing to the same total — which is why
     every slice since ASK-7 pins its own window.
