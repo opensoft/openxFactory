@@ -214,14 +214,23 @@ THAT NO TRACKED ENTRY FALLS BETWEEN TWO OF THEM: THE OUT-OF-ROOT-LINK TERM SHALL
 OWN EXACTLY THE TRACKED LINKS WHOSE RESOLVED PATH STANDS OUTSIDE THE REPOSITORY
 ROOT, AND THE NON-FILE TERM SHALL OWN EVERY OTHER TRACKED ENTRY THAT IS NOT A
 READABLE REGULAR FILE ONCE RESOLVED — a submodule gitlink, a directory, and
-every tracked link the out-of-root term does not take, whether its resolution
-reaches nothing at all because the target is missing, the chain loops or the
-chain cannot be read, or it reaches something inside the root that is not a
-readable regular file, a directory as much as anything else — SO THE TWO TERMS
-ARE DISJOINT AND, WITH THE UNDECODABLE TERM, THE IDENTITY ABOVE CLOSES OVER
-EVERY TRACKED ENTRY IN SCOPE. A name is not an extent, and this is where the
-difference is paid: a link that dangles, loops, cannot be read or resolves to a
-DIRECTORY inside the root is none of the three things the terms are NAMED for —
+every tracked link the out-of-root term does not take, whether its lexically
+resolved path stands inside the root and reaches nothing there because the
+target is missing, or reaches something inside the root that is not a
+readable regular file, a directory as much as anything else, or it has no
+resolved path at all because the chain loops or cannot be read — SO THE TWO
+TERMS ARE DISJOINT AND, WITH THE UNDECODABLE TERM, THE IDENTITY ABOVE CLOSES
+OVER EVERY TRACKED ENTRY IN SCOPE. A LINK'S RESOLVED PATH IS A FACT ABOUT THE
+PATH ITSELF AND NOT ABOUT WHETHER ANYTHING STANDS AT IT: it is the path the
+link's own chain joins to once every step is read and `..` and `.` are
+normalised away, so a link whose target is simply missing still has one and
+stands wherever that join lands; only a chain the report cannot itself walk —
+one that loops, or one carrying a link whose own target text cannot be read —
+has no resolved path at all. A name is not an extent, and this is where the
+difference is paid: a link whose resolved path stands inside the root but
+dangles there, one that loops, one that cannot be read, or one that resolves
+to a DIRECTORY inside the root is none of the three things the terms are
+NAMED for —
 it is not the submodule gitlink the non-file term is explained by, it does not
 leave the root, and it never reaches a decoder — so an arithmetic resting on the
 names alone has nowhere to put it and can still fail to close on an entry class
@@ -388,10 +397,16 @@ POINT IN THE SAME SERIES.
 - **AND** it MUST count it among the FILES read and in no skip term
 
 #### Scenario: A tracked link reaches no readable file and does not leave the root
-- **WHEN** a tracked entry is a symbolic link that reaches no readable regular file and that the out-of-root-link term does not take — its target is missing, its chain loops, or its chain cannot be read
+- **WHEN** a tracked entry is a symbolic link whose lexically resolved path stands inside the repository root but is missing there, or whose chain has no resolved path at all because it loops or cannot be read
 - **THEN** the report MUST count the entry in the skip term for entries skipped as non-files, and in neither the out-of-root-link term nor the undecodable term
 - **AND** the tracked ENTRIES in scope MUST still equal the FILES read plus all three skip terms
 - **AND** it MUST take no token from the entry
+
+#### Scenario: A dangling link points outside the root
+- **WHEN** a tracked entry is a symbolic link whose target is missing and whose lexically resolved path stands outside the repository root
+- **THEN** the report MUST count the entry in the skip term for entries skipped as links leaving the repository root
+- **AND** it MUST NOT count the entry in the non-file term
+- **AND** the tracked ENTRIES in scope MUST still equal the FILES read plus all three skip terms
 
 #### Scenario: A tracked link resolves to a directory inside the root
 - **WHEN** a tracked entry is a symbolic link whose target, once resolved, is a directory standing inside the repository root

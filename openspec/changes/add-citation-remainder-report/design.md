@@ -742,8 +742,9 @@ ANYWAY, FOR THE REASON THE RULE ITSELF IS**: the naive implementation is wrong
 the day one link arrives, and an arithmetic that closes only while a class is
 empty closes by luck.
 **AND ROUND ONE ON PR #1097 CLOSED THAT ARITHMETIC RATHER THAN ADDING TO IT**
-(Copilot thread `PRRT_kwDOTAvnrs6jc-mz`, spec.md:200): a link that dangles,
-loops, cannot be read, or resolves to a DIRECTORY inside the root is not a
+(Copilot thread `PRRT_kwDOTAvnrs6jc-mz`, spec.md:200): a dangling link whose
+resolved path stands inside the root, a link that loops, one that cannot be
+read, or one that resolves to a DIRECTORY inside the root is not a
 gitlink, does not leave the root and never reaches a decoder, so the three terms
 NAMED above still left it nowhere — and the delta now defines the terms by their
 EXTENTS instead, the out-of-root term owning exactly the links whose RESOLVED
@@ -757,6 +758,22 @@ A CLARIFICATION OF THE DRAFTED RULE AND NOT A NEW ONE: the third term, its
 printed-at-zero rule and the declined fold into the non-file term read exactly
 as the word landed them, and the measured value is still ZERO at both heads,
 this repository tracking no symbolic link at either.
+**AND ROUND TWO ON THE SAME PULL REQUEST NAMES THE CHOICE THAT MAKES THE
+EXTENT DECIDABLE, RATHER THAN LEAVING IT IMPLICIT** (PR #1097, Copilot thread
+`PRRT_kwDOTAvnrs6jdWK1`, spec.md:213): THE CONTAINMENT RULE IS A PATH
+PREDICATE, NOT AN EXISTENCE ONE — it asks only where a link's resolved path
+points, once every step in its own chain is read and `..` and `.` are
+normalised away, and whether anything stands there is a separate fact the
+non-file term already carries on its own terms. A dangling link whose resolved
+path stands OUTSIDE the root is therefore an out-of-root link precisely as any
+other is, which is why the sentence above now reads a dangling link whose
+resolved path stands INSIDE the root rather than a bare dangles. THE
+ALTERNATIVE — REQUIRING A SUCCESSFUL RESOLUTION BEFORE THE OUT-OF-ROOT TERM CAN
+APPLY — IS DECLINED: it would make a dangling link to an outside target
+non-file instead, and leave the containment rule silent about exactly the link
+it exists to catch. THIS TOO IS A CLARIFICATION AND NOT A NEW RULE: no term's
+extent moves, and the measured value stays ZERO at every head this packet has
+measured.
 
 **AND ONE THE REPORT MUST ADD THE MOMENT D5 EVER CHANGES: the report's OWN
 OUTPUT PATH.** `health/` is INSIDE this population — 7 tracked files at
