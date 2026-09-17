@@ -43,13 +43,18 @@ THIS LANE.** § 3, § 4, § 5 and § 6 stay ENTIRELY OPEN.
       `target_release._registry_present` (`:354`, clause `:394`),
       `proposal-support._contained` (`:341`, clause `:347`). Transcript in
       `design.md` D0.2.
-- [x] 2.3 Three sites driven END TO END through their shipped entry points, on a
-      minimal tree carrying a committed-shape loop:
-      `scripts/validate-code-surface.py` and `scripts/validate-target-release.py`
-      both end in a traceback, and so do `proposal-support`'s
-      `former_identity_claimants` and `declared_former_ids_in_tree`, the two
-      public readers the archive gate's former-identity arm is built on.
-      Transcript in `design.md` D0.3.
+- [x] 2.3 THE THREE REACHABLE SITES DRIVEN END TO END through their shipped entry
+      points, on TWO minimal trees carrying a committed-shape loop (one with the
+      loop on `proposal.md`, one with it on `.openspec.yaml`), through FOUR entry
+      points, ALL FOUR ending in a traceback: `scripts/validate-code-surface.py`
+      and `scripts/validate-target-release.py` on the first tree, and
+      `proposal-support`'s `former_identity_claimants` and
+      `declared_former_ids_in_tree`, the two public readers the archive gate's
+      former-identity arm is built on, on the second. A FIFTH reader was driven
+      and did NOT traceback: `contained_change_dir_names` returned
+      `{'a-real-change'}` on the second tree, never reaching the loop, and that
+      answer is a result this packet's realization must PRESERVE and not turn
+      into a drop. Transcript in `design.md` D0.3.
 - [x] 2.4 Reachability measured rather than asserted: `code_surface._proposals`
       absorbs a loop at a CHANGE DIRECTORY name through its `is_dir()` filter; the
       reachable committed shapes are `<change>/proposal.md`,
@@ -58,8 +63,14 @@ THIS LANE.** § 3, § 4, § 5 and § 6 stay ENTIRELY OPEN.
 - [x] 2.5 **#1074's own text CORRECTED by measurement**: `_registry_present` is
       NOT reachable when the repository root sits behind a loop either, because
       `is_dir()` answers `False` rather than raising, so the function returns at
-      `target_release.py:390`. No tree state was found that drives it to its
-      clause. `design.md` D0.5; consequence decided at D3.
+      `target_release.py:390`. Re-measured in ALL THREE positions the first
+      requirement names, a loop at the registry LEAF, a loop at the ANCESTOR
+      `contracts/`, and `repo_root` itself a loop: `False` in every one. And
+      where the pre-check passes, `stat` has just resolved every component, so
+      the resolution on `:392` cannot meet a loop either. THE FOURTH SITE IS A
+      CLAUSE-LEVEL, RACE-ONLY CASE, not a tree state, which is the count the
+      other three documents now carry. `design.md` D0.5; consequence decided at
+      D3.
 - [x] 2.6 Packet authored at
       `openspec/changes/harden-path-escape-helpers-against-symlink-loops/`:
       `proposal.md` (front matter `code_surface: openxFactory`,
@@ -113,13 +124,16 @@ and a test that passes on both sides is not the proof.**
       `_registry_present`'s clause both widened to `except (OSError, RuntimeError):`,
       and both docstrings amended, `_unescaped`'s keeping its claim to generalize
       `_registry_present`'s test TRUE.
-- [ ] 3.4 `tests/target_release/`: one test for `_unescaped` in all three
-      positions, as 3.2; and one for `_registry_present` DECLARED AS A TEST OF THE
-      CLAUSE (`design.md` D3, D0.5), since no tree state reaches it, with the
-      declaration in the test's own docstring and not only in this packet. The
+- [ ] 3.4 `tests/target_release/`: TWO cases, which is why the realization is FOUR
+      TEST CASES IN THREE PACKAGES and not one per module. One for `_unescaped` in
+      all three positions, as 3.2; and one for `_registry_present` DECLARED AS A
+      TEST OF THE CLAUSE (`design.md` D3, D0.5), since no tree state reaches it,
+      with the declaration in the test's own docstring and not only in this
+      packet, and driven by a seam that makes the pre-check pass while the
+      resolution fails, so it still FAILS against the unfixed clause. The
       scanned-root position is no exception for that guard: measured, a root set
       to the loop returns `False` at the `is_dir()` pre-check exactly as the other
-      positions do, so it is D3's one case and not a fourth.
+      two positions do, so it is D3's one clause test and not a fourth POSITION.
 - [ ] 3.5 `scripts/proposal-support.py`: `_contained`'s clause widened to
       `except (OSError, ValueError, RuntimeError):`, the `ValueError` guarding the
       relative-path computation's own failure and STAYING; `contained_dir` and
@@ -143,15 +157,27 @@ and a test that passes on both sides is not the proof.**
 ## 4. Verification (OPEN; taken at the realization head)
 
 - [ ] 4.1 `python3 -m pytest tests/code_surface tests/target_release tests/proposal-support -q`
-      green, with the three new tests' failing runs against the unfixed clauses
-      recorded beside them.
+      green, with the FOUR new test cases' failing runs against the unfixed
+      clauses recorded beside them. FOUR, one per clause, in THREE packages: one
+      in `tests/code_surface/` (§ 3.2), TWO in `tests/target_release/` (§ 3.4),
+      one in `tests/proposal-support/` (§ 3.6). The count is the realization
+      plan's and the same number is carried in `proposal.md`'s `code_surface:`
+      front matter.
 - [ ] 4.2 `python3 scripts/validate-code-surface.py .`,
       `python3 scripts/validate-target-release.py .` and
       `python3 scripts/proposal-support.py . verify` green over the live corpus,
       proving the widened clauses changed no judgment of the real tree.
-- [ ] 4.3 The three end-to-end trees of `design.md` D0.3 re-run against the
-      realization head: each now REPORTS rather than tracebacks, and the reported
-      judgment is the drop each guard's docstring promises.
+- [ ] 4.3 The TWO end-to-end trees of `design.md` D0.3 re-run against the
+      realization head, through the FOUR entry points that traceback today:
+      `scripts/validate-code-surface.py` and `scripts/validate-target-release.py`
+      on the `proposal.md` loop tree, `former_identity_claimants` and
+      `declared_former_ids_in_tree` on the `.openspec.yaml` loop tree. Each of the
+      four now REPORTS rather than tracebacks, and the reported judgment is the
+      drop each guard's docstring promises. `contained_change_dir_names` is
+      re-run beside them and MUST STILL RETURN `{'a-real-change'}`, the answer
+      D0.3 already records: it never reached the loop, so the widening must not
+      turn its result into a drop. An unchanged result is part of the evidence
+      here and not an omission from it.
 - [ ] 4.4 `pytest-suite` green on the realization pull request at its merge head;
       that run is the green half of the archive evidence § 5 needs.
 

@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory (and NOT ONE BYTE OF IT MOVES IN THIS PULL REQUEST). The realization this packet proposes is a LATER pull request in this same repository, authored after ratification, and it is FOUR CLAUSES IN THREE MODULES plus THREE TESTS plus THREE DOCSTRINGS. The clauses, at the lines they carry on `c6997f12`: `scripts/code_surface.py:777` (`_unescaped`, `except OSError:` widened to `except (OSError, RuntimeError):`); `scripts/target_release.py:630` (`_unescaped`, the same widening) and `scripts/target_release.py:394` (`_registry_present`, the same widening); `scripts/proposal-support.py:347` (`_contained`, `except (OSError, ValueError):` widened to `except (OSError, ValueError, RuntimeError):`, the `ValueError` guarding a DIFFERENT operation's failure and STAYING). The tests, one per module, each FAILING against the unfixed clause and each building its symlink loop at test time under `tmp_path`: `tests/code_surface/`, `tests/target_release/`, `tests/proposal-support/`. The docstrings: each guard's prose amended to name `RuntimeError` beside `OSError`, which is also what keeps `code_surface._unescaped`'s written claim that `target_release._unescaped` "is the exact shape this mirrors" TRUE. NO OTHER FILE IS EDITED: no validator arm moves, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema, no report field and no promoted byte; and NO SYMLINK IS ADDED TO THIS REPOSITORY'S TRACKED TREE, which is a requirement of this packet and not merely its practice. THIS pull request carries the PACKET ONLY: `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, one `## ADDED` spec delta, one README *Active changes* bullet, and the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml` that any filing owes.
+code_surface: openxFactory (and NOT ONE BYTE OF IT MOVES IN THIS PULL REQUEST). The realization this packet proposes is a LATER pull request in this same repository, authored after ratification, and it is FOUR CLAUSES IN THREE MODULES plus FOUR TEST CASES IN THREE TEST PACKAGES plus FIVE DOCSTRINGS. The clauses, at the lines they carry on `c6997f12`: `scripts/code_surface.py:777` (`_unescaped`, `except OSError:` widened to `except (OSError, RuntimeError):`); `scripts/target_release.py:630` (`_unescaped`, the same widening) and `scripts/target_release.py:394` (`_registry_present`, the same widening); `scripts/proposal-support.py:347` (`_contained`, `except (OSError, ValueError):` widened to `except (OSError, ValueError, RuntimeError):`, the `ValueError` guarding a DIFFERENT operation's failure and STAYING). The test cases, ONE PER CLAUSE and therefore FOUR in three packages rather than one per module, each FAILING against the unfixed clause and each building its symlink loop at test time under `tmp_path`: ONE in `tests/code_surface/` (`_unescaped`), TWO in `tests/target_release/` (`_unescaped`, and `_registry_present` declared in its own docstring as a test of the CLAUSE, `design.md` D3 and D0.5), ONE in `tests/proposal-support/` (`_contained`, asserted through `contained_dir` and `contained_file`). The docstrings, FIVE and not four because `_contained` carries none of its own and the prose that states its contract lives on the two public wrappers it serves: `code_surface._unescaped`, `target_release._unescaped`, `target_release._registry_present`, `proposal-support.contained_dir` and `proposal-support.contained_file`, each amended to name `RuntimeError` beside `OSError`, which is also what keeps `code_surface._unescaped`'s written claim that `target_release._unescaped` "is the exact shape this mirrors" TRUE. NO OTHER FILE IS EDITED: no validator arm moves, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema, no report field and no promoted byte; and NO SYMLINK IS ADDED TO THIS REPOSITORY'S TRACKED TREE, which is a requirement of this packet and not merely its practice. THIS pull request carries the PACKET ONLY: `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, one `## ADDED` spec delta, one README *Active changes* bullet, and the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml` that any filing owes.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves, no `contract_bundle_version` is spent and no release tag is owed; the three modules are house tooling, pinned by nobody. Under `release-realization` a non-empty code surface archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE rather than on landing, so this packet archives only after its realization pull request has merged and run green, and openxFactory issue 1074 closes THERE.
 sequenced_after: []
 ---
@@ -39,16 +39,18 @@ Three modules carry a guard that resolves a candidate path, compares it with the
 resolved root, and hands the caller a NEGATIVE ANSWER when the comparison fails,
 so the caller DROPS the candidate rather than judging bytes that live outside the
 scanned tree. Each names only `OSError` (one names `OSError` and `ValueError`),
-so each is open at exactly the failure a committed symlink loop produces. The
-line numbers below are re-read on `c6997f12`, the head this packet is authored
+so all four clauses are open at the failure a symlink loop produces. **ONLY THREE
+OF THE FOUR ARE DRIVEN TO THAT CLAUSE BY A COMMITTED TREE SHAPE**, which the
+table's last column states per row rather than leaving to the prose. The line
+numbers below are re-read on `c6997f12`, the head this packet is authored
 against, rather than carried from the issue:
 
-| module | guard | clause | contract |
-| --- | --- | --- | --- |
-| `scripts/code_surface.py` | `_unescaped` (`:746`) | `except OSError:` (`:777`) | returns `None`, candidate dropped |
-| `scripts/target_release.py` | `_unescaped` (`:600`) | `except OSError:` (`:630`) | returns `None`, candidate dropped |
-| `scripts/target_release.py` | `_registry_present` (`:354`) | `except OSError:` (`:394`) | returns `False`, registry absent |
-| `scripts/proposal-support.py` | `_contained` (`:341`) | `except (OSError, ValueError):` (`:347`) | returns `False`, path uncontained |
+| module | guard | clause | contract | reached at the clause by |
+| --- | --- | --- | --- | --- |
+| `scripts/code_surface.py` | `_unescaped` (`:746`) | `except OSError:` (`:777`) | returns `None`, candidate dropped | a COMMITTED tree shape |
+| `scripts/target_release.py` | `_unescaped` (`:600`) | `except OSError:` (`:630`) | returns `None`, candidate dropped | a COMMITTED tree shape |
+| `scripts/target_release.py` | `_registry_present` (`:354`) | `except OSError:` (`:394`) | returns `False`, registry absent | NO tree shape; a RACE only |
+| `scripts/proposal-support.py` | `_contained` (`:341`) | `except (OSError, ValueError):` (`:347`) | returns `False`, path uncontained | a COMMITTED tree shape |
 
 **THREE OF THE FOUR ARE REACHABLE THROUGH A COMMITTED TREE SHAPE, AND THE
 TRACEBACKS ARE TAKEN AND NOT INFERRED.** Built at `c6997f12` on a minimal tree
@@ -87,9 +89,20 @@ OWN ISSUE RATHER THAN INHERITING THE CLAIM.** #1074 says
 exception does not hold either: with `repo_root` pointed at a loop,
 `registry.is_dir()` is `False` (the loop is absorbed by `stat`, which reports no
 directory rather than raising), so the function returns `False` at `:390` and
-never reaches `:392`. No tree state was found that drives it to its own clause.
-It is widened anyway, and `design.md` D3 gives the three reasons; the point here
-is that the correction is recorded where the overstatement was made.
+never reaches `:392`.
+
+RE-MEASURED AT THIS HEAD IN ALL THREE POSITIONS the first requirement names, and
+not only the one #1074 raised: a loop at the registry LEAF `contracts/releases`,
+a loop at the ANCESTOR `contracts/` above an ordinary leaf, and `repo_root`
+itself a loop. `_registry_present` returned `False` in every one, the pre-check
+absorbing the loop each time. And where the pre-check DOES pass, the registry is
+a real directory every component of which `stat` has just resolved, so
+`resolve(strict=True)` on the next line cannot meet a loop either: only a tree
+that changes BETWEEN the two reads can put one inside the clause. **The fourth
+site is a CLAUSE-LEVEL, RACE-ONLY case and not a tree state.** It is widened
+anyway, and `design.md` D3 gives the three reasons (the first of which is exactly
+that race); the point here is that the correction is recorded where the
+overstatement was made.
 
 **AND IT IS NOT A DEFECT ANY TREE IN THIS ESTATE STANDS ON.** The live corpus
 tracks ZERO symlinks, so nothing tracebacks today. What exists is four guards

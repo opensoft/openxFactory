@@ -53,9 +53,14 @@ proposal_support.contained_dir(LOOP, LOOP/'a')              -> RAISED RuntimeErr
 proposal_support.contained_file(LOOP, LOOP/'a'/'x.yaml')    -> RAISED RuntimeError
 ```
 
-### D0.3 The three reachable sites, end to end
+### D0.3 The three reachable sites, end to end: TWO TREES, FOUR TRACEBACKS
 
-A minimal tree, `openspec/changes/a-real-change/` with `proposal.md -> loop-b`
+THE COUNT IS THREE SITES, TWO TREES AND FOUR TRACEBACKING ENTRY POINTS, and they
+are three different numbers of three different things. A FIFTH entry point was
+driven and did NOT traceback, and that result is recorded here because the
+realization must PRESERVE it rather than change it.
+
+TREE ONE, a minimal `openspec/changes/a-real-change/` with `proposal.md -> loop-b`
 and `loop-b -> proposal.md`:
 
 ```
@@ -63,14 +68,23 @@ $ python3 scripts/validate-code-surface.py <tree>     -> RuntimeError at code_su
 $ python3 scripts/validate-target-release.py <tree>   -> RuntimeError at target_release.py:628
 ```
 
-The same tree with the loop on `.openspec.yaml` instead, driving the two public
-readers the archive gate's former-identity arm uses:
+TREE TWO, the same tree with the loop on `.openspec.yaml` instead, driving the
+two public readers the archive gate's former-identity arm uses, and a third
+reader beside them:
 
 ```
-former_identity_claimants(<tree>)                     -> RAISED RuntimeError
-declared_former_ids_in_tree(<tree>, 'a-real-change')  -> RAISED RuntimeError
-contained_change_dir_names(<tree>)                    -> {'a-real-change'}   (does not reach the loop)
+former_identity_claimants(<tree2>)                    -> RAISED RuntimeError
+declared_former_ids_in_tree(<tree2>, 'a-real-change') -> RAISED RuntimeError
+contained_change_dir_names(<tree2>)                   -> {'a-real-change'}   (does not reach the loop)
 ```
+
+`contained_change_dir_names` is the fifth entry point and the one that already
+ANSWERS: it filters change directories by their own `is_dir()` before any
+containment resolution, so the loop on the header never reaches a guard. Its
+result is CORRECT today and must be UNCHANGED after the widening, which is why
+`tasks.md` § 4.3 re-runs it beside the four and asserts the same set rather than
+a drop. A widening that turned this into a drop would be a change of judgment,
+which `proposal.md` forbids.
 
 ### D0.4 Where the guards are NOT reachable, and why that matters
 
@@ -88,9 +102,39 @@ property of today's callers, and the callers move.
 #1074 says `_registry_present` is shielded "except when the repository root
 itself sits behind a loop". Measured, that exception does not hold: `is_dir()` on
 `<loop>/contracts/releases` answers `False` rather than raising, so the function
-returns at `target_release.py:390` and never reaches `:392`. NO TREE STATE WAS
-FOUND that drives this guard to its own clause. The correction is recorded here
-and in `proposal.md`; D3 decides what follows from it.
+returns at `target_release.py:390` and never reaches `:392`.
+
+RE-MEASURED ACROSS ALL THREE POSITIONS the first requirement names, so the claim
+is exhaustive over the requirement's own vocabulary rather than over the one
+position #1074 raised. `Python 3.12.3`, a two-link `a -> b -> a` loop built under
+`tmp_path` in each position:
+
+```
+loop AT the registry leaf `contracts/releases`   -> registry.is_dir() False -> returned False
+loop at the ANCESTOR `contracts/` above the leaf -> registry.is_dir() False -> returned False
+repo_root ITSELF a loop                          -> registry.is_dir() False -> returned False
+(control) registry a REAL dir, loop below it     -> registry.is_dir() True  -> returned True
+(control) (loop).resolve(strict=True)            -> RAISED RuntimeError
+(control) os.stat(loop)                          -> OSError errno 40, Too many levels of symbolic links
+```
+
+The two controls are what make the result a mechanism and not a coincidence:
+`Path.is_dir()` calls `os.stat`, which reports the loop as `OSError(ELOOP)`, and
+`is_dir()` ABSORBS `OSError` and answers `False`. `Path.resolve(strict=True)` on
+the identical path re-raises the same `OSError` as `RuntimeError`
+(`pathlib.py:1244` `check_eloop`). The narrower of the two contracts is the one
+in front.
+
+AND THE PRE-CHECK PASSING IS ITSELF THE PROOF THAT THE CLAUSE IS RACE-ONLY. If
+`registry.is_dir()` is `True`, `os.stat` has just resolved every component of
+`<root>/contracts/releases`, so `resolve(strict=True)` on the next line cannot
+meet a loop on that path either. NO TREE STATE WAS FOUND, AND NONE CAN BE BUILT,
+that drives this guard to its own clause by standing still: only a tree that
+CHANGES between `:390` and `:392` does. That is D3's first reason stated as a
+measurement rather than as a worry, and it is why the fourth site is called a
+CLAUSE-LEVEL, RACE-ONLY case in `proposal.md`, in `.openspec.yaml`'s origin
+reason and in `tasks.md` alike. The correction is recorded in all four
+documents; D3 decides what follows from it.
 
 ## D1. Which capability, and ADDED rather than MODIFIED
 
@@ -253,4 +297,7 @@ clean-candidate sub-case is proved once, in `tests/proposal-support/`, and
 claimed nowhere else.
 
 `_registry_present` answers `False` at its pre-check in this position exactly as
-in the others, which is D3's one case and not a fourth.
+in the other two (D0.5's table), so the scanned root is not an exception for that
+guard: its single test is D3's CLAUSE test and not a fourth POSITION. That clause
+test is the second of `tests/target_release/`'s two cases, which is what makes
+the realization FOUR TEST CASES IN THREE PACKAGES (`tasks.md` § 3.4, § 4.1).
