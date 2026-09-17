@@ -458,6 +458,30 @@ _DELTA_UNITS_CANON_MUST_NOT_GAIN = {
     mbc.SCENARIO_TITLE: 5,
 }
 
+#: AND THE PARTITION ITSELF, EXACTLY, because a per-kind COUNT is defeated by a
+#: SAME-KIND SWAP: canon gaining one delta-only body unit while losing one of the
+#: body units it already shared leaves `BODY: 10` standing, and the tally alone
+#: would pass while canon held delta content. These are the FIVE units of the
+#: archived block that canon ALREADY carries — canon's own text, which a MODIFIED
+#: block restates by construction — frozen as `(kind, normalized text)` rather
+#: than counted. Any arrival grows this set, any departure shrinks it, and a swap
+#: changes a member while the size holds; set equality names all three, and the
+#: five texts are short enough to READ in a failure message, which the
+#: twenty-six-unit complement is not.
+#: (Found by Copilot's review at `f64bbdd0`, one round after its reviews at
+#: `ad2c33be`/`26a8ed26`/`31fbb445` established the kind tally this repairs.)
+_UNITS_CANON_ALREADY_CARRIES = frozenset({
+    (mbc.BODY, "Per-tile repository binding remains a successor change."),
+    (mbc.SCENARIO_TITLE, "A tile jumps to its repository"),
+    (mbc.SCENARIO_BULLET,
+     "WHEN the rendered snapshot carries `generation.composed_from`"),
+    (mbc.SCENARIO_BULLET,
+     'WHEN a human invokes "open in <repo>" on a composed tile'),
+    (mbc.SCENARIO_BULLET,
+     "THEN the active snapshot switches to that tile's `(repository, ref)` and "
+     "the page reloads with every verb available as today"),
+})
+
 _LEDGER_SUBJECTS = {
     # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
     # signed-execution-chain arc, whose proposal merged to `main` via PR #510
@@ -1621,6 +1645,27 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
         f"the delta-only tally is {tally}, not "
         f"{_DELTA_UNITS_CANON_MUST_NOT_GAIN}; first three delta-only units are "
         f"{[(u.kind, u.text[:60]) for u in delta_only[:3]]}")
+
+    # AND THE PARTITION EXACTLY, not only its shape. The tally above counts, and
+    # a count is defeated by a SAME-KIND SWAP — canon gaining one delta-only body
+    # unit while losing one of the body units it already shared holds `BODY` at
+    # ten. So the five units canon ALREADY carries are pinned by `(kind, text)`:
+    # an arrival grows this set, a departure shrinks it, a swap replaces a member
+    # at constant size, and equality names all three. The tally is KEPT rather
+    # than replaced, because it reads the other side of the same partition and
+    # so still catches a change in the ARCHIVED BLOCK — which this set, computed
+    # from canon's side, cannot see.
+    # (Found by Copilot's review at `f64bbdd0`.)
+    shared = {u.pair() for u in units
+              if u.pair() in {x.pair() for x in canon_block.units}}
+    assert shared == _UNITS_CANON_ALREADY_CARRIES, _moved(
+        f"canon's {requirement!r} block carrying EXACTLY the "
+        f"{len(_UNITS_CANON_ALREADY_CARRIES)} units of the archived block it "
+        "already carried — no delta unit arriving, and none of the five leaving",
+        f"it now shares {len(shared)}: ARRIVED (canon gained delta content, the "
+        f"promotion RULING Q6 forbids) {sorted(shared - _UNITS_CANON_ALREADY_CARRIES)}; "
+        f"LEFT (canon dropped text the block restates, a different defect) "
+        f"{sorted(_UNITS_CANON_ALREADY_CARRIES - shared)}")
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
