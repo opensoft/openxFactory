@@ -233,7 +233,7 @@ dispositions:
       sat open overnight awaiting it; Brett Heap's archive word came
       2026-09-17, and the squash-merge that added the directory to
       history, 5dd0a8dc39899820ab9fad6f02ae9b364bb43dc6, is committer-dated
-      2026-09-17T16:23:44Z UTC - a correct archive whose merge fell on the
+      2026-09-17T16:23:43Z UTC - a correct archive whose merge fell on the
       next UTC day, not a clock defect"
     ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
     cited_to: "opensoft/openxFactory#812"
