@@ -108,7 +108,15 @@ def _git(*args: str, cwd: Path | None = None, stdin: bytes | None = None,
     env.update(GIT_ENV)
     if env_extra:
         env.update(env_extra)
-    return subprocess.run(["git", *args], cwd=str(cwd) if cwd else None,
+    # `--no-replace-objects`, which is this repository's own rule for every
+    # git reader it owns (`validate-carve-manifest.py:862`,
+    # `carved_reach.py:796`, `hermes_runtime_validation/content.py:106` and
+    # four more) and applies here for the sharper reason (Copilot, round 2):
+    # an ambient replacement ref would make `ls-tree` and `cat-file` serve
+    # objects OTHER than the ones this transposition wrote, so the fixture
+    # could prove a history it never laid down.
+    return subprocess.run(["git", "--no-replace-objects", *args],
+                          cwd=str(cwd) if cwd else None,
                           input=stdin, capture_output=True, env=env,
                           check=False)
 

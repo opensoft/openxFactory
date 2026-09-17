@@ -85,6 +85,7 @@ from corpus_adapter import (  # noqa: E402
     DOCUMENT_UNKNOWN,
     CorpusRef,
     CorpusRefused,
+    Document,
     Refusal,
 )
 from home_factory import NEUTRAL_SHAPE, neutral_reader  # noqa: E402
@@ -1261,3 +1262,90 @@ def test_the_transposition_fixture_ignores_an_ambient_git_pointer(
     assert record["proven"] is True, record["reason"]
     assert sorted(p.name for p in decoy.rglob("*") if p.is_file()) == before, (
         "the transposition wrote into the repository GIT_DIR named")
+
+
+# ==========================================================================
+# 7. Copilot's round-2 findings
+# ==========================================================================
+
+
+def test_a_reader_that_serves_ANOTHER_revision_is_unfaithful(tmp_path):
+    """Copilot round 2: the proof keyed only on the bytes, so a reader could
+    resolve one revision and serve another — a working tree, an older commit
+    — and still be recorded FAITHFUL. `CorpusAdapter.read`'s own contract is
+    that `revision=None` means the revision the corpus was resolved at, and
+    `Document.revision` reports which one it was; the seventeen checks never
+    inspect that field, so this is the only place it is held."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ServesAnotherRevision:
+        def __init__(self, name, location):
+            self._inner = GH.reader(name, location)
+
+        def resolve(self, ref):
+            return self._inner.resolve(ref)
+
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return self._inner.list_documents(corpus_, scope)
+
+        def read(self, corpus_, document, revision=None):
+            got = self._inner.read(corpus_, document, revision)
+            return Document(id=got.id, content=got.content,
+                            revision="a-revision-nobody-asked-for")
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ServesAnotherRevision, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "a-revision-nobody-asked-for" in caught.value.detail
+    assert "notes/alpha.md" in caught.value.detail
+
+
+def test_a_corpus_path_that_cannot_RESOLVE_refuses_rather_than_tracebacks(
+        tmp_path):
+    """Copilot round 2: hoisting the `--corpus` resolution above the catch-all
+    `try` put a `Path.resolve()` `OSError` — a symlink loop is the exact case
+    — outside the exit contract, where it would have arrived as a traceback
+    and exit 1. This runner has no exit 1."""
+    loop = tmp_path / "loop"
+    loop.symlink_to(tmp_path / "loop2")
+    (tmp_path / "loop2").symlink_to(loop)
+    done = _run(*HOME_INVOCATION, "--corpus", str(loop), "--json")
+    assert done.returncode == 2, done.stderr
+    assert "Traceback" not in done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["result"] == "refused"
+    assert payload["code"] in MODULE.REFUSAL_CODES
+    # nothing was resolvable, so the payload names what the operator typed
+    assert payload["corpus"] == str(loop)
+
+
+def test_the_fixture_reads_the_history_it_wrote_and_not_a_REPLACEMENT(
+        tmp_path):
+    """Copilot round 2: git plumbing honours replacement refs, so an ambient
+    one could make `ls-tree` / `cat-file` serve objects OTHER than the ones
+    the transposition wrote — the fixture would then prove a history it never
+    laid down. Every git reader this repository owns passes
+    `--no-replace-objects` for exactly this reason."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+    real = GH._git("rev-parse", "HEAD:notes/alpha.md", cwd=populated
+                   ).stdout.decode().strip()
+    impostor = GH._git("hash-object", "-w", "--stdin", cwd=populated,
+                       stdin=b"Type: note\nTitle: Not alpha at all\n"
+                       ).stdout.decode().strip()
+    assert GH._git("replace", "-f", real, impostor, cwd=populated
+                   ).returncode == 0
+
+    # the replacement IS in force for a reader that does not disable it
+    import subprocess as sp
+    swapped = sp.run(["git", "-C", str(populated), "cat-file", "blob",
+                      f"HEAD:notes/alpha.md"], capture_output=True,
+                     check=False)
+    assert b"Not alpha at all" in swapped.stdout, (
+        "the replacement ref did not take, so this case proved nothing")
+
+    record = MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]

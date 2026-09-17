@@ -549,6 +549,22 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
                         f"{type(exc).__name__}: {exc}. A document a reader "
                         "will not serve is a document the transposition does "
                         "not carry")
+        # THE REVISION THE BYTES CAME FROM, and it is the interface's own
+        # contract rather than an extra demand (Copilot, round 2):
+        # "`revision=None` means the revision `corpus` was resolved at", and
+        # `Document.revision` reports which one it was. A reader that resolves
+        # one revision and serves another — a working tree, an older commit —
+        # would otherwise be recorded FAITHFUL on bytes that answer a question
+        # nobody asked, and the seventeen checks do not inspect
+        # `Document.revision` either, so this is the only place it is held.
+        served_at = getattr(got, "revision", None)
+        if served_at != corpus.revision:
+            _unfaithful(corpus_root, shipped,
+                        f"it served {key!r} at revision {served_at!r} while "
+                        f"the corpus it resolved declares {corpus.revision!r}. "
+                        "A reader answering out of a revision the caller did "
+                        "not ask for has not shown that the transposition "
+                        "holds anything")
         content = getattr(got, "content", None)
         if not isinstance(content, bytes):
             _unfaithful(corpus_root, shipped,
@@ -784,13 +800,18 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     where = args.dest_root or args.destination
-    # HOISTED so that EVERY refusal below can name the corpus it was about,
-    # in the same spelling a successful summary uses. It depends on nothing
-    # but the flag and this repository's own layout, so no refusal has to
-    # happen before it can be formed.
-    corpus_root = (Path(args.corpus).resolve() if args.corpus
-                   else (ROOT / CORPUS_RELPATH).resolve())
+    # DECLARED here and RESOLVED inside the `try`, and the split is the whole
+    # of two findings at once. Declared here so that every refusal below can
+    # name the corpus it was about, in the same spelling a successful summary
+    # uses (Copilot, round 1); resolved inside, because `Path.resolve()` is
+    # an `OSError` away from a traceback — a `--corpus` symlink loop is the
+    # exact case — and this file has no exit 1 (Copilot, round 2). Where the
+    # resolution itself fails it stays `None` and `_refused` falls back to
+    # the raw flag, which is all there is to name at that point.
+    corpus_root: Path | None = None
     try:
+        corpus_root = (Path(args.corpus).resolve() if args.corpus
+                       else (ROOT / CORPUS_RELPATH).resolve())
         known = read_destinations(manifest_path)
         if args.destination not in known:
             raise ConformanceRefusal(
