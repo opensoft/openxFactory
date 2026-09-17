@@ -531,6 +531,69 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
+  — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),
+  **`Status: ratified`** — **RATIFIED 2026-09-17 at 12:12Z by Brett Heap
+  (openxFactory operator authority), verbatim *"ratify #1069"***, recorded at
+  [#1069](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459).
+  **THE WORD IS BARE**: it ratifies the PACKET and names no option
+  individually, so each of the seven declared veto points stands at the option
+  the packet encodes — the RECOMMENDED one in all seven. Answers openxFactory
+  [#1053](https://github.com/opensoft/openxFactory/issues/1053), the successor
+  `add-declared-former-id` `tasks.md` § 6.1 owed and that packet's archive act
+  filed as a ROUTING RECORD. **THE RESOLUTION RULE LANDED AND THE REPORT OF WHAT
+  IT STILL CANNOT RESOLVE DID NOT**: `scripts/packet_reference.py` states in its
+  own docstring that it *"is a library and has no CLI"*, and its one consumer,
+  `validate-pin-registrations.py`'s `check_citations`, resolves ONE field of
+  registered pins rather than the corpus. **RE-MEASURED AT `b1df95ee`, NOT
+  QUOTED** — **2,973** tracked ENTRIES in scope of the 5,466 tracked, four of
+  them submodule gitlinks skipped as non-files, so **2,969** FILES are read and
+  tokenized; **586** distinct
+  `openspec/changes/…` tokens, which divide exactly and are printed so they
+  reconcile: **498** RESOLVED (76 of them RELOCATED, the rule working), **74**
+  DANGLING(identity-half), **7** DANGLING(file-half), **0** AMBIGUOUS and **7**
+  NOT_A_PACKET_REFERENCE — `498 + 74 + 7 + 0 + 7 = 586`. The **inclusive
+  remainder is 81 tokens** (the DANGLING and AMBIGUOUS ones; the resolver's
+  fifth answer is counted beside it, never inside it), carried by 65 citing
+  files and collapsing onto **53 distinct remainder identities** — 48 of them
+  the identity-half tokens, 5 the file-half tokens, with no identity in both.
+  **AND THE DEEP RE-MEASUREMENT IS COMMITTED AS EVIDENCE**
+  (`evidence/measurement-b1df95ee.md`, by a sibling writer at the same head):
+  INCLUSIVE **78**, THIS-TREE-ONLY **57**, TRUE
+  in-tree by manual read **39**, `AMBIGUOUS` **0** — and the METHODOLOGY IS
+  PROVED NOT TO BE THE VARIABLE, the same instrument reproducing **all twelve**
+  of #1053's published figures exactly against a control clone at `8944758c`,
+  so every delta is corpus movement (the whole −2 is PR #1064's archive of
+  `add-declared-former-id`). **ALL 57 ARE CLASSIFIED, none `unclassified`.**
+  Three honest readings of one corpus give **78, 81 and 86**, differing only in
+  whether trailing punctuation is stripped before dedup and whether
+  `NOT_A_PACKET_REFERENCE` sits inside the raw-absent population — which is the
+  whole argument for stating the recipe in the requirement. The packet authors
+  under #1053's RECOMMENDED option **(b)** — a report CLI outside doc-health —
+  and SIZES option (a), the twenty-fourth doc-health family, from the promoted
+  text rather than estimating it: a `## MODIFIED` block restating the whole
+  *"twenty-three check families"* enumeration, a `families.py` registry edit, a
+  numeral, and a severity decision doc-health's own advisory-launch rule says
+  must *"follow a measurement of the population the gate would red rather than
+  precede it"*. **FIVE `## ADDED` REQUIREMENTS IN A NEW CAPABILITY**
+  `specs/packet-citation-report/` — the remainder is reported by token AND by
+  identity; the population and token grammar are stated so a figure reproduces;
+  a suspected cross-repository citation is FLAGGED and never dropped; the report
+  classifies only what it can decide mechanically and leaves the rest
+  `unclassified`; and it is advisory, exiting 0 whatever it finds with no
+  `--fail-on` — a non-zero exit means the report could not run, never that it
+  found something. No `## MODIFIED` block, so `sequenced_after: []` is the POSITIVE
+  root claim and no promoted byte moves. **SEVEN DECISIONS ARE PUT FOR A WORD**,
+  each with its RECOMMENDED option first and the alternatives costed —
+  `design.md` D1 the HOME, D2 the SURFACE (a sibling script, so the library's
+  contract stays a library's), D3 the RECIPE, D4 the CLASSES, D5 the NIGHTLY
+  WIRING (artifact-only, because `health/` is INSIDE the measured population and
+  carries 0 citation tokens today, so a committed report would be counted by the
+  next run), D6 what STABLE means before (a) is takeable, D7 the SCOPE FENCES.
+  `code_surface` is non-empty and NOTHING OF IT MOVES HERE — no script, no
+  workflow, no test — so the archive is a separate act on merged-plus-green
+  realization evidence and a separate word, and #1053 closes THERE. Filing PR
+  [#1069](https://github.com/opensoft/openxFactory/pull/1069).
 - [repromote-engineering-vocabulary](openspec/changes/repromote-engineering-vocabulary/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
   `openXfactory-4-openDox_extraction`), **`Status: draft`** (a DRAFTED packet:
@@ -551,7 +614,6 @@ Active changes:
   nothing — the packet's own ratified per-requirement map is the removal's
   single writer (`design.md` § D3). CLAIMED on openxFactory #656 comment
   [`5703096449`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5703096449).
-
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
   `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of

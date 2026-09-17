@@ -31,6 +31,7 @@ by review before any code existed:
   member digest or mode differs .................. ERROR / INFO by editorial set
   every member matches ........................... no finding
   git unavailable or commit unresolvable ......... SKIP    (and never per-member)
+  a moved member's leg unreadable here ........... SKIP    (and never per-member)
 
 The skip is reserved for "the question could not be asked". A declared bundle
 naming an inventory that does not exist is an ANSWER — an invalid release
@@ -38,6 +39,25 @@ declaration, which is what a mistyped bundle name or a half-created release
 looks like — and a deleted member is the strongest form of the drift this
 family exists to catch. Collapsing either into a skip would make a defect
 indistinguishable from an absent capability.
+
+THE SEVENTH ARM IS THE SIXTH ONE'S, SPELLED OUT (`#1048`). Post-shed, four
+members of this repository's own bundle have their bytes in a PINNED LEG, and
+`_shed_member` reads them through `carved_reach`. A checkout that cannot reach
+that leg's object store has not learned that those members are gone — it has
+failed to consult version control about them, which is the sixth arm exactly.
+Until this was written down the refusal was swallowed into `(None, None)` and
+the member was reported ABSENT AT THE COMMIT: four `error`s naming files that a
+reader then cannot find in EITHER tree, because they are in neither — a verdict
+about the release read off a fact about the machine. It is reported as a
+repository-level skip carrying the leg's own remedy, never per member, for the
+same reason the sixth arm is.
+
+AND THAT SKIP DOES NOT TAKE THE COMPARED MEMBERS WITH IT (round 2). Members are
+compared in sorted order, so a leg that stops being readable at member N used to
+discard what the first N-1 members established — real drift, on members this run
+DID compare, dropped because a LATER member could not be looked up. The skip
+carries them instead (`doc_health.PartialSkip`, the `#766` shape), so the report
+shows the reason AND the findings rather than choosing between them.
 """
 
 from __future__ import annotations
@@ -46,7 +66,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from . import ERROR, INFO, Finding, Skip
+from . import ERROR, INFO, Finding, PartialSkip, Skip
 
 FAMILY = "release-inventory-drift"
 
@@ -141,10 +161,92 @@ _CUT_ACTION = ("cut a release through the bundle realization order; never "
                "hand-edit an inventory or contract_bundle_version to make "
                "this comparison pass")
 
+# The two texts a per-repository skip's `info` row can carry. NAMED CONSTANTS
+# rather than literals at the call site because there are now two and they are
+# chosen by a condition: `action_pins.harvest_static` resolves a `NAME` bound to
+# a string literal, so both stay pinnable verbatim, which an f-string or a
+# ternary in the argument position would not be.
+_NOT_EVALUATED_ACTION = ("no action — this repository's release surface was "
+                         "not evaluated, and the reason is recorded rather "
+                         "than omitted")
+# AND THE ACTION SAYS SO when the repository was PARTLY evaluated, because
+# "was not evaluated" would be false of the repository this line sits above:
+# part of it WAS. CHOSEN ON EVALUATION RATHER THAN ON FINDINGS (`#1048` round
+# 3, Copilot on PR #1051): members compared before the unreadable one that
+# simply MATCHED establish nothing to carry, and picking this text off a
+# non-empty carried list called such a repository unevaluated for the most
+# ordinary reason there is — its evaluated members were clean.
+_PARTLY_EVALUATED_ACTION = (
+    "no action on this line — the question it names could not be asked, and "
+    "the members this repository HAD compared before it stand, with whatever "
+    "they established reported beside it rather than discarded with it")
 
-def _shed_member(repo_path: Path, git, commit: str, path: str):
+
+def _skip(reason: str, findings=(), evaluated: int = 0):
+    """This family's skip.
+
+    PLAIN WHERE NOTHING WAS ASKED AT ALL — every arm that reaches this before a
+    single member was compared answers the byte-identical `Skip` it always did,
+    down to its type — and `PartialSkip` otherwise (`#1048` round 2, following
+    `#766`'s precedent in `release_tag_publication`; `evaluated` added in round
+    3). A carrying skip IS a skip at every call site in the estate, so nothing
+    that fails closed on one changes.
+
+    TWO INDEPENDENT FACTS, which is why `evaluated` is a parameter and not
+    `bool(findings)` (Copilot on PR #1051). "Some member was EVALUATED" and
+    "some member produced a FINDING" come apart in the everyday case: a
+    repository whose earlier members were compared and all MATCHED has been
+    evaluated and has nothing to carry. Reading the first fact off the second
+    reported that repository as NOT EVALUATED — a verdict about the repository
+    read off the wrong fact, which is the species of claim this family refuses
+    everywhere else.
+    """
+    carried = tuple(findings)
+    if carried or evaluated:
+        return PartialSkip(FAMILY, reason, carried)
+    return Skip(FAMILY, reason)
+
+
+class LegUnavailable(Exception):
+    """A moved member's pinned leg could not be consulted at this commit.
+
+    RAISED, NOT RETURNED, and that asymmetry is the point: every OTHER failure
+    inside `_shed_member` means "this repository's own answer stands", which a
+    `(None, None)` says perfectly well, while this one means "no answer was
+    obtained at all" — which `(None, None)` says as `ABSENT AT THE COMMIT`, the
+    single most severe verdict this family has. `check_repo` turns it into the
+    repository-level skip the taxonomy's sixth arm reserves for exactly this.
+    """
+
+
+def _shed_member(repo_path: Path, git, commit: str, path: str,
+                 leg_modes_cache: dict[tuple[Path, str], dict[str, str] | None]):
     """A recorded member's bytes and mode at `commit` when the § 5.2 shed moved
-    it to a pinned leg — `(blob, git_mode)`, or `(None, None)`.
+    it to a pinned leg — `(blob, git_mode)`, or `(None, None)` where this
+    repository's own answer stands, or `LegUnavailable` where no answer was
+    obtained at all.
+
+    `leg_modes_cache` MEMOIZES THE LEG'S MODE MAP PER `(leg_repo, leg_commit)`
+    (`#1048` round 5, Copilot on PR #1051, `release_inventory.py:325`).
+    `git.tree_modes` runs a full recursive `ls-tree` of the leg's tree, and
+    this function is called once per MOVED MEMBER, so several members
+    resolving to the same pinned leg used to repeat that whole subprocess once
+    per member — four times, for the normal openxFactory bundle. `check_repo`
+    creates one plain `dict` fresh per run, before its member loop, and passes
+    it down here; behaviour is identical either way, including the
+    `LegUnavailable` this raises when the tree cannot be read at all — a `None`
+    is cached exactly like a real mode map, so a leg that cannot answer is not
+    asked again for the next member sharing it within this same run.
+
+    EVERY LEG READ ON THE PATH MAKES THAT DISTINCTION, not just the first
+    (`#1048` round 2). The `LegUnavailable` boundary below once covered only
+    `shed_commit_object`: the blob read answered `(None, None)` on failure and
+    the mode read swallowed its own failure into `{}`, so a leg that was
+    located and pinned correctly but INCOMPLETE still produced a phantom ABSENT
+    AT THE COMMIT — or, for the mode, a check that silently did not happen,
+    which is the fail-open this family refuses everywhere else. Each read now
+    asks the leg's TREE which fact it has, by the same discipline
+    `carved_reach` applies to the gitlink walk.
 
     RULED (a) POST-SHED MODE (`#656` comment `5625573095`). openxFactory's own
     `contract-v3.0` inventory records three members the shed moved
@@ -165,27 +267,98 @@ def _shed_member(repo_path: Path, git, commit: str, path: str):
     as it answers for the repository.
     """
     try:
-        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_commit_object
+        from carved_reach import (CarveReachUnavailable,
+                                  INCOMPLETE_STORE_REMEDY,
+                                  REPO_ROOT as CARVE_ROOT, shed_commit_object)
     except ImportError:
         return None, None
     try:
         if Path(repo_path).resolve() != CARVE_ROOT.resolve():
             return None, None
         located = shed_commit_object(commit, path)
+    except CarveReachUnavailable as unreadable:
+        # THE ONE REFUSAL THAT MUST NOT BECOME `(None, None)`. It says the
+        # leg's object store could not be read AT ALL, so nothing was learned
+        # about this member; the caller's absence finding would announce a
+        # deleted normative member on the strength of an uninitialized
+        # submodule. `LegUnavailable` carries the leg's own remedy up to
+        # `check_repo`, which skips the repository with it.
+        raise LegUnavailable(str(unreadable)) from unreadable
     except Exception:
         return None, None
     if located is None:
         return None, None
     leg_repo, leg_commit, leg_path = located
+    # A LOCATED LEG IS NOT YET A COMPLETE LEG. Reaching this line means the
+    # store was found and carries the pinned commit; it says nothing about the
+    # objects under that commit. `blobs_at` runs `cat-file --batch`, and
+    # MEASURED on git 2.43 that read fails in two unlike ways: a store cloned
+    # `--filter=blob:none` whose promisor remote is unreachable makes the whole
+    # batch exit 128, which arrives here as `None`, while a store simply
+    # missing the object answers `<spec> missing` with exit 0 — byte for byte
+    # what an ABSENT path answers. Both used to become `(None, None)` and then
+    # ABSENT AT THE COMMIT, which is the phantom absence `shed_commit_object`
+    # refuses, arriving one layer lower.
+    # Shared verbatim with `carved_reach.py`'s own `CarveReachUnavailable`
+    # messages, split so it no longer tells a `--filter=tree:0`/`blob:none`
+    # PARTIAL store — which is not shallow — to run `git fetch --unshallow`,
+    # a command that refuses any non-shallow store outright (`#1048` round 4,
+    # Copilot on PR #1051, `carved_reach.py:921` / here at line 290).
+    remedy = INCOMPLETE_STORE_REMEDY
     blobs = git.blobs_at(leg_repo, leg_commit, [leg_path])
-    if not blobs:
+    if blobs is None:
+        raise LegUnavailable(
+            f"the pinned leg holding {path} could not be read at "
+            f"{leg_commit}: git itself declined the blob read in the leg's "
+            f"own object store, so nothing was learned about this member. "
+            f"{remedy}")
+    blob = blobs.get(leg_path)
+    if blob is None:
+        # WHICH ABSENCE IS THIS? The question `check_repo` already asks of its
+        # own manifest read, asked of the leg — and answered by the TREE, which
+        # reports what the commit LISTS rather than what the store HOLDS.
+        listed = git.ls_tree_paths(leg_repo, leg_commit, leg_path)
+        if listed is None:
+            raise LegUnavailable(
+                f"the pinned leg holding {path} could not be read at "
+                f"{leg_commit}: the blob read came back empty and the leg's "
+                f"tree at that commit could not be listed either, so whether "
+                f"the member is ABSENT there or merely UNREADABLE is "
+                f"unestablished. {remedy}")
+        if leg_path in listed:
+            raise LegUnavailable(
+                f"the pinned leg holding {path} could not be read at "
+                f"{leg_commit}: its tree at that commit LISTS {leg_path} and "
+                f"no readable blob came back for it, which is a read that "
+                f"FAILED rather than an absent member. {remedy}")
+        # THE LEG ANSWERED, AND THE ANSWER IS THAT IT DOES NOT CARRY THIS
+        # MEMBER. That is drift about the release — the caller's absence
+        # finding — and the one outcome here that must NOT become a skip.
         return None, None
-    modes = git.tree_modes(leg_repo, leg_commit) or {}
-    return blobs.get(leg_path), modes.get(leg_path)
+    leg_key = (leg_repo, leg_commit)
+    if leg_key in leg_modes_cache:
+        modes = leg_modes_cache[leg_key]
+    else:
+        modes = git.tree_modes(leg_repo, leg_commit)
+        leg_modes_cache[leg_key] = modes
+    if modes is None:
+        raise LegUnavailable(
+            f"the pinned leg holding {path} could not be read at "
+            f"{leg_commit}: its bytes came back and its tree could not be "
+            f"listed for modes, so the `git_mode` this member records could "
+            f"not be checked at all — and a mode check that silently does not "
+            f"happen is the fail-open this family exists to refuse. {remedy}")
+    return blob, modes.get(leg_path)
 
 
 def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
-    """One repository's verdict: a `Skip`, or a list of `Finding`."""
+    """One repository's verdict: a `Skip`, or a list of `Finding`.
+
+    Every skip but one is returned BEFORE any member is compared, so it carries
+    nothing and is the plain `Skip` it always was. The exception is the
+    unreadable-leg arm inside the comparison loop, which returns a
+    `PartialSkip` carrying what the members before it established (`#1048`
+    round 2)."""
     blobs = git.blobs_at(repo_path, commit, [MANIFEST])
     if blobs is None:
         return Skip(FAMILY, f"{repo}: version control could not be consulted "
@@ -247,14 +420,51 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
                             f"at {commit}")
 
     findings: list[Finding] = []
-    for path in paths:
+    # ONE MODE-MAP CACHE FOR THE WHOLE RUN, CREATED BEFORE THE LOOP (`#1048`
+    # round 5, Copilot on PR #1051, `release_inventory.py:325`): several moved
+    # members can resolve to the same pinned `(leg_repo, leg_commit)`, and
+    # `_shed_member` used to run the leg's full recursive `ls-tree` once per
+    # member rather than once per leg. A plain `dict`, local to this call, is
+    # enough — it is never read outside this function and never outlives it.
+    leg_modes_cache: dict[tuple[Path, str], dict[str, str] | None] = {}
+    # ENUMERATED SO THE SKIP BELOW CAN SAY HOW MUCH WAS EVALUATED (round 3).
+    # `paths` is sorted and compared in order, so when member `index` sends the
+    # repository to a skip, members `0..index-1` were compared — whether or not
+    # any of them had anything to report. That count is a DIFFERENT fact from
+    # `findings`, and `fam_` needs both (see `_skip` above).
+    for index, path in enumerate(paths):
         editorial = path in EDITORIAL
         severity = INFO if editorial else ERROR
         recorded = members[path]
         blob = blobs.get(path)
         shed_mode = None
         if blob is None:
-            blob, shed_mode = _shed_member(repo_path, git, commit, path)
+            try:
+                blob, shed_mode = _shed_member(repo_path, git, commit, path,
+                                               leg_modes_cache)
+            except LegUnavailable as unreadable:
+                # SIXTH ARM, NOT THIRD. Version control could not be consulted
+                # about this member, which is a fact about this checkout and
+                # not about the release — so the repository is skipped with the
+                # leg's own remedy as the reason, and `fam_` below records that
+                # reason as an `info` rather than omitting it. Reported once for
+                # the repository rather than per member, because a consultation
+                # failure is never per-member (`#1048`).
+                #
+                # AND IT CARRIES THE MEMBERS ALREADY COMPARED (round 2).
+                # `paths` is sorted, so this returns from the MIDDLE of the
+                # comparison: a bare `Skip` here would drop every finding the
+                # earlier members established — a normative contract's bytes
+                # drifting, discarded because a LATER member's leg could not be
+                # looked up, which is a second verdict about the release read
+                # off the same fact about the machine. `_skip` answers the
+                # plain `Skip` only where NOTHING was asked — nothing
+                # established AND nothing evaluated — so the case where this is
+                # the very first member is unchanged down to its type, while a
+                # repository whose earlier members were compared and matched is
+                # reported as the partly-evaluated thing it is (round 3).
+                return _skip(f"{repo}: {unreadable}", findings,
+                             evaluated=index)
         if blob is None:
             # ABSENT AT THE COMMIT. Reported as drift, never as a skip: a
             # deleted normative member is the strongest form of what this
@@ -342,8 +552,32 @@ def fam_release_inventory_drift(ctx):
     fact rather than a defect — the same band the editorial drift uses, and one
     that reddens no gate. The family-level `Skip` is kept for the case it
     genuinely describes: nothing in scope was askable at all.
+
+    WHAT A SKIP CARRIES IS REPORTED BESIDE IT, NEVER INSTEAD OF IT (`#1048`
+    round 2, the `#766` precedent). A repository can stop being askable partway
+    through its members — a pinned leg that goes unreadable at member N — and
+    its skip then carries the findings the earlier members established.
+
+    TWO QUESTIONS, ASKED SEPARATELY (round 3, Copilot on PR #1051). WHAT WAS
+    ESTABLISHED is read with `getattr(outcome, "findings", ())`, because a
+    plain `Skip` answers the empty tuple by construction and every family in
+    the estate reads a skip that way. WHETHER ANYTHING WAS EVALUATED is a
+    different question and `isinstance(outcome, PartialSkip)` is the one that
+    answers it: `check_repo` returns the partial form whenever members were
+    compared before the unreadable one, and compared-and-MATCHED members
+    establish nothing at all. Deriving the second question from the first put
+    "this repository's release surface was not evaluated" over a repository
+    most of whose surface had just been evaluated and found clean — the same
+    misattribution this family exists to refuse, in its own reporting line.
     """
     results: list[Finding] = []
+    # WHAT THE REPOSITORIES ESTABLISHED, kept apart from `results` because
+    # `results` also holds the per-skip `info` this loop SYNTHESIZES. Only this
+    # list may ride out on a family-level `Skip`: carrying `results` there would
+    # turn a wholly unaskable family into a carrying skip whose "findings" are
+    # its own skip notes, and the run would count and rank rows no repository
+    # established.
+    established: list[Finding] = []
     skips: list[str] = []
     scoped = sorted(ctx.repo_paths.items())
     if not scoped:
@@ -352,16 +586,29 @@ def fam_release_inventory_drift(ctx):
         outcome = check_repo(repo, Path(repo_path), ctx.git)
         if isinstance(outcome, Skip):
             skips.append(outcome.reason)
-            results.append(_finding(
-                INFO, repo, MANIFEST,
-                f"not checked: {outcome.reason}",
-                "no action — this repository's release surface was not "
-                "evaluated, and the reason is recorded rather than omitted"))
+            carried = list(getattr(outcome, "findings", ()))
+            rule = f"not checked: {outcome.reason}"
+            # THE CONDITION IS "WAS ANYTHING EVALUATED", NOT "IS ANYTHING
+            # CARRIED" (round 3). Both action strings stay NAMES in the
+            # argument position so `action_pins.harvest_static` can still
+            # resolve each to its literal and pin it verbatim; only the test
+            # that picks between them moved.
+            if isinstance(outcome, PartialSkip):
+                results.append(_finding(INFO, repo, MANIFEST, rule,
+                                        _PARTLY_EVALUATED_ACTION))
+            else:
+                results.append(_finding(INFO, repo, MANIFEST, rule,
+                                        _NOT_EVALUATED_ACTION))
+            results.extend(carried)
+            established.extend(carried)
             continue
         results.extend(outcome)
     if skips and len(skips) == len(scoped):
         # EVERY repository declined the question, so the family did not run at
         # all. Reported as a family-level skip naming the reasons rather than as
-        # a list of info findings that would read as "checked, nothing wrong".
-        return Skip(FAMILY, "; ".join(skips))
+        # a list of info findings that would read as "checked, nothing wrong" —
+        # and, since `#1048`, still carrying whatever those repositories DID
+        # establish, which `--single-repo` makes the everyday case: one
+        # repository in scope, so its partial skip is the family's.
+        return _skip("; ".join(skips), established)
     return results
