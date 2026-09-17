@@ -1032,8 +1032,9 @@ _LEDGER_SUBJECTS = {
     # record (`validate-openspec-cli-pin.py:787-803`): OF VALUES PRESENT, only
     # an explicit `null` is EMPTY — the same `pin.get(...)` that yields `None`
     # for an ABSENT member yields it for an explicit `null` too, one case under
-    # `raw is None`, not two — and every other PRESENT falsey value stays
-    # malformed. `pinned_by_commit_only:` is NOT reached: it has no pure,
+    # `raw is None`, not two — and every other PRESENT falsey NON-SEQUENCE
+    # value stays malformed — an empty sequence `[]` is EMPTY, accepted as
+    # absence is. `pinned_by_commit_only:` is NOT reached: it has no pure,
     # source-free guard, both verifiers judging it inside their
     # source-dependent `verify()` (`validate-openreposhape-pin.py:481-508`,
     # `verify-openxwallet-pin.py:443-457`), which is why this adapter's own
@@ -1400,13 +1401,23 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     FIFTEEN since 2026-09-15, when `scope-pinned-arm-root-naming` (openxFactory
     #1047, PR #1052) opened ONE row over *Prose tagging marker hygiene*, the
     successor packet scoping the root-naming sentence the archive had just
-    promoted. MEASURED DIRECTLY AT THIS COMMIT, rather than derived from the
-    chain above: SEVENTEEN. The set already held SIXTEEN — one more than
-    FIFTEEN, a gap this docstring's own chronology does not trace and that
-    predates this packet — before `adopt-entry-grain-dispositions-form`'s own
-    ratifier's amendment (openxFactory #1045, comment 5714433011) opened one
-    more row over the SAME requirement `scope-pinned-arm-root-naming`'s row
-    already sits in, on the "Apply the partition" ruling.
+    promoted, matching the chain above exactly: `len(_LEDGER_SUBJECTS)`
+    MEASURED on `origin/main`, before this packet, is FIFTEEN — not the
+    SIXTEEN this docstring once claimed here. That SIXTEEN counted
+    `_LEDGER_SUBJECTS`'s RAW LITERAL ENTRIES in the source rather than its
+    deduplicated membership, over-counted by exactly the one row the set
+    literal collapses: `add-chain-attestation` is written TWICE (`:406`,
+    `:620`, both `("add-chain-attestation", "signed-execution-chain", "A
+    gate validates the short chain as a hash-linked chain")`), a
+    PRE-EXISTING duplicate this chronology never traced, that PREDATES this
+    packet, and that this amendment does not remove — a separate,
+    pre-existing bookkeeping matter, left alone. Then
+    `adopt-entry-grain-dispositions-form`'s own ratifier's amendment
+    (openxFactory #1045, comment 5714433011) opened one more row over the
+    SAME requirement `scope-pinned-arm-root-naming`'s row already sits in,
+    on the "Apply the partition" ruling, taking the RAW LITERAL count to
+    SEVENTEEN — but `len(_LEDGER_SUBJECTS)` MEASURED DIRECTLY AT THIS
+    COMMIT is SIXTEEN, the same duplicate collapsing exactly as before.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,

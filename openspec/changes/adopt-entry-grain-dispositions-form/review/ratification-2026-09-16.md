@@ -346,8 +346,9 @@ line differently: OF VALUES PRESENT, only an explicit `null` is EMPTY — the
 same `pin.get(...)` call that yields `None` for an ABSENT member yields it
 for an explicit `null` too, so the two are one case under the guard's `raw
 is None` check (`scripts/validate-openspec-cli-pin.py:801-803`), not two —
-and every other PRESENT falsey value that is not `null` — `""`, `0`,
-`false` — stays malformed. **THE `dispositions:` HALF OF THAT ADDENDUM IS
+and every other PRESENT falsey NON-SEQUENCE value that is not `null` —
+`""`, `0`, `false`, `{}` — stays malformed, an empty sequence `[]` being
+EMPTY, accepted as absence is. **THE `dispositions:` HALF OF THAT ADDENDUM IS
 MEASURED AND STANDS; THE `pinned_by_commit_only:` HALF WAS THE LANE'S OWN
 PREMISE AND IS WRONG**, and the NOTE below records what is measured instead.
 It is left standing here, reported rather than rewritten, because the
@@ -421,8 +422,9 @@ only it:
   checkout, `git` call or network read — conforms at its entry grain to that
   guard: today `dispositions:` alone, whose guard reads an explicit `null` as
   EMPTY exactly as absence does and otherwise requires a sequence whose every
-  entry it accepts, every other PRESENT falsey value (`""`, `0`, `false`)
-  staying malformed; an optional member for which NO such guard exists,
+  entry it accepts, every other PRESENT falsey NON-SEQUENCE value (`""`,
+  `0`, `false`, `{}`) staying malformed — an empty sequence `[]` is EMPTY,
+  accepted as absence is; an optional member for which NO such guard exists,
   `pinned_by_commit_only:` today, is NOT reached by this clause"*.
 - Its disjointness bullet gained the matching exclusion. AS RATIFIED it read
   *"an ABSENT enumeration, a malformed enumeration, and a well-formed
@@ -463,9 +465,25 @@ required shape members and capabilities enumeration, whose optional
 positive scenario's WHEN no longer matching it. No other scenario in the
 block shares this overlap; each already excludes what the others require.
 
-**NO BENCH HAS READ THIS AMENDMENT.** It is new text as of this addendum,
-carried on its own pull request under Rule 6, and gates at that commit —
-`openspec validate` strict on this change and `--all --strict`, the
-self-gate, `proposal-support.py . verify` and
-`validate-sequenced-after.py . --ledger-diff` — are recorded there and not
+**NO BENCH HAD READ THIS AMENDMENT AT THIS ADDENDUM'S WRITING.** It was new
+text as of this addendum, carried on its own pull request under Rule 6, and
+gated at that commit — `openspec validate` strict on this change and
+`--all --strict`, the self-gate, `proposal-support.py . verify` and
+`validate-sequenced-after.py . --ledger-diff` — were recorded there and not
 pre-asserted here.
+
+**ROUND 5, 2026-09-17: MEASURED, NOT PRE-ASSERTED.** Run in the foreground
+at this round's head, after a plain `git merge origin/main` that landed no
+new commits (`origin/main` was already an ancestor):
+`pytest -q -p no:cacheprovider tests/doc-health/test_modified_block_currency_self_gate.py`
+— NINETEEN passed; `python3 scripts/doc-health.py --single-repo . --family
+modified-block-currency` — 0 critical, 0 error, 0 warning, SIXTEEN info,
+the SAME sixteen named subjects this file's own self-gate asserts;
+`OPENSPEC_TELEMETRY=0 openspec validate adopt-entry-grain-dispositions-form
+--strict` — valid; `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`
+— 109 passed, 2 failed (111 items), the SAME pre-existing pair as
+`origin/main` and neither this amendment's — `add-chain-attestation` and
+`add-composed-view-authoring`; `python3 scripts/proposal-support.py .
+verify` — "proposal support verification ok"; `python3
+scripts/validate-sequenced-after.py . --ledger-diff` — the per-change sweep
+ledger consistent with the corpus, 218 rows.
