@@ -2329,14 +2329,19 @@ the bookkeeping that ticks this group.
   marks it required"* IN PLACE, *"with its own history stated (true at
   authoring, stale from 2026-08-26)"*, from the act that owned the surface
   (`openspec/changes/archive/2026-08-28-split-openxwallet-repo/tasks.md`
-  :972-974; the corrected text stands at `README.md`:3154-3157 at this
-  amendment's merged head — it read `:3026-3029` until the `main` this branch
-  merged moved it **128 lines**, which is the SECOND `README.md` coordinate
-  this amendment has had to re-measure under an act with nothing to do with
-  it (§ 1.8's position list is the other, and it gained two trees rather than
-  going false, because every value there is bound to a NAMED tree). That is
-  the difference a named tree makes, and the reason the sentence is quoted
-  beside the number here).
+  :972-974; the corrected text stands in `README.md` — cited by its SENTENCE
+  and carrying NO line number, for a reason this amendment learned the
+  expensive way. **That one coordinate went stale TWICE inside this single
+  pull request**: it was written as one line range, moved **128 lines** when
+  the `main` this branch merged landed under it, and moved **70 more** at the
+  next merge forward — both by acts with nothing to do with this one, and the
+  second arriving between the fix that re-pointed the number and the push
+  that would have carried it. The DELTAS are recorded and the absolute
+  positions deliberately are not, because a delta cannot go stale and a
+  position in this file demonstrably does.
+  Re-pointing it a third time would be the same mistake with fresher digits,
+  which is exactly what § 1.8 argues at length and what § 1's casefold
+  citation already does).
   Registered here with every coordinate measured, so that act re-derives
   nothing.
   *(A Copilot finding on this amendment's own pull request, round 1, and the
