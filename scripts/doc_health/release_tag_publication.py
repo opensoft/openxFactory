@@ -90,7 +90,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import ERROR, INFO, WARNING, Finding, Skip
+from . import ERROR, INFO, WARNING, Finding, PartialSkip, Skip
 
 FAMILY = "release-tag-publication"
 MANIFEST = "contracts/manifest.yaml"
@@ -909,17 +909,15 @@ def _finding(sev, repo, rule, action, resolution="auto-fixable", path=MANIFEST):
 # partial skip should mean to the family's own `len(skips) == len(scoped)`
 # accounting is the ruling openxFactory #766 records as the wider remedy, not
 # something this fix takes on its own authority.
-@dataclass
-class _PartialSkip(Skip):
-    """A `Skip` carrying the findings established before the question stopped
-    being askable.
-
-    A `Skip` FIRST AND BY INHERITANCE, so nothing that reads a skip has to learn
-    a new shape to go on failing closed on one; the findings are an addition a
-    reader may consult, never a substitution a reader must handle.
-    """
-
-    findings: tuple[Finding, ...] = ()
+# THE SHAPE ITSELF NOW LIVES BESIDE `Skip`, in `doc_health/__init__.py`
+# (`#1048` round 2): `release_inventory` needs the same carrying skip for the
+# same reason — a repository whose pinned leg stops being readable partway
+# through its members must not discard the ones it already compared — and the
+# alternative was a second copy of a five-line shared concept. THE SAME CLASS
+# OBJECT under the name this module, its suite and the estate's comments
+# already use, so nothing about what this family returns, or how any reader
+# recognizes it, moves.
+_PartialSkip = PartialSkip
 
 
 def _skip(reason: str, findings=()):

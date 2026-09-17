@@ -209,9 +209,38 @@ def _shed_aware_commit(root: Path, commit: str, path: str):
     repository's tree and the ordinary read already found it. A root that is not
     this repository answers `None` too, so a candidate-mode run over a domain
     mirror is untouched.
+
+    AN UNREADABLE LEG IS A DEPENDENCY REFUSAL HERE, NOT A TRACEBACK (`#1048`
+    round 3, Copilot on PR #1051, `carved_reach.py:895`).
+    `shed_commit_object` raises `CarveReachUnavailable` when the pinned leg's
+    object store cannot be reached or does not carry the commit the gitlink
+    names — an uninitialized submodule, a shallow or partially fetched store,
+    a side clone. `release_inventory` turns that into its repository-level
+    skip; THIS caller had no boundary for it at all, and the two readers above
+    it catch only `ContentResolutionError` while
+    `scripts/validate-contract-release.py` catches only that and
+    `ReleaseDependencyError` — so the same fact about the machine that the
+    other caller reports as a skip escaped here as an unhandled exception and
+    a stack trace, instead of the documented exit-code-2 dependency failure.
+    It is translated rather than swallowed, and the leg's own remedy (`git
+    submodule update --init --recursive ...`, plus the unshallow note where it
+    applies) travels in the message, because the one thing this must never
+    become is an ANSWER: a `None` here would send the reader to this
+    repository's own tree for a member whose bytes are in the leg, and a
+    post-shed tree does not carry it — the phantom absence, arriving in the
+    release verifier instead of in doc-health.
+
+    `CarveReachUnavailable` IS AN `ImportError` SUBCLASS, so the call is
+    deliberately outside the `try` that guards the import: folded into it, the
+    `except ImportError` below would silently answer `None` for an unreadable
+    leg and reintroduce exactly that.
     """
     try:
-        from carved_reach import REPO_ROOT as CARVE_ROOT, shed_commit_object
+        from carved_reach import (
+            CarveReachUnavailable,
+            REPO_ROOT as CARVE_ROOT,
+            shed_commit_object,
+        )
     except ImportError:
         return None
     try:
@@ -219,7 +248,13 @@ def _shed_aware_commit(root: Path, commit: str, path: str):
             return None
     except OSError:
         return None
-    return shed_commit_object(commit, path)
+    try:
+        return shed_commit_object(commit, path)
+    except CarveReachUnavailable as unreadable:
+        raise ReleaseDependencyError(
+            f"the pinned leg holding {path} could not be consulted at "
+            f"{commit}: {unreadable}"
+        ) from unreadable
 
 
 class ReleaseDependencyError(RuntimeError):

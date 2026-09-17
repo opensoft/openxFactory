@@ -217,10 +217,36 @@
 #     the leg the file actually reached. The row keeps every placement field
 #     unedited, for Q6's reason exactly: the manifest goes on recording what
 #     the carve did and what Q6 corrected, and `retired:` records what a later
-#     ruling removed. `surface:` is the openxFactory path of the SURFACE the
-#     arrived file drove, and `ruling:` — a `#656` comment id, or the pull
-#     request URL carrying the ruling — is REQUIRED, on Q6's own scope
-#     reasoning.
+#     ruling removed. `surface:` is the openxFactory path of the SURFACE THE
+#     ARRIVED FILE NEEDED AND CANNOT OBTAIN AT ITS LEG, and `ruling:` — a
+#     `#656` comment id, or the pull request URL carrying the ruling — is
+#     REQUIRED, on Q6's own scope reasoning.
+#
+#     NEEDED, NOT `DROVE` — WIDENED BY THE FIRST USE, WHICH THE NARROWER WORD
+#     WAS FALSE OF (Copilot review of PR #1043). This gloss read "the SURFACE
+#     the arrived file drove" when the form landed at PR #1032 with no row
+#     using it. Its first use retired two rows, and the two do not stand in the
+#     same relation to the surface they both cite: the TRAY suite drove
+#     `views/intent-feed.js`, while the WHEEL suite's own comment says the
+#     module "rides along because dispose.js imports it" and that the probe
+#     "drives the LOCAL path only — no `opts.intent` is ever passed". It NEEDS
+#     the module — its copy loop lifts it out of the bundle and the import
+#     fails without it — and does not drive it. Under the narrow word the
+#     wheel row's `surface:` recorded a relationship its own `note:` denies;
+#     under NEEDED both rows are exact and the gate is unchanged, because what
+#     `carve-retired-surface-live` asks is whether the cited row is `not_moved`
+#     — which is how THIS document answers "gone from both legs" — and not how
+#     the arrived file used it.
+#
+#     WHAT `surface:` STILL CANNOT SAY, and the same row is the proof: a
+#     retirement may rest on TWO absences and the field names one. The wheel
+#     suite also drives `views/dispose.js`, which § 3.4 slice S5 moved to
+#     `openxdox_code` — absent at openDox-code, but at a leg, so a `surface:`
+#     naming it would refuse `carve-retired-surface-live` and would be right
+#     to: "gone from BOTH legs" is false of it. The field names the `not_moved`
+#     absence this document can answer for; the row's `note:` carries the
+#     other, in prose, and cutover-runbook § 5.8 says so under "What the form
+#     CANNOT express".
 #
 #     ALL FOUR ARE THE READING GUARD AND NOT ONLY THE VALIDATOR'S
 #     REQUIREMENT (Copilot review of PR #1032). Every tool that ACTS on this
@@ -245,7 +271,7 @@
 # document still records where the carve put it.
 #
 # WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON. The claim a
-# retirement rests on is that the surface the arrived file drove is gone from
+# retirement rests on is that the surface the arrived file NEEDED is gone from
 # BOTH legs, and the one way THIS document can answer that without reading a
 # leg is a disposition it already carries: a `not_moved` row STAYED at
 # openxFactory, so by the manifest's own declaration it arrived at no
@@ -261,14 +287,36 @@
 # prove is that the arrived test was the surface's only reader, or that no
 # other file should follow it.
 #
-# NO ROW BELOW CARRIES THE FIELD. This amendment lands the FORM and its gates
-# and retires nothing: the three intent-feed suites RULED 5656343213 retires
-# are the act that uses it, under their own claim and their own pull requests,
-# so every count in this file is unmoved by this landing — exactly as RULED Q6
-# landed above with no row carrying `re_destined:`. `retired 0` is what
-# `scripts/validate-carve-manifest.py` prints for this document until then, on
-# every run, in both phases and at zero, so the state the file is in is never
-# the state no log records.
+# TWO ROWS BELOW CARRY THE FIELD, and this paragraph is where the act that
+# put them there is named. AS FIRST LANDED (openxFactory PR #1032) this
+# amendment carried the FORM and its gates and retired nothing — exactly as
+# RULED Q6 landed above with no row carrying `re_destined:` — so the grammar
+# could be reviewed apart from its use. THE FIRST USE is openxFactory PR
+# #1043 (`#656` CLAIM `5656690570`), the two intent-feed suites
+# `tests/ideation-dashboard/test_intent_tray_dom.py` and
+# `tests/ideation-dashboard/test_wheel_verbs_dom.py`: both retired at
+# `opendox_code`, both citing
+# `scripts/ideation_dashboard/web/views/intent-feed.js` — the RULED OQ-F
+# `not_moved` surface that stayed HERE and reached neither leg — and both
+# deleted at the leg by opensoft/openDox-code#24, the pull request this
+# annotation lands ahead of (cutover-runbook § 5.8 step 2). `retired 2` is
+# what `scripts/validate-carve-manifest.py` prints for this document today;
+# the count prints on every run, in both phases and at zero, so the state the
+# file is in is never the state no log records.
+#
+# THE RULING'S THIRD SUITE CARRIES NO BLOCK, and could not. RULED 5656343213
+# retires three, and the third is the ENDING REPLAY inside
+# `tests/ideation-dashboard/test_staging_workbench.py` — a PART of a file
+# whose other tests drive surfaces `openxdox_code` has, so its row goes on
+# arriving and there is nothing to retire. `retired:` retires a ROW and a row
+# is a FILE; that one is an ORDINARY declared edit on the row's own `edits[]`
+# under `adapter calls`. THREE FIGURES, AND NO TWO OF THEM ARE THE SAME: the removed
+# block SPANS 177 carve lines, and this act's ENTRY declares 167 of them —
+# slice S5 already declared the other ten on this same row, and a line is
+# declared once per row, so the entry omits them and the row's declaration is
+# 196 distinct lines. 177 is the block, 167 is the entry, 196 is the row.
+# Realized at opensoft/openXdox-code#20 and stated at cutover-runbook § 5.8
+# "What the form CANNOT express".
 #
 # THE GATES, FIVE OF THEM: `retired:` on a `not_moved` row refuses
 # `carve-retired-not-moved` (a row that placed nothing has no arrival to
@@ -773,6 +821,128 @@ moved_paths:
 # resolved triple for that reason; the `to != from` check was the one place
 # still comparing labels, and an alias pair passing it would produce a document
 # no leg could satisfy. It moves no row and no count.
+#
+# THE RULED-Q7 CSS EXTRACTION OF 2026-09-16 (RULED Q7, `#656` comment
+# `5648049748`, Brett Heap 2026-09-12 by interactive multi-choice; the FORM is
+# the Q-L1 form ruled at `5628560136`; the CLOSED CLASS LIST is RULING OQ-1's,
+# `5547060378`). ONE ROW — the NARROWEST window any act has opened on this
+# document, counted in ROWS, which is the only count on which it is the
+# narrowest: slice S8's 40 declared lines are fewer than this act's 89, and
+# they fall over thirteen rows (Copilot review, round 1, which read the claim
+# as one about lines and was right to):
+# `scripts/ideation_dashboard/web/styles.css` gains ONE `adapter calls` entry of
+# 89 lines. The row was ALREADY `moved_with_declared_edit` and already a
+# carrier, so rows, dispositions, the carrier count and the 20 replicas all
+# stand exactly where the PRE-EXISTING `openxdox_code` annotation (`#656` CLAIM
+# `5656688910`) left them; the only absolutes that move are the declared-line
+# total (2621 -> 2710), `adapter calls` (1649 -> 1738) and `opendox_code`'s
+# per-destination figure (1667 -> 1756).
+#
+# THIS PARAGRAPH CARRIED THE PRE-MERGE FIGURES AND A MERGE DID NOT CORRECT IT
+# (Copilot review, round 1, which read `2406 -> 2495` against a branch whose
+# baseline had become 2454). The branch was opened on a main that has since
+# taken `#1031` (+48 declared lines), `#1032`, and — on the merge that made
+# these figures what they are — the RETIREMENT ACT's +167 (RULED `5656343213`,
+# `#656` CLAIM `5656690570`), and each merge re-derived the runbook, the three
+# scripts, README and the aggregate test while the first one left this header's
+# own delta alone — a number in prose that no test reads, which is the failure
+# class § 2's re-derivation tests exist for. All four figures above are summed
+# over the MERGED document at every merge, and `2621 + 89 = 2710` is a CHECK on
+# that derivation rather than its source. THE IN-REPOSITORY AUTHORITY for every
+# one of them is `tests/carve_manifest/test_carve_manifest.py::test_the_real_
+# manifest_carries_the_ruled_q_l7_amendment`, which re-derives the line and
+# carrier totals from these rows and asserts `(2710, 176)`, and
+# `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_
+# destination_table_is_the_manifests_own_sum`, which does the same for the
+# per-destination cells — named here because a reader must be able to run the
+# check, not only read the number (Copilot review, round 4).
+#
+# EIGHTY-EIGHT OF THE 89 ARE DELETIONS, AND ONE IS A REPLACEMENT IN PLACE —
+# measured by the same opcode walk that produced the line numbers, and stated
+# apart because they are two different acts (Copilot review, round 4). 59 rule
+# blocks LEAVE openDox's stylesheet for the four sheets openXdox-code ships
+# beside the bindings that own them — RULED Q7's own sentence, "a contributed
+# binding's CSS lives WITH THE BINDING, in its own sheet" — and carve `:161`
+# is the one SELECTOR LIST this act splits rather than moves: `.filterpop
+# [hidden], .projectform.projectpanel[hidden]` becomes `.filterpop[hidden]`, so
+# openDox keeps its half and openXdox-code's `gate-projects.css` re-states the
+# gate half. A `replace` opcode, not a `delete` one, and the declared-line set
+# is the union of both. This is the extraction `#1023` § 6 registered as owed and the S7
+# LANDED note (`5688498049`) register item 1 carried forward.
+#
+# WHY `adapter calls` IS THE LAWFUL CLASS, AND WHY THE QUESTION WAS SETTLED BY
+# MEASUREMENT AND NOT BY ARGUMENT. `#1023` § 6 recorded that "a stylesheet block
+# leaves for another leg" fits none of RULING OQ-1's three classes, and it was
+# right about the document it was reading: `styles.css` was `moved_verbatim`
+# then, a row carrying no `edits:` at all. Slice S7 (`#1030` -> `b3a75537`)
+# converted it and declared 152 lines of it `adapter calls`, so the wall that
+# note met is gone and the surviving question is narrower — is a DELETION
+# declarable? The floor answers twice. By PRECEDENT: the § 3.4 slice-S6
+# annotation declared the `/source` re-homing's 122 `serve_projection.py`
+# DELETIONS under this same class and landed. By MEASUREMENT, before a line of
+# either leg was written: `scripts/verify-carve-arrival.py --destination
+# opendox_code --phase B` run against a throwaway prototype of the extraction
+# REFUSES `arrival-undeclared-edit` and names exactly these 89 carve lines, and
+# the same run against a scratch manifest carrying them answers `OK ... 84
+# declared-edit row(s) within their lines`. The line numbers below are that
+# refusal's own output, re-derived by `_check_declared_lines`' algorithm against
+# the leg head and never transcribed.
+#
+# WHAT SELECTS THE 59 BLOCKS is measured and re-measurable:
+# `scripts/measure_opendox_css_census.py` (IN THIS REPOSITORY, added by this act — a citation a reader cannot open is not a citation, and a pull-request comment is not the diff (Copilot review, round 1). Run it as `python3 scripts/measure_opendox_css_census.py <openDox-code at 0b4e8bbf> <openXdox-code at 0a0265f7>` — the BASE of the leg that applies this window, because at the leg's own head the blocks have already left and it answers 0, which is the extraction working. At the base it prints exactly the figures here: 54 gate-exclusive, 18 shared, 59 blocks, 89 lines. The shared figure was 21 until Copilot's round-5 findings narrowed the gate-side scan again: a `.token` now counts only inside a literal SHAPED like a selector with the dot in selector POSITION, and an assignment only where the target is class-named, so `\"e.g. Field Pilots\"`, `\"gate.lens: ...\"` and `btn.title = \"... this staging topic \"` stop naming `g`, `lens` and `topic`. WHAT LEAVES IS UNCHANGED — the same 54 gate-exclusive classes, the same 59 blocks at the same extents, the same 89 lines — because shared classes stay either way; the narrowing can only keep a rule, never move one. openDox-code's own `tests/test_binding_stylesheets.py` then RE-DERIVES the same set from the six contributed modules wherever an assembly has placed them, and its ORPHAN REGISTER makes the after-state falsifiable with no assembly at all) classifies every class token
+# `styles.css` declares in a selector by which side of the seam names it, and a
+# block leaves only when EVERY class in its selector is named by openXdox's six
+# contributed modules and by no file of openDox's own bundle — and the two
+# sides of that test are read DIFFERENTLY, which is the whole safety argument
+# (Copilot review, round 3): the GATE side must be a CLASS-BEARING position or
+# a concatenation prefix, because a label or message string that happens to
+# equal a selector token would otherwise send an openDox rule to another leg;
+# the openDox side is the BROAD scan, because over-including there only KEEPS a
+# rule. MEASURED at these two commits, the asymmetric rule and the all-broad
+# one both answer 54 over 59 blocks and 89 lines — the narrowing changes no
+# byte of this act and is made because "it happens not to bite here" is not a
+# guarantee. At openDox-code
+# `0b4e8bbf` / openXdox-code `0a0265f7`: 54 exclusive, 18 shared. The tool
+# reproduces `STYLE_RESIDUE`'s `51 / 24` EXACTLY at `cb343ae8` under its
+# literal-only scan, which is how the `51` is known to have been three short —
+# `.dispose-accepted`, `.dispose-rejected` and `.dispose-deferred` are built by
+# `"disposebtn dispose-" + v.outcome` and no literal search can see a class name
+# that is never written down.
+#
+# FIVE new files are admitted (`docs/opendox-carve-admissions.yaml`): at
+# `opendox_code`, `tests/test_binding_stylesheets.py`; at `openxdox_code`, the
+# four sheets `web/views/{dispose,gate-projects,gate,swb}.css`. FOUR sheets for
+# six bindings, both departures measured: `gate-lens.js` owns no selector of its
+# own, and the two workbench bindings name ONE sheet because eleven of its
+# nineteen blocks are named by both.
+#
+# AND THE FOUR IS RULED, NOT MERELY MEASURED. The measurement was put to Brett
+# Heap against a tuple-valued `styles` with a seventh shared sheet, and against
+# six sheets duplicating the eleven blocks: **RULED openxFactory#656 comment
+# `5700475319` (2026-09-16, by interactive multi-choice) keeps this shape — a
+# single specifier per binding, and openDox's href de-duplication LOAD-BEARING
+# rather than decorative.** Cited here, on `ViewBinding.styles` itself at
+# openDox-code, and on `VIEW_SHEET_NAMES` at openXdox-code, so a successor
+# widening the field is visibly changing a ruled decision.
+#
+# THE ONE THING THIS ACT LEAVES OPEN IS RULED OPEN. The four sheets read 13 of
+# openDox's NON-token custom properties, which RULED Q7's own sentence says are
+# not a stable surface. Put to Brett Heap with three alternatives (widen the
+# stable surface by ruling; a second declared token family for contributed
+# chrome; defer to the BUILD arc) and RULED by the same comment `5700475319`:
+# **MOVE them VERBATIM and REGISTER the coupling BY MEASUREMENT** — recorded in
+# `openxdox.view_extensions.STYLE_RESIDUE["open_coupling"]` and asserted by
+# that leg's own suite, because the only alternative that removes the coupling
+# is inlining the colour values, which would end dark mode for this column on
+# every install. NO REFERENT DIGEST MOVES: `carve_commit`,
+# `carve_tag` and all 318 `sha256` values are untouched — a declared line is a
+# claim about what may differ AT THE DESTINATION.
+# Realized at opensoft/openDox-code `build/q7-binding-stylesheets` (DRAFT PR
+# #27) and opensoft/openXdox-code `build/q7-binding-stylesheets` (DRAFT PR
+# #22), in that landing order, with the openXdox-code pin bump between them —
+# that leg's sheets are declared but inert until its `opendox` carries
+# `ViewBinding.styles`, which is what its `specs_for()` feature detection is
+# for.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -2221,6 +2391,9 @@ rows:
       - class: adapter calls
         lines: [18, 19, 20, 21, 30, 55, 56, 57, 58, 79, 80, 81, 82, 99, 100, 101, 102, 256, 260, 261, 270, 277, 281, 287, 305, 306, 311, 326, 331, 352, 353, 354, 355, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 393, 398, 426, 437, 451, 491, 492, 493, 505, 551, 568, 586, 604, 621, 630, 637, 638, 642, 645, 646, 709, 713, 714, 720, 721, 772, 773, 776, 791, 800, 814, 815, 831, 841, 844, 851, 858, 869, 877, 879, 900, 920, 921, 922, 927, 929, 993, 996, 1016, 1032, 1035, 1042, 1049, 1050, 1075, 1125, 1126, 1128, 1149, 1150, 1151, 1164, 1167, 1194, 1204, 1213, 1225, 1229, 1242, 1245, 1273, 1291, 1306, 1324, 1327, 1333, 1335, 1347, 1371, 1372, 1386, 1446, 1458, 1474, 1475, 1481, 1482, 1492, 1504, 1528, 1544, 1582, 1584, 1591, 1601, 1603, 1682, 1692, 1704, 1715, 1726, 2128, 2155, 2158, 2159, 2168, 2519]
         note: "§ 3.4 SLICE S7, the declared-edit window for \"parameterize class C — every governance word in the fourteen class-C files and the four declared class-A tails becomes a read of the registered domain's DISPLAY facet BY ROLE\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`, Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `#656` comment `5628560136`, and its § 3.4 binding clause `5642758731`; S7 CLAIM `#656` comment `5649148461`). THE FOUR DESIGN TOKENS, BY ROLE — RULED Q7's own sentence realized (\"the `--st-*` family is the one stable styling surface; nothing else in `styles.css` is\"). `--st-brainstorm` / `--st-staged` / `--st-proposal` / `--st-realized` become `--st-captured` / `--st-organized` / `--st-proposed` / `--st-completion` — the four roles `views/display.js` declares — at every site: the four definitions in each of the four theme blocks (`:root`, the dark media query and the two explicit `data-theme` choices) and every `var()` use. The VALUES are unchanged and stay per theme, because `Display.applyTokens` writes an inline custom property only for a role the HOST declared — writing all four unconditionally would outrank every per-theme rule and end dark mode on every install in the estate, none of which declares a DISPLAY facet. The candidate-state hooks move with them: `.possible` / `.latent` / `.picked` / `.rejected` become the compound, role-keyed `.tile-candidate` family, because a bare governance word makes an ambiguous style hook and a sweep that exempted it would also have to exempt `state === \"superseded\"`. CLASS `adapter calls` on `#1023`'s own reading of the class — a call site reaching a name that now comes from elsewhere — and this is a RENAME IN PLACE, not the CSS EXTRACTION `#1023` § 6 registered as owed and unrealized: no stylesheet block leaves for another leg here, and that question stands exactly where `#1023` left it. Realized at opensoft/openDox-code `build/s7-parameterize-class-c` (DRAFT PR #21)."
+      - class: adapter calls
+        lines: [161, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 774, 775, 777, 1139, 1140, 1145, 1146, 1147, 1148, 1152, 1253, 1254, 1255, 1256, 1257, 1258, 1259, 1260, 1261, 1262, 1263, 1264, 1265, 1266, 1267, 1268, 1269, 1270, 1271, 1272, 1274, 1275, 1276, 1285, 1296, 1523, 1526, 1527, 1529, 1530, 1531, 1532, 1533, 1534, 1541, 1542, 1543, 1545, 1546, 1547, 1548, 1549, 1550, 1551, 1552, 1553, 1587, 1588, 1589, 1590, 2514, 2549, 2550, 2551, 2552, 2553, 2554, 2555, 2556]
+        note: "§ 3.4 RULED Q7 — THE CSS EXTRACTION, the declared-edit window for \"a contributed binding's CSS lives WITH THE BINDING, in its own sheet; openDox's declared design tokens (the `--st-*` family, S7) are the one stable styling surface; nothing else in `styles.css` is\" (RULED Q7, `#656` comment `5648049748`, Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `#656` comment `5628560136`; the CLOSED CLASS LIST is RULING OQ-1's, `#656` comment `5547060378`). THIS IS THE EXTRACTION `#1023` § 6 REGISTERED AS OWED AND THE S7 LANDED NOTE (`5688498049`) REGISTER ITEM 1 CARRIED FORWARD. 59 rule blocks — 89 carve-commit lines, 88 of them DELETED and one REPLACED IN PLACE — leave this file for the four sheets openXdox-code ships beside the modules that own them. Every selector that leaves names ONLY classes openXdox's six contributed modules use and openDox's own bundle does not, measured at openDox-code `0b4e8bbf` and openXdox-code `0a0265f7` by `scripts/measure_opendox_css_census.py` (IN THIS REPOSITORY, added by this act — a citation a reader cannot open is not a citation, and a pull-request comment is not the diff (Copilot review, round 1). Run it as `python3 scripts/measure_opendox_css_census.py <openDox-code at 0b4e8bbf> <openXdox-code at 0a0265f7>` — the BASE of the leg that applies this window, because at the leg's own head the blocks have already left and it answers 0, which is the extraction working. At the base it prints exactly the figures here: 54 gate-exclusive, 18 shared, 59 blocks, 89 lines. The shared figure was 21 until Copilot's round-5 findings narrowed the gate-side scan again: a `.token` now counts only inside a literal SHAPED like a selector with the dot in selector POSITION, and an assignment only where the target is class-named, so `\"e.g. Field Pilots\"`, `\"gate.lens: ...\"` and `btn.title = \"... this staging topic \"` stop naming `g`, `lens` and `topic`. WHAT LEAVES IS UNCHANGED — the same 54 gate-exclusive classes, the same 59 blocks at the same extents, the same 89 lines — because shared classes stay either way; the narrowing can only keep a rule, never move one. openDox-code's own `tests/test_binding_stylesheets.py` then RE-DERIVES the same set from the six contributed modules wherever an assembly has placed them, and its ORPHAN REGISTER makes the after-state falsifiable with no assembly at all): 54 exclusive classes, 18 shared, and the shared ones STAY, as does every `--st-*` token in all four theme blocks. THE FIGURE `#1023` AND `STYLE_RESIDUE` CARRIED WAS `51 / 24` AT `cb343ae8`, AND IT REPRODUCES EXACTLY under that tool's literal-only scan — the `51` was three short, because `.dispose-accepted`, `.dispose-rejected` and `.dispose-deferred` are built by `\"disposebtn dispose-\" + v.outcome` (`dispose.js`:275) and no literal search can see a class name that is never written down. TWO MIXED RULES, the only two in the file naming a gate class beside an openDox one, are handled rather than exempted: the selector LIST at carve `:161` is split so openDox keeps `.filterpop[hidden]`, and `.swb-draftchrome .swb-cactions` at carve `:2514` moves whole, carrying the one openDox class a contributed sheet names as host context. AND THE WINDOW IS NOT THE CENSUS'S OWN 89, though both are 89 (Copilot review, round 17): the census measures the 59 exclusive blocks as an 89-line UNION IN THE LEG'S OWN NUMBERING, while this window is 89 CARVE lines — 78 of them inside those blocks, 9 the comment and closing-brace lines the moved rules carry out with them (8 comment lines and one `}`), and the last two the mixed pair just named (carve `:161` replaced in place, carve `:2514` moved whole). The leg's diff changes 99 lines of its own file and declares 89 of them, because the other TEN have no carve counterpart at all: they are lines slice S7 created, and `scripts/verify-carve-arrival.py` measures this file against the carve blob, where they do not exist. The union carries one line this window does not for the same reason in reverse — the closing `}` at leg `:1575` (carve `:1554`) is inside an exclusive block and the diff aligns it to an identical `}` that survives — which is why the two 89s are the same SIZE and not the same SET, and why the pinned fixture ties them by size and the arrival verifier, not the census, is what refuses an undeclared edit. CLASS `adapter calls`, on the row's OWN precedent and the floor's: `#1030` already classified 152 lines of this same file under it, and § 3.4 slice S6 declared 122 `serve_projection.py` DELETIONS under it and landed — a deletion is a declared edit in this vocabulary and has been since that act. IT IS ALSO MEASURED AND NOT ARGUED: `scripts/verify-carve-arrival.py --destination opendox_code --phase B` REFUSES `arrival-undeclared-edit` naming exactly these 89 lines against a prototype of the extraction, and answers `OK ... 84 declared-edit row(s) within their lines` with them declared here. What `#1023` § 6 called a wall was the `moved_verbatim` disposition, and slice S7 (`#1030` -> `b3a75537`) converted this row away from it; the narrower question this act answers is whether a DELETION is declarable, and the floor's own history says it is. FOUR SHEETS FOR SIX BINDINGS, AND BOTH DEPARTURES ARE RULED AS WELL AS MEASURED (`gate-lens.js` owns no selector of its own; the two workbench bindings name ONE sheet because eleven of its nineteen blocks are named by both): RULED openxFactory#656 comment `5700475319` (Brett Heap, 2026-09-16, by interactive multi-choice) keeps the single `styles` specifier with href de-duplication load-bearing, against a tuple-valued field with a seventh shared sheet and against six sheets duplicating the eleven. THE SAME COMMENT RULES THE ONE COUPLING THIS ACT LEAVES OPEN: the four sheets read 13 of openDox's NON-token custom properties, and they MOVE VERBATIM with the coupling REGISTERED BY MEASUREMENT in `openxdox.view_extensions.STYLE_RESIDUE[\"open_coupling\"]` and asserted by that leg's suite, rather than inlined (which would end dark mode for this column on every install) or deferred. Realized at opensoft/openDox-code `build/q7-binding-stylesheets` (DRAFT PR #27) with the receiving sheets at opensoft/openXdox-code `build/q7-binding-stylesheets` (DRAFT PR #22); this annotation lands FIRST per Q-L1, then #27, then the pin bump that gives openXdox-code an `opendox` carrying `ViewBinding.styles`, then #22 is live."
   - source_path: scripts/ideation_dashboard/web/vendor/.gitkeep
     disposition: moved_verbatim
     git_mode: '100644'
@@ -3743,6 +3916,12 @@ rows:
     sha256: "d790bae298aeb7a0c4feb21d9e71c39e66da18e275aef2d5eec5811efea0f342"
     destination: opendox_code
     destination_path: tests/test_intent_tray_dom.py
+    retired:
+      at: opendox_code
+      at_path: tests/test_intent_tray_dom.py
+      ruling: "opensoft/openxFactory#656 comment 5656343213 (RULED, Brett Heap, 2026-09-13, by interactive multi-choice, on the question slice S8's author put in `#656` comment 5650335573 § 2)"
+      surface: scripts/ideation_dashboard/web/views/intent-feed.js
+      note: "23 tests that copy `views/intent-feed.js` out of the bundle and drive it under node. That surface is RULED OQ-F `not_moved` — it STAYED at openxFactory and arrived at NEITHER leg — and § 3.4 slice S2 replaced the one openDox does have with `views/intent-binding.js` (RULED Q5, `#656` comment 5642758731), so the suite tests a surface that is not there and has NEVER been on the leg's validate.yml selection — that list is an allow-list and RULED Q-L5 (b') kept this suite off it from the day it arrived, which is what 'narrowed' means here and is not a claim that anything was removed from it. The retirement removes the FILE; the selection is untouched by it. Deleted at the leg by opensoft/openDox-code PR #24, which lands immediately after this annotation (cutover-runbook section 5.8 step 4) and which also repairs the prose this deletion falsified in the files that leg OWNS — its `validate.yml` comment and the two intent-binding suites' docstrings — and leaves the two sentences inside CARVED files that name the deleted sibling, listed as a known cost there and in cutover-runbook § 5.8 ('the repair stops at a carved file'). The node-driven DOM-probe pattern it founded survives at that leg in tests/test_intent_binding_dom.py and tests/test_view_registry.py."
     edits:
       - class: path constants
         lines: [30]
@@ -4224,7 +4403,10 @@ rows:
         note: "package-internal asset and module path literals: the package directory `scripts/ideation_dashboard/` and its `web/` asset root both change under the destination's `src/` layout (scout memo § 5); corpus-shaped literals are filed as `adapter calls` instead"
       - class: adapter calls
         lines: [1895, 1896, 1897, 1898, 1900, 1906, 1907, 1918, 1926, 1928]
-        note: "§ 3.4 SLICE S5, RULED Q3 (`#656` comment `5648044785`): ONE mount signature, `mount(host, snapshot, ctx)`. `_ENDING_REPLAY_HARNESS` called `mountSessionAffordances(host, ctx, opts)` at :1926 and :1928, so the session context arrived as the SNAPSHOT and the seams as the `ctx` — the mount saw no `session` and no `model`, took the refusal path, and the replay failed before it exercised the ending behaviour it exists to measure. :1900/:1918 rename the two objects to RULED Q3's shape (`session` and `ctx`), :1897 adds the model namespace import RULED counterpart Q6 requires, and :1895-1896/:1906-1907 are the declaring lines beside them."
+        note: "§ 3.4 SLICE S5, RULED Q3 (`#656` comment `5648044785`): ONE mount signature, `mount(host, snapshot, ctx)`. `_ENDING_REPLAY_HARNESS` called `mountSessionAffordances(host, ctx, opts)` at :1926 and :1928, so the session context arrived as the SNAPSHOT and the seams as the `ctx` — the mount saw no `session` and no `model`, took the refusal path, and the replay failed before it exercised the ending behaviour it exists to measure. :1900/:1918 rename the two objects to RULED Q3's shape (`session` and `ctx`), :1897 adds the model namespace import RULED counterpart Q6 requires, and :1895-1896/:1906-1907 are the declaring lines beside them. AMENDED by RULED 5656343213 (2026-09-13): every line this entry names now sits INSIDE the block that ruling removed, so what the arrived file differs by at these lines is no longer S5's rename but the deletion the entry below names in full. The lines stay declared; the history stays readable."
+      - class: adapter calls
+        lines: [1833, 1834, 1835, 1836, 1837, 1838, 1839, 1840, 1841, 1842, 1843, 1844, 1845, 1846, 1847, 1848, 1849, 1850, 1851, 1852, 1853, 1854, 1855, 1856, 1857, 1858, 1859, 1860, 1861, 1862, 1863, 1864, 1865, 1866, 1867, 1868, 1869, 1870, 1871, 1872, 1873, 1874, 1875, 1876, 1877, 1878, 1879, 1880, 1881, 1882, 1883, 1884, 1885, 1886, 1887, 1888, 1889, 1890, 1891, 1892, 1893, 1894, 1899, 1901, 1902, 1903, 1904, 1905, 1908, 1909, 1910, 1911, 1912, 1913, 1914, 1915, 1916, 1917, 1919, 1920, 1921, 1922, 1923, 1924, 1925, 1927, 1929, 1930, 1931, 1932, 1933, 1934, 1935, 1936, 1937, 1938, 1939, 1940, 1941, 1942, 1943, 1944, 1945, 1946, 1947, 1948, 1949, 1950, 1951, 1952, 1953, 1954, 1955, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 1973, 1974, 1975, 1976, 1977, 1978, 1979, 1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2028, 2029, 2030]
+        note: "RULED 5656343213 (Brett Heap, 2026-09-13, by interactive multi-choice) RETIRES the ENDING REPLAY of this suite — `_DOM_SHIM`, `_ENDING_REPLAY_HARNESS`, `_run_ending_replay()` and `test_the_ending_report_really_reaches_the_slot_the_re_render_rebuilt`, carve lines 1833-2006 — plus the three-line docstring tail at 2028-2030 that named the removed probe as the owner of the behaviour. THIS IS NOT A `retired:` BLOCK, and cannot be: that form retires a ROW and a row is a FILE, while this file's other tests drive surfaces the leg has, so the row goes on arriving (cutover runbook § 5.8, 'What the form CANNOT express'). The harness copied `views/intent-feed.js` out of the bundle and that file is RULED OQ-F `not_moved`, at neither leg — the probe could never have run there. Filed under `adapter calls` because the closed RULED OQ-1 vocabulary has no class for a removal and this is the class the S5 entry above already gave these exact lines; the ten lines that entry names sit INSIDE this range and are deliberately NOT repeated here. A line is declared once per row: the aggregate sums line ENTRIES, so a repeat would publish ten lines this act does not add while the row's declared SET stayed the same, which is the defect `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment` pins against (openxFactory #1030). This entry therefore carries the other 167 of the block's 177 carve lines; the row declares 196 distinct lines, which is what `verify-carve-arrival.py` reads and what the leg is held to; and the block's full extent 1833-2006 + 2028-2030 is stated in this note and in the S5 entry's own AMENDED clause, in prose, rather than by repeating ten numbers. Realized at opensoft/openXdox-code PR #20, which lands immediately after this annotation (cutover-runbook section 5.8; a declared edit opens no window, so between the two merges the lines simply read as not yet applied)."
   - source_path: tests/ideation-dashboard/test_subcommand_extension.py
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -4290,6 +4472,12 @@ rows:
     sha256: "6a432e662aad8e16bb169d356a09ecd6b10034b1ac4c946e8c667aae3643e33b"
     destination: opendox_code
     destination_path: tests/test_wheel_verbs_dom.py
+    retired:
+      at: opendox_code
+      at_path: tests/test_wheel_verbs_dom.py
+      ruling: "opensoft/openxFactory#656 comment 5656343213 (RULED, Brett Heap, 2026-09-13, by interactive multi-choice, on the question slice S8's author put in `#656` comment 5650335573 § 2)"
+      surface: scripts/ideation_dashboard/web/views/intent-feed.js
+      note: "8 tests, the same instrument and the same unreachable module — but NOT the same relationship to it, and the difference is measured in the file itself before it is deleted (Copilot review of opensoft/openDox-code#24, which raised it twice). The TRAY suite DROVE `views/intent-feed.js`; this one did not. Its own comment says the module 'rides along because dispose.js imports it' and that the probe 'drives the LOCAL path only — no `opts.intent` is ever passed'. Saying both drove it would credit this suite with coverage it never had, which is the one thing a retirement's record must not do: after the deletion this block is the account that survives. What makes it unrunnable at the leg is the copy loop, and TWO modules are missing from it — `views/intent-feed.js`, RULED OQ-F `not_moved`, at neither leg, which is the `surface:` this block names and the one the `carve-retired-surface-live` gate can check; and `views/dispose.js`, which this suite does drive and which § 3.4 slice S5 moved to openXdox-code, so it is absent here too. Retired with its sibling under one ruling and deleted in the same commit at opensoft/openDox-code PR #24. Its own declared edits — `path constants` at :26, and `adapter calls` at :310 since the § 3.4 slice-S7 annotation — are untouched and stay: a retirement is a fact about a DESTINATION, so the row goes on recording the file that LEFT openxFactory and every line a ruling has since declared on it, carried rather than applied."
     edits:
       - class: path constants
         lines: [26]
