@@ -539,11 +539,23 @@ counts the identity once — that is what the grouping is for — and the token
 total still counts every spelling.
 
 **THE OUTPUT, SHAPED BY THE HAND CLASSIFICATION RATHER THAN IMAGINED.** A human
-table grouped by CLASS then by IDENTITY — counts first, then the remainder
-itemized — plus, under `--json`, one object per token carrying `token`,
-`status`, `half`, `identity`, `remainder`, every OCCURRENCE as `path:line`,
-`class` and every flag. Six rules the evidence's § 6.3 derives from doing the
-classification by hand, each adopted here:
+table in two parts — the COUNTS block (the population figures and the
+arithmetic rows, then the class totals, counted in TOKENS, and the labelled
+identity count) and the remainder ITEMIZED (grouped by IDENTITY by default,
+each identity heading listing its tokens beneath it with each token's own
+class and flags as per-entry labels, or grouped by TOKEN under `--tokens`;
+CLASS IS NEVER A GROUPING LEVEL in either mode) — counts first, then the
+remainder itemized — plus, under `--json`, one object per token carrying
+`raw`, `token`, `status`, `half`, `identity`, `remainder`, every OCCURRENCE as
+`path:line`, `class` and every flag. **`raw` IS THE TOKEN EXACTLY AS EXTRACTED
+FROM THE LINE, BEFORE ANY NORMALIZATION; `token` IS THE NORMALIZED FORM THE
+RESOLVER WAS ACTUALLY ASKED ABOUT.** The normalizations D3(b) applies are
+exactly the difference between the two, and `raw == token` when none fired —
+so a token that is BOTH stripped (a trailing `/` or `.` removed) and severed
+(classed `truncated` by D4's precedence over `punctuation-stripped`) still
+SHOWS the stripping instead of losing it to the class that wins. Seven rules —
+six the evidence's § 6.3 derives from doing the classification by hand, and a
+seventh this section states for `--history` — each adopted here:
 
 1. **Print the resolver's own `report` sentence** for the first occurrence, and
    do not re-write it in a second voice — that is how two descriptions of one
@@ -568,6 +580,32 @@ classification by hand, each adopted here:
 6. **Both formats carry the headline numbers**: the POPULATION PAIR — tracked
    ENTRIES in scope and FILES read, neither standing for the other — distinct
    tokens, remainder TOKENS, remainder IDENTITIES.
+7. **CARRY `--history` AS ITS OWN FIELD, NEVER AS A CLASS OR A FLAG.** History
+   is a property of the IDENTITY, probed ONCE PER IDENTITY and cached exactly
+   as the argument surface above already states. The probe is D3(e)'s
+   CORRECTED pathspec's `git log --all --diff-filter=A --reverse`, run once per
+   identity — `--reverse` so the FIRST line is the OLDEST add-event and the
+   LAST is the newest, which is the order the two field names below read in
+   rather than git's own default — with `--abbrev=8` so both shas are EIGHT
+   characters everywhere this design prints one. Under `--json`, each identity
+   record — and, in `--tokens` mode, every token record sharing that identity,
+   all carrying the IDENTICAL object — gets a `history` field: `{probed: true,
+   ever_tracked: <bool>, first_commit: <sha|null>, last_commit: <sha|null>}`,
+   both shas `null` when `ever_tracked` is `false` (the probe returned no
+   line). **THE MEASURED PROBE CARRIES NO PATH** — `measure.py`'s own format is
+   `%h %ad %s`, a hash, a date and a subject line, never a file path — so this
+   rule drops the `last_path` an earlier sketch of it proposed, rather than
+   invent a probe the evidence never ran; the width fix (`--abbrev=8`) is
+   likewise this rule's own choice, because `measure.py`'s `%h` left it to
+   git's default. When `--history` is NOT given the key is ABSENT, never
+   `null`, so a reading's JSON shape declares whether the probe ran and two
+   readings differing only in this key's presence are still the same series
+   point. The human table prints one line beneath each identity heading:
+   `history: never tracked` or `history: tracked <first_commit>..<last_commit>`.
+   **HISTORY NEVER CHANGES A CLASS OR A FLAG**: D4's vocabulary stays closed at
+   four labels and `possibly-cross-repo` stays the only flag; `--history`
+   answers a different question — whether an identity ever stood in this tree
+   at all — that neither list was ever built to carry.
 
 **THE EXIT CODE IS 0 ON A FINDING AND NON-ZERO ONLY WHEN THE REPORT COULD NOT
 RUN, AND A `--fail-on` IS EXPLICITLY NOT BUILT.** The requirement states the
@@ -685,11 +723,11 @@ REPORTED rather than hidden:
   its unslashed sibling rather than counted twice;
 - a trailing `.` is stripped where the token would otherwise end a sentence
   (1 token), which is the `contracts/openspec-cli-pin.yaml` case;
-- a token ending in `-` is FLAGGED `truncated` and NOT resolved as if complete
-  (2 tokens), because the citation it came from is a line-broken or
-  concatenation-split path and the tool cannot know the rest — **BUT THE
-  TRAILING HYPHEN IS A SUSPICION AND NOT A VERDICT, AND RESOLUTION IS TRIED
-  FIRST** (PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jIP4S`): this estate's
+- a token ending in `-` might be a truncated path (2 tokens) — the citation it
+  came from may be a line-broken or concatenation-split path and the tool
+  cannot know the rest — **BUT THE TRAILING HYPHEN IS A SUSPICION AND NOT A
+  VERDICT, AND RESOLUTION IS TRIED FIRST** (PR #1069, Copilot thread
+  `PRRT_kwDOTAvnrs6jIP4S`): this estate's
   canonical change-id grammar is `[A-Za-z0-9][A-Za-z0-9._-]*`
   (`scripts/proposal-support.py`'s `CHANGE_ID_RE`, the one spelling all three
   readers share), and it ADMITS an id that ends in `-`, so a blanket rule would

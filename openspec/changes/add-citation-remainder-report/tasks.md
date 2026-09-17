@@ -344,7 +344,16 @@ added, edited, renamed or deleted here.
       Argument surface exactly as D2 fixes it (`[REPO_ROOT] [--json] [--all]
       [--tokens] [--history] [--include PREFIX ...] [--exclude PREFIX ...]` — grouping is by IDENTITY
       by default and `--tokens` ungroups it; `--history` is OPT-IN on D2's
-      measured cost), exit code always 0, no `--fail-on`. `tests/citation_remainder/` (NEW): unit tests over a
+      measured cost); exit 0 whatever it finds — *"the report SHALL exit
+      successfully whatever it finds, and SHALL NOT provide an option that
+      makes a finding fail a run"*, and *"A NON-ZERO EXIT SHALL MEAN THE REPORT
+      COULD NOT RUN, never that it found something"* (`design.md` D2) — no
+      `--fail-on`. **TWO FIELDS D2 OWES A TEST EACH**: every JSON record's
+      `raw` field (the token exactly as extracted, before normalization; `raw
+      == token` when none fired) and, under `--history`, each identity's
+      `history` object (`probed`, `ever_tracked`, `first_commit`,
+      `last_commit`) — ABSENT, never `null`, when `--history` is not given,
+      which is its own test. `tests/citation_remainder/` (NEW): unit tests over a
       THROWAWAY FIXTURE CORPUS built in a `tmp_path` git tree — the shape
       `add-declared-former-id` used for `tests/packet_reference/`, so the tests
       assert against a corpus they construct rather than against the live one,
@@ -353,7 +362,8 @@ added, edited, renamed or deleted here.
       signals — a path-joined prefix, a GitHub blob or tree URL, a bare
       qualifier word immediately before the token, the `opsx:opensoft/…`
       custody-locator scheme, and a trailing `(RepoName)` parenthetical — AND
-      one three lines above; an identity cited by two tokens; a file-half
+      one at the window's own far edge, the citing LINE plus the three lines
+      above it; an identity cited by two tokens; a file-half
       dangler; a deliberately-absent scope-isolation fixture; and the
       `README.md`-shaped case where the raw path's presence decides the
       outcome. **AND THE FIVE FOLDED RULES ARE FIXTURE CASES OF THEIR OWN**, on
