@@ -2402,9 +2402,18 @@ the bookkeeping that ticks this group.
   HAVE NOT CAUGHT UP, AND THAT IS SAID HERE RATHER THAN LEFT FOR A READER TO
   TRIP OVER.** #1059's shipped files still describe the gate as it stood on the
   day it landed, six minutes before the ruleset existed. Measured at this
-  amendment's base: `.github/workflows/openxdox-consumer-gate.yml`:48-56
+  amendment's base `cbc3a2c6`:
+  `.github/workflows/openxdox-consumer-gate.yml`:48-56
   (*"THE GATE IS ADVISORY ON THE DAY IT LANDS … Nothing pins this one … It is
   owed and it is named"*);
+  *(THE TREE IS NAMED BECAUSE "THIS AMENDMENT'S BASE" IS NOT ONE — it is a
+  RELATIVE locator, and this branch's base MOVED: it started at `cbc3a2c6`,
+  amendment #4's head, was retargeted to `main`, and took five merges forward.
+  Once this lands, the phrase alone cannot tell a reader whether a coordinate
+  was read at `cbc3a2c6` or at whichever `main` arrived later, so the
+  stale-record claim would not be reproducible from the ledger. Raised at
+  review; three of this amendment's six uses already named the tree and three
+  did not, and all six now do.)*
   `tests/openxdox_consumer_gate/test_openxdox_gate_invocation.py`:8-11
   (*"ADVISORY on the day it lands — no ruleset pins its token yet"*) and
   `test_openxdox_gate_adjudicator.py`:10 (*"a gate no ruleset pins"*); and the
@@ -2557,6 +2566,29 @@ the bookkeeping that ticks this group.
     are outside the clause's domain, and each of the 3 test-bearing ones has its
     homes declared above.
     This is what clause (b)'s obligation on FLOOR PART 1 is owed FOR.
+  **STATUS — THE MACHINE CHECKS FOR (a), (b) AND (c) HAVE LANDED, AND THE BOX
+  STILL DOES NOT TICK.** `openxFactory` **#1080 → `4b53ea99`**, merged
+  2026-09-17T14:46:30Z, brings `scripts/carve_test_mapping.py`,
+  `scripts/verify-carve-test-mapping.py` and
+  `tests/carve_test_mapping/test_carve_test_mapping.py`.
+  **RE-DERIVED HERE RATHER THAN TRANSCRIBED FROM THE LANE'S EVIDENCE FILE** —
+  run by this actor at the tree this amendment merged, which carries
+  `4b53ea99` as an ancestor: `python3 scripts/verify-carve-test-mapping.py`
+  returns **exit 0** and the sum the clause names —
+  `source_count 4411` + `replica excess 60` + `also-replicated 0`
+  + `retired term -31` = **`Σ(destinations) 4440`** — over **146** test-bearing
+  rows of 456, **144** homed and **2** RULED-retired (31 `def test_`, RULED
+  `5656343213`), with **3** test-bearing replicas carrying a declared
+  multiplicity. The destination split is `openDox-code` **1097** ·
+  `openXdox-code` **2345** · `openxFactory` **998**, the other three
+  destinations zero.
+  **WHY THE BOX STAYS `[ ]`: clause (d)'s LEG half is BLOCKED on the BUILD
+  arc** (§ 3.5 / § 3.6). Both legs' `validate.yml` run a NAMED FILE LIST under
+  `--noconftest` with no JUnit and no triple, and both name the BUILD arc as
+  the blocker in their own words; `openxFactory`'s half is already pinned.
+  **§ 5.4 does not close until the BUILD arc lands** — three of four clauses
+  proved is not the clause set, and this packet does not tick a box on its
+  majority.
 
   > Amended 2026-09-09. This item first read: *"**FLOOR PART 2 (RULED OQ-1) —
   > test counts that must SUM across the three repositories.** 3,927 `def test_`
@@ -3373,7 +3405,8 @@ movements claimed at the time they land.
   `openxdox-install-app-provisioning`. The two-App dispatch/content
   SEPARATION is already canon — the promoted `credential-contracts` requirement
   *Dispatch-only credential least privilege and serving-tier separation*
-  (`openspec/specs/credential-contracts/spec.md`:169 at this amendment's base)
+  (`openspec/specs/credential-contracts/spec.md`:169 at this amendment's base
+  `cbc3a2c6`)
   — and what is missing is the provisioning shape. One repository,
   no Ops collision, CLAUDE.md working rule 1 satisfied. **The options are a
   SECOND enumeration and not a re-labelling of the reads** — they are what was
@@ -3675,7 +3708,8 @@ realization evidence, never on landing. Each line is its own evidence.
   pull request, round 13, and it is right in the code):
   `doc_health.Finding.match_key()` is `(self.family, self.repo, self.path)` —
   `scripts/doc_health/__init__.py`, the method of that name (`:187-189` at
-  this amendment's base) — so SEVERITY is not part of a finding's identity.
+  this amendment's base `cbc3a2c6`) — so SEVERITY is not part of a finding's
+  identity.
   **That method's own docstring UNDERSTATES the key it returns, and the
   discrepancy is named here rather than quoted past**: it reads
   *"Regression-rule identity: contract matches by family + path"* while the
