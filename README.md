@@ -3323,8 +3323,8 @@ Archived changes:
   — **ARCHIVE PREPARED 2026-09-16** by
   [PR #1076](https://github.com/opensoft/openxFactory/pull/1076), lane
   `openxfactory-5` (display `openXfactory-5`), and **HELD AS A DRAFT: THE
-  SEPARATE ARCHIVE WORD IS OWED AND THE GREEN HALF OF THE REALIZATION EVIDENCE
-  IS OWED.** This entry records an act PREPARED in advance, not an act
+  SEPARATE ARCHIVE WORD IS OWED; THE GREEN HALF OF THE REALIZATION EVIDENCE IS
+  NOW IN HAND.** This entry records an act PREPARED in advance, not an act
   authorized: no word of Brett Heap's archives this packet yet, and the pull
   request carries `Refs #1013` and no closing keyword until one is given.
   **`code_surface: openxFactory` IS NON-EMPTY**, so under `release-realization`
@@ -3341,18 +3341,19 @@ Archived changes:
   `scripts/code-surface-register.yaml`, `tests/code_surface/`, and the one
   narrowing edit to `scripts/scope_globs.py` — MERGED into `main` at
   `4cef77af53131f36f4d62f3e7dac550360b1d28d`, 2026-09-16T19:11:39Z.
-  **THE GREEN HALF, OWED AND NAMED RATHER THAN GLOSSED:** `main`'s own required
-  `pytest-suite` at that exact head is run
-  [35139068743](https://github.com/opensoft/openxFactory/actions/runs/35139068743)
-  (`event: push`, head the merge commit itself) and it is **red** — `1 failed,
-  7715 passed` — the single failure being
+  **THE GREEN HALF, IN HAND:** `main`'s own required `pytest-suite` at a head
+  containing `4cef77af` is run
+  [35219872882](https://github.com/opensoft/openxFactory/actions/runs/35219872882)
+  (`event: push`, head `a93d2682e51493e6e1c4c5ce7d3537d23948a283`, completed
+  2026-09-17T12:34:10Z) and its conclusion is **success**: `7717 passed, 6
+  skipped, 338 deselected, 401 subtests passed`, zero failed. The self-gate
+  collision named above,
   `tests/doc-health/test_modified_block_currency_self_gate.py::test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`,
-  the self-gate collision lane `openxfactory-2`'s #1050 and #1052 opened one
-  merge EARLIER at `fa39141c` (it fails identically there, run 35135352984) and
-  that the same lane is repairing. It is unrelated to this packet and names no file
-  this packet or its realization authored. The archive lands when that run is
-  green at a head containing `4cef77af` and when Brett Heap words the archive,
-  and not before.
+  opened one merge EARLIER at `fa39141c` by lane `openxfactory-2`'s #1050 and
+  #1052, is repaired: `#1075` orders `adopt-entry-grain-dispositions-form` after
+  `scope-pinned-arm-root-naming` and merged into `main` at `a93d2682` itself.
+  The MERGED-PLUS-GREEN pair this archive requires is complete; the archive
+  lands when Brett Heap words it, and not before.
   **THE PROMOTION, MEASURED:** the three `## ADDED` requirements — *Code-surface
   declaration grammar is gated*, *The declared repository set is derived from the
   head and never from the gloss*, and *Standing code-surface divergence is named
