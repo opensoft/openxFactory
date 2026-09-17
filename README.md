@@ -551,8 +551,8 @@ Active changes:
   (`.github/workflows/pytest-suite.yml:556`, `python-version: "3.12"`; measuring
   shell `Python 3.12.3`), at the candidate's leaf and at any parent component
   alike. Four path-containment guards in three modules absorb only `OSError`
-  (one absorbs `OSError` and `ValueError`), and THREE OF THE FOUR traceback where
-  their own docstrings promise a DROP: `scripts/code_surface.py:777`
+  (one absorbs `OSError` and `ValueError`), and THREE OF THE FOUR END IN A
+  TRACEBACK where their own docstrings promise a DROP: `scripts/code_surface.py:777`
   (`_unescaped`), `scripts/target_release.py:630` (`_unescaped`) and
   `scripts/proposal-support.py:347` (`_contained`). The FOURTH,
   `scripts/target_release.py:394` (`_registry_present`), carries the same narrow

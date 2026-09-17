@@ -102,9 +102,12 @@ and a test that passes on both sides is not the proof.**
 - [ ] 3.2 `tests/code_surface/`: one test that builds an `a -> b -> a` loop under
       `tmp_path`, in ALL THREE exposed positions the first requirement names (the
       candidate's own leaf; a parent component above an ordinary leaf; and the
-      SCANNED ROOT itself, `spec.md`'s third scenario, where `_unescaped`
-      resolves BOTH sides and it is the root side that fails), and asserts
-      `_unescaped` returns `None` in each. Recorded failing against `c6997f12`'s
+      SCANNED ROOT itself, `spec.md`'s third scenario), and asserts `_unescaped`
+      returns `None` in each. In that third position the loop is reached through
+      the CANDIDATE and never through a separate root read: `candidate =
+      repo_root / relative` traverses the loop, so `code_surface.py:775` raises
+      and the root resolution on `:776` is never executed. Measured, not assumed;
+      the transcript is `design.md` D5. Recorded failing against `c6997f12`'s
       clause.
 - [ ] 3.3 `scripts/target_release.py`: `_unescaped`'s clause and
       `_registry_present`'s clause both widened to `except (OSError, RuntimeError):`,
@@ -123,9 +126,11 @@ and a test that passes on both sides is not the proof.**
       `contained_file` docstrings amended to name the set.
 - [ ] 3.6 `tests/proposal-support/`: one test that builds the loop under `tmp_path`
       and asserts `contained_dir` and `contained_file` return `False`, in all
-      three positions. The scanned-root position is reachable HERE even when the
-      candidate resolves cleanly, `_contained` resolving the root separately for
-      its `relative_to` comparison, so that sub-case is asserted too.
+      three positions. `_contained` is the ONE guard of the four whose ROOT read
+      is reachable on its own, because it resolves the candidate first and the
+      root separately inside `relative_to`: with a real path as the candidate and
+      the loop as the root, `proposal-support.py:343` succeeds and `:346` raises.
+      That clean-candidate sub-case is asserted HERE and claimed nowhere else.
 - [ ] 3.7 **NO SYMLINK IS ADDED TO THE TRACKED TREE.** Verified in the realization
       pull request by `git ls-files -s | awk '$1 == "120000"'` returning nothing,
       and recorded in its body.

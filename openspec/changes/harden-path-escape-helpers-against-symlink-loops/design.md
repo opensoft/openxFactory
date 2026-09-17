@@ -226,22 +226,31 @@ unfixed clause and the passing run against the widened one.
 ALL THREE exposed positions the first requirement names: at the candidate's leaf,
 in a parent component above an ordinary leaf, and at the SCANNED ROOT itself. The
 second is the one a reviewer's intuition misses, because the leaf is a perfectly
-ordinary file; the third is the one where the guard resolves BOTH sides and it is
-the ROOT side that fails, which for `_contained` is reachable even when the
-candidate itself resolves cleanly, since that guard resolves the root separately
-for its `relative_to` comparison. Measured at `c6997f12` with the root set to the
-loop (`Python 3.12.3`):
+ordinary file. The third is NOT ONE SHAPE BUT TWO, and WHICH RESOLUTION FAILS
+DIFFERS BY GUARD, which is why the transcript records the raising line and not
+only the outcome. Measured at `c6997f12` on `Python 3.12.3`, root set to the loop:
 
 ```
-code_surface._unescaped(LOOPROOT, 'x.md')                  -> RAISED RuntimeError
-target_release._unescaped(LOOPROOT, 'x.md')                -> RAISED RuntimeError
-target_release._registry_present(LOOPROOT)                 -> returned False
-proposal_support.contained_file(LOOPROOT, LOOPROOT/'x.md') -> RAISED RuntimeError
-proposal_support.contained_file(LOOPROOT, real/'x.md')     -> RAISED RuntimeError
-proposal_support.contained_dir(LOOPROOT, real)             -> RAISED RuntimeError
+code_surface._unescaped(LOOP, 'x.md')          -> RuntimeError at code_surface.py:775     `candidate.resolve(strict=True)`
+target_release._unescaped(LOOP, 'x.md')        -> RuntimeError at target_release.py:628   `candidate.resolve(strict=True)`
+target_release._registry_present(LOOP)         -> returned False, at the `is_dir()` pre-check
+proposal_support.contained_file(LOOP, LOOP/'x.md') -> RuntimeError at proposal-support.py:343 `path.resolve(strict=True)`
+proposal_support.contained_file(LOOP, real/'x.md') -> RuntimeError at proposal-support.py:346 `resolved.relative_to(root.resolve(strict=True))`
+proposal_support.contained_dir(LOOP, real)         -> RuntimeError at proposal-support.py:346 `resolved.relative_to(root.resolve(strict=True))`
 ```
 
-The last two are the sub-case above: the candidate is an ordinary real path and
-only the ROOT resolution fails. `_registry_present` answers `False` at its
-pre-check in this position exactly as in the others, which is D3's one case and
-not a fourth.
+BOTH `_unescaped`s reach the loop THROUGH THE CANDIDATE and never through a
+separate root read: `candidate = repo_root / relative` traverses the loop, so the
+first resolution raises and the root resolution on the NEXT line never executes.
+A test for that position proves a candidate path whose failing component is the
+root, which is the scenario's subject, and it must NOT be written as a claim
+about a root-side read. (Copilot, PR #1083 `PRRT_kwDOTAvnrs6jYFzB`.)
+
+`_contained` IS the one guard whose root read is reachable on its own, because it
+resolves the candidate first and the root separately inside `relative_to`: with a
+real path as the candidate, `:343` succeeds and `:346` raises. That
+clean-candidate sub-case is proved once, in `tests/proposal-support/`, and
+claimed nowhere else.
+
+`_registry_present` answers `False` at its pre-check in this position exactly as
+in the others, which is D3's one case and not a fourth.
