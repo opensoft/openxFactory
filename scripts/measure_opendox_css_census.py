@@ -527,6 +527,15 @@ _SELECTOR_SHAPED = re.compile(r"^[A-Za-z0-9_\-.#>+~*:\[\]=\"',()\s]+$")
 #: `app.js` and the rest — so the census is UNCHANGED by the requirement. What
 #: it refuses are the literals that reach this branch from a concatenation or a
 #: message, which is the whole finding.
+#: THE WINDOW IS ANCHORED BY `$` AND READ FROM THE CODE VIEW (Copilot review of
+#: openxFactory #1068, round 22). The pattern ends at the literal — `\(\s*$`
+#: makes the 60-character look-back's END the anchor — so
+#: `root.querySelector("div"); showError(".gatebar")` names only `div`, which is
+#: the half of that round's finding this scan already refused, measured. What it
+#: did NOT refuse was the name arriving from a COMMENT: `const sel = //
+#: querySelector(` on one line and `".gatebar"` on the next put the call in the
+#: window from text the parser never sees. The window is `_code_view`'s now, the
+#: same repair rounds 18 and 21 made for the two backwards readers beside it.
 _SELECTOR_CALL = re.compile(
     r"\b(?:querySelector|querySelectorAll|closest|matches)\??\.?\(\s*$")
 
@@ -852,7 +861,9 @@ def narrow_refs(text: str, suffix: str) -> set[str]:
         stripped = s.strip()
         if stripped and _SELECTOR_SHAPED.match(stripped) \
                 and is_selector_text(stripped) \
-                and (suffix != ".js" or _SELECTOR_CALL.search(text[max(0, start - 60):start])):
+                and (suffix != ".js"
+                     or _SELECTOR_CALL.search(
+                         _code_view(text)[max(0, start - 60):start])):
             out.update(selector_class_tokens(stripped))
         # A `class="…"` INSIDE A TAG is class-bearing by construction; one in
         # prose is prose (`markup_class_runs`).
@@ -1385,10 +1396,20 @@ def main() -> int:
         "mixed_blocks": [
             {"selector": b["selector"], "at_rule": b["at_rule"],
              "start": b["start"], "end": b["end"],
+             # LABELLED BY THE DECISION, NOT BY THE BROAD SCAN (Copilot
+             # review, round 22). `block_class()` calls a block mixed on
+             # `extract_class` — the gate side read NARROW — while these two
+             # lists read `class`, the broad one, so a token the extraction
+             # deliberately excludes could be printed as this block's
+             # `gate_exclusive` reason and the explanation would contradict the
+             # decision it explains. MEASURED at the cited revisions: 15 of the
+             # 626 declared tokens are classified differently by the two, and
+             # ONE of them reaches this report — `.tile .s`, whose `s` printed
+             # `shared` where the extraction reads `opendox_only`.
              "gate_exclusive_tokens": [c for c in b["tokens"]["classes"]
-                                       if census.get(c, {}).get("class") == "gate_exclusive"],
+                                       if census.get(c, {}).get("extract_class") == "gate_exclusive"],
              "shared_tokens": [c for c in b["tokens"]["classes"]
-                               if census.get(c, {}).get("class") == "shared"]}
+                               if census.get(c, {}).get("extract_class") == "shared"]}
             for b in mixed_blocks],
         # KEPT DESPITE A GATE-ONLY SELECTOR, because the block DECLARES an
         # `--st-*` token (RULED Q7's stable surface). MEASURED at the cited

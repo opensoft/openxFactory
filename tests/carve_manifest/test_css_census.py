@@ -807,6 +807,68 @@ def test_a_template_substitution_is_a_prefix_too() -> None:
         == {"chip-"}
 
 
+def test_a_selector_api_authorizes_only_the_literal_it_opens(
+        tmp_path: Path) -> None:
+    """THE SELECTOR-API WINDOW IS ANCHORED, AND IT READS CODE (Copilot review,
+    round 22, thread `PRRT_kwDOTAvnrs6jY6-b`).
+
+    HALF REFUTED: the 60-character look-back is not a free search — the pattern
+    ends `\\(\\s*$`, so its anchor IS the literal, and an earlier selector call
+    in the same window authorizes nothing.
+
+    HALF TAKEN: the window still read the RAW source, so a LINE COMMENT ending
+    in `querySelector(` immediately above a literal put the call in it from
+    text the parser never sees. `_code_view` answers it now, as it does for the
+    two backwards readers beside it (rounds 18 and 21).
+    """
+    # refuted: the call is there, but not immediately before this literal
+    assert CENSUS.narrow_refs(
+        'root.querySelector("div"); showError(".gatebar");\n', ".js") == {"div"}
+    # taken: the call is immediately before it, and it is a comment
+    assert CENSUS.narrow_refs(
+        'const sel = // querySelector(\n  ".gatebar";\n', ".js") == set()
+    # and a real call still names its class, optional chaining included
+    assert CENSUS.narrow_refs('root.querySelector(".gatebar");\n',
+                              ".js") == {"gatebar"}
+    assert CENSUS.narrow_refs('root?.closest(".gatebar");\n',
+                              ".js") == {"gatebar"}
+
+
+def test_a_mixed_block_is_explained_by_the_decision_that_made_it_mixed(
+        tmp_path: Path) -> None:
+    """THE REPORT'S TWO LISTS READ `extract_class` (Copilot review, round 22).
+
+    `block_class()` calls a block mixed on the EXTRACTION classification — the
+    gate side read narrow — while the report's `gate_exclusive_tokens` and
+    `shared_tokens` read the BROAD one, so a token the extraction deliberately
+    excludes could be printed as the block's own reason and the explanation
+    would contradict the decision it explains.
+
+    MEASURED at `0b4e8bbf` / `0a0265f7`: 15 of the 626 declared tokens are
+    classified differently by the two scans, and ONE reaches this report —
+    `.tile .s`, whose `s` printed `shared` where the extraction reads
+    `opendox_only`. The pinned fixture moves by exactly that one label; every
+    figure, every exclusive block and the 89-line union are unchanged.
+    """
+    # `note` is named by the gate ONLY from a COMPARISON — the broad scan reads
+    # every literal and calls it shared, the narrow one refuses a value in a
+    # non-class-bearing position, so the extraction reads it openDox's own. The
+    # block is mixed either way; what moves is the EXPLANATION.
+    dox, xdox = _tree(
+        tmp_path,
+        styles=".gatebar .note { color: red; }\n",
+        own={"own.js": 'el("p", "note");\n'},
+        gate={"gate.js": 'el("div", "gatebar");\nif (state === "note") {}\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert [b["selector"] for b in report["mixed_blocks"]] == [".gatebar .note"]
+    block = report["mixed_blocks"][0]
+    assert block["gate_exclusive_tokens"] == ["gatebar"]
+    # `note` is NOT listed: the extraction reads it openDox's own, which is why
+    # the block stays, and the explanation now says the same thing
+    assert block["shared_tokens"] == []
+    assert report["census"]["note"]["class"] != report["census"]["note"]["extract_class"]
+
+
 def test_a_comment_cannot_manufacture_a_class_assignment(
         tmp_path: Path) -> None:
     """THE LOOK-BACK READS CODE TOO (Copilot review, round 21, thread
