@@ -145,7 +145,15 @@ OPEN.**
       checked (`#<digits>`)… a pointer for a human reading the history, not
       evidence."*
 - [x] 1.7 **THE README *OpenSpec Records* ACTIVE BULLET IS WRITTEN**, in the
-      house form the neighbouring bullets use, marked **DRAFT and HELD**.
+      house form the neighbouring bullets use, marked **DRAFT and HELD** —
+      THE STATE AT FILING, 2026-09-16, NOT THE CURRENT ONE (PR #1069, Copilot
+      review thread `PRRT_kwDOTAvnrs6jXaQ2`). Brett Heap ratified this packet
+      2026-09-17, verbatim **"ratify #1069"** (§ 1.17 below; PR #1069 comment
+      [5714138459](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459)),
+      and the README bullet now reads **`Status: ratified`**, matching
+      `proposal.md`, `design.md` and this file's own header flip. This tick
+      records what landed at filing; it does not restate the packet's later
+      lifecycle, which § 1.17 and the README itself carry.
 - [x] 1.8 **THE FRONT-MATTER `code_surface:` HEAD IS THE BARE REPOSITORY
       IDENTIFIER, VERIFIED AGAINST THE READER AND NOT AGAINST THE PROSE.**
       `gate-code-surface-declarations` is ratified and its realization is in
