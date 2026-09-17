@@ -5,7 +5,8 @@ WHAT THIS FILE POLICES — § 3.4 slice S7's landing precondition
 slice this facet's shape conforms to): openDox-code #21
 (`src/opendox/display_profile.py`, `PROFILE_FACET = "DISPLAY"`) HAS landed and
 is what this repository pins — pin lockstep #2 moved the `code` leg to
-`1e469713` — so every class-C view in `src/opendox/web/` resolves its rendered
+`1e469713`, and pin lockstep #3 moved it on to `0b4e8bbf`, where the module is
+still present — so every class-C view in `src/opendox/web/` resolves its rendered
 vocabulary BY ROLE through the registered host's `DISPLAY` facet, or through
 openDox's own NEUTRAL words if the host declares none. Every profile in the
 estate is in the second state today. This file is what moves openxFactory's
@@ -80,7 +81,11 @@ def test_facet_conforms_to_opendox_schema():
     (openDox-code#21's landing), where it does — verified in the pinned
     checkout's own object store rather than inferred from the pin file:
     `src/opendox/display_profile.py` is ABSENT at `a99eba03` and `05bbde80`,
-    PRESENT at `1e469713`.
+    PRESENT at `1e469713`, and PRESENT at `0b4e8bbf` — the leg pin lockstep #3
+    advances to, checked the same way (`git ls-tree -r 0b4e8bbf` names it and
+    `normalize_display` is at its :445). The two shas are a chain, not a
+    contradiction: `1e469713` is where the live path became possible, and
+    `0b4e8bbf` is the leg this repository pins now.
 
     So the fallback branch, its vendored fixture
     (`tests/fixtures-opendox-display-facet-schema.yaml`) and the guard test
@@ -357,7 +362,9 @@ def test_no_two_roles_share_one_word_within_acts_or_areas():
 def test_display_and_route_extensions_ride_the_identical_registered_object():
     """`opendox.view_extension.host_profile_name()` IS importable now — pin
     lockstep #2 advanced this repository's pinned `code` leg to `1e469713`,
-    which carries `view_extension.py`. It did not used to be: the pin named
+    which carries `view_extension.py`, and pin lockstep #3 advanced it to
+    `0b4e8bbf`, which carries it still (`host_profile_name` included). It did
+    not used to be: the pin named
     `a99eba03` (which predates the module entirely) and later `05bbde80`, and
     this docstring said as much.
 

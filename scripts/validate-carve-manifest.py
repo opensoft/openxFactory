@@ -127,7 +127,7 @@ object this repository carries and an ANCESTOR of the revision under test — th
 shed deletes files from a tree, it does not delete a commit from a history, so
 `git cat-file blob b075fd91:<path>` answers after the shed exactly as before.
 Check 3 PASS 1 therefore still recomputes all 318 digests from the referent's
-real bytes and still bounds all 2543 declared lines against them; check 4 still
+real bytes and still bounds all 2710 declared lines against them; check 4 still
 walks the referent for completeness, still refuses a file that has APPEARED
 under the surface, and still requires every `stays_*` and
 `replicated_at_destination` row to be PRESENT; checks 1, 5 and 6 never read the
@@ -292,8 +292,10 @@ legs, and what S8 measured has no leg to move it to.
   `destination`/`destination_path`, or `re_destined.to`/`to_path` where Q6 has
   already moved the placement — so a row may be re-destined and THEN retired,
   and the retirement lands at the leg the file actually reached. `surface:` is
-  the openxFactory path of the SURFACE the arrived file drove, held to a
-  `not_moved` row of this manifest. `ruling:` is required PRESENT, on Q6's own
+  the openxFactory path of the SURFACE the arrived file NEEDED AND CANNOT
+  OBTAIN at its leg, held to a `not_moved` row of this manifest. NEEDED and not
+  `drove`: the first use retired one row that drove its cited surface and one
+  that only loaded it, and the manifest header carries the measurement. `ruling:` is required PRESENT, on Q6's own
   scope reasoning.
 
   WHAT DOES NOT MOVE, and the list is Q6's own plus the one that matters most
@@ -306,10 +308,19 @@ legs, and what S8 measured has no leg to move it to.
   `post-shed`. A retired row is still a file that LEFT openxFactory, and the
   document still records where the carve put it.
 
-  WHAT S8 NEEDS IT FOR. Three suites arrived at their legs driving
-  `views/intent-feed.js` — RULED OQ-F `not_moved`, so it stayed HERE and
+  WHAT S8 NEEDS IT FOR. Three suites arrived at their legs NEEDING
+  `views/intent-feed.js` — NEEDING and not driving, because the two that carry
+  `retired:` do not stand in the same relation to it (the tray suite DROVE the
+  module; the wheel suite only loads it, measured in its own manifest note),
+  which is why the grammar's word is NEEDED; RULED OQ-F left it `not_moved`,
+  so it stayed HERE and
   arrived at NEITHER leg, and slice S2 replaced the surface openDox does have
   with `views/intent-binding.js`. The suites test a surface that is not there.
+  TWO of the three are the rows this check reads; the THIRD is the ending
+  replay inside `tests/test_staging_workbench.py`, whose row goes on arriving
+  — a PARTIAL removal has no form here and is an ordinary declared edit
+  (cutover runbook § 5.8), so a reader of this check should expect two
+  `retired:` rows and not three.
   `re_destined:` cannot say so: `to` is held to the CLOSED `destinations:`
   keys, openxFactory is the SOURCE and not one of them, and `re_destined:` on
   a `not_moved` row refuses `carve-re-destined-not-moved`. Deleting the
@@ -342,7 +353,7 @@ legs, and what S8 measured has no leg to move it to.
 
   WHY THE SURFACE IS HELD TO A `not_moved` ROW — MINUS ONE REASON — AND WHAT
   THAT DOES NOT PROVE. The claim a retirement rests on is that the surface the
-  arrived file drove is gone from BOTH legs, and the one way THIS document can
+  arrived file NEEDED is gone from BOTH legs, and the one way THIS document can
   answer that without reading a leg is a disposition it already carries: a
   `not_moved` row STAYED at openxFactory, so by the manifest's own declaration
   it arrived at no destination at all. A MOVED surface is LIVE at a leg, and a
@@ -695,7 +706,7 @@ RE_DESTINED_KEYS = frozenset({"from", "from_path", "to", "to_path", "ruling",
 # row's own EFFECTIVE arrival rather than trusting a reader to re-derive it.
 # `ruling:` is required on Q6's scope reasoning. `surface:` is the fourth, and
 # it is what makes the form a FLOOR rather than a licence to delete an arrived
-# file: it names the openxFactory path of the surface the arrived file drove,
+# file: it names the openxFactory path of the surface the arrived file needed,
 # and check 6 holds it to a `not_moved` row — the manifest's own way of saying
 # "this arrived at no leg". `note:` is the one optional key, prose, exactly as
 # an `edits[]` entry's and a `re_destined:`' are.
@@ -2450,9 +2461,12 @@ def _check_retired_consistency(where: str, row: dict[str, Any]) -> None:
 def _check_retired_surfaces(doc: dict) -> None:
     """Every `retired.surface` is a `not_moved` row of THIS manifest.
 
-    RULED 5656343213 retires three suites because the surface they drive —
+    RULED 5656343213 retires three suites because the surface they NEED —
     `views/intent-feed.js`, RULED OQ-F `not_moved` — is present at NEITHER
-    leg. That is the claim the form rests on, and it is answerable from this
+    leg. NEED and not `drive`: of the ruling's three, one DROVE that module,
+    one only loads it (its own manifest note says so), and the third is not a
+    `retired:` row at all — it loses PART of an arrived file and lands as an
+    ordinary declared edit, so exactly TWO rows reach this check. That is the claim the form rests on, and it is answerable from this
     document alone: a `not_moved` row STAYED at openxFactory, so by the
     manifest's own declaration it arrived at no destination. This check is
     that sentence as running code, and it is the difference between a floor
@@ -2517,7 +2531,7 @@ def _check_retired_surfaces(doc: dict) -> None:
             "carve-retired-surface-live",
             f"rows[{index}] ({row['source_path']}) declares "
             f"`retired.surface: {surface!r}`, which {why}. RULED 5656343213 "
-            "retires an arrived file because the surface it drove is gone "
+            "retires an arrived file because the surface it NEEDED is gone "
             "from BOTH legs, and the one way this manifest can answer that "
             "without reading a leg is a `not_moved` row under a reason that "
             f"means ABSENT THERE — every one but `{REPLICA_REASON}`, whose "
@@ -2676,8 +2690,12 @@ def validate(manifest_path: Path, repo: Path,
     # human line and whether the number is 0 or 48: a placement corrected by a
     # ruling is the one thing in this document that is not the carve's own act,
     # and a reader of a CI log must be able to see how many of them the
-    # manifest now carries without opening it. Zero is the state the file
-    # landed in and is as much a fact as any other.
+    # manifest now carries without opening it. Zero was the state the file
+    # landed in AT RULED Q6 (PR #1011) and is as much a fact as any other; it
+    # has printed 4 since § 3.4 slice S5 re-destined that many, and the
+    # retirement clause below prints 2 since RULED 5656343213's first use
+    # (PR #1043). One clause each, unconditional, so no count is ever the
+    # state no log records.
     re_destined = sum(1 for row in doc["rows"]
                       if isinstance(row.get("re_destined"), dict))
     # COUNTED SEPARATELY FROM `re_destined` AND FROM THE DISPOSITIONS (RULED
@@ -2824,8 +2842,10 @@ def main(argv: list[str] | None = None) -> int:
         # suppressed it, making the landed manifest's own state the one count
         # this line never showed); this clause is written with that lesson
         # already learned, and `test_the_human_line_prints_the_retirement_zero_
-        # state_too` holds it. Zero is the state this form lands in and is as
-        # much a fact as any other.
+        # state_too` holds it. Zero was the state this form LANDED in and is as
+        # much a fact as any other; since its first use (RULED 5656343213's own
+        # act, PR #1043) this document prints 2, and the clause that prints
+        # both is the same clause.
         retired_note = (
             f"; {summary['retired']} row(s) RETIRED by ruling "
             "(RULED 5656343213)")

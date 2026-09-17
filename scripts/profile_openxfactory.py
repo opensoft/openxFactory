@@ -191,6 +191,13 @@ def _display_facet(profile: Any) -> dict[str, Any]:
     `contracts/opendox-pin.yaml` to the openDox assembly whose `code` leg is
     `1e469713` (#21's landing), so `tests/test_engineering_profile_display_facet
     .py` hands this facet to `opendox.display_profile.normalize_display` itself.
+    PIN LOCKSTEP #3 ADVANCED IT AGAIN, to the assembly whose `code` leg is
+    `0b4e8bbf` (§ 3.4 slice S8 leg B), and the live path holds there: the module
+    is still present and `normalize_display` is still its entry point — read out
+    of the pinned checkout's own object store, not inferred from the pin file.
+    The sha above is kept as the FIRST leg that made this live, not as the leg
+    this repository pins today; `contracts/opendox-pin.yaml` is the authority on
+    that and always was.
     Until that bump it could not — the pin named a leg (`a99eba03`, BUILD slice
     1b, and later `05bbde80`) in which the module did not exist — so this
     docstring used to read "NOT YET PINNED" and the test checked a vendored
