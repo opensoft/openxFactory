@@ -569,14 +569,20 @@ classification by hand, each adopted here:
    ENTRIES in scope and FILES read, neither standing for the other — distinct
    tokens, remainder TOKENS, remainder IDENTITIES.
 
-**THE EXIT CODE IS ALWAYS 0, AND A `--fail-on` IS EXPLICITLY NOT BUILT.** Exit 0
-is what makes this a report rather than a gate: nothing about the 81 tokens has
-been ruled a defect, and a tool that can exit non-zero acquires that meaning the
-first time somebody wires it into CI. `--fail-on` is RESERVED for option (a)
-under D1, where a severity decision will have been taken by ruling. The only
-non-zero exit is the ordinary one for a tool that CANNOT RUN — an unreadable
-tree, a root that is not a git work tree — which is a different fact from a
-finding and says so.
+**THE EXIT CODE IS 0 ON A FINDING AND NON-ZERO ONLY WHEN THE REPORT COULD NOT
+RUN, AND A `--fail-on` IS EXPLICITLY NOT BUILT.** The requirement states the
+two-case contract exactly: *"The report SHALL exit successfully whatever it
+finds, and SHALL NOT provide an option that makes a finding fail a run"*, and
+*"A NON-ZERO EXIT SHALL MEAN THE REPORT COULD NOT RUN, never that it found
+something"* (`specs/packet-citation-report/spec.md`, Requirement: The citation
+remainder report is advisory and gates nothing; PR #1069, Copilot thread
+`PRRT_kwDOTAvnrs6jXaPs`). Exit 0 on any finding is what makes this a report
+rather than a gate: nothing about the 81 tokens has been ruled a defect, and a
+tool that can exit non-zero acquires that meaning the first time somebody
+wires it into CI. `--fail-on` is RESERVED for option (a) under D1, where a
+severity decision will have been taken by ruling. The only non-zero exit is
+the ordinary one for a tool that CANNOT RUN — an unreadable tree, a root that
+is not a git work tree — which is a different fact from a finding and says so.
 
 **OPTION 2: give `packet_reference.py` a `__main__`.** *Cost:* the docstring
 contradiction above, plus the gate-coupling in (2), plus the module acquires a
