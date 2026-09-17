@@ -1907,7 +1907,15 @@ the bookkeeping that ticks this group.
   `openspec/changes/repromote-engineering-vocabulary/`. It is a **FILING
   ONLY** —
   `Status: draft` on all three lifecycle documents, no ratification, no
-  archive — so this box ticks on ITS landing and not on its opening.
+  archive. **The FILING is what this sentence records; a filing buys no
+  tick.** The tick's condition is stated ONCE, in the STATUS immediately
+  below, and is deliberately NOT restated here.
+  *(This sentence read "ticks on ITS landing and not on its opening" until
+  the STATUS below grew the ratification clause, at which point the box
+  carried two different completion conditions one line apart. Raised at
+  review and fixed by deleting the weaker statement rather than restating
+  the stronger one twice: a condition written in two places is a condition
+  that will disagree with itself.)*
   **#1071 IS FILED AND LANDED — `repromote-engineering-vocabulary`, merged
   2026-09-17T14:43:42Z as `e83f8cd7` (note `5716296239`)**, carrying the
   successor id `openxfactory-engineering-adapter`. **THE BOX STILL DOES NOT
