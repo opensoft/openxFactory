@@ -926,7 +926,13 @@ the bookkeeping that ticks this group.
   16th — with openDox-spec `#11` at **13:24:51Z** on the 16th. **This
   parenthetical gives DATES for the arc and a clock only where the ORDERING
   turns on one**: S8's three acts, which straddle midnight, and `#11`, which
-  merged the same day this amendment lands. Every other clock sits beside the
+  shares the 16th with S8's legs A and B, so only a clock orders the three.
+  *(That last clause read "`#11`, which merged the same day this amendment
+  lands" until this amendment DID NOT LAND on the day it was written —
+  claimed 2026-09-16T21:39:02Z, still open past midnight UTC. Its replacement
+  is keyed to two acts already named in this same parenthetical rather than
+  to a date its writer does not control, which is this section's own thesis
+  arriving from the inside.)* Every other clock sits beside the
   act it belongs to rather than here — S7's two in its own landing record below
   (21:40:25Z and 21:41:36Z, 71 seconds apart), S2's pair in the Q-L1 paragraph
   (15:45:51Z and 15:59:44Z) and the pin lockstep's at 2026-09-15T23:27:40Z —
@@ -1298,8 +1304,9 @@ the bookkeeping that ticks this group.
   box and says so in terms**: § 3.7 also owes a DECLARED factory and Q-F1's
   transposition, which is a separate act at `openxFactory` (#1086); **openXdox has no
   reader at all** at `openXdox-code` `589adee7`, where the runner refuses
-  `conformance-adapter-undeclared` — its build is § 4.5a above, claimed the
-  same day; and the control, `openxFactory`'s own § 2.2a adapter, is
+  `conformance-adapter-undeclared` — its build is § 4.5a above, entered by
+  this amendment on 2026-09-17; and the control, `openxFactory`'s own
+  § 2.2a adapter, is
   **17 of 17**. **This box
   ticks when EVERY destination passes — openDox after #26 plus the Q-F1
   transposition, openXdox after § 4.5a lands — and not before.** § 8.2 reads
@@ -2287,9 +2294,13 @@ the bookkeeping that ticks this group.
   which measures the wiring done. The RULE it states — a check must report
   before it can be pinned, and pinning is a human act — is unchanged and still
   true; what changed is that this gate has now been through it.)*
-  **TICKED 2026-09-16 BY `tasks.md` AMENDMENT #5 (CLAIM `5704937336`) — THE
-  TICK THIS BOX ITSELF DECLARED OWED, AND THE OBLIGATION IT NAMED AS STILL
-  OPEN IS CLOSED TOO.** Amendment #4 recorded both halves of the condition as
+  **TICKED 2026-09-16 BY `tasks.md` AMENDMENT #5 (CLAIM `5704937336`, POSTED
+  2026-09-16T21:39:02Z). THIS AMENDMENT SPANS TWO UTC DAYS, SO ITS TICKS DO
+  NOT ALL CARRY ONE DATE: this one and § 8.7's differ by a day and both are
+  right, because a tick is dated by the day ITS OWN evidence closed and not
+  by the day the amendment opened. THIS IS THE TICK THIS BOX ITSELF DECLARED
+  OWED, AND THE OBLIGATION IT NAMED AS STILL OPEN IS CLOSED TOO.**
+  Amendment #4 recorded both halves of the condition as
   met and declined the tick, correctly: this box says in its own words that it
   ticks on #1059 and *"not on this one"*, and amendment #4's claim and RULED
   R-4 reach the PREMISE only. Amendment #5 is the act that records #1059's
@@ -3296,9 +3307,11 @@ movements claimed at the time they land.
   box ticks on (i) this ruling, (ii) the landed `credential-contracts` delta
   of (E), and (iii) § 3.5's per-tenant evidence when it exists.
   **(i) AND (ii) ARE NOW IN HAND; (iii) IS NOT, WHICH IS WHY THE MARKER IS
-  UNTOUCHED.** Clause (ii) landed the same day as the ruling:
+  UNTOUCHED.** Clause (ii) landed the NEXT UTC DAY after the ruling — the
+  ruling at 2026-09-16T20:40:06Z, the delta at 2026-09-17T13:44:02Z,
+  **seventeen hours and four minutes apart**:
   `add-per-tenant-app-manifest-provisioning`, `opensoft/openxFactory` **#1073
-  → `74647dfc`**, 2026-09-17T13:44:02Z (CLAIM `5704248880`; LANDED note
+  → `74647dfc`** (CLAIM `5704248880`; LANDED note
   `5715385370`). It carries exactly (E)'s object and nothing else: the
   `credential-contracts` MODIFIED delta restates the `:169` invariant
   *Dispatch-only credential least privilege and serving-tier separation*
@@ -3309,6 +3322,13 @@ movements claimed at the time they land.
   identity's one named target holding no governed content; and time-bound
   capture into the tenant's own custody BY REFERENCE, no material in any
   record. `code_surface: none`, `target_release: implemented`.
+  *(THE LEAD-IN TO THIS PARAGRAPH SAID "THE SAME DAY" AND IT WAS WRONG —
+  amendment #5's own defect, raised at review and corrected in the round that
+  received it. The ruling's clock and the landing's clock were both already
+  written in this box; neither was misread, they were never read TOGETHER.
+  The remedy is the one this amendment applies to positions: quote both
+  figures and let a reader subtract, rather than assert the relation between
+  them and ask to be believed.)*
   **And it proves (B) and (D) by omission**: `opensoft/OpsxFactory` and
   `opensoft/Omnigent-Install` are not touched by a byte, which is what the
   ruling narrowed this lane to. It is `[ ]` and not `[~]`:
@@ -3449,7 +3469,10 @@ realization evidence, never on landing. Each line is its own evidence.
   of the check, not the verdict on it, and the packet's tick standard puts a tick
   in the act that claims it — the same treatment § 5.2's STATUS gives § 5.6a
   defect (a). What is owed for that tick is now measured and on the record here.)*
-  **TICKED 2026-09-17 BY `tasks.md` AMENDMENT #5 (CLAIM `5704937336`), ON PIN
+  **TICKED 2026-09-17 BY `tasks.md` AMENDMENT #5 (CLAIM `5704937336`, POSTED
+  2026-09-16T21:39:02Z — the SAME claim and the SAME amendment as § 5.3's
+  tick of the 16th; one act, two UTC days, each box dated by the day its own
+  evidence closed), ON PIN
   LOCKSTEP #3 — the act this box's own STATUS said would carry it.** The
   amendment above ruled the WORDING and left the verdict to the act that
   claims it; this is that act, and the evidence is a five-place lockstep
