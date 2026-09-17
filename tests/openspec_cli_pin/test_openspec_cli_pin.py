@@ -2768,10 +2768,15 @@ def test_a_stale_disposition_refuses_so_an_exception_cannot_outlive_its_cause(
     """THE ASYMMETRY, pinned.
 
     The same pin, the same repository, and a corpus in which the dispositioned
-    finding NO LONGER OCCURS — which is exactly the state the day
-    `add-composed-view-authoring` archives out of the `--all` corpus. The run
-    must REFUSE (exit 2) until the entry is deleted, so the archive itself is
-    the event that forces somebody to re-read the exception.
+    finding NO LONGER OCCURS — which is exactly the state
+    `add-composed-view-authoring` left the `--all` corpus in on 2026-09-16, and
+    it got there by a route this docstring did not predict: CLOSED AS RE-HOMED
+    to `opensoft/openDox` under RULING Q6, its one open task carried to the
+    receiving repository, rather than archived the day a human took that task.
+    The run must REFUSE (exit 2) until the entry is deleted, so the DEPARTURE —
+    by whichever route — is the event that forces somebody to re-read the
+    exception. The scenario below never depended on the route, which is the
+    point the real exit made for it.
     """
     calls, served = fake_npm
     served["verdict"] = 0

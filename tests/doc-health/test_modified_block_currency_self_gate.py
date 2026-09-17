@@ -1667,6 +1667,28 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
         f"LEFT (canon dropped text the block restates, a different defect) "
         f"{sorted(_UNITS_CANON_ALREADY_CARRIES - shared)}")
 
+    # AND ACROSS KINDS, which neither assertion above can see. `carried()` is
+    # SAME-KIND by construction and says why: "A canon body sentence is not
+    # carried by a scenario bullet that happens to repeat it, and vice versa …
+    # without the kind, a block could satisfy the ledger by quoting canon's
+    # obligations in prose while deleting the scenarios that made them testable."
+    # That is the right rule for CARRIAGE and the wrong one for ARRIVAL: a
+    # delta-only body sentence copied into canon AS A BULLET is the delta's text
+    # standing in canon, and it stays in `delta_only` — same text, different kind
+    # — leaving the tally and the shared set both green. The promotion this
+    # closure forbids is of TEXT, so this last assertion drops the kind and
+    # compares the text alone. The family's own same-kind semantics are untouched
+    # above; this is an extra reading, not a replacement.
+    # (Found by Copilot's review at `fa039107`.)
+    canon_texts = {u.text for u in canon_block.units}
+    crossed = [u for u in delta_only if u.text in canon_texts]
+    assert not crossed, _moved(
+        f"no delta-only unit of the archived block standing in canon's "
+        f"{requirement!r} block UNDER ANY KIND",
+        f"{len(crossed)} of them do, re-kinded rather than absent: "
+        f"{[(u.kind, u.text[:70]) for u in crossed]}. A body sentence promoted "
+        "as a bullet is still promoted")
+
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     """PACKET § 4.1's editorial arm, as an EXACT SET of named subjects — nine

@@ -266,7 +266,11 @@ kind: pinned_contract_manifest
 #     makes the archive itself the event that forces the re-examination."
 #     THOSE SENTENCES ARE NOT IN THE MODULE BESIDE THIS FILE, AND A GREP FOR
 #     THEM AT THIS HEAD FINDS NOTHING: this same change rewrote that paragraph
-#     into the past tense (the entry below says so). They are reproducible
+#     into the past tense, as the sentence "THE MODULE'S PARAGRAPH IS NOW IN THE
+#     PAST TENSE TOO" further down this same note records. The pointer is to that
+#     SENTENCE and not to an entry, because this change DELETES the one entry the
+#     doctrine was written around and leaves none below that could say it.
+#     They are reproducible
 #     verbatim and whole in blob `7eea1bb9455dd77fd3e6bfea14e0653547e6c523` —
 #     `scripts/validate-openspec-cli-pin.py` as this change found it — so the
 #     citation names the OBJECT it reproduces from rather than a path whose
