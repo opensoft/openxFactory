@@ -887,8 +887,10 @@ parenthetical parsing and the decoration admitted around a bare qualifier word
 are each a place where two realizations flag different entries while both
 satisfy the requirement — and a `possibly-cross-repo` field that moves between
 realizations is a field two readings cannot be compared by. **THIS IS NEW
-GRAMMAR AND NOT A CLARIFICATION OF AN ALREADY-FOLDED RULE, SO IT IS HELD FOR A
-WORD OF ITS OWN.**
+GRAMMAR AND NOT A CLARIFICATION OF AN ALREADY-FOLDED RULE, AND IT NOW HAS ITS
+OWN WORD.** Brett Heap gave it 2026-09-17, verbatim **"fold B as drafted"**
+([PR #1069, comment
+5717459330](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5717459330)).
 **THE VOCABULARY IS THE ONE FINDING THAT COSTS SOMETHING, AND IT WAS LOOKED FOR
 RATHER THAN ASSUMED.** This repository carries NO machine-readable list of its
 sibling repositories. Three near-misses, each read: (i)
@@ -1217,7 +1219,10 @@ stays CLOSED at four.
 
 **AMENDMENT RECORD — THIS SECTION'S TOKENIZATION-ARTIFACT PROBES ARE NOW THE
 REQUIREMENT'S `truncated` PREDICATE, AND `punctuation-stripped` HAS A FIRING
-CONDITION. HELD FOR A WORD.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jbfFz`
+CONDITION.** Brett Heap gave it 2026-09-17, verbatim **"fold B as drafted"**
+([PR #1069, comment
+5717459330](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5717459330)).
+PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jbfFz`
 (spec.md:545, also :538): the vocabulary is closed at four labels, but two of
 the four are described and not predicated — *"a token the extraction severed
 mid-path"* is semantic, *"a token whose trailing prose punctuation the report

@@ -250,7 +250,7 @@ OPEN.**
       FLAG-never-drop, the inclusive headline and the advisory verdict read as
       they read before, so this box stays open on the same recommendation and
       the same alternatives.
-      **AND TWO MORE OF THIS SECTION'S RULES ARE HELD FOR A WORD OF THEIR
+      **AND TWO MORE OF THIS SECTION'S RULES HAVE LANDED ON A WORD OF THEIR
       OWN.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jYkwR` reads D3(c)'s
       promoted signals and finds them named with examples rather than with
       grammars. The grammar drafted against it — a CLOSED repository-name
@@ -265,7 +265,10 @@ OPEN.**
       decoder, so it falls in neither of the two skip buckets the closure names
       and the identity does not close. The delta drafted against it adds a THIRD
       term, printed even at zero, and declines folding it into the non-file
-      term. Both land only on a word that names them. This box is unmoved either
+      term. Both landed on the word that names them: Brett Heap, 2026-09-17,
+      verbatim **"fold B as drafted"** ([PR #1069, comment
+      5717459330](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5717459330)).
+      This box is unmoved either
       way: the three exclusions, the containment rule, FLAG-never-drop, the
       inclusive headline and the advisory verdict are untouched by any of it.
 - [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
@@ -308,7 +311,7 @@ OPEN.**
       minted, renamed, widened or dropped, and the unit those class totals are
       counted in is now stated as the TOKEN — and the `file-half` ruling this
       box holds reads exactly as it reads above.
-      **AND THIS SECTION'S TOKENIZATION-ARTIFACT PROBES ARE HELD FOR A WORD OF
+      **AND THIS SECTION'S TOKENIZATION-ARTIFACT PROBES HAVE LANDED ON A WORD OF
       THEIR OWN.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jbfFz` reads the
       closed vocabulary and finds two of its four labels DESCRIBED where
       `fixture-path` is now PREDICATED: "the extraction severed mid-path" is
@@ -318,8 +321,11 @@ OPEN.**
       on the line ending with the token, a following `<`, and a split string
       literal whose rejoined path resolves — as a union with the trailing-hyphen
       arm under the occurrence rule ALL, and gives `punctuation-stripped` the
-      only condition a class asserted on a REMAINDER entry can have. It lands
-      only on a word that names it. The box is unmoved either way: the
+      only condition a class asserted on a REMAINDER entry can have. It landed
+      on the word that names it: Brett Heap, 2026-09-17, verbatim **"fold B as
+      drafted"** ([PR #1069, comment
+      5717459330](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5717459330)).
+      The box is unmoved either way: the
       vocabulary is the same four labels, the precedence reads as before, and
       the `file-half` ruling this box holds is untouched.
 - [ ] 1.14 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
