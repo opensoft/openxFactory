@@ -1123,9 +1123,21 @@ opened as a DRAFT.
       the round the un-draft fires, are dispositioned the same way and are not
       claimed by this box.**
 
-## 5. Archive — OWED, NOT GIVEN
+## 5. Archive — GIVEN 2026-09-17
 
-- [ ] 5.1 **PROMOTE THE THREE ADDED REQUIREMENTS INTO CANON**, byte-for-byte, in
+**THE ACT IS PERFORMED BY THIS PULL REQUEST, WHICH WAS HELD UNTIL BOTH THINGS IT
+OWED WERE IN HAND, AND IS HELD NO LONGER.** A box ticks for the act its own text
+names, and the act each names is done here: the packet is moved and the three
+requirements are promoted in the same governed operation. The two things that
+ENTITLE the act were named rather than assumed, and BOTH are now in hand — Brett
+Heap's SEPARATE ARCHIVE WORD, 'archive it', given 2026-09-17 ~12:20Z, and a GREEN
+`pytest-suite` run on `main` at a head carrying the realization merge, run
+35219872882 at `a93d2682`, decided green 2026-09-17T12:34:10Z and marked below in
+the exact place its run id goes. This pull request was opened as a DRAFT and
+stayed one until both arrived; it was un-drafted 2026-09-17 13:29Z, the word
+having come as a merge and not a night's authoring.
+
+- [x] 5.1 **PROMOTE THE THREE ADDED REQUIREMENTS INTO CANON**, byte-for-byte, in
       a SEPARATE pull request on a separate word, after § 1 is ruled and after
       the realization evidence this packet's `target_release` names.
       **THE PACKET'S OWN CLAUSE, IN ITS OWN WORDS:** `code_surface` here is NOT
@@ -1136,31 +1148,163 @@ opened as a DRAFT.
       reference in the archive pull request. An archive act that cites this
       filing's own green run as its realization evidence is citing the wrong
       run: this pull request realizes nothing.
-- [ ] 5.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
-      ELSE**, by a closing keyword written THERE against openxFactory issue
-      1013. No closing keyword appears in this pull request's body or in any
-      commit message on this branch, in any form, quoted or otherwise.
+      **DONE BY THIS PULL REQUEST, 2026-09-16, THROUGH THE GOVERNED WRAPPER AND
+      NEVER BARE `openspec`:** `scripts/proposal-support.py . archive
+      gate-code-surface-declarations --yes`, which reported **ORIGIN RETAINED
+      `gate-code-surface-declarations` (declaration unchanged since the
+      ratifying commit `b4e0087aaf48`)** before the pinned CLI ran. The three
+      `## ADDED` requirements — *Code-surface declaration grammar is gated*,
+      *The declared repository set is derived from the head and never from the
+      gloss*, and *Standing code-surface divergence is named in a closed
+      register* — now stand in `openspec/specs/release-realization/spec.md`.
+      **MEASURED, NOT EYEBALLED:** the delta's `## ADDED Requirements` body and
+      the text canon now carries are BYTE-IDENTICAL; the proof is a `diff` of
+      the two extractions, reproduced in this pull request's body, exit 0.
+      **THE REALIZATION EVIDENCE, THE MERGED HALF IN HAND:** the realization
+      pull request [#1029](https://github.com/opensoft/openxFactory/pull/1029),
+      *"Realize gate-code-surface-declarations § 3: gate the `code_surface:`
+      head"*, MERGED into `main` at
+      `4cef77af53131f36f4d62f3e7dac550360b1d28d` on 2026-09-16T19:11:39Z; taken
+      with the merge, `4cef77af`.
+      **THE GREEN HALF, IN HAND:** `main`'s own required `pytest-suite` at a
+      head containing `4cef77af` is run
+      [35219872882](https://github.com/opensoft/openxFactory/actions/runs/35219872882)
+      (`event: push`, head `a93d2682e51493e6e1c4c5ce7d3537d23948a283`, completed
+      2026-09-17T12:34:10Z) and its conclusion is **success**: `7717 passed, 6
+      skipped, 338 deselected, 401 subtests passed`, zero failed. The self-gate
+      collision named above,
+      `tests/doc-health/test_modified_block_currency_self_gate.py::test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`,
+      is repaired: `#1075` orders `adopt-entry-grain-dispositions-form` after
+      `scope-pinned-arm-root-naming` and merged into `main` at `a93d2682`
+      itself, and this same head's `doc-health.py --family
+      modified-block-currency` reads zero on the gate-bearing arm
+      (scenario-title completeness and title resolution and ordering both `0`).
+      So pytest-suite decided green on `main` at `a93d2682`, run `35219872882`,
+      which CONTAINS the realization merge `4cef77af`: the MERGED-PLUS-GREEN pair
+      this box requires is COMPLETE. The archive word and the un-draft were a
+      separate act and are owed no longer: Brett Heap's word 'archive it' was
+      given 2026-09-17 ~12:20Z and this pull request was un-drafted 2026-09-17
+      13:29Z, per this box's own clause.
+- [x] 5.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
+      ELSE**, by a closing keyword written THERE against openxFactory issue 1013.
+      The closing keyword now stands in this pull request's body, written there at
+      the un-draft by the landing lane; none appears in any commit message on this
+      branch, in any form, quoted or otherwise.
+      **THIS IS THAT PULL REQUEST, AND #1013 CLOSES AT ITS LANDING ON BRETT
+      HEAP'S ARCHIVE WORD — NOT AT ITS OPENING.** While the pull request is a
+      HELD DRAFT its body carries `Refs #1013` and NO closing keyword in any
+      form, and no commit message on this branch carries one either: a closing
+      keyword written now would close the origin issue on a merge Brett Heap has
+      not worded and on evidence that does not yet exist, which is the one thing
+      the ratified body of this box forbids. The keyword is written into the body
+      at the UN-DRAFT, by the lane that lands this pull request, on his archive
+      word and after the green run id above is in hand. openxFactory
+      [#1013](https://github.com/opensoft/openxFactory/issues/1013) therefore
+      closes at this pull request's landing and at no earlier act, on Brett
+      Heap's word. Brett Heap's archive word 'archive it' was given
+      2026-09-17 ~12:20Z; the closing keyword is written into PR #1076's body
+      by the landing lane at the un-draft.
 
 ## 6. Measured, and deliberately NOT taken here
 
-- [ ] 6.1 **AN INVENTORY OF THE ESTATE'S REPOSITORIES.** Without one the gate
+**DISPOSITION 2026-09-16 — THE HEADING ABOVE IS RETAINED AND NOTHING IN THIS
+SECTION IS TAKEN AT THIS ARCHIVE.** All five boxes tick, on Brett Heap's standing
+ruling of 2026-09-06T23:10Z, option labelled verbatim *"Tick on the recording"*
+(his #900 ruling on a conditional tick trigger), applied here in exactly the
+shape this packet's own SIBLING applied it at its archive — see
+`openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/tasks.md`
+§ 6: each tick records either a MEASUREMENT RE-TAKEN ON THE ARCHIVE TREE, with
+any figure that moved DISCLOSED at the box, or the NAMING of a successor and
+never its doing. **TWO FIGURES MOVED SINCE THE DRAFTING MEASUREMENT AND BOTH ARE
+DISCLOSED BELOW** (the active corpus, and the `none` carriers). **ONE SUCCESSOR
+IS OWED AND IT IS NAMED, NOT FILED HERE:** § 6.1's repository inventory, whose
+filing belongs to the LANDING of this held draft rather than to its opening,
+because an issue filed now would cite an archive that has not happened; § 6.2's
+successor is an existing ACTIVE packet and needs no filing, and § 6.3, § 6.4 and
+§ 6.5 owe no successor at all, each being a boundary the box's own ratified text
+already draws.
+
+- [x] 6.1 **AN INVENTORY OF THE ESTATE'S REPOSITORIES.** Without one the gate
       judges a repository identifier's SHAPE and never its MEMBERSHIP, so a
       plausible misspelling passes. Building the inventory carries its own
       authority question — who admits a repository to the estate, and what a row
       means for a repository that is pinned rather than governed — and it is the
       successor that would lift `design.md` D1's stated bound.
-- [ ] 6.2 **WHETHER `code_surface:` SHOULD BECOME A STRUCTURED FIELD.** Giving
+      **NOT TAKEN. THE SUCCESSOR IS NAMED HERE AND ITS FILING IS AN ACT OF THIS
+      PULL REQUEST'S LANDING.** A sibling search was taken on the archive tree
+      on 2026-09-16, by grep over the ACTIVE and ARCHIVED corpus for an
+      inventory of the estate's repositories and by title/body search over
+      openxFactory's OPEN and CLOSED issues: the only carriers of the phrase are
+      this packet's own four files, and no issue and no packet proposes to
+      enumerate the estate's repositories. **NOTHING IS FILED FROM A HELD
+      DRAFT**, because an issue opened now would cite, as the act that filed it,
+      an archive that has not happened and may yet not happen on this head; the
+      filing is owed at the UN-DRAFT, beside the closing keyword § 5.2 governs,
+      and it is recorded here so the debt cannot be lost. **AND THE BOUND IS
+      RE-MEASURED RATHER THAN CARRIED:** `scripts/code_surface.py` still judges a
+      repository identifier's SHAPE alone on this tree, and the two nearest files
+      are still what `design.md` D1 measured — a former-to-current TRANSFER map
+      and a five-row domain-factory regression fixture — neither of which
+      enumerates the estate.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.** Successor
+      filed as #1087 (2026-09-17).
+- [x] 6.2 **WHETHER `code_surface:` SHOULD BECOME A STRUCTURED FIELD.** Giving
       it `scope_globs:`'s shape would make a grammar unnecessary, because YAML
       would supply one. It is a `## MODIFIED` block over the title
       `add-structured-scope-substrate` holds, with the sequencing hold that
       carries, and it would obsolete a declaration form 45 active packets
       already write.
-- [ ] 6.3 **THE ARCHIVE IS NOT TOUCHED.** The 3 archived declarations outside
+      **NOT TAKEN — AND THE SEQUENCING HOLD IT NAMES IS RE-VERIFIED ON THE
+      ARCHIVE TREE RATHER THAN CARRIED FROM THE DRAFTING.**
+      `openspec/changes/add-structured-scope-substrate/` is still ACTIVE (not
+      under `archive/`) and still `Status: ratified`, and its
+      `specs/release-realization/spec.md` still opens a `## MODIFIED
+      Requirements` block over *Realization axis declaration*, restating the
+      promoted two-halved sentence verbatim. So the slot a structured
+      `code_surface:` would have to occupy is still held by that packet, and
+      answering § 6.2 is still a `## MODIFIED` block sequenced after it, authored
+      nowhere in this pull request. **THE FIGURE THAT MOVED, DISCLOSED:** the
+      ratified body says "45 active packets already write" the declaration form;
+      on the archive tree it is FORTY-SIX, the arithmetic being 45 at the
+      drafting measurement, FORTY-SEVEN on `origin/main` at this head (two net
+      arrivals since), less this packet, which leaves the active corpus here.
+      The argument is unchanged by the count.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
+- [x] 6.3 **THE ARCHIVE IS NOT TOUCHED.** The 3 archived declarations outside
       the grammar, and the 28 archived packets whose `code_surface:` line sits
       in body prose, are frozen record: read, counted, judged never.
-- [ ] 6.4 **NO OTHER ESTATE REPOSITORY IS SWEPT OR REGISTERED.** The validator
+      **NOT TAKEN, AND RE-MEASURED ON THE ARCHIVE TREE.** `python3
+      scripts/validate-code-surface.py .` at the archive commit reports
+      *"archive (read, never judged): 170 proposals, 124 declaring, 3 of them
+      outside the grammar"* — the THREE is unmoved from the ratified body, and
+      the archive population has grown from 165 at drafting to 170 here, this
+      packet's own arrival included. The 28 archived packets whose
+      `code_surface:` line sits in BODY PROSE rather than in front matter
+      re-measure at TWENTY-EIGHT, unmoved. Not one archived byte is edited by
+      this pull request and not one archived declaration is judged by the gate.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
+- [x] 6.4 **NO OTHER ESTATE REPOSITORY IS SWEPT OR REGISTERED.** The validator
       takes a `REPO_ROOT` and refuses a tree with no register rather than
       assuming an empty one; each repository's register would be its own act.
-- [ ] 6.5 **WHETHER A `none` DECLARATION MAY CARRY A GLOSS AT ALL.** Three of
+      **NOT TAKEN, AND THE BEHAVIOUR THE BOX ASSERTS IS RE-PROVEN ON THE ARCHIVE
+      TREE RATHER THAN RESTATED.** Run against an empty tree carrying no packets
+      and no register of its own (`mkdir -p $T/openspec/changes/archive; python3
+      scripts/validate-code-surface.py $T`), the validator EXITS 2 and reports
+      every one of this repository's register entries as *"matched NOTHING
+      (stale)"* — it does not assume an empty register and it does not pass. The
+      register path is this repository's own `scripts/code-surface-register.yaml`
+      (`cs.REGISTER_PATH`, overridable only by an explicit `--register`), so
+      another estate repository's register is that repository's own act and no
+      byte of one is written here.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
+- [x] 6.5 **WHETHER A `none` DECLARATION MAY CARRY A GLOSS AT ALL.** Three of
       the four carriers do, and this packet admits it. A stricter rule would
       refuse three lawful declarations for tidiness.
+      **NOT TAKEN, AND THE FIGURE MOVED — DISCLOSED RATHER THAN CARRIED.** The
+      ratified body reads "Three of the four carriers do"; re-measured on the
+      archive tree through the shipped strict loader, the active corpus carries
+      FIVE `none` declarations and ALL FIVE carry a gloss. The ruling is
+      unchanged and strengthened by the move: a stricter rule would now refuse
+      FIVE lawful declarations rather than three, and this packet still admits
+      them all. Nothing here is taken.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
