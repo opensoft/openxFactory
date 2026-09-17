@@ -556,6 +556,34 @@ difference is whether a test asserts the absence or a rename left it behind.
   > time over the same run this file already measured — only the noun
   > beside the entry count does.
 
+  > **CORRECTION — 2026-09-17, lane `openxfactory-1`, openxFactory PR #1069
+  > (Copilot review thread `PRRT_kwDOTAvnrs6jXaNU`). THE BULLET ABOVE NAMES
+  > THE PROBE "per identity" AND THEN COUNTS ITS EMPTY RESULT AGAINST 57 — A
+  > TOKEN COUNT, NOT AN IDENTITY COUNT. The original sentence is kept rather
+  > than replaced, for the same reason as the correction above: this file is
+  > a RECORD of a measurement taken on 2026-09-16.**
+  >
+  > `measure.py`'s history loop (`measure.py:673-698`) iterates the 57
+  > remainder tokens but invokes `git log --all --diff-filter=A` only on a
+  > cache miss keyed by IDENTITY (`if identity not in seen`); every other
+  > token sharing that identity is served the cached `seen[identity]` answer,
+  > no second invocation. The probe RUNS per identity, never per token: **38
+  > identities, 76 invocations** (a literal-pathspec form and a corrected
+  > form, each run once per identity). Re-partitioned directly from
+  > `measurement-b1df95ee.json`'s 57 per-token `history` records, grouped by
+  > their shared `identity` field — the grouping first checked against the
+  > cache's own guarantee: zero mismatches, every token under one identity
+  > carries an IDENTICAL `history` value, across all 38 groups — the answer
+  > is **empty for 33 of the 38 identities**. Those 33 identities account for
+  > EXACTLY the 51 tokens the original sentence counted (33 identities → 51
+  > tokens; the other 5 identities → the other 6 tokens; 38 → 57 in total):
+  > the two counts are the SAME measurement read on two denominators, not a
+  > disagreement between them. The **17.0 of 19.0 seconds — 90%** cost figure
+  > does not move and needs no re-timing: it is already wall-clock time over
+  > the 38-identity, 76-invocation run the code actually performs, never over
+  > 57 token-level invocations that were never made. `design.md` D2 now
+  > states the per-identity denominator beside the per-token one.
+
 ### 6.4 One correction the issue's own evidence command needs
 
 #1053 states the confirmation as
