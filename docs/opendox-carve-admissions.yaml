@@ -172,9 +172,18 @@ destinations:
         since: "1a216ea413cdcc14791aa3939712e2e459cfa6b6"
   openxdox_code:
     created:
+      - path: src/openxdox/conformance_corpus.py
+        reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — the DECLARED `--adapter` factory § 3.7's conformance runner resolves (`openxdox.conformance_corpus:reader`), carrying the neutral corpus's own terms as a value; the counterpart of openxFactory's `tests/carve_conformance/home_factory.py` and of openDox's `src/opendox/runtime/conformance_corpus.py`"
+        since: "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
       - path: src/openxdox/consumer_reach.py
         reason: "added by openXdox-code #7"
         since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+      - path: src/openxdox/corpus_shape.py
+        reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — the per-corpus construction DATA a `DomainCorpusAdapter` is built from (`Scope`, `WriteProposal`, `WritePath`, `CorpusShape`) plus `from_profile()`, which derives `scan_roots` and one scope per artifact kind from a registered `DomainProfile`; RULED Q-X3 (a) keeps `kind_field` and `required_fields_by_kind` here as construction data rather than as a profile axis"
+        since: "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
+      - path: src/openxdox/domain_corpus_adapter.py
+        reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — `DomainCorpusAdapter`, the six operations of the PINNED `opendox.corpus_adapter.CorpusAdapter` over one `CorpusShape`, structurally conformant and stdlib-only; RULED Q-X2 (a)'s NEUTRAL profile-parameterized reader, measured `OK — 17 of 17` against § 3.7's neutral conformance corpus as it ships (no transposition)"
+        since: "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
       - path: src/openxdox/domain_profile.py
         reason: "added by openXdox-code #14 (the 4.4 DomainProfile engine)"
         since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
@@ -208,9 +217,15 @@ destinations:
       - path: tests/opendox_bundle.py
         reason: "added by openXdox-code #19 (§ 3.4 slice S8: the PINNED openDox bundle the 31 mis-pointed suites read, and the composed root RULED Q5 assembles)"
         since: "c8e4a59bd8eab231e5903e26b2a9b08e9e527fba"
+      - path: tests/test_corpus_shape.py
+        reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — on `validate.yml`'s explicit `--noconftest` list: what a `CorpusShape` refuses to be, and what `from_profile` derives from the vendored engineering profile's six artifact kinds and eleven declared locations"
+        since: "5494bb43350636cf7c3d5a3b6b2d6262ab74dd06"
       - path: tests/test_dependency_direction.py
         reason: "added by openXdox-code #7"
         since: "bfd95063b2a71be097a04bb6a3a99c4c131dd322"
+      - path: tests/test_domain_corpus_adapter.py
+        reason: "added by opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`, split-opendox-two-layer-product `design.md` § D4 machinery (1), RULED Q-X1..Q-X4 `#656` comment `5715212264`) — on `validate.yml`'s explicit `--noconftest` list: the six operations, every one of the interface's eight refusal kinds, the CR/LF/CRLF line rule, the write-path dispatch, and the guard that stops this reader adopting the git checkout a corpus directory sits inside"
+        since: "5494bb43350636cf7c3d5a3b6b2d6262ab74dd06"
       - path: tests/test_domain_profile.py
         reason: "added by openXdox-code #14 (the 4.4 DomainProfile engine)"
         since: "3840c1670771e2dc7bcd64eaafbc43169e0f383d"
