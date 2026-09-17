@@ -2,17 +2,22 @@
 
 WHAT THIS FILE POLICES — § 3.4 slice S7's landing precondition
 (`opensoft/openxFactory#656` comment `5649744596`, CLAIM; `5649148461`, the S7
-slice this facet's shape conforms to): once openDox-code #21
-(`src/opendox/display_profile.py`, `PROFILE_FACET = "DISPLAY"`) lands, every
-class-C view in `src/opendox/web/` resolves its rendered vocabulary BY ROLE
-through the registered host's `DISPLAY` facet, or through openDox's own
-NEUTRAL words if the host declares none. Every profile in the estate is in the
-second state today. This file is what moves openxFactory's own dashboard out
-of it:
+slice this facet's shape conforms to): openDox-code #21
+(`src/opendox/display_profile.py`, `PROFILE_FACET = "DISPLAY"`) HAS landed and
+is what this repository pins — pin lockstep #2 moved the `code` leg to
+`1e469713` — so every class-C view in `src/opendox/web/` resolves its rendered
+vocabulary BY ROLE through the registered host's `DISPLAY` facet, or through
+openDox's own NEUTRAL words if the host declares none. Every profile in the
+estate is in the second state today. This file is what moves openxFactory's
+own dashboard out of it:
 
-  1. `profile_openxfactory.DISPLAY` conforms to #21's schema (structurally,
-     since the schema is not yet importable at this repository's pinned
-     openDox commit — see `test_facet_conforms_to_opendox_schema`).
+  1. `profile_openxfactory.DISPLAY` conforms to #21's schema — checked LIVE,
+     by handing the facet to `opendox.display_profile.normalize_display`
+     itself (see `test_facet_conforms_to_opendox_schema`). Until the pin
+     advanced past #21 the schema was not importable here at all and this
+     bullet read "structurally", against a vendored copy; that copy
+     (`tests/fixtures-opendox-display-facet-schema.yaml`) and the guard test
+     that watched for this moment are both gone.
   2. Every `areas` / `artifacts` prefix the facet declares ends in `/`
      (`display_profile._corpus_prefix`'s own refusal, added on Copilot review
      of #21 itself).
@@ -40,10 +45,7 @@ assembly point.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
-import yaml
 
 # noqa: E402 — see tests/domain_profile/test_openxfactory_profile.py, the
 # sibling this file follows: conftest has already put `scripts/` on the path
@@ -52,9 +54,6 @@ import opendox_host                                      # noqa: E402
 import profile_openxfactory                               # noqa: E402
 from opendox.profile_proxy import profile_openxfactory as proxy  # noqa: E402
 from openxdox import domain_profile as engine              # noqa: E402
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-VENDORED_SCHEMA_PATH = REPO_ROOT / "tests" / "fixtures-opendox-display-facet-schema.yaml"
 
 #: The exact three vocabularies `opendox.display_profile._STATUS_VOCABULARIES`
 #: declares, and the artifact kind + role subset this facet answers them with
@@ -71,97 +70,43 @@ _KIND_BY_VOCABULARY = {
 # --------------------------------------------------------------------------
 
 def test_facet_conforms_to_opendox_schema():
-    """(a) The facet conforms to `display_profile`'s own shape.
+    """(a) The facet conforms to `display_profile`'s own shape — LIVE.
 
-    TRIES THE LIVE IMPORT FIRST. `contracts/opendox-pin.yaml` pins openDox's
-    code leg at `a99eba03` (BUILD slice 1b), which predates openDox-code #21
-    (`display_profile.py` does not exist in that tree at all — confirmed by
-    reading the pinned checkout directly), so `from opendox import
-    display_profile` is expected to fail here and this SAYS SO in the
-    assertion message on both branches rather than passing silently either
-    way. Once the pin advances past #21's landing, the first branch starts
-    running for real and the vendored fixture (and this fallback) should be
-    deleted.
+    THE LIVE IMPORT IS NOW THE ONLY PATH. This test used to try
+    `from opendox import display_profile` and fall back to a vendored copy of
+    #21's schema, because `contracts/opendox-pin.yaml` pinned a `code` leg
+    (`05bbde80`, and `a99eba03` before it) in which `display_profile.py` does
+    not exist at all. Pin lockstep #2 advanced that leg to `1e469713`
+    (openDox-code#21's landing), where it does — verified in the pinned
+    checkout's own object store rather than inferred from the pin file:
+    `src/opendox/display_profile.py` is ABSENT at `a99eba03` and `05bbde80`,
+    PRESENT at `1e469713`.
+
+    So the fallback branch, its vendored fixture
+    (`tests/fixtures-opendox-display-facet-schema.yaml`) and the guard test
+    `test_the_schema_conformance_path_taken_is_the_expected_one` are all
+    deleted here — exactly what that guard's own failure message instructed
+    the first bump past #21 to do, and the reason it was written to fail
+    loudly instead of quietly flipping branches.
+
+    What replaces them is STRONGER, not weaker. The fallback validated this
+    facet against a vendored COPY of #21's schema, which could drift from the
+    module it copied; the live path hands the facet to openDox's real
+    `normalize_display`, so #21's own refusals — unknown roles, two roles
+    sharing one rendered word within a vocabulary, a corpus prefix missing its
+    separator — are enforced by the module that owns them.
     """
     facet = profile_openxfactory.DISPLAY
     assert isinstance(facet, dict), f"DISPLAY must be a mapping, got {type(facet)!r}"
 
-    try:
-        from opendox import display_profile
-    except ImportError as exc:
-        # `from opendox import display_profile` when the submodule truly
-        # does not exist yet raises a plain `ImportError` (NOT
-        # `ModuleNotFoundError`) reading "cannot import name 'display_profile'
-        # from 'opendox'", with `exc.name == "opendox"` (the PARENT package —
-        # confirmed empirically against the pinned tree: `opendox/__init__.py`
-        # itself imports fine, it just has no such attribute or submodule).
-        # A genuine regression — `display_profile.py` existing but failing to
-        # import one of ITS OWN dependencies — raises with a DIFFERENT
-        # `exc.name` (the broken inner module), so only THIS exact signature
-        # is treated as "not built yet"; anything else re-raises rather than
-        # silently entering the vendored-fixture fallback (Copilot review).
-        if exc.name != "opendox":
-            raise
-        pytest.importorskip("jsonschema")
-        import jsonschema
+    from opendox import display_profile
 
-        assert VENDORED_SCHEMA_PATH.is_file(), (
-            f"{VENDORED_SCHEMA_PATH} is missing — the vendored fallback "
-            "schema this test needs (because the live import failed: "
-            f"{exc}) is not on disk")
-        schema = yaml.safe_load(VENDORED_SCHEMA_PATH.read_text(encoding="utf-8"))
-        validator = jsonschema.Draft202012Validator(schema)
-        errors = sorted(validator.iter_errors(facet), key=lambda e: list(e.path))
-        assert errors == [], (
-            "SAYING SO: opendox.display_profile is not importable at this "
-            f"repository's pinned openDox commit ({exc}), so this facet was "
-            f"checked against the VENDORED fixture {VENDORED_SCHEMA_PATH.name} "
-            "instead — and failed it:\n" +
-            "\n".join(f"{'/'.join(str(p) for p in e.path) or '<root>'}: {e.message}"
-                       for e in errors))
-        # SAYING SO, on the PASSING path too (not just the failure message
-        # above): printed rather than asserted, because a vendored-fixture
-        # pass is the expected, correct outcome today and must stay green —
-        # `test_the_schema_conformance_path_taken_is_the_expected_one` is the
-        # assertion that this branch (and not the live one) is the one
-        # running, and fails loudly the day that stops being true.
-        print(
-            f"DISPLAY facet checked against the VENDORED fixture "
-            f"{VENDORED_SCHEMA_PATH.name}, not a live `opendox.display_profile` "
-            f"import ({exc}) — contracts/opendox-pin.yaml pins openDox before "
-            "openDox-code #21 landed it.")
-        return
-
-    # THE LIVE PATH — reachable once the pin advances past #21.
     assert hasattr(display_profile, "normalize_display"), (
         "opendox.display_profile imported but has no normalize_display(); "
         "the pinned commit is newer than expected and this test needs "
         "re-reading against it")
     normalized = display_profile.normalize_display(facet)
     assert isinstance(normalized, dict)
-
-
-def test_the_schema_conformance_path_taken_is_the_expected_one():
-    """A guard on the guard above: today, the FALLBACK branch must run.
-
-    If this starts failing because `from opendox import display_profile`
-    now succeeds, that is GOOD NEWS (the pin advanced past #21) and the fix
-    is to delete the vendored fixture and simplify the test above to the live
-    path only — not to chase this assertion.
-    """
-    try:
-        from opendox import display_profile  # noqa: F401
-    except ImportError as exc:
-        if exc.name != "opendox":
-            raise  # the same distinction the test above draws
-        return
-    pytest.fail(
-        "opendox.display_profile is now importable at this repository's "
-        "pinned openDox commit — contracts/opendox-pin.yaml has advanced "
-        "past openDox-code #21. Delete "
-        "tests/fixtures-opendox-display-facet-schema.yaml and this test, and "
-        "simplify test_facet_conforms_to_opendox_schema to the live-import "
-        "path only.")
 
 
 # --------------------------------------------------------------------------
@@ -410,11 +355,19 @@ def test_no_two_roles_share_one_word_within_acts_or_areas():
 # --------------------------------------------------------------------------
 
 def test_display_and_route_extensions_ride_the_identical_registered_object():
-    """`opendox.view_extension.host_profile_name()` is not importable at this
-    repository's PINNED openDox commit (`a99eba03` predates even the module it
-    lives in), so this proves the property it will rely on using what IS
-    pinned: `opendox.domain_profile.name_of()`, already present at `a99eba03`
-    (`profile_proxy.py`'s own refusal message already quotes it).
+    """`opendox.view_extension.host_profile_name()` IS importable now — pin
+    lockstep #2 advanced this repository's pinned `code` leg to `1e469713`,
+    which carries `view_extension.py`. It did not used to be: the pin named
+    `a99eba03` (which predates the module entirely) and later `05bbde80`, and
+    this docstring said as much.
+
+    The assertion below deliberately does NOT switch to it. What this test
+    proves is a REGISTRY property — that both facets ride one registered
+    object — and `opendox.domain_profile.name_of()` reads the name off the
+    object already in hand, which is exactly that property.
+    `host_profile_name()` instead asks the registry for the CURRENT profile's
+    name, re-entering the very lookup under test. So the mechanism stays, and
+    what was a limitation is now a choice.
 
     `_LateProfile.resolve()` calls `domain_profile.current()` fresh on every
     attribute access (no cache) — so this asserts the registry hands back the

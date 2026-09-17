@@ -186,11 +186,15 @@ def _area_label(profile: Any, role: str) -> str:
 def _display_facet(profile: Any) -> dict[str, Any]:
     """openxFactory's real `DISPLAY` facet — every word derived, none retyped.
 
-    Conforms to openDox-code #21's schema (`src/opendox/display_profile.py` at
-    head `90cf05a0`; NOT YET PINNED — `contracts/opendox-pin.yaml` names
-    `a99eba03`, BUILD slice 1b, so this facet targets the schema at that PR's
-    current head and `tests/test_engineering_profile_display_facet.py` says so
-    rather than importing it). Every value below reads off THIS SAME `profile`
+    Conforms to openDox-code #21's schema (`src/opendox/display_profile.py`),
+    and that conformance is now CHECKED LIVE: pin lockstep #2 advanced
+    `contracts/opendox-pin.yaml` to the openDox assembly whose `code` leg is
+    `1e469713` (#21's landing), so `tests/test_engineering_profile_display_facet
+    .py` hands this facet to `opendox.display_profile.normalize_display` itself.
+    Until that bump it could not — the pin named a leg (`a99eba03`, BUILD slice
+    1b, and later `05bbde80`) in which the module did not exist — so this
+    docstring used to read "NOT YET PINNED" and the test checked a vendored
+    copy of the schema instead. Every value below reads off THIS SAME `profile`
     through its own public accessors (`profile.status(role, kind=kind)`,
     `profile.act(id).id`, `profile.artifact_kind(id).label`,
     `profile.lifecycle_for(kind).by_role(role)`), so a renamed status or act id

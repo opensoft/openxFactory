@@ -71,6 +71,20 @@ destination copy. Derived, never transcribed: the destination of
 this module has to know which, or notice the day a row's destination changes.
 A per-DIRECTORY constant is exactly the bug this replaces: `scripts/
 ideation_dashboard/` split across BOTH legs and partly stayed here.
+
+AND THE ROWS A RULING HAS RETIRED (RULED 5656343213, `#656` comment
+`5656343213`). A moved row may carry a `retired:` block saying that a ruling
+DELETED its arrival at the leg — not moved it, as RULED Q6's `re_destined:`
+does, but removed it, because the surface the arrived file drove is at no leg
+at all. The row keeps every field the carve wrote, so this module can still
+compute a perfectly well-formed path for it under a materialized leg — and
+that path would name a file `verify-carve-arrival.py` has just finished
+proving ABSENT. So `source()` refuses with `CarveRowRetired` (a subclass of
+`ShedModuleHasNoDestination`, so callers that already handle "at no
+destination" need no change), `module()` and `shed_relpath()` refuse through
+it, and `sources_under()` OMITS such a row exactly as it omits the
+`deleted_at_carve` one: a caller that NAMES a retired file has the wrong file,
+and a caller SWEEPING a tree must not be stopped by one row that is nowhere.
 """
 
 from __future__ import annotations
@@ -157,6 +171,20 @@ class CarveReachUnavailable(ImportError):
 
 class ShedModuleHasNoDestination(ImportError):
     """A shed module that left for NO destination was asked for by its old name."""
+
+
+class CarveRowRetired(ShedModuleHasNoDestination):
+    """A row a RULING has RETIRED at its leg was asked for (RULED 5656343213).
+
+    A SUBCLASS and not a sibling, deliberately. To every caller that already
+    handles "this file is at no destination" the two cases are one answer —
+    ask for something else — and an existing `except ShedModuleHasNoDestination`
+    goes on working unchanged the day a row is first retired. To a caller that
+    wants the distinction the class carries it: `deleted_at_carve` is a file
+    the carve never placed anywhere, and a RETIREMENT is a file the carve DID
+    place and a later ruling deleted. Different causes, different remedies,
+    one supertype.
+    """
 
 
 #: Old dotted name -> the sentence that explains where it went. Only the
@@ -469,6 +497,77 @@ def effective_arrival(row: dict) -> tuple[str, str]:
     return row.get("destination"), row.get("destination_path")
 
 
+# THE CLOSED KEY SET, HERE TOO, because this predicate ENFORCES it and cannot
+# import the copy in `scripts/validate-carve-manifest.py` (that file is a
+# hyphenated entry point loaded by `spec_from_file_location`; this one is
+# imported bare). A block carrying a key outside it — a misspelled `notes:`, a
+# field somebody invented — reads as NO retirement and the arrival stays owed,
+# on the same fail-closed reasoning the four required keys already have: a
+# document this predicate cannot fully read is one the manifest validator must
+# be run against before anything acts on it.
+RETIRED_KEYS = frozenset({"at", "at_path", "ruling", "surface", "note"})
+
+
+def retired_at(row: dict) -> tuple:
+    """`(destination key, destination path)` a RULING has RETIRED this row's
+    arrival at (RULED 5656343213, `#656` comment `5656343213`) — or
+    `(None, None)` where the row carries no usable retirement.
+
+    THE THIRD COPY of a three-line predicate, exactly as `effective_arrival`
+    above is, and for the same reason: `validate-carve-manifest.py` and
+    `verify-carve-arrival.py` are hyphenated entry points loaded by
+    `spec_from_file_location`, this module is loaded BARE at some call sites,
+    and none of the three can import another.
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_all_three_tools_read_the_retirement_identically`
+    asserts the three equal over a table rather than trusting them to agree.
+
+    `source()` refuses on it — and `module()`, `shed_relpath()` and
+    `shed_destination()` through or beside it — because the alternative is
+    worse than a refusal: a retired row's `destination_path` still resolves
+    to a perfectly well-formed path under a materialized leg, and returning it
+    would hand a caller a `Path` to a file the floor has just finished proving
+    is NOT THERE. That is the silent-nothing this module's own docstring
+    refuses to degrade into.
+
+    ALL FOUR REQUIRED KEYS ARE THE GUARD, not the two a placement needs
+    (Copilot review of PR #1032, round 2). `retired: {at, at_path}` is half a
+    block: `validate-carve-manifest.py` refuses it — `carve-retired-unruled`,
+    then `carve-shape-invalid` on the missing `surface` — but THIS predicate is
+    read by tools that never run that validator. `verify-carve-arrival.py` is
+    run at a leg against a `--dest-root` and `carved_reach` is imported by
+    every retained consumer, so "the validator would have caught it" is not
+    true at the moment of reading; a half-written block would silence a
+    required arrival before anyone validated the document. Four non-empty
+    strings or no retirement — the same closed key set (`at`, `at_path`,
+    `ruling`, `surface`, and the optional `note`) the form itself declares.
+
+    AND THE OPTIONAL KEY IS READ AS THE GRAMMAR WRITES IT, not as a type
+    (Copilot review of PR #1032, round 7). `_check_retired_shape` refuses a
+    PRESENT `note:` that is not a non-empty string — *a note is prose or it is
+    absent* — and this predicate asked only `isinstance`, so `note: ""` and
+    `note: "   "` read as usable retirements here and as `carve-shape-invalid`
+    there. That is the fail-OPEN direction again, arriving through the one key
+    the form makes OPTIONAL: a block the validator would refuse silenced this
+    row's arrival check at a leg that had not run the validator. ABSENT, OR
+    PROSE — the same rule, in the same words, in all three copies and in the
+    grammar, held together by
+    `test_the_note_is_prose_or_absent_in_the_grammar_and_in_all_three_readers`.
+    """
+    retired = row.get("retired")
+    if isinstance(retired, dict) and set(retired) <= RETIRED_KEYS:
+        at = retired.get("at")
+        at_path = retired.get("at_path")
+        ruling = retired.get("ruling")
+        surface = retired.get("surface")
+        if (all(isinstance(value, str) and value.strip()
+                for value in (at, at_path, ruling, surface))
+                and ("note" not in retired
+                     or (isinstance(retired["note"], str)
+                         and retired["note"].strip()))):
+            return at, at_path
+    return None, None
+
+
 def source(path: str | Path) -> Path:
     """The file `path` NAMES TODAY, wherever the § 5.2 shed left it.
 
@@ -487,6 +586,13 @@ def source(path: str | Path) -> Path:
         mixed set does not have to know which of its members stayed;
       * the one `deleted_at_carve` row raises `ShedModuleHasNoDestination`,
         the same named refusal its import gets;
+      * a row a RULING has RETIRED at its leg (RULED 5656343213) raises
+        `CarveRowRetired`, a subclass of that same refusal: the carve DID
+        place this file and a later ruling DELETED that placement, so the
+        well-formed path this function could still compute would name
+        nothing. It is the ARRIVAL that is refused, and the refusal says so:
+        a row may ALSO declare `also_replicated_to:` copies, which RULED OQ-C
+        makes the legs' own placements and which no retirement touches;
       * a path in no row raises `NotACarvedPath`, because a caller asking this
         question about a file the manifest never declared has the wrong file,
         and answering `REPO_ROOT / path` would hide that.
@@ -511,6 +617,25 @@ def source(path: str | Path) -> Path:
                 f"{key} is the carve manifest's `deleted_at_carve` row and has "
                 f"no destination to read it from. {reason}")
         return REPO_ROOT / key
+    at, at_path = retired_at(row)
+    if at_path is not None:
+        retired = row["retired"]
+        replicas = row.get("also_replicated_to") or []
+        raise CarveRowRetired(
+            f"{key} was RETIRED at {at}:{at_path} by ruling "
+            f"{retired.get('ruling')!r} (RULED 5656343213), because the "
+            f"surface it drove ({retired.get('surface')!r}) arrived at no "
+            "leg. The row still records the move the carve made — that is "
+            "what the manifest is for — but the ARRIVAL this function "
+            "resolves is gone, and a path computed from the row would name a "
+            "file the arrival verifier has just finished proving absent. Ask "
+            "for whatever replaced the surface, or for nothing."
+            + (f" (This says nothing about the row's `also_replicated_to` "
+               f"copies at {sorted(str(r) for r in replicas)!r}: RULED OQ-C "
+               "makes those the LEGS' own placements, declared with "
+               "`--replica-at` and governed on their own terms — a "
+               "retirement deletes ONE placement, the one named above.)"
+               if replicas else ""))
     destination, destination_path = effective_arrival(row)
     mount = MOUNTS[destination]
     if not (mount / ".git").exists() and not any(mount.glob("*")):
@@ -539,8 +664,9 @@ def module(path: str | Path):
       * a `not_moved` row keeps the spelling it has HERE
         (`scripts/ideation_dashboard/intent_feed.py` → the
         `ideation_dashboard.intent_feed` that `SCRIPTS_DIR` on the path serves);
-      * the `deleted_at_carve` row raises `ShedModuleHasNoDestination`, and a
-        path in no row raises `NotACarvedPath`, exactly as `source()` does.
+      * the `deleted_at_carve` row raises `ShedModuleHasNoDestination`, a
+        RETIRED row raises `CarveRowRetired`, and a path in no row raises
+        `NotACarvedPath`, exactly as `source()` does.
 
     `install()` is called first, so a caller gets the legs on the path and the
     named refusals without having to remember to arrange them.
@@ -555,6 +681,8 @@ def module(path: str | Path):
             source(key)  # raises ShedModuleHasNoDestination
         relative = key[len("scripts/"):] if key.startswith("scripts/") else key
     else:
+        if retired_at(row)[1] is not None:
+            source(key)  # raises CarveRowRetired with the sentence for it
         relative = row["destination_path"]
         if relative.startswith("src/"):
             relative = relative[len("src/"):]
@@ -577,11 +705,21 @@ def shed_relpath(path: str | Path) -> str | None:
     materialized — the marker is consulted at import time by lanes that
     initialise no gitlinks at all — so this reads the row and stops, and the
     caller's own `exists()` decides presence exactly as it always did.
+
+    A RETIRED ROW RAISES `CarveRowRetired` rather than answering (RULED
+    5656343213), on `source()`'s reasoning and not in spite of the paragraph
+    above: the caller's `exists()` would answer False for a file that is not
+    merely un-materialized but DELETED BY RULING, and "not here yet" and
+    "never again" are the two answers a marker must not confuse. Raising does
+    not require a leg to be materialized, so the property this function exists
+    for is kept.
     """
     key = str(path).replace("\\", "/")
     row = _rows().get(key)
     if row is None or row["disposition"] == "not_moved":
         return None
+    if retired_at(row)[1] is not None:
+        source(key)  # raises CarveRowRetired with the sentence for it
     mount = MOUNTS[row["destination"]].relative_to(REPO_ROOT)
     return (mount / _closed_relative_path(row["destination_path"], source_path=key)).as_posix()
 
@@ -901,6 +1039,31 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     `release_inventory` would report the member ABSENT AT THE COMMIT. That is
     the same misattribution this whole path exists to prevent, arriving one
     layer lower, so it raises here and becomes the same repository-level skip.
+
+    A RETIRED ROW IS NOT GUARDED HERE, AND THE DIVERGENCE FROM `source()` IS
+    DELIBERATE (Copilot review of PR #1032, which asked for the guard). This
+    is the one resolver whose question is TIME-INDEXED. `source()` answers
+    about the working tree — one tree, the one that exists now — so a row a
+    ruling has deleted has no answer and refusing is the only honest one. This
+    function answers about THE COMMIT THE CALLER NAMES, through the leg THAT
+    COMMIT pins. A retirement is an EVENT: the deletion lands at the leg at
+    some commit, and every commit before it pins a leg that still carries the
+    file. The `retired:` block, meanwhile, is read from the manifest in the
+    WORKING TREE and says nothing about when the deletion landed — so a guard
+    here would apply today's retirement to every commit ever asked about, and
+    would break the exact property `scripts/hermes_runtime_validation/
+    release.py` is built on: verifying an OLDER commit reads the leg that
+    commit pinned, where the member is present and the read is correct.
+
+    At a commit whose pinned leg no longer carries the file, this answers a
+    path with no blob there, and the caller's own absence finding is the right
+    verdict and the one it already produces: `scripts/doc_health/
+    release_inventory.py` reports the member as VANISHED at that commit, and
+    `hermes_runtime_validation.content.resolve_git_object` raises its own
+    error. Neither is silent, and neither needs this function to decide for
+    it. `tests/carve_manifest/test_carve_manifest.py::
+    test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose` pins
+    the divergence so it stays a decision rather than an omission.
     """
     key = str(path).replace("\\", "/")
     row = _rows().get(key)
@@ -951,7 +1114,12 @@ def sources_under(prefix: str) -> dict[str, Path]:
     repository-relative path, so a caller's own reporting still names the path
     a reader of this repository's history will recognise. The
     `deleted_at_carve` row is omitted: it is nowhere, and a sweep is not the
-    place to raise about it.
+    place to raise about it. A RETIRED row (RULED 5656343213) is omitted for
+    exactly that reason and no other — it is nowhere too, and one retired row
+    must not take a whole compositor sweep down with it. The refusal is kept
+    for the callers that NAME a file (`source()`, `module()`,
+    `shed_relpath()`), where asking for that one file is the caller's own
+    mistake rather than an incident of walking a tree.
     """
     prefix = prefix.rstrip("/") + "/"
     out: dict[str, Path] = {}
@@ -959,6 +1127,18 @@ def sources_under(prefix: str) -> dict[str, Path]:
         if not key.startswith(prefix):
             continue
         if row.get("reason") == "deleted_at_carve":
+            continue
+        # THE RETIREMENT OMISSION IS A MOVED ROW'S, and the disposition test is
+        # load-bearing rather than defensive (Copilot review of PR #1032,
+        # round 6). `retired:` on a `not_moved` row is a document
+        # `validate-carve-manifest.py` refuses (`carve-retired-not-moved`) —
+        # but this module is imported by consumers that never run it, and
+        # `source()` above resolves a `not_moved` row HERE, unconditionally,
+        # before it reads any retirement. Omitting on `retired_at` alone made
+        # this sweep disagree with `source()` about the same row and, worse,
+        # silently drop a file that is RETAINED in this tree.
+        if (row.get("disposition") != "not_moved"
+                and retired_at(row)[1] is not None):
             continue
         out[key] = source(key)
     return out
