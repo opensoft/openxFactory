@@ -813,6 +813,39 @@ def test_a_template_substitution_is_a_prefix_too() -> None:
         == {"chip-"}
 
 
+def test_a_quoted_parenthesis_does_not_close_a_pseudo_function(
+        tmp_path: Path) -> None:
+    """THE PSEUDO WALK COUNTS CODE PARENTHESES ONLY (Copilot review, round 24).
+
+    Round 12 stopped a class inside `:not(…)` from anchoring a branch — a rule
+    that styles nearly every element EXCEPT the gate's must not leave on the
+    strength of what it excludes. The depth count still read every `)` as
+    syntax, so a QUOTED one inside an attribute value closed the pseudo early
+    and freed the excluded class: `div:not([data-label=")"] .gatebar)` left
+    `.gatebar` looking like the hook the branch hangs on. Attribute selectors
+    are removed first now, by the quote- and escape-aware stripper round 15
+    already shares with `selector_class_tokens`.
+    """
+    excluded = 'div:not([data-label=")"] .gatebar)'
+    assert CENSUS._outside_pseudo_functions(excluded) == "div"
+    assert CENSUS.selector_class_tokens(
+        CENSUS._outside_pseudo_functions(excluded)) == set()
+    # the element-qualified forms stay refused, and a real anchor still anchors
+    assert CENSUS._outside_pseudo_functions(
+        'div:not([data-label=")"]).gatebar') == "div.gatebar"
+    assert CENSUS.selector_class_tokens(
+        CENSUS._outside_pseudo_functions(".gatebar:hover")) == {"gatebar"}
+    # AND THE BLOCK FOLLOWS: the rule whose only gate class is EXCLUDED stays
+    dox, xdox = _tree(
+        tmp_path,
+        styles=(excluded + " { color: red; }\n"
+                ".gatebar { color: blue; }\n"),
+        own={"own.js": "// none\n"},
+        gate={"gate.js": 'el("div", "gatebar");\n'})
+    report = _run(dox, xdox, tmp_path / "out.json")
+    assert [b["selector"] for b in report["exclusive_blocks"]] == [".gatebar"]
+
+
 def test_an_empty_own_views_directory_refuses_too(tmp_path: Path) -> None:
     """A DIRECTORY THAT EXISTS AND CARRIES NOTHING IS STILL AN EMPTY SCAN
     (Copilot review, round 23).

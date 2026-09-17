@@ -1084,7 +1084,20 @@ def _outside_pseudo_functions(selector: str) -> str:
     `:not(…)`, `:is(…)` or `:where(…)` is a condition on the match, not the
     hook the rule is anchored by, and the two must not be confused where the
     answer decides whether a block leaves the bundle.
+
+    ATTRIBUTE SELECTORS GO FIRST, AND THAT IS WHAT MAKES THE WALK SAFE (Copilot
+    review of openxFactory #1068, round 24). The depth count read every `)` as
+    syntax, including one inside a QUOTED attribute value, so
+    `div:not([data-label=")"] .gatebar)` closed `:not` at the quoted parenthesis
+    and left `.gatebar` — a class the rule EXCLUDES — looking like the hook the
+    branch hangs on. A rule that styles nearly every element except the gate's
+    could then leave on the strength of what it excludes, which is exactly the
+    error round 12 closed for the unquoted case. `_without_attribute_selectors`
+    is quote- and escape-aware (round 15) and already shared with
+    `selector_class_tokens`, so removing attributes before counting makes the
+    two agree by construction rather than by inspection.
     """
+    selector = _without_attribute_selectors(selector)
     out, i, n = [], 0, len(selector)
     while i < n:
         m = re.match(r"::?[A-Za-z-]+\(", selector[i:])
