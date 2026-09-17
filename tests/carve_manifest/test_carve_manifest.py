@@ -3921,10 +3921,10 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # where the runbook's `--replica-at` belongs and that suppresses the
     # replica's own line check). All four carried `edits:` already, so the
     # carrier count does not move: 2406 + 48 = 2454 on the same 176 rows, and
-    # the § 3.4 SLICE-S7 RESIDUE annotation's seven `adapter calls` lines then
-    # make 2461 on the same 176 again — its four rows were every one of them
+    # the § 3.4 SLICE-S7 RESIDUE annotation's eight `adapter calls` lines then
+    # make 2462 on the same 176 again — its five rows were every one of them
     # already a carrier, so nothing converts.
-    assert (lines, carrying) == (2461, 176), (lines, carrying)
+    assert (lines, carrying) == (2462, 176), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -4426,7 +4426,7 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
 #: opensoft/openDox-code#21 at its gated head `c7a216c7` and five are comments
 #: it left SUPPRESSED in review `5192900474`'s body.
 #:
-#: SEVEN FINDINGS, FOUR ROWS, SEVEN LINES — the arithmetic is not a slip.
+#: SEVEN FINDINGS, FIVE ROWS, EIGHT LINES — the arithmetic is not a slip.
 #: `views/staging-workbench.js` carries TWO of the findings (the nested wheel
 #: mount and `runAddSection`), and `views/display.js` is an ADMITTED created
 #: file with no row at all, so it is declared as an admission and not here.
@@ -4442,13 +4442,16 @@ S7R_WINDOW: dict[str, list[tuple[str, list[int]]]] = {
     "scripts/ideation_dashboard/web/views/explorer.js": [
         ("adapter calls", [225]),
     ],
+    "scripts/ideation_dashboard/web/views/lineage.js": [
+        ("adapter calls", [119]),
+    ],
     "scripts/ideation_dashboard/web/views/staging-workbench.js": [
         ("adapter calls", [805, 1202, 1204]),
     ],
 }
 
-#: This act CONVERTS NOTHING: all four rows were already
-#: `moved_with_declared_edit` and already carriers (three converted by slice S7
+#: This act CONVERTS NOTHING: all five rows were already
+#: `moved_with_declared_edit` and already carriers (four converted by slice S7
 #: and `views/staging-workbench.js` by slice S5), so the disposition counts,
 #: the carrier count and the replica count stand where the pre-existing
 #: `openxdox_code` annotation left them. The empty list is that claim written
@@ -4461,7 +4464,7 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
     """The § 3.4 slice-S7 RESIDUE window against the LANDED manifest, row by row.
 
     `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
-    aggregate, and that pair would stay green if any of these seven lines had
+    aggregate, and that pair would stay green if any of these eight lines had
     landed on the wrong row, under the wrong one of RULING OQ-1's three
     classes, or as a different set summing to the same total — which is why
     every slice since ASK-7 pins its own window.
@@ -4477,7 +4480,7 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
     RULED Q7's window (`Q7_WINDOW`) touches ONE row, `web/styles.css`, and this
     act touches none of it, so there is nothing to order against there; the
     disjointness is asserted below rather than assumed, because a later Q7
-    amendment reaching one of these four rows is exactly the case an unchecked
+    amendment reaching one of these five rows is exactly the case an unchecked
     assumption would hide. The manifest is REQUIRED and not branched on: see
     `the_landed_manifest()`.
     """
@@ -4494,7 +4497,7 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
     declared = dict_literal_keys(Path(__file__).resolve(), "S7R_WINDOW")
     assert len(set(declared)) == len(declared), sorted(
         path for path in declared if declared.count(path) > 1)
-    assert len(declared) == 4, len(declared)
+    assert len(declared) == 5, len(declared)
     assert set(declared) == set(S7R_WINDOW), set(declared) ^ set(S7R_WINDOW)
 
     for source_path, entries in S7R_WINDOW.items():
@@ -4546,15 +4549,16 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
     for entries in S7R_WINDOW.values():
         for edit_class, nums in entries:
             by_class[edit_class] = by_class.get(edit_class, 0) + len(nums)
-    assert (lines, entries_count) == (7, 4), (lines, entries_count)
-    # ONE CLASS ONLY. Every one of the seven leaves is a call into the display
+    assert (lines, entries_count) == (8, 5), (lines, entries_count)
+    # ONE CLASS ONLY. Every one of the residue's eight declared lines is a call
+    # into the display
     # facet, which is RULING OQ-1's `adapter calls` and neither of its other
     # two: no import moves and no path is spelled.
-    assert by_class == {"adapter calls": 7}, by_class
-    # 2454 + 7 = 2461 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDED
+    assert by_class == {"adapter calls": 8}, by_class
+    # 2454 + 8 = 2462 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDED
     # IT, a DELTA against the document it found, and so a figure a later act
     # cannot move.
-    assert 2454 + lines == 2461, lines
+    assert 2454 + lines == 2462, lines
 
     # 4. AND EVERY OTHER ACT'S WINDOW IN THIS FILE IS DISJOINT FROM THIS ONE,
     # ROW BY ROW — except slice S7's, which § 1 above orders against instead.
