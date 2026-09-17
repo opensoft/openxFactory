@@ -150,6 +150,25 @@ def read_manifest(path: Path) -> dict[str, Any]:
             f"{path} carries `destinations: {doc['destinations']!r}`, which "
             "is not a non-empty map. Every home this floor names is resolved "
             "through it")
+    # AND EVERY ENTRY IS A WHOLE IDENTITY (Copilot, round 8 on #1080). A
+    # `destinations:` key resolves to the `{repository, leg}` body that IS its
+    # identity, and an entry missing `leg:` resolved to `(repository, None)` —
+    # which is not equal to the `(repository, leg)` a sibling key resolves to,
+    # so a `--destination` naming the incomplete alias matched none of the
+    # rows written under the complete one and THAT LEG OWED NOTHING. FLOOR
+    # PART 1's `check_shape` requires both fields; this tool is run where that
+    # validator is not, and it compares those bodies for a living.
+    for key, entry in doc["destinations"].items():
+        if not isinstance(entry, dict) or not all(
+                isinstance(entry.get(field), str) and entry[field]
+                for field in ("repository", "leg")):
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"{path} carries `destinations: {key!r}: {entry!r}`, which is "
+                "not a map with a non-empty `repository:` and `leg:`. A key "
+                "is a LABEL and that pair is its identity — an incomplete one "
+                "compares equal to nothing, so a leg named by it would be "
+                "asked for no arrival at all")
     if not isinstance(doc["moved_paths"], list) or not doc["moved_paths"] \
             or not all(isinstance(entry, str) and entry
                        for entry in doc["moved_paths"]):
@@ -362,7 +381,11 @@ def arrivals_for(doc: dict[str, Any], destination: str) -> list[tuple[str, str]]
             # `destinations:` does not carry is a vocabulary error, and this
             # is where a leg finds it.
             if isinstance(key, str) and key:
-                mapping.repository_of(doc, key)
+                # `repository_of_ARRIVAL`, the seam `homes_of` uses: a moved
+                # row may not name the retained column, which `repository_of`
+                # resolves happily and which no invocation would then ask for
+                # (Copilot, round 8 on #1080).
+                mapping.repository_of_arrival(doc, key)
             if destination == mapping.RETAINED_TOKEN:
                 continue
             # PLACEMENT-AWARE, not shape-only (Copilot review of #1080): a
@@ -656,6 +679,13 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
         "tree_files": tree_files,
     }
     if collected < declared:
+        # BOTH SIGNS ON THE REFUSAL PATH TOO (Copilot, round 9 on #1080,
+        # accurate about this act's own runbook sentence). The passing report
+        # prints the positive deltas; the REFUSAL printed only the negative
+        # ones, so exactly the run that needs the canceling pair explained —
+        # one row short, another over — named half of it. A shortfall's cause
+        # is often a row that gained tests elsewhere, and the runbook promises
+        # the deltas BY NAME in both directions.
         raise mapping.TestMappingRefusal(
             "destination-test-shortfall",
             f"{repository} collects {collected} `def test_` at the arrival "
@@ -666,6 +696,9 @@ def verify_destination(doc: dict[str, Any], repo: Path, destination: str,
             + (f"BELOW DECLARATION: "
                f"{', '.join(item['path'] for item in below[:5])}. "
                if below else "")
+            + (f"ABOVE DECLARATION (the other half of any canceling pair): "
+               f"{', '.join(item['path'] for item in above[:5])}. "
+               if above else "")
             + "The most likely way a large suite loses coverage in a carve is "
               "tests dropped rather than moved")
     return summary

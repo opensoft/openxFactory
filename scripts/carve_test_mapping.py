@@ -332,7 +332,21 @@ def retirement_of(row: dict[str, Any]) -> tuple[Any, Any, Any] | None:
     ask. `carved_reach.retired_at` validates the block's SHAPE — all four
     required keys, the reading guard RULED 5656343213 — and a shape-valid
     block may still name a placement that is NOT this row's effective
-    arrival. FLOOR PART 1 refuses that document
+    arrival.
+
+    BY LABEL, DELIBERATELY, AND REGISTERED (Copilot, round 9 on #1080): a
+    retirement written under an ALIAS of the row's arrival — a second
+    `destinations:` key with the same `{repository, leg}` body, which
+    `check_shape` admits — reads here as NO retirement, so the row goes on
+    owing its arrival and the leg reports a shortfall. That is the
+    FAIL-CLOSED direction (a ruled deletion is asked for rather than a live
+    arrival silenced), it is the third finding in the "a key is a LABEL"
+    class this pull request has already closed twice, and closing it changes
+    this predicate's signature — it would need the document to resolve
+    against. It is registered for the next declared act on these files rather
+    than taken here, and the operator-facing consequence is stated so nobody
+    reads the paragraph above as covering it: write a retirement under the
+    same key the row's placement uses. FLOOR PART 1 refuses that document
     (`carve-disposition-inconsistent`), but this floor is run at a leg and
     inside a consumer where that validator never runs, and taking a mislocated
     block as a retirement would DELETE a live arrival from the mapping: the
@@ -531,6 +545,35 @@ def repository_of(doc: dict[str, Any], key: Any) -> str:
     return entry["repository"]
 
 
+def repository_of_arrival(doc: dict[str, Any], key: Any) -> str:
+    """A MOVED row's destination key, resolved — and the retained column is
+    not one of them (Copilot, round 8 on #1080).
+
+    `RETAINED_TOKEN` is the SELECTOR for the retained-column invocation, not a
+    legal `destination:` value: the manifest declares what LEAVES, and a row
+    that stays is `not_moved` with a `stays_openxfactory_*` reason. Accepting
+    it here counted such a row as homed at the source repository while NO
+    invocation ever asked for the file — the retained column skips moved rows,
+    and every other destination's resolved identity is a 2-tuple that the
+    1-tuple `('openxFactory',)` can never equal. A moved file owed by nobody,
+    reported as homed, is precisely the lost test clause (a) is about.
+
+    ONE SEAM, called by `homes_of` and by the verifier's `arrivals_for`, so
+    the source side and the leg cannot come apart on it.
+    """
+    if key == RETAINED_TOKEN:
+        raise TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"a moved row names destination {RETAINED_TOKEN!r}, which is the "
+            "SELECTOR for the retained column and not a `destinations:` key. "
+            "A row that stays at openxFactory is `not_moved` with a "
+            "`stays_openxfactory_*` reason; a MOVED row named this way is "
+            "owed by no destination — the retained column skips moved rows "
+            "and no other leg's identity can equal it — while the source side "
+            "would report it homed")
+    return repository_of(doc, key)
+
+
 def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
     """Clause (a) and clause (b), read off ONE ROW.
 
@@ -551,6 +594,13 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
         # as a replica's do — measured at the landed manifest the one such row
         # carries ZERO tests, so the term is 0 today and is computed anyway,
         # because a zero that is assumed is a zero nobody re-measures.
+        # PRESENCE IS A KEY, NOT A VALUE (Copilot, round 8 on #1080, and it is
+        # round 3's class arriving through the one spelling that reads as
+        # absent). `also_replicated_to:` written with no value parses as
+        # `None`, so `is not None` dropped a PRESENT field — the row's
+        # multiplicity undercounted while the sum went on balancing, which is
+        # the exact failure the round-3 fix was written to make impossible.
+        also_declared = "also_replicated_to" in row
         also = row.get("also_replicated_to")
         # A PRESENT FIELD IS READ OR REFUSED, NEVER DROPPED (Copilot, round 3
         # on #1080). Treating every non-list — and `[]` — as "no replicas"
@@ -559,7 +609,7 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
         # to make impossible. FLOOR PART 1 refuses such a row
         # `carve-shape-invalid`; this tool is run where that validator is not,
         # so it refuses rather than reading past it.
-        if also is not None and not (
+        if also_declared and not (
                 isinstance(also, list) and also
                 and all(isinstance(key, str) and key for key in also)
                 and len(set(also)) == len(also)):
@@ -621,7 +671,7 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
             # the arrival the row ACTUALLY has, so validating that arrival's
             # key here is the same question the moved path asks, asked before
             # the shorter answer.
-            repository_of(doc, key_of_arrival)
+            repository_of_arrival(doc, key_of_arrival)
             return RowMapping(source_path, 0, extra, "retired", ruling_of(row))
         key = key_of_arrival
         # A MOVED ROW THAT NAMES NO DESTINATION HAS NO HOME, and that is
@@ -645,7 +695,8 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
             # them a PLACEMENT".
             return RowMapping(source_path, 0, (), "moved", None)
         return RowMapping(source_path, 0,
-                          (repository_of(doc, key),) + extra, "moved", None)
+                          (repository_of_arrival(doc, key),) + extra,
+                          "moved", None)
     if disposition == NOT_MOVED:
         reason = row.get("reason")
         if reason in STAYS_REASONS:
@@ -718,6 +769,28 @@ def tests_at_carve(repo: Path, doc: dict[str, Any]) -> dict[str, int]:
             f"{len(newlined)} row source_path(s) carry a line terminator, "
             "which `git cat-file --batch` cannot be asked about one per line: "
             f"{newlined[0]!r}")
+    # AND 40 HEX IS A SHAPE, NOT AN OBJECT KIND (Copilot, round 8 on #1080,
+    # the second half of its own finding). A TREE's object id satisfies
+    # `COMMIT_RE`, and `git cat-file --batch` resolves `<tree>:<path>` exactly
+    # as it resolves `<commit>:<path>` — so the whole source side could be
+    # computed from a tree while the report named a carve COMMIT. The type is
+    # read in the repository the counts come from, under the same sanitized,
+    # replace-free environment as the batch below, because an ambient
+    # `GIT_DIR` or a replace-ref would otherwise answer this question about a
+    # different object store than the one the blobs are read in.
+    kind = subprocess.run(["git", "--no-replace-objects", "-C", str(repo),
+                           "cat-file", "-t", commit],
+                          capture_output=True, check=False,
+                          env=carved_reach._sanitized_git_environment())
+    if kind.returncode != 0 or kind.stdout.decode().strip() != "commit":
+        raise TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"`carve_commit: {commit}` is not a commit object in {repo} "
+            f"({kind.stdout.decode().strip() or kind.stderr.decode('utf-8', 'replace').strip()}). "
+            "A tree's object id is also 40 lowercase hex and "
+            "`git cat-file --batch` answers `<tree>:<path>` just as readily, "
+            "so the shape alone would let this floor count a tree and report "
+            "a carve commit")
     request = "".join(f"{commit}:{path}\n" for path in paths)
     # `--no-replace-objects` AGAINST A SANITIZED ENVIRONMENT, the treatment
     # `validate-carve-manifest.py::_git` and `carved_reach._git_object_id`

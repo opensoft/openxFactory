@@ -1597,6 +1597,110 @@ def test_the_arrival_reader_is_annotated_for_the_bytes_it_returns() -> None:
 
 
 # --------------------------------------------------------------------------
+# Copilot round 8 — three ways an arrival could be owed by nobody, and a
+# shape that is not an object kind
+# --------------------------------------------------------------------------
+
+def test_a_moved_row_may_not_name_the_retained_column_as_its_destination(
+        scratch: Scratch) -> None:
+    """`RETAINED_TOKEN` is the SELECTOR for the retained-column invocation and
+    not a `destinations:` key — the manifest declares what LEAVES, and a file
+    that stays is `not_moved` with a `stays_openxfactory_*` reason.
+
+    Accepting it on a MOVED row made the file owed by NOBODY: the retained
+    column skips moved rows, and every other destination's identity is a
+    `(repository, leg)` 2-tuple that the 1-tuple `('openxFactory',)` can never
+    equal — while the source side counted it as homed at the source
+    repository. A moved file nobody asks for, reported as homed, is the lost
+    test clause (a) exists to name."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row["destination"] = MODULE.RETAINED_TOKEN
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert MODULE.RETAINED_TOKEN in payload["detail"]
+    dest = scratch.destination("dox", ARRIVALS)
+    leg = refused(scratch.run(doc, "--destination", "dox_code",
+                              "--dest-root", str(dest)),
+                  "test-mapping-unreadable")
+    assert MODULE.RETAINED_TOKEN in leg["detail"]
+    retained = refused(scratch.run(doc, "--destination",
+                                   MODULE.RETAINED_TOKEN, "--dest-root",
+                                   str(scratch.repo)),
+                       "test-mapping-unreadable")
+    assert MODULE.RETAINED_TOKEN in retained["detail"], \
+        "including the invocation whose own selector it is"
+
+
+def test_a_present_but_empty_also_replicated_to_is_refused_not_dropped(
+        scratch: Scratch) -> None:
+    """Round 3's rule — *a field that is present and unreadable is not an
+    absent one* — read presence by VALUE, so `also_replicated_to:` written
+    with nothing after the colon parses as `None` and was dropped. The row's
+    multiplicity is then undercounted while the sum goes on balancing, which
+    is the one failure shape this floor exists to make impossible. Presence is
+    a KEY."""
+    doc = scratch.clean()
+    scratch.row(doc, "scripts/pkg/test_alpha.py")["also_replicated_to"] = None
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "also_replicated_to" in payload["detail"]
+
+
+def test_the_carve_commit_must_be_a_commit_object_and_not_a_tree(
+        scratch: Scratch) -> None:
+    """40 lowercase hex is a SHAPE, not an object kind: a TREE's object id
+    satisfies it, and `git cat-file --batch` answers `<tree>:<path>` exactly as
+    it answers `<commit>:<path>` — so the whole source side could be computed
+    from a tree while the report named a carve COMMIT. The kind is read in the
+    repository the counts come from, under the same sanitized, replace-free
+    environment as the batch itself."""
+    tree = _git(scratch.repo, "rev-parse", "HEAD^{tree}").stdout.strip()
+    assert MODULE.COMMIT_RE.fullmatch(tree), \
+        "the point of the case: a tree id passes the shape"
+    doc = scratch.clean()
+    doc["carve_commit"] = tree
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "not a commit object" in payload["detail"]
+    assert "tree" in payload["detail"]
+
+
+def test_a_destination_entry_without_a_leg_is_refused(
+        scratch: Scratch) -> None:
+    """A `destinations:` key resolves to the `{repository, leg}` body that IS
+    its identity. An entry missing `leg:` resolved to `(repository, None)`,
+    which equals nothing a complete entry resolves to — so a `--destination`
+    naming the incomplete alias matched no row written under the complete one
+    and THAT LEG OWED NOTHING, on a manifest YAML and this floor both
+    accepted."""
+    doc = scratch.clean()
+    doc["destinations"]["dox_alias"] = {"repository": "opensoft/openDox-code"}
+    dest = scratch.destination("dox", ARRIVALS)
+    payload = refused(scratch.run(doc, "--destination", "dox_alias",
+                                  "--dest-root", str(dest)),
+                      "test-mapping-unreadable")
+    assert "dox_alias" in payload["detail"]
+    assert "leg" in payload["detail"]
+    refused(scratch.run(doc), "test-mapping-unreadable")
+
+
+def test_a_shortfall_names_the_rows_above_their_declaration_as_well(
+        scratch: Scratch) -> None:
+    """The passing report printed both signs from round 7; the REFUSAL printed
+    only the negative one — so exactly the run that needs a canceling pair
+    explained named half of it, while the runbook promised both by name
+    (Copilot, round 9 on #1080, accurate about this act's own sentence)."""
+    dest = scratch.destination("dox", ARRIVALS)
+    (dest / "tests/test_alpha.py").write_text(_tests(0, "alpha"),
+                                              encoding="utf-8")
+    (dest / "src/mod.py").write_text(_tests(1, "mod"), encoding="utf-8")
+    payload = refused(scratch.run(None, "--destination", "dox_code",
+                                  "--dest-root", str(dest)),
+                      "destination-test-shortfall")
+    assert "BELOW DECLARATION: tests/test_alpha.py" in payload["detail"]
+    assert "ABOVE DECLARATION" in payload["detail"]
+    assert "src/mod.py" in payload["detail"].split("ABOVE DECLARATION")[1]
+
+
+# --------------------------------------------------------------------------
 # the landed document — the § 8.2 seat
 # --------------------------------------------------------------------------
 

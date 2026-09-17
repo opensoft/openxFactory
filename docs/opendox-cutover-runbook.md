@@ -1864,8 +1864,18 @@ never as a cross-repository equality:
 
 ```
 python3 scripts/verify-carve-test-mapping.py \
+    --destination openxdox_code --dest-root ../openXdox-code
+```
+
+and, where a replica is placed at that destination, the same command with the
+placement declared — the flag is repeatable and the block above is COPYABLE,
+which the bracketed form it replaces was not (argparse reads `[--replica-at`
+as a flag and fails before the destination is looked at):
+
+```
+python3 scripts/verify-carve-test-mapping.py \
     --destination openxdox_code --dest-root ../openXdox-code \
-    [--replica-at tests/corpus-adapter/test_conformance.py=tests/test_conformance.py]
+    --replica-at tests/corpus-adapter/test_conformance.py=tests/test_conformance.py
 ```
 
 `--destination` takes a `destinations:` key or the literal `openxFactory` for
