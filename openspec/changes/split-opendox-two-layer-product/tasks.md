@@ -2217,9 +2217,12 @@ the bookkeeping that ticks this group.
   (`openspec/changes/archive/2026-08-28-split-openxwallet-repo/tasks.md`
   :972-974; the corrected text stands at `README.md`:3154-3157 at this
   amendment's merged head — it read `:3026-3029` until the `main` this branch
-  merged moved it 128 lines, which is the fourth time in this one pull request
-  that a `README.md` coordinate has gone stale under an act with nothing to do
-  with it, and the reason the sentence is quoted beside the number).
+  merged moved it **128 lines**, which is the SECOND `README.md` coordinate
+  this amendment has had to re-measure under an act with nothing to do with
+  it (§ 1.8's position list is the other, and it gained two trees rather than
+  going false, because every value there is bound to a NAMED tree). That is
+  the difference a named tree makes, and the reason the sentence is quoted
+  beside the number here).
   Registered here with every coordinate measured, so that act re-derives
   nothing.
   *(A Copilot finding on this amendment's own pull request, round 1, and the
