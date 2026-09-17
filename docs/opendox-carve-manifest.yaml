@@ -824,9 +824,9 @@ moved_paths:
 #
 # THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
 # discipline the S3, S6, S4 and S8 paragraphs above each state: rows unchanged;
-# `not_moved` unchanged; NO disposition conversion (all five rows were already
-# carriers); declared lines +8 (`adapter calls` +8, `import rewrites` +0,
-# `path constants` +0) over the five rows below; rows carrying `edits:`
+# `not_moved` unchanged; NO disposition conversion (all four rows were already
+# carriers); declared lines +7 (`adapter calls` +7, `import rewrites` +0,
+# `path constants` +0) over the four rows below; rows carrying `edits:`
 # unchanged at 176; replicas unchanged; `re_destined` unchanged at 4. The one
 # place the running absolutes are summed and pinned is
 # `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`,
@@ -2554,9 +2554,6 @@ rows:
       - class: adapter calls
         lines: [41, 47, 52, 62, 63, 64, 65, 76, 77, 78, 79, 80, 81, 82, 83, 104, 115, 116, 117, 124, 129, 130, 138]
         note: "§ 3.4 SLICE S7, the declared-edit window for \"parameterize class C — every governance word in the fourteen class-C files and the four declared class-A tails becomes a read of the registered domain's DISPLAY facet BY ROLE\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`, Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `#656` comment `5628560136`, and its § 3.4 binding clause `5642758731`; S7 CLAIM `#656` comment `5649148461`). Every tile heading, sub-line, lineage-row label and legend sentence by role; `possibles[].state` matched through `registerState(role)`; the stat strip's stage sub-line GROUPED BY VALUE and RENDERED BY ROLE, so the eight-stage real corpus keeps reading truthfully (openDox declares roles for two of those eight and the other six are the host's own words already). The three lineage chips take compound style hooks (`lchip-selection` and its two siblings) for the reason a bare governance word makes a poor hook. The strip also takes the facet at all now: it is the one always-visible surface in the shell and it used to render BEFORE the capability probe resolved, so its labels stayed neutral for the life of the page however the host spelled its stations. Realized at opensoft/openDox-code `build/s7-parameterize-class-c` (DRAFT PR #21)."
-      - class: adapter calls
-        lines: [119]
-        note: "§ 3.4 SLICE S7 RESIDUE, the declared-edit window for the SEVEN DISPLAY-FACET LEAVES slice S7's own review found inside the modules it had already parameterized at their mounts — two threads Copilot opened on opensoft/openDox-code#21 at its gated head `c7a216c7` and five more it left SUPPRESSED in review `5192900474`'s body, where a lane reading `unresolved == 0` would never have seen them (the S7 LANDED note is `#656` comment `5688498049`; the FORM is RULED Q-L1's, `#656` comment `5628560136`, so this annotation lands FIRST and the leg follows; the class is RULING OQ-1's `adapter calls`, `#656` comment `5628560136`'s own closed set). They were NOT taken on #21 because each edits a carve-commit line the landed S7 window does not declare, proved there against a pristine checkout with the floor's own `verify-carve-arrival.py` (`arrival-undeclared-edit`) — the same disposition Act 1 gave slice S8's two path constants: measured, left alone, registered, and taken by the later act that declares them. THE STRIP CLEARS THE PREVIOUS RENDER'S WORDS BEFORE IT COUNTS AGAIN. `renderStats()` grouped by value and rewrote the stage sub-lines through the display facet, but it left the earlier render's inline `--st-*` properties in place, so a later render could headline one vocabulary and style the strip as another. `:119` is the reset that makes the one always-visible stat surface read and LOOK from the same facet on every render. Realized at opensoft/openDox-code in the leg this annotation precedes (`build/s7-residue-leaf-facet`), whose new `tests/test_display_facet_leaves.py` fails 10 of 12 against a pristine worktree at `0b4e8bbf` — each failure its own leaf."
   - source_path: scripts/ideation_dashboard/web/views/model.js
     disposition: moved_with_declared_edit
     git_mode: '100644'
