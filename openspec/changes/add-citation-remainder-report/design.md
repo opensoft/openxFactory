@@ -741,6 +741,22 @@ read + 4 non-files + 0 out-of-root links + 0 undecodable. **THE TERM IS STATED
 ANYWAY, FOR THE REASON THE RULE ITSELF IS**: the naive implementation is wrong
 the day one link arrives, and an arithmetic that closes only while a class is
 empty closes by luck.
+**AND ROUND ONE ON PR #1097 CLOSED THAT ARITHMETIC RATHER THAN ADDING TO IT**
+(Copilot thread `PRRT_kwDOTAvnrs6jc-mz`, spec.md:200): a link that dangles,
+loops, cannot be read, or resolves to a DIRECTORY inside the root is not a
+gitlink, does not leave the root and never reaches a decoder, so the three terms
+NAMED above still left it nowhere — and the delta now defines the terms by their
+EXTENTS instead, the out-of-root term owning exactly the links whose RESOLVED
+path stands outside the root and the non-file term owning every OTHER tracked
+entry that is not a readable regular file once resolved, the two disjoint and,
+with the undecodable term, closing over every tracked entry in scope; a FOURTH
+term is declined because such a link offers text to NO implementation and
+records no refusal this report made, so it is counted where the gitlink is
+counted, and three scenarios plus three § 2.1 fixture cases hold it there. IT IS
+A CLARIFICATION OF THE DRAFTED RULE AND NOT A NEW ONE: the third term, its
+printed-at-zero rule and the declined fold into the non-file term read exactly
+as the word landed them, and the measured value is still ZERO at both heads,
+this repository tracking no symbolic link at either.
 
 **AND ONE THE REPORT MUST ADD THE MOMENT D5 EVER CHANGES: the report's OWN
 OUTPUT PATH.** `health/` is INSIDE this population — 7 tracked files at
@@ -1262,6 +1278,31 @@ corpus, since such a token leaves the remainder. **NOTHING IS MINTED, RENAMED OR
 WIDENED**: the vocabulary is the same four labels, the precedence folded above is
 unchanged and is now spelled into the condition rather than left to be derived,
 and adding a fourth probe stays a RULING.
+**AND ROUND ONE ON PR #1097 PINNED PROBE (iii) TO A LEXICAL RULE** (Copilot
+thread `PRRT_kwDOTAvnrs6jc-ng`, spec.md:718): *"inside a string literal"* and
+*"opens one"* are no predicate over a corpus written in several languages, each
+with its own delimiters and escape syntaxes, so the delta now fires the probe
+where — and only where — the occurrence is followed on its own line by ONE `"`
+or `'`, not repeated, standing as that line's last non-whitespace character and
+closing a literal the same character opened earlier on it; the next line's first
+non-whitespace character is that same quote, again not repeated, opening the
+continuation; and the token plus that continuation's content, up to the next
+occurrence of that same character, RESOLVES — with triple quotes, backticks,
+prefixed or raw literals, a backslash anywhere in either literal and a
+continuation opened by the OTHER quote character named as NOT probe (iii).
+**IT IS THE MEASURED SHAPE AND NOTHING WIDER.** The one token this probe caught,
+`archive/2026-08-27-add-hermes-customer-subject-`, has its single occurrence at
+`scripts/doc_health/pin_class.py:1248-1249`, where `:1248` reads
+`path="openspec/changes/archive/2026-08-27-add-hermes-customer-subject-"` and
+`:1249` reads `"runtime-contract/evidence/provider-verification.yaml",` — a
+Python implicit concatenation of two DOUBLE-QUOTED literals carrying no escape
+and no other delimiter, whose rejoined path stands in this tree. The probe's
+verdict on it is unchanged, the other three measured tokens are caught by (i)
+and (ii) as before, and the 4-of-4-with-zero-false-positives figure is
+untouched. The two scenarios the fold already carried are narrowed to the same
+lexical shape so they cannot fire where the pin does not, and one firing and one
+non-firing scenario are added beside them. IT IS A CLARIFICATION OF THE DRAFTED
+PROBE AND NOT A FOURTH ONE.
 
 ## D5 — RECOMMENDED: artifact-only, and the reason is not merely merge conflicts
 

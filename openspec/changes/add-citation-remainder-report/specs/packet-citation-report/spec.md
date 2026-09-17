@@ -209,6 +209,32 @@ READING WHOSE ARITHMETIC DOES NOT CLOSE SHALL NOT BE PRESENTED AS A LATER POINT
 IN THE SERIES: a population a reader cannot re-add is a population a reader
 cannot reproduce.
 
+AND EACH SKIP TERM SHALL BE DEFINED BY ITS EXTENT RATHER THAN BY ITS NAME, SO
+THAT NO TRACKED ENTRY FALLS BETWEEN TWO OF THEM: THE OUT-OF-ROOT-LINK TERM SHALL
+OWN EXACTLY THE TRACKED LINKS WHOSE RESOLVED PATH STANDS OUTSIDE THE REPOSITORY
+ROOT, AND THE NON-FILE TERM SHALL OWN EVERY OTHER TRACKED ENTRY THAT IS NOT A
+READABLE REGULAR FILE ONCE RESOLVED — a submodule gitlink, a directory, and
+every tracked link the out-of-root term does not take, whether its resolution
+reaches nothing at all because the target is missing, the chain loops or the
+chain cannot be read, or it reaches something inside the root that is not a
+readable regular file, a directory as much as anything else — SO THE TWO TERMS
+ARE DISJOINT AND, WITH THE UNDECODABLE TERM, THE IDENTITY ABOVE CLOSES OVER
+EVERY TRACKED ENTRY IN SCOPE. A name is not an extent, and this is where the
+difference is paid: a link that dangles, loops, cannot be read or resolves to a
+DIRECTORY inside the root is none of the three things the terms are NAMED for —
+it is not the submodule gitlink the non-file term is explained by, it does not
+leave the root, and it never reaches a decoder — so an arithmetic resting on the
+names alone has nowhere to put it and can still fail to close on an entry class
+the population rule itself admits. A FOURTH TERM IS DECLINED, AND THE DECLINE IS
+THE MIRROR OF THE THIRD TERM'S KEEP: the third term earns a row of its own
+because a non-zero value in it is a fact a reader needs — the report DECLINED to
+read text a naive implementation would have reported as this corpus's — while a
+link that reaches no readable regular file inside the root offers text to NO
+implementation, records no refusal this report made, and would tell a reader
+only that the tree carries a broken link, which is a fact about the tree and not
+about this corpus's citations. It contributes no token for the reason the
+gitlink contributes none, and it is counted where the gitlink is counted.
+
 #### Scenario: A tracked file in the population is not valid text
 - **WHEN** a file in the population cannot be decoded as UTF-8
 - **THEN** the report MUST skip it and take no token from it
@@ -356,10 +382,26 @@ POINT IN THE SAME SERIES.
 - **AND** the tracked ENTRIES in scope MUST still equal the FILES read plus all three skip terms
 - **AND** the report MUST print that term even where its value is zero
 
-#### Scenario: A tracked link stands inside the root
-- **WHEN** a tracked entry is a symbolic link whose target, once resolved, still stands inside the repository root
+#### Scenario: A tracked link resolves to a regular file inside the root
+- **WHEN** a tracked entry is a symbolic link whose target, once resolved, is a readable REGULAR FILE still standing inside the repository root
 - **THEN** the report MUST admit its text and take tokens from it as from any other file it reads
 - **AND** it MUST count it among the FILES read and in no skip term
+
+#### Scenario: A tracked link reaches no readable file and does not leave the root
+- **WHEN** a tracked entry is a symbolic link that reaches no readable regular file and that the out-of-root-link term does not take — its target is missing, its chain loops, or its chain cannot be read
+- **THEN** the report MUST count the entry in the skip term for entries skipped as non-files, and in neither the out-of-root-link term nor the undecodable term
+- **AND** the tracked ENTRIES in scope MUST still equal the FILES read plus all three skip terms
+- **AND** it MUST take no token from the entry
+
+#### Scenario: A tracked link resolves to a directory inside the root
+- **WHEN** a tracked entry is a symbolic link whose target, once resolved, is a directory standing inside the repository root
+- **THEN** the report MUST count the entry in the skip term for entries skipped as non-files
+- **AND** it MUST take no token from it and MUST NOT count it among the FILES read
+
+#### Scenario: The out-of-root term takes only the links that resolve outside the root
+- **WHEN** the report counts a tracked entry in the skip term for entries skipped as links leaving the repository root
+- **THEN** that entry MUST be a tracked link whose resolved path stands outside the repository root
+- **AND** a tracked link that reaches no readable regular file while standing inside the root MUST be counted in the non-file term and MUST NOT be counted in that one
 
 #### Scenario: A refinement's prefix has a sibling whose name begins the same way
 - **WHEN** a refinement names a directory prefix and the tree also carries a sibling directory whose name begins with that prefix followed by more characters
@@ -476,18 +518,18 @@ is the one thing this capability cannot afford.
 named here because this repository carries no machine-readable enumeration of
 its siblings to read one from: this estate's repository IDENTIFIERS are defined
 as the aggregation's `.gitmodules` submodule paths, and that file is not in this
-tree; the only DECLARED repository vocabulary that is holds two names. The set
-SHALL therefore be `codexFactory`, `OpsxFactory`, `LedgerxFactory`,
-`openXwallet`, `hermes-install` and `xFactory-Hermes-Install` — the five estates
-the measured cross-repository population belongs to, the last two being one
-estate under the two spellings this corpus writes it in — and it SHALL be
-CLOSED: an implementation SHALL NOT widen it, and a corpus needing a wider set
-takes a RULING, exactly as the fixture-path location set does. **AND A
-QUALIFIER NAMING THIS REPOSITORY SHALL FIRE NO SIGNAL**: `openxFactory` and
-`opensoft/openxFactory` are this repository's own spellings, a citation
-qualified by one of them is an IN-TREE citation, and the exclusion is not a
-nicety — every trailing parenthetical of this shape measured in this corpus
-names THIS repository.
+tree; the only DECLARED repository vocabulary this tree DOES carry holds two
+names. The set SHALL therefore be `codexFactory`, `OpsxFactory`,
+`LedgerxFactory`, `openXwallet`, `hermes-install` and `xFactory-Hermes-Install`
+— the five estates the measured cross-repository population belongs to, the
+last two being one estate under the two spellings this corpus writes it in —
+and it SHALL be CLOSED: an implementation SHALL NOT widen it, and a corpus
+needing a wider set takes a RULING, exactly as the fixture-path location set
+does. **AND A QUALIFIER NAMING THIS REPOSITORY SHALL FIRE NO SIGNAL**:
+`openxFactory` and `opensoft/openxFactory` are this repository's own spellings,
+a citation qualified by one of them is an IN-TREE citation, and the exclusion
+is not a nicety — every trailing parenthetical of this shape measured in this
+corpus names THIS repository.
 
 **A NAME SHALL MATCH WITHOUT REGARD TO CASE.** Exact case is the rule this
 corpus does not keep: measured over the population, one estate's name is written
@@ -712,10 +754,30 @@ punctuation to notice.
 **(ii) THE CHARACTER IMMEDIATELY FOLLOWING THE TOKEN IS `<`** — the path
 continues into a placeholder whose opening character the grammar admits nowhere,
 so the extraction stopped short of the path's end rather than at it.
-**(iii) THE TOKEN ENDS ITS SOURCE LINE INSIDE A STRING LITERAL, THE NEXT LINE
-OPENS ONE, AND THE PATH REJOINED ACROSS THE TWO RESOLVES** — an implicit string
-concatenation split one path across two source lines, and the rejoin is what
-proves it rather than a reader's guess.
+**(iii) THE TOKEN IS CLOSED BY A QUOTE AT THE END OF ITS SOURCE LINE, THE NEXT
+LINE OPENS WITH THE SAME QUOTE, AND THE PATH REJOINED ACROSS THE TWO RESOLVES** —
+an implicit string concatenation split one path across two source lines, and the
+rejoin is what proves it rather than a reader's guess. THE PROBE SHALL FIRE
+WHERE, AND ONLY WHERE, THE OCCURRENCE IS FOLLOWED ON ITS OWN LINE BY ONE QUOTE
+CHARACTER — `"` OR `'`, NOT REPEATED AND NO OTHER DELIMITER — WHICH IS THE LAST
+NON-WHITESPACE CHARACTER OF THAT LINE AND IS THE CLOSE OF A LITERAL THE SAME
+CHARACTER OPENED EARLIER ON THAT SAME LINE; THE FIRST NON-WHITESPACE CHARACTER
+OF THE NEXT LINE IS THAT SAME QUOTE CHARACTER, AGAIN NOT REPEATED, OPENING THE
+CONTINUATION; AND THE TOKEN FOLLOWED BY THE CONTINUATION LITERAL'S CONTENT, UP
+TO THE NEXT OCCURRENCE OF THAT SAME CHARACTER, RESOLVES. THE RULE IS LEXICAL AND
+IT IS CLOSED: a triple quote, a backtick, a prefixed or raw literal, a backslash
+anywhere in either literal, and a continuation opened by the OTHER quote
+character are NOT probe (iii), and neither is any construct this rule does not
+name. *"Inside a string literal"* is no predicate over a corpus written in
+several languages, each with its own delimiters and escape syntaxes, and a probe
+two realizations match differently is a class total two readings cannot be
+compared by; the rule above names no language and asks nothing of one, which is
+how it reaches the shape the measurement caught without admitting the shapes it
+did not. THAT SHAPE IS `scripts/doc_health/pin_class.py:1248-1249`, where
+`path="openspec/changes/archive/2026-08-27-add-hermes-customer-subject-"` ends
+its line at the literal's closing `"` and the next line opens
+`"runtime-contract/evidence/provider-verification.yaml"`, the rejoined path
+standing in this tree.
 THE OCCURRENCE RULE IS **ALL**, NEVER **ANY**, for the reason `fixture-path`'s
 is: an occurrence at which the token stands as the whole citation is a citation
 this corpus really carries, and an entry carrying one is not an artifact of the
@@ -859,14 +921,24 @@ illustrate what unresolvable means.
 - **THEN** the report MUST NOT class the entry `truncated` on that probe
 
 #### Scenario: A path split across two source lines rejoins and resolves
-- **WHEN** an occurrence ends its source line inside a string literal, the next line opens one, and the path rejoined across the two RESOLVES
+- **WHEN** an occurrence's line ends at the close of a quoted literal, the next line opens one with the same quote character, and the path rejoined across the two RESOLVES
 - **THEN** the report MUST class the entry `truncated`
 - **AND** it MUST NOT report the rejoined path as a second citation
 
 #### Scenario: A path split across two source lines rejoins and still resolves to nothing
-- **WHEN** an occurrence ends its line inside a string literal and the path rejoined across the two lines still resolves to nothing
+- **WHEN** an occurrence's line ends at the close of a quoted literal, the next line opens one with the same quote character, and the path rejoined across the two lines still resolves to nothing
 - **THEN** the report MUST NOT class the entry `truncated` on that probe
 - **AND** the entry MUST still be reported with the resolver outcome it has
+
+#### Scenario: Two adjacent quoted literals carry one path between them
+- **WHEN** an occurrence is followed on its own line by one `"` that closes a literal opened by `"` earlier on that line and stands as the line's last non-whitespace character, the next line's first non-whitespace character is a single `"` opening the continuation, and the token followed by that continuation's content up to its own closing `"` RESOLVES
+- **THEN** the report MUST class the entry `truncated`
+- **AND** it MUST reach that verdict from the quote characters alone, requiring no knowledge of the language the file is written in
+
+#### Scenario: The continuation is opened by a delimiter this probe does not name
+- **WHEN** an occurrence's line ends at a repeated quote, a backtick or another delimiter, or the next line opens the continuation with anything other than the single quote character that closed the occurrence's line, or either literal carries a backslash
+- **THEN** the report MUST NOT class the entry `truncated` on that probe
+- **AND** it MUST NOT widen the probe to admit that delimiter, even where the path rejoined across the two lines would resolve
 
 #### Scenario: A stripped token still resolves to nothing
 - **WHEN** the report strips a trailing character from a token under the grammar's normalization, the stripped token still resolves to nothing, and no `truncated` probe fires for the entry

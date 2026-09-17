@@ -426,6 +426,19 @@ added, edited, renamed or deleted here.
       filtered token count — with the arithmetic row asserted in TOKENS against
       the number of REMAINDER ENTRIES carrying the flag and never against the
       corpus-wide flagged figure.
+      **AND ROUND ONE ON PR #1097 ADDS THREE POPULATION CASES**, each a tracked
+      LINK, because the population arithmetic is now closed by the skip terms'
+      EXTENTS rather than by their names: a link that reaches no readable
+      regular file and does not leave the root — a missing target, a looping
+      chain, a chain that cannot be read — which must land in the NON-FILE term
+      and in neither of the other two; a link resolving to a DIRECTORY inside
+      the root, which must land in the non-file term too and contribute no
+      token; and a link resolving OUTSIDE the root, which must land in the
+      out-of-root term alone. The identity is asserted in every one of the
+      three — the tracked ENTRIES in scope equalling the FILES read plus all
+      three skip terms — and the links are built in the throwaway `tmp_path`
+      tree like every other case, this repository tracking no symbolic link at
+      any head this packet has measured.
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
