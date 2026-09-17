@@ -5270,7 +5270,9 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     RULED openxdox_code seed entries (the measured defect this file repairs,
     `#656` comment 5639058687), the three RULED Q5 opendox_code entries, the
     five PR #1001 opendox_code entries, the one § 3.4 SLICE S6 entry, the
-    four § 3.4 SLICE S4 entries, and the three § 3.4 SLICE S7 entries are
+    four § 3.4 SLICE S4 entries, the three § 3.4 SLICE S7 entries, RULED Q7's
+    five (one `opendox_code` and the four `openxdox_code` sheets) and the one
+    § 3.4 SLICE-S7 RESIDUE entry are
     still declared with their own
     `since`, every `since` is a 40-hex commit, every `reason` is non-empty,
     and every destination's list is alphabetical by `path` with no repeat —

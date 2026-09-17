@@ -416,8 +416,11 @@ disposition counts and the carrier count at once — and the § 3.4 SLICE S7
 annotation THIS ACT CARRIES: +782 declared lines over 33 `opendox_code` rows,
 17 of them converted `moved_verbatim` -> declared, and three admitted files.
 The list is complete THROUGH SLICE S7, and deliberately stops there: the § 3.4
-slice-S8 annotation, the pre-existing `openxdox_code` annotation and RULED
-5656343213's RETIREMENT ACT have moved the aggregate since, and each is stated
+slice-S8 annotation, the pre-existing `openxdox_code` annotation, RULED
+5656343213's RETIREMENT ACT, RULED Q7's CSS EXTRACTION and the § 3.4 SLICE-S7
+RESIDUE have moved the aggregate since — five acts now, and the naming is kept
+current because a history that says it stops somewhere must say what came after
+it (Copilot review of the residue act) — and each is stated
 ONCE, in the current-totals paragraph
 above this history, which is where the aggregate is read. Two acts restating
 one set of absolutes is how a count becomes wrong in a merge, and this history

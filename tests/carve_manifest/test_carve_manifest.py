@@ -4180,8 +4180,9 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
 
     # THE ASK-7 WINDOW'S OWN FOUR LINES, PINNED BY ROW AND CLASS (Copilot
     # review, PR #995) — the aggregate above, `(1422, 158)` on the day this pin
-    # was written, `(1761, 159)` at the RULED Q-L7 (a) amendment and
-    # `(2621, 176)` today, would still pass if these four had
+    # was written, `(1761, 159)` at the RULED Q-L7 (a) amendment,
+    # `(2621, 176)` before RULED Q7's CSS extraction and `(2717, 176)` today,
+    # would still pass if these four had
     # landed on the wrong rows, under the wrong class, or as a different four
     # line numbers that happened to sum to the same total. The dated figures are
     # kept beside the current one because the REASON this pin exists is what
@@ -4836,10 +4837,41 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
         assert len(set(flat)) == len(flat), (source_path, sorted(
             number for number in flat if flat.count(number) > 1))
 
-    # 2. NOTHING CONVERTS, stated rather than left unasserted.
+    # 2. NOTHING CONVERTS, and it is MEASURED rather than declared (Copilot
+    # review of this pull request at `112e1067`, which is right that
+    # `S7R_CONVERTED == []` asserts an empty constant declared thirty lines up
+    # and NOTHING about the manifest, and that a loop reading each row's FINAL
+    # disposition would pass a row this act had converted — or a SWAP, one row
+    # converted and another converted back).
+    #
+    # TWO MEASUREMENTS CARRY THE CLAIM, one this act's own and one it is held
+    # to. THIS ACT'S, over the rows it declares: each row's residue run is NOT
+    # the row's first entry, so the row already carried `edits:` when this act
+    # found it — which is exactly what a conversion would have to contradict.
+    # § 1 above proves the stronger ordering fact (slice S7's run sits strictly
+    # ahead of the residue's on all four rows), and this states the conversion
+    # consequence of it directly rather than leaving a reader to derive it.
+    #
+    # THE DOCUMENT-WIDE ONE, which no single window can make: the digest of
+    # every row's `(source_path, disposition)` sorted, pinned by
+    # `test_the_real_manifest_carries_the_q7_css_extraction_declared_edits`
+    # over all 456 rows beside the 143 / 175 counts. That pin moves when, and
+    # only when, SOME row's disposition moves anywhere in the document, swap
+    # included, and it is green at this head — which is the proof for this act
+    # too. A second copy of the same digest here would be two constants for one
+    # fact and two places to update it; the pin is named instead, and this
+    # module fails as a whole the moment it moves.
     assert S7R_CONVERTED == [], S7R_CONVERTED
-    for source_path in S7R_WINDOW:
-        assert source_path not in S7R_CONVERTED, source_path
+    for source_path, entries in S7R_WINDOW.items():
+        landed = [(edit["class"], edit["lines"])
+                  for edit in rows[source_path]["edits"]]
+        first = next(index for index in range(len(landed) - len(entries) + 1)
+                     if landed[index:index + len(entries)] == entries)
+        assert first >= 1, (
+            source_path, landed, entries,
+            "this act's run is the row's FIRST entry, so the row carried no "
+            "`edits:` before it — a CONVERSION, which S7R_CONVERTED declares "
+            "this act makes none of")
 
     # 3. THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures
     # the manifest header's movement paragraph and this pull request's body
@@ -5322,7 +5354,8 @@ def test_the_line_count_is_exactly_the_expression_the_validator_carried(
     """THE COUNT DOES NOT MOVE (RULED Q-L8 (c)).
 
     The manifest's 1422 line numbers AT THAT RULING — 1761 at the RULED
-    Q-L7 (a) amendment, 2621 today, and every
+    Q-L7 (a) amendment, 2621 before RULED Q7's CSS extraction, 2717 today, and
+    every
     one of them still in this numbering — were written in the numbering this
     validator already used — `content.count(b"\\n")`, plus one for a file with
     no final newline — so the shared module had to adopt THAT definition rather
