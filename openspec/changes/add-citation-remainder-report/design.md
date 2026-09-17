@@ -727,23 +727,38 @@ INSIDE the remainder rather than removing them from it.** Three reasons:
    cross-repository reading is printed BESIDE it as a second row, not
    substituted for it.
 
-**AND WHETHER THE NUMERAL ITSELF BELONGS IN THE PROMOTED TEXT IS A RATIFIER'S
-CHOICE, NOT AN AUTHOR'S.** Review asked for "the citing line plus the three
-lines above" to be promoted into the requirement (PR #1069, Copilot thread
-`PRRT_kwDOTAvnrs6jEu29`), and the reproducibility argument behind the ask is
-sound. What the spec now says is the half that costs a ratifier nothing: the
-window and the signal set are properties of the CAPABILITY rather than of a run
-— both fixed, both closed, no caller option that varies either — so two runs of
-one report cannot disagree, and the HEADLINE remainder is inclusive by the
-requirement beside it, so no window can move the series D6 measures. **THE
-NUMERAL IS DELIBERATELY LEFT HERE AND NOT PROMOTED**, because THREE is this
-section's RECOMMENDED value and this section is one of the seven put for a word:
-D3(c) calls the window "a guess" derived from #1053's observation and nothing
-else, and a veto that costs one design paragraph today would cost a promoted
-requirement instead. **IF THE RATIFYING WORD TAKES D3(c) AS RECOMMENDED, THE
-WINDOW AND THE FIVE SIGNALS SHOULD MOVE INTO THE REQUIREMENT AT THAT POINT** —
-named here so the step is not forgotten, and flagged as the one review ask in
-this round's two rounds that a bench writer may not take on his own word.
+**AND WHETHER THE NUMERAL ITSELF BELONGS IN THE PROMOTED TEXT WAS A RATIFIER'S
+CHOICE, NOT AN AUTHOR'S — AND THE RATIFIER HAS NOW MADE IT.** Review asked for
+"the citing line plus the three lines above" to be promoted into the requirement
+(PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jEu29`), and the reproducibility
+argument behind the ask is sound. The packet was FILED carrying only the half
+that costs a ratifier nothing: the window and the signal set are properties of
+the CAPABILITY rather than of a run — both fixed, both closed, no caller option
+that varies either — so two runs of one report cannot disagree, and the HEADLINE
+remainder is inclusive by the requirement beside it, so no window can move the
+series D6 measures. **THE NUMERAL WAS DELIBERATELY LEFT HERE AND NOT PROMOTED AT
+FILING**, because THREE is this section's RECOMMENDED value and this section is
+one of the seven put for a word: D3(c) calls the window "a guess" derived from
+#1053's observation and nothing else, and a veto that cost one design paragraph
+would have cost a promoted requirement instead.
+
+**AND THE STEP NAMED HERE — *"IF THE RATIFYING WORD TAKES D3(c) AS RECOMMENDED,
+THE WINDOW AND THE FIVE SIGNALS SHOULD MOVE INTO THE REQUIREMENT AT THAT POINT"*
+— HAS NOW BEEN TAKEN, ON THE WORD AND NOT ON A BENCH WRITER'S OWN.** The
+ratifying word took D3(c) as RECOMMENDED (the bare *"ratify #1069"*, tasks.md
+§ 1.17), and Brett Heap then asked for exactly this step, 2026-09-17T12:32:38Z,
+verbatim **"fold it in before landing"** ([PR #1069, comment
+5714405516](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714405516)).
+The THREE-line window and the FIVE signals above therefore now stand in
+`specs/packet-citation-report/spec.md`'s *A suspected cross-repository citation
+is flagged and never dropped* as normative text with scenarios of their own: the
+window fixed as the citing line plus the three lines above it, the five signals
+named in THIS SECTION'S ORDER and closed at those five, one scenario per signal,
+one for a signal two lines above a citing line that IS flagged, and one for a
+signal four lines above that is NOT. **NO DECISION MOVES WITH IT**: FLAG-never-drop,
+the INCLUSIVE headline and the ADVISORY verdict read exactly as they read
+before, and this section keeps the recommendation and the two alternatives it
+was ratified on.
 
 **AND THE WIDENED WINDOW IS NOW MEASURED RATHER THAN PROPOSED.** The evidence
 ran exactly this rule — `validate-pin-registrations.py`'s own adjacency rule

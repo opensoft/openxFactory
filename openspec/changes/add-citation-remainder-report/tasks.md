@@ -210,6 +210,19 @@ OPEN.**
       silently (cost: an unauditable window sets the headline number); against
       counting it unflagged (cost: the largest known class hides inside a
       number that reads as a defect count).
+      **AND D3(c)'S OWN NAMED PROMOTION STEP HAS BEEN TAKEN, ON A SECOND WORD
+      AND NOT ON A BENCH WRITER'S.** D3(c) held the THREE-line window and the
+      FIVE cross-repository signals in `design.md` and named the step that would
+      move them; Brett Heap asked for it, 2026-09-17T12:32:38Z, verbatim **"fold
+      it in before landing"** ([PR #1069, comment
+      5714405516](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714405516)).
+      They now stand as normative text in the delta's *A suspected
+      cross-repository citation is flagged and never dropped* — the window, the
+      five signals in D3(c)'s order and closed at five, a scenario per signal
+      and two for the window's edges. The DECISION this box holds is unmoved:
+      FLAG-never-drop, the inclusive headline and the advisory verdict read as
+      they read before, so this box stays open on the same recommendation and
+      the same alternatives.
 - [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
       ASSERTS are the three the tool can evidence from a path or from its own
       normalization — `truncated`, `punctuation-stripped`, `fixture-path` — and

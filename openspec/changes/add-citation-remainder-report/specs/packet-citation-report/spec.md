@@ -277,15 +277,26 @@ holds no repository vocabulary and no module-level root, so *"the same reference
 answers differently against two roots"*, and a reading that removed a token on
 that basis would be asserting a fact it cannot check.
 
-THE SUSPICION IS A HEURISTIC AND SHALL BE REPORTED AS ONE. The signals are
-adjacency signals — a path-joined prefix naming another repository, a forge URL
-naming another repository, a qualifier word near the token, a locator scheme
-whose own prefix names another repository, a trailing parenthetical naming a
-repository — and the window in which they are looked for SHALL be stated. The
-signal set SHALL be stated with it, because a repository that writes its
-cross-repository citations in a locator scheme of its own has a signal no
-adjacency word supplies, and a report that omits that scheme misses the class it
-was written to catch. **THE WINDOW AND THE SIGNAL SET ARE PROPERTIES OF THE
+THE SUSPICION IS A HEURISTIC AND SHALL BE REPORTED AS ONE, AND THE WINDOW AND
+THE SIGNAL SET IN WHICH IT IS LOOKED FOR SHALL BE STATED HERE RATHER THAN LEFT
+TO A REALIZATION. **THE WINDOW SHALL BE THE CITING LINE PLUS THE THREE LINES
+ABOVE IT.** A check that reads only the citing line misses the citations that
+name the other repository one to three lines above the bare path, which is the
+largest known class in this population; three lines is a reach derived from that
+observation and from nothing else, which is exactly why what it produces is a
+FLAG and never a deletion. **THE SIGNALS SHALL BE THESE FIVE AND NO OTHERS**,
+looked for inside that window:
+**(1) A PATH-JOINED PREFIX** (`xFactories/LedgerxFactory/…`);
+**(2) A GITHUB BLOB OR TREE URL**;
+**(3) A BARE QUALIFIER WORD IMMEDIATELY BEFORE THE TOKEN** (`codexFactory
+openspec/changes/…`);
+**(4) THE `opsx:opensoft/…` CUSTODY-LOCATOR SCHEME THIS CORPUS WRITES
+OpsxFactory CITATIONS IN** — a signal no adjacency word supplies, because a
+repository that writes its cross-repository citations in a locator scheme of its
+own carries the qualifier INSIDE the token rather than beside it, and a report
+that omits that scheme misses the class it was written to catch;
+**(5) A TRAILING `(RepoName)` PARENTHETICAL**.
+**THE WINDOW AND THE SIGNAL SET ARE PROPERTIES OF THE
 CAPABILITY AND NOT OF A RUN**: both SHALL be FIXED, both SHALL be CLOSED, and
 the report SHALL NOT offer a caller an option that varies either, because a
 suspicion whose reach moves between runs makes two readings of one corpus
@@ -312,6 +323,41 @@ filtered number would break the only series the capability exists to produce.
 - **WHEN** a citation names another repository further from the token than the stated window reaches
 - **THEN** the report MUST leave the entry unflagged
 - **AND** the report MUST state the window it used, so a reader can see why
+
+#### Scenario: The repository is named two lines above the citation
+- **WHEN** a remainder citation's own line carries no signal and one of the five signals stands two lines above it
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** the entry MUST still be counted in the inclusive remainder
+
+#### Scenario: The repository is named four lines above the citation
+- **WHEN** the nearest signal stands four lines above the citing line
+- **THEN** the report MUST leave the entry unflagged
+- **AND** the report MUST NOT widen the window for that entry or for any other
+
+#### Scenario: A path-joined prefix names another repository
+- **WHEN** a citation inside the window is written with a path-joined prefix naming another repository
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** the entry MUST still be counted in the inclusive remainder
+
+#### Scenario: A forge blob or tree URL carries the citation
+- **WHEN** a citation inside the window appears in a GitHub blob or tree URL
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** the entry MUST still be counted in the inclusive remainder
+
+#### Scenario: A bare qualifier word stands immediately before the token
+- **WHEN** a citation inside the window is preceded immediately by a bare word naming another repository
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** the entry MUST still be counted in the inclusive remainder
+
+#### Scenario: The citation is written in a custody-locator scheme
+- **WHEN** a citation inside the window is written in a locator scheme whose own prefix names another repository
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** the report MUST NOT require an adjacent qualifier word before flagging it
+
+#### Scenario: A trailing parenthetical names the repository
+- **WHEN** a citation inside the window is followed by a parenthetical naming another repository
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** the entry MUST still be counted in the inclusive remainder
 
 ### Requirement: The report classifies only what it can decide mechanically
 The report SHALL assign a class to a remainder entry ONLY where the evidence is
