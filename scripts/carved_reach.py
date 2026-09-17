@@ -671,9 +671,13 @@ def module(path: str | Path):
     those names live at one leg, some at the other and some still here. The
     dotted name is DERIVED from the row instead:
 
-      * a MOVED row's `destination_path` (`src/opendox/workbench.py`) becomes
-        the dotted name the leg's `src/` makes importable (`opendox.workbench`)
-        — which is why the day a row moves between the two legs no caller
+      * a MOVED row's `effective_arrival(row)` `destination_path`
+        (`src/opendox/workbench.py`) becomes the dotted name the leg's `src/`
+        makes importable (`opendox.workbench`): the row's own, unless a
+        `re_destined:` block (RULED Q6) says a ruling has since moved the
+        placement, in which case its `to_path` — `source()`'s own precedent,
+        read here for the same reason, and why the day a row moves between
+        the two legs, or is re-destined between them afterward, no caller
         changes;
       * a `not_moved` row keeps the spelling it has HERE
         (`scripts/ideation_dashboard/intent_feed.py` → the
@@ -697,7 +701,7 @@ def module(path: str | Path):
     else:
         if retired_at(row)[1] is not None:
             source(key)  # raises CarveRowRetired with the sentence for it
-        relative = row["destination_path"]
+        destination, relative = effective_arrival(row)
         if relative.startswith("src/"):
             relative = relative[len("src/"):]
     if not relative.endswith(".py"):
@@ -734,8 +738,9 @@ def shed_relpath(path: str | Path) -> str | None:
         return None
     if retired_at(row)[1] is not None:
         source(key)  # raises CarveRowRetired with the sentence for it
-    mount = MOUNTS[row["destination"]].relative_to(REPO_ROOT)
-    return (mount / _closed_relative_path(row["destination_path"], source_path=key)).as_posix()
+    destination, destination_path = effective_arrival(row)
+    mount = MOUNTS[destination].relative_to(REPO_ROOT)
+    return (mount / _closed_relative_path(destination_path, source_path=key)).as_posix()
 
 
 def shed_destination(path: str | Path) -> Path | None:

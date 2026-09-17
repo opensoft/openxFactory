@@ -93,7 +93,7 @@ rows:
   add-dashboard-repo-selector: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-declared-former-id: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1064", moved_on: "2026-09-15"}
   add-deployment-handoff-boundary: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  add-dispatch-credential-contract: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-dispatch-credential-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1073", moved_on: "2026-09-16"}
   add-doc-health-contract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-doc-health-semantic-sweep: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-document-cataloging: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -136,6 +136,7 @@ rows:
   add-openxwallet: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-pattern-ledger: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-per-change-sweep-ledger: {state: archived, class: sole, declares: [add-sequenced-after-substrate], depth: 2, prose: false, moved_by: "#632", moved_on: "2026-09-04"}
+  add-per-tenant-app-manifest-provisioning: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#1073", moved_on: "2026-09-16"}
   add-possibles-derivation-lane: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-project-merged-projection: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-project-repo-schema: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -272,6 +273,7 @@ rows:
   relocate-review-authority-floor-mirror: {state: archived, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor], depth: 2, prose: false, moved_by: "#925", moved_on: "2026-09-10"}
   repoint-chain-anchoring-medxchain-citation: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#998", moved_on: "2026-09-12"}
   report-stale-grandfather-dispositions: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1015", moved_on: "2026-09-12"}
+  repromote-engineering-vocabulary: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1071", moved_on: "2026-09-16"}
   restructure-factory-repo-boundaries: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-doxbench-chat-turn-v1: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
