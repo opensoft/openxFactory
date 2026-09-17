@@ -1285,7 +1285,10 @@ the bookkeeping that ticks this group.
   *"EVERY"* is the shape of narrowing this box's own STATUS already calls
   *"FLOOR PART 3 deleted to tick FLOOR PART 3"*. The act is `openxFactory`
   **#1086** (*"FLOOR PART 3 accepts a destination's TRANSPOSED corpus and
-  proves it faithful"*), open as a DRAFT.
+  proves it faithful"*), OPEN as a DRAFT when read at 2026-09-17T14:34Z.
+  **The clock is on the reading and not on the sentence** — a pull
+  request's draft state is the most perishable thing this file cites, and an
+  unbound *"is a draft"* turns false the hour somebody marks it ready.
   **Q-F2 (a) and Q-F3 (a) land IN `openDox-code` #26**: `LocalGitCorpus`
   GROWS the three per-corpus construction data (`write_path`, `kind_field`,
   `required_fields`, defaults = today's values) and takes the
@@ -1885,12 +1888,19 @@ the bookkeeping that ticks this group.
   ONLY** —
   `Status: draft` on all three lifecycle documents, no ratification, no
   archive — so this box ticks on ITS landing and not on its opening.
-  **#1071 is READY and not yet landed, read 2026-09-17T13:58Z**: it is
-  non-draft and `CONFLICTING` against `main`, because it collided with
+  **#1071 is READY and not yet landed. TWO readings, BOTH KEPT**: at
+  **2026-09-17T13:58Z** it was non-draft and `CONFLICTING` against `main`; at
+  **14:34Z** it is non-draft and `MERGEABLE`, the merge-from-main having
+  happened in between. It CONFLICTED because it collided with
   § 7.4's own #1073 on the README **OpenSpec Records** block — the one block
   the lane-collision protocol's Rule 6 landing window exists to serialize, and
-  two acts of the SAME lane hit it on the same afternoon. It takes a
-  merge-from-main and lands; this box does not move until it does. The id
+  two acts of the SAME lane hit it on the same afternoon. The conflict is
+  cleared; the landing is not, and this box does not move until it lands.
+  *(BOTH readings are kept rather than the later one replacing the earlier,
+  and that is exactly why the earlier was stamped: between the two the state
+  CHANGED, so a claim bound to its clock stayed true where an unbound one
+  would have turned false. The remedy this amendment argues for, demonstrated
+  on its own page.)* The id
   keeps its `openxfactory-` qualifier deliberately: `corpus-adapter-seam`
   requirement 4 makes the neutral capability openDox's under RULING Q4, and
   an unqualified `engineering-adapter` would read as that one.
