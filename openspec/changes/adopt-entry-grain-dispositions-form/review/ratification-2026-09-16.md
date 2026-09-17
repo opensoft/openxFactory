@@ -12,21 +12,33 @@ a separate change in this repository and is no part of this record. Recorded,
 and THE ONE CITATION for this record: openxFactory #1045, comment
 https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 
-**AMENDED SINCE — BY THE RATIFIER, 2026-09-17. See § "Addendum,
-2026-09-17 — THE POST-RATIFICATION CONSENTED AMENDMENT" at the foot of
-this record — NOT the OTHER 2026-09-17 addendum below it, which records an
-unrelated carriage.** ONE post-ratification act has
-moved normative text since this ratifying commit:
-`specs/document-lifecycle/spec.md`'s `## MODIFIED` block, positive-resolution
-scenario *A marker names a capability of a pinned neutral product* — its
-WHEN and disjointness bullet partitioned against this packet's own added
-refusal scenario over the SAME input (the overlap this record itself filed
-below, unresolved, for Brett Heap's word) — ruled by Brett Heap on
-2026-09-17, ***"Apply the partition"***, with the contradiction before him
-and consented to as the amendment of a ratified packet BY ITS OWN RATIFIER.
+**AMENDED SINCE — BY THE RATIFIER, TWICE, 2026-09-17.** TWO
+post-ratification acts have moved normative text since this ratifying
+commit, IN ORDER, and this pointer does not contradict either by naming
+only one.
+
+FIRST, THE CARRIAGE: on Brett Heap's word ***"route plus re-base"***
+(openxFactory #1050, comment 5714145269, 2026-09-17T12:12:49Z),
+`specs/document-lifecycle/spec.md`'s `## MODIFIED` block was re-based onto
+`scope-pinned-arm-root-naming`'s own ratified outcome, its measurement
+against this record's ratified tip moving from EMPTY to 21 insertions / 8
+deletions — see § "Addendum, 2026-09-17 — carriage on the ratifier's word"
+at the foot of this record.
+
+SECOND, THE AMENDMENT THIS POINTER PRIMARILY TRACKS: the SAME block's
+positive-resolution scenario *A marker names a capability of a pinned
+neutral product* — its WHEN and disjointness bullet partitioned against
+this packet's own added refusal scenario over the SAME input (the overlap
+this record itself filed below, unresolved, for Brett Heap's word) — ruled
+by Brett Heap on 2026-09-17T12:34:55Z, ***"Apply the partition"***
+(openxFactory #1045, comment 5714433011), with the contradiction before him
+and consented to as the amendment of a ratified packet BY ITS OWN RATIFIER
+— see § "Addendum, 2026-09-17 — THE POST-RATIFICATION CONSENTED AMENDMENT"
+at the foot of this record.
+
 The citation immediately above remains THE ONE CITATION for the ORIGINAL
-ratifying act and is UNCHANGED; the amendment carries its own citation,
-given in the Addendum.
+ratifying act and is UNCHANGED; each of the two amendments carries its own
+citation, given in its own Addendum.
 
 ## Decision
 
@@ -330,12 +342,14 @@ guard the ratified D-1 already reaches treats `pinned_by_commit_only:` as
 having an ABSENT-IS-EMPTY default (`verify-openxwallet-pin.py:443-448`,
 `validate-openreposhape-pin.py:487-491`, `pin_shapes.py:154-171`), so a
 FALSEY value — `null`, `""` — must count as EMPTY and not as a present,
-malformed sequence, while `dispositions:` draws that line differently: only
-an explicit `null` is EMPTY, by its own guard's `raw is None` check
-(`scripts/validate-openspec-cli-pin.py:801-803`), and every other falsey
-value that is not `null` — `""`, `0`, `false` — stays malformed, there being
-no broader falsey-is-empty rule for this member the way `_is_path_only_list`
-gives `pinned_by_commit_only:`.
+malformed sequence, while `dispositions:` draws that line differently: OF
+VALUES PRESENT, only an explicit `null` is EMPTY — the same `pin.get(...)`
+call that yields `None` for an ABSENT member yields it for an explicit
+`null` too, so the two are one case under the guard's `raw is None` check
+(`scripts/validate-openspec-cli-pin.py:801-803`), not two — and every other
+PRESENT falsey value that is not `null` — `""`, `0`, `false` — stays
+malformed, there being no broader falsey-is-empty rule for this member the
+way `_is_path_only_list` gives `pinned_by_commit_only:`.
 
 **THE RULING — APPLY THE PARTITION.** Brett Heap, 2026-09-17, in session to
 lane `openxfactory-2`, by interactive multi-choice:
@@ -370,8 +384,9 @@ only it:
   EMPTY exactly as absence does, and otherwise a sequence whose every entry
   that guard accepts — every other falsey value that is not `null`, such as
   `""`, `0` or `false`, stays malformed; `pinned_by_commit_only:` a sequence
-  of path-only strings, a falsey value — `null`, `""` — counting as EMPTY,
-  as the verifiers and `_is_path_only_list` coerce it)"*.
+  of path-only strings, a falsey value — `null`, `""`, `false`, `0`, `{}` —
+  counting as EMPTY (the verifiers coerce it with `or []`; the adapter
+  accepts it directly))"*.
 - Its disjointness bullet gained the matching exclusion. AS RATIFIED it read
   *"an ABSENT enumeration, a malformed enumeration, and a well-formed
   enumeration in which `<capability>` does not appear, are OUTSIDE this

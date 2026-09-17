@@ -1032,8 +1032,10 @@ _LEDGER_SUBJECTS = {
     # the adapter's `_is_path_only_list` accepts any falsey value outright,
     # before it ever checks for a list — a wider net than `null`/`""` alone,
     # also catching `false`, `0` and `{}` (`pin_shapes.py:167-171`); for
-    # `dispositions:` only an explicit `null` is EMPTY, by the guard's own
-    # `raw is None` check, and every other falsey value stays malformed. Its
+    # `dispositions:`, OF VALUES PRESENT, only an explicit `null` is EMPTY —
+    # the same `pin.get(...)` that yields `None` for an ABSENT member yields
+    # it for an explicit `null` too, one case under `raw is None`, not two —
+    # and every other PRESENT falsey value stays malformed. Its
     # disjointness bullet gains the matching exclusion for a
     # present-and-malformed optional member. The refusal scenario, D-1, D-2,
     # D-3 and every other promoted unit of the requirement are unchanged.
