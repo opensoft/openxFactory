@@ -161,6 +161,7 @@ from __future__ import annotations
 import ntpath
 import os
 import posixpath
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -180,6 +181,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # RULED OQ-E's path, the same constant FLOOR PART 1 carries.
 MANIFEST_RELPATH = "docs/opendox-carve-manifest.yaml"
+
+# AND ITS COMMIT SHAPE, which is the same rule for the same reason
+# (`validate-carve-manifest.py::COMMIT_RE`). A `carve_commit:` is not merely a
+# non-empty string here: it is INTERPOLATED into a newline-delimited
+# `git cat-file --batch` request, so an unvalidated value is a REF INJECTION —
+# see `tests_at_carve`, which refuses one before asking git anything.
+COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 
 # THE FLOOR'S SENTENCE, in one place, quoted by the verifier, the runbook and
 # the tests rather than paraphrased four times.
@@ -569,10 +577,13 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
         # while the destination verifier's own `any(...)` counted that
         # physical home ONCE. An alias of the row's OWN effective arrival is
         # the same defect wearing the row's own placement.
+        # READ ONCE, BEFORE EITHER BRANCH: the retirement path validates the
+        # same key the moved path resolves, so the two cannot come apart.
+        key_of_arrival = effective_arrival(row)[0]
         extra = ()
         if isinstance(also, list):
             destinations = doc.get("destinations")
-            own = resolved_destination(effective_arrival(row)[0], destinations)
+            own = resolved_destination(key_of_arrival, destinations)
             seen: list[tuple] = []
             for key in also:
                 identity = resolved_destination(key, destinations)
@@ -594,8 +605,25 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
                 seen.append(identity)
             extra = tuple(repository_of(doc, key) for key in also)
         if retirement_of(row) is not None:
+            # THE RETIREMENT IS AT A REAL DESTINATION OR IT IS NOT A
+            # RETIREMENT (Copilot, round 5 on #1080, accurate and act-blocking
+            # while it stood). This branch returned before `repository_of` was
+            # ever asked, so a moved row could name a destination key the
+            # manifest does not carry, point a shape-valid `retired:` block at
+            # that same fabricated placement, and have its tests SUBTRACTED
+            # from the identity as a RULED deletion. Measured on the landed
+            # manifest with one row mutated: `tests/ideation-dashboard/
+            # test_doc_wheel.py` re-pointed to `made_up_leg` and retired there
+            # took `retired_tests` 31 → 53 and exited 0, and the openDox-code
+            # leg then owed 116 rows and 1,045 `def test_` instead of 117 and
+            # 1,067 — a live arrival deleted at both ends by a key naming
+            # nothing. `retirement_of` already requires the block to retire
+            # the arrival the row ACTUALLY has, so validating that arrival's
+            # key here is the same question the moved path asks, asked before
+            # the shorter answer.
+            repository_of(doc, key_of_arrival)
             return RowMapping(source_path, 0, extra, "retired", ruling_of(row))
-        key, _path = effective_arrival(row)
+        key = key_of_arrival
         # A MOVED ROW THAT NAMES NO DESTINATION HAS NO HOME, and that is
         # clause (a)'s FIRST LIMB verbatim — "its row names no home — no
         # `destination`". FLOOR PART 1 refuses the same row
@@ -649,6 +677,35 @@ def tests_at_carve(repo: Path, doc: dict[str, Any]) -> dict[str, int]:
     """
     paths = [row["source_path"] for row in doc["rows"]]
     commit = doc["carve_commit"]
+    # THE COMMIT IS A COMMIT, NOT A REVISION EXPRESSION (Copilot, round 6 on
+    # #1080, and it is the `source_path` newline defect wearing the other
+    # field). `read_manifest` types this scalar; a TYPE is not a SHAPE, and
+    # every value here is interpolated into the newline-delimited batch
+    # request below. Measured on the landed manifest, with no other mutation:
+    #
+    #   * `carve_commit: "<sha>:contracts/schemas/gate-intent.schema.yaml\n<sha>"`
+    #     doubles every request line, so the replies desync and each row is
+    #     counted from a blob that is not its own — the source side reported
+    #     `source_count 0`, `Σ(destinations) 0`, `identity_holds true` and
+    #     EXIT 0 over a surface carrying 4,411 `def test_`; and
+    #   * `carve_commit: "<sha>^{tree}"` — a revision expression the manifest
+    #     never named — was accepted and answered from, exit 0.
+    #
+    # A floor that reports zero and passes is the failure shape this whole
+    # design exists to make impossible, so the shape is asserted HERE, at the
+    # one place the value reaches git, rather than at a caller that can be
+    # bypassed: `verify_destination` and `verify_source` both come through
+    # this function, and so does any consumer importing the module.
+    if not isinstance(commit, str) or not COMMIT_RE.fullmatch(commit):
+        raise TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"`carve_commit: {commit!r}` is not 40 lowercase hex characters, "
+            "which is the shape FLOOR PART 1 requires of it "
+            "(`validate-carve-manifest.py`, check 1). This value is "
+            "interpolated into a newline-delimited `git cat-file --batch` "
+            "request, so anything else is a ref this floor's numbers would be "
+            "about instead of the carve commit — a line terminator in it "
+            "injects a second request per row and desyncs every count")
     # THE BATCH PROTOCOL IS NEWLINE-DELIMITED, so a path holding one would
     # desync the reply parse and start attributing blobs to the wrong rows —
     # a silent MIS-COUNT, which is the one failure mode a floor must never

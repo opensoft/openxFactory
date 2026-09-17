@@ -159,6 +159,60 @@ def read_manifest(path: Path) -> dict[str, Any]:
             "not a non-empty list of paths. The declared surface is what "
             "clause (a) is quantified over, so an empty or mistyped one puts "
             "every row outside it and the floor examines nothing")
+    # EVERY ROW IS A ROW, ONCE (Copilot, round 6 on #1080). Two defects, one
+    # reading, and both of them are about the mapping's KEY:
+    #
+    #   * a row that is not a dict, or carries no `source_path:`, reached
+    #     `tests_at_carve`, `map_rows`, `arrivals_for` and
+    #     `parse_replica_placements` as a raw subscript — a TRACEBACK and
+    #     exit 1, against a documented contract of a named refusal and exit 2,
+    #     for exactly the input most likely to be a hand-edited document; and
+    #   * a DUPLICATED `source_path:` counted one file twice. `tests_at_carve`
+    #     keys its counts BY PATH and collapses the duplicate, while
+    #     `map_rows` emits one mapping per ROW, so both copies were counted
+    #     and the identity went on balancing. Measured on the landed manifest
+    #     with one 35-test row duplicated: `source_count` 4,411 → 4,446,
+    #     `identity_holds` true, exit 0. FLOOR PART 1 refuses the same
+    #     document `carve-file-duplicated` and its contract is one disposition
+    #     per file; this tool is run where that validator is not.
+    seen: dict[str, int] = {}
+    for index, row in enumerate(doc["rows"]):
+        if not isinstance(row, dict) or not isinstance(row.get("source_path"),
+                                                       str) \
+                or not row["source_path"]:
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"{path} rows[{index}] carries no `source_path:` string "
+                f"({row!r}); every question this floor asks is keyed by one, "
+                "and a row without one cannot be counted, homed or owed")
+        if row["source_path"] in seen:
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"{path} declares {row['source_path']!r} in "
+                f"rows[{seen[row['source_path']]}] AND rows[{index}]; one "
+                "file carries one disposition, and counting a path twice "
+                "inflates the source side by its tests while the identity "
+                "goes on balancing (FLOOR PART 1 calls it "
+                "`carve-file-duplicated`)")
+        seen[row["source_path"]] = index
+    # AND THE DECLARED SURFACE SELECTS SOMETHING (Copilot, round 6 on #1080,
+    # marked "previously missed" and right about a claim round 3 made and did
+    # not keep). Round 3 refused an EMPTY or mistyped `moved_paths:`; a
+    # well-formed one naming a prefix no row lies under is the same vacuum one
+    # step further on — every row falls outside the surface, `map_rows`
+    # returns nothing, `totals()` computes `0 = 0` and the run exits 0 having
+    # examined no carve surface at all. Measured on the landed manifest with
+    # `moved_paths: ["contracts/policies/"]`: `rows_in_surface 0`,
+    # `source_count 0`, exit 0. Clause (a) is a QUANTIFIER, and a quantifier
+    # over the empty set is not a floor that holds.
+    if not any(mapping.under_surface(source_path, doc["moved_paths"])
+               for source_path in seen):
+        raise mapping.TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{path} carries {len(seen)} row(s) and NOT ONE of them lies "
+            f"under the declared surface {doc['moved_paths']!r}. The mapping "
+            "would be empty and the identity `0 = 0` would hold over nothing; "
+            "a floor that passes by asking nothing is not a floor")
     return doc
 
 
@@ -190,7 +244,15 @@ def verify_source(doc: dict[str, Any], repo: Path) -> dict[str, Any]:
             "so this is an inconsistency in the mapping itself and not a "
             "number to be adjusted")
     retired = [{"source_path": record.source_path, "tests": record.tests,
-                "ruling": record.ruling}
+                "ruling": record.ruling,
+                # THE COPIES A RETIREMENT DOES NOT DELETE, named in the report
+                # rather than left to be inferred (Copilot, round 6 on #1080).
+                # A retirement deletes the row's own ARRIVAL and not the
+                # copies `also_replicated_to:` places elsewhere, so such a row
+                # is retired AND still homed — the state that made the two
+                # counts below overlap, and the reader has no way to see it in
+                # a summary that prints neither.
+                "homes": list(record.homes)}
                for record in mapped if record.kind == "retired" and record.tests]
     replicas = [{"source_path": record.source_path, "tests": record.tests,
                  "homes": list(record.homes)}
@@ -208,8 +270,19 @@ def verify_source(doc: dict[str, Any], repo: Path) -> dict[str, Any]:
         # clause (a) is about a home and a RULED deletion is not one. The two
         # numbers add to `test_bearing_rows` and a reader can see which is
         # which without opening the manifest.
+        #
+        # AND THEY ARE DISJOINT BY KIND, NOT BY EMPTINESS (Copilot, round 6 on
+        # #1080, accurate about a documented invariant this code broke). A
+        # retired row KEEPS the homes its `also_replicated_to:` copies stand
+        # at — that is the identity `totals()` was corrected to compute two
+        # rounds ago — so `record.tests and record.homes` counted such a row
+        # HERE while `retired` reported it too, and the two counts summed to
+        # more than `test_bearing_rows`. Measured with one landed retirement
+        # given a replica: 145 + 2 against 146. The kinds partition the
+        # mapping; the homes do not.
         "homed_rows": sum(1 for record in mapped
-                          if record.tests and record.homes),
+                          if record.tests and record.homes
+                          and record.kind != "retired"),
         "declared_replicas": sum(1 for record in mapped
                                  if record.kind == "replicated"),
         "test_bearing_replicas": replicas,
@@ -233,34 +306,62 @@ def arrivals_for(doc: dict[str, Any], destination: str) -> list[tuple[str, str]]
     for row in doc["rows"]:
         if not mapping.under_surface(row["source_path"], doc["moved_paths"]):
             continue
-        if destination == mapping.RETAINED_TOKEN:
-            if row.get("disposition") == mapping.NOT_MOVED and \
-                    row.get("reason") in (mapping.STAYS_REASONS
-                                          + (mapping.REPLICA_REASON,)):
+        if row.get("disposition") in mapping.MOVED_DISPOSITIONS:
+            key, path = mapping.effective_arrival(row)
+            # THE KEY IS VALIDATED BEFORE ANY SKIP, AND AT EVERY LEG (Copilot,
+            # round 5 on #1080 and its round-6 restatement — two findings, one
+            # hole). Both of the skips below used to be reached with the key
+            # unread, and `repository_of` was called only on the SOURCE side:
+            #
+            #   * a shape-valid retirement pointed at a FABRICATED key
+            #     silenced the row here, and
+            #   * a MISSPELLED `destination:` simply failed to equal `wanted`,
+            #     so the row was dropped as another leg's business.
+            #
+            # Measured on the landed manifest, one row mutated each way:
+            # `tests/ideation-dashboard/test_doc_wheel.py` re-pointed to
+            # `opendox_kode` took the openDox-code run from 117 rows / 1,067
+            # declared to 116 / 1,045 AND EXITED 0 — a leg passing because a
+            # live arrival was omitted, which is the one thing a destination
+            # floor exists to refuse. `verify_source` refuses that document;
+            # this invocation is the one a leg runs, where the source side is
+            # not running at all.
+            #
+            # AN ABSENT KEY IS NOT THIS REFUSAL. `homes_of` draws that line
+            # already: an absent or non-string `destination:` is NO HOME, and
+            # the source side names it `test-home-missing`; a PRESENT key that
+            # `destinations:` does not carry is a vocabulary error, and this
+            # is where a leg finds it.
+            if isinstance(key, str) and key:
+                mapping.repository_of(doc, key)
+            if destination == mapping.RETAINED_TOKEN:
+                continue
+            # PLACEMENT-AWARE, not shape-only (Copilot review of #1080): a
+            # readable retirement block naming somewhere OTHER than this row's
+            # effective arrival used to make this verifier skip the row, so a
+            # leg could pass while never being asked for a file the manifest
+            # still places there. `retirement_of` requires the block to retire
+            # the arrival the row actually has.
+            if mapping.retirement_of(row) is not None:
+                continue
+            # RESOLVED IDENTITY, not the label (Copilot review of #1080).
+            # FLOOR PART 1's `check_shape` admits two `destinations:` keys
+            # sharing one `{repository, leg}` body, so a string comparison
+            # against `--destination` skips every row written under the other
+            # alias — and a floor that asks nothing passes.
+            if mapping.resolved_destination(key, destinations) == wanted:
                 pairs.append((row["source_path"],
                               mapping.closed_relative(
-                                  row["source_path"], "a retained row's path")))
+                                  path,
+                                  f"{row['source_path']}'s arrival path")))
             continue
-        if row.get("disposition") not in mapping.MOVED_DISPOSITIONS:
-            continue
-        # PLACEMENT-AWARE, not shape-only (Copilot review of #1080): a
-        # readable retirement block naming somewhere OTHER than this row's
-        # effective arrival used to make this verifier skip the row, so a leg
-        # could pass while never being asked for a file the manifest still
-        # places there. `retirement_of` requires the block to retire the
-        # arrival the row actually has.
-        if mapping.retirement_of(row) is not None:
-            continue
-        key, path = mapping.effective_arrival(row)
-        # RESOLVED IDENTITY, not the label (Copilot review of #1080). FLOOR
-        # PART 1's `check_shape` admits two `destinations:` keys sharing one
-        # `{repository, leg}` body, so a string comparison against
-        # `--destination` skips every row written under the other alias — and
-        # a floor that asks nothing passes.
-        if mapping.resolved_destination(key, destinations) == wanted:
+        if destination == mapping.RETAINED_TOKEN and \
+                row.get("disposition") == mapping.NOT_MOVED and \
+                row.get("reason") in (mapping.STAYS_REASONS
+                                      + (mapping.REPLICA_REASON,)):
             pairs.append((row["source_path"],
                           mapping.closed_relative(
-                              path, f"{row['source_path']}'s arrival path")))
+                              row["source_path"], "a retained row's path")))
     return pairs
 
 
@@ -272,9 +373,25 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
     destinations = doc.get("destinations")
     wanted = mapping.resolved_destination(destination, destinations)
     repository = mapping.repository_of(doc, destination)
-    replicas = {row["source_path"]: row for row in doc["rows"]
+    # BOTH ADMISSION SETS ARE INSIDE THE DECLARED SURFACE (Copilot, round 5 on
+    # #1080). `arrivals_for` filters its rows through `under_surface` and
+    # these two comprehensions did not, so a replica row OUTSIDE
+    # `moved_paths:` was admitted, counted from `tests_at_carve` and added to
+    # this destination's declared total — a destination obligation the SOURCE
+    # mapping does not carry at all, because `map_rows` skips exactly those
+    # rows. Measured on the landed manifest with one replica row's path
+    # changed to `tests/carve_manifest/test_carve_manifest.py` (out of
+    # surface, 71 `def test_` at the carve commit): the openDox-code run's
+    # declaration rose 1,067 → 1,138 and the leg was refused a 22-test
+    # shortfall it did not have. Clause (a) is quantified over the declared
+    # surface; a floor may not be RAISED outside the set it is quantified
+    # over any more than it may be lowered inside it.
+    in_surface = [row for row in doc["rows"]
+                  if mapping.under_surface(row["source_path"],
+                                           doc["moved_paths"])]
+    replicas = {row["source_path"]: row for row in in_surface
                 if mapping.is_replica(row)}
-    also = {row["source_path"] for row in doc["rows"]
+    also = {row["source_path"] for row in in_surface
             if isinstance(row.get("also_replicated_to"), list)
             and any(mapping.resolved_destination(key, destinations) == wanted
                     for key in row["also_replicated_to"])
@@ -319,9 +436,16 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
     return placements
 
 
-def _tests_in(dest_root: Path, relpath: str) -> int | None:
-    """The `def test_` a DECLARED ARRIVAL carries, or None where no regular
-    file of `dest_root`'s own reaches that path.
+def _tests_in(dest_root: Path, relpath: str) -> bytes | None:
+    """The BYTES of a DECLARED ARRIVAL, or None where no regular file of
+    `dest_root`'s own reaches that path — the caller counts them, so this
+    function and `mapping.count` cannot disagree about what a test is.
+
+    ANNOTATED FOR WHAT IT RETURNS (Copilot, round 5 on #1080, accurate): it
+    said `int | None` while returning `read_bytes()`, so a type checker read
+    the `mapping.count(blob)` at its one call site as an incompatible
+    argument — a docstring's claim about its own signature, wrong in the
+    direction that makes the reader distrust the checker rather than the code.
 
     NO COMPONENT MAY BE A SYMLINK, not merely the last one (Copilot, second
     round on #1080, and its third-round restatement — which was right about a
@@ -525,6 +649,13 @@ def _print_source(summary: dict[str, Any]) -> None:
     for item in summary["retired"]:
         print(f"      {item['source_path']} — {item['tests']} `def test_`, "
               f"RULED {item['ruling']}")
+        # AT ZERO THIS LINE IS NOT PRINTED, because no landed retirement
+        # carries a replica; where one does, the surviving copies are the
+        # difference between the row's `−tests` term and its `0`, and a
+        # reader who cannot see them cannot check the arithmetic.
+        if item["homes"]:
+            print(f"          copies SURVIVING the retirement at "
+                  f"{', '.join(item['homes'])}")
 
 
 def _print_destination(summary: dict[str, Any]) -> None:
