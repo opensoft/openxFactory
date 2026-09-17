@@ -4907,10 +4907,19 @@ def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
     # happened to sum would have let either merge land silently with all of
     # them stale, which is the transcription failure § 2 of the runbook exists
     # to end. The PREDICTION written here at the first firing named this second
-    # one exactly — base 2710, `2710 + lines == 2717`, the `opendox_code` cell
-    # 1674 -> 1763 — and it is recorded as a prediction MET rather than as the
-    # source of the figures: all three were re-measured at the merged head
-    # before this line was rewritten.
+    # one exactly — base 2710, `2710 + lines == 2717`, and the `opendox_code`
+    # cell reaching 1763 — and it is recorded as a prediction MET rather than
+    # as the source of the figures: all three were re-measured at the merged
+    # head before this line was rewritten.
+    # THE PREDICTION SPELLED THAT CELL `1674 -> 1763`, AND 1674 IS NOT A STATE
+    # THE LANDED DOCUMENT EVER CARRIED (Copilot review of this pull request at
+    # `2719e8d7`, reading the runbook's history beside this comment and finding
+    # the two disagree). It was THIS BRANCH's cell before the merge — 1667, the
+    # figure slice S8 left, plus this act's seven — while `main`'s own sequence
+    # is 1667 -> 1756 (RULED Q7's 89) -> 1763 (this act's seven), which is what
+    # the runbook records because the runbook records LANDING ORDER. Both are
+    # true of different documents, and only the landed one is a history: the
+    # arithmetic a merge invalidates is exactly the pre-merge branch's.
     assert 2710 + lines == 2717, lines
 
     # 4. AND EVERY OTHER ACT'S WINDOW IN THIS FILE IS DISJOINT FROM THIS ONE,
