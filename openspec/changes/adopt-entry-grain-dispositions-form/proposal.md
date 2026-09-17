@@ -152,6 +152,52 @@ one. The nine-member shape-(c) table does not move. No other requirement of any
 capability is modified, and `neutral-product-pin` is not modified at all: the
 member is not one its ratified text names.
 
+**ORDERED AFTER `scope-pinned-arm-root-naming`, ON A RULING.** Brett Heap ruled
+the CROSS-REFERENCE ROUTE — the 2026-09-05 precedent this repository's own
+self-gate quotes — at 2026-09-16 ~19:50Z, by interactive multi-choice, recorded
+at
+`https://github.com/opensoft/openxFactory/pull/1050#issuecomment-5704374098`.
+`scope-pinned-arm-root-naming` — ratified 2026-09-16T13:43:18Z, landed as
+`opensoft/openxFactory#1052` (`f8eba345`, 2026-09-16T18:33:55Z) — carries its
+own `## MODIFIED` block over *Prose tagging marker hygiene*, the SAME
+requirement this packet's one block modifies. This packet ratified later, by
+the "then 1050" half of the SAME verbatim word, and landed as
+`opensoft/openxFactory#1050` (`fa39141c`, 2026-09-16T18:35:23Z), so under
+`release-realization`'s *Ordered deltas and branch vocabulary* it is the LATER
+WRITER: this proposal REFERENCES `scope-pinned-arm-root-naming` and declares
+its block's delta relative to THAT CHANGE'S OUTCOME rather than to canon.
+
+**THE BLOCK CARRIES THE EARLIER WRITER'S BLOCK WHOLE.** All 191 body units and
+scenario bullets and all 24 scenarios of `scope-pinned-arm-root-naming`'s
+block — nothing dropped — with this packet's own scenario *A pin record's
+optional dispositions member carries a malformed entry* added on top, and that
+one scenario is THE WHOLE of the difference between the two blocks (measured:
+`diff` of the two delta bodies reports exactly those nine lines and nothing
+else). Four units had to be carried for that to be true, each taken VERBATIM
+from the earlier packet's own ratified delta and none of them this packet's
+authorship: the root-precedence citation restated as `_resolve_capability` and
+`_pin_roots`; the root-naming sentence scoped to findings emitted AFTER ROOT
+SELECTION, with its clause for the two findings emitted before any root is
+selected; the selected-root narrowing of *A pinned target names a pin no
+resolution root carries*' `WHEN` bullet; and the scenario *A finding emitted
+before root selection names what it judged*. This section's opening sentence
+says the block restates "the promoted requirement IN FULL"; after this ordering
+the BASIS is the earlier writer's block rather than canon, and the block
+restates THAT in full — the two bases differ in exactly the four units just
+named, all four now carried.
+
+**NO OBLIGATION OF EITHER PACKET MOVES BY THIS, AND NEITHER PACKET'S DECISIONS
+REOPEN.** The later block now states the earlier block's outcome instead of
+superseding it unread at promotion, which is the defect an ordering declaration
+exists to close; `dispositions:` stays OPTIONAL, this packet still adds EXACTLY
+ONE scenario, and `scope-pinned-arm-root-naming`'s own delta is not edited at
+all. Measured on a clean `origin/main` checkout at `4cef77af` plus this change:
+`modified-block-currency` goes from 2 warnings to 0 — the ordering class reads
+ZERO and this packet's block reports NOTHING — and
+`tests/doc-health/test_modified_block_currency_self_gate.py` goes from 1 failed
+/ 18 passed to **19 passed**, with `_ORDERING_SUBJECTS` left `set()` and no
+test file touched.
+
 ## Impact
 
 - **Affected capability:** `document-lifecycle` (ONE requirement, ONE added
