@@ -2214,10 +2214,11 @@ the bookkeeping that ticks this group.
   under a dashboard name and later renamed would be invisible to it.
   **`--no-renames` is the option that closes it**: it decomposes every rename
   into a delete plus an add, so both the old and the new path appear in the
-  log. **Quoted here exactly as it was RUN, pipeline included** — because a
-  bare `git log … --name-only` prints one line per matching COMMIT and not one
-  per path, and without the pipeline this command emits **177** path lines,
-  not sixteen: `git log --all --full-history --no-renames --pretty=format:
+  log. **Quoted here exactly as it was RUN, pipeline included** — because
+  `--name-only` under `--pretty=format:` prints one line per (COMMIT, PATH)
+  PAIR and not one line per path, so the raw output runs many times the size
+  of the distinct set, and the pipeline is what turns the one into the other:
+  `git log --all --full-history --no-renames --pretty=format:
   --name-only -- .github/workflows/ | sed '/^$/d' | sort -u`. It returns
   **16 distinct paths ever**: `clearing-dispatch-gate`,
   `doc-health-reusable`, `former-id-arrival-gate`, `lane-line`,
@@ -2230,7 +2231,16 @@ the bookkeeping that ticks this group.
   *(THREE INSTRUMENT CHOICES, each measured rather than assumed, after a
   Copilot finding on this amendment's own pull request (round 1) that the
   command as first quoted was not reproducible. **`sort -u` is part of the
-  query and is now inside it** — 177 raw lines against 16 distinct paths.
+  query and is now inside it.** The RAW line count is deliberately NOT quoted
+  as a figure: it is one line per (commit, path) pair over EVERY ref the
+  running clone has fetched — 347 of them here — so it moves with other
+  lanes' branches and with the clone, never with this repository's content.
+  It read **177** when this note was first written and **179** on a later
+  reading, while `main` took NO commit to that directory in between (`git log
+  cbc3a2c6..origin/main -- .github/workflows/` is empty) — the two lines came
+  in on sibling branches this clone had fetched. The DISTINCT set read **16**
+  both times. That is why the distinct set is the figure this box rests on, and
+  the raw one is described rather than counted.
   **`--all` is DELIBERATE and makes the claim STRONGER than the box needs**:
   it asks what any ref has ever held, not what one history holds. The
   base-scoped form `git log cbc3a2c6 --full-history --no-renames
