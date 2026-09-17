@@ -144,8 +144,8 @@ mapping manifest. Measured in the landed file:
 | `moved_with_declared_edit` | **175** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares lines** (RULED Q-L7 (a) — one line at that ruling, two today) and its copies are held to them |
 
-**318 rows move. 2454 declared edit lines**: `import rewrites` 726, `path
-constants` 246, `adapter calls` 1482. **176 rows carry `edits:`** — the 175
+**318 rows move. 2461 declared edit lines**: `import rewrites` 726, `path
+constants` 246, `adapter calls` 1489. **176 rows carry `edits:`** — the 175
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
 `views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
@@ -262,7 +262,7 @@ The **two replica lines belong to no destination column below** — `:25` (the
 1422nd declared line when this paragraph was written) and, since the
 pre-existing `openxdox_code` annotation, `:271`: a replica row names no
 destination at all, so the per-leg declared-line figures below exclude both and
-sum to 2452 rather than 2454. **The two are owed differently, and a replica row
+sum to 2459 rather than 2461. **The two are owed differently, and a replica row
 cannot say so**: `:25` is owed by every leg that places that conftest — both
 `-code` legs — while `:271` is openXdox-code#14's § 4.4 fixture, PERMITTED at
 every replica by the same row-wide grammar and owed at none. openXdox-code
@@ -342,7 +342,7 @@ each leg's arrival run reports, save where RULED Q6 re-destined a row (below):
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 35 / 88 | 1667 | `src/opendox`, `tests` |
+| `opendox_code` | 123 | 35 / 88 | 1674 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
 | `openxdox_code` | 92 | 9 / 83 | 750 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
@@ -364,9 +364,13 @@ until this act. The pre-existing `openxdox_code` annotation then moves
 `openxdox_code`'s declared-line cell ALONE, to `750`: 47 of its 48 lines fall
 on three rows this leg already edits, and the forty-eighth is a second line on
 the conftest REPLICA row, which names no destination and belongs in no column.
-The four destination figures now sum to 2452, and the TWO lines the replica row
+The § 3.4 SLICE-S7 RESIDUE annotation then moves `opendox_code`'s
+declared-line cell alone once more, to `1674`: its seven `adapter calls` lines
+fall on four rows that leg already edits, so no `verbatim / edited` cell and no
+row count moves with them.
+The four destination figures now sum to 2459, and the TWO lines the replica row
 `tests/ideation-dashboard/conftest.py` declares — which name no destination at
-all — make 2454.
+all — make 2461.
 `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`
 asserts all four numeric columns, the fifth ROOTS column and that sum against
 the landed manifest, so every cell of this table is now read FROM THE TABLE;
@@ -449,7 +453,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 2454 now.
+from the start — 794 of them at this ruling's own landing, 2461 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738

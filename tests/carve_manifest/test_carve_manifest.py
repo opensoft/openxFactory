@@ -3916,8 +3916,11 @@ def test_the_real_manifest_carries_the_ruled_q_l7_amendment() -> None:
     # the one #1023 could not see, because `--allow-created` had been used
     # where the runbook's `--replica-at` belongs and that suppresses the
     # replica's own line check). All four carried `edits:` already, so the
-    # carrier count does not move: 2406 + 48 = 2454 on the same 176 rows.
-    assert (lines, carrying) == (2454, 176), (lines, carrying)
+    # carrier count does not move: 2406 + 48 = 2454 on the same 176 rows, and
+    # the § 3.4 SLICE-S7 RESIDUE annotation's seven `adapter calls` lines then
+    # make 2461 on the same 176 again — its four rows were every one of them
+    # already a carrier, so nothing converts.
+    assert (lines, carrying) == (2461, 176), (lines, carrying)
     replicas = [row for row in doc["rows"]
                 if row.get("reason") == MODULE.REPLICA_REASON]
     assert len(replicas) == 20, len(replicas)
@@ -4351,10 +4354,25 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
         path for path in S7_CONVERTED if S7_CONVERTED.count(path) > 1)
     assert set(S7_CONVERTED) <= set(S7_WINDOW), \
         set(S7_CONVERTED) - set(S7_WINDOW)
+    #
+    # AMENDED BY THE § 3.4 SLICE-S7 RESIDUE ANNOTATION, on exactly the ground
+    # slice S8 amended the run above: this read `row["edits"] ==
+    # S7_WINDOW[source_path]` — the row's WHOLE list — and that equality is
+    # S7's claim only for as long as S7 is the newest act on all seventeen
+    # converted rows. It is not: the residue annotation appends an `adapter
+    # calls` entry to three of them (`board.js`, `docs.js`, `explorer.js`), so
+    # a whole-list read fails on a manifest in which nothing whatever is wrong.
+    # What the conversion actually claims is that the row carried NO entries
+    # BEFORE slice S7 — which, in a document appended to in landing order, is
+    # that S7's entries are the row's FIRST, a PREFIX. That is asserted here,
+    # and it keeps every claim the equality made bar the accident of being the
+    # whole list, which belongs to whichever act annotated the row most
+    # recently and to no act permanently.
     for source_path in S7_CONVERTED:
         row = rows[source_path]
-        assert [(edit["class"], edit["lines"]) for edit in row["edits"]] == \
-            S7_WINDOW[source_path], row
+        landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
+        entries = S7_WINDOW[source_path]
+        assert landed[:len(entries)] == entries, (source_path, landed, entries)
 
     # 3. THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures
     # the runbook's § 2 paragraph and this pull request's body both state.
@@ -4389,6 +4407,165 @@ def test_the_real_manifest_carries_the_s7_display_facet_declared_edits() -> None
                         "tests/ideation-dashboard/test_doxbench_view.py",
                         "tests/ideation-dashboard/test_bullseye_widget.py"):
         assert source_path in S7_WINDOW, source_path
+
+
+#: THE § 3.4 SLICE-S7 RESIDUE WINDOW — the SEVEN display-facet leaves slice
+#: S7's own review found inside the modules S7 had already parameterized at
+#: their mounts, declared here so the leg may realize them (RULING Q-L1's
+#: order, `#656` comment `5628560136`; RULING OQ-1's `adapter calls` class;
+#: the S7 LANDED note that carried the residue forward is `#656` comment
+#: `5688498049`). Two of the seven are threads Copilot opened on
+#: opensoft/openDox-code#21 at its gated head `c7a216c7` and five are comments
+#: it left SUPPRESSED in review `5192900474`'s body.
+#:
+#: SEVEN FINDINGS, FOUR ROWS, SEVEN LINES — the arithmetic is not a slip.
+#: `views/staging-workbench.js` carries TWO of the findings (the nested wheel
+#: mount and `runAddSection`), and `views/display.js` is an ADMITTED created
+#: file with no row at all, so it is declared as an admission and not here.
+#: The line numbers are the CARVE COMMIT's, derived with the arrival verifier's
+#: own rule against the leg's head rather than read off a diff.
+S7R_WINDOW: dict[str, list[tuple[str, list[int]]]] = {
+    "scripts/ideation_dashboard/web/views/board.js": [
+        ("adapter calls", [82]),
+    ],
+    "scripts/ideation_dashboard/web/views/docs.js": [
+        ("adapter calls", [37, 39]),
+    ],
+    "scripts/ideation_dashboard/web/views/explorer.js": [
+        ("adapter calls", [225]),
+    ],
+    "scripts/ideation_dashboard/web/views/staging-workbench.js": [
+        ("adapter calls", [805, 1202, 1204]),
+    ],
+}
+
+#: This act CONVERTS NOTHING: all four rows were already
+#: `moved_with_declared_edit` and already carriers (three converted by slice S7
+#: and `views/staging-workbench.js` by slice S5), so the disposition counts,
+#: the carrier count and the replica count stand where the pre-existing
+#: `openxdox_code` annotation left them. The empty list is that claim written
+#: down rather than left as the absence of an assertion — `Q7_CONVERTED`'s own
+#: form, one act over.
+S7R_CONVERTED: list[str] = []
+
+
+def test_the_real_manifest_carries_the_s7_residue_declared_edits() -> None:
+    """The § 3.4 slice-S7 RESIDUE window against the LANDED manifest, row by row.
+
+    `test_the_real_manifest_carries_the_ruled_q_l7_amendment` above asserts the
+    aggregate, and that pair would stay green if any of these seven lines had
+    landed on the wrong row, under the wrong one of RULING OQ-1's three
+    classes, or as a different set summing to the same total — which is why
+    every slice since ASK-7 pins its own window.
+
+    THE ENTRIES FOLLOW SLICE S7's ON EVERY ROW, and that ORDER is the claim
+    this act has that S7's own test cannot make: the residue is what S7's
+    review found and S7 could not take, so a residue entry sitting AHEAD of
+    S7's on a row would be a document telling the arrival verifier a history
+    that did not happen. It is asserted as a contiguous run occurring exactly
+    once, strictly after the last of S7's — the shape slice S8 taught this
+    file when it amended S7's own tail read (see § 1 of that test).
+
+    RULED Q7's window (`Q7_WINDOW`) touches ONE row, `web/styles.css`, and this
+    act touches none of it, so there is nothing to order against there; the
+    disjointness is asserted below rather than assumed, because a later Q7
+    amendment reaching one of these four rows is exactly the case an unchecked
+    assumption would hide. The manifest is REQUIRED and not branched on: see
+    `the_landed_manifest()`.
+    """
+    _text, doc = the_landed_manifest()
+    rows = {row["source_path"]: row for row in doc["rows"]}
+
+    # 1. THE COUNT IS READ OFF THE TABLE'S OWN SOURCE FIRST (round 8's rule,
+    # Copilot review of openxFactory #1030): `S7R_WINDOW` is a dict LITERAL,
+    # and a dict literal collapses a repeated key at import while keeping the
+    # last value — so a second entry for a path already in the table is
+    # invisible to every assertion below, and a `len()` of the imported object
+    # counts the SURVIVORS rather than the rows the author declared. The
+    # duplicate survives in exactly one place, the text of the literal.
+    declared = dict_literal_keys(Path(__file__).resolve(), "S7R_WINDOW")
+    assert len(set(declared)) == len(declared), sorted(
+        path for path in declared if declared.count(path) > 1)
+    assert len(declared) == 4, len(declared)
+    assert set(declared) == set(S7R_WINDOW), set(declared) ^ set(S7R_WINDOW)
+
+    for source_path, entries in S7R_WINDOW.items():
+        row = rows[source_path]
+        # Nothing converts here, so the disposition is what this act FOUND.
+        assert row["disposition"] == "moved_with_declared_edit", row
+        # The residue of a ONE-LEG slice is a one-leg act: every file that
+        # renders a word is the served bundle, and the served bundle arrives
+        # at openDox-code.
+        assert row["destination"] == "opendox_code", row
+        landed = [(edit["class"], edit["lines"]) for edit in row["edits"]]
+
+        runs = [i for i in range(len(landed) - len(entries) + 1)
+                if landed[i:i + len(entries)] == entries]
+        assert len(runs) == 1, (source_path, landed, entries)
+
+        # AND IT FOLLOWS SLICE S7's RUN, strictly. `S7_WINDOW` declares all
+        # four of these rows, so the run above is found there too, and the
+        # residue's index must be greater than the last index S7's occupies.
+        s7_entries = S7_WINDOW[source_path]
+        s7_runs = [i for i in range(len(landed) - len(s7_entries) + 1)
+                   if landed[i:i + len(s7_entries)] == s7_entries]
+        assert len(s7_runs) == 1, (source_path, landed, s7_entries)
+        assert runs[0] >= s7_runs[0] + len(s7_entries), (
+            source_path, runs[0], s7_runs[0], len(s7_entries))
+
+        # ROW-WIDE LINE DISTINCTNESS, the claim round 5 of #1030 added and for
+        # its reason: `edits[].lines` may lawfully repeat a number as far as
+        # the validator is concerned, and the arrival verifier reads a row's
+        # declarations as a SET — so an entry naming one line twice in place of
+        # naming two would keep every total intact while one really edited line
+        # went undeclared, to be refused at the DESTINATION an act later.
+        flat = [number for edit in row["edits"] for number in edit["lines"]]
+        assert len(set(flat)) == len(flat), (source_path, sorted(
+            number for number in flat if flat.count(number) > 1))
+
+    # 2. NOTHING CONVERTS, stated rather than left unasserted.
+    assert S7R_CONVERTED == [], S7R_CONVERTED
+    for source_path in S7R_WINDOW:
+        assert source_path not in S7R_CONVERTED, source_path
+
+    # 3. THE WINDOW'S OWN TOTALS, summed rather than transcribed — the figures
+    # the manifest header's movement paragraph and this pull request's body
+    # both state.
+    lines = sum(len(nums) for entries in S7R_WINDOW.values()
+                for _class, nums in entries)
+    entries_count = sum(len(entries) for entries in S7R_WINDOW.values())
+    by_class: dict[str, int] = {}
+    for entries in S7R_WINDOW.values():
+        for edit_class, nums in entries:
+            by_class[edit_class] = by_class.get(edit_class, 0) + len(nums)
+    assert (lines, entries_count) == (7, 4), (lines, entries_count)
+    # ONE CLASS ONLY. Every one of the seven leaves is a call into the display
+    # facet, which is RULING OQ-1's `adapter calls` and neither of its other
+    # two: no import moves and no path is spelled.
+    assert by_class == {"adapter calls": 7}, by_class
+    # 2454 + 7 = 2461 on the same 176 rows — THE AGGREGATE AS THIS ACT LANDED
+    # IT, a DELTA against the document it found, and so a figure a later act
+    # cannot move.
+    assert 2454 + lines == 2461, lines
+
+    # 4. AND EVERY OTHER ACT'S WINDOW IN THIS FILE IS DISJOINT FROM THIS ONE,
+    # ROW BY ROW — except slice S7's, which § 1 above orders against instead.
+    # Two acts declaring one line is the double count § 2 of the S7 window test
+    # refuses within a row, one act apart. The sibling windows are looked up in
+    # this module's own namespace rather than named one by one, so an act that
+    # lands a window AFTER this one is held to the same disjointness without
+    # amending this test: RULED Q7's `Q7_WINDOW` (openxFactory #1068, one row,
+    # `web/styles.css`) is the next one due and is covered by this sweep the
+    # moment it merges, which is the whole reason the sweep is written this way
+    # rather than as an `assert not (set(Q7_WINDOW) & set(S7R_WINDOW))` that
+    # would be a NameError until then.
+    siblings = {name: value for name, value in globals().items()
+                if name.endswith("_WINDOW") and isinstance(value, dict)
+                and name not in ("S7R_WINDOW", "S7_WINDOW")}
+    overlaps = {name: sorted(set(value) & set(S7R_WINDOW))
+                for name, value in siblings.items()
+                if set(value) & set(S7R_WINDOW)}
+    assert not overlaps, overlaps
 
 
 def test_the_real_manifest_carries_the_q6_form_and_the_four_rows_s5_re_destines() -> None:
