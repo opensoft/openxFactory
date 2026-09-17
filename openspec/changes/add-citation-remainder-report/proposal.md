@@ -192,8 +192,10 @@ REQUEST DOES NOT PERFORM.** The delta is `specs/packet-citation-report/spec.md`:
    mechanically`** — a small mechanical class set, an honest `unclassified`, and
    the rule that nothing is repaired.
 5. **`### Requirement: The citation remainder report is advisory and gates
-   nothing`** — exit code always 0, no `--fail-on`, and promoting it to a gate
-   is a separate act on a separate word.
+   nothing`** — the two-case exit contract the requirement itself states:
+   *"exit successfully whatever it finds"* and non-zero *"SHALL MEAN THE
+   REPORT COULD NOT RUN, never that it found something"* — no `--fail-on`,
+   and promoting it to a gate is a separate act on a separate word.
 
 **NO `## MODIFIED` BLOCK, AND THAT IS THE POINT OF THE SHAPE.** A twenty-fourth
 doc-health family would be a MODIFIED block restating doc-health's whole
