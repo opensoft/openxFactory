@@ -1010,6 +1010,36 @@ _LEDGER_SUBJECTS = {
     # onto `openspec/specs/document-lifecycle/spec.md` (its `tasks.md` § 3).
     ("scope-pinned-arm-root-naming", "document-lifecycle",
      "Prose tagging marker hygiene"),
+    # ADDED 2026-09-17 BY THE RATIFIER'S AMENDMENT of
+    # `adopt-entry-grain-dispositions-form` (openxFactory issue #1045, lane
+    # `openxfactory-2`), on Brett Heap's word "Apply the partition",
+    # https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011.
+    # At ratification (2026-09-16) this packet's `## MODIFIED` block carried
+    # the promoted scenario *A marker names a capability of a pinned neutral
+    # product* BYTE-IDENTICAL to canon — a same-input overlap Copilot found
+    # against the packet's OWN new scenario (a record complete for its required
+    # shape members and capabilities enumeration, whose optional
+    # `dispositions:` is `[{}]`, satisfying both the positive scenario's
+    # THEN-resolve and the new scenario's THEN-refuse) was filed as a RULING
+    # NEEDED comment on #1045 rather than fixed by the lane, ratified normative
+    # text being the RATIFIER's to amend. Brett Heap ruled the overlap on
+    # 2026-09-17: the positive scenario's WHEN gains one clause — "AND every
+    # OPTIONAL member the matched shape admits that is PRESENT conforms at its
+    # entry grain to that shape's own in-tree verifier's pure, source-free
+    # guard" — naming `dispositions:` and `pinned_by_commit_only:`, with a
+    # FALSEY `pinned_by_commit_only:` (`null`, `""`) counting as EMPTY because
+    # the tracked verifiers and the adapter's `_is_path_only_list` coerce it to
+    # `[]`; its disjointness bullet gains the matching exclusion for a
+    # present-and-malformed optional member. The refusal scenario, D-1, D-2,
+    # D-3 and every other promoted unit of the requirement are unchanged.
+    # Recorded in `review/ratification-2026-09-16.md`'s AMENDED SINCE pointer
+    # and its dated Addendum, 2026-09-17. This arm cannot distinguish a
+    # deliberate amendment from drift and does not claim to; the finding is
+    # INFO and it is the audit trail for the amendment. Retires when the packet
+    # archives and its block is promoted onto
+    # `openspec/specs/document-lifecycle/spec.md` (its `tasks.md` § 3).
+    ("adopt-entry-grain-dispositions-form", "document-lifecycle",
+     "Prose tagging marker hygiene"),
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
