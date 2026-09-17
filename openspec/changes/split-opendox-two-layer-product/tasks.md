@@ -508,14 +508,17 @@ Legend: `[oxF]` openxFactory · `[oD]` the opensoft/openDox PROJECT (new) ·
   registered on amendment #4's pull request at comment `5702495415`. They
   read `tasks.md`:347 and `design.md`:868; measured, `:347` of this file is a
   `gh api` tree read of the openDox root and the casefold discussion is at
-  `:595` at the base — **and `:595` had already become `:609` by the time this
-  amendment's own insertions above it landed, inside ONE pull request** — and
-  in `design.md` it is at `:981`, which does not move because this branch does
+  `:595` at the base — **and that number has held THREE different values
+  inside this one pull request**: `:595` at `cbc3a2c6`, `:609` from this
+  amendment's first commit (which is where Copilot round 5 correctly flagged
+  it as wrong in the tree under review), and `:619` from fix round 4 onward,
+  each move made by this amendment's own insertions above it — and in
+  `design.md` it is at `:981`, which does not move because this branch does
   not touch that file. So the first attempt at a numeric repair went stale
-  under the very act that wrote it, which is § 1.8's thesis demonstrated a
-  third time and the reason the in-file half of the citation is now a SENTENCE
-  (Copilot round 5 on this amendment's own pull request caught it; `design.md`
-  keeps its number because the file is stable and the tree is named).
+  under the very act that wrote it, twice, which is § 1.8's thesis proved on
+  this amendment's own body and the reason the in-file half of the citation
+  is now a SENTENCE and carries no number at all (`design.md` keeps its
+  number because the file is stable and the tree is named).
   Neither original number was right at any
   tree checked. The repair is taken here — rather than left to the act that
   claims this paragraph — because a stale COORDINATE is a currency fix that
