@@ -267,6 +267,29 @@ invisible — the entry would neither resolve nor appear as a defect of the
 record. The order is therefore fixed: resolve, and class `truncated` only where
 the token does not resolve.
 
+AND THE HYPHEN IS NOT THE ONLY CHARACTER THAT RULE OWES: RESOLUTION SHALL BE
+TRIED FIRST BEFORE ANY TRAILING CHARACTER THE CHANGE-ID GRAMMAR ADMITS IS
+STRIPPED, AND A TOKEN THAT RESOLVES AS EXTRACTED SHALL BE REPORTED AS IT
+RESOLVED, SHALL CARRY NO NORMALIZATION RECORD AND SHALL TAKE NO NORMALIZATION
+CLASS. The safeguard above names ONE character while the normalization above
+strips more than one, so a rule written for `-` alone leaves another strip free
+to do exactly what the safeguard exists to prevent. THE PREDICATE SHALL
+THEREFORE BE THE GRAMMAR'S AND NOT A LIST OF PUNCTUATION MARKS: this estate's
+canonical change-id grammar is `[A-Za-z0-9][A-Za-z0-9._-]*`, which admits an
+identifier ending in a letter, a digit, `.`, `_` or `-`, so a trailing FULL STOP
+can be an identifier's own last character exactly as a trailing hyphen can, and
+a report that stripped it unconditionally would rewrite a VALID packet id and
+report the citing record as dangling — invisibly, and for a fact about a regular
+expression rather than about the record. A TRAILING PATH SEPARATOR IS THE ONE
+EXCEPTION, AND IT IS AN EXCEPTION BECAUSE THE GRAMMAR MAKES IT ONE: no
+identifier may carry `/`, so stripping it can suppress no valid citation, and
+its strip SHALL stay unconditional because the deduplication choice below
+depends on it — a directory citation and its unslashed sibling are ONE token and
+not two. A trailing character the grammar admits and this specification names no
+normalization for SHALL simply be left where it stands. The rule is written
+against the GRAMMAR so that it cannot fall behind one: a grammar that later
+admits another character admits it to this safeguard in the same act.
+
 THE EXTRACTION PATTERN ITSELF SHALL BE WRITTEN IN THIS SPECIFICATION AND NOT
 ONLY DESCRIBED BY ITS EFFECTS. A requirement that promises a stated grammar and
 then states only what the grammar is afterwards corrected for has not stated it:
@@ -337,6 +360,23 @@ POINT IN THE SAME SERIES.
 - **THEN** the report MUST report the resolved outcome
 - **AND** it MUST NOT class the token `truncated`
 
+#### Scenario: A citation ends in a full stop the packet id actually carries
+- **WHEN** a citation token ends in `.` and the token RESOLVES to a packet under the resolution rule exactly as it was extracted
+- **THEN** the report MUST report the resolved outcome
+- **AND** it MUST NOT strip the full stop, MUST NOT record a normalization, and MUST NOT class the entry `punctuation-stripped`
+- **AND** it MUST NOT report the citing record as carrying a dangling citation
+
+#### Scenario: A citation ends in a character the grammar admits and no normalization names
+- **WHEN** a citation token ends in a character the change-id grammar admits — a letter, a digit or `_` — that this specification names no normalization for
+- **THEN** the report MUST resolve the token exactly as extracted
+- **AND** it MUST NOT strip that character and MUST NOT class the entry under any normalization class
+
+#### Scenario: A directory citation ends in a path separator
+- **WHEN** a citation token ends in `/`, a character the change-id grammar admits in no identifier
+- **THEN** the report MUST strip the separator whether or not the token resolves as extracted
+- **AND** it MUST count the stripped token and its unslashed sibling as ONE token
+- **AND** the resolve-first safeguard MUST NOT suppress that strip
+
 #### Scenario: A reading is compared against an earlier reading
 - **WHEN** a reading of the remainder is presented beside an earlier reading of the same corpus
 - **THEN** each reading MUST state the extraction pattern and the three fixed choices it applied
@@ -396,11 +436,55 @@ reading printed BESIDE it rather than substituted for it. The inclusive number i
 the one every earlier reading of this population reported, so substituting a
 filtered number would break the only series the capability exists to produce.
 
+AND THE FILTERED COUNT PRINTED BESIDE THE HEADLINE SHALL BE DEFINED HERE RATHER
+THAN LEFT TO A READING: IT SHALL BE THE REMAINDER WITH EVERY ENTRY CARRYING THE
+CROSS-REPOSITORY FLAG REMOVED, COUNTED IN TOKENS, WITH ITS CORRESPONDING
+IDENTITY COUNT PRINTED BESIDE IT AND LABELLED AS ONE. A filtered count named
+without its unit and without its predicate is two numbers, and they differ by
+exactly the quantity the flag exists to measure. The unit is the TOKEN, because
+a remainder entry is a token and every class total above is a count of tokens;
+AND AN IDENTITY LEAVES THE IDENTITY COUNT ONLY WHERE EVERY ONE OF ITS REMAINDER
+TOKENS IS FLAGGED, because one unflagged token is a citation this tree still
+answers for and the identity it addresses is still work a reader would do.
+**AND THE ARITHMETIC SHALL BE PRINTED, IN TOKENS, SO THAT IT RECONCILES**: the
+INCLUSIVE remainder EQUALS the FILTERED count PLUS THE NUMBER OF REMAINDER
+ENTRIES CARRYING THE FLAG, and it is that last term the arithmetic row SHALL
+print. **IT IS NOT THE NUMBER OF FLAGGED TOKENS IN THE CORPUS**, which is a
+larger and a different quantity: a flagged citation whose raw path stands in
+this tree never entered the remainder at all, so a row built on the corpus
+figure subtracts a token the remainder never held and prints a filtered count
+lower than the one the entries themselves give. The difference is measured
+rather than feared — in the tree this capability was measured against, 22 tokens
+carried the flag and 21 of them stood in the remainder — and a reader cannot
+tell the two apart from a row that does not say which it printed. **AND THE
+IDENTITY PAIR SHALL NOT BE PRESENTED AS SUMMING**: an identity carrying one
+flagged token and one unflagged token is counted in the inclusive identity total
+AND in the filtered identity total, so the identity figures are two labelled
+readings of one population and never an arithmetic row.
+
 #### Scenario: A citation carries a repository qualifier nearby
 - **WHEN** a remainder citation has a cross-repository signal within the stated window
 - **THEN** the report MUST flag the entry as suspected cross-repository
 - **AND** the entry MUST still be counted in the inclusive remainder
 - **AND** the report MUST print the filtered count beside the inclusive one, never instead of it
+
+#### Scenario: One identity's remainder tokens are part flagged and part not
+- **WHEN** an identity is addressed by two remainder tokens and exactly one of them carries the cross-repository flag
+- **THEN** the identity MUST stay in the filtered identity count
+- **AND** the unflagged token MUST stay in the filtered token count and the flagged one MUST NOT
+- **AND** the report MUST NOT present the inclusive and filtered identity counts as summing to a total
+
+#### Scenario: Every one of an identity's remainder tokens is flagged
+- **WHEN** every remainder token addressing one identity carries the cross-repository flag
+- **THEN** the identity MUST leave the filtered identity count
+- **AND** every one of those tokens MUST leave the filtered token count
+- **AND** all of them MUST still be counted in the inclusive remainder
+
+#### Scenario: The filtered reading is printed beside the inclusive one
+- **WHEN** the report prints the filtered reading beside the inclusive headline
+- **THEN** it MUST print the filtered count in TOKENS and its identity count beside it, each labelled with the unit it counts
+- **AND** it MUST print the arithmetic in tokens, the inclusive remainder standing as the filtered count plus the number of REMAINDER ENTRIES carrying the flag
+- **AND** it MUST NOT print the number of flagged tokens in the corpus as that term
 
 #### Scenario: The qualifier sits outside the window
 - **WHEN** a citation names another repository further from the token than the stated window reaches

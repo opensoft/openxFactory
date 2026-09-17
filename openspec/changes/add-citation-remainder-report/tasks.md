@@ -378,6 +378,16 @@ added, edited, renamed or deleted here.
       location, beside one with a single occurrence outside them that must NOT
       take the class; and a reading taken over a modified tree, which must
       declare the tree state beside the head.
+      **AND THE ROUND-NINE CLARIFICATIONS ADD THREE MORE**: a citation token
+      ending in `.` that RESOLVES exactly as extracted, which must be reported
+      resolved and must take neither a normalization record nor a normalization
+      class; a token ending in `/`, whose strip stays unconditional and which
+      must dedup onto its unslashed sibling; and one identity whose two
+      remainder tokens are one flagged and one not, which must keep the identity
+      in the FILTERED identity count while only the unflagged token stays in the
+      filtered token count — with the arithmetic row asserted in TOKENS against
+      the number of REMAINDER ENTRIES carrying the flag and never against the
+      corpus-wide flagged figure.
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,

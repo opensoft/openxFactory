@@ -928,6 +928,45 @@ The word (2026-09-17T13:33:12Z, **"fold them in before landing"**) names this
 thread as *"clean-tree or dirty-state rule"*, and the dirty-state rule is the
 half that costs the packet no decision.
 
+**AMENDMENT RECORD — D3(b)'s RESOLVE-FIRST SAFEGUARD IS NOW THE GRAMMAR'S
+PREDICATE RATHER THAN ONE CHARACTER'S, AND D3(c)'s ARITHMETIC POINT IS NOW IN
+THE REQUIREMENT.** Two round-nine Copilot threads on PR #1069 read what the
+second word folded rather than any decision this section puts, and both are
+clarifications of it. `PRRT_kwDOTAvnrs6jYkv_` (spec.md:253): the promoted
+safeguard names `-` alone while the normalization beside it strips a trailing
+`.` as well, and the grammar the safeguard itself cites —
+`scripts/proposal-support.py`'s `CHANGE_ID_RE`, `[A-Za-z0-9][A-Za-z0-9._-]*` —
+admits an identifier ending in `.`, `_`, a letter or a digit exactly as readily
+as one ending in `-`. **THE READING IS CHECKED AND NOT ACCEPTED**:
+`CHANGE_ID_RE.fullmatch("add-foo.")` is TRUE, as is `fullmatch("add-foo_")`,
+while `fullmatch("add-foo/")` is FALSE. The requirement therefore now carries
+the GENERAL predicate — resolution tried first before ANY trailing character the
+change-id grammar admits is stripped, a token that resolves as extracted taking
+neither a normalization record nor a normalization class — with the trailing
+PATH SEPARATOR named as the one character the grammar admits in no identifier
+and whose strip consequently stays unconditional, because the dedup choice this
+section fixes ("trailing `.` and `/` stripped BEFORE dedup") depends on it.
+**THE PROMOTED SENTENCE-PUNCTUATION SCENARIO IS UNAFFECTED**: a stop that ENDED
+THE SENTENCE carrying the citation is not an identifier's last character, so
+that token does not resolve as extracted and the strip applies exactly as
+before. `PRRT_kwDOTAvnrs6jYkwi` (spec.md:397): the requirement mandates a
+FILTERED count beside the inclusive headline and says neither what is filtered
+nor in what unit. **THE ARITHMETIC POINT THIS SECTION ALREADY MAKES IS WHAT
+SETTLES IT** — *"the '22 cross-repository tokens set aside' is counted over the
+WHOLE token population, and only 21 of the 22 sit in the raw-absent
+population"* — so the delta now defines the filtered count as the remainder with
+every flagged entry removed, in TOKENS, with the identity count beside it and an
+identity leaving that count only where EVERY one of its tokens is flagged, and
+requires the arithmetic row's flagged term to be the count of REMAINDER ENTRIES
+carrying the flag rather than the corpus figure. **AND IT NAMES WHAT THE
+DEFINITION DOES NOT REPRODUCE**: the evidence's THIRD reading, the "true in-tree
+remainder", is `57 − 14 − 4` where the 14 are cross-repository citations the
+automated window MISSES and the 4 are tokenization artifacts, both found by a
+HAND read — so no definition over the flag reaches it, and the requirement
+asserts only the filtered reading the flag does produce. **NO DECISION MOVES**:
+the window, the five signals, FLAG-never-drop and the INCLUSIVE headline read
+exactly as they read before.
+
 ## D4 — RECOMMENDED: classify only what can be decided mechanically
 
 **The question.** #1053's manual read puts the remainder in nine classes. How
@@ -1068,6 +1107,25 @@ false positives); the fourth is this section's nested-test-fixture row, whose
 RENAMED OR WIDENED**: the vocabulary is the same four labels, the class is
 asserted over the same entries the measurement classified, and widening the
 location set for a later corpus stays a RULING rather than a bench round's act.
+
+**AMENDMENT RECORD — WHAT THE ROUND-NINE CLARIFICATIONS DO AND DO NOT DO TO THIS
+SECTION'S VOCABULARY.** Both of PR #1069's round-nine spec threads land in D3,
+and each leaves one sentence owed here rather than none.
+`PRRT_kwDOTAvnrs6jYkv_` narrows `punctuation-stripped`'s DOMAIN without touching
+its name: a token that resolves exactly as extracted is reported as it resolved,
+carries no normalization record, and therefore takes NO normalization class at
+all — so the label is asserted only where the report's own strip is what made
+resolution possible. That is the shape this section already lives with for
+`truncated`, asserted only where the token does not resolve, which is why the
+precedence folded above (`truncated` wins over `punctuation-stripped`) is
+untouched: both members keep their meaning and neither's domain reaches a token
+that never needed the tool's repair. `PRRT_kwDOTAvnrs6jYkwi` touches no class at
+all, and the amendment says so rather than leaving it to be inferred: the
+FILTERED count is a reading over a FLAG, and this section's own rule is that a
+flag is *"never folded into a class count"* — so the filtered token count and
+its identity count are printed BESIDE the class totals and are never one of
+them. **NOTHING IS MINTED, RENAMED, WIDENED OR DROPPED**, and the vocabulary
+stays CLOSED at four.
 
 ## D5 — RECOMMENDED: artifact-only, and the reason is not merely merge conflicts
 
