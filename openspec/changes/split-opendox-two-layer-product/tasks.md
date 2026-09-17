@@ -1290,9 +1290,13 @@ the bookkeeping that ticks this group.
   **WHERE THE TWO DESTINATIONS STAND, each figure bound to the tree it was
   read at** — because a reader who re-runs these at a later head of a moving
   draft and gets a different number should be able to tell drift from error:
-  openDox's reader is **11 of 17** at `openDox-code` **#26** `6c8f19e7`
+  openDox's reader was **11 of 17** at `openDox-code` **#26** `6c8f19e7`
   (`floor37`'s read of 2026-09-17T12:11Z, the measurement RULED Q-F1..F3 was
-  given on; #26 has moved since and Q-F2/Q-F3 land in it); **openXdox has no
+  given on) **and reads `OK — 17 of 17 check(s)`, exit 0, once Q-F2's
+  construction data is applied in #26** — the REAL class, not the diagnostic
+  subclass 17 of 17 was first reached with. **#26 does not thereby claim this
+  box and says so in terms**: § 3.7 also owes a DECLARED factory and Q-F1's
+  transposition, which is a separate act at `openxFactory` (#1086); **openXdox has no
   reader at all** at `openXdox-code` `589adee7`, where the runner refuses
   `conformance-adapter-undeclared` — its build is § 4.5a above, claimed the
   same day; and the control, `openxFactory`'s own § 2.2a adapter, is
@@ -1856,7 +1860,13 @@ the bookkeeping that ticks this group.
   `openspec/changes/repromote-engineering-vocabulary/`. It is a **FILING
   ONLY** —
   `Status: draft` on all three lifecycle documents, no ratification, no
-  archive — so this box ticks on ITS landing and not on its opening. The id
+  archive — so this box ticks on ITS landing and not on its opening.
+  **#1071 is READY and not yet landed, read 2026-09-17T13:58Z**: it is
+  non-draft and `CONFLICTING` against `main`, because it collided with
+  § 7.4's own #1073 on the README **OpenSpec Records** block — the one block
+  the lane-collision protocol's Rule 6 landing window exists to serialize, and
+  two acts of the SAME lane hit it on the same afternoon. It takes a
+  merge-from-main and lands; this box does not move until it does. The id
   keeps its `openxfactory-` qualifier deliberately: `corpus-adapter-seam`
   requirement 4 makes the neutral capability openDox's under RULING Q4, and
   an unqualified `engineering-adapter` would read as that one.
@@ -3279,8 +3289,24 @@ movements claimed at the time they land.
   (3) were DECLINED.**
   **THE TICK CONDITION, STATED SO A LATER READER NEED NOT RE-DERIVE IT:** this
   box ticks on (i) this ruling, (ii) the landed `credential-contracts` delta
-  of (E), and (iii) § 3.5's per-tenant evidence when it exists. **Only (i) is
-  in hand**, which is why the marker is untouched. It is `[ ]` and not `[~]`:
+  of (E), and (iii) § 3.5's per-tenant evidence when it exists.
+  **(i) AND (ii) ARE NOW IN HAND; (iii) IS NOT, WHICH IS WHY THE MARKER IS
+  UNTOUCHED.** Clause (ii) landed the same day as the ruling:
+  `add-per-tenant-app-manifest-provisioning`, `opensoft/openxFactory` **#1073
+  → `74647dfc`**, 2026-09-17T13:44:02Z (CLAIM `5704248880`; LANDED note
+  `5715385370`). It carries exactly (E)'s object and nothing else: the
+  `credential-contracts` MODIFIED delta restates the `:169` invariant
+  *Dispatch-only credential least privilege and serving-tier separation*
+  VERBATIM — body and all three promoted scenarios — and grows it by four
+  clauses and six scenarios: tenant-org creation through a declared
+  credential-free manifest and never by an operator identity; one App pair per
+  tenant under a pattern-discoverable `<product> — <tenant>` name; the dispatch
+  identity's one named target holding no governed content; and time-bound
+  capture into the tenant's own custody BY REFERENCE, no material in any
+  record. `code_surface: none`, `target_release: implemented`.
+  **And it proves (B) and (D) by omission**: `opensoft/OpsxFactory` and
+  `opensoft/Omnigent-Install` are not touched by a byte, which is what the
+  ruling narrowed this lane to. It is `[ ]` and not `[~]`:
   the deferred form § 7.3 wears is for an act with no subject to perform on,
   and this one has a subject and an authored next step.
 
