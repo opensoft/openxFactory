@@ -211,6 +211,14 @@ REMEDIATION = (
 )
 
 
+#: "the attribute is not there at all", which is a DIFFERENT answer from any
+#: value the attribute could legally hold. `Document.revision` may lawfully be
+#: `None` — a corpus with no revision notion reports one — so a `getattr(...,
+#: None)` default would read a reader that omits the field entirely as one
+#: that answered `None` correctly (Copilot, round 4).
+_ABSENT = object()
+
+
 class ConformanceRefusal(Exception):
     """A named, remediable refusal.
 
@@ -549,6 +557,29 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
                         f"{type(exc).__name__}: {exc}. A document a reader "
                         "will not serve is a document the transposition does "
                         "not carry")
+        # THE IDENTITY THE BYTES CAME BACK UNDER, read STRUCTURALLY — by
+        # `corpus` and `key`, never by dataclass equality, because a reader
+        # authored elsewhere holds its own replica of the interface and its
+        # `DocumentId` is a different class object with the same shape.
+        # Without this the proof would record the bytes under the key it
+        # ASKED for while the reader answered for another document, and the
+        # seventeen would not catch it: `read-round-trip` checks the identity
+        # of the FIRST document only (Copilot, round 4).
+        got_id = getattr(got, "id", None)
+        got_corpus = getattr(got_id, "corpus", _ABSENT)
+        got_key = getattr(got_id, "key", _ABSENT)
+        if got_corpus is _ABSENT or got_key is _ABSENT:
+            _unfaithful(corpus_root, shipped,
+                        f"reading {key!r} returned an object carrying no "
+                        "document identity, so what it answered for cannot "
+                        "be compared with what was asked for")
+        if (got_corpus, got_key) != (document.corpus, key):
+            _unfaithful(corpus_root, shipped,
+                        f"it was asked for "
+                        f"{(document.corpus, key)!r} and answered for "
+                        f"{(got_corpus, got_key)!r}. Bytes served under an "
+                        "identity nobody asked for say nothing about the "
+                        "document that was requested")
         # THE REVISION THE BYTES CAME FROM, and it is the interface's own
         # contract rather than an extra demand (Copilot, round 2):
         # "`revision=None` means the revision `corpus` was resolved at", and
@@ -557,7 +588,18 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
         # would otherwise be recorded FAITHFUL on bytes that answer a question
         # nobody asked, and the seventeen checks do not inspect
         # `Document.revision` either, so this is the only place it is held.
-        served_at = getattr(got, "revision", None)
+        # THE SENTINEL IS LOAD-BEARING (Copilot, round 4): `None` is a LEGAL
+        # value of this field, so a `getattr` default of `None` would read a
+        # reader that omits `revision` altogether as one that answered
+        # correctly for a corpus that declares no revision.
+        served_at = getattr(got, "revision", _ABSENT)
+        if served_at is _ABSENT:
+            _unfaithful(corpus_root, shipped,
+                        f"reading {key!r} returned an object with no "
+                        "`revision` field at all. `None` is a legal answer "
+                        "there and silence is not: the interface's contract "
+                        "is that a document reports the revision it was read "
+                        "at")
         if served_at != corpus.revision:
             _unfaithful(corpus_root, shipped,
                         f"it served {key!r} at revision {served_at!r} while "

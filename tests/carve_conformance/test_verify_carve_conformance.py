@@ -86,6 +86,7 @@ from corpus_adapter import (  # noqa: E402
     CorpusRef,
     CorpusRefused,
     Document,
+    DocumentId,
     Refusal,
 )
 from home_factory import NEUTRAL_SHAPE, neutral_reader  # noqa: E402
@@ -1387,3 +1388,127 @@ def test_the_fixture_reads_the_history_it_wrote_and_not_a_REPLACEMENT(
     record = MODULE.prove_transposition(
         GH.reader, str(populated), corpus, CORPUS)
     assert record["proven"] is True, record["reason"]
+
+
+# ==========================================================================
+# 8. Copilot's round-4 findings — both about what a reader ANSWERED WITH
+# ==========================================================================
+
+
+class _GitBacked:
+    """Delegates to the git-history fixture; a subclass breaks ONE answer.
+
+    Spelled out rather than forwarded, for `_Wrapped`'s measured reason:
+    since CPython 3.12 a `runtime_checkable` protocol reads attributes with
+    `inspect.getattr_static`, so a `__getattr__` wrapper does not satisfy
+    `CorpusAdapter`. These cases never reach `structural-conformance`, but
+    the habit is the same one.
+    """
+
+    def __init__(self, name, location):
+        self._inner = GH.reader(name, location)
+
+    def resolve(self, ref):
+        return self._inner.resolve(ref)
+
+    def list_documents(self, corpus, scope=CC.SCOPE_ALL):
+        return self._inner.list_documents(corpus, scope)
+
+    def read(self, corpus, document, revision=None):
+        return self._inner.read(corpus, document, revision)
+
+
+def test_bytes_served_under_ANOTHER_identity_are_unfaithful(tmp_path):
+    """Copilot round 4: the proof recorded `got.content` under the key it
+    ASKED for, so a reader could serve correct bytes under a wrong identity
+    for the second or third document and pass. `read-round-trip` checks the
+    identity of the FIRST document only, so the seventeen would not catch it.
+
+    The identity is compared STRUCTURALLY, by `corpus` and `key`: a reader
+    authored elsewhere holds its own replica of the interface and its
+    `DocumentId` is a different class object with the same shape, so nominal
+    equality would fail a conformant reader.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class LiesAboutTheLastIdentity(_GitBacked):
+        def read(self, corpus_, document, revision=None):
+            got = self._inner.read(corpus_, document, revision)
+            if not document.key.endswith("gamma.md"):
+                return got
+            return Document(
+                id=DocumentId(corpus=got.id.corpus, key="notes/alpha.md"),
+                content=got.content, revision=got.revision)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            LiesAboutTheLastIdentity, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "papers/gamma.md" in caught.value.detail
+    assert "answered for" in caught.value.detail
+
+
+def test_a_foreign_identity_of_the_same_SHAPE_still_passes(tmp_path):
+    """Guards the guard: the comparison must be structural. A reader holding
+    its OWN replica of the interface returns a `DocumentId` that is a
+    different class object with the same two fields, and that reader is
+    conformant — the seam exists so that it is."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _ForeignId:
+        """Another repository's `DocumentId`: same shape, different class."""
+
+        def __init__(self, corpus, key):
+            self.corpus = corpus
+            self.key = key
+
+    class ForeignIdentity(_GitBacked):
+        def read(self, corpus_, document, revision=None):
+            got = self._inner.read(corpus_, document, revision)
+            return Document(id=_ForeignId(got.id.corpus, got.id.key),
+                            content=got.content, revision=got.revision)
+
+    record = MODULE.prove_transposition(
+        ForeignIdentity, str(populated), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]
+    from corpus_adapter import DocumentId as HomeDocumentId
+    assert not issubclass(_ForeignId, HomeDocumentId), (
+        "the foreign identity is this repository's own class, so this case "
+        "proved nothing about structural comparison")
+
+
+def test_a_MISSING_revision_field_is_not_a_revision_of_None(tmp_path):
+    """Copilot round 4: `None` is a LEGAL value of `Document.revision` — a
+    corpus with no revision notion reports one — so a `getattr` default of
+    `None` read a reader that omits the field entirely as one that answered
+    correctly. The sentinel is what separates the two answers."""
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    populated = corpus / MODULE.POPULATED
+
+    class _NoRevisionField:
+        """A document object with no `revision` attribute at all."""
+
+        def __init__(self, id, content):
+            self.id = id
+            self.content = content
+
+    class OmitsTheField(_Wrapped):
+        def read(self, corpus_, document, revision=None):
+            got = self._inner.read(corpus_, document, revision)
+            return _NoRevisionField(got.id, got.content)
+
+    # the corpus this reader serves declares NO revision, so the old
+    # `getattr(..., None)` default would have compared None == None and passed
+    reference = neutral_reader("populated", str(populated))
+    resolved = reference.resolve(CorpusRef(name="populated",
+                                           location=str(populated)))
+    assert resolved.revision is None
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            OmitsTheField, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "no `revision` field at all" in caught.value.detail
