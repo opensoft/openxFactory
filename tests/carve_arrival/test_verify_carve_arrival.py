@@ -5261,12 +5261,29 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     entry, so this path and its provenance commit could have been changed or
     dropped without a failure).
 
+    AMENDED A NINTH TIME by opensoft/openXdox-code#23's own annotation PR
+    (`#656` comment `5715212264`): five more `openxdox_code` files — the
+    corpus-adapter act's three modules (`conformance_corpus.py`,
+    `corpus_shape.py`, `domain_corpus_adapter.py`) and its two tests
+    (`tests/test_corpus_shape.py`, `tests/test_domain_corpus_adapter.py`).
+    Pinned here for the same reason the sixth, seventh and eighth bumps state,
+    and the review on this PR named the gap exactly: the generic shape checks
+    below would let a future edit drop or swap one of these five, or change one
+    of their two introducing commits, and still pass. None of the five carries
+    a manifest row (RULED OQ-C), so the admission is the only governed record
+    that they may be at the destination at all. Two introducing commits, not
+    five: the three modules arrive together on
+    `build/corpus-adapter-implementation`, and the two tests arrive together in
+    the leg's follow-on test commit. Admitted on the same Q-L1 footing as every
+    bump above: opensoft/openXdox-code#23 pairs with — and lands after — this
+    admission PR.
+
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
     `#656` comment 5639058687), the three RULED Q5 opendox_code entries, the
     five PR #1001 opendox_code entries, the one § 3.4 SLICE S6 entry, the
-    four § 3.4 SLICE S4 entries, and the three § 3.4 SLICE S7 entries are
-    still declared with their own
+    four § 3.4 SLICE S4 entries, the three § 3.4 SLICE S7 entries, and the
+    five openXdox-code#23 entries are still declared with their own
     `since`, every `since` is a 40-hex commit, every `reason` is non-empty,
     and every destination's list is alphabetical by `path` with no repeat —
     the file's own stated invariants, over whatever the file has
@@ -5315,6 +5332,43 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
         "comment 5649985838) and is no longer declared for openxdox_code")
     assert seed["tests/opendox_bundle.py"]["since"] == (
         "c8e4a59bd8eab231e5903e26b2a9b08e9e527fba")
+    # THE NINTH BUMP: five more `openxdox_code` files, RULED into this file by
+    # opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`,
+    # `split-opendox-two-layer-product` design § D4 machinery (1), `#656`
+    # comment `5715212264`) — the corpus-adapter act's three modules and its
+    # two tests. Pinned HERE because the generic shape checks below would let a
+    # future edit drop, swap or re-provenance any one of the five and still
+    # pass. None of the five carries a manifest row (RULED OQ-C), so the
+    # admission is the only governed record that they may be at the destination
+    # at all.
+    CORPUS_ADAPTER_SINCE = "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
+    CORPUS_ADAPTER_TESTS_SINCE = "5494bb43350636cf7c3d5a3b6b2d6262ab74dd06"
+    for path, since in (
+            ("src/openxdox/conformance_corpus.py", CORPUS_ADAPTER_SINCE),
+            ("src/openxdox/corpus_shape.py", CORPUS_ADAPTER_SINCE),
+            ("src/openxdox/domain_corpus_adapter.py", CORPUS_ADAPTER_SINCE),
+            ("tests/test_corpus_shape.py", CORPUS_ADAPTER_TESTS_SINCE),
+            ("tests/test_domain_corpus_adapter.py",
+             CORPUS_ADAPTER_TESTS_SINCE)):
+        assert path in seed, (
+            f"{path} is one of openXdox-code#23's five created files "
+            "(`build/corpus-adapter-implementation`, `#656` comment "
+            "`5715212264`) and is no longer declared for openxdox_code")
+        assert seed[path]["since"] == since, (
+            f"{path} declares since={seed[path]['since']!r}; the act "
+            f"introduced it at {since}, and an admission whose `since` is not "
+            "the introducing commit is not a falsifiable claim")
+    assert len({seed[path]["since"] for path in (
+        "src/openxdox/conformance_corpus.py",
+        "src/openxdox/corpus_shape.py",
+        "src/openxdox/domain_corpus_adapter.py")}
+    ) == 1, (
+        "openXdox-code#23's three corpus-adapter modules were introduced by "
+        "one commit and no longer declare the same `since`")
+    assert (seed["tests/test_corpus_shape.py"]["since"]
+            == seed["tests/test_domain_corpus_adapter.py"]["since"]), (
+        "openXdox-code#23's two corpus-adapter tests were introduced by one "
+        "commit and no longer declare the same `since`")
     # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2):
     # `opendox_code`'s own three new files, admitted the GOVERNED way per
     # Q-L1 (the leg PR pairs with this annotation PR, which lands first) —
