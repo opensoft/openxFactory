@@ -250,6 +250,24 @@ OPEN.**
       FLAG-never-drop, the inclusive headline and the advisory verdict read as
       they read before, so this box stays open on the same recommendation and
       the same alternatives.
+      **AND TWO MORE OF THIS SECTION'S RULES ARE HELD FOR A WORD OF THEIR
+      OWN.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jYkwR` reads D3(c)'s
+      promoted signals and finds them named with examples rather than with
+      grammars. The grammar drafted against it — a CLOSED repository-name
+      vocabulary stated in the requirement because this repository carries none
+      to read, case-insensitive matching on the measured spellings, the forge
+      URL's REPOSITORY segment rather than its owner, name-boundary matching for
+      the path-joined form, `validate-pin-registrations.py`'s decoration set
+      widened for Markdown, and the parenthetical's whitespace rule — is NEW
+      GRAMMAR and not a clarification. Thread `PRRT_kwDOTAvnrs6jafy6` reads
+      D3(a) and finds the promoted population arithmetic short a term: an entry
+      skipped for leaving the repository root is a tracked FILE that reaches no
+      decoder, so it falls in neither of the two skip buckets the closure names
+      and the identity does not close. The delta drafted against it adds a THIRD
+      term, printed even at zero, and declines folding it into the non-file
+      term. Both land only on a word that names them. This box is unmoved either
+      way: the three exclusions, the containment rule, FLAG-never-drop, the
+      inclusive headline and the advisory verdict are untouched by any of it.
 - [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
       ASSERTS are the three the tool can evidence from a path or from its own
       normalization — `truncated`, `punctuation-stripped`, `fixture-path` — and
@@ -290,6 +308,20 @@ OPEN.**
       minted, renamed, widened or dropped, and the unit those class totals are
       counted in is now stated as the TOKEN — and the `file-half` ruling this
       box holds reads exactly as it reads above.
+      **AND THIS SECTION'S TOKENIZATION-ARTIFACT PROBES ARE HELD FOR A WORD OF
+      THEIR OWN.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jbfFz` reads the
+      closed vocabulary and finds two of its four labels DESCRIBED where
+      `fixture-path` is now PREDICATED: "the extraction severed mid-path" is
+      semantic, and `punctuation-stripped` names no firing condition at all,
+      while D4's three measured sub-probes live only in `design.md`. The text
+      drafted against it promotes those probes verbatim — a longer existing path
+      on the line ending with the token, a following `<`, and a split string
+      literal whose rejoined path resolves — as a union with the trailing-hyphen
+      arm under the occurrence rule ALL, and gives `punctuation-stripped` the
+      only condition a class asserted on a REMAINDER entry can have. It lands
+      only on a word that names it. The box is unmoved either way: the
+      vocabulary is the same four labels, the precedence reads as before, and
+      the `file-half` ruling this box holds is untouched.
 - [ ] 1.14 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
       one step in `.github/workflows/doc-health-reusable.yml`, committing
       nothing. The reason is measured and is not merely merge conflicts:

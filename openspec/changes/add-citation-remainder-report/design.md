@@ -715,6 +715,33 @@ stands inside `root`", crediting the same idiom to
 did not apply it would hand the resolver text the resolver would refuse to walk
 to. (openxFactory PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jCbwO`.)
 
+**AMENDMENT RECORD — THIS RULE OWES THE POPULATION'S ARITHMETIC A TERM OF ITS
+OWN, AND THE REQUIREMENT NOW CARRIES ONE.** PR #1069, Copilot thread
+`PRRT_kwDOTAvnrs6jafy6` (spec.md:189): the promoted closure reads *"the tracked
+ENTRIES in scope equal the FILES read, plus the entries skipped as non-files,
+plus the files skipped as undecodable"* — TWO skip terms where this subsection's
+rules make THREE. An entry the containment test above skips is a tracked FILE
+and not a gitlink, and it never reaches a decoder, so it lands in neither bucket
+and the arithmetic silently fails to close on exactly the entry class this
+paragraph was written to catch. **THE DELTA NOW NAMES A THIRD TERM** — entries
+skipped as links leaving the repository root — printed beside the other two and
+printed even at zero, with two scenarios. *THE ALTERNATIVE, FOLDING IT INTO THE
+NON-FILE TERM, IS DECLINED*: a symbolic link IS a file, the non-file term's own
+stated meaning is the submodule gitlink that *"is a directory, it has no text"*,
+and a reader who cannot watch the containment rule fire cannot tell a tree
+carrying no links from a tree whose links were all refused.
+**AND THE TERM IS ZERO TODAY, MEASURED RATHER THAN ASSUMED**, by the same probe
+this paragraph already runs. `git ls-tree -r <head> | awk '$1=="120000"'`
+returns **0** at `b1df95ee`, whose 5,466 tracked entries are 5,415 `100644`, 47
+`100755` and the 4 gitlinks and nothing else; and **0** again at this branch's
+base `4ecdb593`, whose 5,496 entries are 5,444 `100644`, 48 `100755` and the
+same 4 gitlinks. There is therefore no target to resolve, and D0's arithmetic
+closes today on the first two terms alone: 2,973 entries in scope = 2,969 files
+read + 4 non-files + 0 out-of-root links + 0 undecodable. **THE TERM IS STATED
+ANYWAY, FOR THE REASON THE RULE ITSELF IS**: the naive implementation is wrong
+the day one link arrives, and an arithmetic that closes only while a class is
+empty closes by luck.
+
 **AND ONE THE REPORT MUST ADD THE MOMENT D5 EVER CHANGES: the report's OWN
 OUTPUT PATH.** `health/` is INSIDE this population — 7 tracked files at
 `b1df95ee`, contributing **0** citation tokens. A committed remainder report
@@ -850,6 +877,67 @@ signal four lines above that is NOT. **NO DECISION MOVES WITH IT**: FLAG-never-d
 the INCLUSIVE headline and the ADVISORY verdict read exactly as they read
 before, and this section keeps the recommendation and the two alternatives it
 was ratified on.
+
+**AMENDMENT RECORD — THE FIVE SIGNALS NOW CARRY MATCHING RULES, AND THE
+VOCABULARY THEY MATCH AGAINST IS STATED BECAUSE THIS REPOSITORY HAS NONE TO
+READ.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jYkwR` (spec.md:375): the five
+signals promoted above are named with EXAMPLES and not with grammars, so
+repository-name vocabulary and case, URL boundaries, the path-joined form,
+parenthetical parsing and the decoration admitted around a bare qualifier word
+are each a place where two realizations flag different entries while both
+satisfy the requirement — and a `possibly-cross-repo` field that moves between
+realizations is a field two readings cannot be compared by. **THIS IS NEW
+GRAMMAR AND NOT A CLARIFICATION OF AN ALREADY-FOLDED RULE, SO IT IS HELD FOR A
+WORD OF ITS OWN.**
+**THE VOCABULARY IS THE ONE FINDING THAT COSTS SOMETHING, AND IT WAS LOOKED FOR
+RATHER THAN ASSUMED.** This repository carries NO machine-readable list of its
+sibling repositories. Three near-misses, each read: (i)
+`contracts/schemas/xfactory-idea-routing-reference.schema.yaml`'s
+`$defs.repository_id` DEFINES a repository identifier as *"the reserved root
+`xFactory`, or an aggregation-relative `.gitmodules` submodule path"* — which
+defers the vocabulary to a file that lives in the AGGREGATION and not here, and
+constrains only the path SHAPE, *"resolving the ID to a gitlink"* being left to
+a validator that has the aggregation checkout; (ii)
+`contracts/openspec-cli-pin.yaml`'s `dispositions[].repo`, the one DECLARED
+repository vocabulary in this tree and the set
+`scripts/validate-pin-registrations.py`'s `repository_qualifiers` reads a
+citation's qualifier against, holds exactly TWO distinct values — `openxFactory`
+and `codexFactory` — and so cannot name four of the five estates the evidence's
+cross-repository tokens belong to; (iii)
+`contracts/policies/repository-identity.yaml` is a FORMER-to-CURRENT transfer
+map with one row, and `scripts/doc_health/pin_class.py`'s
+`OWN_REPOSITORY_SPELLINGS` names only THIS repository.
+**RECOMMENDED: a CLOSED set stated in the requirement** — the five estates the
+evidence names (*"OpsxFactory's, codexFactory's, LedgerxFactory's,
+openXwallet's and hermes-install's records"*), with the second spelling the
+fifth is written in where a forge URL names it, widened only by a RULING. That
+is the shape `fixture-path`'s location set already has.
+*ALTERNATIVE A — read the aggregation's `.gitmodules`.* Cost: the report's
+answer would depend on a checkout OUTSIDE the tree it reports on, against
+D3(a)'s population rule, so the same submodule cloned alone and cloned inside
+the aggregation would report different flags.
+*ALTERNATIVE B — a caller refinement flag over the vocabulary.* Cost: it is the
+option the promoted text already refuses, one level down — *"the report SHALL
+NOT offer a caller an option that varies either"* — because a vocabulary a
+caller varies is a signal set a caller varies.
+**THE CASE RULE IS MEASURED, NOT CHOSEN.** Over D3(a)'s own population
+`codexFactory` is written in SIX cases (3,359 canonical, 407 lower, 334
+`codeXfactory`, and three more) and `openXwallet` is written in LOWER case more
+often than in its canonical one (1,411 against 785), so exact-case matching
+would drop about 18% of the first estate's occurrences and the MAJORITY spelling
+of the second. Case-insensitive matching is also what
+`validate-pin-registrations.py`'s `read_citation` already does, lowercasing both
+the adjacent word and the declared vocabulary. The decoration set is that
+checker's own `_TOKEN_DECORATION` widened by `*` and `_`, which is the
+evidence's § 1.3 choice for a Markdown corpus, taken there with the note that
+the two readings *"agree on every token, at both revisions"*. And the
+own-repository exclusion is measured too: every trailing `(RepoName)`
+parenthetical after an `openspec/changes/…` token in this tree names
+`openxFactory`, so signal 5 without that exclusion would flag in-tree citations
+and nothing else.
+**NO DECISION MOVES**: the window is still the citing line plus three above, the
+set is still those five signals in this section's order and closed at five, and
+FLAG-never-drop, the INCLUSIVE headline and the ADVISORY verdict are untouched.
 
 **AND THE WIDENED WINDOW IS NOW MEASURED RATHER THAN PROPOSED.** The evidence
 ran exactly this rule — `validate-pin-registrations.py`'s own adjacency rule
@@ -1126,6 +1214,49 @@ flag is *"never folded into a class count"* — so the filtered token count and
 its identity count are printed BESIDE the class totals and are never one of
 them. **NOTHING IS MINTED, RENAMED, WIDENED OR DROPPED**, and the vocabulary
 stays CLOSED at four.
+
+**AMENDMENT RECORD — THIS SECTION'S TOKENIZATION-ARTIFACT PROBES ARE NOW THE
+REQUIREMENT'S `truncated` PREDICATE, AND `punctuation-stripped` HAS A FIRING
+CONDITION. HELD FOR A WORD.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jbfFz`
+(spec.md:545, also :538): the vocabulary is closed at four labels, but two of
+the four are described and not predicated — *"a token the extraction severed
+mid-path"* is semantic, *"a token whose trailing prose punctuation the report
+removed"* names no condition under which the label is asserted, and this
+section's THREE MEASURED SUB-PROBES lived only here. `fixture-path` was given
+its predicate on the second word and these two were not, so the delta carried
+one predicated class and two described ones. **THE PROBES NOW STAND IN
+`specs/packet-citation-report/spec.md` EXACTLY AS THE PRECISION TABLE STATES
+THEM**: (i) a LONGER path on the same line ends with the token and EXISTS in the
+tree; (ii) the next character is `<`; (iii) the token ends the line inside a
+string literal, the next line opens one, and the rejoined path resolves — a
+union with the trailing-hyphen arm the delta already carried, under the
+occurrence rule **ALL**, with one firing and one non-firing scenario apiece.
+**NOTHING THE MEASUREMENT ASSERTED MOVES.** The union is what caught 4 of 4 with
+zero false positives, and each measured token is still caught by the same probe
+it was caught by: `add-ideation-governance/{proposal,tasks}.md` by (i), the two
+occurrences standing at the tail of
+`tests/ideation-dashboard/fixtures/base-repo/…` on their own lines;
+`register-gate-rules-council-seats/walk-` by (ii), all four occurrences being
+`walk-<YYYY-MM-DD>-register-act.md`; and
+`archive/2026-08-27-add-hermes-customer-subject-` by (iii),
+`pin_class.py:1248-1249`. **ALL rather than ANY is the one rule the measurement
+does not itself state**, and it is taken from `fixture-path`'s promoted
+occurrence rule for `fixture-path`'s reason; it changes no measured verdict,
+every one of the four satisfying its probe at EVERY occurrence.
+**AND `punctuation-stripped` IS THE HARDER HALF, BECAUSE THE CLASS IS EMPTY
+HERE.** A class is asserted on a REMAINDER entry, and a token that resolves is
+not one: the single sentence-terminal full stop D0(ii) measures sits on
+`…/disposition-codexfactory-floor-relocation-retitle/evidence/codexfactory-floor-relocation-2026-09-10.md.`,
+whose stripped form RESOLVES — the cited file stands in this tree — so it is
+reported RESOLVED with its normalization printed and never classed. The
+condition promoted is therefore the only coherent one: the report stripped a
+trailing character, the stripped token still resolved to nothing, and the
+`truncated` predicate did not fire. **IT IS NOT "the token resolved after a
+strip"**, which would leave the class empty by construction rather than by
+corpus, since such a token leaves the remainder. **NOTHING IS MINTED, RENAMED OR
+WIDENED**: the vocabulary is the same four labels, the precedence folded above is
+unchanged and is now spelled into the condition rather than left to be derived,
+and adding a fourth probe stays a RULING.
 
 ## D5 — RECOMMENDED: artifact-only, and the reason is not merely merge conflicts
 

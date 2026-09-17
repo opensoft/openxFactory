@@ -188,6 +188,27 @@ SKIPPED total. The population arithmetic SHALL therefore close: the tracked
 ENTRIES in scope equal the FILES read, plus the entries skipped as non-files,
 plus the files skipped as undecodable.
 
+AND THAT CLOSURE NAMES TWO SKIP TERMS WHERE THIS POPULATION RULE HAS THREE: AN
+ENTRY SKIPPED BECAUSE ITS PATH LEAVES THE REPOSITORY ROOT ONCE RESOLVED SHALL BE
+COUNTED AND REPORTED IN A SKIP TERM OF ITS OWN. The containment rule below skips
+such an entry, and a SYMBOLIC LINK IS A TRACKED FILE — it is not the submodule
+link the non-file term is about, which *is* a directory and has no text, and it
+never reaches a decoder, so it belongs to neither of the two terms named above
+and an arithmetic offering only those two has nowhere to put it. THE COMPLETE
+IDENTITY SHALL THEREFORE BE: the tracked ENTRIES in scope equal the FILES read,
+plus the entries skipped as non-files, PLUS THE ENTRIES SKIPPED AS LINKS LEAVING
+THE REPOSITORY ROOT, plus the files skipped as undecodable. **AND THAT TERM
+SHALL BE PRINTED EVEN WHERE IT IS ZERO**, for the reason the AMBIGUOUS row is
+printed at zero: a term omitted whenever nothing lands in it teaches its readers
+not to look for it, and this is the term whose non-zero value means the report
+DECLINED to read text a naive implementation would have reported as this
+corpus's. Folding it into the non-file term instead would close the arithmetic
+and hide the one thing a reader needs from it, because a tree carrying no links
+and a tree whose links were all refused would then print the same number. A
+READING WHOSE ARITHMETIC DOES NOT CLOSE SHALL NOT BE PRESENTED AS A LATER POINT
+IN THE SERIES: a population a reader cannot re-add is a population a reader
+cannot reproduce.
+
 #### Scenario: A tracked file in the population is not valid text
 - **WHEN** a file in the population cannot be decoded as UTF-8
 - **THEN** the report MUST skip it and take no token from it
@@ -329,6 +350,17 @@ POINT IN THE SAME SERIES.
 - **THEN** the report MUST skip the entry and take no token from it
 - **AND** it MUST NOT report text read from outside the root as a citation carried by this corpus
 
+#### Scenario: A link that leaves the root is counted where the arithmetic can find it
+- **WHEN** the report skips a tracked entry because the entry's path, once resolved, leaves the repository root
+- **THEN** it MUST count that entry in the skip term for entries skipped as links leaving the root, and in neither the non-file term nor the undecodable term
+- **AND** the tracked ENTRIES in scope MUST still equal the FILES read plus all three skip terms
+- **AND** the report MUST print that term even where its value is zero
+
+#### Scenario: A tracked link stands inside the root
+- **WHEN** a tracked entry is a symbolic link whose target, once resolved, still stands inside the repository root
+- **THEN** the report MUST admit its text and take tokens from it as from any other file it reads
+- **AND** it MUST count it among the FILES read and in no skip term
+
 #### Scenario: A refinement's prefix has a sibling whose name begins the same way
 - **WHEN** a refinement names a directory prefix and the tree also carries a sibling directory whose name begins with that prefix followed by more characters
 - **THEN** the report MUST match the prefix on path-segment boundaries and leave the sibling unmatched
@@ -431,6 +463,76 @@ and a paragraph that merely mentions another repository above an in-tree
 citation is a FALSE POSITIVE; both are inevitable, which is precisely why the
 verdict is a flag and not a deletion.
 
+AND EACH SIGNAL'S MATCHING RULE SHALL BE FIXED HERE TOO, BECAUSE A SIGNAL NAMED
+WITH AN EXAMPLE IS NOT A SIGNAL TWO REALIZATIONS MATCH THE SAME WAY. A window
+that is fixed and a set that is closed still leave open every question that
+decides whether a signal FIRES — which words are repository names, in which
+case, where a forge URL ends, where a path-joined prefix begins, what may
+decorate a bare word, and how close a parenthetical must stand — and a flag that
+moves between realizations is a field two readings cannot be compared by, which
+is the one thing this capability cannot afford.
+
+**THE REPOSITORY-NAME VOCABULARY SHALL BE THE CLOSED SET NAMED HERE**, and it is
+named here because this repository carries no machine-readable enumeration of
+its siblings to read one from: this estate's repository IDENTIFIERS are defined
+as the aggregation's `.gitmodules` submodule paths, and that file is not in this
+tree; the only DECLARED repository vocabulary that is holds two names. The set
+SHALL therefore be `codexFactory`, `OpsxFactory`, `LedgerxFactory`,
+`openXwallet`, `hermes-install` and `xFactory-Hermes-Install` — the five estates
+the measured cross-repository population belongs to, the last two being one
+estate under the two spellings this corpus writes it in — and it SHALL be
+CLOSED: an implementation SHALL NOT widen it, and a corpus needing a wider set
+takes a RULING, exactly as the fixture-path location set does. **AND A
+QUALIFIER NAMING THIS REPOSITORY SHALL FIRE NO SIGNAL**: `openxFactory` and
+`opensoft/openxFactory` are this repository's own spellings, a citation
+qualified by one of them is an IN-TREE citation, and the exclusion is not a
+nicety — every trailing parenthetical of this shape measured in this corpus
+names THIS repository.
+
+**A NAME SHALL MATCH WITHOUT REGARD TO CASE.** Exact case is the rule this
+corpus does not keep: measured over the population, one estate's name is written
+in SIX different cases and another's is written in lower case MORE OFTEN than in
+its canonical one, so an exact-case rule would drop about a sixth of the first
+estate's occurrences and the majority spelling of the second. Case-insensitive
+matching is also what this estate's own qualifier reader already does, and the
+report SHALL NOT read a difference of case as a different repository.
+
+**(1) THE PATH-JOINED PREFIX SHALL FIRE** where the citing line carries, ending
+immediately before the token, a vocabulary name followed by `/`, the character
+before that name being absent or NOT one of `A-Z`, `a-z`, `0-9`, `.`, `_` or
+`-`. The name matched is the SEGMENT immediately before the token, so
+`xFactories/LedgerxFactory/` fires on `LedgerxFactory` and a longer word that
+merely ends in a vocabulary name fires nothing.
+
+**(2) THE FORGE URL SHALL FIRE** where the token is immediately preceded on the
+citing line by `http://` or `https://`, the host `github.com`, ONE owner
+segment, ONE repository segment naming a vocabulary member, `/blob/` or
+`/tree/`, ONE ref segment, and `/`. It is the REPOSITORY segment that is matched
+and never the OWNER segment, because a transfer moves the owner segment alone
+and a repository's own name is unchanged by one.
+
+**(3) THE BARE QUALIFIER WORD SHALL FIRE** where a word inside the window — a
+whitespace-delimited run, stripped at both ends of the decoration characters
+`` ` ``, `'`, `"`, `“`, `”`, `(`, `)`, `[`, `]`, `{`, `}`, `<`, `>`, `,`, `;`,
+`§`, `*` and `_`, and read without regard to case — is a vocabulary member: ON
+THE CITING LINE the word IMMEDIATELY BEFORE the token, and ON EACH OF THE THREE
+LINES ABOVE ANY word on the line, because "immediately before" names nothing on
+a line the token does not stand on. This is the ONLY one of the five that can
+fire off the citing line; the other four are relations to the token itself.
+
+**(4) THE CUSTODY-LOCATOR SCHEME SHALL FIRE** where the token is immediately
+preceded on the citing line by the literal scheme prefix `opsx:` followed by one
+owner segment and `/`. The scheme names its repository ITSELF rather than by any
+word, which is why it is in the set at all; and the same prefix followed by
+anything other than an owner segment and a path — a command name, a subject, a
+workflow locator — SHALL NOT fire it.
+
+**(5) THE TRAILING PARENTHETICAL SHALL FIRE** where the characters immediately
+following the token on the citing line are at most ONE space, then `(`, then a
+vocabulary member under the decoration and case rules above, then `)`. More than
+one space, any further content inside the parentheses, or a parenthetical that
+is not the next thing after the token SHALL NOT fire it.
+
 THE HEADLINE REMAINDER SHALL BE THE INCLUSIVE ONE, with the cross-repository
 reading printed BESIDE it rather than substituted for it. The inclusive number is
 the one every earlier reading of this population reported, so substituting a
@@ -526,6 +628,54 @@ readings of one population and never an arithmetic row.
 - **THEN** the report MUST flag the entry as suspected cross-repository
 - **AND** the entry MUST still be counted in the inclusive remainder
 
+#### Scenario: A path-joined prefix stands on a name boundary
+- **WHEN** the citing line carries a vocabulary repository name followed by `/` ending immediately before the token, and the character before that name is absent or is not a letter, a digit, `.`, `_` or `-`
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** it MUST match the segment immediately before the token, so an enclosing directory prefix does not prevent the match
+
+#### Scenario: A longer word merely ends in a repository name
+- **WHEN** the characters immediately before the token are a vocabulary name preceded directly by a letter, a digit, `.`, `_` or `-`
+- **THEN** the report MUST NOT flag the entry on the path-joined signal
+- **AND** it MUST NOT read a name character before the name as a boundary
+
+#### Scenario: A forge URL names the repository in its own segment
+- **WHEN** the token is immediately preceded on the citing line by a `github.com` URL whose repository segment names a vocabulary member and whose path continues through `/blob/` or `/tree/` and one ref segment
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** it MUST match the repository segment and MUST NOT require the owner segment to be a vocabulary member
+
+#### Scenario: A forge URL names this repository
+- **WHEN** the URL immediately before the token names THIS repository in its repository segment
+- **THEN** the report MUST NOT flag the entry
+- **AND** it MUST NOT read a forge URL alone, without a repository segment it recognizes, as a signal
+
+#### Scenario: A decorated qualifier word stands immediately before the token
+- **WHEN** the word immediately before the token on the citing line is a vocabulary name carrying emphasis, quotation or bracket decoration and spelled in a case other than the canonical one
+- **THEN** the report MUST strip that decoration and match the name without regard to case
+- **AND** it MUST flag the entry as suspected cross-repository
+
+#### Scenario: The word before the token names a repository this specification does not
+- **WHEN** the word immediately before the token is a repository name that is not a member of the vocabulary named here
+- **THEN** the report MUST NOT flag the entry
+- **AND** it MUST NOT widen the vocabulary to admit it
+
+#### Scenario: The custody-locator prefix carries an owner segment
+- **WHEN** the token is immediately preceded on the citing line by `opsx:` followed by one owner segment and `/`
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** it MUST NOT require an adjacent qualifier word
+
+#### Scenario: The same scheme prefix introduces something that is not a locator
+- **WHEN** `opsx:` is followed by a command name, a subject or a workflow locator rather than an owner segment and a path
+- **THEN** the report MUST NOT flag the entry on that scheme
+
+#### Scenario: A parenthetical follows the token with at most one space
+- **WHEN** the characters immediately after the token on the citing line are at most one space, then parentheses containing only a vocabulary member
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** the entry MUST still be counted in the inclusive remainder
+
+#### Scenario: A parenthetical names this repository or stands further off
+- **WHEN** the parenthetical after the token names this repository, or carries anything besides a vocabulary member, or is not the next thing after the token
+- **THEN** the report MUST NOT flag the entry on the parenthetical
+
 ### Requirement: The report classifies only what it can decide mechanically
 The report SHALL assign a class to a remainder entry ONLY where the evidence is
 a fact about a PATH or about the report's own normalization, and SHALL class
@@ -543,6 +693,60 @@ occurrence of which stands where this corpus keeps fixtures and worked examples;
 and `unclassified`. Labels are what two readings are compared by, so a report
 whose labels differ from another's cannot be a later point in its series, and
 the series is the whole reason a class is asserted at all.
+
+AND `truncated` SHALL CARRY A PREDICATE RATHER THAN A DESCRIPTION, CLOSED HERE
+AS `fixture-path`'s IS: THE REPORT SHALL CLASS A REMAINDER ENTRY `truncated`
+WHERE EVERY ONE OF ITS OCCURRENCES SATISFIES AT LEAST ONE OF THE THREE PROBES
+NAMED BELOW, OR WHERE THE TOKEN ENDS IN `-` AND DOES NOT RESOLVE UNDER THE ORDER
+THIS SPECIFICATION ALREADY FIXES — AND SHALL NOT CLASS IT `truncated` OTHERWISE.
+"The extraction severed mid-path" describes what happened to a token; it is not
+a test a realization can run, and two realizations reading it would assert this
+class over different entries and publish class totals that do not compare. The
+three probes are:
+**(i) A LONGER PATH ON THE SAME LINE ENDS WITH THE TOKEN AND STANDS IN THIS
+TREE** — the citation is that longer path and the token is only its tail,
+because the extraction pattern is anchored on `openspec/changes/` and cannot
+reach a head written before it. This is the probe the trailing-character rules
+cannot reach at all: such a token is severed at its FRONT and carries no
+punctuation to notice.
+**(ii) THE CHARACTER IMMEDIATELY FOLLOWING THE TOKEN IS `<`** — the path
+continues into a placeholder whose opening character the grammar admits nowhere,
+so the extraction stopped short of the path's end rather than at it.
+**(iii) THE TOKEN ENDS ITS SOURCE LINE INSIDE A STRING LITERAL, THE NEXT LINE
+OPENS ONE, AND THE PATH REJOINED ACROSS THE TWO RESOLVES** — an implicit string
+concatenation split one path across two source lines, and the rejoin is what
+proves it rather than a reader's guess.
+THE OCCURRENCE RULE IS **ALL**, NEVER **ANY**, for the reason `fixture-path`'s
+is: an occurrence at which the token stands as the whole citation is a citation
+this corpus really carries, and an entry carrying one is not an artifact of the
+tool. THE THREE ARE THE MEASURED SET RATHER THAN AN AUTHOR'S LIST — together
+they caught 4 of 4 hand-classified tokenization artifacts with ZERO false
+positives — AND THEY ARE CLOSED: an implementation SHALL NOT add a probe, widen
+one, or assert `truncated` on evidence none of them names, because a mechanical
+class that grows a probe is a mechanical class quietly absorbing a judgment.
+
+AND `punctuation-stripped` SHALL CARRY ITS FIRING CONDITION, WHICH IS NOT THE
+SAME STATEMENT AS ITS DESCRIPTION: THE REPORT SHALL CLASS A REMAINDER ENTRY
+`punctuation-stripped` WHERE IT STRIPPED A TRAILING CHARACTER FROM THE TOKEN
+UNDER THE GRAMMAR'S NORMALIZATION, THE STRIPPED TOKEN STILL RESOLVED TO NOTHING,
+AND THE `truncated` PREDICATE DID NOT FIRE — AND SHALL NOT CLASS IT
+`punctuation-stripped` OTHERWISE. Each of the three conditions carries its
+weight. **A TOKEN THAT RESOLVES IS NOT A REMAINDER ENTRY AND TAKES NO CLASS AT
+ALL**: under the resolve-first rule above a token that resolves AS EXTRACTED
+carries no normalization record either, and a token that resolves only once a
+trailing character is stripped is reported as RESOLVED with that normalization
+printed in its own row — so this class is asserted only where the strip was
+tried, was not enough, and the entry stayed in the remainder, which is the case
+in which the label tells a reader something: the punctuation was not the reason
+the citation fails. **AND `truncated` WINNING IS THE PRECEDENCE THIS
+SPECIFICATION ALREADY STATES**, spelled into the condition so that no
+realization has to derive it. **AND THE CLASS HAS NO MEMBER IN THE TREE THIS
+CAPABILITY WAS MEASURED AGAINST**, which is a fact about that corpus and not a
+defect of the vocabulary: the one sentence-terminal full stop measured there
+sits on a token that RESOLVES once the stop is gone, so it never entered the
+remainder. A closed vocabulary may hold a member with no member today; what it
+may not hold is a member with no firing condition, which is an invitation for
+two realizations to fill it differently and call the results one series.
 
 AND `fixture-path` SHALL CARRY A PREDICATE RATHER THAN A DESCRIPTION, CLOSED
 HERE: THE REPORT SHALL CLASS AN ENTRY `fixture-path` WHERE EVERY ONE OF ITS
@@ -634,6 +838,45 @@ illustrate what unresolvable means.
 - **THEN** the report MUST class the entry `truncated`
 - **AND** it MUST NOT class it `punctuation-stripped` instead
 - **AND** it MUST still report the punctuation normalization it applied
+
+#### Scenario: A longer path on the line ends with the token and stands in the tree
+- **WHEN** every occurrence of a remainder entry sits at the end of a longer path written on the same line, and that longer path stands in this tree
+- **THEN** the report MUST class the entry `truncated`
+- **AND** it MUST name that longer path as the evidence
+
+#### Scenario: A longer path on the line ends with the token and stands nowhere
+- **WHEN** an occurrence sits at the end of a longer path on the same line and that longer path does NOT stand in this tree
+- **THEN** the report MUST NOT class the entry `truncated` on that probe
+- **AND** it MUST class the entry under whatever other mechanical class its evidence supports, or `unclassified`
+
+#### Scenario: The character after the token opens a placeholder
+- **WHEN** the character immediately following every occurrence of a remainder entry is `<`
+- **THEN** the report MUST class the entry `truncated`
+- **AND** it MUST NOT resolve the token as though the path ended where the extraction did
+
+#### Scenario: The character after the token is ordinary prose
+- **WHEN** the character immediately following an occurrence is anything other than `<`, and no other probe fires for that occurrence
+- **THEN** the report MUST NOT class the entry `truncated` on that probe
+
+#### Scenario: A path split across two source lines rejoins and resolves
+- **WHEN** an occurrence ends its source line inside a string literal, the next line opens one, and the path rejoined across the two RESOLVES
+- **THEN** the report MUST class the entry `truncated`
+- **AND** it MUST NOT report the rejoined path as a second citation
+
+#### Scenario: A path split across two source lines rejoins and still resolves to nothing
+- **WHEN** an occurrence ends its line inside a string literal and the path rejoined across the two lines still resolves to nothing
+- **THEN** the report MUST NOT class the entry `truncated` on that probe
+- **AND** the entry MUST still be reported with the resolver outcome it has
+
+#### Scenario: A stripped token still resolves to nothing
+- **WHEN** the report strips a trailing character from a token under the grammar's normalization, the stripped token still resolves to nothing, and no `truncated` probe fires for the entry
+- **THEN** the report MUST class the entry `punctuation-stripped`
+- **AND** it MUST record the normalization it applied
+
+#### Scenario: A token resolves once its trailing character is stripped
+- **WHEN** a token resolves only after the report strips a trailing character from it
+- **THEN** the report MUST report the resolved outcome and MUST print the normalization in its own row
+- **AND** it MUST NOT class the entry `punctuation-stripped`, a token that resolves being no remainder entry at all
 
 #### Scenario: The evidence is a fact about intent
 - **WHEN** deciding a remainder entry's class would require judging what the citing record meant
