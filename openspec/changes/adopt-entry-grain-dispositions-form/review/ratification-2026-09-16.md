@@ -131,6 +131,12 @@ lands EXACTLY AS RATIFIED at `4c32b183` — byte-identical, `git diff
 `_LEDGER_SUBJECTS` row for it, the self-gate proving clean at zero without
 one (it demanded the row only while the promoted scenario's body was edited).
 
+**THIS PARAGRAPH IS HISTORY, NOT THE BRANCH TIP — SUPERSEDED 2026-09-17 BY
+§ "Addendum, 2026-09-17 — carriage on the ratifier's word" AT THE FOOT OF
+THIS RECORD. READ THAT WITH THIS.** The byte-identical measurement stood
+until that date; it does not describe the packet after Brett Heap's word
+carried `scope-pinned-arm-root-naming`'s ratified block into this one.
+
 **THE OVERLAP ITSELF IS UNRESOLVED AND IS FILED FOR BRETT HEAP'S WORD, NOT
 DECIDED HERE.** The lane is posting it as a RULING NEEDED comment on
 openxFactory #1045: the ratified positive scenario, restating canon, resolves
@@ -183,3 +189,97 @@ and the outcome.
   `extend-prose-tagging-target-to-pinned-capabilities` realization and was
   RULED STANDS by the lane, naming this packet's delta verbatim as "a
   legitimate later delta … noted, not filed."
+
+## Addendum, 2026-09-17 — carriage on the ratifier's word
+
+**WHY AN ADDENDUM AND NOT A SILENT REWRITE OF THE PARAGRAPH ABOVE.** "ROUND 6
+REVERTS THAT EDIT" and its byte-identical measurement against `4c32b183` were
+true that day, at that head, and are left exactly as measured: rewriting them
+to match what follows would destroy the evidence that a real state existed in
+which this packet's ratified block was untouched since ratification. That
+state ended by the ratifying owner's own later word, recorded here rather
+than folded silently into the body.
+
+**THIS DIFFERS FROM BOTH NAMED PRECEDENTS, AND IT SITS BETWEEN THEM.**
+`add-requirement-ref-resolution-integrity`'s 2026-09-01 addendum records a
+POST-MERGE scope amendment the ratifying owner ruled on directly, in session,
+with the contradiction before him. `scope-pinned-arm-root-naming`'s own
+2026-09-16 addendum records four PRE-LANDING corrections made getting a
+still-open pull request to green, one of them a lane-authored narrowing of
+ratified text that packet's OWN round 6 reverted, on the same ground this
+packet's round 6 invoked above. This packet's case is the first kind, not the
+second: `adopt-entry-grain-dispositions-form` (landed as openxFactory #1050,
+`fa39141c`, confirmed an ancestor of `main`) was already MERGED and its
+`## MODIFIED` block already `Status: ratified` when the carriage below was
+made — after landing, to a landed and ratified block, on a direct word from
+the ratifying owner, the same authority `add-requirement-ref-resolution-integrity`
+names and exercised the same way.
+
+**WHAT WAS PUT, AND WITH WHAT IN FRONT OF HIM.** openxFactory #1075
+(`chore/order-adopt-entry-grain-after-scope-pinned`) filed the CROSS-REFERENCE
+ROUTE Brett Heap ruled on 2026-09-16 for the two unnamed
+`modified-block-currency` ordering findings between this packet and
+`scope-pinned-arm-root-naming` — both packets ratifying on the same verbatim
+word and landing two minutes apart. Measuring that route exposed two things
+openxFactory #1075 itself flagged rather than repaired: its carry runs WIDER
+than that ruling's own summary ("one line of metadata … no normative text
+changes"), and it makes `tasks.md` § 1.3's ticked, ratified evidence line
+read false (see that section's own 2026-09-17 note, above in this packet).
+Lane `openxfactory-2` — owner of both packets — put the contradiction back to
+Brett Heap on openxFactory #1050: the earlier word was given on a premise the
+measurement shows false, so the decision was put again with the TRUE
+consequence in front of him, among four measured options — route plus
+re-base with an addendum (the only measured green state), route only (opens
+an ERROR-band finding), the pin route (already tried as openxFactory #1072
+and closed unmerged), or something else (for instance archiving either
+packet).
+
+**THE RULING — ROUTE PLUS RE-BASE.** Brett Heap ruled ***"route plus
+re-base"*** — openxFactory #1050, comment
+https://github.com/opensoft/openxFactory/pull/1050#issuecomment-5714145269.
+On that word, lane `openxfactory-2` carried the re-base below onto openxFactory
+#1075's branch as a second commit, together with the two consequential
+non-normative corrections the ruling itself names: this addendum, and
+`tasks.md` § 1.3's dated note.
+
+**WHAT MOVED.** `proposal.md` gains the ORDERED AFTER `scope-pinned-arm-root-naming`
+declaration, and `specs/document-lifecycle/spec.md`'s `## MODIFIED` block is
+re-based to carry that packet's ratified outcome whole: the root-precedence
+citation restated as `_resolve_capability`/`_pin_roots`; the root-naming
+sentence narrowed to findings emitted AFTER ROOT SELECTION, with its added
+clause for the two findings emitted before any root is selected; the
+selected-root narrowing of scenario *A pinned target names a pin no
+resolution root carries*'s `WHEN` bullet; and the new scenario *A finding
+emitted before root selection names what it judged*. None of the four is
+this packet's authorship — each is `scope-pinned-arm-root-naming`'s own
+ratified wording, carried verbatim. Measured: `git diff
+4c32b183:…/specs/document-lifecycle/spec.md` against the branch, EMPTY at
+ratification and reported so above, now reads **21 insertions / 8
+deletions** — the byte-identical claim above no longer holds and is
+superseded by this paragraph, not rewritten to erase it. Family-level, on a
+clean `origin/main` checkout (`c6997f12`, the tip carrying both packets
+landed) plus this carriage: `doc-health.py --single-repo . --family
+modified-block-currency` goes from 0 critical / 0 error / **2 warning** / 15
+info to 0 critical / 0 error / **0 warning** / 15 info — the two
+unnamed-ordering-subject rows this repair exists to close.
+
+**WHAT DID NOT MOVE.** This packet's own delta is still the ONE scenario *A
+pin record's optional dispositions member carries a malformed entry*,
+unedited by the carry and unedited by this addendum. D-1, D-2 and D-3 stand
+as ratified; no `tasks.md` box outside § 1.3's dated note moves, § 1.3's
+checkbox stays `[x]`, and § 3 and § 4 stay open. `_ORDERING_SUBJECTS` stays
+`set()` and `_LEDGER_SUBJECTS` is unmoved — the repair NAMES the ordering, it
+does not pin the finding away. No test file is touched, and
+`scope-pinned-arm-root-naming`'s own delta is not edited at all: the carried
+text is copied out of that packet's own ratified block, not authored here.
+**THE OVERLAP FILED FOR BRETT HEAP'S WORD ABOVE (§ "THE OVERLAP ITSELF IS
+UNRESOLVED…") IS UNTOUCHED BY THIS ADDENDUM AND STAYS OPEN ON ITS OWN
+CITATION** — a different finding, from a different round, awaiting its own
+word.
+
+**THE ONE RATIFICATION CITATION FOR THIS RECORD IS UNCHANGED.** Everything in
+this record, above and including this addendum, ratifies on, and only on,
+openxFactory #1045 comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
+The citation immediately above names a SEPARATE, LATER ruling — the "route
+plus re-base" word — and is not a second ratification of this packet.
