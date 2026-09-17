@@ -3380,9 +3380,23 @@ realization evidence, never on landing. Each line is its own evidence.
   A HOLE THE CHECKER ITSELF OPENS** (a Copilot finding on this amendment's own
   pull request, round 13, and it is right in the code):
   `doc_health.Finding.match_key()` is `(self.family, self.repo, self.path)` —
-  `scripts/doc_health/__init__.py`:187-189, whose own docstring says *"Regression-rule
-  identity: contract matches by family + path"* — so SEVERITY is not part of a
-  finding's identity. And the family that exploits that is
+  `scripts/doc_health/__init__.py`, the method of that name (`:187-189` at
+  this amendment's base) — so SEVERITY is not part of a finding's identity.
+  **That method's own docstring UNDERSTATES the key it returns, and the
+  discrepancy is named here rather than quoted past**: it reads
+  *"Regression-rule identity: contract matches by family + path"* while the
+  return is `(family, repo, path)` — `repo` is omitted from the sentence and
+  present in the tuple. **THE RETURN GOVERNS**, because it is what every
+  caller compares: findings from different repositories do NOT collide, and
+  the reading below rests on the tuple rather than on the sentence.
+  *(A Copilot finding on amendment #4's pull request — review `5226920310`
+  at `cbc3a2c6`, which arrived after that head was frozen and was read and
+  answered only once #1058 had merged, at comment `5715028704`. It was right
+  that the two were set side by side as if they agreed, and wrong that the
+  packet mis-quoted: the quotation is verbatim and the tuple was already
+  stated first. The imprecision is `doc_health`'s own, is a finding about
+  that module, and is raised there rather than repaired from a `tasks.md`.)*
+  And the family that exploits that is
   `_honour_grandfather_dispositions` (`scripts/doc_health/families.py`:529, read
   at :1005-1014): a finding whose `(family, repo, path)` carries a dated, cited
   entry in the aggregation's `health/dispositions.yaml` is **reported at `info`
