@@ -483,7 +483,9 @@ def _unfaithful(corpus_root: Path, shipped: Path,
 
 
 def prove_transposition(factory: Any, populated: str, corpus_root: Path,
-                        shipped: Path, reader: Any = None) -> dict[str, Any]:
+                        shipped: Path, reader: Any = None,
+                        reference: dict[str, str] | None = None
+                        ) -> dict[str, Any]:
     """Hold a `--corpus` that is not the shipped one to the shipped one's
     documents, keys and bytes — RULED Q-F1 (a), and the whole of what that
     ruling buys a destination.
@@ -512,7 +514,18 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
     then refuses rather than printing OK if the seventeen somehow passed
     anyway. A reader that ANSWERS and answers differently refuses here.
     """
-    reference = document_fingerprint(shipped / POPULATED)
+    # THE REFERENCE MAY BE PINNED BY THE CALLER, AND `main()` PINS IT
+    # (Copilot, round 9). `resolve_factory` imports the DESTINATION's module,
+    # which is arbitrary code running in this process, and it ran before this
+    # table was ever computed: an import that rewrote the shipped fixtures
+    # would have made the altered tree the reference, and the run would
+    # report FAITHFUL for bytes nobody shipped. `main()` therefore takes this
+    # table BEFORE the import and hands it in here. The AFTER-the-checks
+    # proof deliberately does not take it — it recomputes from the files, and
+    # `confirm_transposition_unmoved` compares the two digests, so a rewrite
+    # at any point after the snapshot is what that comparison now catches.
+    if reference is None:
+        reference = document_fingerprint(shipped / POPULATED)
     if not reference:
         raise ConformanceRefusal(
             "conformance-corpus-missing",
@@ -923,8 +936,13 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
     transposed = ""
     record = summary.get("transposition")
     if record:
-        at = (f"revision {record['revision']}" if record["revision"]
-              else "no declared revision")
+        # AN EMPTY REVISION IS NOT AN ABSENT ONE (Copilot, round 9). The
+        # interface permits any `str`, the empty one included, and a
+        # truthiness test rendered it as "no declared revision" — the human
+        # line then contradicting the `--json` record, which carries `""`.
+        at = ("no declared revision" if record["revision"] is None
+              else f"revision {record['revision']}" if record["revision"]
+              else "an empty declared revision")
         transposed = (f", TRANSPOSED and FAITHFUL to {record['shipped']} — "
                       f"{record['documents']} document(s) at {at}, key/sha256 "
                       f"table {record['digest']}, unmoved across the run")
@@ -1039,17 +1057,27 @@ def main(argv: list[str] | None = None) -> int:
                 "Where the destination has authored no reader yet, THAT is "
                 "the finding, and it belongs to that destination's build "
                 "task rather than to this corpus")
+        # THE REFERENCE IS TAKEN BEFORE THE DESTINATION'S CODE IS IMPORTED
+        # (Copilot, round 9). `resolve_factory` imports an arbitrary module
+        # out of `--dest-root`, and a module-level statement there could
+        # rewrite the shipped fixtures; a reference computed afterwards would
+        # be the destination's own work. Taken here it is not, and any later
+        # rewrite refuses at `confirm_transposition_unmoved`, which recomputes
+        # the table and compares it with this one.
+        shipped = shipped_corpus_root()
+        pinned = (document_fingerprint(shipped / POPULATED)
+                  if corpus_root != shipped else None)
         factory = resolve_factory(args.adapter, dest_root, args.sys_path)
         # RULED Q-F1 (a), and the order is the whole of it: a transposition is
         # proven faithful BEFORE the seventeen, because a reader measured
         # against a corpus nobody compared is not measured. The shipped corpus
         # compared with itself is not a transposition and is not claimed as
         # one, so the default run is untouched.
-        shipped = shipped_corpus_root()
         transposition = None
         if corpus_root != shipped:
             transposition = prove_transposition(
-                factory, locations["populated"], corpus_root, shipped)
+                factory, locations["populated"], corpus_root, shipped,
+                reference=pinned)
         #: The instances `carve_conformance.run` built, by corpus state. The
         #: re-proof below is put to the POPULATED one — the reader the
         #: seventeen actually measured (Copilot, round 8).

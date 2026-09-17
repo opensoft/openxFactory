@@ -1958,3 +1958,96 @@ def test_a_factory_that_lies_ONLY_to_the_seventeen_is_caught(tmp_path):
     assert done.returncode == 2, done.stdout + done.stderr
     assert "conformance-corpus-unfaithful" in done.stderr
     assert "papers/gamma.md" in done.stderr
+
+
+# ==========================================================================
+# 13. Copilot's round-9 findings — the reference is taken before the
+#     destination's code runs, and an empty revision is not an absent one
+# ==========================================================================
+
+
+def test_the_reference_table_is_taken_BEFORE_the_adapter_is_imported(
+        tmp_path, monkeypatch):
+    """Copilot round 9, and it is the reference side's turn. `resolve_factory`
+    imports an arbitrary module out of `--dest-root` — a module-level
+    statement there is code running in this process — and the shipped table
+    was computed AFTER that import. An import that rewrote the fixtures would
+    have made the altered tree the reference, and the run would report
+    FAITHFUL for bytes nobody shipped.
+
+    Measured as an ORDER rather than by letting a test rewrite this
+    repository's own fixtures: the two calls are recorded as they happen and
+    the fingerprint must come first. Any later rewrite is caught by
+    `confirm_transposition_unmoved`, which recomputes the table and compares.
+    """
+    corpus = _transposed(tmp_path)
+    order: list[str] = []
+
+    real_fingerprint = MODULE.document_fingerprint
+    real_resolve = MODULE.resolve_factory
+
+    def recording_fingerprint(root):
+        order.append(f"fingerprint {root}")
+        return real_fingerprint(root)
+
+    def recording_resolve(*args, **kwargs):
+        order.append("resolve_factory")
+        return real_resolve(*args, **kwargs)
+
+    monkeypatch.setattr(MODULE, "document_fingerprint",
+                        recording_fingerprint)
+    monkeypatch.setattr(MODULE, "resolve_factory", recording_resolve)
+    monkeypatch.setattr(sys, "argv", ["verify-carve-conformance.py"])
+
+    assert MODULE.main([
+        "--destination", "openxfactory", "--dest-root", str(REPO_ROOT),
+        "--adapter", "git_history_factory:reader",
+        "--sys-path", "tests/carve_conformance",
+        "--corpus", str(corpus)]) == 0
+
+    assert order, "neither call was recorded"
+    assert order[0].startswith("fingerprint "), order
+    assert str(CORPUS / MODULE.POPULATED) in order[0], order
+    assert "resolve_factory" in order
+    assert order.index("resolve_factory") > 0, order
+
+
+def test_a_PINNED_reference_is_what_the_proof_compares_against(tmp_path):
+    """The parameter that carries the snapshot, measured on its own: a
+    reference handed in is the one compared, not whatever the files say now.
+    Without it the pinning above would be an ordering with no consequence."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    honest = MODULE.document_fingerprint(CORPUS / MODULE.POPULATED)
+    assert MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS,
+        reference=honest)["proven"] is True
+
+    # the same corpus, the same reader, a reference that says otherwise
+    altered = dict(honest)
+    altered["notes/alpha.md"] = "0" * 64
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(GH.reader, str(populated), corpus, CORPUS,
+                                   reference=altered)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "notes/alpha.md" in caught.value.detail
+
+
+def test_an_EMPTY_revision_is_not_an_absent_one_in_the_verdict(capsys):
+    """Copilot round 9: the interface permits any `str` revision, the empty
+    one included, and a truthiness test printed it as "no declared revision"
+    — the human line contradicting the `--json` record, which carries `""`.
+    """
+    def line(revision):
+        MODULE._print_ok({
+            "dest_root": "/d", "destination": "openxfactory", "passed": 17,
+            "checks_run": 17, "adapter": "m:f", "corpus": "/c",
+            "transposition": {"shipped": "/s", "documents": 3,
+                              "digest": "d" * 64, "revision": revision},
+        }, False)
+        return capsys.readouterr().out
+
+    assert "at revision abc123," in line("abc123")
+    assert "at no declared revision," in line(None)
+    assert "at an empty declared revision," in line("")
