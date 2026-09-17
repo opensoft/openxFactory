@@ -2857,6 +2857,68 @@ def test_the_exact_commit_resolver_reads_the_effective_arrival_of_a_re_destined_
     assert located == (effective_leg, pinned, "src/opendox/moved.py"), located
 
 
+def test_a_probe_that_times_out_is_UNAVAILABLE_never_absent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Round 5 (`#1048`, Copilot on PR #1051, `carved_reach.py:826`): the
+    `cat-file`/`ls-tree` probes below `_git_run` are also the paths a partial
+    clone or an unreachable promisor remote can HANG rather than fail, and the
+    pre-round-5 `_git_run` had no timeout to turn a hang into an answer.
+    `scripts/hermes_runtime_validation/content.py:103-116` already bounds its
+    own equivalent read at `timeout=30`; this pins the same bound here, and
+    that a timeout is read as UNANSWERED — never as the tree's own "no such
+    entry", the phantom-absence thesis this whole file exists to refuse, one
+    layer lower than every other case in this section.
+
+    `subprocess.run` is mocked to RAISE `subprocess.TimeoutExpired` rather than
+    built as a slow real git call: the property under test is that `_git_run`
+    catches the timeout and answers `None`, and that the READER built on it
+    raises `CarveReachUnavailable` rather than returning `None` as if the tree
+    had answered — not that git itself can be made to hang inside a test's own
+    time budget. No leg is materialized here at all: the timeout fires on the
+    very FIRST probe, the gitlink lookup, which is the earliest a real hang
+    could reach.
+    """
+    import carved_reach
+
+    def timed_out(argv, **kwargs):
+        assert kwargs.get("timeout") == 30, (
+            "the probe must be bounded at the same 30s "
+            "scripts/hermes_runtime_validation/content.py uses")
+        raise subprocess.TimeoutExpired(cmd=argv, timeout=30)
+
+    monkeypatch.setattr(subprocess, "run", timed_out)
+
+    # `_git_run` ITSELF: the same failed-probe result an unrunnable git
+    # already answers with, so every existing `is None` check above it goes on
+    # working unchanged.
+    assert carved_reach._git_run(tmp_path, "cat-file", "-e",
+                                 "deadbeef^{commit}") is None
+
+    # ...and the READER built on it. `_git_object_id` answers `None` (the
+    # mocked `_git_run` behind it timed out), which sends the walk to
+    # `_tree_entry_absent` — ALSO built on the timed-out `_git_run` — and ITS
+    # `(False, ...)` answer must raise rather than let the walk read a `None`
+    # gitlink as "this tree has no such entry".
+    rows = {
+        "scripts/pkg/timed_out.py": {
+            "source_path": "scripts/pkg/timed_out.py",
+            "disposition": "moved_verbatim",
+            "destination": "opendox_code",
+            "destination_path": "src/opendox/timed_out.py"},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS,
+                             opendox_code=tmp_path / "leg"))
+
+    with pytest.raises(carved_reach.CarveReachUnavailable) as caught:
+        carved_reach.shed_commit_object("a" * 40, "scripts/pkg/timed_out.py")
+    assert "30s" in str(caught.value), (
+        "the raised message must name the timeout where it surfaces git's "
+        f"own stderr — got {caught.value}")
+
+
 def _cross_reference_validator():
     """`scripts/validate-ideation-cross-reference.py` as a module, by path."""
     return _load_by_path("validate-ideation-cross-reference.py",

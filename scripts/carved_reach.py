@@ -166,7 +166,21 @@ INCOMPLETE_STORE_REMEDY = (
 
 
 class CarveReachUnavailable(ImportError):
-    """A pinned leg is not materialized, so a shed module cannot be read."""
+    """A pinned leg's object store is missing, incomplete, or otherwise
+    unreadable — the query was unanswerable, not answered.
+
+    THREE PATHS RAISE THIS, all inside `shed_commit_object`'s gitlink walk
+    (`#1048` round 5, Copilot on PR #1051, `carved_reach.py:1105`, widening
+    this from the original "not materialized" alone): the leg is NOT
+    MATERIALIZED — `_leg_object_store` finds no Git object store on disk at
+    all; the store IS materialized but INCOMPLETE — it exists but does not
+    carry the pinned commit; or the TREE that would record the gitlink itself
+    could not be READ — an unresolvable revision, a `--filter=tree:0` clone
+    whose promisor remote is unreachable, or (round 5) a probe that hit its
+    30s timeout rather than answering. Every path means the same thing to a
+    caller: nothing was learned, so the caller's own absence finding must
+    never stand in for it.
+    """
 
 
 class ShedModuleHasNoDestination(ImportError):
@@ -804,7 +818,7 @@ def _sanitized_git_environment() -> dict[str, str]:
 def _git_run(repo: Path, *arguments: str):
     """The ONE scrubbed, replacement-free `git -C <repo> ...` invocation every
     reader below shares — the finished process, or `None` when git could not be
-    run at all.
+    run at all, OR WHEN IT DID NOT ANSWER IN TIME.
 
     Runs with `--no-replace-objects` and a sanitized environment (Copilot,
     `PRRT_kwDOTAvnrs6hjE-c`): a `<revision>:<path>` otherwise resolves through
@@ -813,6 +827,22 @@ def _git_run(repo: Path, *arguments: str):
     name — and the same scrub is what makes the `--git-common-dir` read below
     answer for the directory this module points git AT rather than for whatever
     an ambient `GIT_COMMON_DIR` names.
+
+    BOUNDED AT `timeout=30`, THE SAME 30 SECONDS `scripts/hermes_runtime_
+    validation/content.py:103-116` already gives its own equivalent read
+    (`#1048` round 5, Copilot on PR #1051, `carved_reach.py:826`). The
+    `cat-file -e`/`ls-tree` probes this function serves are exactly the reads a
+    partial clone or an unreachable promisor remote can make HANG rather than
+    fail, and every caller above this one exists to turn a git FAILURE into an
+    answer — `_tree_entry_absent`'s whole taxonomy, `_leg_object_store`'s
+    materialization check, the incomplete-store probe in the walk below — none
+    of which get a turn if the process never returns. `subprocess.TimeoutExpired`
+    is therefore caught beside `OSError` and answered with the SAME `None` a
+    missing git binary already produces, so every reader above this line
+    reaches its EXISTING unavailable path unchanged: a probe that timed out is
+    a query that went UNANSWERED, never the tree's own answer that an entry is
+    absent — the phantom-absence thesis `#1048` exists to refuse, one layer
+    lower than every other case in this module.
     """
     try:
         return subprocess.run(
@@ -820,8 +850,11 @@ def _git_run(repo: Path, *arguments: str):
             capture_output=True,
             text=True,
             check=False,
+            timeout=30,
             env=_sanitized_git_environment(),
         )
+    except subprocess.TimeoutExpired:
+        return None
     except OSError:  # pragma: no cover - no git on PATH is the caller's problem
         return None
 
@@ -928,7 +961,11 @@ def _tree_entry_absent(repo: Path, revision: str,
     done = _git_run(repo, "ls-tree", "--full-tree", revision, "--",
                     f":(literal){path}")
     if done is None:
-        return False, "git could not be run"
+        # `_git_run` answers this SAME `None` for a missing git binary and for
+        # a probe that hit its 30s timeout (`#1048` round 5) — indistinguishable
+        # from here, so the text says both rather than misnaming a timeout as
+        # the rarer "no git on PATH" case or silently dropping the commoner one.
+        return False, "git could not be run, or the probe timed out after 30s"
     if done.returncode != 0:
         said = " ".join(done.stderr.split())
         return False, said or f"`git ls-tree` exited {done.returncode}"

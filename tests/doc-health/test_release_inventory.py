@@ -1420,3 +1420,79 @@ def test_a_partly_evaluated_repository_is_not_reported_as_UNEVALUATED(
     assert unevaluated[0].action == release_inventory._NOT_EVALUATED_ACTION, (
         "and a repository nothing was asked of still takes the wording it "
         f"always had — got {unevaluated[0].action!r}")
+
+
+# ------------------------------------------- round 5: one leg, one tree read
+#
+# `_shed_member` ran the leg's full recursive `ls-tree` once per MOVED member
+# (Copilot on PR #1051, `release_inventory.py:325`) — four times, for the
+# normal openxFactory bundle, every one of them resolving to the SAME
+# `(leg_repo, leg_commit)`. `check_repo` now creates one mode-map cache before
+# its member loop and `_shed_member` consults it before calling
+# `git.tree_modes` again.
+
+def test_two_moved_members_on_one_leg_call_tree_modes_once(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Two inventory members resolving to ONE pinned leg must produce exactly
+    ONE `tree_modes` call, counted through a `FakeGit` subclass that
+    INSTRUMENTS the real method rather than replacing it — so this remains a
+    test of the call count, not of a second, hand-rolled `tree_modes`.
+
+    `carved_reach.shed_commit_object` is stubbed rather than driven through a
+    real submodule fixture (the shape `test_a_linked_worktree_reads_the_same_
+    release_surface` and its neighbours use above): what this test measures is
+    `_shed_member`'s OWN call discipline once a leg is located, which is a
+    property of `release_inventory.py` and not of `carved_reach`'s gitlink
+    walk — the two are already tested separately, and conflating them here
+    would make a failure of either look like a failure of both.
+    """
+    member_a = "contracts/schemas/moved-a.schema.yaml"
+    member_b = "contracts/schemas/moved-b.schema.yaml"
+    data_a, data_b = b"kind: moved-a\n", b"kind: moved-b\n"
+    mode = "100644"
+
+    repo_path = tmp_path / "checkout"
+    repo_path.mkdir()
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", repo_path)
+
+    leg_repo = tmp_path / "leg"
+    leg_commit = "c" * 40
+    leg_paths = {member_a: "a.schema.yaml", member_b: "b.schema.yaml"}
+
+    def fake_shed_commit_object(commit: str, path: str):
+        assert commit == "HEAD", commit
+        return leg_repo, leg_commit, leg_paths[path]
+
+    monkeypatch.setattr(carved_reach, "shed_commit_object",
+                        fake_shed_commit_object)
+
+    tree_modes_calls: list[tuple[Path, str]] = []
+
+    class CountingGit(FakeGit):
+        def tree_modes(self, repo: Path, commit: str):
+            tree_modes_calls.append((repo, commit))
+            return super().tree_modes(repo, commit)
+
+    manifest_bytes = f"contract_bundle_version: {BUNDLE}\n".encode()
+    members = {member_a: (data_a, mode), member_b: (data_b, mode),
+              MANIFEST: (manifest_bytes, mode)}
+    git = CountingGit(
+        blobs={
+            (leg_repo.name, "a.schema.yaml"): data_a,
+            (leg_repo.name, "b.schema.yaml"): data_b,
+            (repo_path.name, MANIFEST): manifest_bytes,
+            (repo_path.name, INV): _inventory(members),
+        },
+        modes={
+            (leg_repo.name, "a.schema.yaml"): mode,
+            (leg_repo.name, "b.schema.yaml"): mode,
+            (repo_path.name, MANIFEST): mode,
+        })
+
+    findings = check_repo(repo_path.name, repo_path, git)
+
+    assert findings == [], findings
+    leg_calls = [c for c in tree_modes_calls if c == (leg_repo, leg_commit)]
+    assert len(leg_calls) == 1, (
+        f"two members sharing one leg must produce ONE `tree_modes` call, "
+        f"got {tree_modes_calls}")

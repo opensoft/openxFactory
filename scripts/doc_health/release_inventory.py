@@ -219,11 +219,24 @@ class LegUnavailable(Exception):
     """
 
 
-def _shed_member(repo_path: Path, git, commit: str, path: str):
+def _shed_member(repo_path: Path, git, commit: str, path: str,
+                 leg_modes_cache: dict[tuple[Path, str], dict[str, str] | None]):
     """A recorded member's bytes and mode at `commit` when the § 5.2 shed moved
     it to a pinned leg — `(blob, git_mode)`, or `(None, None)` where this
     repository's own answer stands, or `LegUnavailable` where no answer was
     obtained at all.
+
+    `leg_modes_cache` MEMOIZES THE LEG'S MODE MAP PER `(leg_repo, leg_commit)`
+    (`#1048` round 5, Copilot on PR #1051, `release_inventory.py:325`).
+    `git.tree_modes` runs a full recursive `ls-tree` of the leg's tree, and
+    this function is called once per MOVED MEMBER, so several members
+    resolving to the same pinned leg used to repeat that whole subprocess once
+    per member — four times, for the normal openxFactory bundle. `check_repo`
+    creates one plain `dict` fresh per run, before its member loop, and passes
+    it down here; behaviour is identical either way, including the
+    `LegUnavailable` this raises when the tree cannot be read at all — a `None`
+    is cached exactly like a real mode map, so a leg that cannot answer is not
+    asked again for the next member sharing it within this same run.
 
     EVERY LEG READ ON THE PATH MAKES THAT DISTINCTION, not just the first
     (`#1048` round 2). The `LegUnavailable` boundary below once covered only
@@ -322,7 +335,12 @@ def _shed_member(repo_path: Path, git, commit: str, path: str):
         # MEMBER. That is drift about the release — the caller's absence
         # finding — and the one outcome here that must NOT become a skip.
         return None, None
-    modes = git.tree_modes(leg_repo, leg_commit)
+    leg_key = (leg_repo, leg_commit)
+    if leg_key in leg_modes_cache:
+        modes = leg_modes_cache[leg_key]
+    else:
+        modes = git.tree_modes(leg_repo, leg_commit)
+        leg_modes_cache[leg_key] = modes
     if modes is None:
         raise LegUnavailable(
             f"the pinned leg holding {path} could not be read at "
@@ -402,6 +420,13 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
                             f"at {commit}")
 
     findings: list[Finding] = []
+    # ONE MODE-MAP CACHE FOR THE WHOLE RUN, CREATED BEFORE THE LOOP (`#1048`
+    # round 5, Copilot on PR #1051, `release_inventory.py:325`): several moved
+    # members can resolve to the same pinned `(leg_repo, leg_commit)`, and
+    # `_shed_member` used to run the leg's full recursive `ls-tree` once per
+    # member rather than once per leg. A plain `dict`, local to this call, is
+    # enough — it is never read outside this function and never outlives it.
+    leg_modes_cache: dict[tuple[Path, str], dict[str, str] | None] = {}
     # ENUMERATED SO THE SKIP BELOW CAN SAY HOW MUCH WAS EVALUATED (round 3).
     # `paths` is sorted and compared in order, so when member `index` sends the
     # repository to a skip, members `0..index-1` were compared — whether or not
@@ -415,7 +440,8 @@ def check_repo(repo: str, repo_path: Path, git, commit: str = "HEAD"):
         shed_mode = None
         if blob is None:
             try:
-                blob, shed_mode = _shed_member(repo_path, git, commit, path)
+                blob, shed_mode = _shed_member(repo_path, git, commit, path,
+                                               leg_modes_cache)
             except LegUnavailable as unreadable:
                 # SIXTH ARM, NOT THIRD. Version control could not be consulted
                 # about this member, which is a fact about this checkout and
