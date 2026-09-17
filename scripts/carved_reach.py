@@ -660,7 +660,7 @@ def module(path: str | Path):
     else:
         if retired_at(row)[1] is not None:
             source(key)  # raises CarveRowRetired with the sentence for it
-        relative = row["destination_path"]
+        destination, relative = effective_arrival(row)
         if relative.startswith("src/"):
             relative = relative[len("src/"):]
     if not relative.endswith(".py"):
@@ -697,8 +697,9 @@ def shed_relpath(path: str | Path) -> str | None:
         return None
     if retired_at(row)[1] is not None:
         source(key)  # raises CarveRowRetired with the sentence for it
-    mount = MOUNTS[row["destination"]].relative_to(REPO_ROOT)
-    return (mount / _closed_relative_path(row["destination_path"], source_path=key)).as_posix()
+    destination, destination_path = effective_arrival(row)
+    mount = MOUNTS[destination].relative_to(REPO_ROOT)
+    return (mount / _closed_relative_path(destination_path, source_path=key)).as_posix()
 
 
 def shed_destination(path: str | Path) -> Path | None:

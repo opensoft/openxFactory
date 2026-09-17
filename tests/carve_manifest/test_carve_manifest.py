@@ -2808,6 +2808,99 @@ def test_the_exact_commit_resolver_reads_the_effective_arrival_of_a_re_destined_
     assert located == (effective_leg, pinned, "src/opendox/moved.py"), located
 
 
+def test_the_module_loader_reads_the_effective_arrival_of_a_re_destined_row(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """Regression, `#1079`. `module()` read `row["destination_path"]` directly
+    — the row's ORIGINAL arrival — instead of `effective_arrival(row)`, the
+    same three-line predicate `source()` reads at line 616 and
+    `shed_commit_object()` was fixed to read by `#1077`. Latent while no
+    `re_destined` row named a module-importable file; this fixture gives it
+    one.
+
+    The row below carved to `openxdox_code` and a ruling (RULED Q6) has since
+    re-destined it to `opendox_code` — a DIFFERENT leg entirely, so a resolver
+    reading the raw `destination_path` derives the dotted name the ORIGINAL
+    leg would have made importable (`openxdox.moved`) rather than the one the
+    EFFECTIVE leg makes importable (`opendox.moved`). `install()` and the real
+    `importlib.import_module` are both stood down here — what this function
+    is answerable for is which dotted name it ASKS for, not whether either
+    leg is materialized in this checkout.
+    """
+    import carved_reach
+
+    rows = {
+        "scripts/pkg/moved.py": {
+            "source_path": "scripts/pkg/moved.py",
+            "disposition": "moved_verbatim",
+            "destination": "openxdox_code",
+            "destination_path": "src/openxdox/moved.py",
+            "re_destined": {
+                "from": "openxdox_code",
+                "from_path": "src/openxdox/moved.py",
+                "to": "opendox_code",
+                "to_path": "src/opendox/moved.py",
+                "ruling": RULING_CITATION,
+            }},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "install", lambda **kwargs: None)
+    asked: list[str] = []
+    sentinel = object()
+    monkeypatch.setattr(importlib, "import_module",
+                        lambda name: asked.append(name) or sentinel)
+
+    result = carved_reach.module("scripts/pkg/moved.py")
+    assert result is sentinel
+    assert asked == ["opendox.moved"], asked
+
+
+def test_the_relative_path_reader_reads_the_effective_arrival_of_a_re_destined_row(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Regression, `#1079`. `shed_relpath()` walked
+    `MOUNTS[row["destination"]]` and returned `row["destination_path"]` — the
+    row's ORIGINAL arrival — instead of `effective_arrival(row)`, on the same
+    defect `#1077` fixed in `shed_commit_object()`. Latent while no
+    `re_destined` row named a file a marker asks the relative path of; this
+    fixture gives it one.
+
+    The row below carved to `openxdox_code` and a ruling (RULED Q6) has since
+    re-destined it to `opendox_code` — a DIFFERENT leg entirely, not merely a
+    different path at the same one, so a resolver reading the raw
+    `destination` answers a well-formed relative path under the mount the row
+    no longer names, which a marker's `exists()` check against the CORRECT leg
+    reads as absent rather than present — the same silent-wrong-answer shape
+    `#1077`'s own regression named for `shed_commit_object()`.
+    """
+    import carved_reach
+
+    original_leg = tmp_path / "openXdox" / "code"
+    effective_leg = tmp_path / "openDox" / "code"
+
+    rows = {
+        "scripts/pkg/moved.py": {
+            "source_path": "scripts/pkg/moved.py",
+            "disposition": "moved_verbatim",
+            "destination": "openxdox_code",
+            "destination_path": "src/openxdox/moved.py",
+            "re_destined": {
+                "from": "openxdox_code",
+                "from_path": "src/openxdox/moved.py",
+                "to": "opendox_code",
+                "to_path": "src/opendox/moved.py",
+                "ruling": RULING_CITATION,
+            }},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS,
+                             openxdox_code=original_leg,
+                             opendox_code=effective_leg))
+
+    relpath = carved_reach.shed_relpath("scripts/pkg/moved.py")
+    assert relpath == "openDox/code/src/opendox/moved.py", relpath
+
+
 def _cross_reference_validator():
     """`scripts/validate-ideation-cross-reference.py` as a module, by path."""
     return _load_by_path("validate-ideation-cross-reference.py",
