@@ -1707,9 +1707,26 @@ the bookkeeping that ticks this group.
 - [ ] 4.5a `[oXd]` **BUILD the corpus-adapter IMPLEMENTATION** — `design.md`
   § D4 machinery **(1)**, the one of the seven that § 4.5 did not name —
   **parameterized by the § 4.4 domain profile, and proved on § 3.7's neutral
-  corpus.** Exit evidence is one command and one line:
-  `verify-carve-conformance.py --destination openxdox_code` → **`OK — 17 of
-  17`**. **§ 4.1 stays a carve box** and this is not part of it.
+  corpus.** Exit evidence is one command and one line, and the command takes
+  FOUR arguments and not the one an earlier draft of this box showed:
+  `verify-carve-conformance.py --destination openxdox_code --dest-root
+  <the openXdox-code checkout> --adapter <module>:<factory> --corpus
+  <the transposition>` → **`OK — 17 of 17`**. `--dest-root` and
+  `--adapter` are each REFUSED-IF-ABSENT by the runner, in that order; the
+  `<module>` is this box's own `conformance_corpus.py` above. `--corpus` is
+  not refused but is needed for correctness wherever the destination's
+  reader is history-backed, because the default is the plain fixture tree
+  (`tests/corpus-adapter/fixtures`) and RULED Q-F1 puts the transposition
+  there instead.
+  *(THE ABBREVIATED FORM WAS THIS BOX'S OWN AND IT DOES NOT RUN — measured,
+  not supposed: `--destination openxdox_code` alone exits **2** with
+  `conformance-unreadable — --dest-root is required with --destination`.
+  It also contradicted this packet's own § 3.7, which already records the
+  NEXT refusal in that chain, `conformance-adapter-undeclared`, as
+  openXdox's state today. A command that cannot be run is not exit
+  evidence; the flags are named here so the next reader RUNS it rather
+  than reconstructs it.)*
+  **§ 4.1 stays a carve box** and this is not part of it.
   **RULED Q-X1 (a) — 2026-09-17, `#656` comment `5715212264`** (Brett Heap,
   by interactive multi-choice), on three questions from the helper's
   read-only `xdoxadapter` scoping. **The box is NEW rather than a clause
