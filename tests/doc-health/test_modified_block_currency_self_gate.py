@@ -1475,15 +1475,45 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
         f"canon {canon.relative_to(ROOT)} reached without a symlink",
         f"it resolves to {canon.resolve(strict=True)}, so the titles counted "
         "below were counted in some other file")
-    canon_text = canon.read_text(encoding="utf-8", errors="replace")
-    assert f"#### Scenario: {_CANON_SCENARIO_CONTROL}" in canon_text, _moved(
-        f"canon's own scenario {_CANON_SCENARIO_CONTROL!r}, the control that "
-        "proves this file is still the one the assertions below read",
-        "it is absent, so the absences below prove nothing")
+    # READ CANON THROUGH THE FAMILY'S OWN READER, not a substring scan. Two
+    # separate defects live in a raw `f"#### Scenario: {t}" in text` check, and
+    # they fail in OPPOSITE directions:
+    #   FALSE PASS — the literal misses a heading the family accepts. `####  Scenario: X`
+    #     with two spaces is a promoted scenario to `promotion_fidelity`'s reader
+    #     and invisible to a substring match, so canon could gain the very title
+    #     this guard forbids and the guard would stay green.
+    #   FALSE ALARM — the substring is not scoped to the target requirement. The
+    #     same scenario title under ANOTHER requirement, in prose, or inside a
+    #     fenced example would read as promotion; and the control could be
+    #     supplied by a different requirement after the target block was deleted,
+    #     which is the one state the control exists to catch.
+    # `mbc.promoted()` is the reader four families already share, keyed by
+    # normalized title, and `PromotedRequirement.scenario_titles` is that block's
+    # own units. Comparing normalized titles WITHIN the target requirement closes
+    # both directions at once. The module says why in its own words: "a second
+    # grammar for the same heading is how two readers of one document come to
+    # disagree about what it says".
+    # (Found by Copilot's review at `25988caf`.)
+    canon_requirements = mbc.promoted(ROOT, capability)
+    assert canon_requirements, _moved(
+        f"the promoted capability {capability!r} readable through "
+        "`mbc.promoted()`",
+        "it read nothing, so the assertions below would be vacuous")
+    canon_block = canon_requirements.get(mbc.norm(requirement))
+    assert canon_block is not None, _moved(
+        f"canon's own {requirement!r} block, the control that proves these "
+        "assertions are reading the requirement they are about",
+        f"canon holds {len(canon_requirements)} requirement(s) and none of them "
+        "is that one, so the absences below would pass over the wrong block")
+    canon_titles = {mbc.norm(t) for t in canon_block.scenario_titles}
+    assert mbc.norm(_CANON_SCENARIO_CONTROL) in canon_titles, _moved(
+        f"canon's own scenario {_CANON_SCENARIO_CONTROL!r} inside that block, "
+        "the control that proves it is still the block these assertions read",
+        f"the block's scenario titles are {sorted(canon_block.scenario_titles)}")
     arrived = [t for t in _SCENARIOS_CANON_MUST_NOT_GAIN
-               if f"#### Scenario: {t}" in canon_text]
+               if mbc.norm(t) in canon_titles]
     assert not arrived, _moved(
-        f"the delta's own scenarios ABSENT from {canon.relative_to(ROOT)} "
+        f"the delta's own scenarios ABSENT from canon's {requirement!r} block "
         "(RULING Q6 re-homes this block to opensoft/openDox and promotes "
         "NOTHING here)",
         f"{len(arrived)} of them now stand in canon: {arrived}. Either the "
