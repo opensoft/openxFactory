@@ -1197,7 +1197,9 @@ that the word, when it comes, is a merge and not a night's authoring.
       word and after the green run id above is in hand. openxFactory
       [#1013](https://github.com/opensoft/openxFactory/issues/1013) therefore
       closes at this pull request's landing and at no earlier act, on Brett
-      Heap's word.
+      Heap's word. Brett Heap's archive word 'archive it' was given
+      2026-09-17 ~12:20Z; the closing keyword is written into PR #1076's body
+      by the landing lane at the un-draft.
 
 ## 6. Measured, and deliberately NOT taken here
 
@@ -1240,7 +1242,8 @@ already draws.
       are still what `design.md` D1 measured — a former-to-current TRANSFER map
       and a five-row domain-factory regression fixture — neither of which
       enumerates the estate.
-      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.** Successor
+      filed as #1087 (2026-09-17).
 - [x] 6.2 **WHETHER `code_surface:` SHOULD BECOME A STRUCTURED FIELD.** Giving
       it `scope_globs:`'s shape would make a grammar unnecessary, because YAML
       would supply one. It is a `## MODIFIED` block over the title
