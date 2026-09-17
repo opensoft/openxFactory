@@ -861,7 +861,7 @@ def test_the_transposition_is_history_and_not_a_working_tree(tmp_path):
         reader.read(resolved, reader.list_documents(resolved)[0]).content
 
 
-def test_the_transpositions_digest_is_the_shipped_corpuss_own_table(tmp_path):
+def test_the_transpositions_digest_is_the_shipped_corpus_table(tmp_path):
     """The value the verdict carries is not decorative: an operator pasting
     that line into a pull request must be able to recompute it from the
     fixtures, and the two must be the same number."""
@@ -881,6 +881,13 @@ def test_the_transpositions_digest_is_the_shipped_corpuss_own_table(tmp_path):
     assert record["documents"] == 3
     assert record["proven"] is True
     assert record["digest"] == expected
+    # the revision it was PROVEN at rides in the evidence, and a git
+    # transposition has one: the bare repository's own HEAD.
+    assert record["revision"] == GH._git(
+        "rev-parse", "HEAD", cwd=corpus / MODULE.POPULATED
+    ).stdout.decode().strip()
+    assert record["revision_confirmed"] is True, (
+        "the run never re-proved the corpus after the seventeen checks")
     assert record["served_digest"] == expected, (
         "the reader served a different table from the one the corpus holds, "
         "and the run still passed")
@@ -1131,3 +1138,126 @@ def test_the_corpus_missing_refusal_admits_a_transposition_outside_a_checkout(
     assert "conformance-corpus-missing" in done.stderr
     assert "TRANSPOSITION" in done.stderr
     assert "need not sit inside any checkout" in done.stderr
+
+
+# ==========================================================================
+# 6. Copilot's round-1 findings, each with the case that would have caught it
+# ==========================================================================
+
+
+def test_a_transposition_that_moves_UNDER_the_run_is_caught_afterwards(
+        tmp_path):
+    """Copilot round 1: the proof resolves and reads the corpus, and
+    `carve_conformance.run` then resolves it again off the same path — so a
+    corpus that moved between those two calls would have been measured at a
+    revision nobody proved while the verdict said FAITHFUL. The window is
+    closed by re-proving after the seventeen, which is the discipline
+    `write-back-leaves-the-tree` already uses one level down.
+
+    The transposition here is advanced to a DIFFERENT commit carrying the
+    SAME three documents at the same bytes, so the content table is
+    unchanged and only the revision comparison can catch it.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+    before = MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS)
+    assert before["proven"] is True and before["revision"]
+
+    tree = GH._git("rev-parse", "HEAD^{tree}", cwd=populated
+                   ).stdout.decode().strip()
+    moved = GH._git("commit-tree", tree, "-p", before["revision"], "-m",
+                    "an unrelated commit", cwd=populated
+                    ).stdout.decode().strip()
+    GH._git("update-ref", "refs/heads/main", moved, cwd=populated)
+    assert moved != before["revision"]
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.confirm_transposition_unmoved(
+            GH.reader, str(populated), corpus, CORPUS, before)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "moved UNDER the measurement" in caught.value.detail
+    assert before["revision"] in caught.value.detail
+    assert moved in caught.value.detail
+
+
+def test_content_that_moves_under_a_corpus_with_no_revision_is_caught_too(
+        tmp_path):
+    """The other half, and the reason the re-proof is a whole PROOF rather
+    than a revision comparison: a directory corpus reports `revision=None`
+    (the interface permits it), so comparing revisions alone would be vacuous
+    exactly where the bytes are easiest to change. Re-proving catches it and
+    names the document, which no digest-to-digest line could."""
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    populated = corpus / MODULE.POPULATED
+    before = MODULE.prove_transposition(
+        neutral_reader, str(populated), corpus, CORPUS)
+    assert before["proven"] is True and before["revision"] is None
+
+    document = populated / "notes" / "alpha.md"
+    document.write_bytes(document.read_bytes() + b"x")
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.confirm_transposition_unmoved(
+            neutral_reader, str(populated), corpus, CORPUS, before)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "notes/alpha.md" in caught.value.detail
+    assert "bytes differ" in caught.value.detail
+
+
+def test_the_mismatch_reports_WHOLE_digests_and_not_prefixes(tmp_path):
+    """Copilot round 1: a mismatch a reader cannot recompute from the failure
+    output is a claim rather than a measurement, and twelve hex characters is
+    not something anybody can check a sha256 against."""
+    import hashlib
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    document = corpus / MODULE.POPULATED / "notes" / "alpha.md"
+    was = (CORPUS / MODULE.POPULATED / "notes" / "alpha.md").read_bytes()
+    document.write_bytes(was + b"x")
+    done = _run(*HOME_INVOCATION, "--corpus", str(corpus))
+    assert done.returncode == 2
+    assert hashlib.sha256(was).hexdigest() in done.stderr, (
+        "the corpus's own digest was truncated")
+    assert hashlib.sha256(was + b"x").hexdigest() in done.stderr, (
+        "the served digest was truncated")
+
+
+def test_every_refusal_payload_names_the_RESOLVED_corpus(tmp_path):
+    """Copilot round 1: `args.corpus` is `null` on a default run and an
+    uncanonicalized relative path when one was given, while a successful
+    summary carries the resolved path — so a caller comparing the two would
+    be comparing different spellings of one directory, or nothing at all."""
+    # (a) the default run, where the flag is absent entirely
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "no_such_module:nope", "--json")
+    assert done.returncode == 2
+    assert json.loads(done.stdout)["corpus"] == str(CORPUS)
+    # (b) a RELATIVE --corpus, which must arrive resolved
+    relative = Path(tmp_path.name)   # never exists under REPO_ROOT
+    done = _run(*HOME_INVOCATION, "--corpus", str(relative), "--json")
+    assert done.returncode == 2
+    payload = json.loads(done.stdout)
+    assert payload["code"] == "conformance-corpus-missing"
+    assert payload["corpus"] == str((REPO_ROOT / relative).resolve())
+    assert payload["corpus"] != str(relative)
+
+
+def test_the_transposition_fixture_ignores_an_ambient_git_pointer(
+        tmp_path, monkeypatch):
+    """Hermeticity, and it is the one environment dependence a file that
+    WRITES COMMITS cannot afford: `GIT_DIR` would override every `cwd=` in
+    the fixture and aim its plumbing at whatever repository the process was
+    started in. Set one at a repository that must not move, and measure."""
+    decoy = tmp_path / "decoy"
+    GH._git("init", "--quiet", "--bare", "--initial-branch=main", str(decoy))
+    before = sorted(p.name for p in decoy.rglob("*") if p.is_file())
+    monkeypatch.setenv("GIT_DIR", str(decoy))
+    monkeypatch.setenv("GIT_WORK_TREE", str(tmp_path))
+    corpus = _transposed(tmp_path)
+    record = MODULE.prove_transposition(
+        GH.reader, str(corpus / MODULE.POPULATED), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]
+    assert sorted(p.name for p in decoy.rglob("*") if p.is_file()) == before, (
+        "the transposition wrote into the repository GIT_DIR named")

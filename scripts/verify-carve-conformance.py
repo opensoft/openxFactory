@@ -112,6 +112,18 @@ Run:
         --dest-root   . \\
         --adapter     home_factory:neutral_reader \\
         --sys-path    tests/carve_conformance
+
+and, for a destination that has TRANSPOSED the corpus (RULED Q-F1 (a)), the
+same command with the transposition named — the run then prints TRANSPOSED
+and FAITHFUL, its document count, the revision it was proven at and the
+key/sha256 table's digest, or refuses `conformance-corpus-unfaithful` naming
+the keys:
+
+    python3 scripts/verify-carve-conformance.py \\
+        --destination <key> \\
+        --dest-root   <the destination checkout> \\
+        --adapter     <module>:<factory> \\
+        --corpus      <the transposition>
 """
 
 from __future__ import annotations
@@ -407,6 +419,14 @@ def document_fingerprint(populated: Path) -> dict[str, str]:
     the measurement grading its own homework. Keys are POSIX-relative to the
     populated state, which is the spelling a reader that laid the same
     documents down serves them under.
+
+    EVERY FILE UNDER THE POPULATED STATE COUNTS, and that is deliberate
+    rather than an oversight about what a "document" is: a transposition
+    that dropped one by deciding it was not a document would be exactly the
+    quiet narrowing RULED Q-F1 (a) is guarded against. The corpus holds
+    three files and three documents; if it ever held a file no reader
+    serves, that is a change to the corpus and it belongs in a change, not
+    in a reader's judgement at run time.
     """
     table: dict[str, str] = {}
     for path in sorted(populated.rglob("*")):
@@ -488,6 +508,13 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
         "shipped": str(shipped),
         "documents": len(reference),
         "digest": fingerprint_digest(reference),
+        #: The revision the transposition was PROVEN at, so the evidence
+        #: names it rather than naming a path that may have moved since
+        #: (Copilot, round 1). `None` where the corpus carries no revision
+        #: notion, which the interface permits -- a directory corpus reports
+        #: none, and `confirm_transposition_unmoved` then re-PROVES it rather
+        #: than comparing a value that does not exist.
+        "revision": None,
         "proven": False,
         "reason": None,
     }
@@ -501,6 +528,9 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
         record["reason"] = (f"the reader could not be put to it: "
                             f"{type(exc).__name__}: {exc}")
         return record
+    record["revision"] = (str(corpus.revision)
+                          if getattr(corpus, "revision", None) is not None
+                          else None)
 
     served: dict[str, str] = {}
     for document in documents:
@@ -524,6 +554,10 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
             _unfaithful(corpus_root, shipped,
                         f"reading {key!r} returned {type(content).__name__} "
                         "where the interface's `Document.content` is bytes")
+        # A key listed TWICE collapses here rather than refusing, because a
+        # duplicate listing is a READER defect and `list-stable` is the check
+        # that owns it (`unique=False`). The corpus is still compared
+        # correctly: a duplicate cannot hide a missing or an extra document.
         served[key] = hashlib.sha256(content).hexdigest()
 
     missing = sorted(set(reference) - set(served))
@@ -539,9 +573,13 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
             parts.append(f"documents it serves and the corpus does not hold: "
                          f"{', '.join(repr(k) for k in extra)}")
         if changed:
+            # WHOLE DIGESTS, never prefixes (Copilot, round 1). A mismatch a
+            # reader cannot recompute from the failure output is a claim
+            # rather than a measurement, and twelve hex characters is not
+            # something anybody can check a sha256 against.
             parts.append("documents whose bytes differ: " + ", ".join(
-                f"{k!r} (corpus {reference[k][:12]}…, served "
-                f"{served[k][:12]}…)" for k in changed))
+                f"{k!r} (corpus {reference[k]}, served {served[k]})"
+                for k in changed))
         _unfaithful(
             corpus_root, shipped,
             "; ".join(parts) + ". RULED Q-F1 (a) lets a destination TRANSPOSE "
@@ -553,6 +591,57 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
     record["proven"] = True
     record["served_digest"] = fingerprint_digest(served)
     return record
+
+
+def confirm_transposition_unmoved(factory: Any, populated: str,
+                                  corpus_root: Path, shipped: Path,
+                                  record: dict[str, Any]) -> None:
+    """Re-prove the transposition AFTER the seventeen, and refuse if it moved.
+
+    COPILOT'S ROUND-1 FINDING, AND IT IS A REAL WINDOW. `prove_transposition`
+    resolves the corpus and reads it; `carve_conformance.run` then builds its
+    OWN readers off the same path and resolves again. Between those two the
+    location can move — a git `HEAD` advanced by something else, a directory
+    rewritten — and the seventeen would have measured a revision nobody
+    proved while the verdict said FAITHFUL.
+
+    IT IS CLOSED BY DETECTION AND NOT BY PINNING, deliberately: pinning would
+    mean handing `carve_conformance.run` a pre-resolved corpus, and that
+    module's signature is the one thing every destination runs. This is the
+    discipline `write-back-leaves-the-tree` already uses one level down —
+    digest before, digest again after.
+
+    It re-PROVES rather than comparing revisions, which is what catches the
+    case a revision comparison cannot: a directory corpus reports
+    `revision=None` (the interface permits it), so content rewritten under a
+    revision that cannot move is caught by the proof itself, naming the
+    document. The revision comparison on top of that catches the other shape
+    — the same three documents at a DIFFERENT revision, where the content
+    table is identical and only the revision moved.
+
+    It runs ONLY after a fully green run — `run_corpus` raises on any failed
+    check first — so it can never mask `write-back-leaves-the-tree`: a tree
+    that moved under the write-back would have failed that check and never
+    reached here.
+    """
+    after = prove_transposition(factory, populated, corpus_root, shipped)
+    if not after["proven"]:
+        _unfaithful(corpus_root, shipped,
+                    "it was proven faithful before the seventeen checks and "
+                    f"could not be read after them: {after['reason']}")
+    if after["revision"] != record["revision"]:
+        _unfaithful(corpus_root, shipped,
+                    f"it moved UNDER the measurement: proven at revision "
+                    f"{record['revision']!r} and now at {after['revision']!r}, "
+                    "so the seventeen checks did not measure the revision "
+                    "this run proved")
+    # NO SECOND CONTENT COMPARISON HERE, and the omission is measured rather
+    # than an oversight: the call above already held the corpus to the
+    # SHIPPED table, so content that changed under the run refuses inside it,
+    # NAMING THE KEY — a better message than any digest-to-digest line here.
+    # A digest comparison at this point could only compare two values both
+    # equal to the reference, which is a check that cannot fail.
+    record["revision_confirmed"] = True
 
 
 def run_corpus(factory: Any, locations: dict[str, str], destination: str,
@@ -587,8 +676,8 @@ def run_corpus(factory: Any, locations: dict[str, str], destination: str,
     return summary
 
 
-def _refused(exc: ConformanceRefusal, args: argparse.Namespace,
-             where: str) -> int:
+def _refused(exc: ConformanceRefusal, args: argparse.Namespace, where: str,
+             corpus_root: Path | None = None) -> int:
     """The ONE refusal exit: `--json` object or the rendered human message."""
     if args.json:
         print(json.dumps({"result": "refused", "code": exc.code,
@@ -598,8 +687,15 @@ def _refused(exc: ConformanceRefusal, args: argparse.Namespace,
                           # WHICH corpus was refused against, because a
                           # `conformance-corpus-unfaithful` object that does
                           # not name the corpus leaves a caller reading the
-                          # prose to find out.
-                          "corpus": args.corpus,
+                          # prose to find out. THE RESOLVED PATH AND NOT THE
+                          # FLAG (Copilot, round 1): `args.corpus` is `null`
+                          # on a default run and an uncanonicalized relative
+                          # path when one was given, so a caller comparing a
+                          # refusal with a summary — which carries the
+                          # resolved path — would be comparing two spellings
+                          # of one directory, or nothing at all.
+                          "corpus": (str(corpus_root) if corpus_root
+                                     else args.corpus),
                           "adapter": args.adapter}))
     else:
         print(exc.render(where), file=sys.stderr)
@@ -618,9 +714,11 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
     transposed = ""
     record = summary.get("transposition")
     if record:
+        at = (f"revision {record['revision']}" if record["revision"]
+              else "no declared revision")
         transposed = (f", TRANSPOSED and FAITHFUL to {record['shipped']} — "
-                      f"{record['documents']} document(s), key/sha256 table "
-                      f"{record['digest']}")
+                      f"{record['documents']} document(s) at {at}, key/sha256 "
+                      f"table {record['digest']}, unmoved across the run")
     print(f"OK {summary['dest_root']}: {summary['destination']} passed the "
           f"neutral conformance corpus — {summary['passed']} of "
           f"{summary['checks_run']} check(s), reader "
@@ -686,6 +784,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     where = args.dest_root or args.destination
+    # HOISTED so that EVERY refusal below can name the corpus it was about,
+    # in the same spelling a successful summary uses. It depends on nothing
+    # but the flag and this repository's own layout, so no refusal has to
+    # happen before it can be formed.
+    corpus_root = (Path(args.corpus).resolve() if args.corpus
+                   else (ROOT / CORPUS_RELPATH).resolve())
     try:
         known = read_destinations(manifest_path)
         if args.destination not in known:
@@ -710,8 +814,6 @@ def main(argv: list[str] | None = None) -> int:
                 f"--dest-root {args.dest_root!r} resolves to {dest_root}, "
                 "which is not a directory")
         where = str(dest_root)
-        corpus_root = (Path(args.corpus).resolve() if args.corpus
-                       else (ROOT / CORPUS_RELPATH).resolve())
         locations = corpus_locations(corpus_root)
         if args.adapter is None:
             raise ConformanceRefusal(
@@ -736,6 +838,10 @@ def main(argv: list[str] | None = None) -> int:
                 factory, locations["populated"], corpus_root, shipped)
         summary = run_corpus(factory, locations, args.destination, dest_root,
                              corpus_root, args.adapter, transposition)
+        if transposition is not None and transposition["proven"]:
+            confirm_transposition_unmoved(
+                factory, locations["populated"], corpus_root, shipped,
+                transposition)
         if transposition is not None and not transposition["proven"]:
             # The seventeen passed over a corpus this run could not compare.
             # Every ordinary way of reaching here fails a check first
@@ -752,7 +858,7 @@ def main(argv: list[str] | None = None) -> int:
                 "unproven transposition is FLOOR PART 3 recorded against a "
                 "corpus nobody compared")
     except ConformanceRefusal as exc:
-        return _refused(exc, args, where)
+        return _refused(exc, args, where, corpus_root)
     # THE EXIT CONTRACT, HELD BY CODE AND NOT BY INSPECTION. Everything above
     # refuses in this file's own vocabulary; anything that does not — a reader
     # whose constructor raises, an `OSError` the checks did not name, a bug
@@ -765,7 +871,7 @@ def main(argv: list[str] | None = None) -> int:
             ConformanceRefusal(
                 "conformance-unreadable",
                 f"{type(exc).__name__}: {exc}"),
-            args, where)
+            args, where, corpus_root)
     _print_ok(summary, args.json)
     return 0
 

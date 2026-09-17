@@ -92,9 +92,19 @@ GIT_ENV = {
 
 
 def _git(*args: str, cwd: Path | None = None, stdin: bytes | None = None,
-         env_extra: dict[str, str] | None = None) -> subprocess.CompletedProcess:
+         env_extra: dict[str, str] | None = None
+         ) -> subprocess.CompletedProcess:
     import os
     env = dict(os.environ)
+    # AMBIENT GIT POINTERS ARE DROPPED, NOT INHERITED. `GIT_DIR` and
+    # `GIT_WORK_TREE` would override every `cwd=` below and silently aim
+    # these plumbing calls at whatever repository the process was started
+    # in — the same class of environment dependence `pytest-suite.yml`
+    # denies with `GIT_CONFIG_GLOBAL=/dev/null`, and the one this file can
+    # least afford, since what it writes are commits.
+    for pointer in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE",
+                    "GIT_OBJECT_DIRECTORY", "GIT_COMMON_DIR"):
+        env.pop(pointer, None)
     env.update(GIT_ENV)
     if env_extra:
         env.update(env_extra)
