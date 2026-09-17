@@ -653,7 +653,15 @@ def homes_of(doc: dict[str, Any], row: dict[str, Any]) -> RowMapping:
                         "are not distinct homes, and counting them twice "
                         "would add a multiplicity term no repository carries")
                 seen.append(identity)
-            extra = tuple(repository_of(doc, key) for key in also)
+            # THROUGH THE ARRIVAL SEAM, LIKE THE ROW'S OWN KEY (Copilot,
+            # round 10 on #1080, and it is this file's own round-8 seam being
+            # bypassed one line below where it was introduced):
+            # `also_replicated_to:` names `destinations:` KEYS, and
+            # `repository_of` accepts the retained SELECTOR — so
+            # `also_replicated_to: [openxFactory]` added a retained home that
+            # no destination invocation ever asks for, inflating that column
+            # while the identity went on holding.
+            extra = tuple(repository_of_arrival(doc, key) for key in also)
         if retirement_of(row) is not None:
             # THE RETIREMENT IS AT A REAL DESTINATION OR IT IS NOT A
             # RETIREMENT (Copilot, round 5 on #1080, accurate and act-blocking

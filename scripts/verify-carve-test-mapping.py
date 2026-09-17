@@ -159,6 +159,19 @@ def read_manifest(path: Path) -> dict[str, Any]:
     # PART 1's `check_shape` requires both fields; this tool is run where that
     # validator is not, and it compares those bodies for a living.
     for key, entry in doc["destinations"].items():
+        # AND THE KEY IS A KEY (Copilot, round 10 on #1080): YAML admits
+        # `null:` and numeric keys, and `resolved_destination(None, …)` would
+        # then resolve to a real `{repository, leg}` while `homes_of` reads
+        # the same non-string value on a row as NO HOME — a destination-only
+        # invocation counting an arrival the source mapping rejects, or
+        # skipping it and passing by asking nothing.
+        if not isinstance(key, str) or not key:
+            raise mapping.TestMappingRefusal(
+                "test-mapping-unreadable",
+                f"{path} carries the `destinations:` key {key!r}, which is "
+                "not a non-empty string. A key is the LABEL a row's "
+                "`destination:` spells and `--destination` names, and both "
+                "of those are strings")
         if not isinstance(entry, dict) or not all(
                 isinstance(entry.get(field), str) and entry[field]
                 for field in ("repository", "leg")):
@@ -224,6 +237,30 @@ def read_manifest(path: Path) -> dict[str, Any]:
     # `moved_paths: ["contracts/policies/"]`: `rows_in_surface 0`,
     # `source_count 0`, exit 0. Clause (a) is a QUANTIFIER, and a quantifier
     # over the empty set is not a floor that holds.
+    # EVERY ROW'S DISPOSITION IS IN THE VOCABULARY, AND THE DESTINATION SIDE
+    # IS WHY (Copilot, round 10 on #1080). `homes_of` refuses an unknown
+    # `disposition:`/`reason:` — but ONLY the source invocation calls it. At a
+    # leg, `arrivals_for` reads the disposition to decide whether a row is
+    # owed here, so a row spelled `disposition: typo` simply fell out of the
+    # loop as somebody else's business and the leg passed WITHOUT EVER
+    # CHECKING THAT ARRIVAL. The vocabulary is FLOOR PART 1's, closed, and
+    # this is the one place both modes pass through.
+    for index, row in enumerate(doc["rows"]):
+        disposition = row.get("disposition")
+        reason = row.get("reason")
+        if disposition in mapping.MOVED_DISPOSITIONS:
+            continue
+        if disposition == mapping.NOT_MOVED and reason in (
+                mapping.STAYS_REASONS
+                + (mapping.REPLICA_REASON, mapping.DELETED_REASON)):
+            continue
+        raise mapping.TestMappingRefusal(
+            "test-mapping-unreadable",
+            f"{path} rows[{index}] ({row['source_path']}) carries "
+            f"disposition {disposition!r} / reason {reason!r}, which FLOOR "
+            "PART 1's own vocabulary does not hold. The source side refuses "
+            "such a row by name; a DESTINATION run would read it as another "
+            "leg's business and pass without ever asking for its arrival")
     outside = [source_path for source_path in seen
                if not mapping.under_surface(source_path, doc["moved_paths"])]
     if len(outside) == len(seen):
@@ -444,7 +481,13 @@ def parse_replica_placements(values: list[str], doc: dict[str, Any],
     replicas = {row["source_path"]: row for row in in_surface
                 if mapping.is_replica(row)}
     also = {row["source_path"] for row in in_surface
-            if isinstance(row.get("also_replicated_to"), list)
+            # MOVED ROWS ONLY (Copilot, round 10 on #1080): RULED Q-L7 (a)
+            # gives `also_replicated_to:` to a row that MOVES, and `homes_of`
+            # reads it nowhere else — so a `not_moved` row carrying the field
+            # was admitted here and counted at a destination while the source
+            # mapping gave it no such home at all.
+            if row.get("disposition") in mapping.MOVED_DISPOSITIONS
+            and isinstance(row.get("also_replicated_to"), list)
             and any(mapping.resolved_destination(key, destinations) == wanted
                     for key in row["also_replicated_to"])
             and mapping.resolved_destination(

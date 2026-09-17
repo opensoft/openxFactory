@@ -1916,7 +1916,13 @@ exited 0, a leg passing because a live arrival had been silenced by a key
 naming nothing. A `--replica-at` placement is admitted only for a row under
 the declared surface, for the same reason in the other direction: a floor is
 neither lowered inside the set it is quantified over nor raised outside it.
-And the surface must cover the WHOLE document — a `moved_paths:` that omits
+Every row's `disposition:`/`reason:` must be IN FLOOR PART 1's vocabulary — the
+source side refuses an unknown one by name, and a LEG read it as another
+destination's business and passed without ever asking for that arrival — and
+every `destinations:` key must be a non-empty string naming a map with both a
+`repository:` and a `leg:`, because an incomplete identity compares equal to
+nothing and a leg named by it is asked for no arrival at all. And the surface
+must cover the WHOLE document — a `moved_paths:` that omits
 some of its own rows reports `0 = 0` over the part it omits, which at the limit
 is a prefix matching one zero-test row; the landed manifest's 456 rows are all
 under its surface, and that was asserted only in pytest until this round made

@@ -1701,6 +1701,82 @@ def test_a_shortfall_names_the_rows_above_their_declaration_as_well(
 
 
 # --------------------------------------------------------------------------
+# Copilot round 10 — the vocabulary a leg never checked, and three ways an
+# obligation could be invented or erased
+# --------------------------------------------------------------------------
+
+@pytest.mark.parametrize("mutate", [
+    {"disposition": "typo"},
+    {"disposition": "not_moved", "reason": "stays_because_i_said_so"},
+    {"disposition": None},
+])
+def test_a_row_outside_the_vocabulary_refuses_at_the_leg_too(
+        scratch: Scratch, mutate: dict[str, Any]) -> None:
+    """`homes_of` refuses an unknown `disposition:`/`reason:` — and ONLY the
+    SOURCE invocation calls it. At a leg, `arrivals_for` reads the disposition
+    to decide whether a row is owed there, so a test-bearing row spelled
+    `disposition: typo` fell out of that loop as somebody else's business and
+    the leg passed WITHOUT EVER ASKING FOR THAT ARRIVAL."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row.pop("reason", None)
+    row.update(mutate)
+    dest = scratch.destination("dox", ARRIVALS)
+    payload = refused(scratch.run(doc, "--destination", "dox_code",
+                                  "--dest-root", str(dest)),
+                      "test-mapping-unreadable")
+    assert "scripts/pkg/test_alpha.py" in payload["detail"]
+    refused(scratch.run(doc), "test-mapping-unreadable")
+
+
+def test_a_not_moved_row_may_not_be_admitted_by_also_replicated_to(
+        scratch: Scratch) -> None:
+    """RULED Q-L7 (a) gives `also_replicated_to:` to a row that MOVES, and
+    `homes_of` reads it nowhere else — so a `not_moved` row carrying the field
+    was admitted by `--replica-at` and counted at a destination while the
+    source mapping gave it no such home at all."""
+    doc = scratch.clean()
+    kept = scratch.row(doc, "scripts/pkg/test_kept.py")
+    kept["also_replicated_to"] = ["dox_code"]
+    dest = scratch.destination("dox", ARRIVALS)
+    payload = refused(
+        scratch.run(doc, "--destination", "dox_code", "--dest-root",
+                    str(dest), "--replica-at",
+                    "scripts/pkg/test_kept.py=tests/test_kept.py"),
+        "test-mapping-unreadable")
+    assert "scripts/pkg/test_kept.py" in payload["detail"]
+
+
+def test_also_replicated_to_may_not_name_the_retained_column_either(
+        scratch: Scratch) -> None:
+    """The round-8 seam, bypassed one line below where it was introduced:
+    `also_replicated_to:` names `destinations:` KEYS, and `repository_of`
+    accepts the retained SELECTOR — so `also_replicated_to: [openxFactory]`
+    added a home at the source repository that no destination invocation ever
+    asks for, inflating that column while the identity went on holding."""
+    doc = scratch.clean()
+    row = scratch.row(doc, "scripts/pkg/test_alpha.py")
+    row["also_replicated_to"] = [MODULE.RETAINED_TOKEN]
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert MODULE.RETAINED_TOKEN in payload["detail"]
+
+
+@pytest.mark.parametrize("key", [None, 7])
+def test_a_destinations_key_that_is_not_a_string_refuses(
+        scratch: Scratch, key: Any) -> None:
+    """YAML admits `null:` and numeric keys. `resolved_destination` would then
+    resolve one to a real `{repository, leg}` while `homes_of` reads the same
+    non-string value on a ROW as no home at all — a destination-only
+    invocation counting an arrival the source mapping rejects, or skipping it
+    and passing by asking nothing."""
+    doc = scratch.clean()
+    doc["destinations"][key] = {"repository": "opensoft/openDox-code",
+                                "leg": "code"}
+    payload = refused(scratch.run(doc), "test-mapping-unreadable")
+    assert "not a non-empty string" in payload["detail"]
+
+
+# --------------------------------------------------------------------------
 # the landed document — the § 8.2 seat
 # --------------------------------------------------------------------------
 
