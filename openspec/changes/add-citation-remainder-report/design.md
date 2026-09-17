@@ -465,10 +465,17 @@ REPO_ROOT       repository root to scan (default: cwd), as every sibling
                 hard-coding
 ```
 
-**`--history` IS OPT-IN ON A MEASURED COST, NOT A PREFERENCE.** In the
-evidence run the per-identity `git log --all --diff-filter=A` probe was **17.0
-of 19.0 seconds — 90% of the whole run** — and it returned empty for 51 of the
-57 tokens, which the resolver had already said. It decides exactly ONE thing
+**`--history` IS OPT-IN ON A MEASURED COST, NOT A PREFERENCE.** The probe RUNS
+PER IDENTITY, NOT PER TOKEN: it caches on the identity key and invokes
+`git log --all --diff-filter=A` only on the first token under each identity,
+every later token sharing that identity re-using the cached answer instead of
+re-running the probe (PR #1069, Copilot threads `PRRT_kwDOTAvnrs6jXaNU` and
+`PRRT_kwDOTAvnrs6jXaPJ`). In the evidence run that is **38 identities, 76
+invocations** (a literal-pathspec form and a corrected form, each run once per
+identity) — measured at **17.0 of 19.0 seconds — 90% of the whole run** — and
+it returned empty for **33 of the 38 identities**, equivalently 51 of the 57
+tokens they cover (every token under one identity shares its identity's
+answer), which the resolver had already said. It decides exactly ONE thing
 the resolver cannot: an id that STOOD here and was renamed before former-id
 tracking, against one that never stood here at all. Worth a flag; not worth the
 default. **Without it the sweep is 2.0 seconds over 2,973 entries in scope
