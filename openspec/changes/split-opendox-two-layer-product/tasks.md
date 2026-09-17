@@ -1279,10 +1279,16 @@ the bookkeeping that ticks this group.
   diagnostic subclass supplying the three — and `resolve` pins the
   repository root and REFUSES an enclosing repository, because *"a reader
   that can commit into somebody else's clone does not land"*.
-  **WHERE THE TWO DESTINATIONS STAND TODAY, measured 2026-09-17**: openDox's
-  reader is at **11 of 17** on `openDox-code` **#26**; **openXdox has no
-  reader at all** and its build is § 4.5a above, claimed the same day; the
-  control, `openxFactory`'s own § 2.2a adapter, is **17 of 17**. **This box
+  **WHERE THE TWO DESTINATIONS STAND, each figure bound to the tree it was
+  read at** — because a reader who re-runs these at a later head of a moving
+  draft and gets a different number should be able to tell drift from error:
+  openDox's reader is **11 of 17** at `openDox-code` **#26** `6c8f19e7`
+  (`floor37`'s read of 2026-09-17T12:11Z, the measurement RULED Q-F1..F3 was
+  given on; #26 has moved since and Q-F2/Q-F3 land in it); **openXdox has no
+  reader at all** at `openXdox-code` `589adee7`, where the runner refuses
+  `conformance-adapter-undeclared` — its build is § 4.5a above, claimed the
+  same day; and the control, `openxFactory`'s own § 2.2a adapter, is
+  **17 of 17**. **This box
   ticks when EVERY destination passes — openDox after #26 plus the Q-F1
   transposition, openXdox after § 4.5a lands — and not before.** § 8.2 reads
   this evidence, so nothing downstream loosens while it stands open.
