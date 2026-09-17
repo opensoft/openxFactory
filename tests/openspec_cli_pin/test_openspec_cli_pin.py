@@ -1000,6 +1000,22 @@ def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
 DEPARTED_SINCE_THE_CAPTURE = {
     ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"): {
         "archive": "openspec/changes/archive/2026-09-16-add-composed-view-authoring",
+        # THE BYTES THE EXEMPTION RESTS ON. Proving the packet moved, and that
+        # the delta file came with it, still says nothing about WHAT IS IN that
+        # file: any regular in-tree file at the path would have satisfied the
+        # proof below, and the frozen finding would have counted as departed
+        # while the delta this closure promises to preserve was gone. For a
+        # closure whose entire claim is byte-identical re-homing, that is the
+        # claim itself left unchecked. Measured 2026-09-16 on the archived file
+        # and, independently, on the destination: openDox-spec `main`
+        # `edeed08c` carries the same content at
+        # `openspec/changes/add-composed-view-authoring/specs/ideation-dashboard/spec.md`,
+        # and `git hash-object` returns `b14869b210c92a2d3e71300b4c53a33b95536511`
+        # in BOTH repositories — the same git OBJECT, not merely equal bytes.
+        # This suite can only read the local side; the cross-repository half is
+        # recorded in this pull request and re-checkable by hand.
+        "sha256": "1754e5d3f9803ea80b4e8a177fda8359a96d6c4b1024fce69893ee3cb3d716e1",
+        "bytes": 3557,
         # Quoted from the frozen capture
         # `openspec-1.12.0-validate-changes-strict-report-findings.json`, which
         # is real bytes from `@fission-ai/openspec@1.12.0` on the corpus of
@@ -1156,6 +1172,20 @@ def _departed_since_the_capture(mod, identity, row):
         f"{key}: {delta} resolves to {delta.resolve(strict=True)}, outside the "
         "archive the map named. The bytes this exemption rests on are not the "
         "archived packet's")
+    # AND WHAT IS IN IT. Everything above is about WHERE the file is, and a
+    # departure granted on location alone is granted to ANY regular in-tree file
+    # that happens to sit at the path. The exemption says a captured finding may
+    # be ignored BECAUSE its subject moved intact; intactness is therefore the
+    # part that has to be measured, not the part that may be assumed.
+    measured = hashlib.sha256(delta.read_bytes()).hexdigest()
+    assert (measured, delta.stat().st_size) == (entry["sha256"], entry["bytes"]), (
+        f"{key} names an archive whose delta is NOT the one this map measured. "
+        f"{delta.relative_to(PIN_REPO_ROOT)} reads sha256 {measured} / "
+        f"{delta.stat().st_size} bytes; the entry records {entry['sha256']} / "
+        f"{entry['bytes']} bytes. The packet moved and a file is there, but its "
+        "bytes are not the bytes the exemption was granted for. A closure that "
+        "claims BYTE-IDENTICAL re-homing cannot prove departure with an unread "
+        "file")
     return True
 
 
