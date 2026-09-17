@@ -140,7 +140,17 @@ def main(argv=None):
         dest_count[d] = dest_count.get(d, 0) + 1
         if d == "openxFactory":
             fifteen.append(title)
-    dup = [t for t in set(map(norm, all_titles)) if list(map(norm, all_titles)).count(t) > 1]
+    # NORMALIZE ONCE, COUNT ONCE, REPORT IN A FIXED ORDER.
+    # This refusal is evidence, so it has to read the same on every run. Built
+    # from a `set`, it did not: `str.__hash__` is seeded per interpreter, so the
+    # same duplicated titles came back in five different orders under five
+    # `PYTHONHASHSEED` values. `sorted()` fixes the order; hoisting `normed`
+    # stops re-normalizing all 102 titles once per candidate.
+    normed = [norm(t) for t in all_titles]
+    counts = {}
+    for t in normed:
+        counts[t] = counts.get(t, 0) + 1
+    dup = sorted(t for t, n in counts.items() if n > 1)
     if dup:
         raise _refuse(f"the ratified map carries {len(dup)} duplicated title(s) "
                       f"under the corpus's normalization: {dup} — the row counts "
