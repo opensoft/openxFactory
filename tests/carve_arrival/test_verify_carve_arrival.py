@@ -5341,6 +5341,17 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     # pass. None of the five carries a manifest row (RULED OQ-C), so the
     # admission is the only governed record that they may be at the destination
     # at all.
+    #
+    # MEASURED, because "the generic loop would not catch it" is a claim like
+    # any other: renaming ONE of the five `path:` values in the committed
+    # admissions file leaves every generic check below satisfied — the list is
+    # still alphabetical, still unique, every `since` is still 40 hex and every
+    # `reason` still non-empty — and this test is the one that goes red.
+    #
+    #   (rename src/openxdox/corpus_shape.py in the admissions file)
+    #   python -m pytest -q tests/carve_arrival -k committed_admissions
+    #   FAILED …::test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_formed
+    #   1 failed, 158 deselected
     CORPUS_ADAPTER_SINCE = "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
     CORPUS_ADAPTER_TESTS_SINCE = "5494bb43350636cf7c3d5a3b6b2d6262ab74dd06"
     for path, since in (
