@@ -1460,6 +1460,21 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     assert canon.is_file(), _moved(
         f"the promoted capability {canon.relative_to(ROOT)}",
         "no such file, so the non-promotion assertion below would be vacuous")
+    # AND IT IS REALLY THAT FILE. `is_file()` and `read_text()` both FOLLOW
+    # symlinks, exactly as they do on the archived side above, so without this a
+    # `spec.md` symlink — or a symlinked `openspec/specs` ANCESTOR — could serve
+    # a file that carries the control scenario and omits the forbidden titles,
+    # and the non-promotion guard would pass having read someone else's canon.
+    # Resolved-path equality catches leaf and ancestor alike; a leaf-only
+    # `is_symlink()` walks straight past an ancestor. The active path and the
+    # archived delta are both guarded this way here, and the third read of the
+    # same proof should not be the one that trusts the filesystem.
+    # (Found by Copilot's review at `23710077` — my own omission one round old.)
+    assert canon.resolve(strict=True) == (
+            ROOT.resolve() / "openspec" / "specs" / capability / "spec.md"), _moved(
+        f"canon {canon.relative_to(ROOT)} reached without a symlink",
+        f"it resolves to {canon.resolve(strict=True)}, so the titles counted "
+        "below were counted in some other file")
     canon_text = canon.read_text(encoding="utf-8", errors="replace")
     assert f"#### Scenario: {_CANON_SCENARIO_CONTROL}" in canon_text, _moved(
         f"canon's own scenario {_CANON_SCENARIO_CONTROL!r}, the control that "
