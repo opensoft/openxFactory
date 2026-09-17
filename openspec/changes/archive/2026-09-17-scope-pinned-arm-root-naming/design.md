@@ -195,7 +195,22 @@ committed tree alone. What follows IS.
 
 VERIFICATION — REPRODUCIBLE FROM THE COMMITTED TREE ALONE (canon's spec, this
 packet's own delta, and `scripts/doc_health/`, none of which this measurement
-edits), independently of how the delta was produced:
+edits), independently of how the delta was produced.
+
+**COMMANDS 1–4 BELOW ARE PRE-ARCHIVE HISTORICAL EVIDENCE AND NO LONGER RUN AS
+WRITTEN.** They were last re-run over the packet AS AMENDED but BEFORE
+`scripts/proposal-support.py . archive` moved it — canon read at `a93d2682`
+(this branch's point off `main`), the packet read at its then-live path — and
+they reproduced every figure stated with them. The archive act invalidated
+their INPUTS, not their results, in two ways a reader must know before copying
+them: command 1 reads
+`openspec/changes/scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md`,
+which no longer exists (the packet is at
+`openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/`), and
+command 3's `mbc.active_blocks(root)` EXCLUDES `openspec/changes/archive/` by
+design, so it returns no block for this change at all; commands 2 and 3 also
+compare against a canon that now ALREADY CARRIES the promoted block. § 5 below
+is the post-archive equivalent, run over this commit, with its output pasted.
 
 1. Extract canon's block and this packet's block as plain text, into a
    shell-created temporary directory rather than a fixed host-absolute path
@@ -257,13 +272,89 @@ edits), independently of how the delta was produced:
    body units and scenario bullets ... currently states for it", quoting all
    three uncarried units by text.
 
-All four commands were RE-RUN against this commit (the archive act, carrying
-the ratifier's 2026-09-17 amendment of the WHEN over round 6's revert and
-round 5's kept pointer refresh) and reproduce the numbers stated above; the
+All four commands were RE-RUN over the amended packet BEFORE the archive moved
+it (the heads named above) and reproduce the numbers stated with them; the
 earlier per-round numbers — at filing 17/4, 2 hunks, uncarried 1, new 7; after
 round 1's clause 18/5, 3 hunks, uncarried 2, new 8 — are recorded historically
 at `tasks.md` § 2.2 and in the pull request body, and are not restated here as
 current.
+
+5. **THE SAME FACTS, REPRODUCIBLE ON THE ARCHIVED TREE.** These read the packet
+   at its ARCHIVED path and take canon from `git show` where the pre-promotion
+   state is wanted, so nothing depends on a path or a reader the archive
+   removed. Each was RUN AT THIS COMMIT and its output is pasted verbatim.
+
+   (a) The canon-diff figures of commands 1–2, against PRE-PROMOTION canon:
+   ```
+   tmp=$(mktemp -d)
+   ARCH=openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md
+   git show a93d2682:openspec/specs/document-lifecycle/spec.md > "$tmp/canon-pre.md"
+   python3 -c "
+   import pathlib, sys
+   text = pathlib.Path(sys.argv[1]).read_text()
+   title = '### Requirement: Prose tagging marker hygiene\n'
+   start = text.index(title)
+   end = text.index('\n### Requirement: ', start + len(title)) + 1
+   pathlib.Path(sys.argv[2]).write_text(text[start:end].rstrip('\n') + '\n')
+   " "$tmp/canon-pre.md" "$tmp/canon-block.txt"
+   tail -n +5 "$ARCH" > "$tmp/packet-block.txt"
+   git diff --no-index --numstat "$tmp/canon-block.txt" "$tmp/packet-block.txt"
+   diff -u "$tmp/canon-block.txt" "$tmp/packet-block.txt" | grep -c '^@@'
+   ```
+   reads `21      8` and `4` — command 2's figures exactly.
+
+   (b) THE PROMOTION ITSELF, which commands 1–2 could not state because they
+   predate it: the same two commands with canon taken from the LIVE
+   `openspec/specs/document-lifecycle/spec.md` instead of `git show` print NO
+   numstat line at all (the files are identical) and `0` hunks.
+
+   (c) The `derive_units` comparison of command 3, without `active_blocks`:
+   ```
+   python3 -c "
+   import sys, pathlib, subprocess
+   sys.path.insert(0, 'scripts')
+   from doc_health import modified_block_currency as mbc
+   from doc_health import promotion_fidelity as pf
+   ARCH = ('openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/'
+           'specs/document-lifecycle/spec.md')
+   TITLE = 'Prose tagging marker hygiene'
+   def body(text, keep_heading=False):
+       head = '### Requirement: %s\n' % TITLE
+       s = text.index(head)
+       n = text.find('\n### Requirement: ', s + len(head))
+       e = len(text) if n < 0 else n + 1   # the delta holds ONE requirement
+       return text[(s if keep_heading else s + len(head)):e].rstrip('\n').split('\n')
+   arch = pathlib.Path(ARCH).read_text()
+   pre = subprocess.run(['git', 'show',
+                         'a93d2682:openspec/specs/document-lifecycle/spec.md'],
+                        capture_output=True, text=True, check=True).stdout
+   pre_u, _ = mbc.derive_units(body(pre, True))
+   blk_h, _ = mbc.derive_units(body(arch, True))
+   have = {u.pair() for u in pre_u}
+   print('(pre)  canon', len(pre_u), 'block', len(blk_h),
+         'uncarried', len(mbc.carried(pre_u, blk_h)),
+         'new', len([u for u in blk_h if u.pair() not in have]))
+   canon = mbc.promoted(pathlib.Path('.').resolve(),
+                        'document-lifecycle')[pf.norm(TITLE)]
+   blk, _ = mbc.derive_units(body(arch))   # heading dropped: promoted()'s convention
+   have = {u.pair() for u in canon.units}
+   print('(now)  canon', len(canon.units), 'block', len(blk),
+         'uncarried', len(mbc.carried(canon.units, blk)),
+         'new', len([u for u in blk if u.pair() not in have]))
+   "
+   ```
+   reads `(pre)  canon 209 block 215 uncarried 3 new 9` — command 3's figures
+   exactly — and `(now)  canon 215 block 215 uncarried 0 new 0`, the promotion
+   measured through the family's own derivation.
+
+   (d) The live-finding check of command 4, post-archive: `python3
+   scripts/doc-health.py --single-repo . --as-of 2026-09-17 --family
+   modified-block-currency` reports **14 `info` rows and NOT ONE naming this
+   change** — the finding command 4 quoted is gone because the block is canon
+   now, which is the retirement condition `tasks.md` § 3.2 discharges. And
+   `--family promotion-fidelity`, the family that DOES read
+   `openspec/changes/archive/`, reports **0 findings**: the archived block and
+   canon agree.
 
 Base of measurement: `origin/main` @ `8944758c` (the archive of
 `extend-prose-tagging-target-to-pinned-capabilities`, PR #1042, merged

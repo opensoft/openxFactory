@@ -19,7 +19,14 @@ Kind: tasks
 `code_surface: none`, `target_release: implemented`. Under
 `release-realization` an EMPTY code surface archives ON LANDING plus its own
 task list rather than on merged-plus-green realization evidence — **and that
-archive is a separate act on a separate word, not performed here** (§ 3).
+archive WAS a separate act on a separate word, PERFORMED AND RECORDED IN § 3
+BELOW**, on Brett Heap's SEPARATE ARCHIVE WORD of 2026-09-17, verbatim
+***"merge 1051 when green, then archive 1047"***. THE ONE CITATION:
+openxFactory #1047, comment
+https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714241892.
+**THIS SENTENCE READ "not performed here" AT FILING AND THROUGH THE
+RATIFICATION, AND WAS TRUE THEN** — § 3's boxes stayed open until that word
+came, and the word is what ticked them (§ 3.1, § 3.2).
 
 **NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
 this pull request or a measurement recorded verbatim in its body, save 1.1's
@@ -51,6 +58,8 @@ verbatim in its body.
 ## 2. Filing — this pull request
 
 - [x] 2.1 Packet authored at `openspec/changes/scope-pinned-arm-root-naming/`
+      — the AT-FILING path; the archive of 2026-09-17 moved it to
+      `openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/`
       — `proposal.md` (front matter `code_surface: none`,
       `target_release: implemented`, `sequenced_after: []`), `design.md`,
       `tasks.md`, `.openspec.yaml` (ad-hoc origin declared through
