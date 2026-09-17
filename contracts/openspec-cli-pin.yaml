@@ -259,14 +259,22 @@ kind: pinned_contract_manifest
 #     scripts/validate-openspec-cli-pin.py: an unmatched FINDING is a statement
 #     about the deltas, an unmatched DISPOSITION is a statement about this file.
 #     `add-composed-view-authoring` was the worked example here, written while
-#     it had ONE open task left. The module's own words were that the change
-#     "archives the moment a human takes it, at which point its finding
+#     it had ONE open task left. The module's PRE-CLOSURE words were that the
+#     change "archives the moment a human takes it, at which point its finding
 #     disappears from every run and its disposition would sit here forever,
-#     suppressing a class of finding nobody re-examined" — and that "refusing
+#     suppressing a class of finding nobody re-examined", and that "Refusing
 #     makes the archive itself the event that forces the re-examination."
-#     (An earlier draft of this paragraph rendered that passage as a quotation
-#     it was not; the words above are the module's, checked against it, and the
-#     correction is recorded here rather than made silently.) THE DAY CAME ON
+#     THOSE SENTENCES ARE NOT IN THE MODULE BESIDE THIS FILE, AND A GREP FOR
+#     THEM AT THIS HEAD FINDS NOTHING: this same change rewrote that paragraph
+#     into the past tense (the entry below says so). They are reproducible
+#     verbatim and whole in blob `7eea1bb9455dd77fd3e6bfea14e0653547e6c523` —
+#     `scripts/validate-openspec-cli-pin.py` as this change found it — so the
+#     citation names the OBJECT it reproduces from rather than a path whose
+#     contents this very change moves out from under it.
+#     (An earlier draft of this paragraph rendered the passage as a quotation it
+#     was not; that correction stands and is kept here rather than made
+#     silently, and this one is added beside it for the same reason.)
+#     THE DAY CAME ON
 #     2026-09-16 AND THE MECHANISM FIRED, THOUGH NOT BY THE ROUTE THE SENTENCE
 #     NAMED. The change did not archive on its open task being taken — it was
 #     CLOSED AS RE-HOMED to `opensoft/openDox`

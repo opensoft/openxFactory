@@ -431,6 +431,33 @@ _SCENARIOS_CANON_MUST_NOT_GAIN = (
 #: vacuously over a file that no longer says what this test thinks it says.
 _CANON_SCENARIO_CONTROL = "Gate verbs hide on a composed view"
 
+#: THE SAME INVARIANT OVER UNITS, because the title list above watches FIVE of
+#: the TWENTY-SIX units canon does not carry. `promotion_fidelity` compares
+#: `writer.scenarios` and nothing else
+#: (`scripts/doc_health/promotion_fidelity.py:858-859`), and its dispositions are
+#: keyed by the archived delta's PATH rather than by unit (`disposed()`,
+#: `:785-787`), so TEN BODY SENTENCES — every one of them a SHALL obligation —
+#: and ELEVEN scenario bullets could be copied into canon's block with all five
+#: titles still absent, and this guard, the fidelity family and the disposed gate
+#: would each stay green. "No delta is promoted here" is a claim about UNITS, not
+#: about headings, and the cheapest way to promote a requirement while satisfying
+#: a title check is to carry its obligations in prose.
+#: Measured 2026-09-17 through the family's own `derive_units` on BOTH sides and
+#: partitioned by its own `carried()`. The FIVE units the block shares with canon
+#: — canon's own text, which a MODIFIED block restates by construction — are
+#: excluded for the same reason the delta's sixth scenario title is excluded
+#: above: canon already states them, so their presence proves nothing either way
+#: and asserting their absence would fail against a correct tree.
+#: FROZEN BY KIND. Canon gaining any delta-only unit moves that unit into the
+#: shared set, and the count of its kind FALLS here.
+#: (Found by Copilot's reviews at `ad2c33be`, `26a8ed26` and `31fbb445` — three
+#: readings of one omission, and the third named the mechanism above.)
+_DELTA_UNITS_CANON_MUST_NOT_GAIN = {
+    mbc.BODY: 10,
+    mbc.SCENARIO_BULLET: 11,
+    mbc.SCENARIO_TITLE: 5,
+}
+
 _LEDGER_SUBJECTS = {
     # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
     # signed-execution-chain arc, whose proposal merged to `main` via PR #510
@@ -1521,6 +1548,31 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
         "archived packet's own words — or canon gained those titles by another "
         "act that must be declared, because this test cannot tell the two "
         "apart and will not guess")
+
+    # AND THE SAME GUARD OVER UNITS, not only over headings. Both sides are
+    # derived by the family's own `derive_units` — `units` is the archived
+    # block's, `canon_block.units` is canon's, the SINGLE derivation the module
+    # says is "run over canon's block and the delta's block alike" — and the
+    # partition is its own `carried()`, whose first argument is the side being
+    # filtered. So there is no second reader here and a derivation bug is
+    # SYMMETRIC: it can make this assertion quiet, never make it invent a
+    # finding. Equality over the whole tally, not a floor: a kind that FELL
+    # means canon gained those units, which is the promotion RULING Q6 forbids;
+    # a kind that ROSE means the archived delta itself moved, which is a
+    # different defect with a different remedy, and the message names both.
+    # (Found by Copilot's reviews at `ad2c33be`, `26a8ed26` and `31fbb445`.)
+    delta_only = mbc.carried(units, canon_block.units)
+    tally: dict[str, int] = {}
+    for unit in delta_only:
+        tally[unit.kind] = tally.get(unit.kind, 0) + 1
+    assert tally == _DELTA_UNITS_CANON_MUST_NOT_GAIN, _moved(
+        f"every one of the {sum(_DELTA_UNITS_CANON_MUST_NOT_GAIN.values())} "
+        f"units the archived block does not share with canon ABSENT from "
+        f"canon's {requirement!r} block — a body sentence reaching canon is the "
+        "promotion this closure forbids exactly as a scenario title is",
+        f"the delta-only tally is {tally}, not "
+        f"{_DELTA_UNITS_CANON_MUST_NOT_GAIN}; first three delta-only units are "
+        f"{[(u.kind, u.text[:60]) for u in delta_only[:3]]}")
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
@@ -2852,11 +2904,20 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     # selecting on a band that stopped being that arm's at `7f656980` and would
     # have started selecting the new classes' instead. Eight more names, and
     # still not one regex more below.
+    # `carried`, `BODY` and `SCENARIO_BULLET` joined the list on 2026-09-17,
+    # when the non-promotion guard was widened from the five scenario TITLES to
+    # all twenty-six units canon does not carry. `carried()` is the family's own
+    # partition and the reason there is no second comparison here; the two kind
+    # constants are how the family itself spells the kinds the frozen tally is
+    # keyed by, and a dict literal of bare strings would be exactly the "second
+    # grammar for the same heading" this module refuses everywhere else. Three
+    # more names, and still not one regex more below.
     allowed = {"ActiveBlock", "active_blocks", "declarations", "derive_units",
                "fam_modified_block_currency", "norm", "parse_delta",
                "promoted", "resolve", "sibling_titles", "classify",
-               "PromotedRequirement",
+               "PromotedRequirement", "carried",
                "DELTA_GLOB", "FAMILY", "SCENARIO_TITLE", "CANON_TEMPLATE",
+               "BODY", "SCENARIO_BULLET",
                "CLASS_TITLES", "CLASS_PAIRING", "CLASS_COLLISION",
                "_MARKER_ACTION", "_pairing_state", "_collision_findings",
                "_arm_ordering", "_DRIFT_RULE", "_UNCLASSIFIED_LINE"}
