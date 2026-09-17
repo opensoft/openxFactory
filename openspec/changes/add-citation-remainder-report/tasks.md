@@ -399,7 +399,7 @@ evidence is a fact about a merge that has not happened.
       the number of REMAINDER ENTRIES carrying the flag and never against the
       corpus-wide flagged figure.
       **LANDED, 2026-09-17, realization slice R1.**
-      `scripts/report-citation-remainder.py` (NEW, 1,594 lines) and
+      `scripts/report-citation-remainder.py` (NEW, 1,612 lines) and
       `tests/citation_remainder/test_report_citation_remainder.py` (NEW, 1,852
       lines, 96 tests, all green). ONE TEST PER SCENARIO, its docstring naming
       the scenario verbatim: 63 of 63 across the five requirements, counted
