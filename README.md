@@ -593,6 +593,26 @@ Active changes:
   workflow, no test — so the archive is a separate act on merged-plus-green
   realization evidence and a separate word, and #1053 closes THERE. Filing PR
   [#1069](https://github.com/opensoft/openxFactory/pull/1069).
+- [repromote-engineering-vocabulary](openspec/changes/repromote-engineering-vocabulary/proposal.md)
+  — filed 2026-09-16, lane `openxfactory-4` (display
+  `openXfactory-4-openDox_extraction`), **`Status: draft`** (a DRAFTED packet:
+  the drafting pair `proposed_by` / `proposed_on` stands alone and no approval
+  pair is declared). Realizes `split-opendox-two-layer-product` **§ 5.2a**: the
+  FIFTEEN engineering-vocabulary requirements RULING DQ-1 keeps in this
+  repository leave the capability `ideation-dashboard` and are re-promoted
+  under the successor capability this packet authors,
+  **`openxfactory-engineering-adapter`** — the id § 5.6's de-floor and § 8.4's
+  floor accounting were both waiting on. ONE `## ADDED Requirements` block; the
+  fifteen are CARRIED by script from the promoted spec, every byte preserved
+  except at the two disclosed sites where a path literal becomes the seam
+  operation that answers for it (RULING OQ-1's `adapter calls`), and the carry
+  proved by reversing those edits and asserting byte equality. Of the six
+  path-literal occurrences only those two name a question the six-wide seam
+  answers; the other four are recorded non-edits with their reasons, which is
+  this packet's second finding. It removes
+  nothing — the packet's own ratified per-requirement map is the removal's
+  single writer (`design.md` § D3). CLAIMED on openxFactory #656 comment
+  [`5703096449`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5703096449).
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
   `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
