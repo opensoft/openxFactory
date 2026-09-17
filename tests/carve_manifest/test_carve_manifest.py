@@ -2755,6 +2755,59 @@ def test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose(
         carved_reach.source("scripts/pkg/retired.py")
 
 
+def test_the_exact_commit_resolver_reads_the_effective_arrival_of_a_re_destined_row(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Regression, `#1062`. `shed_commit_object()` walked the gitlink chain
+    through `MOUNTS[row["destination"]]` and returned `row["destination_path"]`
+    — the row's ORIGINAL arrival — instead of `effective_arrival(row)`, the
+    same three-line predicate `source()` already reads at line 616. Latent
+    while no `re_destined` row named a shed member; this fixture gives it one.
+
+    The row below carved to `openxdox_code` and a ruling (RULED Q6) has since
+    re-destined it to `opendox_code` — a DIFFERENT leg entirely, not merely a
+    different path at the same one, so a resolver reading the raw
+    `destination` walks the WRONG gitlink chain end to end and returns a
+    perfectly well-formed answer at a leg the row no longer names, rather than
+    raising: the ORIGINAL leg is left materialized here on purpose, so the bug
+    does not merely fail loudly, it silently answers wrong.
+    """
+    import carved_reach
+
+    original_leg = tmp_path / "openXdox" / "code"
+    effective_leg = tmp_path / "openDox" / "code"
+    for leg in (original_leg, effective_leg):
+        (leg / ".git").mkdir(parents=True)
+    (tmp_path / "openXdox" / ".git").mkdir()
+    (tmp_path / "openDox" / ".git").mkdir()
+
+    rows = {
+        "scripts/pkg/moved.py": {
+            "source_path": "scripts/pkg/moved.py",
+            "disposition": "moved_verbatim",
+            "destination": "openxdox_code",
+            "destination_path": "src/openxdox/moved.py",
+            "re_destined": {
+                "from": "openxdox_code",
+                "from_path": "src/openxdox/moved.py",
+                "to": "opendox_code",
+                "to_path": "src/opendox/moved.py",
+                "ruling": RULING_CITATION,
+            }},
+    }
+    monkeypatch.setattr(carved_reach, "_rows", lambda: rows)
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(carved_reach, "MOUNTS",
+                        dict(carved_reach.MOUNTS,
+                             openxdox_code=original_leg,
+                             opendox_code=effective_leg))
+    pinned = "c" * 40
+    monkeypatch.setattr(carved_reach, "_git_object_id",
+                        lambda repo, revision, path: pinned)
+
+    located = carved_reach.shed_commit_object("a" * 40, "scripts/pkg/moved.py")
+    assert located == (effective_leg, pinned, "src/opendox/moved.py"), located
+
+
 def _cross_reference_validator():
     """`scripts/validate-ideation-cross-reference.py` as a module, by path."""
     return _load_by_path("validate-ideation-cross-reference.py",
