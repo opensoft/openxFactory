@@ -3322,11 +3322,12 @@ Archived changes:
 - [gate-code-surface-declarations](openspec/changes/archive/2026-09-16-gate-code-surface-declarations/proposal.md)
   — **ARCHIVE PREPARED 2026-09-16** by
   [PR #1076](https://github.com/opensoft/openxFactory/pull/1076), lane
-  `openxfactory-5` (display `openXfactory-5`), and **HELD AS A DRAFT: THE
-  SEPARATE ARCHIVE WORD IS OWED; THE GREEN HALF OF THE REALIZATION EVIDENCE IS
-  NOW IN HAND.** This entry records an act PREPARED in advance, not an act
-  authorized: no word of Brett Heap's archives this packet yet, and the pull
-  request carries `Refs #1013` and no closing keyword until one is given.
+  `openxfactory-5` (display `openXfactory-5`), on Brett Heap's **SEPARATE
+  ARCHIVE WORD, GIVEN**: verbatim *"archive it"*, 2026-09-17 ~12:20Z; THE
+  GREEN HALF OF THE REALIZATION EVIDENCE IS IN HAND. The pull request was
+  UN-DRAFTED 2026-09-17T13:29Z, and the closing keyword for #1013 is written
+  into its body per § 5.2: #1013 closes at this pull request's landing and at
+  no earlier act.
   **`code_surface: openxFactory` IS NON-EMPTY**, so under `release-realization`
   this archive rests on MERGED-PLUS-GREEN REALIZATION EVIDENCE at canon's grain
   and never on landing or on ratification (RATIFIED 2026-09-13 at 00:41Z by
@@ -3353,7 +3354,7 @@ Archived changes:
   #1052, is repaired: `#1075` orders `adopt-entry-grain-dispositions-form` after
   `scope-pinned-arm-root-naming` and merged into `main` at `a93d2682` itself.
   The MERGED-PLUS-GREEN pair this archive requires is complete; the archive
-  lands when Brett Heap words it, and not before.
+  lands at this pull request's merge, per the word given above.
   **THE PROMOTION, MEASURED:** the three `## ADDED` requirements — *Code-surface
   declaration grammar is gated*, *The declared repository set is derived from the
   head and never from the gloss*, and *Standing code-surface divergence is named
@@ -3368,9 +3369,9 @@ Archived changes:
   **THE GATE'S OWN CORPUS DROPS BY ONE:** `validate-code-surface.py` reads 46
   active proposals (was 47), 46 declaring, 0 outside the grammar, and the archive
   it reads and never judges grows to 170 proposals, 124 declaring, 3 outside the
-  grammar. § 5 and § 6 of `tasks.md` tick on this recording; § 6.1's successor —
-  an inventory of the estate's repositories — is NAMED and its filing is owed at
-  the un-draft, beside the closing keyword § 5.2 governs.
+  grammar. § 5 and § 6 of `tasks.md` tick on this recording; § 6.1's successor,
+  an inventory of the estate's repositories, is filed as #1087, alongside the
+  closing keyword § 5.2 governs.
 
 - [add-declared-former-id](openspec/changes/archive/2026-09-15-add-declared-former-id/proposal.md)
   — **ARCHIVED 2026-09-15** by
