@@ -1154,12 +1154,15 @@ the bookkeeping that ticks this group.
   measurement here names the tree it was read at; this one can name no line,
   because the block it sits in is rewritten by every archival act and its line
   numbers move under any citation that outlives one. Measured rather than
-  asserted, and now at SIX trees rather than two: the entry opens at
+  asserted, and now at EIGHT trees rather than two: the entry opens at
   `README.md`:**1775** at openxFactory `main` `8944758c`, at :**1875** at
   amendment #3's pre-merge head `0a835098` — after `#1042` archived a sibling
   packet above it — at :**1813** at `main` `cb2d3a2c`, at :**1708** at `main`
   `c5f68457` and at amendment #4's head `cbc3a2c6` which merges it, and at
-  :**1836** at `main` `4cef77af`: **five positions across six trees**, every
+  :**1836** at `main` `4cef77af`, and :**1836** again at `main` **`ec5069bc`**
+  — the `main` this branch merged, and therefore a commit in this pull
+  request's own history that cannot go stale before the merge — and at this
+  amendment's own merged head: **five positions across EIGHT trees**, every
   move made by acts with nothing to do with this one.
   *(THIS SENTENCE SUFFERED ITS OWN THESIS, and the repair is amendment #5's,
   registered on amendment #4's pull request at comment `5702674145` — found
@@ -1172,9 +1175,10 @@ the bookkeeping that ticks this group.
   that moved. The values above are each bound to a NAMED tree and none of
   them is "today"; the count will keep growing and that is the box working,
   not failing.)* The `30,410` citations beside it are
-  **exact at every one of those six trees** — re-measured by amendment #5 at
-  all six (`design.md` 2, `proposal.md` 2, the RECORD 1, at `8944758c`,
-  `0a835098`, `cb2d3a2c`, `c5f68457`, `cbc3a2c6` and `4cef77af` alike) — the
+  **exact at every one of those eight trees** — re-measured by amendment #5 at
+  all eight (`design.md` 2, `proposal.md` 2, the RECORD 1, at `8944758c`,
+  `0a835098`, `cb2d3a2c`, `c5f68457`, `cbc3a2c6`, `4cef77af`, `ec5069bc` and
+  this amendment's merged head alike) — the
   FOUR LIVE occurrences
   `design.md`:52 and :351, `proposal.md`'s `code_surface:` front-matter line
   (:2) and `proposal.md`:208, and the FIFTH, `review/ratification-2026-09-05.md`:549,
@@ -2208,8 +2212,13 @@ the bookkeeping that ticks this group.
   marks it required"* IN PLACE, *"with its own history stated (true at
   authoring, stale from 2026-08-26)"*, from the act that owned the surface
   (`openspec/changes/archive/2026-08-28-split-openxwallet-repo/tasks.md`
-  :972-974; the corrected text stands at `README.md`:3026-3029). Registered
-  here with every coordinate measured, so that act re-derives nothing.
+  :972-974; the corrected text stands at `README.md`:3154-3157 at this
+  amendment's merged head — it read `:3026-3029` until the `main` this branch
+  merged moved it 128 lines, which is the fourth time in this one pull request
+  that a `README.md` coordinate has gone stale under an act with nothing to do
+  with it, and the reason the sentence is quoted beside the number).
+  Registered here with every coordinate measured, so that act re-derives
+  nothing.
   *(A Copilot finding on this amendment's own pull request, round 1, and the
   sharpest kind: it read the tick's *"nothing is left owed"* against the
   shipped gate's own comment and found them contradicting. They did. **The
