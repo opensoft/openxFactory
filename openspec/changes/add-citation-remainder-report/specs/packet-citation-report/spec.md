@@ -38,6 +38,23 @@ at. A resolution rule whose remainder nobody reads is a rule whose coverage
 nobody can know; the rule's own consumer resolves a few dozen referents of one
 registered field, and the corpus carries hundreds.
 
+AND THE HEAD ALONE DOES NOT NAME A READING: THE REPORT SHALL STATE, BESIDE THE
+HEAD, WHETHER THE TRACKED CONTENT IT READ STANDS UNMODIFIED AT THAT HEAD, and a
+reading taken over content that differs from its printed head SHALL NOT be
+presented as a later point in that series. The population below is the
+repository's tracked entries read AS THEY STAND — which is what the containment
+test on a link demands and what no stored blob could answer — so an uncommitted
+edit to one tracked file moves the counts while the printed head does not move,
+and two readings that disagree for that reason are indistinguishable to a reader
+who has only the head between them. This is the rule the population's
+refinements already owe, stated for the same reason and at the same cost: a
+reading taken over something other than the default is still produced, still
+useful, and still not a later point in the same series. IT IS A DECLARATION AND
+NOT A REFUSAL. A tree carrying uncommitted work is a tree the report can read,
+the scheduled reading is taken on a clean checkout in any case, and the only
+non-zero exit this capability has is the one for a report that could not run at
+all.
+
 THE REPORT SHALL COUNT BOTH TOKENS AND IDENTITIES, and SHALL NOT report one in
 place of the other. A remainder TOKEN is one distinct citation string; a
 remainder IDENTITY is one packet id that at least one remainder token addresses.
@@ -48,6 +65,22 @@ directory citation and a file citation under it are three tokens naming one
 packet. A reader repairs identities, so a report that prints only tokens
 overstates the work by the ratio of one to the other, and a report that prints
 only identities hides how many records mention each.
+
+AND A REMAINDER ENTRY IS A TOKEN — never an identity, and never the TRACKED
+ENTRY the population below is counted in: THE REPORT SHALL CARRY ONE REMAINDER
+ENTRY PER REMAINDER TOKEN, one record each in whatever form a reading is emitted
+in; an entry's class and its flags SHALL be properties of THAT TOKEN; the report
+SHALL NOT merge two tokens' classes because they address one identity; grouping
+by identity SHALL NEST the entries beneath the identity they address, changing
+the ORDER a reading lists things in and never what is listed; and every CLASS
+TOTAL SHALL therefore be a count of TOKENS, any count taken over identities
+being labelled as the identity count it is. `entry` is the word the requirements
+below name, count and classify with, and the two units it could mean answer
+differently wherever one identity is spelled several ways — the identity above
+carrying six tokens is this corpus's extreme: a report reading the unit as an
+identity would have to choose ONE class for a packet cited once as a severed
+token and once whole, and its class totals would not sum with the totals of a
+report that kept them apart.
 
 THE REPORT SHALL NAME THE CITING FILES of every remainder entry. A dangling
 citation is a fact about a RECORD, not about a packet, and a reader who cannot
@@ -80,11 +113,23 @@ look for it, so its absence and its zero become indistinguishable.
 - **AND** it MUST print the number of tracked ENTRIES in scope and the number of FILES it read, the number of distinct citation tokens, the remainder in TOKENS and the remainder in IDENTITIES
 - **AND** every remainder entry MUST name the files that cite it
 
+#### Scenario: The tree read is not clean at the head printed
+- **WHEN** the report runs over a working tree whose tracked content differs from the head it prints
+- **THEN** it MUST state, beside that head, that the content it read stands modified at it
+- **AND** the reading MUST NOT be presented as a later point in the series taken at that head
+- **AND** the report MUST still produce the reading rather than refuse to run
+
 #### Scenario: One identity is cited by several tokens
 - **WHEN** two or more remainder tokens address the same packet identity
 - **THEN** the identity MUST be counted ONCE in the identity total
 - **AND** each token MUST still appear in the itemized remainder
 - **AND** the report MUST NOT present the token total as a count of packets
+
+#### Scenario: One identity's tokens carry different classes
+- **WHEN** two remainder tokens address one identity and each token's own evidence supports a different class
+- **THEN** the report MUST carry one entry per token, each keeping the class its own evidence supports
+- **AND** it MUST NOT merge the two into one entry or one class because they share an identity
+- **AND** the class totals MUST count both tokens
 
 #### Scenario: No identity in the corpus is claimed by two packets
 - **WHEN** the report runs and the resolution rule returns no AMBIGUOUS outcome
@@ -160,6 +205,29 @@ the report SHALL then state both the population it actually used AND the
 refinements it was given, because a reading taken over a different population is
 not a later point in the same series and a reader who cannot see the difference
 will treat it as one.
+
+AND WHERE A REPORT ADMITS REFINEMENTS, THEIR SEMANTICS SHALL BE THESE THREE AND
+SHALL NOT BE A REALIZATION'S: A REFINEMENT'S PREFIX SHALL MATCH ON PATH-SEGMENT
+BOUNDARIES; A REFINEMENT THAT ADMITS SHALL RE-ADMIT INTO THE STATED POPULATION
+RATHER THAN REPLACE IT; AND A REFINEMENT THAT REMOVES SHALL BE APPLIED LAST AND
+SHALL WIN over any admission naming the same path. A refinement surface named
+without its semantics is a surface two realizations implement differently, and
+each of these three decides which number the report prints — which is the one
+thing a capability that exists to produce a SERIES cannot leave open.
+**A PREFIX MATCHES ON SEGMENT BOUNDARIES** — a path matches where it EQUALS the
+prefix with any trailing `/` removed, or begins with that plus `/` — because a
+bare string prefix swallows a sibling directory whose name merely begins the
+same way, and the population would then differ between two readings by a
+directory neither reader named. **ADMISSION RE-ADMITS AND DOES NOT REPLACE**: a
+caller asking after one excluded fixture corpus asks for it BESIDE the stated
+population, and a refinement that replaced the population would let a reading
+over three files be published in the shape of a reading over the corpus, which
+is the opposite of what narrowing a question means. **REMOVAL IS APPLIED LAST
+AND WINS**, so the pair is order-independent: a reader predicts the population
+without knowing which refinement was given first, and a wrapper that appends a
+removal cannot have it undone by an admission written earlier. A FOURTH RULE
+GOVERNS THE ONE PATH NO REFINEMENT MAY REACH — the report's own output — and it
+stands in the two paragraphs below rather than among these three.
 
 THE REPORT'S OWN OUTPUT SHALL BE EXCLUDED FROM THE POPULATION wherever that
 output is committed into the repository. A report that lists remainder citations
@@ -237,6 +305,21 @@ POINT IN THE SAME SERIES.
 - **WHEN** a tracked entry is a symbolic link whose target, once resolved, stands outside the repository root
 - **THEN** the report MUST skip the entry and take no token from it
 - **AND** it MUST NOT report text read from outside the root as a citation carried by this corpus
+
+#### Scenario: A refinement's prefix has a sibling whose name begins the same way
+- **WHEN** a refinement names a directory prefix and the tree also carries a sibling directory whose name begins with that prefix followed by more characters
+- **THEN** the report MUST match the prefix on path-segment boundaries and leave the sibling unmatched
+- **AND** it MUST NOT read the prefix as a bare string prefix
+
+#### Scenario: A caller admits one excluded corpus
+- **WHEN** a caller's refinement admits a prefix that one of the stated exclusions had removed
+- **THEN** the report MUST read that prefix BESIDE the stated population rather than in place of it
+- **AND** it MUST state the population it actually used and the refinement it was given
+
+#### Scenario: Two refinements name one path
+- **WHEN** one refinement admits a path and another removes it, in either order
+- **THEN** the removal MUST be applied last and MUST win
+- **AND** the population MUST NOT depend on the order the refinements were given in
 
 #### Scenario: A citation is followed by sentence punctuation
 - **WHEN** a citation token is extracted with a trailing full stop that ended the sentence carrying it
@@ -377,6 +460,26 @@ and `unclassified`. Labels are what two readings are compared by, so a report
 whose labels differ from another's cannot be a later point in its series, and
 the series is the whole reason a class is asserted at all.
 
+AND `fixture-path` SHALL CARRY A PREDICATE RATHER THAN A DESCRIPTION, CLOSED
+HERE: THE REPORT SHALL CLASS AN ENTRY `fixture-path` WHERE EVERY ONE OF ITS
+OCCURRENCES STANDS UNDER THE TOP-LEVEL `examples/` TREE, UNDER
+`ideation/dashboard/gate-records/`, UNDER AN `examples/` DIRECTORY BELOW
+`contracts/`, OR UNDER A `tests/` DIRECTORY NESTED BENEATH THE POPULATION'S OWN
+TOP-LEVEL `tests/` EXCLUSION — AND SHALL NOT CLASS IT `fixture-path` WHERE ANY
+ONE OCCURRENCE STANDS ANYWHERE ELSE. "Where this corpus keeps fixtures and
+worked examples" is a description, and two realizations reading it would assert
+this class over different entries; a class total read differently is a series
+read differently, and this is a class a later gate would be measured against.
+The set is the MEASURED one rather than an author's list — it is the probe that
+caught 17 of 18 hand-classified fixture entries with ZERO false positives, with
+the nested-`tests/` location carrying the entries whose citing test ASSERTS the
+cited file's absence — and it is CLOSED: an implementation SHALL NOT widen it,
+because a widened location set is how a mechanical class quietly absorbs a
+judgment. AND THE OCCURRENCE RULE IS **ALL**, NEVER **ANY**: one occurrence
+outside every named location is a citation carried by ordinary prose, and an
+entry carrying one takes whatever other mechanical class its evidence supports,
+or `unclassified`.
+
 AND A FLAG IS NOT A CLASS, AND SHALL BE CARRIED IN A FIELD OF ITS OWN. A
 suspicion the report reports without asserting — a suspected cross-repository
 citation above all — SHALL NOT be written into the class field, SHALL NOT
@@ -390,6 +493,18 @@ report itself severed or stripped is a fact about the TOOL, and filing it under
 where it happened to be written would attribute the tool's own grammar to a
 record. The precedence SHALL be stated with the vocabulary so that two readings
 classify one entry the same way.
+
+AND WHERE TWO NORMALIZATION CLASSES BOTH FIT ONE ENTRY, `truncated` SHALL WIN
+OVER `punctuation-stripped`. The order is not a new one: the grammar above
+already strips a token's trailing prose punctuation BEFORE resolution is tried,
+and already classes a token `truncated` ONLY WHERE IT DOES NOT RESOLVE — so a
+token spelled `…-.` is stripped, tried, and, where the stripped token still
+resolves to nothing, SEVERED, which is the later verdict and the stronger
+statement. Filing it under the strip instead would report the repair the tool
+made and hide that the path is incomplete, sending a reader to look for a
+missing packet where the citation is missing its own tail. Nothing is lost by
+the precedence: every normalization the report applied is reported in the
+entry's own normalization record whatever class the entry lands in.
 
 `unclassified` SHALL NOT be treated as a defect of the report. It is the report
 declining to assert what it cannot see, and an implementation SHALL NOT reduce
@@ -410,6 +525,16 @@ illustrate what unresolvable means.
 - **THEN** the report MUST assign that class
 - **AND** it MUST name the evidence, so a reader can check it
 
+#### Scenario: Every occurrence of an entry stands in a fixture location
+- **WHEN** every occurrence of a remainder entry stands under one of the fixture locations this specification names
+- **THEN** the report MUST class the entry `fixture-path`
+- **AND** it MUST name those occurrence locations as the evidence
+
+#### Scenario: One occurrence of an entry stands outside the fixture locations
+- **WHEN** a remainder entry has occurrences in a named fixture location and one occurrence outside every one of them
+- **THEN** the report MUST NOT class the entry `fixture-path`
+- **AND** it MUST class the entry under whatever other mechanical class its evidence supports, or `unclassified`
+
 #### Scenario: An entry carries a suspicion and a class at once
 - **WHEN** a remainder entry is flagged as suspected cross-repository and its own evidence supports a class
 - **THEN** the flag MUST be carried in its own field and the class field MUST keep the class the evidence supports
@@ -419,6 +544,12 @@ illustrate what unresolvable means.
 - **WHEN** an entry's evidence supports both a class about the report's own normalization and a class about a location
 - **THEN** the report MUST assign the normalization class
 - **AND** it MUST NOT report the entry under the location class instead
+
+#### Scenario: A token is both stripped and severed
+- **WHEN** a token ends in `-.`, the report strips the trailing full stop, and the stripped token still resolves to nothing
+- **THEN** the report MUST class the entry `truncated`
+- **AND** it MUST NOT class it `punctuation-stripped` instead
+- **AND** it MUST still report the punctuation normalization it applied
 
 #### Scenario: The evidence is a fact about intent
 - **WHEN** deciding a remainder entry's class would require judging what the citing record meant

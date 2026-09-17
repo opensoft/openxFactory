@@ -589,6 +589,35 @@ contradiction above, plus the gate-coupling in (2), plus the module acquires a
 file population and a token grammar it deliberately does not have. *What it
 buys:* one file instead of two. Declined on that trade.
 
+**AMENDMENT RECORD — THIS SECTION'S OWN MODEL AND ITS REFINEMENT SEMANTICS ARE
+NOW IN THE REQUIREMENT, ON A SECOND WORD AND NOT ON A BENCH WRITER'S OWN.** Two
+of PR #1069's Copilot threads read D2 rather than any decision it puts.
+`PRRT_kwDOTAvnrs6jWmQn` reads the delta's word `entry` and finds it undefined as
+a unit: this section's output model is ONE OBJECT PER TOKEN and its default
+grouping NESTS those tokens under their identity, but neither sentence stood in
+the requirement, so two realizations could merge classes by identity or keep
+them per token and publish class totals that do not compare.
+`PRRT_kwDOTAvnrs6jX4Yv` reads the four refinement rules above — segment-boundary
+matching, refine-not-replace, removal applied last and winning, and the output
+path no refinement may reach — and observes that only the FOURTH was promoted,
+so two realizations can satisfy the requirement and still read different
+populations. Brett Heap ruled on both, 2026-09-17T13:33:12Z, verbatim **"fold
+them in before landing"** ([PR #1069, comment
+5715211687](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5715211687)).
+**BOTH RULES NOW STAND IN `specs/packet-citation-report/spec.md`**: *The
+citation remainder is reported* carries the unit — a REMAINDER ENTRY is a TOKEN,
+one record each, class and flags properties of THAT token, identity grouping
+nesting and never merging, every class total counted in TOKENS, and the word
+separated from the TRACKED ENTRY the population is counted in — and *The
+reported population is derived from a stated recipe* carries the three
+refinement rules, each with a scenario, pointing forward to the fourth where it
+already stood. **NO DECISION MOVES**: both are this section's own text, written
+where a realization is measured against it rather than in a working file, and
+the flags keep the names, the defaults and the precedence they were ratified
+with. One residue is named rather than settled: D6 reads two of its three parts
+over IDENTITIES, and how a per-token class projects onto an identity belongs to
+the realization that builds that series (§ 2).
+
 ## D3 — RECOMMENDED: the recipe, made exact so it reproduces
 
 **The question.** What exactly does the report read, tokenize and resolve?
@@ -828,6 +857,28 @@ appeared in the archive without ever being active, and this corpus has none.
 **A shipped report spells it `…/archive/*-<id>/*`**, and runs it only under
 `--history` (D2).
 
+**AMENDMENT RECORD — THE TREE THE READING IS TAKEN OVER IS NOW DECLARED IN THE
+REQUIREMENT, ON THE SAME SECOND WORD.** PR #1069, Copilot thread
+`PRRT_kwDOTAvnrs6jXaN3`: the report prints a HEAD, but D3(a) enumerates the
+INDEX (`git ls-files`) and reads each entry's text AS IT STANDS, so an
+uncommitted edit to one tracked file moves the counts under an unmoved head and
+the series this capability exists to produce cannot be trusted to its own
+header. **THE RULE NOW STANDS IN `specs/packet-citation-report/spec.md`**'s *The
+citation remainder is reported*: the report DECLARES, beside the head, whether
+the tracked content it read stands unmodified at it, and a reading over
+modified content is refused a place in the series — one scenario, and the
+reading is still produced. **THE TWO ALTERNATIVES THE THREAD ALSO OFFERS EACH
+COST A DECISION AND NEITHER IS TAKEN**: reading HEAD BLOBS would strand the
+promoted containment test on a SYMBOLIC LINK, which resolves an entry on the
+FILESYSTEM and which no stored blob can answer, and it would move D3(a)'s
+enumeration verb with it; and REFUSING A DIRTY TREE would mint a THIRD non-zero
+exit in a capability whose promoted contract is that *"A NON-ZERO EXIT SHALL
+MEAN THE REPORT COULD NOT RUN, never that it found something"*, on a tree it can
+plainly read, and would refuse the local run D2's argument surface exists for.
+The word (2026-09-17T13:33:12Z, **"fold them in before landing"**) names this
+thread as *"clean-tree or dirty-state rule"*, and the dirty-state rule is the
+half that costs the packet no decision.
+
 ## D4 — RECOMMENDED: classify only what can be decided mechanically
 
 **The question.** #1053's manual read puts the remainder in nine classes. How
@@ -940,6 +991,34 @@ same 81 lines the issue already has, and the asserted classes — `truncated`,
 `punctuation-stripped` and `fixture-path`, with the free `half == file`
 itemized beside them as the resolver's own outcome — are exactly the ones a
 human should never have to re-derive.
+
+**AMENDMENT RECORD — THE PRECEDENCE BETWEEN TWO NORMALIZATION CLASSES, AND
+`fixture-path`'s PREDICATE, ARE NOW IN THE REQUIREMENT.** Two more PR #1069
+Copilot threads, folded on the same second word.
+`PRRT_kwDOTAvnrs6jWmRM`: the promoted precedence settles a NORMALIZATION class
+against a LOCATION class and leaves two NORMALIZATION classes unsettled, so a
+grammar-valid match ending `-.` can have its full stop stripped and then, still
+unresolved, satisfy the `truncated` rule — one token, two labels, class totals
+that do not compare. The delta now states the order D3(b) ALREADY FIXES — strip,
+resolve, and class `truncated` only where the token does not resolve — as
+`truncated` WINNING over `punctuation-stripped`, with one scenario; the strip is
+not lost, because every normalization is reported whatever class the entry lands
+in. `PRRT_kwDOTAvnrs6jX4Zh`: the vocabulary is closed at four labels, but
+`fixture-path`'s normative rule was the DESCRIPTION *"where this corpus keeps
+fixtures and worked examples"* while the probe measured above names concrete
+locations — so a realization could choose its own path predicate, satisfy the
+requirement, and report different class totals. **THE MEASURED PROBE NOW STANDS
+IN `specs/packet-citation-report/spec.md`**, with the occurrence rule it was
+measured under: EVERY occurrence under the top-level `examples/` tree, under
+`ideation/dashboard/gate-records/`, under an `examples/` directory below
+`contracts/`, or under a `tests/` directory nested beneath the population's own
+top-level `tests/` exclusion — ALL occurrences, never ANY — with two scenarios.
+The first three locations are the precision table's own set (17 of 18, zero
+false positives); the fourth is this section's nested-test-fixture row, whose
+`fixture-path` verdict this section already states. **NOTHING IS MINTED,
+RENAMED OR WIDENED**: the vocabulary is the same four labels, the class is
+asserted over the same entries the measurement classified, and widening the
+location set for a later corpus stays a RULING rather than a bench round's act.
 
 ## D5 — RECOMMENDED: artifact-only, and the reason is not merely merge conflicts
 

@@ -9,6 +9,8 @@ sequenced_after: []
 Status: ratified
 Ratified: 2026-09-17 by Brett Heap (openxFactory operator authority), verbatim **"ratify #1069"** — recorded at [PR #1069, comment 5714138459](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459)
 
+Folded in: 2026-09-17 by Brett Heap's word, verbatim **"fold them in before landing"** — recorded at [PR #1069, comment 5715211687](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5715211687) — the FIVE held Copilot spec threads made normative in the same ratified delta, on the word and not on a bench writer's own: `PRRT_kwDOTAvnrs6jWmQn` (the unit of `entry`), `PRRT_kwDOTAvnrs6jWmRM` (precedence between two normalization classes), `PRRT_kwDOTAvnrs6jXaN3` (the tree a reading is taken over), `PRRT_kwDOTAvnrs6jX4Yv` (the refinement semantics, promoted from `design.md` D2), `PRRT_kwDOTAvnrs6jX4Zh` (`fixture-path`'s location and occurrence rules, promoted from D4). It is the SECOND fold-in word on this pull request; the first, **"fold it in before landing"** ([comment 5714405516](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714405516)), promoted D3(c)'s window and five signals. NO DECISION MOVES UNDER EITHER: every folded rule is text this packet already carried in `design.md`, written where a realization is measured against it.
+
 Proposed: 2026-09-16, in lane `openxfactory-1` (display `openXfactory-1`),
 session `393ade52`, in answer to openxFactory
 [#1053](https://github.com/opensoft/openxFactory/issues/1053) — the successor

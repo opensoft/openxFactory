@@ -212,6 +212,22 @@ OPEN.**
       unreadable tree, a root that is not a repository it can walk), which the
       spec requires and which is a different fact from a finding: "A NON-ZERO
       EXIT SHALL MEAN THE REPORT COULD NOT RUN, never that it found something."
+      **AND THREE OF D2'S OWN RULES ARE NOW IN THE REQUIREMENT, ON A SECOND
+      WORD.** PR #1069, Copilot threads `PRRT_kwDOTAvnrs6jWmQn`,
+      `PRRT_kwDOTAvnrs6jXaN3` and `PRRT_kwDOTAvnrs6jX4Yv` read D2's OUTPUT
+      MODEL, its HEADER and its REFINEMENT SEMANTICS; Brett Heap ruled
+      2026-09-17T13:33:12Z, verbatim **"fold them in before landing"** ([PR
+      #1069, comment
+      5715211687](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5715211687)).
+      The delta now fixes the REMAINDER ENTRY as a TOKEN, has the report DECLARE
+      THE TREE STATE beside the head so an uncommitted edit cannot move the
+      counts under a head that did not move, and states the refinement rules —
+      segment-boundary matching, admission re-admitting rather than replacing,
+      removal applied last and winning. None of the three moves this box: the
+      surface is the same sibling script, its flags keep the names, defaults and
+      precedence they were ratified with, and **THE EXIT CONTRACT QUOTED ABOVE
+      IS UNCHANGED** — a modified tree is DECLARED and never refused, so the only
+      non-zero exit is still the report that could not run.
 - [ ] 1.12 **`design.md` D3 — THE RECIPE.** RECOMMENDED: the stated file
       population (three exclusions, each with a reason, plus the report's own
       output path the moment D5 ever changes), the stated token grammar with
@@ -258,6 +274,22 @@ OPEN.**
       REPAIRED** — a dangling reference owes the citing record no edit from
       this tool, which is the other half of the sentence
       `add-declared-former-id` D4 wrote.
+      **AND TWO OF D4'S OWN RULES ARE NOW IN THE REQUIREMENT, ON THE SAME SECOND
+      WORD.** PR #1069, Copilot threads `PRRT_kwDOTAvnrs6jWmRM` and
+      `PRRT_kwDOTAvnrs6jX4Zh`: the promoted precedence settled a normalization
+      class against a LOCATION class but not two normalization classes against
+      each other, so the delta now states the order D3(b) already fixes —
+      `truncated` WINS over `punctuation-stripped`, a token stripped of a
+      trailing full stop that still resolves to nothing being SEVERED; and
+      `fixture-path` carried a DESCRIPTION where a PREDICATE was owed, so the
+      delta now carries D4's own measured probe — EVERY occurrence under the
+      top-level `examples/` tree, under `ideation/dashboard/gate-records/`,
+      under an `examples/` directory below `contracts/`, or under a `tests/`
+      directory nested beneath the population's top-level `tests/` exclusion.
+      **THE VOCABULARY IS UNTOUCHED AND STILL CLOSED AT FOUR** — no label is
+      minted, renamed, widened or dropped, and the unit those class totals are
+      counted in is now stated as the TOKEN — and the `file-half` ruling this
+      box holds reads exactly as it reads above.
 - [ ] 1.14 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
       one step in `.github/workflows/doc-health-reusable.yml`, committing
       nothing. The reason is measured and is not merely merge conflicts:
@@ -324,7 +356,16 @@ added, edited, renamed or deleted here.
       one three lines above; an identity cited by two tokens; a file-half
       dangler; a deliberately-absent scope-isolation fixture; and the
       `README.md`-shaped case where the raw path's presence decides the
-      outcome.
+      outcome. **AND THE FIVE FOLDED RULES ARE FIXTURE CASES OF THEIR OWN**, on
+      the second fold-in word: a token that is BOTH stripped and severed, which
+      must land `truncated` and not `punctuation-stripped`; one identity whose
+      two tokens carry different classes, which must stay two entries with two
+      classes; a refinement pair exercising segment-boundary matching,
+      admission-beside-not-instead-of, and removal-applied-last; a
+      `fixture-path` entry every occurrence of which stands in a named fixture
+      location, beside one with a single occurrence outside them that must NOT
+      take the class; and a reading taken over a modified tree, which must
+      declare the tree state beside the head.
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
