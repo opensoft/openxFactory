@@ -196,6 +196,38 @@ class Skip:
 
 
 @dataclass
+class PartialSkip(Skip):
+    """A `Skip` carrying the findings established before the question stopped
+    being askable.
+
+    A `Skip` FIRST AND BY INHERITANCE, so nothing that reads a skip has to
+    learn a new shape to go on failing closed on one; the findings are an
+    addition a reader may consult, never a substitution a reader must handle.
+    `runner.run_suite` reads them with `getattr(out, "findings", ())`, so every
+    plain `Skip` in the estate contributes an empty tuple BY CONSTRUCTION.
+
+    HERE RATHER THAN IN ONE FAMILY (`#1048` round 2). The shape was written for
+    `release_tag_publication` (`#766`, PR #871) and is still spelled
+    `release_tag_publication._PartialSkip` wherever the estate refers to it;
+    `release_inventory` needs the identical thing — a repository whose pinned
+    leg stops being readable at member N must not discard what members 1..N-1
+    established — and a second copy of a shared shape is how two readers of one
+    concept drift apart. One definition, two importers, no behaviour moved.
+
+    AN EMPTY `findings` ON THIS CLASS IS NOT A CONTRADICTION (round 3). The
+    class says the question stopped being askable PARTWAY THROUGH, and members
+    compared before that point which simply MATCHED establish nothing to carry
+    — so `release_inventory` reads the CLASS to know that evaluation began and
+    `.findings` to know what it produced, two facts it must not derive from
+    each other. `runner.run_suite` and `report.py` both turn on the findings
+    rather than on the class, so an empty one is byte-identical to a plain
+    `Skip` everywhere outside the family that made the distinction.
+    """
+
+    findings: tuple[Finding, ...] = ()
+
+
+@dataclass
 class RunResult:
     findings: list = field(default_factory=list)
     skips: list = field(default_factory=list)
