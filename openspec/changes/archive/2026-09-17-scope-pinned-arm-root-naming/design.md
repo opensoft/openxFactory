@@ -7,6 +7,12 @@ repository owner), first-hand, in session, lane `openxfactory-2` (display
 "1052" half of that word. THE ONE CITATION: openxFactory #1047, comment
 https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379.
 Record: `review/ratification-2026-09-16.md`.
+Amended by: Brett Heap, the same ratifier, 2026-09-17, first-hand, in session —
+an interactive multiple-choice selection, verbatim ***"Apply the narrowing"***
+— narrowing ONE scenario WHEN and nothing else; D-1, D-2 and D-3 stand exactly
+as ratified. THE ONE CITATION: openxFactory #1047, comment
+https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714432684.
+Record: `review/ratification-2026-09-16.md` § Addendum, 2026-09-17.
 Kind: design
 
 Three decisions, each put with the recommendation first. `proposal.md` § *The
@@ -61,44 +67,53 @@ design, since none was selected). Left as canon states it, the two scenarios
 would give the empty-root case two outcomes; the one clause gives it back to
 exactly one.
 
-**ROUND 5 PROPOSED NARROWING THE SAME CLAUSE FURTHER; ROUND 6 REVERTED IT.**
-"At least one resolution root was selected" is satisfied by `_pin_roots`
-alone, but `_pinned_arm` only appends a root to `searched` AFTER its
-`contracts/` directory clears `boundary_dir` (`:1604-1613`); a root whose
-boundary check fails draws its own finding instead (*A root's contracts
-directory is itself a symlink*) and is never added to `searched`. Where
-EVERY root `_pin_roots` returns fails that check, `searched` stays empty, the
-trailing `if searched:` guard (`:1633`) never fires, and NO "unresolved
-pinned target: no record under root(s)" finding is emitted — so the
-as-ratified WHEN describes a finding the implementation does not emit on
-that ONE path. Copilot raised this at round 5, and the lane applied a
-narrower WHEN in response — WRONGLY: RATIFIED NORMATIVE SCENARIO TEXT IS THE
-RATIFIER'S ACT TO AMEND, NOT THE LANE'S, exactly as
+**ROUND 5 PROPOSED NARROWING THE SAME CLAUSE FURTHER; ROUND 6 REVERTED IT;
+AND ON 2026-09-17 THE RATIFIER RULED IT IN.** "At least one resolution root
+was selected" is satisfied by `_pin_roots` alone, but `_pinned_arm` only
+appends a root to `searched` AFTER its `contracts/` directory clears
+`boundary_dir` (`:1604-1613`); a root whose boundary check fails draws its own
+finding instead (*A root's contracts directory is itself a symlink*) and is
+never added to `searched`. Where EVERY root `_pin_roots` returns fails that
+check, `searched` stays empty, the trailing `if searched:` guard (`:1633`)
+never fires, and NO "unresolved pinned target: no record under root(s)"
+finding is emitted — so the round-1 WHEN describes a finding the
+implementation does not emit on that ONE path. Copilot raised this at round 5,
+and the lane applied a narrower WHEN in response — WRONGLY: RATIFIED NORMATIVE
+SCENARIO TEXT IS THE RATIFIER'S ACT TO AMEND, NOT THE LANE'S, exactly as
 `add-requirement-ref-resolution-integrity`'s own 2026-09-01 amendment was
 ruled by its ratifier with the contradiction before him, before the text
-changed. Round 6 REVERTS the narrowing; the WHEN above is BYTE-IDENTICAL to
-the text ratified at `92d3e0e2`. The gap this paragraph measures is real and
-is not closed by this packet: it is recorded in
-`review/ratification-2026-09-16.md` § Addendum as a RULING NEEDED comment
-posted to openxFactory #1047, asking Brett Heap for the word this text needs
-before it can narrow.
+changed. Round 6 REVERTED the narrowing and posted a RULING NEEDED to
+openxFactory #1047 instead. **BRETT HEAP ANSWERED IT ON 2026-09-17 — an
+interactive multiple-choice selection, verbatim *"Apply the narrowing"*,
+openxFactory [#1047 comment 5714432684](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714432684)**
+— so the WHEN above now reads "…and at least one selected root whose boundary
+was successfully searched", BYTE-FOR-BYTE round 5's text applied under the
+authority round 5 lacked, and the gap this paragraph measures IS closed by
+this packet after all. `review/ratification-2026-09-16.md` § Addendum,
+2026-09-17 carries the word, its citation, the old and new WHEN, and what did
+not move. Nothing is left uncovered by the exclusion: the independent scenario
+*A root's contracts directory is itself a symlink* already requires the
+per-root boundary finding for each refused root.
 
-Measured through the family's own `derive_units`, RE-RUN AFTER ROUND 6's
-revert: canon 209 units (unchanged — canon is not edited), this block 215
+Measured through the family's own `derive_units`, RE-RUN AFTER THE 2026-09-17
+AMENDMENT: canon 209 units (unchanged — canon is not edited), this block 215
 (unchanged throughout — no round added or removed a bullet), THREE uncarried
 units (the root-naming sentence; the pointer-bearing sentence beside it, kept
 from round 5; and the sibling scenario's WHEN bullet, its wording AS
-RATIFIED — uncarried against canon since round 1 regardless of wording,
+AMENDED — uncarried against canon since round 1 regardless of wording,
 canon carrying no such clause at all) and NINE new ones (the root-naming
 sentence's successor, the pointer sentence's corrected successor, the WHEN
-bullet as ratified, and the new scenario's title and its five bullets). The
+bullet as amended, and the new scenario's title and its five bullets). The
 unified diff against canon's block is FOUR hunks — the pointer-bearing
 sentence (kept from round 5), the root-naming sentence, the one WHEN clause,
 and the appended scenario, each at a different place in the file — and `git
-diff --numstat` against canon's block reads 21 added / 8 removed (17/4
-before round 1's clause and the pointer refresh — UNCHANGED by round 6's
-revert, the WHEN clause being one line under either wording). **NO `Removed
-from canon` OR `Merged into` MARKER IS OWED**: every uncarried unit has a
+diff --numstat` against canon's block reads 21 added / 8 removed. THE FIGURES
+BY ROUND: at filing 2 hunks, 17/4, uncarried 1, new 7; after round 1's clause
+3 hunks, 18/5, uncarried 2, new 8; from round 5's pointer refresh onward
+(round 6's revert and the 2026-09-17 amendment included, the WHEN clause being
+one physical line under either wording) 4 hunks, 21/8, uncarried 3, new 9.
+**NO `Removed from canon` OR `Merged into` MARKER IS OWED**: every uncarried
+unit has a
 successor in the same block that says MORE and never less, so nothing is
 deleted and a marker would declare a loss that did not happen.
 
@@ -199,14 +214,15 @@ edits), independently of how the delta was produced:
      > "$tmp/packet-block.txt"
    ```
 2. `git diff --no-index --numstat "$tmp/canon-block.txt" "$tmp/packet-block.txt"`
-   reads **21  8** (21 added, 8 removed, RE-RUN AFTER ROUND 6's revert; the
-   round 6 revert changes no line count, the WHEN clause being one line
-   under either wording); `diff -u "$tmp/canon-block.txt"
-   "$tmp/packet-block.txt" | grep -c '^@@'` reads **4** — the
-   pointer-bearing sentence (kept from round 5), the root-naming sentence,
-   the one WHEN clause (as ratified), and the appended scenario, each at a
-   different place in the file, and nothing else. (18 added / 5 removed, 3
-   hunks, before round 5's pointer refresh.)
+   reads **21  8** (21 added, 8 removed, RE-RUN AFTER THE 2026-09-17
+   AMENDMENT; neither round 6's revert nor the amendment changes a line
+   count, the WHEN clause being one line under either wording); `diff -u
+   "$tmp/canon-block.txt" "$tmp/packet-block.txt" | grep -c '^@@'` reads
+   **4** — the pointer-bearing sentence (kept from round 5), the root-naming
+   sentence, the one WHEN clause (as amended 2026-09-17), and the appended
+   scenario, each at a different place in the file, and nothing else. (18
+   added / 5 removed, 3 hunks, after round 1's clause and before round 5's
+   pointer refresh; 17 added / 4 removed, 2 hunks, at filing.)
 3. The `derive_units` comparison, through the modified-block-currency
    family's own derivation, over the live tree rather than the two extracted
    files:
@@ -227,9 +243,11 @@ edits), independently of how the delta was produced:
    "
    ```
    reads `canon units: 209`, `block units: 215`, `uncarried: 3`, `new: 9`
-   (RE-RUN AFTER ROUND 6's revert, UNCHANGED from round 5's own numbers,
-   since the WHEN bullet stays uncarried against canon under either
-   wording; was `uncarried: 2`, `new: 8` before round 5's pointer refresh).
+   (RE-RUN AFTER THE 2026-09-17 AMENDMENT, UNCHANGED from round 5's and
+   round 6's own numbers, since the WHEN bullet stays uncarried against canon
+   under either wording; was `uncarried: 2`, `new: 8` after round 1's clause
+   and before round 5's pointer refresh, and `uncarried: 1`, `new: 7` at
+   filing).
 4. The same fact as a live finding rather than a script: `python3
    scripts/doc-health.py --single-repo . --as-of 2026-09-16 --family
    modified-block-currency` (the date measured against, pinned rather than
@@ -239,11 +257,13 @@ edits), independently of how the delta was produced:
    body units and scenario bullets ... currently states for it", quoting all
    three uncarried units by text.
 
-All four commands were RE-RUN against this commit (round 6, after reverting
-round 5's WHEN narrowing and keeping its pointer refresh) and reproduce the
-numbers stated above; the filing-time numbers (18/5, 3 hunks, uncarried 2, new
-8) are recorded historically at `tasks.md` § 2.2 and in the pull request body,
-and are not restated here as current.
+All four commands were RE-RUN against this commit (the archive act, carrying
+the ratifier's 2026-09-17 amendment of the WHEN over round 6's revert and
+round 5's kept pointer refresh) and reproduce the numbers stated above; the
+earlier per-round numbers — at filing 17/4, 2 hunks, uncarried 1, new 7; after
+round 1's clause 18/5, 3 hunks, uncarried 2, new 8 — are recorded historically
+at `tasks.md` § 2.2 and in the pull request body, and are not restated here as
+current.
 
 Base of measurement: `origin/main` @ `8944758c` (the archive of
 `extend-prose-tagging-target-to-pinned-capabilities`, PR #1042, merged

@@ -183,3 +183,26 @@ and the outcome.
   `extend-prose-tagging-target-to-pinned-capabilities` realization and was
   RULED STANDS by the lane, naming this packet's delta verbatim as "a
   legitimate later delta … noted, not filed."
+
+## Addendum, 2026-09-17 — THE CARRIED WHEN RE-BASED ON ITS RATIFIER'S AMENDMENT
+
+PR [#1075](https://github.com/opensoft/openxFactory/pull/1075) → `a93d2682`
+ordered this packet AFTER `scope-pinned-arm-root-naming` and carried that
+packet's ratified units into this block VERBATIM, one of them the sibling
+scenario *A pinned target names a pin no resolution root carries*'s WHEN. On
+2026-09-17 that WHEN was AMENDED BY ITS OWN RATIFIER — Brett Heap, first-hand,
+in session, an interactive multiple-choice selection, verbatim ***"Apply the
+narrowing"***, openxFactory
+[#1047 comment 5714432684](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714432684)
+— from "…and at least one resolution root was selected for the run" to "…and
+at least one selected root whose boundary was successfully searched". **THE
+CARRIED COPY IS RE-BASED TO THE AMENDED TEXT IN THE SAME COMMIT AS THE
+AMENDMENT, UNDER THAT SAME RULING, AND AUTHORS NOTHING:** a carried copy left
+at the superseded wording would be precisely the drift the carriage was
+performed to prevent. **NO DECISION, SCOPE, `tasks.md` BOX, ORIGIN FIELD OR
+OBLIGATION OF THIS PACKET MOVES** — this packet still adds EXACTLY ONE
+scenario of its own, *A pin record's optional dispositions member carries a
+malformed entry*. Measured after the re-base, against canon as promoted by the
+archive of `scope-pinned-arm-root-naming`: canon 215 units, this block 223,
+**ZERO uncarried units** and EIGHT new — this packet's own scenario title and
+its seven bullets, and nothing else.

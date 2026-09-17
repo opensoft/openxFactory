@@ -463,9 +463,9 @@ terms as the corrupt-record rule below.
 THE PASS RESOLVES A PIN RECORD AGAINST EXACTLY THE ROOT PRECEDENCE THE
 IN-TREE ARM ALREADY USES, AND NAMES THE ROOT IT USED. Capability resolution
 today reads the DOCUMENT'S OWN REPOSITORY ROOT FIRST AND THE `openxFactory`
-ROOT SECOND (`scripts/doc_health/families.py:1317-1321`, over
-`Context.repo_paths`, `scripts/doc_health/runner.py:39`); a single-repository
-run has one root and no fallback. The pinned arm SHALL use that precedence
+ROOT SECOND (`scripts/doc_health/families.py`'s `_resolve_capability` and
+`_pin_roots`, over `Context.repo_paths`, `scripts/doc_health/runner.py:39`); a
+single-repository run has one root and no fallback. The pinned arm SHALL use that precedence
 UNCHANGED and SHALL invent none of its own, so the ORDER IS UNCHANGED AND
 DETERMINISTIC FOR THE ROOTS PRESENT in the run — the document's own repository
 root first, then the `openxFactory` root where the run is an aggregate whose
@@ -475,10 +475,16 @@ so a marker whose pin record lives only in the `openxFactory` root resolves in
 an aggregate run and is an UNRESOLVED pinned target in a single-repository run
 of another repository. That difference is a difference of THE ROOT SET THE RUN
 WAS GIVEN, not of a precedence the arm invented, and the arm SHALL NOT widen
-its root set to close it; and EVERY finding the pinned arm emits SHALL NAME THE
-ROOT OR ROOTS it resolved against, or failed to, since under two roots a bare
-"no pin record" sentence cannot be acted on and under one root the named root
-is what makes the difference readable. THE RECORD MUST ALSO BE A FILE OF THAT ROOT'S `contracts/`
+its root set to close it; and EVERY finding the pinned arm emits AFTER ROOT
+SELECTION SHALL NAME THE ROOT OR ROOTS it resolved against, or failed to,
+since under two roots a bare "no pin record" sentence cannot be acted on and
+under one root the named root is what makes the difference readable; and THE
+TWO FINDINGS EMITTED BEFORE ANY ROOT IS SELECTED SHALL NAME WHAT THEY JUDGED
+INSTEAD — a pinned value THE LEXICAL GRAMMAR REFUSES names THE VALUE, no path
+having been built and no root having been chosen for it, and a document whose
+repository has NO RESOLUTION ROOT IN THE RUN names THE REPOSITORY, the run's
+root set for it being empty.
+THE RECORD MUST ALSO BE A FILE OF THAT ROOT'S `contracts/`
 DIRECTORY, RESOLVED: the pass MUST
 resolve the candidate path and refuse to read it unless the resolved path stays
 inside that root's `contracts/` directory, and a symlink that leaves it MUST be
@@ -664,7 +670,7 @@ not the thing that happens when nobody decides.
 - **AND** the pass MUST complete rather than abort
 
 #### Scenario: A pinned target names a pin no resolution root carries
-- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence
+- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence, and at least one selected root whose boundary was successfully searched
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
 - **AND** the finding MUST name the pin registry as the thing that failed to resolve, not `openspec/specs/`
 - **AND** the finding MUST name the root or roots searched
@@ -686,6 +692,13 @@ not the thing that happens when nobody decides.
 #### Scenario: A supersedes marker never acquires a change id
 - **WHEN** an `xspec:supersedes` marker persists without a `change=` attribute beyond the doc-health aging threshold
 - **THEN** the health pass MUST report it as an aging finding rather than accepting it as a permanent state
+
+#### Scenario: A finding emitted before root selection names what it judged
+- **WHEN** the pinned arm refuses a `target=pinned:…` value on the lexical grammar before any pin-record path is built, or reports that the run carries no resolution root for the document's repository
+- **THEN** the finding MUST name what it judged — the VALUE for the lexically malformed target, the REPOSITORY for the empty root set
+- **AND** the finding MUST NOT be required to name a root, none having been selected when it is emitted: for the malformed value no path has been built and no pin lookup performed, and for the empty root set the run carries no root to name
+- **AND** the deterministic pass MUST complete, both being controlled findings rather than exceptions that take the run down
+- **AND** every finding the arm emits AFTER a root is selected MUST still name the root or roots it resolved against, or failed to
 
 ### Requirement: Proposal-owned supporting documents
 When staged material crosses the proposal gate, the selected source documents SHALL

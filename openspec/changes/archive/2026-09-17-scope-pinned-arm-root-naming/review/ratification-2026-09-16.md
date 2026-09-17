@@ -51,14 +51,31 @@ no merge of this packet exists yet, and the word itself — "ratify 1052 WHEN
 GREEN, then 1050" — conditions on green and leaves the lane to land the
 corrected head, not the `92d3e0e2` head the word was first given over. FOUR
 commits have moved packet text since: see "Addendum, 2026-09-16" at the
-foot of this record. ALL FOUR ARE NON-NORMATIVE. One of them — fix round
-5 — briefly applied a narrower reading of a ratified scenario's WHEN; that
-was WRONG (ratified normative text is the ratifier's act to amend, not the
-lane's) and fix round 6 REVERTED it in full, so the block lands with its
-normative content BYTE-IDENTICAL to what was ratified at `92d3e0e2`. No
+foot of this record. **ALL FOUR LEAVE NO LASTING NORMATIVE CHANGE — they are
+not all non-normative.** ONE OF THEM, FIX ROUND 5, WAS THE TEMPORARY
+NORMATIVE EDIT: it applied a narrower reading of a ratified scenario's WHEN;
+that was WRONG (ratified normative text is the ratifier's act to amend, not
+the lane's) and fix round 6 REVERTED IT IN FULL, so at the close of round 6
+the block carried its normative content BYTE-IDENTICAL to what was ratified
+at `92d3e0e2`. The other three moved no normative text at any point. No
 decision, scope or `tasks.md` § 1 box is reopened by any of the four. The
 gap round 5 surfaced is real and is put to Brett Heap directly, by a RULING
 NEEDED comment on openxFactory #1047 posted 2026-09-16.
+
+**AMENDED SINCE — ONCE MORE, AND THIS TIME BY THE RATIFIER HIMSELF, ON
+2026-09-17. See § "Addendum, 2026-09-17 — THE RATIFIER'S AMENDMENT OF THE
+NO-RECORD SCENARIO'S WHEN" at the foot of this record.** The RULING NEEDED
+the paragraph above describes was ANSWERED: Brett Heap ruled *"Apply the
+narrowing"* on 2026-09-17, and the sibling scenario *A pinned target names a
+pin no resolution root carries*'s WHEN moved from the text ratified at
+`92d3e0e2` to the narrower text fix round 5 had measured — this time as the
+ratifier's own act, with the contradiction before him, which is the only
+authority under which ratified normative text moves. **THAT SUPERSEDES THE
+PRECEDING PARAGRAPH'S FORWARD CLAIM** that the block lands with its normative
+content byte-identical to `92d3e0e2`: true of every state this packet held up
+to 2026-09-17, and no longer true of the text promoted at the archive. The
+preceding paragraph and the 2026-09-16 addendum are left EXACTLY as written,
+as the evidence of what was true before the word came.
 
 ## What is ratified
 
@@ -206,6 +223,10 @@ word, before any landing.
      ratify the round-5 narrowing (or an equivalent), leave the WHEN exactly
      as ratified, or something else. Until that word comes, the block lands
      with its normative content EXACTLY as ratified at `92d3e0e2`.
+     **THE WORD CAME ON 2026-09-17 — *"Apply the narrowing"* — so the block
+     does NOT land with that content: see § Addendum, 2026-09-17 at the foot
+     of this record. This bullet is left as written, as the record of what
+     round 6 decided with the question still open.**
 
 **WHAT DID NOT MOVE, ACROSS ALL FOUR COMMITS.** No `tasks.md` § 1 box (still
 1.1, and only 1.1). No OQ-1 disposition — option (a) stands exactly as
@@ -227,3 +248,113 @@ tests/doc-health/test_modified_block_currency_self_gate.py`; and a same-clock
 `doc-health.py --single-repo . --family ratified-provenance` comparison
 against an `origin/main` baseline showing the SAME pre-existing findings and
 none naming this packet.
+
+## Addendum, 2026-09-17 — THE RATIFIER'S AMENDMENT OF THE NO-RECORD SCENARIO'S WHEN
+
+**A SECOND ACT OF THE SAME RATIFIER, ON THE ONE QUESTION THE FIRST LEFT OPEN.**
+Recorded as an addendum rather than folded into the body or into the
+2026-09-16 addendum above, because a record that quietly rewrites itself to
+match a later ruling destroys the evidence that the ruling was needed. This is
+the shape `add-requirement-ref-resolution-integrity`'s own
+`review/ratification-2026-09-01.md` § "Addendum, 2026-09-01" set, and the shape
+fix round 5 got backwards: **the ratifier rules first, with the contradiction
+before him, and only then does the text move.**
+
+**THE WORD.** Brett Heap (openxFactory repository owner), first-hand, in
+session to lane `openxfactory-2` (display `openXfactory-2`, session c0d09b6d),
+2026-09-17 — an INTERACTIVE MULTIPLE-CHOICE SELECTION over the RULING NEEDED
+this record's 2026-09-16 addendum posted, verbatim:
+
+> **"Apply the narrowing"**
+
+**THE ONE CITATION:** openxFactory issue #1047, comment
+[5714432684](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714432684).
+
+**WHAT WAS PUT, AND WITH WHAT IN FRONT OF HIM.** The RULING NEEDED comment of
+2026-09-16 carried the contradiction whole, measured rather than argued:
+
+- The scenario *A pinned target names a pin no resolution root carries*, AS
+  RATIFIED at `92d3e0e2`, fires on a WHEN satisfied by ROOT SELECTION ALONE —
+  "…and at least one resolution root was selected for the run".
+- `_pinned_arm` (`scripts/doc_health/families.py`) appends a root to
+  `searched` only AFTER that root's `contracts/` directory clears
+  `boundary_dir` (`:1604-1613`); a root whose boundary check fails draws its
+  OWN finding instead (*A root's contracts directory is itself a symlink*) and
+  never reaches `searched`.
+- So where EVERY root `_pin_roots` returns fails that boundary check,
+  `searched` stays empty, the trailing `if searched:` guard (`:1633`) never
+  fires, and NO "unresolved pinned target: no record under root(s)" finding is
+  emitted at all — the as-ratified WHEN describes, on that one path, a hygiene
+  finding the realized arm does not emit.
+- The packet already carried `Status: ratified`, so narrowing the WHEN was an
+  amendment to ratified text and **only the ratifying owner could consent to
+  one** — which is why fix round 6 reverted the lane's own narrowing and
+  posted the question instead of answering it.
+- The choices put were: ratify the round-5 narrowing (or an equivalent), leave
+  the WHEN exactly as ratified, or something else.
+
+**WHAT MOVED — ONE BULLET, AND ONLY ITS WHEN.** In
+`specs/document-lifecycle/spec.md`, the scenario *A pinned target names a pin
+no resolution root carries*:
+
+**BEFORE** — as ratified at `92d3e0e2`, the bullet's tail read:
+
+> …and no pin record for `<pin-id>` exists under any root of the run's
+> precedence, **and at least one resolution root was selected for the run**
+
+**AFTER** — as amended 2026-09-17, and as promoted at the archive, it reads:
+
+> …and no pin record for `<pin-id>` exists under any root of the run's
+> precedence, **and at least one selected root whose boundary was successfully
+> searched**
+
+It is byte-for-byte the text fix round 5 applied at `7055e475` and fix round 6
+reverted at `d138a99d` — now applied under the authority that was missing then.
+
+**WHY.** The amended WHEN excludes the all-roots-boundary-refused case, so the
+scenario's subject is exactly what the arm emits: a `<pin-id>` absent from
+every root the run ACTUALLY SEARCHED. The excluded case is not left uncovered —
+the independent scenario *A root's contracts directory is itself a symlink*
+already requires the per-root boundary finding for each refused root. Canon
+therefore stops requiring a finding the arm does not emit, which is precisely
+the defect `design.md` D-1 exists to prevent and the defect this whole packet
+was filed to repair one instance of.
+
+**WHAT DID NOT MOVE, stated so no reader has to diff for it.** OQ-1's
+disposition — option (a), D-2 and D-3 still refused. `tasks.md` § 1, still 1.1
+and only 1.1. The `code_surface: none` / `target_release: implemented`
+declaration. `.openspec.yaml`'s origin block, drafting and approval pairs alike
+(ORIGIN RETAINED, unchanged since the ratifying commit `f8eba345`). The
+scenario COUNT, still twenty-four (one added over canon's twenty-three), and
+every scenario TITLE, this one included — the bullet was NARROWED, never struck
+or retitled, so no `Merged into` or `Removed from canon` marker is owed. The
+body sentence this packet was filed for, the pointer refresh beside it, and the
+added scenario *A finding emitted before root selection names what it judged*
+are all untouched by this amendment.
+
+**RE-MEASURED AFTER THE AMENDMENT**, through the modified-block-currency
+family's own `derive_units` and `git diff --numstat`, over the amended block
+and canon alike: canon 209 units, block 215 units, **THREE uncarried units**
+and **NINE new**, canon-diff **FOUR hunks, 21 added / 8 removed** — every
+figure UNCHANGED from round 6's, because the WHEN bullet is ONE PHYSICAL LINE
+under either wording and has been uncarried against canon since fix round 1
+regardless of which wording it holds, canon carrying no such clause at all.
+The amendment changes WHICH TEXT canon receives, not how much.
+
+**WHERE THE CONSENT IS RECORDED.** This addendum; the "AMENDED SINCE — ONCE
+MORE, AND THIS TIME BY THE RATIFIER HIMSELF" pointer near the head of this
+record; `proposal.md` § What Changes' WHEN bullet and its scope sentence;
+`design.md` D-2's round paragraph and its reproduction commands;
+`tasks.md` § 2.2's round history and § 3.1's ARCHIVED annotation; the README
+archived-ledger entry; and the archive pull request's body. **No site states
+the WHEN as ratified-and-unamended after this date.**
+
+**AND THE CARRIED COPY MOVES WITH IT.** PR
+[#1075](https://github.com/opensoft/openxFactory/pull/1075) → `a93d2682`
+ordered `adopt-entry-grain-dispositions-form` AFTER this packet and carried
+this scenario's WHEN into that packet's own `## MODIFIED` block VERBATIM. That
+carried copy is re-based to the amended WHEN in the same commit as this
+amendment, under this same ruling — recorded by a one-line addendum entry in
+`openspec/changes/adopt-entry-grain-dispositions-form/review/ratification-2026-09-16.md`.
+A carried copy left at the superseded wording would be the very drift the
+carriage was performed to prevent.
