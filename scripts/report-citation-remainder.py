@@ -801,8 +801,14 @@ def probe_split_string_literal(lines, lineno: int, end: int, token: str,
     Returns the rejoined path where the probe fires, else `None`.
     """
     line = lines[lineno - 1]
-    if line[end:].strip():
-        return None  # the token does not end its source line
+    # THE TOKEN ENDS ITS SOURCE LINE, and a CLOSING QUOTE after it is part of
+    # ending it: an implicit string concatenation closes the literal at the end
+    # of the line it splits, so the shape this probe is written for
+    # (`"<head>"` then, on the next line, `"<tail>"`) always carries one. A
+    # line whose literal is left open carries none, and both are admitted.
+    tail = line[end:].strip()
+    if tail not in ("", '"', "'"):
+        return None
     if not _inside_string_literal(line[:end]):
         return None
     if lineno >= len(lines):
@@ -1344,12 +1350,18 @@ def json_reading(reading: Reading, show_all: bool, by_token: bool) -> dict:
 
 
 def print_human(reading: Reading, show_all: bool, by_token: bool,
-                out=sys.stdout) -> None:
+                out=None) -> None:
     """PART 1 IS THE COUNTS BLOCK, PART 2 IS THE ITEMIZED REMAINDER, in that
-    fixed order, and neither part ever headers a group with a class name."""
+    fixed order, and neither part ever headers a group with a class name.
+
+    `out` IS RESOLVED AT CALL TIME AND NOT AT IMPORT TIME: a default argument
+    spelled `sys.stdout` binds the stream this module was imported with, which
+    is the wrong stream for any caller that redirects one — the suite's own
+    readers do.
+    """
     counts = counts_of(reading)
     population = reading.population
-    write = out.write
+    write = (out if out is not None else sys.stdout).write
 
     write("CITATION REMAINDER\n")
     write(f"  head                 {reading.head}\n")
@@ -1487,6 +1499,12 @@ def _print_record(write, record: TokenRecord, reading: Reading, indent: str,
     if with_history and reading.history_probed \
             and record.identity in reading.history:
         write(f"{indent}  {_history_line(reading.history[record.identity])}\n")
+    if record.normalizations:
+        # EVERY NORMALIZATION THE REPORT APPLIES IS PRINTED IN ITS OWN ROW, and
+        # it is printed whatever class the entry lands in — a reader who cannot
+        # see that the tool changed the token cannot check the tool.
+        write(f"{indent}  normalizations: "
+              f"{', '.join(record.normalizations)}\n")
     if record.report:
         write(f"{indent}  {record.report}\n")
     if record.class_evidence:
