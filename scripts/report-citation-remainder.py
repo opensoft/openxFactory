@@ -1211,6 +1211,7 @@ def counts_of(reading: Reading) -> dict:
             "dangling_file_half": file_half,
             "ambiguous": ambiguous,
             "not_a_packet_reference_with_no_raw_path": npr_absent,
+            "total_holding_not_a_packet_reference_out": len(raw_absent) - npr_absent,
             "closes": len(raw_absent) == (repaired + identity_half + file_half
                                           + ambiguous + npr_absent),
         },
@@ -1432,6 +1433,14 @@ def print_human(reading: Reading, show_all: bool, by_token: bool,
           f"ambiguous + "
           f"{absent['not_a_packet_reference_with_no_raw_path']} not a packet "
           f"reference{'' if absent['closes'] else '  [DOES NOT CLOSE]'}\n")
+    # AND THE SAME SET UNDER CHOICE (2), WHICH IS THE ONE EARLIER READINGS OF
+    # THIS POPULATION PUBLISH. The five-term identity above closes over every
+    # token with no raw path; the figure a reader compares against an earlier
+    # point in this series holds the resolver's fifth answer out of it, and a
+    # report printing only one of the two invites the wrong comparison.
+    write(f"  {absent['total_holding_not_a_packet_reference_out']} of those "
+          f"raw-path-absent tokens under choice (2), which holds NOT-A-PACKET-"
+          f"REFERENCE out of the remainder population\n")
 
     write("\nREMAINDER\n")
     write(f"  INCLUSIVE remainder      "
