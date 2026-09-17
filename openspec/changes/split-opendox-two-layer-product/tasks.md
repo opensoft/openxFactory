@@ -1255,6 +1255,37 @@ the bookkeeping that ticks this group.
   corpus to what the legs pass today would be FLOOR PART 3 deleted to tick
   FLOOR PART 3. § 3.8's tag waits on it. Runbook § 2.2 carries the runner, the
   refusal table and the same verdicts.
+  **BOTH MISSING READERS ARE NOW RULED AND IN FLIGHT — 2026-09-17, `#656`
+  comment `5714365086`** (Brett Heap, by interactive multi-choice, on three
+  questions from the helper's read-only `floor37` actor). **The verdict does
+  not move and the box does not tick**; what changes is that the two build
+  tasks named above now have rulings and pull requests.
+  **Q-F1 (a) — how FLOOR PART 3 runs against a GIT-HISTORY reader: the
+  DESTINATION transposes the corpus into git and says so**
+  (`conformance_corpus.transpose()`, run with `--corpus <transposition>`),
+  documents, keys and bytes unchanged. **`openxFactory` ships ONE neutral
+  corpus and each reader proves itself on its own substrate** — the
+  privileged route, `openxFactory` shipping both forms, was DECLINED, and so
+  was ruling openDox's reader out of scope by deleting the word *"EVERY"*.
+  That second refusal matters to this box more than the first: deleting
+  *"EVERY"* is the shape of narrowing this box's own STATUS already calls
+  *"FLOOR PART 3 deleted to tick FLOOR PART 3"*. The act is `openxFactory`
+  **#1086** (*"FLOOR PART 3 accepts a destination's TRANSPOSED corpus and
+  proves it faithful"*), open as a DRAFT.
+  **Q-F2 (a) and Q-F3 (a) land IN `openDox-code` #26**: `LocalGitCorpus`
+  GROWS the three per-corpus construction data (`write_path`, `kind_field`,
+  `required_fields`, defaults = today's values) and takes the
+  `CORPUS_UNREADABLE` refusal-kind fix — measured **17 of 17** with a
+  diagnostic subclass supplying the three — and `resolve` pins the
+  repository root and REFUSES an enclosing repository, because *"a reader
+  that can commit into somebody else's clone does not land"*.
+  **WHERE THE TWO DESTINATIONS STAND TODAY, measured 2026-09-17**: openDox's
+  reader is at **11 of 17** on `openDox-code` **#26**; **openXdox has no
+  reader at all** and its build is § 4.5a above, claimed the same day; the
+  control, `openxFactory`'s own § 2.2a adapter, is **17 of 17**. **This box
+  ticks when EVERY destination passes — openDox after #26 plus the Q-F1
+  transposition, openXdox after § 4.5a lands — and not before.** § 8.2 reads
+  this evidence, so nothing downstream loosens while it stands open.
 - [ ] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
   **In the ASSEMBLY ROOT** (amended 2026-09-05), over the commit that names both
   legs: a tag on a leg describes half a project, and the bundle tag,
@@ -1647,6 +1678,64 @@ the bookkeeping that ticks this group.
   out-of-band status allowance), and erratum'd **#12 →
   `6b92bdc40863b017926718ee314e9ca87e49ff09`** (ASK-5, the workbench
   scenario's four existing route-extension columns).
+- [ ] 4.5a `[oXd]` **BUILD the corpus-adapter IMPLEMENTATION** — `design.md`
+  § D4 machinery **(1)**, the one of the seven that § 4.5 did not name —
+  **parameterized by the § 4.4 domain profile, and proved on § 3.7's neutral
+  corpus.** Exit evidence is one command and one line:
+  `verify-carve-conformance.py --destination openxdox_code` → **`OK — 17 of
+  17`**. **§ 4.1 stays a carve box** and this is not part of it.
+  **RULED Q-X1 (a) — 2026-09-17, `#656` comment `5715212264`** (Brett Heap,
+  by interactive multi-choice), on three questions from the helper's
+  read-only `xdoxadapter` scoping. **The box is NEW rather than a clause
+  added to § 4.5, on this packet's own `Na` precedent** — § 2.2a, § 5.2a and
+  § 5.6a are all boxes this packet grew when a ruling found work its
+  neighbours did not carry, and a build with its own exit evidence is not a
+  bullet inside a box that has already ticked.
+  **WHY § 4.5 DID NOT ALREADY COVER IT, which is the whole reason a new box
+  is honest here.** § 4.5 names THREE features and ticked on all three
+  landing (`openXdox-code` #10/#11/#12, 2026-09-11). `design.md` § D4 lists
+  **seven** machineries; the reader § 3.7 asks openXdox for is machinery (1),
+  and it is the one none of the three named. So § 4.5's tick is undisturbed
+  and § 3.7's missing half has a box of its own to tick in.
+  **RULED Q-X2 (a) — openXdox's reader is the NEUTRAL, PROFILE-PARAMETERIZED
+  reader.** Corpus terms arrive as CONSTRUCTION DATA, derived from the § 4.4
+  `DomainProfile` where one is registered — not compiled in. **And RULING
+  Q4's clause *"over openxFactory's corpus and check families"*
+  (`5542823211`) is RECORDED AS SUPERSEDED, in this packet's no-deletion
+  style**: superseded by RULING **C2** (`5544370242`), which made openXdox
+  the domain-mapping core PARAMETERIZED rather than openxFactory's reader,
+  and by **DQ-1**, which gave `openxFactory` its own § 2.2a adapter over its
+  own corpus. Q4's STANDING clause — *"openDox defines a corpus-adapter
+  interface; openXdox implements it"* — is untouched and is exactly what this
+  box performs. The superseded clause is struck from FORCE and not from the
+  record, which is how this packet has treated every overtaken ruling text.
+  **RULED Q-X3 (a) — the `CorpusShape` carries `kind_field` and
+  `required_fields_by_kind` as construction data for this act**, as
+  `openxFactory`'s § 2.2a shape already does. **No spec change and no schema
+  change**: the domain profile stays the vocabulary and lifecycle authority,
+  and the shape only carries what a reader needs to read.
+  **STATUS — CLAIMED AND BUILDING, 2026-09-17T13:33:17Z, CLAIM
+  `5715212503`** (this lane, authored by the helper's `xdoxbuild` actor).
+  Measured before the claim at `openXdox-code` `main` **`589adee7`**:
+  `--destination openxdox_code` refuses **`conformance-adapter-undeclared`**
+  and no check is reached — which is the same verdict § 3.7 recorded on
+  2026-09-10 and is why this box exists. Branch
+  `build/corpus-adapter-implementation` off `589adee7`: three NEW
+  stdlib-only modules (`corpus_shape.py` carrying the construction data and
+  a `from_profile()` over § 4.4's `DomainProfile`, `domain_corpus_adapter.py`
+  implementing the six operations against the PINNED `opendox.corpus_adapter`
+  under RULED OQ-2/OQ-Q, and `conformance_corpus.py` as the declared
+  `--adapter` factory), no existing module edited and no `doc_health` reach
+  added. Its arrival admissions rows land at `openxFactory` on
+  `chore/admit-openxdox-corpus-adapter`. **Q-X4 needed no question**: its
+  recommended precondition was the § 3.7 rulings Q-F1/Q-F2 (`5714365086`),
+  already in hand, so the build proceeds on Q-F2's construction-data pattern
+  rather than inventing a second one.
+  **This box ticks on that landing and its one line of evidence, and on
+  nothing else.** A possible `openXdox-spec` requirement row for the adapter
+  — on § 4.5's own `add-openxdox-projection-surfaces` precedent — is FLAGGED
+  and deliberately not scoped here; the building actor measures it and
+  reports.
 - [ ] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green. **In the ASSEMBLY
   ROOT** (amended 2026-09-05), on 3.8's reasoning.
 
@@ -3266,7 +3355,7 @@ realization evidence, never on landing. Each line is its own evidence.
   empty. § 0.6's own DONE line (openxFactory #832 → `56e69a11`) is therefore
   still true of `main` today and not only of the day it landed, which is what
   re-reading it establishes and what a ticked archive-gate line has to mean.
-- [ ] 8.7 The aggregation's **openXdox AND openDox** gitlinks landed, **each
+- [x] 8.7 The aggregation's **openXdox AND openDox** gitlinks landed, **each
   equal to `openxFactory`'s own nested gitlink of the same name**, all four
   naming an ASSEMBLY ROOT, and the two derived `project-register.yaml` election
   rows landed with them (§ 1.9, amended 2026-09-05).
@@ -3314,6 +3403,43 @@ realization evidence, never on landing. Each line is its own evidence.
   of the check, not the verdict on it, and the packet's tick standard puts a tick
   in the act that claims it — the same treatment § 5.2's STATUS gives § 5.6a
   defect (a). What is owed for that tick is now measured and on the record here.)*
+  **TICKED 2026-09-17 BY `tasks.md` AMENDMENT #5 (CLAIM `5704937336`), ON PIN
+  LOCKSTEP #3 — the act this box's own STATUS said would carry it.** The
+  amendment above ruled the WORDING and left the verdict to the act that
+  claims it; this is that act, and the evidence is a five-place lockstep
+  closed end to end on 2026-09-17:
+  `opensoft/openDox` **#9 → `c4c5014d`** (assembly root A1) ·
+  `opensoft/openXdox-code` **#21 → `2529c10a`** ·
+  `opensoft/openXdox` **#11 → `88a1047e`** (assembly root A2) ·
+  `opensoft/openxFactory` **#1084 → `dc015d7a`** (2026-09-17T13:10:54Z) ·
+  `opensoft/xFactory` **#458 →
+  `b660266686025b7e38863d6186ccab5139d96ba7`** (2026-09-17T13:33:10Z, on
+  Brett Heap's word, RULED **R-5**).
+  **THE EQUALITY IS RE-DERIVED HERE FROM THE TREES RATHER THAN TRANSCRIBED
+  FROM THE ACT THAT MADE IT** — which is the whole point of a check that only
+  ever runs after a re-point. Read at `xFactory` `b6602666` and at
+  `openxFactory` `dc015d7a`, **three independent readings of each name agree**:
+
+  | read | `openDox` | `openXdox` |
+  | --- | --- | --- |
+  | aggregation gitlink at `b6602666` | `c4c5014d` | `88a1047e` |
+  | `openxFactory`'s own nested gitlink at `dc015d7a` | `c4c5014d` | `88a1047e` |
+  | `openxFactory`'s pin file `commit:` at `dc015d7a` | `c4c5014d` | `88a1047e` |
+
+  — `contracts/opendox-pin.yaml` and `contracts/openxdox-pin.yaml`
+  respectively. **And the aggregation's own `openxFactory` gitlink at
+  `b6602666` is `dc015d7a`**, the very commit those pin files belong to, so
+  the aggregation reads both products at exactly the commits the repository
+  it pins declares for them. **All four names are ASSEMBLY ROOTS**, which is
+  this box's other clause and is unchanged from the reading recorded above.
+  The register clause is § 1.9's and is already `[x]`; this lockstep derives
+  no new rows.
+  *(The BEFORE/AFTER measurement in the amendment above stands as written —
+  it recorded that the #453 re-point KEPT the equality rather than repairing
+  it. This tick adds the third such passage and the same finding: the
+  invariant held across pin lockstep #3 as it held across #453, and a box
+  that ticks on an equality should say which of those two it saw. It saw the
+  first.)*
 - [x] 8.8 Amendment 3 applied with the SIX repository names and the election,
   and the descendant names — each with its two leg names — registered with no
   repository created (amended 2026-09-05).
