@@ -733,7 +733,16 @@ evidence reads *transposed, faithful* and a reader of it can recompute the
 number. Where the reader cannot resolve or list the location at all there is
 nothing to compare and the 17 report it better, so that case is handed to
 them; a run whose 17 all passed over a transposition never proven faithful
-refuses at the end rather than printing `OK`.
+refuses at the end rather than printing `OK`. The proof is taken TWICE, and
+the verdict's closing words `unmoved across the run` are that second one: the
+runner keeps the reader `carve_conformance.run` built for the populated
+corpus and re-proves the transposition through THAT instance after the 17,
+which catches both a corpus that moved under the measurement and a factory
+that served the shipped bytes to the proof and something else to the checks.
+What it does not catch is a reader answering differently on two CALLS to one
+instance — the proof and the checks are different calls by construction, and
+a destination doing that is forging its own § 3.7 evidence rather than
+defeating a measurement.
 
 Its six refusal codes:
 

@@ -65,10 +65,19 @@ with trust:
   * a difference refuses `conformance-corpus-unfaithful` and NAMES the keys,
     before any of the seventeen checks runs, because a reader measured against
     a corpus nobody compared is not measured at all;
+  * the proof is taken again AFTER the seventeen, through the very reader
+    `carve_conformance.run` built for the populated corpus, which is what
+    the verdict's closing `unmoved across the run` reports: it catches a
+    corpus that moved under the measurement and a factory that served the
+    shipped bytes to the proof and something else to the checks. A reader
+    answering differently on two CALLS to one instance is outside what any
+    bracketing can see, and is named here so nobody reads more into a green
+    verdict than it measured;
   * and the verdict line and the `--json` payload carry the transposition —
-    its path, its document count and the table's digest — so the evidence a
-    pull request records says "transposed, faithful" rather than "passed",
-    and a reader of that evidence can recompute the digest.
+    its path, its document count, the revision it was proven at and the
+    table's digest — so the evidence a pull request records says
+    "transposed, faithful" rather than "passed", and a reader of that
+    evidence can recompute the digest.
 
 The proof is taken ONLY when `--corpus` resolves somewhere other than this
 repository's own fixtures: the default run is the shipped corpus compared with
