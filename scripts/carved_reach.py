@@ -634,9 +634,13 @@ def module(path: str | Path):
     those names live at one leg, some at the other and some still here. The
     dotted name is DERIVED from the row instead:
 
-      * a MOVED row's `destination_path` (`src/opendox/workbench.py`) becomes
-        the dotted name the leg's `src/` makes importable (`opendox.workbench`)
-        — which is why the day a row moves between the two legs no caller
+      * a MOVED row's `effective_arrival(row)` `destination_path`
+        (`src/opendox/workbench.py`) becomes the dotted name the leg's `src/`
+        makes importable (`opendox.workbench`): the row's own, unless a
+        `re_destined:` block (RULED Q6) says a ruling has since moved the
+        placement, in which case its `to_path` — `source()`'s own precedent,
+        read here for the same reason, and why the day a row moves between
+        the two legs, or is re-destined between them afterward, no caller
         changes;
       * a `not_moved` row keeps the spelling it has HERE
         (`scripts/ideation_dashboard/intent_feed.py` → the
