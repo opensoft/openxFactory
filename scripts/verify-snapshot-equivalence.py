@@ -149,8 +149,10 @@ import hashlib
 import json
 import os
 import re
+import io
 import subprocess
 import sys
+import tarfile
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -333,6 +335,11 @@ _INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(KEY|VALUE)_\d+")
 #: HANG rather than fail, and a runner that never returns answers nothing.
 _GIT_TIMEOUT = 30
 
+#: The PRE child's own bound. Generous against the measurement — a render of
+#: the shipped corpus takes under a second — because it exists to stop a
+#: non-terminating renderer hanging a required gate, not to police speed.
+_CHILD_TIMEOUT = 300
+
 
 def _git_environment() -> dict[str, str]:
     environment = {
@@ -442,23 +449,26 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
             "unreachable hangs here rather than failing, and a query that "
             "went unanswered is not a tree that carries nothing")
     if archive.returncode != 0:
+        # REPORTED GENERICALLY, AND THE POST-SHED DIAGNOSIS IS LEFT TO THE
+        # EXPLICIT CHECK BELOW (Copilot, PR #1105 round 7).
+        # `pre_ref_commit()` has ALREADY resolved this ref, so a nonzero
+        # archive here is far likelier to be an object store that cannot
+        # answer — a partial clone whose promisor remote is unreachable, a
+        # corrupt pack — than a tree without the renderer. Telling that
+        # operator the ref is post-shed sends them to replace a good ref
+        # instead of fetching the objects they are missing.
         raise EquivalenceRefusal(
             "equivalence-pre-tree-unrenderable",
-            f"`git archive {pre_commit}` ({pre_ref}) carries none of "
-            f"{', '.join(ARCHIVE_PATHS)}"
-            f": {archive.stderr.decode('utf-8', 'replace').strip()}. That ref "
-            "is POST-SHED — the § 5.2 shed removed the renderer from this "
-            "repository — so it is not a pre-split tree and must not be read "
-            "as one")
-    extract = subprocess.run(["tar", "-x", "-C", str(into)],
-                             input=archive.stdout, capture_output=True,
-                             check=False, timeout=_GIT_TIMEOUT)
-    if extract.returncode != 0:
-        raise EquivalenceRefusal(
-            "equivalence-pre-tree-unrenderable",
-            f"extracting the {pre_ref} ({pre_commit[:12]}) archive into "
-            f"{into} failed: "
-            f"{extract.stderr.decode('utf-8', 'replace').strip()}")
+            f"`git archive {pre_commit}` ({pre_ref}) FAILED: "
+            + (archive.stderr.decode("utf-8", "replace").strip()
+               or "(no error output)")
+            + ". The ref itself resolved, so this is the OBJECT STORE rather "
+            "than the tree: a partial clone whose promisor remote cannot be "
+            "reached, a corrupt pack, or a revision whose blobs were never "
+            "fetched. Fetch the missing objects (`git fetch origin "
+            f"{pre_commit}`) before changing --pre-ref. Whether the tree "
+            "carries the renderer is answered separately, below")
+    _extract_safely(archive.stdout, into, pre_ref)
     for row in (GENERATOR_ROW, SNAPSHOT_ROW):
         if not (into / row).is_file():
             raise EquivalenceRefusal(
@@ -471,6 +481,66 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
                 f"error about --pre-ref, not a pass: name {DEFAULT_PRE_REF!r} "
                 "or another pre-shed revision")
     return into
+
+
+def _extract_safely(archive_bytes: bytes, into: Path, pre_ref: str) -> None:
+    """Extract the archive IN-PROCESS, with every member checked first.
+
+    `tar -x` was the first spelling and it was two holes at once (Copilot, PR
+    #1105 round 7): GNU tar reads `TAR_OPTIONS` out of the ambient
+    environment, so a caller could alter the extraction of a file this runner
+    is about to import; and a member that is a SYMLINK, a hard link, a device
+    or a path escaping `into` would be written as given, which is how an
+    archive reaches outside the directory that is supposed to contain it. The
+    isolation the `-I` child rests on is the isolation of THIS directory, so a
+    member that leaves it defeats the measurement rather than merely being
+    untidy.
+
+    `tarfile` with `filter="data"` is the standard library's own answer to
+    exactly this (CVE-2007-4559's remediation) and it is applied as well as
+    the explicit check, not instead of it: the check states the rule in this
+    file, in terms a reader can hold against the refusal.
+    """
+    rejected: list[str] = []
+    members: list[tarfile.TarInfo] = []
+    with tarfile.open(fileobj=io.BytesIO(archive_bytes), mode="r|") as bundle:
+        for member in bundle:
+            name = member.name
+            if not (member.isreg() or member.isdir()):
+                rejected.append(f"{name} ({member.type!r}, not a regular "
+                                "file or a directory)")
+                continue
+            target = Path(name)
+            if target.is_absolute() or ".." in target.parts:
+                rejected.append(f"{name} (escapes the extraction directory)")
+                continue
+            members.append(member)
+            bundle.extract(member, path=into, filter="data")
+    if rejected:
+        raise EquivalenceRefusal(
+            "equivalence-pre-tree-unrenderable",
+            f"the {pre_ref} archive carries members this runner will not "
+            f"extract:\n" + "\n".join(f"    {row}" for row in rejected[:20]) +
+            "\nA pre-split tree is read for its Python modules; a symlink, a "
+            "device or a path leaving the extraction directory would let the "
+            "isolated child read bytes from outside the archive, which is the "
+            "isolation this measurement rests on")
+    if not members:
+        raise EquivalenceRefusal(
+            "equivalence-pre-tree-unrenderable",
+            f"the {pre_ref} archive is empty, so there is no pre-split tree "
+            "to render")
+
+
+def _run_pre_child(tree: Path, corpus: Path, out: Path,
+                   source_revision: str) -> subprocess.CompletedProcess:
+    """The one child-interpreter invocation, BOUNDED. Separated so the
+    timeout and the call it bounds are one thing to read."""
+    return subprocess.run(
+        [sys.executable, "-I", "-c", _PRE_RENDER_PROGRAM,
+         str(tree / "scripts"), str(corpus), str(out), source_revision,
+         PINNED_COMMIT_DATE, REPOSITORY_NAME],
+        capture_output=True, text=True, check=False, timeout=_CHILD_TIMEOUT)
 
 
 def render_pre(tree: Path, corpus: Path, scratch: Path, pre_ref: str,
@@ -497,11 +567,21 @@ def render_pre(tree: Path, corpus: Path, scratch: Path, pre_ref: str,
     projection does not.
     """
     out = scratch / "pre-snapshot.json"
-    done = subprocess.run(
-        [sys.executable, "-I", "-c", _PRE_RENDER_PROGRAM,
-         str(tree / "scripts"), str(corpus), str(out), source_revision,
-         PINNED_COMMIT_DATE, REPOSITORY_NAME],
-        capture_output=True, text=True, check=False)
+    try:
+        done = _run_pre_child(tree, corpus, out, source_revision)
+    except subprocess.TimeoutExpired as exc:
+        # THE ONLY CHILD THAT WAS UNBOUNDED (Copilot, PR #1105 round 7).
+        # `--pre-ref` accepts any pre-shed revision, so a renderer that
+        # loops — or a corpus it cannot finish — would hang a REQUIRED gate
+        # rather than refuse. The git reads and the archive were already
+        # bounded; this one is now too, and a timeout is a tree that did not
+        # render, which is exactly what this refusal says.
+        raise EquivalenceRefusal(
+            "equivalence-pre-tree-unrenderable",
+            f"the {pre_ref} tree at {tree} did not finish rendering {corpus} "
+            f"within {_CHILD_TIMEOUT}s. A pre-split render of the shipped "
+            "corpus takes under a second, so a run that reaches this limit "
+            "has met a renderer or a corpus that does not terminate") from exc
     if done.returncode != 0 or not out.is_file():
         tail = (done.stderr or done.stdout).strip().splitlines()
         raise EquivalenceRefusal(
@@ -672,6 +752,15 @@ def _pretty(raw: bytes) -> list[str]:
         return raw.decode("utf-8", "replace").splitlines()
 
 
+def projected_documents(raw: bytes) -> int | None:
+    """How many documents a rendered snapshot projects, or `None` when the
+    bytes are not a snapshot at all."""
+    try:
+        return len(json.loads(raw.decode("utf-8")).get("documents") or [])
+    except Exception:  # noqa: BLE001 - a caller that must not crash on this
+        return None
+
+
 def compare(pre: bytes, post: bytes, corpus: Path, pre_ref: str,
             post_label: str) -> dict[str, Any]:
     """One corpus state's verdict, or the refusal that NAMES the field.
@@ -681,9 +770,27 @@ def compare(pre: bytes, post: bytes, corpus: Path, pre_ref: str,
     red run actionable, and it is of the canonical JSON rather than of the
     bytes because the canonical form is one line.
     """
+    # AN EXISTING DIRECTORY IS NOT A CORPUS (Copilot, PR #1105 round 7). The
+    # `is_dir()` guard in `main()` catches a path that is not there; it does
+    # NOT catch one that is there and EMPTY, or pointed at the wrong root. The
+    # reader then projects nothing, both sides render the same vacuous
+    # snapshot, and the run reports OK — which is the precise false pass that
+    # guard exists to prevent, arriving through the case it does not cover.
+    # Asked of the RENDERED snapshot rather than of the directory's globs: the
+    # engine's own answer about what it read beats this file's guess at what
+    # it should have.
+    projected = projected_documents(pre)
+    if not projected:
+        raise EquivalenceRefusal(
+            "equivalence-unreadable",
+            f"{corpus} projected {0 if projected == 0 else 'no readable'} "
+            "document(s), so both sides rendered the same empty snapshot and "
+            "would have compared equal. An empty directory, or one pointed at "
+            "the wrong root, is not a corpus: silence must not read as a pass")
     pre_digest = hashlib.sha256(pre).hexdigest()
     post_digest = hashlib.sha256(post).hexdigest()
-    state = {"corpus": str(corpus), "pre_bytes": len(pre),
+    state = {"corpus": str(corpus), "documents": projected,
+             "pre_bytes": len(pre),
              "post_bytes": len(post), "pre_sha256": pre_digest,
              "post_sha256": post_digest, "equivalent": pre == post}
     if pre == post:

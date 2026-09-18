@@ -47,8 +47,10 @@ import contextlib
 import importlib.util
 import io
 import json
+import io
 import shutil
 import subprocess
+import tarfile
 import sys
 from pathlib import Path
 
@@ -812,6 +814,88 @@ def test_a_formatting_only_difference_still_prints_a_diff(monkeypatch,
     assert payload["diff"], "the diff is empty for a real byte difference"
     assert any("(raw)" in line or "differ in length alone" in line
                for line in payload["diff"]), payload["diff"][:10]
+
+
+def test_an_archive_member_that_is_not_a_plain_file_is_refused(tmp_path):
+    """The archive is extracted IN-PROCESS with every member checked, because
+    `tar -x` was two holes at once: GNU tar reads `TAR_OPTIONS` out of the
+    ambient environment, and a SYMLINK or path-escaping member would be
+    written as given — which is how an archive reaches outside the directory
+    that is supposed to contain it, defeating the isolation the whole
+    measurement rests on (Copilot, PR #1105 round 7)."""
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w") as bundle:
+        payload = b"x = 1\n"
+        info = tarfile.TarInfo("scripts/ideation_dashboard/ok.py")
+        info.size = len(payload)
+        bundle.addfile(info, io.BytesIO(payload))
+        link = tarfile.TarInfo("scripts/ideation_dashboard/escape.py")
+        link.type = tarfile.SYMTYPE
+        link.linkname = "/etc/passwd"
+        bundle.addfile(link)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE._extract_safely(buffer.getvalue(), tmp_path / "out", "a-ref")
+    assert caught.value.code == "equivalence-pre-tree-unrenderable"
+    assert "escape.py" in caught.value.detail
+    assert not (tmp_path / "out" / "scripts" / "ideation_dashboard"
+                / "escape.py").exists()
+
+
+def test_an_archive_member_escaping_the_directory_is_refused(tmp_path):
+    """`..` in a member path, which is the other half of the same rule."""
+    buffer = io.BytesIO()
+    with tarfile.open(fileobj=buffer, mode="w") as bundle:
+        payload = b"x = 1\n"
+        info = tarfile.TarInfo("../outside.py")
+        info.size = len(payload)
+        bundle.addfile(info, io.BytesIO(payload))
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE._extract_safely(buffer.getvalue(), tmp_path / "out", "a-ref")
+    assert caught.value.code == "equivalence-pre-tree-unrenderable"
+    assert "escapes the extraction directory" in caught.value.detail
+    assert not (tmp_path / "outside.py").exists()
+
+
+def test_a_corpus_that_projects_no_documents_refuses(tmp_path):
+    """An existing EMPTY directory is not a corpus. The `is_dir()` guard
+    catches a path that is not there; it does not catch one that is there and
+    empty, and both sides then render the same vacuous snapshot and compare
+    equal — the precise false pass the guard exists to prevent, arriving
+    through the case it does not cover (Copilot, PR #1105 round 7)."""
+    empty = tmp_path / "not-a-corpus"
+    empty.mkdir()
+    done = _run("--corpus", str(empty))
+    assert done.returncode == 2
+    assert "equivalence-unreadable" in done.stderr
+    assert "projected 0 document(s)" in done.stderr
+    assert "silence must not read as a pass" in done.stderr
+
+
+def test_the_shipped_corpus_projects_the_documents_it_is_compared_on(shipped):
+    """…and the positive half, so the guard above cannot be satisfied by a
+    corpus that projects nothing everywhere."""
+    assert shipped["states"][0]["documents"] >= 1
+
+
+def test_the_pre_child_is_bounded_and_a_timeout_is_a_refusal(monkeypatch):
+    """`--pre-ref` accepts any pre-shed revision, so a renderer that loops
+    would hang a REQUIRED gate rather than refuse. It was the only child
+    without a bound (Copilot, PR #1105 round 7)."""
+    assert MODULE._CHILD_TIMEOUT > 0
+
+    def hang(*args, **kwargs):
+        raise subprocess.TimeoutExpired(
+            cmd="python3", timeout=MODULE._CHILD_TIMEOUT)
+
+    monkeypatch.setattr(MODULE, "_run_pre_child", hang)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.render_pre(REPO_ROOT, BASE_REPO, REPO_ROOT, CARVE_TAG,
+                          MODULE.PINNED_SOURCE_REVISION)
+    assert caught.value.code == "equivalence-pre-tree-unrenderable"
+    assert "did not finish rendering" in caught.value.detail
+    # …and the real call carries the bound, so the refusal is reachable.
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert "timeout=_CHILD_TIMEOUT" in source
 
 
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
