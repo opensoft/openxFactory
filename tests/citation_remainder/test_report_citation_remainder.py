@@ -5,13 +5,14 @@ issue #1053).
 EVERY SCENARIO THE DELTA STATES IS REALIZED BY A TEST BELOW WHOSE DOCSTRING
 NAMES IT, and the five requirements are kept apart in five sections so a reader
 checking coverage reads one place. The delta carries 72 `#### Scenario:` blocks
-across 5 `### Requirement:` blocks — 43 on `main` and 29 more folded in by
-Patch B (PR #1097) — and each one's test names it verbatim in its first line.
-THE COUNT IS CHECKED MECHANICALLY AND NOT BY HAND: every scenario title in the
-delta is searched for in a test docstring, so a scenario reworded by a later
-fold-in reads as a gap rather than passing silently, and the count is taken
-against PATCH B'S OWN BRANCH TIP rather than against this branch's tree, which
-carries `main`'s 43 until Patch B lands.
+across 5 `### Requirement:` blocks — 43 the ratified delta first carried and 29
+more folded in by Patch B (PR #1097, now landed) — and each one's test names it
+verbatim in its first line. THE COUNT IS CHECKED MECHANICALLY AND NOT BY HAND:
+every scenario title in the delta is searched for in a test docstring, so a
+scenario reworded by a later fold-in reads as a gap rather than passing
+silently, and the count is taken against THE SPEC AS IT STANDS IN THIS TREE —
+72 scenarios at this tree's merge of `main` `dc242f3a` — and not against a
+branch.
 
 FIXTURES ARE THROWAWAY GIT TREES IN `tmp_path`, on `tests/packet_reference/`'s
 stated precedent — *"a committed broken packet is a file every other sweep has
@@ -2314,6 +2315,73 @@ def test_a_root_that_does_not_exist_exits_non_zero_and_says_it_did_not_run(
     code = report.main([str(tmp_path / "nowhere")])
     assert code != 0
     assert "DID NOT RUN" in capsys.readouterr().err
+
+
+def test_an_unreadable_changes_directory_is_a_run_that_could_not_be_taken(
+        tmp_path, capsys) -> None:
+    """Scenario: The report cannot run — an unreadable `openspec/changes`,
+    reached through `PacketIndex` and never through `git`.
+
+    `git ls-files` and the two tree-state gits never read `openspec/changes`
+    at all where nothing under it is tracked, so an unreadable directory
+    there is invisible to every `CouldNotRun` site `git()` itself guards.
+    A citation-shaped token is what forces it open: resolving one builds the
+    `PacketIndex`, whose `_build` (`packet_reference.py`) lists `changes` and
+    its `archive` subdirectory with `Path.iterdir()`, UNCAUGHT — so an
+    unreadable directory there raised past every existing handler and printed
+    a traceback instead of the two-case exit contract's non-zero arm.
+    (Copilot `PRRT_kwDOTAvnrs6jx2sD`.)
+    """
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        pytest.skip("root ignores directory permission bits")
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+    changes = root / "openspec" / "changes"
+    changes.chmod(0o000)
+    try:
+        code = report.main([str(root)])
+        captured = capsys.readouterr()
+    finally:
+        # RESTORED BEFORE THE ASSERTIONS AND UNCONDITIONALLY: `tmp_path`'s own
+        # teardown removes this tree afterwards, and a directory still
+        # unreadable when that runs fails the CLEANUP rather than the test.
+        changes.chmod(0o755)
+    assert code == 2
+    assert "THE REPORT DID NOT RUN" in captured.err
+    assert "No reading was taken" in captured.err
+    assert "remainder" not in captured.out
+
+
+def test_a_packet_index_that_cannot_be_built_is_a_run_that_could_not_be_taken(
+        tmp_path, monkeypatch, capsys) -> None:
+    """Scenario: The report cannot run — a `PacketIndex` build failure, over a
+    real repository and no filesystem trick.
+
+    The instrument is `test_a_git_that_cannot_be_run_at_all_is_a_run_that_
+    could_not_be_taken`'s own: an `OSError` at the site is a reading that
+    could not be taken for the same reason a `CouldNotRun` is, whatever raised
+    it — a `PacketIndex` that cannot be built is not only reachable through an
+    unreadable `openspec/changes`, and a monkeypatched constructor proves the
+    normalization holds for the failure ITSELF and not only for one cause of
+    it. (Copilot `PRRT_kwDOTAvnrs6jx2sD`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    def unbuildable(root):
+        raise OSError(13, "Permission denied",
+                      str(root / "openspec" / "changes"))
+
+    monkeypatch.setattr(report.packet_reference, "PacketIndex", unbuildable)
+    code = report.main([str(root)])
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "THE REPORT DID NOT RUN" in captured.err
+    assert "Permission denied" in captured.err
+    assert "No reading was taken" in captured.err
+    assert "remainder" not in captured.out
 
 
 def test_there_is_no_fail_on_flag(tmp_path) -> None:

@@ -2118,7 +2118,30 @@ def main(argv=None) -> int:
             reading.history_probed = True
             reading.history = probe_history(
                 reading.root, listed_records(reading, args.all))
-    except CouldNotRun as error:
+    except (CouldNotRun, OSError, UnicodeError) as error:
+        # `CouldNotRun` IS NOT THE ONLY EXCEPTION A FAILURE TO READ THE TREE
+        # RAISES. `take_reading` reads the tree through more than the `git()`
+        # wrapper that raises `CouldNotRun` itself: `PacketIndex._build`
+        # (`packet_reference.py`) lists `openspec/changes` and its `archive`
+        # directory with `Path.iterdir()`, uncaught, so an unreadable
+        # directory raises `OSError` there; and a git whose output is not
+        # valid UTF-8 raises `UnicodeDecodeError` out of the bounded
+        # subprocess sink's own `text=True` decode in `git_status`, past both
+        # of that call's `except` clauses, neither of which names it. Both are
+        # the same fact as every `CouldNotRun`: the report could not READ THE
+        # TREE, not a tree it read and found something in — so both take the
+        # identical exit here, at the one place every path through
+        # `take_reading` (and an opted-in `probe_history`) rejoins, rather
+        # than chased at each site that can raise one.
+        # THE PER-FILE READ LOOP IS DELIBERATELY NOT ONE OF THOSE SITES:
+        # `read_population_text` already catches `UnicodeDecodeError` and
+        # `OSError` PER FILE and counts each under a skip term — an
+        # undecodable file is COUNTED under the undecodable term, and a file
+        # that stops being readable between listing and open is counted under
+        # the non-file term — because a reading taken with a stated skip is a
+        # reading TAKEN, not a reading this report refused. Only a failure of
+        # the TREE OR INDEX ITSELF — not of one file within it — reaches this
+        # clause. (Copilot `PRRT_kwDOTAvnrs6jx2sD`.)
         print(f"THE REPORT DID NOT RUN: {error}", file=sys.stderr)
         print("This is not a finding. No reading was taken.", file=sys.stderr)
         return 2
