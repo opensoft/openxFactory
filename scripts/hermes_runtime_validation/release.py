@@ -176,9 +176,45 @@ def _shed_aware(target: Path) -> Path:
     "never again" being the two answers a membership test must not merge. A
     registration that still names a retired member is a stale registration,
     and that is what the refusal says.
+
+    AN UNREADABLE LEG IS A DEPENDENCY REFUSAL HERE TOO, NOT A TRACEBACK
+    (`#1070`, the WORKING-TREE sibling of `#1048` round 3). `shed_destination`
+    reaches `carved_reach.source`, which raises `CarveReachUnavailable` when
+    the row moved and its leg mount is not materialized — an uninitialized
+    submodule, a `git submodule deinit`, a side clone that never fetched the
+    legs. `_shed_aware_commit` below was taught to translate that in the
+    COMMIT direction and this one was not, so the SAME fact about the SAME
+    machine answered exit code 2 with one line there and exit code **1** with
+    a 25-line stack trace here — and 1 is the code that MEANS the release has
+    findings (`docs/contract-versioning-policy.md:271-272`: "0 pass, 1
+    findings, 2 dependency/harness failure"), so a fact about the machine was
+    published as a verdict about the release. Both `_WorkingTreeSource`
+    readers pass it straight through — `.exists` and `.read_member` catch only
+    `OSError` and `ContentResolutionError` — and
+    `scripts/validate-contract-release.py` catches only
+    `ReleaseDependencyError` and `ContentResolutionError`, so nothing between
+    the resolver and `main()` held it. `build` is the FIRST act of a release
+    cut, which is who meets this.
+
+    Translated rather than swallowed, and the leg's own remedy travels in the
+    message, for `_shed_aware_commit`'s reason: the one thing this must never
+    become is an ANSWER. `target` here is this repository's PRE-shed path, and
+    a post-shed tree does not carry it — `exists` would answer FALSE and
+    `read_member` would report a member that is not absent but UNREADABLE, the
+    phantom absence `#1048` is about, arriving in the release builder.
+
+    `CarveReachUnavailable` IS AN `ImportError` SUBCLASS, so this call stays
+    OUTSIDE the `try` that guards the lazy import above — folded into it, the
+    `except ImportError` would answer `target` and manufacture exactly that
+    phantom absence. It is a sibling of `CarveRowRetired`, not an ancestor or
+    a descendant, so the two `except` clauses below are independent.
     """
     try:
-        from carved_reach import CarveRowRetired, shed_destination
+        from carved_reach import (
+            CarveReachUnavailable,
+            CarveRowRetired,
+            shed_destination,
+        )
     except ImportError:
         return target
     try:
@@ -187,6 +223,10 @@ def _shed_aware(target: Path) -> Path:
         raise ReleaseDependencyError(
             f"release member is unavailable: a RULING has RETIRED "
             f"{target.name} at its leg — {exc}") from exc
+    except CarveReachUnavailable as unreadable:
+        raise ReleaseDependencyError(
+            f"the pinned leg holding {target.name} could not be consulted in "
+            f"the working tree: {unreadable}") from unreadable
     return moved if moved is not None else target
 
 

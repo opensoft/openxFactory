@@ -463,9 +463,9 @@ terms as the corrupt-record rule below.
 THE PASS RESOLVES A PIN RECORD AGAINST EXACTLY THE ROOT PRECEDENCE THE
 IN-TREE ARM ALREADY USES, AND NAMES THE ROOT IT USED. Capability resolution
 today reads the DOCUMENT'S OWN REPOSITORY ROOT FIRST AND THE `openxFactory`
-ROOT SECOND (`scripts/doc_health/families.py:1317-1321`, over
-`Context.repo_paths`, `scripts/doc_health/runner.py:39`); a single-repository
-run has one root and no fallback. The pinned arm SHALL use that precedence
+ROOT SECOND (`scripts/doc_health/families.py`'s `_resolve_capability` and
+`_pin_roots`, over `Context.repo_paths`, `scripts/doc_health/runner.py:39`); a
+single-repository run has one root and no fallback. The pinned arm SHALL use that precedence
 UNCHANGED and SHALL invent none of its own, so the ORDER IS UNCHANGED AND
 DETERMINISTIC FOR THE ROOTS PRESENT in the run — the document's own repository
 root first, then the `openxFactory` root where the run is an aggregate whose
@@ -475,10 +475,16 @@ so a marker whose pin record lives only in the `openxFactory` root resolves in
 an aggregate run and is an UNRESOLVED pinned target in a single-repository run
 of another repository. That difference is a difference of THE ROOT SET THE RUN
 WAS GIVEN, not of a precedence the arm invented, and the arm SHALL NOT widen
-its root set to close it; and EVERY finding the pinned arm emits SHALL NAME THE
-ROOT OR ROOTS it resolved against, or failed to, since under two roots a bare
-"no pin record" sentence cannot be acted on and under one root the named root
-is what makes the difference readable. THE RECORD MUST ALSO BE A FILE OF THAT ROOT'S `contracts/`
+its root set to close it; and EVERY finding the pinned arm emits AFTER ROOT
+SELECTION SHALL NAME THE ROOT OR ROOTS it resolved against, or failed to,
+since under two roots a bare "no pin record" sentence cannot be acted on and
+under one root the named root is what makes the difference readable; and THE
+TWO FINDINGS EMITTED BEFORE ANY ROOT IS SELECTED SHALL NAME WHAT THEY JUDGED
+INSTEAD — a pinned value THE LEXICAL GRAMMAR REFUSES names THE VALUE, no path
+having been built and no root having been chosen for it, and a document whose
+repository has NO RESOLUTION ROOT IN THE RUN names THE REPOSITORY, the run's
+root set for it being empty.
+THE RECORD MUST ALSO BE A FILE OF THAT ROOT'S `contracts/`
 DIRECTORY, RESOLVED: the pass MUST
 resolve the candidate path and refuse to read it unless the resolved path stays
 inside that root's `contracts/` directory, and a symlink that leaves it MUST be
@@ -560,10 +566,10 @@ not the thing that happens when nobody decides.
 - **AND** a target carrying the `pinned:` prefix is NOT judged by this scenario, which would otherwise report every well-formed pinned target
 
 #### Scenario: A marker names a capability of a pinned neutral product
-- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves under the in-tree arm's root precedence to a pin record whose path stays inside that root's `contracts/` directory when resolved, which declares `kind: pinned_contract_manifest` AND carries every member required by the RECORD SHAPE it matches — a shape `neutral-product-pin`'s ratified text obliges or this tree's measured records realize — AND which carries a well-formed, NON-EMPTY `capabilities:` member in which `<capability>` appears
+- **WHEN** a marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, `<pin-id>` resolves under the in-tree arm's root precedence to a pin record whose path stays inside that root's `contracts/` directory when resolved, which declares `kind: pinned_contract_manifest` AND carries every member required by the RECORD SHAPE it matches — a shape `neutral-product-pin`'s ratified text obliges or this tree's measured records realize — AND which carries a well-formed, NON-EMPTY `capabilities:` member in which `<capability>` appears, AND every OPTIONAL member the matched shape admits that is PRESENT and for which that shape's own in-tree verifier exposes a PURE, SOURCE-FREE guard — one whose only input is the record, callable before any checkout, `git` call or network read — conforms at its entry grain to that guard: today `dispositions:` alone, whose guard reads an explicit `null` as EMPTY exactly as absence does and otherwise requires a sequence whose every entry it accepts, every other PRESENT falsey NON-SEQUENCE value (`""`, `0`, `false`, `{}`) staying malformed — an empty sequence `[]` is EMPTY, accepted as absence is; an optional member for which NO such guard exists, `pinned_by_commit_only:` today, is NOT reached by this clause
 - **THEN** the target MUST resolve
 - **AND** the pass MUST make that judgement from the pin record's OWN enumeration, in the resolution root's tree, and MUST NOT read the pinned product over the network
-- **AND** an ABSENT enumeration, a malformed enumeration, and a well-formed enumeration in which `<capability>` does not appear, are OUTSIDE this scenario and are judged by their own scenarios below
+- **AND** an ABSENT enumeration, a malformed enumeration, a well-formed enumeration in which `<capability>` does not appear, and a PRESENT optional member malformed at its entry grain against a pure, source-free guard this scenario's WHEN reaches, are OUTSIDE this scenario and are judged by their own scenarios elsewhere in this requirement
 
 #### Scenario: A pin record named by a pinned target carries no capability enumeration
 - **WHEN** a live marker names a lexically well-formed `target=pinned:<pin-id>/<capability>`, the record for `<pin-id>` resolves, through the code-fixed route, to a valid, complete `kind: pinned_contract_manifest` record for its record shape, and it carries NO top-level `capabilities:` member
@@ -626,6 +632,15 @@ not the thing that happens when nobody decides.
 - **AND** a `files:` entry carrying no `sha256`, and a `pinned_by_commit_only:` entry that is a mapping rather than a path string, MUST each be reported as a malformed member naming the list it came from
 - **AND** an ABSENT `pinned_by_commit_only:` MUST NOT be reported as a missing member, both of this shape's verifiers reading it with an absent-is-empty default and refusing it only when it is present and not a list
 
+#### Scenario: A pin record's optional dispositions member carries a malformed entry
+- **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` is COMPLETE FOR ITS REQUIRED SHAPE MEMBERS — a record of the published-artifact shape — whose OPTIONAL `dispositions:` member is the SOLE MALFORMED PART, a sequence carrying an ENTRY that shape's own in-tree verifier REFUSES IN ITS PURE, SOURCE-FREE GUARD — a refusal whose only input is the record, taken before any checkout, `git` call or network read — AND carries a well-formed, NON-EMPTY `capabilities:` enumeration in which `<capability>` appears
+- **THEN** the deterministic health pass MUST report it as an invalid pin NAMING THE MEMBER AND THE ENTRY at the grain that guard itself names them, rather than admitting the sequence on the strength of its being a sequence
+- **AND** the target MUST NOT resolve on that record, a member read as PRESENT AND MALFORMED being a defect of the record exactly as a malformed required member is
+- **AND** an ABSENT `dispositions:`, an explicit `null` and an EMPTY sequence MUST each still be read as EMPTY and MUST NOT be reported — the member stays OPTIONAL and stays OUT of the shape-guard-required set, and a pass that refused any of those three would be WIDER than the guard it tracks
+- **AND** the entry-grain form MUST be held to that guard by the equivalence test's OPTIONAL arm — the guard CALLED source-free on a record carrying the malformed entry and asserted to refuse — rather than by restating the guard's entry rules as prose in this requirement, those rules being the verifier's and not this grammar's
+- **AND** the entry's identity keys, its citation's NON-EMPTY requirement, and its authority reach no obligation this estate has not already ratified: `neutral-product-pin`'s *A dispositioned finding is cited, upgrade-coupled, and refused when stale* already requires a disposition to identify ONE finding by repository, item, delta path and finding text, to carry a NON-EMPTY citation and to name its granting authority, and already states that a disposition recording no `cited_to:`, an empty one, or no granting authority makes the pin REFUSED as malformed BEFORE any artifact is fetched — the offline resolver reading the same entries is this grammar catching up with that text; the entry's citation's LIST SHAPE, its `why` member and its `level` value outside `BLOCKING_LEVELS` are named by no such ratified requirement and are that guard's OWN pure rule — a citation satisfying the NON-EMPTY requirement, such as a bare string, is refused only because the verifier separately demands a LIST — so reaching any of the three imposes no obligation BEYOND what the shape's in-tree verifier already enforces on every landed pin
+- **AND** the judgement MUST stay within the adapter's NECESSARY-AND-NOT-SUFFICIENT contract: reading the record's own entries is not reading the pinned source, so nothing here obliges the pass to reconcile a disposition against a finding, which is the full verifier's review concern and stays outside this contract
+
 #### Scenario: A pin record names the code that would judge it
 - **WHEN** a live marker names `target=pinned:<pin-id>/<capability>` and the record for `<pin-id>` carries a `verify_pin:` member naming an arbitrary path in the checkout
 - **THEN** the deterministic health pass MUST NOT execute, import or open that path
@@ -664,7 +679,7 @@ not the thing that happens when nobody decides.
 - **AND** the pass MUST complete rather than abort
 
 #### Scenario: A pinned target names a pin no resolution root carries
-- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence
+- **WHEN** a marker names `target=pinned:<pin-id>/<capability>` and no pin record for `<pin-id>` exists under any root of the run's precedence, and at least one selected root whose boundary was successfully searched
 - **THEN** the deterministic health pass MUST report it as a hygiene finding
 - **AND** the finding MUST name the pin registry as the thing that failed to resolve, not `openspec/specs/`
 - **AND** the finding MUST name the root or roots searched
@@ -686,6 +701,13 @@ not the thing that happens when nobody decides.
 #### Scenario: A supersedes marker never acquires a change id
 - **WHEN** an `xspec:supersedes` marker persists without a `change=` attribute beyond the doc-health aging threshold
 - **THEN** the health pass MUST report it as an aging finding rather than accepting it as a permanent state
+
+#### Scenario: A finding emitted before root selection names what it judged
+- **WHEN** the pinned arm refuses a `target=pinned:…` value on the lexical grammar before any pin-record path is built, or reports that the run carries no resolution root for the document's repository
+- **THEN** the finding MUST name what it judged — the VALUE for the lexically malformed target, the REPOSITORY for the empty root set
+- **AND** the finding MUST NOT be required to name a root, none having been selected when it is emitted: for the malformed value no path has been built and no pin lookup performed, and for the empty root set the run carries no root to name
+- **AND** the deterministic pass MUST complete, both being controlled findings rather than exceptions that take the run down
+- **AND** every finding the arm emits AFTER a root is selected MUST still name the root or roots it resolved against, or failed to
 
 ### Requirement: Proposal-owned supporting documents
 When staged material crosses the proposal gate, the selected source documents SHALL
