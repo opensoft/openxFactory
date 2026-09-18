@@ -145,8 +145,11 @@ word.
       as code spans in a reserved `Removed from canon by` marker carried inside
       the block, in the form the promoted marker-hygiene family defines; without
       it the `modified-block-currency` arm reported three findings against this
-      block, and with it the whole checker reports 97 findings at this head and 97
-      at a clean `origin/main` checkout in the same clone, ZERO NEW and ZERO GONE.
+      block, and with it the whole checker reports the SAME total at this head and
+      at a clean `origin/main` checkout in the same clone, ZERO NEW and ZERO GONE —
+      RE-MEASURED 2026-09-18 at this branch's `b3bf9cf5` and `origin/main`
+      `dc242f3a`: 92 findings at both (31 critical, 11 error, 28 warning, 22 info),
+      superseding the stale 97 this line previously stated.
 - [x] 2.10 Sibling search taken before the claim was written (`design.md` D6):
       no active or archived change enumerates the estate's repositories, and the
       change id collides with nothing under `openspec/changes/` or its archive.
@@ -241,7 +244,7 @@ without its arm, and is shown failing before it is shown passing.
 
 ## 6. Measured and NOT taken (OPEN; successors, not work owed)
 
-- [ ] 6.1 **THE THREE DIVERGENT FIXTURE ROWS ARE NOT CORRECTED HERE.**
+- [~] 6.1 **THE THREE DIVERGENT FIXTURE ROWS ARE NOT CORRECTED HERE.**
       `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml` names
       `opensoft/LegalxFactory` (404), `opensoft/LedgerxFactory` and
       `opensoft/MedxFactory` (both redirect-only). It is a CONTRACT MEMBER whose
@@ -250,24 +253,24 @@ without its arm, and is shown failing before it is shown passing.
       it here would reach into another lane's packet and spend a bundle this
       packet declares it does not spend. The inventory REPORTS the divergence;
       the correction is a successor.
-- [ ] 6.2 **THE TRANSFER MAP IS NOT EXTENDED.** It carries ONE row and the estate
+- [~] 6.2 **THE TRANSFER MAP IS NOT EXTENDED.** It carries ONE row and the estate
       has taken at least three transfers. Extending it is
       `adopt-medxsoft-repository-identity`'s act for the Medx half and an
       unclaimed act for the Ledger half; this packet READS the map and adds no row
       to it.
-- [ ] 6.3 **THE GLOSS IS STILL NEVER JUDGED, AND ONE CONSEQUENCE IS MEASURED
+- [~] 6.3 **THE GLOSS IS STILL NEVER JUDGED, AND ONE CONSEQUENCE IS MEASURED
       HERE.** `create-ledgerxwallet-overlay-boundary` writes
       `opensoft/LedgerxWallet (new), LedgerxFactory, openxFactory — THREE
       repositories`, so its `(` opens the gloss and the grammar reads a
       ONE-repository head where the author meant three. Whether a head may carry
       a parenthetical before its list is a question about the GRAMMAR, which is
       the predecessor's ratified surface and not this packet's. Named, not taken.
-- [ ] 6.4 **NO OTHER ESTATE REPOSITORY IS SWEPT.** The inventory is authored in
+- [~] 6.4 **NO OTHER ESTATE REPOSITORY IS SWEPT.** The inventory is authored in
       openxFactory and read by openxFactory's validators. Whether the aggregation
       or a DomainxFactory should consume it, and if so, pinned by commit and
       digest per CLAUDE.md rule 1, which would move the file under `contracts/`
       after all, is a successor with its own authority question.
-- [ ] 6.5 **THE PROVIDER IS NEVER ASKED AT THE GATE.** Existence was checked once,
+- [~] 6.5 **THE PROVIDER IS NEVER ASKED AT THE GATE.** Existence was checked once,
       at the measurement (`design.md` D0.4), to establish that the six declared
       identifiers are real and that the estate already writes one that is not. A
       gate that re-checked would make a required check depend on a token and on

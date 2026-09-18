@@ -406,8 +406,12 @@ carried inside the block, with the reason after the separator, in the form
 the `modified-block-currency` arm reports three carried-body-unit findings against
 this block, which is the arm working: it cannot distinguish a deliberate rewording
 from a drift and does not claim to. With the marker the arm reports NOTHING new,
-measured by running the whole checker at this head and at a clean `origin/main`
-checkout in the same clone: 97 findings at both, zero new, zero gone.
+measured by running the whole checker (`scripts/doc-health.py --single-repo .`)
+at this head and at a clean `origin/main` checkout in the same clone. RE-MEASURED
+2026-09-18, superseding the stale 97 this paragraph previously stated: at this
+branch's `b3bf9cf5` and at `origin/main` `dc242f3a`, the totals are IDENTICAL —
+92 findings at both (31 critical, 11 error, 28 warning, 22 info) — zero new, zero
+gone.
 
 **THE SELF-GATE IS CLEAN AND WAS CHECKED RATHER THAN ASSUMED.** No other active
 change writes `(release-realization, code-surface declaration grammar is gated)`

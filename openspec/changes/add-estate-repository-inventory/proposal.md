@@ -76,7 +76,7 @@ figure that matters is the last row of the second table.
 | a RATIFIED active change whose realization CREATES a repository | **1**, in the window before any tree can name it |
 | **candidate inventory** | **33 rows** |
 
-**THE THIRD SITE WAS ADDED IN REVIEW, AND SAYING SO IS PART OF THE
+**THE FIFTH SITE WAS ADDED IN REVIEW, AND SAYING SO IS PART OF THE
 MEASUREMENT.** A first filing read `gitlink` as the AGGREGATION's `.gitmodules`
 alone. Copilot's review of PR #1101 showed that reading leaves the provisional
 row of the fifth kind with no way to discharge — the realization that creates
