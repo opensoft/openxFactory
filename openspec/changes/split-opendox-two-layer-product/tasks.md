@@ -2062,6 +2062,23 @@ the bookkeeping that ticks this group.
   `openspec/specs/ideation-dashboard/spec.md` content. **The ARCHIVE is not this
   box's condition and is not claimed as one**: this box owed an authored id, and
   the id `openxfactory-engineering-adapter` is authored, filed and ratified.
+  **THE RATIFICATION IS ON THE WORD; ITS ENCODING IN THE SUCCESSOR PACKET IS
+  OWED AND IS REGISTERED HERE, 2026-09-18.** Raised by Copilot against three
+  separate heads of amendment #6 and MEASURED TRUE at `6c3a8661`:
+  `openspec/changes/repromote-engineering-vocabulary/` still carries
+  `Status: draft` in `proposal.md`, `design.md` AND `tasks.md`; its own
+  ratification tasks **1.1 through 1.6 are all `[ ]`**; and there is no
+  `review/ratification-<date>.md` record beside them.
+  **This box's tick STANDS**, because what ratifies a change in this house is
+  Brett Heap's word and the word was given (RULED **R-A**, `#656` comment
+  `5728607038`); the packet's headers RECORD a ratification, they do not
+  perform one. **But the record owes the encoding**, and a corpus that says
+  `draft` where the ledger says `RATIFIED` is a contradiction a later reader
+  will meet without this note. The encoding act — `Status: ratified` plus the
+  citation on all three documents, the `review/` record, the README record and
+  tasks 1.1–1.6 — belongs to that packet's own owner under its own claim, NOT
+  to this amendment, which must not edit a neighbouring packet's lifecycle
+  headers on its way past. **Registered, not resolved, and it moves no box.**
 - [x] 5.2 `[oxF]` **Shed the dashboard corpus down to RULED DQ-1's KEPT SET.**
   The list is `docs/opendox-carve-manifest.yaml` and not a prose inventory: every
   row it routes to a destination LEAVES — **except the twenty
@@ -3102,8 +3119,12 @@ movements claimed at the time they land.
   closure — *"a § 6 disposition is TWO acts and it is the CLOSURE that
   discharges the box"*, which is the same ordering discipline § 5.3 applied to
   `#1059` and the reason this box sat `[ ]` for two days with its destination
-  already standing in the receiving repository. **`#1057` (§ 6.3) is retargeted
-  to `main` and follows.**
+  already standing in the receiving repository. **`#1057` (§ 6.3) HAS NOW
+  LANDED — `4ccab7b9`, 2026-09-18T13:31:51Z — and § 6.3 is ticked on it above.**
+  *(This sentence read "is retargeted to `main` and follows" until that landing;
+  corrected in place rather than left to age, on a Copilot finding against the
+  head `fe9e5e6f`, which is the class of defect this packet polices and is worth
+  crediting when a reviewer catches it in our own text.)*
   **INCIDENT, REGISTERED — THE CLOSURE WAS LANDED BY SQUASH, AND THE LANDING
   FORM IS THE DEFECT.** `#1056` was merged with a SQUASH, so the archive
   directory `openspec/changes/archive/2026-09-16-add-composed-view-authoring`
@@ -3130,9 +3151,18 @@ movements claimed at the time they land.
   the operator**. A squash re-dates the archive directory's adding commit to
   the landing day, so any archive whose directory is named for an earlier UTC
   day reds `main` for everyone the moment it lands. **It binds every remaining
-  § 6 closure and any later archive of this packet** — `#1057`, `#1060`,
-  `#1065`, `#1066`, `#1103` — and it is written into the ledger rather than
+  § 6 closure and any later archive of this packet** — `#1060`, `#1065`,
+  `#1066`, `#1103` — and it is written into the ledger rather than
   left in a runbook because the ledger is what the next closure's author reads.
+  *(`#1057` was named in this list until it landed on 2026-09-18 and became the
+  rule's FIRST PROOF instead of one of its subjects — see § 6.3. It is removed
+  here on a Copilot finding against head `fe9e5e6f`, which observed that a list
+  of "remaining" closures naming a completed one directs the next operator to
+  redo finished work. The finding was correct. **Read § 6.3's INCIDENT 2 before
+  applying this rule**: landing by merge commit is necessary and NOT sufficient,
+  and the second clause — re-run the archive-date arm on `origin/main` merged
+  with the candidate before opening the window — is the half that `#1057`'s own
+  landing proved was missing.)*
 - [ ] 6.5 `[oxF]` `[oD]` **`add-lens-document-selection`** → SPLIT. The
   set-builder half to openDox; its `doc_health.staging_seed` drafter and route
   STAY in `openxFactory`'s own adapter (RULING DQ-1 — no longer a `codexDox`
