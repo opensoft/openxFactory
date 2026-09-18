@@ -1256,22 +1256,35 @@ the bookkeeping that ticks this group.
   (4), the `OPENDOX_SERVED_DATABASE` declaration, is a FOLLOW-UP ACT and was
   deliberately NOT in batch 3** — recorded so a reader meeting #25's landing
   does not expect that declaration in it, nor read its absence as an omission.
-- [ ] 3.6 `[oD]` **openDox CREATES A REPOSITORY AS A FIRST-CLASS ACT**, or the
+- [x] 3.6 `[oD]` **openDox CREATES A REPOSITORY AS A FIRST-CLASS ACT**, or the
   origin complaint returns one level down: RULING Q1 answers *"no good place to
   store my projects"* with its coordination half while the specs still land in a
   repository. Includes RULING C3's standalone shape — a PLAIN LOCAL GIT
   REPOSITORY per project, commits as the write path, a remote attachable later —
   as the trivial conformant adapter implementation, not as a mode.
-  **STATUS — UPDATED BY AMENDMENT #7: #26'S FINAL BOUNDED ROUND IS IN FLIGHT,
-  THE CREDENTIAL EXPOSURE IS FIXED ON THE BRANCH, AND THE BOX STILL STAYS
-  `[ ]`.** The exposure at `app.py:1076` that held this box is **fixed at
-  `fe421882`** on #26's branch. **Four further findings remain**, all in the
-  batch's OWN code, and they are being closed by **one redactor plus a saved
-  pgid** rather than one fix per finding — a single instrument for a single
-  class, which is the shape this packet has preferred since `floor37` § 6.
-  **The box ticks when #26 LANDS, not when its fixes are pushed**: a fix on a
-  branch is not a landing, exactly as § 3.5 ticked only when `#25` merged and
-  not when its own batch was authored. *(The superseded reading follows, kept
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #7**: `opensoft/openDox-code`
+  **#26 → `4f8ae01e`**, merged **2026-09-18T21:20:16Z**, *"§ 3.6: openDox
+  creates a repository as a first-class act, with RULING C3's conformant
+  local-git adapter"*. **The box's two halves are both in the landed files**:
+  the first-class act is `src/opendox/runtime/repository_act.py`, and RULING
+  C3's standalone shape is `src/opendox/runtime/local_git_adapter.py` — an
+  adapter IMPLEMENTATION, which is what the box asked for, *"not a mode"*.
+  **THE SECURITY HOLD IS DISCHARGED, AND HOW IT WAS CLOSED IS THE RECORD WORTH
+  KEEPING**: the credential exposure at `app.py:1076` was fixed at `fe421882`,
+  and the remaining findings were closed by **ONE REDACTOR AT THE BOUNDARY**,
+  with the **pgid taken at `Popen`** and the **decoder bound** — one instrument
+  for one class rather than one fix per finding, the shape this packet has
+  preferred since `floor37` § 6.
+  **AN OVERRUN IS RECORDED RATHER THAN PASSED OVER**: the actor pushed THREE
+  times against a one-push word. It is accepted, and it is written down because
+  a bounded round that silently runs long stops being a bound — the accepting
+  is the act that keeps it honest, not the forgetting.
+  **REGISTERED AS ONE FOLLOW-UP ACT under the same claim, and NOT a condition of
+  this box**: three suppressed Copilot findings, `S8544`, and the
+  `OPENDOX_SERVED_DATABASE` declaration — the fifth use of the land-and-register
+  pattern in this packet.
+  *(The superseded reading follows, kept because it records why the box was held
+  at all.)* *(The superseded reading follows, kept
   because it records why the box was held at all.)*
   **PRIOR STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
   `[ ]`** (RULED 2026-09-18 17:55Z, `#656` comment `5734029578`; recorded by
@@ -1437,10 +1450,21 @@ the bookkeeping that ticks this group.
   `tasks.md` amendment #6 (`#656` note `5733472993`).
   **What it discharges is the RULING, not the box.** This box's own words are
   *"EVERY DESTINATION PASSES IT"*, so it ticks only when **BOTH destinations
-  pass the neutral corpus** — openDox via `#26`, openXdox via § 4.5a — and a
+  pass the neutral corpus** — openDox and openXdox — and a
   proof that a TRANSPOSED corpus is faithful is the machinery those passes will
   run on, not one of the passes. Accepting the landing as the tick would
   discharge a two-destination condition on zero destinations.
+  **`#26` WAS EXPECTED TO SUPPLY THE openDox SIDE AND IT DOES NOT — MEASURED,
+  2026-09-18, BY AMENDMENT #7.** `openDox-code` `#26` → `4f8ae01e` landed and
+  § 3.6 ticks on it, but its FIFTEEN changed files are the runtime and its
+  tests — `app.py`, `cli.py`, `config.py`, `identity.py`, `local_git_adapter.py`,
+  `repository_act.py`, `tests_runtime/`, `docs/runtime.md`, `validate.yml` — and
+  **NOT ONE of them is a conformance file**. `openDox-code` carries a
+  `corpus_adapter.py` of its own, but it was already there and `#26` did not
+  touch it. **So this box still waits on BOTH destinations, and citing `#26`
+  here would be evidence claimed as proof it cannot give** — a landing in the
+  right repository is not a pass of the corpus, and the box asks for the pass.
+  The openXdox side remains § 4.5a, which is `[ ]`.
   **THE FOLLOW-UP'S SCOPE IS FOUR REGISTERED FINDINGS**, booked HERE rather
   than as § 8.9 residue because they belong to this box's own instrument:
   `#1086` landed AS IS at head `43a48ed5` with four Copilot findings
