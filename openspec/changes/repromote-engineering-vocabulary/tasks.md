@@ -1,6 +1,7 @@
 # Tasks: repromote-engineering-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-18 by Brett Heap (openxFactory operator authority), by interactive multi-choice (four questions, the recommended option each time) — recorded at [openxFactory #656, comment 5728607038](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5728607038), ruling **R-A**: *"§ 5.2a — `repromote-engineering-vocabulary` is RATIFIED"*.
 Authored: 2026-09-16, lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
 `substrate52a`. Realizes `split-opendox-two-layer-product` § 5.2a and nothing else.
 
@@ -10,7 +11,7 @@ performs only the first.
 
 ## 1. Ratification — BRETT HEAP'S WORD, NOT THIS LANE'S
 
-- [ ] 1.1 The id `openxfactory-engineering-adapter` is accepted, or another is ruled. `design.md`
+- [x] 1.1 The id `openxfactory-engineering-adapter` is accepted, or another is ruled. `design.md`
       § D1 derives it from the packet's own 22 uses of "engineering adapter", the ratified map's
       fifteen identical destination phrases, and the two LANDED machine names that fix its spelling.
       Four candidates are rejected there with reasons. **A different id is a one-command rebuild, and
@@ -19,20 +20,20 @@ performs only the first.
       run against a throwaway copy with `CAP` changed, the build writes
       `specs/some-other-successor-id/spec.md` whose first line is
       `# some-other-successor-id Specification`, with all fifteen requirements intact.
-- [ ] 1.2 `design.md` § D2's TWO disclosed edits are accepted as the re-expression § 5.2a permits —
+- [x] 1.2 `design.md` § D2's TWO disclosed edits are accepted as the re-expression § 5.2a permits —
       both `resolve`, both in *doxBench resolves its released contract from the checkout it runs in*.
-- [ ] 1.3 `design.md` § D2's RECORDED NON-EDITS are accepted, with the finding they carry: four of
+- [x] 1.3 `design.md` § D2's RECORDED NON-EDITS are accepted, with the finding they carry: four of
       the six path-literal occurrences name a question the six-wide seam does not answer as its
       requirement states it (a topic's EXISTENCE under staging; the DESTINATION of authoring the
       console must not perform; twice the workspace returned documents land in), and `proposal.md`
       (×4) and `OPENXFACTORY_ROOT` (×3) are not locations at all.
-- [ ] 1.4 `design.md` § D3 — NO second `## REMOVED Requirements` block on `ideation-dashboard` — is
+- [x] 1.4 `design.md` § D3 — NO second `## REMOVED Requirements` block on `ideation-dashboard` — is
       accepted, or the opposite is ruled and this lane authors the block. **This is the one judgment
       in the packet that a reasonable reader could take the other way**, and it is put here rather
       than resolved silently.
-- [ ] 1.5 `design.md` § D4's archive ORDER — this packet archives BEFORE
+- [x] 1.5 `design.md` § D4's archive ORDER — this packet archives BEFORE
       `split-opendox-two-layer-product` — is accepted.
-- [ ] 1.6 On the word: `Status: ratified` + the citation on all three lifecycle documents, a
+- [x] 1.6 On the word: `Status: ratified` + the citation on all three lifecycle documents, a
       `review/ratification-<date>.md` record, and the README bullet updated. Nothing else moves.
 
 ## 2. The filing — THIS PULL REQUEST, AND THE WHOLE OF IT
@@ -94,7 +95,18 @@ performs only the first.
 
 ## 3. Archive — AFTER RATIFICATION, AND BEFORE THE SPLIT PACKET'S
 
-- [ ] 3.0 **FIRST, RESOLVE EVERY REMAINING `- [ ]` IN THIS FILE — the wrapper refuses otherwise.**
+**THE ACT IS PERFORMED BY THIS PULL REQUEST**, on Brett Heap's ratification of
+2026-09-18 (#656 comment `5728607038`, ruling **R-A**), and § 3.0's marker sweep is
+performed here rather than discovered at the wrapper's refusal. Every box above and
+below is now either TICKED because the act it names has been performed, or marked
+`- [~]` — the deferred marker `proposal-support.py archive` does not match — for the
+three that can only run AFTER the directory moves, each of which is then performed
+in this same pull request and ticked in the moved file. § 1's boxes tick on the
+word; § 4's five are claims about this pull request's own diff and were verified
+against it, not asserted.
+
+
+- [x] 3.0 **FIRST, RESOLVE EVERY REMAINING `- [ ]` IN THIS FILE — the wrapper refuses otherwise.**
       `scripts/proposal-support.py` archives only when no literal `- [ ]` is left
       (`re.search(r"^- \[ \]", tasks.read_text(), re.M)` →
       `SupportError("change has incomplete tasks")`, `:4609-4610`), and the boxes of this section
@@ -103,15 +115,15 @@ performs only the first.
       performed or re-marked `- [~]` with its reason — the deferred marker the gate does not match —
       and § 3.5's ledger re-seed, which can only run AFTER the directory moves, is deferred that way
       by construction. Named here rather than discovered at the refusal.
-- [ ] 3.1 On a separate word, through the SANCTIONED WRAPPER and never a bare `openspec archive`:
+- [~] 3.1 On a separate word, through the SANCTIONED WRAPPER and never a bare `openspec archive`:
       `python3 scripts/proposal-support.py . archive repromote-engineering-vocabulary --date <YYYY-MM-DD> --yes`,
       so the origin, retention, task, pin and archive-date gates run. It creates
       `openspec/specs/openxfactory-engineering-adapter/spec.md` with the fifteen.
-- [ ] 3.2 **ORDER (`design.md` § D4): this archive precedes `split-opendox-two-layer-product`'s.**
+- [x] 3.2 **ORDER (`design.md` § D4): this archive precedes `split-opendox-two-layer-product`'s.**
       Re-promotion first leaves the fifteen titles carried by two capabilities — distinct keys,
       no finding on either side. Removal first leaves fifteen ratified requirements in NO capability,
       which is the loss `promotion_fidelity` exists to prevent.
-- [ ] 3.3 **BEFORE § 3.1 RUNS, from the ACTIVE path** (after the move the same file is at
+- [x] 3.3 **BEFORE § 3.1 RUNS, from the ACTIVE path** (after the move the same file is at
       `openspec/changes/archive/<date>-repromote-engineering-vocabulary/review/build-delta.py`, and
       its `CHANGE` constant would then need the dated id): re-run
       `python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py .` — no
@@ -119,7 +131,7 @@ performs only the first.
       spec and exits non-zero on any difference, byte for byte. If `main` has moved the promoted text
       of any of the fifteen, the carry is re-proved or the difference is declared before anything
       promotes. This is the box § 3.0's marker sweep ticks last among the pre-archive ones.
-- [ ] 3.4 **README, BY HAND AND IN THE SAME COMMIT — the wrapper does not do it.**
+- [~] 3.4 **README, BY HAND AND IN THE SAME COMMIT — the wrapper does not do it.**
       `scripts/proposal-support.py archive` moves and applies the packet; it does not touch
       `README.md`, so the *Active changes* bullet is RETIRED and an entry is added to the
       archived-changes ledger, newest-first, pointing at
@@ -127,23 +139,23 @@ performs only the first.
       closures' own archive acts, which record the pair as one step ("the active bullet retired; the
       archived-ledger entry added"). Leaving it undone points the corpus's own index at a path that
       no longer exists.
-- [ ] 3.5 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run
+- [~] 3.5 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run
       `--ledger-diff`; the row moves `active` → `archived`.
 
 ## 4. What this packet leaves to its neighbours, by name
 
-- [ ] 4.1 **§ 5.2a's TICK** rides the packet bookkeeper's own `tasks.md` amendment. No byte of
+- [x] 4.1 **§ 5.2a's TICK** rides the packet bookkeeper's own `tasks.md` amendment. No byte of
       `openspec/changes/split-opendox-two-layer-product/` is touched here — not a tick, not a map
       row, not a design line.
-- [ ] 4.2 **§ 5.6 (the de-floor)** and **§ 8.4 (the floor accounting)** can now name the capability
+- [x] 4.2 **§ 5.6 (the de-floor)** and **§ 8.4 (the floor accounting)** can now name the capability
       directory `openspec/specs/openxfactory-engineering-adapter/` in the ADDED direction. This
       packet does not move the codexFactory floor or any of the five openxFactory pin sites.
-- [ ] 4.3 **§ 5.2 (the shed), § 5.4 and § 5.5 (floor parts 2 and 4)** are untouched: no module, test,
+- [x] 4.3 **§ 5.2 (the shed), § 5.4 and § 5.5 (floor parts 2 and 4)** are untouched: no module, test,
       example or governance doc is deleted here, and `docs/opendox-carve-manifest.yaml` is not edited.
-- [ ] 4.4 **§ 6.1's seven `doc-health` requirements** and **§ 6.5's intra-requirement narrowing**,
+- [x] 4.4 **§ 6.1's seven `doc-health` requirements** and **§ 6.5's intra-requirement narrowing**,
       both of which were carried whole at their destinations for want of this id, are their own
       changes in their own repositories. This packet declares the id; it re-authors nothing there.
-- [ ] 4.5 **ONE blocked case, named rather than performed — and three that are not blocked at all.**
+- [x] 4.5 **ONE blocked case, named rather than performed — and three that are not blocked at all.**
       BLOCKED: the STAGING-EXISTENCE literal in *Staged-topic proposal commissioning*. What would
       unblock it is a scope the corpus DECLARES for staged topics (`ResolvedCorpus.scopes` is return
       data, so a home adapter may declare one without widening the six operations), or an answer that

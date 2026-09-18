@@ -6,7 +6,8 @@ sequenced_after: []
 
 # Proposal: repromote-engineering-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-18 by Brett Heap (openxFactory operator authority), by interactive multi-choice (four questions, the recommended option each time) — recorded at [openxFactory #656, comment 5728607038](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5728607038), ruling **R-A**: *"§ 5.2a — `repromote-engineering-vocabulary` is RATIFIED"*.
 Proposed: 2026-09-16, in lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor `substrate52a`, as the realization of `split-opendox-two-layer-product` **§ 5.2a** (`tasks.md` :1527-1535). CLAIMED on openxFactory issue #656, comment [`5703096449`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5703096449), after the three sibling reads lane-collision-protocol Rule 1 requires.
 Origin: `openxFactory:adhoc:2026-09-16-repromote-engineering-vocabulary` — a BOX of an active ratified packet, not an `ideation/staging/` topic. FILING IS NOT RATIFYING: this packet carries `Status: draft` on all three lifecycle documents, admits no text to canon, and performs neither ratification nor archive. Both are later acts on Brett Heap's word.
 

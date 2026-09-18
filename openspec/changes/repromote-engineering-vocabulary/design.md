@@ -1,6 +1,7 @@
 # Design: repromote-engineering-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-18 by Brett Heap (openxFactory operator authority), by interactive multi-choice (four questions, the recommended option each time) — recorded at [openxFactory #656, comment 5728607038](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5728607038), ruling **R-A**: *"§ 5.2a — `repromote-engineering-vocabulary` is RATIFIED"*.
 Authored: 2026-09-16, lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
 `substrate52a`, against a fresh clone of `main` at `fa39141c`. Every count below was produced by a
 script over that tree and is reproducible from it; none is read off prose. **Currency**: this branch
