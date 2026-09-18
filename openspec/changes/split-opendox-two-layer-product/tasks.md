@@ -1384,18 +1384,32 @@ the bookkeeping that ticks this group.
   stale, and the correction is owed as ONE append **WHEN THIS BOX TICKS**, not
   before — non-normative figure currency, the class this packet has been
   repairing since amendment #4. **MEASURED HERE RATHER THAN CARRIED FORWARD, AND
-  ONLY ONE OF THE TWO HAS MOVED**: `tests/carve_conformance/` is recorded above
-  as **34 tests** and stands at **35** `def test_` in
-  `test_verify_carve_conformance.py` at `openxFactory` `main` — one test added
-  since the figure was written — while *"five refusal codes"* is **STILL EXACTLY
-  FIVE** (`conformance-unreadable`, `-adapter-undeclared`, `-adapter-unresolvable`,
-  `-corpus-missing`, `-check-failed`), and the corpus is **still 17 checks**
-  (`len(carve_conformance.CHECKS)` read at this branch's base). **The question
-  named two stale figures; the measurement finds one.** Recording that here is
-  the point of registering rather than transcribing: the act that ticks this box
-  should re-measure both again at ITS head and append the pair that are true
-  then, because a test count is exactly the kind of figure that moves under acts
-  with nothing to do with it.
+  BOTH OF THEM HAVE NOW MOVED, AND ONE MOVED WHILE THIS AMENDMENT WAS BEING
+  WRITTEN**. Every figure below is bound to `openxFactory`
+  `83a055a6` — this amendment's own head, with `#1086` merged in — and must be
+  re-derived rather than quoted:
+  • `tests/carve_conformance/` is recorded above as **34 tests**; at this head
+  `test_verify_carve_conformance.py` carries **79** `def test_`, and it is the
+  only test file in that directory.
+  • The refusal codes are **SIX, not five**: `conformance-unreadable`,
+  `-adapter-undeclared`, `-adapter-unresolvable`, `-corpus-missing`,
+  `-check-failed`, and — added by `#1086` — **`conformance-corpus-unfaithful`**,
+  the refusal that carries FLOOR PART 3's transposition contract.
+  • The corpus is **still 17 checks** (`len(carve_conformance.CHECKS)`).
+  *(This paragraph said "ONLY ONE OF THE TWO HAS MOVED", gave 35, and asserted
+  the refusal codes were "STILL EXACTLY FIVE". All three were true when written
+  and two were false by the time the amendment reached its window, because
+  `#1086` landed in between and this branch then merged it. **The paragraph
+  predicted exactly this** — it says a test count *"is exactly the kind of figure
+  that moves under acts with nothing to do with it"* — and was then overtaken by
+  it inside a single amendment. Caught by Copilot against head `83a055a6`.*
+  **The instruction to the ticking act is unchanged and is now better evidenced:
+  re-measure all three at YOUR head. A count in this row is a reading, never a
+  fact.**
+  *(The SIXTH refusal code matters beyond currency: a registered inventory that
+  names five would send the next act to re-verify a refusal contract with one
+  member missing, and `conformance-corpus-unfaithful` is precisely the member
+  § 3.7's own transposition STATUS above depends on.)*
   **RULED Q-T2 (a) — NO CHANGE; the seventeen stay closed.** The list-versus-tuple
   reading of `list_documents` (raised at comment `5716870896`) is answered: the
   interface's return type is not widened and the corpus's seventeen checks are
@@ -2848,7 +2862,14 @@ the bookkeeping that ticks this group.
   **A SECOND FOLLOW-UP IS STILL OWED AND IS NOT THIS BOX'S CONDITION**: RULED
   **Q-P5 (a)** (`#656` comment `5731951297`) scoped `#1110` to those four alone,
   sending the remaining EIGHT registered items and runbook § 2.3 to a second
-  act, held because the runbook's § 2 family is contended until `#1086` lands.
+  act. **That act was held until `#1086` landed, and `#1086` HAS landed** —
+  `049d54a9`, 2026-09-18T17:09:24Z, recorded at § 3.7 in this same amendment —
+  **so the runbook-contention hold is DISCHARGED and follow-up 2 is unblocked**;
+  any remaining wait belongs to its own owner's scheduling, not to that
+  dependency. *(This sentence read "until `#1086` lands" while the same file
+  already recorded `#1086` as merged — a forward reference contradicted by this
+  amendment's own evidence two boxes away. Caught by Copilot against head
+  `83a055a6`.)*
   *(This clause read "`floor55b` takes them as a follow-up act" until that act
   landed. Corrected here rather than left in the future tense — the same stale
   forward reference this amendment already had to repair once at § 6.4, where a
