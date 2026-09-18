@@ -3233,21 +3233,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
-  — ratified 2026-08-08 from three annotations on the keyword lens. A
-  document has three views (the radar's dot, the matrix's row, the signature
-  grid's row) and they now publish one key, so pointing at any lights the
-  others. The signature grid states its finding — "32 documents share 3
-  signatures (largest 17)" — and collapses, because a finding that fits in a
-  sentence does not warrant 220px of the best space on the screen. A matrix
-  SELECTION drafts a staging-queue fragment: evidence computed (documents,
-  repositories, the terms all of them share), argument left to the human,
-  nothing written — the exit the keyword radar lacked, distinct from the
-  repository lens's DTN register seed. Carries two dark-theme defect fixes
-  and their guards: a button reset that never stated its colour, and six
-  uses of custom properties the stylesheet never defines whose silent
-  fallbacks painted a white popover behind light text. (code surface:
-  openxFactory; target release: none)
 - [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
   — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap, in session, at PR #552 tip `c5169476`** (record:
@@ -3432,6 +3417,49 @@ Archived changes:
   [#1047](https://github.com/opensoft/openxFactory/issues/1047) closes on this
   archive, by the lane's hand after the ARCHIVED record — this pull request
   carries `refs` and no closing keyword.
+
+- [add-lens-document-selection](openspec/changes/archive/2026-09-16-add-lens-document-selection/proposal.md)
+  — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
+  [PR #1065](https://github.com/opensoft/openxFactory/pull/1065),
+  under **RULING Q6** (Brett Heap, 2026-09-04T17:49Z,
+  [#656](https://github.com/opensoft/openxFactory/issues/656)) **and RULING DQ-1**
+  (same day, 22:14Z), encoded at `split-opendox-two-layer-product` `tasks.md`
+  § 6.5 and `design.md` § D9. **THE ONLY ONE OF THE FIVE WHOSE CONTENT DOES NOT
+  LAND IN ONE PLACE** — both documents say so in those words — and **the split
+  falls INSIDE a requirement rather than between two.** Four of its five `## ADDED`
+  requirements are wholly app-side; the second, *A document selection drafts a
+  staging-queue seed*, states both halves in one sentence, and its drafting
+  clauses (*"SHALL write nothing"*, evidence *"recomputed by the serving side
+  from its own snapshot"*, an unknown document *"refused by name"*) are
+  obligations on the `doc_health.staging_seed` drafter and its serve route, which
+  **RULING DQ-1 KEEPS IN `openxFactory`'s OWN ADAPTER**. **THE DESTINATION, NAMED,
+  WHICH IS WHAT `tasks.md` § 8.5 REQUIRES:**
+  [openDox-spec #14](https://github.com/opensoft/openDox-spec/pull/14), carrying
+  the delta **WHOLE and byte-identical** — 8,363 B / `sha256 48b9a60c…`,
+  `diff`-verified, `grep -c openxFactory` over it **0** — with the owed narrowing
+  carried as a BLOCKED OPEN BOX (§ 2.1 there) and a bar on ratifying that one
+  requirement until it lands (§ 2.2). **THE NARROWING IS NAMED, NOT PERFORMED,
+  AND THE REASON IS RECORDED:** splitting a ratified requirement's sentences is
+  authoring rather than carriage, and the `openxFactory` half has nowhere to land
+  today — its capability is this packet's § 5.2a, unbuilt, with
+  `corpus-adapter-seam` an unpromoted delta of the same packet. Same reading
+  § 6.1 took for its seven `doc-health` requirements. **WHAT STAYS:**
+  `scripts/doc_health/staging_seed.py` and `/actions/staging-seed`, untouched
+  here. **WHAT TRAVELS OPEN:** § 4.4, the first real staging seed — a box no
+  single repository can close, since the selection is openDox's, the drafting
+  `openxFactory`'s and the placing a human act in `openxFactory`'s own
+  `ideation/staging/`. **NO DELTA IS PROMOTED HERE**; the packet is relocated by
+  `git mv` and otherwise UNEDITED, `Status: ratified` included. Its retiring
+  active bullet said *"target release: none"*; the packet's own `proposal.md:3`
+  declares **`target_release: implemented`**, and this entry reports the
+  declaration — the same correction § 6.4's record makes for `tasks.md` § 6.4's
+  shorthand. The non-promotion is registered as DELIBERATE through
+  `promotion_fidelity.py`'s own second discharge, an entry in the xFactory
+  aggregation's `health/dispositions.yaml` filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the
+  gate is `tasks.md` § 8.5, the severity reading § 8.9's; § 6.6 is the separate
+  no-new-change rule) — **measured at this head: 20 errors, five of them this
+  packet's, against 15 at § 6.1's head**. Full reasoning:
+  [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-lens-document-selection/review/rehome-2026-09-16.md).
 
 - [add-nightly-dashboard-refresh](openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openXdox` by

@@ -1700,7 +1700,15 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 #: assertion would still pass". Taken rather than answered.
 #:
 #: EACH ROW: (change, archived delta path, capability, the MODIFIED title that
-#: held the ledger row, the ADDED titles that must still stand in the delta).
+#: held the ledger row — or None where the packet carried no MODIFIED block at
+#: all — and the ADDED titles that must still stand in the delta).
+#:
+#: A `None` IN THE FOURTH FIELD IS NOT A WEAKER ROW. `add-lens-document-selection`
+#: (§ 6.5) is five ADDED requirements and nothing else, so it never held a
+#: `_LEDGER_SUBJECTS` row and its departure was implied by NOTHING at all — not
+#: even by a row going missing. The first three checks still apply to it, and the
+#: fourth (the ADDED titles) is the whole of what a re-home could lose there.
+
 #: The one file in an archived § 6 packet that was NOT carried: the closure
 #: record the closure itself wrote. Everything else in the directory moved
 #: byte-identical under RULING Q6, so everything else is pinned.
@@ -1727,6 +1735,24 @@ _REHOMED_AND_STILL_WHOLE = (
        "3168ad8f6f31c8dbacdc772d933508943f7b2c7cf373de2357eb8958d4bebee1", 16813),
       ("tasks.md",
        "45d341e8f08baff5e6d1cbe393c9b43e80aba92930df0b470f87cb40cd192d0a", 20805))),
+    ("add-lens-document-selection",
+     "openspec/changes/archive/2026-09-16-add-lens-document-selection/"
+     "specs/ideation-dashboard/spec.md",
+     "ideation-dashboard",
+     None,
+     ("Every view of a document is one hover away from the others",
+      "A document selection drafts a staging-queue seed",
+      "A finding is stated before it is drawn",
+      "A panel in contested space carries one row of chrome",
+      "The theme owns every colour a view chooses"),
+     ((".openspec.yaml",
+       "36d375fe90579def5af1f9a6f496990573a175920a653f90e28191bca52c818c", 404),
+      ("proposal.md",
+       "144d1cfbbd3c3300d889a7c9e222d3cbe7df3f60fb791b7f08343f58d0e99ae7", 3331),
+      ("specs/ideation-dashboard/spec.md",
+       "48b9a60c8de454e30041249fa1e638054b9a3e45bb061908d084d6ea89a2422c", 8363),
+      ("tasks.md",
+       "952ce526dc75d6134c6a577c228bd2f2ecf9e35bef1bf5f178caa6635666d276", 3077))),
 )
 
 
@@ -1740,16 +1766,26 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
       2. the archived delta EXISTS — the relocation, not a deletion;
       3. the delta still parses through the family's own `parse_delta` and still
          carries every requirement it carried when it was active — the MODIFIED
-         block that held the `_LEDGER_SUBJECTS` row, and each ADDED title whose
-         non-promotion this closure recorded as deliberate.
+         block that held the `_LEDGER_SUBJECTS` row where there was one, and
+         each ADDED title whose non-promotion its closure recorded as
+         deliberate.
 
     (3) is the one that makes this more than bookkeeping. RULING Q6 re-homes the
     content; a closure that lost an ADDED requirement on the way into the
     archive would leave the receiving repository's copy as the only copy, and
-    nothing in this repository would ever say so. The four ADDED titles are
-    exactly the four `promotion_fidelity` reports as absent from canon at every
-    head after this closure, so the same four are load-bearing in two places and
-    a drift in either shows up here.
+    nothing in this repository would ever say so. **Each row's ADDED titles are
+    exactly the ones `promotion_fidelity` reports as absent from canon at every
+    head after that closure** — four for `add-doxchat-model-intake`, five for
+    `add-lens-document-selection` — so the same titles are load-bearing in two
+    places and a drift in either shows up here.
+
+    THE ROWS ARE NOT ALIKE, AND THE FOURTH FIELD IS WHERE THEY DIFFER.
+    `add-doxchat-model-intake` held a `_LEDGER_SUBJECTS` row through its MODIFIED
+    block, so its departure was at least IMPLIED by a row going missing;
+    `add-lens-document-selection` is ADDED-only, never held one, and its
+    departure was implied by nothing at all. A `None` there is asserted rather
+    than skipped — the archived delta must carry NO MODIFIED block, which is why
+    it held no row.
 
     AND THE SIXTH FIELD IS THE BYTES — OF THE WHOLE PACKET, NOT THE DELTA ALONE.
     Naming the titles proves the delta still carries the right REQUIREMENTS; it
@@ -1781,6 +1817,9 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
     NOT A COUNT. Each title is named; the population is bounded by the same
     named set rather than by its size.
     """
+    assert _REHOMED_AND_STILL_WHOLE, (
+        "the § 6 closures this file has seen; empty means the constant was "
+        "cleared rather than a closure being reverted")
     for (change, delta, capability, requirement, added,
          carriage) in _REHOMED_AND_STILL_WHOLE:
         active = ROOT / "openspec" / "changes" / change
@@ -1872,12 +1911,18 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
 
         requirements, _renames = mbc.parse_delta(
             archived.read_text(encoding="utf-8", errors="replace"))
-        modified = [r for r in requirements
-                    if r.op == "MODIFIED"
-                    and mbc.norm(r.title) == mbc.norm(requirement)]
-        assert len(modified) == 1, _moved(
-            f"the MODIFIED block {requirement!r} in {delta}",
-            f"{len(modified)} matching block(s)")
+        if requirement is None:
+            assert not [r for r in requirements if r.op == "MODIFIED"], _moved(
+                f"{change} carrying NO MODIFIED block (it is ADDED-only, which "
+                "is why it never held a ledger row)",
+                "the archived delta now carries one")
+        else:
+            modified = [r for r in requirements
+                        if r.op == "MODIFIED"
+                        and mbc.norm(r.title) == mbc.norm(requirement)]
+            assert len(modified) == 1, _moved(
+                f"the MODIFIED block {requirement!r} in {delta}",
+                f"{len(modified)} matching block(s)")
 
         present = {mbc.norm(r.title) for r in requirements if r.op == "ADDED"}
         missing = [title for title in added if mbc.norm(title) not in present]
@@ -1886,13 +1931,11 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
             "archived delta",
             f"absent: {missing}")
 
-        live = [b for b in mbc.active_blocks(ROOT)
-                if (b.change, b.capability, mbc.norm(b.title))
-                == (change, capability, mbc.norm(requirement))]
+        live = [b for b in mbc.active_blocks(ROOT) if b.change == change]
         assert not live, _moved(
-            f"no ACTIVE block carrying {change} / {requirement!r}",
-            f"{len(live)} still active — the ledger row was removed while the "
-            "block is still read by `active_blocks`")
+            f"no ACTIVE block carrying {change}",
+            f"{len(live)} still active — the packet is archived while "
+            "`active_blocks` still reads a block under its id")
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
