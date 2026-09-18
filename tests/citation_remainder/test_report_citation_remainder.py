@@ -802,29 +802,56 @@ def test_an_ambient_git_environment_cannot_redirect_the_reading(
     assert f"{CITE}/add-theirs/proposal.md" not in hostile
 
 
-def test_the_out_of_root_term_holds_only_links_that_resolve_outside_the_root(
+def test_the_out_of_root_term_takes_exactly_the_entries_whose_path_leaves_the_root(
         tmp_path) -> None:
-    """Scenario: The out-of-root term takes only the links that resolve outside
-    the root."""
+    """Scenario: The out-of-root term takes exactly the entries whose resolved
+    path leaves the root.
+
+    ONE OF EVERY KIND THE TWO TERMS ARGUE OVER, IN ONE TREE, and the term is
+    read BOTH WAYS round: every entry in it resolves outside the root, and every
+    entry resolving INSIDE it is somewhere else. The membership is asserted
+    entry by entry and not only as a count, because a count can be right while
+    the wrong entry stands in it.
+    """
     root = new_repo(tmp_path / "repo")
     outside = tmp_path / "outside"
     outside.mkdir()
     (outside / "theirs.md").write_text("nothing\n", encoding="utf-8")
     write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
-    # One of each kind the two terms argue over, in one tree.
     os.symlink(outside / "theirs.md", root / "leaves.md")
     os.symlink("docs/gone.md", root / "dangles-inside.md")
     os.symlink("docs", root / "a-directory")
     os.symlink("loop-b", root / "loop-a")
     os.symlink("loop-a", root / "loop-b")
+    # A parent that leaves the root, carrying a tracked regular file: the term
+    # reaches an entry through a PARENT'S link exactly as through its own.
+    write(root, "under/parent/file.md", f"{CITE}/add-beyond/proposal.md\n")
     commit(root, gitlinks=("installs/vendored",))
+    shutil.rmtree(root / "under" / "parent")
+    os.symlink("../../outside", root / "under" / "parent")
 
-    population = run_json(root)["population"]
-    assert population["skipped_link_leaving_the_root"] == 1, \
-        "exactly the one link whose resolved path stands outside the root"
-    assert population["skipped_not_a_file"] == 5, \
+    published = run_json(root)["population"]
+    assert published["skipped_link_leaving_the_root"] == 2
+    assert published["skipped_not_a_file"] == 5, \
         "the gitlink, the inside dangler, the directory link and both loops"
-    assert population["arithmetic_closes"] is True
+    assert published["arithmetic_closes"] is True
+
+    # MEMBERSHIP, ENTRY BY ENTRY: a count can be right while the wrong entry
+    # stands in it, so each term is read back against the predicate that
+    # defines it.
+    where = root.resolve()
+    population = report.take_reading(where).population
+    assert sorted(population.skipped_link_leaving_root) == [
+        "leaves.md", "under/parent/file.md"], \
+        "its own link, and a parent's — and nothing whose path stays inside"
+    for entry in population.skipped_link_leaving_root:
+        walked = report.resolved_entry_path(where, entry)
+        assert walked is not None and not report.inside_root(where, walked), \
+            f"{entry} is in the term, so its resolved path must leave the root"
+    for entry in population.skipped_non_file:
+        walked = report.resolved_entry_path(where, entry)
+        assert walked is None or report.inside_root(where, walked), \
+            f"{entry} resolves inside the root, so it is not this term's"
 
 
 def test_a_tracked_file_under_a_parent_that_links_out_of_the_root_takes_that_term(
