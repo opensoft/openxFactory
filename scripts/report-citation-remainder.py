@@ -56,6 +56,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import re
 import subprocess
 import sys
@@ -158,6 +159,12 @@ OUTPUT_PATH_EXCLUSIONS = (
 GITLINK_MODE = "160000"
 SYMLINK_MODE = "120000"
 
+#: The three skip terms, named once so the extent rule below and the arithmetic
+#: that closes over them cannot drift apart.
+TERM_NON_FILE = "non_file"
+TERM_OUT_OF_ROOT = "link_leaving_root"
+TERM_UNDECODABLE = "undecodable"
+
 
 def git(root: Path, *args: str) -> str:
     """`git -C root …`, or `CouldNotRun`.
@@ -251,6 +258,29 @@ class Population:
     readers not to look for it, and this is the term whose non-zero value means
     the report DECLINED to read text a naive implementation would have reported
     as this corpus's.
+
+    AND EACH TERM IS DEFINED BY ITS EXTENT AND NOT BY ITS NAME, SO THAT NO
+    TRACKED ENTRY FALLS BETWEEN TWO OF THEM. The OUT-OF-ROOT-LINK term owns
+    exactly the tracked LINKS whose resolved path stands outside the root. The
+    NON-FILE term owns every OTHER tracked entry that is not a readable regular
+    file once resolved — the submodule gitlink, a directory, and every tracked
+    link the first term does not take: one resolving inside the root to
+    something missing, one resolving inside the root to a DIRECTORY, and one
+    with no resolved path at all because its chain loops or cannot be read. A
+    name is not an extent, and this is where the difference is paid: a link
+    that dangles inside the root is none of the three things the terms are
+    NAMED for, so an arithmetic resting on the names alone has nowhere to put
+    it and fails to close on an entry class the population rule itself admits.
+
+    A FOURTH TERM IS DECLINED, and the decline is the mirror of the third
+    term's keep: the third term earns its own row because a non-zero value in
+    it is a fact a reader needs — the report DECLINED to read text a naive
+    implementation would have reported as this corpus's — while a link reaching
+    no readable file inside the root offers text to NO implementation and would
+    tell a reader only that the tree carries a broken link, which is a fact
+    about the tree and not about this corpus's citations. It contributes no
+    token for the reason the gitlink contributes none, and it is counted where
+    the gitlink is counted.
     """
 
     tracked_entries_total: int = 0
@@ -271,6 +301,67 @@ class Population:
             self.files_read + len(self.skipped_non_file)
             + len(self.skipped_link_leaving_root)
             + len(self.skipped_undecodable))
+
+
+#: A LINK CHAIN IS WALKED HERE RATHER THAN HANDED TO `Path.resolve()`, because
+#: the term's extent is a fact about the PATH and `resolve()` answers a
+#: question about what STANDS at one. The cap bounds a chain no cycle catches.
+MAX_LINK_HOPS = 64
+
+
+def resolved_entry_path(root: Path, rel: str):
+    """The path a tracked entry's own chain JOINS TO, read step by step.
+
+    A LINK'S RESOLVED PATH IS A FACT ABOUT THE PATH ITSELF AND NOT ABOUT
+    WHETHER ANYTHING STANDS AT IT: every step of the entry is read in turn,
+    each link replaced by its own target text joined onto the directory it
+    stands in, and `..` and `.` normalised away — so a link whose target is
+    simply MISSING still has a resolved path and stands wherever that join
+    lands. That is the whole reason this walk is here and `Path.resolve()` is
+    not: `resolve()` is a filesystem answer, and a term whose extent is "the
+    links that leave the root" must take a dangling link that leaves the root
+    and leave a dangling link that does not.
+
+    Returns `None` — NO resolved path at all — only where the report cannot
+    itself walk the chain: it loops, or it carries a link whose own target
+    text cannot be read. Such an entry is not a link that leaves the root; it
+    is an entry that is not a readable regular file once resolved, and the
+    non-file term owns it.
+    """
+    current = root
+    seen: set = set()
+    hops = 0
+    for part in rel.split("/"):
+        if not part or part == ".":
+            continue
+        current = current / part
+        while True:
+            try:
+                if not current.is_symlink():
+                    break
+            except OSError:  # pragma: no cover - an unreadable path component
+                return None
+            hops += 1
+            key = str(current)
+            if hops > MAX_LINK_HOPS or key in seen:
+                return None
+            seen.add(key)
+            try:
+                target = os.readlink(current)
+            except OSError:
+                return None
+            joined = (Path(target) if os.path.isabs(target)
+                      else current.parent / target)
+            current = Path(os.path.normpath(str(joined)))
+    return Path(os.path.normpath(str(current)))
+
+
+def inside_root(root: Path, path: Path) -> bool:
+    """Whether a resolved path still stands under the repository root."""
+    try:
+        return path.is_relative_to(root)
+    except (OSError, ValueError):  # pragma: no cover - defensive
+        return False
 
 
 def tracked_entries(root: Path) -> list:
@@ -338,45 +429,82 @@ def build_population(root: Path, entries, include=(), exclude=()):
     return population, in_scope
 
 
+def entry_disposition(root: Path, entry: TrackedEntry):
+    """Which of the three skip terms one tracked entry belongs to, or the
+    target to read it from — decided by EXTENT, in one place.
+
+    Returns `(term, target)`: `term` is `None` where the entry is a readable
+    regular file inside the root and `target` is the path to read it from;
+    otherwise `term` names the skip term and `target` is `None`.
+    """
+    if entry.mode == GITLINK_MODE:
+        # A submodule gitlink names a directory with no text of its own, and
+        # the mode is read from the INDEX because the working tree may carry
+        # nothing at that path at all.
+        return TERM_NON_FILE, None
+    where = root / entry.path
+    is_link = entry.mode == SYMLINK_MODE or where.is_symlink()
+    target = resolved_entry_path(root, entry.path)
+    if target is None:
+        # A chain that loops or cannot be read has NO resolved path, so it is
+        # not a link that LEAVES the root — it is an entry that is not a
+        # readable regular file once resolved.
+        return TERM_NON_FILE, None
+    if not inside_root(root, target):
+        # The out-of-root term owns exactly the tracked LINKS that resolve
+        # outside the root. A non-link entry cannot reach here through git,
+        # which refuses to track a path beyond a symbolic link, and is counted
+        # where every other unreadable entry is rather than widening a term
+        # whose own scenario fixes what may stand in it.
+        return (TERM_OUT_OF_ROOT if is_link else TERM_NON_FILE), None
+    if not target.is_file():
+        # Missing inside the root, or a DIRECTORY inside the root: neither is a
+        # readable regular file once resolved.
+        return TERM_NON_FILE, None
+    return None, target
+
+
 def read_population_text(root: Path, in_scope, population: Population):
     """Each in-scope entry's TEXT, as it stands, with every skip counted.
 
-    Three skips, each its own term. A TRACKED ENTRY THAT IS NOT A FILE has no
-    text and counting one as an unreadable file both misstates the population's
-    size and invites an implementation to recover text from it. AN ENTRY WHOSE
-    PATH LEAVES THE REPOSITORY ROOT ONCE RESOLVED is refused before it is read:
-    the ordinary "is this a file?" test FOLLOWS a symbolic link and answers
-    about its TARGET, so an implementation that asks only that question reports
-    text that is not this corpus's as this corpus's citations. The containment
-    test is the RESOLVER'S OWN — resolve the path, then require it to stay
-    under the root — applied to a tracked entry for the same reason it is
-    applied to a citation's spelling. AND A FILE THAT DOES NOT DECODE is
-    skipped, counted and reported: never replacement-decoded, because bytes
-    that are not text can yield matches no record wrote, and never fatal.
+    Three skips, each its own term and each defined by its EXTENT. A TRACKED
+    ENTRY THAT IS NOT A READABLE REGULAR FILE ONCE RESOLVED has no text this
+    report can read, and counting one as an unreadable file both misstates the
+    population's size and invites an implementation to recover text from it. A
+    TRACKED LINK WHOSE RESOLVED PATH LEAVES THE REPOSITORY ROOT is refused
+    before it is read: the ordinary "is this a file?" test FOLLOWS a symbolic
+    link and answers about its TARGET, so an implementation that asks only that
+    question reports text that is not this corpus's as this corpus's citations.
+    AND A FILE THAT DOES NOT DECODE is skipped, counted and reported: never
+    replacement-decoded, because bytes that are not text can yield matches no
+    record wrote, and never fatal.
+
+    A read that fails for a reason that is not a DECODE failure is not the
+    undecodable term's: that term exists to record text the report DECLINED to
+    read, and an entry it could not open offered none.
     """
-    contained = packet_reference._contained  # noqa: SLF001 - the resolver's own boundary
+    buckets = {
+        TERM_NON_FILE: population.skipped_non_file,
+        TERM_OUT_OF_ROOT: population.skipped_link_leaving_root,
+        TERM_UNDECODABLE: population.skipped_undecodable,
+    }
     texts = []
     for entry in in_scope:
-        if entry.mode == GITLINK_MODE:
-            population.skipped_non_file.append(entry.path)
-            continue
-        target = contained(root, root / entry.path)
-        if target is None:
-            population.skipped_link_leaving_root.append(entry.path)
-            continue
-        if not target.is_file():
-            population.skipped_non_file.append(entry.path)
+        term, target = entry_disposition(root, entry)
+        if term is not None:
+            buckets[term].append(entry.path)
             continue
         try:
             text = target.read_bytes().decode("utf-8")
-        except (UnicodeDecodeError, OSError):
-            population.skipped_undecodable.append(entry.path)
+        except UnicodeDecodeError:
+            buckets[TERM_UNDECODABLE].append(entry.path)
+            continue
+        except OSError:
+            buckets[TERM_NON_FILE].append(entry.path)
             continue
         population.files_read += 1
         texts.append((entry.path, text))
-    for bucket in (population.skipped_non_file,
-                   population.skipped_link_leaving_root,
-                   population.skipped_undecodable):
+    for bucket in buckets.values():
         bucket.sort()
     return texts
 

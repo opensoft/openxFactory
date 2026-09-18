@@ -420,7 +420,7 @@ def test_the_link_leaving_the_root_term_is_printed_even_where_it_is_zero(
 
 def test_a_tracked_link_staying_inside_the_root_is_read_like_any_other_file(
         tmp_path) -> None:
-    """Scenario: A tracked link stands inside the root."""
+    """Scenario: A tracked link resolves to a regular file inside the root."""
     root = new_repo(tmp_path / "repo")
     write(root, "docs/real.md", f"{CITE}/add-absent/proposal.md\n")
     os.symlink("real.md", root / "docs" / "alias.md")
@@ -434,6 +434,111 @@ def test_a_tracked_link_staying_inside_the_root_is_read_like_any_other_file(
     cited = {o["path"] for o
              in listed[f"{CITE}/add-absent/proposal.md"]["occurrences"]}
     assert cited == {"docs/real.md", "docs/alias.md"}
+
+
+def test_a_link_dangling_inside_the_root_is_counted_in_the_non_file_term(
+        tmp_path) -> None:
+    """Scenario: A tracked link reaches no readable file and does not leave the
+    root — the first of its two arms, a lexically resolved path standing inside
+    the root and missing there."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("gone.md", root / "docs" / "dangles.md")
+    commit(root)
+
+    population = run_json(root)["population"]
+    assert population["skipped_not_a_file"] == 1, \
+        "a link that dangles INSIDE the root is not a link that leaves it"
+    assert population["skipped_link_leaving_the_root"] == 0
+    assert population["skipped_undecodable"] == 0
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_link_chain_that_loops_is_counted_in_the_non_file_term(
+        tmp_path) -> None:
+    """Scenario: A tracked link reaches no readable file and does not leave the
+    root — the second arm, a chain with NO resolved path at all because it
+    loops."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("b.md", root / "docs" / "a.md")
+    os.symlink("a.md", root / "docs" / "b.md")
+    commit(root)
+
+    population = run_json(root)["population"]
+    assert population["skipped_not_a_file"] == 2, \
+        "a chain with no resolved path is no link that LEAVES the root"
+    assert population["skipped_link_leaving_the_root"] == 0
+    assert population["tracked_entries_in_scope"] == (
+        population["files_read"]
+        + population["skipped_not_a_file"]
+        + population["skipped_link_leaving_the_root"]
+        + population["skipped_undecodable"])
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_dangling_link_pointing_outside_the_root_takes_the_out_of_root_term(
+        tmp_path) -> None:
+    """Scenario: A dangling link points outside the root."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    # NOTHING STANDS AT THE TARGET. The resolved path is a fact about the path
+    # and not about what stands at it, so this link leaves the root exactly as
+    # a link to a file that exists out there does.
+    # `docs/../../outside` leaves the root; `docs/../outside` would not, and
+    # the difference is exactly what a lexical resolution is for.
+    os.symlink("../../outside/never-written.md", root / "docs" / "linked.md")
+    commit(root)
+
+    population = run_json(root)["population"]
+    assert population["skipped_link_leaving_the_root"] == 1
+    assert population["skipped_not_a_file"] == 0, \
+        "existence is not required of a resolved path"
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_link_resolving_to_a_directory_inside_the_root_is_a_non_file(
+        tmp_path) -> None:
+    """Scenario: A tracked link resolves to a directory inside the root."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("docs", root / "alias")
+    commit(root)
+
+    data = run_json(root)
+    population = data["population"]
+    assert population["skipped_not_a_file"] == 1
+    assert population["skipped_link_leaving_the_root"] == 0
+    assert population["arithmetic_closes"] is True
+    cited = {o["path"] for o
+             in entries(data)[f"{CITE}/add-absent/proposal.md"]["occurrences"]}
+    assert cited == {"docs/notes.md"}, \
+        "no token is taken from it and it is not among the FILES read"
+
+
+def test_the_out_of_root_term_holds_only_links_that_resolve_outside_the_root(
+        tmp_path) -> None:
+    """Scenario: The out-of-root term takes only the links that resolve outside
+    the root."""
+    root = new_repo(tmp_path / "repo")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "theirs.md").write_text("nothing\n", encoding="utf-8")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    # One of each kind the two terms argue over, in one tree.
+    os.symlink(outside / "theirs.md", root / "leaves.md")
+    os.symlink("docs/gone.md", root / "dangles-inside.md")
+    os.symlink("docs", root / "a-directory")
+    os.symlink("loop-b", root / "loop-a")
+    os.symlink("loop-a", root / "loop-b")
+    commit(root, gitlinks=("installs/vendored",))
+
+    population = run_json(root)["population"]
+    assert population["skipped_link_leaving_the_root"] == 1, \
+        "exactly the one link whose resolved path stands outside the root"
+    assert population["skipped_not_a_file"] == 5, \
+        "the gitlink, the inside dangler, the directory link and both loops"
+    assert population["arithmetic_closes"] is True
 
 
 def test_a_refinement_prefix_matches_on_segment_boundaries_and_spares_the_sibling(
