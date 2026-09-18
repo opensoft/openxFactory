@@ -449,6 +449,20 @@ def test_a_leg_off_its_pin_refuses_rather_than_rendering(monkeypatch):
     assert "checked out at" in caught.value.detail
 
 
+def test_a_gitlink_that_cannot_be_read_refuses_rather_than_passing(
+        monkeypatch):
+    """`carved_reach`'s own rule, one layer up: a query that went UNANSWERED is
+    not an answer. Nothing was learned about the pin, so nothing may be claimed
+    for it — and a runner that shrugged here would report a pin it never
+    compared against anything."""
+    monkeypatch.setattr(MODULE, "recorded_gitlink",
+                        lambda parent, path: (None, "HEAD"))
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.verify_pins()
+    assert caught.value.code == "equivalence-reach-unavailable"
+    assert "records no gitlink" in caught.value.detail
+
+
 def test_the_pins_this_run_reports_are_the_ones_it_verified(shipped):
     """Both levels of both legs, and the reported pair is a subset of them."""
     pins = shipped["pins"]
@@ -530,6 +544,16 @@ def test_every_git_read_is_scrubbed_bounded_and_replacement_free():
     assert '"--no-replace-objects"' in source
     assert "GIT_CONFIG_NOSYSTEM" in source
     assert "timeout=_GIT_TIMEOUT" in source
+    # AND THE REF BOUNDARY, HELD HERE FOR A MEASURED REASON. No behavioural
+    # difference is reachable today: git 2.43.0 answers `rev-parse --verify
+    # --quiet` with exit 1 and EMPTY stderr for a leading-dash revision
+    # whether or not the marker is present, because the `^{commit}` suffix
+    # this runner appends already makes any option name unparseable. The
+    # marker is kept so that a later edit which drops that suffix does not
+    # silently drop the boundary with it — which is precisely a change no
+    # behavioural test could see, and why this one is over the source.
+    assert '"--end-of-options",\n                f"{pre_ref}^{{commit}}"' \
+        in source, "the ref read lost its end-of-options marker"
 
 
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
