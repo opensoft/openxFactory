@@ -530,10 +530,16 @@ _LEDGER_SUBJECTS = {
     # obligation was carried. The block itself is unchanged at
     # `openspec/changes/archive/2026-09-16-add-doxchat-model-intake/specs/`
     # `ideation-dashboard/spec.md`. Two of the five § 6 closures have now left
-    # this ledger by departure rather than discharge; the remaining three
-    # (`add-nightly-dashboard-refresh`, `add-lens-document-selection`,
-    # `retire-doxbench-chat-turn-v1`) hold no row here, so this is the last
-    # movement § 6 makes to this constant.
+    # this ledger by departure rather than discharge — and only two ever can,
+    # because the OTHER THREE HOLD NO ROW HERE AT ALL:
+    # `add-nightly-dashboard-refresh` (closed § 6.1 the same day, landing by
+    # #1060), `add-lens-document-selection` and `retire-doxbench-chat-turn-v1`.
+    # So this is the last movement § 6 makes to this constant, whatever order
+    # the three close in. (The list read "the remaining three" until 2026-09-18,
+    # which said the same thing about ROWS but invited a reader to count
+    # UNCLOSED packets — and § 6.1 closing made that reading false while the
+    # row-claim stayed true. The distinction is the point: a closure moves this
+    # constant only if the packet held a row.)
     # ADDED 2026-08-28 BY `add-credential-escrow-checkout`, when Brett VETOED
     # that packet's OD-2 over PR #479 and moved a schema surface into it that it
     # had been authored to defer. A DELIBERATE AMENDMENT, and the narrowest one
