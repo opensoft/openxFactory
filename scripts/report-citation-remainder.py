@@ -180,6 +180,58 @@ def git(root: Path, *args: str) -> str:
     return out
 
 
+#: THE AMBIENT GIT ENVIRONMENT THIS REPORT REFUSES TO INHERIT, and the estate's
+#: own list rather than a second one — `scripts/carved_reach.py:796-807`, put
+#: there for the same reason by Copilot `PRRT_kwDOTAvnrs6hjE-c`. Every figure
+#: this report prints is read out of ONE index and ONE object store, and each
+#: variable below can silently point git at another: `GIT_DIR`,
+#: `GIT_COMMON_DIR` and `GIT_WORK_TREE` move the repository out from under
+#: `-C`; `GIT_INDEX_FILE` answers `ls-files` from a different index;
+#: `GIT_OBJECT_DIRECTORY` and `GIT_ALTERNATE_OBJECT_DIRECTORIES` move the
+#: object store `diff` and `log` read; `GIT_REPLACE_REF_BASE` and replace refs
+#: rewrite what an object IS. A reading taken through any of them is not a
+#: reading of the root the caller named, and this capability's whole purpose is
+#: a reproducible series.
+SCRUBBED_GIT_ENVIRONMENT = (
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_WORK_TREE",
+)
+
+INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(?:KEY|VALUE)_[0-9]+")
+
+
+def sanitized_git_environment() -> dict:
+    """The environment every git this report runs is given.
+
+    The scrub above, plus `GIT_NO_REPLACE_OBJECTS` beside the
+    `--no-replace-objects` flag, because the two answer different halves: the
+    flag covers the process this report starts and the variable covers any git
+    that process starts for itself.
+
+    THE USER'S GLOBAL AND SYSTEM CONFIG ARE NOT READ EITHER. Nothing this
+    report does needs them — every git it runs is a read of a named root — and
+    an ambient `core.quotePath`, `core.symlinks` or a pathspec alias would
+    otherwise reach the enumeration this whole population is derived from.
+    """
+    environment = {
+        name: value for name, value in os.environ.items()
+        if name not in SCRUBBED_GIT_ENVIRONMENT
+        and INDEXED_GIT_CONFIG_ENVIRONMENT.fullmatch(name) is None
+    }
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    environment["GIT_CONFIG_SYSTEM"] = os.devnull
+    environment["GIT_CONFIG_NOSYSTEM"] = "1"
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    return environment
+
+
 def git_status(root: Path, *args: str):
     """`git -C root …` returning `(returncode, stdout, stderr)`.
 
@@ -203,8 +255,10 @@ def git_status(root: Path, *args: str):
         raise CouldNotRun(
             f"refusing a repository root that reads as an option: {root!r}")
     try:
-        result = subprocess.run(["git", "-C", where, *args],
-                                capture_output=True, text=True)
+        result = subprocess.run(
+            ["git", "--no-replace-objects", "-C", where, *args],
+            capture_output=True, text=True,
+            env=sanitized_git_environment())
     except OSError as error:  # pragma: no cover - no git on PATH
         raise CouldNotRun(f"git could not be run: {error}") from error
     return result.returncode, result.stdout, result.stderr
@@ -313,47 +367,62 @@ def resolved_entry_path(root: Path, rel: str):
     """The path a tracked entry's own chain JOINS TO, read step by step.
 
     A LINK'S RESOLVED PATH IS A FACT ABOUT THE PATH ITSELF AND NOT ABOUT
-    WHETHER ANYTHING STANDS AT IT: every step of the entry is read in turn,
-    each link replaced by its own target text joined onto the directory it
-    stands in, and `..` and `.` normalised away — so a link whose target is
-    simply MISSING still has a resolved path and stands wherever that join
-    lands. That is the whole reason this walk is here and `Path.resolve()` is
-    not: `resolve()` is a filesystem answer, and a term whose extent is "the
-    links that leave the root" must take a dangling link that leaves the root
+    WHETHER ANYTHING STANDS AT IT: every step is read in turn, each link
+    replaced by its own target text resolved from the directory the link stands
+    in, and `..` and `.` resolved away as they are reached — so a link whose
+    target is simply MISSING still has a resolved path and stands wherever that
+    join lands. That is the whole reason this walk is here and `Path.resolve()`
+    is not: `resolve()` is a filesystem answer, and a term whose extent is "the
+    links that leave the root" must take a DANGLING link that leaves the root
     and leave a dangling link that does not.
 
+    EVERY COMPONENT OF A TARGET IS READ, NOT ONLY ITS LAST. A target is a PATH
+    and its own intermediate segments may be links in turn: where `nested`
+    points outside the root and a tracked `link` points at `nested/file`, a
+    walk that joined the target lexically and then asked only whether the
+    JOINED path was itself a link would answer `<root>/nested/file`, pass the
+    containment test, and read a file outside the repository as this corpus's.
+    So the target's segments are pushed back onto the walk and resolved like
+    any others, which is also why `..` is applied to what has been resolved so
+    far rather than cancelled against unread text. (Copilot
+    `PRRT_kwDOTAvnrs6jshPX`.)
+
     Returns `None` — NO resolved path at all — only where the report cannot
-    itself walk the chain: it loops, or it carries a link whose own target
-    text cannot be read. Such an entry is not a link that leaves the root; it
-    is an entry that is not a readable regular file once resolved, and the
-    non-file term owns it.
+    itself walk the chain: it exceeds the hop bound, which a loop always does,
+    or it carries a link whose own target text cannot be read. Such an entry is
+    not a link that leaves the root; it is an entry that is not a readable
+    regular file once resolved, and the non-file term owns it.
     """
+    anchor = Path(root.anchor) if root.anchor else Path(root.root or "/")
     current = root
-    seen: set = set()
+    pending = [part for part in reversed(rel.split("/")) if part]
     hops = 0
-    for part in rel.split("/"):
-        if not part or part == ".":
+    while pending:
+        part = pending.pop()
+        if part == ".":
             continue
-        current = current / part
-        while True:
-            try:
-                if not current.is_symlink():
-                    break
-            except OSError:  # pragma: no cover - an unreadable path component
-                return None
-            hops += 1
-            key = str(current)
-            if hops > MAX_LINK_HOPS or key in seen:
-                return None
-            seen.add(key)
-            try:
-                target = os.readlink(current)
-            except OSError:
-                return None
-            joined = (Path(target) if os.path.isabs(target)
-                      else current.parent / target)
-            current = Path(os.path.normpath(str(joined)))
-    return Path(os.path.normpath(str(current)))
+        if part == "..":
+            current = current.parent
+            continue
+        candidate = current / part
+        try:
+            is_link = candidate.is_symlink()
+        except OSError:  # pragma: no cover - an unreadable path component
+            return None
+        if not is_link:
+            current = candidate
+            continue
+        hops += 1
+        if hops > MAX_LINK_HOPS:
+            return None
+        try:
+            target = os.readlink(candidate)
+        except OSError:
+            return None
+        if target.startswith("/"):
+            current = anchor
+        pending.extend(part for part in reversed(target.split("/")) if part)
+    return current
 
 
 def inside_root(root: Path, path: Path) -> bool:
@@ -712,7 +781,7 @@ NAME_CHARS = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 FORGE_URL_RE = re.compile(
     r"https?://github\.com/"
     r"(?P<owner>[A-Za-z0-9._\-]+)/(?P<repo>[A-Za-z0-9._\-]+)"
-    r"/(?:blob|tree)/(?P<ref>[A-Za-z0-9._\-]+)/$")
+    r"/(?:blob|tree)/(?P<ref>[A-Za-z0-9._\-]+)/\Z")
 
 #: The custody-locator scheme this corpus writes OpsxFactory citations in:
 #: the literal prefix, ONE owner segment, `/`. The scheme names its repository
@@ -720,7 +789,7 @@ FORGE_URL_RE = re.compile(
 #: the same prefix followed by a command name, a subject or a workflow locator
 #: fires nothing, because neither is an owner segment followed by a path.
 CUSTODY_SCHEME_RE = re.compile(
-    r"(?:^|(?a:\W))opsx:(?P<owner>[A-Za-z0-9._\-]+)/$")
+    r"(?:^|(?a:\W))opsx:(?P<owner>[A-Za-z0-9._\-]+)/\Z")
 
 #: A trailing parenthetical: at most ONE space, then `(`, then its content,
 #: then `)`. More than one space, any further content inside the parentheses,

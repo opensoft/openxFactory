@@ -521,6 +521,64 @@ def test_a_link_resolving_to_a_directory_inside_the_root_is_a_non_file(
         "no token is taken from it and it is not among the FILES read"
 
 
+def test_a_link_through_a_nested_directory_link_leaving_the_root_is_caught(
+        tmp_path) -> None:
+    """A TARGET IS A PATH AND ITS OWN SEGMENTS MAY BE LINKS. Where a tracked
+    directory link leaves the root and a tracked file link points THROUGH it, a
+    walk that joined the target and then asked only whether the JOINED path was
+    itself a link would answer with a path inside the root, pass the
+    containment test, and read a file outside the repository as this corpus's.
+    (Copilot `PRRT_kwDOTAvnrs6jshPX`.)"""
+    root = new_repo(tmp_path / "repo")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "theirs.md").write_text(f"{CITE}/add-elsewhere/proposal.md\n",
+                                       encoding="utf-8")
+    os.symlink("../outside", root / "nested")          # the directory link
+    os.symlink("nested/theirs.md", root / "linked.md")  # points THROUGH it
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    assert f"{CITE}/add-elsewhere/proposal.md" not in listed, \
+        "no text is read from outside the root through an intermediate link"
+    assert f"{CITE}/add-absent/proposal.md" in listed
+    population = data["population"]
+    assert population["skipped_link_leaving_the_root"] == 2, \
+        "the directory link and the file link that points through it"
+    assert population["skipped_not_a_file"] == 0
+    assert population["arithmetic_closes"] is True
+
+
+def test_an_ambient_git_environment_cannot_redirect_the_reading(
+        tmp_path, monkeypatch) -> None:
+    """EVERY FIGURE IS READ OUT OF ONE INDEX AND ONE OBJECT STORE. `-C` names a
+    directory, and an ambient `GIT_DIR` or `GIT_INDEX_FILE` can still make git
+    answer for another one, so a reading taken through either is not a reading
+    of the root the caller named. (Copilot `PRRT_kwDOTAvnrs6jshO4`.)"""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-mine/proposal.md\n")
+    commit(root)
+
+    elsewhere = new_repo(tmp_path / "elsewhere")
+    write(elsewhere, "docs/theirs.md", f"{CITE}/add-theirs/proposal.md\n")
+    commit(elsewhere)
+
+    clean = entries(run_json(root))
+
+    monkeypatch.setenv("GIT_DIR", str(elsewhere / ".git"))
+    monkeypatch.setenv("GIT_INDEX_FILE", str(elsewhere / ".git" / "index"))
+    monkeypatch.setenv("GIT_WORK_TREE", str(elsewhere))
+    monkeypatch.setenv("GIT_REPLACE_REF_BASE", "refs/not-replace")
+    hostile = entries(run_json(root))
+
+    assert set(hostile) == set(clean), \
+        "the reading is the named root's whatever the ambient environment says"
+    assert f"{CITE}/add-mine/proposal.md" in hostile
+    assert f"{CITE}/add-theirs/proposal.md" not in hostile
+
+
 def test_the_out_of_root_term_holds_only_links_that_resolve_outside_the_root(
         tmp_path) -> None:
     """Scenario: The out-of-root term takes only the links that resolve outside
@@ -1203,6 +1261,41 @@ def test_a_word_naming_a_repository_outside_the_vocabulary_fires_no_signal(
     record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
     assert record["occurrences"][0]["signals"] == []
     assert record["flags"] == [], "the vocabulary is closed and not widened"
+
+
+def test_a_forge_url_earlier_on_the_line_does_not_flag_a_later_citation(
+        tmp_path) -> None:
+    """THE URL MUST RUN STRAIGHT INTO THE TOKEN. The signal is a relation to the
+    token and not a fact about the line, so a valid forge URL standing earlier
+    on the line with other text between it and the citation fires nothing — the
+    pattern is anchored at the token's own start offset. (Copilot
+    `PRRT_kwDOTAvnrs6jshP7`.)"""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          "see https://github.com/opensoft/codexFactory/blob/main/ and also "
+          f"the packet at {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["flags"] == [], \
+        "a URL that does not end immediately before the token is no signal"
+
+
+def test_a_custody_scheme_earlier_on_the_line_does_not_flag_a_later_citation(
+        tmp_path) -> None:
+    """The custody-locator prefix is likewise a relation to the token: the
+    scheme, one owner segment and `/` must END immediately before it. (Copilot
+    `PRRT_kwDOTAvnrs6jshQE`.)"""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          "recorded under opsx:opensoft/ elsewhere, and separately at "
+          f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["flags"] == [], \
+        "a scheme prefix that does not end immediately before the token is " \
+        "no signal"
 
 
 def test_a_custody_locator_scheme_flags_the_entry(tmp_path) -> None:
