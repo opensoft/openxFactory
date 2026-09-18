@@ -373,7 +373,17 @@ OPEN.**
 **NONE OF § 2 IS IN THIS PULL REQUEST.** No script, no workflow and no test is
 added, edited, renamed or deleted here.
 
-- [ ] 2.1 **THE REPORT CLI AND ITS UNIT TESTS.**
+**REALIZATION HAS SINCE OPENED, IN THE LATER PULL REQUEST THIS SECTION'S OWN
+HEADING NAMES, ON THE LATER WORD § 1.17 RECORDS** (2026-09-17, lane
+`openxfactory-1`, realization slice R1). The sentence above is the PROPOSAL pull
+request's scope statement and is left exactly as it was ratified; this note is
+an addendum beside it and moves no decision. § 2.1 is ticked below because its
+diff lands in the realization pull request that carries this tick, which is the
+tick rule's own first clause. §§ 2.2, 2.3 and 2.4 stay open: the nightly wiring
+is a later slice, the committed reading is the slice after that, and the green
+evidence is a fact about a merge that has not happened.
+
+- [x] 2.1 **THE REPORT CLI AND ITS UNIT TESTS.**
       `scripts/report-citation-remainder.py` (NEW), importing
       `scripts/packet_reference.py` UNCHANGED: under D2's recommended option 1
       its docstring sentence *"Run: this module is a library and has no CLI"*
@@ -453,6 +463,76 @@ added, edited, renamed or deleted here.
       parent are built in the throwaway `tmp_path` tree like every other
       case, this repository tracking no symbolic link at any head this packet
       has measured.
+      **LANDED, 2026-09-18, realization slice R1.**
+      `scripts/report-citation-remainder.py` and
+      `tests/citation_remainder/test_report_citation_remainder.py`, both NEW.
+      ONE TEST PER SCENARIO, its docstring naming the scenario verbatim: 72 of
+      72 across the five requirements, counted mechanically against
+      `specs/packet-citation-report/spec.md` rather than by hand — 43 scenarios
+      the ratified delta carried plus the 29 Patch B adds, which have LANDED
+      (PR #1097, `main` at `c32749c3`), so the count is taken against the spec
+      as it stands in this tree and not against a branch. **THE MECHANICAL
+      COUNT IS WHAT MAKES IT WORTH TAKING**: every `#### Scenario:` title is
+      searched for in a test docstring, so a scenario a later round REWORDS
+      reads as a gap rather than passing silently — which is exactly what
+      happened twice, at 63 -> 69 and again at 69 -> 72, and once more on a
+      RENAME that moved no behaviour at all
+      (*The out-of-root term takes only the links that resolve outside the
+      root* -> *...takes exactly the entries whose resolved path leaves the
+      root*).
+      `scripts/packet_reference.py` is imported UNCHANGED and the D7 fences are
+      each empty. **THE LINE AND TEST COUNTS ARE NOT RESTATED HERE**: they moved
+      on every review round of the pull request that landed them, a figure
+      restated in a frozen record is a figure that goes stale, and the diffstat
+      of the merge commit is the place a reader gets them right.
+      **AND THE INSTRUMENT IS THE ONE THIS PACKET MEASURED WITH, PROVED AT
+      `b1df95ee` RATHER THAN ASSERTED.** Run against a worktree at
+      `b1df95ee80633339907c9e661164a783885a5d30`, the shipped CLI reproduces
+      `evidence/measurement-b1df95ee.md`'s § 2.1 reading: 2,973
+      tracked entries in scope, 2,969 files read, 151
+      raw-path-absent holding NOT-A-PACKET-REFERENCE out, 73 repaired by the
+      identity rule, INCLUSIVE remainder 78 — 72 identity half, 6 file half, 0
+      AMBIGUOUS. **TWO OF THE EVIDENCE'S FIGURES MOVE BY ONE APIECE, BOTH FOR
+      THE SAME FIX AND BOTH STATED RATHER THAN SMOOTHED**: distinct tokens read
+      572 where the evidence reads 571, and NOT-A-PACKET-REFERENCE 5 where it
+      reads 4. The one extra token is `openspec/changes/archive/..` at
+      `scripts/validate-ideation-cross-reference.py:31`, which the hand
+      instrument folds onto `openspec/changes/archive` by stripping a dot off a
+      `..` segment. The CLI refuses to, because rewriting a path that walks UP
+      into a citation OF what it walks up from is inventing the citation
+      (Copilot `PRRT_kwDOTAvnrs6jsy7w` on PR #1100); the remainder is unmoved at
+      78 either way, the token being NOT-A-PACKET-REFERENCE and outside it. It
+      is the NORMALIZED
+      `issue-native` reading, which is what this delta's three fixed choices
+      produce; the 586/162/81 and 586/162/86 figures beside it in the evidence
+      are the unnormalized recipe and literal readings, which choice (1)
+      forecloses. The three mechanical probes reproduce the hand
+      classification's own precision: `truncated` lands on EXACTLY the 4 tokens
+      the hand read classed tokenization artifacts, `fixture-path` on 19 — the
+      17 of 18 synthetic-fixture entries D4's precision table measures plus the
+      2 nested file-half fixtures D4 assigns to it — and the cross-repository
+      flag catches 13 of the 14 hand-found cross-repository tokens with 2 false
+      positives among the other 43, which is D3(c)'s measured figure, the one
+      miss being the token D3(c) already names as reachable by no adjacency
+      rule at all.
+      **AND THE CLI MINTS NO REMAINDER OF ITS OWN**, which is the acceptance
+      check this packet uniquely owes: the hand instrument's `issue-native`
+      block reads identically at this branch's merge base and at its head. **THE
+      FIGURES ARE PINNED TO THE RUN THAT PRODUCED THEM**, because they are a
+      reading of a MOVING corpus and not a property of this packet — taken
+      2026-09-18 at head `e170372d`, merge base `4ee21c40`: 604 distinct tokens,
+      158 raw-path-absent, 82 inclusive remainder, on both sides, line for line.
+      Δ = 0. **AND THE SHIPPED CLI IS RUN AS ITS OWN CONTROL BESIDE THE HAND
+      INSTRUMENT**, which is the stronger form of the same check: run over the
+      merge-base tree, where it is untracked and therefore unread, and over this
+      head, where it is tracked and read, it gives 605 distinct tokens, 82
+      inclusive, 43 filtered, 55 and 28 identities on BOTH — only `FILES read`
+      moves, by the one file, which is the whole claim. Earlier drafts of this
+      record carried 602/154, then 600/157, from runs at earlier heads against
+      earlier merge bases; every one of them was Δ = 0 and none was wrong, but
+      only one of them is the run this record names, and a record naming
+      figures no named run produced is a record a reader cannot check.
+      (Copilot `PRRT_kwDOTAvnrs6jdTOB` on PR #1100.)
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
