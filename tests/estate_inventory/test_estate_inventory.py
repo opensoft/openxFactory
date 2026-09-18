@@ -1404,7 +1404,7 @@ def test_ROOT_admits_the_aggregation_row_and_no_other(tmp_path):
         [ei.NAMED]
 
 
-def test_a_bare_name_that_is_not_the_addresss_FINAL_SEGMENT_is_refused(
+def test_a_bare_name_that_is_not_the_address_FINAL_SEGMENT_is_refused(
         tmp_path):
     """The two columns are ONE repository written two ways, and they are held to
     agree.
@@ -1571,3 +1571,78 @@ def test_a_SYMLINKED_scripts_directory_is_REFUSED_and_not_reported_absent(
     result = _run_surface(tmp_path, None, register)
     assert result.returncode == 0, result.stdout
     assert "membership: NOT JUDGED" in result.stdout
+
+
+# ==============================================================================
+# THE SECOND REVIEW ROUND OF PR #1119: the carrier read itself
+# ==============================================================================
+
+
+def test_an_ambient_GIT_DIR_cannot_flip_the_carrier_binding(tmp_path,
+                                                            monkeypatch):
+    """THIS READ IS THE BINDING, so the environment it runs in is part of it.
+
+    `GIT_DIR`, `GIT_COMMON_DIR` and `GIT_WORK_TREE` MOVE THE REPOSITORY OUT FROM
+    UNDER `-C`, so a checkout of one repository read under an ambient `GIT_DIR`
+    answers with ANOTHER repository's origin and verifies as a carrier it is
+    not. A caller controls its own environment and CI is an environment; a
+    binding a variable can flip is not a binding. The estate's own scrub list is
+    applied, and this case sets the variable that demonstrably flipped it.
+    """
+    innocent = _worktree(tmp_path, "git@github.com:opensoft/Innocent.git",
+                         name="innocent", submodules=["opensoft/openxFactory"])
+    planted = _worktree(tmp_path, "git@github.com:opensoft/xFactory.git",
+                        name="planted")
+
+    monkeypatch.setenv("GIT_DIR", str(planted / ".git"))
+    assert ei.tree_origin(innocent) == "opensoft/Innocent"
+    check = ei.carrier_identity(innocent, "opensoft/xFactory")
+    assert check.verified is False
+    assert check.observed == "opensoft/Innocent"
+
+
+def test_a_BARE_repo_and_a_SUBDIRECTORY_are_not_a_carriers_working_tree(
+        tmp_path):
+    """"a carrying repository's WORKING TREE" is the mode's own ratified word,
+    and `git remote get-url origin` does not establish one.
+
+    A BARE REPOSITORY answers it perfectly well, so a bare repo with a
+    `.gitmodules` planted beside its refs would discharge a row while being no
+    checkout at all. A SUBDIRECTORY of a real checkout answers too, because git
+    discovers upward — and there `.gitmodules` is absent where the caller
+    pointed, so the row would be reported GONE: CONDEMNED on a caller's
+    imprecise path, which is the outcome `design.md` D1.2 retained and DECLINED.
+    Both leave the row NOT RE-CHECKED instead.
+    """
+    bare = tmp_path / "bare.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(bare)], check=True,
+                   capture_output=True)
+    subprocess.run(["git", "-C", str(bare), "remote", "add", "origin",
+                    "git@github.com:opensoft/xFactory.git"], check=True,
+                   capture_output=True)
+    (bare / ".gitmodules").write_text(
+        '[submodule "openxFactory"]\n\tpath = openxFactory\n'
+        '\turl = git@github.com:opensoft/openxFactory.git\n', encoding="utf-8")
+    assert ei.tree_origin(bare) is None
+    assert ei.carrier_identity(bare, "opensoft/xFactory").verified is False
+
+    carrier = _worktree(tmp_path, "git@github.com:opensoft/xFactory.git",
+                        submodules=["opensoft/openxFactory"])
+    inside = carrier / "sub"
+    inside.mkdir()
+    assert ei.tree_origin(inside) is None
+    assert ei.carrier_identity(inside, "opensoft/xFactory").verified is False
+    # AND THE ROOT ITSELF STILL VERIFIES AND STILL DISCHARGES THE ROW.
+    assert ei.tree_origin(carrier) == "opensoft/xFactory"
+
+    path = _inventory(tmp_path, [_row("opensoft/openxFactory")])
+    for supplied in (bare, inside):
+        result = _run_inventory(tmp_path, path,
+                                "--estate-tree", f"opensoft/xFactory={supplied}")
+        assert result.returncode == 0, result.stdout
+        assert "0 named in a VERIFIED supplied tree" in result.stdout
+        assert "it is not the ROOT of a non-bare git working tree" \
+            in result.stdout
+    result = _run_inventory(tmp_path, path,
+                            "--estate-tree", f"opensoft/xFactory={carrier}")
+    assert "1 named in a VERIFIED supplied tree" in result.stdout

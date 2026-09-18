@@ -103,6 +103,7 @@ Deterministic: text/YAML reads only, no model calls, no writes, no network.
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 from dataclasses import dataclass
@@ -212,6 +213,38 @@ _ORIGIN_RE = re.compile(
     rf"|ssh://(?:[^@/]+@)?(?:{_HOSTS})(?::\d+)?/"
     rf"|https?://(?:[^@/]+@)?(?:{_HOSTS})(?::\d+)?/)"
     rf"({_NAME}/{_NAME})(?:\.git)?/?$")
+
+#: THE AMBIENT GIT ENVIRONMENT THE CARRIER READ REFUSES TO INHERIT, and THE
+#: ESTATE'S OWN LIST rather than a second one — `scripts/carved_reach.py`,
+#: `scripts/hermes_runtime_validation/content.py` and
+#: `scripts/report-citation-remainder.py` carry the identical tuple, each put
+#: there for the same reason. None of the three exposes it as an importable
+#: helper, so it is restated here with its citation rather than reached for
+#: through a private name.
+#:
+#: WHY IT MATTERS HERE MORE THAN ANYWHERE: this read IS the carrier binding.
+#: `GIT_DIR`, `GIT_COMMON_DIR` and `GIT_WORK_TREE` MOVE THE REPOSITORY OUT FROM
+#: UNDER `-C`, which is not a theory — measured on this branch, a checkout of
+#: `opensoft/Innocent` read under an ambient `GIT_DIR` pointing at another
+#: repository answers with THAT repository's origin, so the tree verifies as a
+#: carrier it is not. A caller controls its own environment and CI is an
+#: environment; a binding that a variable can flip is not a binding. The rest of
+#: the list is scrubbed on the estate's standing ground rather than on a fresh
+#: demonstration for each: the object store and the index a git read resolves
+#: through are not this reader's to inherit either.
+_SCRUBBED_GIT_ENVIRONMENT = (
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_COMMON_DIR",
+    "GIT_CONFIG_COUNT",
+    "GIT_CONFIG_PARAMETERS",
+    "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_REPLACE_REF_BASE",
+    "GIT_WORK_TREE",
+)
+
+_INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(?:KEY|VALUE)_[0-9]+")
 
 #: A `.gitmodules` `url =` LINE'S REPOSITORY. The same normalization, applied to
 #: the submodule URLs a carrier's `.gitmodules` carries.
@@ -1076,6 +1109,51 @@ def normalize_origin(url: str) -> str | None:
     return address if ADDRESS_RE.match(address) else None
 
 
+def _sanitized_git_environment() -> dict[str, str]:
+    """The environment every `git` this module runs is given.
+
+    The scrub above, plus `GIT_NO_REPLACE_OBJECTS` beside the
+    `--no-replace-objects` flag, because the two answer different halves: the
+    flag covers the process this module starts and the variable covers any git
+    that process starts for itself. The user's GLOBAL and SYSTEM config are not
+    read either — nothing this module asks git for needs them, and an ambient
+    `remote.origin.url` rewrite or `url.<base>.insteadOf` would otherwise reach
+    the one read the carrier binding rests on.
+    """
+    environment = {
+        name: value for name, value in os.environ.items()
+        if name not in _SCRUBBED_GIT_ENVIRONMENT
+        and _INDEXED_GIT_CONFIG_ENVIRONMENT.fullmatch(name) is None
+    }
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    environment["GIT_CONFIG_SYSTEM"] = os.devnull
+    environment["GIT_CONFIG_NOSYSTEM"] = "1"
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    return environment
+
+
+def _git(tree: Path, *arguments: str) -> str | None:
+    """`git -C tree …` in the sanitized environment, or `None` for any failure.
+
+    NEVER RAISES, on `tree_origin`'s contract: the caller's one verdict for a
+    tree it could not read is NOT RE-CHECKED. The 30-second bound is the
+    estate's own number (`scripts/hermes_runtime_validation/content.py`,
+    `scripts/report-citation-remainder.py`): a partial clone, a promisor remote
+    or an unhealthy object store can make a read BLOCK rather than fail, and an
+    unbounded one would hang a required check instead of reporting.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "--no-replace-objects", "-C", str(tree), *arguments],
+            capture_output=True, text=True, timeout=30, check=False,
+            env=_sanitized_git_environment())
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
 def tree_origin(tree: Path) -> str | None:
     """The identity a working tree asserts, from its OWN origin URL, or None.
 
@@ -1084,21 +1162,49 @@ def tree_origin(tree: Path) -> str | None:
     inside the bound D1 refused the derived shape for: a required check may not
     depend on a token or on read access to a private repository.
 
+    THE READ IS TAKEN IN A SANITIZED ENVIRONMENT, because this read IS THE
+    BINDING and an ambient variable would flip it. `GIT_DIR` (and
+    `GIT_COMMON_DIR`, and `GIT_WORK_TREE`) move the repository out from under
+    `-C`: measured on this branch, a checkout of `opensoft/Innocent` read with
+    an ambient `GIT_DIR` pointing elsewhere answers with THAT repository's
+    origin and verifies as a carrier it is not. See `_sanitized_git_environment`
+    and `_git`.
+
+    AND THE PATH MUST BE THE WORK-TREE ROOT ITSELF, which closes two shapes the
+    origin read alone admits. A BARE REPOSITORY answers `remote get-url origin`
+    perfectly well, so a bare repo with a planted `.gitmodules` beside its refs
+    would discharge a row while being no checkout at all — and the mode's own
+    ratified word is "a carrying repository's WORKING TREE". A SUBDIRECTORY of a
+    real checkout answers too, because git discovers upward, and then
+    `.gitmodules` is absent where the caller pointed and the row would be
+    reported GONE — CONDEMNED on a caller's imprecise path, which is exactly the
+    outcome `design.md` D1.2 retained and DECLINED ("it converts a caller's typo
+    into a finding against the inventory"). `rev-parse --is-bare-repository
+    --show-toplevel` answers both in one call, and the toplevel must resolve to
+    the supplied path.
+
     EVERY FAILURE IS A `None` AND NEVER A RAISE — no `git` on the PATH, a path
-    that is not a repository, a repository with no `origin`, a tree that cannot
-    be read, a `git` that hangs past the timeout. The caller's one verdict for a
-    tree it could not confirm is NOT RE-CHECKED, and a raise would turn a
-    caller's typo into a failed run.
+    that is not a repository, a bare repository, a subdirectory of a checkout, a
+    repository with no `origin`, a tree that cannot be read, a `git` that hangs
+    past the timeout. The caller's one verdict for a tree it could not confirm
+    is NOT RE-CHECKED, and a raise would turn a caller's typo into a failed run.
     """
+    toplevel = _git(tree, "rev-parse", "--is-bare-repository",
+                    "--show-toplevel")
+    if toplevel is None:
+        return None
+    lines = toplevel.splitlines()
+    if len(lines) != 2 or lines[0].strip() != "false":
+        return None
     try:
-        result = subprocess.run(
-            ["git", "-C", str(tree), "remote", "get-url", "origin"],
-            capture_output=True, text=True, timeout=30, check=False)
-    except (OSError, ValueError, subprocess.SubprocessError):
+        if Path(lines[1].strip()).resolve() != Path(tree).resolve():
+            return None
+    except (OSError, RuntimeError, ValueError):
         return None
-    if result.returncode != 0:
+    url = _git(tree, "remote", "get-url", "origin")
+    if url is None:
         return None
-    return normalize_origin(result.stdout.strip())
+    return normalize_origin(url.strip())
 
 
 def carrier_identity(tree: Path, carrier: str,
@@ -1133,9 +1239,11 @@ def carrier_identity(tree: Path, carrier: str,
     if observed is None:
         return CarrierCheck(
             verified=False, carrier=carrier, observed=None,
-            detail=f"no origin URL could be read from `{tree}` — it is not a "
-                   "git working tree, has no `origin` remote, or spells its "
-                   "remote in a form this estate does not write")
+            detail=f"no origin URL could be read from `{tree}` — it is not "
+                   "the ROOT of a non-bare git working tree (a bare repository "
+                   "and a subdirectory of a checkout are both refused here), "
+                   "has no `origin` remote, or spells its remote in a form "
+                   "this estate does not write")
     if observed == carrier:
         return CarrierCheck(
             verified=True, carrier=carrier, observed=observed,
