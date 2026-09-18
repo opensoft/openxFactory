@@ -3211,27 +3211,42 @@ movements claimed at the time they land.
   carriage will be read from — the seven `doc-health` requirements not
   travelling is the very thing this box already calls *"the one genuine
   conflict RULING Q6 names"*.
-- [ ] 6.2 `[oxF]` `[oD]` **`retire-doxbench-chat-turn-v1` — THE ONE THAT CANNOT
+- [x] 6.2 `[oxF]` `[oD]` **`retire-doxbench-chat-turn-v1` — THE ONE THAT CANNOT
   SIMPLY CLOSE.** Its schema removal is already realized in `openxFactory` bytes
   and `contract-v3.0` is published, so its remaining 7 tasks are `openxFactory`
   bookkeeping that completes HERE and it archives HERE on its own evidence.
   Only its FORWARD half — the surviving `-v2` family's requirements — re-homes to
   openDox. **Sequenced BEFORE § 8.**
-  **STATUS — RECORDED BY `tasks.md` AMENDMENT #7, 2026-09-18. THE CLOSURE IS
-  READY AND NOT YET LANDED**: `openxFactory` **#1066** is GREEN at `91644a2d`
-  with its WINDOW REQUEST pending. **This box does not tick on a green
-  candidate** — § 6 ticks on the CLOSURE, which is the ordering every other
-  box in this section has now followed (§ 6.1 on `#1060`, § 6.3 on `#1057`,
-  § 6.4 on `#1056`, § 6.5 on `#1065`).
-  **IT IS THE LAST OF THE FIVE, AND THE CORPUS SAYS SO INDEPENDENTLY**: of the
-  five § 6 dispositions, four directories are already under
-  `openspec/changes/archive/` and only `retire-doxbench-chat-turn-v1` is still
-  active at `507b6233` — a reading taken from the tree rather than from this
-  ledger, so the two can be compared instead of one restating the other.
-  **When it lands, the `--merge`-not-squash rule and its second clause both
-  apply** (§ 6.4), and this closure edits
-  `openspec/specs/ideation-dashboard/spec.md`, which is the promotion § 5.2a's
-  archive ordering waits on.
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #7**: `openxFactory` **#1066 →
+  `3bf63b8e`**, merged **2026-09-18T20:24:53Z**, *"Close § 6.2:
+  retire-doxbench-chat-turn-v1 archives on its own evidence, and ITS delta
+  promotes"*. **This box is the one that could not simply close, and it closed
+  in the two halves it always named**: it archives HERE on its own evidence, and
+  its FORWARD half promotes into `openspec/specs/ideation-dashboard/spec.md`.
+  **THE LANDING RULE HELD ON BOTH CLAUSES, AND NO DISPOSITION IS OWED.**
+  `3bf63b8e` has two parents; the archive directory
+  `2026-09-16-retire-doxbench-chat-turn-v1` carries an adding commit `90bf93c3`
+  dated **2026-09-16T14:38:38Z** — the day it is named for — so the
+  archive-date arm has nothing to fire on and **this closure owes no
+  disposition row at all**, unlike INCIDENT 1's. Clause 2 re-run on
+  `origin/main` merged with this branch exits **0**.
+  **§ 6 IS NOW COMPLETE EXCEPT FOR ITS STANDING CONDITION**: §§ 6.1–6.5 are all
+  `[x]` and all five disposition directories are under
+  `openspec/changes/archive/`, read from the tree rather than from this ledger.
+  Only § 6.6 remains, and it is a standing condition rather than an act.
+  **ONE FINDING IS REGISTERED, NOT RESOLVED** (`4050274179`): a Copilot
+  qualification against the closure, carried as the follow-up's scope under the
+  land-and-register pattern this packet has now used four times — `#1105`→`#1110`,
+  `#1086`, `openDox-code #25`, and here.
+  *(A release figure inside that closure is worth preserving as a measurement,
+  because it is this packet's own defect class caught in someone else's prose
+  and then in its own: the published run from the deprecation to the removal is
+  **twenty** releases, counted BY TAG, after an earlier count wrongly included
+  **`contract-v2.6`** — which the versioning policy rules *"permanently
+  unreleased"*. Verified independently here: `git tag -l 'contract-v2.*'`
+  returns `v2.0` through `v2.5` and **no `v2.6`**, so the bundle is absent from
+  the tag space rather than merely unpublished. A count taken from intent
+  rather than from the tag would have been wrong by one.)*
 - [x] 6.3 `[oxF]` `[oD]` **`add-doxchat-model-intake`** → openDox. Built but
   unarchived; its code moves with the carve as `moved_with_declared_edit` rows,
   its four ADDED requirements are re-authored in openDox, and its one additive
