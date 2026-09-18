@@ -35,6 +35,26 @@ class CatalogError(ValueError):
     """Raised when the family catalog is incomplete, ambiguous, or unsafe."""
 
 
+class CatalogDependencyError(RuntimeError):
+    """A dependency BENEATH the catalog could not be consulted (exit code 2).
+
+    NOT a `CatalogError` and deliberately not a subclass of one (`#1070`).
+    `CatalogError` is this family's FINDING — an invalid catalog, reported as
+    `HRC-CATALOG-INVALID` and classified exit code 1, "the validator has
+    findings". A pinned leg that cannot be read says nothing whatever about
+    the catalog: the catalog is exactly as valid as it was a moment before the
+    submodule was deinited, and the only thing that changed is the machine.
+    `scripts/validate-hermes-runtime-contracts.py::classify_exit_code` keeps
+    the two apart on the same 0/1/2 contract
+    `docs/contract-versioning-policy.md:271-272` states and
+    `release.ReleaseDependencyError` already carries on the release side, and
+    a subclass would have been caught by the existing `except CatalogError`
+    and classified as the finding it is not.
+    """
+
+    exit_code = 2
+
+
 @dataclass(frozen=True, slots=True)
 class ContractMember:
     contract_id: str
@@ -137,15 +157,42 @@ def _shed_destination(candidate: Path, context: str = "member") -> Path | None:
     HRC-CATALOG-INVALID verdict. Translated rather than swallowed: a member
     whose bytes a ruling deleted is a catalog that no longer describes the
     estate, and that is exactly what `CatalogError` says.
+
+    AN UNREADABLE LEG ARRIVES AS A `CatalogDependencyError`, AND SO AS THE
+    DOCUMENTED EXIT CODE 2 (`#1070`, the THIRD site of the shape `#1048`
+    round 3 fixed in `release._shed_aware_commit`). `shed_destination` reaches
+    `carved_reach.source`, which raises `CarveReachUnavailable` when the row
+    moved and its leg mount is not materialized. `_contained_regular_file`
+    below translates `OSError` and nothing else; `CarveReachUnavailable` is an
+    `ImportError` subclass and so outside the `except` above, which guards the
+    IMPORT and not the CALL — so `load_contract_catalog` left it as an
+    uncaught traceback and `scripts/validate-hermes-runtime-contracts.py
+    --require-candidate` exited **1**, the code that means the validator has
+    findings, for a question it never managed to ask.
+
+    A DIFFERENT CLASS FROM THE RETIRED ROW ABOVE, on purpose. A retirement is
+    an ANSWER about the estate — the file is gone by ruling, the catalog that
+    still names it is stale, and that is a finding. An unreadable leg is the
+    absence of an answer: the same catalog, the same estate, a machine that
+    cannot reach the store. Reported as `CatalogError` it would redden the
+    gate with a verdict nothing measured.
     """
     try:
-        from carved_reach import CarveRowRetired, shed_destination
+        from carved_reach import (
+            CarveReachUnavailable,
+            CarveRowRetired,
+            shed_destination,
+        )
     except ImportError:
         return None
     try:
         return shed_destination(candidate)
     except CarveRowRetired as exc:
         raise CatalogError(f"{context}: member is unavailable: {exc}") from exc
+    except CarveReachUnavailable as unreadable:
+        raise CatalogDependencyError(
+            f"{context}: the pinned leg holding {candidate.name} could not be "
+            f"consulted: {unreadable}") from unreadable
 
 
 def _contained_regular_file(root: Path, member_path: str, context: str) -> Path:

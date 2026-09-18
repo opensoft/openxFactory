@@ -715,6 +715,24 @@ def prove_transposition(factory: Any, populated: str, corpus_root: Path,
                         "there and silence is not: the interface's contract "
                         "is that a document reports the revision it was read "
                         "at")
+        # AND OF THE TYPE THE INTERFACE DECLARES, BEFORE IT IS COMPARED
+        # (the follow-up to #1086's registered finding 1). `Document.revision`
+        # is `str | None`, and the equality below is the READER's `__eq__`: a
+        # structurally loaded object can claim equality with the declared
+        # string and pass, and the proof would then certify a malformed
+        # document response. `ResolvedCorpus.revision` is already held to its
+        # declared type twelve lines up (round 8); this is the same check on
+        # the other half of the same contract, and it has to run BEFORE the
+        # comparison rather than after it, because after it the comparison has
+        # already been decided by the object under test.
+        if served_at is not None and not isinstance(served_at, str):
+            _unfaithful(corpus_root, shipped,
+                        f"reading {key!r} answered with revision "
+                        f"{served_at!r}, which is "
+                        f"{type(served_at).__name__} where the interface's "
+                        "`Document.revision` is `str | None`. A revision this "
+                        "runner would have to stringify before it could be "
+                        "recorded is not the revision anything was served at")
         if served_at != corpus_revision:
             _unfaithful(corpus_root, shipped,
                         f"it served {key!r} at revision {served_at!r} while "
@@ -899,13 +917,26 @@ def run_corpus(factory: Any, locations: dict[str, str], destination: str,
 
 
 def _refused(exc: ConformanceRefusal, args: argparse.Namespace, where: str,
-             corpus_root: Path | None = None) -> int:
+             corpus_root: Path | None = None,
+             transposition: dict[str, Any] | None = None) -> int:
     """The ONE refusal exit: `--json` object or the rendered human message."""
     if args.json:
         print(json.dumps({"result": "refused", "code": exc.code,
                           "detail": exc.detail,
                           "destination": args.destination,
                           "dest_root": args.dest_root,
+                          # THE PROOF RIDES THROUGH THE REFUSAL TOO (the
+                          # follow-up to #1086's registered finding 2). A
+                          # `--corpus` run can be proven faithful and then
+                          # refuse `conformance-check-failed`, and the runbook
+                          # promises machine consumers the transposition's
+                          # path, shipped corpus, document count and table
+                          # digest. Dropping the record here left them
+                          # reconstructing it from prose, or unable to tell
+                          # WHICH proven transposition a failure covered. Same
+                          # key and same shape as the success payload, `null`
+                          # where nothing was proven.
+                          "transposition": transposition,
                           # WHICH corpus was refused against, because a
                           # `conformance-corpus-unfaithful` object that does
                           # not name the corpus leaves a caller reading the
@@ -1020,6 +1051,12 @@ def main(argv: list[str] | None = None) -> int:
     # resolution itself fails it stays `None` and `_refused` falls back to
     # the raw flag, which is all there is to name at that point.
     corpus_root: Path | None = None
+    #: The fidelity proof, declared out here for the same reason `corpus_root`
+    #: is: every refusal below has to be able to name the transposition it was
+    #: about (the follow-up to #1086's registered finding 2). It stays `None`
+    #: until `prove_transposition` returns, so a refusal raised before that
+    #: carries `null` rather than a half-built record.
+    transposition: dict[str, Any] | None = None
     try:
         corpus_root = (Path(args.corpus).resolve() if args.corpus
                        else (ROOT / CORPUS_RELPATH).resolve())
@@ -1073,7 +1110,6 @@ def main(argv: list[str] | None = None) -> int:
         # against a corpus nobody compared is not measured. The shipped corpus
         # compared with itself is not a transposition and is not claimed as
         # one, so the default run is untouched.
-        transposition = None
         if corpus_root != shipped:
             transposition = prove_transposition(
                 factory, locations["populated"], corpus_root, shipped,
@@ -1105,7 +1141,7 @@ def main(argv: list[str] | None = None) -> int:
                 "unproven transposition is FLOOR PART 3 recorded against a "
                 "corpus nobody compared")
     except ConformanceRefusal as exc:
-        return _refused(exc, args, where, corpus_root)
+        return _refused(exc, args, where, corpus_root, transposition)
     # THE EXIT CONTRACT, HELD BY CODE AND NOT BY INSPECTION. Everything above
     # refuses in this file's own vocabulary; anything that does not — a reader
     # whose constructor raises, an `OSError` the checks did not name, a bug
@@ -1118,7 +1154,7 @@ def main(argv: list[str] | None = None) -> int:
             ConformanceRefusal(
                 "conformance-unreadable",
                 f"{type(exc).__name__}: {exc}"),
-            args, where, corpus_root)
+            args, where, corpus_root, transposition)
     _print_ok(summary, args.json)
     return 0
 

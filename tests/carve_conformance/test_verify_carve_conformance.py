@@ -1379,6 +1379,30 @@ def test_a_corpus_path_that_cannot_RESOLVE_refuses_rather_than_tracebacks(
     assert payload["corpus"] == str(loop)
 
 
+def _control_read(populated: Path) -> subprocess.CompletedProcess:
+    """The control read for the replacement case: hermetic like `GH._git`, but
+    with object replacement LEFT ON.
+
+    This one process is deliberately NOT `GH._git`, which always passes
+    `--no-replace-objects` -- the control exists to show the replacement takes
+    effect for a reader that does not disable it. It used to inherit the
+    caller's whole git environment, which is the gap this closes (the follow-up
+    to #1086's registered finding 4): an ambient `GIT_DIR` or alternate object
+    store would point it at a DIFFERENT repository, and an ambient
+    `GIT_NO_REPLACE_OBJECTS=1` would suppress the very replacement it is here
+    to observe. So it runs through the repository's own scrubber with exactly
+    one key removed. The failure mode was always loud rather than silent -- the
+    assertion below fails rather than passing falsely -- so this buys
+    hermeticity, not a corrected verdict.
+    """
+    env = GH._sanitized_git_environment()
+    env.pop("GIT_NO_REPLACE_OBJECTS", None)
+    return subprocess.run(
+        ["git", "-C", str(populated), "cat-file", "blob",
+         "HEAD:notes/alpha.md"],
+        capture_output=True, check=False, env=env)
+
+
 def test_the_fixture_reads_the_history_it_wrote_and_not_a_REPLACEMENT(
         tmp_path):
     """Copilot round 2: git plumbing honours replacement refs, so an ambient
@@ -1397,10 +1421,7 @@ def test_the_fixture_reads_the_history_it_wrote_and_not_a_REPLACEMENT(
                    ).returncode == 0
 
     # the replacement IS in force for a reader that does not disable it
-    import subprocess as sp
-    swapped = sp.run(["git", "-C", str(populated), "cat-file", "blob",
-                      f"HEAD:notes/alpha.md"], capture_output=True,
-                     check=False)
+    swapped = _control_read(populated)
     assert b"Not alpha at all" in swapped.stdout, (
         "the replacement ref did not take, so this case proved nothing")
 
@@ -2070,3 +2091,193 @@ def test_an_EMPTY_revision_is_not_an_absent_one_in_the_verdict(capsys):
     assert "at revision abc123," in line("abc123")
     assert "at no declared revision," in line(None)
     assert "at an empty declared revision," in line("")
+
+
+# ==========================================================================
+# the four findings registered at #1086 `43a48ed5` (comment 5732073951), taken
+# here on the holder's decision of 2026-09-18 17:09Z. One test each.
+# ==========================================================================
+
+
+class _EqualToTheRevision:
+    """A revision object that is not a `str` and claims to be one.
+
+    `__eq__` answers True against the declared revision, so every comparison
+    the proof makes passes while the object itself is malformed. This is the
+    shape registered finding 1 is about: the seam is structural, so nothing at
+    runtime makes a reader return the declared type.
+    """
+
+    def __init__(self, value: str) -> None:
+        self._value = value
+
+    def __eq__(self, other: object) -> bool:
+        return other == self._value
+
+    def __ne__(self, other: object) -> bool:
+        return not self.__eq__(other)
+
+    def __hash__(self) -> int:
+        return hash(self._value)
+
+    def __repr__(self) -> str:
+        return f"<revision {self._value!r}>"
+
+
+def test_a_document_revision_of_the_wrong_TYPE_refuses_before_it_is_compared(
+        tmp_path):
+    """Registered finding 1: `Document.revision` is `str | None`, and equality
+    alone is the READER's own `__eq__`.
+
+    Without the type check the object below satisfies every comparison in the
+    proof, and the run certifies a malformed document response as FAITHFUL.
+    `ResolvedCorpus.revision` has been held to its declared type since round 8;
+    this is the other half of the same contract.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    def factory(name, location):
+        inner = GH.reader(name, location)
+
+        class _LyingRevision:
+            def resolve(self, ref):
+                return inner.resolve(ref)
+
+            def list_documents(self, c, scope=CC.SCOPE_ALL):
+                return inner.list_documents(c, scope)
+
+            def read(self, c, document, revision=None):
+                got = inner.read(c, document, revision)
+                return Document(id=got.id, content=got.content,
+                                revision=_EqualToTheRevision(got.revision))
+
+            def classify(self, c, document):
+                return inner.classify(c, document)
+
+            def check(self, c, subjects=None):
+                return inner.check(c, subjects)
+
+            def write_back(self, c, document, content, *, actor,
+                           basis_revision, reason=""):
+                return inner.write_back(c, document, content, actor=actor,
+                                        basis_revision=basis_revision,
+                                        reason=reason)
+
+        return _LyingRevision()
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(factory, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "_EqualToTheRevision" in caught.value.detail, caught.value.detail
+    assert "`Document.revision` is `str | None`" in caught.value.detail
+
+
+def test_a_refusal_over_a_proven_transposition_still_carries_the_record(
+        tmp_path):
+    """Registered finding 2: a `--corpus` run can be proven faithful and THEN
+    refuse, and the refusal payload used to drop the proof.
+
+    The corpus here is faithful in its populated state -- so the proof runs and
+    passes -- while its EMPTY state holds a document, which `empty-is-an-answer`
+    catches. That is exactly the shape a machine consumer has to be able to
+    read: which proven transposition did this failure cover?
+    """
+    corpus = _transposed(tmp_path)
+    GH._seed(corpus / MODULE.EMPTY,
+             [("notes/alpha.md", b"Type: note\nTitle: not empty at all\n")])
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "git_history_factory:reader",
+                "--sys-path", "tests/carve_conformance", "--corpus",
+                str(corpus), "--json")
+    assert done.returncode == 2, f"{done.stdout}\n{done.stderr}"
+    payload = json.loads(done.stdout)
+    assert payload["result"] == "refused"
+    assert payload["code"] == "conformance-check-failed", payload
+    record = payload["transposition"]
+    assert record is not None, (
+        "the refusal dropped the transposition record, so a caller cannot tell "
+        "WHICH proven transposition this failure covered")
+    assert record["proven"] is True
+    assert record["path"] == str(corpus)
+    assert record["shipped"] == str(CORPUS)
+    assert record["documents"] == CC.SEED_EXPECTATION.documents
+    assert record["digest"] == MODULE.fingerprint_digest(
+        MODULE.document_fingerprint(CORPUS / MODULE.POPULATED))
+
+
+def test_a_default_run_that_refuses_carries_a_null_transposition(tmp_path):
+    """The same field on the path that proves nothing: `null`, not absent.
+
+    A key that appears only sometimes is a key a consumer has to branch on, and
+    the success payload has carried `transposition: null` on default runs since
+    this flag existed.
+    """
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "no_such_module:reader",
+                "--sys-path", "tests/carve_conformance", "--json")
+    assert done.returncode == 2
+    payload = json.loads(done.stdout)
+    assert payload["code"] == "conformance-adapter-unresolvable"
+    assert "transposition" in payload, payload
+    assert payload["transposition"] is None
+
+
+def test_the_git_reader_refuses_a_blob_it_did_not_LIST(tmp_path):
+    """Registered finding 3 (Q-T3): `read()` used to serve any path `cat-file`
+    could resolve.
+
+    `list_documents` narrows this reader's document set to the `.md` entries, so
+    a non-document blob in the same history was readable under an identity the
+    reader never listed -- which the interface refuses. The corpus as it ships
+    holds three files and all three are documents, so this case is built rather
+    than found: the gap was latent, and a latent gap in the witness is still a
+    gap in the witness.
+    """
+    repo = tmp_path / "history"
+    GH._seed(repo, [("notes/alpha.md", b"Type: note\nTitle: alpha\n"),
+                    ("data/not-a-document.txt", b"not a document\n")])
+    reader = GH.reader("populated", str(repo))
+    corpus = reader.resolve(CorpusRef(name="populated", location=str(repo)))
+
+    listed = {document.key for document in reader.list_documents(corpus)}
+    assert listed == {"notes/alpha.md"}, listed
+
+    unlisted = DocumentId(corpus=corpus.ref.name, key="data/not-a-document.txt")
+    with pytest.raises(CorpusRefused) as caught:
+        reader.read(corpus, unlisted)
+    assert caught.value.refusal.kind == DOCUMENT_UNKNOWN
+    # and the document it DOES list is still served
+    served = reader.read(corpus, DocumentId(corpus=corpus.ref.name,
+                                            key="notes/alpha.md"))
+    assert b"Title: alpha" in served.content
+
+
+def test_the_replacement_control_is_not_at_the_mercy_of_the_ambient_git_env(
+        tmp_path, monkeypatch):
+    """Registered finding 4: the control read inherited the caller's git
+    environment.
+
+    An ambient `GIT_NO_REPLACE_OBJECTS=1` -- which this repository's own
+    scrubber sets, so it is a plausible thing to be carrying -- suppressed the
+    replacement the control exists to observe, and the case failed spuriously
+    instead of proving anything.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+    real = GH._git("rev-parse", "HEAD:notes/alpha.md", cwd=populated
+                   ).stdout.decode().strip()
+    impostor = GH._git("hash-object", "-w", "--stdin", cwd=populated,
+                       stdin=b"Type: note\nTitle: Not alpha at all\n"
+                       ).stdout.decode().strip()
+    assert GH._git("replace", "-f", real, impostor, cwd=populated
+                   ).returncode == 0
+
+    monkeypatch.setenv("GIT_NO_REPLACE_OBJECTS", "1")
+    assert b"Not alpha at all" in _control_read(populated).stdout, (
+        "an ambient GIT_NO_REPLACE_OBJECTS suppressed the replacement, so the "
+        "control proved nothing about replacement handling")
+    # and the fixture's own reads still refuse to honour it
+    record = MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]

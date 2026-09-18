@@ -196,16 +196,34 @@ class GitHistoryCorpus:
             raise CorpusRefused(Refusal(
                 kind=SCOPE_UNKNOWN, subject=scope,
                 detail=f"this corpus declares {corpus.scopes!r}"))
-        listed = _git("ls-tree", "-r", "--name-only", str(corpus.revision),
+        # ONE ls-tree, not two (Copilot, round 1 on the follow-up). The
+        # membership fix routed this through `_keys_at()` and left the original
+        # read standing above it, so every listing paid for two identical git
+        # reads and this module carried two copies of one refusal -- the exact
+        # duplication finding 3 exists to remove. `_keys_at` raises the same
+        # `CORPUS_UNREADABLE` on the same condition, so nothing is lost with it.
+        return tuple(DocumentId(corpus=corpus.ref.name, key=key)
+                     for key in self._keys_at(corpus, corpus.revision))
+
+    def _keys_at(self, corpus, at) -> tuple[str, ...]:
+        """WHAT THIS READER DECLARES IT HOLDS, at one revision, in ONE place.
+
+        `list_documents` and `read` both answer from here (the follow-up to
+        #1086's registered finding 3). They used to decide membership
+        separately -- the listing narrowed the tree to `.md`, and `read` served
+        any path `cat-file` could resolve -- so an existing but UNLISTED blob
+        was readable under an identity the reader never listed, which the
+        interface refuses (`DOCUMENT_UNKNOWN`). Two definitions of one set is
+        how they drift; this is the set.
+        """
+        listed = _git("ls-tree", "-r", "--name-only", str(at),
                       cwd=Path(corpus.location))
         if listed.returncode != 0:
             raise CorpusRefused(Refusal(
                 kind=CORPUS_UNREADABLE, subject=corpus.ref.name,
                 detail=listed.stderr.decode().strip()))
-        keys = sorted(line for line in listed.stdout.decode().splitlines()
-                      if line.endswith(".md"))
-        return tuple(DocumentId(corpus=corpus.ref.name, key=key)
-                     for key in keys)
+        return tuple(sorted(line for line in listed.stdout.decode().splitlines()
+                            if line.endswith(".md")))
 
     # -- read -------------------------------------------------------------
     def read(self, corpus, document, revision: str | None = None) -> Document:
@@ -228,6 +246,17 @@ class GitHistoryCorpus:
                 raise CorpusRefused(Refusal(
                     kind=REVISION_UNKNOWN, subject=str(revision),
                     detail="this repository carries no such revision"))
+        # MEMBERSHIP BEFORE BYTES (the follow-up to #1086's registered
+        # finding 3). `cat-file` resolves any path in the tree, so without
+        # this a blob this reader does not LIST was still readable -- the
+        # interface's contract is that an identity it does not hold refuses
+        # `DOCUMENT_UNKNOWN`, and a reader that serves what it never listed is
+        # not the honest witness this fixture exists to be. Asked at `at`, not
+        # at `corpus.revision`, because that is the revision being read.
+        if document.key not in self._keys_at(corpus, at):
+            raise CorpusRefused(Refusal(
+                kind=DOCUMENT_UNKNOWN, subject=document.key,
+                detail=f"this corpus lists no such document at {at}"))
         blob = _git("cat-file", "blob", f"{at}:{document.key}",
                     cwd=Path(corpus.location))
         if blob.returncode != 0:

@@ -531,6 +531,99 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-estate-repository-inventory](openspec/changes/add-estate-repository-inventory/proposal.md)
+  filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: ratified`** — **RATIFIED 2026-09-18 at approximately 12:55Z by
+  Brett Heap (openxFactory operator authority), verbatim *"ratify #1101"***,
+  given in the lane's terminal; NO GITHUB COMMENT CARRIES THE WORD, which the
+  lane recorded as a RULED entry against `opensoft/openxFactory#1101` in
+  `lanes/log/openXfactory-5.md`.
+  **THE WORD IS BARE**: it ratifies the PACKET and names no option
+  individually, so each of the four declared veto points stands at the option
+  the packet encodes — the RECOMMENDED one in all four — and, AT THAT 12:55Z
+  WORD ALONE, the delta's wording stood unchanged. `tasks.md` § 1 is ticked;
+  §§ 3, 4, 5 and 6 stay open.
+  **THREE FURTHER WORDS AT ~15:40Z THE SAME DAY THEN AMENDED THE DELTA**,
+  each a multiple-choice answer over a gap Copilot's review of PR #1101
+  exposed in the already-ratified text, each recorded as its own `RULED`
+  entry in `lanes/log/openXfactory-5.md` and set out in full at
+  [`review/ratification-2026-09-18.md`](openspec/changes/add-estate-repository-inventory/review/ratification-2026-09-18.md)
+  § 3: *"Bind the carrier identity"* (a working tree supplied for a `gitlink`
+  row's re-check MUST verify as the row's named carrier, by origin URL or by
+  `contracts/policies/repository-identity.yaml`, before its `.gitmodules`
+  evidence is trusted, else the row reads NOT RE-CHECKED), *"#1101 declares
+  #1108 and folds its text"* (the `sequenced_after` fold below), and *"MAY
+  becomes MUST"* (the `change`-admitted provisional row is owed, not
+  optional). All three are additionally encoded, in this one commit, as
+  `tasks.md` task 1.5 (§ 1 stays ticked); none touches `openspec/specs/`;
+  all three move only the delta text.
+  Answers openxFactory
+  [#1087](https://github.com/opensoft/openxFactory/issues/1087), the successor
+  `gate-code-surface-declarations` `tasks.md` § 6.1 named and that packet's
+  archive act filed at the landing of PR #1076, CLAIMED by this lane before
+  authoring.
+  **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS, TWENTY-EIGHT
+  SCENARIOS (11 + 8 + 9), OVER `release-realization`**: the MODIFIED block is
+  WRITTEN OVER `amend-code-surface-grammar-comma-and`'S OUTCOME AND NOT OVER
+  CANON — that packet (openxFactory #1092, PR #1108, ratified 2026-09-18,
+  landed `60d281a8`) is an ACTIVE RATIFIED writer of the SAME requirement key,
+  so on the ruling *"#1101 declares #1108 and folds its text"* this packet
+  declares `sequenced_after: [amend-code-surface-grammar-comma-and]` and
+  reproduces #1108's ratified wording byte-for-byte (the four separators
+  including `, and `, the comma-first paragraph, its `**AMENDED BY**` note and
+  its added Oxford-comma scenario), with only this packet's own
+  membership-not-judged paragraph moved against that basis — ELEVEN scenarios,
+  the ten already in the block plus the Oxford-comma scenario folded in from
+  #1108's outcome. The ADDED pair is *The estate's repositories are enumerated
+  in a governed inventory* (eight scenarios) and *A declared repository is
+  judged for membership against the estate inventory* (nine). The MODIFIED
+  block is OWED rather than preferred: the promoted `SHALL NOT judge its
+  MEMBERSHIP` is unconditional in its own words, so an ADDED-only delta would
+  leave canon carrying two requirements that cannot both be obeyed. **THE
+  BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is an
+  ACTIVE writer of the same requirement key, so `sequenced_after: []` is no
+  longer a root claim — the corpus ledger carries this packet as class
+  `co-modifier`, depth 1, declaring `amend-code-surface-grammar-comma-and`,
+  and promotion order is #1108 then #1101, **with #1108 itself untouched**.
+  The `modified-block-currency` family still reports no NEW finding, but
+  because the declared ordering resolves the pair: this block is measured
+  against #1108's block rather than against canon, and the family's
+  resolution-ordering arm returns to the empty set it already states.
+  **THE MEASURED GAP.** `scripts/code_surface.py` judges a repository
+  identifier's SHAPE and never its MEMBERSHIP, so `openxFactorie` passes and so
+  does a repository that is no part of this estate. The class is standing, not
+  hypothetical: `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`
+  names `opensoft/LegalxFactory`, which the provider answers 404 for and which no
+  gitlink and no pin carries, and two more of its rows name repositories at
+  addresses that live only through a provider redirect, while the estate's
+  transfer map carries ONE row.
+  **THE CANDIDATE INVENTORY, BUILT BEFORE THE DESIGN**, from FIVE naming sites
+  (`design.md` D0.1, `tasks.md` § 2.1): the aggregation repository's
+  `.gitmodules` (23 submodules), this repository's `contracts/*-pin.yaml` (7
+  pins, 6 distinct repositories, 2 of them no submodule), `.github/workflows/`
+  (1, already a submodule), the aggregation root itself (1, which no
+  `.gitmodules` can name), and — ADDED AT THE REVIEW OF PR #1101, which widened
+  `gitlink` to a gitlink in ANY governed estate repository — a GOVERNED
+  DomainxFactory's own `.gitmodules` where the estate NESTED rather than
+  sibling-linked (11 nested gitlinks in 6 repositories, naming 7 no other site
+  names). The first four were taken on `origin/main` `ad089e8a` and the fifth on
+  2026-09-18. **THIRTY-THREE ROWS** (`design.md` D0.2, `tasks.md` § 2.2), the
+  last six of them — `openChart`, `openPractice`, `MedxAvatar`, `LedgerxAvatar`,
+  `MedxEHR-spec`, `MedxEHR-code` — the members the narrow reading missed. A
+  RATIFIED change whose realization creates a repository is NOT a naming site but
+  `change`, the fifth of the five ADMISSION KINDS the delta closes (`gitlink`,
+  `pin`, `workflow`, `root`, `change`), and it is what the widened `gitlink`
+  lets discharge rather than expire. Against those rows, the population read
+  through the SHIPPED reader: 49 active proposals, 49 declaring, 7 `none`, 8
+  named by the closed register, 34 a readable repository list, those 34 heads
+  naming SIX distinct identifiers, **all six carried by the candidate, so
+  the membership arm refuses NOTHING on the day it lands** and the predecessor's
+  stated fatal cost for membership resolution is falsified.
+  **PACKET ONLY.** No script, no inventory and no test is added here. The
+  realization (`tasks.md` § 3) is a LATER pull request, which the word now
+  authorizes to be authored; the archive is a separate act on a separate word
+  and on merged-plus-green evidence, where #1087 closes.
+
 - [amend-code-surface-grammar-comma-and](openspec/changes/amend-code-surface-grammar-comma-and/proposal.md)
   — filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
   **`Status: ratified` FROM ITS FIRST COMMIT** — **RULED 2026-09-18 at ~09:55Z
@@ -727,72 +820,6 @@ Active changes:
   `opsxfactory_executed` flow (the topic's Q2, unruled — the delta is written
   CASE-NEUTRAL and does not turn on it) and the apply-workflow repository's
   provenance.
-
-- [adopt-entry-grain-dispositions-form](openspec/changes/adopt-entry-grain-dispositions-form/proposal.md)
-  — filed 2026-09-15, lane `openxfactory-2` (display `openXfactory-2`),
-  **`Status: ratified`** (2026-09-16, Brett Heap, openxFactory repository
-  owner, first-hand, in session, verbatim ***"ratify 1052 when green, then
-  1050"*** — this packet is the "then 1050" half; recorded on openxFactory
-  #1045 comment
-  https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736,
-  THE ONE CITATION; record
-  [`review/ratification-2026-09-16.md`](openspec/changes/adopt-entry-grain-dispositions-form/review/ratification-2026-09-16.md))
-  — an APPROVED packet: the drafting pair (`proposed_by` / `proposed_on`)
-  stands unmoved and `approved_by` / `approved_on` are ADDED beside it,
-  approval being a pure addition. Answers openxFactory
-  [#1045](https://github.com/opensoft/openxFactory/issues/1045), the finding
-  this lane filed on 2026-09-15 and did not claim at filing.
-  **ONE `## MODIFIED` BLOCK, ONE ADDED SCENARIO, OVER `document-lifecycle`** —
-  *Prose tagging marker hygiene* restated IN FULL with *A pin record's optional
-  dispositions member carries a malformed entry* added beside the shape-(a)
-  scenario that already states the same rule for the other optional member.
-  **THE MEASURED GAP.** `scripts/doc_health/pin_shapes.py`'s
-  `_is_disposition_list` judges the OPTIONAL shape-(c) member `dispositions:`
-  at the MEMBER grain only, while the full verifier's `pinned_dispositions`
-  (`scripts/validate-openspec-cli-pin.py:787-857`) refuses malformed ENTRIES in
-  the SAME pure, source-free pass called before any fetch (`:1966`, ahead of
-  `repository_identity` at `:1973`). Measured by calling both: TEN records the
-  guard refuses are accepted by the adapter — `[{}]`, `[null]`, `["a"]`, an
-  entry missing `cited_to`, `cited_to: []`, `why: ""`, `cited_to: "x"`,
-  `level: "WARNING"`, `level: ""` and an entry naming no authority — and ZERO
-  in the other direction, so the adapter is NARROWER than the guard on the
-  entries and nowhere WIDER.
-  **AND MOST OF THE ENTRY-GRAIN REFUSALS ARE RATIFIED CANON, WHICH MAKES THE
-  GAP SHARPER THAN THE ISSUE STATES IT THERE**: `neutral-product-pin`'s
-  *A dispositioned finding is cited, upgrade-coupled, and refused when stale*
-  (`:577`, `:578`, `:586-588`) and its scenario *A disposition carries no
-  citation* (`:633-636`) already say a disposition recording "no `cited_to:`,
-  an empty one, or no granting authority" makes the pin "REFUSED as malformed,
-  before any artifact is fetched" — covering the entry's identity keys, its
-  citation's NON-EMPTY requirement and its authority, so the adapter resolves
-  a pinned target on a record ratified canon calls malformed there. **THE
-  REST — THE CITATION'S LIST SHAPE, `why` AND `level` OUTSIDE
-  `BLOCKING_LEVELS` — ARE NAMED BY NO SUCH CANON AND ARE THE VERIFIER'S OWN
-  PURE GUARD**: `cited_to: "x"` already satisfies `:578`'s non-empty-citation
-  requirement and is refused only because the verifier separately demands a
-  LIST. Reaching any of the three imposes no obligation BEYOND what
-  `pinned_dispositions` already enforces on every landed pin, never "none" and
-  never "already ratified" for them. That capability is READ and CITED
-  here and NOT modified: the gap is the OFFLINE RESOLVER's reading, and the
-  resolver is `document-lifecycle`'s.
-  **`dispositions:` STAYS OPTIONAL**: it stays out of the shape-guard-required
-  set, canon's "`dispositions:` is NOT in the set" sentence is carried verbatim
-  and stays true, the measured `(29, 27, 2)` table split does not move, and
-  `null` and `[]` are still read as empty. **THE SUCCESSOR A RULING NAMED.**
-  Raised by review on PR [#1040](https://github.com/opensoft/openxFactory/pull/1040)
-  round 8 and RULED STANDS there, that ruling calling this "a legitimate later
-  delta … noted, not filed"; this packet is that delta and the first of them.
-  **RATIFIED — D-1, D-2 AND D-3 AS FILED; NO DECISION REOPENED.** Boxes
-  ticked by the ratifying commit: 1.1, 1.2, 1.3, 1.4 — and no others; § 2's
-  CHECKBOXES stand exactly as the filing pull request left them (§ 2.2's own
-  evidence line was separately corrected to name TEN, a non-checkbox
-  consistency fix), and § 3 and § 4 stay
-  open. REALIZATION AND ARCHIVE ARE NOT AUTHORIZED BY THIS WORD and remain
-  separate later acts on Brett Heap's word: no byte of
-  `scripts/doc_health/pin_shapes.py`, of `tests/doc-health/`, of any pin
-  verifier, of any record under `contracts/` or of any file under
-  `openspec/specs/` moves; `code_surface:` is non-empty, so the packet
-  archives on merged-plus-green realization evidence and not on landing.
 
 - [add-target-release-deferred-allocation](openspec/changes/add-target-release-deferred-allocation/proposal.md)
   — filed 2026-09-13, lane `hermes-wallet-exercise`, **`Status: ratified`**
@@ -3177,21 +3204,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
-  — ratified 2026-08-08 from three annotations on the keyword lens. A
-  document has three views (the radar's dot, the matrix's row, the signature
-  grid's row) and they now publish one key, so pointing at any lights the
-  others. The signature grid states its finding — "32 documents share 3
-  signatures (largest 17)" — and collapses, because a finding that fits in a
-  sentence does not warrant 220px of the best space on the screen. A matrix
-  SELECTION drafts a staging-queue fragment: evidence computed (documents,
-  repositories, the terms all of them share), argument left to the human,
-  nothing written — the exit the keyword radar lacked, distinct from the
-  repository lens's DTN register seed. Carries two dark-theme defect fixes
-  and their guards: a button reset that never stated its colour, and six
-  uses of custom properties the stylesheet never defines whose silent
-  fallbacks painted a white popover behind light text. (code surface:
-  openxFactory; target release: none)
 - [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
   — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap, in session, at PR #552 tip `c5169476`** (record:
@@ -3369,6 +3381,78 @@ Archived changes:
   § 5.3 requires the closing keyword in the ARCHIVE pull request's body and in
   no commit message on this branch or the realization branch, and a
   case-insensitive grep over both branches' commit messages returns 0 matches.
+- [adopt-entry-grain-dispositions-form](openspec/changes/archive/2026-09-18-adopt-entry-grain-dispositions-form/proposal.md)
+  — **ARCHIVED 2026-09-18** by
+  [PR #1114](https://github.com/opensoft/openxFactory/pull/1114), on Brett
+  Heap's **SEPARATE ARCHIVE WORD** — verbatim *"merge 1070 fix when green,
+  then archive 1045"*, given 2026-09-17T16:05:19Z, first-hand, in session to
+  lane `openxfactory-2` (display `openXfactory-2`) — recorded on
+  [#1045](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696)
+  and REAFFIRMED 2026-09-18T12:41:38Z
+  ([#1045 5730133649](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5730133649),
+  *"after 1094 lands, do 1070 fix, merge when green, then archive 1045"*,
+  which also names the landing route: BY MERGE COMMIT, so the directory's
+  adding commit stays the wrapper's act),
+  a DIFFERENT word from the ratification of 2026-09-16
+  ([#1045 5698480736](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736),
+  *"ratify 1052 when green, then 1050"*) and from the realization's landing
+  word
+  ([#1045 5717398099](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717398099),
+  *"merge 1094 when green after 1089"*). **`code_surface:` NON-EMPTY**
+  (`scripts/doc_health/pin_shapes.py` and its two test files under
+  `tests/doc-health/`), so under `release-realization` this packet archives
+  ONLY on MERGED-PLUS-GREEN REALIZATION EVIDENCE and never on landing: the
+  filing and ratification landed as PR
+  [#1050](https://github.com/opensoft/openxFactory/pull/1050) →
+  `fa39141cec2b`, the ratifier's partition amendment as PR
+  [#1088](https://github.com/opensoft/openxFactory/pull/1088) → `893abe97`,
+  and **THE REALIZATION AS PR
+  [#1094](https://github.com/opensoft/openxFactory/pull/1094) →
+  `8f93cbc02597f149a9987ce8da5f1c227e66662d`, MERGED 2026-09-18T15:56:55Z
+  WITH `main` GREEN AT THAT COMMIT** — the evidence this archive stood behind.
+  **AND IT CARRIES ITS RATIFIER'S OWN AMENDMENT.** On 2026-09-17, answering
+  the RULING NEEDED the packet's record posted on 2026-09-16 — an overlap
+  Copilot found between the already-promoted positive-resolution scenario and
+  this packet's own new refusal scenario — Brett Heap ruled, verbatim
+  *"Apply the partition"*, openxFactory
+  [#1045 5714433011](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011),
+  that the positive scenario *A marker names a capability of a pinned neutral
+  product*'s WHEN gain ONE clause — every OPTIONAL member the matched shape
+  admits that is PRESENT and for which that shape's own in-tree verifier
+  exposes a PURE, SOURCE-FREE guard must conform AT ITS ENTRY GRAIN to that
+  guard, today `dispositions:` alone — with its disjointness bullet gaining
+  the matching exclusion. Recorded as an AMENDMENT BY THE RATIFIER at
+  [`review/ratification-2026-09-16.md`](openspec/changes/archive/2026-09-18-adopt-entry-grain-dispositions-form/review/ratification-2026-09-16.md)
+  § Addendum, 2026-09-17, in the form
+  `add-requirement-ref-resolution-integrity`'s 2026-09-01 amendment set.
+  **THE PROMOTION, MEASURED:** the one `## MODIFIED` block is BYTE-IDENTICAL
+  to canon after the archive — `document-lifecycle` *Prose tagging marker
+  hygiene* **45,963 bytes, sha256 `2099a22f69cb23b0…`** on BOTH sides, canon
+  `--numstat` **+11 −2**, the requirement's scenarios **24 → 25**. What
+  promoted is EXACTLY the ratifier's amendment above plus this packet's own
+  new scenario *A pin record's optional dispositions member carries a
+  malformed entry* (its title and its seven bullets) — the two units the
+  carriage-ledger arm reported as UNCARRIED against the ACTIVE block were that
+  same amendment, and the promotion is what discharges them. **ORIGIN
+  RETAINED** — the archive tool's own line, "declaration unchanged since the
+  ratifying commit `fa39141cec2b`". **THE `tasks.md` § 3 VERIFIER LINE
+  CITATIONS STAND, AND THE RE-POINT IS RECORDED RATHER THAN APPLIED:** they
+  were measured at the realization's base `4b53ea99`, where
+  `scripts/validate-openspec-cli-pin.py`'s `pinned_dispositions` begins at
+  `:787`; PR [#1056](https://github.com/opensoft/openxFactory/pull/1056) →
+  `3e32d987` moved that file by +7 lines and it now begins at `:794` — RULED
+  STAND by the lane at PR #1094, on the principle
+  `docs/document-lifecycle.md:556` states for archive directory names, history
+  being history and every citation standing; the live fact is already carried
+  where it is ASSERTED, in `tests/doc-health/test_pin_shape_adapter.py`.
+  `tasks.md` § 4.1–4.3 tick on this recording, § 4.3 having RETIRED the
+  packet's `_LEDGER_SUBJECTS` row in
+  `tests/doc-health/test_modified_block_currency_self_gate.py` (thirteen →
+  twelve unique) on the row's own stated condition. openxFactory
+  [#1045](https://github.com/opensoft/openxFactory/issues/1045) closes on this
+  archive, by the lane's hand after the ARCHIVED record — this pull request
+  carries `refs` and no closing keyword.
+
 - [scope-pinned-arm-root-naming](openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/proposal.md)
   — **ARCHIVED 2026-09-17** by
   [PR #1089](https://github.com/opensoft/openxFactory/pull/1089), on Brett
@@ -3442,6 +3526,49 @@ Archived changes:
   [#1047](https://github.com/opensoft/openxFactory/issues/1047) closes on this
   archive, by the lane's hand after the ARCHIVED record — this pull request
   carries `refs` and no closing keyword.
+
+- [add-lens-document-selection](openspec/changes/archive/2026-09-16-add-lens-document-selection/proposal.md)
+  — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
+  [PR #1065](https://github.com/opensoft/openxFactory/pull/1065),
+  under **RULING Q6** (Brett Heap, 2026-09-04T17:49Z,
+  [#656](https://github.com/opensoft/openxFactory/issues/656)) **and RULING DQ-1**
+  (same day, 22:14Z), encoded at `split-opendox-two-layer-product` `tasks.md`
+  § 6.5 and `design.md` § D9. **THE ONLY ONE OF THE FIVE WHOSE CONTENT DOES NOT
+  LAND IN ONE PLACE** — both documents say so in those words — and **the split
+  falls INSIDE a requirement rather than between two.** Four of its five `## ADDED`
+  requirements are wholly app-side; the second, *A document selection drafts a
+  staging-queue seed*, states both halves in one sentence, and its drafting
+  clauses (*"SHALL write nothing"*, evidence *"recomputed by the serving side
+  from its own snapshot"*, an unknown document *"refused by name"*) are
+  obligations on the `doc_health.staging_seed` drafter and its serve route, which
+  **RULING DQ-1 KEEPS IN `openxFactory`'s OWN ADAPTER**. **THE DESTINATION, NAMED,
+  WHICH IS WHAT `tasks.md` § 8.5 REQUIRES:**
+  [openDox-spec #14](https://github.com/opensoft/openDox-spec/pull/14), carrying
+  the delta **WHOLE and byte-identical** — 8,363 B / `sha256 48b9a60c…`,
+  `diff`-verified, `grep -c openxFactory` over it **0** — with the owed narrowing
+  carried as a BLOCKED OPEN BOX (§ 2.1 there) and a bar on ratifying that one
+  requirement until it lands (§ 2.2). **THE NARROWING IS NAMED, NOT PERFORMED,
+  AND THE REASON IS RECORDED:** splitting a ratified requirement's sentences is
+  authoring rather than carriage, and the `openxFactory` half has nowhere to land
+  today — its capability is this packet's § 5.2a, unbuilt, with
+  `corpus-adapter-seam` an unpromoted delta of the same packet. Same reading
+  § 6.1 took for its seven `doc-health` requirements. **WHAT STAYS:**
+  `scripts/doc_health/staging_seed.py` and `/actions/staging-seed`, untouched
+  here. **WHAT TRAVELS OPEN:** § 4.4, the first real staging seed — a box no
+  single repository can close, since the selection is openDox's, the drafting
+  `openxFactory`'s and the placing a human act in `openxFactory`'s own
+  `ideation/staging/`. **NO DELTA IS PROMOTED HERE**; the packet is relocated by
+  `git mv` and otherwise UNEDITED, `Status: ratified` included. Its retiring
+  active bullet said *"target release: none"*; the packet's own `proposal.md:3`
+  declares **`target_release: implemented`**, and this entry reports the
+  declaration — the same correction § 6.4's record makes for `tasks.md` § 6.4's
+  shorthand. The non-promotion is registered as DELIBERATE through
+  `promotion_fidelity.py`'s own second discharge, an entry in the xFactory
+  aggregation's `health/dispositions.yaml` filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the
+  gate is `tasks.md` § 8.5, the severity reading § 8.9's; § 6.6 is the separate
+  no-new-change rule) — **measured at this head: 20 errors, five of them this
+  packet's, against 15 at § 6.1's head**. Full reasoning:
+  [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-lens-document-selection/review/rehome-2026-09-16.md).
 
 - [add-nightly-dashboard-refresh](openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openXdox` by
