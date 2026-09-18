@@ -45,12 +45,14 @@ from __future__ import annotations
 
 import contextlib
 import importlib.util
-import json
 import io
+import json
 import shutil
+import signal
 import subprocess
-import tarfile
 import sys
+import tarfile
+import time
 from pathlib import Path
 
 import pytest
@@ -75,6 +77,7 @@ RATIFIED_CODES = (
     "equivalence-reach-unavailable",
     "equivalence-profile-unregistered",
     "equivalence-digests-differ",
+    "equivalence-post-stack-unrenderable",
     "equivalence-unreadable",
 )
 
@@ -572,21 +575,31 @@ def test_the_archive_reads_the_resolved_commit_and_not_the_mutable_ref(
     """One ref, resolved ONCE. A branch or a force-updated tag that moved
     between the resolution and the archive would leave the runner recording
     commit A while rendering commit B, and the evidence line would name a tree
-    that never rendered (Copilot, PR #1105)."""
-    seen: list[str] = []
-    real = MODULE.extract_pre_tree
+    that never rendered (Copilot, PR #1105).
+    SPIED AT THE `_git` LAYER, AND THE REAL EXTRACTOR IS KEPT (Copilot on
+    #1105 @9ed3def3, suppressed). Replacing `extract_pre_tree()` left the
+    `git archive` call it makes unexecuted, so a regression INSIDE that
+    function — passing `pre_ref` where `pre_commit` belongs — would have left
+    this test green while the invariant it names was broken."""
+    archives: list[tuple[str, ...]] = []
+    real_git = MODULE._git
 
-    def recording(pre_commit, repo, into, pre_ref):
-        seen.append(pre_commit)
-        return real(pre_commit, repo, into, pre_ref)
+    def recording(repo, *arguments, **kwargs):
+        if arguments and arguments[0] == "archive":
+            archives.append(arguments)
+        return real_git(repo, *arguments, **kwargs)
 
-    monkeypatch.setattr(MODULE, "extract_pre_tree", recording)
+    monkeypatch.setattr(MODULE, "_git", recording)
     buffer = io.StringIO()
     with contextlib.redirect_stdout(buffer):
         assert MODULE.main(["--json"]) == 0
     payload = json.loads(buffer.getvalue())
-    assert seen == [payload["pre_commit"]]
-    assert len(seen[0]) == 40 and seen[0] != MODULE.DEFAULT_PRE_REF
+    assert len(archives) == 1, archives
+    # The revision `git archive` was handed, positionally: after
+    # `archive --format=tar` and before the `--` separator.
+    handed = archives[0][2]
+    assert handed == payload["pre_commit"], (handed, payload["pre_commit"])
+    assert len(handed) == 40 and handed != MODULE.DEFAULT_PRE_REF
 
 
 def test_a_registration_failure_is_not_relabelled_as_no_profile(monkeypatch,
@@ -943,6 +956,90 @@ def test_a_byte_only_difference_names_where_the_bytes_part_company(
     assert "BYTE level" in rendered
     assert "first differing byte at offset" in rendered
     assert "differ in length alone" not in rendered
+
+
+def test_the_git_environment_disables_the_system_attributes_file():
+    """`GIT_ATTR_NOSYSTEM` was SCRUBBED and never SET, which is half a guard:
+    dropping an inherited one only stops a caller DISABLING the system
+    attributes file, and `git archive` then still consults `/etc/gitattributes`
+    — where an `export-ignore` silently changes WHICH FILES the pre-split tree
+    carries (Copilot on #1105 @9ed3def3, suppressed). The tree this runner
+    reads must not vary with the host it is read on."""
+    environment = MODULE._git_environment()
+    assert environment["GIT_ATTR_NOSYSTEM"] == "1"
+    assert environment["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert environment["GIT_NO_REPLACE_OBJECTS"] == "1"
+
+
+def test_an_inherited_attr_nosystem_is_replaced_not_merely_dropped(
+        monkeypatch):
+    """…and a caller who sets it to `0` does not get it back."""
+    monkeypatch.setenv("GIT_ATTR_NOSYSTEM", "0")
+    assert MODULE._git_environment()["GIT_ATTR_NOSYSTEM"] == "1"
+
+
+def test_the_post_render_is_bounded_and_a_timeout_is_a_named_refusal(
+        monkeypatch):
+    """The POST side runs IN THIS PROCESS on purpose — it is the only stack
+    the process has imported, and the PRE side, the one that would collide
+    with it, is already in a child of its own — so the PRE child's `timeout=`
+    is not available to it. Without a watchdog a non-terminating regression in
+    a FUTURE pinned leg (and the post side IS a pin that moves) hangs the
+    required `pytest-suite` job until its own 35-minute limit instead of
+    returning the refusal this file promises for every other failure (Copilot
+    on #1105 @9ed3def3, suppressed)."""
+    monkeypatch.setattr(MODULE, "_CHILD_TIMEOUT", 0.05)
+
+    class Slow:
+        def generate_snapshot(self, *args, **kwargs):
+            time.sleep(5)
+            raise AssertionError("the watchdog did not fire")
+
+    class Unused:
+        @staticmethod
+        def canonical_bytes(snap):
+            raise AssertionError("unreachable")
+
+    started = time.monotonic()
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.render_post((Slow(), Unused()), BASE_REPO,
+                           MODULE.PINNED_SOURCE_REVISION)
+    assert time.monotonic() - started < 4, "the bound did not cut the render"
+    assert caught.value.code == "equivalence-post-stack-unrenderable"
+    assert "did not finish rendering" in caught.value.detail
+
+
+def test_the_watchdog_is_disarmed_when_the_render_returns(monkeypatch):
+    """A timer left armed would fire during whatever ran next — which in a
+    suite is another test. The real render is used, so this is the ordinary
+    path rather than a constructed one."""
+    monkeypatch.setattr(MODULE, "_CHILD_TIMEOUT", 30)
+    stack = MODULE.post_stack()
+    MODULE.render_post(stack, BASE_REPO, MODULE.PINNED_SOURCE_REVISION)
+    remaining, _interval = signal.getitimer(signal.ITIMER_REAL)
+    assert remaining == 0.0, f"a timer is still armed for {remaining}s"
+
+
+def test_the_dirty_leg_remediation_fits_the_dirt_it_reports(monkeypatch):
+    """`git checkout -- .` restores TRACKED paths only and a plain `git stash`
+    leaves untracked files behind, so for a `??` entry the first spelling sent
+    an operator to a command that could not make the next run clean (Copilot
+    on #1105 @9ed3def3, suppressed)."""
+    cases = {
+        (" M src/openxdox/generator.py",): ("checkout -- .", "stash -u"),
+        ("?? src/openxdox/stray.py",): ("stash -u", None),
+        (" M src/a.py", "?? src/b.py"): ("stash -u", None),
+    }
+    for dirt, (wanted, unwanted) in cases.items():
+        monkeypatch.setattr(MODULE, "worktree_dirt",
+                            lambda leg, d=list(dirt): d)
+        with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+            MODULE.verify_pins()
+        detail = caught.value.detail
+        assert caught.value.code == "equivalence-reach-unavailable"
+        assert wanted in detail, (dirt, detail)
+        if unwanted is not None:
+            assert unwanted not in detail, (dirt, detail)
 
 
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
