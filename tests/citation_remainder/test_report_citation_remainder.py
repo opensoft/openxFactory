@@ -663,6 +663,77 @@ def test_a_link_through_a_nested_directory_link_leaving_the_root_is_caught(
     assert population["arithmetic_closes"] is True
 
 
+def test_a_multi_component_target_on_a_parent_two_levels_up_resolves_in_order(
+        tmp_path) -> None:
+    """THE WALK'S PENDING LIST IS A STACK, POPPED FROM ITS END, so a target's
+    components are pushed onto its TOP and walked BEFORE the suffix waiting
+    beneath them.
+
+    Asserted as the EXACT resolved path and not as a term, because what could
+    fail here is an ORDER, and an order that came out wrong would still land
+    somewhere a term could be named for. The fixture is the hardest shape the
+    walk meets: a parent link TWO levels down whose target carries two upward
+    steps and two named components, with a suffix still pending behind it.
+    (Copilot `PRRT_kwDOTAvnrs6jtYeI`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    elsewhere = tmp_path / "alt" / "deep" / "three"
+    elsewhere.mkdir(parents=True)
+    (elsewhere / "file.md").write_text("the target's own bytes\n",
+                                       encoding="utf-8")
+    (root / "one").mkdir()
+    os.symlink("../../alt/deep", root / "one" / "two")
+
+    walked = report.resolved_entry_path(root, "one/two/three/file.md")
+    assert walked == elsewhere / "file.md", \
+        "the target is walked before the `three/file.md` suffix pending behind"
+    assert walked.read_text(encoding="utf-8") == "the target's own bytes\n"
+
+    # And the reviewer's own one-level example, whose expected answer is the
+    # same either way round and so pins the shape rather than the order.
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "file.md").write_text("x\n", encoding="utf-8")
+    os.symlink("../outside", root / "linkdir")
+    assert report.resolved_entry_path(root, "linkdir/file.md") \
+        == outside / "file.md"
+    assert report.inside_root(root, walked) is False
+
+
+def test_a_root_named_inside_the_repository_reads_the_repository(
+        tmp_path) -> None:
+    """A SUBDIRECTORY IS NOT A POPULATION. `--is-inside-work-tree` answers true
+    for one, and `git ls-files` run there enumerates that subtree alone while
+    the packet index looks for the changes root beneath it — so a run named at a
+    subdirectory once published a reading in which citations that resolve
+    perfectly well were reported DANGLING, at exit 0.
+
+    The named path is resolved to its work-tree top, on the estate's own idiom
+    (`scripts/sequenced_after.py` and `scripts/scope_globs.py`, both
+    `_git_toplevel`), so the two invocations are the same reading and the
+    reading states the root it read. (Copilot `PRRT_kwDOTAvnrs6jtYen`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"resolves: {CITE}/add-present/proposal.md\n"
+          f"dangles:  {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    at_root = run_json(root)
+    at_subdirectory = run_json(root / "docs")
+
+    assert at_subdirectory["counts"]["distinct_tokens"] == 2
+    assert at_subdirectory["counts"]["remainder_inclusive_tokens"] == 1, \
+        "the citation that resolves at the root resolves here too, which is " \
+        "the thing a subtree reading got wrong"
+    assert at_subdirectory["counts"] == at_root["counts"]
+    assert at_subdirectory["population"] == at_root["population"]
+    assert at_subdirectory["root"] == at_root["root"] == str(root.resolve())
+    assert str(root.resolve()) in run_human(root / "docs"), \
+        "the reading states the root it actually read"
+
+
 def test_an_ambient_git_environment_cannot_redirect_the_reading(
         tmp_path, monkeypatch) -> None:
     """EVERY FIGURE IS READ OUT OF ONE INDEX AND ONE OBJECT STORE. `-C` names a

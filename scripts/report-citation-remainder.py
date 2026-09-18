@@ -266,6 +266,34 @@ def git_status(root: Path, *args: str):
     return result.returncode, result.stdout, result.stderr
 
 
+def work_tree_root(path: Path) -> Path:
+    """The WORK-TREE ROOT containing `path` — the root this report reads.
+
+    `--is-inside-work-tree` ANSWERS TRUE FOR A SUBDIRECTORY, AND A SUBDIRECTORY
+    IS NOT THIS POPULATION. `git ls-files` run in one enumerates that subtree
+    alone and returns paths relative to it, and `PacketIndex` then looks for the
+    changes root BENEATH it, so every citation the subtree carries reads as
+    DANGLING. Measured at `docs/` in this repository: 79 distinct tokens, 78 of
+    them in the remainder, against 601 and 81 at the root — a reading that is
+    WRONG rather than one the report declined to take, published at exit 0.
+    (Copilot `PRRT_kwDOTAvnrs6jtYen`.)
+
+    SO THE NAMED PATH IS RESOLVED TO ITS WORK-TREE TOP RATHER THAN REFUSED. The
+    operand names the repository and DEFAULTS TO THE WORKING DIRECTORY, so a
+    refusal would fail the ordinary run taken from anywhere but the top; and the
+    two-case exit contract keeps the non-zero exit for a report that COULD NOT
+    RUN, which a report standing inside a repository plainly can. A path inside
+    no work tree at all still cannot, and still exits there.
+
+    THE IDIOM IS THE ESTATE'S AND NOT A SECOND ONE WRITTEN HERE:
+    `scripts/sequenced_after.py`'s `_git_toplevel` and `scripts/scope_globs.py`'s
+    `_git_toplevel` resolve a caller-named path exactly this way and convert
+    both failure arms — inside no work tree, and git not runnable at all — into
+    their own "could not run" finding. `git()` above already converts both.
+    """
+    return Path(git(path, "rev-parse", "--show-toplevel").strip())
+
+
 def segment_match(path: str, prefix: str) -> bool:
     """Whether `path` stands under `prefix`, matched ON SEGMENT BOUNDARIES.
 
@@ -399,6 +427,12 @@ def resolved_entry_path(root: Path, rel: str):
     """
     anchor = Path(root.anchor) if root.anchor else Path(root.root or "/")
     current = root
+    # `pending` IS A STACK AND NOT A QUEUE: it is built REVERSED and popped from
+    # its END, so its LAST element is the NEXT component to walk. A target's
+    # components are therefore `extend`ed — appended, which is pushed onto the
+    # TOP — and are walked BEFORE the suffix still waiting beneath them, which
+    # is the order the walk needs. Spelled out because the orientation reads
+    # backwards at a glance and has been read backwards in review.
     pending = [part for part in reversed(rel.split("/")) if part]
     hops = 0
     while pending:
@@ -425,6 +459,8 @@ def resolved_entry_path(root: Path, rel: str):
             return None
         if target.startswith("/"):
             current = anchor
+        # Pushed onto the TOP of the stack, reversed so the target's FIRST
+        # component is popped first — `[…, suffix] + [last, …, first]`.
         pending.extend(part for part in reversed(target.split("/")) if part)
     return current
 
@@ -1496,11 +1532,11 @@ def take_reading(root: Path, *, include=(), exclude=()) -> Reading:
     remainder."""
     if not root.exists():
         raise CouldNotRun(f"{root} does not exist")
-    # THE ROOT IS ABSOLUTE FROM HERE DOWN, so every path this reading joins onto
-    # it and every containment test the resolver applies to one answers about
-    # the same tree whatever directory the report was run from.
-    root = root.resolve()
-    git(root, "rev-parse", "--is-inside-work-tree")
+    # THE ROOT IS THE WORK-TREE TOP AND IS ABSOLUTE FROM HERE DOWN, so every
+    # path this reading joins onto it and every containment test the resolver
+    # applies to one answers about the same tree, whatever directory inside it
+    # the report was named at or run from.
+    root = work_tree_root(root).resolve()
     head, tree_unmodified = head_and_tree_state(root)
 
     entries = tracked_entries(root)
@@ -1752,6 +1788,7 @@ def _with_history(entry: dict, reading: Reading, identity) -> dict:
 def json_reading(reading: Reading, show_all: bool, by_token: bool) -> dict:
     counts = counts_of(reading)
     body: dict = {
+        "root": str(reading.root),
         "head": reading.head,
         "tree_unmodified_at_head": reading.tree_unmodified,
         "tree_state": (TREE_UNMODIFIED if reading.tree_unmodified
@@ -1799,6 +1836,7 @@ def _print_header(write, reading: Reading) -> None:
     """The reading's own declaration: what it stands on, and every fixed choice
     that decides which number it prints."""
     write("CITATION REMAINDER\n")
+    write(f"  root                 {reading.root}\n")
     write(f"  head                 {reading.head}\n")
     write(f"  tree state           "
           f"{TREE_UNMODIFIED if reading.tree_unmodified else TREE_MODIFIED}\n")
