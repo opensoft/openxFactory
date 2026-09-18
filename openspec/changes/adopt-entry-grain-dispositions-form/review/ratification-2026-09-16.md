@@ -12,10 +12,10 @@ a separate change in this repository and is no part of this record. Recorded,
 and THE ONE CITATION for this record: openxFactory #1045, comment
 https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 
-**AMENDED SINCE — BY THE RATIFIER, TWICE, 2026-09-17.** TWO
+**AMENDED SINCE — BY THE RATIFIER, THREE TIMES, 2026-09-17.** THREE
 post-ratification acts have moved normative text since this ratifying
-commit, IN ORDER, and this pointer does not contradict either by naming
-only one.
+commit, IN ORDER, and this pointer does not contradict any of them by
+naming only one.
 
 FIRST, THE CARRIAGE: on Brett Heap's word ***"route plus re-base"***
 (openxFactory #1050, comment 5714145269, 2026-09-17T12:12:49Z),
@@ -25,7 +25,16 @@ against this record's ratified tip moving from EMPTY to 21 insertions / 8
 deletions — see § "Addendum, 2026-09-17 — carriage on the ratifier's word"
 at the foot of this record.
 
-SECOND, THE AMENDMENT THIS POINTER PRIMARILY TRACKS: the SAME block's
+SECOND, THE CARRIED WHEN RE-BASED ON ITS OWN RATIFIER'S AMENDMENT: on
+Brett Heap's word ***"Apply the narrowing"*** (openxFactory #1047, comment
+5714432684, 2026-09-17T12:34:53Z), the sibling scenario *A pinned target
+names a pin no resolution root carries* — carried into this block VERBATIM
+on `scope-pinned-arm-root-naming`'s ordering, not authored here — had its
+WHEN moved with the amendment that packet's own ratifier made to it in the
+same act that archived it — see § "Addendum 2, 2026-09-17 — THE CARRIED
+WHEN RE-BASED ON ITS RATIFIER'S AMENDMENT" at the foot of this record.
+
+THIRD, THE AMENDMENT THIS POINTER PRIMARILY TRACKS: the SAME block's
 positive-resolution scenario *A marker names a capability of a pinned
 neutral product* — its WHEN and disjointness bullet partitioned against
 this packet's own added refusal scenario over the SAME input (the overlap
@@ -37,8 +46,8 @@ and consented to as the amendment of a ratified packet BY ITS OWN RATIFIER
 at the foot of this record.
 
 The citation immediately above remains THE ONE CITATION for the ORIGINAL
-ratifying act and is UNCHANGED; each of the two amendments carries its own
-citation, given in its own Addendum.
+ratifying act and is UNCHANGED; each of the three amendments carries its
+own citation, given in its own Addendum.
 
 ## Decision
 
@@ -311,6 +320,42 @@ openxFactory #1045 comment
 https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 The citation immediately above names a SEPARATE, LATER ruling — the "route
 plus re-base" word — and is not a second ratification of this packet.
+
+## Addendum 2, 2026-09-17 — THE CARRIED WHEN RE-BASED ON ITS RATIFIER'S AMENDMENT
+
+**THE SECOND ADDENDUM OF THE SAME DAY, AND IT FOLLOWS THE ONE ABOVE.** The
+addendum above records the ROUTE PLUS RE-BASE carriage (PR #1082 → `98b172e5`,
+word 5714145269). This one records a LATER word of the same ratifier, given
+after it, moving ONE bullet of the text that carriage brought in.
+
+PR [#1075](https://github.com/opensoft/openxFactory/pull/1075) → `a93d2682`
+ordered this packet AFTER `scope-pinned-arm-root-naming` and carried that
+packet's ratified units into this block VERBATIM, one of them the sibling
+scenario *A pinned target names a pin no resolution root carries*'s WHEN. On
+2026-09-17 that WHEN was AMENDED BY ITS OWN RATIFIER — Brett Heap, first-hand,
+in session, an interactive multiple-choice selection, verbatim ***"Apply the
+narrowing"***, openxFactory
+[#1047 comment 5714432684](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714432684)
+— from "…and at least one resolution root was selected for the run" to "…and
+at least one selected root whose boundary was successfully searched". **THE
+CARRIED COPY IS RE-BASED TO THE AMENDED TEXT IN THE SAME COMMIT AS THE
+AMENDMENT, UNDER THAT SAME RULING, AND AUTHORS NOTHING:** a carried copy left
+at the superseded wording would be precisely the drift the carriage was
+performed to prevent. **NO DECISION, SCOPE, `tasks.md` BOX, ORIGIN FIELD OR
+OBLIGATION OF THIS PACKET MOVES** — this packet still adds EXACTLY ONE
+scenario of its own, *A pin record's optional dispositions member carries a
+malformed entry*. Measured after the re-base, against canon as promoted by the
+archive of `scope-pinned-arm-root-naming`: canon 215 units, this block 223,
+TWO uncarried units and TEN new. **THE CARRIAGE IS WHOLE, AND THE TWO
+UNCARRIED UNITS ARE NOT ITS** — the re-based sibling WHEN matches canon
+exactly, and EIGHT of the ten new units are this packet's own scenario title
+and its seven bullets. The two uncarried units, and the remaining two new
+ones, are the positive-resolution scenario's WHEN and its disjointness bullet,
+which THIS PACKET'S OWN RATIFIER amended on ***"Apply the partition"*** — the
+Addendum that follows this one — and which the re-base neither authored nor
+moved. (Measured at the commit that merged `origin/main` at `5dd0a8dc`, the
+partition amendment having landed as PR #1088 → `893abe97`; before that merge
+the same measurement read ZERO uncarried and EIGHT new.)
 
 ## Addendum, 2026-09-17 — THE POST-RATIFICATION CONSENTED AMENDMENT
 
