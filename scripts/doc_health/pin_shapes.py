@@ -115,16 +115,16 @@ NOT_A_MAPPING = "not-a-mapping"
 # ---------------------------------------------------------------------------
 
 #: The keys a disposition entry must carry, all six, TRUTHY and not merely
-#: present (`validate-openspec-cli-pin.py:353-354`, read by `:818`).
+#: present (`validate-openspec-cli-pin.py:360-361`, read by `:825`).
 DISPOSITION_REQUIRED: tuple[str, ...] = (
     "repo", "item", "path", "finding", "why", "cited_to")
 
 #: Either spelling of the granting authority; exactly one is required
-#: (`validate-openspec-cli-pin.py:361`, read by `:849`).
+#: (`validate-openspec-cli-pin.py:368`, read by `:856`).
 DISPOSITION_AUTHORITY: tuple[str, ...] = ("ratified_by", "recorded_by")
 
 #: The finding levels that verifier RECONCILES, compared UPPER-CASED
-#: (`validate-openspec-cli-pin.py:366`, read by `:838`).
+#: (`validate-openspec-cli-pin.py:373`, read by `:845`).
 BLOCKING_LEVELS: frozenset[str] = frozenset({"ERROR"})
 
 
@@ -256,13 +256,13 @@ class EntryFailure:
     member's own guard names it.
 
     `where` is the GUARD'S OWN spelling and it is ONE-BASED
-    (`validate-openspec-cli-pin.py:812`, over `enumerate(raw, start=1)`), so a
+    (`validate-openspec-cli-pin.py:818`, over `enumerate(raw, start=1)`), so a
     finding and that verifier's own refusal point at the SAME entry of the same
     record; a zero-based transcription would name the entry before the one that
     failed. `detail` carries what the refusal turns on and nothing this module
     invents: the missing or malformed KEY where the entry is a mapping, and the
     raw VALUE where it is not — a bare entry has no key to report, that guard's
-    refusal there (`:813-817`) naming only `where` and the value.
+    refusal there (`:820-824`) naming only `where` and the value.
     """
     where: str
     defect: str
@@ -276,21 +276,21 @@ def _disposition_entry_failure(value) -> EntryFailure | None:
     D-1 ROWS 2-6 OF `adopt-entry-grain-dispositions-form`, TRANSCRIBED IN THE
     GUARD'S OWN ORDER — the order decides which reading a finding names:
 
-    - `:813-817` an entry that is NOT A MAPPING, a bare value being unable to
+    - `:820-824` an entry that is NOT A MAPPING, a bare value being unable to
       carry the identity keys a disposition is required to carry;
-    - `:818-827` an entry MISSING any of `DISPOSITION_REQUIRED`, where "missing"
+    - `:825-834` an entry MISSING any of `DISPOSITION_REQUIRED`, where "missing"
       is FALSEY and not merely absent (`not entry.get(key)`), so `cited_to: []`
       and `why: ""` are reported HERE as the missing key and never reach the
       citation-shape reading below;
-    - `:828-836` a `cited_to` that is TRUTHY and still not a NON-EMPTY LIST,
+    - `:835-843` a `cited_to` that is TRUTHY and still not a NON-EMPTY LIST,
       which the row above leaves reachable only for a value such as `"x"`;
-    - `:837-848` a `level` that is not `None` and, UPPER-CASED, is outside
+    - `:844-855` a `level` that is not `None` and, UPPER-CASED, is outside
       `BLOCKING_LEVELS` — so `"error"` is ADMITTED and `""` is REFUSED, an empty
       string not being `None`;
-    - `:849-855` an entry naming NEITHER spelling of the authority.
+    - `:856-862` an entry naming NEITHER spelling of the authority.
 
     THE MEMBER-GRAIN READINGS ARE NOT HERE. Row 0 (absent or `null` is EMPTY,
-    `:801-803`) and row 1 (present, non-null and not a list, `:804-809`) are
+    `:808-810`) and row 1 (present, non-null and not a list, `:811-816`) are
     `_is_disposition_list`'s, and this function answers `None` for both so the
     member-grain `Failure` keeps its bare spelling.
     """
