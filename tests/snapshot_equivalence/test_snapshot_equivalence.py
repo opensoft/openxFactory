@@ -45,12 +45,14 @@ from __future__ import annotations
 
 import contextlib
 import importlib.util
-import json
 import io
+import json
 import shutil
+import signal
 import subprocess
-import tarfile
 import sys
+import tarfile
+import time
 from pathlib import Path
 
 import pytest
@@ -75,6 +77,7 @@ RATIFIED_CODES = (
     "equivalence-reach-unavailable",
     "equivalence-profile-unregistered",
     "equivalence-digests-differ",
+    "equivalence-post-stack-unrenderable",
     "equivalence-unreadable",
 )
 
@@ -572,21 +575,31 @@ def test_the_archive_reads_the_resolved_commit_and_not_the_mutable_ref(
     """One ref, resolved ONCE. A branch or a force-updated tag that moved
     between the resolution and the archive would leave the runner recording
     commit A while rendering commit B, and the evidence line would name a tree
-    that never rendered (Copilot, PR #1105)."""
-    seen: list[str] = []
-    real = MODULE.extract_pre_tree
+    that never rendered (Copilot, PR #1105).
+    SPIED AT THE `_git` LAYER, AND THE REAL EXTRACTOR IS KEPT (Copilot on
+    #1105 @9ed3def3, suppressed). Replacing `extract_pre_tree()` left the
+    `git archive` call it makes unexecuted, so a regression INSIDE that
+    function — passing `pre_ref` where `pre_commit` belongs — would have left
+    this test green while the invariant it names was broken."""
+    archives: list[tuple[str, ...]] = []
+    real_git = MODULE._git
 
-    def recording(pre_commit, repo, into, pre_ref):
-        seen.append(pre_commit)
-        return real(pre_commit, repo, into, pre_ref)
+    def recording(repo, *arguments, **kwargs):
+        if arguments and arguments[0] == "archive":
+            archives.append(arguments)
+        return real_git(repo, *arguments, **kwargs)
 
-    monkeypatch.setattr(MODULE, "extract_pre_tree", recording)
+    monkeypatch.setattr(MODULE, "_git", recording)
     buffer = io.StringIO()
     with contextlib.redirect_stdout(buffer):
         assert MODULE.main(["--json"]) == 0
     payload = json.loads(buffer.getvalue())
-    assert seen == [payload["pre_commit"]]
-    assert len(seen[0]) == 40 and seen[0] != MODULE.DEFAULT_PRE_REF
+    assert len(archives) == 1, archives
+    # The revision `git archive` was handed, positionally: after
+    # `archive --format=tar` and before the `--` separator.
+    handed = archives[0][2]
+    assert handed == payload["pre_commit"], (handed, payload["pre_commit"])
+    assert len(handed) == 40 and handed != MODULE.DEFAULT_PRE_REF
 
 
 def test_a_registration_failure_is_not_relabelled_as_no_profile(monkeypatch,
@@ -945,6 +958,245 @@ def test_a_byte_only_difference_names_where_the_bytes_part_company(
     assert "differ in length alone" not in rendered
 
 
+def test_the_git_environment_disables_the_system_attributes_file():
+    """`GIT_ATTR_NOSYSTEM` was SCRUBBED and never SET, which is half a guard:
+    dropping an inherited one only stops a caller DISABLING the system
+    attributes file, and `git archive` then still consults `/etc/gitattributes`
+    — where an `export-ignore` silently changes WHICH FILES the pre-split tree
+    carries (Copilot on #1105 @9ed3def3, suppressed). The tree this runner
+    reads must not vary with the host it is read on."""
+    environment = MODULE._git_environment()
+    assert environment["GIT_ATTR_NOSYSTEM"] == "1"
+    assert environment["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert environment["GIT_NO_REPLACE_OBJECTS"] == "1"
+
+
+def test_an_inherited_attr_nosystem_is_replaced_not_merely_dropped(
+        monkeypatch):
+    """…and a caller who sets it to `0` does not get it back."""
+    monkeypatch.setenv("GIT_ATTR_NOSYSTEM", "0")
+    assert MODULE._git_environment()["GIT_ATTR_NOSYSTEM"] == "1"
+
+
+def test_the_post_render_is_bounded_and_a_timeout_is_a_named_refusal(
+        monkeypatch):
+    """The POST side runs IN THIS PROCESS on purpose — it is the only stack
+    the process has imported, and the PRE side, the one that would collide
+    with it, is already in a child of its own — so the PRE child's `timeout=`
+    is not available to it. Without a watchdog a non-terminating regression in
+    a FUTURE pinned leg (and the post side IS a pin that moves) hangs the
+    required `pytest-suite` job until its own 35-minute limit instead of
+    returning the refusal this file promises for every other failure (Copilot
+    on #1105 @9ed3def3, suppressed)."""
+    monkeypatch.setattr(MODULE, "_CHILD_TIMEOUT", 0.05)
+
+    class Slow:
+        def generate_snapshot(self, *args, **kwargs):
+            time.sleep(5)
+            raise AssertionError("the watchdog did not fire")
+
+    class Unused:
+        @staticmethod
+        def canonical_bytes(snap):
+            raise AssertionError("unreachable")
+
+    started = time.monotonic()
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.render_post((Slow(), Unused()), BASE_REPO,
+                           MODULE.PINNED_SOURCE_REVISION)
+    assert time.monotonic() - started < 4, "the bound did not cut the render"
+    assert caught.value.code == "equivalence-post-stack-unrenderable"
+    assert "did not finish rendering" in caught.value.detail
+
+
+def test_the_watchdog_is_disarmed_when_the_render_returns(monkeypatch):
+    """A timer left armed would fire during whatever ran next — which in a
+    suite is another test. The real render is used, so this is the ordinary
+    path rather than a constructed one."""
+    monkeypatch.setattr(MODULE, "_CHILD_TIMEOUT", 30)
+    stack = MODULE.post_stack()
+    MODULE.render_post(stack, BASE_REPO, MODULE.PINNED_SOURCE_REVISION)
+    remaining, _interval = signal.getitimer(signal.ITIMER_REAL)
+    assert remaining == 0.0, f"a timer is still armed for {remaining}s"
+
+
+def test_a_renderer_that_catches_exception_cannot_swallow_the_watchdog(
+        monkeypatch):
+    """The renderer is PINNED THIRD-PARTY CODE, and an ordinary
+    `except Exception:` inside it — a retry, a cleanup, a log-and-carry-on —
+    must not consume the alarm and return as though the render had finished.
+    The verdict would then be computed from whatever was half-built when the
+    alarm landed, and the promised refusal would never arrive (Copilot on
+    #1110). `_RenderTimeout` derives from `BaseException` for this."""
+    monkeypatch.setattr(MODULE, "_CHILD_TIMEOUT", 0.05)
+
+    class Swallowing:
+        def generate_snapshot(self, *args, **kwargs):
+            try:
+                time.sleep(5)
+            except Exception:  # noqa: BLE001 - exactly what a leg may do
+                return "a snapshot built from nothing"
+            raise AssertionError("the watchdog did not fire")
+
+    class Unused:
+        @staticmethod
+        def canonical_bytes(snap):
+            raise AssertionError("unreachable")
+
+    started = time.monotonic()
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.render_post((Swallowing(), Unused()), BASE_REPO,
+                           MODULE.PINNED_SOURCE_REVISION)
+    assert time.monotonic() - started < 4, "the bound did not cut the render"
+    assert caught.value.code == "equivalence-post-stack-unrenderable"
+
+
+def test_the_bound_still_covers_the_canonicalization(monkeypatch):
+    """`render_post()` promises canonical BYTES, and `canonical_bytes` is the
+    snapshot leg's OWN code: disarming before it ran left a pinned leg free
+    to hang the gate while SERIALIZING (Copilot on #1110). Read from inside
+    the call, so it asserts the bound rather than the ordering of two
+    lines."""
+    monkeypatch.setattr(MODULE, "_CHILD_TIMEOUT", 30)
+    seen = {}
+
+    class Renderer:
+        def generate_snapshot(self, *args, **kwargs):
+            return "snap"
+
+    class Serializer:
+        @staticmethod
+        def canonical_bytes(snap):
+            seen["remaining"] = signal.getitimer(signal.ITIMER_REAL)[0]
+            return b"bytes"
+
+    rendered = MODULE.render_post((Renderer(), Serializer()), BASE_REPO,
+                                  MODULE.PINNED_SOURCE_REVISION)
+    assert rendered == b"bytes"
+    assert seen["remaining"] > 0, "canonicalization ran outside the bound"
+
+
+def test_a_canonicalization_that_hangs_is_the_same_named_refusal(monkeypatch):
+    """…and end to end, not merely armed."""
+    monkeypatch.setattr(MODULE, "_CHILD_TIMEOUT", 0.05)
+
+    class Renderer:
+        def generate_snapshot(self, *args, **kwargs):
+            return "snap"
+
+    class Slow:
+        @staticmethod
+        def canonical_bytes(snap):
+            time.sleep(5)
+            raise AssertionError("the watchdog did not fire")
+
+    started = time.monotonic()
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.render_post((Renderer(), Slow()), BASE_REPO,
+                           MODULE.PINNED_SOURCE_REVISION)
+    assert time.monotonic() - started < 4, "the bound did not cut the render"
+    assert caught.value.code == "equivalence-post-stack-unrenderable"
+
+
+def test_a_tighter_caller_deadline_is_left_alone_rather_than_loosened():
+    """A process gets ONE `ITIMER_REAL`, so arming ours over a caller's
+    EARLIER deadline — `pytest-timeout` in its `signal` method, a supervising
+    runner, a caller that bounded this whole verification — would silently
+    LOOSEN the bound that caller set (Copilot on #1110, suppressed)."""
+    def caller_handler(signum, frame):
+        raise AssertionError("not expected to fire in this test")
+
+    previous = signal.signal(signal.SIGALRM, caller_handler)
+    signal.setitimer(signal.ITIMER_REAL, 30)
+    try:
+        assert MODULE.arm_render_watchdog(300) is None
+        remaining = signal.getitimer(signal.ITIMER_REAL)[0]
+        assert 29 < remaining <= 30, f"the caller's timer moved: {remaining}"
+        assert signal.getsignal(signal.SIGALRM) is caller_handler
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+
+
+def test_a_looser_caller_deadline_comes_back_with_what_is_left_of_it():
+    """Where we DO arm, `disarm()` must put the caller's timer back at its
+    REMAINING delay and not at its original one — restoring the full 30s
+    would silently extend a deadline as surely as cancelling it removes
+    one."""
+    def caller_handler(signum, frame):
+        raise AssertionError("not expected to fire in this test")
+
+    previous = signal.signal(signal.SIGALRM, caller_handler)
+    signal.setitimer(signal.ITIMER_REAL, 30)
+    try:
+        disarm = MODULE.arm_render_watchdog(0.5)
+        assert disarm is not None
+        assert signal.getitimer(signal.ITIMER_REAL)[0] <= 0.5
+        time.sleep(0.05)
+        disarm()
+        remaining = signal.getitimer(signal.ITIMER_REAL)[0]
+        assert 28 < remaining < 29.96, f"restored as {remaining}s"
+        assert signal.getsignal(signal.SIGALRM) is caller_handler
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+
+
+def test_a_caller_deadline_that_passed_comes_back_firing_not_cancelled():
+    """Restoring a caller's timer with a delay of exactly `0` would CANCEL
+    it. Our own alarm can be DEFERRED — CPython runs a handler only between
+    bytecodes, so a leg inside a C extension holding the GIL delays it — and
+    a deferral long enough carries the run past the caller's later deadline
+    too. It comes back LATE, which is true, rather than never, which is
+    not."""
+    fired = []
+
+    def caller_handler(signum, frame):
+        fired.append(time.monotonic())
+
+    previous = signal.signal(signal.SIGALRM, caller_handler)
+    signal.setitimer(signal.ITIMER_REAL, 0.20)
+    try:
+        disarm = MODULE.arm_render_watchdog(0.05)
+        assert disarm is not None
+        try:
+            time.sleep(0.10)  # our own alarm lands in here
+        except MODULE._RenderTimeout:
+            pass
+        time.sleep(0.20)  # …and the caller's deadline passes meanwhile
+        assert not fired, "our handler was the one installed"
+        disarm()
+        deadline = time.monotonic() + 3
+        while not fired and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert fired, "the expired deadline was cancelled, not restored"
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+
+
+def test_the_dirty_leg_remediation_fits_the_dirt_it_reports(monkeypatch):
+    """`git checkout -- .` restores TRACKED paths only and a plain `git stash`
+    leaves untracked files behind, so for a `??` entry the first spelling sent
+    an operator to a command that could not make the next run clean (Copilot
+    on #1105 @9ed3def3, suppressed)."""
+    cases = {
+        (" M src/openxdox/generator.py",): ("checkout -- .", "stash -u"),
+        ("?? src/openxdox/stray.py",): ("stash -u", None),
+        (" M src/a.py", "?? src/b.py"): ("stash -u", None),
+    }
+    for dirt, (wanted, unwanted) in cases.items():
+        monkeypatch.setattr(MODULE, "worktree_dirt",
+                            lambda leg, d=list(dirt): d)
+        with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+            MODULE.verify_pins()
+        detail = caught.value.detail
+        assert caught.value.code == "equivalence-reach-unavailable"
+        assert wanted in detail, (dirt, detail)
+        if unwanted is not None:
+            assert unwanted not in detail, (dirt, detail)
+
+
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
     assert MODULE.REFUSAL_CODES == RATIFIED_CODES
 
@@ -993,6 +1245,23 @@ def test_an_unexpected_failure_arrives_as_a_named_refusal_not_a_traceback(
     rendered = capsys.readouterr().err
     assert "equivalence-unreadable" in rendered
     assert "MemoryError: boom" in rendered
+    assert "Traceback" not in rendered
+
+
+def test_a_watchdog_that_escapes_render_post_still_holds_the_exit_contract(
+        monkeypatch, capsys):
+    """`_RenderTimeout` is a `BaseException` now, and `main()`'s blanket
+    guard is `Exception` ON PURPOSE, so a timeout landing in the sliver
+    between the guarded render and `disarm()` would leave a traceback and
+    EXIT 1 — a status this file's docstring says does not exist."""
+    def late(*args, **kwargs):
+        raise MODULE._RenderTimeout(0.05)
+
+    monkeypatch.setattr(MODULE, "render_post", late)
+    code = MODULE.main([])
+    assert code == 2
+    rendered = capsys.readouterr().err
+    assert "equivalence-post-stack-unrenderable" in rendered
     assert "Traceback" not in rendered
 
 

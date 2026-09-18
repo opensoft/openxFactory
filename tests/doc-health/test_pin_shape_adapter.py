@@ -535,6 +535,474 @@ def test_dispositions_null_is_accepted_and_a_mapping_is_refused_malformed():
                for f in verdict.failures), verdict.render()
 
 
+# --------------------------------------------------------------------------
+# THE OPTIONAL ARM AT THE ENTRY GRAIN
+# `adopt-entry-grain-dispositions-form` § 3.2, § 3.3, § 3.4, § 3.5, § 3.7,
+# § 3.8, REALIZED on Brett Heap's word *"Realize now, land when green"*
+# (2026-09-17, openxFactory #1045 comment 5714433011).
+#
+# THE ARM IS A *CALL*, NOT A CITATION RE-READ, and that is the whole reason it
+# can exist. The guard leg above ranges over the REQUIRED table because "each
+# verifier reads this member with an absent-is-empty default, so there is
+# nothing for the equivalence test's guard leg to call" — a statement about the
+# REFUSED-WHEN-ABSENT question. The PRESENT-AND-MALFORMED question has something
+# to call: `pinned_dispositions(record)` (`validate-openspec-cli-pin.py:794-864`)
+# takes the record and reads NOTHING else — no file, no `git`, no network,
+# evaluated as part of check 1 BEFORE `repository_identity` — so the optional
+# member is held to its guard in the STRONGEST available form: the verifier
+# IMPORTED at its FIXED, AUTHORED path (the way LEG B already imports verifiers)
+# and the guard CALLED on the REAL `contracts/openspec-cli-pin.yaml` carrying
+# each malformed entry, asserted to RAISE, with `ps.judge` asserted to refuse
+# the SAME record. The adapter still imports no verifier: the import lives in
+# THIS TEST, exactly as it already does for the guard leg.
+#
+# BOTH DIRECTIONS ARE ASSERTED. The refusal cases say the adapter is no NARROWER
+# than the guard; the admitted cases say it is no WIDER, the same two-sided
+# property the required table's two legs carry.
+# --------------------------------------------------------------------------
+
+_CLI_PIN = "scripts/validate-openspec-cli-pin.py"
+
+
+@pytest.fixture(scope="module")
+def cli_verifier():
+    """The shape-(c) verifier, imported ONCE at its fixed, authored path — never
+    a path any record names, and never a path this module builds from one."""
+    return _load_verifier(_CLI_PIN)
+
+
+#: ONE WELL-FORMED DISPOSITION ENTRY: every `DISPOSITION_REQUIRED` key truthy, a
+#: NON-EMPTY `cited_to` LIST, a `level` inside `BLOCKING_LEVELS` and one
+#: authority. Each case below breaks EXACTLY ONE reading of it, so the case
+#: names the reading it broke and no case is refused for two reasons at once.
+_VALID_ENTRY = {
+    "repo": "openxFactory",
+    "item": "a-change-id",
+    "path": "openspec/changes/a-change-id/specs/x/spec.md",
+    "finding": "the finding text, matched whole after whitespace normalization",
+    "why": "one line of reason",
+    "cited_to": ["openspec/specs/document-lifecycle/spec.md:1 — the canon"],
+    "level": "ERROR",
+    "ratified_by": "Brett Heap",
+}
+
+
+def _entry(**overrides) -> dict:
+    entry = copy.deepcopy(_VALID_ENTRY)
+    entry.update(overrides)
+    return entry
+
+
+def _entry_without(*keys: str) -> dict:
+    entry = copy.deepcopy(_VALID_ENTRY)
+    for key in keys:
+        entry.pop(key, None)
+    return entry
+
+
+#: EVERY MEASURED ENTRY FORM D-1 ROWS 2-6 REFUSE, as
+#: `(case, dispositions value, the guard's own one-based `where`, the defect,
+#: the detail)`. `d1` marks the TEN records D-1's "THE GAP, COUNTED" enumerates
+#: — the records the guard REFUSED and the adapter ACCEPTED before this
+#: realization; the remaining rows are § 3.5's per-key and per-boundary
+#: branches, which a test covering only one representative per row would leave
+#: untested, plus the one-based-index case.
+_ENTRY_REFUSALS: tuple[tuple, ...] = (
+    # row 2 (`:820-824`) — an entry that is not a mapping at all
+    ("row2-null", [None], "dispositions[1]", ps.NOT_A_MAPPING, "None", True),
+    ("row2-bare-string", ["a"], "dispositions[1]", ps.NOT_A_MAPPING, "'a'",
+     True),
+    # row 3 (`:825-834`) — FALSEY, not merely absent, over the six required keys
+    ("row3-empty-mapping", [{}], "dispositions[1]", ps.MISSING,
+     "repo, item, path, finding, why, cited_to", True),
+    ("row3-no-cited_to", [_entry_without("cited_to")], "dispositions[1]",
+     ps.MISSING, "cited_to", True),
+    ("row3-cited_to-empty-list", [_entry(cited_to=[])], "dispositions[1]",
+     ps.MISSING, "cited_to", True),
+    ("row3-why-empty-string", [_entry(why="")], "dispositions[1]", ps.MISSING,
+     "why", True),
+    ("row3-no-repo", [_entry_without("repo")], "dispositions[1]", ps.MISSING,
+     "repo", False),
+    ("row3-no-item", [_entry_without("item")], "dispositions[1]", ps.MISSING,
+     "item", False),
+    ("row3-no-path", [_entry_without("path")], "dispositions[1]", ps.MISSING,
+     "path", False),
+    ("row3-no-finding", [_entry_without("finding")], "dispositions[1]",
+     ps.MISSING, "finding", False),
+    ("row3-no-why", [_entry_without("why")], "dispositions[1]", ps.MISSING,
+     "why", False),
+    # row 4 (`:835-843`) — truthy, and still not a NON-EMPTY LIST
+    ("row4-cited_to-bare-string", [_entry(cited_to="x")], "dispositions[1]",
+     ps.MALFORMED, "cited_to 'x' is not a non-empty list", True),
+    # row 5 (`:844-855`) — `is not None` and CASE-FOLDED, not truthy-guarded
+    ("row5-level-warning", [_entry(level="WARNING")], "dispositions[1]",
+     ps.MALFORMED, "level 'WARNING' is outside ERROR", True),
+    ("row5-level-empty-string", [_entry(level="")], "dispositions[1]",
+     ps.MALFORMED, "level '' is outside ERROR", True),
+    # row 6 (`:856-862`) — neither authority spelling
+    ("row6-no-authority", [_entry_without("ratified_by")], "dispositions[1]",
+     ps.MISSING, "ratified_by or recorded_by", True),
+    # THE INDEX IS ONE-BASED AND IT IS THE GUARD'S OWN: a VALID first entry and
+    # a refused second one is `dispositions[2]` at both, and a zero-based
+    # transcription would name `dispositions[1]` here — a finding pointing at
+    # the entry that is fine.
+    ("one-based-second-entry", [_entry(), _entry(cited_to="x")],
+     "dispositions[2]", ps.MALFORMED, "cited_to 'x' is not a non-empty list",
+     False),
+)
+
+_REFUSAL_PARAMS = [
+    pytest.param(value, where, defect, detail, id=case)
+    for case, value, where, defect, detail, _d1 in _ENTRY_REFUSALS
+]
+
+
+@pytest.mark.parametrize("value,where,defect,detail", _REFUSAL_PARAMS)
+def test_optional_arm_the_guard_refuses_the_entry_and_so_does_the_adapter(
+        cli_verifier, value, where, defect, detail):
+    """§ 3.5. THE GUARD IS CALLED, source-free, on the REAL record carrying the
+    malformed entry; then the adapter is asked about the SAME record. The two
+    must agree, and they must agree AT THE SAME GRAIN: the `where` the adapter
+    reports is asserted to be the one the guard's own refusal spells."""
+    record = dict(RECORDS["openspec-cli"], dispositions=value)
+
+    with pytest.raises(Exception) as caught:
+        cli_verifier.pinned_dispositions(record)
+    assert type(caught.value).__name__ == "PinRefusal", (
+        f"{_CLI_PIN}:pinned_dispositions raised "
+        f"{type(caught.value).__name__} rather than refusing")
+    assert caught.value.code == "pin-disposition-malformed"
+    assert where in str(caught.value), (
+        f"the guard does not name {where}: {str(caught.value)!r}")
+
+    verdict = ps.judge(record, "openspec-cli")
+    assert not verdict.accepted, (
+        f"the adapter ACCEPTS what the guard refuses: {value!r}")
+    assert len(verdict.failures) == 1, verdict.render()
+    failure = verdict.failures[0]
+    assert failure.shape == ps.SHAPE_C.title
+    assert (failure.member, failure.defect) == (where, defect), verdict.render()
+    assert detail in failure.detail, verdict.render()
+    # ...and the RENDERED text — the one a finding carries — names the member
+    # AND the entry, which is the whole of the scenario's THEN clause.
+    rendered = verdict.render()
+    assert "dispositions" in rendered and where in rendered, rendered
+    assert verdict.names("dispositions"), rendered
+
+
+def test_the_ten_records_d1_counted_as_the_gap_are_every_one_of_them_refused():
+    """D-1's "THE GAP, COUNTED", asserted as a SET rather than as a sum: TEN
+    measured records the guard REFUSES and `judge(record, "openspec-cli")`
+    ACCEPTED before this realization — row 2's `[null]` and `["a"]`, row 3's
+    `[{}]`, an entry without `cited_to`, `cited_to: []` and `why: ""`, row 4's
+    `cited_to: "x"`, row 5's `level: "WARNING"` and `level: ""`, and row 6's
+    entry naming no authority. A realization closing nine of them reds here."""
+    ten = [row for row in _ENTRY_REFUSALS if row[5]]
+    assert [row[0] for row in ten] == [
+        "row2-null", "row2-bare-string", "row3-empty-mapping",
+        "row3-no-cited_to", "row3-cited_to-empty-list", "row3-why-empty-string",
+        "row4-cited_to-bare-string", "row5-level-warning",
+        "row5-level-empty-string", "row6-no-authority"]
+    assert len(ten) == 10
+    for case, value, where, _defect, _detail, _d1 in ten:
+        verdict = ps.judge(dict(RECORDS["openspec-cli"], dispositions=value),
+                           "openspec-cli")
+        assert not verdict.accepted, case
+        assert where in verdict.render(), case
+
+
+#: The sentinel for "the member is not there at all", kept apart from the
+#: explicit `null` because those are two different records that the guard reads
+#: as the same fact — which is itself one of the things asserted below.
+_ABSENT = object()
+
+_ADMITTED: tuple[tuple, ...] = (
+    ("absent", _ABSENT),                   # the member removed entirely
+    ("explicit-null", None),               # `dispositions: null`
+    ("empty-sequence", []),
+    ("one-valid-entry", [_entry()]),
+    ("two-valid-entries", [_entry(), _entry(item="another-change-id")]),
+    # row 5 is CASE-FOLDED, so a lower-case level is ADMITTED...
+    ("level-lower-case", [_entry(level="error")]),
+    # ...and `None`-guarded, so an ABSENT level is admitted too.
+    ("level-absent", [_entry_without("level")]),
+    ("recorded_by-instead-of-ratified_by",
+     [_entry_without("ratified_by") | {"recorded_by": "lane openxfactory-2"}]),
+    # a key the guard does not read is not a defect
+    ("extra-key", [_entry(retires_when="the upstream release")]),
+)
+
+
+@pytest.mark.parametrize("case,value",
+                         [pytest.param(case, value, id=case)
+                          for case, value in _ADMITTED])
+def test_optional_arm_the_guard_admits_the_entry_and_so_does_the_adapter(
+        cli_verifier, case, value):
+    """§ 3.8, THE NEGATIVE SIDE, so the transcribed form cannot drift WIDER than
+    the guard it tracks. The guard is CALLED and asserted to RETURN — not merely
+    "not obviously wrong" — and the adapter is asserted to ACCEPT the same
+    record."""
+    record = dict(RECORDS["openspec-cli"])
+    if value is _ABSENT:
+        record.pop("dispositions", None)
+    else:
+        record["dispositions"] = value
+
+    cli_verifier.pinned_dispositions(record)      # refuses nothing
+    verdict = ps.judge(record, "openspec-cli")
+    assert verdict.accepted, verdict.render()
+
+
+def test_the_real_record_still_resolves_at_both_the_guard_and_the_adapter(
+        cli_verifier):
+    """§ 3.8's record leg for this member: `contracts/openspec-cli-pin.yaml` as
+    it stands — FIVE entries, all admitted by the guard today — is admitted by
+    the entry-grain form unchanged. The realization moves no record byte, and
+    this is the assertion that says so.
+
+    SIX UNTIL 2026-09-16, when PR #1056 re-homed `add-composed-view-authoring`
+    to `opensoft/openDox` under RULING Q6 and DELETED its entry in the same pull
+    request, the pin having refused `pin-disposition-stale` on it. The count is
+    the LIVE record's and moves with the record; this realization deletes no
+    entry and adds none, and the reading the test exists for — every entry the
+    guard admits, the adapter admits — is the same at five as it was at six."""
+    record = RECORDS["openspec-cli"]
+    assert len(record["dispositions"]) == 5
+    assert len(cli_verifier.pinned_dispositions(record)) == 5
+    assert ps.judge(record, "openspec-cli").accepted
+
+
+def test_the_two_corrected_readings_are_transcribed_exactly(cli_verifier):
+    """§ 3.7's two boundary cases — D-1's "TWO READINGS THE MEASUREMENT
+    CORRECTED", each a transcription trap that a plausible reading falls into.
+
+    (i) ROW 3 SUBSUMES THE FALSEY HALF OF ROW 4. `:825` tests TRUTHINESS
+    (`not entry.get(key)`), so `cited_to: []` is refused at `:827` as the
+    MISSING key and never reaches `:837`'s citation-shape refusal. A
+    transcription ordering the two the other way would name the wrong reading in
+    the finding, so this asserts the DEFECT and the DETAIL, not merely that
+    something was refused.
+
+    (ii) ROW 5 IS `None`-GUARDED AND CASE-FOLDED, not truthy-guarded
+    (`level is not None and str(level).upper() not in BLOCKING_LEVELS`). So
+    `level: "error"` is ADMITTED and `level: ""` is REFUSED — an empty string is
+    not `None`. A transcription reading `if level:` would be NARROWER than the
+    guard on `""` and WIDER on nothing, which is the failure direction canon
+    names."""
+    base = RECORDS["openspec-cli"]
+
+    empty_citation = ps.judge(dict(base, dispositions=[_entry(cited_to=[])]),
+                              "openspec-cli")
+    assert [(f.member, f.defect, f.detail) for f in empty_citation.failures] \
+        == [("dispositions[1]", ps.MISSING, "cited_to")]
+    assert "is not a non-empty list" not in empty_citation.render()
+
+    lower = dict(base, dispositions=[_entry(level="error")])
+    assert cli_verifier.pinned_dispositions(lower)
+    assert ps.judge(lower, "openspec-cli").accepted
+
+    blank = ps.judge(dict(base, dispositions=[_entry(level="")]),
+                     "openspec-cli")
+    assert [(f.member, f.defect) for f in blank.failures] \
+        == [("dispositions[1]", ps.MALFORMED)]
+
+
+#: WHAT "EMPTY" MEANS FOR `dispositions:`, MEASURED AT THE GUARD AND NOT READ
+#: OFF THE WORD "FALSEY" — `(case, value, accepted, the member a refusal names)`.
+#: `:808-810` tests `raw is None` and NOTHING WEAKER, so `null` is EMPTY while
+#: `""`, `0` and `False` are PRESENT NON-SEQUENCES and refused at `:811-816`, at
+#: the MEMBER grain; `[]` is an empty sequence and empty; `[{}]` is a present
+#: sequence whose ENTRY the guard refuses, at the ENTRY grain. The guard is
+#: CALLED on every row below, so this table is the GUARD'S definition rather
+#: than this module's reading of it.
+_DISPOSITIONS_FALSEY: tuple[tuple, ...] = (
+    ("null", None, True, None),
+    ("empty-sequence", [], True, None),
+    ("empty-string", "", False, "dispositions"),
+    ("zero", 0, False, "dispositions"),
+    ("false", False, False, "dispositions"),
+    ("empty-mapping-entry", [{}], False, "dispositions[1]"),
+)
+
+
+@pytest.mark.parametrize("value,accepted,named",
+                         [pytest.param(value, accepted, named, id=case)
+                          for case, value, accepted, named
+                          in _DISPOSITIONS_FALSEY])
+def test_dispositions_is_empty_only_when_it_is_null_or_a_sequence(
+        cli_verifier, value, accepted, named):
+    """THE NON-NULL RULE, CASE BY CASE, WITH THE GUARD AS THE DEFINITION.
+    `pinned_dispositions` reads `if raw is None: return []` (`:808-810`) — an
+    IDENTITY test, not a truthiness test — so the member's empty readings are
+    `null` and an empty SEQUENCE and nothing else, and a `""`, a `0` or a
+    `False` is a present value that is not a list of entries. The two grains
+    part here too: a present NON-SEQUENCE is refused at the MEMBER grain and
+    names `dispositions`, while a present SEQUENCE carrying a refused ENTRY is
+    refused at the ENTRY grain and names `dispositions[1]`."""
+    record = dict(RECORDS["openspec-cli"], dispositions=value)
+    verdict = ps.judge(record, "openspec-cli")
+    if accepted:
+        cli_verifier.pinned_dispositions(record)      # the guard refuses none
+        assert verdict.accepted, verdict.render()
+        return
+    with pytest.raises(Exception) as caught:
+        cli_verifier.pinned_dispositions(record)
+    assert type(caught.value).__name__ == "PinRefusal"
+    assert caught.value.code == "pin-disposition-malformed"
+    assert not verdict.accepted, (
+        f"the adapter ACCEPTS what the guard refuses: {value!r}")
+    assert [f.member for f in verdict.failures] == [named], verdict.render()
+
+
+def test_the_partition_reaches_only_the_optional_member_with_a_pure_guard():
+    """THE PARTITION, RULED by Brett Heap 2026-09-17 — *"Apply the partition"*
+    (openxFactory #1045 comment 5714433011) — AND ITS SCOPE, RULED THE SAME DAY
+    in the ratifier's own precision (comment 5715775376): the partition is
+    DEFINED BY THE GUARD, so it reaches only an optional member that HAS one.
+
+    TODAY THAT IS `dispositions:` AND NOTHING ELSE. `pinned_dispositions` is
+    PURE and SOURCE-FREE (`:794`, called at CHECK 1 before anything is fetched),
+    so the positive-resolution reading can hold a PRESENT `dispositions:` to its
+    ENTRY grain: `null` and an empty sequence stay EMPTY (`:808-810` tests
+    `raw is None`, an identity test), any OTHER falsey non-null value is a
+    present non-sequence and is refused at the MEMBER grain, and a sequence
+    carrying an entry that guard refuses is refused at the ENTRY grain.
+
+    NOTE — `pinned_by_commit_only:` IS NOT REACHED BY THE PARTITION, AND THIS
+    TEST ASSERTS NOTHING ABOUT IT. That member has NO pure, source-free guard:
+    both shape-(a) verifiers judge it inside a source-dependent `verify()`, and
+    they DIFFER at the file boundary — `validate-openreposhape-pin.read_pin()`
+    keeps top-level scalars as strings, so `null`, `false` and `0` are refused
+    there as truthy strings, while the YAML-loaded wallet verifier sees Python
+    falsey values. The adapter's `_is_path_only_list` accepts EVERY falsey value
+    as empty and is UNCHANGED by this realization; reaching that member would
+    need a shared pure guard first — a separate finding, and a separate word.
+    """
+    base = RECORDS["openspec-cli"]
+    assert ps.judge(dict(base, dispositions=None), "openspec-cli").accepted
+    assert ps.judge(dict(base, dispositions=[]), "openspec-cli").accepted
+    assert not ps.judge(dict(base, dispositions=""), "openspec-cli").accepted
+    refused = ps.judge(dict(base, dispositions=[{}]), "openspec-cli")
+    assert not refused.accepted
+    assert refused.names("dispositions[1]"), refused.render()
+
+
+def test_the_three_disposition_constants_are_transcribed_from_the_verifier(
+        cli_verifier):
+    """§ 3.2. The three forms are carried BY TRANSCRIPTION beside the adapter's
+    other transcribed constants — the adapter imports no verifier — and this is
+    what makes the transcription CHECKABLE rather than trusted: the verifier is
+    imported HERE and its own module constants compared, so a verifier that
+    admits a seventh required key, a third authority spelling or a second
+    blocking level reds this test rather than drifting."""
+    assert ps.DISPOSITION_REQUIRED == cli_verifier.DISPOSITION_REQUIRED
+    assert ps.DISPOSITION_AUTHORITY == cli_verifier.DISPOSITION_AUTHORITY
+    assert ps.BLOCKING_LEVELS == cli_verifier.BLOCKING_LEVELS
+    assert ps.DISPOSITION_REQUIRED == ("repo", "item", "path", "finding",
+                                       "why", "cited_to")
+    assert ps.DISPOSITION_AUTHORITY == ("ratified_by", "recorded_by")
+    assert ps.BLOCKING_LEVELS == frozenset({"ERROR"})
+
+
+def test_the_optional_arms_citations_split_absent_is_empty_from_the_entry_grain(
+        cli_verifier):
+    """§ 3.3, AND THE ROUTE THE REALIZATION CHOSE, STATED. The member's
+    citations now SPLIT, and the split is the reason the optional arm can be a
+    CALL at all:
+
+    - `:808` is the ABSENT-IS-EMPTY line, it is the one that reads
+      `pin.get("dispositions")`, and it carries NO guard — there is nothing to
+      CALL for an absent member, which is exactly why the equivalence test's
+      guard leg ranges over the REQUIRED table (`_tracked_table`) and why THIS
+      test is a PARALLEL HELPER for the optional arm rather than a widening of
+      that leg;
+    - `:820`, `:825`, `:836`, `:845` and `:856` are the ENTRY-GRAIN conditions,
+      they read the ENTRY and NOT `pin.get("dispositions")`, and they DO have
+      something to call — `pinned_dispositions` — so each names that guard and
+      carries the condition text it was measured at, re-read here.
+
+    The last assertion is task 3.3's own prohibition, encoded: `:820` onwards
+    MUST NOT be cited as though it read the member."""
+    member = {m.spellings[0]: m for m in ps.SHAPE_C.optional}["dispositions"]
+    lines = (REPO_ROOT / _CLI_PIN).read_text(encoding="utf-8").splitlines()
+
+    absent_is_empty = [c for c in member.citations if c.guard is None]
+    entry_grain = [c for c in member.citations if c.guard is not None]
+
+    assert [c.line for c in absent_is_empty] == [808]
+    assert 'pin.get("dispositions")' in lines[807]
+
+    assert [c.line for c in entry_grain] == [820, 825, 836, 845, 856]
+    assert {c.guard for c in entry_grain} == {"pinned_dispositions"}
+    assert callable(cli_verifier.pinned_dispositions)
+    for citation in entry_grain:
+        assert citation.script == _CLI_PIN
+        assert citation.quote in lines[citation.quote_line - 1], (
+            f"{_CLI_PIN}:{citation.quote_line} no longer holds the condition "
+            f"the table cites: {lines[citation.quote_line - 1].strip()!r}")
+        assert 'pin.get("dispositions")' not in lines[citation.line - 1], (
+            f"{_CLI_PIN}:{citation.line} reads the member after all — the "
+            "entry-grain citations must not be cited as though they did")
+
+
+def test_the_failure_representation_gained_a_grain_and_narrowed_nothing():
+    """§ 3.4. `Failure` ADDS a way to say WHICH entry failed and takes nothing
+    away: `detail` defaults to empty, so every member-grain failure renders
+    BYTE-IDENTICALLY to the way it rendered before this change —
+    `Failure.render()`'s shape/member/defect order and `Verdict.names()`'s
+    substring match stay valid for every other member, present or required,
+    that still reports a bare spelling."""
+    assert ps.Failure("shape (c) x", "dispositions", ps.MALFORMED).render() == \
+        "shape (c) x: `dispositions` malformed"
+    assert ps.Failure(None, "record", ps.NOT_A_MAPPING).render() == \
+        "`record` not-a-mapping"
+    assert ps.Failure("s", "dispositions[2]", ps.MISSING, "cited_to").render() \
+        == "s: `dispositions[2]` missing (cited_to)"
+
+    # every failure the REQUIRED table produces still carries no detail, which
+    # is what "narrowed nothing" means in practice.
+    for shape_key in ("a", "b", "c"):
+        shape = {s.key: s for s in ps.SHAPES}[shape_key]
+        for member in shape.required:
+            verdict = ps.judge(_without(_base(shape_key), *member.spellings))
+            assert [f.detail for f in verdict.failures] == [""] * len(
+                verdict.failures), verdict.render()
+    # ...and `Verdict.names` still finds the member under the entry spelling.
+    entry = ps.judge(dict(_base("c"), dispositions=[{}]))
+    assert entry.names("dispositions") and entry.names("dispositions[1]")
+
+
+def test_the_member_stays_optional_and_out_of_the_shape_guard_required_set():
+    """§ 3.9's own statement at the table grain: the entry-grain form is the
+    OPTIONAL member's FORM (design D-2 (a)) and admits no required member. The
+    measured `(29, 27, 2)` split is asserted by its own test above; this asserts
+    the two facts that split rests on."""
+    required = {s for m in ps.SHAPE_C.required for s in m.spellings}
+    optional = {s for m in ps.SHAPE_C.optional for s in m.spellings}
+    assert "dispositions" not in required
+    assert optional == {"dispositions"}
+    assert len(ps.SHAPE_C.required) == 9
+    assert ps.judge(_without(RECORDS["openspec-cli"], "dispositions"),
+                    "openspec-cli").accepted
+
+
+def test_the_entry_grain_form_reads_the_entry_and_nothing_else():
+    """The adapter's own purity, at the new grain: the entry-grain reading is a
+    PURE function of the value handed to it, so calling it twice on the same
+    value gives the same answer and calling it changes nothing. The structural
+    assertion — no import outside the six, no builtin escape hatch — is
+    `test_the_adapter_reads_the_record_and_nothing_else` and covers this code
+    with the rest of the module."""
+    value = [_entry(), _entry(cited_to="x")]
+    before = copy.deepcopy(value)
+    first = ps.judge(dict(RECORDS["openspec-cli"], dispositions=value),
+                     "openspec-cli")
+    second = ps.judge(dict(RECORDS["openspec-cli"], dispositions=value),
+                      "openspec-cli")
+    assert first.render() == second.render()
+    assert value == before, "the form mutated the value it judged"
+
+
 def test_the_product_identity_entry_has_two_regimes_keyed_on_the_pin_id():
     """Shape (a)'s entry is EXACTLY ONE product-identity member, and AT THE
     RECORD GRAIN it resolves to that record's own verifier's set — which the

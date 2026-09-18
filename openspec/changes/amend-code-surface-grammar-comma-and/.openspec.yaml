@@ -1,0 +1,108 @@
+schema: spec-driven
+created: 2026-09-18
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-18-amend-code-surface-grammar-comma-and
+  reason: >-
+    PROMOTED CANON NAMES THREE LIST SEPARATORS AND THE READER IT GOVERNS ADMITS
+    FOUR, filed as openxFactory issue #1092 by the lane that carried
+    `gate-code-surface-declarations` to its archive (PR #1076, `5dd0a8dc`) and
+    found the gap in a suppressed Copilot comment on round 3 of that pull
+    request, head `a8d3cfb6`.
+    THE MEASUREMENT. `openspec/specs/release-realization/spec.md:1017-1018`,
+    inside *Code-surface declaration grammar is gated*, admits a head that is
+    "a list of one or more REPOSITORY IDENTIFIERS separated by a comma, by
+    ` and `, or by ` + `", and the scenario at `:1103` repeats the same three.
+    `scripts/code_surface.py:152-157` is the grammar the validator actually
+    runs and it carries FOUR alternatives — `, and ` FIRST, then the bare
+    comma, then ` and `, then ` + ` — the first tried ahead of the bare comma
+    so that a list spelled out with an Oxford comma is consumed as ONE
+    separator. MEASURED, not reasoned: with `, and ` removed from the pattern
+    and the other three alternatives left in their order, the bare comma leaves
+    the conjunction "and" to be read as a member in its own right — it is a name
+    the identifier grammar admits — and `parse_head` then REFUSES at the member
+    after it, "its head runs into prose at `codexFactory`". The comment standing
+    over `_SEPARATOR_RE` reaches for the same point in the module's own words
+    ("plus the `, and ` the corpus writes when it spells a list out"), and
+    the bench agrees — `tests/code_surface/test_code_surface_gate.py:157-160`
+    parametrizes five spellings including `", and "` under the name
+    `test_every_ratified_list_separator_is_admitted`. So the divergence is
+    between the promoted text and the code it describes rather than inside
+    either.
+    WHY THE AMENDMENT AND NOT THE NARROWING. Issue #1092 put both shapes for a
+    ruling: (a) amend the text to name the fourth separator, or (b) narrow
+    `_SEPARATOR_RE` to the ratified three, at the cost of refusing declarations
+    the corpus already writes that way. Brett Heap ruled (a) on 2026-09-18.
+    WHY AN OPENSPEC CHANGE AND NOT A PATCH. The sentences are PROMOTED,
+    RATIFIED canon. Working rule 3 and this corpus's own document lifecycle
+    admit exactly one instrument for changing a promoted requirement — a
+    ratified change carrying a `## MODIFIED` block — and #1076 was an ARCHIVE
+    act, which is why it carried the requirement byte-for-byte and raised the
+    defect as an issue instead of correcting it in flight.
+    NOTHING HERE IS A CODE DECISION. No character of `scripts/code_surface.py`
+    moves, no declaration that passes today is refused after this and none that
+    is refused today passes, and no derived repository set changes. The delta
+    states what the reader has done since the module was written.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and grepped on 2026-09-18 for
+    `code_surface`, `separator` and `declared head`: no topic folder and no
+    INDEX row names this grammar, its separators or its gloss openers — every
+    hit is a staging topic DECLARING its own `code_surface:`, not proposing a
+    rule about the field. `kind: staged` would claim a staging source that does
+    not resolve. The organized source is issue #1092 and the round-3 comment
+    that raised it.
+  proposed_by: >-
+    Lane `openxfactory-5` (display `openXfactory-5`), authoring the remedy issue
+    #1092 proposes, on Brett Heap's ruling of 2026-09-18 — see `approved_by`.
+    THE ONE DECISION THIS PACKET REACHES BEYOND THE RULED WORD, and the one most
+    worth a veto, is `design.md` D2: the reconciliation of the clause "the two
+    being EXCLUSIVE alternatives and never mixed", which sits immediately after
+    the separator list and now follows FOUR items. Its antecedent is the pair of
+    HEAD FORMS (`none`, or a list) and never the separators — the originating
+    packet's own `design.md` says so in as many words at
+    `openspec/changes/archive/2026-09-16-gate-code-surface-declarations/design.md:631-637`
+    — so the delta makes that antecedent explicit rather than leaving a reader
+    of a four-item list to count to two. Beside it, D3 states as canon what the
+    reader has always done and the text never said: the separators are
+    alternatives WITHIN one list and a head MAY mix them. Both are measured
+    against the module and neither moves it; a veto of either costs the packet
+    nothing but the sentence.
+  proposed_on: 2026-09-18
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-18 at
+    approximately 09:55Z, verbatim: "Amend the text to admit ', and '", given
+    in session as a TERMINAL MULTIPLE-CHOICE answer directly to lane
+    `openXfactory-5` over the two shapes openxFactory issue #1092 put, and
+    recorded by that lane as a RULED line at 2026-09-18T10:15:10Z in the LANE
+    REGISTER, which is a SEPARATE REPOSITORY and not a path in this one:
+    `opensoft/brett-wip@055bea8b:lanes/log/openXfactory-5.md`, line 107,
+    https://github.com/opensoft/brett-wip/blob/055bea8b215ad8b46d83cbf1e366c93c23b08897/lanes/log/openXfactory-5.md#L107 . The instant is written to
+    the precision the word was taken at and no finer — approximately 09:55Z —
+    because inventing a minute would be inventing evidence; the RULED line's
+    own timestamp is exact and is what the record cites.
+    THE WORD RESOLVES THE SHAPE AND IT IS THE PACKET'S WHOLE COMMISSION. Issue
+    #1092 put exactly two: amend the TEXT to admit the fourth separator, or
+    narrow the CODE to the ratified three. The word takes the first, so THE
+    READER STAYS AS REALIZED — `scripts/code_surface.py` is not edited by this
+    packet in any commit — and the amendment is canon catching up with running
+    code rather than a new rule.
+    THIS PACKET LANDS AS RATIFIED, WHICH IS THE SHAPE THE WORD FIXES. The
+    ruling reached the packet's content before the packet existed, so there is
+    no drafting phase to record and no approval to add later: `proposed_by` and
+    `approved_by` are written in ONE act here, `kind` and `id` fixed from the
+    first commit, and every document carries `Status: ratified` with one
+    citation line. Record: `review/ratification-2026-09-18.md`.
+    NOTHING IS PROMOTED AND NOTHING IS ARCHIVED BY THIS LANDING. No file under
+    `openspec/specs/` is edited by it, `tasks.md` § 4 stays OPEN, and
+    openxFactory #1092 therefore closes AT THE ARCHIVE — a separate act on a
+    separate word — and not at this landing. `code_surface: none`, so under
+    `release-realization` that archive follows LANDING plus this task list
+    rather than merged-plus-green realization evidence.
+  approved_on: 2026-09-18
+related:
+  - openxFactory:change:archive/2026-09-16-gate-code-surface-declarations       # ARCHIVED (PR #1076, `5dd0a8dc`). Promoted the requirement this block MODIFIES, wrote all three separator sentences, and its `design.md:631-637` names the antecedent of the exclusivity clause D2 makes explicit. Its bytes are NOT edited
+  - openxFactory:change:archive/2026-09-10-amend-modified-block-currency-standing # ARCHIVED (PR #887 -> #899). The amend-born-of-a-finding shape this packet follows: one `## MODIFIED` block written over canon, one `Removed from canon` marker, ratification recorded in `review/`, archive on a separate word
+  - openxFactory:change:archive/2026-09-12-gate-realization-axis-vocabulary     # ARCHIVED. Gates the `target_release:` vocabulary this packet's front matter declares into; `implemented` is the value it names for a doc-only change
+  - openxFactory:issue:1092                                                     # THE FINDING, and the ruling. Closes at the ARCHIVE, not at this landing
+  - openxFactory:issue:1013                                                     # The successor `gate-code-surface-declarations` was filed under, and the frame the finding was raised in
+  - openxFactory:pr:1076                                                        # The archive act that carried the requirement byte-for-byte and raised this defect rather than correcting it in flight

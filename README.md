@@ -531,6 +531,51 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-code-surface-grammar-comma-and](openspec/changes/amend-code-surface-grammar-comma-and/proposal.md)
+  — filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: ratified` FROM ITS FIRST COMMIT** — **RULED 2026-09-18 at ~09:55Z
+  by Brett Heap** (openxFactory operator authority), verbatim ***"Amend the text
+  to admit ', and '"***, a TERMINAL MULTIPLE-CHOICE answer over the two shapes
+  openxFactory [#1092](https://github.com/opensoft/openxFactory/issues/1092)
+  put, recorded as a `RULED` line at 2026-09-18T10:15:10Z in the LANE REGISTER,
+  which is a SEPARATE REPOSITORY and not a path in this one —
+  [`opensoft/brett-wip@055bea8b:lanes/log/openXfactory-5.md`](https://github.com/opensoft/brett-wip/blob/055bea8b215ad8b46d83cbf1e366c93c23b08897/lanes/log/openXfactory-5.md#L107), line 107 — record
+  [`review/ratification-2026-09-18.md`](openspec/changes/amend-code-surface-grammar-comma-and/review/ratification-2026-09-18.md).
+  **THE WORD REACHED THE CONTENT BEFORE THE PACKET EXISTED**, so there is no
+  drafting phase and no later approval to add: `.openspec.yaml` carries
+  `proposed_by` and `approved_by` written in one act. **PROMOTED CANON NAMES
+  THREE LIST SEPARATORS AND THE READER IT GOVERNS ADMITS FOUR.**
+  `openspec/specs/release-realization/spec.md:1017-1018`, inside *Code-surface
+  declaration grammar is gated*, admits a head separated "by a comma, by
+  ` and `, or by ` + `" and the scenario at `:1103` repeats the three, while
+  `scripts/code_surface.py:152-157` carries `, and ` as a FOURTH alternative
+  tried FIRST — so an Oxford-comma list (`openxFactory, openXwallet, and
+  codexFactory`) parses as THREE identifiers at a gate whose ratified text,
+  naming only the bare comma there, would have its conjunction read as a member
+  in its own right and the declaration REFUSED at the member after it. The bench
+  already agrees with the module and not with canon:
+  `test_every_ratified_list_separator_is_admitted`
+  (`tests/code_surface/test_code_surface_gate.py:157-160`) parametrizes five
+  spellings, `", and "` among them. **ONE `## MODIFIED` REQUIREMENT: THREE UNITS
+  REPLACED IN PLACE UNDER ONE `Removed from canon` MARKER, TWO BODY PARAGRAPHS
+  AND ONE SCENARIO ADDED** (*A declaration spells its list out with an Oxford
+  comma*), every other unit carried byte-faithfully BY CONSTRUCTION — the block
+  was sliced out of canon and each replacement applied as an exact
+  single-occurrence substitution. **THE READER STAYS AS REALIZED**: option (b)
+  of #1092, narrowing `_SEPARATOR_RE` to the ratified three, was declined by the
+  ruling, and no commit of this packet edits `scripts/code_surface.py` —
+  `code_surface: none`, `target_release: implemented`, `sequenced_after: []` as
+  the positive root claim (no active change writes this requirement key). **TWO
+  DECLARED VETO POINTS**, both measured against the module and both separable:
+  `design.md` **D2**, the exclusivity clause's antecedent said of THOSE TWO HEAD
+  FORMS rather than of a list that now has four items (veto cost: four words),
+  and **D3**, the statement that the separators are alternatives WITHIN one list
+  a head may mix (veto cost: one sentence and one bullet). **NOTHING IS PROMOTED
+  AT THIS LANDING** — `tasks.md` § 4 stays open, the archive is a separate act
+  on a separate word, and #1092 closes there. Residue named and not taken:
+  `scripts/code_surface.py`'s own `parse_head` docstring restates the same three
+  separators at `:447-448` (§ 5.1, ticking at the archive by naming a
+  successor).
 - [harden-path-escape-helpers-against-symlink-loops](openspec/changes/harden-path-escape-helpers-against-symlink-loops/proposal.md)
   filed 2026-09-17, lane `openxfactory-5` (display `openXfactory-5`),
   **`Status: ratified`** (2026-09-18, approximately 09:55Z, Brett Heap,
