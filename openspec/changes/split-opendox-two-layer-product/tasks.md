@@ -3478,14 +3478,18 @@ movements claimed at the time they land.
   work those clauses name has been done.)*
   It is `[ ]` and not `[~]` because this box is an IN-SCOPE GATING PREREQUISITE
   of this packet, where `[~]` is the reserved form for open, OWNED, NON-GATING
-  successor work. *(The earlier wording here — that `[~]` is for "an act with
-  no subject to perform on" — was a WRONG RULE, and a wrong rule in a ledger
-  propagates to every amendment that reads it. Measured against the house's own
-  use rather than recalled: EVERY `[~]` in the active corpus names an OWNER —
+  successor work. *(WHAT WAS WRONG HERE WAS THE GENERALISATION, NOT § 7.3'S OWN
+  SENTENCE. § 7.3 says the ruling its § 7.1 owed has landed and its answer is
+  NONE YET, so the act THAT box describes has no subject to perform on — a true
+  statement about one box's circumstances. THIS box read that particular fact as
+  the MARKER'S RULE, which it is not, and a wrong rule in a ledger propagates to
+  every amendment that reads it. Measured against the house's own use rather than
+  recalled: EVERY `[~]` in the active corpus names an OWNER —
   `add-per-tenant-app-manifest-provisioning/tasks.md` carries six, among them
   *"Owner: lane `opsXfactory-4`"* and *"Owner: this lane's bookkeeper,
-  amendment #5"* — so a deferred box plainly HAS a subject. What it does not
-  have is a claim on THIS packet's gate.)*
+  amendment #5"* — so a deferred box HAS an owner even where, as at § 7.3
+  today, it has nothing yet to act on. What it does not have is a claim on THIS
+  packet's gate.)*
 
 ## 8. The archive gate
 
@@ -3617,7 +3621,10 @@ realization evidence, never on landing. Each line is its own evidence.
   re-point — the aggregation's own `openxFactory`, `75484b67` → `cb2d3a2c` — and
   this line does NOT check it, because it is not one of the two the descendant pin
   chain is about; named here so the re-point does not read this line as its whole
-  checklist. **This box is NOT ticked by this amendment.** R-5 ruled the WORDING
+  checklist. **This box is NOT ticked by AMENDMENT #4** — *"this amendment"* in
+  the sentence as amendment #4 wrote it, bound here because amendment #5's tick
+  stands four lines below and an unbound pronoun makes a `[x]` box say it is not
+  ticked. R-5 ruled the WORDING
   of the check, not the verdict on it, and the packet's tick standard puts a tick
   in the act that claims it — the same treatment § 5.2's STATUS gives § 5.6a
   defect (a). What is owed for that tick is now measured and on the record here.)*
