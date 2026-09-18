@@ -1459,13 +1459,34 @@ the bookkeeping that ticks this group.
   • **`openxFactory` — HOLDS.** `#1086` → `049d54a9` (the transposition
   accepted and proved faithful, RULED Q-F1 (a)) and its follow-up `#1113` →
   `4401e1aa`, merged 18:00:25Z, closing the four findings `#1086` registered.
-  • **openDox — NOT EVIDENCED.** See the measurement below.
-  • **openXdox — NOT EVIDENCED, AND THE PULL REQUEST OFFERED IS A DIFFERENT
-  SUBJECT.** `openXdox-code` `#22` → `fa792cbb` is titled *"§ 3.4 RULED Q7: the
-  gate loop's stylesheets arrive with the bindings that own them"* — it is
-  § 3.4's Q7 trio, already recorded at that box, and has nothing to do with the
-  conformance corpus. Measured further: **`transpose` occurs ZERO times anywhere
-  in `openXdox-code`.** So the openXdox side is not merely unnamed, it is absent.
+  • **openDox — NOT EVIDENCED, and unlike openXdox this one has NOT moved**:
+  `openDox-code` carries **no conformance reader at all**. See the measurement
+  below.
+  • **openXdox — THE READER HAS NOW LANDED, AND THIS BULLET IS BOUND TO TWO
+  CLOCKS BECAUSE IT CHANGED UNDER ITS OWN AUTHOR.**
+  **Measured at 21:40Z**: the pull request offered was `openXdox-code` `#22` →
+  `fa792cbb`, titled *"§ 3.4 RULED Q7: the gate loop's stylesheets arrive with
+  the bindings that own them"* — § 3.4's Q7 trio, already recorded at that box
+  and nothing to do with the conformance corpus; and **`transpose` occurred ZERO
+  times anywhere in `openXdox-code`**. On that reading the side was absent.
+  **Measured again at 21:54Z, and the answer moved**: `openXdox-code` **`#23` →
+  `3ee8cd31`**, merged **2026-09-18T21:46:37Z** — SIX MINUTES AFTER the sentence
+  above was written — lands `src/openxdox/conformance_corpus.py`,
+  `src/openxdox/corpus_shape.py` and `src/openxdox/domain_corpus_adapter.py`
+  with their tests. **That module is exactly the `openxdox.conformance_corpus:reader`
+  § 4.5a's exit command names**, so the openXdox READER exists and the earlier
+  "absent" reading is superseded.
+  *(`transpose` was the WRONG TOKEN to test with, and saying so is the point of
+  keeping both readings: it is the transposition PROOF's vocabulary, not the
+  corpus reader's. A search that returns zero answers only the question it was
+  asked. The first reading is kept rather than overwritten because it was true
+  when taken and because a bullet that silently re-wrote itself would hide that
+  this ledger's own evidence can age in minutes.)*
+  **THE SIDE IS STILL NOT DISCHARGED, AND THE BOX STAYS `[ ]`**: § 3.7 asks that
+  every destination PASS the corpus, and a reader that exists is not a pass
+  recorded. The exit line — the three-argument command returning **`OK — 17 of
+  17`** at `openXdox-code` `main` `3ee8cd31` — is owed, and § 4.5a owes the same
+  line for its own tick.
   **`#26` WAS EXPECTED TO SUPPLY THE openDox SIDE AND IT DOES NOT — MEASURED,
   2026-09-18, BY AMENDMENT #7.** `openDox-code` `#26` → `4f8ae01e` landed and
   § 3.6 ticks on it, but its FIFTEEN changed files are the runtime and its
