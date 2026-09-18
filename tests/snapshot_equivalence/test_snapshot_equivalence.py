@@ -490,6 +490,35 @@ def test_the_source_revision_is_pinned_on_both_sides_and_is_load_bearing(
         shipped["states"][0]["pre_sha256"]
 
 
+def test_the_injected_git_carries_the_runs_own_anchor(monkeypatch):
+    """The injected git and the explicit `source_revision` are the SAME anchor,
+    and TODAY NOTHING ELSE WOULD NOTICE IF THEY WERE NOT.
+
+    Measured at the pinned leg with a recording git: given an explicit
+    `source_revision`, `generate_snapshot` calls `commit_date(corpus,
+    revision)` exactly once and NEVER `head_sha`, so a `FakeGit` built with
+    the class default rather than with the run's revision is indistinguishable
+    in the rendered bytes. That is precisely why it is asserted here rather
+    than left to the digests: the day any field is derived from HEAD again — it
+    was, before the explicit argument existed — a runner whose injected git
+    disagreed with its own argument would report a difference that is about
+    the runner and not about the projection.
+    """
+    built: list[str] = []
+
+    class Recording(MODULE.FakeGit):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            built.append(self.head_sha(None))
+
+    monkeypatch.setattr(MODULE, "FakeGit", Recording)
+    moved = "deadbeef" * 5
+    MODULE.render_post(MODULE.post_stack(), BASE_REPO, moved)
+    assert built == [moved], (
+        f"render_post injected a git anchored at {built} and rendered at "
+        f"{moved}; the two must be one anchor")
+
+
 def test_this_suite_never_skips():
     """`pytest-suite.yml` pins `EXPECT_SKIPPED` as an EXACT sum and says in
     terms why: a directory that silently turns into skips is "a green bar,
