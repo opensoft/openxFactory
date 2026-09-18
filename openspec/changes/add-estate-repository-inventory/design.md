@@ -58,11 +58,15 @@ $ python3 scripts/validate-code-surface.py .
 **THE FIGURES ABOVE ARE THE CORPUS THIS PACKET WAS MEASURED AGAINST AND NOT THE
 CORPUS AT THIS BRANCH'S HEAD, and the difference is disclosed rather than left to
 a reader to notice.** They are taken at `origin/main` `ad089e8a`, BEFORE this
-packet was filed. Run at this branch's head the same command reports **50** active
-proposals and **35** readable repository lists, the extra one being THIS PACKET'S
-OWN declaration, whose head is the single identifier `openxFactory` and which the
-candidate inventory carries at row 2. Nothing else moved, and no figure this
-design reasons from changes.
+packet was filed. Run at this branch's head the same command reports **49** active
+proposals and **34** readable repository lists — THE SAME TOTALS, and by two moves
+that cancel rather than by nothing having happened. THIS PACKET'S OWN declaration
+adds one of each, its head the single identifier `openxFactory`, which the
+candidate inventory carries at row 2. Main's merge into this branch takes one of
+each back: it archived `add-composed-view-authoring` (`3e32d987`, PR #1056), which
+the same run reports as the archive moving from 170 proposals and 124 declaring to
+**171** and **125**. Nothing else moved, and no figure this design reasons from
+changes.
 
 The declared identifier census was taken through the SHIPPED reader
 (`scripts/code_surface.py`, `declaration` then `parse_head`) over every active
