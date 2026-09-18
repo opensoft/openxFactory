@@ -421,10 +421,11 @@ POINT IN THE SAME SERIES.
 - **THEN** the report MUST count the entry in the skip term for entries skipped as non-files
 - **AND** it MUST take no token from it and MUST NOT count it among the FILES read
 
-#### Scenario: The out-of-root term takes only the links that resolve outside the root
+#### Scenario: The out-of-root term takes exactly the entries whose resolved path leaves the root
 - **WHEN** the report counts a tracked entry in the skip term for entries skipped as links leaving the repository root
-- **THEN** that entry MUST be a tracked link whose resolved path stands outside the repository root
-- **AND** a tracked link that reaches no readable regular file while standing inside the root MUST be counted in the non-file term and MUST NOT be counted in that one
+- **THEN** that entry's resolved path — whether reached through its own link or through a parent directory component's link — MUST stand outside the repository root
+- **AND** a tracked entry whose resolved path stands inside the repository root MUST NOT be counted in that term
+- **AND** the tracked ENTRIES in scope MUST still equal the FILES read plus all three skip terms
 
 #### Scenario: A tracked file stands under a parent that links outside the root
 - **WHEN** a tracked regular file's path passes through a directory component that is a link whose lexically resolved path leaves the repository root
