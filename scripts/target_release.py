@@ -227,7 +227,6 @@ CLOSED_REGISTER = (
     ("adopt-medxsoft-repository-identity", "next"),
     ("admit-deliberation-clearing-operation", "the"),
     ("declare-client-standing-policy-contract", "contract-v<next"),
-    ("add-nightly-dashboard-refresh", "implementation_pending"),
     ("add-roster-directory-admission-surface", "implementation_pending"),
     ("qualify-avatar-live-voice", "implementation_pending"),
     ("split-opendox-two-layer-product", "implementation_pending"),

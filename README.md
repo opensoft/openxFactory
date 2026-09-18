@@ -2968,104 +2968,6 @@ Active changes:
   digest inventory and the tag happen once, with the other next-additive-bundle
   changes. Archives only when hermes-install re-pins and admits
   `hermes_client_overlay` to its `PARITY_KINDS` sweep.
-- [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
-  — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
-  (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
-  realized system"), amended 2026-09-01, reaching this repository 2026-09-04
-  by rescue (PR #595) and re-ratified that same day, then
-  **RE-REALIZED 2026-09-04 (S1–S5 landed; awaiting the first real nightly and
-  the operator's host acts before archive)** — openxFactory #642 `bbc21e41`,
-  #641 `19a777d8`, #648 `96aa61a3`; aggregation opensoft/xFactory #243
-  `84dbbb24`; Omnigent-Install #211 `cdfe3152`. Its code is MERGED AND WIRED
-  across all three repositories — openxFactory #260/#261, aggregation
-  opensoft/xFactory #141, Omnigent-Install
-  #123/#126/#129/#143/#146/#153 — with required-check ruleset
-  21294850 live on Omnigent-Install's default branch. **The ARCHIVE gate stays
-  OPEN**: this change's own `target_release` requires one real nightly pin PR
-  merged and reconciled PLUS one wider diff refused and parked, and NEITHER has
-  happened — the build+push child has never run, no `bot/dox-dashboard-pin` PR
-  has ever existed, and both nightlies since the chain landed failed with every
-  refresh step skipped. Merged and wired is not exercised; §7 and §8.5 stay
-  open, discharged by the first real nightly in either direction. The
-  openxFactory COMPANION to Omnigent-Install's just-merged
-  `add-dox-gitops-reconciliation` (its `main` `7d0370d`, 2026-08-22), which took
-  the APPLY and deliberately deferred two open questions to this change. Gives
-  the nightly a sixth lane: an ideation-dashboard IMAGE REFRESH stage on the
-  `cpc-omni01` artifact worker, ordered after the report delivery — fresh
-  openxFactory `main` checkout, `--strict` snapshot generation from THAT
-  checkout (0 errors / 0 warnings, and the gate precedes the push, so a strict
-  failure publishes nothing), image build from Omnigent-Install's
-  `containers/ideation-dashboard/Dockerfile` at ITS `main` over the assembled
-  workspace context, date-stamped push to `acropensoftxfactoryqa.azurecr.io`,
-  digest captured. One revision for snapshot and baked `/source` corpus by
-  construction, which is what keeps the freshness header honest. The no-change
-  short-circuit is decided on INPUT REVISIONS BEFORE the build — unmoved corpus
-  and unmoved build recipe ⇒ no checkout, no build, no push, no PR, no deploy —
-  explicitly NOT on built-vs-pinned digest equality, which can never hold
-  (fresh-checkout mtimes move the copied layers; the base image tag floats) and
-  would therefore redeploy content-equivalent images nightly. Provenance for
-  that check is a machine-readable block in the pin's own overlay comment (the
-  precedent the two hand-written pins already set in prose), scoped to each
-  repository's BAKED INPUTS rather than its branch tip so the lane's own merged
-  pin cannot force the next rebuild; absent/unparseable provenance counts as
-  changed and bootstraps. RULES both deferred questions: **(a)** the auto-merge
-  mechanism is the aggregation's existing Merge Master pattern extended to
-  Omnigent-Install with a SECOND candidate class in its reviewed
-  `candidates:` list (author + fixed head `bot/dox-dashboard-pin` + base +
-  one-file `path_allowlist` + `require_all_checks`, with the LINE-level
-  digest-shape predicate contributed by a repository-side required check,
-  because no envelope field expresses it) — fail-closed, base-branch-only
-  rules and logic, revocable in one config edit, no org-ruleset bypass;
-  **(b)** the lane identity is the EXISTING `XFACTORY_APP` the reusable
-  workflow already mints per run, requiring its installation on
-  Omnigent-Install at `contents: write` + `pull_requests: write` (verified by a
-  real authenticated call, not a settings page), with a dedicated App as the
-  recorded contingency. Worker/App/approver/GitHub/Flux hold four separate
-  rungs; `execute_final_action` and `access_secrets` stay false; the only new
-  grant is a push-scoped, host-local, by-reference ACR credential (needs an
-  Omnigent-Install schema delta — `acr_pull` is
-  `additionalProperties: false`). SIX ADDED requirements on `doc-health` (the
-  lane contract, where every sibling nightly lane already lives) plus ONE ADDED
-  and ONE MODIFIED on `ideation-dashboard` (the served plane's rebake bound;
-  the MODIFIED restates all four promoted scenarios verbatim, preserves "an
-  image rebuild MUST NOT be required to reflect newly published snapshots"
-  exactly, and RECORDS the standing conformance gap that the hosted image
-  performs no runtime fetch today, so its baked artifacts are its data).
-  `target_release: implementation_pending`.
-  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS RULED 2026-09-01,
-  REACHED THIS REPOSITORY 2026-09-04 BY RESCUE, AND WAS RE-RATIFIED THAT SAME
-  DAY** (Brett Heap, in-session, verbatim "re-ratify and merge 595"). The
-  2026-09-04 date is the rescue and the re-ratification, not the amendment's
-  own: `proposal.md`'s front-matter `Amended:` line is authoritative and reads
-  2026-09-01. Everything described above is the design as RATIFIED
-  2026-08-25 and is what still governs. The amendment, authored 2026-09-01 on
-  Brett's host ruling ("the runner design intentionally requires
-  `repository_credentials_absent`; source is delivered as sealed job artifacts
-  and the runners do not clone or push repositories"), moves the
-  fresh-checkout act OFF the credential-free artifact worker and ONTO the
-  credentialed hosted parent, which seals a bounded source artifact the child
-  verifies and consumes — because the ratified lane requires a clone of two
-  PRIVATE repositories on a worker its own authority requirement forbids a
-  repository credential to. Two ADDED scenarios and one ADDED prohibition
-  paragraph in the delta; no requirement title moves and no `MODIFIED` block is
-  introduced. It reached this repository by rescue (PR #595, issue #591) after
-  being stranded uncommitted in the shared checkout, and it is recorded in
-  `proposal.md` § AMENDED AFTER RATIFICATION, 2026-09-04. The archive gate is
-  unmoved either way. **The re-realization the amendment owed LANDED
-  2026-09-04**
-  (the five PRs named at the top of this entry, recorded in `proposal.md`
-  § REALIZED and `tasks.md` § 9a): the parent now seals a bounded source
-  artifact with a manifest and a `tree_digest`, the child verifies and consumes
-  it before any registry credential is used, the two SSH deploy keys and every
-  `git` invocation are gone from the worker, the module's own raw-clone
-  `--phase build` recipe is retired, and the Omnigent-Install worker profile
-  stops contradicting its own `repository_credentials_absent` attestation. The
-  sealed source measures **3511 files / ~35.1 MB**, not the design's ~8 MB
-  estimate. That closes the code/spec disagreement and makes the lane
-  exercisable; **the ARCHIVE gate is still OPEN** on the same evidence, now
-  owed only by S7 — the operator's four remaining host acts (the SSH deploy-key
-  act is DELETED, not deferred) and the first real nightly in both
-  directions.
 - [add-roster-directory-admission-surface](openspec/changes/add-roster-directory-admission-surface/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Admits the
   single `directory` (service-discovery) admission surface into the closed
@@ -3530,6 +3432,62 @@ Archived changes:
   [#1047](https://github.com/opensoft/openxFactory/issues/1047) closes on this
   archive, by the lane's hand after the ARCHIVED record — this pull request
   carries `refs` and no closing keyword.
+
+- [add-nightly-dashboard-refresh](openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh/proposal.md)
+  — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openXdox` by
+  [PR #1060](https://github.com/opensoft/openxFactory/pull/1060), under **RULING
+  Q6** (Brett Heap, 2026-09-04T17:49Z,
+  [#656](https://github.com/opensoft/openxFactory/issues/656)), encoded at
+  `split-opendox-two-layer-product` `tasks.md` § 6.1 and `design.md` § D9. **THE
+  ONLY ONE OF THE FIVE WHOSE DESTINATION IS openXdox** — D9 reads the refresh
+  lane as projection-mechanism work — and **the one § 6.1 calls "the one genuine
+  conflict RULING Q6 names"**. **THE DESTINATION, NAMED, WHICH IS WHAT `tasks.md`
+  § 8.5 REQUIRES:** [openXdox-spec #15](https://github.com/opensoft/openXdox-spec/pull/15),
+  **the first change RE-HOMED INTO openXdox** — not that repository's first
+  OpenSpec change, which it is not: openXdox-spec already carries the archived
+  `2026-09-11-add-openxdox-projection-surfaces` and the promoted
+  `openspec/specs/openxdox-projection-surfaces/`, both measured there on
+  2026-09-18. (The claim read "openXdox's FIRST OpenSpec change" until then;
+  openXdox-spec #15's own description had already corrected it, and this index
+  should not record a repository-history claim its destination contradicts.
+  Found by Copilot's review at `b126e7b3`.) **ITS TWO DELTAS ARRIVE ON DIFFERENT TERMS,
+  which is the whole of § 6.1.** `ideation-dashboard` (1 ADDED + 1 MODIFIED, the
+  MODIFIED being *Runtime snapshot fetch with baked fallback and displayed
+  freshness*) travels **byte-identical** — 6,663 B / `sha256 50fd14ba…`,
+  `diff`-verified, `grep -c openxFactory` over it **0**, so no subject edit was
+  owed. The **SEVEN `doc-health` ADDED** requirements do NOT become openxFactory
+  requirements — § 6.1: *"they do NOT travel and are NOT added to
+  `openxFactory`"* — and do not land on a `doc-health` capability at the
+  destination either; they arrive on openXdox's own `openxdox-refresh-lane` with
+  **exactly one line changed**, the delta file's capability heading. **THE
+  RE-AUTHORING AGAINST THE ADAPTER THAT § D9 ASKS FOR IS NAMED, NOT PERFORMED,
+  AND THAT IS DECLARED RATHER THAN QUIET:** the seven are
+  openxFactory-nightly-specific in their ANTECEDENTS (*"The nightly doc-health
+  run SHALL include…"*, *"the aggregation's `openxFactory` submodule pin"*), so
+  re-pointing them is a rewrite rather than the seam's declared subject edit —
+  and the adapter does not exist in any corpus today (`corpus-adapter-seam` is an
+  unpromoted delta of **`split-opendox-two-layer-product`** —
+  `openspec/changes/split-opendox-two-layer-product/specs/corpus-adapter-seam/spec.md`,
+  with no `openspec/specs/corpus-adapter-seam/` to promote into — and the
+  successor capability id is **that** packet's **§ 5.2a**, unbuilt. NOT this
+  archived packet's own § 5.2a, which is a different and already-ticked item, a
+  round-trip test over the real overlay file; the closure record states it the
+  same way). The receiving change carries it as a blocked open box and bars
+  ratifying the seven until it lands. **THE LOCKSTEP PAIR THE ARCHIVE RETIRES:**
+  `scripts/target-release-register.yaml`'s `implementation_pending` entry —
+  whose own `retires_when:` reads *"or the packet archives"* — and
+  `scripts/target_release.py`'s `CLOSED_REGISTER` tuple, 21 pairs to 20. **THE
+  TWO HALVES ARE NOT THE SAME OBLIGATION:** the ENTRY's deletion is required
+  (`Report.stale` refuses while it stands), while the baseline pair's is a
+  DELIBERATE SHRINK — `target_release.py` says a baseline *"MAY BE A STRICT
+  SUPERSET, AND USUALLY WILL BE … a ceiling, never a floor"*, and its
+  same-pull-request sentence governs ADMITTING a pair, not removing one. Both
+  move here anyway, in one diff, because that is where the movement is legible.
+  **WHAT STAYS:** the
+  aggregation-side artifact-only worker (§ 6.1); no workflow moves. **NO DELTA IS
+  PROMOTED HERE.** The packet is relocated by `git mv` and otherwise UNEDITED.
+  Full reasoning:
+  [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh/review/rehome-2026-09-16.md).
 
 - [add-doxchat-model-intake](openspec/changes/archive/2026-09-16-add-doxchat-model-intake/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
