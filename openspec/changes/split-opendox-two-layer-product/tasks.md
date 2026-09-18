@@ -1454,6 +1454,18 @@ the bookkeeping that ticks this group.
   proof that a TRANSPOSED corpus is faithful is the machinery those passes will
   run on, not one of the passes. Accepting the landing as the tick would
   discharge a two-destination condition on zero destinations.
+  **THE THREE SIDES, MEASURED PER REPOSITORY 2026-09-18 BY AMENDMENT #7. THE
+  `openxFactory` SIDE HOLDS; NEITHER DESTINATION PASS IS EVIDENCED YET.**
+  • **`openxFactory` — HOLDS.** `#1086` → `049d54a9` (the transposition
+  accepted and proved faithful, RULED Q-F1 (a)) and its follow-up `#1113` →
+  `4401e1aa`, merged 18:00:25Z, closing the four findings `#1086` registered.
+  • **openDox — NOT EVIDENCED.** See the measurement below.
+  • **openXdox — NOT EVIDENCED, AND THE PULL REQUEST OFFERED IS A DIFFERENT
+  SUBJECT.** `openXdox-code` `#22` → `fa792cbb` is titled *"§ 3.4 RULED Q7: the
+  gate loop's stylesheets arrive with the bindings that own them"* — it is
+  § 3.4's Q7 trio, already recorded at that box, and has nothing to do with the
+  conformance corpus. Measured further: **`transpose` occurs ZERO times anywhere
+  in `openXdox-code`.** So the openXdox side is not merely unnamed, it is absent.
   **`#26` WAS EXPECTED TO SUPPLY THE openDox SIDE AND IT DOES NOT — MEASURED,
   2026-09-18, BY AMENDMENT #7.** `openDox-code` `#26` → `4f8ae01e` landed and
   § 3.6 ticks on it, but its FIFTEEN changed files are the runtime and its
@@ -1461,10 +1473,15 @@ the bookkeeping that ticks this group.
   `repository_act.py`, `tests_runtime/`, `docs/runtime.md`, `validate.yml` — and
   **NOT ONE of them is a conformance file**. `openDox-code` carries a
   `corpus_adapter.py` of its own, but it was already there and `#26` did not
-  touch it. **So this box still waits on BOTH destinations, and citing `#26`
-  here would be evidence claimed as proof it cannot give** — a landing in the
-  right repository is not a pass of the corpus, and the box asks for the pass.
-  The openXdox side remains § 4.5a, which is `[ ]`.
+  touch it. **`#26` was offered as carrying `transpose()` plus a factory; its
+  diff contains no `def transpose` at all**, and across `openDox-code` the token
+  `transpose` occurs in exactly ONE file, `src/opendox/doxbench_abstract_store.py`,
+  which `#26` did not touch either. What `#26` does with the corpus adapter is
+  IMPLEMENT its Protocol for the local-git case — which is § 3.6's subject and is
+  why § 3.6 ticks on it. **So this box still waits on BOTH destinations, and
+  citing `#26` here would be evidence claimed as proof it cannot give** — a
+  landing in the right repository is not a pass of the corpus, and the box asks
+  for the pass. The openXdox side remains § 4.5a, which is `[ ]`.
   **THE FOLLOW-UP'S SCOPE IS FOUR REGISTERED FINDINGS**, booked HERE rather
   than as § 8.9 residue because they belong to this box's own instrument:
   `#1086` landed AS IS at head `43a48ed5` with four Copilot findings
@@ -2200,6 +2217,19 @@ the bookkeeping that ticks this group.
   tasks 1.1–1.6 — belongs to that packet's own owner under its own claim, NOT
   to this amendment, which must not edit a neighbouring packet's lifecycle
   headers on its way past. **Registered, not resolved, and it moves no box.**
+  **DISCHARGED 2026-09-18 by `tasks.md` AMENDMENT #7 — the owed encoding has
+  LANDED.** `openxFactory` **#1103 → `eb1880cb`**, merged **21:30:14Z** by merge
+  commit, archives the packet at
+  `openspec/changes/archive/2026-09-18-repromote-engineering-vocabulary`.
+  **Measured there rather than taken on report**: `proposal.md`, `design.md`
+  AND `tasks.md` all read `Status: ratified`; tasks **1.1–1.6 are all `[x]`**
+  with **zero** unchecked tasks remaining; and `review/ratification-2026-09-18.md`
+  is present. The contradiction this note registered — a corpus reading `draft`
+  where the ledger read `RATIFIED` — no longer exists.
+  *(Recorded as a CLOSE rather than by deleting the registration. The gap was
+  real, a reviewer raised it against three separate heads, and the record of a
+  finding that was right and then satisfied is worth more than a page that
+  looks as though it never happened.)*
 - [x] 5.2 `[oxF]` **Shed the dashboard corpus down to RULED DQ-1's KEPT SET.**
   The list is `docs/opendox-carve-manifest.yaml` and not a prose inventory: every
   row it routes to a destination LEAVES — **except the twenty
@@ -2975,7 +3005,19 @@ the bookkeeping that ticks this group.
   the runner's first run to answer" until #1105 landed and the runner said
   otherwise in terms; corrected on a Copilot finding against head `a406915d`.)*
   CLAIM `5728621421`.
-- [ ] 5.6 `[cxF]` `[oxF]` **DE-FLOOR BEFORE YOU REMOVE — Rule 7 substrate row 1,
+- [ ] 5.6 `[cxF]` `[oxF]` **STATUS — THE GATE PRECONDITION HAS LANDED, recorded
+  by `tasks.md` AMENDMENT #7, 2026-09-18.** `openxFactory` **#1103 →
+  `eb1880cb`**, merged **21:30:14Z** BY MERGE COMMIT, archives
+  `repromote-engineering-vocabulary` — the precondition this gate waits on.
+  **PHASE 1 STILL WAITS ON THIS PACKET'S OWN ARCHIVE**, RULED **Q-D1 (a)**
+  (`#656` comment `5735889836`), and **Phase 0 is the pin advance on the
+  codexFactory bot pull request**. **Neither this box nor § 8.4 ticks here**: a
+  precondition landing is not the act, and the ordering § 8.4 names — de-floor
+  BEFORE the removal — is still ahead. *(Recorded at both boxes' shared subject
+  because § 5.6 is where the order is argued and § 8.4 is where it is checked;
+  a reader who meets one should not have to find the other to learn the gate is
+  now unblocked at its front.)*
+  **DE-FLOOR BEFORE YOU REMOVE — Rule 7 substrate row 1,
   claimed HERE.** `openspec/specs/ideation-dashboard/` is REMOVED and two
   capability directories are ADDED by the archive, and the codexFactory
   review-authority floor is EXACT SET EQUALITY. Order: the codexFactory pull
@@ -4243,6 +4285,28 @@ realization evidence, never on landing. Each line is its own evidence.
 - [ ] 8.5 All five re-homed changes dispositioned, each with its destination named
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence first.
+  **STATUS — RECORDED BY `tasks.md` AMENDMENT #7, 2026-09-18. THE BOX DOES NOT
+  TICK, AND WHAT IT STILL WANTS IS NAMED EXACTLY.** The openxFactory side IS
+  complete — all five closures landed (§§ 6.1–6.5, shas in their own boxes) and
+  all five directories are under `openspec/changes/archive/`, read from the
+  tree — and the aggregation side is `xFactory` **#454 → `0b0c88f4`**
+  (AGGREGATION-SIDE RECORD A1 at § 8.7). **Two things the box's own words ask
+  for are not yet in hand:**
+  **(a) "each with its destination NAMED IN THE RECEIVING REPOSITORY" — only
+  TWO of the four re-homes name one here**: § 6.1's `openXdox-spec` **#15 →
+  `f088b097`** and § 6.4's `openDox-spec` **#12 → `edeed08c`**. § 6.3
+  (`add-doxchat-model-intake`) and § 6.5 (`add-lens-document-selection`) name
+  no destination-side pull request in this ledger. The ticking act owes those
+  two shas, or a finding that the destination half does not exist for them.
+  **(b) The word "FIRST" needs a reading, and it is NOT satisfied on the
+  obvious one.** `retire-doxbench-chat-turn-v1` (§ 6.2) archived **LAST** of the
+  five, not first: `#1056` 10:50:06Z, `#1057` 13:31:51Z, `#1060` 17:30:27Z,
+  `#1065` 17:54:08Z, `#1066` **20:24:53Z**. If "first" means *before the other
+  four*, the record contradicts it and the box cannot tick as written. If it
+  means *before its own forward half promotes*, or *before § 8* (which § 6.2's
+  box does say — *"Sequenced BEFORE § 8"*), it holds. **This is a ruling, not a
+  measurement**, and it is left to the ticking act rather than decided here by
+  picking the reading that happens to let the box tick.
 - [x] 8.6 `ideation-intent-plane` in canon, or its non-promotion recorded (§ 0.6).
   **TICKED 2026-09-16 ON THE FIRST OF THE TWO DISCHARGES, RE-READ LIVE** —
   `#656` comment **`5690559647`**. `openspec/specs/ideation-intent-plane/spec.md`
