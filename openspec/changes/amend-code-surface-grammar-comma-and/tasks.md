@@ -21,6 +21,22 @@ act on a separate word, so openxFactory #1092 closes at the archive and not at
 this landing. § 5 records what was measured and deliberately not taken, and stays
 open where the work is owed.
 
+**ONE CLAUSE OF THE PARAGRAPH ABOVE IS SUPERSEDED BY THE ARCHIVE ACT OF
+2026-09-18, AND IT IS NAMED AND QUOTED IN PLACE RATHER THAN DELETED.** The
+clause is ***"§ 4 (archive) STAYS ENTIRELY OPEN"***. It was true of the LANDING
+of PR [#1108](https://github.com/opensoft/openxFactory/pull/1108) → `60d281a8`,
+which is what it was written about, and it is no longer true of this file: § 4
+is PERFORMED by the archive pull request § 4.1 itself names, and § 4.1, § 4.2
+and § 5.2 tick there. **EVERY OTHER CLAUSE STANDS.** Nothing was ticked at that
+landing that did not land; § 1 named the word that ticked it; and openxFactory
+#1092 closes at the ARCHIVE and not at that landing, which is exactly what the
+archive pull request's `Closes #1092` performs. **§ 5.1 IS NOT TICKED AND THE
+WORK IS NOT DONE** — it carries the house's reserved DEFERRED marker `- [~]`
+with what is owed written into the box. **AND THE ARCHIVE PULL REQUEST CARRIES
+NO WORD OF ITS OWN**: it was prepared as a DRAFT and HELD, Brett Heap's separate
+archive word had not been given when these boxes moved, and it lands on that
+word and on no other act.
+
 ## 1. Ratification — GIVEN 2026-09-18
 
 - [x] 1.1 **RATIFIED 2026-09-18 by Brett Heap** (openxFactory operator
@@ -192,19 +208,78 @@ open where the work is owed.
 
 ## 4. Archive — OWED, NOT GIVEN
 
-- [ ] 4.1 **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's separate
+- [x] 4.1 **PROMOTE THE BLOCK AND ARCHIVE THE PACKET**, on Brett Heap's separate
       word and through `scripts/proposal-support.py . archive
       amend-code-surface-grammar-comma-and --date <UTC day>` rather than a bare
       `openspec archive`. Under `release-realization` an empty code surface
       archives on landing plus this task list; that archive is NOT performed at
       this landing, and nothing under `openspec/specs/` is edited by it.
-- [ ] 4.2 **CLOSE openxFactory #1092 AT THE ARCHIVE**, not at this landing. The
+
+      **PERFORMED IN THIS ARCHIVE PULL REQUEST, 2026-09-18**, through the
+      sanctioned wrapper and never a bare `openspec archive`:
+      `python3 scripts/proposal-support.py . archive
+      amend-code-surface-grammar-comma-and --yes`. **`--date` WAS NOT PASSED**,
+      deliberately: the wrapper's default IS today in UTC and its `--help`
+      REFUSES any other day, so `2026-09-18` is the directory's date because it
+      is the UTC day the wrapper ran and the UTC day its commit carries, and not
+      because a flag asserted one. The ORIGIN RETENTION gate passed against the
+      ratifying commit `60d281a8` — the squash landing of PR
+      [#1108](https://github.com/opensoft/openxFactory/pull/1108), and the ONLY
+      commit that has ever touched this packet's `.openspec.yaml` — and the CLI
+      was resolved through `contracts/openspec-cli-pin.yaml`
+      (`@fission-ai/openspec@1.12.0`, content-addressed artifact, integrity
+      verified) rather than from `PATH`, which carries 1.13.1 in this checkout
+      and would have been refused.
+
+      **THREE THINGS MOVED AND THEY ARE THE WHOLE OF THE ACT.** (1) The packet
+      directory, to
+      `openspec/changes/archive/2026-09-18-amend-code-surface-grammar-comma-and/`,
+      every file a pure rename. (2) The `## MODIFIED` block, PROMOTED onto
+      `openspec/specs/release-realization/spec.md`, where *Code-surface
+      declaration grammar is gated* now names FOUR separators — a comma,
+      `, and `, ` and `, ` + ` — with the exclusivity clause said of THOSE TWO
+      HEAD FORMS, two body paragraphs added, the flat `, and …` refusal narrowed
+      to what the reader does, the WHEN bullet of *An active proposal declares
+      several repositories* naming the four, and the scenario *A declaration
+      spells its list out with an Oxford comma* added beside it. (3) The README
+      **OpenSpec Records** entry, from *Active changes* to the archived ledger.
+      The per-change sweep-ledger row follows in its own commit, seeded by the
+      sanctioned tool and by no hand. The wrapper's verbatim transcript, the
+      promoted requirement's byte-identity against the archived delta and every
+      validator's exit code are recorded in this pull request's BODY, which is
+      where this file's own preamble says a measurement goes. **NOT ONE
+      CHARACTER OF `scripts/code_surface.py` MOVES WITH IT**, which is the ruled
+      shape and is checked rather than asserted: `git diff origin/main..HEAD`
+      names no path under `scripts/` but the ledger's own.
+
+      **AND THE ACT IS PREPARED, NOT AUTHORIZED.** Brett Heap's separate archive
+      word had NOT been given when this box moved, so the tick records the DIFF
+      and never a word. The pull request is a DRAFT held for that word; it lands
+      by MERGE COMMIT (`gh pr merge --merge`) and NEVER by squash, because a
+      squash re-dates the archive directory's adding commit and reds
+      `archive-date-vs-commit` on `main`; and whoever lands it cites the word
+      there.
+- [x] 4.2 **CLOSE openxFactory #1092 AT THE ARCHIVE**, not at this landing. The
       pull request body carries `Refs`, never a closing keyword, for exactly
       that reason.
 
+      **THE CLOSING KEYWORD IS PLACED, AND THAT IS THE WHOLE OF WHAT A TICK CAN
+      RECORD.** `Closes #1092` is written in the BODY of this archive pull
+      request and in no other place: no commit message on this branch carries a
+      closing keyword beside an issue number, checked with a grep over
+      `origin/main..HEAD` rather than assumed. So openxFactory #1092 shuts BY
+      THE MERGE of this pull request — the landing lane's act on Brett Heap's
+      archive word — and the tick records that the instrument is IN PLACE, never
+      that the issue is shut. That is the shape PR
+      [#899](https://github.com/opensoft/openxFactory/pull/899) took at its own
+      § 5.2 and PR [#1076](https://github.com/opensoft/openxFactory/pull/1076)
+      at its § 5.2. The ratified sentence above is about PR #1108's body, which
+      carried `Refs #1092` and no closing keyword for exactly the reason it
+      states.
+
 ## 5. Measured, and deliberately NOT taken here
 
-- [ ] 5.1 **`scripts/code_surface.py`'S `parse_head` DOCSTRING CARRIES THE SAME
+- [~] 5.1 **`scripts/code_surface.py`'S `parse_head` DOCSTRING CARRIES THE SAME
       THREE-SEPARATOR SENTENCE AND IS NOT EDITED** (`design.md` D4). At
       `:447-448` it reads *"as `none`, or as repository identifiers separated by
       a comma, by ` and ` or by ` + `"*, twelve lines below a regular expression
@@ -215,7 +290,42 @@ open where the work is owed.
       on the recording"*): at the archive act it ticks by NAMING a filed
       successor issue, or by Brett Heap's word that a docstring needs no
       correction. It is NOT ticked here and the work is not done.
-- [ ] 5.2 **NO OTHER PLACE IN THE CORPUS RESTATES THE THREE SEPARATORS, AND THE
+
+      **DEFERRED AT THE ARCHIVE ACT OF 2026-09-18 — OPEN, OWED, AND STILL NOT
+      DONE.** The box takes the house's reserved DEFERRED marker `- [~]` rather
+      than a tick. That form has been used at an archive act before
+      (`openspec/changes/archive/2026-09-10-accept-sequenced-after-header-line/tasks.md`
+      § 4.4, *"DEFERRED … AT THE ARCHIVE — OPEN, OWNED ELSEWHERE"*; and
+      `…/2026-09-10-adopt-codexfactory-repository-identity/tasks.md` §§ 5.7,
+      8.4, 9.1, 9.2), and the archive wrapper admits it because it refuses only
+      a literal `- [ ]` (`scripts/proposal-support.py:4632-4633`), which is a
+      fact about the gate and NOT a reason for the marker: the reason is that
+      the work is not done.
+
+      **THE RESIDUE IS RE-MEASURED AT THIS HEAD AND READS THE SAME.** At
+      `c22c4fc3` the sentence sits at `scripts/code_surface.py:447-449`, its
+      *"separated by a comma, by ` and ` or by ` + `"* on `:448`; and the
+      module's own comment over `_SEPARATOR_RE` (`:148-151`) calls them
+      *"EXACTLY THE THREE THE GRAMMAR ADMITS … plus the `, and ` the corpus
+      writes when it spells a list out"*, which is the same divergence in a
+      second place and is named here rather than left to be found. Both are the
+      `design.md` D4 residue this packet declined to sweep; editing either would
+      give the packet a CODE SURFACE and move its archive behind
+      merged-plus-green realization evidence for a comment.
+
+      **NO SUCCESSOR ISSUE IS FILED BY THIS ARCHIVE PULL REQUEST, AND NONE
+      EXISTS TO NAME.** openxFactory was searched on 2026-09-18 for
+      *"parse_head docstring"* and *"code_surface docstring separators"* (both
+      return nothing) and over every open and closed issue carrying
+      `code_surface` in its title: #1092 (this packet's own), #1074, #1087 and
+      the closed #1013 and #1090 — none of them this docstring. The box
+      therefore still ticks in one of the two ways its ratified text names, a
+      successor issue FILED and named, or Brett Heap's word that a docstring
+      needs no correction, and this draft takes NEITHER: it is prepared and
+      HELD, and a successor filed for an act that has not landed would name an
+      archive that did not happen. **Holder: this lane, at the un-draft, or
+      Brett Heap by that word.**
+- [x] 5.2 **NO OTHER PLACE IN THE CORPUS RESTATES THE THREE SEPARATORS, AND THE
       SEARCH IS RECORDED RATHER THAN ASSUMED.** Measured 2026-09-18 at
       `3e32d987`: `grep -rn "separated by a comma" scripts tests` returns one
       line (§ 5.1's), and `grep -rn "EXCLUSIVE alternatives\|the two being"
@@ -225,3 +335,17 @@ open where the work is owed.
       ratified. **THE BOX TICKS AT THE ARCHIVE ACT, ON THE RECORDING**, by
       re-taking the measurement at the head the archive lands on; nothing is
       owed by this packet if it still reads the same.
+
+      **RE-TAKEN AT THE HEAD THIS ARCHIVE LANDS ON — `c22c4fc3`, the
+      `origin/main` this branch is cut from and the tree the wrapper ran in —
+      AND IT READS THE SAME.** `grep -rn "separated by a comma" scripts tests`
+      returns exactly ONE line, `scripts/code_surface.py:448`, which is § 5.1's
+      own and is deferred there; `grep -rnE "EXCLUSIVE alternatives|the two
+      being" scripts tests` returns NONE and exits **1**, grep's
+      no-lines-selected status, which is the proof of the zero rather than a
+      claim about it. The archived `gate-code-surface-declarations` delta at
+      `openspec/changes/archive/2026-09-16-gate-code-surface-declarations/specs/release-realization/spec.md`
+      carries the promoted three-separator wording and is NOT edited by this
+      pull request in either direction — `git diff --stat origin/main..HEAD`
+      names no path under it — because an archived delta is a record of what was
+      ratified. **NOTHING IS OWED BY THIS PACKET.**
