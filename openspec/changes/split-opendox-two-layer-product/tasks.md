@@ -2774,12 +2774,24 @@ the bookkeeping that ticks this group.
   by a wiring entry that could be dropped. **This is why Q-P1 (a) refused a
   one-shot run**: the post-split side is a pin that moves, and what now holds
   the equality is a gate that re-proves it on every pull request.
-  **STATUS — ONE CLAUSE OWED, AND IT IS A REVIEW DEBT, NOT A RUNNER DEFECT.**
-  Copilot's review at the LANDED head `9ed3def3` (review `5249196044`) carries
-  **four suppressed findings** that the holder's gate script did not surface
-  before the landing, recorded in the LANDED note on `#656`. **Helper actor
-  `floor55b` takes them as a follow-up act on the landed file** — a fix pull
-  request, or measured answers where a finding does not survive measurement.
+  **STATUS — ONE CLAUSE WAS OWED AS A REVIEW DEBT, NOT A RUNNER DEFECT, AND
+  ITS FIRST HALF HAS NOW LANDED.** Copilot's review at the LANDED head
+  `9ed3def3` (review `5249196044`) carried **four suppressed findings** that the
+  holder's gate script did not surface before the landing — *a 0-unresolved-
+  threads count is not evidence about a suppressed block*, which is the landing
+  gate's own rule. **All four are taken by `#1110` → `313b2665`, merged
+  2026-09-18T16:47:05Z**, a plain gate over the SAME TWO FILES `#1105` landed
+  (`scripts/verify-snapshot-equivalence.py` and
+  `tests/snapshot_equivalence/test_snapshot_equivalence.py`) and no other path.
+  **A SECOND FOLLOW-UP IS STILL OWED AND IS NOT THIS BOX'S CONDITION**: RULED
+  **Q-P5 (a)** (`#656` comment `5731951297`) scoped `#1110` to those four alone,
+  sending the remaining EIGHT registered items and runbook § 2.3 to a second
+  act, held because the runbook's § 2 family is contended until `#1086` lands.
+  *(This clause read "`floor55b` takes them as a follow-up act" until that act
+  landed. Corrected here rather than left in the future tense — the same stale
+  forward reference this amendment already had to repair once at § 6.4, where a
+  list of "remaining" closures still named one that had landed. A ledger's
+  forward references are the part of it that rots fastest.)*
   **The tick is not held on that**: this box asked for a gated runner and the
   gated runner is on `main`; unread review findings against landed code are an
   owed act with their own claim, and conflating the two would leave the floor's
