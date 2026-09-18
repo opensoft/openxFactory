@@ -23,7 +23,9 @@ day someone prunes or rewrites it.
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
+import time
 from pathlib import Path
 
 import pytest
@@ -33,7 +35,7 @@ from conftest import FakeGit  # noqa: F401  (sys.path side effect)
 import carved_reach
 
 from doc_health import ERROR, Finding, INFO, PartialSkip, Skip
-from doc_health import release_inventory
+from doc_health import corpus, release_inventory
 from doc_health.corpus import RealGit
 from doc_health.families import FAMILIES, FAMILY_RESOLUTION
 from doc_health.release_inventory import (
@@ -371,6 +373,75 @@ def test_the_real_reader_reports_modes(tmp_path):
     modes = RealGit().tree_modes(repo, "HEAD")
     assert modes["plain.sh"] == "100644"
     assert modes["exec.sh"] == "100755"
+
+
+# ------------------------------------------------- the #1098 subprocess bound
+
+def _blocking_git_shim(tmp_path: Path, sleep_seconds: int = 2) -> Path:
+    """A `git` on PATH that just sleeps past any sane bound, to prove a slow
+    real subprocess is stopped by `_GIT_TIMEOUT_SECONDS` and not merely by
+    however long the shim itself takes to exit."""
+    bin_dir = tmp_path / "fake-bin"
+    bin_dir.mkdir()
+    shim = bin_dir / "git"
+    shim.write_text(f"#!/bin/sh\nsleep {sleep_seconds}\nexit 1\n")
+    shim.chmod(0o755)
+    return bin_dir
+
+
+def test_run_hits_the_timeout_rather_than_hanging(tmp_path, monkeypatch):
+    """#1098: `_run` (corpus.py's shared primitive for every OTHER RealGit
+    reader) bound no `timeout=` at all, so a blocked promisor remote could
+    hang rather than answer the `None` the class's own docstring documents
+    for a git failure. `_GIT_TIMEOUT_SECONDS` is monkeypatched down so the
+    test proves the BOUND fired, not merely that the shim eventually exited
+    on its own well inside a slower bound."""
+    bin_dir = _blocking_git_shim(tmp_path, sleep_seconds=2)
+    monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
+    monkeypatch.setattr(corpus, "_GIT_TIMEOUT_SECONDS", 0.2)
+
+    start = time.monotonic()
+    result = RealGit()._run(tmp_path, "log", "-1")
+    elapsed = time.monotonic() - start
+
+    assert result is None, (
+        "a timed-out probe must answer the same None a failed git already "
+        "does, so every existing caller's skip handling is unchanged")
+    assert elapsed < 2.0, (
+        f"took {elapsed:.2f}s -- bounded by the shim's own sleep rather "
+        "than by _GIT_TIMEOUT_SECONDS, so the timeout is not really wired")
+
+
+def test_blobs_at_hits_the_timeout_rather_than_hanging(tmp_path, monkeypatch):
+    """Same gap, the batch `cat-file` reader: #1098 names it as `_run`'s
+    twin, the file's only OTHER raw `subprocess.run` call site."""
+    bin_dir = _blocking_git_shim(tmp_path, sleep_seconds=2)
+    monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
+    monkeypatch.setattr(corpus, "_GIT_TIMEOUT_SECONDS", 0.2)
+
+    start = time.monotonic()
+    result = RealGit().blobs_at(tmp_path, "HEAD", ["some/path.yaml"])
+    elapsed = time.monotonic() - start
+
+    assert result is None, (
+        "a timed-out batch read must answer None, the same failed-read "
+        "result blobs_at already gives on a bare OSError")
+    assert elapsed < 2.0, f"took {elapsed:.2f}s -- the timeout did not bound the call"
+
+
+def test_a_missing_git_binary_answers_none_not_a_crash(tmp_path, monkeypatch):
+    """#1098's second, separate gap: `_run` had no `try`/`except` AT ALL, so
+    an unrunnable git raised `FileNotFoundError` straight out of the reader
+    instead of the `None` every OTHER git failure already answers with.
+    `blobs_at`'s bare `except OSError` already caught this case before this
+    fix; asserted again here so widening it to also catch
+    `subprocess.TimeoutExpired` is shown NOT to have narrowed it."""
+    empty_bin = tmp_path / "empty-bin"
+    empty_bin.mkdir()
+    monkeypatch.setenv("PATH", str(empty_bin))
+
+    assert RealGit()._run(tmp_path, "log", "-1") is None
+    assert RealGit().blobs_at(tmp_path, "HEAD", ["some/path.yaml"]) is None
 
 
 # ------------------------------------------------------------- the wiring
