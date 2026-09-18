@@ -531,6 +531,50 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-estate-repository-inventory](openspec/changes/add-estate-repository-inventory/proposal.md)
+  filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: draft`** (NO RATIFYING WORD HAS BEEN GIVEN; `tasks.md` § 1 is Brett
+  Heap's act and is not ticked by this lane). Answers openxFactory
+  [#1087](https://github.com/opensoft/openxFactory/issues/1087), the successor
+  `gate-code-surface-declarations` `tasks.md` § 6.1 named and that packet's
+  archive act filed at the landing of PR #1076, CLAIMED by this lane before
+  authoring.
+  **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS, TWENTY-SIX
+  SCENARIOS, OVER `release-realization`**: the MODIFIED block restates
+  *Code-surface declaration grammar is gated* exactly as canon states it but for
+  ONE paragraph, and the ADDED pair is *The estate's repositories are enumerated
+  in a governed inventory* (seven scenarios) and *A declared repository is judged
+  for membership against the estate inventory* (nine). The MODIFIED block is OWED
+  rather than preferred: the promoted `SHALL NOT judge its MEMBERSHIP` is
+  unconditional in its own words, so an ADDED-only delta would leave canon
+  carrying two requirements that cannot both be obeyed. No other active change
+  writes that requirement key, so the block is SOLE, `sequenced_after: []` is a
+  corroborated root claim, and the `modified-block-currency` family reports no NEW
+  finding.
+  **THE MEASURED GAP.** `scripts/code_surface.py` judges a repository
+  identifier's SHAPE and never its MEMBERSHIP, so `openxFactorie` passes and so
+  does a repository that is no part of this estate. The class is standing, not
+  hypothetical: `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`
+  names `opensoft/LegalxFactory`, which the provider answers 404 for and which no
+  gitlink and no pin carries, and two more of its rows name repositories at
+  addresses that live only through a provider redirect, while the estate's
+  transfer map carries ONE row.
+  **THE CANDIDATE INVENTORY, BUILT BEFORE THE DESIGN**, on `origin/main`
+  `ad089e8a`, from four naming sites plus a fifth the measurement forced: the
+  aggregation repository's `.gitmodules` (23 submodules), this repository's
+  `contracts/*-pin.yaml` (7 pins, 6 distinct repositories, 2 of them no
+  submodule), `.github/workflows/` (1, already a submodule), the aggregation root
+  itself (1, which no `.gitmodules` can name), and a RATIFIED change whose
+  realization creates a repository (1). **TWENTY-SEVEN ROWS.** Against them, the
+  population read through the SHIPPED reader: 49 active proposals, 49 declaring, 7
+  `none`, 8 named by the closed register, 34 a readable repository list, those 34
+  heads naming SIX distinct identifiers, **all six carried by the candidate, so
+  the membership arm refuses NOTHING on the day it lands** and the predecessor's
+  stated fatal cost for membership resolution is falsified.
+  **PACKET ONLY.** No script, no inventory and no test is added here; the
+  realization is a LATER pull request on the ratifying word, and the archive a
+  separate act on merged-plus-green evidence, where #1087 closes.
+
 - [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
   — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),
   **`Status: ratified`** — **RATIFIED 2026-09-17 at 12:12Z by Brett Heap
