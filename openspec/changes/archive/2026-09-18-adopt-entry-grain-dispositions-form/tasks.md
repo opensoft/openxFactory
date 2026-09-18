@@ -11,11 +11,17 @@ https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 Record: `review/ratification-2026-09-16.md`. BOXES TICKED BY THIS RATIFYING
 COMMIT: 1.1, 1.2, 1.3, 1.4 — AND NO OTHERS: § 2's boxes stand exactly as the
 filing pull request left them, and § 3 and § 4 stay open.
-Archived by: Brett Heap, the same ratifier, 2026-09-18, first-hand, in
-session to lane `openxfactory-2` (display `openXfactory-2`) — a SEPARATE
-ARCHIVE WORD, verbatim ***"merge 1070 fix when green, then archive 1045"***.
-THE ONE CITATION: openxFactory #1045, comment
-https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696.
+Archived by: Brett Heap, the same ratifier, first-hand, in session to lane
+`openxfactory-2` (display `openXfactory-2`) — a SEPARATE ARCHIVE WORD, given
+2026-09-17T16:05:19Z, verbatim ***"merge 1070 fix when green, then archive
+1045"*** (openxFactory #1045, comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696)
+and REAFFIRMED 2026-09-18T12:41:38Z, verbatim ***"after 1094 lands, do 1070
+fix, merge when green, then archive 1045"*** (comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5730133649),
+which also states the landing route: this archive lands BY MERGE COMMIT under
+Rule 6, so the directory's adding commit stays the wrapper's act. THE ARCHIVE
+ACT ITSELF IS 2026-09-18, and the directory is named for it.
 **THE SENTENCE DIRECTLY ABOVE — "§ 3 and § 4 stay open" — IS THE RATIFYING
 COMMIT'S OWN RECORD OF 2026-09-16 AND WAS TRUE THEN; IT IS KEPT AS HISTORY.**
 § 3 was discharged by the realization pull request
@@ -450,11 +456,18 @@ semantics in tests and authors none of it.
       land when green"***
       ([#1045 comment 5714433011](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011)).
       **ARCHIVED ON BRETT HEAP'S SEPARATE ARCHIVE WORD** — verbatim
-      ***"merge 1070 fix when green, then archive 1045"***, 2026-09-18,
-      first-hand, in session to lane `openxfactory-2` (display
-      `openXfactory-2`, session c0d09b6d). THE ONE CITATION: openxFactory
+      ***"merge 1070 fix when green, then archive 1045"***, given
+      2026-09-17T16:05:19Z, first-hand, in session to lane `openxfactory-2`
+      (display `openXfactory-2`, session c0d09b6d). THE CITATION: openxFactory
       #1045, comment
-      https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696.
+      https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696,
+      REAFFIRMED 2026-09-18T12:41:38Z at comment
+      https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5730133649
+      — verbatim ***"after 1094 lands, do 1070 fix, merge when green, then
+      archive 1045"***. The word names its own precondition chain, and the
+      archive act is taken only once every link of it has landed. THE ARCHIVE
+      ACT IS 2026-09-18, the date the wrapper's own UTC clock stamped on the
+      directory.
       Performed by `python3 scripts/proposal-support.py . archive
       adopt-entry-grain-dispositions-form --yes` — NEVER bare `openspec` —
       which printed **`ORIGIN RETAINED adopt-entry-grain-dispositions-form

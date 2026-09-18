@@ -3395,9 +3395,14 @@ Archived changes:
   — **ARCHIVED 2026-09-18** by
   [PR #{PR}](https://github.com/opensoft/openxFactory/pull/{PR}), on Brett
   Heap's **SEPARATE ARCHIVE WORD** — verbatim *"merge 1070 fix when green,
-  then archive 1045"*, 2026-09-18, first-hand, in session to lane
-  `openxfactory-2` (display `openXfactory-2`) — recorded on
-  [#1045](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696),
+  then archive 1045"*, given 2026-09-17T16:05:19Z, first-hand, in session to
+  lane `openxfactory-2` (display `openXfactory-2`) — recorded on
+  [#1045](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696)
+  and REAFFIRMED 2026-09-18T12:41:38Z
+  ([#1045 5730133649](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5730133649),
+  *"after 1094 lands, do 1070 fix, merge when green, then archive 1045"*,
+  which also names the landing route: BY MERGE COMMIT, so the directory's
+  adding commit stays the wrapper's act),
   a DIFFERENT word from the ratification of 2026-09-16
   ([#1045 5698480736](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736),
   *"ratify 1052 when green, then 1050"*) and from the realization's landing
