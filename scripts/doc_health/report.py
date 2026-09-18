@@ -661,7 +661,8 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
         #
         #   a CARRYING skip has one. Since #766 (PR #871) a `Skip` may carry
         #   the findings its repositories HAD established before the question
-        #   stopped being askable (`release_tag_publication._PartialSkip`), and
+        #   stopped being askable (`doc_health.PartialSkip`, returned by
+        #   `release_tag_publication` and, since #1048, `release_inventory`), and
         #   `runner.run_suite` extends `findings` with them — so they are
         #   already in the headline counts, the ranked plan and the
         #   previous-report diff. A tally of those states what somebody

@@ -144,8 +144,8 @@ mapping manifest. Measured in the landed file:
 | `moved_with_declared_edit` | **175** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares lines** (RULED Q-L7 (a) — one line at that ruling, two today) and its copies are held to them |
 
-**318 rows move. 2454 declared edit lines**: `import rewrites` 726, `path
-constants` 246, `adapter calls` 1482. **176 rows carry `edits:`** — the 175
+**318 rows move. 2717 declared edit lines**: `import rewrites` 726, `path
+constants` 246, `adapter calls` 1745. **176 rows carry `edits:`** — the 175
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
 `views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
@@ -169,6 +169,71 @@ declared-edit window"*, so they were owed to someone from the day of that
 ruling; these were scheduled by no ruling at all — they landed at openXdox-code
 BEFORE Q-L1's pairing became general (`#656` comment `5642758731`, 2026-09-12
 02:07Z), which is why no slice ever owned them.
+THE RETIREMENT ACT (RULED 5656343213, `#656` CLAIM `5656690570`) then added
+**+167 declared lines and moved nothing else**: the ENDING REPLAY removed from
+`tests/ideation-dashboard/test_staging_workbench.py` is declared on that row's
+own `edits[]`, and that row has carried `edits:` since slice S5, so neither
+disposition count nor the carrier count moves with it. The removed block spans
+**177** carve lines; ten of them slice S5 already declared on this row, and a
+line is declared once per row — the aggregate sums line ENTRIES — so this act's
+entry carries the other 167 and the row declares 196 distinct lines. The two rows the same
+act RETIRES move no figure here at all, because `retired:` touches no `edits[]`
+and a retirement is a fact about a DESTINATION. **The per-destination table
+below DOES move with it**: slice S7 made that table a measurement again and
+pinned it cell by cell, so this act takes its own cell rather than registering
+the table as stale, which is what an earlier draft of this paragraph did and
+what S7's pin now forbids.
+**RULED Q7's CSS extraction moves ONE FIGURE AND ONE ROW, and it moved them
+LAST UNTIL THE § 3.4 SLICE-S7 RESIDUE BELOW** — this paragraph is in LANDING
+ORDER and the arithmetic below is read
+off it (Copilot review, round 2, which found the act narrated before the
+annotation whose 2621 it adds to; and Copilot review of the residue act, which
+found this sentence still claiming the last word after a later act had taken
+it): +89 `adapter calls` lines on the single
+`web/styles.css` row, which slice S7 had already converted and which was
+already a carrier, so no disposition count, no carrier count and no replica
+count moves with them. **2621 + 89 = 2710.** EIGHTY-EIGHT of the 89 are
+DELETIONS — the lines the 59 rule blocks occupied, leaving for the four sheets
+openXdox-code ships beside the bindings that name them — and ONE, carve `:161`,
+is a REPLACEMENT in place: the single selector LIST this act splits, so openDox
+keeps `.filterpop[hidden]` and the gate half is re-stated in the contributed
+sheet. A deletion has been a
+declared edit in this vocabulary since § 3.4 slice S6 declared 122
+`serve_projection.py` deletions under the same class and landed; what `#1023`
+§ 6 called a wall was the `moved_verbatim` disposition, which slice S7 had
+already taken this row past.
+**THE § 3.4 SLICE-S7 RESIDUE ANNOTATION then moves ONE FIGURE over FOUR ROWS**:
++7 `adapter calls` lines on the `opendox_code` view modules slice S7's own
+review found LEAVES inside — `web/views/board.js`, `web/views/docs.js`,
+`web/views/explorer.js` and `web/views/staging-workbench.js`, every one already
+`moved_with_declared_edit` and already a carrier — so no disposition count, no
+carrier count and no replica count moves with them. **2710 + 7 = 2717.** Its
+window is ROW-DISJOINT from RULED Q7's one `web/styles.css` row, so the two
+figures are independent and this sum states an ARITHMETIC and not an ordering;
+the merge that brought the two acts together re-derived the total from the
+merged manifest rather than adding their deltas. Two of the SEVEN findings
+declare no line here and say why: `web/views/display.js` is an ADMITTED created
+file with no row at all, declared in `docs/opendox-carve-admissions.yaml`
+instead, and `web/views/lineage.js`'s `renderStats` reset falls inside the
+`replace` opcode on carve `:52` that slice S7 ALREADY declares — a second
+declaration would be the repeated line number the row-wide distinctness
+assertion refuses.
+**AND THE TABLE ABOVE IS THE CARVE'S RECORD, NOT A LIST OF ARRIVAL
+OBLIGATIONS** — a distinction this act is the first to make visible, because it
+is the first whose rows owe the OPPOSITE of the proof written beside them. A
+`disposition` says what the CARVE did with a file. Two of the **175**
+`moved_with_declared_edit` rows are now RETIRED, and at their leg neither
+half of that proof is owed: `rows_for()` drops a retired row before the
+destination is asked anything, so no commit-A identity and no commit-B
+declared-line diff is required of it, and what § 5.8 requires instead is that
+`retired.at_path` be ABSENT — `arrival-not-retired`, whose remedy is the
+deletion and not a diff. The row keeps its disposition, its digest and its
+`edits[]`, which is the whole reason the ruling made a retirement a FIELD, so
+the count above does not move. RULED Q6's **4** re-destined rows make the
+milder version of the same point: their proof is owed at the leg
+`re_destined.to` names and not at the one `destination:` still does. Read the
+counts as the carve's ledger and the per-destination table below — with the two
+subtractions its own paragraph states — as what each leg is actually asked for.
 
 **AND A MOVED ROW MAY CARRY `re_destined:` (RULED Q6, Brett Heap, 2026-09-12,
 `#656` comment `5648044785`).** Where a RULING has corrected the placement the
@@ -184,6 +249,43 @@ the file now lives says nothing about them. **FOUR ROWS CARRY IT TODAY**: §
 RULED Q5 (`5648044785`) moving `gate.js`, `dispose.js`, `swb-create.js` and
 `swb-session.js` from `opendox_code` to `openxdox_code`, and § 5.7 is the
 general procedure this and any later re-destination follows.
+
+**AND A MOVED ROW MAY CARRY `retired:` (RULED 5656343213, Brett Heap,
+2026-09-13, `#656` comment `5656343213`, on the question slice S8's author put
+in `#656` comment `5650335573` § 2).** Where a RULING has DELETED an arrival
+the carve made — not moved it, as Q6 does, because the surface the arrived
+file needed is at NO leg to move it to — the row records it: `{at, at_path,
+ruling, surface, note}`, `at`/`at_path` held to the row's **EFFECTIVE**
+arrival (so a row may be re-destined and THEN retired), `surface:` held to a
+`not_moved` row of this manifest — under any reason but
+`replicated_at_destination`, whose copies the legs place themselves — and the
+citation REQUIRED. **The proof owed at the destination inverts**: the leg is
+no longer asked for the file, and the file must be ABSENT at `at:at_path`
+(`arrival-not-retired`). Be exact about what that leaves, because the two
+tools answer differently (Copilot review of PR #1032): `rows_for()` drops a
+retired row, so `verify-carve-arrival.py` does NOT digest it and does NOT diff
+it at this leg — there is no file left here to digest or to diff. What goes on
+unchanged is the SOURCE side, in `validate-carve-manifest.py`: `sha256`,
+`git_mode`, `disposition` and `edits[]` stay untouched on the row, and check
+3's two passes and check 4's surface walk ask of a retired row exactly what
+they ask of any other moved row — a retirement is a fact about a DESTINATION,
+and the row is still the record of a file that LEFT openxFactory. **TWO ROWS
+CARRY IT TODAY**: the form landed ahead of its first use (PR #1032), exactly
+as RULED Q6 did, and the first use is PR #1043 (`#656` CLAIM `5656690570`) —
+`tests/ideation-dashboard/test_intent_tray_dom.py` and
+`tests/ideation-dashboard/test_wheel_verbs_dom.py`, retired at `opendox_code`,
+deleted there by opensoft/openDox-code#24. **The ruling's THIRD suite carries
+no block**: only the ENDING REPLAY inside
+`tests/ideation-dashboard/test_staging_workbench.py` goes, a PART of a file
+whose other tests drive surfaces `openxdox_code` has, so that row goes on
+arriving and the removal is an ORDINARY declared edit on its own `edits[]`
+under `adapter calls` — the block SPANS **177** carve lines and the entry
+declares **167** of them, slice S5 having already declared the other ten on
+this row, which leaves the row declaring **196** distinct lines (the same three
+figures the paragraph under the table states, and they are three questions, not
+one); realized at opensoft/openXdox-code#20. § 5.8 is
+the general procedure a retirement follows, and its "What the form CANNOT
+express" is that third case, written from this act.
 
 The table above states the file's CURRENT totals — see "Measured directly
 against the landed manifest" below for how they are derived. What follows is
@@ -237,24 +339,35 @@ The **two replica lines belong to no destination column below** — `:25` (the
 1422nd declared line when this paragraph was written) and, since the
 pre-existing `openxdox_code` annotation, `:271`: a replica row names no
 destination at all, so the per-leg declared-line figures below exclude both and
-sum to 2452 rather than 2454. **The two are owed differently, and a replica row
+sum to 2715 rather than 2717. **The two are owed differently, and a replica row
 cannot say so**: `:25` is owed by every leg that places that conftest — both
 `-code` legs — while `:271` is openXdox-code#14's § 4.4 fixture, PERMITTED at
 every replica by the same row-wide grammar and owed at none. openXdox-code
 takes it; openDox-code does not, and its arrival run answers `OK` all the same
-(measured at `8efb3cf5`). **This act MOVES the per-destination cell it owes —
-`openxdox_code`'s declared-line figure, 703 -> 750 — and that is a change of
-kind from how it was written**: when it was, that table was stale, this
-paragraph registered it as stale, and the redistribution was reserved for "one
-later act" because slices S7 and S8 were in flight over the same cells. The
+(measured at `8efb3cf5`). **The PRE-EXISTING `openxdox_code` ANNOTATION moved
+the per-destination cell it owed — that destination's declared-line figure,
+703 -> 750 — and that was
+a change of kind from how this paragraph was written** (Copilot review, round
+twenty-six: the sentence said "this act", which in THIS pull request is the
+retirement, whose own figures are the paragraph below's 167 and 750 -> 917):
+when it was written, that table was stale, this paragraph registered it as
+stale, and the redistribution was reserved for "one later act" because slices
+S7 and S8 were in flight over the same cells. The
 § 3.4 slice-S7 annotation IS that act: it re-derived every cell and pinned all
 five columns with
 `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`.
 So the cells are a MEASUREMENT again, a run can be compared against them once
 the RULED Q6 four are read off the paragraph under the table, and an act that
-moves the aggregate moves them with it — 47 of this act's 48 lines fall on
-three `openxdox_code` rows, and the forty-eighth is the `:271` above, which
-belongs to no column at all.
+moves the aggregate moves them with it — 47 of that annotation's 48 lines
+fall on three `openxdox_code` rows, and the forty-eighth is the `:271` above,
+which belongs to no column at all.
+**THE RETIREMENT ACT MOVES ONE CELL AND NEITHER REPLICA LINE.** Its 167
+declared lines all fall on a SINGLE `openxdox_code` row — the ending replay
+inside `tests/ideation-dashboard/test_staging_workbench.py` — so the only cell
+below that moves is that destination's, and `:25` and `:271` are untouched by
+it: a retirement declares no line at all, and the one row this act DOES declare
+names a destination, so the per-leg figures go on summing to two less than the
+aggregate.
 **Under every other `not_moved`
 reason `edits:` is still a refusal**: RULING OQ-B's three
 `stays_openxfactory_governance` rows stay here and take their import rewrite in
@@ -263,12 +376,23 @@ RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
 test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
-**Measured directly against the landed manifest, and CURRENT TO THE
-PRE-EXISTING `openxdox_code` ANNOTATION of 2026-09-16** (rather than
-hand-chained through every intervening amendment): the table and the two
-paragraphs above, and the per-destination table below, state the totals as of
-THIS act — the pre-existing `openxdox_code` row annotation (`#656` CLAIM
-`5656688910`), and behind it the § 3.4 slice-S8 annotation (RULED `#656`
+**Measured directly against the landed manifest, and CURRENT TO THE § 3.4
+SLICE-S7 RESIDUE ANNOTATION of 2026-09-17** (rather than hand-chained through
+every intervening amendment): the table and the two paragraphs above, and the
+per-destination table below, state the totals as of THIS act — the § 3.4
+SLICE-S7 RESIDUE annotation (`#656` CLAIM `5714327188`, the FORM Q-L1's at
+`5628560136`), whose whole window is +7 `adapter calls` lines over four
+already-declared `opendox_code` rows and which moves no other count:
+**2710 + 7 = 2717**. Behind it, RULED Q7's CSS EXTRACTION (`#656` comment
+`5648049748`), the one act on this document whose whole window is a CSS
+EXTRACTION: 89 `adapter calls` lines on one already-declared row — 88 of them
+DELETIONS and one, carve `:161`, a REPLACEMENT in place (§ 3.4 above states
+which and why) — as the 59 rule blocks the gate loop's own selectors occupied
+leave for the four sheets openXdox-code ships beside the bindings that name
+them. Behind that, RULED 5656343213's retirement act
+(`#656` CLAIM `5656690570`), then the pre-existing `openxdox_code` row
+annotation (`#656` CLAIM `5656688910`), and behind that the § 3.4 slice-S8
+annotation (RULED `#656`
 comment `5656343213`) and the § 3.4 slice-S7 row annotation (RULED Q1/Q2/Q7,
 `#656` comment `5648049748`; S7 CLAIM `#656` comment `5649148461`) — which is
 the § 3.4 SLICE-S3 row annotation
@@ -293,11 +417,16 @@ annotation (RULED Q5/Q6, `#656` comment `5648044785`, openxFactory PR #1023
 @ `ee251d6c`) — the first act to use the `re_destined:` form, +162 declared
 lines, and the one `views/staging-workbench.js` conversion that moves both
 disposition counts and the carrier count at once — and the § 3.4 SLICE S7
-annotation THIS ACT CARRIES: +782 declared lines over 33 `opendox_code` rows,
+annotation (openxFactory PR #1030 @ `b3a75537`, whose own act this
+paragraph was written from): +782 declared lines over 33 `opendox_code` rows,
 17 of them converted `moved_verbatim` -> declared, and three admitted files.
 The list is complete THROUGH SLICE S7, and deliberately stops there: the § 3.4
-slice-S8 annotation and the pre-existing `openxdox_code` annotation have moved
-the aggregate since, and each is stated ONCE, in the current-totals paragraph
+slice-S8 annotation, the pre-existing `openxdox_code` annotation, RULED
+5656343213's RETIREMENT ACT, RULED Q7's CSS EXTRACTION and the § 3.4 SLICE-S7
+RESIDUE have moved the aggregate since — five acts now, and the naming is kept
+current because a history that says it stops somewhere must say what came after
+it (Copilot review of the residue act) — and each is stated
+ONCE, in the current-totals paragraph
 above this history, which is where the aggregate is read. Two acts restating
 one set of absolutes is how a count becomes wrong in a merge, and this history
 is the hand-maintained copy that warning is about — so the paragraph dates the
@@ -313,13 +442,14 @@ pins, computed the same way every time: a transcribed count is a claim, a
 summed one is a measurement.
 
 Per destination, counted at the `destination:` each row names — which is what
-each leg's arrival run reports, save where RULED Q6 re-destined a row (below):
+each leg's arrival run reports, save where RULED Q6 has re-destined rows or
+RULED 5656343213 has retired them (below):
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 35 / 88 | 1667 | `src/opendox`, `tests` |
+| `opendox_code` | 123 | 35 / 88 | 1763 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
-| `openxdox_code` | 92 | 9 / 83 | 750 | `scripts`, `src/openxdox`, `tests` |
+| `openxdox_code` | 92 | 9 / 83 | 917 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
 | `opendox_root` | 0 | — | — | none — the release identity only (§ 3.8) |
 
@@ -334,14 +464,36 @@ slice-S5 annotation (`ee251d6c`) moved BOTH — to `52 / 71 | 874` and
 put it. The slice-S8 annotation then moves BOTH declared-line cells and
 NEITHER `verbatim / edited` cell: its forty `path constants` lines fall
 11 at `opendox_code` and 29 at `openxdox_code`, every one of them on a row
-that already carried `edits:`, giving the `1667` and `703` the table carried
-until this act. The pre-existing `openxdox_code` annotation then moves
+that already carried `edits:`, giving the `1667` this table carried until
+RULED Q7's CSS EXTRACTION below and the `703` it carried until the act after
+it. The pre-existing `openxdox_code`
+annotation then moves
 `openxdox_code`'s declared-line cell ALONE, to `750`: 47 of its 48 lines fall
 on three rows this leg already edits, and the forty-eighth is a second line on
 the conftest REPLICA row, which names no destination and belongs in no column.
-The four destination figures now sum to 2452, and the TWO lines the replica row
+THE RETIREMENT ACT then moves that same cell ALONE again, from `750` to `917`:
+every one of its declared lines falls on ONE `openxdox_code` row — the ending replay
+inside `tests/ideation-dashboard/test_staging_workbench.py` — and the two rows the
+same act RETIRES move no cell at all, because a retirement declares no line: it is
+a fact about a DESTINATION, and the rows go on naming theirs.
+RULED Q7's CSS EXTRACTION then moves `opendox_code`'s cell ALONE, to `1756`:
+all 89 of its lines fall on that leg's `web/styles.css` row, a row that was
+already `moved_with_declared_edit` and already a carrier, so no `verbatim /
+edited` cell and no other column moves with them.
+The § 3.4 SLICE-S7 RESIDUE annotation then moves that same cell ALONE once
+more, from `1756` to `1763`: its seven `adapter calls` lines fall on four rows
+that leg already edits — `web/views/{board,docs,explorer,staging-workbench}.js`
+— so no `verbatim / edited` cell and no row count moves with them either. The
+two acts are disjoint BY ROW — Q7's window is the one `web/styles.css` row and
+this one's four are view modules, which
+`test_the_real_manifest_carries_the_s7_residue_declared_edits`' sibling sweep
+ASSERTS rather than assumes now that `Q7_WINDOW` has merged into its namespace
+— so neither cell figure depends on which landed first, and the merge
+that brought them together re-derived the cell from the merged manifest rather
+than adding the two deltas.
+The four destination figures now sum to 2715, and the TWO lines the replica row
 `tests/ideation-dashboard/conftest.py` declares — which name no destination at
-all — make 2454.
+all — make 2717.
 `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`
 asserts all four numeric columns, the fifth ROOTS column and that sum against
 the landed manifest, so every cell of this table is now read FROM THE TABLE;
@@ -354,14 +506,19 @@ on one fact, one either side of the runbook — and the roots cell is now
 compared with `declared_roots(rows_for(...))`, the walk each leg's arrival run
 actually performs.
 
-A row RE-DESTINED by ruling still counts at the `destination:` it declares, so
-this table and a leg's arrival run count different sets — by exactly those four
-rows. In ARRIVED ROWS, the first figure a run prints, `opendox_code` reports
-FOUR FEWER than this table's count, 119 against 123, and `openxdox_code` FOUR
-MORE, 96 against 92: the ruling moved the placement, not the row. All four
-carry `edits:`, so they take the `verbatim / edited` split and the declared
-edit lines with them, and the EFFECTIVE edited counts are 84 and 87 against
-this table's 88 and 83. What a run PRINTS as `declared-edit row(s) within their
+A row RE-DESTINED by ruling still counts at the `destination:` it declares, and
+so does a row a ruling RETIRED, so this table and a leg's arrival run count
+different sets — **by two subtractions now, not one**. RULED Q6 moved four rows
+off `opendox_code` and onto `openxdox_code`; RULED 5656343213 RETIRED two more of
+`opendox_code`'s, and a retired row is owed at no leg at all. In ARRIVED ROWS,
+the first figure a run prints, `opendox_code` reports SIX FEWER than this table's
+count, 117 against 123, and `openxdox_code` FOUR MORE, 96 against 92: one ruling
+moved the placement and the other deleted it, and neither moved the row. All six
+carry `edits:`, so they take the `verbatim / edited` split with them — the four
+re-destined ones carrying their declared lines to the other leg and the two
+retired ones taking theirs out of every leg's reckoning while the row goes on
+recording them — and the EFFECTIVE edited counts are 82 and 87 against this
+table's 88 and 83. What a run PRINTS as `declared-edit row(s) within their
 lines` is a THIRD count again — the rows that arrived CARRYING the edit, so the
 `unapplied` rows and the declared replicas each move it — and § 5.5 is where
 that line is read, against the phase-B example's own four figures.
@@ -398,7 +555,7 @@ python3 scripts/verify-carve-arrival.py \
     --dest-root     /path/to/openXdox
 ```
 
-Its six findings and one environment code:
+Its seven findings and one environment code:
 
 | code | what it refuses |
 | --- | --- |
@@ -406,6 +563,7 @@ Its six findings and one environment code:
 | `arrival-digest-mismatch` | the arrived bytes or mode are not the row's (phase A for every moved row; both phases for `moved_verbatim`) |
 | `arrival-undeclared-edit` | phase B: the arrived blob differs from the carve blob on a line no `edits[].lines` declares — **the refusal names the lines** |
 | `arrival-not-vacated` | `arrival-missing` read in the mirror, and the LOSING half of RULED Q6: a row re-destined AWAY from this destination still has a file (or a symlink — the test is `lexists`) at the `re_destined.from_path` it left. A re-destination is one act with two halves, and a copy kept here is the same bytes at two legs with the floor standing behind one |
+| `arrival-not-retired` | `arrival-missing` read in the mirror again, for RULED 5656343213: a row whose `retired:` block says a RULING DELETED its arrival at THIS destination still has a file (or a symlink — the test is `lexists` here too) at `retired.at_path`. The difference from `arrival-not-vacated` is where the bytes went — a re-destination moves them to another leg and a retirement moves them nowhere — and they are two codes because the remedies differ: one deletion completes a move, the other completes a removal |
 | `arrival-undeclared-file` | an ENTRY under a declared root that no row places and no admission rule admits — a file, a symlink, or a **symlink to a directory** (git stores it as a `120000` blob, and `os.walk` would hand it to `dirnames` and never read it); also a file admitted as SCAFFOLD whose bytes are not the destination's own at `--dest-base` |
 | `arrival-carved-from-mismatch` | an assembly root's `contracts/manifest.yaml` carries no `carved_from`, or one naming another repository or another commit |
 | `arrival-unreadable` | the environment and the encoding: no git, an unreadable manifest, an unknown `--destination`, a `--dest-root` that is not a directory, a `--dest-base` that resolves to no commit, `--destination` and `--assembly-root` together, a source repository that does not carry `carve_commit`. It is also the CATCH-ALL that holds the exit contract: any exception the checks did not name arrives as this code and exit 2, never as a traceback and exit 1 |
@@ -423,7 +581,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 2454 now.
+from the start — 794 of them at this ruling's own landing, 2717 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738
@@ -822,24 +980,85 @@ directive rather than a selector, and a file of rename directives renames what
 it names and **keeps everything else**. Measured on a scratch repository of
 three files with one listed: the rename-only file kept all three; the file
 carrying the bare path beside the rename kept exactly one. Against openxFactory
-that is the difference between publishing 123 files and publishing the
-repository — `openspec/`, `contracts/`, `.github/` and every other path would
-ride into a PUBLIC destination, and the arrival verifier would not catch them,
-because its walk is scoped to that destination's declared roots. So emit BOTH:
+that is the difference between publishing the 117 files this leg's path file
+names and publishing the repository — `openspec/`, `contracts/`, `.github/`
+and every other path would ride into a PUBLIC destination, and the arrival
+verifier would not catch them, because its walk is scoped to that
+destination's declared roots. So emit BOTH:
 the bare `source_path` to SELECT it, and the rename to PLACE it. **0 rows
 change a basename**, so every rename here is a relocation.
+
+**AND BY THE EFFECTIVE, NOT-RETIRED ARRIVAL — `destination:` ALONE IS NOT
+THE KEY** (Copilot review, round twenty-five on PR #1043). A RULED
+re-destination (§ 5.7) and a RULED retirement (§ 5.8) both leave
+`destination:` and `destination_path:` exactly as the carve wrote them —
+they are the record of what MOVED, which is what § 2's table counts and what
+every digest is keyed by — so a file keyed on that field alone states the
+CARVE's placement and not today's. Measured on the landed manifest: at
+`opendox_code` that key emits 123 rows / 246 lines where the leg is owed
+117 / 234, the four rows RULED Q6 re-destined away and the two RULED
+5656343213 retired among them, and commit A below would place all six for
+the phase-A run to refuse before it can print the line § 5.5 promises. **ONE
+refusal per run**: both checks raise on the first row they find, so the six
+leftovers cost six runs — `arrival-not-vacated` while any re-destined file
+stands (§ 5.7's order: the losing half is asked first), then
+`arrival-not-retired` for each retired one. The other half fails SILENTLY:
+`openxdox_code` reads 92 where `rows_for()` requires 96, so the four files
+that ruling sent there would be missing from the carve ref that is supposed
+to place them. The generator therefore asks the question the verifier asks —
+`verify-carve-arrival.py`'s own `rows_for()`, spelled out because a heredoc
+cannot import a hyphenated script — and the two `-spec` legs, which no
+ruling has touched, are unchanged at 56 and 47.
+
+**And it resolves the KEY rather than comparing it** (Copilot review, round
+twenty-six). A `destinations:` key is a LABEL and never a referent —
+`check_shape` deliberately admits two keys sharing one `{repository, leg}`
+body — so `$DEST` given as the other spelling of a leg would match no row at
+all and emit an EMPTY path file, while the verifier, which resolves both to
+one identity, goes on expecting every row. That is the label-comparison
+defect RULED Q-L8 (c) repaired in the tools and `#1032`'s round 9 found in
+the last selector still making it; this generator was making it too. The
+RETIREMENT half below still compares labels, deliberately and like
+`retired_arrival()`: the block names the placement ITS OWN ROW makes, and
+`validate-carve-manifest.py`'s check 6 is where a block naming another one is
+refused. `test_the_runbook_path_file_generator_is_the_verifiers_own_predicate`
+RUNS this program on the landed manifest for every destination — and on a
+generated document carrying an ALIAS, because the landed one carries none —
+and compares its lines with that predicate, because a generator and a
+verifier that disagree about which rows a leg is owed cannot be caught by
+reading either alone.
+
+**The two `-code` legs were carved BEFORE both rulings**, which is why their
+real history carries those six removals as later commits — § 5.7 step 4's
+LOSING half and § 5.8 step 4 — rather than as an arrival that never placed
+them. A leg carved today never places them and has nothing there to delete.
 
 ```sh
 python3 - "$DEST" "$OXF/docs/opendox-carve-manifest.yaml" > paths-$DEST.txt <<'PY'
 import sys, yaml
 dest = sys.argv[1]
 doc = yaml.safe_load(open(sys.argv[2]))
+def resolved(key):                                       # a KEY is a LABEL:
+    body = (doc.get("destinations") or {}).get(key)      # two of them may
+    if isinstance(body, dict):                           # share one body
+        return (body.get("repository"), body.get("leg"))
+    return (key,)                                        # unknown: itself
+here = resolved(dest)
 for row in doc["rows"]:
-    if row.get("destination") == dest:
-        print(row["source_path"])                                   # SELECT
-        print(f'{row["source_path"]}==>{row["destination_path"]}')  # PLACE
+    moved = row.get("re_destined") or {}                 # RULED Q6, § 5.7
+    if moved.get("to") and moved.get("to_path"):
+        at, at_path = moved["to"], moved["to_path"]
+    else:
+        at, at_path = row.get("destination"), row.get("destination_path")
+    if resolved(at) != here:                             # not this leg's today
+        continue
+    gone = row.get("retired") or {}                      # RULED 5656343213
+    if (gone.get("at"), gone.get("at_path")) == (at, at_path):
+        continue                                         # deleted, never placed
+    print(row["source_path"])                            # SELECT
+    print(f'{row["source_path"]}==>{at_path}')           # PLACE
 PY
-wc -l paths-$DEST.txt        # 2 x 123 = 246 for opendox_code; see § 2's table
+wc -l paths-$DEST.txt        # 2 x 117 = 234 for opendox_code today
 ```
 
 ### 5.4 The carve, onto a NAMED ref
@@ -858,7 +1077,7 @@ git -C oxf-carve-src.git filter-repo \
     --paths-from-file ../paths-$DEST.txt --refs carve-src
 
 # the control on the carve itself, before anything is fetched from it
-git -C oxf-carve-src.git ls-tree -r --name-only carve-src | wc -l   # = the row count
+git -C oxf-carve-src.git ls-tree -r --name-only carve-src | wc -l   # = § 5.3's row count
 ```
 
 `--refs` implies filter-repo's PARTIAL mode, and two of its consequences bite at
@@ -873,10 +1092,18 @@ withdrawn, and the mirror is disposable rather than de-fanged.
 
 **Move first, edit second, at the destination, in the same pull request.**
 
-* **Commit A** places every row's blob byte-identical to `carve_commit`, so the
-  arrival verifier can prove **every moved row of that destination at phase A**
-  — the strongest statement available, and the analogue of the wallet's
-  *"100/100 at the carve layer"*.
+* **Commit A** places every EFFECTIVE, NOT-RETIRED arrival's blob
+  byte-identical to `carve_commit` — exactly the set § 5.3's path file selects
+  — so the arrival verifier can prove **every moved row of that destination
+  NOT RETIRED BY RULING at phase A**: the strongest statement available, and
+  the analogue of the wallet's *"100/100 at the carve layer"*. **The
+  qualification is RULED 5656343213's** (Copilot review, round twenty-seven),
+  and it is the same one `rows_for()`, the verifier's module docstring and
+  `--phase`'s own `--help` now carry: a row retired at its own effective
+  arrival is dropped before either phase asks anything, so it is not placed,
+  not digested and not diffed, and what is required of it instead is that its
+  path be ABSENT (§ 5.8). An unqualified "every row" here and a 117-row
+  expectation below are two incompatible placement contracts in one section.
 * **Commit B** applies that destination's declared edits AND NOTHING ELSE. Its
   diff is then mechanically checkable line-for-line against `edits[].lines`, and
   a reviewer reads 239 lines rather than 97,120.
@@ -891,7 +1118,7 @@ git remote add carved ../oxf-carve-src.git
 # reach of a mistyped merge.
 git fetch carved carve-src:refs/remotes/carved/carve-src
 git merge --allow-unrelated-histories carved/carve-src \
-    -m "Commit A — the openDox-code arrival at opendox-carve-0 (123 rows, byte-identical)"
+    -m "Commit A — the openDox-code arrival at opendox-carve-0 (117 rows, byte-identical)"
 ```
 
 Then, in openxFactory, with the destination checkout in hand. `--manifest` is
@@ -904,15 +1131,18 @@ manifest validator this verifier is fail-closed about it and refuses
 python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --manifest "$OXF/docs/opendox-carve-manifest.yaml" \
     --dest-root ../dest-openDox-code --source-repo ../oxf-carve-src.git --phase A
-# expect exit 0: 119 row(s) arrived … 119 digest(s) verified …
+# expect exit 0: 117 row(s) arrived … 117 digest(s) verified …
 #                scaffold admissions checked against <origin/main>
 ```
 
 **Those two figures are this leg's EFFECTIVE arrival and not § 2's row count
 for it** (Copilot review, round ten on PR #1030). § 2's table counts a
-re-destined row at the `destination:` it still names; RULED Q6 moved four of
-`opendox_code`'s 123 rows AWAY; and a run reports what it PLACES — 119, the
-four fewer § 2's own paragraph names. At phase A every arrived row is
+re-destined row at the `destination:` it still names, and it counts a RETIRED
+row there too; RULED Q6 moved four of `opendox_code`'s 123 rows AWAY and RULED
+5656343213 RETIRED two more; and a run reports what it PLACES — 117, the four
+fewer § 2's own paragraph names and the two this act retires. Both subtractions
+are the same point: § 2 records what the CARVE moved, a run reports what this
+leg PLACES, and every ruling that re-aims or retires an arrival widens the gap. At phase A every arrived row is
 digest-checked, so the two numbers are one number twice.
 `test_the_runbook_phase_examples_are_the_arrival_the_manifest_produces`
 re-derives both of § 5.5's expected lines from the landed manifest and
@@ -948,7 +1178,7 @@ python3 scripts/verify-carve-arrival.py --destination opendox_code \
     --replica-at scripts/path_slug.py=src/opendox/path_slug.py \
     --replica-at scripts/wire_messages.py=src/opendox/wire_messages.py \
     --replica-at tests/ideation-dashboard/conftest.py=tests/conftest.py
-# expect exit 0: 119 row(s) arrived, 35 digest(s) verified, 85 declared-edit
+# expect exit 0: 117 row(s) arrived, 35 digest(s) verified, 83 declared-edit
 # row(s) within their lines, 0 unapplied; 4 of 4 declared replica(s) verified
 # (byte-identical, or — where the row declares lines — differing only on them)
 ```
@@ -961,20 +1191,45 @@ test composes these lines through `_print_ok` rather than matching them
 against a literal of its own. `0 unapplied` is not a manifest figure: it is
 the standard for a COMPLETE commit B — a declared-edit row the run finds
 byte-identical to the carve blob is an edit this leg did not apply, and the
-leg is not done until that count is zero. **The `85` is `84` moved rows plus the Q-L7 replica the fourth `--replica-at`
+leg is not done until that count is zero. **The `83` is `82` moved rows plus the Q-L7 replica the fourth `--replica-at`
 declares**: a replica whose ROW declares lines is answered exactly as a moved
 row is and is counted with the moved rows' edits at phase B (`check_replicas`
--> `counts["diffed"]`), which is why this figure is ONE ABOVE the `verbatim /
-edited` column § 2's per-destination table states for this leg. A replica left
-`unapplied` is the one lawful way that count is not zero, and it is not this
-leg's state any more — see the replica paragraph below.
+-> `counts["diffed"]`), which is why this figure is ONE ABOVE the EFFECTIVE
+edited count for this leg — not above the `verbatim / edited` column § 2's
+per-destination table states, which counts at the `destination:` each row names
+and is six rows higher. It read `85` = `84` + 1 until RULED 5656343213 retired
+two of this leg's edited rows; the replica's own contribution is unchanged and
+always was.
+
+**BOTH FIGURES ARE THE COMPLETE COMMIT B's, AND A RUN AT AN UNFINISHED LEG
+PRINTS NEITHER** — which the `0 unapplied` sentence above says of itself and
+the `83` did not (Copilot review, PR #1043). Measured by running the command
+above verbatim against openDox-code#24 at `e2d5ac46`, the head that carries
+this act's deletion: `117 row(s) arrived, 35 digest(s) verified, 82
+declared-edit row(s) within their lines, 1 unapplied; 4 of 4 declared
+replica(s) verified`. That is this leg ONE EDIT SHORT OF DONE, and the
+arithmetic is the same arithmetic: of the `82` effective edited rows ONE is
+byte-identical to its carve blob, so it counts as `unapplied` and not as
+`diffed`, leaving 81; the line-declaring replica DOES differ, on its own
+declared `path constants` line 25, and is counted with the moved rows. `81 + 1
+= 82` today; `82 + 1 = 83` the day that last edit lands. **An operator reads
+the gap as the leg's REMAINING WORK**, which is what `0 unapplied` is for —
+and the pin composes this line from the MANIFEST, holding no destination
+checkout, so it cannot see a leg's progress and deliberately does not try: a
+floor's documentation must not move every time a leg commits.
+
+A replica left `unapplied` is the one lawful way that count is not zero, and it
+is not this leg's state — see the replica paragraph below.
 
 **This `--allow-created pytest.ini --allow-created conftest.py` is the ad-hoc
 form on purpose, not a stale example** (Copilot review, PR #979; its PREMISE
 re-measured on Copilot's round-ten review of PR #1030). What keeps the flag
 correct is not that `opendox_code` declares no admissions — this note said
 its block in `docs/opendox-carve-admissions.yaml` was `created: []` long after
-BUILD slice 2 began filling it, and THIS act adds three more entries to it —
+BUILD slice 2 began filling it, and the § 3.4 slice-S7 annotation this note
+was last re-measured on (openxFactory PR #1030 @ `b3a75537`) added three more
+entries to it, with FOUR further amendments since (#1025, #1067, #1068 and
+the residue annotation this act carries) —
 but that neither `pytest.ini` nor `conftest.py` is among the paths it
 declares. Those two Phase-1 files still have no reviewed declaration to read,
 so the command-line flag remains this leg's live, correct admission, exactly
@@ -1201,6 +1456,239 @@ than it is.** `verify-carve-arrival.py` verifies ONE destination per run, so
 the vacated-here and arrived-there halves are two runs and nothing compares
 them with each other: it is this procedure — both runs, on the record, in the
 two pull requests — that closes the pair, not the tool.
+
+### 5.8 A RULED retirement — the `retired:` act
+
+**RULED 5656343213** (Brett Heap, 2026-09-13, by interactive multi-choice, on
+the question slice S8's author put in `#656` comment `5650335573` § 2). An
+arrival may turn out to have nothing left to be: three suites reached their
+legs NEEDING `views/intent-feed.js`, RULED OQ-F `not_moved` — so it stayed
+HERE and arrived at NEITHER leg. (NEEDING, not driving, and the distinction is
+the first use's own: the tray suite DROVE that module, while the wheel suite's
+comment says it "rides along because dispose.js imports it" and that the probe
+"drives the LOCAL path only". Both need it; one drives it; and the grammar's
+`surface:` asks for what an arrival NEEDS and cannot obtain — see the manifest
+header) — and slice S2 replaced the surface openDox
+does have with `views/intent-binding.js`. The suites test a surface that is
+not there. **TWO of the three end as RETIREMENTS here, and the third does
+not** (Copilot review, round twenty-seven): openXdox-code's
+`tests/test_staging_workbench.py` loses only the ENDING REPLAY inside it and
+the rest of that file goes on arriving and driving surfaces that leg HAS, so
+it takes an ordinary declared edit and no `retired:` block at all — "What the
+form CANNOT express" below is that case, and a retirement is a fact about a
+FILE's arrival. **§ 5.7 cannot say so**: `re_destined.to` is held to the closed
+`destinations:` keys, openxFactory is the SOURCE and not one of them, and
+`re_destined:` on a `not_moved` row refuses `carve-re-destined-not-moved`.
+Deleting the arrived file with NO form at all was the other option, and it is
+the one this floor exists to refuse — a file at no leg, in a row that says it
+arrived there, is RULING OQ-1's UNDECLARED MOVEMENT read backwards.
+
+**It is not a way to delete an arrived file for convenience**, and it is
+gated twice rather than once. `ruling:` is required and validated PRESENT, on
+§ 5.7's reasoning exactly (`carve-retired-unruled`). And `surface:` must name
+a `not_moved` row of this manifest (`carve-retired-surface-live`): the claim a
+retirement rests on is that the surface the arrived file NEEDED is gone from
+BOTH legs, and a `not_moved` row is the one way this document can answer that
+without reading a leg. A surface that is a MOVED row is LIVE at a leg; a
+surface in no row is one the manifest never declared, and "this document
+cannot say" is not "gone". **And one `not_moved` reason is excluded with the
+moved rows**: `replicated_at_destination` (RULED OQ-C) means every destination
+places its OWN copy — `--replica-at` admits them, and RULED Q-L7 (a) lets the
+row declare the edits they carry — so such a surface is LIVE at each leg that
+placed one, and citing it would rest the claim on a row that says the
+opposite.
+
+1. **The ruling first.** Brett Heap's word, on `#656` or on the pull request
+   that asks for it, naming the rows, the surface they NEED and cannot obtain
+   at their leg, and the evidence that the surface is at no leg. (A ruling
+   asked for the surface they DRIVE would be asked a narrower question than
+   the grammar answers, and the first act to use this form had one row of two
+   that could not answer it.) Record the comment id — it is what every row
+   below cites.
+2. **ONE openxFactory row-amendment pull request, and it lands FIRST** — the
+   same pairing § 5.7 requires. On each affected row add:
+
+   ```yaml
+       retired:
+         at: opendox_code                        # the row's EFFECTIVE arrival
+         at_path: tests/test_intent_tray_dom.py  # its own `destination_path`,
+                                                 # or `re_destined.to_path`
+         ruling: "`#656` comment 5656343213"
+         surface: scripts/ideation_dashboard/web/views/intent-feed.js
+         note: "RULED OQ-F kept the surface at openxFactory; S2 replaced the
+           one openDox has with views/intent-binding.js."
+   ```
+
+   **Edit nothing else ON A ROW YOU RETIRE.** `destination:`,
+   `destination_path:` and any `re_destined:` stay exactly as they were — they
+   are the record of where the carve put the file and where a ruling moved it
+   — and `disposition`, `sha256`, `git_mode`, `edits[]`, `carve_commit` and
+   `carve_tag` are untouched. A retirement is a fact about a DESTINATION; the
+   source side does not move.
+
+   **THAT PROHIBITION IS THE RETIRED ROW'S, AND THE SAME ACT MAY STILL DECLARE
+   AN EDIT ELSEWHERE** — measured on the first act to use this form, which
+   retired two rows and declared a PARTIAL removal on a third. A ruling that
+   takes part of an arrived file out has no retirement to record (the row goes
+   on arriving), so it lands as an ORDINARY declared edit on THAT row's
+   `edits[]` under an existing class: a different row, a different grammar, and
+   nothing on it that this step forbids. The rule is one row at a time — what
+   a row that is RETIRED may not carry says nothing about a row that is not.
+   "What the form CANNOT express" below is that case in full.
+3. **Verify the document**: `python3 scripts/validate-carve-manifest.py` must
+   print `OK` and end `; N row(s) RETIRED by ruling (RULED 5656343213)`. The
+   count prints in every state, zero included, so the document's own state is
+   never the state no log records.
+4. **ONE leg, and the deletion is one commit of its own.** Unlike § 5.7 there
+   is no gaining half — the bytes go nowhere — so there is no ordering
+   question and no window with the file at two legs. Delete the file at
+   `at_path` on the leg `at` names; that deletion is the whole content of THAT
+   commit. **And where the leg's own PROSE named the file, a SECOND commit in
+   the same pull request repairs it** — measured on the first act to use this
+   form, which found three sentences at openDox-code that the deletion
+   falsified: a `validate.yml` comment calling the two suites "narrowed out"
+   of its selection, when after the act they are not narrowed but ABSENT, and
+   two sibling suites citing them as an EXISTING precedent for the
+   node-driven DOM-probe pattern. A comment naming a file the same pull
+   request deletes is a reference to nothing, and the next reader greps for it
+   and finds a hole. Two commits and not one, for § 5.7's reason exactly: a
+   reviewer reads the deletion by itself, in its own diff, and the repair
+   beside it. Prose that is HISTORICAL — "this instrument came from X" — may
+   stay as it is, and is worth a word saying the file is retired rather than
+   missing.
+
+   **AND THE REPAIR STOPS AT A CARVED FILE.** Measured one round later at
+   that same act: two of the falsified sentences sat in files that THEMSELVES
+   ARRIVED — `tests/test_account_menu_dom.py:4` and
+   `tests/test_doxbench_tile_verbs.py:18-20` — and at a leg every line on
+   which an arrived file differs from its carve blob must be declared in its
+   openxFactory row under one of RULING OQ-1's three CLOSED classes: `import
+   rewrites`, `path constants`, `adapter calls`. A comment naming a retired
+   sibling is none of the three, and filing it as one would put a false
+   description in the floor's own record to make a comment read better. The
+   verifier says so in the sentence it would use for any other undeclared
+   line — `arrival-undeclared-edit — tests/test_account_menu_dom.py was
+   edited at carve-commit line(s) [4] … it declares [30] under class(es) path
+   constants` — so the repair commit touches only the prose THE LEG OWNS: its
+   workflow files, and the files it created under a declared admission
+   (`docs/opendox-carve-admissions.yaml`). A stale sentence inside a CARVED
+   file STAYS, named in the pull request as a known cost, until a ruling
+   widens the class vocabulary or some other act amends that row for a reason
+   the vocabulary already covers. Withdrawing such a repair is not a retreat
+   — it is the floor holding, one act after the form that tested it. Then
+
+   ```sh
+   python3 scripts/verify-carve-arrival.py \
+       --destination <at> --dest-root /path/to/<at leg> \
+       --manifest docs/opendox-carve-manifest.yaml --source-repo . --phase B
+   ```
+
+   whose line must carry `N row(s) RETIRED here by ruling and verified
+   absent`. A copy left behind refuses `arrival-not-retired` and names the
+   ruling rather than the filename — UNLESS another row's own effective
+   arrival or a declared `--replica-at` replica claims `at_path` at this same
+   leg, which is a lawful refill exactly as § 5.7's is: the path a retirement
+   empties may be legitimately re-occupied, and the entry there is then that
+   row's or that replica's, verified on its own terms.
+
+   **And a block the leg cannot read refuses BEFORE it is believed**
+   (`arrival-unreadable`, naming `validate-carve-manifest.py`): an `at_path`
+   that is not a plain path inside `--dest-root`, and a block whose
+   `at`/`at_path` are not the row's own effective arrival. Step 3 is what
+   normally catches both — they are `_require_closed_relative_path` and check
+   6's `carve-disposition-inconsistent` — but the verifier runs at a LEG on a
+   manifest it deliberately does not revalidate, and the question it asks of a
+   retirement is "is this path EMPTY", to which every unread field answers
+   "yes": a `../` path is absent because it is outside the tree, and a block
+   naming another row's placement proves empty a path no ruling emptied. If
+   you meet either, the repair is in the openxFactory row, not at the leg.
+5. **The leg's own `validate` green, and both pull requests admin-merged on
+   Brett's word** (§ 12 act 1), exactly as every other arrival is.
+
+**What the form CANNOT express, stated because the first act to use it hit
+it.** `retired:` retires a ROW, and a row is a FILE. A leg that must lose only
+PART of an arrived file — one replay block at the end of a suite, say, driving
+a surface the ruling retires, in a file whose other tests drive live surfaces
+— has no retirement to declare, because the row's bytes do not stop arriving.
+The minimal reading, and the one this floor already has a form for, is an
+ORDINARY declared edit: a `moved_with_declared_edit` row whose `edits[]`
+names the removed lines under an existing class, verified by
+`arrival-undeclared-edit` like every other declared edit. Widening `retired:`
+to a line range would put a SECOND line-bearing grammar beside `edits[]` and
+give one row two readings of what its bytes are; that is a ruling's act, not
+an author's.
+
+**And `surface:` names ONE absence where a retirement may rest on two**, which
+the first act also hit. The field is held to a `not_moved` row because that is
+how THIS document answers "gone from BOTH legs" without reading a leg. The
+wheel suite RULED 5656343213 retires is unrunnable at `opendox_code` for two
+reasons, and only one of them is sayable: `views/intent-feed.js` is RULED OQ-F
+`not_moved`, at neither leg, and is the `surface:` the row cites; and
+`views/dispose.js`, which that suite really drives, went to `openxdox_code` at
+§ 3.4 slice S5 — absent at this leg, but present at a leg, so naming it would
+refuse `carve-retired-surface-live` and would be right to. The row's `note:`
+carries the second absence in prose. A `surface:` list, or a second field for
+"moved to another leg", would be the fix; both are a ruling's act.
+
+**WHAT THE FIRST ACT LEFT BEHIND, named here because the next reader greps
+for these names and finds a hole.** The rule above says a stale sentence
+inside a carved file STAYS and is named in the pull request as a known cost;
+this is that list for RULED 5656343213 (`#656` CLAIM `5656690570`,
+openxFactory PR #1043), measured at the leg heads that carry the deletion —
+openDox-code#24 at `e2d5ac46` and openXdox-code#20 at `15e8115d`.
+
+* `tests/test_account_menu_dom.py`:4 sends a reader to
+  `test_wheel_verbs_dom.py` for the DOM shim, and
+  `tests/test_doxbench_tile_verbs.py`:19 names it as an instrument in use.
+  Both files are `moved_with_declared_edit` rows whose only declared edit is
+  `path constants`, at carve lines [30] and [34]; the repair is refused by
+  name, and the second sentence is the sharper case — it also names
+  `test_staging_workbench.py`, which arrived at the OTHER leg, so before this
+  act it already named one file its reader could not open and after it names
+  two. Both stay, and openDox-code#24's `validate.yml` comment records them at
+  the leg as well.
+* The prose THIS repository owns is repaired in the ANNOTATION pull request
+  instead, because "the repair stops at a carved file" bounds the LEG's act
+  and not openxFactory's own record:
+  `docs/opendox-carve-admissions.yaml`'s `tests/test_intent_binding_dom.py`
+  entry described the two retired suites as its "narrowed out of validate.yml"
+  siblings. **Narrowing and retirement are different facts and the repair says
+  so**: the leg's allow-list never named those two and still does not — the
+  deletion deliberately leaves it alone — so what the entry now records is not
+  an un-narrowing but the retirement, the absence it makes the floor require,
+  and the pull request that answers it.
+* `views/intent-feed.js` STAYS here, RULED OQ-F. A retirement deletes an
+  ARRIVAL, never a surface; this act asks nothing of the surface row except
+  that it still read `not_moved`, which is the gate.
+
+**THE WINDOW BETWEEN THE TWO MERGES, in both of its shapes.** The annotation
+lands first (step 2), so until the leg's deletion merges, that leg's own
+arrival run REFUSES — measured against openDox-code `8efb3cf5` with this
+manifest: `arrival-not-retired … still exists`, naming the ruling. It is
+§ 5.7's window in its other form, and it closes by merging the deletion,
+never by touching the manifest. The PARTIAL case is gentler: a declared edit
+that has not yet been applied is no refusal at all, so between the two merges
+the ending replay's lines simply read as not-yet-applied inside a row that is
+still within its declared lines (measured at openXdox-code `c1ad341a`: 29 of
+that row's **196 DISTINCT** declared carve lines differ, none undeclared —
+distinct because A LINE IS DECLARED ONCE PER ROW: slice S5's ten sit INSIDE
+this act's range and this act's entry deliberately does NOT repeat them, so the
+row's four entries carry 196 line entries over the same 196 lines — 12 `import
+rewrites`, 7 `path constants`, S5's 10 `adapter calls` and this act's 167 — and
+the removed block's 177-line extent is stated in the two entries' NOTES rather
+than by declaring ten numbers twice. The aggregate in § 2 sums line ENTRIES, so
+a repeat would have published ten lines this act does not add while the row's
+declared SET stood still, which is the defect
+`test_the_real_manifest_carries_the_ruled_q_l7_amendment` pins against).
+
+**And what the floor does NOT prove, on § 5.7's own terms.**
+`verify-carve-arrival.py` verifies ONE destination per run, so a retirement at
+one leg says nothing about any other; nothing at the destination reads the
+SURFACE the block cites, which is a claim about openxFactory's own tree and is
+`validate-carve-manifest.py`'s `carve-retired-surface-live`; and the check
+does not prove the arrived test was the surface's only reader, or that no
+other file should follow it. The form RECORDS a ruled act and bounds it; it
+does not discover one.
 
 ---
 
@@ -1430,6 +1918,159 @@ multiplicity — pinned with `pytest-suite.yml`'s existing triple idiom at each
 destination. The equality reading fails on its first run and would be "fixed" by
 deleting replicas, which is the wrong repair. RULED OQ-K is carried by a small
 amendment pull request to the change, not by this runbook.
+
+**HOW TO VERIFY IT**, and it is TWO questions rather than one asked twice.
+`scripts/verify-carve-test-mapping.py` (design record in
+`scripts/carve_test_mapping.py`'s docstring) answers the SOURCE side from the
+manifest and this repository's history alone —
+
+```
+python3 scripts/verify-carve-test-mapping.py
+```
+
+— printing every term of the sum, and the DESTINATION side one leg per run,
+never as a cross-repository equality:
+
+```
+python3 scripts/verify-carve-test-mapping.py \
+    --destination openxdox_code --dest-root ../openXdox-code
+```
+
+and, where a replica is placed at that destination, the same command with the
+placement declared — the flag is repeatable and the block above is COPYABLE,
+which the bracketed form it replaces was not (argparse reads `[--replica-at`
+as a flag and fails before the destination is looked at):
+
+```
+python3 scripts/verify-carve-test-mapping.py \
+    --destination openxdox_code --dest-root ../openXdox-code \
+    --replica-at tests/corpus-adapter/test_conformance.py=tests/test_conformance.py
+```
+
+`--destination` takes a `destinations:` key or the literal `openxFactory` for
+the retained column, whose `--dest-root` defaults to this repository. A replica
+joins a destination's floor only where `--replica-at` declares its placement,
+on the rule § 2.1 already states for `verify-carve-arrival.py`: RULED OQ-C
+gives a replica no `destination_path`, so there is nothing to derive one from.
+
+**THE SAME FLAG SPELLING, A DIFFERENT QUESTION, and the one row where the two
+tools give OPPOSITE instructions is the row that matters most.** § 2 tells the
+operator NOT to declare `tests/corpus-adapter/test_conformance.py` to
+`verify-carve-arrival.py` — its implementation-aware block (`:72-84`) imports
+the home factory and MUST be rewritten at each destination, so it is neither
+verbatim nor declared-edit by construction and a declaration would refuse it on
+its digest. THIS floor compares no bytes: it counts `def test_`, which that
+rewrite does not touch. So the row the arrival verifier must not be given is
+exactly the row this one must — **20 of the 30 replicated test functions are in
+it** — and an operator who carries § 2's instruction across to this flag would
+silently leave two thirds of the replica term out of every leg's floor.
+The four refusals are `test-home-missing`, `test-home-deleted-at-carve`,
+`replica-multiplicity-undeclared` and `destination-test-shortfall`, with
+`test-mapping-unreadable` for a question the floor cannot ask — and an
+uncomputable check is never a pass.
+
+**AND THE DOCUMENT IS READ BEFORE IT IS BELIEVED**, because every one of
+these was measured to pass on the landed manifest before it was refused:
+a `carve_commit:` that is not 40 lowercase hex (it is interpolated into a
+`git cat-file --batch` request, so a line terminator in it injects a second
+request per row — measured: `source_count 0`, identity `0 = 0`, **exit 0**
+over a surface carrying 4,411 `def test_`); a `source_path:` declared by two
+rows (counted twice, 4,411 → 4,446, identity still balancing); a row with no
+`source_path:` at all (a traceback, where the contract is a named refusal);
+a `moved_paths:` naming a prefix NO row lies under (every row outside the
+surface, `rows_in_surface 0`, exit 0); and, at a destination, a `retired:`
+block or a `destination:` naming a key the manifest does not carry — which
+took the openDox-code leg from 117 rows / 1,067 declared to 116 / 1,045 and
+exited 0, a leg passing because a live arrival had been silenced by a key
+naming nothing. A `--replica-at` placement is admitted only for a row under
+the declared surface, for the same reason in the other direction: a floor is
+neither lowered inside the set it is quantified over nor raised outside it.
+Every row's `disposition:`/`reason:` must be IN FLOOR PART 1's vocabulary — the
+source side refuses an unknown one by name, and a LEG read it as another
+destination's business and passed without ever asking for that arrival — and
+every `destinations:` key must be a non-empty string naming a map with both a
+`repository:` and a `leg:`, because an incomplete identity compares equal to
+nothing and a leg named by it is asked for no arrival at all. And the surface
+must cover the WHOLE document — a `moved_paths:` that omits
+some of its own rows reports `0 = 0` over the part it omits, which at the limit
+is a prefix matching one zero-test row; the landed manifest's 456 rows are all
+under its surface, and that was asserted only in pytest until this round made
+it a refusal the runbook's own invocation makes.
+`tests/carve_test_mapping/test_carve_test_mapping.py` drives the source side on
+every required-suite pass, the seat `tests/carve_manifest/` holds for FLOOR
+PART 1.
+
+**MEASURED 2026-09-16, and every figure re-derived rather than recited.**
+Source **4,411** `def test_` over **146** test-bearing rows of the declared
+surface — **144 homed and 2 RULED-retired, and the two counts are disjoint
+and exhaust the 146**: a retirement deletes the row's OWN arrival, so a
+retired row is never counted among the homed — not even where
+`also_replicated_to:` copies of it survive elsewhere, which is the case the
+report now names copy by copy. Three test-bearing replicas carry **30** at
+`m = 3`. At the destinations, against their own rows'
+declarations: openDox-code `0b4e8bb` **1,067 / 1,067**, openXdox-code
+`0a0265f` **2,315 / 2,319**, the retained openxFactory column **998 / 1,018**.
+The sum carries a FOURTH term, which is arithmetic and not an amendment: § 5.4
+was amended 2026-09-09, the `retired:` form was RULED `5656343213` on
+2026-09-13, and its first use (openxFactory PR #1043) retires two TEST-BEARING
+rows carrying **31** between them, so
+
+```
+Σ(destinations) = source_count + Σ over EVERY row of (|homes| − 1) × tests
+
+  source_count             4,411
++ replica excess (m − 1)      60   `replicated_at_destination` rows
++ also-replicated excess       0   RULED Q-L7 (a) moved-AND-replicated rows
++ retired term               −31   the same rule over retired rows
+= Σ(destinations)          4,440
+```
+
+**ONE RULE, four buckets, and the tool prints all of them on every run.**
+§ 5.4 states the last two as a subtraction — *"− Σ over RETIRED rows of
+row_test_count"* — and that is exact for every row that has landed, because
+each retired row's only home is the one the ruling deleted. It is NOT exact
+for a row that is retired AND replicated: retirement deletes the row's own
+ARRIVAL and not the copies its `also_replicated_to:` places elsewhere, so
+such a row's term is `(1 − 1) × tests = 0` rather than `−tests`. Apply the
+one rule, not the subtraction, and the two agree wherever the subtraction is
+right.
+
+A retired row is not a lost test: the form REQUIRES a `ruling:` and reads as no
+retirement without one, so the deletion is the RULED decision clause (a)
+demands rather than one inferred from a disposition — and the tool NAMES every
+one of them, with its path, its count and its ruling, on every run.
+
+**THE REFUSAL IS THE DESTINATION TOTAL AND NOT A PER-ROW EQUALITY, decided by
+measurement.** `tests/ideation-dashboard/test_serve_column_split.py` is a
+`not_moved / stays_openxfactory_adapter` row declaring 9 `def test_` at the
+carve commit and carrying 8 today: § 3.4 slice S6 (RULED Q4, `#656` comment
+`5642758731`) moved that test's SUBJECT out of the file's domain and the
+successor runs at `opensoft/openDox-code`'s
+`tests/test_source_core_arm.py::test_route_dispatches_the_exact_arm_before_the_prefix_arm`.
+A per-row equality would go red on a RULED re-homing that lost nothing. So the
+total is the refusal and the per-row deltas are REPORTED BY NAME on every run,
+because a canceling pair holds a total while a file loses coverage — **and in
+BOTH SIGNS, which cost a round to get right**: only the shortfalls were printed
+until 2026-09-17, so the retained column's `+20` named no arrival at all and
+the canceling pair the sentence above is about could not be inspected. It
+resolves to SIX rows carrying `+21` between them, each named with its declared
+and its found count, against that one `−1`. A row ABOVE its declaration is not a fault — a leg may add tests
+to a file it received — it is the other half of the evidence.
+
+**CLAUSE (d) — HALF BUILT, HALF BLOCKED, and the blocker is the BUILD arc.**
+openxFactory's half is `.github/workflows/pytest-suite.yml`'s pinned triple —
+SKIPPED exactly, SELECTED and PASSED as floors, failures and errors zero.
+Neither leg can carry its half today: `opensoft/openDox-code` and
+`opensoft/openXdox-code` both run `python -m pytest -q <named files>
+--noconftest` in `validate.yml`, with no JUnit report and no totals, and both
+workflows record the reason in their own words — *"with the root conftest in
+play the tree is 1188 errors and 0 passed"* and *"THIRTY-SEVEN of this leg's 88
+test files fail COLLECTION"*, each naming `split-opendox` § 3.5/§ 3.6 as what
+the narrowing waits on. A triple pinned over a tree that cannot be collected is
+a required check held red by another act's defect, which is the deadlock class
+clause (d) itself refuses by name. **The leg half of clause (d) is therefore
+owed to each leg's own pull request AFTER the BUILD arc lands, and § 5.4 does
+not close until it does.**
 
 ---
 

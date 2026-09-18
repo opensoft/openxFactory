@@ -71,6 +71,20 @@ destination copy. Derived, never transcribed: the destination of
 this module has to know which, or notice the day a row's destination changes.
 A per-DIRECTORY constant is exactly the bug this replaces: `scripts/
 ideation_dashboard/` split across BOTH legs and partly stayed here.
+
+AND THE ROWS A RULING HAS RETIRED (RULED 5656343213, `#656` comment
+`5656343213`). A moved row may carry a `retired:` block saying that a ruling
+DELETED its arrival at the leg — not moved it, as RULED Q6's `re_destined:`
+does, but removed it, because the surface the arrived file needed is at no leg
+at all. The row keeps every field the carve wrote, so this module can still
+compute a perfectly well-formed path for it under a materialized leg — and
+that path would name a file `verify-carve-arrival.py` has just finished
+proving ABSENT. So `source()` refuses with `CarveRowRetired` (a subclass of
+`ShedModuleHasNoDestination`, so callers that already handle "at no
+destination" need no change), `module()` and `shed_relpath()` refuse through
+it, and `sources_under()` OMITS such a row exactly as it omits the
+`deleted_at_carve` one: a caller that NAMES a retired file has the wrong file,
+and a caller SWEEPING a tree must not be stopped by one row that is nowhere.
 """
 
 from __future__ import annotations
@@ -127,13 +141,64 @@ SCRIPTS_DIR = REPO_ROOT / "scripts"
 
 INIT_COMMAND = "git submodule update --init --recursive openDox openXdox"
 
+#: The remedy for a leg whose object store exists but cannot answer for the
+#: pinned commit, or for the tree/blobs under it — every `CarveReachUnavailable`
+#: raise below that reaches this point shares this text verbatim, and so does
+#: `doc_health.release_inventory`'s own `LegUnavailable` (`#1048` round 4,
+#: Copilot on PR #1051, `carved_reach.py:921` / `release_inventory.py:290`).
+#: `git fetch --unshallow` ALONE WAS WRONG HERE: it is the fix for a
+#: GENUINELY SHALLOW clone only (`git rev-parse --is-shallow-repository`
+#: prints `true`) — MEASURED, git 2.43.0: a `--filter=tree:0`/`blob:none`
+#: store is not shallow, and `--unshallow` there only answers `fatal:
+#: --unshallow on a complete repository does not make sense` and fixes
+#: nothing, because the two are orthogonal git features and a partial clone
+#: never went shallow to begin with.
+INCOMPLETE_STORE_REMEDY = (
+    f"Run `{INIT_COMMAND}` from the repository root. A store that is "
+    f"GENUINELY SHALLOW (`git rev-parse --is-shallow-repository` prints "
+    f"`true`) needs its own `git fetch --unshallow` first; a "
+    f"`--filter=tree:0` or `blob:none` PARTIAL store is not shallow, and "
+    f"`--unshallow` there only answers `fatal: --unshallow on a complete "
+    f"repository does not make sense` — fetch the pinned objects from a "
+    f"remote that still carries them instead (`git -C <store> fetch "
+    f"origin <sha>`, or `git fetch --refetch`), or re-run the command "
+    f"above to re-initialize the leg.")
+
 
 class CarveReachUnavailable(ImportError):
-    """A pinned leg is not materialized, so a shed module cannot be read."""
+    """A pinned leg's object store is missing, incomplete, or otherwise
+    unreadable — the query was unanswerable, not answered.
+
+    THREE PATHS RAISE THIS, all inside `shed_commit_object`'s gitlink walk
+    (`#1048` round 5, Copilot on PR #1051, `carved_reach.py:1105`, widening
+    this from the original "not materialized" alone): the leg is NOT
+    MATERIALIZED — `_leg_object_store` finds no Git object store on disk at
+    all; the store IS materialized but INCOMPLETE — it exists but does not
+    carry the pinned commit; or the TREE that would record the gitlink itself
+    could not be READ — an unresolvable revision, a `--filter=tree:0` clone
+    whose promisor remote is unreachable, or (round 5) a probe that hit its
+    30s timeout rather than answering. Every path means the same thing to a
+    caller: nothing was learned, so the caller's own absence finding must
+    never stand in for it.
+    """
 
 
 class ShedModuleHasNoDestination(ImportError):
     """A shed module that left for NO destination was asked for by its old name."""
+
+
+class CarveRowRetired(ShedModuleHasNoDestination):
+    """A row a RULING has RETIRED at its leg was asked for (RULED 5656343213).
+
+    A SUBCLASS and not a sibling, deliberately. To every caller that already
+    handles "this file is at no destination" the two cases are one answer —
+    ask for something else — and an existing `except ShedModuleHasNoDestination`
+    goes on working unchanged the day a row is first retired. To a caller that
+    wants the distinction the class carries it: `deleted_at_carve` is a file
+    the carve never placed anywhere, and a RETIREMENT is a file the carve DID
+    place and a later ruling deleted. Different causes, different remedies,
+    one supertype.
+    """
 
 
 #: Old dotted name -> the sentence that explains where it went. Only the
@@ -446,6 +511,77 @@ def effective_arrival(row: dict) -> tuple[str, str]:
     return row.get("destination"), row.get("destination_path")
 
 
+# THE CLOSED KEY SET, HERE TOO, because this predicate ENFORCES it and cannot
+# import the copy in `scripts/validate-carve-manifest.py` (that file is a
+# hyphenated entry point loaded by `spec_from_file_location`; this one is
+# imported bare). A block carrying a key outside it — a misspelled `notes:`, a
+# field somebody invented — reads as NO retirement and the arrival stays owed,
+# on the same fail-closed reasoning the four required keys already have: a
+# document this predicate cannot fully read is one the manifest validator must
+# be run against before anything acts on it.
+RETIRED_KEYS = frozenset({"at", "at_path", "ruling", "surface", "note"})
+
+
+def retired_at(row: dict) -> tuple:
+    """`(destination key, destination path)` a RULING has RETIRED this row's
+    arrival at (RULED 5656343213, `#656` comment `5656343213`) — or
+    `(None, None)` where the row carries no usable retirement.
+
+    THE THIRD COPY of a three-line predicate, exactly as `effective_arrival`
+    above is, and for the same reason: `validate-carve-manifest.py` and
+    `verify-carve-arrival.py` are hyphenated entry points loaded by
+    `spec_from_file_location`, this module is loaded BARE at some call sites,
+    and none of the three can import another.
+    `tests/carve_arrival/test_verify_carve_arrival.py::test_all_three_tools_read_the_retirement_identically`
+    asserts the three equal over a table rather than trusting them to agree.
+
+    `source()` refuses on it — and `module()`, `shed_relpath()` and
+    `shed_destination()` through or beside it — because the alternative is
+    worse than a refusal: a retired row's `destination_path` still resolves
+    to a perfectly well-formed path under a materialized leg, and returning it
+    would hand a caller a `Path` to a file the floor has just finished proving
+    is NOT THERE. That is the silent-nothing this module's own docstring
+    refuses to degrade into.
+
+    ALL FOUR REQUIRED KEYS ARE THE GUARD, not the two a placement needs
+    (Copilot review of PR #1032, round 2). `retired: {at, at_path}` is half a
+    block: `validate-carve-manifest.py` refuses it — `carve-retired-unruled`,
+    then `carve-shape-invalid` on the missing `surface` — but THIS predicate is
+    read by tools that never run that validator. `verify-carve-arrival.py` is
+    run at a leg against a `--dest-root` and `carved_reach` is imported by
+    every retained consumer, so "the validator would have caught it" is not
+    true at the moment of reading; a half-written block would silence a
+    required arrival before anyone validated the document. Four non-empty
+    strings or no retirement — the same closed key set (`at`, `at_path`,
+    `ruling`, `surface`, and the optional `note`) the form itself declares.
+
+    AND THE OPTIONAL KEY IS READ AS THE GRAMMAR WRITES IT, not as a type
+    (Copilot review of PR #1032, round 7). `_check_retired_shape` refuses a
+    PRESENT `note:` that is not a non-empty string — *a note is prose or it is
+    absent* — and this predicate asked only `isinstance`, so `note: ""` and
+    `note: "   "` read as usable retirements here and as `carve-shape-invalid`
+    there. That is the fail-OPEN direction again, arriving through the one key
+    the form makes OPTIONAL: a block the validator would refuse silenced this
+    row's arrival check at a leg that had not run the validator. ABSENT, OR
+    PROSE — the same rule, in the same words, in all three copies and in the
+    grammar, held together by
+    `test_the_note_is_prose_or_absent_in_the_grammar_and_in_all_three_readers`.
+    """
+    retired = row.get("retired")
+    if isinstance(retired, dict) and set(retired) <= RETIRED_KEYS:
+        at = retired.get("at")
+        at_path = retired.get("at_path")
+        ruling = retired.get("ruling")
+        surface = retired.get("surface")
+        if (all(isinstance(value, str) and value.strip()
+                for value in (at, at_path, ruling, surface))
+                and ("note" not in retired
+                     or (isinstance(retired["note"], str)
+                         and retired["note"].strip()))):
+            return at, at_path
+    return None, None
+
+
 def source(path: str | Path) -> Path:
     """The file `path` NAMES TODAY, wherever the § 5.2 shed left it.
 
@@ -464,6 +600,13 @@ def source(path: str | Path) -> Path:
         mixed set does not have to know which of its members stayed;
       * the one `deleted_at_carve` row raises `ShedModuleHasNoDestination`,
         the same named refusal its import gets;
+      * a row a RULING has RETIRED at its leg (RULED 5656343213) raises
+        `CarveRowRetired`, a subclass of that same refusal: the carve DID
+        place this file and a later ruling DELETED that placement, so the
+        well-formed path this function could still compute would name
+        nothing. It is the ARRIVAL that is refused, and the refusal says so:
+        a row may ALSO declare `also_replicated_to:` copies, which RULED OQ-C
+        makes the legs' own placements and which no retirement touches;
       * a path in no row raises `NotACarvedPath`, because a caller asking this
         question about a file the manifest never declared has the wrong file,
         and answering `REPO_ROOT / path` would hide that.
@@ -488,6 +631,25 @@ def source(path: str | Path) -> Path:
                 f"{key} is the carve manifest's `deleted_at_carve` row and has "
                 f"no destination to read it from. {reason}")
         return REPO_ROOT / key
+    at, at_path = retired_at(row)
+    if at_path is not None:
+        retired = row["retired"]
+        replicas = row.get("also_replicated_to") or []
+        raise CarveRowRetired(
+            f"{key} was RETIRED at {at}:{at_path} by ruling "
+            f"{retired.get('ruling')!r} (RULED 5656343213), because the "
+            f"surface it needed ({retired.get('surface')!r}) arrived at no "
+            "leg. The row still records the move the carve made — that is "
+            "what the manifest is for — but the ARRIVAL this function "
+            "resolves is gone, and a path computed from the row would name a "
+            "file the arrival verifier has just finished proving absent. Ask "
+            "for whatever replaced the surface, or for nothing."
+            + (f" (This says nothing about the row's `also_replicated_to` "
+               f"copies at {sorted(str(r) for r in replicas)!r}: RULED OQ-C "
+               "makes those the LEGS' own placements, declared with "
+               "`--replica-at` and governed on their own terms — a "
+               "retirement deletes ONE placement, the one named above.)"
+               if replicas else ""))
     destination, destination_path = effective_arrival(row)
     mount = MOUNTS[destination]
     if not (mount / ".git").exists() and not any(mount.glob("*")):
@@ -509,15 +671,20 @@ def module(path: str | Path):
     those names live at one leg, some at the other and some still here. The
     dotted name is DERIVED from the row instead:
 
-      * a MOVED row's `destination_path` (`src/opendox/workbench.py`) becomes
-        the dotted name the leg's `src/` makes importable (`opendox.workbench`)
-        — which is why the day a row moves between the two legs no caller
+      * a MOVED row's `effective_arrival(row)` `destination_path`
+        (`src/opendox/workbench.py`) becomes the dotted name the leg's `src/`
+        makes importable (`opendox.workbench`): the row's own, unless a
+        `re_destined:` block (RULED Q6) says a ruling has since moved the
+        placement, in which case its `to_path` — `source()`'s own precedent,
+        read here for the same reason, and why the day a row moves between
+        the two legs, or is re-destined between them afterward, no caller
         changes;
       * a `not_moved` row keeps the spelling it has HERE
         (`scripts/ideation_dashboard/intent_feed.py` → the
         `ideation_dashboard.intent_feed` that `SCRIPTS_DIR` on the path serves);
-      * the `deleted_at_carve` row raises `ShedModuleHasNoDestination`, and a
-        path in no row raises `NotACarvedPath`, exactly as `source()` does.
+      * the `deleted_at_carve` row raises `ShedModuleHasNoDestination`, a
+        RETIRED row raises `CarveRowRetired`, and a path in no row raises
+        `NotACarvedPath`, exactly as `source()` does.
 
     `install()` is called first, so a caller gets the legs on the path and the
     named refusals without having to remember to arrange them.
@@ -532,7 +699,9 @@ def module(path: str | Path):
             source(key)  # raises ShedModuleHasNoDestination
         relative = key[len("scripts/"):] if key.startswith("scripts/") else key
     else:
-        relative = row["destination_path"]
+        if retired_at(row)[1] is not None:
+            source(key)  # raises CarveRowRetired with the sentence for it
+        destination, relative = effective_arrival(row)
         if relative.startswith("src/"):
             relative = relative[len("src/"):]
     if not relative.endswith(".py"):
@@ -554,13 +723,24 @@ def shed_relpath(path: str | Path) -> str | None:
     materialized — the marker is consulted at import time by lanes that
     initialise no gitlinks at all — so this reads the row and stops, and the
     caller's own `exists()` decides presence exactly as it always did.
+
+    A RETIRED ROW RAISES `CarveRowRetired` rather than answering (RULED
+    5656343213), on `source()`'s reasoning and not in spite of the paragraph
+    above: the caller's `exists()` would answer False for a file that is not
+    merely un-materialized but DELETED BY RULING, and "not here yet" and
+    "never again" are the two answers a marker must not confuse. Raising does
+    not require a leg to be materialized, so the property this function exists
+    for is kept.
     """
     key = str(path).replace("\\", "/")
     row = _rows().get(key)
     if row is None or row["disposition"] == "not_moved":
         return None
-    mount = MOUNTS[row["destination"]].relative_to(REPO_ROOT)
-    return (mount / _closed_relative_path(row["destination_path"], source_path=key)).as_posix()
+    if retired_at(row)[1] is not None:
+        source(key)  # raises CarveRowRetired with the sentence for it
+    destination, destination_path = effective_arrival(row)
+    mount = MOUNTS[destination].relative_to(REPO_ROOT)
+    return (mount / _closed_relative_path(destination_path, source_path=key)).as_posix()
 
 
 def shed_destination(path: str | Path) -> Path | None:
@@ -640,31 +820,210 @@ def _sanitized_git_environment() -> dict[str, str]:
     return environment
 
 
-def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
-    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when it is not
-    there. `None` is an ANSWER here, not a swallowed error: the one caller uses
-    it to mean "that commit's tree carries no such entry", which is exactly the
-    case of a commit from BEFORE the § 5.2 shed — where the file is still in
-    this repository's own tree and the caller's ordinary read already found it.
+def _git_run(repo: Path, *arguments: str):
+    """The ONE scrubbed, replacement-free `git -C <repo> ...` invocation every
+    reader below shares — the finished process, or `None` when git could not be
+    run at all, OR WHEN IT DID NOT ANSWER IN TIME.
 
     Runs with `--no-replace-objects` and a sanitized environment (Copilot,
-    `PRRT_kwDOTAvnrs6hjE-c`): `<revision>:<path>` otherwise resolves through
+    `PRRT_kwDOTAvnrs6hjE-c`): a `<revision>:<path>` otherwise resolves through
     ambient `GIT_DIR`/alternate-object-directory/replace-ref configuration,
     which could make this read a leg commit the root commit does not actually
-    name.
+    name — and the same scrub is what makes the `--git-common-dir` read below
+    answer for the directory this module points git AT rather than for whatever
+    an ambient `GIT_COMMON_DIR` names.
+
+    BOUNDED AT `timeout=30`, THE SAME 30 SECONDS `scripts/hermes_runtime_
+    validation/content.py:103-116` already gives its own equivalent read
+    (`#1048` round 5, Copilot on PR #1051, `carved_reach.py:826`). The
+    `cat-file -e`/`ls-tree` probes this function serves are exactly the reads a
+    partial clone or an unreachable promisor remote can make HANG rather than
+    fail, and every caller above this one exists to turn a git FAILURE into an
+    answer — `_tree_entry_absent`'s whole taxonomy, `_leg_object_store`'s
+    materialization check, the incomplete-store probe in the walk below — none
+    of which get a turn if the process never returns. `subprocess.TimeoutExpired`
+    is therefore caught beside `OSError` and answered with the SAME `None` a
+    missing git binary already produces, so every reader above this line
+    reaches its EXISTING unavailable path unchanged: a probe that timed out is
+    a query that went UNANSWERED, never the tree's own answer that an entry is
+    absent — the phantom-absence thesis `#1048` exists to refuse, one layer
+    lower than every other case in this module.
     """
     try:
-        done = subprocess.run(
-            ["git", "--no-replace-objects", "-C", str(repo), "rev-parse", f"{revision}:{path}"],
+        return subprocess.run(
+            ["git", "--no-replace-objects", "-C", str(repo), *arguments],
             capture_output=True,
             text=True,
             check=False,
+            timeout=30,
             env=_sanitized_git_environment(),
         )
+    except subprocess.TimeoutExpired:
+        return None
     except OSError:  # pragma: no cover - no git on PATH is the caller's problem
+        return None
+
+
+def _git_text(repo: Path, *arguments: str) -> str | None:
+    """The stripped stdout of one `git -C <repo> ...` read, or `None` when
+    git declines — for the reads that ANSWER IN STDOUT."""
+    done = _git_run(repo, *arguments)
+    if done is None:
         return None
     value = done.stdout.strip()
     return value if done.returncode == 0 and value else None
+
+
+def _git_ok(repo: Path, *arguments: str) -> bool:
+    """Whether a git probe SUCCEEDED — for the reads that answer by EXIT CODE
+    and print nothing.
+
+    `cat-file -e` is the one this module needs and `_git_text` cannot serve it:
+    there an empty stdout is indistinguishable from a failure, so a commit that
+    IS present would read as absent. Separate function rather than a flag,
+    because the two return types are what keep that confusion impossible.
+    """
+    done = _git_run(repo, *arguments)
+    return done is not None and done.returncode == 0
+
+
+def _git_object_id(repo: Path, revision: str, path: str) -> str | None:
+    """`git -C <repo> rev-parse <revision>:<path>`, or `None` when that read
+    DID NOT ANSWER — which is not the same fact as "it is not there".
+
+    `None` IS TWO FACTS AND THE CALLER MUST SEPARATE THEM (`#1048` round 2).
+    One is the ANSWER the one caller wants: that commit's tree carries no such
+    entry, which is exactly the case of a commit from BEFORE the § 5.2 shed —
+    there the file is still in this repository's own tree and the caller's
+    ordinary read already found it. The other is a FAILURE: the tree object
+    this read has to walk is not in the store, and a `--filter=tree:0` clone
+    whose promisor remote is unreachable is the everyday shape of that. git
+    spells the two IDENTICALLY to a reader of stdout — exit 128 and nothing
+    printed, differing only in a `fatal:` line — so `_tree_entry_absent` below
+    asks which one arrived, and this `None` is never read as an absence alone.
+    """
+    return _git_text(repo, "rev-parse", f"{revision}:{path}")
+
+
+def _tree_entry_absent(repo: Path, revision: str,
+                       path: str) -> tuple[bool, str]:
+    """Did `revision`'s tree ANSWER that it carries no entry at `path`?
+
+    `(True, "")` for git's own unambiguous answer, `(False, <what git said>)`
+    for every other outcome. MEASURED, git 2.43.0, in a throwaway store — the
+    four shapes this separates:
+
+      A PATH GENUINELY NOT IN THE TREE. `rev-parse <commit>:<path>` exits 128
+      (`fatal: path 'x' does not exist in 'HEAD'`); `ls-tree <commit> --
+      <path>` EXITS 0 AND PRINTS NOTHING. This is the answer, and the only
+      shape that returns one.
+
+      THE COMMIT'S ROOT TREE OBJECT MISSING — a `--filter=tree:0` clone whose
+      promisor remote is unreachable, or a pruned store. `rev-parse` exits 128
+      again (`fatal: path 'leg' exists on disk, but not in 'HEAD'`), the same
+      empty stdout for the opposite fact; `ls-tree` exits 128 (`fatal: not a
+      tree object`, or git's own `could not fetch <tree> from promisor
+      remote`). `cat-file -e <commit>^{commit}` still exits 0 there, which is
+      why the commit probe in `shed_commit_object` passes and this case
+      reaches the walk at all.
+
+      A SUBTREE MISSING UNDER A READABLE ROOT TREE. `ls-tree` exits 1
+      (`error: Could not read <sha>`) while `cat-file -e <commit>^{tree}`
+      exits 0 — which is why the root-tree probe is NOT the discriminator
+      here: it passes on a store that cannot answer for the path.
+
+      AN UNRESOLVABLE REVISION. `ls-tree` exits 128 (`fatal: not a tree
+      object`), so an unreadable commit lands here as a failure rather than as
+      an absence, which is the taxonomy's "git unavailable or commit
+      unresolvable" arm rather than its "member absent" one.
+
+    EXIT 0 WITH OUTPUT IS A FAILURE TOO. The tree listed an entry that
+    `rev-parse` could not resolve; two reads that disagree have established
+    nothing, and the one thing this function may never do is manufacture an
+    absence out of a disagreement.
+
+    AND IT ASKS ABOUT THE PATH THE OTHER READ ASKED ABOUT (`#1048` round 3,
+    Copilot on PR #1051, `carved_reach.py:746`). `git ls-tree` resolves its
+    pathspec RELATIVE TO THE CURRENT PREFIX unless `--full-tree` is given,
+    while `git rev-parse <revision>:<path>` — the read this probe exists to
+    explain — is relative to the ROOT of the tree always. Under any non-empty
+    prefix the two are asking about DIFFERENT paths, so this one's answer is
+    not evidence about the other's entry at all. MEASURED, git 2.43.0: in a
+    module store whose `core.worktree` resolves to a directory CONTAINING the
+    store, `rev-parse --show-prefix` answers `.git/modules/leg/` and
+    `ls-tree <pin> -- spec` then EXITS 0 AND PRINTS NOTHING for a `spec`
+    gitlink that tree really carries — git's own unambiguous "no such entry",
+    returned for an entry that is there, which is precisely the phantom
+    absence this function was added to refuse. `--full-tree` with a
+    `:(literal)` pathspec is the root-relative form every other tree reader
+    here already uses (`scripts/hermes_runtime_validation/content.py:148-155`),
+    and `:(literal)` is what makes the segment a NAME rather than a pathspec
+    expression — MEASURED on the same git: `ls-tree --full-tree HEAD -- :!leg`
+    exits 128 with `pathspec magic not supported by this command: 'exclude'`
+    where `:(literal):!leg` exits 0, so a segment beginning with `:` would
+    otherwise arrive here as an unreadable tree rather than as its own name.
+    """
+    done = _git_run(repo, "ls-tree", "--full-tree", revision, "--",
+                    f":(literal){path}")
+    if done is None:
+        # `_git_run` answers this SAME `None` for a missing git binary and for
+        # a probe that hit its 30s timeout (`#1048` round 5) — indistinguishable
+        # from here, so the text says both rather than misnaming a timeout as
+        # the rarer "no git on PATH" case or silently dropping the commoner one.
+        return False, "git could not be run, or the probe timed out after 30s"
+    if done.returncode != 0:
+        said = " ".join(done.stderr.split())
+        return False, said or f"`git ls-tree` exited {done.returncode}"
+    if done.stdout.strip():
+        return False, (f"`git ls-tree` lists an entry at {path} that "
+                       f"`git rev-parse {revision}:{path}` could not resolve")
+    return True, ""
+
+
+def _leg_object_store(parent: Path, segment: str) -> Path | None:
+    """Where the `segment` submodule's OBJECT STORE is under `parent` — the
+    checked-out working tree when there is one, else the superproject's own
+    copy of it — or `None` when this checkout cannot reach it at all.
+
+    WHY THIS IS NOT `(parent / segment / ".git").exists()`, which is the test
+    the caller used to make inline (`#1048`). That question is "is the leg's
+    WORKING TREE checked out HERE", and a linked worktree never checks a
+    submodule out: `git worktree add` writes the superproject's own tracked
+    files and leaves every gitlink an empty directory. The store is not missing
+    there, it is merely somewhere else — git keeps a submodule's objects in the
+    SUPERPROJECT's common git directory at `modules/<name>`, and every linked
+    worktree of that superproject shares it. The old test therefore answered
+    "not materialized" for a checkout that could read the leg perfectly well,
+    and `doc-health`'s release-inventory family turned that refusal into four
+    members of `contract-v4.0` reported ABSENT AT HEAD from a worktree and
+    present from the checkout the worktree was made from: one commit, two
+    verdicts, neither of them about the release.
+
+    The working tree is preferred whenever it IS checked out, so an ordinary
+    checkout resolves exactly what it resolved before this existed.
+    `--git-common-dir` is asked OF GIT rather than assembled from `.git` by
+    hand, because the caller walks a CHAIN — `openXdox/spec` is a submodule of
+    a submodule — so `parent` is itself a module store at every level past the
+    first, and because this repository is mounted as a submodule in the
+    aggregation workspace, where its own `.git` is a file and its common
+    directory is `<agg>/.git/modules/openxFactory`.
+    """
+    checkout = parent / segment
+    if (checkout / ".git").exists():
+        return checkout
+    common = _git_text(parent, "rev-parse", "--git-common-dir")
+    if common is None:
+        return None
+    root = Path(common)
+    store = (root if root.is_absolute() else parent / root) / "modules" / segment
+    # `HEAD` is git's own first test for "this directory IS a git directory",
+    # and it is what separates a real module store from the empty `modules/`
+    # skeleton that a never-initialized submodule can leave behind. It proves
+    # THE DIRECTORY and nothing about its contents, which is why the caller
+    # asks separately whether the pinned commit is actually in it (Copilot on
+    # PR #1051, `carved_reach.py:718`): a shallow or partially fetched store
+    # passes this test and still cannot answer for the commit.
+    return store if (store / "HEAD").is_file() else None
 
 
 def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] | None:
@@ -681,39 +1040,116 @@ def shed_commit_object(commit: str, path: str | Path) -> tuple[Path, str, str] |
     <revision>:<segment>` per level — `openXdox/spec` is two levels, because
     `openXdox` is a submodule of this repository and `spec` is a submodule of
     THAT — and answers the leg repository, the commit that repository is pinned
-    at BY THIS COMMIT, and the row's own `destination_path`. The answer is
-    therefore as exact as the caller's: a commit that pinned an older leg reads
-    the older leg's bytes, and nothing is read from the working tree.
+    at BY THIS COMMIT, and `effective_arrival(row)`'s `destination_path`: the
+    row's own, unless a `re_destined:` block (RULED Q6) says a ruling has since
+    moved the placement, in which case its `to_path` — `source()`'s own
+    precedent, read here for the same reason. The answer is therefore as exact
+    as the caller's: a commit that pinned an older leg reads the older leg's
+    bytes, and nothing is read from the working tree.
 
     It answers `None` — and the caller's own answer stands — for a path in no
-    row, a `not_moved` row, and a commit whose tree carries no such gitlink,
-    which is every commit from BEFORE the shed: there the file is still in this
-    repository's own tree and the ordinary read already succeeded.
+    row, a `not_moved` row, and a commit whose tree ANSWERS that it carries no
+    such gitlink, which is every commit from BEFORE the shed: there the file is
+    still in this repository's own tree and the ordinary read already
+    succeeded.
 
-    It RAISES `CarveReachUnavailable` when the gitlink IS recorded and the leg is
-    not materialized, for the reason the module docstring gives: an object store
-    that is not on disk cannot be read, and a reader that quietly found nothing
-    reports as a green bar.
+    THAT ABSENCE IS CONFIRMED RATHER THAN INFERRED (`#1048` round 2). A
+    `rev-parse <revision>:<segment>` that answers nothing says either "this
+    tree has no such entry" or "this tree could not be read", and a store
+    cloned `--filter=tree:0` whose promisor is unreachable is the second while
+    looking exactly like the first — the commit object present, the tree
+    object not. Taking that for an absence returned `None` here, which
+    `release_inventory` reports as the member being ABSENT AT THE COMMIT: the
+    phantom absence this path exists to refuse, arriving through the one read
+    that had no probe. `_tree_entry_absent` above asks `ls-tree` which fact it
+    is, and only the tree's own "no such entry" still answers `None`.
+
+    It RAISES `CarveReachUnavailable` when the gitlink IS recorded and the leg's
+    object store is not reachable from this checkout AT ALL — neither checked
+    out here nor held as the superproject's own `modules/<name>` copy — for the
+    reason the module docstring gives: an object store that is not on disk
+    cannot be read, and a reader that quietly found nothing reports as a green
+    bar. A LINKED WORKTREE IS NOT THAT CASE, and was refused as one until
+    `#1048`; `_leg_object_store` above carries the why. The MOUNT path is
+    tracked alongside the store so the refusal still names `openXdox` or
+    `openXdox/spec` — the thing a reader can go and initialize — rather than a
+    git directory nobody ever checked out.
+
+    A STORE THAT EXISTS IS NOT YET A STORE THAT ANSWERS, and the pinned commit
+    is verified in it before the walk moves on (Copilot on PR #1051). A shallow
+    clone, an interrupted fetch, or a gitlink advanced past what the store was
+    fetched at all leave a real git directory that simply does not carry the
+    commit; without the probe the next level's `rev-parse` — or, at the last
+    level, the caller's own blob read — would answer a plain `None`, and
+    `release_inventory` would report the member ABSENT AT THE COMMIT. That is
+    the same misattribution this whole path exists to prevent, arriving one
+    layer lower, so it raises here and becomes the same repository-level skip.
+
+    A RETIRED ROW IS NOT GUARDED HERE, AND THE DIVERGENCE FROM `source()` IS
+    DELIBERATE (Copilot review of PR #1032, which asked for the guard). This
+    is the one resolver whose question is TIME-INDEXED. `source()` answers
+    about the working tree — one tree, the one that exists now — so a row a
+    ruling has deleted has no answer and refusing is the only honest one. This
+    function answers about THE COMMIT THE CALLER NAMES, through the leg THAT
+    COMMIT pins. A retirement is an EVENT: the deletion lands at the leg at
+    some commit, and every commit before it pins a leg that still carries the
+    file. The `retired:` block, meanwhile, is read from the manifest in the
+    WORKING TREE and says nothing about when the deletion landed — so a guard
+    here would apply today's retirement to every commit ever asked about, and
+    would break the exact property `scripts/hermes_runtime_validation/
+    release.py` is built on: verifying an OLDER commit reads the leg that
+    commit pinned, where the member is present and the read is correct.
+
+    At a commit whose pinned leg no longer carries the file, this answers a
+    path with no blob there, and the caller's own absence finding is the right
+    verdict and the one it already produces: `scripts/doc_health/
+    release_inventory.py` reports the member as VANISHED at that commit, and
+    `hermes_runtime_validation.content.resolve_git_object` raises its own
+    error. Neither is silent, and neither needs this function to decide for
+    it. `tests/carve_manifest/test_carve_manifest.py::
+    test_the_exact_commit_resolver_answers_for_a_retired_row_on_purpose` pins
+    the divergence so it stays a decision rather than an omission.
     """
     key = str(path).replace("\\", "/")
     row = _rows().get(key)
     if row is None or row["disposition"] == "not_moved":
         return None
+    destination, destination_path = effective_arrival(row)
     repo = REPO_ROOT
+    mount = REPO_ROOT
     revision = commit
-    for segment in MOUNTS[row["destination"]].relative_to(REPO_ROOT).parts:
+    for segment in MOUNTS[destination].relative_to(REPO_ROOT).parts:
+        mount = mount / segment
         gitlink = _git_object_id(repo, revision, segment)
         if gitlink is None:
+            absent, said = _tree_entry_absent(repo, revision, segment)
+            if not absent:
+                raise CarveReachUnavailable(
+                    f"the pinned {destination} leg cannot be located "
+                    f"at this commit: the tree {revision} names could not be "
+                    f"read where {mount.relative_to(REPO_ROOT)}'s gitlink is "
+                    f"recorded, so whether that gitlink is there is "
+                    f"UNESTABLISHED rather than answered, and {key} cannot be "
+                    f"read at the commit that pins it — git said: {said}. "
+                    f"{INCOMPLETE_STORE_REMEDY}")
             return None
-        repo = repo / segment
-        revision = gitlink
-        if not (repo / ".git").exists():
+        store = _leg_object_store(repo, segment)
+        if store is None:
             raise CarveReachUnavailable(
-                f"the pinned {row['destination']} leg is not materialized: "
-                f"{repo.relative_to(REPO_ROOT)} carries no Git object store, so "
+                f"the pinned {destination} leg is not materialized: "
+                f"{mount.relative_to(REPO_ROOT)} carries no Git object store, so "
                 f"{key} cannot be read at the commit that pins it. Run "
                 f"`{INIT_COMMAND}` from the repository root.")
-    return repo, revision, row["destination_path"]
+        if not _git_ok(store, "cat-file", "-e", f"{gitlink}^{{commit}}"):
+            raise CarveReachUnavailable(
+                f"the pinned {destination} leg is materialized but "
+                f"incomplete: {mount.relative_to(REPO_ROOT)}'s object store "
+                f"carries no commit {gitlink}, which is what the recorded "
+                f"gitlink names, so {key} cannot be read at the commit that "
+                f"pins it. {INCOMPLETE_STORE_REMEDY}")
+        repo = store
+        revision = gitlink
+    return repo, revision, destination_path
 
 
 def sources_under(prefix: str) -> dict[str, Path]:
@@ -724,7 +1160,12 @@ def sources_under(prefix: str) -> dict[str, Path]:
     repository-relative path, so a caller's own reporting still names the path
     a reader of this repository's history will recognise. The
     `deleted_at_carve` row is omitted: it is nowhere, and a sweep is not the
-    place to raise about it.
+    place to raise about it. A RETIRED row (RULED 5656343213) is omitted for
+    exactly that reason and no other — it is nowhere too, and one retired row
+    must not take a whole compositor sweep down with it. The refusal is kept
+    for the callers that NAME a file (`source()`, `module()`,
+    `shed_relpath()`), where asking for that one file is the caller's own
+    mistake rather than an incident of walking a tree.
     """
     prefix = prefix.rstrip("/") + "/"
     out: dict[str, Path] = {}
@@ -732,6 +1173,18 @@ def sources_under(prefix: str) -> dict[str, Path]:
         if not key.startswith(prefix):
             continue
         if row.get("reason") == "deleted_at_carve":
+            continue
+        # THE RETIREMENT OMISSION IS A MOVED ROW'S, and the disposition test is
+        # load-bearing rather than defensive (Copilot review of PR #1032,
+        # round 6). `retired:` on a `not_moved` row is a document
+        # `validate-carve-manifest.py` refuses (`carve-retired-not-moved`) —
+        # but this module is imported by consumers that never run it, and
+        # `source()` above resolves a `not_moved` row HERE, unconditionally,
+        # before it reads any retirement. Omitting on `retired_at` alone made
+        # this sweep disagree with `source()` about the same row and, worse,
+        # silently drop a file that is RETAINED in this tree.
+        if (row.get("disposition") != "not_moved"
+                and retired_at(row)[1] is not None):
             continue
         out[key] = source(key)
     return out

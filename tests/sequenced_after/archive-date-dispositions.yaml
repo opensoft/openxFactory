@@ -39,8 +39,17 @@ kind: archive_date_dispositions
 #   2. THE ARCHIVE ACT AND ITS COMMIT FELL ON DIFFERENT UTC DAYS. The wrapper
 #      owns the clock at the ACT; the adding commit is made (and, squash-merged,
 #      dated) later. An archive named just before UTC midnight and merged just
-#      after is a CORRECT archive that this arm reports. 132 of this corpus's
-#      144 directories agree, so it is rare - not impossible.
+#      after is a CORRECT archive that this arm reports. 157 of this corpus's
+#      171 directories agree, so it is rare - not impossible. (This line read
+#      "132 of 144" until 2026-09-18, when Copilot caught the contradiction on
+#      PR #1106 - 132 plus the fourteen entries below describes no corpus - and
+#      the corpus had in fact grown by 27 directories since the sentence was
+#      written. A same-day fix then wrote 159 of 173: the FULL
+#      `adding_commits()` return, which also carries the two pre-rename ghost
+#      names behind the two 2026-06-26 entries above (neither on disk), rather
+#      than the on-disk population `archive_commit_problems` actually measures
+#      against. 157 agree and 14 disagree IS 171, which `ls
+#      openspec/changes/archive | wc -l` reads today too.)
 #   3. THE CHANGE ID ARRIVED CARRYING ITS OWN `YYYY-MM-DD-` PREFIX, which the
 #      pinned CLI preserves DELIBERATELY (`archive.js:1119-1124`: re-prefixing
 #      would stutter the name and sort the folder under a day the change did not
@@ -74,7 +83,7 @@ kind: archive_date_dispositions
 # re-measure; an entry nobody can check silences a finding on nothing.
 #
 # ENFORCEMENT. `error` - the reading the ruling asks for once every measured
-# disagreement carries a disposition, which the twelve below make true: the
+# disagreement carries a disposition, which the fourteen below make true: the
 # live corpus is green with 0 undispositioned findings. `warning` prints the
 # same findings and leaves the run's verdict alone, and is what a repository
 # adopting this arm sets while it writes its own dispositions.
@@ -89,14 +98,17 @@ kind: archive_date_dispositions
 #                    abbreviated: this is a citation, and an abbreviation is
 #                    ambiguous by construction.
 #   commit_date_utc  that commit's COMMITTER date, in UTC. (Author and
-#                    committer dates agree on all 144 directories of this
+#                    committer dates agree on all 171 directories of this
 #                    corpus; the committer date is recorded because it is when
 #                    the commit entered this history, which is the act the
 #                    directory name claims to date.)
-#   fact             what happened, in the vocabulary above. Two appear below -
-#                    cause 1 (ten entries) and cause 4 (two, which also cite the
-#                    archive act the rename moved); a later entry of cause 2 or
-#                    3 names its own.
+#   fact             what happened, in the vocabulary above. THREE appear below
+#                    - cause 1 (ten entries), cause 2 (two) and cause 4 (two,
+#                    which also cite the archive act the rename moved); a later
+#                    entry of cause 3 names its own. (This line read "Two ...
+#                    cause 1 and cause 4" until 2026-09-18, one entry after the
+#                    first cause-2 disposition landed; the counts are re-measured
+#                    here rather than carried forward.)
 #   ruled_by         the ruling that accepted it.
 #   cited_to         where the measurement and the ruling are recorded.
 #
@@ -217,5 +229,49 @@ dispositions:
     adding_commit: "66d11a2422e778e9c6f7fe6dc358af83f9c1648d"
     commit_date_utc: "2026-09-05"
     fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-09-16-add-composed-view-authoring"
+    directory_date: "2026-09-16"
+    adding_commit: "3e32d9874b5c68e90b0cef62cd94f9e378831fa3"
+    commit_date_utc: "2026-09-18"
+    fact: "archive act and adding commit fell on different UTC days (cause
+      2), and the LANDING FORM is what put them apart: the governed wrapper ran
+      proposal-support.py archive on 2026-09-16 UTC, and that act's own commit
+      on the branch, d8ff2ec2c04992ffb15d50d5b018eb65b27937e0, is
+      committer-dated 2026-09-16T01:01:38Z UTC and AGREES with this name. PR
+      #1056 - split-opendox § 6.4's closure of add-composed-view-authoring as
+      re-homed to opensoft/openDox under RULING Q6 - is a Rule 6 pull request
+      touching openspec/changes/, so it was brought to READY and held for its
+      landing window, which came on 2026-09-18. It was then landed by SQUASH,
+      which discards the branch's commits: d8ff2ec2 never entered this history,
+      and the oldest commit adding any file under the directory became the
+      landing commit itself, 3e32d9874b5c68e90b0cef62cd94f9e378831fa3,
+      committer-dated 2026-09-18T10:50:06Z UTC. A merge-commit landing would
+      have carried d8ff2ec2 and this arm would have reported nothing. So: a
+      correct archive, correctly named, whose adding commit was re-dated by the
+      form of its landing - not a clock defect, not a stale name, and not the
+      hold itself, which only decided WHICH later day the squash would carry.
+      The holder has recorded the landing-form error and lands every remaining
+      archive closure by merge commit"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-09-16-gate-code-surface-declarations"
+    directory_date: "2026-09-16"
+    adding_commit: "5dd0a8dc39899820ab9fad6f02ae9b364bb43dc6"
+    commit_date_utc: "2026-09-17"
+    fact: "archive act and adding commit fell on different UTC days (cause
+      2): the governed wrapper ran proposal-support.py archive on
+      2026-09-16 UTC, opening PR #1076 the same day as a HELD draft naming
+      no word and no green run yet; code_surface: openxFactory is
+      non-empty, so release-realization archives only on merged-plus-green
+      evidence and a separate archive word, never on landing, and the PR
+      sat open overnight awaiting it; Brett Heap's archive word came
+      2026-09-17, and the squash-merge that added the directory to
+      history, 5dd0a8dc39899820ab9fad6f02ae9b364bb43dc6, is committer-dated
+      2026-09-17T16:23:43Z UTC - a correct archive whose merge fell on the
+      next UTC day, not a clock defect"
     ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
     cited_to: "opensoft/openxFactory#812"
