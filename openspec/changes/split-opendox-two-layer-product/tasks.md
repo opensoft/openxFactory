@@ -1284,8 +1284,7 @@ the bookkeeping that ticks this group.
   `OPENDOX_SERVED_DATABASE` declaration — the fifth use of the land-and-register
   pattern in this packet.
   *(The superseded reading follows, kept because it records why the box was held
-  at all.)* *(The superseded reading follows, kept
-  because it records why the box was held at all.)*
+  at all.)*
   **PRIOR STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
   `[ ]`** (RULED 2026-09-18 17:55Z, `#656` comment `5734029578`; recorded by
   `tasks.md` amendment #6). The realization is `openDox-code` **#26**, paired
@@ -1417,7 +1416,7 @@ the bookkeeping that ticks this group.
   which #6 used for TWO DIFFERENT COMMITS, here and at § 8.9 residue (v). Each
   reading is now bound to its own sha. **An evidence line names a commit, never
   a position in a process.**)*
-  • `tests/carve_conformance/` is recorded above as **34 tests**; at this head
+  • `tests/carve_conformance/` is recorded above as **34 tests**; at `83a055a6`
   `test_verify_carve_conformance.py` carries **79** `def test_`, and it is the
   only test file in that directory.
   • The refusal codes are **SIX, not five**: `conformance-unreadable`,
@@ -4241,8 +4240,12 @@ realization evidence, never on landing. Each line is its own evidence.
   tagger Brett Heap 2026-09-12T00:21:18Z.
   **(3) verified from an INDEPENDENTLY REFRESHED checkout. THE PROCEDURE IS TWO
   STEPS, NOT ONE, and amendment #7 writes the second into it**: `gh repo clone
-  opensoft/openxFactory`, **then `git submodule update --init --recursive
-  openDox openXdox`**. Without the second step the verifier exits **2** on
+  opensoft/openxFactory && cd openxFactory && git submodule update --init
+  --recursive openDox openXdox`. **The `cd` is part of the recipe, not an
+  omission the reader is expected to supply**: `gh repo clone` leaves the shell
+  in the PARENT directory, so a `git submodule update` written as a separate
+  step runs outside the new checkout and fails before the verifier is reached.
+  *(Caught by Copilot against `ec5d5144` — a recipe written to fix a recipe.)* Without the second step the verifier exits **2** on
   `ReleaseDependencyError` and emits NO finding, so a reader following the
   recorded procedure could not reproduce the pass the record claims. *(#6
   disclosed this at clause (c) below but left it out of the procedure — a
@@ -4679,20 +4682,29 @@ realization evidence, never on landing. Each line is its own evidence.
   also stands elsewhere, **and AMENDMENT #7 SPLITS THE SITES LIVE FROM DATED
   BEFORE ANYONE EDITS THEM** — the distinction this row's own retraction
   established, which the list then failed to apply to itself.
-  **LIVE — a bare current-corpus claim, safe to renumber:**
-  `scripts/sequenced_after.py` `:449` *"128 of this corpus's 171"*, `:1599`
-  *"remains clean across all 171 TODAY"*, `:1607` *"128 of this corpus's"*; and
-  `tests/sequenced_after/test_sweep.py` **`:2049`** *"124 of this corpus's 143"*.
-  **DATED, THEREFORE EVIDENCE — DO NOT RENUMBER:** `:1598` *"all 143 … BEFORE
-  IT WAS MADE A GATE"*, `:1927` *"re-run … against all 171 ON 2026-09-18"*, and
-  `:1958` *"agree on all 171 directories (AS MEASURED 2026-09-18)"*. Each names
-  its own moment, so each records what was true THEN, and rewriting it would
-  destroy the evidence rather than refresh it.
-  *(Amendment #6 listed `:1927` and `:1958` among the sites to rewrite —
-  committing, TWO LINES BELOW ITS OWN RETRACTION, the identical error that
-  retraction had just corrected for `:36`/`:396`. **A dated claim is not a stale
-  claim, and the test is whether the sentence names its own moment.** Written
-  out twice because this row got it wrong twice.)*
+  **LIVE — a bare, UNDATED current-corpus claim, safe to renumber. THERE ARE
+  FOUR, AND ALL FOUR ARE OUTSIDE `sequenced_after.py`:**
+  `scripts/validate-sequenced-after.py` `:42`, `:402` and `:739`, and
+  `tests/sequenced_after/test_sweep.py` **`:2049`** *"124 of this corpus's 143
+  archived rows do."* — each verified undated by reading its CONTINUATION line
+  as well as its own.
+  **DATED, THEREFORE EVIDENCE — DO NOT RENUMBER. `scripts/sequenced_after.py`
+  HAS NO LIVE SITE AT ALL; EVERY CURRENT-CORPUS CLAIM IN IT CARRIES A DATE:**
+  `:449` (*"as measured 2026-09-18"* on `:450`), `:1598` (*"before it was made a
+  gate"*), `:1599` (*"re-measured 2026-09-18"* on `:1600`), `:1607` (*"as
+  measured 2026-09-18"* on `:1608`), `:1927` (*"on 2026-09-18"*) and `:1958`
+  (*"as measured 2026-09-18"*); plus `validate-sequenced-after.py` `:36` and
+  `:396` (*"before it was made a gate"*). Each names its own moment, so each
+  records what was true THEN, and rewriting it would destroy the evidence
+  rather than refresh it.
+  *(THIS ROW HAS NOW GOT THIS RULE WRONG THREE TIMES, and the third time it got
+  it wrong WHILE WRITING THE RULE — #6 mis-listed `:36`/`:396`, then
+  `:1927`/`:1958`, and #7's own corrected split still put `:449`, `:1599` and
+  `:1607` under LIVE. **The mechanism is worth more than the apology: the date
+  sits on the CONTINUATION LINE, not on the line carrying the figure**, so a
+  line-anchored grep for the number never sees it. The test is not "does this
+  LINE name a moment" but "does this SENTENCE name one" — and a sentence here
+  routinely spans two lines. Caught by Copilot against `ec5d5144`.)*
   **Every line number here is bound to `507b6233` — an IMMUTABLE SHA, not
   "this amendment's head" — and must be re-derived, not trusted**: this row
   first cited that last site as `:2003`, which by the time it was written held
@@ -4705,7 +4717,7 @@ realization evidence, never on landing. Each line is its own evidence.
   complete — across FILES, not one file — before anyone edits it.
   *(ONE FINDING IN THIS FAMILY IS DECLINED, WITH THE MEASUREMENT. A review
   against head `7ac75a4e` reported `archive-date-dispositions.yaml` as carrying
-  stale `171` claims at `:43`, `:51` and `:101`. Measured at this head, it does
+  stale `171` claims at `:43`, `:51` and `:101`. Measured at `507b6233`, it does
   not: the sentence spanning `:42-:43` reads *"159 of this corpus's 172
   directories agree"*, which is CURRENT and correct — quoted whole here
   because the fragment *"172 directories agree"* alone, which is what `:43`
