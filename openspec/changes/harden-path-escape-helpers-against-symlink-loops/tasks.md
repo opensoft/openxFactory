@@ -326,7 +326,7 @@ and a test that passes on both sides is not the proof.**
       REPORT rather than traceback. `contained_change_dir_names(<tree two>)`
       → `{'a-real-change'}` — UNCHANGED from D0.3's own record, never having
       reached the loop. All five answers match PR #1107's own body table.
-- [ ] 4.4 `pytest-suite` green on the realization pull request at its merge head;
+- [x] 4.4 `pytest-suite` green on the realization pull request at its merge head;
       that run is the green half of the archive evidence § 5 needs.
       **LEFT OPEN, 2026-09-18.** `pytest-suite` at this branch's pushed head
       `87eb684d` — run `35354873708`
@@ -360,22 +360,111 @@ and a test that passes on both sides is not the proof.**
       taken from `main`'s own green run at the landed merge, because a
       tick commit always moves the head past the run it cites (the
       `add-declared-former-id` precedent).
+      **TICKED AT THE ARCHIVE ACT, 2026-09-18, ON `main`'s OWN RUN.**
+      `pytest-suite` GREEN on `main` at `049d54a9` (run `35372664200`,
+      2026-09-18T17:09Z), containing the realization merge `c22c4fc3` (#1107).
+      **CONTAINMENT MEASURED AND NOT ASSUMED**:
+      `gh api repos/opensoft/openxFactory/compare/c22c4fc3...049d54a9 --jq .status`
+      -> `ahead`, and `git merge-base --is-ancestor c22c4fc3 049d54a9` exits 0.
+      **THE HEAD THE PARAGRAPH ABOVE NAMES IS NOT THE HEAD #1107 MERGED FROM,
+      AND THAT IS CORRECTED HERE RATHER THAN LEFT TO BE FOUND.** `8fb0fc99` was
+      this branch's head when that paragraph was written; ONE further commit
+      followed it — `bc9ebf95`, the paragraph's own commit — and `bc9ebf95` is
+      the head PR #1107 merged from (`gh pr view 1107 --json headRefOid` ->
+      `bc9ebf954f9629de25c6bb61cd5485937bdaaa54`). The box is satisfied at that
+      head too, measured rather than inferred from the earlier run:
+      `pytest-suite` run `35362604810` at `bc9ebf95`, conclusion `success`
+      (2026-09-18T15:28Z); the whole check set at that head is **15 SUCCESS and
+      1 SKIPPED** (`Sourcery review`), zero failures, across 14 distinct check
+      names. So BOTH readings of "at its merge head" hold, and the green half
+      § 5.1 needs is taken from `main`'s own run rather than from a branch run,
+      which is the stricter of the two.
 
-## 5. Archive (OPEN; a separate act on a separate word)
+## 5. Archive (PERFORMED 2026-09-18 on merged-plus-green evidence; LANDS on a separate word)
 
-- [ ] 5.1 **(OPERATOR)** `code_surface` is NON-EMPTY, so under `release-realization`
+- [x] 5.1 **(OPERATOR)** `code_surface` is NON-EMPTY, so under `release-realization`
       this packet SHALL NOT archive on landing. It archives on MERGED-PLUS-GREEN
       REALIZATION EVIDENCE at canon's grain: § 3's pull request merged into `main`,
       and a green `pytest-suite` run at the tree that merge carries.
-- [ ] 5.2 **(OPERATOR)** Promote the `## ADDED` block onto
+      **THE EVIDENCE HALF IS IN HAND, 2026-09-18, AND EVERY LEG IS CITED RATHER
+      THAN ASSERTED.** (i) THE PACKET landed as PR
+      [#1083](https://github.com/opensoft/openxFactory/pull/1083) -> merge
+      `ebcdbc0c20eb7368582d4bb8103001ab48316542` on `main`,
+      **2026-09-18T14:03:33Z** (`gh pr view 1083 --json mergeCommit,mergedAt`),
+      on Brett Heap's ratifying word of ~09:55Z, *"Ratify; land when green"*,
+      and his later *"land #1083"* of ~14:20Z. (ii) **§ 3's REALIZATION** landed
+      as PR [#1107](https://github.com/opensoft/openxFactory/pull/1107) -> merge
+      `c22c4fc355898d4e57eb1159f47d756b30875b66` on `main`,
+      **2026-09-18T17:06:27Z**, on Brett Heap's *"land #1107 when it is
+      un-drafted"* of ~14:30Z, at head `bc9ebf95` with 15 SUCCESS / 1 SKIPPED
+      and `pytest-suite` run `35362604810` green. (iii) **THE GREEN HALF AT
+      CANON'S GRAIN**: `pytest-suite` SUCCESS on **`main`** at `049d54a9`, run
+      [`35372664200`](https://github.com/opensoft/openxFactory/actions/runs/35372664200),
+      2026-09-18T17:09:27Z — and `049d54a9` CONTAINS `c22c4fc3`, measured
+      (`compare/c22c4fc3...049d54a9` -> `ahead`). The chain
+      `ebcdbc0c` -> `c22c4fc3` -> `049d54a9` is an ancestry chain, each leg
+      checked with `git merge-base --is-ancestor`.
+      **THE OPERATOR HALF IS NOT CLAIMED BY THIS TICK AND IS NOT IN THIS LANE'S
+      GIFT.** Brett Heap's SEPARATE ARCHIVE WORD has not been given. This tick
+      records that the evidence condition this box states is MET; the archive
+      pull request it rides on is opened as a **DRAFT** and lands only on that
+      word, by MERGE COMMIT.
+- [x] 5.2 **(OPERATOR)** Promote the `## ADDED` block onto
       `openspec/specs/release-realization/spec.md` and archive the packet to
       `openspec/changes/archive/<date>-harden-path-escape-helpers-against-symlink-loops/`
       through `python3 scripts/proposal-support.py . archive`, never a bare
       `openspec` invocation.
-- [ ] 5.3 **(OPERATOR)** Close openxFactory
+      **DONE THROUGH THE GOVERNED WRAPPER, NEVER A BARE `openspec archive`**, in
+      the commit that moves this directory:
+      `TZ=UTC python3 scripts/proposal-support.py . archive harden-path-escape-helpers-against-symlink-loops --yes`,
+      exit **0**. Its decisive lines: `ORIGIN RETAINED
+      harden-path-escape-helpers-against-symlink-loops (declaration unchanged
+      since the ratifying commit ebcdbc0c20eb)`; `Totals: 1 passed, 0 failed
+      (1 items)`; `Task status: Complete`; `Applying changes to
+      openspec/specs/release-realization/spec.md: + 2 added`; `Totals: + 2, ~ 0,
+      - 0, -> 0`; `Change 'harden-path-escape-helpers-against-symlink-loops'
+      archived as '2026-09-18-harden-path-escape-helpers-against-symlink-loops'`;
+      `OK openspec-cli-pin: @fission-ai/openspec@1.12.0 verified against its
+      content address and every target validated --strict clean`; `NO SUPPORTING
+      DOCS ... (origin retained, nothing to package)`. The CLI is the
+      content-addressed pinned 1.12.0 artifact and NOT the 1.13.1 on `PATH`;
+      `--path-mode` was not used.
+      **THE ARCHIVE DIRECTORY IS
+      `openspec/changes/archive/2026-09-18-harden-path-escape-helpers-against-symlink-loops/`**,
+      named for the UTC day of the wrapper commit, which is what
+      `archive-date-vs-commit` measures.
+      **THE PROMOTED TEXT IS THE RATIFIED TEXT, BYTE FOR BYTE, MEASURED ON BOTH
+      SIDES.** Two `## ADDED` requirements, TEN scenarios, onto
+      `openspec/specs/release-realization/spec.md` (`--numstat` **+130 -0**,
+      and `-w` reads the same `130 0`, so no line is whitespace-only):
+      *A containment guard answers every resolution failure and raises none*
+      (six scenarios; **6,049 bytes / 82 lines**, sha256
+      `e12a9d9d54f64ac0c97d9c808f03df64583943f2d75760f0d3cb723ff33ffc7a` on BOTH
+      the archived delta and canon) and *A symlink-loop proof is built at test
+      time and never committed* (four scenarios; **3,198 bytes / 46 lines**,
+      sha256 `f98402134c0b7eb855d30c57792f8219ea4f17a5e1ade176df0381194b19d625`
+      on both). `release-realization` requirement count **17 -> 19**; NO
+      promoted byte is edited or removed, this delta carrying no `## MODIFIED`
+      block. The transcript is `review/verification-2026-09-18-post-merge.md`.
+- [x] 5.3 **(OPERATOR)** Close openxFactory
       [#1074](https://github.com/opensoft/openxFactory/issues/1074) in the ARCHIVE
       pull request, by a closing keyword written there and in no commit message on
       this branch or the realization branch.
+      **THE INSTRUMENT IS PLACED, AND THE TICK RECORDS THE PLACING AND NEVER
+      THAT THE ISSUE IS SHUT.** `Closes #1074` is written as its own paragraph
+      in the ARCHIVE pull request's body and in NO other place; #1074 shuts on
+      the MERGE of that pull request, which is the landing lane's act on Brett
+      Heap's archive word, and at no earlier act.
+      **AND NO COMMIT MESSAGE CARRIES A CLOSING KEYWORD, GREPPED RATHER THAN
+      ASSUMED.** Over this branch,
+      `git log origin/main..HEAD --format='%H%n%B'` piped through a
+      case-insensitive grep for
+      `(clos(e|es|ed)|fix(es|ed)?|resolv(e|es|ed))[: ]*#[0-9]` returns **0
+      matches**; the realization branch was grepped the same way at its merge
+      head `bc9ebf95` and also returns **0** — PR #1107's own title and body say
+      `refs #1074`, never `closes`. Every other issue and pull-request number in
+      this branch's commit messages and in the archive pull request's body is a
+      `Refs`-style naming and closes nothing.
 
 ## 6. Measured and NOT taken (OPEN; successors, not work owed)
 
