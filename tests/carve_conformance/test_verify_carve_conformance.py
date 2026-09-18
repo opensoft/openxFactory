@@ -30,6 +30,21 @@ therefore a different class object with the same name. It must PASS. An
 something unrelated, turning a conformant reader into a red run for a reason
 that is about Python's module identity and nothing to do with the corpus.
 
+  4. **A TRANSPOSED corpus is PROVEN faithful, never trusted** — RULED Q-F1
+     (a) (Brett Heap, 2026-09-17, `#656` comment `5714365086`). A destination
+     whose corpus is git HISTORY cannot address the corpus as it ships, so
+     the ruling lets that destination lay the same documents down in the
+     storage form its reader addresses and hand the result in with
+     `--corpus`. Section 5 below holds that permission to its price: a
+     genuine bare-repository transposition, built by this file's own
+     `git_history_factory.transpose()` and read back by a reader that has no
+     working tree to fall back on, passes the fidelity proof AND all
+     seventeen checks; and three transpositions that changed a byte, dropped
+     a document and added one are each refused BY NAME before a check runs.
+     A test that used the home reader over a COPY of the fixtures would
+     exercise the comparison and never the case the ruling was written for,
+     so both are here and only the first is evidence for the ruling.
+
 THE SCRIPT IS RUN AS A SUBPROCESS for behaviour and loaded by path only for
 constants — `tests/carve_arrival/test_verify_carve_arrival.py`'s rule, adopted
 for its reason: the documented way in is a command line, and a test of the
@@ -67,9 +82,17 @@ import carve_conformance as CC  # noqa: E402
 from corpus_adapter import (  # noqa: E402
     CORPUS_ABSENT,
     CORPUS_READ_ONLY,
+    DOCUMENT_UNKNOWN,
+    CorpusRef,
+    CorpusRefused,
+    Document,
+    DocumentId,
     Refusal,
 )
 from home_factory import NEUTRAL_SHAPE, neutral_reader  # noqa: E402
+#: The reader whose corpus is git HISTORY, and the transposition it
+#: addresses — RULED Q-F1 (a)'s evidence. Section 5 is the only user.
+import git_history_factory as GH  # noqa: E402
 
 # The vocabulary, restated as a LITERAL rather than imported. Asserting
 # `MODULE.REFUSAL_CODES == MODULE.REFUSAL_CODES` would be a tautology; spelling
@@ -79,6 +102,7 @@ RATIFIED_CODES = (
     "conformance-adapter-undeclared",
     "conformance-adapter-unresolvable",
     "conformance-corpus-missing",
+    "conformance-corpus-unfaithful",
     "conformance-check-failed",
     "conformance-unreadable",
 )
@@ -771,3 +795,1278 @@ def test_a_dotted_adapters_parent_package_is_not_reused_either(tmp_path):
 
     assert sys.modules.get("pkg") is before_pkg
     assert sys.modules.get("pkg.reader") is before_reader
+
+
+# ==========================================================================
+# 5. a TRANSPOSED corpus is proven faithful, never trusted — RULED Q-F1 (a)
+#    (Brett Heap, 2026-09-17, openxFactory #656 comment 5714365086)
+# ==========================================================================
+
+
+def _transposed(tmp_path: Path, fixtures: Path | None = None) -> Path:
+    """A genuine bare-repository transposition of the corpus.
+
+    `git_history_factory.transpose()` is the thing under test as much as the
+    runner is: it is what a destination whose corpus is history has to do in
+    order to be measured at all, and every case below runs through it rather
+    than around it.
+    """
+    return GH.transpose(fixtures or CORPUS, tmp_path / "transposed")
+
+
+def _mutated_fixtures(tmp_path: Path) -> Path:
+    """A writable copy of the shipped corpus, so a mutation can be made to a
+    transposition's SOURCE without ever touching the fixtures themselves."""
+    source = tmp_path / "source"
+    shutil.copytree(CORPUS, source)
+    return source
+
+
+def test_a_git_transposition_passes_fidelity_and_the_whole_corpus(tmp_path):
+    """RULED Q-F1 (a), end to end and through the documented command line.
+
+    The reader here has NO working tree: every byte it serves comes out of a
+    bare repository's history through `cat-file`. That is the case the ruling
+    was written for, and the run has to reach all seventeen checks — a
+    fidelity proof that passed and then measured nothing would be the floor
+    ticked by a gate that never fired.
+    """
+    corpus = _transposed(tmp_path)
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "git_history_factory:reader",
+                "--sys-path", "tests/carve_conformance", "--corpus",
+                str(corpus))
+    assert done.returncode == 0, f"{done.stdout}\n{done.stderr}"
+    assert "TRANSPOSED and FAITHFUL" in done.stdout, done.stdout
+    assert f"{CC.SEED_EXPECTATION.documents} document(s)" in done.stdout
+    assert f"17 of {len(CC.CHECKS)} check(s)" in done.stdout, done.stdout
+    # THE HUMAN VERDICT IS EVIDENCE, SO ITS RENDERING IS PINNED TOO (Copilot,
+    # round 13). Everything above this line survives `_print_ok` dropping the
+    # shipped path, the proven revision, the table digest or the closing
+    # `unmoved across the run` -- the `--json` record carries them and is
+    # asserted elsewhere, but the LINE an operator pastes into a pull request
+    # was held to nothing. Runbook 2.2 quotes that closing phrase to a reader
+    # as what the second proof reports, so a rendering that quietly lost it
+    # would falsify a landed document while this suite stayed green. The
+    # whole clause is compared at once so a REORDER or a relabel is caught
+    # too, and every value in it is DERIVED here, never transcribed.
+    expected_digest = MODULE.fingerprint_digest(
+        MODULE.document_fingerprint(CORPUS / MODULE.POPULATED))
+    expected_revision = GH._git(
+        "rev-parse", "HEAD", cwd=corpus / MODULE.POPULATED
+    ).stdout.decode().strip()
+    assert (f", TRANSPOSED and FAITHFUL to {CORPUS} \u2014 "
+            f"{CC.SEED_EXPECTATION.documents} document(s) at revision "
+            f"{expected_revision}, key/sha256 table {expected_digest}, "
+            "unmoved across the run") in done.stdout, done.stdout
+
+
+def test_the_transposition_is_history_and_not_a_working_tree(tmp_path):
+    """Guards the guard. If `transpose()` ever copied files beside the
+    repository, the case above would pass while proving nothing about a
+    reader whose corpus is history — which is the whole of what it is for."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+    assert (populated / "HEAD").is_file(), "not a repository at all"
+    for key in ("notes/alpha.md", "notes/beta.md", "papers/gamma.md"):
+        assert not (populated / key).exists(), (
+            f"{key} is a FILE in the transposition; a bare repository has no "
+            "working tree and this reader would not have to read history")
+    # and the bytes really are reachable, only through git
+    reader = GH.reader("populated", str(populated))
+    resolved = reader.resolve(CorpusRef(name="populated",
+                                        location=str(populated)))
+    keys = [d.key for d in reader.list_documents(resolved)]
+    assert keys == ["notes/alpha.md", "notes/beta.md", "papers/gamma.md"]
+    assert (CORPUS / MODULE.POPULATED / "notes" / "alpha.md").read_bytes() == \
+        reader.read(resolved, reader.list_documents(resolved)[0]).content
+
+
+def test_the_transpositions_digest_is_the_shipped_corpus_table(tmp_path):
+    """The value the verdict carries is not decorative: an operator pasting
+    that line into a pull request must be able to recompute it from the
+    fixtures, and the two must be the same number."""
+    corpus = _transposed(tmp_path)
+    expected = MODULE.fingerprint_digest(
+        MODULE.document_fingerprint(CORPUS / MODULE.POPULATED))
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "git_history_factory:reader",
+                "--sys-path", "tests/carve_conformance", "--corpus",
+                str(corpus), "--json")
+    assert done.returncode == 0, done.stderr
+    payload = json.loads(done.stdout)
+    record = payload["transposition"]
+    assert record is not None
+    assert record["path"] == str(corpus)
+    assert record["shipped"] == str(CORPUS)
+    assert record["documents"] == 3
+    assert record["proven"] is True
+    assert record["digest"] == expected
+    # the revision it was PROVEN at rides in the evidence, and a git
+    # transposition has one: the bare repository's own HEAD.
+    assert record["revision"] == GH._git(
+        "rev-parse", "HEAD", cwd=corpus / MODULE.POPULATED
+    ).stdout.decode().strip()
+    assert record["revision_confirmed"] is True, (
+        "the run never re-proved the corpus after the seventeen checks")
+    assert record["served_digest"] == expected, (
+        "the reader served a different table from the one the corpus holds, "
+        "and the run still passed")
+
+
+def test_the_reference_table_is_read_off_the_files_and_keyed_by_posix_path():
+    """The reference side has no reader in it, and the key spelling is
+    load-bearing: it is what a transposition's keys are compared WITH."""
+    table = MODULE.document_fingerprint(CORPUS / MODULE.POPULATED)
+    assert sorted(table) == ["notes/alpha.md", "notes/beta.md",
+                             "papers/gamma.md"]
+    for key, digest in table.items():
+        import hashlib
+        assert digest == hashlib.sha256(
+            (CORPUS / MODULE.POPULATED / key).read_bytes()).hexdigest()
+
+
+def test_the_table_digest_depends_on_the_pairing_and_not_on_the_order():
+    """Two properties at once, and each has a way of being wrong. A digest
+    that moved with dict order would make the verdict's value unusable as
+    evidence; one that ignored WHICH key carried WHICH content would report
+    two different corpora as the same one."""
+    a = {"notes/alpha.md": "aa", "papers/gamma.md": "bb"}
+    assert MODULE.fingerprint_digest(a) == MODULE.fingerprint_digest(
+        {"papers/gamma.md": "bb", "notes/alpha.md": "aa"})
+    swapped = {"notes/alpha.md": "bb", "papers/gamma.md": "aa"}
+    assert MODULE.fingerprint_digest(a) != MODULE.fingerprint_digest(swapped)
+    # and the separator between a key and its digest carries its weight: drop
+    # it and a key that ENDS where the next value BEGINS produces the same
+    # byte stream as a shorter key with a longer value, so two different
+    # corpora would be reported under one number.
+    assert MODULE.fingerprint_digest({"ab": "c" * 64}) != \
+        MODULE.fingerprint_digest({"a": "b" + "c" * 64})
+
+
+def test_a_transposition_with_one_byte_changed_refuses_and_names_the_key(
+        tmp_path):
+    """The mutation the whole proof exists for, and the one a destination
+    could make by accident: the same three documents, one byte different."""
+    source = _mutated_fixtures(tmp_path)
+    document = source / MODULE.POPULATED / "notes" / "alpha.md"
+    document.write_bytes(document.read_bytes() + b"x")
+    corpus = _transposed(tmp_path, source)
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "git_history_factory:reader",
+                "--sys-path", "tests/carve_conformance", "--corpus",
+                str(corpus))
+    assert done.returncode == 2
+    assert "conformance-corpus-unfaithful" in done.stderr
+    assert "notes/alpha.md" in done.stderr
+    assert "bytes differ" in done.stderr
+
+
+def test_a_transposition_that_dropped_a_document_refuses_and_names_it(
+        tmp_path):
+    source = _mutated_fixtures(tmp_path)
+    (source / MODULE.POPULATED / "papers" / "gamma.md").unlink()
+    corpus = _transposed(tmp_path, source)
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "git_history_factory:reader",
+                "--sys-path", "tests/carve_conformance", "--corpus",
+                str(corpus))
+    assert done.returncode == 2
+    assert "conformance-corpus-unfaithful" in done.stderr
+    assert "papers/gamma.md" in done.stderr
+    assert "does not serve" in done.stderr
+    assert "list-population" not in done.stderr, (
+        "a dropped document was reported as the READER listing too few. It "
+        "is the CORPUS that is wrong, and blaming the reader for it is how a "
+        "destination ends up editing a conformant reader to match a broken "
+        "transposition")
+
+
+def test_a_transposition_that_added_a_document_refuses_and_names_it(tmp_path):
+    source = _mutated_fixtures(tmp_path)
+    (source / MODULE.POPULATED / "notes" / "delta.md").write_text(
+        "Type: note\nTitle: Delta\n\n# Delta\n", encoding="utf-8")
+    corpus = _transposed(tmp_path, source)
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "git_history_factory:reader",
+                "--sys-path", "tests/carve_conformance", "--corpus",
+                str(corpus))
+    assert done.returncode == 2
+    assert "conformance-corpus-unfaithful" in done.stderr
+    assert "notes/delta.md" in done.stderr
+    assert "does not hold" in done.stderr
+
+
+def test_the_fidelity_proof_runs_BEFORE_the_seventeen(tmp_path):
+    """The order is the claim, so it is measured rather than asserted in
+    prose. This transposition is wrong in a way that ALSO fails a check —
+    the header line that carries `alpha.md`'s kind is gone, so the corpus's
+    1/1/1 classification shape becomes 0/1/2 — and the refusal that comes
+    back must be about the CORPUS. A run that named `classify-population`
+    would have measured a reader against a corpus nobody compared, which is
+    the exact reading RULED Q-F1 (a) cannot afford.
+    """
+    source = _mutated_fixtures(tmp_path)
+    document = source / MODULE.POPULATED / "notes" / "alpha.md"
+    document.write_bytes(document.read_bytes().replace(b"Type: note\n", b""))
+    corpus = _transposed(tmp_path, source)
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "git_history_factory:reader",
+                "--sys-path", "tests/carve_conformance", "--corpus",
+                str(corpus))
+    assert done.returncode == 2
+    assert "conformance-corpus-unfaithful" in done.stderr
+    assert "conformance-check-failed" not in done.stderr
+    assert "classify-population" not in done.stderr
+
+
+def test_the_default_run_is_not_called_a_transposition():
+    """The shipped corpus compared with itself proves nothing and is not
+    claimed: the default path is byte-for-byte the behaviour it had."""
+    done = _run(*HOME_INVOCATION, "--json")
+    assert done.returncode == 0, done.stderr
+    assert json.loads(done.stdout)["transposition"] is None
+    human = _run(*HOME_INVOCATION)
+    assert "TRANSPOSED" not in human.stdout, human.stdout
+
+
+def test_the_shipped_corpus_named_explicitly_is_still_not_a_transposition():
+    """`--corpus <the fixtures>` is the same corpus spelled out, and the
+    proof keys off the RESOLVED path rather than off the flag being absent."""
+    done = _run(*HOME_INVOCATION, "--corpus", str(CORPUS), "--json")
+    assert done.returncode == 0, done.stderr
+    assert json.loads(done.stdout)["transposition"] is None
+
+
+def test_a_copy_at_another_path_is_proven_rather_than_trusted(tmp_path):
+    """Not every non-shipped corpus is a bare repository, and the proof is
+    not about git: a plain COPY at another path is compared too, and passes
+    for the same reason the transposition does — the same keys, the same
+    bytes."""
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    done = _run(*HOME_INVOCATION, "--corpus", str(corpus), "--json")
+    assert done.returncode == 0, done.stderr
+    record = json.loads(done.stdout)["transposition"]
+    assert record["proven"] is True and record["documents"] == 3
+
+
+def test_a_document_the_reader_lists_and_will_not_serve_is_unfaithful(
+        tmp_path):
+    """A transposition can lie by omission as well as by content: a key in
+    the listing whose bytes cannot be produced is a document the corpus does
+    not carry, whatever the listing says. The seventeen would not catch this
+    one — `read-round-trip` reads the FIRST document only."""
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+
+    class WontServeTheLast(_Wrapped):
+        def read(self, corpus_, document, revision=None):
+            if document.key.endswith("gamma.md"):
+                raise CorpusRefused(Refusal(
+                    kind=DOCUMENT_UNKNOWN, subject=document.key,
+                    detail="withheld by this test"))
+            return self._inner.read(corpus_, document, revision)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            WontServeTheLast, str(corpus / MODULE.POPULATED), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "papers/gamma.md" in caught.value.detail
+    assert "will not serve it" in caught.value.detail
+
+
+def test_a_reader_that_cannot_resolve_is_handed_to_the_seventeen(tmp_path):
+    """The one case the proof does NOT refuse, and the reason is reported
+    rather than swallowed: where resolution or listing raises there is
+    nothing to compare, and the seventeen checks say so far better than one
+    line here could (`resolve-populated` failing, the rest not reached)."""
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+
+    class NeverResolves(_Wrapped):
+        def resolve(self, ref):
+            raise RuntimeError("no")
+
+    record = MODULE.prove_transposition(
+        NeverResolves, str(corpus / MODULE.POPULATED), corpus, CORPUS)
+    assert record["proven"] is False
+    assert "RuntimeError" in record["reason"]
+    assert record["digest"] == MODULE.fingerprint_digest(
+        MODULE.document_fingerprint(CORPUS / MODULE.POPULATED))
+
+
+def test_seventeen_green_over_an_unproven_transposition_still_refuses(
+        tmp_path):
+    """The last gate, and it is fail-closed on purpose.
+
+    A factory whose FIRST construction raises and whose later ones do not
+    leaves the proof unable to compare anything while the seventeen all
+    pass — every ordinary reader fails a check in that state, so this is the
+    one shape that could otherwise print `OK` over a corpus nobody proved
+    faithful. It refuses instead, and the refusal says which corpus.
+    """
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    (tmp_path / "flaky.py").write_text(
+        "import home_factory\n"
+        "_seen = []\n"
+        "def factory(name, location):\n"
+        "    _seen.append(name)\n"
+        "    if len(_seen) == 1:\n"
+        "        raise RuntimeError('the first construction fails')\n"
+        "    return home_factory.neutral_reader(name, location)\n",
+        encoding="utf-8")
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(tmp_path), "--adapter", "flaky:factory",
+                "--sys-path", str(REPO_ROOT / "tests" / "carve_conformance"),
+                "--corpus", str(corpus))
+    assert done.returncode == 2
+    assert "conformance-corpus-unfaithful" in done.stderr
+    assert "seventeen checks passed" in done.stderr
+    assert str(corpus) in done.stderr
+
+
+def test_a_transposition_is_named_in_the_refusal_payload(tmp_path):
+    """`--json` on a refusal has to say WHICH corpus was refused against, or
+    a caller branching on the code has to parse the prose to find out."""
+    source = _mutated_fixtures(tmp_path)
+    (source / MODULE.POPULATED / "papers" / "gamma.md").unlink()
+    corpus = _transposed(tmp_path, source)
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "git_history_factory:reader",
+                "--sys-path", "tests/carve_conformance", "--corpus",
+                str(corpus), "--json")
+    assert done.returncode == 2
+    payload = json.loads(done.stdout)
+    assert payload["code"] == "conformance-corpus-unfaithful"
+    assert payload["corpus"] == str(corpus)
+
+
+def test_the_corpus_missing_refusal_admits_a_transposition_outside_a_checkout(
+        tmp_path):
+    """The sentence RULED Q-F1 (a) made wrong, and the reason it is a test.
+
+    The refusal's CONDITION was always right — the directory is not there —
+    but its prose told an operator to "point --corpus at a checkout that
+    carries it", and a transposition lawfully lives in a temporary directory
+    that is no checkout at all. An operator who reads that sentence and
+    concludes the ruling is unimplementable has been told the wrong thing by
+    a message nobody tested.
+    """
+    done = _run(*HOME_INVOCATION, "--corpus", str(tmp_path / "nowhere"))
+    assert done.returncode == 2
+    assert "conformance-corpus-missing" in done.stderr
+    assert "TRANSPOSITION" in done.stderr
+    assert "need not sit inside any checkout" in done.stderr
+
+
+# ==========================================================================
+# 6. Copilot's round-1 findings, each with the case that would have caught it
+# ==========================================================================
+
+
+def test_a_transposition_that_moves_UNDER_the_run_is_caught_afterwards(
+        tmp_path):
+    """Copilot round 1: the proof resolves and reads the corpus, and
+    `carve_conformance.run` then resolves it again off the same path — so a
+    corpus that moved between those two calls would have been measured at a
+    revision nobody proved while the verdict said FAITHFUL. The window is
+    closed by re-proving after the seventeen, which is the discipline
+    `write-back-leaves-the-tree` already uses one level down.
+
+    The transposition here is advanced to a DIFFERENT commit carrying the
+    SAME three documents at the same bytes, so the content table is
+    unchanged and only the revision comparison can catch it.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+    before = MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS)
+    assert before["proven"] is True and before["revision"]
+
+    tree = GH._git("rev-parse", "HEAD^{tree}", cwd=populated
+                   ).stdout.decode().strip()
+    moved = GH._git("commit-tree", tree, "-p", before["revision"], "-m",
+                    "an unrelated commit", cwd=populated
+                    ).stdout.decode().strip()
+    GH._git("update-ref", "refs/heads/main", moved, cwd=populated)
+    assert moved != before["revision"]
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.confirm_transposition_unmoved(
+            GH.reader, str(populated), corpus, CORPUS, before)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "moved UNDER the measurement" in caught.value.detail
+    assert before["revision"] in caught.value.detail
+    assert moved in caught.value.detail
+
+
+def test_content_that_moves_under_a_corpus_with_no_revision_is_caught_too(
+        tmp_path):
+    """The other half, and the reason the re-proof is a whole PROOF rather
+    than a revision comparison: a directory corpus reports `revision=None`
+    (the interface permits it), so comparing revisions alone would be vacuous
+    exactly where the bytes are easiest to change. Re-proving catches it and
+    names the document, which no digest-to-digest line could."""
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    populated = corpus / MODULE.POPULATED
+    before = MODULE.prove_transposition(
+        neutral_reader, str(populated), corpus, CORPUS)
+    assert before["proven"] is True and before["revision"] is None
+
+    document = populated / "notes" / "alpha.md"
+    document.write_bytes(document.read_bytes() + b"x")
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.confirm_transposition_unmoved(
+            neutral_reader, str(populated), corpus, CORPUS, before)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "notes/alpha.md" in caught.value.detail
+    assert "bytes differ" in caught.value.detail
+
+
+def test_the_mismatch_reports_WHOLE_digests_and_not_prefixes(tmp_path):
+    """Copilot round 1: a mismatch a reader cannot recompute from the failure
+    output is a claim rather than a measurement, and twelve hex characters is
+    not something anybody can check a sha256 against."""
+    import hashlib
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    document = corpus / MODULE.POPULATED / "notes" / "alpha.md"
+    was = (CORPUS / MODULE.POPULATED / "notes" / "alpha.md").read_bytes()
+    document.write_bytes(was + b"x")
+    done = _run(*HOME_INVOCATION, "--corpus", str(corpus))
+    assert done.returncode == 2
+    assert hashlib.sha256(was).hexdigest() in done.stderr, (
+        "the corpus's own digest was truncated")
+    assert hashlib.sha256(was + b"x").hexdigest() in done.stderr, (
+        "the served digest was truncated")
+
+
+def test_every_refusal_payload_names_the_RESOLVED_corpus(tmp_path):
+    """Copilot round 1: `args.corpus` is `null` on a default run and an
+    uncanonicalized relative path when one was given, while a successful
+    summary carries the resolved path — so a caller comparing the two would
+    be comparing different spellings of one directory, or nothing at all."""
+    # (a) the default run, where the flag is absent entirely
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(REPO_ROOT), "--adapter", "no_such_module:nope", "--json")
+    assert done.returncode == 2
+    assert json.loads(done.stdout)["corpus"] == str(CORPUS)
+    # (b) a RELATIVE --corpus, which must arrive resolved
+    relative = Path(tmp_path.name)   # never exists under REPO_ROOT
+    done = _run(*HOME_INVOCATION, "--corpus", str(relative), "--json")
+    assert done.returncode == 2
+    payload = json.loads(done.stdout)
+    assert payload["code"] == "conformance-corpus-missing"
+    assert payload["corpus"] == str((REPO_ROOT / relative).resolve())
+    assert payload["corpus"] != str(relative)
+
+
+def test_the_transposition_fixture_ignores_an_ambient_git_pointer(
+        tmp_path, monkeypatch):
+    """Hermeticity, and it is the one environment dependence a file that
+    WRITES COMMITS cannot afford: `GIT_DIR` would override every `cwd=` in
+    the fixture and aim its plumbing at whatever repository the process was
+    started in. Set one at a repository that must not move, and measure."""
+    decoy = tmp_path / "decoy"
+    GH._git("init", "--quiet", "--bare", "--initial-branch=main", str(decoy))
+    before = sorted(p.name for p in decoy.rglob("*") if p.is_file())
+    # EVERY ambient control the repository's own scrubber owns, not a subset
+    # (Copilot, round 3): a pointer at another repository, an ALTERNATE OBJECT
+    # STORE, and injected configuration both ways round. Any one of them
+    # left inherited lets this fixture certify a history it never wrote.
+    monkeypatch.setenv("GIT_DIR", str(decoy))
+    monkeypatch.setenv("GIT_WORK_TREE", str(tmp_path))
+    monkeypatch.setenv("GIT_OBJECT_DIRECTORY", str(decoy / "objects"))
+    monkeypatch.setenv("GIT_ALTERNATE_OBJECT_DIRECTORIES",
+                       str(decoy / "objects"))
+    monkeypatch.setenv("GIT_COMMON_DIR", str(decoy))
+    monkeypatch.setenv("GIT_INDEX_FILE", str(decoy / "index"))
+    monkeypatch.setenv("GIT_REPLACE_REF_BASE", "refs/replace-decoy")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "core.bare")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "false")
+    monkeypatch.setenv("GIT_CONFIG_PARAMETERS", "'core.bare=false'")
+    corpus = _transposed(tmp_path)
+    record = MODULE.prove_transposition(
+        GH.reader, str(corpus / MODULE.POPULATED), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]
+    assert sorted(p.name for p in decoy.rglob("*") if p.is_file()) == before, (
+        "the transposition wrote into the repository the ambient git "
+        "environment named")
+
+
+def test_the_fixture_reuses_the_repository_git_scrubber():
+    """Guards the guard, and pins the RULE rather than a list.
+
+    `validate-carve-manifest.py:856` states it — the scrub list is "REUSED
+    rather than a third copy" — and a copy is how the case above starts
+    passing while a new ambient control goes unscrubbed. This asserts the
+    fixture builds its environment from that one helper, so a name added to
+    `carved_reach._SCRUBBED_GIT_ENVIRONMENT` reaches here for free.
+    """
+    import carved_reach
+    assert GH._sanitized_git_environment is \
+        carved_reach._sanitized_git_environment
+    source = (REPO_ROOT / "tests" / "carve_conformance" /
+              "git_history_factory.py").read_text(encoding="utf-8")
+    assert "env = _sanitized_git_environment()" in source
+    assert "os.environ" not in source, (
+        "the fixture built its own environment again; the scrubber owns it")
+    # and the identity fields it adds on top do not re-open what was scrubbed
+    assert set(GH.GIT_ENV) <= {
+        "GIT_AUTHOR_NAME", "GIT_AUTHOR_EMAIL",
+        "GIT_COMMITTER_NAME", "GIT_COMMITTER_EMAIL"}
+
+
+# ==========================================================================
+# 7. Copilot's round-2 findings
+# ==========================================================================
+
+
+def test_a_reader_that_serves_ANOTHER_revision_is_unfaithful(tmp_path):
+    """Copilot round 2: the proof keyed only on the bytes, so a reader could
+    resolve one revision and serve another — a working tree, an older commit
+    — and still be recorded FAITHFUL. `CorpusAdapter.read`'s own contract is
+    that `revision=None` means the revision the corpus was resolved at, and
+    `Document.revision` reports which one it was; the seventeen checks never
+    inspect that field, so this is the only place it is held."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ServesAnotherRevision:
+        def __init__(self, name, location):
+            self._inner = GH.reader(name, location)
+
+        def resolve(self, ref):
+            return self._inner.resolve(ref)
+
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return self._inner.list_documents(corpus_, scope)
+
+        def read(self, corpus_, document, revision=None):
+            got = self._inner.read(corpus_, document, revision)
+            return Document(id=got.id, content=got.content,
+                            revision="a-revision-nobody-asked-for")
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ServesAnotherRevision, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "a-revision-nobody-asked-for" in caught.value.detail
+    assert "notes/alpha.md" in caught.value.detail
+
+
+def test_a_corpus_path_that_cannot_RESOLVE_refuses_rather_than_tracebacks(
+        tmp_path):
+    """Copilot round 2: hoisting the `--corpus` resolution above the catch-all
+    `try` put a `Path.resolve()` `OSError` — a symlink loop is the exact case
+    — outside the exit contract, where it would have arrived as a traceback
+    and exit 1. This runner has no exit 1."""
+    loop = tmp_path / "loop"
+    loop.symlink_to(tmp_path / "loop2")
+    (tmp_path / "loop2").symlink_to(loop)
+    done = _run(*HOME_INVOCATION, "--corpus", str(loop), "--json")
+    assert done.returncode == 2, done.stderr
+    assert "Traceback" not in done.stderr
+    payload = json.loads(done.stdout)
+    assert payload["result"] == "refused"
+    assert payload["code"] in MODULE.REFUSAL_CODES
+    # nothing was resolvable, so the payload names what the operator typed
+    assert payload["corpus"] == str(loop)
+
+
+def test_the_fixture_reads_the_history_it_wrote_and_not_a_REPLACEMENT(
+        tmp_path):
+    """Copilot round 2: git plumbing honours replacement refs, so an ambient
+    one could make `ls-tree` / `cat-file` serve objects OTHER than the ones
+    the transposition wrote — the fixture would then prove a history it never
+    laid down. Every git reader this repository owns passes
+    `--no-replace-objects` for exactly this reason."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+    real = GH._git("rev-parse", "HEAD:notes/alpha.md", cwd=populated
+                   ).stdout.decode().strip()
+    impostor = GH._git("hash-object", "-w", "--stdin", cwd=populated,
+                       stdin=b"Type: note\nTitle: Not alpha at all\n"
+                       ).stdout.decode().strip()
+    assert GH._git("replace", "-f", real, impostor, cwd=populated
+                   ).returncode == 0
+
+    # the replacement IS in force for a reader that does not disable it
+    import subprocess as sp
+    swapped = sp.run(["git", "-C", str(populated), "cat-file", "blob",
+                      f"HEAD:notes/alpha.md"], capture_output=True,
+                     check=False)
+    assert b"Not alpha at all" in swapped.stdout, (
+        "the replacement ref did not take, so this case proved nothing")
+
+    record = MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]
+
+
+# ==========================================================================
+# 8. Copilot's round-4 findings — both about what a reader ANSWERED WITH
+# ==========================================================================
+
+
+class _GitBacked:
+    """Delegates to the git-history fixture; a subclass breaks ONE answer.
+
+    Spelled out rather than forwarded, for `_Wrapped`'s measured reason:
+    since CPython 3.12 a `runtime_checkable` protocol reads attributes with
+    `inspect.getattr_static`, so a `__getattr__` wrapper does not satisfy
+    `CorpusAdapter`. These cases never reach `structural-conformance`, but
+    the habit is the same one.
+    """
+
+    def __init__(self, name, location):
+        self._inner = GH.reader(name, location)
+
+    def resolve(self, ref):
+        return self._inner.resolve(ref)
+
+    def list_documents(self, corpus, scope=CC.SCOPE_ALL):
+        return self._inner.list_documents(corpus, scope)
+
+    def read(self, corpus, document, revision=None):
+        return self._inner.read(corpus, document, revision)
+
+
+def test_bytes_served_under_ANOTHER_identity_are_unfaithful(tmp_path):
+    """Copilot round 4: the proof recorded `got.content` under the key it
+    ASKED for, so a reader could serve correct bytes under a wrong identity
+    for the second or third document and pass. `read-round-trip` checks the
+    identity of the FIRST document only, so the seventeen would not catch it.
+
+    The identity is compared STRUCTURALLY, by `corpus` and `key`: a reader
+    authored elsewhere holds its own replica of the interface and its
+    `DocumentId` is a different class object with the same shape, so nominal
+    equality would fail a conformant reader.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class LiesAboutTheLastIdentity(_GitBacked):
+        def read(self, corpus_, document, revision=None):
+            got = self._inner.read(corpus_, document, revision)
+            if not document.key.endswith("gamma.md"):
+                return got
+            return Document(
+                id=DocumentId(corpus=got.id.corpus, key="notes/alpha.md"),
+                content=got.content, revision=got.revision)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            LiesAboutTheLastIdentity, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "papers/gamma.md" in caught.value.detail
+    assert "answered for" in caught.value.detail
+
+
+def test_a_foreign_identity_of_the_same_SHAPE_still_passes(tmp_path):
+    """Guards the guard: the comparison must be structural. A reader holding
+    its OWN replica of the interface returns a `DocumentId` that is a
+    different class object with the same two fields, and that reader is
+    conformant — the seam exists so that it is."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _ForeignId:
+        """Another repository's `DocumentId`: same shape, different class."""
+
+        def __init__(self, corpus, key):
+            self.corpus = corpus
+            self.key = key
+
+    class ForeignIdentity(_GitBacked):
+        def read(self, corpus_, document, revision=None):
+            got = self._inner.read(corpus_, document, revision)
+            return Document(id=_ForeignId(got.id.corpus, got.id.key),
+                            content=got.content, revision=got.revision)
+
+    record = MODULE.prove_transposition(
+        ForeignIdentity, str(populated), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]
+    from corpus_adapter import DocumentId as HomeDocumentId
+    assert not issubclass(_ForeignId, HomeDocumentId), (
+        "the foreign identity is this repository's own class, so this case "
+        "proved nothing about structural comparison")
+
+
+def test_a_MISSING_revision_field_is_not_a_revision_of_None(tmp_path):
+    """Copilot round 4: `None` is a LEGAL value of `Document.revision` — a
+    corpus with no revision notion reports one — so a `getattr` default of
+    `None` read a reader that omits the field entirely as one that answered
+    correctly. The sentinel is what separates the two answers."""
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    populated = corpus / MODULE.POPULATED
+
+    class _NoRevisionField:
+        """A document object with no `revision` attribute at all."""
+
+        def __init__(self, id, content):
+            self.id = id
+            self.content = content
+
+    class OmitsTheField(_Wrapped):
+        def read(self, corpus_, document, revision=None):
+            got = self._inner.read(corpus_, document, revision)
+            return _NoRevisionField(got.id, got.content)
+
+    # the corpus this reader serves declares NO revision, so the old
+    # `getattr(..., None)` default would have compared None == None and passed
+    reference = neutral_reader("populated", str(populated))
+    resolved = reference.resolve(CorpusRef(name="populated",
+                                           location=str(populated)))
+    assert resolved.revision is None
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            OmitsTheField, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "no `revision` field at all" in caught.value.detail
+
+
+# ==========================================================================
+# 9. Copilot's round-5 findings — identity is PER CORPUS, on both sides
+# ==========================================================================
+
+
+def test_a_listing_under_ANOTHER_corpus_identity_is_unfaithful(tmp_path):
+    """Copilot round 5, and it is the sharpest of the identity findings: the
+    proof checked what `read` ANSWERED with and never what `list_documents`
+    ASKED under. A reader that listed every key under some other corpus name
+    and then echoed that same identity back from `read` satisfies the
+    read-side comparison, the key/bytes table AND `read-round-trip` — all
+    three compare against the same wrong object. The resolved corpus name is
+    the only thing in the loop that did not come from the reader, so it is
+    what the listing is held to.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ListsUnderAnotherCorpus(_GitBacked):
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return tuple(
+                DocumentId(corpus="some-other-corpus", key=d.key)
+                for d in self._inner.list_documents(corpus_, scope))
+
+        def read(self, corpus_, document, revision=None):
+            # echoes the WRONG identity back, which is what makes the
+            # read-side comparison and `read-round-trip` agree with it
+            got = self._inner.read(
+                corpus_, DocumentId(corpus=corpus_.ref.name, key=document.key),
+                revision)
+            return Document(id=document, content=got.content,
+                            revision=got.revision)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ListsUnderAnotherCorpus, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "some-other-corpus" in caught.value.detail
+    assert "populated" in caught.value.detail
+
+
+def test_a_listing_whose_identity_has_no_corpus_field_is_unfaithful(tmp_path):
+    """The absent case, which the sentinel separates from a wrong value."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _KeyOnly:
+        def __init__(self, key):
+            self.key = key
+
+    class ListsKeysWithoutACorpus(_GitBacked):
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return tuple(_KeyOnly(d.key)
+                         for d in self._inner.list_documents(corpus_, scope))
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ListsKeysWithoutACorpus, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "(absent)" in caught.value.detail
+
+
+def test_the_fixture_refuses_an_identity_naming_another_corpus(tmp_path):
+    """Copilot round 5, the other half: the fixture's own `read` used only
+    `document.key`, so it served an existing key for an identity that named a
+    DIFFERENT corpus — answering a question about somebody else's tree.
+    `tests/corpus-adapter/test_conformance.py:449` holds every listed
+    identity to the resolved corpus name for the same reason."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+    reader = GH.reader("populated", str(populated))
+    resolved = reader.resolve(CorpusRef(name="populated",
+                                        location=str(populated)))
+    here = reader.list_documents(resolved)[0]
+    # the same key, under another corpus's identity
+    with pytest.raises(Exception) as caught:
+        reader.read(resolved, DocumentId(corpus="elsewhere", key=here.key))
+    assert CC._refusal_of(caught.value) == DOCUMENT_UNKNOWN
+    # and the identity this corpus DOES hold still reads
+    assert reader.read(resolved, here).content
+
+
+# ==========================================================================
+# 10. Copilot's round-6 findings — the anchor, and the reference side
+# ==========================================================================
+
+
+def test_a_resolution_under_ANOTHER_reference_anchors_nothing(tmp_path):
+    """Copilot round 6, and it is the identity finding one level up: every
+    identity in the proof is held to `corpus.ref.name`, and `ResolvedCorpus`
+    is the READER's return value. A reader could resolve under `name="other"`,
+    list and read every document under `"other"`, and satisfy both this proof
+    and the seventeen — which read the same returned ref. The interface's own
+    words are that `ref` is "the caller's REQUEST for a corpus", so it is
+    compared with the request this runner actually made.
+    """
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ResolvesUnderAnotherName(_GitBacked):
+        def resolve(self, ref):
+            resolved = self._inner.resolve(ref)
+            return replace(resolved,
+                           ref=CorpusRef(name="other", location=ref.location))
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ResolvesUnderAnotherName, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "'other'" in caught.value.detail
+    assert "populated" in caught.value.detail
+
+
+def test_a_resolution_under_another_LOCATION_anchors_nothing(tmp_path):
+    """The other half of the reference, and `ResolvedCorpus.location` is
+    deliberately not the thing compared: that one is documented as "resolved,
+    absolute" and may differ from what was asked for. `ref.location` is the
+    request and may not."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ResolvesUnderAnotherLocation(_GitBacked):
+        def resolve(self, ref):
+            resolved = self._inner.resolve(ref)
+            return replace(resolved, ref=CorpusRef(name=ref.name,
+                                                   location="/elsewhere"))
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ResolvesUnderAnotherLocation, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "/elsewhere" in caught.value.detail
+
+    # and the ordinary reader, whose resolved `location` IS absolute and
+    # therefore differs from the relative one it may have been handed, passes
+    record = MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS)
+    assert record["proven"] is True, record["reason"]
+
+
+def test_the_SHIPPED_corpus_moving_under_the_run_is_caught(tmp_path,
+                                                           monkeypatch):
+    """Copilot round 6: the post-run proof recomputes the reference table as
+    well, so a run where the SHIPPED fixtures changed underneath — a
+    transposition sharing files through hard links, a reader that wrote both
+    sides — could have the candidate match the NEW reference while the
+    verdict still carried the OLD digest, naming a corpus that no longer
+    exists. The reference side is compared too.
+
+    Measured over a COPY of the fixtures standing in for the shipped corpus,
+    so the real ones are never written.
+    """
+    shipped = tmp_path / "shipped"
+    shutil.copytree(CORPUS, shipped)
+    corpus = tmp_path / "candidate"
+    shutil.copytree(CORPUS, corpus)
+    populated = corpus / MODULE.POPULATED
+
+    before = MODULE.prove_transposition(
+        neutral_reader, str(populated), corpus, shipped)
+    assert before["proven"] is True
+
+    # both sides move together, so the candidate still MATCHES the reference
+    for root in (shipped, corpus):
+        document = root / MODULE.POPULATED / "notes" / "alpha.md"
+        document.write_bytes(document.read_bytes() + b"x")
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.confirm_transposition_unmoved(
+            neutral_reader, str(populated), corpus, shipped, before)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "ships MOVED under the measurement" in caught.value.detail
+    assert before["digest"] in caught.value.detail
+
+
+# ==========================================================================
+# 11. Copilot's round-7 findings — the third field, and a field that is gone
+# ==========================================================================
+
+
+def test_a_resolution_that_changes_the_requested_REVISION_anchors_nothing(
+        tmp_path):
+    """Copilot round 7, and it completes round 6's anchor. `CorpusRef` has
+    THREE fields and `revision` is one of them — "None means 'whatever the
+    location currently is'" — so a resolution that comes back carrying a
+    revision the caller never asked for has changed the question, and every
+    identity the proof anchors to that reference is anchored to the
+    substitution. The anchor compares the whole request."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class ResolvesAtAnotherRevision(_GitBacked):
+        def resolve(self, ref):
+            resolved = self._inner.resolve(ref)
+            return replace(resolved,
+                           ref=CorpusRef(name=ref.name, location=ref.location,
+                                         revision="deadbeefdeadbeef"))
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ResolvesAtAnotherRevision, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "deadbeefdeadbeef" in caught.value.detail
+    # the request this runner makes carries no revision, and the detail says so
+    assert "None" in caught.value.detail
+
+
+def test_a_resolution_with_NO_revision_field_refuses_by_name(tmp_path):
+    """Copilot round 7: `ResolvedCorpus.revision` is a REQUIRED field whose
+    `None` is legal, so a resolution that omits it is malformed rather than
+    revisionless — and reading it straight off the object at the per-document
+    comparison raised `AttributeError` out of a proof whose whole contract is
+    to refuse BY NAME, which `main()` reports as the generic
+    `conformance-unreadable`. It is read once, through the sentinel, and the
+    malformed answer stays inside the fidelity refusal."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _NoRevisionField:
+        """A resolved corpus with no `revision` attribute at all."""
+
+        def __init__(self, real):
+            self._real = real
+            self.ref = real.ref
+            self.location = real.location
+            self.scopes = real.scopes
+            self.write_path = real.write_path
+            self.write_path_available = real.write_path_available
+
+    class OmitsTheResolvedRevision(_GitBacked):
+        def resolve(self, ref):
+            return _NoRevisionField(self._inner.resolve(ref))
+
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return self._inner.list_documents(corpus_._real, scope)
+
+        def read(self, corpus_, document, revision=None):
+            return self._inner.read(corpus_._real, document, revision)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            OmitsTheResolvedRevision, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "the resolution it answered with carries no `revision` field" \
+        in caught.value.detail
+
+
+def test_a_reference_that_SHIFTS_after_the_anchor_still_anchors_nothing(
+        tmp_path):
+    """The other half of round 7's second finding, and the reason the anchored
+    name is read ONCE into a local. `corpus.ref` is reader-controlled code:
+    re-reading `corpus.ref.name` on every pass let a reader answer the
+    request at the anchor and something else afterwards, and the listing
+    comparison — which is held to that same re-read value — would then move
+    with the lie instead of catching it. Held to the local, a listing under
+    another corpus's identity refuses however the reference shifts."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _ShiftingRef:
+        """Answers the request once, then answers `"other"` forever."""
+
+        def __init__(self, real):
+            self._real = real
+            self._reads = 0
+            self.location = real.location
+            self.revision = real.revision
+
+        @property
+        def name(self):
+            self._reads += 1
+            return self._real.name if self._reads == 1 else "other"
+
+    class _ShiftingResolved:
+        def __init__(self, real):
+            self._real = real
+            self.ref = _ShiftingRef(real.ref)
+            self.location = real.location
+            self.revision = real.revision
+            self.scopes = real.scopes
+            self.write_path = real.write_path
+            self.write_path_available = real.write_path_available
+
+    class ShiftsAfterTheAnchor(_GitBacked):
+        def resolve(self, ref):
+            return _ShiftingResolved(self._inner.resolve(ref))
+
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return tuple(
+                replace(document, corpus="other")
+                for document in self._inner.list_documents(corpus_._real,
+                                                           scope))
+
+        def read(self, corpus_, document, revision=None):
+            asked = replace(document, corpus=corpus_._real.ref.name)
+            got = self._inner.read(corpus_._real, asked, revision)
+            return replace(got, id=document)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            ShiftsAfterTheAnchor, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "'other'" in caught.value.detail
+
+
+# ==========================================================================
+# 12. Copilot's round-8 findings — the identity re-read, the revision's TYPE,
+#     and the instance the seventeen actually measured
+# ==========================================================================
+
+
+def test_a_read_that_MUTATES_the_listed_identity_is_unfaithful(tmp_path):
+    """Copilot round 8: the identity asked for was re-read off the reader's
+    own object AFTER `read` had run. `DocumentId` is frozen in this
+    repository's replica, and a destination holds its own — a mutable one can
+    be rewritten by the `read` call itself, so that what came back and what
+    is re-read agree perfectly, on a document nobody listed. The comparison
+    is against the identity as it was LISTED, captured before the call."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class _MutableId:
+        """A foreign `DocumentId` — same shape, no `frozen=True`."""
+
+        def __init__(self, corpus, key):
+            self.corpus = corpus
+            self.key = key
+
+    class MutatesTheIdentity(_GitBacked):
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return tuple(_MutableId(d.corpus, d.key)
+                         for d in self._inner.list_documents(corpus_, scope))
+
+        def read(self, corpus_, document, revision=None):
+            real = DocumentId(corpus=corpus_.ref.name, key=document.key)
+            got = self._inner.read(corpus_, real, revision)
+            document.corpus = "other"   # the rewrite the finding names
+            return replace(got, id=document)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            MutatesTheIdentity, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "'other'" in caught.value.detail
+
+
+def test_a_revision_that_is_not_a_STRING_is_unfaithful(tmp_path):
+    """Copilot round 8: `ResolvedCorpus.revision` is declared `str | None`
+    and none of the seam's return types is enforced at runtime. A reader
+    answering an int consistently — from `resolve` and from `read` — passed
+    every comparison, and the evidence then laundered it into a string with
+    `str()`, so the verdict line named a revision that is not the object the
+    reader used."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    class AnIntRevision(_GitBacked):
+        def resolve(self, ref):
+            self._real = self._inner.resolve(ref)
+            return replace(self._real, revision=5)
+
+        def list_documents(self, corpus_, scope=CC.SCOPE_ALL):
+            return self._inner.list_documents(self._real, scope)
+
+        def read(self, corpus_, document, revision=None):
+            return replace(self._inner.read(self._real, document, revision),
+                           revision=5)
+
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(
+            AnIntRevision, str(populated), corpus, CORPUS)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "`str | None`" in caught.value.detail
+    assert "int" in caught.value.detail
+
+
+def test_a_factory_that_lies_ONLY_to_the_seventeen_is_caught(tmp_path):
+    """Copilot round 8, and it is the last gap between the proof and the
+    measurement. `carve_conformance.run` builds its OWN readers, so the
+    instance the seventeen measure was never the instance the proof read. A
+    stateful factory could therefore serve the shipped bytes to the proof and
+    altered bytes to the run — `CorpusExpectation` is counts and explicitly
+    "not the documents' names and not their bytes", so a document whose
+    content moved without changing its classification passes all seventeen —
+    and the verdict would have read FAITHFUL over bytes nothing proved.
+
+    The reader the run built is kept and the post-run proof is put to THAT
+    instance. Measured with a factory that lies in its SECOND construction
+    only: the proof's instance is faithful, and so is any fresh one built
+    afterwards, so nothing but the witness can catch it.
+    """
+    corpus = tmp_path / "copy"
+    shutil.copytree(CORPUS, corpus)
+    (tmp_path / "stateful.py").write_text(
+        "import home_factory\n"
+        "from corpus_adapter import SCOPE_ALL\n"
+        "\n"
+        "_built = []\n"
+        "\n"
+        "\n"
+        "class Lying:\n"
+        "    def __init__(self, name, location):\n"
+        "        self._inner = home_factory.neutral_reader(name, location)\n"
+        "        _built.append(name)\n"
+        "        # the SECOND construction is the run's populated reader\n"
+        "        self._lies = len(_built) == 2\n"
+        "\n"
+        "    def resolve(self, ref):\n"
+        "        return self._inner.resolve(ref)\n"
+        "\n"
+        "    def list_documents(self, corpus, scope=SCOPE_ALL):\n"
+        "        return self._inner.list_documents(corpus, scope)\n"
+        "\n"
+        "    def read(self, corpus, document, revision=None):\n"
+        "        got = self._inner.read(corpus, document, revision)\n"
+        "        if self._lies and document.key == 'papers/gamma.md':\n"
+        "            return type(got)(id=got.id, content=got.content + b'\\n',\n"
+        "                             revision=got.revision)\n"
+        "        return got\n"
+        "\n"
+        "    def classify(self, corpus, document):\n"
+        "        return self._inner.classify(corpus, document)\n"
+        "\n"
+        "    def check(self, corpus, subjects=None):\n"
+        "        return self._inner.check(corpus, subjects)\n"
+        "\n"
+        "    def write_back(self, corpus, document, content, *, actor,\n"
+        "                   basis_revision, reason=''):\n"
+        "        return self._inner.write_back(corpus, document, content,\n"
+        "                                      actor=actor,\n"
+        "                                      basis_revision=basis_revision,\n"
+        "                                      reason=reason)\n"
+        "\n"
+        "\n"
+        "def factory(name, location):\n"
+        "    return Lying(name, location)\n",
+        encoding="utf-8")
+    done = _run("--destination", "openxfactory", "--dest-root",
+                str(tmp_path), "--adapter", "stateful:factory",
+                "--sys-path", str(REPO_ROOT / "tests" / "carve_conformance"),
+                "--corpus", str(corpus))
+    assert done.returncode == 2, done.stdout + done.stderr
+    assert "conformance-corpus-unfaithful" in done.stderr
+    assert "papers/gamma.md" in done.stderr
+
+
+# ==========================================================================
+# 13. Copilot's round-9 findings — the reference is taken before the
+#     destination's code runs, and an empty revision is not an absent one
+# ==========================================================================
+
+
+def test_the_reference_table_is_taken_BEFORE_the_adapter_is_imported(
+        tmp_path, monkeypatch):
+    """Copilot round 9, and it is the reference side's turn. `resolve_factory`
+    imports an arbitrary module out of `--dest-root` — a module-level
+    statement there is code running in this process — and the shipped table
+    was computed AFTER that import. An import that rewrote the fixtures would
+    have made the altered tree the reference, and the run would report
+    FAITHFUL for bytes nobody shipped.
+
+    Measured as an ORDER rather than by letting a test rewrite this
+    repository's own fixtures: the two calls are recorded as they happen and
+    the fingerprint must come first. Any later rewrite is caught by
+    `confirm_transposition_unmoved`, which recomputes the table and compares.
+    """
+    corpus = _transposed(tmp_path)
+    order: list[str] = []
+
+    real_fingerprint = MODULE.document_fingerprint
+    real_resolve = MODULE.resolve_factory
+
+    def recording_fingerprint(root):
+        order.append(f"fingerprint {root}")
+        return real_fingerprint(root)
+
+    def recording_resolve(*args, **kwargs):
+        order.append("resolve_factory")
+        return real_resolve(*args, **kwargs)
+
+    monkeypatch.setattr(MODULE, "document_fingerprint",
+                        recording_fingerprint)
+    monkeypatch.setattr(MODULE, "resolve_factory", recording_resolve)
+    monkeypatch.setattr(sys, "argv", ["verify-carve-conformance.py"])
+
+    assert MODULE.main([
+        "--destination", "openxfactory", "--dest-root", str(REPO_ROOT),
+        "--adapter", "git_history_factory:reader",
+        "--sys-path", "tests/carve_conformance",
+        "--corpus", str(corpus)]) == 0
+
+    assert order, "neither call was recorded"
+    assert order[0].startswith("fingerprint "), order
+    assert str(CORPUS / MODULE.POPULATED) in order[0], order
+    assert "resolve_factory" in order
+    assert order.index("resolve_factory") > 0, order
+
+
+def test_a_PINNED_reference_is_what_the_proof_compares_against(tmp_path):
+    """The parameter that carries the snapshot, measured on its own: a
+    reference handed in is the one compared, not whatever the files say now.
+    Without it the pinning above would be an ordering with no consequence."""
+    corpus = _transposed(tmp_path)
+    populated = corpus / MODULE.POPULATED
+
+    honest = MODULE.document_fingerprint(CORPUS / MODULE.POPULATED)
+    assert MODULE.prove_transposition(
+        GH.reader, str(populated), corpus, CORPUS,
+        reference=honest)["proven"] is True
+
+    # the same corpus, the same reader, a reference that says otherwise
+    altered = dict(honest)
+    altered["notes/alpha.md"] = "0" * 64
+    with pytest.raises(MODULE.ConformanceRefusal) as caught:
+        MODULE.prove_transposition(GH.reader, str(populated), corpus, CORPUS,
+                                   reference=altered)
+    assert caught.value.code == "conformance-corpus-unfaithful"
+    assert "notes/alpha.md" in caught.value.detail
+
+
+def test_an_EMPTY_revision_is_not_an_absent_one_in_the_verdict(capsys):
+    """Copilot round 9: the interface permits any `str` revision, the empty
+    one included, and a truthiness test printed it as "no declared revision"
+    — the human line contradicting the `--json` record, which carries `""`.
+    """
+    def line(revision):
+        MODULE._print_ok({
+            "dest_root": "/d", "destination": "openxfactory", "passed": 17,
+            "checks_run": 17, "adapter": "m:f", "corpus": "/c",
+            "transposition": {"shipped": "/s", "documents": 3,
+                              "digest": "d" * 64, "revision": revision},
+        }, False)
+        return capsys.readouterr().out
+
+    assert "at revision abc123," in line("abc123")
+    assert "at no declared revision," in line(None)
+    assert "at an empty declared revision," in line("")

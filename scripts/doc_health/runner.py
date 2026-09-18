@@ -254,9 +254,10 @@ def run_suite(ctx, only_family: str | None, skip: set[str]) -> RunResult:
             # AND A SKIP THAT CARRIES FINDINGS NO LONGER LOSES THEM AT THIS
             # LINE (#766, Codex on PR #871 P1). A family may stop being able to
             # ask its question AFTER some of its repositories have already
-            # established something —
-            # `release_tag_publication._PartialSkip` is the one shape in the
-            # estate that says so, carrying the findings on the skip — and
+            # established something — `doc_health.PartialSkip` (written for
+            # `release_tag_publication`, and since `#1048` also returned by
+            # `release_inventory`) is the shape that says so, carrying the
+            # findings on the skip — and
             # appending the skip while extending nothing abandoned them one
             # layer above the loop that had just been repaired to keep them.
             # The condition that produces such a skip is common, not exotic:

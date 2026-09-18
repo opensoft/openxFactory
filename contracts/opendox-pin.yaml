@@ -89,7 +89,7 @@ submodule_path: openDox
 # `openDox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg, on `contracts/openxdox-pin.yaml`'s own
 # reasoning for openXdox.
-commit: "3819625e103ea6960d99cd98454d3b3aa43d8d52"
+commit: "c4c5014d9b39ac55e5df957db23a56db38847a6b"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -107,7 +107,7 @@ digest_algorithm: sha256
 # without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "40c6216ce9b4f8d4d78b23046d1da6c6de6103143c2d2c0d7afe0a2ce6ee0fce"
+  tree_sha256: "f7b9b0236ae6afabcb2692abb3f7e084053ea67babf450222efff7452cac51f6"
 
 # MIGRATION DECLARATION — MODIFIED `neutral-product-pin` requirement, "A pin
 # bump crosses a migration" scenario (`split-opendox-two-layer-product`
@@ -117,10 +117,10 @@ digests:
 # proving the schema shape before a real migration exists to fill it —
 # RULING Q2's FastAPI+Postgres runtime is itself unbuilt and
 # `opensoft/openDox-code` carries no migrations directory yet — RE-CHECKED at
-# the leg this pin now names, `1e469713`, the `code` leg commit openDox's own
-# assembly-root commit `3819625e` names (the previous reading was `05bbde80`
-# under `7cf6c143`, itself preceded by `a99eba03` under `8ec3036c`;
-# `git ls-tree -r 1e4697130855e9695a6acc3344b7c925bb3eeb09 | grep -i
+# the leg this pin now names, `0b4e8bbf`, the `code` leg commit openDox's own
+# assembly-root commit `c4c5014d` names (the chain of previous readings:
+# `1e469713` under `3819625e`, `05bbde80` under `7cf6c143`, `a99eba03` under
+# `8ec3036c`; `git ls-tree -r 0b4e8bbf68fabfcd65d4f0d80e619c20a013e888 | grep -i
 # migration` on `opensoft/openDox-code`'s own checkout returns nothing, so no
 # path matching `migration` exists at this leg either). Update these at the
 # FIRST real migration a bump of this pin crosses, not before. The same three

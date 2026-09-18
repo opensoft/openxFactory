@@ -121,18 +121,31 @@ def _normalized_member_path(value: Any, context: str) -> str:
     return path
 
 
-def _shed_destination(candidate: Path) -> Path | None:
+def _shed_destination(candidate: Path, context: str = "member") -> Path | None:
     """`carved_reach.shed_destination()`, imported lazily and never required.
 
     Lazily because this package is imported by lanes that run over checkouts
     with no carve manifest at all (a domain mirror, a consumer's pinned copy);
     `None` on ImportError keeps every one of those answering exactly as before.
+
+    A ROW THAT A RULING HAS RETIRED ARRIVES AS A `CatalogError`, NOT AS AN
+    `ImportError` (RULED 5656343213; Copilot review of PR #1032). The resolver
+    refuses such a row by name — `CarveRowRetired`, a subclass of
+    `ShedModuleHasNoDestination` and so of `ImportError` — and the `except`
+    above guards only the IMPORT, so without this the refusal would leave this
+    package as an uncaught traceback instead of the family's own
+    HRC-CATALOG-INVALID verdict. Translated rather than swallowed: a member
+    whose bytes a ruling deleted is a catalog that no longer describes the
+    estate, and that is exactly what `CatalogError` says.
     """
     try:
-        from carved_reach import shed_destination
+        from carved_reach import CarveRowRetired, shed_destination
     except ImportError:
         return None
-    return shed_destination(candidate)
+    try:
+        return shed_destination(candidate)
+    except CarveRowRetired as exc:
+        raise CatalogError(f"{context}: member is unavailable: {exc}") from exc
 
 
 def _contained_regular_file(root: Path, member_path: str, context: str) -> Path:
@@ -171,7 +184,7 @@ def _contained_regular_file(root: Path, member_path: str, context: str) -> Path:
     # including the replica and `deleted_at_carve` rows), for a path in no row
     # and for any root that is not this repository, so asking first narrows the
     # answer to exactly the rows whose destination IS authoritative.
-    moved = _shed_destination(candidate)
+    moved = _shed_destination(candidate, context)
     if moved is not None:
         candidate = moved
     try:

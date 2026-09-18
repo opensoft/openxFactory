@@ -85,6 +85,36 @@ destinations:
       - path: src/opendox/profile_proxy.py
         reason: "added by openDox-code #11 (the 4.3 lazy proxy)"
         since: "a99eba03e31a0aee1cc15a061fdf718cc88a2c44"
+      - path: src/opendox/runtime/__init__.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the subpackage's two closures — `API_V1` and the six `COLLECTIONS` RULING Q1 names — and the import-weight contract the rest of the package is held to"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/app.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the FastAPI application: the six coordination collections behind a bearer token verified against the Keycloak broker, `/livez` the only unauthenticated route, and no route that reads a document"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/cli.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the one lifecycle CLI — `runtime init|migrate|serve|status|reset` — reached by `[project.scripts] opendox-runtime` and by `RuntimeSubcommand`, which conforms to `subcommand_extension.SubcommandExtension` structurally"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/config.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — every setting as an environment variable named in `deploy/compose/.env.example`, with no credential default and a redacting `__repr__`"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/db.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the psycopg connection pool and the unit of work, on the `xFactory-Hermes-Install` `persistence/database.py` shape"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/identity.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the six tables RULING Q1 names and one store over them; SQL composed only from module-level constants, every runtime value a `%s` parameter"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/local_git_adapter.py
+        reason: "added by opensoft/openDox-code `build/3-6-repository-act` (split-opendox-two-layer-product § 3.6, RULED C3 `#656` comment `5544381563`) — RULING C3's plain local git repository as the TRIVIAL CONFORMANT implementation of `opendox.corpus_adapter.CorpusAdapter` (`LocalGitCorpus`, six operations, structural conformance); the import path `split-opendox-two-layer-product` § 3.7's neutral conformance corpus needs"
+        since: "a34601a0dfcfef1d8124cbab472bb5e2d6bd114f"
+      - path: src/opendox/runtime/migrations.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — the fail-closed ordered-SQL runner: `0001` byte-pinned by `CANONICAL_MIGRATION_SHA256` and gated before the first mutation, `0002+` additive, checksum drift fatal"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/oidc.py
+        reason: "added by opensoft/openDox-code `build/3-5-runtime` (split-opendox-two-layer-product § 3.5, RULED Q2 `#656` comment `5542792997` and RULED Q1 comment `5542694957`) — bearer-token verification against the broker's JWKS — an asymmetric algorithm allow-list, a monotonic-clock key cache, typed non-disclosing errors — and the first-login user upsert that is design § D5's inversion"
+        since: "9b81cf4dcdfcaba3d51ae1f5505d4a38f086d699"
+      - path: src/opendox/runtime/repository_act.py
+        reason: "added by opensoft/openDox-code `build/3-6-repository-act` (split-opendox-two-layer-product § 3.6, RULED C3 `#656` comment `5544381563`) — the repository-creation act — the map row is written FIRST inside the caller's transaction and rolled back with it if the repository cannot be created, and a directory left by a process killed between `git init` and that commit is refused by name on the next attempt rather than adopted (no transaction spans a database and a filesystem, and the act does not claim one does) — plus `attach_remote` and `push_to_remote`, RULING C3's 'a remote can be attached later' and 'a push, not a migration'"
+        since: "a34601a0dfcfef1d8124cbab472bb5e2d6bd114f"
       - path: src/opendox/view_extension.py
         reason: "added by opensoft/openDox-code build/s3-view-registry (PR #14, split-opendox § 3.4 slice S3, `#656` comment `5642758731`) — the server-side view registry, `ViewBinding` + `collectViewBindings`, mirroring `route_extension.collect_bindings` (openDox-spec `docs/front-end-package-boundary.md` § 4.1); this admission PR (openxFactory #1001) lands first per Q-L1"
         since: "e6c65ed757bfc3f9b6664e27c85111bfe5f0d465"
@@ -103,17 +133,23 @@ destinations:
       - path: tests/fixtures/web_boundary_census.yaml
         reason: "added by openDox-code #13 (§ 3.4 S1, the web-boundary census: 42 files classified for the S2-S7 defect measurements; no arrived file touched, so S1 needed no row-annotation PR of its own)"
         since: "e86deb2dbcec528a312784508ddbf63c376abc33"
+      - path: tests/test_binding_stylesheets.py
+        reason: "added by opensoft/openDox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the CSS extraction's own running proof, on `validate.yml`'s explicit list: the `ViewBinding.styles` slot refused at BOTH halves of the seam, the absent case carried onto `/capabilities`, the `<link>` injector driven under `node` against the real `views/view_extension.js` (one link per resolved href, `document.head` and never `document.body` per RULED Q8, the failed sheet NAMED and non-fatal), and the extraction itself measured against `styles.css` — no gate-exclusive selector survives there, every `--st-*` token and every shared selector does, and where an assembly has placed openXdox's six modules the 54-class set is RE-DERIVED from them rather than trusted"
+        since: "144a4a338f3e1017662fbde0f2e3e7916231baea"
       - path: tests/test_consumer_reach.py
         reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
         since: "da8aae969b4057bd46d2550c265e5bb363142458"
       - path: tests/test_display_facet.py
         reason: "added by opensoft/openDox-code `build/s7-parameterize-class-c` (PR #21, split-opendox § 3.4 slice S7, RULED Q1/Q2/Q7, `#656` comment `5648049748`) — slice S7's own running proof, on `validate.yml`'s explicit list: that the two halves of the facet declare the same roles in the same order and the same neutral words, that a declared facet is read or refused rather than guessed at, and the slice's own success test — that a STUDENT INSTALL whose profile declares no facet renders openDox's own neutral vocabulary and no word of openxFactory's anywhere in the payload"
         since: "372a04da2a14c2a4c547b78e9500d65f63899aac"
+      - path: tests/test_display_facet_leaves.py
+        reason: "added by opensoft/openDox-code `build/s7-residue-leaf-facet` (split-opendox § 3.4, the SLICE S7 RESIDUE — the two threads Copilot opened on PR #21 at `c7a216c7` and the five it left SUPPRESSED in review `5192900474`'s body; S7 LANDED note `#656` comment `5688498049`; FORM RULED Q-L1, `#656` comment `5628560136`) — the proof for the SEVEN display-facet LEAVES inside modules slice S7 had already parameterized at their mounts: FIVE assertions run the real `views/display.js`, `views/explorer.js`, `views/outline-model.js` and `views/docs.js` under `node` and EIGHT read the source, and the file alone is 11 failed / 2 passed against a pristine worktree at `0b4e8bbf` (13 tests; the two that pass there are the return-value guard beside `applyTokens` and the behavioural probe that only bites once `runAddSection` forwards its argument, so every one of the seven leaves is failed by at least one of the eleven). MEASURED AT THE LEG'S LANDING HEAD AND NOT AT `since:`, which stays the INTRODUCING commit `338143a3` (12 tests, four of them node-gated) — a leg review round moves this count and never the pin: openDox-code#28's own Copilot round added the thirteenth, a behavioural probe of `docHaystack` proving the regex beside it could not tell a deleted array element from the guard above it. A CREATED file with no row (RULED OQ-C); this annotation lands FIRST per Q-L1 and the leg follows"
+        since: "338143a30856f7d572a2473ae7a5d6ac81dfdb7a"
       - path: tests/test_gate_loop_contributed.py
         reason: "added by openDox-code #20 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg B) — the shell's half of the contract, node-driven against the real `views/view_extension.js`: the student install, RULED Q1's generic mount pass, RULED Q2's declared namespace, RULED Q4's `requires`, RULED Q10's refusal transport and RULED counterpart Q6's four supply sites"
         since: "fd7160d71813874033c21d6f2a8daa5ebf2350e4"
       - path: tests/test_intent_binding_dom.py
-        reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — node-driven DOM probe of the optional binding, narrowed out of validate.yml like its test_intent_tray_dom.py / test_wheel_verbs_dom.py siblings (RULED Q-L5 (b'))"
+        reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — node-driven DOM probe of the optional binding, narrowed out of validate.yml under RULED Q-L5 (b'). The two siblings this entry used to name as narrowed with it, test_intent_tray_dom.py and test_wheel_verbs_dom.py, are RETIRED: RULED 5656343213 retires both rows at this leg (#656 CLAIM 5656690570, openxFactory PR #1043), so the floor stops asking for their arrival and requires it ABSENT, and opensoft/openDox-code#24 carries the deletion that answers it — until that pull request merges, the arrival run at this leg refuses arrival-not-retired, which is the window cutover-runbook § 5.8 describes. THEIR NARROWING IS NOT WHAT CHANGES and is not undone by any of it: validate.yml's selection never named those two, does not name them now, and the leg's deletion deliberately leaves that allow-list alone — what ends are the files, not their exclusion from a list. This probe stays because its surface does: RULED Q5 gave openDox views/intent-binding.js, which arrived here, while theirs was views/intent-feed.js, RULED OQ-F not_moved"
         since: "330cf8161f06ae67be716deafe9b2ec3c64d1492"
       - path: tests/test_intent_binding_shape.py
         reason: "added by opensoft/openDox-code build/s2-intent-chips-optional-binding (RULED Q5, #656 comment 5642758731) — the shape assertion validate.yml runs"
@@ -163,12 +199,24 @@ destinations:
       - path: src/openxdox/view_extensions.py
         reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — the six `ViewBinding` specs, the `VIEW_EXTENSIONS` facet, `BUNDLE_REACH` and `CTX_MODEL_REACH`"
         since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
+      - path: src/openxdox/web/views/dispose.css
+        reason: "added by opensoft/openXdox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the 24 rule blocks `dispose.js` owns: the dispose tray, its verbs and the refusal panel, left `src/opendox/web/styles.css` for the binding that names them. Shipped as package data by the same glob as the modules (`web/views/*.css` added) and placed by the same assembly hook (RULED Q5)"
+        since: "b18687ced9f7bb98bbb6bbfe1257dea7149305a0"
       - path: src/openxdox/web/views/gate-lens.js
         reason: "added by openDox-code #17 (§ 3.4 slice S4, RULED Q3) and re-homed by split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587` — a CREATED file with no row (RULED OQ-C), so it moves by ADMISSION rather than by `re_destined:`, which is a field of a row; admitted at `opendox_code` until this slice and REMOVED there in the same diff"
         since: "8a3355889fcc9cd40efa03ee9d007dedc5d14f2a"
+      - path: src/openxdox/web/views/gate-projects.css
+        reason: "added by opensoft/openXdox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the 9 rule blocks `gate-projects.js` owns (the project-commission panel), plus the gate half of the ONE selector list this act splits, so the panel keeps the `[hidden]` restatement without which it can never close"
+        since: "b18687ced9f7bb98bbb6bbfe1257dea7149305a0"
       - path: src/openxdox/web/views/gate-projects.js
         reason: "added by openDox-code #17 (§ 3.4 slice S4, RULED Q3) and re-homed by split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587` — as `gate-lens.js` above: a CREATED file with no row, moved by admission and removed from `opendox_code`'s list in the same diff"
         since: "8a3355889fcc9cd40efa03ee9d007dedc5d14f2a"
+      - path: src/openxdox/web/views/gate.css
+        reason: "added by opensoft/openXdox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the 7 rule blocks `gate.js` owns (the gate console bar's chrome). `gate-lens.js` gets NO sheet and that is measured, not forgotten: it names no class openDox's own bundle does not also name"
+        since: "b18687ced9f7bb98bbb6bbfe1257dea7149305a0"
+      - path: src/openxdox/web/views/swb.css
+        reason: "added by opensoft/openXdox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the 19 rule blocks the two workbench modules own, in ONE sheet BOTH bindings name, because eleven of the nineteen are named by both. openDox's registry dedupes the injected `<link>` by resolved href, so the shared naming injects once — the only shape that neither duplicates eleven blocks into two files nor makes one optional binding depend on another's sheet"
+        since: "b18687ced9f7bb98bbb6bbfe1257dea7149305a0"
       - path: src/openxdox/web_assets.py
         reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — RULED Q5's ASSEMBLY HOOK: `install_view_modules(web_dir)` places this column's module bytes into openDox's one `--web-dir`"
         since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
