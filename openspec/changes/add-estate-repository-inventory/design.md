@@ -148,17 +148,37 @@ is a fact in that repository's tree and not in any of the five sites; `tasks.md`
 
 ### D0.3 The declared population, against that candidate
 
-The 34 readable heads name SIX distinct identifiers, and each is checked against
-the candidate:
+**34 HEADS, SIX DISTINCT IDENTIFIERS, THIRTY-FIVE OCCURRENCES — the last two are
+not the same count as the first, and the table states occurrences rather than
+leaving a reader to sum a head count that cannot close.** A HEAD is one active
+proposal's `code_surface:` declaration; 34 of the 49 declare a readable
+repository list (D0.1) and 7 declare `none`. Those 34 heads name SIX distinct
+identifiers, but THIRTY-FIVE times over: ONE head is a two-member list —
+`qualify-avatar-live-voice` declares `openxFactory, openAvatar` — so it is
+counted once under EACH identifier it names, and the per-identifier
+occurrences below (30 + 1 + 1 + 1 + 1 + 1) sum to one more than the head
+count. BOTH figures hold at BOTH trees this design cites: `origin/main`
+`ad089e8a` and this branch at `69763b53` (re-measured 2026-09-18) report the
+identical 34/6/35 shape, because D0.1's two cancelling moves touch neither
+`qualify-avatar-live-voice` nor any of the six identifiers, and nothing else
+moved between the two trees. Each identifier is checked against the
+candidate:
 
-| identifier as declared | resolves to | how |
-| --- | --- | --- |
-| `openxFactory` (30 heads) | row 2 | bare name |
-| `xFactory` | row 1 | bare name |
-| `openAvatar` | row 15 | bare name |
-| `opensoft/LedgerxWallet` | row 27 | address; the case that forced the fifth kind (D1.1) |
-| `opensoft/Keycloak-Install` | row 24 | address |
-| `opensoft/OpenXPKI-Install` | row 25 | address |
+| identifier as declared | occurrences | resolves to | how |
+| --- | ---: | --- | --- |
+| `openxFactory` | 30 | row 2 | bare name |
+| `xFactory` | 1 | row 1 | bare name |
+| `openAvatar` | 1 — `qualify-avatar-live-voice`'s second member, above | row 15 | bare name |
+| `opensoft/LedgerxWallet` | 1 | row 27 | address; the case that forced the fifth kind (D1.1) |
+| `opensoft/Keycloak-Install` | 1 | row 24 | address |
+| `opensoft/OpenXPKI-Install` | 1 | row 25 | address |
+
+Re-measured 2026-09-18 at both `ad089e8a` and this branch's `69763b53` through
+the packet's own stated method (`scripts/code_surface.py`'s `declaration` then
+`parse_head` over every active proposal, tallying each head's `repositories`
+tuple): 34 heads, 6 distinct identifiers, 35 occurrences, one head naming two
+— identical at both trees, so the discrepancy is a fact of the corpus and not
+an artifact of which tree the count was taken from.
 
 **ALL SIX RESOLVE, AND THE SIXTH IS THE ROW THE FIRST FOUR SITES COULD NOT
 REACH.** `opensoft/LedgerxWallet` is a REAL repository (D0.4) that the first four
