@@ -1,6 +1,10 @@
 # Design: add-estate-repository-inventory
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-18, approximately 12:55Z — verbatim
+"ratify #1101", given in the lane's terminal (no GitHub comment carries it;
+RULED entry against `opensoft/openxFactory#1101` in
+`lanes/log/openXfactory-5.md`)
 
 For: openxFactory [#1087](https://github.com/opensoft/openxFactory/issues/1087)
 Lane: openxfactory-5 (openXfactory-5)

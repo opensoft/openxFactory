@@ -6,16 +6,29 @@ sequenced_after: []
 
 # Proposal: add-estate-repository-inventory
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-18, approximately 12:55Z by Brett Heap (openxFactory
+repository owner) — verbatim "ratify #1101", given in the lane's terminal to
+lane `openxfactory-5` (session `651195c7`); no GitHub comment carries the word,
+which the lane recorded as a RULED entry against `opensoft/openxFactory#1101`
+in `lanes/log/openXfactory-5.md`. The word is BARE, so every decision takes its
+recommended option and the delta's wording stands unchanged.
 
 Proposed: 2026-09-18, in lane `openxfactory-5` (display `openXfactory-5`),
 session `651195c7`, in answer to openxFactory
 [#1087](https://github.com/opensoft/openxFactory/issues/1087), which was FILED
 at the landing of PR #1076 (the archive of `gate-code-surface-declarations`, merge
 `5dd0a8dc`) as the successor that packet's `tasks.md` § 6.1 named, and which this
-lane CLAIMED before authoring. **NO RATIFYING WORD HAS BEEN GIVEN.** Nothing here
-is ratified, promoted, realized or archived by this filing; `tasks.md` § 1 is
-Brett Heap's act and is not ticked by this lane.
+lane CLAIMED before authoring.
+
+**RATIFIED 2026-09-18, approximately 12:55Z, by Brett Heap, verbatim "ratify
+#1101"**, given in the lane's terminal; the word is BARE, so every decision put
+below takes its recommended option and no byte of the delta moved. `tasks.md`
+§ 1 is ticked by that word and by nothing this lane decided. **NOTHING IS
+PROMOTED, REALIZED OR ARCHIVED BY THIS FILING OR BY THAT WORD:** no file under
+`openspec/specs/` is edited, the realization (§ 3) is a LATER pull request the
+word now authorizes to be authored, and the archive (§ 5) is a separate act on
+a separate word and on merged-plus-green evidence.
 
 Origin: openxFactory
 

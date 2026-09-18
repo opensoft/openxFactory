@@ -533,8 +533,16 @@ Active changes:
 
 - [add-estate-repository-inventory](openspec/changes/add-estate-repository-inventory/proposal.md)
   filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: draft`** (NO RATIFYING WORD HAS BEEN GIVEN; `tasks.md` § 1 is Brett
-  Heap's act and is not ticked by this lane). Answers openxFactory
+  **`Status: ratified`** — **RATIFIED 2026-09-18 at approximately 12:55Z by
+  Brett Heap (openxFactory operator authority), verbatim *"ratify #1101"***,
+  given in the lane's terminal; NO GITHUB COMMENT CARRIES THE WORD, which the
+  lane recorded as a RULED entry against `opensoft/openxFactory#1101` in
+  `lanes/log/openXfactory-5.md`.
+  **THE WORD IS BARE**: it ratifies the PACKET and names no option
+  individually, so each of the four declared veto points stands at the option
+  the packet encodes — the RECOMMENDED one in all four — and the delta's wording
+  stands unchanged. `tasks.md` § 1 is ticked; §§ 3, 4, 5 and 6 stay open.
+  Answers openxFactory
   [#1087](https://github.com/opensoft/openxFactory/issues/1087), the successor
   `gate-code-surface-declarations` `tasks.md` § 6.1 named and that packet's
   archive act filed at the landing of PR #1076, CLAIMED by this lane before
@@ -582,9 +590,10 @@ Active changes:
   naming SIX distinct identifiers, **all six carried by the candidate, so
   the membership arm refuses NOTHING on the day it lands** and the predecessor's
   stated fatal cost for membership resolution is falsified.
-  **PACKET ONLY.** No script, no inventory and no test is added here; the
-  realization is a LATER pull request on the ratifying word, and the archive a
-  separate act on merged-plus-green evidence, where #1087 closes.
+  **PACKET ONLY.** No script, no inventory and no test is added here. The
+  realization (`tasks.md` § 3) is a LATER pull request, which the word now
+  authorizes to be authored; the archive is a separate act on a separate word
+  and on merged-plus-green evidence, where #1087 closes.
 
 - [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
   — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),

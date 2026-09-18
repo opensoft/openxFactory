@@ -1,18 +1,23 @@
 # Tasks: add-estate-repository-inventory
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-18, approximately 12:55Z — verbatim
+"ratify #1101", given in the lane's terminal (no GitHub comment carries it;
+RULED entry against `opensoft/openxFactory#1101` in
+`lanes/log/openXfactory-5.md`)
 
 Lane: openxfactory-5 (openXfactory-5)
 For: openxFactory [#1087](https://github.com/opensoft/openxFactory/issues/1087)
 
 **WHAT IS OPEN AND WHAT IS CLOSED.** § 2 is CLOSED and was done in this pull
-request. §§ 1, 3, 4, 5 and 6 are OPEN. § 1 is Brett Heap's act and no lane ticks
-it. § 3 is a LATER pull request on the ratifying word. § 5 is a SEPARATE act on a
-SEPARATE word.
+request. **§ 1 IS NOW CLOSED TOO, by Brett Heap's word of 2026-09-18 and by no
+lane's decision.** §§ 3, 4, 5 and 6 stay OPEN. § 3 is a LATER pull request,
+which that word authorizes to be authored. § 5 is a SEPARATE act on a SEPARATE
+word.
 
-## 1. Ratification (OPEN; Brett Heap's act)
+## 1. Ratification — GIVEN 2026-09-18, Brett Heap's and nobody else's
 
-- [ ] 1.1 **(OPERATOR)** Ratify or refuse `proposal.md` § *The decision, put for a
+- [x] 1.1 **(OPERATOR)** Ratify or refuse `proposal.md` § *The decision, put for a
       veto*, which puts FOUR decisions with the recommendation first: **D2** where
       the inventory lives (`scripts/` beside the register, `target_release:
       implemented`; against `contracts/policies/`, which owes an additive minor
@@ -26,15 +31,41 @@ SEPARATE word.
       PERFORMING none (against a flat membership list); **D5** a former address in
       an active head REPORTS rather than refuses. A BARE RATIFYING WORD takes the
       packet as encoded, which is the recommendation in all four.
-- [ ] 1.2 **(OPERATOR)** The ratifying word authorizes the REALIZATION (§ 3) to be
+      **RULED AS ENCODED — Brett Heap, 2026-09-18, approximately 12:55Z,
+      verbatim "ratify #1101"**, given in the lane's terminal to lane
+      `openxfactory-5` (session `651195c7`); no GitHub comment carries the
+      word, and the lane recorded it as a RULED entry against
+      `opensoft/openxFactory#1101` in `lanes/log/openXfactory-5.md`. **THE WORD
+      IS BARE AND NAMES NO ALTERNATIVE**, so D2, D3, D4 and D5 each take the
+      recommended option above, which is what this task's own last sentence
+      says a bare word does. **THE WORD TOOK THE OPTION THIS PACKET HAD ALREADY
+      ENCODED, SO THE DELTA'S WORDING STANDS UNCHANGED**: not one byte of
+      `specs/release-realization/spec.md` moved by this ratification.
+      **DONE** in this same commit: `proposal.md`, `design.md` and this file
+      take `Status: ratified` with a citation line each, and `.openspec.yaml`
+      gains `approved_by`/`approved_on` ADDED BESIDE the unmoved
+      `proposed_by`/`proposed_on` (`git diff --numstat` on that file = `50 0`,
+      additions only).
+- [x] 1.2 **(OPERATOR)** The ratifying word authorizes the REALIZATION (§ 3) to be
       authored as a later pull request. It does not authorize the archive, which
       § 5 governs and which owes its own word on merged-plus-green evidence.
-- [ ] 1.3 **(OPERATOR)** If D2 is vetoed to `contracts/policies/`, `target_release:`
+      **SATISFIED BY THE WORD ITSELF.** "ratify #1101" reaches exactly § 3 (may
+      now be authored, as a later pull request) and not § 5, which stays closed
+      behind merged-plus-green realization evidence and its own word. No merge
+      word is quoted here either: the verbatim word is "ratify #1101" and
+      nothing further, and the merge of this pull request is a separate act
+      performed by whoever holds it, never by this lane alone.
+- [x] 1.3 **(OPERATOR)** If D2 is vetoed to `contracts/policies/`, `target_release:`
       moves with it to "next additive contract bundle (allocated at realization)"
       and § 3.1 gains the `contracts/manifest.yaml` entry with a recomputed
       `sha256`. Nothing else in the packet changes, and `design.md` D2 states it
       so the veto is takeable without a re-author.
-- [ ] 1.4 **(OPERATOR — NOT A FIFTH DECISION, A DISCLOSURE.)** Two things moved
+      **NOT TRIGGERED.** D2 was not vetoed: the word is bare and takes the
+      recommended option, so `target_release:` stays `implemented`, the
+      inventory stays at `scripts/estate-repository-inventory.yaml`, and § 3.1
+      gains no `contracts/manifest.yaml` entry. Nothing in the packet moved
+      under this clause.
+- [x] 1.4 **(OPERATOR — NOT A FIFTH DECISION, A DISCLOSURE.)** Two things moved
       after the first filing, at the review of PR #1101, and a ratifying word
       takes them with the rest: `gitlink` was WIDENED from the aggregation's
       `.gitmodules` to any governed estate repository's, without which the
@@ -46,6 +77,10 @@ SEPARATE word.
       validator could not be both deterministic and network-free as § 3.2 says it
       is. Neither is put separately for a veto; both are recorded here so the word
       is given over what the packet now says.
+      **TAKEN WITH THE REST.** The word of 2026-09-18 was given over the packet
+      AS IT NOW STANDS, both disclosures inside it, and named neither
+      separately — which is the outcome this task was written to produce, not a
+      fifth decision taken by silence.
 
 ## 2. Measurement (CLOSED in this pull request)
 
