@@ -233,8 +233,17 @@ word and on no other act.
 
       **THREE THINGS MOVED AND THEY ARE THE WHOLE OF THE ACT.** (1) The packet
       directory, to
-      `openspec/changes/archive/2026-09-18-amend-code-surface-grammar-comma-and/`,
-      every file a pure rename. (2) The `## MODIFIED` block, PROMOTED onto
+      `openspec/changes/archive/2026-09-18-amend-code-surface-grammar-comma-and/`.
+      **FIVE OF ITS SIX FILES ARE PURE RENAMES AT `R100`, 0 CHANGED LINES
+      EACH** — `.openspec.yaml`, `design.md`, `proposal.md`,
+      `specs/release-realization/spec.md` and
+      `review/ratification-2026-09-18.md`. **THE SIXTH IS THIS FILE, AND IT IS
+      NOT A RENAME**, which is said here rather than left to a reader of a
+      `--numstat`: `tasks.md` carries the § 4 and § 5 accounting, written in the
+      commit BEFORE the move (the wrapper refuses an open box) and corrected at
+      § 4.2 in a commit after it. No RATIFIED text in it is edited in either
+      commit: every tick APPENDS beneath the text it records, and the one
+      superseded preamble clause is quoted in place rather than deleted. (2) The `## MODIFIED` block, PROMOTED onto
       `openspec/specs/release-realization/spec.md`, where *Code-surface
       declaration grammar is gated* now names FOUR separators — a comma,
       `, and `, ` and `, ` + ` — with the exclusivity clause said of THOSE TWO

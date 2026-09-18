@@ -3452,8 +3452,12 @@ Archived changes:
   case where what follows is not itself a readable identifier; and one scenario
   is added, *A declaration spells its list out with an Oxford comma*. **NO
   BEHAVIOUR MOVES**: not one character of `scripts/code_surface.py` changes,
-  `validate-code-surface.py` reports identically before and after, and no
-  derived repository set moves. **RESIDUE, NAMED AND STILL OWED:** `tasks.md`
+  every PER-DECLARATION VERDICT and every DERIVED REPOSITORY SET is identical
+  before and after, and `CLOSED_REGISTER` does not move. The validator's CORPUS
+  TOTALS do move, and they move because the packet changed corpus rather than
+  because any declaration was judged differently: active `48 → 47` (`none`
+  heads `7 → 6`), archive read `173 → 174` (declaring `127 → 128`) — one packet
+  in each column, which is this archive and nothing else. **RESIDUE, NAMED AND STILL OWED:** `tasks.md`
   § 5.1 carries the house's reserved DEFERRED marker `- [~]` — `parse_head`'s
   docstring (`scripts/code_surface.py:447-449`) and the comment over
   `_SEPARATOR_RE` (`:148-151`) restate the same three separators, correcting
