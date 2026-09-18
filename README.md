@@ -3421,8 +3421,13 @@ Archived changes:
   run SHALL include…"*, *"the aggregation's `openxFactory` submodule pin"*), so
   re-pointing them is a rewrite rather than the seam's declared subject edit —
   and the adapter does not exist in any corpus today (`corpus-adapter-seam` is an
-  unpromoted delta of this same packet; the successor capability id is its § 5.2a,
-  unbuilt). The receiving change carries it as a blocked open box and bars
+  unpromoted delta of **`split-opendox-two-layer-product`** —
+  `openspec/changes/split-opendox-two-layer-product/specs/corpus-adapter-seam/spec.md`,
+  with no `openspec/specs/corpus-adapter-seam/` to promote into — and the
+  successor capability id is **that** packet's **§ 5.2a**, unbuilt. NOT this
+  archived packet's own § 5.2a, which is a different and already-ticked item, a
+  round-trip test over the real overlay file; the closure record states it the
+  same way). The receiving change carries it as a blocked open box and bars
   ratifying the seven until it lands. **THE LOCKSTEP PAIR THE ARCHIVE RETIRES:**
   `scripts/target-release-register.yaml`'s `implementation_pending` entry —
   whose own `retires_when:` reads *"or the packet archives"* — and
