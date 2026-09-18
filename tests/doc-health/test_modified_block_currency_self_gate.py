@@ -1710,8 +1710,11 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     SIXTEEN this docstring once claimed here. That SIXTEEN counted
     `_LEDGER_SUBJECTS`'s RAW LITERAL ENTRIES in the source rather than its
     deduplicated membership, over-counted by exactly the one row the set
-    literal collapses: `add-chain-attestation` is written TWICE (`:406`,
-    `:620`, both `("add-chain-attestation", "signed-execution-chain", "A
+    literal collapses: `add-chain-attestation` is written TWICE (`:511`,
+    `:733` AT THIS HEAD — cited as `:406`/`:620` until 2026-09-18, until this
+    packet's own additions above them moved both by a hundred-odd lines and the
+    citation was re-measured rather than left pointing at unrelated code; both
+    are `("add-chain-attestation", "signed-execution-chain", "A
     gate validates the short chain as a hash-linked chain")`), a
     PRE-EXISTING duplicate this chronology never traced, that PREDATES this
     packet, and that this amendment does not remove — a separate,
@@ -1723,7 +1726,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     SEVENTEEN — but `len(_LEDGER_SUBJECTS)` MEASURED DIRECTLY AT THIS
     COMMIT is SIXTEEN, the same duplicate collapsing exactly as before.
 
-    THIRTEEN SINCE 2026-09-16, and this one left by a route the ledger had not
+    FIFTEEN SINCE 2026-09-16 — the SIXTEEN measured directly above, less the one
+    row this closure retires, and `len(_LEDGER_SUBJECTS)` MEASURED AT THIS HEAD
+    reads FIFTEEN against the exact-set assertion below. (It read THIRTEEN here
+    until 2026-09-18: the subtraction was taken from the chronology's older
+    numeral instead of from the SIXTEEN this same paragraph had just measured —
+    the very arithmetic the paragraph above exists to stop. Found by Copilot's
+    review at `565ec5d1`.) This one left by a route the ledger had not
     seen before: `add-composed-view-authoring` was CLOSED AS RE-HOMED to
     `opensoft/openDox` under RULING Q6 (`split-opendox-two-layer-product`
     `tasks.md` § 6.4), the first of the five frozen changes to go. Its row
