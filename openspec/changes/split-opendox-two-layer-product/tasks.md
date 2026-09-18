@@ -2752,14 +2752,44 @@ the bookkeeping that ticks this group.
   > `a858e5b0` on 2026-09-04, before the five pre-carve splits and before the
   > manifest existed. Record:
   > `review/amendment-2026-09-09-floor-part-2-mapping.md`.
-- [ ] 5.5 `[oxF]` **FLOOR PART 4 (RULED OQ-1) — the snapshot-equivalence run:**
+- [x] 5.5 `[oxF]` **FLOOR PART 4 (RULED OQ-1) — the snapshot-equivalence run:**
   the new stack renders the SAME dashboard snapshot as the old, proven by matching
   snapshot digests over one corpus.
   **STATUS — THE FOURTH PART ALREADY HOLDS, AND WHAT IS OWED IS A RUNNER.**
   RULED **Q-P1..Q-P4**, `#656` comment `5728856581` (Brett Heap, 2026-09-18
   ~10:35Z, by interactive multi-choice on four questions), over the read-only
   measurement of helper actor `floor55` (`attachments/lane-opendox/floor55/
-  SCOPING-floor55.md`, `brett-wip` `68cd72cb`). **The box does NOT tick here.**
+  SCOPING-floor55.md`, `brett-wip` `68cd72cb`). **The box did NOT tick at that
+  ruling; IT TICKS NOW, on the runner the ruling asked for.**
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #6**: `openxFactory` **#1105 →
+  `029674788c0e55dc04d03139daeae28126fa31b9`**, merged **2026-09-18T14:59:28Z**,
+  *"FLOOR PART 4 (RULED OQ-1): the snapshot-equivalence runner and its suite"*
+  (claim `5728621421`). **The box's own condition was a RUNNER THAT IS GATED,
+  not a recorded run, and both halves are measured present**:
+  `scripts/verify-snapshot-equivalence.py` and
+  `tests/snapshot_equivalence/test_snapshot_equivalence.py` are the two files
+  the commit adds, and `pytest-suite` runs `python3 -m pytest tests/ -q`
+  (`.github/workflows/pytest-suite.yml:599`), so a suite under
+  `tests/snapshot_equivalence/` is inside the gate by construction rather than
+  by a wiring entry that could be dropped. **This is why Q-P1 (a) refused a
+  one-shot run**: the post-split side is a pin that moves, and what now holds
+  the equality is a gate that re-proves it on every pull request.
+  **STATUS — ONE CLAUSE OWED, AND IT IS A REVIEW DEBT, NOT A RUNNER DEFECT.**
+  Copilot's review at the LANDED head `9ed3def3` (review `5249196044`) carries
+  **four suppressed findings** that the holder's gate script did not surface
+  before the landing, recorded in the LANDED note on `#656`. **Helper actor
+  `floor55b` takes them as a follow-up act on the landed file** — a fix pull
+  request, or measured answers where a finding does not survive measurement.
+  **The tick is not held on that**: this box asked for a gated runner and the
+  gated runner is on `main`; unread review findings against landed code are an
+  owed act with their own claim, and conflating the two would leave the floor's
+  fourth part unticked for a reason the box never stated. *(Worth naming as a
+  class: this is the SECOND time in this packet that a reviewer's body was
+  posted per-push and went unread because a script looked at the wrong thing.
+  The lane's own answer was to enumerate reviews by `commit_id` against a
+  read-set rather than trust "I read the body at the head I pushed". The same
+  remedy is available to the holder and is the reason this clause names the
+  review ID rather than merely saying findings exist.)*
   **Q-P1 (a) — the act is to BUILD THE RUNNER AND GATE IT**, not to record a
   run: one `openxFactory` pull request on a plain gate carrying
   `scripts/verify-snapshot-equivalence.py` in FLOOR PART 3's idiom — named
@@ -3888,6 +3918,13 @@ realization evidence, never on landing. Each line is its own evidence.
   four parts and stays four, § 4.4 is already `[x]` on its own evidence, and
   this is a statement the run is entitled to make rather than a fifth thing the
   line must prove.
+  **PART 4'S EVIDENCE LINE NOW HAS ITS REFERENT — recorded by `tasks.md`
+  AMENDMENT #6, 2026-09-18**: it points at `openxFactory` **#1105 →
+  `02967478`** (merged 14:59:28Z), the gated snapshot-equivalence runner and its
+  suite, **plus the § 4.4 profile-fidelity sentence per RULED Q-P4 (a)**. **This
+  box stays `[ ]`**: § 8.2 owes ONE EVIDENCE LINE PER PART and is discharged by
+  all four, not by the fourth; naming part 4's referent here is what lets the
+  act that finally ticks this box quote a commit instead of re-deriving one.
 - [x] 8.3 `openxFactory`'s shed merged, the MAJOR cut and TAGGED, and the tag
   verified from an INDEPENDENTLY REFRESHED checkout.
   *(TICKED 2026-09-18 by `tasks.md` AMENDMENT #6 on Brett Heap's word, against
