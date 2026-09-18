@@ -196,12 +196,12 @@ class GitHistoryCorpus:
             raise CorpusRefused(Refusal(
                 kind=SCOPE_UNKNOWN, subject=scope,
                 detail=f"this corpus declares {corpus.scopes!r}"))
-        listed = _git("ls-tree", "-r", "--name-only", str(corpus.revision),
-                      cwd=Path(corpus.location))
-        if listed.returncode != 0:
-            raise CorpusRefused(Refusal(
-                kind=CORPUS_UNREADABLE, subject=corpus.ref.name,
-                detail=listed.stderr.decode().strip()))
+        # ONE ls-tree, not two (Copilot, round 1 on the follow-up). The
+        # membership fix routed this through `_keys_at()` and left the original
+        # read standing above it, so every listing paid for two identical git
+        # reads and this module carried two copies of one refusal -- the exact
+        # duplication finding 3 exists to remove. `_keys_at` raises the same
+        # `CORPUS_UNREADABLE` on the same condition, so nothing is lost with it.
         return tuple(DocumentId(corpus=corpus.ref.name, key=key)
                      for key in self._keys_at(corpus, corpus.revision))
 
