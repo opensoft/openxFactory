@@ -3352,7 +3352,11 @@ Archived changes:
   is BYTE-IDENTICAL to canon after the archive — `release-realization`
   *Code-surface declaration grammar is gated*, **15,441 bytes, 181 lines,
   sha256 `5729577a1d65d17e9d3f…`** on both sides, canon `--numstat` **+73 −10**
-  with `-w` reading the same, and all six packet files pure renames at `R100`.
+  with `-w` reading the same, and FIVE of the six packet files pure renames at
+  `R100`, 0 changed lines each — `tasks.md` is the exception, not a pure
+  rename (`R059`, `--numstat` **+149 −4**), its own recording moving as later
+  commits ticked task markers and added this archive's measurements, § 4.2's
+  correction and the Copilot round-1 disposition among them.
   **ORIGIN RETAINED** — the wrapper's own line, *"declaration unchanged since
   the ratifying commit `60d281a86031`"*, that being the only commit ever to
   touch this packet's `.openspec.yaml`. **WHAT IS NOW CANON:** the declared head
