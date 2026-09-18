@@ -3261,95 +3261,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
-  — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
-  Heap, in session, at PR #552 tip `c5169476`** (record:
-  `openspec/changes/retire-doxbench-chat-turn-v1/review/ratification-2026-09-01.md`);
-  ratification authorizes the requirement text and performs no realization,
-  moves no schema byte and cuts no bundle, so the change stays ACTIVE until
-  merged code, green evidence and the `contract-v3.0` cut exist. It ratifies
-  the fallback posture AS ENCODED — the #522 ruling set only its direction. The
-  record discloses what the act stood on: **NO CODEX REVIEW HAPPENED** — three
-  requests, three provider usage-limit refusals, zero verdicts, a pass still
-  owed and blocked by nothing in the packet — four low-severity Copilot
-  comments standing uncorrected on the ratified head, and `main`'s inherited
-  `pytest-suite` red from PR #510's carriage-ledger subject, which this packet
-  neither causes nor fixes. **Entry 3 of openxFactory issue
-  #522**, on Brett Heap's 2026-09-01 ruling comment there and the measurement
-  memo `deprecations-522-memo-2026-08-31.md` (operator-local, NOT committed
-  here and NAMED rather than located, Principle IV forbidding a host-absolute
-  path in a committed file; the durable referents are issue #522 and its ruling
-  comment), sliced
-  SEPARATELY from entries 1 and 2 on the memo's own recommendation and the
-  ruling's adoption of it. **THE ONLY ONE OF THE THREE WHOSE WARNING ACTUALLY
-  FIRES**: a default `scripts/validate-ideation-dashboard-contracts.py` run
-  reported
-  `0 error(s), 4 warning(s)`, every one naming `removal target contract-v2.0` —
-  a target the bundle passed one major and five minors ago. (The missing
-  `scripts/` prefix here was one of the four low-severity round-three Copilot
-  comments left standing on the ratified head; it is corrected in the
-  realization pull request, which edits this row anyway.) The deprecation was
-  done PROPERLY at `contract-v1.34` — co-resident `-v2` family, v1 bytes kept
-  byte-identical with a committed baseline test to prove it, and the
-  deprecation declared MACHINE-READABLY in a top-level `deprecated_envelopes`
-  block — and then the removal it named was never performed. This packet
-  removes the three v1 kinds at `contract-v3.0`: the `$defs`, the `oneOf` refs,
-  the `deprecated_envelopes` block, the runtime and validator dispatch, twelve
-  packaged fixtures and the byte-identity baseline, RETAINING every shared
-  `$def` the surviving family reaches (measured from its reference closure, not
-  inspected). **THE `serve.py` FALLBACK IS REDESIGNED, NOT DELETED, AND THE
-  DECISION IS ANSWERED IN THE PACKET**: an unrecognized or absent `kind` is
-  refused in the SURVIVING family's failure envelope with an explicit
-  unknown-kind code where a wire-valid `client_turn_id` exists, and in the
-  existing pre-identity shape where it does not — legal on the contract as it
-  stands, because `failure_v2` constrains `error` by PATTERN and not by enum at
-  the schema layer and at the delegated validator both; the envelope-less
-  alternative is recorded with its three costs. **TWO MEMO CORRECTIONS**: the
-  packaged corpus is TWELVE fixtures, not four — eight are NEGATIVE and carry
-  SEVEN refusal classes with no `-v2` equivalent, each of which must be
-  re-expressed or its loss stated; and there are TWO fallback layers, the second
-  (`_refuse_turn`'s pre-identity drop) correct and untouched. Carries ONE
-  scenario-complete `## MODIFIED` block over promoted `ideation-dashboard`
-  canon, dropping nothing and therefore owing no `Removed from canon` marker.
-  Sibling: `retire-hermes-flat-keys-and-openworkflow-tokens`.
-  **REALIZATION `tasks.md` §§ 2–5 IS MERGED** (PR #564, squash `6856f502`) — the schema
-  removal, the redesigned `serve.py` fallback with its one new catalog entry
-  (`unrecognized_turn_kind`, 400), the validator dispatch, the corpus (all
-  SEVEN v1-only refusal classes re-expressed against the surviving family, none
-  dropped) and the test surface, with the validator now reporting
-  `0 error(s), 0 warning(s)` and `--strict` passing over
-  `examples/ideation-dashboard/`. Two authoring findings ride it: the measured
-  reference closure puts `typed_proposal` OUTSIDE the surviving family (the
-  ratified text names it as retained-because-reachable, and it is retained on
-  the text rather than on the premise), and § 2's schema byte move is coupled
-  to the per-file `sha256` in `contracts/manifest.yaml`, which `tasks.md` 6.1
-  files with the cut. **The `contract-v3.0` CUT IS TAKEN** — § 6 ticked with its
-  evidence, the bundle declared, OQ-2 answered NO — no `contract_schema_version`
-  moves, the cut's attempt to bump the chat-turn schema's own integer having
-  been refused by two tests the realization landed with their reasoning beside
-  them —
-  `typed_proposal` RETAINED with the reason (a removal no minor warned on),
-  `CONTRACT_TAG` off its stale `contract-v2.2`. **THE ANNOTATED TAG IS NOW
-  PUBLISHED** — tag object `59f4f51f`, peeling FROM THE REMOTE to `ff9ed815`
-  (PR #573's squash) — and it was taken as the separate post-merge act it had to
-  be, only after § Bundle Realization Order step 4 reran `verify-commit` AND
-  `verify-promotion` on the PROMOTED commit from an independent clone (both
-  green, zero findings; the promoted tree proved BYTE-IDENTICAL to the reviewed
-  candidate `5418256a`, one tree sha and not two), then `verify-tag` from a
-  second fresh clone (evidence: PR #573 comment `5506503494`). The consumer
-  sentinel `unpublished:contract-v3.0` was resolved to `ff9ed815` the same day —
-  task 6.9's post-tag act, in the shape the `contract-v2.2` resolution recorded
-  two entries below, and the thing the `contract-v1.45` residue (three days
-  standing) exists to stop recurring. **Task 8.2 is DISCHARGED; SEVEN boxes
-  remain — 1.8, 7.1, 7.2, 8.1, 8.3, 8.4 and 8.5** — the adversarial review to
-  convergence, the validator run at the tag, the two-direction fallback
-  exercise against the running serve, and the recorded dispositions. Named in
-  full for the same reason as the sibling above: `scripts/proposal-support.py`
-  refuses to archive while ANY `- [ ]` remains. (code
-  surface: openxFactory; target release: `contract-v3.0` — archives only on
-  merged plus green realization evidence, the moved manifest digest, the rebuilt
-  inventory and the published tag)
-
 The avatar-client kernel (`contract-v1.7`), reference runtime, and avatar-first UI
 standard (`contract-v1.8`) are realized. The contract kernel, the revocation
 clarification, the reference runtime, and the avatar-first UI standard all archived
@@ -3517,6 +3428,71 @@ Archived changes:
   [#1047](https://github.com/opensoft/openxFactory/issues/1047) closes on this
   archive, by the lane's hand after the ARCHIVED record — this pull request
   carries `refs` and no closing keyword.
+
+- [retire-doxbench-chat-turn-v1](openspec/changes/archive/2026-09-16-retire-doxbench-chat-turn-v1/proposal.md)
+  — **ARCHIVED 2026-09-16 ON ITS OWN EVIDENCE** by
+  [PR #1066](https://github.com/opensoft/openxFactory/pull/1066), closing
+  `split-opendox-two-layer-product` `tasks.md` § 6.2 — the fifth and last of the
+  § 6 boxes, and **THE ONE THAT IS NOT A RE-HOME**. The other four § 6 closures
+  — `add-composed-view-authoring`, `add-doxchat-model-intake`,
+  `add-nightly-dashboard-refresh` and `add-lens-document-selection`, each listed
+  below — stop where they stand under RULING Q6 and promote nothing here; this
+  one's realization merged in this repository (PR #564, squash `6856f502`) and
+  its `contract-v3.0` cut is published (annotated tag `59f4f51f`, peeling to
+  `ff9ed815`), so **its delta PROMOTES**: all three blocks reach
+  `openspec/specs/ideation-dashboard/spec.md`, **+224 lines and 0 deletions** —
+  **157** the promotion, every byte taken from the ratified delta by script, and
+  **67** a dated ERRATUM below the first requirement, marked in its own first
+  line as no part of the ratified text, carrying THREE corrections each measured
+  against the landed text: one clause of that requirement names `typed_proposal`
+  as reachable from the surviving `-v2` family, which the packet's own § 2.1
+  measured FALSE and its § 6.8 dispositioned (RETAINED, unreferenced); the
+  scenario *An older client sends a released v1 turn* is bounded by the very
+  removal this cut performs, the changelog's Executed row recording the v1 family
+  as removed at `contract-v3.0`; and the prose's "thirteen minors and one major"
+  counts the v1 line alone, the run measured BY TAG — the versioning policy's
+  § *`contract-v2.6` — Instance Six* rules an untaggable bundle "permanently
+  unreleased" — being `v1.35`–`v1.47`, `contract-v2.0`, `v2.1`–`v2.5` and
+  `contract-v3.0`, **twenty PUBLISHED releases**, counting neither the untagged
+  `contract-v2.6` nor the declined `contract-v2.7`. Every
+  corrected clause stands unedited because it is ratified; each correction stands
+  beside it because promoting it moved it into canon, where nothing else would.
+  Measured both ways — the move alone leaves
+  **23** doc-health `promotion-fidelity` errors, the move with the promotion
+  leaves **20**, which are the four re-homed closures' own and none of them this
+  packet's — so this change takes **no** `health/dispositions.yaml` entry, and
+  the aggregation companion ([xFactory #454](https://github.com/opensoft/xFactory/pull/454))
+  forbids one by analogy. Only the FORWARD half re-homes: the surviving `-v2`
+  family's two requirements are carried verbatim into `opensoft/openDox` as
+  `carry-doxbench-chat-turn-v2-family`
+  ([openDox-spec #15](https://github.com/opensoft/openDox-spec/pull/15));
+  the third — *The doxBench chat-turn v1 envelope family is REMOVED at
+  contract-v3.0* — travels nowhere, openDox having removed nothing, and this
+  promotion is the only place it can land. **SEVEN BOXES WERE OPEN AT THE MOVE
+  AND SIX ARE DISCHARGED BY MEASUREMENT IN THE CLOSURE RECORD**
+  (`review/archive-2026-09-16.md`): 7.1 at the tag read from the remote (0
+  error(s), 0 warning(s); `--strict` exit 0; a retired-kind instance refused);
+  **7.2 PERFORMED LIVE** against a real loopback `ThreadingHTTPServer` at the
+  tag — both directions answered `unrecognized_turn_kind` at HTTP 400, the
+  identity-bearing one in the surviving family's failure envelope and the
+  pre-identity one in the fixed shape, the model port never reached, and a
+  never-existed kind answering byte-identically to the retired one; **8.1 merged
+  AND GREEN, with the green run named** — `6856f502`'s single red is proven
+  inherited (the same assertion fails at its parent `a951be76`), and the
+  realization's own green `pytest-suite` is `d308c012`, which CONTAINS
+  `6856f502` and differs from it by one file that belongs to neither this packet
+  nor its code surface, so "merged plus green realization evidence" is
+  discharged by a run rather than waived by an excuse;
+  8.3 `0 UNDISPOSITIONED failures`, exit 0; 8.4 met, with an erratum explaining
+  § 4.7's "81" against the validator's 80 (files versus checks, the
+  duplicate-turn pair being one check over two files); 8.5 already recorded in
+  § 4.4's own seven-row table with zero stated losses. **1.8 stays open** — the
+  owed Codex pass, which the box's own text routes to the amendment lane. The
+  boxes are not ticked here: in this lane every `tasks.md` tick rides the
+  bookkeeper's amendment, and this record exists so it can tick from a
+  measurement. `scripts/proposal-support.py archive` was not used and could not
+  be: it raises `change has incomplete tasks` before resolving the CLI. (code
+  surface: openxFactory; target release: `contract-v3.0`)
 
 - [add-lens-document-selection](openspec/changes/archive/2026-09-16-add-lens-document-selection/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
