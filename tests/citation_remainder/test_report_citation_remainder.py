@@ -1,0 +1,2756 @@
+"""THE CITATION REMAINDER, REPORTED — the report CLI's lane
+(`packet-citation-report`, `add-citation-remainder-report` `tasks.md` § 2.1,
+issue #1053).
+
+EVERY SCENARIO THE DELTA STATES IS REALIZED BY A TEST BELOW WHOSE DOCSTRING
+NAMES IT, and the five requirements are kept apart in five sections so a reader
+checking coverage reads one place. The delta carries 72 `#### Scenario:` blocks
+across 5 `### Requirement:` blocks — 43 the ratified delta first carried and 29
+more folded in by Patch B (PR #1097, now landed) — and each one's test names it
+verbatim in its first line. THE COUNT IS CHECKED MECHANICALLY AND NOT BY HAND:
+every scenario title in the delta is searched for in a test docstring, so a
+scenario reworded by a later fold-in reads as a gap rather than passing
+silently, and the count is taken against THE SPEC AS IT STANDS IN THIS TREE —
+72 scenarios at this tree's merge of `main` `dc242f3a` — and not against a
+branch.
+
+FIXTURES ARE THROWAWAY GIT TREES IN `tmp_path`, on `tests/packet_reference/`'s
+stated precedent — *"a committed broken packet is a file every other sweep has
+to be taught to ignore, while a scratch tree is read by this test alone"* — and
+on three reasons of this subject's own. The population recipe is `git ls-files`,
+so a committed fixture subdirectory would list THIS repository's files rather
+than the fixture's; a nested `.git` cannot be committed at all; and `tests/` is
+one of the population's three default exclusions, so a committed fixture buys
+nothing a scratch tree does not. `git` is not one of the suite's guarded
+binaries (`tests/hermeticity.py`'s `GUARDED_BINARIES`), so a real git inside
+`tmp_path` is hermetic by the suite's own definition.
+
+AND THIS DIRECTORY CARRIES NO `conftest.py`. `pytest.ini` anchors the rootdir at
+the repository root, so `tests/conftest.py`'s hermeticity guard reaches here
+without a local override, and a directory `conftest.py` would hijack the ambient
+`conftest` module name — the one thing that file documents must not be done.
+
+NO TEST ASSERTS A LITERAL COUNT AGAINST THE LIVE CORPUS. The corpus moves under
+every merge that touches any citation anywhere, so the one live-corpus test at
+the end asserts INVARIANTS — the arithmetic closes, every remainder entry names
+a citing file, the class totals sum to the remainder, the AMBIGUOUS row is
+present, the exit is 0 — and never a number. The reproduction of the evidence's
+own figures is evidence taken once at a named commit, not a permanent assertion.
+"""
+from __future__ import annotations
+
+import contextlib
+import importlib.util
+import io
+import json
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SCRIPT = REPO_ROOT / "scripts" / "report-citation-remainder.py"
+
+
+def _load(name: str, path: Path):
+    sys.path.insert(0, str(REPO_ROOT / "scripts"))
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+report = _load("report_citation_remainder", SCRIPT)
+
+
+# --------------------------------------------------------------------------
+# FIXTURE HELPERS — a throwaway corpus, built with real git.
+# --------------------------------------------------------------------------
+
+def git(root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "-C", str(root), *args], check=True,
+                          capture_output=True, text=True)
+
+
+def new_repo(root: Path) -> Path:
+    """A git tree with the changes root already in place.
+
+    The identity is configured EXPLICITLY rather than inherited: the required
+    `pytest-suite` job runs with `GIT_CONFIG_GLOBAL=/dev/null
+    GIT_CONFIG_NOSYSTEM=1` and there is no ambient one to fall back on.
+    """
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "openspec" / "changes").mkdir(parents=True, exist_ok=True)
+    git(root, "init", "-q", ".")
+    git(root, "config", "user.name", "Test")
+    git(root, "config", "user.email", "test@example.com")
+    return root
+
+
+def write(root: Path, rel: str, text: str) -> Path:
+    path = root / rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def packet(root: Path, change: str, *, files=("proposal.md",),
+           archived: str | None = None, former_ids=()) -> Path:
+    """One change packet directory, active or under a dated archive folder."""
+    where = root / "openspec" / "changes"
+    where = (where / "archive" / f"{archived}-{change}") if archived \
+        else (where / change)
+    where.mkdir(parents=True, exist_ok=True)
+    for name in files:
+        target = where / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("# a fixture packet\n", encoding="utf-8")
+    marker = "schema: spec-driven\ncreated: 2026-09-17\n"
+    if former_ids:
+        marker += "former_ids:\n" + "".join(f"  - {i}\n" for i in former_ids)
+    (where / ".openspec.yaml").write_text(marker, encoding="utf-8")
+    return where
+
+
+def commit(root: Path, message: str = "fixture", gitlinks=()) -> str:
+    """Stage the working tree and commit it.
+
+    A MODE-160000 GITLINK IS STAGED AFTER `git add -A` AND NEVER BEFORE: the
+    entry names a directory that does not stand in the working tree, so an
+    `add -A` run afterwards reads it as a deletion and takes it straight back
+    out of the index.
+    """
+    git(root, "add", "-A")
+    for rel in gitlinks:
+        sha = "0" * 39 + "1"
+        git(root, "update-index", "--add", "--cacheinfo", f"160000,{sha},{rel}")
+    git(root, "commit", "-q", "-m", message)
+    return git(root, "rev-parse", "HEAD").stdout.strip()
+
+
+def link_chain(where: Path, name: str, length: int, target: str) -> Path:
+    """`<name>` at the end of a chain of `length` links ending at `target`.
+
+    `<name>1` points at `target` and each later link points at the one below it,
+    so `<name><length>` stands `length` links above it.
+    """
+    where.mkdir(parents=True, exist_ok=True)
+    os.symlink(target, where / f"{name}1")
+    for step in range(2, length + 1):
+        os.symlink(f"{name}{step - 1}", where / f"{name}{step}")
+    return where / f"{name}{length}"
+
+
+def deepest_chain_the_platform_reads(where: Path) -> int:
+    """The longest link chain THIS PLATFORM will open, measured rather than
+    assumed — Linux's `MAXSYMLINKS` is 40, and it is a kernel constant this
+    suite has no business hard-coding."""
+    where.mkdir(parents=True, exist_ok=True)
+    (where / "end.md").write_text("text\n", encoding="utf-8")
+    deepest = 0
+    for length in range(1, report.MAX_LINK_HOPS + 8):
+        entry = link_chain(where / f"n{length}", "l", length, "../end.md")
+        try:
+            entry.read_bytes()
+        except OSError:
+            break
+        deepest = length
+    return deepest
+
+
+def break_the_head_object(root: Path) -> str:
+    """Point the checked-out branch at a sha NO OBJECT STANDS AT, and return it.
+
+    ONLY THE REF MOVES AND THE OBJECT STORE IS LEFT WHOLE, which is what makes
+    this the shape the tree-state defect needs rather than a broken repository
+    in general: `git ls-files` and `git rev-parse --is-inside-work-tree` still
+    answer, so the reading reaches the tree-state git exactly as an ordinary run
+    does, `git rev-parse --verify --quiet HEAD` still exits 0 and prints this
+    sha, and only `git diff --quiet HEAD` fails — with status 128 and
+    `fatal: bad object HEAD`. Every one of those is measured in this tree by the
+    tests below and none of it is assumed.
+    """
+    ref = git(root, "symbolic-ref", "HEAD").stdout.strip()
+    missing = "0" * 39 + "1"
+    target = root / ".git" / ref
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(missing + "\n", encoding="utf-8")
+    return missing
+
+
+def run_json(root: Path, *args: str) -> dict:
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        code = report.main([str(root), "--json", *args])
+    assert code == 0, "the report exits successfully whatever it finds"
+    return json.loads(buffer.getvalue())
+
+
+def run_human(root: Path, *args: str) -> str:
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        code = report.main([str(root), *args])
+    assert code == 0
+    return buffer.getvalue()
+
+
+def entries(data: dict) -> dict:
+    """Every listed token record, by token, in whichever grouping was asked."""
+    if "tokens" in data:
+        return {record["token"]: record for record in data["tokens"]}
+    return {record["token"]: record
+            for group in data["identities"] for record in group["tokens"]}
+
+
+CITE = "openspec/changes"
+
+
+# ==========================================================================
+# REQUIREMENT: The citation remainder is reported
+# ==========================================================================
+
+def test_the_report_prints_the_head_the_population_pair_the_tokens_and_both_remainders(
+        tmp_path) -> None:
+    """Scenario: The report is taken over a corpus."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"Resolved: {CITE}/add-present/proposal.md\n"
+          f"Dangling: {CITE}/add-absent/proposal.md\n")
+    head = commit(root)
+
+    data = run_json(root)
+    text = run_human(root)
+
+    assert data["head"] == head
+    assert head in text
+    population = data["population"]
+    assert population["tracked_entries_in_scope"] >= 1
+    assert population["files_read"] >= 1
+    assert "tracked ENTRIES in scope" in text
+    assert "FILES read" in text
+    assert data["counts"]["distinct_tokens"] == 2
+    assert data["counts"]["remainder_inclusive_tokens"] == 1
+    assert data["counts"]["remainder_inclusive_identities"] == 1
+    assert "INCLUSIVE remainder" in text
+    assert "TOKENS" in text
+    assert "IDENTITIES" in text
+    listed = entries(data)
+    assert [o["path"] for o in listed[f"{CITE}/add-absent/proposal.md"]
+            ["occurrences"]] == ["docs/notes.md"]
+    assert "docs/notes.md:1" in text or "docs/notes.md:2" in text
+
+
+def test_a_dirty_tree_is_declared_beside_the_head_and_the_reading_still_runs(
+        tmp_path) -> None:
+    """Scenario: The tree read is not clean at the head printed."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    head = commit(root)
+    write(root, "docs/notes.md",
+          f"{CITE}/add-absent/proposal.md\n{CITE}/add-other/proposal.md\n")
+
+    data = run_json(root)
+    text = run_human(root)
+
+    assert data["head"] == head, "an uncommitted edit does not move the head"
+    assert data["tree_unmodified_at_head"] is False
+    assert "MODIFIED at this head" in data["tree_state"]
+    assert "NOT a later point in the series" in data["tree_state"]
+    assert "MODIFIED at this head" in text
+    assert data["counts"]["remainder_inclusive_tokens"] == 2, \
+        "the reading is still produced rather than refused"
+
+
+def test_a_clean_tree_is_declared_unmodified_at_the_head_it_prints(
+        tmp_path) -> None:
+    """The other half of the dirty-state declaration: a clean tree says so.
+
+    No scenario of its own; the declaration is a pair and a report that printed
+    the sentence only when it was bad news would leave a reader unable to tell
+    "clean" from "this build does not check".
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    assert data["tree_unmodified_at_head"] is True
+    assert "UNMODIFIED" in data["tree_state"]
+    assert "UNMODIFIED" in run_human(root)
+
+
+def test_the_three_answers_git_diff_has_are_read_as_clean_modified_and_could_not_run(
+        tmp_path, monkeypatch) -> None:
+    """`git diff --quiet HEAD` HAS TWO ANSWERS AND ONE FAILURE MODE, and the
+    report reads three outcomes from them rather than two.
+
+    `0` is a clean tree and `1` is a modified one; ANY OTHER STATUS IS GIT
+    SAYING IT COULD NOT TAKE THE COMPARISON, which is the two-case contract's
+    non-zero exit and never a tree state. A report that read every non-zero as
+    "modified" would publish a state it never measured. (Copilot
+    `PRRT_kwDOTAvnrs6js_9D`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    head = commit(root)
+    real = report.git_status
+
+    def answering(status: int, error: str):
+        def stub(where: Path, *args: str):
+            if args[:1] == ("diff",):
+                return status, "", error
+            return real(where, *args)
+        return stub
+
+    monkeypatch.setattr(report, "git_status", answering(0, ""))
+    assert report.head_and_tree_state(root) == (head, True)
+
+    monkeypatch.setattr(report, "git_status", answering(1, ""))
+    assert report.head_and_tree_state(root) == (head, False)
+
+    monkeypatch.setattr(report, "git_status",
+                        answering(128, "fatal: bad object HEAD\n"))
+    with pytest.raises(report.CouldNotRun) as raised:
+        report.head_and_tree_state(root)
+    assert "fatal: bad object HEAD" in str(raised.value), \
+        "git's own message is what says why the run could not be taken"
+    assert "128" in str(raised.value)
+
+
+def test_a_head_object_git_cannot_read_is_a_run_that_could_not_be_taken(
+        tmp_path, capsys) -> None:
+    """THE SAME DEFECT AT THE COMMAND, over a real repository and no stub.
+
+    The head ref names an object that does not stand in the store. The
+    enumeration git and the work-tree git both still answer, so the run reaches
+    the tree-state git and fails only there — where the old reading printed the
+    unreadable sha beside "MODIFIED at this head", a tree state nothing had
+    measured. It is now the one non-zero exit this capability has.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+    missing = break_the_head_object(root)
+
+    assert git(root, "rev-parse", "--is-inside-work-tree").stdout.strip() \
+        == "true", "the root is still a work tree"
+    assert git(root, "ls-files").stdout.strip(), "the index still answers"
+
+    code = report.main([str(root)])
+    captured = capsys.readouterr()
+    assert code != 0
+    assert "DID NOT RUN" in captured.err
+    assert "No reading was taken" in captured.err
+    assert "bad object" in captured.err, "git's own reason reaches the caller"
+    assert missing not in captured.out, \
+        "no head is published beside a tree state that was never measured"
+    assert "remainder" not in captured.out
+
+
+def test_a_git_that_never_returns_is_a_run_that_could_not_be_taken(
+        tmp_path, monkeypatch) -> None:
+    """EVERY GIT THIS REPORT RUNS IS BOUNDED, and a read that never returns is a
+    read it did not take.
+
+    A partial clone, a promisor remote or an unhealthy object store can make a
+    git read BLOCK rather than fail, and an unbounded one hangs the scheduled
+    nightly instead of taking the non-zero exit this capability has for exactly
+    that. The bound is the estate's own — `scripts/hermes_runtime_validation/
+    content.py` binds the identical `subprocess.run` to the same 30 seconds and
+    converts `TimeoutExpired` the same way. (Copilot `PRRT_kwDOTAvnrs6jtgeK`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+    assert report.GIT_TIMEOUT_SECONDS == 30
+
+    seen = {}
+
+    def never_returns(argv, **kwargs):
+        seen["timeout"] = kwargs.get("timeout")
+        raise subprocess.TimeoutExpired(argv, kwargs.get("timeout"))
+
+    monkeypatch.setattr(report.subprocess, "run", never_returns)
+    with pytest.raises(report.CouldNotRun) as raised:
+        report.take_reading(root)
+    assert "did not return within 30s" in str(raised.value)
+    assert seen["timeout"] == 30, "the bound reaches the sink, not just the docs"
+
+
+def test_every_git_this_report_runs_goes_through_the_one_bounded_sink(
+        tmp_path) -> None:
+    """The bound is worth nothing if a second `subprocess.run` is added beside
+    it later, so the script is read for the sink being the only one."""
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert source.count("subprocess.run(") == 1, \
+        "one sink, so one place can bound, scrub and resolve for all of them"
+    assert source.count("timeout=GIT_TIMEOUT_SECONDS") == 1
+
+
+def test_a_git_that_cannot_be_run_at_all_is_a_run_that_could_not_be_taken(
+        tmp_path, monkeypatch) -> None:
+    """The third outcome's other arm: git not runnable rather than git failing.
+
+    An `OSError` at the sink — no `git` on PATH, a permission refusal — is a
+    reading that could not be taken for the same reason a fatal status is, and
+    takes the same exit rather than a default tree state.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    def unrunnable(*args, **kwargs):
+        raise OSError(2, "No such file or directory: 'git'")
+
+    monkeypatch.setattr(report.subprocess, "run", unrunnable)
+    with pytest.raises(report.CouldNotRun) as raised:
+        report.head_and_tree_state(root)
+    assert "git could not be run" in str(raised.value)
+
+
+def test_an_identity_cited_by_several_tokens_counts_once_and_lists_every_token(
+        tmp_path) -> None:
+    """Scenario: One identity is cited by several tokens."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"one {CITE}/add-absent/proposal.md\n"
+          f"two {CITE}/add-absent/design.md\n"
+          f"three {CITE}/add-absent\n")
+    commit(root)
+
+    data = run_json(root)
+    counts = data["counts"]
+    assert counts["remainder_inclusive_tokens"] == 3
+    assert counts["remainder_inclusive_identities"] == 1
+    listed = entries(data)
+    assert set(listed) == {f"{CITE}/add-absent",
+                           f"{CITE}/add-absent/proposal.md",
+                           f"{CITE}/add-absent/design.md"}
+    text = run_human(root)
+    assert "add-absent (3 tokens)" in text, \
+        "grouping NESTS the tokens beneath the identity rather than collapsing"
+    for token in listed:
+        assert token in text
+
+
+def test_one_identity_with_two_classed_tokens_keeps_two_entries_and_two_classes(
+        tmp_path) -> None:
+    """Scenario: One identity's tokens carry different classes."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "examples/demo.md", f"{CITE}/add-absent/fixture.md\n")
+    write(root, "docs/notes.md", f"see {CITE}/add-absent/walk-<DATE>.md\n")
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    fixture = listed[f"{CITE}/add-absent/fixture.md"]
+    severed = listed[f"{CITE}/add-absent/walk-"]
+    assert fixture["class"] == "fixture-path"
+    assert severed["class"] == "truncated"
+    assert fixture["identity"] == severed["identity"] == "add-absent"
+    counts = data["counts"]
+    assert counts["classes"]["fixture-path"] == 1
+    assert counts["classes"]["truncated"] == 1
+    assert counts["remainder_inclusive_identities"] == 1, \
+        "the identity is still counted once"
+    assert counts["remainder_inclusive_tokens"] == 2
+
+
+def test_the_ambiguous_row_is_printed_at_zero_beside_every_other_outcome(
+        tmp_path) -> None:
+    """Scenario: No identity in the corpus is claimed by two packets."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"{CITE}/add-present/proposal.md and {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    text = run_human(root)
+    outcomes = data["counts"]["outcomes"]
+    assert outcomes["ambiguous"] == 0
+    assert "AMBIGUOUS                0" in text
+    for row in ("RESOLVED", "DANGLING, identity half", "DANGLING, file half",
+                "AMBIGUOUS", "NOT A PACKET REFERENCE"):
+        assert row in text, "an omitted outcome is indistinguishable from zero"
+
+
+def test_every_resolver_outcome_is_reported_under_the_name_the_rule_gives_it(
+        tmp_path) -> None:
+    """The four outcomes and the fifth answer, each its own row.
+
+    No scenario of its own beyond the AMBIGUOUS one above; a report that
+    collapsed any two of them would have thrown away the distinction its own
+    remainder is defined by.
+    """
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    packet(root, "add-halved")
+    write(root, f"{CITE}/README.md", "the corpus's own readme\n")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-present/proposal.md\n"
+          f"b {CITE}/add-absent/proposal.md\n"
+          f"c {CITE}/add-halved/missing.md\n"
+          f"d {CITE}/README.md\n")
+    commit(root)
+
+    outcomes = run_json(root)["counts"]["outcomes"]
+    assert outcomes["resolved"] == 1
+    assert outcomes["dangling_identity_half"] == 1
+    assert outcomes["dangling_file_half"] == 1
+    assert outcomes["not_a_packet_reference"] == 1
+    assert outcomes["ambiguous"] == 0
+
+
+def test_a_relocated_reference_is_counted_within_the_resolved_row(
+        tmp_path) -> None:
+    """RESOLVED carries the count of references that resolved somewhere other
+    than the path they were spelled as — the rule working, and the one figure a
+    reader weighing whether it earns its keep needs."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-moved", archived="2026-08-01")
+    write(root, "docs/notes.md", f"{CITE}/add-moved/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    assert data["counts"]["outcomes"]["resolved"] == 1
+    assert data["counts"]["outcomes"]["resolved_relocated"] == 1
+    assert "resolved somewhere other than the path" in run_human(root)
+
+
+# ==========================================================================
+# REQUIREMENT: The reported population is derived from a stated recipe
+# ==========================================================================
+
+def test_a_tracked_entry_that_is_not_a_file_is_skipped_and_the_two_population_numbers_differ_by_it(
+        tmp_path) -> None:
+    """Scenario: Some tracked entries in scope are not files."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root, gitlinks=("installs/vendored",))
+
+    data = run_json(root)
+    population = data["population"]
+    assert population["skipped_not_a_file"] == 1
+    assert population["files_read"] == population["tracked_entries_in_scope"] - 1
+    text = run_human(root)
+    assert "tracked ENTRIES in scope" in text
+    assert "FILES read" in text
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_symlink_whose_target_leaves_the_root_contributes_no_token(
+        tmp_path) -> None:
+    """Scenario: A tracked entry is a link whose target leaves the tree."""
+    root = new_repo(tmp_path / "repo")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "theirs.md").write_text(f"{CITE}/add-elsewhere/proposal.md\n",
+                                       encoding="utf-8")
+    os.symlink(outside / "theirs.md", root / "linked.md")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    assert f"{CITE}/add-elsewhere/proposal.md" not in listed, \
+        "text read from outside the root is not this corpus's citation"
+    assert f"{CITE}/add-absent/proposal.md" in listed
+    assert data["population"]["skipped_link_leaving_the_root"] == 1
+
+
+def test_a_link_leaving_the_root_lands_in_its_own_skip_term_and_the_arithmetic_closes(
+        tmp_path) -> None:
+    """Scenario: A link that leaves the root is counted where the arithmetic
+    can find it."""
+    root = new_repo(tmp_path / "repo")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "theirs.md").write_text("nothing here\n", encoding="utf-8")
+    os.symlink(outside / "theirs.md", root / "linked.md")
+    write(root, "binary.dat", "placeholder\n")
+    (root / "binary.dat").write_bytes(b"\xff\xfe not text\n")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root, gitlinks=("installs/vendored",))
+
+    population = run_json(root)["population"]
+    assert population["skipped_link_leaving_the_root"] == 1
+    assert population["skipped_not_a_file"] == 1, "the gitlink, and only it"
+    assert population["skipped_undecodable"] == 1
+    assert population["tracked_entries_in_scope"] == (
+        population["files_read"]
+        + population["skipped_not_a_file"]
+        + population["skipped_link_leaving_the_root"]
+        + population["skipped_undecodable"])
+    assert population["arithmetic_closes"] is True
+
+
+def test_the_link_leaving_the_root_term_is_printed_even_where_it_is_zero(
+        tmp_path) -> None:
+    """Scenario: A link that leaves the root is counted where the arithmetic
+    can find it — the clause that the term prints at zero."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    assert data["population"]["skipped_link_leaving_the_root"] == 0
+    assert "skipped, link leaving the root 0" in run_human(root), \
+        "a term omitted whenever nothing lands in it teaches readers not to " \
+        "look for it"
+
+
+def test_a_tracked_link_staying_inside_the_root_is_read_like_any_other_file(
+        tmp_path) -> None:
+    """Scenario: A tracked link resolves to a regular file inside the root."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/real.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("real.md", root / "docs" / "alias.md")
+    commit(root)
+
+    data = run_json(root)
+    population = data["population"]
+    assert population["skipped_link_leaving_the_root"] == 0
+    assert population["skipped_not_a_file"] == 0
+    listed = entries(data)
+    cited = {o["path"] for o
+             in listed[f"{CITE}/add-absent/proposal.md"]["occurrences"]}
+    assert cited == {"docs/real.md", "docs/alias.md"}
+
+
+def test_a_link_dangling_inside_the_root_is_counted_in_the_non_file_term(
+        tmp_path) -> None:
+    """Scenario: A tracked link reaches no readable file and does not leave the
+    root — the first of its two arms, a lexically resolved path standing inside
+    the root and missing there."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("gone.md", root / "docs" / "dangles.md")
+    commit(root)
+
+    population = run_json(root)["population"]
+    assert population["skipped_not_a_file"] == 1, \
+        "a link that dangles INSIDE the root is not a link that leaves it"
+    assert population["skipped_link_leaving_the_root"] == 0
+    assert population["skipped_undecodable"] == 0
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_link_chain_that_loops_is_counted_in_the_non_file_term(
+        tmp_path) -> None:
+    """Scenario: A tracked link reaches no readable file and does not leave the
+    root — the second arm, a chain with NO resolved path at all because it
+    loops."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("b.md", root / "docs" / "a.md")
+    os.symlink("a.md", root / "docs" / "b.md")
+    commit(root)
+
+    population = run_json(root)["population"]
+    assert population["skipped_not_a_file"] == 2, \
+        "a chain with no resolved path is no link that LEAVES the root"
+    assert population["skipped_link_leaving_the_root"] == 0
+    assert population["tracked_entries_in_scope"] == (
+        population["files_read"]
+        + population["skipped_not_a_file"]
+        + population["skipped_link_leaving_the_root"]
+        + population["skipped_undecodable"])
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_dangling_link_pointing_outside_the_root_takes_the_out_of_root_term(
+        tmp_path) -> None:
+    """Scenario: A dangling link points outside the root."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    # NOTHING STANDS AT THE TARGET. The resolved path is a fact about the path
+    # and not about what stands at it, so this link leaves the root exactly as
+    # a link to a file that exists out there does.
+    # `docs/../../outside` leaves the root; `docs/../outside` would not, and
+    # the difference is exactly what a lexical resolution is for.
+    os.symlink("../../outside/never-written.md", root / "docs" / "linked.md")
+    commit(root)
+
+    population = run_json(root)["population"]
+    assert population["skipped_link_leaving_the_root"] == 1
+    assert population["skipped_not_a_file"] == 0, \
+        "existence is not required of a resolved path"
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_link_resolving_to_a_directory_inside_the_root_is_a_non_file(
+        tmp_path) -> None:
+    """Scenario: A tracked link resolves to a directory inside the root."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("docs", root / "alias")
+    commit(root)
+
+    data = run_json(root)
+    population = data["population"]
+    assert population["skipped_not_a_file"] == 1
+    assert population["skipped_link_leaving_the_root"] == 0
+    assert population["arithmetic_closes"] is True
+    cited = {o["path"] for o
+             in entries(data)[f"{CITE}/add-absent/proposal.md"]["occurrences"]}
+    assert cited == {"docs/notes.md"}, \
+        "no token is taken from it and it is not among the FILES read"
+
+
+def test_a_link_through_a_nested_directory_link_leaving_the_root_is_caught(
+        tmp_path) -> None:
+    """A TARGET IS A PATH AND ITS OWN SEGMENTS MAY BE LINKS. Where a tracked
+    directory link leaves the root and a tracked file link points THROUGH it, a
+    walk that joined the target and then asked only whether the JOINED path was
+    itself a link would answer with a path inside the root, pass the
+    containment test, and read a file outside the repository as this corpus's.
+    (Copilot `PRRT_kwDOTAvnrs6jshPX`.)"""
+    root = new_repo(tmp_path / "repo")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "theirs.md").write_text(f"{CITE}/add-elsewhere/proposal.md\n",
+                                       encoding="utf-8")
+    os.symlink("../outside", root / "nested")          # the directory link
+    os.symlink("nested/theirs.md", root / "linked.md")  # points THROUGH it
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    assert f"{CITE}/add-elsewhere/proposal.md" not in listed, \
+        "no text is read from outside the root through an intermediate link"
+    assert f"{CITE}/add-absent/proposal.md" in listed
+    population = data["population"]
+    assert population["skipped_link_leaving_the_root"] == 2, \
+        "the directory link and the file link that points through it"
+    assert population["skipped_not_a_file"] == 0
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_multi_component_target_on_a_parent_two_levels_up_resolves_in_order(
+        tmp_path) -> None:
+    """THE WALK'S PENDING LIST IS A STACK, POPPED FROM ITS END, so a target's
+    components are pushed onto its TOP and walked BEFORE the suffix waiting
+    beneath them.
+
+    Asserted as the EXACT resolved path and not as a term, because what could
+    fail here is an ORDER, and an order that came out wrong would still land
+    somewhere a term could be named for. The fixture is the hardest shape the
+    walk meets: a parent link TWO levels down whose target carries two upward
+    steps and two named components, with a suffix still pending behind it.
+    (Copilot `PRRT_kwDOTAvnrs6jtYeI`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    elsewhere = tmp_path / "alt" / "deep" / "three"
+    elsewhere.mkdir(parents=True)
+    (elsewhere / "file.md").write_text("the target's own bytes\n",
+                                       encoding="utf-8")
+    (root / "one").mkdir()
+    os.symlink("../../alt/deep", root / "one" / "two")
+
+    walked = report.resolved_entry_path(root, "one/two/three/file.md")
+    assert walked == elsewhere / "file.md", \
+        "the target is walked before the `three/file.md` suffix pending behind"
+    assert walked.read_text(encoding="utf-8") == "the target's own bytes\n"
+
+    # And the reviewer's own one-level example, whose expected answer is the
+    # same either way round and so pins the shape rather than the order.
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "file.md").write_text("x\n", encoding="utf-8")
+    os.symlink("../outside", root / "linkdir")
+    assert report.resolved_entry_path(root, "linkdir/file.md") \
+        == outside / "file.md"
+    assert report.inside_root(root, walked) is False
+
+
+def test_a_root_named_inside_the_repository_reads_the_repository(
+        tmp_path) -> None:
+    """A SUBDIRECTORY IS NOT A POPULATION. `--is-inside-work-tree` answers true
+    for one, and `git ls-files` run there enumerates that subtree alone while
+    the packet index looks for the changes root beneath it — so a run named at a
+    subdirectory once published a reading in which citations that resolve
+    perfectly well were reported DANGLING, at exit 0.
+
+    The named path is resolved to its work-tree top, on the estate's own idiom
+    (`scripts/sequenced_after.py` and `scripts/scope_globs.py`, both
+    `_git_toplevel`), so the two invocations are the same reading and the
+    reading states the root it read. (Copilot `PRRT_kwDOTAvnrs6jtYen`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"resolves: {CITE}/add-present/proposal.md\n"
+          f"dangles:  {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    at_root = run_json(root)
+    at_subdirectory = run_json(root / "docs")
+
+    assert at_subdirectory["counts"]["distinct_tokens"] == 2
+    assert at_subdirectory["counts"]["remainder_inclusive_tokens"] == 1, \
+        "the citation that resolves at the root resolves here too, which is " \
+        "the thing a subtree reading got wrong"
+    assert at_subdirectory["counts"] == at_root["counts"]
+    assert at_subdirectory["population"] == at_root["population"]
+    assert at_subdirectory["root"] == at_root["root"] == str(root.resolve())
+    assert str(root.resolve()) in run_human(root / "docs"), \
+        "the reading states the root it actually read"
+
+
+def test_the_hop_bound_is_a_declared_rule_read_from_both_sides_of_it(
+        tmp_path) -> None:
+    """THE HOP BOUND IS A RULE OF THIS REPORT, so it is read from both sides.
+
+    A chain AT the bound resolves and is read like any other file; a chain ONE
+    PAST it has no resolved path, takes the NON-FILE term, contributes no token
+    and leaves the arithmetic closed. The term is the honest one rather than a
+    fallback: an entry whose chain the report cannot walk cannot be SAID to
+    leave the root, and saying so would assert a containment fact nothing
+    measured. (Copilot `PRRT_kwDOTAvnrs6jtxUj`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    (root / "reached.md").write_text(f"{CITE}/add-reached/proposal.md\n",
+                                     encoding="utf-8")
+    at_bound = link_chain(root / "at", "l", report.MAX_LINK_HOPS,
+                          "../reached.md")
+    past = link_chain(root / "past", "l", report.MAX_LINK_HOPS + 1,
+                      "../reached.md")
+    commit(root)
+
+    where = root.resolve()
+    assert report.resolved_entry_path(
+        where, str(at_bound.relative_to(root))) == where / "reached.md"
+    assert report.resolved_entry_path(
+        where, str(past.relative_to(root))) is None, \
+        "one link past the bound, and the walk declines rather than guesses"
+
+    data = run_json(root)
+    listed = entries(data)
+    assert f"{CITE}/add-reached/proposal.md" in listed, \
+        "the chain at the bound is read like any other file"
+    population = report.take_reading(where).population
+    assert str(past.relative_to(root)) in population.skipped_non_file
+    assert str(past.relative_to(root)) \
+        not in population.skipped_link_leaving_root, \
+        "an entry with no resolved path is not one that LEAVES the root"
+    assert data["population"]["arithmetic_closes"] is True
+
+
+def test_the_hop_bound_is_looser_than_the_platform_the_report_reads_through(
+        tmp_path) -> None:
+    """THE BOUND IS NEVER THE BINDING CONSTRAINT ON READABLE TEXT.
+
+    The platform refuses to open a chain past its own `MAXSYMLINKS` — measured
+    here rather than hard-coded — and this walk's bound stands above it, so
+    there is no chain whose bytes an ordinary reader of the repository could
+    reach and this walk gives up on.
+    """
+    deepest = deepest_chain_the_platform_reads(tmp_path / "probe")
+    assert deepest > 0, "the platform opens SOME chain, or this measures nothing"
+    assert report.MAX_LINK_HOPS > deepest, (
+        f"the walk's bound ({report.MAX_LINK_HOPS}) must stand above the "
+        f"platform's own ({deepest}), or the report would decline a chain the "
+        f"platform would have delivered")
+
+
+def test_a_chain_that_pushes_its_own_name_back_onto_the_walk_terminates(
+        tmp_path) -> None:
+    """THE BOUND IS LOAD-BEARING AND CYCLE DETECTION WOULD NOT REPLACE IT.
+
+    `l -> l/x` never repeats a walk state: every hop pushes its own name back
+    and `pending` grows by one, so a detector keyed on `(current, pending)`
+    would never fire. Measured over 201 hops: 201 distinct states. Only a bound
+    ends this walk, and the entry lands where an unresolvable one belongs.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("l/x", root / "l")
+    commit(root)
+
+    assert report.resolved_entry_path(root.resolve(), "l") is None
+    population = report.take_reading(root.resolve()).population
+    assert "l" in population.skipped_non_file
+    assert run_json(root)["population"]["arithmetic_closes"] is True
+
+
+def test_an_ambient_git_environment_cannot_redirect_the_reading(
+        tmp_path, monkeypatch) -> None:
+    """EVERY FIGURE IS READ OUT OF ONE INDEX AND ONE OBJECT STORE. `-C` names a
+    directory, and an ambient `GIT_DIR` or `GIT_INDEX_FILE` can still make git
+    answer for another one, so a reading taken through either is not a reading
+    of the root the caller named. (Copilot `PRRT_kwDOTAvnrs6jshO4`.)"""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-mine/proposal.md\n")
+    commit(root)
+
+    elsewhere = new_repo(tmp_path / "elsewhere")
+    write(elsewhere, "docs/theirs.md", f"{CITE}/add-theirs/proposal.md\n")
+    commit(elsewhere)
+
+    clean = entries(run_json(root))
+
+    monkeypatch.setenv("GIT_DIR", str(elsewhere / ".git"))
+    monkeypatch.setenv("GIT_INDEX_FILE", str(elsewhere / ".git" / "index"))
+    monkeypatch.setenv("GIT_WORK_TREE", str(elsewhere))
+    monkeypatch.setenv("GIT_REPLACE_REF_BASE", "refs/not-replace")
+    hostile = entries(run_json(root))
+
+    assert set(hostile) == set(clean), \
+        "the reading is the named root's whatever the ambient environment says"
+    assert f"{CITE}/add-mine/proposal.md" in hostile
+    assert f"{CITE}/add-theirs/proposal.md" not in hostile
+
+
+def test_the_out_of_root_term_takes_exactly_the_entries_whose_path_leaves_the_root(
+        tmp_path) -> None:
+    """Scenario: The out-of-root term takes exactly the entries whose resolved
+    path leaves the root.
+
+    ONE OF EVERY KIND THE TWO TERMS ARGUE OVER, IN ONE TREE, and the term is
+    read BOTH WAYS round: every entry in it resolves outside the root, and every
+    entry resolving INSIDE it is somewhere else. The membership is asserted
+    entry by entry and not only as a count, because a count can be right while
+    the wrong entry stands in it.
+    """
+    root = new_repo(tmp_path / "repo")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "theirs.md").write_text("nothing\n", encoding="utf-8")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink(outside / "theirs.md", root / "leaves.md")
+    os.symlink("docs/gone.md", root / "dangles-inside.md")
+    os.symlink("docs", root / "a-directory")
+    os.symlink("loop-b", root / "loop-a")
+    os.symlink("loop-a", root / "loop-b")
+    # A parent that leaves the root, carrying a tracked regular file: the term
+    # reaches an entry through a PARENT'S link exactly as through its own.
+    write(root, "under/parent/file.md", f"{CITE}/add-beyond/proposal.md\n")
+    commit(root, gitlinks=("installs/vendored",))
+    shutil.rmtree(root / "under" / "parent")
+    os.symlink("../../outside", root / "under" / "parent")
+
+    published = run_json(root)["population"]
+    assert published["skipped_link_leaving_the_root"] == 2
+    assert published["skipped_not_a_file"] == 5, \
+        "the gitlink, the inside dangler, the directory link and both loops"
+    assert published["arithmetic_closes"] is True
+
+    # MEMBERSHIP, ENTRY BY ENTRY: a count can be right while the wrong entry
+    # stands in it, so each term is read back against the predicate that
+    # defines it.
+    where = root.resolve()
+    population = report.take_reading(where).population
+    assert sorted(population.skipped_link_leaving_root) == [
+        "leaves.md", "under/parent/file.md"], \
+        "its own link, and a parent's — and nothing whose path stays inside"
+    for entry in population.skipped_link_leaving_root:
+        walked = report.resolved_entry_path(where, entry)
+        assert walked is not None and not report.inside_root(where, walked), \
+            f"{entry} is in the term, so its resolved path must leave the root"
+    for entry in population.skipped_non_file:
+        walked = report.resolved_entry_path(where, entry)
+        assert walked is None or report.inside_root(where, walked), \
+            f"{entry} resolves inside the root, so it is not this term's"
+
+
+def test_a_tracked_file_under_a_parent_that_links_out_of_the_root_takes_that_term(
+        tmp_path) -> None:
+    """Scenario: A tracked file stands under a parent that links outside the
+    root.
+
+    THE CONTAINMENT TEST IS A PREDICATE OVER THE WHOLE TRACKED PATH. This entry
+    is a tracked REGULAR FILE whose own last component is no link at all, and it
+    stands outside the repository root anyway, because a PARENT of it became a
+    link out of the tree after it was tracked. Counting it among the non-files
+    would say the report declined it for carrying no text, when what it declined
+    was text that is not this corpus's — which is the one fact the out-of-root
+    term exists to carry.
+    """
+    root = new_repo(tmp_path / "repo")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "file.md").write_text(f"{CITE}/add-elsewhere/proposal.md\n",
+                                     encoding="utf-8")
+    write(root, "under/parent/file.md",
+          f"{CITE}/add-through-a-parent/proposal.md\n")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+    # The directory the tracked file stands under BECOMES a link out of the
+    # root. The index still carries `under/parent/file.md` as a regular file at
+    # mode 100644 — nothing is re-added — so the entry reaches the population
+    # exactly as any other tracked file does.
+    shutil.rmtree(root / "under" / "parent")
+    os.symlink("../../outside", root / "under" / "parent")
+    assert not (root / "under" / "parent" / "file.md").is_symlink(), \
+        "the entry's own last component is a regular file and not a link"
+    assert (root / "under" / "parent" / "file.md").is_file(), \
+        "and something readable does stand at it, outside the root"
+    assert "under/parent/file.md" in git(root, "ls-files").stdout
+
+    data = run_json(root)
+    listed = entries(data)
+    assert f"{CITE}/add-elsewhere/proposal.md" not in listed, \
+        "the entry is not read, so the text outside the root mints no token"
+    assert f"{CITE}/add-through-a-parent/proposal.md" not in listed, \
+        "and no token is taken from the entry"
+    assert f"{CITE}/add-absent/proposal.md" in listed
+    population = data["population"]
+    assert population["skipped_link_leaving_the_root"] == 1
+    assert population["skipped_not_a_file"] == 0, \
+        "the term is decided by where the path resolves, not by what the "\
+        "entry's own last component is"
+    assert population["skipped_undecodable"] == 0
+    assert population["files_read"] == 1
+    assert population["tracked_entries_in_scope"] == (
+        population["files_read"]
+        + population["skipped_not_a_file"]
+        + population["skipped_link_leaving_the_root"]
+        + population["skipped_undecodable"])
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_refinement_prefix_matches_on_segment_boundaries_and_spares_the_sibling(
+        tmp_path) -> None:
+    """Scenario: A refinement's prefix has a sibling whose name begins the same
+    way."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/dashboard/a.md", f"{CITE}/add-inside/proposal.md\n")
+    write(root, "docs/dashboard_old/b.md", f"{CITE}/add-sibling/proposal.md\n")
+    commit(root)
+
+    listed = entries(run_json(root, "--exclude", "docs/dashboard"))
+    assert f"{CITE}/add-inside/proposal.md" not in listed
+    assert f"{CITE}/add-sibling/proposal.md" in listed, \
+        "a bare string prefix would have swallowed the sibling"
+
+
+def test_an_include_re_admits_an_excluded_prefix_beside_the_stated_population(
+        tmp_path) -> None:
+    """Scenario: A caller admits one excluded corpus."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    write(root, "tests/fixtures/corpus.md", f"{CITE}/add-fixture/proposal.md\n")
+    commit(root)
+
+    default = run_json(root)
+    widened = run_json(root, "--include", "tests/fixtures")
+    assert f"{CITE}/add-fixture/proposal.md" not in entries(default)
+    listed = entries(widened)
+    assert f"{CITE}/add-fixture/proposal.md" in listed
+    assert f"{CITE}/add-absent/proposal.md" in listed, \
+        "an admission RE-ADMITS beside the stated population, never in place of it"
+    assert (widened["population"]["files_read"]
+            > default["population"]["files_read"])
+    text = run_human(root, "--include", "tests/fixtures")
+    assert "--include" in text
+    assert "tests/fixtures" in text
+    assert "excluded" in text, "the population it actually used is stated too"
+
+
+def test_an_exclude_wins_over_an_include_on_the_same_path_in_either_order(
+        tmp_path) -> None:
+    """Scenario: Two refinements name one path."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    write(root, "tests/fixtures/corpus.md", f"{CITE}/add-fixture/proposal.md\n")
+    commit(root)
+
+    first = run_json(root, "--include", "tests/fixtures",
+                     "--exclude", "tests/fixtures")
+    second = run_json(root, "--exclude", "tests/fixtures",
+                      "--include", "tests/fixtures")
+    assert first["population"]["files_read"] == second["population"]["files_read"]
+    assert set(entries(first)) == set(entries(second))
+    assert f"{CITE}/add-fixture/proposal.md" not in entries(first)
+
+
+def test_a_file_that_does_not_decode_is_skipped_counted_and_never_replacement_decoded(
+        tmp_path) -> None:
+    """Scenario: A tracked file in the population is not valid text."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    (root / "docs" / "blob.bin").write_bytes(
+        b"\xff\xfe" + f"{CITE}/add-binary/proposal.md\n".encode("utf-8"))
+    commit(root)
+
+    data = run_json(root)
+    assert data["population"]["skipped_undecodable"] == 1
+    listed = entries(data)
+    assert f"{CITE}/add-binary/proposal.md" not in listed, \
+        "bytes that are not text can yield matches no record wrote"
+    assert f"{CITE}/add-absent/proposal.md" in listed
+
+
+def test_the_population_arithmetic_closes_entries_equal_files_plus_non_files_plus_undecodable(
+        tmp_path) -> None:
+    """Scenario: A tracked file in the population is not valid text — the
+    closure half, now over all four terms."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    (root / "docs" / "blob.bin").write_bytes(b"\x00\xff\xfe")
+    commit(root, gitlinks=("installs/vendored",))
+
+    population = run_json(root)["population"]
+    assert population["tracked_entries_in_scope"] == (
+        population["files_read"] + population["skipped_not_a_file"]
+        + population["skipped_link_leaving_the_root"]
+        + population["skipped_undecodable"])
+    assert "arithmetic" in run_human(root)
+
+
+def test_the_three_default_exclusions_are_applied_and_named(tmp_path) -> None:
+    """The three exclusions, each with its stated reason. No scenario of its
+    own; the requirement names them in its body."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-kept/proposal.md\n")
+    write(root, f"{CITE}/archive/2026-01-01-old/design.md",
+          f"{CITE}/add-archived/proposal.md\n")
+    write(root, "tests/corpus.md", f"{CITE}/add-tested/proposal.md\n")
+    write(root, "specs/001-feat/plan.md", f"{CITE}/add-spec-kit/proposal.md\n")
+    commit(root)
+
+    listed = entries(run_json(root))
+    assert f"{CITE}/add-kept/proposal.md" in listed
+    for absent in ("add-archived", "add-tested", "add-spec-kit"):
+        assert f"{CITE}/{absent}/proposal.md" not in listed
+    text = run_human(root)
+    assert "frozen record" in text
+    assert "synthetic ids" in text
+    assert "Spec Kit feats" in text
+
+
+def test_a_sentence_terminal_full_stop_is_stripped_and_the_normalization_is_printed(
+        tmp_path) -> None:
+    """Scenario: A citation is followed by sentence punctuation."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"The rule is stated in {CITE}/add-present/proposal.md.\n")
+    commit(root)
+
+    data = run_json(root, "--all")
+    listed = entries(data)
+    record = listed[f"{CITE}/add-present/proposal.md"]
+    assert record["status"] == "resolved"
+    assert record["in_remainder"] is False, \
+        "the record is not reported as carrying a dangling citation"
+    assert "trailing-full-stop-stripped" in record["normalizations"]
+    assert record["occurrences"][0]["raw"].endswith(".")
+    assert "trailing-full-stop-stripped" in run_human(root, "--all")
+
+
+def test_a_token_ending_in_a_hyphen_that_resolves_to_nothing_is_classed_truncated(
+        tmp_path) -> None:
+    """Scenario: A citation is severed across two source lines."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-sever-tail")
+    write(root, "scripts/tool.py",
+          'path = ("' + CITE + '/add-sever-"\n'
+          '        "tail/proposal.md")\n')
+    commit(root)
+
+    listed = entries(run_json(root))
+    severed = listed[f"{CITE}/add-sever-"]
+    assert severed["class"] == "truncated"
+    assert severed["status"] == "dangling"
+    assert f"{CITE}/add-sever-tail/proposal.md" not in listed, \
+        "the rejoined path is not reported as a second citation"
+
+
+def test_a_token_ending_in_a_hyphen_that_resolves_keeps_its_resolved_outcome(
+        tmp_path) -> None:
+    """Scenario: A citation ends in a hyphen the packet id actually carries."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-trailing-")
+    write(root, "docs/notes.md", f"see {CITE}/add-trailing-\n")
+    commit(root)
+
+    listed = entries(run_json(root, "--all"))
+    record = listed[f"{CITE}/add-trailing-"]
+    assert record["status"] == "resolved"
+    assert record["class"] is None, \
+        "a token that resolves is no remainder entry and takes no class"
+    assert record["in_remainder"] is False
+
+
+def test_a_token_ending_in_a_full_stop_that_resolves_keeps_its_resolved_outcome_and_is_never_stripped(
+        tmp_path) -> None:
+    """Scenario: A citation ends in a full stop the packet id actually
+    carries."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-dotted.")
+    write(root, "docs/notes.md", f"see {CITE}/add-dotted.\n")
+    commit(root)
+
+    listed = entries(run_json(root, "--all"))
+    assert f"{CITE}/add-dotted" not in listed, "the full stop was not stripped"
+    record = listed[f"{CITE}/add-dotted."]
+    assert record["status"] == "resolved"
+    assert record["normalizations"] == []
+    assert record["class"] is None
+    assert record["in_remainder"] is False
+
+
+def test_a_token_ending_in_a_grammar_admitted_letter_digit_or_underscore_resolves_unstripped_and_unclassed(
+        tmp_path) -> None:
+    """Scenario: A citation ends in a character the grammar admits and no
+    normalization names."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-underscore_")
+    packet(root, "add-digit9")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-underscore_\nb {CITE}/add-digit9\n")
+    commit(root)
+
+    listed = entries(run_json(root, "--all"))
+    for token in (f"{CITE}/add-underscore_", f"{CITE}/add-digit9"):
+        record = listed[token]
+        assert record["status"] == "resolved"
+        assert record["normalizations"] == []
+        assert record["class"] is None
+
+
+def test_a_trailing_path_separator_is_stripped_unconditionally_and_dedups_onto_its_unslashed_sibling(
+        tmp_path) -> None:
+    """Scenario: A directory citation ends in a path separator."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"slashed {CITE}/add-present/\nbare {CITE}/add-present\n")
+    commit(root)
+
+    data = run_json(root, "--all")
+    listed = entries(data)
+    assert f"{CITE}/add-present/" not in listed
+    record = listed[f"{CITE}/add-present"]
+    assert record["status"] == "resolved", \
+        "the separator is stripped whether or not the token resolves as extracted"
+    assert "trailing-path-separator-stripped" in record["normalizations"]
+    assert len(record["occurrences"]) == 2
+    assert data["counts"]["distinct_tokens"] == 1, \
+        "the stripped token and its unslashed sibling are ONE token"
+
+
+def test_a_trailing_separator_on_a_dangling_citation_is_stripped_too(
+        tmp_path) -> None:
+    """The separator strip stays unconditional on a token that resolves to
+    nothing, which is the other half of the dedup choice."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"slashed {CITE}/add-absent/\nbare {CITE}/add-absent\n")
+    commit(root)
+
+    data = run_json(root)
+    assert data["counts"]["distinct_tokens"] == 1
+    assert data["counts"]["remainder_inclusive_tokens"] == 1
+
+
+def test_the_header_states_the_extraction_pattern_and_all_three_fixed_choices(
+        tmp_path) -> None:
+    """Scenario: A reading is compared against an earlier reading."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    reading = data["reading"]
+    assert reading["extraction_pattern"] == (
+        CITE + r"/[A-Za-z0-9][A-Za-z0-9._\-/]*")
+    assert reading["choice_1_normalization_before_deduplication"] is True
+    assert reading["choice_2_not_a_packet_reference_outside_the_remainder"] is True
+    assert reading[
+        "choice_3_cross_repository_flag_set_by_any_qualified_occurrence"] is True
+    text = run_human(root)
+    assert reading["extraction_pattern"] in text
+    assert "choice (1)" in text
+    assert "choice (2)" in text
+    assert "choice (3)" in text
+
+
+def test_a_committed_report_under_the_scanned_root_is_excluded_from_the_population(
+        tmp_path) -> None:
+    """Scenario: The report's own output is committed into the corpus."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    write(root, "health/citation-remainder.md",
+          f"| {CITE}/add-reported-once/proposal.md |\n"
+          f"| {CITE}/add-reported-twice/proposal.md |\n")
+    commit(root)
+
+    listed = entries(run_json(root))
+    assert f"{CITE}/add-reported-once/proposal.md" not in listed
+    assert f"{CITE}/add-reported-twice/proposal.md" not in listed
+    assert f"{CITE}/add-absent/proposal.md" in listed
+
+
+def test_an_include_naming_the_output_path_is_refused_or_kept_excluded(
+        tmp_path) -> None:
+    """Scenario: A caller's refinement names the report's own output."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    write(root, "health/citation-remainder.md",
+          f"| {CITE}/add-reported-once/proposal.md |\n")
+    commit(root)
+
+    data = run_json(root, "--include", "health/citation-remainder.md")
+    listed = entries(data)
+    assert f"{CITE}/add-reported-once/proposal.md" not in listed, \
+        "no refinement may switch the self-counting back on"
+    assert data["population"]["refinement_named_output_path"] == [
+        "health/citation-remainder.md"]
+    assert "KEPT" in run_human(root, "--include", "health/citation-remainder.md")
+
+
+def test_normalization_happens_before_deduplication(tmp_path) -> None:
+    """Choice (1), asserted directly: one citation spelled two ways is ONE
+    token."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-absent/\nb {CITE}/add-absent\nc {CITE}/add-absent.\n")
+    commit(root)
+
+    data = run_json(root)
+    assert data["counts"]["distinct_tokens"] == 1
+    record = entries(data)[f"{CITE}/add-absent"]
+    assert len(record["occurrences"]) == 3
+    assert {o["raw"] for o in record["occurrences"]} == {
+        f"{CITE}/add-absent/", f"{CITE}/add-absent", f"{CITE}/add-absent."}
+
+
+def test_not_a_packet_reference_is_counted_beside_the_remainder_and_never_inside_it(
+        tmp_path) -> None:
+    """Choice (2), asserted directly: the rule handing a path back to its
+    caller is never a citation the rule failed on."""
+    root = new_repo(tmp_path / "repo")
+    write(root, f"{CITE}/README.md", "the corpus's own readme\n")
+    write(root, "docs/notes.md", f"see {CITE}/README.md\n")
+    commit(root)
+
+    data = run_json(root, "--all")
+    assert data["counts"]["outcomes"]["not_a_packet_reference"] == 1
+    assert data["counts"]["remainder_inclusive_tokens"] == 0
+    assert entries(data)[f"{CITE}/README.md"]["in_remainder"] is False
+
+
+def test_a_dot_segment_inside_a_citation_is_left_exactly_as_it_is(
+        tmp_path) -> None:
+    """A `/./` segment is left alone: the resolver's own `_normalised` already
+    drops it, so this report has no second rule for it."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md", f"{CITE}/add-present/./proposal.md\n")
+    commit(root)
+
+    listed = entries(run_json(root, "--all"))
+    assert f"{CITE}/add-present/./proposal.md" in listed
+    assert listed[f"{CITE}/add-present/./proposal.md"]["status"] == "resolved"
+
+
+def test_the_raw_path_absent_arithmetic_carries_all_five_terms(
+        tmp_path) -> None:
+    """The five-term identity, and the fifth term is not optional: a token the
+    resolver declines to read as a packet reference at all can still have no
+    path in the tree."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-moved", archived="2026-08-01")
+    packet(root, "add-halved")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-moved/proposal.md\n"
+          f"b {CITE}/add-absent/proposal.md\n"
+          f"c {CITE}/add-halved/missing.md\n")
+    commit(root)
+
+    absent = run_json(root)["counts"]["raw_path_absent"]
+    assert absent["closes"] is True
+    assert absent["total"] == (absent["repaired_by_the_identity_rule"]
+                               + absent["dangling_identity_half"]
+                               + absent["dangling_file_half"]
+                               + absent["ambiguous"]
+                               + absent["not_a_packet_reference_with_no_raw_path"])
+    assert absent["repaired_by_the_identity_rule"] == 1
+    assert "raw-path-absent =" in run_human(root)
+
+
+# ==========================================================================
+# REQUIREMENT: A suspected cross-repository citation is flagged and never
+# dropped
+# ==========================================================================
+
+def test_a_flagged_entry_stays_in_the_inclusive_remainder_and_the_filtered_count_prints_beside_it(
+        tmp_path) -> None:
+    """Scenario: A citation carries a repository qualifier nearby."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"codexFactory {CITE}/add-theirs/proposal.md\n"
+          "\n\n\n"
+          f"ours {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    assert listed[f"{CITE}/add-theirs/proposal.md"]["flags"] == [
+        "possibly-cross-repo"]
+    counts = data["counts"]
+    assert counts["remainder_inclusive_tokens"] == 2, "flagged, never dropped"
+    assert counts["remainder_filtered_tokens"] == 1
+    text = run_human(root)
+    assert "INCLUSIVE remainder" in text
+    assert "FILTERED remainder" in text
+
+
+def test_any_one_qualified_occurrence_sets_the_flag_for_the_token(
+        tmp_path) -> None:
+    """Scenario: A citation carries a repository qualifier nearby — choice (3),
+    ANY and never ALL."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/one.md", f"codexFactory {CITE}/add-theirs/proposal.md\n")
+    write(root, "docs/two.md", f"plain {CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert record["flags"] == ["possibly-cross-repo"]
+    assert len(record["occurrences"]) == 2
+    assert [o["signals"] for o in record["occurrences"]].count([]) == 1
+
+
+def test_an_identity_with_one_flagged_and_one_unflagged_token_stays_in_the_filtered_identity_count(
+        tmp_path) -> None:
+    """Scenario: One identity's remainder tokens are part flagged and part
+    not."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"codexFactory {CITE}/add-mixed/one.md\n"
+          f"\n\n\nplain {CITE}/add-mixed/two.md\n")
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    assert listed[f"{CITE}/add-mixed/one.md"]["flags"] == ["possibly-cross-repo"]
+    assert listed[f"{CITE}/add-mixed/two.md"]["flags"] == []
+    counts = data["counts"]
+    assert counts["remainder_inclusive_identities"] == 1
+    assert counts["remainder_filtered_identities"] == 1, \
+        "one unflagged token is a citation this tree still answers for"
+    assert counts["remainder_filtered_tokens"] == 1
+    assert counts["remainder_inclusive_tokens"] == 2
+
+
+def test_an_identity_whose_every_token_is_flagged_leaves_the_filtered_identity_count(
+        tmp_path) -> None:
+    """Scenario: Every one of an identity's remainder tokens is flagged."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"codexFactory {CITE}/add-theirs/one.md\n"
+          f"codexFactory {CITE}/add-theirs/two.md\n")
+    commit(root)
+
+    data = run_json(root)
+    counts = data["counts"]
+    assert counts["remainder_inclusive_tokens"] == 2
+    assert counts["remainder_inclusive_identities"] == 1
+    assert counts["remainder_filtered_tokens"] == 0
+    assert counts["remainder_filtered_identities"] == 0
+
+
+def test_the_filtered_count_and_its_identity_count_print_in_tokens_with_a_reconciling_arithmetic_row(
+        tmp_path) -> None:
+    """Scenario: The filtered reading is printed beside the inclusive one."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/theirs.md",
+          f"codexFactory {CITE}/add-theirs/proposal.md\n")
+    write(root, "docs/ours.md",
+          f"plain {CITE}/add-absent/proposal.md\n")
+    write(root, "docs/present.md",
+          f"codexFactory {CITE}/add-present/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    counts = data["counts"]
+    assert counts["flagged_remainder_entries"] == 1
+    assert counts["flagged_tokens_corpus_wide"] == 2, \
+        "a flagged citation whose raw path stands here never entered the " \
+        "remainder at all"
+    assert counts["remainder_inclusive_tokens"] == (
+        counts["remainder_filtered_tokens"]
+        + counts["flagged_remainder_entries"])
+    text = run_human(root)
+    assert "2 inclusive = 1 filtered + 1 REMAINDER ENTRIES carrying the flag" \
+        in text
+    assert "FILTERED remainder       1 TOKENS" in text
+    assert "filtered IDENTITIES      1 IDENTITIES" in text
+    assert "never the arithmetic row's term" in text
+
+
+def test_a_qualifier_outside_the_window_leaves_the_entry_unflagged_and_the_window_is_stated(
+        tmp_path) -> None:
+    """Scenario: The qualifier sits outside the window."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          "codexFactory is named here\n"
+          "one\ntwo\nthree\nfour\n"
+          f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    assert entries(data)[f"{CITE}/add-absent/proposal.md"]["flags"] == []
+    assert data["reading"]["window_lines_above_the_citing_line"] == 3
+    assert "the citing line plus the 3 lines above it" in run_human(root)
+
+
+def test_a_qualifier_two_lines_above_flags_the_entry(tmp_path) -> None:
+    """Scenario: The repository is named two lines above the citation."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          "codexFactory ships this\n"
+          "an intervening line\n"
+          f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["flags"] == ["possibly-cross-repo"]
+    assert record["occurrences"][0]["signals"] == ["bare-qualifier-word"]
+
+
+def test_a_qualifier_at_the_windows_own_far_edge_flags_the_entry(
+        tmp_path) -> None:
+    """The window's far edge — three lines above, still inside it.
+
+    Owed by no scenario by name; `tasks.md` § 2.1 asks for the fixture and the
+    edge is where an off-by-one lives.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          "codexFactory ships this\n"
+          "one\ntwo\n"
+          f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    assert entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]["flags"] \
+        == ["possibly-cross-repo"]
+
+
+def test_a_qualifier_four_lines_above_leaves_the_entry_unflagged_and_the_window_is_stated(
+        tmp_path) -> None:
+    """Scenario: The repository is named four lines above the citation."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          "codexFactory ships this\n"
+          "one\ntwo\nthree\n"
+          f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    assert entries(data)[f"{CITE}/add-absent/proposal.md"]["flags"] == []
+    assert data["counts"]["flagged_tokens_corpus_wide"] == 0, \
+        "the window is not widened for that entry or for any other"
+    assert data["reading"]["window_lines_above_the_citing_line"] == 3
+
+
+def test_a_path_joined_repository_prefix_flags_the_entry(tmp_path) -> None:
+    """Scenario: A path-joined prefix names another repository."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"see LedgerxFactory/{CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert record["occurrences"][0]["signals"] == ["path-joined-prefix"]
+    assert record["flags"] == ["possibly-cross-repo"]
+
+
+def test_a_path_joined_prefix_matches_the_segment_immediately_before_the_token(
+        tmp_path) -> None:
+    """Scenario: A path-joined prefix stands on a name boundary."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"see xFactories/LedgerxFactory/{CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert "path-joined-prefix" in record["occurrences"][0]["signals"], \
+        "an enclosing directory prefix does not prevent the match"
+
+
+def test_a_longer_word_merely_ending_in_a_repository_name_fires_no_path_joined_signal(
+        tmp_path) -> None:
+    """Scenario: A longer word merely ends in a repository name."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"see myLedgerxFactory/{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["occurrences"][0]["signals"] == []
+    assert record["flags"] == []
+
+
+def test_a_forge_url_naming_another_repository_flags_the_entry(
+        tmp_path) -> None:
+    """Scenario: A forge blob or tree URL carries the citation."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"https://github.com/opensoft/codexFactory/blob/main/"
+          f"{CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert "forge-url" in record["occurrences"][0]["signals"]
+    assert record["flags"] == ["possibly-cross-repo"]
+
+
+def test_a_forge_url_matches_the_repository_segment_and_never_the_owner_segment(
+        tmp_path) -> None:
+    """Scenario: A forge URL names the repository in its own segment."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"https://github.com/some-other-owner/OpsxFactory/tree/main/"
+          f"{CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert "forge-url" in record["occurrences"][0]["signals"], \
+        "the owner segment need not be a vocabulary member"
+
+
+def test_a_forge_url_naming_this_repository_fires_no_signal(tmp_path) -> None:
+    """Scenario: A forge URL names this repository."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"https://github.com/opensoft/openxFactory/blob/main/"
+          f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["occurrences"][0]["signals"] == []
+    assert record["flags"] == []
+
+
+def test_an_adjacent_qualifier_word_flags_the_entry(tmp_path) -> None:
+    """Scenario: A bare qualifier word stands immediately before the token."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"codexFactory {CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert record["occurrences"][0]["signals"] == ["bare-qualifier-word"]
+
+
+def test_a_decorated_qualifier_word_in_another_case_flags_the_entry(
+        tmp_path) -> None:
+    """Scenario: A decorated qualifier word stands immediately before the
+    token."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/emphasis.md",
+          f"**CODEXFACTORY** `{CITE}/add-theirs/one.md`\n")
+    write(root, "docs/quoted.md",
+          f"see [ledgerxfactory] '{CITE}/add-theirs/two.md'\n")
+    commit(root)
+
+    listed = entries(run_json(root))
+    for token in (f"{CITE}/add-theirs/one.md", f"{CITE}/add-theirs/two.md"):
+        assert listed[token]["occurrences"][0]["signals"] == [
+            "bare-qualifier-word"], token
+
+
+def test_a_word_naming_a_repository_outside_the_vocabulary_fires_no_signal(
+        tmp_path) -> None:
+    """Scenario: The word before the token names a repository this
+    specification does not."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"MedxFactory {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["occurrences"][0]["signals"] == []
+    assert record["flags"] == [], "the vocabulary is closed and not widened"
+
+
+def test_a_forge_url_earlier_on_the_line_does_not_flag_a_later_citation(
+        tmp_path) -> None:
+    """THE URL MUST RUN STRAIGHT INTO THE TOKEN. The signal is a relation to the
+    token and not a fact about the line, so a valid forge URL standing earlier
+    on the line with other text between it and the citation fires nothing — the
+    pattern is anchored at the token's own start offset. (Copilot
+    `PRRT_kwDOTAvnrs6jshP7`.)"""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          "see https://github.com/opensoft/codexFactory/blob/main/ and also "
+          f"the packet at {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["flags"] == [], \
+        "a URL that does not end immediately before the token is no signal"
+
+
+def test_a_custody_scheme_earlier_on_the_line_does_not_flag_a_later_citation(
+        tmp_path) -> None:
+    """The custody-locator prefix is likewise a relation to the token: the
+    scheme, one owner segment and `/` must END immediately before it. (Copilot
+    `PRRT_kwDOTAvnrs6jshQE`.)"""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          "recorded under opsx:opensoft/ elsewhere, and separately at "
+          f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["flags"] == [], \
+        "a scheme prefix that does not end immediately before the token is " \
+        "no signal"
+
+
+def test_a_custody_locator_scheme_flags_the_entry(tmp_path) -> None:
+    """Scenario: The citation is written in a custody-locator scheme."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"the register at opsx:opensoft/{CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert record["occurrences"][0]["signals"] == ["custody-locator-scheme"], \
+        "no adjacent qualifier word is required before flagging it"
+
+
+def test_the_custody_locator_prefix_carries_an_owner_segment(
+        tmp_path) -> None:
+    """Scenario: The custody-locator prefix carries an owner segment."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"opsx:another-owner/{CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert "custody-locator-scheme" in record["occurrences"][0]["signals"]
+
+
+def test_the_same_scheme_prefix_introducing_something_that_is_not_a_locator_fires_nothing(
+        tmp_path) -> None:
+    """Scenario: The same scheme prefix introduces something that is not a
+    locator."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"run opsx:convene over {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["occurrences"][0]["signals"] == []
+
+
+def test_a_well_formed_locator_carries_a_multi_segment_path(tmp_path) -> None:
+    """Scenario: A well-formed locator carries a multi-segment path.
+
+    THE LOCATOR IS READ WHOLE. Its path is the cited token itself — the prefix
+    ends where the token begins — so a reader that stopped at the first path
+    segment would be reading a different locator from the one written, and would
+    have to decide what the rest of the line was.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"opsx:opensoft/{CITE}/add-example/proposal.md\n")
+    commit(root)
+
+    listed = entries(run_json(root))
+    token = f"{CITE}/add-example/proposal.md"
+    assert token in listed, \
+        "the whole multi-segment path is the token, not its first segment"
+    assert len(token.split("/")) == 4
+    record = listed[token]
+    assert record["occurrences"][0]["signals"] == ["custody-locator-scheme"]
+    assert record["flags"] == ["possibly-cross-repo"]
+    assert f"{CITE}/add-example" not in listed, \
+        "no second, shorter token is minted by stopping early"
+
+
+@pytest.mark.parametrize("prefix, path, malformation", [
+    ("opsx:open:soft/", "add-absent/proposal.md",
+     "an owner segment containing a colon"),
+    ("opsx:/", "add-absent/proposal.md", "an empty owner segment"),
+    ("opsx:opensoft/extra/", "add-absent/proposal.md",
+     "an owner segment containing a slash"),
+    ("opsx:opensoft/", "add-absent//proposal.md",
+     "a path carrying a repeated slash, which is an empty segment"),
+    ("opsx:opensoft/", "add-absent/proposal.md/",
+     "a path carrying a trailing slash, which is an empty segment too"),
+])
+def test_a_malformed_locator_fires_no_signal(
+        tmp_path, prefix, path, malformation) -> None:
+    """Scenario: A malformed locator fires no signal.
+
+    Each spelling below differs from the firing one in exactly one place, so
+    what is asserted is the refusal and never a line that carried no token to
+    judge — which the last assertion pins.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{prefix}{CITE}/{path}\n")
+    commit(root)
+
+    listed = entries(run_json(root, "--all"))
+    assert listed, f"the line still carries a token to judge ({malformation})"
+    fired = [signal for record in listed.values()
+             for occurrence in record["occurrences"]
+             for signal in occurrence["signals"]]
+    assert "custody-locator-scheme" not in fired, malformation
+
+
+def test_a_trailing_repository_parenthetical_flags_the_entry(
+        tmp_path) -> None:
+    """Scenario: A trailing parenthetical names the repository."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"the twin at {CITE}/add-theirs/proposal.md (codexFactory)\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    assert record["occurrences"][0]["signals"] == ["trailing-parenthetical"]
+
+
+def test_a_parenthetical_follows_the_token_with_at_most_one_space(
+        tmp_path) -> None:
+    """Scenario: A parenthetical follows the token with at most one space."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/glued.md",
+          f"{CITE}/add-theirs/one.md(OpsxFactory)\n")
+    write(root, "docs/spaced.md",
+          f"{CITE}/add-theirs/two.md (openXwallet)\n")
+    commit(root)
+
+    listed = entries(run_json(root))
+    for token in (f"{CITE}/add-theirs/one.md", f"{CITE}/add-theirs/two.md"):
+        assert listed[token]["occurrences"][0]["signals"] == [
+            "trailing-parenthetical"], token
+
+
+def test_a_parenthetical_naming_this_repository_or_standing_further_off_fires_nothing(
+        tmp_path) -> None:
+    """Scenario: A parenthetical names this repository or stands further off."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/ours.md", f"{CITE}/add-absent/one.md (openxFactory)\n")
+    write(root, "docs/far.md", f"{CITE}/add-absent/two.md  (codexFactory)\n")
+    write(root, "docs/busy.md",
+          f"{CITE}/add-absent/three.md (codexFactory, and more)\n")
+    commit(root)
+
+    listed = entries(run_json(root))
+    for token in (f"{CITE}/add-absent/one.md", f"{CITE}/add-absent/two.md",
+                  f"{CITE}/add-absent/three.md"):
+        assert listed[token]["occurrences"][0]["signals"] == [], token
+        assert listed[token]["flags"] == [], token
+
+
+def test_the_report_offers_no_option_that_varies_the_window_or_the_signal_set(
+        tmp_path) -> None:
+    """THE WINDOW AND THE SIGNAL SET ARE PROPERTIES OF THE CAPABILITY AND NOT
+    OF A RUN: both fixed, both closed, and no caller option varies either."""
+    options = set()
+    for action in report.parser()._actions:
+        options.update(action.option_strings)
+    for forbidden in ("--window", "--lines", "--reach", "--signals",
+                      "--signal", "--repos", "--vocabulary", "--cross-repo"):
+        assert forbidden not in options
+    assert report.WINDOW_LINES_ABOVE == 3
+    assert len(report.SIGNALS) == 5
+    assert report.REPOSITORY_VOCABULARY == frozenset({
+        "codexfactory", "opsxfactory", "ledgerxfactory", "openxwallet",
+        "hermes-install", "xfactory-hermes-install"})
+
+
+# ==========================================================================
+# REQUIREMENT: The report classifies only what it can decide mechanically
+# ==========================================================================
+
+def test_an_occurrence_under_a_fixture_location_is_classed_fixture_path_with_its_evidence_named(
+        tmp_path) -> None:
+    """Scenario: The evidence is a path fact."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "examples/demo.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    record = entries(data)[f"{CITE}/add-absent/proposal.md"]
+    assert record["class"] == "fixture-path"
+    assert record["class_evidence"] == ["examples/demo.md"]
+    assert "evidence: examples/demo.md" in run_human(root)
+
+
+def test_every_occurrence_in_a_named_fixture_location_classes_the_entry_fixture_path(
+        tmp_path) -> None:
+    """Scenario: Every occurrence of an entry stands in a fixture location."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "examples/a.md", f"{CITE}/add-absent/proposal.md\n")
+    write(root, "ideation/dashboard/gate-records/b.md",
+          f"{CITE}/add-absent/proposal.md\n")
+    write(root, "contracts/policies/examples/c.yaml",
+          f"cited: {CITE}/add-absent/proposal.md\n")
+    write(root, "experiments/probe/tests/d.py",
+          f"path = '{CITE}/add-absent/proposal.md'\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["class"] == "fixture-path"
+    assert len(record["occurrences"]) == 4
+    assert record["class_evidence"] == [
+        "contracts/policies/examples/c.yaml",
+        "examples/a.md",
+        "experiments/probe/tests/d.py",
+        "ideation/dashboard/gate-records/b.md"]
+
+
+def test_one_occurrence_outside_every_fixture_location_denies_the_fixture_path_class(
+        tmp_path) -> None:
+    """Scenario: One occurrence of an entry stands outside the fixture
+    locations."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "examples/a.md", f"{CITE}/add-absent/proposal.md\n")
+    write(root, "docs/prose.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
+    assert record["class"] == "unclassified", \
+        "the occurrence rule is ALL, never ANY"
+
+
+def test_a_flag_never_enters_the_class_field_and_never_a_class_total(
+        tmp_path) -> None:
+    """Scenario: An entry carries a suspicion and a class at once."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "examples/demo.md",
+          f"codexFactory {CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    record = entries(data)[f"{CITE}/add-theirs/proposal.md"]
+    assert record["class"] == "fixture-path", \
+        "the class field keeps the class the evidence supports"
+    assert record["flags"] == ["possibly-cross-repo"]
+    classes = data["counts"]["classes"]
+    assert sum(classes.values()) == data["counts"]["remainder_inclusive_tokens"]
+    assert "possibly-cross-repo" not in classes
+
+
+def test_a_normalization_class_beats_a_location_class(tmp_path) -> None:
+    """Scenario: Two classes fit one entry."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "examples/demo.md", f"{CITE}/add-absent/walk-<DATE>.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/walk-"]
+    assert record["class"] == "truncated"
+    assert record["class"] != "fixture-path"
+
+
+def test_a_stripped_token_that_still_resolves_to_nothing_is_classed_truncated_not_punctuation_stripped(
+        tmp_path) -> None:
+    """Scenario: A token is both stripped and severed."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"see {CITE}/add-cut-.\n")
+    commit(root)
+
+    data = run_json(root)
+    record = entries(data)[f"{CITE}/add-cut-"]
+    assert record["class"] == "truncated"
+    assert record["class"] != "punctuation-stripped"
+    assert "trailing-full-stop-stripped" in record["normalizations"], \
+        "every normalization is reported whatever class the entry lands in"
+    assert data["counts"]["classes"]["punctuation-stripped"] == 0
+
+
+def test_a_longer_path_on_the_line_that_stands_in_the_tree_classes_the_entry_truncated(
+        tmp_path) -> None:
+    """Scenario: A longer path on the line ends with the token and stands in
+    the tree."""
+    root = new_repo(tmp_path / "repo")
+    write(root, f"vendor/base/{CITE}/add-nested/proposal.md", "a fixture\n")
+    write(root, "docs/manifest.yaml",
+          f"source_path: vendor/base/{CITE}/add-nested/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-nested/proposal.md"]
+    assert record["class"] == "truncated"
+    assert record["class_evidence"] == [
+        f"vendor/base/{CITE}/add-nested/proposal.md"]
+
+
+def test_a_longer_path_on_the_line_that_stands_nowhere_classes_nothing_truncated(
+        tmp_path) -> None:
+    """Scenario: A longer path on the line ends with the token and stands
+    nowhere."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/manifest.yaml",
+          f"source_path: vendor/base/{CITE}/add-nested/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-nested/proposal.md"]
+    assert record["class"] == "unclassified"
+
+
+def test_a_placeholder_opening_after_the_token_classes_the_entry_truncated(
+        tmp_path) -> None:
+    """Scenario: The character after the token opens a placeholder."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"the walk record {CITE}/add-absent/walk<YYYY-MM-DD>.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/walk"]
+    assert record["class"] == "truncated"
+    assert record["status"] == "dangling"
+
+
+def test_ordinary_prose_after_the_token_classes_nothing_truncated(
+        tmp_path) -> None:
+    """Scenario: The character after the token is ordinary prose."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"the walk record {CITE}/add-absent/walk, which is missing\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent/walk"]
+    assert record["class"] == "unclassified"
+
+
+def test_a_path_split_across_two_lines_that_rejoins_and_resolves_is_truncated(
+        tmp_path) -> None:
+    """Scenario: A path split across two source lines rejoins and resolves."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-split", files=("proposal.md",))
+    write(root, "scripts/tool.py",
+          'path = ("' + CITE + '/add-split/prop"\n'
+          '        "osal.md")\n')
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    record = listed[f"{CITE}/add-split/prop"]
+    assert record["class"] == "truncated"
+    assert record["class_evidence"] == [f"{CITE}/add-split/proposal.md"]
+    assert f"{CITE}/add-split/proposal.md" not in listed, \
+        "the rejoined path is not reported as a second citation"
+
+
+def test_a_path_split_across_two_lines_that_still_resolves_to_nothing_is_not_truncated(
+        tmp_path) -> None:
+    """Scenario: A path split across two source lines rejoins and still
+    resolves to nothing."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "scripts/tool.py",
+          'path = ("' + CITE + '/add-nosplit/prop"\n'
+          '        "osal.md")\n')
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-nosplit/prop"]
+    assert record["class"] == "unclassified"
+    assert record["status"] == "dangling"
+    assert record["half"] == "identity", \
+        "the entry is still reported with the resolver outcome it has"
+
+
+def test_two_adjacent_quoted_literals_carry_one_path_between_them(
+        tmp_path) -> None:
+    """Scenario: Two adjacent quoted literals carry one path between them."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-split", files=("proposal.md",))
+    # THE FILE IS NOT PYTHON, and the probe still fires: the verdict is reached
+    # from the quote characters alone and asks nothing of the language the file
+    # is written in. This is the shape measured at
+    # `scripts/doc_health/pin_class.py:1248-1249`.
+    write(root, "docs/vendored.txt",
+          '    path="' + CITE + '/add-split/prop"\n'
+          '         "osal.md",\n')
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    record = listed[f"{CITE}/add-split/prop"]
+    assert record["class"] == "truncated"
+    assert record["class_evidence"] == [f"{CITE}/add-split/proposal.md"]
+    assert f"{CITE}/add-split/proposal.md" not in listed, \
+        "the rejoined path is not reported as a second citation"
+
+
+@pytest.mark.parametrize("name,first,second", [
+    ("a triple quote",
+     '    path="""' + CITE + '/add-split/prop"""',
+     '         """osal.md""",'),
+    ("a backtick",
+     '    path=`' + CITE + '/add-split/prop`',
+     '         `osal.md`,'),
+    ("the other quote character",
+     "    path='" + CITE + "/add-split/prop'",
+     '         "osal.md",'),
+    ("a repeated opening quote",
+     '    path="' + CITE + '/add-split/prop"',
+     '         ""osal.md"",'),
+    ("a raw or prefixed literal",
+     '    path=r"' + CITE + '/add-split/prop"',
+     '         "osal.md",'),
+    ("a backslash in the continuation",
+     '    path="' + CITE + '/add-split/prop"',
+     '         "osal\\x.md",'),
+    ("a quote that is not the line's last character",
+     '    path="' + CITE + '/add-split/prop" +',
+     '         "osal.md",'),
+])
+def test_a_continuation_this_probe_does_not_name_never_classes_truncated(
+        tmp_path, name, first, second) -> None:
+    """Scenario: The continuation is opened by a delimiter this probe does not
+    name."""
+    root = new_repo(tmp_path / "repo")
+    # THE REJOINED PATH WOULD RESOLVE in every case below, so what is asserted
+    # is the probe's refusal and not a rejoin that happened to fail.
+    packet(root, "add-split", files=("proposal.md",))
+    write(root, "docs/vendored.txt", first + "\n" + second + "\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-split/prop"]
+    assert record["class"] != "truncated", \
+        f"{name} is not probe (iii) and the probe is not widened to admit it"
+
+
+def test_a_traversal_segment_is_never_normalized_into_a_citation(
+        tmp_path) -> None:
+    """A `..` SEGMENT IS NOT AN IDENTIFIER'S LAST CHARACTER. The resolver
+    refuses a path that walks UP as a containment rule, and its own
+    normalization then drops a `.` segment — so stripping one dot off `..`
+    would hand it back a path it accepts, and `<root>/<id>/..`, which names the
+    changes root, would be reported as a citation OF `<id>`. A report that
+    rewrites a traversal into a citation is inventing the citation. (Copilot
+    `PRRT_kwDOTAvnrs6jsy7w`.)"""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"up one from a packet that stands here: {CITE}/add-present/..\n"
+          f"up one from a packet that does not:    {CITE}/add-absent/..\n")
+    commit(root)
+
+    data = run_json(root, "--all")
+    listed = entries(data)
+
+    for identity in ("add-present", "add-absent"):
+        token = f"{CITE}/{identity}/.."
+        assert token in listed, "the traversal is reported as it was spelled"
+        record = listed[token]
+        assert record["status"] == "not-a-packet-reference", \
+            "the resolver's refusal of `..` is not undone by a normalization"
+        assert record["normalizations"] == [], \
+            "no full stop is stripped off a `..` segment"
+        assert record["in_remainder"] is False
+
+    assert f"{CITE}/add-present/." not in listed
+    assert f"{CITE}/add-absent/." not in listed
+    assert f"{CITE}/add-absent" not in listed, \
+        "a traversal never becomes a dangling citation of the packet it walks " \
+        "up from"
+    assert data["counts"]["remainder_inclusive_tokens"] == 0
+
+
+def test_a_stripped_token_that_resolves_to_nothing_is_classed_punctuation_stripped(
+        tmp_path) -> None:
+    """Scenario: A stripped token still resolves to nothing."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"The rule is stated in {CITE}/add-absent/proposal.md.\n")
+    commit(root)
+
+    data = run_json(root)
+    record = entries(data)[f"{CITE}/add-absent/proposal.md"]
+    assert record["class"] == "punctuation-stripped"
+    assert "trailing-full-stop-stripped" in record["normalizations"]
+    assert data["counts"]["classes"]["punctuation-stripped"] == 1
+
+
+def test_a_token_that_resolves_once_stripped_is_reported_resolved_and_never_classed(
+        tmp_path) -> None:
+    """Scenario: A token resolves once its trailing character is stripped."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"The rule is stated in {CITE}/add-present/proposal.md.\n")
+    commit(root)
+
+    data = run_json(root, "--all")
+    record = entries(data)[f"{CITE}/add-present/proposal.md"]
+    assert record["status"] == "resolved"
+    assert record["class"] is None, \
+        "a token that resolves is no remainder entry at all"
+    assert "trailing-full-stop-stripped" in record["normalizations"]
+    assert data["counts"]["classes"]["punctuation-stripped"] == 0
+
+
+def test_an_entry_needing_a_reading_of_intent_is_unclassified(
+        tmp_path) -> None:
+    """Scenario: The evidence is a fact about intent."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/design.md",
+          f"a sketch of {CITE}/add-never-existed/proposal.md, perhaps\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-never-existed/proposal.md"]
+    assert record["class"] == "unclassified"
+    assert record["status"] == "dangling"
+
+
+def test_the_class_vocabulary_is_closed_at_four_members(tmp_path) -> None:
+    """Scenario: The evidence is a fact about intent — the closed vocabulary
+    half."""
+    assert report.CLASS_VOCABULARY == (
+        "truncated", "punctuation-stripped", "fixture-path", "unclassified")
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    assert set(data["counts"]["classes"]) == set(report.CLASS_VOCABULARY)
+    for record in entries(data).values():
+        assert record["class"] in report.CLASS_VOCABULARY
+
+
+def test_a_dangling_citation_names_its_half_identity_and_citing_files_and_proposes_no_spelling(
+        tmp_path) -> None:
+    """Scenario: A dangling citation is found."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-halved")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-halved/missing.md\nb {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    file_half = listed[f"{CITE}/add-halved/missing.md"]
+    assert file_half["half"] == "file"
+    assert file_half["identity"] == "add-halved"
+    assert [o["path"] for o in file_half["occurrences"]] == ["docs/notes.md"]
+    identity_half = listed[f"{CITE}/add-absent/proposal.md"]
+    assert identity_half["half"] == "identity"
+    text = run_human(root)
+    for forbidden in ("did you mean", "suggest", "--fix", "diff --git",
+                      "corrected spelling"):
+        assert forbidden not in text.lower()
+
+
+def test_the_report_writes_no_file_it_read(tmp_path) -> None:
+    """Scenario: A dangling citation is found — the no-edit half."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-present/proposal.md\nb {CITE}/add-absent/x.md\n")
+    commit(root)
+    before = {path: path.read_bytes()
+              for path in sorted(root.rglob("*"))
+              if path.is_file() and ".git" not in path.parts}
+
+    run_json(root)
+    run_human(root, "--all", "--tokens")
+
+    after = {path: path.read_bytes()
+             for path in sorted(root.rglob("*"))
+             if path.is_file() and ".git" not in path.parts}
+    assert before == after
+    assert git(root, "status", "--porcelain").stdout == ""
+
+
+def test_the_half_file_outcome_is_not_respelled_as_a_fifth_class(
+        tmp_path) -> None:
+    """`half == file` is an OUTCOME the resolver already returns, not a member
+    of the closed class vocabulary."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-halved")
+    write(root, "docs/notes.md", f"{CITE}/add-halved/missing.md\n")
+    commit(root)
+
+    data = run_json(root)
+    record = entries(data)[f"{CITE}/add-halved/missing.md"]
+    assert record["half"] == "file"
+    assert record["class"] == "unclassified"
+    assert "file-half" not in data["counts"]["classes"]
+
+
+# ==========================================================================
+# REQUIREMENT: The citation remainder report is advisory and gates nothing
+# ==========================================================================
+
+def test_a_remainder_of_any_size_still_exits_zero(tmp_path) -> None:
+    """Scenario: The report finds a remainder."""
+    root = new_repo(tmp_path / "repo")
+    lines = "".join(f"{CITE}/add-absent-{n}/proposal.md\n" for n in range(40))
+    write(root, "docs/notes.md", lines)
+    commit(root)
+
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        code = report.main([str(root)])
+    assert code == 0
+    assert run_json(root)["counts"]["remainder_inclusive_tokens"] == 40
+
+
+def test_a_root_that_is_not_a_git_work_tree_exits_non_zero_and_says_it_did_not_run(
+        tmp_path, capsys) -> None:
+    """Scenario: The report cannot run."""
+    plain = tmp_path / "not-a-repo"
+    plain.mkdir()
+
+    code = report.main([str(plain)])
+    captured = capsys.readouterr()
+    assert code != 0
+    assert "DID NOT RUN" in captured.err
+    assert "No reading was taken" in captured.err
+    assert "remainder" not in captured.out
+
+
+def test_a_root_that_does_not_exist_exits_non_zero_and_says_it_did_not_run(
+        tmp_path, capsys) -> None:
+    """Scenario: The report cannot run — the unreadable-tree arm."""
+    code = report.main([str(tmp_path / "nowhere")])
+    assert code != 0
+    assert "DID NOT RUN" in capsys.readouterr().err
+
+
+def test_an_unreadable_changes_directory_is_a_run_that_could_not_be_taken(
+        tmp_path, capsys) -> None:
+    """Scenario: The report cannot run — an unreadable `openspec/changes`,
+    reached through `PacketIndex` and never through `git`.
+
+    `git ls-files` and the two tree-state gits never read `openspec/changes`
+    at all where nothing under it is tracked, so an unreadable directory
+    there is invisible to every `CouldNotRun` site `git()` itself guards.
+    A citation-shaped token is what forces it open: resolving one builds the
+    `PacketIndex`, whose `_build` (`packet_reference.py`) lists `changes` and
+    its `archive` subdirectory with `Path.iterdir()`, UNCAUGHT — so an
+    unreadable directory there raised past every existing handler and printed
+    a traceback instead of the two-case exit contract's non-zero arm.
+    (Copilot `PRRT_kwDOTAvnrs6jx2sD`.)
+    """
+    if hasattr(os, "geteuid") and os.geteuid() == 0:
+        pytest.skip("root ignores directory permission bits")
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+    changes = root / "openspec" / "changes"
+    changes.chmod(0o000)
+    try:
+        code = report.main([str(root)])
+        captured = capsys.readouterr()
+    finally:
+        # RESTORED BEFORE THE ASSERTIONS AND UNCONDITIONALLY: `tmp_path`'s own
+        # teardown removes this tree afterwards, and a directory still
+        # unreadable when that runs fails the CLEANUP rather than the test.
+        changes.chmod(0o755)
+    assert code == 2
+    assert "THE REPORT DID NOT RUN" in captured.err
+    assert "No reading was taken" in captured.err
+    assert "remainder" not in captured.out
+
+
+def test_a_packet_index_that_cannot_be_built_is_a_run_that_could_not_be_taken(
+        tmp_path, monkeypatch, capsys) -> None:
+    """Scenario: The report cannot run — a `PacketIndex` build failure, over a
+    real repository and no filesystem trick.
+
+    The instrument is `test_a_git_that_cannot_be_run_at_all_is_a_run_that_
+    could_not_be_taken`'s own: an `OSError` at the site is a reading that
+    could not be taken for the same reason a `CouldNotRun` is, whatever raised
+    it — a `PacketIndex` that cannot be built is not only reachable through an
+    unreadable `openspec/changes`, and a monkeypatched constructor proves the
+    normalization holds for the failure ITSELF and not only for one cause of
+    it. (Copilot `PRRT_kwDOTAvnrs6jx2sD`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    def unbuildable(root):
+        raise OSError(13, "Permission denied",
+                      str(root / "openspec" / "changes"))
+
+    monkeypatch.setattr(report.packet_reference, "PacketIndex", unbuildable)
+    code = report.main([str(root)])
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "THE REPORT DID NOT RUN" in captured.err
+    assert "Permission denied" in captured.err
+    assert "No reading was taken" in captured.err
+    assert "remainder" not in captured.out
+
+
+def test_there_is_no_fail_on_flag(tmp_path) -> None:
+    """Scenario: Somebody proposes to gate on the remainder.
+
+    The instrument is `tests/former_id_arrival/`'s `test_there_is_no_bypass_flag`:
+    enumerate every option string the parser returns and assert none of them
+    converts a finding into a failure.
+    """
+    options = set()
+    for action in report.parser()._actions:
+        options.update(action.option_strings)
+    assert options == {"-h", "--help", "--json", "--all", "--tokens",
+                       "--history", "--include", "--exclude"}
+    for forbidden in ("--fail-on", "--fail", "--strict", "--check", "--gate",
+                      "--max", "--threshold", "--error-on", "--exit-code",
+                      "--fix"):
+        assert forbidden not in options
+    assert "--fail-on" not in " ".join(
+        action.help or "" for action in report.parser()._actions
+        if action.option_strings and action.option_strings != ["-h", "--help"]
+    ).replace("no `--fail-on`", ""), "no option offers one"
+
+
+def test_a_findings_run_and_an_empty_run_exit_the_same_way(tmp_path) -> None:
+    """The exit contract has two cases and not three: a remainder and no
+    remainder are the same exit."""
+    empty = new_repo(tmp_path / "empty")
+    write(empty, "docs/notes.md", "no citations here\n")
+    commit(empty)
+    full = new_repo(tmp_path / "full")
+    write(full, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(full)
+
+    for root in (empty, full):
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            assert report.main([str(root)]) == 0
+
+
+# ==========================================================================
+# THE OUTPUT CONTRACT — D2's shape, tested where the spec fixes behavior
+# without giving it a scenario of its own.
+# ==========================================================================
+
+def test_the_human_table_never_headers_a_group_with_a_class_name(
+        tmp_path) -> None:
+    """CLASS IS NEVER A GROUPING LEVEL, in either grouping mode or either
+    part."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "examples/demo.md", f"{CITE}/add-absent/fixture.md\n")
+    write(root, "docs/notes.md",
+          f"see {CITE}/add-absent/walk-<DATE>.md\n"
+          f"and {CITE}/add-other/proposal.md\n")
+    commit(root)
+
+    for mode in ([], ["--tokens"]):
+        text = run_human(root, *mode)
+        assert text.index("CLASSES (counted in TOKENS)") < text.index(
+            "REMAINDER, ITEMIZED"), "the counts block precedes the itemized one"
+        itemized = text[text.index("REMAINDER, ITEMIZED"):]
+        for line in itemized.splitlines():
+            stripped = line.strip()
+            for name in report.CLASS_VOCABULARY:
+                assert stripped != name, line
+                assert not stripped.startswith(f"{name} ("), line
+
+
+def test_grouping_by_token_lists_every_token_that_identity_grouping_lists(
+        tmp_path) -> None:
+    """`--tokens` changes the ORDER things are grouped in and never what is
+    listed."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-absent/one.md\nb {CITE}/add-absent/two.md\n"
+          f"c {CITE}/add-other/three.md\n")
+    commit(root)
+
+    by_identity = run_json(root)
+    by_token = run_json(root, "--tokens")
+    assert set(entries(by_identity)) == set(entries(by_token))
+    assert by_identity["grouping"] == "identity"
+    assert by_token["grouping"] == "token"
+    assert "identities" in by_identity
+    assert "tokens" in by_token
+
+
+def test_the_json_token_object_carries_every_field_the_design_enumerates(
+        tmp_path) -> None:
+    """The `--json` object per token: `token`, `status`, `half`, `identity`,
+    `remainder`, every occurrence as its own `{path:line, raw}` pair, `class`,
+    and every flag as its own field."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"codexFactory {CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-theirs/proposal.md"]
+    for key in ("token", "status", "half", "identity", "remainder",
+                "occurrences", "class", "flags"):
+        assert key in record, key
+    assert record["remainder"] == "proposal.md"
+    occurrence = record["occurrences"][0]
+    assert occurrence["at"] == "docs/notes.md:1"
+    assert occurrence["path"] == "docs/notes.md"
+    assert occurrence["line"] == 1
+    assert occurrence["raw"] == record["token"]
+
+
+def test_the_json_token_object_carries_no_singular_raw_field(
+        tmp_path) -> None:
+    """`raw` IS A PER-OCCURRENCE VALUE AND NEVER A SINGULAR FIELD ON THE
+    TOKEN."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-absent/\nb {CITE}/add-absent\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-absent"]
+    assert "raw" not in record
+    assert {o["raw"] for o in record["occurrences"]} == {
+        f"{CITE}/add-absent/", f"{CITE}/add-absent"}
+
+
+def test_the_human_itemized_entry_shows_a_raw_spelling_only_where_it_differs(
+        tmp_path) -> None:
+    """An occurrence with nothing to show is the ordinary case, not an
+    omission."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-absent/\nb {CITE}/add-absent\n")
+    commit(root)
+
+    text = run_human(root)
+    assert f"(raw: {CITE}/add-absent/)" in text
+    assert f"(raw: {CITE}/add-absent)" not in text
+
+
+def test_the_history_key_is_absent_rather_than_null_when_history_is_not_given(
+        tmp_path) -> None:
+    """The key is ABSENT, never `null`, when `--history` is not given, so two
+    readings differing only in this key's presence are still the same series
+    point."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    assert "history" not in data["identities"][0]
+    for record in entries(data).values():
+        assert "history" not in record
+    assert "history:" not in run_human(root)
+
+
+def test_history_is_probed_per_identity_and_carries_its_four_fields(
+        tmp_path) -> None:
+    """Under `--history`, each identity record carries `{probed, ever_tracked,
+    first_commit, last_commit}` — and no `last_path`."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-was-here")
+    commit(root, "the packet lands")
+    subprocess.run(["rm", "-rf", str(root / "openspec" / "changes"
+                                     / "add-was-here")], check=True)
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-was-here/proposal.md\n"
+          f"b {CITE}/add-never-here/proposal.md\n")
+    commit(root, "the packet goes, the citations stay")
+
+    data = run_json(root, "--history")
+    by_identity = {group["identity"]: group for group in data["identities"]}
+    was = by_identity["add-was-here"]["history"]
+    never = by_identity["add-never-here"]["history"]
+    assert was["probed"] is True
+    assert was["ever_tracked"] is True
+    assert was["first_commit"]
+    assert was["last_commit"]
+    assert "last_path" not in was
+    assert never["ever_tracked"] is False
+    assert never["first_commit"] is None
+    assert never["last_commit"] is None
+    text = run_human(root, "--history")
+    assert "history: never tracked" in text
+    assert "history: tracked" in text
+
+
+def test_a_history_probe_that_could_not_run_is_never_reported_as_never_tracked(
+        tmp_path, monkeypatch) -> None:
+    """A `git log` this report could not RUN is a different fact from a `git
+    log` that found nothing, and reporting the first as the second states
+    `ever_tracked: false` on a history the report never read. It takes the one
+    non-zero exit this capability has, carrying git's own message. (Copilot
+    `PRRT_kwDOTAvnrs6jdTNb`.)"""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    # ONE git is made to fail and every other still answers, so the assertion
+    # below is about the PROBE and not about a tree the report could not open
+    # at all. Patched at the report's own sink rather than on `PATH`, so the
+    # test names the call it is about.
+    real_run = report.subprocess.run
+
+    def only_the_history_walk_fails(args, **kwargs):
+        if "log" in args:
+            return subprocess.CompletedProcess(
+                args, 128, "", "fatal: bad object HEAD\n")
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(report.subprocess, "run", only_the_history_walk_fails)
+
+    buffer = io.StringIO()
+    errors = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        with contextlib.redirect_stderr(errors):
+            code = report.main([str(root), "--json", "--history"])
+
+    assert code != 0, "a probe that could not run is the one non-zero exit"
+    assert '"ever_tracked": false' not in buffer.getvalue(), \
+        "a failed probe is never reported as a history that found nothing"
+    assert "fatal: bad object HEAD" in errors.getvalue(), \
+        "git's own message reaches the caller rather than being swallowed"
+    assert "did not run" in errors.getvalue().lower(), \
+        "the message names a run that did not happen, never a finding"
+
+
+def test_the_history_probe_still_reports_a_genuinely_empty_walk(
+        tmp_path) -> None:
+    """The fix above narrows nothing: a `git log` that RAN and found no add
+    event is still `ever_tracked: false`, which is the fact it always was."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-never-here/proposal.md\n")
+    commit(root)
+
+    data = run_json(root, "--history")
+    history = data["identities"][0]["history"]
+    assert history["probed"] is True
+    assert history["ever_tracked"] is False
+    assert history["first_commit"] is None
+    assert history["last_commit"] is None
+
+
+def test_history_never_changes_a_class_or_a_flag(tmp_path) -> None:
+    """`--history` answers a different question and neither list was ever built
+    to carry it."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "examples/demo.md",
+          f"codexFactory {CITE}/add-theirs/proposal.md\n")
+    commit(root)
+
+    without = entries(run_json(root))
+    with_history = entries(run_json(root, "--history"))
+    for token, record in without.items():
+        assert with_history[token]["class"] == record["class"]
+        assert with_history[token]["flags"] == record["flags"]
+
+
+def test_all_lists_the_outcomes_the_default_only_counts(tmp_path) -> None:
+    """`--all` also lists RESOLVED and NOT-A-PACKET-REFERENCE tokens."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, f"{CITE}/README.md", "the corpus's own readme\n")
+    write(root, "docs/notes.md",
+          f"a {CITE}/add-present/proposal.md\nb {CITE}/README.md\n"
+          f"c {CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    default = entries(run_json(root))
+    everything = entries(run_json(root, "--all"))
+    assert set(default) == {f"{CITE}/add-absent/proposal.md"}
+    assert f"{CITE}/add-present/proposal.md" in everything
+    assert f"{CITE}/README.md" in everything
+
+
+def test_both_formats_carry_the_same_headline_numbers(tmp_path) -> None:
+    """A figure that differed between two formats of one run would be two
+    readings nobody asked for."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"codexFactory {CITE}/add-theirs/proposal.md\n"
+          f"{CITE}/add-present/proposal.md\n{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    text = run_human(root)
+    counts = data["counts"]
+    assert f"distinct tokens          {counts['distinct_tokens']}" in text
+    assert (f"INCLUSIVE remainder      "
+            f"{counts['remainder_inclusive_tokens']} TOKENS") in text
+    population = data["population"]
+    assert (f"tracked ENTRIES in scope "
+            f"{population['tracked_entries_in_scope']}") in text
+    assert f"FILES read               {population['files_read']}" in text
+
+
+def test_the_resolver_sentence_is_printed_verbatim_and_never_reworded(
+        tmp_path) -> None:
+    """D2 output rule 1: print the resolver's own `report` sentence, and do not
+    re-write it in a second voice."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    data = run_json(root)
+    record = entries(data)[f"{CITE}/add-absent/proposal.md"]
+    assert "resolves to NOTHING in this tree" in record["report"]
+    assert record["report"] in run_human(root)
+
+
+def test_the_script_runs_as_a_command_and_prints_json_to_stdout(
+        tmp_path) -> None:
+    """`--json` is a BOOLEAN output-format flag taking no path: it writes to
+    STDOUT and a caller redirects."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), str(root), "--json"],
+        capture_output=True, text=True)
+    assert result.returncode == 0
+    body = json.loads(result.stdout)
+    assert body["counts"]["remainder_inclusive_tokens"] == 1
+
+
+# ==========================================================================
+# THE LIVE CORPUS — invariants only, never a count.
+# ==========================================================================
+
+@pytest.mark.skipif(not (REPO_ROOT / ".git").exists(),
+                    reason="the live corpus needs this repository's own git")
+def test_the_live_corpus_reading_holds_every_invariant_and_asserts_no_count(
+        ) -> None:
+    """The one live-corpus test: the arithmetic closes, every remainder entry
+    names a citing file, the class totals sum to the remainder token total, the
+    AMBIGUOUS row is present, and the exit is 0.
+
+    NO COUNT IS ASSERTED. A count test goes red on every merge into `main` that
+    touches any citation anywhere in the corpus, and the reproduction gate is
+    evidence taken once at a named commit rather than a permanent assertion.
+    """
+    data = run_json(REPO_ROOT)
+    population = data["population"]
+    assert population["arithmetic_closes"] is True
+    assert population["tracked_entries_in_scope"] == (
+        population["files_read"] + population["skipped_not_a_file"]
+        + population["skipped_link_leaving_the_root"]
+        + population["skipped_undecodable"])
+    counts = data["counts"]
+    assert counts["raw_path_absent"]["closes"] is True
+    assert "ambiguous" in counts["outcomes"]
+    assert sum(counts["classes"].values()) == counts[
+        "remainder_inclusive_tokens"]
+    assert counts["remainder_inclusive_tokens"] == (
+        counts["remainder_filtered_tokens"]
+        + counts["flagged_remainder_entries"])
+    assert counts["remainder_inclusive_identities"] <= counts[
+        "remainder_inclusive_tokens"]
+    for record in entries(data).values():
+        assert record["occurrences"], record["token"]
+        assert record["class"] in report.CLASS_VOCABULARY
+        assert record["status"] in ("dangling", "ambiguous")
+
+
+@pytest.mark.skipif(not (REPO_ROOT / ".git").exists(),
+                    reason="the live corpus needs this repository's own git")
+def test_the_report_mints_no_citation_token_of_its_own() -> None:
+    """THE ACCEPTANCE CHECK THIS PACKET UNIQUELY OWES: the script is INSIDE the
+    file population, so a citation-shaped string written in it would be a token
+    the next run counts — the mechanism the design measured at +1 remainder for
+    vendoring its own measurement instrument."""
+    assert report.TOKEN_RE.findall(SCRIPT.read_text(encoding="utf-8")) == []

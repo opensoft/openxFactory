@@ -393,7 +393,13 @@ class CorpusAdapter(Protocol):
 # for which a second, separately-loaded copy of the interface is the point,
 # not a defect:
 #   - by import: `scripts/carve_conformance.py`,
-#     `tests/carve_conformance/home_factory.py` and
+#     `scripts/verify-carve-conformance.py` (for `CorpusRef` alone: RULED
+#     Q-F1 (a)'s fidelity proof asks the reader under test what a
+#     TRANSPOSED corpus holds, and asking takes a reference),
+#     `tests/carve_conformance/home_factory.py`,
+#     `tests/carve_conformance/git_history_factory.py` (the reader whose
+#     corpus is history, and the transposition it addresses -- RULED Q-F1
+#     (a)'s own evidence) and
 #     `tests/carve_conformance/test_verify_carve_conformance.py` (see that
 #     file's own docstring on why a distinct class object here must PASS),
 #     `tests/corpus-adapter/test_interface_closure.py`, and two dashboard

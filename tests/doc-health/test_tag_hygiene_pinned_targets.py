@@ -325,6 +325,128 @@ def test_an_invalid_pin_names_the_shape_tried_the_member_and_the_root(
 
 
 # --------------------------------------------------------------------------
+# THE OPTIONAL MEMBER AT THE ENTRY GRAIN, AT THE FINDING GRAIN
+# `adopt-entry-grain-dispositions-form` § 3.6, REALIZED on Brett Heap's word
+# *"Realize now, land when green"* (2026-09-17, openxFactory #1045 comment
+# 5714433011).
+#
+# WHY THIS CASE EXISTS BESIDE `test_pin_shape_adapter.py`'s CALL. That module's
+# optional arm asserts that the verifier's pure guard and `pin_shapes.judge`
+# AGREE on each malformed entry — necessary, and NOT sufficient for the
+# scenario: a realization could satisfy it while the RENDERED finding still
+# named only `dispositions` and dropped WHICH entry failed. The scenario
+# requires the pass to report an invalid pin NAMING THE MEMBER AND THE ENTRY, so
+# this runs the record through the FAMILY (`fam_tag_hygiene`, the `_pinned_arm`
+# route `test_an_invalid_pin_names_the_shape_tried_the_member_and_the_root`
+# already asserts finding text on) and asserts the entry is named in
+# `Finding.rule`.
+#
+# IN `tmp_path`, like the corrupt-record and symlink cases, and for the same
+# reason: a record carrying a malformed disposition is a tree no repository
+# should carry, and committing one into `fixtures/` would put it in front of
+# every repository-wide sweep.
+# --------------------------------------------------------------------------
+
+def _shape_c(**extra) -> dict:
+    """A COMPLETE published-artifact record — every one of the nine required
+    members present and well-formed — so a `dispositions:` entry can be the SOLE
+    MALFORMED PART, which is what the scenario's WHEN clause requires. A record
+    incomplete for its required members would be judged by the incomplete-record
+    scenario instead and would never reach this one."""
+    integrity = "sha512-" + "A" * 86 + "=="
+    record = {"schema_version": 1, "kind": "pinned_contract_manifest",
+              "revision_kind": "package_integrity", "version": "1.12.0",
+              "integrity": integrity, "shasum": "b" * 40,
+              "package": "@vendor/product",
+              "lockfile": "product.package-lock.json",
+              "lockfile_integrity": integrity, "lockfile_packages": 80,
+              "binary": "product", "capabilities": ["wallet-carve"]}
+    record.update(extra)
+    return record
+
+
+#: One well-formed disposition entry, the shape `contracts/openspec-cli-pin.yaml`
+#: carries six of: every `DISPOSITION_REQUIRED` key truthy, a NON-EMPTY
+#: `cited_to` LIST, a level inside `BLOCKING_LEVELS`, one authority.
+_DISPOSITION = {
+    "repo": "openxFactory",
+    "item": "a-change-id",
+    "path": "openspec/changes/a-change-id/specs/x/spec.md",
+    "finding": "the finding text, matched whole",
+    "why": "one line of reason",
+    "cited_to": ["openspec/specs/document-lifecycle/spec.md:1 — the canon"],
+    "level": "ERROR",
+    "ratified_by": "Brett Heap",
+}
+
+
+@pytest.mark.parametrize("entries,named", [
+    pytest.param([{}],
+                 "`dispositions[1]` missing (repo, item, path, finding, why, "
+                 "cited_to)", id="empty-mapping"),
+    pytest.param([None], "`dispositions[1]` not-a-mapping (None)", id="bare"),
+    pytest.param([dict(_DISPOSITION, cited_to=[])],
+                 "`dispositions[1]` missing (cited_to)", id="empty-citation"),
+    pytest.param([dict(_DISPOSITION), dict(_DISPOSITION, cited_to="x")],
+                 "`dispositions[2]` malformed (cited_to 'x' is not a "
+                 "non-empty list)", id="one-based-second-entry"),
+])
+def test_a_malformed_disposition_entry_is_an_invalid_pin_naming_the_entry(
+        tmp_path, entries, named):
+    """§ 3.6. The record is COMPLETE for its required members and carries a
+    well-formed, NON-EMPTY `capabilities:` enumeration naming the capability —
+    the enumeration prerequisites the scenario's WHEN clause requires, so this
+    scenario and its siblings stay DISJOINT — and its `dispositions:` member is
+    the sole malformed part. The target MUST NOT resolve, and the finding MUST
+    name the member AND the entry at the grain the guard itself names them."""
+    root = _repo(tmp_path / "alpha",
+                 records={"gamma-pin.yaml": _shape_c(dispositions=entries)},
+                 docs={"case.md": _doc("pinned:gamma/wallet-carve")})
+    findings = _run(_context({"alpha": root}))
+
+    assert len(findings) == 1, findings
+    finding = findings[0]
+    assert finding.severity == ERROR
+    assert finding.action == (
+        "complete the pin record for its record shape through a "
+        "neutral-product-pin change (document-lifecycle grammar)")
+    assert finding.rule.startswith(
+        "invalid pin for target=pinned:gamma/wallet-carve at line ")
+    assert "contracts/gamma-pin.yaml in root alpha" in finding.rule
+    # THE MEMBER...
+    assert "dispositions" in finding.rule
+    # ...AND THE ENTRY, which is what a member-grain rendering would drop.
+    assert named in finding.rule, finding.rule
+    assert finding.rule.endswith(
+        "shape (c) the published-artifact pin: " + named)
+
+
+@pytest.mark.parametrize("member", [None, [], [dict(_DISPOSITION)],
+                                    [dict(_DISPOSITION, level="error")],
+                                    [dict(_DISPOSITION), dict(_DISPOSITION)]])
+def test_a_well_formed_or_empty_dispositions_member_still_resolves(
+        tmp_path, member):
+    """§ 3.6's POSITIVE half, so the four refusals above are refusals of the
+    DEFECT and not of the mechanism: an ABSENT member, an explicit `null`, an
+    EMPTY sequence and well-formed entries — a lower-case `level` among them,
+    the guard being case-folded — all resolve and emit NOTHING."""
+    record = _shape_c(dispositions=member)
+    root = _repo(tmp_path / "alpha", records={"gamma-pin.yaml": record},
+                 docs={"case.md": _doc("pinned:gamma/wallet-carve")})
+    assert _run(_context({"alpha": root})) == []
+
+
+def test_an_absent_dispositions_member_resolves_and_is_no_missing_member(
+        tmp_path):
+    """The member stays OPTIONAL and OUT of the shape-guard-required set: a
+    record carrying no `dispositions:` at all resolves, and a pass that reported
+    it as a missing member would be WIDER than the guard it tracks."""
+    root = _repo(tmp_path / "alpha", records={"gamma-pin.yaml": _shape_c()},
+                 docs={"case.md": _doc("pinned:gamma/wallet-carve")})
+    assert _run(_context({"alpha": root})) == []
+
+
+# --------------------------------------------------------------------------
 # (e) — THE SUPERSEDES REFUSAL
 # --------------------------------------------------------------------------
 

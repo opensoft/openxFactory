@@ -44,12 +44,13 @@ from __future__ import annotations
 import ast
 import base64
 import binascii
+import datetime
 import hashlib
 import importlib.util
 import json
 import re
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -999,6 +1000,22 @@ def test_the_consumers_entries_are_out_of_scope_on_this_repositorys_own_tree(
 DEPARTED_SINCE_THE_CAPTURE = {
     ("openxFactory", "add-composed-view-authoring", "ideation-dashboard/spec.md"): {
         "archive": "openspec/changes/archive/2026-09-16-add-composed-view-authoring",
+        # THE BYTES THE EXEMPTION RESTS ON. Proving the packet moved, and that
+        # the delta file came with it, still says nothing about WHAT IS IN that
+        # file: any regular in-tree file at the path would have satisfied the
+        # proof below, and the frozen finding would have counted as departed
+        # while the delta this closure promises to preserve was gone. For a
+        # closure whose entire claim is byte-identical re-homing, that is the
+        # claim itself left unchecked. Measured 2026-09-16 on the archived file
+        # and, independently, on the destination: openDox-spec `main`
+        # `edeed08c` carries the same content at
+        # `openspec/changes/add-composed-view-authoring/specs/ideation-dashboard/spec.md`,
+        # and `git hash-object` returns `b14869b210c92a2d3e71300b4c53a33b95536511`
+        # in BOTH repositories — the same git OBJECT, not merely equal bytes.
+        # This suite can only read the local side; the cross-repository half is
+        # recorded in this pull request and re-checkable by hand.
+        "sha256": "1754e5d3f9803ea80b4e8a177fda8359a96d6c4b1024fce69893ee3cb3d716e1",
+        "bytes": 3557,
         # Quoted from the frozen capture
         # `openspec-1.12.0-validate-changes-strict-report-findings.json`, which
         # is real bytes from `@fission-ai/openspec@1.12.0` on the corpus of
@@ -1024,6 +1041,25 @@ PIN_REPO_ROOT = Path(__file__).resolve().parents[2]
 _ARCHIVE_DIR_NAME = re.compile(r"\d{4}-\d{2}-\d{2}-.+")
 
 
+def _real_calendar_date(value: str) -> bool:
+    """A REAL ISO date, not merely a digit-shaped one.
+
+    `_ARCHIVE_DIR_NAME` alone accepts `2026-99-99-<item>`, and this estate has
+    already ruled on that exact hazard for its provenance dates:
+    `scripts/sequenced_after.py:1215-1224` (`is_moved_on`) says *"A REAL ISO
+    date, not merely a digit-shaped one: the pattern alone accepts `2026-13-45`,
+    and a provenance date nobody can place is no provenance."* The same two
+    checks are applied here for the same reason — the shape regex above, then
+    `datetime.date.fromisoformat` — so a date this map will not place cannot
+    stand as the archive that proves a departure.
+    """
+    try:
+        datetime.date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
 def _departed_since_the_capture(mod, identity, row):
     """True iff `row` IS the captured finding of a change this tree has let go.
 
@@ -1033,14 +1069,31 @@ def _departed_since_the_capture(mod, identity, row):
          verifier's own `normalized_finding` — so the exemption is exactly as
          narrow as `reconcile`'s own key and cannot swallow a different blocking
          finding that happens to share the item and the path;
-      2. the active directory is ABSENT from the working tree;
-      3. the named archive directory is PRESENT in it, AND ITS PATH IS
-         DERIVABLE FROM THE ITEM — a direct child of `openspec/changes/archive/`
-         named `<YYYY-MM-DD>-<item>`. Existence alone was the check until
-         2026-09-16; it proved only that the map named SOME directory, so a
-         stale or mistyped value pointing at an unrelated archived change would
-         have exempted this capture's finding on the strength of that other
-         change having been archived.
+      2. the active path is ABSENT from the working tree — absent, not merely
+         "not a directory". `is_dir()` was the check until 2026-09-16 and it
+         answered False for a DANGLING SYMLINK and for a stale regular file at
+         `openspec/changes/<item>`, either of which is a tree that still carries
+         the change's name while this map calls it gone;
+      3. the named archive directory is PRESENT in it, ITS PATH IS DERIVABLE
+         FROM THE ITEM — a direct child of `openspec/changes/archive/` named
+         `<YYYY-MM-DD>-<item>` — and IT IS REALLY THERE rather than reached
+         through a symlink. Existence alone was the check until 2026-09-16; it
+         proved only that the map named SOME directory, so a stale or mistyped
+         value pointing at an unrelated archived change would have exempted this
+         capture's finding on the strength of that other change having been
+         archived.
+
+    ON THE SYMLINK LEG OF (2) AND (3), the estate has already written the rule
+    down: `scripts/target_release.py:358-385` — *"never a bare `.is_dir()` and
+    never only `.is_symlink()` on the leaf"*. `Path.is_dir()` FOLLOWS symlinks,
+    so a `2026-09-16-<item>` symlink pointing at any directory in or out of this
+    tree satisfied the old proof; and checking the leaf's own symlink-ness would
+    still miss an ANCESTOR being the symlink, because `archive.parent ==
+    archive_root` above is a LEXICAL comparison of two paths built from
+    `PIN_REPO_ROOT` and touches the filesystem not at all. The guard that
+    subsumes both is the one that file settles on: resolving every symlink
+    between the named path and the repository root must land back exactly where
+    a symlink-free tree would have put it.
 
     Together they keep this map from becoming the blanket the pin's own
     `dispositions:` list is so careful not to be.
@@ -1056,10 +1109,21 @@ def _departed_since_the_capture(mod, identity, row):
         "finding, never a path:\n"
         f"  recorded: {expected}\n"
         f"  captured: {row['normalized']}")
-    active = PIN_REPO_ROOT / "openspec" / "changes" / row["item"]
-    assert not active.is_dir(), (
+    changes_dir = PIN_REPO_ROOT / "openspec" / "changes"
+    assert changes_dir.resolve(strict=True) == changes_dir, (
+        f"{key}: {changes_dir} resolves to {changes_dir.resolve(strict=True)}, "
+        "so an ANCESTOR of the active path is a symlink. Absence measured "
+        "through it is absence from SOME OTHER TREE — both predicates below go "
+        "false for an item that simply is not in the tree the link points at, "
+        "and the exemption would be granted on the strength of that. "
+        "`PIN_REPO_ROOT` is already resolved, so this equality is the same "
+        "containment the archive side asserts")
+    active = changes_dir / row["item"]
+    assert not active.exists() and not active.is_symlink(), (
         f"{key} is listed as departed but {active} still stands; a live change "
-        "may not borrow this exemption")
+        "may not borrow this exemption. (`exists()` answers for what a symlink "
+        "POINTS AT, so `is_symlink()` is asked beside it: a DANGLING link is the "
+        "one entry that exists as a tree entry while `exists()` says no.)")
     archive = PIN_REPO_ROOT / entry["archive"]
     archive_root = PIN_REPO_ROOT / "openspec" / "changes" / "archive"
     assert archive.parent == archive_root, (
@@ -1074,9 +1138,89 @@ def _departed_since_the_capture(mod, identity, row):
         "a stale or mistyped value that happened to name some OTHER archived "
         "change would otherwise exempt this capture's finding on the strength "
         "of an unrelated directory existing")
+    assert _real_calendar_date(archive.name[:len("YYYY-MM-DD")]), (
+        f"{key} names {archive.name} as its archive, whose date prefix "
+        f"{archive.name[:len('YYYY-MM-DD')]!r} is DIGIT-SHAPED BUT NOT A DATE. "
+        "A dated archive nobody can place is no date, and the regex above cannot "
+        "tell the difference — see `scripts/sequenced_after.py:1215-1224`, where "
+        "this estate already refused the same thing for provenance dates")
     assert archive.is_dir(), (
         f"{key} names {entry['archive']} as its archive and no such directory "
         "exists")
+    assert archive.resolve(strict=True) == PIN_REPO_ROOT / entry["archive"], (
+        f"{key} names {entry['archive']} as its archive, but resolving that "
+        f"path lands at {archive.resolve(strict=True)} instead of "
+        f"{PIN_REPO_ROOT / entry['archive']}. A symlink — at the leaf or at any "
+        "ancestor — means the directory this proof read is not the one the map "
+        "named, so the departure is unproven")
+    # AND THE DELTA ITSELF, not merely the directory that should contain it.
+    # Everything above proves the PACKET moved; none of it proves the file the
+    # captured finding is ABOUT came with it, so the exemption would still be
+    # granted over an empty shell — a directory whose
+    # `specs/<capability>/spec.md` had been deleted, or replaced by a symlink
+    # out of the tree. For a change whose whole claim is that the re-homed delta
+    # is preserved BYTE-IDENTICALLY, a departure proof that passes with that
+    # delta missing proves the wrong thing. `row["path"]` is the finding's own
+    # capability-relative path, so this is the very file the capture complained
+    # about, reached under the archive the map named.
+    # THE PATH IS DATA, AND `/` TRUSTS IT. `row["path"]` comes out of the frozen
+    # capture, and `Path("/a") / "specs" / "/elsewhere"` is `/elsewhere` — the
+    # archive prefix is DISCARDED when the right-hand side is absolute. The
+    # containment equality below would then compare the escaped path with
+    # ITSELF and pass, and the departure would be proved against a file outside
+    # the archive the map named. Not theoretical: this very capture already
+    # holds an absolute value under a `path` key (a scratchpad root from the
+    # run that produced it), so the reader must not assume the shape it wants.
+    # `..` is refused for the same reason from the other direction.
+    # (Found by Copilot's review at `25988caf`.)
+    rel = PurePosixPath(row["path"])
+    assert not rel.is_absolute() and ".." not in rel.parts, (
+        f"{key} names a delta path that is not archive-relative: "
+        f"{row['path']!r}. An absolute path makes `archive / \"specs\" / path` "
+        "discard the archive entirely, and `..` walks out of it; either way the "
+        "proof below would be about a file this map never named")
+    # THE ROOT MUST BE PROVEN BEFORE IT CAN BE TRUSTED AS ONE. Resolving
+    # `archive/specs` and then comparing against the RESULT makes a symlink there
+    # the trusted root: an external file would satisfy both the equality and the
+    # `is_relative_to` below, because both would be measured against the escaped
+    # directory. `archive` itself is already asserted to resolve to its lexical
+    # path above; this completes the chain for the one segment between it and the
+    # delta. Same shape as the repository-wide guard in
+    # `scripts/target_release.py:354-396`.
+    # (Found by Copilot's review at `26a8ed26` — my own round-17 fix, one segment short.)
+    specs_root = archive / "specs"
+    assert specs_root.resolve(strict=True) == specs_root, (
+        f"{key}: {specs_root} resolves to {specs_root.resolve(strict=True)}, so "
+        "the directory this proof would treat as the archive's spec root is not "
+        "the archive's spec root. Containment measured against an escaped root "
+        "is not containment")
+    delta = specs_root / rel
+    assert delta.is_file(), (
+        f"{key} names an archive that does not carry the delta the captured "
+        f"finding is about: {delta} is not a regular file. The packet may have "
+        "moved, but the finding's own subject did not come with it")
+    resolved = delta.resolve(strict=True)
+    assert resolved == specs_root / rel and resolved.is_relative_to(specs_root), (
+        f"{key}: {delta} resolves to {resolved}, outside the archive the map "
+        f"named ({specs_root}). The bytes this exemption rests on are not the "
+        "archived packet's. Containment is asserted against the RESOLVED "
+        "archive root rather than against a path rebuilt from the same "
+        "untrusted string, so an escape cannot satisfy this by being compared "
+        "with itself")
+    # AND WHAT IS IN IT. Everything above is about WHERE the file is, and a
+    # departure granted on location alone is granted to ANY regular in-tree file
+    # that happens to sit at the path. The exemption says a captured finding may
+    # be ignored BECAUSE its subject moved intact; intactness is therefore the
+    # part that has to be measured, not the part that may be assumed.
+    measured = hashlib.sha256(delta.read_bytes()).hexdigest()
+    assert (measured, delta.stat().st_size) == (entry["sha256"], entry["bytes"]), (
+        f"{key} names an archive whose delta is NOT the one this map measured. "
+        f"{delta.relative_to(PIN_REPO_ROOT)} reads sha256 {measured} / "
+        f"{delta.stat().st_size} bytes; the entry records {entry['sha256']} / "
+        f"{entry['bytes']} bytes. The packet moved and a file is there, but its "
+        "bytes are not the bytes the exemption was granted for. A closure that "
+        "claims BYTE-IDENTICAL re-homing cannot prove departure with an unread "
+        "file")
     return True
 
 
@@ -1410,6 +1554,69 @@ def test_the_real_pin_disposes_exactly_the_captured_findings(mod, pin):
         "either disposed by the live pin or accounted for by a departure")
     assert [row for row in undispositioned if row not in departed] == []
     assert stale == []
+
+
+def test_every_departure_entry_is_matched_by_exactly_one_captured_finding(mod):
+    """THE REVERSE DIRECTION, and it is this pull request's own doctrine turned
+    on this pull request's own map.
+
+    `_departed_since_the_capture` is only ever REACHED by a capture row that
+    already matched an entry, so the forward direction proves that a row which
+    claims an exemption really earned it. It proves nothing about an entry NO
+    ROW REACHES. A stale or invented key would sit here green — documenting an
+    exemption the reconciliation suite never exercises — which is precisely what
+    `validate-openspec-cli-pin.py` refuses for the pin's own `dispositions:`
+    list with `pin-disposition-stale`: *"A disposition matched by nothing is a
+    statement about the PIN — the exception outlived the condition it was
+    granted for."* This map is a suppression list of the same kind and gets the
+    same rule, derived from the FROZEN CAPTURE rather than from the map.
+
+    BOTH failure modes are named, because they are different bugs. UNUSED means
+    the entry outlived its finding (retire it). MULTIPLY MATCHED means one key
+    covers more than one captured finding, so the exemption is wider than the
+    one finding a departure is allowed to excuse — the blanket the header of
+    this map says a departure is NOT.
+
+    Raised by Copilot on PR #1056 and taken rather than answered, for the same
+    reason the pair-valued form above was: the reading was right.
+    """
+    payload = (FIXTURES /
+               "openspec-1.12.0-validate-changes-strict-report-findings.json"
+               ).read_text(encoding="utf-8")
+    items, _ = mod.parse_report(payload, ["validate", "--changes"])
+    captured = [row for row in mod.collect_findings(items, "--changes")
+                if row["blocking"]]
+    matched: dict[tuple[str, str, str], list[dict]] = {
+        key: [] for key in DEPARTED_SINCE_THE_CAPTURE}
+    for row in captured:
+        key = ("openxFactory", row["item"], row["path"])
+        if key in matched:
+            matched[key].append(row)
+
+    unused = sorted(key for key, rows in matched.items() if not rows)
+    assert not unused, (
+        f"{len(unused)} departure entr(y/ies) match NOTHING in the frozen "
+        f"capture: {unused}. The capture is never re-cut, so an entry nothing "
+        "matches did not become stale — it was never right, or the finding it "
+        "names was edited. Retire it or correct it; a departure that excuses no "
+        "captured finding is a statement about this map, not about the tree")
+    multiple = sorted((key, len(rows)) for key, rows in matched.items()
+                      if len(rows) > 1)
+    assert not multiple, (
+        f"{len(multiple)} departure entr(y/ies) match MORE THAN ONE captured "
+        f"finding: {multiple}. A departure exempts ONE captured finding, never "
+        "a path — the same narrowing `_departed_since_the_capture` enforces "
+        "forward with `normalized_finding`")
+
+    # AND THE RECORDED TEXT IS THE CAPTURED TEXT, checked here rather than only
+    # on the forward path, so this test stands alone: it does not depend on the
+    # reconciliation above having routed that row through the departure arm.
+    for key, rows in matched.items():
+        expected = mod.normalized_finding(DEPARTED_SINCE_THE_CAPTURE[key]["finding"])
+        assert rows[0]["normalized"] == expected, (
+            f"{key} records a finding that is not the capture's at that path:\n"
+            f"  recorded: {expected}\n"
+            f"  captured: {rows[0]['normalized']}")
 
 
 def test_an_unparseable_verdict_refuses_rather_than_degrading(mod):
@@ -2561,10 +2768,15 @@ def test_a_stale_disposition_refuses_so_an_exception_cannot_outlive_its_cause(
     """THE ASYMMETRY, pinned.
 
     The same pin, the same repository, and a corpus in which the dispositioned
-    finding NO LONGER OCCURS — which is exactly the state the day
-    `add-composed-view-authoring` archives out of the `--all` corpus. The run
-    must REFUSE (exit 2) until the entry is deleted, so the archive itself is
-    the event that forces somebody to re-read the exception.
+    finding NO LONGER OCCURS — which is exactly the state
+    `add-composed-view-authoring` left the `--all` corpus in on 2026-09-16, and
+    it got there by a route this docstring did not predict: CLOSED AS RE-HOMED
+    to `opensoft/openDox` under RULING Q6, its one open task carried to the
+    receiving repository, rather than archived the day a human took that task.
+    The run must REFUSE (exit 2) until the entry is deleted, so the DEPARTURE —
+    by whichever route — is the event that forces somebody to re-read the
+    exception. The scenario below never depended on the route, which is the
+    point the real exit made for it.
     """
     calls, served = fake_npm
     served["verdict"] = 0
