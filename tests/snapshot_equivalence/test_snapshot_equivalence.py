@@ -463,6 +463,85 @@ def test_a_gitlink_that_cannot_be_read_refuses_rather_than_passing(
     assert "records no gitlink" in caught.value.detail
 
 
+def test_a_dirty_leg_worktree_refuses_because_the_tree_is_what_renders(
+        monkeypatch):
+    """The gitlink comparison is not enough on its own, and this is why.
+
+    `carved_reach.module()` imports `openxdox.generator` off `openXdox/code/
+    src` ON DISK, not out of git, so an uncommitted edit under a leg renders
+    bytes that are not the pinned commit's while every sha comparison still
+    passes and the verdict still names that commit — the same false evidence
+    line one layer lower (Copilot, PR #1105 round 2).
+
+    Driven through `worktree_dirt`, which is the seam, rather than by writing
+    into a real submodule: a test that dirties a leg and is killed before its
+    cleanup leaves every later run of this gate refusing, which is a worse
+    failure than the one it would be proving.
+    """
+    monkeypatch.setattr(MODULE, "worktree_dirt",
+                        lambda leg: [" M src/openxdox/generator.py"])
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.verify_pins()
+    assert caught.value.code == "equivalence-reach-unavailable"
+    assert "DIRTY" in caught.value.detail
+    assert "src/openxdox/generator.py" in caught.value.detail
+
+
+def test_a_status_read_that_did_not_answer_is_not_read_as_clean(monkeypatch):
+    """`None` is not "clean" — `carved_reach`'s rule, held one layer up. A
+    status read that failed learned nothing, and a pin this runner could not
+    verify is a pin it must not report."""
+    monkeypatch.setattr(MODULE, "worktree_dirt", lambda leg: None)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.verify_pins()
+    assert caught.value.code == "equivalence-reach-unavailable"
+    assert "went unmeasured" in caught.value.detail
+
+
+def test_worktree_dirt_reads_a_real_repository_both_ways(tmp_path):
+    """The seam the two tests above drive, measured against real git rather
+    than assumed: clean answers `[]`, a stray file answers with it, and a
+    directory that is no repository at all answers `None` — which is the
+    distinction the refusals rest on."""
+    repo = tmp_path / "leg"
+    repo.mkdir()
+    for args in (("init", "-q"), ("config", "user.email", "t@example.invalid"),
+                 ("config", "user.name", "t")):
+        assert MODULE._git(repo, *args).returncode == 0
+    (repo / "a.txt").write_text("one\n", encoding="utf-8")
+    assert MODULE._git(repo, "add", "a.txt").returncode == 0
+    assert MODULE._git(repo, "commit", "-qm", "seed").returncode == 0
+    assert MODULE.worktree_dirt(repo) == []
+    (repo / "b.txt").write_text("stray\n", encoding="utf-8")
+    dirt = MODULE.worktree_dirt(repo)
+    assert dirt and any("b.txt" in entry for entry in dirt), dirt
+    (repo / "b.txt").unlink()
+    (repo / "a.txt").write_text("two\n", encoding="utf-8")
+    dirt = MODULE.worktree_dirt(repo)
+    assert dirt and any("a.txt" in entry for entry in dirt), dirt
+    assert MODULE.worktree_dirt(tmp_path / "not-a-repository-at-all") is None
+
+
+def test_the_git_scrub_covers_the_channel_that_propagates_dash_c(monkeypatch):
+    """`GIT_CONFIG_PARAMETERS` is how `git -c` reaches a child process, so an
+    ambient one would still alter these supposedly hermetic object reads
+    (Copilot, PR #1105 round 2). Asserted over the built environment, not over
+    the constant, because what matters is what the subprocess is handed."""
+    monkeypatch.setenv("GIT_CONFIG_PARAMETERS", "'core.abbrev=4'")
+    monkeypatch.setenv("GIT_DIR", "/nowhere/else.git")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "core.abbrev")
+    monkeypatch.setenv("GIT_ALTERNATE_OBJECT_DIRECTORIES", "/nowhere/objects")
+    environment = MODULE._git_environment()
+    for name in ("GIT_CONFIG_PARAMETERS", "GIT_DIR", "GIT_CONFIG_KEY_0",
+                 "GIT_ALTERNATE_OBJECT_DIRECTORIES"):
+        assert name not in environment, f"{name} survived the scrub"
+    assert environment["GIT_CONFIG_NOSYSTEM"] == "1"
+    assert environment["GIT_NO_REPLACE_OBJECTS"] == "1"
+    # …and the scrub does not sterilise the rest of the environment: a run
+    # that lost PATH would fail for a reason that is not about git.
+    assert "PATH" in environment
+
+
 def test_the_pins_this_run_reports_are_the_ones_it_verified(shipped):
     """Both levels of both legs, and the reported pair is a subset of them."""
     pins = shipped["pins"]

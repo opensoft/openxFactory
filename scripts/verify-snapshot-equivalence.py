@@ -303,6 +303,17 @@ _SCRUBBED_GIT_ENVIRONMENT = frozenset({
     "GIT_NAMESPACE", "GIT_CEILING_DIRECTORIES", "GIT_REPLACE_REF_BASE",
     "GIT_CONFIG", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM",
     "GIT_CONFIG_COUNT", "GIT_ATTR_NOSYSTEM", "GIT_NO_REPLACE_OBJECTS",
+    # `GIT_CONFIG_PARAMETERS` IS THE ONE THAT IS EASY TO MISS, AND IT IS THE
+    # WHOLE CHANNEL `git -c` PROPAGATES THROUGH (Copilot, PR #1105 round 2).
+    # Disabling the global and system files and dropping the indexed
+    # `GIT_CONFIG_KEY_n`/`VALUE_n` pairs leaves ambient `-c` settings — a
+    # `core.alternateRefsCommand`, an `include.path` — still reaching these
+    # supposedly hermetic object reads. `scripts/hermes_runtime_validation/
+    # content.py`:16-25 already scrubs it; REGISTERED RESIDUE:
+    # `carved_reach._sanitized_git_environment()` does NOT, and that is a
+    # finding against the resolver rather than against this file, owed
+    # wherever `carved_reach` is next opened.
+    "GIT_CONFIG_PARAMETERS",
 })
 _INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(KEY|VALUE)_\d+")
 
@@ -638,6 +649,30 @@ def recorded_gitlink(parent: Path, path: str) -> tuple[str | None, str]:
     return head_oid, "HEAD"
 
 
+#: The two legs whose WORKING TREES this runner actually imports from.
+#: `carved_reach.module()` resolves `openxdox.generator` off `openXdox/code/
+#: src` on disk — not out of git — so these two are the ones whose cleanliness
+#: is load-bearing. The two assembly roots are deliberately NOT here: their
+#: only content that matters is the gitlink, and a staged or unstaged gitlink
+#: move is already what `recorded_gitlink()` and the comparison below read.
+IMPORTED_LEGS: tuple[str, ...] = ("openDox/code", "openXdox/code")
+
+
+def worktree_dirt(leg: Path) -> list[str] | None:
+    """`git status --porcelain` for one leg: the entries, or `None` when the
+    question could not be ASKED.
+
+    `None` is not "clean". A status read that failed or timed out learned
+    nothing, and `carved_reach`'s rule holds one layer up as it does
+    everywhere else in this file: a query that went unanswered must never
+    stand in for the tree's own answer.
+    """
+    done = _git(leg, "status", "--porcelain", "--untracked-files=normal")
+    if done is None or done.returncode != 0:
+        return None
+    return [line for line in done.stdout.splitlines() if line.strip()]
+
+
 def verify_pins() -> dict[str, str]:
     """Every nested leg is CHECKED OUT AT THE COMMIT ITS PARENT RECORDS.
 
@@ -677,9 +712,15 @@ def verify_pins() -> dict[str, str]:
         if checked_out is None:
             raise EquivalenceRefusal(
                 "equivalence-reach-unavailable",
-                f"`git -C {leg} rev-parse HEAD` did not answer, so the "
-                f"revision {path} is checked out at cannot be compared with "
-                f"the {recorded[:12]} its parent records (read from {source})")
+                f"`git -C {leg} rev-parse HEAD` FAILED or did not answer "
+                f"within {_GIT_TIMEOUT}s, so this run never learned which "
+                f"revision {leg} is checked out at and cannot compare it "
+                f"with the {recorded} its parent {parent} records (read from "
+                f"{source}). That is an UNREADABLE checkout — a leg with no "
+                "usable git metadata, a copied source tree, a store whose "
+                "objects are not there — and it is a different condition from "
+                "a checkout that is simply off its pin, which this runner "
+                f"reports separately. Run `{INIT_COMMAND_HINT}`")
         if checked_out != recorded:
             raise EquivalenceRefusal(
                 "equivalence-reach-unavailable",
@@ -689,6 +730,37 @@ def verify_pins() -> dict[str, str]:
                 "them renders something this run has no name for — run "
                 f"`{INIT_COMMAND_HINT}` to put the checkout back on its pin")
         heads[f"{parent_rel}/{path}".lstrip("./")] = checked_out
+    # AND THE TREE ON DISK IS THE COMMIT, NOT MERELY AT IT (Copilot, PR #1105
+    # round 2). `carved_reach.module()` imports off the nested WORKING TREE,
+    # so an uncommitted edit under a leg's `src/` renders bytes that are not
+    # the pinned commit's while every check above still passes and the verdict
+    # still names that commit — the same false evidence line the gitlink
+    # comparison exists to prevent, arriving one layer lower.
+    # `verify-openxdox-pin.py` records this exact gap in terms; here it is
+    # closed rather than recorded, because this runner's whole output is a
+    # claim about which commit rendered.
+    for leg_path in IMPORTED_LEGS:
+        leg = (ROOT / leg_path).resolve()
+        dirt = worktree_dirt(leg)
+        if dirt is None:
+            raise EquivalenceRefusal(
+                "equivalence-reach-unavailable",
+                f"`git -C {leg} status --porcelain` FAILED or did not answer "
+                f"within {_GIT_TIMEOUT}s, so whether the tree this run "
+                f"imports from IS the commit {heads[leg_path]} it is checked "
+                "out at went unmeasured. A pin this runner could not verify "
+                "is a pin it must not report")
+        if dirt:
+            listed = "\n".join(f"    {entry}" for entry in dirt[:20])
+            more = (f"\n    … {len(dirt) - 20} more" if len(dirt) > 20 else "")
+            raise EquivalenceRefusal(
+                "equivalence-reach-unavailable",
+                f"{leg} is checked out at {heads[leg_path]} but its working "
+                f"tree is DIRTY, and this runner imports from the tree:\n"
+                f"{listed}{more}\n"
+                "Rendering it would produce bytes that are not that commit's "
+                "while the verdict named that commit. Commit the edit, stash "
+                f"it, or `git -C {leg} checkout -- .` and re-run")
     return heads
 
 
