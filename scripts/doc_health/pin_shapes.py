@@ -70,16 +70,16 @@ KIND = "pinned_contract_manifest"
 # ---------------------------------------------------------------------------
 _COMMIT_RE = re.compile(r"^[0-9a-fA-F]{40}$")        # verify-openxwallet-pin.py:116
 _SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")        # verify-openxwallet-pin.py:117
-_VERSION_RE = re.compile(                            # validate-openspec-cli-pin.py:372
+_VERSION_RE = re.compile(                            # validate-openspec-cli-pin.py:379
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
-_INTEGRITY_RE = re.compile(r"^sha512-[A-Za-z0-9+/]+={0,2}$")   # :375
-_SHA1_RE = re.compile(r"^[0-9a-fA-F]{40}$")                    # :376
-_PACKAGE_RE = re.compile(r"^(?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*$")   # :377
-_LOCKFILE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.json$")  # :671
+_INTEGRITY_RE = re.compile(r"^sha512-[A-Za-z0-9+/]+={0,2}$")   # validate-openspec-cli-pin.py:382
+_SHA1_RE = re.compile(r"^[0-9a-fA-F]{40}$")                    # validate-openspec-cli-pin.py:383
+_PACKAGE_RE = re.compile(r"^(?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*$")   # validate-openspec-cli-pin.py:384
+_LOCKFILE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.json$")  # validate-openspec-cli-pin.py:678
 
 #: The digest kinds a published-artifact pin may declare as its referent
-#: (`validate-openspec-cli-pin.py:382`).
+#: (`validate-openspec-cli-pin.py:389`).
 CONTENT_ADDRESSED_KINDS: tuple[str, ...] = ("package_integrity",)
 
 #: The one digest definition the shape-(b) verifiers implement
@@ -177,7 +177,7 @@ def _is_version(value) -> bool:
 
 def _is_integrity(value) -> bool:
     """`sha512-<base64>` decoding to the 64 bytes a SHA-512 digest occupies
-    (`validate-openspec-cli-pin.py:619-643`). A truncated address addresses
+    (`validate-openspec-cli-pin.py:626-650`). A truncated address addresses
     nothing, so the length is part of the form rather than a later check."""
     if not isinstance(value, str) or not _INTEGRITY_RE.match(value.strip()):
         return False
@@ -202,7 +202,7 @@ def _is_lockfile_name(value) -> bool:
 
 def _is_lockfile_packages(value) -> bool:
     """A positive whole number, however the record spells it
-    (`validate-openspec-cli-pin.py:731-745`, which takes `int(str(...).strip())`
+    (`validate-openspec-cli-pin.py:738-752`, which takes `int(str(...).strip())`
     and refuses anything below 1)."""
     try:
         return int(str(value).strip()) >= 1
@@ -216,10 +216,10 @@ def _is_binary(value) -> bool:
 
 def _is_disposition_list(value) -> bool:
     """A list of entries, or `None`. Absent OR NULL is EMPTY at this guard
-    (`validate-openspec-cli-pin.py:801-803`: `raw = pin.get("dispositions")`
+    (`validate-openspec-cli-pin.py:808-810`: `raw = pin.get("dispositions")`
     then `if raw is None: return []`), so `dispositions:` is not a required
     member and an explicit `null` is no more malformed than an absent key;
-    present, non-null and not a list is refused (`:804-809`)."""
+    present, non-null and not a list is refused (`:811-816`)."""
     return value is None or isinstance(value, list)
 
 
@@ -397,29 +397,29 @@ SHAPE_C = Shape(
     revision_kinds=CONTENT_ADDRESSED_KINDS,
     required=(
         Member(("revision_kind",), _one_of(CONTENT_ADDRESSED_KINDS),
-               (Citation(_OPENSPEC_CLI, 592, guard="pinned_version"),)),
+               (Citation(_OPENSPEC_CLI, 599, guard="pinned_version"),)),
         Member(("version",), _is_version,
-               (Citation(_OPENSPEC_CLI, 601, guard="pinned_version"),)),
+               (Citation(_OPENSPEC_CLI, 608, guard="pinned_version"),)),
         Member(("integrity",), _is_integrity,
-               (Citation(_OPENSPEC_CLI, 619, guard="pinned_integrity"),)),
+               (Citation(_OPENSPEC_CLI, 626, guard="pinned_integrity"),)),
         Member(("shasum",), _is_shasum,
-               (Citation(_OPENSPEC_CLI, 646, guard="pinned_integrity"),)),
+               (Citation(_OPENSPEC_CLI, 653, guard="pinned_integrity"),)),
         Member(("package",), _is_package,
-               (Citation(_OPENSPEC_CLI, 658, guard="pinned_package"),)),
+               (Citation(_OPENSPEC_CLI, 665, guard="pinned_package"),)),
         Member(("lockfile",), _is_lockfile_name,
-               (Citation(_OPENSPEC_CLI, 698, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 705, guard="pinned_lockfile"),)),
         Member(("lockfile_integrity",), _is_integrity,
-               (Citation(_OPENSPEC_CLI, 708, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 715, guard="pinned_lockfile"),)),
         Member(("lockfile_packages",), _is_lockfile_packages,
-               (Citation(_OPENSPEC_CLI, 731, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 738, guard="pinned_lockfile"),)),
         Member(("binary",), _is_binary,
-               (Citation(_OPENSPEC_CLI, 748, guard="pinned_binary"),)),
+               (Citation(_OPENSPEC_CLI, 755, guard="pinned_binary"),)),
     ),
-    # Absent-is-empty at its guard (`:801-803`), so NOT required and not on the
+    # Absent-is-empty at its guard (`:808-810`), so NOT required and not on the
     # guard leg; refused only when PRESENT and not a list.
     optional=(
         Member(("dispositions",), _is_disposition_list,
-               (Citation(_OPENSPEC_CLI, 801),)),
+               (Citation(_OPENSPEC_CLI, 808),)),
     ))
 
 SHAPES: tuple[Shape, ...] = (SHAPE_A, SHAPE_B, SHAPE_C)
