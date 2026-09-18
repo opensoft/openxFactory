@@ -3083,8 +3083,25 @@ movements claimed at the time they land.
   clause two is what INCIDENT 2 needed and could not have caught INCIDENT 1
   (the squash commit does not exist until the landing happens). Neither clause
   alone covers both, which is precisely why the rule now carries both.
-  The repair for this occurrence is `rehome-lander`'s row-REMOVAL pull request,
-  in flight; this box's tick is unaffected, because § 6.3 is about
+  **THE REPAIR HAS LANDED: `#1109` → `dc242f3aa5cc02ab19cebc3bbdffae0dce88207a`,
+  2026-09-18T14:27:05Z**, retiring the disposition row that INCIDENT 2 made
+  stale. **Verified at this branch's own merged tree rather than taken on
+  report**: `validate-sequenced-after.py` exits **0** with *"archive-date-vs-commit
+  agreement passed (every archived directory is named for the UTC date of the
+  commit that added it, or is dispositioned in place; 13 disposition(s) in
+  force)"*, and the retired key is genuinely absent — the four remaining
+  mentions of `add-composed-view-authoring` in
+  `tests/sequenced_after/archive-date-dispositions.yaml` are all COMMENTS
+  recording why it was retired, with **13 live keys and none of them that one**.
+  The corpus reconciles at **172 archived directories, 13 dispositioned, 159
+  agreeing outright**.
+  *(Worth naming: the repair for INCIDENT 2 was to REMOVE a row, where the
+  repair for INCIDENT 1 was to ADD one — the same file, opposite directions,
+  four days apart, because the underlying fact moved rather than the record
+  being wrong either time. That is the clearest statement of residue (vi): a
+  disposition is only as stable as `main`'s reachable history, so a checker
+  that reads it as permanent will keep producing this pair of incidents.)*
+  This box's tick is unaffected throughout, because § 6.3 is about
   `add-doxchat-model-intake` being closed and re-homed, which it is.
 - [x] 6.4 `[oxF]` `[oD]` **`add-composed-view-authoring`** → openDox. One MODIFIED
   requirement, `target_release: none`, no contract bytes — the cheapest of the
