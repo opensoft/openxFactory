@@ -4338,6 +4338,39 @@ realization evidence, never on landing. Each line is its own evidence.
   invariant held across pin lockstep #3 as it held across #453, and a box
   that ticks on an equality should say which of those two it saw. It saw the
   first.)*
+  **AGGREGATION-SIDE RECORD A1 — § 6'S PROMOTION FIDELITY. Added by `tasks.md`
+  AMENDMENT #7, 2026-09-18. IT IS NOT PART OF § 8.7's TICK EVIDENCE and moves
+  no box** — § 8.7 ticks on GITLINKS, and this is a different aggregation-side
+  act recorded beside it because this is where a reader looks for one.
+  `opensoft/xFactory` **#454 → `0b0c88f4`**, merged **2026-09-18T21:15:14Z**,
+  *"Record the four § 6 re-homed closures' five delta files' non-promotion as
+  deliberate (promotion-fidelity dispositions)"*. It touches exactly one file,
+  `health/dispositions.yaml`, and disposes **20 findings** measured at
+  `openxFactory` `main` `3bf63b8e`; the aggregation gate reads **0/0/0/0**, and
+  the header's own count was corrected from *"+15"* to a net **+20** before it
+  landed.
+  **FOUR CLOSURES, FIVE FILES — and § 6.2 RAISES NONE.** The asymmetry is the
+  point and the dispositions file says so in terms: § 6.2 is the one of the five
+  that is NOT closed as re-homed, so its delta's promotion obligation is
+  discharged **by PROMOTION** rather than by a disposition, and it *"must not
+  get one by analogy"*. The fifth file exists because
+  `add-nightly-dashboard-refresh` carries TWO deltas (`doc-health` and
+  `ideation-dashboard`), which is the same partial-carriage shape § 6.1's own
+  STATUS registers against `_REHOMED_AND_STILL_WHOLE`.
+  **ONE FACT REGISTERED AS RESIDUE, NOT RESOLVED HERE, owed to the next act that
+  touches that file**: its header states *"three of the five files carry more
+  than one affected requirement"*. **Measured at `3bf63b8e`, it is FOUR.**
+  Counting `### Requirement` in each: `add-composed-view-authoring` → **1**;
+  `add-doxchat-model-intake` → **5**; `add-lens-document-selection` → **5**;
+  `add-nightly-dashboard-refresh`/`doc-health` → **7**; the same packet's
+  `ideation-dashboard` → **2**. Only ONE of the five carries a single
+  requirement, so four carry more than one.
+  *(The figure changes nothing about the dispositions themselves — each entry is
+  PATH-KEYED and deliberately not narrowed by `requirement:`, so the count is a
+  statement in the header's prose rather than a key any entry turns on. It is
+  registered because a header that miscounts its own subject is the defect class
+  this packet has spent two amendments on, and because the next reader of that
+  file will reach for the number rather than recount five files.)*
 - [x] 8.8 Amendment 3 applied with the SIX repository names and the election,
   and the descendant names — each with its two leg names — registered with no
   repository created (amended 2026-09-05).
