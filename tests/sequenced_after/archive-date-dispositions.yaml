@@ -219,3 +219,21 @@ dispositions:
     fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
     ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
     cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-09-16-gate-code-surface-declarations"
+    directory_date: "2026-09-16"
+    adding_commit: "5dd0a8dc39899820ab9fad6f02ae9b364bb43dc6"
+    commit_date_utc: "2026-09-17"
+    fact: "archive act and adding commit fell on different UTC days (cause
+      2): the governed wrapper ran proposal-support.py archive on
+      2026-09-16 UTC, opening PR #1076 the same day as a HELD draft naming
+      no word and no green run yet; code_surface: openxFactory is
+      non-empty, so release-realization archives only on merged-plus-green
+      evidence and a separate archive word, never on landing, and the PR
+      sat open overnight awaiting it; Brett Heap's archive word came
+      2026-09-17, and the squash-merge that added the directory to
+      history, 5dd0a8dc39899820ab9fad6f02ae9b364bb43dc6, is committer-dated
+      2026-09-17T16:23:43Z UTC - a correct archive whose merge fell on the
+      next UTC day, not a clock defect"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
