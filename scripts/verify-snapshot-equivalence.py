@@ -638,8 +638,11 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
             "store nor a pathspec that matched nothing, both of which are "
             "reported by name. Read the error above: if objects are missing, "
             f"`git -C {repo} fetch origin {pre_commit}`; if the tree has "
-            "shed the renderer, name a pre-shed --pre-ref. Whether the tree "
-            "carries the renderer is answered separately, below")
+            "shed the renderer, name a pre-shed --pre-ref. THIS REFUSAL DOES "
+            "NOT ESTABLISH WHICH: the archive failed, so the per-row check "
+            "that would have answered it never ran (Copilot, PR #1115 — this "
+            "sentence used to promise that answer `below`, which was true "
+            "only while this branch fell through rather than raising)")
     _extract_safely(archive.stdout, into, pre_ref)
     for row in (GENERATOR_ROW, SNAPSHOT_ROW):
         if not (into / row).is_file():
@@ -1240,15 +1243,19 @@ def _gitlink_in_tree(parent: Path, revision: str,
 
 def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
     """The gitlink this repository RECORDS for `path`, index first."""
-    # HEAD IS READ THE SAME WAY THE NESTED PATH IS (Copilot, PR #1115). It
-    # was `rev-parse HEAD:<path>`, which answers for ANY tree entry, so when
-    # the index read failed and this fell back to HEAD a type-changed file or
-    # directory at a pin path was returned AS A RECORDED GITLINK — the very
-    # defect just closed one function away, left standing in its sibling.
-    head_oid, _kind = _gitlink_in_tree(parent, "HEAD", path)
+    # THE INDEX IS READ FIRST, WHICH IS WHAT "INDEX-FIRST" MEANS (Copilot,
+    # PR #1115). Reading HEAD first was harmless while that read answered
+    # `None` on failure; it stopped being harmless the moment it started
+    # RAISING for an unreadable tree, because a staged stage-0 gitlink is the
+    # authoritative pin for a re-pin that has not been committed yet — and a
+    # runner that refused before looking at it would reject a valid pin for
+    # the state of a tree it did not need.
     listed = _git(parent, "ls-files", "-s", "--", path)
     if listed is None or listed.returncode != 0:
-        return head_oid, ("HEAD" if head_oid else _NO_RECORD_SOURCE)
+        # No index answer at all: HEAD is the only record there is, and it
+        # is read the same mode-aware way the nested path is.
+        head_only, _kind = _gitlink_in_tree(parent, "HEAD", path)
+        return head_only, ("HEAD" if head_only else _NO_RECORD_SOURCE)
     index_oid, conflicted = _staged_gitlink(listed.stdout)
     if index_oid is None and conflicted:
         raise EquivalenceRefusal(
@@ -1259,6 +1266,15 @@ def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
             f"Resolve the merge in {parent} (`git status` names the paths) "
             "and re-run: a runner that read one of the conflict stages would "
             "report a pin no commit has declared")
+    # HEAD is still read, because the SOURCE this answers with depends on
+    # whether the two agree — but an unreadable HEAD tree must not veto a pin
+    # the index has already given.
+    try:
+        head_oid, _kind = _gitlink_in_tree(parent, "HEAD", path)
+    except EquivalenceRefusal:
+        if index_oid is not None:
+            return index_oid, "the index"
+        raise
     if index_oid != head_oid:
         return index_oid, ("the index" if index_oid else _NO_RECORD_SOURCE)
     return head_oid, ("HEAD" if head_oid else _NO_RECORD_SOURCE)

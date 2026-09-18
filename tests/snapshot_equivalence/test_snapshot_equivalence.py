@@ -1479,6 +1479,51 @@ def test_a_tree_read_that_failed_does_not_become_a_post_shed_verdict(
     assert "ls-tree" in detail
 
 
+def test_an_unreadable_head_tree_does_not_veto_a_staged_pin(tmp_path,
+                                                            monkeypatch):
+    """A staged stage-0 gitlink is the AUTHORITATIVE pin for a re-pin that is
+    not committed yet — that is what index-first is for. Reading HEAD first
+    was harmless while that read answered `None` on failure and stopped being
+    harmless the moment it began RAISING for an unreadable tree: the runner
+    would then reject a valid staged pin for the state of a tree it did not
+    need (Copilot, PR #1115)."""
+    parent = tmp_path / "assembly"
+    _seed(parent)
+    staged = "e" * 40
+    assert MODULE._git(parent, "update-index", "--add", "--cacheinfo",
+                       f"160000,{staged},code").returncode == 0
+    real_git = MODULE._git
+
+    def no_tree_read(target, *arguments, text=True):
+        if arguments[0] == "ls-tree":
+            return None
+        return real_git(target, *arguments, text=text)
+
+    monkeypatch.setattr(MODULE, "_git", no_tree_read)
+    recorded, source = MODULE.recorded_gitlink(parent, "code")
+    assert recorded == staged
+    assert source == "the index"
+
+
+def test_an_unreadable_head_with_no_staged_pin_still_refuses(tmp_path,
+                                                             monkeypatch):
+    """…and with nothing staged there is nothing to fall back ON, so the
+    unreadable tree is reported rather than read as an absence."""
+    parent = tmp_path / "assembly"
+    _seed(parent)
+    real_git = MODULE._git
+
+    def no_tree_read(target, *arguments, text=True):
+        if arguments[0] == "ls-tree":
+            return None
+        return real_git(target, *arguments, text=text)
+
+    monkeypatch.setattr(MODULE, "_git", no_tree_read)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.recorded_gitlink(parent, "code")
+    assert caught.value.code == "equivalence-object-store-incomplete"
+
+
 def test_a_type_changed_head_entry_is_not_read_as_a_recorded_pin(tmp_path,
                                                                  monkeypatch):
     """The HEAD read was `rev-parse HEAD:<path>`, which answers for ANY tree
@@ -1599,6 +1644,11 @@ def test_an_unclassified_archive_failure_claims_neither_diagnosis(
     assert "No space left" in detail
     assert "cannot tell from that output" in detail
     assert "PARTIAL OR INCOMPLETE OBJECT STORE" not in detail
+    # …and it does not promise an inspection it never performs: the archive
+    # failed, so the per-row check that would have answered never ran
+    # (Copilot, PR #1115).
+    assert "answered separately, below" not in detail
+    assert "DOES NOT ESTABLISH WHICH" in detail
 
 
 def test_the_sweep_sees_an_edit_that_status_reports_as_clean(tmp_path):
