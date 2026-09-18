@@ -74,7 +74,7 @@ kind: archive_date_dispositions
 # re-measure; an entry nobody can check silences a finding on nothing.
 #
 # ENFORCEMENT. `error` - the reading the ruling asks for once every measured
-# disagreement carries a disposition, which the twelve below make true: the
+# disagreement carries a disposition, which the fourteen below make true: the
 # live corpus is green with 0 undispositioned findings. `warning` prints the
 # same findings and leaves the run's verdict alone, and is what a repository
 # adopting this arm sets while it writes its own dispositions.
@@ -93,10 +93,13 @@ kind: archive_date_dispositions
 #                    corpus; the committer date is recorded because it is when
 #                    the commit entered this history, which is the act the
 #                    directory name claims to date.)
-#   fact             what happened, in the vocabulary above. Two appear below -
-#                    cause 1 (ten entries) and cause 4 (two, which also cite the
-#                    archive act the rename moved); a later entry of cause 2 or
-#                    3 names its own.
+#   fact             what happened, in the vocabulary above. THREE appear below
+#                    - cause 1 (ten entries), cause 2 (two) and cause 4 (two,
+#                    which also cite the archive act the rename moved); a later
+#                    entry of cause 3 names its own. (This line read "Two ...
+#                    cause 1 and cause 4" until 2026-09-18, one entry after the
+#                    first cause-2 disposition landed; the counts are re-measured
+#                    here rather than carried forward.)
 #   ruled_by         the ruling that accepted it.
 #   cited_to         where the measurement and the ruling are recorded.
 #
@@ -217,6 +220,32 @@ dispositions:
     adding_commit: "66d11a2422e778e9c6f7fe6dc358af83f9c1648d"
     commit_date_utc: "2026-09-05"
     fact: "named by a local clock one day behind UTC; #780's defect, unnoticed"
+    ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
+    cited_to: "opensoft/openxFactory#812"
+
+  - directory: "2026-09-16-add-composed-view-authoring"
+    directory_date: "2026-09-16"
+    adding_commit: "3e32d9874b5c68e90b0cef62cd94f9e378831fa3"
+    commit_date_utc: "2026-09-18"
+    fact: "archive act and adding commit fell on different UTC days (cause
+      2), and the LANDING FORM is what put them apart: the governed wrapper ran
+      proposal-support.py archive on 2026-09-16 UTC, and that act's own commit
+      on the branch, d8ff2ec2c04992ffb15d50d5b018eb65b27937e0, is
+      committer-dated 2026-09-16T01:01:38Z UTC and AGREES with this name. PR
+      #1056 - split-opendox § 6.4's closure of add-composed-view-authoring as
+      re-homed to opensoft/openDox under RULING Q6 - is a Rule 6 pull request
+      touching openspec/changes/, so it was brought to READY and held for its
+      landing window, which came on 2026-09-18. It was then landed by SQUASH,
+      which discards the branch's commits: d8ff2ec2 never entered this history,
+      and the oldest commit adding any file under the directory became the
+      landing commit itself, 3e32d9874b5c68e90b0cef62cd94f9e378831fa3,
+      committer-dated 2026-09-18T10:50:06Z UTC. A merge-commit landing would
+      have carried d8ff2ec2 and this arm would have reported nothing. So: a
+      correct archive, correctly named, whose adding commit was re-dated by the
+      form of its landing - not a clock defect, not a stale name, and not the
+      hold itself, which only decided WHICH later day the squash would carry.
+      The holder has recorded the landing-form error and lands every remaining
+      archive closure by merge commit"
     ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
     cited_to: "opensoft/openxFactory#812"
 
