@@ -17,6 +17,10 @@ from pathlib import Path
 
 CAP = "openxfactory-engineering-adapter"
 CHANGE = "repromote-engineering-vocabulary"
+# The GOVERNING packet, whose § 5.2a map selects the fifteen. Resolved at run time
+# exactly like this packet is — see source_dir() for why a literal path was wrong.
+SOURCE = "split-opendox-two-layer-product"
+SOURCE_SPEC = "specs/ideation-dashboard/spec.md"
 
 # ---- the TWO declared edits: (requirement title, OLD, NEW, operation) ---------
 # NARROWED 2026-09-16 after Copilot round 1 (threads 4029968885 and the suppressed
@@ -127,6 +131,36 @@ def packet_dir(root: Path) -> Path:
     return found[0]
 
 
+def source_dir(root: Path) -> Path:
+    """The GOVERNING packet's directory inside `root` — ACTIVE or ARCHIVED.
+
+    The same failure `packet_dir` exists to prevent, one path over, and this one
+    was live: `main()` hard-coded the ACTIVE
+    `openspec/changes/split-opendox-two-layer-product/…`, which resolves only
+    until that packet archives — and this packet's own `design.md` § D4 REQUIRES
+    it to archive AFTER this one. So the literal was guaranteed to stop
+    resolving, and a verifier committed inside a record precisely so the record
+    can be re-checked later would have raised `FileNotFoundError` from the moment
+    the record became historical. A check that dies on the future it was written
+    for proves nothing about the past it certifies.
+
+    Resolved the same way and refused the same way: EXACTLY ONE of the two
+    locations must exist. Neither, or both, is refused rather than guessed.
+    (Found by Copilot on PR #1103, against the head that merged `main` for the
+    landing.)
+    """
+    active = root / "openspec/changes" / SOURCE
+    archived = sorted((root / "openspec/changes/archive").glob(f"????-??-??-{SOURCE}"))
+    found = [d for d in [active, *archived] if d.is_dir()]
+    if len(found) != 1:
+        raise _refuse(
+            f"{SOURCE} resolves to {len(found)} packet directories under {root} "
+            f"({', '.join(str(d.relative_to(root)) for d in found) or 'none'}): "
+            f"this check reads the ratified map that selects the fifteen, so it "
+            f"must know which packet without choosing.")
+    return found[0]
+
+
 USAGE = ("usage: python3 <packet>/review/build-delta.py <openxFactory-checkout> "
          "[--write]\n"
          "  without --write it CHECKS the committed delta and exits non-zero on "
@@ -152,7 +186,7 @@ def main(argv=None):
         raise _refuse(f"{root} is not an openxFactory checkout "
                       f"(no openspec/ directory)\n" + USAGE)
     write = "--write" in argv
-    packet = root / "openspec/changes/split-opendox-two-layer-product/specs/ideation-dashboard/spec.md"
+    packet = source_dir(root) / SOURCE_SPEC
     promoted = root / "openspec/specs/ideation-dashboard/spec.md"
 
     # (1) the fifteen, from the ratified map

@@ -156,7 +156,14 @@ newest-first. § 3.5 was re-seeded BY TOOL and never by hand,
 `--seed-ledger --moved-by '#1103'`, which moved EXACTLY ONE row of 219
 (`state: active → archived`, `moved_by: "#1071" → "#1103"`,
 `moved_on: "2026-09-16" → "2026-09-18"`) and chose the archive date itself, agreeing
-with the directory name.
+with the directory name. **THAT 219 IS DATED, NOT CURRENT**: it is the file as it
+stood at `f0e0cd6e`, the head the tool ran against. The landing head merged `main`
+and the ledger reads **222** rows there — three archived elsewhere while this
+packet waited, none of them this one's. The row this run moved is unchanged by
+that; only the population it sat in grew. Measured at both heads rather than
+carried forward:
+`grep -cE '^  [A-Za-z0-9_.-]+: \{' tests/sequenced_after/corpus-ledger.yaml` →
+219 at `f0e0cd6e`, 222 at the landing head. (Copilot, PR #1103.)
 
 ## 4. What this packet leaves to its neighbours, by name
 
@@ -180,3 +187,43 @@ with the directory name.
       commission DESTINATION and the two `openspec/` status occurrences sit where no operation is
       invoked at all, so no seam decision gives them a call to name; they carry their promoted text
       because that is the correct state. `design.md` § D2 measures all four.
+
+## 5. Two corrections folded at the landing head, both NON-NORMATIVE
+
+Copilot reviewed the head that merged `main` for the landing and raised two
+findings against this packet's own evidence. Both were measured and both were
+true, so both are repaired here; neither touches a requirement, a scenario, the
+delta, or any byte of `openspec/changes/split-opendox-two-layer-product/`.
+
+- [x] 5.1 **`review/build-delta.py` resolved its SOURCE by a literal that was
+      guaranteed to stop resolving.** `packet_dir()` exists precisely because a
+      hard-coded `openspec/changes/<CHANGE>` broke at the archive — and `main()`
+      then hard-coded `openspec/changes/split-opendox-two-layer-product/specs/`
+      `ideation-dashboard/spec.md` anyway. § D4 of this packet REQUIRES the
+      governing packet to archive AFTER this one, so the literal was not merely
+      fragile, it was scheduled to break: a verifier committed inside a record so
+      the record can be re-checked later would have died on the first re-check
+      after the record became historical. Repaired with `source_dir()`, written
+      and refused exactly like `packet_dir()` — active or archived, EXACTLY ONE,
+      neither and both refused rather than guessed. **Proved in a scratch
+      worktree across all four states**, with the governing packet moved to
+      `openspec/changes/archive/2026-09-20-split-opendox-two-layer-product`:
+
+      | state | committed code at `2d50fbc3` | with `source_dir()` |
+      | --- | --- | --- |
+      | active (today) | PASS | PASS |
+      | archived (§ D4's required future) | **`FileNotFoundError`, exit 1** | **PASS, exit 0** |
+      | both present | `FileNotFoundError` | REFUSED, exit 1 |
+      | neither present | `FileNotFoundError` | REFUSED, exit 1 |
+
+      The delta is unchanged by the repair: 53118 bytes,
+      `sha256 c3b985aedb7cc9be…`, identical in every passing state above, and
+      `CHECK PASSED` against the committed file.
+
+- [x] 5.2 **§ 3.5's ledger total had gone stale under the landing merge.** 219
+      was true at `f0e0cd6e` and the file reads 222 at the landing head. Dated in
+      place rather than overwritten, with the command that measures it, because
+      re-dating a historical measurement to today's number destroys the evidence
+      of what the run actually saw — the same rule the versioning policy applies
+      to `docs/archive-record-discrepancies.md`.
+
