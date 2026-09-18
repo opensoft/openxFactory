@@ -1204,8 +1204,55 @@ def test_the_admitted_token_is_the_registers_own_class_word():
 def test_admitting_the_value_did_not_move_the_closed_baseline():
     """A VALUE WAS ADMITTED, NOT AN EXCEPTION. The promoted requirement makes
     closure enforced rather than declared, so the admission must be visible in
-    the vocabulary and invisible in the baseline."""
-    assert len(tr.CLOSED_REGISTER) == 21
+    the vocabulary and invisible in the baseline.
+
+    THE SECOND ASSERTION IS THAT CLAIM AND THE FIRST IS NOT, which this
+    docstring now says out loud because from 2026-09-16 the two move for
+    different reasons. `DEFERRED_ALLOCATION` being absent from every pair is the
+    admission's own invisibility, and it is invariant. The SIZE literal is a
+    separate pin on the baseline's population: the register is REMOVABLE, NEVER
+    ADDABLE, so that number falls when a retirement lawfully shrinks the
+    ceiling — as § 6.1's closure shrinks it here — and refuses to rise. Neither
+    movement is an admission, and a shrink is not evidence that admission
+    touched the baseline. (Raised by Copilot on PR #1060, which read the name and
+    the new literal as contradicting each other. The name is right for what it
+    asserts; what was missing was this paragraph.)
+    """
+    # 21 UNTIL 2026-09-16, when `split-opendox-two-layer-product` § 6.1 closed
+    # `add-nightly-dashboard-refresh` AS RE-HOMED to `opensoft/openXdox` under
+    # RULING Q6 and the packet left the active corpus. That retired its
+    # `implementation_pending` entry on the second limb of its own
+    # `retires_when:` ("or the packet archives"), and the register is REMOVABLE.
+    # THE ENTRY HAD TO GO (`Report.stale` refuses while a stale one stands);
+    # THIS PAIR DID NOT. The module's own note says a baseline "MAY BE A STRICT
+    # SUPERSET, AND USUALLY WILL BE … a ceiling, never a floor", and its "in the
+    # same pull request" sentence governs ADMITTING a pair rather than removing
+    # one. The pair moved with the entry in openxFactory #1060 as a deliberate
+    # shrink, in one diff because that is where the choice is legible. This
+    # literal is the baseline's SIZE: it falls with a removal exactly as it would
+    # refuse an addition, and it is the assertion that keeps the shrink honest.
+    assert len(tr.CLOSED_REGISTER) == 20
+    # THE SIZE ALONE DOES NOT SAY WHICH PAIR LEFT, and that is what this change
+    # claims. A later edit could restore this pair and drop an unrelated one
+    # while 20 still held, so the retirement is asserted by IDENTITY as well —
+    # added 2026-09-16 on Copilot's reading of #1060, which is right that a
+    # count verifies the shrink's magnitude and not the shrink.
+    assert ("add-nightly-dashboard-refresh", "implementation_pending") \
+        not in tr.CLOSED_REGISTER, (
+            "the `implementation_pending` baseline pair for "
+            "`add-nightly-dashboard-refresh` is back in CLOSED_REGISTER. It "
+            "retired on 2026-09-16 with the packet, on the second limb of its "
+            "own `retires_when:` — 'or the packet archives' — and the packet is "
+            "archived at "
+            "`openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh`. "
+            "THE DEFECT IS THAT THIS CLOSURE'S DELIBERATE SHRINK WAS UNDONE, "
+            "and not that a retained pair is unlawful in general: the module "
+            "says the opposite in its own words (`scripts/target_release.py`, "
+            "the CLOSED_REGISTER note) — 'A BASELINE MAY BE A STRICT SUPERSET, "
+            "AND USUALLY WILL BE ... a pair stays here after its entry goes. "
+            "This is a ceiling, never a floor.' So a pair surviving its entry "
+            "is ordinary; THIS pair was removed on purpose when the packet "
+            "archived, and its return means that edit was reverted")
     assert not [e for e in tr.CLOSED_REGISTER
                 if e[1] == tr.DEFERRED_ALLOCATION]
 
