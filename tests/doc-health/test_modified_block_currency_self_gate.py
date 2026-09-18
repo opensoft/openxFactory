@@ -1828,8 +1828,38 @@ def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_arch
             "README's archived-ledger entry points a reader at it for the "
             "closure's reasoning, and a rename or a deletion would leave that "
             "pointer dangling while every byte assertion below still passed")
+        # AND THE WALK FAILS CLOSED. `is_file()` and `read_bytes()` both FOLLOW
+        # symlinks, and `rglob` drops every entry that is not a file WITHOUT
+        # SAYING SO, so two states pass this hash walk while the packet is not
+        # the packet: a directory reached through a symlinked ANCESTOR, and a
+        # carried file replaced by a link to bytes elsewhere — which hashes the
+        # target and reports agreement about a file that is no longer here. A
+        # leaf-only check walks straight past the first; resolved-path equality
+        # catches leaf and ancestor alike. This is the guard #1056's departure
+        # proof settled on, applied to the arm that reads a whole packet.
+        # (Found by Copilot's review on PR #1057.)
+        assert packet.resolve(strict=True) == (
+                ROOT.resolve() / PurePosixPath(delta).parents[2]), _moved(
+            f"the archived packet {packet.name} reached without a symlink",
+            f"it resolves to {packet.resolve(strict=True)}, so the bytes hashed "
+            "below are not provably the ones RULING Q6 carried")
+        entries = sorted(packet.rglob("*"))
+        linked = [q.relative_to(packet).as_posix() for q in entries
+                  if q.is_symlink()]
+        assert not linked, _moved(
+            f"every entry of {packet.name} a real file or directory",
+            f"these are symlinks: {linked}. Q6 CARRIES BYTES; a link is a "
+            "pointer at somebody else's bytes, and hashing what it resolves to "
+            "would report agreement about a file this packet no longer holds")
+        strange = [q.relative_to(packet).as_posix() for q in entries
+                   if not q.is_file() and not q.is_dir()]
+        assert not strange, _moved(
+            f"nothing in {packet.name} that is neither file nor directory",
+            f"these are neither: {strange}. The walk below would drop them "
+            "SILENTLY, which is how a packet loses a file without the pinned "
+            "map changing")
         measured = {}
-        for path in sorted(q for q in packet.rglob("*") if q.is_file()):
+        for path in sorted(q for q in entries if q.is_file()):
             rel = path.relative_to(packet).as_posix()
             if rel == _CLOSURE_RECORD:
                 continue

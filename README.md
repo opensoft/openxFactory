@@ -3447,7 +3447,11 @@ Archived changes:
   than an exception to one. The packet is relocated by `git mv` and otherwise
   UNEDITED, `Status: ratified` header included (Brett Heap, 2026-08-21,
   *"proposal approved"*). Its `modified-block-currency` carriage-ledger row
-  retires with it (thirteen named subjects → twelve), and the departure itself —
+  retires with it (FIFTEEN named subjects → FOURTEEN, measured at this head:
+  `_LEDGER_SUBJECTS` holds 15 literal entries and 14 unique, the
+  `add-chain-attestation` row being written twice; it read "thirteen → twelve"
+  until this merge, from the chronology as it stood before #1056 landed its own
+  correction of that same count), and the departure itself —
   gone from the active corpus, standing in the archive with all five
   requirements — is asserted by a test of its own rather than implied by the
   missing row. The non-promotion is registered as DELIBERATE through the
