@@ -3005,19 +3005,7 @@ the bookkeeping that ticks this group.
   the runner's first run to answer" until #1105 landed and the runner said
   otherwise in terms; corrected on a Copilot finding against head `a406915d`.)*
   CLAIM `5728621421`.
-- [ ] 5.6 `[cxF]` `[oxF]` **STATUS — THE GATE PRECONDITION HAS LANDED, recorded
-  by `tasks.md` AMENDMENT #7, 2026-09-18.** `openxFactory` **#1103 →
-  `eb1880cb`**, merged **21:30:14Z** BY MERGE COMMIT, archives
-  `repromote-engineering-vocabulary` — the precondition this gate waits on.
-  **PHASE 1 STILL WAITS ON THIS PACKET'S OWN ARCHIVE**, RULED **Q-D1 (a)**
-  (`#656` comment `5735889836`), and **Phase 0 is the pin advance on the
-  codexFactory bot pull request**. **Neither this box nor § 8.4 ticks here**: a
-  precondition landing is not the act, and the ordering § 8.4 names — de-floor
-  BEFORE the removal — is still ahead. *(Recorded at both boxes' shared subject
-  because § 5.6 is where the order is argued and § 8.4 is where it is checked;
-  a reader who meets one should not have to find the other to learn the gate is
-  now unblocked at its front.)*
-  **DE-FLOOR BEFORE YOU REMOVE — Rule 7 substrate row 1,
+- [ ] 5.6 `[cxF]` `[oxF]` **DE-FLOOR BEFORE YOU REMOVE — Rule 7 substrate row 1,
   claimed HERE.** `openspec/specs/ideation-dashboard/` is REMOVED and two
   capability directories are ADDED by the archive, and the codexFactory
   review-authority floor is EXACT SET EQUALITY. Order: the codexFactory pull
@@ -3081,6 +3069,18 @@ the bookkeeping that ticks this group.
   `tree-floor-probe` fixture and the de-floor must not touch it — `openxFactory`'s
   open pull requests touch none of the five pin sites, and `#656`'s 364 comments
   carry zero prior claims on § 5.6.
+  **STATUS — THE GATE PRECONDITION HAS LANDED, recorded
+  by `tasks.md` AMENDMENT #7, 2026-09-18.** `openxFactory` **#1103 →
+  `eb1880cb`**, merged **21:30:14Z** BY MERGE COMMIT, archives
+  `repromote-engineering-vocabulary` — the precondition this gate waits on.
+  **PHASE 1 STILL WAITS ON THIS PACKET'S OWN ARCHIVE**, RULED **Q-D1 (a)**
+  (`#656` comment `5735889836`), and **Phase 0 is the pin advance on the
+  codexFactory bot pull request**. **Neither this box nor § 8.4 ticks here**: a
+  precondition landing is not the act, and the ordering § 8.4 names — de-floor
+  BEFORE the removal — is still ahead. *(Recorded at both boxes' shared subject
+  because § 5.6 is where the order is argued and § 8.4 is where it is checked;
+  a reader who meets one should not have to find the other to learn the gate is
+  now unblocked at its front.)*
 - [x] 5.6a `[oxF]` **THE DEPRECATING MINOR § 5.7 OWES — `contract-v3.7`, cut
   BEFORE the shed.** `docs/contract-versioning-policy.md` § Change Classes
   requires, before any Breaking removal, "at least one full minor release where
