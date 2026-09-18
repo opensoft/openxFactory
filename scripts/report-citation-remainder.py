@@ -382,7 +382,48 @@ def tracked_entries(root: Path) -> list:
     return rows
 
 
-def build_population(root: Path, entries, include=(), exclude=()):
+#: The three verdicts `admits` returns. The middle one is a path EXCLUDED
+#: whatever a refinement said, whose naming is still reported back to the
+#: caller so a run states what it was asked for as well as what it did.
+ADMITTED = "admitted"
+EXCLUDED = "excluded"
+REFUSED_OUTPUT_PATH = "refused-output-path"
+
+
+def admits(path: str, include, exclude) -> str:
+    """Whether one tracked entry's path stands in the population.
+
+    THE REFINEMENT SEMANTICS ARE THE SPECIFICATION'S AND NOT THIS
+    REALIZATION'S: a prefix matches on path-segment boundaries; an admission
+    RE-ADMITS into the stated population rather than replacing it; a removal is
+    applied LAST and WINS over any admission naming the same path, so the pair
+    is order-independent.
+    """
+    if matches_any(path, DEFAULT_EXCLUSIONS) and not matches_any(path, include):
+        return EXCLUDED
+    if matches_any(path, exclude):
+        return EXCLUDED
+    if matches_any(path, OUTPUT_PATH_EXCLUSIONS):
+        # NEITHER FLAG CAN RE-ADMIT THE REPORT'S OWN OUTPUT. The exclusion is
+        # kept rather than the refinement refused, because a refusal would be a
+        # run that did not happen and the only non-zero exit this capability
+        # has means the report could not run at all.
+        return (REFUSED_OUTPUT_PATH if matches_any(path, include)
+                else EXCLUDED)
+    return ADMITTED
+
+
+def output_paths_named_by(include) -> list:
+    """The report's own output paths a refinement named, whether or not the
+    tree carries one — a caller is told its refinement was declined either
+    way."""
+    return [output_path
+            for prefix in include
+            for output_path in OUTPUT_PATH_EXCLUSIONS
+            if segment_match(output_path, prefix)]
+
+
+def build_population(entries, include=(), exclude=()):
     """The tracked entries in scope, before any file is opened.
 
     THE REFINEMENT SEMANTICS ARE THE SPECIFICATION'S AND NOT THIS
@@ -397,26 +438,14 @@ def build_population(root: Path, entries, include=(), exclude=()):
     in_scope = []
     named_output = []
     for entry in entries:
-        path = entry.path
-        default_excluded = matches_any(path, DEFAULT_EXCLUSIONS)
-        if default_excluded and not matches_any(path, include):
-            continue
-        if matches_any(path, exclude):
-            continue
-        if matches_any(path, OUTPUT_PATH_EXCLUSIONS):
-            # NEITHER FLAG CAN RE-ADMIT THE REPORT'S OWN OUTPUT. The exclusion
-            # is kept rather than the refinement refused, because a refusal
-            # would be a run that did not happen and the only non-zero exit
-            # this capability has means the report could not run at all.
-            if matches_any(path, include):
-                named_output.append(path)
-            continue
-        in_scope.append(entry)
-    for prefix in include:
-        for output_path in OUTPUT_PATH_EXCLUSIONS:
-            if (segment_match(output_path, prefix)
-                    and output_path not in named_output):
-                named_output.append(output_path)
+        verdict = admits(entry.path, include, exclude)
+        if verdict is ADMITTED:
+            in_scope.append(entry)
+        elif verdict is REFUSED_OUTPUT_PATH:
+            named_output.append(entry.path)
+    named_output.extend(
+        path for path in output_paths_named_by(include)
+        if path not in named_output)
     population = Population(
         tracked_entries_total=len(entries),
         entries_in_scope=len(in_scope),
@@ -536,7 +565,20 @@ FULL_STOP_STRIPPED = "trailing-full-stop-stripped"
 
 #: The characters a path may be spelled out of, for the probe that reads a
 #: LONGER path off a citing line.
-PATH_RUN_RE = re.compile(r"[A-Za-z0-9._\-/]*$")
+#: The characters a path run is made of. THE RUN IS SCANNED AND NOT MATCHED: a
+#: `[...]*$` pattern searched over a prefix retries at every start position and
+#: is super-linear on a long line, while the same answer read backwards from the
+#: end is one pass.
+PATH_RUN_CHARACTERS = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-/")
+
+
+def trailing_path_run(text: str) -> str:
+    """The longest run of path characters ENDING `text`."""
+    index = len(text)
+    while index and text[index - 1] in PATH_RUN_CHARACTERS:
+        index -= 1
+    return text[index:]
 
 
 def strip_trailing_separator(spelled: str):
@@ -678,7 +720,7 @@ FORGE_URL_RE = re.compile(
 #: the same prefix followed by a command name, a subject or a workflow locator
 #: fires nothing, because neither is an owner segment followed by a path.
 CUSTODY_SCHEME_RE = re.compile(
-    r"(?:^|[^A-Za-z0-9_])opsx:(?P<owner>[A-Za-z0-9._\-]+)/$")
+    r"(?:^|(?a:\W))opsx:(?P<owner>[A-Za-z0-9._\-]+)/$")
 
 #: A trailing parenthetical: at most ONE space, then `(`, then its content,
 #: then `)`. More than one space, any further content inside the parentheses,
@@ -749,7 +791,7 @@ def _names_this_repository(word: str) -> bool:
     return word.strip(TOKEN_DECORATION).lower() in OWN_REPOSITORY_SPELLINGS
 
 
-def signal_path_joined_prefix(line: str, start: int, end: int) -> bool:
+def signal_path_joined_prefix(line: str, start: int) -> bool:
     """(1) A PATH-JOINED PREFIX naming another repository.
 
     Fires where the citing line carries, ending immediately before the token, a
@@ -775,7 +817,7 @@ def signal_path_joined_prefix(line: str, start: int, end: int) -> bool:
     return False
 
 
-def signal_forge_url(line: str, start: int, end: int) -> bool:
+def signal_forge_url(line: str, start: int) -> bool:
     """(2) A GITHUB BLOB OR TREE URL naming another repository.
 
     Fires where the token is immediately preceded on the citing line by
@@ -837,7 +879,7 @@ def signal_bare_qualifier_word(lines, lineno: int, start: int) -> bool:
     return False
 
 
-def signal_custody_locator(line: str, start: int, end: int) -> bool:
+def signal_custody_locator(line: str, start: int) -> bool:
     """(4) THE CUSTODY-LOCATOR SCHEME, which carries its qualifier INSIDE the
     token rather than beside it.
 
@@ -849,7 +891,7 @@ def signal_custody_locator(line: str, start: int, end: int) -> bool:
     return CUSTODY_SCHEME_RE.search(line[:start]) is not None
 
 
-def signal_trailing_parenthetical(line: str, start: int, end: int) -> bool:
+def signal_trailing_parenthetical(line: str, end: int) -> bool:
     """(5) A TRAILING `(RepoName)` PARENTHETICAL.
 
     Fires where the characters immediately following the token on the citing
@@ -872,20 +914,20 @@ def signals_at(lines, lineno: int, start: int, end: int) -> tuple:
     the requirement names them."""
     line = lines[lineno - 1]
     fired = []
-    if signal_path_joined_prefix(line, start, end):
+    if signal_path_joined_prefix(line, start):
         fired.append(SIGNAL_PATH_JOINED)
-    if signal_forge_url(line, start, end):
+    if signal_forge_url(line, start):
         fired.append(SIGNAL_FORGE_URL)
     if signal_bare_qualifier_word(lines, lineno, start):
         fired.append(SIGNAL_QUALIFIER_WORD)
-    if signal_custody_locator(line, start, end):
+    if signal_custody_locator(line, start):
         fired.append(SIGNAL_CUSTODY_SCHEME)
-    if signal_trailing_parenthetical(line, start, end):
+    if signal_trailing_parenthetical(line, end):
         fired.append(SIGNAL_TRAILING_PAREN)
     return tuple(fired)
 
 
-def probe_longer_path(root: Path, line: str, start: int, end: int, raw: str):
+def probe_longer_path(root: Path, line: str, start: int, raw: str):
     """(i) A LONGER PATH ON THE SAME LINE ENDS WITH THE TOKEN AND STANDS IN
     THIS TREE — the citation is that longer path and the token is only its
     tail, because the extraction pattern is anchored on the changes root and
@@ -896,7 +938,7 @@ def probe_longer_path(root: Path, line: str, start: int, end: int, raw: str):
 
     Returns the longer path where the probe fires, else `None`.
     """
-    prefix = PATH_RUN_RE.search(line[:start]).group(0)
+    prefix = trailing_path_run(line[:start])
     if not prefix:
         return None
     longer = prefix + raw
@@ -1200,7 +1242,7 @@ def truncation_probes_at(root: Path, lines, lineno: int, start: int, end: int,
     line = lines[lineno - 1]
     fired = []
     evidence = None
-    longer = probe_longer_path(root, line, start, end, raw)
+    longer = probe_longer_path(root, line, start, raw)
     if longer is not None:
         fired.append(PROBE_LONGER_PATH)
         evidence = longer
@@ -1214,6 +1256,64 @@ def truncation_probes_at(root: Path, lines, lineno: int, start: int, end: int,
     return tuple(fired), evidence
 
 
+def class_evidence_for(record) -> tuple:
+    """The evidence a class verdict rests on, so a reader can check it — one
+    kind per class, and nothing where the class rests on the token alone."""
+    if record.classification == CLASS_FIXTURE_PATH:
+        return fixture_path_evidence(record)
+    if record.classification == CLASS_TRUNCATED:
+        return tuple(sorted({o.truncation_evidence for o in record.occurrences
+                             if o.truncation_evidence}))
+    if record.classification == CLASS_PUNCTUATION_STRIPPED:
+        return record.normalizations
+    return ()
+
+
+def record_for(root: Path, token: str, occurrences, resolution) -> TokenRecord:
+    """One token's whole record: the resolver's outcome, its occurrences, its
+    flags, and — only where it IS a remainder entry — its class.
+
+    A TOKEN THAT RESOLVES IS NO REMAINDER ENTRY AND TAKES NO CLASS AT ALL,
+    which is why `classify` is asked here and not of every token.
+    """
+    raw = packet_reference._contained(root, root / token)  # noqa: SLF001
+    record = TokenRecord(
+        token=token,
+        occurrences=sorted(occurrences, key=lambda o: (o.path, o.line)),
+        status=resolution.status,
+        half=resolution.half,
+        identity=resolution.identity,
+        remainder=resolution.remainder,
+        report=resolution.report,
+        relocated=resolution.relocated,
+        raw_path_present=raw is not None and raw.exists(),
+    )
+    record.flags = ((FLAG_CROSS_REPO,)
+                    if any(o.signals for o in record.occurrences) else ())
+    if record.is_remainder:
+        record.classification = classify(record)
+        record.class_evidence = class_evidence_for(record)
+    return record
+
+
+def head_and_tree_state(root: Path) -> tuple:
+    """The head this reading stands on, and whether the tracked content read
+    stands UNMODIFIED at it.
+
+    HOW "STANDS UNMODIFIED AT THAT HEAD" IS COMPUTED IS THIS REALIZATION'S OWN
+    CHOICE — the requirement fixes the outward behavior and not the mechanism.
+    `diff --quiet HEAD` answers exactly "does at least one TRACKED file differ
+    from the head, staged or unstaged", which is the question the requirement
+    asks; `status --porcelain` would answer a wider one, marking the tree
+    modified over UNTRACKED files this report never reads at all.
+    """
+    code, out, _ = git_status(root, "rev-parse", "HEAD")
+    if code != 0:
+        return "(no commit at HEAD)", False
+    dirty, _, _ = git_status(root, "diff", "--quiet", "HEAD")
+    return out.strip(), dirty == 0
+
+
 def take_reading(root: Path, *, include=(), exclude=()) -> Reading:
     """The whole reading, from the tracked-entry listing to the classified
     remainder."""
@@ -1224,22 +1324,10 @@ def take_reading(root: Path, *, include=(), exclude=()) -> Reading:
     # the same tree whatever directory the report was run from.
     root = root.resolve()
     git(root, "rev-parse", "--is-inside-work-tree")
-    code, out, _ = git_status(root, "rev-parse", "HEAD")
-    head = out.strip() if code == 0 else "(no commit at HEAD)"
-    # HOW "STANDS UNMODIFIED AT THAT HEAD" IS COMPUTED IS THIS REALIZATION'S
-    # OWN CHOICE — the requirement fixes the outward behavior and not the
-    # mechanism. `diff --quiet HEAD` answers exactly "does at least one TRACKED
-    # file differ from the head, staged or unstaged", which is the question the
-    # requirement asks; `status --porcelain` would answer a wider one, marking
-    # the tree modified over UNTRACKED files this report never reads at all.
-    if code == 0:
-        dirty, _, _ = git_status(root, "diff", "--quiet", "HEAD")
-        tree_unmodified = dirty == 0
-    else:
-        tree_unmodified = False
+    head, tree_unmodified = head_and_tree_state(root)
 
     entries = tracked_entries(root)
-    population, in_scope = build_population(root, entries, include, exclude)
+    population, in_scope = build_population(entries, include, exclude)
     texts = read_population_text(root, in_scope, population)
 
     index = packet_reference.PacketIndex(root)
@@ -1256,34 +1344,8 @@ def take_reading(root: Path, *, include=(), exclude=()) -> Reading:
 
     grouped = extract_occurrences(texts, root, resolves)
 
-    records = []
-    for token in sorted(grouped):
-        resolution = resolution_of(token)
-        raw = packet_reference._contained(root, root / token)  # noqa: SLF001
-        record = TokenRecord(
-            token=token,
-            occurrences=sorted(grouped[token], key=lambda o: (o.path, o.line)),
-            status=resolution.status,
-            half=resolution.half,
-            identity=resolution.identity,
-            remainder=resolution.remainder,
-            report=resolution.report,
-            relocated=resolution.relocated,
-            raw_path_present=raw is not None and raw.exists(),
-        )
-        record.flags = ((FLAG_CROSS_REPO,)
-                        if any(o.signals for o in record.occurrences) else ())
-        if record.is_remainder:
-            record.classification = classify(record)
-            if record.classification == CLASS_FIXTURE_PATH:
-                record.class_evidence = fixture_path_evidence(record)
-            elif record.classification == CLASS_TRUNCATED:
-                record.class_evidence = tuple(
-                    sorted({o.truncation_evidence for o in record.occurrences
-                            if o.truncation_evidence}))
-            elif record.classification == CLASS_PUNCTUATION_STRIPPED:
-                record.class_evidence = record.normalizations
-        records.append(record)
+    records = [record_for(root, token, grouped[token], resolution_of(token))
+               for token in sorted(grouped)]
 
     return Reading(root=root, head=head, tree_unmodified=tree_unmodified,
                    population=population, records=records)
@@ -1501,6 +1563,15 @@ def grouped_by_identity(records) -> list:
             for identity in sorted(groups)]
 
 
+def _with_history(entry: dict, reading: Reading, identity) -> dict:
+    """The `history` key, ABSENT rather than `null` where `--history` was not
+    given, so two readings taken under different flags are not mistaken for two
+    readings of different trees."""
+    if reading.history_probed and identity in reading.history:
+        entry["history"] = reading.history[identity]
+    return entry
+
+
 def json_reading(reading: Reading, show_all: bool, by_token: bool) -> dict:
     counts = counts_of(reading)
     body: dict = {
@@ -1516,23 +1587,16 @@ def json_reading(reading: Reading, show_all: bool, by_token: bool) -> dict:
     }
     records = listed_records(reading, show_all)
     if by_token:
-        entries = []
-        for record in sorted(records, key=lambda r: r.token):
-            entry = record_json(record)
-            if reading.history_probed and record.identity in reading.history:
-                entry["history"] = reading.history[record.identity]
-            entries.append(entry)
-        body["tokens"] = entries
+        body["tokens"] = [_with_history(record_json(record), reading,
+                                        record.identity)
+                          for record in sorted(records, key=lambda r: r.token)]
     else:
-        identities = []
-        for identity, held in grouped_by_identity(records):
-            entry = {"identity": identity,
-                     "tokens": [record_json(r)
-                                for r in sorted(held, key=lambda r: r.token)]}
-            if reading.history_probed and identity in reading.history:
-                entry["history"] = reading.history[identity]
-            identities.append(entry)
-        body["identities"] = identities
+        body["identities"] = [
+            _with_history({"identity": identity,
+                           "tokens": [record_json(r) for r
+                                      in sorted(held, key=lambda r: r.token)]},
+                          reading, identity)
+            for identity, held in grouped_by_identity(records)]
     return body
 
 
@@ -1547,9 +1611,16 @@ def print_human(reading: Reading, show_all: bool, by_token: bool,
     readers do.
     """
     counts = counts_of(reading)
-    population = reading.population
     write = (out if out is not None else sys.stdout).write
+    _print_header(write, reading)
+    _print_population(write, reading.population)
+    _print_counts(write, counts)
+    _print_itemized(write, reading, show_all, by_token)
 
+
+def _print_header(write, reading: Reading) -> None:
+    """The reading's own declaration: what it stands on, and every fixed choice
+    that decides which number it prints."""
     write("CITATION REMAINDER\n")
     write(f"  head                 {reading.head}\n")
     write(f"  tree state           "
@@ -1564,6 +1635,10 @@ def print_human(reading: Reading, show_all: bool, by_token: bool,
           f"{WINDOW_LINES_ABOVE} lines above it\n")
     write(f"  signals              {', '.join(SIGNALS)}\n")
 
+
+def _print_population(write, population: Population) -> None:
+    """The population actually read, its three skip terms, and the refinements
+    the run was given."""
     write("\nPOPULATION\n")
     write(f"  tracked entries          {population.tracked_entries_total}\n")
     write(f"  tracked ENTRIES in scope {population.entries_in_scope}\n")
@@ -1595,6 +1670,12 @@ def print_human(reading: Reading, show_all: bool, by_token: bool,
               f"{', '.join(population.refinement_named_output_path)} — KEPT "
               f"EXCLUDED; no refinement may re-admit it\n")
 
+
+def _print_counts(write, counts: dict) -> None:
+    """PART 1, the COUNTS BLOCK: the population figures and the arithmetic
+    rows, then the class totals counted in TOKENS beside the labelled identity
+    count. CLASS IS NEVER A GROUPING LEVEL — it is a total here and a per-entry
+    label below, never a heading."""
     write("\nTOKENS AND OUTCOMES\n")
     write(f"  distinct tokens          {counts['distinct_tokens']}\n")
     outcomes = counts["outcomes"]
@@ -1652,6 +1733,13 @@ def print_human(reading: Reading, show_all: bool, by_token: bool,
     for name in CLASS_VOCABULARY:
         write(f"  {name:<24} {counts['classes'][name]}\n")
 
+
+def _print_itemized(write, reading: Reading, show_all: bool,
+                    by_token: bool) -> None:
+    """PART 2, the ITEMIZED remainder: grouped by IDENTITY by default and by
+    TOKEN under `--tokens`, every token appearing in either mode because
+    grouping changes the ORDER a reading lists things in and never what is
+    listed."""
     write("\n")
     records = listed_records(reading, show_all)
     if not records:

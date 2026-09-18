@@ -180,7 +180,8 @@ def test_the_report_prints_the_head_the_population_pair_the_tokens_and_both_rema
     assert data["counts"]["distinct_tokens"] == 2
     assert data["counts"]["remainder_inclusive_tokens"] == 1
     assert data["counts"]["remainder_inclusive_identities"] == 1
-    assert "INCLUSIVE remainder" in text and "TOKENS" in text
+    assert "INCLUSIVE remainder" in text
+    assert "TOKENS" in text
     assert "IDENTITIES" in text
     listed = entries(data)
     assert [o["path"] for o in listed[f"{CITE}/add-absent/proposal.md"]
@@ -353,7 +354,8 @@ def test_a_tracked_entry_that_is_not_a_file_is_skipped_and_the_two_population_nu
     assert population["skipped_not_a_file"] == 1
     assert population["files_read"] == population["tracked_entries_in_scope"] - 1
     text = run_human(root)
-    assert "tracked ENTRIES in scope" in text and "FILES read" in text
+    assert "tracked ENTRIES in scope" in text
+    assert "FILES read" in text
     assert population["arithmetic_closes"] is True
 
 
@@ -574,7 +576,8 @@ def test_an_include_re_admits_an_excluded_prefix_beside_the_stated_population(
     assert (widened["population"]["files_read"]
             > default["population"]["files_read"])
     text = run_human(root, "--include", "tests/fixtures")
-    assert "--include" in text and "tests/fixtures" in text
+    assert "--include" in text
+    assert "tests/fixtures" in text
     assert "excluded" in text, "the population it actually used is stated too"
 
 
@@ -793,7 +796,9 @@ def test_the_header_states_the_extraction_pattern_and_all_three_fixed_choices(
         "choice_3_cross_repository_flag_set_by_any_qualified_occurrence"] is True
     text = run_human(root)
     assert reading["extraction_pattern"] in text
-    assert "choice (1)" in text and "choice (2)" in text and "choice (3)" in text
+    assert "choice (1)" in text
+    assert "choice (2)" in text
+    assert "choice (3)" in text
 
 
 def test_a_committed_report_under_the_scanned_root_is_excluded_from_the_population(
@@ -923,7 +928,8 @@ def test_a_flagged_entry_stays_in_the_inclusive_remainder_and_the_filtered_count
     assert counts["remainder_inclusive_tokens"] == 2, "flagged, never dropped"
     assert counts["remainder_filtered_tokens"] == 1
     text = run_human(root)
-    assert "INCLUSIVE remainder" in text and "FILTERED remainder" in text
+    assert "INCLUSIVE remainder" in text
+    assert "FILTERED remainder" in text
 
 
 def test_any_one_qualified_occurrence_sets_the_flag_for_the_token(
@@ -1789,7 +1795,8 @@ def test_grouping_by_token_lists_every_token_that_identity_grouping_lists(
     assert set(entries(by_identity)) == set(entries(by_token))
     assert by_identity["grouping"] == "identity"
     assert by_token["grouping"] == "token"
-    assert "identities" in by_identity and "tokens" in by_token
+    assert "identities" in by_identity
+    assert "tokens" in by_token
 
 
 def test_the_json_token_object_carries_every_field_the_design_enumerates(
@@ -1809,7 +1816,8 @@ def test_the_json_token_object_carries_every_field_the_design_enumerates(
     assert record["remainder"] == "proposal.md"
     occurrence = record["occurrences"][0]
     assert occurrence["at"] == "docs/notes.md:1"
-    assert occurrence["path"] == "docs/notes.md" and occurrence["line"] == 1
+    assert occurrence["path"] == "docs/notes.md"
+    assert occurrence["line"] == 1
     assert occurrence["raw"] == record["token"]
 
 
@@ -1876,11 +1884,14 @@ def test_history_is_probed_per_identity_and_carries_its_four_fields(
     by_identity = {group["identity"]: group for group in data["identities"]}
     was = by_identity["add-was-here"]["history"]
     never = by_identity["add-never-here"]["history"]
-    assert was["probed"] is True and was["ever_tracked"] is True
-    assert was["first_commit"] and was["last_commit"]
+    assert was["probed"] is True
+    assert was["ever_tracked"] is True
+    assert was["first_commit"]
+    assert was["last_commit"]
     assert "last_path" not in was
     assert never["ever_tracked"] is False
-    assert never["first_commit"] is None and never["last_commit"] is None
+    assert never["first_commit"] is None
+    assert never["last_commit"] is None
     text = run_human(root, "--history")
     assert "history: never tracked" in text
     assert "history: tracked" in text
