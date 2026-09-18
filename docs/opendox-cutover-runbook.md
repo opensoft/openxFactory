@@ -777,13 +777,47 @@ helpful face — and it could not be satisfied by a destination not yet written.
 openxFactory's own declaration is `tests/carve_conformance/home_factory.py`,
 nine lines, and it is the worked example a destination copies.
 
-Its five refusal codes:
+**A DESTINATION MAY TRANSPOSE THE CORPUS, AND THE RUNNER PROVES THE
+TRANSPOSITION FAITHFUL** (RULED Q-F1 (a), Brett Heap 2026-09-17, `#656`
+comment `5714365086`). The corpus is laid down as a plain directory tree, and
+a destination whose corpus is git HISTORY rather than a working tree cannot
+address it in that form at all — measured 2026-09-17 against openDox's reader
+at openDox-code #26 `6c8f19e7`: pointed at the fixtures as they ship, it
+refuses at resolution and reaches **1 of 17**. The ruling's answer is that the
+DESTINATION transposes — the same three documents at the same keys, bytes
+unchanged, in the storage form its own reader addresses — says so in the pull
+request that reports the run, and hands the result in with `--corpus`. The
+corpus itself is untouched, which is why this is not "narrowing the corpus to
+what the legs pass today", and the permission comes with a proof rather than
+with trust: the runner computes `{key: sha256(bytes)}` off the SHIPPED
+fixtures with no reader involved, requires the reader under test to serve
+exactly that key set with exactly those bytes at the corpus's declared
+revision, refuses `conformance-corpus-unfaithful` NAMING the keys before any
+of the 17 runs otherwise, and carries the transposition's path, document count
+and table digest into the verdict line and the `--json` payload — so § 3.7's
+evidence reads *transposed, faithful* and a reader of it can recompute the
+number. Where the reader cannot resolve or list the location at all there is
+nothing to compare and the 17 report it better, so that case is handed to
+them; a run whose 17 all passed over a transposition never proven faithful
+refuses at the end rather than printing `OK`. The proof is taken TWICE, and
+the verdict's closing words `unmoved across the run` are that second one: the
+runner keeps the reader `carve_conformance.run` built for the populated
+corpus and re-proves the transposition through THAT instance after the 17,
+which catches both a corpus that moved under the measurement and a factory
+that served the shipped bytes to the proof and something else to the checks.
+What it does not catch is a reader answering differently on two CALLS to one
+instance — the proof and the checks are different calls by construction, and
+a destination doing that is forging its own § 3.7 evidence rather than
+defeating a measurement.
+
+Its six refusal codes:
 
 | code | what it refuses |
 | --- | --- |
 | `conformance-adapter-undeclared` | no `--adapter`: FLOOR PART 3 is a claim about a reader, and a run with none named has nothing to put through the corpus. **Silence must never read as a pass** |
 | `conformance-adapter-unresolvable` | the module or the factory cannot be imported, is not `<module>:<factory>`, or is not callable — the refusal names the import roots searched |
-| `conformance-corpus-missing` | the corpus is absent or PARTIAL, refused before any reader is blamed: a run over three of the four states would report checks that were never put |
+| `conformance-corpus-missing` | the corpus is absent or PARTIAL, refused before any reader is blamed: a run over three of the four states would report checks that were never put. A `--corpus` is a directory the runner looks for the four states in, and RULED Q-F1 (a) means it need not sit inside any checkout |
+| `conformance-corpus-unfaithful` | a `--corpus` that is not the shipped fixtures serves documents, keys or bytes the corpus does not hold — refused BEFORE any check, because a reader measured against a corpus nobody compared is not measured. Remediation is the TRANSPOSITION, at the destination that laid it down, and never the corpus |
 | `conformance-check-failed` | one or more of the 17 did not pass — **the refusal names each one and what came back** |
 | `conformance-unreadable` | the environment, an unknown `--destination`, a `--dest-root` that is not a directory; also the CATCH-ALL holding the exit contract, so any unnamed exception arrives as this code and exit 2 rather than as a traceback and exit 1 |
 

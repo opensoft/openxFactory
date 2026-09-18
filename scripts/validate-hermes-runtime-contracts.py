@@ -24,6 +24,7 @@ from scripts.hermes_runtime_validation.acceptance import (  # noqa: E402
     extract_openspec_inventory,
 )
 from scripts.hermes_runtime_validation.catalog import (  # noqa: E402
+    CatalogDependencyError,
     CatalogError,
     ContractCatalog,
     load_contract_catalog,
@@ -703,6 +704,24 @@ def _validate_repository(
 
     try:
         catalog = load_contract_catalog(catalog_path, family_root)
+    except CatalogDependencyError as error:
+        # A PINNED LEG THAT CANNOT BE READ IS A DEPENDENCY FAILURE, NEVER AN
+        # INVALID CATALOG (`#1070`). Two of this family's members are
+        # `moved_verbatim` carve rows whose bytes live in a pinned leg, so an
+        # uninitialized or deinited submodule stops the catalog LOAD — and
+        # before this the refusal escaped as a traceback and exit code 1,
+        # which on the 0/1/2 contract means the validator has findings about
+        # the contracts. It has none: it never read them. `True` here is the
+        # `dependency_error` flag `classify_exit_code` turns into exit 2, the
+        # same answer `release.ReleaseDependencyError` already gets below.
+        findings.append(
+            _finding(
+                "HRC-HARNESS-CATALOG-DEPENDENCY",
+                str(error),
+                path="contracts/hermes-runtime/contract-index.yaml",
+            )
+        )
+        return findings, True, selection, summary
     except CatalogError as error:
         findings.append(
             _finding(

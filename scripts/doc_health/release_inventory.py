@@ -22,7 +22,7 @@ THE COMPARISON, per the ratified delta:
   * every member is compared on RAW BYTES digest AND recorded `git_mode`.
 
 THE TAXONOMY IS EXHAUSTIVE AND DISJOINT, which is the part worth reading twice
-because three of its five arms were wrong in the first draft and were tightened
+because three of its six arms were wrong in the first draft and were tightened
 by review before any code existed:
 
   no bundle declared ............................. SKIP
