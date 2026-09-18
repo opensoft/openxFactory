@@ -322,6 +322,46 @@ def test_a_head_object_git_cannot_read_is_a_run_that_could_not_be_taken(
     assert "remainder" not in captured.out
 
 
+def test_a_git_that_never_returns_is_a_run_that_could_not_be_taken(
+        tmp_path, monkeypatch) -> None:
+    """EVERY GIT THIS REPORT RUNS IS BOUNDED, and a read that never returns is a
+    read it did not take.
+
+    A partial clone, a promisor remote or an unhealthy object store can make a
+    git read BLOCK rather than fail, and an unbounded one hangs the scheduled
+    nightly instead of taking the non-zero exit this capability has for exactly
+    that. The bound is the estate's own — `scripts/hermes_runtime_validation/
+    content.py` binds the identical `subprocess.run` to the same 30 seconds and
+    converts `TimeoutExpired` the same way. (Copilot `PRRT_kwDOTAvnrs6jtgeK`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+    assert report.GIT_TIMEOUT_SECONDS == 30
+
+    seen = {}
+
+    def never_returns(argv, **kwargs):
+        seen["timeout"] = kwargs.get("timeout")
+        raise subprocess.TimeoutExpired(argv, kwargs.get("timeout"))
+
+    monkeypatch.setattr(report.subprocess, "run", never_returns)
+    with pytest.raises(report.CouldNotRun) as raised:
+        report.take_reading(root)
+    assert "did not return within 30s" in str(raised.value)
+    assert seen["timeout"] == 30, "the bound reaches the sink, not just the docs"
+
+
+def test_every_git_this_report_runs_goes_through_the_one_bounded_sink(
+        tmp_path) -> None:
+    """The bound is worth nothing if a second `subprocess.run` is added beside
+    it later, so the script is read for the sink being the only one."""
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert source.count("subprocess.run(") == 1, \
+        "one sink, so one place can bound, scrub and resolve for all of them"
+    assert source.count("timeout=GIT_TIMEOUT_SECONDS") == 1
+
+
 def test_a_git_that_cannot_be_run_at_all_is_a_run_that_could_not_be_taken(
         tmp_path, monkeypatch) -> None:
     """The third outcome's other arm: git not runnable rather than git failing.

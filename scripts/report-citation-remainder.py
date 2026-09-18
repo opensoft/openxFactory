@@ -208,6 +208,21 @@ SCRUBBED_GIT_ENVIRONMENT = (
 
 INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(?:KEY|VALUE)_[0-9]+")
 
+#: THE BOUND EVERY GIT THIS REPORT RUNS IS GIVEN, in seconds, and the estate's
+#: own number rather than a second one — `scripts/hermes_runtime_validation/
+#: content.py:103-114` binds the identical `subprocess.run` to 30 and converts
+#: `TimeoutExpired` into its own "could not run" finding, and
+#: `fix/1098-realgit-subprocess-timeouts` is binding the same sink elsewhere.
+#: A PARTIAL CLONE, A PROMISOR REMOTE OR AN UNHEALTHY OBJECT STORE CAN MAKE ANY
+#: OF THESE READS BLOCK RATHER THAN FAIL, and an unbounded one hangs the
+#: scheduled nightly instead of taking the non-zero exit this capability has for
+#: exactly that. MEASURED HEADROOM, on this repository at this head: the
+#: heaviest git this report runs — `--history`'s `log --all --diff-filter=A
+#: --reverse` — takes 0.46s and `ls-files -s -z` over 5,510 entries takes
+#: 0.007s, so the bound is some sixty times the worst case it has to clear.
+#: (Copilot `PRRT_kwDOTAvnrs6jtgeK`.)
+GIT_TIMEOUT_SECONDS = 30
+
 
 def sanitized_git_environment() -> dict:
     """The environment every git this report runs is given.
@@ -242,6 +257,10 @@ def git_status(root: Path, *args: str):
     the answer "the tracked content differs from the head" and not a failure to
     read the tree.
 
+    EVERY GIT THIS REPORT RUNS IS BOUNDED HERE, at the sink, because this is
+    where all of them are: a read that never returns is a read this report did
+    not take, and it takes the same "could not run" exit as one that failed.
+
     THE ROOT IS RESOLVED TO AN ABSOLUTE PATH BEFORE IT REACHES `git`, AT THE
     SINK AND NOT ONLY AT THE CALLER. `REPO_ROOT` is caller-supplied text and
     every one of this report's gits is this one call, so the one place the
@@ -260,7 +279,16 @@ def git_status(root: Path, *args: str):
         result = subprocess.run(
             ["git", "--no-replace-objects", "-C", where, *args],
             capture_output=True, text=True,
+            timeout=GIT_TIMEOUT_SECONDS,
             env=sanitized_git_environment())
+    except subprocess.TimeoutExpired as error:
+        # A READ THAT NEVER RETURNS IS A READ THIS REPORT DID NOT TAKE, and it
+        # takes the same exit as one that failed. Separated from `OSError` only
+        # so the message names the bound rather than leaving a reader to guess
+        # why a git "could not be run" after half a minute of running.
+        raise CouldNotRun(
+            f"`git {' '.join(args)}` did not return within "
+            f"{GIT_TIMEOUT_SECONDS}s in {root}") from error
     except OSError as error:
         raise CouldNotRun(f"git could not be run: {error}") from error
     return result.returncode, result.stdout, result.stderr
