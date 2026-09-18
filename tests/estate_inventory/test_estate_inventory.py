@@ -89,8 +89,51 @@ def _row(repository: str, name: str | None = None, *,
     return row
 
 
+def _carrier_row(address: str) -> dict:
+    """A `governed` row for a repository some other row names as its CARRIER.
+
+    `opensoft/xFactory`'s is spelled with `kind: root`, which is the one
+    admission that address may carry and the one no `.gitmodules` can give it.
+    """
+    if address == ei.AGGREGATION_ROOT:
+        return _row(address, role="the aggregation root",
+                    admitted_by=[{"kind": "root"}])
+    return _row(address, role="a governed carrier",
+                admitted_by=[{"kind": "gitlink",
+                              "carrier": ei.AGGREGATION_ROOT}])
+
+
 def _inventory(root: Path, rows: list[dict], name: str = "inventory.yaml",
-               head: dict | None = None) -> Path:
+               head: dict | None = None, bind_carriers: bool = True) -> Path:
+    """A well-formed inventory file at `root`.
+
+    THE CARRIERS ARE BOUND UNLESS A CASE IS TESTING THE BINDING. `load_inventory`
+    requires every `gitlink` carrier to resolve to a `governed` row OF THIS SAME
+    INVENTORY — the kind's own words being "a GOVERNED ESTATE REPOSITORY's
+    `.gitmodules`" — so a fixture naming a carrier it does not carry is refused,
+    correctly and uninterestingly, in every case whose subject is something
+    else. The rows are APPENDED, never prepended, so `rows[0]` is still the row
+    the case wrote. `bind_carriers=False` opts out, and the cases that exercise
+    the binding itself pass it.
+    """
+    rows = list(rows)
+    if bind_carriers:
+        # TO A FIXED POINT, because an appended carrier row names a carrier of
+        # its own and the binding is only satisfied when nothing is left owing.
+        carried = {row["repository"] for row in rows}
+        while True:
+            owed = [
+                admission["carrier"]
+                for row in rows for admission in row.get("admitted_by", [])
+                if isinstance(admission, dict)
+                and admission.get("kind") == "gitlink"
+                and isinstance(admission.get("carrier"), str)
+                and admission["carrier"] not in carried]
+            if not owed:
+                break
+            for carrier in dict.fromkeys(owed):
+                rows.append(_carrier_row(carrier))
+                carried.add(carrier)
     document = {"schema_version": 1, "kind": "estate-repository-inventory"}
     if head is not None:
         document.update(head)
@@ -104,14 +147,24 @@ def _inventory(root: Path, rows: list[dict], name: str = "inventory.yaml",
 
 
 def _proposal(root: Path, change: str, front: str, archived: bool = False,
-              body: str = "# Proposal\n") -> Path:
+              body: str = "# Proposal\n", status: str | None = None) -> Path:
+    """A proposal at `openspec/changes[/archive]/<change>/proposal.md`.
+
+    `status` writes the lifecycle `Status:` HEADER LINE, which is what a
+    `change` admission's re-check reads (the kind admits a RATIFIED change and
+    not a directory). It is left ABSENT by default, because most cases here are
+    about the grammar and a helper that ratified every fixture silently would
+    hide the one constraint that matters at the sites that do care.
+    """
     where = root / "openspec" / "changes"
     if archived:
         where = where / "archive"
     folder = where / change
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / "proposal.md"
-    path.write_text(f"---\n{front}\n---\n\n{body}", encoding="utf-8")
+    header = f"Status: {status}\n\n" if status is not None else ""
+    path.write_text(f"---\n{front}\n---\n\n{header}{body}",
+                    encoding="utf-8")
     return path
 
 
@@ -318,7 +371,8 @@ def test_an_inventory_MISSING_the_change_row_REFUSES_the_ratified_packet(tmp_pat
     """
     _proposal(tmp_path, "create-a-thing",
               "code_surface: opensoft/NewThing — created by this change\n"
-              "target_release: implemented\n")
+              "target_release: implemented\n",
+              status="ratified")
     register = _register(tmp_path)
 
     without = _inventory(tmp_path, [_row("opensoft/openxFactory")],
@@ -572,7 +626,16 @@ def test_a_tree_at_the_carriers_FORMER_address_VERIFIES_through_the_map(
         tmp_path, path,
         "--estate-tree", f"codeXfactory/codexFactory={former}")
     assert result.returncode == 0, result.stdout
-    assert "1 NOT RE-CHECKED" in result.stdout
+    # NAMED ON THE ROW AND NOT ON A WHOLE-FILE COUNT: the carrier binding means
+    # this inventory also carries the carriers' own rows, whose gitlinks nobody
+    # supplied a tree for and which are NOT RE-CHECKED for that ordinary
+    # reason. The subject here is THIS row and the pending map, so this is what
+    # is asserted.
+    assert "0 named in a VERIFIED supplied tree" in result.stdout
+    assert "opensoft/Nested (gitlink in codeXfactory/codexFactory):" \
+        in result.stdout
+    assert "is a checkout of opensoft/codexFactory, not of " \
+        "codeXfactory/codexFactory" in result.stdout
 
 
 def test_the_inventory_carrying_a_FORMER_address_reports_the_current_one(
@@ -1159,3 +1222,352 @@ def test_the_live_inventory_stays_under_the_strict_loaders_byte_ceiling():
     size = len(INVENTORY.read_text(encoding="utf-8").encode("utf-8"))
     ceiling = importlib.import_module("frontmatter_strict").CEILING_BYTES
     assert size < ceiling, (size, ceiling)
+
+
+# ==============================================================================
+# THE REVIEW ROUND OF PR #1119: ten hardening cases, one per finding
+#
+# EACH IS WRITTEN TO FAIL AGAINST THE TREE WITHOUT ITS FIX, on the same
+# fails-then-passes obligation `tasks.md` § 3.5 puts on every case above, and
+# each names the hole in the pre-fix reader rather than describing the fix. The
+# subject of all ten is the same sentence read strictly: an admission is
+# CHECKABLE AGAINST THE TREE, so every part of the evidence — the host an origin
+# URL names, the carrier a gitlink names, the whole of an address, the exact
+# archived directory, the ratification of a change, the symlink under a path —
+# is part of what is checked, and anything left unchecked is a place a row can
+# be admitted on evidence nobody looked at.
+# ==============================================================================
+
+
+def test_an_origin_on_A_FOREIGN_HOST_is_not_this_estates_carrier(tmp_path):
+    """The ruling verifies a tree BY ITS OWN ORIGIN URL, and a URL's HOST is
+    part of it.
+
+    A normalization that kept the `<owner>/<name>` PATH and discarded the HOST
+    made `git@attacker.example:opensoft/xFactory.git` verify as this estate's
+    aggregation, so a tree nobody here wrote could discharge — or condemn — a
+    row. That is the substitution "Bind the carrier identity" refuses, arriving
+    one field to the left of the path it was ruled about.
+    """
+    assert ei.normalize_origin("git@github.com:opensoft/xFactory.git") == \
+        "opensoft/xFactory"
+    assert ei.normalize_origin("https://github.com/opensoft/xFactory") == \
+        "opensoft/xFactory"
+    assert ei.normalize_origin(
+        "git@attacker.example:opensoft/xFactory.git") is None
+    assert ei.normalize_origin(
+        "https://gitlab.example/opensoft/xFactory.git") is None
+
+    impostor = _worktree(tmp_path, "git@attacker.example:opensoft/xFactory.git",
+                         submodules=["opensoft/openxFactory"])
+    check = ei.carrier_identity(impostor, "opensoft/xFactory")
+    assert check.verified is False
+    assert check.observed is None
+
+    path = _inventory(tmp_path, [_row("opensoft/openxFactory")])
+    result = _run_inventory(tmp_path, path,
+                            "--estate-tree", f"opensoft/xFactory={impostor}")
+    assert result.returncode == 0, result.stdout
+    assert "0 named in a VERIFIED supplied tree" in result.stdout
+    assert "no origin URL could be read" in result.stdout
+
+
+def test_a_gitlink_CARRIER_must_resolve_to_a_GOVERNED_row(tmp_path):
+    """"a GOVERNED ESTATE REPOSITORY's `.gitmodules`" is the kind's own first
+    clause, and it is the clause the loader did not enforce.
+
+    A carrier was accepted on its SHAPE alone, so a row could claim evidence
+    from a repository this inventory carries no row for at all, or from one it
+    carries as `pinned` or `external` — and a supplied checkout of that
+    repository would then discharge the row. Membership would rest on a tree
+    nobody in this estate writes.
+    """
+    unknown = _inventory(tmp_path, [
+        _row("opensoft/Thing",
+             admitted_by=[{"kind": "gitlink", "carrier": "opensoft/Nowhere"}]),
+    ], name="unknown.yaml", bind_carriers=False)
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(unknown)
+    assert "CARRIES NO ROW FOR" in str(refusal.value)
+
+    ungoverned = _inventory(tmp_path, [
+        _row("opensoft/Thing",
+             admitted_by=[{"kind": "gitlink",
+                           "carrier": "Fission-AI/OpenSpec"}]),
+        _row("Fission-AI/OpenSpec", governance="external",
+             admitted_by=[{"kind": "pin", "path": "contracts/cli-pin.yaml"}]),
+    ], name="ungoverned.yaml", bind_carriers=False)
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(ungoverned)
+    assert "governance: external" in str(refusal.value)
+
+    # AND THE LAWFUL SHAPE STILL LOADS, so the guard refuses the carrier it
+    # should and nothing else.
+    lawful = _inventory(tmp_path, [_row("opensoft/Thing")], name="lawful.yaml")
+    assert len(ei.load_inventory(lawful).rows) == 2
+
+
+def test_evidence_naming_a_LONGER_address_does_not_discharge_a_shorter_row(
+        tmp_path):
+    """"`<pin path>` names `<repository>`" was answered by a SUBSTRING test, and
+    a substring is not a naming.
+
+    `opensoft/openXwallet` contains the characters of `opensoft/open`, so a pin
+    that names only the first discharged a row for the second — an admission
+    re-checked as NAMED on evidence that is about a different repository. The
+    address is matched on its own boundaries instead, and the ordinary lawful
+    spellings (a bare address, one inside a URL, one with a `.git` suffix) still
+    discharge.
+    """
+    contracts = tmp_path / "contracts"
+    contracts.mkdir(parents=True, exist_ok=True)
+    (contracts / "wallet-pin.yaml").write_text(
+        "source_repository: opensoft/openXwallet\n", encoding="utf-8")
+    path = _inventory(tmp_path, [
+        _row("opensoft/open", governance="pinned",
+             admitted_by=[{"kind": "pin", "path": "contracts/wallet-pin.yaml"}]),
+    ])
+    verdicts = ei.evidence_verdicts(ei.load_inventory(path), tmp_path)
+    prefix = [v for v in verdicts if v.row.repository == "opensoft/open"]
+    assert [v.verdict for v in prefix] == [ei.GONE]
+    assert "no longer names `opensoft/open`" in prefix[0].detail
+
+    (contracts / "dox-pin.yaml").write_text(
+        "# mounts the assembly root\n"
+        "source_url: https://github.com/opensoft/openDox.git\n"
+        "# `opensoft/openDox-code` carries no migrations directory yet\n",
+        encoding="utf-8")
+    urls = _inventory(tmp_path, [
+        _row("opensoft/openDox", governance="pinned",
+             admitted_by=[{"kind": "pin", "path": "contracts/dox-pin.yaml"}]),
+    ], name="urls.yaml")
+    named = [v for v in ei.evidence_verdicts(ei.load_inventory(urls), tmp_path)
+             if v.row.repository == "opensoft/openDox"]
+    assert [v.verdict for v in named] == [ei.NAMED]
+
+
+def test_an_archived_id_that_merely_ENDS_WITH_the_change_is_not_that_change(
+        tmp_path):
+    """A PROVISIONAL row expires at ITS OWN change's archive and at no other's.
+
+    `endswith` made every id that ends with another id answer for it, so
+    `2026-09-18-recreate-a-thing` reported `create-a-thing` as archived — a live
+    provisional row told to retire on an act that was some other change's. The
+    dated separator is what makes the id's first character a boundary, so it is
+    required.
+    """
+    archive = tmp_path / "openspec" / "changes" / "archive"
+    (archive / "2026-09-18-recreate-a-thing").mkdir(parents=True)
+    path = _inventory(tmp_path, [
+        _row("opensoft/NewThing", governance="pinned", provisional=True,
+             admitted_by=[{"kind": "change", "change": "create-a-thing"}]),
+    ])
+    verdict = [v for v in ei.evidence_verdicts(ei.load_inventory(path),
+                                               tmp_path)
+               if v.admission.kind == ei.CHANGE][0]
+    assert verdict.verdict == ei.GONE
+    assert "carries no change `create-a-thing`, active or archived" \
+        in verdict.detail
+    assert "has ARCHIVED" not in verdict.detail
+
+    # AND ITS OWN DATED DIRECTORY STILL ANSWERS FOR IT.
+    (archive / "2026-09-18-create-a-thing").mkdir(parents=True)
+    verdict = [v for v in ei.evidence_verdicts(ei.load_inventory(path),
+                                               tmp_path)
+               if v.admission.kind == ei.CHANGE][0]
+    assert "has ARCHIVED" in verdict.detail
+
+
+def test_ROOT_admits_the_aggregation_row_and_no_other(tmp_path):
+    """`root` NAMES NO FILE, so it is the one admission no run can contradict —
+    which is why it means ONE repository.
+
+    `evidence_verdicts` marks a `root` admission NAMED unconditionally, and
+    correctly: the aggregation is real and a superproject is not its own
+    submodule. Accepted on ANY row, that made it the estate's open door — write
+    `kind: root` on any address and the row walks in on evidence nobody is able
+    to look at.
+    """
+    interloper = _inventory(tmp_path, [
+        _row("opensoft/Interloper", admitted_by=[{"kind": "root"}]),
+    ], name="interloper.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(interloper)
+    assert "admits `opensoft/xFactory` and no other repository" \
+        in str(refusal.value)
+
+    lawful = _inventory(tmp_path, [
+        _row(ei.AGGREGATION_ROOT, admitted_by=[{"kind": "root"}]),
+    ], name="lawful-root.yaml")
+    assert [v.verdict for v in
+            ei.evidence_verdicts(ei.load_inventory(lawful), tmp_path)] == \
+        [ei.NAMED]
+
+
+def test_a_bare_name_that_is_not_the_addresss_FINAL_SEGMENT_is_refused(
+        tmp_path):
+    """The two columns are ONE repository written two ways, and they are held to
+    agree.
+
+    `name:` was checked for repository-name SYNTAX and never against
+    `repository:`, so a row could read `repository: opensoft/openxFactory,
+    name: trusted` — making the bare head `trusted` authorize that repository
+    while `openxFactory`, the spelling the corpus actually writes, resolved to
+    nothing at all.
+    """
+    mislabelled = _inventory(tmp_path, [
+        _row("opensoft/openxFactory", name="trusted"),
+    ], name="mislabelled.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(mislabelled)
+    assert "final segment" in str(refusal.value)
+
+    lawful = _inventory(tmp_path, [_row("opensoft/openxFactory")],
+                        name="lawful-name.yaml")
+    inventory = ei.load_inventory(lawful)
+    assert ei.resolve(inventory, "openxFactory").resolved is True
+
+
+def test_a_supplied_carriers_SYMLINKED_gitmodules_is_refused_unread(tmp_path):
+    """A SUPPLIED TREE IS THE ONE TREE THIS REPOSITORY DID NOT WRITE, so the
+    module's own no-symlink rule reaches it too.
+
+    `Path.is_file()` and `Path.read_text()` both FOLLOW LINKS, so a carrier
+    presenting `.gitmodules` as a symlink had the validator re-check a row
+    against bytes from wherever that link points. The tree VERIFIES as the
+    carrier and its `.gitmodules` is still not read: the verdict is NOT
+    RE-CHECKED, which is the one this arm has for evidence it could not look at.
+    """
+    outside = tmp_path / "outside" / "planted-gitmodules"
+    outside.parent.mkdir(parents=True, exist_ok=True)
+    outside.write_text('[submodule "openxFactory"]\n'
+                       '\tpath = openxFactory\n'
+                       '\turl = git@github.com:opensoft/openxFactory.git\n',
+                       encoding="utf-8")
+    carrier = _worktree(tmp_path, "git@github.com:opensoft/xFactory.git")
+    (carrier / ".gitmodules").symlink_to(outside)
+
+    assert ei.carrier_identity(carrier, "opensoft/xFactory").verified is True
+    assert ei.gitmodules_addresses(carrier) is None
+
+    path = _inventory(tmp_path, [_row("opensoft/openxFactory")])
+    result = _run_inventory(tmp_path, path,
+                            "--estate-tree", f"opensoft/xFactory={carrier}")
+    assert result.returncode == 0, result.stdout
+    assert "its `.gitmodules` could not be read" in result.stdout
+    assert "0 named in a VERIFIED supplied tree" in result.stdout
+
+    # A REAL FILE IN THE SAME PLACE STILL DISCHARGES THE ROW.
+    (carrier / ".gitmodules").unlink()
+    (carrier / ".gitmodules").write_text(outside.read_text(encoding="utf-8"),
+                                         encoding="utf-8")
+    result = _run_inventory(tmp_path, path,
+                            "--estate-tree", f"opensoft/xFactory={carrier}")
+    assert "1 named in a VERIFIED supplied tree" in result.stdout
+
+
+def test_a_DRAFT_change_admits_nothing_and_only_a_RATIFIED_one_does(tmp_path):
+    """"the change MUST BE RATIFIED (an author cannot admit a repository by
+    drafting)" — `design.md` D1.1, on the one kind whose evidence an author
+    controls completely.
+
+    The re-check asked only whether a DIRECTORY existed under
+    `openspec/changes/`, so any draft — one written this morning — admitted any
+    repository to the estate. The proposal's lifecycle `Status:` is read through
+    the shipped strict loader, so this reader and the house checker cannot
+    disagree about what a document's standing is.
+    """
+    path = _inventory(tmp_path, [
+        _row("opensoft/NewThing", governance="pinned", provisional=True,
+             admitted_by=[{"kind": "change", "change": "create-a-thing"}]),
+    ])
+
+    _proposal(tmp_path, "create-a-thing", "code_surface: none\n",
+              status="draft")
+    verdict = [v for v in ei.evidence_verdicts(ei.load_inventory(path),
+                                               tmp_path)
+               if v.admission.kind == ei.CHANGE][0]
+    assert verdict.verdict == ei.GONE
+    assert "`Status: draft`" in verdict.detail
+    assert "AN AUTHOR CANNOT ADMIT A REPOSITORY BY DRAFTING ONE" \
+        in verdict.detail
+
+    _proposal(tmp_path, "create-a-thing", "code_surface: none\n")
+    verdict = [v for v in ei.evidence_verdicts(ei.load_inventory(path),
+                                               tmp_path)
+               if v.admission.kind == ei.CHANGE][0]
+    assert verdict.verdict == ei.GONE
+    assert "no `Status:` header at all" in verdict.detail
+
+    _proposal(tmp_path, "create-a-thing", "code_surface: none\n",
+              status="ratified")
+    verdict = [v for v in ei.evidence_verdicts(ei.load_inventory(path),
+                                               tmp_path)
+               if v.admission.kind == ei.CHANGE][0]
+    assert verdict.verdict == ei.NAMED
+    assert "carries `Status: ratified`" in verdict.detail
+
+
+def test_a_SYMLINKED_archive_child_is_not_an_archived_change(tmp_path):
+    """The archive walk obeys the same no-symlink rule as every other path this
+    module opens.
+
+    `Path.is_dir()` FOLLOWS LINKS, so a link named like an archived change —
+    pointed at any directory at all — reported a live PROVISIONAL row as having
+    expired, on a name somebody wrote and bytes living outside the tree being
+    judged.
+    """
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    archive = tmp_path / "openspec" / "changes" / "archive"
+    archive.mkdir(parents=True)
+    (archive / "2026-09-18-create-a-thing").symlink_to(
+        elsewhere, target_is_directory=True)
+
+    path = _inventory(tmp_path, [
+        _row("opensoft/NewThing", governance="pinned", provisional=True,
+             admitted_by=[{"kind": "change", "change": "create-a-thing"}]),
+    ])
+    verdict = [v for v in ei.evidence_verdicts(ei.load_inventory(path),
+                                               tmp_path)
+               if v.admission.kind == ei.CHANGE][0]
+    assert verdict.verdict == ei.GONE
+    assert "has ARCHIVED" not in verdict.detail
+    assert "carries no change `create-a-thing`, active or archived" \
+        in verdict.detail
+    assert "2026-09-18-create-a-thing" not in ei._archive_children(tmp_path)
+
+
+def test_a_SYMLINKED_scripts_directory_is_REFUSED_and_not_reported_absent(
+        tmp_path):
+    """A SILENT `NOT JUDGED` IS THE WORSE OF THE TWO VERDICTS, because it
+    passes.
+
+    The default probe asked `is_symlink() or exists()`. For a symlinked
+    `scripts/` whose target carries no inventory — and for a dangling one —
+    BOTH are false: `is_symlink()` answers for the LEAF and `exists()` FOLLOWS
+    the link. The run then reported membership NOT JUDGED, which reads as "this
+    tree carries no inventory" when what is true is "this tree reaches its
+    inventory through a link nobody here may follow". The probe uses `os.lstat`
+    semantics and the refusal is `load_inventory`'s own, where it is written
+    down.
+    """
+    _proposal(tmp_path, "a-change", "code_surface: openxFactory\n")
+    register = _register(tmp_path)
+    (tmp_path / "planted").mkdir()
+    (tmp_path / "scripts").symlink_to(tmp_path / "planted",
+                                      target_is_directory=True)
+
+    result = _run_surface(tmp_path, None, register)
+    assert result.returncode == 2, result.stdout
+    assert "membership validation CANNOT RUN" in result.stdout
+    assert "reached through a symlink" in result.stdout
+    assert "membership: NOT JUDGED" not in result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+
+    # AND A TREE THAT SIMPLY HAS NO `scripts/` IS STILL NOT JUDGED, so the
+    # probe refuses the link and not the ordinary absence.
+    (tmp_path / "scripts").unlink()
+    result = _run_surface(tmp_path, None, register)
+    assert result.returncode == 0, result.stdout
+    assert "membership: NOT JUDGED" in result.stdout

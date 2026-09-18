@@ -174,6 +174,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -353,6 +354,28 @@ def _membership(repo_root: Path, inventory: ei.Inventory,
     )
 
 
+def _lexists(path: Path) -> bool:
+    """Whether `path` EXISTS AS AN ENTRY, link or not, dangling or not.
+
+    `os.lstat` is the one probe that does not follow the link it is asked
+    about, so it answers PRESENCE for the three shapes this validator must
+    distinguish from absence and `Path.exists()` cannot: a live symlink, a
+    DANGLING symlink, and an ordinary file. Absence is the only thing that
+    raises, and every other failure — a permission denied, a symlink loop on an
+    ancestor, a path too long — is reported as PRESENT so the decision goes to
+    `load_inventory`, whose refusals are named and whose guard is the one this
+    estate has already reviewed. FAIL TOWARDS THE REFUSAL, never towards the
+    silent pass.
+    """
+    try:
+        os.lstat(path)
+    except FileNotFoundError:
+        return False
+    except (OSError, ValueError):
+        return True
+    return True
+
+
 def _report(report: cs.Report) -> None:
     print(
         f"code_surface: {report.active_total} active proposals, "
@@ -433,9 +456,29 @@ def main(argv: list[str] | None = None) -> int:
         # dangling symlink and a symlinked `scripts/` are both PRESENT for this
         # question, and both are REFUSED by `load_inventory` rather than read —
         # which is the point of asking presence here and shape there.
+        #
+        # AND THE PROBE THAT ANSWERS IT IS `os.lstat`'S AND NOT `exists()`'S,
+        # WHICH THE FIRST WRITING OF THIS BRANCH GOT WRONG AT EXACTLY THE
+        # ANCESTOR IT NAMES. `Path.exists()` FOLLOWS SYMLINKS and
+        # `Path.is_symlink()` ANSWERS FOR THE LEAF ALONE, so for a DANGLING
+        # `scripts/` symlink — or a symlinked `scripts/` whose target simply has
+        # no inventory in it — BOTH are False: the run then reported membership
+        # NOT JUDGED, which reads as "this tree carries no inventory" when what
+        # is true is "this tree reaches its inventory through a link, and no
+        # reader here may follow it". The silent verdict is the worse of the
+        # two, because NOT JUDGED passes.
+        #
+        # SO THE ANCESTOR IS PROBED TOO, AND A SYMLINKED `scripts/` IS HANDED TO
+        # `load_inventory` ON PURPOSE. Its `_has_symlinked_ancestor` guard is
+        # where the refusal belongs and where it is already written down; this
+        # site decides only PRESENCE, and a symlinked ancestor is present. The
+        # refusal then arrives as the loader's own named message through the
+        # CANNOT RUN branch below, rather than as a second rule written here
+        # that could drift from it.
         candidate = repo_root / "scripts" / ei.INVENTORY_PATH.name
-        named = candidate if (candidate.is_symlink() or candidate.exists()) \
-            else None
+        named = candidate if (_lexists(candidate)
+                              or (_lexists(candidate.parent)
+                                  and candidate.parent.is_symlink())) else None
     if named is not None:
         # AN INVENTORY THAT IS PRESENT AND CANNOT BE USED REFUSES RATHER THAN
         # FALLING BACK, on `load_inventory`'s own rule and on the sibling's:

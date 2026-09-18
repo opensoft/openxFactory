@@ -104,6 +104,18 @@ TRANSFER_MAP = Path("contracts") / "policies" / "repository-identity.yaml"
 CHANGES_DIR = Path("openspec") / "changes"
 ARCHIVE_DIR = CHANGES_DIR / "archive"
 
+#: THE AGGREGATION REPOSITORY, WHICH IS THE ONE ROW `root` MAY ADMIT. The kind's
+#: whole definition is "the aggregation repository ITSELF, which no
+#: `.gitmodules` can name because a superproject is not its own submodule, and
+#: which would otherwise be the one member of the estate no evidence admits" —
+#: a statement about ONE repository, named at `design.md` D0.2 row 1. Left
+#: unbound, `root` is the kind that admits ANYTHING: it names no file, so
+#: `evidence_verdicts` marks it NAMED unconditionally, and a row that wrote
+#: `kind: root` would walk into the estate carrying evidence nobody can look at.
+#: Every other kind points at something checkable; this one is checkable only by
+#: being pinned to the single address it means.
+AGGREGATION_ROOT = "opensoft/xFactory"
+
 #: THE THREE GOVERNANCE CLASSES, closed. `governed` the estate authors its
 #: contents; `pinned` openxFactory consumes it at a commit and digest and
 #: authors none of it; `external` it is pinned and is NOT of this estate at all.
@@ -147,14 +159,42 @@ _NAME = r"[A-Za-z][A-Za-z0-9._-]*[A-Za-z0-9]"
 ADDRESS_RE = re.compile(rf"^{_NAME}/{_NAME}$")
 NAME_RE = re.compile(rf"^{_NAME}$")
 
+#: THE FORGE HOSTS THIS ESTATE'S REPOSITORIES LIVE AT, and the reason the host
+#: is part of the identity rather than a prefix to be discarded. The ruling is
+#: "Bind the carrier identity" and its own words are that a supplied tree is
+#: verified "by the tree's own ORIGIN URL"; a normalization that kept the
+#: `<owner>/<name>` PATH and threw the HOST away would verify
+#: `git@attacker.example:opensoft/xFactory.git` as this estate's aggregation and
+#: let a tree nobody in this estate wrote discharge — or condemn — a row, which
+#: is the very substitution the ruling exists to refuse, arriving one field to
+#: the left.
+#:
+#: WHY THIS LIST AND NOT THE TRANSFER MAP'S. `contracts/policies/repository-identity.yaml`
+#: records an identity as an `<owner>/<repo>` ADDRESS and carries NO host field
+#: at all (`field_rules.former`, `field_rules.current`), so it cannot supply the
+#: bound and a reader that waited for it would wait forever. The estate's own
+#: spellings are measured instead: every `url =` in the aggregation's
+#: `.gitmodules` and every origin this repository is cloned from is
+#: `git@github.com:`, so GitHub's canonical ssh and https forms are what is
+#: accepted and every other host yields NO OBSERVED IDENTITY — the tree is
+#: UNVERIFIED and the row NOT RE-CHECKED, never verified against a stranger.
+#: A second forge is a one-line addition HERE, where the reason is written down.
+FORGE_HOSTS = ("github.com",)
+
+_HOSTS = "|".join(re.escape(host) for host in FORGE_HOSTS)
+
 #: THE ORIGIN URL SPELLINGS A WORKING TREE MAY CARRY, normalized past the
 #: `git@`/`https://` forms and the `.git` suffix, which is `design.md` D1.2's
-#: own description of what the verification reads. Nothing else is accepted: a
-#: URL this does not match yields no observed identity, and the tree is
-#: UNVERIFIED rather than guessed at.
+#: own description of what the verification reads — AND PAST NOTHING ELSE. The
+#: host is MATCHED, not skipped, and the repository half is REQUIRED (an
+#: `owner/` with no name is not an address and no longer reaches the caller as
+#: one). Nothing else is accepted: a URL this does not match yields no observed
+#: identity, and the tree is UNVERIFIED rather than guessed at.
 _ORIGIN_RE = re.compile(
-    r"^(?:git@[^:/]+:|ssh://(?:[^@/]+@)?[^/]+/|https?://(?:[^@/]+@)?[^/]+/)"
-    rf"({_NAME}/{_NAME}?)(?:\.git)?/?$")
+    rf"^(?:git@(?:{_HOSTS}):"
+    rf"|ssh://(?:[^@/]+@)?(?:{_HOSTS})(?::\d+)?/"
+    rf"|https?://(?:[^@/]+@)?(?:{_HOSTS})(?::\d+)?/)"
+    rf"({_NAME}/{_NAME})(?:\.git)?/?$")
 
 #: A `.gitmodules` `url =` LINE'S REPOSITORY. The same normalization, applied to
 #: the submodule URLs a carrier's `.gitmodules` carries.
@@ -592,6 +632,20 @@ def load_inventory(path: Path = INVENTORY_PATH) -> Inventory:
             raise EstateInventoryError(
                 f"row {position} ({repository}) names `name: {name}`, which is "
                 "not a bare repository name")
+        segment = repository.split("/")[-1]
+        if name != segment:
+            raise EstateInventoryError(
+                f"row {position} names `repository: {repository}` and "
+                f"`name: {name}`, which is not that address's final segment "
+                f"(`{segment}`). THE BARE NAME IS THE ADDRESS'S OWN LAST "
+                "SEGMENT AND NOT A SECOND, FREELY CHOSEN LABEL: a row free to "
+                f"name itself anything could make the bare head `{name}` "
+                f"authorize `{repository}` while the bare head `{segment}` — "
+                "the spelling the corpus actually writes, and the one a reader "
+                "checking the address would predict — resolved to nothing at "
+                "all. The requirement's two columns are one repository written "
+                "two ways, so they are held to agree here rather than trusted "
+                "to")
         if entry["governance"] not in GOVERNANCE_CLASSES:
             raise EstateInventoryError(
                 f"row {position} ({repository}) declares "
@@ -657,6 +711,60 @@ def load_inventory(path: Path = INVENTORY_PATH) -> Inventory:
                 "picked, because picking is how an authorization lands in the "
                 "wrong repository")
         seen_names[row.name] = row
+
+    # THE CARRIER AND THE ROOT ARE BOUND HERE, AFTER EVERY ADDRESS IS KNOWN,
+    # because both are statements ABOUT THE INVENTORY and neither can be settled
+    # while one row is being read in isolation.
+    for row in rows:
+        for admission in row.admitted_by:
+            if admission.kind == ROOT and row.repository != AGGREGATION_ROOT:
+                # `root` NAMES NO FILE, so it is the one kind whose evidence
+                # cannot be looked at — `evidence_verdicts` marks it NAMED
+                # unconditionally and correctly, the aggregation being real and
+                # unsubmodulable. Unbound, that makes it the estate's open door:
+                # write `kind: root` on any address and the row is admitted by
+                # evidence no run can contradict. It means the ONE repository
+                # the requirement says it means.
+                raise EstateInventoryError(
+                    f"row {row.position} ({row.repository}) declares "
+                    f"`kind: root`, which admits `{AGGREGATION_ROOT}` and no "
+                    "other repository. `root` is the kind that NAMES NO FILE — "
+                    "it is the aggregation repository itself, which no "
+                    "`.gitmodules` can name because a superproject is not its "
+                    "own submodule — so it is the one admission no run can "
+                    "ever contradict, and a row that could claim it would "
+                    "enter the estate on evidence nobody is able to look at. "
+                    "Record this row's real naming act instead")
+            if admission.kind != GITLINK:
+                continue
+            assert admission.carrier is not None
+            carrier_row = seen_addresses.get(admission.carrier)
+            if carrier_row is None:
+                raise EstateInventoryError(
+                    f"row {row.position} ({row.repository}) is admitted by a "
+                    f"gitlink in `{admission.carrier}`, which THIS INVENTORY "
+                    "CARRIES NO ROW FOR. The kind is a GOVERNED ESTATE "
+                    "REPOSITORY's `.gitmodules`, so the carrier is itself a "
+                    "member of the estate and the inventory is where the "
+                    "estate's members are written down; a carrier no row names "
+                    "is a tree this file cannot say the estate has, and a "
+                    "re-check pointed at it would discharge one row on the "
+                    "word of a repository nothing admits. Add the carrier's "
+                    "own row, or record the naming act that really happened")
+            if carrier_row.governance != "governed":
+                raise EstateInventoryError(
+                    f"row {row.position} ({row.repository}) is admitted by a "
+                    f"gitlink in `{admission.carrier}`, whose own row "
+                    f"{carrier_row.position} declares "
+                    f"`governance: {carrier_row.governance}`. THE KIND SAYS "
+                    "GOVERNED and means it: a `pinned` repository is one this "
+                    "estate consumes at a commit and digest and authors none "
+                    "of, and an `external` one is not of this estate at all, "
+                    "so neither performs an ACT OF ADMISSION when its "
+                    "`.gitmodules` happens to name something. Reading their "
+                    "submodule lists as admissions would let a tree nobody "
+                    "here writes decide who is in the estate")
+
     return Inventory(rows=tuple(rows), path=path)
 
 
@@ -709,6 +817,25 @@ def former_address_rows(inventory: Inventory,
 # --- the in-tree re-check -----------------------------------------------------
 
 
+#: AN ADDRESS'S OWN BOUNDARIES, so a match is the repository and not a prefix of
+#: a longer one. `opensoft/openXwallet` contains the characters of
+#: `opensoft/open`, and a plain `in` test therefore lets ANY row whose address
+#: is a prefix of a real member's be discharged by that member's evidence — the
+#: row `opensoft/open` reading a pin that names only `opensoft/openXwallet` and
+#: reporting NAMED. The owner side has the same hole in the other direction
+#: (`soft/openDox` inside `opensoft/openDox`).
+#:
+#: A NAME CHARACTER ON EITHER SIDE IS WHAT IS REFUSED, and `/` deliberately is
+#: NOT: the estate's own evidence writes addresses inside URLs
+#: (`source_url: https://github.com/opensoft/openRepoShape`), so a leading `/`
+#: is the ordinary lawful case and forbidding it would report the estate's real
+#: pins as gone. A TRAILING `.git` IS ADMITTED EXPLICITLY, because a
+#: `.gitmodules` or workflow writes `…/opensoft/openDox.git` and `.` is
+#: otherwise a name character — but only that exact suffix, so
+#: `opensoft/openDox-code` still does not discharge `opensoft/openDox`.
+_ADDRESS_BOUNDARY = r"(?<![A-Za-z0-9._-]){address}(?:\.git)?(?![A-Za-z0-9._-])"
+
+
 def _names_repository(path: Path, repository: str) -> bool:
     """Whether the evidence file at `path` really names `repository`.
 
@@ -718,12 +845,19 @@ def _names_repository(path: Path, repository: str) -> bool:
     and a check that asked only `is_file()` would report it as named. The match
     is on the ADDRESS, the spelling the row itself carries, so a file naming
     only a bare name does not discharge an address row by accident.
+
+    AND THE ADDRESS IS MATCHED WHOLE. A SUBSTRING IS NOT A NAMING: an address
+    embedded in a longer address is a DIFFERENT REPOSITORY, and an admission
+    discharged by one is a row whose evidence was never about it. See
+    `_ADDRESS_BOUNDARY` for which characters bound it and why `/` is not one.
     """
     try:
         text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return False
-    return repository in text
+    return re.search(
+        _ADDRESS_BOUNDARY.format(address=re.escape(repository)),
+        text) is not None
 
 
 def evidence_verdicts(inventory: Inventory,
@@ -783,14 +917,26 @@ def evidence_verdicts(inventory: Inventory,
             assert admission.change is not None
             active = _unescaped(repo_root, CHANGES_DIR / admission.change)
             if active is not None and active.is_dir():
-                verdicts.append(EvidenceVerdict(
-                    row, admission, NAMED,
-                    f"`{CHANGES_DIR / admission.change}` is an active change"))
+                ratified, observed = _is_ratified(repo_root, admission.change)
+                if ratified:
+                    verdicts.append(EvidenceVerdict(
+                        row, admission, NAMED,
+                        f"`{CHANGES_DIR / admission.change}` is an active "
+                        "change and its proposal carries `Status: ratified`"))
+                else:
+                    verdicts.append(EvidenceVerdict(
+                        row, admission, GONE,
+                        f"`{CHANGES_DIR / admission.change}` is present but is "
+                        f"{observed}, and the kind admits a RATIFIED change "
+                        "alone — AN AUTHOR CANNOT ADMIT A REPOSITORY BY "
+                        "DRAFTING ONE. A directory is not a ratification, so "
+                        "this admission discharges nothing until that change "
+                        "is ratified or another kind names the repository"))
                 continue
-            archived = [
-                child for child in
-                _archive_children(repo_root)
-                if child.endswith(admission.change)]
+            dated = re.compile(
+                _ARCHIVED_AS.format(change=re.escape(admission.change)))
+            archived = [child for child in _archive_children(repo_root)
+                        if dated.fullmatch(child)]
             if archived:
                 verdicts.append(EvidenceVerdict(
                     row, admission, GONE,
@@ -808,19 +954,86 @@ def evidence_verdicts(inventory: Inventory,
     return tuple(verdicts)
 
 
+#: AN ARCHIVED PACKET'S DIRECTORY NAME, EXACTLY: the archive date and then the
+#: change id, whole. A SUFFIX TEST IS NOT AN IDENTITY TEST — every id that ENDS
+#: WITH another id ends with it, so `recreate-ledgerxwallet-overlay-boundary`
+#: answers for `create-ledgerxwallet-overlay-boundary` and a live provisional
+#: row is reported as having expired at an archive that was some other change's.
+#: The separator is what makes the id's first character a boundary rather than a
+#: coincidence, so it is required rather than assumed.
+_ARCHIVED_AS = r"\d{{4}}-\d{{2}}-\d{{2}}-{change}"
+
+
 def _archive_children(repo_root: Path) -> tuple[str, ...]:
     """The archived change-directory names, read through the same guard.
 
     An archived packet's directory is dated (`YYYY-MM-DD-<id>`), so the change
-    id is a SUFFIX of the name rather than the name — which is why the caller
-    matches on the suffix and why this returns the names rather than a set of
-    ids somebody would have to re-derive.
+    id is the name's TAIL AFTER A DATED PREFIX rather than the name — which is
+    why this returns the names rather than a set of ids somebody would have to
+    re-derive, and why the caller matches `_ARCHIVED_AS` whole rather than
+    testing a suffix.
+
+    A SYMLINKED CHILD IS NOT AN ARCHIVED CHANGE. `Path.is_dir()` FOLLOWS
+    SYMLINKS, so a link named `2026-09-18-<some live change>` and pointed at any
+    directory at all would read here as that change having archived — a
+    PROVISIONAL row reported as expired on the strength of a name somebody
+    wrote, with the bytes it rests on living outside the tree being judged.
+    That is the escape this module refuses everywhere else it opens a path
+    (`_unescaped`, `load_inventory`), and the archive walk is not an exception
+    to it: an entry is an archived change when it is a REAL DIRECTORY here.
     """
     archive = _unescaped(repo_root, ARCHIVE_DIR)
     if archive is None or not archive.is_dir():
         return ()
-    return tuple(sorted(child.name for child in archive.iterdir()
-                        if child.is_dir()))
+    try:
+        children = list(archive.iterdir())
+    except OSError:
+        return ()
+    return tuple(sorted(child.name for child in children
+                        if not child.is_symlink() and child.is_dir()))
+
+
+def _is_ratified(repo_root: Path, change: str) -> tuple[bool, str]:
+    """Whether the active change `change` carries `Status: ratified`, and what
+    it carries instead when it does not.
+
+    THE KIND ADMITS A RATIFIED CHANGE AND NOT A DIRECTORY. `design.md` D1.1
+    states the bound as the thing that keeps the fifth kind from being an escape
+    hatch: "the evidence is a change id that must resolve under
+    `openspec/changes/`, the change MUST BE RATIFIED (an author cannot admit a
+    repository by drafting)". A re-check that asked only whether the directory
+    exists would let any draft — one this lane wrote this morning — admit any
+    repository to the estate, which is the ONE admission kind whose evidence an
+    author controls completely.
+
+    READ THROUGH THE SHIPPED STRICT LOADER AND NOT BY A SECOND PARSER.
+    `frontmatter_strict.read_header_line` is the house reader for a lifecycle
+    header line and applies the same window rule as `doc_health.corpus`'s own
+    status reader, so this module and the checker cannot disagree about what a
+    document's `Status:` is.
+
+    AN UNREADABLE PROPOSAL IS NOT A RATIFICATION. Every failure — no
+    `proposal.md`, a path reached through a symlink, bytes that are not UTF-8, a
+    form the strict loader refuses, no `Status:` header at all — returns False
+    with what was actually found, because the verdict this feeds REPORTS and
+    never refuses the file, and an admission nobody can verify is an admission
+    that discharges nothing.
+    """
+    proposal = _unescaped(repo_root, CHANGES_DIR / change / "proposal.md")
+    if proposal is None or not proposal.is_file():
+        return False, "carrying no readable `proposal.md`"
+    try:
+        value = fm.read_header_line(proposal, "Status")
+    except (OSError, UnicodeDecodeError, fm.StrictFrontMatterError) as exc:
+        return False, f"a proposal this reader cannot read ({exc})"
+    if value is fm.NO_HEADER_LINE:
+        return False, "a proposal carrying no `Status:` header at all"
+    if not isinstance(value, str) or not value.strip():
+        return False, "a proposal whose `Status:` header declares nothing"
+    standing = value.strip().split()[0].strip().lower()
+    if standing == "ratified":
+        return True, value.strip()
+    return False, f"`Status: {value.strip()}`"
 
 
 # --- the carrier-identity check ----------------------------------------------
@@ -933,7 +1146,26 @@ def gitmodules_addresses(tree: Path) -> tuple[str, ...] | None:
     submodules — and is distinct from the `None` a tree that could not be read
     returns.
     """
-    path = tree / ".gitmodules"
+    relative = Path(".gitmodules")
+    path = tree / relative
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return ()  # the tree carries no submodules: a real answer
+    except (OSError, ValueError, RuntimeError):
+        return None
+    # NO PATH THIS MODULE OPENS IS REACHED THROUGH A SYMLINK, AND A SUPPLIED
+    # TREE IS NOT AN EXCEPTION — it is the one tree whose bytes this repository
+    # did not write. `Path.is_file()` and `Path.read_text()` BOTH follow links,
+    # so a carrier presenting `.gitmodules` as a symlink would have the
+    # validator discharge — or condemn — a row on bytes from wherever that link
+    # points, which is the containment failure `_unescaped` exists to refuse and
+    # `scripts/code_surface.py` refuses in the same shape. A DANGLING LINK LANDS
+    # HERE TOO and is `None` rather than `()`: the file is present, its bytes
+    # are not, and "the tree carries no submodules" would be a claim nobody
+    # checked.
+    if _unescaped(tree, relative) is None:
+        return None
     try:
         if not path.is_file():
             return ()
