@@ -2733,22 +2733,33 @@ own reference closure rather than assumed.
 > `contract-v1.34` deprecated the family, before `contract-v3.0` removed it.
 >
 > **AND ONE COUNT IN THE PROSE ABOVE IS SHORT.** "Thirteen minors and one major
-> have passed" counts the v1 line alone. Measured in `contracts/CHANGELOG.md`
-> after the deprecating `contract-v1.34`: `v1.35`–`v1.47` (THIRTEEN minors),
-> `contract-v2.0` (major), `v2.1`–`v2.6` (SIX further minors) and
-> `contract-v3.0` (this cut's major) — TWENTY-ONE releases from the deprecation
-> to the removal. There is no `contract-v2.7`: this cut's own changelog section
-> § *The number, FRESH-COUNTED at the cut, and why it is a MAJOR rather than
-> `contract-v2.7`* records that number as declined, the tree requiring a major.
+> have passed" counts the v1 line alone. What governs the count is the TAG, not
+> the changelog heading: `docs/contract-versioning-policy.md`
+> § *`contract-v2.6` — Instance Six* rules that **"a bundle that can never be
+> tagged is not thereby released; it is permanently unreleased"**. Measured at
+> the source — `git ls-remote --tags origin 'contract-v*'`, 56 tags — the
+> PUBLISHED run after the deprecating `contract-v1.34`, up to and including the
+> removal at `contract-v3.0`, is `v1.35`–`v1.47` (THIRTEEN minors),
+> `contract-v2.0` (major), `v2.1`–`v2.5` (FIVE further minors) and
+> `contract-v3.0` (this cut's major): **TWENTY published releases** between the
+> deprecation and the removal. Two numbers inside that span are NOT releases and
+> are not counted — `contract-v2.6`, which has a changelog heading and no tag and
+> can never have one (*SPENT, NEVER VERIFIABLE, NEVER PUBLISHED, SUPERSEDED*),
+> and `contract-v2.7`, which this cut's own § *The number, FRESH-COUNTED at the
+> cut, and why it is a MAJOR rather than `contract-v2.7`* records as declined.
 > The discharge the sentence claims — *"at
 > least one full minor release where the old shape produced deprecation
 > warnings"* — is satisfied many times over on either reading, which is why the
 > ratified sentence stands unedited and the fuller measurement is recorded here.
 >
-> (Both found by Copilot's review on PR #1066 at `c431a3e3`. Its reading of the
-> second said five v2 minors; measured, there are six, and the first count
-> written here said seven — the same carried-forward-numeral defect the
-> correction is about, caught by re-measuring rather than by arithmetic.)
+> (Both found by Copilot's review on PR #1066 at `c431a3e3`. The count took
+> THREE passes to get right, and every wrong pass counted a changelog heading as
+> a release: Copilot said FIVE v2 minors, which the tags say is correct; this
+> erratum first said SEVEN and invented a `contract-v2.7`; its second pass said
+> SIX by counting the unpublishable `contract-v2.6`, which Copilot caught at
+> `91644a2d` against the versioning policy. The rule the erratum kept
+> re-learning is its own: re-measure at the source — here the tags on the
+> remote — rather than count a document that names numbers it never published.)
 
 
 ### Requirement: An unrecognized chat-turn kind is refused in the SURVIVING family, never coerced into a removed one
