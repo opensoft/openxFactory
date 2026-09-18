@@ -2892,6 +2892,17 @@ the bookkeeping that ticks this group.
   `-reach-unavailable`, `-profile-unregistered`, `-digests-differ`), `--json`,
   and the 0-pass / 2-refuse / never-1 exit contract — plus
   `tests/snapshot_equivalence/` wired into `pytest-suite`, where it NEVER skips.
+  *(THE FIVE NAMED ABOVE ARE THE RULING'S PRESCRIPTION AND ARE LEFT AS RULED.
+  **The landed runner carries SEVEN**, measured at this amendment's head:
+  the five, plus `equivalence-unreadable` and — added by `#1110`'s watchdog —
+  **`equivalence-post-stack-unrenderable`**, the symmetric counterpart to
+  `-pre-tree-unrenderable` that refuses a non-terminating post-split render
+  instead of hanging the required job. **A runner may carry MORE refusals than
+  the ruling enumerated** — the ruling set a floor, not a closed set — so this
+  is recorded as a delta rather than by editing the ruling's own words above,
+  which would make the ruling appear to have said something it did not.
+  Raised by Copilot against head `83a055a6`, which named ONE missing code; the
+  measurement found TWO, and the larger number is the one recorded.)*
   **§ 5.5 ticks on that runner's evidence.** A one-shot recorded run was
   REJECTED because it proves only its own day, and *"evidence now, runner
   later"* was rejected as the shape that left this box unclaimed for fourteen
