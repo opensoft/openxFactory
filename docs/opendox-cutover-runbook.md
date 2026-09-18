@@ -846,6 +846,81 @@ makes that a MEASURED statement with a date on it instead of a reading, and it
 is what those two build tasks report against when they land. § 3.8's tag waits
 on all four parts.
 
+### 2.3 FLOOR PART 4 — the snapshot-equivalence run
+
+§ 2.1 proves the BYTES arrived and § 2.2 proves a reader the destination did
+not author can read the corpus. **FLOOR PART 4 is a claim about the
+PROJECTION** — design § D6 (4), RULED OQ-1: the pre-split tree and the
+post-split stack, given the same corpus, must render the SAME SNAPSHOT, byte
+for byte. A carve can move all 318 rows faithfully and pass every conformance
+check and still have changed what the product SAYS, and nothing in §§ 2.1–2.2
+would notice: they measure files and interfaces, and this measures output.
+
+The two sides, and why each is composed the way it is:
+
+* **PRE** — the published annotated tag `opendox-carve-0`
+  (`b075fd91dc8f`, FLOOR PART 1's own `carve_commit`, frozen by RULED (a),
+  `#656` comment `5625573095`), read out with `git archive` into a scratch
+  tree and rendered in a CHILD interpreter (`python3 -I`). An archive is used
+  rather than a `git worktree` because a worktree mutates the repository's
+  administrative state and openxFactory's own doc-health misreports from
+  inside one; the child is where the isolation lives, since both sides
+  otherwise want the same module names in one process. Any PRE-SHED revision
+  is accepted through `--pre-ref` — `contract-v3.7` re-proves the same digest
+  — and a POST-SHED one is an operator error about the run, named as such.
+* **POST** — `openxdox.generator` + `openxdox.snapshot` at the pinned
+  openXdox-code `2529c10a`, reached through `scripts/carved_reach.py` (RULED
+  Q7, `#656` comment `5626248666`) and composed IN THIS PROCESS, with the
+  § 4.4 domain profile registered by `scripts/opendox_host.py::
+  register_openxfactory()` — the arrived generator reads `"picked"` and
+  `"staged"` through `domain_profile.current()` where the pre-split blob held
+  the literals, so with no profile registered the engine refuses rather than
+  rendering openXdox's own words, and the runner names that refusal.
+
+Both sides are stamped with the same pinned `source_revision` and commit date
+through an injected git double. **Unpinned, the two sides diverge on the
+anchor alone and the comparison means nothing** — moving it moves the digest,
+which the suite asserts from both ends.
+
+```sh
+python3 scripts/verify-snapshot-equivalence.py
+# expect exit 0: OK — 1 of 1 corpus state(s) equivalent: the pre-split tree
+#                opendox-carve-0 (b075fd91dc8f) and the post-split stack …
+#                14849 bytes  sha256 764b077b84031ec9bb13538f400904119141d954
+#                636cee6d53eee052b3840735
+#                composed in <root> at <sha>, working tree clean|dirty
+```
+
+`--corpus` is REPEATABLE and each one is a corpus state; the suite runs four
+in a single invocation — the corpus as it ships, a file the projection does
+not read, a document removed, and a lifecycle `Status:` header changed — of
+which the last two MUST move the digest and the first two must not. That is
+how the run is known to have teeth rather than to be comparing two constants.
+
+**Nothing is claimed that was not verified first.** All six mounts are held to
+their pins before any digest exists — both assembly roots, both `-code` legs
+and both `spec` mounts — with each nested gitlink read out of the exact commit
+the level above it verified, never out of the nested checkout's own index; the
+two `-code` trees are additionally swept clean, because the post side is
+imported off the WORKING TREE and an uncommitted edit under one renders bytes
+that are not the pinned commit's while every sha comparison still passes.
+Seven named refusal codes and one blanket, **exit 0 or 2 and never 1**, in
+§ 2.1's idiom. The evidence line also carries the SUPERPROJECT's own revision
+and dirt state, which no gitlink pins: `carved_reach.py`, `opendox_host.py`
+and the profile are read out of this checkout, so two runs can differ by them
+alone while every pinned leg matches.
+
+**Driven by `tests/snapshot_equivalence/`** inside the required `pytest-suite`
+check, so the floor is measured on every pull request and not only when an
+operator remembers. Landed by `#1105`; `#1110` took the four findings its
+review suppressed, and the eight remaining registered items came with this
+section (RULED Q-P5 = (a), `#656` comment `5731951297`).
+
+**The box this ticks is § 5.5 of `split-opendox-two-layer-product`'s
+`tasks.md`** — not a section of this runbook. This document's own § 5.5 is a
+different thing entirely (the two commits a leg arrives in), and the two have
+been confused once already.
+
 ---
 
 ## 3. Phase 0 — the manifest. **DONE.**
