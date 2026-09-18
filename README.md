@@ -3386,7 +3386,14 @@ Archived changes:
   lane as projection-mechanism work — and **the one § 6.1 calls "the one genuine
   conflict RULING Q6 names"**. **THE DESTINATION, NAMED, WHICH IS WHAT `tasks.md`
   § 8.5 REQUIRES:** [openXdox-spec #15](https://github.com/opensoft/openXdox-spec/pull/15),
-  openXdox's FIRST OpenSpec change. **ITS TWO DELTAS ARRIVE ON DIFFERENT TERMS,
+  **the first change RE-HOMED INTO openXdox** — not that repository's first
+  OpenSpec change, which it is not: openXdox-spec already carries the archived
+  `2026-09-11-add-openxdox-projection-surfaces` and the promoted
+  `openspec/specs/openxdox-projection-surfaces/`, both measured there on
+  2026-09-18. (The claim read "openXdox's FIRST OpenSpec change" until then;
+  openXdox-spec #15's own description had already corrected it, and this index
+  should not record a repository-history claim its destination contradicts.
+  Found by Copilot's review at `b126e7b3`.) **ITS TWO DELTAS ARRIVE ON DIFFERENT TERMS,
   which is the whole of § 6.1.** `ideation-dashboard` (1 ADDED + 1 MODIFIED, the
   MODIFIED being *Runtime snapshot fetch with baked fallback and displayed
   freshness*) travels **byte-identical** — 6,663 B / `sha256 50fd14ba…`,
