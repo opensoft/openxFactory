@@ -106,6 +106,7 @@ rows:
   add-doxchat-model-intake: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-drafted-proposal-origin: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#644", moved_on: "2026-09-04"}
   add-duplicate-packet-check: {state: archived, class: co-modifier, declares: absent, prose: true, moved_by: "#623", moved_on: "2026-09-03"}
+  add-estate-repository-inventory: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1101", moved_on: "2026-09-18"}
   add-family-enumeration-check: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-github-app-identity-tiers: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-governed-derived-model: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -239,7 +240,7 @@ rows:
   fix-content-resolution-conflation: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-pin-value-boundary-and-sentinel-split: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-release-reachability-race: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  gate-code-surface-declarations: {state: archived, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1076", moved_on: "2026-09-16"}
+  gate-code-surface-declarations: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1101", moved_on: "2026-09-18"}
   gate-realization-axis-vocabulary: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1022", moved_on: "2026-09-13"}
   govern-archived-record-edits: {state: archived, class: co-modifier, declares: [govern-openspec-corpus-membership], depth: 1, prose: false, moved_by: "#845", moved_on: "2026-09-09"}
   govern-derived-pin-reachability: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
