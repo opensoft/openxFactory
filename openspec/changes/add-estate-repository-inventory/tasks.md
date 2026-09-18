@@ -190,8 +190,10 @@ without its arm, and is shown failing before it is shown passing.
       the shape every other `scripts/validate-*.py` uses. The DEFAULT run judges
       the inventory file's SHAPE and its in-tree evidence and makes no network
       call: refuses a duplicate bare name, a row whose in-tree `admitted_by:`
-      evidence names nothing, a row at a FORMER address, and a still-provisional
-      row whose change has archived; and it REPORTS the `gitlink` rows as NOT
+      evidence names nothing, and a still-provisional row whose change has
+      archived; REPORTS a row at a FORMER address, naming the current address the
+      transfer map resolves (`design.md` D5: RECOMMENDED REPORT, ALTERNATIVE
+      refuse DECLINED); and REPORTS the `gitlink` rows as NOT
       RE-CHECKED, with their count. A repeatable `--estate-tree <repo>=<path>`
       supplies a carrying repository's working tree, and only then is that
       repository's `.gitmodules` evidence re-checked, an absence being a finding.
