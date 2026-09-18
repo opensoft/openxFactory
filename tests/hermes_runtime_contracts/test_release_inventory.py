@@ -2385,3 +2385,233 @@ def test_a_leg_store_without_the_pinned_commit_refuses_as_a_dependency(
         "and `scripts/validate-contract-release.py::main` catch, which is why "
         "an untranslated one left a traceback instead of exit code 2"
     )
+
+
+# --- the SAME escape in the WORKING-TREE direction, and at the catalog ---
+#
+# `#1070` (openxFactory), the working-tree sibling of `#1048` round 3, measured
+# on a fresh clone of `8f93cbc0` with both legs initialized: one fault, `git
+# submodule deinit -f openDox`, and the two directions asked about the same
+# member at the same head answered differently.
+#
+#   `verify-commit`  ->  exit 2, one line on stderr carrying the leg's remedy
+#   `build`          ->  exit 1, no stdout, a 25-line traceback
+#
+# One is the documented dependency failure; the other is the code that MEANS
+# THE RELEASE HAS FINDINGS (`docs/contract-versioning-policy.md:271-272`), so a
+# fact about the machine was published as a verdict about the release — and
+# `build` is the FIRST act of a release cut, so the cut operator is who meets
+# it. `scripts/validate-hermes-runtime-contracts.py --require-candidate` exited
+# 1 with a traceback of its own through a THIRD site of the same shape,
+# `catalog._shed_destination`, which translated `OSError` and let this through.
+#
+# BOTH `_WorkingTreeSource` readers are covered here because they fail
+# differently: `.read_member` raised where every other unreadable member is
+# this class's own refusal, and `.exists` sits under `_collect_members`, where
+# the untranslated escape is a membership question answered by a crash.
+
+CATALOG_MEMBER_KEY = "contracts/schemas/moved.schema.yaml"
+CATALOG_MEMBER_ENTRY_PATH = "../schemas/moved.schema.yaml"
+CATALOG_MEMBER_ID = "moved"
+
+
+def _pin_a_leg(tmp_path: Path, name: str, member: str, payload: str) -> Path:
+    """A superproject pinning a real submodule at `leg` that holds `member`.
+
+    A REAL submodule and a real `git submodule deinit -f` below, not a hand-made
+    empty directory: the measured fault is a deinited leg, and the condition
+    `carved_reach.source` tests is the on-disk shape deinit leaves behind.
+    """
+    leg = support.init_git_repo(tmp_path / f"{name}-leg-origin")
+    support.commit_files(leg, {member: payload})
+
+    root = support.init_git_repo(tmp_path / name)
+    support.commit_files(root, {"README.md": "root\n"})
+    _git(root, "-c", "protocol.file.allow=always", "submodule", "add",
+         "--quiet", str(leg), "leg")
+    _commit_all(root, "pin the leg that holds the moved member")
+    return root
+
+
+def test_an_unreadable_leg_in_the_working_tree_refuses_as_a_dependency(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`_shed_aware` TRANSLATES, exactly as `_shed_aware_commit` does (`#1070`).
+
+    The refusal must not become an ANSWER here either: `target` is this
+    repository's PRE-shed path and a post-shed tree does not carry it, so
+    `exists` would report FALSE and `read_member` would report a member that is
+    not absent but unreadable — the phantom absence `#1048` is about, arriving
+    in the release builder."""
+    from carved_reach import CarveReachUnavailable
+
+    root = _pin_a_leg(tmp_path, "shed-working-tree", SHED_MEMBER,
+                      SHED_MEMBER_BYTES)
+    _point_carve_at(monkeypatch, root)
+    source = release._WorkingTreeSource(root)
+
+    # The member's bytes are in the LEG and nowhere else in this tree, which is
+    # what makes a `False` from `exists` a manufactured absence rather than a
+    # near miss — and the green read first, so the refusal below is about the
+    # deinit and not about the fixture.
+    assert not (root / SHED_MEMBER).exists()
+    assert source.exists(SHED_MEMBER) is True
+    data, mode, _ = source.read_member(SHED_MEMBER)
+    assert data.decode("utf-8") == SHED_MEMBER_BYTES
+    assert mode == "100644"
+
+    _git(root, "submodule", "deinit", "--force", "leg")
+
+    for operation in (
+        lambda: source.read_member(SHED_MEMBER),
+        lambda: source.exists(SHED_MEMBER),
+    ):
+        with pytest.raises(release.ReleaseDependencyError) as caught:
+            operation()
+        message = str(caught.value)
+        assert caught.value.exit_code == 2
+        assert SHED_MEMBER in message, message
+        assert "git submodule update --init" in message, (
+            "the leg's own remedy travels, which is what makes the refusal "
+            "actionable rather than merely loud: " + message
+        )
+        # The reason names the condition observed, never a conclusion about
+        # the release.
+        assert "drift" not in message.lower(), message
+        assert "absent" not in message.lower(), message
+        assert isinstance(caught.value.__cause__, CarveReachUnavailable)
+
+    assert not issubclass(
+        CarveReachUnavailable,
+        (release.ReleaseDependencyError, ContentResolutionError),
+    ), (
+        "the refusal being translated is outside every class the readers above "
+        "and `scripts/validate-contract-release.py::main` catch, which is why "
+        "an untranslated one left a traceback and exit code 1"
+    )
+
+
+def _point_carve_at_catalog_member(monkeypatch, root: Path) -> None:
+    import carved_reach
+
+    monkeypatch.setattr(carved_reach, "REPO_ROOT", root)
+    monkeypatch.setattr(carved_reach, "MOUNTS", {"leg_spec": root / "leg"})
+    monkeypatch.setattr(carved_reach, "_rows", lambda: {
+        CATALOG_MEMBER_KEY: {"source_path": CATALOG_MEMBER_KEY,
+                             "disposition": "moved_verbatim",
+                             "destination": "leg_spec",
+                             "destination_path": CATALOG_MEMBER_KEY}})
+
+
+def _catalog_family(root: Path, catalog_module) -> tuple[Path, Path]:
+    """A family root whose one member is a CROSS-FAMILY (`..`) moved row.
+
+    The production shape: the two moved members of `contracts/hermes-runtime`
+    are catalogued as `../schemas/...`, so the containment boundary is the
+    repository root and a leg mounted inside it resolves legally.
+    """
+    family = root / "contracts" / "hermes-runtime"
+    family.mkdir(parents=True, exist_ok=True)
+    index = family / "contract-index.yaml"
+    index.write_text(
+        json.dumps({
+            "schema_version": 1,
+            "kind": catalog_module.CATALOG_KIND,
+            "contracts": [{
+                "contract_id": CATALOG_MEMBER_ID,
+                "path": CATALOG_MEMBER_ENTRY_PATH,
+                "type": "schema",
+                "contract_schema_version": 2,
+                "consumers": ["openxfactory-validator"],
+                "semantic_member": True,
+                "release_member": True,
+            }],
+        }),
+        encoding="utf-8",
+    )
+    return family, index
+
+
+def _catalog_member_document(catalog_module) -> str:
+    return json.dumps({
+        "schema_version": 1,
+        "kind": catalog_module.SCHEMA_KIND,
+        "$schema": catalog_module.SCHEMA_META,
+        "$id": catalog_module.CANONICAL_SCHEMA_BASE + "moved.schema.yaml",
+        "contract_id": CATALOG_MEMBER_ID,
+        "contract_schema_version": 2,
+        "type": "object",
+        "additionalProperties": False,
+    })
+
+
+def test_an_unreadable_leg_refuses_as_a_dependency_at_the_catalog_too(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """THE THIRD SITE, AND THE CLASS IT REFUSES WITH (`#1070`).
+
+    `CatalogError` is this family's FINDING — reported as `HRC-CATALOG-INVALID`
+    and classified exit code 1. A leg that cannot be read says nothing about
+    the catalog, so refusing with that class would publish a verdict nothing
+    measured; `CatalogDependencyError` is what `classify_exit_code` turns into
+    the documented exit code 2."""
+    import importlib
+    import importlib.util
+
+    from carved_reach import CarveReachUnavailable
+
+    catalog = importlib.import_module("scripts.hermes_runtime_validation.catalog")
+
+    root = _pin_a_leg(tmp_path, "shed-catalog", CATALOG_MEMBER_KEY,
+                      _catalog_member_document(catalog))
+    _point_carve_at_catalog_member(monkeypatch, root)
+    family, index = _catalog_family(root, catalog)
+
+    # Green first: the catalog loads and its one member resolves INTO THE LEG,
+    # which is what makes the refusal below about the deinit.
+    loaded = catalog.load_contract_catalog(index, family)
+    assert loaded.by_id[CATALOG_MEMBER_ID].absolute_path == (
+        root / "leg" / CATALOG_MEMBER_KEY)
+    assert not (root / CATALOG_MEMBER_KEY).exists()
+
+    _git(root, "submodule", "deinit", "--force", "leg")
+
+    with pytest.raises(catalog.CatalogDependencyError) as caught:
+        catalog.load_contract_catalog(index, family)
+    message = str(caught.value)
+    assert caught.value.exit_code == 2
+    assert "contracts[0]" in message, message
+    assert CATALOG_MEMBER_KEY in message, message
+    assert "git submodule update --init" in message, message
+    assert "drift" not in message.lower(), message
+    assert "absent" not in message.lower(), message
+    assert isinstance(caught.value.__cause__, CarveReachUnavailable)
+
+    # NOT A `CatalogError`, and not a subclass of one: the validator's existing
+    # `except CatalogError` would otherwise capture it as HRC-CATALOG-INVALID
+    # and classify the machine's failure as a finding about the contracts.
+    assert not isinstance(caught.value, catalog.CatalogError)
+    assert not issubclass(catalog.CatalogDependencyError, catalog.CatalogError)
+
+    # AND THE CLI CLASSIFIES IT AS A DEPENDENCY FAILURE. Driven through the
+    # real entrypoint over the real fixture, so the wiring is measured and not
+    # assumed.
+    entrypoint = support.REPO_ROOT / "scripts/validate-hermes-runtime-contracts.py"
+    spec = importlib.util.spec_from_file_location(
+        "hermes_runtime_validator_cli_1070", entrypoint)
+    assert spec is not None and spec.loader is not None
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)
+
+    findings, dependency_error, _, _ = cli._validate_repository(
+        root, case_id=None, phase="all")
+    assert dependency_error is True
+    assert [finding["code"] for finding in findings] == [
+        "HRC-HARNESS-CATALOG-DEPENDENCY"]
+    assert cli.classify_exit_code(
+        findings, strict=True, dependency_error=dependency_error) == 2
+    assert cli.classify_exit_code(
+        findings, strict=True, dependency_error=False) == 1, (
+        "which is the exit code this escaped as before it was translated — "
+        "the finding class, for a question the validator never asked"
+    )
