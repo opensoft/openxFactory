@@ -417,7 +417,32 @@ class Population:
 
 #: A LINK CHAIN IS WALKED HERE RATHER THAN HANDED TO `Path.resolve()`, because
 #: the term's extent is a fact about the PATH and `resolve()` answers a
-#: question about what STANDS at one. The cap bounds a chain no cycle catches.
+#: question about what STANDS at one.
+#:
+#: THE HOP BOUND IS A DECLARED RULE OF THIS REPORT AND NOT AN IMPLEMENTATION
+#: SHORTCUT, so it is stated here and tested. (Copilot `PRRT_kwDOTAvnrs6jtxUj`.)
+#:
+#: IT IS NOT REMOVABLE, and cycle detection does not replace it. A chain can
+#: fail to terminate WITHOUT ever repeating a state: `l -> l/x` pushes its own
+#: name back onto the walk every hop, so `pending` grows by one each time and
+#: the `(current, pending)` state is new at every step — measured over 201 hops,
+#: 201 distinct states, `pending` 202 long. A detector keyed on the walk's state
+#: would never fire and the walk would never end. Only a bound ends it.
+#:
+#: IT IS LOOSER THAN THE PLATFORM THE REPORT READS THROUGH, which is the
+#: direction that matters: measured on this tree, the OS refuses to open a chain
+#: of 41 links or more with `ELOOP` (Linux `MAXSYMLINKS`, errno 40), while this
+#: walk resolves to 64. So there is no chain whose bytes an ordinary reader of
+#: this repository could reach and this walk gives up on — the bound is never
+#: the binding constraint on readable text.
+#:
+#: AND AN ENTRY PAST IT TAKES THE NON-FILE TERM, WHICH IS THE HONEST ONE. The
+#: requirement gives the terms their extents by what the report can establish:
+#: an entry whose chain the report cannot itself walk has NO resolved path, and
+#: an entry with no resolved path cannot be said to leave the root — putting it
+#: in the out-of-root term would assert a containment fact nothing measured,
+#: which is the one thing this report may never do. It is never read either way,
+#: so no text from beyond the root is admitted by the choice.
 MAX_LINK_HOPS = 64
 
 

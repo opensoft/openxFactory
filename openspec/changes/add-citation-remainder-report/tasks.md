@@ -466,7 +466,7 @@ evidence is a fact about a merge that has not happened.
       **LANDED, 2026-09-18, realization slice R1.**
       `scripts/report-citation-remainder.py` and
       `tests/citation_remainder/test_report_citation_remainder.py`, both NEW.
-      ONE TEST PER SCENARIO, its docstring naming the scenario verbatim: 69 of
+      ONE TEST PER SCENARIO, its docstring naming the scenario verbatim: 72 of
       72 across the five requirements, counted mechanically against
       `specs/packet-citation-report/spec.md` rather than by hand — 43 scenarios
       the ratified delta carried plus the 29 Patch B adds, which have LANDED

@@ -132,6 +132,36 @@ def commit(root: Path, message: str = "fixture", gitlinks=()) -> str:
     return git(root, "rev-parse", "HEAD").stdout.strip()
 
 
+def link_chain(where: Path, name: str, length: int, target: str) -> Path:
+    """`<name>` at the end of a chain of `length` links ending at `target`.
+
+    `<name>1` points at `target` and each later link points at the one below it,
+    so `<name><length>` stands `length` links above it.
+    """
+    where.mkdir(parents=True, exist_ok=True)
+    os.symlink(target, where / f"{name}1")
+    for step in range(2, length + 1):
+        os.symlink(f"{name}{step - 1}", where / f"{name}{step}")
+    return where / f"{name}{length}"
+
+
+def deepest_chain_the_platform_reads(where: Path) -> int:
+    """The longest link chain THIS PLATFORM will open, measured rather than
+    assumed — Linux's `MAXSYMLINKS` is 40, and it is a kernel constant this
+    suite has no business hard-coding."""
+    where.mkdir(parents=True, exist_ok=True)
+    (where / "end.md").write_text("text\n", encoding="utf-8")
+    deepest = 0
+    for length in range(1, report.MAX_LINK_HOPS + 8):
+        entry = link_chain(where / f"n{length}", "l", length, "../end.md")
+        try:
+            entry.read_bytes()
+        except OSError:
+            break
+        deepest = length
+    return deepest
+
+
 def break_the_head_object(root: Path) -> str:
     """Point the checked-out branch at a sha NO OBJECT STANDS AT, and return it.
 
@@ -772,6 +802,83 @@ def test_a_root_named_inside_the_repository_reads_the_repository(
     assert at_subdirectory["root"] == at_root["root"] == str(root.resolve())
     assert str(root.resolve()) in run_human(root / "docs"), \
         "the reading states the root it actually read"
+
+
+def test_the_hop_bound_is_a_declared_rule_read_from_both_sides_of_it(
+        tmp_path) -> None:
+    """THE HOP BOUND IS A RULE OF THIS REPORT, so it is read from both sides.
+
+    A chain AT the bound resolves and is read like any other file; a chain ONE
+    PAST it has no resolved path, takes the NON-FILE term, contributes no token
+    and leaves the arithmetic closed. The term is the honest one rather than a
+    fallback: an entry whose chain the report cannot walk cannot be SAID to
+    leave the root, and saying so would assert a containment fact nothing
+    measured. (Copilot `PRRT_kwDOTAvnrs6jtxUj`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    (root / "reached.md").write_text(f"{CITE}/add-reached/proposal.md\n",
+                                     encoding="utf-8")
+    at_bound = link_chain(root / "at", "l", report.MAX_LINK_HOPS,
+                          "../reached.md")
+    past = link_chain(root / "past", "l", report.MAX_LINK_HOPS + 1,
+                      "../reached.md")
+    commit(root)
+
+    where = root.resolve()
+    assert report.resolved_entry_path(
+        where, str(at_bound.relative_to(root))) == where / "reached.md"
+    assert report.resolved_entry_path(
+        where, str(past.relative_to(root))) is None, \
+        "one link past the bound, and the walk declines rather than guesses"
+
+    data = run_json(root)
+    listed = entries(data)
+    assert f"{CITE}/add-reached/proposal.md" in listed, \
+        "the chain at the bound is read like any other file"
+    population = report.take_reading(where).population
+    assert str(past.relative_to(root)) in population.skipped_non_file
+    assert str(past.relative_to(root)) \
+        not in population.skipped_link_leaving_root, \
+        "an entry with no resolved path is not one that LEAVES the root"
+    assert data["population"]["arithmetic_closes"] is True
+
+
+def test_the_hop_bound_is_looser_than_the_platform_the_report_reads_through(
+        tmp_path) -> None:
+    """THE BOUND IS NEVER THE BINDING CONSTRAINT ON READABLE TEXT.
+
+    The platform refuses to open a chain past its own `MAXSYMLINKS` — measured
+    here rather than hard-coded — and this walk's bound stands above it, so
+    there is no chain whose bytes an ordinary reader of the repository could
+    reach and this walk gives up on.
+    """
+    deepest = deepest_chain_the_platform_reads(tmp_path / "probe")
+    assert deepest > 0, "the platform opens SOME chain, or this measures nothing"
+    assert report.MAX_LINK_HOPS > deepest, (
+        f"the walk's bound ({report.MAX_LINK_HOPS}) must stand above the "
+        f"platform's own ({deepest}), or the report would decline a chain the "
+        f"platform would have delivered")
+
+
+def test_a_chain_that_pushes_its_own_name_back_onto_the_walk_terminates(
+        tmp_path) -> None:
+    """THE BOUND IS LOAD-BEARING AND CYCLE DETECTION WOULD NOT REPLACE IT.
+
+    `l -> l/x` never repeats a walk state: every hop pushes its own name back
+    and `pending` grows by one, so a detector keyed on `(current, pending)`
+    would never fire. Measured over 201 hops: 201 distinct states. Only a bound
+    ends this walk, and the entry lands where an unresolvable one belongs.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    os.symlink("l/x", root / "l")
+    commit(root)
+
+    assert report.resolved_entry_path(root.resolve(), "l") is None
+    population = report.take_reading(root.resolve()).population
+    assert "l" in population.skipped_non_file
+    assert run_json(root)["population"]["arithmetic_closes"] is True
 
 
 def test_an_ambient_git_environment_cannot_redirect_the_reading(
