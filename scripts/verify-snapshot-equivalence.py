@@ -68,8 +68,9 @@ THE PRE SIDE RUNS IN A SUBPROCESS, and that is not fastidiousness. Both trees
 define `ideation_dashboard` AND `doc_health`. One interpreter would resolve
 whichever landed on `sys.path` first, for both names, and could then report
 equivalence against itself — a green run that measured one side twice. The
-child is started with `-I` so neither `PYTHONPATH` nor the parent's cwd can
-reach it: the archived tree is the only place its two imports can come from.
+child is additionally started with `-I`, which closes a DIFFERENT door: a name
+the archive does not carry would otherwise fall through to a `PYTHONPATH` or
+user-site copy and silently complete a partial archive out of another tree.
 
 `source_revision` IS PINNED ON BOTH SIDES, and the run is meaningless without
 it. Measured unpinned: the post side reads the checkout's HEAD through
@@ -358,12 +359,14 @@ def render_pre(tree: Path, corpus: Path, scratch: Path, pre_ref: str,
                source_revision: str) -> bytes:
     """The archived tree's canonical snapshot bytes, from a child interpreter.
 
-    `-I` (isolated) is load-bearing and not hygiene: it drops `PYTHONPATH`, the
-    user site directory and the implicit cwd entry, so the ONLY place the
-    child's `ideation_dashboard` and `doc_health` can come from is the
-    `sys.path.insert` the program itself makes. Without it a parent run from a
-    checkout root could hand the child today's modules and the run would
-    compare the post side with itself.
+    THE SEPARATE PROCESS is what carries the isolation; `-I` closes the door
+    the `sys.path.insert` leaves open. The insert wins every name the archived
+    tree HAS, but a name it LACKS — a submodule dropped from the archive, a
+    helper a future pre-shed ref imports — falls through to whatever comes
+    next, and a `PYTHONPATH` or user-site copy would then silently complete a
+    partial archive out of another tree. Isolated, there is nothing after the
+    insert but the standard library, so a missing piece fails loudly and
+    arrives as `equivalence-pre-tree-unrenderable` rather than as a pass.
     """
     out = scratch / "pre-snapshot.json"
     done = subprocess.run(
