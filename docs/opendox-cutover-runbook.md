@@ -900,12 +900,15 @@ how the run is known to have teeth rather than to be comparing two constants.
 **Nothing is claimed that was not verified first.** All six mounts are held to
 their pins before any digest exists — both assembly roots, both `-code` legs
 and both `spec` mounts — with each nested gitlink read out of the exact commit
-the level above it verified, never out of the nested checkout's own index. The
-four mounts a module can arrive at — the two `-code` legs and the two `spec`
-mounts, the latter because a `re_destined:` block may lawfully put a module
-there — are additionally SWEPT CLEAN, because the post side is imported off
-the WORKING TREE and an uncommitted edit under one renders bytes that are not
-the pinned commit's while every sha comparison still passes. The sweep is
+the level above it verified, never out of the nested checkout's own index, and
+a gitlink is only ever read from an entry whose mode IS `160000`. The two
+`-code` legs are additionally SWEPT CLEAN — and only those two, because
+`carved_reach` installs exactly their `src/` roots, so they are the trees this
+run imports from; sweeping a `spec` mount could only refuse a run for a state
+that cannot change its result. The sweep matters because the post side is
+imported off the WORKING TREE, and an uncommitted edit under a leg renders
+bytes that are not the pinned commit's while every sha comparison still
+passes. The sweep is
 three reads and not a `git status`: the tracked diff and the ignored files
 under the import surface, the untracked files, and an `ls-files -v` scan for
 the `assume-unchanged` / `skip-worktree` flags that make git report an edited

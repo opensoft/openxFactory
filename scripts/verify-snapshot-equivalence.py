@@ -1191,6 +1191,21 @@ def _gitlink_at_commit(parent: Path, outer: str,
                        path: str) -> tuple[str | None, str]:
     """The gitlink `path` has IN THE TREE of the commit `outer`."""
     source = f"the commit {outer[:12]} its own parent records for it"
+    oid, kind = _gitlink_in_tree(parent, outer, path)
+    if oid is None and kind is not None:
+        return None, f"{source} — it records a {kind} at that path, not a "\
+                     "submodule"
+    return oid, source
+
+
+def _gitlink_in_tree(parent: Path, revision: str,
+                     path: str) -> tuple[str | None, str | None]:
+    """(oid, note) for the gitlink `revision`'s tree carries at `path`.
+
+    `oid` is `None` both when the path is ABSENT (note `None`) and when
+    something that is not a submodule sits there (note names what does), and
+    an unreadable tree RAISES rather than answering either.
+
     # ONE `ls-tree`, BECAUSE IT ANSWERS ALL THREE QUESTIONS AT ONCE — is the
     # path there, is it a GITLINK, and what is its object id. `rev-parse
     # <commit>:<path>` was the first spelling and answered only the last: it
@@ -1203,33 +1218,34 @@ def _gitlink_at_commit(parent: Path, outer: str,
     # rule as well. ABSENT AND UNREADABLE ALSO STAY APART, since `rev-parse
     # --quiet` conflated them: a tree read that FAILED is an incomplete
     # object store, not a missing submodule declaration.
-    listed = _git(parent, "ls-tree", "--full-tree", outer, "--", path)
+    """
+    listed = _git(parent, "ls-tree", "--full-tree", revision, "--", path)
     if listed is None or listed.returncode != 0:
         raise EquivalenceRefusal(
             "equivalence-object-store-incomplete",
-            f"{parent} could not be asked what commit {outer} records for "
+            f"{parent} could not be asked what {revision} records for "
             f"{path}: the tree read FAILED or did not answer within "
             f"{_GIT_TIMEOUT}s. That is an OBJECT STORE that cannot answer "
-            "about a commit this run has already accepted as the pin, not a "
-            "missing submodule declaration — fetch it deliberately "
-            f"(`git -C {parent} fetch origin {outer}`) and re-run")
+            "about a revision this run has already accepted, not a missing "
+            "submodule declaration — fetch its objects deliberately "
+            f"(`git -C {parent} fetch origin {revision}`) and re-run")
     row = listed.stdout.strip()
     if not row:
-        return None, source
+        return None, None
     fields = row.split(None, 3)
     if len(fields) < 3 or fields[0] != "160000":
-        kind = fields[1] if len(fields) > 1 else "something"
-        return None, f"{source} — it records a {kind} at that path, not a "\
-                     "submodule"
-    return fields[2], source
+        return None, (fields[1] if len(fields) > 1 else "something")
+    return fields[2], None
 
 
 def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
     """The gitlink this repository RECORDS for `path`, index first."""
-    head = _git(parent, "rev-parse", "--verify", "--quiet",
-                "--end-of-options", f"HEAD:{path}")
-    head_oid = (head.stdout.strip()
-                if head is not None and head.returncode == 0 else None)
+    # HEAD IS READ THE SAME WAY THE NESTED PATH IS (Copilot, PR #1115). It
+    # was `rev-parse HEAD:<path>`, which answers for ANY tree entry, so when
+    # the index read failed and this fell back to HEAD a type-changed file or
+    # directory at a pin path was returned AS A RECORDED GITLINK — the very
+    # defect just closed one function away, left standing in its sibling.
+    head_oid, _kind = _gitlink_in_tree(parent, "HEAD", path)
     listed = _git(parent, "ls-files", "-s", "--", path)
     if listed is None or listed.returncode != 0:
         return head_oid, ("HEAD" if head_oid else _NO_RECORD_SOURCE)
@@ -1259,15 +1275,24 @@ def _staged_gitlink(listing: str) -> tuple[str | None, list[str]]:
     pass on it. There is no recorded pin during a conflict; that is a state
     to name, not to guess through.
     """
+    # EVERY NONZERO STAGE IS A CONFLICT, WHATEVER ITS MODE (Copilot, PR
+    # #1115). Filtering to `160000` FIRST meant a merge between a gitlink and
+    # a regular file — stages 1/2/3 with mixed modes — left `conflicted`
+    # empty, so an unresolved conflict was reported as "no record" and could
+    # fall back to HEAD. The stages are collected first and the mode is
+    # required only of the stage-0 row, which is the one that would be used.
+    stage_zero: str | None = None
     conflicted: list[str] = []
     for line in listing.splitlines():
         fields = line.split(None, 3)
-        if len(fields) < 3 or fields[0] != "160000":
+        if len(fields) < 3:
             continue
-        if fields[2] == "0":
-            return fields[1], conflicted
-        conflicted.append(f"stage {fields[2]} {fields[1][:12]}")
-    return None, conflicted
+        mode, oid, stage = fields[0], fields[1], fields[2]
+        if stage != "0":
+            conflicted.append(f"stage {stage} {mode} {oid[:12]}")
+        elif mode == "160000":
+            stage_zero = oid
+    return stage_zero, conflicted
 
 
 def recorded_gitlink(parent: Path, path: str,
@@ -1303,9 +1328,18 @@ def recorded_gitlink(parent: Path, path: str,
 #: is load-bearing. The two assembly roots are deliberately NOT here: their
 #: only content that matters is the gitlink, and a staged or unstaged gitlink
 #: move is already what `recorded_gitlink()` and the comparison below read.
-IMPORTED_LEGS: tuple[str, ...] = (
-    "openDox/code", "openXdox/code", "openDox/spec", "openXdox/spec",
-)
+#: MEASURED, NOT ASSUMED, AND NARROWER THAN THE PIN SET (Copilot, PR #1115).
+#: An earlier commit in this act added the two `spec` mounts here beside the
+#: pin set, and that was over-reach: `carved_reach.LEGS` installs exactly two
+#: roots — `openDox/code/src` and `openXdox/code/src` — and `module()`
+#: refuses a row that is not a `.py` at a code leg, so NOTHING can be
+#: imported out of a spec mount through this reach. Sweeping a tree this run
+#: cannot import from can only refuse a run for a state that cannot change
+#: its result, which is the false-refusal defect this same act fixed for the
+#: flag scan. The spec mounts stay in LEG_GITLINKS, because they ARE pins the
+#: superproject records and verifying them is honest; they leave this tuple,
+#: which is about what renders.
+IMPORTED_LEGS: tuple[str, ...] = ("openDox/code", "openXdox/code")
 
 
 #: The ONE ignored class the sweep passes over: CPython's compiled bytecode,

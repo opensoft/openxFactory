@@ -1327,12 +1327,19 @@ def test_the_spec_mounts_are_pinned_so_a_module_there_names_its_own_leg():
     identity = MODULE.post_side_identity((Module(),), pins)
     assert identity["post_leg"] == "openDox/spec"
     assert identity["post_leg_commit"] == "f" * 40
-    # …and the cleanliness sweep follows the pin, for the same reason: a
-    # module that arrives at a spec mount is IMPORTED off that tree, so an
-    # uncommitted edit under it renders bytes that are not the commit the
-    # verdict would name.
-    assert "openDox/spec" in MODULE.IMPORTED_LEGS
-    assert "openXdox/spec" in MODULE.IMPORTED_LEGS
+    # …and the cleanliness sweep does NOT follow the pin here, measured
+    # rather than assumed (Copilot, PR #1115). `carved_reach.LEGS` installs
+    # exactly two roots and `module()` refuses a row that is not a `.py` at a
+    # code leg, so nothing can be imported out of a spec mount through this
+    # reach; sweeping one could only refuse a run for a state that cannot
+    # change its result, which is the false-refusal defect this same act
+    # fixed for the flag scan.
+    import carved_reach
+    installed = {leg for _gitlink, leg, _src, _package in carved_reach.LEGS}
+    assert installed == {"code"}, carved_reach.LEGS
+    assert "openDox/spec" not in MODULE.IMPORTED_LEGS
+    assert "openXdox/spec" not in MODULE.IMPORTED_LEGS
+    assert set(MODULE.IMPORTED_LEGS) == {"openDox/code", "openXdox/code"}
 
 
 def test_verify_pins_reads_each_nested_gitlink_from_its_parents_commit(
@@ -1470,6 +1477,53 @@ def test_a_tree_read_that_failed_does_not_become_a_post_shed_verdict(
     assert "does NOT claim the ref is post-shed" in detail
     assert "the objects are not the problem" not in detail
     assert "ls-tree" in detail
+
+
+def test_a_type_changed_head_entry_is_not_read_as_a_recorded_pin(tmp_path,
+                                                                 monkeypatch):
+    """The HEAD read was `rev-parse HEAD:<path>`, which answers for ANY tree
+    entry, so when the index read FAILED and this fell back to HEAD a
+    type-changed file or directory at a pin path came back as a recorded
+    gitlink — the defect just closed one function away, left standing in its
+    sibling (Copilot, PR #1115)."""
+    parent = tmp_path / "assembly"
+    _seed(parent)
+    (parent / "code").mkdir()
+    (parent / "code" / "plain.txt").write_text("x\n", encoding="utf-8")
+    assert MODULE._git(parent, "add", "-A").returncode == 0
+    assert MODULE._git(parent, "commit", "-qm", "a tree at code").returncode \
+        == 0
+    real_git = MODULE._git
+
+    def no_index_read(target, *arguments, text=True):
+        if arguments[0] == "ls-files":
+            return None
+        return real_git(target, *arguments, text=text)
+
+    monkeypatch.setattr(MODULE, "_git", no_index_read)
+    recorded, _source = MODULE.recorded_gitlink(parent, "code")
+    assert recorded is None, "a tree was manufactured into a pin"
+
+
+def test_a_conflict_between_a_gitlink_and_a_file_is_still_named(tmp_path):
+    """Filtering to mode `160000` BEFORE collecting the stages meant a merge
+    between a gitlink and a regular file left `conflicted` empty, so an
+    unresolved conflict was reported as "no record" and could fall back to
+    HEAD (Copilot, PR #1115)."""
+    repo = tmp_path / "parent"
+    _seed(repo)
+    stages = ("160000 " + "a" * 40 + " 1\tcode\n"
+              "100644 " + "b" * 40 + " 2\tcode\n"
+              "160000 " + "c" * 40 + " 3\tcode\n")
+    done = subprocess.run(["git", "-C", str(repo), "update-index",
+                           "--index-info"], input=stages, text=True,
+                          capture_output=True, check=False)
+    assert done.returncode == 0, done.stderr
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.recorded_gitlink(repo, "code")
+    assert caught.value.code == "equivalence-reach-unavailable"
+    assert "CONFLICTED" in caught.value.detail
+    assert "100644" in caught.value.detail, "the mixed-mode stage is named"
 
 
 def test_a_non_gitlink_at_the_path_is_not_read_as_the_nested_pin(tmp_path):
