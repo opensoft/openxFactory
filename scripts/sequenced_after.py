@@ -446,8 +446,9 @@ def archive_dates(repo_root: str | Path) -> dict[str, str]:
     which reads as a promise of equality this estate does not keep and the
     validator deliberately does not require: `release-realization` defines
     `moved_on` as the date the ROW last moved, so an archived row moved later by
-    another change carries a later date, and 124 of this corpus's 144 archived
-    rows do. `render_ledger` applies this mapping to rows FLIPPING
+    another change carries a later date, and 128 of this corpus's 171 archived
+    rows do (as measured 2026-09-18). `render_ledger` applies this mapping to
+    rows FLIPPING
     `active` -> `archived` and to nothing else; `archive_date_problems` gates
     only on the one direction no reading permits — a `moved_on` EARLIER than the
     directory — and asks for equality only under `--strict-archive-dates`.
@@ -1595,16 +1596,18 @@ def archive_date_problems(
     exactly the shape a CLI clock running AHEAD of UTC produces (issue #790:
     under `Pacific/Kiritimati` the pinned CLI names tomorrow's directory for
     today's archive), and it was measured CLEAN across all 143 archived rows
-    before it was made a gate.
+    before it was made a gate, and remains clean across all 171 today
+    (re-measured 2026-09-18).
 
     `require_equal=True` additionally reports every archived row whose
     `moved_on` is merely DIFFERENT from the directory's date. That is the
     stronger reading issue #790 asked for, and it is opt-in rather than the
     default because `release-realization`'s per-subject-row requirement defines
     `moved_on` as the date the ROW last moved — so an archived row legitimately
-    moved later by another change carries a later date, and 124 of this corpus's
-    143 archived rows do. Requiring equality would report a correct ledger as
-    stale. `--strict-archive-dates` is what asks for it.
+    moved later by another change carries a later date, and 128 of this corpus's
+    171 archived rows do (as measured 2026-09-18). Requiring equality would
+    report a correct ledger as stale. `--strict-archive-dates` is what asks for
+    it.
 
     NEITHER READING CATCHES A CLOCK RUNNING BEHIND UTC — the direction #780's
     archive actually took — because a `moved_on` LATER than the directory is
@@ -1777,7 +1780,8 @@ def load_archive_date_dispositions(
     defaulted to `warning` turns a typo into a disabled gate; an entry missing
     `ruled_by` defaulted to nothing records a disposition nobody authorized;
     a `dispositions:` key that does not parse, read as "no dispositions", turns
-    the whole record into twelve findings whose real cause is one bad line. So
+    the whole record into fourteen findings (as measured 2026-09-18) whose real
+    cause is one bad line. So
     the loader raises, and the CLI answers with exit 2 — CANNOT RUN, which is a
     different fact from a corpus that disagrees.
 
@@ -1919,7 +1923,9 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
     therefore the one that created it; `setdefault` keeps it. Measured on this
     corpus at 83ms against 9.3s for 144 per-directory `git log` calls — 113x —
     and the two attributions were compared directory by directory and agreed on
-    all 144, under history simplification and `--full-history` alike.
+    all 144 then, under history simplification and `--full-history` alike;
+    re-run directory by directory against all 171 on 2026-09-18, still zero
+    mismatches.
 
     THE MANY-DIRECTORIES-ONE-COMMIT SHAPE FALLS OUT OF IT: a single commit that
     adds many directories attributes all of them to itself, which is what
@@ -1949,9 +1955,9 @@ def adding_commits(repo_root: str | Path) -> dict[str, tuple[str, str]]:
 
     THE COMMITTER DATE (`%cI`), not the author date: it is when the commit
     entered this history, which is the act the directory name claims to date.
-    On this corpus the two agree on all 144 directories, so nothing turns on the
-    choice today — the reason it is written down is that a rebase can move one
-    and not the other.
+    On this corpus the two agree on all 171 directories (as measured
+    2026-09-18), so nothing turns on the choice today — the reason it is
+    written down is that a rebase can move one and not the other.
 
     RAISES rather than returning a partial answer, IN TWO CLASSES that the
     caller must keep apart. `ArchiveHistoryUnavailable` when the checkout
