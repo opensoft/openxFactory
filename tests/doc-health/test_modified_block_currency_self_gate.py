@@ -1089,52 +1089,28 @@ _LEDGER_SUBJECTS = {
      "Realization axis declaration"),
     ("add-target-release-deferred-allocation", "release-realization",
      "Realization axis vocabulary is gated"),
-    # ADDED 2026-09-15 BY `scope-pinned-arm-root-naming` (openxFactory issue
-    # #1047, lane `openxfactory-2`), THE SUCCESSOR THE ARCHIVE ACT COULD NOT
-    # PERFORM: the defect was surfaced by Copilot on the archive pull request
-    # #1042 and RULED STANDS there, the sentence being ratified canon promoted
-    # BYTE-IDENTICAL and an archive act has no place to edit the text it promotes.
-    # A DELIBERATE SCOPING, and the narrowest the corpus admits: canon obliges
-    # EVERY finding the pinned arm emits to name the root or roots it resolved
-    # against, or failed to, and TWO of the realized arm's fifteen findings are
-    # emitted BEFORE ANY ROOT IS SELECTED — the lexically malformed pinned
-    # value (`scripts/doc_health/families.py:1573-1576`, refused at `:1572`,
-    # naming THE VALUE) and the document whose repository has no resolution
-    # root in the run (`:1587-1592`, naming THE REPOSITORY, `_pin_roots` having
-    # returned an empty list at `:1580`). FIX ROUND 1 (Copilot review of PR
-    # #1052) found the restated sibling scenario *A pinned target names a pin
-    # no resolution root carries*'s WHEN — carried unchanged from canon — was
-    # ALSO true of the empty-root-set case the new scenario below covers with
-    # a DIFFERENT outcome, so it gained one clause too: "…and at least one
-    # resolution root was selected for the run" — AS RATIFIED, 2026-09-16.
-    # FIX ROUND 5 refreshed one stale source-citation pointer canon itself
-    # carries in the body sentence (`scripts/doc_health/families.py:1317-1321`,
-    # which is `_topic_outcome` on `main` now, not the root-precedence code)
-    # to name `_resolve_capability`/`_pin_roots` directly — KEPT — and ALSO
-    # briefly narrowed the same WHEN clause FURTHER on a real Copilot finding;
-    # FIX ROUND 6 REVERTED that narrowing, ratified normative scenario text
-    # being the ratifier's to amend and not the lane's, so the WHEN is
-    # BYTE-IDENTICAL to the ratified text again (RULING NEEDED posted to
-    # openxFactory #1047). THE THREE UNCARRIED UNITS OF 186 ARE EXACTLY
-    # THREE — the body sentence, the pointer-bearing sentence beside it
-    # (added by fix round 5's refresh), and that one WHEN bullet, which has
-    # been uncarried against canon since fix round 1 regardless of which of
-    # round 1's or round 5's wordings it holds, canon carrying no such clause
-    # at all — and each has a successor in the same block saying MORE, or a
-    # truer citation, and never less: the body sentence's obligation scoped
-    # to findings AFTER ROOT SELECTION, with the two exceptions named together
-    # with what each names instead; the pointer sentence's corrected citation;
-    # the WHEN's empty-root case handed whole to the new scenario below. Every
-    # other promoted unit of the requirement, including all twenty-three of
-    # its scenarios' titles and every other bullet, is carried verbatim, and
-    # ONE scenario is added. NO `Removed from canon` MARKER IS OWED, nothing
-    # being deleted.
-    # This arm cannot distinguish a deliberate scoping from drift and does not
-    # claim to; the finding is INFO and it is the audit trail for the
-    # amendment. Retires when the packet archives and its block is promoted
-    # onto `openspec/specs/document-lifecycle/spec.md` (its `tasks.md` § 3).
-    ("scope-pinned-arm-root-naming", "document-lifecycle",
-     "Prose tagging marker hygiene"),
+    # RETIRED 2026-09-17: the ONE row `scope-pinned-arm-root-naming` opened on
+    # 2026-09-15 (document-lifecycle *Prose tagging marker hygiene*) retired
+    # when that packet ARCHIVED on Brett Heap's separate archive word (PR
+    # #1089, recorded on openxFactory issue #1047 comment 5714241892) —
+    # `code_surface: none`, so it archived on landing plus its own task list,
+    # and its `## MODIFIED` block
+    # was promoted BYTE-IDENTICAL into canon (41,984 bytes, sha256
+    # `c009f5cc3e4aa5aa…`; canon --numstat +21 −8), which is the condition the
+    # row's own comment named for its retirement. The text promoted carries
+    # the RATIFIER'S 2026-09-17 amendment of the sibling scenario's WHEN
+    # ("Apply the narrowing", openxFactory #1047 comment 5714432684), which
+    # moves no unit count: the clause is one physical line under either
+    # wording. Re-measured over this tree AFTER the merge of `origin/main` at
+    # `5dd0a8dc`: the family reports neither this subject nor any unnamed one.
+    # `adopt-entry-grain-dispositions-form`, whose block PR #1075 re-based onto
+    # this one, DOES report — canon 215 units, that block 223, TWO uncarried
+    # and TEN new — but NOT for the carriage, which is whole: the re-based
+    # sibling WHEN matches canon exactly. The two uncarried units are the
+    # positive-resolution scenario's WHEN and its disjointness bullet, moved by
+    # that packet's OWN ratifier on "Apply the partition" (PR #1088 →
+    # `893abe97`, landed before this archive) — the row directly below, which
+    # this archive neither authored nor moved.
     # ADDED 2026-09-17 BY THE RATIFIER'S AMENDMENT of
     # `adopt-entry-grain-dispositions-form` (openxFactory issue #1045, lane
     # `openxfactory-2`), on Brett Heap's word "Apply the partition",
@@ -1924,8 +1900,8 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     vocabulary, both widened by the third value that packet admits —
     FOURTEEN since 2026-09-15, when `extend-prose-tagging-target-to-pinned-capabilities`
     ARCHIVED on merged-plus-green realization evidence (PR #1042) and its two
-    rows retired, their blocks promoted byte-identical into canon — and
-    FIFTEEN since 2026-09-15, when `scope-pinned-arm-root-naming` (openxFactory
+    rows retired, their blocks promoted byte-identical into canon, FIFTEEN
+    since 2026-09-15, when `scope-pinned-arm-root-naming` (openxFactory
     #1047, PR #1052) opened ONE row over *Prose tagging marker hygiene*, the
     successor packet scoping the root-naming sentence the archive had just
     promoted, matching the chain above exactly: `len(_LEDGER_SUBJECTS)`
@@ -1946,8 +1922,13 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     (openxFactory #1045, comment 5714433011) opened one more row over the
     SAME requirement `scope-pinned-arm-root-naming`'s row already sits in,
     on the "Apply the partition" ruling, taking the RAW LITERAL count to
-    SEVENTEEN — but `len(_LEDGER_SUBJECTS)` MEASURED DIRECTLY AT THIS
-    COMMIT is SIXTEEN, the same duplicate collapsing exactly as before.
+    SEVENTEEN — but `len(_LEDGER_SUBJECTS)` MEASURED DIRECTLY at that
+    commit (`893abe97`) was SIXTEEN, the same duplicate collapsing exactly
+    as before. AND FIFTEEN AT THIS COMMIT, 2026-09-17, when
+    `scope-pinned-arm-root-naming` ARCHIVED on Brett Heap's separate archive
+    word and its one row retired, its block promoted byte-identical into
+    canon: RAW LITERAL SIXTEEN, `len(_LEDGER_SUBJECTS)` MEASURED FIFTEEN,
+    that same pre-existing duplicate collapsing still.
 
     FIFTEEN SINCE 2026-09-16 — the SIXTEEN measured directly above, less the one
     row this closure retires, and `len(_LEDGER_SUBJECTS)` MEASURED AT THIS HEAD
@@ -1977,6 +1958,19 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     same route (§ 6.3). Two of the five § 6 closures held a row here and both
     are now gone; the other three hold none, so § 6 makes no further movement to
     this population.
+
+    THIRTEEN AT THIS MERGED HEAD, 2026-09-18. Three rows retired on three
+    SEPARATE branches — `scope-pinned-arm-root-naming`'s archive (openxFactory
+    #1047, PR #1089) and the two § 6 closures directly above (PRs #1056 and
+    #1057) — and each of the three readings above was MEASURED on a tree that
+    did not yet hold the other two retirements. Every one of them is true of the
+    tree it names and NONE of them composes with the others, which is why this
+    paragraph re-measures rather than subtracting again: this merge is the first
+    tree that carries all three, and `len(_LEDGER_SUBJECTS)` MEASURED HERE reads
+    THIRTEEN — 14 literal entries, 13 unique, the same `add-chain-attestation`
+    duplicate collapsing as it always has. The measurement is the authority; the
+    chain above is the chronology, and a chronology assembled by merge from
+    parallel branches states three different heads, not one.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -2084,7 +2078,7 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "extend-prose-tagging-target-to-pinned-capabilities ARCHIVED on "
         "merged-plus-green realization evidence (realization PR #1040 → "
         "74348374, archive PR #1042) and both its rows retired, their blocks "
-        "promoted byte-identical into canon; 15 SINCE 2026-09-15, when "
+        "promoted byte-identical into canon; 15 ON 2026-09-15, when "
         "scope-pinned-arm-root-naming (openxFactory #1047) opened ONE row over "
         "document-lifecycle's *Prose tagging marker hygiene* — the successor "
         "packet that SCOPES the root-naming sentence the archived one had just "
@@ -2103,8 +2097,18 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "THREE UNCARRIED UNITS, CURRENTLY, are the body sentence, the "
         "pointer-bearing sentence, and the WHEN bullet AS RATIFIED; each has "
         "a successor in the same block that says MORE, or a truer citation, "
-        "and never less; retires when the packet archives and its block is "
-        "promoted)",
+        "and never less; 16 ON 2026-09-17, when adopt-entry-grain-"
+        "dispositions-form's OWN ratifier amended its block over this VERY "
+        "requirement on the word 'Apply the partition' (openxFactory #1045 "
+        "comment 5714433011, PR #1088 -> 893abe97) and opened ONE row there; "
+        "AND 15 THE SAME DAY, when scope-pinned-arm-root-naming itself "
+        "ARCHIVED on Brett Heap's separate archive word (code_surface none, "
+        "so on landing plus its own task list) and its one row retired, its "
+        "block promoted byte-identical into canon carrying the RATIFIER'S "
+        "2026-09-17 amendment of that same WHEN bullet — 'Apply the "
+        "narrowing', openxFactory #1047 comment 5714432684 — which moves no "
+        "unit count, the clause being one physical line under either "
+        "wording)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
