@@ -63,7 +63,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = REPO_ROOT / "contracts"
 
 #: A lockfile path the one two-argument guard JOINS and never opens
-#: (`validate-openspec-cli-pin.py:744`), so the guard leg stays source-free.
+#: (`validate-openspec-cli-pin.py:751`), so the guard leg stays source-free.
 _PIN_PATH = CONTRACTS / "openspec-cli-pin.yaml"
 
 
@@ -524,7 +524,7 @@ def test_shape_c_judges_dispositions_as_absent_is_empty_and_refuses_a_non_list()
 
 
 def test_dispositions_null_is_accepted_and_a_mapping_is_refused_malformed():
-    """(PR #1040 fix round 1, R5). `validate-openspec-cli-pin.py:801-803`
+    """(PR #1040 fix round 1, R5). `validate-openspec-cli-pin.py:808-810`
     treats `raw is None` as empty (`if raw is None: return []`), so an adapter
     refusing `dispositions: null` would be WIDER than the guard it tracks."""
     base = _base("c")
