@@ -1935,10 +1935,18 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     distinction matters to a reader of this ledger: a promoted row's obligation
     was carried, and this row's obligation moved to another repository.
 
-    TWELVE SINCE THE SECOND CLOSURE THE SAME DAY: `add-doxchat-model-intake`
-    left by the same route (§ 6.3). Two of the five § 6 closures held a row here
-    and both are now gone; the other three hold none, so § 6 makes no further
-    movement to this population.
+    FOURTEEN SINCE THE SECOND CLOSURE THE SAME DAY: the FIFTEEN measured
+    immediately above, less the one row THIS closure retires, and
+    `len(_LEDGER_SUBJECTS)` MEASURED AT THIS HEAD reads FOURTEEN (15 literal
+    entries, 14 unique, the same `add-chain-attestation` duplicate collapsing)
+    against the exact-set assertion below. (It read TWELVE until this merge: the
+    sentence was written against the numeral that stood before #1056 landed its
+    own correction, and subtracting from a superseded number is the one mistake
+    this whole paragraph exists to stop — twice now, which is why the arithmetic
+    is written out rather than asserted.) `add-doxchat-model-intake` left by the
+    same route (§ 6.3). Two of the five § 6 closures held a row here and both
+    are now gone; the other three hold none, so § 6 makes no further movement to
+    this population.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
