@@ -1228,7 +1228,8 @@ correct is not that `opendox_code` declares no admissions — this note said
 its block in `docs/opendox-carve-admissions.yaml` was `created: []` long after
 BUILD slice 2 began filling it, and the § 3.4 slice-S7 annotation this note
 was last re-measured on (openxFactory PR #1030 @ `b3a75537`) added three more
-entries to it, with seven further amendments since —
+entries to it, with FOUR further amendments since (#1025, #1067, #1068 and
+the residue annotation this act carries) —
 but that neither `pytest.ini` nor `conftest.py` is among the paths it
 declares. Those two Phase-1 files still have no reviewed declaration to read,
 so the command-line flag remains this leg's live, correct admission, exactly
