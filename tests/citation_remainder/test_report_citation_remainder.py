@@ -1719,6 +1719,62 @@ def test_history_is_probed_per_identity_and_carries_its_four_fields(
     assert "history: tracked" in text
 
 
+def test_a_history_probe_that_could_not_run_is_never_reported_as_never_tracked(
+        tmp_path, monkeypatch) -> None:
+    """A `git log` this report could not RUN is a different fact from a `git
+    log` that found nothing, and reporting the first as the second states
+    `ever_tracked: false` on a history the report never read. It takes the one
+    non-zero exit this capability has, carrying git's own message. (Copilot
+    `PRRT_kwDOTAvnrs6jdTNb`.)"""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    # ONE git is made to fail and every other still answers, so the assertion
+    # below is about the PROBE and not about a tree the report could not open
+    # at all. Patched at the report's own sink rather than on `PATH`, so the
+    # test names the call it is about.
+    real_run = report.subprocess.run
+
+    def only_the_history_walk_fails(args, **kwargs):
+        if "log" in args:
+            return subprocess.CompletedProcess(
+                args, 128, "", "fatal: bad object HEAD\n")
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(report.subprocess, "run", only_the_history_walk_fails)
+
+    buffer = io.StringIO()
+    errors = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        with contextlib.redirect_stderr(errors):
+            code = report.main([str(root), "--json", "--history"])
+
+    assert code != 0, "a probe that could not run is the one non-zero exit"
+    assert '"ever_tracked": false' not in buffer.getvalue(), \
+        "a failed probe is never reported as a history that found nothing"
+    assert "fatal: bad object HEAD" in errors.getvalue(), \
+        "git's own message reaches the caller rather than being swallowed"
+    assert "did not run" in errors.getvalue().lower(), \
+        "the message names a run that did not happen, never a finding"
+
+
+def test_the_history_probe_still_reports_a_genuinely_empty_walk(
+        tmp_path) -> None:
+    """The fix above narrows nothing: a `git log` that RAN and found no add
+    event is still `ever_tracked: false`, which is the fact it always was."""
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-never-here/proposal.md\n")
+    commit(root)
+
+    data = run_json(root, "--history")
+    history = data["identities"][0]["history"]
+    assert history["probed"] is True
+    assert history["ever_tracked"] is False
+    assert history["first_commit"] is None
+    assert history["last_commit"] is None
+
+
 def test_history_never_changes_a_class_or_a_flag(tmp_path) -> None:
     """`--history` answers a different question and neither list was ever built
     to carry it."""

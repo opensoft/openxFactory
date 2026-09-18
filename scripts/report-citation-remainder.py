@@ -1152,19 +1152,27 @@ def probe_history(root: Path, records) -> dict:
     that cost by an order of magnitude to answer a question about entries the
     output does not carry. Under `--all` the listing is every token, and the
     probe follows it there.
+
+    A PROBE THAT FAILS IS NOT A PROBE THAT FOUND NOTHING. An empty log and a
+    `git log` this report could not run are two different facts, and reporting
+    the second as the first states `ever_tracked: false` — *this id never stood
+    here* — on the strength of a history the report never read. So the probe
+    goes through `git`, whose contract is this module's own: a git that fails
+    is a tree this report cannot read, which is the one non-zero exit this
+    capability has, carrying git's own message. (Copilot
+    `PRRT_kwDOTAvnrs6jdTNb`.)
     """
     probed: dict[str, dict] = {}
     for record in records:
         identity = record.identity
         if identity is None or identity in probed:
             continue
-        code, out, _ = git_status(
+        out = git(
             root, "log", "--all", "--diff-filter=A", "--reverse",
             "--abbrev=8", "--format=%h", "--",
             f"{CHANGES_ROOT}/{identity}",
             f"{CHANGES_ROOT}/archive/*-{identity}/*")
-        lines = [line.strip() for line in out.splitlines() if line.strip()] \
-            if code == 0 else []
+        lines = [line.strip() for line in out.splitlines() if line.strip()]
         probed[identity] = {
             "probed": True,
             "ever_tracked": bool(lines),
