@@ -230,6 +230,31 @@ def main(argv=None):
     print(f"promoted requirements: {len(order)}")
     missing = [t for t in fifteen if t not in reqs]
     if missing:
+        # TWO DIFFERENT FACTS WEAR THE SAME SHAPE HERE, AND ONLY ONE IS A DEFECT.
+        # This check rebuilds the carry FROM the promoted spec, so it can only run
+        # on a checkout where the fifteen are still promoted. The governing
+        # packet's own `## REMOVED` delta takes them out of
+        # `openspec/specs/ideation-dashboard/spec.md` when IT archives — the order
+        # this packet's design § D4 requires — and from that commit on, ALL
+        # FIFTEEN are absent for a reason that is the corpus working correctly.
+        # SOME absent is drift and stays a hard refusal; ALL absent, with the
+        # governing packet found in the ARCHIVE, is this checker meeting its own
+        # horizon, and it says so instead of reading like a broken record.
+        # (Found by Copilot on PR #1103, one round after it found the hard-coded
+        # source path — the same future, one step further along.)
+        governing_archived = source_dir(root).parent.name == "archive"
+        if len(missing) == len(fifteen) and governing_archived:
+            raise _refuse(
+                f"all {len(fifteen)} carried titles are absent from "
+                f"{promoted.relative_to(root)}, and {SOURCE} resolves inside "
+                f"openspec/changes/archive/. THIS IS THE EXPECTED STATE AFTER THE "
+                f"GOVERNING PACKET'S `## REMOVED` DELTA PROMOTED, not a defect in "
+                f"this record: the carry cannot be rebuilt from a promoted spec "
+                f"that no longer holds its source. Re-run against a checkout at or "
+                f"before that promotion to re-prove the build. The delta committed "
+                f"beside this script remains the record of what was carried, and "
+                f"the reversal proof that established it is in the packet's "
+                f"tasks.md § 2.3 and § 5.1.")
         raise _refuse(f"titles absent from the promoted spec: {missing}")
     wanted = {norm(t) for t in fifteen}
     if len(wanted) != len(fifteen):

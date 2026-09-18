@@ -127,8 +127,11 @@ against it, not asserted.
       no finding on either side. Removal first leaves fifteen ratified requirements in NO capability,
       which is the loss `promotion_fidelity` exists to prevent.
 - [x] 3.3 **BEFORE § 3.1 RUNS, from the ACTIVE path** (after the move the same file is at
-      `openspec/changes/archive/<date>-repromote-engineering-vocabulary/review/build-delta.py`, and
-      its `CHANGE` constant would then need the dated id): re-run
+      `openspec/changes/archive/<date>-repromote-engineering-vocabulary/review/build-delta.py` and is
+      invoked at THAT path — **the `CHANGE` constant is NOT edited**, because `packet_dir()` globs
+      `????-??-??-<CHANGE>` and resolves either location; the parenthetical here said otherwise until
+      § 5.3 corrected it, and following it would have broken the very resolution it describes):
+      re-run
       `python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py .` — no
       `--write`, so it CHECKS the committed delta against a fresh build off the THEN-CURRENT promoted
       spec and exits non-zero on any difference, byte for byte. If `main` has moved the promoted text
@@ -212,7 +215,7 @@ delta, or any byte of `openspec/changes/split-opendox-two-layer-product/`.
       | state | committed code at `2d50fbc3` | with `source_dir()` |
       | --- | --- | --- |
       | active (today) | PASS | PASS |
-      | archived (§ D4's required future) | **`FileNotFoundError`, exit 1** | **PASS, exit 0** |
+      | governing packet ARCHIVED, its REMOVED delta not yet promoted | **`FileNotFoundError`, exit 1** | **PASS, exit 0** |
       | both present | `FileNotFoundError` | REFUSED, exit 1 |
       | neither present | `FileNotFoundError` | REFUSED, exit 1 |
 
@@ -220,10 +223,62 @@ delta, or any byte of `openspec/changes/split-opendox-two-layer-product/`.
       `sha256 c3b985aedb7cc9be…`, identical in every passing state above, and
       `CHECK PASSED` against the committed file.
 
+- [x] 5.3 **AND THE ROW ABOVE IS ONLY HALF THE FUTURE — this box says which
+      half.** The § D4 order has TWO steps, and `source_dir()` survives the
+      first. The second is the governing packet's own `## REMOVED` delta
+      promoting, which takes the fifteen OUT of
+      `openspec/specs/ideation-dashboard/spec.md`. This checker REBUILDS the
+      carry FROM that promoted text, so from that commit on it cannot run at all,
+      and no resolver fixes that: the source it needs is gone from the checkout
+      by design. Measured, both steps applied in a scratch worktree:
+
+      | checkout | result |
+      | --- | --- |
+      | today | `CHECK PASSED`, exit 0 |
+      | governing packet archived only | `CHECK PASSED`, exit 0 |
+      | **+ its `## REMOVED` delta promoted** | **REFUSED, exit 1 — and it now SAYS WHY** |
+
+      It already failed closed; what it did not do was distinguish its own
+      horizon from a defect. `REFUSED: titles absent from the promoted spec:
+      [all fifteen]` reads like a broken record. So the refusal now discriminates:
+      ALL fifteen absent **and** `SOURCE` resolving inside
+      `openspec/changes/archive/` is named as *"the expected state after the
+      governing packet's `## REMOVED` delta promoted, not a defect in this
+      record"*, with the instruction to re-run against a checkout at or before
+      that promotion. **SOME absent stays a hard refusal** — that is drift, and it
+      is proved separately: dropping exactly one carried title from the promoted
+      spec in the same archived-governing-packet state still gives
+      `REFUSED: titles absent from the promoted spec: ['Staged-topic health signal']`,
+      exit 1. The record of what was carried does not depend on the re-run: the
+      delta is committed beside the script, and § 2.3's reversal proof is what
+      established it.
+
+- [x] 5.4 **§ 3.3's parenthetical was stale and pointed the wrong way.** It told a
+      future reader the `CHANGE` constant "would then need the dated id" after the
+      move. `packet_dir()` globs `????-??-??-<CHANGE>`, so the constant must NOT
+      be edited — editing it is what would break resolution. Corrected in place.
+
 - [x] 5.2 **§ 3.5's ledger total had gone stale under the landing merge.** 219
       was true at `f0e0cd6e` and the file reads 222 at the landing head. Dated in
       place rather than overwritten, with the command that measures it, because
       re-dating a historical measurement to today's number destroys the evidence
       of what the run actually saw — the same rule the versioning policy applies
       to `docs/archive-record-discrepancies.md`.
+
+- [x] 5.5 **ONE FINDING MEASURED AND REFUSED.** The same review asked for an
+      `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>` line in
+      `proposal.md`, `design.md` and `tasks.md`, on the ground that they are
+      edited under `openspec/changes/archive/`. **They are not archived-record
+      edits.** `docs/document-lifecycle.md` routes that requirement through *An
+      archived record is edited only as a bookkeeping correction under a recorded
+      ruling* — a record, i.e. a landed one. This packet is **ACTIVE on `main`**
+      at `openspec/changes/repromote-engineering-vocabulary/` and is not in
+      `main`'s archive at all: the rename is part of THIS act, so every commit
+      after it on this branch is authoring the archive, not amending a record.
+      The estate's own practice measures the same way — of the 34 archived files
+      carrying an `Edited (bookkeeping):` line, **zero** got it from the pull
+      request that archived them; all six sampled got it weeks later, and every
+      sample from one commit, `db1f0cfa` (2026-09-11), against directories added
+      on 2026-08-06 through 2026-08-26. Adding the annotation here would date a
+      bookkeeping correction to a record that does not yet exist.
 
