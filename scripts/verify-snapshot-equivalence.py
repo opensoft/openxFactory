@@ -318,11 +318,12 @@ _SCRUBBED_GIT_ENVIRONMENT = frozenset({
     # Disabling the global and system files and dropping the indexed
     # `GIT_CONFIG_KEY_n`/`VALUE_n` pairs leaves ambient `-c` settings — a
     # `core.alternateRefsCommand`, an `include.path` — still reaching these
-    # supposedly hermetic object reads. `scripts/hermes_runtime_validation/
-    # content.py`:16-25 already scrubs it; REGISTERED RESIDUE:
-    # `carved_reach._sanitized_git_environment()` does NOT, and that is a
-    # finding against the resolver rather than against this file, owed
-    # wherever `carved_reach` is next opened.
+    # supposedly hermetic object reads. Both of this repository's own scrubs
+    # already carry it — `scripts/hermes_runtime_validation/content.py`:16-25
+    # and `scripts/carved_reach.py`:796-806 — so this set MATCHES them rather
+    # than exceeding them. (An earlier revision of this comment registered the
+    # resolver as MISSING it. That was wrong, and Copilot caught it on round 4:
+    # measured, `carved_reach._sanitized_git_environment()` drops it.)
     "GIT_CONFIG_PARAMETERS",
 })
 _INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(KEY|VALUE)_\d+")
@@ -575,21 +576,38 @@ def post_side_identity(stack, pins: dict[str, str]) -> dict[str, str]:
     dotted names come off the imported modules and the leg comes off where
     their files are.
     """
-    generator, snapshot = stack
-    modules = f"{generator.__name__} + {snapshot.__name__}"
-    origin = Path(getattr(generator, "__file__", "") or "").resolve()
-    leg = "unresolved"
-    for candidate in sorted(pins, key=len, reverse=True):
-        root = (ROOT / candidate).resolve()
-        if origin == root or root in origin.parents:
-            leg = candidate
-            break
-    commit = pins.get(leg, "")
-    return {"post_modules": modules, "post_leg": leg,
-            "post_leg_commit": commit,
-            "post_label": (f"{modules} at the pinned {leg} "
-                           f"{commit[:12]}" if commit else
-                           f"{modules} at {leg}")}
+    def leg_of(module) -> str:
+        origin = Path(getattr(module, "__file__", "") or "").resolve()
+        for candidate in sorted(pins, key=len, reverse=True):
+            root = (ROOT / candidate).resolve()
+            if origin == root or root in origin.parents:
+                return candidate
+        return "unresolved"
+
+    # PER ROW, NOT PER STACK (Copilot, PR #1105 round 4).
+    # `carved_reach.module()` resolves the generator row and the snapshot row
+    # INDEPENDENTLY, and a `re_destined:` block is per row, so the two can
+    # legitimately arrive at different legs. Deriving one leg from the
+    # generator alone and printing it for both would make the evidence line
+    # false in exactly the case this derivation exists to survive. A mixed
+    # stack is not refused — the manifest permits it — it is REPORTED.
+    resolved = [(module.__name__, leg_of(module)) for module in stack]
+    modules = " + ".join(name for name, _ in resolved)
+    legs: list[str] = []
+    for _, leg in resolved:
+        if leg not in legs:
+            legs.append(leg)
+    parts = [f"{leg} {pins[leg][:12]}" if pins.get(leg) else leg
+             for leg in legs]
+    label = (f"{modules} at the pinned {parts[0]}" if len(parts) == 1 else
+             f"{modules} at the pinned " + " and ".join(parts) +
+             " (a MIXED-leg stack)")
+    return {"post_modules": modules,
+            "post_leg": legs[0],
+            "post_leg_commit": pins.get(legs[0], ""),
+            "post_legs": legs,
+            "post_module_legs": {name: leg for name, leg in resolved},
+            "post_label": label}
 
 
 def render_post(stack, corpus: Path, source_revision: str) -> bytes:

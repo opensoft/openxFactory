@@ -675,8 +675,40 @@ def test_the_post_side_label_follows_a_re_destination(monkeypatch):
     identity = real((Elsewhere(), Sibling()), pins)
     assert identity["post_leg"] == "openDox/code"
     assert identity["post_leg_commit"] == "b" * 40
+    assert identity["post_legs"] == ["openDox/code"]
     assert "opendox.generator" in identity["post_label"]
     assert "openXdox" not in identity["post_label"]
+
+
+def test_a_mixed_leg_stack_is_reported_as_one(monkeypatch):
+    """`carved_reach.module()` resolves the generator row and the snapshot row
+    INDEPENDENTLY and a `re_destined:` block is per row, so the two can
+    legitimately arrive at different legs (RULED Q6, `#656` comment
+    `5648044785`). Deriving one leg from the generator alone and printing it
+    for both would make the evidence line false in exactly the case the
+    derivation exists to survive (Copilot, PR #1105 round 4). A mixed stack is
+    not refused — the manifest permits it — it is REPORTED."""
+    pins = {"openDox": "a" * 40, "openDox/code": "b" * 40,
+            "openXdox": "c" * 40, "openXdox/code": "d" * 40}
+
+    class Generator:
+        __name__ = "openxdox.generator"
+        __file__ = str(REPO_ROOT / "openXdox" / "code" / "src" / "openxdox"
+                       / "generator.py")
+
+    class Snapshot:
+        __name__ = "opendox.snapshot"
+        __file__ = str(REPO_ROOT / "openDox" / "code" / "src" / "opendox"
+                       / "snapshot.py")
+
+    identity = MODULE.post_side_identity((Generator(), Snapshot()), pins)
+    assert identity["post_legs"] == ["openXdox/code", "openDox/code"]
+    assert identity["post_module_legs"] == {
+        "openxdox.generator": "openXdox/code",
+        "opendox.snapshot": "openDox/code"}
+    assert "d" * 12 in identity["post_label"]
+    assert "b" * 12 in identity["post_label"]
+    assert "MIXED-leg" in identity["post_label"]
 
 
 def test_a_source_revision_that_is_not_an_object_id_refuses():
