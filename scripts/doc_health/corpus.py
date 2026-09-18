@@ -409,13 +409,25 @@ def change_ids(repo_path: Path) -> set[str]:
     return ids
 
 
+# Same 30s bound as `carved_reach._git_run` (#1048 round 5) and
+# `hermes_runtime_validation/content.py`'s `_git`: a blocked promisor
+# remote must answer within this window rather than hang the reader past
+# the point where the caller's existing None-means-skip handling runs
+# (#1098).
+_GIT_TIMEOUT_SECONDS = 30
+
+
 class RealGit:
     """Git-derived facts. Every method degrades to None on failure so
     families can skip-with-notice instead of crashing."""
 
     def _run(self, repo: Path, *args: str) -> str | None:
-        proc = subprocess.run(["git", "-C", str(repo), *args],
-                              capture_output=True, text=True)
+        try:
+            proc = subprocess.run(["git", "-C", str(repo), *args],
+                                  capture_output=True, text=True,
+                                  timeout=_GIT_TIMEOUT_SECONDS)
+        except (subprocess.TimeoutExpired, OSError):
+            return None
         return proc.stdout if proc.returncode == 0 else None
 
     def last_commit_date(self, repo: Path, relpath: str) -> date | None:
@@ -578,8 +590,9 @@ class RealGit:
         try:
             proc = subprocess.run(
                 ["git", "-C", str(repo), "cat-file", "--batch"],
-                input=payload.encode("utf-8"), capture_output=True)
-        except OSError:
+                input=payload.encode("utf-8"), capture_output=True,
+                timeout=_GIT_TIMEOUT_SECONDS)
+        except (OSError, subprocess.TimeoutExpired):
             return None
         if proc.returncode != 0:
             return None
