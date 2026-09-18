@@ -820,8 +820,40 @@ FORGE_URL_RE = re.compile(
 #: ITSELF rather than by any word, which is why it is in the signal set at all;
 #: the same prefix followed by a command name, a subject or a workflow locator
 #: fires nothing, because neither is an owner segment followed by a path.
+#:
+#: THE OWNER IS ONE SEGMENT, which is what makes an owner CONTAINING `:` or `/`
+#: no owner: the class below admits neither, and the pattern must then run out
+#: at the token's own start (`\Z` over `line[:start]`), so `opsx:own:er/` and
+#: `opsx:own/er/` each fail to match rather than matching some shorter thing.
+#: An EMPTY owner fails on the `+`.
 CUSTODY_SCHEME_RE = re.compile(
     r"(?:^|(?a:\W))opsx:(?P<owner>[A-Za-z0-9._\-]+)/\Z")
+
+#: The character class BOTH halves of the locator are drawn from, spelled once.
+LOCATOR_SEGMENT_CHARACTERS = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-")
+
+
+def locator_path(text: str) -> bool:
+    """Whether the text standing where the locator's PATH stands is one.
+
+    THE PATH IS THE CITED TOKEN ITSELF, which is what "the token is immediately
+    preceded by the scheme, one owner segment and `/`" makes it: the prefix ends
+    where the token begins, so everything the locator's path is made of is the
+    token. So the grammar's second half is a predicate over the token AS IT WAS
+    WRITTEN — one or more `/`-separated segments, each of one or more characters
+    from the class above.
+
+    AN EMPTY SEGMENT IS THE ARM THAT DOES THE WORK: a repeated slash inside the
+    path and a trailing slash at the end of it each leave one, and neither is a
+    locator. The character arm is stated because the grammar states it, and is
+    the boundary this report keeps against its own extraction pattern, which
+    admits the same class and `/` and nothing else — a later widening of that
+    pattern must not widen the locator silently.
+    """
+    return bool(text) and all(
+        segment and not (set(segment) - LOCATOR_SEGMENT_CHARACTERS)
+        for segment in text.split("/"))
 
 #: A trailing parenthetical: at most ONE space, then `(`, then its content,
 #: then `)`. More than one space, any further content inside the parentheses,
@@ -980,16 +1012,20 @@ def signal_bare_qualifier_word(lines, lineno: int, start: int) -> bool:
     return False
 
 
-def signal_custody_locator(line: str, start: int) -> bool:
+def signal_custody_locator(line: str, start: int, end: int) -> bool:
     """(4) THE CUSTODY-LOCATOR SCHEME, which carries its qualifier INSIDE the
     token rather than beside it.
 
     Fires where the token is immediately preceded on the citing line by the
-    literal scheme prefix followed by one owner segment and `/`; the same
-    prefix followed by anything else — a command name, a subject, a workflow
-    locator — fires nothing.
+    literal scheme prefix followed by one owner segment and `/`, AND the token
+    standing after that `/` is the locator's own PATH: the whole of it, read as
+    one locator and never stopped at its first segment. The same prefix followed
+    by anything else — a command name, a subject, a workflow locator — fires
+    nothing, and so does a locator that is malformed at either end.
     """
-    return CUSTODY_SCHEME_RE.search(line[:start]) is not None
+    if CUSTODY_SCHEME_RE.search(line[:start]) is None:
+        return False
+    return locator_path(line[start:end])
 
 
 def signal_trailing_parenthetical(line: str, end: int) -> bool:
@@ -1021,7 +1057,7 @@ def signals_at(lines, lineno: int, start: int, end: int) -> tuple:
         fired.append(SIGNAL_FORGE_URL)
     if signal_bare_qualifier_word(lines, lineno, start):
         fired.append(SIGNAL_QUALIFIER_WORD)
-    if signal_custody_locator(line, start):
+    if signal_custody_locator(line, start, end):
         fired.append(SIGNAL_CUSTODY_SCHEME)
     if signal_trailing_parenthetical(line, end):
         fired.append(SIGNAL_TRAILING_PAREN)

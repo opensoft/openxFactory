@@ -4,12 +4,14 @@ issue #1053).
 
 EVERY SCENARIO THE DELTA STATES IS REALIZED BY A TEST BELOW WHOSE DOCSTRING
 NAMES IT, and the five requirements are kept apart in five sections so a reader
-checking coverage reads one place. The delta carries 69 `#### Scenario:` blocks
-across 5 `### Requirement:` blocks — 43 on `main` and 26 more folded in by
+checking coverage reads one place. The delta carries 72 `#### Scenario:` blocks
+across 5 `### Requirement:` blocks — 43 on `main` and 29 more folded in by
 Patch B (PR #1097) — and each one's test names it verbatim in its first line.
 THE COUNT IS CHECKED MECHANICALLY AND NOT BY HAND: every scenario title in the
 delta is searched for in a test docstring, so a scenario reworded by a later
-fold-in reads as a gap rather than passing silently.
+fold-in reads as a gap rather than passing silently, and the count is taken
+against PATCH B'S OWN BRANCH TIP rather than against this branch's tree, which
+carries `main`'s 43 until Patch B lands.
 
 FIXTURES ARE THROWAWAY GIT TREES IN `tmp_path`, on `tests/packet_reference/`'s
 stated precedent — *"a committed broken packet is a file every other sweep has
@@ -1499,6 +1501,62 @@ def test_the_same_scheme_prefix_introducing_something_that_is_not_a_locator_fire
 
     record = entries(run_json(root))[f"{CITE}/add-absent/proposal.md"]
     assert record["occurrences"][0]["signals"] == []
+
+
+def test_a_well_formed_locator_carries_a_multi_segment_path(tmp_path) -> None:
+    """Scenario: A well-formed locator carries a multi-segment path.
+
+    THE LOCATOR IS READ WHOLE. Its path is the cited token itself — the prefix
+    ends where the token begins — so a reader that stopped at the first path
+    segment would be reading a different locator from the one written, and would
+    have to decide what the rest of the line was.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md",
+          f"opsx:opensoft/{CITE}/add-example/proposal.md\n")
+    commit(root)
+
+    listed = entries(run_json(root))
+    token = f"{CITE}/add-example/proposal.md"
+    assert token in listed, \
+        "the whole multi-segment path is the token, not its first segment"
+    assert len(token.split("/")) == 4
+    record = listed[token]
+    assert record["occurrences"][0]["signals"] == ["custody-locator-scheme"]
+    assert record["flags"] == ["possibly-cross-repo"]
+    assert f"{CITE}/add-example" not in listed, \
+        "no second, shorter token is minted by stopping early"
+
+
+@pytest.mark.parametrize("prefix, path, malformation", [
+    ("opsx:open:soft/", "add-absent/proposal.md",
+     "an owner segment containing a colon"),
+    ("opsx:/", "add-absent/proposal.md", "an empty owner segment"),
+    ("opsx:opensoft/extra/", "add-absent/proposal.md",
+     "an owner segment containing a slash"),
+    ("opsx:opensoft/", "add-absent//proposal.md",
+     "a path carrying a repeated slash, which is an empty segment"),
+    ("opsx:opensoft/", "add-absent/proposal.md/",
+     "a path carrying a trailing slash, which is an empty segment too"),
+])
+def test_a_malformed_locator_fires_no_signal(
+        tmp_path, prefix, path, malformation) -> None:
+    """Scenario: A malformed locator fires no signal.
+
+    Each spelling below differs from the firing one in exactly one place, so
+    what is asserted is the refusal and never a line that carried no token to
+    judge — which the last assertion pins.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{prefix}{CITE}/{path}\n")
+    commit(root)
+
+    listed = entries(run_json(root, "--all"))
+    assert listed, f"the line still carries a token to judge ({malformation})"
+    fired = [signal for record in listed.values()
+             for occurrence in record["occurrences"]
+             for signal in occurrence["signals"]]
+    assert "custody-locator-scheme" not in fired, malformation
 
 
 def test_a_trailing_repository_parenthetical_flags_the_entry(
