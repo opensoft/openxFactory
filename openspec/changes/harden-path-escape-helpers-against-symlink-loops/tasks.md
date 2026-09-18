@@ -16,7 +16,7 @@ pull request or a measurement recorded verbatim in this packet and reproducible
 from the commands named beside it. **§ 1 IS BRETT HEAP'S ACT AND IS NOT TICKED BY
 THIS LANE.** § 3, § 4, § 5 and § 6 stay ENTIRELY OPEN.
 
-## 1. Ratification (OPEN; Brett Heap's act)
+## 1. Ratification — GIVEN 2026-09-18, Brett Heap's and nobody else's
 
 - [x] 1.1 **(OPERATOR)** Ratify or refuse `proposal.md` § *The decision, put for a
       veto* (OQ-1): option (a) AS FILED (`design.md` D1 ADDED over
