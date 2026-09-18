@@ -1412,15 +1412,48 @@ def test_a_partial_clone_refuses_by_name_and_names_the_fetch(tmp_path):
     assert f"fetch origin {pre_commit}" in caught.value.detail
 
 
-def test_a_pathspec_failure_is_not_diagnosed_as_a_partial_clone(tmp_path):
-    """…and the pattern is narrow: the other way `git archive` fails is a
-    pathspec matching nothing, which is a tree finding and not a store one."""
+def test_a_pathspec_failure_is_named_post_shed_and_not_an_object_store(
+        tmp_path):
+    """`git archive` fails BEFORE writing anything when no path matches, so a
+    tree carrying neither archive path never reaches the per-row check and
+    must be diagnosed here. It is a POST-SHED REF, and the remedy is another
+    `--pre-ref` — not the fetch the object-store branch prescribes (Copilot,
+    PR #1115: the fallback still called this the object store and told the
+    operator to fetch before changing the ref, which is backwards)."""
     repo = tmp_path / "repo"
     _seed(repo)
     commit = MODULE._git(repo, "rev-parse", "HEAD").stdout.strip()
     with pytest.raises(MODULE.EquivalenceRefusal) as caught:
         MODULE.extract_pre_tree(commit, repo, tmp_path / "into", "HEAD")
+    detail = caught.value.detail
     assert caught.value.code == "equivalence-pre-tree-unrenderable"
+    assert "OBJECT STORE" not in detail, detail
+    assert "fetch origin" not in detail, detail
+    assert "post-shed" in detail
+    assert MODULE.DEFAULT_PRE_REF in detail
+
+
+def test_an_unclassified_archive_failure_claims_neither_diagnosis(
+        monkeypatch, tmp_path):
+    """The third condition — a permission error, a full disk, a git that
+    broke in a way this file has not met — gets its stderr and both remedies
+    as POSSIBILITIES. A confident wrong diagnosis is what the two classified
+    branches exist to stop, so the fallback must not inherit one."""
+    def broken(repo, *arguments, text=True):
+        if arguments[0] == "archive":
+            return subprocess.CompletedProcess(
+                list(arguments), 128, b"",
+                b"fatal: unable to create temporary file: No space left")
+        return MODULE._git(repo, *arguments, text=text)
+
+    monkeypatch.setattr(MODULE, "_git", broken)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.extract_pre_tree("f" * 40, tmp_path, tmp_path / "into", "HEAD")
+    detail = caught.value.detail
+    assert caught.value.code == "equivalence-pre-tree-unrenderable"
+    assert "No space left" in detail
+    assert "cannot tell from that output" in detail
+    assert "PARTIAL OR INCOMPLETE OBJECT STORE" not in detail
 
 
 def test_the_sweep_sees_an_edit_that_status_reports_as_clean(tmp_path):

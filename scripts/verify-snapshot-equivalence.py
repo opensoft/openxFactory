@@ -423,6 +423,13 @@ def _git_environment() -> dict[str, str]:
 #: unreachable, and an object simply absent. A pathspec that matches nothing
 #: — the other way `git archive` fails — matches NONE of these, and is left
 #: to the generic diagnosis below it.
+#: And what `git archive` says when NO path matched — measured:
+#: `fatal: pathspec 'scripts/doc_health' did not match any files`. It fails
+#: before writing anything, so a tree carrying neither archive path never
+#: reaches the per-row check further down and must be diagnosed here.
+_NO_PATHSPEC = re.compile(r"pathspec .* did not match|did not match any file",
+                          re.IGNORECASE)
+
 _PARTIAL_CLONE = re.compile(
     r"promisor remote|could not fetch|lazy fetch"
     r"|could not read from remote|missing (?:blob|object|tree)"
@@ -548,23 +555,43 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
                 f"there. Fetch them deliberately — `git -C {repo} fetch "
                 f"origin {pre_commit}` — or use a clone without a partial "
                 "filter, then re-run")
-        # REPORTED GENERICALLY, AND THE POST-SHED DIAGNOSIS IS LEFT TO THE
-        # EXPLICIT CHECK BELOW (Copilot, PR #1105 round 7).
-        # `pre_ref_commit()` has ALREADY resolved this ref, so a nonzero
-        # archive here is far likelier to be an object store that cannot
-        # answer — a partial clone whose promisor remote is unreachable, a
-        # corrupt pack — than a tree without the renderer. Telling that
-        # operator the ref is post-shed sends them to replace a good ref
-        # instead of fetching the objects they are missing.
+        # AND THE PATHSPEC FAILURE IS THE POST-SHED REF, NAMED AS ONE
+        # (Copilot, PR #1115). `git archive` fails before it writes anything
+        # when NO path matches, so a tree that carries neither archive path
+        # never reaches the per-row check below — and until the object store
+        # got its own code above, this message was written for the store
+        # case and told that operator to fetch objects before changing
+        # `--pre-ref`, which is precisely backwards for a ref whose tree has
+        # shed the renderer. Both halves are classified now, so neither
+        # borrows the other's remedy.
+        if _NO_PATHSPEC.search(stderr):
+            raise EquivalenceRefusal(
+                "equivalence-pre-tree-unrenderable",
+                f"{pre_ref} ({pre_commit[:12]}) carries NEITHER "
+                + " nor ".join(ARCHIVE_PATHS)
+                + f": {stderr or '(no error output)'}. `contract-v4.0` and "
+                "every commit on `main` since the § 5.2 shed are in exactly "
+                "this state. A post-shed ref is an operator error about "
+                f"--pre-ref, not a pass: name {DEFAULT_PRE_REF!r} or another "
+                "pre-shed revision. The objects are not the problem — the "
+                "ref resolved and git read its tree well enough to know "
+                "these paths are not in it")
+        # AND WHAT IS LEFT IS UNDIAGNOSED, WHICH THIS SAYS RATHER THAN
+        # GUESSES AT. The two conditions an archive fails under here are
+        # classified above; a third — a permission error, a full disk, a git
+        # that broke in a way this file has not met — gets its stderr and
+        # both remedies as POSSIBILITIES, because a confident wrong
+        # diagnosis is what the two branches above exist to stop.
         raise EquivalenceRefusal(
             "equivalence-pre-tree-unrenderable",
             f"`git archive {pre_commit}` ({pre_ref}) FAILED: "
             + (stderr or "(no error output)")
-            + ". The ref itself resolved, so this is the OBJECT STORE rather "
-            "than the tree: a partial clone whose promisor remote cannot be "
-            "reached, a corrupt pack, or a revision whose blobs were never "
-            "fetched. Fetch the missing objects (`git fetch origin "
-            f"{pre_commit}`) before changing --pre-ref. Whether the tree "
+            + ". The ref itself resolved and this runner cannot tell from "
+            "that output which condition it met — it is neither the object "
+            "store nor a pathspec that matched nothing, both of which are "
+            "reported by name. Read the error above: if objects are missing, "
+            f"`git -C {repo} fetch origin {pre_commit}`; if the tree has "
+            "shed the renderer, name a pre-shed --pre-ref. Whether the tree "
             "carries the renderer is answered separately, below")
     _extract_safely(archive.stdout, into, pre_ref)
     for row in (GENERATOR_ROW, SNAPSHOT_ROW):
