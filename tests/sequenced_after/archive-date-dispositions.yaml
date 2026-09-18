@@ -39,8 +39,13 @@ kind: archive_date_dispositions
 #   2. THE ARCHIVE ACT AND ITS COMMIT FELL ON DIFFERENT UTC DAYS. The wrapper
 #      owns the clock at the ACT; the adding commit is made (and, squash-merged,
 #      dated) later. An archive named just before UTC midnight and merged just
-#      after is a CORRECT archive that this arm reports. 132 of this corpus's
-#      144 directories agree, so it is rare - not impossible.
+#      after is a CORRECT archive that this arm reports. 159 of this corpus's
+#      173 directories agree, so it is rare - not impossible. (That figure read
+#      "132 of 144" until 2026-09-18, when it was RE-MEASURED rather than
+#      adjusted: the corpus had grown by 29 directories since the sentence was
+#      written, and 132 + the entries below could not describe any corpus at
+#      all. 159 agree and 14 disagree, which is 173 and is the count of entries
+#      below. Copilot caught the contradiction on PR #1106.)
 #   3. THE CHANGE ID ARRIVED CARRYING ITS OWN `YYYY-MM-DD-` PREFIX, which the
 #      pinned CLI preserves DELIBERATELY (`archive.js:1119-1124`: re-prefixing
 #      would stutter the name and sort the folder under a day the change did not
