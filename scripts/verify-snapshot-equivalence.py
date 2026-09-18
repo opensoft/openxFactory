@@ -107,7 +107,8 @@ carve broke that path three ways and § D6 (4) asks for digests —
      gate-intent/possibles-register/project-register/demotion-receipt HERE —
      so no single `--schemas-dir` closes it either.
   2. `openxdox/snapshot.py`:29's `VALIDATOR_RELPATH` is a `moved_verbatim` row
-     and now names `openxFactory/scripts/validate-ideation-dashboard-contracts.py`,
+     and now names
+     `openxFactory/scripts/validate-ideation-dashboard-contracts.py`,
      a path this repository shed at `cc4ae9d3`.
   3. `find_validator()` WALKS UP THE PARENTS, so a run started inside a
      checkout that still carries a pre-shed copy silently adopts it — a reader
@@ -328,7 +329,8 @@ def extract_pre_tree(pre_ref: str, repo: Path, into: Path) -> Path:
     if archive.returncode != 0:
         raise EquivalenceRefusal(
             "equivalence-pre-tree-unrenderable",
-            f"`git archive {pre_ref}` carries none of {', '.join(ARCHIVE_PATHS)}"
+            f"`git archive {pre_ref}` carries none of "
+            f"{', '.join(ARCHIVE_PATHS)}"
             f": {archive.stderr.decode('utf-8', 'replace').strip()}. That ref "
             "is POST-SHED — the § 5.2 shed removed the renderer from this "
             "repository — so it is not a pre-split tree and must not be read "
@@ -543,7 +545,8 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
         return
     total = len(summary["states"])
     print(f"OK — {total} of {total} corpus state(s) equivalent: the "
-          f"pre-split tree {summary['pre_ref']} ({summary['pre_commit'][:12]}) "
+          f"pre-split tree {summary['pre_ref']} "
+          f"({summary['pre_commit'][:12]}) "
           f"and the post-split stack (openxdox.generator + openxdox.snapshot "
           f"at the pinned openXdox-code "
           f"{(summary['openxdox_code'] or 'uninitialized')[:12]}, through "
@@ -619,7 +622,8 @@ def main(argv: list[str] | None = None) -> int:
             "repository": REPOSITORY_NAME,
             "states": [],
         }
-        with tempfile.TemporaryDirectory(prefix="snapshot-equivalence-") as tmp:
+        with tempfile.TemporaryDirectory(
+                prefix="snapshot-equivalence-") as tmp:
             scratch = Path(tmp)
             tree = extract_pre_tree(args.pre_ref, ROOT, scratch / "pre")
             for corpus in corpora:

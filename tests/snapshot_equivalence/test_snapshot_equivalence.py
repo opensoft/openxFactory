@@ -56,7 +56,8 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "verify-snapshot-equivalence.py"
-BASE_REPO = REPO_ROOT / "tests" / "ideation-dashboard" / "fixtures" / "base-repo"
+BASE_REPO = (REPO_ROOT / "tests" / "ideation-dashboard" / "fixtures"
+             / "base-repo")
 
 #: The vocabulary, restated as a LITERAL rather than imported. Asserting
 #: `MODULE.REFUSAL_CODES == MODULE.REFUSAL_CODES` would be a tautology;
