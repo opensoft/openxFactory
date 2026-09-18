@@ -1091,9 +1091,10 @@ _LEDGER_SUBJECTS = {
      "Realization axis vocabulary is gated"),
     # RETIRED 2026-09-17: the ONE row `scope-pinned-arm-root-naming` opened on
     # 2026-09-15 (document-lifecycle *Prose tagging marker hygiene*) retired
-    # when that packet ARCHIVED on Brett Heap's separate archive word (archive
-    # PR, openxFactory #1047 comment 5714241892) — `code_surface: none`, so it
-    # archived on landing plus its own task list, and its `## MODIFIED` block
+    # when that packet ARCHIVED on Brett Heap's separate archive word (PR
+    # #1089, recorded on openxFactory issue #1047 comment 5714241892) —
+    # `code_surface: none`, so it archived on landing plus its own task list,
+    # and its `## MODIFIED` block
     # was promoted BYTE-IDENTICAL into canon (41,984 bytes, sha256
     # `c009f5cc3e4aa5aa…`; canon --numstat +21 −8), which is the condition the
     # row's own comment named for its retirement. The text promoted carries
