@@ -1485,6 +1485,68 @@ def test_a_path_split_across_two_lines_that_still_resolves_to_nothing_is_not_tru
         "the entry is still reported with the resolver outcome it has"
 
 
+def test_two_adjacent_quoted_literals_carry_one_path_between_them(
+        tmp_path) -> None:
+    """Scenario: Two adjacent quoted literals carry one path between them."""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-split", files=("proposal.md",))
+    # THE FILE IS NOT PYTHON, and the probe still fires: the verdict is reached
+    # from the quote characters alone and asks nothing of the language the file
+    # is written in. This is the shape measured at
+    # `scripts/doc_health/pin_class.py:1248-1249`.
+    write(root, "docs/vendored.txt",
+          '    path="' + CITE + '/add-split/prop"\n'
+          '         "osal.md",\n')
+    commit(root)
+
+    data = run_json(root)
+    listed = entries(data)
+    record = listed[f"{CITE}/add-split/prop"]
+    assert record["class"] == "truncated"
+    assert record["class_evidence"] == [f"{CITE}/add-split/proposal.md"]
+    assert f"{CITE}/add-split/proposal.md" not in listed, \
+        "the rejoined path is not reported as a second citation"
+
+
+@pytest.mark.parametrize("name,first,second", [
+    ("a triple quote",
+     '    path="""' + CITE + '/add-split/prop"""',
+     '         """osal.md""",'),
+    ("a backtick",
+     '    path=`' + CITE + '/add-split/prop`',
+     '         `osal.md`,'),
+    ("the other quote character",
+     "    path='" + CITE + "/add-split/prop'",
+     '         "osal.md",'),
+    ("a repeated opening quote",
+     '    path="' + CITE + '/add-split/prop"',
+     '         ""osal.md"",'),
+    ("a raw or prefixed literal",
+     '    path=r"' + CITE + '/add-split/prop"',
+     '         "osal.md",'),
+    ("a backslash in the continuation",
+     '    path="' + CITE + '/add-split/prop"',
+     '         "osal\\x.md",'),
+    ("a quote that is not the line's last character",
+     '    path="' + CITE + '/add-split/prop" +',
+     '         "osal.md",'),
+])
+def test_a_continuation_this_probe_does_not_name_never_classes_truncated(
+        tmp_path, name, first, second) -> None:
+    """Scenario: The continuation is opened by a delimiter this probe does not
+    name."""
+    root = new_repo(tmp_path / "repo")
+    # THE REJOINED PATH WOULD RESOLVE in every case below, so what is asserted
+    # is the probe's refusal and not a rejoin that happened to fail.
+    packet(root, "add-split", files=("proposal.md",))
+    write(root, "docs/vendored.txt", first + "\n" + second + "\n")
+    commit(root)
+
+    record = entries(run_json(root))[f"{CITE}/add-split/prop"]
+    assert record["class"] != "truncated", \
+        f"{name} is not probe (iii) and the probe is not widened to admit it"
+
+
 def test_a_stripped_token_that_resolves_to_nothing_is_classed_punctuation_stripped(
         tmp_path) -> None:
     """Scenario: A stripped token still resolves to nothing."""

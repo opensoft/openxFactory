@@ -914,54 +914,84 @@ def probe_placeholder_follows(line: str, end: int) -> bool:
     return line[end:end + 1] == "<"
 
 
-def _inside_string_literal(text: str) -> bool:
-    """Whether `text` ends INSIDE a string literal — an odd number of unescaped
-    quotes of either kind."""
-    for quote in ("'", '"'):
-        count = 0
-        index = 0
-        while index < len(text):
-            character = text[index]
-            if character == "\\":
-                index += 2
-                continue
-            if character == quote:
-                count += 1
-            index += 1
-        if count % 2 == 1:
-            return True
-    return False
+#: The two characters probe (iii) reads a literal by. A BACKTICK IS NOT ONE OF
+#: THEM and neither is any other delimiter: the rule is closed, and a probe two
+#: realizations match differently is a class total two readings cannot be
+#: compared by.
+PROBE_QUOTES = ('"', "'")
+
+
+def _opening_quote_index(text: str, quote: str):
+    """Where the literal `quote` left OPEN by `text` was opened, or `None`.
+
+    An odd count of `quote` in `text` is a literal still open at its end, and
+    the LAST such character is the one that opened it. A TRIPLE QUOTE, a
+    REPEATED quote and a PREFIXED or RAW literal are refused here rather than
+    admitted and corrected later: the rule names no language and asks nothing
+    of one, which is how it reaches the shape the measurement caught without
+    admitting the shapes it did not.
+    """
+    if text.count(quote) % 2 == 0:
+        return None
+    index = text.rfind(quote)
+    if text[index:index + 3] == quote * 3:
+        return None
+    if index > 0 and text[index - 1] == quote:
+        return None
+    if index > 0 and text[index - 1].isalpha():
+        return None
+    return index
 
 
 def probe_split_string_literal(lines, lineno: int, end: int, token: str,
                                resolves):
-    """(iii) THE TOKEN ENDS ITS SOURCE LINE INSIDE A STRING LITERAL, THE NEXT
-    LINE OPENS ONE, AND THE PATH REJOINED ACROSS THE TWO RESOLVES — an implicit
-    string concatenation split one path across two source lines, and the rejoin
-    is what proves it rather than a reader's guess.
+    """(iii) THE TOKEN IS CLOSED BY A QUOTE AT THE END OF ITS SOURCE LINE, THE
+    NEXT LINE OPENS WITH THE SAME QUOTE, AND THE PATH REJOINED ACROSS THE TWO
+    RESOLVES — an implicit string concatenation split one path across two
+    source lines, and the rejoin is what proves it rather than a reader's
+    guess.
+
+    THE RULE IS LEXICAL AND IT IS CLOSED. *"Inside a string literal"* is no
+    predicate over a corpus written in several languages, each with its own
+    delimiters and escape syntaxes. The probe fires where, and only where, the
+    occurrence is followed on its own line by ONE quote character — `"` or `'`,
+    not repeated and no other delimiter — which is the last non-whitespace
+    character of that line and closes a literal the same character opened
+    earlier on that same line; the first non-whitespace character of the next
+    line is that same quote character, again not repeated, opening the
+    continuation; and the token followed by the continuation literal's content,
+    up to the next occurrence of that same character, RESOLVES. A triple quote,
+    a backtick, a prefixed or raw literal, a BACKSLASH anywhere in either
+    literal, and a continuation opened by the OTHER quote character are not
+    probe (iii), even where the path rejoined across the two lines would
+    resolve.
+
+    The shape this rule is measured against is `scripts/doc_health/
+    pin_class.py:1248-1249`, where a `path=` argument ends its line at the
+    literal's closing double quote and the next line opens the continuation
+    with one of its own, the rejoined path standing in this tree.
 
     Returns the rejoined path where the probe fires, else `None`.
     """
     line = lines[lineno - 1]
-    # THE TOKEN ENDS ITS SOURCE LINE, and a CLOSING QUOTE after it is part of
-    # ending it: an implicit string concatenation closes the literal at the end
-    # of the line it splits, so the shape this probe is written for
-    # (`"<head>"` then, on the next line, `"<tail>"`) always carries one. A
-    # line whose literal is left open carries none, and both are admitted.
-    tail = line[end:].strip()
-    if tail not in ("", '"', "'"):
-        return None
-    if not _inside_string_literal(line[:end]):
-        return None
     if lineno >= len(lines):
         return None
+    closing = line[end:].rstrip()
+    if closing not in PROBE_QUOTES:
+        return None
+    quote = closing
+    opened_at = _opening_quote_index(line[:end], quote)
+    if opened_at is None:
+        return None
+    if "\\" in line[opened_at:end]:
+        return None
     following = lines[lineno].lstrip()
-    if not following[:1] in ("'", '"'):
+    if following[:1] != quote or following[1:2] == quote:
         return None
-    tail = re.match(r"[A-Za-z0-9._\-/]*", following[1:]).group(0)
-    if not tail:
+    content, separator, _ = following[1:].partition(quote)
+    if not separator or not content or "\\" in content:
         return None
-    rejoined = token + tail
+    rejoined = token + content
     return rejoined if resolves(rejoined) else None
 
 
