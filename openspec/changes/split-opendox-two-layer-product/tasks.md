@@ -3764,8 +3764,60 @@ realization evidence, never on landing. Each line is its own evidence.
   four parts and stays four, § 4.4 is already `[x]` on its own evidence, and
   this is a statement the run is entitled to make rather than a fifth thing the
   line must prove.
-- [ ] 8.3 `openxFactory`'s shed merged, the MAJOR cut and TAGGED, and the tag
+- [x] 8.3 `openxFactory`'s shed merged, the MAJOR cut and TAGGED, and the tag
   verified from an INDEPENDENTLY REFRESHED checkout.
+  *(TICKED 2026-09-18 by `tasks.md` AMENDMENT #6 on Brett Heap's word, against
+  the live evidence posted verbatim at `#656` comment `5729935756` (claim
+  `5728902552`). The box names THREE clauses and the tick is decided by reading
+  its own text, clause by clause, each on its own artifact:*
+  **(1) the shed merged** — `openxFactory` `#940`, `state=MERGED`,
+  `mergedAt=2026-09-11T17:33:38Z`, merge commit **`cc4ae9d3`**.
+  **(2) the MAJOR cut, and TAGGED** — `openxFactory` `#983`, `state=MERGED`,
+  `mergedAt=2026-09-11T23:51:05Z`, merge commit **`ce5c054e`**; annotated tag
+  `contract-v4.0`, tag object **`9e6c0ae4`**, which peels to `ce5c054e`
+  EXACTLY — the tag names the cut itself and not a neighbouring commit —
+  tagger Brett Heap 2026-09-12T00:21:18Z.
+  **(3) verified from an INDEPENDENTLY REFRESHED checkout** — the helper's
+  fresh `gh repo clone` today, AND re-derived in this lane's own clone rather
+  than transcribed: `python3 scripts/validate-contract-release.py verify-tag
+  --remote origin --tag contract-v4.0 --json`, and the matching `verify-commit
+  --commit ce5c054e…`, each return `{"findings":[],"status":"pass"}` at
+  `exit_code` 0, the second against inventory
+  `contracts/releases/contract-v4.0.digests.yaml`. Two independent checkouts
+  agree, which is the thing clause 3 actually asks for.*
+  **Three readings that could be mistaken for defects are disposed of here
+  rather than passed over in silence:**
+  **(a) the tag is UNSIGNED.** It is a genuine annotated tag — `git cat-file
+  -t contract-v4.0` returns `tag`, not `commit` — and it carries no signature.
+  Measured across the repository, ALL 56 `contract-v*` tags are the same
+  unsigned annotated form, so `contract-v4.0` matches standing practice
+  exactly; and this box asks for the tag to be **verified**, which it is, not
+  signed. Not a defect. Making release tags signed would be a corpus-wide
+  change to 56 tags and belongs to its own claim, not to this tick.
+  **(b) `verify-promotion` returns 4 findings** — `HGR-RELEASE-TAG-EXISTS` on
+  `refs/tags/contract-v4.0`, plus `HGR-RELEASE-SURFACE-DRIFT` on
+  `contracts/CHANGELOG.md`, `contracts/README.md` and `contracts/manifest.yaml`.
+  This is a PRE-CUT gate read AFTER the cut, per its own docstring at
+  `scripts/hermes_runtime_validation/release.py:1197` — *"Prove a candidate is
+  promotable immediately before tagging."* Once the tag exists,
+  `HGR-RELEASE-TAG-EXISTS` is guaranteed BY CONSTRUCTION, so the run is
+  answering a question this box does not ask. Not a tag defect; it moves no box.
+  **(c) a HARNESS error can impersonate a tag finding.** Run from a checkout
+  whose `openDox`/`openXdox` legs are SHALLOW or partial, `verify-tag` raises
+  `ReleaseDependencyError` and exits non-zero WITHOUT emitting any finding —
+  reproduced in this lane's clone, then cleared by `git submodule update
+  --init --recursive openDox openXdox`. The failure SHAPE is the tell: a tag
+  defect arrives as a `findings` entry, a leg defect as a traceback. A plain
+  `gh repo clone` does not init submodules, so anyone re-running clause 3 from
+  a fresh checkout meets this before they meet the tag.*
+  *(One figure in the cited evidence is CLOCK-BOUND, and is restated as
+  measured rather than copied across: the comment records `ce5c054e` as 438
+  commits behind `origin/main`; at this lane's measurement it is **452**. The
+  ANCESTRY is the durable fact — `git merge-base --is-ancestor ce5c054e
+  origin/main` exits 0, so the cut is on the main line — while the DISTANCE
+  moves every time anybody lands anything. The byte-identity of
+  `contract-v4.0.digests.yaml` at the cut and at main's tip (blob `84db9ce6`
+  at both) is the same assurance in a form that does not rot.)*
 - [ ] 8.4 The codexFactory floor de-floored BEFORE the removal, in that order, with
   the five openxFactory pin sites moved in ONE reviewed diff. Note the floor must
   account for BOTH directions of this archive: `openspec/specs/ideation-dashboard/`
@@ -4040,3 +4092,23 @@ realization evidence, never on landing. Each line is its own evidence.
   Measured by helper actor `floor55` (`attachments/lane-opendox/floor55/
   SCOPING-floor55.md`, `brett-wip` `68cd72cb`). **None of the three moves a box
   in this amendment**, and none of them is a finding against the corpus.
+  **(iv) REGISTERED 2026-09-18 BY AMENDMENT #6 ON BRETT HEAP'S WORD, AND
+  DELIBERATELY NOT RESOLVED HERE:** the § 8.9 BEFORE baseline
+  (`BASELINE-8-9.md`, `brett-wip` `e9588455`) independently flags **two of the
+  release bundle's OWN validator files as byte-drifted** against the digest set
+  they are members of — `scripts/hermes_runtime_validation/catalog.py` and
+  `scripts/hermes_runtime_validation/release.py` — reported by doc-health's
+  `release-inventory-drift` against
+  `contracts/releases/contract-v4.0.digests.yaml`. The cause is ordinary: the
+  bundle froze a digest of each validator at the cut, and those validators'
+  sources kept moving afterwards. **This is booked as § 8.9 residue owed to a
+  follow-up act with its own claim, and this amendment does not resolve it.**
+  It is also NOT a finding against § 8.3 above, and the two readings must not
+  be collapsed: clause 3 verifies the tag by reading the HISTORICAL commit
+  `ce5c054e`, where `verify-commit` passes against that very inventory,
+  whereas this drift is measured against the WORKING TREE as it stands today.
+  Both are true at once. Note further that these two files are NOT the three
+  `HGR-RELEASE-SURFACE-DRIFT` paths disposed of at § 8.3 (b) — those are
+  `contracts/CHANGELOG.md`, `contracts/README.md` and `contracts/manifest.yaml`
+  — so the two drift reports are separate residue and neither subsumes the
+  other.
