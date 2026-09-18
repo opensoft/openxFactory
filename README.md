@@ -531,6 +531,99 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-estate-repository-inventory](openspec/changes/add-estate-repository-inventory/proposal.md)
+  filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: ratified`** — **RATIFIED 2026-09-18 at approximately 12:55Z by
+  Brett Heap (openxFactory operator authority), verbatim *"ratify #1101"***,
+  given in the lane's terminal; NO GITHUB COMMENT CARRIES THE WORD, which the
+  lane recorded as a RULED entry against `opensoft/openxFactory#1101` in
+  `lanes/log/openXfactory-5.md`.
+  **THE WORD IS BARE**: it ratifies the PACKET and names no option
+  individually, so each of the four declared veto points stands at the option
+  the packet encodes — the RECOMMENDED one in all four — and, AT THAT 12:55Z
+  WORD ALONE, the delta's wording stood unchanged. `tasks.md` § 1 is ticked;
+  §§ 3, 4, 5 and 6 stay open.
+  **THREE FURTHER WORDS AT ~15:40Z THE SAME DAY THEN AMENDED THE DELTA**,
+  each a multiple-choice answer over a gap Copilot's review of PR #1101
+  exposed in the already-ratified text, each recorded as its own `RULED`
+  entry in `lanes/log/openXfactory-5.md` and set out in full at
+  [`review/ratification-2026-09-18.md`](openspec/changes/add-estate-repository-inventory/review/ratification-2026-09-18.md)
+  § 3: *"Bind the carrier identity"* (a working tree supplied for a `gitlink`
+  row's re-check MUST verify as the row's named carrier, by origin URL or by
+  `contracts/policies/repository-identity.yaml`, before its `.gitmodules`
+  evidence is trusted, else the row reads NOT RE-CHECKED), *"#1101 declares
+  #1108 and folds its text"* (the `sequenced_after` fold below), and *"MAY
+  becomes MUST"* (the `change`-admitted provisional row is owed, not
+  optional). All three are additionally encoded, in this one commit, as
+  `tasks.md` task 1.5 (§ 1 stays ticked); none touches `openspec/specs/`;
+  all three move only the delta text.
+  Answers openxFactory
+  [#1087](https://github.com/opensoft/openxFactory/issues/1087), the successor
+  `gate-code-surface-declarations` `tasks.md` § 6.1 named and that packet's
+  archive act filed at the landing of PR #1076, CLAIMED by this lane before
+  authoring.
+  **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS, TWENTY-EIGHT
+  SCENARIOS (11 + 8 + 9), OVER `release-realization`**: the MODIFIED block is
+  WRITTEN OVER `amend-code-surface-grammar-comma-and`'S OUTCOME AND NOT OVER
+  CANON — that packet (openxFactory #1092, PR #1108, ratified 2026-09-18,
+  landed `60d281a8`) is an ACTIVE RATIFIED writer of the SAME requirement key,
+  so on the ruling *"#1101 declares #1108 and folds its text"* this packet
+  declares `sequenced_after: [amend-code-surface-grammar-comma-and]` and
+  reproduces #1108's ratified wording byte-for-byte (the four separators
+  including `, and `, the comma-first paragraph, its `**AMENDED BY**` note and
+  its added Oxford-comma scenario), with only this packet's own
+  membership-not-judged paragraph moved against that basis — ELEVEN scenarios,
+  the ten already in the block plus the Oxford-comma scenario folded in from
+  #1108's outcome. The ADDED pair is *The estate's repositories are enumerated
+  in a governed inventory* (eight scenarios) and *A declared repository is
+  judged for membership against the estate inventory* (nine). The MODIFIED
+  block is OWED rather than preferred: the promoted `SHALL NOT judge its
+  MEMBERSHIP` is unconditional in its own words, so an ADDED-only delta would
+  leave canon carrying two requirements that cannot both be obeyed. **THE
+  BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is an
+  ACTIVE writer of the same requirement key, so `sequenced_after: []` is no
+  longer a root claim — the corpus ledger carries this packet as class
+  `co-modifier`, depth 1, declaring `amend-code-surface-grammar-comma-and`,
+  and promotion order is #1108 then #1101, **with #1108 itself untouched**.
+  The `modified-block-currency` family still reports no NEW finding, but
+  because the declared ordering resolves the pair: this block is measured
+  against #1108's block rather than against canon, and the family's
+  resolution-ordering arm returns to the empty set it already states.
+  **THE MEASURED GAP.** `scripts/code_surface.py` judges a repository
+  identifier's SHAPE and never its MEMBERSHIP, so `openxFactorie` passes and so
+  does a repository that is no part of this estate. The class is standing, not
+  hypothetical: `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml`
+  names `opensoft/LegalxFactory`, which the provider answers 404 for and which no
+  gitlink and no pin carries, and two more of its rows name repositories at
+  addresses that live only through a provider redirect, while the estate's
+  transfer map carries ONE row.
+  **THE CANDIDATE INVENTORY, BUILT BEFORE THE DESIGN**, from FIVE naming sites
+  (`design.md` D0.1, `tasks.md` § 2.1): the aggregation repository's
+  `.gitmodules` (23 submodules), this repository's `contracts/*-pin.yaml` (7
+  pins, 6 distinct repositories, 2 of them no submodule), `.github/workflows/`
+  (1, already a submodule), the aggregation root itself (1, which no
+  `.gitmodules` can name), and — ADDED AT THE REVIEW OF PR #1101, which widened
+  `gitlink` to a gitlink in ANY governed estate repository — a GOVERNED
+  DomainxFactory's own `.gitmodules` where the estate NESTED rather than
+  sibling-linked (11 nested gitlinks in 6 repositories, naming 7 no other site
+  names). The first four were taken on `origin/main` `ad089e8a` and the fifth on
+  2026-09-18. **THIRTY-THREE ROWS** (`design.md` D0.2, `tasks.md` § 2.2), the
+  last six of them — `openChart`, `openPractice`, `MedxAvatar`, `LedgerxAvatar`,
+  `MedxEHR-spec`, `MedxEHR-code` — the members the narrow reading missed. A
+  RATIFIED change whose realization creates a repository is NOT a naming site but
+  `change`, the fifth of the five ADMISSION KINDS the delta closes (`gitlink`,
+  `pin`, `workflow`, `root`, `change`), and it is what the widened `gitlink`
+  lets discharge rather than expire. Against those rows, the population read
+  through the SHIPPED reader: 49 active proposals, 49 declaring, 7 `none`, 8
+  named by the closed register, 34 a readable repository list, those 34 heads
+  naming SIX distinct identifiers, **all six carried by the candidate, so
+  the membership arm refuses NOTHING on the day it lands** and the predecessor's
+  stated fatal cost for membership resolution is falsified.
+  **PACKET ONLY.** No script, no inventory and no test is added here. The
+  realization (`tasks.md` § 3) is a LATER pull request, which the word now
+  authorizes to be authored; the archive is a separate act on a separate word
+  and on merged-plus-green evidence, where #1087 closes.
+
 - [amend-code-surface-grammar-comma-and](openspec/changes/amend-code-surface-grammar-comma-and/proposal.md)
   — filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
   **`Status: ratified` FROM ITS FIRST COMMIT** — **RULED 2026-09-18 at ~09:55Z
@@ -632,6 +725,7 @@ Active changes:
   is added to the tracked tree. `code_surface:` is non-empty, so the packet
   archives on merged-plus-green realization evidence and not on landing, and
   #1074 closes THERE.
+
 - [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
   — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),
   **`Status: ratified`** — **RATIFIED 2026-09-17 at 12:12Z by Brett Heap
