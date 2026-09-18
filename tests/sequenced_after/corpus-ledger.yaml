@@ -277,7 +277,7 @@ rows:
   relocate-review-authority-floor-mirror: {state: archived, class: co-modifier, declares: [mirror-floor-regeneration-automation, codexFactory:relocate-review-authority-floor], depth: 2, prose: false, moved_by: "#925", moved_on: "2026-09-10"}
   repoint-chain-anchoring-medxchain-citation: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#998", moved_on: "2026-09-12"}
   report-stale-grandfather-dispositions: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1015", moved_on: "2026-09-12"}
-  repromote-engineering-vocabulary: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1071", moved_on: "2026-09-16"}
+  repromote-engineering-vocabulary: {state: archived, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1103", moved_on: "2026-09-18"}
   restructure-factory-repo-boundaries: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   retire-doxbench-chat-turn-v1: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1066", moved_on: "2026-09-16"}
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
