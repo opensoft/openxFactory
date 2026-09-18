@@ -32,6 +32,27 @@ spec.loader.exec_module(support)
 PINNED_CLI_PAYLOAD = b"a synthetic tarball standing in for @fission-ai/openspec"
 
 
+def symlink_loop(directory: Path, name: str) -> Path:
+    """An `a -> b -> a` two-link symlink loop at `directory / name`, BUILT AT
+    TEST TIME AND NEVER COMMITTED.
+
+    A committed loop is tracked as two ordinary git objects (mode `120000`) and
+    would arrive through a pull request like any other file — which is why it is
+    the shape `contained_dir` and `contained_file` defend against — but as a
+    FIXTURE it would be met by every recursive reader this estate runs, not only
+    the guard under test, and a fixture that reds tools unrelated to the defect
+    it proves is a second defect introduced to demonstrate the first.
+    (`harden-path-escape-helpers-against-symlink-loops` § 3.7; the rule is
+    *A symlink-loop proof is built at test time and never committed*.)
+    """
+    a = directory / name
+    b = directory / f"{name}--loop-b"
+    a.symlink_to(b)
+    b.symlink_to(a)
+    return a
+
+
+
 def serve_a_fictional_registry(test: unittest.TestCase) -> list:
     """Give the archive wrapper a PINNED CLI without touching the network.
 
@@ -4181,6 +4202,80 @@ class DeclaredFormerIdTests(unittest.TestCase):
                              support.former_identity_claimants(root))
             self.assertEqual(
                 support.declared_former_ids_in_tree(root, "change-x"), [])
+
+    def test_a_symlink_loop_is_uncontained_in_all_three_positions(self):
+        """A RESOLUTION THAT CANNOT ANSWER IS STILL ANSWERED.
+        `Path.resolve(strict=True)` signals a SYMLINK LOOP by raising
+        `RuntimeError`, a subclass of NEITHER `OSError` NOR `ValueError`, so the
+        clause that closes the two escapes above was open at exactly that
+        failure: measured on `Python 3.12.3`, the version
+        `.github/workflows/pytest-suite.yml` pins for the required check,
+        `former_identity_claimants` and `declared_former_ids_in_tree` — the two
+        public readers the archive gate's former-identity arm is built on — both
+        ended in a traceback rather than a judgment on a tree whose
+        `.openspec.yaml` was a two-link `a -> b -> a` loop. Against the unfixed
+        clause every assertion below RAISED instead of returning `False`.
+
+        THE LOOP IS BUILT HERE AND NEVER COMMITTED, in this test's own temporary
+        directory, which is the second requirement's rule and this package's
+        `tmp_path`: a committed loop is tracked as two ordinary git objects
+        (mode `120000`) and would be met by every recursive reader this estate
+        runs, not only the guard under test.
+
+        THE THIRD POSITION CARRIES A SUB-CASE THAT IS CLAIMED NOWHERE ELSE, and
+        it is why `_contained` is the one guard of the four whose ROOT read is
+        reachable on its own: it resolves the CANDIDATE first and the ROOT
+        separately inside `relative_to`, so with a REAL path as the candidate
+        the candidate resolution succeeds and the root resolution is what
+        raises. The two `_unescaped` guards can never show this — their
+        `candidate = repo_root / relative` already traverses the loop, so their
+        root line is never executed.
+        (`harden-path-escape-helpers-against-symlink-loops` § 3.6, `design.md`
+        D5; the requirement is *A containment guard answers every resolution
+        failure and raises none*.)
+        """
+        with TemporaryDirectory() as td:
+            base = Path(td)
+
+            # (1) the CANDIDATE'S OWN LEAF is the loop
+            root = base / "repo"
+            packet = root / "openspec" / "changes" / "a-packet"
+            packet.mkdir(parents=True)
+            leaf = symlink_loop(packet, ".openspec.yaml")
+            with self.assertRaises(RuntimeError):
+                leaf.resolve(strict=True)  # the fixture really does loop
+            self.assertFalse(support.contained_file(root, leaf))
+            self.assertFalse(support.contained_dir(root, leaf))
+
+            # (2) a PARENT COMPONENT, above a leaf that is an ORDINARY name —
+            # the position a reviewer's intuition misses, ordinariness being a
+            # property of the ONE component it is asserted of
+            symlink_loop(root / "openspec" / "changes", "archive")
+            behind = (root / "openspec" / "changes" / "archive"
+                      / "2026-09-09-forged")
+            self.assertFalse(support.contained_dir(root, behind))
+            self.assertFalse(
+                support.contained_file(root, behind / ".openspec.yaml"))
+
+            # (3) the SCANNED ROOT ITSELF is reached through the loop
+            looped_root = symlink_loop(base, "looped-root")
+            self.assertFalse(
+                support.contained_dir(looped_root, looped_root / "openspec"))
+            self.assertFalse(
+                support.contained_file(
+                    looped_root,
+                    looped_root / "openspec" / ".openspec.yaml"))
+
+            # …and the CLEAN-CANDIDATE sub-case of that position: the candidate
+            # is a REAL path and resolves, and the ROOT is what cannot be
+            # resolved. Asserted HERE and claimed nowhere else.
+            real_dir = base / "real"
+            real_dir.mkdir()
+            real_file = real_dir / "x.yaml"
+            real_file.write_text("{}\n", encoding="utf-8")
+            self.assertTrue(real_dir.resolve(strict=True).is_dir())
+            self.assertFalse(support.contained_dir(looped_root, real_dir))
+            self.assertFalse(support.contained_file(looped_root, real_file))
 
     def test_an_unrelated_live_dated_id_does_not_hide_an_archived_lineage(
             self):

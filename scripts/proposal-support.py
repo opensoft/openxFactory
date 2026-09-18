@@ -317,6 +317,20 @@ def contained_dir(root: Path, path: Path) -> bool:
     the path they WALKED (`change_id_of` asks whether the parent is
     `archive/`), and handing them a resolved spelling would rename a packet
     reached through an in-repository link.
+
+    THE FAILURES THIS GUARD ABSORBS ARE THE INTERPRETER'S, NOT THE SET ITS
+    AUTHOR NAMED, and every one of them answers `False`, the path being
+    UNCONTAINED. `Path.resolve(strict=True)` reports a missing or unreadable
+    component as an `OSError` and a SYMLINK LOOP as a `RuntimeError`, which
+    is a subclass of NEITHER `OSError` NOR `ValueError`; the `ValueError`
+    stands beside them for a DIFFERENT operation, the relative-path
+    computation that decides containment, and is never trimmed to match. The
+    loop may stand at the leaf, at any parent component, or at `root` itself
+    — this being the guard that resolves the candidate and the root
+    SEPARATELY, a real candidate under an unresolvable root fails at the root
+    read rather than the candidate one, and still answers.
+    (openxFactory #1074;
+    `harden-path-escape-helpers-against-symlink-loops` § 3.5.)
     """
     return _contained(root, path, want_dir=True)
 
@@ -334,6 +348,15 @@ def contained_file(root: Path, path: Path) -> bool:
     `['stolen-by-header']` — a lineage imported from outside the repository
     through the one file the directory guard does not cover. (Copilot, PR
     #1038 `PRRT_kwDOTAvnrs6iHNFa`.)
+
+    THE FAILURE SET IS `contained_dir`'S, one level down and identical: an
+    `OSError` for a missing or unreadable component, a `RuntimeError` for a
+    SYMLINK LOOP (a subclass of neither `OSError` nor `ValueError`), and the
+    `ValueError` of the relative-path computation, which answers a DIFFERENT
+    question and stands. Every one of them answers `False`, the path being
+    UNCONTAINED, rather than reaching the caller as an exception.
+    (openxFactory #1074;
+    `harden-path-escape-helpers-against-symlink-loops` § 3.5.)
     """
     return _contained(root, path, want_dir=False)
 
@@ -344,7 +367,7 @@ def _contained(root: Path, path: Path, *, want_dir: bool) -> bool:
         if resolved.is_dir() != want_dir:
             return False
         resolved.relative_to(root.resolve(strict=True))
-    except (OSError, ValueError):
+    except (OSError, ValueError, RuntimeError):
         return False
     return True
 

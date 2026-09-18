@@ -384,6 +384,25 @@ def _registry_present(repo_root: Path) -> bool:
     function — never a bare `.is_dir()` and never only `.is_symlink()` on the
     leaf — so `Report.registry_present` can never say something
     `resolves_as_release` did not itself act on.
+
+    THE FAILURES THIS GUARD ABSORBS ARE THE INTERPRETER'S, NOT THE SET ITS
+    AUTHOR NAMED, and both of them end in the ABSENT answer above.
+    `Path.resolve(strict=True)` reports a missing or unreadable component as
+    an `OSError` and a SYMLINK LOOP as a `RuntimeError`, which is a subclass
+    of NEITHER `OSError` NOR `ValueError`, so both are named below.
+
+    THE PRE-CHECK ABOVE MAKES THAT CLAUSE RACE-ONLY AND DOES NOT MAKE IT
+    UNNECESSARY, which is why it is widened rather than argued away.
+    `is_dir()` calls `os.stat`, which reports a loop as `OSError(ELOOP)`, and
+    `is_dir()` ABSORBS that and answers `False` — measured with the loop at
+    the registry leaf, at an ancestor of it, and at `repo_root` itself, all
+    three returning `False` here. But `is_dir()` and `resolve()` are two
+    separate reads of a filesystem that can change between them, and a reader
+    of this module sees the CLAUSE and not the pre-check: `_unescaped` names
+    this function as the test it generalizes, so a narrower clause here
+    re-opens inside one module the very mismatch that claim is meant to close.
+    (openxFactory #1074;
+    `harden-path-escape-helpers-against-symlink-loops` § 3.3, `design.md` D3.)
     """
     registry = repo_root / RELEASE_REGISTRY_DIR
     if not registry.is_dir():
@@ -391,7 +410,7 @@ def _registry_present(repo_root: Path) -> bool:
     try:
         resolved_registry = registry.resolve(strict=True)
         resolved_root = repo_root.resolve(strict=True)
-    except OSError:
+    except (OSError, RuntimeError):
         return False
     return resolved_registry == resolved_root / RELEASE_REGISTRY_DIR
 
@@ -622,12 +641,26 @@ def _unescaped(repo_root: Path, relative: Path) -> Path | None:
     found. `repo_root` is resolved on BOTH sides, so a `repo_root` that is
     ITSELF reached through a symlink (a scratch tree under a symlinked
     `/tmp`, say) is not mistaken for the escape.
+
+    THE FAILURES THIS GUARD ABSORBS ARE THE INTERPRETER'S, NOT THE SET ITS
+    AUTHOR NAMED, and both of them end in the DROP promised above — the same
+    set `_registry_present` names, which is what keeps the generalization
+    claimed at the head of this docstring TRUE rather than merely asserted.
+    `Path.resolve(strict=True)` reports a missing or unreadable component as
+    an `OSError` and a SYMLINK LOOP as a `RuntimeError`, which is a subclass
+    of NEITHER `OSError` NOR `ValueError`. A loop may stand at the
+    candidate's LEAF or at ANY PARENT COMPONENT of it, the scanned root
+    included, and the answer is the same in every position — `repo_root /
+    relative` traverses the loop itself, so it is the CANDIDATE resolution
+    that fails even when the failing component is the root, and the root
+    resolution below is never reached. (openxFactory #1074;
+    `harden-path-escape-helpers-against-symlink-loops` § 3.3.)
     """
     candidate = repo_root / relative
     try:
         resolved = candidate.resolve(strict=True)
         resolved_root = repo_root.resolve(strict=True)
-    except OSError:
+    except (OSError, RuntimeError):
         return None
     if resolved != resolved_root / relative:
         return None
