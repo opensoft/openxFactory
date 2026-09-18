@@ -39,8 +39,22 @@ kind: archive_date_dispositions
 #   2. THE ARCHIVE ACT AND ITS COMMIT FELL ON DIFFERENT UTC DAYS. The wrapper
 #      owns the clock at the ACT; the adding commit is made (and, squash-merged,
 #      dated) later. An archive named just before UTC midnight and merged just
-#      after is a CORRECT archive that this arm reports. 132 of this corpus's
-#      144 directories agree, so it is rare - not impossible.
+#      after is a CORRECT archive that this arm reports. 159 of this corpus's
+#      172 directories agree, so it is rare - not impossible. (This line read
+#      "132 of 144" until 2026-09-18, when Copilot caught the contradiction on
+#      PR #1106 - 132 plus the fourteen entries standing THEN describes no
+#      corpus - and the corpus had in fact grown by 27 directories since it was
+#      written. A same-day fix then wrote 159 of 173: the FULL
+#      `adding_commits()` return, which also carries the two pre-rename ghost
+#      names behind the two 2026-06-26 entries above (neither on disk), rather
+#      than the on-disk population `archive_commit_problems` actually measures
+#      against - the two ghosts are the PRE-RENAME names behind the two
+#      2026-06-26 entries, `...-openworkflow-factory` and `...-to-openworkflow`.
+#      That correction is kept and is measured the same way here: 159 agree and
+#      13 disagree IS 172, which `ls openspec/changes/archive | wc -l` reads
+#      today too. It moved from 157/171 on 2026-09-18 when
+#      2026-09-16-add-doxchat-model-intake archived (+1 agreeing) and the
+#      2026-09-16-add-composed-view-authoring entry retired itself, below.)
 #   3. THE CHANGE ID ARRIVED CARRYING ITS OWN `YYYY-MM-DD-` PREFIX, which the
 #      pinned CLI preserves DELIBERATELY (`archive.js:1119-1124`: re-prefixing
 #      would stutter the name and sort the folder under a day the change did not
@@ -74,7 +88,7 @@ kind: archive_date_dispositions
 # re-measure; an entry nobody can check silences a finding on nothing.
 #
 # ENFORCEMENT. `error` - the reading the ruling asks for once every measured
-# disagreement carries a disposition, which the twelve below make true: the
+# disagreement carries a disposition, which the thirteen below make true: the
 # live corpus is green with 0 undispositioned findings. `warning` prints the
 # same findings and leaves the run's verdict alone, and is what a repository
 # adopting this arm sets while it writes its own dispositions.
@@ -89,14 +103,20 @@ kind: archive_date_dispositions
 #                    abbreviated: this is a citation, and an abbreviation is
 #                    ambiguous by construction.
 #   commit_date_utc  that commit's COMMITTER date, in UTC. (Author and
-#                    committer dates agree on all 144 directories of this
+#                    committer dates agree on all 172 directories of this
 #                    corpus; the committer date is recorded because it is when
 #                    the commit entered this history, which is the act the
 #                    directory name claims to date.)
-#   fact             what happened, in the vocabulary above. Two appear below -
-#                    cause 1 (ten entries) and cause 4 (two, which also cite the
-#                    archive act the rename moved); a later entry of cause 2 or
-#                    3 names its own.
+#   fact             what happened, in the vocabulary above. THREE appear below
+#                    - cause 1 (ten entries), cause 2 (ONE) and cause 4 (two,
+#                    which also cite the archive act the rename moved); a later
+#                    entry of cause 3 names its own. (This line read "Two ...
+#                    cause 1 and cause 4" until 2026-09-18, one entry after the
+#                    first cause-2 disposition landed; the counts are re-measured
+#                    here rather than carried forward. Cause 2 briefly read TWO
+#                    the same day, while add-composed-view-authoring's squash
+#                    landing stood; that entry RETIRED ITSELF when the packet's
+#                    real archive-act commit reached this history - see below.)
 #   ruled_by         the ruling that accepted it.
 #   cited_to         where the measurement and the ruling are recorded.
 #
@@ -110,6 +130,20 @@ kind: archive_date_dispositions
 # set — quoting `schema_version` would make it the string `"1"` and the record
 # would be refused. (Copilot round 1: the sentence said "every scalar" and the
 # file keys contradicted it.)
+
+# ONE ENTRY HAS RETIRED ITSELF, and the mechanism is worth the four lines.
+# `2026-09-16-add-composed-view-authoring` was dispositioned on 2026-09-18 (PR
+# #1106) because #1056 was landed by SQUASH: the archive act's own commit,
+# d8ff2ec2c04992ffb15d50d5b018eb65b27937e0 of 2026-09-16, was discarded, so the
+# oldest commit adding the directory became the landing commit of 2026-09-18 and
+# the name disagreed. #1057 then landed by MERGE COMMIT (2026-09-18, 4ccab7b9)
+# and its branch carried d8ff2ec2 - the pre-squash tip of #1056 had been merged
+# into it to resolve the squashed base - so the act's own commit entered this
+# history after all, the directory AGREED again, and the entry became STALE,
+# which this file calls a defect and the run reports. It was removed, by the
+# file's own instruction. THE DISPOSITION WAS NEVER WRONG; the defect it
+# recorded was undone by repairing the landing form, which is the better repair
+# and the one the estate has now adopted for every archive closure.
 
 enforcement: error
 
@@ -220,6 +254,15 @@ dispositions:
     ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
     cited_to: "opensoft/openxFactory#812"
 
+  # THE ONLY CAUSE-2 ENTRY. A second stood beside it from bbd1cca8 (PR #1106,
+  # 2026-09-18) until this pull request: 2026-09-16-add-composed-view-authoring,
+  # dispositioned because #1056's SQUASH landing discarded the archive act's own
+  # commit. #1057 was stacked on #1056's PRE-SQUASH tip and landed by MERGE
+  # COMMIT, which brought that act's commit d8ff2ec2 into main, so the directory
+  # AGREED again and the row went STALE. THIS ARM IS HISTORY-SENSITIVE: the same
+  # tree can read agreeing or disagreeing depending on which commits a LATER
+  # landing brings in, so a disposition here can be retired by an act that is
+  # not about it. Registered as a finding about the checker, for the bookkeeper.
   - directory: "2026-09-16-gate-code-surface-declarations"
     directory_date: "2026-09-16"
     adding_commit: "5dd0a8dc39899820ab9fad6f02ae9b364bb43dc6"

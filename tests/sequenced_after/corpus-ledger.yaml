@@ -103,7 +103,7 @@ rows:
   add-doxbench-distilled-abstract: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-doxbench-editing-phase-a: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   add-doxbench-editing-phase-b: {state: archived, class: co-modifier, declares: absent, prose: true, moved_by: "#623", moved_on: "2026-09-03"}
-  add-doxchat-model-intake: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  add-doxchat-model-intake: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#1057", moved_on: "2026-09-16"}
   add-drafted-proposal-origin: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#644", moved_on: "2026-09-04"}
   add-duplicate-packet-check: {state: archived, class: co-modifier, declares: absent, prose: true, moved_by: "#623", moved_on: "2026-09-03"}
   add-family-enumeration-check: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -246,6 +246,7 @@ rows:
   govern-openspec-corpus-membership: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   govern-sibling-added-modified-deltas: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   harden-ideation-readiness-check: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
+  harden-path-escape-helpers-against-symlink-loops: {state: active, class: sole, declares: [], depth: 0, prose: false, moved_by: "#1083", moved_on: "2026-09-17"}
   honour-grandfather-dispositions-in-ratified-provenance: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#969", moved_on: "2026-09-11"}
   implement-avatar-client-lab: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   implement-avatar-reference-runtime: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
@@ -280,7 +281,7 @@ rows:
   retire-hermes-flat-keys-and-openworkflow-tokens: {state: active, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   rule-inherited-unit-naming-marker-spent: {state: archived, class: co-modifier, declares: [amend-merged-into-empty-tail-standing], depth: 1, prose: false, moved_by: "#1012", moved_on: "2026-09-12"}
   sanction-ratified-record-spelling: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  scope-pinned-arm-root-naming: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1052", moved_on: "2026-09-15"}
+  scope-pinned-arm-root-naming: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1089", moved_on: "2026-09-17"}
   settle-aging-staging-topics: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-ideation-book-per-repo: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   split-opendox-two-layer-product: {state: active, class: co-modifier, declares: absent, prose: false, moved_by: "#666", moved_on: "2026-09-04"}
