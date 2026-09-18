@@ -1,0 +1,438 @@
+schema_version: 1
+kind: estate-repository-inventory
+
+# THE ESTATE'S REPOSITORIES, ONE ROW PER REPOSITORY.
+#
+# `release-realization`'s ADDED requirement *The estate's repositories are
+# enumerated in a governed inventory* (add-estate-repository-inventory, ratified
+# 2026-09-18 by Brett Heap, verbatim "ratify #1101") makes openxFactory carry a
+# machine-readable enumeration of the estate, and the ADDED requirement *A
+# declared repository is judged for membership against the estate inventory*
+# makes the `code_surface:` gate resolve every declared identifier against it.
+# This is that file. It is read by `scripts/estate_inventory.py`, judged by
+# `scripts/validate-estate-inventory.py`, and consumed by the membership arm of
+# `scripts/validate-code-surface.py`.
+#
+# THIS FILE RECORDS AN ADMISSION AND PERFORMS NONE, which is the answer the
+# successor issue (#1087) was filed on: WHO ADMITS A REPOSITORY TO THE ESTATE.
+# Nobody admits one by writing a row. A repository joins the estate when a
+# GOVERNED TREE NAMES IT — a submodule added to the aggregation or nested under
+# a governed DomainxFactory, a pin filed here, a workflow pointed at it, or a
+# ratified change whose realization creates it — and the row is the RECORD of
+# that naming act. So every row carries `admitted_by:`, naming the site and the
+# kind of act it is, and the row is checkable against the tree rather than
+# asserted.
+#
+# THE FIVE ADMISSION KINDS ARE CLOSED, because they are exactly the ways this
+# estate has ever named a repository (`design.md` D0.1, D0.2, D4):
+#
+#   gitlink   a GOVERNED ESTATE REPOSITORY's `.gitmodules` carries the
+#             submodule, and the evidence NAMES THE REPOSITORY THAT CARRIES IT
+#             (`carrier:`). The aggregation is the wide case and NOT the only
+#             one: the estate also nests a repository under a governed
+#             DomainxFactory, and a `gitlink` read as the aggregation's alone
+#             would leave every nested member admitted by nothing at all.
+#   pin       an openxFactory file under `contracts/` names the repository as
+#             the source of a commit-and-digest pin (`path:`).
+#   workflow  an openxFactory workflow dispatches into the repository, or
+#             checks it out, at a named ref (`path:`).
+#   root      the aggregation repository ITSELF, which no `.gitmodules` can
+#             name because a superproject is not its own submodule, and which
+#             would otherwise be the one member of the estate no evidence
+#             admits. It names no file.
+#   change    a RATIFIED change in this repository whose realization CREATES
+#             the repository (`change:`). A code surface is FORWARD-LOOKING —
+#             it names where a change WILL write — so a repository the estate
+#             is CREATING is declared before any gitlink, pin or workflow can
+#             name it. THE INVENTORY SHALL CARRY THAT ROW and SHALL NOT omit it
+#             at an author's discretion (ruled by Brett Heap, 2026-09-18,
+#             verbatim "MAY becomes MUST"); such a row is PROVISIONAL and says
+#             so with `provisional: true`.
+#
+# THE THREE GOVERNANCE CLASSES say what a row means for a repository that is
+# PINNED rather than GOVERNED, which is the second half of the same authority
+# question. `governed`, the estate authors its contents. `pinned`, openxFactory
+# consumes it at a commit and digest and authors none of it. `external`, it is
+# pinned and is NOT of this estate at all. The three are kept distinct because
+# a consumer that collapsed them would authorize a change to a repository
+# nobody here may change: a `code_surface:` naming an `external` row is REFUSED
+# and the refusal names the class, so KNOWN-BUT-NOT-OURS is distinguishable
+# from UNKNOWN.
+#
+# THE CLASS IS STATED RELATIVE TO openxFactory AND NOT RELATIVE TO A CARRIER.
+# Re-measured at the realization head (`tasks.md` § 4.3): `opensoft/MedxChart`
+# pins `opensoft/openChart` (`contracts/openchart-pin.yaml`),
+# `opensoft/MedxPractice` pins `opensoft/openPractice`
+# (`contracts/openpractice-pin.yaml`) and `MedxSoft/MedxEHR` pins both of its
+# nested members (`contracts/spec-pin.yaml`, `contracts/code-pin.yaml`), while
+# `MedxSoft/MedxFactory` and `ledgerXfactory/LedgerxFactory` pin neither
+# `MedxAvatar` nor `LedgerxAvatar`. NONE of the six moves class: `pinned` is
+# defined here as OPENXFACTORY consuming a repository at a commit and digest,
+# openxFactory pins none of the six, and all six are authored inside this
+# estate — so all six stay `governed`. The carriers' own pins are recorded in
+# this note rather than in a class this vocabulary does not have.
+#
+# BARE NAMES ARE UNIQUE ACROSS THE INVENTORY and the validator REFUSES the file
+# rather than picking a row when two collide: the corpus writes both spellings,
+# and an ambiguous resolution is how an authorization lands in the wrong
+# repository.
+#
+# ADDRESSES ARE CURRENT ADDRESSES ONLY. A FORMER address is resolved through
+# `contracts/policies/repository-identity.yaml` and NEVER through a provider
+# redirect — that file's own header states the reason: a redirect is a grace
+# period that stops the moment the former owner reuses the name, and governed
+# content whose correctness depends on nobody creating a repository is not
+# content a contract may rest on. A row written at a former address is a
+# REPORTED finding naming the current address; a HEAD written at one is
+# reported too, and is never refused, because the transfer map makes it
+# interpretable (`design.md` D5).
+#
+# WHERE THE EVIDENCE CAN BE RE-CHECKED, AND WHERE IT CANNOT. FOUR of the five
+# kinds name evidence inside THIS repository's working tree — `pin` a file
+# under `contracts/`, `workflow` a file under `.github/workflows/`, `change` a
+# directory under `openspec/changes/`, and `root` a constant naming no file at
+# all — so a row carrying one of them is re-checked on EVERY run,
+# deterministically and with no network call. `gitlink` is the ONE kind whose
+# evidence lives in ANOTHER repository's tree, which an openxFactory checkout
+# does not contain; its re-check is an explicitly invoked mode
+# (`validate-estate-inventory.py --estate-tree <repo>=<path>`), the supplied
+# tree is VERIFIED AS THE CARRIER before its `.gitmodules` is trusted (ruled by
+# Brett Heap, 2026-09-18, verbatim "Bind the carrier identity"), and a run given
+# no such path reports those rows as NOT RE-CHECKED with their count. Silence
+# is never a pass.
+#
+# THIS FILE IS NOT UNDER `contracts/`, AND THE REASON IS MEASURED RATHER THAN
+# PREFERRED (`design.md` D2, D0.6). A file under `contracts/` is a bundle
+# surface whose change owes a manifest entry, a recomputed digest and a bundle
+# cut, and the fact this inventory tracks MOVES OFTEN: the aggregation
+# repository's `.gitmodules` took NINETEEN commits between 2026-07-01 and
+# 2026-09-12, almost all of them an admission, a retirement or an owner
+# transfer — one inventory-moving act every four days. An enumeration that
+# could not be corrected without cutting a contract release would be corrected
+# late or not at all, which is the reason `scripts/code-surface-register.yaml`
+# states for its own placement and the reason this file takes the same one.
+#
+# THE POPULATION IS A FACT ABOUT THE ESTATE AND IS RE-MEASURED, never carried.
+# THIRTY-THREE rows, built from the five naming sites at `design.md` D0.1 and
+# RE-MEASURED at this realization head by the same five commands (`tasks.md`
+# § 4.3): the aggregation's `.gitmodules` (23 addresses, the identical set),
+# the governed repositories' own `.gitmodules` (11 nested gitlinks in 6
+# repositories, naming the same 7 no other site names), this repository's
+# `contracts/` pins (the same 6 repositories), this repository's workflows (the
+# same 1, already a submodule) and the ratified change whose realization
+# creates a repository (the same 1, still active). ZERO ROWS MOVED.
+
+repositories:
+
+  # ── the aggregation root ──────────────────────────────────────────────────
+  - repository: opensoft/xFactory
+    name: xFactory
+    role: aggregation root; owns workspace assembly and pins only
+    governance: governed
+    admitted_by:
+      - kind: root
+
+  # ── the canonical contract repository ─────────────────────────────────────
+  - repository: opensoft/openxFactory
+    name: openxFactory
+    role: canonical domain-neutral contract repository
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  # ── the DomainxFactories ──────────────────────────────────────────────────
+  - repository: codeXfactory/codexFactory
+    name: codexFactory
+    role: DomainxFactory, engineering
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+      - kind: pin
+        path: contracts/review-lane-pin.yaml
+      - kind: workflow
+        path: .github/workflows/merge-master-approval.yml
+
+  - repository: MedxSoft/MedxFactory
+    name: MedxFactory
+    role: DomainxFactory, medical
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: ledgerXfactory/LedgerxFactory
+    name: LedgerxFactory
+    role: DomainxFactory, accounting
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/OpsxFactory
+    name: OpsxFactory
+    role: DomainxFactory, IT operations
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/AdxFactory
+    name: AdxFactory
+    role: DomainxFactory, marketing
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  # ── the Medx boundaries and satellites ────────────────────────────────────
+  - repository: opensoft/MedxChart
+    name: MedxChart
+    role: Medx composition boundary
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/MedxPractice
+    name: MedxPractice
+    role: Medx practice-operations boundary
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: MedxSoft/MedxEHR
+    name: MedxEHR
+    role: Medx satellite
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/HealthLinc
+    name: HealthLinc
+    role: Medx satellite
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  # ── the neutral products ──────────────────────────────────────────────────
+  - repository: opensoft/openXwallet
+    name: openXwallet
+    role: neutral product, wallet standard
+    governance: pinned
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+      - kind: pin
+        path: contracts/openxwallet-pin.yaml
+
+  - repository: opensoft/openDox
+    name: openDox
+    role: neutral product, document layer
+    governance: pinned
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+      - kind: pin
+        path: contracts/opendox-pin.yaml
+
+  - repository: opensoft/openXdox
+    name: openXdox
+    role: neutral product, document layer
+    governance: pinned
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+      - kind: pin
+        path: contracts/openxdox-pin.yaml
+
+  - repository: opensoft/openAvatar
+    name: openAvatar
+    role: neutral product, avatar client
+    governance: pinned
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  # THE ROW A `.gitmodules`-ONLY DERIVATION WOULD MISS: pinned here, and no
+  # submodule of any governed estate repository.
+  - repository: opensoft/openRepoShape
+    name: openRepoShape
+    role: neutral product, repository shape
+    governance: pinned
+    admitted_by:
+      - kind: pin
+        path: contracts/openreposhape-pin.yaml
+
+  # ── the installs ──────────────────────────────────────────────────────────
+  - repository: opensoft/AgentTower
+    name: AgentTower
+    role: install, AgentTower runtime
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/xFactory-Hermes-Install
+    name: xFactory-Hermes-Install
+    role: install, three-layer Hermes
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/Omnigent-Install
+    name: Omnigent-Install
+    role: install, Omnigent
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/OmniWorker-Install
+    name: OmniWorker-Install
+    role: install, OmniWorker
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/CloudPC-Install
+    name: CloudPC-Install
+    role: install, CloudPC
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/xFactory-Installer
+    name: xFactory-Installer
+    role: install, workspace installer
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/xFactory-MedxRootTruth-Install
+    name: xFactory-MedxRootTruth-Install
+    role: install, Medx root truth
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/Keycloak-Install
+    name: Keycloak-Install
+    role: install, Keycloak
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  - repository: opensoft/OpenXPKI-Install
+    name: OpenXPKI-Install
+    role: install, OpenXPKI
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/xFactory
+
+  # ── pinned and NOT of this estate ─────────────────────────────────────────
+  # THE ROW A FLAT MEMBERSHIP LIST COULD NOT REFUSE A SURFACE IN. A code
+  # surface is the set of repositories whose runtime artifacts a change
+  # CHANGES, and a change cannot change what this estate does not author, so a
+  # head naming this row is REFUSED and the refusal names the class.
+  - repository: Fission-AI/OpenSpec
+    name: OpenSpec
+    role: third-party CLI, pinned by `contracts/openspec-cli-pin.yaml`
+    governance: external
+    admitted_by:
+      - kind: pin
+        path: contracts/openspec-cli-pin.yaml
+
+  # ── the PROVISIONAL row, and it is OWED ───────────────────────────────────
+  # THE ROW THAT FORCED THE FIFTH ADMISSION KIND, and the row the membership
+  # arm would otherwise refuse inside the forward-looking window.
+  # `create-ledgerxwallet-overlay-boundary` is RATIFIED (2026-08-28) and
+  # declares `opensoft/LedgerxWallet` as a repository its own realization
+  # CREATES — one day before that realization created and nested it. The row is
+  # OWED and not an author's option: ruled by Brett Heap, 2026-09-18, verbatim
+  # "MAY becomes MUST", because a MAY would make the arm's fail-closed verdict
+  # depend on a choice nobody records, refusing a ratified packet's lawful
+  # declaration inside the very window the kind exists to cover.
+  #
+  # ITS DISCHARGE IS ALREADY IN THE TREE THAT CARRIES IT, which is the measured
+  # reason `gitlink` reaches any governed estate repository and not the
+  # aggregation alone: `ledgerXfactory/LedgerxFactory`'s `.gitmodules` has
+  # carried `[submodule "LedgerxWallet"]` since 2026-08-28 (that packet's
+  # `tasks.md` § 5.1, LedgerxFactory PR #31, commit `2c96b0b`), verified live
+  # 2026-09-18 and again at this realization head. Both admissions are recorded
+  # here; `provisional:` drops with the `change` admission when that packet
+  # archives, and a row still declaring itself provisional after its change has
+  # archived is a REFUSAL, never a silence.
+  - repository: opensoft/LedgerxWallet
+    name: LedgerxWallet
+    role: neutral product, Ledgerx wallet overlay, nested in LedgerxFactory
+    governance: pinned
+    provisional: true
+    admitted_by:
+      - kind: gitlink
+        carrier: ledgerXfactory/LedgerxFactory
+      - kind: change
+        change: create-ledgerxwallet-overlay-boundary
+
+  # ── the nested members, which no aggregation gitlink, pin or workflow names ─
+  # THE SIX ROWS A `gitlink` READ AS THE AGGREGATION'S ALONE LEAVES ADMITTED BY
+  # NOTHING. Each is a real submodule of a governed estate repository, measured
+  # by `design.md` D0.1's second command and re-measured at this head.
+  - repository: opensoft/openChart
+    name: openChart
+    role: nested submodule of MedxChart, the Medx composition boundary
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/MedxChart
+
+  - repository: opensoft/openPractice
+    name: openPractice
+    role: nested submodule of MedxPractice, the practice-operations boundary
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: opensoft/MedxPractice
+
+  - repository: opensoft/MedxAvatar
+    name: MedxAvatar
+    role: nested submodule of MedxSoft/MedxFactory
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: MedxSoft/MedxFactory
+
+  - repository: opensoft/LedgerxAvatar
+    name: LedgerxAvatar
+    role: nested submodule of ledgerXfactory/LedgerxFactory
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: ledgerXfactory/LedgerxFactory
+
+  - repository: MedxSoft/MedxEHR-spec
+    name: MedxEHR-spec
+    role: nested submodule of MedxSoft/MedxEHR
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: MedxSoft/MedxEHR
+
+  - repository: MedxSoft/MedxEHR-code
+    name: MedxEHR-code
+    role: nested submodule of MedxSoft/MedxEHR
+    governance: governed
+    admitted_by:
+      - kind: gitlink
+        carrier: MedxSoft/MedxEHR
