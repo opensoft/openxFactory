@@ -549,8 +549,10 @@ Active changes:
   ` and `, or by ` + `" and the scenario at `:1103` repeats the three, while
   `scripts/code_surface.py:152-157` carries `, and ` as a FOURTH alternative
   tried FIRST — so an Oxford-comma list (`openxFactory, openXwallet, and
-  codexFactory`) parses as THREE identifiers at a gate whose ratified text says
-  two and a run-on. The bench already agrees with the module and not with canon:
+  codexFactory`) parses as THREE identifiers at a gate whose ratified text,
+  naming only the bare comma there, would have its conjunction read as a member
+  in its own right and the declaration REFUSED at the member after it. The bench
+  already agrees with the module and not with canon:
   `test_every_ratified_list_separator_is_admitted`
   (`tests/code_surface/test_code_surface_gate.py:157-160`) parametrizes five
   spellings, `", and "` among them. **ONE `## MODIFIED` REQUIREMENT: THREE UNITS

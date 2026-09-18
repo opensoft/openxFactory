@@ -86,7 +86,8 @@ open where the work is owed.
 - [x] 2.5 **ONE SCENARIO IS ADDED**, *A declaration spells its list out with an
       Oxford comma*, placed beside *An active proposal declares several
       repositories* rather than at the end of the block (`design.md` D5), and
-      stating the three-identifier reading, the reading it forbids, and the
+      stating the three-identifier reading, the CONJUNCTION-AS-MEMBER misreading
+      it forbids together with the refusal that misreading runs into, and the
       mixed-separator case.
 - [x] 2.6 **ONE `Removed from canon` MARKER, THREE NAMES, NO CODE SPAN IN ITS
       REASON**, so that under the grammar `doc-health`'s modified-block-currency
@@ -168,6 +169,25 @@ open where the work is owed.
       substring, and `main` fails it in the same clone. Nothing in this packet
       is implicated and nothing is fixed here: it is a latent test-harness
       defect belonging to that file, not to this delta.
+- [x] 3.9 **COPILOT ROUND 1 WAS TAKEN, THE FINDING WAS VERIFIED TRUE, AND THE
+      TEXT WAS REWORDED RATHER THAN DEFENDED.** The review thread on
+      `specs/release-realization/spec.md:54` held that the added paragraph's
+      "two readings" framing does not match `parse_head`: the comma-first path
+      yields no valid TWO-identifier reading. **MEASURED** on a scratch copy of
+      the module OUTSIDE the repository, `, and ` removed from `_SEPARATOR_RE`
+      and the other three alternatives left in their order —
+      `openxFactory, openXwallet, and codexFactory` is then REFUSED with *"its
+      head runs into prose at `codexFactory`"*, the conjunction having been
+      taken as a member in its own right (`and` satisfies `_NAME`); and where a
+      gloss opener follows the conjunction instead, the misreading stands
+      SILENTLY with `and` in the derived set. `design.md` § 0 carries the
+      counterfactual table. The added paragraph, the added scenario's second
+      `AND` bullet, the block's preamble, `.openspec.yaml`'s `reason`,
+      `proposal.md`, this file, the README row and the pull request body are
+      reworded to the measured behaviour. **NO TRACKED FILE UNDER `scripts/`
+      WAS EDITED** — `git status` over `scripts/` is empty at this head, the
+      scratch copy lived outside the repository, and THE READER STAYS AS
+      REALIZED.
 
 ## 4. Archive — OWED, NOT GIVEN
 

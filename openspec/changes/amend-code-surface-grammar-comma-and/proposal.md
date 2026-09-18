@@ -69,8 +69,19 @@ comment says why: *"Tried in this order so `, and ` is consumed whole rather
 than as a bare comma followed by a head that opens with the word `and`."* A
 declaration that spells its list out the way English spells one out —
 `openxFactory, openXwallet, and codexFactory` — therefore parses as **three**
-identifiers at a gate whose ratified text says it should have been read as two
-and a run-on.
+identifiers at a gate whose ratified text, naming only the bare comma there,
+would have the conjunction read as a member in its own right and the declaration
+REFUSED at `codexFactory`.
+
+**THE COMMENT'S OWN GLOSS IS LOOSE AND THE MEASUREMENT IS NOT.** Nothing "opens
+with" the word `and`: `and` satisfies `_NAME` on its own, so a bare comma taken
+at that position makes the CONJUNCTION a member and the parse dies at the member
+after it. Measured on a scratch copy with the `, and ` alternative removed and
+the other three left in their order — `design.md` § 0 carries the table —
+`parse_head('openxFactory, openXwallet, and codexFactory')` refuses with *"its
+head runs into prose at `codexFactory`"*. The comment is quoted above as the
+module writes it and is **not edited**: it is a code surface, and it is residue
+beside `design.md` **D4**.
 
 | the requirement says | the module says | where |
 | --- | --- | --- |
@@ -105,8 +116,10 @@ NOTHING ELSE.**
    and the module enforces exactly that pair and nothing else.
 2. **One ADDED body paragraph states the ORDER and what it buys** — `, and ` is
    ONE separator, read ahead of the bare comma, so a spelled-out list is
-   consumed as one separator rather than as a comma plus a member opening with
-   the word `and`. It also states, as canon, what the reader has always done
+   consumed as one separator instead of having its conjunction read as a member
+   in its own right and the declaration refused at the member after it — the
+   misread and the refusal the order avoids, measured rather than supposed
+   (`design.md` § 0). It also states, as canon, what the reader has always done
    and the text never said: **the four separators are alternatives WITHIN one
    list and a head MAY mix them** (`design.md` D3, measured:
    `openxFactory, openXwallet and codexFactory` and
@@ -125,9 +138,9 @@ NOTHING ELSE.**
 5. **ONE SCENARIO IS ADDED**, *A declaration spells its list out with an Oxford
    comma*, placed beside the several-repositories scenario rather than at the
    end of the block (`design.md` D5): `openxFactory, openXwallet, and
-   codexFactory` reads as THREE identifiers, MUST NOT be read as two plus a
-   member opening with `and`, and a head mixing separators is admitted on the
-   same terms.
+   codexFactory` reads as THREE identifiers, its conjunction MUST NOT be taken
+   as a member of the list in its own right, and a head mixing separators is
+   admitted on the same terms.
 6. **Every other unit is carried byte-faithfully, BY CONSTRUCTION**: the block
    was produced by slicing `openspec/specs/release-realization/spec.md`
    lines 1014–1132 and applying each replacement as an exact single-occurrence
@@ -156,7 +169,7 @@ taken.
   and one after are identical.
 - **Contracts, bundles, digests, tags:** none.
 - **Readers:** a reader of the requirement stops being told that an Oxford-comma
-  list is two identifiers and a run-on. Nothing already written is invalidated:
+  list is a run-on the gate refuses. Nothing already written is invalidated:
   the archived `gate-code-surface-declarations` delta is a record of what was
   ratified and is not edited, and the declarations the corpus carries are
   unaffected either way.

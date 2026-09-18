@@ -35,24 +35,65 @@ clone of `main` `3e32d987` this packet was authored against, on 2026-09-18:
 | `none, and openxFactory` | REFUSED | *mixes the empty-surface sentinel* |
 | `openxFactory, and none` | REFUSED | *mixes the empty-surface sentinel* |
 
-Four facts fall out of that table and every decision below turns on one of them:
+**AND THE COUNTERFACTUAL WAS RUN TOO, because the ORDER is what this packet's
+text has to describe and an order is only visible against its absence.** On a
+SCRATCH COPY of the module outside the repository — `scripts/code_surface.py`
+itself is never edited by this packet and was never edited to take this
+measurement — with the `, and ` alternative REMOVED from `_SEPARATOR_RE` and the
+other three left in their existing order:
 
-1. **The fourth separator is real** and is tried FIRST, so an Oxford-comma list
-   is three identifiers and not two plus a run-on (`_SEPARATOR_RE`,
-   `scripts/code_surface.py:152-157`; the bench pins it at
+| head | verdict with `, and ` removed |
+| --- | --- |
+| `openxFactory, openXwallet, and codexFactory` | REFUSED — *"its head runs into prose at `codexFactory`"* |
+| `openxFactory, and openXwallet` | REFUSED — *"its head runs into prose at `openXwallet`"* |
+| `openxFactory, and this.` | REFUSED — *"its head runs into prose at `this.`"* |
+| `openxFactory, and (the wallet)` | ADMITTED — derived set **`openxFactory`, `and`** |
+
+**THERE IS NO SHORTER READING, ONLY A WORSE ONE.** The bare comma does not stop
+the list a member early: `and` satisfies `_NAME`
+(`[A-Za-z][A-Za-z0-9._-]*[A-Za-z0-9]`) on its own, so the CONJUNCTION is taken
+as a member in its own right, and what happens next depends only on what follows
+it — a further identifier leaves the parse with no separator and no gloss opener
+and it REFUSES (rows 1–3), while a gloss opener or the end of the declaration
+lets the misreading stand SILENTLY with `and` in the derived repository set
+(row 4). So what the delta owes is *the misread, and the refusal it runs into,
+that trying `, and ` first avoids* — and NOT *a choice between two readings*:
+the two-identifier reading is one `parse_head` cannot produce at all. The added
+paragraph and the added scenario are written to that measurement. **THE MODULE'S
+OWN COMMENT OVER `_SEPARATOR_RE` GLOSSES IT THE SAME LOOSE WAY** (*"rather than
+as a bare comma followed by a head that opens with the word `and`"*): quoted
+verbatim where this packet quotes it, named here, and NOT edited — it is a CODE
+SURFACE, and it is residue beside **D4**.
+
+Five facts fall out of those two tables and every decision below turns on one of
+them:
+
+1. **THE ORDER IS LOAD-BEARING, AND WHAT ITS ABSENCE PRODUCES IS A REFUSAL
+   RATHER THAN A SHORTER LIST.** `and` is a name the identifier grammar admits,
+   so a bare comma taken first makes the CONJUNCTION a member and the parse then
+   dies at the member after it (second table, rows 1–3) — or, where a gloss
+   opener or the end of the declaration follows the conjunction, silently admits
+   `and` as a repository (row 4). Both are what `, and `-first avoids, and
+   NEITHER is the "two identifiers and a run-on" a reader of the promoted text
+   would expect. The delta says so in those terms.
+2. **The fourth separator is real** and is tried FIRST, so an Oxford-comma list
+   is three identifiers rather than the REFUSAL the bare comma alone produces
+   (`_SEPARATOR_RE`, `scripts/code_surface.py:152-157`; the bench pins it at
    `tests/code_surface/test_code_surface_gate.py:157-160`).
-2. **The separators are NOT exclusive of each other.** A head may mix them; rows
-   2 and 3 above both parse. The promoted text never said so either way, and
-   with a four-item list in front of "the two being EXCLUSIVE alternatives" a
+3. **The separators are NOT exclusive of each other.** A head may mix them; rows
+   2 and 3 of the FIRST table both parse. The promoted text never said so
+   either way, and with a four-item list in front of "the two being EXCLUSIVE
+   alternatives" a
    reader would now reach for the wrong antecedent.
-3. **The `, and …` refusal is conditional, not flat.** It fires when the words
+4. **The `, and …` refusal is conditional, not flat.** It fires when the words
    after the conjunction are not themselves a readable identifier followed by an
    opener or the end — which is every ordinary sentence, and is why the corpus's
-   real run-ons are still refused (row 5, row 6, and the bench's
+   real run-ons are still refused (first table rows 5 and 6, and the bench's
    `test_a_head_that_runs_into_prose_with_no_opener_is_refused`). It does NOT
-   fire on row 7, where one word and a full stop happen to read as an identifier
+   fire on first-table row 7, where one word and a full stop read as an identifier
    and a gloss opener.
-4. **The `none` exclusivity is enforced exactly as written** (rows 8 and 9), so
+5. **The `none` exclusivity is enforced exactly as written** (first table rows 8
+   and 9), so
    the clause "the two being EXCLUSIVE alternatives and never mixed" is TRUE —
    about the two HEAD FORMS, which is what it has always been about.
 

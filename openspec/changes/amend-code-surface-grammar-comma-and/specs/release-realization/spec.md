@@ -8,8 +8,9 @@ lines 1014–1132 — and every word of it is canon's own except what
 governs first ran. `_SEPARATOR_RE` (`scripts/code_surface.py:152-157`) admits
 FOUR list separators and the promoted text names THREE; the fourth, `, and `, is
 tried FIRST so that a list spelled out with an Oxford comma is consumed as one
-separator rather than as a bare comma followed by a member opening with the word
-`and`. This block is that catch-up. **NOT ONE CHARACTER OF THE READER CHANGES**:
+separator rather than as a bare comma that leaves the conjunction to be read as a
+member in its own right and the declaration refused at the member after it. This
+block is that catch-up. **NOT ONE CHARACTER OF THE READER CHANGES**:
 no declaration that passes today is refused after it, none that is refused today
 passes, and no derived repository set moves.
 
@@ -46,15 +47,18 @@ a declaration no reader can act on, which is what the corpus shows.
 `, and ` IS ONE SEPARATOR AND SHALL BE READ AHEAD OF THE BARE COMMA, which is
 the whole of what distinguishes it from the other three. A list spelled out the
 way English spells one out — `openxFactory, openXwallet, and codexFactory` —
-offers a reader two readings: THREE identifiers, the last separated by a comma
-and the conjunction together; or TWO identifiers and a head that resumes at the
-word `and`. The grammar takes the first, and takes it BY ORDER rather than by a
-special case: the longer separator is tried at each position before the bare
-comma, so the conjunction is consumed WITH the comma that precedes it instead of
-being left to open the next member. THE FOUR SEPARATORS ARE ALTERNATIVES WITHIN
-ONE LIST AND ARE NOT EXCLUSIVE OF EACH OTHER — one head MAY separate its members
-by more than one of them, which is what a three-item list in ordinary prose does,
-and nothing in a mixed-separator head makes a reader guess.
+SHALL be read as THREE identifiers, the comma and the conjunction after it
+consumed TOGETHER as one separator. THE ORDER BUYS THAT READING, AND WHAT IT
+BUYS IS A READING RATHER THAN A PREFERENCE BETWEEN TWO: `and` is itself a name
+the identifier grammar admits, so a bare comma taken at that position makes the
+CONJUNCTION a member of the list in its own right, and the identifier that
+actually follows it is then left with no separator and no gloss opener before
+it — a head running into prose, which is REFUSED. Trying the longer separator
+first is therefore what makes a spelled-out list READABLE AT ALL, and not what
+settles which of two readings it gets. THE FOUR SEPARATORS ARE ALTERNATIVES
+WITHIN ONE LIST AND ARE NOT EXCLUSIVE OF EACH OTHER — one head MAY separate its
+members by more than one of them, which is what a three-item list in ordinary
+prose does, and nothing in a mixed-separator head makes a reader guess.
 
 THE DECLARATION IS A HEAD FOLLOWED BY AN OPTIONAL PROSE GLOSS, and the gate
 SHALL judge the HEAD and never the gloss. That is the corpus's own form rather
@@ -183,7 +187,7 @@ correction moves and a reader looking for the list grammar finds them together.
 #### Scenario: A declaration spells its list out with an Oxford comma
 - **WHEN** an active change's head separates the last two of three repository identifiers by `, and ` — `openxFactory, openXwallet, and codexFactory`
 - **THEN** the validator passes and the declared repository set is the THREE identifiers, the comma and the conjunction having been consumed as ONE separator
-- **AND** the head MUST NOT be read as two identifiers followed by a member opening with the word `and`, the longer separator being tried before the bare comma at each position
+- **AND** the conjunction MUST NOT be taken as a member of the list in its own right — which is what the bare comma alone would make of it, `and` being a name the identifier grammar admits, leaving `codexFactory` with no separator and no gloss opener before it and the whole declaration REFUSED as a head running into prose — the longer separator being tried before the bare comma at each position
 - **AND** a head that separates its members by more than one of the admitted separators is admitted on the same terms, the separators being alternatives within one list rather than exclusive of each other
 
 #### Scenario: A head mixes none with a repository identifier

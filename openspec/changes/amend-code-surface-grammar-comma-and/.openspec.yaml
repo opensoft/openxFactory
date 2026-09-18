@@ -17,9 +17,13 @@ origin:
     runs and it carries FOUR alternatives — `, and ` FIRST, then the bare
     comma, then ` and `, then ` + ` — the first tried ahead of the bare comma
     so that a list spelled out with an Oxford comma is consumed as ONE
-    separator rather than as a comma followed by a member opening with the word
-    "and". The comment standing over `_SEPARATOR_RE` says so in the module's own
-    words ("plus the `, and ` the corpus writes when it spells a list out"), and
+    separator. MEASURED, not reasoned: with `, and ` removed from the pattern
+    and the other three alternatives left in their order, the bare comma leaves
+    the conjunction "and" to be read as a member in its own right — it is a name
+    the identifier grammar admits — and `parse_head` then REFUSES at the member
+    after it, "its head runs into prose at `codexFactory`". The comment standing
+    over `_SEPARATOR_RE` reaches for the same point in the module's own words
+    ("plus the `, and ` the corpus writes when it spells a list out"), and
     the bench agrees — `tests/code_surface/test_code_surface_gate.py:157-160`
     parametrizes five spellings including `", and "` under the name
     `test_every_ratified_list_separator_is_admitted`. So the divergence is
