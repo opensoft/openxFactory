@@ -292,6 +292,23 @@ change, because once the realization has landed, a governed tree CAN name the
 repository, and a provisional admission that outlives its change is the same
 defect as a row whose evidence has gone.
 
+**THE ROW IS OWED AND IS NOT AN AUTHOR'S OPTION — RULED, AND THE FIRST FILING
+HAD IT THE OTHER WAY.** The delta's scenario read "the inventory MAY carry a
+PROVISIONAL row"; Copilot's review of PR #1101 named the consequence, which is
+that a MAY makes the membership arm's fail-closed verdict depend on a choice
+nobody records: omit the row and a RATIFIED packet's lawful declaration is
+refused inside the very window this kind exists to cover, with the refusal
+reading as a membership failure rather than as a missing record. **Brett Heap
+ruled on 2026-09-18, verbatim "MAY becomes MUST"**, given in the lane's terminal
+to lane `openxfactory-5` as a multiple-choice answer and recorded as a `RULED`
+entry in `opensoft/brett-wip` `lanes/log/openXfactory-5.md`. So the enumeration
+requirement now says the inventory SHALL carry that row and SHALL NOT omit it at
+an author's discretion, and the MEMBERSHIP ARM IS LEFT EXACTLY AS IT WAS —
+unconditional, failing closed, taking no exception for the forward-looking
+window. The two halves are deliberate: the obligation moves to the side that can
+discharge it (the inventory records the naming act), and the gate keeps the one
+property the whole arm is for.
+
 **THE KIND IS NOT AN ESCAPE HATCH AND THE SHAPE IS WHAT KEEPS IT FROM BEING ONE.**
 The evidence is a change id that must resolve under `openspec/changes/`, the
 change must be RATIFIED (an author cannot admit a repository by drafting), and the
@@ -336,6 +353,39 @@ gate. A `gitlink` row is re-checked only in an EXPLICITLY INVOKED mode that take
 the carrying repository's working tree as a PATH INPUT, and a run given no such
 path REPORTS those rows as NOT RE-CHECKED, with their count. Silence is never a
 pass: a run that has not looked reports neither "named" nor "stale".
+
+**AND THE SUPPLIED TREE IS VERIFIED AS THE CARRIER BEFORE IT IS TRUSTED — RULED,
+AND THE FIRST FILING TRUSTED THE PATH.** The delta's AND clause read that when
+the working tree IS supplied, the row's `.gitmodules` evidence is re-checked in
+it. Copilot's review of PR #1101 showed what that leaves open: a PATH IS AN
+ASSERTION AND NOT AN IDENTITY. A caller may hand `--estate-tree
+MedxSoft/MedxEHR=<path>` a typo'd path, a stale worktree, or a checkout of a
+different repository that merely sits where the carrier was expected, and the
+arm would then let ONE repository's `.gitmodules` discharge — or condemn —
+ANOTHER repository's row. That is the same defect as resolving a name by asking
+the provider, arriving by a different door: a verdict resting on something
+outside the evidence the row names. **Brett Heap ruled on 2026-09-18, verbatim
+"Bind the carrier identity"**, given in the lane's terminal to lane
+`openxfactory-5` as a multiple-choice answer and recorded as a `RULED` entry in
+`opensoft/brett-wip` `lanes/log/openXfactory-5.md`.
+
+*What the verification reads, and why those two sources and no third.* The
+tree's OWN ORIGIN URL (`git -C <path> remote get-url origin`, normalized past the
+`git@`/`https://` spellings and the `.git` suffix), or the carrier's record in
+`contracts/policies/repository-identity.yaml`, which is where this estate
+already states that a FORMER address resolves to a current one — so a carrier
+supplied at a former address verifies through the map rather than being refused
+for a name the estate itself moved. No provider call is added and none is
+needed: both sources are already in the caller's hand or in this checkout.
+
+*What a failed verification does, and it is the one verdict this arm already
+has.* The row is reported NOT RE-CHECKED and COUNTED, with the rows no tree was
+supplied for, NEITHER PASSED NOR FAILED, and the report names the carrier the
+row expects and what the tree actually is. *The alternative, retained and
+declined:* FAIL the row on a mismatched tree. *Cost:* it converts a caller's
+typo into a finding against the inventory, which teaches the wrong author the
+wrong thing, and it breaks the arm's own stated rule that a run which has not
+looked at the right tree reports neither verdict.
 
 *Why not simply fetch the tree.* Because that is the cost D1 refused two
 paragraphs above — a required check depending on a token and on read access to a
@@ -413,13 +463,20 @@ branch's `b3bf9cf5` and at `origin/main` `dc242f3a`, the totals are IDENTICAL �
 92 findings at both (31 critical, 11 error, 28 warning, 22 info) — zero new, zero
 gone.
 
-**THE SELF-GATE IS CLEAN AND WAS CHECKED RATHER THAN ASSUMED.** No other active
-change writes `(release-realization, code-surface declaration grammar is gated)`
-— the three code-surface titles have no active writer but this packet, checked by
-`grep -rl "Requirement: <title>" openspec/changes/ --include=spec.md`. So this
-block is SOLE, no `sequenced_after:` is owed on it, and
-`scripts/doc-health.py --single-repo . --family modified-block-currency` reports
-no NEW finding against it.
+**THE SELF-GATE WAS CHECKED RATHER THAN ASSUMED, AND THE ANSWER CHANGED UNDER
+IT, WHICH IS RECORDED HERE RATHER THAN OVERWRITTEN.** At drafting no other
+active change wrote `(release-realization, Code-surface declaration grammar is
+gated)` — checked by
+`grep -rl "Requirement: <title>" openspec/changes/ --include=spec.md` — so the
+block was SOLE and owed no `sequenced_after:`. **THAT STOPPED BEING TRUE ON
+2026-09-18**, when `amend-code-surface-grammar-comma-and` was ratified and
+landed at `60d281a8` with a `## MODIFIED` block over the same key. The ordering
+is now DECLARED and the block is written over that packet's outcome: **D6**
+carries the ruling, what was folded, and the measurement that the family reports
+nothing once the declaration is read. With the declaration and the fold in
+place, `scripts/doc-health.py --single-repo . --family modified-block-currency`
+reports no NEW finding against this block, and the whole-checker comparison
+below stands.
 
 **ALTERNATIVE: ADDED-only, leaving the promoted `SHALL NOT` standing.** *Cost:* a
 standing contradiction in canon, and a gate whose authority rests on a reader
@@ -488,11 +545,66 @@ fact checked at D0.3 and not assumed.
 
 ## D6. Sequencing, and the sibling search
 
-`sequenced_after: []`. The MODIFIED block takes its pre-text from CANON
-(`openspec/specs/release-realization/spec.md`), not from another active change,
-and no active change co-writes the requirement key (D3). The two ADDED titles were
-checked against `openspec/specs/`, every active delta and the archive and appear
-nowhere else.
+**`sequenced_after: [amend-code-surface-grammar-comma-and]` — RULED, AND THE
+CLAIM THIS SECTION MADE AT DRAFTING IS SUPERSEDED RATHER THAN QUIETLY EDITED.**
+At drafting this read `sequenced_after: []`, on a measurement that was true when
+it was taken: no active change co-wrote `(release-realization, Code-surface
+declaration grammar is gated)`. **THE CORPUS MOVED WHILE THIS PACKET WAS IN
+REVIEW.** `amend-code-surface-grammar-comma-and` (openxFactory #1092, PR #1108)
+was ratified on 2026-09-18 and landed to `main` at `60d281a8`, carrying a
+`## MODIFIED` block over THAT EXACT requirement key — so from that landing there
+are TWO active ratified writers of it, and *Ordered deltas and branch
+vocabulary* obliges the later one to reference the earlier and to declare its
+deltas relative to that change's OUTCOME.
+
+**Brett Heap ruled on 2026-09-18, verbatim "#1101 declares #1108 and folds its
+text"**, given in the lane's terminal to lane `openxfactory-5` as a
+multiple-choice answer and recorded as a `RULED` entry in `opensoft/brett-wip`
+`lanes/log/openXfactory-5.md`. What that encodes, exactly:
+
+- the declaration is made in this packet's own front matter,
+  `sequenced_after: [amend-code-surface-grammar-comma-and]`, and named in
+  `proposal.md`'s prose and in the delta's preamble;
+- the `## MODIFIED` block's PRE-TEXT is #1108's block and no longer canon. Its
+  bytes were taken from
+  `openspec/changes/amend-code-surface-grammar-comma-and/specs/release-realization/spec.md`
+  on `main` and this packet's membership change applied on top, rather than
+  re-typed: the four list separators including `, and `, the sentence that reads
+  the longer separator ahead of the bare comma, the narrowed `, and …` refusal,
+  #1108's `**AMENDED BY**` note and its added scenario *A declaration spells its
+  list out with an Oxford comma* are carried unedited, which is why this block's
+  scenario count is ELEVEN and the packet's total is TWENTY-EIGHT;
+- **#1108 IS NOT TOUCHED.** No file of that packet moves, its ratification
+  record is not annotated and its ledger row is not re-stamped by this act;
+- the PROMOTION ORDER is #1108 then #1101. Each archives on its own word;
+  whichever archives last is the text canon keeps, which is precisely why the
+  ordering is declared rather than left to the merge queue.
+
+*One carried unit is deliberately NOT carried, and saying so is part of the
+fold.* #1108's own `**Removed from canon by amend-code-surface-grammar-comma-and
+(2026-09-18):**` marker declares three units removed from the canon that
+PRECEDED it — the three-separator opening sentence, the flat `, and …` refusal
+and the old WHEN bullet. None of the three survives in the text this block rests
+on, so a marker naming them would describe neither this block nor its basis,
+which is the `modified-block-currency` family's own third marker-defect ground.
+The marker belongs to the act that made those removals and stays in #1108's
+packet with it. This packet's block carries exactly ONE marker, its own.
+
+*What the checker does with the declaration, measured and not assumed.* The
+`modified-block-currency` family reads the ordering from the later change's
+`proposal.md` by whole-token mention (`declarations()` in
+`scripts/doc_health/modified_block_currency.py`), so the declaration above is
+what the arm reads; with it the two-writer group RESOLVES, this block is
+measured against #1108's block instead of against canon, and the arm reports
+NOTHING. Before it, the arm reported both blocks as an unstated ordering and
+`tests/doc-health/test_modified_block_currency_self_gate.py::test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`
+failed with two fresh subjects. That test's `_ORDERING_SUBJECTS` is an EXACT set
+that reads EMPTY, and the declaration returns it to empty — so the gate is made
+green by the DECLARATION and by the fold that follows from it, and NOT ONE BYTE
+OF `tests/` OR `scripts/` IS EDITED BY THIS PACKET.
+
+**The sibling search.** The two ADDED titles were checked against
+`openspec/specs/`, every active delta and the archive and appear nowhere else.
 
 The sibling search, taken 2026-09-18 before authoring: `ls openspec/changes` and
 `ls openspec/changes/archive` for an inventory, estate-enumeration or repository-

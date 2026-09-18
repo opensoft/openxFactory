@@ -1,14 +1,59 @@
+# release-realization
+
+**THIS BLOCK IS WRITTEN OVER `amend-code-surface-grammar-comma-and`'S OUTCOME
+AND NOT OVER CANON, AND THE DECLARATION THAT SAYS SO IS
+`sequenced_after: [amend-code-surface-grammar-comma-and]` IN `proposal.md`.**
+That packet (openxFactory #1108, ratified 2026-09-18, landed to `main` at
+`60d281a8`) is an ACTIVE RATIFIED writer of this same requirement key
+(`release-realization`, *Code-surface declaration grammar is gated*), so
+*Ordered deltas and branch vocabulary* obliges the later writer to reference it
+and to declare its deltas relative to that change's OUTCOME. **RULED by Brett
+Heap, 2026-09-18, verbatim "#1101 declares #1108 and folds its text"**, given
+in the lane's terminal to lane `openxfactory-5` as a multiple-choice answer and
+recorded as a `RULED` entry in `opensoft/brett-wip`
+`lanes/log/openXfactory-5.md`. The promotion order is #1108 then #1101, and
+**not one byte of #1108 is touched by this packet.**
+
+**WHAT THAT MEANS FOR THE BLOCK BELOW, STATED RATHER THAN LEFT TO A DIFF.**
+Every paragraph and every scenario of the MODIFIED block is
+`amend-code-surface-grammar-comma-and`'s own bytes — the four list separators
+including `, and `, the sentence that reads the longer separator ahead of the
+bare comma, the narrowing of the `, and …` refusal, that packet's own
+`**AMENDED BY**` note and its added Oxford-comma scenario — EXCEPT the one
+paragraph THIS packet moves, the membership bound, whose three superseded
+sentences are named in the `Removed from canon by add-estate-repository-inventory`
+marker carried inside the block. #1108's own `Removed from canon` marker is NOT
+carried: it declares three units removed from the canon that PRECEDED it, none
+of which survives in the text this block rests on, so carrying it would be a
+declaration describing neither this block nor its basis.
+
 ## MODIFIED Requirements
 
 ### Requirement: Code-surface declaration grammar is gated
 An ACTIVE change proposal's `code_surface:` declaration SHALL open with a
 DECLARED HEAD the ratified grammar admits — EITHER the single token `none`, OR a
-list of one or more REPOSITORY IDENTIFIERS separated by a comma, by ` and `, or
-by ` + `, the two being EXCLUSIVE alternatives and never mixed — and a
-house validator SHALL REFUSE any active declaration whose head it cannot read,
-naming the proposal's path and the text the declaration carries. A declaration
-whose repositories cannot be told from its explanation is a declaration no
-reader can act on, which is what the corpus shows.
+list of one or more REPOSITORY IDENTIFIERS separated by a comma, by `, and `, by
+` and `, or by ` + `, THOSE TWO HEAD FORMS being EXCLUSIVE alternatives and
+never mixed — and a house validator SHALL REFUSE any active declaration whose
+head it cannot read, naming the proposal's path and the text the declaration
+carries. A declaration whose repositories cannot be told from its explanation is
+a declaration no reader can act on, which is what the corpus shows.
+
+`, and ` IS ONE SEPARATOR AND SHALL BE READ AHEAD OF THE BARE COMMA, which is
+the whole of what distinguishes it from the other three. A list spelled out the
+way English spells one out — `openxFactory, openXwallet, and codexFactory` —
+SHALL be read as THREE identifiers, the comma and the conjunction after it
+consumed TOGETHER as one separator. THE ORDER BUYS THAT READING, AND WHAT IT
+BUYS IS A READING RATHER THAN A PREFERENCE BETWEEN TWO: `and` is itself a name
+the identifier grammar admits, so a bare comma taken at that position makes the
+CONJUNCTION a member of the list in its own right, and the identifier that
+actually follows it is then left with no separator and no gloss opener before
+it — a head running into prose, which is REFUSED. Trying the longer separator
+first is therefore what makes a spelled-out list READABLE AT ALL, and not what
+settles which of two readings it gets. THE FOUR SEPARATORS ARE ALTERNATIVES
+WITHIN ONE LIST AND ARE NOT EXCLUSIVE OF EACH OTHER — one head MAY separate its
+members by more than one of them, which is what a three-item list in ordinary
+prose does, and nothing in a mixed-separator head makes a reader guess.
 
 THE DECLARATION IS A HEAD FOLLOWED BY AN OPTIONAL PROSE GLOSS, and the gate
 SHALL judge the HEAD and never the gloss. That is the corpus's own form rather
@@ -18,9 +63,21 @@ every declaration that explains itself. The gloss SHALL be introduced by a GLOSS
 OPENER, and the opener set SHALL be the set the corpus already uses rather than
 one the gate prefers: an em dash, an en dash, an opening parenthesis, a full
 stop, a colon, or a semicolon. A head that runs into ordinary prose with no
-opener — a possessive, an apposition, or a sentence continued by `, and …` — is
-REFUSED, because there is then no point in the string at which the declaration
-stops and the explanation starts, and every reader must guess a different one.
+opener — a possessive, an apposition, or a sentence continued by `, and …` whose
+continuation the identifier grammar cannot read — is REFUSED, because there is
+then no point in the string at which the declaration stops and the explanation
+starts, and every reader must guess a different one.
+
+THE `, and …` CASE IS THE ONE THE SEPARATOR ABOVE NARROWS, AND THE NARROWING IS
+STATED HERE RATHER THAN LEFT TO BE FOUND. Where the words after `, and ` are
+themselves a REPOSITORY IDENTIFIER followed by a gloss opener or by the end of
+the declaration, they are ADMITTED as a further member of the list, that being
+exactly the spelled-out form the separator exists to read. Where they are not —
+an ordinary sentence, which is what an explanation is — the REFUSAL STANDS and
+names the point at which reading stopped. The two cases are told apart by the
+identifier grammar and by nothing else, no reader weighing whether a word looks
+like a repository; and the remedy is unchanged and is the author's, a gloss
+opener written before the explanation begins.
 
 A REPOSITORY IDENTIFIER IS EITHER A BARE REPOSITORY NAME OR AN `<owner>/<name>`
 ADDRESS, and BOTH SHALL BE ADMITTED because the corpus carries both. THE GRAMMAR
@@ -103,6 +160,33 @@ report it, and SHALL refuse nothing there. A gate that demanded an edit nobody
 may make would be a standing finding with no remedy, which is the defect this
 estate disposes of rather than creates.
 
+**AMENDED BY `amend-code-surface-grammar-comma-and` (2026-09-18).** Every
+paragraph and every scenario of this block is promoted canon's own bytes except
+what `scripts/code_surface.py` made untrue on the day the gate landed: the
+opening sentence's list of separators, the sentence that refused a head
+continued by `, and …` flatly, and the WHEN bullet of *An active proposal
+declares several repositories*. `_SEPARATOR_RE` has admitted a FOURTH
+alternative since the module was written — `, and `, tried FIRST, ahead of the
+bare comma — and the promoted text named three, so a declaration spelled out
+with an Oxford comma passed a gate canon said would refuse it. THIS BLOCK MOVES
+NO BEHAVIOUR: not one character of `scripts/code_surface.py` changes with it, no
+declaration that passes today is refused after it and none that is refused today
+passes, and the repository set derived from any head in the corpus is
+identical before and after. TWO CLARIFICATIONS RIDE THE CORRECTION AND BOTH
+DESCRIBE THE SAME READER: the exclusivity clause of the opening sentence is said
+of THE TWO HEAD FORMS rather than of the separators it now follows four of —
+which is the antecedent the originating packet's own design record names,
+"EITHER the single token none, OR a list … the two being EXCLUSIVE alternatives
+and never mixed" — and the separators are stated to be alternatives WITHIN one
+list, which is what the reader has always done and what the promoted text left a
+reader of a four-item list to guess at. NOTHING ELSE MOVES: the sentinel rule,
+the identifier shape, the gloss-opener set, the repeated-header refusal, the
+block-scalar refusal, the absence default and the archived-record rule are
+carried unchanged, and no scenario is removed or retitled. ONE SCENARIO IS
+ADDED, beside *An active proposal declares several repositories* rather than at
+the end of the block, because it is that scenario's own case at the grain the
+correction moves and a reader looking for the list grammar finds them together.
+
 #### Scenario: An active proposal's head runs into prose
 - **WHEN** an active change's `proposal.md` declares a `code_surface:` whose head is followed by ordinary prose with no gloss opener — a possessive, an apposition, or a sentence continued by `, and …` — and the register does not name it
 - **THEN** the validator MUST fail, naming the proposal's path and the declaration text it carries
@@ -117,9 +201,15 @@ estate disposes of rather than creates.
 - **THEN** the validator passes, and the declared repository set is that one identifier
 
 #### Scenario: An active proposal declares several repositories
-- **WHEN** an active change declares two or more repository identifiers separated by a comma, by ` and `, or by ` + `
+- **WHEN** an active change declares two or more repository identifiers separated by a comma, by `, and `, by ` and `, or by ` + `
 - **THEN** the validator passes and the declared repository set is every identifier in the head
 - **AND** an identifier spelled as an `<owner>/<name>` address is admitted on the same terms as a bare repository name, both spellings being ones the corpus carries
+
+#### Scenario: A declaration spells its list out with an Oxford comma
+- **WHEN** an active change's head separates the last two of three repository identifiers by `, and ` — `openxFactory, openXwallet, and codexFactory`
+- **THEN** the validator passes and the declared repository set is the THREE identifiers, the comma and the conjunction having been consumed as ONE separator
+- **AND** the conjunction MUST NOT be taken as a member of the list in its own right — which is what the bare comma alone would make of it, `and` being a name the identifier grammar admits, leaving `codexFactory` with no separator and no gloss opener before it and the whole declaration REFUSED as a head running into prose — the longer separator being tried before the bare comma at each position
+- **AND** a head that separates its members by more than one of the admitted separators is admitted on the same terms, the separators being alternatives within one list rather than exclusive of each other
 
 #### Scenario: A head mixes none with a repository identifier
 - **WHEN** an active change's head carries both the token `none` and a repository identifier, in either order — `none, openxFactory` or `openxFactory and none`
@@ -185,8 +275,9 @@ because they are exactly the ways this estate has ever named a repository:
 - `change`: a RATIFIED change in this repository whose realization CREATES the
   repository. This kind exists because a code surface is FORWARD-LOOKING: it
   names where a change WILL write, so a repository the estate is creating is
-  declared before any gitlink, pin or workflow can name it. A `change`-admitted
-  row is PROVISIONAL, and SHALL say so.
+  declared before any gitlink, pin or workflow can name it. THE INVENTORY SHALL
+  CARRY THAT ROW and SHALL NOT omit it at an author's discretion; a
+  `change`-admitted row is PROVISIONAL, and SHALL say so.
 
 A `change`-ADMITTED ROW SHALL NOT REMAIN PROVISIONAL FOREVER. When its change
 ARCHIVES, one of the other four kinds is owed, because the repository the
@@ -211,6 +302,22 @@ which an openxFactory checkout does not contain. Its re-check SHALL therefore be
 an EXPLICITLY INVOKED mode taking the carrying repository's working tree as a
 PATH INPUT, and a run given no such path SHALL REPORT its `gitlink` rows as NOT
 RE-CHECKED, with their count, rather than passing them silently or failing them.
+
+A SUPPLIED TREE SHALL BE VERIFIED AS A CHECKOUT OF THE CARRIER THE ROW NAMES
+BEFORE ITS `.gitmodules` EVIDENCE IS TRUSTED, and the verification SHALL be made
+against the tree's own ORIGIN URL or against the carrier's record in
+`contracts/policies/repository-identity.yaml`, those being the two places this
+estate states a repository's identity. A PATH IS AN ASSERTION AND NOT AN
+IDENTITY: a caller may pass the wrong checkout by typo, by a stale worktree, or
+by a repository that merely sits at the expected path, and an unverified path
+would let one repository's `.gitmodules` discharge — or condemn — another
+repository's row, which is the same defect as resolving a name by asking the
+provider. A supplied tree that FAILS that verification SHALL leave the row
+reported NOT RE-CHECKED, COUNTED with the rows no tree was supplied for and
+NEITHER PASSED NOR FAILED, and the report SHALL name the carrier the row expects
+and what the tree actually is: a run that has looked in the wrong place has not
+looked. Ruled by Brett Heap, 2026-09-18, verbatim: *"Bind the carrier
+identity"*.
 A validator that fetched the tree itself would make a required check depend on a
 token and on read access to a private repository, which is the cost the derived
 shape was refused for and which may not be readmitted at the reverse arm.
@@ -263,7 +370,8 @@ this file takes the same one.
 
 #### Scenario: A repository a ratified change is creating
 - **WHEN** a RATIFIED active change declares a code surface in a repository its own realization creates, and no gitlink in any governed estate repository, no pin and no workflow names it yet
-- **THEN** the inventory MAY carry a PROVISIONAL row admitted by that change, marked as provisional and naming the change id
+- **THEN** the inventory MUST carry a PROVISIONAL row admitted by that change, marked as provisional and naming the change id
+- **AND** the membership arm is UNCONDITIONAL and still FAILS CLOSED for that identifier — the row is what makes the declaration resolve, so an absent row refuses a ratified packet inside the forward-looking window rather than excusing it
 - **AND** once that change ARCHIVES, a row still admitted only by it MUST be reported as a finding, the repository being nameable by a governed tree from that point — commonly by the gitlink of the DomainxFactory the realization nested it under
 
 #### Scenario: The aggregation repository itself
@@ -284,7 +392,8 @@ this file takes the same one.
 #### Scenario: A gitlink row is re-checked only against a supplied tree
 - **WHEN** the run reaches a row admitted by a `gitlink` and no working tree was supplied for the repository the row names as the carrier
 - **THEN** the validator MUST report that row as NOT RE-CHECKED and MUST count it, and MUST NOT pass it silently, MUST NOT fail it, and MUST NOT fetch the carrying repository
-- **AND** when that working tree IS supplied as a path input, the row's `.gitmodules` evidence MUST be re-checked in it and its absence MUST be a finding against the row
+- **AND** when that working tree IS supplied as a path input, it MUST FIRST be verified as a checkout of the carrier the row names — by the tree's own origin URL or by the carrier's record in `contracts/policies/repository-identity.yaml` — and only then MUST the row's `.gitmodules` evidence be re-checked in it, its absence there being a finding against the row
+- **AND** a supplied tree that FAILS that verification leaves the row reported NOT RE-CHECKED and COUNTED, neither passed nor failed, the report naming the carrier the row expects and what the tree actually is, a path being an assertion and not an identity
 
 #### Scenario: The inventory carries a former address
 - **WHEN** a row's `repository:` is an address `contracts/policies/repository-identity.yaml` records as FORMER
@@ -298,7 +407,12 @@ naming the proposal's path, the identifier, and the inventory the identifier was
 resolved against. THE ARM FAILS CLOSED: an identifier the inventory does not
 carry is REFUSED and is never admitted on the strength of its shape, because the
 whole content of this arm is the difference between a name that resolves and a
-name that merely looks like one.
+name that merely looks like one. THE ARM TAKES NO EXCEPTION FOR THE
+FORWARD-LOOKING WINDOW and SHALL NOT be softened into a report for it: the
+enumeration requirement OWES the provisional row a repository-creating ratified
+change opens (`admitted_by: change`, MUST and not MAY), so the window is
+answered by a row that resolves and never by an arm that declines to judge.
+Ruled by Brett Heap, 2026-09-18, verbatim: *"MAY becomes MUST"*.
 
 THE DEFECT THIS CLOSES IS NAMED AND IS STANDING. The grammar arm judges shape
 alone, so `openxFactorie` passes it and so does a repository that is no part of
@@ -342,9 +456,10 @@ admission it records and the remedy is to retire it in the pull request that
 made it stale. Silently tolerating the second is how an enumeration rots into a
 list of names. THE ARM IS BOUND BY WHERE THE EVIDENCE LIVES, on the terms the
 enumeration requirement states: it re-checks the in-tree kinds on every run, and
-it reports a `gitlink` row whose carrying tree was not supplied as NOT RE-CHECKED
-rather than as named or as stale, because a run that has not looked may not
-report either verdict.
+it reports a `gitlink` row whose carrying tree was not supplied — or was
+supplied as a tree that does not verify as the carrier the row names — as NOT
+RE-CHECKED rather than as named or as stale, because a run that has not looked,
+or has looked in the wrong tree, may not report either verdict.
 
 AN ARCHIVED PROPOSAL SHALL BE READ AND NEVER JUDGED, on the same terms and for
 the same reason the grammar arm is bound by: an archived packet's front matter is
@@ -377,7 +492,7 @@ with no remedy.
 #### Scenario: An inventory row nothing names
 - **WHEN** the run reaches an inventory row whose in-tree `admitted_by:` evidence no longer appears in this repository's own working tree
 - **THEN** it MUST be reported as a finding against the row, and MUST NOT fail the declaration arm
-- **AND** a row admitted by a `gitlink` whose carrying tree was not supplied MUST be reported as NOT RE-CHECKED instead, the evidence living in a tree this checkout does not contain
+- **AND** a row admitted by a `gitlink` whose carrying tree was not supplied, or whose supplied tree does not verify as the carrier the row names, MUST be reported as NOT RE-CHECKED instead, the evidence living in a tree this checkout does not contain
 - **AND** the remedy is to retire the row in the pull request that made it stale
 
 #### Scenario: A registered declaration reaches the membership arm

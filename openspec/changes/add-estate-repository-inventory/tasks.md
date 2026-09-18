@@ -81,6 +81,35 @@ word.
       AS IT NOW STANDS, both disclosures inside it, and named neither
       separately — which is the outcome this task was written to produce, not a
       fifth decision taken by silence.
+- [x] 1.5 **(OPERATOR — THREE FURTHER WORDS OF THE SAME DAY, ON GAPS THE BARE
+      WORD DID NOT REACH.)** Copilot's review of PR #1101 found three gaps in the
+      ratified text. Each was put to Brett Heap as a multiple choice and each was
+      answered on 2026-09-18 at approximately 15:40Z in the lane's terminal to
+      lane `openxfactory-5`, recorded as `RULED` entries in `opensoft/brett-wip`
+      `lanes/log/openXfactory-5.md`. **ALL THREE ARE ENCODED AS RATIFIED TEXT IN
+      ONE COMMIT**, verbatim:
+      **(a) "Bind the carrier identity"** — a working tree supplied for a
+      `gitlink` row's re-check MUST be verified as a checkout of the CARRIER the
+      row names, by the tree's own origin URL or by its record in
+      `contracts/policies/repository-identity.yaml`, before its `.gitmodules`
+      evidence is trusted; a tree that fails leaves the row NOT RE-CHECKED —
+      counted, neither passed nor failed. Encoded in the enumeration
+      requirement's re-check paragraph, in the scenario *A gitlink row is
+      re-checked only against a supplied tree*, in the membership arm's bound
+      sentence and its scenario *An inventory row nothing names*; mirrored at
+      `design.md` D1.2 and at § 3.2, § 3.3 and § 3.4 below.
+      **(b) "#1101 declares #1108 and folds its text"** —
+      `sequenced_after: [amend-code-surface-grammar-comma-and]` is declared and
+      the `## MODIFIED` block is written over THAT packet's outcome, carrying its
+      ratified wording byte-for-byte with this packet's membership change on top.
+      Promotion order #1108 then #1101; **#1108 is not touched.** Mirrored at
+      `design.md` D6 and D3, and in the delta's preamble.
+      **(c) "MAY becomes MUST"** — the inventory MUST carry the PROVISIONAL row a
+      repository-creating ratified change opens; the membership arm stays
+      UNCONDITIONAL and fails closed. Mirrored at `design.md` D1.1.
+      **NO WORD OF BRETT HEAP'S IS PARAPHRASED HERE**: the three quoted strings
+      are the option texts as given, and the encoding is what this lane did with
+      them.
 
 ## 2. Measurement (CLOSED in this pull request)
 
@@ -139,9 +168,13 @@ word.
       `## MODIFIED` block, restating canon verbatim but for the one paragraph
       whose own stated reason this packet removes.
 - [x] 2.9 **THE MODIFIED-BLOCK SELF-GATE CHECKED, NOT ASSUMED, AND THE DELETION
-      DECLARED.** No active change writes `(release-realization, code-surface
-      declaration grammar is gated)`, so this block is SOLE and no
-      `sequenced_after:` is owed on it. The three superseded sentences are named
+      DECLARED.** At drafting no active change wrote `(release-realization,
+      Code-surface declaration grammar is gated)`, so the block was SOLE and owed
+      no `sequenced_after:`. **THAT CHANGED ON 2026-09-18**, when
+      `amend-code-surface-grammar-comma-and` landed at `60d281a8` with a block
+      over the same key: the ordering is now DECLARED, the block is written over
+      that packet's outcome, and the family resolves the pair and reports
+      nothing (§ 1.5 (b), `design.md` D6). The three superseded sentences are named
       as code spans in a reserved `Removed from canon by` marker carried inside
       the block, in the form the promoted marker-hygiene family defines; without
       it the `modified-block-currency` arm reported three findings against this
@@ -173,7 +206,11 @@ without its arm, and is shown failing before it is shown passing.
       `admitted_by:` (one or more of the five kinds with its site, and for a
       `gitlink` THE REPOSITORY THAT CARRIES IT, which is the aggregation for 23
       rows and a governed DomainxFactory for 7) and, for a `change`-admitted row,
-      `provisional: true` with the change id.
+      `provisional: true` with the change id. **THE `change`-ADMITTED ROW IS
+      OWED, NOT OPTIONAL** (ruling "MAY becomes MUST", § 1.5 (c)): row 27 is
+      written because `create-ledgerxwallet-overlay-boundary` is ratified and
+      creates the repository, and omitting it would refuse that packet's lawful
+      declaration at the membership arm.
 - [ ] 3.2 `scripts/estate_inventory.py` (NEW): the reader and the row-level judge,
       in the shape `scripts/code_surface.py` uses: read through the shipped
       strict loader, no second parser, no path reached through a symlink at leaf
@@ -185,7 +222,13 @@ without its arm, and is shown failing before it is shown passing.
       `openspec/changes/`, `root` a constant naming no file), which is what makes
       "deterministic, no network" a statement it can keep; `gitlink` evidence
       lives in another repository's tree and is § 3.3's separately invoked mode
-      (`design.md` D1.2).
+      (`design.md` D1.2). It also carries the CARRIER-IDENTITY CHECK that mode
+      uses — given a path, read the tree's own origin URL and normalize it, and
+      resolve a FORMER carrier address through
+      `contracts/policies/repository-identity.yaml` — returning verified /
+      unverified rather than raising, so § 3.3 can report an unverified tree as
+      NOT RE-CHECKED instead of failing the run (ruling "Bind the carrier
+      identity", § 1.5 (a)).
 - [ ] 3.3 `scripts/validate-estate-inventory.py` (NEW): the house validator CLI in
       the shape every other `scripts/validate-*.py` uses. The DEFAULT run judges
       the inventory file's SHAPE and its in-tree evidence and makes no network
@@ -195,22 +238,41 @@ without its arm, and is shown failing before it is shown passing.
       transfer map resolves (`design.md` D5: RECOMMENDED REPORT, ALTERNATIVE
       refuse DECLINED); and REPORTS the `gitlink` rows as NOT
       RE-CHECKED, with their count. A repeatable `--estate-tree <repo>=<path>`
-      supplies a carrying repository's working tree, and only then is that
-      repository's `.gitmodules` evidence re-checked, an absence being a finding.
-      No mode fetches a tree: the input is a path a caller already has.
+      supplies a carrying repository's working tree, and **THE TREE IS VERIFIED
+      AS THAT CARRIER BEFORE IT IS READ** — by its own origin URL or by the
+      carrier's record in `contracts/policies/repository-identity.yaml` — and
+      only then is that repository's `.gitmodules` evidence re-checked, an
+      absence being a finding against the row. A supplied tree that does NOT
+      verify leaves the row reported NOT RE-CHECKED and counted, neither passed
+      nor failed, the report naming the carrier the row expects and what the tree
+      actually is (ruling "Bind the carrier identity", § 1.5 (a); a path is an
+      assertion and not an identity). No mode fetches a tree: the input is a path
+      a caller already has.
 - [ ] 3.4 ONE MEMBERSHIP ARM added to `scripts/validate-code-surface.py`, so the
       grammar scan and the membership scan report in one run. FAILS CLOSED on an
       identifier no row carries; REFUSES an `external` row naming the class;
       REPORTS a former address with the current one; does NOT judge a REGISTERED
       declaration and does NOT fall back; REPORTS a row whose IN-TREE evidence
-      nothing names, and reports a `gitlink` row as NOT RE-CHECKED rather than as
-      named or as stale; reads the archive and judges none of it. The arm takes no
-      tree argument and makes no network call, so the required check's verdict is
-      the same on every machine.
+      nothing names, and reports a `gitlink` row as NOT RE-CHECKED — whether no
+      tree was supplied for its carrier or the supplied tree does not verify as
+      that carrier — rather than as named or as stale; reads the archive and
+      judges none of it. It takes NO EXCEPTION for the forward-looking window:
+      the `change`-admitted PROVISIONAL row is OWED by § 3.1, so the window is
+      answered by a row that resolves and the arm stays unconditional (ruling
+      "MAY becomes MUST", § 1.5 (c)). The arm takes no tree argument and makes no
+      network call, so the required check's verdict is the same on every
+      machine.
 - [ ] 3.5 `tests/estate_inventory/` (NEW): one case per scenario class of both
       ADDED requirements and of the MODIFIED paragraph, each FAILING against the
       tree without § 3.1–§ 3.4 and passing with them, plus a LIVE-CORPUS case that
       reds `pytest-suite` when a declaration names a repository no row carries.
+      **TWO CASES ARE NAMED HERE BECAUSE THE RULINGS OF § 1.5 CREATED THEM**: a
+      `gitlink` row handed a tree that is a checkout of a DIFFERENT repository
+      reports NOT RE-CHECKED and is counted, neither passed nor failed (and a
+      tree at the carrier's FORMER address, resolved through the transfer map,
+      VERIFIES); and an inventory missing the `change`-admitted row for a ratified
+      repository-creating change fails § 3.1's own shape check rather than being
+      excused by the membership arm.
 - [ ] 3.6 **NO OTHER FILE MOVES.** `scripts/code_surface.py`'s grammar,
       `scripts/scope_globs.py`'s derivation, the closed register, every existing
       test, every workflow, every contract member and every promoted byte are

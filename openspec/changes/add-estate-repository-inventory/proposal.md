@@ -1,7 +1,7 @@
 ---
 code_surface: openxFactory (and NOT ONE BYTE OF IT MOVES IN THIS PULL REQUEST). The realization this packet proposes is a LATER pull request in this same repository, authored after ratification, and it is THREE NEW FILES plus ONE NARROWING EXTENSION plus ONE TEST PACKAGE: `scripts/estate-repository-inventory.yaml` (NEW, the enumeration, one row per repository, carrying `schema_version` and `kind` like every other governed YAML here), `scripts/estate_inventory.py` (NEW, the reader and the row-level judge, in the shape `scripts/code_surface.py` uses and reading through the same shipped strict loader), `scripts/validate-estate-inventory.py` (NEW, the house validator CLI in the shape every other `scripts/validate-*.py` uses), ONE MEMBERSHIP ARM added to `scripts/validate-code-surface.py` so the declaration scan and the membership scan report in one run rather than in two a caller may run singly, and `tests/estate_inventory/` (NEW, the tests that pin them, each failing against the unbuilt arm before it passes). NO OTHER EXISTING FILE IS EDITED: `scripts/code_surface.py`'s grammar is untouched, `scripts/scope_globs.py`'s derivation is untouched, no existing test is edited, renamed, flipped or deleted, no workflow changes (the required `pytest-suite` already runs `tests/`), no contract member, no schema, no report field, no digest and no promoted byte. THIS pull request carries the PACKET ONLY: `proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml`, one spec delta carrying ONE `## MODIFIED` block and TWO `## ADDED` requirements, one README *Active changes* bullet, and the machine-seeded per-change sweep-ledger row in `tests/sequenced_after/corpus-ledger.yaml` that any filing owes.
 target_release: implemented (the openxFactory main line). No contract bundle is cut, nothing under `contracts/` is touched, no digest set moves, no `contract_bundle_version` is spent and no release tag is owed. THE PLACEMENT IS WHAT MAKES THAT TRUE AND IT IS A RULED DECISION, NOT A CONVENIENCE: `design.md` D2 puts the inventory under `contracts/policies/` as the alternative and costs it, the cost being that a file under `contracts/` is a bundle surface whose every correction owes a manifest entry, a recomputed digest and an additive minor, against a fact that moved NINETEEN times in seventy-four days. Under `release-realization` a non-empty code surface archives on MERGED-PLUS-GREEN REALIZATION EVIDENCE rather than on landing, so this packet archives only after its realization pull request has merged and run green, and openxFactory issue 1087 closes THERE.
-sequenced_after: []
+sequenced_after: [amend-code-surface-grammar-comma-and]
 ---
 
 # Proposal: add-estate-repository-inventory
@@ -23,12 +23,43 @@ lane CLAIMED before authoring.
 
 **RATIFIED 2026-09-18, approximately 12:55Z, by Brett Heap, verbatim "ratify
 #1101"**, given in the lane's terminal; the word is BARE, so every decision put
-below takes its recommended option and no byte of the delta moved. `tasks.md`
-§ 1 is ticked by that word and by nothing this lane decided. **NOTHING IS
-PROMOTED, REALIZED OR ARCHIVED BY THIS FILING OR BY THAT WORD:** no file under
-`openspec/specs/` is edited, the realization (§ 3) is a LATER pull request the
-word now authorizes to be authored, and the archive (§ 5) is a separate act on
-a separate word and on merged-plus-green evidence.
+below takes its recommended option. `tasks.md` § 1 is ticked by that word and by
+nothing this lane decided. **NOTHING IS PROMOTED, REALIZED OR ARCHIVED BY THIS
+FILING OR BY THAT WORD:** no file under `openspec/specs/` is edited, the
+realization (§ 3) is a LATER pull request the word now authorizes to be
+authored, and the archive (§ 5) is a separate act on a separate word and on
+merged-plus-green evidence.
+
+**AND THREE FURTHER WORDS OF THE SAME DAY MOVED THE RATIFIED TEXT, WHICH IS
+STATED HERE RATHER THAN LEFT IN A THREAD.** Copilot's review of PR #1101 found
+three gaps the bare word had not reached. Each was put to Brett Heap as a
+multiple choice and each was answered on 2026-09-18 at approximately 15:40Z, in
+the lane's terminal to lane `openxfactory-5`, recorded as `RULED` entries in
+`opensoft/brett-wip` `lanes/log/openXfactory-5.md`. **The three words are
+verbatim:**
+
+1. **"Bind the carrier identity"** — a working tree supplied for a `gitlink`
+   row's re-check MUST be verified as a checkout of the CARRIER the row names,
+   by the tree's own origin URL or by the carrier's record in
+   `contracts/policies/repository-identity.yaml`, before its `.gitmodules`
+   evidence is trusted; a supplied tree that fails that verification leaves the
+   row reported NOT RE-CHECKED — counted, neither passed nor failed. A path is
+   an assertion and not an identity. (`design.md` D1.2; `tasks.md` § 3.3.)
+2. **"#1101 declares #1108 and folds its text"** — this packet declares
+   `sequenced_after: [amend-code-surface-grammar-comma-and]` and its
+   `## MODIFIED` block is written over THAT packet's outcome rather than over
+   canon, reproducing #1108's ratified wording (the four separators including
+   `, and `, the comma-first behaviour text, its `**AMENDED BY**` note and its
+   added Oxford-comma scenario) and applying this packet's membership change on
+   top. Promotion order is #1108 then #1101; **#1108 is not touched.**
+   (`design.md` D6.)
+3. **"MAY becomes MUST"** — the inventory MUST carry the PROVISIONAL row a
+   repository-creating ratified change opens, not MAY; the membership arm stays
+   UNCONDITIONAL and still FAILS CLOSED, the row being what makes the
+   declaration resolve inside the forward-looking window. (`design.md` D1.1.)
+
+Each is encoded as ratified text in this packet's delta and mirrored in
+`design.md` and `tasks.md`; the three review threads carry the same words.
 
 Origin: openxFactory
 
@@ -135,11 +166,25 @@ members a rule reading another site would find.
 
 **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS.**
 
-1. **`## MODIFIED` over *Code-surface declaration grammar is gated*.** ONE PARAGRAPH
-   MOVES and the other nine and all ten scenarios are restated exactly as canon
-   states them. The paragraph that moves is the one that says membership is not
-   judged, and it moves because its own stated REASON stops being true at this
-   packet's realization. **THE MODIFICATION IS OWED AND IS NOT A PREFERENCE**:
+1. **`## MODIFIED` over *Code-surface declaration grammar is gated*, WRITTEN
+   OVER `amend-code-surface-grammar-comma-and`'S OUTCOME AND NOT OVER CANON.**
+   That packet (openxFactory #1108, ratified 2026-09-18, landed at `60d281a8`)
+   is an ACTIVE RATIFIED writer of this same requirement key, so *Ordered deltas
+   and branch vocabulary* obliges this later writer to reference it and declare
+   its deltas relative to its outcome:
+   `sequenced_after: [amend-code-surface-grammar-comma-and]` is declared above,
+   and the block reproduces #1108's ratified wording byte-for-byte — the four
+   list separators including `, and `, the sentence reading the longer separator
+   ahead of the bare comma, the narrowed `, and …` refusal, that packet's
+   `**AMENDED BY**` note and its added Oxford-comma scenario — with THIS
+   packet's change applied on top. #1108's own `Removed from canon` marker is
+   not carried, declaring as it does three units removed from the canon that
+   PRECEDED it, none of which survives in the text this block rests on.
+   ONE PARAGRAPH MOVES against that basis and the other TEN and all ELEVEN
+   scenarios are restated exactly as the basis states them. The paragraph that
+   moves is the one that says membership is not judged, and it moves because its
+   own stated REASON stops being true at this packet's realization.
+   **THE MODIFICATION IS OWED AND IS NOT A PREFERENCE**:
    the promoted sentence's `SHALL NOT` is unconditional in its text, so an
    ADDED-only delta would leave canon carrying "the gate SHALL NOT judge
    membership" beside "membership SHALL be judged", which is a contradiction and
@@ -153,7 +198,11 @@ members a rule reading another site would find.
    THE EVIDENCE RE-CHECK (`design.md` D1.2: the four in-tree kinds on every run
    with no network call, a `gitlink` only against a supplied working tree and
    otherwise reported as NOT RE-CHECKED), and the measured reason it is not a
-   `contracts/` member. EIGHT scenarios.
+   `contracts/` member — and, on the ruling "Bind the carrier identity", the
+   REQUIREMENT THAT A SUPPLIED TREE BE VERIFIED AS THE CARRIER before its
+   `.gitmodules` evidence is trusted, a tree that fails leaving the row NOT
+   RE-CHECKED. The `change`-admitted PROVISIONAL row is OWED (MUST, not MAY), on
+   the ruling "MAY becomes MUST". EIGHT scenarios.
 3. **`## ADDED`: *A declared repository is judged for membership against the
    estate inventory*.** The gate extension: an identifier the inventory does not
    carry FAILS CLOSED; a bare name resolves by row and never by provider; a former
@@ -162,8 +211,11 @@ members a rule reading another site would find.
    does not fall back; **an inventory row nothing names is a FINDING**; the
    archive is read and never judged. NINE scenarios.
 
-**TWENTY-SEVEN scenarios in all** (10 + 8 + 9), counted from the delta file
-rather than carried.
+**TWENTY-EIGHT scenarios in all** (11 + 8 + 9), counted from the delta file
+rather than carried. The eleventh of the MODIFIED block is
+`amend-code-surface-grammar-comma-and`'s own *A declaration spells its list out
+with an Oxford comma*, carried with the rest of its outcome and authored by this
+packet in no part; the count was 27 before that fold.
 
 ## The decision, put for a veto
 
@@ -210,6 +262,10 @@ and the cost of taking them.
   the reason the delta states.
 - **It does not touch the archive**, the closed register, the grammar, or
   `scope_globs`'s derivation.
+- **It does not edit one byte of `amend-code-surface-grammar-comma-and`.** That
+  packet is this block's BASIS, declared and folded; the fold is performed
+  entirely inside THIS packet's delta, and #1108's own files, its ratification
+  record and its ledger row are untouched.
 - **It does not close the origin issue.** `code_surface` is non-empty, so the
   archive is a separate act on merged-plus-green realization evidence and a
   separate word, and openxFactory issue 1087 is closed THERE.

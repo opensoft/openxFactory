@@ -56,6 +56,48 @@ origin:
     ("then land the packet PR on a green gate") is the LANE'S READING of that
     word and not more words of Brett Heap's, and the merge is performed by
     whoever holds it, never by this lane alone.
+    AND THREE FURTHER WORDS OF THE SAME DAY, APPENDED HERE AS PURE ADDITIONS
+    BESIDE THE BARE WORD ABOVE AND NEVER IN PLACE OF IT. Copilot's review of
+    PR #1101 exposed three gaps in text the bare word had already ratified, each
+    was put to Brett Heap (openxFactory repository owner) as a MULTIPLE CHOICE,
+    and each was answered on 2026-09-18 at approximately 15:40Z in the lane's
+    terminal to lane `openxfactory-5` (display `openXfactory-5`, session
+    `651195c7`, workstation Eagle), recorded by that lane as RULED entries in
+    `lanes/log/openXfactory-5.md` in `opensoft/brett-wip`. NO GITHUB COMMENT
+    CARRIES THESE WORDS EITHER. Verbatim, each taking the recommended option:
+    (a) "Bind the carrier identity" — a working tree supplied for a `gitlink`
+    row's re-check MUST be verified as a checkout of the CARRIER the row names,
+    by the tree's own origin URL or by its record in
+    `contracts/policies/repository-identity.yaml`, before its `.gitmodules`
+    evidence is trusted; a supplied tree that fails that verification leaves the
+    row reported NOT RE-CHECKED, counted, neither passed nor failed.
+    (b) "#1101 declares #1108 and folds its text" — this packet declares
+    `sequenced_after: [amend-code-surface-grammar-comma-and]` and its
+    `## MODIFIED` block is written over THAT packet's outcome rather than over
+    canon, reproducing its ratified wording byte-for-byte with this packet's
+    membership change applied on top. Promotion order is #1108 then #1101 and
+    #1108 is not touched.
+    (c) "MAY becomes MUST" — the inventory MUST carry the PROVISIONAL row
+    (`admitted_by: change`) for a repository a ratified active change declares it
+    is creating; the membership arm stays unconditional and fails closed.
+    THESE THREE WORDS DID MOVE THE DELTA, which the bare word of 12:55Z did not,
+    and the difference is stated rather than smoothed over: a ratifying word does
+    not reach text it was not given over, so each of the three is its own act
+    with its own encoding. The full record, including where each ruling is
+    encoded and what it did NOT admit, is `review/ratification-2026-09-18.md`,
+    written in the same commit.
+    ONE SENTENCE OF THE DRAFTING `reason:` ABOVE IS SUPERSEDED BY (b) AND IS
+    LEFT STANDING AS DRAFTED, on this record's own rule that drafting provenance
+    is kept EXACTLY as authored and read AS OF ITS DRAFTING: "the self-gate was
+    checked and not assumed: no active change writes `(release-realization,
+    code-surface declaration grammar is gated)`, so the block is SOLE, no
+    `sequenced_after:` is owed on it". That was true when it was written and
+    stopped being true when `amend-code-surface-grammar-comma-and` landed at
+    `60d281a8` on 2026-09-18. `design.md` D6 and `tasks.md` § 2.9 carry the
+    correction; the `reason:` is not edited to hide that the corpus moved.
+    NOTHING IS PROMOTED, REALIZED OR ARCHIVED BY THESE THREE WORDS EITHER: no
+    file under `openspec/specs/` is edited, no script and no test moves, and
+    openxFactory #1087 stays OPEN and closes at the archive.
   approved_on: 2026-09-18
 related:
   - openxFactory:issue:1087                                                    # THE GOVERNING FINDING. Filed at the landing of PR #1076 as the successor § 6.1 named; CLAIMED by this lane before authoring; stays OPEN and closes at the ARCHIVE, never at this landing
