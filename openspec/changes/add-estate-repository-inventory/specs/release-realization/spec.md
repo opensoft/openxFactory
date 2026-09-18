@@ -12,8 +12,8 @@ reader can act on, which is what the corpus shows.
 
 THE DECLARATION IS A HEAD FOLLOWED BY AN OPTIONAL PROSE GLOSS, and the gate
 SHALL judge the HEAD and never the gloss. That is the corpus's own form rather
-than a rule invented at the gate: the house writes `code_surface: openxFactory —
-`scripts/…` (NEW) …`, and a reader that judged the whole string would refuse
+than a rule invented at the gate: the house writes ``code_surface: openxFactory —
+`scripts/…` (NEW) …``, and a reader that judged the whole string would refuse
 every declaration that explains itself. The gloss SHALL be introduced by a GLOSS
 OPENER, and the opener set SHALL be the set the corpus already uses rather than
 one the gate prefers: an em dash, an en dash, an opening parenthesis, a full

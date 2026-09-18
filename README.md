@@ -539,15 +539,16 @@ Active changes:
   `gate-code-surface-declarations` `tasks.md` § 6.1 named and that packet's
   archive act filed at the landing of PR #1076, CLAIMED by this lane before
   authoring.
-  **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS, TWENTY-SIX
-  SCENARIOS, OVER `release-realization`**: the MODIFIED block restates
-  *Code-surface declaration grammar is gated* exactly as canon states it but for
-  ONE paragraph, and the ADDED pair is *The estate's repositories are enumerated
-  in a governed inventory* (seven scenarios) and *A declared repository is judged
-  for membership against the estate inventory* (nine). The MODIFIED block is OWED
-  rather than preferred: the promoted `SHALL NOT judge its MEMBERSHIP` is
-  unconditional in its own words, so an ADDED-only delta would leave canon
-  carrying two requirements that cannot both be obeyed. No other active change
+  **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS, TWENTY-SEVEN
+  SCENARIOS (10 + 8 + 9), OVER `release-realization`**: the MODIFIED block
+  restates *Code-surface declaration grammar is gated* exactly as canon states it
+  but for ONE paragraph (ten scenarios), and the ADDED pair is *The estate's
+  repositories are enumerated in a governed inventory* (eight scenarios) and
+  *A declared repository is judged for membership against the estate inventory*
+  (nine). The MODIFIED block is OWED rather than preferred: the promoted
+  `SHALL NOT judge its MEMBERSHIP` is unconditional in its own words, so an
+  ADDED-only delta would leave canon carrying two requirements that cannot both
+  be obeyed. No other active change
   writes that requirement key, so the block is SOLE, `sequenced_after: []` is a
   corroborated root claim, and the `modified-block-currency` family reports no NEW
   finding.
@@ -559,16 +560,26 @@ Active changes:
   gitlink and no pin carries, and two more of its rows name repositories at
   addresses that live only through a provider redirect, while the estate's
   transfer map carries ONE row.
-  **THE CANDIDATE INVENTORY, BUILT BEFORE THE DESIGN**, on `origin/main`
-  `ad089e8a`, from four naming sites plus a fifth the measurement forced: the
-  aggregation repository's `.gitmodules` (23 submodules), this repository's
-  `contracts/*-pin.yaml` (7 pins, 6 distinct repositories, 2 of them no
-  submodule), `.github/workflows/` (1, already a submodule), the aggregation root
-  itself (1, which no `.gitmodules` can name), and a RATIFIED change whose
-  realization creates a repository (1). **TWENTY-SEVEN ROWS.** Against them, the
-  population read through the SHIPPED reader: 49 active proposals, 49 declaring, 7
-  `none`, 8 named by the closed register, 34 a readable repository list, those 34
-  heads naming SIX distinct identifiers, **all six carried by the candidate, so
+  **THE CANDIDATE INVENTORY, BUILT BEFORE THE DESIGN**, from FIVE naming sites
+  (`design.md` D0.1, `tasks.md` § 2.1): the aggregation repository's
+  `.gitmodules` (23 submodules), this repository's `contracts/*-pin.yaml` (7
+  pins, 6 distinct repositories, 2 of them no submodule), `.github/workflows/`
+  (1, already a submodule), the aggregation root itself (1, which no
+  `.gitmodules` can name), and — ADDED AT THE REVIEW OF PR #1101, which widened
+  `gitlink` to a gitlink in ANY governed estate repository — a GOVERNED
+  DomainxFactory's own `.gitmodules` where the estate NESTED rather than
+  sibling-linked (11 nested gitlinks in 6 repositories, naming 7 no other site
+  names). The first four were taken on `origin/main` `ad089e8a` and the fifth on
+  2026-09-18. **THIRTY-THREE ROWS** (`design.md` D0.2, `tasks.md` § 2.2), the
+  last six of them — `openChart`, `openPractice`, `MedxAvatar`, `LedgerxAvatar`,
+  `MedxEHR-spec`, `MedxEHR-code` — the members the narrow reading missed. A
+  RATIFIED change whose realization creates a repository is NOT a naming site but
+  `change`, the fifth of the five ADMISSION KINDS the delta closes (`gitlink`,
+  `pin`, `workflow`, `root`, `change`), and it is what the widened `gitlink`
+  lets discharge rather than expire. Against those rows, the population read
+  through the SHIPPED reader: 49 active proposals, 49 declaring, 7 `none`, 8
+  named by the closed register, 34 a readable repository list, those 34 heads
+  naming SIX distinct identifiers, **all six carried by the candidate, so
   the membership arm refuses NOTHING on the day it lands** and the predecessor's
   stated fatal cost for membership resolution is falsified.
   **PACKET ONLY.** No script, no inventory and no test is added here; the
