@@ -165,8 +165,15 @@ naming. So every row SHALL carry `admitted_by:` naming at least one NAMING SITE
 and the kind of act it is, and the admissible kinds SHALL be exactly these five,
 because they are exactly the ways this estate has ever named a repository:
 
-- `gitlink`: the aggregation repository's `.gitmodules` carries the submodule.
-  This is the estate's own act of admission and the widest class.
+- `gitlink`: a GOVERNED ESTATE REPOSITORY's `.gitmodules` carries the submodule,
+  and the evidence SHALL NAME THE REPOSITORY THAT CARRIES IT. This is the
+  estate's own act of admission and the widest class. THE AGGREGATION
+  REPOSITORY IS THE WIDE CASE AND NOT THE ONLY ONE: the estate also places a
+  repository as a NESTED DESCENDANT of a governed DomainxFactory rather than as
+  an aggregation sibling, and a `gitlink` read as the aggregation's alone would
+  leave every nested member admitted by nothing at all. Naming the carrier is
+  what keeps the evidence checkable, a reader being unable to look in a tree the
+  row does not name.
 - `pin`: an openxFactory file under `contracts/` names the repository as the
   source of a commit-and-digest pin. This is openxFactory's act, for a product
   PINNED rather than governed.
@@ -183,10 +190,30 @@ because they are exactly the ways this estate has ever named a repository:
 
 A `change`-ADMITTED ROW SHALL NOT REMAIN PROVISIONAL FOREVER. When its change
 ARCHIVES, one of the other four kinds is owed, because the repository the
-realization created now exists and a governed tree can name it. A row still
-admitted only by an ARCHIVED change SHALL be a finding, on the same terms as a
-row whose evidence has gone: the provisional admission outlived the act that
-justified it.
+realization created now exists and a governed tree can name it. THE GOVERNED
+TREE THAT NAMES IT IS COMMONLY THE DOMAINxFACTORY THE REALIZATION NESTED IT
+UNDER, which is the measured reason `gitlink` is not read as the aggregation's
+alone: a realization that creates a repository and nests it would otherwise
+discharge into no kind, and the provisional row it opened could never be closed.
+A row still admitted only by an ARCHIVED change SHALL be a finding, on the same
+terms as a row whose evidence has gone: the provisional admission outlived the
+act that justified it.
+
+THE RE-CHECK OF ADMISSION EVIDENCE IS BOUNDED BY WHERE THE EVIDENCE LIVES, and
+the bound is STATED rather than left for a reader to discover when the validator
+cannot do what the requirement says. FOUR of the five kinds name evidence inside
+THIS repository's working tree — `pin` a file under `contracts/`, `workflow` a
+file under `.github/workflows/`, `change` a directory under `openspec/changes/`,
+and `root` a constant naming no file at all — so a row carrying one of them
+SHALL be re-checked on EVERY run, DETERMINISTICALLY and with NO NETWORK CALL.
+`gitlink` is the ONE kind whose evidence lives in ANOTHER repository's tree,
+which an openxFactory checkout does not contain. Its re-check SHALL therefore be
+an EXPLICITLY INVOKED mode taking the carrying repository's working tree as a
+PATH INPUT, and a run given no such path SHALL REPORT its `gitlink` rows as NOT
+RE-CHECKED, with their count, rather than passing them silently or failing them.
+A validator that fetched the tree itself would make a required check depend on a
+token and on read access to a private repository, which is the cost the derived
+shape was refused for and which may not be readmitted at the reverse arm.
 
 THE GOVERNANCE CLASS SAYS WHAT A ROW MEANS FOR A REPOSITORY THAT IS PINNED
 RATHER THAN GOVERNED, which is the second half of the same authority question,
@@ -225,8 +252,8 @@ contract release would be corrected late or not at all, which is the reason
 this file takes the same one.
 
 #### Scenario: A repository is admitted to the estate by a gitlink
-- **WHEN** the aggregation repository's `.gitmodules` carries a submodule for a repository
-- **THEN** the inventory SHALL carry a row for it whose `admitted_by:` names that gitlink
+- **WHEN** a governed estate repository's `.gitmodules` carries a submodule for a repository — the aggregation repository's in the wide case, a governed DomainxFactory's where the estate nested the repository rather than sibling-linking it
+- **THEN** the inventory SHALL carry a row for it whose `admitted_by:` names that gitlink AND the repository that carries it
 - **AND** the row's governance class states whether the estate authors its contents or consumes it at a pin
 
 #### Scenario: A neutral product is pinned but is no submodule
@@ -235,9 +262,9 @@ this file takes the same one.
 - **AND** the absence of a gitlink is not an absence of membership, the pin being an admission in its own right
 
 #### Scenario: A repository a ratified change is creating
-- **WHEN** a RATIFIED active change declares a code surface in a repository its own realization creates, and no gitlink, pin or workflow names it yet
+- **WHEN** a RATIFIED active change declares a code surface in a repository its own realization creates, and no gitlink in any governed estate repository, no pin and no workflow names it yet
 - **THEN** the inventory MAY carry a PROVISIONAL row admitted by that change, marked as provisional and naming the change id
-- **AND** once that change ARCHIVES, a row still admitted only by it MUST be reported as a finding, the repository being nameable by a governed tree from that point
+- **AND** once that change ARCHIVES, a row still admitted only by it MUST be reported as a finding, the repository being nameable by a governed tree from that point — commonly by the gitlink of the DomainxFactory the realization nested it under
 
 #### Scenario: The aggregation repository itself
 - **WHEN** the inventory enumerates the estate
@@ -249,10 +276,15 @@ this file takes the same one.
 - **THEN** the validator MUST REFUSE the inventory, naming both rows and the shared name
 - **AND** it MUST NOT resolve the bare spelling to either row, an ambiguous resolution being how an authorization lands in the wrong repository
 
-#### Scenario: A row's admission evidence names nothing
-- **WHEN** a row's `admitted_by:` names a gitlink, a pin, a workflow or a root that the named tree does not carry
-- **THEN** the validator MUST report a finding against that row
+#### Scenario: A row's in-tree admission evidence names nothing
+- **WHEN** a row's `admitted_by:` names a pin, a workflow or a change that THIS repository's own working tree does not carry
+- **THEN** the validator MUST report a finding against that row, on every run, deterministically and with no network call, the evidence being a file in the tree it is already reading
 - **AND** the remedy is to correct the evidence or to remove the row, never to widen what counts as evidence
+
+#### Scenario: A gitlink row is re-checked only against a supplied tree
+- **WHEN** the run reaches a row admitted by a `gitlink` and no working tree was supplied for the repository the row names as the carrier
+- **THEN** the validator MUST report that row as NOT RE-CHECKED and MUST count it, and MUST NOT pass it silently, MUST NOT fail it, and MUST NOT fetch the carrying repository
+- **AND** when that working tree IS supplied as a path input, the row's `.gitmodules` evidence MUST be re-checked in it and its absence MUST be a finding against the row
 
 #### Scenario: The inventory carries a former address
 - **WHEN** a row's `repository:` is an address `contracts/policies/repository-identity.yaml` records as FORMER
@@ -308,7 +340,11 @@ carry FAILS, because somebody declared a surface in a repository the estate does
 not know. A row that nothing names REPORTS, because the row outlived the
 admission it records and the remedy is to retire it in the pull request that
 made it stale. Silently tolerating the second is how an enumeration rots into a
-list of names.
+list of names. THE ARM IS BOUND BY WHERE THE EVIDENCE LIVES, on the terms the
+enumeration requirement states: it re-checks the in-tree kinds on every run, and
+it reports a `gitlink` row whose carrying tree was not supplied as NOT RE-CHECKED
+rather than as named or as stale, because a run that has not looked may not
+report either verdict.
 
 AN ARCHIVED PROPOSAL SHALL BE READ AND NEVER JUDGED, on the same terms and for
 the same reason the grammar arm is bound by: an archived packet's front matter is
@@ -339,8 +375,9 @@ with no remedy.
 - **AND** the finding names the current address, so the remedy is a respelling the author can take without a lookup
 
 #### Scenario: An inventory row nothing names
-- **WHEN** the run reaches an inventory row whose `admitted_by:` evidence no longer appears in any named tree
+- **WHEN** the run reaches an inventory row whose in-tree `admitted_by:` evidence no longer appears in this repository's own working tree
 - **THEN** it MUST be reported as a finding against the row, and MUST NOT fail the declaration arm
+- **AND** a row admitted by a `gitlink` whose carrying tree was not supplied MUST be reported as NOT RE-CHECKED instead, the evidence living in a tree this checkout does not contain
 - **AND** the remedy is to retire the row in the pull request that made it stale
 
 #### Scenario: A registered declaration reaches the membership arm

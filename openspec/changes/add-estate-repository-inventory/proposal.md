@@ -50,17 +50,30 @@ grace period and not an identity.
 
 **NOTHING BELOW RESTS ON A NUMBER ANYBODY TYPED.** Taken on a fresh clone at
 `origin/main` `ad089e8a`, by the methods `design.md` D0 records so they
-reproduce. The candidate inventory is built from FOUR naming sites, and the
+reproduce. The candidate inventory is built from FIVE naming sites, and the
 figure that matters is the last row of the second table.
 
 | source | what it yields |
 | --- | ---: |
 | `opensoft/xFactory` `.gitmodules` (via `gh api repos/opensoft/xFactory/contents/.gitmodules`) | **23** submodules |
 | the aggregation repository itself, which no `.gitmodules` can name | **1** |
+| a GOVERNED DomainxFactory's own `.gitmodules`, where the estate NESTED rather than sibling-linked | **11** nested gitlinks in 6 repositories, naming **7** no other site names |
 | `contracts/*-pin.yaml` `source_repository:` / `repository:` | **7** pins naming **6** distinct repositories, **2** of them no submodule |
 | `.github/workflows/` dispatching at a named ref | **1**, already a submodule |
-| a RATIFIED active change whose realization CREATES a repository | **1**, no other site names it |
-| **candidate inventory** | **27 rows** |
+| a RATIFIED active change whose realization CREATES a repository | **1**, in the window before any tree can name it |
+| **candidate inventory** | **33 rows** |
+
+**THE THIRD SITE WAS ADDED IN REVIEW, AND SAYING SO IS PART OF THE
+MEASUREMENT.** A first filing read `gitlink` as the AGGREGATION's `.gitmodules`
+alone. Copilot's review of PR #1101 showed that reading leaves the provisional
+row of the fifth kind with no way to discharge — the realization that creates
+`opensoft/LedgerxWallet` NESTS it under `ledgerXfactory/LedgerxFactory`, not
+under the aggregation — so the kind was widened to a gitlink in ANY governed
+estate repository, the evidence naming the repository that carries it, and the
+measurement was RE-TAKEN rather than reasoned about. It found SIX further
+members the narrow reading missed (`openChart`, `openPractice`, `MedxAvatar`,
+`LedgerxAvatar`, `MedxEHR-spec`, `MedxEHR-code`), which is why the candidate
+carries 33 rows and not 27.
 
 And against that candidate, the population the gate actually judges:
 
@@ -86,18 +99,24 @@ the six identifiers the corpus declares are `openxFactory`, `xFactory`,
 was a property of having no inventory, not a property of membership resolution.
 
 **AND THE INVENTORY IS WIDER THAN ANY ONE SITE, WHICH IS WHY IT IS A FILE AND NOT
-A DERIVATION.** `opensoft/openRepoShape` is pinned here and is in no `.gitmodules`.
+A DERIVATION.** The aggregation's `.gitmodules` reaches 23 of the 33 rows.
+`opensoft/openRepoShape` is pinned here and is in no `.gitmodules`.
 `Fission-AI/OpenSpec` is pinned here and is not of this estate at all.
 `opensoft/xFactory` is the aggregation root and is in nobody's `.gitmodules`
-because a superproject is not its own submodule. And `opensoft/LedgerxWallet` is
-named by NO SITE AT ALL: it is declared by the RATIFIED
-`create-ledgerxwallet-overlay-boundary`, whose realization CREATES it. **A code
-surface is FORWARD-LOOKING, it names where a change WILL write, so a repository
-the estate is creating is declared before any site can name it.** That case forced
-a fifth admission-evidence kind, `change`, carrying a PROVISIONAL row that expires
-into a finding at its change's archive (`design.md` D1.1); without it the
-membership arm would refuse a ratified packet on the day it landed. A rule that
-read one site would miss members a rule reading another site would find.
+because a superproject is not its own submodule. SEVEN MORE are nested inside a
+governed DomainxFactory and appear in no aggregation `.gitmodules`, no pin and no
+workflow. And `opensoft/LedgerxWallet` is the row that shows why a CHANGE is a
+naming site of its own: it was declared by the RATIFIED
+`create-ledgerxwallet-overlay-boundary` on 2026-08-27, one day BEFORE that
+realization created and nested it. **A code surface is FORWARD-LOOKING, it names
+where a change WILL write, so a repository the estate is creating is declared
+before any tree can name it.** That window forced a fifth admission-evidence
+kind, `change`, carrying a PROVISIONAL row that expires into a finding at its
+change's archive (`design.md` D1.1); without it the membership arm would refuse a
+ratified packet inside the window. What DISCHARGES such a row is the nested
+gitlink the realization files, which is why `gitlink` reaches any governed estate
+repository and not the aggregation alone. A rule that read one site would miss
+members a rule reading another site would find.
 
 ## What changes
 
@@ -115,9 +134,13 @@ read one site would miss members a rule reading another site would find.
    and costs it.
 2. **`## ADDED`: *The estate's repositories are enumerated in a governed
    inventory*.** The file, its per-row fields, the five admission-evidence kinds
-   (the fifth measured into existence at `design.md` D1.1), the three governance
-   classes, unique bare names, current addresses only, and the measured reason it
-   is not a `contracts/` member. SEVEN scenarios.
+   (the fifth measured into existence at `design.md` D1.1; `gitlink` reaching any
+   governed estate repository, its evidence naming the carrier), the three
+   governance classes, unique bare names, current addresses only, the BOUND ON
+   THE EVIDENCE RE-CHECK (`design.md` D1.2: the four in-tree kinds on every run
+   with no network call, a `gitlink` only against a supplied working tree and
+   otherwise reported as NOT RE-CHECKED), and the measured reason it is not a
+   `contracts/` member. EIGHT scenarios.
 3. **`## ADDED`: *A declared repository is judged for membership against the
    estate inventory*.** The gate extension: an identifier the inventory does not
    carry FAILS CLOSED; a bare name resolves by row and never by provider; a former
@@ -126,8 +149,8 @@ read one site would miss members a rule reading another site would find.
    does not fall back; **an inventory row nothing names is a FINDING**; the
    archive is read and never judged. NINE scenarios.
 
-**TWENTY-SIX scenarios in all**, counted from the delta file rather than
-carried.
+**TWENTY-SEVEN scenarios in all** (10 + 8 + 9), counted from the delta file
+rather than carried.
 
 ## The decision, put for a veto
 
@@ -149,10 +172,11 @@ and the cost of taking them.
 - **D4, what a row means for a repository that is pinned rather than governed**,
   which is the authority question #1087 carries. RECOMMENDED: three governance
   classes (`governed` / `pinned` / `external`) and an `admitted_by:` naming one of
-  five evidence kinds, so the inventory RECORDS an admission and PERFORMS none.
-  Against: a flat membership list, which cannot refuse a surface declared in a
-  repository the estate does not author, and cannot carry the provisional row a
-  repository-creating change needs.
+  FIVE evidence kinds — `gitlink`, `pin`, `workflow`, `root`, `change` — so the
+  inventory RECORDS an admission and PERFORMS none. Against: a flat membership
+  list, which cannot refuse a surface declared in a repository the estate does
+  not author, and cannot carry the provisional row a repository-creating change
+  needs.
 - **D5, the disposition of a former address in an active head.** RECOMMENDED:
   REPORT, naming the current address. Against: refuse, which teaches an author
   nothing the finding does not.

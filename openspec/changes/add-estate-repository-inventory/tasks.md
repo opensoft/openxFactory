@@ -19,11 +19,13 @@ SEPARATE word.
       per correction against a fact that moves every four days; against no file
       at all); **D3** one `## MODIFIED` block over the promoted grammar
       requirement (against ADDED-only, which leaves a contradiction standing);
-      **D4** the authority question: five admission-evidence kinds and three
-      governance classes, the inventory RECORDING an admission and PERFORMING
-      none (against a flat membership list); **D5** a former address in an active
-      head REPORTS rather than refuses. A BARE RATIFYING WORD takes the packet as
-      encoded, which is the recommendation in all four.
+      **D4** the authority question: FIVE admission-evidence kinds (`gitlink`,
+      `pin`, `workflow`, `root`, `change`, with `gitlink` reaching ANY governed
+      estate repository's `.gitmodules` and its evidence naming the carrier) and
+      three governance classes, the inventory RECORDING an admission and
+      PERFORMING none (against a flat membership list); **D5** a former address in
+      an active head REPORTS rather than refuses. A BARE RATIFYING WORD takes the
+      packet as encoded, which is the recommendation in all four.
 - [ ] 1.2 **(OPERATOR)** The ratifying word authorizes the REALIZATION (§ 3) to be
       authored as a later pull request. It does not authorize the archive, which
       § 5 governs and which owes its own word on merged-plus-green evidence.
@@ -32,18 +34,40 @@ SEPARATE word.
       and § 3.1 gains the `contracts/manifest.yaml` entry with a recomputed
       `sha256`. Nothing else in the packet changes, and `design.md` D2 states it
       so the veto is takeable without a re-author.
+- [ ] 1.4 **(OPERATOR — NOT A FIFTH DECISION, A DISCLOSURE.)** Two things moved
+      after the first filing, at the review of PR #1101, and a ratifying word
+      takes them with the rest: `gitlink` was WIDENED from the aggregation's
+      `.gitmodules` to any governed estate repository's, without which the
+      `change` kind's provisional row could never be discharged (`design.md`
+      D1.1), which re-measured the candidate from 27 rows to **33**; and the
+      reverse arm's evidence re-check was BOUNDED to the four in-tree kinds, with
+      `gitlink` re-checked only against a working tree supplied as a path and
+      otherwise reported as NOT RE-CHECKED (`design.md` D1.2), without which the
+      validator could not be both deterministic and network-free as § 3.2 says it
+      is. Neither is put separately for a veto; both are recorded here so the word
+      is given over what the packet now says.
 
 ## 2. Measurement (CLOSED in this pull request)
 
-- [x] 2.1 The FOUR naming sites enumerated on `origin/main` `ad089e8a` with the
-      commands recorded at `design.md` D0.1: the aggregation's `.gitmodules` via
+- [x] 2.1 The FIVE naming sites enumerated with the commands recorded at
+      `design.md` D0.1: the aggregation's `.gitmodules` via
       `gh api repos/opensoft/xFactory/contents/.gitmodules` (23 submodules), this
       repository's `contracts/*-pin.yaml` (7 pins, 6 distinct repositories, 2 of
-      them no submodule), `.github/workflows/` (1, already a submodule), and the
-      aggregation root itself (1, which no `.gitmodules` can carry).
-- [x] 2.2 **THE CANDIDATE INVENTORY BUILT AND PUT IN `design.md` D0.2**, 27 rows,
+      them no submodule), `.github/workflows/` (1, already a submodule), the
+      aggregation root itself (1, which no `.gitmodules` can carry), and a
+      GOVERNED DomainxFactory's own `.gitmodules` where the estate nested rather
+      than sibling-linked (11 nested gitlinks in 6 repositories, naming 7 no
+      other site names). The first four were taken on `origin/main` `ad089e8a`;
+      **the fifth was taken on 2026-09-18 at the review of PR #1101**, which is
+      where the kind was widened, and `design.md` D0.1 records why rather than
+      presenting five sites as if four had never been claimed.
+- [x] 2.2 **THE CANDIDATE INVENTORY BUILT AND PUT IN `design.md` D0.2**, 33 rows,
       each with its `<owner>/<name>`, its role in the layer model, its governance
-      class and its admission evidence.
+      class and its admission evidence. The last six (`openChart`,
+      `openPractice`, `MedxAvatar`, `LedgerxAvatar`, `MedxEHR-spec`,
+      `MedxEHR-code`) are the members the fifth site added; the governance class
+      of those six is stated only as far as the openxFactory sites measure it and
+      is re-measured at § 4.3.
 - [x] 2.3 The declared population measured through the SHIPPED reader
       (`scripts/code_surface.py` `declaration` then `parse_head`) and never by a
       private scan: 49 active proposals, 49 declaring, 7 `none`, 8 named by the
@@ -53,12 +77,18 @@ SEPARATE word.
       D0.3: all six resolve, so the membership arm refuses NOTHING on the day it
       lands. This is the measurement that falsifies the predecessor's stated
       fatal cost for membership resolution.
-- [x] 2.5 **THE FIFTH ADMISSION KIND MEASURED INTO EXISTENCE, NOT DESIGNED IN.**
-      `opensoft/LedgerxWallet` is named by no gitlink, no pin and no workflow; it
-      is declared by the RATIFIED `create-ledgerxwallet-overlay-boundary`, whose
-      realization creates it. `design.md` D1.1 records the case and the
-      PROVISIONAL row it forced, which expires into a finding at that change's
-      archive.
+- [x] 2.5 **THE FIFTH ADMISSION KIND MEASURED INTO EXISTENCE, NOT DESIGNED IN,
+      AND ITS DISCHARGE MEASURED TOO.** `opensoft/LedgerxWallet` is named by no
+      AGGREGATION gitlink, no openxFactory pin and no openxFactory workflow; it
+      was declared by the RATIFIED `create-ledgerxwallet-overlay-boundary` on
+      2026-08-27, one day before that realization created and nested it.
+      `design.md` D1.1 records the case, the PROVISIONAL row it forced, and —
+      added at the review of PR #1101 — the DISCHARGE the first filing lacked:
+      `ledgerXfactory/LedgerxFactory`'s `.gitmodules` has carried
+      `[submodule "LedgerxWallet"]` since 2026-08-28 (that packet's § 5.1,
+      LedgerxFactory PR #31, commit `2c96b0b`), verified live on 2026-09-18. A
+      `gitlink` read as the aggregation's alone would have left the row expiring
+      into a finding no kind could close.
 - [x] 2.6 **THE DEFECT MEASURED AS STANDING, not asserted** (`design.md` D0.5):
       `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml` names
       `opensoft/LegalxFactory`, a provider 404 carried by no gitlink and no pin,
@@ -98,29 +128,45 @@ SEPARATE word.
 FAILS-THEN-PASSES obligation: every test is written to FAIL against the tree
 without its arm, and is shown failing before it is shown passing.
 
-- [ ] 3.1 `scripts/estate-repository-inventory.yaml` (NEW): the 27 candidate rows
+- [ ] 3.1 `scripts/estate-repository-inventory.yaml` (NEW): the 33 candidate rows
       of `design.md` D0.2, `schema_version` and `kind` at the head (CLAUDE.md
       rule 4), a header stating why the file is not under `contracts/` and what a
       row means, and per row `repository:`, `name:`, `role:`, `governance:`,
-      `admitted_by:` (one or more of the five kinds with its site) and, for a
-      `change`-admitted row, `provisional: true` with the change id.
+      `admitted_by:` (one or more of the five kinds with its site, and for a
+      `gitlink` THE REPOSITORY THAT CARRIES IT, which is the aggregation for 23
+      rows and a governed DomainxFactory for 7) and, for a `change`-admitted row,
+      `provisional: true` with the change id.
 - [ ] 3.2 `scripts/estate_inventory.py` (NEW): the reader and the row-level judge,
       in the shape `scripts/code_surface.py` uses: read through the shipped
       strict loader, no second parser, no path reached through a symlink at leaf
       or ancestor, deterministic, no network. Public: load the inventory, resolve
       an identifier (address, bare name, or former address through
       `contracts/policies/repository-identity.yaml`), and report the row-level
-      findings § 3.4 gates.
+      findings § 3.4 gates. **IT RE-CHECKS THE FOUR IN-TREE KINDS ONLY** (`pin`
+      under `contracts/`, `workflow` under `.github/workflows/`, `change` under
+      `openspec/changes/`, `root` a constant naming no file), which is what makes
+      "deterministic, no network" a statement it can keep; `gitlink` evidence
+      lives in another repository's tree and is § 3.3's separately invoked mode
+      (`design.md` D1.2).
 - [ ] 3.3 `scripts/validate-estate-inventory.py` (NEW): the house validator CLI in
-      the shape every other `scripts/validate-*.py` uses. Refuses a duplicate bare
-      name, a row whose `admitted_by:` evidence names nothing, a row at a FORMER
-      address, and a still-provisional row whose change has archived.
+      the shape every other `scripts/validate-*.py` uses. The DEFAULT run judges
+      the inventory file's SHAPE and its in-tree evidence and makes no network
+      call: refuses a duplicate bare name, a row whose in-tree `admitted_by:`
+      evidence names nothing, a row at a FORMER address, and a still-provisional
+      row whose change has archived; and it REPORTS the `gitlink` rows as NOT
+      RE-CHECKED, with their count. A repeatable `--estate-tree <repo>=<path>`
+      supplies a carrying repository's working tree, and only then is that
+      repository's `.gitmodules` evidence re-checked, an absence being a finding.
+      No mode fetches a tree: the input is a path a caller already has.
 - [ ] 3.4 ONE MEMBERSHIP ARM added to `scripts/validate-code-surface.py`, so the
       grammar scan and the membership scan report in one run. FAILS CLOSED on an
       identifier no row carries; REFUSES an `external` row naming the class;
       REPORTS a former address with the current one; does NOT judge a REGISTERED
-      declaration and does NOT fall back; REPORTS a row nothing names; reads the
-      archive and judges none of it.
+      declaration and does NOT fall back; REPORTS a row whose IN-TREE evidence
+      nothing names, and reports a `gitlink` row as NOT RE-CHECKED rather than as
+      named or as stale; reads the archive and judges none of it. The arm takes no
+      tree argument and makes no network call, so the required check's verdict is
+      the same on every machine.
 - [ ] 3.5 `tests/estate_inventory/` (NEW): one case per scenario class of both
       ADDED requirements and of the MODIFIED paragraph, each FAILING against the
       tree without § 3.1–§ 3.4 and passing with them, plus a LIVE-CORPUS case that
@@ -138,10 +184,13 @@ without its arm, and is shown failing before it is shown passing.
 - [ ] 4.2 `python3 scripts/validate-estate-inventory.py .` and
       `python3 scripts/validate-code-surface.py .` both exit 0, the second now
       reporting the membership counts beside the grammar counts.
-- [ ] 4.3 The 27 rows RE-MEASURED at the realization head rather than carried from
-      this drafting, by the D0.1 commands, with any row that moved DISCLOSED at
-      this box. The corpus moves between drafting and landing; the register's own
-      requirement says so and this packet is bound by it.
+- [ ] 4.3 The 33 rows RE-MEASURED at the realization head rather than carried from
+      this drafting, by the FIVE D0.1 commands, with any row that moved DISCLOSED
+      at this box. The corpus moves between drafting and landing; the register's
+      own requirement says so and this packet is bound by it. The re-measurement
+      also settles the governance class of rows 28-33, which D0.2 states only as
+      far as the openxFactory sites reach: whether the NESTING repository pins
+      rather than authors any of the six is a fact in that repository's tree.
 - [ ] 4.4 `pytest-suite` green on the realization pull request at its merge head.
 
 ## 5. Archive (OPEN; a separate act on a separate word)
