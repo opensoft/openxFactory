@@ -430,10 +430,11 @@ def resolved_entry_path(root: Path, rel: str):
     walk — each link replaced by its own target text resolved from the
     directory the link stands in, and `..` and `.` resolved away as they are
     reached, so an entry whose own target or whose parent's target is simply
-    MISSING still has a resolved path and stands wherever that join lands. That is the whole reason this walk is here and `Path.resolve()`
-    is not: `resolve()` is a filesystem answer, and a term whose extent is "the
-    links that leave the root" must take a DANGLING link that leaves the root
-    and leave a dangling link that does not.
+    MISSING still has a resolved path and stands wherever that join lands.
+    That is the whole reason this walk is here and `Path.resolve()` is not:
+    `resolve()` is a filesystem answer, and a term whose extent is "the entries
+    that leave the root" must take a DANGLING link that leaves the root and
+    leave a dangling link that does not.
 
     EVERY COMPONENT OF A TARGET IS READ, NOT ONLY ITS LAST. A target is a PATH
     and its own intermediate segments may be links in turn: where `nested`
@@ -449,9 +450,8 @@ def resolved_entry_path(root: Path, rel: str):
     Returns `None` — NO resolved path at all — only where the report cannot
     itself walk the chain: it exceeds the hop bound, which a loop always does,
     or it carries, AT ANY COMPONENT, a link whose own target text cannot be
-    read. Such an entry is
-    not a link that leaves the root; it is an entry that is not a readable
-    regular file once resolved, and the non-file term owns it.
+    read. Such an entry is not one that leaves the root; it is an entry that is
+    not a readable regular file once resolved, and the non-file term owns it.
     """
     anchor = Path(root.anchor) if root.anchor else Path(root.root or "/")
     current = root
@@ -918,6 +918,7 @@ def locator_path(text: str) -> bool:
     return bool(text) and all(
         segment and not (set(segment) - LOCATOR_SEGMENT_CHARACTERS)
         for segment in text.split("/"))
+
 
 #: A trailing parenthetical: at most ONE space, then `(`, then its content,
 #: then `)`. More than one space, any further content inside the parentheses,
