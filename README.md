@@ -3079,45 +3079,6 @@ Active changes:
   PENDING org-owner act; found and booked: the `contract-v1.37` release
   digest inventory omits both new families (tasks 4.7/4.8 bookkeeping).
   Sibling of `implement-keycloak-install-repo`.
-- [add-doxchat-model-intake](openspec/changes/add-doxchat-model-intake/proposal.md)
-  — authored 2026-08-21 from Brett's live browser annotation on the doxBench
-  chat rail ("this model selector is not working… we need to have add model as
-  the first option… bring up a wizard that helps the user auth with oauth to
-  their subscription or add a api"). Diagnosis first: the selector is not
-  broken but structurally empty — `serve.py`'s `main()` has no model flag, so
-  `reserve-dashboard.sh`'s `python3 -m ideation_dashboard.serve` declares no
-  `model_port_factory` and the catalog route honestly returns the empty
-  editor-only posture; nothing is hardcoded and no model list was ever
-  withheld. The change adds the intake affordance FIRST in the selector and
-  default when the catalog is empty (never when it could not be READ), an
-  intake flow that hands an API key or an OAuth authorization to the declared
-  credential broker and keeps only a `credential-contracts` binding, and the
-  seam nobody had written down: intake PROPOSES and a recorded human gate
-  action APPROVES, so supplying a payment credential never doubles as
-  approving a provider for governed work. Sequencing is a requirement, not a
-  note — the affordance never ships ahead of the flow. Depends on
-  `add-model-provider-broker` (custody, minting, the narrowed provider
-  boundary), which is itself blocked on openProfiler; needs an additive
-  `gate-action-record` action enum member at realization.
-  **BUILT 2026-08-26.** The blocking dependency is discharged on both sides —
-  `add-model-provider-broker` merged (PR #392, main `bb7d7ae8`) and openProfiler
-  declared its CLI surface (PR #18, main `d0538c31`, `docs/broker-cli.md`) — and
-  sections 1, 2 and 3 are complete: the affordance renders first and defaults on
-  an empty catalog (never on an unreadable one), the flow streams what a human
-  supplies straight into the declared broker and keeps only the binding, a
-  PENDING declaration contributes no available entry, and
-  `POST /actions/workbench/model-approval` writes an `approve-model` gate action
-  carrying issuer/approver/expiry/audit reference before anything becomes
-  selectable. It also discharges the task handed over by
-  `add-model-provider-broker` (its 2.4): the mid-turn re-mint and the paid retry
-  it buys are now VISIBLE in the turn record and in the rail, per Brett's
-  2026-08-26 ruling. Both land as one ADDITIVE cut,
-  `target_release: contract-v1.45` (`approve-model` plus `target.model_declaration`
-  and `model_approval` on `gate-action-record`; the optional `provider_retry` on
-  `workbench-chat-turn-v2-success`). It stays ACTIVE: tasks 4.1 (live-console
-  proof, which needs a human at a real browser) and 4.2 (realization evidence)
-  are open, and under `release-realization` this change archives only on merged
-  plus green.
 - [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
   — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
   the OQ-5 co-residence gate discharged: HealthLinc patients found and
@@ -3456,6 +3417,53 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-doxchat-model-intake](openspec/changes/archive/2026-09-16-add-doxchat-model-intake/proposal.md)
+  — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
+  [PR #1057](https://github.com/opensoft/openxFactory/pull/1057), under **RULING
+  Q6** (Brett Heap, 2026-09-04T17:49Z,
+  [#656](https://github.com/opensoft/openxFactory/issues/656)), encoded at
+  `split-opendox-two-layer-product` `tasks.md` § 6.3 and `design.md` § D9. The
+  SECOND of the five frozen changes to close, and **the first to exercise the
+  HARDER half of the collision**: § 6.4 carried one `## MODIFIED` block, this one
+  carries **1 MODIFIED + 4 ADDED**, and those four are four of the TWELVE titles
+  the split packet's § THE SIBLING COLLISION (b) records as *"not in canon and NOT
+  removed here"*. Promoting them would have created four requirements the split
+  packet's `## REMOVED` block cannot name and therefore cannot remove — *"a
+  removal of nothing"* — so they would have outlived the capability's exit. **NO
+  DELTA IS PROMOTED HERE**, per *"their `## ADDED` blocks never promote HERE and
+  their content is re-authored in the receiving repository"*. **THE DESTINATION,
+  NAMED, WHICH IS WHAT `tasks.md` § 8.5 REQUIRES:**
+  [openDox-spec #13](https://github.com/opensoft/openDox-spec/pull/13), change
+  `openspec/changes/add-doxchat-model-intake`, carrying the whole delta
+  **byte-identical** — 16,813 B / `sha256 3168ad8f…`, `diff`-verified — with no
+  subject edit owed and none made (`grep -c openxFactory` over the delta → **0**).
+  **WHAT STAYS:** the one additive `action` enum member in
+  `contracts/schemas/gate-action-record.schema.yaml`, already openxFactory
+  contract bytes at `contract-v1.45` — `tasks.md` § 6.3 says so — untouched here,
+  and `contract-v1.45` stays true as published. **WHAT TRAVELS OPEN:** tasks 4.1
+  (live-console proof) and 4.2 (realization evidence); RULING Q6 freezes the five
+  WHERE THEY STAND, so a closure with open boxes is the ruled disposition rather
+  than an exception to one. The packet is relocated by `git mv` and otherwise
+  UNEDITED, `Status: ratified` header included (Brett Heap, 2026-08-21,
+  *"proposal approved"*). Its `modified-block-currency` carriage-ledger row
+  retires with it (FIFTEEN named subjects → FOURTEEN, measured at this head:
+  `_LEDGER_SUBJECTS` holds 15 literal entries and 14 unique, the
+  `add-chain-attestation` row being written twice; it read "thirteen → twelve"
+  until this merge, from the chronology as it stood before #1056 landed its own
+  correction of that same count), and the departure itself —
+  gone from the active corpus, standing in the archive with all five
+  requirements — is asserted by a test of its own rather than implied by the
+  missing row. The non-promotion is registered as DELIBERATE through the
+  discharge `promotion_fidelity.py`'s own action text names, an entry in the
+  xFactory aggregation's `health/dispositions.yaml`, filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the gate this feeds is `tasks.md` § 8.5 and
+  the severity reading is § 8.9's; § 6.6 is the separate rule that no new
+  dashboard change opens). **THE SELF-GATE COUNT THIS CLOSURE MOVES IS FIVE, NOT
+  ONE** — `promotion_fidelity` emits one finding per authoritative requirement,
+  so the four ADDED titles absent from canon and the MODIFIED block's one
+  uncarried scenario read as five errors, taking the family from 1 at § 6.4's
+  head to 6 at this one. Full reasoning:
+  [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-doxchat-model-intake/review/rehome-2026-09-16.md).
 
 - [add-composed-view-authoring](openspec/changes/archive/2026-09-16-add-composed-view-authoring/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
