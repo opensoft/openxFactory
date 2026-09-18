@@ -789,26 +789,6 @@ Active changes:
   workflow, no test — so the archive is a separate act on merged-plus-green
   realization evidence and a separate word, and #1053 closes THERE. Filing PR
   [#1069](https://github.com/opensoft/openxFactory/pull/1069).
-- [repromote-engineering-vocabulary](openspec/changes/repromote-engineering-vocabulary/proposal.md)
-  — filed 2026-09-16, lane `openxfactory-4` (display
-  `openXfactory-4-openDox_extraction`), **`Status: draft`** (a DRAFTED packet:
-  the drafting pair `proposed_by` / `proposed_on` stands alone and no approval
-  pair is declared). Realizes `split-opendox-two-layer-product` **§ 5.2a**: the
-  FIFTEEN engineering-vocabulary requirements RULING DQ-1 keeps in this
-  repository leave the capability `ideation-dashboard` and are re-promoted
-  under the successor capability this packet authors,
-  **`openxfactory-engineering-adapter`** — the id § 5.6's de-floor and § 8.4's
-  floor accounting were both waiting on. ONE `## ADDED Requirements` block; the
-  fifteen are CARRIED by script from the promoted spec, every byte preserved
-  except at the two disclosed sites where a path literal becomes the seam
-  operation that answers for it (RULING OQ-1's `adapter calls`), and the carry
-  proved by reversing those edits and asserting byte equality. Of the six
-  path-literal occurrences only those two name a question the six-wide seam
-  answers; the other four are recorded non-edits with their reasons, which is
-  this packet's second finding. It removes
-  nothing — the packet's own ratified per-requirement map is the removal's
-  single writer (`design.md` § D3). CLAIMED on openxFactory #656 comment
-  [`5703096449`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5703096449).
 - [add-per-tenant-app-manifest-provisioning](openspec/changes/add-per-tenant-app-manifest-provisioning/proposal.md)
   — filed 2026-09-16, lane `openxfactory-4` (display
   `openXfactory-4-openDox_extraction`), `Status: draft`. **Takes the FIRST HALF of
@@ -3282,6 +3262,39 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [repromote-engineering-vocabulary](openspec/changes/archive/2026-09-18-repromote-engineering-vocabulary/proposal.md)
+  — **ARCHIVED 2026-09-18** by
+  [PR #1103](https://github.com/opensoft/openxFactory/pull/1103), lane
+  `openxfactory-4` (display `openXfactory-4-openDox_extraction`), on Brett
+  Heap's ratification of 2026-09-18 ~10:25Z — given by INTERACTIVE MULTI-CHOICE
+  over four questions with the recommended option taken each time, recorded at
+  [#656 comment
+  5728607038](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5728607038),
+  ruling **R-A**; ratifying commit `10576af60b82`, **ORIGIN RETAINED** and
+  unchanged since. **`code_surface: none` with `target_release: implemented`**,
+  the doc-only pair `release-realization` names, so this archive rests on the
+  ratification and the landing and NOT on merged-plus-green realization
+  evidence — there is nothing to build. Realizes
+  `split-opendox-two-layer-product` **§ 5.2a**: the FIFTEEN
+  engineering-vocabulary requirements RULING DQ-1 keeps in this repository leave
+  the capability `ideation-dashboard` and reach canon under the successor
+  capability this packet authored,
+  **[`openxfactory-engineering-adapter`](openspec/specs/openxfactory-engineering-adapter/spec.md)**
+  — the id § 5.6's de-floor and § 8.4's floor accounting were both waiting on —
+  as ONE `## ADDED` block, **15 requirements / 84 scenarios**, carried by script
+  from the promoted spec with every byte preserved except at the two disclosed
+  sites where a path literal becomes the seam operation that answers for it
+  (RULING OQ-1's `adapter calls`), the carry proved by reversing those edits and
+  asserting byte equality (delta 53,118 B, sha256 `c3b985ae…`). **IT REMOVES
+  NOTHING**: `openspec/specs/ideation-dashboard/spec.md` comes out of the run
+  byte-identical (sha256 `e7e86bf0…` before and after, 0 changed files), the
+  CLI's own totals read `+ 15, ~ 0, - 0, → 0`, and capability directories go 62
+  → 63 — the removal keeps its single ratified writer, the split packet's
+  per-requirement map (`design.md` § D3), and this packet archives BEFORE it
+  (§ D4) so the fifteen are never in no capability at all. Filed by
+  [PR #1071](https://github.com/opensoft/openxFactory/pull/1071) → `e83f8cd7`.
+  **§ 5.2a's own tick rides the packet bookkeeper's amendment #6**, not this act.
 
 - [adopt-entry-grain-dispositions-form](openspec/changes/archive/2026-09-18-adopt-entry-grain-dispositions-form/proposal.md)
   — **ARCHIVED 2026-09-18** by

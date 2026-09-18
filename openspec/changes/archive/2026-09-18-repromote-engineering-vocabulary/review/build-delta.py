@@ -2,7 +2,9 @@
 """Build § 5.2a's ADDED delta from the PROMOTED spec, title-keyed, and PROVE the carry.
 
 Run from an openxFactory checkout root:
-  python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py . [--write]
+  python3 openspec/changes/archive/2026-09-18-repromote-engineering-vocabulary/review/build-delta.py . [--write]
+(and, before the archive moved it, openspec/changes/repromote-engineering-vocabulary/review/… —
+ the packet directory is RESOLVED at run time, so both spellings work)
 
 It (1) selects the fifteen by the destination the packet's ratified map names for each
 removed title, (2) lifts each requirement out of openspec/specs/ideation-dashboard/spec.md
@@ -15,6 +17,10 @@ from pathlib import Path
 
 CAP = "openxfactory-engineering-adapter"
 CHANGE = "repromote-engineering-vocabulary"
+# The GOVERNING packet, whose § 5.2a map selects the fifteen. Resolved at run time
+# exactly like this packet is — see source_dir() for why a literal path was wrong.
+SOURCE = "split-opendox-two-layer-product"
+SOURCE_SPEC = "specs/ideation-dashboard/spec.md"
 
 # ---- the TWO declared edits: (requirement title, OLD, NEW, operation) ---------
 # NARROWED 2026-09-16 after Copilot round 1 (threads 4029968885 and the suppressed
@@ -99,8 +105,64 @@ def _refuse(message: str) -> "SystemExit":
     return SystemExit(f"REFUSED: {message}")
 
 
-USAGE = ("usage: python3 openspec/changes/repromote-engineering-vocabulary/review/"
-         "build-delta.py <openxFactory-checkout> [--write]\n"
+def packet_dir(root: Path) -> Path:
+    """This packet's directory inside `root` — ACTIVE or ARCHIVED, whichever exists.
+
+    The helper is committed INSIDE the packet, so it MOVES WITH IT at the archive.
+    A hard-coded `openspec/changes/<CHANGE>` stopped resolving the moment
+    `proposal-support.py archive` renamed the directory to
+    `openspec/changes/archive/<YYYY-MM-DD>-<CHANGE>`, and the committed-artifact
+    check below then reported `CHECK FAILED` against a path that no longer exists —
+    a verifier that cannot run from the record it is filed in proves nothing about
+    that record. Both locations are looked for and EXACTLY ONE must exist: finding
+    neither, or both, is refused rather than guessed, because a packet present in
+    both corpora is the same ambiguity `sequenced_after` reports as a finding rather
+    than resolving by preference.
+    """
+    active = root / "openspec/changes" / CHANGE
+    archived = sorted((root / "openspec/changes/archive").glob(f"????-??-??-{CHANGE}"))
+    found = [d for d in [active, *archived] if d.is_dir()]
+    if len(found) != 1:
+        raise _refuse(
+            f"{CHANGE} resolves to {len(found)} packet directories under {root} "
+            f"({', '.join(str(d.relative_to(root)) for d in found) or 'none'}): "
+            f"this check compares the delta committed in the packet, so it must "
+            f"know which packet without choosing.")
+    return found[0]
+
+
+def source_dir(root: Path) -> Path:
+    """The GOVERNING packet's directory inside `root` — ACTIVE or ARCHIVED.
+
+    The same failure `packet_dir` exists to prevent, one path over, and this one
+    was live: `main()` hard-coded the ACTIVE
+    `openspec/changes/split-opendox-two-layer-product/…`, which resolves only
+    until that packet archives — and this packet's own `design.md` § D4 REQUIRES
+    it to archive AFTER this one. So the literal was guaranteed to stop
+    resolving, and a verifier committed inside a record precisely so the record
+    can be re-checked later would have raised `FileNotFoundError` from the moment
+    the record became historical. A check that dies on the future it was written
+    for proves nothing about the past it certifies.
+
+    Resolved the same way and refused the same way: EXACTLY ONE of the two
+    locations must exist. Neither, or both, is refused rather than guessed.
+    (Found by Copilot on PR #1103, against the head that merged `main` for the
+    landing.)
+    """
+    active = root / "openspec/changes" / SOURCE
+    archived = sorted((root / "openspec/changes/archive").glob(f"????-??-??-{SOURCE}"))
+    found = [d for d in [active, *archived] if d.is_dir()]
+    if len(found) != 1:
+        raise _refuse(
+            f"{SOURCE} resolves to {len(found)} packet directories under {root} "
+            f"({', '.join(str(d.relative_to(root)) for d in found) or 'none'}): "
+            f"this check reads the ratified map that selects the fifteen, so it "
+            f"must know which packet without choosing.")
+    return found[0]
+
+
+USAGE = ("usage: python3 <packet>/review/build-delta.py <openxFactory-checkout> "
+         "[--write]\n"
          "  without --write it CHECKS the committed delta and exits non-zero on "
          "any difference.")
 
@@ -124,7 +186,7 @@ def main(argv=None):
         raise _refuse(f"{root} is not an openxFactory checkout "
                       f"(no openspec/ directory)\n" + USAGE)
     write = "--write" in argv
-    packet = root / "openspec/changes/split-opendox-two-layer-product/specs/ideation-dashboard/spec.md"
+    packet = source_dir(root) / SOURCE_SPEC
     promoted = root / "openspec/specs/ideation-dashboard/spec.md"
 
     # (1) the fifteen, from the ratified map
@@ -168,6 +230,31 @@ def main(argv=None):
     print(f"promoted requirements: {len(order)}")
     missing = [t for t in fifteen if t not in reqs]
     if missing:
+        # TWO DIFFERENT FACTS WEAR THE SAME SHAPE HERE, AND ONLY ONE IS A DEFECT.
+        # This check rebuilds the carry FROM the promoted spec, so it can only run
+        # on a checkout where the fifteen are still promoted. The governing
+        # packet's own `## REMOVED` delta takes them out of
+        # `openspec/specs/ideation-dashboard/spec.md` when IT archives — the order
+        # this packet's design § D4 requires — and from that commit on, ALL
+        # FIFTEEN are absent for a reason that is the corpus working correctly.
+        # SOME absent is drift and stays a hard refusal; ALL absent, with the
+        # governing packet found in the ARCHIVE, is this checker meeting its own
+        # horizon, and it says so instead of reading like a broken record.
+        # (Found by Copilot on PR #1103, one round after it found the hard-coded
+        # source path — the same future, one step further along.)
+        governing_archived = source_dir(root).parent.name == "archive"
+        if len(missing) == len(fifteen) and governing_archived:
+            raise _refuse(
+                f"all {len(fifteen)} carried titles are absent from "
+                f"{promoted.relative_to(root)}, and {SOURCE} resolves inside "
+                f"openspec/changes/archive/. THIS IS THE EXPECTED STATE AFTER THE "
+                f"GOVERNING PACKET'S `## REMOVED` DELTA PROMOTED, not a defect in "
+                f"this record: the carry cannot be rebuilt from a promoted spec "
+                f"that no longer holds its source. Re-run against a checkout at or "
+                f"before that promotion to re-prove the build. The delta committed "
+                f"beside this script remains the record of what was carried, and "
+                f"the reversal proof that established it is in the packet's "
+                f"tasks.md § 2.3 and § 5.1.")
         raise _refuse(f"titles absent from the promoted spec: {missing}")
     wanted = {norm(t) for t in fifteen}
     if len(wanted) != len(fifteen):
@@ -211,7 +298,7 @@ def main(argv=None):
     for t in fifteen:
         body.append(edited[t])
     delta = HEADER + "\n\n## ADDED Requirements\n\n" + "\n\n".join(body) + "\n"
-    out = root / f"openspec/changes/{CHANGE}/specs/{CAP}/spec.md"
+    out = packet_dir(root) / f"specs/{CAP}/spec.md"
     digest = hashlib.sha256(delta.encode("utf-8")).hexdigest()
     print(f"delta: {len(delta.encode('utf-8'))} bytes, sha256 {digest[:16]}…")
     if write:
