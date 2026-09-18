@@ -660,6 +660,16 @@ def strip_trailing_separator(spelled: str):
     return stripped, (stripped != spelled)
 
 
+def has_traversal_segment(token: str) -> bool:
+    """Whether a token carries a `..` segment — a path that walks UP.
+
+    `scripts/packet_reference.py:349` refuses such a path outright, which is a
+    containment rule and not a spelling preference: a reference that walks out
+    of the directory it names is the caller's question and never this reader's.
+    """
+    return any(part == ".." for part in token.split("/"))
+
+
 def normalise_token(spelled: str, resolves):
     """One raw match, normalized — and the ORDER is the specification's.
 
@@ -686,6 +696,19 @@ def normalise_token(spelled: str, resolves):
         if separator and SEPARATOR_STRIPPED not in normalizations:
             normalizations.append(SEPARATOR_STRIPPED)
         if not token.endswith("."):
+            break
+        if has_traversal_segment(token):
+            # A `..` SEGMENT IS NOT AN IDENTIFIER'S LAST CHARACTER, and this
+            # normalization is for a SENTENCE'S full stop caught on the end of
+            # a citation. Stripping one dot off `..` turns a path that walks UP
+            # into one the resolver accepts — it refuses `..` deliberately
+            # (`scripts/packet_reference.py:349`), and its own `_normalised`
+            # then drops the surviving `.` segment — so `<root>/<id>/..`, which
+            # names the changes root, would be reported as a citation OF `<id>`,
+            # resolved or dangling according to whether that packet happens to
+            # stand here. A report that rewrites a traversal into a citation is
+            # inventing the citation, which is the one thing this report may
+            # never do. (Copilot `PRRT_kwDOTAvnrs6jsy7w`.)
             break
         if resolves(token):
             break

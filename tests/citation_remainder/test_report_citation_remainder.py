@@ -1649,6 +1649,43 @@ def test_a_continuation_this_probe_does_not_name_never_classes_truncated(
         f"{name} is not probe (iii) and the probe is not widened to admit it"
 
 
+def test_a_traversal_segment_is_never_normalized_into_a_citation(
+        tmp_path) -> None:
+    """A `..` SEGMENT IS NOT AN IDENTIFIER'S LAST CHARACTER. The resolver
+    refuses a path that walks UP as a containment rule, and its own
+    normalization then drops a `.` segment — so stripping one dot off `..`
+    would hand it back a path it accepts, and `<root>/<id>/..`, which names the
+    changes root, would be reported as a citation OF `<id>`. A report that
+    rewrites a traversal into a citation is inventing the citation. (Copilot
+    `PRRT_kwDOTAvnrs6jsy7w`.)"""
+    root = new_repo(tmp_path / "repo")
+    packet(root, "add-present")
+    write(root, "docs/notes.md",
+          f"up one from a packet that stands here: {CITE}/add-present/..\n"
+          f"up one from a packet that does not:    {CITE}/add-absent/..\n")
+    commit(root)
+
+    data = run_json(root, "--all")
+    listed = entries(data)
+
+    for identity in ("add-present", "add-absent"):
+        token = f"{CITE}/{identity}/.."
+        assert token in listed, "the traversal is reported as it was spelled"
+        record = listed[token]
+        assert record["status"] == "not-a-packet-reference", \
+            "the resolver's refusal of `..` is not undone by a normalization"
+        assert record["normalizations"] == [], \
+            "no full stop is stripped off a `..` segment"
+        assert record["in_remainder"] is False
+
+    assert f"{CITE}/add-present/." not in listed
+    assert f"{CITE}/add-absent/." not in listed
+    assert f"{CITE}/add-absent" not in listed, \
+        "a traversal never becomes a dangling citation of the packet it walks " \
+        "up from"
+    assert data["counts"]["remainder_inclusive_tokens"] == 0
+
+
 def test_a_stripped_token_that_resolves_to_nothing_is_classed_punctuation_stripped(
         tmp_path) -> None:
     """Scenario: A stripped token still resolves to nothing."""
