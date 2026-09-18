@@ -44,6 +44,23 @@ identity, both already in the caller's hand or in this checkout. It RETURNS
 verified/unverified and NEVER RAISES, so a tree that does not verify leaves the
 row reported NOT RE-CHECKED rather than failing the run.
 
+AND THE ORIGIN URL'S HOST IS PART OF THAT IDENTITY, WHICH IS A DESIGN NOTE THIS
+MODULE OWES RATHER THAN A DETAIL. The ruling says a tree is verified "by the
+tree's own ORIGIN URL"; a normalization that kept the `<owner>/<name>` PATH and
+discarded the HOST would verify `git@attacker.example:opensoft/xFactory.git` as
+this estate's aggregation, which is the same substitution the ruling refuses,
+one field to the left. `contracts/policies/repository-identity.yaml` — the one
+place the estate writes a repository's identity down — records an
+`<owner>/<repo>` ADDRESS and carries NO HOST FIELD AT ALL, so it cannot supply
+the bound, and the estate's own measured spellings are used instead: GitHub's
+canonical ssh and https forms, which is every `url =` in the aggregation's
+`.gitmodules` and every origin this repository is cloned from. `FORGE_HOSTS`
+holds them, with that reasoning beside it, and a second forge is a one-line
+addition there. A URL on any other host yields NO OBSERVED IDENTITY, so the
+tree is UNVERIFIED and the row NOT RE-CHECKED — never verified against a
+stranger. WHETHER THE TRANSFER MAP SHOULD CARRY THE HOST is a question about
+that contract member and is not taken here.
+
 RESOLUTION IS BY THE ROW AND NEVER BY THE PROVIDER. An `<owner>/<name>` head
 resolves against a row's address; a BARE head resolves against a row's unique
 bare name; a FORMER address resolves through the transfer map. None of the three
