@@ -533,8 +533,14 @@ Active changes:
 
 - [harden-path-escape-helpers-against-symlink-loops](openspec/changes/harden-path-escape-helpers-against-symlink-loops/proposal.md)
   filed 2026-09-17, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: draft`** (NO RATIFYING WORD HAS BEEN GIVEN; `tasks.md` § 1 is Brett
-  Heap's act and is not ticked by this lane). Answers openxFactory
+  **`Status: ratified`** (2026-09-18, approximately 09:55Z, Brett Heap,
+  openxFactory repository owner, given in the lane's terminal as a
+  multiple-choice answer, verbatim ***"Ratify; land when green"***) — record
+  [`review/ratification-2026-09-18.md`](openspec/changes/harden-path-escape-helpers-against-symlink-loops/review/ratification-2026-09-18.md).
+  **THE WORD NAMES NO ALTERNATIVE LETTER, SO OQ-1 = (a), THE RECOMMENDED
+  OPTION, AND THE DELTA MOVED NOT ONE BYTE** (`.openspec.yaml` now carries
+  `approved_by`/`approved_on` ADDED BESIDE the unmoved drafting pair). Answers
+  openxFactory
   [#1074](https://github.com/opensoft/openxFactory/issues/1074), the finding this
   lane filed on 2026-09-16 at the landing of PR #1029 and CLAIMED before
   authoring.

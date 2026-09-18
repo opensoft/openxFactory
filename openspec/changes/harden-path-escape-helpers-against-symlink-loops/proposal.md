@@ -6,15 +6,20 @@ sequenced_after: []
 
 # Proposal: harden-path-escape-helpers-against-symlink-loops
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-18, approximately 09:55Z by Brett Heap (openxFactory
+repository owner) — verbatim "Ratify; land when green"; record at
+`review/ratification-2026-09-18.md`.
 
 Proposed: 2026-09-17, in lane `openxfactory-5` (display `openXfactory-5`),
 session `651195c7`, in answer to openxFactory
 [#1074](https://github.com/opensoft/openxFactory/issues/1074), which this lane
 FILED on 2026-09-16 at the landing of PR #1029 and CLAIMED before authoring
-(comment `5714101833`). **NO RATIFYING WORD HAS BEEN GIVEN.** Nothing here is
-ratified, promoted, realized or archived by this filing; `tasks.md` § 1 is Brett
-Heap's act and is not ticked by this lane.
+(comment `5714101833`). **THE RATIFYING WORD HAS BEEN GIVEN**: Brett Heap,
+2026-09-18, approximately 09:55Z, verbatim "Ratify; land when green" (§
+Rulings below; `review/ratification-2026-09-18.md`). Nothing here is
+promoted, realized or archived by this landing; `tasks.md` § 1 is ticked by
+that word and §§ 3, 4, 5 and 6 stay entirely open.
 
 Origin: openxFactory
 
@@ -199,3 +204,31 @@ recommendation first:
 Each cost is written out in `design.md`. **D5 (the test shape) is not put for a
 veto**: it is the second requirement's own subject and the ratifying word reaches
 it with the rest of the packet.
+
+## Rulings
+
+**Brett Heap, 2026-09-18, approximately 09:55Z, verbatim "Ratify; land when
+green"** — given in the lane's terminal as a multiple-choice answer offered by
+lane `openxfactory-5` (display `openXfactory-5`, session `651195c7`),
+captured in full at `review/ratification-2026-09-18.md`. No GitHub comment
+carries this word; the terminal exchange is the channel and this citation,
+together with that record, is how it survives.
+
+**THE WORD NAMES NO ALTERNATIVE LETTER, SO IT IS READ AS (a), THE RECOMMENDED
+OPTION, AND THE DELTA'S WORDING STANDS UNCHANGED**: not one byte of
+`specs/release-realization/spec.md` moves.
+
+| OQ | Decision | Ruled | Considered, not adopted |
+| --- | --- | --- | --- |
+| **OQ-1** — the veto over D1-D4 | `design.md` D1, D2, D3, D4 | **RESOLVED (a) — Brett Heap, 2026-09-18, approximately 09:55Z, verbatim "Ratify; land when green"** — AS FILED: D1 two `## ADDED` requirements over `release-realization`; D2 one act across all four sites in all three modules; D3 widen `_registry_present` too and declare its proof a test of the CLAUSE; D4 scope the obligation to the containment ROLE | (b) narrow D3 — leave `_registry_present`, name it a successor; (c) narrow D2 — fix `code_surface.py` only, file the other two separately; (d) widen D4 — reach every `except OSError:` in the three modules |
+
+**EVERY DECISION TAKES ITS RECOMMENDED OPTION.** No requirement text was
+rewritten, no delta directory was renamed, and `sequenced_after: []` still
+holds — this word ratifies the packet exactly as filed. "Land when green" is
+a LANDING instruction over this ratification's own consequence: it
+authorizes MERGE once this pull request's checks are green, and does not
+authorize the REALIZATION (a later pull request, `tasks.md` § 3) to be
+treated as already begun, nor the ARCHIVE (§ 5), which stays a separate act
+on a separate word behind merged-plus-green realization evidence. Merge
+itself remains a separate act, and Rule 6 (the landing-window protocol)
+applies at landing.

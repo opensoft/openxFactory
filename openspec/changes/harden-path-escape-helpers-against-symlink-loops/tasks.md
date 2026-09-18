@@ -1,6 +1,8 @@
 # Tasks: harden-path-escape-helpers-against-symlink-loops
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-18, approximately 09:55Z — verbatim "Ratify;
+land when green" (record `review/ratification-2026-09-18.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization
@@ -16,7 +18,7 @@ THIS LANE.** § 3, § 4, § 5 and § 6 stay ENTIRELY OPEN.
 
 ## 1. Ratification (OPEN; Brett Heap's act)
 
-- [ ] 1.1 **(OPERATOR)** Ratify or refuse `proposal.md` § *The decision, put for a
+- [x] 1.1 **(OPERATOR)** Ratify or refuse `proposal.md` § *The decision, put for a
       veto* (OQ-1): option (a) AS FILED (`design.md` D1 ADDED over
       `release-realization`, D2 one act across all four sites, D3 widen
       `_registry_present` too, D4 scope by containment ROLE), or (b) narrow D3, or
@@ -26,9 +28,24 @@ THIS LANE.** § 3, § 4, § 5 and § 6 stay ENTIRELY OPEN.
       with one citation line each, `.openspec.yaml` gains
       `approved_by`/`approved_on` ADDED BESIDE the unmoved drafting pair, and a
       `review/ratification-<date>.md` record is written.
-- [ ] 1.2 **(OPERATOR)** The ratifying word authorizes the REALIZATION (§ 3) to be
+      **RULED (a) — Brett Heap, 2026-09-18, approximately 09:55Z, verbatim
+      "Ratify; land when green"**, given in the lane's terminal as a
+      multiple-choice answer to lane `openxfactory-5` (session `651195c7`); no
+      GitHub comment carries this word (`review/ratification-2026-09-18.md`).
+      **DONE** in this same commit: `proposal.md`, `design.md` and this file
+      take `Status: ratified` with a citation line each, `.openspec.yaml`
+      gains `approved_by`/`approved_on` beside the unmoved `proposed_by`/
+      `proposed_on`, and `review/ratification-2026-09-18.md` records the word
+      in full.
+- [x] 1.2 **(OPERATOR)** The ratifying word authorizes the REALIZATION (§ 3) to be
       authored. It does not authorize the ARCHIVE (§ 5), which is a separate act
       on a separate word and on merged-plus-green evidence.
+      **SATISFIED by the word itself**: `Ratify; land when green` reaches
+      exactly § 3 (may now be authored, as a later pull request) and not § 5
+      (stays closed behind merged-plus-green realization evidence and its own
+      word). "Land when green" is a MERGE authorization over this pull
+      request once its checks are green, a separate act performed by whoever
+      holds it — this lane refreshes the packet and does not merge it.
 
 ## 2. Measurement (CLOSED in this pull request)
 
@@ -199,7 +216,7 @@ and a test that passes on both sides is not the proof.**
 
 ## 6. Measured and NOT taken (OPEN; successors, not work owed)
 
-- [ ] 6.1 **The other ELEVEN `except OSError`-family clauses in these three
+- [~] 6.1 **The other ELEVEN `except OSError`-family clauses in these three
       modules** (`design.md` D4, the count taken by an AST scan and including
       `proposal-support.py:3724`, the support-archive read) guard reads, writes
       and subprocesses. They are read, enumerated and deliberately left, and
@@ -207,14 +224,19 @@ and a test that passes on both sides is not the proof.**
       out of a YAML load or a subprocess helper would swallow a defect in this
       repository's own code. `proposal-support.py:3939`'s entrypoint
       `except Exception:` is outside that count, being already wider than the
-      obligation, and is retained rather than narrowed.
-- [ ] 6.2 **The same shape elsewhere in the estate.** `scripts/` carries other
+      obligation, and is retained rather than narrowed. **`[~]`, the house's reserved
+      deferred-form marker, not `- [ ]`: this box documents a successor and
+      refused-not-owed work, not incomplete work, so it must not gate this
+      packet's eventual archive** (`scripts/proposal-support.py`'s
+      `archive_change()` refuses any literal `- [ ]` in `tasks.md`).
+- [~] 6.2 **The same shape elsewhere in the estate.** `scripts/` carries other
       modules that resolve caller-supplied or tree-supplied paths
       (`scripts/pin_containment.py` among them, which `document-lifecycle`'s own
       containment requirement governs). They were NOT measured by this packet and
       no claim is made about them; a sweep across the whole `scripts/` tree is a
-      successor with its own measurement.
-- [ ] 6.3 **A house helper.** The four guards do NOT end up with one identical
+      successor with its own measurement. **`[~]` as § 6.1: a
+      documented successor, not incomplete work.**
+- [~] 6.3 **A house helper.** The four guards do NOT end up with one identical
       tuple: three read `except (OSError, RuntimeError):` and `_contained` reads
       `except (OSError, ValueError, RuntimeError):`, its `ValueError` answering a
       DIFFERENT operation and staying (§ 3.5, and the first requirement's
@@ -222,4 +244,5 @@ and a test that passes on both sides is not the proof.**
       COVERAGE, held equal by convention and by a docstring claim. Whether the
       estate should carry ONE resolution helper the four call, rather than four
       clauses kept equal that way, is a successor: it changes four ratified
-      surfaces at once and is out of scope for a correction.
+      surfaces at once and is out of scope for a correction. **`[~]` as § 6.1: a
+      documented successor, not incomplete work.**

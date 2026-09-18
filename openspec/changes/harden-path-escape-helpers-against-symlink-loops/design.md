@@ -1,6 +1,8 @@
 # Design: harden-path-escape-helpers-against-symlink-loops
 
-Status: draft
+Status: ratified
+Ratified by: Brett Heap, 2026-09-18, approximately 09:55Z — verbatim "Ratify;
+land when green" (record `review/ratification-2026-09-18.md`)
 Kind: design
 
 **EVERY DECISION THIS AUTHORING SESSION TOOK IS HERE, WITH ITS ALTERNATIVE AND
@@ -136,7 +138,7 @@ CLAUSE-LEVEL, RACE-ONLY case in `proposal.md`, in `.openspec.yaml`'s origin
 reason and in `tasks.md` alike. The correction is recorded in all four
 documents; D3 decides what follows from it.
 
-## D1. Which capability, and ADDED rather than MODIFIED
+## D1. Which capability, and ADDED rather than MODIFIED — RULED (a), 2026-09-18, approximately 09:55Z
 
 **RECOMMENDED: two `## ADDED` requirements over `release-realization`.**
 
@@ -167,7 +169,7 @@ author must think to look. Declined.
 change's delta, the archive), so the ADDED block collides with nobody and
 `sequenced_after: []` is a CORROBORATED root claim and not an assumed one.
 
-## D2. One act across all four sites, or three riders
+## D2. One act across all four sites, or three riders — RULED (a), 2026-09-18, approximately 09:55Z
 
 **RECOMMENDED: one act, all four sites, all three modules.**
 
@@ -189,7 +191,7 @@ between the first and the last, the mirror claim is false in the tree.
 **Alternative (ii): fix the three REACHABLE sites and leave `_registry_present`.**
 That is D3, and it is put separately because it stands whichever way D2 goes.
 
-## D3. `_registry_present`, which no tree state reaches
+## D3. `_registry_present`, which no tree state reaches — RULED (a), 2026-09-18, approximately 09:55Z
 
 **RECOMMENDED: widen it too, in the same act, and say plainly that its proof is a
 test of the clause.**
@@ -217,7 +219,7 @@ pre-check made to pass while the resolution fails), and the second requirement
 requires that it be DECLARED as such rather than dressed as a reachable tree.
 The other three sites carry ordinary fails-then-passes tree tests.
 
-## D4. The scope of the obligation: the containment ROLE
+## D4. The scope of the obligation: the containment ROLE — RULED (a), 2026-09-18, approximately 09:55Z
 
 **RECOMMENDED: the obligation reaches a guard by its ROLE (deciding whether a
 candidate path is really inside the scanned tree, by resolving and comparing) and
