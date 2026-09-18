@@ -1678,6 +1678,54 @@ def test_the_evidence_carries_the_unpinned_half_of_the_composition(shipped):
     assert shipped["root_revision"][:12] in rendered
 
 
+def test_a_flag_outside_the_import_surface_does_not_refuse(tmp_path):
+    """The tracked diff and the ignored scan look at the import surface, so a
+    flag scan over the WHOLE leg would refuse for an `assume-unchanged` bit
+    on a file that cannot reach the imports at all — a false refusal in a
+    required gate (Copilot, PR #1115, suppressed)."""
+    leg = tmp_path / "leg"
+    _seed(leg)
+    (leg / "src").mkdir()
+    (leg / "src" / "m.py").write_text("x = 1\n", encoding="utf-8")
+    assert MODULE._git(leg, "add", "src/m.py").returncode == 0
+    assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
+    assert MODULE._git(leg, "update-index", "--assume-unchanged",
+                       "a.txt").returncode == 0
+    assert MODULE.worktree_dirt(leg) == [], "a flag outside src refused"
+    assert MODULE._git(leg, "update-index", "--assume-unchanged",
+                       "src/m.py").returncode == 0
+    dirt = MODULE.worktree_dirt(leg)
+    assert any("src/m.py" in row for row in dirt), dirt
+
+
+def test_a_hidden_flag_at_the_root_is_not_reported_as_a_clean_tree(
+        monkeypatch):
+    """The evidence read had the same blind spot this act fixes for the legs:
+    an edit to `carved_reach.py` hidden behind a flag would have read as
+    `working tree clean`, in the line that exists to carry the UNPINNED half
+    of the composition (Copilot, PR #1115, suppressed)."""
+    # THE STATUS READ IS FORCED CLEAN, so only the flag can make it dirty —
+    # otherwise this passes on whatever the checkout happens to be, which is
+    # how the first spelling of this test survived its own mutant.
+    def clean_status(repo, *arguments, text=True):
+        if arguments[0] == "status":
+            return subprocess.CompletedProcess(list(arguments), 0, "", "")
+        return real_git(repo, *arguments, text=text)
+
+    real_git = MODULE._git
+    monkeypatch.setattr(MODULE, "_git", clean_status)
+    monkeypatch.setattr(MODULE, "_flagged", lambda leg, *scope: [])
+    assert MODULE.superproject_state()["root_worktree"] == "clean", (
+        "the premise: with no status rows and no flags the root reads clean")
+    monkeypatch.setattr(MODULE, "_flagged",
+                        lambda leg, *scope: ["h! scripts/carved_reach.py"])
+    state = MODULE.superproject_state()
+    assert state["root_worktree"] == "dirty"
+    assert state["root_worktree_entries"] == 1
+    monkeypatch.setattr(MODULE, "_flagged", lambda leg, *scope: None)
+    assert MODULE.superproject_state()["root_worktree"] == "unknown"
+
+
 def test_an_unreadable_root_status_is_unknown_and_not_clean(monkeypatch):
     """`carved_reach`'s rule, held for the evidence too: a read that failed
     learned nothing, and "clean" is a claim."""

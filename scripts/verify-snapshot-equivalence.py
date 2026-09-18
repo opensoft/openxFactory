@@ -1336,7 +1336,13 @@ def worktree_dirt(leg: Path) -> list[str] | None:
         if named is None:
             return None
         rows += named
-    hidden = _flagged(leg)
+    # THE SAME SCOPE AS THE OTHER TWO READS (Copilot, PR #1115, suppressed).
+    # The tracked diff and the ignored scan look at the import surface; a
+    # flag scan over the WHOLE leg would refuse for an `assume-unchanged` bit
+    # on a file that cannot reach `carved_reach`'s imports at all — a false
+    # refusal in a required gate, which is a worse failure than the one it
+    # would be guarding against.
+    hidden = _flagged(leg, *scope)
     if hidden is None:
         return None
     return rows + hidden
@@ -1352,11 +1358,11 @@ def _names(leg: Path, prefix: str, *arguments: str) -> list[str] | None:
             if name.strip()]
 
 
-def _flagged(leg: Path) -> list[str] | None:
+def _flagged(leg: Path, *scope: str) -> list[str] | None:
     """The `assume-unchanged` / `skip-worktree` entries, which `ls-files -v`
     marks with a lowercase tag and an `S` — the state that makes git report
     an EDITED file as clean, and so the state no other read here can see."""
-    done = _git(leg, "ls-files", "-v")
+    done = _git(leg, "ls-files", "-v", *scope)
     if done is None or done.returncode != 0:
         return None
     return [f"{line[0]}! {line[2:]}" for line in done.stdout.splitlines()
@@ -1477,13 +1483,21 @@ def superproject_state() -> dict[str, Any]:
     revision = (head.stdout.strip()
                 if head is not None and head.returncode == 0 else "")
     done = _git(ROOT, "status", "--porcelain", "--untracked-files=normal")
-    if done is None or done.returncode != 0:
+    # AND THE SAME BLIND SPOT THIS ACT FIXES FOR THE LEGS (Copilot, PR #1115,
+    # suppressed). A plain `status` cannot see an edit hidden by an
+    # `assume-unchanged` or `skip-worktree` bit, so the evidence line could
+    # read `working tree clean` while `carved_reach.py`, `opendox_host.py` or
+    # the profile — the UNPINNED half this line exists to carry — had been
+    # edited. The root is still never refused on; it is reported truthfully
+    # or reported as unknown.
+    hidden = _flagged(ROOT)
+    if done is None or done.returncode != 0 or hidden is None:
         return {"root_revision": revision or "unknown",
                 "root_worktree": "unknown", "root_worktree_entries": None}
     rows = [line for line in done.stdout.splitlines() if line.strip()]
     return {"root_revision": revision or "unknown",
-            "root_worktree": "dirty" if rows else "clean",
-            "root_worktree_entries": len(rows)}
+            "root_worktree": "dirty" if rows or hidden else "clean",
+            "root_worktree_entries": len(rows) + len(hidden)}
 
 
 def verify_pins() -> dict[str, str]:
