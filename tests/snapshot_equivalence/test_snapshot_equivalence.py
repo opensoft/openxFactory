@@ -505,6 +505,11 @@ def test_a_status_read_that_did_not_answer_is_not_read_as_clean(monkeypatch):
         MODULE.verify_pins()
     assert caught.value.code == "equivalence-reach-unavailable"
     assert "went unmeasured" in caught.value.detail
+    # …and it names the sweep it ACTUALLY runs. The refusal still said
+    # `git status --porcelain` after that single read became three, which
+    # misidentified the operation that went unanswered (Copilot, PR #1115).
+    assert "status --porcelain" not in caught.value.detail
+    assert "cleanliness sweep" in caught.value.detail
 
 
 def test_worktree_dirt_reads_a_real_repository_both_ways(tmp_path):
@@ -1467,6 +1472,32 @@ def test_a_tree_read_that_failed_does_not_become_a_post_shed_verdict(
     assert "ls-tree" in detail
 
 
+def test_a_non_gitlink_at_the_path_is_not_read_as_the_nested_pin(tmp_path):
+    """`rev-parse <commit>:<path>` returns an oid for ANY tree entry, so a
+    parent commit carrying a regular file or a directory at `code` after a
+    type-changing update yielded that blob or tree id AS THE PIN, and the run
+    reported an off-pin checkout instead of saying no gitlink is recorded
+    (Copilot, PR #1115). Mode `160000` or nothing — which is what the
+    index-first path has always required, and what
+    `verify-openxdox-pin.py` requires too."""
+    parent = tmp_path / "assembly"
+    _seed(parent)
+    (parent / "code").mkdir()
+    (parent / "code" / "not-a-submodule.txt").write_text("x\n",
+                                                         encoding="utf-8")
+    assert MODULE._git(parent, "add", "-A").returncode == 0
+    assert MODULE._git(parent, "commit", "-qm", "a tree at code").returncode \
+        == 0
+    outer = MODULE._git(parent, "rev-parse", "HEAD").stdout.strip()
+    resolves = MODULE._git(parent, "rev-parse", "--verify", "--quiet",
+                           f"{outer}:code")
+    assert resolves.returncode == 0 and resolves.stdout.strip(), (
+        "the premise: rev-parse happily answers for a plain tree")
+    recorded, source = MODULE._gitlink_at_commit(parent, outer, "code")
+    assert recorded is None, f"a {resolves.stdout.strip()} was read as a pin"
+    assert "not a submodule" in source
+
+
 def test_an_unreadable_parent_tree_is_not_a_missing_gitlink(monkeypatch,
                                                             tmp_path):
     """`rev-parse --quiet` answers the same way for a gitlink that is ABSENT
@@ -1701,20 +1732,24 @@ def test_the_materialization_probe_names_each_shape_it_finds(monkeypatch,
     copied source tree, for which no pin can be verified)."""
     monkeypatch.setattr(MODULE, "ROOT", tmp_path)
     for parent_rel, path in MODULE.LEG_GITLINKS:
-        (tmp_path / parent_rel / path).mkdir(parents=True, exist_ok=True)
-        (tmp_path / parent_rel / path / ".git").write_text("gitdir: x\n",
-                                                           encoding="utf-8")
+        mount = tmp_path / parent_rel / path
+        mount.mkdir(parents=True, exist_ok=True)
+        (mount / ".git").write_text("gitdir: x\n", encoding="utf-8")
+        (mount / "README.md").write_text("a working tree\n", encoding="utf-8")
     assert MODULE.unmaterialized_legs() == []
     shutil.rmtree(tmp_path / "openDox" / "code")
     copied = tmp_path / "openXdox" / "code"
-    (copied / "src").mkdir()
     (copied / ".git").unlink()
-    for child in (tmp_path / "openDox" / "spec").iterdir():
-        child.unlink()
+    # A MOUNT HOLDING ONLY `.git`: `submodule update --no-checkout`, or an
+    # update interrupted between the clone and the checkout. It is not empty
+    # — `any(iterdir())` was true for it — and it has no working tree
+    # (Copilot, PR #1115).
+    (tmp_path / "openDox" / "spec" / "README.md").unlink()
     absent = "\n".join(MODULE.unmaterialized_legs())
     assert "no such directory" in absent
-    assert "EMPTY directory" in absent
+    assert "no working tree" in absent
     assert "no `.git`" in absent
+    assert str(tmp_path / "openDox" / "spec") in absent
 
 
 def test_the_evidence_carries_the_unpinned_half_of_the_composition(shipped):

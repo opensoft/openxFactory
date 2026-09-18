@@ -1191,30 +1191,37 @@ def _gitlink_at_commit(parent: Path, outer: str,
                        path: str) -> tuple[str | None, str]:
     """The gitlink `path` has IN THE TREE of the commit `outer`."""
     source = f"the commit {outer[:12]} its own parent records for it"
-    done = _git(parent, "rev-parse", "--verify", "--quiet",
-                "--end-of-options", f"{outer}:{path}")
-    if done is not None and done.returncode == 0 and done.stdout.strip():
-        return done.stdout.strip(), source
-    # ABSENT AND UNREADABLE ARE DIFFERENT FINDINGS, and `rev-parse --quiet`
-    # answers the same way for both (Copilot, PR #1115). Reporting "records
-    # no gitlink" for a parent commit whose TREE could not be read would
-    # misdiagnose an incomplete object store — the one condition this file
-    # gave its own code — and send the operator to look for a missing
-    # submodule declaration instead of fetching the objects. So the tree is
-    # asked directly, and only a clean answer that does not list the path is
-    # an absence.
-    listed = _git(parent, "ls-tree", "--name-only", outer, "--", path)
-    if listed is None or listed.returncode != 0 or listed.stdout.strip():
+    # ONE `ls-tree`, BECAUSE IT ANSWERS ALL THREE QUESTIONS AT ONCE — is the
+    # path there, is it a GITLINK, and what is its object id. `rev-parse
+    # <commit>:<path>` was the first spelling and answered only the last: it
+    # returns an oid for ANY tree entry, so a parent commit carrying a
+    # regular file or a directory at `code` after a type-changing update
+    # yielded that blob or tree id AS THE NESTED PIN, and the run then
+    # reported an off-pin checkout instead of saying no gitlink is recorded
+    # (Copilot, PR #1115). The index-first path has always required mode
+    # `160000`; this one now does too, which is `verify-openxdox-pin.py`'s
+    # rule as well. ABSENT AND UNREADABLE ALSO STAY APART, since `rev-parse
+    # --quiet` conflated them: a tree read that FAILED is an incomplete
+    # object store, not a missing submodule declaration.
+    listed = _git(parent, "ls-tree", "--full-tree", outer, "--", path)
+    if listed is None or listed.returncode != 0:
         raise EquivalenceRefusal(
             "equivalence-object-store-incomplete",
             f"{parent} could not be asked what commit {outer} records for "
-            f"{path}: the gitlink did not resolve and the tree read did not "
-            "settle whether the path is there. That is an OBJECT STORE that "
-            "cannot answer about a commit this run has already accepted as "
-            "the pin, not a missing submodule declaration — fetch it "
-            f"deliberately (`git -C {parent} fetch origin {outer}`) and "
-            "re-run")
-    return None, source
+            f"{path}: the tree read FAILED or did not answer within "
+            f"{_GIT_TIMEOUT}s. That is an OBJECT STORE that cannot answer "
+            "about a commit this run has already accepted as the pin, not a "
+            "missing submodule declaration — fetch it deliberately "
+            f"(`git -C {parent} fetch origin {outer}`) and re-run")
+    row = listed.stdout.strip()
+    if not row:
+        return None, source
+    fields = row.split(None, 3)
+    if len(fields) < 3 or fields[0] != "160000":
+        kind = fields[1] if len(fields) > 1 else "something"
+        return None, f"{source} — it records a {kind} at that path, not a "\
+                     "submodule"
+    return fields[2], source
 
 
 def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
@@ -1491,9 +1498,15 @@ def unmaterialized_legs() -> list[str]:
         leg = (ROOT / parent_rel / path)
         if not leg.is_dir():
             absent.append(f"{leg} — no such directory")
-        elif not any(leg.iterdir()):
-            absent.append(f"{leg} — an EMPTY directory: the gitlink is "
-                          "recorded and the submodule was never initialized")
+        elif not any(child.name != ".git" for child in leg.iterdir()):
+            # `.git` ITSELF DOES NOT COUNT (Copilot, PR #1115). A mount
+            # holding only submodule metadata — `submodule update
+            # --no-checkout`, or an update interrupted between clone and
+            # checkout — has files in it and no working tree, which is the
+            # state this probe exists to name.
+            absent.append(f"{leg} — no working tree: the directory holds "
+                          "nothing but submodule metadata, so the gitlink is "
+                          "recorded and nothing was ever checked out")
         elif not (leg / ".git").exists():
             absent.append(f"{leg} — no `.git`: a copied source tree rather "
                           "than a checkout, so no pin can be verified for it")
@@ -1619,8 +1632,10 @@ def verify_pins() -> dict[str, str]:
         if dirt is None:
             raise EquivalenceRefusal(
                 "equivalence-reach-unavailable",
-                f"`git -C {leg} status --porcelain` FAILED or did not answer "
-                f"within {_GIT_TIMEOUT}s, so whether the tree this run "
+                f"the cleanliness sweep of {leg} — its tracked diff, its "
+                "ignored and untracked files, and its `ls-files -v` flags — "
+                f"FAILED or did not answer within {_GIT_TIMEOUT}s per read, "
+                f"so whether the tree this run "
                 f"imports from IS the commit {heads[leg_path]} it is checked "
                 "out at went unmeasured. A pin this runner could not verify "
                 "is a pin it must not report")
@@ -1737,18 +1752,22 @@ def main(argv: list[str] | None = None) -> int:
                     "corpus that is not there would render two empty "
                     "snapshots and report them equal, and silence must not "
                     "read as a pass")
-        # THE POST SIDE IS COMPOSED FIRST, AND THE ORDER IS DELIBERATE. It is
-        # the claim's subject and the cheapest thing to prove absent: an
-        # operator whose legs are not materialized, or whose process has no
-        # § 4.4 profile, should be told THAT rather than told about a tag, and
-        # extracting a 5.7 MB archive before discovering that the stack cannot
-        # be composed at all is work done to reach a worse message.
-        # `post_stack()` first, so `carved_reach.require()`'s own refusal —
-        # the one that names `git submodule update` — wins over the pin
-        # comparison for a checkout with no legs at all. NOTHING IS CLAIMED
-        # BETWEEN THE TWO: the modules are imported here and not rendered
-        # until after the pins are verified, so a leg off its pin refuses
-        # before any digest exists to report.
+        # THE POST SIDE COMES FIRST, AND THE ORDER IS DELIBERATE. It is the
+        # claim's subject and the cheapest thing to prove absent: an operator
+        # whose legs are not materialized, or whose process has no § 4.4
+        # profile, should be told THAT rather than told about a tag, and
+        # extracting a 5.7 MB archive before discovering that the stack
+        # cannot be composed at all is work done to reach a worse message.
+        # THE FILESYSTEM PROBE COMES FIRST OF ALL, and this comment used to
+        # say `post_stack()` did (Copilot, PR #1115 — it was the opposite of
+        # the implemented, tested order). Composing imports the legs, which
+        # installs a meta-path finder and writes `__pycache__` INTO the tree
+        # whose cleanliness the next check asserts; discovering an empty
+        # submodule directory that way costs those side effects and answers
+        # in terms of a module name rather than of the checkout. NOTHING IS
+        # CLAIMED BETWEEN ANY OF THEM: the modules are imported here and not
+        # rendered until after the pins are verified, so a leg off its pin
+        # refuses before any digest exists to report.
         absent = unmaterialized_legs()
         if absent:
             raise EquivalenceRefusal(
