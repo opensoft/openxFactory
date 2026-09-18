@@ -7,6 +7,12 @@ repository owner), first-hand, in session, lane `openxfactory-2` (display
 "1052" half of that word. THE ONE CITATION: openxFactory #1047, comment
 https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5698480379.
 Record: `review/ratification-2026-09-16.md`.
+Amended by: Brett Heap, the same ratifier, 2026-09-17, first-hand, in session —
+an interactive multiple-choice selection, verbatim ***"Apply the narrowing"***
+— narrowing ONE scenario WHEN and nothing else; D-1, D-2 and D-3 stand exactly
+as ratified. THE ONE CITATION: openxFactory #1047, comment
+https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714432684.
+Record: `review/ratification-2026-09-16.md` § Addendum, 2026-09-17.
 Kind: design
 
 Three decisions, each put with the recommendation first. `proposal.md` § *The
@@ -61,44 +67,53 @@ design, since none was selected). Left as canon states it, the two scenarios
 would give the empty-root case two outcomes; the one clause gives it back to
 exactly one.
 
-**ROUND 5 PROPOSED NARROWING THE SAME CLAUSE FURTHER; ROUND 6 REVERTED IT.**
-"At least one resolution root was selected" is satisfied by `_pin_roots`
-alone, but `_pinned_arm` only appends a root to `searched` AFTER its
-`contracts/` directory clears `boundary_dir` (`:1604-1613`); a root whose
-boundary check fails draws its own finding instead (*A root's contracts
-directory is itself a symlink*) and is never added to `searched`. Where
-EVERY root `_pin_roots` returns fails that check, `searched` stays empty, the
-trailing `if searched:` guard (`:1633`) never fires, and NO "unresolved
-pinned target: no record under root(s)" finding is emitted — so the
-as-ratified WHEN describes a finding the implementation does not emit on
-that ONE path. Copilot raised this at round 5, and the lane applied a
-narrower WHEN in response — WRONGLY: RATIFIED NORMATIVE SCENARIO TEXT IS THE
-RATIFIER'S ACT TO AMEND, NOT THE LANE'S, exactly as
+**ROUND 5 PROPOSED NARROWING THE SAME CLAUSE FURTHER; ROUND 6 REVERTED IT;
+AND ON 2026-09-17 THE RATIFIER RULED IT IN.** "At least one resolution root
+was selected" is satisfied by `_pin_roots` alone, but `_pinned_arm` only
+appends a root to `searched` AFTER its `contracts/` directory clears
+`boundary_dir` (`:1604-1613`); a root whose boundary check fails draws its own
+finding instead (*A root's contracts directory is itself a symlink*) and is
+never added to `searched`. Where EVERY root `_pin_roots` returns fails that
+check, `searched` stays empty, the trailing `if searched:` guard (`:1633`)
+never fires, and NO "unresolved pinned target: no record under root(s)"
+finding is emitted — so the round-1 WHEN describes a finding the
+implementation does not emit on that ONE path. Copilot raised this at round 5,
+and the lane applied a narrower WHEN in response — WRONGLY: RATIFIED NORMATIVE
+SCENARIO TEXT IS THE RATIFIER'S ACT TO AMEND, NOT THE LANE'S, exactly as
 `add-requirement-ref-resolution-integrity`'s own 2026-09-01 amendment was
 ruled by its ratifier with the contradiction before him, before the text
-changed. Round 6 REVERTS the narrowing; the WHEN above is BYTE-IDENTICAL to
-the text ratified at `92d3e0e2`. The gap this paragraph measures is real and
-is not closed by this packet: it is recorded in
-`review/ratification-2026-09-16.md` § Addendum as a RULING NEEDED comment
-posted to openxFactory #1047, asking Brett Heap for the word this text needs
-before it can narrow.
+changed. Round 6 REVERTED the narrowing and posted a RULING NEEDED to
+openxFactory #1047 instead. **BRETT HEAP ANSWERED IT ON 2026-09-17 — an
+interactive multiple-choice selection, verbatim *"Apply the narrowing"*,
+openxFactory [#1047 comment 5714432684](https://github.com/opensoft/openxFactory/issues/1047#issuecomment-5714432684)**
+— so the WHEN above now reads "…and at least one selected root whose boundary
+was successfully searched", BYTE-FOR-BYTE round 5's text applied under the
+authority round 5 lacked, and the gap this paragraph measures IS closed by
+this packet after all. `review/ratification-2026-09-16.md` § Addendum,
+2026-09-17 carries the word, its citation, the old and new WHEN, and what did
+not move. Nothing is left uncovered by the exclusion: the independent scenario
+*A root's contracts directory is itself a symlink* already requires the
+per-root boundary finding for each refused root.
 
-Measured through the family's own `derive_units`, RE-RUN AFTER ROUND 6's
-revert: canon 209 units (unchanged — canon is not edited), this block 215
+Measured through the family's own `derive_units`, RE-RUN AFTER THE 2026-09-17
+AMENDMENT: canon 209 units (unchanged — canon is not edited), this block 215
 (unchanged throughout — no round added or removed a bullet), THREE uncarried
 units (the root-naming sentence; the pointer-bearing sentence beside it, kept
 from round 5; and the sibling scenario's WHEN bullet, its wording AS
-RATIFIED — uncarried against canon since round 1 regardless of wording,
+AMENDED — uncarried against canon since round 1 regardless of wording,
 canon carrying no such clause at all) and NINE new ones (the root-naming
 sentence's successor, the pointer sentence's corrected successor, the WHEN
-bullet as ratified, and the new scenario's title and its five bullets). The
+bullet as amended, and the new scenario's title and its five bullets). The
 unified diff against canon's block is FOUR hunks — the pointer-bearing
 sentence (kept from round 5), the root-naming sentence, the one WHEN clause,
 and the appended scenario, each at a different place in the file — and `git
-diff --numstat` against canon's block reads 21 added / 8 removed (17/4
-before round 1's clause and the pointer refresh — UNCHANGED by round 6's
-revert, the WHEN clause being one line under either wording). **NO `Removed
-from canon` OR `Merged into` MARKER IS OWED**: every uncarried unit has a
+diff --numstat` against canon's block reads 21 added / 8 removed. THE FIGURES
+BY ROUND: at filing 2 hunks, 17/4, uncarried 1, new 7; after round 1's clause
+3 hunks, 18/5, uncarried 2, new 8; from round 5's pointer refresh onward
+(round 6's revert and the 2026-09-17 amendment included, the WHEN clause being
+one physical line under either wording) 4 hunks, 21/8, uncarried 3, new 9.
+**NO `Removed from canon` OR `Merged into` MARKER IS OWED**: every uncarried
+unit has a
 successor in the same block that says MORE and never less, so nothing is
 deleted and a marker would declare a loss that did not happen.
 
@@ -180,7 +195,22 @@ committed tree alone. What follows IS.
 
 VERIFICATION — REPRODUCIBLE FROM THE COMMITTED TREE ALONE (canon's spec, this
 packet's own delta, and `scripts/doc_health/`, none of which this measurement
-edits), independently of how the delta was produced:
+edits), independently of how the delta was produced.
+
+**COMMANDS 1–4 BELOW ARE PRE-ARCHIVE HISTORICAL EVIDENCE AND NO LONGER RUN AS
+WRITTEN.** They were last re-run over the packet AS AMENDED but BEFORE
+`scripts/proposal-support.py . archive` moved it — canon read at `a93d2682`
+(this branch's point off `main`), the packet read at its then-live path — and
+they reproduced every figure stated with them. The archive act invalidated
+their INPUTS, not their results, in two ways a reader must know before copying
+them: command 1 reads
+`openspec/changes/scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md`,
+which no longer exists (the packet is at
+`openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/`), and
+command 3's `mbc.active_blocks(root)` EXCLUDES `openspec/changes/archive/` by
+design, so it returns no block for this change at all; commands 2 and 3 also
+compare against a canon that now ALREADY CARRIES the promoted block. § 5 below
+is the post-archive equivalent, run over this commit, with its output pasted.
 
 1. Extract canon's block and this packet's block as plain text, into a
    shell-created temporary directory rather than a fixed host-absolute path
@@ -199,14 +229,15 @@ edits), independently of how the delta was produced:
      > "$tmp/packet-block.txt"
    ```
 2. `git diff --no-index --numstat "$tmp/canon-block.txt" "$tmp/packet-block.txt"`
-   reads **21  8** (21 added, 8 removed, RE-RUN AFTER ROUND 6's revert; the
-   round 6 revert changes no line count, the WHEN clause being one line
-   under either wording); `diff -u "$tmp/canon-block.txt"
-   "$tmp/packet-block.txt" | grep -c '^@@'` reads **4** — the
-   pointer-bearing sentence (kept from round 5), the root-naming sentence,
-   the one WHEN clause (as ratified), and the appended scenario, each at a
-   different place in the file, and nothing else. (18 added / 5 removed, 3
-   hunks, before round 5's pointer refresh.)
+   reads **21  8** (21 added, 8 removed, RE-RUN AFTER THE 2026-09-17
+   AMENDMENT; neither round 6's revert nor the amendment changes a line
+   count, the WHEN clause being one line under either wording); `diff -u
+   "$tmp/canon-block.txt" "$tmp/packet-block.txt" | grep -c '^@@'` reads
+   **4** — the pointer-bearing sentence (kept from round 5), the root-naming
+   sentence, the one WHEN clause (as amended 2026-09-17), and the appended
+   scenario, each at a different place in the file, and nothing else. (18
+   added / 5 removed, 3 hunks, after round 1's clause and before round 5's
+   pointer refresh; 17 added / 4 removed, 2 hunks, at filing.)
 3. The `derive_units` comparison, through the modified-block-currency
    family's own derivation, over the live tree rather than the two extracted
    files:
@@ -227,9 +258,11 @@ edits), independently of how the delta was produced:
    "
    ```
    reads `canon units: 209`, `block units: 215`, `uncarried: 3`, `new: 9`
-   (RE-RUN AFTER ROUND 6's revert, UNCHANGED from round 5's own numbers,
-   since the WHEN bullet stays uncarried against canon under either
-   wording; was `uncarried: 2`, `new: 8` before round 5's pointer refresh).
+   (RE-RUN AFTER THE 2026-09-17 AMENDMENT, UNCHANGED from round 5's and
+   round 6's own numbers, since the WHEN bullet stays uncarried against canon
+   under either wording; was `uncarried: 2`, `new: 8` after round 1's clause
+   and before round 5's pointer refresh, and `uncarried: 1`, `new: 7` at
+   filing).
 4. The same fact as a live finding rather than a script: `python3
    scripts/doc-health.py --single-repo . --as-of 2026-09-16 --family
    modified-block-currency` (the date measured against, pinned rather than
@@ -239,11 +272,94 @@ edits), independently of how the delta was produced:
    body units and scenario bullets ... currently states for it", quoting all
    three uncarried units by text.
 
-All four commands were RE-RUN against this commit (round 6, after reverting
-round 5's WHEN narrowing and keeping its pointer refresh) and reproduce the
-numbers stated above; the filing-time numbers (18/5, 3 hunks, uncarried 2, new
-8) are recorded historically at `tasks.md` § 2.2 and in the pull request body,
-and are not restated here as current.
+All four commands were RE-RUN over the amended packet BEFORE the archive moved
+it (the heads named above) and reproduce the numbers stated with them; the
+earlier per-round numbers — at filing 17/4, 2 hunks, uncarried 1, new 7; after
+round 1's clause 18/5, 3 hunks, uncarried 2, new 8 — are recorded historically
+at `tasks.md` § 2.2 and in the pull request body, and are not restated here as
+current.
+
+5. **THE SAME FACTS, REPRODUCIBLE ON THE ARCHIVED TREE.** These read the packet
+   at its ARCHIVED path and take canon from `git show` where the pre-promotion
+   state is wanted, so nothing depends on a path or a reader the archive
+   removed. Each was RUN AT THIS COMMIT and its output is pasted verbatim.
+
+   (a) The canon-diff figures of commands 1–2, against PRE-PROMOTION canon:
+   ```
+   tmp=$(mktemp -d)
+   ARCH=openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md
+   git show a93d2682:openspec/specs/document-lifecycle/spec.md > "$tmp/canon-pre.md"
+   python3 -c "
+   import pathlib, sys
+   text = pathlib.Path(sys.argv[1]).read_text()
+   title = '### Requirement: Prose tagging marker hygiene\n'
+   start = text.index(title)
+   end = text.index('\n### Requirement: ', start + len(title)) + 1
+   pathlib.Path(sys.argv[2]).write_text(text[start:end].rstrip('\n') + '\n')
+   " "$tmp/canon-pre.md" "$tmp/canon-block.txt"
+   tail -n +5 "$ARCH" > "$tmp/packet-block.txt"
+   git diff --no-index --numstat "$tmp/canon-block.txt" "$tmp/packet-block.txt"
+   diff -u "$tmp/canon-block.txt" "$tmp/packet-block.txt" | grep -c '^@@'
+   ```
+   reads `21      8` and `4` — command 2's figures exactly.
+
+   (b) THE PROMOTION ITSELF, which commands 1–2 could not state because they
+   predate it: the same two commands with canon taken from the LIVE
+   `openspec/specs/document-lifecycle/spec.md` instead of `git show` print NO
+   numstat line at all (the files are identical) and `0` hunks.
+
+   (c) The `derive_units` comparison of command 3, without `active_blocks`:
+   ```
+   python3 -c "
+   import sys, pathlib, subprocess
+   sys.path.insert(0, 'scripts')
+   from doc_health import modified_block_currency as mbc
+   from doc_health import promotion_fidelity as pf
+   ARCH = ('openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/'
+           'specs/document-lifecycle/spec.md')
+   TITLE = 'Prose tagging marker hygiene'
+   def body(text, keep_heading=False):
+       head = '### Requirement: %s\n' % TITLE
+       s = text.index(head)
+       n = text.find('\n### Requirement: ', s + len(head))
+       e = len(text) if n < 0 else n + 1   # the delta holds ONE requirement
+       return text[(s if keep_heading else s + len(head)):e].rstrip('\n').split('\n')
+   arch = pathlib.Path(ARCH).read_text()
+   pre = subprocess.run(['git', 'show',
+                         'a93d2682:openspec/specs/document-lifecycle/spec.md'],
+                        capture_output=True, text=True, check=True).stdout
+   pre_u, _ = mbc.derive_units(body(pre, True))
+   blk_h, _ = mbc.derive_units(body(arch, True))
+   have = {u.pair() for u in pre_u}
+   print('(pre)  canon', len(pre_u), 'block', len(blk_h),
+         'uncarried', len(mbc.carried(pre_u, blk_h)),
+         'new', len([u for u in blk_h if u.pair() not in have]))
+   canon = mbc.promoted(pathlib.Path('.').resolve(),
+                        'document-lifecycle')[pf.norm(TITLE)]
+   blk, _ = mbc.derive_units(body(arch))   # heading dropped: promoted()'s convention
+   have = {u.pair() for u in canon.units}
+   print('(now)  canon', len(canon.units), 'block', len(blk),
+         'uncarried', len(mbc.carried(canon.units, blk)),
+         'new', len([u for u in blk if u.pair() not in have]))
+   "
+   ```
+   reads `(pre)  canon 209 block 215 uncarried 3 new 9` — command 3's figures
+   exactly — and `(now)  canon 215 block 215 uncarried 0 new 0`, the promotion
+   measured through the family's own derivation.
+
+   (d) The live-finding check of command 4, post-archive: `python3
+   scripts/doc-health.py --single-repo . --as-of 2026-09-17 --family
+   modified-block-currency` reports **15 `info` rows and NOT ONE naming this
+   change** — the finding command 4 quoted is gone because the block is canon
+   now, which is the retirement condition `tasks.md` § 3.2 discharges. (It read
+   **14** when this section was first written, before `origin/main` was merged
+   in at `5dd0a8dc`; the fifteenth row is `adopt-entry-grain-dispositions-form`'s
+   own, opened over the SAME requirement by PR #1088 → `893abe97` on its
+   ratifier's "Apply the partition" word — not this change's, and named in
+   `_LEDGER_SUBJECTS`.) And
+   `--family promotion-fidelity`, the family that DOES read
+   `openspec/changes/archive/`, reports **0 findings**: the archived block and
+   canon agree.
 
 Base of measurement: `origin/main` @ `8944758c` (the archive of
 `extend-prose-tagging-target-to-pinned-capabilities`, PR #1042, merged
