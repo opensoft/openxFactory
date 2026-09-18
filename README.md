@@ -3305,7 +3305,7 @@ Archived changes:
 
 - [harden-path-escape-helpers-against-symlink-loops](openspec/changes/archive/2026-09-18-harden-path-escape-helpers-against-symlink-loops/proposal.md)
   — **ARCHIVED 2026-09-18** by
-  [PR #ARCHIVE-PR-NUMBER-PENDING](https://github.com/opensoft/openxFactory/pull/ARCHIVE-PR-NUMBER-PENDING),
+  [PR #1116](https://github.com/opensoft/openxFactory/pull/1116),
   filed 2026-09-17 by lane `openxfactory-5` (display `openXfactory-5`) in answer
   to openxFactory
   [#1074](https://github.com/opensoft/openxFactory/issues/1074),
