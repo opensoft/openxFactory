@@ -69,8 +69,11 @@ define `ideation_dashboard` AND `doc_health`. One interpreter would resolve
 whichever landed on `sys.path` first, for both names, and could then report
 equivalence against itself — a green run that measured one side twice. The
 child is additionally started with `-I`, which closes a DIFFERENT door: a name
-the archive does not carry would otherwise fall through to a `PYTHONPATH` or
-user-site copy and silently complete a partial archive out of another tree.
+the archive does not carry would otherwise fall through to a `PYTHONPATH`, a
+script directory or a user-site copy and silently complete a partial archive
+out of another checkout. It does NOT remove system site-packages, and `-S`
+cannot be used — the archived `doc_health` imports PyYAML, measured — so
+`render_pre` says exactly where that boundary stops.
 
 `source_revision` IS PINNED ON BOTH SIDES, and the run is meaningless without
 it. Measured unpinned: the post side reads the checkout's HEAD through
@@ -192,6 +195,13 @@ SNAPSHOT_ROW = "scripts/ideation_dashboard/snapshot.py"
 #: and must not depend on a pytest conftest to know what it pins.
 PINNED_SOURCE_REVISION = "abcd1234" * 5
 PINNED_COMMIT_DATE = "2026-07-12T00:00:00+00:00"
+
+#: What a revision may LOOK like. `FakeGit` accepts any string and the engine
+#: never resolves the anchor, so without this `--source-revision HEAD` or
+#: `--source-revision not-a-revision` would exit 0 over a snapshot stamped
+#: with a non-commit (Copilot, PR #1105 round 3). Sha-1 and sha-256 object
+#: ids both, on `hermes_runtime_validation/content.py`'s `_OBJECT_ID`.
+OBJECT_ID = re.compile(r"[0-9a-fA-F]{40}|[0-9a-fA-F]{64}")
 
 #: The repository name the snapshot is stamped with. The determinism suite's,
 #: so a digest measured here is the digest that suite measures.
@@ -369,7 +379,22 @@ def pre_ref_commit(pre_ref: str, repo: Path) -> str:
     # PR #1105). It is command-line input, and the boundary belongs here.
     done = _git(repo, "rev-parse", "--verify", "--quiet", "--end-of-options",
                 f"{pre_ref}^{{commit}}")
-    if done is None or done.returncode != 0 or not done.stdout.strip():
+    if done is None:
+        # A QUERY THAT DID NOT ANSWER HAS NOT ESTABLISHED THAT THE REF IS
+        # ABSENT (Copilot, PR #1105 round 3). `_git()` answers `None` for a
+        # timeout and for a missing git as well as for a process that could
+        # not start, and telling an operator to `git fetch --tags` because a
+        # promisor remote hung would send them to fix the wrong thing. The
+        # named code stays for a COMPLETED, nonzero `rev-parse`.
+        raise EquivalenceRefusal(
+            "equivalence-unreadable",
+            f"`git rev-parse` for {pre_ref!r} in {repo} could not be run or "
+            f"did not answer within {_GIT_TIMEOUT}s, so this run never "
+            "learned whether that ref exists. A partial clone whose promisor "
+            "remote is unreachable hangs here rather than failing, and an "
+            "unanswered query is not the repository's answer that the ref is "
+            "absent")
+    if done.returncode != 0 or not done.stdout.strip():
         raise EquivalenceRefusal(
             "equivalence-pre-ref-unreachable",
             f"{pre_ref!r} resolves to no commit in {repo}. The default is the "
@@ -451,14 +476,24 @@ def render_pre(tree: Path, corpus: Path, scratch: Path, pre_ref: str,
                source_revision: str) -> bytes:
     """The archived tree's canonical snapshot bytes, from a child interpreter.
 
-    THE SEPARATE PROCESS is what carries the isolation; `-I` closes the door
-    the `sys.path.insert` leaves open. The insert wins every name the archived
-    tree HAS, but a name it LACKS — a submodule dropped from the archive, a
-    helper a future pre-shed ref imports — falls through to whatever comes
-    next, and a `PYTHONPATH` or user-site copy would then silently complete a
-    partial archive out of another tree. Isolated, there is nothing after the
-    insert but the standard library, so a missing piece fails loudly and
-    arrives as `equivalence-pre-tree-unrenderable` rather than as a pass.
+    THE SEPARATE PROCESS is what carries the isolation; `-I` closes ONE of the
+    two doors the `sys.path.insert` leaves open. The insert wins every name the
+    archived tree HAS, but a name it LACKS — a submodule dropped from the
+    archive, a helper a future pre-shed ref imports — falls through to whatever
+    comes next, and a `PYTHONPATH`, a script directory or a user-site copy
+    would then silently complete a partial archive out of ANOTHER CHECKOUT.
+    Those `-I` removes.
+
+    WHAT IT DOES NOT REMOVE, SAID PLAINLY BECAUSE THIS DOCSTRING USED TO CLAIM
+    OTHERWISE (Copilot, PR #1105 round 3): the interpreter's SYSTEM
+    site-packages. An installed distribution can still complete a partial
+    archive. `-S` is not used, and the reason is measured: the archived
+    `doc_health` imports PyYAML, so `python3 -S` cannot import
+    `ideation_dashboard.generator` at all — `ModuleNotFoundError: No module
+    named 'yaml'`. The remaining exposure is narrow and SYMMETRIC: it is the
+    same interpreter and the same installed distributions the POST side runs
+    on, so an installed package cannot make the two sides agree where the
+    projection does not.
     """
     out = scratch / "pre-snapshot.json"
     done = subprocess.run(
@@ -527,6 +562,36 @@ def post_stack(register_profile: bool = True):
             carved_reach.module(SNAPSHOT_ROW))
 
 
+def post_side_identity(stack, pins: dict[str, str]) -> dict[str, str]:
+    """What the post side ACTUALLY IS, derived from the resolved modules.
+
+    `carved_reach.module()` answers from the MANIFEST ROW, so which leg a row
+    arrives at is a fact about a document and a `re_destined:` block can move
+    it (RULED Q6, `#656` comment `5648044785`). A verdict that spelled
+    `openxdox.generator` and `openXdox-code` into its own text would then
+    render the new modules and report the old leg — the evidence line naming a
+    pin that did not render, one more time and by a route the pin checks
+    cannot see (Copilot, PR #1105 round 3). Nothing below is spelled: the
+    dotted names come off the imported modules and the leg comes off where
+    their files are.
+    """
+    generator, snapshot = stack
+    modules = f"{generator.__name__} + {snapshot.__name__}"
+    origin = Path(getattr(generator, "__file__", "") or "").resolve()
+    leg = "unresolved"
+    for candidate in sorted(pins, key=len, reverse=True):
+        root = (ROOT / candidate).resolve()
+        if origin == root or root in origin.parents:
+            leg = candidate
+            break
+    commit = pins.get(leg, "")
+    return {"post_modules": modules, "post_leg": leg,
+            "post_leg_commit": commit,
+            "post_label": (f"{modules} at the pinned {leg} "
+                           f"{commit[:12]}" if commit else
+                           f"{modules} at {leg}")}
+
+
 def render_post(stack, corpus: Path, source_revision: str) -> bytes:
     """The pinned stack's canonical snapshot bytes, in THIS interpreter.
 
@@ -572,8 +637,8 @@ def _pretty(raw: bytes) -> list[str]:
         return raw.decode("utf-8", "replace").splitlines()
 
 
-def compare(pre: bytes, post: bytes, corpus: Path,
-            pre_ref: str) -> dict[str, Any]:
+def compare(pre: bytes, post: bytes, corpus: Path, pre_ref: str,
+            post_label: str) -> dict[str, Any]:
     """One corpus state's verdict, or the refusal that NAMES the field.
 
     A refusal that printed two hex strings would tell an operator that
@@ -590,8 +655,25 @@ def compare(pre: bytes, post: bytes, corpus: Path,
         return state
     diff = list(difflib.unified_diff(
         _pretty(pre), _pretty(post),
-        fromfile=f"PRE  {pre_ref}", tofile="POST pinned openXdox-code",
-        lineterm=""))
+        fromfile=f"PRE  {pre_ref}", tofile=f"POST {post_label}", lineterm=""))
+    if not diff:
+        # A FORMATTING-ONLY DIFFERENCE STILL HAS TO BE SHOWN (Copilot, PR
+        # #1105 round 3). `_pretty()` re-serializes and splits lines, which
+        # ERASES exactly the differences the byte comparison exists to catch
+        # at the margin — a canonical trailing newline, indentation, key
+        # order — and an `equivalence-digests-differ` whose diff is empty is
+        # the refusal without the half that makes it actionable. Fall back to
+        # the raw text with line endings visible.
+        diff = list(difflib.unified_diff(
+            [repr(line) for line in
+             pre.decode("utf-8", "replace").splitlines(keepends=True)],
+            [repr(line) for line in
+             post.decode("utf-8", "replace").splitlines(keepends=True)],
+            fromfile=f"PRE  {pre_ref} (raw)",
+            tofile=f"POST {post_label} (raw)", lineterm=""))
+    if not diff:
+        diff = [f"(the two sides differ in length alone: {len(pre)} vs "
+                f"{len(post)} bytes, with no line that differs)"]
     shown = diff[:DIFF_LINE_CAP]
     if len(diff) > DIFF_LINE_CAP:
         shown.append(f"  … {len(diff) - DIFF_LINE_CAP} more diff line(s); "
@@ -601,7 +683,7 @@ def compare(pre: bytes, post: bytes, corpus: Path,
         "equivalence-digests-differ",
         f"over {corpus} the two sides rendered DIFFERENT snapshots.\n"
         f"  PRE  {pre_ref}: {len(pre)} bytes, sha256 {pre_digest}\n"
-        f"  POST pinned openXdox-code: {len(post)} bytes, sha256 "
+        f"  POST {post_label}: {len(post)} bytes, sha256 "
         f"{post_digest}\n" + "\n".join(shown),
         payload=state)
 
@@ -784,12 +866,10 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
     total = len(summary["states"])
     print(f"OK — {total} of {total} corpus state(s) equivalent: the "
           f"pre-split tree {summary['pre_ref']} "
-          f"({summary['pre_commit'][:12]}) "
-          f"and the post-split stack (openxdox.generator + openxdox.snapshot "
-          f"at the pinned openXdox-code "
-          f"{summary['openxdox_code'][:12]}, through "
-          f"scripts/carved_reach.py) render byte-identical snapshots at the "
-          f"pinned source_revision {summary['source_revision'][:8]}…")
+          f"({summary['pre_commit'][:12]}) and the post-split stack "
+          f"({summary['post_label']}, through scripts/carved_reach.py) render "
+          f"byte-identical snapshots at the pinned source_revision "
+          f"{summary['source_revision'][:8]}…")
     for state in summary["states"]:
         print(f"  {state['corpus']}  {state['pre_bytes']} bytes  "
               f"sha256 {state['pre_sha256']}")
@@ -831,6 +911,16 @@ def main(argv: list[str] | None = None) -> int:
 
     where = args.pre_ref
     try:
+        if OBJECT_ID.fullmatch(args.source_revision) is None:
+            raise EquivalenceRefusal(
+                "equivalence-unreadable",
+                f"--source-revision {args.source_revision!r} is not an object "
+                "id. Both sides stamp the snapshot with this value through an "
+                "INJECTED git that resolves nothing, so a name — `HEAD`, a "
+                "branch, a typo — would render, compare equal and exit 0 over "
+                "a snapshot anchored to something that is not a commit. Give "
+                "40 or 64 hex characters (the default is the determinism "
+                "suite's own pin)")
         corpora = [Path(c).resolve() for c in
                    (args.corpus or [ROOT / CORPUS_RELPATH])]
         for corpus in corpora:
@@ -864,6 +954,7 @@ def main(argv: list[str] | None = None) -> int:
             "openxdox_code": pins["openXdox/code"],
             "opendox_code": pins["openDox/code"],
             "pins": pins,
+            **post_side_identity(stack, pins),
             "source_revision": args.source_revision,
             "repository": REPOSITORY_NAME,
             "states": [],
@@ -878,7 +969,8 @@ def main(argv: list[str] | None = None) -> int:
                                  args.source_revision)
                 post = render_post(stack, corpus, args.source_revision)
                 summary["states"].append(
-                    compare(pre, post, corpus, args.pre_ref))
+                    compare(pre, post, corpus, args.pre_ref,
+                            summary["post_label"]))
     except EquivalenceRefusal as exc:
         return _refused(exc, args, where)
     # THE EXIT CONTRACT, HELD BY CODE AND NOT BY INSPECTION. Everything above

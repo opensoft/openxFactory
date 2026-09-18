@@ -635,6 +635,101 @@ def test_every_git_read_is_scrubbed_bounded_and_replacement_free():
         in source, "the ref read lost its end-of-options marker"
 
 
+def test_the_post_side_label_is_derived_from_the_resolved_modules(shipped):
+    """`carved_reach.module()` answers from the MANIFEST ROW, and a
+    `re_destined:` block can move a row to the other leg (RULED Q6, `#656`
+    comment `5648044785`). A verdict that spelled the module names and the leg
+    into its own text would then render the new modules and report the old
+    leg — the evidence line naming a pin that did not render, by a route the
+    pin checks cannot see (Copilot, PR #1105 round 3)."""
+    assert shipped["post_leg"] in shipped["pins"], shipped["post_leg"]
+    assert shipped["post_leg_commit"] == shipped["pins"][shipped["post_leg"]]
+    assert "generator" in shipped["post_modules"]
+    assert "snapshot" in shipped["post_modules"]
+    assert shipped["post_leg_commit"][:12] in shipped["post_label"]
+    # …and the source does not SPELL the answer anywhere the verdict reads it.
+    source = SCRIPT.read_text(encoding="utf-8")
+    verdict = source[source.index("def _print_ok"):source.index("def main")]
+    assert "openxdox" not in verdict.lower(), (
+        "the verdict line spells a leg or a module name instead of deriving "
+        "it")
+
+
+def test_the_post_side_label_follows_a_re_destination(monkeypatch):
+    """The same property, driven: point the resolved generator at the OTHER
+    leg and the label follows it rather than reporting openXdox."""
+    real = MODULE.post_side_identity
+    pins = {"openDox": "a" * 40, "openDox/code": "b" * 40,
+            "openXdox": "c" * 40, "openXdox/code": "d" * 40}
+
+    class Elsewhere:
+        __name__ = "opendox.generator"
+        __file__ = str(REPO_ROOT / "openDox" / "code" / "src" / "opendox"
+                       / "generator.py")
+
+    class Sibling:
+        __name__ = "opendox.snapshot"
+        __file__ = str(REPO_ROOT / "openDox" / "code" / "src" / "opendox"
+                       / "snapshot.py")
+
+    identity = real((Elsewhere(), Sibling()), pins)
+    assert identity["post_leg"] == "openDox/code"
+    assert identity["post_leg_commit"] == "b" * 40
+    assert "opendox.generator" in identity["post_label"]
+    assert "openXdox" not in identity["post_label"]
+
+
+def test_a_source_revision_that_is_not_an_object_id_refuses():
+    """Both sides stamp the snapshot with this value through an INJECTED git
+    that resolves nothing, so without a shape check `--source-revision HEAD`
+    renders, compares equal and exits 0 over a snapshot anchored to something
+    that is not a commit (Copilot, PR #1105 round 3)."""
+    for bad in ("HEAD", "main", "not-a-revision", "abcd123", ""):
+        done = _run(f"--source-revision={bad}")
+        assert done.returncode == 2, f"{bad!r} was accepted"
+        assert "equivalence-unreadable" in done.stderr, bad
+        assert "is not an object id" in done.stderr, bad
+    # …and a sha-256 object id is accepted, because both widths are real.
+    assert MODULE.OBJECT_ID.fullmatch("a" * 64) is not None
+    assert MODULE.OBJECT_ID.fullmatch("A" * 40) is not None
+
+
+def test_a_git_read_that_did_not_answer_is_not_a_missing_ref(monkeypatch):
+    """`_git()` answers `None` for a timeout and for a git that could not be
+    run, and neither has established that the ref is ABSENT. Telling an
+    operator to `git fetch --tags` because a promisor remote hung sends them
+    to fix the wrong thing (Copilot, PR #1105 round 3)."""
+    monkeypatch.setattr(MODULE, "_git", lambda *a, **k: None)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.pre_ref_commit(CARVE_TAG, REPO_ROOT)
+    assert caught.value.code == "equivalence-unreadable"
+    assert "never learned whether that ref exists" in caught.value.detail
+
+
+def test_a_formatting_only_difference_still_prints_a_diff(monkeypatch,
+                                                          capsys):
+    """`_pretty()` parses and re-serializes, which ERASES exactly the
+    differences the byte comparison exists to catch at the margin — a trailing
+    newline, indentation, key order. An `equivalence-digests-differ` whose
+    diff is empty is the refusal without the half that makes it actionable
+    (Copilot, PR #1105 round 3)."""
+    real = MODULE.render_post
+
+    def trailing_newline(stack, corpus, source_revision):
+        return real(stack, corpus, source_revision) + b"\n"
+
+    monkeypatch.setattr(MODULE, "render_post", trailing_newline)
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        assert MODULE.main(["--json"]) == 2
+    payload = json.loads(buffer.getvalue())
+    assert payload["code"] == "equivalence-digests-differ"
+    assert payload["pre_bytes"] + 1 == payload["post_bytes"]
+    assert payload["diff"], "the diff is empty for a real byte difference"
+    assert any("(raw)" in line or "differ in length alone" in line
+               for line in payload["diff"]), payload["diff"][:10]
+
+
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
     assert MODULE.REFUSAL_CODES == RATIFIED_CODES
 
