@@ -3022,17 +3022,53 @@ movements claimed at the time they land.
   measured merge time falls INSIDE it, which is the check worth making on a
   window rather than reading it back.
   **This is the FIRST archive closure to land under the `--merge`-not-squash
-  rule § 6.4 wrote into this ledger yesterday, and the rule held.** Measured
+  rule § 6.4 wrote into this ledger yesterday, and the rule held FOR THIS
+  CLOSURE'S OWN DIRECTORY — but the same merge had a consequence elsewhere,
+  recorded as INCIDENT 2 below, and this sentence is written narrowly on
+  purpose.** Measured
   rather than assumed: `4ccab7b9` has **two parents**, which is what a merge
   produces and a squash cannot, and the archive directory's adding commit
   `cb147a71` is dated **2026-09-16T01:18:08Z** — the SAME day the directory is
-  named for — so `archive-date-vs-commit` has nothing to fire on. The contrast
+  named for — so `archive-date-vs-commit` has nothing to fire on *for this
+  directory*. The contrast
   is the proof: #1056, squashed two days earlier under the same naming
   convention, put a **2026-09-18** adding commit under a `2026-09-16`
   directory, reddened `main`, and cost a disposition row (#1106 → `bbd1cca8`)
   to clear. Same convention, same week, two landing forms, two outcomes —
   which is as close to a controlled comparison as this ledger gets, and it is
   recorded here so the rule is carried by evidence rather than by assertion.
+  **INCIDENT 2, REGISTERED 2026-09-18 — THE SAME MERGE RETRO-CHANGED ANOTHER
+  DIRECTORY'S ADDING COMMIT AND MADE A CORRECT DISPOSITION ROW STALE.**
+  #1057's branch was stacked on #1056's PRE-SQUASH tip, so landing it by merge
+  commit carried #1056's ORIGINAL archive commit **`d8ff2ec2`** (2026-09-16)
+  into `main`'s history. The checker now reads `d8ff2ec2`, not the squash
+  `3e32d987` (2026-09-18), as `2026-09-16-add-composed-view-authoring`'s adding
+  commit; the directory name AGREES with it; and #1106's disposition row —
+  correct when it landed — is reported **STALE: … remove the entry**. `main`
+  went red again at `4ccab7b9`.
+  **Measured here rather than taken on report**: `d8ff2ec2` is NOT an ancestor
+  of `bbd1cca8` (#1106's merge, 13:28Z) but IS an ancestor of `origin/main`
+  after `4ccab7b9` (13:32Z); it reaches `main` through #1057's **SECOND
+  parent** and **not** along the first-parent line; and it adds that directory
+  at **2026-09-16T01:01:38Z**. The row was correct for about four minutes and
+  then became wrong with no edit to it and none to the directory.
+  **What this teaches is NOT "the squash was fine after all".** A disposition
+  row is not a statement about a directory; it is a statement about **WHICH
+  COMMITS ARE REACHABLE FROM `main`**, so any landing that changes reachability
+  can invalidate a row that is already landed and already correct. Squash caused
+  INCIDENT 1 by MIS-DATING; merge caused INCIDENT 2 by RE-PARENTING.
+  **So the § 6.4 rule GAINS A SECOND CLAUSE rather than being withdrawn: land
+  stacked archive closures by merge commit, AND, before opening the window,
+  re-run the archive-date arm on `origin/main` MERGED WITH THE CANDIDATE** —
+  not on the candidate alone, which is what every run in both incidents
+  actually measured. The two clauses answer the two incidents **one each**:
+  clause one is what INCIDENT 1 needed and would not have caught INCIDENT 2,
+  clause two is what INCIDENT 2 needed and could not have caught INCIDENT 1
+  (the squash commit does not exist until the landing happens). Neither clause
+  alone covers both, which is precisely why the rule now carries both.
+  The repair for this occurrence is `rehome-lander`'s row-REMOVAL pull request,
+  in flight; this box's tick is unaffected, because § 6.3 is about
+  `add-doxchat-model-intake` being closed and re-homed, which it is.
 - [x] 6.4 `[oxF]` `[oD]` **`add-composed-view-authoring`** → openDox. One MODIFIED
   requirement, `target_release: none`, no contract bytes — the cheapest of the
   five.
@@ -4171,3 +4207,24 @@ realization evidence, never on landing. Each line is its own evidence.
   The durable fix is to derive the figure or bind it to a named tree, and the
   choice belongs to that act with its own claim. **Registered here, not
   resolved, and it moves no box.**
+  **(vi) REGISTERED 2026-09-18 BY AMENDMENT #6, NOT RESOLVED HERE, owed to the
+  owner of `tests/sequenced_after`:** the `archive-date-vs-commit` arm is
+  **HISTORY-SHAPE SENSITIVE**, and INCIDENT 2 at § 6.3 is the demonstration.
+  `adding_commits()` picks a directory's adding commit from everything
+  REACHABLE from `main`, so merging a branch that was stacked on a pre-squash
+  tip can retro-change an already-landed directory's adding commit and turn a
+  correct disposition row STALE without anyone editing the row or the
+  directory.
+  **Two candidate improvements, neither chosen here:** **(1)** pick the adding
+  commit by a **FIRST-PARENT walk** from `main`, so a side branch's commits
+  cannot displace the mainline one; or **(2)** disposition by the **(directory,
+  adding commit) PAIR**, so a row whose adding commit has been displaced reads
+  **SUPERSEDED** rather than STALE — a different instruction to its reader and
+  a truer description of what happened to it.
+  **Candidate (1) is MEASURED to work on this case**: `d8ff2ec2` is reachable
+  from `origin/main` but NOT along its first-parent line, so a first-parent
+  walk would still name `3e32d987` and #1106's row would still read valid.
+  **That is one case and not a proof of the general rule** — choosing between
+  the two candidates, or finding both wrong for some third history shape,
+  belongs to that owner's act with its own claim. **Registered, not resolved,
+  and it moves no box.**
