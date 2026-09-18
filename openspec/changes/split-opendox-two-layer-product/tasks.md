@@ -3033,6 +3033,35 @@ movements claimed at the time they land.
   `#1059` and the reason this box sat `[ ]` for two days with its destination
   already standing in the receiving repository. **`#1057` (§ 6.3) is retargeted
   to `main` and follows.**
+  **INCIDENT, REGISTERED — THE CLOSURE WAS LANDED BY SQUASH, AND THE LANDING
+  FORM IS THE DEFECT.** `#1056` was merged with a SQUASH, so the archive
+  directory `openspec/changes/archive/2026-09-16-add-composed-view-authoring`
+  — named for the day the change was ARCHIVED — has an adding commit dated
+  **2026-09-18**, and `openxFactory` `main` goes RED on
+  `validate-sequenced-after`'s `archive-date-vs-commit` arm (main run
+  **`35336659842`** at `3e32d987`). **Measured here rather than taken on
+  report**: `3e32d987` has exactly ONE parent (`4ee21c40`), which is what a
+  squash produces and a merge does not; the check re-run at `origin/main` in a
+  clean worktree reproduces the single finding *"dated 2026-09-16, added
+  2026-09-18 by `3e32d9874b5c68e90b0cef62cd94f9e378831fa3` — undispositioned"*.
+  **THE ARCHIVE ITSELF IS CORRECT AND THIS BOX'S TICK STANDS**: the closure
+  happened, the directory is where it belongs, and what is wrong is the
+  ADDING DATE the squash stamped on it — not the act, not the destination and
+  not the evidence. Renaming the directory is forbidden (`#812`). **The repair
+  is one disposition row**, a single-row pull request by actor
+  `rehome-lander` citing `#812` rule 1 and rule 2a, in exactly the form `#1099`
+  used the day before.
+  **THE RULE THIS PACKET NOW CARRIES, BECAUSE IT IS THE SECOND OCCURRENCE IN
+  TWO DAYS: ARCHIVE CLOSURES LAND BY `gh pr merge --merge`, NEVER BY SQUASH.**
+  The first was lane openXfactory-5's `#1076` → `5dd0a8dc` on 2026-09-17,
+  repaired by `#1099` → `ad089e8a`; this is the same failure with a
+  different actor, which is the evidence that **the cause is the FORM and not
+  the operator**. A squash re-dates the archive directory's adding commit to
+  the landing day, so any archive whose directory is named for an earlier UTC
+  day reds `main` for everyone the moment it lands. **It binds every remaining
+  § 6 closure and any later archive of this packet** — `#1057`, `#1060`,
+  `#1065`, `#1066`, `#1103` — and it is written into the ledger rather than
+  left in a runbook because the ledger is what the next closure's author reads.
 - [ ] 6.5 `[oxF]` `[oD]` **`add-lens-document-selection`** → SPLIT. The
   set-builder half to openDox; its `doc_health.staging_seed` drafter and route
   STAY in `openxFactory`'s own adapter (RULING DQ-1 — no longer a `codexDox`
