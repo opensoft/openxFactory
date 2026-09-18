@@ -115,7 +115,7 @@ against it, not asserted.
       performed or re-marked `- [~]` with its reason — the deferred marker the gate does not match —
       and § 3.5's ledger re-seed, which can only run AFTER the directory moves, is deferred that way
       by construction. Named here rather than discovered at the refusal.
-- [~] 3.1 On a separate word, through the SANCTIONED WRAPPER and never a bare `openspec archive`:
+- [x] 3.1 On a separate word, through the SANCTIONED WRAPPER and never a bare `openspec archive`:
       `python3 scripts/proposal-support.py . archive repromote-engineering-vocabulary --date <YYYY-MM-DD> --yes`,
       so the origin, retention, task, pin and archive-date gates run. It creates
       `openspec/specs/openxfactory-engineering-adapter/spec.md` with the fifteen.
@@ -131,7 +131,7 @@ against it, not asserted.
       spec and exits non-zero on any difference, byte for byte. If `main` has moved the promoted text
       of any of the fifteen, the carry is re-proved or the difference is declared before anything
       promotes. This is the box § 3.0's marker sweep ticks last among the pre-archive ones.
-- [~] 3.4 **README, BY HAND AND IN THE SAME COMMIT — the wrapper does not do it.**
+- [x] 3.4 **README, BY HAND AND IN THE SAME COMMIT — the wrapper does not do it.**
       `scripts/proposal-support.py archive` moves and applies the packet; it does not touch
       `README.md`, so the *Active changes* bullet is RETIRED and an entry is added to the
       archived-changes ledger, newest-first, pointing at
@@ -139,8 +139,21 @@ against it, not asserted.
       closures' own archive acts, which record the pair as one step ("the active bullet retired; the
       archived-ledger entry added"). Leaving it undone points the corpus's own index at a path that
       no longer exists.
-- [~] 3.5 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run
+- [x] 3.5 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run
       `--ledger-diff`; the row moves `active` → `archived`.
+
+
+**THE THREE DEFERRED BOXES WERE PERFORMED IN THIS SAME PULL REQUEST AND ARE TICKED
+HERE, IN THE MOVED FILE.** § 3.1 ran as written and its output is in the archive
+commit's message (`Task status: ✓ Complete`, `ORIGIN RETAINED`, pinned CLI 1.12.0
+verified by content address, `openxfactory-engineering-adapter: create`,
+`Totals: + 15, ~ 0, - 0, → 0`). § 3.4's pair was done as ONE step — the *Active
+changes* bullet retired and the *Archived changes* entry added at the anchor,
+newest-first. § 3.5 was re-seeded BY TOOL and never by hand,
+`--seed-ledger --moved-by '#1103'`, which moved EXACTLY ONE row of 219
+(`state: active → archived`, `moved_by: "#1071" → "#1103"`,
+`moved_on: "2026-09-16" → "2026-09-18"`) and chose the archive date itself, agreeing
+with the directory name.
 
 ## 4. What this packet leaves to its neighbours, by name
 
