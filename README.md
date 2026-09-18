@@ -623,52 +623,6 @@ Active changes:
   realization (`tasks.md` § 3) is a LATER pull request, which the word now
   authorizes to be authored; the archive is a separate act on a separate word
   and on merged-plus-green evidence, where #1087 closes.
-
-- [amend-code-surface-grammar-comma-and](openspec/changes/amend-code-surface-grammar-comma-and/proposal.md)
-  — filed 2026-09-18, lane `openxfactory-5` (display `openXfactory-5`),
-  **`Status: ratified` FROM ITS FIRST COMMIT** — **RULED 2026-09-18 at ~09:55Z
-  by Brett Heap** (openxFactory operator authority), verbatim ***"Amend the text
-  to admit ', and '"***, a TERMINAL MULTIPLE-CHOICE answer over the two shapes
-  openxFactory [#1092](https://github.com/opensoft/openxFactory/issues/1092)
-  put, recorded as a `RULED` line at 2026-09-18T10:15:10Z in the LANE REGISTER,
-  which is a SEPARATE REPOSITORY and not a path in this one —
-  [`opensoft/brett-wip@055bea8b:lanes/log/openXfactory-5.md`](https://github.com/opensoft/brett-wip/blob/055bea8b215ad8b46d83cbf1e366c93c23b08897/lanes/log/openXfactory-5.md#L107), line 107 — record
-  [`review/ratification-2026-09-18.md`](openspec/changes/amend-code-surface-grammar-comma-and/review/ratification-2026-09-18.md).
-  **THE WORD REACHED THE CONTENT BEFORE THE PACKET EXISTED**, so there is no
-  drafting phase and no later approval to add: `.openspec.yaml` carries
-  `proposed_by` and `approved_by` written in one act. **PROMOTED CANON NAMES
-  THREE LIST SEPARATORS AND THE READER IT GOVERNS ADMITS FOUR.**
-  `openspec/specs/release-realization/spec.md:1017-1018`, inside *Code-surface
-  declaration grammar is gated*, admits a head separated "by a comma, by
-  ` and `, or by ` + `" and the scenario at `:1103` repeats the three, while
-  `scripts/code_surface.py:152-157` carries `, and ` as a FOURTH alternative
-  tried FIRST — so an Oxford-comma list (`openxFactory, openXwallet, and
-  codexFactory`) parses as THREE identifiers at a gate whose ratified text,
-  naming only the bare comma there, would have its conjunction read as a member
-  in its own right and the declaration REFUSED at the member after it. The bench
-  already agrees with the module and not with canon:
-  `test_every_ratified_list_separator_is_admitted`
-  (`tests/code_surface/test_code_surface_gate.py:157-160`) parametrizes five
-  spellings, `", and "` among them. **ONE `## MODIFIED` REQUIREMENT: THREE UNITS
-  REPLACED IN PLACE UNDER ONE `Removed from canon` MARKER, TWO BODY PARAGRAPHS
-  AND ONE SCENARIO ADDED** (*A declaration spells its list out with an Oxford
-  comma*), every other unit carried byte-faithfully BY CONSTRUCTION — the block
-  was sliced out of canon and each replacement applied as an exact
-  single-occurrence substitution. **THE READER STAYS AS REALIZED**: option (b)
-  of #1092, narrowing `_SEPARATOR_RE` to the ratified three, was declined by the
-  ruling, and no commit of this packet edits `scripts/code_surface.py` —
-  `code_surface: none`, `target_release: implemented`, `sequenced_after: []` as
-  the positive root claim (no active change writes this requirement key). **TWO
-  DECLARED VETO POINTS**, both measured against the module and both separable:
-  `design.md` **D2**, the exclusivity clause's antecedent said of THOSE TWO HEAD
-  FORMS rather than of a list that now has four items (veto cost: four words),
-  and **D3**, the statement that the separators are alternatives WITHIN one list
-  a head may mix (veto cost: one sentence and one bullet). **NOTHING IS PROMOTED
-  AT THIS LANDING** — `tasks.md` § 4 stays open, the archive is a separate act
-  on a separate word, and #1092 closes there. Residue named and not taken:
-  `scripts/code_surface.py`'s own `parse_head` docstring restates the same three
-  separators at `:447-448` (§ 5.1, ticking at the archive by naming a
-  successor).
 - [harden-path-escape-helpers-against-symlink-loops](openspec/changes/harden-path-escape-helpers-against-symlink-loops/proposal.md)
   filed 2026-09-17, lane `openxfactory-5` (display `openXfactory-5`),
   **`Status: ratified`** (2026-09-18, approximately 09:55Z, Brett Heap,
@@ -3371,6 +3325,62 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [amend-code-surface-grammar-comma-and](openspec/changes/archive/2026-09-18-amend-code-surface-grammar-comma-and/proposal.md)
+  — **ARCHIVED 2026-09-18** by
+  [PR #1112](https://github.com/opensoft/openxFactory/pull/1112), lane
+  `openxfactory-5` (display `openXfactory-5`). **`code_surface: none`**, so
+  under `release-realization` this packet archives ON LANDING PLUS ITS OWN TASK
+  LIST and not on merged-plus-green realization evidence: the ratification
+  landed as PR [#1108](https://github.com/opensoft/openxFactory/pull/1108) →
+  `60d281a86031ce875e24ef23d0df39a3ef60f4a2` on 2026-09-18, and no realization
+  evidence is owed because there is nothing to realize — the delta is
+  requirement prose and the behaviour it states has been
+  `scripts/code_surface.py`'s real behaviour since the module was written.
+  **THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD**, and at the moment this
+  entry was written that word had NOT been given: the pull request was prepared
+  as a DRAFT and HELD for Brett Heap's archive word, to be landed by MERGE
+  COMMIT (never a squash, which would re-date the archive directory's adding
+  commit and red `archive-date-vs-commit`). The RATIFICATION word is a different
+  one and is quoted in the packet: 2026-09-18 at ~09:55Z, Brett Heap
+  (openxFactory operator authority), verbatim ***"Amend the text to admit
+  ', and '"***, a TERMINAL MULTIPLE-CHOICE answer over the two shapes
+  openxFactory [#1092](https://github.com/opensoft/openxFactory/issues/1092)
+  put, record
+  [`review/ratification-2026-09-18.md`](openspec/changes/archive/2026-09-18-amend-code-surface-grammar-comma-and/review/ratification-2026-09-18.md).
+  **THE PROMOTION, MEASURED RATHER THAN EYEBALLED:** the one `## MODIFIED` block
+  is BYTE-IDENTICAL to canon after the archive — `release-realization`
+  *Code-surface declaration grammar is gated*, **15,441 bytes, 181 lines,
+  sha256 `5729577a1d65d17e9d3f…`** on both sides, canon `--numstat` **+73 −10**
+  with `-w` reading the same, and FIVE of the six packet files pure renames at
+  `R100`, 0 changed lines each — `tasks.md` is the exception, not a pure
+  rename (`R059`, `--numstat` **+149 −4**), its own recording moving as later
+  commits ticked task markers and added this archive's measurements, § 4.2's
+  correction and the Copilot round-1 disposition among them.
+  **ORIGIN RETAINED** — the wrapper's own line, *"declaration unchanged since
+  the ratifying commit `60d281a86031`"*, that being the only commit ever to
+  touch this packet's `.openspec.yaml`. **WHAT IS NOW CANON:** the declared head
+  is a list separated by a comma, by `, and `, by ` and ` or by ` + ` — FOUR
+  separators where the promoted text named three — the `, and ` read AHEAD of
+  the bare comma so a spelled-out list is consumed as one separator instead of
+  having its conjunction taken as a member in its own right; the exclusivity
+  clause is said of THOSE TWO HEAD FORMS (`none`, or a list) rather than of the
+  separators; the separators are alternatives WITHIN one list and a head may mix
+  them; the flat refusal of a head continued by `, and …` is narrowed to the
+  case where what follows is not itself a readable identifier; and one scenario
+  is added, *A declaration spells its list out with an Oxford comma*. **NO
+  BEHAVIOUR MOVES**: not one character of `scripts/code_surface.py` changes,
+  every PER-DECLARATION VERDICT and every DERIVED REPOSITORY SET is identical
+  before and after, and `CLOSED_REGISTER` does not move. The validator's CORPUS
+  TOTALS do move, and they move because the packet changed corpus rather than
+  because any declaration was judged differently: active `48 → 47` (`none`
+  heads `7 → 6`), archive read `173 → 174` (declaring `127 → 128`) — one packet
+  in each column, which is this archive and nothing else. **RESIDUE, NAMED AND STILL OWED:** `tasks.md`
+  § 5.1 carries the house's reserved DEFERRED marker `- [~]` — `parse_head`'s
+  docstring (`scripts/code_surface.py:447-449`) and the comment over
+  `_SEPARATOR_RE` (`:148-151`) restate the same three separators, correcting
+  either would give the packet a code surface, no successor issue exists and
+  this archive files none.
 
 - [adopt-entry-grain-dispositions-form](openspec/changes/archive/2026-09-18-adopt-entry-grain-dispositions-form/proposal.md)
   — **ARCHIVED 2026-09-18** by
