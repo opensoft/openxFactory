@@ -768,13 +768,27 @@ def _unescaped(repo_root: Path, relative: Path) -> Path | None:
     so a `repo_root` that is ITSELF reached through a symlink (a scratch tree
     under a symlinked `/tmp`, say) is not mistaken for the escape.
 
+    THE FAILURES THIS GUARD ABSORBS ARE THE INTERPRETER'S, NOT THE SET ITS
+    AUTHOR NAMED, and both of them end in the DROP promised above.
+    `Path.resolve(strict=True)` reports a missing or unreadable component as
+    an `OSError` and a SYMLINK LOOP as a `RuntimeError`, which is a subclass
+    of NEITHER `OSError` NOR `ValueError`: a clause naming only `OSError` is
+    open at exactly the loop, and hands the caller an exception where this
+    prose promised an answer. A loop may stand at the candidate's LEAF or at
+    ANY PARENT COMPONENT of it, the scanned root included, and the answer is
+    the same in every position — `repo_root / relative` traverses the loop
+    itself, so it is the CANDIDATE resolution that fails even when the
+    failing component is the root, and the root resolution below is never
+    reached. (openxFactory #1074;
+    `harden-path-escape-helpers-against-symlink-loops` § 3.1.)
+
     `target_release._unescaped` is the exact shape this mirrors.
     """
     candidate = repo_root / relative
     try:
         resolved = candidate.resolve(strict=True)
         resolved_root = repo_root.resolve(strict=True)
-    except OSError:
+    except (OSError, RuntimeError):
         return None
     if resolved != resolved_root / relative:
         return None

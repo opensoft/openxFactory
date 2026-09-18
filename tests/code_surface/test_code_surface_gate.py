@@ -549,6 +549,82 @@ def test_repo_root_reached_via_a_symlink_still_finds_its_proposals(tmp_path):
     assert "archive (read, never judged): 1 proposals" in result.stdout
 
 
+# --- a resolution that CANNOT ANSWER is still ANSWERED (#1074) ----------------
+# `Path.resolve(strict=True)` signals a SYMLINK LOOP by raising `RuntimeError`,
+# which is a subclass of NEITHER `OSError` NOR `ValueError`, so the clause that
+# closes every escape above was open at exactly that failure and `_unescaped`
+# RAISED where its own prose promises a DROP. Measured on `Python 3.12.3`, the
+# version `.github/workflows/pytest-suite.yml` pins for the required check:
+# `validate-code-surface.py` ended in a traceback rather than a report on a
+# minimal tree whose `proposal.md` was a two-link `a -> b -> a` loop, and a
+# traceback is neither a drop nor a finding — it is the gate refusing to report
+# on the tree at all, the one outcome the guard's docstring was written to
+# prevent. (`harden-path-escape-helpers-against-symlink-loops` § 3.2; the
+# requirement is *A containment guard answers every resolution failure and
+# raises none*.)
+
+
+def _symlink_loop(directory: Path, name: str) -> Path:
+    """An `a -> b -> a` two-link symlink loop at `directory / name`, BUILT AT
+    TEST TIME AND NEVER COMMITTED.
+
+    A committed loop is tracked as two ordinary git objects (mode `120000`) and
+    would arrive through a pull request like any other file — which is why it is
+    the shape these guards defend against — but as a FIXTURE it would be met by
+    every recursive reader this estate runs, not only the guard under test, and
+    a fixture that reds tools unrelated to the defect it proves is a second
+    defect introduced to demonstrate the first. The packet's § 3.7 forbids it
+    and *A symlink-loop proof is built at test time and never committed* is the
+    rule.
+    """
+    a = directory / name
+    b = directory / f"{name}--loop-b"
+    a.symlink_to(b)
+    b.symlink_to(a)
+    return a
+
+
+def test_a_symlink_loop_drops_the_candidate_in_all_three_positions(tmp_path):
+    """THE GUARD ANSWERS IN EVERY POSITION THE LOOP CAN STAND IN. Against the
+    unfixed clause (`except OSError:`) each of the three calls below RAISED
+    `RuntimeError` out of `_unescaped` instead of returning `None`.
+
+    THE THREE POSITIONS ARE THE REQUIREMENT'S OWN, and the second is the one a
+    reviewer's intuition misses: the leaf is a perfectly ordinary name and
+    ordinariness is a property of the ONE component it is asserted of, so a
+    guard that reads the leaf learns nothing about what carried it there.
+
+    THE THIRD POSITION IS A CLAIM ABOUT THE CANDIDATE AND NOT ABOUT A ROOT-SIDE
+    READ. `candidate = repo_root / relative` already traverses the loop, so
+    `candidate.resolve(strict=True)` raises and the root resolution on the NEXT
+    line is never executed; what is proved is a candidate path whose failing
+    component happens to be the root, which is the scenario's subject.
+    (`harden-path-escape-helpers-against-symlink-loops` § 3.2, `design.md` D5.)
+    """
+    # (1) the CANDIDATE'S OWN LEAF is the loop
+    leaf_root = tmp_path / "leaf"
+    packet = leaf_root / "openspec" / "changes" / "a-packet"
+    packet.mkdir(parents=True)
+    loop = _symlink_loop(packet, "proposal.md")
+    with pytest.raises(RuntimeError):
+        loop.resolve(strict=True)  # the fixture is worth nothing if it does not
+    assert cs._unescaped(
+        leaf_root, Path("openspec/changes/a-packet/proposal.md")) is None
+
+    # (2) a PARENT COMPONENT, above a leaf that is a perfectly ordinary name
+    parent_root = tmp_path / "parent"
+    parent_root.mkdir()
+    _symlink_loop(parent_root, "openspec")
+    assert cs._unescaped(
+        parent_root, Path("openspec/changes/a-packet/proposal.md")) is None
+
+    # (3) the SCANNED ROOT ITSELF is reached through the loop
+    base = tmp_path / "base"
+    base.mkdir()
+    looped_root = _symlink_loop(base, "repo")
+    assert cs._unescaped(looped_root, Path("proposal.md")) is None
+
+
 # --- the register -------------------------------------------------------------
 
 

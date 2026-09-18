@@ -80,7 +80,7 @@ Core domain-neutral docs:
 - [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; and, under the two RULED corrections to a PLACEMENT, a moved row may declare `re_destined:` where a ruling moved its arrival between legs (RULED Q6, 2026-09-12, `#656` comment 5648044785) or `retired:` where a ruling DELETED that arrival because the surface it needed is at no leg at all (RULED 5656343213, 2026-09-13) — both leave every digest, disposition and declared line untouched, because both are facts about a DESTINATION, and both are gated at the leg by `scripts/verify-carve-arrival.py` (`arrival-not-vacated`, `arrival-not-retired`) and documented as procedures at the cutover runbook's § 5.7 and § 5.8; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
 - [The openDox carve admissions](docs/opendox-carve-admissions.yaml) (RULED — the arrival-admission repair, Brett Heap, 2026-09-11, `#656` comment 5639058687: the DECLARED per-destination `created:` list `scripts/verify-carve-arrival.py` reads beside the manifest by default, applied exactly as `--allow-created` admits, so a file a leg legitimately assembles is a reviewed one-line diff in the pin-bump pull request rather than a flag typed on a command line and recorded nowhere; seeded with the two `opensoft/openXdox-code#7` files; `--allow-created` remains the ad-hoc fallback)
 - [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, § 5.7's and § 5.8's two RULED corrections to a placement (a re-destination and a retirement), and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2717 declared edit lines over 176 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
-- [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, five refusal codes, a `--json` seat), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 and the other two named destinations have authored no reader yet, so § 3.7 is not ticked)
+- [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, six refusal codes, a `--json` seat; RULED Q-F1 (a) 2026-09-17 also lets a destination whose corpus is git HISTORY hand in a TRANSPOSITION of the same documents with `--corpus`, which the runner proves faithful key by key and byte by byte — the identities it lists and reads under are held to the resolution it asked for, the bytes to the shipped table — refusing `conformance-corpus-unfaithful` before any check runs and naming the transposition, its revision and that table's digest in the verdict; where the reader cannot resolve or list the location at all there is nothing to compare, so the 17 checks report that instead and a run whose 17 all passed over a transposition never proven faithful refuses at the end rather than printing OK), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 and the other two named destinations have authored no reader yet, so § 3.7 is not ticked)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
 - [Governed Derived Model](docs/governed-derived-model.md)
@@ -2968,104 +2968,6 @@ Active changes:
   digest inventory and the tag happen once, with the other next-additive-bundle
   changes. Archives only when hermes-install re-pins and admits
   `hermes_client_overlay` to its `PARITY_KINDS` sweep.
-- [add-nightly-dashboard-refresh](openspec/changes/add-nightly-dashboard-refresh/proposal.md)
-  — authored 2026-08-22, **RATIFIED 2026-08-25** against its realized system
-  (Brett, in-session: "ratify add-nightly-dashboard-refresh against its
-  realized system"), amended 2026-09-01, reaching this repository 2026-09-04
-  by rescue (PR #595) and re-ratified that same day, then
-  **RE-REALIZED 2026-09-04 (S1–S5 landed; awaiting the first real nightly and
-  the operator's host acts before archive)** — openxFactory #642 `bbc21e41`,
-  #641 `19a777d8`, #648 `96aa61a3`; aggregation opensoft/xFactory #243
-  `84dbbb24`; Omnigent-Install #211 `cdfe3152`. Its code is MERGED AND WIRED
-  across all three repositories — openxFactory #260/#261, aggregation
-  opensoft/xFactory #141, Omnigent-Install
-  #123/#126/#129/#143/#146/#153 — with required-check ruleset
-  21294850 live on Omnigent-Install's default branch. **The ARCHIVE gate stays
-  OPEN**: this change's own `target_release` requires one real nightly pin PR
-  merged and reconciled PLUS one wider diff refused and parked, and NEITHER has
-  happened — the build+push child has never run, no `bot/dox-dashboard-pin` PR
-  has ever existed, and both nightlies since the chain landed failed with every
-  refresh step skipped. Merged and wired is not exercised; §7 and §8.5 stay
-  open, discharged by the first real nightly in either direction. The
-  openxFactory COMPANION to Omnigent-Install's just-merged
-  `add-dox-gitops-reconciliation` (its `main` `7d0370d`, 2026-08-22), which took
-  the APPLY and deliberately deferred two open questions to this change. Gives
-  the nightly a sixth lane: an ideation-dashboard IMAGE REFRESH stage on the
-  `cpc-omni01` artifact worker, ordered after the report delivery — fresh
-  openxFactory `main` checkout, `--strict` snapshot generation from THAT
-  checkout (0 errors / 0 warnings, and the gate precedes the push, so a strict
-  failure publishes nothing), image build from Omnigent-Install's
-  `containers/ideation-dashboard/Dockerfile` at ITS `main` over the assembled
-  workspace context, date-stamped push to `acropensoftxfactoryqa.azurecr.io`,
-  digest captured. One revision for snapshot and baked `/source` corpus by
-  construction, which is what keeps the freshness header honest. The no-change
-  short-circuit is decided on INPUT REVISIONS BEFORE the build — unmoved corpus
-  and unmoved build recipe ⇒ no checkout, no build, no push, no PR, no deploy —
-  explicitly NOT on built-vs-pinned digest equality, which can never hold
-  (fresh-checkout mtimes move the copied layers; the base image tag floats) and
-  would therefore redeploy content-equivalent images nightly. Provenance for
-  that check is a machine-readable block in the pin's own overlay comment (the
-  precedent the two hand-written pins already set in prose), scoped to each
-  repository's BAKED INPUTS rather than its branch tip so the lane's own merged
-  pin cannot force the next rebuild; absent/unparseable provenance counts as
-  changed and bootstraps. RULES both deferred questions: **(a)** the auto-merge
-  mechanism is the aggregation's existing Merge Master pattern extended to
-  Omnigent-Install with a SECOND candidate class in its reviewed
-  `candidates:` list (author + fixed head `bot/dox-dashboard-pin` + base +
-  one-file `path_allowlist` + `require_all_checks`, with the LINE-level
-  digest-shape predicate contributed by a repository-side required check,
-  because no envelope field expresses it) — fail-closed, base-branch-only
-  rules and logic, revocable in one config edit, no org-ruleset bypass;
-  **(b)** the lane identity is the EXISTING `XFACTORY_APP` the reusable
-  workflow already mints per run, requiring its installation on
-  Omnigent-Install at `contents: write` + `pull_requests: write` (verified by a
-  real authenticated call, not a settings page), with a dedicated App as the
-  recorded contingency. Worker/App/approver/GitHub/Flux hold four separate
-  rungs; `execute_final_action` and `access_secrets` stay false; the only new
-  grant is a push-scoped, host-local, by-reference ACR credential (needs an
-  Omnigent-Install schema delta — `acr_pull` is
-  `additionalProperties: false`). SIX ADDED requirements on `doc-health` (the
-  lane contract, where every sibling nightly lane already lives) plus ONE ADDED
-  and ONE MODIFIED on `ideation-dashboard` (the served plane's rebake bound;
-  the MODIFIED restates all four promoted scenarios verbatim, preserves "an
-  image rebuild MUST NOT be required to reflect newly published snapshots"
-  exactly, and RECORDS the standing conformance gap that the hosted image
-  performs no runtime fetch today, so its baked artifacts are its data).
-  `target_release: implementation_pending`.
-  **AN AMENDMENT TO THE RATIFIED `doc-health` DELTA WAS RULED 2026-09-01,
-  REACHED THIS REPOSITORY 2026-09-04 BY RESCUE, AND WAS RE-RATIFIED THAT SAME
-  DAY** (Brett Heap, in-session, verbatim "re-ratify and merge 595"). The
-  2026-09-04 date is the rescue and the re-ratification, not the amendment's
-  own: `proposal.md`'s front-matter `Amended:` line is authoritative and reads
-  2026-09-01. Everything described above is the design as RATIFIED
-  2026-08-25 and is what still governs. The amendment, authored 2026-09-01 on
-  Brett's host ruling ("the runner design intentionally requires
-  `repository_credentials_absent`; source is delivered as sealed job artifacts
-  and the runners do not clone or push repositories"), moves the
-  fresh-checkout act OFF the credential-free artifact worker and ONTO the
-  credentialed hosted parent, which seals a bounded source artifact the child
-  verifies and consumes — because the ratified lane requires a clone of two
-  PRIVATE repositories on a worker its own authority requirement forbids a
-  repository credential to. Two ADDED scenarios and one ADDED prohibition
-  paragraph in the delta; no requirement title moves and no `MODIFIED` block is
-  introduced. It reached this repository by rescue (PR #595, issue #591) after
-  being stranded uncommitted in the shared checkout, and it is recorded in
-  `proposal.md` § AMENDED AFTER RATIFICATION, 2026-09-04. The archive gate is
-  unmoved either way. **The re-realization the amendment owed LANDED
-  2026-09-04**
-  (the five PRs named at the top of this entry, recorded in `proposal.md`
-  § REALIZED and `tasks.md` § 9a): the parent now seals a bounded source
-  artifact with a manifest and a `tree_digest`, the child verifies and consumes
-  it before any registry credential is used, the two SSH deploy keys and every
-  `git` invocation are gone from the worker, the module's own raw-clone
-  `--phase build` recipe is retired, and the Omnigent-Install worker profile
-  stops contradicting its own `repository_credentials_absent` attestation. The
-  sealed source measures **3511 files / ~35.1 MB**, not the design's ~8 MB
-  estimate. That closes the code/spec disagreement and makes the lane
-  exercisable; **the ARCHIVE gate is still OPEN** on the same evidence, now
-  owed only by S7 — the operator's four remaining host acts (the SSH deploy-key
-  act is DELETED, not deferred) and the first real nightly in both
-  directions.
 - [add-roster-directory-admission-surface](openspec/changes/add-roster-directory-admission-surface/proposal.md)
   — authored 2026-08-22, **NOT YET RATIFIED** (`Status: draft`). Admits the
   single `directory` (service-discovery) admission surface into the closed
@@ -3331,21 +3233,6 @@ Active changes:
   acceptance-gate stage — its tasks accept Speckit realization evidence;
   Hermes Install Gate G0/T009 stays closed until the published evidence
   independently reproduces)
-- [add-lens-document-selection](openspec/changes/add-lens-document-selection/proposal.md)
-  — ratified 2026-08-08 from three annotations on the keyword lens. A
-  document has three views (the radar's dot, the matrix's row, the signature
-  grid's row) and they now publish one key, so pointing at any lights the
-  others. The signature grid states its finding — "32 documents share 3
-  signatures (largest 17)" — and collapses, because a finding that fits in a
-  sentence does not warrant 220px of the best space on the screen. A matrix
-  SELECTION drafts a staging-queue fragment: evidence computed (documents,
-  repositories, the terms all of them share), argument left to the human,
-  nothing written — the exit the keyword radar lacked, distinct from the
-  repository lens's DTN register seed. Carries two dark-theme defect fixes
-  and their guards: a button reset that never stated its colour, and six
-  uses of custom properties the stylesheet never defines whose silent
-  fallbacks painted a white popover behind light text. (code surface:
-  openxFactory; target release: none)
 - [retire-doxbench-chat-turn-v1](openspec/changes/retire-doxbench-chat-turn-v1/proposal.md)
   — authored 2026-09-01, **`Status: ratified` — RATIFIED 2026-09-01 by Brett
   Heap, in session, at PR #552 tip `c5169476`** (record:
@@ -3530,6 +3417,105 @@ Archived changes:
   [#1047](https://github.com/opensoft/openxFactory/issues/1047) closes on this
   archive, by the lane's hand after the ARCHIVED record — this pull request
   carries `refs` and no closing keyword.
+
+- [add-lens-document-selection](openspec/changes/archive/2026-09-16-add-lens-document-selection/proposal.md)
+  — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
+  [PR #1065](https://github.com/opensoft/openxFactory/pull/1065),
+  under **RULING Q6** (Brett Heap, 2026-09-04T17:49Z,
+  [#656](https://github.com/opensoft/openxFactory/issues/656)) **and RULING DQ-1**
+  (same day, 22:14Z), encoded at `split-opendox-two-layer-product` `tasks.md`
+  § 6.5 and `design.md` § D9. **THE ONLY ONE OF THE FIVE WHOSE CONTENT DOES NOT
+  LAND IN ONE PLACE** — both documents say so in those words — and **the split
+  falls INSIDE a requirement rather than between two.** Four of its five `## ADDED`
+  requirements are wholly app-side; the second, *A document selection drafts a
+  staging-queue seed*, states both halves in one sentence, and its drafting
+  clauses (*"SHALL write nothing"*, evidence *"recomputed by the serving side
+  from its own snapshot"*, an unknown document *"refused by name"*) are
+  obligations on the `doc_health.staging_seed` drafter and its serve route, which
+  **RULING DQ-1 KEEPS IN `openxFactory`'s OWN ADAPTER**. **THE DESTINATION, NAMED,
+  WHICH IS WHAT `tasks.md` § 8.5 REQUIRES:**
+  [openDox-spec #14](https://github.com/opensoft/openDox-spec/pull/14), carrying
+  the delta **WHOLE and byte-identical** — 8,363 B / `sha256 48b9a60c…`,
+  `diff`-verified, `grep -c openxFactory` over it **0** — with the owed narrowing
+  carried as a BLOCKED OPEN BOX (§ 2.1 there) and a bar on ratifying that one
+  requirement until it lands (§ 2.2). **THE NARROWING IS NAMED, NOT PERFORMED,
+  AND THE REASON IS RECORDED:** splitting a ratified requirement's sentences is
+  authoring rather than carriage, and the `openxFactory` half has nowhere to land
+  today — its capability is this packet's § 5.2a, unbuilt, with
+  `corpus-adapter-seam` an unpromoted delta of the same packet. Same reading
+  § 6.1 took for its seven `doc-health` requirements. **WHAT STAYS:**
+  `scripts/doc_health/staging_seed.py` and `/actions/staging-seed`, untouched
+  here. **WHAT TRAVELS OPEN:** § 4.4, the first real staging seed — a box no
+  single repository can close, since the selection is openDox's, the drafting
+  `openxFactory`'s and the placing a human act in `openxFactory`'s own
+  `ideation/staging/`. **NO DELTA IS PROMOTED HERE**; the packet is relocated by
+  `git mv` and otherwise UNEDITED, `Status: ratified` included. Its retiring
+  active bullet said *"target release: none"*; the packet's own `proposal.md:3`
+  declares **`target_release: implemented`**, and this entry reports the
+  declaration — the same correction § 6.4's record makes for `tasks.md` § 6.4's
+  shorthand. The non-promotion is registered as DELIBERATE through
+  `promotion_fidelity.py`'s own second discharge, an entry in the xFactory
+  aggregation's `health/dispositions.yaml` filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the
+  gate is `tasks.md` § 8.5, the severity reading § 8.9's; § 6.6 is the separate
+  no-new-change rule) — **measured at this head: 20 errors, five of them this
+  packet's, against 15 at § 6.1's head**. Full reasoning:
+  [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-lens-document-selection/review/rehome-2026-09-16.md).
+
+- [add-nightly-dashboard-refresh](openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh/proposal.md)
+  — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openXdox` by
+  [PR #1060](https://github.com/opensoft/openxFactory/pull/1060), under **RULING
+  Q6** (Brett Heap, 2026-09-04T17:49Z,
+  [#656](https://github.com/opensoft/openxFactory/issues/656)), encoded at
+  `split-opendox-two-layer-product` `tasks.md` § 6.1 and `design.md` § D9. **THE
+  ONLY ONE OF THE FIVE WHOSE DESTINATION IS openXdox** — D9 reads the refresh
+  lane as projection-mechanism work — and **the one § 6.1 calls "the one genuine
+  conflict RULING Q6 names"**. **THE DESTINATION, NAMED, WHICH IS WHAT `tasks.md`
+  § 8.5 REQUIRES:** [openXdox-spec #15](https://github.com/opensoft/openXdox-spec/pull/15),
+  **the first change RE-HOMED INTO openXdox** — not that repository's first
+  OpenSpec change, which it is not: openXdox-spec already carries the archived
+  `2026-09-11-add-openxdox-projection-surfaces` and the promoted
+  `openspec/specs/openxdox-projection-surfaces/`, both measured there on
+  2026-09-18. (The claim read "openXdox's FIRST OpenSpec change" until then;
+  openXdox-spec #15's own description had already corrected it, and this index
+  should not record a repository-history claim its destination contradicts.
+  Found by Copilot's review at `b126e7b3`.) **ITS TWO DELTAS ARRIVE ON DIFFERENT TERMS,
+  which is the whole of § 6.1.** `ideation-dashboard` (1 ADDED + 1 MODIFIED, the
+  MODIFIED being *Runtime snapshot fetch with baked fallback and displayed
+  freshness*) travels **byte-identical** — 6,663 B / `sha256 50fd14ba…`,
+  `diff`-verified, `grep -c openxFactory` over it **0**, so no subject edit was
+  owed. The **SEVEN `doc-health` ADDED** requirements do NOT become openxFactory
+  requirements — § 6.1: *"they do NOT travel and are NOT added to
+  `openxFactory`"* — and do not land on a `doc-health` capability at the
+  destination either; they arrive on openXdox's own `openxdox-refresh-lane` with
+  **exactly one line changed**, the delta file's capability heading. **THE
+  RE-AUTHORING AGAINST THE ADAPTER THAT § D9 ASKS FOR IS NAMED, NOT PERFORMED,
+  AND THAT IS DECLARED RATHER THAN QUIET:** the seven are
+  openxFactory-nightly-specific in their ANTECEDENTS (*"The nightly doc-health
+  run SHALL include…"*, *"the aggregation's `openxFactory` submodule pin"*), so
+  re-pointing them is a rewrite rather than the seam's declared subject edit —
+  and the adapter does not exist in any corpus today (`corpus-adapter-seam` is an
+  unpromoted delta of **`split-opendox-two-layer-product`** —
+  `openspec/changes/split-opendox-two-layer-product/specs/corpus-adapter-seam/spec.md`,
+  with no `openspec/specs/corpus-adapter-seam/` to promote into — and the
+  successor capability id is **that** packet's **§ 5.2a**, unbuilt. NOT this
+  archived packet's own § 5.2a, which is a different and already-ticked item, a
+  round-trip test over the real overlay file; the closure record states it the
+  same way). The receiving change carries it as a blocked open box and bars
+  ratifying the seven until it lands. **THE LOCKSTEP PAIR THE ARCHIVE RETIRES:**
+  `scripts/target-release-register.yaml`'s `implementation_pending` entry —
+  whose own `retires_when:` reads *"or the packet archives"* — and
+  `scripts/target_release.py`'s `CLOSED_REGISTER` tuple, 21 pairs to 20. **THE
+  TWO HALVES ARE NOT THE SAME OBLIGATION:** the ENTRY's deletion is required
+  (`Report.stale` refuses while it stands), while the baseline pair's is a
+  DELIBERATE SHRINK — `target_release.py` says a baseline *"MAY BE A STRICT
+  SUPERSET, AND USUALLY WILL BE … a ceiling, never a floor"*, and its
+  same-pull-request sentence governs ADMITTING a pair, not removing one. Both
+  move here anyway, in one diff, because that is where the movement is legible.
+  **WHAT STAYS:** the
+  aggregation-side artifact-only worker (§ 6.1); no workflow moves. **NO DELTA IS
+  PROMOTED HERE.** The packet is relocated by `git mv` and otherwise UNEDITED.
+  Full reasoning:
+  [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh/review/rehome-2026-09-16.md).
 
 - [add-doxchat-model-intake](openspec/changes/archive/2026-09-16-add-doxchat-model-intake/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
