@@ -24,8 +24,9 @@ WHY IT LANDS AS RATIFIED.** Issue #1092 put two shapes and asked for a ruling;
 Brett Heap answered with one of them, verbatim **"Amend the text to admit
 ', and '"**, on 2026-09-18 at approximately 09:55Z, as a terminal
 multiple-choice answer given directly to lane `openXfactory-5` and recorded by
-it as a `RULED` line in `lanes/log/openXfactory-5.md` at **2026-09-18T10:15:10Z**
-(`brett-wip` `055bea8b`). There is therefore no drafting phase to record and no
+it as a `RULED` line at **2026-09-18T10:15:10Z** in the LANE REGISTER, which is
+a SEPARATE REPOSITORY and not a path in this one —
+[`opensoft/brett-wip@055bea8b:lanes/log/openXfactory-5.md`](https://github.com/opensoft/brett-wip/blob/055bea8b215ad8b46d83cbf1e366c93c23b08897/lanes/log/openXfactory-5.md#L107), line 107. There is therefore no drafting phase to record and no
 approval to add beside an earlier origin: `.openspec.yaml` carries
 `proposed_by` and `approved_by` written in ONE act, with `kind` and `id` fixed
 from the first commit, and every document in the packet carries

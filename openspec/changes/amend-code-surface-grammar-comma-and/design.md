@@ -16,8 +16,9 @@ names THREE list separators and `scripts/code_surface.py` admits FOUR.
 
 Brett Heap ruled on 2026-09-18 at approximately 09:55Z, verbatim **"Amend the
 text to admit ', and '"**, as a terminal multiple-choice answer given directly
-to this lane and recorded as a `RULED` line in `lanes/log/openXfactory-5.md` at
-2026-09-18T10:15:10Z (`brett-wip` `055bea8b`).
+to this lane and recorded as a `RULED` line at 2026-09-18T10:15:10Z in the LANE
+REGISTER — a SEPARATE REPOSITORY, and not a path in this one:
+[`opensoft/brett-wip@055bea8b:lanes/log/openXfactory-5.md`](https://github.com/opensoft/brett-wip/blob/055bea8b215ad8b46d83cbf1e366c93c23b08897/lanes/log/openXfactory-5.md#L107), line 107.
 
 **THE READER WAS NOT RECALLED, IT WAS RUN.** Every claim this packet makes about
 what `scripts/code_surface.py` does was taken by calling `cs.parse_head` on the

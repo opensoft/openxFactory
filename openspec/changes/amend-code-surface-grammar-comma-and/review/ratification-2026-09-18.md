@@ -7,9 +7,10 @@ Ratifier: Brett Heap (openxFactory operator authority)
 Ratified: 2026-09-18 by Brett Heap (openxFactory operator authority) — lane
 `openxfactory-5` (display `openXfactory-5`), verbatim: *"Amend the text to admit
 ', and '"*, given in session at approximately **09:55Z** as a TERMINAL
-MULTIPLE-CHOICE answer and recorded by that lane as a `RULED` line in
-`lanes/log/openXfactory-5.md` at **2026-09-18T10:15:10Z** (`brett-wip`
-`055bea8b`), with the same recording carried to openxFactory
+MULTIPLE-CHOICE answer and recorded by that lane as a `RULED` line at
+**2026-09-18T10:15:10Z** in the LANE REGISTER, a SEPARATE REPOSITORY and not a
+path in this one — [`opensoft/brett-wip@055bea8b:lanes/log/openXfactory-5.md`](https://github.com/opensoft/brett-wip/blob/055bea8b215ad8b46d83cbf1e366c93c23b08897/lanes/log/openXfactory-5.md#L107), line 107 —
+with the same recording carried to openxFactory
 [#1092](https://github.com/opensoft/openxFactory/issues/1092).
 
 **THE WORD IS A MULTIPLE-CHOICE RULING AND THE CHOICES WERE THE ISSUE'S OWN.**
