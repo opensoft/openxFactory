@@ -254,6 +254,15 @@ dispositions:
     ruled_by: "Brett Heap 2026-09-08 \"rule 1 + 2a on 812\""
     cited_to: "opensoft/openxFactory#812"
 
+  # THE ONLY CAUSE-2 ENTRY. A second stood beside it from bbd1cca8 (PR #1106,
+  # 2026-09-18) until this pull request: 2026-09-16-add-composed-view-authoring,
+  # dispositioned because #1056's SQUASH landing discarded the archive act's own
+  # commit. #1057 was stacked on #1056's PRE-SQUASH tip and landed by MERGE
+  # COMMIT, which brought that act's commit d8ff2ec2 into main, so the directory
+  # AGREED again and the row went STALE. THIS ARM IS HISTORY-SENSITIVE: the same
+  # tree can read agreeing or disagreeing depending on which commits a LATER
+  # landing brings in, so a disposition here can be retired by an act that is
+  # not about it. Registered as a finding about the checker, for the bookkeeper.
   - directory: "2026-09-16-gate-code-surface-declarations"
     directory_date: "2026-09-16"
     adding_commit: "5dd0a8dc39899820ab9fad6f02ae9b364bb43dc6"
