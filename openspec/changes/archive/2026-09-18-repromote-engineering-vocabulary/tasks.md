@@ -5,9 +5,12 @@ Ratified: 2026-09-18 by Brett Heap (openxFactory operator authority), by interac
 Authored: 2026-09-16, lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
 `substrate52a`. Realizes `split-opendox-two-layer-product` § 5.2a and nothing else.
 
-THREE ACTS, AND THEY ARE SEPARATE: the FILING (§ 2, this pull request), RATIFICATION (§ 1, Brett
-Heap's word) and the ARCHIVE (§ 3, which is where the fifteen actually reach canon). This packet
-performs only the first.
+THREE ACTS, AND THEY WERE SEPARATE: the FILING (§ 2, PR #1071 → `e83f8cd7`, 2026-09-17),
+RATIFICATION (§ 1, Brett Heap's word of 2026-09-18, #656 comment `5728607038`, ruling R-A) and
+the ARCHIVE (§ 3, PR #1103, which is where the fifteen actually reached canon). **ALL THREE HAVE
+NOW BEEN PERFORMED**; this is the archived record of them. The sentence that stood here while the
+packet was active — "this packet performs only the first" — was true of the filing and is kept as
+history rather than as a claim, because each § below is a record of the act it names.
 
 ## 1. Ratification — BRETT HEAP'S WORD, NOT THIS LANE'S
 

@@ -2,7 +2,9 @@
 """Build § 5.2a's ADDED delta from the PROMOTED spec, title-keyed, and PROVE the carry.
 
 Run from an openxFactory checkout root:
-  python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py . [--write]
+  python3 openspec/changes/archive/2026-09-18-repromote-engineering-vocabulary/review/build-delta.py . [--write]
+(and, before the archive moved it, openspec/changes/repromote-engineering-vocabulary/review/… —
+ the packet directory is RESOLVED at run time, so both spellings work)
 
 It (1) selects the fifteen by the destination the packet's ratified map names for each
 removed title, (2) lifts each requirement out of openspec/specs/ideation-dashboard/spec.md
@@ -99,8 +101,34 @@ def _refuse(message: str) -> "SystemExit":
     return SystemExit(f"REFUSED: {message}")
 
 
-USAGE = ("usage: python3 openspec/changes/repromote-engineering-vocabulary/review/"
-         "build-delta.py <openxFactory-checkout> [--write]\n"
+def packet_dir(root: Path) -> Path:
+    """This packet's directory inside `root` — ACTIVE or ARCHIVED, whichever exists.
+
+    The helper is committed INSIDE the packet, so it MOVES WITH IT at the archive.
+    A hard-coded `openspec/changes/<CHANGE>` stopped resolving the moment
+    `proposal-support.py archive` renamed the directory to
+    `openspec/changes/archive/<YYYY-MM-DD>-<CHANGE>`, and the committed-artifact
+    check below then reported `CHECK FAILED` against a path that no longer exists —
+    a verifier that cannot run from the record it is filed in proves nothing about
+    that record. Both locations are looked for and EXACTLY ONE must exist: finding
+    neither, or both, is refused rather than guessed, because a packet present in
+    both corpora is the same ambiguity `sequenced_after` reports as a finding rather
+    than resolving by preference.
+    """
+    active = root / "openspec/changes" / CHANGE
+    archived = sorted((root / "openspec/changes/archive").glob(f"????-??-??-{CHANGE}"))
+    found = [d for d in [active, *archived] if d.is_dir()]
+    if len(found) != 1:
+        raise _refuse(
+            f"{CHANGE} resolves to {len(found)} packet directories under {root} "
+            f"({', '.join(str(d.relative_to(root)) for d in found) or 'none'}): "
+            f"this check compares the delta committed in the packet, so it must "
+            f"know which packet without choosing.")
+    return found[0]
+
+
+USAGE = ("usage: python3 <packet>/review/build-delta.py <openxFactory-checkout> "
+         "[--write]\n"
          "  without --write it CHECKS the committed delta and exits non-zero on "
          "any difference.")
 
@@ -211,7 +239,7 @@ def main(argv=None):
     for t in fifteen:
         body.append(edited[t])
     delta = HEADER + "\n\n## ADDED Requirements\n\n" + "\n\n".join(body) + "\n"
-    out = root / f"openspec/changes/{CHANGE}/specs/{CAP}/spec.md"
+    out = packet_dir(root) / f"specs/{CAP}/spec.md"
     digest = hashlib.sha256(delta.encode("utf-8")).hexdigest()
     print(f"delta: {len(delta.encode('utf-8'))} bytes, sha256 {digest[:16]}…")
     if write:

@@ -281,5 +281,8 @@ UNCHANGED sha256 — which is § D3's claim, measured rather than argued.
 * It does not RE-AUTHOR any requirement's subject. Per the map's own Migration text, *"The subject
   stays `openxFactory SHALL` because the repository does not change."*
 * It does not touch `docs/opendox-carve-manifest.yaml`, any pin, any gitlink or any submodule.
-* It does not ratify and does not archive. Both are Brett Heap's word, and `tasks.md` § 1 and § 3 hold
-  them as separate acts.
+* It did not ratify and did not archive **at its filing** — both were Brett Heap's word, held by
+  `tasks.md` § 1 and § 3 as separate acts. Both have since been given: RATIFIED 2026-09-18 (#656
+  comment `5728607038`, ruling R-A) and ARCHIVED by PR #1103, which is the record this copy sits
+  in. The bullet is kept in the past tense rather than deleted, because what this packet did NOT
+  decide at filing is the thing the list is for.
