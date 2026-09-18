@@ -5191,15 +5191,15 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     docs/opendox-carve-admissions.yaml`, diffing each commit's PARSED
     `created:` sets. The seeding commit (openxFactory PR #979, `972b484a`) is
     the seed and takes no ordinal. Measured that way the landed sequence is
-    PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068 and
-    THIS act — eleven amendments, ten of which bump `opendox_code`.
+    PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068,
+    #1085 and THIS act — twelve amendments, ten of which bump `opendox_code`.
     AN ORDINAL IS NOT A POSITION IN THIS FILE and never was: the assertion
     blocks below run in the order the reading needs, so an ordinal is read off
     the document's history and never off a neighbouring block. Three
     amendments carried no ordinal at all and the three after § 3.4 slice S5
     were each ONE LOW, because slice S5's own amendment (#1023) was recorded
-    without one; the renumbering is this act's, on Copilot review
-    `5239585507` of openxFactory PR #1085 — which read the ordinals off
+    without one; the renumbering is openxFactory PR #1085's, on Copilot
+    review `5239585507` of that PR — which read the ordinals off
     position, got the arithmetic wrong in the other direction, and was right
     that the history had stopped agreeing with itself.
 
@@ -5318,9 +5318,9 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     COUNTED in the committed file so that a sixth admission cannot ride in on
     that act's name.
 
-    AMENDED AN ELEVENTH TIME by THIS act, the § 3.4 SLICE-S7 RESIDUE
-    annotation (`#656` CLAIM `5714327188`; the S7 LANDED note is comment
-    `5688498049`; the FORM is RULED Q-L1's, comment `5628560136`): one more
+    AMENDED AN ELEVENTH TIME by openxFactory PR #1085, the § 3.4 SLICE-S7
+    RESIDUE annotation (`#656` CLAIM `5714327188`; the S7 LANDED note is
+    comment `5688498049`; the FORM is RULED Q-L1's, comment `5628560136`): one more
     `opendox_code` file, `tests/test_display_facet_leaves.py`, the proof for
     the seven display-facet leaves slice S7's own review found inside the
     modules it had already parameterized at their mounts. Same Q-L1 footing as
@@ -5740,7 +5740,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     # now, and the docstring above states the one command that derives it.
     # The ordinals count AMENDMENTS to the admissions document, across
     # destinations, in landing order — not `opendox_code`'s own bumps, of
-    # which these ten are the EIGHTH (measured the same way: ten of the eleven
+    # which these ten are the EIGHTH (measured the same way: ten of the twelve
     # amendments touch `opendox_code`, and this is the eighth of them).
     #
     # PINNED HERE FOR THE REASON THE SEVENTH BUMP STATES, and Copilot's review of
