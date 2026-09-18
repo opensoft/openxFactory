@@ -531,6 +531,62 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [harden-path-escape-helpers-against-symlink-loops](openspec/changes/harden-path-escape-helpers-against-symlink-loops/proposal.md)
+  filed 2026-09-17, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: ratified`** (2026-09-18, approximately 09:55Z, Brett Heap,
+  openxFactory repository owner, given in the lane's terminal as a
+  multiple-choice answer, verbatim ***"Ratify; land when green"***) — record
+  [`review/ratification-2026-09-18.md`](openspec/changes/harden-path-escape-helpers-against-symlink-loops/review/ratification-2026-09-18.md).
+  **THE WORD NAMES NO ALTERNATIVE LETTER, SO OQ-1 = (a), THE RECOMMENDED
+  OPTION, AND THE DELTA MOVED NOT ONE BYTE** (`.openspec.yaml` now carries
+  `approved_by`/`approved_on` ADDED BESIDE the unmoved drafting pair). Answers
+  openxFactory
+  [#1074](https://github.com/opensoft/openxFactory/issues/1074), the finding this
+  lane filed on 2026-09-16 at the landing of PR #1029 and CLAIMED before
+  authoring.
+  **TWO `## ADDED` REQUIREMENTS, TEN SCENARIOS, OVER `release-realization`**:
+  *A containment guard answers every resolution failure and raises none* (six
+  scenarios) and *A symlink-loop proof is built at test time and never committed*
+  (four). NO `## MODIFIED` BLOCK, so no promoted byte is edited, no marker is
+  owed and no modified-block-currency row is opened; both titles were checked
+  against `openspec/specs/`, every active delta and the archive and appear
+  nowhere else, so `sequenced_after: []` is a corroborated root claim.
+  **THE MEASURED GAP.** `pathlib.Path.resolve(strict=True)` signals a symlink
+  loop as a `RuntimeError`, which is a subclass of neither `OSError` nor
+  `ValueError`, on the interpreter the required check pins
+  (`.github/workflows/pytest-suite.yml:556`, `python-version: "3.12"`; measuring
+  shell `Python 3.12.3`), at the candidate's leaf and at any parent component
+  alike. Four path-containment guards in three modules absorb only `OSError`
+  (one absorbs `OSError` and `ValueError`), and THREE OF THE FOUR END IN A
+  TRACEBACK where their own docstrings promise a DROP: `scripts/code_surface.py:777`
+  (`_unescaped`), `scripts/target_release.py:630` (`_unescaped`) and
+  `scripts/proposal-support.py:347` (`_contained`). The FOURTH,
+  `scripts/target_release.py:394` (`_registry_present`), carries the same narrow
+  clause but is fronted by an `is_dir()` pre-check that no measured tree state
+  gets past, which is the correction recorded below.
+  Driven end to end on a minimal tree carrying a committed-shape loop,
+  `scripts/validate-code-surface.py` and `scripts/validate-target-release.py`
+  both end in a traceback, and so do `former_identity_claimants` and
+  `declared_former_ids_in_tree`, the two public readers the archive gate's
+  former-identity arm is built on.
+  **ONE DELIBERATE ACT ACROSS ALL THREE MODULES, WHICH IS WHY IT IS A PACKET.**
+  `code_surface._unescaped`'s docstring names `target_release._unescaped` as "the
+  exact shape this mirrors" and that module's `_unescaped` names
+  `_registry_present`'s test as the one it generalizes, so correcting one module
+  alone would falsify a written claim of identity; and two of the three modules
+  are the realized surface of an archived packet and of the governed OpenSpec
+  wrapper. This is the disposition PR #1029 recorded rather than taking the
+  rider (comment 5703004913).
+  **#1074'S OWN TEXT IS CORRECTED BY THIS PACKET'S MEASUREMENT**: the issue says
+  `_registry_present` is exposed when the repository root sits behind a loop, and
+  it is not, `is_dir()` answering `False` rather than raising so the function
+  returns at `target_release.py:390`. No tree state reaches that guard's clause;
+  `design.md` D3 gives the three reasons it is widened anyway.
+  **NOTHING MOVES IN THIS PULL REQUEST**: no byte of any script, no test, no
+  workflow, no contract member, no file under `openspec/specs/`, and no symlink
+  is added to the tracked tree. `code_surface:` is non-empty, so the packet
+  archives on merged-plus-green realization evidence and not on landing, and
+  #1074 closes THERE.
 - [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
   — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),
   **`Status: ratified`** — **RATIFIED 2026-09-17 at 12:12Z by Brett Heap
