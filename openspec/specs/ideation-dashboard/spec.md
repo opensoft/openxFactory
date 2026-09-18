@@ -2722,6 +2722,27 @@ own reference closure rather than assumed.
 > exactly what falsified the list beside it. The rule is sound; one of its
 > examples was not, and that is recorded here so a reader of canon meets the
 > correction where the claim is, rather than two directories away.
+>
+> **AND ONE SCENARIO OF THIS REQUIREMENT IS BOUNDED BY THE REMOVAL THIS CUT
+> PERFORMS.** *An older client sends a released v1 turn* says such a turn "MUST
+> still validate and MUST still be served". That held for the whole life of the
+> deprecation and is FALSE from `contract-v3.0`: the changelog's own Executed row
+> records the doxBench chat-turn **v1** family as removed there, and that "a v1
+> instance is refused only from `contract-v3.0`". The scenario is RATIFIED and is
+> NOT edited; it is to be read as bounded to the window it was written in — after
+> `contract-v1.34` deprecated the family, before `contract-v3.0` removed it.
+>
+> **AND ONE COUNT IN THE PROSE ABOVE IS SHORT.** "Thirteen minors and one major
+> have passed" counts the v1 line alone. Measured in `contracts/CHANGELOG.md`
+> after the deprecating `contract-v1.34`: `v1.35`–`v1.47` (THIRTEEN minors),
+> `contract-v2.0` (major), `v2.1`–`v2.7` (SEVEN further minors) and
+> `contract-v3.0` (this cut's major). The discharge the sentence claims — *"at
+> least one full minor release where the old shape produced deprecation
+> warnings"* — is satisfied many times over on either reading, which is why the
+> ratified sentence stands unedited and the fuller measurement is recorded here.
+>
+> (Both found by Copilot's review on PR #1066 at `c431a3e3`. Its reading of the
+> second said five v2 minors; measured, there are seven.)
 
 
 ### Requirement: An unrecognized chat-turn kind is refused in the SURVIVING family, never coerced into a removed one

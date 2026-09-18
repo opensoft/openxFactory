@@ -3333,20 +3333,28 @@ Archived changes:
   — **ARCHIVED 2026-09-16 ON ITS OWN EVIDENCE** by
   [PR #1066](https://github.com/opensoft/openxFactory/pull/1066), closing
   `split-opendox-two-layer-product` `tasks.md` § 6.2 — the fifth and last of the
-  § 6 boxes, and **THE ONE THAT IS NOT A RE-HOME**. The four above it stop where
-  they stand under RULING Q6 and promote nothing here; this one's realization
-  merged in this repository (PR #564, squash `6856f502`) and its `contract-v3.0`
-  cut is published (annotated tag `59f4f51f`, peeling to `ff9ed815`), so **its
-  delta PROMOTES**: all three blocks reach
-  `openspec/specs/ideation-dashboard/spec.md`, **+186 lines and 0 deletions** —
+  § 6 boxes, and **THE ONE THAT IS NOT A RE-HOME**. The other four § 6 closures
+  — `add-composed-view-authoring`, `add-doxchat-model-intake`,
+  `add-nightly-dashboard-refresh` and `add-lens-document-selection`, each listed
+  below — stop where they stand under RULING Q6 and promote nothing here; this
+  one's realization merged in this repository (PR #564, squash `6856f502`) and
+  its `contract-v3.0` cut is published (annotated tag `59f4f51f`, peeling to
+  `ff9ed815`), so **its delta PROMOTES**: all three blocks reach
+  `openspec/specs/ideation-dashboard/spec.md`, **+207 lines and 0 deletions** —
   **157** the promotion, every byte taken from the ratified delta by script, and
-  **29** a dated ERRATUM below the first requirement, marked in its own first
-  line as no part of the ratified text: one clause of that requirement names
-  `typed_proposal` as reachable from the surviving `-v2` family, which the
-  packet's own § 2.1 measured FALSE and its § 6.8 dispositioned (RETAINED,
-  unreferenced). The clause stands unedited because it is ratified; the
-  correction stands beside it because promoting it moved it into canon, where
-  nothing else would. Measured both ways — the move alone leaves
+  **50** a dated ERRATUM below the first requirement, marked in its own first
+  line as no part of the ratified text, carrying THREE corrections each measured
+  against the landed text: one clause of that requirement names `typed_proposal`
+  as reachable from the surviving `-v2` family, which the packet's own § 2.1
+  measured FALSE and its § 6.8 dispositioned (RETAINED, unreferenced); the
+  scenario *An older client sends a released v1 turn* is bounded by the very
+  removal this cut performs, the changelog's Executed row recording the v1 family
+  as removed at `contract-v3.0`; and the prose's "thirteen minors and one major"
+  counts the v1 line alone, the measured run after `contract-v1.34` being
+  `v1.35`–`v1.47`, `contract-v2.0`, `v2.1`–`v2.7` and `contract-v3.0`. Every
+  corrected clause stands unedited because it is ratified; each correction stands
+  beside it because promoting it moved it into canon, where nothing else would.
+  Measured both ways — the move alone leaves
   **23** doc-health `promotion-fidelity` errors, the move with the promotion
   leaves **20**, which are the four re-homed closures' own and none of them this
   packet's — so this change takes **no** `health/dispositions.yaml` entry, and
