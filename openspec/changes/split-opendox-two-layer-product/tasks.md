@@ -2056,8 +2056,14 @@ the bookkeeping that ticks this group.
   landing; amendment #5 then recorded that the landing alone was not the whole
   condition and that ratification was owed too. **Both are now in hand**: filed
   by `#1071 → e83f8cd7` (2026-09-17T14:43:42Z) and ratified on this word.
-  `code_surface: none`, `target_release: implemented`, **so it archives on
-  landing with no build** — its archive pull request is prepared and lands in a
+  `code_surface: none`, `target_release: implemented`, **so it archives with no
+  BUILD — but not yet with no WORK**: the governed archive path refuses any
+  packet whose `tasks.md` still matches `^- \[ \]`
+  (`scripts/proposal-support.py`, *"change has incomplete tasks"*), and that
+  packet's ratification tasks 1.1–1.6 are all open, so **the archive cannot
+  land until the encoding act registered below closes them**. Caught by Copilot
+  against head `7ac75a4e` and measured true; `code_surface: none` removes the
+  build gate, not the task gate. Its archive pull request lands in a
   Rule 6 window AFTER `#1066`, because § 6.5 still edits
   `openspec/specs/ideation-dashboard/spec.md` content. **The ARCHIVE is not this
   box's condition and is not claimed as one**: this box owed an authored id, and
@@ -3084,7 +3090,7 @@ movements claimed at the time they land.
   (the squash commit does not exist until the landing happens). Neither clause
   alone covers both, which is precisely why the rule now carries both.
   **THE REPAIR HAS LANDED: `#1109` → `dc242f3aa5cc02ab19cebc3bbdffae0dce88207a`,
-  2026-09-18T14:27:05Z**, retiring the disposition row that INCIDENT 2 made
+  merged 2026-09-18T14:26:58Z**, retiring the disposition row that INCIDENT 2 made
   stale. **Verified at this branch's own merged tree rather than taken on
   report**: `validate-sequenced-after.py` exits **0** with *"archive-date-vs-commit
   agreement passed (every archived directory is named for the UTC date of the
@@ -3899,7 +3905,7 @@ realization evidence, never on landing. Each line is its own evidence.
   fresh `gh repo clone` today, AND re-derived in this lane's own clone rather
   than transcribed: `python3 scripts/validate-contract-release.py verify-tag
   --remote origin --tag contract-v4.0 --json`, and the matching `verify-commit
-  --commit ce5c054e…`, each return `{"findings":[],"status":"pass"}` at
+  --commit ce5c054e… --json`, each return `{"findings":[],"status":"pass"}` at
   `exit_code` 0, the second against inventory
   `contracts/releases/contract-v4.0.digests.yaml`. Two independent checkouts
   agree, which is the thing clause 3 actually asks for.*
@@ -3921,11 +3927,20 @@ realization evidence, never on landing. Each line is its own evidence.
   `HGR-RELEASE-TAG-EXISTS` is guaranteed BY CONSTRUCTION, so the run is
   answering a question this box does not ask. Not a tag defect; it moves no box.
   **(c) a HARNESS error can impersonate a tag finding.** Run from a checkout
-  whose `openDox`/`openXdox` legs are SHALLOW or partial, `verify-tag` raises
-  `ReleaseDependencyError` and exits non-zero WITHOUT emitting any finding —
-  reproduced in this lane's clone, then cleared by `git submodule update
-  --init --recursive openDox openXdox`. The failure SHAPE is the tell: a tag
-  defect arrives as a `findings` entry, a leg defect as a traceback. A plain
+  whose `openDox`/`openXdox` legs are SHALLOW or partial, the run fails on
+  `ReleaseDependencyError` WITHOUT emitting any finding — reproduced in this
+  lane's clone, then cleared by `git submodule update --init --recursive
+  openDox openXdox`. **The failure SHAPE is the tell, and the shape differs by
+  how you call it**: the CLI CATCHES that error, prints a one-line
+  `validate-contract-release: …` refusal on stderr and returns **exit 2** with
+  NO `findings` at all (`scripts/validate-contract-release.py:182-184`), while
+  a direct library call raises and gives a traceback — which is how this lane
+  first met it. Either way the tell holds: **a tag defect arrives as a
+  `findings` entry and a leg defect never does.** *(This passage said flatly
+  that a leg defect "arrives as a traceback", which is true of the library
+  call this lane made and NOT of the CLI the sentence records. Corrected on a
+  Copilot finding against head `47a41ee5`; it was right, and a passage whose
+  whole point is the failure shape has to get the failure shape right.)* A plain
   `gh repo clone` does not init submodules, so anyone re-running clause 3 from
   a fresh checkout meets this before they meet the tag.*
   *(One figure in the cited evidence is CLOCK-BOUND, and is restated as
@@ -4238,11 +4253,32 @@ realization evidence, never on landing. Each line is its own evidence.
   172** (128 later + 44 equal = 172 archived rows, ledger and archive
   directories aligned 172/172, no row without a directory and no directory
   without a row).
-  **The claim lives at FIVE sites, not the three first reported** — `:36` and
-  `:396` carry the bare `143`; `:42` and `:402` carry `124 of … 143`; `:739`
-  carries `124 rows`. `:739` is an argparse **help string**, so it is
-  user-visible CLI text and not merely a comment, which is why the site list
-  has to be complete before anyone edits it.
+  **In `validate-sequenced-after.py` the claim lives at FIVE sites, not the
+  three first reported** — `:36` and `:396` carry the bare `143`; `:42` and
+  `:402` carry `124 of … 143`; `:739` carries `124 rows`. `:739` is an argparse
+  **help string**, so it is user-visible CLI text and not merely a comment.
+  **AND THAT CENSUS IS ITSELF INCOMPLETE, WHICH IS THIS ROW'S OWN DEFECT
+  COMMITTED BY THIS ROW.** It covered ONE FILE. The same current-corpus claim
+  also stands, in three more places and at three DIFFERENT vintages, in
+  `scripts/sequenced_after.py` — `:449` *"128 of this corpus's 171"*,
+  `:1598-1599` *"all 143 … remains clean across all 171 today"*, `:1607`
+  *"128 of this corpus's"*, `:1927` and `:1958` *"all 171"* — and in
+  `tests/sequenced_after/test_sweep.py:2003` *"124 of this corpus's 143"*.
+  Caught by Copilot against head `47a41ee5` and MEASURED TRUE. **That the
+  partially-updated figures disagree with each OTHER (143 beside 171 beside
+  172) is the strongest argument in this row**: the corpus has been renumbered
+  by hand more than once and drifted again each time. The site list has to be
+  complete — across FILES, not one file — before anyone edits it.
+  *(ONE FINDING IN THIS FAMILY IS DECLINED, WITH THE MEASUREMENT. A review
+  against head `7ac75a4e` reported `archive-date-dispositions.yaml` as carrying
+  stale `171` claims at `:43`, `:51` and `:101`. Measured at this head, it does
+  not: `:43` reads *"172 directories agree"*, which is CURRENT and correct;
+  `:55` reads *"it moved from 157/171 on 2026-09-18"*, which is explicitly
+  PAST-TENSE and is the kind of dated statement that does not rot; and `:51`
+  and `:101` carry no such claim at all. That file is therefore NOT part of
+  this residue, and saying so is worth as much as the sites that are — a
+  register that inherits an unverified site sends its owner to the wrong
+  file.)*
   **The next act should NOT simply renumber.** The denominator moved THREE
   TIMES in a single afternoon — 170 at this branch's pre-merge head
   `d323b9b5`, 171 at #1106's head `a96ecb5d` (#1106 comment `5730576589`), 172
@@ -4258,7 +4294,11 @@ realization evidence, never on landing. Each line is its own evidence.
   owner of `tests/sequenced_after`:** the `archive-date-vs-commit` arm is
   **HISTORY-SHAPE SENSITIVE**, and INCIDENT 2 at § 6.3 is the demonstration.
   `adding_commits()` picks a directory's adding commit from everything
-  REACHABLE from `main`, so merging a branch that was stacked on a pre-squash
+  REACHABLE FROM THE CHECKOUT'S CURRENT `HEAD` — its one `git log` walk names
+  no revision, so it is HEAD-relative and NOT `main`-relative, which makes the
+  sensitivity WIDER than first written here: a PR merge ref or any other
+  checked-out branch yields a different reachable history. So merging a branch
+  that was stacked on a pre-squash
   tip can retro-change an already-landed directory's adding commit and turn a
   correct disposition row STALE without anyone editing the row or the
   directory.
