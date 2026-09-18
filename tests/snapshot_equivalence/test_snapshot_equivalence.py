@@ -67,10 +67,11 @@ BASE_REPO = (REPO_ROOT / "tests" / "ideation-dashboard" / "fixtures"
 #: spelling it out is what makes a silent rename or reorder a test failure,
 #: because an operator's runbook and a caller's branch both read these strings.
 #:
-#: FIVE NAMED KINDS AND ONE BLANKET, which is `verify-carve-conformance.py`'s
-#: own shape (four named, `conformance-unreadable` blanket): the exit contract
-#: is held by a `except Exception` that must render SOMETHING, and giving it
-#: one of the five named codes would make the runner lie about the cause.
+#: SEVEN NAMED KINDS AND ONE BLANKET, which is
+#: `verify-carve-conformance.py`'s own shape (four named,
+#: `conformance-unreadable` blanket): the exit contract is held by a
+#: `except Exception` that must render SOMETHING, and giving it one of the
+#: named codes would make the runner lie about the cause.
 RATIFIED_CODES = (
     "equivalence-pre-ref-unreachable",
     "equivalence-pre-tree-unrenderable",
@@ -78,6 +79,7 @@ RATIFIED_CODES = (
     "equivalence-profile-unregistered",
     "equivalence-digests-differ",
     "equivalence-post-stack-unrenderable",
+    "equivalence-object-store-incomplete",
     "equivalence-unreadable",
 )
 
@@ -441,8 +443,8 @@ def test_a_leg_off_its_pin_refuses_rather_than_rendering(monkeypatch):
     """
     real = MODULE.recorded_gitlink
 
-    def moved(parent, path):
-        oid, source = real(parent, path)
+    def moved(parent, path, outer=None):
+        oid, source = real(parent, path, outer)
         if path == "code" and parent.name == "openXdox":
             return "0" * 40, source
         return oid, source
@@ -462,7 +464,7 @@ def test_a_gitlink_that_cannot_be_read_refuses_rather_than_passing(
     for it — and a runner that shrugged here would report a pin it never
     compared against anything."""
     monkeypatch.setattr(MODULE, "recorded_gitlink",
-                        lambda parent, path: (None, "HEAD"))
+                        lambda parent, path, outer=None: (None, "HEAD"))
     with pytest.raises(MODULE.EquivalenceRefusal) as caught:
         MODULE.verify_pins()
     assert caught.value.code == "equivalence-reach-unavailable"
@@ -549,10 +551,19 @@ def test_the_git_scrub_covers_the_channel_that_propagates_dash_c(monkeypatch):
 
 
 def test_the_pins_this_run_reports_are_the_ones_it_verified(shipped):
-    """Both levels of both legs, and the reported pair is a subset of them."""
+    """Both levels of both legs — SIX mounts, not four — and the reported
+    pair is a subset of them.
+
+    The two `spec` mounts are here because `post_side_identity.leg_of()`
+    matches the LONGEST verified pin root containing a module's file: without
+    them a module arriving under `openDox/spec` (which a `re_destined:` block
+    may lawfully do) resolved to the `openDox` ASSEMBLY ROOT, and the verdict
+    then named the assembly's commit for a module the assembly does not
+    contain — a verified pin, but the wrong one (Copilot, PR #1105 round 6).
+    """
     pins = shipped["pins"]
-    assert set(pins) == {"openDox", "openDox/code", "openXdox",
-                         "openXdox/code"}
+    assert set(pins) == {"openDox", "openDox/code", "openDox/spec",
+                         "openXdox", "openXdox/code", "openXdox/spec"}
     assert pins["openXdox/code"] == shipped["openxdox_code"]
     assert pins["openDox/code"] == shipped["opendox_code"]
     assert all(len(v) == 40 for v in pins.values()), pins
@@ -1195,6 +1206,379 @@ def test_the_dirty_leg_remediation_fits_the_dirt_it_reports(monkeypatch):
         assert wanted in detail, (dirt, detail)
         if unwanted is not None:
             assert unwanted not in detail, (dirt, detail)
+
+
+def _seed(repo: Path) -> None:
+    """A real repository with one commit, for the index tests below."""
+    repo.mkdir(parents=True, exist_ok=True)
+    for args in (("init", "-q"), ("config", "user.email", "t@example.invalid"),
+                 ("config", "user.name", "t")):
+        assert MODULE._git(repo, *args).returncode == 0
+    (repo / "a.txt").write_text("one\n", encoding="utf-8")
+    assert MODULE._git(repo, "add", "a.txt").returncode == 0
+    assert MODULE._git(repo, "commit", "-qm", "seed").returncode == 0
+
+
+def test_a_conflicted_index_refuses_rather_than_reading_a_merge_stage(
+        tmp_path):
+    """`git ls-files -s` lists stages 1, 2 and 3 during an unresolved merge,
+    so reading the FIRST `160000` row takes the MERGE BASE's gitlink as the
+    pin this repository records — a commit nobody has declared — and then
+    refuses or passes on it. There is no recorded pin during a conflict
+    (Copilot, PR #1105 round 3, owed since).
+
+    Driven against a REAL index: `update-index --index-info` writes staged
+    entries directly, which is what a conflicted merge leaves behind.
+    """
+    repo = tmp_path / "parent"
+    _seed(repo)
+    stages = "".join(
+        f"160000 {str(n) * 40} {n}\tcode\n" for n in (1, 2, 3))
+    done = subprocess.run(["git", "-C", str(repo), "update-index",
+                           "--index-info"], input=stages, text=True,
+                          capture_output=True, check=False)
+    assert done.returncode == 0, done.stderr
+    listed = MODULE._git(repo, "ls-files", "-s", "--", "code")
+    assert "160000" in listed.stdout and " 0\t" not in listed.stdout
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.recorded_gitlink(repo, "code")
+    assert caught.value.code == "equivalence-reach-unavailable"
+    assert "CONFLICTED" in caught.value.detail
+    assert "stage 1" in caught.value.detail
+    assert "1" * 12 in caught.value.detail
+
+
+def test_a_stage_zero_gitlink_is_still_read_as_the_recorded_pin(tmp_path):
+    """…and the ordinary case is untouched: one stage-0 row is the pin."""
+    repo = tmp_path / "parent"
+    _seed(repo)
+    oid = "a" * 40
+    assert MODULE._git(repo, "update-index", "--add", "--cacheinfo",
+                       f"160000,{oid},code").returncode == 0
+    recorded, source = MODULE.recorded_gitlink(repo, "code")
+    assert recorded == oid
+    assert source == "the index"
+
+
+def test_a_nested_gitlink_is_read_from_the_outer_commit_not_the_index(
+        tmp_path):
+    """THE CHAIN IS RESOLVED FROM THE EXACT COMMIT BEING CLAIMED.
+
+    The index-first rule is right for the pin THIS repository declares — a
+    re-pin must be checkable before it is committed — and wrong one level
+    down, where the question is what the commit the superproject records
+    actually contains. A `code` gitlink staged inside `openDox` is in no
+    commit openxFactory has declared, yet an index-first read there would
+    take it as the recorded pin while `openDox`'s own HEAD still matched, so
+    the level above stayed green (Copilot, PR #1105 round 10).
+    """
+    repo = tmp_path / "assembly"
+    _seed(repo)
+    committed, staged = "b" * 40, "c" * 40
+    assert MODULE._git(repo, "update-index", "--add", "--cacheinfo",
+                       f"160000,{committed},code").returncode == 0
+    assert MODULE._git(repo, "commit", "-qm", "pin").returncode == 0
+    outer = MODULE._git(repo, "rev-parse", "HEAD").stdout.strip()
+    assert MODULE._git(repo, "update-index", "--cacheinfo",
+                       f"160000,{staged},code").returncode == 0
+
+    from_index, index_source = MODULE.recorded_gitlink(repo, "code")
+    assert from_index == staged, "the index-first read is unchanged"
+    assert index_source == "the index"
+
+    from_commit, commit_source = MODULE.recorded_gitlink(repo, "code", outer)
+    assert from_commit == committed, (
+        "the nested read took the STAGED gitlink, which is in no commit the "
+        "superproject records")
+    assert outer[:12] in commit_source
+
+
+def test_the_pin_chain_is_ordered_parents_before_their_children():
+    """`verify_pins()` reads each nested gitlink out of the commit its
+    PARENT's row just verified, so a child listed before its parent would
+    raise `KeyError` — the ordering is load-bearing, not cosmetic."""
+    seen: set[str] = {"."}
+    for parent_rel, path in MODULE.LEG_GITLINKS:
+        assert parent_rel in seen, f"{parent_rel} is listed after its child"
+        seen.add(f"{parent_rel}/{path}".lstrip("./"))
+
+
+def test_the_spec_mounts_are_pinned_so_a_module_there_names_its_own_leg():
+    """`leg_of()` matches the LONGEST verified pin root containing a module's
+    file. Without the `spec` mounts in the pin set, a module under
+    `openDox/spec` — which a `re_destined:` block may lawfully put there —
+    resolved to the `openDox` ASSEMBLY ROOT, and the verdict named the
+    assembly's commit for a module the assembly does not contain: a verified
+    pin, but the wrong one (Copilot, PR #1105 round 6, measured there)."""
+    class Module:
+        __name__ = "openxdox.spec_module"
+        __file__ = str(MODULE.ROOT / "openDox" / "spec" / "thing.py")
+
+    pins = {"openDox": "d" * 40, "openDox/code": "e" * 40,
+            "openDox/spec": "f" * 40, "openXdox": "a" * 40,
+            "openXdox/code": "b" * 40, "openXdox/spec": "c" * 40}
+    identity = MODULE.post_side_identity((Module(),), pins)
+    assert identity["post_leg"] == "openDox/spec"
+    assert identity["post_leg_commit"] == "f" * 40
+    # …and the cleanliness sweep follows the pin, for the same reason: a
+    # module that arrives at a spec mount is IMPORTED off that tree, so an
+    # uncommitted edit under it renders bytes that are not the commit the
+    # verdict would name.
+    assert "openDox/spec" in MODULE.IMPORTED_LEGS
+    assert "openXdox/spec" in MODULE.IMPORTED_LEGS
+
+
+def test_verify_pins_reads_each_nested_gitlink_from_its_parents_commit():
+    """The wiring, not just the helper: `verify_pins()` must HAND each nested
+    row the commit the row above it verified. Reading the nested checkout's
+    own HEAD or index there is the hole — a gitlink staged inside `openDox`
+    is in no commit openxFactory has declared (Copilot, PR #1105 round 10)."""
+    real = MODULE.recorded_gitlink
+    calls: list[tuple[str, str, str | None]] = []
+
+    def spy(parent, path, outer=None):
+        calls.append((parent.name, path, outer))
+        return real(parent, path, outer)
+
+    MODULE.recorded_gitlink = spy
+    try:
+        pins = MODULE.verify_pins()
+    finally:
+        MODULE.recorded_gitlink = real
+    outers = {(parent, path): outer for parent, path, outer in calls}
+    for parent, path in (("openDox", "code"), ("openDox", "spec"),
+                         ("openXdox", "code"), ("openXdox", "spec")):
+        assert outers[(parent, path)] == pins[parent], (
+            f"{parent}/{path} was resolved from {outers[(parent, path)]}, "
+            f"not from the {pins[parent]} its parent verified")
+    assert outers[(MODULE.ROOT.name, "openDox")] is None, (
+        "the superproject's own gitlinks stay index-first")
+
+
+def test_the_git_environment_disables_lazy_fetching(monkeypatch):
+    """A MEASUREMENT MUST NOT GO TO THE NETWORK IN THE MIDDLE OF ITSELF. In a
+    partial clone a read of an absent blob fetches it from the promisor
+    remote, so `git archive` hangs for as long as the network takes — or for
+    ever — inside a runner whose contract is to refuse rather than hang
+    (Copilot, PR #1105 round 6)."""
+    assert MODULE._git_environment()["GIT_NO_LAZY_FETCH"] == "1"
+    monkeypatch.setenv("GIT_NO_LAZY_FETCH", "0")
+    assert MODULE._git_environment()["GIT_NO_LAZY_FETCH"] == "1"
+
+
+def test_a_partial_clone_refuses_by_name_and_names_the_fetch(tmp_path):
+    """END TO END, against a real `--filter=blob:none` clone.
+
+    The reproduction is this runner's own case: archive a TAG whose blobs the
+    checkout never materialized. Measured — with `GIT_NO_LAZY_FETCH=1` the
+    archive fails rc 128 `fatal: could not fetch <oid> from promisor remote`;
+    without it the same command exits 0 after a silent fetch. The old message
+    called that a tree without a renderer and sent the operator to replace a
+    good `--pre-ref` (Copilot, PR #1105 round 6).
+    """
+    origin = tmp_path / "origin"
+    _seed(origin)
+    assert MODULE._git(origin, "config", "uploadpack.allowFilter",
+                       "true").returncode == 0
+    for path in MODULE.ARCHIVE_PATHS:
+        (origin / path).mkdir(parents=True, exist_ok=True)
+        (origin / path / "generator.py").write_text("v1\n" * 400,
+                                                    encoding="utf-8")
+    assert MODULE._git(origin, "add", "-A").returncode == 0
+    assert MODULE._git(origin, "commit", "-qm", "one").returncode == 0
+    assert MODULE._git(origin, "tag", "-a", "carve-0", "-m",
+                       "pre-split").returncode == 0
+    pre_commit = MODULE._git(origin, "rev-parse",
+                             "carve-0^{commit}").stdout.strip()
+    for path in MODULE.ARCHIVE_PATHS:
+        (origin / path / "generator.py").write_text("v2\n" * 400,
+                                                    encoding="utf-8")
+    assert MODULE._git(origin, "commit", "-qam", "two").returncode == 0
+
+    work = tmp_path / "work"
+    done = subprocess.run(
+        ["git", "clone", "-q", "--filter=blob:none",
+         f"file://{origin}", str(work)], capture_output=True, text=True,
+        check=False)
+    assert done.returncode == 0, done.stderr
+    assert MODULE._git(work, "fetch", "-q", "--tags",
+                       "origin").returncode == 0
+
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.extract_pre_tree(pre_commit, work, tmp_path / "into",
+                                "carve-0")
+    assert caught.value.code == "equivalence-object-store-incomplete"
+    assert "PARTIAL OR INCOMPLETE OBJECT STORE" in caught.value.detail
+    assert f"fetch origin {pre_commit}" in caught.value.detail
+
+
+def test_a_pathspec_failure_is_not_diagnosed_as_a_partial_clone(tmp_path):
+    """…and the pattern is narrow: the other way `git archive` fails is a
+    pathspec matching nothing, which is a tree finding and not a store one."""
+    repo = tmp_path / "repo"
+    _seed(repo)
+    commit = MODULE._git(repo, "rev-parse", "HEAD").stdout.strip()
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.extract_pre_tree(commit, repo, tmp_path / "into", "HEAD")
+    assert caught.value.code == "equivalence-pre-tree-unrenderable"
+
+
+def test_the_sweep_sees_an_edit_that_status_reports_as_clean(tmp_path):
+    """`assume-unchanged` and `skip-worktree` make git report an EDITED file
+    as clean, so a leg carrying either can be edited with `status --porcelain`
+    — the sweep's first spelling — answering nothing at all. A sweep that
+    cannot see the state it asserts is not a sweep (Copilot, PR #1105 round
+    6)."""
+    leg = tmp_path / "leg"
+    _seed(leg)
+    assert MODULE._git(leg, "update-index", "--assume-unchanged",
+                       "a.txt").returncode == 0
+    (leg / "a.txt").write_text("edited behind the flag\n", encoding="utf-8")
+    blind = MODULE._git(leg, "status", "--porcelain")
+    assert blind.stdout.strip() == "", "git reported the edit after all"
+    dirt = MODULE.worktree_dirt(leg)
+    assert dirt and any("a.txt" in row and row[1] == "!" for row in dirt), dirt
+    advice = MODULE._clean_advice(dirt, leg)
+    assert "--no-assume-unchanged" in advice
+
+
+def test_the_sweep_does_not_refuse_on_what_the_leg_itself_ignores(tmp_path):
+    """The measured reason `--ignored` was rejected: this runner's OWN
+    imports write `__pycache__` into the legs (3 and 4 entries, measured), so
+    a sweep counting ignored files refuses on every run after the first."""
+    leg = tmp_path / "leg"
+    _seed(leg)
+    (leg / ".gitignore").write_text("__pycache__/\n", encoding="utf-8")
+    assert MODULE._git(leg, "add", ".gitignore").returncode == 0
+    assert MODULE._git(leg, "commit", "-qm", "ignore").returncode == 0
+    (leg / "__pycache__").mkdir()
+    (leg / "__pycache__" / "x.pyc").write_bytes(b"\x00")
+    ignored = MODULE._git(leg, "status", "--porcelain", "--ignored")
+    assert "__pycache__" in ignored.stdout, "the premise of this test"
+    assert MODULE.worktree_dirt(leg) == []
+
+
+def test_the_sweep_reads_the_import_surface_and_the_untracked_files(tmp_path):
+    """The two halves that do carry: a tracked edit under `src`, and an
+    untracked file that is not ignored."""
+    leg = tmp_path / "leg"
+    _seed(leg)
+    (leg / "src").mkdir()
+    (leg / "src" / "m.py").write_text("x = 1\n", encoding="utf-8")
+    assert MODULE._git(leg, "add", "src/m.py").returncode == 0
+    assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
+    assert MODULE.worktree_dirt(leg) == []
+    (leg / "src" / "m.py").write_text("x = 2\n", encoding="utf-8")
+    (leg / "src" / "stray.py").write_text("", encoding="utf-8")
+    dirt = MODULE.worktree_dirt(leg)
+    assert any(row.startswith(" M") and "m.py" in row for row in dirt), dirt
+    assert any(row.startswith("??") and "stray.py" in row
+               for row in dirt), dirt
+
+
+def test_the_legs_are_probed_before_the_stack_is_composed(monkeypatch,
+                                                          capsys):
+    """Composing the stack installs a meta-path finder, mutates the import
+    system for the rest of the process, and writes `__pycache__` INTO the leg
+    whose cleanliness the next check asserts. Doing all that to discover a
+    submodule directory is empty is work with side effects performed to reach
+    a worse message (Copilot, PR #1105 round 6)."""
+    def composed(*args, **kwargs):
+        raise AssertionError("the stack was composed before the probe")
+
+    monkeypatch.setattr(MODULE, "post_stack", composed)
+    monkeypatch.setattr(MODULE, "unmaterialized_legs",
+                        lambda: ["/nowhere/openDox/code — no such directory"])
+    assert MODULE.main([]) == 2
+    rendered = capsys.readouterr().err
+    assert "equivalence-reach-unavailable" in rendered
+    assert "not materialized" in rendered
+    assert "git submodule update" in rendered
+
+
+def test_the_materialization_probe_names_each_shape_it_finds(monkeypatch,
+                                                             tmp_path):
+    """Three states, and they are different remedies: a mount that is not
+    there, one that is an empty directory (recorded and never initialized —
+    a clone without `--recurse-submodules`), and one with no `.git` at all (a
+    copied source tree, for which no pin can be verified)."""
+    monkeypatch.setattr(MODULE, "ROOT", tmp_path)
+    for parent_rel, path in MODULE.LEG_GITLINKS:
+        (tmp_path / parent_rel / path).mkdir(parents=True, exist_ok=True)
+        (tmp_path / parent_rel / path / ".git").write_text("gitdir: x\n",
+                                                           encoding="utf-8")
+    assert MODULE.unmaterialized_legs() == []
+    shutil.rmtree(tmp_path / "openDox" / "code")
+    copied = tmp_path / "openXdox" / "code"
+    (copied / "src").mkdir()
+    (copied / ".git").unlink()
+    for child in (tmp_path / "openDox" / "spec").iterdir():
+        child.unlink()
+    absent = "\n".join(MODULE.unmaterialized_legs())
+    assert "no such directory" in absent
+    assert "EMPTY directory" in absent
+    assert "no `.git`" in absent
+
+
+def test_the_evidence_carries_the_unpinned_half_of_the_composition(shipped):
+    """The post side is composed out of ROOT's `carved_reach.py`,
+    `opendox_host.py` and the § 4.4 profile — none of them pinned by the
+    gitlinks the verdict names — so two runs can differ by them alone while
+    every pinned leg matches. Carried, never refused on: this is the tree the
+    runner is EDITED in (Copilot, PR #1105 round 4)."""
+    assert len(shipped["root_revision"]) == 40, shipped["root_revision"]
+    assert shipped["root_worktree"] in ("clean", "dirty")
+    assert isinstance(shipped["root_worktree_entries"], int)
+    rendered = _run().stdout
+    assert "composed in" in rendered
+    assert shipped["root_revision"][:12] in rendered
+
+
+def test_an_unreadable_root_status_is_unknown_and_not_clean(monkeypatch):
+    """`carved_reach`'s rule, held for the evidence too: a read that failed
+    learned nothing, and "clean" is a claim."""
+    monkeypatch.setattr(MODULE, "_git", lambda *a, **k: None)
+    state = MODULE.superproject_state()
+    assert state["root_revision"] == "unknown"
+    assert state["root_worktree"] == "unknown"
+    assert state["root_worktree_entries"] is None
+
+
+def test_the_pre_child_is_given_its_inputs_by_name_not_by_position(
+        monkeypatch, tmp_path):
+    """argv is the one channel where a value's POSITION decides how it is
+    read: the program goes to `-c`, so everything after it is `sys.argv[1:]`
+    and a mis-ordered or empty element silently shifts the unpack — the
+    corpus becoming the output path. Environment entries are read BY NAME,
+    and a missing name raises `KeyError` in the child rather than rendering
+    something else (Copilot, PR #1105 round 10; SonarCloud
+    `pythonsecurity:S8705`)."""
+    seen = {}
+
+    def spy(argv, **kwargs):
+        seen["argv"] = argv
+        seen["env"] = kwargs.get("env")
+        return subprocess.CompletedProcess(argv, 0, "", "")
+
+    monkeypatch.setattr(MODULE.subprocess, "run", spy)
+    MODULE._run_pre_child(tmp_path / "tree", tmp_path / "corpus",
+                          tmp_path / "out.json", "d" * 40)
+    assert seen["argv"][-1] == MODULE._PRE_RENDER_PROGRAM, (
+        "something still trails the program in argv")
+    assert seen["argv"][1:3] == ["-I", "-c"]
+    assert seen["env"]["EQUIVALENCE_CORPUS"] == str(tmp_path / "corpus")
+    assert seen["env"]["EQUIVALENCE_OUT"] == str(tmp_path / "out.json")
+    assert seen["env"]["EQUIVALENCE_REVISION"] == "d" * 40
+    assert "PATH" in seen["env"], "the ambient environment was sterilised"
+
+
+def test_the_pre_render_program_reads_no_argv():
+    """…and the child's own half of that: it reads six names, not a tuple."""
+    program = MODULE._PRE_RENDER_PROGRAM
+    assert "sys.argv" not in program
+    for name in ("SCRIPTS", "CORPUS", "OUT", "REVISION", "DATE",
+                 "REPOSITORY"):
+        assert f'os.environ["EQUIVALENCE_{name}"]' in program
 
 
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
