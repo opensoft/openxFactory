@@ -2312,17 +2312,41 @@ jobs:
         # absent artifact say exactly.
         if: always()
         continue-on-error: true
+        env:
+          # PASSED THROUGH `env:` RATHER THAN INTERPOLATED INTO THE SCRIPT, the
+          # house rule this file already polices for itself
+          # (`test_untrusted_workflow_inputs_are_not_interpolated_into_bash`).
+          SUITE_RUN_DATE: ${{ steps.run.outputs.run_date }}
         run: |
           set -euo pipefail
+          # THE DATE THE SERIES IS READ BY, AND IT CANNOT BE THE SUITE'S ALONE.
+          # `steps.run.outputs.run_date` is written by the LAST line of "Run
+          # doc-health suite"; a suite that fails before it never writes it, and
+          # this step is `always()` precisely so the reading survives such a
+          # night. The interpolation would then be EMPTY and the artifact would
+          # upload as `citation-remainder-`, a series point with no date on it.
+          # So the suite's date is PREFERRED (one date per run, shared with the
+          # doc-health report beside it) and this step's own `date -u +%F` is
+          # the fallback, published as this step's output so the upload below
+          # names a step that always reaches its own write.
+          # (Copilot `PRRT_kwDOTAvnrs6jzmDm`.)
+          RUN_DATE="${SUITE_RUN_DATE:-$(date -u +%F)}"
+          echo "run_date=${RUN_DATE}" >> "$GITHUB_OUTPUT"
           if ! python3 openxFactory/scripts/report-citation-remainder.py openxFactory \
             --json > citation-remainder.json; then
             echo "::warning::citation-remainder: the report did not run, so no reading was taken and no artifact is uploaded tonight; this is not a finding"
             exit 1
           fi
           # R2's ONE assertion beyond capturing the CLI's own exit code: the
-          # reading this nightly keeps must be one taken on a CLEAN checkout,
-          # because D6 reads the artifacts as a SERIES and the CLI's own
-          # header refuses a modified tree that standing.
+          # reading this nightly KEEPS must be one taken on a clean checkout.
+          # THE CLI ITSELF NEVER REFUSES A MODIFIED TREE — it produces the
+          # reading and DECLARES the state beside the head, which is what the
+          # spec requires of it ("the report MUST still produce the reading
+          # rather than refuse to run"). What that declaration withholds is the
+          # standing of a later point in the series taken at that head, and D6
+          # reads these artifacts AS a series — so the wiring keeps such a
+          # reading OUT of the series rather than uploading one nothing can
+          # compare. (Copilot `PRRT_kwDOTAvnrs6jzmD-`.)
           if ! TREE_CLEAN="$(python3 -c 'import json;print(str(json.load(open("citation-remainder.json"))["tree_unmodified_at_head"]).lower())')"; then
             echo "::warning::citation-remainder: the reading could not be read back from citation-remainder.json, so no artifact is uploaded tonight"
             exit 1
@@ -2343,8 +2367,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           # The RUN'S DATE belongs in the artifact NAME and not in the file
-          # name — the house convention next door at :2253.
-          name: citation-remainder-${{ steps.run.outputs.run_date }}
+          # name — the house convention next door at :2253. It is read from
+          # THIS step's output rather than the suite's, because this step is
+          # the one that always reaches its own write (see the run step's own
+          # note). Artifact names repeat freely ACROSS runs — `opensoft/
+          # xFactory` holds five nights of `semantic-sweep-bundle` under that
+          # one name — so what a dateless name would cost is not an upload
+          # conflict but a series point nobody can place.
+          name: citation-remainder-${{ steps.citation-remainder.outputs.run_date }}
           path: citation-remainder.json
           if-no-files-found: error
           # D6 measures stability across N = 14 consecutive runs, so the

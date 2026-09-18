@@ -259,10 +259,34 @@ def test_the_upload_names_the_run_date_and_exactly_the_one_file_written():
     upload = step_by_name(job, "Upload citation remainder report")
     assert upload["uses"] == "actions/upload-artifact@v4"
     assert upload["with"]["name"] == \
-        "citation-remainder-${{ steps.run.outputs.run_date }}"
+        "citation-remainder-${{ steps.%s.outputs.run_date }}" % RUN_STEP_ID
     assert upload["with"]["path"] == ARTIFACT_FILE
     assert index_of(job, upload) == index_of(job, step_by_id(job,
                                                              RUN_STEP_ID)) + 1
+
+
+def test_the_artifact_name_carries_a_date_even_when_the_suite_step_dies():
+    """The date comes from a step that ALWAYS reaches its own write.
+
+    `steps.run.outputs.run_date` is written by the last line of `Run doc-health
+    suite`; a suite that fails earlier never writes it, and this lane is
+    `always()` exactly so the reading survives such a night — so naming the
+    artifact off the suite's output would upload `citation-remainder-`, a
+    series point with no date on it. The run step publishes its own
+    `run_date`, preferring the suite's value so both artifacts of one night
+    agree, and falling back to `date -u +%F`. (Copilot
+    `PRRT_kwDOTAvnrs6jzmDm`.)"""
+    job = finalize()
+    step = step_by_id(job, RUN_STEP_ID)
+    assert step["env"]["SUITE_RUN_DATE"] == "${{ steps.run.outputs.run_date }}"
+    assert 'RUN_DATE="${SUITE_RUN_DATE:-$(date -u +%F)}"' in step["run"]
+    assert 'echo "run_date=${RUN_DATE}" >> "$GITHUB_OUTPUT"' in step["run"]
+    # The write stands BEFORE every failure path, so no branch can reach the
+    # upload gate with the output unset.
+    run = step["run"]
+    assert run.index('>> "$GITHUB_OUTPUT"') < run.index("exit 1")
+    upload = step_by_name(job, "Upload citation remainder report")
+    assert "steps.run.outputs.run_date" not in upload["with"]["name"]
 
 
 def test_an_empty_artifact_is_an_error_rather_than_a_silent_upload():
@@ -286,10 +310,17 @@ def test_the_series_outlives_the_window_d6_measures_over():
 def test_the_step_asks_for_no_permission_the_job_does_not_already_hold():
     """D5's own claim, held structurally: an artifact-only step commits
     nothing, opens no branch and needs no token, so neither step declares a
-    `permissions:` block of its own and the aggregation caller does not
-    move."""
+    `permissions:` block of its own and the aggregation caller does not move.
+
+    WHAT IS ASSERTED IS THE ABSENCE OF A GRANT, NOT THE ABSENCE OF AN `env:`.
+    The run step passes one value through `env:` — the suite's own run date,
+    which this file's own rule says to pass rather than interpolate into the
+    script — and nothing else: no token, no secret, no `GH_TOKEN`, which is
+    what every commit-back step in this job needs and this one does not."""
     job = finalize()
     for step in (step_by_id(job, RUN_STEP_ID),
                  step_by_name(job, "Upload citation remainder report")):
         assert "permissions" not in step
-        assert "env" not in step
+        for name, value in (step.get("env") or {}).items():
+            assert "secrets." not in value, (name, value)
+            assert "token" not in name.lower(), name
