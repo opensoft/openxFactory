@@ -1256,13 +1256,36 @@ the bookkeeping that ticks this group.
   (4), the `OPENDOX_SERVED_DATABASE` declaration, is a FOLLOW-UP ACT and was
   deliberately NOT in batch 3** — recorded so a reader meeting #25's landing
   does not expect that declaration in it, nor read its absence as an omission.
-- [ ] 3.6 `[oD]` **openDox CREATES A REPOSITORY AS A FIRST-CLASS ACT**, or the
+- [x] 3.6 `[oD]` **openDox CREATES A REPOSITORY AS A FIRST-CLASS ACT**, or the
   origin complaint returns one level down: RULING Q1 answers *"no good place to
   store my projects"* with its coordination half while the specs still land in a
   repository. Includes RULING C3's standalone shape — a PLAIN LOCAL GIT
   REPOSITORY per project, commits as the write path, a remote attachable later —
   as the trivial conformant adapter implementation, not as a mode.
-  **STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #7**: `opensoft/openDox-code`
+  **#26 → `4f8ae01e`**, merged **2026-09-18T21:20:16Z**, *"§ 3.6: openDox
+  creates a repository as a first-class act, with RULING C3's conformant
+  local-git adapter"*. **The box's two halves are both in the landed files**:
+  the first-class act is `src/opendox/runtime/repository_act.py`, and RULING
+  C3's standalone shape is `src/opendox/runtime/local_git_adapter.py` — an
+  adapter IMPLEMENTATION, which is what the box asked for, *"not a mode"*.
+  **THE SECURITY HOLD IS DISCHARGED, AND HOW IT WAS CLOSED IS THE RECORD WORTH
+  KEEPING**: the credential exposure at `app.py:1076` was fixed at `fe421882`,
+  and the remaining findings were closed by **ONE REDACTOR AT THE BOUNDARY**,
+  with the **pgid taken at `Popen`** and the **decoder bound** — one instrument
+  for one class rather than one fix per finding, the shape this packet has
+  preferred since `floor37` § 6.
+  **AN OVERRUN IS RECORDED RATHER THAN PASSED OVER**: the actor pushed THREE
+  times against a one-push word. It is accepted, and it is written down because
+  a bounded round that silently runs long stops being a bound — the accepting
+  is the act that keeps it honest, not the forgetting.
+  **REGISTERED AS ONE FOLLOW-UP ACT under the same claim, and NOT a condition of
+  this box**: three suppressed Copilot findings, `S8544`, and the
+  `OPENDOX_SERVED_DATABASE` declaration — the fifth use of the land-and-register
+  pattern in this packet.
+  *(The superseded reading follows, kept because it records why the box was held
+  at all.)*
+  **PRIOR STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
   `[ ]`** (RULED 2026-09-18 17:55Z, `#656` comment `5734029578`; recorded by
   `tasks.md` amendment #6). The realization is `openDox-code` **#26**, paired
   with **#25** under the same word and the same third mini-batch of three
@@ -1386,9 +1409,14 @@ the bookkeeping that ticks this group.
   repairing since amendment #4. **MEASURED HERE RATHER THAN CARRIED FORWARD, AND
   BOTH OF THEM HAVE NOW MOVED, AND ONE MOVED WHILE THIS AMENDMENT WAS BEING
   WRITTEN**. Every figure below is bound to `openxFactory`
-  `83a055a6` — this amendment's own head, with `#1086` merged in — and must be
-  re-derived rather than quoted:
-  • `tests/carve_conformance/` is recorded above as **34 tests**; at this head
+  **`83a055a6`**, an IMMUTABLE MEASUREMENT SHA with `#1086` merged in, and must
+  be re-derived rather than quoted.
+  *(CORRECTED BY `tasks.md` AMENDMENT #7. This read "this amendment's own
+  head" — a phrase that moved SIX times while amendment #6 was written, and
+  which #6 used for TWO DIFFERENT COMMITS, here and at § 8.9 residue (v). Each
+  reading is now bound to its own sha. **An evidence line names a commit, never
+  a position in a process.**)*
+  • `tests/carve_conformance/` is recorded above as **34 tests**; at `83a055a6`
   `test_verify_carve_conformance.py` carries **79** `def test_`, and it is the
   only test file in that directory.
   • The refusal codes are **SIX, not five**: `conformance-unreadable`,
@@ -1421,10 +1449,59 @@ the bookkeeping that ticks this group.
   `tasks.md` amendment #6 (`#656` note `5733472993`).
   **What it discharges is the RULING, not the box.** This box's own words are
   *"EVERY DESTINATION PASSES IT"*, so it ticks only when **BOTH destinations
-  pass the neutral corpus** — openDox via `#26`, openXdox via § 4.5a — and a
+  pass the neutral corpus** — openDox and openXdox — and a
   proof that a TRANSPOSED corpus is faithful is the machinery those passes will
   run on, not one of the passes. Accepting the landing as the tick would
   discharge a two-destination condition on zero destinations.
+  **THE THREE SIDES, MEASURED PER REPOSITORY 2026-09-18 BY AMENDMENT #7. THE
+  `openxFactory` SIDE HOLDS; NEITHER DESTINATION PASS IS EVIDENCED YET.**
+  • **`openxFactory` — HOLDS.** `#1086` → `049d54a9` (the transposition
+  accepted and proved faithful, RULED Q-F1 (a)) and its follow-up `#1113` →
+  `4401e1aa`, merged 18:00:25Z, closing the four findings `#1086` registered.
+  • **openDox — NOT EVIDENCED, and unlike openXdox this one has NOT moved**:
+  `openDox-code` carries **no conformance reader at all**. See the measurement
+  below.
+  • **openXdox — THE READER HAS NOW LANDED, AND THIS BULLET IS BOUND TO TWO
+  CLOCKS BECAUSE IT CHANGED UNDER ITS OWN AUTHOR.**
+  **Measured at 21:40Z**: the pull request offered was `openXdox-code` `#22` →
+  `fa792cbb`, titled *"§ 3.4 RULED Q7: the gate loop's stylesheets arrive with
+  the bindings that own them"* — § 3.4's Q7 trio, already recorded at that box
+  and nothing to do with the conformance corpus; and **`transpose` occurred ZERO
+  times anywhere in `openXdox-code`**. On that reading the side was absent.
+  **Measured again at 21:54Z, and the answer moved**: `openXdox-code` **`#23` →
+  `3ee8cd31`**, merged **2026-09-18T21:46:37Z** — SIX MINUTES AFTER the sentence
+  above was written — lands `src/openxdox/conformance_corpus.py`,
+  `src/openxdox/corpus_shape.py` and `src/openxdox/domain_corpus_adapter.py`
+  with their tests. **That module is exactly the `openxdox.conformance_corpus:reader`
+  § 4.5a's exit command names**, so the openXdox READER exists and the earlier
+  "absent" reading is superseded.
+  *(`transpose` was the WRONG TOKEN to test with, and saying so is the point of
+  keeping both readings: it is the transposition PROOF's vocabulary, not the
+  corpus reader's. A search that returns zero answers only the question it was
+  asked. The first reading is kept rather than overwritten because it was true
+  when taken and because a bullet that silently re-wrote itself would hide that
+  this ledger's own evidence can age in minutes.)*
+  **THE SIDE IS STILL NOT DISCHARGED, AND THE BOX STAYS `[ ]`**: § 3.7 asks that
+  every destination PASS the corpus, and a reader that exists is not a pass
+  recorded. The exit line — the three-argument command returning **`OK — 17 of
+  17`** at `openXdox-code` `main` `3ee8cd31` — is owed, and § 4.5a owes the same
+  line for its own tick.
+  **`#26` WAS EXPECTED TO SUPPLY THE openDox SIDE AND IT DOES NOT — MEASURED,
+  2026-09-18, BY AMENDMENT #7.** `openDox-code` `#26` → `4f8ae01e` landed and
+  § 3.6 ticks on it, but its FIFTEEN changed files are the runtime and its
+  tests — `app.py`, `cli.py`, `config.py`, `identity.py`, `local_git_adapter.py`,
+  `repository_act.py`, `tests_runtime/`, `docs/runtime.md`, `validate.yml` — and
+  **NOT ONE of them is a conformance file**. `openDox-code` carries a
+  `corpus_adapter.py` of its own, but it was already there and `#26` did not
+  touch it. **`#26` was offered as carrying `transpose()` plus a factory; its
+  diff contains no `def transpose` at all**, and across `openDox-code` the token
+  `transpose` occurs in exactly ONE file, `src/opendox/doxbench_abstract_store.py`,
+  which `#26` did not touch either. What `#26` does with the corpus adapter is
+  IMPLEMENT its Protocol for the local-git case — which is § 3.6's subject and is
+  why § 3.6 ticks on it. **So this box still waits on BOTH destinations, and
+  citing `#26` here would be evidence claimed as proof it cannot give** — a
+  landing in the right repository is not a pass of the corpus, and the box asks
+  for the pass. The openXdox side remains § 4.5a, which is `[ ]`.
   **THE FOLLOW-UP'S SCOPE IS FOUR REGISTERED FINDINGS**, booked HERE rather
   than as § 8.9 residue because they belong to this box's own instrument:
   `#1086` landed AS IS at head `43a48ed5` with four Copilot findings
@@ -2160,6 +2237,19 @@ the bookkeeping that ticks this group.
   tasks 1.1–1.6 — belongs to that packet's own owner under its own claim, NOT
   to this amendment, which must not edit a neighbouring packet's lifecycle
   headers on its way past. **Registered, not resolved, and it moves no box.**
+  **DISCHARGED 2026-09-18 by `tasks.md` AMENDMENT #7 — the owed encoding has
+  LANDED.** `openxFactory` **#1103 → `eb1880cb`**, merged **21:30:14Z** by merge
+  commit, archives the packet at
+  `openspec/changes/archive/2026-09-18-repromote-engineering-vocabulary`.
+  **Measured there rather than taken on report**: `proposal.md`, `design.md`
+  AND `tasks.md` all read `Status: ratified`; tasks **1.1–1.6 are all `[x]`**
+  with **zero** unchecked tasks remaining; and `review/ratification-2026-09-18.md`
+  is present. The contradiction this note registered — a corpus reading `draft`
+  where the ledger read `RATIFIED` — no longer exists.
+  *(Recorded as a CLOSE rather than by deleting the registration. The gap was
+  real, a reviewer raised it against three separate heads, and the record of a
+  finding that was right and then satisfied is worth more than a page that
+  looks as though it never happened.)*
 - [x] 5.2 `[oxF]` **Shed the dashboard corpus down to RULED DQ-1's KEPT SET.**
   The list is `docs/opendox-carve-manifest.yaml` and not a prose inventory: every
   row it routes to a destination LEAVES — **except the twenty
@@ -2893,7 +2983,7 @@ the bookkeeping that ticks this group.
   and the 0-pass / 2-refuse / never-1 exit contract — plus
   `tests/snapshot_equivalence/` wired into `pytest-suite`, where it NEVER skips.
   *(THE FIVE NAMED ABOVE ARE THE RULING'S PRESCRIPTION AND ARE LEFT AS RULED.
-  **The landed runner carries SEVEN**, measured at this amendment's head:
+  **The landed runner carries SEVEN**, measured at `507b6233`:
   the five, plus `equivalence-unreadable` and — added by `#1110`'s watchdog —
   **`equivalence-post-stack-unrenderable`**, the symmetric counterpart to
   `-pre-tree-unrenderable` that refuses a non-terminating post-split render
@@ -2999,6 +3089,18 @@ the bookkeeping that ticks this group.
   `tree-floor-probe` fixture and the de-floor must not touch it — `openxFactory`'s
   open pull requests touch none of the five pin sites, and `#656`'s 364 comments
   carry zero prior claims on § 5.6.
+  **STATUS — THE GATE PRECONDITION HAS LANDED, recorded
+  by `tasks.md` AMENDMENT #7, 2026-09-18.** `openxFactory` **#1103 →
+  `eb1880cb`**, merged **21:30:14Z** BY MERGE COMMIT, archives
+  `repromote-engineering-vocabulary` — the precondition this gate waits on.
+  **PHASE 1 STILL WAITS ON THIS PACKET'S OWN ARCHIVE**, RULED **Q-D1 (a)**
+  (`#656` comment `5735889836`), and **Phase 0 is the pin advance on the
+  codexFactory bot pull request**. **Neither this box nor § 8.4 ticks here**: a
+  precondition landing is not the act, and the ordering § 8.4 names — de-floor
+  BEFORE the removal — is still ahead. *(Recorded at both boxes' shared subject
+  because § 5.6 is where the order is argued and § 8.4 is where it is checked;
+  a reader who meets one should not have to find the other to learn the gate is
+  now unblocked at its front.)*
 - [x] 5.6a `[oxF]` **THE DEPRECATING MINOR § 5.7 OWES — `contract-v3.7`, cut
   BEFORE the shed.** `docs/contract-versioning-policy.md` § Change Classes
   requires, before any Breaking removal, "at least one full minor release where
@@ -3195,12 +3297,42 @@ movements claimed at the time they land.
   carriage will be read from — the seven `doc-health` requirements not
   travelling is the very thing this box already calls *"the one genuine
   conflict RULING Q6 names"*.
-- [ ] 6.2 `[oxF]` `[oD]` **`retire-doxbench-chat-turn-v1` — THE ONE THAT CANNOT
+- [x] 6.2 `[oxF]` `[oD]` **`retire-doxbench-chat-turn-v1` — THE ONE THAT CANNOT
   SIMPLY CLOSE.** Its schema removal is already realized in `openxFactory` bytes
   and `contract-v3.0` is published, so its remaining 7 tasks are `openxFactory`
   bookkeeping that completes HERE and it archives HERE on its own evidence.
   Only its FORWARD half — the surviving `-v2` family's requirements — re-homes to
   openDox. **Sequenced BEFORE § 8.**
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #7**: `openxFactory` **#1066 →
+  `3bf63b8e`**, merged **2026-09-18T20:24:53Z**, *"Close § 6.2:
+  retire-doxbench-chat-turn-v1 archives on its own evidence, and ITS delta
+  promotes"*. **This box is the one that could not simply close, and it closed
+  in the two halves it always named**: it archives HERE on its own evidence, and
+  its FORWARD half promotes into `openspec/specs/ideation-dashboard/spec.md`.
+  **THE LANDING RULE HELD ON BOTH CLAUSES, AND NO DISPOSITION IS OWED.**
+  `3bf63b8e` has two parents; the archive directory
+  `2026-09-16-retire-doxbench-chat-turn-v1` carries an adding commit `90bf93c3`
+  dated **2026-09-16T14:38:38Z** — the day it is named for — so the
+  archive-date arm has nothing to fire on and **this closure owes no
+  disposition row at all**, unlike INCIDENT 1's. Clause 2 re-run on
+  `origin/main` merged with this branch exits **0**.
+  **§ 6 IS NOW COMPLETE EXCEPT FOR ITS STANDING CONDITION**: §§ 6.1–6.5 are all
+  `[x]` and all five disposition directories are under
+  `openspec/changes/archive/`, read from the tree rather than from this ledger.
+  Only § 6.6 remains, and it is a standing condition rather than an act.
+  **ONE FINDING IS REGISTERED, NOT RESOLVED** (`4050274179`): a Copilot
+  qualification against the closure, carried as the follow-up's scope under the
+  land-and-register pattern this packet has now used four times — `#1105`→`#1110`,
+  `#1086`, `openDox-code #25`, and here.
+  *(A release figure inside that closure is worth preserving as a measurement,
+  because it is this packet's own defect class caught in someone else's prose
+  and then in its own: the published run from the deprecation to the removal is
+  **twenty** releases, counted BY TAG, after an earlier count wrongly included
+  **`contract-v2.6`** — which the versioning policy rules *"permanently
+  unreleased"*. Verified independently here: `git tag -l 'contract-v2.*'`
+  returns `v2.0` through `v2.5` and **no `v2.6`**, so the bundle is absent from
+  the tag space rather than merely unpublished. A count taken from intent
+  rather than from the tag would have been wrong by one.)*
 - [x] 6.3 `[oxF]` `[oD]` **`add-doxchat-model-intake`** → openDox. Built but
   unarchived; its code moves with the carve as `moved_with_declared_edit` rows,
   its four ADDED requirements are re-authored in openDox, and its one additive
@@ -3378,6 +3510,19 @@ movements claimed at the time they land.
   one.
 - [ ] 6.6 `[oxF]` **No new dashboard change opens in `openxFactory`** (RULING Q6),
   from this packet's ratification forward.
+  **STATUS — RECORDED BY `tasks.md` AMENDMENT #7, AND DELIBERATELY NOT CLAIMED
+  AS PROVEN.** This is a STANDING condition over a WINDOW, not a fact about a
+  tree, so no single run can discharge it and this box will tick on a judgement
+  at the packet's end rather than on a measurement.
+  **What IS measurable at `507b6233`, recorded so the ticking act starts from a
+  number rather than an impression**: 45 active changes, of which **16 mention
+  `ideation-dashboard`** — and that figure is an UPPER BOUND on nothing useful,
+  because a mention is not an opening and most of the 16 predate this packet.
+  *(Stated plainly because the tempting move is to grep for mentions and call
+  the result compliance. It would be evidence claimed as proof it cannot give:
+  the condition names changes OPENED AFTER ratification, and the grep cannot
+  see when a change opened. The ticking act needs the opening dates, not the
+  mention count.)*
 
 ## 7. The first descendant — a task with a RULING CHECKBOX, not a decision
 
@@ -4093,7 +4238,20 @@ realization evidence, never on landing. Each line is its own evidence.
   `contract-v4.0`, tag object **`9e6c0ae4`**, which peels to `ce5c054e`
   EXACTLY — the tag names the cut itself and not a neighbouring commit —
   tagger Brett Heap 2026-09-12T00:21:18Z.
-  **(3) verified from an INDEPENDENTLY REFRESHED checkout** — the helper's
+  **(3) verified from an INDEPENDENTLY REFRESHED checkout. THE PROCEDURE IS TWO
+  STEPS, NOT ONE, and amendment #7 writes the second into it**: `gh repo clone
+  opensoft/openxFactory && cd openxFactory && git submodule update --init
+  --recursive openDox openXdox`. **The `cd` is part of the recipe, not an
+  omission the reader is expected to supply**: `gh repo clone` leaves the shell
+  in the PARENT directory, so a `git submodule update` written as a separate
+  step runs outside the new checkout and fails before the verifier is reached.
+  *(Caught by Copilot against `ec5d5144` — a recipe written to fix a recipe.)* Without the second step the verifier exits **2** on
+  `ReleaseDependencyError` and emits NO finding, so a reader following the
+  recorded procedure could not reproduce the pass the record claims. *(#6
+  disclosed this at clause (c) below but left it out of the procedure — a
+  warning the reader meets AFTER the command they already ran. The tick is
+  unaffected: two independent checkouts did pass. This corrects the RECIPE, not
+  the RESULT.)* The evidence: the helper's
   fresh `gh repo clone` today, AND re-derived in this lane's own clone rather
   than transcribed: `python3 scripts/validate-contract-release.py verify-tag
   --remote origin --tag contract-v4.0 --json`, and the matching `verify-commit
@@ -4151,6 +4309,28 @@ realization evidence, never on landing. Each line is its own evidence.
 - [ ] 8.5 All five re-homed changes dispositioned, each with its destination named
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence first.
+  **STATUS — RECORDED BY `tasks.md` AMENDMENT #7, 2026-09-18. THE BOX DOES NOT
+  TICK, AND WHAT IT STILL WANTS IS NAMED EXACTLY.** The openxFactory side IS
+  complete — all five closures landed (§§ 6.1–6.5, shas in their own boxes) and
+  all five directories are under `openspec/changes/archive/`, read from the
+  tree — and the aggregation side is `xFactory` **#454 → `0b0c88f4`**
+  (AGGREGATION-SIDE RECORD A1 at § 8.7). **Two things the box's own words ask
+  for are not yet in hand:**
+  **(a) "each with its destination NAMED IN THE RECEIVING REPOSITORY" — only
+  TWO of the four re-homes name one here**: § 6.1's `openXdox-spec` **#15 →
+  `f088b097`** and § 6.4's `openDox-spec` **#12 → `edeed08c`**. § 6.3
+  (`add-doxchat-model-intake`) and § 6.5 (`add-lens-document-selection`) name
+  no destination-side pull request in this ledger. The ticking act owes those
+  two shas, or a finding that the destination half does not exist for them.
+  **(b) The word "FIRST" needs a reading, and it is NOT satisfied on the
+  obvious one.** `retire-doxbench-chat-turn-v1` (§ 6.2) archived **LAST** of the
+  five, not first: `#1056` 10:50:06Z, `#1057` 13:31:51Z, `#1060` 17:30:27Z,
+  `#1065` 17:54:08Z, `#1066` **20:24:53Z**. If "first" means *before the other
+  four*, the record contradicts it and the box cannot tick as written. If it
+  means *before its own forward half promotes*, or *before § 8* (which § 6.2's
+  box does say — *"Sequenced BEFORE § 8"*), it holds. **This is a ruling, not a
+  measurement**, and it is left to the ticking act rather than decided here by
+  picking the reading that happens to let the box tick.
 - [x] 8.6 `ideation-intent-plane` in canon, or its non-promotion recorded (§ 0.6).
   **TICKED 2026-09-16 ON THE FIRST OF THE TWO DISCHARGES, RE-READ LIVE** —
   `#656` comment **`5690559647`**. `openspec/specs/ideation-intent-plane/spec.md`
@@ -4270,6 +4450,39 @@ realization evidence, never on landing. Each line is its own evidence.
   invariant held across pin lockstep #3 as it held across #453, and a box
   that ticks on an equality should say which of those two it saw. It saw the
   first.)*
+  **AGGREGATION-SIDE RECORD A1 — § 6'S PROMOTION FIDELITY. Added by `tasks.md`
+  AMENDMENT #7, 2026-09-18. IT IS NOT PART OF § 8.7's TICK EVIDENCE and moves
+  no box** — § 8.7 ticks on GITLINKS, and this is a different aggregation-side
+  act recorded beside it because this is where a reader looks for one.
+  `opensoft/xFactory` **#454 → `0b0c88f4`**, merged **2026-09-18T21:15:14Z**,
+  *"Record the four § 6 re-homed closures' five delta files' non-promotion as
+  deliberate (promotion-fidelity dispositions)"*. It touches exactly one file,
+  `health/dispositions.yaml`, and disposes **20 findings** measured at
+  `openxFactory` `main` `3bf63b8e`; the aggregation gate reads **0/0/0/0**, and
+  the header's own count was corrected from *"+15"* to a net **+20** before it
+  landed.
+  **FOUR CLOSURES, FIVE FILES — and § 6.2 RAISES NONE.** The asymmetry is the
+  point and the dispositions file says so in terms: § 6.2 is the one of the five
+  that is NOT closed as re-homed, so its delta's promotion obligation is
+  discharged **by PROMOTION** rather than by a disposition, and it *"must not
+  get one by analogy"*. The fifth file exists because
+  `add-nightly-dashboard-refresh` carries TWO deltas (`doc-health` and
+  `ideation-dashboard`), which is the same partial-carriage shape § 6.1's own
+  STATUS registers against `_REHOMED_AND_STILL_WHOLE`.
+  **ONE FACT REGISTERED AS RESIDUE, NOT RESOLVED HERE, owed to the next act that
+  touches that file**: its header states *"three of the five files carry more
+  than one affected requirement"*. **Measured at `3bf63b8e`, it is FOUR.**
+  Counting `### Requirement` in each: `add-composed-view-authoring` → **1**;
+  `add-doxchat-model-intake` → **5**; `add-lens-document-selection` → **5**;
+  `add-nightly-dashboard-refresh`/`doc-health` → **7**; the same packet's
+  `ideation-dashboard` → **2**. Only ONE of the five carries a single
+  requirement, so four carry more than one.
+  *(The figure changes nothing about the dispositions themselves — each entry is
+  PATH-KEYED and deliberately not narrowed by `requirement:`, so the count is a
+  statement in the header's prose rather than a key any entry turns on. It is
+  registered because a header that miscounts its own subject is the defect class
+  this packet has spent two amendments on, and because the next reader of that
+  file will reach for the number rather than recount five files.)*
 - [x] 8.8 Amendment 3 applied with the SIX repository names and the election,
   and the descendant names — each with its two leg names — registered with no
   repository created (amended 2026-09-05).
@@ -4441,7 +4654,7 @@ realization evidence, never on landing. Each line is its own evidence.
   act on that file:** `scripts/validate-sequenced-after.py` states a
   CURRENT-CORPUS claim, **"124 of the 143"** archived rows legitimately carry a
   move date later than their directory's, and the corpus has moved out from
-  under it. **Measured at this amendment's own merged head `c2d5ce92`: 128 of
+  under it. **Measured at the IMMUTABLE SHA `c2d5ce92`: 128 of
   172** (128 later + 44 equal = 172 archived rows, ledger and archive
   directories aligned 172/172, no row without a directory and no directory
   without a row).
@@ -4466,12 +4679,34 @@ realization evidence, never on landing. Each line is its own evidence.
   list.)*
   **AND THAT CENSUS IS ITSELF INCOMPLETE, WHICH IS THIS ROW'S OWN DEFECT
   COMMITTED BY THIS ROW.** It covered ONE FILE. The same current-corpus claim
-  also stands, at FIVE further sites in `scripts/sequenced_after.py` — `:449`
-  *"128 of this corpus's 171"*, `:1598-1599` *"all 143 … remains clean across
-  all 171 today"*, `:1607` *"128 of this corpus's"*, `:1927` and `:1958`
-  *"all 171"* — and at ONE in `tests/sequenced_after/test_sweep.py`, **`:2049`**
-  *"124 of this corpus's 143"*. **Every line number here is bound to the tree
-  at this amendment's head and must be re-derived, not trusted**: this row
+  also stands elsewhere, **and AMENDMENT #7 SPLITS THE SITES LIVE FROM DATED
+  BEFORE ANYONE EDITS THEM** — the distinction this row's own retraction
+  established, which the list then failed to apply to itself.
+  **LIVE — a bare, UNDATED current-corpus claim, safe to renumber. THERE ARE
+  FOUR, AND ALL FOUR ARE OUTSIDE `sequenced_after.py`:**
+  `scripts/validate-sequenced-after.py` `:42`, `:402` and `:739`, and
+  `tests/sequenced_after/test_sweep.py` **`:2049`** *"124 of this corpus's 143
+  archived rows do."* — each verified undated by reading its CONTINUATION line
+  as well as its own.
+  **DATED, THEREFORE EVIDENCE — DO NOT RENUMBER. `scripts/sequenced_after.py`
+  HAS NO LIVE SITE AT ALL; EVERY CURRENT-CORPUS CLAIM IN IT CARRIES A DATE:**
+  `:449` (*"as measured 2026-09-18"* on `:450`), `:1598` (*"before it was made a
+  gate"*), `:1599` (*"re-measured 2026-09-18"* on `:1600`), `:1607` (*"as
+  measured 2026-09-18"* on `:1608`), `:1927` (*"on 2026-09-18"*) and `:1958`
+  (*"as measured 2026-09-18"*); plus `validate-sequenced-after.py` `:36` and
+  `:396` (*"before it was made a gate"*). Each names its own moment, so each
+  records what was true THEN, and rewriting it would destroy the evidence
+  rather than refresh it.
+  *(THIS ROW HAS NOW GOT THIS RULE WRONG THREE TIMES, and the third time it got
+  it wrong WHILE WRITING THE RULE — #6 mis-listed `:36`/`:396`, then
+  `:1927`/`:1958`, and #7's own corrected split still put `:449`, `:1599` and
+  `:1607` under LIVE. **The mechanism is worth more than the apology: the date
+  sits on the CONTINUATION LINE, not on the line carrying the figure**, so a
+  line-anchored grep for the number never sees it. The test is not "does this
+  LINE name a moment" but "does this SENTENCE name one" — and a sentence here
+  routinely spans two lines. Caught by Copilot against `ec5d5144`.)*
+  **Every line number here is bound to `507b6233` — an IMMUTABLE SHA, not
+  "this amendment's head" — and must be re-derived, not trusted**: this row
   first cited that last site as `:2003`, which by the time it was written held
   `shutil.rmtree(…)` — the locator drifted between the grep and the sentence.
   Corrected on a Copilot finding against head `6061030f`.
@@ -4482,7 +4717,7 @@ realization evidence, never on landing. Each line is its own evidence.
   complete — across FILES, not one file — before anyone edits it.
   *(ONE FINDING IN THIS FAMILY IS DECLINED, WITH THE MEASUREMENT. A review
   against head `7ac75a4e` reported `archive-date-dispositions.yaml` as carrying
-  stale `171` claims at `:43`, `:51` and `:101`. Measured at this head, it does
+  stale `171` claims at `:43`, `:51` and `:101`. Measured at `507b6233`, it does
   not: the sentence spanning `:42-:43` reads *"159 of this corpus's 172
   directories agree"*, which is CURRENT and correct — quoted whole here
   because the fragment *"172 directories agree"* alone, which is what `:43`
