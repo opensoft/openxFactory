@@ -45,7 +45,6 @@ from __future__ import annotations
 
 import contextlib
 import importlib.util
-import io
 import json
 import io
 import shutil
@@ -896,6 +895,33 @@ def test_the_pre_child_is_bounded_and_a_timeout_is_a_refusal(monkeypatch):
     # …and the real call carries the bound, so the refusal is reachable.
     source = SCRIPT.read_text(encoding="utf-8")
     assert "timeout=_CHILD_TIMEOUT" in source
+
+
+def test_a_child_that_writes_no_output_cannot_reuse_the_previous_state(
+        monkeypatch, tmp_path):
+    """`--corpus` is repeatable and every state used to share ONE output
+    file. A child that exited 0 WITHOUT writing would leave the previous
+    state's bytes in place and this state would be compared against them —
+    a measurement this runner did not take, reported as one it did (Copilot,
+    PR #1105 round 8)."""
+    real = MODULE._run_pre_child
+    seen: list[str] = []
+
+    def once(tree, corpus, out, source_revision):
+        seen.append(str(out))
+        if len(seen) == 1:
+            return real(tree, corpus, out, source_revision)
+        # exits 0, writes nothing
+        return subprocess.CompletedProcess(args=["python3"], returncode=0,
+                                           stdout="", stderr="")
+
+    monkeypatch.setattr(MODULE, "_run_pre_child", once)
+    second = tmp_path / "second"
+    shutil.copytree(BASE_REPO, second)
+    code = MODULE.main(["--corpus", str(BASE_REPO), "--corpus", str(second)])
+    assert code == 2
+    assert len(seen) == 2 and seen[0] != seen[1], (
+        "the two states shared one output path")
 
 
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():

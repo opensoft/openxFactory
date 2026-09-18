@@ -566,7 +566,20 @@ def render_pre(tree: Path, corpus: Path, scratch: Path, pre_ref: str,
     on, so an installed package cannot make the two sides agree where the
     projection does not.
     """
-    out = scratch / "pre-snapshot.json"
+    # ONE OUTPUT PATH PER CORPUS STATE, AND THE PREVIOUS ONE IS REMOVED
+    # FIRST (Copilot, PR #1105 round 8). `--corpus` is repeatable and every
+    # state shared this file: a child that exited 0 WITHOUT writing — a
+    # renderer that returns early, a permitted pre-shed ref whose entry point
+    # differs — would leave `out.is_file()` true from the state before, and
+    # this state would then be compared against the PREVIOUS state's bytes.
+    # Against a post side rendered for the current corpus that is a false
+    # DIFFERENCE, and against a repeated corpus a false EQUIVALENCE; either
+    # way it is the last thing this runner may do, which is answer about a
+    # measurement it did not take. The name carries the corpus, and the file
+    # is unlinked before the child runs, so "no output" stays refusable.
+    stamp = hashlib.sha256(str(corpus).encode("utf-8")).hexdigest()[:16]
+    out = scratch / f"pre-{stamp}.json"
+    out.unlink(missing_ok=True)
     try:
         done = _run_pre_child(tree, corpus, out, source_revision)
     except subprocess.TimeoutExpired as exc:
