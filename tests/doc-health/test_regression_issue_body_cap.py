@@ -169,9 +169,14 @@ def test_render_caps_a_large_list_and_names_the_full_count_and_omission():
 
     # The full, unabridged list is never truncated -- every one of the
     # 5000 synthetic findings' distinguishing paths appears in it, one
-    # bullet per line.
-    for i in range(5000):
-        assert f"fragment-{i:05d}.md" in full
+    # bullet per line. Extract every fragment id from `full` in a single
+    # regex pass (linear in len(full)) rather than doing 5000 individual
+    # substring searches over it (quadratic in the number of findings),
+    # and compare the resulting set to the expected ids -- a stronger
+    # assertion too, since set equality also catches any unexpected extra
+    # id that the naive per-id loop would miss.
+    found_ids = set(re.findall(r"fragment-\d{5}\.md", full))
+    assert found_ids == {f"fragment-{i:05d}.md" for i in range(5000)}
     assert len([ln for ln in full.splitlines() if ln]) == 5000
 
 
