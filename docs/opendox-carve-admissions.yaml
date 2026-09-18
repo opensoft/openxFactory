@@ -133,6 +133,9 @@ destinations:
       - path: tests/fixtures/web_boundary_census.yaml
         reason: "added by openDox-code #13 (§ 3.4 S1, the web-boundary census: 42 files classified for the S2-S7 defect measurements; no arrived file touched, so S1 needed no row-annotation PR of its own)"
         since: "e86deb2dbcec528a312784508ddbf63c376abc33"
+      - path: tests/test_binding_stylesheets.py
+        reason: "added by opensoft/openDox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the CSS extraction's own running proof, on `validate.yml`'s explicit list: the `ViewBinding.styles` slot refused at BOTH halves of the seam, the absent case carried onto `/capabilities`, the `<link>` injector driven under `node` against the real `views/view_extension.js` (one link per resolved href, `document.head` and never `document.body` per RULED Q8, the failed sheet NAMED and non-fatal), and the extraction itself measured against `styles.css` — no gate-exclusive selector survives there, every `--st-*` token and every shared selector does, and where an assembly has placed openXdox's six modules the 54-class set is RE-DERIVED from them rather than trusted"
+        since: "144a4a338f3e1017662fbde0f2e3e7916231baea"
       - path: tests/test_consumer_reach.py
         reason: "added by openDox-code #9 (BUILD 3.5/3.6 late seam)"
         since: "da8aae969b4057bd46d2550c265e5bb363142458"
@@ -193,12 +196,24 @@ destinations:
       - path: src/openxdox/view_extensions.py
         reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — the six `ViewBinding` specs, the `VIEW_EXTENSIONS` facet, `BUNDLE_REACH` and `CTX_MODEL_REACH`"
         since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
+      - path: src/openxdox/web/views/dispose.css
+        reason: "added by opensoft/openXdox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the 24 rule blocks `dispose.js` owns: the dispose tray, its verbs and the refusal panel, left `src/opendox/web/styles.css` for the binding that names them. Shipped as package data by the same glob as the modules (`web/views/*.css` added) and placed by the same assembly hook (RULED Q5)"
+        since: "b18687ced9f7bb98bbb6bbfe1257dea7149305a0"
       - path: src/openxdox/web/views/gate-lens.js
         reason: "added by openDox-code #17 (§ 3.4 slice S4, RULED Q3) and re-homed by split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587` — a CREATED file with no row (RULED OQ-C), so it moves by ADMISSION rather than by `re_destined:`, which is a field of a row; admitted at `opendox_code` until this slice and REMOVED there in the same diff"
         since: "8a3355889fcc9cd40efa03ee9d007dedc5d14f2a"
+      - path: src/openxdox/web/views/gate-projects.css
+        reason: "added by opensoft/openXdox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the 9 rule blocks `gate-projects.js` owns (the project-commission panel), plus the gate half of the ONE selector list this act splits, so the panel keeps the `[hidden]` restatement without which it can never close"
+        since: "b18687ced9f7bb98bbb6bbfe1257dea7149305a0"
       - path: src/openxdox/web/views/gate-projects.js
         reason: "added by openDox-code #17 (§ 3.4 slice S4, RULED Q3) and re-homed by split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587` — as `gate-lens.js` above: a CREATED file with no row, moved by admission and removed from `opendox_code`'s list in the same diff"
         since: "8a3355889fcc9cd40efa03ee9d007dedc5d14f2a"
+      - path: src/openxdox/web/views/gate.css
+        reason: "added by opensoft/openXdox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the 7 rule blocks `gate.js` owns (the gate console bar's chrome). `gate-lens.js` gets NO sheet and that is measured, not forgotten: it names no class openDox's own bundle does not also name"
+        since: "b18687ced9f7bb98bbb6bbfe1257dea7149305a0"
+      - path: src/openxdox/web/views/swb.css
+        reason: "added by opensoft/openXdox-code `build/q7-binding-stylesheets` (split-opendox § 3.4, RULED Q7, `#656` comment `5648049748`) — the 19 rule blocks the two workbench modules own, in ONE sheet BOTH bindings name, because eleven of the nineteen are named by both. openDox's registry dedupes the injected `<link>` by resolved href, so the shared naming injects once — the only shape that neither duplicates eleven blocks into two files nor makes one optional binding depend on another's sheet"
+        since: "b18687ced9f7bb98bbb6bbfe1257dea7149305a0"
       - path: src/openxdox/web_assets.py
         reason: "added by openXdox-code #18 (split-opendox § 3.4 slice S5, RULED Q1-Q12, `#656` comments `5648044785` / `5648049748` / `5648065587`, leg A) — RULED Q5's ASSEMBLY HOOK: `install_view_modules(web_dir)` places this column's module bytes into openDox's one `--web-dir`"
         since: "01b06c940fa9f62c9b10f369b0843c4088690d49"
