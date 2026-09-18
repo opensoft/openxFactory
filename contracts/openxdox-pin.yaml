@@ -73,7 +73,7 @@ submodule_path: openXdox
 # names both legs. Exactly 40 hex characters. NEVER a leg: `openXdox-code` and
 # `openXdox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg (split-opendox-two-layer-product task 5.1).
-commit: "a6500141e830fbfb6caa3ec9d64986da683b6c35"
+commit: "88a1047e43c180d41b9ee16ae48688bed7ee5415"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -91,7 +91,7 @@ digest_algorithm: sha256
 # cover a three-repository product without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "47a420dae352ba314567b596779f236c6f0febb997761433d93763a391b786df"
+  tree_sha256: "cdbe7573f48635f8ed1062c1a7f453d7b0dd282e302994acb63a13799358ca4b"
 
 # The BYTE-IDENTITY REFERENT, and record 2 of the three RULED OQ-I requires
 # (Brett Heap, #656, 2026-09-09; `docs/opendox-cutover-runbook.md` § 1). In the

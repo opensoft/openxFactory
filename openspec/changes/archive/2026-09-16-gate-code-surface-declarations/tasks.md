@@ -1,0 +1,1310 @@
+# Tasks: gate-code-surface-declarations
+
+Status: ratified
+Ratified by: gate-code-surface-declarations — 2026-09-13, Brett Heap, verbatim "ratify" (recorded at https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729)
+Kind: tasks
+
+`code_surface: openxFactory`, `target_release: implemented`. The realization
+group is § 3 and it was **NOT IN THE FILING PULL REQUEST**
+([#1018](https://github.com/opensoft/openxFactory/pull/1018)), which carried the
+PACKET ONLY. The tasks are individually executable, so under
+`release-realization`'s decomposition rule this packet realizes through its own
+task list rather than through a feature DAG — **which it now has, in the LATER
+realization pull request § 3's own preamble names**. Every § 3 box below is
+ticked THERE, against that pull request's diff; §§ 1, 2 and 4 were closed at the
+filing and § 5 is still owed.
+
+**NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box below is a diff in
+this pull request or a measurement recorded verbatim in this packet and
+reproducible from the commands named beside it.
+
+**§ 1 (RATIFICATION) IS CLOSED: BRETT HEAP RULED ON 2026-09-13 AT 00:41Z**,
+verbatim **"ratify"**, recorded at
+[#1018](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+**THE WORD IS BARE** — it ratifies the PACKET and names no option individually,
+so each of `design.md`'s four declared veto points stands at the option this
+packet encodes, the RECOMMENDED one in all four; no wording moved on the ruling.
+Taking openxFactory issue #1013 — an unclaimed residue another lane filed —
+commissioned the AUTHORING and decided no wording; that provenance is recorded
+in `.openspec.yaml` and is untouched by this ratification, which adds the
+approval pair beside it.
+
+**§ 5 (ARCHIVE) IS ENTIRELY OPEN.** `code_surface` is non-empty, so under
+`release-realization` this packet SHALL NOT archive on landing. **THIS PACKET'S
+OWN WORD ON ITS OWN ARCHIVE, WRITTEN HERE SO NO LATER READER HAS TO INFER IT:
+this change archives only when § 3's realization pull request has MERGED into
+`main` AND a `pytest-suite` run at the tree that merge carries is GREEN, and not
+before — merged-plus-green at canon's grain, never archive-on-landing.**
+openxFactory #1013 closes THERE and at no earlier pull request.
+
+**§ 6 IS UNTICKED ON PURPOSE**: residue, measured and deliberately not taken.
+
+## 1. Ratification — GIVEN 2026-09-13
+
+- [x] 1.1 **`design.md` D1 RULED — "GATE THE GRAMMAR"**, the RECOMMENDED and
+      already-encoded option. The options as put: option 1, a declared head
+      (`none`, or repository identifiers separated by `,` / ` and ` / ` + `)
+      followed by a REQUIRED gloss opener, with the head judged and the gloss
+      never, and NO membership check (recommended); option 2, judge only the
+      FIRST TOKEN as the sibling does — measured cost: it refuses 2 of the 7 and
+      passes the other 5, including a head whose second and third
+      "repositories" are the words `the` and `PROJECT`, and it cannot read a
+      multi-repository declaration at all; option 3, resolve each identifier
+      against a repository inventory — measured cost: this repository defines
+      none, so the gate would refuse all 41 non-`none` declarations on the day
+      it landed.
+- [x] 1.2 **`design.md` D2 RULED — "VALIDATOR PLUS CLOSED REGISTER PLUS ADDED
+      REQUIREMENT"**, the RECOMMENDED and already-encoded option, so the
+      register's closure stays SHALLed in the delta rather than left to the
+      implementation. The options as put: option 1, an ADDED requirement, a
+      house validator and a CLOSED register, following
+      `gate-realization-axis-vocabulary` (recommended); option 2, the
+      requirement alone with a bare refusal and no register — cost: it cannot
+      land unless D3 option 3 lands with it, coupling two independent decisions
+      into one word; option 3, an ADVISORY gate — cost: an advisory gate refuses
+      nothing, which is the state #1013 filed about.
+- [x] 1.3 **`design.md` D3 RULED — "REGISTER ALL SEVEN, SWEEP NONE"**, the
+      RECOMMENDED and already-encoded option. **THE RULING FIXES THE
+      DISPOSITION AND NEVER THE COUNT**: the population is a fact about a TREE
+      and § 3.3 re-measures it at the head the gate lands on. The options as
+      put: option 1, register all seven and sweep none (recommended); option 2,
+      sweep the six whose correction carries no judgment and register the one
+      that does; option 3, sweep all seven. The reason this departs from the
+      sibling's ruled sweep is written out in `design.md` D3 and is two things:
+      a head correction RE-PUNCTUATES another lane's ratified prose rather than
+      replacing one token whose meaning the author's own gloss supplied, and for
+      `split-opendox-two-layer-product` it is a judgment about what counts as a
+      repository. The structural difference stands beside it: the sibling swept
+      "in this PR" because its realization was in that same pull request, while
+      here any sweep lands in § 3's LATER pull request.
+- [x] 1.4 **`design.md` D4 RULED — "REUSE AS THE CONSUMER AND NARROW THE
+      EXTRACTOR"**, the RECOMMENDED and already-encoded option, so § 3.5 is OWED
+      rather than conditional. The options as put: option 1, reuse the
+      `scope_globs:` machinery as the CONSUMER and narrow
+      `scripts/scope_globs.py`'s `code_surface_repositories` to the declared
+      head, with the rule SHALLed in the delta (recommended); option 2, leave
+      the extractor and name a successor — cost: the field is then read two
+      ways, strictly by the new gate and permissively by the authorization
+      check; option 3, leave the extractor and register the 27 — cost: it
+      registers 27 packets for a defect that is in the reader, not in any of
+      their declarations.
+- [x] 1.5 **THE RULING IS A BARE WORD AND IS RECORDED AS ONE.** Brett Heap's
+      word of 2026-09-13T00:41Z is verbatim **"ratify"**; unlike the sibling's
+      three labelled rulings it names no option individually. It ratifies the
+      PACKET, and the packet encodes the recommended option at each of D1
+      through D4, which is why § 1.1 through § 1.4 read as they do and why
+      **nothing in the delta moved on the ruling**. Recorded at
+      [#1018](https://github.com/opensoft/openxFactory/pull/1018#issuecomment-5649742729).
+- [x] 1.6 **D0 AND D5 THROUGH D8 WERE CARRIED BESIDE THEM AND NONE WAS
+      VETOED**, each with its alternative written out and each available to be
+      vetoed in the same ruling: D0 (the measurement and its method), D5 (the
+      code surface, the three exit codes, the register's home outside
+      `contracts/`), D6 (why an OpenSpec change and not a patch), D7 (sequencing
+      and the sibling search), D8 (what is not taken). The bare word reached the
+      packet as a whole; it named none of the carried five and none of them
+      moves.
+- [x] 1.7 **THE RULING REACHES THE FIRST BENCH ROUND, ON ITS OWN WORDS**, which
+      direct that the two confirmed findings be fixed *"before the record is
+      cut, so the ratified packet includes them"*. Both are taken and both are
+      in the ratified text: `none` reserved out of REPOSITORY IDENTIFIER with a
+      tenth scenario, and the FAIL-CLOSED rule for a registered-exception packet
+      that later declares `scope_globs:` with a fourth scenario on the
+      derivation requirement. The third open thread is REFUSED as false on
+      measurement. `design.md` D9 records all three; § 4.9 carries the ledger
+      line.
+- [x] 1.8 **THE RATIFICATION RECORD IS CUT IN THIS PUSH.** `.openspec.yaml`
+      gains `approved_by` and `approved_on` as a pure ADDITION beside a
+      byte-unmoved drafting provenance — `kind` and `id` never move, which is
+      the shape `add-drafted-proposal-origin` (issue #318) defined for this
+      transition — and `proposal.md`, `design.md` and this file carry
+      `Status: ratified` with ONE citation each, the ruling comment URL, which
+      is the record (estate rule of 2026-09-10). **THE FLIP IS NOT
+      HEADER-ONLY**: the draft-voiced prose in all three documents is revised
+      with it — the veto-point framing, the *what this packet does NOT do* list,
+      § 1's own preamble, and the conditional in `proposal.md`'s `code_surface:`
+      declaration that read "only if D4 is ruled as recommended" — because a
+      header flip over unrevised draft language is the defect Opsx #397
+      recorded on 2026-09-12.
+
+## 2. The measurement, taken before the design — DONE IN THIS PULL REQUEST
+
+- [x] 2.1 **THE CORPUS WAS RE-MEASURED, NOT QUOTED.** Fresh clone and a
+      worktree at `origin/main` `bcde1575`; the issue's method re-run over every
+      top-level `openspec/changes/<change>/proposal.md`, read through the
+      SHIPPED strict loader: **45** active proposals, **45** declaring
+      `code_surface:`, **0** absent, **0** repeated, **0** refused by the
+      loader. **4** declare `none` (the issue's 5 is stale by one) and **41**
+      declare a non-`none` value.
+- [x] 2.2 **THE GRAMMAR WAS DERIVED FROM THE POPULATION, NOT INVENTED.** Asking
+      what FOLLOWS the declared head across the 45: an opening parenthesis
+      **19**, an em dash **17**, a full stop **2** — **38 conforming** — against
+      ordinary prose with no opener **5**, a possessive **1**, a YAML folding
+      indicator **1** — **7 non-conforming**, in four classes (`design.md` D0
+      names each by change and quotes its declaration).
+- [x] 2.3 **`none` IS LAWFUL HERE, WHICH IS THE FIRST DIFFERENCE FROM THE
+      SIBLING'S POPULATION.** *Realization axis declaration* names `none` as the
+      `code_surface:` value for an empty surface and as the doc-only default, so
+      all four carriers conform and the divergence lies entirely in the 41.
+- [x] 2.4 **THE ARCHIVE WAS COUNTED AND NOT JUDGED**: **165** archived
+      proposals, **119** declaring the field in their front matter, **3**
+      outside the grammar. The plain `grep -l '^code_surface:'` returns **147**
+      there — it over-counts by **28**, those being early packets that discuss
+      the field in BODY prose at column 0, `2026-07-09-add-release-realization-flow`
+      among them. The active side agrees exactly (45 = 45).
+- [x] 2.5 **EXACTLY ONE MACHINE READER OF THE VALUE EXISTS**, confirmed by the
+      issue's own command. `grep -rn code_surface scripts/ .github/` at
+      `bcde1575`: seventeen lines, fourteen in `scripts/scope_globs.py` /
+      `scripts/validate-scope-globs.py`, three in prose (one docstring, two
+      comments), nothing in `.github/`. The display reader the sibling named for
+      `target_release:` — `scripts/ideation_dashboard/generator.py` — **no
+      longer exists**, removed with the five ideation-dashboard schemas at
+      contract-v4.0 (`ce5c054e`).
+- [x] 2.6 **THAT READER DERIVES ITS SET FROM THE GLOSS, AND THE WIDTH WAS
+      MEASURED.** `scope_globs.code_surface_repositories` splits the whole
+      declaration on `[\s,()/]+` and keeps every word that is not `none`:
+      **3,421** distinct tokens across the 45; **767** from the widest single
+      declaration; **27 of 45** yield an estate repository name their own head
+      does not name; **3 of the 4** `none` carriers yield a non-empty set.
+- [x] 2.7 **THE DEFECT IS LATENT, NOT STANDING, AND THE PACKET SAYS SO.**
+      **0 of 45** active proposals declare `scope_globs:` at `bcde1575`, so the
+      cross-consistency check is vacuous over the live corpus and bites the
+      first time a `scope_globs:` lands.
+- [x] 2.8 **THERE IS NO REPOSITORY INVENTORY TO RESOLVE AGAINST**, searched
+      rather than assumed (`design.md` D1): `contracts/policies/repository-identity.yaml`
+      is a former-to-current TRANSFER map carrying one row;
+      `contracts/hermes-runtime/fixtures/domain-regression-inventory.yaml` is a
+      five-row domain-factory FIXTURE that does not name `openxFactory`, the
+      install repositories or the neutral products; `contracts/*-pin.yaml`
+      carries one `source_repository:` each. The aggregation repository's
+      `.gitmodules` does enumerate the estate and is not in this tree.
+- [x] 2.9 **`kind: ad_hoc` IS CHECKED RATHER THAN ASSUMED.**
+      `ideation/staging/` enumerated and `INDEX.md` read on 2026-09-12: no topic
+      names the realization-axis front matter, the `code_surface` declaration, a
+      repository-name grammar or a proposal front-matter validator.
+- [x] 2.10 **NO SIBLING WRITES THESE REQUIREMENTS** (`design.md` D7, pasted
+      there in full): of the eight open pull requests only #1014 touches this
+      capability, and it ARCHIVES the sibling and promotes a different title;
+      the three active changes with a `specs/release-realization/` delta write
+      different requirement titles; the three titles added here appear nowhere
+      in the corpus.
+
+## 3. The realization — a house validator and a closed register, IN THE REALIZATION PULL REQUEST
+
+**§ 3 IS THE REALIZATION PULL REQUEST, AND THE BOXES BELOW ARE TICKED THERE.**
+The list was written at the filing so ratification knew exactly what it was
+ratifying, and so the realization had a task list rather than an intention; the
+filing ([#1018](https://github.com/opensoft/openxFactory/pull/1018)) carried the
+PACKET ONLY and closed § 3.8 alone, which is bookkeeping the ratification owed
+rather than realization. Every other box below is a diff in the realization pull
+request, ticked there and nowhere else.
+
+**HOW THE HEADS BELOW ARE NAMED.** The requirement says the register "MUST be
+re-measured at the head the gate lands on", and THE HEAD A GATE LANDS ON IS NOT
+KNOWABLE WHILE ITS BRANCH IS OPEN. So no re-measurement below claims to be that
+head: each is named for what it is — **THE MAIN HEAD MERGED AT THAT
+RE-MEASUREMENT** — a number that moves every time `main` does and is
+RE-MEASURED rather than assumed each time it moves. `scripts/code_surface.py`'s
+`CLOSED_REGISTER` provenance comment and `scripts/code-surface-register.yaml`'s
+header name them in the same words, so the three records cannot drift apart
+again. As this transcript stands there have been TEN re-measurements
+(`54885296`, `bfa90db6`, `e6e1c968`, `dd073746`, `92d519b0`, `8944758c`,
+`79ac94b7`, `3c614d34`, `b1df95ee`, `fa39141c`) and the scenario has FIRED
+ONCE, at the second.
+
+**EVERY FIGURE IN § 3 WAS RE-MEASURED AT THE MAIN HEAD MERGED AT THE FIRST
+RE-MEASUREMENT** — `origin/main` `54885296` — with the § 3.1 reader itself, and
+NONE is carried from the drafting tree `bcde1575`. That is the register requirement's own
+scenario *The corpus moves between drafting and landing*, obeyed rather than
+quoted. **THE RE-MEASUREMENT, IN FULL:** `python3
+scripts/validate-code-surface.py .` — **exit 0**, *"44 active proposals, 44
+declaring — 4 `none`, 33 a repository list, 7 named by the register, 0 outside
+the grammar"*, *"archive (read, never judged): 167 proposals, 121 declaring, 3
+of them outside the grammar"*. **THE SEVEN ARE THE SAME SEVEN CHANGES IN THE
+SAME FOUR CLASSES THE DRAFTING FOUND**, and the two numbers that moved both
+moved for one reason that is not this gate's: an archive between the drafting
+tree and this one took ONE CONFORMING carrier out of the active corpus (45
+active to 44, 38 conforming to 37) and put two more records into the archive
+(165 to 167, 119 to 121 declaring, the 3 off-grammar archived records unmoved).
+The sibling gate reads the same 44 at this head
+(`scripts/validate-target-release.py .` — *"44 active proposals"*), so the
+active count is a fact about the tree and not about either reader.
+
+**AND THEN THE SCENARIO FIRED. SECOND RE-MEASUREMENT, AT `origin/main`
+`bfa90db6` — THE MAIN HEAD MERGED AT THAT RE-MEASUREMENT.** `main` moved
+ten-plus commits past `54885296` while this realization was in review, so the
+figures above are the record of the FIRST re-measurement and are kept as that
+record; the figures below are the tree as it stood at the second. **THE RE-MEASUREMENT, IN FULL:** `python3
+scripts/validate-code-surface.py .` — *"46 active proposals, 46 declaring — 4
+`none`, 34 a repository list, 7 named by the register, **1 outside the
+grammar**"*, **exit 1**, *"archive (read, never judged): 167 proposals, 121
+declaring, 3 of them outside the grammar"*. The sibling gate reads the same 46
+(`scripts/validate-target-release.py .` — *"46 active proposals"*), so again the
+active count is a fact about the tree and not about either reader, and the
+ARCHIVE IS UNMOVED at 167/121/3.
+
+**AND THEN MAIN MOVED AGAIN, DURING THE FIX ROUND. THIRD RE-MEASUREMENT, AT
+`origin/main` `e6e1c968` — THE MAIN HEAD MERGED AT THAT RE-MEASUREMENT.** The
+figures above are kept as the record of the SECOND re-measurement; these are the
+tree as it stood at the third. `python3 scripts/validate-code-surface.py .` — **exit 0**, *"47 active
+proposals, 47 declaring — 4 `none`, 35 a repository list, 8 named by the
+register, 0 outside the grammar"*, *"archive (read, never judged): 167
+proposals, 121 declaring, 3 of them outside the grammar"*. The sibling gate
+reads the same 47 (`python3 scripts/validate-target-release.py .` — *"47 active
+proposals"*), so once more the active count is a fact about the tree and not
+about either reader, and THE ARCHIVE IS STILL UNMOVED at 167/121/3.
+**NO NEW CARRIER ARRIVED AND THE REGISTER DID NOT MOVE**, which is a
+measurement: `git diff --name-status bfa90db6..e6e1c968 --
+'openspec/changes/*/proposal.md'` is exactly one `A`
+(`add-declared-former-id`) and one `M`
+(`extend-prose-tagging-target-to-pinned-capabilities`) — no `D`, no `R`. BOTH
+CONFORM (each declares the head `openxFactory` followed by an em dash), so both
+join the 35; the `M` is not one of the eight, so no entry is stale and the
+register stands at EIGHT unchanged. **THE SCENARIO FIRED A SECOND TIME AND COST
+NOTHING**, which is the shape it is supposed to have when the corpus moves
+without a divergence in it.
+
+**AND MAIN MOVED ONCE MORE, AT THE END OF THE FIX ROUND. FOURTH RE-MEASUREMENT,
+AT `origin/main` `dd073746` — THE MAIN HEAD MERGED AT RE-MEASUREMENT AS THIS
+TRANSCRIPT STANDS.** `python3 scripts/validate-code-surface.py .` — **exit 0**,
+*"47 active proposals, 47 declaring — 4 `none`, 35 a repository list, 8 named by
+the register, 0 outside the grammar"*, *"archive (read, never judged): 167
+proposals, 121 declaring, 3 of them outside the grammar"* — **BYTE FOR BYTE THE
+THIRD RE-MEASUREMENT'S LINE**, and the sibling gate again reads the same 47
+(`python3 scripts/validate-target-release.py .` — *"47 active proposals"*), the
+archive again unmoved at 167/121/3. `python3 scripts/validate-scope-globs.py .`
+— **exit 0**, *"scope_globs validation passed (all active changes conform)"*.
+**NO DECLARATION MOVED AT ALL**, which is a measurement rather than an
+inference: `git diff --name-status e6e1c968..dd073746 --
+'openspec/changes/*/proposal.md'` is **EMPTY** — no `A`, no `M`, no `D`, no `R`
+— so no carrier arrived, no entry went stale, and the register stands at EIGHT
+untouched. The sixteen commits `main` gained are `health/derive-possibles/`
+registers, `ideation/cross-reference.*`, one `doc_health/pin_class.py` addition
+and one council-seats record; NONE touches a file this branch touches, and the
+merge (`2c7aef40`) resolved **ZERO conflicts**. **THE SCENARIO FIRED A THIRD
+TIME AND AGAIN COST NOTHING** — which is now the rule and the second
+re-measurement the exception, exactly as a ratchet should behave once it has
+caught up with the corpus.
+
+**AND MAIN MOVED ONCE MORE, IN THE SECOND FIX ROUND. FIFTH RE-MEASUREMENT, AT
+`origin/main` `92d519b0` — THE MAIN HEAD MERGED AT RE-MEASUREMENT AS THIS
+TRANSCRIPT STANDS** (the brief named `74348374`; `main` had moved past it to
+`92d519b0` by the time the merge ran, and the head MEASURED is the head MERGED,
+never the head quoted). `python3 scripts/validate-code-surface.py .` — **exit
+0**, *"47 active proposals, 47 declaring — 4 `none`, 35 a repository list, 8
+named by the register, 0 outside the grammar"*, *"archive (read, never judged):
+167 proposals, 121 declaring, 3 of them outside the grammar"* — **BYTE FOR BYTE
+THE THIRD AND FOURTH RE-MEASUREMENTS' LINE**. `python3
+scripts/validate-scope-globs.py .` — **exit 0**. **NO DECLARATION MOVED AT
+ALL**, measured rather than inferred: `git diff --name-status
+dd073746..92d519b0 -- 'openspec/changes/*/proposal.md'` is **EMPTY** — no `A`,
+no `M`, no `D`, no `R` — so no carrier arrived, no entry went stale, and the
+register stands at EIGHT untouched (8 entries, `CLOSED_REGISTER` length 8,
+equal). The 55 commits `main` gained are the `former_id` arrival-gate and
+reference-resolver realizations, `packet_reference`, and doc-health
+pinned-target work; the merge (`8f8d709a`) resolved **ZERO conflicts**. **THE
+SCENARIO FIRED A FOURTH TIME AND AGAIN COST NOTHING.**
+
+**AND MAIN MOVED ONCE MORE, IN THE THIRD FIX ROUND. SIXTH RE-MEASUREMENT, AT
+`origin/main` `8944758c` — THE MAIN HEAD MERGED AT THAT RE-MEASUREMENT**
+(merged at `d4c5a7f9`; that merge landed and the
+re-measurement did not, which is the drift this paragraph closes — the figures
+are taken at `e3a4c051`, the branch head carrying the merge). `python3
+scripts/validate-code-surface.py .` — **exit 0**, *"46 active proposals, 46
+declaring — 4 `none`, 34 a repository list, 8 named by the register, 0 outside
+the grammar"*, *"archive (read, never judged): 168 proposals, 122 declaring, 3
+of them outside the grammar"*. `python3 scripts/validate-scope-globs.py .` —
+**exit 0**. **THIS IS THE FIRST RE-MEASUREMENT AT WHICH THE ACTIVE CORPUS
+SHRANK**, and a measurement rather than an inference: `git diff --name-status
+92d519b0..8944758c -- 'openspec/changes/*/proposal.md'` is exactly one `R100` —
+the FIRST `R` of the whole record — `extend-prose-tagging-target-to-pinned-
+capabilities` moving to `archive/2026-09-15-extend-prose-tagging-target-to-
+pinned-capabilities/` (#1042), which is why 47 active / 47 declaring / 35 a
+repository list reads 46 / 46 / 34 and the archive 167/121/3 reads 168/122/3.
+That carrier CONFORMS — it was one of the 35, which is where the 34 comes
+from — and is NOT one of the eight, so no carrier arrived, NO ENTRY WENT STALE
+(`scan().stale` is empty, and the CLI's own exit 0 says the same) and the
+register stands at EIGHT untouched (8 entries, `CLOSED_REGISTER` length 8,
+equal). **THE SCENARIO FIRED A FIFTH TIME AND AGAIN COST NOTHING** — and the
+arm nothing had exercised until now answered too: an ARCHIVING packet would
+have made its entry stale, and this one was not registered.
+
+**AND MAIN MOVED AGAIN WHILE THE FOURTH ROUND WAS IN REVIEW. SEVENTH
+RE-MEASUREMENT, AT `origin/main` `79ac94b7` — THE MAIN HEAD MERGED AT THAT
+RE-MEASUREMENT** (merged at `556eac00`), taken with the merge rather than left
+for the next round to find, which is the whole of what went wrong at the
+sixth. `python3 scripts/validate-code-surface.py .` — **exit 0**, *"46 active
+proposals, 46 declaring — 4 `none`, 34 a repository list, 8 named by the
+register, 0 outside the grammar"*, archive *"168 proposals, 122 declaring, 3 of
+them outside the grammar"* — **BYTE FOR BYTE THE SIXTH RE-MEASUREMENT'S LINE**.
+`python3 scripts/validate-scope-globs.py .` — **exit 0**. **NO DECLARATION
+MOVED AT ALL**, measured rather than inferred: `git diff --name-status
+8944758c..79ac94b7 -- 'openspec/changes/*/proposal.md'` is **EMPTY** — no `A`,
+no `M`, no `D`, no `R` — so no carrier arrived, no entry went stale and the
+register stands at EIGHT untouched. The 15 commits `main` gained are the
+`former_id` document-move realization and its bench rounds, touching no file
+this packet owns; the merge resolved **ZERO conflicts**. **THE SCENARIO FIRED A
+SIXTH TIME AND AGAIN COST NOTHING.**
+
+**AND MAIN MOVED AGAIN WHILE THE FIFTH ROUND WAS IN REVIEW. EIGHTH
+RE-MEASUREMENT, AT `origin/main` `3c614d34` — THE MAIN HEAD MERGED AT
+THAT RE-MEASUREMENT** (merged at `76492170`), taken WITH
+the merge again rather than after it. `python3 scripts/validate-code-surface.py
+.` — **exit 0**, *"46 active proposals, 46 declaring — 4 `none`, 34 a repository
+list, 8 named by the register, 0 outside the grammar"*, archive *"168 proposals,
+122 declaring, 3 of them outside the grammar"* — **THE SIXTH AND SEVENTH
+RE-MEASUREMENTS' LINE, BYTE FOR BYTE, A THIRD TIME**. `python3
+scripts/validate-scope-globs.py .` — **exit 0**. **NO DECLARATION MOVED AT
+ALL**, measured rather than inferred: `git diff --name-status
+79ac94b7..3c614d34 -- 'openspec/changes/*/proposal.md'` is **EMPTY** — no `A`,
+no `M`, no `D`, no `R` — so no carrier arrived, no entry went stale and the
+register stands at EIGHT untouched. The 5 commits `main` gained are the
+openDox/openXdox pin lockstep (#1054), a Q-GRC-4 § 13.5 pre-note record and a
+§ 3.4 slice-S7 annotation (#1030), touching no file this packet owns; the merge
+resolved **ZERO conflicts**. **THE SCENARIO FIRED A SEVENTH TIME AND AGAIN COST
+NOTHING.**
+
+**AND MAIN MOVED AGAIN, THIS TIME WITH AN ARCHIVE IN IT. NINTH
+RE-MEASUREMENT, AT `origin/main` `b1df95ee` — THE MAIN HEAD MERGED AT
+THAT RE-MEASUREMENT** (merged at `48bc7de7`), taken WITH
+the merge again. `python3 scripts/validate-code-surface.py .` — **exit 0**,
+*"45 active proposals, 45 declaring — 4 `none`, 33 a repository list, 8 named
+by the register, 0 outside the grammar"*, archive *"169 proposals, 123
+declaring, 3 of them outside the grammar"*. `python3
+scripts/validate-scope-globs.py .` — **exit 0**. **THIS IS THE SECOND
+RE-MEASUREMENT AT WHICH THE ACTIVE CORPUS SHRANK**, and a measurement rather
+than an inference: `git diff --name-status 3c614d34..b1df95ee --
+'openspec/changes/*/proposal.md'` is exactly one `R100` — the second `R` of
+the whole record — `add-declared-former-id` moving to
+`archive/2026-09-15-add-declared-former-id/` (#1064), which is why 46 active /
+46 declaring / 34 a repository list reads 45 / 45 / 33 and the archive
+168/122/3 reads 169/123/3. That carrier CONFORMS — it was one of the 34,
+which is where the 33 comes from — and it is NOT one of the eight, so no
+carrier arrived, NO ENTRY WENT STALE (`scan().stale` is empty, and the CLI's
+own exit 0 says the same) and the register stands at EIGHT untouched (8
+entries, `CLOSED_REGISTER` length 8, equal). Of the 12 commits `main` gained,
+eight are PR #1064 itself (the archival, on its "merged-plus-green
+realization evidence"), three reached `main` directly while it was in
+flight — a § 3.4 slice-S8 row annotation (#1025), a pinned-arm refusal-code
+split (#1049) and an openXdox-code row annotation (#1031) — and one is this
+lane's own ideation-readiness derive-possibles commit-back (#1044, merged and
+gated above); besides the one `R100` already named, none touches
+`gate-code-surface-declarations/`, `code_surface.py` or
+`code-surface-register.yaml`, and the merge resolved **ZERO conflicts**.
+**THE SCENARIO FIRED AN EIGHTH TIME AND AGAIN COST NOTHING** — the arm the
+sixth exercised once now answers a second time the same way: an ARCHIVING
+packet makes its entry stale only if it has one, and this one, like the
+sixth's, was never registered.
+
+**AND MAIN MOVED AGAIN, THIS TIME WITH TWO FILINGS IN IT. TENTH
+RE-MEASUREMENT, AT `origin/main` `fa39141c` — THE MAIN HEAD MERGED AT
+RE-MEASUREMENT AS THIS TRANSCRIPT STANDS** (merged at `49007dc4`), taken WITH
+the merge again, and THE RE-MEASUREMENT AT WHICH BRETT HEAP'S RULING ON THE
+EIGHTH ENTRY IS RECORDED (§ 3.4 below). `python3
+scripts/validate-code-surface.py .` — **exit 0**, *"47 active proposals, 47
+declaring — 5 `none`, 34 a repository list, 8 named by the register, 0 outside
+the grammar"*, archive *"169 proposals, 123 declaring, 3 of them outside the
+grammar"*. `python3 scripts/validate-scope-globs.py .` — **exit 0**. **THIS IS
+THE FIRST RE-MEASUREMENT SINCE THE SECOND AT WHICH THE ACTIVE CORPUS GREW**,
+and a measurement rather than an inference: `git diff --name-status
+b1df95ee..fa39141c -- 'openspec/changes/*/proposal.md'` is exactly two `A`
+lines and nothing else — no `M`, no `D`, no `R` — which is why 45 active /
+45 declaring / 33 a repository list reads 47 / 47 / 34 and the archive is
+UNMOVED at 169/123/3. `adopt-entry-grain-dispositions-form` (#1050) declares a
+repository list, which is where the 34 comes from;
+`scope-pinned-arm-root-naming` (#1052) declares `none`, which is where the 5
+comes from. **BOTH CONFORM** and NEITHER is one of the eight, so no carrier
+arrived, NO ENTRY WENT STALE (`scan().stale` is `()`, and the CLI's own exit 0
+says the same) and the register stands at EIGHT untouched (8 entries,
+`CLOSED_REGISTER` length 8, equal). Of the 6 commits `main` gained — the two
+filings above, an openDox walked-root admission (#1067), another packet's
+`tasks.md` § 3.4 amendment (#1035), the openDox/openXdox consumer gate (#1059)
+and the `retired:` row-form carve (#1032) — NOT ONE touches
+`gate-code-surface-declarations/`, `code_surface.py` or
+`code-surface-register.yaml`, and the merge resolved **ZERO conflicts**.
+**THE SCENARIO FIRED A NINTH TIME AND AGAIN COST NOTHING** — and this is the
+first firing since the SECOND at which a proposal ARRIVED rather than archived
+or nothing moving at all, which is the very arm that produced the eighth entry:
+it answers differently here only because both arrivals CONFORM.
+
+**TWO PROPOSALS LANDED IN BETWEEN AND NONE ARCHIVED**, which is a measurement
+and not an assumption: `git diff --name-status 54885296..bfa90db6 --
+'openspec/changes/*/proposal.md'` is exactly two `A` lines and nothing else — no
+`M`, no `D`, no `R`. (Both commands here are pinned to the heads they measured
+rather than written against `origin/main`, which moves: re-run against a moved
+`origin/main` each would answer a different question and read as a false record
+of this one.) So NOT ONE OF THE SEVEN MOVED: no registered packet
+archived and no registered declaration was edited, every entry still matches its
+live declaration byte for byte, and NO ENTRY IS STALE. Of the two arrivals,
+`add-target-release-deferred-allocation` (#1022 → `9378eca5`) CONFORMS and is
+one of the 34; `encode-wallet-authority-rulings-r6-r12` (#1017 → `bfa90db6`)
+does NOT, and it is the 1.
+
+**THAT ONE IS DISPOSED OF HERE, AT THAT RE-MEASUREMENT, ON D3's RULED OPTION —
+REGISTERED, NOT SWEPT.** It is the register requirement's own scenario *The
+corpus moves between drafting and landing* firing exactly as written ("the
+register MUST be re-measured at the head the gate lands on, and the new carrier
+disposed of there"), and § 3.4's standing instruction ("a carrier that arrived
+after this drafting is disposed of there"). **AFTER THE DISPOSITION:** `python3
+scripts/validate-code-surface.py .` — **exit 0**, *"46 active proposals, 46
+declaring — 4 `none`, 34 a repository list, **8** named by the register, 0
+outside the grammar"*, archive unmoved at *"167 proposals, 121 declaring, 3 of
+them outside the grammar"*. **THE REGISTER IS EIGHT AT THE LANDING, NOT SEVEN**,
+and every § 3 box below that records `SEVEN` records the FIRST re-measurement
+and is corrected in place where the number is now false.
+
+- [x] 3.1 `scripts/code_surface.py` (NEW) — the reader and judge. Reads the
+      declaration through the SHIPPED strict loader
+      `frontmatter_strict.read_front_matter`, adding no second parser; parses
+      the DECLARED HEAD — EITHER the single token `none` OR a list of
+      repository identifiers separated by `,` / ` and ` / ` + `, the two
+      EXCLUSIVE, so a MIXED head such as `none, openxFactory` is REFUSED and no
+      derived set is computed for it, in either order and wherever in the list
+      the token sits (`design.md` D9 (a)); requires a GLOSS OPENER where a gloss
+      follows; refuses a YAML block-scalar indicator BY NAME; refuses a repeated
+      declaration; loads and shape-checks the register; scans top-level active
+      changes and counts the archive.
+      **LANDED**: `parse_head` (the head, the openers, the reserved sentinel),
+      `declaration` (the strict-loader read and the repeat refusal),
+      `load_register`, `register_entry_for`, `_proposals` and `scan`, with
+      `declaration_digest` carrying the closed baseline. The MIXED-head refusal
+      is `parse_head`'s own (`"mixes the empty-surface sentinel \`none\` with N
+      repository identifier(s) … self-contradictory rather than wide"`), raised
+      BEFORE any set is built, so no derived set is computed for such a head —
+      pinned in either order and at every list position by
+      `test_a_mixed_none_head_is_refused_wherever_the_token_sits` — and a head
+      that REPEATS the sentinel (`none, none`) is refused as the repeat it is
+      (`"repeats the empty-surface sentinel \`none\` N times as a list"`) rather
+      than mis-reported as a mix with an empty parenthetical, a fix-round nit.
+      The block scalar is refused by name (`"opens with the YAML BLOCK-SCALAR
+      indicator \`>-\`"`) and NOT as a generic unreadable head, pinned by
+      `test_the_block_scalar_refusal_is_not_merely_an_unreadable_head`.
+      **THE MESSAGE SAYS BLOCK-SCALAR AND NOT FOLDING, AND THE REASON IS
+      RECORDED HERE RATHER THAN LEFT TO THE NEXT READER TO "CORRECT" BACK.**
+      `_BLOCK_SCALAR_RE` admits both styles and they are two: `|` is the
+      LITERAL style and `>` the FOLDED one (YAML 1.2 § 8.1.2, § 8.1.3). The
+      ratified requirement's own TITLE says *"A DECLARATION WRITTEN AS A YAML
+      BLOCK SCALAR SHALL BE REFUSED BY NAME"* and its scenario is titled *"A
+      declaration is written as a YAML block scalar"*; only the explanatory
+      sentence inside the requirement calls both *"YAML folding indicators"*,
+      which mislabels `|`. The message follows the TITLE — the accurate term —
+      and names the indicator it actually saw, which is the part the
+      requirement makes normative (*"MUST name the indicator as the defect"*).
+      **NOT ONE BYTE OF THE RATIFIED DELTA IS EDITED BY THIS PULL REQUEST**:
+      the slip is a wording defect in ratified prose, flagged for the record
+      and owed a separate act, never corrected inside a realization.
+      (§ 2.2's measurement keeps the word "folding" and is right to: the ONE
+      carrier the corpus actually holds declares `>-`, which IS the folded
+      style.)
+- [x] 3.2 `scripts/validate-code-surface.py` (NEW) — the CLI, in
+      `validate-scope-globs.py`'s shape. `[REPO_ROOT]` plus `--register PATH`
+      (for the tests and for a consuming tree; the gate runs it with neither).
+      Exit 0 clean, 1 an unreadable declaration, 2 an unusable or stale
+      register; both present prints both and exits 1.
+      **LANDED**, and all four exits are pinned end to end through the CLI:
+      exit 0 (`test_a_conforming_declaration_passes`), exit 1
+      (`test_an_active_unreadable_head_is_refused`), exit 2 for an unusable
+      register (`test_a_missing_register_refuses`) and for a stale one
+      (`test_an_entry_that_matches_nothing_refuses`), and BOTH-at-once printing
+      both and exiting 1 (`test_a_finding_and_a_stale_entry_are_both_reported`).
+- [x] 3.2a **NO PATH THIS GATE OPENS MAY BE REACHED THROUGH A SYMLINK**, the
+      sibling's guard MIRRORED EXACTLY — imported from
+      `scripts/target_release.py` or restated beside it, the realization's
+      choice, but never APPROXIMATED, because a guard that is nearly the
+      sibling's is a guard whose gaps nobody has measured. `Path.is_file()`
+      and `Path.read_text()` BOTH FOLLOW SYMLINKS, so without this a committed
+      link would make the gate read exception data, or declarations, from
+      OUTSIDE THE CHECKOUT: silently, and differently per runner. There are
+      TWO surfaces, the sibling guards them with two DIFFERENT semantics, and
+      both are mirrored exactly rather than approximated.
+      **(i) THE REGISTER IS REFUSED UNREAD** — the `--register PATH` of § 3.2
+      and the default beside the module ALIKE — when the file ITSELF is a
+      symlink OR when ANY directory between it and its own top is one, the
+      check running UNCONDITIONALLY before `is_file()` or `read_text()`, so no
+      branch treats a supplied path differently from the default and no branch
+      can forget one of them. A leaf-only check does not close it:
+      `linkdir/register.yaml` has a perfectly ORDINARY leaf and `read_text()`
+      still follows `linkdir`. The ancestor walk is UNANCHORED — climbing to
+      `/` for an absolute path and to `.` for a relative one — because a
+      register named on the command line is deliberately allowed to live
+      wherever a test tree or a consuming repository puts it, so there is no
+      `REPO_ROOT` to check "outside of"; `scripts/target_release.py`'s
+      `load_register` (line 448) and `_has_symlinked_ancestor` (line 417) are
+      the exact shape. An unusable register is EXIT 2 by § 3.2, and the
+      refusal names the remedy: a regular file at an ordinary, unsymlinked
+      path.
+      **(ii) EVERY DISCOVERED PROPOSAL PATH IS ADMITTED ONLY THROUGH THE
+      ANCHORED TEST**, active and archived alike — the one
+      `scripts/target_release.py`'s `_unescaped` (line 569) applies: resolve
+      the candidate AND `REPO_ROOT` on BOTH sides and require the candidate to
+      land exactly where a symlink-free tree would have put it, which closes
+      every component in ONE comparison rather than one at a time as each is
+      found. A path that fails it is NOT READ, NOT JUDGED and NOT COUNTED, and
+      that is a DROP rather than an exit-1 finding, because the fact being
+      reported would otherwise be a fact about another tree: a proposal read
+      from outside `REPO_ROOT` would be judged and named in a finding as
+      though this tree carried it, and a DANGLING link is the same defect
+      wearing the other face — the proposal vanishes and the tree is judged on
+      a corpus it does not have. Resolving `REPO_ROOT` on BOTH sides is what
+      keeps a scratch tree reached through a symlinked `/tmp` from being
+      mistaken for the escape.
+      **LANDED AS THE SIBLING'S TWO SEMANTICS, RESTATED BESIDE IT RATHER THAN
+      APPROXIMATED.** (i) `code_surface.load_register` runs
+      `path.is_symlink() or _has_symlinked_ancestor(path)` UNCONDITIONALLY
+      before `is_file()` or `read_text()`, and `_has_symlinked_ancestor` is the
+      UNANCHORED climb `target_release._has_symlinked_ancestor` (line 417)
+      performs. (ii) `code_surface._unescaped` is
+      `target_release._unescaped`'s (line 569) ANCHORED test — resolve the
+      candidate AND `REPO_ROOT` on both sides and require the candidate to land
+      where a symlink-free tree would have put it — and `_proposals` takes
+      EVERY discovered path through it, on the active arm and the archive arm
+      alike, DROPPING what fails rather than reporting it. § 3.6a's tests pin
+      both surfaces at both depths.
+- [x] 3.3 `scripts/code-surface-register.yaml` (NEW) — the standing divergences
+      the same act does not correct, each with its declaration text as it
+      stands, its class, its reason, its citation and the event that retires it.
+      CLOSED: removable, never addable, with the closure ENFORCED by a baseline
+      in the module (`design.md` D2). Not under `contracts/`, deliberately
+      (`design.md` D5). **ITS POPULATION IS RE-MEASURED AT THE HEAD THE GATE
+      LANDS ON** — seven at this packet's drafting, and a fact about that tree
+      only.
+      **LANDED WITH SEVEN ENTRIES IN FOUR CLASSES** (block-scalar 1,
+      possessive 1, apposition 1, list-runs-into-prose 4) AT THE FIRST
+      RE-MEASUREMENT `54885296`, **AND WITH EIGHT IN THE SAME FOUR CLASSES FROM
+      THE SECOND RE-MEASUREMENT `bfa90db6` ONWARD — STILL EIGHT AT `e6e1c968`,
+      AT `dd073746`, AT `92d519b0`, AT `8944758c`, AT `79ac94b7`, AT
+      `3c614d34`, AT `b1df95ee` AND AT `fa39141c`, THE MAIN HEAD MERGED AT
+      RE-MEASUREMENT**
+      (list-runs-into-prose 5) — the eighth being
+      the carrier that arrived in between, disposed of at that re-measurement as
+      the § 3 preamble's second re-measurement records and as the requirement's
+      *The corpus moves between drafting and landing* directs. **NO NEW CLASS
+      WAS ADMITTED**, which the loader itself enforces (`REGISTER_CLASSES` is
+      the four, and a fifth "is a change to the specification, not a register
+      edit"). Each entry carries its
+      declaration VERBATIM AND BYTE FOR BYTE — copied from the tree, never
+      retyped, and pinned by
+      `test_every_register_entry_carries_the_live_declaration_byte_for_byte`.
+      **THE CLOSURE IS ENFORCED BY `code_surface.CLOSED_REGISTER`**, which
+      carries `(change, sha256-of-declaration)` for each. THE BASELINE IS A
+      DIGEST AND NOT THE TEXT, and the reason is measured: these declarations
+      run from 940 to 11,678 bytes and one is 38 lines, so a baseline carrying
+      the text verbatim would be a wall nobody could review and one carrying a
+      PREFIX would pin an arbitrary number of characters. The act stays legible
+      because the register carries the text in the same diff, beside the change
+      id the baseline names. Appending an entry refuses
+      (`test_an_entry_outside_the_closed_baseline_refuses`) and so does editing
+      a registered declaration by one byte
+      (`test_an_entry_whose_declaration_moved_off_the_baseline_refuses`).
+- [x] 3.4 **THE SEVEN DISPOSED OF AS § 1.3 RULES.** On the recommended option
+      all seven are registered and none is swept. On option 2 the six are
+      corrected — one re-punctuation each, every word of every gloss preserved
+      verbatim — and one registered; on option 3 all seven are corrected. Under
+      any option the population is re-measured at the landing head first, and a
+      carrier that arrived after this drafting is disposed of there.
+      **DONE ON THE RULED OPTION: ALL SEVEN REGISTERED, NONE SWEPT, AND THE
+      POPULATION RE-MEASURED FIRST.** The re-measurement ran the § 3.1 reader
+      over `origin/main` `54885296` before the register was written, and the
+      seven it returned are the seven `design.md` D0 names, unchanged:
+      `adopt-configured-notebook-hosting-identity` (block-scalar),
+      `amend-kill-switch-to-declared-test-companion` (possessive),
+      `add-substantive-review-lane` (apposition), and
+      `admit-review-lane-repin-to-merge-approval-envelope`,
+      `amend-mirror-floor-regeneration-merge-authority`,
+      `extend-merge-master-envelope-to-floor-bot-lanes` and
+      `split-opendox-two-layer-product` (list-runs-into-prose). **NO CARRIER
+      HAD ARRIVED AT THE FIRST RE-MEASUREMENT**, so no new disposition was owed
+      THERE — and that was a measurement rather than an assumption: `git diff
+      --name-status b4e0087a..HEAD -- openspec/changes/` was EMPTY, so the
+      active corpus was byte-identical to the tree this packet landed on.
+      **THAT IS NO LONGER TRUE FROM THE SECOND RE-MEASUREMENT ONWARD, AND THIS
+      BOX RECORDS THE CHANGE RATHER THAN KEEPING THE NUMBER THAT WAS TRUE WHEN
+      IT WAS WRITTEN.**
+      Merging `origin/main` `bfa90db6` brought ONE new carrier,
+      `encode-wallet-authority-rulings-r6-r12` (#1017, ratified 2026-09-12),
+      whose declaration names FOUR FILE PATHS where the grammar wants repository
+      identifiers — the reader takes `contracts/signed-execution-chain` as an
+      `<owner>/<name>` address and then runs into
+      `/digest-construction.schema.yaml` with no gloss opener. **IT IS
+      REGISTERED AND NOT SWEPT, WHICH IS THIS BOX'S OWN INSTRUCTION** ("a
+      carrier that arrived after this drafting is disposed of there") ON § 1.3's
+      RULED OPTION, and D3's reason holds with more force here than for the
+      seven: correcting this head is not a re-punctuation at all but a judgment
+      about which repository four artifacts belong to, in another lane's
+      ratified, active, mid-flight packet. **SO THE DISPOSITION IS EIGHT
+      REGISTERED, NONE SWEPT**, and **STILL NOT ONE BYTE OF ANOTHER LANE'S
+      RATIFIED PROSE IS RE-PUNCTUATED BY THIS PULL REQUEST**: `git diff --stat
+      origin/main...HEAD` touches no `proposal.md` but this packet's own
+      `tasks.md`. **THE CLOSURE IS KEPT BY THE ONE ROUTE IT ADMITS**: the
+      entry's `(change, sha256-of-declaration)` pair is added to
+      `code_surface.CLOSED_REGISTER` in the SAME pull request as the register
+      entry — the "second, deliberate, reviewable edit HERE, in the module,
+      beside the reason" the baseline's own comment demands, and the remedy the
+      refusal itself names.
+      **AND THE EIGHTH IS NOT THIS LANE'S JUDGMENT ALONE: IT IS RULED.** The
+      7→8 growth was put to Brett Heap as a governance note rather than
+      performed on this lane's own reading — the note quotes the four texts
+      that bear on it and states the strongest reading AGAINST keeping the
+      entry (PR #1029, `issuecomment-5662333218`) — and he RULED it in session
+      on 2026-09-16 in a multichoice round, verbatim **"Keep the eighth
+      entry"** (recorded at `issuecomment-5702650701`). The ruling's reasons
+      are the packet's own: D3's ruling line fixes the DISPOSITION and never
+      the count, the scenario *The corpus moves between drafting and landing*
+      orders a new carrier disposed of AT THE LANDING HEAD, and the baseline is
+      "the entries the register holds WHEN the gate lands". **SO THE REGISTER
+      LANDS AT EIGHT ON BRETT HEAP'S WORD AND NOT MERELY ON THIS LANE'S**, and
+      the ruling is recorded in all three records that keep this packet's
+      register facts — this transcript, the entry's own `why:` in
+      `scripts/code-surface-register.yaml`, and `CLOSED_REGISTER`'s provenance
+      comment in `scripts/code_surface.py` — so they cannot drift apart on
+      the ruling either.
+- [x] 3.5 **NARROW `scripts/scope_globs.py`'s `code_surface_repositories`** to
+      derive its set from the DECLARED HEAD, through the reader § 3.1 adds, so
+      the field has one derivation and not two — **OWED, § 1.4 having ruled D4
+      option 1**. Pinned by a test proving the function returns the head's
+      identifiers and none of the gloss's, and by a before/after run of
+      `python3 scripts/validate-scope-globs.py .` showing the live corpus
+      unmoved (0 active proposals declare `scope_globs:`, § 2.7, so the change
+      is unobservable there — which is what makes it landable without a sweep).
+      **LANDED, AND THE BEFORE/AFTER IS A PAIR OF RUNS IN ONE SHELL ON ONE
+      TREE.** BEFORE: `python3 scripts/validate-scope-globs.py .` — **exit 0**,
+      *"scope_globs validation passed (all active changes conform)"*. AFTER, on
+      the narrowed reader: **exit 0**, the SAME line. **THE CORPUS IS UNMOVED
+      AND THE READER IS NOT**, re-measured at this head rather than carried:
+      the permissive extractor returned **3,321** distinct "repository" tokens
+      across the 44 active declarations, **767** from
+      `split-opendox-two-layer-product` alone, with **ALL FOUR** `none` heads
+      yielding a NON-EMPTY set and **33 of the 33** readable non-`none` heads
+      yielding at least one token their own head does not name. **RE-MEASURED
+      AT THE SECOND RE-MEASUREMENT `bfa90db6`, WITH THE SAME SCRIPT AND THE SAME
+      PRE-NARROWING EXTRACTOR, THE FIGURES MOVE WITH THE CORPUS AND THE FINDING
+      DOES NOT: 3,408** distinct tokens across the 46 active declarations,
+      **767** from `split-opendox-two-layer-product` still, **ALL FOUR** `none`
+      heads still yielding a NON-EMPTY set, and **34 of the 34** readable
+      non-`none` heads still yielding at least one token their own head does not
+      name. The narrowed
+      reader returns the head's identifiers and nothing else, and returns the
+      EMPTY set for a `none` head whatever its gloss says. It is unobservable
+      on the live corpus because **0 of 44** active proposals declare — and
+      **0 of 46** at the second re-measurement `bfa90db6`, and **0 of 47** at
+      `dd073746`, the main head merged at re-measurement, each re-measured
+      rather than carried (`frontmatter_strict.read_front_matter` over the 47
+      active proposals returns a `scope_globs` key for NONE of them — the three
+      active proposals that contain the string carry it in PROSE and not in the
+      front matter, so a grep would have over-counted and the loader does not),
+      with `python3 scripts/validate-scope-globs.py .` returning **exit 0**
+      and the same *"scope_globs validation passed (all active changes
+      conform)"* on each merged tree — because no active proposal declares
+      `scope_globs:` — the same latency § 2.7 measured — which is what makes it
+      landable without a sweep. The derivation is the SHARED reader
+      (`code_surface.parse_head`) and not a second grammar, which is the
+      requirement's own *one shared reader rather than one per consumer*.
+      **THE VENDORING CONTRACT IS KEPT**: `scripts/scope_globs.py` is vendored
+      byte-for-byte into codexFactory's merge gate beside only
+      `frontmatter_strict.py`, so the sibling is imported ON FIRST USE through
+      `_code_surface()` — `_sequenced_after()`'s exact idiom and its exact
+      reason — and the module still imports standalone with neither sibling in
+      `sys.modules`.
+      **THAT FACT IS NOW PINNED BY ITS OWN TESTS, AND THIS BOX RECORDS THE
+      CORRECTION RATHER THAN KEEPING THE CLAIM THAT WAS FALSE WHEN IT WAS
+      WRITTEN.** It first said the sibling's probe
+      (`tests/scope_globs/test_integrity.py::test_the_sequenced_after_sibling_is_NOT_imported_at_module_import_time`)
+      covered the new deferral. **IT DOES NOT**: that test asserts only that
+      `sequenced_after`/`sequenced_after_substrate` are absent from
+      `sys.modules`, so hoisting `import code_surface` to module level in this
+      repository's own `scripts/` idiom
+      (`sys.path.insert(0, str(Path(__file__).resolve().parent))` then a bare
+      `import`) leaves it **GREEN** — measured with the hoist actually applied,
+      the test passing — while a `scope_globs.py` copied out beside only
+      `frontmatter_strict.py`, which is exactly what codexFactory's merge gate
+      vendors, raises `ModuleNotFoundError: No module named 'code_surface'`.
+      Two tests now pin it, both proven to FAIL under that same hoist and to
+      pass on the shipped tree:
+      `test_the_code_surface_sibling_is_NOT_imported_at_module_import_time`
+      (the bare-subprocess `sys.modules` probe for the new sibling) and
+      `test_the_module_IMPORTS_IN_THE_VENDORED_SHAPE_with_NEITHER_sibling_present`
+      (the vendoring contract itself — this file and `frontmatter_strict.py`
+      alone in a directory, imported — which no `sys.path` accident can
+      defeat). The shipped behaviour was correct throughout; only the evidence
+      for it was missing.
+- [x] 3.5a **FAIL CLOSED WHERE THE HEAD IS CARRIED BY THE REGISTER RATHER THAN
+      READ BY THE GRAMMAR** (`design.md` D9 (b)). A proposal the register names
+      has NO head-derived set, so `code_surface_repositories` SHALL NOT return
+      one for it, and `validate_cross_consistency` SHALL REFUSE a registered
+      proposal that also declares `scope_globs:`, naming BOTH the proposal and
+      the register entry that carries its declaration. **THE TWO SUBSTITUTES
+      ARE FORBIDDEN BY NAME AND EACH GETS ITS OWN REFUSAL TEST**: no fallback to
+      a set derived from the whole declaration (it would re-admit the 3,421-token
+      gloss surface), and no empty-set substitution (it would report the fault
+      against the structured scope rather than against the code-surface
+      declaration that causes it). The refusal message SHALL name the remedy —
+      bring the declaration into the grammar, which retires the entry in the
+      same act.
+      **LANDED.** `code_surface_repositories` returns a
+      `NoDeclaredRepositories` carrier — never a set — for a head the grammar
+      cannot read, and `validate_cross_consistency` refuses it with
+      `CodeSurfaceHeadError`, naming the PROPOSAL, the register ENTRY (its
+      change, its class and its retirement event) and the remedy. **EACH
+      FORBIDDEN SUBSTITUTE HAS ITS OWN REFUSAL TEST, AND EACH PROVES WHAT THE
+      RUN MUST NOT SAY**:
+      `test_the_refusal_forbids_the_whole_declaration_fallback_by_name` declares
+      a scope for `codexFactory`, a repository the registered declaration's
+      GLOSS names and its head does not, and asserts the refusal rather than
+      the grant; `test_the_refusal_forbids_the_empty_set_substitution_by_name`
+      asserts the message does NOT carry the generic *"names repository … not
+      in code_surface"* and DOES carry *"NO REPOSITORY SET CAN BE DERIVED"*.
+      An unreadable head the register does NOT name fails closed too, saying so
+      rather than implying an exception exists
+      (`test_an_unreadable_head_the_register_does_not_name_also_fails_closed`).
+- [x] 3.5b **§ 3.5a's REFUSAL MUST BE EXPRESSIBLE AT THE POINT OF ENFORCEMENT,
+      AND ON THIS TREE IT IS NOT** — so the PROPOSAL IDENTITY and the REGISTER
+      ENTRY travel the reader path, and not a bare set of tokens. Measured
+      here rather than asserted: `scripts/validate-scope-globs.py:68` calls
+      `sg.code_surface_repositories(front)` with the front-matter mapping
+      ALONE, and `scope_globs.validate_cross_consistency` (line 391) receives
+      a bare `Iterable[str]`, so at the moment of judgment NOTHING
+      distinguishes a REGISTERED EXCEPTION from an EMPTY SURFACE — and the two
+      values a narrowed derivation could hand it are exactly the two § 3.5a
+      forbids by name: `None` SKIPS the cross-consistency check outright
+      (`validate_scope_globs`'s `if code_surface_repos is not None`, line 414)
+      and an empty set raises the GENERIC *"names repository … not in
+      code_surface"* message against the structured scope. **NARROWING
+      `code_surface_repositories` ALONE THEREFORE CANNOT REALIZE THE RATIFIED
+      RULE, AND § 3.5 IS NOT FINISHED BY DOING IT.**
+      **THE SHAPE IS CHOSEN HERE RATHER THAN LEFT TO THE IMPLEMENTER, AND IT
+      IS THE ONE THE EXISTING CODE ALREADY SUPPORTS: THE DERIVATION RETURNS A
+      TYPED CARRIER** — either the head-derived set, or the ABSENCE of one
+      carrying the proposal id and the register entry that tolerates its
+      declaration — **AND THAT CARRIER IS THREADED THROUGH
+      `validate_scope_globs` INTO `validate_cross_consistency`, WHICH RAISES A
+      `ScopeGlobsError` SUBCLASS NAMING BOTH.** `scripts/scope_globs.py`
+      already carries both halves of that idiom: a frozen-dataclass result
+      type (`ScopeGlobs`, line 235) and an error SUBCLASS for a distinct fact
+      every existing caller keeps catching (`ScopeGlobsResolutionError`, line
+      106). **THE WIDENING IS CHEAP, AND THE COST IS MEASURED RATHER THAN
+      GUESSED**: `code_surface_repositories` has exactly ONE in-tree caller
+      (`scripts/validate-scope-globs.py:68`) and `validate_cross_consistency`
+      exactly one (`validate_scope_globs`, line 415), so neither signature
+      owes a sweep; `validate_scope_globs` itself only PASSES THE CARRIER
+      THROUGH, its own `code_surface_repos` parameter accepting EITHER form,
+      and **A BARE ITERABLE SHALL KEEP WORKING** — read as a head-derived set
+      carrying no registered-exception context — which is what keeps the
+      shipped tests that call
+      `validate_scope_globs(..., code_surface_repos={"R"})` with a plain set
+      passing unedited. **THE CHEAPER ALTERNATIVE IS REJECTED ON THE RECORD**:
+      raising from the derivation itself is fewer lines, but it moves the
+      refusal UPSTREAM of the cross-consistency check the ratified requirement
+      names as the refuser. The consumer owes nothing it does not already
+      hold: `_validate_change` receives the `proposal` path whose
+      `.parent.name` IS the change id, and `validate_corpus` already prefixes
+      that id onto every problem it prints. Pinned by a test asserting the
+      refusal names the PROPOSAL and its REGISTER ENTRY — § 3.6's two
+      forbidden-substitute tests prove what the run must NOT say, and this one
+      proves what it MUST.
+      **LANDED AT THE SHAPE THIS BOX CHOSE, AND AT NO OTHER.** The derivation
+      returns a TYPED CARRIER — `scope_globs.NoDeclaredRepositories`, a frozen
+      dataclass beside `ScopeGlobs` (line 235) carrying the change id, the
+      declaration and the register entry — threaded through
+      `validate_scope_globs` into `validate_cross_consistency`, which raises
+      `CodeSurfaceHeadError`, a `ScopeGlobsError` SUBCLASS beside
+      `ScopeGlobsResolutionError` (line 106), so every caller that already
+      catches `ScopeGlobsError` keeps catching it. **A BARE ITERABLE STILL
+      WORKS**, read as a head-derived set with no registered-exception context,
+      which is why the shipped
+      `validate_scope_globs(..., code_surface_repos={"R"})` callers in
+      `tests/scope_globs/` pass UNEDITED — proved by running that directory
+      (`python3 -m pytest tests/scope_globs -q -m "not postgres"` — **88
+      passed**, not one file edited; **90 at the fix round** and **99 at the
+      second fix round** (the nine path-boundary tests), the two added
+      being the deferral pins § 3.5 above records, and STILL not one shipped
+      file edited) and pinned here by
+      `test_a_bare_iterable_still_works_as_a_head_derived_set`. **THE CHEAPER
+      ALTERNATIVE IS STILL REFUSED**: the refusal is raised at the
+      cross-consistency check the ratified requirement names as the refuser,
+      not upstream in the derivation. The consumer owed nothing it did not
+      already hold — `validate-scope-globs.py:_validate_change` passes
+      `proposal.parent.name`, and `validate_corpus` prefixes that id onto every
+      problem it prints, which
+      `test_a_registered_packet_declaring_a_scope_reds_the_scope_gate_end_to_end`
+      asserts at the CLI (`c: … NO REPOSITORY SET CAN BE DERIVED`, exit 1).
+      `test_a_registered_packet_declaring_a_scope_is_refused` asserts the
+      refusal names BOTH the proposal and its entry.
+- [x] 3.6 `tests/code_surface/test_code_surface_gate.py` (NEW) — the head parse
+      and the opener requirement; the block-scalar refusal by name; the repeat
+      refusal; absence as the promoted default and a present-but-empty value
+      refused; both identifier spellings (`<name>` and `<owner>/<name>`); the
+      list separators; `none` with and without a gloss; **a MIXED `none`-plus-
+      identifier head refused in either order and at every list position**; the
+      archive read and never judged; the register's shape refusals, its closed
+      baseline, and the stale-entry status; the derivation rule of § 3.5;
+      **§ 3.5a's fail-closed rule, with one test per forbidden substitute — a
+      registered proposal declaring `scope_globs:` refused, never granted a
+      whole-declaration set and never granted an empty one**; and
+      `test_corpus_code_surface_validates`, which runs the CLI over the LIVE
+      tree so a new divergence reds the required `pytest-suite` with no workflow
+      edit. **The test count is MEASURED at the realization and never carried
+      from this task list.**
+      **LANDED WITH 115 TESTS**, counted from a collected run of the file
+      (`python3 -m pytest tests/code_surface -q --collect-only` — *"115 tests
+      collected"*; `python3 -m pytest tests/code_surface -q` — **115 passed**)
+      and not carried from anywhere. **BY GROUP, AND THE FIFTEEN SUM TO 115**:
+      the head and the opener rule (**19**, including every ratified list
+      separator and both identifier spellings), the reserved sentinel (**7** —
+      `none` bare, `none` with a gloss, a MIXED head refused in either order and
+      at every list position, and `None` capitalized refused as the prose it
+      is), the block scalar refused BY NAME (**7**), reading the declaration
+      including the repeat refusal and the indented-gloss NON-repeat (**7**),
+      absence as the promoted default with a present-but-empty value refused
+      (**3**), the gate end to end (**5**), the archive read and never judged
+      (**2**), the corpus walk's path boundary (**7**, § 3.6a), the register's
+      shape refusals (**18**), the closed baseline (**5**), the register path's
+      own boundary (**8**, § 3.6a), the registered/stale asymmetry (**6**), the
+      § 3.5 derivation (**6**), § 3.5a's fail-closed rule with one test per
+      forbidden substitute (**7**), and the live corpus (**8**).
+      `test_corpus_code_surface_validates` runs the CLI over the REAL tree, so a
+      new divergence reds the required `pytest-suite`.
+      **AND THEN THE FIX ROUND ADDED FIFTEEN, SO THE FILE IS 130 — AND THE
+      SECOND FIX ROUND ADDED SIX MORE (the finding-class tests), SO IT WAS
+      **136**; THE THIRD ROUND ADDED FOUR (the scanned tree's register or
+      NONE, never the house one) AND THE FOURTH FIVE (the default register's
+      probe, one case per shape a path can be in), SO IT WAS
+      **145**; AND THE FIFTH ROUND ADDED EIGHT (that same probe's ANCESTOR
+      half, and the parity it claims, five cases and three), SO IT IS
+      **153** AT THE LANDING TREE — AND THIS BOX
+      SAYS WHICH FIFTEEN RATHER THAN RE-SPLITTING THE GROUPS IT CANNOT
+      RE-DERIVE HONESTLY.** Measured the same way at each (`python3 -m pytest
+      tests/code_surface -q --collect-only` — *"145 tests collected"*; `python3
+      -m pytest tests/code_surface -q` — **145 passed**, at the fourth round;
+      **153 passed** at the fifth). **EACH RE-MEASUREMENT
+      IS RECORDED WHERE IT HAPPENED RATHER THAN OVERWRITING THE LAST**: 130 was
+      the fix round's, 136 the second's, and the third round's four landed
+      without this box moving — a drift of four found by re-measuring here and
+      corrected beside the fourth round's five rather than silently absorbed.
+      The fifteen, each named with the finding it answers:
+      **(a) an OMITTED key derives the promoted default's EMPTY SET** —
+      `test_an_OMITTED_key_derives_the_EMPTY_SET_the_promoted_default_declares`,
+      `test_an_OMITTED_key_beside_a_scope_is_the_ORDINARY_finding_against_the_scope`,
+      `test_an_OMITTED_key_beside_a_scope_reds_the_scope_gate_END_TO_END`,
+      `test_a_PRESENT_value_that_is_not_text_still_fails_closed`,
+      `test_a_PRESENT_but_EMPTY_value_still_fails_closed`;
+      **(b) the carrier's `declaration` is READ**, once and never twice —
+      `test_the_absence_carrier_QUOTES_the_declaration_it_carries`,
+      `test_the_absence_carrier_QUOTES_a_declaration_the_detail_does_NOT_carry`;
+      **(c) the register reaches the SCANNED tree**, without which the
+      end-to-end registered arm was never exercised —
+      `test_an_UNREGISTERED_unreadable_head_reds_the_scope_gate_end_to_end`,
+      `test_the_scope_gate_defaults_the_register_to_the_SCANNED_tree`,
+      `test_an_operator_named_register_that_cannot_be_used_REFUSES_not_falls_back`
+      (and `test_a_registered_packet_declaring_a_scope_reds_the_scope_gate_end_to_end`
+      REWRITTEN to supply one, which is a correction and not an addition);
+      **(d) the two report sections cross-referenced where they name one
+      change** — `test_a_stale_entry_and_a_finding_for_the_SAME_change_are_ONE_event`,
+      `test_two_DIFFERENT_changes_are_NOT_cross_referenced`;
+      **(e) the register requirement's third scenario, in its own shape** —
+      `test_the_corpus_moves_between_drafting_and_landing`;
+      **(f) two nits** — `test_a_head_that_REPEATS_the_sentinel_NAMES_THE_DUPLICATE`
+      and `test_scan_with_NO_register_loads_the_HOUSE_register`.
+      **THE THIRD ROUND'S FOUR**, which separated `NO_REGISTER` from `None` so a
+      tree carrying no exception file is not judged against the house one —
+      `test_a_scanned_tree_with_NO_register_is_NOT_judged_against_the_HOUSE_one`,
+      `test_a_scanned_tree_register_that_CANNOT_BE_USED_refuses_not_falls_back`,
+      `test_NO_REGISTER_is_the_absence_SPELLED_and_is_not_a_None`,
+      `test_the_derivation_reads_NO_REGISTER_and_None_as_TWO_DIFFERENT_FACTS`.
+      **AND THE FOURTH ROUND'S FIVE**, one parametrized case per shape the
+      default register path can be in, in
+      `test_the_default_register_probe_is_PRESENCE_in_every_shape`: a DANGLING
+      SYMLINK and a DIRECTORY (the two `is_file()` called absent, so the scan
+      judged with `NO_REGISTER` where `load_register` would have refused — the
+      defect), a symlink to a real file outside the tree and an ordinary file
+      (both already right), and a genuinely absent path (the only
+      `NO_REGISTER`). The probe was then `is_symlink() or exists()`, which is
+      the same boundary `--code-surface-register` has always had — AT THE LEAF.
+      **AND THE FIFTH ROUND'S EIGHT, WHICH CLOSED THE OTHER HALF OF THAT SAME
+      BOUNDARY.** The leaf probe cannot see an ANCESTOR link: with
+      `REPO_ROOT/scripts` a symlink to a directory that does not carry the
+      register, `is_symlink()` and `exists()` are BOTH false, so the scan called
+      the path ABSENT and judged the tree with `NO_REGISTER` — while the SAME
+      path named on `--code-surface-register` was refused (exit 2) by
+      `load_register`'s `_has_symlinked_ancestor` guard. Measured on one tree,
+      both ways, before the fix: named, exit 2; default, exit 1. That is § 3.2
+      (i) broken in the branch it names — "the `--register PATH` … and the
+      default … ALIKE … no branch treats a supplied path differently from the
+      default" — so the probe now asks the LOADER'S OWN unanchored climb before
+      the leaf, imported and not copied. **FIVE CASES** in
+      `test_the_default_register_probe_asks_the_ANCESTRY_not_only_the_leaf`
+      (`scripts` a link to a directory WITHOUT the register and one WITH it, the
+      REPO ROOT itself a link, and absent and present under a clean ancestry —
+      the last two the only `NO_REGISTER` and the only ordinary read left) and
+      **THREE** in
+      `test_the_DEFAULT_and_the_NAMED_register_path_share_ONE_symlink_boundary`,
+      which runs ONE path both ways and requires the two runs to agree.
+      **AND THE PACKET'S TWO SEMANTICS SHOWED THROUGH ONE OLDER TEST**, which is
+      the measurement worth keeping: `tests/scope_globs/…::test_a_tree_REACHED_
+      THROUGH_A_SYMLINK_still_finds_its_own_proposals` scans a tree through a
+      linked root, and it exited 1 only because the default probe could not see
+      the ancestor link at all. The WALK forgives that link (§ 3.2 (ii), the
+      ANCHORED test, which resolves both sides) and the REGISTER does not
+      (§ 3.2 (i), UNANCHORED), so the test now NAMES a register at an ordinary
+      path — leaving it measuring the walk it is about, and leaving the linked
+      root's register refusal to the fifth round's own case. No requirement
+      moved: both semantics are as § 3.2 landed them.
+      **THE FIFTEEN-GROUP BREAKDOWN ABOVE IS LEFT AS THE RECORD OF THE FIRST
+      LANDING** rather than re-derived: re-splitting 145 tests across fifteen
+      authored groups would be a classification nobody measured, and a number
+      that looks measured and is not is worse than a number that says when it
+      was taken.
+- [x] 3.6a **§ 3.2a's TWO PATH-BOUNDARY REFUSALS GET THEIR OWN TESTS, BOTH
+      SURFACES AND BOTH DEPTHS**, in § 3.6's own
+      `tests/code_surface/test_code_surface_gate.py` and in the sibling's
+      shape (`tests/target_release/test_target_release_gate.py` carries the
+      pattern for every case named here). THE REGISTER: refused when the file
+      named on `--register` is ITSELF a symlink, and refused again when it is an
+      ordinary file reached through a symlinked ANCESTOR DIRECTORY — each
+      proved END TO END through the CLI at exit 2, each also with the link
+      pointing OUTSIDE the tree, and a DANGLING link refused AS A SYMLINK
+      rather than crashing. THE CORPUS WALK: a discovered proposal NOT READ
+      and NOT COUNTED when the `proposal.md` is a symlink, when an ordinary
+      `proposal.md` sits inside a symlinked CHANGE DIRECTORY, and when the
+      link dangles — on the ACTIVE arm and on the archive count alike. Beside
+      them the NEGATIVE that keeps the guard from over-refusing: a `REPO_ROOT`
+      reached through a symlink still finds every proposal it really carries.
+      **LANDED, ALL FIFTEEN, IN § 3.6's OWN FILE.** THE REGISTER (8): the file
+      ITSELF a symlink (`test_a_symlinked_register_refuses`), the same with the
+      link pointing OUTSIDE the tree
+      (`…_pointing_outside_the_tree_refuses`, via `tmp_path_factory`), a
+      DANGLING link refused AS A SYMLINK and not as a crash or a `does not
+      exist` (`test_a_dangling_register_symlink_refuses_as_a_symlink_not_a_crash`),
+      an ordinary file reached through a symlinked ANCESTOR directory — whose
+      leaf the test asserts is NOT a symlink before refusing it
+      (`test_a_register_reached_through_a_symlinked_ancestor_refuses`), a
+      dangling ANCESTOR (`test_a_dangling_ancestor_link_refuses_as_a_symlink…`),
+      the DEFAULT argument proved guarded by patching `__defaults__` rather
+      than the module attribute
+      (`test_the_default_register_path_is_checked_by_the_same_guard`), and BOTH
+      depths again END TO END through the CLI at **exit 2**
+      (`…_refuses_end_to_end`, twice). THE CORPUS WALK (7): a symlinked
+      `proposal.md` not read, an ordinary one inside a symlinked CHANGE
+      DIRECTORY not read, and a DANGLING link skipped — each on the ACTIVE arm
+      and each again on the ARCHIVE count — plus the NEGATIVE, a `REPO_ROOT`
+      reached through a symlink still finding both the active proposal and the
+      archived one it really carries.
+- [x] 3.7 **NO WORKFLOW IS EDITED**, confirmed by running the suite rather than
+      by reading the workflow: `pytest-suite` already runs everything under
+      `tests/`, so a new test directory is collected with no registration
+      anywhere.
+      **CONFIRMED BY THE RUN AND NOT BY THE READING.** `python3 -m pytest
+      tests/ -q -m "not postgres"` — the EXACT command
+      `.github/workflows/pytest-suite.yml:599` runs — collected and passed
+      `tests/code_surface/` with no edit to any workflow, and
+      `git diff --name-only origin/main...HEAD` carries no `.github/` path.
+      The gate is the corpus test, which is also where the SIBLING validator is
+      wired: `grep -rn validate-target-release .` finds it in no workflow, no
+      Makefile and no shell script — only in
+      `tests/target_release/test_target_release_gate.py`'s `VALIDATOR`
+      constant. `tests/code_surface/` deliberately carries no `__init__.py`, so
+      it adds no ambient top-level module name (`pytest.ini`'s own account of
+      why that matters), and the suite's floors are MINIMA that may only rise —
+      these tests add passes and add no skip, so `MIN_SELECTED`/`MIN_PASSED`
+      need no move and the EXACT skipped pin is untouched.
+- [x] 3.8 **THE README ACTIVE ROW MOVED TO THE RATIFIED STANDING**, in the same
+      commit as § 1.8 — the drafting-shape sentence replaced by the ruling, its
+      date, its verbatim word and the recording comment, the bareness of the
+      word named, the four veto points shown as RULED at the recommended option,
+      and the bench round's two taken findings carried. **Every figure it
+      carries was RE-MEASURED at that commit rather than copied**: the scenario
+      count is read from the delta file (18 = 10 + 4 + 4) and the corpus figures
+      re-derived. It is the one § 3 box this pull request closes, because the
+      row is bookkeeping the ratification owes and not realization.
+      (Re-numbered from the § 1.6 the drafting text cited; the ratification
+      tasks are now § 1.1 through § 1.8.)
+
+## 4. Verification — DONE IN THIS PULL REQUEST
+
+**EVERY LINE BELOW IS A COMMAND THAT WAS RUN ON THIS TREE**, with its exit code
+and its own output quoted. Nothing here anticipates § 3. The filing pull request
+is openxFactory [#1018](https://github.com/opensoft/openxFactory/pull/1018),
+opened as a DRAFT.
+
+- [x] 4.1 `OPENSPEC_TELEMETRY=0 openspec validate gate-code-surface-declarations
+      --strict` (PATH CLI **1.2.0**) — **exit 0**, *"Change
+      'gate-code-surface-declarations' is valid"*.
+- [x] 4.2 `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` — **exit 1**,
+      `Totals: 104 passed, 3 failed (107 items)`. The failure set is IDENTICAL
+      to `origin/main` `bcde1575`'s, taken in the same shell from a worktree of
+      it (`Totals: 104 passed, 3 failed (107 items)`):
+      `change/disposition-codexfactory-declared-renames`,
+      `change/disposition-codexfactory-floor-relocation-retitle` and
+      `change/disposition-codexfactory-regular-pr-council-clearance-archive`,
+      all three failing on BOTH trees alike, and this change is in neither set.
+      **THE ITEM COUNT NOW MOVES BY ZERO, AND THE CAUSE IS THIS BRANCH'S OWN
+      MERGE — RE-MEASURED AT THE HEAD RATHER THAN REASONED FROM THE OLD
+      FIGURE**: at `df96018c`, one commit earlier, the same command in the same
+      shell returned `Totals: 105 passed, 3 failed (108 items)` and the count
+      moved by exactly one. `df230260` then merged `origin/main` `a1429885`,
+      which ARCHIVED the sibling `gate-realization-axis-vocabulary` into
+      `openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary` —
+      ONE ACTIVE CHANGE OUT AS THIS PACKET PUTS ONE IN — so the totals now
+      COINCIDE with the baseline's instead of exceeding them by one. A count is
+      a fact about a tree and is never carried across a merge.
+- [x] 4.3 `python3 scripts/proposal-support.py . verify
+      gate-code-surface-declarations` — **exit 0**, *"proposal support
+      verification ok"*.
+- [x] 4.4 `python3 scripts/validate-target-release.py .` — **exit 0**, *"45
+      active proposals, 45 declaring — 21 `implemented`, 3 a named release, 21
+      named by the register, 0 outside the vocabulary"*. This packet's own
+      `target_release:` is judged by the sibling's live gate like every other
+      active change. **THE ACTIVE COUNT EQUALS `origin/main` `bcde1575`'s 45
+      RATHER THAN EXCEEDING IT BY ONE, FOR THE REASON § 4.2 RE-MEASURES**: the
+      merge archived `gate-realization-axis-vocabulary`, which itself declared
+      `target_release: implemented`, so it carried one active proposal and one
+      `implemented` OUT of the corpus — 46 to 45 and 22 to 21, the figures this
+      box held at `df96018c` — exactly as this packet's own `proposal.md`
+      carries one of each IN.
+- [x] 4.5 `python3 scripts/validate-scope-globs.py .` — **exit 0**,
+      *"scope_globs validation passed (all active changes conform)"*; and
+      `python3 scripts/validate-sequenced-after.py .` — **exit 0**, *"45 active
+      changes, 13 declaring the field"*, both archive-date arms passing. These
+      two are `bcde1575`'s own counts for the same reason: the sibling the
+      merge archived declared `sequenced_after: []`, so both figures came down
+      by one with it from the 46 and the 14 this box held at `df96018c`.
+- [x] 4.6 `python3 scripts/doc-health.py --single-repo .` — **exit 0** on this
+      tree and on the `origin/main` `bcde1575` worktree alike, with the SAME
+      band counts on both **AS OF 2026-09-13** (**9** `severity=error`,
+      **26** `severity=warning`), a normalized finding-set diff between the
+      two trees that is **EMPTY** — **87** findings each side, identical line
+      for line once the `repo=` directory token is normalized, so every band
+      and not only these two is unmoved — and **ZERO** findings naming this
+      change. **THE WARNING BAND MOVED FROM 23 TO 26 AT THE UTC-MIDNIGHT AGING
+      BOUNDARY AND NOT ON THIS BRANCH**, which is why the figure is quoted
+      with its date: `doc-health` defaults `--as-of` to today UTC, three
+      `staged-candidate-aging` thresholds crossed overnight on both trees
+      alike (`contracts/avatar-client-lab/README.md` and
+      `examples/avatar-first-ui/fixtures/README.md` reaching 60 days,
+      `ideation/staging/openxdox-install-app-provisioning` reaching 30), and
+      re-running THIS tree with `--as-of 2026-09-12` still returns the earlier
+      **23**. Both sides were therefore re-taken on the SAME day rather than
+      one being carried, and the comparison is of trees and not of runs, both
+      taken in the same shell.
+- [x] 4.7 **THE PER-CHANGE SWEEP LEDGER ROW**, seeded by the sanctioned tool and
+      never hand-written: before the seed `--ledger-diff` reported the missing
+      row and six derived-total mismatches, each moving by exactly one. SEEDED
+      with `python3 scripts/validate-sequenced-after.py . --seed-ledger
+      --moved-by '#1018'` — run AFTER the draft pull request existed, because
+      the tool stamps `moved_by` with its number — *"wrote
+      tests/sequenced_after/corpus-ledger.yaml (211 rows, 1 moved by #1018)"*.
+      After it, `--ledger-diff` — **exit 0**, *"per-change sweep ledger
+      consistent with the corpus (211 rows)"*.
+- [x] 4.8 **README `## OpenSpec Records` ACTIVE ROW**, in house style. It first
+      landed at the DRAFT standing in `5fe7a0c8` — the drafting shape named
+      outright, the ADDED-only shape and the absence of a `sequenced_after`
+      hold, the D0 measurement, the one-reader finding, the four declared veto
+      points, and the archive named as the separate act where #1013 closes — and
+      **MOVED TO THE RATIFIED STANDING BY THIS RATIFICATION** (§ 3.8), which is
+      the only edit this round makes to it besides the re-measured scenario
+      count.
+- [x] 4.9 **THE BOT BENCH — ROUND 1, taken and dispositioned item by item on
+      the record** (`design.md` D9). FIVE threads. TWO were taken before the
+      ruling and are resolved: a scenario count overstated by one (`a5a707c7`)
+      and a `§ 4` header reading DONE over unticked boxes (`83b13051`) — both
+      the packet's own bookkeeping contradicting its own diff. Of the three
+      standing at the ruling, **TWO ARE TAKEN INTO THE RATIFIED TEXT**: (a)
+      `none` reserved out of REPOSITORY IDENTIFIER, the two head forms made
+      EXCLUSIVE in the requirement's first line, with a tenth scenario refusing
+      a mixed head; and (b) the FAIL-CLOSED rule for a registered-exception
+      packet that later declares `scope_globs:`, with both substitutes forbidden
+      by name and a fourth scenario on the derivation requirement. **ONE IS
+      REFUSED AS FALSE, ON MEASUREMENT**: the corpus-ledger finding claims the
+      row is absent, and the row is at
+      `tests/sequenced_after/corpus-ledger.yaml:236` on this branch with the
+      file in this pull request's diff, `--ledger-diff` exit 0, *"per-change
+      sweep ledger consistent with the corpus (211 rows)"* — seeded by the
+      sanctioned tool at `83b13051` exactly as § 4.7 records. A finding is not
+      taken for having been made, and the refusal is recorded on that thread
+      with the line number, the command and the exit code. **Later rounds, and
+      the round the un-draft fires, are dispositioned the same way and are not
+      claimed by this box.**
+
+## 5. Archive — GIVEN 2026-09-17
+
+**THE ACT IS PERFORMED BY THIS PULL REQUEST, WHICH WAS HELD UNTIL BOTH THINGS IT
+OWED WERE IN HAND, AND IS HELD NO LONGER.** A box ticks for the act its own text
+names, and the act each names is done here: the packet is moved and the three
+requirements are promoted in the same governed operation. The two things that
+ENTITLE the act were named rather than assumed, and BOTH are now in hand — Brett
+Heap's SEPARATE ARCHIVE WORD, 'archive it', given 2026-09-17 ~12:20Z, and a GREEN
+`pytest-suite` run on `main` at a head carrying the realization merge, run
+35219872882 at `a93d2682`, decided green 2026-09-17T12:34:10Z and marked below in
+the exact place its run id goes. This pull request was opened as a DRAFT and
+stayed one until both arrived; it was un-drafted 2026-09-17 13:29Z, the word
+having come as a merge and not a night's authoring.
+
+- [x] 5.1 **PROMOTE THE THREE ADDED REQUIREMENTS INTO CANON**, byte-for-byte, in
+      a SEPARATE pull request on a separate word, after § 1 is ruled and after
+      the realization evidence this packet's `target_release` names.
+      **THE PACKET'S OWN CLAUSE, IN ITS OWN WORDS:** `code_surface` here is NOT
+      `none`, so *Realization archive gate* binds — this change SHALL NOT
+      archive on landing and SHALL NOT archive on ratification. It archives when
+      and only when § 3's realization pull request has MERGED into `main` and a
+      `pytest-suite` run at the tree that merge carries is GREEN, both cited by
+      reference in the archive pull request. An archive act that cites this
+      filing's own green run as its realization evidence is citing the wrong
+      run: this pull request realizes nothing.
+      **DONE BY THIS PULL REQUEST, 2026-09-16, THROUGH THE GOVERNED WRAPPER AND
+      NEVER BARE `openspec`:** `scripts/proposal-support.py . archive
+      gate-code-surface-declarations --yes`, which reported **ORIGIN RETAINED
+      `gate-code-surface-declarations` (declaration unchanged since the
+      ratifying commit `b4e0087aaf48`)** before the pinned CLI ran. The three
+      `## ADDED` requirements — *Code-surface declaration grammar is gated*,
+      *The declared repository set is derived from the head and never from the
+      gloss*, and *Standing code-surface divergence is named in a closed
+      register* — now stand in `openspec/specs/release-realization/spec.md`.
+      **MEASURED, NOT EYEBALLED:** the delta's `## ADDED Requirements` body and
+      the text canon now carries are BYTE-IDENTICAL; the proof is a `diff` of
+      the two extractions, reproduced in this pull request's body, exit 0.
+      **THE REALIZATION EVIDENCE, THE MERGED HALF IN HAND:** the realization
+      pull request [#1029](https://github.com/opensoft/openxFactory/pull/1029),
+      *"Realize gate-code-surface-declarations § 3: gate the `code_surface:`
+      head"*, MERGED into `main` at
+      `4cef77af53131f36f4d62f3e7dac550360b1d28d` on 2026-09-16T19:11:39Z; taken
+      with the merge, `4cef77af`.
+      **THE GREEN HALF, IN HAND:** `main`'s own required `pytest-suite` at a
+      head containing `4cef77af` is run
+      [35219872882](https://github.com/opensoft/openxFactory/actions/runs/35219872882)
+      (`event: push`, head `a93d2682e51493e6e1c4c5ce7d3537d23948a283`, completed
+      2026-09-17T12:34:10Z) and its conclusion is **success**: `7717 passed, 6
+      skipped, 338 deselected, 401 subtests passed`, zero failed. The self-gate
+      collision named above,
+      `tests/doc-health/test_modified_block_currency_self_gate.py::test_the_resolution_ordering_and_marker_classes_read_zero_over_the_real_tree`,
+      is repaired: `#1075` orders `adopt-entry-grain-dispositions-form` after
+      `scope-pinned-arm-root-naming` and merged into `main` at `a93d2682`
+      itself, and this same head's `doc-health.py --family
+      modified-block-currency` reads zero on the gate-bearing arm
+      (scenario-title completeness and title resolution and ordering both `0`).
+      So pytest-suite decided green on `main` at `a93d2682`, run `35219872882`,
+      which CONTAINS the realization merge `4cef77af`: the MERGED-PLUS-GREEN pair
+      this box requires is COMPLETE. The archive word and the un-draft were a
+      separate act and are owed no longer: Brett Heap's word 'archive it' was
+      given 2026-09-17 ~12:20Z and this pull request was un-drafted 2026-09-17
+      13:29Z, per this box's own clause.
+- [x] 5.2 **THE ORIGIN ISSUE IS CLOSED AT THE ARCHIVE PULL REQUEST AND NOWHERE
+      ELSE**, by a closing keyword written THERE against openxFactory issue 1013.
+      The closing keyword now stands in this pull request's body, written there at
+      the un-draft by the landing lane; none appears in any commit message on this
+      branch, in any form, quoted or otherwise.
+      **THIS IS THAT PULL REQUEST, AND #1013 CLOSES AT ITS LANDING ON BRETT
+      HEAP'S ARCHIVE WORD — NOT AT ITS OPENING.** While the pull request is a
+      HELD DRAFT its body carries `Refs #1013` and NO closing keyword in any
+      form, and no commit message on this branch carries one either: a closing
+      keyword written now would close the origin issue on a merge Brett Heap has
+      not worded and on evidence that does not yet exist, which is the one thing
+      the ratified body of this box forbids. The keyword is written into the body
+      at the UN-DRAFT, by the lane that lands this pull request, on his archive
+      word and after the green run id above is in hand. openxFactory
+      [#1013](https://github.com/opensoft/openxFactory/issues/1013) therefore
+      closes at this pull request's landing and at no earlier act, on Brett
+      Heap's word. Brett Heap's archive word 'archive it' was given
+      2026-09-17 ~12:20Z; the closing keyword is written into PR #1076's body
+      by the landing lane at the un-draft.
+
+## 6. Measured, and deliberately NOT taken here
+
+**DISPOSITION 2026-09-16 — THE HEADING ABOVE IS RETAINED AND NOTHING IN THIS
+SECTION IS TAKEN AT THIS ARCHIVE.** All five boxes tick, on Brett Heap's standing
+ruling of 2026-09-06T23:10Z, option labelled verbatim *"Tick on the recording"*
+(his #900 ruling on a conditional tick trigger), applied here in exactly the
+shape this packet's own SIBLING applied it at its archive — see
+`openspec/changes/archive/2026-09-12-gate-realization-axis-vocabulary/tasks.md`
+§ 6: each tick records either a MEASUREMENT RE-TAKEN ON THE ARCHIVE TREE, with
+any figure that moved DISCLOSED at the box, or the NAMING of a successor and
+never its doing. **TWO FIGURES MOVED SINCE THE DRAFTING MEASUREMENT AND BOTH ARE
+DISCLOSED BELOW** (the active corpus, and the `none` carriers). **ONE SUCCESSOR
+IS OWED AND IT IS NAMED, NOT FILED HERE:** § 6.1's repository inventory, whose
+filing belongs to the LANDING of this held draft rather than to its opening,
+because an issue filed now would cite an archive that has not happened; § 6.2's
+successor is an existing ACTIVE packet and needs no filing, and § 6.3, § 6.4 and
+§ 6.5 owe no successor at all, each being a boundary the box's own ratified text
+already draws.
+
+- [x] 6.1 **AN INVENTORY OF THE ESTATE'S REPOSITORIES.** Without one the gate
+      judges a repository identifier's SHAPE and never its MEMBERSHIP, so a
+      plausible misspelling passes. Building the inventory carries its own
+      authority question — who admits a repository to the estate, and what a row
+      means for a repository that is pinned rather than governed — and it is the
+      successor that would lift `design.md` D1's stated bound.
+      **NOT TAKEN. THE SUCCESSOR IS NAMED HERE AND ITS FILING IS AN ACT OF THIS
+      PULL REQUEST'S LANDING.** A sibling search was taken on the archive tree
+      on 2026-09-16, by grep over the ACTIVE and ARCHIVED corpus for an
+      inventory of the estate's repositories and by title/body search over
+      openxFactory's OPEN and CLOSED issues: the only carriers of the phrase are
+      this packet's own four files, and no issue and no packet proposes to
+      enumerate the estate's repositories. **NOTHING IS FILED FROM A HELD
+      DRAFT**, because an issue opened now would cite, as the act that filed it,
+      an archive that has not happened and may yet not happen on this head; the
+      filing is owed at the UN-DRAFT, beside the closing keyword § 5.2 governs,
+      and it is recorded here so the debt cannot be lost. **AND THE BOUND IS
+      RE-MEASURED RATHER THAN CARRIED:** `scripts/code_surface.py` still judges a
+      repository identifier's SHAPE alone on this tree, and the two nearest files
+      are still what `design.md` D1 measured — a former-to-current TRANSFER map
+      and a five-row domain-factory regression fixture — neither of which
+      enumerates the estate.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.** Successor
+      filed as #1087 (2026-09-17).
+- [x] 6.2 **WHETHER `code_surface:` SHOULD BECOME A STRUCTURED FIELD.** Giving
+      it `scope_globs:`'s shape would make a grammar unnecessary, because YAML
+      would supply one. It is a `## MODIFIED` block over the title
+      `add-structured-scope-substrate` holds, with the sequencing hold that
+      carries, and it would obsolete a declaration form 45 active packets
+      already write.
+      **NOT TAKEN — AND THE SEQUENCING HOLD IT NAMES IS RE-VERIFIED ON THE
+      ARCHIVE TREE RATHER THAN CARRIED FROM THE DRAFTING.**
+      `openspec/changes/add-structured-scope-substrate/` is still ACTIVE (not
+      under `archive/`) and still `Status: ratified`, and its
+      `specs/release-realization/spec.md` still opens a `## MODIFIED
+      Requirements` block over *Realization axis declaration*, restating the
+      promoted two-halved sentence verbatim. So the slot a structured
+      `code_surface:` would have to occupy is still held by that packet, and
+      answering § 6.2 is still a `## MODIFIED` block sequenced after it, authored
+      nowhere in this pull request. **THE FIGURE THAT MOVED, DISCLOSED:** the
+      ratified body says "45 active packets already write" the declaration form;
+      on the archive tree it is FORTY-SIX, the arithmetic being 45 at the
+      drafting measurement, FORTY-SEVEN on `origin/main` at this head (two net
+      arrivals since), less this packet, which leaves the active corpus here.
+      The argument is unchanged by the count.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
+- [x] 6.3 **THE ARCHIVE IS NOT TOUCHED.** The 3 archived declarations outside
+      the grammar, and the 28 archived packets whose `code_surface:` line sits
+      in body prose, are frozen record: read, counted, judged never.
+      **NOT TAKEN, AND RE-MEASURED ON THE ARCHIVE TREE.** `python3
+      scripts/validate-code-surface.py .` at the archive commit reports
+      *"archive (read, never judged): 170 proposals, 124 declaring, 3 of them
+      outside the grammar"* — the THREE is unmoved from the ratified body, and
+      the archive population has grown from 165 at drafting to 170 here, this
+      packet's own arrival included. The 28 archived packets whose
+      `code_surface:` line sits in BODY PROSE rather than in front matter
+      re-measure at TWENTY-EIGHT, unmoved. Not one archived byte is edited by
+      this pull request and not one archived declaration is judged by the gate.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
+- [x] 6.4 **NO OTHER ESTATE REPOSITORY IS SWEPT OR REGISTERED.** The validator
+      takes a `REPO_ROOT` and refuses a tree with no register rather than
+      assuming an empty one; each repository's register would be its own act.
+      **NOT TAKEN, AND THE BEHAVIOUR THE BOX ASSERTS IS RE-PROVEN ON THE ARCHIVE
+      TREE RATHER THAN RESTATED.** Run against an empty tree carrying no packets
+      and no register of its own (`mkdir -p $T/openspec/changes/archive; python3
+      scripts/validate-code-surface.py $T`), the validator EXITS 2 and reports
+      every one of this repository's register entries as *"matched NOTHING
+      (stale)"* — it does not assume an empty register and it does not pass. The
+      register path is this repository's own `scripts/code-surface-register.yaml`
+      (`cs.REGISTER_PATH`, overridable only by an explicit `--register`), so
+      another estate repository's register is that repository's own act and no
+      byte of one is written here.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
+- [x] 6.5 **WHETHER A `none` DECLARATION MAY CARRY A GLOSS AT ALL.** Three of
+      the four carriers do, and this packet admits it. A stricter rule would
+      refuse three lawful declarations for tidiness.
+      **NOT TAKEN, AND THE FIGURE MOVED — DISCLOSED RATHER THAN CARRIED.** The
+      ratified body reads "Three of the four carriers do"; re-measured on the
+      archive tree through the shipped strict loader, the active corpus carries
+      FIVE `none` declarations and ALL FIVE carry a gloss. The ruling is
+      unchanged and strengthened by the move: a stricter rule would now refuse
+      FIVE lawful declarations rather than three, and this packet still admits
+      them all. Nothing here is taken.
+      **THE RATIFIED BODY OF THIS BOX IS CARRIED ABOVE UNCHANGED.**
