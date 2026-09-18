@@ -776,6 +776,19 @@ def post_stack(register_profile: bool = True):
     every invocation and wrong for an entry point that is about to reach either
     way. Its own docstring says so.
     """
+    # THE NO-NETWORK GUARANTEE MUST COVER THE WHOLE MEASUREMENT, AND THIS
+    # FILE'S `_git()` IS NOT THE WHOLE OF IT (Copilot, PR #1115).
+    # `carved_reach._git_run()` is a SHARED reader with its own sanitizer,
+    # and that sanitizer builds from `os.environ` minus a scrub list which
+    # does not contain this name (measured: `carved_reach.py:796-806`, and
+    # `"GIT_NO_LAZY_FETCH" in _sanitized_git_environment()` is True once it
+    # is set here). So the guard is set on THE PROCESS, before the reach is
+    # imported: a manifest or tree read on the post side would otherwise
+    # still lazy-fetch from a promisor remote in a partial clone — the one
+    # thing `GIT_NO_LAZY_FETCH` exists here to stop — and would do it in the
+    # half of the run this file does not issue the git commands for. It
+    # outlives the call, which is what a process-wide guarantee means.
+    os.environ["GIT_NO_LAZY_FETCH"] = "1"
     import carved_reach
     try:
         carved_reach.require()
@@ -1199,6 +1212,13 @@ IMPORTED_LEGS: tuple[str, ...] = (
 )
 
 
+#: The ONE ignored class the sweep passes over: CPython's compiled bytecode,
+#: which this runner CREATES by importing the legs, so counting it would make
+#: every run after the first refuse. Measured at the two code legs: 45 and 21
+#: ignored files under `src`, all of them this.
+_GENERATED_BYTECODE = re.compile(r"(?:^|/)__pycache__/|\.pyc$")
+
+
 def worktree_dirt(leg: Path) -> list[str] | None:
     """The cleanliness sweep for one leg: the entries, or `None` when the
     question could not be ASKED.
@@ -1230,6 +1250,24 @@ def worktree_dirt(leg: Path) -> list[str] | None:
     """
     scope = ["--", "src"] if (leg / "src").is_dir() else []
     rows: list[str] = []
+    if scope:
+        # AND THE IGNORED FILES UNDER THE IMPORT SURFACE, MINUS THE ONE CLASS
+        # THIS RUNNER MAKES ITSELF (Copilot, PR #1115). `--exclude-standard`
+        # drops EVERY ignored path, and an ignored `.py` under `src` is still
+        # perfectly importable — it can shadow a module or be imported
+        # outright — so excluding the whole class let a leg render bytes that
+        # are in no commit while the verdict named one. The allowlist is
+        # exactly CPython's compiled bytecode, which this runner's own
+        # imports create: measured, the two code legs carry 45 and 21 ignored
+        # files under `src` and EVERY ONE of them is a `__pycache__` `.pyc`.
+        # Scoped to the import surface, because that is where an ignored file
+        # can change what renders; a leg with no `src` has no such surface.
+        generated = _git(leg, "ls-files", "--others", "--ignored",
+                         "--exclude-standard", *scope)
+        if generated is None or generated.returncode != 0:
+            return None
+        rows += [f"!! {name}" for name in generated.stdout.splitlines()
+                 if name.strip() and not _GENERATED_BYTECODE.search(name)]
     edited = _git(leg, "diff", "--name-only", "HEAD", *scope)
     if edited is None or edited.returncode != 0:
         return None
@@ -1251,6 +1289,18 @@ def worktree_dirt(leg: Path) -> list[str] | None:
     return rows
 
 
+def _dirt_kind(row: str) -> str:
+    """Which of the four kinds a sweep row is, since each has its own remedy
+    and two of them are spelled with a `!`."""
+    if row.startswith("??"):
+        return "untracked"
+    if row.startswith("!!"):
+        return "ignored"
+    if row[1:2] == "!":
+        return "hidden"
+    return "tracked"
+
+
 def _clean_advice(dirt: list[str], leg: Path) -> str:
     """The remediation that actually restores THIS tree.
 
@@ -1260,10 +1310,11 @@ def _clean_advice(dirt: list[str], leg: Path) -> str:
     run clean (Copilot on #1105 @9ed3def3, suppressed). `worktree_dirt()`
     reports both kinds, so the advice branches on what is actually there.
     """
-    untracked = any(row.startswith("??") for row in dirt)
-    hidden = any(row[1:2] == "!" for row in dirt)
-    tracked = any(not row.startswith("??") and row[1:2] != "!"
-                  for row in dirt)
+    kinds = {_dirt_kind(row) for row in dirt}
+    untracked = "untracked" in kinds
+    hidden = "hidden" in kinds
+    ignored = "ignored" in kinds
+    tracked = "tracked" in kinds
     remedies = []
     if tracked:
         remedies.append(f"commit the edits or `git -C {leg} checkout -- .`")
@@ -1276,12 +1327,24 @@ def _clean_advice(dirt: list[str], leg: Path) -> str:
         # A THIRD KIND, AND THE ONLY ONE THAT SURVIVES THE OTHER TWO: an
         # `assume-unchanged` or `skip-worktree` bit makes git report an
         # edited file as clean, so `checkout -- .` restores nothing and the
-        # next run reads the same tree as clean again.
+        # next run reads the same tree as clean again. CLEARING THE FLAG IS
+        # HALF THE REMEDY (Copilot, PR #1115): the edit it was hiding then
+        # shows up as an ordinary modification and the promised re-run
+        # refuses a second time, so the restore is named here with it.
         remedies.append(
             f"clear the hidden flags — `git -C {leg} update-index "
-            "--no-assume-unchanged --no-skip-worktree <path>` — for the `!` "
-            "entries above: while they are set git reports those files as "
-            "clean however they are edited")
+            "--no-assume-unchanged --no-skip-worktree <path>` — for the "
+            "`h!`/`S!` entries above, AND THEN commit, stash or "
+            f"`git -C {leg} checkout --` those same paths: while the flags "
+            "are set git reports those files as clean however they are "
+            "edited, and clearing a flag reveals the edit rather than "
+            "removing it")
+    if ignored:
+        remedies.append(
+            f"remove the IGNORED entries under the import surface (`git -C "
+            f"{leg} clean -fdX -- src`, or delete them): git ignores them "
+            "and Python imports them anyway, which is the whole reason they "
+            "are reported")
     return "Then re-run: " + "; ".join(remedies)
 
 

@@ -47,6 +47,7 @@ import contextlib
 import importlib.util
 import io
 import json
+import os
 import shutil
 import signal
 import subprocess
@@ -1395,11 +1396,18 @@ def test_a_partial_clone_refuses_by_name_and_names_the_fetch(tmp_path):
                                                     encoding="utf-8")
     assert MODULE._git(origin, "commit", "-qam", "two").returncode == 0
 
+    # THE CLONE ITSELF MUST BE ALLOWED TO LAZY-FETCH: its checkout needs the
+    # blobs of the tip. The runner sets `GIT_NO_LAZY_FETCH=1` on the PROCESS
+    # (that is the guarantee), so this fixture strips it for the setup —
+    # which is also the cheapest demonstration that the guard reaches every
+    # child of this interpreter and not only the runner's own `_git()`.
     work = tmp_path / "work"
+    setup_env = {name: value for name, value in os.environ.items()
+                 if name != "GIT_NO_LAZY_FETCH"}
     done = subprocess.run(
         ["git", "clone", "-q", "--filter=blob:none",
          f"file://{origin}", str(work)], capture_output=True, text=True,
-        check=False)
+        check=False, env=setup_env)
     assert done.returncode == 0, done.stderr
     assert MODULE._git(work, "fetch", "-q", "--tags",
                        "origin").returncode == 0
@@ -1489,6 +1497,65 @@ def test_the_sweep_does_not_refuse_on_what_the_leg_itself_ignores(tmp_path):
     ignored = MODULE._git(leg, "status", "--porcelain", "--ignored")
     assert "__pycache__" in ignored.stdout, "the premise of this test"
     assert MODULE.worktree_dirt(leg) == []
+
+
+def test_an_ignored_python_file_under_src_is_dirt_and_bytecode_is_not(
+        tmp_path):
+    """`--exclude-standard` drops EVERY ignored path, and an ignored `.py`
+    under `src` is still perfectly importable — it can shadow a module or be
+    imported outright — so excluding the whole class let a leg render bytes
+    that are in no commit while the verdict named one (Copilot, PR #1115).
+    The allowlist is exactly the bytecode this runner's own imports create:
+    measured, the two code legs carry 45 and 21 ignored files under `src`
+    and every one of them is a `__pycache__` `.pyc`."""
+    leg = tmp_path / "leg"
+    _seed(leg)
+    (leg / "src").mkdir()
+    (leg / "src" / "m.py").write_text("x = 1\n", encoding="utf-8")
+    (leg / ".gitignore").write_text("__pycache__/\n*.pyc\nlocal_*.py\n",
+                                    encoding="utf-8")
+    assert MODULE._git(leg, "add", "src/m.py", ".gitignore").returncode == 0
+    assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
+    (leg / "src" / "__pycache__").mkdir()
+    (leg / "src" / "__pycache__" / "m.cpython-312.pyc").write_bytes(b"\x00")
+    assert MODULE.worktree_dirt(leg) == [], "the runner's own bytecode is dirt"
+
+    (leg / "src" / "local_override.py").write_text("x = 2\n",
+                                                   encoding="utf-8")
+    blind = MODULE._git(leg, "status", "--porcelain")
+    assert blind.stdout.strip() == "", "git reported the ignored file"
+    dirt = MODULE.worktree_dirt(leg)
+    assert dirt and any(row.startswith("!!") and "local_override" in row
+                        for row in dirt), dirt
+    advice = MODULE._clean_advice(dirt, leg)
+    assert "clean -fdX" in advice
+
+
+def test_the_hidden_flag_remedy_restores_the_edit_it_reveals(tmp_path):
+    """Clearing the flag is HALF the remedy: the edit it was hiding then
+    shows up as an ordinary modification and the promised re-run refuses a
+    second time (Copilot, PR #1115)."""
+    advice = MODULE._clean_advice(["h! src/m.py"], tmp_path / "leg")
+    assert "--no-assume-unchanged" in advice
+    assert "checkout --" in advice or "stash" in advice
+    assert "reveals the edit rather than removing it" in advice
+
+
+def test_the_no_network_guard_reaches_the_shared_reader(monkeypatch):
+    """This file's `_git()` is not the whole measurement.
+    `carved_reach._git_run()` is a SHARED reader with its own sanitizer, and
+    that sanitizer builds from `os.environ` minus a scrub list which does not
+    carry this name — so a manifest or tree read on the POST side could still
+    lazy-fetch from a promisor remote in a partial clone, in the half of the
+    run this file does not issue the git commands for (Copilot, PR #1115)."""
+    import carved_reach
+    monkeypatch.delenv("GIT_NO_LAZY_FETCH", raising=False)
+    assert "GIT_NO_LAZY_FETCH" not in carved_reach._sanitized_git_environment()
+    MODULE.post_stack(register_profile=False)
+    assert os.environ["GIT_NO_LAZY_FETCH"] == "1"
+    assert carved_reach._sanitized_git_environment()[
+        "GIT_NO_LAZY_FETCH"] == "1"
+    assert "GIT_NO_LAZY_FETCH" not in carved_reach._SCRUBBED_GIT_ENVIRONMENT
 
 
 def test_the_sweep_reads_the_import_surface_and_the_untracked_files(tmp_path):
