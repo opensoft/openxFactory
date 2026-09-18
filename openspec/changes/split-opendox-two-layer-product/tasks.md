@@ -3098,7 +3098,7 @@ Each closure moves that change's row in `tests/sequenced_after/corpus-ledger.yam
 and removes its README "OpenSpec Records" entry; both are Rule 7 substrate
 movements claimed at the time they land.
 
-- [ ] 6.1 `[oxF]` `[oXd]` **`add-nightly-dashboard-refresh`** → openXdox. Its 13
+- [x] 6.1 `[oxF]` `[oXd]` **`add-nightly-dashboard-refresh`** → openXdox. Its 13
   open tasks and its 1 ADDED + 1 MODIFIED `ideation-dashboard` requirements
   re-home; the aggregation-side artifact-only worker stays in the aggregation.
   **Its SEVEN `doc-health` ADDED requirements do NOT travel and are NOT added to
@@ -3106,6 +3106,32 @@ movements claimed at the time they land.
   that dependency one way, so they are re-authored against the ADAPTER in
   openXdox. This is the one genuine conflict RULING Q6 names and this is its
   resolution.
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #6**: `openxFactory` **#1060 →
+  `e3647b6d`**, merged **2026-09-18T17:30:27Z**, *"Close add-nightly-dashboard-
+  refresh as re-homed to openXdox (split-opendox § 6.1, RULING Q6)"*, with its
+  destination half `openXdox-spec` **#15 → `f088b097`** already standing. Rule 6
+  window 17:30:20Z → 17:30:32Z, and the measured merge time falls inside it.
+  **BOTH CLAUSES OF THE § 6.4 LANDING RULE WERE EXERCISED AND BOTH HELD** — the
+  first closure to meet the rule in its amended, two-clause form. **Clause 1**:
+  `e3647b6d` has **two parents**, and `2026-09-16-add-nightly-dashboard-refresh`
+  keeps an adding commit `a50a4e1a` dated **2026-09-16T01:28:33Z**, the day the
+  directory is named for, so nothing mis-dates. **Clause 2**: the archive-date
+  arm re-run on `origin/main` MERGED WITH THIS CANDIDATE — which is what this
+  branch's tree now is — exits **0**, *"every archived directory is named for
+  the UTC date of the commit that added it, or is dispositioned in place"*, so
+  the stacked-history trap that produced INCIDENT 2 is measured absent rather
+  than assumed absent. **That is the rule's first clean pass end to end.**
+  **ONE ITEM REGISTERED FOR THE SUCCESSOR, AND IT IS NOT RESIDUE**: the
+  self-gate `_REHOMED_AND_STILL_WHOLE` **cannot carry a row for a PARTIAL
+  carriage** — this closure re-authored the proposal at the destination while
+  the `doc-health` delta deliberately did NOT travel, and the gate's row shape
+  admits only whole carriage. **A partial-carriage pin is owed to the
+  successor** (`rehome-lander`'s measurement, `#1060` comment `5733632291`). It
+  is booked at this box rather than in § 8.9 because it is a property of THIS
+  closure's shape, and because § 6.1's own text is where the next partial
+  carriage will be read from — the seven `doc-health` requirements not
+  travelling is the very thing this box already calls *"the one genuine
+  conflict RULING Q6 names"*.
 - [ ] 6.2 `[oxF]` `[oD]` **`retire-doxbench-chat-turn-v1` — THE ONE THAT CANNOT
   SIMPLY CLOSE.** Its schema removal is already realized in `openxFactory` bytes
   and `contract-v3.0` is published, so its remaining 7 tasks are `openxFactory`
@@ -3255,11 +3281,12 @@ movements claimed at the time they land.
   the operator**. A squash re-dates the archive directory's adding commit to
   the landing day, so any archive whose directory is named for an earlier UTC
   day reds `main` for everyone the moment it lands. **It binds every remaining
-  § 6 closure and any later archive of this packet** — `#1060`, `#1065`,
-  `#1066`, `#1103` — and it is written into the ledger rather than
+  § 6 closure and any later archive of this packet** — `#1065`, `#1066`,
+  `#1103` — and it is written into the ledger rather than
   left in a runbook because the ledger is what the next closure's author reads.
-  *(`#1057` was named in this list until it landed on 2026-09-18 and became the
-  rule's FIRST PROOF instead of one of its subjects — see § 6.3. It is removed
+  *(`#1057` and `#1060` were named in this list until they landed on 2026-09-18
+  and became the rule's PROOFS instead of its subjects — `#1057` at § 6.3 for
+  clause 1, `#1060` at § 6.1 for BOTH clauses. It is removed
   here on a Copilot finding against head `fe9e5e6f`, which observed that a list
   of "remaining" closures naming a completed one directs the next operator to
   redo finished work. The finding was correct. **Read § 6.3's INCIDENT 2 before
