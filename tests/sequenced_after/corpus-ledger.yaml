@@ -199,6 +199,7 @@ rows:
   align-status-reader-to-real-lines: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   amend-absent-changelog-is-an-answer: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#767", moved_on: "2026-09-07"}
   amend-chain-anchoring-readiness-and-durability: {state: archived, class: sole, declares: [add-chain-anchoring], depth: 1, prose: false, moved_by: "#670", moved_on: "2026-09-05"}
+  amend-code-surface-grammar-comma-and: {state: active, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1108", moved_on: "2026-09-18"}
   amend-kill-switch-to-declared-test-companion: {state: active, class: co-modifier, declares: [extend-merge-master-envelope-to-floor-bot-lanes], depth: 3, prose: false, moved_by: "#959", moved_on: "2026-09-11"}
   amend-marker-declaring-nothing: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#926", moved_on: "2026-09-10"}
   amend-marker-defect-reporting: {state: archived, class: co-modifier, declares: absent, prose: false, moved_by: "#862", moved_on: "2026-09-09"}
@@ -240,7 +241,7 @@ rows:
   fix-content-resolution-conflation: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-pin-value-boundary-and-sentinel-split: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
   fix-release-reachability-race: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
-  gate-code-surface-declarations: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1101", moved_on: "2026-09-18"}
+  gate-code-surface-declarations: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1108", moved_on: "2026-09-18"}
   gate-realization-axis-vocabulary: {state: archived, class: co-modifier, declares: [], depth: 0, prose: false, moved_by: "#1022", moved_on: "2026-09-13"}
   govern-archived-record-edits: {state: archived, class: co-modifier, declares: [govern-openspec-corpus-membership], depth: 1, prose: false, moved_by: "#845", moved_on: "2026-09-09"}
   govern-derived-pin-reachability: {state: archived, class: sole, declares: absent, prose: false, moved_by: "#623", moved_on: "2026-09-03"}
