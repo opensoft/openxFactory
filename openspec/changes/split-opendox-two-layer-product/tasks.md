@@ -1241,12 +1241,29 @@ the bookkeeping that ticks this group.
   OIDC through the Keycloak broker. The schema holds ONLY identity and
   coordination (RULING Q1): users, memberships, projects, the
   project-to-repository map, sessions, unsaved drafts.
+  **STATUS — BATCH 3 IN FLIGHT; LANDING WORD GIVEN** (RULED 2026-09-18 17:55Z,
+  `#656` comment `5734029578`; recorded by `tasks.md` amendment #6). The
+  realization is `openDox-code` **#25**, which takes a THIRD mini-batch for
+  three security items and then lands on that word. **This box does NOT tick
+  here** — the word authorizes the landing, and the box ticks on the landing,
+  which is the same two-act ordering § 6 uses for a disposition and § 5.3 used
+  for `#1059`. **Item (4), the `OPENDOX_SERVED_DATABASE` declaration, is a
+  FOLLOW-UP ACT under the same claim and is deliberately NOT in batch 3** — so
+  a reader meeting #25's landing should not expect that declaration in it, and
+  should not read its absence as an omission.
 - [ ] 3.6 `[oD]` **openDox CREATES A REPOSITORY AS A FIRST-CLASS ACT**, or the
   origin complaint returns one level down: RULING Q1 answers *"no good place to
   store my projects"* with its coordination half while the specs still land in a
   repository. Includes RULING C3's standalone shape — a PLAIN LOCAL GIT
   REPOSITORY per project, commits as the write path, a remote attachable later —
   as the trivial conformant adapter implementation, not as a mode.
+  **STATUS — BATCH 3 IN FLIGHT; LANDING WORD GIVEN** (RULED 2026-09-18 17:55Z,
+  `#656` comment `5734029578`; recorded by `tasks.md` amendment #6). The
+  realization is `openDox-code` **#26**, paired with #25 under the same word and
+  the same third mini-batch of three security items. **This box does NOT tick
+  here**, on the same reading as § 3.5: the word authorizes the landing and the
+  box ticks on it. **Item (4), the `OPENDOX_SERVED_DATABASE` declaration, is a
+  follow-up act under the same claim and is not in batch 3.**
 - [ ] 3.7 `[oD]` `[oXd]` `[oxF]` **FLOOR PART 3 (RULED OQ-1).** The neutral
   conformance corpus — no `openspec/`, no `contracts/`, no lifecycle headers,
   positives plus negative confirmations — and **EVERY DESTINATION PASSES IT**, the
@@ -3281,8 +3298,8 @@ movements claimed at the time they land.
   the operator**. A squash re-dates the archive directory's adding commit to
   the landing day, so any archive whose directory is named for an earlier UTC
   day reds `main` for everyone the moment it lands. **It binds every remaining
-  § 6 closure and any later archive of this packet** — `#1065`, `#1066`,
-  `#1103` — and it is written into the ledger rather than
+  § 6 closure and any later archive of this packet** — `#1066`, `#1103` — and
+  it is written into the ledger rather than
   left in a runbook because the ledger is what the next closure's author reads.
   *(`#1057` and `#1060` were named in this list until they landed on 2026-09-18
   and became the rule's PROOFS instead of its subjects — `#1057` at § 6.3 for
@@ -3294,11 +3311,25 @@ movements claimed at the time they land.
   and the second clause — re-run the archive-date arm on `origin/main` merged
   with the candidate before opening the window — is the half that `#1057`'s own
   landing proved was missing.)*
-- [ ] 6.5 `[oxF]` `[oD]` **`add-lens-document-selection`** → SPLIT. The
+- [x] 6.5 `[oxF]` `[oD]` **`add-lens-document-selection`** → SPLIT. The
   set-builder half to openDox; its `doc_health.staging_seed` drafter and route
   STAY in `openxFactory`'s own adapter (RULING DQ-1 — no longer a `codexDox`
   question). **The only one of the five whose content does not land in one
   place.**
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #6**: `openxFactory` **#1065 →
+  `81903286`**, merged **2026-09-18T17:54:08Z**, *"Close add-lens-document-
+  selection as re-homed to openDox, with the intra-requirement split named"* —
+  RULINGS **Q6 + DQ-1**. **The landing rule held on both clauses again**:
+  `81903286` has two parents, `2026-09-16-add-lens-document-selection` keeps an
+  adding commit `49ec794d` dated **2026-09-16T13:29:40Z**, and the archive-date
+  arm re-run on `origin/main` merged with this candidate exits **0**.
+  **The SPLIT is what makes this box the awkward one, and the closure names it
+  rather than eliding it**: the set-builder half re-homes while the
+  `doc_health.staging_seed` drafter and route STAY in `openxFactory`'s own
+  adapter, so the requirement is divided WITHIN itself. That is why the closure
+  title carries *"with the intra-requirement split named"* — a re-home that
+  moved the whole requirement would have been the easier record and the false
+  one.
 - [ ] 6.6 `[oxF]` **No new dashboard change opens in `openxFactory`** (RULING Q6),
   from this packet's ratification forward.
 
