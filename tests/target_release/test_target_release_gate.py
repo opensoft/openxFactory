@@ -608,6 +608,130 @@ def test_repo_root_reached_via_a_symlink_still_finds_its_proposals(tmp_path):
     assert "1 active proposals" in result.stdout
 
 
+# --- a resolution that CANNOT ANSWER is still ANSWERED (#1074) ----------------
+# `Path.resolve(strict=True)` signals a SYMLINK LOOP by raising `RuntimeError`,
+# which is a subclass of NEITHER `OSError` NOR `ValueError`, so the clause both
+# guards in this module carry was open at exactly that failure. Measured on
+# `Python 3.12.3`, the version `.github/workflows/pytest-suite.yml` pins for the
+# required check: `validate-target-release.py` ended in a traceback rather than
+# a report on a minimal tree whose `proposal.md` was a two-link `a -> b -> a`
+# loop. (`harden-path-escape-helpers-against-symlink-loops` § 3.4; the
+# requirements are *A containment guard answers every resolution failure and
+# raises none* and *A symlink-loop proof is built at test time and never
+# committed*.)
+
+
+def _symlink_loop(directory: Path, name: str) -> Path:
+    """An `a -> b -> a` two-link symlink loop at `directory / name`, BUILT AT
+    TEST TIME AND NEVER COMMITTED.
+
+    A committed loop is tracked as two ordinary git objects (mode `120000`) and
+    would arrive through a pull request like any other file — which is why it is
+    the shape these guards defend against — but as a FIXTURE it would be met by
+    every recursive reader this estate runs, not only the guard under test, and
+    a fixture that reds tools unrelated to the defect it proves is a second
+    defect introduced to demonstrate the first. The packet's § 3.7 forbids it.
+    """
+    a = directory / name
+    b = directory / f"{name}--loop-b"
+    a.symlink_to(b)
+    b.symlink_to(a)
+    return a
+
+
+def test_a_symlink_loop_at_the_registry_is_absent_and_never_raises(
+        tmp_path, monkeypatch):
+    """A TEST OF THE EXCEPT CLAUSE, DECLARED AS ONE, AND NOT OF A REACHABLE
+    TREE STATE — which is what this guard's proof has to be, and saying so here
+    rather than only in the packet is part of the obligation.
+
+    NO TREE STATE REACHES THIS CLAUSE AND NONE CAN BE BUILT. `registry.is_dir()`
+    calls `os.stat`, which reports a symlink loop as `OSError(ELOOP)`, and
+    `is_dir()` ABSORBS `OSError` and answers `False`, so the function returns at
+    its pre-check. Re-measured in all three positions the requirement names —
+    the loop AT the registry leaf, at the ANCESTOR `contracts/` above an
+    ordinary leaf, and `repo_root` ITSELF a loop — `False` came back from every
+    one, which also corrects #1074's own text (`design.md` D0.5). The scanned
+    root is therefore NOT a fourth position for this guard. And where the
+    pre-check PASSES, `os.stat` has just resolved every component of
+    `<root>/contracts/releases`, so `resolve(strict=True)` on the next line
+    cannot meet a loop on that path either.
+
+    SO THE CLAUSE IS RACE-ONLY, and this test installs that race as a SEAM: the
+    pre-check is made to answer `True` — the tree as it stood a moment earlier —
+    while the resolution is left entirely REAL and meets a REAL loop. The guard
+    is widened anyway (`design.md` D3) because a pre-check and a resolution are
+    two separate reads of a filesystem that can change between them, and because
+    a reader of this module sees the CLAUSE and not the pre-check while
+    `_unescaped`'s own docstring names this function as the test it generalizes:
+    leaving one of the two narrower re-opens the mirror defect inside one
+    module. Against the unfixed clause the seamed call RAISED `RuntimeError`.
+    (`harden-path-escape-helpers-against-symlink-loops` § 3.4; the fourth
+    scenario of *A symlink-loop proof is built at test time and never committed*
+    governs exactly this case.)
+    """
+    root = tmp_path / "repo"
+    (root / "contracts").mkdir(parents=True)
+    registry = _symlink_loop(root / "contracts", "releases")
+    with pytest.raises(RuntimeError):
+        registry.resolve(strict=True)  # the resolution really does meet a loop
+    # D0.5 re-measured HERE, and the reason the seam below has to exist at all:
+    # unseamed, the pre-check absorbs the loop and the clause is never reached,
+    # so this line alone would pass against the UNFIXED clause and prove nothing
+    assert tr._registry_present(root) is False
+
+    unseamed_is_dir = Path.is_dir
+
+    def _is_dir(self, *args, **kwargs):
+        if self == registry:
+            return True  # the tree as `is_dir()` found it a moment earlier
+        return unseamed_is_dir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "is_dir", _is_dir)
+    assert tr._registry_present(root) is False
+
+
+def test_a_symlink_loop_drops_the_candidate_in_all_three_positions(tmp_path):
+    """THE GUARD ANSWERS IN EVERY POSITION THE LOOP CAN STAND IN, and this is
+    `_registry_present`'s widening generalized exactly as the guard itself is.
+    Against the unfixed clause (`except OSError:`) each of the three calls below
+    RAISED `RuntimeError` out of `_unescaped` instead of returning `None`.
+
+    THE SECOND POSITION IS THE ONE A REVIEWER'S INTUITION MISSES: the leaf is a
+    perfectly ordinary name, and ordinariness is a property of the ONE component
+    it is asserted of.
+
+    THE THIRD POSITION IS A CLAIM ABOUT THE CANDIDATE AND NOT ABOUT A ROOT-SIDE
+    READ. `candidate = repo_root / relative` already traverses the loop, so
+    `candidate.resolve(strict=True)` raises and the root resolution on the NEXT
+    line is never executed; what is proved is a candidate path whose failing
+    component happens to be the root, which is the scenario's subject.
+    (`harden-path-escape-helpers-against-symlink-loops` § 3.4, `design.md` D5.)
+    """
+    # (1) the CANDIDATE'S OWN LEAF is the loop
+    leaf_root = tmp_path / "leaf"
+    packet = leaf_root / "openspec" / "changes" / "a-packet"
+    packet.mkdir(parents=True)
+    loop = _symlink_loop(packet, "proposal.md")
+    with pytest.raises(RuntimeError):
+        loop.resolve(strict=True)  # the fixture is worth nothing if it does not
+    assert tr._unescaped(
+        leaf_root, Path("openspec/changes/a-packet/proposal.md")) is None
+
+    # (2) a PARENT COMPONENT, above a leaf that is a perfectly ordinary name
+    parent_root = tmp_path / "parent"
+    parent_root.mkdir()
+    _symlink_loop(parent_root, "openspec")
+    assert tr._unescaped(
+        parent_root, Path("openspec/changes/a-packet/proposal.md")) is None
+
+    # (3) the SCANNED ROOT ITSELF is reached through the loop
+    base = tmp_path / "base"
+    base.mkdir()
+    looped_root = _symlink_loop(base, "repo")
+    assert tr._unescaped(looped_root, Path("proposal.md")) is None
+
+
 # --- the register -------------------------------------------------------------
 
 
@@ -1080,8 +1204,55 @@ def test_the_admitted_token_is_the_registers_own_class_word():
 def test_admitting_the_value_did_not_move_the_closed_baseline():
     """A VALUE WAS ADMITTED, NOT AN EXCEPTION. The promoted requirement makes
     closure enforced rather than declared, so the admission must be visible in
-    the vocabulary and invisible in the baseline."""
-    assert len(tr.CLOSED_REGISTER) == 21
+    the vocabulary and invisible in the baseline.
+
+    THE SECOND ASSERTION IS THAT CLAIM AND THE FIRST IS NOT, which this
+    docstring now says out loud because from 2026-09-16 the two move for
+    different reasons. `DEFERRED_ALLOCATION` being absent from every pair is the
+    admission's own invisibility, and it is invariant. The SIZE literal is a
+    separate pin on the baseline's population: the register is REMOVABLE, NEVER
+    ADDABLE, so that number falls when a retirement lawfully shrinks the
+    ceiling — as § 6.1's closure shrinks it here — and refuses to rise. Neither
+    movement is an admission, and a shrink is not evidence that admission
+    touched the baseline. (Raised by Copilot on PR #1060, which read the name and
+    the new literal as contradicting each other. The name is right for what it
+    asserts; what was missing was this paragraph.)
+    """
+    # 21 UNTIL 2026-09-16, when `split-opendox-two-layer-product` § 6.1 closed
+    # `add-nightly-dashboard-refresh` AS RE-HOMED to `opensoft/openXdox` under
+    # RULING Q6 and the packet left the active corpus. That retired its
+    # `implementation_pending` entry on the second limb of its own
+    # `retires_when:` ("or the packet archives"), and the register is REMOVABLE.
+    # THE ENTRY HAD TO GO (`Report.stale` refuses while a stale one stands);
+    # THIS PAIR DID NOT. The module's own note says a baseline "MAY BE A STRICT
+    # SUPERSET, AND USUALLY WILL BE … a ceiling, never a floor", and its "in the
+    # same pull request" sentence governs ADMITTING a pair rather than removing
+    # one. The pair moved with the entry in openxFactory #1060 as a deliberate
+    # shrink, in one diff because that is where the choice is legible. This
+    # literal is the baseline's SIZE: it falls with a removal exactly as it would
+    # refuse an addition, and it is the assertion that keeps the shrink honest.
+    assert len(tr.CLOSED_REGISTER) == 20
+    # THE SIZE ALONE DOES NOT SAY WHICH PAIR LEFT, and that is what this change
+    # claims. A later edit could restore this pair and drop an unrelated one
+    # while 20 still held, so the retirement is asserted by IDENTITY as well —
+    # added 2026-09-16 on Copilot's reading of #1060, which is right that a
+    # count verifies the shrink's magnitude and not the shrink.
+    assert ("add-nightly-dashboard-refresh", "implementation_pending") \
+        not in tr.CLOSED_REGISTER, (
+            "the `implementation_pending` baseline pair for "
+            "`add-nightly-dashboard-refresh` is back in CLOSED_REGISTER. It "
+            "retired on 2026-09-16 with the packet, on the second limb of its "
+            "own `retires_when:` — 'or the packet archives' — and the packet is "
+            "archived at "
+            "`openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh`. "
+            "THE DEFECT IS THAT THIS CLOSURE'S DELIBERATE SHRINK WAS UNDONE, "
+            "and not that a retained pair is unlawful in general: the module "
+            "says the opposite in its own words (`scripts/target_release.py`, "
+            "the CLOSED_REGISTER note) — 'A BASELINE MAY BE A STRICT SUPERSET, "
+            "AND USUALLY WILL BE ... a pair stays here after its entry goes. "
+            "This is a ceiling, never a floor.' So a pair surviving its entry "
+            "is ordinary; THIS pair was removed on purpose when the packet "
+            "archived, and its return means that edit was reverted")
     assert not [e for e in tr.CLOSED_REGISTER
                 if e[1] == tr.DEFERRED_ALLOCATION]
 

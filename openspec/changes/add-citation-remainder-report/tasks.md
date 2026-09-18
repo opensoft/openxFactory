@@ -250,6 +250,27 @@ OPEN.**
       FLAG-never-drop, the inclusive headline and the advisory verdict read as
       they read before, so this box stays open on the same recommendation and
       the same alternatives.
+      **AND TWO MORE OF THIS SECTION'S RULES HAVE LANDED ON A WORD OF THEIR
+      OWN.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jYkwR` reads D3(c)'s
+      promoted signals and finds them named with examples rather than with
+      grammars. The grammar drafted against it — a CLOSED repository-name
+      vocabulary stated in the requirement because this repository carries none
+      to read, case-insensitive matching on the measured spellings, the forge
+      URL's REPOSITORY segment rather than its owner, name-boundary matching for
+      the path-joined form, `validate-pin-registrations.py`'s decoration set
+      widened for Markdown, and the parenthetical's whitespace rule — is NEW
+      GRAMMAR and not a clarification. Thread `PRRT_kwDOTAvnrs6jafy6` reads
+      D3(a) and finds the promoted population arithmetic short a term: an entry
+      skipped for leaving the repository root is a tracked FILE that reaches no
+      decoder, so it falls in neither of the two skip buckets the closure names
+      and the identity does not close. The delta drafted against it adds a THIRD
+      term, printed even at zero, and declines folding it into the non-file
+      term. Both landed on the word that names them: Brett Heap, 2026-09-17,
+      verbatim **"fold B as drafted"** ([PR #1069, comment
+      5717459330](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5717459330)).
+      This box is unmoved either
+      way: the three exclusions, the containment rule, FLAG-never-drop, the
+      inclusive headline and the advisory verdict are untouched by any of it.
 - [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
       ASSERTS are the three the tool can evidence from a path or from its own
       normalization — `truncated`, `punctuation-stripped`, `fixture-path` — and
@@ -290,6 +311,23 @@ OPEN.**
       minted, renamed, widened or dropped, and the unit those class totals are
       counted in is now stated as the TOKEN — and the `file-half` ruling this
       box holds reads exactly as it reads above.
+      **AND THIS SECTION'S TOKENIZATION-ARTIFACT PROBES HAVE LANDED ON A WORD OF
+      THEIR OWN.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jbfFz` reads the
+      closed vocabulary and finds two of its four labels DESCRIBED where
+      `fixture-path` is now PREDICATED: "the extraction severed mid-path" is
+      semantic, and `punctuation-stripped` names no firing condition at all,
+      while D4's three measured sub-probes live only in `design.md`. The text
+      drafted against it promotes those probes verbatim — a longer existing path
+      on the line ending with the token, a following `<`, and a split string
+      literal whose rejoined path resolves — as a union with the trailing-hyphen
+      arm under the occurrence rule ALL, and gives `punctuation-stripped` the
+      only condition a class asserted on a REMAINDER entry can have. It landed
+      on the word that names it: Brett Heap, 2026-09-17, verbatim **"fold B as
+      drafted"** ([PR #1069, comment
+      5717459330](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5717459330)).
+      The box is unmoved either way: the
+      vocabulary is the same four labels, the precedence reads as before, and
+      the `file-half` ruling this box holds is untouched.
 - [ ] 1.14 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
       one step in `.github/workflows/doc-health-reusable.yml`, committing
       nothing. The reason is measured and is not merely merge conflicts:
@@ -335,7 +373,17 @@ OPEN.**
 **NONE OF § 2 IS IN THIS PULL REQUEST.** No script, no workflow and no test is
 added, edited, renamed or deleted here.
 
-- [ ] 2.1 **THE REPORT CLI AND ITS UNIT TESTS.**
+**REALIZATION HAS SINCE OPENED, IN THE LATER PULL REQUEST THIS SECTION'S OWN
+HEADING NAMES, ON THE LATER WORD § 1.17 RECORDS** (2026-09-17, lane
+`openxfactory-1`, realization slice R1). The sentence above is the PROPOSAL pull
+request's scope statement and is left exactly as it was ratified; this note is
+an addendum beside it and moves no decision. § 2.1 is ticked below because its
+diff lands in the realization pull request that carries this tick, which is the
+tick rule's own first clause. §§ 2.2, 2.3 and 2.4 stay open: the nightly wiring
+is a later slice, the committed reading is the slice after that, and the green
+evidence is a fact about a merge that has not happened.
+
+- [x] 2.1 **THE REPORT CLI AND ITS UNIT TESTS.**
       `scripts/report-citation-remainder.py` (NEW), importing
       `scripts/packet_reference.py` UNCHANGED: under D2's recommended option 1
       its docstring sentence *"Run: this module is a library and has no CLI"*
@@ -388,6 +436,103 @@ added, edited, renamed or deleted here.
       filtered token count — with the arithmetic row asserted in TOKENS against
       the number of REMAINDER ENTRIES carrying the flag and never against the
       corpus-wide flagged figure.
+      **AND ROUND ONE ON PR #1097 ADDS THREE POPULATION CASES**, each a tracked
+      LINK, because the population arithmetic is now closed by the skip terms'
+      EXTENTS rather than by their names: a link that dangles or is otherwise
+      unreadable INSIDE the root — a missing target whose lexically resolved
+      path still stands inside the root, a looping chain, or a chain that
+      cannot be read — which must land in the NON-FILE term and in neither of
+      the other two; a link resolving to a DIRECTORY inside the root, which
+      must land in the non-file term too and contribute no token; and a link
+      resolving OUTSIDE the root, which must land in the out-of-root term
+      alone. **AND ROUND TWO ON THE SAME PULL REQUEST ADDS A FOURTH**
+      (Copilot thread `PRRT_kwDOTAvnrs6jdWK1`): a dangling link whose target is
+      missing but whose lexically resolved path still stands OUTSIDE the
+      root — an absolute path elsewhere, say — which must land in the
+      out-of-root term alone precisely as a resolving one does, because the
+      term is a path predicate and not an existence one. **AND ROUND THREE ON
+      THE SAME PULL REQUEST ADDS A FIFTH** (Copilot thread
+      `PRRT_kwDOTAvnrs6jsmQR`): a tracked REGULAR FILE, not itself a link,
+      standing under a PARENT directory component that is a link whose
+      lexically resolved path leaves the root — which must land in the
+      out-of-root term alone and must not be read, because the term now owns
+      every tracked entry whose resolved path leaves the root and not only an
+      entry that is itself a link. The identity is asserted in every one of
+      the five — the tracked ENTRIES in scope equalling the FILES read plus
+      all three skip terms — and the four links and the fifth's symlinked
+      parent are built in the throwaway `tmp_path` tree like every other
+      case, this repository tracking no symbolic link at any head this packet
+      has measured.
+      **LANDED, 2026-09-18, realization slice R1.**
+      `scripts/report-citation-remainder.py` and
+      `tests/citation_remainder/test_report_citation_remainder.py`, both NEW.
+      ONE TEST PER SCENARIO, its docstring naming the scenario verbatim: 72 of
+      72 across the five requirements, counted mechanically against
+      `specs/packet-citation-report/spec.md` rather than by hand — 43 scenarios
+      the ratified delta carried plus the 29 Patch B adds, which have LANDED
+      (PR #1097, `main` at `c32749c3`), so the count is taken against the spec
+      as it stands in this tree and not against a branch. **THE MECHANICAL
+      COUNT IS WHAT MAKES IT WORTH TAKING**: every `#### Scenario:` title is
+      searched for in a test docstring, so a scenario a later round REWORDS
+      reads as a gap rather than passing silently — which is exactly what
+      happened twice, at 63 -> 69 and again at 69 -> 72, and once more on a
+      RENAME that moved no behaviour at all
+      (*The out-of-root term takes only the links that resolve outside the
+      root* -> *...takes exactly the entries whose resolved path leaves the
+      root*).
+      `scripts/packet_reference.py` is imported UNCHANGED and the D7 fences are
+      each empty. **THE LINE AND TEST COUNTS ARE NOT RESTATED HERE**: they moved
+      on every review round of the pull request that landed them, a figure
+      restated in a frozen record is a figure that goes stale, and the diffstat
+      of the merge commit is the place a reader gets them right.
+      **AND THE INSTRUMENT IS THE ONE THIS PACKET MEASURED WITH, PROVED AT
+      `b1df95ee` RATHER THAN ASSERTED.** Run against a worktree at
+      `b1df95ee80633339907c9e661164a783885a5d30`, the shipped CLI reproduces
+      `evidence/measurement-b1df95ee.md`'s § 2.1 reading: 2,973
+      tracked entries in scope, 2,969 files read, 151
+      raw-path-absent holding NOT-A-PACKET-REFERENCE out, 73 repaired by the
+      identity rule, INCLUSIVE remainder 78 — 72 identity half, 6 file half, 0
+      AMBIGUOUS. **TWO OF THE EVIDENCE'S FIGURES MOVE BY ONE APIECE, BOTH FOR
+      THE SAME FIX AND BOTH STATED RATHER THAN SMOOTHED**: distinct tokens read
+      572 where the evidence reads 571, and NOT-A-PACKET-REFERENCE 5 where it
+      reads 4. The one extra token is `openspec/changes/archive/..` at
+      `scripts/validate-ideation-cross-reference.py:31`, which the hand
+      instrument folds onto `openspec/changes/archive` by stripping a dot off a
+      `..` segment. The CLI refuses to, because rewriting a path that walks UP
+      into a citation OF what it walks up from is inventing the citation
+      (Copilot `PRRT_kwDOTAvnrs6jsy7w` on PR #1100); the remainder is unmoved at
+      78 either way, the token being NOT-A-PACKET-REFERENCE and outside it. It
+      is the NORMALIZED
+      `issue-native` reading, which is what this delta's three fixed choices
+      produce; the 586/162/81 and 586/162/86 figures beside it in the evidence
+      are the unnormalized recipe and literal readings, which choice (1)
+      forecloses. The three mechanical probes reproduce the hand
+      classification's own precision: `truncated` lands on EXACTLY the 4 tokens
+      the hand read classed tokenization artifacts, `fixture-path` on 19 — the
+      17 of 18 synthetic-fixture entries D4's precision table measures plus the
+      2 nested file-half fixtures D4 assigns to it — and the cross-repository
+      flag catches 13 of the 14 hand-found cross-repository tokens with 2 false
+      positives among the other 43, which is D3(c)'s measured figure, the one
+      miss being the token D3(c) already names as reachable by no adjacency
+      rule at all.
+      **AND THE CLI MINTS NO REMAINDER OF ITS OWN**, which is the acceptance
+      check this packet uniquely owes: the hand instrument's `issue-native`
+      block reads identically at this branch's merge base and at its head. **THE
+      FIGURES ARE PINNED TO THE RUN THAT PRODUCED THEM**, because they are a
+      reading of a MOVING corpus and not a property of this packet — taken
+      2026-09-18 at head `e170372d`, merge base `4ee21c40`: 604 distinct tokens,
+      158 raw-path-absent, 82 inclusive remainder, on both sides, line for line.
+      Δ = 0. **AND THE SHIPPED CLI IS RUN AS ITS OWN CONTROL BESIDE THE HAND
+      INSTRUMENT**, which is the stronger form of the same check: run over the
+      merge-base tree, where it is untracked and therefore unread, and over this
+      head, where it is tracked and read, it gives 605 distinct tokens, 82
+      inclusive, 43 filtered, 55 and 28 identities on BOTH — only `FILES read`
+      moves, by the one file, which is the whole claim. Earlier drafts of this
+      record carried 602/154, then 600/157, from runs at earlier heads against
+      earlier merge bases; every one of them was Δ = 0 and none was wrong, but
+      only one of them is the run this record names, and a record naming
+      figures no named run produced is a record a reader cannot check.
+      (Copilot `PRRT_kwDOTAvnrs6jdTOB` on PR #1100.)
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
