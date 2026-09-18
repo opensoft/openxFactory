@@ -1234,36 +1234,50 @@ the bookkeeping that ticks this group.
   enumeration; counting it would silently restate a figure this packet has
   already had to correct once. The arc remains eight slices and seven
   annotated holdings.)*
-- [ ] 3.5 `[oD]` The runtime, on the `xFactory-Hermes-Install` pattern (RULING
+- [x] 3.5 `[oD]` The runtime, on the `xFactory-Hermes-Install` pattern (RULING
   Q2): FastAPI + Postgres, `migrations/` (ordered SQL, `0001` pinned canonical
   plus additive), `deploy/compose/` and `deploy/kubernetes/` — **all at the root
   of `openDox-code`, not of the assembly root** — one lifecycle CLI,
   OIDC through the Keycloak broker. The schema holds ONLY identity and
   coordination (RULING Q1): users, memberships, projects, the
   project-to-repository map, sessions, unsaved drafts.
-  **STATUS — BATCH 3 IN FLIGHT; LANDING WORD GIVEN** (RULED 2026-09-18 17:55Z,
-  `#656` comment `5734029578`; recorded by `tasks.md` amendment #6). The
-  realization is `openDox-code` **#25**, which takes a THIRD mini-batch for
-  three security items and then lands on that word. **This box does NOT tick
-  here** — the word authorizes the landing, and the box ticks on the landing,
-  which is the same two-act ordering § 6 uses for a disposition and § 5.3 used
-  for `#1059`. **Item (4), the `OPENDOX_SERVED_DATABASE` declaration, is a
-  FOLLOW-UP ACT under the same claim and is deliberately NOT in batch 3** — so
-  a reader meeting #25's landing should not expect that declaration in it, and
-  should not read its absence as an omission.
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #6**: `opensoft/openDox-code`
+  **#25 → `aca94ecb`**, merged **2026-09-18T18:15:40Z**, *"§ 3.5: the openDox
+  runtime — FastAPI + Postgres, identity and coordination, and nothing else
+  (RULED Q1/Q2)"*. The landing word was RULED 2026-09-18 17:55Z (`#656` comment
+  `5734029578`) after a THIRD mini-batch took three security items; **the word
+  authorized the landing and the box ticks on the LANDING**, which is the same
+  two-act ordering § 6 uses for a disposition and § 5.3 used for `#1059`.
+  **TWO THINGS ARE OWED AND NEITHER IS THIS BOX'S CONDITION.** First, **#25
+  landed with three suppressed Copilot findings REGISTERED rather than fixed**,
+  taken by the follow-up under the same claim — the same land-and-register shape
+  § 5.5 used for `#1105` → `#1110` and § 3.7 used for `#1086`, now three times in
+  this packet and therefore a practice rather than an exception. Second, **item
+  (4), the `OPENDOX_SERVED_DATABASE` declaration, is a FOLLOW-UP ACT and was
+  deliberately NOT in batch 3** — recorded so a reader meeting #25's landing
+  does not expect that declaration in it, nor read its absence as an omission.
 - [ ] 3.6 `[oD]` **openDox CREATES A REPOSITORY AS A FIRST-CLASS ACT**, or the
   origin complaint returns one level down: RULING Q1 answers *"no good place to
   store my projects"* with its coordination half while the specs still land in a
   repository. Includes RULING C3's standalone shape — a PLAIN LOCAL GIT
   REPOSITORY per project, commits as the write path, a remote attachable later —
   as the trivial conformant adapter implementation, not as a mode.
-  **STATUS — BATCH 3 IN FLIGHT; LANDING WORD GIVEN** (RULED 2026-09-18 17:55Z,
-  `#656` comment `5734029578`; recorded by `tasks.md` amendment #6). The
-  realization is `openDox-code` **#26**, paired with #25 under the same word and
-  the same third mini-batch of three security items. **This box does NOT tick
-  here**, on the same reading as § 3.5: the word authorizes the landing and the
-  box ticks on it. **Item (4), the `OPENDOX_SERVED_DATABASE` declaration, is a
-  follow-up act under the same claim and is not in batch 3.**
+  **STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
+  `[ ]`** (RULED 2026-09-18 17:55Z, `#656` comment `5734029578`; recorded by
+  `tasks.md` amendment #6). The realization is `openDox-code` **#26**, paired
+  with **#25** under the same word and the same third mini-batch of three
+  security items. **#25 landed and § 3.5 ticks on it; #26 did NOT, and this box
+  does not tick on its sibling's landing.**
+  **THE REASON IT IS HELD IS A SECURITY DEFECT, AND IT IS WORTH RECORDING AS
+  ONE**: #26's BASE MERGE introduced a **credential exposure at `app.py:1076`**,
+  which is being fixed in #26 itself before it lands (holder decision, `#656`).
+  *No credential is reproduced here, and none should be — the record needs the
+  FACT, the file and the disposition, not the value.* **A landing word is not a
+  landing**: the word was given before the defect was found, and it authorizes
+  the act rather than certifying the result, which is exactly why this ledger
+  ticks on landings and not on authorizations. Item (4), the
+  `OPENDOX_SERVED_DATABASE` declaration, remains a follow-up act under the same
+  claim and is not in batch 3.
 - [ ] 3.7 `[oD]` `[oXd]` `[oxF]` **FLOOR PART 3 (RULED OQ-1).** The neutral
   conformance corpus — no `openspec/`, no `contracts/`, no lifecycle headers,
   positives plus negative confirmations — and **EVERY DESTINATION PASSES IT**, the
