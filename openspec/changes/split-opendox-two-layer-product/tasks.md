@@ -2064,8 +2064,15 @@ the bookkeeping that ticks this group.
   land until the encoding act registered below closes them**. Caught by Copilot
   against head `7ac75a4e` and measured true; `code_surface: none` removes the
   build gate, not the task gate. Its archive pull request lands in a
-  Rule 6 window AFTER `#1066`, because § 6.5 still edits
-  `openspec/specs/ideation-dashboard/spec.md` content. **The ARCHIVE is not this
+  Rule 6 window AFTER `#1066`, because **§ 6.2** — which is `#1066`'s own
+  box — promotes its forward delta INTO
+  `openspec/specs/ideation-dashboard/spec.md`. *(This reason named § 6.5
+  until it was measured: `#1066`'s title is literally "Close § 6.2 … and ITS
+  delta promotes", and its file set touches that spec. The WAIT was right and
+  the REASON was wrong, which is the worse of the two errors to leave — a
+  correct instruction with a false rationale survives until someone acts on
+  the rationale. Corrected on a Copilot finding raised against three separate
+  heads before it was measured here.)* **The ARCHIVE is not this
   box's condition and is not claimed as one**: this box owed an authored id, and
   the id `openxfactory-engineering-adapter` is authored, filed and ratified.
   **THE RATIFICATION IS ON THE WORD; ITS ENCODING IN THE SUCCESSOR PACKET IS
@@ -2768,7 +2775,8 @@ the bookkeeping that ticks this group.
   not a recorded run, and both halves are measured present**:
   `scripts/verify-snapshot-equivalence.py` and
   `tests/snapshot_equivalence/test_snapshot_equivalence.py` are the two files
-  the commit adds, and `pytest-suite` runs `python3 -m pytest tests/ -q`
+  the commit adds, and `pytest-suite` runs `python3 -m pytest tests/ -q -m "not
+  postgres" --junitxml=pytest-report.xml`
   (`.github/workflows/pytest-suite.yml:599`), so a suite under
   `tests/snapshot_equivalence/` is inside the gate by construction rather than
   by a wiring entry that could be dropped. **This is why Q-P1 (a) refused a
@@ -2833,8 +2841,14 @@ the bookkeeping that ticks this group.
   to make, not a second tick condition, and § 4.4 is already `[x]` on its own.
   **FLAGGED AND DELIBERATELY NOT SCOPED**: whether part 4 also covers the
   snapshot INDEX (`snapshot_registry.py`, which has its own schema). It is a
-  fifth question, and the ruling leaves it for the runner's first run to answer
-  rather than guessing now. CLAIM `5728621421`.
+  fifth question, and the ruling declined to guess at it. **It is NOT answered
+  by the runner that landed**: `scripts/verify-snapshot-equivalence.py:121-122`
+  names the snapshot index *"also unmeasured and NOT claimed here"*, so it is a
+  SEPARATE follow-up runner under its own ruling rather than something this
+  run's first execution settles. *(This clause read "the ruling leaves it for
+  the runner's first run to answer" until #1105 landed and the runner said
+  otherwise in terms; corrected on a Copilot finding against head `a406915d`.)*
+  CLAIM `5728621421`.
 - [ ] 5.6 `[cxF]` `[oxF]` **DE-FLOOR BEFORE YOU REMOVE — Rule 7 substrate row 1,
   claimed HERE.** `openspec/specs/ideation-dashboard/` is REMOVED and two
   capability directories are ADDED by the archive, and the codexFactory
@@ -3145,7 +3159,9 @@ movements claimed at the time they land.
   agreeing outright**.
   *(Worth naming: the repair for INCIDENT 2 was to REMOVE a row, where the
   repair for INCIDENT 1 was to ADD one — the same file, opposite directions,
-  four days apart, because the underlying fact moved rather than the record
+  **about an hour apart on the SAME DAY** — `#1106` merged 13:28:21Z and
+  `#1109` 14:26:58Z, both 2026-09-18 — because the underlying fact moved rather
+  than the record
   being wrong either time. That is the clearest statement of residue (vi): a
   disposition is only as stable as `main`'s reachable history, so a checker
   that reads it as permanent will keep producing this pair of incidents.)*
@@ -4302,17 +4318,36 @@ realization evidence, never on landing. Each line is its own evidence.
   172** (128 later + 44 equal = 172 archived rows, ledger and archive
   directories aligned 172/172, no row without a directory and no directory
   without a row).
-  **In `validate-sequenced-after.py` the claim lives at FIVE sites, not the
-  three first reported** — `:36` and `:396` carry the bare `143`; `:42` and
-  `:402` carry `124 of … 143`; `:739` carries `124 rows`. `:739` is an argparse
-  **help string**, so it is user-visible CLI text and not merely a comment.
+  **In `validate-sequenced-after.py` the live claim lives at THREE sites** —
+  `:42` and `:402` carry `124 of … 143`, and `:739` carries `124 rows`. `:739`
+  is an argparse **help string**, so it is user-visible CLI text and not merely
+  a comment.
+  **A CORRECTION THIS ROW OWES ITS OWN READER, AND IT REVERSES AN EARLIER
+  CORRECTION MADE HERE.** This paragraph previously claimed FIVE sites, adding
+  `:36` and `:396`. **That was wrong and the three first reported were right.**
+  Both of those read *"before it was made a gate"* — `:36` *"measured clean
+  across all 143 archived rows before it was made a gate"*, `:396` *"measured
+  across this corpus before it was made a gate — 143 archived rows, 0
+  findings"*. They are **HISTORICAL STATEMENTS BOUND TO A MOMENT**, not
+  current-corpus claims, and **renumbering them to 172 would destroy the
+  evidence they exist to carry.** Caught by Copilot against head `93ffb197`.
+  *(The irony is the point and is left on the page rather than tidied away:
+  this row exists to say that a figure bound to a tree is safe and a bare
+  figure rots — and its own author then mistook two correctly-bound figures
+  for rot and proposed to break them. A dated claim is not a stale claim. The
+  next owner must apply that test site by site rather than trusting this
+  list.)*
   **AND THAT CENSUS IS ITSELF INCOMPLETE, WHICH IS THIS ROW'S OWN DEFECT
   COMMITTED BY THIS ROW.** It covered ONE FILE. The same current-corpus claim
-  also stands, in three more places and at three DIFFERENT vintages, in
-  `scripts/sequenced_after.py` — `:449` *"128 of this corpus's 171"*,
-  `:1598-1599` *"all 143 … remains clean across all 171 today"*, `:1607`
-  *"128 of this corpus's"*, `:1927` and `:1958` *"all 171"* — and in
-  `tests/sequenced_after/test_sweep.py:2003` *"124 of this corpus's 143"*.
+  also stands, at FIVE further sites in `scripts/sequenced_after.py` — `:449`
+  *"128 of this corpus's 171"*, `:1598-1599` *"all 143 … remains clean across
+  all 171 today"*, `:1607` *"128 of this corpus's"*, `:1927` and `:1958`
+  *"all 171"* — and at ONE in `tests/sequenced_after/test_sweep.py`, **`:2049`**
+  *"124 of this corpus's 143"*. **Every line number here is bound to the tree
+  at this amendment's head and must be re-derived, not trusted**: this row
+  first cited that last site as `:2003`, which by the time it was written held
+  `shutil.rmtree(…)` — the locator drifted between the grep and the sentence.
+  Corrected on a Copilot finding against head `6061030f`.
   Caught by Copilot against head `47a41ee5` and MEASURED TRUE. **That the
   partially-updated figures disagree with each OTHER (143 beside 171 beside
   172) is the strongest argument in this row**: the corpus has been renumbered
@@ -4321,7 +4356,10 @@ realization evidence, never on landing. Each line is its own evidence.
   *(ONE FINDING IN THIS FAMILY IS DECLINED, WITH THE MEASUREMENT. A review
   against head `7ac75a4e` reported `archive-date-dispositions.yaml` as carrying
   stale `171` claims at `:43`, `:51` and `:101`. Measured at this head, it does
-  not: `:43` reads *"172 directories agree"*, which is CURRENT and correct;
+  not: the sentence spanning `:42-:43` reads *"159 of this corpus's 172
+  directories agree"*, which is CURRENT and correct — quoted whole here
+  because the fragment *"172 directories agree"* alone, which is what `:43`
+  carries by itself, reads like a different claim;
   `:55` reads *"it moved from 157/171 on 2026-09-18"*, which is explicitly
   PAST-TENSE and is the kind of dated statement that does not rot; and `:51`
   and `:101` carry no such claim at all. That file is therefore NOT part of
