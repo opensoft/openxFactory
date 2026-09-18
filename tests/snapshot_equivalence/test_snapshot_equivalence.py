@@ -1240,7 +1240,8 @@ def test_a_conflicted_index_refuses_rather_than_reading_a_merge_stage(
                           capture_output=True, check=False)
     assert done.returncode == 0, done.stderr
     listed = MODULE._git(repo, "ls-files", "-s", "--", "code")
-    assert "160000" in listed.stdout and " 0\t" not in listed.stdout
+    assert "160000" in listed.stdout
+    assert " 0\t" not in listed.stdout, "a stage-0 row survived"
     with pytest.raises(MODULE.EquivalenceRefusal) as caught:
         MODULE.recorded_gitlink(repo, "code")
     assert caught.value.code == "equivalence-reach-unavailable"
@@ -1329,7 +1330,8 @@ def test_the_spec_mounts_are_pinned_so_a_module_there_names_its_own_leg():
     assert "openXdox/spec" in MODULE.IMPORTED_LEGS
 
 
-def test_verify_pins_reads_each_nested_gitlink_from_its_parents_commit():
+def test_verify_pins_reads_each_nested_gitlink_from_its_parents_commit(
+        monkeypatch):
     """The wiring, not just the helper: `verify_pins()` must HAND each nested
     row the commit the row above it verified. Reading the nested checkout's
     own HEAD or index there is the hole — a gitlink staged inside `openDox`
@@ -1341,11 +1343,8 @@ def test_verify_pins_reads_each_nested_gitlink_from_its_parents_commit():
         calls.append((parent.name, path, outer))
         return real(parent, path, outer)
 
-    MODULE.recorded_gitlink = spy
-    try:
-        pins = MODULE.verify_pins()
-    finally:
-        MODULE.recorded_gitlink = real
+    monkeypatch.setattr(MODULE, "recorded_gitlink", spy)
+    pins = MODULE.verify_pins()
     outers = {(parent, path): outer for parent, path, outer in calls}
     for parent, path in (("openDox", "code"), ("openDox", "spec"),
                          ("openXdox", "code"), ("openXdox", "spec")):
@@ -1478,7 +1477,9 @@ def test_the_sweep_sees_an_edit_that_status_reports_as_clean(tmp_path):
     blind = MODULE._git(leg, "status", "--porcelain")
     assert blind.stdout.strip() == "", "git reported the edit after all"
     dirt = MODULE.worktree_dirt(leg)
-    assert dirt and any("a.txt" in row and row[1] == "!" for row in dirt), dirt
+    assert dirt, "the sweep saw nothing at all"
+    assert any("a.txt" in row for row in dirt), dirt
+    assert any(row[1] == "!" for row in dirt), dirt
     advice = MODULE._clean_advice(dirt, leg)
     assert "--no-assume-unchanged" in advice
 
@@ -1525,10 +1526,53 @@ def test_an_ignored_python_file_under_src_is_dirt_and_bytecode_is_not(
     blind = MODULE._git(leg, "status", "--porcelain")
     assert blind.stdout.strip() == "", "git reported the ignored file"
     dirt = MODULE.worktree_dirt(leg)
-    assert dirt and any(row.startswith("!!") and "local_override" in row
-                        for row in dirt), dirt
+    assert dirt, "the ignored file was not reported at all"
+    assert any(row.startswith("!!") for row in dirt), dirt
+    assert any("local_override" in row for row in dirt), dirt
     advice = MODULE._clean_advice(dirt, leg)
     assert "clean -fdX" in advice
+
+
+def test_a_sourceless_pyc_beside_the_modules_is_not_allowlisted(tmp_path):
+    """The allowlist is `__pycache__/<name>.pyc` and NOT every `.pyc`: a
+    sourceless `src/foo.pyc`, sitting where `foo.py` would sit, is an
+    ordinary import candidate, so allowlisting the extension anywhere would
+    have admitted a module this runner did not check (Copilot, PR #1115;
+    SonarCloud `python:S5850` on the same unparenthesised alternation, which
+    is what that rule usually means)."""
+    leg = tmp_path / "leg"
+    _seed(leg)
+    (leg / "src").mkdir()
+    (leg / "src" / "m.py").write_text("x = 1\n", encoding="utf-8")
+    (leg / ".gitignore").write_text("*.pyc\n__pycache__/\n", encoding="utf-8")
+    assert MODULE._git(leg, "add", "src/m.py", ".gitignore").returncode == 0
+    assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
+    (leg / "src" / "__pycache__").mkdir()
+    (leg / "src" / "__pycache__" / "m.cpython-312.pyc").write_bytes(b"\x00")
+    assert MODULE.worktree_dirt(leg) == []
+    (leg / "src" / "shadow.pyc").write_bytes(b"\x00")
+    dirt = MODULE.worktree_dirt(leg)
+    assert any("shadow.pyc" in row for row in dirt), dirt
+
+
+def test_the_refusal_names_which_archive_path_the_tree_lacks(tmp_path):
+    """`git archive` fails as soon as ONE pathspec matches nothing, so a
+    refusal that said the tree carried NEITHER path was inaccurate for a tree
+    that had shed one of them (Copilot, PR #1115)."""
+    repo = tmp_path / "repo"
+    _seed(repo)
+    kept, shed = MODULE.ARCHIVE_PATHS
+    (repo / kept).mkdir(parents=True)
+    (repo / kept / "generator.py").write_text("x = 1\n", encoding="utf-8")
+    assert MODULE._git(repo, "add", "-A").returncode == 0
+    assert MODULE._git(repo, "commit", "-qm", "half").returncode == 0
+    commit = MODULE._git(repo, "rev-parse", "HEAD").stdout.strip()
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.extract_pre_tree(commit, repo, tmp_path / "into", "HEAD")
+    detail = caught.value.detail
+    assert caught.value.code == "equivalence-pre-tree-unrenderable"
+    assert f"carries {kept} but NOT {shed}" in detail, detail
+    assert "NEITHER" not in detail
 
 
 def test_the_hidden_flag_remedy_restores_the_edit_it_reveals(tmp_path):

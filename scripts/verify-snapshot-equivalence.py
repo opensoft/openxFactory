@@ -500,6 +500,30 @@ def pre_ref_commit(pre_ref: str, repo: Path) -> str:
     return done.stdout.strip()
 
 
+def _absence(repo: Path, commit: str) -> str:
+    """WHICH of the archive paths that commit's tree does not carry.
+
+    `git archive` fails as soon as ONE pathspec matches nothing, so the
+    refusal above must not assume both are missing. Where git cannot answer
+    which — the read failed, the store is unhappy — the phrasing stays
+    neutral rather than guessing, which is this file's rule everywhere else.
+    """
+    missing: list[str] = []
+    for path in ARCHIVE_PATHS:
+        done = _git(repo, "ls-tree", "--name-only", commit, "--", path)
+        if done is None or done.returncode != 0:
+            return "does not carry all of " + " and ".join(ARCHIVE_PATHS)
+        if not done.stdout.strip():
+            missing.append(path)
+    if not missing:
+        return "does not carry all of " + " and ".join(ARCHIVE_PATHS)
+    if len(missing) == len(ARCHIVE_PATHS):
+        return "carries NEITHER " + " nor ".join(ARCHIVE_PATHS)
+    carried = [path for path in ARCHIVE_PATHS if path not in missing]
+    return (f"carries {' and '.join(carried)} but NOT "
+            + " nor ".join(missing))
+
+
 def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
                      pre_ref: str) -> Path:
     """`git archive` the pre-split renderer into a scratch tree.
@@ -565,10 +589,15 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
         # shed the renderer. Both halves are classified now, so neither
         # borrows the other's remedy.
         if _NO_PATHSPEC.search(stderr):
+            # AND IT SAYS WHICH PATH, BECAUSE `git archive` FAILS ON ANY ONE
+            # OF THEM (Copilot, PR #1115). The first wording said the tree
+            # carried NEITHER archive path, which is only true when both are
+            # absent — a tree that shed one of them would have been described
+            # inaccurately in the refusal that names it.
             raise EquivalenceRefusal(
                 "equivalence-pre-tree-unrenderable",
-                f"{pre_ref} ({pre_commit[:12]}) carries NEITHER "
-                + " nor ".join(ARCHIVE_PATHS)
+                f"{pre_ref} ({pre_commit[:12]}) "
+                + _absence(repo, pre_commit)
                 + f": {stderr or '(no error output)'}. `contract-v4.0` and "
                 "every commit on `main` since the § 5.2 shed are in exactly "
                 "this state. A post-shed ref is an operator error about "
@@ -1134,6 +1163,69 @@ LEG_GITLINKS: tuple[tuple[str, str], ...] = (
 )
 
 
+#: What `recorded_gitlink()` answers as its SOURCE when it found no gitlink:
+#: naming both places it looked, because "records no gitlink in HEAD" would
+#: leave a reader wondering about the index.
+_NO_RECORD_SOURCE = "HEAD or the index"
+
+
+def _gitlink_at_commit(parent: Path, outer: str,
+                       path: str) -> tuple[str | None, str]:
+    """The gitlink `path` has IN THE TREE of the commit `outer`."""
+    source = f"the commit {outer[:12]} its own parent records for it"
+    done = _git(parent, "rev-parse", "--verify", "--quiet",
+                "--end-of-options", f"{outer}:{path}")
+    if done is None or done.returncode != 0 or not done.stdout.strip():
+        return None, source
+    return done.stdout.strip(), source
+
+
+def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
+    """The gitlink this repository RECORDS for `path`, index first."""
+    head = _git(parent, "rev-parse", "--verify", "--quiet",
+                "--end-of-options", f"HEAD:{path}")
+    head_oid = (head.stdout.strip()
+                if head is not None and head.returncode == 0 else None)
+    listed = _git(parent, "ls-files", "-s", "--", path)
+    if listed is None or listed.returncode != 0:
+        return head_oid, ("HEAD" if head_oid else _NO_RECORD_SOURCE)
+    index_oid, conflicted = _staged_gitlink(listed.stdout)
+    if index_oid is None and conflicted:
+        raise EquivalenceRefusal(
+            "equivalence-reach-unavailable",
+            f"{parent} has {path} CONFLICTED in its index "
+            f"({', '.join(conflicted)}) and carries no stage-0 entry for it, "
+            "so this repository records no pin for that leg right now. "
+            f"Resolve the merge in {parent} (`git status` names the paths) "
+            "and re-run: a runner that read one of the conflict stages would "
+            "report a pin no commit has declared")
+    if index_oid != head_oid:
+        return index_oid, ("the index" if index_oid else _NO_RECORD_SOURCE)
+    return head_oid, ("HEAD" if head_oid else _NO_RECORD_SOURCE)
+
+
+def _staged_gitlink(listing: str) -> tuple[str | None, list[str]]:
+    """(the stage-0 gitlink, the conflict stages) out of `ls-files -s`.
+
+    STAGE 0 OR NOTHING (Copilot, PR #1105 round 3, accepted without argument
+    and owed since). `git ls-files -s` lists stages 1, 2 and 3 for a path in
+    an unresolved merge, so taking the FIRST `160000` row would read the
+    MERGE BASE's gitlink — or THEIRS — as the pin this repository records,
+    compare the checkout against a commit nobody has declared, and refuse or
+    pass on it. There is no recorded pin during a conflict; that is a state
+    to name, not to guess through.
+    """
+    conflicted: list[str] = []
+    for line in listing.splitlines():
+        fields = line.split(None, 3)
+        if len(fields) < 3 or fields[0] != "160000":
+            continue
+        if fields[2] == "0":
+            return fields[1], conflicted
+        conflicted.append(f"stage {fields[2]} {fields[1][:12]}")
+    return None, conflicted
+
+
 def recorded_gitlink(parent: Path, path: str,
                      outer: str | None = None) -> tuple[str | None, str]:
     """(oid, source) for the gitlink `parent` RECORDS for `path`.
@@ -1157,48 +1249,8 @@ def recorded_gitlink(parent: Path, path: str,
     resolved from the exact commit being claimed, at every level.
     """
     if outer is not None:
-        done = _git(parent, "rev-parse", "--verify", "--quiet",
-                    "--end-of-options", f"{outer}:{path}")
-        source = f"the commit {outer[:12]} its own parent records for it"
-        if done is None or done.returncode != 0 or not done.stdout.strip():
-            return None, source
-        return done.stdout.strip(), source
-    head = _git(parent, "rev-parse", "--verify", "--quiet",
-                "--end-of-options", f"HEAD:{path}")
-    head_oid = (head.stdout.strip()
-                if head is not None and head.returncode == 0 else None)
-    listed = _git(parent, "ls-files", "-s", "--", path)
-    if listed is None or listed.returncode != 0:
-        return head_oid, ("HEAD" if head_oid else "HEAD or the index")
-    # STAGE 0 OR NOTHING (Copilot, PR #1105 round 3, accepted without
-    # argument and owed since). `git ls-files -s` lists stages 1, 2 and 3 for
-    # a path in an unresolved merge, so taking the FIRST `160000` row would
-    # read the MERGE BASE's gitlink — or THEIRS — as the pin this repository
-    # records, compare the checkout against a commit nobody has declared, and
-    # refuse or pass on it. There is no recorded pin during a conflict; that
-    # is a state to name, not to guess through.
-    index_oid = None
-    conflicted: list[str] = []
-    for line in listed.stdout.splitlines():
-        fields = line.split(None, 3)
-        if len(fields) < 3 or fields[0] != "160000":
-            continue
-        if fields[2] == "0":
-            index_oid = fields[1]
-            break
-        conflicted.append(f"stage {fields[2]} {fields[1][:12]}")
-    if index_oid is None and conflicted:
-        raise EquivalenceRefusal(
-            "equivalence-reach-unavailable",
-            f"{parent} has {path} CONFLICTED in its index "
-            f"({', '.join(conflicted)}) and carries no stage-0 entry for it, "
-            "so this repository records no pin for that leg right now. "
-            f"Resolve the merge in {parent} (`git status` names the paths) "
-            "and re-run: a runner that read one of the conflict stages would "
-            "report a pin no commit has declared")
-    if index_oid != head_oid:
-        return index_oid, ("the index" if index_oid else "HEAD or the index")
-    return head_oid, ("HEAD" if head_oid else "HEAD or the index")
+        return _gitlink_at_commit(parent, outer, path)
+    return _gitlink_index_first(parent, path)
 
 
 #: The two legs whose WORKING TREES this runner actually imports from.
@@ -1216,7 +1268,15 @@ IMPORTED_LEGS: tuple[str, ...] = (
 #: which this runner CREATES by importing the legs, so counting it would make
 #: every run after the first refuse. Measured at the two code legs: 45 and 21
 #: ignored files under `src`, all of them this.
-_GENERATED_BYTECODE = re.compile(r"(?:^|/)__pycache__/|\.pyc$")
+#:
+#: EXACTLY `__pycache__/<name>.pyc`, AND THE ALTERNATION THAT WAS HERE FIRST
+#: WAS A HOLE (Copilot, PR #1115; SonarCloud `python:S5850` on the same line,
+#: which is what an unparenthesised top-level `|` usually means). `\.pyc$`
+#: alone allowlisted a `.pyc` ANYWHERE under the import surface, and a
+#: sourceless `src/foo.pyc` sitting where `foo.py` would sit is a perfectly
+#: ordinary import candidate — so the allowlist for the one artifact this
+#: runner creates would have admitted a module it did not.
+_GENERATED_BYTECODE = re.compile(r"(?:^|/)__pycache__/[^/]+\.pyc$")
 
 
 def worktree_dirt(leg: Path) -> list[str] | None:
@@ -1262,31 +1322,46 @@ def worktree_dirt(leg: Path) -> list[str] | None:
         # files under `src` and EVERY ONE of them is a `__pycache__` `.pyc`.
         # Scoped to the import surface, because that is where an ignored file
         # can change what renders; a leg with no `src` has no such surface.
-        generated = _git(leg, "ls-files", "--others", "--ignored",
+        ignored = _names(leg, "!! ", "ls-files", "--others", "--ignored",
                          "--exclude-standard", *scope)
-        if generated is None or generated.returncode != 0:
+        if ignored is None:
             return None
-        rows += [f"!! {name}" for name in generated.stdout.splitlines()
-                 if name.strip() and not _GENERATED_BYTECODE.search(name)]
-    edited = _git(leg, "diff", "--name-only", "HEAD", *scope)
-    if edited is None or edited.returncode != 0:
+        rows += [row for row in ignored
+                 if not _GENERATED_BYTECODE.search(row[3:])]
+    for prefix, arguments in ((" M ", ("diff", "--name-only", "HEAD",
+                                       *scope)),
+                              ("?? ", ("ls-files", "--others",
+                                       "--exclude-standard"))):
+        named = _names(leg, prefix, *arguments)
+        if named is None:
+            return None
+        rows += named
+    hidden = _flagged(leg)
+    if hidden is None:
         return None
-    rows += [f" M {name}" for name in edited.stdout.splitlines()
-             if name.strip()]
-    others = _git(leg, "ls-files", "--others", "--exclude-standard")
-    if others is None or others.returncode != 0:
+    return rows + hidden
+
+
+def _names(leg: Path, prefix: str, *arguments: str) -> list[str] | None:
+    """One name-per-line git read, each name given `prefix`, or `None` when
+    the question could not be ASKED."""
+    done = _git(leg, *arguments)
+    if done is None or done.returncode != 0:
         return None
-    rows += [f"?? {name}" for name in others.stdout.splitlines()
-             if name.strip()]
-    flagged = _git(leg, "ls-files", "-v")
-    if flagged is None or flagged.returncode != 0:
+    return [f"{prefix}{name}" for name in done.stdout.splitlines()
+            if name.strip()]
+
+
+def _flagged(leg: Path) -> list[str] | None:
+    """The `assume-unchanged` / `skip-worktree` entries, which `ls-files -v`
+    marks with a lowercase tag and an `S` — the state that makes git report
+    an EDITED file as clean, and so the state no other read here can see."""
+    done = _git(leg, "ls-files", "-v")
+    if done is None or done.returncode != 0:
         return None
-    for line in flagged.stdout.splitlines():
-        if len(line) < 3 or line[1] != " ":
-            continue
-        if line[0].islower() or line[0] == "S":
-            rows.append(f"{line[0]}! {line[2:]}")
-    return rows
+    return [f"{line[0]}! {line[2:]}" for line in done.stdout.splitlines()
+            if len(line) >= 3 and line[1] == " "
+            and (line[0].islower() or line[0] == "S")]
 
 
 def _dirt_kind(row: str) -> str:
@@ -1544,13 +1619,15 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
     # read out of this checkout, and two runs of this runner can differ by
     # them alone while every pinned leg matches (Copilot, PR #1105 round 4).
     entries = summary.get("root_worktree_entries")
+    counted = ""
+    if entries:
+        plural = "entry" if entries == 1 else "entries"
+        counted = f" ({entries} uncommitted {plural})"
     print(f"  composed in {ROOT} at "
           f"{str(summary.get('root_revision', 'unknown'))[:12]}, working "
-          f"tree {summary.get('root_worktree', 'unknown')}"
-          + (f" ({entries} uncommitted entr{'y' if entries == 1 else 'ies'})"
-             if entries else "")
-          + " — the pinned legs above are verified clean; this line is the "
-            "UNPINNED half of the composition")
+          f"tree {summary.get('root_worktree', 'unknown')}{counted}"
+          " — the pinned legs above are verified clean; this line is the "
+          "UNPINNED half of the composition")
 
 
 def main(argv: list[str] | None = None) -> int:
