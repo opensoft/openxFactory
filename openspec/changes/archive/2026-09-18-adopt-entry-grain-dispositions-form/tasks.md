@@ -11,6 +11,22 @@ https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5698480736.
 Record: `review/ratification-2026-09-16.md`. BOXES TICKED BY THIS RATIFYING
 COMMIT: 1.1, 1.2, 1.3, 1.4 — AND NO OTHERS: § 2's boxes stand exactly as the
 filing pull request left them, and § 3 and § 4 stay open.
+Archived by: Brett Heap, the same ratifier, 2026-09-18, first-hand, in
+session to lane `openxfactory-2` (display `openXfactory-2`) — a SEPARATE
+ARCHIVE WORD, verbatim ***"merge 1070 fix when green, then archive 1045"***.
+THE ONE CITATION: openxFactory #1045, comment
+https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696.
+**THE SENTENCE DIRECTLY ABOVE — "§ 3 and § 4 stay open" — IS THE RATIFYING
+COMMIT'S OWN RECORD OF 2026-09-16 AND WAS TRUE THEN; IT IS KEPT AS HISTORY.**
+§ 3 was discharged by the realization pull request
+[#1094](https://github.com/opensoft/openxFactory/pull/1094) →
+`8f93cbc02597f149a9987ce8da5f1c227e66662d` on ***"Realize now, land when
+green"*** (5714433011) and ***"merge 1094 when green after 1089"***
+(5717398099); **§ 4 IS DISCHARGED BY THE ARCHIVE PULL REQUEST THIS PACKET
+MOVED IN, AND ONLY THERE** (§ 4.1, § 4.2, § 4.3), on the archive word above
+and on that realization being MERGED AND GREEN — which is the evidence
+`code_surface:` being non-empty requires. NO BOX OF § 1, § 2 OR § 3 MOVES BY
+IT.
 
 **§ 1 IS TICKED, ON BRETT HEAP'S WORD, AND THAT IS THE STATE OF THE WORK.**
 This pull request FILED a proposal, and this ratifying commit answers § 1 in
@@ -138,7 +154,13 @@ AND BY NOTHING ELSE, and that pull request moves FOUR files and no other:
 `scripts/doc_health/pin_shapes.py`, `tests/doc-health/test_pin_shape_adapter.py`,
 `tests/doc-health/test_tag_hygiene_pinned_targets.py` and this `tasks.md`. **§ 4
 STAYS OPEN** — the archive is a further act on a further word, held behind this
-pull request being MERGED AND GREEN — and NO BYTE of the `## MODIFIED` spec
+pull request being MERGED AND GREEN — **AND IT IS DISCHARGED THERE,
+2026-09-18, ON BRETT HEAP'S SEPARATE ARCHIVE WORD** ("merge 1070 fix when
+green, then archive 1045", 5717476696), which is the act that ticked § 4.1,
+§ 4.2 and § 4.3 and moved this packet under
+`openspec/changes/archive/`; the "STAYS OPEN" reading is the realization
+pull request's own record of 2026-09-17 and was true then — and NO BYTE of
+the `## MODIFIED` spec
 delta, of `proposal.md`, of `design.md`, of `.openspec.yaml`, of any pin
 verifier, of any record under `contracts/` or of any file under
 `openspec/specs/` moves in it. The delta's own partition amendment is a
@@ -409,16 +431,88 @@ semantics in tests and authors none of it.
       23 are the ACCEPTING and NEGATIVE cases, which pass in both states by
       design — that is what makes them the no-WIDER half of the equivalence.
 
-## 4. Archive — ON MERGED-PLUS-GREEN REALIZATION EVIDENCE
+## 4. Archive — ARCHIVED (Brett Heap's separate archive word)
 
-- [ ] 4.1 **Archive on the realization pull request being MERGED and GREEN**,
+- [x] 4.1 **Archive on the realization pull request being MERGED and GREEN**,
       not on this filing landing: `code_surface:` is non-empty, and under
       *Realization archive gate* a non-empty code surface archives on
       merged-plus-green realization evidence rather than on landing.
-- [ ] 4.2 **Promote the `## MODIFIED` block into
+      **THE GATE IS DISCHARGED, AND IT IS MEASURED RATHER THAN ASSERTED.** The
+      realization is PR
+      [#1094](https://github.com/opensoft/openxFactory/pull/1094) →
+      `8f93cbc02597f149a9987ce8da5f1c227e66662d`, MERGED 2026-09-18T15:56:55Z
+      (squash) with its required checks GREEN and `main` green at that commit —
+      the merged-plus-green evidence this box holds the archive behind, and the
+      landing of that pull request was itself given on Brett Heap's word
+      ***"merge 1094 when green after 1089"***
+      ([#1045 comment 5717398099](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717398099)),
+      the realization having been authorized separately at ***"Realize now,
+      land when green"***
+      ([#1045 comment 5714433011](https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5714433011)).
+      **ARCHIVED ON BRETT HEAP'S SEPARATE ARCHIVE WORD** — verbatim
+      ***"merge 1070 fix when green, then archive 1045"***, 2026-09-18,
+      first-hand, in session to lane `openxfactory-2` (display
+      `openXfactory-2`, session c0d09b6d). THE ONE CITATION: openxFactory
+      #1045, comment
+      https://github.com/opensoft/openxFactory/issues/1045#issuecomment-5717476696.
+      Performed by `python3 scripts/proposal-support.py . archive
+      adopt-entry-grain-dispositions-form --yes` — NEVER bare `openspec` —
+      which printed **`ORIGIN RETAINED adopt-entry-grain-dispositions-form
+      (declaration unchanged since the ratifying commit fa39141cec2b)`**.
+      **THE § 3 TICKS' VERIFIER LINE CITATIONS STAND, AND THE RE-POINT IS
+      RECORDED HERE RATHER THAN APPLIED THERE.** They were measured at the
+      realization's base `4b53ea99`, where
+      `scripts/validate-openspec-cli-pin.py`'s `pinned_dispositions` begins at
+      `:787`; on `main` it now begins at `:794`, PR
+      [#1056](https://github.com/opensoft/openxFactory/pull/1056) →
+      `3e32d987` having moved that file +7 lines. RULED STAND by the lane at
+      PR #1094 (comment 5729231240, 2026-09-18T12:57:01Z): a packet's
+      `tasks.md` is RECORD TEXT, the ticks pair with the ratified task text
+      directly above them which cites the same lines, and history is history —
+      the same principle `docs/document-lifecycle.md:556` states for archive
+      directory names. The live fact is already carried where it is ASSERTED,
+      in `tests/doc-health/test_pin_shape_adapter.py`.
+- [x] 4.2 **Promote the `## MODIFIED` block into
       `openspec/specs/document-lifecycle/spec.md`** at the archive, and confirm
       the promotion is byte-identical for every carried unit.
-- [ ] 4.3 **Re-seed the sweep-ledger row** for the archived state
+      **DONE, AND MEASURED BYTE-FOR-BYTE ON BOTH SIDES.** After the archive the
+      promoted requirement *Prose tagging marker hygiene* in
+      `openspec/specs/document-lifecycle/spec.md` and this packet's `##
+      MODIFIED` block are both **45,963 bytes, sha256 `2099a22f69cb23b0…`** (the
+      requirement text from its `### Requirement:` line, the trailing blank
+      separator before the next `### Requirement:` excluded on both sides,
+      which is the convention PR #1042's archive set and PR #1089's used);
+      canon's `git diff --numstat` reads **11 added, 2 removed**. The delta promoted is
+      exactly two things and nothing else: the RATIFIER'S 2026-09-17 PARTITION
+      AMENDMENT of the positive-resolution scenario *A marker names a
+      capability of a pinned neutral product* — its WHEN's entry-grain clause
+      and its disjointness bullet's matching exclusion, PR
+      [#1088](https://github.com/opensoft/openxFactory/pull/1088) →
+      `893abe97`, on ***"Apply the partition"*** — and this packet's OWN new
+      scenario *A pin record's optional dispositions member carries a
+      malformed entry*, its title and its seven bullets. Canon's scenario
+      count under this requirement goes **24 → 25**.
+- [x] 4.3 **Re-seed the sweep-ledger row** for the archived state
       (`--seed-ledger --moved-by '#<archive PR>'`), and check the
       carriage-ledger self-gate again: a block promoted byte-identically opens
       no row and retires any this packet held.
+      **DONE, AND THE ROW DID EXIST.**
+      `("adopt-entry-grain-dispositions-form", "document-lifecycle", "Prose
+      tagging marker hygiene")` in `_LEDGER_SUBJECTS`,
+      `tests/doc-health/test_modified_block_currency_self_gate.py`, opened
+      2026-09-17 by the ratifier's partition amendment (PR #1088) under the
+      condition *"Retires when the packet archives and its block is promoted"*
+      — the condition this box discharges. It is RETIRED in the archive commit
+      with a note in its place, and the gate's population narrative and
+      docstring re-measure rather than subtract: `len(_LEDGER_SUBJECTS)`
+      MEASURED at this head reads **TWELVE (13 literal entries, 12 unique — the
+      pre-existing `add-chain-attestation` duplicate collapsing as it always
+      has), down from THIRTEEN**. Measured over the archived
+      tree, `--family modified-block-currency` reports **12 `info`**,
+      none naming this packet and none unnamed. The sweep-ledger row is
+      re-seeded by `python3 scripts/validate-sequenced-after.py .
+      --seed-ledger --moved-by '#<this PR>'`, never by hand.
+      **THE ISSUE CLOSES BY THE LANE'S HAND, NOT BY A KEYWORD.** This pull
+      request's body carries `refs #1045` and NO closing keyword, so the merge
+      does not close it; the lane closes openxFactory #1045 itself immediately
+      after posting the ARCHIVED record there.

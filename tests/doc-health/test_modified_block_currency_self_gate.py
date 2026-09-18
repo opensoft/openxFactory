@@ -1157,8 +1157,29 @@ _LEDGER_SUBJECTS = {
     # INFO and it is the audit trail for the amendment. Retires when the packet
     # archives and its block is promoted onto
     # `openspec/specs/document-lifecycle/spec.md` (its `tasks.md` § 3).
-    ("adopt-entry-grain-dispositions-form", "document-lifecycle",
-     "Prose tagging marker hygiene"),
+    # RETIRED 2026-09-18: the ONE row `adopt-entry-grain-dispositions-form`
+    # opened on 2026-09-17 (the block immediately above, over
+    # document-lifecycle *Prose tagging marker hygiene*) retired ON ITS OWN
+    # STATED CONDITION — "Retires when the packet archives and its block is
+    # promoted onto `openspec/specs/document-lifecycle/spec.md` (its
+    # `tasks.md` § 3)". That packet ARCHIVED on Brett Heap's separate archive
+    # word (PR #<ARCHIVE_PR>, recorded on openxFactory issue #1045 comment
+    # 5717476696, verbatim "merge 1070 fix when green, then archive 1045"),
+    # held behind the merged-plus-green realization evidence its non-empty
+    # `code_surface:` requires — PR #1094 →
+    # `8f93cbc02597f149a9987ce8da5f1c227e66662d`, merged 2026-09-18T15:56:55Z
+    # with `main` green at that commit. Its `## MODIFIED` block was promoted
+    # BYTE-IDENTICAL into canon (45,963 bytes, sha256 `2099a22f69cb23b0…` on
+    # BOTH sides; canon --numstat +11 −2; the requirement's scenarios 24 → 25),
+    # which is exactly the condition the row's own comment named. What the
+    # promotion carried is the RATIFIER'S OWN partition amendment of the
+    # positive-resolution scenario's WHEN and its disjointness bullet (PR
+    # #1088 → `893abe97`, "Apply the partition") plus that packet's own new
+    # scenario *A pin record's optional dispositions member carries a malformed
+    # entry* — the two uncarried units this arm reported against the active
+    # block were that same amendment, and promotion is what discharges them.
+    # Re-measured over this tree: the family reports neither this subject nor
+    # any unnamed one.
 }
 
 _OWN_CHANGE = "add-modified-block-currency-check"
@@ -1972,6 +1993,22 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     chain above is the chronology, and a chronology assembled by merge from
     parallel branches states three different heads, not one.
 
+    TWELVE AT THIS HEAD, 2026-09-18 — RE-MEASURED, NOT SUBTRACTED.
+    `adopt-entry-grain-dispositions-form` (openxFactory #1045) ARCHIVED on
+    Brett Heap's separate archive word, held behind the merged-plus-green
+    realization evidence its non-empty `code_surface:` requires (PR #1094 →
+    `8f93cbc0`, merged 2026-09-18T15:56:55Z), and the one row its OWN
+    ratifier's partition amendment opened on 2026-09-17 retired with it, its
+    block promoted BYTE-IDENTICAL into canon (45,963 bytes, sha256
+    `2099a22f69cb23b0…` on both sides; canon --numstat +11 −2). That is a
+    DISCHARGE and not a departure: the two uncarried units this arm reported
+    against that block were the amendment itself, and the promotion is what
+    carries them. `len(_LEDGER_SUBJECTS)` MEASURED AT THIS HEAD reads
+    TWELVE — 13 literal entries, 12 unique, the same pre-existing
+    `add-chain-attestation` duplicate collapsing as it always has. The
+    paragraph above was measured on a tree that did not hold this retirement,
+    and stands as the reading of the head it names.
+
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
     which is the defect this family exists to catch. Asserted loosely in the one
@@ -2108,7 +2145,18 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
         "2026-09-17 amendment of that same WHEN bullet — 'Apply the "
         "narrowing', openxFactory #1047 comment 5714432684 — which moves no "
         "unit count, the clause being one physical line under either "
-        "wording)",
+        "wording; 13 ON 2026-09-18, when the two frozen-change closures "
+        "add-composed-view-authoring and add-doxchat-model-intake (PRs #1056 "
+        "and #1057) retired their rows by DEPARTURE rather than discharge, "
+        "the packets re-homed to opensoft/openDox and nothing applied to "
+        "canon; AND 12 THE SAME DAY, when adopt-entry-grain-dispositions-form "
+        "ITSELF ARCHIVED on Brett Heap's separate archive word 'merge 1070 "
+        "fix when green, then archive 1045' (openxFactory #1045 comment "
+        "5717476696), held behind merged-plus-green realization evidence its "
+        "non-empty code_surface requires (PR #1094 -> 8f93cbc0), and the one "
+        "row its own ratifier's partition amendment had opened over this VERY "
+        "requirement retired with it, its block promoted byte-identical into "
+        "canon)",
         f"{len(gone)} named subject(s) NO LONGER reported "
         f"{sorted(gone)}; {len(fresh)} unnamed subject(s) NEWLY reported "
         f"{sorted(fresh)}")
