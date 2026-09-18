@@ -144,6 +144,8 @@ import argparse
 import difflib
 import hashlib
 import json
+import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -197,8 +199,10 @@ REPOSITORY_NAME = "fixture-repo"
 
 #: How many lines of the unified diff a `equivalence-digests-differ` prints
 #: before it truncates. A refusal that is a wall of JSON is a refusal nobody
-#: reads; the JSON payload carries the whole of both sides for a caller that
-#: wants it.
+#: reads; `--json` then carries the WHOLE DIFF (and the digests and byte
+#: counts) for a caller that wants it — not the two snapshots themselves,
+#: which no caller has asked for and which would put two corpora in a refusal
+#: (Copilot, PR #1105).
 DIFF_LINE_CAP = 120
 
 REFUSAL_CODES: tuple[str, ...] = (
@@ -287,6 +291,60 @@ Path(out_path).write_bytes(snapshot.canonical_bytes(snap))
 '''
 
 
+#: Environment names that can silently re-point a `git` read at another
+#: object store, and the config channels that can do the same. Scrubbed for
+#: `carved_reach._sanitized_git_environment()`'s stated reason and with its
+#: vocabulary: a `<revision>:<path>` otherwise resolves through ambient
+#: `GIT_DIR` / alternate-object-directory / replace-ref configuration, and
+#: this runner's whole claim is that it read ONE named tree.
+_SCRUBBED_GIT_ENVIRONMENT = frozenset({
+    "GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_NAMESPACE", "GIT_CEILING_DIRECTORIES", "GIT_REPLACE_REF_BASE",
+    "GIT_CONFIG", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM",
+    "GIT_CONFIG_COUNT", "GIT_ATTR_NOSYSTEM", "GIT_NO_REPLACE_OBJECTS",
+})
+_INDEXED_GIT_CONFIG_ENVIRONMENT = re.compile(r"GIT_CONFIG_(KEY|VALUE)_\d+")
+
+#: The same 30 seconds `carved_reach._git_run` gives its own reads, for its
+#: reason: a partial clone or an unreachable promisor remote can make these
+#: HANG rather than fail, and a runner that never returns answers nothing.
+_GIT_TIMEOUT = 30
+
+
+def _git_environment() -> dict[str, str]:
+    environment = {
+        name: value for name, value in os.environ.items()
+        if name not in _SCRUBBED_GIT_ENVIRONMENT
+        and _INDEXED_GIT_CONFIG_ENVIRONMENT.fullmatch(name) is None}
+    environment["GIT_CONFIG_GLOBAL"] = os.devnull
+    environment["GIT_CONFIG_SYSTEM"] = os.devnull
+    environment["GIT_CONFIG_NOSYSTEM"] = "1"
+    environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    return environment
+
+
+def _git(repo: Path, *arguments: str, text: bool = True):
+    """The ONE scrubbed, replacement-free, bounded `git -C <repo> …` here.
+
+    `carved_reach._git_run`'s discipline, restated locally rather than
+    imported: that helper is private to the resolver and this file is a
+    command-line entry point, so borrowing it would couple an operator's
+    runner to another module's underscore. Returns `None` when git could not
+    be run at all or did not answer in time — never a partial answer wearing
+    a successful one's clothes (Copilot, PR #1105).
+    """
+    try:
+        return subprocess.run(
+            ["git", "--no-replace-objects", "-C", str(repo), *arguments],
+            capture_output=True, text=text, check=False,
+            timeout=_GIT_TIMEOUT, env=_git_environment())
+    except subprocess.TimeoutExpired:
+        return None
+    except OSError:  # pragma: no cover - no git on PATH: the caller's
+        return None            # problem, and it fails everywhere else too
+
+
 def pre_ref_commit(pre_ref: str, repo: Path) -> str:
     """The commit `--pre-ref` names, or the refusal that names the fetch.
 
@@ -295,11 +353,12 @@ def pre_ref_commit(pre_ref: str, repo: Path) -> str:
     They have different remedies and only one of them is an operator error
     about the run rather than about the tree.
     """
-    done = subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", "--verify", "--quiet",
-         f"{pre_ref}^{{commit}}"],
-        capture_output=True, text=True, check=False)
-    if done.returncode != 0 or not done.stdout.strip():
+    # `--end-of-options` BEFORE the revision, so a `--pre-ref` that begins
+    # with a dash is read as a REVISION and not as a git option (Copilot,
+    # PR #1105). It is command-line input, and the boundary belongs here.
+    done = _git(repo, "rev-parse", "--verify", "--quiet", "--end-of-options",
+                f"{pre_ref}^{{commit}}")
+    if done is None or done.returncode != 0 or not done.stdout.strip():
         raise EquivalenceRefusal(
             "equivalence-pre-ref-unreachable",
             f"{pre_ref!r} resolves to no commit in {repo}. The default is the "
@@ -313,8 +372,17 @@ def pre_ref_commit(pre_ref: str, repo: Path) -> str:
     return done.stdout.strip()
 
 
-def extract_pre_tree(pre_ref: str, repo: Path, into: Path) -> Path:
+def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
+                     pre_ref: str) -> Path:
     """`git archive` the pre-split renderer into a scratch tree.
+
+    THE RESOLVED COMMIT IS WHAT IS ARCHIVED, never the raw `--pre-ref` a
+    second time. `main()` resolves the ref once and the evidence line quotes
+    THAT commit; re-resolving a mutable name here would let a branch or a
+    force-updated tag move between the two reads and leave the runner
+    recording commit A while rendering commit B (Copilot, PR #1105). The ref
+    is still carried, for the messages — a refusal that named a sha and not
+    the name the operator typed would be a worse refusal.
 
     A `git worktree` would also work and is deliberately not used: it mutates
     the repository's administrative state, and openxFactory's own doc-health
@@ -322,14 +390,24 @@ def extract_pre_tree(pre_ref: str, repo: Path, into: Path) -> Path:
     errors in a worktree regardless of commit). An archive touches nothing.
     """
     into.mkdir(parents=True, exist_ok=True)
-    archive = subprocess.run(
-        ["git", "-C", str(repo), "archive", "--format=tar", pre_ref, "--",
-         *ARCHIVE_PATHS],
-        capture_output=True, check=False)
+    # NO `--end-of-options` HERE, and `git archive` is why: it would make the
+    # `--` separator itself a pathspec (measured: `fatal: pathspec '--' did
+    # not match any files`). The guarantee the marker gives `rev-parse` is
+    # already held a better way — what arrives here is a RESOLVED 40-hex
+    # commit, which cannot be read as an option at all.
+    archive = _git(repo, "archive", "--format=tar", pre_commit, "--",
+                   *ARCHIVE_PATHS, text=False)
+    if archive is None:
+        raise EquivalenceRefusal(
+            "equivalence-pre-tree-unrenderable",
+            f"`git archive {pre_commit}` did not answer within "
+            f"{_GIT_TIMEOUT}s. A partial clone whose promisor remote is "
+            "unreachable hangs here rather than failing, and a query that "
+            "went unanswered is not a tree that carries nothing")
     if archive.returncode != 0:
         raise EquivalenceRefusal(
             "equivalence-pre-tree-unrenderable",
-            f"`git archive {pre_ref}` carries none of "
+            f"`git archive {pre_commit}` ({pre_ref}) carries none of "
             f"{', '.join(ARCHIVE_PATHS)}"
             f": {archive.stderr.decode('utf-8', 'replace').strip()}. That ref "
             "is POST-SHED — the § 5.2 shed removed the renderer from this "
@@ -337,11 +415,12 @@ def extract_pre_tree(pre_ref: str, repo: Path, into: Path) -> Path:
             "as one")
     extract = subprocess.run(["tar", "-x", "-C", str(into)],
                              input=archive.stdout, capture_output=True,
-                             check=False)
+                             check=False, timeout=_GIT_TIMEOUT)
     if extract.returncode != 0:
         raise EquivalenceRefusal(
             "equivalence-pre-tree-unrenderable",
-            f"extracting the {pre_ref} archive into {into} failed: "
+            f"extracting the {pre_ref} ({pre_commit[:12]}) archive into "
+            f"{into} failed: "
             f"{extract.stderr.decode('utf-8', 'replace').strip()}")
     for row in (GENERATOR_ROW, SNAPSHOT_ROW):
         if not (into / row).is_file():
@@ -421,14 +500,18 @@ def post_stack(register_profile: bool = True):
             "equivalence-reach-unavailable", str(exc)) from exc
     carved_reach.install()
     if register_profile:
+        # NOT WRAPPED, AND THAT IS THE POINT (Copilot, PR #1105).
+        # `register_openxfactory()` raises `AlreadyRegistered` when some other
+        # profile already holds the process, and the composite can refuse a
+        # malformed declaration; neither is "no profile is registered", and a
+        # refusal that called them that would send an operator to run the
+        # registration that is already the problem. They reach the blanket
+        # instead and arrive as `equivalence-unreadable` NAMING the exception,
+        # which is what `equivalence-unreadable` is for.
+        # `equivalence-profile-unregistered` is reserved for the one failure
+        # it describes: the engine asked for a profile and found none.
         import opendox_host
-        try:
-            opendox_host.register_openxfactory()
-        except Exception as exc:  # noqa: BLE001 - re-raised as a named refusal
-            raise EquivalenceRefusal(
-                "equivalence-profile-unregistered",
-                f"registering {opendox_host.PROFILE_PATH.name} raised "
-                f"{type(exc).__name__}: {exc}") from exc
+        opendox_host.register_openxfactory()
     return (carved_reach.module(GENERATOR_ROW),
             carved_reach.module(SNAPSHOT_ROW))
 
@@ -453,8 +536,7 @@ def render_post(stack, corpus: Path, source_revision: str) -> bytes:
             corpus, REPOSITORY_NAME, source_revision=source_revision,
             git=FakeGit(head=source_revision))
     except Exception as exc:  # noqa: BLE001 - narrowed by name below
-        if type(exc).__name__ in ("DomainProfileNotRegistered",
-                                  "AlreadyRegistered"):
+        if type(exc).__name__ == "DomainProfileNotRegistered":
             raise EquivalenceRefusal(
                 "equivalence-profile-unregistered",
                 f"{type(exc).__name__}: {exc}") from exc
@@ -502,7 +584,7 @@ def compare(pre: bytes, post: bytes, corpus: Path,
     shown = diff[:DIFF_LINE_CAP]
     if len(diff) > DIFF_LINE_CAP:
         shown.append(f"  … {len(diff) - DIFF_LINE_CAP} more diff line(s); "
-                     "re-run with --json for both snapshots in full")
+                     "re-run with --json for the whole diff")
     state["diff"] = diff
     raise EquivalenceRefusal(
         "equivalence-digests-differ",
@@ -513,18 +595,102 @@ def compare(pre: bytes, post: bytes, corpus: Path,
         payload=state)
 
 
-def leg_commit(leg: str) -> str | None:
-    """The sha of a materialized leg, for the record the verdict leaves.
+#: The remedy the reach refusals name, kept in one place so the two that quote
+#: it cannot drift apart.
+INIT_COMMAND_HINT = ("git submodule update --init --recursive "
+                     "openDox openXdox")
 
-    The CHECKED-OUT commit and not the gitlink the superproject records: it is
-    the one that actually rendered, and the two differ exactly when somebody
-    has moved a leg under the run — which is a thing the evidence line should
-    show rather than hide.
+#: The two nested legs, as (parent repository, gitlink path) pairs read in
+#: order: openxFactory records `openDox`, `openDox` records `code`. Both
+#: levels are checked, because a run reads modules out of the INNER one and
+#: only the outer pin is what an openxFactory commit declares.
+LEG_GITLINKS: tuple[tuple[str, str], ...] = (
+    (".", "openDox"), ("openDox", "code"),
+    (".", "openXdox"), ("openXdox", "code"),
+)
+
+
+def recorded_gitlink(parent: Path, path: str) -> tuple[str | None, str]:
+    """(oid, source) for the gitlink `parent` RECORDS for `path`.
+
+    THE INDEX WINS WHEN IT DISAGREES WITH HEAD, which is
+    `scripts/verify-openxdox-pin.py::_recorded_gitlink`'s own ruling and is
+    taken here for its reason: a one-commit re-pin must be checkable BEFORE it
+    is committed, and a HEAD-first read answers for the commit being replaced.
+    Only a FAILED index read — an environment problem, not a staged one —
+    falls back to HEAD without comparing.
     """
-    done = subprocess.run(
-        ["git", "-C", str(ROOT / leg), "rev-parse", "HEAD"],
-        capture_output=True, text=True, check=False)
-    return done.stdout.strip() or None
+    head = _git(parent, "rev-parse", "--verify", "--quiet",
+                "--end-of-options", f"HEAD:{path}")
+    head_oid = (head.stdout.strip()
+                if head is not None and head.returncode == 0 else None)
+    listed = _git(parent, "ls-files", "-s", "--", path)
+    if listed is None or listed.returncode != 0:
+        return head_oid, "HEAD"
+    index_oid = None
+    for line in listed.stdout.splitlines():
+        fields = line.split(None, 3)
+        if len(fields) >= 3 and fields[0] == "160000":
+            index_oid = fields[1]
+            break
+    if index_oid != head_oid:
+        return index_oid, "the index"
+    return head_oid, "HEAD"
+
+
+def verify_pins() -> dict[str, str]:
+    """Every nested leg is CHECKED OUT AT THE COMMIT ITS PARENT RECORDS.
+
+    WITHOUT THIS THE EVIDENCE LINE IS NOT TRUE BY CONSTRUCTION, and that is
+    the whole reason it exists (Copilot, PR #1105). § 8.2's line says the post
+    side rendered "at the pinned openXdox-code <sha>"; `carved_reach` imports
+    out of the nested WORKTREE, so a leg left detached at some other commit —
+    by a bisect, a half-finished bump, a copied tree — renders perfectly well
+    and the line then names a pin that did not render. Reporting the
+    checked-out sha instead of refusing was this file's first answer and it is
+    the wrong one: it makes a true statement about a run nobody asked for.
+
+    Two levels per leg, as `verify-openxdox-pin.py` checks them: the recorded
+    gitlink and the checked-out revision are separate required comparisons,
+    because only one of them catches each case.
+
+    A gitlink that cannot be READ refuses too. `carved_reach`'s own rule — a
+    query that went unanswered is not an answer — applies exactly: nothing was
+    learned about the pin, so nothing may be claimed for it.
+    """
+    heads: dict[str, str] = {}
+    for parent_rel, path in LEG_GITLINKS:
+        parent = (ROOT / parent_rel).resolve()
+        leg = (parent / path).resolve()
+        recorded, source = recorded_gitlink(parent, path)
+        if recorded is None:
+            raise EquivalenceRefusal(
+                "equivalence-reach-unavailable",
+                f"{parent} records no gitlink for {path} in HEAD or in the "
+                "index, so there is nothing to compare the checkout against. "
+                "This runner reports which pinned commit rendered; a pin it "
+                "cannot read is a claim it cannot make")
+        head = _git(leg, "rev-parse", "--verify", "--quiet",
+                    "--end-of-options", "HEAD")
+        checked_out = (head.stdout.strip()
+                       if head is not None and head.returncode == 0 else None)
+        if checked_out is None:
+            raise EquivalenceRefusal(
+                "equivalence-reach-unavailable",
+                f"`git -C {leg} rev-parse HEAD` did not answer, so the "
+                f"revision {path} is checked out at cannot be compared with "
+                f"the {recorded[:12]} its parent records (read from {source})")
+        if checked_out != recorded:
+            raise EquivalenceRefusal(
+                "equivalence-reach-unavailable",
+                f"{leg} is checked out at {checked_out}, but {parent} records "
+                f"{recorded} for {path} (read from {source}). The post side "
+                "is reached through the PINS, and a leg moved out from under "
+                "them renders something this run has no name for — run "
+                f"`{INIT_COMMAND_HINT}` to put the checkout back on its pin")
+        heads[f"{parent_rel}/{path}".lstrip("./")] = checked_out
+    return heads
+
 
 
 def _refused(exc: EquivalenceRefusal, args: argparse.Namespace,
@@ -549,7 +715,7 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
           f"({summary['pre_commit'][:12]}) "
           f"and the post-split stack (openxdox.generator + openxdox.snapshot "
           f"at the pinned openXdox-code "
-          f"{(summary['openxdox_code'] or 'uninitialized')[:12]}, through "
+          f"{summary['openxdox_code'][:12]}, through "
           f"scripts/carved_reach.py) render byte-identical snapshots at the "
           f"pinned source_revision {summary['source_revision'][:8]}…")
     for state in summary["states"]:
@@ -609,15 +775,23 @@ def main(argv: list[str] | None = None) -> int:
         # § 4.4 profile, should be told THAT rather than told about a tag, and
         # extracting a 5.7 MB archive before discovering that the stack cannot
         # be composed at all is work done to reach a worse message.
+        # `post_stack()` first, so `carved_reach.require()`'s own refusal —
+        # the one that names `git submodule update` — wins over the pin
+        # comparison for a checkout with no legs at all. NOTHING IS CLAIMED
+        # BETWEEN THE TWO: the modules are imported here and not rendered
+        # until after the pins are verified, so a leg off its pin refuses
+        # before any digest exists to report.
         stack = post_stack(register_profile=not args.no_register_profile)
+        pins = verify_pins()
         pre_commit = pre_ref_commit(args.pre_ref, ROOT)
         where = f"{args.pre_ref} ({pre_commit[:12]})"
         summary: dict[str, Any] = {
             "result": "ok",
             "pre_ref": args.pre_ref,
             "pre_commit": pre_commit,
-            "openxdox_code": leg_commit("openXdox/code"),
-            "opendox_code": leg_commit("openDox/code"),
+            "openxdox_code": pins["openXdox/code"],
+            "opendox_code": pins["openDox/code"],
+            "pins": pins,
             "source_revision": args.source_revision,
             "repository": REPOSITORY_NAME,
             "states": [],
@@ -625,7 +799,8 @@ def main(argv: list[str] | None = None) -> int:
         with tempfile.TemporaryDirectory(
                 prefix="snapshot-equivalence-") as tmp:
             scratch = Path(tmp)
-            tree = extract_pre_tree(args.pre_ref, ROOT, scratch / "pre")
+            tree = extract_pre_tree(pre_commit, ROOT, scratch / "pre",
+                                    args.pre_ref)
             for corpus in corpora:
                 pre = render_pre(tree, corpus, scratch, args.pre_ref,
                                  args.source_revision)

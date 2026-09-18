@@ -421,6 +421,117 @@ def test_a_corpus_that_is_not_there_refuses_rather_than_comparing_nothing(
 # ==========================================================================
 
 
+def test_a_leg_off_its_pin_refuses_rather_than_rendering(monkeypatch):
+    """The evidence line says the post side rendered AT THE PINNED
+    openXdox-code, and this is what makes that true by construction.
+
+    `carved_reach` imports out of the nested WORKTREE, so a leg left detached
+    at some other commit — a bisect, a half-finished bump, a copied tree —
+    renders perfectly well, and a runner that merely REPORTED the checked-out
+    sha would make a true statement about a run nobody asked for. Driven by
+    moving the RECORDED gitlink rather than the checkout, because the two
+    comparisons are symmetric and only one of them can be staged in a test
+    without touching a submodule.
+    """
+    real = MODULE.recorded_gitlink
+
+    def moved(parent, path):
+        oid, source = real(parent, path)
+        if path == "code" and parent.name == "openXdox":
+            return "0" * 40, source
+        return oid, source
+
+    monkeypatch.setattr(MODULE, "recorded_gitlink", moved)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.verify_pins()
+    assert caught.value.code == "equivalence-reach-unavailable"
+    assert "0" * 40 in caught.value.detail
+    assert "checked out at" in caught.value.detail
+
+
+def test_the_pins_this_run_reports_are_the_ones_it_verified(shipped):
+    """Both levels of both legs, and the reported pair is a subset of them."""
+    pins = shipped["pins"]
+    assert set(pins) == {"openDox", "openDox/code", "openXdox",
+                         "openXdox/code"}
+    assert pins["openXdox/code"] == shipped["openxdox_code"]
+    assert pins["openDox/code"] == shipped["opendox_code"]
+    assert all(len(v) == 40 for v in pins.values()), pins
+
+
+def test_a_pre_ref_that_begins_with_a_dash_is_a_revision_not_an_option():
+    """`--pre-ref` is command-line input and reaches `git rev-parse`; without
+    `--end-of-options` a leading-dash value is parsed as a git OPTION, and the
+    runner's ref boundary is then whatever git makes of it (Copilot, PR
+    #1105). It must refuse as an unreachable REF."""
+    done = _run("--pre-ref=--not-a-ref")
+    assert done.returncode == 2
+    assert "equivalence-pre-ref-unreachable" in done.stderr
+    assert "--not-a-ref" in done.stderr
+    assert "unknown option" not in done.stderr.lower()
+
+
+def test_the_archive_reads_the_resolved_commit_and_not_the_mutable_ref(
+        monkeypatch):
+    """One ref, resolved ONCE. A branch or a force-updated tag that moved
+    between the resolution and the archive would leave the runner recording
+    commit A while rendering commit B, and the evidence line would name a tree
+    that never rendered (Copilot, PR #1105)."""
+    seen: list[str] = []
+    real = MODULE.extract_pre_tree
+
+    def recording(pre_commit, repo, into, pre_ref):
+        seen.append(pre_commit)
+        return real(pre_commit, repo, into, pre_ref)
+
+    monkeypatch.setattr(MODULE, "extract_pre_tree", recording)
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        assert MODULE.main(["--json"]) == 0
+    payload = json.loads(buffer.getvalue())
+    assert seen == [payload["pre_commit"]]
+    assert len(seen[0]) == 40 and seen[0] != MODULE.DEFAULT_PRE_REF
+
+
+def test_a_registration_failure_is_not_relabelled_as_no_profile(monkeypatch,
+                                                                capsys):
+    """`register_openxfactory()` raises `AlreadyRegistered` when some OTHER
+    profile already holds the process, and the composite can refuse a
+    malformed declaration. Neither is "no profile is registered", and a
+    refusal that called them that would send an operator to run the
+    registration that is already the problem (Copilot, PR #1105). They arrive
+    as `equivalence-unreadable` NAMING the exception, which is what that code
+    is for."""
+    import opendox_host
+
+    def already(*args, **kwargs):
+        raise RuntimeError("AlreadyRegistered: another profile holds this "
+                           "process")
+
+    monkeypatch.setattr(opendox_host, "register_openxfactory", already)
+    assert MODULE.main([]) == 2
+    rendered = capsys.readouterr().err
+    assert "equivalence-unreadable" in rendered
+    assert "AlreadyRegistered" in rendered
+    assert "equivalence-profile-unregistered" not in rendered
+
+
+def test_every_git_read_is_scrubbed_bounded_and_replacement_free():
+    """`GIT_DIR`, an alternate object directory or a replace ref can make a
+    `<revision>:<path>` read answer out of another object store, and a partial
+    clone whose promisor remote is unreachable can make it HANG — and this
+    runner's whole claim is that it read ONE named tree, offline, in about a
+    second (Copilot, PR #1105). Asserted over the SOURCE because the
+    alternative proof needs a poisoned environment and a hung remote, and
+    because what is being held is that NO read escapes the wrapper."""
+    source = SCRIPT.read_text(encoding="utf-8")
+    assert source.count('subprocess.run(\n            ["git",') == 1, (
+        "a `git` subprocess is being run outside `_git()`")
+    assert '"--no-replace-objects"' in source
+    assert "GIT_CONFIG_NOSYSTEM" in source
+    assert "timeout=_GIT_TIMEOUT" in source
+
+
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
     assert MODULE.REFUSAL_CODES == RATIFIED_CODES
 
@@ -532,7 +643,16 @@ def test_this_suite_never_skips():
     them does not put them in the file being scanned.
     """
     forbidden = ("pytest" + ".skip", "pytest" + ".xfail", "skip" + "if",
-                 "importor" + "skip")
+                 "importor" + "skip",
+                 # THE MARKER FORMS, AND THEY ARE A DIFFERENT SPELLING: a
+                 # decorator written as the marker attribute contains none of
+                 # the four bare forms above as a substring, so a set without
+                 # these two would stay green while the workflow's exact skip
+                 # count moved (Copilot, PR #1105). Every entry is BUILT for
+                 # the reason the docstring gives, and no comment here may
+                 # write one out either — this test scans its own file, and a
+                 # comment quoting a forbidden spelling fails it (measured).
+                 "mark" + ".skip", "mark" + ".xfail")
     source = Path(__file__).read_text(encoding="utf-8")
     for spelling in forbidden:
         assert spelling not in source, (
