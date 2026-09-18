@@ -150,10 +150,13 @@ import json
 import os
 import re
 import io
+import signal
 import subprocess
 import sys
 import tarfile
+import threading
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -223,6 +226,11 @@ REFUSAL_CODES: tuple[str, ...] = (
     "equivalence-reach-unavailable",
     "equivalence-profile-unregistered",
     "equivalence-digests-differ",
+    #: The POST side's counterpart to `-pre-tree-unrenderable`, added with
+    #: `render_post()`'s watchdog (Copilot on #1105 @9ed3def3, suppressed).
+    #: The two sides now fail symmetrically: a side that does not finish
+    #: rendering is a side that did not render.
+    "equivalence-post-stack-unrenderable",
     "equivalence-unreadable",
 )
 
@@ -340,6 +348,16 @@ _GIT_TIMEOUT = 30
 #: non-terminating renderer hanging a required gate, not to police speed.
 _CHILD_TIMEOUT = 300
 
+#: Restoring a caller's timer with a delay of exactly `0` would CANCEL it
+#: rather than restore it, so an inherited deadline that passed while the
+#: post render held the timer comes back at a millisecond — small enough to
+#: be immediate, large enough to be non-zero on any platform's timer
+#: granularity. That deadline arrives LATE, which is true, rather than never,
+#: which is not. It is reachable because OUR alarm can be DEFERRED: CPython
+#: runs a signal handler only between bytecodes, so a pinned leg inside a C
+#: extension that holds the GIL delays ours past its own bound.
+_TIMER_FLOOR = 1e-3
+
 
 def _git_environment() -> dict[str, str]:
     environment = {
@@ -350,6 +368,14 @@ def _git_environment() -> dict[str, str]:
     environment["GIT_CONFIG_SYSTEM"] = os.devnull
     environment["GIT_CONFIG_NOSYSTEM"] = "1"
     environment["GIT_NO_REPLACE_OBJECTS"] = "1"
+    # SCRUBBED AND THEN NEVER SET WAS HALF A GUARD (Copilot on #1105
+    # @9ed3def3, suppressed). Dropping an inherited `GIT_ATTR_NOSYSTEM` only
+    # stops a caller DISABLING the system attributes file; `git archive` then
+    # still consults `/etc/gitattributes`, where an `export-ignore` silently
+    # changes WHICH FILES the pre-split tree carries. This runner's whole
+    # claim is that it read one named tree, so the tree it reads must not vary
+    # with the host it is read on.
+    environment["GIT_ATTR_NOSYSTEM"] = "1"
     return environment
 
 
@@ -720,6 +746,83 @@ def post_side_identity(stack, pins: dict[str, str]) -> dict[str, Any]:
             "post_label": label}
 
 
+class _RenderTimeout(BaseException):
+    """The watchdog fired. Never leaves `render_post()` — it is re-raised
+    there as a named refusal.
+
+    It derives from `BaseException` and not from `Exception` for the reason
+    `KeyboardInterrupt` and `asyncio.CancelledError` do. It is not a failure
+    OF the renderer that the renderer might reasonably handle; it is this
+    file taking control BACK from it. And the renderer is PINNED THIRD-PARTY
+    CODE: an ordinary `except Exception:` anywhere inside it — a retry, a
+    cleanup, a "log and carry on" — would consume the alarm and return as
+    though the render had finished, turning the refusal this file promises
+    into a silent verdict computed from whatever was half-built when the
+    alarm landed (Copilot on #1110, thread r4047-`_RenderTimeout`).
+    """
+
+
+def arm_render_watchdog(seconds: float):
+    """Bound the IN-PROCESS post render, or answer `None` where it cannot be.
+
+    THE POST SIDE STAYS IN THIS PROCESS, so the PRE child's `timeout=` is not
+    available to it — and that placement is deliberate rather than incidental:
+    it is the only stack this process has imported, and the PRE side, the one
+    that would collide with it, is already in a child of its own. Moving it
+    out to gain a timeout would undo the thing the timeout is protecting.
+
+    So the bound is a `SIGALRM` watchdog instead. Without one, a
+    non-terminating regression in a FUTURE pinned leg — the post side is a pin
+    that MOVES, which is this runner's whole reason to exist — hangs the
+    required `pytest-suite` job until its own 35-minute limit rather than
+    returning the refusal this file promises for every other failure.
+
+    Answers `None`, and the render then runs unbounded, where a watchdog is
+    not available: a platform with no `SIGALRM`, or a caller on a thread that
+    is not the main one, where `signal.signal` raises. Degrading there is
+    right — the alternative is refusing a run for the interpreter's shape
+    rather than for anything about the projection — and it is the ONLY place
+    in this file that degrades rather than refusing, which is why it says so.
+
+    A CALLER'S OWN DEADLINE IS NOT OURS TO CANCEL. A process gets ONE
+    `ITIMER_REAL`, so arming ours destroys whatever an embedding harness set
+    — `pytest-timeout` in its `signal` method, a supervising runner, a caller
+    that bounded this whole verification. Where the inherited deadline is
+    EARLIER than the bound asked for here, arming would LOOSEN it, so we
+    leave it alone and answer `None`: the render runs under the caller's
+    tighter bound, which is what that bound was set for. Where it is later,
+    we arm, and `disarm()` puts back what is LEFT of it — floored just above
+    zero, so a deadline that expired while we rendered fires the moment
+    control returns rather than never — with its interval and its handler
+    (Copilot on #1110, suppressed).
+    """
+    if not (hasattr(signal, "SIGALRM") and hasattr(signal, "setitimer")
+            and hasattr(signal, "getitimer")):
+        return None
+    if threading.current_thread() is not threading.main_thread():
+        return None
+    inherited, interval = signal.getitimer(signal.ITIMER_REAL)
+    if inherited and inherited <= seconds:
+        return None
+    armed_at = time.monotonic()
+
+    def _fire(signum, frame):  # noqa: ARG001 - the handler signature
+        raise _RenderTimeout(seconds)
+
+    previous = signal.signal(signal.SIGALRM, _fire)
+    signal.setitimer(signal.ITIMER_REAL, seconds)
+
+    def disarm() -> None:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+        if inherited:
+            left = inherited - (time.monotonic() - armed_at)
+            signal.setitimer(signal.ITIMER_REAL,
+                             max(left, _TIMER_FLOOR), interval)
+
+    return disarm
+
+
 def render_post(stack, corpus: Path, source_revision: str) -> bytes:
     """The pinned stack's canonical snapshot bytes, in THIS interpreter.
 
@@ -735,17 +838,36 @@ def render_post(stack, corpus: Path, source_revision: str) -> bytes:
     registered it refuses instead of rendering openXdox's own words.
     """
     generator, snapshot = stack
+    disarm = arm_render_watchdog(_CHILD_TIMEOUT)
     try:
         snap = generator.generate_snapshot(
             corpus, REPOSITORY_NAME, source_revision=source_revision,
             git=FakeGit(head=source_revision))
+        # CANONICALIZATION IS INSIDE THE BOUND. It is the snapshot leg's own
+        # code, this function promises canonical BYTES rather than an object,
+        # and a pinned leg that does not terminate while SERIALIZING hangs
+        # the gate exactly as one that does not terminate while generating
+        # does (Copilot on #1110, thread r4047-canonicalization).
+        rendered = snapshot.canonical_bytes(snap)
+    except _RenderTimeout as exc:
+        raise EquivalenceRefusal(
+            "equivalence-post-stack-unrenderable",
+            f"the pinned post-split stack did not finish rendering {corpus} "
+            f"within {_CHILD_TIMEOUT}s. A render of the shipped corpus takes "
+            "under a second, so a run that reaches this limit has met a "
+            "pinned leg that does not terminate — which is exactly what a "
+            "gate over a MOVING pin exists to catch, and it must arrive as a "
+            "refusal rather than as a job that ran out of time") from exc
     except Exception as exc:  # noqa: BLE001 - narrowed by name below
         if type(exc).__name__ == "DomainProfileNotRegistered":
             raise EquivalenceRefusal(
                 "equivalence-profile-unregistered",
                 f"{type(exc).__name__}: {exc}") from exc
         raise
-    return snapshot.canonical_bytes(snap)
+    finally:
+        if disarm is not None:
+            disarm()
+    return rendered
 
 
 # --------------------------------------------------------------------------
@@ -930,6 +1052,30 @@ def worktree_dirt(leg: Path) -> list[str] | None:
     return [line for line in done.stdout.splitlines() if line.strip()]
 
 
+def _clean_advice(dirt: list[str], leg: Path) -> str:
+    """The remediation that actually restores THIS tree.
+
+    `git checkout -- .` restores TRACKED paths only, and a plain `git stash`
+    leaves untracked files behind — so for a `??` entry the first spelling of
+    this message sent an operator to a command that could not make the next
+    run clean (Copilot on #1105 @9ed3def3, suppressed). `worktree_dirt()`
+    reports both kinds, so the advice branches on what is actually there.
+    """
+    untracked = any(row.startswith("??") for row in dirt)
+    tracked = any(not row.startswith("??") for row in dirt)
+    if untracked and tracked:
+        return (f"Commit the edits, or `git -C {leg} stash -u` (the `-u` is "
+                "required: untracked files are among them and a plain stash "
+                "would leave them), and re-run")
+    if untracked:
+        return (f"Those entries are UNTRACKED, so "
+                f"`git -C {leg} checkout -- .` will not remove them: "
+                f"`git -C {leg} stash -u` or `git -C {leg} clean -fd` them, "
+                "and re-run")
+    return (f"Commit the edit, stash it, or `git -C {leg} checkout -- .` and "
+            "re-run")
+
+
 def verify_pins() -> dict[str, str]:
     """Every nested leg is CHECKED OUT AT THE COMMIT ITS PARENT RECORDS.
 
@@ -1015,9 +1161,9 @@ def verify_pins() -> dict[str, str]:
                 f"{leg} is checked out at {heads[leg_path]} but its working "
                 f"tree is DIRTY, and this runner imports from the tree:\n"
                 f"{listed}{more}\n"
-                "Rendering it would produce bytes that are not that commit's "
-                "while the verdict named that commit. Commit the edit, stash "
-                f"it, or `git -C {leg} checkout -- .` and re-run")
+                "Rendering it would produce bytes that are not that "
+                "commit's while the verdict named that commit. "
+                + _clean_advice(dirt, leg))
     return heads
 
 
@@ -1148,6 +1294,19 @@ def main(argv: list[str] | None = None) -> int:
                             summary["post_label"]))
     except EquivalenceRefusal as exc:
         return _refused(exc, args, where)
+    # A `_RenderTimeout` can still land in the sliver between the guarded
+    # render and `disarm()`, where `render_post()` no longer maps it — and it
+    # is a `BaseException`, so the guard below, which is `Exception` ON
+    # PURPOSE, would not hold the exit contract for it. It is this file's own
+    # control-flow signal and not the operator's, so it refuses in this
+    # file's vocabulary rather than leaving a traceback and EXIT 1.
+    except _RenderTimeout:
+        return _refused(
+            EquivalenceRefusal(
+                "equivalence-post-stack-unrenderable",
+                "the pinned post-split stack did not finish rendering "
+                f"within {_CHILD_TIMEOUT}s"),
+            args, where)
     # THE EXIT CONTRACT, HELD BY CODE AND NOT BY INSPECTION. Everything above
     # refuses in this file's own vocabulary; anything that does not — a leg
     # whose module raises on import, an OSError the checks did not name, a bug
