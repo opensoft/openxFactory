@@ -258,10 +258,39 @@ kind: pinned_contract_manifest
 #     with an undispositioned finding (exit 1) is deliberate and is argued in
 #     scripts/validate-openspec-cli-pin.py: an unmatched FINDING is a statement
 #     about the deltas, an unmatched DISPOSITION is a statement about this file.
-#     `add-composed-view-authoring` has ONE open task left and archives the
-#     moment a human takes it; on that day its finding vanishes from every run
-#     and this pin must fail until its entry is deleted, so that the archive
-#     itself is the event that forces the re-reading. ONLY A WHOLE-CORPUS
+#     `add-composed-view-authoring` was the worked example here, written while
+#     it had ONE open task left. The module's PRE-CLOSURE words were that the
+#     change "archives the moment a human takes it, at which point its finding
+#     disappears from every run and its disposition would sit here forever,
+#     suppressing a class of finding nobody re-examined", and that "Refusing
+#     makes the archive itself the event that forces the re-examination."
+#     THOSE SENTENCES ARE NOT IN THE MODULE BESIDE THIS FILE, AND A GREP FOR
+#     THEM AT THIS HEAD FINDS NOTHING: this same change rewrote that paragraph
+#     into the past tense, as the sentence "THE MODULE'S PARAGRAPH IS NOW IN THE
+#     PAST TENSE TOO" further down this same note records. The pointer is to that
+#     SENTENCE and not to an entry, because this change DELETES the one entry the
+#     doctrine was written around and leaves none below that could say it.
+#     They are reproducible
+#     verbatim and whole in blob `7eea1bb9455dd77fd3e6bfea14e0653547e6c523` —
+#     `scripts/validate-openspec-cli-pin.py` as this change found it — so the
+#     citation names the OBJECT it reproduces from rather than a path whose
+#     contents this very change moves out from under it.
+#     (An earlier draft of this paragraph rendered the passage as a quotation it
+#     was not; that correction stands and is kept here rather than made
+#     silently, and this one is added beside it for the same reason.)
+#     THE DAY CAME ON
+#     2026-09-16 AND THE MECHANISM FIRED, THOUGH NOT BY THE ROUTE THE SENTENCE
+#     NAMED. The change did not archive on its open task being taken — it was
+#     CLOSED AS RE-HOMED to `opensoft/openDox`
+#     under RULING Q6 (`split-opendox-two-layer-product` `tasks.md` § 6.4), which
+#     freezes it where it stands and carries task 3.2 open to the receiving
+#     repository; the corpus effect is the same one this paragraph predicted, and
+#     `--all` refused `pin-disposition-stale` naming this entry before it was
+#     deleted. The entry is gone; the doctrine it illustrated is not, and the
+#     illustration is kept in the past tense rather than replaced with a live
+#     change nobody has agreed to make an example of. THE MODULE'S PARAGRAPH IS
+#     NOW IN THE PAST TENSE TOO, so the pin and its validator report one
+#     lifecycle state for this change rather than two. ONLY A WHOLE-CORPUS
 #     (`--all`) RUN DECIDES THIS: a `--change <id>` run legitimately never
 #     opens the items it was not asked about, so it applies its dispositions,
 #     decides no staleness, and says in its output that it checked none.
@@ -337,7 +366,7 @@ lockfile_packages: "80"
 # THE MECHANISM SURVIVES THE ROLLBACK: `1.2.0` and `1.12.0` emit the SAME
 # machine-readable report shape (verified by running both), so a pin returned to
 # `1.2.0` still parses. Its `dispositions:` list, however, does NOT survive: the
-# six entries below exist only because 1.12.0 raises those findings and 1.2.0
+# five entries below exist only because 1.12.0 raises those findings and 1.2.0
 # does not, so a rollback that kept them would refuse `pin-disposition-stale` on
 # its first run — on EVERY tree, since a rollback un-raises the findings in both
 # repositories at once. A rollback deletes the dispositions with the version.
@@ -416,15 +445,18 @@ resync_runbook: docs/contract-versioning-policy.md
 # cover the same finding; and it refuses `pin-disposition-stale` when a declared
 # finding no longer occurs, so an exception cannot outlive its condition.
 #
-# THE SIX ENTRIES BELOW ARE NOT ONE DISAGREEMENT REPEATED. They are TWO CLASSES,
+# THE FIVE ENTRIES BELOW ARE NOT ONE DISAGREEMENT REPEATED. They are TWO CLASSES,
 # told apart by CAUSE and not by repository, and a reader who reads them as one
-# list will mis-read four of them. UNTIL 2026-09-11 THERE WAS ONLY THE FIRST
+# list will mis-read one class or the other — three entries or two, depending
+# which cause is assumed. UNTIL 2026-09-11 THERE WAS ONLY THE FIRST
 # CLASS, and this paragraph is where the second is declared.
 #
-#   * MARKER-BLINDNESS, four entries. 1.12.0's scenario-currency check cannot
+#   * MARKER-BLINDNESS, three entries — FOUR until 2026-09-16, when
+#     `add-composed-view-authoring` left with its packet (see the retirement
+#     above). 1.12.0's scenario-currency check cannot
 #     read this estate's reserved narrowing marker, and so demands the
-#     restoration of scenario titles four declared changes deliberately
-#     narrowed. Each of the four CITES the promoted `Merged into` marker
+#     restoration of scenario titles three declared changes deliberately
+#     narrowed. Each of the three CITES the promoted `Merged into` marker
 #     requirement in `doc-health`, because the marker is what makes its omission
 #     a declaration.
 #   * CANON MOVED UNDER AN UN-RE-DERIVED DELTA, two entries. An archive PROMOTED
@@ -440,7 +472,8 @@ resync_runbook: docs/contract-versioning-policy.md
 #     nothing in either is written to survive its change's re-derivation.
 #
 # THEY ARE ALSO TWO GROUPS IN TWO REPOSITORIES, kept apart by `repo:` and by
-# nothing else: TWO in openxFactory (#677, "take exit 2") and FOUR in
+# nothing else: ONE in openxFactory (#677, "take exit 2" — `add-chain-attestation`,
+# the second having left with `add-composed-view-authoring`) and FOUR in
 # codexFactory — of the pair `disposition-codexfactory-declared-renames` wrote
 # ("use recommended name, go on 3 repo shape") ONE now stands, its sibling
 # retired on 2026-09-11 by the archive its own `retires_when:` named; the entry
@@ -475,29 +508,6 @@ dispositions:
       remain open, including §5.8, the canary pair is not producible, and
       issue #579 is unresolved — so this entry is expected to be long-lived and
       is still re-derived at every bump.
-
-  - repo: openxFactory
-    item: add-composed-view-authoring
-    path: ideation-dashboard/spec.md
-    level: ERROR
-    finding: 'MODIFIED "Composed views are read-only with a repository jump" omits scenario(s) the current spec still has: "Gate verbs hide on a composed view". Copy them into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them).'
-    why: >-
-      "Gate verbs hide on a composed view" became "Tile-bound gate verbs hide on
-      a composed view" because the same change deliberately ADMITS document
-      creation there; this exact pair is the worked example canon uses to define
-      the marker, so restoring the old title contradicts both the sibling
-      scenario and the requirement that governs the form.
-    cited_to:
-      - openspec/specs/doc-health/spec.md:1770 — canon's worked example IS this rename, byte for byte
-      - PR #444 — the landed change that declared the rename with the `Merged into` marker
-      - council LA-A1 — the ruling that reserved the marker forms
-      - openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md § "The two refusals" — the measurement and the refusal, #673
-    ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'
-    retires_when: >-
-      add-composed-view-authoring archives, which needs ONE open box (task 3.2, a
-      Brett act). ON THAT DAY THIS ENTRY GOES STALE AND EVERY RUN REFUSES until
-      it is deleted. That is the mechanism working, not a defect: the archive is
-      the event that forces somebody to re-read the exception.
 
   # ---- codexFactory, added 2026-09-05 by disposition-codexfactory-declared-renames.
   # THE SECOND PAIR, IN A SECOND REPOSITORY, AND THE FIRST TIME THIS MECHANISM

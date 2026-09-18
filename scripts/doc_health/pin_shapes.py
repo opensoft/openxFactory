@@ -70,16 +70,16 @@ KIND = "pinned_contract_manifest"
 # ---------------------------------------------------------------------------
 _COMMIT_RE = re.compile(r"^[0-9a-fA-F]{40}$")        # verify-openxwallet-pin.py:116
 _SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")        # verify-openxwallet-pin.py:117
-_VERSION_RE = re.compile(                            # validate-openspec-cli-pin.py:372
+_VERSION_RE = re.compile(                            # validate-openspec-cli-pin.py:379
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
     r"(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
-_INTEGRITY_RE = re.compile(r"^sha512-[A-Za-z0-9+/]+={0,2}$")   # :375
-_SHA1_RE = re.compile(r"^[0-9a-fA-F]{40}$")                    # :376
-_PACKAGE_RE = re.compile(r"^(?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*$")   # :377
-_LOCKFILE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.json$")  # :671
+_INTEGRITY_RE = re.compile(r"^sha512-[A-Za-z0-9+/]+={0,2}$")   # validate-openspec-cli-pin.py:382
+_SHA1_RE = re.compile(r"^[0-9a-fA-F]{40}$")                    # validate-openspec-cli-pin.py:383
+_PACKAGE_RE = re.compile(r"^(?:@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*$")   # validate-openspec-cli-pin.py:384
+_LOCKFILE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*\.json$")  # validate-openspec-cli-pin.py:678
 
 #: The digest kinds a published-artifact pin may declare as its referent
-#: (`validate-openspec-cli-pin.py:382`).
+#: (`validate-openspec-cli-pin.py:389`).
 CONTENT_ADDRESSED_KINDS: tuple[str, ...] = ("package_integrity",)
 
 #: The one digest definition the shape-(b) verifiers implement
@@ -213,7 +213,7 @@ def _is_version(value) -> bool:
 
 def _is_integrity(value) -> bool:
     """`sha512-<base64>` decoding to the 64 bytes a SHA-512 digest occupies
-    (`validate-openspec-cli-pin.py:619-643`). A truncated address addresses
+    (`validate-openspec-cli-pin.py:626-650`). A truncated address addresses
     nothing, so the length is part of the form rather than a later check."""
     if not isinstance(value, str) or not _INTEGRITY_RE.match(value.strip()):
         return False
@@ -238,7 +238,7 @@ def _is_lockfile_name(value) -> bool:
 
 def _is_lockfile_packages(value) -> bool:
     """A positive whole number, however the record spells it
-    (`validate-openspec-cli-pin.py:731-745`, which takes `int(str(...).strip())`
+    (`validate-openspec-cli-pin.py:738-752`, which takes `int(str(...).strip())`
     and refuses anything below 1)."""
     try:
         return int(str(value).strip()) >= 1
@@ -323,14 +323,14 @@ def _is_disposition_list(value) -> bool:
     """A list whose every ENTRY that shape's own guard admits, or `None`.
 
     THE MEMBER GRAIN, UNCHANGED. Absent OR NULL is EMPTY
-    (`validate-openspec-cli-pin.py:801-803`: `raw = pin.get("dispositions")`
+    (`validate-openspec-cli-pin.py:808-810`: `raw = pin.get("dispositions")`
     then `if raw is None: return []`), so `dispositions:` is not a required
     member and an explicit `null` is no more malformed than an absent key;
-    present, non-null and not a list is refused (`:804-809`).
+    present, non-null and not a list is refused (`:811-816`).
 
     THE ENTRY GRAIN, ADDED BY `adopt-entry-grain-dispositions-form` (§ 3.1).
     The SAME pure guard also refuses malformed ENTRIES of a present sequence
-    (`:813-855`), reading THE ENTRY ALONE exactly as the member-grain refusal
+    (`:820-862`), reading THE ENTRY ALONE exactly as the member-grain refusal
     reads the member alone, so an adapter admitting them is NARROWER than the
     guard it tracks on precisely the trees this adapter exists for — and canon's
     own consequence is that such a resolver "would … admit a record the
@@ -540,31 +540,31 @@ SHAPE_C = Shape(
     revision_kinds=CONTENT_ADDRESSED_KINDS,
     required=(
         Member(("revision_kind",), _one_of(CONTENT_ADDRESSED_KINDS),
-               (Citation(_OPENSPEC_CLI, 592, guard="pinned_version"),)),
+               (Citation(_OPENSPEC_CLI, 599, guard="pinned_version"),)),
         Member(("version",), _is_version,
-               (Citation(_OPENSPEC_CLI, 601, guard="pinned_version"),)),
+               (Citation(_OPENSPEC_CLI, 608, guard="pinned_version"),)),
         Member(("integrity",), _is_integrity,
-               (Citation(_OPENSPEC_CLI, 619, guard="pinned_integrity"),)),
+               (Citation(_OPENSPEC_CLI, 626, guard="pinned_integrity"),)),
         Member(("shasum",), _is_shasum,
-               (Citation(_OPENSPEC_CLI, 646, guard="pinned_integrity"),)),
+               (Citation(_OPENSPEC_CLI, 653, guard="pinned_integrity"),)),
         Member(("package",), _is_package,
-               (Citation(_OPENSPEC_CLI, 658, guard="pinned_package"),)),
+               (Citation(_OPENSPEC_CLI, 665, guard="pinned_package"),)),
         Member(("lockfile",), _is_lockfile_name,
-               (Citation(_OPENSPEC_CLI, 698, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 705, guard="pinned_lockfile"),)),
         Member(("lockfile_integrity",), _is_integrity,
-               (Citation(_OPENSPEC_CLI, 708, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 715, guard="pinned_lockfile"),)),
         Member(("lockfile_packages",), _is_lockfile_packages,
-               (Citation(_OPENSPEC_CLI, 731, guard="pinned_lockfile"),)),
+               (Citation(_OPENSPEC_CLI, 738, guard="pinned_lockfile"),)),
         Member(("binary",), _is_binary,
-               (Citation(_OPENSPEC_CLI, 748, guard="pinned_binary"),)),
+               (Citation(_OPENSPEC_CLI, 755, guard="pinned_binary"),)),
     ),
-    # Absent-is-empty at its guard (`:801-803`), so NOT required and not on the
+    # Absent-is-empty at its guard (`:808-810`), so NOT required and not on the
     # guard leg's REQUIRED table; refused when PRESENT and not a list
-    # (`:804-809`) and — since `adopt-entry-grain-dispositions-form` § 3.3 —
+    # (`:811-816`) and — since `adopt-entry-grain-dispositions-form` § 3.3 —
     # when a PRESENT sequence carries an ENTRY that same pure guard refuses
-    # (`:813-855`, D-1 rows 2-6).
+    # (`:820-862`, D-1 rows 2-6).
     #
-    # THE CITATIONS SPLIT, AND THE SPLIT IS THE WHOLE POINT. `:801` is the
+    # THE CITATIONS SPLIT, AND THE SPLIT IS THE WHOLE POINT. `:808` is the
     # ABSENT-IS-EMPTY line, it is the one that reads `pin.get("dispositions")`,
     # and it carries NO guard: there is nothing to CALL for an absent member,
     # which is exactly why the equivalence test's guard leg ranges over the
@@ -577,26 +577,26 @@ SHAPE_C = Shape(
     # the CONDITION it was measured at, and the test re-reads that line.
     optional=(
         Member(("dispositions",), _is_disposition_list,
-               (Citation(_OPENSPEC_CLI, 801),
-                Citation(_OPENSPEC_CLI, 813, guard="pinned_dispositions",
+               (Citation(_OPENSPEC_CLI, 808),
+                Citation(_OPENSPEC_CLI, 820, guard="pinned_dispositions",
                          quote="if not isinstance(entry, dict):",
-                         quote_line=813),
-                Citation(_OPENSPEC_CLI, 818, guard="pinned_dispositions",
+                         quote_line=820),
+                Citation(_OPENSPEC_CLI, 825, guard="pinned_dispositions",
                          quote="for key in DISPOSITION_REQUIRED "
                                "if not entry.get(key)",
-                         quote_line=818),
-                Citation(_OPENSPEC_CLI, 829, guard="pinned_dispositions",
+                         quote_line=825),
+                Citation(_OPENSPEC_CLI, 836, guard="pinned_dispositions",
                          quote="if not isinstance(citations, list) "
                                "or not citations:",
-                         quote_line=829),
-                Citation(_OPENSPEC_CLI, 838, guard="pinned_dispositions",
+                         quote_line=836),
+                Citation(_OPENSPEC_CLI, 845, guard="pinned_dispositions",
                          quote="if level is not None and str(level).upper() "
                                "not in BLOCKING_LEVELS:",
-                         quote_line=838),
-                Citation(_OPENSPEC_CLI, 849, guard="pinned_dispositions",
+                         quote_line=845),
+                Citation(_OPENSPEC_CLI, 856, guard="pinned_dispositions",
                          quote="if not any(entry.get(key) "
                                "for key in DISPOSITION_AUTHORITY):",
-                         quote_line=849)),
+                         quote_line=856)),
                entries=_disposition_entry_failure),
     ))
 

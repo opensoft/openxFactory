@@ -63,7 +63,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CONTRACTS = REPO_ROOT / "contracts"
 
 #: A lockfile path the one two-argument guard JOINS and never opens
-#: (`validate-openspec-cli-pin.py:744`), so the guard leg stays source-free.
+#: (`validate-openspec-cli-pin.py:751`), so the guard leg stays source-free.
 _PIN_PATH = CONTRACTS / "openspec-cli-pin.yaml"
 
 
@@ -524,7 +524,7 @@ def test_shape_c_judges_dispositions_as_absent_is_empty_and_refuses_a_non_list()
 
 
 def test_dispositions_null_is_accepted_and_a_mapping_is_refused_malformed():
-    """(PR #1040 fix round 1, R5). `validate-openspec-cli-pin.py:801-803`
+    """(PR #1040 fix round 1, R5). `validate-openspec-cli-pin.py:808-810`
     treats `raw is None` as empty (`if raw is None: return []`), so an adapter
     refusing `dispositions: null` would be WIDER than the guard it tracks."""
     base = _base("c")
@@ -546,7 +546,7 @@ def test_dispositions_null_is_accepted_and_a_mapping_is_refused_malformed():
 # verifier reads this member with an absent-is-empty default, so there is
 # nothing for the equivalence test's guard leg to call" — a statement about the
 # REFUSED-WHEN-ABSENT question. The PRESENT-AND-MALFORMED question has something
-# to call: `pinned_dispositions(record)` (`validate-openspec-cli-pin.py:787-857`)
+# to call: `pinned_dispositions(record)` (`validate-openspec-cli-pin.py:794-864`)
 # takes the record and reads NOTHING else — no file, no `git`, no network,
 # evaluated as part of check 1 BEFORE `repository_identity` — so the optional
 # member is held to its guard in the STRONGEST available form: the verifier
@@ -608,11 +608,11 @@ def _entry_without(*keys: str) -> dict:
 #: branches, which a test covering only one representative per row would leave
 #: untested, plus the one-based-index case.
 _ENTRY_REFUSALS: tuple[tuple, ...] = (
-    # row 2 (`:813-817`) — an entry that is not a mapping at all
+    # row 2 (`:820-824`) — an entry that is not a mapping at all
     ("row2-null", [None], "dispositions[1]", ps.NOT_A_MAPPING, "None", True),
     ("row2-bare-string", ["a"], "dispositions[1]", ps.NOT_A_MAPPING, "'a'",
      True),
-    # row 3 (`:818-827`) — FALSEY, not merely absent, over the six required keys
+    # row 3 (`:825-834`) — FALSEY, not merely absent, over the six required keys
     ("row3-empty-mapping", [{}], "dispositions[1]", ps.MISSING,
      "repo, item, path, finding, why, cited_to", True),
     ("row3-no-cited_to", [_entry_without("cited_to")], "dispositions[1]",
@@ -631,15 +631,15 @@ _ENTRY_REFUSALS: tuple[tuple, ...] = (
      ps.MISSING, "finding", False),
     ("row3-no-why", [_entry_without("why")], "dispositions[1]", ps.MISSING,
      "why", False),
-    # row 4 (`:828-836`) — truthy, and still not a NON-EMPTY LIST
+    # row 4 (`:835-843`) — truthy, and still not a NON-EMPTY LIST
     ("row4-cited_to-bare-string", [_entry(cited_to="x")], "dispositions[1]",
      ps.MALFORMED, "cited_to 'x' is not a non-empty list", True),
-    # row 5 (`:837-848`) — `is not None` and CASE-FOLDED, not truthy-guarded
+    # row 5 (`:844-855`) — `is not None` and CASE-FOLDED, not truthy-guarded
     ("row5-level-warning", [_entry(level="WARNING")], "dispositions[1]",
      ps.MALFORMED, "level 'WARNING' is outside ERROR", True),
     ("row5-level-empty-string", [_entry(level="")], "dispositions[1]",
      ps.MALFORMED, "level '' is outside ERROR", True),
-    # row 6 (`:849-855`) — neither authority spelling
+    # row 6 (`:856-862`) — neither authority spelling
     ("row6-no-authority", [_entry_without("ratified_by")], "dispositions[1]",
      ps.MISSING, "ratified_by or recorded_by", True),
     # THE INDEX IS ONE-BASED AND IT IS THE GUARD'S OWN: a VALID first entry and
@@ -756,12 +756,19 @@ def test_optional_arm_the_guard_admits_the_entry_and_so_does_the_adapter(
 def test_the_real_record_still_resolves_at_both_the_guard_and_the_adapter(
         cli_verifier):
     """§ 3.8's record leg for this member: `contracts/openspec-cli-pin.yaml` as
-    it stands — SIX entries, all admitted by the guard today — is admitted by
+    it stands — FIVE entries, all admitted by the guard today — is admitted by
     the entry-grain form unchanged. The realization moves no record byte, and
-    this is the assertion that says so."""
+    this is the assertion that says so.
+
+    SIX UNTIL 2026-09-16, when PR #1056 re-homed `add-composed-view-authoring`
+    to `opensoft/openDox` under RULING Q6 and DELETED its entry in the same pull
+    request, the pin having refused `pin-disposition-stale` on it. The count is
+    the LIVE record's and moves with the record; this realization deletes no
+    entry and adds none, and the reading the test exists for — every entry the
+    guard admits, the adapter admits — is the same at five as it was at six."""
     record = RECORDS["openspec-cli"]
-    assert len(record["dispositions"]) == 6
-    assert len(cli_verifier.pinned_dispositions(record)) == 6
+    assert len(record["dispositions"]) == 5
+    assert len(cli_verifier.pinned_dispositions(record)) == 5
     assert ps.judge(record, "openspec-cli").accepted
 
 
@@ -769,9 +776,9 @@ def test_the_two_corrected_readings_are_transcribed_exactly(cli_verifier):
     """§ 3.7's two boundary cases — D-1's "TWO READINGS THE MEASUREMENT
     CORRECTED", each a transcription trap that a plausible reading falls into.
 
-    (i) ROW 3 SUBSUMES THE FALSEY HALF OF ROW 4. `:818` tests TRUTHINESS
-    (`not entry.get(key)`), so `cited_to: []` is refused at `:820` as the
-    MISSING key and never reaches `:830`'s citation-shape refusal. A
+    (i) ROW 3 SUBSUMES THE FALSEY HALF OF ROW 4. `:825` tests TRUTHINESS
+    (`not entry.get(key)`), so `cited_to: []` is refused at `:827` as the
+    MISSING key and never reaches `:837`'s citation-shape refusal. A
     transcription ordering the two the other way would name the wrong reading in
     the finding, so this asserts the DEFECT and the DETAIL, not merely that
     something was refused.
@@ -802,8 +809,8 @@ def test_the_two_corrected_readings_are_transcribed_exactly(cli_verifier):
 
 #: WHAT "EMPTY" MEANS FOR `dispositions:`, MEASURED AT THE GUARD AND NOT READ
 #: OFF THE WORD "FALSEY" — `(case, value, accepted, the member a refusal names)`.
-#: `:801-803` tests `raw is None` and NOTHING WEAKER, so `null` is EMPTY while
-#: `""`, `0` and `False` are PRESENT NON-SEQUENCES and refused at `:804-809`, at
+#: `:808-810` tests `raw is None` and NOTHING WEAKER, so `null` is EMPTY while
+#: `""`, `0` and `False` are PRESENT NON-SEQUENCES and refused at `:811-816`, at
 #: the MEMBER grain; `[]` is an empty sequence and empty; `[{}]` is a present
 #: sequence whose ENTRY the guard refuses, at the ENTRY grain. The guard is
 #: CALLED on every row below, so this table is the GUARD'S definition rather
@@ -825,7 +832,7 @@ _DISPOSITIONS_FALSEY: tuple[tuple, ...] = (
 def test_dispositions_is_empty_only_when_it_is_null_or_a_sequence(
         cli_verifier, value, accepted, named):
     """THE NON-NULL RULE, CASE BY CASE, WITH THE GUARD AS THE DEFINITION.
-    `pinned_dispositions` reads `if raw is None: return []` (`:801-803`) — an
+    `pinned_dispositions` reads `if raw is None: return []` (`:808-810`) — an
     IDENTITY test, not a truthiness test — so the member's empty readings are
     `null` and an empty SEQUENCE and nothing else, and a `""`, a `0` or a
     `False` is a present value that is not a list of entries. The two grains
@@ -854,9 +861,9 @@ def test_the_partition_reaches_only_the_optional_member_with_a_pure_guard():
     DEFINED BY THE GUARD, so it reaches only an optional member that HAS one.
 
     TODAY THAT IS `dispositions:` AND NOTHING ELSE. `pinned_dispositions` is
-    PURE and SOURCE-FREE (`:787`, called at CHECK 1 before anything is fetched),
+    PURE and SOURCE-FREE (`:794`, called at CHECK 1 before anything is fetched),
     so the positive-resolution reading can hold a PRESENT `dispositions:` to its
-    ENTRY grain: `null` and an empty sequence stay EMPTY (`:801-803` tests
+    ENTRY grain: `null` and an empty sequence stay EMPTY (`:808-810` tests
     `raw is None`, an identity test), any OTHER falsey non-null value is a
     present non-sequence and is refused at the MEMBER grain, and a sequence
     carrying an entry that guard refuses is refused at the ENTRY grain.
@@ -903,18 +910,18 @@ def test_the_optional_arms_citations_split_absent_is_empty_from_the_entry_grain(
     citations now SPLIT, and the split is the reason the optional arm can be a
     CALL at all:
 
-    - `:801` is the ABSENT-IS-EMPTY line, it is the one that reads
+    - `:808` is the ABSENT-IS-EMPTY line, it is the one that reads
       `pin.get("dispositions")`, and it carries NO guard — there is nothing to
       CALL for an absent member, which is exactly why the equivalence test's
       guard leg ranges over the REQUIRED table (`_tracked_table`) and why THIS
       test is a PARALLEL HELPER for the optional arm rather than a widening of
       that leg;
-    - `:813`, `:818`, `:829`, `:838` and `:849` are the ENTRY-GRAIN conditions,
+    - `:820`, `:825`, `:836`, `:845` and `:856` are the ENTRY-GRAIN conditions,
       they read the ENTRY and NOT `pin.get("dispositions")`, and they DO have
       something to call — `pinned_dispositions` — so each names that guard and
       carries the condition text it was measured at, re-read here.
 
-    The last assertion is task 3.3's own prohibition, encoded: `:813` onwards
+    The last assertion is task 3.3's own prohibition, encoded: `:820` onwards
     MUST NOT be cited as though it read the member."""
     member = {m.spellings[0]: m for m in ps.SHAPE_C.optional}["dispositions"]
     lines = (REPO_ROOT / _CLI_PIN).read_text(encoding="utf-8").splitlines()
@@ -922,10 +929,10 @@ def test_the_optional_arms_citations_split_absent_is_empty_from_the_entry_grain(
     absent_is_empty = [c for c in member.citations if c.guard is None]
     entry_grain = [c for c in member.citations if c.guard is not None]
 
-    assert [c.line for c in absent_is_empty] == [801]
-    assert 'pin.get("dispositions")' in lines[800]
+    assert [c.line for c in absent_is_empty] == [808]
+    assert 'pin.get("dispositions")' in lines[807]
 
-    assert [c.line for c in entry_grain] == [813, 818, 829, 838, 849]
+    assert [c.line for c in entry_grain] == [820, 825, 836, 845, 856]
     assert {c.guard for c in entry_grain} == {"pinned_dispositions"}
     assert callable(cli_verifier.pinned_dispositions)
     for citation in entry_grain:
