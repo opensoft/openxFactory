@@ -398,14 +398,19 @@ evidence is a fact about a merge that has not happened.
       filtered token count — with the arithmetic row asserted in TOKENS against
       the number of REMAINDER ENTRIES carrying the flag and never against the
       corpus-wide flagged figure.
-      **LANDED, 2026-09-17, realization slice R1.**
-      `scripts/report-citation-remainder.py` (NEW, 1,612 lines) and
-      `tests/citation_remainder/test_report_citation_remainder.py` (NEW, 1,852
-      lines, 96 tests, all green). ONE TEST PER SCENARIO, its docstring naming
-      the scenario verbatim: 63 of 63 across the five requirements, counted
-      mechanically against `specs/packet-citation-report/spec.md` rather than
-      by hand. `scripts/packet_reference.py` is imported UNCHANGED and the D7
-      fences are each empty.
+      **LANDED, 2026-09-18, realization slice R1.**
+      `scripts/report-citation-remainder.py` and
+      `tests/citation_remainder/test_report_citation_remainder.py`, both NEW.
+      ONE TEST PER SCENARIO, its docstring naming the scenario verbatim: 69 of
+      69 across the five requirements, counted mechanically against
+      `specs/packet-citation-report/spec.md` rather than by hand — 43 scenarios
+      on `main` plus the 26 Patch B adds, implemented from PR #1097's drafted
+      text on Brett Heap's word "fold B as drafted".
+      `scripts/packet_reference.py` is imported UNCHANGED and the D7 fences are
+      each empty. **THE LINE AND TEST COUNTS ARE NOT RESTATED HERE**: they moved
+      on every review round of the pull request that landed them, a figure
+      restated in a frozen record is a figure that goes stale, and the diffstat
+      of the merge commit is the place a reader gets them right.
       **AND THE INSTRUMENT IS THE ONE THIS PACKET MEASURED WITH, PROVED AT
       `b1df95ee` RATHER THAN ASSERTED.** Run against a worktree at
       `b1df95ee80633339907c9e661164a783885a5d30`, the shipped CLI reproduces
@@ -428,9 +433,16 @@ evidence is a fact about a merge that has not happened.
       rule at all.
       **AND THE CLI MINTS NO REMAINDER OF ITS OWN**, which is the acceptance
       check this packet uniquely owes: the hand instrument's `issue-native`
-      block reads identically at this branch's merge base and at its head — 602
-      distinct tokens, 154 raw-path-absent, 81 inclusive remainder on both
-      sides. Δ = 0.
+      block reads identically at this branch's merge base and at its head. **THE
+      FIGURES ARE PINNED TO THE RUN THAT PRODUCED THEM**, because they are a
+      reading of a MOVING corpus and not a property of this packet — taken
+      2026-09-18 at head `f6126c02`, merge base `24f7a213`: 600 distinct tokens,
+      157 raw-path-absent, 81 inclusive remainder, on both sides, line for line.
+      Δ = 0. An earlier draft of this record carried 602 and 154 from a run at
+      an earlier head against an earlier merge base; both readings were Δ = 0 and
+      neither is wrong, but only one of them is THIS branch's, and a record
+      naming figures no named run produced is a record a reader cannot check.
+      (Copilot `PRRT_kwDOTAvnrs6jdTOB` on PR #1100.)
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,

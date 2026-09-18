@@ -4,9 +4,12 @@ issue #1053).
 
 EVERY SCENARIO THE DELTA STATES IS REALIZED BY A TEST BELOW WHOSE DOCSTRING
 NAMES IT, and the five requirements are kept apart in five sections so a reader
-checking coverage reads one place. The delta carries 63 `#### Scenario:` blocks
-across 5 `### Requirement:` blocks, and each one's test names it verbatim in its
-first line.
+checking coverage reads one place. The delta carries 69 `#### Scenario:` blocks
+across 5 `### Requirement:` blocks — 43 on `main` and 26 more folded in by
+Patch B (PR #1097) — and each one's test names it verbatim in its first line.
+THE COUNT IS CHECKED MECHANICALLY AND NOT BY HAND: every scenario title in the
+delta is searched for in a test docstring, so a scenario reworded by a later
+fold-in reads as a gap rather than passing silently.
 
 FIXTURES ARE THROWAWAY GIT TREES IN `tmp_path`, on `tests/packet_reference/`'s
 stated precedent — *"a committed broken packet is a file every other sweep has
