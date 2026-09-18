@@ -61,6 +61,21 @@ separately invoked mode and is deliberately not reachable from here: a required
 check whose answer depended on which trees a runner happened to have checked out
 would give a different answer on a different machine.
 
+THE INVENTORY IS THE SCANNED TREE'S OR IT IS NOTHING, which is this
+repository's own ratified rule for the file beside it restated for this one
+rather than re-derived. `tests/code_surface/test_code_surface_gate.py`'s
+`test_a_scanned_tree_with_NO_register_is_NOT_judged_against_the_HOUSE_one` names
+the defect it closes: "A tree was then judged against exceptions it does not
+carry, silently, in a message that named an entry and told its author to delete
+it from a file they do not have." An inventory falls to the same failure wearing
+a worse face — a tree that is no part of this estate would be told its
+declaration names a repository "the estate inventory does not carry", of an
+estate it is not in, and the arm FAILS CLOSED, so the fallback would refuse every
+declaration in every tree but this one. The resolution order is the path
+`--inventory` NAMES, else the path THE SCANNED TREE carries, else membership is
+NOT JUDGED and the run SAYS SO. A present inventory that cannot be used REFUSES
+and does not fall back to the one beside this validator.
+
 A REGISTERED DECLARATION IS NOT JUDGED AND THE ARM DOES NOT FALL BACK. The
 closed register suspends the grammar's refusal for ONE declaration and supplies
 NO repository set — the head it tolerates is a head no reader can parse — so
@@ -141,14 +156,20 @@ Usage:
         silently becomes empty would re-fail every declaration it covers.
 
     --inventory PATH
-        Read the estate inventory from PATH instead of from
-        `scripts/estate-repository-inventory.yaml`. The pytest gate runs this
-        validator with NO such flag, so the gate is always judged against the
-        inventory this repository carries; the flag exists so the tests can put
-        a known inventory in front of a known tree. A missing inventory REFUSES
-        (exit 2) rather than defaulting to an empty one: an inventory that
-        silently became empty would, with an arm that fails closed, refuse
-        every declaration in the corpus.
+        Read the estate inventory from PATH instead of from the scanned tree's
+        own `scripts/estate-repository-inventory.yaml`. The pytest gate runs
+        this validator with NO such flag over THIS repository, so the gate is
+        always judged against the inventory this repository carries; the flag
+        exists so the tests can put a known inventory in front of a known tree,
+        and so a consuming tree can name one that is not at the house path. A
+        NAMED inventory that is missing REFUSES (exit 2) rather than falling
+        through to "not judged": the operator asked for that file, and an
+        inventory that silently became empty would, with an arm that fails
+        closed, refuse every declaration in the corpus.
+
+        With no flag, a scanned tree that carries NO inventory is NOT judged
+        against the one beside this validator — membership is not judged for it
+        and the run says so.
 """
 from __future__ import annotations
 
@@ -388,25 +409,65 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  - {exc}")
         return 2
 
-    # AN INVENTORY THAT CANNOT BE USED STOPS THE RUN RATHER THAN BEING IGNORED,
-    # and the reason is the arm's own fail-closed rule: ignored, every declared
-    # identifier would resolve against nothing and every declaration in the
-    # corpus would be refused — reporting a whole-corpus failure where the
-    # defect is one unreadable file. The grammar report is printed FIRST so a
-    # run that cannot judge membership still says what it did judge.
-    try:
-        inventory = ei.load_inventory(
-            Path(args.inventory) if args.inventory else ei.INVENTORY_PATH)
-    except ei.EstateInventoryError as exc:
-        _report(report)
-        print("membership validation CANNOT RUN:")
-        print(f"  - {exc}")
-        return 2
+    # THE INVENTORY IS THE SCANNED TREE'S OR IT IS NOTHING, which is this
+    # repository's OWN ratified rule for the file beside it — the closed
+    # register — restated for the inventory rather than re-derived. The comment
+    # that rule was written under says the defect exactly: "A tree was then
+    # judged against exceptions it does not carry, silently, in a message that
+    # named an entry and told its author to delete it from a file they do not
+    # have." An inventory falls to the same failure wearing a worse face: a tree
+    # that is no part of this estate would be told its declaration names a
+    # repository "the estate inventory does not carry", of an estate it is not
+    # in, and the arm FAILS CLOSED — so the fallback would refuse every
+    # declaration in every tree that is not this one.
+    #
+    # So the resolution order is: the path `--inventory` NAMES; else the path
+    # THE SCANNED TREE carries; else membership is NOT JUDGED and the run SAYS
+    # SO. The absence is reported and never silent, because a membership gate
+    # that quietly judged nothing is the gate not running.
+    inventory: ei.Inventory | None = None
+    if args.inventory:
+        named = Path(args.inventory)
+    else:
+        # PRESENCE IN EVERY SHAPE, AND THE ANCESTRY AS WELL AS THE LEAF. A
+        # dangling symlink and a symlinked `scripts/` are both PRESENT for this
+        # question, and both are REFUSED by `load_inventory` rather than read —
+        # which is the point of asking presence here and shape there.
+        candidate = repo_root / "scripts" / ei.INVENTORY_PATH.name
+        named = candidate if (candidate.is_symlink() or candidate.exists()) \
+            else None
+    if named is not None:
+        # AN INVENTORY THAT IS PRESENT AND CANNOT BE USED REFUSES RATHER THAN
+        # FALLING BACK, on `load_inventory`'s own rule and on the sibling's:
+        # ignored, every declared identifier would resolve against nothing and
+        # the fail-closed arm would refuse the whole corpus, reporting a
+        # whole-corpus failure where the defect is one unreadable file. The
+        # grammar report is printed FIRST so a run that cannot judge membership
+        # still says what it did judge.
+        try:
+            inventory = ei.load_inventory(named)
+        except ei.EstateInventoryError as exc:
+            _report(report)
+            print("membership validation CANNOT RUN:")
+            print(f"  - {exc}")
+            print("  the inventory is the SCANNED TREE'S or the one "
+                  "`--inventory` names, and a present one that cannot be used "
+                  "does NOT fall back to the inventory beside this validator.")
+            return 2
 
-    membership = _membership(repo_root, inventory, register)
+    membership = (_membership(repo_root, inventory, register)
+                  if inventory is not None else None)
 
     _report(report)
-    _report_membership(membership)
+    if membership is not None:
+        _report_membership(membership)
+    else:
+        print(f"membership: NOT JUDGED — the scanned tree carries no "
+              f"`scripts/{ei.INVENTORY_PATH.name}`, so there is no estate "
+              f"inventory for it to be resolved against. The inventory is the "
+              f"SCANNED TREE'S or it is nothing: a tree judged against an "
+              f"enumeration it does not carry would be refused for not "
+              f"belonging to an estate it is no part of.")
 
     # ONE EVENT IS REPORTED AS ONE EVENT. The two sections below are the two
     # ASYMMETRIC refusals, and keeping them asymmetric is the requirement's own
@@ -474,6 +535,12 @@ def main(argv: list[str] | None = None) -> int:
         print("  delete the entry: the exception outlived its condition.")
 
     # THE FOUR MEMBERSHIP BLOCKS, ORDERED SO THE ACTIONABLE ONE IS FIRST.
+    if membership is None:
+        membership = MembershipReport(
+            heads=0, identifiers=0, carried=0, registered_unjudged=0,
+            findings=(), former=(), stale_rows=(), not_rechecked=0,
+            inventory_rows=0, archived_unknown=0)
+
     if membership.former:
         print("membership: a declared head names a FORMER address "
               "(reported, NOT refused):")

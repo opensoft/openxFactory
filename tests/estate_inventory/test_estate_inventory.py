@@ -184,11 +184,20 @@ def _run_inventory(root: Path, inventory: Path, *extra: str):
         capture_output=True, text=True)
 
 
-def _run_surface(root: Path, inventory: Path, register: Path):
-    return subprocess.run(
-        [sys.executable, str(SURFACE_VALIDATOR), str(root),
-         "--inventory", str(inventory), "--register", str(register)],
-        capture_output=True, text=True)
+def _run_surface(root: Path, inventory: Path | None, register: Path):
+    argv = [sys.executable, str(SURFACE_VALIDATOR), str(root),
+            "--register", str(register)]
+    if inventory is not None:
+        argv += ["--inventory", str(inventory)]
+    return subprocess.run(argv, capture_output=True, text=True)
+
+
+def _tree_inventory(root: Path, rows: list[dict]) -> Path:
+    """An inventory at the path the SCANNED TREE carries it at, so the run
+    resolves it with no flag at all."""
+    (root / "scripts").mkdir(parents=True, exist_ok=True)
+    return _inventory(root, rows,
+                      name=str(Path("scripts") / ei.INVENTORY_PATH.name))
 
 
 # ==============================================================================
@@ -951,6 +960,75 @@ def test_the_grammar_judges_SHAPE_and_the_membership_arm_judges_MEMBERSHIP(
     assert "code_surface validation FAILED" in result.stdout
     assert "membership validation FAILED" in result.stdout
     assert "code_surface:" in result.stdout and "membership:" in result.stdout
+
+
+def test_the_inventory_is_the_SCANNED_TREES_or_it_is_NOTHING(tmp_path):
+    """THE DEFECT THIS REPOSITORY ALREADY NAMED, CLOSED FOR THE INVENTORY TOO.
+
+    `tests/code_surface/test_code_surface_gate.py`'s
+    `test_a_scanned_tree_with_NO_register_is_NOT_judged_against_the_HOUSE_one`
+    put it for the closed register: "A tree was then judged against exceptions
+    it does not carry, silently, in a message that named an entry and told its
+    author to delete it from a file they do not have." An inventory falls to the
+    same failure wearing a worse face — the arm FAILS CLOSED, so a tree judged
+    against an enumeration it does not carry is refused for not belonging to an
+    estate it is no part of, and EVERY declaration in EVERY other tree would
+    red.
+
+    THE ABSENCE IS REPORTED AND NEVER SILENT, because a membership gate that
+    quietly judged nothing is the gate not running.
+    """
+    _proposal(tmp_path, "a-change", "code_surface: NotOfThisEstate\n")
+    register = _register(tmp_path)
+    assert not (tmp_path / "scripts").exists()
+
+    result = _run_surface(tmp_path, None, register)
+    assert result.returncode == 0, result.stdout
+    assert "membership: NOT JUDGED" in result.stdout
+    assert "membership validation FAILED" not in result.stdout
+    assert "NotOfThisEstate" not in result.stdout
+
+    # AND A TREE THAT DOES CARRY ONE IS JUDGED AGAINST ITS OWN, with no flag.
+    _tree_inventory(tmp_path, [_row("opensoft/openxFactory")])
+    result = _run_surface(tmp_path, None, register)
+    assert result.returncode == 1, result.stdout
+    assert "membership validation FAILED" in result.stdout
+    assert "NotOfThisEstate" in result.stdout
+
+
+def test_a_scanned_tree_inventory_that_CANNOT_BE_USED_refuses_not_falls_back(
+        tmp_path):
+    """The named flag's semantics, for the file the tree carries whether or not
+    an operator typed its path — the sibling's rule exactly
+    (`test_a_scanned_tree_register_that_CANNOT_BE_USED_refuses_not_falls_back`).
+    The direction that matters is the one the fallback would take: not to
+    nothing, but to the inventory BESIDE THIS VALIDATOR, which would judge a
+    foreign tree against this estate.
+    """
+    _proposal(tmp_path, "a-change", "code_surface: openxFactory\n")
+    (tmp_path / "scripts").mkdir()
+    (tmp_path / "scripts" / ei.INVENTORY_PATH.name).write_text(
+        "repositories: [this is not a closed sequence\n", encoding="utf-8")
+    result = _run_surface(tmp_path, None, _register(tmp_path))
+    assert result.returncode == 2, result.stdout
+    assert "membership validation CANNOT RUN" in result.stdout
+    assert "does NOT fall back" in result.stdout
+    assert "Traceback" not in result.stderr, result.stderr
+
+
+def test_a_NAMED_inventory_that_is_missing_REFUSES_rather_than_not_judging(
+        tmp_path):
+    """The asymmetry between the flag and the default, which is the register's
+    own: an operator who NAMES a file asked for that file, so its absence
+    REFUSES; a tree that merely carries none is not judged. Collapsing the two
+    would let a typo'd `--inventory` read as "no inventory here" and pass.
+    """
+    _proposal(tmp_path, "a-change", "code_surface: openxFactorie\n")
+    result = _run_surface(tmp_path, tmp_path / "absent.yaml",
+                          _register(tmp_path))
+    assert result.returncode == 2, result.stdout
+    assert "membership validation CANNOT RUN" in result.stdout
+    assert "does not exist" in result.stdout
 
 
 def test_an_inventory_that_cannot_be_used_STOPS_the_run(tmp_path):
