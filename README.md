@@ -79,7 +79,7 @@ Core domain-neutral docs:
 - [openXdox Dispatch-Credential Binding Runbook](docs/openxdox-dispatch-credential-binding.md) (operator-hosted vs self-hosted binding for the intent-plane dispatch credential)
 - [The openDox carve manifest](docs/opendox-carve-manifest.yaml) (`split-opendox-two-layer-product` § 3.1 FLOOR PART 1: one row per file under the carve surface at `opendox-carve-0`, with its digest, destination and disposition — and, under RULED Q-L7 (a) (2026-09-10), a moved row may additionally declare `also_replicated_to:` and a `replicated_at_destination` row may declare the `edits:` its copies are held to; and, under the two RULED corrections to a PLACEMENT, a moved row may declare `re_destined:` where a ruling moved its arrival between legs (RULED Q6, 2026-09-12, `#656` comment 5648044785) or `retired:` where a ruling DELETED that arrival because the surface it needed is at no leg at all (RULED 5656343213, 2026-09-13) — both leave every digest, disposition and declared line untouched, because both are facts about a DESTINATION, and both are gated at the leg by `scripts/verify-carve-arrival.py` (`arrival-not-vacated`, `arrival-not-retired`) and documented as procedures at the cutover runbook's § 5.7 and § 5.8; the FIRST machine-validated YAML under `docs/` here, RULED OQ-E — verified by `scripts/validate-carve-manifest.py`, which since § 3.1 part 1b reads check 2 as ANCESTRY and so answers from any descendant of `carve_commit`; `--at b075fd91dc8fced8e1373825ba80220c33536bae` asks about that one revision — see the manifest's own header)
 - [The openDox carve admissions](docs/opendox-carve-admissions.yaml) (RULED — the arrival-admission repair, Brett Heap, 2026-09-11, `#656` comment 5639058687: the DECLARED per-destination `created:` list `scripts/verify-carve-arrival.py` reads beside the manifest by default, applied exactly as `--allow-created` admits, so a file a leg legitimately assembles is a reviewed one-line diff in the pin-bump pull request rather than a flag typed on a command line and recorded nowhere; seeded with the two `opensoft/openXdox-code#7` files; `--allow-created` remains the ad-hoc fallback)
-- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, § 5.7's and § 5.8's two RULED corrections to a placement (a re-destination and a retirement), and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2710 declared edit lines over 176 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
+- [The openDox cutover runbook](docs/opendox-cutover-runbook.md) (RULED OQ-J: the operator's document for the `split-opendox-two-layer-product` CARVE arc — preconditions, the named carve commit and RULED OQ-I's three provenance records, the RULED OQ-H `filter-repo` method with its two-commit leg shape, the RULED OQ-L openXdox submodule pin, a rollback written before each phase, the re-cut procedure, § 5.7's and § 5.8's two RULED corrections to a placement (a re-destination and a retirement), and the acts reserved to Brett Heap; the destination-side proof is `scripts/verify-carve-arrival.py`, driven by `tests/carve_arrival/`; § 2's table carries the amended totals — 2717 declared edit lines over 176 rows, and 20 replica rows of which one declares two lines, and its per-destination table below them is re-derived and asserted cell by cell)
 - [The carve conformance corpus](scripts/carve_conformance.py) (`split-opendox-two-layer-product` § 3.7 FLOOR PART 3, RULED OQ-1: the neutral conformance corpus — RULED OQ-3's documents at `tests/corpus-adapter/fixtures/`, which do not move because eleven manifest rows name those paths as `replicated_at_destination` — as a closed set of 17 checks over ANY corpus reader, 10 positives and 7 negative confirmations, standard library plus `corpus_adapter` only and no home vocabulary in its source text so that a destination holding nothing else of openxFactory's can run it; the operator's way in is `scripts/verify-carve-conformance.py` (`--destination <key> --dest-root <dir> --adapter <module>:<factory>`, exit 0 or 2, five refusal codes, a `--json` seat), driven by `tests/carve_conformance/` and documented at runbook § 2.2, which also carries the per-destination verdicts measured 2026-09-10 — openxFactory's own adapter passes 17 of 17 and the other two named destinations have authored no reader yet, so § 3.7 is not ticked)
 - [Party Ladder](docs/party-ladder.md) (author/operator → tenant → subject → third parties; frozen-word reading rules)
 - [xFactory Domain Factory Model](docs/xfactory-domain-factory-model.md)
@@ -575,6 +575,62 @@ Active changes:
   `scripts/code_surface.py`'s own `parse_head` docstring restates the same three
   separators at `:447-448` (§ 5.1, ticking at the archive by naming a
   successor).
+- [harden-path-escape-helpers-against-symlink-loops](openspec/changes/harden-path-escape-helpers-against-symlink-loops/proposal.md)
+  filed 2026-09-17, lane `openxfactory-5` (display `openXfactory-5`),
+  **`Status: ratified`** (2026-09-18, approximately 09:55Z, Brett Heap,
+  openxFactory repository owner, given in the lane's terminal as a
+  multiple-choice answer, verbatim ***"Ratify; land when green"***) — record
+  [`review/ratification-2026-09-18.md`](openspec/changes/harden-path-escape-helpers-against-symlink-loops/review/ratification-2026-09-18.md).
+  **THE WORD NAMES NO ALTERNATIVE LETTER, SO OQ-1 = (a), THE RECOMMENDED
+  OPTION, AND THE DELTA MOVED NOT ONE BYTE** (`.openspec.yaml` now carries
+  `approved_by`/`approved_on` ADDED BESIDE the unmoved drafting pair). Answers
+  openxFactory
+  [#1074](https://github.com/opensoft/openxFactory/issues/1074), the finding this
+  lane filed on 2026-09-16 at the landing of PR #1029 and CLAIMED before
+  authoring.
+  **TWO `## ADDED` REQUIREMENTS, TEN SCENARIOS, OVER `release-realization`**:
+  *A containment guard answers every resolution failure and raises none* (six
+  scenarios) and *A symlink-loop proof is built at test time and never committed*
+  (four). NO `## MODIFIED` BLOCK, so no promoted byte is edited, no marker is
+  owed and no modified-block-currency row is opened; both titles were checked
+  against `openspec/specs/`, every active delta and the archive and appear
+  nowhere else, so `sequenced_after: []` is a corroborated root claim.
+  **THE MEASURED GAP.** `pathlib.Path.resolve(strict=True)` signals a symlink
+  loop as a `RuntimeError`, which is a subclass of neither `OSError` nor
+  `ValueError`, on the interpreter the required check pins
+  (`.github/workflows/pytest-suite.yml:556`, `python-version: "3.12"`; measuring
+  shell `Python 3.12.3`), at the candidate's leaf and at any parent component
+  alike. Four path-containment guards in three modules absorb only `OSError`
+  (one absorbs `OSError` and `ValueError`), and THREE OF THE FOUR END IN A
+  TRACEBACK where their own docstrings promise a DROP: `scripts/code_surface.py:777`
+  (`_unescaped`), `scripts/target_release.py:630` (`_unescaped`) and
+  `scripts/proposal-support.py:347` (`_contained`). The FOURTH,
+  `scripts/target_release.py:394` (`_registry_present`), carries the same narrow
+  clause but is fronted by an `is_dir()` pre-check that no measured tree state
+  gets past, which is the correction recorded below.
+  Driven end to end on a minimal tree carrying a committed-shape loop,
+  `scripts/validate-code-surface.py` and `scripts/validate-target-release.py`
+  both end in a traceback, and so do `former_identity_claimants` and
+  `declared_former_ids_in_tree`, the two public readers the archive gate's
+  former-identity arm is built on.
+  **ONE DELIBERATE ACT ACROSS ALL THREE MODULES, WHICH IS WHY IT IS A PACKET.**
+  `code_surface._unescaped`'s docstring names `target_release._unescaped` as "the
+  exact shape this mirrors" and that module's `_unescaped` names
+  `_registry_present`'s test as the one it generalizes, so correcting one module
+  alone would falsify a written claim of identity; and two of the three modules
+  are the realized surface of an archived packet and of the governed OpenSpec
+  wrapper. This is the disposition PR #1029 recorded rather than taking the
+  rider (comment 5703004913).
+  **#1074'S OWN TEXT IS CORRECTED BY THIS PACKET'S MEASUREMENT**: the issue says
+  `_registry_present` is exposed when the repository root sits behind a loop, and
+  it is not, `is_dir()` answering `False` rather than raising so the function
+  returns at `target_release.py:390`. No tree state reaches that guard's clause;
+  `design.md` D3 gives the three reasons it is widened anyway.
+  **NOTHING MOVES IN THIS PULL REQUEST**: no byte of any script, no test, no
+  workflow, no contract member, no file under `openspec/specs/`, and no symlink
+  is added to the tracked tree. `code_surface:` is non-empty, so the packet
+  archives on merged-plus-green realization evidence and not on landing, and
+  #1074 closes THERE.
 - [add-citation-remainder-report](openspec/changes/add-citation-remainder-report/proposal.md)
   — filed 2026-09-16, lane `openxfactory-1` (display `openXfactory-1`),
   **`Status: ratified`** — **RATIFIED 2026-09-17 at 12:12Z by Brett Heap
@@ -3123,45 +3179,6 @@ Active changes:
   PENDING org-owner act; found and booked: the `contract-v1.37` release
   digest inventory omits both new families (tasks 4.7/4.8 bookkeeping).
   Sibling of `implement-keycloak-install-repo`.
-- [add-doxchat-model-intake](openspec/changes/add-doxchat-model-intake/proposal.md)
-  — authored 2026-08-21 from Brett's live browser annotation on the doxBench
-  chat rail ("this model selector is not working… we need to have add model as
-  the first option… bring up a wizard that helps the user auth with oauth to
-  their subscription or add a api"). Diagnosis first: the selector is not
-  broken but structurally empty — `serve.py`'s `main()` has no model flag, so
-  `reserve-dashboard.sh`'s `python3 -m ideation_dashboard.serve` declares no
-  `model_port_factory` and the catalog route honestly returns the empty
-  editor-only posture; nothing is hardcoded and no model list was ever
-  withheld. The change adds the intake affordance FIRST in the selector and
-  default when the catalog is empty (never when it could not be READ), an
-  intake flow that hands an API key or an OAuth authorization to the declared
-  credential broker and keeps only a `credential-contracts` binding, and the
-  seam nobody had written down: intake PROPOSES and a recorded human gate
-  action APPROVES, so supplying a payment credential never doubles as
-  approving a provider for governed work. Sequencing is a requirement, not a
-  note — the affordance never ships ahead of the flow. Depends on
-  `add-model-provider-broker` (custody, minting, the narrowed provider
-  boundary), which is itself blocked on openProfiler; needs an additive
-  `gate-action-record` action enum member at realization.
-  **BUILT 2026-08-26.** The blocking dependency is discharged on both sides —
-  `add-model-provider-broker` merged (PR #392, main `bb7d7ae8`) and openProfiler
-  declared its CLI surface (PR #18, main `d0538c31`, `docs/broker-cli.md`) — and
-  sections 1, 2 and 3 are complete: the affordance renders first and defaults on
-  an empty catalog (never on an unreadable one), the flow streams what a human
-  supplies straight into the declared broker and keeps only the binding, a
-  PENDING declaration contributes no available entry, and
-  `POST /actions/workbench/model-approval` writes an `approve-model` gate action
-  carrying issuer/approver/expiry/audit reference before anything becomes
-  selectable. It also discharges the task handed over by
-  `add-model-provider-broker` (its 2.4): the mid-turn re-mint and the paid retry
-  it buys are now VISIBLE in the turn record and in the rail, per Brett's
-  2026-08-26 ruling. Both land as one ADDITIVE cut,
-  `target_release: contract-v1.45` (`approve-model` plus `target.model_declaration`
-  and `model_approval` on `gate-action-record`; the optional `provider_retry` on
-  `workbench-chat-turn-v2-success`). It stays ACTIVE: tasks 4.1 (live-console
-  proof, which needs a human at a real browser) and 4.2 (realization evidence)
-  are open, and under `release-realization` this change archives only on merged
-  plus green.
 - [add-identity-brokering](openspec/changes/add-identity-brokering/proposal.md)
   — authored and **RATIFIED 2026-08-21** (recommendations adopted as written;
   the OQ-5 co-residence gate discharged: HealthLinc patients found and
@@ -3500,6 +3517,53 @@ Hermes/domains/audits + pilot; structurally last) — see the
 [Staging Index](ideation/staging/INDEX.md).
 
 Archived changes:
+
+- [add-doxchat-model-intake](openspec/changes/archive/2026-09-16-add-doxchat-model-intake/proposal.md)
+  — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
+  [PR #1057](https://github.com/opensoft/openxFactory/pull/1057), under **RULING
+  Q6** (Brett Heap, 2026-09-04T17:49Z,
+  [#656](https://github.com/opensoft/openxFactory/issues/656)), encoded at
+  `split-opendox-two-layer-product` `tasks.md` § 6.3 and `design.md` § D9. The
+  SECOND of the five frozen changes to close, and **the first to exercise the
+  HARDER half of the collision**: § 6.4 carried one `## MODIFIED` block, this one
+  carries **1 MODIFIED + 4 ADDED**, and those four are four of the TWELVE titles
+  the split packet's § THE SIBLING COLLISION (b) records as *"not in canon and NOT
+  removed here"*. Promoting them would have created four requirements the split
+  packet's `## REMOVED` block cannot name and therefore cannot remove — *"a
+  removal of nothing"* — so they would have outlived the capability's exit. **NO
+  DELTA IS PROMOTED HERE**, per *"their `## ADDED` blocks never promote HERE and
+  their content is re-authored in the receiving repository"*. **THE DESTINATION,
+  NAMED, WHICH IS WHAT `tasks.md` § 8.5 REQUIRES:**
+  [openDox-spec #13](https://github.com/opensoft/openDox-spec/pull/13), change
+  `openspec/changes/add-doxchat-model-intake`, carrying the whole delta
+  **byte-identical** — 16,813 B / `sha256 3168ad8f…`, `diff`-verified — with no
+  subject edit owed and none made (`grep -c openxFactory` over the delta → **0**).
+  **WHAT STAYS:** the one additive `action` enum member in
+  `contracts/schemas/gate-action-record.schema.yaml`, already openxFactory
+  contract bytes at `contract-v1.45` — `tasks.md` § 6.3 says so — untouched here,
+  and `contract-v1.45` stays true as published. **WHAT TRAVELS OPEN:** tasks 4.1
+  (live-console proof) and 4.2 (realization evidence); RULING Q6 freezes the five
+  WHERE THEY STAND, so a closure with open boxes is the ruled disposition rather
+  than an exception to one. The packet is relocated by `git mv` and otherwise
+  UNEDITED, `Status: ratified` header included (Brett Heap, 2026-08-21,
+  *"proposal approved"*). Its `modified-block-currency` carriage-ledger row
+  retires with it (FIFTEEN named subjects → FOURTEEN, measured at this head:
+  `_LEDGER_SUBJECTS` holds 15 literal entries and 14 unique, the
+  `add-chain-attestation` row being written twice; it read "thirteen → twelve"
+  until this merge, from the chronology as it stood before #1056 landed its own
+  correction of that same count), and the departure itself —
+  gone from the active corpus, standing in the archive with all five
+  requirements — is asserted by a test of its own rather than implied by the
+  missing row. The non-promotion is registered as DELIBERATE through the
+  discharge `promotion_fidelity.py`'s own action text names, an entry in the
+  xFactory aggregation's `health/dispositions.yaml`, filed once for the FOUR re-homed closures — five entries, one per delta file, § 6.1's packet holding two — by [xFactory #454](https://github.com/opensoft/xFactory/pull/454), which is a SEPARATE landing in a separate repository and therefore a prerequisite: until it lands the aggregate gate reads these findings UNDISPOSED (the gate this feeds is `tasks.md` § 8.5 and
+  the severity reading is § 8.9's; § 6.6 is the separate rule that no new
+  dashboard change opens). **THE SELF-GATE COUNT THIS CLOSURE MOVES IS FIVE, NOT
+  ONE** — `promotion_fidelity` emits one finding per authoritative requirement,
+  so the four ADDED titles absent from canon and the MODIFIED block's one
+  uncarried scenario read as five errors, taking the family from 1 at § 6.4's
+  head to 6 at this one. Full reasoning:
+  [`review/rehome-2026-09-16.md`](openspec/changes/archive/2026-09-16-add-doxchat-model-intake/review/rehome-2026-09-16.md).
 
 - [add-composed-view-authoring](openspec/changes/archive/2026-09-16-add-composed-view-authoring/proposal.md)
   — **CLOSED AS RE-HOMED 2026-09-16** to `opensoft/openDox` by
