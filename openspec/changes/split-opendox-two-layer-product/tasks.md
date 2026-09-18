@@ -1218,6 +1218,22 @@ the bookkeeping that ticks this group.
   `[x]` and the record does not move it**; it is written here because the box's
   own evidence names Q7's acts, and a reader meeting the trio's third landing
   elsewhere should find it accounted for at the box that owns the ruling.
+  **THE S7 RESIDUE PAIR IS COMPLETE — recorded by `tasks.md` amendment #6,
+  2026-09-18** (`#656` note `5730727921`). `openxFactory` **#1085 →
+  `1da7ea6e`** at **13:29:34Z**, *"§ 3.4 slice-S7 RESIDUE row annotation:
+  declare the seven display-facet leaves"*, and `opensoft/openDox-code` **#28 →
+  `52b237e8`** at **13:30:20Z**, *"§ 3.4 S7 residue: thread the display facet to
+  the seven leaves it never reached"*. **This box is already `[x]` and the
+  record does not move it.**
+  *(RULED Q-L1's annotation-first rule holds again in FORM — the annotation
+  merged 46 seconds ahead of its leg — but **the holding COUNT above stays at
+  SEVEN and must not be read as an eighth**. That count is stated as one
+  holding per ANNOTATED SLICE, and this pair is RESIDUE to S7, whose holding is
+  already counted at 21:40:25Z/21:41:36Z on 2026-09-15. A residue pair that
+  obeys the rule is evidence the rule is durable, not a new member of the
+  enumeration; counting it would silently restate a figure this packet has
+  already had to correct once. The arc remains eight slices and seven
+  annotated holdings.)*
 - [ ] 3.5 `[oD]` The runtime, on the `xFactory-Hermes-Install` pattern (RULING
   Q2): FastAPI + Postgres, `migrations/` (ordered SQL, `0001` pinned canonical
   plus additive), `deploy/compose/` and `deploy/kubernetes/` — **all at the root
@@ -2994,10 +3010,29 @@ movements claimed at the time they land.
   bookkeeping that completes HERE and it archives HERE on its own evidence.
   Only its FORWARD half — the surviving `-v2` family's requirements — re-homes to
   openDox. **Sequenced BEFORE § 8.**
-- [ ] 6.3 `[oxF]` `[oD]` **`add-doxchat-model-intake`** → openDox. Built but
+- [x] 6.3 `[oxF]` `[oD]` **`add-doxchat-model-intake`** → openDox. Built but
   unarchived; its code moves with the carve as `moved_with_declared_edit` rows,
   its four ADDED requirements are re-authored in openDox, and its one additive
   schema enum member is already `openxFactory` contract bytes and STAYS.
+  **TICKED 2026-09-18 by `tasks.md` AMENDMENT #6**: `openxFactory` **#1057 →
+  `4ccab7b9`**, MERGED **2026-09-18T13:31:51Z**, *"Close add-doxchat-model-intake
+  as re-homed to openDox (split-opendox § 6.3, RULING Q6)"*. The closure is
+  archived at `openspec/changes/archive/2026-09-16-add-doxchat-model-intake`.
+  The Rule 6 landing window recorded for it is 13:31:44Z → 13:32:00Z, and the
+  measured merge time falls INSIDE it, which is the check worth making on a
+  window rather than reading it back.
+  **This is the FIRST archive closure to land under the `--merge`-not-squash
+  rule § 6.4 wrote into this ledger yesterday, and the rule held.** Measured
+  rather than assumed: `4ccab7b9` has **two parents**, which is what a merge
+  produces and a squash cannot, and the archive directory's adding commit
+  `cb147a71` is dated **2026-09-16T01:18:08Z** — the SAME day the directory is
+  named for — so `archive-date-vs-commit` has nothing to fire on. The contrast
+  is the proof: #1056, squashed two days earlier under the same naming
+  convention, put a **2026-09-18** adding commit under a `2026-09-16`
+  directory, reddened `main`, and cost a disposition row (#1106 → `bbd1cca8`)
+  to clear. Same convention, same week, two landing forms, two outcomes —
+  which is as close to a controlled comparison as this ledger gets, and it is
+  recorded here so the rule is carried by evidence rather than by assertion.
 - [x] 6.4 `[oxF]` `[oD]` **`add-composed-view-authoring`** → openDox. One MODIFIED
   requirement, `target_release: none`, no contract bytes — the cheapest of the
   five.
@@ -4112,3 +4147,27 @@ realization evidence, never on landing. Each line is its own evidence.
   `contracts/CHANGELOG.md`, `contracts/README.md` and `contracts/manifest.yaml`
   — so the two drift reports are separate residue and neither subsumes the
   other.
+  **(v) REGISTERED 2026-09-18 BY AMENDMENT #6, NOT RESOLVED HERE, for the next
+  act on that file:** `scripts/validate-sequenced-after.py` states a
+  CURRENT-CORPUS claim, **"124 of the 143"** archived rows legitimately carry a
+  move date later than their directory's, and the corpus has moved out from
+  under it. **Measured at this amendment's own merged head `c2d5ce92`: 128 of
+  172** (128 later + 44 equal = 172 archived rows, ledger and archive
+  directories aligned 172/172, no row without a directory and no directory
+  without a row).
+  **The claim lives at FIVE sites, not the three first reported** — `:36` and
+  `:396` carry the bare `143`; `:42` and `:402` carry `124 of … 143`; `:739`
+  carries `124 rows`. `:739` is an argparse **help string**, so it is
+  user-visible CLI text and not merely a comment, which is why the site list
+  has to be complete before anyone edits it.
+  **The next act should NOT simply renumber.** The denominator moved THREE
+  TIMES in a single afternoon — 170 at this branch's pre-merge head
+  `d323b9b5`, 171 at #1106's head `a96ecb5d` (#1106 comment `5730576589`), 172
+  here — because every archive closure adds a row. The numerator held at 128
+  throughout, since a closure archived on its own directory's date lands in the
+  EQUAL bucket and not the LATER one. So the numerator is roughly stable and
+  **the denominator rots by construction**: a fresh pair of literals would be
+  wrong again at the next closure, which is how this one reached a drift of 29.
+  The durable fix is to derive the figure or bind it to a named tree, and the
+  choice belongs to that act with its own claim. **Registered here, not
+  resolved, and it moves no box.**
