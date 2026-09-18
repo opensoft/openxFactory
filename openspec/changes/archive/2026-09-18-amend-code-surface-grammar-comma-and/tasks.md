@@ -265,10 +265,22 @@ word and on no other act.
 
       **THE CLOSING KEYWORD IS PLACED, AND THAT IS THE WHOLE OF WHAT A TICK CAN
       RECORD.** `Closes #1092` is written in the BODY of this archive pull
-      request and in no other place: no commit message on this branch carries a
-      closing keyword beside an issue number, checked with a grep over
-      `origin/main..HEAD` rather than assumed. So openxFactory #1092 shuts BY
-      THE MERGE of this pull request — the landing lane's act on Brett Heap's
+      request, which is the instrument this box names. **AND IT APPEARS ONCE
+      MORE, WHICH IS DISCLOSED HERE RATHER THAN LEFT TO BE FOUND**: the phrase
+      is quoted inside the MESSAGE of this branch's first commit, `e37ab6bd`,
+      where that commit describes the instrument it is ticking. A grep over
+      `origin/main..HEAD` for a closing keyword beside an issue number — run
+      rather than assumed — returns EXACTLY that one occurrence and no other,
+      and no issue number but 1092 carries a keyword anywhere on this branch.
+      GitHub reads a closing keyword in a commit message that reaches the
+      default branch, so the two occurrences name the SAME act — the merge of
+      this pull request — and neither can shut #1092 before it: no earlier act
+      and no second effect. A first commit reworded to carry the sentence
+      without the keyword was prepared and REFUSED by this repository's
+      ruleset, verbatim *"Cannot force-push to this branch"*, so the correction
+      is made in a commit on top, which is the house remedy for a message
+      already pushed. So openxFactory #1092 shuts BY THE MERGE of this pull
+      request — the landing lane's act on Brett Heap's
       archive word — and the tick records that the instrument is IN PLACE, never
       that the issue is shut. That is the shape PR
       [#899](https://github.com/opensoft/openxFactory/pull/899) took at its own
