@@ -352,6 +352,14 @@ and a test that passes on both sides is not the proof.**
       ticked, per the realization plan's own rule that a check red for a
       reason outside this packet's six files is not this packet's evidence to
       claim.
+      **GREEN AT THIS HEAD, 2026-09-18.** `pytest-suite` is GREEN at PR
+      #1107 head `8fb0fc99`, run `35359208240`
+      (https://github.com/opensoft/openxFactory/actions/runs/35359208240);
+      confirmed `gh run view 35359208240 --json conclusion` returns
+      `{"conclusion":"success"}`. The tick itself is the ARCHIVE act's,
+      taken from `main`'s own green run at the landed merge, because a
+      tick commit always moves the head past the run it cites (the
+      `add-declared-former-id` precedent).
 
 ## 5. Archive (OPEN; a separate act on a separate word)
 
