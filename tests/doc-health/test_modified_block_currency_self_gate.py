@@ -134,12 +134,13 @@ that reddened the gate-bearing test.
 from __future__ import annotations
 
 import functools
+import hashlib
 import inspect
 import re
 import subprocess
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -520,8 +521,19 @@ _LEDGER_SUBJECTS = {
     # longer reads the block — not because the block's obligation was carried.
     # The block itself is unchanged and still readable at
     # `_DEPARTED_BLOCK_DELTA`, where the scenario-arm test now reads it.
-    ("add-doxchat-model-intake", "ideation-dashboard",
-     "doxBench model catalog and provider boundary"),
+    # REMOVED 2026-09-16 BY THE SECOND CLOSURE ACT —
+    # ('add-doxchat-model-intake', 'ideation-dashboard', 'doxBench model catalog
+    # and provider boundary'). Same route as the row above it: CLOSED AS
+    # RE-HOMED to `opensoft/openDox` under RULING Q6
+    # (`split-opendox-two-layer-product` `tasks.md` § 6.3), so the row leaves
+    # because `active_blocks` no longer reads the block, NOT because the block's
+    # obligation was carried. The block itself is unchanged at
+    # `openspec/changes/archive/2026-09-16-add-doxchat-model-intake/specs/`
+    # `ideation-dashboard/spec.md`. Two of the five § 6 closures have now left
+    # this ledger by departure rather than discharge; the remaining three
+    # (`add-nightly-dashboard-refresh`, `add-lens-document-selection`,
+    # `retire-doxbench-chat-turn-v1`) hold no row here, so this is the last
+    # movement § 6 makes to this constant.
     # ADDED 2026-08-28 BY `add-credential-escrow-checkout`, when Brett VETOED
     # that packet's OD-2 over PR #479 and moved a schema surface into it that it
     # had been authored to defer. A DELIBERATE AMENDMENT, and the narrowest one
@@ -1665,6 +1677,217 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
         "as a bullet is still promoted")
 
 
+#: THE § 6 CLOSURES THIS FILE HAS SEEN, AND WHAT EACH MUST STILL BE TRUE OF.
+#:
+#: `_LEDGER_SUBJECTS` loses a row when a change leaves the ACTIVE corpus, and it
+#: loses that row identically whether the packet was RE-HOMED (relocated into
+#: `openspec/changes/archive/`, its delta intact and unpromoted) or simply
+#: DELETED. Those two are not the same act and only one of them is what RULING
+#: Q6 ordered, so the ledger's silence cannot be the only thing standing behind
+#: the claim. The composed-view row has had a positive assertion since its own
+#: closure — the scenario-arm test reads its block back out of the archive — and
+#: this constant gives the same standing to every later one.
+#:
+#: Raised by Copilot on PR #1057, in those terms: "if the active packet were
+#: deleted (and its ledger row omitted) rather than moved to `archive/`, this
+#: assertion would still pass". Taken rather than answered.
+#:
+#: EACH ROW: (change, archived delta path, capability, the MODIFIED title that
+#: held the ledger row, the ADDED titles that must still stand in the delta).
+#: The one file in an archived § 6 packet that was NOT carried: the closure
+#: record the closure itself wrote. Everything else in the directory moved
+#: byte-identical under RULING Q6, so everything else is pinned.
+_CLOSURE_RECORD = "review/rehome-2026-09-16.md"
+
+_REHOMED_AND_STILL_WHOLE = (
+    ("add-doxchat-model-intake",
+     "openspec/changes/archive/2026-09-16-add-doxchat-model-intake/"
+     "specs/ideation-dashboard/spec.md",
+     "ideation-dashboard",
+     "doxBench model catalog and provider boundary",
+     ("Intake proposes a model; approval stays a recorded human act",
+      "Model intake hands the credential to the broker and keeps only a binding",
+      "The intake affordance ships with the flow behind it",
+      "The model selector offers intake first and defaults to it when nothing "
+      "is approved"),
+     ((".openspec.yaml",
+       "1a98c5302d07bfa3ddb0d0a8e879cffd163c020395c3faa5716be5c8d7feefd2", 2018),
+      ("design.md",
+       "ee00bdbd78499fb752a2daf0e8266dd8c96fcb177f92812a9c9044269d033be0", 9790),
+      ("proposal.md",
+       "1b7dd8456b4905367d3a64c99e856b5413cda2c6c3f11d594d2a13f892ab3bc7", 16693),
+      ("specs/ideation-dashboard/spec.md",
+       "3168ad8f6f31c8dbacdc772d933508943f7b2c7cf373de2357eb8958d4bebee1", 16813),
+      ("tasks.md",
+       "45d341e8f08baff5e6d1cbe393c9b43e80aba92930df0b470f87cb40cd192d0a", 20805))),
+)
+
+
+def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_archive():
+    """THE CLOSURE ITSELF, ASSERTED — not inferred from a row that is no longer
+    there.
+
+    Three things, in this order, because the order is what makes them evidence:
+
+      1. the packet is ABSENT from `openspec/changes/` — the departure;
+      2. the archived delta EXISTS — the relocation, not a deletion;
+      3. the delta still parses through the family's own `parse_delta` and still
+         carries every requirement it carried when it was active — the MODIFIED
+         block that held the `_LEDGER_SUBJECTS` row, and each ADDED title whose
+         non-promotion this closure recorded as deliberate.
+
+    (3) is the one that makes this more than bookkeeping. RULING Q6 re-homes the
+    content; a closure that lost an ADDED requirement on the way into the
+    archive would leave the receiving repository's copy as the only copy, and
+    nothing in this repository would ever say so. The four ADDED titles are
+    exactly the four `promotion_fidelity` reports as absent from canon at every
+    head after this closure, so the same four are load-bearing in two places and
+    a drift in either shows up here.
+
+    AND THE SIXTH FIELD IS THE BYTES — OF THE WHOLE PACKET, NOT THE DELTA ALONE.
+    Naming the titles proves the delta still carries the right REQUIREMENTS; it
+    proves nothing about their text, and a closure that archived a gutted block
+    with the headings intact would pass every assertion above. So the row pins
+    `sha256` and length for EVERY FILE the packet carried — `.openspec.yaml`,
+    `proposal.md`, `design.md` where there is one, `tasks.md` and the delta —
+    and the arm compares the pinned MAP against the measured one, so a file
+    added or removed under the archive fails exactly as loudly as a file edited.
+    The closure record this closure wrote is the one exclusion, by name, because
+    it is the only file that did NOT travel.
+
+    It reads with `read_bytes()` rather than through `parse_delta`, so the
+    digests are taken before any decoding and an encoding change fails here
+    instead of passing invisibly. THE PINS ARE NOT CHECKSUMS OF CONVENIENCE: the
+    delta's is the digest the closure record quotes and the one the receiving
+    repository's copy was `diff`-ed against, and every file's was verified
+    IDENTICAL to that file's bytes on `main` before the move. So a drift on
+    either side of the re-home lands on this assertion. RULING Q6 CARRIES; IT
+    DOES NOT AUTHOR, and this is the only place that sentence is enforceable
+    rather than merely written down.
+
+    It began as the delta's digest alone. Copilot's reading of openxFactory
+    #1057 pointed out that a closure claiming a byte-identical move of the whole
+    packet was proving it of one file, so `proposal.md`, `design.md`, `tasks.md`
+    or `.openspec.yaml` could have been edited under a green suite. The widening
+    is that reading taken.
+
+    NOT A COUNT. Each title is named; the population is bounded by the same
+    named set rather than by its size.
+    """
+    for (change, delta, capability, requirement, added,
+         carriage) in _REHOMED_AND_STILL_WHOLE:
+        active = ROOT / "openspec" / "changes" / change
+        assert not active.exists() and not active.is_symlink(), _moved(
+            f"{change} ABSENT from the active corpus (CLOSED AS RE-HOMED under "
+            "RULING Q6 on 2026-09-16) — nothing at all at that path",
+            f"{active} still stands. THE CHECK IS ABSENCE, NOT 'NOT A "
+            "DIRECTORY': it was `is_dir()` until 2026-09-16, and a stale "
+            "regular file or a symlink resolving anywhere but a directory "
+            "answered False to that while still standing where the packet was. "
+            "`mbc.active_blocks()` skips such a path too, so the two agreed on "
+            "a departure that had not happened. `exists()` alone is not enough "
+            "either — it follows symlinks, so a dangling one reads as absent")
+
+        archived = ROOT / delta
+        assert archived.is_file(), _moved(
+            f"the archived delta {delta}",
+            "no such file — the closure was a DELETION or the packet moved "
+            "again; a re-home relocates the delta, it does not drop it")
+
+        packet = ROOT / PurePosixPath(delta).parents[2]
+        record = packet / _CLOSURE_RECORD
+        assert record.is_file(), _moved(
+            f"{packet.name} carrying its closure record at {_CLOSURE_RECORD}",
+            "no such file. THE ONE FILE THE HASH WALK SKIPS MUST EXIST. It is "
+            "skipped because it did not travel — not because it is optional: "
+            "README's archived-ledger entry points a reader at it for the "
+            "closure's reasoning, and a rename or a deletion would leave that "
+            "pointer dangling while every byte assertion below still passed")
+        # AND THE WALK FAILS CLOSED. `is_file()` and `read_bytes()` both FOLLOW
+        # symlinks, and `rglob` drops every entry that is not a file WITHOUT
+        # SAYING SO, so two states pass this hash walk while the packet is not
+        # the packet: a directory reached through a symlinked ANCESTOR, and a
+        # carried file replaced by a link to bytes elsewhere — which hashes the
+        # target and reports agreement about a file that is no longer here. A
+        # leaf-only check walks straight past the first; resolved-path equality
+        # catches leaf and ancestor alike. This is the guard #1056's departure
+        # proof settled on, applied to the arm that reads a whole packet.
+        # (Found by Copilot's review on PR #1057.)
+        assert packet.resolve(strict=True) == (
+                ROOT.resolve() / PurePosixPath(delta).parents[2]), _moved(
+            f"the archived packet {packet.name} reached without a symlink",
+            f"it resolves to {packet.resolve(strict=True)}, so the bytes hashed "
+            "below are not provably the ones RULING Q6 carried")
+        entries = sorted(packet.rglob("*"))
+        linked = [q.relative_to(packet).as_posix() for q in entries
+                  if q.is_symlink()]
+        assert not linked, _moved(
+            f"every entry of {packet.name} a real file or directory",
+            f"these are symlinks: {linked}. Q6 CARRIES BYTES; a link is a "
+            "pointer at somebody else's bytes, and hashing what it resolves to "
+            "would report agreement about a file this packet no longer holds")
+        strange = [q.relative_to(packet).as_posix() for q in entries
+                   if not q.is_file() and not q.is_dir()]
+        assert not strange, _moved(
+            f"nothing in {packet.name} that is neither file nor directory",
+            f"these are neither: {strange}. The walk below would drop them "
+            "SILENTLY, which is how a packet loses a file without the pinned "
+            "map changing")
+        measured = {}
+        for path in sorted(q for q in entries if q.is_file()):
+            rel = path.relative_to(packet).as_posix()
+            if rel == _CLOSURE_RECORD:
+                continue
+            body = path.read_bytes()
+            measured[rel] = (hashlib.sha256(body).hexdigest(), len(body))
+        pinned = {rel: (digest, size) for rel, digest, size in carriage}
+        if measured != pinned:
+            drift = []
+            for rel in sorted(set(pinned) | set(measured)):
+                was, now = pinned.get(rel), measured.get(rel)
+                if was == now:
+                    continue
+                drift.append(
+                    "  %-34s pinned %s  archived %s" % (
+                        rel,
+                        "absent" if was is None else f"{was[0][:12]}../{was[1]}B",
+                        "absent" if now is None else f"{now[0][:12]}../{now[1]}B"))
+            raise AssertionError(_moved(
+                f"every file of {packet.name} byte-identical to what RULING Q6 "
+                f"carried ({len(pinned)} files, the closure record excluded)",
+                "these did not match:\n" + "\n".join(drift) + "\n"
+                "Q6 CARRIES; IT DOES NOT AUTHOR. A packet edited on its way "
+                "into the archive, or after it, has been changed where the "
+                "ruling forbids changing it -- and the receiving repository's "
+                "copy, diffed against these exact bytes, no longer says the "
+                "same thing. Re-derive against the receiving change before "
+                "touching this pin"))
+
+        requirements, _renames = mbc.parse_delta(
+            archived.read_text(encoding="utf-8", errors="replace"))
+        modified = [r for r in requirements
+                    if r.op == "MODIFIED"
+                    and mbc.norm(r.title) == mbc.norm(requirement)]
+        assert len(modified) == 1, _moved(
+            f"the MODIFIED block {requirement!r} in {delta}",
+            f"{len(modified)} matching block(s)")
+
+        present = {mbc.norm(r.title) for r in requirements if r.op == "ADDED"}
+        missing = [title for title in added if mbc.norm(title) not in present]
+        assert not missing, _moved(
+            f"the {len(added)} ADDED requirements of {change} standing in the "
+            "archived delta",
+            f"absent: {missing}")
+
+        live = [b for b in mbc.active_blocks(ROOT)
+                if (b.change, b.capability, mbc.norm(b.title))
+                == (change, capability, mbc.norm(requirement))]
+        assert not live, _moved(
+            f"no ACTIVE block carrying {change} / {requirement!r}",
+            f"{len(live)} still active — the ledger row was removed while the "
+            "block is still read by `active_blocks`")
+
+
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     """PACKET § 4.1's editorial arm, as an EXACT SET of named subjects — nine
     at 2026-09-11, twelve since `repoint-chain-anchoring-medxchain-citation`
@@ -1721,6 +1944,32 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     DISCHARGE, and the note standing where the row used to says so. The
     distinction matters to a reader of this ledger: a promoted row's obligation
     was carried, and this row's obligation moved to another repository.
+
+    FOURTEEN SINCE THE SECOND CLOSURE THE SAME DAY: the FIFTEEN measured
+    immediately above, less the one row THIS closure retires, and
+    `len(_LEDGER_SUBJECTS)` MEASURED AT THIS HEAD reads FOURTEEN (15 literal
+    entries, 14 unique, the same `add-chain-attestation` duplicate collapsing)
+    against the exact-set assertion below. (It read TWELVE until this merge: the
+    sentence was written against the numeral that stood before #1056 landed its
+    own correction, and subtracting from a superseded number is the one mistake
+    this whole paragraph exists to stop — twice now, which is why the arithmetic
+    is written out rather than asserted.) `add-doxchat-model-intake` left by the
+    same route (§ 6.3). Two of the five § 6 closures held a row here and both
+    are now gone; the other three hold none, so § 6 makes no further movement to
+    this population.
+
+    THIRTEEN AT THIS MERGED HEAD, 2026-09-18. Three rows retired on three
+    SEPARATE branches — `scope-pinned-arm-root-naming`'s archive (openxFactory
+    #1047, PR #1089) and the two § 6 closures directly above (PRs #1056 and
+    #1057) — and each of the three readings above was MEASURED on a tree that
+    did not yet hold the other two retirements. Every one of them is true of the
+    tree it names and NONE of them composes with the others, which is why this
+    paragraph re-measures rather than subtracting again: this merge is the first
+    tree that carries all three, and `len(_LEDGER_SUBJECTS)` MEASURED HERE reads
+    THIRTEEN — 14 literal entries, 13 unique, the same `add-chain-attestation`
+    duplicate collapsing as it always has. The measurement is the authority; the
+    chain above is the chronology, and a chronology assembled by merge from
+    parallel branches states three different heads, not one.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
