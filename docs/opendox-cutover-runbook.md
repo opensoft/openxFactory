@@ -376,16 +376,20 @@ RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
 test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
-**Measured directly against the landed manifest, and CURRENT TO RULED Q7's
-CSS EXTRACTION of 2026-09-16** (rather than hand-chained through every
-intervening amendment): the table and the two paragraphs above, and the
-per-destination table below, state the totals as of THIS act — RULED Q7's CSS
-extraction (`#656` comment `5648049748`, the FORM Q-L1's at `5628560136`), the
-one act on this document whose whole window is a CSS EXTRACTION: 89 `adapter
-calls` lines on one already-declared row — 88 of them DELETIONS and one, carve
-`:161`, a REPLACEMENT in place (§ 3.4 above states which and why) — as the 59
-rule blocks the gate loop's own selectors occupied leave for the four sheets
-openXdox-code ships beside the bindings that name them. Behind it, RULED 5656343213's retirement act
+**Measured directly against the landed manifest, and CURRENT TO THE § 3.4
+SLICE-S7 RESIDUE ANNOTATION of 2026-09-17** (rather than hand-chained through
+every intervening amendment): the table and the two paragraphs above, and the
+per-destination table below, state the totals as of THIS act — the § 3.4
+SLICE-S7 RESIDUE annotation (`#656` CLAIM `5714327188`, the FORM Q-L1's at
+`5628560136`), whose whole window is +7 `adapter calls` lines over four
+already-declared `opendox_code` rows and which moves no other count:
+**2710 + 7 = 2717**. Behind it, RULED Q7's CSS EXTRACTION (`#656` comment
+`5648049748`), the one act on this document whose whole window is a CSS
+EXTRACTION: 89 `adapter calls` lines on one already-declared row — 88 of them
+DELETIONS and one, carve `:161`, a REPLACEMENT in place (§ 3.4 above states
+which and why) — as the 59 rule blocks the gate loop's own selectors occupied
+leave for the four sheets openXdox-code ships beside the bindings that name
+them. Behind that, RULED 5656343213's retirement act
 (`#656` CLAIM `5656690570`), then the pre-existing `openxdox_code` row
 annotation (`#656` CLAIM `5656688910`), and behind that the § 3.4 slice-S8
 annotation (RULED `#656`
@@ -413,7 +417,8 @@ annotation (RULED Q5/Q6, `#656` comment `5648044785`, openxFactory PR #1023
 @ `ee251d6c`) — the first act to use the `re_destined:` form, +162 declared
 lines, and the one `views/staging-workbench.js` conversion that moves both
 disposition counts and the carrier count at once — and the § 3.4 SLICE S7
-annotation THIS ACT CARRIES: +782 declared lines over 33 `opendox_code` rows,
+annotation (openxFactory PR #1030 @ `b3a75537`, whose own act this
+paragraph was written from): +782 declared lines over 33 `opendox_code` rows,
 17 of them converted `moved_verbatim` -> declared, and three admitted files.
 The list is complete THROUGH SLICE S7, and deliberately stops there: the § 3.4
 slice-S8 annotation, the pre-existing `openxdox_code` annotation, RULED
@@ -1221,7 +1226,9 @@ form on purpose, not a stale example** (Copilot review, PR #979; its PREMISE
 re-measured on Copilot's round-ten review of PR #1030). What keeps the flag
 correct is not that `opendox_code` declares no admissions — this note said
 its block in `docs/opendox-carve-admissions.yaml` was `created: []` long after
-BUILD slice 2 began filling it, and THIS act adds three more entries to it —
+BUILD slice 2 began filling it, and the § 3.4 slice-S7 annotation this note
+was last re-measured on (openxFactory PR #1030 @ `b3a75537`) added three more
+entries to it, with seven further amendments since —
 but that neither `pytest.ini` nor `conftest.py` is among the paths it
 declares. Those two Phase-1 files still have no reviewed declaration to read,
 so the command-line flag remains this leg's live, correct admission, exactly
