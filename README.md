@@ -540,26 +540,55 @@ Active changes:
   `lanes/log/openXfactory-5.md`.
   **THE WORD IS BARE**: it ratifies the PACKET and names no option
   individually, so each of the four declared veto points stands at the option
-  the packet encodes — the RECOMMENDED one in all four — and the delta's wording
-  stands unchanged. `tasks.md` § 1 is ticked; §§ 3, 4, 5 and 6 stay open.
+  the packet encodes — the RECOMMENDED one in all four — and, AT THAT 12:55Z
+  WORD ALONE, the delta's wording stood unchanged. `tasks.md` § 1 is ticked;
+  §§ 3, 4, 5 and 6 stay open.
+  **THREE FURTHER WORDS AT ~15:40Z THE SAME DAY THEN AMENDED THE DELTA**,
+  each a multiple-choice answer over a gap Copilot's review of PR #1101
+  exposed in the already-ratified text, each recorded as its own `RULED`
+  entry in `lanes/log/openXfactory-5.md` and set out in full at
+  [`review/ratification-2026-09-18.md`](openspec/changes/add-estate-repository-inventory/review/ratification-2026-09-18.md)
+  § 3: *"Bind the carrier identity"* (a working tree supplied for a `gitlink`
+  row's re-check MUST verify as the row's named carrier, by origin URL or by
+  `contracts/policies/repository-identity.yaml`, before its `.gitmodules`
+  evidence is trusted, else the row reads NOT RE-CHECKED), *"#1101 declares
+  #1108 and folds its text"* (the `sequenced_after` fold below), and *"MAY
+  becomes MUST"* (the `change`-admitted provisional row is owed, not
+  optional). All three are additionally encoded, in this one commit, as
+  `tasks.md` task 1.5 (§ 1 stays ticked); none touches `openspec/specs/`;
+  all three move only the delta text.
   Answers openxFactory
   [#1087](https://github.com/opensoft/openxFactory/issues/1087), the successor
   `gate-code-surface-declarations` `tasks.md` § 6.1 named and that packet's
   archive act filed at the landing of PR #1076, CLAIMED by this lane before
   authoring.
-  **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS, TWENTY-SEVEN
-  SCENARIOS (10 + 8 + 9), OVER `release-realization`**: the MODIFIED block
-  restates *Code-surface declaration grammar is gated* exactly as canon states it
-  but for ONE paragraph (ten scenarios), and the ADDED pair is *The estate's
-  repositories are enumerated in a governed inventory* (eight scenarios) and
-  *A declared repository is judged for membership against the estate inventory*
-  (nine). The MODIFIED block is OWED rather than preferred: the promoted
-  `SHALL NOT judge its MEMBERSHIP` is unconditional in its own words, so an
-  ADDED-only delta would leave canon carrying two requirements that cannot both
-  be obeyed. No other active change
-  writes that requirement key, so the block is SOLE, `sequenced_after: []` is a
-  corroborated root claim, and the `modified-block-currency` family reports no NEW
-  finding.
+  **ONE `## MODIFIED` BLOCK AND TWO `## ADDED` REQUIREMENTS, TWENTY-EIGHT
+  SCENARIOS (11 + 8 + 9), OVER `release-realization`**: the MODIFIED block is
+  WRITTEN OVER `amend-code-surface-grammar-comma-and`'S OUTCOME AND NOT OVER
+  CANON — that packet (openxFactory #1092, PR #1108, ratified 2026-09-18,
+  landed `60d281a8`) is an ACTIVE RATIFIED writer of the SAME requirement key,
+  so on the ruling *"#1101 declares #1108 and folds its text"* this packet
+  declares `sequenced_after: [amend-code-surface-grammar-comma-and]` and
+  reproduces #1108's ratified wording byte-for-byte (the four separators
+  including `, and `, the comma-first paragraph, its `**AMENDED BY**` note and
+  its added Oxford-comma scenario), with only this packet's own
+  membership-not-judged paragraph moved against that basis — ELEVEN scenarios,
+  the ten already in the block plus the Oxford-comma scenario folded in from
+  #1108's outcome. The ADDED pair is *The estate's repositories are enumerated
+  in a governed inventory* (eight scenarios) and *A declared repository is
+  judged for membership against the estate inventory* (nine). The MODIFIED
+  block is OWED rather than preferred: the promoted `SHALL NOT judge its
+  MEMBERSHIP` is unconditional in its own words, so an ADDED-only delta would
+  leave canon carrying two requirements that cannot both be obeyed. **THE
+  BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is an
+  ACTIVE writer of the same requirement key, so `sequenced_after: []` is no
+  longer a root claim — the corpus ledger carries this packet as class
+  `co-modifier`, depth 1, declaring `amend-code-surface-grammar-comma-and`,
+  and promotion order is #1108 then #1101, **with #1108 itself untouched**.
+  The `modified-block-currency` family still reports no NEW finding, but
+  because the declared ordering resolves the pair: this block is measured
+  against #1108's block rather than against canon, and the family's
+  resolution-ordering arm returns to the empty set it already states.
   **THE MEASURED GAP.** `scripts/code_surface.py` judges a repository
   identifier's SHAPE and never its MEMBERSHIP, so `openxFactorie` passes and so
   does a repository that is no part of this estate. The class is standing, not
