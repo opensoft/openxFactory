@@ -1121,8 +1121,14 @@ def test_admitting_the_value_did_not_move_the_closed_baseline():
             "own `retires_when:` — 'or the packet archives' — and the packet is "
             "archived at "
             "`openspec/changes/archive/2026-09-16-add-nightly-dashboard-refresh`. "
-            "A baseline entry for a change that is no longer active admits a "
-            "token nothing can be measured against")
+            "THE DEFECT IS THAT THIS CLOSURE'S DELIBERATE SHRINK WAS UNDONE, "
+            "and not that a retained pair is unlawful in general: the module "
+            "says the opposite in its own words (`scripts/target_release.py`, "
+            "the CLOSED_REGISTER note) — 'A BASELINE MAY BE A STRICT SUPERSET, "
+            "AND USUALLY WILL BE ... a pair stays here after its entry goes. "
+            "This is a ceiling, never a floor.' So a pair surviving its entry "
+            "is ordinary; THIS pair was removed on purpose when the packet "
+            "archived, and its return means that edit was reverted")
     assert not [e for e in tr.CLOSED_REGISTER
                 if e[1] == tr.DEFERRED_ALLOCATION]
 
