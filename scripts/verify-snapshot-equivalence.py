@@ -156,6 +156,7 @@ import sys
 import tarfile
 import threading
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -346,6 +347,16 @@ _GIT_TIMEOUT = 30
 #: the shipped corpus takes under a second — because it exists to stop a
 #: non-terminating renderer hanging a required gate, not to police speed.
 _CHILD_TIMEOUT = 300
+
+#: Restoring a caller's timer with a delay of exactly `0` would CANCEL it
+#: rather than restore it, so an inherited deadline that passed while the
+#: post render held the timer comes back at a millisecond — small enough to
+#: be immediate, large enough to be non-zero on any platform's timer
+#: granularity. That deadline arrives LATE, which is true, rather than never,
+#: which is not. It is reachable because OUR alarm can be DEFERRED: CPython
+#: runs a signal handler only between bytecodes, so a pinned leg inside a C
+#: extension that holds the GIL delays ours past its own bound.
+_TIMER_FLOOR = 1e-3
 
 
 def _git_environment() -> dict[str, str]:
@@ -735,9 +746,20 @@ def post_side_identity(stack, pins: dict[str, str]) -> dict[str, Any]:
             "post_label": label}
 
 
-class _RenderTimeout(Exception):
+class _RenderTimeout(BaseException):
     """The watchdog fired. Never leaves `render_post()` — it is re-raised
-    there as a named refusal."""
+    there as a named refusal.
+
+    It derives from `BaseException` and not from `Exception` for the reason
+    `KeyboardInterrupt` and `asyncio.CancelledError` do. It is not a failure
+    OF the renderer that the renderer might reasonably handle; it is this
+    file taking control BACK from it. And the renderer is PINNED THIRD-PARTY
+    CODE: an ordinary `except Exception:` anywhere inside it — a retry, a
+    cleanup, a "log and carry on" — would consume the alarm and return as
+    though the render had finished, turning the refusal this file promises
+    into a silent verdict computed from whatever was half-built when the
+    alarm landed (Copilot on #1110, thread r4047-`_RenderTimeout`).
+    """
 
 
 def arm_render_watchdog(seconds: float):
@@ -761,11 +783,28 @@ def arm_render_watchdog(seconds: float):
     right — the alternative is refusing a run for the interpreter's shape
     rather than for anything about the projection — and it is the ONLY place
     in this file that degrades rather than refusing, which is why it says so.
+
+    A CALLER'S OWN DEADLINE IS NOT OURS TO CANCEL. A process gets ONE
+    `ITIMER_REAL`, so arming ours destroys whatever an embedding harness set
+    — `pytest-timeout` in its `signal` method, a supervising runner, a caller
+    that bounded this whole verification. Where the inherited deadline is
+    EARLIER than the bound asked for here, arming would LOOSEN it, so we
+    leave it alone and answer `None`: the render runs under the caller's
+    tighter bound, which is what that bound was set for. Where it is later,
+    we arm, and `disarm()` puts back what is LEFT of it — floored just above
+    zero, so a deadline that expired while we rendered fires the moment
+    control returns rather than never — with its interval and its handler
+    (Copilot on #1110, suppressed).
     """
-    if not (hasattr(signal, "SIGALRM") and hasattr(signal, "setitimer")):
+    if not (hasattr(signal, "SIGALRM") and hasattr(signal, "setitimer")
+            and hasattr(signal, "getitimer")):
         return None
     if threading.current_thread() is not threading.main_thread():
         return None
+    inherited, interval = signal.getitimer(signal.ITIMER_REAL)
+    if inherited and inherited <= seconds:
+        return None
+    armed_at = time.monotonic()
 
     def _fire(signum, frame):  # noqa: ARG001 - the handler signature
         raise _RenderTimeout(seconds)
@@ -776,6 +815,10 @@ def arm_render_watchdog(seconds: float):
     def disarm() -> None:
         signal.setitimer(signal.ITIMER_REAL, 0)
         signal.signal(signal.SIGALRM, previous)
+        if inherited:
+            left = inherited - (time.monotonic() - armed_at)
+            signal.setitimer(signal.ITIMER_REAL,
+                             max(left, _TIMER_FLOOR), interval)
 
     return disarm
 
@@ -800,6 +843,12 @@ def render_post(stack, corpus: Path, source_revision: str) -> bytes:
         snap = generator.generate_snapshot(
             corpus, REPOSITORY_NAME, source_revision=source_revision,
             git=FakeGit(head=source_revision))
+        # CANONICALIZATION IS INSIDE THE BOUND. It is the snapshot leg's own
+        # code, this function promises canonical BYTES rather than an object,
+        # and a pinned leg that does not terminate while SERIALIZING hangs
+        # the gate exactly as one that does not terminate while generating
+        # does (Copilot on #1110, thread r4047-canonicalization).
+        rendered = snapshot.canonical_bytes(snap)
     except _RenderTimeout as exc:
         raise EquivalenceRefusal(
             "equivalence-post-stack-unrenderable",
@@ -818,7 +867,7 @@ def render_post(stack, corpus: Path, source_revision: str) -> bytes:
     finally:
         if disarm is not None:
             disarm()
-    return snapshot.canonical_bytes(snap)
+    return rendered
 
 
 # --------------------------------------------------------------------------
@@ -1245,6 +1294,19 @@ def main(argv: list[str] | None = None) -> int:
                             summary["post_label"]))
     except EquivalenceRefusal as exc:
         return _refused(exc, args, where)
+    # A `_RenderTimeout` can still land in the sliver between the guarded
+    # render and `disarm()`, where `render_post()` no longer maps it — and it
+    # is a `BaseException`, so the guard below, which is `Exception` ON
+    # PURPOSE, would not hold the exit contract for it. It is this file's own
+    # control-flow signal and not the operator's, so it refuses in this
+    # file's vocabulary rather than leaving a traceback and EXIT 1.
+    except _RenderTimeout:
+        return _refused(
+            EquivalenceRefusal(
+                "equivalence-post-stack-unrenderable",
+                "the pinned post-split stack did not finish rendering "
+                f"within {_CHILD_TIMEOUT}s"),
+            args, where)
     # THE EXIT CONTRACT, HELD BY CODE AND NOT BY INSPECTION. Everything above
     # refuses in this file's own vocabulary; anything that does not — a leg
     # whose module raises on import, an OSError the checks did not name, a bug
