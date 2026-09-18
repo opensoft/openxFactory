@@ -5191,15 +5191,15 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     docs/opendox-carve-admissions.yaml`, diffing each commit's PARSED
     `created:` sets. The seeding commit (openxFactory PR #979, `972b484a`) is
     the seed and takes no ordinal. Measured that way the landed sequence is
-    PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068 and
-    THIS act — eleven amendments, ten of which bump `opendox_code`.
+    PR #984, #1002, #1001, #1009, #1010, #1023, #1030, #1025, #1067, #1068,
+    #1085 and THIS act — twelve amendments, ten of which bump `opendox_code`.
     AN ORDINAL IS NOT A POSITION IN THIS FILE and never was: the assertion
     blocks below run in the order the reading needs, so an ordinal is read off
     the document's history and never off a neighbouring block. Three
     amendments carried no ordinal at all and the three after § 3.4 slice S5
     were each ONE LOW, because slice S5's own amendment (#1023) was recorded
-    without one; the renumbering is this act's, on Copilot review
-    `5239585507` of openxFactory PR #1085 — which read the ordinals off
+    without one; the renumbering is openxFactory PR #1085's, on Copilot
+    review `5239585507` of that PR — which read the ordinals off
     position, got the arithmetic wrong in the other direction, and was right
     that the history had stopped agreeing with itself.
 
@@ -5318,14 +5318,31 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     COUNTED in the committed file so that a sixth admission cannot ride in on
     that act's name.
 
-    AMENDED AN ELEVENTH TIME by THIS act, the § 3.4 SLICE-S7 RESIDUE
-    annotation (`#656` CLAIM `5714327188`; the S7 LANDED note is comment
-    `5688498049`; the FORM is RULED Q-L1's, comment `5628560136`): one more
+    AMENDED AN ELEVENTH TIME by openxFactory PR #1085, the § 3.4 SLICE-S7
+    RESIDUE annotation (`#656` CLAIM `5714327188`; the S7 LANDED note is
+    comment `5688498049`; the FORM is RULED Q-L1's, comment `5628560136`): one more
     `opendox_code` file, `tests/test_display_facet_leaves.py`, the proof for
     the seven display-facet leaves slice S7's own review found inside the
     modules it had already parameterized at their mounts. Same Q-L1 footing as
     every bump above — the leg, opensoft/openDox-code#28, pairs with and lands
     after this annotation. It is `opendox_code`'s TENTH bump.
+
+    AMENDED A TWELFTH TIME by opensoft/openXdox-code#23's own annotation PR
+    (`#656` comment `5715212264`): five more `openxdox_code` files — the
+    corpus-adapter act's three modules (`conformance_corpus.py`,
+    `corpus_shape.py`, `domain_corpus_adapter.py`) and its two tests
+    (`tests/test_corpus_shape.py`, `tests/test_domain_corpus_adapter.py`).
+    Pinned here for the same reason the seventh, eighth and ninth bumps state,
+    and the review on this PR named the gap exactly: the generic shape checks
+    below would let a future edit drop or swap one of these five, or change one
+    of their two introducing commits, and still pass. None of the five carries
+    a manifest row (RULED OQ-C), so the admission is the only governed record
+    that they may be at the destination at all. Two introducing commits, not
+    five: the three modules arrive together on
+    `build/corpus-adapter-implementation`, and the two tests arrive together in
+    the leg's follow-on test commit. Admitted on the same Q-L1 footing as every
+    bump above: opensoft/openXdox-code#23 pairs with — and lands after — this
+    admission PR.
 
     What is durable is asserted in place of the frozen content: the two
     RULED openxdox_code seed entries (the measured defect this file repairs,
@@ -5335,9 +5352,9 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     two re-homed modules asserted ABSENT at `opendox_code` and PRESENT at
     `openxdox_code`), the three § 3.4 SLICE S7 entries, § 3.4 SLICE S8's one
     `openxdox_code` entry, the ten `src/opendox/runtime/` entries, RULED Q7's
-    five (one `opendox_code` and the four `openxdox_code` sheets) and the one
-    § 3.4 SLICE-S7 RESIDUE entry are
-    still declared with their own
+    five (one `opendox_code` and the four `openxdox_code` sheets), the one
+    § 3.4 SLICE-S7 RESIDUE entry and openXdox-code#23's five
+    `openxdox_code` entries are still declared with their own
     `since`, every `since` is a 40-hex commit, every `reason` is non-empty,
     and every destination's list is alphabetical by `path` with no repeat —
     the file's own stated invariants, over whatever the file has
@@ -5386,6 +5403,54 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
         "comment 5649985838) and is no longer declared for openxdox_code")
     assert seed["tests/opendox_bundle.py"]["since"] == (
         "c8e4a59bd8eab231e5903e26b2a9b08e9e527fba")
+    # THE TWELFTH BUMP: five more `openxdox_code` files, RULED into this file by
+    # opensoft/openXdox-code#23 (`build/corpus-adapter-implementation`,
+    # `split-opendox-two-layer-product` design § D4 machinery (1), `#656`
+    # comment `5715212264`) — the corpus-adapter act's three modules and its
+    # two tests. Pinned HERE because the generic shape checks below would let a
+    # future edit drop, swap or re-provenance any one of the five and still
+    # pass. None of the five carries a manifest row (RULED OQ-C), so the
+    # admission is the only governed record that they may be at the destination
+    # at all.
+    #
+    # MEASURED, because "the generic loop would not catch it" is a claim like
+    # any other: renaming ONE of the five `path:` values in the committed
+    # admissions file leaves every generic check below satisfied — the list is
+    # still alphabetical, still unique, every `since` is still 40 hex and every
+    # `reason` still non-empty — and this test is the one that goes red.
+    #
+    #   (rename src/openxdox/corpus_shape.py in the admissions file)
+    #   python -m pytest -q tests/carve_arrival -k committed_admissions
+    #   FAILED …::test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_formed
+    #   1 failed, 158 deselected
+    CORPUS_ADAPTER_SINCE = "d4282454c10d2f8891eae94e77d1a7554ebd17ed"
+    CORPUS_ADAPTER_TESTS_SINCE = "5494bb43350636cf7c3d5a3b6b2d6262ab74dd06"
+    for path, since in (
+            ("src/openxdox/conformance_corpus.py", CORPUS_ADAPTER_SINCE),
+            ("src/openxdox/corpus_shape.py", CORPUS_ADAPTER_SINCE),
+            ("src/openxdox/domain_corpus_adapter.py", CORPUS_ADAPTER_SINCE),
+            ("tests/test_corpus_shape.py", CORPUS_ADAPTER_TESTS_SINCE),
+            ("tests/test_domain_corpus_adapter.py",
+             CORPUS_ADAPTER_TESTS_SINCE)):
+        assert path in seed, (
+            f"{path} is one of openXdox-code#23's five created files "
+            "(`build/corpus-adapter-implementation`, `#656` comment "
+            "`5715212264`) and is no longer declared for openxdox_code")
+        assert seed[path]["since"] == since, (
+            f"{path} declares since={seed[path]['since']!r}; the act "
+            f"introduced it at {since}, and an admission whose `since` is not "
+            "the introducing commit is not a falsifiable claim")
+    assert len({seed[path]["since"] for path in (
+        "src/openxdox/conformance_corpus.py",
+        "src/openxdox/corpus_shape.py",
+        "src/openxdox/domain_corpus_adapter.py")}
+    ) == 1, (
+        "openXdox-code#23's three corpus-adapter modules were introduced by "
+        "one commit and no longer declare the same `since`")
+    assert (seed["tests/test_corpus_shape.py"]["since"]
+            == seed["tests/test_domain_corpus_adapter.py"]["since"]), (
+        "openXdox-code#23's two corpus-adapter tests were introduced by one "
+        "commit and no longer declare the same `since`")
     # RULED Q5 (`#656` comment 5642758731, split-opendox § 3.4 slice S2):
     # `opendox_code`'s own three new files, admitted the GOVERNED way per
     # Q-L1 (the leg PR pairs with this annotation PR, which lands first) —
@@ -5675,7 +5740,7 @@ def test_the_committed_admissions_file_keeps_the_ruled_seed_and_stays_well_forme
     # now, and the docstring above states the one command that derives it.
     # The ordinals count AMENDMENTS to the admissions document, across
     # destinations, in landing order — not `opendox_code`'s own bumps, of
-    # which these ten are the EIGHTH (measured the same way: ten of the eleven
+    # which these ten are the EIGHTH (measured the same way: ten of the twelve
     # amendments touch `opendox_code`, and this is the eighth of them).
     #
     # PINNED HERE FOR THE REASON THE SEVENTH BUMP STATES, and Copilot's review of
