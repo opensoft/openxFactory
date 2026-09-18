@@ -563,7 +563,7 @@ def post_stack(register_profile: bool = True):
             carved_reach.module(SNAPSHOT_ROW))
 
 
-def post_side_identity(stack, pins: dict[str, str]) -> dict[str, str]:
+def post_side_identity(stack, pins: dict[str, str]) -> dict[str, Any]:
     """What the post side ACTUALLY IS, derived from the resolved modules.
 
     `carved_reach.module()` answers from the MANIFEST ROW, so which leg a row
@@ -592,6 +592,23 @@ def post_side_identity(stack, pins: dict[str, str]) -> dict[str, str]:
     # false in exactly the case this derivation exists to survive. A mixed
     # stack is not refused — the manifest permits it — it is REPORTED.
     resolved = [(module.__name__, leg_of(module)) for module in stack]
+    # FAIL-CLOSED, and the first revision of this function was not (Copilot,
+    # PR #1105 round 5). A module resolving OUTSIDE every verified pin root is
+    # a post side this run cannot name a commit for, and printing a label with
+    # no sha while exiting 0 is the "silence reads as a pass" failure the whole
+    # file is built to refuse. The lawful cases are covered: a `re_destined:`
+    # row moves a module BETWEEN the legs, and both legs are verified.
+    stray = [name for name, leg in resolved if leg == "unresolved"]
+    if stray:
+        raise EquivalenceRefusal(
+            "equivalence-reach-unavailable",
+            f"{', '.join(stray)} resolved to a file outside every verified "
+            f"pin root ({', '.join(sorted(pins))}), so this run cannot say "
+            "which commit rendered the post side. `carved_reach` is the one "
+            "place this repository reaches into the pinned legs; a module "
+            "arriving from anywhere else is an unpinned stack wearing a "
+            "pinned stack's name, and a verdict naming no commit is not a "
+            "verdict")
     modules = " + ".join(name for name, _ in resolved)
     legs: list[str] = []
     for _, leg in resolved:

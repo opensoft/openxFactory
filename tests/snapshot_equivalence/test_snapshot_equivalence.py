@@ -326,11 +326,13 @@ def test_the_default_pre_ref_is_the_published_carve_tag_and_resolves_here():
     trusted: a checkout that cannot resolve it is a checkout on which this
     whole suite is measuring something else."""
     assert MODULE.DEFAULT_PRE_REF == CARVE_TAG
-    done = subprocess.run(
-        ["git", "-C", str(REPO_ROOT), "rev-parse", "--verify",
-         f"{CARVE_TAG}^{{commit}}"],
-        capture_output=True, text=True, check=False)
-    assert done.returncode == 0, (
+    # Through the module's OWN scrubbed wrapper, not a bare `subprocess.run`:
+    # an ambient `GIT_DIR` or alternate object directory would otherwise let
+    # this supposedly hermetic assertion resolve the tag in ANOTHER repository
+    # (Copilot, PR #1105 round 5).
+    done = MODULE._git(REPO_ROOT, "rev-parse", "--verify", "--end-of-options",
+                       f"{CARVE_TAG}^{{commit}}")
+    assert done is not None and done.returncode == 0, (
         f"{CARVE_TAG} is not reachable in this checkout: {done.stderr}. "
         "pytest-suite.yml checks out with fetch-depth: 0 for this reason")
     assert done.stdout.strip() == CARVE_COMMIT
@@ -703,12 +705,62 @@ def test_a_mixed_leg_stack_is_reported_as_one(monkeypatch):
 
     identity = MODULE.post_side_identity((Generator(), Snapshot()), pins)
     assert identity["post_legs"] == ["openXdox/code", "openDox/code"]
+    assert "unresolved" not in identity["post_legs"]
     assert identity["post_module_legs"] == {
         "openxdox.generator": "openXdox/code",
         "opendox.snapshot": "openDox/code"}
     assert "d" * 12 in identity["post_label"]
     assert "b" * 12 in identity["post_label"]
     assert "MIXED-leg" in identity["post_label"]
+
+
+def test_a_module_outside_every_verified_pin_root_refuses(tmp_path):
+    """FAIL-CLOSED. A module resolving outside every verified pin root is a
+    post side this run cannot name a commit for, and a verdict that printed a
+    label with no sha while exiting 0 would be the "silence reads as a pass"
+    failure the whole file is built to refuse (Copilot, PR #1105 round 5)."""
+    pins = {"openDox": "a" * 40, "openDox/code": "b" * 40,
+            "openXdox": "c" * 40, "openXdox/code": "d" * 40}
+
+    class Elsewhere:
+        __name__ = "somewhere.generator"
+        __file__ = str(tmp_path / "somewhere" / "generator.py")
+
+    class Sibling:
+        __name__ = "openxdox.snapshot"
+        __file__ = str(REPO_ROOT / "openXdox" / "code" / "src" / "openxdox"
+                       / "snapshot.py")
+
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.post_side_identity((Elsewhere(), Sibling()), pins)
+    assert caught.value.code == "equivalence-reach-unavailable"
+    assert "somewhere.generator" in caught.value.detail
+    assert "outside every verified pin root" in caught.value.detail
+
+
+def test_a_correct_gitlink_with_a_wrong_checkout_refuses_too(monkeypatch):
+    """The checkout comparison, driven on its OWN — the recorded gitlink left
+    exactly as git reports it while `rev-parse HEAD` answers a different valid
+    commit. The mutation sweep already proves the branch is live (deleting
+    `checked_out != recorded` fails the suite), and this makes the case
+    explicit rather than incidental (Copilot, PR #1105 round 5)."""
+    real = MODULE._git
+    other = "e" * 40
+
+    def wrong_head(repo, *arguments, **kwargs):
+        if arguments[:2] == ("rev-parse", "--verify") and "HEAD" in arguments:
+            done = real(repo, *arguments, **kwargs)
+            if done is not None and done.returncode == 0:
+                done.stdout = other + "\n"
+            return done
+        return real(repo, *arguments, **kwargs)
+
+    monkeypatch.setattr(MODULE, "_git", wrong_head)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.verify_pins()
+    assert caught.value.code == "equivalence-reach-unavailable"
+    assert other in caught.value.detail
+    assert "records" in caught.value.detail
 
 
 def test_a_source_revision_that_is_not_an_object_id_refuses():
