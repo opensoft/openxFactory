@@ -1200,6 +1200,52 @@ def test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row():
       co-modified, `54` sole modifiers, `25 / 15` active co-modified/sole,
       `22` declaring; this branch (merged with `0e76e789`) reads `41 active +
       157 archived` = 198, `145`, `53`, `26 / 15`, `23`.
+    - **A SECOND PARTNER FLIP, 2026-09-18, AND THE SAME TWO-ROW SHAPE.**
+      Authoring `amend-code-surface-grammar-comma-and` (PR #1108, an OpenSpec
+      amendment that makes the promoted `release-realization` requirement
+      "Code-surface declaration grammar is gated" name the FOURTH list separator
+      `scripts/code_surface.py` has always admitted) moves TWO rows:
+
+        * `amend-code-surface-grammar-comma-and` — a NEW row, `active` and
+          `co-modifier`. Its `## MODIFIED Requirements` block writes the same
+          requirement key `gate-code-surface-declarations`'s own
+          `## ADDED Requirements` block wrote, so it enters the corpus already
+          co-modified rather than sole.
+        * `gate-code-surface-declarations` — `class: sole` -> `co-modifier`,
+          and NOTHING ABOUT THAT ARCHIVED CHANGE ITSELF MOVED. It archived
+          2026-09-16 (PR #1076) and has not been touched since; this packet
+          edits not one byte of it.
+
+      THE ROW DIFF DOES NOT EXPLAIN THE SECOND ONE, WHICH IS WHY THIS ENTRY
+      EXISTS — the rule's own case: "a PARTNER'S row moving because of someone
+      else's delta, where the reason is not legible from the two rows alone".
+
+      THE SHARED KEY, MEASURED RATHER THAN INFERRED. Both changes write
+      `release-realization` / "Code-surface declaration grammar is gated" —
+      `gate-code-surface-declarations` ADDED it (archived, PR #1076) and this
+      packet MODIFIES it. Measured 2026-09-18 across every active
+      `openspec/changes/*/specs/release-realization/spec.md`: the three other
+      active changes carrying a `release-realization` delta
+      (`add-sequenced-after-substrate`, `add-structured-scope-substrate`,
+      `add-target-release-deferred-allocation`) write other titles, so this is a
+      two-party flip and not a wider one.
+
+      WHICH IS WHY `co_modified` ROSE BY TWO AND NOT BY ONE. One MODIFIED block,
+      one earlier writer, and that writer was sole: the newcomer entering the set
+      (+1) and `gate-code-surface-declarations` leaving `sole` for it (+1),
+      163 -> 165. `sole_modifiers` falls by exactly one with it, 56 -> 55.
+      `change_ids` rises 219 -> 220 for the new id alone; `active` rises 48 -> 49
+      and `active_co_modified` rises 29 -> 30, both by the new row alone, the
+      partner being ARCHIVED; `active_sole` holds at 19. `declaring` rises
+      41 -> 42 and the explicit `[]` root claims 17 -> 18, this change's own
+      `sequenced_after: []` being a POSITIVE root claim; the prose headers hold
+      at 3 (3 archived) and the deepest declared chain at 4 hops.
+      MEASURED ON BOTH TREES, never adjusted by arithmetic, via
+      `python3 scripts/validate-sequenced-after.py . --sweep`: `origin/main` at
+      `3e32d987` reads `48 active + 171 archived` = 219 change ids, `163`
+      co-modified, `56` sole modifiers, `29 / 19` active co-modified/sole, `41`
+      declaring, `17` root claims; this branch reads `49 active + 171 archived`
+      = 220, `165`, `55`, `30 / 19`, `42`, `18`.
     """
     readings = sa.classify_corpus(ROOT)
     ledger = sa.load_ledger(sa.ledger_path(ROOT))

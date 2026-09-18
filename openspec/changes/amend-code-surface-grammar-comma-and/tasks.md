@@ -101,9 +101,27 @@ open where the work is owed.
       the two clarifications ride the correction.
 - [x] 2.8 **README `## OpenSpec Records` CARRIES THE ACTIVE ROW**, in house
       style, naming the ruled word and the two declared veto points.
-- [x] 2.9 **THE PER-CHANGE SWEEP LEDGER ROW IS SEEDED BY THE SANCTIONED TOOL**,
-      never hand-written: `python3 scripts/validate-sequenced-after.py .
-      --seed-ledger --moved-by '#<PR>'`.
+- [x] 2.9 **THE PER-CHANGE SWEEP LEDGER ROWS ARE SEEDED BY THE SANCTIONED
+      TOOL**, never hand-written: `python3 scripts/validate-sequenced-after.py .
+      --seed-ledger --moved-by '#1108'`, which wrote TWO rows and reported both
+      — this change's own (`active`, `co-modifier`, `declares: []`) and
+      `gate-code-surface-declarations`'s `class: sole` -> `co-modifier`, the
+      partner flip this delta causes by writing the requirement key that
+      archived change ADDED.
+- [x] 2.10 **THE MOVEMENT LOG ENTRY THE PARTNER FLIP OWES IS APPENDED**, dated
+      2026-09-18, inside `tests/sequenced_after/test_sweep.py`'s
+      `test_the_LIVE_corpus_and_the_LEDGER_agree_row_by_row` docstring. That
+      file's own rule (restated 2026-09-03) owes an entry for *"a PARTNER'S row
+      moving because of someone else's delta, where the reason is not legible
+      from the two rows alone"*, and the precedent is exact: `#921`'s identical
+      flip was caught by a Copilot review and taken at `99cff89b`. The entry
+      names the shared requirement key, the two-party measurement, and the
+      arithmetic taken on BOTH trees with `--sweep` rather than adjusted by hand
+      (`co_modified` 163 -> 165, `sole_modifiers` 56 -> 55, `change_ids`
+      219 -> 220, `active` 48 -> 49, `active_co_modified` 29 -> 30,
+      `active_sole` HOLDING at 19, `declaring` 41 -> 42, root claims 17 -> 18,
+      prose headers and the 4-hop deepest chain both holding). It is a docstring
+      addition: it asserts nothing and changes no test's outcome.
 
 ## 3. Verification — DONE IN THIS PULL REQUEST
 
@@ -123,16 +141,33 @@ open where the work is owed.
 - [x] 3.6 `python3 scripts/doc-health.py --single-repo .` — **NO finding names
       this change**, and the modified-block-currency family reports NOTHING on
       this block: it carries canon and declares its three removals.
-- [x] 3.7 `python3 -m pytest tests/sequenced_after -q` and
-      `python3 -m pytest tests/code_surface tests/doc-health -q` — recorded in
-      the pull request body. **THE INHERITED RED IS NAMED RATHER THAN
-      DISPOSITIONED**: `main` at `3e32d987` fails three tests of
-      `tests/sequenced_after/test_archive_commit_dates.py`
-      (`archive-date-vs-commit`, `2026-09-16-add-composed-view-authoring`, left
-      by another lane's squash landing). This packet inherits exactly those
-      three and causes none of them; no row is added to
+- [x] 3.7 `python3 -m pytest tests/sequenced_after -q` — **3 failed, 283
+      passed**, and a control run at `origin/main` `3e32d987` reads **the same
+      three, and the same 283**. **THE INHERITED RED IS NAMED RATHER THAN
+      DISPOSITIONED**: all three are the one finding
+      `archive-date-vs-commit: 2026-09-16-add-composed-view-authoring`
+      (`test_archive_commit_dates.py::test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_NAMES_FACTS`,
+      `::test_THE_LIVE_PLAIN_RUN_IS_GREEN_WITH_ZERO_UNDISPOSITIONED` and
+      `test_validate.py::test_corpus_sequenced_after_all_validate`), left by
+      another lane's squash landing. This packet inherits exactly those three
+      and causes none of them; **no row is added to
       `tests/sequenced_after/archive-date-dispositions.yaml` and that file is
-      not touched.
+      not touched by this branch.**
+- [x] 3.8 `python3 -m pytest tests/code_surface tests/doc-health -q` — **1987
+      passed, 1 skipped**; the code-surface bench is GREEN in full, and the
+      `tests/doc-health` failures are `main`'s: a control run of the five
+      failing files at `3e32d987` reproduces seven of them byte for byte
+      (`test_ideation_readiness.py` ×3, `test_readiness_dispatch.py`,
+      `test_sentinel_vocabulary.py` ×2, `test_status_reader_real_lines.py`).
+      **THE EIGHTH IS AN ARTIFACT OF THE CHECKOUT'S PATH AND IS PROVED TO BE
+      ONE**: `test_tag_hygiene_pinned_targets.py::
+      test_a_lexically_malformed_value_builds_no_path_and_reads_nothing`
+      asserts that no resolved path contains the substring `one`, and the
+      authoring clone is named `clone-1092` — `cl`**`one`**`-1092`. THE SAME
+      COMMIT passes that file 31/31 in a worktree whose path lacks the
+      substring, and `main` fails it in the same clone. Nothing in this packet
+      is implicated and nothing is fixed here: it is a latent test-harness
+      defect belonging to that file, not to this delta.
 
 ## 4. Archive — OWED, NOT GIVEN
 
