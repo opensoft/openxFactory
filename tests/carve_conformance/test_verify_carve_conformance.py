@@ -840,6 +840,25 @@ def test_a_git_transposition_passes_fidelity_and_the_whole_corpus(tmp_path):
     assert "TRANSPOSED and FAITHFUL" in done.stdout, done.stdout
     assert f"{CC.SEED_EXPECTATION.documents} document(s)" in done.stdout
     assert f"17 of {len(CC.CHECKS)} check(s)" in done.stdout, done.stdout
+    # THE HUMAN VERDICT IS EVIDENCE, SO ITS RENDERING IS PINNED TOO (Copilot,
+    # round 13). Everything above this line survives `_print_ok` dropping the
+    # shipped path, the proven revision, the table digest or the closing
+    # `unmoved across the run` -- the `--json` record carries them and is
+    # asserted elsewhere, but the LINE an operator pastes into a pull request
+    # was held to nothing. Runbook 2.2 quotes that closing phrase to a reader
+    # as what the second proof reports, so a rendering that quietly lost it
+    # would falsify a landed document while this suite stayed green. The
+    # whole clause is compared at once so a REORDER or a relabel is caught
+    # too, and every value in it is DERIVED here, never transcribed.
+    expected_digest = MODULE.fingerprint_digest(
+        MODULE.document_fingerprint(CORPUS / MODULE.POPULATED))
+    expected_revision = GH._git(
+        "rev-parse", "HEAD", cwd=corpus / MODULE.POPULATED
+    ).stdout.decode().strip()
+    assert (f", TRANSPOSED and FAITHFUL to {CORPUS} \u2014 "
+            f"{CC.SEED_EXPECTATION.documents} document(s) at revision "
+            f"{expected_revision}, key/sha256 table {expected_digest}, "
+            "unmoved across the run") in done.stdout, done.stdout
 
 
 def test_the_transposition_is_history_and_not_a_working_tree(tmp_path):
