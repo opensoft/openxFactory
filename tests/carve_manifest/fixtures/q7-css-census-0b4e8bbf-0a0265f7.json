@@ -1,0 +1,1111 @@
+{
+ "styles_css": {
+  "path": "src/opendox/web/styles.css",
+  "lines": 2595,
+  "rule_blocks": 916,
+  "declared_class_tokens": 626
+ },
+ "gate_modules": [
+  "dispose.js",
+  "gate-lens.js",
+  "gate-projects.js",
+  "gate.js",
+  "swb-create.js",
+  "swb-session.js"
+ ],
+ "opendox_bundle_files": 39,
+ "class_counts_broad": {
+  "gate_exclusive": 54,
+  "shared": 33,
+  "opendox_only": 509,
+  "unreferenced": 30
+ },
+ "class_counts_extraction": {
+  "gate_exclusive": 54,
+  "shared": 18,
+  "opendox_only": 524,
+  "unreferenced": 30
+ },
+ "class_counts_narrow": {
+  "gate_exclusive": 54,
+  "shared": 18,
+  "opendox_only": 513,
+  "unreferenced": 41
+ },
+ "narrow_shared": [
+  "cbtn",
+  "dc-h",
+  "dc-line",
+  "dc-note",
+  "dispose-intile",
+  "disposebtn",
+  "docstatus",
+  "member",
+  "name",
+  "reason-form",
+  "repobtn",
+  "repopick-msg",
+  "rf-label",
+  "swb-cbtn",
+  "swb-cfield",
+  "swb-clabel",
+  "swb-cslot",
+  "tile"
+ ],
+ "gate_exclusive": [
+  "dispose-accepted",
+  "dispose-deferred",
+  "dispose-propose",
+  "dispose-rejected",
+  "disposetray",
+  "gatebar",
+  "gatebar-actions",
+  "gatebar-cmd",
+  "gatebar-title",
+  "gatebtn",
+  "gatebtn-live",
+  "intentchips",
+  "is-busy",
+  "is-error",
+  "is-ok",
+  "is-queued",
+  "is-refused",
+  "is-stalled",
+  "panelbuttons",
+  "panelfield",
+  "panelhead",
+  "panellabel",
+  "panelmembers",
+  "panelnote",
+  "projectform",
+  "projectmember",
+  "projectname",
+  "projectpanel",
+  "refusalpanel",
+  "refusalpanel-clear",
+  "refusalpanel-head",
+  "refusalpanel-item",
+  "refusalpanel-kind",
+  "refusalpanel-list",
+  "refusalpanel-msg",
+  "refusalpanel-title",
+  "swb-cactions",
+  "swb-ccmd",
+  "swb-cdescriptor",
+  "swb-cform",
+  "swb-ch",
+  "swb-chelp",
+  "swb-clanded",
+  "swb-cline",
+  "swb-cnote",
+  "swb-crefused",
+  "swb-creq",
+  "swb-cresult",
+  "swb-csource",
+  "swb-cwrap",
+  "swb-notice",
+  "swb-sessionactions",
+  "swb-sessionbtn",
+  "swb-sessiondescriptors"
+ ],
+ "shared": [
+  "cbtn",
+  "dc-h",
+  "dc-line",
+  "dc-note",
+  "dispose-intile",
+  "disposebtn",
+  "docstatus",
+  "member",
+  "name",
+  "reason-form",
+  "repobtn",
+  "repopick-msg",
+  "rf-label",
+  "swb-cbtn",
+  "swb-cfield",
+  "swb-clabel",
+  "swb-cslot",
+  "tile"
+ ],
+ "unreferenced": [
+  "divider",
+  "filteradd",
+  "ghost",
+  "gridwrap",
+  "intentchip",
+  "intentchip-applied",
+  "intentchip-error",
+  "intentchip-pending",
+  "intentchip-refused",
+  "intentchip-stalled",
+  "managepane",
+  "sigrid-collab",
+  "sigrid-row",
+  "sigrid-rowlab",
+  "swb-bar",
+  "swb-bar-fill",
+  "swb-completeness",
+  "swb-inheritedhead",
+  "swb-name",
+  "swb-nobar",
+  "swb-row",
+  "swb-row-selected",
+  "swb-rowinfo",
+  "swb-score",
+  "swb-sectionhead",
+  "swb-sectionlabel",
+  "swb-sectionnote",
+  "swb-signals",
+  "swb-unresolved",
+  "swb-where"
+ ],
+ "shared_broad": [
+  "cbtn",
+  "dc-h",
+  "dc-line",
+  "dc-note",
+  "dispose-intile",
+  "disposebtn",
+  "docstatus",
+  "empty",
+  "g",
+  "id",
+  "lens",
+  "member",
+  "name",
+  "passage",
+  "pinned",
+  "reason-form",
+  "recipe",
+  "repobtn",
+  "repopick-msg",
+  "rf-label",
+  "s",
+  "src",
+  "swb-cbtn",
+  "swb-cfield",
+  "swb-clabel",
+  "swb-cslot",
+  "tab",
+  "tile",
+  "title",
+  "topic",
+  "view",
+  "where",
+  "why"
+ ],
+ "unreferenced_broad": [
+  "divider",
+  "filteradd",
+  "ghost",
+  "gridwrap",
+  "intentchip",
+  "intentchip-applied",
+  "intentchip-error",
+  "intentchip-pending",
+  "intentchip-refused",
+  "intentchip-stalled",
+  "managepane",
+  "sigrid-collab",
+  "sigrid-row",
+  "sigrid-rowlab",
+  "swb-bar",
+  "swb-bar-fill",
+  "swb-completeness",
+  "swb-inheritedhead",
+  "swb-name",
+  "swb-nobar",
+  "swb-row",
+  "swb-row-selected",
+  "swb-rowinfo",
+  "swb-score",
+  "swb-sectionhead",
+  "swb-sectionlabel",
+  "swb-sectionnote",
+  "swb-signals",
+  "swb-unresolved",
+  "swb-where"
+ ],
+ "exclusive_blocks": [
+  {
+   "selector": ".projectform.projectpanel",
+   "at_rule": null,
+   "start": 237,
+   "end": 242,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".panelhead",
+   "at_rule": null,
+   "start": 243,
+   "end": 243,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".panelnote",
+   "at_rule": null,
+   "start": 244,
+   "end": 244,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".panelfield",
+   "at_rule": null,
+   "start": 245,
+   "end": 245,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".panellabel",
+   "at_rule": null,
+   "start": 246,
+   "end": 246,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".panelmembers",
+   "at_rule": null,
+   "start": 247,
+   "end": 250,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".panelbuttons",
+   "at_rule": null,
+   "start": 251,
+   "end": 251,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".projectform .projectmember",
+   "at_rule": null,
+   "start": 252,
+   "end": 252,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".projectname",
+   "at_rule": null,
+   "start": 253,
+   "end": 253,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".gatebar",
+   "at_rule": null,
+   "start": 793,
+   "end": 793,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".gatebar-title",
+   "at_rule": null,
+   "start": 794,
+   "end": 794,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".gatebar-actions",
+   "at_rule": null,
+   "start": 795,
+   "end": 795,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".gatebtn",
+   "at_rule": null,
+   "start": 796,
+   "end": 796,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".gatebtn:hover",
+   "at_rule": null,
+   "start": 797,
+   "end": 797,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".gatebar-cmd",
+   "at_rule": null,
+   "start": 798,
+   "end": 798,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".disposetray",
+   "at_rule": null,
+   "start": 1160,
+   "end": 1160,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".disposetray.is-busy",
+   "at_rule": null,
+   "start": 1161,
+   "end": 1161,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".dispose-accepted",
+   "at_rule": null,
+   "start": 1166,
+   "end": 1166,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".dispose-accepted:hover",
+   "at_rule": null,
+   "start": 1167,
+   "end": 1167,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".dispose-rejected",
+   "at_rule": null,
+   "start": 1168,
+   "end": 1168,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".dispose-rejected:hover",
+   "at_rule": null,
+   "start": 1169,
+   "end": 1169,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".dispose-deferred:hover",
+   "at_rule": null,
+   "start": 1170,
+   "end": 1170,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".dispose-propose",
+   "at_rule": null,
+   "start": 1171,
+   "end": 1171,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".dispose-propose:hover:not(:disabled)",
+   "at_rule": null,
+   "start": 1172,
+   "end": 1172,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".dispose-propose:disabled",
+   "at_rule": null,
+   "start": 1173,
+   "end": 1173,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".refusalpanel",
+   "at_rule": null,
+   "start": 1274,
+   "end": 1279,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".refusalpanel-head",
+   "at_rule": null,
+   "start": 1280,
+   "end": 1283,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".refusalpanel-title",
+   "at_rule": null,
+   "start": 1284,
+   "end": 1284,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".refusalpanel-clear",
+   "at_rule": null,
+   "start": 1285,
+   "end": 1285,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".refusalpanel-list",
+   "at_rule": null,
+   "start": 1286,
+   "end": 1286,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".refusalpanel-item",
+   "at_rule": null,
+   "start": 1287,
+   "end": 1287,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".refusalpanel-kind",
+   "at_rule": null,
+   "start": 1288,
+   "end": 1288,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".is-refused .refusalpanel-kind",
+   "at_rule": null,
+   "start": 1289,
+   "end": 1289,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".is-ok .refusalpanel-kind",
+   "at_rule": null,
+   "start": 1290,
+   "end": 1290,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".is-queued .refusalpanel-kind",
+   "at_rule": null,
+   "start": 1294,
+   "end": 1294,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".is-stalled .refusalpanel-kind",
+   "at_rule": null,
+   "start": 1295,
+   "end": 1295,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".is-error .refusalpanel-kind",
+   "at_rule": null,
+   "start": 1296,
+   "end": 1296,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".refusalpanel-msg",
+   "at_rule": null,
+   "start": 1297,
+   "end": 1297,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".intentchips",
+   "at_rule": null,
+   "start": 1306,
+   "end": 1306,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".gatebtn-live",
+   "at_rule": null,
+   "start": 1317,
+   "end": 1317,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-cwrap",
+   "at_rule": null,
+   "start": 1544,
+   "end": 1544,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-cform",
+   "at_rule": null,
+   "start": 1547,
+   "end": 1551,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-ch",
+   "at_rule": null,
+   "start": 1552,
+   "end": 1552,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-cline",
+   "at_rule": null,
+   "start": 1553,
+   "end": 1553,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-cnote",
+   "at_rule": null,
+   "start": 1554,
+   "end": 1554,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-csource",
+   "at_rule": null,
+   "start": 1555,
+   "end": 1555,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-cactions",
+   "at_rule": null,
+   "start": 1563,
+   "end": 1563,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-cresult:empty",
+   "at_rule": null,
+   "start": 1564,
+   "end": 1564,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-clanded",
+   "at_rule": null,
+   "start": 1565,
+   "end": 1565,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-crefused",
+   "at_rule": null,
+   "start": 1566,
+   "end": 1566,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-cdescriptor",
+   "at_rule": null,
+   "start": 1567,
+   "end": 1571,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-ccmd",
+   "at_rule": null,
+   "start": 1572,
+   "end": 1575,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-sessionactions",
+   "at_rule": null,
+   "start": 1608,
+   "end": 1608,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-sessionbtn",
+   "at_rule": null,
+   "start": 1609,
+   "end": 1609,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-sessionbtn:disabled",
+   "at_rule": null,
+   "start": 1610,
+   "end": 1610,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-sessiondescriptors",
+   "at_rule": null,
+   "start": 1611,
+   "end": 1611,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-notice",
+   "at_rule": null,
+   "start": 1612,
+   "end": 1612,
+   "reads_st_token": true,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-chelp",
+   "at_rule": null,
+   "start": 2573,
+   "end": 2573,
+   "reads_st_token": false,
+   "declares_st_token": false
+  },
+  {
+   "selector": ".swb-creq",
+   "at_rule": null,
+   "start": 2574,
+   "end": 2577,
+   "reads_st_token": false,
+   "declares_st_token": false
+  }
+ ],
+ "mixed_blocks": [
+  {
+   "selector": ".wrap > header.top, .wrap > #rollup, .wrap > .tiles,\n.wrap > .tabs, .wrap > .docstatus, .wrap > .foot",
+   "at_rule": null,
+   "start": 156,
+   "end": 157,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "docstatus"
+   ]
+  },
+  {
+   "selector": ".filterpop[hidden], .projectform.projectpanel[hidden]",
+   "at_rule": null,
+   "start": 176,
+   "end": 176,
+   "gate_exclusive_tokens": [
+    "projectform",
+    "projectpanel"
+   ],
+   "shared_tokens": []
+  },
+  {
+   "selector": ".repobtn",
+   "at_rule": null,
+   "start": 267,
+   "end": 270,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "repobtn"
+   ]
+  },
+  {
+   "selector": ".repobtn:hover",
+   "at_rule": null,
+   "start": 271,
+   "end": 271,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "repobtn"
+   ]
+  },
+  {
+   "selector": ".repobtn:disabled",
+   "at_rule": null,
+   "start": 272,
+   "end": 272,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "repobtn"
+   ]
+  },
+  {
+   "selector": ".repopick-msg",
+   "at_rule": null,
+   "start": 279,
+   "end": 279,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "repopick-msg"
+   ]
+  },
+  {
+   "selector": ".repopick-msg:empty",
+   "at_rule": null,
+   "start": 280,
+   "end": 280,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "repopick-msg"
+   ]
+  },
+  {
+   "selector": ".tile",
+   "at_rule": null,
+   "start": 308,
+   "end": 308,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "tile"
+   ]
+  },
+  {
+   "selector": ".tile .k",
+   "at_rule": null,
+   "start": 309,
+   "end": 309,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "tile"
+   ]
+  },
+  {
+   "selector": ".tile .v",
+   "at_rule": null,
+   "start": 310,
+   "end": 310,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "tile"
+   ]
+  },
+  {
+   "selector": ".tile .s",
+   "at_rule": null,
+   "start": 311,
+   "end": 311,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "tile"
+   ]
+  },
+  {
+   "selector": ".tile .v .unit",
+   "at_rule": null,
+   "start": 312,
+   "end": 312,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "tile"
+   ]
+  },
+  {
+   "selector": ".docrow .name",
+   "at_rule": null,
+   "start": 473,
+   "end": 473,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "name"
+   ]
+  },
+  {
+   "selector": ".docstatus",
+   "at_rule": null,
+   "start": 517,
+   "end": 517,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "docstatus"
+   ]
+  },
+  {
+   "selector": ".member .summ",
+   "at_rule": null,
+   "start": 640,
+   "end": 640,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "member"
+   ]
+  },
+  {
+   "selector": ".member .pill",
+   "at_rule": null,
+   "start": 641,
+   "end": 641,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "member"
+   ]
+  },
+  {
+   "selector": ".cbtn",
+   "at_rule": null,
+   "start": 650,
+   "end": 650,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "cbtn"
+   ]
+  },
+  {
+   "selector": ".cbtn:hover:not(:disabled)",
+   "at_rule": null,
+   "start": 651,
+   "end": 651,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "cbtn"
+   ]
+  },
+  {
+   "selector": ".cbtn:disabled",
+   "at_rule": null,
+   "start": 652,
+   "end": 652,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "cbtn"
+   ]
+  },
+  {
+   "selector": ".draft-confirm .dc-h",
+   "at_rule": null,
+   "start": 667,
+   "end": 667,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "dc-h"
+   ]
+  },
+  {
+   "selector": ".draft-confirm .dc-line",
+   "at_rule": null,
+   "start": 668,
+   "end": 668,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "dc-line"
+   ]
+  },
+  {
+   "selector": ".draft-confirm .dc-note",
+   "at_rule": null,
+   "start": 669,
+   "end": 669,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "dc-note"
+   ]
+  },
+  {
+   "selector": ".setrow .pm .cbtn",
+   "at_rule": null,
+   "start": 777,
+   "end": 777,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "cbtn"
+   ]
+  },
+  {
+   "selector": ".reason-form",
+   "at_rule": null,
+   "start": 869,
+   "end": 873,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "reason-form"
+   ]
+  },
+  {
+   "selector": ".reason-form .rf-label",
+   "at_rule": null,
+   "start": 874,
+   "end": 874,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "reason-form",
+    "rf-label"
+   ]
+  },
+  {
+   "selector": ".reason-form input",
+   "at_rule": null,
+   "start": 875,
+   "end": 878,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "reason-form"
+   ]
+  },
+  {
+   "selector": ".reason-form input:focus-visible",
+   "at_rule": null,
+   "start": 879,
+   "end": 879,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "reason-form"
+   ]
+  },
+  {
+   "selector": ".disposebtn",
+   "at_rule": null,
+   "start": 1162,
+   "end": 1165,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "disposebtn"
+   ]
+  },
+  {
+   "selector": ".dispose-intile",
+   "at_rule": null,
+   "start": 1176,
+   "end": 1179,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "dispose-intile"
+   ]
+  },
+  {
+   "selector": ".swb-cbtn",
+   "at_rule": null,
+   "start": 1545,
+   "end": 1545,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "swb-cbtn"
+   ]
+  },
+  {
+   "selector": ".swb-cslot:empty",
+   "at_rule": null,
+   "start": 1546,
+   "end": 1546,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "swb-cslot"
+   ]
+  },
+  {
+   "selector": ".swb-cfield",
+   "at_rule": null,
+   "start": 1556,
+   "end": 1556,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "swb-cfield"
+   ]
+  },
+  {
+   "selector": ".swb-clabel",
+   "at_rule": null,
+   "start": 1557,
+   "end": 1557,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "swb-clabel"
+   ]
+  },
+  {
+   "selector": ".swb-cfield input",
+   "at_rule": null,
+   "start": 1558,
+   "end": 1562,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "swb-cfield"
+   ]
+  },
+  {
+   "selector": ".swb-cfield textarea",
+   "at_rule": null,
+   "start": 1576,
+   "end": 1580,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "swb-cfield"
+   ]
+  },
+  {
+   "selector": ".swb-cfield select",
+   "at_rule": null,
+   "start": 1581,
+   "end": 1585,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "swb-cfield"
+   ]
+  },
+  {
+   "selector": ".pickbar > .cbtn:first-child",
+   "at_rule": null,
+   "start": 2413,
+   "end": 2413,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "cbtn"
+   ]
+  },
+  {
+   "selector": ".dc-h",
+   "at_rule": null,
+   "start": 2421,
+   "end": 2421,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "dc-h"
+   ]
+  },
+  {
+   "selector": ".swb-draftpane .cbtn",
+   "at_rule": null,
+   "start": 2493,
+   "end": 2493,
+   "gate_exclusive_tokens": [],
+   "shared_tokens": [
+    "cbtn"
+   ]
+  },
+  {
+   "selector": ".swb-draftchrome .swb-cactions",
+   "at_rule": null,
+   "start": 2535,
+   "end": 2535,
+   "gate_exclusive_tokens": [
+    "swb-cactions"
+   ],
+   "shared_tokens": []
+  }
+ ],
+ "blocks_kept_for_declaring_a_token": [],
+ "exclusive_block_lines": 89,
+ "exclusive_blocks_reading_st": 10
+}
