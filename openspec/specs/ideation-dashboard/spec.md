@@ -2735,14 +2735,20 @@ own reference closure rather than assumed.
 > **AND ONE COUNT IN THE PROSE ABOVE IS SHORT.** "Thirteen minors and one major
 > have passed" counts the v1 line alone. Measured in `contracts/CHANGELOG.md`
 > after the deprecating `contract-v1.34`: `v1.35`–`v1.47` (THIRTEEN minors),
-> `contract-v2.0` (major), `v2.1`–`v2.7` (SEVEN further minors) and
-> `contract-v3.0` (this cut's major). The discharge the sentence claims — *"at
+> `contract-v2.0` (major), `v2.1`–`v2.6` (SIX further minors) and
+> `contract-v3.0` (this cut's major) — TWENTY-ONE releases from the deprecation
+> to the removal. There is no `contract-v2.7`: this cut's own changelog section
+> § *The number, FRESH-COUNTED at the cut, and why it is a MAJOR rather than
+> `contract-v2.7`* records that number as declined, the tree requiring a major.
+> The discharge the sentence claims — *"at
 > least one full minor release where the old shape produced deprecation
 > warnings"* — is satisfied many times over on either reading, which is why the
 > ratified sentence stands unedited and the fuller measurement is recorded here.
 >
 > (Both found by Copilot's review on PR #1066 at `c431a3e3`. Its reading of the
-> second said five v2 minors; measured, there are seven.)
+> second said five v2 minors; measured, there are six, and the first count
+> written here said seven — the same carried-forward-numeral defect the
+> correction is about, caught by re-measuring rather than by arithmetic.)
 
 
 ### Requirement: An unrecognized chat-turn kind is refused in the SURVIVING family, never coerced into a removed one

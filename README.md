@@ -3340,9 +3340,9 @@ Archived changes:
   one's realization merged in this repository (PR #564, squash `6856f502`) and
   its `contract-v3.0` cut is published (annotated tag `59f4f51f`, peeling to
   `ff9ed815`), so **its delta PROMOTES**: all three blocks reach
-  `openspec/specs/ideation-dashboard/spec.md`, **+207 lines and 0 deletions** —
+  `openspec/specs/ideation-dashboard/spec.md`, **+213 lines and 0 deletions** —
   **157** the promotion, every byte taken from the ratified delta by script, and
-  **50** a dated ERRATUM below the first requirement, marked in its own first
+  **56** a dated ERRATUM below the first requirement, marked in its own first
   line as no part of the ratified text, carrying THREE corrections each measured
   against the landed text: one clause of that requirement names `typed_proposal`
   as reachable from the surviving `-v2` family, which the packet's own § 2.1
@@ -3351,7 +3351,9 @@ Archived changes:
   removal this cut performs, the changelog's Executed row recording the v1 family
   as removed at `contract-v3.0`; and the prose's "thirteen minors and one major"
   counts the v1 line alone, the measured run after `contract-v1.34` being
-  `v1.35`–`v1.47`, `contract-v2.0`, `v2.1`–`v2.7` and `contract-v3.0`. Every
+  `v1.35`–`v1.47`, `contract-v2.0`, `v2.1`–`v2.6` and `contract-v3.0` —
+  twenty-one releases, and no `contract-v2.7`, a number this cut's changelog
+  records as declined. Every
   corrected clause stands unedited because it is ratified; each correction stands
   beside it because promoting it moved it into canon, where nothing else would.
   Measured both ways — the move alone leaves
