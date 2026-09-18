@@ -250,6 +250,27 @@ OPEN.**
       FLAG-never-drop, the inclusive headline and the advisory verdict read as
       they read before, so this box stays open on the same recommendation and
       the same alternatives.
+      **AND TWO MORE OF THIS SECTION'S RULES HAVE LANDED ON A WORD OF THEIR
+      OWN.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jYkwR` reads D3(c)'s
+      promoted signals and finds them named with examples rather than with
+      grammars. The grammar drafted against it — a CLOSED repository-name
+      vocabulary stated in the requirement because this repository carries none
+      to read, case-insensitive matching on the measured spellings, the forge
+      URL's REPOSITORY segment rather than its owner, name-boundary matching for
+      the path-joined form, `validate-pin-registrations.py`'s decoration set
+      widened for Markdown, and the parenthetical's whitespace rule — is NEW
+      GRAMMAR and not a clarification. Thread `PRRT_kwDOTAvnrs6jafy6` reads
+      D3(a) and finds the promoted population arithmetic short a term: an entry
+      skipped for leaving the repository root is a tracked FILE that reaches no
+      decoder, so it falls in neither of the two skip buckets the closure names
+      and the identity does not close. The delta drafted against it adds a THIRD
+      term, printed even at zero, and declines folding it into the non-file
+      term. Both landed on the word that names them: Brett Heap, 2026-09-17,
+      verbatim **"fold B as drafted"** ([PR #1069, comment
+      5717459330](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5717459330)).
+      This box is unmoved either
+      way: the three exclusions, the containment rule, FLAG-never-drop, the
+      inclusive headline and the advisory verdict are untouched by any of it.
 - [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
       ASSERTS are the three the tool can evidence from a path or from its own
       normalization — `truncated`, `punctuation-stripped`, `fixture-path` — and
@@ -290,6 +311,23 @@ OPEN.**
       minted, renamed, widened or dropped, and the unit those class totals are
       counted in is now stated as the TOKEN — and the `file-half` ruling this
       box holds reads exactly as it reads above.
+      **AND THIS SECTION'S TOKENIZATION-ARTIFACT PROBES HAVE LANDED ON A WORD OF
+      THEIR OWN.** PR #1069, Copilot thread `PRRT_kwDOTAvnrs6jbfFz` reads the
+      closed vocabulary and finds two of its four labels DESCRIBED where
+      `fixture-path` is now PREDICATED: "the extraction severed mid-path" is
+      semantic, and `punctuation-stripped` names no firing condition at all,
+      while D4's three measured sub-probes live only in `design.md`. The text
+      drafted against it promotes those probes verbatim — a longer existing path
+      on the line ending with the token, a following `<`, and a split string
+      literal whose rejoined path resolves — as a union with the trailing-hyphen
+      arm under the occurrence rule ALL, and gives `punctuation-stripped` the
+      only condition a class asserted on a REMAINDER entry can have. It landed
+      on the word that names it: Brett Heap, 2026-09-17, verbatim **"fold B as
+      drafted"** ([PR #1069, comment
+      5717459330](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5717459330)).
+      The box is unmoved either way: the
+      vocabulary is the same four labels, the precedence reads as before, and
+      the `file-half` ruling this box holds is untouched.
 - [ ] 1.14 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
       one step in `.github/workflows/doc-health-reusable.yml`, committing
       nothing. The reason is measured and is not merely merge conflicts:
@@ -388,6 +426,33 @@ added, edited, renamed or deleted here.
       filtered token count — with the arithmetic row asserted in TOKENS against
       the number of REMAINDER ENTRIES carrying the flag and never against the
       corpus-wide flagged figure.
+      **AND ROUND ONE ON PR #1097 ADDS THREE POPULATION CASES**, each a tracked
+      LINK, because the population arithmetic is now closed by the skip terms'
+      EXTENTS rather than by their names: a link that dangles or is otherwise
+      unreadable INSIDE the root — a missing target whose lexically resolved
+      path still stands inside the root, a looping chain, or a chain that
+      cannot be read — which must land in the NON-FILE term and in neither of
+      the other two; a link resolving to a DIRECTORY inside the root, which
+      must land in the non-file term too and contribute no token; and a link
+      resolving OUTSIDE the root, which must land in the out-of-root term
+      alone. **AND ROUND TWO ON THE SAME PULL REQUEST ADDS A FOURTH**
+      (Copilot thread `PRRT_kwDOTAvnrs6jdWK1`): a dangling link whose target is
+      missing but whose lexically resolved path still stands OUTSIDE the
+      root — an absolute path elsewhere, say — which must land in the
+      out-of-root term alone precisely as a resolving one does, because the
+      term is a path predicate and not an existence one. **AND ROUND THREE ON
+      THE SAME PULL REQUEST ADDS A FIFTH** (Copilot thread
+      `PRRT_kwDOTAvnrs6jsmQR`): a tracked REGULAR FILE, not itself a link,
+      standing under a PARENT directory component that is a link whose
+      lexically resolved path leaves the root — which must land in the
+      out-of-root term alone and must not be read, because the term now owns
+      every tracked entry whose resolved path leaves the root and not only an
+      entry that is itself a link. The identity is asserted in every one of
+      the five — the tracked ENTRIES in scope equalling the FILES read plus
+      all three skip terms — and the four links and the fifth's symlinked
+      parent are built in the throwaway `tmp_path` tree like every other
+      case, this repository tracking no symbolic link at any head this packet
+      has measured.
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,

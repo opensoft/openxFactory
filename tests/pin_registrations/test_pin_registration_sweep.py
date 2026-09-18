@@ -1007,14 +1007,29 @@ def test_the_live_pin_carries_lines_the_two_readers_read_differently() -> None:
 def test_the_renamed_readiness_evidence_is_cited_at_its_landed_path() -> None:
     """#834's rename, pinned by name in both directions, because the drift it
     caused is the whole reason this arm exists: the dotted path must be gone from
-    every `cited_to` this repository owns, and the dotless one must be there."""
+    every `cited_to` this repository owns, and the dotless one must be there.
+
+    THE COUNT WAS TWO UNTIL 2026-09-16 AND IS NOW ONE, and the missing one is a
+    RETIREMENT rather than a drift. Both citations belonged to the 2026-09-05
+    readiness measurement's two refusals: `add-chain-attestation`'s entry and
+    `add-composed-view-authoring`'s. The second was deleted when
+    `split-opendox-two-layer-product` § 6.4 closed that change AS RE-HOMED to
+    `opensoft/openDox` under RULING Q6 and the pin's own `pin-disposition-stale`
+    refusal forced the entry out (openxFactory #1056). The count is asserted
+    rather than relaxed to `>= 1`, because this arm exists to catch a citation
+    silently changing shape, and a bound that grows slack at every retirement
+    would stop catching it. WHAT IT COSTS is one literal per retirement, which is
+    the same price `contracts/openspec-cli-pin.yaml` charges for the entry
+    itself — and the remaining citation is still asserted to name the LANDED
+    dotless path, in both directions, which is the property #834 left behind.
+    """
     text = (REPO_ROOT / LIVE_PIN_PATH).read_text(encoding="utf-8")
     landed = ("openspec/changes/prepare-openspec-1-12-readiness/evidence/"
               "openspec-1.12-readiness-2026-09-05.md")
     assert (REPO_ROOT / landed).is_file(), landed
     citation_lines = [line for line in text.splitlines()
                       if line.startswith("      - openspec/changes/prepare-")]
-    assert len(citation_lines) == 2, citation_lines
+    assert len(citation_lines) == 1, citation_lines
     for line in citation_lines:
         assert landed in line, line
     # The dotted spelling survives ONLY where it is another repository's path or

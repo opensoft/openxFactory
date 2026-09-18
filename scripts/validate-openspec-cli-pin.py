@@ -139,11 +139,18 @@ something the pinned tool rejects, and the remedy is theirs: fix it, or
 disposition it with a citation. A disposition matched by nothing is a statement
 about the PIN — the exception outlived the condition it was granted for, and the
 remedy is to edit this repository's pin file. Silently tolerating the second is
-how a suppression list rots into a blanket: `add-composed-view-authoring` has ONE
-open task left and archives the moment a human takes it, at which point its
-finding disappears from every run and its disposition would sit here forever,
-suppressing a class of finding nobody re-examined. Refusing makes the archive
-itself the event that forces the re-examination. Dispositions are therefore
+how a suppression list rots into a blanket, and the illustration this paragraph
+used has since HAPPENED, which is why it is kept and put in the past tense rather
+than swapped for a fresh hypothetical. `add-composed-view-authoring` carried a
+disposition here and archived on 2026-09-16 — not because a human took its one
+open task, but CLOSED AS RE-HOMED to `opensoft/openDox` under RULING Q6 (PR
+#1056), with that task still open. Its finding vanished from every run the
+instant the packet moved, and the disposition would have sat here afterwards
+suppressing a class of finding nobody re-examined. Refusing is what stopped it:
+`--all` answered `pin-disposition-stale` until the entry was deleted, in the same
+pull request as the move. THE DOCTRINE NEVER DEPENDED ON *HOW* A PACKET LEAVES,
+only on its leaving, so an exit nobody predicted forced exactly the
+re-examination the refusal exists to force. Dispositions are therefore
 UPGRADE-COUPLED and ARCHIVE-COUPLED: they are re-derived at every pin bump and
 retired the moment their finding stops occurring.
 

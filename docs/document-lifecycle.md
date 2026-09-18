@@ -548,9 +548,13 @@ its own.>
   cross-references in other archives all read it — so a name one day away from
   the commit that created it states a day the archive did not happen on. Ten
   such names were landed by a local clock one day behind UTC before the wrapper
-  owned the clock, and two more were RENAMED inside `archive/` six days after
+  owned the clock; two more were RENAMED inside `archive/` six days after
   the archive acts that created them (the acts themselves agree with the
-  names); all twelve are dispositioned IN PLACE, names untouched, in
+  names); and two are CORRECT archives whose adding commit simply fell on a
+  later UTC day than the act — one held overnight for the separate archive word
+  its `code_surface:` required, one landed by a squash merge that discarded the
+  act's own commit and left the landing commit as the oldest adding one. All
+  fourteen are dispositioned IN PLACE, names untouched, in
   `tests/sequenced_after/archive-date-dispositions.yaml`, each citing its
   adding commit, the fact and the ruling (issue #812, Brett Heap 2026-09-08).
   RENAMING IS NOT THE REMEDY: history is history, every citation stands, and a

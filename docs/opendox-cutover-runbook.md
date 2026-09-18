@@ -144,8 +144,8 @@ mapping manifest. Measured in the landed file:
 | `moved_with_declared_edit` | **175** | commit A byte-identical; commit B's diff against the carve blob touches ONLY that row's `edits[].lines` |
 | `not_moved` | **138** | absent at every destination — except the **20** `replicated_at_destination` rows, which are present at the destination AND retained here; **one of them declares lines** (RULED Q-L7 (a) — one line at that ruling, two today) and its copies are held to them |
 
-**318 rows move. 2710 declared edit lines**: `import rewrites` 726, `path
-constants` 246, `adapter calls` 1738. **176 rows carry `edits:`** — the 175
+**318 rows move. 2717 declared edit lines**: `import rewrites` 726, `path
+constants` 246, `adapter calls` 1745. **176 rows carry `edits:`** — the 175
 `moved_with_declared_edit` rows and, since RULED Q-L7 (a), one replica row.
 The § 3.4 slice-S5 annotation moved all four figures: +162 declared lines, and
 `views/staging-workbench.js` converted `moved_verbatim` -> declared, which is
@@ -183,10 +183,13 @@ below DOES move with it**: slice S7 made that table a measurement again and
 pinned it cell by cell, so this act takes its own cell rather than registering
 the table as stale, which is what an earlier draft of this paragraph did and
 what S7's pin now forbids.
-**RULED Q7's CSS extraction moves ONE FIGURE AND ONE ROW, and it moves them
-LAST** — this paragraph is in LANDING ORDER and the arithmetic below is read
+**RULED Q7's CSS extraction moves ONE FIGURE AND ONE ROW, and it moved them
+LAST UNTIL THE § 3.4 SLICE-S7 RESIDUE BELOW** — this paragraph is in LANDING
+ORDER and the arithmetic below is read
 off it (Copilot review, round 2, which found the act narrated before the
-annotation whose 2621 it adds to): +89 `adapter calls` lines on the single
+annotation whose 2621 it adds to; and Copilot review of the residue act, which
+found this sentence still claiming the last word after a later act had taken
+it): +89 `adapter calls` lines on the single
 `web/styles.css` row, which slice S7 had already converted and which was
 already a carrier, so no disposition count, no carrier count and no replica
 count moves with them. **2621 + 89 = 2710.** EIGHTY-EIGHT of the 89 are
@@ -199,6 +202,22 @@ declared edit in this vocabulary since § 3.4 slice S6 declared 122
 `serve_projection.py` deletions under the same class and landed; what `#1023`
 § 6 called a wall was the `moved_verbatim` disposition, which slice S7 had
 already taken this row past.
+**THE § 3.4 SLICE-S7 RESIDUE ANNOTATION then moves ONE FIGURE over FOUR ROWS**:
++7 `adapter calls` lines on the `opendox_code` view modules slice S7's own
+review found LEAVES inside — `web/views/board.js`, `web/views/docs.js`,
+`web/views/explorer.js` and `web/views/staging-workbench.js`, every one already
+`moved_with_declared_edit` and already a carrier — so no disposition count, no
+carrier count and no replica count moves with them. **2710 + 7 = 2717.** Its
+window is ROW-DISJOINT from RULED Q7's one `web/styles.css` row, so the two
+figures are independent and this sum states an ARITHMETIC and not an ordering;
+the merge that brought the two acts together re-derived the total from the
+merged manifest rather than adding their deltas. Two of the SEVEN findings
+declare no line here and say why: `web/views/display.js` is an ADMITTED created
+file with no row at all, declared in `docs/opendox-carve-admissions.yaml`
+instead, and `web/views/lineage.js`'s `renderStats` reset falls inside the
+`replace` opcode on carve `:52` that slice S7 ALREADY declares — a second
+declaration would be the repeated line number the row-wide distinctness
+assertion refuses.
 **AND THE TABLE ABOVE IS THE CARVE'S RECORD, NOT A LIST OF ARRIVAL
 OBLIGATIONS** — a distinction this act is the first to make visible, because it
 is the first whose rows owe the OPPOSITE of the proof written beside them. A
@@ -320,7 +339,7 @@ The **two replica lines belong to no destination column below** — `:25` (the
 1422nd declared line when this paragraph was written) and, since the
 pre-existing `openxdox_code` annotation, `:271`: a replica row names no
 destination at all, so the per-leg declared-line figures below exclude both and
-sum to 2708 rather than 2710. **The two are owed differently, and a replica row
+sum to 2715 rather than 2717. **The two are owed differently, and a replica row
 cannot say so**: `:25` is owed by every leg that places that conftest — both
 `-code` legs — while `:271` is openXdox-code#14's § 4.4 fixture, PERMITTED at
 every replica by the same row-wide grammar and owed at none. openXdox-code
@@ -357,16 +376,20 @@ RULING OQ-K's owed FLOOR PART 2 field (§ 9): that one names REPOSITORIES on a
 test-bearing replica row for the multiplicity sum, and both files here carry
 zero `def test_` at the carve commit.
 
-**Measured directly against the landed manifest, and CURRENT TO RULED Q7's
-CSS EXTRACTION of 2026-09-16** (rather than hand-chained through every
-intervening amendment): the table and the two paragraphs above, and the
-per-destination table below, state the totals as of THIS act — RULED Q7's CSS
-extraction (`#656` comment `5648049748`, the FORM Q-L1's at `5628560136`), the
-one act on this document whose whole window is a CSS EXTRACTION: 89 `adapter
-calls` lines on one already-declared row — 88 of them DELETIONS and one, carve
-`:161`, a REPLACEMENT in place (§ 3.4 above states which and why) — as the 59
-rule blocks the gate loop's own selectors occupied leave for the four sheets
-openXdox-code ships beside the bindings that name them. Behind it, RULED 5656343213's retirement act
+**Measured directly against the landed manifest, and CURRENT TO THE § 3.4
+SLICE-S7 RESIDUE ANNOTATION of 2026-09-17** (rather than hand-chained through
+every intervening amendment): the table and the two paragraphs above, and the
+per-destination table below, state the totals as of THIS act — the § 3.4
+SLICE-S7 RESIDUE annotation (`#656` CLAIM `5714327188`, the FORM Q-L1's at
+`5628560136`), whose whole window is +7 `adapter calls` lines over four
+already-declared `opendox_code` rows and which moves no other count:
+**2710 + 7 = 2717**. Behind it, RULED Q7's CSS EXTRACTION (`#656` comment
+`5648049748`), the one act on this document whose whole window is a CSS
+EXTRACTION: 89 `adapter calls` lines on one already-declared row — 88 of them
+DELETIONS and one, carve `:161`, a REPLACEMENT in place (§ 3.4 above states
+which and why) — as the 59 rule blocks the gate loop's own selectors occupied
+leave for the four sheets openXdox-code ships beside the bindings that name
+them. Behind that, RULED 5656343213's retirement act
 (`#656` CLAIM `5656690570`), then the pre-existing `openxdox_code` row
 annotation (`#656` CLAIM `5656688910`), and behind that the § 3.4 slice-S8
 annotation (RULED `#656`
@@ -394,11 +417,15 @@ annotation (RULED Q5/Q6, `#656` comment `5648044785`, openxFactory PR #1023
 @ `ee251d6c`) — the first act to use the `re_destined:` form, +162 declared
 lines, and the one `views/staging-workbench.js` conversion that moves both
 disposition counts and the carrier count at once — and the § 3.4 SLICE S7
-annotation THIS ACT CARRIES: +782 declared lines over 33 `opendox_code` rows,
+annotation (openxFactory PR #1030 @ `b3a75537`, whose own act this
+paragraph was written from): +782 declared lines over 33 `opendox_code` rows,
 17 of them converted `moved_verbatim` -> declared, and three admitted files.
 The list is complete THROUGH SLICE S7, and deliberately stops there: the § 3.4
-slice-S8 annotation, the pre-existing `openxdox_code` annotation and RULED
-5656343213's RETIREMENT ACT have moved the aggregate since, and each is stated
+slice-S8 annotation, the pre-existing `openxdox_code` annotation, RULED
+5656343213's RETIREMENT ACT, RULED Q7's CSS EXTRACTION and the § 3.4 SLICE-S7
+RESIDUE have moved the aggregate since — five acts now, and the naming is kept
+current because a history that says it stops somewhere must say what came after
+it (Copilot review of the residue act) — and each is stated
 ONCE, in the current-totals paragraph
 above this history, which is where the aggregate is read. Two acts restating
 one set of absolutes is how a count becomes wrong in a merge, and this history
@@ -420,7 +447,7 @@ RULED 5656343213 has retired them (below):
 
 | destination | rows | verbatim / edited | declared edit lines | declared roots |
 | --- | ---: | ---: | ---: | --- |
-| `opendox_code` | 123 | 35 / 88 | 1756 | `src/opendox`, `tests` |
+| `opendox_code` | 123 | 35 / 88 | 1763 | `src/opendox`, `tests` |
 | `opendox_spec` | 56 | 55 / 1 | 26 | `contracts/schemas`, `docs`, `examples/ideation-dashboard` |
 | `openxdox_code` | 92 | 9 / 83 | 917 | `scripts`, `src/openxdox`, `tests` |
 | `openxdox_spec` | 47 | 44 / 3 | 9 | `contracts/schemas`, `examples/ideation-dashboard` |
@@ -437,8 +464,9 @@ slice-S5 annotation (`ee251d6c`) moved BOTH — to `52 / 71 | 874` and
 put it. The slice-S8 annotation then moves BOTH declared-line cells and
 NEITHER `verbatim / edited` cell: its forty `path constants` lines fall
 11 at `opendox_code` and 29 at `openxdox_code`, every one of them on a row
-that already carried `edits:`, giving the `1667` this table still carries and
-the `703` it carried until the act below. The pre-existing `openxdox_code`
+that already carried `edits:`, giving the `1667` this table carried until
+RULED Q7's CSS EXTRACTION below and the `703` it carried until the act after
+it. The pre-existing `openxdox_code`
 annotation then moves
 `openxdox_code`'s declared-line cell ALONE, to `750`: 47 of its 48 lines fall
 on three rows this leg already edits, and the forty-eighth is a second line on
@@ -452,9 +480,20 @@ RULED Q7's CSS EXTRACTION then moves `opendox_code`'s cell ALONE, to `1756`:
 all 89 of its lines fall on that leg's `web/styles.css` row, a row that was
 already `moved_with_declared_edit` and already a carrier, so no `verbatim /
 edited` cell and no other column moves with them.
-The four destination figures now sum to 2708, and the TWO lines the replica row
+The § 3.4 SLICE-S7 RESIDUE annotation then moves that same cell ALONE once
+more, from `1756` to `1763`: its seven `adapter calls` lines fall on four rows
+that leg already edits — `web/views/{board,docs,explorer,staging-workbench}.js`
+— so no `verbatim / edited` cell and no row count moves with them either. The
+two acts are disjoint BY ROW — Q7's window is the one `web/styles.css` row and
+this one's four are view modules, which
+`test_the_real_manifest_carries_the_s7_residue_declared_edits`' sibling sweep
+ASSERTS rather than assumes now that `Q7_WINDOW` has merged into its namespace
+— so neither cell figure depends on which landed first, and the merge
+that brought them together re-derived the cell from the merged manifest rather
+than adding the two deltas.
+The four destination figures now sum to 2715, and the TWO lines the replica row
 `tests/ideation-dashboard/conftest.py` declares — which name no destination at
-all — make 2710.
+all — make 2717.
 `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_destination_table_is_the_manifests_own_sum`
 asserts all four numeric columns, the fifth ROOTS column and that sum against
 the landed manifest, so every cell of this table is now read FROM THE TABLE;
@@ -542,7 +581,7 @@ newline closes the last record without opening another, and `\r` is content and
 not a terminator.** The definition lives in `scripts/carve_lines.py` and both
 tools import it; neither carries a second one. It is `git diff`'s numbering,
 `grep -n`'s, and the one the manifest's declared lines have been written in
-from the start — 794 of them at this ruling's own landing, 2710 now.
+from the start — 794 of them at this ruling's own landing, 2717 now.
 Before the ruling the arrival verifier numbered with `str.splitlines()`, which
 also breaks on `U+2028`, `U+2029`, `\v`, `\f`, `\x1c`-`\x1e` and `\x85`: the
 three rows whose blobs carry `U+2028` inside a line were 522 / 2367 / 738
@@ -1221,7 +1260,10 @@ form on purpose, not a stale example** (Copilot review, PR #979; its PREMISE
 re-measured on Copilot's round-ten review of PR #1030). What keeps the flag
 correct is not that `opendox_code` declares no admissions — this note said
 its block in `docs/opendox-carve-admissions.yaml` was `created: []` long after
-BUILD slice 2 began filling it, and THIS act adds three more entries to it —
+BUILD slice 2 began filling it, and the § 3.4 slice-S7 annotation this note
+was last re-measured on (openxFactory PR #1030 @ `b3a75537`) added three more
+entries to it, with FOUR further amendments since (#1025, #1067, #1068 and
+the residue annotation this act carries) —
 but that neither `pytest.ini` nor `conftest.py` is among the paths it
 declares. Those two Phase-1 files still have no reviewed declaration to read,
 so the command-line flag remains this leg's live, correct admission, exactly
