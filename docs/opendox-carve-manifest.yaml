@@ -851,7 +851,11 @@ moved_paths:
 # that derivation rather than its source. THE IN-REPOSITORY AUTHORITY for every
 # one of them is `tests/carve_manifest/test_carve_manifest.py::test_the_real_
 # manifest_carries_the_ruled_q_l7_amendment`, which re-derives the line and
-# carrier totals from these rows and asserts `(2710, 176)`, and
+# carrier totals from these rows and asserts `(2717, 176)` — `(2710, 176)`
+# when this paragraph was written, moved by the § 3.4 SLICE-S7 RESIDUE
+# annotation's seven lines below, which is what "summed over the MERGED
+# document at every merge" means and why the delta above stays this act's
+# own — and
 # `tests/carve_arrival/test_verify_carve_arrival.py::test_the_runbook_per_
 # destination_table_is_the_manifests_own_sum`, which does the same for the
 # per-destination cells — named here because a reader must be able to run the
@@ -943,6 +947,70 @@ moved_paths:
 # that leg's sheets are declared but inert until its `opendox` carries
 # `ViewBinding.styles`, which is what its `specs_for()` feature detection is
 # for.
+#
+# THE § 3.4 SLICE-S7 RESIDUE ANNOTATION OF 2026-09-17 (the FORM is the Q-L1
+# form ruled at `5628560136`; the CLASS is RULING OQ-1's `adapter calls`; the
+# S7 LANDED note that carried this residue forward is `#656` comment
+# `5688498049`). SEVEN DISPLAY-FACET LEAVES that slice S7's own review found
+# INSIDE the modules S7 had already parameterized at their mounts — two
+# threads Copilot opened on opensoft/openDox-code#21 at its gated head
+# `c7a216c7` and five more it left SUPPRESSED in review `5192900474`'s body,
+# where a lane reading `unresolved == 0` would never have seen them. Every one
+# is the same failure: the vocabulary is installed where a view is MOUNTED and
+# never threaded to a LEAF inside it — a search index built on the raw
+# enum beside a row that renders the resolved word, a nested wheel mounted
+# without `display`, a card's date word, a stale-tile heading, a `renderStats`
+# that kept the PREVIOUS render's words, and the one interactive add route
+# placing sections against the neutral order.
+#
+# THEY WERE MEASURED AND LEFT ALONE ON #21 RATHER THAN TAKEN QUIETLY, which is
+# what makes them a later act's rather than a lapse: each edits a carve-commit
+# line the landed S7 window does not declare, and that was PROVED at the time
+# against a pristine checkout with the floor's own `verify-carve-arrival.py`
+# (`arrival-undeclared-edit`). It is the same disposition Act 1 gave slice S8's
+# two path constants.
+#
+# SEVEN FINDINGS, FOUR ROWS, SEVEN LINES, and the arithmetic is worth stating
+# because two of the seven are declared by neither an entry below nor an
+# omission (Copilot review of this pull request, threads 1 and 2).
+# `views/staging-workbench.js` carries TWO of the findings, which is why six
+# files give four rows. `views/display.js` is an ADMITTED created file with no
+# manifest row at all, so its `applyTokens` fix is declared as an admission.
+# And `views/lineage.js`'s `renderStats` reset needs NO NEW LINE: slice S7
+# introduced that whole function body, so the leg's edit falls inside the
+# `replace` opcode on carve line `:52`
+# (`export function renderStats(root, snapshot) {`) — which the S7 window
+# ALREADY declares on that row, along with 13, 41, 47, 62-65, 76-83, 104,
+# 115-117, 124, 129-130 and 138. Declaring `:52` a second time is exactly the
+# repeated line number
+# `test_the_real_manifest_carries_the_s7_display_facet_declared_edits`'s
+# row-wide distinctness assertion refuses and the arrival verifier collapses
+# into a SET, and the verifier's own answer for that row at the leg's head is
+# ZERO undeclared lines.
+#
+# SIX OF THE SEVEN ARE INVISIBLE TO `tests/test_web_boundary.py` ASSERTION 4
+# and always would have been — `captured` is in neither of its word lists,
+# a mount that forwards no option spells nothing at all, and a fallback that
+# keeps the previous vocabulary is a missing RESET rather than a literal —
+# so the boundary census can be green while a pane renders in two vocabularies
+# at once. The seventh, `views/display.js`, is an ADMITTED created file and
+# carries no row at all.
+#
+# THE DELTA IS STATED AND THE ABSOLUTE TOTALS ARE NOT RESTATED HERE, on the
+# discipline the S3, S6, S4 and S8 paragraphs above each state: rows unchanged;
+# `not_moved` unchanged; NO disposition conversion (all four rows were already
+# carriers); declared lines +7 (`adapter calls` +7, `import rewrites` +0,
+# `path constants` +0) over the four rows below; rows carrying `edits:`
+# unchanged at 176; replicas unchanged; `re_destined` unchanged at 4. The one
+# place the running absolutes are summed and pinned is
+# `tests/carve_manifest/test_carve_manifest.py::test_the_real_manifest_carries_the_ruled_q_l7_amendment`,
+# and this act's own window is pinned by
+# `test_the_real_manifest_carries_the_s7_residue_declared_edits` beside it.
+# Line numbers are the CARVE COMMIT's and were computed with the arrival
+# verifier's own algorithm (`carve_lines.text_records` + `difflib` opcodes,
+# `_check_declared_lines`) against the leg's head, so a line slice S7 or S8
+# already declared is not re-declared here.
+# Realized at opensoft/openDox-code `build/s7-residue-leaf-facet`.
 rows:
   - source_path: contracts/schemas/gate-action-record.schema.yaml
     disposition: moved_verbatim
@@ -2425,6 +2493,9 @@ rows:
       - class: adapter calls
         lines: [18, 59, 87, 105, 106, 117, 118, 125, 126, 141, 142, 145, 147, 154, 155, 156, 157, 168, 169, 194, 202, 203, 204, 217, 219, 220, 222, 223, 225, 226, 228, 234]
         note: "§ 3.4 SLICE S7, the declared-edit window for \"parameterize class C — every governance word in the fourteen class-C files and the four declared class-A tails becomes a read of the registered domain's DISPLAY facet BY ROLE\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`, Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `#656` comment `5628560136`, and its § 3.4 binding clause `5642758731`; S7 CLAIM `#656` comment `5649148461`). § 4.3 point 4 names this file directly (\"board.js's four columns become the profile's board roles\") and § 3.2 measured 25 governance literals in it. The four columns are the roles `source` (its CAPTURED documents), `selection`, `submission` and `completion`; every heading, colour token, empty note and filter option is read by role; the drill-in and notebook kinds come from `display.js`'s declared seam tables. AND THE BOARD STOPS REACHING FOR ANOTHER VIEW'S CONTROL: its \"open the doc list\" footer clicked `document.getElementById(\"tab-docs\")` by DOM id — the coupling `app.js`'s `nav` exists to hold — so the view declares the verb (`onOpenDocList`), the shell performs it, and the button is DISABLED rather than a live no-op where no shell supplied one. Realized at opensoft/openDox-code `build/s7-parameterize-class-c` (DRAFT PR #21)."
+      - class: adapter calls
+        lines: [82]
+        note: "§ 3.4 SLICE S7 RESIDUE, the declared-edit window for the SEVEN DISPLAY-FACET LEAVES slice S7's own review found inside the modules it had already parameterized at their mounts — two threads Copilot opened on opensoft/openDox-code#21 at its gated head `c7a216c7` and five more it left SUPPRESSED in review `5192900474`'s body, where a lane reading `unresolved == 0` would never have seen them (the S7 LANDED note is `#656` comment `5688498049`; the FORM is RULED Q-L1's, `#656` comment `5628560136`, so this annotation lands FIRST and the leg follows; the class is RULING OQ-1's `adapter calls`, `#656` comment `5628560136`'s own closed set). They were NOT taken on #21 because each edits a carve-commit line the landed S7 window does not declare, proved there against a pristine checkout with the floor's own `verify-carve-arrival.py` (`arrival-undeclared-edit`) — the same disposition Act 1 gave slice S8's two path constants: measured, left alone, registered, and taken by the later act that declares them. THE CARD'S DATE WORD IS THE COLUMN'S WORD. `:82` is `brainstormCard()`'s date metadata, which prefixed the value with the literal `captured` while the heading directly above the same card resolved the SOURCE column through `columnLabel(SOURCE)` -> `vocab.status(VOCABULARY.DOCUMENT, STATUS_ROLE.CAPTURED)`: one card in two vocabularies. It survived slice S7 because it survives the census sweep — `captured` is in neither `tests/test_web_boundary.py`'s `_STATUS_WORDS` nor its `_STAGE_WORDS`, so assertion 4 was green over it and always would have been. The SCHEMA key `d.dates.captured` is untouched: § 2.2 rule 3's own distinction, a snapshot field name and not a rendered word. Realized at opensoft/openDox-code in the leg this annotation precedes (`build/s7-residue-leaf-facet`), whose new `tests/test_display_facet_leaves.py` fails 11 of 13 against a pristine worktree at `0b4e8bbf` — every one of the seven leaves failed by at least one of them, and the two that pass there are the return-value guard beside `applyTokens` and the behavioural probe that only bites once `runAddSection` forwards its argument."
   - source_path: scripts/ideation_dashboard/web/views/bullseye.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2509,6 +2580,9 @@ rows:
       - class: adapter calls
         lines: [16, 17, 18, 20, 21, 22, 23, 24, 76, 116, 126, 134, 146, 152, 177]
         note: "§ 3.4 SLICE S7, the declared-edit window for \"parameterize class C — every governance word in the fourteen class-C files and the four declared class-A tails becomes a read of the registered domain's DISPLAY facet BY ROLE\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`, Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `#656` comment `5628560136`, and its § 3.4 binding clause `5642758731`; S7 CLAIM `#656` comment `5649148461`). RULED Q1's own sentence, realized: \"openDox, class A, with the area map parameterized\". `AREA_ORDER` hardcoded `ideation/brainstorm` and `ideation/staging` — openxFactory's corpus layout, in the one tile § 3.4 says must reach the student. The bucket order and the prefixes come off the profile's `areas` axis, terminal `reference` bucket last, and a product told no corpus layout lists every document in that bucket rather than inventing folders it was never given. CLASS `adapter calls` and not `path constants` on RULING OQ-1's own carve-out: a CORPUS-SHAPED literal is an adapter edit, because the corpus tells you its layout through `resolve`. Realized at opensoft/openDox-code `build/s7-parameterize-class-c` (DRAFT PR #21)."
+      - class: adapter calls
+        lines: [37, 39]
+        note: "§ 3.4 SLICE S7 RESIDUE, the declared-edit window for the SEVEN DISPLAY-FACET LEAVES slice S7's own review found inside the modules it had already parameterized at their mounts — two threads Copilot opened on opensoft/openDox-code#21 at its gated head `c7a216c7` and five more it left SUPPRESSED in review `5192900474`'s body, where a lane reading `unresolved == 0` would never have seen them (the S7 LANDED note is `#656` comment `5688498049`; the FORM is RULED Q-L1's, `#656` comment `5628560136`, so this annotation lands FIRST and the leg follows; the class is RULING OQ-1's `adapter calls`, `#656` comment `5628560136`'s own closed set). They were NOT taken on #21 because each edits a carve-commit line the landed S7 window does not declare, proved there against a pristine checkout with the floor's own `verify-carve-arrival.py` (`arrival-undeclared-edit`) — the same disposition Act 1 gave slice S8's two path constants: measured, left alone, registered, and taken by the later act that declares them. THE SEARCH MATCHES THE WORD THE ROW DISPLAYS. `:37` is `docHaystack()`'s own comment line and `:39` the return it heads: the haystack indexed the RAW `d.stage` enum while the row beside it renders `vocab.documentStageWord(d.stage)`, so a host that maps `brainstorm` to `jotted` hid every such document from a search for the word the user can SEE. BOTH spellings are indexed now and this is an addition, never a substitution: a search for `brainstorm` must go on working, and a host may map two enums onto one word. Realized at opensoft/openDox-code in the leg this annotation precedes (`build/s7-residue-leaf-facet`), whose new `tests/test_display_facet_leaves.py` fails 11 of 13 against a pristine worktree at `0b4e8bbf` — every one of the seven leaves failed by at least one of them, and the two that pass there are the return-value guard beside `applyTokens` and the behavioural probe that only bites once `runAddSection` forwards its argument."
   - source_path: scripts/ideation_dashboard/web/views/doxbench-chat-model.js
     disposition: moved_verbatim
     git_mode: '100644'
@@ -2558,6 +2632,9 @@ rows:
       - class: adapter calls
         lines: [44, 46, 47, 48, 49, 50, 51, 54, 80, 82, 89, 91, 94, 99, 103, 108, 119, 124, 148, 221, 239, 272]
         note: "§ 3.4 SLICE S7, the declared-edit window for \"parameterize class C — every governance word in the fourteen class-C files and the four declared class-A tails becomes a read of the registered domain's DISPLAY facet BY ROLE\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`, Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `#656` comment `5628560136`, and its § 3.4 binding clause `5642758731`; S7 CLAIM `#656` comment `5649148461`). RULED Q2 put this file wholly in class C (\"a projection whose only domain content is the artifact-folder vocabulary\"), and that vocabulary is the facet's ARTIFACT axis now — the axis RULED Q1's own argument names. `classifyChangeFile` groups by the ORDERED packet documents the domain declares (each its own group, named by its own file name, so the declared order IS the rendered order) and by the two declared subfolder prefixes, matched a SEGMENT at a time so `specs/` can never match `myspecs/`. The drill kinds come from the declared seam table, so the file carries neither `openspec/changes/` nor `ideation/staging/`. Realized at opensoft/openDox-code `build/s7-parameterize-class-c` (DRAFT PR #21)."
+      - class: adapter calls
+        lines: [225]
+        note: "§ 3.4 SLICE S7 RESIDUE, the declared-edit window for the SEVEN DISPLAY-FACET LEAVES slice S7's own review found inside the modules it had already parameterized at their mounts — two threads Copilot opened on opensoft/openDox-code#21 at its gated head `c7a216c7` and five more it left SUPPRESSED in review `5192900474`'s body, where a lane reading `unresolved == 0` would never have seen them (the S7 LANDED note is `#656` comment `5688498049`; the FORM is RULED Q-L1's, `#656` comment `5628560136`, so this annotation lands FIRST and the leg follows; the class is RULING OQ-1's `adapter calls`, `#656` comment `5628560136`'s own closed set). They were NOT taken on #21 because each edits a carve-commit line the landed S7 window does not declare, proved there against a pristine checkout with the floor's own `verify-carve-arrival.py` (`arrival-undeclared-edit`) — the same disposition Act 1 gave slice S8's two path constants: measured, left alone, registered, and taken by the later act that declares them. THE ONE BRANCH `resolveExplorerTarget` CANNOT REACH. `:225` is the stale-tile fallback title — a tile whose snapshot row has gone, and the only place a human is shown the tile KIND rather than its id — which rendered the raw `DRILL_KINDS` value inside an overlay whose every other label resolves: a host whose submissions are \"requests\" still read `proposal · REQ-14` in the dialog heading. The kind is a SEAM KEY and not a word (§ 2.2 rule 3), so the new `drillKindWord` export maps it back to its own stage role and renders the role; a value no role carries renders verbatim, because a dialog heading is the wrong surface on which to fail a lookup. Realized at opensoft/openDox-code in the leg this annotation precedes (`build/s7-residue-leaf-facet`), whose new `tests/test_display_facet_leaves.py` fails 11 of 13 against a pristine worktree at `0b4e8bbf` — every one of the seven leaves failed by at least one of them, and the two that pass there are the return-value guard beside `applyTokens` and the behavioural probe that only bites once `runAddSection` forwards its argument."
   - source_path: scripts/ideation_dashboard/web/views/funnel.js
     disposition: moved_with_declared_edit
     git_mode: '100644'
@@ -2753,6 +2830,9 @@ rows:
       - class: adapter calls
         lines: [83, 113, 114, 115, 116, 119, 126, 131, 132, 133, 134, 135, 434, 520, 1086, 1130, 1131, 1132, 1137, 1139, 1391, 1392, 1393, 1576, 1617, 1677, 1684, 1701, 1928, 1955, 2434, 2905, 2912, 2952, 2987, 3159, 3279]
         note: "§ 3.4 SLICE S7, the declared-edit window for \"parameterize class C — every governance word in the fourteen class-C files and the four declared class-A tails becomes a read of the registered domain's DISPLAY facet BY ROLE\" (openDox-spec `docs/front-end-package-boundary.md` § 5 row S7 and § 4.3 @ `7d12428c`; RULED Q1/Q2/Q7, `#656` comment `5648049748`, Brett Heap 2026-09-12; the FORM is RULED Q-L1's, `#656` comment `5628560136`, and its § 3.4 binding clause `5642758731`; S7 CLAIM `#656` comment `5649148461`). THE LARGEST CLASS-C FILE IN THE BUNDLE, and the last of the fourteen. The three tab labels, the three scope-kind subtitles, the three create-affordance labels, the docs-pane empty line, the outline state sentence, the two outline empties and the duplicate-topic advice all resolve through the facet; the tab KEYS, the draft tile kind and the `.swb-pane-<tab>` style hook resolve through `display.js`'s `TAB_IDS` and `SCOPE_KINDS`, composed from the same seam key rather than spelled twice. The two-pane context region is named after the two TABS it holds, so its `aria-label` follows the vocabulary the tabs actually carry. The shell's facet is installed into BOTH halves at the mount — this module's own `vocab` and, through `setDisplay`, the pure model it derives through — before anything renders; no facet declared means openDox's own neutral words. Realized at opensoft/openDox-code `build/s7-parameterize-class-c` (DRAFT PR #21)."
+      - class: adapter calls
+        lines: [805, 1202, 1204]
+        note: "§ 3.4 SLICE S7 RESIDUE, the declared-edit window for the SEVEN DISPLAY-FACET LEAVES slice S7's own review found inside the modules it had already parameterized at their mounts — two threads Copilot opened on opensoft/openDox-code#21 at its gated head `c7a216c7` and five more it left SUPPRESSED in review `5192900474`'s body, where a lane reading `unresolved == 0` would never have seen them (the S7 LANDED note is `#656` comment `5688498049`; the FORM is RULED Q-L1's, `#656` comment `5628560136`, so this annotation lands FIRST and the leg follows; the class is RULING OQ-1's `adapter calls`, `#656` comment `5628560136`'s own closed set). They were NOT taken on #21 because each edits a carve-commit line the landed S7 window does not declare, proved there against a pristine checkout with the floor's own `verify-carve-arrival.py` (`arrival-undeclared-edit`) — the same disposition Act 1 gave slice S8's two path constants: measured, left alone, registered, and taken by the later act that declares them. TWO LEAVES IN ONE FILE, both of them an option a mount forgot to forward. `:805` is the nested `renderDocWheel` mount: `doc-wheel.js` resets its own module vocabulary to `opts.display || neutralDisplay()` on EVERY render, so a wheel mounted without `display` rendered neutral labels, sub-lines and ARIA text inside a workbench whose every other surface speaks the host's — one pane in two vocabularies. `:1202`/`:1204` are `runAddSection()`'s call to `insertSection`, which reads its canonical heading order through `templateOrder(options.display)` and falls back to openDox's own shipped `SECTION_ORDER` where the caller supplies none: the ONLY interactive route a human has for adding a section placed and duplicate-checked every section against the NEUTRAL order while the outline it was editing rendered in the host's. The gap-row route (`required: true`) is the same call, so both are closed by the one argument. Realized at opensoft/openDox-code in the leg this annotation precedes (`build/s7-residue-leaf-facet`), whose new `tests/test_display_facet_leaves.py` fails 11 of 13 against a pristine worktree at `0b4e8bbf` — every one of the seven leaves failed by at least one of them, and the two that pass there are the return-value guard beside `applyTokens` and the behavioural probe that only bites once `runAddSection` forwards its argument."
   - source_path: scripts/ideation_dashboard/web/views/swb-create.js
     disposition: moved_with_declared_edit
     git_mode: '100644'

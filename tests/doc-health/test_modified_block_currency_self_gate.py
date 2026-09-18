@@ -134,12 +134,13 @@ that reddened the gate-bearing test.
 from __future__ import annotations
 
 import functools
+import hashlib
 import inspect
 import re
 import subprocess
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 import pytest
 
@@ -360,6 +361,30 @@ def _findings():
 
 _SCENARIO_SUBJECT = None
 
+# AND ON 2026-09-16 THE CHANGE ITSELF LEFT THE ACTIVE CORPUS. It was CLOSED AS
+# RE-HOMED to `opensoft/openDox` under RULING Q6
+# (`split-opendox-two-layer-product` `tasks.md` § 6.4), so `active_blocks` —
+# which excludes `openspec/changes/archive/` in its own reader, deliberately —
+# stops seeing the block that carries the discharge. The band it was discharged
+# out of is STILL empty and is still asserted, and the declaration is STILL
+# asserted positively: it is now read from the archived delta named below,
+# through the same `parse_delta` / `derive_units` pair `active_blocks` itself
+# uses, so "delete the marker and both halves fail" survives the move. What is
+# newly asserted is the departure — the block must be absent from the ACTIVE
+# corpus — because a test that read only the archive would pass just as well if
+# the packet had never moved.
+#
+# NAMED FOR THE DEPARTURE, NOT FOR A DISCHARGE, and the two are different events.
+# `_DISCHARGED_SCENARIO_SUBJECT` below keeps its older name correctly: what was
+# discharged is the FINDING, by the `Merged into` marker declared on 2026-08-27,
+# which is true whether or not this packet ever moved. THIS constant names the
+# path of a delta that LEFT WITHOUT PROMOTING — RULING Q6 forbids its blocks
+# promoting here — so calling it "discharged" would invite the one reading this
+# whole closure exists to refuse: that the delta reached canon.
+_DEPARTED_BLOCK_DELTA = (
+    "openspec/changes/archive/2026-09-16-add-composed-view-authoring/"
+    "specs/ideation-dashboard/spec.md")
+
 # The subject that WAS reported, kept as a named constant rather than deleted:
 # the discharge is asserted positively below (the block carries the marker that
 # declares it), and the corpus's own containment case is still true of these two
@@ -376,6 +401,87 @@ _DISCHARGED_SCENARIO_SUBJECT = (
 # corpus's own containment case: canon's title is a substring of this one under
 # the family's title normalization, and the family still reports it.
 _RENAME_DESTINATION = "Tile-bound gate verbs hide on a composed view"
+
+#: THE NON-PROMOTION INVARIANT, made checkable. `_DEPARTED_BLOCK_DELTA`'s comment
+#: already says this delta "LEFT WITHOUT PROMOTING — RULING Q6 forbids its blocks
+#: promoting here", and the closure states it outright: *"no delta is promoted
+#: here."* Nothing asserted it. Absence from `active_blocks()` proves the packet
+#: is not an ACTIVE writer, and the archived marker proves the block travelled —
+#: neither is disturbed if the delta's scenarios were ALSO copied into
+#: `openspec/specs/ideation-dashboard/spec.md`. That promotion would make
+#: promotion-fidelity go QUIET rather than loud, because a promoted block is the
+#: condition that family checks FOR, so the closure could be recorded as a
+#: re-home while doing the one thing it forbids, with every gate green.
+#: These are the scenario titles the delta carries that CANON DOES NOT, measured
+#: 2026-09-17 against `openspec/specs/ideation-dashboard/spec.md`. The delta's
+#: sixth, *"A tile jumps to its repository"*, is deliberately NOT here: canon
+#: already states it, so its presence proves nothing either way and asserting its
+#: absence would fail against a correct tree.
+#: (Found by Copilot's review at `0e6df66c`.)
+_SCENARIOS_CANON_MUST_NOT_GAIN = (
+    "Tile-bound gate verbs hide on a composed view",
+    "A staged tile opens its packet",
+    "A new document may be drafted from a composed view",
+    "The serve declares what it can write",
+    "No writable repository, no offer",
+)
+
+#: The positive control for the check above: canon's OWN scenario, the one the
+#: delta declares superseded. If this is absent the canon block was not found —
+#: renamed, moved, or reshaped — and the absence assertions below would pass
+#: vacuously over a file that no longer says what this test thinks it says.
+_CANON_SCENARIO_CONTROL = "Gate verbs hide on a composed view"
+
+#: THE SAME INVARIANT OVER UNITS, because the title list above watches FIVE of
+#: the TWENTY-SIX units canon does not carry. `promotion_fidelity` compares
+#: `writer.scenarios` and nothing else
+#: (`scripts/doc_health/promotion_fidelity.py:858-859`), and its dispositions are
+#: keyed by the archived delta's PATH rather than by unit (`disposed()`,
+#: `:785-787`), so TEN BODY SENTENCES — every one of them a SHALL obligation —
+#: and ELEVEN scenario bullets could be copied into canon's block with all five
+#: titles still absent, and this guard, the fidelity family and the disposed gate
+#: would each stay green. "No delta is promoted here" is a claim about UNITS, not
+#: about headings, and the cheapest way to promote a requirement while satisfying
+#: a title check is to carry its obligations in prose.
+#: Measured 2026-09-17 through the family's own `derive_units` on BOTH sides and
+#: partitioned by its own `carried()`. The FIVE units the block shares with canon
+#: — canon's own text, which a MODIFIED block restates by construction — are
+#: excluded for the same reason the delta's sixth scenario title is excluded
+#: above: canon already states them, so their presence proves nothing either way
+#: and asserting their absence would fail against a correct tree.
+#: FROZEN BY KIND. Canon gaining any delta-only unit moves that unit into the
+#: shared set, and the count of its kind FALLS here.
+#: (Found by Copilot's reviews at `ad2c33be`, `26a8ed26` and `31fbb445` — three
+#: readings of one omission, and the third named the mechanism above.)
+_DELTA_UNITS_CANON_MUST_NOT_GAIN = {
+    mbc.BODY: 10,
+    mbc.SCENARIO_BULLET: 11,
+    mbc.SCENARIO_TITLE: 5,
+}
+
+#: AND THE PARTITION ITSELF, EXACTLY, because a per-kind COUNT is defeated by a
+#: SAME-KIND SWAP: canon gaining one delta-only body unit while losing one of the
+#: body units it already shared leaves `BODY: 10` standing, and the tally alone
+#: would pass while canon held delta content. These are the FIVE units of the
+#: archived block that canon ALREADY carries — canon's own text, which a MODIFIED
+#: block restates by construction — frozen as `(kind, normalized text)` rather
+#: than counted. Any arrival grows this set, any departure shrinks it, and a swap
+#: changes a member while the size holds; set equality names all three, and the
+#: five texts are short enough to READ in a failure message, which the
+#: twenty-six-unit complement is not.
+#: (Found by Copilot's review at `f64bbdd0`, one round after its reviews at
+#: `ad2c33be`/`26a8ed26`/`31fbb445` established the kind tally this repairs.)
+_UNITS_CANON_ALREADY_CARRIES = frozenset({
+    (mbc.BODY, "Per-tile repository binding remains a successor change."),
+    (mbc.SCENARIO_TITLE, "A tile jumps to its repository"),
+    (mbc.SCENARIO_BULLET,
+     "WHEN the rendered snapshot carries `generation.composed_from`"),
+    (mbc.SCENARIO_BULLET,
+     'WHEN a human invokes "open in <repo>" on a composed tile'),
+    (mbc.SCENARIO_BULLET,
+     "THEN the active snapshot switches to that tile's `(repository, ref)` and "
+     "the page reloads with every verb available as today"),
+})
 
 _LEDGER_SUBJECTS = {
     # ADDED 2026-09-01 BY `add-chain-attestation`, TRANCHE TWO of the
@@ -405,10 +511,29 @@ _LEDGER_SUBJECTS = {
     # Retires when the packet archives and its block is promoted.
     ("add-chain-attestation", "signed-execution-chain",
      "A gate validates the short chain as a hash-linked chain"),
-    ("add-composed-view-authoring", "ideation-dashboard",
-     "Composed views are read-only with a repository jump"),
-    ("add-doxchat-model-intake", "ideation-dashboard",
-     "doxBench model catalog and provider boundary"),
+    # REMOVED 2026-09-16 BY THE CLOSURE ACT —
+    # ('add-composed-view-authoring', 'ideation-dashboard', 'Composed views are
+    # read-only with a repository jump'). NOT promoted and NOT retired by an
+    # ordinary archive: the change was CLOSED AS RE-HOMED to `opensoft/openDox`
+    # under RULING Q6 (`split-opendox-two-layer-product` `tasks.md` § 6.4), which
+    # relocates the packet to `openspec/changes/archive/` without applying its
+    # delta to canon, so the row leaves this ledger because `active_blocks` no
+    # longer reads the block — not because the block's obligation was carried.
+    # The block itself is unchanged and still readable at
+    # `_DEPARTED_BLOCK_DELTA`, where the scenario-arm test now reads it.
+    # REMOVED 2026-09-16 BY THE SECOND CLOSURE ACT —
+    # ('add-doxchat-model-intake', 'ideation-dashboard', 'doxBench model catalog
+    # and provider boundary'). Same route as the row above it: CLOSED AS
+    # RE-HOMED to `opensoft/openDox` under RULING Q6
+    # (`split-opendox-two-layer-product` `tasks.md` § 6.3), so the row leaves
+    # because `active_blocks` no longer reads the block, NOT because the block's
+    # obligation was carried. The block itself is unchanged at
+    # `openspec/changes/archive/2026-09-16-add-doxchat-model-intake/specs/`
+    # `ideation-dashboard/spec.md`. Two of the five § 6 closures have now left
+    # this ledger by departure rather than discharge; the remaining three
+    # (`add-nightly-dashboard-refresh`, `add-lens-document-selection`,
+    # `retire-doxbench-chat-turn-v1`) hold no row here, so this is the last
+    # movement § 6 makes to this constant.
     # ADDED 2026-08-28 BY `add-credential-escrow-checkout`, when Brett VETOED
     # that packet's OD-2 over PR #479 and moved a schema surface into it that it
     # had been authored to defer. A DELIBERATE AMENDMENT, and the narrowest one
@@ -1357,23 +1482,76 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
         f"{len(scenario_arm)} finding(s): "
         f"{[(_subject(f), f.rule[:80]) for f in scenario_arm]}")
 
-    # THE DISCHARGE ITSELF, read back through the family rather than assumed.
-    # The block is found by the same (change, capability, requirement) triple the
-    # finding used to carry, and it must hold a `Merged into` marker naming
-    # canon's title and pointing at the destination the block does carry.
-    blocks = [b for b in mbc.active_blocks(ROOT)
-              if (b.change, b.capability, mbc.norm(b.title))
-              == (change, capability, mbc.norm(requirement))]
+    # THE DEPARTURE, asserted first. From 2026-09-16 the change is closed as
+    # re-homed, so its block must be absent from the ACTIVE corpus. Asserting
+    # this before reading the archive is what stops the archive read from
+    # passing on a tree where the packet never moved.
+    # THE PATH FIRST, because `active_blocks()` CANNOT prove this on its own: it
+    # yields nothing for a packet whose delta file is missing, and nothing for a
+    # dangling symlink at `openspec/changes/<change>`, so `not live` alone would
+    # read a half-deleted or symlinked tree as a clean departure. Same guard, and
+    # for the same reason, as `_departed_since_the_capture()` in
+    # `tests/openspec_cli_pin/` — absence means ABSENT, not "not a directory":
+    # `exists()` answers for what a symlink POINTS AT, so `is_symlink()` is asked
+    # beside it to catch the dangling link that exists as a tree entry while
+    # `exists()` says no.
+    changes_dir = ROOT / "openspec" / "changes"
+    assert changes_dir.resolve(strict=True) == ROOT.resolve() / "openspec" / "changes", _moved(
+        f"openspec/changes reached without a symlinked ancestor",
+        f"it resolves to {changes_dir.resolve(strict=True)}, so the absence "
+        "below would be absence from some other tree")
+    active = changes_dir / change
+    assert not active.exists() and not active.is_symlink(), _moved(
+        f"the active packet {active.relative_to(ROOT)} GONE from the tree "
+        "(closed as re-homed to opensoft/openDox on 2026-09-16 under RULING Q6)",
+        "it still stands, so the block below proves nothing about a departure")
+
+    live = [b for b in mbc.active_blocks(ROOT)
+            if (b.change, b.capability, mbc.norm(b.title))
+            == (change, capability, mbc.norm(requirement))]
+    assert not live, _moved(
+        f"{change} ABSENT from the active corpus (closed as re-homed to "
+        "opensoft/openDox on 2026-09-16 under RULING Q6)",
+        f"{len(live)} matching MODIFIED block(s) still active")
+
+    # THE DISCHARGE ITSELF, read back through the family rather than assumed —
+    # from the archived delta now, through the same two functions
+    # `active_blocks` uses on a live one. The block is found by the same
+    # (capability, requirement) pair the finding used to carry, and it must hold
+    # a `Merged into` marker naming canon's title and pointing at the
+    # destination the block does carry.
+    archived = ROOT / _DEPARTED_BLOCK_DELTA
+    assert archived.is_file(), _moved(
+        f"the archived delta {_DEPARTED_BLOCK_DELTA}",
+        "no such file — the closure moved or was reverted")
+    # AND IT IS REALLY THERE. `is_file()` and `read_text()` below both FOLLOW
+    # symlinks, so without this the positive half of the proof could be served by
+    # a `spec.md` symlink — or a symlinked ANCESTOR — pointing at some other file
+    # inside or outside this checkout, and the block it parsed would not be the
+    # delta this packet carried. Resolved-path equality is the containment guard
+    # `scripts/target_release.py:358-385` settles on, and it subsumes a leaf-only
+    # `is_symlink()` check, which an ancestor symlink walks straight past. The
+    # negative half above guards the ACTIVE path the same way; the two halves of
+    # one proof should not disagree about what "really there" means.
+    assert archived.resolve(strict=True) == ROOT.resolve() / _DEPARTED_BLOCK_DELTA, _moved(
+        f"the archived delta {_DEPARTED_BLOCK_DELTA} reached without a symlink",
+        f"it resolves to {archived.resolve(strict=True)}, so the bytes parsed "
+        "below are not provably this packet's")
+    requirements, _renames = mbc.parse_delta(
+        archived.read_text(encoding="utf-8", errors="replace"))
+    blocks = [r for r in requirements
+              if r.op == "MODIFIED" and mbc.norm(r.title) == mbc.norm(requirement)]
     assert len(blocks) == 1, _moved(
         f"the block that carried the discharged finding ({change} / "
         f"{requirement!r})", f"{len(blocks)} matching MODIFIED block(s)")
-    merged = [m for m in blocks[0].markers if m.form == "merged"]
+    units, markers = mbc.derive_units(blocks[0].body)
+    merged = [m for m in markers if m.form == "merged"]
     assert [(m.destination, m.names) for m in merged] == [
         (_RENAME_DESTINATION, [scenario])], _moved(
         f"the `Merged into` marker declaring {scenario!r} superseded by "
         f"{_RENAME_DESTINATION!r}",
-        f"the block carries markers {[(m.form, m.destination, m.names) for m in blocks[0].markers]}")
-    titles = [u.text for u in blocks[0].units if u.kind == mbc.SCENARIO_TITLE]
+        f"the block carries markers {[(m.form, m.destination, m.names) for m in markers]}")
+    titles = [u.text for u in units if u.kind == mbc.SCENARIO_TITLE]
     assert _RENAME_DESTINATION in titles, _moved(
         f"the destination scenario title {_RENAME_DESTINATION!r} in the block",
         f"the block's scenario titles are {titles}")
@@ -1384,6 +1562,355 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     # EXACT, never containment — the reason the declaration was needed at all.
     assert mbc.norm(scenario) in mbc.norm(_RENAME_DESTINATION)
     assert mbc.norm(scenario) != mbc.norm(_RENAME_DESTINATION)
+
+    # AND CANON DID NOT GAIN THE BLOCK. Everything above proves the packet LEFT.
+    # None of it proves it did not ALSO ARRIVE — and "closed as re-homed, nothing
+    # promoted here" is this closure's stated disposition, not an incidental
+    # property of it.
+    canon = ROOT / "openspec" / "specs" / capability / "spec.md"
+    assert canon.is_file(), _moved(
+        f"the promoted capability {canon.relative_to(ROOT)}",
+        "no such file, so the non-promotion assertion below would be vacuous")
+    # AND IT IS REALLY THAT FILE. `is_file()` and `read_text()` both FOLLOW
+    # symlinks, exactly as they do on the archived side above, so without this a
+    # `spec.md` symlink — or a symlinked `openspec/specs` ANCESTOR — could serve
+    # a file that carries the control scenario and omits the forbidden titles,
+    # and the non-promotion guard would pass having read someone else's canon.
+    # Resolved-path equality catches leaf and ancestor alike; a leaf-only
+    # `is_symlink()` walks straight past an ancestor. The active path and the
+    # archived delta are both guarded this way here, and the third read of the
+    # same proof should not be the one that trusts the filesystem.
+    # (Found by Copilot's review at `23710077` — my own omission one round old.)
+    assert canon.resolve(strict=True) == (
+            ROOT.resolve() / "openspec" / "specs" / capability / "spec.md"), _moved(
+        f"canon {canon.relative_to(ROOT)} reached without a symlink",
+        f"it resolves to {canon.resolve(strict=True)}, so the titles counted "
+        "below were counted in some other file")
+    # READ CANON THROUGH THE FAMILY'S OWN READER, not a substring scan. Two
+    # separate defects live in a raw `f"#### Scenario: {t}" in text` check, and
+    # they fail in OPPOSITE directions:
+    #   FALSE PASS — the literal misses a heading the family accepts. `####  Scenario: X`
+    #     with two spaces is a promoted scenario to `promotion_fidelity`'s reader
+    #     and invisible to a substring match, so canon could gain the very title
+    #     this guard forbids and the guard would stay green.
+    #   FALSE ALARM — the substring is not scoped to the target requirement. The
+    #     same scenario title under ANOTHER requirement, in prose, or inside a
+    #     fenced example would read as promotion; and the control could be
+    #     supplied by a different requirement after the target block was deleted,
+    #     which is the one state the control exists to catch.
+    # `mbc.promoted()` is the reader four families already share, keyed by
+    # normalized title, and `PromotedRequirement.scenario_titles` is that block's
+    # own units. Comparing normalized titles WITHIN the target requirement closes
+    # both directions at once. The module says why in its own words: "a second
+    # grammar for the same heading is how two readers of one document come to
+    # disagree about what it says".
+    # (Found by Copilot's review at `25988caf`.)
+    canon_requirements = mbc.promoted(ROOT, capability)
+    assert canon_requirements, _moved(
+        f"the promoted capability {capability!r} readable through "
+        "`mbc.promoted()`",
+        "it read nothing, so the assertions below would be vacuous")
+    canon_block = canon_requirements.get(mbc.norm(requirement))
+    assert canon_block is not None, _moved(
+        f"canon's own {requirement!r} block, the control that proves these "
+        "assertions are reading the requirement they are about",
+        f"canon holds {len(canon_requirements)} requirement(s) and none of them "
+        "is that one, so the absences below would pass over the wrong block")
+    canon_titles = {mbc.norm(t) for t in canon_block.scenario_titles}
+    assert mbc.norm(_CANON_SCENARIO_CONTROL) in canon_titles, _moved(
+        f"canon's own scenario {_CANON_SCENARIO_CONTROL!r} inside that block, "
+        "the control that proves it is still the block these assertions read",
+        f"the block's scenario titles are {sorted(canon_block.scenario_titles)}")
+    arrived = [t for t in _SCENARIOS_CANON_MUST_NOT_GAIN
+               if mbc.norm(t) in canon_titles]
+    assert not arrived, _moved(
+        f"the delta's own scenarios ABSENT from canon's {requirement!r} block "
+        "(RULING Q6 re-homes this block to opensoft/openDox and promotes "
+        "NOTHING here)",
+        f"{len(arrived)} of them now stand in canon: {arrived}. Either the "
+        "delta was promoted after all — which contradicts the closure and the "
+        "archived packet's own words — or canon gained those titles by another "
+        "act that must be declared, because this test cannot tell the two "
+        "apart and will not guess")
+
+    # AND THE SAME GUARD OVER UNITS, not only over headings. Both sides are
+    # derived by the family's own `derive_units` — `units` is the archived
+    # block's, `canon_block.units` is canon's, the SINGLE derivation the module
+    # says is "run over canon's block and the delta's block alike" — and the
+    # partition is its own `carried()`, whose first argument is the side being
+    # filtered. So there is no second reader here and a derivation bug is
+    # SYMMETRIC: it can make this assertion quiet, never make it invent a
+    # finding. Equality over the whole tally, not a floor: a kind that FELL
+    # means canon gained those units, which is the promotion RULING Q6 forbids;
+    # a kind that ROSE means the archived delta itself moved, which is a
+    # different defect with a different remedy, and the message names both.
+    # (Found by Copilot's reviews at `ad2c33be`, `26a8ed26` and `31fbb445`.)
+    delta_only = mbc.carried(units, canon_block.units)
+    tally: dict[str, int] = {}
+    for unit in delta_only:
+        tally[unit.kind] = tally.get(unit.kind, 0) + 1
+    assert tally == _DELTA_UNITS_CANON_MUST_NOT_GAIN, _moved(
+        f"every one of the {sum(_DELTA_UNITS_CANON_MUST_NOT_GAIN.values())} "
+        f"units the archived block does not share with canon ABSENT from "
+        f"canon's {requirement!r} block — a body sentence reaching canon is the "
+        "promotion this closure forbids exactly as a scenario title is",
+        f"the delta-only tally is {tally}, not "
+        f"{_DELTA_UNITS_CANON_MUST_NOT_GAIN}; first three delta-only units are "
+        f"{[(u.kind, u.text[:60]) for u in delta_only[:3]]}")
+
+    # AND THE PARTITION EXACTLY, not only its shape. The tally above counts, and
+    # a count is defeated by a SAME-KIND SWAP — canon gaining one delta-only body
+    # unit while losing one of the body units it already shared holds `BODY` at
+    # ten. So the five units canon ALREADY carries are pinned by `(kind, text)`:
+    # an arrival grows this set, a departure shrinks it, a swap replaces a member
+    # at constant size, and equality names all three. The tally is KEPT rather
+    # than replaced, because it reads the other side of the same partition and
+    # so still catches a change in the ARCHIVED BLOCK — which this set, computed
+    # from canon's side, cannot see.
+    # (Found by Copilot's review at `f64bbdd0`.)
+    shared = {u.pair() for u in units
+              if u.pair() in {x.pair() for x in canon_block.units}}
+    assert shared == _UNITS_CANON_ALREADY_CARRIES, _moved(
+        f"canon's {requirement!r} block carrying EXACTLY the "
+        f"{len(_UNITS_CANON_ALREADY_CARRIES)} units of the archived block it "
+        "already carried — no delta unit arriving, and none of the five leaving",
+        f"it now shares {len(shared)}: ARRIVED (canon gained delta content, the "
+        f"promotion RULING Q6 forbids) {sorted(shared - _UNITS_CANON_ALREADY_CARRIES)}; "
+        f"LEFT (canon dropped text the block restates, a different defect) "
+        f"{sorted(_UNITS_CANON_ALREADY_CARRIES - shared)}")
+
+    # AND ACROSS KINDS, which neither assertion above can see. `carried()` is
+    # SAME-KIND by construction and says why: "A canon body sentence is not
+    # carried by a scenario bullet that happens to repeat it, and vice versa …
+    # without the kind, a block could satisfy the ledger by quoting canon's
+    # obligations in prose while deleting the scenarios that made them testable."
+    # That is the right rule for CARRIAGE and the wrong one for ARRIVAL: a
+    # delta-only body sentence copied into canon AS A BULLET is the delta's text
+    # standing in canon, and it stays in `delta_only` — same text, different kind
+    # — leaving the tally and the shared set both green. The promotion this
+    # closure forbids is of TEXT, so this last assertion drops the kind and
+    # compares the text alone. The family's own same-kind semantics are untouched
+    # above; this is an extra reading, not a replacement.
+    # (Found by Copilot's review at `fa039107`.)
+    canon_texts = {u.text for u in canon_block.units}
+    crossed = [u for u in delta_only if u.text in canon_texts]
+    assert not crossed, _moved(
+        f"no delta-only unit of the archived block standing in canon's "
+        f"{requirement!r} block UNDER ANY KIND",
+        f"{len(crossed)} of them do, re-kinded rather than absent: "
+        f"{[(u.kind, u.text[:70]) for u in crossed]}. A body sentence promoted "
+        "as a bullet is still promoted")
+
+
+#: THE § 6 CLOSURES THIS FILE HAS SEEN, AND WHAT EACH MUST STILL BE TRUE OF.
+#:
+#: `_LEDGER_SUBJECTS` loses a row when a change leaves the ACTIVE corpus, and it
+#: loses that row identically whether the packet was RE-HOMED (relocated into
+#: `openspec/changes/archive/`, its delta intact and unpromoted) or simply
+#: DELETED. Those two are not the same act and only one of them is what RULING
+#: Q6 ordered, so the ledger's silence cannot be the only thing standing behind
+#: the claim. The composed-view row has had a positive assertion since its own
+#: closure — the scenario-arm test reads its block back out of the archive — and
+#: this constant gives the same standing to every later one.
+#:
+#: Raised by Copilot on PR #1057, in those terms: "if the active packet were
+#: deleted (and its ledger row omitted) rather than moved to `archive/`, this
+#: assertion would still pass". Taken rather than answered.
+#:
+#: EACH ROW: (change, archived delta path, capability, the MODIFIED title that
+#: held the ledger row, the ADDED titles that must still stand in the delta).
+#: The one file in an archived § 6 packet that was NOT carried: the closure
+#: record the closure itself wrote. Everything else in the directory moved
+#: byte-identical under RULING Q6, so everything else is pinned.
+_CLOSURE_RECORD = "review/rehome-2026-09-16.md"
+
+_REHOMED_AND_STILL_WHOLE = (
+    ("add-doxchat-model-intake",
+     "openspec/changes/archive/2026-09-16-add-doxchat-model-intake/"
+     "specs/ideation-dashboard/spec.md",
+     "ideation-dashboard",
+     "doxBench model catalog and provider boundary",
+     ("Intake proposes a model; approval stays a recorded human act",
+      "Model intake hands the credential to the broker and keeps only a binding",
+      "The intake affordance ships with the flow behind it",
+      "The model selector offers intake first and defaults to it when nothing "
+      "is approved"),
+     ((".openspec.yaml",
+       "1a98c5302d07bfa3ddb0d0a8e879cffd163c020395c3faa5716be5c8d7feefd2", 2018),
+      ("design.md",
+       "ee00bdbd78499fb752a2daf0e8266dd8c96fcb177f92812a9c9044269d033be0", 9790),
+      ("proposal.md",
+       "1b7dd8456b4905367d3a64c99e856b5413cda2c6c3f11d594d2a13f892ab3bc7", 16693),
+      ("specs/ideation-dashboard/spec.md",
+       "3168ad8f6f31c8dbacdc772d933508943f7b2c7cf373de2357eb8958d4bebee1", 16813),
+      ("tasks.md",
+       "45d341e8f08baff5e6d1cbe393c9b43e80aba92930df0b470f87cb40cd192d0a", 20805))),
+)
+
+
+def test_the_re_homed_packets_left_the_active_corpus_and_stand_whole_in_the_archive():
+    """THE CLOSURE ITSELF, ASSERTED — not inferred from a row that is no longer
+    there.
+
+    Three things, in this order, because the order is what makes them evidence:
+
+      1. the packet is ABSENT from `openspec/changes/` — the departure;
+      2. the archived delta EXISTS — the relocation, not a deletion;
+      3. the delta still parses through the family's own `parse_delta` and still
+         carries every requirement it carried when it was active — the MODIFIED
+         block that held the `_LEDGER_SUBJECTS` row, and each ADDED title whose
+         non-promotion this closure recorded as deliberate.
+
+    (3) is the one that makes this more than bookkeeping. RULING Q6 re-homes the
+    content; a closure that lost an ADDED requirement on the way into the
+    archive would leave the receiving repository's copy as the only copy, and
+    nothing in this repository would ever say so. The four ADDED titles are
+    exactly the four `promotion_fidelity` reports as absent from canon at every
+    head after this closure, so the same four are load-bearing in two places and
+    a drift in either shows up here.
+
+    AND THE SIXTH FIELD IS THE BYTES — OF THE WHOLE PACKET, NOT THE DELTA ALONE.
+    Naming the titles proves the delta still carries the right REQUIREMENTS; it
+    proves nothing about their text, and a closure that archived a gutted block
+    with the headings intact would pass every assertion above. So the row pins
+    `sha256` and length for EVERY FILE the packet carried — `.openspec.yaml`,
+    `proposal.md`, `design.md` where there is one, `tasks.md` and the delta —
+    and the arm compares the pinned MAP against the measured one, so a file
+    added or removed under the archive fails exactly as loudly as a file edited.
+    The closure record this closure wrote is the one exclusion, by name, because
+    it is the only file that did NOT travel.
+
+    It reads with `read_bytes()` rather than through `parse_delta`, so the
+    digests are taken before any decoding and an encoding change fails here
+    instead of passing invisibly. THE PINS ARE NOT CHECKSUMS OF CONVENIENCE: the
+    delta's is the digest the closure record quotes and the one the receiving
+    repository's copy was `diff`-ed against, and every file's was verified
+    IDENTICAL to that file's bytes on `main` before the move. So a drift on
+    either side of the re-home lands on this assertion. RULING Q6 CARRIES; IT
+    DOES NOT AUTHOR, and this is the only place that sentence is enforceable
+    rather than merely written down.
+
+    It began as the delta's digest alone. Copilot's reading of openxFactory
+    #1057 pointed out that a closure claiming a byte-identical move of the whole
+    packet was proving it of one file, so `proposal.md`, `design.md`, `tasks.md`
+    or `.openspec.yaml` could have been edited under a green suite. The widening
+    is that reading taken.
+
+    NOT A COUNT. Each title is named; the population is bounded by the same
+    named set rather than by its size.
+    """
+    for (change, delta, capability, requirement, added,
+         carriage) in _REHOMED_AND_STILL_WHOLE:
+        active = ROOT / "openspec" / "changes" / change
+        assert not active.exists() and not active.is_symlink(), _moved(
+            f"{change} ABSENT from the active corpus (CLOSED AS RE-HOMED under "
+            "RULING Q6 on 2026-09-16) — nothing at all at that path",
+            f"{active} still stands. THE CHECK IS ABSENCE, NOT 'NOT A "
+            "DIRECTORY': it was `is_dir()` until 2026-09-16, and a stale "
+            "regular file or a symlink resolving anywhere but a directory "
+            "answered False to that while still standing where the packet was. "
+            "`mbc.active_blocks()` skips such a path too, so the two agreed on "
+            "a departure that had not happened. `exists()` alone is not enough "
+            "either — it follows symlinks, so a dangling one reads as absent")
+
+        archived = ROOT / delta
+        assert archived.is_file(), _moved(
+            f"the archived delta {delta}",
+            "no such file — the closure was a DELETION or the packet moved "
+            "again; a re-home relocates the delta, it does not drop it")
+
+        packet = ROOT / PurePosixPath(delta).parents[2]
+        record = packet / _CLOSURE_RECORD
+        assert record.is_file(), _moved(
+            f"{packet.name} carrying its closure record at {_CLOSURE_RECORD}",
+            "no such file. THE ONE FILE THE HASH WALK SKIPS MUST EXIST. It is "
+            "skipped because it did not travel — not because it is optional: "
+            "README's archived-ledger entry points a reader at it for the "
+            "closure's reasoning, and a rename or a deletion would leave that "
+            "pointer dangling while every byte assertion below still passed")
+        # AND THE WALK FAILS CLOSED. `is_file()` and `read_bytes()` both FOLLOW
+        # symlinks, and `rglob` drops every entry that is not a file WITHOUT
+        # SAYING SO, so two states pass this hash walk while the packet is not
+        # the packet: a directory reached through a symlinked ANCESTOR, and a
+        # carried file replaced by a link to bytes elsewhere — which hashes the
+        # target and reports agreement about a file that is no longer here. A
+        # leaf-only check walks straight past the first; resolved-path equality
+        # catches leaf and ancestor alike. This is the guard #1056's departure
+        # proof settled on, applied to the arm that reads a whole packet.
+        # (Found by Copilot's review on PR #1057.)
+        assert packet.resolve(strict=True) == (
+                ROOT.resolve() / PurePosixPath(delta).parents[2]), _moved(
+            f"the archived packet {packet.name} reached without a symlink",
+            f"it resolves to {packet.resolve(strict=True)}, so the bytes hashed "
+            "below are not provably the ones RULING Q6 carried")
+        entries = sorted(packet.rglob("*"))
+        linked = [q.relative_to(packet).as_posix() for q in entries
+                  if q.is_symlink()]
+        assert not linked, _moved(
+            f"every entry of {packet.name} a real file or directory",
+            f"these are symlinks: {linked}. Q6 CARRIES BYTES; a link is a "
+            "pointer at somebody else's bytes, and hashing what it resolves to "
+            "would report agreement about a file this packet no longer holds")
+        strange = [q.relative_to(packet).as_posix() for q in entries
+                   if not q.is_file() and not q.is_dir()]
+        assert not strange, _moved(
+            f"nothing in {packet.name} that is neither file nor directory",
+            f"these are neither: {strange}. The walk below would drop them "
+            "SILENTLY, which is how a packet loses a file without the pinned "
+            "map changing")
+        measured = {}
+        for path in sorted(q for q in entries if q.is_file()):
+            rel = path.relative_to(packet).as_posix()
+            if rel == _CLOSURE_RECORD:
+                continue
+            body = path.read_bytes()
+            measured[rel] = (hashlib.sha256(body).hexdigest(), len(body))
+        pinned = {rel: (digest, size) for rel, digest, size in carriage}
+        if measured != pinned:
+            drift = []
+            for rel in sorted(set(pinned) | set(measured)):
+                was, now = pinned.get(rel), measured.get(rel)
+                if was == now:
+                    continue
+                drift.append(
+                    "  %-34s pinned %s  archived %s" % (
+                        rel,
+                        "absent" if was is None else f"{was[0][:12]}../{was[1]}B",
+                        "absent" if now is None else f"{now[0][:12]}../{now[1]}B"))
+            raise AssertionError(_moved(
+                f"every file of {packet.name} byte-identical to what RULING Q6 "
+                f"carried ({len(pinned)} files, the closure record excluded)",
+                "these did not match:\n" + "\n".join(drift) + "\n"
+                "Q6 CARRIES; IT DOES NOT AUTHOR. A packet edited on its way "
+                "into the archive, or after it, has been changed where the "
+                "ruling forbids changing it -- and the receiving repository's "
+                "copy, diffed against these exact bytes, no longer says the "
+                "same thing. Re-derive against the receiving change before "
+                "touching this pin"))
+
+        requirements, _renames = mbc.parse_delta(
+            archived.read_text(encoding="utf-8", errors="replace"))
+        modified = [r for r in requirements
+                    if r.op == "MODIFIED"
+                    and mbc.norm(r.title) == mbc.norm(requirement)]
+        assert len(modified) == 1, _moved(
+            f"the MODIFIED block {requirement!r} in {delta}",
+            f"{len(modified)} matching block(s)")
+
+        present = {mbc.norm(r.title) for r in requirements if r.op == "ADDED"}
+        missing = [title for title in added if mbc.norm(title) not in present]
+        assert not missing, _moved(
+            f"the {len(added)} ADDED requirements of {change} standing in the "
+            "archived delta",
+            f"absent: {missing}")
+
+        live = [b for b in mbc.active_blocks(ROOT)
+                if (b.change, b.capability, mbc.norm(b.title))
+                == (change, capability, mbc.norm(requirement))]
+        assert not live, _moved(
+            f"no ACTIVE block carrying {change} / {requirement!r}",
+            f"{len(live)} still active — the ledger row was removed while the "
+            "block is still read by `active_blocks`")
 
 
 def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
@@ -1406,8 +1933,11 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     SIXTEEN this docstring once claimed here. That SIXTEEN counted
     `_LEDGER_SUBJECTS`'s RAW LITERAL ENTRIES in the source rather than its
     deduplicated membership, over-counted by exactly the one row the set
-    literal collapses: `add-chain-attestation` is written TWICE (`:406`,
-    `:620`, both `("add-chain-attestation", "signed-execution-chain", "A
+    literal collapses: `add-chain-attestation` is written TWICE (`:511`,
+    `:733` AT THIS HEAD — cited as `:406`/`:620` until 2026-09-18, until this
+    packet's own additions above them moved both by a hundred-odd lines and the
+    citation was re-measured rather than left pointing at unrelated code; both
+    are `("add-chain-attestation", "signed-execution-chain", "A
     gate validates the short chain as a hash-linked chain")`), a
     PRE-EXISTING duplicate this chronology never traced, that PREDATES this
     packet, and that this amendment does not remove — a separate,
@@ -1418,6 +1948,35 @@ def test_every_carriage_ledger_finding_over_the_real_tree_is_named():
     on the "Apply the partition" ruling, taking the RAW LITERAL count to
     SEVENTEEN — but `len(_LEDGER_SUBJECTS)` MEASURED DIRECTLY AT THIS
     COMMIT is SIXTEEN, the same duplicate collapsing exactly as before.
+
+    FIFTEEN SINCE 2026-09-16 — the SIXTEEN measured directly above, less the one
+    row this closure retires, and `len(_LEDGER_SUBJECTS)` MEASURED AT THIS HEAD
+    reads FIFTEEN against the exact-set assertion below. (It read THIRTEEN here
+    until 2026-09-18: the subtraction was taken from the chronology's older
+    numeral instead of from the SIXTEEN this same paragraph had just measured —
+    the very arithmetic the paragraph above exists to stop. Found by Copilot's
+    review at `565ec5d1`.) This one left by a route the ledger had not
+    seen before: `add-composed-view-authoring` was CLOSED AS RE-HOMED to
+    `opensoft/openDox` under RULING Q6 (`split-opendox-two-layer-product`
+    `tasks.md` § 6.4), the first of the five frozen changes to go. Its row
+    retired WITHOUT its block being promoted — the closure relocates the packet
+    and applies nothing to canon — so this is a DEPARTURE rather than a
+    DISCHARGE, and the note standing where the row used to says so. The
+    distinction matters to a reader of this ledger: a promoted row's obligation
+    was carried, and this row's obligation moved to another repository.
+
+    FOURTEEN SINCE THE SECOND CLOSURE THE SAME DAY: the FIFTEEN measured
+    immediately above, less the one row THIS closure retires, and
+    `len(_LEDGER_SUBJECTS)` MEASURED AT THIS HEAD reads FOURTEEN (15 literal
+    entries, 14 unique, the same `add-chain-attestation` duplicate collapsing)
+    against the exact-set assertion below. (It read TWELVE until this merge: the
+    sentence was written against the numeral that stood before #1056 landed its
+    own correction, and subtracting from a superseded number is the one mistake
+    this whole paragraph exists to stop — twice now, which is why the arithmetic
+    is written out rather than asserted.) `add-doxchat-model-intake` left by the
+    same route (§ 6.3). Two of the five § 6 closures held a row here and both
+    are now gone; the other three hold none, so § 6 makes no further movement to
+    this population.
 
     COMPARED WITH `==`, NOT `<=`, and the reason is the family's own subject: a
     subset comparison would let a newly lossy MODIFIED block land unreported,
@@ -2721,11 +3280,20 @@ def test_the_gate_reaches_the_corpus_only_through_the_family():
     # selecting on a band that stopped being that arm's at `7f656980` and would
     # have started selecting the new classes' instead. Eight more names, and
     # still not one regex more below.
+    # `carried`, `BODY` and `SCENARIO_BULLET` joined the list on 2026-09-17,
+    # when the non-promotion guard was widened from the five scenario TITLES to
+    # all twenty-six units canon does not carry. `carried()` is the family's own
+    # partition and the reason there is no second comparison here; the two kind
+    # constants are how the family itself spells the kinds the frozen tally is
+    # keyed by, and a dict literal of bare strings would be exactly the "second
+    # grammar for the same heading" this module refuses everywhere else. Three
+    # more names, and still not one regex more below.
     allowed = {"ActiveBlock", "active_blocks", "declarations", "derive_units",
                "fam_modified_block_currency", "norm", "parse_delta",
                "promoted", "resolve", "sibling_titles", "classify",
-               "PromotedRequirement",
+               "PromotedRequirement", "carried",
                "DELTA_GLOB", "FAMILY", "SCENARIO_TITLE", "CANON_TEMPLATE",
+               "BODY", "SCENARIO_BULLET",
                "CLASS_TITLES", "CLASS_PAIRING", "CLASS_COLLISION",
                "_MARKER_ACTION", "_pairing_state", "_collision_findings",
                "_arm_ordering", "_DRIFT_RULE", "_UNCLASSIFIED_LINE"}
