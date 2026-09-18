@@ -210,9 +210,15 @@ IN THE SERIES: a population a reader cannot re-add is a population a reader
 cannot reproduce.
 
 AND EACH SKIP TERM SHALL BE DEFINED BY ITS EXTENT RATHER THAN BY ITS NAME, SO
-THAT NO TRACKED ENTRY FALLS BETWEEN TWO OF THEM: THE OUT-OF-ROOT-LINK TERM SHALL
-OWN EXACTLY THE TRACKED LINKS WHOSE RESOLVED PATH STANDS OUTSIDE THE REPOSITORY
-ROOT, AND THE NON-FILE TERM SHALL OWN EVERY OTHER TRACKED ENTRY THAT IS NOT A
+THAT NO TRACKED ENTRY FALLS BETWEEN TWO OF THEM: THE OUT-OF-ROOT TERM SHALL
+OWN EXACTLY THE TRACKED ENTRIES WHOSE RESOLVED PATH STANDS OUTSIDE THE
+REPOSITORY ROOT — not only an entry that is itself a link, but any tracked
+entry reached through one, a PARENT directory component included, because the
+containment test is a predicate over the whole tracked path and not only over
+an entry that happens to be a link itself; THE TERM KEEPS ITS PRINTED NAME,
+entries skipped as links leaving the repository root, AS THE SPEC ALREADY
+FIXES IT, FOR CONTINUITY WITH THE ROUNDS THAT NAMED IT. AND THE NON-FILE TERM
+SHALL OWN EVERY OTHER TRACKED ENTRY THAT IS NOT A
 READABLE REGULAR FILE ONCE RESOLVED — a submodule gitlink, a directory, and
 every tracked link the out-of-root term does not take, whether its lexically
 resolved path stands inside the root and reaches nothing there because the
@@ -220,13 +226,15 @@ target is missing, or reaches something inside the root that is not a
 readable regular file, a directory as much as anything else, or it has no
 resolved path at all because the chain loops or cannot be read — SO THE TWO
 TERMS ARE DISJOINT AND, WITH THE UNDECODABLE TERM, THE IDENTITY ABOVE CLOSES
-OVER EVERY TRACKED ENTRY IN SCOPE. A LINK'S RESOLVED PATH IS A FACT ABOUT THE
-PATH ITSELF AND NOT ABOUT WHETHER ANYTHING STANDS AT IT: it is the path the
-link's own chain joins to once every step is read and `..` and `.` are
-normalised away, so a link whose target is simply missing still has one and
-stands wherever that join lands; only a chain the report cannot itself walk —
-one that loops, or one carrying a link whose own target text cannot be read —
-has no resolved path at all. A name is not an extent, and this is where the
+OVER EVERY TRACKED ENTRY IN SCOPE. A TRACKED PATH'S RESOLVED PATH IS A FACT
+ABOUT THE PATH ITSELF AND NOT ABOUT WHETHER ANYTHING STANDS AT IT: it is the
+path every LINK IN EVERY COMPONENT of the tracked path — the entry's own, and
+any PARENT directory's, in the same lexical walk — joins to once each is read
+and `..` and `.` are normalised away, so an entry whose own target or whose
+parent's target is simply missing still has one and stands wherever that join
+lands; only a chain the report cannot itself walk — one that loops, or one
+carrying, at any component, a link whose own target text cannot be read — has
+no resolved path at all. A name is not an extent, and this is where the
 difference is paid: a link whose resolved path stands inside the root but
 dangles there, one that loops, one that cannot be read, or one that resolves
 to a DIRECTORY inside the root is none of the three things the terms are
@@ -418,6 +426,12 @@ POINT IN THE SAME SERIES.
 - **THEN** that entry MUST be a tracked link whose resolved path stands outside the repository root
 - **AND** a tracked link that reaches no readable regular file while standing inside the root MUST be counted in the non-file term and MUST NOT be counted in that one
 
+#### Scenario: A tracked file stands under a parent that links outside the root
+- **WHEN** a tracked regular file's path passes through a directory component that is a link whose lexically resolved path leaves the repository root
+- **THEN** the report MUST count the entry in the skip term for entries skipped as links leaving the repository root, and in neither the non-file term nor the undecodable term
+- **AND** it MUST NOT read the entry or take a token from it
+- **AND** the tracked ENTRIES in scope MUST still equal the FILES read plus all three skip terms
+
 #### Scenario: A refinement's prefix has a sibling whose name begins the same way
 - **WHEN** a refinement names a directory prefix and the tree also carries a sibling directory whose name begins with that prefix followed by more characters
 - **THEN** the report MUST match the prefix on path-segment boundaries and leave the sibling unmatched
@@ -582,7 +596,14 @@ preceded on the citing line by the literal scheme prefix `opsx:` followed by one
 owner segment and `/`. The scheme names its repository ITSELF rather than by any
 word, which is why it is in the set at all; and the same prefix followed by
 anything other than an owner segment and a path — a command name, a subject, a
-workflow locator — SHALL NOT fire it.
+workflow locator — SHALL NOT fire it. **AND THE LOCATOR'S GRAMMAR SHALL BE
+EXACTLY THIS**: the literal prefix `opsx:`, then an OWNER segment of one or
+more characters from `[A-Za-z0-9._-]`, then `/`, then a PATH of one or more
+`/`-separated segments each of one or more characters from that same class,
+ending at the first character outside the class or at end of line; an EMPTY
+owner, an owner containing `:` or `/`, an EMPTY segment — repeated slashes, or
+a trailing slash — or any character outside the class is NOT A LOCATOR AND
+FIRES NO SIGNAL.
 
 **(5) THE TRAILING PARENTHETICAL SHALL FIRE** where the characters immediately
 following the token on the citing line are at most ONE space, then `(`, then a
@@ -723,6 +744,16 @@ readings of one population and never an arithmetic row.
 #### Scenario: The same scheme prefix introduces something that is not a locator
 - **WHEN** `opsx:` is followed by a command name, a subject or a workflow locator rather than an owner segment and a path
 - **THEN** the report MUST NOT flag the entry on that scheme
+
+#### Scenario: A well-formed locator carries a multi-segment path
+- **WHEN** the token is immediately preceded on the citing line by `opsx:opensoft/openspec/changes/add-example/proposal.md`, an owner segment followed by a path of several `/`-separated segments, each drawn from the grammar's class
+- **THEN** the report MUST flag the entry as suspected cross-repository
+- **AND** it MUST read the whole prefix as one locator and MUST NOT stop at the first path segment
+
+#### Scenario: A malformed locator fires no signal
+- **WHEN** the text immediately before the token is `opsx:` followed by an owner segment containing a `:`, or by a path carrying a repeated or a trailing slash
+- **THEN** the report MUST NOT flag the entry on the custody-locator scheme
+- **AND** an owner segment that is empty, or contains `/`, MUST be refused the same way
 
 #### Scenario: A parenthetical follows the token with at most one space
 - **WHEN** the characters immediately after the token on the citing line are at most one space, then parentheses containing only a vocabulary member

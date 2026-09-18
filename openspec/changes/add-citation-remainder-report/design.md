@@ -774,6 +774,17 @@ non-file instead, and leave the containment rule silent about exactly the link
 it exists to catch. THIS TOO IS A CLARIFICATION AND NOT A NEW RULE: no term's
 extent moves, and the measured value stays ZERO at every head this packet has
 measured.
+**AND ROUND THREE ON THE SAME PULL REQUEST WIDENS THE EXTENT FROM THE LINK TO
+THE ENTRY** (PR #1097, Copilot thread `PRRT_kwDOTAvnrs6jsmQR`, spec.md:216): a
+tracked regular file reached through a PARENT directory component that is
+itself a link is neither a tracked link nor, once that component is resolved,
+an entry that stays inside the root, so the out-of-root term now owns every
+tracked ENTRY whose resolved path — every component's own chain, parents
+included, read lexically — stands outside the root, rather than only an entry
+that is itself a link, the component link being the case ROUND TWO's own
+path-predicate left uncovered; THIS TOO IS A CLARIFICATION AND NOT A NEW RULE,
+the term's printed name unchanged and the measured value still ZERO at every
+head this packet has measured.
 
 **AND ONE THE REPORT MUST ADD THE MOMENT D5 EVER CHANGES: the report's OWN
 OUTPUT PATH.** `health/` is INSIDE this population — 7 tracked files at
@@ -973,6 +984,24 @@ and nothing else.
 **NO DECISION MOVES**: the window is still the citing line plus three above, the
 set is still those five signals in this section's order and closed at five, and
 FLAG-never-drop, the INCLUSIVE headline and the ADVISORY verdict are untouched.
+
+**AND A ROUND-THREE THREAD PINS SIGNAL (4)'S OWN GRAMMAR, WHICH THE MATCHING
+RULES ABOVE LEFT AS AN EXAMPLE** (PR #1097, Copilot thread
+`PRRT_kwDOTAvnrs6jsmQw`, spec.md:585): an owner segment and a path with no
+stated character class or boundary rule is a grammar two realizations read
+apart — an empty owner, an owner carrying `:`, or a repeated slash each pass
+the prose as written while disagreeing on whether they form a locator — so the
+requirement now pins the class, `[A-Za-z0-9._-]`, over both the owner and
+every path segment, terminating at the first character outside it or at end
+of line. **THE CLASS IS THE ONE THE CORPUS ALREADY WRITES IN AND NEEDED NO
+WIDENING**: every literal `opsx:opensoft/…` locator this tree carries matches
+it, for instance `opsx:opensoft/openspec/changes/add-tenant-reader-grant-pipeline/review/ratification-2026-08-15.md`
+and `opsx:opensoft/openspec/changes/add-managed-node-inventory/review/ratification-2026-07-10-r2.md`
+(`add-consent-custody-rederivation-record/design.md:458`, `proposal.md:185`),
+both an owner and every path segment drawn from letters, digits, `.` and `-`
+alone. THIS TOO IS A CLARIFICATION OF THE DRAFTED GRAMMAR AND NOT A NEW ONE:
+signal (4) still fires exactly where it fired before over this corpus, and the
+pin only forecloses the disagreements the prose left open.
 
 **AND THE WIDENED WINDOW IS NOW MEASURED RATHER THAN PROPOSED.** The evidence
 ran exactly this rule — `validate-pin-registrations.py`'s own adjacency rule

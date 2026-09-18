@@ -440,12 +440,19 @@ added, edited, renamed or deleted here.
       missing but whose lexically resolved path still stands OUTSIDE the
       root — an absolute path elsewhere, say — which must land in the
       out-of-root term alone precisely as a resolving one does, because the
-      term is a path predicate and not an existence one. The identity is
-      asserted in every one of the four — the tracked ENTRIES in scope
-      equalling the FILES read plus all three skip terms — and the links are
-      built in the throwaway `tmp_path` tree like every other case, this
-      repository tracking no symbolic link at any head this packet has
-      measured.
+      term is a path predicate and not an existence one. **AND ROUND THREE ON
+      THE SAME PULL REQUEST ADDS A FIFTH** (Copilot thread
+      `PRRT_kwDOTAvnrs6jsmQR`): a tracked REGULAR FILE, not itself a link,
+      standing under a PARENT directory component that is a link whose
+      lexically resolved path leaves the root — which must land in the
+      out-of-root term alone and must not be read, because the term now owns
+      every tracked entry whose resolved path leaves the root and not only an
+      entry that is itself a link. The identity is asserted in every one of
+      the five — the tracked ENTRIES in scope equalling the FILES read plus
+      all three skip terms — and the four links and the fifth's symlinked
+      parent are built in the throwaway `tmp_path` tree like every other
+      case, this repository tracking no symbolic link at any head this packet
+      has measured.
 - [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
