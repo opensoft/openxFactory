@@ -1262,7 +1262,18 @@ the bookkeeping that ticks this group.
   repository. Includes RULING C3's standalone shape — a PLAIN LOCAL GIT
   REPOSITORY per project, commits as the write path, a remote attachable later —
   as the trivial conformant adapter implementation, not as a mode.
-  **STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
+  **STATUS — UPDATED BY AMENDMENT #7: #26'S FINAL BOUNDED ROUND IS IN FLIGHT,
+  THE CREDENTIAL EXPOSURE IS FIXED ON THE BRANCH, AND THE BOX STILL STAYS
+  `[ ]`.** The exposure at `app.py:1076` that held this box is **fixed at
+  `fe421882`** on #26's branch. **Four further findings remain**, all in the
+  batch's OWN code, and they are being closed by **one redactor plus a saved
+  pgid** rather than one fix per finding — a single instrument for a single
+  class, which is the shape this packet has preferred since `floor37` § 6.
+  **The box ticks when #26 LANDS, not when its fixes are pushed**: a fix on a
+  branch is not a landing, exactly as § 3.5 ticked only when `#25` merged and
+  not when its own batch was authored. *(The superseded reading follows, kept
+  because it records why the box was held at all.)*
+  **PRIOR STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
   `[ ]`** (RULED 2026-09-18 17:55Z, `#656` comment `5734029578`; recorded by
   `tasks.md` amendment #6). The realization is `openDox-code` **#26**, paired
   with **#25** under the same word and the same third mini-batch of three
@@ -1386,8 +1397,13 @@ the bookkeeping that ticks this group.
   repairing since amendment #4. **MEASURED HERE RATHER THAN CARRIED FORWARD, AND
   BOTH OF THEM HAVE NOW MOVED, AND ONE MOVED WHILE THIS AMENDMENT WAS BEING
   WRITTEN**. Every figure below is bound to `openxFactory`
-  `83a055a6` — this amendment's own head, with `#1086` merged in — and must be
-  re-derived rather than quoted:
+  **`83a055a6`**, an IMMUTABLE MEASUREMENT SHA with `#1086` merged in, and must
+  be re-derived rather than quoted.
+  *(CORRECTED BY `tasks.md` AMENDMENT #7. This read "this amendment's own
+  head" — a phrase that moved SIX times while amendment #6 was written, and
+  which #6 used for TWO DIFFERENT COMMITS, here and at § 8.9 residue (v). Each
+  reading is now bound to its own sha. **An evidence line names a commit, never
+  a position in a process.**)*
   • `tests/carve_conformance/` is recorded above as **34 tests**; at this head
   `test_verify_carve_conformance.py` carries **79** `def test_`, and it is the
   only test file in that directory.
@@ -2893,7 +2909,7 @@ the bookkeeping that ticks this group.
   and the 0-pass / 2-refuse / never-1 exit contract — plus
   `tests/snapshot_equivalence/` wired into `pytest-suite`, where it NEVER skips.
   *(THE FIVE NAMED ABOVE ARE THE RULING'S PRESCRIPTION AND ARE LEFT AS RULED.
-  **The landed runner carries SEVEN**, measured at this amendment's head:
+  **The landed runner carries SEVEN**, measured at `507b6233`:
   the five, plus `equivalence-unreadable` and — added by `#1110`'s watchdog —
   **`equivalence-post-stack-unrenderable`**, the symmetric counterpart to
   `-pre-tree-unrenderable` that refuses a non-terminating post-split render
@@ -3201,6 +3217,21 @@ movements claimed at the time they land.
   bookkeeping that completes HERE and it archives HERE on its own evidence.
   Only its FORWARD half — the surviving `-v2` family's requirements — re-homes to
   openDox. **Sequenced BEFORE § 8.**
+  **STATUS — RECORDED BY `tasks.md` AMENDMENT #7, 2026-09-18. THE CLOSURE IS
+  READY AND NOT YET LANDED**: `openxFactory` **#1066** is GREEN at `91644a2d`
+  with its WINDOW REQUEST pending. **This box does not tick on a green
+  candidate** — § 6 ticks on the CLOSURE, which is the ordering every other
+  box in this section has now followed (§ 6.1 on `#1060`, § 6.3 on `#1057`,
+  § 6.4 on `#1056`, § 6.5 on `#1065`).
+  **IT IS THE LAST OF THE FIVE, AND THE CORPUS SAYS SO INDEPENDENTLY**: of the
+  five § 6 dispositions, four directories are already under
+  `openspec/changes/archive/` and only `retire-doxbench-chat-turn-v1` is still
+  active at `507b6233` — a reading taken from the tree rather than from this
+  ledger, so the two can be compared instead of one restating the other.
+  **When it lands, the `--merge`-not-squash rule and its second clause both
+  apply** (§ 6.4), and this closure edits
+  `openspec/specs/ideation-dashboard/spec.md`, which is the promotion § 5.2a's
+  archive ordering waits on.
 - [x] 6.3 `[oxF]` `[oD]` **`add-doxchat-model-intake`** → openDox. Built but
   unarchived; its code moves with the carve as `moved_with_declared_edit` rows,
   its four ADDED requirements are re-authored in openDox, and its one additive
@@ -3378,6 +3409,19 @@ movements claimed at the time they land.
   one.
 - [ ] 6.6 `[oxF]` **No new dashboard change opens in `openxFactory`** (RULING Q6),
   from this packet's ratification forward.
+  **STATUS — RECORDED BY `tasks.md` AMENDMENT #7, AND DELIBERATELY NOT CLAIMED
+  AS PROVEN.** This is a STANDING condition over a WINDOW, not a fact about a
+  tree, so no single run can discharge it and this box will tick on a judgement
+  at the packet's end rather than on a measurement.
+  **What IS measurable at `507b6233`, recorded so the ticking act starts from a
+  number rather than an impression**: 45 active changes, of which **16 mention
+  `ideation-dashboard`** — and that figure is an UPPER BOUND on nothing useful,
+  because a mention is not an opening and most of the 16 predate this packet.
+  *(Stated plainly because the tempting move is to grep for mentions and call
+  the result compliance. It would be evidence claimed as proof it cannot give:
+  the condition names changes OPENED AFTER ratification, and the grep cannot
+  see when a change opened. The ticking act needs the opening dates, not the
+  mention count.)*
 
 ## 7. The first descendant — a task with a RULING CHECKBOX, not a decision
 
@@ -4093,7 +4137,16 @@ realization evidence, never on landing. Each line is its own evidence.
   `contract-v4.0`, tag object **`9e6c0ae4`**, which peels to `ce5c054e`
   EXACTLY — the tag names the cut itself and not a neighbouring commit —
   tagger Brett Heap 2026-09-12T00:21:18Z.
-  **(3) verified from an INDEPENDENTLY REFRESHED checkout** — the helper's
+  **(3) verified from an INDEPENDENTLY REFRESHED checkout. THE PROCEDURE IS TWO
+  STEPS, NOT ONE, and amendment #7 writes the second into it**: `gh repo clone
+  opensoft/openxFactory`, **then `git submodule update --init --recursive
+  openDox openXdox`**. Without the second step the verifier exits **2** on
+  `ReleaseDependencyError` and emits NO finding, so a reader following the
+  recorded procedure could not reproduce the pass the record claims. *(#6
+  disclosed this at clause (c) below but left it out of the procedure — a
+  warning the reader meets AFTER the command they already ran. The tick is
+  unaffected: two independent checkouts did pass. This corrects the RECIPE, not
+  the RESULT.)* The evidence: the helper's
   fresh `gh repo clone` today, AND re-derived in this lane's own clone rather
   than transcribed: `python3 scripts/validate-contract-release.py verify-tag
   --remote origin --tag contract-v4.0 --json`, and the matching `verify-commit
@@ -4441,7 +4494,7 @@ realization evidence, never on landing. Each line is its own evidence.
   act on that file:** `scripts/validate-sequenced-after.py` states a
   CURRENT-CORPUS claim, **"124 of the 143"** archived rows legitimately carry a
   move date later than their directory's, and the corpus has moved out from
-  under it. **Measured at this amendment's own merged head `c2d5ce92`: 128 of
+  under it. **Measured at the IMMUTABLE SHA `c2d5ce92`: 128 of
   172** (128 later + 44 equal = 172 archived rows, ledger and archive
   directories aligned 172/172, no row without a directory and no directory
   without a row).
@@ -4466,12 +4519,25 @@ realization evidence, never on landing. Each line is its own evidence.
   list.)*
   **AND THAT CENSUS IS ITSELF INCOMPLETE, WHICH IS THIS ROW'S OWN DEFECT
   COMMITTED BY THIS ROW.** It covered ONE FILE. The same current-corpus claim
-  also stands, at FIVE further sites in `scripts/sequenced_after.py` — `:449`
-  *"128 of this corpus's 171"*, `:1598-1599` *"all 143 … remains clean across
-  all 171 today"*, `:1607` *"128 of this corpus's"*, `:1927` and `:1958`
-  *"all 171"* — and at ONE in `tests/sequenced_after/test_sweep.py`, **`:2049`**
-  *"124 of this corpus's 143"*. **Every line number here is bound to the tree
-  at this amendment's head and must be re-derived, not trusted**: this row
+  also stands elsewhere, **and AMENDMENT #7 SPLITS THE SITES LIVE FROM DATED
+  BEFORE ANYONE EDITS THEM** — the distinction this row's own retraction
+  established, which the list then failed to apply to itself.
+  **LIVE — a bare current-corpus claim, safe to renumber:**
+  `scripts/sequenced_after.py` `:449` *"128 of this corpus's 171"*, `:1599`
+  *"remains clean across all 171 TODAY"*, `:1607` *"128 of this corpus's"*; and
+  `tests/sequenced_after/test_sweep.py` **`:2049`** *"124 of this corpus's 143"*.
+  **DATED, THEREFORE EVIDENCE — DO NOT RENUMBER:** `:1598` *"all 143 … BEFORE
+  IT WAS MADE A GATE"*, `:1927` *"re-run … against all 171 ON 2026-09-18"*, and
+  `:1958` *"agree on all 171 directories (AS MEASURED 2026-09-18)"*. Each names
+  its own moment, so each records what was true THEN, and rewriting it would
+  destroy the evidence rather than refresh it.
+  *(Amendment #6 listed `:1927` and `:1958` among the sites to rewrite —
+  committing, TWO LINES BELOW ITS OWN RETRACTION, the identical error that
+  retraction had just corrected for `:36`/`:396`. **A dated claim is not a stale
+  claim, and the test is whether the sentence names its own moment.** Written
+  out twice because this row got it wrong twice.)*
+  **Every line number here is bound to `507b6233` — an IMMUTABLE SHA, not
+  "this amendment's head" — and must be re-derived, not trusted**: this row
   first cited that last site as `:2003`, which by the time it was written held
   `shutil.rmtree(…)` — the locator drifted between the grep and the sentence.
   Corrected on a Copilot finding against head `6061030f`.
