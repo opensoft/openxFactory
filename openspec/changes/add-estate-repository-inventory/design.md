@@ -262,6 +262,17 @@ declaration on the day it landed". The ground stops holding at this packet's
 realization; the prediction is measured FALSE at D0.3, six of six resolving. The
 restated paragraph says both, so a later reader can see what changed and why.
 
+**THE DELETION IS DECLARED AND NOT LEFT TO BE INFERRED.** The three sentences the
+replacement supersedes are named as code spans in a reserved
+`**Removed from canon by add-estate-repository-inventory (2026-09-18):**` marker
+carried inside the block, with the reason after the separator, in the form
+`doc-health`'s promoted *Prose tagging marker hygiene* family defines. Without it
+the `modified-block-currency` arm reports three carried-body-unit findings against
+this block, which is the arm working: it cannot distinguish a deliberate rewording
+from a drift and does not claim to. With the marker the arm reports NOTHING new,
+measured by running the whole checker at this head and at a clean `origin/main`
+checkout in the same clone: 97 findings at both, zero new, zero gone.
+
 **THE SELF-GATE IS CLEAN AND WAS CHECKED RATHER THAN ASSUMED.** No other active
 change writes `(release-realization, code-surface declaration grammar is gated)`
 — the three code-surface titles have no active writer but this packet, checked by

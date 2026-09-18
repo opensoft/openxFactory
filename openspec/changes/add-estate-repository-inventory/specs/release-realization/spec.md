@@ -42,6 +42,25 @@ candidate inventory carries every one of them, so the membership arm refuses
 NOTHING on the day it lands. A bound stated with its reason is lifted by removing
 the reason, never by outvoting the sentence that stated it.
 
+**Removed from canon by add-estate-repository-inventory (2026-09-18):** `The
+gate SHALL judge the identifier's SHAPE and SHALL NOT judge its MEMBERSHIP of
+any inventory, for the measured reason that this repository defines no inventory
+of the estate's repositories to resolve against — the nearest files are a
+former-to-current TRANSFER map and a five-row domain-factory regression fixture,
+neither of which enumerates the estate.`; `A gate that resolved membership
+against a place that does not exist would refuse every declaration on the day it
+landed.`; `Whether canon should define such an inventory is a separate act and
+is named as a successor, not smuggled in here.` — all three state, or rest on,
+the same fact: that this repository defines no inventory of the estate's
+repositories. This packet's realization defines one, so the first unit's premise
+is spent, the second's prediction is measured FALSE (34 readable heads name six
+distinct identifiers and the candidate inventory carries all six, so the
+membership arm refuses nothing on the day it lands), and the third's successor
+is this change. NONE IS DROPPED WITHOUT REPLACEMENT: the paragraph above
+replaces all three, keeps the shape rule the first unit states, names the arm
+and the enumeration that now judge membership, and records the lifting as the
+removal of a stated reason rather than as an overruling.
+
 `none` IS THE EMPTY-SURFACE SENTINEL AND SHALL NEVER BE READ AS A REPOSITORY
 IDENTIFIER. A head is EITHER the single token `none` and nothing else, OR a list
 in which the token `none` appears nowhere — so a MIXED head such as

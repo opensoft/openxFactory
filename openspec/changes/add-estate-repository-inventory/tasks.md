@@ -73,11 +73,15 @@ SEPARATE word.
       unconditional, so ADDED-only would leave canon self-contradictory. ONE
       `## MODIFIED` block, restating canon verbatim but for the one paragraph
       whose own stated reason this packet removes.
-- [x] 2.9 **THE MODIFIED-BLOCK SELF-GATE CHECKED, NOT ASSUMED.** No active change
-      writes `(release-realization, code-surface declaration grammar is gated)`,
-      so this block is SOLE and no `sequenced_after:` is owed on it;
-      `python3 scripts/doc-health.py --single-repo . --family modified-block-currency`
-      reports no NEW finding at this head.
+- [x] 2.9 **THE MODIFIED-BLOCK SELF-GATE CHECKED, NOT ASSUMED, AND THE DELETION
+      DECLARED.** No active change writes `(release-realization, code-surface
+      declaration grammar is gated)`, so this block is SOLE and no
+      `sequenced_after:` is owed on it. The three superseded sentences are named
+      as code spans in a reserved `Removed from canon by` marker carried inside
+      the block, in the form the promoted marker-hygiene family defines; without
+      it the `modified-block-currency` arm reported three findings against this
+      block, and with it the whole checker reports 97 findings at this head and 97
+      at a clean `origin/main` checkout in the same clone, ZERO NEW and ZERO GONE.
 - [x] 2.10 Sibling search taken before the claim was written (`design.md` D6):
       no active or archived change enumerates the estate's repositories, and the
       change id collides with nothing under `openspec/changes/` or its archive.
