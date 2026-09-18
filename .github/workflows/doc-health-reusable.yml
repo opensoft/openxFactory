@@ -2252,6 +2252,110 @@ jobs:
         with:
           name: doc-health-report-${{ steps.run.outputs.run_date }}
           path: ${{ steps.run.outputs.report_out }}
+      - name: Citation remainder report (advisory — add-citation-remainder-report § 2.2)
+        id: citation-remainder
+        # D5 option 1, ARTIFACT-ONLY: the report is read, never committed.
+        # `health/` is inside the report's own file population and carries 0
+        # citation tokens today, so a committed report would be the first file
+        # there to carry them — one per remainder line — and the next run would
+        # count its own output (design.md D5, measured at packet scale in
+        # D0(iv): one committed report, +1 remainder).
+        #
+        # THE OUTPUT IS WRITTEN AT THE AGGREGATION ROOT, OUTSIDE openxFactory/,
+        # so D3(a)'s output-path fence holds STRUCTURALLY rather than by an
+        # exclusion list: a file that never enters the scanned root cannot be
+        # read by the next night's run, whatever the exclusions say.
+        #
+        # THE SCRIPT PATH IS SUBMODULE-QUALIFIED, like every sibling step
+        # (:582, :1045, :2233, and every one below this insertion), and THE
+        # REPO_ROOT POSITIONAL IS `openxFactory` — the CLI's own default is
+        # `.` (`nargs="?", default="."`), and a cwd default here would scan the
+        # AGGREGATION tree, which is a different corpus with a different
+        # remainder and would read as this repository's. (Contrast
+        # `doc-health.py --repo-root .` at :583, which is multi-repo and MEANS
+        # the aggregation root; this report is single-repo and does not.)
+        #
+        # ONE INVOCATION, ONE FILE — `tasks.md` § 2.2: "The report writes to
+        # STDOUT and the step redirects it to ONE named file." `--json` is a
+        # BOOLEAN output-format flag and TAKES NO PATH (design.md D2), so the
+        # redirect is shell-level and never a CLI argument.
+        #
+        # `if: always()` — the remainder reading is independent of the
+        # doc-health suite's outcome, and D6's series must not have holes on
+        # nights the suite failed.
+        #
+        # `continue-on-error: true` IS R2's Q6 DECISION, TAKEN RATHER THAN
+        # LEFT OPEN IN THIS COMMENT. A cannot-run of an ADVISORY report
+        # records a skip and never reds the governance nightly: that is this
+        # file's own habit for every optional lane (the neutrality lane
+        # immediately below "records a graceful skip NOTE — never an error"),
+        # and it keeps the packet's own "PROMOTING THE REPORT TO A GATE SHALL
+        # BE A SEPARATE ACT ON A SEPARATE WORD" true of the WIRING as well as
+        # of the CLI. NOTHING IS SWALLOWED SILENTLY: every failure path below
+        # annotates with `::warning::`, and the upload's `outcome` gate leaves
+        # the artifact absent, so a night without a reading is a VISIBLE hole
+        # in D6's series.
+        #
+        # THE TREE-STATE CHECK TAKES THE SAME POSTURE, DELIBERATELY AND NOT BY
+        # OVERSIGHT. It is no part of the CLI's two-case exit contract — the
+        # CLI declares a modified tree and still produces the reading, by
+        # design (spec.md, "The tree read is not clean at the head printed":
+        # "the report MUST still produce the reading rather than refuse to
+        # run") — and the tree it reads is the one THIS JOB works in: the
+        # neutrality merge inside "Run doc-health suite" above may persist
+        # lane writes under `openxFactory/health/neutrality-drift/`, which the
+        # very next step commits back, and one of those paths
+        # (`baseline/codexFactory.yaml`) is already tracked. A dirty checkout
+        # here is therefore a foreseeable state of another lane doing its job
+        # rather than a defect worth reddening a nightly for. What it IS is a
+        # reading that must not enter D6's series — which the warning and the
+        # absent artifact say exactly.
+        if: always()
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          if ! python3 openxFactory/scripts/report-citation-remainder.py openxFactory \
+            --json > citation-remainder.json; then
+            echo "::warning::citation-remainder: the report did not run, so no reading was taken and no artifact is uploaded tonight; this is not a finding"
+            exit 1
+          fi
+          # R2's ONE assertion beyond capturing the CLI's own exit code: the
+          # reading this nightly keeps must be one taken on a CLEAN checkout,
+          # because D6 reads the artifacts as a SERIES and the CLI's own
+          # header refuses a modified tree that standing.
+          if ! TREE_CLEAN="$(python3 -c 'import json;print(str(json.load(open("citation-remainder.json"))["tree_unmodified_at_head"]).lower())')"; then
+            echo "::warning::citation-remainder: the reading could not be read back from citation-remainder.json, so no artifact is uploaded tonight"
+            exit 1
+          fi
+          if [ "$TREE_CLEAN" != "true" ]; then
+            STATE="$(python3 -c 'import json;print(json.load(open("citation-remainder.json"))["tree_state"])')"
+            echo "::warning::citation-remainder: ${STATE}; the reading is not uploaded, so tonight is a HOLE in D6's series rather than a false point in it"
+            exit 1
+          fi
+      - name: Upload citation remainder report
+        # Gated on the run step's OUTCOME and not merely on `always()`, the
+        # reasoning this file already writes down for itself at the
+        # `dfr-upload`/`dfr-dispatch` pair below: with `continue-on-error` the
+        # step's CONCLUSION is always success, so `outcome` is the only field
+        # still carrying the failure, and an artifact that never uploaded
+        # fails a later download with nothing here saying why.
+        if: always() && steps.citation-remainder.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          # The RUN'S DATE belongs in the artifact NAME and not in the file
+          # name — the house convention next door at :2253.
+          name: citation-remainder-${{ steps.run.outputs.run_date }}
+          path: citation-remainder.json
+          if-no-files-found: error
+          # D6 measures stability across N = 14 consecutive runs, so the
+          # series must outlive fourteen nights. MEASURED RATHER THAN ASSUMED:
+          # every artifact in the CALLER repository — `opensoft/xFactory`,
+          # where a reusable workflow's artifacts live, `opensoft/openxFactory`
+          # holding none of its own — expires exactly 90 days after its run
+          # started, so this line matches the effective maximum rather than
+          # raising it, and pins the series' lifetime against a later lowering
+          # of that default.
+          retention-days: 90
       - name: Neutrality-drift lane commit-back (rolling PR; dormant until first scout run)
         # add-neutrality-drift-lane task 1.4 / design D3: when — and only
         # when — the neutrality merge inside "Run doc-health suite" above
