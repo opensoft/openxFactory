@@ -41,6 +41,7 @@ import importlib.util
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -710,6 +711,62 @@ def test_the_out_of_root_term_holds_only_links_that_resolve_outside_the_root(
         "exactly the one link whose resolved path stands outside the root"
     assert population["skipped_not_a_file"] == 5, \
         "the gitlink, the inside dangler, the directory link and both loops"
+    assert population["arithmetic_closes"] is True
+
+
+def test_a_tracked_file_under_a_parent_that_links_out_of_the_root_takes_that_term(
+        tmp_path) -> None:
+    """Scenario: A tracked file stands under a parent that links outside the
+    root.
+
+    THE CONTAINMENT TEST IS A PREDICATE OVER THE WHOLE TRACKED PATH. This entry
+    is a tracked REGULAR FILE whose own last component is no link at all, and it
+    stands outside the repository root anyway, because a PARENT of it became a
+    link out of the tree after it was tracked. Counting it among the non-files
+    would say the report declined it for carrying no text, when what it declined
+    was text that is not this corpus's — which is the one fact the out-of-root
+    term exists to carry.
+    """
+    root = new_repo(tmp_path / "repo")
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "file.md").write_text(f"{CITE}/add-elsewhere/proposal.md\n",
+                                     encoding="utf-8")
+    write(root, "under/parent/file.md",
+          f"{CITE}/add-through-a-parent/proposal.md\n")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+    # The directory the tracked file stands under BECOMES a link out of the
+    # root. The index still carries `under/parent/file.md` as a regular file at
+    # mode 100644 — nothing is re-added — so the entry reaches the population
+    # exactly as any other tracked file does.
+    shutil.rmtree(root / "under" / "parent")
+    os.symlink("../../outside", root / "under" / "parent")
+    assert not (root / "under" / "parent" / "file.md").is_symlink(), \
+        "the entry's own last component is a regular file and not a link"
+    assert (root / "under" / "parent" / "file.md").is_file(), \
+        "and something readable does stand at it, outside the root"
+    assert "under/parent/file.md" in git(root, "ls-files").stdout
+
+    data = run_json(root)
+    listed = entries(data)
+    assert f"{CITE}/add-elsewhere/proposal.md" not in listed, \
+        "the entry is not read, so the text outside the root mints no token"
+    assert f"{CITE}/add-through-a-parent/proposal.md" not in listed, \
+        "and no token is taken from the entry"
+    assert f"{CITE}/add-absent/proposal.md" in listed
+    population = data["population"]
+    assert population["skipped_link_leaving_the_root"] == 1
+    assert population["skipped_not_a_file"] == 0, \
+        "the term is decided by where the path resolves, not by what the "\
+        "entry's own last component is"
+    assert population["skipped_undecodable"] == 0
+    assert population["files_read"] == 1
+    assert population["tracked_entries_in_scope"] == (
+        population["files_read"]
+        + population["skipped_not_a_file"]
+        + population["skipped_link_leaving_the_root"]
+        + population["skipped_undecodable"])
     assert population["arithmetic_closes"] is True
 
 

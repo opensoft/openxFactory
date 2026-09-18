@@ -154,10 +154,12 @@ OUTPUT_PATH_EXCLUSIONS = (
     "citation-remainder.json",
 )
 
-#: A tracked entry's git mode, for the two entry classes the population treats
-#: differently from a regular file.
+#: A tracked entry's git mode, for the ONE entry class the population must read
+#: out of the INDEX rather than off the filesystem. The link mode is not among
+#: them and is deliberately not named here: every link this population meets is
+#: decided by where its path RESOLVES, and a mode that answered "is this a
+#: link?" beside a predicate that never asks would be a second, silent rule.
 GITLINK_MODE = "160000"
-SYMLINK_MODE = "120000"
 
 #: The three skip terms, named once so the extent rule below and the arithmetic
 #: that closes over them cannot drift apart.
@@ -366,12 +368,13 @@ MAX_LINK_HOPS = 64
 def resolved_entry_path(root: Path, rel: str):
     """The path a tracked entry's own chain JOINS TO, read step by step.
 
-    A LINK'S RESOLVED PATH IS A FACT ABOUT THE PATH ITSELF AND NOT ABOUT
-    WHETHER ANYTHING STANDS AT IT: every step is read in turn, each link
-    replaced by its own target text resolved from the directory the link stands
-    in, and `..` and `.` resolved away as they are reached — so a link whose
-    target is simply MISSING still has a resolved path and stands wherever that
-    join lands. That is the whole reason this walk is here and `Path.resolve()`
+    A TRACKED PATH'S RESOLVED PATH IS A FACT ABOUT THE PATH ITSELF AND NOT
+    ABOUT WHETHER ANYTHING STANDS AT IT: every step is read in turn — the
+    entry's own last component and every PARENT directory's, in the one lexical
+    walk — each link replaced by its own target text resolved from the
+    directory the link stands in, and `..` and `.` resolved away as they are
+    reached, so an entry whose own target or whose parent's target is simply
+    MISSING still has a resolved path and stands wherever that join lands. That is the whole reason this walk is here and `Path.resolve()`
     is not: `resolve()` is a filesystem answer, and a term whose extent is "the
     links that leave the root" must take a DANGLING link that leaves the root
     and leave a dangling link that does not.
@@ -389,7 +392,8 @@ def resolved_entry_path(root: Path, rel: str):
 
     Returns `None` — NO resolved path at all — only where the report cannot
     itself walk the chain: it exceeds the hop bound, which a loop always does,
-    or it carries a link whose own target text cannot be read. Such an entry is
+    or it carries, AT ANY COMPONENT, a link whose own target text cannot be
+    read. Such an entry is
     not a link that leaves the root; it is an entry that is not a readable
     regular file once resolved, and the non-file term owns it.
     """
@@ -540,21 +544,23 @@ def entry_disposition(root: Path, entry: TrackedEntry):
         # the mode is read from the INDEX because the working tree may carry
         # nothing at that path at all.
         return TERM_NON_FILE, None
-    where = root / entry.path
-    is_link = entry.mode == SYMLINK_MODE or where.is_symlink()
     target = resolved_entry_path(root, entry.path)
     if target is None:
         # A chain that loops or cannot be read has NO resolved path, so it is
-        # not a link that LEAVES the root — it is an entry that is not a
+        # not an entry that LEAVES the root — it is an entry that is not a
         # readable regular file once resolved.
         return TERM_NON_FILE, None
     if not inside_root(root, target):
-        # The out-of-root term owns exactly the tracked LINKS that resolve
-        # outside the root. A non-link entry cannot reach here through git,
-        # which refuses to track a path beyond a symbolic link, and is counted
-        # where every other unreadable entry is rather than widening a term
-        # whose own scenario fixes what may stand in it.
-        return (TERM_OUT_OF_ROOT if is_link else TERM_NON_FILE), None
+        # THE OUT-OF-ROOT TERM IS A PREDICATE OVER THE WHOLE TRACKED PATH and
+        # not over an entry that happens to be a link itself: a tracked entry
+        # REACHED THROUGH one leaves the root exactly as a link that is one
+        # does, a PARENT directory component included. A tracked regular file
+        # under a directory that has since become a link out of the tree is the
+        # case that pays for it — its own last component is no link, it stands
+        # outside the root all the same, and counting it among the non-files
+        # would say the report declined it for carrying no text when what it
+        # declined was text that is not this corpus's.
+        return TERM_OUT_OF_ROOT, None
     if not target.is_file():
         # Missing inside the root, or a DIRECTORY inside the root: neither is a
         # readable regular file once resolved.
@@ -569,10 +575,13 @@ def read_population_text(root: Path, in_scope, population: Population):
     ENTRY THAT IS NOT A READABLE REGULAR FILE ONCE RESOLVED has no text this
     report can read, and counting one as an unreadable file both misstates the
     population's size and invites an implementation to recover text from it. A
-    TRACKED LINK WHOSE RESOLVED PATH LEAVES THE REPOSITORY ROOT is refused
-    before it is read: the ordinary "is this a file?" test FOLLOWS a symbolic
-    link and answers about its TARGET, so an implementation that asks only that
-    question reports text that is not this corpus's as this corpus's citations.
+    TRACKED ENTRY WHOSE RESOLVED PATH LEAVES THE REPOSITORY ROOT is refused
+    before it is read, ANY tracked entry and not only one that is itself a
+    link: the ordinary "is this a file?" test FOLLOWS a symbolic link — at the
+    entry's own last component and at every PARENT component alike — and
+    answers about what stands at the end of them, so an implementation that
+    asks only that question reports text that is not this corpus's as this
+    corpus's citations.
     AND A FILE THAT DOES NOT DECODE is skipped, counted and reported: never
     replacement-decoded, because bytes that are not text can yield matches no
     record wrote, and never fatal.
