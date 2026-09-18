@@ -3393,7 +3393,7 @@ Archived changes:
 
 - [adopt-entry-grain-dispositions-form](openspec/changes/archive/2026-09-18-adopt-entry-grain-dispositions-form/proposal.md)
   — **ARCHIVED 2026-09-18** by
-  [PR #{PR}](https://github.com/opensoft/openxFactory/pull/{PR}), on Brett
+  [PR #1114](https://github.com/opensoft/openxFactory/pull/1114), on Brett
   Heap's **SEPARATE ARCHIVE WORD** — verbatim *"merge 1070 fix when green,
   then archive 1045"*, given 2026-09-17T16:05:19Z, first-hand, in session to
   lane `openxfactory-2` (display `openXfactory-2`) — recorded on

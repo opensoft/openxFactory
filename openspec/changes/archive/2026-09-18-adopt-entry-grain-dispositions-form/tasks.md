@@ -524,7 +524,7 @@ semantics in tests and authors none of it.
       tree, `--family modified-block-currency` reports **12 `info`**,
       none naming this packet and none unnamed. The sweep-ledger row is
       re-seeded by `python3 scripts/validate-sequenced-after.py .
-      --seed-ledger --moved-by '#<this PR>'`, never by hand.
+      --seed-ledger --moved-by '#1114'`, never by hand.
       **THE ISSUE CLOSES BY THE LANE'S HAND, NOT BY A KEYWORD.** This pull
       request's body carries `refs #1045` and NO closing keyword, so the merge
       does not close it; the lane closes openxFactory #1045 itself immediately

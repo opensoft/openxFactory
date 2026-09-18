@@ -1163,7 +1163,7 @@ _LEDGER_SUBJECTS = {
     # STATED CONDITION — "Retires when the packet archives and its block is
     # promoted onto `openspec/specs/document-lifecycle/spec.md` (its
     # `tasks.md` § 3)". That packet ARCHIVED on Brett Heap's separate archive
-    # word (PR #<ARCHIVE_PR>, recorded on openxFactory issue #1045 comment
+    # word (PR #1114, recorded on openxFactory issue #1045 comment
     # 5717476696, verbatim "merge 1070 fix when green, then archive 1045"),
     # held behind the merged-plus-green realization evidence its non-empty
     # `code_surface:` requires — PR #1094 →
