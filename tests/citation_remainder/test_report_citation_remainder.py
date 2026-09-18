@@ -129,6 +129,26 @@ def commit(root: Path, message: str = "fixture", gitlinks=()) -> str:
     return git(root, "rev-parse", "HEAD").stdout.strip()
 
 
+def break_the_head_object(root: Path) -> str:
+    """Point the checked-out branch at a sha NO OBJECT STANDS AT, and return it.
+
+    ONLY THE REF MOVES AND THE OBJECT STORE IS LEFT WHOLE, which is what makes
+    this the shape the tree-state defect needs rather than a broken repository
+    in general: `git ls-files` and `git rev-parse --is-inside-work-tree` still
+    answer, so the reading reaches the tree-state git exactly as an ordinary run
+    does, `git rev-parse --verify --quiet HEAD` still exits 0 and prints this
+    sha, and only `git diff --quiet HEAD` fails — with status 128 and
+    `fatal: bad object HEAD`. Every one of those is measured in this tree by the
+    tests below and none of it is assumed.
+    """
+    ref = git(root, "symbolic-ref", "HEAD").stdout.strip()
+    missing = "0" * 39 + "1"
+    target = root / ".git" / ref
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(missing + "\n", encoding="utf-8")
+    return missing
+
+
 def run_json(root: Path, *args: str) -> dict:
     buffer = io.StringIO()
     with contextlib.redirect_stdout(buffer):
@@ -229,6 +249,95 @@ def test_a_clean_tree_is_declared_unmodified_at_the_head_it_prints(
     assert data["tree_unmodified_at_head"] is True
     assert "UNMODIFIED" in data["tree_state"]
     assert "UNMODIFIED" in run_human(root)
+
+
+def test_the_three_answers_git_diff_has_are_read_as_clean_modified_and_could_not_run(
+        tmp_path, monkeypatch) -> None:
+    """`git diff --quiet HEAD` HAS TWO ANSWERS AND ONE FAILURE MODE, and the
+    report reads three outcomes from them rather than two.
+
+    `0` is a clean tree and `1` is a modified one; ANY OTHER STATUS IS GIT
+    SAYING IT COULD NOT TAKE THE COMPARISON, which is the two-case contract's
+    non-zero exit and never a tree state. A report that read every non-zero as
+    "modified" would publish a state it never measured. (Copilot
+    `PRRT_kwDOTAvnrs6js_9D`.)
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    head = commit(root)
+    real = report.git_status
+
+    def answering(status: int, error: str):
+        def stub(where: Path, *args: str):
+            if args[:1] == ("diff",):
+                return status, "", error
+            return real(where, *args)
+        return stub
+
+    monkeypatch.setattr(report, "git_status", answering(0, ""))
+    assert report.head_and_tree_state(root) == (head, True)
+
+    monkeypatch.setattr(report, "git_status", answering(1, ""))
+    assert report.head_and_tree_state(root) == (head, False)
+
+    monkeypatch.setattr(report, "git_status",
+                        answering(128, "fatal: bad object HEAD\n"))
+    with pytest.raises(report.CouldNotRun) as raised:
+        report.head_and_tree_state(root)
+    assert "fatal: bad object HEAD" in str(raised.value), \
+        "git's own message is what says why the run could not be taken"
+    assert "128" in str(raised.value)
+
+
+def test_a_head_object_git_cannot_read_is_a_run_that_could_not_be_taken(
+        tmp_path, capsys) -> None:
+    """THE SAME DEFECT AT THE COMMAND, over a real repository and no stub.
+
+    The head ref names an object that does not stand in the store. The
+    enumeration git and the work-tree git both still answer, so the run reaches
+    the tree-state git and fails only there — where the old reading printed the
+    unreadable sha beside "MODIFIED at this head", a tree state nothing had
+    measured. It is now the one non-zero exit this capability has.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+    missing = break_the_head_object(root)
+
+    assert git(root, "rev-parse", "--is-inside-work-tree").stdout.strip() \
+        == "true", "the root is still a work tree"
+    assert git(root, "ls-files").stdout.strip(), "the index still answers"
+
+    code = report.main([str(root)])
+    captured = capsys.readouterr()
+    assert code != 0
+    assert "DID NOT RUN" in captured.err
+    assert "No reading was taken" in captured.err
+    assert "bad object" in captured.err, "git's own reason reaches the caller"
+    assert missing not in captured.out, \
+        "no head is published beside a tree state that was never measured"
+    assert "remainder" not in captured.out
+
+
+def test_a_git_that_cannot_be_run_at_all_is_a_run_that_could_not_be_taken(
+        tmp_path, monkeypatch) -> None:
+    """The third outcome's other arm: git not runnable rather than git failing.
+
+    An `OSError` at the sink — no `git` on PATH, a permission refusal — is a
+    reading that could not be taken for the same reason a fatal status is, and
+    takes the same exit rather than a default tree state.
+    """
+    root = new_repo(tmp_path / "repo")
+    write(root, "docs/notes.md", f"{CITE}/add-absent/proposal.md\n")
+    commit(root)
+
+    def unrunnable(*args, **kwargs):
+        raise OSError(2, "No such file or directory: 'git'")
+
+    monkeypatch.setattr(report.subprocess, "run", unrunnable)
+    with pytest.raises(report.CouldNotRun) as raised:
+        report.head_and_tree_state(root)
+    assert "git could not be run" in str(raised.value)
 
 
 def test_an_identity_cited_by_several_tokens_counts_once_and_lists_every_token(

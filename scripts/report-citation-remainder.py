@@ -259,7 +259,7 @@ def git_status(root: Path, *args: str):
             ["git", "--no-replace-objects", "-C", where, *args],
             capture_output=True, text=True,
             env=sanitized_git_environment())
-    except OSError as error:  # pragma: no cover - no git on PATH
+    except OSError as error:
         raise CouldNotRun(f"git could not be run: {error}") from error
     return result.returncode, result.stdout, result.stderr
 
@@ -1388,6 +1388,26 @@ def record_for(root: Path, token: str, occurrences, resolution) -> TokenRecord:
     return record
 
 
+#: `git diff --quiet HEAD`'S OWN TWO ANSWERS, AND NOTHING ELSE IT CAN EXIT WITH
+#: IS ONE OF THEM. `0` is "no tracked file differs from the head" and `1` is "at
+#: least one does". EVERY OTHER STATUS IS GIT REPORTING THAT IT COULD NOT TAKE
+#: THE COMPARISON AT ALL, which is a different fact and belongs to the one
+#: non-zero exit this capability has. Measured rather than reasoned: with a head
+#: ref naming an object that does not stand in the store, `git diff --quiet
+#: HEAD` exits `128` with `fatal: bad object HEAD` — and a reader of every
+#: non-zero as "modified" would publish a tree state it never measured, beside a
+#: head it could not read. (Copilot `PRRT_kwDOTAvnrs6js_9D`.)
+DIFF_TREE_CLEAN = 0
+DIFF_TREE_MODIFIED = 1
+
+#: `git rev-parse --verify --quiet HEAD`'s answer where the branch carries no
+#: commit yet: `1`, and silently. THE `--verify --quiet` FORM IS ASKED FOR
+#: RATHER THAN A BARE `rev-parse HEAD` for the same reason the two statuses
+#: above are separated: the bare form exits `128` for an unborn HEAD and `128`
+#: again for a tree it cannot read, and those are different facts.
+REV_PARSE_NO_SUCH_REF = 1
+
+
 def head_and_tree_state(root: Path) -> tuple:
     """The head this reading stands on, and whether the tracked content read
     stands UNMODIFIED at it.
@@ -1398,12 +1418,32 @@ def head_and_tree_state(root: Path) -> tuple:
     from the head, staged or unstaged", which is the question the requirement
     asks; `status --porcelain` would answer a wider one, marking the tree
     modified over UNTRACKED files this report never reads at all.
+
+    A STATUS NEITHER GIT DOCUMENTS AS AN ANSWER IS A RUN THIS REPORT COULD NOT
+    TAKE, AND NEVER A TREE STATE IT MEASURED. Each of the two gits below is read
+    for the answers it actually has — an unborn head, a clean tree, a modified
+    tree — and anything else raises `CouldNotRun` carrying git's own stderr, so
+    the caller gets the two-case contract's non-zero exit and the reason, rather
+    than a reading whose header states a fact nothing established.
     """
-    code, out, _ = git_status(root, "rev-parse", "HEAD")
-    if code != 0:
+    code, out, error = git_status(root, "rev-parse", "--verify", "--quiet",
+                                  "HEAD")
+    if code == REV_PARSE_NO_SUCH_REF:
+        # A branch carrying no commit yet: there is no head, and no tracked
+        # content stands unmodified at one.
         return "(no commit at HEAD)", False
-    dirty, _, _ = git_status(root, "diff", "--quiet", "HEAD")
-    return out.strip(), dirty == 0
+    if code != 0:
+        raise CouldNotRun(
+            f"`git rev-parse --verify --quiet HEAD` failed in {root} with "
+            f"status {code}: {error.strip() or 'no message'}")
+    status, _, error = git_status(root, "diff", "--quiet", "HEAD")
+    if status == DIFF_TREE_CLEAN:
+        return out.strip(), True
+    if status == DIFF_TREE_MODIFIED:
+        return out.strip(), False
+    raise CouldNotRun(
+        f"`git diff --quiet HEAD` failed in {root} with status {status}: "
+        f"{error.strip() or 'no message'}")
 
 
 def take_reading(root: Path, *, include=(), exclude=()) -> Reading:
