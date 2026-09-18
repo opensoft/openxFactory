@@ -1369,6 +1369,29 @@ the bookkeeping that ticks this group.
   reading of `list_documents` (raised at comment `5716870896`) is answered: the
   interface's return type is not widened and the corpus's seventeen checks are
   not reopened to accommodate it.
+  **STATUS — THE TRANSPOSITION PROOF IS LANDED, AND THIS BOX STILL DOES NOT
+  TICK.** `openxFactory` **#1086 → `049d54a9`**, merged **2026-09-18T17:09:24Z**,
+  *"FLOOR PART 3 accepts a destination's TRANSPOSED corpus and proves it
+  faithful"* — RULED **Q-F1 (a)**, `#656` comment `5714365086`; recorded by
+  `tasks.md` amendment #6 (`#656` note `5733472993`).
+  **What it discharges is the RULING, not the box.** This box's own words are
+  *"EVERY DESTINATION PASSES IT"*, so it ticks only when **BOTH destinations
+  pass the neutral corpus** — openDox via `#26`, openXdox via § 4.5a — and a
+  proof that a TRANSPOSED corpus is faithful is the machinery those passes will
+  run on, not one of the passes. Accepting the landing as the tick would
+  discharge a two-destination condition on zero destinations.
+  **THE FOLLOW-UP'S SCOPE IS FOUR REGISTERED FINDINGS**, booked HERE rather
+  than as § 8.9 residue because they belong to this box's own instrument:
+  `#1086` landed AS IS at head `43a48ed5` with four Copilot findings
+  **registered rather than fixed** (`#1086` comment `5732073951`), and the
+  helper's `transpose37b` takes them as ONE follow-up pull request under claim
+  `5714686940`. **They are not a condition of this box either** — the box waits
+  on two destination passes, and these wait on their own act.
+  *(Registering findings and landing anyway is a legitimate move and is the
+  same shape § 5.5 used for `#1105` → `#1110`. It is recorded in both places
+  because the pattern only works if the register is somewhere the next reader
+  actually looks, which is the box that owns the instrument — not a residue
+  list at the far end of the file.)*
 - [ ] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
   **In the ASSEMBLY ROOT** (amended 2026-09-05), over the commit that names both
   legs: a tag on a leg describes half a project, and the bundle tag,
