@@ -550,11 +550,13 @@ its own.>
   such names were landed by a local clock one day behind UTC before the wrapper
   owned the clock; two more were RENAMED inside `archive/` six days after
   the archive acts that created them (the acts themselves agree with the
-  names); and two are CORRECT archives whose adding commit simply fell on a
-  later UTC day than the act — one held overnight for the separate archive word
-  its `code_surface:` required, one landed by a squash merge that discarded the
-  act's own commit and left the landing commit as the oldest adding one. All
-  fourteen are dispositioned IN PLACE, names untouched, in
+  names); and one is a CORRECT archive whose adding commit simply fell on a
+  later UTC day than the act, held overnight for the separate archive word its
+  `code_surface:` required. A second of that kind stood for one day — an archive
+  whose SQUASH landing discarded the act's own commit — and retired itself when a
+  later merge-commit landing carried that commit into history and the name agreed
+  again; the estate now lands every archive closure by merge commit for exactly
+  that reason. All thirteen are dispositioned IN PLACE, names untouched, in
   `tests/sequenced_after/archive-date-dispositions.yaml`, each citing its
   adding commit, the fact and the ruling (issue #812, Brett Heap 2026-09-08).
   RENAMING IS NOT THE REMEDY: history is history, every citation stands, and a

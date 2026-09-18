@@ -539,7 +539,7 @@ def test_STRICT_ARCHIVE_DATES_overrides_the_dial_UPWARD_and_never_DOWNWARD(
 
 def test_THE_LIVE_RECORD_IS_ENFORCED_not_merely_warned(tmp_path):
     """The ruling asks for ERROR once every disagreement carries a disposition,
-    and the live corpus is green with the fourteen (as measured 2026-09-18), so
+    and the live corpus is green with the thirteen (as measured 2026-09-18), so
     `error` is what ships."""
     record = sa.load_archive_date_dispositions(sa.dispositions_path(ROOT))
     assert record.enforcement == sa.ENFORCEMENT_ERROR
@@ -593,7 +593,7 @@ def test_CANNOT_RUN_WINS_OVER_the_first_arms_FAILURE(tmp_path):
 
 def test_THE_BATCH_WALK_AGREES_WITH_A_PER_DIRECTORY_LOG_on_every_DISPOSITION():
     """The batch walk is an optimisation (83ms against 9.3s for 144
-    per-directory `git log` calls then; re-confirmed against all 171 on
+    per-directory `git log` calls then; re-confirmed against all 172 on
     2026-09-18, still zero mismatches), and an optimisation that attributed a
     directory to the wrong commit would make every sha in the record a
     fiction. Each dispositioned directory is therefore re-derived by the
@@ -618,11 +618,11 @@ def test_THE_BATCH_WALK_AGREES_WITH_A_PER_DIRECTORY_LOG_on_every_DISPOSITION():
 
 def test_THE_LIVE_RECORD_DISPOSITIONS_ONLY_REAL_DISAGREEMENTS_and_NAMES_FACTS():
     """The known facts must be PRESENT and every entry must state one — asserted
-    that way rather than by exact set equality and a hard fourteen.
+    that way rather than by exact set equality and a hard thirteen.
 
     THE HEADER PERMITS LAWFUL FUTURE ENTRIES (causes 2, 3 and 4 once actually
     measured), so a test that pinned the fact set to today's three, and the
-    count to today's fourteen (as measured 2026-09-18), would forbid in the
+    count to today's thirteen (as measured 2026-09-18), would forbid in the
     suite exactly what the record grants in its header — the defect Codex P2
     had already found one level up. What the
     record's authority actually rests on is that EVERY entry states a fact and
