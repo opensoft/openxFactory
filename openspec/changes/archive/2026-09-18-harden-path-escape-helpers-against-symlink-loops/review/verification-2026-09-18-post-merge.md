@@ -151,10 +151,10 @@ exists.
 ## 4. Provenance
 
 Written by lane `openxfactory-5` (display `openXfactory-5`) in the tick commit
-of the archive pull request, in a fresh clone at
-`~/projects/xFactory/lane-tools-openxfactory-5/clone-archive-1074`, never in the
-shared checkout and never in a sibling lane's tree. Every path in this file is
-repo-relative. The full gate transcripts at the pushed head — `openspec validate
+of the archive pull request, in a fresh clone of `opensoft/openxFactory` at
+`e3647b6d`, never in the shared checkout and never in a sibling lane's tree.
+Every path in this file is repo-relative. The full gate transcripts at the
+pushed head — `openspec validate
 --all --strict`, `validate-sequenced-after.py` plain and `--ledger-diff`,
 `validate-code-surface.py`, the four test packages and `doc-health.py`, each
 diffed against this same clone at `origin/main` — are carried in that pull
