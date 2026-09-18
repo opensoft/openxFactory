@@ -1806,6 +1806,36 @@ def test_the_sweep_reads_the_import_surface_and_the_untracked_files(tmp_path):
     assert any(row.startswith(" M") and "m.py" in row for row in dirt), dirt
     assert any(row.startswith("??") and "stray.py" in row
                for row in dirt), dirt
+    # …and the untracked read takes the SAME SCOPE as its siblings: a file
+    # outside the import surface cannot be imported through `carved_reach`
+    # and must not refuse a required gate (Copilot, PR #1115 — the third
+    # place this inconsistency was found).
+    (leg / "src" / "m.py").write_text("x = 1\n", encoding="utf-8")
+    (leg / "src" / "stray.py").unlink()
+    assert MODULE.worktree_dirt(leg) == []
+    (leg / "NOTE.md").write_text("a note outside src\n", encoding="utf-8")
+    assert MODULE.worktree_dirt(leg) == [], "an untracked file outside src"
+
+
+def test_the_tracked_remedy_clears_the_index_too(tmp_path):
+    """`git diff --name-only HEAD` sees STAGED changes, and `checkout -- .`
+    restores the worktree FROM THE INDEX — so for a staged edit it changes
+    nothing and the promised re-run refuses again (Copilot, PR #1115)."""
+    leg = tmp_path / "leg"
+    _seed(leg)
+    (leg / "src").mkdir()
+    (leg / "src" / "m.py").write_text("x = 1\n", encoding="utf-8")
+    assert MODULE._git(leg, "add", "src/m.py").returncode == 0
+    assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
+    (leg / "src" / "m.py").write_text("x = 2\n", encoding="utf-8")
+    assert MODULE._git(leg, "add", "src/m.py").returncode == 0
+    dirt = MODULE.worktree_dirt(leg)
+    assert any("m.py" in row for row in dirt), "a STAGED edit is dirt"
+    advice = MODULE._clean_advice(dirt, leg)
+    assert "restore --staged --worktree" in advice
+    # …and `checkout -- .` is no longer OFFERED as the command (it survives
+    # only inside the clause explaining why it would not work).
+    assert f"git -C {leg} checkout" not in advice
 
 
 def test_the_legs_are_probed_before_the_stack_is_composed(monkeypatch,

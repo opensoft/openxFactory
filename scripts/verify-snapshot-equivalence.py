@@ -1422,10 +1422,14 @@ def worktree_dirt(leg: Path) -> list[str] | None:
             return None
         rows += [row for row in ignored
                  if not _GENERATED_BYTECODE.search(row[3:])]
+    # EVERY READ TAKES THE SAME SCOPE (Copilot, PR #1115 — the third place
+    # this inconsistency was found, after the flag scan and the spec
+    # mounts). An untracked `docs/NOTE.md` cannot be imported through
+    # `carved_reach` and must not refuse a required gate.
     for prefix, arguments in ((" M ", ("diff", "--name-only", "HEAD",
                                        *scope)),
                               ("?? ", ("ls-files", "--others",
-                                       "--exclude-standard"))):
+                                       "--exclude-standard", *scope))):
         named = _names(leg, prefix, *arguments)
         if named is None:
             return None
@@ -1492,7 +1496,16 @@ def _clean_advice(dirt: list[str], leg: Path) -> str:
     tracked = "tracked" in kinds
     remedies = []
     if tracked:
-        remedies.append(f"commit the edits or `git -C {leg} checkout -- .`")
+        # `git diff --name-only HEAD` SEES STAGED CHANGES TOO, and `checkout
+        # -- .` restores the worktree FROM THE INDEX — so for a staged edit
+        # it changes nothing and the next run refuses again (Copilot, PR
+        # #1115). The remedy must clear both, as `restore --staged
+        # --worktree` does.
+        remedies.append(
+            f"commit the edits, or `git -C {leg} restore --staged "
+            "--worktree -- .` (both, since the diff is taken against HEAD "
+            "and `checkout -- .` would leave a STAGED edit exactly where it "
+            "is)")
     if untracked:
         remedies.append(
             f"`git -C {leg} stash -u` or `git -C {leg} clean -fd` the "
