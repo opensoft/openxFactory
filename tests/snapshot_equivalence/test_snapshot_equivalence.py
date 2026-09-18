@@ -924,6 +924,27 @@ def test_a_child_that_writes_no_output_cannot_reuse_the_previous_state(
         "the two states shared one output path")
 
 
+def test_a_byte_only_difference_names_where_the_bytes_part_company(
+        monkeypatch):
+    """The last-resort diagnostic must not invent a cause. Both sides carrying
+    distinct invalid UTF-8 that `decode(errors="replace")` flattens to the
+    same text leaves every line-oriented diff empty, and the earlier wording
+    then said they "differ in length alone" while printing two EQUAL lengths
+    (Copilot, PR #1105 round 9)."""
+    pre = b'{"a": "\xff", "documents": [1]}'
+    post = b'{"a": "\xfe", "documents": [1]}'
+    assert len(pre) == len(post)
+    assert pre.decode("utf-8", "replace") == post.decode("utf-8", "replace")
+    monkeypatch.setattr(MODULE, "projected_documents", lambda raw: 1)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.compare(pre, post, Path("/corpus"), "a-ref", "a-label")
+    assert caught.value.code == "equivalence-digests-differ"
+    rendered = "\n".join(caught.value.payload["diff"])
+    assert "BYTE level" in rendered
+    assert "first differing byte at offset" in rendered
+    assert "differ in length alone" not in rendered
+
+
 def test_the_refusal_vocabulary_is_exactly_the_ratified_one():
     assert MODULE.REFUSAL_CODES == RATIFIED_CODES
 
@@ -1044,7 +1065,14 @@ def test_this_suite_never_skips():
                  # the reason the docstring gives, and no comment here may
                  # write one out either — this test scans its own file, and a
                  # comment quoting a forbidden spelling fails it (measured).
-                 "mark" + ".skip", "mark" + ".xfail")
+                 "mark" + ".skip", "mark" + ".xfail",
+                 # AND THE `unittest` SPELLINGS, which this repository does
+                 # use — `tests/proposal-support/test_proposal_support.py`
+                 # carries a `skipUnless` (Copilot, PR #1105 round 9). The
+                 # prefix covers `skip`, `skipIf` and `skipUnless` in one
+                 # entry, and none of the bare forms above matches any of
+                 # them.
+                 "unittest" + ".skip")
     source = Path(__file__).read_text(encoding="utf-8")
     for spelling in forbidden:
         assert spelling not in source, (

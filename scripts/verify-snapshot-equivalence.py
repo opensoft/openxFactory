@@ -765,6 +765,19 @@ def _pretty(raw: bytes) -> list[str]:
         return raw.decode("utf-8", "replace").splitlines()
 
 
+def _first_byte_difference(pre: bytes, post: bytes) -> str:
+    """Where two byte strings first part company, in words an operator can
+    act on — for the case where no TEXT difference survives decoding."""
+    for offset in range(min(len(pre), len(post))):
+        if pre[offset] != post[offset]:
+            low = max(0, offset - 8)
+            high = offset + 8
+            return (f"first differing byte at offset {offset}: "
+                    f"PRE {pre[low:high]!r} / POST {post[low:high]!r}")
+    return (f"one side is a prefix of the other: {len(pre)} vs {len(post)} "
+            "bytes, equal up to the shorter")
+
+
 def projected_documents(raw: bytes) -> int | None:
     """How many documents a rendered snapshot projects, or `None` when the
     bytes are not a snapshot at all."""
@@ -827,8 +840,15 @@ def compare(pre: bytes, post: bytes, corpus: Path, pre_ref: str,
             fromfile=f"PRE  {pre_ref} (raw)",
             tofile=f"POST {post_label} (raw)", lineterm=""))
     if not diff:
-        diff = [f"(the two sides differ in length alone: {len(pre)} vs "
-                f"{len(post)} bytes, with no line that differs)"]
+        # AND THE LAST RESORT MUST NOT INVENT A CAUSE (Copilot, PR #1105
+        # round 9). The earlier wording said "they differ in length alone"
+        # and then printed two EQUAL lengths whenever both sides carried
+        # distinct invalid UTF-8 that `decode(errors="replace")` flattened to
+        # the same text — a false diagnostic in the one place an operator has
+        # nothing else to read. This states what is actually known: where the
+        # bytes first part company, or that one is a prefix of the other.
+        diff = [f"(no line differs after decoding; the difference is at the "
+                f"BYTE level — {_first_byte_difference(pre, post)})"]
     shown = diff[:DIFF_LINE_CAP]
     if len(diff) > DIFF_LINE_CAP:
         shown.append(f"  … {len(diff) - DIFF_LINE_CAP} more diff line(s); "
