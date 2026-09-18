@@ -42,8 +42,8 @@ kind: archive_date_dispositions
 #      after is a CORRECT archive that this arm reports. 159 of this corpus's
 #      172 directories agree, so it is rare - not impossible. (This line read
 #      "132 of 144" until 2026-09-18, when Copilot caught the contradiction on
-#      PR #1106 - 132 plus the fourteen entries below describes no corpus - and
-#      the corpus had in fact grown by 27 directories since the sentence was
+#      PR #1106 - 132 plus the fourteen entries standing THEN describes no
+#      corpus - and the corpus had in fact grown by 27 directories since it was
 #      written. A same-day fix then wrote 159 of 173: the FULL
 #      `adding_commits()` return, which also carries the two pre-rename ghost
 #      names behind the two 2026-06-26 entries above (neither on disk), rather
@@ -103,7 +103,7 @@ kind: archive_date_dispositions
 #                    abbreviated: this is a citation, and an abbreviation is
 #                    ambiguous by construction.
 #   commit_date_utc  that commit's COMMITTER date, in UTC. (Author and
-#                    committer dates agree on all 171 directories of this
+#                    committer dates agree on all 172 directories of this
 #                    corpus; the committer date is recorded because it is when
 #                    the commit entered this history, which is the act the
 #                    directory name claims to date.)
