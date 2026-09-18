@@ -900,12 +900,17 @@ how the run is known to have teeth rather than to be comparing two constants.
 **Nothing is claimed that was not verified first.** All six mounts are held to
 their pins before any digest exists — both assembly roots, both `-code` legs
 and both `spec` mounts — with each nested gitlink read out of the exact commit
-the level above it verified, never out of the nested checkout's own index; the
-two `-code` trees are additionally swept clean, because the post side is
-imported off the WORKING TREE and an uncommitted edit under one renders bytes
-that are not the pinned commit's while every sha comparison still passes.
-Seven named refusal codes and one blanket, **exit 0 or 2 and never 1**, in
-§ 2.1's idiom. The evidence line also carries the SUPERPROJECT's own revision
+the level above it verified, never out of the nested checkout's own index. The
+four mounts a module can arrive at — the two `-code` legs and the two `spec`
+mounts, the latter because a `re_destined:` block may lawfully put a module
+there — are additionally SWEPT CLEAN, because the post side is imported off
+the WORKING TREE and an uncommitted edit under one renders bytes that are not
+the pinned commit's while every sha comparison still passes. The sweep is
+three reads and not a `git status`: the tracked diff and the ignored files
+under the import surface, the untracked files, and an `ls-files -v` scan for
+the `assume-unchanged` / `skip-worktree` flags that make git report an edited
+file as CLEAN. Seven named refusal codes and one blanket, **exit 0 or 2 and
+never 1**, in § 2.1's idiom. The evidence line also carries the SUPERPROJECT's own revision
 and dirt state, which no gitlink pins: `carved_reach.py`, `opendox_host.py`
 and the profile are read out of this checkout, so two runs can differ by them
 alone while every pinned leg matches.

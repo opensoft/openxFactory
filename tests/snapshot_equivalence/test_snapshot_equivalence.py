@@ -1440,6 +1440,59 @@ def test_a_pathspec_failure_is_named_post_shed_and_not_an_object_store(
     assert MODULE.DEFAULT_PRE_REF in detail
 
 
+def test_a_tree_read_that_failed_does_not_become_a_post_shed_verdict(
+        monkeypatch, tmp_path):
+    """`None` from `_absence()` is not a phrasing problem, which is what the
+    first version treated it as: a tree read that FAILED may be an incomplete
+    object store rather than a shed renderer, so the post-shed DIAGNOSIS must
+    go with the wording — it ends "the objects are not the problem", which is
+    exactly what an unanswered read cannot establish (Copilot, PR #1115)."""
+    repo = tmp_path / "repo"
+    _seed(repo)
+    commit = MODULE._git(repo, "rev-parse", "HEAD").stdout.strip()
+    real_git = MODULE._git
+
+    def no_tree_read(target, *arguments, text=True):
+        if arguments[0] == "ls-tree":
+            return None
+        return real_git(target, *arguments, text=text)
+
+    monkeypatch.setattr(MODULE, "_git", no_tree_read)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE.extract_pre_tree(commit, repo, tmp_path / "into", "HEAD")
+    detail = caught.value.detail
+    assert caught.value.code == "equivalence-pre-tree-unrenderable"
+    assert "does NOT claim the ref is post-shed" in detail
+    assert "the objects are not the problem" not in detail
+    assert "ls-tree" in detail
+
+
+def test_an_unreadable_parent_tree_is_not_a_missing_gitlink(monkeypatch,
+                                                            tmp_path):
+    """`rev-parse --quiet` answers the same way for a gitlink that is ABSENT
+    and for one whose commit tree cannot be READ, and the two have different
+    remedies: reporting "records no gitlink" for an incomplete object store
+    sends the operator to look for a missing submodule declaration instead of
+    fetching the objects (Copilot, PR #1115)."""
+    parent = tmp_path / "assembly"
+    _seed(parent)
+    outer = MODULE._git(parent, "rev-parse", "HEAD").stdout.strip()
+    # The tree genuinely does not carry `code`: an ABSENCE, reported as one.
+    assert MODULE._gitlink_at_commit(parent, outer, "code")[0] is None
+    real_git = MODULE._git
+
+    def no_tree_read(target, *arguments, text=True):
+        if arguments[0] == "ls-tree":
+            return None
+        return real_git(target, *arguments, text=text)
+
+    monkeypatch.setattr(MODULE, "_git", no_tree_read)
+    with pytest.raises(MODULE.EquivalenceRefusal) as caught:
+        MODULE._gitlink_at_commit(parent, outer, "code")
+    assert caught.value.code == "equivalence-object-store-incomplete"
+    assert "fetch origin" in caught.value.detail
+
+
 def test_an_unclassified_archive_failure_claims_neither_diagnosis(
         monkeypatch, tmp_path):
     """The third condition — a permission error, a full disk, a git that

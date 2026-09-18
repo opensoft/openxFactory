@@ -500,23 +500,28 @@ def pre_ref_commit(pre_ref: str, repo: Path) -> str:
     return done.stdout.strip()
 
 
-def _absence(repo: Path, commit: str) -> str:
-    """WHICH of the archive paths that commit's tree does not carry.
+def _absence(repo: Path, commit: str) -> str | None:
+    """WHICH of the archive paths that commit's tree does not carry, or
+    `None` when this runner could not establish that at all.
 
     `git archive` fails as soon as ONE pathspec matches nothing, so the
-    refusal above must not assume both are missing. Where git cannot answer
-    which — the read failed, the store is unhappy — the phrasing stays
-    neutral rather than guessing, which is this file's rule everywhere else.
+    refusal above must not assume both are missing. And `None` is not a
+    phrasing problem, which is what the first version of this treated it as
+    (Copilot, PR #1115): a tree read that FAILED may be an incomplete object
+    store rather than a shed renderer, so the caller must drop the post-shed
+    DIAGNOSIS too — not merely soften its wording — because that diagnosis
+    ends "the objects are not the problem", which is exactly what an
+    unanswered read cannot establish.
     """
     missing: list[str] = []
     for path in ARCHIVE_PATHS:
         done = _git(repo, "ls-tree", "--name-only", commit, "--", path)
         if done is None or done.returncode != 0:
-            return "does not carry all of " + " and ".join(ARCHIVE_PATHS)
+            return None
         if not done.stdout.strip():
             missing.append(path)
     if not missing:
-        return "does not carry all of " + " and ".join(ARCHIVE_PATHS)
+        return None
     if len(missing) == len(ARCHIVE_PATHS):
         return "carries NEITHER " + " nor ".join(ARCHIVE_PATHS)
     carried = [path for path in ARCHIVE_PATHS if path not in missing]
@@ -594,10 +599,23 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
             # carried NEITHER archive path, which is only true when both are
             # absent — a tree that shed one of them would have been described
             # inaccurately in the refusal that names it.
+            absence = _absence(repo, pre_commit)
+            if absence is None:
+                raise EquivalenceRefusal(
+                    "equivalence-pre-tree-unrenderable",
+                    f"`git archive {pre_commit}` ({pre_ref}) matched none of "
+                    + " or ".join(ARCHIVE_PATHS)
+                    + f": {stderr or '(no error output)'}. This runner then "
+                    "could not read that commit's tree to say WHICH of them "
+                    "is missing, so it does NOT claim the ref is post-shed: "
+                    "a tree read that failed may itself be an incomplete "
+                    f"object store. Ask it directly — `git -C {repo} ls-tree "
+                    f"{pre_commit[:12]} -- " + " ".join(ARCHIVE_PATHS)
+                    + "` — before changing --pre-ref")
             raise EquivalenceRefusal(
                 "equivalence-pre-tree-unrenderable",
                 f"{pre_ref} ({pre_commit[:12]}) "
-                + _absence(repo, pre_commit)
+                + absence
                 + f": {stderr or '(no error output)'}. `contract-v4.0` and "
                 "every commit on `main` since the § 5.2 shed are in exactly "
                 "this state. A post-shed ref is an operator error about "
@@ -1175,9 +1193,28 @@ def _gitlink_at_commit(parent: Path, outer: str,
     source = f"the commit {outer[:12]} its own parent records for it"
     done = _git(parent, "rev-parse", "--verify", "--quiet",
                 "--end-of-options", f"{outer}:{path}")
-    if done is None or done.returncode != 0 or not done.stdout.strip():
-        return None, source
-    return done.stdout.strip(), source
+    if done is not None and done.returncode == 0 and done.stdout.strip():
+        return done.stdout.strip(), source
+    # ABSENT AND UNREADABLE ARE DIFFERENT FINDINGS, and `rev-parse --quiet`
+    # answers the same way for both (Copilot, PR #1115). Reporting "records
+    # no gitlink" for a parent commit whose TREE could not be read would
+    # misdiagnose an incomplete object store — the one condition this file
+    # gave its own code — and send the operator to look for a missing
+    # submodule declaration instead of fetching the objects. So the tree is
+    # asked directly, and only a clean answer that does not list the path is
+    # an absence.
+    listed = _git(parent, "ls-tree", "--name-only", outer, "--", path)
+    if listed is None or listed.returncode != 0 or listed.stdout.strip():
+        raise EquivalenceRefusal(
+            "equivalence-object-store-incomplete",
+            f"{parent} could not be asked what commit {outer} records for "
+            f"{path}: the gitlink did not resolve and the tree read did not "
+            "settle whether the path is there. That is an OBJECT STORE that "
+            "cannot answer about a commit this run has already accepted as "
+            "the pin, not a missing submodule declaration — fetch it "
+            f"deliberately (`git -C {parent} fetch origin {outer}`) and "
+            "re-run")
+    return None, source
 
 
 def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
