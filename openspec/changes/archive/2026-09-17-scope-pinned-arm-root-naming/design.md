@@ -206,7 +206,7 @@ their INPUTS, not their results, in two ways a reader must know before copying
 them: command 1 reads
 `openspec/changes/scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md`,
 which no longer exists (the packet is at
-`openspec/changes/archive/2026-09-18-scope-pinned-arm-root-naming/`), and
+`openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/`), and
 command 3's `mbc.active_blocks(root)` EXCLUDES `openspec/changes/archive/` by
 design, so it returns no block for this change at all; commands 2 and 3 also
 compare against a canon that now ALREADY CARRIES the promoted block. § 5 below
@@ -283,15 +283,11 @@ current.
    at its ARCHIVED path and take canon from `git show` where the pre-promotion
    state is wanted, so nothing depends on a path or a reader the archive
    removed. Each was RUN AT THIS COMMIT and its output is pasted verbatim.
-   **THE `ARCH` PATH BELOW IS THE RE-DATED ONE** — the archive act was
-   2026-09-17 and the directory carries 2026-09-18, the day it enters history
-   (`tasks.md` § 3.1); the commands were RE-RUN at the re-dating commit and
-   print the same figures, the rename having moved no byte of the packet.
 
    (a) The canon-diff figures of commands 1–2, against PRE-PROMOTION canon:
    ```
    tmp=$(mktemp -d)
-   ARCH=openspec/changes/archive/2026-09-18-scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md
+   ARCH=openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/specs/document-lifecycle/spec.md
    git show a93d2682:openspec/specs/document-lifecycle/spec.md > "$tmp/canon-pre.md"
    python3 -c "
    import pathlib, sys
@@ -319,7 +315,7 @@ current.
    sys.path.insert(0, 'scripts')
    from doc_health import modified_block_currency as mbc
    from doc_health import promotion_fidelity as pf
-   ARCH = ('openspec/changes/archive/2026-09-18-scope-pinned-arm-root-naming/'
+   ARCH = ('openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/'
            'specs/document-lifecycle/spec.md')
    TITLE = 'Prose tagging marker hygiene'
    def body(text, keep_heading=False):

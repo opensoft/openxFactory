@@ -3409,18 +3409,8 @@ Hermes/domains/audits + pilot; structurally last) — see the
 
 Archived changes:
 
-- [scope-pinned-arm-root-naming](openspec/changes/archive/2026-09-18-scope-pinned-arm-root-naming/proposal.md)
-  — **ARCHIVE ACT 2026-09-17; DIRECTORY DATED 2026-09-18, THE DAY IT
-  ENTERS HISTORY.** The wrapper named `2026-09-17-scope-pinned-arm-root-naming`
-  at the act and the landing slipped a day (the archive held while `main` was
-  red on lane `openxfactory-5`'s undispositioned `archive-date-vs-commit`
-  finding, repaired by [PR #1099](https://github.com/opensoft/openxFactory/pull/1099)),
-  so the directory was RE-DATED to the landing day before landing:
-  `archive-date-vs-commit` reads a directory's name against the UTC date of the
-  commit that ADDS it — a squash-merge — and
-  `tests/sequenced_after/archive-date-dispositions.yaml` forbids a disposition
-  written before that commit exists (`tasks.md` § 3.1). The ROW moves with it:
-  `moved_on: "2026-09-18"`. ARCHIVED by
+- [scope-pinned-arm-root-naming](openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/proposal.md)
+  — **ARCHIVED 2026-09-17** by
   [PR #1089](https://github.com/opensoft/openxFactory/pull/1089), on Brett
   Heap's **SEPARATE ARCHIVE WORD** — verbatim *"merge 1051 when green, then archive 1047"*,
   2026-09-17, first-hand, in session to lane `openxfactory-2` (display
@@ -3449,7 +3439,7 @@ Archived changes:
   lane's own name and fix round 6 reverted for exactly that reason — now
   applied by the only authority that could: recorded as an AMENDMENT BY THE
   RATIFIER at
-  [`review/ratification-2026-09-16.md`](openspec/changes/archive/2026-09-18-scope-pinned-arm-root-naming/review/ratification-2026-09-16.md)
+  [`review/ratification-2026-09-16.md`](openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/review/ratification-2026-09-16.md)
   § Addendum, 2026-09-17, in the form
   `add-requirement-ref-resolution-integrity`'s 2026-09-01 amendment set.
   **THE PROMOTION, MEASURED:** the one `## MODIFIED` block is BYTE-IDENTICAL to
