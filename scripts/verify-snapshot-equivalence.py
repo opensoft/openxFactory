@@ -1256,7 +1256,7 @@ def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
         # is read the same mode-aware way the nested path is.
         head_only, _kind = _gitlink_in_tree(parent, "HEAD", path)
         return head_only, ("HEAD" if head_only else _NO_RECORD_SOURCE)
-    index_oid, conflicted = _staged_gitlink(listed.stdout)
+    index_oid, conflicted = _staged_gitlink(listed.stdout, path)
     if index_oid is None and conflicted:
         raise EquivalenceRefusal(
             "equivalence-reach-unavailable",
@@ -1280,8 +1280,15 @@ def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
     return head_oid, ("HEAD" if head_oid else _NO_RECORD_SOURCE)
 
 
-def _staged_gitlink(listing: str) -> tuple[str | None, list[str]]:
+def _staged_gitlink(listing: str, path: str) -> tuple[str | None, list[str]]:
     """(the stage-0 gitlink, the conflict stages) out of `ls-files -s`.
+
+    THE PATH COLUMN IS REQUIRED TO MATCH (Copilot, PR #1115).
+    `git ls-files -s -- <path>` is RECURSIVE when `<path>` is a directory, so
+    a root pin that had been replaced by a plain directory containing a
+    nested gitlink would have had that NESTED row read as its own recorded
+    pin. `verify-openxdox-pin.py::_gitlink_from` parses the path for the same
+    reason.
 
     STAGE 0 OR NOTHING (Copilot, PR #1105 round 3, accepted without argument
     and owed since). `git ls-files -s` lists stages 1, 2 and 3 for a path in
@@ -1301,7 +1308,7 @@ def _staged_gitlink(listing: str) -> tuple[str | None, list[str]]:
     conflicted: list[str] = []
     for line in listing.splitlines():
         fields = line.split(None, 3)
-        if len(fields) < 3:
+        if len(fields) < 4 or fields[3].strip() != path:
             continue
         mode, oid, stage = fields[0], fields[1], fields[2]
         if stage != "0":

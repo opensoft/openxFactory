@@ -1335,8 +1335,13 @@ def test_the_spec_mounts_are_pinned_so_a_module_there_names_its_own_leg():
     # change its result, which is the false-refusal defect this same act
     # fixed for the flag scan.
     import carved_reach
-    installed = {leg for _gitlink, leg, _src, _package in carved_reach.LEGS}
-    assert installed == {"code"}, carved_reach.LEGS
+    # THE PAIRS AND THE LENGTH, not a set that collapses them (Copilot, PR
+    # #1115): `{leg for …} == {"code"}` stayed green if one leg were removed
+    # or the two entries duplicated, which is the whole measurement this
+    # assertion claims to protect.
+    installed = [(gitlink, leg)
+                 for gitlink, leg, _src, _package in carved_reach.LEGS]
+    assert installed == [("openDox", "code"), ("openXdox", "code")], installed
     assert "openDox/spec" not in MODULE.IMPORTED_LEGS
     assert "openXdox/spec" not in MODULE.IMPORTED_LEGS
     assert set(MODULE.IMPORTED_LEGS) == {"openDox/code", "openXdox/code"}
@@ -1548,6 +1553,27 @@ def test_a_type_changed_head_entry_is_not_read_as_a_recorded_pin(tmp_path,
     monkeypatch.setattr(MODULE, "_git", no_index_read)
     recorded, _source = MODULE.recorded_gitlink(parent, "code")
     assert recorded is None, "a tree was manufactured into a pin"
+
+
+def test_a_nested_gitlink_is_not_read_as_the_requested_root_pin(tmp_path):
+    """`git ls-files -s -- <path>` is RECURSIVE when `<path>` is a directory,
+    so a root pin replaced by a plain directory that contains a nested
+    gitlink would have had that NESTED row read as its own recorded pin
+    (Copilot, PR #1115)."""
+    repo = tmp_path / "parent"
+    _seed(repo)
+    rows = "160000 " + "d" * 40 + " 0\topenDox/inner\n"
+    done = subprocess.run(["git", "-C", str(repo), "update-index",
+                           "--index-info"], input=rows, text=True,
+                          capture_output=True, check=False)
+    assert done.returncode == 0, done.stderr
+    listed = MODULE._git(repo, "ls-files", "-s", "--", "openDox")
+    assert "openDox/inner" in listed.stdout, "the premise: the read recurses"
+    staged, conflicted = MODULE._staged_gitlink(listed.stdout, "openDox")
+    assert staged is None, f"a nested gitlink became the root pin: {staged}"
+    assert conflicted == []
+    assert MODULE._staged_gitlink(listed.stdout, "openDox/inner")[0] == \
+        "d" * 40
 
 
 def test_a_conflict_between_a_gitlink_and_a_file_is_still_named(tmp_path):
