@@ -977,6 +977,14 @@ _LEDGER_SUBJECTS = {
     # moves no unit count: the clause is one physical line under either
     # wording. Re-measured over this tree AFTER the merge of `origin/main` at
     # `5dd0a8dc`: the family reports neither this subject nor any unnamed one.
+    # THE ACT WAS 2026-09-17 AND ITS DIRECTORY IS DATED 2026-09-18, the day it
+    # enters history: the landing slipped one UTC day (held while `main` was
+    # red on the undispositioned archive-date-vs-commit finding lane
+    # `openxfactory-5` repairs in PR #1099), and `archive-date-vs-commit`
+    # reads a directory's name against the UTC date of the squash commit that
+    # ADDS it, so the packet was re-dated to
+    # `openspec/changes/archive/2026-09-18-scope-pinned-arm-root-naming/`
+    # before landing — that packet's `tasks.md` § 3.1 records the re-dating.
     # `adopt-entry-grain-dispositions-form`, whose block PR #1075 re-based onto
     # this one, DOES report — canon 215 units, that block 223, TWO uncarried
     # and TEN new — but NOT for the carriage, which is whole: the re-based

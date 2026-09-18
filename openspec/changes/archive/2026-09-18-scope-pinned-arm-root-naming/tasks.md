@@ -58,8 +58,11 @@ verbatim in its body.
 ## 2. Filing — this pull request
 
 - [x] 2.1 Packet authored at `openspec/changes/scope-pinned-arm-root-naming/`
-      — the AT-FILING path; the archive of 2026-09-17 moved it to
-      `openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/`
+      — the AT-FILING path; the archive act of 2026-09-17 moved it under
+      `openspec/changes/archive/`, and the directory carries the day it ENTERS
+      HISTORY rather than the day of the act —
+      `openspec/changes/archive/2026-09-18-scope-pinned-arm-root-naming/`
+      (§ 3.1 states the re-dating and why the gate requires it)
       — `proposal.md` (front matter `code_surface: none`,
       `target_release: implemented`, `sequenced_after: []`), `design.md`,
       `tasks.md`, `.openspec.yaml` (ad-hoc origin declared through
@@ -157,7 +160,31 @@ verbatim in its body.
       unchanged since the ratifying commit f8eba3455c0a)`**; independently,
       `git diff f8eba345 HEAD -- .../.openspec.yaml` is EMPTY and no commit
       touched this packet between that merge and this act. Packet moved to
-      `openspec/changes/archive/2026-09-17-scope-pinned-arm-root-naming/`.
+      `openspec/changes/archive/<date>-scope-pinned-arm-root-naming/`.
+      **THE DIRECTORY IS DATED 2026-09-18, THE DAY IT ENTERS HISTORY, AND THE
+      ACT WAS 2026-09-17.** The wrapper, owning the clock at the act (#797),
+      named `2026-09-17-scope-pinned-arm-root-naming`; this pull request did
+      not land that day — it held while `origin/main` was red at `24f7a213`
+      on the undispositioned `archive-date-vs-commit` finding for
+      `2026-09-16-gate-code-surface-declarations` (added 2026-09-17 by
+      `5dd0a8dc39899820ab9fad6f02ae9b364bb43dc6`), which lane `openxfactory-5`
+      repairs in PR #1099. `sequenced_after.archive_commit_problems` measures
+      every archived directory's name against the UTC date of the commit that
+      ADDS it — under this repository's squash landing, the merge commit — so
+      a directory named 2026-09-17 landing on 2026-09-18 is a NAMED FINDING
+      that reds `main`. The other repair, a disposition entry, CANNOT be
+      written first: `tests/sequenced_after/archive-date-dispositions.yaml`
+      requires a FULL 40-character `adding_commit` that does not exist until
+      the squash lands, and its header refuses a pre-emptive entry in terms
+      (“ENTRIES ARE ADDED ONLY FOR A MEASURED DISAGREEMENT, AND NEVER IN
+      ADVANCE”; an entry for a directory that AGREES is reported STALE). So
+      the DIRECTORY was re-dated to the landing day, in this pull request,
+      with every reference moved in the same commit — the ledger row's
+      `moved_on: "2026-09-18"`, the README archived-ledger entry, § 2.1 and
+      § 3.1 here, and `design.md` § 5's `ARCH` path. The ACT DATE AND THE WORD
+      ARE UNCHANGED FACTS: the archive was performed 2026-09-17 on the word
+      cited above. A landing that slipped past 2026-09-19T00:00Z would need
+      the same act again, or a post-landing disposition.
       **PROMOTION MEASURED BYTE-IDENTICAL, not asserted:** the promoted
       requirement *Prose tagging marker hygiene* in
       `openspec/specs/document-lifecycle/spec.md` and this packet's `##
