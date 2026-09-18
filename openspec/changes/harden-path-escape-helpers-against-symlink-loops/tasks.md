@@ -1,8 +1,9 @@
 # Tasks: harden-path-escape-helpers-against-symlink-loops
 
 Status: ratified
-Ratified by: Brett Heap, 2026-09-18, approximately 09:55Z — verbatim "Ratify;
-land when green" (record `review/ratification-2026-09-18.md`)
+Ratified: 2026-09-18, approximately 09:55Z by Brett Heap (openxFactory
+repository owner) — verbatim "Ratify; land when green" (record
+`review/ratification-2026-09-18.md`)
 Kind: tasks
 
 `code_surface: openxFactory`, `target_release: implemented`. The realization

@@ -100,8 +100,7 @@ state (D0.5, D3).
 
 ## 5. Provenance of this record
 
-Written in the ratification commit itself, in the clone
-`~/projects/xFactory/lane-tools-openxfactory-5/clone-1083`, by lane
+Written in the ratification commit itself, by lane
 `openxfactory-5` (display `openXfactory-5`). It carries `Status: ratified`
 because `document-lifecycle`'s *A review record records a ratification*
 governs a `review/ratification-*` file. Every path in this file is
