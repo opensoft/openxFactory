@@ -608,6 +608,21 @@ class TheRealFiles(unittest.TestCase):
         and the `MIGRATION_PIN` test constant to `1f131a23`, the commit this
         repository's `core_commit` has named since PR #922 — codexFactory change
         `repoint-aggregation-migration-pin`, OQ-1 ruled C.
+
+        RE-DIVERGED 2026-09-18, and by a ROUTINE ADVANCE rather than a
+        ceremony — the first time that has happened. `core_commit` moved
+        `1f131a23` -> `b21f0100` in PR #1122, proposed by this repository's own
+        `review-lane-repin` lane after codexFactory's floor-regeneration lane
+        regenerated the block for openxFactory #1103's archive (an addition
+        with no removal, so that lane acted instead of refusing). MEASURED at
+        this edit: `opensoft/xFactory`'s `merge-master-approval.yml`,
+        `council-convening-lane.yml` and its `MIGRATION_PIN` constant all three
+        still read `1f131a23`. `MIGRATION_PIN` does not move on a routine
+        advance — only at a recorded re-point ceremony — so an advance between
+        ceremonies necessarily re-diverges the pair, and the assertion below
+        moves with `lockstep.status` in the same commit, as every prior
+        transition did. THE CURRENT CONTRACT IS `diverged`; re-converging is an
+        act in another repository and is not taken here.
         """
         pin = yaml.safe_load(self.pin_text)
         lockstep = pin.get("lockstep") or {}

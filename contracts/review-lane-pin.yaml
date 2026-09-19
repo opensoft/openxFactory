@@ -879,11 +879,11 @@ lockstep:
     #491, merged `b21f0100`, block 62 -> 63 at openxFactory `fc837dff`, floor
     total 70 -> 71. Phase 0 of `split-opendox-two-layer-product` § 5.6's arc F,
     RULED on openxFactory #656 comments `5735889836` (Q-D1 (a)+(c)) and
-    `5738024711` (Q-D3 (a)). The four sites themselves were moved by this
-    repository's own repin lane, PR #1122, merge `38f826c2` — the lane writes
-    `review_lane_repin.WRITABLE_PATHS` and nothing else, which is why the two
-    paragraphs below are owed as a separate hand act rather than riding with
-    the advance.
+    `5738024711` (Q-D3 (a)). The FIVE pin sites themselves were moved by
+    this repository's own repin lane, PR #1122, merge `38f826c2` — five sites
+    across the four files of `review_lane_repin.WRITABLE_PATHS`, which is all
+    that lane writes, and which is why the two paragraphs below are owed as a
+    separate hand act rather than riding with the advance.
 
     THE DIVERGENCE IS MEASURED, NOT ASSUMED, and taken the same way every
     measurement in this field has been: on `opensoft/xFactory` `main`,
