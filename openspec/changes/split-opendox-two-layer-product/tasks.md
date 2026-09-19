@@ -1283,6 +1283,13 @@ the bookkeeping that ticks this group.
   this box**: three suppressed Copilot findings, `S8544`, and the
   `OPENDOX_SERVED_DATABASE` declaration — the fifth use of the land-and-register
   pattern in this packet.
+  **THAT FOLLOW-UP HAS PART-LANDED — recorded by AMENDMENT #8, 2026-09-19.**
+  `openDox-code` **`#30` → `5c867137`**, merged 2026-09-18T22:12:50Z, takes the
+  seven findings `#26` registered plus eight cases. **Follow-up 2 is in flight**:
+  the linked-worktree descriptor binding (RULED `5736683962`), `RefusedError`
+  → 409, the fallback narrowing, and the mismatched-database cases. **Neither
+  moves this box, which ticked on `#26`'s landing**; they are recorded here so
+  the register stays where the instrument is.
   *(The superseded reading follows, kept because it records why the box was held
   at all.)*
   **PRIOR STATUS — LANDING WORD GIVEN, BUT #26 HAS NOT LANDED, AND THE BOX STAYS
@@ -1458,9 +1465,13 @@ the bookkeeping that ticks this group.
   • **`openxFactory` — HOLDS.** `#1086` → `049d54a9` (the transposition
   accepted and proved faithful, RULED Q-F1 (a)) and its follow-up `#1113` →
   `4401e1aa`, merged 18:00:25Z, closing the four findings `#1086` registered.
-  • **openDox — NOT EVIDENCED, and unlike openXdox this one has NOT moved**:
-  `openDox-code` carries **no conformance reader at all**. See the measurement
-  below.
+  • **openDox — NOT EVIDENCED YET, BUT NOW AT THE GATE.** At the time of
+  amendment #7 `openDox-code` carried **no conformance reader at all**; see the
+  measurement below. **`openDox-code` `#31` is now OPEN at head `4b9714d0`**,
+  *"§ 3.7 FLOOR PART 3, openDox side: the declared conformance…"* — the
+  missing reader. **This bullet ticks on its LANDED sha together with its own
+  `OK — 17 of 17` evidence comment, and on nothing less**: the openXdox side
+  has just shown that a reader existing is not a pass recorded.
   • **openXdox — THE READER HAS NOW LANDED, AND THIS BULLET IS BOUND TO TWO
   CLOCKS BECAUSE IT CHANGED UNDER ITS OWN AUTHOR.**
   **Measured at 21:40Z**: the pull request offered was `openXdox-code` `#22` →
@@ -1907,7 +1918,7 @@ the bookkeeping that ticks this group.
   out-of-band status allowance), and erratum'd **#12 →
   `6b92bdc40863b017926718ee314e9ca87e49ff09`** (ASK-5, the workbench
   scenario's four existing route-extension columns).
-- [ ] 4.5a `[oXd]` **BUILD the corpus-adapter IMPLEMENTATION** — `design.md`
+- [x] 4.5a `[oXd]` **BUILD the corpus-adapter IMPLEMENTATION** — `design.md`
   § D4 machinery **(1)**, the one of the seven that § 4.5 did not name —
   **parameterized by the § 4.4 domain profile, and proved on § 3.7's neutral
   corpus.** Exit evidence is one command and one line, taken from the
@@ -1932,6 +1943,26 @@ the bookkeeping that ticks this group.
   openXdox's state today. A command that cannot be run is not exit
   evidence; the flags are named here so the next reader RUNS it rather
   than reconstructs it.)*
+  **TICKED 2026-09-19 by `tasks.md` AMENDMENT #8, on the exit line the box asked
+  for.** The BUILD is `openXdox-code` **`#23` → `3ee8cd31`**, merged
+  2026-09-18T21:46:37Z — `src/openxdox/conformance_corpus.py`,
+  `corpus_shape.py` and `domain_corpus_adapter.py` with their tests — and the
+  admissions rows are `openxFactory` **`#1091` → `eb2d4569`** (21:21:19Z).
+  **THE EXIT LINE, posted as evidence at `#656` comment `5736681367`**:
+  **`OK — 17 of 17`**, **exit 0**, at `openXdox-code` `3ee8cd31` with the runner
+  at `openxFactory` `eb1880cb`.
+  **THE PROCEDURE IS FOUR STEPS, NOT THREE ARGUMENTS ALONE, AND THE FOURTH IS
+  WRITTEN IN HERE RATHER THAN LEFT AS A CAVEAT**: the declared git-pinned
+  `opendox` dependency (`pyproject.toml:106`) MUST BE INSTALLED FIRST. A bare
+  checkout exits **2** with `conformance-adapter-unresolvable — No module named
+  'opendox'` before the corpus is reached.
+  *(This is the box's OWN standard applied to itself. The parenthetical above
+  already refused an abbreviated form of this command for exactly this reason —
+  ***"A command that cannot be run is not exit evidence"*** — when the missing
+  piece was `--dest-root`. The missing piece is now an install rather than a
+  flag, and the standard does not change with the shape of what is missing. It
+  is the same lesson § 8.3's clause-3 recipe learned twice: a procedure that
+  needs a step its reader does not have is not a procedure.)*
   **§ 4.1 stays a carve box** and this is not part of it.
   **RULED Q-X1 (a) — 2026-09-17, `#656` comment `5715212264`** (Brett Heap,
   by interactive multi-choice), on three questions from the helper's
@@ -2779,7 +2810,7 @@ the bookkeeping that ticks this group.
   history because it went stale three times inside one pull request**: it
   read "three" through Copilot rounds 2, 3 and 5, and "five" through round
   6, each time because the next round found another member of the class.)*
-- [ ] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
+- [x] 5.4 `[oxF]` **FLOOR PART 2 (RULED OQ-1, RESTATED BY RULING OQ-K) — the
   source→destination TEST MAPPING, with declared multiplicity.** Not a scalar
   equality. Four clauses, the full text at `design.md` § D6 (2):
   **(a) TOTAL COVERAGE** — every file in the manifest's declared surface carrying
@@ -2890,13 +2921,44 @@ the bookkeeping that ticks this group.
   multiplicity. The destination split is `openDox-code` **1097** ·
   `openXdox-code` **2345** · `openxFactory` **998**, the other three
   destinations zero.
-  **WHY THE BOX STAYS `[ ]`: clause (d)'s LEG half is BLOCKED on the BUILD
-  arc** (§ 3.5 / § 3.6). Both legs' `validate.yml` run a NAMED FILE LIST under
-  `--noconftest` with no JUnit and no triple, and both name the BUILD arc as
-  the blocker in their own words; `openxFactory`'s half is already pinned.
-  **§ 5.4 does not close until the BUILD arc lands** — three of four clauses
+  **WHY THE BOX STAYED `[ ]` UNTIL NOW: clause (d)'s LEG half was BLOCKED on the
+  BUILD arc** (§ 3.5 / § 3.6). Both legs' `validate.yml` ran a NAMED FILE LIST
+  under `--noconftest` with no JUnit and no triple, and both named the BUILD arc
+  as the blocker in their own words; `openxFactory`'s half was already pinned.
+  **§ 5.4 did not close until the BUILD arc landed** — three of four clauses
   proved is not the clause set, and this packet does not tick a box on its
   majority.
+  **TICKED 2026-09-19 by `tasks.md` AMENDMENT #8. THE BLOCKER THIS BOX NAMED IS
+  DISCHARGED, AND ALL FOUR CLAUSES HOLD.** The BUILD arc landed — § 3.5 on
+  `openDox-code` `#25` → `aca94ecb` and § 3.6 on `#26` → `4f8ae01e`, both `[x]`
+  above — and clause (d)'s three pins are now in place, **per destination and
+  never as one cross-repository equality**, which is the clause's own rule:
+  • **`openDox-code`** — `#29` → `373b05aa`: `MIN_SELECTED 1076`,
+  `MIN_PASSED 1073`, `EXPECT_SKIPPED 3`, failures and errors zero, JUnit XML
+  emitted by the required `validate` job (measured live on run `35398182026`).
+  • **`openXdox-code`** — `#25` → `ab04453d`: `MIN_SELECTED 539`,
+  `MIN_PASSED 533`, `EXPECT_SKIPPED 6` (run `35399041710`), over a named list of
+  16 files under `--noconftest`. **`#25` also FOLDED AND CLOSED Q-A2** — the
+  one-line docstring citation registered against this leg — so that residue is
+  opened and closed in the same breath here, which is the only honest way to
+  record a thing that never reached the page while it was open.
+  • **`openxFactory`** — its own `pytest-suite.yml`, already pinned, and the
+  model the clause names.
+  **Verified in each leg's own workflow rather than taken from the report**:
+  both files carry the pin variables above AND quote clause (d) verbatim —
+  *"collection triple — SKIPPED exactly, SELECTED and PASSED as FLOORS,
+  failures and errors zero. Per destination, never as one cross-repository
+  equality"* — so the shape is the clause's, not an approximation of it.
+  **(a), (b) and (c) were already proved** by `#1080` → `4b53ea99` and re-derived
+  at this lane's own tree (exit 0, Σ 4440 over 146 test-bearing rows). **Four of
+  four is the clause set, so the box closes.**
+  *(A measured residue, registered and not resolved: all three of
+  `openDox-code`'s report-producing commands run NAMED FILE LISTS under
+  `--noconftest`, so `collect_ignore` never applies there — the ledger had this
+  right — and **26 of the 61 `test_*.py` on disk are collected by no required
+  command**. That does not touch clause (d), which pins what the required job
+  DOES collect; it is booked because a reader could mistake the pinned triple
+  for a statement about the whole tree, and it is not one.)*
 
   > Amended 2026-09-09. This item first read: *"**FLOOR PART 2 (RULED OQ-1) —
   > test counts that must SUM across the three repositories.** 3,927 `def test_`
@@ -2949,6 +3011,12 @@ the bookkeeping that ticks this group.
   2026-09-18T16:47:05Z**, a plain gate over the SAME TWO FILES `#1105` landed
   (`scripts/verify-snapshot-equivalence.py` and
   `tests/snapshot_equivalence/test_snapshot_equivalence.py`) and no other path.
+  **FOLLOW-UP 2 HAS LANDED — recorded by AMENDMENT #8, 2026-09-19**:
+  `openxFactory` **`#1115` → `4101fbe9`**, merged 2026-09-18T22:17:32Z, taking
+  the eight registered hardening items. **Two residues are registered from it
+  and not resolved** (`#656` comment `5736824535`): the `:608` wording, and
+  `sys.pycache_prefix`. Neither moves this box, which ticked on the gated
+  runner.
   **A SECOND FOLLOW-UP IS STILL OWED AND IS NOT THIS BOX'S CONDITION**: RULED
   **Q-P5 (a)** (`#656` comment `5731951297`) scoped `#1110` to those four alone,
   sending the remaining EIGHT registered items and runbook § 2.3 to a second
@@ -3095,7 +3163,18 @@ the bookkeeping that ticks this group.
   `repromote-engineering-vocabulary` — the precondition this gate waits on.
   **PHASE 1 STILL WAITS ON THIS PACKET'S OWN ARCHIVE**, RULED **Q-D1 (a)**
   (`#656` comment `5735889836`), and **Phase 0 is the pin advance on the
-  codexFactory bot pull request**. **Neither this box nor § 8.4 ticks here**: a
+  codexFactory bot pull request**.
+  **PHASE 0 HAS LANDED — recorded by AMENDMENT #8, 2026-09-19, and it landed
+  ITSELF.** `codexFactory` **`#491` → `b21f0100`** regenerated the openxFactory
+  review-authority floor block (62 → 63 entries), merged 2026-09-18T22:50:17Z;
+  the `openxFactory` repin **`#1122` → `38f826c2`** then advanced the pinned
+  decision core TO `b21f0100`, merged **2026-09-19T00:53:37Z**.
+  *(Corrected against the report this lane was given, which had `#1122` as OPEN
+  with auto-merge armed: measured, it is MERGED and on `main` — the arming
+  fired while the report was in flight. An armed auto-merge is a pull request
+  that can land without anyone watching, so its state is worth reading rather
+  than inferring from when it was last described.)*
+  **Neither this box nor § 8.4 ticks here**: a
   precondition landing is not the act, and the ordering § 8.4 names — de-floor
   BEFORE the removal — is still ahead. *(Recorded at both boxes' shared subject
   because § 5.6 is where the order is argued and § 8.4 is where it is checked;
@@ -4316,14 +4395,23 @@ realization evidence, never on landing. Each line is its own evidence.
   tree — and the aggregation side is `xFactory` **#454 → `0b0c88f4`**
   (AGGREGATION-SIDE RECORD A1 at § 8.7). **Two things the box's own words ask
   for are not yet in hand:**
-  **(a) "each with its destination NAMED IN THE RECEIVING REPOSITORY" — only
-  TWO of the four re-homes name one here**: § 6.1's `openXdox-spec` **#15 →
-  `f088b097`** and § 6.4's `openDox-spec` **#12 → `edeed08c`**. § 6.3
-  (`add-doxchat-model-intake`) and § 6.5 (`add-lens-document-selection`) name
-  no destination-side pull request in this ledger. The ticking act owes those
-  two shas, or a finding that the destination half does not exist for them.
-  **(b) The word "FIRST" needs a reading, and it is NOT satisfied on the
-  obvious one.** `retire-doxbench-chat-turn-v1` (§ 6.2) archived **LAST** of the
+  **(a) IS NOW CLOSED — AMENDMENT #8 SUPPLIES THE TWO MISSING SHAS.** All four
+  re-homes name a destination-side pull request in the receiving repository,
+  and a fifth exists for § 6.2's forward half:
+  • § 6.1 `add-nightly-dashboard-refresh` → `openXdox-spec` **#15 → `f088b097`**
+  • § 6.3 `add-doxchat-model-intake` → `openDox-spec` **#13 → `3b7f80c4`**
+  • § 6.4 `add-composed-view-authoring` → `openDox-spec` **#12 → `edeed08c`**
+  • § 6.5 `add-lens-document-selection` → `openDox-spec` **#14 → `66d59778`**
+  • § 6.2's FORWARD half → `openDox-spec` **#15 → `8fe8c4c7`**, *"Carry the
+  surviving -v2 chat-turn family into openDox"* — named for completeness, since
+  § 6.2 is the one that archives here rather than re-homing.
+  *(Amendment #7 reported these two as missing. They were not missing from the
+  CORPUS, only from this ledger — which is a different finding and is why #7
+  wrote "or a finding that the destination half does not exist" rather than
+  assuming either. They exist.)*
+  **(b) IS NOW THE ONLY THING BETWEEN THIS BOX AND A TICK, AND IT IS A RULING
+  RATHER THAN A MEASUREMENT. The word "FIRST" needs a reading, and it is NOT
+  satisfied on the obvious one.** `retire-doxbench-chat-turn-v1` (§ 6.2) archived **LAST** of the
   five, not first: `#1056` 10:50:06Z, `#1057` 13:31:51Z, `#1060` 17:30:27Z,
   `#1065` 17:54:08Z, `#1066` **20:24:53Z**. If "first" means *before the other
   four*, the record contradicts it and the box cannot tick as written. If it
