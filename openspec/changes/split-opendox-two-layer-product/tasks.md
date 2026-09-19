@@ -1285,10 +1285,21 @@ the bookkeeping that ticks this group.
   pattern in this packet.
   **THAT FOLLOW-UP HAS PART-LANDED — recorded by AMENDMENT #8, 2026-09-19.**
   `openDox-code` **`#30` → `5c867137`**, merged 2026-09-18T22:12:50Z, takes the
-  seven findings `#26` registered plus eight cases. **Follow-up 2 is `openDox-code` `#32`, open as a DRAFT at
-  head `b7d9d7a9`**: the linked-worktree descriptor binding (RULED
-  `5736683962`), `RefusedError` → 409, the fallback narrowing, and the
-  mismatched-database cases. **Neither
+  seven findings `#26` registered plus eight cases. **FOLLOW-UP 2 HAS LANDED — `openDox-code` `#32` → `d816cf06`**, merged
+  **2026-09-19T01:30:28Z**, recorded by AMENDMENT #9: the linked-worktree
+  descriptor binding (RULED `5736683962`), `identity.RefusedError` → **409**, the
+  first-colon rule, the mismatched-database cases, and the regression item 1
+  introduced, closed as `WRITE_PATH_UNREACHABLE`. The leg's pinned triple reads
+  **1099 / 1096 / 3**, measured in `.github/workflows/validate.yml`:2027-2030 at
+  `d816cf06` rather than taken from the report.
+  *(Amendment #8 wrote this as "open as a DRAFT at head `b7d9d7a9`" — true of that
+  head, superseded at 01:30:28Z, fifteen minutes before #8's own squash
+  `3e3b4587` committed at 01:45:50Z. The head is named in BOTH readings on
+  purpose: a draft sentence bound to a sha stays true of that sha, which is the
+  whole difference between a dated claim and a stale one.)*
+  **A HYGIENE PULL REQUEST OVER `#29`/`#31` RESIDUE IS REGISTERED AND IS NOT A
+  § 3.6 OBLIGATION**, recorded so its arrival is not later read as this box's
+  condition. **Neither
   moves this box, which ticked on `#26`'s landing**; they are recorded here so
   the register stays where the instrument is.
   *(The superseded reading follows, kept because it records why the box was held
@@ -1561,6 +1572,38 @@ the bookkeeping that ticks this group.
   legs: a tag on a leg describes half a project, and the bundle tag,
   `contracts/manifest.yaml` and `contracts/CHANGELOG.md` live where a consumer's
   pin points.
+  **STATUS — THE ROOT NOW NAMES BOTH LANDED LEGS; THE CUT ITSELF IS BRETT'S ACT,
+  SO THE BOX DOES NOT TICK. Recorded by AMENDMENT #9, 2026-09-19.**
+  `opensoft/openDox` **`#10` → `d05e204e`**, merged **2026-09-19T01:38:50Z**,
+  advances `code` `0b4e8bbf` → **`d816cf06`** (§ 3.5's runtime, § 3.6's creation
+  act and both follow-ups, § 3.7's FLOOR PART 3, § 5.4's clause (d)) and `spec`
+  `a8f5eb73` → **`8fe8c4c7`** (§§ 6.2-6.5's halves), with `code-pin.yaml` and
+  `spec-pin.yaml` carrying `commit:` and `digests.tree_sha256:` recomputed by two
+  independent paths that agree. Its gate reads `validate` **pass** and SonarCloud
+  **pass** (`Sourcery review` skips on its own quota), and **the green is not
+  vacuous**: a negative control on each root moved the gitlink with the pin left
+  behind and exited **1** with `pin-gitlink-mismatch` AND `pin-digest-mismatch`.
+  **WHAT THIS BOX ASKS FOR IS THE TAG, AND THE TAG DOES NOT EXIST** — measured,
+  `opensoft/openDox` carries **zero** tags (and `opensoft/openXdox` zero, § 4.6).
+  **THE CUT IS BRETT'S ACT — runbook § 9 Phase 6, *"BRETT'S ACT, ALWAYS"*** — and
+  no workflow makes these tags: neither root has a `release-tag-gate`. **RULING
+  NEEDED is posted at `#656` comment `5738327369`**, naming `dox-v1.0` as an
+  ANNOTATED tag over `d05e204e` — the commit that names BOTH legs, which is this
+  box's own *"over the commit that names both legs"* — with the
+  `contracts/manifest.yaml` and `contracts/CHANGELOG.md` entries beside it.
+  **RULED OQ-N still stands: § 3.8 cannot close inside § 3.**
+  **REGISTERED WITH IT, AND NOT TAKEN HERE — A THREE-REPOSITORY LOCKSTEP.**
+  Advancing `openxFactory` to openDox's new root needs `openxFactory`'s `openDox`
+  gitlink, `openxFactory`'s `contracts/opendox-pin.yaml` AND the `opensoft/openXdox`
+  ASSEMBLY ROOT's `contracts/opendox-pin.yaml` to name the same openDox commit in
+  ONE landing, because `verify-opendox-pin.py` check 5 reads that third file as a
+  blob at whatever commit `openxFactory`'s `openXdox` gitlink names. **Nothing is
+  red today** — measured at `openxFactory` `main` and at root `88a1047e`, all
+  three read `c4c5014d`, and the root's new tip `9be407bd` reads `c4c5014d` too —
+  and `openxFactory` may advance its `openXdox` gitlink to `9be407bd` alone.
+  *(The third file lives in the ROOT and not in `openXdox-code`, which carries no
+  `contracts/` directory at all; a reader who looks for it in the leg will not
+  find it.)*
 
 ## 4. The openXdox mapping core
 
@@ -1987,6 +2030,21 @@ the bookkeeping that ticks this group.
   `opendox` dependency (`pyproject.toml:106`) MUST BE INSTALLED FIRST. A bare
   checkout exits **2** with `conformance-adapter-unresolvable — No module named
   'opendox'` before the corpus is reached.
+  **AND THE COMMAND FOR THAT FOURTH STEP, FOLDED IN BY AMENDMENT #9 BECAUSE A
+  NAMED PRECONDITION IS NOT YET A PROCEDURE** — raised by Copilot on `#1124`
+  (`r4051734088`, the same finding at all three heads), answered at reply
+  `4051845755` and resolved. It is CHECKED IN rather than composed here:
+  `openXdox-code` `.github/workflows/validate.yml`:58-59 at `3ee8cd31`, *"install
+  the package and its test extra"* → **`python -m pip install -e ".[test]"`**, on
+  `python-version: '3.12'` (`:45`). That ONE step discharges the precondition,
+  because installing the package resolves `pyproject.toml`:106's direct reference
+  `"opendox @ git+https://github.com/opensoft/openDox-code@5c137a90…"`; `.[test]`
+  additionally pulls the pytest range that file stopped duplicating
+  (`pyproject.toml`:112-116).
+  *(The finding did not move `#1124`'s head, and was never going to: it improves a
+  PROCEDURE and falsifies no tick — the box asks for an exit line, and the exit
+  line is recorded at LANDED commits. Registered there, folded here, which is the
+  same shape the land-and-register pattern uses for code.)*
   *(This is the box's OWN standard applied to itself. The parenthetical above
   already refused an abbreviated form of this command for exactly this reason —
   ***"A command that cannot be run is not exit evidence"*** — when the missing
@@ -2110,6 +2168,16 @@ the bookkeeping that ticks this group.
   than the ambiguity it would remove.
 - [ ] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green. **In the ASSEMBLY
   ROOT** (amended 2026-09-05), on 3.8's reasoning.
+  **STATUS — THE SAME SHAPE AS § 3.8, and the box does NOT tick. Recorded by
+  AMENDMENT #9, 2026-09-19.** `opensoft/openXdox` **`#12` → `9be407bd`**, merged
+  **2026-09-19T01:38:39Z**, advances `code` `2529c10a` → **`ab04453d`** (§ 5.4's
+  clause (d) and the corpus adapter) and `spec` `ae59dfa5` → **`f088b097`**
+  (§ 6.1's forward half); gate `validate` **pass**, SonarCloud **pass**, same
+  negative control. **`xdox-v1.0` does not exist** — zero tags in the root — and
+  the cut is **Brett's act** under the same RULING NEEDED (`#656` comment
+  `5738327369`), over `9be407bd`. *(The apparatus is written out once, at § 3.8,
+  rather than twice; what is NOT shared between the two boxes is the commit each
+  tag would sit on.)*
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
@@ -3203,6 +3271,25 @@ the bookkeeping that ticks this group.
   **ONE RESIDUE IS AT THE GATE**: `openxFactory` **`#1123`** — `lockstep.status`
   re-diverged after the repin lane's advance — registered here, not resolved,
   and not a condition of either box.
+  **THAT RESIDUE HAS LANDED AND PHASE 0 IS COMPLETE — recorded by AMENDMENT #9,
+  2026-09-19.** `openxFactory` **`#1123` → `8184d74a`**, merged
+  **2026-09-19T01:27:44Z**: the `lockstep.status` literal, its test and the stale
+  `refresh:` path move together. **Phase 0 is THREE landings, not one** —
+  `codexFactory` **`#491` → `b21f0100`** (the floor block, 62 → 63),
+  `openxFactory` **`#1122` → `38f826c2`** (the pinned decision core), and this.
+  *(THE SENTENCE ABOVE IS KEPT RATHER THAN CORRECTED IN PLACE, AND ITS CLOCKS ARE
+  THE REASON. It was written at amendment #8's head `0cba2113`, committed
+  2026-09-19T01:15:13Z, when it was true; the residue landed at 01:27:44Z; and
+  #8's own squash `3e3b4587` committed at 01:45:50Z — so it was ALREADY
+  superseded by eighteen minutes at the moment it landed. A ledger that lands
+  slower than the estate moves will do this again, and the remedy is the one this
+  packet already uses for positions: keep the superseded reading, bind it to the
+  head that wrote it, and let the next amendment carry the correction.)*
+  **R-5 — the `opensoft/xFactory` AGGREGATION RE-SYNC — IS REGISTERED FOR BRETT'S
+  WORD**, in the same RULING NEEDED that carries the two cuts (`#656` comment
+  `5738327369`): its three surfaces still read `1f131a23` while `lockstep.status`
+  now truthfully says `diverged`. **PHASE 1 IS UNCHANGED** — it waits on this
+  packet's own archive, RULED **Q-D1 (a)**.
   *(Corrected against the report this lane was given, which had `#1122` as OPEN
   with auto-merge armed: measured, it is MERGED and on `main` — the arming
   fired while the report was in flight. An armed auto-merge is a pull request
@@ -4223,8 +4310,68 @@ movements claimed at the time they land.
   **THE TICK CONDITION, STATED SO A LATER READER NEED NOT RE-DERIVE IT:** this
   box ticks on (i) this ruling, (ii) the landed `credential-contracts` delta
   of (E), and (iii) § 3.5's per-tenant evidence when it exists.
-  **(i) AND (ii) ARE NOW IN HAND; (iii) IS NOT, WHICH IS WHY THE MARKER IS
-  UNTOUCHED.** Clause (ii) landed the NEXT UTC DAY after the ruling — the
+  **STATUS — CLAUSE (iii) EVALUATED AGAINST THE LANDED RUNTIME, AND THE BOX STILL
+  DOES NOT TICK. Recorded by AMENDMENT #9, 2026-09-19.** The blocker § 3.5 named —
+  its item (4), the `OPENDOX_SERVED_DATABASE` declaration — HAS LANDED:
+  `openDox-code` **`#30` → `5c867137`**, merged 2026-09-18T22:12:50Z. Measured in
+  that diff rather than taken from the report:
+  `deploy/compose/docker-compose.yaml` now sets `OPENDOX_SERVED_DATABASE:
+  ${OPENDOX_PG_DB:-opendox}` from the same value the bundled server takes (it had
+  shipped as `${OPENDOX_PG_DB:-}` beside a service declared `POSTGRES_DB:
+  ${OPENDOX_PG_DB:-opendox}`, so the guard was a no-op in exactly the shape it was
+  added for); the migration Job compares the declaration against
+  `current_database()` and REFUSES when they differ; and the `managed-database`
+  overlay must name the managed database in its own literal. **THAT IS ONE
+  INSTANCE BOUND TO ONE DECLARED DATABASE. IT IS NOT A TENANT.**
+  **THE BOX'S OWN WORDS ASK FOR AN INSTALL, AND THEY DECIDE.** Its subject line is
+  *"The per-tenant install"*, and disposition **(D)** says *"there is no second
+  tenant to DESCRIBE until openDox's runtime exists"* — a DESCRIPTION, which is an
+  artifact naming a tenant, not a guard that refuses a wrong database. Measured at
+  `openDox-code` `d816cf06` over the full recursive tree rather than a spot check:
+  there is **no `config/` path at all**, so none of the `config/clients/<client>/`
+  per-client instance trees that `design.md` § D7 names as part of *"the shape
+  openDox copies (Q2)"*; the two Kubernetes overlays are `dev` and
+  `managed-database` — an environment and a provider shape, not tenants; and no
+  tenant identifier exists anywhere in the runtime. What the tree DOES carry is
+  Q3's boundary stated as a REASON:
+  `migrations/0001_identity_and_coordination.sql`:100-104 invents *"no
+  organization or tenant table"* because the boundary is physical, `:79-82` puts
+  the coordination half *"in a database every tenant install has"*, and
+  `deploy/kubernetes/overlays/dev/kustomization.yaml`:1-2 calls itself *"the shape
+  a real one (a QA cluster, a tenant install) takes"*.
+  **TWO READINGS OF (iii), BOTH WRITTEN DOWN SO THE NEXT READER MEETS THE CHOICE
+  RATHER THAN THE CONCLUSION.** **Reading A — STRUCTURAL**: (iii) is satisfied
+  when the realization EXHIBITS the per-tenant shape, and it now does — one
+  instance, one declared database, a refusal on mismatch, a schema that invents no
+  tenant table precisely because each install is its own database, and a shape for
+  each of Q3's two cases (`design.md`:708-712 — Case A, Opensoft operates it under
+  the operator vault; Case B, the tenant operates it under its own provider, so
+  *"in both cases"* means A and B and NOT the two products, which is worth writing
+  down because the box's one-line summary reads either way). **Reading B —
+  INSTALL**: (iii) is satisfied by a COMMITTED TENANT INSTALL, this packet's own
+  words for the artifact — `design.md` § D7, *"a committed TENANT INSTALL is a
+  profile artifact, which is what reconciles Q3's commissioned descendants with
+  the standard's own laziness rule"*. Under Reading B, nothing satisfies it today.
+  **THIS AMENDMENT TAKES READING B AND LEAVES THE MARKER UNTOUCHED**, for the
+  reason the box itself gives at its foot: it is an IN-SCOPE GATING PREREQUISITE,
+  and a gate that ticked on a guard rather than on the install it names would be
+  ticking on the nearest available evidence instead of on its own words.
+  *(Ticking it needs Reading A ACCEPTED, and that is the HOLDER's call rather than
+  Brett's, on the § 8.5 clause (b) precedent: no ratified requirement's meaning
+  moves either way — only which evidence line satisfies a ledger box. The
+  conservative direction needs no ruling to stand, which is why it is taken here
+  and the question is POSED rather than settled.)*
+  **WHAT REMAINS, AND WHOSE IT IS — none of it this lane's**, which the ruling
+  narrowed to (E): the `dox` workload set's per-tenant declaration is lane
+  **`opsXfactory-3`'s** under claim `5638511222` (disposition (D)); the DNS reach
+  widening is lane **`opsXfactory-4`'s** ACTIVE `add-governed-dns-administration`
+  under OQ-E word `5649809425` (disposition (B), already discharged-by-naming for
+  this box); the `design.md` Non-goal contradiction stays RECORDED for a later act
+  that CLAIMS the delta (disposition (A)); and a committed tenant install would be
+  authored in the INSTALL repositories this box is tagged for — `[OmI]` `[Opsx]` —
+  not in `openDox-code`.
+  **(i) AND (ii) ARE IN HAND AND UNCHANGED; (iii) IS NOT, WHICH IS WHY THE MARKER
+  IS UNTOUCHED.** Clause (ii) landed the NEXT UTC DAY after the ruling — the
   ruling at 2026-09-16T20:40:06Z, the delta at 2026-09-17T13:44:02Z,
   **seventeen hours and four minutes apart**:
   `add-per-tenant-app-manifest-provisioning`, `opensoft/openxFactory` **#1073
