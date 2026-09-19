@@ -48,8 +48,9 @@ measurement that proves this file took it.
 | **FILTERED remainder** (every entry carrying the cross-repository flag removed) | **47 TOKENS / 30 IDENTITIES** |
 | `AMBIGUOUS` | **0** |
 
-**THE FIGURES ARE PINNED TO THE RUN THAT PRODUCED THEM**, in R1's own words'
-spirit: they are a reading of a MOVING corpus and not a property of this packet.
+**THE FIGURES ARE PINNED TO THE RUN THAT PRODUCED THEM**, in the spirit of
+R1's own words: they are a reading of a MOVING corpus and not a property of this
+packet.
 A later run at a later head will print different numbers and none of them makes
 this one wrong; what this file fixes is the FIRST point of the series, the one
 every later point is compared against.
