@@ -4385,9 +4385,23 @@ realization evidence, never on landing. Each line is its own evidence.
   account for BOTH directions of this archive: `openspec/specs/ideation-dashboard/`
   removed, and the two new capability directories plus the § 5.2a adapter successor
   capability ADDED.
-- [ ] 8.5 All five re-homed changes dispositioned, each with its destination named
+- [x] 8.5 All five re-homed changes dispositioned, each with its destination named
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
-  `openxFactory` on its own evidence first.
+  `openxFactory` on its own evidence before this packet's own archive (§ 8).
+  *(WORDING SHARPENED 2026-09-19 by `tasks.md` AMENDMENT #8, on the HOLDER
+  RULING at `#656` comment `5738064190`. It read *"on its own evidence first"*,
+  and "first" admitted two readings: **A**, before the other four — which the
+  merge times refute, § 6.2's `#1066` having merged **20:24:53Z**, LAST of the
+  five, after `#1056` 10:50:06Z, `#1057` 13:31:51Z, `#1060` 17:30:27Z and
+  `#1065` 17:54:08Z — and **B**, before this packet's own archive, which is the
+  ONLY ordering the ratified text states (`specs/ideation-dashboard/spec.md`
+  :88-90 orders THIS change against the five, not the five among themselves) and
+  the one § 6.2's own box already names, *"Sequenced BEFORE § 8"*. **RULED:
+  Reading B.** The word was the ledger's own — absent from the ratified source
+  sentence at `proposal.md:476` and from every `specs/` delta — so the ruling
+  settled which evidence line satisfies a box, not what a requirement means, and
+  the wording is now sharpened so the next reader meets the ordering rather than
+  the ambiguity.)*
   **STATUS — RECORDED BY `tasks.md` AMENDMENT #7, 2026-09-18. THE BOX DOES NOT
   TICK, AND WHAT IT STILL WANTS IS NAMED EXACTLY.** The openxFactory side IS
   complete — all five closures landed (§§ 6.1–6.5, shas in their own boxes) and
@@ -4409,16 +4423,26 @@ realization evidence, never on landing. Each line is its own evidence.
   CORPUS, only from this ledger — which is a different finding and is why #7
   wrote "or a finding that the destination half does not exist" rather than
   assuming either. They exist.)*
-  **(b) IS NOW THE ONLY THING BETWEEN THIS BOX AND A TICK, AND IT IS A RULING
-  RATHER THAN A MEASUREMENT. The word "FIRST" needs a reading, and it is NOT
-  satisfied on the obvious one.** `retire-doxbench-chat-turn-v1` (§ 6.2) archived **LAST** of the
-  five, not first: `#1056` 10:50:06Z, `#1057` 13:31:51Z, `#1060` 17:30:27Z,
-  `#1065` 17:54:08Z, `#1066` **20:24:53Z**. If "first" means *before the other
-  four*, the record contradicts it and the box cannot tick as written. If it
-  means *before its own forward half promotes*, or *before § 8* (which § 6.2's
-  box does say — *"Sequenced BEFORE § 8"*), it holds. **This is a ruling, not a
-  measurement**, and it is left to the ticking act rather than decided here by
-  picking the reading that happens to let the box tick.
+  **(b) WAS THE LAST THING BETWEEN THIS BOX AND A TICK, AND IT IS NOW RULED.**
+  It was a RULING rather than a MEASUREMENT, which is why amendment #7 declined
+  to settle it by picking the reading that let the box tick.
+  **TICKED 2026-09-19 by `tasks.md` AMENDMENT #8 on HOLDER RULING
+  `5738064190` — Reading B.** Both halves of the box now hold:
+  **the five closures** — § 6.4 `3e32d987`, § 6.3 `4ccab7b9`, § 6.1 `e3647b6d`,
+  § 6.5 `81903286`, § 6.2 `3bf63b8e`, all `[x]` above and all five directories
+  under `openspec/changes/archive/` read from the tree; **the four destination
+  halves** named in their receiving repositories (§ 6.1 `openXdox-spec` `#15 →
+  f088b097`, § 6.3 `openDox-spec` `#13 → 3b7f80c4`, § 6.4 `#12 → edeed08c`,
+  § 6.5 `#14 → 66d59778`) **plus § 6.2's forward half** (`openDox-spec` `#15 →
+  8fe8c4c7`); and the **aggregation side**, `xFactory` `#454 → 0b0c88f4`
+  (AGGREGATION-SIDE RECORD A1 at § 8.7).
+  *(Both readings are kept on the page rather than the losing one being deleted,
+  with the merge times that decided it: § 6.2's `#1066` merged **20:24:53Z**,
+  LAST of the five (`#1056` 10:50:06Z, `#1057` 13:31:51Z, `#1060` 17:30:27Z,
+  `#1065` 17:54:08Z), so Reading A — *before the other four* — is refuted by the
+  record, while Reading B — *before this packet's own archive* — holds and is
+  the only ordering the ratified text states. A ledger that shows only the
+  reading that won teaches nothing about why the other lost.)*
 - [x] 8.6 `ideation-intent-plane` in canon, or its non-promotion recorded (§ 0.6).
   **TICKED 2026-09-16 ON THE FIRST OF THE TWO DISCHARGES, RE-READ LIVE** —
   `#656` comment **`5690559647`**. `openspec/specs/ideation-intent-plane/spec.md`
