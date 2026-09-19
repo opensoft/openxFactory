@@ -1285,9 +1285,10 @@ the bookkeeping that ticks this group.
   pattern in this packet.
   **THAT FOLLOW-UP HAS PART-LANDED — recorded by AMENDMENT #8, 2026-09-19.**
   `openDox-code` **`#30` → `5c867137`**, merged 2026-09-18T22:12:50Z, takes the
-  seven findings `#26` registered plus eight cases. **Follow-up 2 is in flight**:
-  the linked-worktree descriptor binding (RULED `5736683962`), `RefusedError`
-  → 409, the fallback narrowing, and the mismatched-database cases. **Neither
+  seven findings `#26` registered plus eight cases. **Follow-up 2 is `openDox-code` `#32`, open as a DRAFT at
+  head `b7d9d7a9`**: the linked-worktree descriptor binding (RULED
+  `5736683962`), `RefusedError` → 409, the fallback narrowing, and the
+  mismatched-database cases. **Neither
   moves this box, which ticked on `#26`'s landing**; they are recorded here so
   the register stays where the instrument is.
   *(The superseded reading follows, kept because it records why the box was held
@@ -1308,14 +1309,43 @@ the bookkeeping that ticks this group.
   ticks on landings and not on authorizations. Item (4), the
   `OPENDOX_SERVED_DATABASE` declaration, remains a follow-up act under the same
   claim and is not in batch 3.
-- [ ] 3.7 `[oD]` `[oXd]` `[oxF]` **FLOOR PART 3 (RULED OQ-1).** The neutral
+- [x] 3.7 `[oD]` `[oXd]` `[oxF]` **FLOOR PART 3 (RULED OQ-1).** The neutral
   conformance corpus — no `openspec/`, no `contracts/`, no lifecycle headers,
   positives plus negative confirmations — and **EVERY DESTINATION PASSES IT**, the
   ruling's own word: openDox, openXdox's adapter implementation, AND
   `openxFactory`'s own adapter from § 2.2a. That last one is the only mechanical
   proof that the home corpus has no privileged route.
-  **NOT TICKED — the machine is built and the answer it returns is NO, at
-  openxFactory #920, 2026-09-10.** The box asks for two things and only one of
+  **TICKED 2026-09-19 by `tasks.md` AMENDMENT #8: ALL THREE DESTINATIONS NOW
+  HAVE A RECORDED PASS AT A LANDED HEAD**, which is the box's own word — *"EVERY
+  DESTINATION PASSES IT"*:
+  • **`openxFactory`'s own adapter** (§ 2.2a) at **`eb1880cb`** — *the only
+  mechanical proof that the home corpus has no privileged route*, which is why
+  the box names it separately;
+  • **`openXdox-code`** at **`3ee8cd31`** — `OK — 17 of 17`, exit 0 (`#656`
+  comment `5736681367`), the build at `#23`;
+  • **`openDox-code`** at **`93ccc3dd`** — `OK — 17 of 17`, exit 0, TRANSPOSED
+  and FAITHFUL, `#31` merged 2026-09-19T01:11:53Z (`#656` comment
+  **`5738152229`**, the re-read AT MAIN, addendum to `5738117973`).
+  **THE PASS IS QUOTED AT THE LANDED COMMIT AND NOT AT THE CANDIDATE, ON
+  PURPOSE.** `5738117973` recorded the same pass at candidate head `776d2a80`,
+  and itself superseded `5736880991` at `474144ef` — three heads for one
+  destination in a day. *A pass at a candidate head is a pass at a commit that
+  no longer exists on `main`*, so the tick quotes `93ccc3dd`. This packet has
+  now had a reader mistaken for a pass, a candidate mistaken for a landing, and
+  a wrong token mistaken for absence, all on this one box.
+  **THE DURABLE FIGURE IS THE CORPUS DIGEST, NOT THE TRANSPOSITION'S REVISION**:
+  the transposition's revision moved again (a fourth distinct value, as it does
+  on every build), while the **key/sha256 table digest `744c9183…` held for the
+  fourth time**. That is what identifies the corpus, and it is what a later
+  reader recomputes to hold this evidence to.
+  **REGISTERED AS RESIDUE, NOT RESOLVED** (`#656` `5738108117`): the
+  `core.excludesFile` switch, the corpus-mirroring fixture, and the enumerated
+  skip diagnostic — a follow-up act under its own claim, moving no box.
+  *(The history below is kept as written. It records the box answering NO at
+  openxFactory #920 on 2026-09-10, and the reasoning that got from there to
+  here is worth more than a clean page.)*
+  **THE ORIGINAL READING, 2026-09-10 — the machine is built and the answer it
+  returns is NO, at openxFactory #920.** The box asks for two things and only one of
   them was ever missing. The CORPUS exists: RULED OQ-3 (2026-09-06) seeded it
   at `tests/corpus-adapter/fixtures/` — three documents in two roots of their
   own under a two-field header vocabulary belonging to no governed repository,
@@ -1460,8 +1490,9 @@ the bookkeeping that ticks this group.
   proof that a TRANSPOSED corpus is faithful is the machinery those passes will
   run on, not one of the passes. Accepting the landing as the tick would
   discharge a two-destination condition on zero destinations.
-  **THE THREE SIDES, MEASURED PER REPOSITORY 2026-09-18 BY AMENDMENT #7. THE
-  `openxFactory` SIDE HOLDS; NEITHER DESTINATION PASS IS EVIDENCED YET.**
+  **THE THREE SIDES AS MEASURED PER REPOSITORY ON 2026-09-18 BY AMENDMENT #7 —
+  SUPERSEDED BY THE TICK ABOVE, AND KEPT BECAUSE IT SHOWS THE BOX CLOSING IN
+  UNDER A DAY FROM A STATE WHERE NEITHER DESTINATION WAS EVIDENCED.**
   • **`openxFactory` — HOLDS.** `#1086` → `049d54a9` (the transposition
   accepted and proved faithful, RULED Q-F1 (a)) and its follow-up `#1113` →
   `4401e1aa`, merged 18:00:25Z, closing the four findings `#1086` registered.
@@ -3169,6 +3200,9 @@ the bookkeeping that ticks this group.
   review-authority floor block (62 → 63 entries), merged 2026-09-18T22:50:17Z;
   the `openxFactory` repin **`#1122` → `38f826c2`** then advanced the pinned
   decision core TO `b21f0100`, merged **2026-09-19T00:53:37Z**.
+  **ONE RESIDUE IS AT THE GATE**: `openxFactory` **`#1123`** — `lockstep.status`
+  re-diverged after the repin lane's advance — registered here, not resolved,
+  and not a condition of either box.
   *(Corrected against the report this lane was given, which had `#1122` as OPEN
   with auto-merge armed: measured, it is MERGED and on `main` — the arming
   fired while the report was in flight. An armed auto-merge is a pull request
@@ -4277,7 +4311,7 @@ realization evidence, never on landing. Each line is its own evidence.
   `elected_by: "Brett Heap"`, `elected_on: 2026-09-05`,
   `reference: "openxFactory docs/project-repo-schema.md"`, verbatim in both.
   `#656` records: CLAIM `5690461589`; evidence `5690559647`.
-- [ ] 8.2 **The RULED four-part floor (OQ-1), one evidence line per part:** the
+- [x] 8.2 **The RULED four-part floor (OQ-1), one evidence line per part:** the
   carve manifest with every file in exactly one disposition and every edit in one
   of the three closed classes; the source→destination TEST MAPPING closing on
   § 5.4's ledger — every test function with at least one home, the replicated
@@ -4297,6 +4331,27 @@ realization evidence, never on landing. Each line is its own evidence.
   four parts and stays four, § 4.4 is already `[x]` on its own evidence, and
   this is a statement the run is entitled to make rather than a fifth thing the
   line must prove.
+  **TICKED 2026-09-19 by `tasks.md` AMENDMENT #8 — ALL FOUR EVIDENCE LINES ARE
+  ON RECORD, one per part and no part standing in for another:**
+  **(1) the carve manifest** — `openxFactory` **`#865` → `17167481`**, the
+  454-row manifest at `carve_commit b075fd91` (§ 1.6, `DONE`).
+  **(2) the source→destination TEST MAPPING** — § 5.4, ticked in this amendment:
+  (a)(b)(c) machine-checked at `#1080` → `4b53ea99` (exit 0, Σ 4440 over 146
+  test-bearing rows) and (d) pinned at all three, `openDox-code` `#29` →
+  `373b05aa`, `openXdox-code` `#25` → `ab04453d`, and `openxFactory`'s own
+  `pytest-suite.yml`.
+  **(3) the neutral conformance corpus green in EVERY destination** — § 3.7,
+  ticked in this amendment: `openxFactory` `eb1880cb`, `openXdox-code`
+  `3ee8cd31`, `openDox-code` `93ccc3dd`, each `OK — 17 of 17` at a LANDED head.
+  **(4) the snapshot-equivalence run's matching digests** — § 5.5, ticked on the
+  GATED runner `#1105` → `02967478` with its follow-ups `#1110` → `313b2665`
+  and `#1115` → `4101fbe9`; and per RULED **Q-P4 (a)** this line ALSO says that
+  § 4.4's domain profile reproduces `openxFactory`'s own vocabulary.
+  *(The four are listed with their own artifacts because the box's standing
+  objection is that **"none of these is 'the tests passed'"** and that no part
+  substitutes for another. Two single-instrument alternatives were rejected on
+  the record; a tick that quoted one artifact four times would be the same
+  mistake wearing a different hat.)*
   **PART 4'S EVIDENCE LINE NOW HAS ITS REFERENT — recorded by `tasks.md`
   AMENDMENT #6, 2026-09-18**: it points at `openxFactory` **#1105 →
   `02967478`** (merged 14:59:28Z), the gated snapshot-equivalence runner and its
