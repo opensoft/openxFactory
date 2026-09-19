@@ -611,7 +611,7 @@ class TheRealFiles(unittest.TestCase):
         """
         pin = yaml.safe_load(self.pin_text)
         lockstep = pin.get("lockstep") or {}
-        self.assertEqual(lockstep.get("status"), "converged")
+        self.assertEqual(lockstep.get("status"), "diverged")
         self.assertTrue(str(lockstep.get("reason") or "").strip(),
                         "the lockstep state must state WHY")
         self.assertTrue(str(lockstep.get("obligation") or "").strip(),

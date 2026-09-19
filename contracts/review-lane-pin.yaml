@@ -673,7 +673,7 @@ floor_snapshot:
   # The claim this file makes is codexFactory's, not this repository's about
   # itself — which is the line every `NON_MEMBERS` row draws.
   refresh: >-
-    Re-copy the file from `scripts/merge_master/openxfactory-review-authority-floor.yaml`
+    Re-copy the file from `floor/openxfactory-review-authority-floor.yaml`
     at the new `core_commit`, recompute `sha256`, and update `entry_count`. Never
     hand-edit the copy: it is a witness, and an edited witness proves nothing.
 
@@ -711,7 +711,7 @@ floor_snapshot:
 # openxFactory's and codexFactory's — but the obligation below is why the state
 # is written down as diverged rather than left to be inferred.
 lockstep:
-  status: converged
+  status: diverged
   reason: >-
     Diverged FURTHER on 2026-09-04 by this advance — the FOURTH of the day —
     having first diverged on 2026-09-01 and diverged further on 2026-09-03 and
@@ -869,6 +869,50 @@ lockstep:
     literal from `diverged` to `converged` — the two-file act both prior
     transitions (PR #483 / `d118bc79`, PR #569 / `47f90080`) performed;
     measured state unchanged from the paragraph above.
+
+    RE-DIVERGED 2026-09-18, AND BY A ROUTINE ADVANCE RATHER THAN A CEREMONY —
+    the first time this field has had to record that. `core_commit` moves
+    `1f131a23` -> `b21f0100`: codexFactory's hourly floor-regeneration lane
+    acted on openxFactory #1103's archive of the ratified
+    `repromote-engineering-vocabulary` (an ADDITION with no removal, so the
+    lane regenerated rather than refusing), opening codeXfactory/codexFactory
+    #491, merged `b21f0100`, block 62 -> 63 at openxFactory `fc837dff`, floor
+    total 70 -> 71. Phase 0 of `split-opendox-two-layer-product` § 5.6's arc F,
+    RULED on openxFactory #656 comments `5735889836` (Q-D1 (a)+(c)) and
+    `5738024711` (Q-D3 (a)). The four sites themselves were moved by this
+    repository's own repin lane, PR #1122, merge `38f826c2` — the lane writes
+    `review_lane_repin.WRITABLE_PATHS` and nothing else, which is why the two
+    paragraphs below are owed as a separate hand act rather than riding with
+    the advance.
+
+    THE DIVERGENCE IS MEASURED, NOT ASSUMED, and taken the same way every
+    measurement in this field has been: on `opensoft/xFactory` `main`,
+    `merge-master-approval.yml`, `council-convening-lane.yml` and
+    `tests/test_merge_master_workflows.py`'s `MIGRATION_PIN` constant all three
+    still read `1f131a23…` verbatim. `MIGRATION_PIN` DOES NOT MOVE ON A ROUTINE
+    ADVANCE — it advances only at a recorded re-point ceremony, gated on the
+    golden characterization suite, the envelope re-validation and the live lane
+    re-prove — so an advance of this file's `core_commit` between ceremonies
+    necessarily re-diverges the pair. `status` therefore moves to `diverged`
+    HERE, in the same commit as
+    `tests/review_lane_pin/test_review_lane_caller.py`'s
+    `test_the_pin_records_its_lockstep_state_with_the_aggregation_pin`
+    literal — the two-file act every prior transition performed (PR #483 /
+    `d118bc79`, PR #569 / `47f90080`, and the 2026-09-10 flip above), never the
+    data alone.
+
+    THE `obligation:` BELOW IS NOW IN TENSION WITH A LANE THIS REPOSITORY
+    RUNS, AND THE TENSION IS RECORDED RATHER THAN EDITED AWAY. It reads
+    *"Advance this pin only at such a ceremony"* — written 2026-09-05, when the
+    advance was a hand act. `.github/workflows/review-lane-repin.yml`
+    (`mirror-floor-regeneration-automation`, realized) now sweeps hourly and
+    PROPOSES exactly this advance with auto-merge armed whenever the pinned
+    core's floor document moves, which a floor regeneration makes routine. The
+    obligation's SUBSTANCE still holds — the five sites move in ONE reviewed
+    diff and the tests fail if any disagree — but its "only at a ceremony"
+    clause describes a world with no repin lane in it. Narrowing that clause is
+    the ratifier's act, not this diff's; it is named here so the next reader
+    finds the contradiction already seen.
   converged_with:
     - opensoft/xFactory .github/workflows/merge-master-approval.yml
     - opensoft/xFactory .github/workflows/council-convening-lane.yml
