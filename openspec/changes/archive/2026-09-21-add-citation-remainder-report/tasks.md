@@ -1098,7 +1098,7 @@ evidence is a fact about a merge that has not happened.
       branch of this work carries one either.
       **WHAT CHANGES IS THE INSTRUMENT.** This box names *"a closing keyword written
       in the ARCHIVE pull request"*; the archive pull request carries `Refs #1053.`
-      instead, and the lane closes #1053 BY HAND in a separate act immediately after
+      instead, and the lane SHUTS #1053 by hand in a separate act immediately after
       the ARCHIVED record. The reason is measured on this packet's own history rather
       than argued: GitHub parses a keyword-then-number pair wherever it stands,
       INCLUDING inside a sentence saying the pull request does not close the issue,
