@@ -139,6 +139,40 @@ LEG_TESTS: tuple[Path, ...] = (
 
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 
+#: WHERE CPython KEEPS THE COMPILED BYTECODE for everything imported after the
+#: legs go on the path — and the requirement is about where it does NOT go.
+#: `install()` makes two PINNED submodule checkouts importable, and CPython's
+#: default cache location is a `__pycache__` INSIDE the directory the module
+#: was read from, so the first import out of a leg writes into a tree this
+#: repository pins by commit (46 `.pyc` files under the two `src/` roots from
+#: a single test module, measured). Two consequences, and the second is the
+#: one that made this a finding:
+#:
+#:   * a consumer that has to establish that a leg IS the commit it is pinned
+#:     at — `scripts/verify-snapshot-equivalence.py`'s cleanliness sweep —
+#:     was left passing over a class of file its own imports created; and
+#:   * CPython VALIDATES a cached `.pyc` against the mtime and size recorded
+#:     in its header, so a crafted cache whose header still matches the
+#:     tracked source is loaded and EXECUTED. That is bytes in no commit
+#:     running out of a tree every pin check calls clean (Copilot,
+#:     openxFactory PR #1115, discussion `r4049745762`).
+#:
+#: `sys.pycache_prefix` closes both at once: with it set CPython neither READS
+#: nor writes a `__pycache__` beside the source. `sys.dont_write_bytecode` is
+#: NOT the remedy and was not proposed as one — it stops the writing and
+#: leaves the READING, which is the half the finding is about.
+#:
+#: INSIDE THE CHECKOUT, deliberately. The threat model this closes needs a
+#: writer in the working tree, and such a writer could edit THIS FILE — so a
+#: cache under the repository root is no weaker than the code that reads it,
+#: while a fixed path under a shared `/tmp` would be a directory another user
+#: can create first and fill with exactly the crafted caches above. The root
+#: `.gitignore` already ignores `*.py[cod]`, so every file written here is
+#: ignored and `git status` is unchanged (measured); nothing needs adding to
+#: it. If the directory cannot be written, CPython silently skips caching —
+#: the failure mode is a slower import and never a broken one.
+BYTECODE_HOME = REPO_ROOT / ".pycache"
+
 INIT_COMMAND = "git submodule update --init --recursive openDox openXdox"
 
 #: The remedy for a leg whose object store exists but cannot answer for the
@@ -284,6 +318,25 @@ def _require(gitlink: str, leg: str, src: Path, package: str) -> None:
         f"repository root.")
 
 
+def _bytecode_out_of_the_legs() -> None:
+    """Send CPython's bytecode cache to `BYTECODE_HOME`, BEFORE either leg is
+    importable — the one line that keeps this repository from writing into a
+    tree it pins, and from executing a `.pyc` it has not read.
+
+    A PREFIX THE PROCESS ALREADY HAS IS LEFT ALONE — `PYTHONPYCACHEPREFIX`,
+    or a host that has chosen its own — because any prefix at all satisfies
+    the requirement (the cache is no longer beside the source, wherever it is),
+    and overriding a deliberate choice is the more surprising act. What must
+    not happen is that it is left UNSET, which is the default and the only
+    condition this function changes.
+
+    Idempotent, and called from `install()`, which `module()` calls in turn,
+    so every route this repository has into the legs passes through it.
+    """
+    if sys.pycache_prefix is None:
+        sys.pycache_prefix = str(BYTECODE_HOME)
+
+
 def install(*, tests: bool = False) -> None:
     """Put both pinned legs' `src/` — and this repository's `scripts/` — on the
     path, or arrange for the carved NAMES to refuse when a leg is missing.
@@ -304,6 +357,7 @@ def install(*, tests: bool = False) -> None:
     `opendox_host.register_openxfactory()`, and the assembly points are named
     in that function's own docstring.
     """
+    _bytecode_out_of_the_legs()
     missing = []
     for gitlink, leg, src, package in LEGS:
         try:
