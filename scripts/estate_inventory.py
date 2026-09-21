@@ -217,10 +217,25 @@ _ORIGIN_RE = re.compile(
 #: THE AMBIENT GIT ENVIRONMENT THE CARRIER READ REFUSES TO INHERIT, and THE
 #: ESTATE'S OWN LIST rather than a second one — `scripts/carved_reach.py`,
 #: `scripts/hermes_runtime_validation/content.py` and
-#: `scripts/report-citation-remainder.py` carry the identical tuple, each put
-#: there for the same reason. None of the three exposes it as an importable
+#: `scripts/report-citation-remainder.py` carried the identical tuple as of
+#: this reader's own round 2. None of the three exposes it as an importable
 #: helper, so it is restated here with its citation rather than reached for
 #: through a private name.
+#:
+#: `GIT_CONFIG` IS THE ONE ENTRY THAT MADE THE THREE DIVERGE FROM THIS FILE,
+#: and the divergence is recorded rather than silently left for the next
+#: reader to notice. MEASURED, NOT ASSUMED: on the git this branch tests
+#: against, an ambient `GIT_CONFIG` naming a file that rewrites
+#: `remote.origin.url` does not reach either call `_git` makes (`remote
+#: get-url` and `rev-parse` read the ordinary config stack; `GIT_CONFIG`
+#: redirects only `git config`'s OWN default file, a narrower, undecorated
+#: variable from `GIT_CONFIG_GLOBAL`/`GIT_CONFIG_SYSTEM` above, which this
+#: reader does force). It is scrubbed anyway: a caller controls its own
+#: environment, a future call this reader adds may run `git config`, and
+#: relying on a non-effect that is one git version's behavior and not a
+#: documented contract is not a binding. The three siblings do not yet carry
+#: this line — whoever next touches one of them owes either the same entry or
+#: a recorded reason it does not apply there.
 #:
 #: WHY IT MATTERS HERE MORE THAN ANYWHERE: this read IS the carrier binding.
 #: `GIT_DIR`, `GIT_COMMON_DIR` and `GIT_WORK_TREE` MOVE THE REPOSITORY OUT FROM
@@ -235,6 +250,7 @@ _ORIGIN_RE = re.compile(
 _SCRUBBED_GIT_ENVIRONMENT = (
     "GIT_ALTERNATE_OBJECT_DIRECTORIES",
     "GIT_COMMON_DIR",
+    "GIT_CONFIG",
     "GIT_CONFIG_COUNT",
     "GIT_CONFIG_PARAMETERS",
     "GIT_DIR",
@@ -767,24 +783,48 @@ def load_inventory(path: Path = INVENTORY_PATH) -> Inventory:
     # while one row is being read in isolation.
     for row in rows:
         for admission in row.admitted_by:
-            if admission.kind == ROOT and row.repository != AGGREGATION_ROOT:
-                # `root` NAMES NO FILE, so it is the one kind whose evidence
-                # cannot be looked at — `evidence_verdicts` marks it NAMED
-                # unconditionally and correctly, the aggregation being real and
-                # unsubmodulable. Unbound, that makes it the estate's open door:
-                # write `kind: root` on any address and the row is admitted by
-                # evidence no run can contradict. It means the ONE repository
-                # the requirement says it means.
-                raise EstateInventoryError(
-                    f"row {row.position} ({row.repository}) declares "
-                    f"`kind: root`, which admits `{AGGREGATION_ROOT}` and no "
-                    "other repository. `root` is the kind that NAMES NO FILE — "
-                    "it is the aggregation repository itself, which no "
-                    "`.gitmodules` can name because a superproject is not its "
-                    "own submodule — so it is the one admission no run can "
-                    "ever contradict, and a row that could claim it would "
-                    "enter the estate on evidence nobody is able to look at. "
-                    "Record this row's real naming act instead")
+            if admission.kind == ROOT:
+                if row.repository != AGGREGATION_ROOT:
+                    # `root` NAMES NO FILE, so it is the one kind whose evidence
+                    # cannot be looked at — `evidence_verdicts` marks it NAMED
+                    # unconditionally and correctly, the aggregation being real and
+                    # unsubmodulable. Unbound, that makes it the estate's open door:
+                    # write `kind: root` on any address and the row is admitted by
+                    # evidence no run can contradict. It means the ONE repository
+                    # the requirement says it means.
+                    raise EstateInventoryError(
+                        f"row {row.position} ({row.repository}) declares "
+                        f"`kind: root`, which admits `{AGGREGATION_ROOT}` and no "
+                        "other repository. `root` is the kind that NAMES NO FILE — "
+                        "it is the aggregation repository itself, which no "
+                        "`.gitmodules` can name because a superproject is not its "
+                        "own submodule — so it is the one admission no run can "
+                        "ever contradict, and a row that could claim it would "
+                        "enter the estate on evidence nobody is able to look at. "
+                        "Record this row's real naming act instead")
+                if row.governance != "governed":
+                    # `root` NAMES NO FILE EITHER, so nothing downstream looks
+                    # at a tree to re-check this admission: `evidence_verdicts`
+                    # marks a `root` admission NAMED unconditionally, and the
+                    # membership arm (`scripts/validate-code-surface.py`)
+                    # refuses only `governance: external`, waving a `pinned`
+                    # row through unrefused. `root` denotes the aggregation
+                    # ITSELF, which this estate authors directly rather than
+                    # pins or stands outside of, so the row it names SHALL
+                    # declare `governance: governed` — anything else would let
+                    # a code surface name the aggregation as a repository this
+                    # estate does not author, authorized by the one admission
+                    # no run can ever contradict.
+                    raise EstateInventoryError(
+                        f"row {row.position} ({row.repository}) declares "
+                        f"`kind: root` and `governance: {row.governance}`. "
+                        "`root` denotes the aggregation repository itself, "
+                        "which this estate authors directly rather than pins "
+                        "or stands outside of, so the row it names SHALL "
+                        "declare `governance: governed`. Change this row's "
+                        "`governance:`, or its `admitted_by:` if `root` does "
+                        "not belong on it")
+                continue
             if admission.kind != GITLINK:
                 continue
             assert admission.carrier is not None

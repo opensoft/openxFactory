@@ -1601,6 +1601,35 @@ def test_an_ambient_GIT_DIR_cannot_flip_the_carrier_binding(tmp_path,
     assert check.observed == "opensoft/Innocent"
 
 
+def test_an_ambient_GIT_CONFIG_is_scrubbed_from_the_carrier_read(tmp_path,
+                                                                 monkeypatch):
+    """`GIT_CONFIG` is the one entry `GIT_DIR`'s round did not carry.
+
+    MEASURED, NOT ASSUMED, so the claim this test locks in is precise: on the
+    git this branch tests against, `remote get-url` and `rev-parse` — the only
+    two calls `_git` makes — do not themselves consult `GIT_CONFIG` (it
+    redirects `git config`'s OWN default file and nothing else reads it), so
+    the FIRST assertion below — the observed identity is unmoved — holds even
+    on the PRE-FIX code. The SECOND assertion is the actual fix and is what
+    fails there: `GIT_CONFIG` was not on `_SCRUBBED_GIT_ENVIRONMENT`, so
+    `_sanitized_git_environment` passed it straight through. It is dropped
+    on the same ground the rest of the list already stands on: a caller
+    controls its own environment, and a binding that rests on one git
+    version's undocumented non-effect — rather than on what this reader
+    itself refuses to hand its subprocess — is not a binding.
+    """
+    carrier = _worktree(tmp_path, "git@github.com:opensoft/xFactory.git")
+    evil = tmp_path / "evil.gitconfig"
+    evil.write_text(
+        '[remote "origin"]\n'
+        '\turl = git@attacker.example:opensoft/xFactory.git\n',
+        encoding="utf-8")
+
+    monkeypatch.setenv("GIT_CONFIG", str(evil))
+    assert ei.tree_origin(carrier) == "opensoft/xFactory"
+    assert "GIT_CONFIG" not in ei._sanitized_git_environment()
+
+
 def test_a_BARE_repo_and_a_SUBDIRECTORY_are_not_a_carriers_working_tree(
         tmp_path):
     """"a carrying repository's WORKING TREE" is the mode's own ratified word,
@@ -1646,3 +1675,47 @@ def test_a_BARE_repo_and_a_SUBDIRECTORY_are_not_a_carriers_working_tree(
     result = _run_inventory(tmp_path, path,
                             "--estate-tree", f"opensoft/xFactory={carrier}")
     assert "1 named in a VERIFIED supplied tree" in result.stdout
+
+
+# ==============================================================================
+# THE THIRD REVIEW ROUND OF PR #1119: a gap round 2's own sanitization left,
+# and a gap in the ROOT binding round 1 never closed
+# ==============================================================================
+
+
+def test_a_ROOT_row_must_declare_governance_GOVERNED(tmp_path):
+    """`root` NAMES NO FILE EITHER, so nothing downstream ever looks at a tree
+    to re-check it — `evidence_verdicts` marks a `root` admission NAMED
+    unconditionally, correctly, because the aggregation is real. That made
+    `governance:` the one clause round 1's ROOT binding left unchecked, and
+    the membership arm (`scripts/validate-code-surface.py`) refuses only
+    `governance: external`, waving a `pinned` row through unrefused.
+
+    `root` denotes the aggregation repository ITSELF, which this estate
+    authors directly rather than pins or stands outside of, so a `root` row
+    declaring anything but `governed` would let a code surface name the
+    aggregation as a repository the estate does not author — authorized by
+    the one admission no run can ever contradict.
+    """
+    pinned_root = _inventory(tmp_path, [
+        _row(ei.AGGREGATION_ROOT, governance="pinned",
+             admitted_by=[{"kind": "root"}]),
+    ], name="pinned-root.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(pinned_root)
+    assert "governance: pinned" in str(refusal.value)
+
+    external_root = _inventory(tmp_path, [
+        _row(ei.AGGREGATION_ROOT, governance="external",
+             admitted_by=[{"kind": "root"}]),
+    ], name="external-root.yaml")
+    with pytest.raises(ei.EstateInventoryError) as refusal:
+        ei.load_inventory(external_root)
+    assert "governance: external" in str(refusal.value)
+
+    # AND THE LAWFUL SHAPE — the live inventory's own shape — STILL LOADS, so
+    # the guard refuses the malformed row and nothing else.
+    lawful = _inventory(tmp_path, [
+        _row(ei.AGGREGATION_ROOT, admitted_by=[{"kind": "root"}]),
+    ], name="lawful-root.yaml")
+    assert ei.load_inventory(lawful).rows[0].governance == "governed"
