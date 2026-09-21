@@ -1224,6 +1224,30 @@ def test_the_live_inventory_stays_under_the_strict_loaders_byte_ceiling():
     assert size < ceiling, (size, ceiling)
 
 
+def test_the_live_codexFactory_row_is_admitted_by_gitlink_and_workflow_only():
+    """`design.md` D0.2 row 3 also named `pin (review-lane-pin.yaml)`, which
+    this loader's OWN closed `pin` kind cannot lawfully hold:
+    `contracts/review-lane-pin.yaml` is `kind: pinned_workflow`, a
+    commit-only pin of EXECUTABLE GOVERNANCE CODE with no digest set, and the
+    row is `governance: governed` rather than `pinned` — row 3 failed both of
+    the kind's own clauses. RULED by Brett Heap, 2026-09-21, verbatim "Drop
+    the pin admission on row 3": the row now carries its `gitlink` (this
+    aggregation) and its real `workflow` evidence
+    (`.github/workflows/merge-master-approval.yml`) and nothing else. The
+    packet's own D0.2 row 3 is amended on the same word, in a separate
+    change; this loader's `pin` kind and its definition are UNCHANGED.
+    """
+    inventory = ei.load_inventory(INVENTORY)
+    resolution = ei.resolve(inventory, "codeXfactory/codexFactory")
+    assert resolution.resolved is True
+    row = resolution.row
+    assert row is not None
+    assert {a.kind for a in row.admitted_by} == {ei.GITLINK, ei.WORKFLOW}
+    assert row.governance == "governed"
+    workflow_paths = {a.path for a in row.admitted_by if a.kind == ei.WORKFLOW}
+    assert workflow_paths == {".github/workflows/merge-master-approval.yml"}
+
+
 # ==============================================================================
 # THE REVIEW ROUND OF PR #1119: ten hardening cases, one per finding
 #

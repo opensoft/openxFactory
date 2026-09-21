@@ -149,8 +149,6 @@ repositories:
     admitted_by:
       - kind: gitlink
         carrier: opensoft/xFactory
-      - kind: pin
-        path: contracts/review-lane-pin.yaml
       - kind: workflow
         path: .github/workflows/merge-master-approval.yml
 
