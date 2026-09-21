@@ -193,7 +193,34 @@ OPEN.**
 
 ### What is held for Brett Heap's word — SEVEN DECISIONS, EACH VETOABLE ALONE
 
-- [ ] 1.10 **`design.md` D1 — THE HOME OF THE REPORT.** RECOMMENDED: **(b)** a
+**ALL SEVEN TICK AT THE ARCHIVE, ON THE RATIFICATION ALREADY RECORDED IN THIS
+PACKET, AND ON NO NEW DECISION.** Brett Heap ratified this packet
+2026-09-17T12:12:06Z, verbatim **"ratify #1069"** ([PR #1069, comment
+5714138459](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714138459)).
+**THE WORD IS BARE** — it ratifies the PACKET and names no option individually
+— and `design.md`'s own bare-word paragraph, written in advance of any ruling
+over this packet, says what that means: *"a bare ratifying word takes the
+RECOMMENDED option at all seven; a veto NAMES the decision, and costs that
+section alone."* No veto was named, so each of D1 through D7 stands at the
+RECOMMENDED option, which is the option this packet already encodes. That
+reading is recorded three times over in this packet already and is not minted
+here: `.openspec.yaml`'s `approved_by:` block names all seven, `proposal.md`'s
+ratification paragraph names all seven, and § 1.17 above records the flip.
+**WHY THE BOXES MOVE HERE RATHER THAN AT THE RATIFYING COMMIT.** The
+realization plan assigned §§ 1.10–1.16 to that commit; the commit ticked § 1.17
+and left these seven standing, which reads as an omission rather than a
+reservation — nothing anywhere in the record holds any of them back, and every
+one of the seven already carries its own note saying the box is *"unmoved"* by
+the folds that landed after the word. The archive is the first act that MAY NOT
+leave them open: `scripts/proposal-support.py`'s archive gate refuses outright
+while any `- [ ]` stands in this file — `raise SupportError("change has
+incomplete tasks")`, and the refusal was taken live at 2026-09-21T20:37:12Z
+before these ticks were written — so an archive with them open is not reachable
+through the sanctioned path at all. **NOTHING IS DECIDED HERE AND NO OPTION
+MOVES.** Each record below names the option the bare word took and, where the
+realization has since shipped it, the merge sha that proves it.
+
+- [x] 1.10 **`design.md` D1 — THE HOME OF THE REPORT.** RECOMMENDED: **(b)** a
       report CLI outside doc-health, which is #1053's own recommendation.
       Against **(a)** a twenty-fourth doc-health family NOW — cost: a
       `## MODIFIED` block restating the whole twenty-three-family enumeration,
@@ -201,7 +228,15 @@ OPEN.**
       says must FOLLOW a population measurement; against **(c)** nothing —
       cost: the posture that let #840's dangling `cited_to` citations go
       unnoticed, now measured at 81 tokens nobody looks at.
-- [ ] 1.11 **`design.md` D2 — THE SURFACE.** RECOMMENDED: a sibling
+      **TICKED AT THE ARCHIVE — D1 = (b), THE RECOMMENDED OPTION: A REPORT CLI
+      OUTSIDE DOC-HEALTH**, which is #1053's own recommendation. No veto named it.
+      **AND (b) IS WHAT SHIPPED**: `scripts/report-citation-remainder.py`, realization
+      slice R1, PR [#1100](https://github.com/opensoft/openxFactory/pull/1100) →
+      `83166366d499d58b5e8801e0bb17e346c73fc8e6`. Option (a), the twenty-fourth
+      doc-health family, is NOT taken and is recorded as residue at § 4.1 below;
+      `scripts/doc_health/` and `openspec/specs/doc-health/spec.md` are untouched by
+      every one of the four realization landings (D7 fence 4, § 1.16).
+- [x] 1.11 **`design.md` D2 — THE SURFACE.** RECOMMENDED: a sibling
       `scripts/report-citation-remainder.py` importing the library, so the
       library's contract stays a library's. Against giving
       `scripts/packet_reference.py` a `__main__` — cost: its own docstring says
@@ -228,7 +263,20 @@ OPEN.**
       precedence they were ratified with, and **THE EXIT CONTRACT QUOTED ABOVE
       IS UNCHANGED** — a modified tree is DECLARED and never refused, so the only
       non-zero exit is still the report that could not run.
-- [ ] 1.12 **`design.md` D3 — THE RECIPE.** RECOMMENDED: the stated file
+      **TICKED AT THE ARCHIVE — D2 = THE RECOMMENDED OPTION: A SIBLING SCRIPT
+      IMPORTING THE LIBRARY, EXIT 0 WHATEVER IT FINDS, AND NO `--fail-on`.** No veto
+      named it. **AND IT IS WHAT SHIPPED, WITH THE LIBRARY'S CONTRACT INTACT**:
+      `scripts/packet_reference.py` is byte-unmoved across the whole realization (D7
+      fence 1, an empty `git diff` proved in § 2.1's own record), so its docstring
+      sentence *"this module is a library and has no CLI"* is still true and the
+      one-line correction a D2 veto would have owed is not owed. The exit contract
+      this box quotes is instrumented rather than asserted:
+      `tests/citation_remainder/test_report_citation_remainder.py` carries
+      `test_there_is_no_fail_on_flag` — the `tests/former_id_arrival/` instrument that
+      enumerates every option string the parser returns and asserts none of them
+      converts a finding into a failure — beside `test_a_remainder_of_any_size_still_exits_zero`
+      and `test_a_root_that_is_not_a_git_work_tree_exits_non_zero_and_says_it_did_not_run`.
+- [x] 1.12 **`design.md` D3 — THE RECIPE.** RECOMMENDED: the stated file
       population (three exclusions, each with a reason, plus the report's own
       output path the moment D5 ever changes), the stated token grammar with
       its four normalizations PRINTED rather than hidden, and — the decision
@@ -271,7 +319,29 @@ OPEN.**
       This box is unmoved either
       way: the three exclusions, the containment rule, FLAG-never-drop, the
       inclusive headline and the advisory verdict are untouched by any of it.
-- [ ] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
+      **TICKED AT THE ARCHIVE — D3 = THE RECOMMENDED OPTION: THE STATED
+      POPULATION, THE STATED GRAMMAR WITH ITS NORMALIZATIONS PRINTED, AND A SUSPECTED
+      CROSS-REPOSITORY CITATION FLAGGED `possibly-cross-repo` AND LEFT IN THE COUNT.**
+      No veto named it, and neither of the two alternatives — dropping it silently,
+      counting it unflagged — was taken. **FLAG-NEVER-DROP IS MEASURED AND NOT MERELY
+      SHIPPED**: the first committed reading the report itself produced
+      (`evidence/first-report-89d7975d.md`, realization slice R3) prints the INCLUSIVE
+      remainder as the headline — 86 tokens over 57 identities at `main`
+      `89d7975d` — with the FILTERED count beside it at 47 / 30 and never in place of
+      it, which is exactly the arithmetic this decision exists to protect.
+      **AND D3(c)'S OWN PROMOTION STEP WAS TAKEN ON A FURTHER WORD OF BRETT HEAP'S,
+      WHICH THIS TICK NAMES RATHER THAN FOLDING INTO THE BARE ONE.** The three-line
+      window and the five signals moved out of `design.md` and into the requirement
+      on his word of 2026-09-17T12:32:38Z, verbatim **"fold it in before landing"**
+      ([PR #1069, comment
+      5714405516](https://github.com/opensoft/openxFactory/pull/1069#issuecomment-5714405516)),
+      executed at commit `c6ef48b1` (*"Fold D3(c)'s window and five signals into the
+      requirement…"*) and landed with the packet at `ef2b8734` on 2026-09-17T15:57Z
+      ([#1053 comment
+      5717384931](https://github.com/opensoft/openxFactory/issues/1053#issuecomment-5717384931)).
+      That word moved TEXT into canon; it moved no decision, and this box's own
+      FLAG-never-drop recommendation is the one the bare word took.
+- [x] 1.13 **`design.md` D4 — THE CLASSES.** RECOMMENDED: the classes the report
       ASSERTS are the three the tool can evidence from a path or from its own
       normalization — `truncated`, `punctuation-stripped`, `fixture-path` — and
       the vocabulary is CLOSED at those three plus `unclassified`. A DANGLING
@@ -328,7 +398,17 @@ OPEN.**
       The box is unmoved either way: the
       vocabulary is the same four labels, the precedence reads as before, and
       the `file-half` ruling this box holds is untouched.
-- [ ] 1.14 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
+      **TICKED AT THE ARCHIVE — D4 = THE RECOMMENDED OPTION: THE CLASS
+      VOCABULARY CLOSED AT `truncated`, `punctuation-stripped`, `fixture-path` AND
+      `unclassified`, `possibly-cross-repo` SHIPPING BESIDE THEM AS AN ADVISORY FLAG
+      AND NEVER AS A CLASS, AND NOTHING REPAIRED.** No veto named it. **THE ONE
+      RULING THIS BOX RESERVED WAS NOT TAKEN**: *"RULE OTHERWISE AND D4 TAKES IT"* — a
+      named `file-half` class counted in the class totals — and the bare word ruled
+      nothing otherwise, so no fifth member was minted and the vocabulary shipped
+      closed at four. The DANGLING entry's failing half is reported as the resolver's
+      own outcome, which is where this box put it. Nothing is repaired anywhere: see
+      § 4.3 below, and `test_a_dangling_citation_names_its_half_identity_and_citing_files_and_proposes_no_spelling`.
+- [x] 1.14 **`design.md` D5 — THE NIGHTLY WIRING.** RECOMMENDED: **artifact-only**,
       one step in `.github/workflows/doc-health-reusable.yml`, committing
       nothing. The reason is measured and is not merely merge conflicts:
       `health/` is INSIDE the file population and carries **0** citation tokens
@@ -338,7 +418,22 @@ OPEN.**
       derive-possibles shape; named as the promotion step, its real advantage
       being that D6's series is then read with one `git log`); against a
       committed rolling `health/citation-remainder.md`, **REFUSED BY NAME**.
-- [ ] 1.15 **`design.md` D6 — WHAT "STABLE" MEANS** before option (a) becomes
+      **TICKED AT THE ARCHIVE — D5 = THE RECOMMENDED OPTION: ARTIFACT-ONLY,
+      ONE STEP IN `.github/workflows/doc-health-reusable.yml`, COMMITTING NOTHING.**
+      No veto named it; the date-partitioned commit-back was not taken and the rolling
+      committed file this box REFUSES BY NAME was not taken either. **SHIPPED at
+      realization slice R2, PR [#1111](https://github.com/opensoft/openxFactory/pull/1111)
+      → `89d7975d9e042ae6987131633bc0dd91226ea6f2`**, reaching the live nightly through
+      the aggregation pin-sync opensoft/xFactory PR
+      [#467](https://github.com/opensoft/xFactory/pull/467) →
+      `d9a0c2b6e4fa82911af443d463cb167e35797bac`. **AND THE WIRING IS PROVED BY RUNS
+      RATHER THAN BY A WORKFLOW FILE** — three consecutive artifacts in
+      `opensoft/xFactory`, `citation-remainder-2026-09-19` (run 35415908738),
+      `citation-remainder-2026-09-20` (run 35484284057) and
+      `citation-remainder-2026-09-21` (run 35554784920), 10,682 bytes each — with
+      NOTHING committed into the corpus by any of them, which is the whole of what
+      this decision bought.
+- [x] 1.15 **`design.md` D6 — WHAT "STABLE" MEANS** before option (a) becomes
       takeable: three conditions on the nightly series over `N = 14` runs —
       `unclassified` identities not growing; at most **3** new remainder
       identities, each attributable to a named pull request; the mechanical
@@ -346,12 +441,37 @@ OPEN.**
       are the most vetoable figures in this packet.** Against "the count is
       unchanged" (cost: unmeetable — the count moves on every archive) and
       against no condition at all (cost: "later" becomes "never").
-- [ ] 1.16 **`design.md` D7 — THE SCOPE FENCES.** RECOMMENDED: four, each named
+      **TICKED AT THE ARCHIVE — D6 = THE RECOMMENDED FIGURES: `N = 14` RUNS,
+      AT MOST 3 NEW REMAINDER IDENTITIES EACH ATTRIBUTABLE TO A NAMED PULL REQUEST,
+      AND THE MECHANICAL CLASSES AT ZERO NET GROWTH.** The bare word took the numbers
+      this box itself calls *"the most vetoable figures in this packet"*, and no veto
+      named them. **NOTHING IS MEASURED AGAINST D6 HERE, AND THAT IS NOT AN OMISSION:
+      THE SERIES IS THREE RUNS OLD.** The nightly has produced 2026-09-19, 2026-09-20
+      and 2026-09-21; `N = 14` is eleven nights away at this archive. Reading the
+      condition is the twenty-fourth-family successor's act, and § 4.1 below records
+      that successor as NOT FILED by this packet.
+- [x] 1.16 **`design.md` D7 — THE SCOPE FENCES.** RECOMMENDED: four, each named
       with the file it protects — no citation edited anywhere by anything; no
       cross-repository reference resolved (only suspected);
       `scripts/validate-pin-registrations.py`'s `check_citations` untouched by
       name; no file under `scripts/doc_health/` or
       `openspec/specs/doc-health/spec.md` moved.
+      **TICKED AT THE ARCHIVE — D7 = THE RECOMMENDED OPTION: FOUR FENCES,
+      EACH NAMED WITH THE FILE IT PROTECTS AND EACH PROVED BY AN EMPTY `git diff`.**
+      No veto named it, and all four held across all four realization landings — the
+      proofs stand in §§ 2.1–2.3's own records: no citation was edited anywhere by
+      anything, no cross-repository reference was resolved (only suspected, § 1.12),
+      `scripts/validate-pin-registrations.py`'s `check_citations` is untouched by name,
+      and no file under `scripts/doc_health/` or `openspec/specs/doc-health/spec.md`
+      moved. **AND THE FIFTH `git diff` THIS PACKET PROVED EMPTY THROUGHOUT —
+      `openspec/specs` — STOPS AT THIS ARCHIVE AND NOWHERE EARLIER.** It was a fence on
+      the FILING and on the REALIZATION, both of which promoted nothing; the promotion
+      of this packet's five `## ADDED` requirements into
+      `openspec/specs/packet-citation-report/` is the act canon requires OF THE
+      ARCHIVE — `release-realization`'s *Realization completes*: *"the change archives
+      and its deltas promote, exactly as doc-only changes do on landing"* — and it is
+      performed in the archive pull request that carries this tick and in no pull
+      request before it.
 - [x] 1.17 **THE RATIFICATION RECORD IS CUT: THE WORD WAS GIVEN 2026-09-17.**
       Brett Heap ratified this packet, verbatim **"ratify #1069"**, recorded at
       [PR #1069, comment
@@ -784,10 +904,73 @@ evidence is a fact about a merge that has not happened.
       2,979, by the one file this slice adds, which is the whole claim. Δ = 0.
       **THE FIGURES ARE PINNED TO THE RUN THAT PRODUCED THEM**, because they
       are a reading of a MOVING corpus and not a property of this packet.
-- [ ] 2.4 **THE REALIZATION EVIDENCE IS GREEN BEFORE IT IS CLAIMED.** The
+- [x] 2.4 **THE REALIZATION EVIDENCE IS GREEN BEFORE IT IS CLAIMED.** The
       realization pull request merged into `main`, and a `pytest-suite` run at
       the tree that merge carries GREEN. That pair is what § 3.4 archives on
       and nothing less is read as realization.
+      **DISCHARGED — THE PAIR IS MERGED AND IT IS GREEN, AND BOTH HALVES ARE
+      CITED BY NAME RATHER THAN INFERRED.**
+      **MERGED.** The realization landed as four pull requests, each by number and
+      merge sha: R1, the report CLI and its tests, PR
+      [#1100](https://github.com/opensoft/openxFactory/pull/1100) →
+      `83166366d499d58b5e8801e0bb17e346c73fc8e6`, merged 2026-09-18T15:22:14Z on Brett
+      Heap's word **"land it when green"** ([#1100 comment
+      5728210143](https://github.com/opensoft/openxFactory/pull/1100#issuecomment-5728210143));
+      R2, the nightly wiring, PR
+      [#1111](https://github.com/opensoft/openxFactory/pull/1111) →
+      `89d7975d9e042ae6987131633bc0dd91226ea6f2`, merged 2026-09-18T20:03:40Z on **"land
+      #1111 when green"** ([#1111 comment
+      5735511925](https://github.com/opensoft/openxFactory/pull/1111#issuecomment-5735511925));
+      the aggregation pin-sync that makes the wired step run the shipped script rather
+      than a stale gitlink, opensoft/xFactory PR
+      [#467](https://github.com/opensoft/xFactory/pull/467) →
+      `d9a0c2b6e4fa82911af443d463cb167e35797bac`, merged 2026-09-18T20:19:14Z; and R3,
+      the first committed reading, PR
+      [#1126](https://github.com/opensoft/openxFactory/pull/1126) →
+      `93a5ce2b50924e0bda75ab94b2b42e1339c7b8da`, merged 2026-09-21T20:25:03Z on **"land
+      #1126 when green"** ([#1126 comment
+      5766996007](https://github.com/opensoft/openxFactory/pull/1126#issuecomment-5766996007)).
+      **GREEN — AND THE RUN CITED IS NOT THE ONE THIS BOX WOULD FIRST HAVE REACHED
+      FOR, WHICH IS RECORDED RATHER THAN QUIETLY SUBSTITUTED.** The `pytest-suite` run
+      started on R3's own merge commit `93a5ce2b` — run
+      [35650930794](https://github.com/opensoft/openxFactory/actions/runs/35650930794),
+      queued 2026-09-21T20:25:06Z — **was CANCELLED at 2026-09-21T20:34:12Z, and by
+      the workflow's own concurrency group rather than by any person**: PR #1121 merged
+      into `main` at 20:33:37Z and superseded it. A cancelled run is not a green run,
+      so this box does not cite it. **THE RUN THIS BOX CITES IS
+      [35651829217](https://github.com/opensoft/openxFactory/actions/runs/35651829217)**,
+      `pytest-suite` on `main` commit
+      `80c68da6081282225b54cfdb06b99bc93129d3cf` — the NEXT commit on `main` after
+      R3's merge, and one that carries `93a5ce2b` as an ancestor (`git merge-base
+      --is-ancestor 93a5ce2b 80c68da6` → true), so it is a green run at a tree the
+      realization merge is IN. Conclusion **`success`**, started 2026-09-21T20:34:15Z
+      and completed 2026-09-21T20:56:31Z. **THE RUN'S OWN COUNTS LINE, IN ITS OWN
+      WORDS**: `selected=8697 passed=8691 skipped=6 failures=0 errors=0`, over
+      `8287 passed, 6 skipped, 338 deselected, 9 warnings, 404 subtests passed in
+      1302.37s (0:21:42)`.
+      **BOTH READINGS ARE STATED, THE MERGE BASE AND THE MERGE, SO THE DELTA IS
+      VISIBLE AND SO IT IS NOT MIS-ATTRIBUTED.** At R3's merge base `b0329d65` the
+      decided `pytest-suite` was run
+      [35415554303](https://github.com/opensoft/openxFactory/actions/runs/35415554303),
+      `success`, `selected=8686 passed=8680 skipped=6 failures=0 errors=0`. The
+      delta is **+11 selected, +11 passed, 0 failures either side** — and it is NOT
+      this packet's: R3 added no test module, and the only test file added anywhere
+      in `b0329d65..80c68da6` is `tests/doc-health/test_regression_issue_body_cap.py`
+      (+228 lines), which belongs to the intervening PR #1121. The tests R1 added
+      entered the suite at R1's own merge, long before either reading here.
+      **AND A SECOND, INDEPENDENT PROOF IS CITED, BECAUSE THE FIRST ONE READS AT A
+      LATER COMMIT THAN THE MERGE.** #1126's own pre-merge run,
+      [35418896466](https://github.com/opensoft/openxFactory/actions/runs/35418896466),
+      `pytest-suite` on `ef2baffbd3bc5a7deb2fdfa17a800c3cb718e4d5`, conclusion
+      `success`, `selected=8686 passed=8680 skipped=6 failures=0 errors=0` — and that
+      head is **TREE-IDENTICAL to the merge commit `93a5ce2b`**, measured rather than
+      assumed: `git rev-parse ef2baffb^{tree} 93a5ce2b^{tree}` returns the same object
+      `63f22e16dfee4fac809fcd300aecb3ad485f9f49` on both sides. So a green
+      `pytest-suite` ran over the exact tree R3's merge carries, which is the
+      house fallback `add-declared-former-id`'s own archive used for two of its four
+      merges, and it is cited here beside the `main` run rather than instead of it.
+      **THAT IS THE MERGED-PLUS-GREEN PAIR § 3.4 ARCHIVES ON**, and nothing less was
+      read as realization.
 
 ## 3. Records, and the archive
 
@@ -816,12 +999,53 @@ evidence is a fact about a merge that has not happened.
       *"a pointer for a human reading the history, not evidence"* — but an issue
       number left standing where a pull request number belongs points a reader
       at the commission rather than at the act.
-- [ ] 3.2 **#1053 IS COMMENTED ON AT RATIFICATION**, naming the word, its
+- [x] 3.2 **#1053 IS COMMENTED ON AT RATIFICATION**, naming the word, its
       timestamp, and which of D1 through D7 it took or vetoed. The issue is
       NOT closed there.
-- [ ] 3.3 **#1053 IS COMMENTED ON AT REALIZATION**, naming the realization pull
+      **DONE — THE COMMENT IS POSTED AND THIS BOX TICKS ON IT.** openxFactory
+      [#1053, comment
+      5714153263](https://github.com/opensoft/openxFactory/issues/1053#issuecomment-5714153263),
+      2026-09-17T12:13:24Z. It names the word (**"ratify #1069"**), its timestamp
+      (2026-09-17T12:12:06Z), where the word itself is recorded (PR #1069 comment
+      5714138459), and what it took: *"ratified with D1–D7 at their recommended
+      options — option (b) of this issue: a `packet_reference` report CLI run nightly
+      outside doc-health, with the twenty-fourth doc-health family sequenced as the
+      later step"*, naming no veto. **AND THE ISSUE WAS NOT CLOSED THERE**, which is
+      the second half of what this box requires: #1053 was open at that comment, has
+      been open at every act since, and is open at this archive.
+- [x] 3.3 **#1053 IS COMMENTED ON AT REALIZATION**, naming the realization pull
       request, its merge sha, and the first report the nightly produced.
-- [ ] 3.4 **THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD AND IT IS NOT
+      **DONE — THE REALIZATION IS RECORDED ON #1053 IN FOUR COMMENTS, ONE PER
+      LANDING, AND THE LAST OF THEM CARRIES THE WHOLE CHAIN.** R1: [comment
+      5732160060](https://github.com/opensoft/openxFactory/issues/1053#issuecomment-5732160060),
+      2026-09-18, PR #1100 → `83166366`. R2: [comment
+      5735536261](https://github.com/opensoft/openxFactory/issues/1053#issuecomment-5735536261),
+      2026-09-18, PR #1111 → `89d7975d`. The aggregation pin-sync beside it: [comment
+      5735700537](https://github.com/opensoft/openxFactory/issues/1053#issuecomment-5735700537),
+      opensoft/xFactory#467 → `d9a0c2b6`. R3: [comment
+      5767019747](https://github.com/opensoft/openxFactory/issues/1053#issuecomment-5767019747),
+      2026-09-21, PR #1126 → `93a5ce2b`, which names all four merge shas together and
+      carries the third thing this box asks for — **THE FIRST REPORT THE NIGHTLY
+      PRODUCED**, `opensoft/xFactory` `doc-health-nightly` run 35415908738, artifact
+      `citation-remainder-2026-09-19`, in its own words: *"§ 2.2 carrying the addendum
+      that names the first producing nightly (run 35415908738, artifact
+      `citation-remainder-2026-09-19`)"*, and *"the nightly has since produced three
+      consecutive artifacts (09-19, 09-20, 09-21)"*. A merged workflow file is not
+      evidence that a step ran; that run id and that artifact name are.
+      **WHICH READING OF THIS BOX IS TAKEN IS STATED RATHER THAN LEFT TO A READER.**
+      The box names the three facts in the singular — *"the realization pull request,
+      its merge sha, and the first report the nightly produced"* — and the realization
+      was FOUR landings rather than one, so no single comment could name it in that
+      grammar. This tick is taken against **the four comments named above, read
+      together**, which the tick rule's own first clause admits: a `[x]` is *"a
+      measurement recorded verbatim … and reproducible from the command named beside
+      it"*, and four comment URLs are as reproducible as one. The alternative — posting
+      one fresh consolidated comment on #1053 and ticking against that — is equally
+      lawful and was NOT taken here, because posting to #1053 is the orchestrator's
+      act and not this writer's, which `brief-R3-ticks.md` had already ruled for
+      this same box (*"NOT YOURS TO POST"*). If a single consolidated comment is
+      wanted, it costs one comment and no re-tick.
+- [x] 3.4 **THE ARCHIVE IS A SEPARATE ACT ON A SEPARATE WORD AND IT IS NOT
       PERFORMED HERE.** `code_surface` is NON-EMPTY, so under
       `release-realization` — *Realization archive gate* — this packet SHALL
       NOT archive on landing and SHALL NOT archive on ratification. **THIS
@@ -833,29 +1057,116 @@ evidence is a fact about a merge that has not happened.
       `openspec/changes/archive/<YYYY-MM-DD>-add-citation-remainder-report/`
       through `python3 scripts/proposal-support.py . archive`, re-seeds the
       ledger row to `state: archived`, and takes its own word.
-- [ ] 3.5 **openxFactory #1053 CLOSES AT THE ARCHIVE AND NOWHERE EARLIER**, by
+      **TAKEN — AND THE TASK TEXT ABOVE IS THE FILING PULL REQUEST'S OWN
+      RECORD OF 2026-09-16, WHICH WAS TRUE THEN AND IS KEPT AS HISTORY.** The separate
+      word this box holds the archive for is Brett Heap's, given 2026-09-21T20:28Z
+      first-hand in session to lane `openxfactory-1`, verbatim **"archive it"** —
+      recorded at openxFactory [#1053, comment
+      5767056479](https://github.com/opensoft/openxFactory/issues/1053#issuecomment-5767056479).
+      The merged-plus-green condition this box states in its own words — *"§ 2's
+      realization pull request has MERGED into `main` AND a `pytest-suite` run at the
+      tree that merge carries is GREEN"* — is discharged and cited at § 2.4 above, and
+      the archive was not opened before it held.
+      **PERFORMED BY `python3 scripts/proposal-support.py . archive
+      add-citation-remainder-report --yes`** — NEVER bare `openspec` — which printed
+      **`ORIGIN RETAINED add-citation-remainder-report (declaration unchanged since
+      the ratifying commit 96f66fe9f148)`** and moved the packet to
+      `openspec/changes/archive/2026-09-21-add-citation-remainder-report/`. The
+      wrapper owns the clock and named that date from its own UTC reading; the commit
+      carrying this tick is the archive act that name states, which is what
+      `scripts/validate-sequenced-after.py`'s `archive-date-vs-commit` arm measures.
+      **THE LEDGER ROW IS RE-SEEDED BY THE MACHINE AND NOT BY HAND**, `active` →
+      `archived`, the way § 3.1 above records the recipe: the row is removed from
+      `tests/sequenced_after/corpus-ledger.yaml` first, because a bare re-seed stamps
+      only rows that MOVED, then
+      `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
+      '#<this archive pull request>'` re-derives every field of it from the corpus,
+      and `--ledger-diff` reads consistent.
+      **AND THE PROMOTION THIS BOX DOES NOT SPELL IS PERFORMED HERE TOO**, because
+      canon does spell it: the five `## ADDED` requirements and their 72 scenarios
+      reach `openspec/specs/packet-citation-report/spec.md`, a capability directory
+      that did not exist in canon before this act.
+- [x] 3.5 **openxFactory #1053 CLOSES AT THE ARCHIVE AND NOWHERE EARLIER**, by
       a closing keyword written in the ARCHIVE pull request — never in a commit
       message on this branch and never in the ratification comment.
+      **THE MOMENT THIS BOX PROTECTS IS UNMOVED AND THE INSTRUMENT IS
+      AMENDED, ON A MEASURED HAZARD RATHER THAN ON A PREFERENCE.** #1053 closes on
+      this archive and on nothing earlier — which is what this box is for, and which
+      every pull request on this packet honoured: the filing #1069, the fold-in #1097,
+      and the four realization landings #1100, #1111, opensoft/xFactory#467 and #1126
+      each carry `Refs #1053.` and no closing keyword, and no commit message on any
+      branch of this work carries one either.
+      **WHAT CHANGES IS THE INSTRUMENT.** This box names *"a closing keyword written
+      in the ARCHIVE pull request"*; the archive pull request carries `Refs #1053.`
+      instead, and the lane closes #1053 BY HAND in a separate act immediately after
+      the ARCHIVED record. The reason is measured on this packet's own history rather
+      than argued: GitHub parses a keyword-then-number pair wherever it stands,
+      INCLUDING inside a sentence saying the pull request does not close the issue,
+      and a sentence of exactly that shape in PR #1100's body — a realization slice
+      with no business closing anything — linked #1100 as the pull request that would
+      shut #1053. A keyword in the archive body would re-open the same hazard for the
+      sake of saving one deliberate act.
+      **AND IT IS THE FORM THE ESTATE'S MOST RECENT CODE-SURFACE ARCHIVE TOOK**, PR
+      [#1114](https://github.com/opensoft/openxFactory/pull/1114) → `cd6439f6`, whose
+      body reads: *"openxFactory #1045 closes by the lane's hand after the ARCHIVED
+      record, not by a keyword"*, and whose `closingIssuesReferences` is `[]`.
 
 ## 4. Residue — named here, taken nowhere
 
-- [ ] 4.1 **NOT TAKEN — THE TWENTY-FOURTH DOC-HEALTH FAMILY.** D1 option (a),
+- [x] 4.1 **NOT TAKEN — THE TWENTY-FOURTH DOC-HEALTH FAMILY.** D1 option (a),
       sized in `design.md` D1 to four items so the successor does not re-derive
       the cost. Its trigger is D6's three-part condition; filing it is a
       separate act with its own sibling search, and this packet does not file
       it.
-- [ ] 4.2 **NOT TAKEN — A CROSS-REPOSITORY SWEEP.** OpsxFactory's,
+      **STILL NOT TAKEN AT THE ARCHIVE — RECORDED, NEVER DONE, AND RE-READ
+      HERE RATHER THAN RESTATED FROM THE FILING.** No twenty-fourth doc-health family
+      is filed by this packet or by any of its four realization landings:
+      `scripts/doc_health/` is byte-unmoved across the whole realization (D7 fence 4,
+      § 1.16 above), `openspec/specs/doc-health/spec.md` carries the same *"twenty-three
+      check families"* enumeration it carried at filing, and `scripts/doc_health/families.py`
+      still registers twenty-three. **AND ITS TRIGGER IS NOT MERELY UNMET, IT IS NOT
+      YET MEASURABLE**: D6's three-part condition runs over `N = 14` consecutive
+      nightly runs and the series is THREE runs old at this archive (2026-09-19,
+      2026-09-20, 2026-09-21). Filing the successor is a separate act with its own
+      sibling search and its own word; no issue is filed here, and this packet is the
+      population measurement doc-health's own advisory-launch rule says that severity
+      decision must FOLLOW.
+- [x] 4.2 **NOT TAKEN — A CROSS-REPOSITORY SWEEP.** OpsxFactory's,
       LedgerxFactory's, AdxFactory's and codexFactory's own corpora each need
       their own reading, in their own repository, by whoever owns it.
       `packet_reference.py` states why this tree cannot do it: it *"holds NO
       repository vocabulary and NO module-level root"*, so *"the same reference
       answers differently against two roots"*. No issue is filed here.
-- [ ] 4.3 **NOT TAKEN — REPAIRING ONE CITATION.** All 81 are characterized and
+      **STILL NOT TAKEN, AND THE ARCHIVE TAKES IT NO FURTHER.** No
+      cross-repository sweep was performed by any realization slice and none is filed
+      here; no issue is opened in OpsxFactory, LedgerxFactory, AdxFactory or
+      codexFactory by this packet. **WHAT SHIPPED INSTEAD IS THE SUSPICION D3
+      RECOMMENDS**: the report FLAGS `possibly-cross-repo` and resolves nothing, on
+      the reason `scripts/packet_reference.py` states about itself and which this
+      archive re-read rather than quoted from memory — it holds no repository
+      vocabulary and no module-level root, so the same reference answers differently
+      against two roots. The first committed reading prints the filtered count beside
+      the inclusive one (47 / 30 beside 86 / 57 at `89d7975d`) rather than in place of
+      it, which is that suspicion made auditable instead of acted on.
+- [x] 4.3 **NOT TAKEN — REPAIRING ONE CITATION.** All 81 are characterized and
       none is repaired, which is `add-declared-former-id` D4's posture
       inherited deliberately. Several are dangling BY THEIR OWN FILE'S DESIGN
       (scope-isolation fixtures, docstring examples) and repairing them would
       break the file.
-- [ ] 4.4 **NOT TAKEN — THE RESOLVER DOCSTRING'S OWN STALE EXAMPLE.**
+      **STILL NOT TAKEN — AND MEASURED AGAIN AT THE SHIPPED READING RATHER
+      THAN ASSERTED FROM THE FILING.** Not one citation is repaired by this packet or
+      by any of its four realization landings. The figure this box states was 81
+      inclusive tokens at the packet's own re-measurement at `b1df95ee`; the shipped
+      report's first committed reading at `89d7975d` reads 86 tokens over 57
+      identities — **the corpus moved and the posture did not**, which is the whole
+      point of a report that gates nothing. The refusal is instrumented rather than
+      promised: `scripts/report-citation-remainder.py` proposes no spelling for any
+      dangling entry and writes no file it read, pinned by
+      `test_a_dangling_citation_names_its_half_identity_and_citing_files_and_proposes_no_spelling`
+      and `test_the_report_writes_no_file_it_read`. Several of the remainder are
+      dangling BY THEIR OWN FILE'S DESIGN and repairing them would break the file,
+      which is why the tool is a reader.
+- [x] 4.4 **NOT TAKEN — THE RESOLVER DOCSTRING'S OWN STALE EXAMPLE.**
       `scripts/packet_reference.py` offers `openspec/changes/README.md` as its
       canonical `NOT_A_PACKET_REFERENCE` case and that file does not exist in
       this tree, so the example resolves DANGLING(identity-half) — measured in
@@ -863,3 +1174,13 @@ evidence is a fact about a merge that has not happened.
       an edit to somebody else's record and is exactly the repair D4 refuses to
       make from a report. Recorded so a reader finds the question rather than
       rediscovering it.
+      **STILL NOT TAKEN — AND RE-READ IN THIS ARCHIVE'S OWN TREE TO CONFIRM
+      IT IS STILL TRUE RATHER THAN CARRIED FORWARD ON TRUST.** `scripts/packet_reference.py`
+      still offers `openspec/changes/README.md` as its canonical
+      `NOT_A_PACKET_REFERENCE` example (`:50` and `:605`); that file still does not
+      exist in this tree, measured at this head; and the docstring is unedited by the
+      realization, D7 fence 1 having read an empty `git diff` over that file at every
+      one of the four landings. So the example still resolves DANGLING(identity-half),
+      and correcting it would be an edit to somebody else's ratified record made from
+      a report — exactly the repair D4 refuses. Recorded so a reader finds the
+      question rather than rediscovering it.
