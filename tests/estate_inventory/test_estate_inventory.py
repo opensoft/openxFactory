@@ -1743,3 +1743,147 @@ def test_a_ROOT_row_must_declare_governance_GOVERNED(tmp_path):
         _row(ei.AGGREGATION_ROOT, admitted_by=[{"kind": "root"}]),
     ], name="lawful-root.yaml")
     assert ei.load_inventory(lawful).rows[0].governance == "governed"
+
+
+# ==============================================================================
+# THE FOURTH REVIEW ROUND OF PR #1119: structural evidence, not prose
+# ==============================================================================
+
+
+def test_a_PIN_admission_is_named_by_its_STRUCTURAL_field_and_not_by_prose(
+        tmp_path):
+    """"the repository … NAMES THE REPOSITORY" was answered by scanning the
+    whole file's TEXT for the address, bounded so a substring of a longer
+    address would not match — and a boundary on THAT match still let PROSE
+    discharge an admission, because prose is text too.
+
+    Measured against the live corpus: `contracts/openspec-cli-pin.yaml`'s own
+    `source_repository:` is `Fission-AI/OpenSpec`, and its header commentary
+    names `codeXfactory/codexFactory` more than a dozen times documenting
+    THAT repository's own use of the pinned CLI. This fixture is that shape,
+    narrowed to the one field and the one comment that matter.
+    """
+    contracts = tmp_path / "contracts"
+    contracts.mkdir(parents=True, exist_ok=True)
+    (contracts / "cli-pin.yaml").write_text(
+        "schema_version: 1\n"
+        "kind: pinned_contract_manifest\n"
+        "# codeXfactory/codexFactory ran this CLI over its own readiness\n"
+        "# packet (codeXfactory/codexFactory PR #216).\n"
+        "source_repository: Fission-AI/OpenSpec\n",
+        encoding="utf-8")
+
+    prose_only = _inventory(tmp_path, [
+        _row("codeXfactory/codexFactory", governance="governed",
+             admitted_by=[{"kind": "pin", "path": "contracts/cli-pin.yaml"}]),
+    ], name="prose-only.yaml")
+    verdicts = [v for v in
+               ei.evidence_verdicts(ei.load_inventory(prose_only), tmp_path)
+               if v.row.repository == "codeXfactory/codexFactory"]
+    assert [v.verdict for v in verdicts] == [ei.GONE]
+    assert "no longer names `codeXfactory/codexFactory`" in verdicts[0].detail
+
+    # AND THE FILE STILL DISCHARGES THE ROW ITS STRUCTURAL FIELD ACTUALLY NAMES.
+    structural = _inventory(tmp_path, [
+        _row("Fission-AI/OpenSpec", governance="external",
+             admitted_by=[{"kind": "pin", "path": "contracts/cli-pin.yaml"}]),
+    ], name="structural.yaml")
+    named = [v for v in
+            ei.evidence_verdicts(ei.load_inventory(structural), tmp_path)
+            if v.row.repository == "Fission-AI/OpenSpec"]
+    assert [v.verdict for v in named] == [ei.NAMED]
+
+
+def test_a_WORKFLOW_admission_is_named_by_USES_or_WITH_REPOSITORY_and_not_by_prose(
+        tmp_path):
+    """The same defect, on the other IN-TREE kind. A workflow's `run:` step, an
+    `echo`, an `::error::` message can all spell a repository's address in
+    PROSE without the workflow itself dispatching into it; only a step's
+    `uses:` (a reusable workflow or action PINNED at that repository) or a
+    step's `with.repository:` (an `actions/checkout`-shaped input — row 3's
+    own real site, `.github/workflows/merge-master-approval.yml`) is the
+    workflow's own structural claim.
+    """
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True, exist_ok=True)
+    (workflows / "dispatch.yml").write_text(
+        "name: dispatch\n"
+        "on: push\n"
+        "jobs:\n"
+        "  run:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - name: prose only\n"
+        "        run: |\n"
+        "          echo 'this step only TALKS ABOUT codeXfactory/codexFactory'\n"
+        "      - name: real checkout\n"
+        "        uses: actions/checkout@v4\n"
+        "        with:\n"
+        "          repository: opensoft/openxFactory\n",
+        encoding="utf-8")
+
+    prose_only = _inventory(tmp_path, [
+        _row("codeXfactory/codexFactory", governance="governed",
+             admitted_by=[{"kind": "workflow",
+                          "path": ".github/workflows/dispatch.yml"}]),
+    ], name="prose-only.yaml")
+    verdicts = [v for v in
+               ei.evidence_verdicts(ei.load_inventory(prose_only), tmp_path)
+               if v.row.repository == "codeXfactory/codexFactory"]
+    assert [v.verdict for v in verdicts] == [ei.GONE]
+
+    # `with.repository:` DISCHARGES — row 3's own real site.
+    with_repository = _inventory(tmp_path, [
+        _row("opensoft/openxFactory",
+             admitted_by=[{"kind": "workflow",
+                          "path": ".github/workflows/dispatch.yml"}]),
+    ], name="with-repository.yaml")
+    named = [v for v in
+            ei.evidence_verdicts(ei.load_inventory(with_repository), tmp_path)
+            if v.row.repository == "opensoft/openxFactory"]
+    assert [v.verdict for v in named] == [ei.NAMED]
+
+    # `uses:` ALSO DISCHARGES — the reusable-workflow/action site, `@<ref>`
+    # and any path past the address stripped before the comparison.
+    (workflows / "reusable.yml").write_text(
+        "name: reusable\n"
+        "on: push\n"
+        "jobs:\n"
+        "  call:\n"
+        "    steps:\n"
+        "      - uses: codeXfactory/codexFactory/.github/workflows/x.yml@deadbeef\n",
+        encoding="utf-8")
+    via_uses = _inventory(tmp_path, [
+        _row("codeXfactory/codexFactory", governance="governed",
+             admitted_by=[{"kind": "workflow",
+                          "path": ".github/workflows/reusable.yml"}]),
+    ], name="via-uses.yaml")
+    named_uses = [v for v in
+                 ei.evidence_verdicts(ei.load_inventory(via_uses), tmp_path)
+                 if v.row.repository == "codeXfactory/codexFactory"]
+    assert [v.verdict for v in named_uses] == [ei.NAMED]
+
+
+def test_the_live_codexFactory_workflow_admission_survives_a_115KB_file(
+        ):
+    """`_names_repository`'s `workflow` branch reads through
+    `frontmatter_strict.StrictLoader` directly rather than through
+    `strict_load`, because `strict_load`'s byte ceiling is sized for a
+    front-matter document and this estate's own
+    `.github/workflows/merge-master-approval.yml` — row 3's real workflow
+    evidence — is over 115KB on its documentation prose alone. MEASURED, not
+    assumed: this asserts the live file is still bigger than the ceiling
+    `strict_load` would apply, so the case is not accidentally testing a file
+    that has shrunk under it, and that the live row is NAMED anyway.
+    """
+    workflow_path = ROOT / ".github" / "workflows" / "merge-master-approval.yml"
+    size = len(workflow_path.read_text(encoding="utf-8").encode("utf-8"))
+    ceiling = importlib.import_module("frontmatter_strict").CEILING_BYTES
+    assert size > ceiling, (size, ceiling)
+
+    inventory = ei.load_inventory(INVENTORY)
+    resolution = ei.resolve(inventory, "codeXfactory/codexFactory")
+    assert resolution.resolved is True
+    verdicts = [v for v in ei.evidence_verdicts(inventory, ROOT)
+               if v.row is resolution.row and v.admission.kind == ei.WORKFLOW]
+    assert [v.verdict for v in verdicts] == [ei.NAMED]

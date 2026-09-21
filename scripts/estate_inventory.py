@@ -110,6 +110,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import frontmatter_strict as fm
+import yaml
 
 #: The inventory, beside the validator that reads it — the placement
 #: `design.md` D2 measured and Brett Heap's bare word took.
@@ -907,47 +908,147 @@ def former_address_rows(inventory: Inventory,
 # --- the in-tree re-check -----------------------------------------------------
 
 
-#: AN ADDRESS'S OWN BOUNDARIES, so a match is the repository and not a prefix of
-#: a longer one. `opensoft/openXwallet` contains the characters of
-#: `opensoft/open`, and a plain `in` test therefore lets ANY row whose address
-#: is a prefix of a real member's be discharged by that member's evidence — the
-#: row `opensoft/open` reading a pin that names only `opensoft/openXwallet` and
-#: reporting NAMED. The owner side has the same hole in the other direction
-#: (`soft/openDox` inside `opensoft/openDox`).
-#:
-#: A NAME CHARACTER ON EITHER SIDE IS WHAT IS REFUSED, and `/` deliberately is
-#: NOT: the estate's own evidence writes addresses inside URLs
-#: (`source_url: https://github.com/opensoft/openRepoShape`), so a leading `/`
-#: is the ordinary lawful case and forbidding it would report the estate's real
-#: pins as gone. A TRAILING `.git` IS ADMITTED EXPLICITLY, because a
-#: `.gitmodules` or workflow writes `…/opensoft/openDox.git` and `.` is
-#: otherwise a name character — but only that exact suffix, so
-#: `opensoft/openDox-code` still does not discharge `opensoft/openDox`.
-_ADDRESS_BOUNDARY = r"(?<![A-Za-z0-9._-]){address}(?:\.git)?(?![A-Za-z0-9._-])"
+#: THE PIN KIND'S BARE-ADDRESS STRUCTURAL FIELDS, and no third of this shape.
+#: Every `kind: pinned_contract_manifest` pin this estate writes
+#: (`contracts/openxwallet-pin.yaml`, `opendox-pin.yaml`, `openxdox-pin.yaml`,
+#: `openreposhape-pin.yaml`, `openspec-cli-pin.yaml`) states its source as
+#: `source_repository:`; the one `kind: pinned_workflow` pin
+#: (`contracts/review-lane-pin.yaml`) states it as `repository:`. Both are
+#: TOP-LEVEL keys read off the parsed document, carrying the bare
+#: `<owner>/<name>` address itself — never a value nested under another
+#: mapping. `source_url:` is the estate's other lawful site (present
+#: alongside `source_repository:` in `openreposhape-pin.yaml` and
+#: `openspec-cli-pin.yaml`, and the ONLY site the review-round fixture for
+#: this check carries): a full URL rather than a bare address, so it is
+#: normalized through `normalize_origin` — the same reading a working tree's
+#: own origin gets — rather than compared as a literal.
+_PIN_REPOSITORY_FIELDS = ("repository", "source_repository")
 
 
-def _names_repository(path: Path, repository: str) -> bool:
+def _pin_names_repository(document: object, repository: str) -> bool:
+    """Whether a PARSED pin document's own structural field names `repository`.
+
+    NOTHING ELSE IN THE FILE IS ASKED. A first cut of this check matched the
+    ADDRESS anywhere in the file's TEXT (bounded so a substring of a longer
+    address would not match) and that still let PROSE discharge an admission:
+    `contracts/openspec-cli-pin.yaml`'s own `source_repository:` is
+    `Fission-AI/OpenSpec`, and its header commentary names
+    `codeXfactory/codexFactory` more than a dozen times documenting THAT
+    repository's own use of the pinned CLI — a row admitted by this file for
+    `codeXfactory/codexFactory` would have reported NAMED on a comment, never
+    on the file's own claim about its source. See `_PIN_REPOSITORY_FIELDS`
+    for the two bare-address fields and `source_url:` for the URL one.
+    """
+    if not isinstance(document, dict):
+        return False
+    for field in _PIN_REPOSITORY_FIELDS:
+        value = document.get(field)
+        if isinstance(value, str) and value == repository:
+            return True
+    source_url = document.get("source_url")
+    if isinstance(source_url, str) and normalize_origin(source_url) == repository:
+        return True
+    return False
+
+
+def _uses_repository(uses: str) -> str | None:
+    """The `<owner>/<name>` a workflow step's `uses:` value names, or None.
+
+    `uses:` is `<owner>/<name>[/<path-to-a-reusable-workflow>][@<ref>]` for a
+    reusable workflow or a marketplace action. `@<ref>` is stripped first — it
+    is a git ref and no part of an address — and the first TWO `/`-separated
+    segments are the address; a local action (`./…`) or a Docker reference
+    (`docker://…`) yields fewer than two non-empty segments and correctly
+    names nothing here.
+    """
+    address = uses.split("@", 1)[0]
+    segments = address.split("/")
+    if len(segments) < 2 or not segments[0] or not segments[1]:
+        return None
+    return f"{segments[0]}/{segments[1]}"
+
+
+def _workflow_names_repository(document: object, repository: str) -> bool:
+    """Whether a PARSED workflow document's own structural sites name
+    `repository`.
+
+    TWO SITES, and no third: a step's `uses:` (a reusable workflow or action
+    pinned AT this repository) and a step's `with.repository:` (an
+    `actions/checkout`-shaped input naming which repository to check out —
+    `.github/workflows/merge-master-approval.yml`'s own site for row 3's
+    admission). Every OTHER string in the document — a comment, a `run:`
+    script line, an `echo`, an `::error::` message — is prose ABOUT the
+    repository and not the workflow's own claim to dispatch into it, and is
+    not consulted; `merge-master-approval.yml` names
+    `codeXfactory/codexFactory` in exactly that prose form more than a dozen
+    times beside the one structural site.
+    """
+    if not isinstance(document, dict):
+        return False
+    jobs = document.get("jobs")
+    if not isinstance(jobs, dict):
+        return False
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        steps = job.get("steps")
+        if not isinstance(steps, list):
+            continue
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            uses = step.get("uses")
+            if isinstance(uses, str) and _uses_repository(uses) == repository:
+                return True
+            with_block = step.get("with")
+            if isinstance(with_block, dict) \
+                    and with_block.get("repository") == repository:
+                return True
+    return False
+
+
+def _names_repository(path: Path, repository: str, kind: str) -> bool:
     """Whether the evidence file at `path` really names `repository`.
 
-    PRESENCE OF THE FILE IS NOT PRESENCE OF THE EVIDENCE. A `pin` whose file
-    stopped naming the repository — repointed at another source, or reduced to a
-    template — is a row whose admission has gone as surely as a deleted file,
-    and a check that asked only `is_file()` would report it as named. The match
-    is on the ADDRESS, the spelling the row itself carries, so a file naming
-    only a bare name does not discharge an address row by accident.
+    PRESENCE OF THE FILE IS NOT PRESENCE OF THE EVIDENCE. A `pin` or `workflow`
+    whose file stopped naming the repository — repointed at another source, or
+    reduced to a template — is a row whose admission has gone as surely as a
+    deleted file, and a check that asked only `is_file()` would report it as
+    named.
 
-    AND THE ADDRESS IS MATCHED WHOLE. A SUBSTRING IS NOT A NAMING: an address
-    embedded in a longer address is a DIFFERENT REPOSITORY, and an admission
-    discharged by one is a row whose evidence was never about it. See
-    `_ADDRESS_BOUNDARY` for which characters bound it and why `/` is not one.
+    THE FILE'S OWN STRUCTURE IS CONSULTED, AND NOTHING ELSE — never a substring
+    match over the whole text, which a comment or a `run:` line can satisfy on
+    a repository the file never claims to be evidence for (`_pin_names_repository`,
+    `_workflow_names_repository` carry the measured cases). The file is parsed
+    ONCE, through the same refused-construct loader the inventory itself reads
+    through (`frontmatter_strict.StrictLoader`) so no anchor, alias or merge key
+    can make one authorized value stand in for another here either. A `pin`'s
+    document goes through `strict_load` and its byte ceiling, sized for a
+    front-matter document and everything this estate's five pins fit inside; a
+    `workflow`'s does not — this estate's own workflow files run well past that
+    ceiling on their documentation prose alone (`merge-master-approval.yml`
+    alone is over 115KB), a size the ceiling was never sized to refuse, so the
+    same loader is used directly without it. A file that does not parse, or is
+    not evidence any more than a missing one is, returns False rather than
+    raising — this function's contract, like the reader around it, is that a
+    row's evidence check NEVER RAISES.
     """
     try:
         text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return False
-    return re.search(
-        _ADDRESS_BOUNDARY.format(address=re.escape(repository)),
-        text) is not None
+    try:
+        if kind == PIN:
+            document = fm.strict_load(text, what=str(path))
+        else:
+            document = yaml.load(text, Loader=fm.StrictLoader)
+    except (fm.StrictFrontMatterError, yaml.YAMLError):
+        return False
+    if kind == PIN:
+        return _pin_names_repository(document, repository)
+    if kind == WORKFLOW:
+        return _workflow_names_repository(document, repository)
+    return False
 
 
 def evidence_verdicts(inventory: Inventory,
@@ -994,7 +1095,8 @@ def evidence_verdicts(inventory: Inventory,
                     verdicts.append(EvidenceVerdict(
                         row, admission, GONE,
                         f"this tree carries no `{admission.path}`"))
-                elif not _names_repository(resolved, row.repository):
+                elif not _names_repository(resolved, row.repository,
+                                          admission.kind):
                     verdicts.append(EvidenceVerdict(
                         row, admission, GONE,
                         f"`{admission.path}` is in this tree but no longer "
