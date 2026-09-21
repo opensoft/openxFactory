@@ -142,9 +142,11 @@ exists.
 - **It does not claim that #1074 is shut.** `Closes #1074` is written in the
   archive pull request's body and nowhere else; the issue shuts on that pull
   request's MERGE, which is the landing lane's act.
-- **It does not re-open § 4.1–§ 4.3.** Those measurements were taken at the
-  realization head `87eb684d` and are recorded in `tasks.md`; they are cited
-  here, not re-performed.
+- **It does not re-open § 4.1–§ 4.3.** Those measurements were taken at
+  `87eb684d`, PR #1107's intermediate merge of `origin/main` on that branch
+  and NOT the realization head — the realization head was `bc9ebf95`, merged
+  as `c22c4fc3` — and are recorded in `tasks.md`; they are cited here, not
+  re-performed.
 - **It moves no code.** `scripts/` and `tests/` are untouched by the archive but
   for the one machine-seeded sweep-ledger row, which changes no code byte.
 
