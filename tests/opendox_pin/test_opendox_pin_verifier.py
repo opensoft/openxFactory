@@ -531,9 +531,12 @@ def test_the_migration_block_is_present_and_lockstep_with_openxdox() -> None:
     pin_text = PIN_PATH.read_text(encoding="utf-8")
     pin = yaml.safe_load(pin_text)
     migration = pin["migration"]
-    assert migration["range"] == "not_yet_deployed"
-    assert migration["reversible"] == "not_yet_deployed"
-    assert migration["runbook"] == "not_yet_deployed"
+    for key in ("range", "reversible", "runbook"):
+        assert key in migration, f"the {key} key must not be silently deletable"
+        assert migration[key] != "not_yet_deployed", (
+            "the sentinel was FILLED when the pin crossed openDox's first real "
+            "migration; a value that has gone back to the sentinel is a "
+            "regression, not a restoration")
     assert "ASK-1" in pin_text
 
     openxdox_oid, source = MODULE._recorded_gitlink(REPO_ROOT, "openXdox")
@@ -543,9 +546,11 @@ def test_the_migration_block_is_present_and_lockstep_with_openxdox() -> None:
                f"{openxdox_oid}:contracts/opendox-pin.yaml").stdout
     derived = yaml.safe_load(blob)
     derived_migration = derived["migration"]
-    assert derived_migration["range"] == "not_yet_deployed"
-    assert derived_migration["reversible"] == "not_yet_deployed"
-    assert derived_migration["runbook"] == "not_yet_deployed"
+    for key in ("range", "reversible", "runbook"):
+        assert key in derived_migration
+    assert migration == derived_migration, (
+        "the two direct pins of the same product must render the IDENTICAL "
+        "migration block, so neither reads as a claim the other is silent on")
     assert "ASK-1" in blob
 
 
