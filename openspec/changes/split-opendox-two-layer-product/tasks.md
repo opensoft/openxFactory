@@ -1567,7 +1567,7 @@ the bookkeeping that ticks this group.
   because the pattern only works if the register is somewhere the next reader
   actually looks, which is the box that owns the instrument — not a residue
   list at the far end of the file.)*
-- [ ] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
+- [x] 3.8 `[oD]` Cut `dox-v1.0` only after the floor's four parts are green.
   **In the ASSEMBLY ROOT** (amended 2026-09-05), over the commit that names both
   legs: a tag on a leg describes half a project, and the bundle tag,
   `contracts/manifest.yaml` and `contracts/CHANGELOG.md` live where a consumer's
@@ -1636,11 +1636,39 @@ the bookkeeping that ticks this group.
   **`dc7aa08f`**, the commit that names both legs.
   **THE BOX STILL DOES NOT TICK, AND THE REASON IS THE TICK STANDARD RATHER THAN
   THE FACT**: the holder's instruction is that this tick lands on the tag
-  EVIDENCE comment id, one per tag, and that comment does not exist yet. *(The
-  distinction is worth the sentence: the measurement above says the tag exists,
-  and the evidence line says WHO recorded it, WHERE, and against which commit —
-  this packet has ticked on a recorded pass and refused a candidate's three
-  times, so it does not now tick on a live read of a ref.)*
+  EVIDENCE comment id, one per tag. *(The distinction is worth the sentence: the
+  measurement above says the tag exists, and the evidence line says WHO recorded
+  it, WHERE, and against which commit — this packet has ticked on a recorded pass
+  and refused a candidate's three times, so it does not tick on a live read of a
+  ref.)*
+  **TICKED 2026-09-21 by `tasks.md` AMENDMENT #10, ON THE TAG EVIDENCE COMMENT
+  THE STANDARD ABOVE NAMED**: `#656` comment **`5767450348`**
+  (2026-09-21T21:01:13Z, 6,376 bytes), *"TAG EVIDENCE — `dox-v1.0` CUT AND
+  PUBLISHED (§ 3.8)"*, actor `rehome-lander`, ceremony 20:57Z-21:00Z against the
+  runbook.
+  **THE TAG, READ FROM THE FORGE AND NOT FROM THE REPORT**: annotated tag object
+  **`608236a19ccd93fbfccf01b96035ff257b3c4b19`** over commit
+  **`dc7aa08fe48c8d17b596b0daa1ce87cdc0472aca`** — the commit that names both
+  legs, which is this box's own *"over the commit that names both
+  legs"* — tagger **Brett Heap** (`1513478+brettheap@users.noreply.github.com`),
+  **2026-09-21T20:59:17Z**, pushed once, **the first tag in the repository**, and
+  third-clone verified (`cat-file -t` = `tag`; `validate-pins` at the tag ref
+  exits 0). The object's own first line reads *"dox-v1.0: the first openDox
+  contract bundle, in the assembly root over the commit that names both legs"*
+  and its change class is *"FIRST BUNDLE … No predecessor exists, so no migration
+  path is owed"*; it quotes Brett's word whole on one line and carries the Lane
+  trailer.
+  *(TWO READINGS OF `object.type` ARE BOTH TRUE AND NEITHER IS THE OTHER'S
+  CORRECTION, recorded because a later reader comparing two API calls will think
+  they disagree: `git/ref/tags/dox-v1.0` reports `object.type: tag` — the REF
+  points at a tag OBJECT, which is exactly what makes the tag annotated — while
+  `git/tags/608236a1` reports `object.type: commit`, because the tag object
+  points at the commit. Ref → tag → commit is one chain read at two levels, and
+  the forge-side `git/ref/tags` and `git/tags` agree on the sha at the joint.)*
+  **ONE THING IS REGISTERED AND NOT CLOSED BY THIS TICK**: `contracts/CHANGELOG.md`
+  still reads `Status: draft` in both roots, held for Brett's separate word. The
+  box asked for the TAG and the bundle entries beside it, which is what the
+  evidence carries; the lifecycle header of the CHANGELOG is a different act.
 
 ## 4. The openXdox mapping core
 
@@ -2203,7 +2231,7 @@ the bookkeeping that ticks this group.
   commit"*. No spec text moves and no pin moves. **A refusal would have made an
   editor's swap file render the corpus unreadable**, which is a worse failure
   than the ambiguity it would remove.
-- [ ] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green. **In the ASSEMBLY
+- [x] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green. **In the ASSEMBLY
   ROOT** (amended 2026-09-05), on 3.8's reasoning.
   **STATUS — THE SAME SHAPE AS § 3.8, and the box does NOT tick. Recorded by
   AMENDMENT #9, 2026-09-19.** `opensoft/openXdox` **`#12` → `9be407bd`**, merged
@@ -2241,9 +2269,24 @@ the bookkeeping that ticks this group.
   five-with-one are both that rule applied, not two conventions.)*
   **AND THE TAG IS CUT — MEASURED at 2026-09-21 ~21:05Z**: `refs/tags/xdox-v1.0`
   exists in `opensoft/openXdox` as an **ANNOTATED** tag (`object.type: tag`, tag
-  object `2d2e9b85`) over commit **`2073e3a9`**. **The box still does not tick**,
-  on § 3.8's reasoning and for the same standard: the tick lands on the tag
-  EVIDENCE comment id, which does not exist yet.
+  object `2d2e9b85`) over commit **`2073e3a9`**.
+  **TICKED 2026-09-21 by `tasks.md` AMENDMENT #10, on its own evidence comment
+  and not on § 3.8's**: `#656` comment **`5767450638`**
+  (2026-09-21T21:01:14Z, 6,899 bytes), *"TAG EVIDENCE — `xdox-v1.0` CUT AND
+  PUBLISHED (§ 4.6)"*, same actor and same ceremony window. The tag is annotated
+  tag object **`2d2e9b854eb97053af905beb0ae8902887935f3a`** over commit
+  **`2073e3a92948b266d4e4d8063a6d4522b089cf3c`**, tagger **Brett Heap**,
+  **2026-09-21T20:59:28Z** — **eleven seconds after `dox-v1.0`**, which is one
+  ceremony performed twice rather than two ceremonies — first tag in the
+  repository, pushed once, third-clone verified, with the object's change class
+  reading *"FIRST BUNDLE … contracts/manifest.yaml gains five entries"*.
+  *(A box may not tick on its sibling's evidence, which is why the comment id
+  here is its own and the figures are re-read rather than inherited: § 8.5's
+  clause (b) and § 3.7's three candidate heads are this packet's record of what
+  happens when one leg's proof is allowed to stand for another's.)*
+  **`Status: draft` in this root's `contracts/CHANGELOG.md` is likewise
+  registered and not closed here** — § 3.8 carries the same registration, and one
+  word from Brett covers both.
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
