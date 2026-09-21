@@ -1114,12 +1114,15 @@ report it, and SHALL refuse nothing there. A gate that demanded an edit nobody
 may make would be a standing finding with no remedy, which is the defect this
 estate disposes of rather than creates.
 
-**AMENDED BY `amend-code-surface-grammar-comma-and` (2026-09-18).** Every
-paragraph and every scenario of this block is promoted canon's own bytes except
-what `scripts/code_surface.py` made untrue on the day the gate landed: the
-opening sentence's list of separators, the sentence that refused a head
-continued by `, and …` flatly, and the WHEN bullet of *An active proposal
-declares several repositories*. `_SEPARATOR_RE` has admitted a FOURTH
+**AMENDED BY `amend-code-surface-grammar-comma-and` (2026-09-18).** MOST
+paragraphs and scenarios of this block are promoted canon's own bytes,
+UNCHANGED. THREE units are CORRECTED IN PLACE for what `scripts/code_surface.py`
+made untrue on the day the gate landed: the opening sentence's list of
+separators, the sentence that refused a head continued by `, and …` flatly,
+and the WHEN bullet of *An active proposal declares several repositories*.
+TWO explanatory paragraphs and ONE scenario — the two clarifications and the
+Oxford-comma scenario, both named below — are ADDED BY THIS AMENDMENT and are
+NOT canon's prior bytes. `_SEPARATOR_RE` has admitted a FOURTH
 alternative since the module was written — `, and `, tried FIRST, ahead of the
 bare comma — and the promoted text named three, so a declaration spelled out
 with an Oxford comma passed a gate canon said would refuse it. THIS BLOCK MOVES

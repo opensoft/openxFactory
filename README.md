@@ -567,9 +567,10 @@ Active changes:
   SCENARIOS (11 + 8 + 9), OVER `release-realization`**: the MODIFIED block is
   WRITTEN OVER `amend-code-surface-grammar-comma-and`'S OUTCOME AND NOT OVER
   CANON — that packet (openxFactory #1092, PR #1108, ratified 2026-09-18,
-  landed `60d281a8`) is an ACTIVE RATIFIED writer of the SAME requirement key,
-  so on the ruling *"#1101 declares #1108 and folds its text"* this packet
-  declares `sequenced_after: [amend-code-surface-grammar-comma-and]` and
+  landed `60d281a8`) is now an ARCHIVED writer of the SAME requirement key,
+  promoted by PR #1112, so on the ruling *"#1101 declares #1108 and folds
+  its text"* this packet declares
+  `sequenced_after: [amend-code-surface-grammar-comma-and]` and
   reproduces #1108's ratified wording byte-for-byte (the four separators
   including `, and `, the comma-first paragraph, its `**AMENDED BY**` note and
   its added Oxford-comma scenario), with only this packet's own
@@ -581,11 +582,14 @@ Active changes:
   block is OWED rather than preferred: the promoted `SHALL NOT judge its
   MEMBERSHIP` is unconditional in its own words, so an ADDED-only delta would
   leave canon carrying two requirements that cannot both be obeyed. **THE
-  BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is an
-  ACTIVE writer of the same requirement key, so `sequenced_after: []` is no
+  BLOCK IS ORDERED, NOT SOLE**: `amend-code-surface-grammar-comma-and` is now
+  an ARCHIVED writer of the same requirement key, promoted by PR #1112 — the
+  `sequenced_after` declaration STANDS AS HISTORY, since resolution consults
+  the active and archived corpora both, so `sequenced_after: []` is still no
   longer a root claim — the corpus ledger carries this packet as class
-  `co-modifier`, depth 1, declaring `amend-code-surface-grammar-comma-and`,
-  and promotion order is #1108 then #1101, **with #1108 itself untouched**.
+  `co-modifier`, depth 1, declaring `amend-code-surface-grammar-comma-and`.
+  THE ORDERING WAS SATISFIED: promotion order was #1108 then #1101, **with
+  #1108 itself untouched**.
   The `modified-block-currency` family still reports no NEW finding, but
   because the declared ordering resolves the pair: this block is measured
   against #1108's block rather than against canon, and the family's
