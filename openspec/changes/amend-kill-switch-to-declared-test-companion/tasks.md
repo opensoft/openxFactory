@@ -13,6 +13,18 @@ authorized the filing alone, and every box WAS `- [ ]` at that point.
 Boxes 1.1, 1.2 and 1.3 are ticked by the ratifying commit; NO box in § 2,
 § 3, § 4 or § 5 is ticked, and the parent's box 3.6 stays open.
 
+**REALIZED 2026-09-21 — § 2 IS NOW TICKED; §§ 3, 4 AND 5 STAY OPEN.** The
+sentence immediately above records the state AT THE RATIFYING COMMIT and is
+kept verbatim as history. On Brett Heap's word of 2026-09-21 on openxFactory
+#745 — ***"do 1 and 2, claim 5"***, item 2 being the realization of
+§§ 2.1–2.5 and 3.1–3.3 — lane `openxfactory-2` (display `openXfactory-2`)
+ticks every box in § 2 against the filing that LANDED as squash commit
+`07a8a45b`, each with its evidence written beneath it, and ANNOTATES §§ 3.1–3.3
+with what openxFactory's half has discharged and what each still owes in
+codexFactory. **NO BOX IN § 3, § 4 OR § 5 IS TICKED BY THAT ACT**, the parent's
+box 3.6 stays open, and § 4 IS DELIBERATELY NOT REACHED: it owes a real bot
+cycle, which does not exist and which no agent may manufacture.
+
 **THE AUTHORITY FOR THIS PACKET'S EXISTENCE, AND ITS LIMIT.** Brett Heap,
 2026-09-11 at approximately 03:40Z, in session to lane `openxfactory-2`
 (display `openXfactory-2`), presented with the lane's MULTI-CHOICE question,
@@ -85,7 +97,7 @@ does not tick on a successor being named. Every box below is `- [ ]`.
 
 ## 2. The filing — what this pull request contains
 
-- [ ] **2.1** `specs/roles-authority-model/spec.md` carries a single
+- [x] **2.1** `specs/roles-authority-model/spec.md` carries a single
       `## MODIFIED Requirements` block whose header is **EXACTLY** the parent's,
       `### Requirement: An enrolled autonomous lane carries a one-edit kill
       switch`, whose first body line carries **SHALL**, and which keeps every
@@ -96,18 +108,91 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       scenarios ("The companion is declared beside the declaration", "An
       undeclared companion is a finding against the enrolment" and "An enrolment
       nobody would notice leaving is refused") — with nothing silently dropped.
-- [ ] **2.2** `proposal.md`'s SECOND heading states the supersession in its own
+      **TICKED 2026-09-21 — SATISFIED ON `main` BY THE FILING, EVIDENCE BENEATH
+      THE BOX.** `specs/roles-authority-model/spec.md` carries ONE
+      `## MODIFIED Requirements` block (line 3) and ONE requirement header
+      (line 5), character-for-character the parent's at
+      `openspec/changes/extend-merge-master-envelope-to-floor-bot-lanes/specs/roles-authority-model/spec.md:53`.
+      Its first body line (line 7) opens *"The model SHALL ensure…"*, so the
+      parser reads SHALL on line one — the gotcha this repository records — and
+      `openspec validate … --strict` is clean (2.5). FIVE scenarios stand at
+      lines 19, 26, 31, 38 and 44: the parent's TWO — "Withdrawing an enrolment"
+      (parent `:56`) AMENDED to what is observable, and "A kill switch outside
+      the diff" (parent `:61`) restated and BROADENED to name secrets and any
+      other value that does not appear in a reviewable diff — plus the THREE
+      added. The parent's requirement block is `:53–:65` and carries NO THIRD
+      SCENARIO, so nothing was silently dropped, and the closing `Modified over`
+      marker (line 17) declares the sibling pairing per requirement as
+      `govern-sibling-added-modified-deltas` requires. Landed by `07a8a45b`
+      (PR #959), +47 lines, the file's only commit.
+- [x] **2.2** `proposal.md`'s SECOND heading states the supersession in its own
       words: **THIS FILING AMENDS A RATIFIED DECISION (N-4) BY SUPERSESSION, AND
       SAYS SO HERE**, quoting N-4 verbatim and naming the clause that is
       measured false.
-- [ ] **2.3** `.openspec.yaml` carries the provenance: the finding with its
+      **TICKED 2026-09-21 — SATISFIED ON `main` BY THE FILING.** `proposal.md`'s
+      headings run `# Proposal: amend-kill-switch-to-declared-test-companion`
+      (line 7) and then, SECOND, `## THIS FILING AMENDS A RATIFIED DECISION
+      (N-4) BY SUPERSESSION, AND SAYS SO HERE` (line 98) — the words the box
+      asks for, character-for-character. N-4 is quoted VERBATIM as a block
+      quote at lines 107–111 ("**The kill switch is the candidate entry.**
+      Deleting it from `.github/merge-approval-envelope.yml` … and is visible in
+      the diff forever."), and line 113 names the clause: *"The clause **'takes
+      one edit'** is measured false (§ Why)."* — followed, in the same
+      paragraph, by the re-affirmation of everything else N-4 decided, so the
+      supersession reads as narrow on its face. The heading and the quotation
+      landed by `07a8a45b` (PR #959); the line numbers are read at `main` =
+      `93a5ce2b`.
+- [x] **2.3** `.openspec.yaml` carries the provenance: the finding with its
       figures, the two records, the authorizing SELECTION verbatim with its time
       and place, that the parent's box 3.6 stays open and is an observation box,
       and that filing ≠ ratifying.
-- [ ] **2.4** `README.md` carries ONE new row at the HEAD of the `Active
+      **TICKED 2026-09-21 — SATISFIED ON `main` BY THE FILING; ALL FIVE ELEMENTS
+      CARRY THEIR OWN LEAD IN `origin.reason`.** (i) THE FINDING WITH ITS
+      FIGURES — line 7, *"THE FINDING, AND IT IS A MEASURED FIGURE RATHER THAN A
+      PREFERENCE"*: codexFactory `main` `0ad92bd5`, 3993 passed / 28 skipped
+      clean against 29 FAILED / 3964 passed / 28 skipped on the one edit, the
+      per-file split, the sixth file (the golden digest), and
+      `scripts/validate-docs.sh:217` putting them inside the REQUIRED check.
+      (ii) THE TWO RECORDS — line 31 (the RESULT on #745 at 03:08Z, and the
+      ruling on #745 comment 5632569506 with codexFactory #232). (iii) THE
+      AUTHORIZING SELECTION VERBATIM WITH ITS TIME AND PLACE — line 38, *"THE
+      WORD THAT AUTHORIZED THE FILING, VERBATIM AND WITH ITS PLACE"*: Brett
+      Heap, 2026-09-11 ~03:40Z, in session to lane `openxfactory-2`, the option
+      *"Accept the finding; file a successor"*, **A SELECTION, NOT A TYPED
+      SENTENCE**, with consequences (3) and (4) quoted. (iv) THE PARENT'S BOX
+      3.6 STAYS OPEN AND IS AN OBSERVATION BOX — line 49. (v) FILING IS NOT
+      RATIFYING — line 58. The ratifying commit then ADDED `approved_by`
+      (line 98) and `approved_on` (line 127) BESIDE the unmoved drafting pair
+      `proposed_by` (line 69) / `proposed_on` (line 97), with `kind` and `id`
+      unmoved — which is task 1.3's act and not this box's. The five provenance
+      elements landed by `07a8a45b` (PR #959); the approval pair by the
+      ratifying commit `c521504c` (PR #974), a pure ADDITION of 30 lines that
+      moved nothing else in that file. Line numbers read at `main` =
+      `93a5ce2b`.
+- [x] **2.4** `README.md` carries ONE new row at the HEAD of the `Active
       changes:` list under `## OpenSpec Records`, naming the status, the lane,
       the authority and **FILING ≠ RATIFYING**.
-- [ ] **2.5** `sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]`
+      **TICKED 2026-09-21 — SATISFIED AT THE FILING, AND THE EVIDENCE IS THE
+      DIFF RATHER THAN TODAY'S FILE.** `07a8a45b`'s README hunk is
+      `@@ -530,6 +530,21 @@`: FIFTEEN lines added IMMEDIATELY AFTER
+      `Active changes:` and therefore AT THE HEAD of that list — ONE row, no
+      other README line moved — naming the status (**`Status: draft`**), the
+      lane (`openxfactory-2`, display `openXfactory-2`), the authority (Brett
+      Heap's SELECTION ***"Accept the finding; file a successor"***, 2026-09-11
+      ~03:40Z, in session, multi-choice, #745 comment 5632569506) and, as its
+      closing sentence, **FILING ≠ RATIFYING** — *"ratification, realization (a
+      codexFactory companion) and archive are three separate acts on Brett
+      Heap's word; none has been given."* **TWO THINGS HAVE MOVED SINCE, BOTH BY
+      DESIGN AND NEITHER A DEFECT IN THIS BOX.** Task 1.3 MOVED THE ROW'S STATUS
+      to **`Status: ratified`**, which is why the row now closes **RATIFICATION
+      ONLY** where it once closed **FILING ≠ RATIFYING** — the box's own text is
+      the at-filing requirement and 1.3 is what superseded it. And later filings
+      have been PREPENDED ABOVE IT, so at `main` = `93a5ce2b` the row sits at
+      `README.md:1057` under the `Active changes:` list that begins at `:533`,
+      rather than at `:535`. **"At the HEAD" is a statement about the ACT, which
+      the diff proves, and never a standing invariant this packet could hold
+      against every later filing.**
+- [x] **2.5** `sequenced_after: [extend-merge-master-envelope-to-floor-bot-lanes]`
       resolves, `OPENSPEC_TELEMETRY=0 openspec validate
       amend-kill-switch-to-declared-test-companion --strict` is clean, and
       `openspec validate --all --strict` has its failure set UNCHANGED from
@@ -129,6 +214,36 @@ does not tick on a successor being named. Every box below is `- [ ]`.
       its own row and the parent's `sole` → `co-modifier` flip — seeded by
       `scripts/validate-sequenced-after.py --seed-ledger --moved-by '#959'`;
       they carry no requirement and no grant.
+      **TICKED 2026-09-21 — RE-MEASURED IN A FRESH CLONE AT `main` =
+      `93a5ce2b`, AND THE GATE THIS BOX STATES HOLDS.** (a) The declaration
+      RESOLVES: `python3 scripts/validate-sequenced-after.py . --ledger-diff`
+      reports 222 change ids, 44 changes declaring `sequenced_after:` with this
+      packet among them, the corpus's DEEPEST DECLARED CHAIN RESOLVED at 4 hops,
+      the ledger *"consistent with the corpus (222 rows)"*, exit 0. (b)
+      `OPENSPEC_TELEMETRY=0 openspec validate
+      amend-kill-switch-to-declared-test-companion --strict` reports *"Change
+      'amend-kill-switch-to-declared-test-companion' is valid"*, with ONE INFO —
+      *"Archive would refuse this delta: roles-authority-model MODIFIED failed
+      for header … not found"* — which is the EXPECTED reading of a
+      `## MODIFIED` over a sibling's UNARCHIVED addition and is the same fact
+      the `sequenced_after` front matter, the delta's closing marker and task
+      5.1(c) already record; it is not a strict failure. (c) `openspec validate
+      --all --strict`: **106 passed, 1 failed (107 items)**, the single failure
+      `change/add-chain-attestation` and NOT this packet's, and the set is
+      UNCHANGED from `main` because this branch's only edit is to this file.
+      **THE TWO EARLIER MEASUREMENTS ABOVE (3 failures, then 2) ARE 2026-09-11
+      READINGS AND ARE KEPT AS HISTORY**: the pre-existing set has since shrunk
+      on `main`, which is a movement of `main` and not of this packet — the
+      box's gate is "unchanged from `main`", never a literal count. (d) The two
+      bookkeeping rows stand at `tests/sequenced_after/corpus-ledger.yaml:203`
+      (this packet — `state: active, class: co-modifier, declares:
+      [extend-merge-master-envelope-to-floor-bot-lanes], depth: 3`) and `:238`
+      (the parent, flipped `sole` → `co-modifier`), BOTH `moved_by: "#959"`,
+      `moved_on: "2026-09-11"`, both added by `07a8a45b`'s
+      `+1 −1 / +1` ledger hunk. **NO LEDGER ROW MOVES BY THE 2026-09-21 ACT AND
+      THE LEDGER IS THEREFORE NOT RE-SEEDED**: ticking a task box changes no
+      `sequenced_after` declaration, no requirement key and no corpus state, and
+      `--ledger-diff` exits 0 after the tick exactly as before it.
 
 ## 3. Realization — NOT PERFORMED BY THIS PULL REQUEST; a codexFactory companion change, authored by that repository's lane after ratification
 
@@ -136,6 +251,15 @@ does not tick on a successor being named. Every box below is `- [ ]`.
 half of this packet is text. The realization is a **companion change in
 codexFactory**, authored there, exactly as
 `extend-merge-master-envelope-to-floor-bot-lanes` split its own halves.
+
+**REALIZATION ANNOTATIONS, 2026-09-21 — A RECORD, NOT A REALIZATION.** Boxes
+3.1, 3.2 and 3.3 below each carry a dated annotation setting out what
+openxFactory's half has DISCHARGED, in this repository's own text and with its
+citations, and what the box still OWES in codexFactory. **NO BOX IN THIS
+SECTION IS TICKED BY THAT ACT AND NOT ONE BYTE OF IT IS A codexFactory BYTE** —
+the sentence above holds exactly as written. An open box in this section
+therefore reads "owed in codexFactory, and named there", never "overlooked",
+which is the same convention § 4 already states for its own boxes.
 
 - [ ] **3.1 The banner correction and the companion declarations — FOR EVERY
       ENROLLED CANDIDATE CLASS, WITH NOTHING GRANDFATHERED.** The requirement
@@ -189,6 +313,45 @@ codexFactory**, authored there, exactly as
       BEFORE opening that pull request, exactly which assertions and which
       artefacts the withdrawal will move. APPLYING the companion is a LATER and
       SEPARATE act, in a later pull request, defined once at **3.6** below.
+      **ANNOTATED 2026-09-21 — OPENXFACTORY'S HALF IS DISCHARGED AS TEXT; THE
+      BOX STAYS OPEN BECAUSE ITS DONE CRITERION IS A codexFactory BYTE.** What
+      this box owes is the banner correction and the companion declarations IN
+      codexFactory's `.github/merge-approval-envelope.yml`, plus the
+      `identifier -> argv` table in that repository's trusted conformance module
+      — and **this lane authors no codexFactory byte**, which `proposal.md`'s
+      `code_surface`, `design.md` D-5 and this section's own heading each state
+      independently. **WHAT OPENXFACTORY OWED, IT HAS DELIVERED, AND IT IS
+      TEXT.** The declaration's SITE and GRAMMAR are fixed at `design.md` D-2
+      (lines 153–240): the site is the envelope's own banner/comment block
+      BESIDE the candidate — comments are not schema, so N-4's refusal of an
+      `active:` member is honoured rather than reversed — and the sibling-file
+      option is WITHDRAWN by name, leaving one site, one grammar, one discovery
+      rule. The grammar is `# companion: <pytest node id>` at FUNCTION grain
+      (`<path>::<Class>::<test>`, or `<path>::<test>` with no class) and
+      `# companion-artefact: <repo-relative path> regenerate: <identifier>` at
+      FILE grain, placed immediately after the candidate mapping's `id:` line
+      OR as that mapping's trailing comment block — the realizing change picks
+      ONE placement and the checker reads that one. The path is constrained to a
+      NORMALIZED REPOSITORY-RELATIVE POSIX PATH CONTAINED IN THE CHECKOUT AND
+      TRACKED AT THE CONTROL BASELINE, with the refusal set stated ONCE and
+      repeated VERBATIM at its three sites (the `## MODIFIED` requirement at
+      `specs/roles-authority-model/spec.md:11`, D-2c, and step 1 of **3.2**
+      below),
+      and the `regenerate:` field is AN ALLOWLISTED IDENTIFIER AND NEVER A
+      COMMAND. The binding SCOPE is fixed too — EVERY enrolled candidate class,
+      NOTHING GRANDFATHERED (`design.md` § 4's closure of the former Q-2;
+      `proposal.md` § Impact; task 5.1's per-class archive block). **WHAT IS
+      DELIBERATELY NOT WRITTEN HERE**, and could not be without re-opening a
+      ratified packet, is the exact banner sentence, the exact comment block,
+      the table's rows and the helper layout: `design.md` D-2e holds that this
+      packet fixes THE INVARIANTS and that ***"THE EXACT COMMANDS, FLAGS AND
+      HELPER LAYOUT ARE THE codexFactory COMPANION CHANGE'S DESIGN TO SPECIFY
+      AND ITS REVIEWERS TO JUDGE"***, because *"a procedure written to the byte
+      into a spec delta is a procedure that must be RE-RATIFIED to change a
+      flag"*. **TICKS ON** the codexFactory companion change landing with the
+      corrected banner and a declaration present for EVERY class enrolled at
+      that time — today TWO, `codexfactory-routine-code` and
+      `openxfactory-floor-regeneration`.
 - [ ] **3.2 The conformance test — ONE PROCEDURE, FIVE NUMBERED STEPS — STEP 2
       IN TWO LETTERED HALVES, THE CONTROL RUN (2a) BEFORE THE WITHDRAWAL (2b) —
       IN THIS ORDER, RUN PER ENROLLED CLASS.** ONE codexFactory test that, per D-2c's
@@ -512,6 +675,34 @@ codexFactory**, authored there, exactly as
       Existence remains necessary and is no longer the check. A stale
       declaration in EITHER half is a failing check rather than a discovery made
       when the switch is thrown.
+      **ANNOTATED 2026-09-21 — THE PROCEDURE IS THIS REPOSITORY'S TEXT AND IT IS
+      COMPLETE; THE BOX STAYS OPEN BECAUSE THE TEST IS A codexFactory BYTE.**
+      The five steps — step 2 in its two lettered halves, THE CONTROL RUN (2a)
+      BEFORE THE WITHDRAWAL (2b) — and THE ORDER ITSELF stand ABOVE THIS
+      ANNOTATION, in this box, as the packet's SINGLE statement of the
+      procedure; 3.1, 3.3, 4.1, `design.md` D-2b and `proposal.md` all POINT AT
+      IT rather than restate it, so there is one text to keep true and not five.
+      The same invariants are stated NORMATIVELY, and therefore bindingly, in
+      the `## MODIFIED` requirement at `specs/roles-authority-model/spec.md:11`,
+      with the scenarios that test them at `:31` ("The companion is declared
+      beside the declaration") and `:44` ("An enrolment nobody would notice
+      leaving is refused"). **THE LINE THIS LANE MAY NOT CROSS IS DRAWN BY
+      `design.md` D-2e (lines 666–692)**, and it is drawn at the invariants:
+      capture before withdrawal; a committed hermetic baseline; a COMPLETE
+      INDEPENDENT inventory with the conformance module excluded BY ITS OWN
+      PATH; per-identifier attribution as (IDENTIFIER, PATH) PAIRS over the FULL
+      working-tree delta, ignored and untracked paths included; allowlisted
+      identifiers resolved ONLY in trusted test code; BOUNDED EXECUTION with
+      expiry a NAMED failure rather than a hung check; lexical refusal and then
+      containment; declared artefacts TRACKED at the control baseline; index AND
+      worktree reset between tools; determinism and idempotence PROVED by a
+      control run whose inventories must be empty; NON-EMPTINESS; and the two
+      equalities with their failure classes. Below that grain — the exact
+      commands, flags and helper layout — the companion's own design and its own
+      reviewers hold the pen. **NOTHING FURTHER IS OWED BY THIS REPOSITORY, AND
+      NOTHING FURTHER MAY BE ADDED HERE WITHOUT RE-RATIFICATION.** **TICKS ON**
+      that ONE codexFactory test existing and running these five steps, in this
+      order, PER ENROLLED CLASS.
 - [ ] **3.3 Nothing else moves.** No candidate mapping, no ruleset, no bypass
       actor, no schema, no workflow logic, no `scripts/`, no `contracts/`, no
       relaxation of any existing assertion, and no rewrite of the pinning suite
@@ -522,6 +713,25 @@ codexFactory**, authored there, exactly as
       re-targeting a declared assertion's expectation to the post-withdrawal
       tree is not a relaxation of it, and this task's bar on relaxation holds
       over the throw exactly as it holds here.
+      **ANNOTATED 2026-09-21 — THE BOUND IS STATED AND IT BINDS A REALIZATION
+      THAT HAS NOT HAPPENED; THE BOX STAYS OPEN.** This box binds the
+      REALIZATION (3.1 and 3.2), which is a codexFactory act, so it cannot be
+      ticked from this repository either: it ticks when that companion lands
+      with 3.1 and 3.2 realized and NOTHING ELSE MOVED. **OPENXFACTORY'S HALF OF
+      IT IS DISCHARGED BY THE ABSENCE OF ANY SUCH BYTE HERE, AND THAT IS
+      MEASURABLE RATHER THAN ASSERTED**: the 2026-09-21 realization pull request
+      moves EXACTLY ONE FILE, this `tasks.md`, so no candidate mapping, no
+      ruleset, no bypass actor, no schema, no workflow logic, nothing under
+      `scripts/` or `contracts/`, no assertion and no line of any pinning suite
+      moves by it — `proposal.md`'s `code_surface` read against the diff instead
+      of promised by it. **AND NO SWITCH IS THROWN OR TOUCHED BY THAT ACT IN
+      EITHER REPOSITORY**, and that too is measured rather than assumed:
+      `.github/merge-approval-envelope.yml` on codexFactory `main` is
+      BYTE-IDENTICAL to the blob this packet recorded at filing —
+      `fa8773628ef69dceab3a912740850c0432ffbce3`, re-read 2026-09-21 — so the
+      candidate entry stands INTACT and nothing has been thrown. The throw is a
+      later and separate act and this bound does not describe it — **3.6**
+      defines that act once.
 - [ ] **3.4 The suite is green.** codexFactory's required `validate` check
       passes, `tests/merge-master/` included, on the companion's pull request.
 - [ ] **3.6 THE THROW, DEFINED — what "THE DECLARED COMPANION APPLIED" IS AS AN
