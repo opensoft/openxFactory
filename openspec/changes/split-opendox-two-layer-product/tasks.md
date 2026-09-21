@@ -1669,9 +1669,16 @@ the bookkeeping that ticks this group.
   points at the commit. Ref → tag → commit is one chain read at two levels, and
   the forge-side `git/ref/tags` and `git/tags` agree on the sha at the joint.)*
   **ONE THING IS REGISTERED AND NOT CLOSED BY THIS TICK**: `contracts/CHANGELOG.md`
-  still reads `Status: draft` in both roots, held for Brett's separate word. The
-  box asked for the TAG and the bundle entries beside it, which is what the
-  evidence carries; the lifecycle header of the CHANGELOG is a different act.
+  still reads `Status: draft` in both roots. The box asked for the TAG and the
+  bundle entries beside it, which is what the evidence carries; the lifecycle
+  header of the CHANGELOG is a different act.
+  **AND THAT WORD HAS NOW BEEN GIVEN — `draft` → `standard`**, RULED
+  2026-09-21T21:31:25Z (`#656` `5767804734`, item 3, under the same *"(a) for all
+  four"* word), with one pull request per root in flight by actor
+  `rehome-lander`. **It is still not this box's condition** and no tick moves
+  with it; recorded here because this is where the registration was made, and a
+  registration whose closure is recorded somewhere else is a registration a
+  reader cannot follow.
 
 ## 4. The openXdox mapping core
 
@@ -2289,8 +2296,14 @@ the bookkeeping that ticks this group.
   clause (b) and § 3.7's three candidate heads are this packet's record of what
   happens when one leg's proof is allowed to stand for another's.)*
   **`Status: draft` in this root's `contracts/CHANGELOG.md` is likewise
-  registered and not closed here** — § 3.8 carries the same registration, and one
-  word from Brett covers both.
+  registered and not closed here** — § 3.8 carries the same registration, and the
+  one word from Brett covers both (given 21:31:25Z, item 3; two root pull requests
+  in flight).
+  **AND THE TAG STANDS AS CUT**, RULED at the same word (item 5): `xdox-v1.0`
+  is not re-cut, not moved and not re-pointed. *(Recorded because a first bundle
+  tag is the one artifact in this packet that cannot be corrected by a later
+  landing — a ruling that leaves it alone is therefore a decision and not a
+  silence.)*
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
@@ -3461,7 +3474,16 @@ the bookkeeping that ticks this group.
   parents, `73ab5076` and `598f18d7`. `lockstep.status` stays **`diverged`**,
   truthfully, because the family that would converge it is the one that did not
   move.
-  **THE CEREMONY IS BACK WITH BRETT** as a corrected RULING NEEDED: the
+  **THE CEREMONY WORD HAS SINCE BEEN GIVEN — RULED 2026-09-21T21:31:25Z, `#656`
+  comment `5767804734` item 2**, under Brett Heap's *"(a) for all four, (i) for
+  the tag, keep going"*, with a ceremony actor claimed at that same comment.
+  **`lockstep.status` STAYS `diverged` UNTIL THAT PULL REQUEST LANDS**, and this
+  box records the word rather than the convergence: a word authorises the
+  ceremony, and the three gates it runs on are what discharge it.
+  *(The paragraph below was written before that word and is kept, because it is
+  what the corrected framing asked for and because it names the three gates the
+  ceremony still owes.)*
+  **THE CEREMONY WAS PUT BACK TO BRETT** as a corrected RULING NEEDED: the
   MIGRATION_PIN move `1f131a23` → `b21f0100` would be the **FOURTH** re-point
   ceremony, and the holder does not read the 20:28Z word as a ceremony word.
   *(AMENDMENT #9 WROTE THE MIS-FRAMING INTO THIS BOX, in good faith, from the
@@ -4471,7 +4493,7 @@ movements claimed at the time they land.
   root the pins and the gate. It owns NO adapter (DQ-1). The `--pin` on
   openXdox — never on openDox — is RULING OQ-2 in the tree, and § 1.10 governs
   how it classifies before and after `opensoft/openRepoShape`#40 lands.
-- [ ] 7.4 `[OmI]` `[Opsx]` The per-tenant install: one instance and one database
+- [~] 7.4 `[OmI]` `[Opsx]` The per-tenant install: one instance and one database
   per tenant in both cases (RULING Q3), the two GitHub Apps created through the
   **App Manifest flow** in the TENANT'S org with the dispatch/content separation
   as a SECURITY INVARIANT, and the `dox` workload set
@@ -4676,6 +4698,26 @@ movements claimed at the time they land.
   the box is satisfied, and the form decides whether the packet can archive with
   it unsatisfied. Those are two questions and this lane answers neither by
   itself.)*
+  **DEFERRED 2026-09-21, AT THE ARCHIVE — OPEN, OWNED ELSEWHERE, AND NOT
+  CLAIMED.**
+  **Owner: lane `opsXfactory-3` (CLAIMED `5638511222`), lane `opsXfactory-4`, and
+  the `[OmI]` `[Opsx]` install repositories.**
+  **RULED — option (a), 2026-09-21T21:31:25Z by Brett Heap**, interactive in the
+  lane session, verbatim: ***"(a) for all four, (i) for the tag, keep going"***
+  (`#656` comment `5767804734`, item 1, where the holder's reading of *"all
+  four"* is stated so it can be corrected). The box is **RECLASSIFIED as
+  NON-GATING** and takes the marker in this amendment rather than at the archive,
+  which is the one difference from §§ 5.6 and 8.4: their `[~]` is owed to the
+  archive act, and this one is owed to a ruling that has landed.
+  **CLAUSE (iii) IS NOT SATISFIED BY THIS, AND THE RECLASSIFICATION DOES NOT
+  PRETEND IT IS.** Reading B stands, the per-tenant install is still not
+  described anywhere, and `[~]` says exactly that: open, owned, unclaimed by this
+  packet. *(The sentence this box used to rest on — that it is an "IN-SCOPE
+  GATING PREREQUISITE" where `[~]` is reserved for non-gating work — is
+  SUPERSEDED BY THE RULING rather than by an argument, and it is kept above so
+  the next reader sees which authority moved it. That is the only thing that
+  could have moved it: the bookkeeper named the contradiction and refused to
+  resolve it alone.)*
 
 ## 8. The archive gate
 
@@ -4869,6 +4911,55 @@ realization evidence, never on landing. Each line is its own evidence.
   an existing promoted spec, and `repromote-engineering-vocabulary` created a new
   one; a REMOVAL is this packet's first, and the floor arithmetic above is the
   only place it has been counted.)*
+  **CORRECTED 2026-09-21 BY A DRY-RUN MEASUREMENT OF THE ARCHIVE ITSELF, AND THE
+  PARAGRAPH ABOVE IS KEPT BECAUSE IT IS THE READING THE ARITHMETIC RESTED ON.**
+  Actor `rehome-lander` pre-staged the archive and ran the pinned CLI over it
+  (`brett-wip` **`46891cfc`**,
+  `attachments/lane-opendox/rehome-lander/prestage-archive-2026-09-21/`,
+  `MEASUREMENTS-2026-09-21.md` plus six raw reports). **`ideation-dashboard` IS
+  NOT REMOVED.** The applied delta is `+7 ~4 -102 → 0`, exit 0: the 102 REMOVED
+  requirements all match canon exactly and go, **and TWO SURVIVE** — the two
+  `retire-doxbench-chat-turn-v1` ADDED titles this amendment already identified
+  at § 8.9 (vii). **AFTER: 15,457 B, 2 requirements, 12 scenarios, directory
+  PRESENT**, and the CLI's own plan says `ideation-dashboard: update`, not
+  `remove`.
+  **SO THE TWO FIGURES ABOVE ARE WRONG IN THE SAME DIRECTION AND BOTH ARE
+  CORRECTED HERE**: this is **THE LARGEST `## REMOVED` BLOCK EVER APPLIED AT AN
+  ARCHIVE IN THIS CORPUS — 102 requirements, 215,683 B of delta — and NOT the
+  first capability removal**, which still has no precedent because it still has
+  not happened; and **capability directories go 63 → 65**, two ADDs with nothing
+  removed, not 63 → 64. *(This lane's own § 8.9 (vii) measurement predicted the
+  survivors and the rump, and this box then wrote "REMOVES" anyway — two boxes of
+  one amendment disagreeing because each was written from a different
+  measurement. The correction is recorded at the box that was wrong.)*
+  **AND THE CONSEQUENCE REACHES R-B's OWN ARITHMETIC, WHICH IS REGISTERED AND
+  NOT REWRITTEN**: R-B records `entry_count 62 → 64, floor total 70 → 72` for the
+  regeneration at the archive's merge commit. If the `ideation-dashboard` path
+  SURVIVES, the floor gains two entries and loses none, so the regeneration is
+  **63 → 65** on the same reading that gives the capability count. **The ruling's
+  figures are the ruling's**: they are registered here for the de-floor act to
+  re-derive from the landed tree rather than corrected by a bookkeeper, which is
+  the same treatment § 7.4's ratified sentence got until a ruling moved it.
+  **ARCHIVE-AS-RATIFIED IS THE DEFAULT AND, MEASURED, THE ONLY RUNNABLE FORM
+  TODAY.** The alternative — amending the delta to remove the two survivors as
+  well — is **REFUSED by the OpenSpec CLI**: *"Spec must have at least one
+  requirement … refused while the spec holds content the merge cannot safely
+  account for"*, because 65 blockquote lines including the 2026-09-16 ERRATUM
+  survive alongside those requirements (`rehome-lander`, `#656` comment
+  `5767829227`; raw reports `brett-wip` **`2e739cd1`**). **The surviving-two
+  question is NOT ruled by word**, so this ledger proceeds on **archive as
+  ratified** and says so in those words rather than implying a decision nobody
+  made.
+  **ARCHIVE-DAY ITEMS THIS BOX REGISTERS, none of them a condition of it**: the
+  strict-validate AFTER red set is `add-chain-attestation` **plus the two NEW
+  promoted specs, which the CLI writes with a `TBD` `## Purpose` placeholder** —
+  the fix is proven, real Purposes into both, after which only
+  `add-chain-attestation` is red; the aggregation sync is **TWO pull requests
+  AFTER the archive** (`health/dispositions.yaml` losing Row A,
+  `add-composed-view-authoring`, whose family goes raw 20 → 17 and which is spent,
+  and Row B, `#473`'s, measured never-live); and **`README.md`:83 still reads
+  *"so § 3.7 is not ticked"***, stale since amendment #8 and non-normative, to be
+  corrected INSIDE the archive pull request.
 - [x] 8.5 All five re-homed changes dispositioned, each with its destination named
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence before this packet's own archive (§ 8).
@@ -5457,6 +5548,48 @@ realization evidence, never on landing. Each line is its own evidence.
   check that this costs nothing today — a zero-match row does not red
   `xFactory`'s `validate` — is what makes the early landing safe rather than
   merely convenient.)*
+  **(viii) THE § 8.9 BEFORE VECTORS, TAKEN WITH THEIR SCOPE NAMED — recorded by
+  AMENDMENT #10, 2026-09-21, from actor `rehome-lander`'s pre-stage
+  (`brett-wip` `46891cfc`).** This row is the baseline half of the record this
+  box's own text fixes the form of, and **it names the scope first because the
+  two scopes do not compare**:
+  **`--single-repo` at `main` `80c68da6`** — canon share **41.4 %**
+  (402,636 / 972,921 B), **31 critical / 28 error / 37 warning / 20 info**, **0**
+  new regressions, and **5 families skipped** (they need `openDox`/`openXdox`
+  materialized). **AGGREGATION MODE at the same tree** — a minimal root with
+  **22 submodules absent**, so its absolutes are NOT the estate's —
+  **16 / 948 / 3294 / 33 BEFORE → 16 / 950 / 3294 / 33 AFTER**, the whole
+  movement being **exactly two new auto-fixable `document-catalog` coverage
+  findings on the two new promoted specs**. `--strict-archive-dates` reads
+  **129 before / 129 after**.
+  *(Two scopes, one tree, and neither vector is wrong: the single-repo run is
+  what this repository's own gate sees, and the aggregation run is what reads the
+  dispositions this packet depends on. The archive pull request must state which
+  one its BEFORE and AFTER came from — the requirement is in this box's own text,
+  it is in `health/dispositions.yaml`:3332-3334, and it is here for the third
+  time because the failure it prevents is silent.)*
+  **(ix) THE WRAPPER'S OWN DRY RUN, and it agrees with this amendment's count**:
+  seven column-0 `- [ ]` today — §§ 3.8, 4.6, 5.6, 6.6, 7.4, 8.4, 8.9 — measured
+  at the pre-stage before this amendment's three ticks and § 7.4's `[~]`, which
+  leave §§ 5.6, 8.4 and 8.9. **§ 7.3's `[~]` is not a blocker**, which is the
+  whole reason the form exists.
+  **(x) THE `#473` DISPOSITION ROW IS MEASURED NEVER-LIVE, AND THE DISAGREEMENT
+  THAT PRODUCED IT IS RECORDED RATHER THAN TIDIED.** At the CLI-applied AFTER
+  tree (aggregation mode, run from the sandbox's own scripts, `xFactory` `main`
+  `0675ff56`): **row PRESENT 0/0/0/0, row REMOVED 0/0/0/0, finding sets
+  byte-identical** — the row suppresses nothing, and the two titles it disposes
+  are the two requirements that **SURVIVE** the archive (post-archive spec lines
+  **28** and **156**). **The row was written on a simulation that deleted the
+  promoted spec wholesale**, which is the same wrong premise this box's § 8.4
+  sibling carried; the faithful measurement settles it (`#656` `5767829227`,
+  raw reports `brett-wip` `2e739cd1`). **The landing stays recorded as a fact at
+  (vii) with this verdict beside it** — a disposition that turned out to be
+  unnecessary is not a mistake to erase, it is the cost of landing a declared
+  exception before the act it was declared for.
+  **AND A SIDE-FINDING IT EXPOSES, registered**: `health/dispositions.yaml`:3104
+  states *"§ 6.2 … MUST NOT GET ONE BY ANALOGY"* while `:3339` is precisely such
+  a row — a file contradicting itself, settled by Row B's removal in the
+  archive-day sync rather than by an argument.
   *(One caveat the archive's own doc-health record MUST carry or its vectors will
   not compare: dispositions live at the AGGREGATION root, so a `--single-repo`
   self-gate run sees NONE of them — `promotion_fidelity.py`:736-740. A BEFORE run
