@@ -72,3 +72,23 @@ origin:
     (no second `## REMOVED` block) and D4 (this packet archives BEFORE the split
     packet, so the fifteen are never in no capability at all).
   proposed_on: 2026-09-16
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — on 2026-09-18 at ~10:25Z, lane
+    `openxfactory-4` (display `openXfactory-4-openDox_extraction`), by INTERACTIVE
+    MULTI-CHOICE over four questions, the recommended option taken each time, and
+    recorded at openxFactory issue #656, comment 5728607038
+    (https://github.com/opensoft/openxFactory/issues/656#issuecomment-5728607038),
+    whose ruling **R-A** reads: "§ 5.2a — `repromote-engineering-vocabulary` is
+    RATIFIED (filed by #1071 → `e83f8cd7`; `code_surface: none`,
+    `target_release: implemented`, so it archives on landing with no build)."
+    THIS IS THE RATIFICATION ACT AND IT IS ADDED, NOT SUBSTITUTED. The drafting
+    provenance above is kept exactly as authored and `kind` and `id` never move,
+    which is the shape `add-drafted-proposal-origin` (issue #318) defined for this
+    transition: approval is a pure ADDITION beside a fixed origin identity, so the
+    support manifest that repeats `kind` and `id` never comes to disagree with the
+    packet, and the archive gate's origin-retention arm reads the declaration this
+    commit establishes. THE WORD IS NOT A BARE "ratify": it was given as the
+    recommended option of a multi-choice question, which is why the form of the
+    act is named here rather than a verbatim token quoted — the same ruling's R-B,
+    R-C and R-D settle § 5.6 and belong to arc F, not to this packet.
+  approved_on: 2026-09-18

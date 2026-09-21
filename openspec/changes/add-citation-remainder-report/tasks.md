@@ -533,7 +533,7 @@ evidence is a fact about a merge that has not happened.
       only one of them is the run this record names, and a record naming
       figures no named run produced is a record a reader cannot check.
       (Copilot `PRRT_kwDOTAvnrs6jdTOB` on PR #1100.)
-- [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
+- [x] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
       adding no branch and asking no write permission. **AND THE STEP RUNS IN
@@ -571,7 +571,123 @@ evidence is a fact about a merge that has not happened.
       derive-possibles shape, the output moves INSIDE the scanned root, and
       D3(a)'s output-path exclusion becomes LIVE rather than structural and MUST
       land in the same pull request.
-- [ ] 2.3 **THE FIRST MEASUREMENT THE REPORT ITSELF PRODUCES, AS EVIDENCE.**
+      **LANDED, 2026-09-18, realization slice R2.**
+      `.github/workflows/doc-health-reusable.yml`, two steps in the `finalize`
+      job immediately after `Upload report artifact` — the reading and its
+      upload — and `tests/citation_remainder/test_report_wiring.py`, NEW, which
+      parses the shipped workflow and pins them. **WHAT THIS TICK CLAIMS IS THE
+      DIFF AND NOT A RUN**, which is the tick rule's own first clause: the
+      wiring this item describes is in the pull request that carries this tick.
+      **THE FIRST `doc-health-nightly` RUN THAT PRODUCES THE ARTIFACT IS OWED
+      SEPARATELY AND IS NOT CLAIMED HERE** — cited by run id and artifact name
+      (`citation-remainder-<YYYY-MM-DD>`), arriving within 24 hours of the merge
+      on the aggregation's own cron (`17 2 * * *`) or immediately by
+      `workflow_dispatch`, and landing in § 3.3's realization comment and the
+      archive pull request's own evidence list. A merged workflow file is not
+      evidence that a step ran, which is the parent packet's § 4.5 lesson one
+      notch down, and the distance between the two is exactly this paragraph.
+      **THE STEP IS THE ONE THIS ITEM PRESCRIBES, NOT A NEIGHBOUR OF IT**:
+      ONE invocation, ONE file, `--json` with no operand, the script path
+      submodule-qualified, the `REPO_ROOT` positional `openxFactory`, and the
+      redirect target at the aggregation root — each asserted against the
+      parsed YAML rather than read, and each proved to BITE by breaking the
+      shipped step sixteen ways and watching a named test catch every one.
+      **TWO DECISIONS THIS ITEM LEFT OPEN WERE TAKEN IN THAT PULL REQUEST
+      RATHER THAN IN A YAML COMMENT.** Q6 — whether a cannot-run of an
+      advisory report reds the governance nightly — takes the house's own
+      habit over the realization plan's recommendation: `continue-on-error:
+      true` plus an explicit `::warning::` on every failure path, because this
+      capability's own requirement rules that *"PROMOTING THE REPORT TO A GATE
+      SHALL BE A SEPARATE ACT ON A SEPARATE WORD"* and this is not that word,
+      because every other optional lane in that file records a graceful skip,
+      and because the nightly has concluded `failure` on each of its last eight
+      scheduled runs for reasons owned elsewhere, so a ninth way to red it
+      carries no signal a reader could act on. NOTHING IS SWALLOWED: the
+      warning annotates and the upload's `outcome` gate leaves the artifact
+      absent, so a night without a reading is a VISIBLE hole in D6's series
+      rather than a false point in it. And the tree-state check the step makes
+      of its own checkout is FOLDED under that same posture rather than split
+      out to red unconditionally, on a fact measured in the workflow rather
+      than assumed: the neutrality lane's merge inside `Run doc-health suite`
+      can persist writes under `openxFactory/health/neutrality-drift/` — the
+      step immediately after this one exists to commit them back, and
+      `baseline/codexFactory.yaml` is already tracked — so a modified checkout
+      at this point is a foreseeable state of another lane doing its work and
+      not a defect to fail a nightly for. The step is ordered ahead of both
+      commit-backs so the reading is taken while the checkout still stands at
+      its pinned commit, and that ORDER is itself asserted.
+      **AND D6 IS MEASURABLE UNDER D5 OPTION 1, WHICH WAS AN OPEN QUESTION AND
+      IS NOW A MEASUREMENT.** The series lives only in artifacts under this
+      option, so the retention was read rather than guessed — and read in the
+      right repository: a reusable workflow's artifacts belong to the CALLER,
+      so they live in `opensoft/xFactory`, which holds every artifact this
+      nightly has ever produced while `opensoft/openxFactory` holds none of its
+      own. Sixty consecutive artifacts there expire exactly 90 days after their
+      run starts (`doc-health-report-2026-09-18`, run `35299844095`, started
+      `2026-09-18T02:33:56Z`, expires `2026-12-17T02:33:57Z`). D6's `N = 14`
+      window fits six times over, `retention-days: 90` matches that effective
+      maximum rather than raising it, and D5 option 2 is not forced.
+      **THE SCENARIOS THIS WIRING IS EVIDENCE FOR, BY NAME, AND THE ONE IT IS
+      NOT.** R2 realizes no requirement of its own — all five are R1's — but
+      the wiring and its test are a DIFFERENT KIND of evidence for three
+      scenarios R1 covers at the CLI level, and naming them keeps a reader from
+      reading R2 as contributing nothing toward the spec. *The tree read is not
+      clean at the head printed* (**The citation remainder is reported**):
+      R1's fixtures cover the CLI's own declaration; the step's assertion is
+      that fact ENFORCED on the live nightly checkout, pinned by
+      `test_the_tree_state_of_the_reading_is_checked_and_not_merely_printed`
+      and by
+      `test_the_reading_is_taken_before_any_step_that_writes_in_the_submodule`.
+      *A reading is compared against an earlier reading* (**The reported
+      population is derived from a stated recipe**): a FIXED, non-drifting argv
+      is what keeps each night's reading a later point in the SAME series
+      rather than a differently defined one, pinned by
+      `test_the_argv_is_the_fixed_one_and_carries_no_refinement`,
+      `test_the_nightly_runs_the_report_exactly_once`,
+      `test_the_script_path_is_submodule_qualified`,
+      `test_the_repo_root_positional_is_this_submodule_and_never_a_default` and
+      `test_the_json_flag_is_passed_with_no_operand`. *The report's own output
+      is committed into the corpus* (same requirement): under D5 option 1 the
+      nightly commits nothing, so the scenario's antecedent never fires on this
+      path — R2 makes it INAPPLICABLE by construction rather than making it
+      pass, the output standing outside the scanned root by
+      `test_the_reading_is_written_outside_the_scanned_root`, and D3(a)'s
+      exclusion machinery staying dormant until D5 option 2 would make it live.
+      **NOT CLAIMED**: *A caller's refinement names the report's own output* —
+      the step passes no `--include` and no `--exclude`, so that scenario is
+      exercised by R1's fixtures alone; what this slice adds is the assertion
+      that the nightly never starts passing one.
+      **ADDENDUM, 2026-09-19, realization slice R3 — THE FIRST PRODUCING
+      NIGHTLY, WHICH THIS ITEM'S OWN RECORD NAMES AS OWED AND DOES NOT CLAIM.**
+      `opensoft/xFactory` `doc-health-nightly` run `35415908738`, event
+      `schedule`, started 2026-09-19T02:31:31Z at aggregation commit
+      `e7af336fcf0256d21688fe26e341a4781a9f4f50`, uploaded
+      `citation-remainder-2026-09-19` — artifact id `10575838648`, 10,682 bytes
+      zipped, `retention-days: 90`, expiring 2026-12-18T02:31:31Z. The reading
+      step ran to `success` and emitted no `::warning::` on any of its three
+      failure paths; the upload step ran to `success` after it. **THE RUN'S
+      OVERALL CONCLUSION IS `failure` AND THAT IS NOT A FACT ABOUT THIS
+      ARTIFACT**: it died 75 seconds later at *Open regression issue* on
+      `GraphQL: Body is too long (maximum is 65536 characters) (createIssue)`
+      — openxFactory #1118, a fix in flight — which is exactly the night
+      `if: always()` was written for, and the reason this record looks for the
+      ARTIFACT rather than for a green run. **AND THE FACT THAT MADE THE NIGHT
+      POSSIBLE IS INVISIBLE FROM THE ARTIFACT ALONE**: the aggregation
+      initializes its submodules AT THE RECORDED GITLINK and never at the
+      submodule's `main`, so the run read the report from
+      `89d7975d9e042ae6987131633bc0dd91226ea6f2` only because `opensoft/xFactory`
+      PR #467 (merge `d9a0c2b6e4fa82911af443d463cb167e35797bac`,
+      2026-09-18T20:19:14Z) moved that gitlink there — a pin-sync in a
+      DIFFERENT repository, owed and taken between this item's merge and this
+      addendum, and named by no earlier document in this packet. What the
+      artifact carries: `head` `89d7975d9e042ae6987131633bc0dd91226ea6f2`,
+      `tree_unmodified_at_head: true`, 620 distinct tokens over 2,989 files
+      read, INCLUSIVE remainder **86 TOKENS / 57 IDENTITIES**, FILTERED 47 / 30.
+      **THIS ADDENDUM DISCHARGES THE HALF THIS ITEM'S OWN RECORD NAMED AS OWED
+      AND MOVES NO DECISION OF R2'S**: the tick above still claims the diff and
+      not the run, Q6's folded posture and Q2's 90-day measurement stand exactly
+      as R2 wrote them, and nothing here re-words them.
+- [x] 2.3 **THE FIRST MEASUREMENT THE REPORT ITSELF PRODUCES, AS EVIDENCE.**
       § 1.9's `evidence/measurement-b1df95ee.md` is the HAND-INSTRUMENTED
       reading and it is already committed; what § 2.3 owes is the first reading
       the SHIPPED CLI produces, taken at the realization head and checked
@@ -579,6 +695,95 @@ evidence is a fact about a merge that has not happened.
       CLI is not the instrument this packet measured with**, and a disagreement
       is a defect in the CLI rather than a new fact about the corpus. It is what
       D6's series starts from.
+      **LANDED, 2026-09-19, realization slice R3.**
+      `evidence/first-report-89d7975d.md`, NEW, carried by commit `42735d3a` of
+      this pull request. **THE READING WAS TAKEN AT THE REALIZATION HEAD**
+      `89d7975d9e042ae6987131633bc0dd91226ea6f2` — § 2.2's own merge commit,
+      the commit at which both earlier realization slices stand landed and the
+      one the aggregation's `openxFactory` gitlink pins — in a dedicated
+      detached worktree, `python3 scripts/report-citation-remainder.py . --json`,
+      **exit 0**, no refinement passed and `--history` left off because § 2.3
+      asks for a reading of a TREE and not of a history. The reading declares
+      its own tree state beside its own head: `tree_unmodified_at_head: true`,
+      `tree_state: the tracked content read stands UNMODIFIED at this head`,
+      which is what makes it a point in D6's series rather than a number.
+      **THE FIGURES**: 5,536 tracked entries, 2,993 in scope, 2,989 files read,
+      620 distinct tokens, INCLUSIVE remainder **86 TOKENS / 57 IDENTITIES**,
+      FILTERED 47 TOKENS / 30 IDENTITIES, `AMBIGUOUS` **0**, classes 5
+      `truncated` / 0 `punctuation-stripped` / 19 `fixture-path` / 62
+      `unclassified`. Both arithmetic rows close in the report's own output:
+      `2,993 = 2,989 + 4 + 0 + 0` and `86 = 47 + 39` remainder entries carrying
+      the cross-repository flag, the corpus-wide flagged figure of 83 being the
+      larger and different quantity it is printed as.
+      **THE REPRODUCTION GATE PASSES ON THE INCLUSIVE READING, FIELD BY
+      FIELD**, against § 1.9's hand instrument run over the SAME worktree at
+      the SAME commit: tracked entries 5,536, entries in scope 2,993,
+      raw-path-absent under choice (2) 165, repaired by the identity rule 79,
+      DANGLING identity half 80, file half 6, AMBIGUOUS 0 and the INCLUSIVE
+      remainder 86 all agree TO THE TOKEN. **ONE FIGURE-PAIR MOVES AND IT IS
+      THE DIVERGENCE R1 ALREADY RECORDED**, re-found here independently at a
+      different head and in the same direction: distinct tokens 620 where the
+      hand instrument reads 619, and NOT-A-PACKET-REFERENCE 6 where it reads 5,
+      for the single token `openspec/changes/archive/..`, which the hand
+      instrument folds by stripping a dot off a `..` segment and the report
+      refuses to fold. The two token sets were DIFFERENCED rather than
+      estimated: that one token is the whole of it, its raw path is present and
+      its outcome is NOT-A-PACKET-REFERENCE, so it stands outside the remainder
+      population twice over and the remainder is unmoved at 86 either way.
+      Nothing else disagrees, so § 2.3's defect clause is not reached.
+      **AND THE INSTRUMENT IS PROVED TO BE § 1.9'S OWN, AT § 1.9'S OWN HEAD.**
+      Run over a detached worktree at
+      `b1df95ee80633339907c9e661164a783885a5d30`, whose
+      `scripts/packet_reference.py` is byte-identical to this head's, the
+      shipped report reads 572 / 151 / 73 / **78** against the committed
+      evidence's published 571 / 151 / 73 / **78** — the same one token apart,
+      the remainder identical, 2,973 entries in scope and 2,969 files read as
+      R1's record also found. So the movement from 78 there to 86 here is
+      CORPUS movement read by one unchanged instrument and not a change of
+      instrument.
+      **THE HEADLINE DIFFERS FROM D0'S TABLE BY THE THREE FIXED CHOICES, AND
+      THIS RECORD SAYS SO BEFORE A REVIEWER ASKS.** Three readings of this one
+      tree: `issue-native`, 620 tokens and **86** remainder, which is the
+      shipped report because those three choices are what the delta FIXES; the
+      prose regex as written with DANGLING + AMBIGUOUS only, 636 and 90, which
+      is D0(iv)'s and § 1.1's reading; and `literal`, 636 and 96. Two
+      identities re-derived rather than quoted: `636 − 619 = 17` raw spellings
+      absorbed by normalize-before-dedup, and `96 − 6 = 90`, the six
+      NOT-A-PACKET-REFERENCE tokens the literal reading holds inside its
+      remainder. **THE GAP TO WEIGH IS 86 AGAINST 90 AT ONE COMMIT**, not 86
+      against the published 82, which was taken at an earlier head; the rest of
+      that distance is corpus movement and § 1.9's control already proved the
+      methodology is not the variable.
+      **AND THE READING WAS TAKEN A SECOND TIME, BY THE NIGHTLY, ON A MACHINE
+      NOBODY IN THIS LANE TOUCHED.** Run `35415908738`'s artifact
+      `citation-remainder-2026-09-19` (§ 2.2's addendum above) and the local run
+      agree in `head`, `tree_unmodified_at_head`, `tree_state`, `reading`,
+      `population`, `counts`, `grouping`, `listed` and all 57 listed
+      identities; the single field that differs is `root`, the absolute path of
+      the checkout each read, which is a fact about where the tree stood and
+      not about the tree. D6's series has its first point.
+      **WHAT IS NOT COMMITTED, AND WHY IT IS A DECISION.** The `--json` dump and
+      the itemized per-identity table are NOT in this pull request; they stand
+      in the repository `opensoft/brett-wip` at
+      `handoffs/xFactory/attachments/openxfactory-1-2026-09-13/1053/`, cited by
+      repository and repo-relative path exactly as § 1.9 cites its own 1.5 MB
+      dump. This packet's `evidence/` directory is INSIDE the scanned
+      population and the itemized table writes one citation token per remainder
+      line, so committing it would be the largest single act of self-counting
+      this packet could perform — the mechanism D5 exists to refuse — and it
+      would FIRE the delta's own *The report's own output is committed into the
+      corpus* antecedent, whose THENs pull the output-path exclusion into a
+      slice the realization plan sized as documents. **THIS IS THAT PLAN'S Q3
+      RECOMMENDATION, TAKEN UNDER THE AUTHORIZATION IT GIVES R3's AUTHOR, WITH
+      CONFIRMATION OUTSTANDING.**
+      **AND THE COMMITTED NOTE MINTS NO REMAINDER OF ITS OWN**, which is the
+      acceptance check this packet uniquely owes, taken in two clean detached
+      worktrees rather than by restoring a dirty tree: at this branch's merge
+      base `b0329d65` and at its head, 619 distinct tokens, 86 inclusive, 57
+      identities and 47 filtered on BOTH sides; only FILES read moves, 2,978 to
+      2,979, by the one file this slice adds, which is the whole claim. Δ = 0.
+      **THE FIGURES ARE PINNED TO THE RUN THAT PRODUCED THEM**, because they
+      are a reading of a MOVING corpus and not a property of this packet.
 - [ ] 2.4 **THE REALIZATION EVIDENCE IS GREEN BEFORE IT IS CLAIMED.** The
       realization pull request merged into `main`, and a `pytest-suite` run at
       the tree that merge carries GREEN. That pair is what § 3.4 archives on

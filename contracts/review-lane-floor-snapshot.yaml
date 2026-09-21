@@ -157,12 +157,12 @@ floor:
     # ==== BEGIN MACHINE-GENERATED BLOCK — DO NOT HAND-EDIT ====
     # prefix:             openspec/specs
     # source_repository:  opensoft/openxFactory
-    # generated_at:       e32d580aea6bb2ddcfd91231107490b1abd6e43f
-    # entry_count:        62
+    # generated_at:       fc837dffb9be0b8c28823c339e401f97e0e3e28a
+    # entry_count:        63
     # regenerate with:
     #   python3 scripts/merge_master/generate_specs_floor_block.py \
     #     --repo <opensoft/openxFactory checkout> \
-    #     --ref e32d580aea6bb2ddcfd91231107490b1abd6e43f --write
+    #     --ref fc837dffb9be0b8c28823c339e401f97e0e3e28a --write
     #
     # ONE GROUND FOR THE WHOLE BLOCK, and it is not the ground above it.
     # The eight entries ABOVE are separately reasoned GATE CHOKEPOINTS: each one
@@ -235,6 +235,7 @@ floor:
     - openspec/specs/neutral-product-pin/spec.md
     - openspec/specs/omnigent-domain-overlay/spec.md
     - openspec/specs/omnigent-install-manifest/spec.md
+    - openspec/specs/openxfactory-engineering-adapter/spec.md
     - openspec/specs/pattern-ledger/spec.md
     - openspec/specs/project-repo-schema/spec.md
     - openspec/specs/reference-proof-placement/spec.md

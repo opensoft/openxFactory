@@ -1,6 +1,7 @@
 # Design: repromote-engineering-vocabulary
 
-Status: draft
+Status: ratified
+Ratified: 2026-09-18 by Brett Heap (openxFactory operator authority), by interactive multi-choice (four questions, the recommended option each time) — recorded at [openxFactory #656, comment 5728607038](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5728607038), ruling **R-A**: *"§ 5.2a — `repromote-engineering-vocabulary` is RATIFIED"*.
 Authored: 2026-09-16, lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
 `substrate52a`, against a fresh clone of `main` at `fa39141c`. Every count below was produced by a
 script over that tree and is reproducible from it; none is read off prose. **Currency**: this branch
@@ -280,5 +281,8 @@ UNCHANGED sha256 — which is § D3's claim, measured rather than argued.
 * It does not RE-AUTHOR any requirement's subject. Per the map's own Migration text, *"The subject
   stays `openxFactory SHALL` because the repository does not change."*
 * It does not touch `docs/opendox-carve-manifest.yaml`, any pin, any gitlink or any submodule.
-* It does not ratify and does not archive. Both are Brett Heap's word, and `tasks.md` § 1 and § 3 hold
-  them as separate acts.
+* It did not ratify and did not archive **at its filing** — both were Brett Heap's word, held by
+  `tasks.md` § 1 and § 3 as separate acts. Both have since been given: RATIFIED 2026-09-18 (#656
+  comment `5728607038`, ruling R-A) and ARCHIVED by PR #1103, which is the record this copy sits
+  in. The bullet is kept in the past tense rather than deleted, because what this packet did NOT
+  decide at filing is the thing the list is for.
