@@ -1674,8 +1674,20 @@ the bookkeeping that ticks this group.
   header of the CHANGELOG is a different act.
   **AND THAT WORD HAS NOW BEEN GIVEN — `draft` → `standard`**, RULED
   2026-09-21T21:31:25Z (`#656` `5767804734`, item 3, under the same *"(a) for all
-  four"* word), with one pull request per root in flight by actor
-  `rehome-lander`. **It is still not this box's condition** and no tick moves
+  four"* word), **and BOTH PULL REQUESTS HAVE LANDED**: `opensoft/openDox`
+  **`#12` → `36ded1cd`** (21:38:52Z) and `opensoft/openXdox` **`#14` →
+  `6df0a030`** (21:39:18Z), one file each, `contracts/CHANGELOG.md` only
+  (`#656` `5767893802`).
+  **THE TAGS ARE NOT MOVED, WHICH PRODUCES A FACT WORTH STATING PLAINLY**: each
+  tag still points where it was cut, so the `Status:` header reads `draft` AT THE
+  TAG and `standard` at `main`. The bundle VALUES are byte-identical either way —
+  this is a document-header fact and not a release-content difference.
+  *(A CORRECTION TO THE REPORT THIS RECORD WAS GIVEN, measured: it said each tag
+  is now `main~1`. That is true of **openDox** — `main` `36ded1cd`, `main~1`
+  `dc7aa08f`, the tag's target — and NOT of **openXdox**, where `#15`'s pin
+  advance landed after `#14`, so `main` is `646f1dc0`, `main~1` is `6df0a030` and
+  the tag's target `2073e3a9` is `main~2`. The distance is not the point; being
+  able to say it exactly is.)* **It is still not this box's condition** and no tick moves
   with it; recorded here because this is where the registration was made, and a
   registration whose closure is recorded somewhere else is a registration a
   reader cannot follow.
@@ -2304,6 +2316,29 @@ the bookkeeping that ticks this group.
   tag is the one artifact in this packet that cannot be corrected by a later
   landing — a ruling that leaves it alone is therefore a decision and not a
   silence.)*
+  **AND THE PIN CHAIN HAS TAKEN ITS FIRST STEP — `opensoft/openXdox` `#15` →
+  `646f1dc04194a711d0d7178a03b1cf4442405d88`**, merged **21:51:39Z**, two files
+  (`contracts/opendox-pin.yaml`, `contracts/manifest.yaml`): the root's own pin of
+  openDox advances `c4c5014d` → **`dc7aa08f`**, which is `dox-v1.0`'s commit, with
+  the digest re-derived. **The migration sentinel is FILLED rather than left
+  hollow**, per that pin header's own ASK-1 test — measured in the landed file:
+  `migration.range: "0001..0002"`, `reversible: false`, and a `runbook` naming
+  `opensoft/openDox-code` `docs/runtime.md` §§ 5-6 at the pinned code leg
+  `d816cf06`. CLAIMED `5767868394`; recorded at `#656` `5768022822`.
+  **THAT COMMENT ALSO CARRIES A HOLDER CORRECTION, AND IT IS THE RIGHT SHAPE**:
+  `5767868616` had said no migration runbook exists — **wrong**, found by a
+  Copilot FACT finding at `0e19ed36` and fixed at `054380c6`, so the
+  non-blocking-runbook ruling is WITHDRAWN and the sentinel names a real
+  document. *(The pin file says so in its own `runbook` value, which is where the
+  next reader will look.)*
+  **A LABEL COLLISION, FLAGGED ONCE**: *"STEP 1"* now names two different acts —
+  `xFactory` `#474`'s pointer advance under the gitlink-PARITY order (§ 8.7's
+  record A2) and this pin-CHAIN order at `5767733963`. Each is cited to its own
+  comment, which is what tells them apart; neither is renamed.
+  **STILL AHEAD, and neither is this box's condition**: STEP 2 is `openxFactory`'s
+  nested legs (`openDox` → `dc7aa08f`, `openXdox` → `646f1dc0`, both pin files
+  with an identical triple), dispatched under its own claim, and STEP 3 is the
+  aggregation sync (claim `5767572080`).
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
@@ -3477,9 +3512,32 @@ the bookkeeping that ticks this group.
   **THE CEREMONY WORD HAS SINCE BEEN GIVEN — RULED 2026-09-21T21:31:25Z, `#656`
   comment `5767804734` item 2**, under Brett Heap's *"(a) for all four, (i) for
   the tag, keep going"*, with a ceremony actor claimed at that same comment.
-  **`lockstep.status` STAYS `diverged` UNTIL THAT PULL REQUEST LANDS**, and this
-  box records the word rather than the convergence: a word authorises the
-  ceremony, and the three gates it runs on are what discharge it.
+  **AND THE CEREMONY ITSELF HAS LANDED — `opensoft/xFactory` `#475` →
+  `c88d1fddf9c18704617f15fed8368f075a6ceafc`**, a **MERGE COMMIT** (two parents,
+  `9cec3640` and `96d0b91b`), merged **2026-09-21T21:55:36Z**: the **FOURTH**
+  MIGRATION_PIN re-point, `1f131a23` → **`b21f0100`**, at **exactly the three
+  surfaces** and no others — the caller refs in
+  `.github/workflows/merge-master-approval.yml` and
+  `.github/workflows/council-convening-lane.yml`, and `MIGRATION_PIN` in
+  `tests/test_merge_master_workflows.py`.
+  **ITS FOUR GATES ARE RECORDED BECAUSE THE CEREMONY IS THE GATES**: **G1**
+  golden characterization **37 passed** at `b21f0100`; **G2** envelope
+  re-validation OK, with the vendored golden envelope now byte-identical to live;
+  **G2a** the 21-case corpus **IDENTICAL = 21** at both pins; the guard plane
+  **212 passed**; **G3** the live lane re-proved at the OLD pin (run
+  `35658107765`, SUCCESS); **G4** `validate` **229 passed**. Rollback target
+  `1f131a23`. Copilot's one Low finding — stale *"three times"* prose in the
+  aggregation's `CLAUDE.md` rule 2 and in a test comment — is REGISTERED to a
+  follow-up docs pull request. Recorded at `#656` `5768064136`.
+  **SO THE CEREMONY HALF OF THE CORRECTED R-5 IS DONE, AND THE CONVERGENCE IS
+  NOT**: the `codexFactory` gitlink (at `b21f0100` since `#472`) and MIGRATION_PIN
+  now agree, so `openxFactory`'s `lockstep.status` flips `diverged` →
+  `converged` in a FOLLOW-ON `openxFactory` pull request
+  (`contracts/review-lane-pin.yaml` plus its test literal), in flight by the
+  ceremony actor. **PENDING, not landed** — this box records the word, the act
+  and the gates, and refuses to record a status flip that has not happened.
+  **AND THE AGGREGATION'S OWN LEG POINTERS ARE STILL BEHIND**: `openDox` reads
+  `c4c5014d` and `openXdox` reads `88a1047e` until the pin chain's STEP 3 lands.
   *(The paragraph below was written before that word and is kept, because it is
   what the corrected framing asked for and because it names the three gates the
   ceremony still owes.)*
@@ -4676,11 +4734,19 @@ movements claimed at the time they land.
   today, it has nothing yet to act on. What it does not have is a claim on THIS
   packet's gate.)*
   **STATUS — THE FORM THIS BOX TAKES AT THE ARCHIVE IS WITH BRETT. Recorded by
-  AMENDMENT #10, 2026-09-21; the marker does not move here.** Clause (iii) stands
-  REFUSED on Reading B, so the box is `[ ]` — and
+  AMENDMENT #10's EARLIER ROUND, 2026-09-21, when the marker had not yet
+  moved.** Clause (iii) stood REFUSED on Reading B and the box read `[ ]` — and
   `scripts/proposal-support.py`:4632-4633 refuses any archive whose `tasks.md`
-  still matches `^- \[ \]`, which makes this box's FORM a question the archive
-  cannot dodge.
+  still matches `^- \[ \]`, which is what made this box's FORM a question the
+  archive could not dodge. **The marker has since moved to `[~]` on the ruling
+  recorded below; the box still does NOT TICK, and that is unchanged.**
+  *(CORRECTED at a Copilot FACT-class finding against head `b60dd5ff`: this
+  paragraph read *"the marker does not move here"* and *"the box is `[ ]`"* while
+  the marker two hundred lines above already read `[~]`, and the ruling paragraph
+  below says in terms that it takes its marker here. A ledger that states its own
+  marker wrongly is worse than one that states it vaguely, so the finding is
+  taken rather than registered — the fourth time in this amendment that the fix
+  was to bind a sentence to the round that wrote it.)*
   **THREE OPTIONS ARE PUT AND NONE IS TAKEN HERE** (RULING NEEDED, carried in
   this lane's § 8 archive-readiness note on `#656`): **(1)** RECLASSIFY the box as
   open, owned-ELSEWHERE and NON-GATING and give it the reserved `[~]` with
