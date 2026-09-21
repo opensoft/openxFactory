@@ -148,15 +148,16 @@ aggregation's alone left them admitted by nothing.
 
 **ROW 3 LOSES THE `pin` ADMISSION — RULED 2026-09-21, AND THE FIRST FILING HAD
 IT WRONG.** The candidate above admitted `codeXfactory/codexFactory` by THREE
-kinds, one of them `pin (`review-lane-pin.yaml`)`; Copilot's review of the
+kinds, one of them `pin (review-lane-pin.yaml)`; Copilot's review of the
 REALIZATION pull request #1119 (not #1101, already merged by then) named the
 mismatch, put to Brett Heap as a multiple choice, and RULED — verbatim *"Drop
 the pin admission on row 3"* — against the two alternatives also put:
 WIDENING the `pin` kind's own definition to admit a commit-only pin of
 governance code, and ADDING A SIXTH admission kind for that case, both
-DECLINED because row 3 is admitted without either, by `gitlink
-(`opensoft/xFactory`)` and `workflow` alone. `contracts/review-lane-pin.yaml`
-is `kind: pinned_workflow`, a COMMIT-ONLY pin (no digest set, by the file's own
+DECLINED because row 3 is admitted without either, by
+`gitlink (opensoft/xFactory)` and `workflow` alone.
+`contracts/review-lane-pin.yaml` is `kind: pinned_workflow`, a COMMIT-ONLY pin
+(no digest set, by the file's own
 header) of EXECUTABLE GOVERNANCE CODE — which commit of codexFactory's
 decision core judges THIS repository's own merge-master lane — and row 3's own
 governance class is already `governed`, not `pinned`: the file satisfies

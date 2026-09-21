@@ -210,8 +210,8 @@ request — **#1119**, the realization (`tasks.md` § 3) — and not #1101, merg
 three days earlier; #1101's own Copilot round is § 3's alone.
 
 **PUT ON** `design.md` D0.2 row 3, which admitted `codeXfactory/codexFactory`
-(governance `governed`) by THREE kinds, one of them `pin
-(`review-lane-pin.yaml`)`. The delta's `pin` kind reads: "an openxFactory file
+(governance `governed`) by THREE kinds, one of them
+`pin (review-lane-pin.yaml)`. The delta's `pin` kind reads: "an openxFactory file
 under `contracts/` names the repository as the source of a commit-and-digest
 pin. This is openxFactory's act, for a product PINNED rather than governed."
 `contracts/review-lane-pin.yaml` is `kind: pinned_workflow`; its own header
@@ -238,7 +238,7 @@ non-normative fix but must send a requirement-or-record change to Brett Heap
 as RULING NEEDED.
 
 **RULED, VERBATIM:** *"Drop the pin admission on row 3"* — row 3 loses the
-`pin` admission and keeps `gitlink (`opensoft/xFactory`)` and `workflow`; the
+`pin` admission and keeps `gitlink (opensoft/xFactory)` and `workflow`; the
 `pin` kind's definition in the delta is UNCHANGED.
 
 **ENCODED AT** `design.md` D0.2 row 3 (the `pin` item dropped) and a new note
