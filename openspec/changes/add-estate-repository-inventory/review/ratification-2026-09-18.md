@@ -2,7 +2,7 @@
 
 Status: ratified
 Kind: report
-Decision date: 2026-09-18
+Decision date: 2026-09-18 (§§ 1-3); 2026-09-21 (§ 7)
 Ratifier: Brett Heap (openxFactory repository owner)
 Ratified: 2026-09-18, approximately 12:55Z by Brett Heap (openxFactory
 repository owner), verbatim: *"ratify #1101"* — given in the lane's terminal to
@@ -14,8 +14,12 @@ record plus the lane register is how the word survives.
 **FOLLOWED BY THREE FURTHER WORDS OF THE SAME DAY**, at approximately 15:40Z,
 each a multiple-choice answer over a gap Copilot's review of PR #1101 exposed in
 the already-ratified text: *"Bind the carrier identity"*, *"#1101 declares #1108
-and folds its text"*, *"MAY becomes MUST"*. All four acts are recorded here; §§ 1
-and 2 carry the first, § 3 carries the three.
+and folds its text"*, *"MAY becomes MUST"*. **AND BY A FIFTH WORD OF A LATER
+DAY**, 2026-09-21 at approximately 20:30Z, over a gap Copilot's review of the
+REALIZATION pull request #1119 exposed between this packet's ratified `pin`
+kind and `design.md` D0.2 row 3: *"Drop the pin admission on row 3"*. All five
+acts are recorded here; §§ 1 and 2 carry the first, § 3 carries the three, § 7
+carries the fifth.
 
 ## 1. The first word, and what it reaches
 
@@ -186,9 +190,92 @@ counted from the delta file.
 
 ## 6. Provenance of this record
 
-Written in the ruling-encoding commit, by lane `openxfactory-5` (display
-`openXfactory-5`, session `651195c7`). It carries `Status: ratified` because
-`document-lifecycle`'s *A review record records a ratification* governs a
-`review/ratification-*` file. Every path in this file is repo-relative. The
-lane register `opensoft/brett-wip` `lanes/log/openXfactory-5.md` is a SEPARATE
-repository and is the channel of record for all four words.
+Written in the ruling-encoding commit `089b02e0`, by lane `openxfactory-5`
+(display `openXfactory-5`, session `651195c7`); **EXTENDED 2026-09-21 BY A
+SECOND, SEPARATE COMMIT — § 7 below, the same lane three days later.** It
+carries `Status: ratified` because `document-lifecycle`'s *A review record
+records a ratification* governs a `review/ratification-*` file. Every path in
+this file is repo-relative. The lane register `opensoft/brett-wip`
+`lanes/log/openXfactory-5.md` is a SEPARATE repository and is the channel of
+record for all FIVE words.
+
+## 7. The fifth word, a later day, and what it resolved
+
+**GIVEN 2026-09-21, APPROXIMATELY 20:30Z**, in the lane's terminal to lane
+`openxfactory-5`, as a MULTIPLE-CHOICE answer taking the RECOMMENDED option,
+recorded as a `RULED` entry in `opensoft/brett-wip`
+`lanes/log/openXfactory-5.md`. Unlike the three words of § 3, the gap this
+word answers was named by Copilot's review of a DIFFERENT and LATER pull
+request — **#1119**, the realization (`tasks.md` § 3) — and not #1101, merged
+three days earlier; #1101's own Copilot round is § 3's alone.
+
+**PUT ON** `design.md` D0.2 row 3, which admitted `codeXfactory/codexFactory`
+(governance `governed`) by THREE kinds, one of them
+`pin (review-lane-pin.yaml)`. The delta's `pin` kind reads: "an openxFactory file
+under `contracts/` names the repository as the source of a commit-and-digest
+pin. This is openxFactory's act, for a product PINNED rather than governed."
+`contracts/review-lane-pin.yaml` is `kind: pinned_workflow`; its own header
+states it pins "EXECUTABLE GOVERNANCE CODE consumed by a workflow — no bundle,
+no digest set", and it records `core_commit`, never a digest. Row 3 fails BOTH
+clauses of the kind's own definition: the pin carries no digest set, and
+`codeXfactory/codexFactory` is `governance: governed`, not `pinned`. Copilot
+named exactly this (PR #1119, `estate-repository-inventory.yaml:153`, thread
+`PRRT_kwDOTAvnrs6j3KY4`, 2026-09-18T19:05:23Z): *"This admission does not
+satisfy the inventory's closed `pin` kind: `contracts/review-lane-pin.yaml` is
+`kind: pinned_workflow` and explicitly says it has no digest set; it records
+`core_commit` for executable governance code instead. Because the row already
+has the aggregation gitlink and workflow evidence, remove this `pin` entry (or
+change the schema/validator to define a separate pin kind) rather than
+recording evidence that the `pin` contract does not permit."* Brett Heap's own
+reply on that thread the same day (2026-09-18T20:19:43Z) found the claim TRUE
+on the ratified text and left it **RULING NEEDED**, because every remedy
+available to a realization seat edits RATIFIED text — dropping the admission
+edits `design.md` D0.2 row 3, re-classing it as `workflow` is refused by the
+loader's own ratified directory bound (row 3's real workflow evidence is
+already named), and widening the kind's wording edits the delta's requirement
+text — and under the estate's post-word rule a realization seat may fold a
+non-normative fix but must send a requirement-or-record change to Brett Heap
+as RULING NEEDED.
+
+**RULED, VERBATIM:** *"Drop the pin admission on row 3"* — row 3 loses the
+`pin` admission and keeps `gitlink (opensoft/xFactory)` and `workflow`; the
+`pin` kind's definition in the delta is UNCHANGED.
+
+**ENCODED AT** `design.md` D0.2 row 3 (the `pin` item dropped) and a new note
+at D0.1's pin-declaration measurement naming `review-lane-pin.yaml`'s hit as
+excluded; `.openspec.yaml` `approved_by` (this ruling appended, `approved_on`
+unmoved); `tasks.md` § 1.5, new bullet (d). Written in a SEPARATE, LATER pull
+request than §§ 1-5 above, landing directly on `main`, touching only this
+packet's directory.
+
+**TWO REMEDIES WERE PUT BESIDE THE RECOMMENDED ONE, AND BOTH WERE DECLINED.**
+
+- *Widen the `pin` kind's definition* to admit a commit-only pin of a GOVERNED
+  repository's governance code. *Cost:* it would blur the one distinction D4
+  calls "not decoration" — `pin` evidences the `pinned` governance class
+  (openxFactory consumes a repository's CONTENT at a commit and digest and
+  authors none of it), and row 3's governance class is `governed`:
+  codexFactory's content is authored inside that repository's own estate, not
+  consumed by openxFactory at a pin. Widening the kind to cover this case
+  would let a `governed` row carry `pinned`-class evidence, the collapse D4
+  already refused. Declined.
+- *Add a sixth admission kind* for a commit-only pin of governance code —
+  Copilot's own alternative ("change the schema/validator to define a
+  separate pin kind"). *Cost:* row 3 is ALREADY admitted without it, by
+  `gitlink` and `workflow`, neither disturbed by this ruling, so a sixth kind
+  would admit nothing the inventory does not already carry — it would exist to
+  answer a membership question row 3 never posed. Declined.
+
+**WHAT THIS DOES NOT REACH.** The `pin` kind's own definition (the delta's
+enumeration requirement) is untouched: every row it still admits (12-16, 26)
+IS a real commit-and-digest pin of a `pinned`-class product, and the defect
+ruled on was never the definition, only row 3's mistaken claim to it.
+`contracts/review-lane-pin.yaml` itself is not edited by this ruling; it
+continues to govern `.github/workflows/merge-master-approval.yml` exactly as
+before, and which commit of codexFactory's governance code that workflow
+trusts does not move. Nothing under `openspec/specs/` moves, no script and no
+test moves, and openxFactory #1087 stays OPEN and closes at the archive.
+**THE RECLASSIFICATION OF THE INVENTORY ROW ITSELF, AND THE RESOLUTION OF THE
+#1119 THREAD IT LEFT OPEN, ARE NOT DONE HERE**: the ruling's own words send
+them THEN — after this amendment lands on `main` — to PR #1119, a separate act
+in a separate pull request.

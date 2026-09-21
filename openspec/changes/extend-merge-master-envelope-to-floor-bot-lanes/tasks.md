@@ -563,7 +563,7 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   archives only on merged and green realization evidence. Assemble it: the
   codexFactory companion merged and green; § 3.1, § 3.2 and § 3.3 observed with
   their run URLs; § 3.6 exercised.
-- [ ] 4.2 Record the per-cycle human cost AFTER the change, measured the same way
+- [x] 4.2 Record the per-cycle human cost AFTER the change, measured the same way
   the before figure was measured — merges per advance of the pinned core, read
   from the API over at least three consecutive cycles — so the benefit claimed is
   a measurement and not an expectation.
@@ -578,6 +578,113 @@ the Gate-Rules Council admitting record stays a DRAFT and UNSIGNED; the
   consecutive cycle is what this box's own text requires before the benefit is a
   measurement, and codexFactory #302 is not it: it parked and was closed rather
   than merged (§ 3.3).
+  **2026-09-21 — THE THIRD CONSECUTIVE CYCLE IS MEASURED, SO THE BOX TICKS**, on
+  Brett Heap's word **"do 1 and 2, claim 5"** (2026-09-21T20:24:51Z, in session to
+  lane `openxfactory-2` (display `openXfactory-2`), recorded on openxFactory
+  [#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5767008640),
+  comment 5767008640, item 1). **APPENDED, NOT A REWRITE** — the 2026-09-10 note
+  above stands as written on its date; this note adds the cycle it said was owed
+  and states the AFTER figure as a measurement rather than an expectation.
+
+  **THE THIRD CYCLE IS codexFactory
+  [#491](https://github.com/codeXfactory/codexFactory/pull/491) -> `b21f0100`**
+  ("Regenerate the openxFactory review-authority floor block at `fc837dff`
+  (62 -> 63 entries)"), head `floor/bot-regeneration` at
+  `2e45de457b543e14edbfc9188b7f007696ed7c73`, author `openxfactory[bot]`, base
+  `main`, opened 2026-09-18T22:23:53Z, **merged by `openxfactory[bot]` at
+  2026-09-18T22:50:17Z** — 26 min 24 s after opening — changing exactly one path,
+  `floor/openxfactory-review-authority-floor.yaml` (+4 −3). **NO HUMAN ACT
+  OCCURRED, and each leg of that is read from the API rather than inferred:**
+  auto-merge enabled by `openxfactory[bot]` three seconds after opening; every
+  actor on the timeline a bot (`openxfactory[bot]`, `github-actions[bot]`,
+  `sonarqubecloud[bot]`, `codexfactory[bot]`) with no human among them; all four
+  runs on the head at `run_attempt` 1 with `triggering_actor` `openxfactory[bot]`
+  on `pull_request`/`pull_request_target` (`35401363817` validate, `35401363826`
+  sonar, `35401363847` lane-line, `35401363863` merge-master-approval); the
+  approving evaluation run
+  [`35403220985`](https://github.com/codeXfactory/codexFactory/actions/runs/35403220985)
+  on `check_suite`, `triggering_actor` `openxfactory[bot]`, which submitted review
+  `5253277461` as `codexfactory[bot]` at 22:50:04Z; and — the decisive negative —
+  **every one of the 128 `floor-regeneration` workflow runs in codexFactory since
+  2026-09-10 fired on the `schedule` event and NOT ONE on `workflow_dispatch`**, so
+  no approval leg was hand-dispatched anywhere in the window covering cycles two
+  and three. (A scheduled run renders `triggering_actor: brettheap` because GitHub
+  attributes cron to the workflow's last committer; the `event` is `schedule` and
+  it is not a human act. Said out loud because the field invites the opposite
+  reading.)
+
+  **THE THREE CONSECUTIVE CYCLES, codexFactory HALF, READ FROM THE API:**
+
+  | # | pull request -> merge | merged at | merged by | human acts |
+  |---|---|---|---|---|
+  | 1 | [#314](https://github.com/codeXfactory/codexFactory/pull/314) -> `b08958ae` | 2026-09-09T23:27:22Z | `openxfactory[bot]` | **ONE** — `brettheap` re-dispatched the approval leg (run `34407492987`, `run_attempt` **2**, `triggering_actor` `brettheap`), the hand dispatch the 2026-09-10 note recorded, now verified independently |
+  | 2 | [#325](https://github.com/codeXfactory/codexFactory/pull/325) -> `df42f803` | 2026-09-10T01:55:14Z | `openxfactory[bot]` | **NONE** |
+  | 3 | [#491](https://github.com/codeXfactory/codexFactory/pull/491) -> `b21f0100` | 2026-09-18T22:50:17Z | `openxfactory[bot]` | **NONE** |
+
+  **CONSECUTIVE, PROVED RATHER THAN ASSUMED.** The only commit on codexFactory
+  `main` touching `floor/openxfactory-review-authority-floor.yaml` since
+  2026-09-10T02:00Z is `2e45de45` (#491's own), and the only other
+  `floor/bot-regeneration` pull request in the eight-day gap is **#382**, box
+  3.3's CONSTRUCTED NEGATIVE CONTROL — authored by `brettheap`, titled "NEVER
+  MERGE", closed unmerged. No regeneration cycle was skipped, parked, or
+  human-merged between #325 and #491: the lane owed nothing, hourly, exactly as
+  `amend-kill-switch-to-declared-test-companion` records ("nothing owed" since
+  2026-09-10T17:22Z), until 2026-09-18 — and **that packet's premise is now
+  superseded by this cycle**, which is stated here because it was true when
+  written and is not any more.
+
+  **THE BEFORE FIGURE, RE-MEASURED THE SAME WAY RATHER THAN QUOTED FORWARD.**
+  codexFactory #248 (`7f147070`), #254 (`307d38f1`), #265 (`aced582b`) and #273
+  (`4b12ba83`) were **each merged by `brettheap`**, and so was each paired
+  openxFactory re-pin — #732 (`9ffc6252`), #747 (`d5a549e4`), #764 (`8d92bfaf`).
+  #273 -> `4b12ba83` and #764's title *"Advance the pinned decision core to
+  `4b12ba83…`"* are one matched pair, which is what makes the pairing a
+  measurement. **Two human merges per advance of the pinned core, one per
+  repository.**
+
+  **THE AFTER FIGURE, AND THE HONEST SHAPE OF IT. Human MERGES per advance of the
+  pinned core: ZERO** — across all three cycles, and as of cycle three in BOTH
+  repositories, every merge actor being `openxfactory[bot]`. **Human ACTS per
+  advance: ONE, and it is the openxFactory re-pin half's APPROVING REVIEW**, the
+  half decision N-1's recommended scope deliberately left under a human word.
+  Cycle three is the FIRST cycle in which that half ran as a bot pull request at
+  all, so it is the first whose AFTER figure is readable end to end: openxFactory
+  [#1122](https://github.com/opensoft/openxFactory/pull/1122), head
+  `bot/review-lane-repin` at `7fd34286`, author `openxfactory[bot]`, titled
+  *"Advance the pinned decision core to
+  `b21f010013fa51960c77377a8582943435b6db32`"* — #491's own merge sha, which is
+  what ties the two halves into ONE cycle rather than two coincidences — opened
+  2026-09-18T23:24:43Z with auto-squash enabled by the bot two seconds later,
+  **APPROVED by `brettheap` at 2026-09-19T00:53:32Z** after waiting 1 h 28 min
+  49 s, and merged by `openxfactory[bot]` **five seconds after that approval**, at
+  2026-09-19T00:53:37Z, merge `38f826c2`. `contracts/review-lane-pin.yaml:60` on
+  `main` now reads `core_commit:
+  "b21f010013fa51960c77377a8582943435b6db32"`, so the cycle is closed end to end
+  and the figure is a measurement of a completed advance. **The cost fell from two
+  human merges to one human approving review, and the button itself is now
+  bot-pressed in both repositories.** Cycles one and two have no re-pin artifact
+  of their own — § 3.4's standing finding — and their pin advance was folded into
+  a hand-authored openxFactory #922 ("Advance the review-lane core pin to
+  codexFactory `1f131a23`"), authored AND merged by `brettheap`
+  2026-09-10T21:55:20Z; that is why the end-to-end figure is measured over one
+  cycle while the ADMITTED lane's own half — which is all this packet changed — is
+  measured over three, which is what this box's text asks for.
+
+  **TWO THINGS THIS MEASUREMENT HANDS OTHER BOXES, NAMED AND NOT PERFORMED HERE.**
+  (i) #491's approval record renders **`Candidate class:
+  openxfactory-floor-regeneration`** in full, with the kill-switch sentence beside
+  it — the `unrecorded` rendering that § 3.1 and the council record's R-7 stay open
+  on is FIXED on the live approval path. § 3.1 is not this box's to tick and is
+  left open for its own author to read the run. (ii) The sibling packet
+  `admit-review-lane-repin-to-merge-approval-envelope` was RATIFIED WITH AMENDMENT
+  holding its realization until *"the third unattended codexFactory cycle is
+  measured and the unrecorded-class fix is observed on a live approval"*; **both
+  preconditions are met by the evidence above**, and that is recorded here for
+  that packet's author rather than acted on by this one. Its enrolment is still
+  absent from openxFactory `.github/merge-approval-envelope.yml`, whose sole
+  candidate remains `expected_head_ref: intents/rolling` — which is why #1122
+  needed the human review at all, and the reading is consistent rather than
+  merely compatible.
 - [x] 4.3 Confirm no floor path was removed from
   `scripts/merge_master/openxfactory-review-authority-floor.yaml` by any act of
   this packet, and that `contracts/review-lane-pin.yaml` is still a declared
@@ -905,3 +1012,30 @@ successor `amend-kill-switch-to-declared-test-companion` named.
 numbered box is ticked or N/A. **The packet is NOT archived** — § 4.4
 (archive through `proposal-support`) is separately open by its own text
 and this PR does not touch it.
+
+### 2026-09-21 — Box 4.2 ticked on the third consecutive cycle; the 2026-09-10 summary row is superseded
+
+**APPENDED, NOT A REWRITE.** The 2026-09-10 addendum's table above stands as
+written on its date, and its row **`| § 4.2 human cost after | OPEN | two
+consecutive cycles measured; the box requires three |`** now reads as history
+rather than current state — the same form PR #927's superseding paragraph and the
+2026-09-11 sections used, and for the same reason: a dated table is a record of a
+day, not a live field. The current state of that one row is:
+
+| Box | State | The clause that decided it |
+|---|---|---|
+| § 4.2 human cost after | **TICKED** | **three** consecutive cycles measured from the API — codexFactory #314 -> `b08958ae`, #325 -> `df42f803`, #491 -> `b21f0100`, every one merged by `openxfactory[bot]`, the last two with no human act of any kind, and NOT ONE `workflow_dispatch` among the 128 scheduled `floor-regeneration` runs since 2026-09-10 |
+
+Ticked on Brett Heap's word **"do 1 and 2, claim 5"** (2026-09-21T20:24:51Z, in
+session to lane `openxfactory-2`, recorded on openxFactory
+[#745](https://github.com/opensoft/openxFactory/issues/745#issuecomment-5767008640),
+comment 5767008640), item 1. The measurement, the before/after figures and the
+whole of the evidence live beneath the box itself; nothing else in this file is
+moved by this pull request.
+
+**THE CHECKLIST STATE AFTER THIS PR:** open by their own text — 3.1, 3.4, 3.6,
+4.1, 4.4 (confirmed by `grep -n '^- \[ \]'`). § 4.2 leaves that list; every other
+numbered box is ticked or N/A. **The packet is NOT archived** — § 4.4 (archive
+through `proposal-support`) is separately open by its own text and this pull
+request does not touch it, and § 4.1's evidence set is not assembled while 3.1,
+3.4 and 3.6 stand open.
