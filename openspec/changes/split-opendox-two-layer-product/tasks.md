@@ -1604,6 +1604,19 @@ the bookkeeping that ticks this group.
   *(The third file lives in the ROOT and not in `openXdox-code`, which carries no
   `contracts/` directory at all; a reader who looks for it in the leg will not
   find it.)*
+  **STATUS — THE RELEASE SURFACE IS OPEN AS A DRAFT; THE TAG IS STILL BRETT'S.
+  Recorded by AMENDMENT #10, 2026-09-21.** `opensoft/openDox` **`#11`**, OPEN as
+  a **DRAFT** at head `7b209216`: *"openDox release surface:
+  contract_bundle_version none → dox-v1.0, three entries at the pinned spec leg,
+  and the § 3.8 CHANGELOG entry (NO TAG)"* — the `contracts/manifest.yaml` and
+  `contracts/CHANGELOG.md` entries this box names, prepared for review BEFORE the
+  cut, which is option **(a)** of the RULING NEEDED (`#656` comment
+  `5738327369`).
+  **NO TAG IS IN IT, DELIBERATELY**: the annotated `dox-v1.0` over `d05e204e` is
+  **Brett's act** under runbook § 9 Phase 6, and no workflow in either root makes
+  it. **THIS BOX TICKS ONLY ON THE TAG EVIDENCE, AND THIS STATUS IS NOT IT** —
+  the tick will quote the tag, the commit it targets and the evidence comment id,
+  and until then the measured fact stands: **zero tags in the root.**
 
 ## 4. The openXdox mapping core
 
@@ -2178,6 +2191,14 @@ the bookkeeping that ticks this group.
   `5738327369`), over `9be407bd`. *(The apparatus is written out once, at § 3.8,
   rather than twice; what is NOT shared between the two boxes is the commit each
   tag would sit on.)*
+  **STATUS — THE SAME SHAPE AS § 3.8'S, and this box likewise does not tick.
+  Recorded by AMENDMENT #10, 2026-09-21.** `opensoft/openXdox` **`#13`**, OPEN as
+  a **DRAFT** at head `7522ddaf`: *"openXdox release surface:
+  contract_bundle_version none → xdox-v1.0, five entries at the pinned spec leg,
+  and the § 4.6 CHANGELOG entry (NO TAG)"*. **FIVE entries where openDox's
+  carries three** — the difference is the § 6 re-homes each spec leg received, not
+  a difference in the form. `xdox-v1.0` over `9be407bd` remains **Brett's act**,
+  and the tick waits on the tag evidence.
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
@@ -3301,6 +3322,64 @@ the bookkeeping that ticks this group.
   because § 5.6 is where the order is argued and § 8.4 is where it is checked;
   a reader who meets one should not have to find the other to learn the gate is
   now unblocked at its front.)*
+  **STATUS — THE FORM THIS BOX TAKES AT THE ARCHIVE IS DECIDED, AND THE MARKER
+  DOES NOT MOVE HERE. Recorded by AMENDMENT #10, 2026-09-21.** At the archive
+  this box takes the house's reserved DEFERRED form — `- [~] 5.6 … **DEFERRED
+  <date>, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.** **Owner: this lane
+  and codexFactory `#232`'s floor**` — and **the ARCHIVE AMENDMENT flips it, not
+  this one.**
+  **WHY IT CANNOT TICK INSTEAD, IN ONE SENTENCE A LATER READER NEED NOT
+  RECONSTRUCT**: R-B's RULED ORDER above puts the archive FIRST — its clauses
+  (1), (2), (3) — and RULED **Q-D1 (a)** parks Phase 1 on that archive, so **the
+  archive is gated by a box that is gated by the archive**, and the only two forms
+  that break the cycle are `[~]` and a landing that bypasses the wrapper.
+  **THE GATE IS MEASURED RATHER THAN ASSUMED**:
+  `scripts/proposal-support.py`:4632-4633 refuses any archive whose `tasks.md`
+  still matches `^- \[ \]` at COLUMN ZERO; at `main` `80c68da6` this packet
+  carries **seven** such lines and **one** `[~]`. The `[~]` form is the house's
+  own, with its sentence and its `Owner:` line, in five archived packets —
+  `openspec/changes/archive/2026-09-10-accept-sequenced-after-header-line/tasks.md`:254-263
+  states it and says why the alternative is worse: *"buying that refusal off with
+  a false tick is the one thing an archive must not do."*
+  **R-5 WAS MIS-FRAMED ABOVE, AND THE CORRECTION IS THE HOLDER'S** — `#656`
+  comment `5767230200` (2026-09-21T20:42:29Z), correcting `5738327369` and the
+  claim `5767089334`, on whose framing Brett's (a) word `5767052465` was given.
+  The three surfaces that read `1f131a23` are **NOT an aggregation re-sync**:
+  they are the **MIGRATION_PIN family** —
+  `.github/workflows/merge-master-approval.yml`:152,
+  `.github/workflows/council-convening-lane.yml`:308 and
+  `tests/test_merge_master_workflows.py`:66 — which the aggregation's own
+  `CLAUDE.md` says does NOT move on a routine pin-sync: it advances only at the
+  recorded re-point **CEREMONY** (task 5.1), gated on the golden characterization
+  suite, the envelope re-validation and the live lane re-prove, last performed
+  2026-09-10 (`xFactory` **`#423` → `67c0b159`**, on an explicit ceremony word).
+  `openxFactory`'s `lockstep.converged_with` names exactly those two workflow
+  paths and lines, so *"lockstep converged again"* IS that ceremony and not a
+  sync. **The ROUTINE pin-sync surfaces are different files at a different sha**
+  — `xFactories/codexFactory`'s gitlink, `.github/workflows/review-lane.yml`:65
+  and `tests/test_review_lane_workflow.py`:13, reading `22d44b09` (`#455` →
+  `5aa656c9`) — and that half is IN FLIGHT under the (a) word: three files
+  `22d44b09` → **`b21f0100`**, MIGRATION_PIN untouched, 225 passed / 5 skipped
+  with actionlint, landing BY MERGE COMMIT on the `#455` precedent, with
+  `lockstep.status` staying `diverged` truthfully.
+  **THE CEREMONY IS BACK WITH BRETT** as a corrected RULING NEEDED: the
+  MIGRATION_PIN move `1f131a23` → `b21f0100` would be the **FOURTH** re-point
+  ceremony, and the holder does not read the 20:28Z word as a ceremony word.
+  *(AMENDMENT #9 WROTE THE MIS-FRAMING INTO THIS BOX, in good faith, from the
+  RULING NEEDED it was handed — and the sentence is KEPT above rather than
+  rewritten. The defect was in a framing both documents shared, and a correction
+  that erases the framing also erases the evidence of how the mistake travelled.
+  It is recorded here as prominently as this lane records corrections to other
+  people's figures, which is the only standard that makes those corrections
+  worth anything.)*
+  **A NAME COLLISION, FLAGGED ONCE SO IT IS NEVER RESOLVED SILENTLY**: **`R-5`
+  names TWO different things in this ledger** — RULED **R-5** of the R-1..R-6
+  series (`#656` comment `5690428146`, 2026-09-16), which amends § 5.1's second
+  clause and §§ 8.7/8.8's wording, and the RULING-NEEDED ITEM numbered R-5 in
+  `5738327369`, which is this aggregation question. Every mention of either
+  carries its comment id, and that is what disambiguates them; **nothing is
+  renamed**, because renaming a ruling's label in a ledger breaks every record
+  that cites it.
 - [x] 5.6a `[oxF]` **THE DEPRECATING MINOR § 5.7 OWES — `contract-v3.7`, cut
   BEFORE the shed.** `docs/contract-versioning-policy.md` § Change Classes
   requires, before any Breaking removal, "at least one full minor release where
@@ -3708,7 +3787,7 @@ movements claimed at the time they land.
   title carries *"with the intra-requirement split named"* — a re-home that
   moved the whole requirement would have been the easier record and the false
   one.
-- [ ] 6.6 `[oxF]` **No new dashboard change opens in `openxFactory`** (RULING Q6),
+- [x] 6.6 `[oxF]` **No new dashboard change opens in `openxFactory`** (RULING Q6),
   from this packet's ratification forward.
   **STATUS — RECORDED BY `tasks.md` AMENDMENT #7, AND DELIBERATELY NOT CLAIMED
   AS PROVEN.** This is a STANDING condition over a WINDOW, not a fact about a
@@ -3723,6 +3802,50 @@ movements claimed at the time they land.
   the condition names changes OPENED AFTER ratification, and the grep cannot
   see when a change opened. The ticking act needs the opening dates, not the
   mention count.)*
+  **TICKED 2026-09-21 by `tasks.md` AMENDMENT #10, ON THE MEASUREMENT THE STATUS
+  ABOVE ASKED FOR AND NOT ON THE ONE IT REFUSED.** The condition names changes
+  OPENED AFTER ratification, so the instrument is each active change's OWN
+  `created:` field in its `.openspec.yaml` — the date a packet declares for
+  itself — and not a grep for mentions. **Measured at `main` `80c68da6`: 44
+  active changes carry a `created:` date; 20 of them opened ON OR AFTER
+  2026-09-05, this packet's ratification day; and ZERO of those twenty carries a
+  `specs/ideation-dashboard/` delta.** The only active change in the corpus that
+  carries one is **this packet itself**, `created: 2026-09-04` — the day before
+  the window opens.
+  **THE METHOD IS WRITTEN OUT SO THE NEXT READER RE-RUNS IT RATHER THAN TRUSTS
+  IT**: for every directory under `openspec/changes/` except `archive/`, read
+  `created:` from `.openspec.yaml` and test `specs/ideation-dashboard/` for
+  existence. **The delta directory is the falsifiable form of "a dashboard
+  change"** — a change that opens against a capability must carry a delta against
+  it to say anything normative about it — which is precisely what a mention count
+  cannot see.
+  **THE TWENTY ARE NAMED, so a reader can test the same set rather than re-derive
+  it**: `disposition-codexfactory-declared-renames` and
+  `prepare-openspec-1-12-readiness` (2026-09-05);
+  `register-gate-rules-council-seats`;
+  `add-consent-custody-rederivation-record`;
+  `extend-merge-master-envelope-to-floor-bot-lanes`;
+  `adopt-configured-notebook-hosting-identity`;
+  `amend-mirror-floor-regeneration-merge-authority`;
+  `admit-review-lane-repin-to-merge-approval-envelope`;
+  `disposition-codexfactory-floor-relocation-retitle`;
+  `amend-kill-switch-to-declared-test-companion`;
+  `amend-register-act-5b-projection-proof`;
+  `disposition-codexfactory-regular-pr-council-clearance-archive`;
+  `encode-wallet-authority-rulings-r6-r12`;
+  `repoint-chain-anchoring-medxchain-citation`;
+  `add-target-release-deferred-allocation`; `add-citation-remainder-report`;
+  `add-per-tenant-app-manifest-provisioning`;
+  `harden-path-escape-helpers-against-symlink-loops`;
+  `add-estate-repository-inventory`; and `amend-code-surface-grammar-comma-and`.
+  **Not one is a dashboard change.**
+  *(The STATUS above said this box would tick "on a judgement rather than on a
+  measurement", and that stands: a standing condition over a window is not
+  discharged by one run, and the judgement is still the act. What has changed is
+  that the judgement now has a NUMBER under it. The 16-of-45 mention count that
+  STATUS recorded at `507b6233` is superseded as the WRONG INSTRUMENT rather than
+  as a wrong figure — it counted mentions in a corpus, and the condition is about
+  openings.)*
 
 ## 7. The first descendant — a task with a RULING CHECKBOX, not a decision
 
@@ -4166,10 +4289,19 @@ movements claimed at the time they land.
   and its answer is NONE YET, so the act this box describes has no subject to
   perform on, and it does not tick here, block § 8's archive gate, or lapse.
   **The marker is `[~]`, the house's RESERVED DEFERRED FORM, and that is load
-  bearing rather than cosmetic**: `scripts/proposal-support.py`:**4609-4610**
+  bearing rather than cosmetic**: `scripts/proposal-support.py`:**4632-4633**
   refuses an archive whose `tasks.md` still matches `^- \[ \]` — *"change has
   incomplete tasks"* — so a deferred successor left at `[ ]` would contradict, in the
-  archive machinery itself, the sentence before this one. The form is the one the
+  archive machinery itself, the sentence before this one.
+  *(LOCATOR CORRECTED 2026-09-21 by `tasks.md` AMENDMENT #10, and it is
+  NON-NORMATIVE. The citation read `:4609-4610`, which was right when amendment
+  #5 wrote it and which, at `main` `80c68da6`, names the wrapper's
+  supporting-docs revert message instead. **The RULE has not moved and its words
+  are unchanged** — `if tasks.is_file() and re.search(r"^- \[ \]",
+  tasks.read_text(), re.M): raise SupportError("change has incomplete tasks")` —
+  only its line numbers did, which is what a locator into LIVE CODE does between
+  amendments. Re-measured by quoting the rule rather than trusting the lines, the
+  same repair § 8.9's own census took.)* The form is the one the
   archived packets use for exactly this standing:
   `archive/2026-09-09-add-openspec-cli-pin/tasks.md`:244-255 (which names it
   *"the house's reserved DEFERRED form"* and cites
@@ -4422,6 +4554,29 @@ movements claimed at the time they land.
   amendment #5"* — so a deferred box HAS an owner even where, as at § 7.3
   today, it has nothing yet to act on. What it does not have is a claim on THIS
   packet's gate.)*
+  **STATUS — THE FORM THIS BOX TAKES AT THE ARCHIVE IS WITH BRETT. Recorded by
+  AMENDMENT #10, 2026-09-21; the marker does not move here.** Clause (iii) stands
+  REFUSED on Reading B, so the box is `[ ]` — and
+  `scripts/proposal-support.py`:4632-4633 refuses any archive whose `tasks.md`
+  still matches `^- \[ \]`, which makes this box's FORM a question the archive
+  cannot dodge.
+  **THREE OPTIONS ARE PUT AND NONE IS TAKEN HERE** (RULING NEEDED, carried in
+  this lane's § 8 archive-readiness note on `#656`): **(1)** RECLASSIFY the box as
+  open, owned-ELSEWHERE and NON-GATING and give it the reserved `[~]` with
+  **Owner: lanes `opsXfactory-3` / `opsXfactory-4` and the `[OmI]` `[Opsx]`
+  installs** — which contradicts this box's own sentence that it is *"an IN-SCOPE
+  GATING PREREQUISITE of this packet, where `[~]` is the reserved form for open,
+  OWNED, NON-GATING successor work"*, and that sentence is exactly why the
+  reclassification is a RULING and not bookkeeping; **(2)** accept **Reading A**
+  and tick, the structural evidence being in hand and measured; **(3)** HOLD the
+  archive until a committed tenant install exists, which parks this packet behind
+  two other lanes' work in two other repositories.
+  *(The bookkeeper's own recommendation is already on the page — Reading B, the
+  conservative direction, which needs no ruling to stand. What needs a ruling is
+  the FORM at the archive, and the difference matters: a reading decides whether
+  the box is satisfied, and the form decides whether the packet can archive with
+  it unsatisfied. Those are two questions and this lane answers neither by
+  itself.)*
 
 ## 8. The archive gate
 
@@ -4587,6 +4742,33 @@ realization evidence, never on landing. Each line is its own evidence.
   account for BOTH directions of this archive: `openspec/specs/ideation-dashboard/`
   removed, and the two new capability directories plus the § 5.2a adapter successor
   capability ADDED.
+  **STATUS — THIS BOX CANNOT TICK ON ITS OWN WORDS, AND ITS FORM AT THE ARCHIVE
+  IS THE RESERVED `[~]`. Recorded by AMENDMENT #10, 2026-09-21; the marker does
+  not move here.** The order this box CHECKS — *"de-floored BEFORE the removal"* —
+  is the order RULED **R-B** inverted at § 5.6, on the measured ground that the
+  written order and the machinery are **jointly unsatisfiable for a REMOVAL**
+  (`specs_floor_block.py::assert_landed_pin` refuses a block pinned at any
+  `openxFactory` commit not reachable from `main`). At the archive this box
+  therefore takes `- [~] 8.4 … **DEFERRED <date>, AT THE ARCHIVE — OPEN, OWNED,
+  AND NOT CLAIMED.** **Owner: this lane and codexFactory `#232`'s floor**`, with
+  the R-B exception named IN it so the next reader meets the exception rather
+  than the contradiction; **the ARCHIVE AMENDMENT flips it.**
+  **BOTH DIRECTIONS THE BOX ASKS FOR ARE MEASURED, AND THEY AGREE WITH R-B'S
+  ARITHMETIC.** The archive REMOVES `openspec/specs/ideation-dashboard/` —
+  **307,705 B, 104 requirements, 487 scenarios** at `main` `80c68da6` — and ADDS
+  `openspec/specs/corpus-adapter-seam/` (**4** requirements, **11** scenarios) and
+  `openspec/specs/domain-mapping-declaration/` (**3**, **9**); the § 5.2a
+  successor capability `openxfactory-engineering-adapter` **ALREADY EXISTS**,
+  promoted by its own change (`#1103` → `eb1880cb`), which is why Phase 0's
+  regeneration already moved the block **62 → 63** and why R-B's **62 → 64**
+  lands exactly: 63 + 2 − 1 = 64. **Capability directories go 63 → 64 across the
+  archive.**
+  *(One thing NO precedent covers, stated here so the de-floor act is not
+  surprised by it: in **178** archived directories this corpus has never removed
+  a capability at an archive. `retire-doxbench-chat-turn-v1` folded its delta into
+  an existing promoted spec, and `repromote-engineering-vocabulary` created a new
+  one; a REMOVAL is this packet's first, and the floor arithmetic above is the
+  only place it has been counted.)*
 - [x] 8.5 All five re-homed changes dispositioned, each with its destination named
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence before this packet's own archive (§ 8).
@@ -4797,6 +4979,12 @@ realization evidence, never on landing. Each line is its own evidence.
   registered because a header that miscounts its own subject is the defect class
   this packet has spent two amendments on, and because the next reader of that
   file will reach for the number rather than recount five files.)*
+  **THAT RESIDUE IS CLOSED — recorded by AMENDMENT #10, 2026-09-21.**
+  `opensoft/xFactory` **`#471` → `73ab5076`**, merged **2026-09-21T20:31:22Z**,
+  *"Correct the § 6 dispositions header count: four of the five delta files carry
+  more than one requirement"* — the header now states the figure this record
+  measured. **It closes a header's prose and moves no box**, which is the exact
+  standing the residue was registered with.
 - [x] 8.8 Amendment 3 applied with the SIX repository names and the election,
   and the descendant names — each with its two leg names — registered with no
   repository created (amended 2026-09-05).
@@ -5078,3 +5266,45 @@ realization evidence, never on landing. Each line is its own evidence.
   the two candidates, or finding both wrong for some third history shape,
   belongs to that owner's act with its own claim. **Registered, not resolved,
   and it moves no box.**
+  **(vi) REGISTERED 2026-09-21 BY AMENDMENT #10, NOT RESOLVED HERE, AND NOT THIS
+  PACKET'S TO RESOLVE: THIS BOX'S SECOND COMMAND IS RED, AND THE FAILURE BELONGS
+  TO ANOTHER CHANGE.** Measured at `main` `80c68da6`, `OPENSPEC_TELEMETRY=0
+  openspec validate --all --strict` exits **1** — **106 passed, 1 failed of 107**
+  — and the one is **`add-chain-attestation`**: *"signed-execution-chain/spec.md:
+  MODIFIED \"A gate validates the short chain as a hash-linked chain\" omits
+  scenario(s) the current spec still has: \"a tranche-two link does not exist
+  yet\". Copy them into the MODIFIED block (a MODIFIED requirement replaces the
+  whole block, so archive refuses to drop them)."* **Its owner has been asked.**
+  **The box's FIRST command is GREEN at the same tree**: `python3 -m pytest
+  tests/doc-health tests/sequenced_after -q` → **2183 passed**, exit 0, 529.69s.
+  *(Booked here because this box's own text requires that command green, and a
+  red belonging to a sibling change is still a red on THIS gate. The honest form
+  is to name whose it is and wait, rather than to re-scope the command to the
+  subset that passes — which would be choosing the measurement after seeing the
+  run, the defect R-6 already corrected once in this box.)*
+  **(vii) REGISTERED 2026-09-21 BY AMENDMENT #10 — THE ARCHIVE'S OWN NEW
+  EXPOSURE, MEASURED, WITH A HELPER'S DISPOSITION PULL REQUEST IN FLIGHT.**
+  `scripts/doc_health/promotion_fidelity.py` fires at severity **ERROR**
+  (`_LAUNCH_SEVERITY`, `:134`) when an archived ADDED/MODIFIED writer's
+  requirement is missing from its capability's promoted spec (`:845-857`), and
+  **115** authoritative writers stand against `ideation-dashboard` across **32**
+  archived changes. **This packet's REMOVED delta supersedes 102 of them by
+  title** — which is what that enumeration is FOR, and not decoration; **11** are
+  already findings today; and **TWO are orphaned AND satisfied today**, so they
+  become NEW error findings the moment the capability leaves:
+  `openspec/changes/archive/2026-09-16-retire-doxbench-chat-turn-v1/specs/ideation-dashboard/spec.md`:**5**
+  and :**67**, both ADDED by **this packet's own § 6.2 re-home** at `90bf93c3`
+  (2026-09-16) — twelve days after this delta was authored, which is why no
+  amount of care at authoring time could have listed them.
+  **THE REMEDY IS A PATH-KEYED DISPOSITION ROW in the aggregation's
+  `health/dispositions.yaml`**: `requirement:` is optional and, absent it, one
+  row disposes every finding this family raises against that path
+  (`promotion_fidelity.py`:714-734). That pull request is a helper's and is in
+  flight. **Extending the ratified REMOVED delta is the other route and it is NOT
+  taken**: two added REMOVED entries are NORMATIVE text after the ratifying word,
+  so that route is Brett's, not this lane's.
+  *(One caveat the archive's own doc-health record MUST carry or its vectors will
+  not compare: dispositions live at the AGGREGATION root, so a `--single-repo`
+  self-gate run sees NONE of them — `promotion_fidelity.py`:736-740. A BEFORE run
+  in one scope and an AFTER run in the other would manufacture a delta out of
+  nothing but the flag.)*
