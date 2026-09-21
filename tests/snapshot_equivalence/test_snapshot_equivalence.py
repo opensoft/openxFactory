@@ -1492,7 +1492,15 @@ def test_a_tree_read_that_failed_does_not_become_a_post_shed_verdict(
     first version treated it as: a tree read that FAILED may be an incomplete
     object store rather than a shed renderer, so the post-shed DIAGNOSIS must
     go with the wording — it ends "the objects are not the problem", which is
-    exactly what an unanswered read cannot establish (Copilot, PR #1115)."""
+    exactly what an unanswered read cannot establish (Copilot, PR #1115).
+
+    AND THE OPENING CLAUSE HAD THE SAME DEFECT AS THE DIAGNOSIS, which is the
+    registered half (Copilot at `50a3e574`, suppressed; remedy spelled out in
+    `#1115` comment `5736824535`). `matched none of A or B` asserts that
+    NEITHER matched, and `_absence()` returning `None` is precisely the state
+    in which this runner cannot know that — `git archive` fails as soon as ONE
+    pathspec matches nothing. The refusal that exists so as not to overclaim
+    must not open by overclaiming."""
     repo = tmp_path / "repo"
     _seed(repo)
     commit = MODULE._git(repo, "rev-parse", "HEAD").stdout.strip()
@@ -1511,6 +1519,9 @@ def test_a_tree_read_that_failed_does_not_become_a_post_shed_verdict(
     assert "does NOT claim the ref is post-shed" in detail
     assert "the objects are not the problem" not in detail
     assert "ls-tree" in detail
+    assert "matched none of" not in detail, detail
+    assert "did not match at least one of" in detail, detail
+    assert " and ".join(MODULE.ARCHIVE_PATHS) in detail, detail
 
 
 def test_an_unreadable_head_tree_does_not_veto_a_staged_pin(tmp_path,

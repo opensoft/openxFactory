@@ -606,13 +606,22 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
             # OF THEM (Copilot, PR #1115). The first wording said the tree
             # carried NEITHER archive path, which is only true when both are
             # absent — a tree that shed one of them would have been described
-            # inaccurately in the refusal that names it.
+            # inaccurately in the refusal that names it. THE SAME OVERCLAIM
+            # SURVIVED ONE LAYER DOWN, in the branch below that exists
+            # because `_absence()` could not answer (Copilot, PR #1115 at
+            # `50a3e574`, suppressed; registered with its remedy in comment
+            # `5736824535` and taken here). `matched none of A or B` asserts
+            # that NEITHER matched — the one thing an unreadable tree cannot
+            # establish, and the opposite of what the next sentence of that
+            # same refusal says. `git archive` fails as soon as ONE pathspec
+            # matches nothing, so what the failure supports is that at least
+            # one of them did not match, and that is now what it says.
             absence = _absence(repo, pre_commit)
             if absence is None:
                 raise EquivalenceRefusal(
                     "equivalence-pre-tree-unrenderable",
-                    f"`git archive {pre_commit}` ({pre_ref}) matched none of "
-                    + " or ".join(ARCHIVE_PATHS)
+                    f"`git archive {pre_commit}` ({pre_ref}) did not match "
+                    "at least one of " + " and ".join(ARCHIVE_PATHS)
                     + f": {stderr or '(no error output)'}. This runner then "
                     "could not read that commit's tree to say WHICH of them "
                     "is missing, so it does NOT claim the ref is post-shed: "
