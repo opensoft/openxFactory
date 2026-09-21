@@ -3358,10 +3358,17 @@ the bookkeeping that ticks this group.
   sync. **The ROUTINE pin-sync surfaces are different files at a different sha**
   — `xFactories/codexFactory`'s gitlink, `.github/workflows/review-lane.yml`:65
   and `tests/test_review_lane_workflow.py`:13, reading `22d44b09` (`#455` →
-  `5aa656c9`) — and that half is IN FLIGHT under the (a) word: three files
-  `22d44b09` → **`b21f0100`**, MIGRATION_PIN untouched, 225 passed / 5 skipped
-  with actionlint, landing BY MERGE COMMIT on the `#455` precedent, with
-  `lockstep.status` staying `diverged` truthfully.
+  `5aa656c9`) — and **that half HAS LANDED under the (a) word**: `xFactory`
+  **`#472` → `8fe054f9`**, merged **2026-09-21T20:50:48Z**, *"Sync submodule
+  pointers: codexFactory 22d44b09 → b21f0100 (routine three-things pin-sync;
+  MIGRATION_PIN untouched)"*. **Exactly the three things in ONE commit, measured
+  in the pull request rather than taken from its title** —
+  `.github/workflows/review-lane.yml`, `tests/test_review_lane_workflow.py` and
+  the `xFactories/codexFactory` gitlink — and it landed **BY MERGE COMMIT** on
+  the `#455` precedent, which the commit itself proves: `8fe054f9` carries two
+  parents, `73ab5076` and `598f18d7`. `lockstep.status` stays **`diverged`**,
+  truthfully, because the family that would converge it is the one that did not
+  move.
   **THE CEREMONY IS BACK WITH BRETT** as a corrected RULING NEEDED: the
   MIGRATION_PIN move `1f131a23` → `b21f0100` would be the **FOURTH** re-point
   ceremony, and the holder does not read the 20:28Z word as a ceremony word.
@@ -5274,7 +5281,13 @@ realization evidence, never on landing. Each line is its own evidence.
   MODIFIED \"A gate validates the short chain as a hash-linked chain\" omits
   scenario(s) the current spec still has: \"a tranche-two link does not exist
   yet\". Copy them into the MODIFIED block (a MODIFIED requirement replaces the
-  whole block, so archive refuses to drop them)."* **Its owner has been asked.**
+  whole block, so archive refuses to drop them)."* **THE ASK IS ON RECORD AND
+  ADDRESSED BY NAME**: lane **`openxfactory-1`**, the holder of
+  `add-chain-attestation` per its 2026-09-02 handoff and `#755`/`#760`, asked at
+  `#656` comment **`5767267092`** (2026-09-21T20:45:36Z) to fold the *"a
+  tranche-two link does not exist yet"* scenario into that MODIFIED block.
+  *(Named rather than left as "its owner", because a residue row whose owner is
+  a pronoun is a row nobody answers.)*
   **The box's FIRST command is GREEN at the same tree**: `python3 -m pytest
   tests/doc-health tests/sequenced_after -q` → **2183 passed**, exit 0, 529.69s.
   *(Booked here because this box's own text requires that command green, and a
