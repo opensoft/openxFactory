@@ -2247,11 +2247,28 @@ jobs:
           echo "report_out=${REPORT_OUT}" >> "$GITHUB_OUTPUT"
           echo "commit=${COMMIT}" >> "$GITHUB_OUTPUT"
           echo "new_count=$(python3 -c 'import json;print(len(json.load(open("new-findings.json"))))')" >> "$GITHUB_OUTPUT"
+          # new-findings.md: the FULL, unabridged regression list -- written
+          # HERE (not in "Open regression issue" below) so "Upload report
+          # artifact" next can collect it. That later step only runs when
+          # there are new findings and sits near the end of this job, long
+          # after the upload already ran (opensoft/openxFactory#1118); it
+          # reuses the same renderer for its own capped issue-body.md.
+          python3 - "$RUN_DATE" <<'PY'
+          import json, sys
+          sys.path.insert(0, "openxFactory/scripts")
+          from doc_health.regression_issue_body import render
+          run_date = sys.argv[1]
+          findings = json.load(open("new-findings.json"))
+          _, full_list_md = render(findings, run_date, cap_bytes=60000)
+          open("new-findings.md", "w").write(full_list_md)
+          PY
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
         with:
           name: doc-health-report-${{ steps.run.outputs.run_date }}
-          path: ${{ steps.run.outputs.report_out }}
+          path: |
+            ${{ steps.run.outputs.report_out }}
+            new-findings.md
       - name: Citation remainder report (advisory — add-citation-remainder-report § 2.2)
         id: citation-remainder
         # D5 option 1, ARTIFACT-ONLY: the report is read, never committed.
@@ -4041,21 +4058,27 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo "New critical/error findings versus the previous report"
-            echo "(matched by family + path). Full report:"
-            echo "health/reports/${{ steps.run.outputs.run_date }}.md"
-            echo
-            python3 - <<'PY'
-          import json
-          for f in json.load(open("new-findings.json")):
-              print(f"- [{f['severity']}] {f['family']} {f['repo']}:{f['path']} — {f['rule']}")
+          # issue-body.md is capped well under GitHub's 65536-character
+          # createIssue limit (opensoft/openxFactory#1118): a regression
+          # list that grew past the limit failed every `gh issue create`
+          # call and reddened this job every night since 2026-09-05. The
+          # renderer (shared with "Run doc-health suite" above, which wrote
+          # the FULL list to new-findings.md before this step ever runs)
+          # caps on UTF-8 bytes, which upper-bounds characters too.
+          python3 - <<'PY'
+          import json, sys
+          sys.path.insert(0, "openxFactory/scripts")
+          from doc_health.regression_issue_body import render
+          run_date = "${{ steps.run.outputs.run_date }}"
+          findings = json.load(open("new-findings.json"))
+          issue_body, _ = render(findings, run_date, cap_bytes=60000)
+          open("issue-body.md", "w").write(issue_body)
           PY
-          } > issue-body.md
           gh issue create \
             --title "doc-health regressions ${{ steps.run.outputs.run_date }}" \
             --body-file issue-body.md \
-            --repo "${{ github.repository }}"
+            --repo "${{ github.repository }}" \
+            || echo "::warning::doc-health: could not open the regression issue (see log); the report and artifacts are unaffected"
       - name: Supersede stale regression issues
         # Non-fatal housekeeping. Each nightly recomputes regressions fresh
         # against the previous report, so any OPEN "doc-health regressions
