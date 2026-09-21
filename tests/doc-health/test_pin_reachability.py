@@ -1984,3 +1984,195 @@ def test_the_real_corpus_carries_nothing_the_boundary_reclassifies():
         "character pin; now each is an undeclared non-commit value, which is "
         "the honest reading and a real finding to resolve:\n  "
         + "\n  ".join(offenders))
+
+
+# =========================================================================
+# #1128 — the git subprocess bound, and what a timed-out read answers
+#
+# `pin_class._git` and `ideation_readiness.index_reproduces_at`'s `git archive`
+# were the last two unbounded git call sites in `scripts/doc_health/` after
+# #1098/PR #1102 bound `corpus.RealGit`'s pair. Neither carried a `timeout=`
+# and `_git` carried no `try`/`except` AT ALL, so a wedged git — a promisor
+# remote that will not answer, an `ls-remote` against an unreachable host —
+# never returned control to the reachability check at all. That sits on the
+# REQUIRED `pytest-suite` gate, because this very module calls
+# `ir.verify_pin_reachability(REPO_ROOT)` against the live checkout.
+#
+# Every test below asserts the BOUND rather than elapsed time: a shim that
+# sleeps proves only that the shim exited. The bound is read off the call, and
+# the failure it produces is compared to the failure an unrunnable git ALREADY
+# produced, which is the whole claim — a hang becomes the outcome each caller
+# already handles, and nothing new was invented for it.
+# =========================================================================
+
+def _raise_timeout(argv, **kwargs):
+    """Stand in for a git that never returns, at the bound the caller set."""
+    raise subprocess.TimeoutExpired(cmd=list(argv),
+                                    timeout=kwargs.get("timeout"))
+
+
+def test_git_binds_the_timeout_and_answers_the_failed_read_shape(tmp_path,
+                                                                 monkeypatch):
+    """`_git` carries the 30s bound its four siblings carry, and a timeout
+    comes back as the `CompletedProcess` with a non-zero `returncode` that a
+    git which SAID NO already returns — the only "failed" shape this module
+    has, and the one all nine call sites read (`.returncode`, `.stdout`,
+    `.stderr`). `None` would be the wrong answer: nothing here checks for it."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)          # built with the REAL git
+    calls = []
+
+    def never_returns(argv, **kwargs):
+        calls.append((list(argv), dict(kwargs)))
+        return _raise_timeout(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", never_returns)
+    got = pc._git(repo, "rev-parse", "HEAD")
+
+    assert calls, "`_git` must still reach subprocess.run"
+    assert calls[0][1].get("timeout") == 30, (
+        "the call must bind the same 30s every sibling git reader binds "
+        "(carved_reach._git_run, hermes_runtime_validation content, "
+        f"corpus.RealGit); saw {calls[0][1].get('timeout')!r}")
+    assert calls[0][1]["timeout"] == pc._GIT_TIMEOUT_SECONDS, (
+        "the bound must be the module's declared constant, so a reader who "
+        "moves it moves the call with it")
+    assert isinstance(got, subprocess.CompletedProcess), (
+        "a timed-out read must answer the same TYPE a finished one does; "
+        "every caller reads attributes off it")
+    assert got.returncode == 1, (
+        "a timed-out read must be a FAILED read — a zero here would be the "
+        "silent success this bound exists to prevent")
+    assert got.stdout == ""
+    assert "could not be performed" in got.stderr, got.stderr
+    assert "rev-parse" in got.stderr, (
+        "the reason must name the command that could not be performed, since "
+        "that is where every caller that reports one reads it")
+
+
+def test_a_timed_out_git_is_the_same_failure_an_unrunnable_git_already_gave(
+        tmp_path, monkeypatch):
+    """The translation is only honest if the CALLERS are unchanged, so it is
+    checked at the caller: `verify()`'s FIRST act is `_git(repo, "rev-parse",
+    rev)` and a non-zero return there raises `GitUnavailable` — "never silently
+    a pass". A hang could never deliver that. Both routes into the new `except`
+    are compared against each other: a git that will not RETURN and a git that
+    will not RUN now answer identically, which is the property #1098 measured
+    as missing here."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+
+    monkeypatch.setattr(subprocess, "run", _raise_timeout)
+    with pytest.raises(pc.GitUnavailable) as timed_out:
+        pc.verify(repo, allow_remote=False)
+    monkeypatch.undo()
+
+    empty_bin = tmp_path / "empty-bin"
+    empty_bin.mkdir()
+    monkeypatch.setenv("PATH", str(empty_bin))       # a REAL unrunnable git
+    unreadable = pc._git(repo, "rev-parse", "HEAD")
+    with pytest.raises(pc.GitUnavailable) as never_ran:
+        pc.verify(repo, allow_remote=False)
+
+    assert unreadable.returncode == 1, (
+        "the missing-binary half of #1098's two-part gap: `_git` caught "
+        "nothing at all, so this used to raise FileNotFoundError out of "
+        "whatever read was in progress")
+    assert str(timed_out.value).startswith("cannot resolve"), timed_out.value
+    assert str(never_ran.value).startswith("cannot resolve"), never_ran.value
+    assert type(timed_out.value) is type(never_ran.value), (
+        "a hang and an unrunnable git must reach the SAME typed failure; a "
+        "new exception type here would be a new thing for callers to handle")
+
+
+def test_the_lower_readers_degrade_rather_than_raise_through_a_timeout(
+        tmp_path, monkeypatch):
+    """The other reads reached through `_git` answer rather than raise, exactly
+    as they do today when git exits non-zero. This pins that the bound did not
+    quietly introduce an exception on paths whose contract is a value: nothing
+    in `is_truncated`, `resolve_main`, `reachable_from_main` or
+    `remote_retention_refs` changes shape, and `remote_retention_refs` — the
+    one that REPORTS its reason — carries the timeout through to its detail.
+
+    `is_truncated` answering `False` here is NOT this bound's doing and is
+    asserted rather than hidden: it is what that reader already answers when
+    git exits non-zero on both probes, because its contract is a `(bool, str)`
+    observation with no third state. It is unreachable on the hot path anyway —
+    `verify()` raises `GitUnavailable` on its `rev-parse` before ever calling
+    it — and giving it one would change a caller contract this fix is not
+    allowed to move (#1128).
+    """
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    monkeypatch.setattr(subprocess, "run", _raise_timeout)
+
+    truncated, observed = pc.is_truncated(repo)
+    assert truncated is False and isinstance(observed, str), (
+        "unchanged from what a non-zero git already answers here")
+    assert pc.resolve_main(repo) is None, (
+        "no ref could be resolved, which is what None already means here")
+    assert pc.reachable_from_main(repo, "deadbeef", "refs/heads/main") is False
+    index, detail = pc.remote_retention_refs(repo)
+    assert index is None, (
+        "an unaskable namespace must stay None — an empty dict would be "
+        "indistinguishable from an empty namespace, which is the distinction "
+        "this reader's own docstring exists to keep")
+    assert "could not be performed" in detail, detail
+
+
+def test_a_check_true_caller_is_raised_at_rather_than_handed_a_failure(
+        tmp_path, monkeypatch):
+    """`_git(..., check=True)` means "raise on failure", so that caller never
+    reads the returncode — handing it a synthesized non-zero `CompletedProcess`
+    would be precisely the silent success the bound exists to prevent. No
+    caller passes `check=` today (measured across `scripts/` and `tests/` for
+    #1128); this keeps the parameter's declared contract for the first one
+    that does."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    monkeypatch.setattr(subprocess, "run", _raise_timeout)
+
+    with pytest.raises(subprocess.TimeoutExpired):
+        pc._git(repo, "rev-parse", "HEAD", check=True)
+
+
+def test_the_reproduction_archive_is_NOT_ASKED_rather_than_a_hang(tmp_path,
+                                                                  monkeypatch):
+    """#1128's third site, the one #1098's own 2026-09-17 sweep of this package
+    did not name: `index_reproduces_at`'s `git archive`, which runs as part of
+    the pin-reproduction check after a clean reachability pass. Bounded, a
+    reconstruction that will not return answers the same `(None, "NOT ASKED
+    rather than answered")` the non-zero branch beside it already answers —
+    NEVER False, which would blame the committed body for a question nobody
+    could put (see `test_reproduction_that_cannot_be_asked_is_neither_pass_nor
+    _fail`, the same distinction against a genuinely absent commit)."""
+    repo = _init(tmp_path / "index-repo")
+    _write(repo, "ideation/brainstorm/one.md", "# one\n\nStatus: brainstorm\n")
+    pin = _commit(repo, "corpus")
+    _write(repo, "ideation/cross-reference.yaml", yaml.safe_dump(
+        {"schema_version": 1, "kind": "ideation-cross-reference",
+         "generation": {"source_revision": pin}, "topic_entries": []},
+        sort_keys=False))
+    _commit(repo, "index pinning the corpus commit")
+
+    real_run, archives = subprocess.run, []
+
+    def archive_never_returns(argv, **kwargs):
+        # ONLY the reconstruction is wedged; every other read this function
+        # makes (`committed_text`, itself a `_git`) runs for real, so the test
+        # reaches the archive the way production does rather than by faking
+        # its way past the reads before it.
+        if "archive" in list(argv):
+            archives.append((list(argv), dict(kwargs)))
+            return _raise_timeout(argv, **kwargs)
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", archive_never_returns)
+    ok, detail = ir.index_reproduces_at(repo, pin)
+
+    assert archives, "the reconstruction must still be attempted"
+    assert archives[0][1].get("timeout") == 30, (
+        f"the `git archive` must bind the same 30s; saw "
+        f"{archives[0][1].get('timeout')!r}")
+    assert archives[0][1]["timeout"] == ir._GIT_TIMEOUT_SECONDS
+    assert ok is None, (
+        f"a reconstruction that could not be performed is NOT ASKED, neither "
+        f"pass nor fail; got {ok!r} — {detail}")
+    assert "NOT ASKED rather than answered" in detail, detail
+    assert "timed out after 30s" in detail, detail

@@ -22,6 +22,27 @@ _OPENX_NOARG = (
     "scripts/validate-memory-gateway.py",
 )
 
+# The bound on ONE entrypoint (#1128). It is DELIBERATELY not the 30 s the git
+# readers in this package bind (`corpus.RealGit`, `pin_class._git`): those are
+# single git plumbing calls, and an entrypoint here is a whole repository's
+# validator suite — `bash scripts/validate-docs.sh`, `make validate`, or a
+# python validator that spawns git subprocesses of its own
+# (`validate-domain-openxfactory-pins.py` does). A bound tight enough to cut a
+# HONEST slow validator would convert a green nightly into an ERROR finding,
+# which is a defect this fix would have introduced rather than removed.
+#
+# 120 s is measured, not picked: the slowest entrypoint this repository can run
+# is `scripts/validate-memory-gateway.py` at 3.26 s (2026-09-21, the four
+# openxFactory no-arg validators measured at 0.12/0.49/0.77/3.26 s), so the
+# bound carries ~37x headroom over the slowest thing actually observed. It is
+# also small enough that the WHOLE preflight still fits inside its own job:
+# `.github/workflows/doc-health-reusable.yml` bounds the job at
+# `timeout-minutes: 45`, and even if every one of the ~13 entrypoints an
+# aggregation run discovers timed out, 13 x 120 s = 26 min, so the timeouts
+# surface as the Findings below rather than as a killed job with no report at
+# all — which is the outcome an unbounded call, or a far larger bound, gives.
+_ENTRYPOINT_TIMEOUT_SECONDS = 120
+
 
 def _entrypoints(repo: str, repo_path: Path,
                  domain_paths: list[Path]) -> list[list[str]]:
@@ -54,10 +75,34 @@ def run_preflight(repo_paths: dict[str, Path]):
             log.append((repo, "(none)", True, "no validator entrypoint found"))
             continue
         for cmd in cmds:
-            proc = subprocess.run(cmd, cwd=repo_path, capture_output=True,
-                                  text=True,
-                                  env={**__import__("os").environ,
-                                       "DOC_HEALTH_PREFLIGHT": "1"})
+            try:
+                proc = subprocess.run(cmd, cwd=repo_path, capture_output=True,
+                                      text=True,
+                                      timeout=_ENTRYPOINT_TIMEOUT_SECONDS,
+                                      env={**__import__("os").environ,
+                                           "DOC_HEALTH_PREFLIGHT": "1"})
+            except (OSError, subprocess.TimeoutExpired) as exc:
+                # #1128: an entrypoint that never returns used to block
+                # `run_suite` (runner.py:227) before a single family ran — it
+                # is the FIRST thing the suite does whenever no `--family` is
+                # passed, which is how the nightly invokes it. A bounded
+                # failure becomes the SAME Finding an ordinary validator
+                # failure already produces two branches below, same family and
+                # same path so regression matching is unchanged, with the
+                # reason standing in for the output tail there is none of. An
+                # unrunnable entrypoint (`OSError` — no `bash`, no `make`)
+                # takes the same route: it was never caught here either.
+                reason = (
+                    f"timed out after {_ENTRYPOINT_TIMEOUT_SECONDS}s"
+                    if isinstance(exc, subprocess.TimeoutExpired)
+                    else f"could not be run: {exc}")
+                log.append((repo, " ".join(cmd), False, reason))
+                findings.append(Finding(
+                    ERROR, "preflight", repo,
+                    cmd[1] if len(cmd) > 1 else cmd[0],
+                    f"preflight validator {reason}: {' '.join(cmd)}",
+                    "fix the repo's own validator failures first"))
+                continue
             ok = proc.returncode == 0
             tail = (proc.stdout + proc.stderr).strip().splitlines()[-3:]
             log.append((repo, " ".join(cmd), ok, " / ".join(tail)))

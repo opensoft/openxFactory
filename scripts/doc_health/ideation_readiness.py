@@ -846,6 +846,14 @@ def cluster_skeleton(entry: dict) -> dict:
     }
 
 
+# The same 30 s bound `corpus.RealGit` (#1098/PR #1102), `pin_class._git`
+# (#1128), `carved_reach._git_run` (#1048 round 5) and
+# `hermes_runtime_validation/content.py`'s `_git` bind. Declared beside its one
+# call site, as `corpus.py` declares its own, so a test can turn it down and
+# prove the BOUND fired (#1128).
+_GIT_TIMEOUT_SECONDS = 30
+
+
 def index_reproduces_at(repo, pin: str, *, rev: str = "HEAD",
                         index_rel: str = "ideation/cross-reference.yaml"):
     """Does the index committed at `rev` REPRODUCE from the corpus at `pin`?
@@ -881,9 +889,28 @@ def index_reproduces_at(repo, pin: str, *, rev: str = "HEAD",
     if not isinstance(entries, list):
         return None, f"{index_rel} at {rev} carries no topic_entries list"
 
-    archived = subprocess.run(
-        ["git", "-C", str(root), "archive", pin, "ideation"],
-        capture_output=True)
+    try:
+        archived = subprocess.run(
+            ["git", "-C", str(root), "archive", pin, "ideation"],
+            capture_output=True, timeout=_GIT_TIMEOUT_SECONDS)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        # #1128: the third unbounded git call in this package. A reconstruction
+        # that hangs — a promisor remote that will not answer for the pin, a
+        # wedged `git archive` — used to block the reproduction check (and
+        # `verify_pin_reachability`, which runs it after a clean reachability
+        # pass) rather than return. Bounded, it answers the SAME
+        # `(None, "NOT ASKED rather than answered")` the non-zero branch below
+        # already answers, which is this function's documented third outcome:
+        # "the question could not be asked". NOT False — False here would blame
+        # the committed body for a question nobody could put, which is the very
+        # distinction the docstring and `test_reproduction_that_cannot_be_asked
+        # _is_neither_pass_nor_fail` exist to keep.
+        detail = (f"`git archive` timed out after {_GIT_TIMEOUT_SECONDS}s"
+                  if isinstance(exc, subprocess.TimeoutExpired)
+                  else f"git could not be run: {exc}")
+        return None, (f"the corpus at {pin} could not be reconstructed, so "
+                      f"reproduction was NOT ASKED rather than answered: "
+                      f"{detail}")
     if archived.returncode != 0:
         detail = (archived.stderr.decode("utf-8", "replace").strip()
                   or f"git archive exited {archived.returncode}")

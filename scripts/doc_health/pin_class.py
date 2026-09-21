@@ -1682,6 +1682,16 @@ class GitUnavailable(RuntimeError):
     """The repository could not be asked. Never silently a pass."""
 
 
+# The SAME 30 s bound every sibling git reader in this tree already binds:
+# `carved_reach._git_run` (#1048 round 5, PR #1051),
+# `hermes_runtime_validation/content.py`'s `_git`, and — since #1098/PR #1102 —
+# `corpus.py`'s `RealGit` at both of its call sites. Declared here rather than
+# imported from `corpus` because `pin_class` imports no sibling module and this
+# file's own tests turn the bound down to prove it is the bound that fired
+# (#1128).
+_GIT_TIMEOUT_SECONDS = 30
+
+
 def _git(repo, *args, check: bool = False):
     """`git -C <repo> …`, decoded with `errors="replace"` rather than strictly.
 
@@ -1689,10 +1699,43 @@ def _git(repo, *args, check: bool = False):
     artifact under `openspec/`), and a strict decode raises `UnicodeDecodeError`
     from inside `subprocess` — a crash where the honest answer is "this blob
     carries no pin". `SCAN_SUFFIXES` keeps binaries out of the sweep; this keeps
-    an unexpected one from taking the run down."""
-    return subprocess.run(
-        ["git", "-C", str(repo), *args], capture_output=True, check=check,
-        text=True, encoding="utf-8", errors="replace")
+    an unexpected one from taking the run down.
+
+    BOUNDED, AND A TIMEOUT IS TRANSLATED INTO THE FAILURE THIS MODULE ALREADY
+    HAS (#1128). Before this, the call bound no `timeout=` and carried no
+    `try`/`except` at all — not even a bare `OSError` — so a missing `git`
+    raised out of whatever reachability read was in progress and a HUNG `git`
+    never returned control to any of the nine callers at all. `None` would be
+    the wrong translation: no caller checks for it, every one reads
+    `.returncode` and `.stdout`/`.stderr`, so a `None` would raise
+    `AttributeError` somewhere else instead. The shape this module's failures
+    ACTUALLY have is a `CompletedProcess` with a non-zero `returncode`, which
+    is what a git that SAID NO returns, so that is what a git that could not be
+    ASKED returns here, with the reason on `stderr` where every caller that
+    reports one already reads it. Each of the nine callers is therefore
+    unchanged, and on the hot path this is the designed failure rather than a
+    quiet one: `verify()`'s FIRST act is `_git(repo, "rev-parse", rev)` and a
+    non-zero return there raises `GitUnavailable` — "never silently a pass",
+    which is precisely what a hang could never deliver.
+
+    `check=True` is RE-RAISED rather than translated. That caller has asked to
+    be raised at on failure and so never reads the returncode; handing it a
+    non-zero `CompletedProcess` would be the silent success this bound exists
+    to prevent. No caller passes `check=` today (measured across `scripts/` and
+    `tests/` for #1128), so this preserves the parameter's declared contract
+    for the first one that does."""
+    argv = ["git", "-C", str(repo), *args]
+    try:
+        return subprocess.run(
+            argv, capture_output=True, check=check,
+            text=True, encoding="utf-8", errors="replace",
+            timeout=_GIT_TIMEOUT_SECONDS)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        if check:
+            raise
+        return subprocess.CompletedProcess(
+            args=argv, returncode=1, stdout="",
+            stderr=f"`{' '.join(argv)}` could not be performed: {exc}")
 
 
 def is_truncated(repo) -> tuple[bool, str]:
