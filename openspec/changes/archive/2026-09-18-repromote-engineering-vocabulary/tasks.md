@@ -1,0 +1,284 @@
+# Tasks: repromote-engineering-vocabulary
+
+Status: ratified
+Ratified: 2026-09-18 by Brett Heap (openxFactory operator authority), by interactive multi-choice (four questions, the recommended option each time) — recorded at [openxFactory #656, comment 5728607038](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5728607038), ruling **R-A**: *"§ 5.2a — `repromote-engineering-vocabulary` is RATIFIED"*.
+Authored: 2026-09-16, lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
+`substrate52a`. Realizes `split-opendox-two-layer-product` § 5.2a and nothing else.
+
+THREE ACTS, AND THEY WERE SEPARATE: the FILING (§ 2, PR #1071 → `e83f8cd7`, 2026-09-17),
+RATIFICATION (§ 1, Brett Heap's word of 2026-09-18, #656 comment `5728607038`, ruling R-A) and
+the ARCHIVE (§ 3, PR #1103, which is where the fifteen actually reached canon). **ALL THREE HAVE
+NOW BEEN PERFORMED**; this is the archived record of them. The sentence that stood here while the
+packet was active — "this packet performs only the first" — was true of the filing and is kept as
+history rather than as a claim, because each § below is a record of the act it names.
+
+## 1. Ratification — BRETT HEAP'S WORD, NOT THIS LANE'S
+
+- [x] 1.1 The id `openxfactory-engineering-adapter` is accepted, or another is ruled. `design.md`
+      § D1 derives it from the packet's own 22 uses of "engineering adapter", the ratified map's
+      fifteen identical destination phrases, and the two LANDED machine names that fix its spelling.
+      Four candidates are rejected there with reasons. **A different id is a one-command rebuild, and
+      that is proved rather than claimed**: the capability appears in the generator ONCE, as `CAP`,
+      and both the output path and the delta's `# <id> Specification` heading are derived from it —
+      run against a throwaway copy with `CAP` changed, the build writes
+      `specs/some-other-successor-id/spec.md` whose first line is
+      `# some-other-successor-id Specification`, with all fifteen requirements intact.
+- [x] 1.2 `design.md` § D2's TWO disclosed edits are accepted as the re-expression § 5.2a permits —
+      both `resolve`, both in *doxBench resolves its released contract from the checkout it runs in*.
+- [x] 1.3 `design.md` § D2's RECORDED NON-EDITS are accepted, with the finding they carry: four of
+      the six path-literal occurrences name a question the six-wide seam does not answer as its
+      requirement states it (a topic's EXISTENCE under staging; the DESTINATION of authoring the
+      console must not perform; twice the workspace returned documents land in), and `proposal.md`
+      (×4) and `OPENXFACTORY_ROOT` (×3) are not locations at all.
+- [x] 1.4 `design.md` § D3 — NO second `## REMOVED Requirements` block on `ideation-dashboard` — is
+      accepted, or the opposite is ruled and this lane authors the block. **This is the one judgment
+      in the packet that a reasonable reader could take the other way**, and it is put here rather
+      than resolved silently.
+- [x] 1.5 `design.md` § D4's archive ORDER — this packet archives BEFORE
+      `split-opendox-two-layer-product` — is accepted.
+- [x] 1.6 On the word: `Status: ratified` + the citation on all three lifecycle documents, a
+      `review/ratification-<date>.md` record, and the README bullet updated. Nothing else moves.
+
+## 2. The filing — THIS PULL REQUEST, AND THE WHOLE OF IT
+
+- [x] 2.1 The fifteen are SELECTED by the ratified map rather than by hand: all 102 `## REMOVED`
+      rows of `openspec/changes/split-opendox-two-layer-product/specs/ideation-dashboard/spec.md`
+      classified by the destination each **Reason** paragraph names — **openDox 71 / openXdox 16 /
+      openxFactory 15**, reproducing RULING DQ-1's own map exactly.
+- [x] 2.2 The fifteen are LIFTED BY TITLE from `openspec/specs/ideation-dashboard/spec.md` (102
+      requirements there; **0 of 15 missing**; every title character-for-character identical, which
+      is what makes the successor a distinct `promotion_fidelity` key). Carried: **15 requirements,
+      49,829 source bytes, 84 scenarios**; all fifteen carry `SHALL` on the FIRST body line, which
+      is the only line the strict parser reads for the keyword.
+- [x] 2.3 The TWO declared path-literal edits each matched EXACTLY ONCE, and the REVERSAL PROOF
+      passes: reversing them reproduces the promoted bytes for all fifteen requirements. The build
+      aborts on either failure, so this is a gate and not a claim. **Narrowed from six after Copilot
+      round 1** — two contested edits and one contested existence semantics, all three correct
+      against the interface's own text; `design.md` § D2 carries the measurement and the finding.
+- [x] 2.4 The packet: `proposal.md` (with `code_surface: none`, `target_release: implemented`,
+      `sequenced_after: []`), `design.md`, `tasks.md`, `.openspec.yaml` (`kind: ad_hoc`, drafting
+      pair, no approval pair), ONE `## ADDED Requirements` delta at
+      `specs/openxfactory-engineering-adapter/spec.md`, and `review/build-delta.py` — the helper that
+      BUILT that delta and proves the carry, committed INSIDE the packet so a reviewer and the
+      archive-time re-run can reproduce both from this checkout alone.
+- [x] 2.5 README *Active changes* bullet added under **OpenSpec Records**.
+- [x] 2.6 The per-change sweep row seeded by tool, never by hand:
+      `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by '#<PR>'`. The row seeds
+      **`class: sole`** — the corpus's own machinery agreeing that none of the fifteen requirement
+      keys this change writes is written by any other change (`design.md` § D3).
+- [x] 2.7 GATES RUN ON THIS BRANCH, each with its measured result in the pull-request body: the
+      PINNED CLI (`1.12.0`, the version `contracts/openspec-cli-pin.yaml` names) on this change and
+      on `--all --strict`; `python3 scripts/validate-sequenced-after.py . --ledger-diff` and its
+      plain run; `python3 scripts/validate-code-surface.py .` (the gate #1029 landed while this
+      branch was open); `python3 scripts/proposal-support.py . verify`; the promotion-fidelity
+      family single-repo run, whose count MUST NOT move because this packet promotes nothing; and
+      `python3 -m pytest tests/code_surface tests/sequenced_after` (**439 passed**), the suites this
+      packet's own files are read by. **The AUTHORITATIVE full-suite run is CI's `pytest-suite`**, not
+      a local one: a local `tests/doc-health` run in a `--filter=blob:none` clone reports failures
+      that are artifacts of the checkout (the pinned carve legs, a pin-site census) and CI's run is
+      the one the gate reads.
+- [x] 2.8 **THE DELTA CARRIES A WRITTEN `## Purpose`, BECAUSE THIS CAPABILITY DOES NOT EXIST YET.**
+      `prepare-openspec-1-12-readiness`'s `document-lifecycle` delta states the rule and the trap:
+      *"A `## Purpose` in a change's spec delta is read ONLY when the capability is created; on any
+      later archive it is ignored"*, and the archive act otherwise writes
+      `TBD - created by archiving change <X>. Update Purpose after archive.` — undischarged on 39 of
+      this corpus's promoted
+      specifications when they were last counted. This delta creates the capability, so its Purpose
+      IS read, and it is written.
+- [x] 2.9 **ARCHIVE DRY RUN, in a throwaway copy of `openspec/` and never in the repository** — the
+      CLI's SPEC-APPLICATION step alone (pinned CLI 1.12.0, `archive --yes`), run to see what the
+      promoted specification comes out as; the real archive goes through the sanctioned wrapper at
+      § 3.1, whose gates this copy cannot run. Measured: `openxfactory-engineering-adapter: create`
+      · `+ 15 added` · `Totals: + 15, ~ 0, - 0, → 0`; the created promoted spec carries **0**
+      occurrences of
+      the placeholder sentence and **15 requirements / 84 scenarios**; all fifteen promote
+      BYTE-IDENTICAL to this delta's text; and `openspec/specs/ideation-dashboard/spec.md` comes out
+      of the run with an UNCHANGED sha256 — the mechanical proof of `design.md` § D3's claim that
+      this packet removes nothing.
+
+## 3. Archive — AFTER RATIFICATION, AND BEFORE THE SPLIT PACKET'S
+
+**THE ACT IS PERFORMED BY THIS PULL REQUEST**, on Brett Heap's ratification of
+2026-09-18 (#656 comment `5728607038`, ruling **R-A**), and § 3.0's marker sweep is
+performed here rather than discovered at the wrapper's refusal. Every box above and
+below is now either TICKED because the act it names has been performed, or marked
+`- [~]` — the deferred marker `proposal-support.py archive` does not match — for the
+three that can only run AFTER the directory moves, each of which is then performed
+in this same pull request and ticked in the moved file. § 1's boxes tick on the
+word; § 4's five are claims about this pull request's own diff and were verified
+against it, not asserted.
+
+
+- [x] 3.0 **FIRST, RESOLVE EVERY REMAINING `- [ ]` IN THIS FILE — the wrapper refuses otherwise.**
+      `scripts/proposal-support.py` archives only when no literal `- [ ]` is left
+      (`re.search(r"^- \[ \]", tasks.read_text(), re.M)` →
+      `SupportError("change has incomplete tasks")`, `:4609-4610`), and the boxes of this section
+      and of § 4 cannot be ticked BEFORE the
+      act they describe. So at the archive each remaining box is either ticked because it has been
+      performed or re-marked `- [~]` with its reason — the deferred marker the gate does not match —
+      and § 3.5's ledger re-seed, which can only run AFTER the directory moves, is deferred that way
+      by construction. Named here rather than discovered at the refusal.
+- [x] 3.1 On a separate word, through the SANCTIONED WRAPPER and never a bare `openspec archive`:
+      `python3 scripts/proposal-support.py . archive repromote-engineering-vocabulary --date <YYYY-MM-DD> --yes`,
+      so the origin, retention, task, pin and archive-date gates run. It creates
+      `openspec/specs/openxfactory-engineering-adapter/spec.md` with the fifteen.
+- [x] 3.2 **ORDER (`design.md` § D4): this archive precedes `split-opendox-two-layer-product`'s.**
+      Re-promotion first leaves the fifteen titles carried by two capabilities — distinct keys,
+      no finding on either side. Removal first leaves fifteen ratified requirements in NO capability,
+      which is the loss `promotion_fidelity` exists to prevent.
+- [x] 3.3 **BEFORE § 3.1 RUNS, from the ACTIVE path** (after the move the same file is at
+      `openspec/changes/archive/<date>-repromote-engineering-vocabulary/review/build-delta.py` and is
+      invoked at THAT path — **the `CHANGE` constant is NOT edited**, because `packet_dir()` globs
+      `????-??-??-<CHANGE>` and resolves either location; the parenthetical here said otherwise until
+      § 5.3 corrected it, and following it would have broken the very resolution it describes):
+      re-run
+      `python3 openspec/changes/repromote-engineering-vocabulary/review/build-delta.py .` — no
+      `--write`, so it CHECKS the committed delta against a fresh build off the THEN-CURRENT promoted
+      spec and exits non-zero on any difference, byte for byte. If `main` has moved the promoted text
+      of any of the fifteen, the carry is re-proved or the difference is declared before anything
+      promotes. This is the box § 3.0's marker sweep ticks last among the pre-archive ones.
+- [x] 3.4 **README, BY HAND AND IN THE SAME COMMIT — the wrapper does not do it.**
+      `scripts/proposal-support.py archive` moves and applies the packet; it does not touch
+      `README.md`, so the *Active changes* bullet is RETIRED and an entry is added to the
+      archived-changes ledger, newest-first, pointing at
+      `openspec/changes/archive/<date>-repromote-engineering-vocabulary/`. Precedent: the § 6
+      closures' own archive acts, which record the pair as one step ("the active bullet retired; the
+      archived-ledger entry added"). Leaving it undone points the corpus's own index at a path that
+      no longer exists.
+- [x] 3.5 Re-seed the sweep ledger (`--seed-ledger --moved-by '#<PR>'`) and re-run
+      `--ledger-diff`; the row moves `active` → `archived`.
+
+
+**THE THREE DEFERRED BOXES WERE PERFORMED IN THIS SAME PULL REQUEST AND ARE TICKED
+HERE, IN THE MOVED FILE.** § 3.1 ran as written and its output is in the archive
+commit's message (`Task status: ✓ Complete`, `ORIGIN RETAINED`, pinned CLI 1.12.0
+verified by content address, `openxfactory-engineering-adapter: create`,
+`Totals: + 15, ~ 0, - 0, → 0`). § 3.4's pair was done as ONE step — the *Active
+changes* bullet retired and the *Archived changes* entry added at the anchor,
+newest-first. § 3.5 was re-seeded BY TOOL and never by hand,
+`--seed-ledger --moved-by '#1103'`, which moved EXACTLY ONE row of 219
+(`state: active → archived`, `moved_by: "#1071" → "#1103"`,
+`moved_on: "2026-09-16" → "2026-09-18"`) and chose the archive date itself, agreeing
+with the directory name. **THAT 219 IS DATED, NOT CURRENT**: it is the file as it
+stood at `f0e0cd6e`, the head the tool ran against. The landing head merged `main`
+and the ledger reads **222** rows there — three archived elsewhere while this
+packet waited, none of them this one's. The row this run moved is unchanged by
+that; only the population it sat in grew. Measured at both heads rather than
+carried forward:
+`grep -cE '^  [A-Za-z0-9_.-]+: \{' tests/sequenced_after/corpus-ledger.yaml` →
+219 at `f0e0cd6e`, 222 at the landing head. (Copilot, PR #1103.)
+
+## 4. What this packet leaves to its neighbours, by name
+
+- [x] 4.1 **§ 5.2a's TICK** rides the packet bookkeeper's own `tasks.md` amendment. No byte of
+      `openspec/changes/split-opendox-two-layer-product/` is touched here — not a tick, not a map
+      row, not a design line.
+- [x] 4.2 **§ 5.6 (the de-floor)** and **§ 8.4 (the floor accounting)** can now name the capability
+      directory `openspec/specs/openxfactory-engineering-adapter/` in the ADDED direction. This
+      packet does not move the codexFactory floor or any of the five openxFactory pin sites.
+- [x] 4.3 **§ 5.2 (the shed), § 5.4 and § 5.5 (floor parts 2 and 4)** are untouched: no module, test,
+      example or governance doc is deleted here, and `docs/opendox-carve-manifest.yaml` is not edited.
+- [x] 4.4 **§ 6.1's seven `doc-health` requirements** and **§ 6.5's intra-requirement narrowing**,
+      both of which were carried whole at their destinations for want of this id, are their own
+      changes in their own repositories. This packet declares the id; it re-authors nothing there.
+- [x] 4.5 **ONE blocked case, named rather than performed — and three that are not blocked at all.**
+      BLOCKED: the STAGING-EXISTENCE literal in *Staged-topic proposal commissioning*. What would
+      unblock it is a scope the corpus DECLARES for staged topics (`ResolvedCorpus.scopes` is return
+      data, so a home adapter may declare one without widening the six operations), or an answer that
+      keeps *absent* and *empty* apart for a topic that exists and holds nothing — openDox's to
+      declare under RULING Q4, not § 5.2a's to invent. NOT BLOCKED, and owed to nobody: the
+      commission DESTINATION and the two `openspec/` status occurrences sit where no operation is
+      invoked at all, so no seam decision gives them a call to name; they carry their promoted text
+      because that is the correct state. `design.md` § D2 measures all four.
+
+## 5. Two corrections folded at the landing head, both NON-NORMATIVE
+
+Copilot reviewed the head that merged `main` for the landing and raised two
+findings against this packet's own evidence. Both were measured and both were
+true, so both are repaired here; neither touches a requirement, a scenario, the
+delta, or any byte of `openspec/changes/split-opendox-two-layer-product/`.
+
+- [x] 5.1 **`review/build-delta.py` resolved its SOURCE by a literal that was
+      guaranteed to stop resolving.** `packet_dir()` exists precisely because a
+      hard-coded `openspec/changes/<CHANGE>` broke at the archive — and `main()`
+      then hard-coded `openspec/changes/split-opendox-two-layer-product/specs/`
+      `ideation-dashboard/spec.md` anyway. § D4 of this packet REQUIRES the
+      governing packet to archive AFTER this one, so the literal was not merely
+      fragile, it was scheduled to break: a verifier committed inside a record so
+      the record can be re-checked later would have died on the first re-check
+      after the record became historical. Repaired with `source_dir()`, written
+      and refused exactly like `packet_dir()` — active or archived, EXACTLY ONE,
+      neither and both refused rather than guessed. **Proved in a scratch
+      worktree across all four states**, with the governing packet moved to
+      `openspec/changes/archive/2026-09-20-split-opendox-two-layer-product`:
+
+      | state | committed code at `2d50fbc3` | with `source_dir()` |
+      | --- | --- | --- |
+      | active (today) | PASS | PASS |
+      | governing packet ARCHIVED, its REMOVED delta not yet promoted | **`FileNotFoundError`, exit 1** | **PASS, exit 0** |
+      | both present | `FileNotFoundError` | REFUSED, exit 1 |
+      | neither present | `FileNotFoundError` | REFUSED, exit 1 |
+
+      The delta is unchanged by the repair: 53118 bytes,
+      `sha256 c3b985aedb7cc9be…`, identical in every passing state above, and
+      `CHECK PASSED` against the committed file.
+
+- [x] 5.3 **AND THE ROW ABOVE IS ONLY HALF THE FUTURE — this box says which
+      half.** The § D4 order has TWO steps, and `source_dir()` survives the
+      first. The second is the governing packet's own `## REMOVED` delta
+      promoting, which takes the fifteen OUT of
+      `openspec/specs/ideation-dashboard/spec.md`. This checker REBUILDS the
+      carry FROM that promoted text, so from that commit on it cannot run at all,
+      and no resolver fixes that: the source it needs is gone from the checkout
+      by design. Measured, both steps applied in a scratch worktree:
+
+      | checkout | result |
+      | --- | --- |
+      | today | `CHECK PASSED`, exit 0 |
+      | governing packet archived only | `CHECK PASSED`, exit 0 |
+      | **+ its `## REMOVED` delta promoted** | **REFUSED, exit 1 — and it now SAYS WHY** |
+
+      It already failed closed; what it did not do was distinguish its own
+      horizon from a defect. `REFUSED: titles absent from the promoted spec:
+      [all fifteen]` reads like a broken record. So the refusal now discriminates:
+      ALL fifteen absent **and** `SOURCE` resolving inside
+      `openspec/changes/archive/` is named as *"the expected state after the
+      governing packet's `## REMOVED` delta promoted, not a defect in this
+      record"*, with the instruction to re-run against a checkout at or before
+      that promotion. **SOME absent stays a hard refusal** — that is drift, and it
+      is proved separately: dropping exactly one carried title from the promoted
+      spec in the same archived-governing-packet state still gives
+      `REFUSED: titles absent from the promoted spec: ['Staged-topic health signal']`,
+      exit 1. The record of what was carried does not depend on the re-run: the
+      delta is committed beside the script, and § 2.3's reversal proof is what
+      established it.
+
+- [x] 5.4 **§ 3.3's parenthetical was stale and pointed the wrong way.** It told a
+      future reader the `CHANGE` constant "would then need the dated id" after the
+      move. `packet_dir()` globs `????-??-??-<CHANGE>`, so the constant must NOT
+      be edited — editing it is what would break resolution. Corrected in place.
+
+- [x] 5.2 **§ 3.5's ledger total had gone stale under the landing merge.** 219
+      was true at `f0e0cd6e` and the file reads 222 at the landing head. Dated in
+      place rather than overwritten, with the command that measures it, because
+      re-dating a historical measurement to today's number destroys the evidence
+      of what the run actually saw — the same rule the versioning policy applies
+      to `docs/archive-record-discrepancies.md`.
+
+- [x] 5.5 **ONE FINDING MEASURED AND REFUSED.** The same review asked for an
+      `Edited (bookkeeping): <UTC date> by <change-id> — <edit class>` line in
+      `proposal.md`, `design.md` and `tasks.md`, on the ground that they are
+      edited under `openspec/changes/archive/`. **They are not archived-record
+      edits.** `docs/document-lifecycle.md` routes that requirement through *An
+      archived record is edited only as a bookkeeping correction under a recorded
+      ruling* — a record, i.e. a landed one. This packet is **ACTIVE on `main`**
+      at `openspec/changes/repromote-engineering-vocabulary/` and is not in
+      `main`'s archive at all: the rename is part of THIS act, so every commit
+      after it on this branch is authoring the archive, not amending a record.
+      The estate's own practice measures the same way — of the 34 archived files
+      carrying an `Edited (bookkeeping):` line, **zero** got it from the pull
+      request that archived them; all six sampled got it weeks later, and every
+      sample from one commit, `db1f0cfa` (2026-09-11), against directories added
+      on 2026-08-06 through 2026-08-26. Adding the annotation here would date a
+      bookkeeping correction to a record that does not yet exist.
+

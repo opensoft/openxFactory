@@ -231,16 +231,27 @@ REFUSAL_CODES: tuple[str, ...] = (
     #: The two sides now fail symmetrically: a side that does not finish
     #: rendering is a side that did not render.
     "equivalence-post-stack-unrenderable",
+    #: The OBJECT STORE, as against the tree or the ref: a partial clone
+    #: whose promisor remote was not consulted (this runner sets
+    #: `GIT_NO_LAZY_FETCH=1` so it never is, mid-measurement), a corrupt
+    #: pack, a revision whose blobs were never fetched. Separated from
+    #: `-pre-tree-unrenderable` because the remedy is a fetch of objects and
+    #: not a different `--pre-ref`, and the old message sent operators to
+    #: replace a good ref (Copilot, PR #1105 round 6).
+    "equivalence-object-store-incomplete",
     "equivalence-unreadable",
 )
 
 REMEDIATION = (
-    "Remediation: FOUR of these refusals are about THE RUN and are fixed at "
-    "the run — a missing tag is fetched (`git fetch --tags`), an "
-    "unmaterialized leg is initialized (`git submodule update --init "
-    "--recursive openDox openXdox`), a post-shed `--pre-ref` is replaced by a "
-    "pre-shed one, an unregistered profile is registered. THE FIFTH, "
-    "`equivalence-digests-differ`, is a finding about THE PROJECTION and the "
+    "Remediation: ALL BUT ONE of these refusals are about THE RUN and are "
+    "fixed at the run — a missing tag is fetched (`git fetch --tags`), "
+    "objects a partial clone never carried are fetched deliberately (`git "
+    "fetch origin <commit>`), an unmaterialized leg is initialized (`git "
+    "submodule update --init --recursive openDox openXdox`), a leg that is "
+    "off its pin or dirty is put back, a post-shed `--pre-ref` is replaced "
+    "by a pre-shed one, an unregistered profile is registered. THE ONE THAT "
+    "IS NOT, `equivalence-digests-differ`, is a finding about THE PROJECTION "
+    "and the "
     "fix is at whichever side moved — never a re-recorded expectation, "
     "because § D6 (4) asks that the two sides AGREE and an expectation "
     "updated to match a drifted side is FLOOR PART 4 deleted. The floor's own "
@@ -287,10 +298,16 @@ class EquivalenceRefusal(Exception):
 #: inlined, because it executes INSIDE the archived tree and must import
 #: nothing of today's.
 _PRE_RENDER_PROGRAM = r'''
+import os
 import sys
 from pathlib import Path
 
-scripts_dir, corpus, out_path, revision, date, repository = sys.argv[1:7]
+scripts_dir = os.environ["EQUIVALENCE_SCRIPTS"]
+corpus = os.environ["EQUIVALENCE_CORPUS"]
+out_path = os.environ["EQUIVALENCE_OUT"]
+revision = os.environ["EQUIVALENCE_REVISION"]
+date = os.environ["EQUIVALENCE_DATE"]
+repository = os.environ["EQUIVALENCE_REPOSITORY"]
 sys.path.insert(0, scripts_dir)
 
 
@@ -323,6 +340,7 @@ _SCRUBBED_GIT_ENVIRONMENT = frozenset({
     "GIT_NAMESPACE", "GIT_CEILING_DIRECTORIES", "GIT_REPLACE_REF_BASE",
     "GIT_CONFIG", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM",
     "GIT_CONFIG_COUNT", "GIT_ATTR_NOSYSTEM", "GIT_NO_REPLACE_OBJECTS",
+    "GIT_NO_LAZY_FETCH",
     # `GIT_CONFIG_PARAMETERS` IS THE ONE THAT IS EASY TO MISS, AND IT IS THE
     # WHOLE CHANNEL `git -c` PROPAGATES THROUGH (Copilot, PR #1105 round 2).
     # Disabling the global and system files and dropping the indexed
@@ -376,7 +394,47 @@ def _git_environment() -> dict[str, str]:
     # claim is that it read one named tree, so the tree it reads must not vary
     # with the host it is read on.
     environment["GIT_ATTR_NOSYSTEM"] = "1"
+    # A MEASUREMENT MUST NOT GO TO THE NETWORK IN THE MIDDLE OF ITSELF.
+    # In a partial clone (`--filter=blob:none`, which is how this lane's own
+    # clones are made) a read of an absent blob LAZILY FETCHES it from the
+    # promisor remote, so `git archive` hangs for as long as the network
+    # takes — or for ever, where the remote is unreachable — inside a runner
+    # whose whole contract is to refuse rather than hang. Measured on a fresh
+    # `--filter=blob:none` clone: with this set the archive fails `fatal:
+    # could not fetch <oid> from promisor remote` (rc 128); without it the
+    # same command exits 0 after a silent fetch. That failure is recognised
+    # by name below, with the fetch the operator should run deliberately — so
+    # the network happens on their word, and not inside the measurement.
+    environment["GIT_NO_LAZY_FETCH"] = "1"
     return environment
+
+
+#: What git says when an object it needs is not in the store and it was not
+#: allowed to fetch it. MEASURED, on a `--filter=blob:none` clone archiving a
+#: tag whose blobs the checkout never materialized — which is this runner's
+#: own case, since `opendox-carve-0` is far behind any working tree:
+#:
+#:     warning: lazy fetching disabled; some objects may not be available
+#:     fatal: could not fetch d943254485e0… from promisor remote
+#:
+#: (rc 128; the same archive without `GIT_NO_LAZY_FETCH=1` exits 0 after a
+#: silent fetch). The remaining spellings are git's own for the same
+#: condition met by another route: a promisor remote that is configured but
+#: unreachable, and an object simply absent. A pathspec that matches nothing
+#: — the other way `git archive` fails — matches NONE of these, and is left
+#: to the generic diagnosis below it.
+#: And what `git archive` says when NO path matched — measured:
+#: `fatal: pathspec 'scripts/doc_health' did not match any files`. It fails
+#: before writing anything, so a tree carrying neither archive path never
+#: reaches the per-row check further down and must be diagnosed here.
+_NO_PATHSPEC = re.compile(r"pathspec .* did not match|did not match any file",
+                          re.IGNORECASE)
+
+_PARTIAL_CLONE = re.compile(
+    r"promisor remote|could not fetch|lazy fetch"
+    r"|could not read from remote|missing (?:blob|object|tree)"
+    r"|not a (?:tree|blob|commit) object|unable to read .{0,20}object",
+    re.IGNORECASE)
 
 
 def _git(repo: Path, *arguments: str, text: bool = True):
@@ -442,6 +500,35 @@ def pre_ref_commit(pre_ref: str, repo: Path) -> str:
     return done.stdout.strip()
 
 
+def _absence(repo: Path, commit: str) -> str | None:
+    """WHICH of the archive paths that commit's tree does not carry, or
+    `None` when this runner could not establish that at all.
+
+    `git archive` fails as soon as ONE pathspec matches nothing, so the
+    refusal above must not assume both are missing. And `None` is not a
+    phrasing problem, which is what the first version of this treated it as
+    (Copilot, PR #1115): a tree read that FAILED may be an incomplete object
+    store rather than a shed renderer, so the caller must drop the post-shed
+    DIAGNOSIS too — not merely soften its wording — because that diagnosis
+    ends "the objects are not the problem", which is exactly what an
+    unanswered read cannot establish.
+    """
+    missing: list[str] = []
+    for path in ARCHIVE_PATHS:
+        done = _git(repo, "ls-tree", "--name-only", commit, "--", path)
+        if done is None or done.returncode != 0:
+            return None
+        if not done.stdout.strip():
+            missing.append(path)
+    if not missing:
+        return None
+    if len(missing) == len(ARCHIVE_PATHS):
+        return "carries NEITHER " + " nor ".join(ARCHIVE_PATHS)
+    carried = [path for path in ARCHIVE_PATHS if path not in missing]
+    return (f"carries {' and '.join(carried)} but NOT "
+            + " nor ".join(missing))
+
+
 def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
                      pre_ref: str) -> Path:
     """`git archive` the pre-split renderer into a scratch tree.
@@ -475,25 +562,87 @@ def extract_pre_tree(pre_commit: str, repo: Path, into: Path,
             "unreachable hangs here rather than failing, and a query that "
             "went unanswered is not a tree that carries nothing")
     if archive.returncode != 0:
-        # REPORTED GENERICALLY, AND THE POST-SHED DIAGNOSIS IS LEFT TO THE
-        # EXPLICIT CHECK BELOW (Copilot, PR #1105 round 7).
-        # `pre_ref_commit()` has ALREADY resolved this ref, so a nonzero
-        # archive here is far likelier to be an object store that cannot
-        # answer — a partial clone whose promisor remote is unreachable, a
-        # corrupt pack — than a tree without the renderer. Telling that
-        # operator the ref is post-shed sends them to replace a good ref
-        # instead of fetching the objects they are missing.
+        stderr = archive.stderr.decode("utf-8", "replace").strip()
+        # THE OBJECT STORE IS NOW ITS OWN FINDING, AND IT IS THE LIKELIEST
+        # ONE HERE (Copilot, PR #1105 round 6). This runner sets
+        # `GIT_NO_LAZY_FETCH=1`, so in a partial clone an absent blob FAILS
+        # instead of quietly fetching, and the failure lands exactly here.
+        # Telling that operator the tree carries no renderer would send them
+        # to replace a good `--pre-ref`; what they need is the objects, and
+        # the fetch that gets them.
+        if _PARTIAL_CLONE.search(stderr):
+            raise EquivalenceRefusal(
+                "equivalence-object-store-incomplete",
+                f"`git archive {pre_commit}` ({pre_ref}) could not read the "
+                f"objects it needs: {stderr or '(no error output)'}. This is "
+                "a PARTIAL OR INCOMPLETE OBJECT STORE, not a tree without a "
+                "renderer and not a post-shed ref. A `--filter=blob:none` "
+                "clone carries the commits but not their blobs, and this "
+                "runner refuses to fetch them mid-measurement "
+                "(`GIT_NO_LAZY_FETCH=1`): a gate that reaches for the "
+                "network is a gate that hangs when the network is not "
+                f"there. Fetch them deliberately — `git -C {repo} fetch "
+                f"origin {pre_commit}` — or use a clone without a partial "
+                "filter, then re-run")
+        # AND THE PATHSPEC FAILURE IS THE POST-SHED REF, NAMED AS ONE
+        # (Copilot, PR #1115). `git archive` fails before it writes anything
+        # when NO path matches, so a tree that carries neither archive path
+        # never reaches the per-row check below — and until the object store
+        # got its own code above, this message was written for the store
+        # case and told that operator to fetch objects before changing
+        # `--pre-ref`, which is precisely backwards for a ref whose tree has
+        # shed the renderer. Both halves are classified now, so neither
+        # borrows the other's remedy.
+        if _NO_PATHSPEC.search(stderr):
+            # AND IT SAYS WHICH PATH, BECAUSE `git archive` FAILS ON ANY ONE
+            # OF THEM (Copilot, PR #1115). The first wording said the tree
+            # carried NEITHER archive path, which is only true when both are
+            # absent — a tree that shed one of them would have been described
+            # inaccurately in the refusal that names it.
+            absence = _absence(repo, pre_commit)
+            if absence is None:
+                raise EquivalenceRefusal(
+                    "equivalence-pre-tree-unrenderable",
+                    f"`git archive {pre_commit}` ({pre_ref}) matched none of "
+                    + " or ".join(ARCHIVE_PATHS)
+                    + f": {stderr or '(no error output)'}. This runner then "
+                    "could not read that commit's tree to say WHICH of them "
+                    "is missing, so it does NOT claim the ref is post-shed: "
+                    "a tree read that failed may itself be an incomplete "
+                    f"object store. Ask it directly — `git -C {repo} ls-tree "
+                    f"{pre_commit[:12]} -- " + " ".join(ARCHIVE_PATHS)
+                    + "` — before changing --pre-ref")
+            raise EquivalenceRefusal(
+                "equivalence-pre-tree-unrenderable",
+                f"{pre_ref} ({pre_commit[:12]}) "
+                + absence
+                + f": {stderr or '(no error output)'}. `contract-v4.0` and "
+                "every commit on `main` since the § 5.2 shed are in exactly "
+                "this state. A post-shed ref is an operator error about "
+                f"--pre-ref, not a pass: name {DEFAULT_PRE_REF!r} or another "
+                "pre-shed revision. The objects are not the problem — the "
+                "ref resolved and git read its tree well enough to know "
+                "these paths are not in it")
+        # AND WHAT IS LEFT IS UNDIAGNOSED, WHICH THIS SAYS RATHER THAN
+        # GUESSES AT. The two conditions an archive fails under here are
+        # classified above; a third — a permission error, a full disk, a git
+        # that broke in a way this file has not met — gets its stderr and
+        # both remedies as POSSIBILITIES, because a confident wrong
+        # diagnosis is what the two branches above exist to stop.
         raise EquivalenceRefusal(
             "equivalence-pre-tree-unrenderable",
             f"`git archive {pre_commit}` ({pre_ref}) FAILED: "
-            + (archive.stderr.decode("utf-8", "replace").strip()
-               or "(no error output)")
-            + ". The ref itself resolved, so this is the OBJECT STORE rather "
-            "than the tree: a partial clone whose promisor remote cannot be "
-            "reached, a corrupt pack, or a revision whose blobs were never "
-            "fetched. Fetch the missing objects (`git fetch origin "
-            f"{pre_commit}`) before changing --pre-ref. Whether the tree "
-            "carries the renderer is answered separately, below")
+            + (stderr or "(no error output)")
+            + ". The ref itself resolved and this runner cannot tell from "
+            "that output which condition it met — it is neither the object "
+            "store nor a pathspec that matched nothing, both of which are "
+            "reported by name. Read the error above: if objects are missing, "
+            f"`git -C {repo} fetch origin {pre_commit}`; if the tree has "
+            "shed the renderer, name a pre-shed --pre-ref. THIS REFUSAL DOES "
+            "NOT ESTABLISH WHICH: the archive failed, so the per-row check "
+            "that would have answered it never ran (Copilot, PR #1115 — this "
+            "sentence used to promise that answer `below`, which was true "
+            "only while this branch fell through rather than raising)")
     _extract_safely(archive.stdout, into, pre_ref)
     for row in (GENERATOR_ROW, SNAPSHOT_ROW):
         if not (into / row).is_file():
@@ -561,12 +710,31 @@ def _extract_safely(archive_bytes: bytes, into: Path, pre_ref: str) -> None:
 def _run_pre_child(tree: Path, corpus: Path, out: Path,
                    source_revision: str) -> subprocess.CompletedProcess:
     """The one child-interpreter invocation, BOUNDED. Separated so the
-    timeout and the call it bounds are one thing to read."""
+    timeout and the call it bounds are one thing to read.
+
+    THE INPUTS TRAVEL IN THE ENVIRONMENT AND NOT IN ARGV (Copilot, PR #1105
+    round 10; SonarCloud `pythonsecurity:S8705`, the last one open on this
+    file). `--corpus` is operator input, and argv is the one channel where a
+    value's POSITION decides how it is read: the program is passed to `-c`,
+    so everything after it is `sys.argv[1:]` and a mis-ordered or empty
+    element silently shifts the tuple unpack — the corpus becoming the output
+    path, the revision becoming the corpus. Environment entries are read BY
+    NAME, and a name that is missing raises `KeyError` in the child rather
+    than rendering something else. `-I` implies `-E`, which ignores the
+    `PYTHON*` variables only, so these six arrive intact; the ambient
+    environment is carried forward unchanged beneath them, because the child
+    imports PyYAML out of the same site-packages this process uses.
+    """
     return subprocess.run(
-        [sys.executable, "-I", "-c", _PRE_RENDER_PROGRAM,
-         str(tree / "scripts"), str(corpus), str(out), source_revision,
-         PINNED_COMMIT_DATE, REPOSITORY_NAME],
-        capture_output=True, text=True, check=False, timeout=_CHILD_TIMEOUT)
+        [sys.executable, "-I", "-c", _PRE_RENDER_PROGRAM],
+        capture_output=True, text=True, check=False, timeout=_CHILD_TIMEOUT,
+        env={**os.environ,
+             "EQUIVALENCE_SCRIPTS": str(tree / "scripts"),
+             "EQUIVALENCE_CORPUS": str(corpus),
+             "EQUIVALENCE_OUT": str(out),
+             "EQUIVALENCE_REVISION": source_revision,
+             "EQUIVALENCE_DATE": PINNED_COMMIT_DATE,
+             "EQUIVALENCE_REPOSITORY": REPOSITORY_NAME})
 
 
 def render_pre(tree: Path, corpus: Path, scratch: Path, pre_ref: str,
@@ -658,6 +826,19 @@ def post_stack(register_profile: bool = True):
     every invocation and wrong for an entry point that is about to reach either
     way. Its own docstring says so.
     """
+    # THE NO-NETWORK GUARANTEE MUST COVER THE WHOLE MEASUREMENT, AND THIS
+    # FILE'S `_git()` IS NOT THE WHOLE OF IT (Copilot, PR #1115).
+    # `carved_reach._git_run()` is a SHARED reader with its own sanitizer,
+    # and that sanitizer builds from `os.environ` minus a scrub list which
+    # does not contain this name (measured: `carved_reach.py:796-806`, and
+    # `"GIT_NO_LAZY_FETCH" in _sanitized_git_environment()` is True once it
+    # is set here). So the guard is set on THE PROCESS, before the reach is
+    # imported: a manifest or tree read on the post side would otherwise
+    # still lazy-fetch from a promisor remote in a partial clone — the one
+    # thing `GIT_NO_LAZY_FETCH` exists here to stop — and would do it in the
+    # half of the run this file does not issue the git commands for. It
+    # outlives the call, which is what a process-wide guarantee means.
+    os.environ["GIT_NO_LAZY_FETCH"] = "1"
     import carved_reach
     try:
         carved_reach.require()
@@ -994,13 +1175,151 @@ INIT_COMMAND_HINT = ("git submodule update --init --recursive "
 #: order: openxFactory records `openDox`, `openDox` records `code`. Both
 #: levels are checked, because a run reads modules out of the INNER one and
 #: only the outer pin is what an openxFactory commit declares.
+#: PARENTS COME BEFORE THEIR CHILDREN, and `verify_pins()` depends on it: a
+#: nested gitlink is read out of the exact commit the parent's own row
+#: verified, so that row must already have run. A test asserts the ordering.
 LEG_GITLINKS: tuple[tuple[str, str], ...] = (
-    (".", "openDox"), ("openDox", "code"),
-    (".", "openXdox"), ("openXdox", "code"),
+    (".", "openDox"), ("openDox", "code"), ("openDox", "spec"),
+    (".", "openXdox"), ("openXdox", "code"), ("openXdox", "spec"),
 )
 
 
-def recorded_gitlink(parent: Path, path: str) -> tuple[str | None, str]:
+#: What `recorded_gitlink()` answers as its SOURCE when it found no gitlink:
+#: naming both places it looked, because "records no gitlink in HEAD" would
+#: leave a reader wondering about the index.
+_NO_RECORD_SOURCE = "HEAD or the index"
+
+
+def _gitlink_at_commit(parent: Path, outer: str,
+                       path: str) -> tuple[str | None, str]:
+    """The gitlink `path` has IN THE TREE of the commit `outer`."""
+    source = f"the commit {outer[:12]} its own parent records for it"
+    oid, kind = _gitlink_in_tree(parent, outer, path)
+    if oid is None and kind is not None:
+        return None, f"{source} — it records a {kind} at that path, not a "\
+                     "submodule"
+    return oid, source
+
+
+def _gitlink_in_tree(parent: Path, revision: str,
+                     path: str) -> tuple[str | None, str | None]:
+    """(oid, note) for the gitlink `revision`'s tree carries at `path`.
+
+    `oid` is `None` both when the path is ABSENT (note `None`) and when
+    something that is not a submodule sits there (note names what does), and
+    an unreadable tree RAISES rather than answering either.
+
+    # ONE `ls-tree`, BECAUSE IT ANSWERS ALL THREE QUESTIONS AT ONCE — is the
+    # path there, is it a GITLINK, and what is its object id. `rev-parse
+    # <commit>:<path>` was the first spelling and answered only the last: it
+    # returns an oid for ANY tree entry, so a parent commit carrying a
+    # regular file or a directory at `code` after a type-changing update
+    # yielded that blob or tree id AS THE NESTED PIN, and the run then
+    # reported an off-pin checkout instead of saying no gitlink is recorded
+    # (Copilot, PR #1115). The index-first path has always required mode
+    # `160000`; this one now does too, which is `verify-openxdox-pin.py`'s
+    # rule as well. ABSENT AND UNREADABLE ALSO STAY APART, since `rev-parse
+    # --quiet` conflated them: a tree read that FAILED is an incomplete
+    # object store, not a missing submodule declaration.
+    """
+    listed = _git(parent, "ls-tree", "--full-tree", revision, "--", path)
+    if listed is None or listed.returncode != 0:
+        raise EquivalenceRefusal(
+            "equivalence-object-store-incomplete",
+            f"{parent} could not be asked what {revision} records for "
+            f"{path}: the tree read FAILED or did not answer within "
+            f"{_GIT_TIMEOUT}s. That is an OBJECT STORE that cannot answer "
+            "about a revision this run has already accepted, not a missing "
+            "submodule declaration — fetch its objects deliberately "
+            f"(`git -C {parent} fetch origin {revision}`) and re-run")
+    row = listed.stdout.strip()
+    if not row:
+        return None, None
+    fields = row.split(None, 3)
+    if len(fields) < 3 or fields[0] != "160000":
+        return None, (fields[1] if len(fields) > 1 else "something")
+    return fields[2], None
+
+
+def _gitlink_index_first(parent: Path, path: str) -> tuple[str | None, str]:
+    """The gitlink this repository RECORDS for `path`, index first."""
+    # THE INDEX IS READ FIRST, WHICH IS WHAT "INDEX-FIRST" MEANS (Copilot,
+    # PR #1115). Reading HEAD first was harmless while that read answered
+    # `None` on failure; it stopped being harmless the moment it started
+    # RAISING for an unreadable tree, because a staged stage-0 gitlink is the
+    # authoritative pin for a re-pin that has not been committed yet — and a
+    # runner that refused before looking at it would reject a valid pin for
+    # the state of a tree it did not need.
+    listed = _git(parent, "ls-files", "-s", "--", path)
+    if listed is None or listed.returncode != 0:
+        # No index answer at all: HEAD is the only record there is, and it
+        # is read the same mode-aware way the nested path is.
+        head_only, _kind = _gitlink_in_tree(parent, "HEAD", path)
+        return head_only, ("HEAD" if head_only else _NO_RECORD_SOURCE)
+    index_oid, conflicted = _staged_gitlink(listed.stdout, path)
+    if index_oid is None and conflicted:
+        raise EquivalenceRefusal(
+            "equivalence-reach-unavailable",
+            f"{parent} has {path} CONFLICTED in its index "
+            f"({', '.join(conflicted)}) and carries no stage-0 entry for it, "
+            "so this repository records no pin for that leg right now. "
+            f"Resolve the merge in {parent} (`git status` names the paths) "
+            "and re-run: a runner that read one of the conflict stages would "
+            "report a pin no commit has declared")
+    # HEAD is still read, because the SOURCE this answers with depends on
+    # whether the two agree — but an unreadable HEAD tree must not veto a pin
+    # the index has already given.
+    try:
+        head_oid, _kind = _gitlink_in_tree(parent, "HEAD", path)
+    except EquivalenceRefusal:
+        if index_oid is not None:
+            return index_oid, "the index"
+        raise
+    if index_oid != head_oid:
+        return index_oid, ("the index" if index_oid else _NO_RECORD_SOURCE)
+    return head_oid, ("HEAD" if head_oid else _NO_RECORD_SOURCE)
+
+
+def _staged_gitlink(listing: str, path: str) -> tuple[str | None, list[str]]:
+    """(the stage-0 gitlink, the conflict stages) out of `ls-files -s`.
+
+    THE PATH COLUMN IS REQUIRED TO MATCH (Copilot, PR #1115).
+    `git ls-files -s -- <path>` is RECURSIVE when `<path>` is a directory, so
+    a root pin that had been replaced by a plain directory containing a
+    nested gitlink would have had that NESTED row read as its own recorded
+    pin. `verify-openxdox-pin.py::_gitlink_from` parses the path for the same
+    reason.
+
+    STAGE 0 OR NOTHING (Copilot, PR #1105 round 3, accepted without argument
+    and owed since). `git ls-files -s` lists stages 1, 2 and 3 for a path in
+    an unresolved merge, so taking the FIRST `160000` row would read the
+    MERGE BASE's gitlink — or THEIRS — as the pin this repository records,
+    compare the checkout against a commit nobody has declared, and refuse or
+    pass on it. There is no recorded pin during a conflict; that is a state
+    to name, not to guess through.
+    """
+    # EVERY NONZERO STAGE IS A CONFLICT, WHATEVER ITS MODE (Copilot, PR
+    # #1115). Filtering to `160000` FIRST meant a merge between a gitlink and
+    # a regular file — stages 1/2/3 with mixed modes — left `conflicted`
+    # empty, so an unresolved conflict was reported as "no record" and could
+    # fall back to HEAD. The stages are collected first and the mode is
+    # required only of the stage-0 row, which is the one that would be used.
+    stage_zero: str | None = None
+    conflicted: list[str] = []
+    for line in listing.splitlines():
+        fields = line.split(None, 3)
+        if len(fields) < 4 or fields[3].strip() != path:
+            continue
+        mode, oid, stage = fields[0], fields[1], fields[2]
+        if stage != "0":
+            conflicted.append(f"stage {stage} {mode} {oid[:12]}")
+        elif mode == "160000":
+            stage_zero = oid
+    return stage_zero, conflicted
+
+
+def recorded_gitlink(parent: Path, path: str,
+                     outer: str | None = None) -> tuple[str | None, str]:
     """(oid, source) for the gitlink `parent` RECORDS for `path`.
 
     THE INDEX WINS WHEN IT DISAGREES WITH HEAD, which is
@@ -1009,23 +1328,21 @@ def recorded_gitlink(parent: Path, path: str) -> tuple[str | None, str]:
     is committed, and a HEAD-first read answers for the commit being replaced.
     Only a FAILED index read — an environment problem, not a staged one —
     falls back to HEAD without comparing.
+
+    WITH `outer`, NEITHER WINS: the gitlink is read out of THAT COMMIT'S TREE
+    (Copilot, PR #1105 round 10). The index-first rule is right for the pin
+    THIS repository declares and wrong one level down, where the question is
+    not "what is staged in the nested checkout" but "what does the commit the
+    superproject records actually contain". A `code` gitlink staged inside
+    `openDox` is in no commit openxFactory has declared, yet the index-first
+    read would take it as the recorded pin and pass a leg the superproject
+    never pinned — while `openDox`'s own HEAD still matched, so the level
+    above stayed green. Reading `<outer>:<path>` closes that: the chain is
+    resolved from the exact commit being claimed, at every level.
     """
-    head = _git(parent, "rev-parse", "--verify", "--quiet",
-                "--end-of-options", f"HEAD:{path}")
-    head_oid = (head.stdout.strip()
-                if head is not None and head.returncode == 0 else None)
-    listed = _git(parent, "ls-files", "-s", "--", path)
-    if listed is None or listed.returncode != 0:
-        return head_oid, "HEAD"
-    index_oid = None
-    for line in listed.stdout.splitlines():
-        fields = line.split(None, 3)
-        if len(fields) >= 3 and fields[0] == "160000":
-            index_oid = fields[1]
-            break
-    if index_oid != head_oid:
-        return index_oid, "the index"
-    return head_oid, "HEAD"
+    if outer is not None:
+        return _gitlink_at_commit(parent, outer, path)
+    return _gitlink_index_first(parent, path)
 
 
 #: The two legs whose WORKING TREES this runner actually imports from.
@@ -1034,22 +1351,140 @@ def recorded_gitlink(parent: Path, path: str) -> tuple[str | None, str]:
 #: is load-bearing. The two assembly roots are deliberately NOT here: their
 #: only content that matters is the gitlink, and a staged or unstaged gitlink
 #: move is already what `recorded_gitlink()` and the comparison below read.
+#: MEASURED, NOT ASSUMED, AND NARROWER THAN THE PIN SET (Copilot, PR #1115).
+#: An earlier commit in this act added the two `spec` mounts here beside the
+#: pin set, and that was over-reach: `carved_reach.LEGS` installs exactly two
+#: roots — `openDox/code/src` and `openXdox/code/src` — and `module()`
+#: refuses a row that is not a `.py` at a code leg, so NOTHING can be
+#: imported out of a spec mount through this reach. Sweeping a tree this run
+#: cannot import from can only refuse a run for a state that cannot change
+#: its result, which is the false-refusal defect this same act fixed for the
+#: flag scan. The spec mounts stay in LEG_GITLINKS, because they ARE pins the
+#: superproject records and verifying them is honest; they leave this tuple,
+#: which is about what renders.
 IMPORTED_LEGS: tuple[str, ...] = ("openDox/code", "openXdox/code")
 
 
+#: The ONE ignored class the sweep passes over: CPython's compiled bytecode,
+#: which this runner CREATES by importing the legs, so counting it would make
+#: every run after the first refuse. Measured at the two code legs: 45 and 21
+#: ignored files under `src`, all of them this.
+#:
+#: EXACTLY `__pycache__/<name>.pyc`, AND THE ALTERNATION THAT WAS HERE FIRST
+#: WAS A HOLE (Copilot, PR #1115; SonarCloud `python:S5850` on the same line,
+#: which is what an unparenthesised top-level `|` usually means). `\.pyc$`
+#: alone allowlisted a `.pyc` ANYWHERE under the import surface, and a
+#: sourceless `src/foo.pyc` sitting where `foo.py` would sit is a perfectly
+#: ordinary import candidate — so the allowlist for the one artifact this
+#: runner creates would have admitted a module it did not.
+_GENERATED_BYTECODE = re.compile(r"(?:^|/)__pycache__/[^/]+\.pyc$")
+
+
 def worktree_dirt(leg: Path) -> list[str] | None:
-    """`git status --porcelain` for one leg: the entries, or `None` when the
+    """The cleanliness sweep for one leg: the entries, or `None` when the
     question could not be ASKED.
 
-    `None` is not "clean". A status read that failed or timed out learned
-    nothing, and `carved_reach`'s rule holds one layer up as it does
-    everywhere else in this file: a query that went unanswered must never
-    stand in for the tree's own answer.
+    `None` is not "clean". A read that failed or timed out learned nothing,
+    and `carved_reach`'s rule holds one layer up as it does everywhere else
+    in this file: a query that went unanswered must never stand in for the
+    tree's own answer.
+
+    THREE READS, NOT ONE `status` (Copilot, PR #1105 round 6, registered in
+    the form that works). `--ignored` was the proposed remedy and it is
+    unusable here: measured, it reports 3 and 4 `__pycache__` entries in the
+    two code legs — ignored by each leg's own `.gitignore` and written by
+    THIS RUNNER'S own imports — so a gate using it refuses on every run after
+    the first. What is asked instead is exactly what matters:
+
+    * `git diff --name-only HEAD -- src` — tracked edits, staged or not,
+      under the import surface (the registered `--quiet` spelling is the same
+      query; the names are taken because the refusal prints them). A leg
+      with no `src` is diffed whole: there is no narrower surface to scope
+      to, and scoping to a path that is not there would measure nothing.
+    * `git ls-files --others --exclude-standard` — untracked files that are
+      NOT ignored, which is the half `--ignored` drowned.
+    * `git ls-files -v`, for the flags — a lowercase tag is
+      `assume-unchanged` and `S` is `skip-worktree`. Both make git report a
+      modified file as clean, so a leg carrying either can be edited with
+      every other read above still answering "clean". A sweep that cannot
+      see the state it is asserting is not a sweep.
     """
-    done = _git(leg, "status", "--porcelain", "--untracked-files=normal")
+    scope = ["--", "src"] if (leg / "src").is_dir() else []
+    rows: list[str] = []
+    if scope:
+        # AND THE IGNORED FILES UNDER THE IMPORT SURFACE, MINUS THE ONE CLASS
+        # THIS RUNNER MAKES ITSELF (Copilot, PR #1115). `--exclude-standard`
+        # drops EVERY ignored path, and an ignored `.py` under `src` is still
+        # perfectly importable — it can shadow a module or be imported
+        # outright — so excluding the whole class let a leg render bytes that
+        # are in no commit while the verdict named one. The allowlist is
+        # exactly CPython's compiled bytecode, which this runner's own
+        # imports create: measured, the two code legs carry 45 and 21 ignored
+        # files under `src` and EVERY ONE of them is a `__pycache__` `.pyc`.
+        # Scoped to the import surface, because that is where an ignored file
+        # can change what renders; a leg with no `src` has no such surface.
+        ignored = _names(leg, "!! ", "ls-files", "--others", "--ignored",
+                         "--exclude-standard", *scope)
+        if ignored is None:
+            return None
+        rows += [row for row in ignored
+                 if not _GENERATED_BYTECODE.search(row[3:])]
+    # EVERY READ TAKES THE SAME SCOPE (Copilot, PR #1115 — the third place
+    # this inconsistency was found, after the flag scan and the spec
+    # mounts). An untracked `docs/NOTE.md` cannot be imported through
+    # `carved_reach` and must not refuse a required gate.
+    for prefix, arguments in ((" M ", ("diff", "--name-only", "HEAD",
+                                       *scope)),
+                              ("?? ", ("ls-files", "--others",
+                                       "--exclude-standard", *scope))):
+        named = _names(leg, prefix, *arguments)
+        if named is None:
+            return None
+        rows += named
+    # THE SAME SCOPE AS THE OTHER TWO READS (Copilot, PR #1115, suppressed).
+    # The tracked diff and the ignored scan look at the import surface; a
+    # flag scan over the WHOLE leg would refuse for an `assume-unchanged` bit
+    # on a file that cannot reach `carved_reach`'s imports at all — a false
+    # refusal in a required gate, which is a worse failure than the one it
+    # would be guarding against.
+    hidden = _flagged(leg, *scope)
+    if hidden is None:
+        return None
+    return rows + hidden
+
+
+def _names(leg: Path, prefix: str, *arguments: str) -> list[str] | None:
+    """One name-per-line git read, each name given `prefix`, or `None` when
+    the question could not be ASKED."""
+    done = _git(leg, *arguments)
     if done is None or done.returncode != 0:
         return None
-    return [line for line in done.stdout.splitlines() if line.strip()]
+    return [f"{prefix}{name}" for name in done.stdout.splitlines()
+            if name.strip()]
+
+
+def _flagged(leg: Path, *scope: str) -> list[str] | None:
+    """The `assume-unchanged` / `skip-worktree` entries, which `ls-files -v`
+    marks with a lowercase tag and an `S` — the state that makes git report
+    an EDITED file as clean, and so the state no other read here can see."""
+    done = _git(leg, "ls-files", "-v", *scope)
+    if done is None or done.returncode != 0:
+        return None
+    return [f"{line[0]}! {line[2:]}" for line in done.stdout.splitlines()
+            if len(line) >= 3 and line[1] == " "
+            and (line[0].islower() or line[0] == "S")]
+
+
+def _dirt_kind(row: str) -> str:
+    """Which of the four kinds a sweep row is, since each has its own remedy
+    and two of them are spelled with a `!`."""
+    if row.startswith("??"):
+        return "untracked"
+    if row.startswith("!!"):
+        return "ignored"
+    if row[1:2] == "!":
+        return "hidden"
+    return "tracked"
 
 
 def _clean_advice(dirt: list[str], leg: Path) -> str:
@@ -1061,19 +1496,128 @@ def _clean_advice(dirt: list[str], leg: Path) -> str:
     run clean (Copilot on #1105 @9ed3def3, suppressed). `worktree_dirt()`
     reports both kinds, so the advice branches on what is actually there.
     """
-    untracked = any(row.startswith("??") for row in dirt)
-    tracked = any(not row.startswith("??") for row in dirt)
-    if untracked and tracked:
-        return (f"Commit the edits, or `git -C {leg} stash -u` (the `-u` is "
-                "required: untracked files are among them and a plain stash "
-                "would leave them), and re-run")
+    kinds = {_dirt_kind(row) for row in dirt}
+    untracked = "untracked" in kinds
+    hidden = "hidden" in kinds
+    ignored = "ignored" in kinds
+    tracked = "tracked" in kinds
+    remedies = []
+    if tracked:
+        # `git diff --name-only HEAD` SEES STAGED CHANGES TOO, and `checkout
+        # -- .` restores the worktree FROM THE INDEX — so for a staged edit
+        # it changes nothing and the next run refuses again (Copilot, PR
+        # #1115). The remedy must clear both, as `restore --staged
+        # --worktree` does.
+        remedies.append(
+            f"commit the edits, or `git -C {leg} restore --staged "
+            "--worktree -- .` (both, since the diff is taken against HEAD "
+            "and `checkout -- .` would leave a STAGED edit exactly where it "
+            "is)")
     if untracked:
-        return (f"Those entries are UNTRACKED, so "
-                f"`git -C {leg} checkout -- .` will not remove them: "
-                f"`git -C {leg} stash -u` or `git -C {leg} clean -fd` them, "
-                "and re-run")
-    return (f"Commit the edit, stash it, or `git -C {leg} checkout -- .` and "
-            "re-run")
+        remedies.append(
+            f"`git -C {leg} stash -u` or `git -C {leg} clean -fd` the "
+            "UNTRACKED entries (`checkout -- .` will not remove them, and a "
+            "plain stash would leave them)")
+    if hidden:
+        # A THIRD KIND, AND THE ONLY ONE THAT SURVIVES THE OTHER TWO: an
+        # `assume-unchanged` or `skip-worktree` bit makes git report an
+        # edited file as clean, so `checkout -- .` restores nothing and the
+        # next run reads the same tree as clean again. CLEARING THE FLAG IS
+        # HALF THE REMEDY (Copilot, PR #1115): the edit it was hiding then
+        # shows up as an ordinary modification and the promised re-run
+        # refuses a second time, so the restore is named here with it.
+        remedies.append(
+            f"clear the hidden flags — `git -C {leg} update-index "
+            "--no-assume-unchanged --no-skip-worktree <path>` — for the "
+            "`h!`/`S!` entries above, AND THEN commit, stash or "
+            f"`git -C {leg} checkout --` those same paths: while the flags "
+            "are set git reports those files as clean however they are "
+            "edited, and clearing a flag reveals the edit rather than "
+            "removing it")
+    if ignored:
+        remedies.append(
+            f"remove the IGNORED entries under the import surface (`git -C "
+            f"{leg} clean -fdX -- src`, or delete them): git ignores them "
+            "and Python imports them anyway, which is the whole reason they "
+            "are reported")
+    return "Then re-run: " + "; ".join(remedies)
+
+
+def unmaterialized_legs() -> list[str]:
+    """Which pinned mounts are not THERE, read without importing anything.
+
+    RUN BEFORE `post_stack()`, and that is the whole point (Copilot, PR #1105
+    round 6). Composing the stack is how this file learns almost everything,
+    but it is not free and it is not read-only: `import carved_reach` installs
+    a meta-path finder, `install()` mutates the import system for the rest of
+    the process, and importing out of a leg writes `__pycache__` INTO the leg
+    whose cleanliness the next check is about to assert. Doing all of that to
+    discover that a submodule directory is empty is work with side effects
+    performed to reach a worse message — `carved_reach`'s own refusal names a
+    module, and what an operator with an uninitialized checkout needs named is
+    the checkout.
+
+    A `git` read would answer this too and is deliberately not used: the
+    question is whether the FILES are on disk for the import machinery, which
+    is a question about the filesystem, and a leg can be perfectly recorded in
+    every index while its directory is empty. That is exactly the state a
+    fresh clone without `--recurse-submodules` is in.
+    """
+    absent: list[str] = []
+    for parent_rel, path in LEG_GITLINKS:
+        leg = (ROOT / parent_rel / path)
+        if not leg.is_dir():
+            absent.append(f"{leg} — no such directory")
+        elif not any(child.name != ".git" for child in leg.iterdir()):
+            # `.git` ITSELF DOES NOT COUNT (Copilot, PR #1115). A mount
+            # holding only submodule metadata — `submodule update
+            # --no-checkout`, or an update interrupted between clone and
+            # checkout — has files in it and no working tree, which is the
+            # state this probe exists to name.
+            absent.append(f"{leg} — no working tree: the directory holds "
+                          "nothing but submodule metadata, so the gitlink is "
+                          "recorded and nothing was ever checked out")
+        elif not (leg / ".git").exists():
+            absent.append(f"{leg} — no `.git`: a copied source tree rather "
+                          "than a checkout, so no pin can be verified for it")
+    return absent
+
+
+def superproject_state() -> dict[str, Any]:
+    """THE ROOT CHECKOUT'S OWN revision and dirt, for the EVIDENCE.
+
+    Never a refusal, and the asymmetry with the legs is the point (Copilot,
+    PR #1105 round 4). The legs are pinned, so a dirty leg makes the verdict's
+    own sentence false and must refuse. The root is not pinned by anything
+    here — and it is the tree this runner is EDITED in, so refusing on its
+    dirt would make the gate unusable by the only people who change it.
+
+    But it is not irrelevant either, which is why it is carried: the post side
+    is composed out of ROOT's `scripts/carved_reach.py`, `scripts/
+    opendox_host.py` and `contracts/domain-profiles/`, none of them pinned by
+    the gitlinks above. A reader holding two runs with different digests can
+    tell from this line whether the composition was the same.
+    """
+    head = _git(ROOT, "rev-parse", "--verify", "--quiet", "--end-of-options",
+                "HEAD")
+    revision = (head.stdout.strip()
+                if head is not None and head.returncode == 0 else "")
+    done = _git(ROOT, "status", "--porcelain", "--untracked-files=normal")
+    # AND THE SAME BLIND SPOT THIS ACT FIXES FOR THE LEGS (Copilot, PR #1115,
+    # suppressed). A plain `status` cannot see an edit hidden by an
+    # `assume-unchanged` or `skip-worktree` bit, so the evidence line could
+    # read `working tree clean` while `carved_reach.py`, `opendox_host.py` or
+    # the profile — the UNPINNED half this line exists to carry — had been
+    # edited. The root is still never refused on; it is reported truthfully
+    # or reported as unknown.
+    hidden = _flagged(ROOT)
+    if done is None or done.returncode != 0 or hidden is None:
+        return {"root_revision": revision or "unknown",
+                "root_worktree": "unknown", "root_worktree_entries": None}
+    rows = [line for line in done.stdout.splitlines() if line.strip()]
+    return {"root_revision": revision or "unknown",
+            "root_worktree": "dirty" if rows or hidden else "clean",
+            "root_worktree_entries": len(rows) + len(hidden)}
 
 
 def verify_pins() -> dict[str, str]:
@@ -1097,16 +1641,24 @@ def verify_pins() -> dict[str, str]:
     learned about the pin, so nothing may be claimed for it.
     """
     heads: dict[str, str] = {}
+    declared: dict[str, str] = {}
     for parent_rel, path in LEG_GITLINKS:
         parent = (ROOT / parent_rel).resolve()
         leg = (parent / path).resolve()
-        recorded, source = recorded_gitlink(parent, path)
+        # THE CHAIN IS RESOLVED FROM THE EXACT OUTER COMMIT, level by level
+        # (Copilot, PR #1105 round 10). The superproject's own gitlinks are
+        # read index-first, because a re-pin must be checkable before it is
+        # committed; every level BELOW is read out of the commit the level
+        # above just verified, because nothing staged inside a nested
+        # checkout is part of any pin this repository has declared.
+        outer = None if parent_rel == "." else declared[parent_rel]
+        recorded, source = recorded_gitlink(parent, path, outer)
         if recorded is None:
             raise EquivalenceRefusal(
                 "equivalence-reach-unavailable",
-                f"{parent} records no gitlink for {path} in HEAD or in the "
-                "index, so there is nothing to compare the checkout against. "
-                "This runner reports which pinned commit rendered; a pin it "
+                f"{parent} records no gitlink for {path} in {source}, so "
+                "there is nothing to compare the checkout against. This "
+                "runner reports which pinned commit rendered; a pin it "
                 "cannot read is a claim it cannot make")
         head = _git(leg, "rev-parse", "--verify", "--quiet",
                     "--end-of-options", "HEAD")
@@ -1132,7 +1684,9 @@ def verify_pins() -> dict[str, str]:
                 "is reached through the PINS, and a leg moved out from under "
                 "them renders something this run has no name for — run "
                 f"`{INIT_COMMAND_HINT}` to put the checkout back on its pin")
-        heads[f"{parent_rel}/{path}".lstrip("./")] = checked_out
+        key = f"{parent_rel}/{path}".lstrip("./")
+        heads[key] = checked_out
+        declared[key] = recorded
     # AND THE TREE ON DISK IS THE COMMIT, NOT MERELY AT IT (Copilot, PR #1105
     # round 2). `carved_reach.module()` imports off the nested WORKING TREE,
     # so an uncommitted edit under a leg's `src/` renders bytes that are not
@@ -1148,8 +1702,10 @@ def verify_pins() -> dict[str, str]:
         if dirt is None:
             raise EquivalenceRefusal(
                 "equivalence-reach-unavailable",
-                f"`git -C {leg} status --porcelain` FAILED or did not answer "
-                f"within {_GIT_TIMEOUT}s, so whether the tree this run "
+                f"the cleanliness sweep of {leg} — its tracked diff, its "
+                "ignored and untracked files, and its `ls-files -v` flags — "
+                f"FAILED or did not answer within {_GIT_TIMEOUT}s per read, "
+                f"so whether the tree this run "
                 f"imports from IS the commit {heads[leg_path]} it is checked "
                 "out at went unmeasured. A pin this runner could not verify "
                 "is a pin it must not report")
@@ -1194,6 +1750,20 @@ def _print_ok(summary: dict[str, Any], as_json: bool) -> None:
     for state in summary["states"]:
         print(f"  {state['corpus']}  {state['pre_bytes']} bytes  "
               f"sha256 {state['pre_sha256']}")
+    # THE COMPOSITION'S OWN TREE, carried because it is NOT one of the pins
+    # above: `carved_reach.py`, `opendox_host.py` and the § 4.4 profile are
+    # read out of this checkout, and two runs of this runner can differ by
+    # them alone while every pinned leg matches (Copilot, PR #1105 round 4).
+    entries = summary.get("root_worktree_entries")
+    counted = ""
+    if entries:
+        plural = "entry" if entries == 1 else "entries"
+        counted = f" ({entries} uncommitted {plural})"
+    print(f"  composed in {ROOT} at "
+          f"{str(summary.get('root_revision', 'unknown'))[:12]}, working "
+          f"tree {summary.get('root_worktree', 'unknown')}{counted}"
+          " — the pinned legs above are verified clean; this line is the "
+          "UNPINNED half of the composition")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1252,18 +1822,32 @@ def main(argv: list[str] | None = None) -> int:
                     "corpus that is not there would render two empty "
                     "snapshots and report them equal, and silence must not "
                     "read as a pass")
-        # THE POST SIDE IS COMPOSED FIRST, AND THE ORDER IS DELIBERATE. It is
-        # the claim's subject and the cheapest thing to prove absent: an
-        # operator whose legs are not materialized, or whose process has no
-        # § 4.4 profile, should be told THAT rather than told about a tag, and
-        # extracting a 5.7 MB archive before discovering that the stack cannot
-        # be composed at all is work done to reach a worse message.
-        # `post_stack()` first, so `carved_reach.require()`'s own refusal —
-        # the one that names `git submodule update` — wins over the pin
-        # comparison for a checkout with no legs at all. NOTHING IS CLAIMED
-        # BETWEEN THE TWO: the modules are imported here and not rendered
-        # until after the pins are verified, so a leg off its pin refuses
-        # before any digest exists to report.
+        # THE POST SIDE COMES FIRST, AND THE ORDER IS DELIBERATE. It is the
+        # claim's subject and the cheapest thing to prove absent: an operator
+        # whose legs are not materialized, or whose process has no § 4.4
+        # profile, should be told THAT rather than told about a tag, and
+        # extracting a 5.7 MB archive before discovering that the stack
+        # cannot be composed at all is work done to reach a worse message.
+        # THE FILESYSTEM PROBE COMES FIRST OF ALL, and this comment used to
+        # say `post_stack()` did (Copilot, PR #1115 — it was the opposite of
+        # the implemented, tested order). Composing imports the legs, which
+        # installs a meta-path finder and writes `__pycache__` INTO the tree
+        # whose cleanliness the next check asserts; discovering an empty
+        # submodule directory that way costs those side effects and answers
+        # in terms of a module name rather than of the checkout. NOTHING IS
+        # CLAIMED BETWEEN ANY OF THEM: the modules are imported here and not
+        # rendered until after the pins are verified, so a leg off its pin
+        # refuses before any digest exists to report.
+        absent = unmaterialized_legs()
+        if absent:
+            raise EquivalenceRefusal(
+                "equivalence-reach-unavailable",
+                "the pinned legs are not materialized in this checkout:\n"
+                + "\n".join(f"    {row}" for row in absent)
+                + f"\nRun `{INIT_COMMAND_HINT}`. This is read off the "
+                "filesystem BEFORE the stack is composed, so that a checkout "
+                "with no legs is told about its legs rather than about a "
+                "module it has never heard of")
         stack = post_stack(register_profile=not args.no_register_profile)
         pins = verify_pins()
         pre_commit = pre_ref_commit(args.pre_ref, ROOT)
@@ -1278,6 +1862,7 @@ def main(argv: list[str] | None = None) -> int:
             **post_side_identity(stack, pins),
             "source_revision": args.source_revision,
             "repository": REPOSITORY_NAME,
+            **superproject_state(),
             "states": [],
         }
         with tempfile.TemporaryDirectory(

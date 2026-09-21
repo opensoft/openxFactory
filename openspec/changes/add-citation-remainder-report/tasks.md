@@ -533,7 +533,7 @@ evidence is a fact about a merge that has not happened.
       only one of them is the run this record names, and a record naming
       figures no named run produced is a record a reader cannot check.
       (Copilot `PRRT_kwDOTAvnrs6jdTOB` on PR #1100.)
-- [ ] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
+- [x] 2.2 **THE NIGHTLY WIRING**, at the size D5 rules. Under the recommended
       option: ONE step in `.github/workflows/doc-health-reusable.yml` that runs
       the report and uploads it as a workflow artifact, committing nothing,
       adding no branch and asking no write permission. **AND THE STEP RUNS IN
@@ -571,6 +571,92 @@ evidence is a fact about a merge that has not happened.
       derive-possibles shape, the output moves INSIDE the scanned root, and
       D3(a)'s output-path exclusion becomes LIVE rather than structural and MUST
       land in the same pull request.
+      **LANDED, 2026-09-18, realization slice R2.**
+      `.github/workflows/doc-health-reusable.yml`, two steps in the `finalize`
+      job immediately after `Upload report artifact` — the reading and its
+      upload — and `tests/citation_remainder/test_report_wiring.py`, NEW, which
+      parses the shipped workflow and pins them. **WHAT THIS TICK CLAIMS IS THE
+      DIFF AND NOT A RUN**, which is the tick rule's own first clause: the
+      wiring this item describes is in the pull request that carries this tick.
+      **THE FIRST `doc-health-nightly` RUN THAT PRODUCES THE ARTIFACT IS OWED
+      SEPARATELY AND IS NOT CLAIMED HERE** — cited by run id and artifact name
+      (`citation-remainder-<YYYY-MM-DD>`), arriving within 24 hours of the merge
+      on the aggregation's own cron (`17 2 * * *`) or immediately by
+      `workflow_dispatch`, and landing in § 3.3's realization comment and the
+      archive pull request's own evidence list. A merged workflow file is not
+      evidence that a step ran, which is the parent packet's § 4.5 lesson one
+      notch down, and the distance between the two is exactly this paragraph.
+      **THE STEP IS THE ONE THIS ITEM PRESCRIBES, NOT A NEIGHBOUR OF IT**:
+      ONE invocation, ONE file, `--json` with no operand, the script path
+      submodule-qualified, the `REPO_ROOT` positional `openxFactory`, and the
+      redirect target at the aggregation root — each asserted against the
+      parsed YAML rather than read, and each proved to BITE by breaking the
+      shipped step sixteen ways and watching a named test catch every one.
+      **TWO DECISIONS THIS ITEM LEFT OPEN WERE TAKEN IN THAT PULL REQUEST
+      RATHER THAN IN A YAML COMMENT.** Q6 — whether a cannot-run of an
+      advisory report reds the governance nightly — takes the house's own
+      habit over the realization plan's recommendation: `continue-on-error:
+      true` plus an explicit `::warning::` on every failure path, because this
+      capability's own requirement rules that *"PROMOTING THE REPORT TO A GATE
+      SHALL BE A SEPARATE ACT ON A SEPARATE WORD"* and this is not that word,
+      because every other optional lane in that file records a graceful skip,
+      and because the nightly has concluded `failure` on each of its last eight
+      scheduled runs for reasons owned elsewhere, so a ninth way to red it
+      carries no signal a reader could act on. NOTHING IS SWALLOWED: the
+      warning annotates and the upload's `outcome` gate leaves the artifact
+      absent, so a night without a reading is a VISIBLE hole in D6's series
+      rather than a false point in it. And the tree-state check the step makes
+      of its own checkout is FOLDED under that same posture rather than split
+      out to red unconditionally, on a fact measured in the workflow rather
+      than assumed: the neutrality lane's merge inside `Run doc-health suite`
+      can persist writes under `openxFactory/health/neutrality-drift/` — the
+      step immediately after this one exists to commit them back, and
+      `baseline/codexFactory.yaml` is already tracked — so a modified checkout
+      at this point is a foreseeable state of another lane doing its work and
+      not a defect to fail a nightly for. The step is ordered ahead of both
+      commit-backs so the reading is taken while the checkout still stands at
+      its pinned commit, and that ORDER is itself asserted.
+      **AND D6 IS MEASURABLE UNDER D5 OPTION 1, WHICH WAS AN OPEN QUESTION AND
+      IS NOW A MEASUREMENT.** The series lives only in artifacts under this
+      option, so the retention was read rather than guessed — and read in the
+      right repository: a reusable workflow's artifacts belong to the CALLER,
+      so they live in `opensoft/xFactory`, which holds every artifact this
+      nightly has ever produced while `opensoft/openxFactory` holds none of its
+      own. Sixty consecutive artifacts there expire exactly 90 days after their
+      run starts (`doc-health-report-2026-09-18`, run `35299844095`, started
+      `2026-09-18T02:33:56Z`, expires `2026-12-17T02:33:57Z`). D6's `N = 14`
+      window fits six times over, `retention-days: 90` matches that effective
+      maximum rather than raising it, and D5 option 2 is not forced.
+      **THE SCENARIOS THIS WIRING IS EVIDENCE FOR, BY NAME, AND THE ONE IT IS
+      NOT.** R2 realizes no requirement of its own — all five are R1's — but
+      the wiring and its test are a DIFFERENT KIND of evidence for three
+      scenarios R1 covers at the CLI level, and naming them keeps a reader from
+      reading R2 as contributing nothing toward the spec. *The tree read is not
+      clean at the head printed* (**The citation remainder is reported**):
+      R1's fixtures cover the CLI's own declaration; the step's assertion is
+      that fact ENFORCED on the live nightly checkout, pinned by
+      `test_the_tree_state_of_the_reading_is_checked_and_not_merely_printed`
+      and by
+      `test_the_reading_is_taken_before_any_step_that_writes_in_the_submodule`.
+      *A reading is compared against an earlier reading* (**The reported
+      population is derived from a stated recipe**): a FIXED, non-drifting argv
+      is what keeps each night's reading a later point in the SAME series
+      rather than a differently defined one, pinned by
+      `test_the_argv_is_the_fixed_one_and_carries_no_refinement`,
+      `test_the_nightly_runs_the_report_exactly_once`,
+      `test_the_script_path_is_submodule_qualified`,
+      `test_the_repo_root_positional_is_this_submodule_and_never_a_default` and
+      `test_the_json_flag_is_passed_with_no_operand`. *The report's own output
+      is committed into the corpus* (same requirement): under D5 option 1 the
+      nightly commits nothing, so the scenario's antecedent never fires on this
+      path — R2 makes it INAPPLICABLE by construction rather than making it
+      pass, the output standing outside the scanned root by
+      `test_the_reading_is_written_outside_the_scanned_root`, and D3(a)'s
+      exclusion machinery staying dormant until D5 option 2 would make it live.
+      **NOT CLAIMED**: *A caller's refinement names the report's own output* —
+      the step passes no `--include` and no `--exclude`, so that scenario is
+      exercised by R1's fixtures alone; what this slice adds is the assertion
+      that the nightly never starts passing one.
 - [ ] 2.3 **THE FIRST MEASUREMENT THE REPORT ITSELF PRODUCES, AS EVIDENCE.**
       § 1.9's `evidence/measurement-b1df95ee.md` is the HAND-INSTRUMENTED
       reading and it is already committed; what § 2.3 owes is the first reading
