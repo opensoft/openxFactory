@@ -1572,8 +1572,8 @@ the bookkeeping that ticks this group.
   legs: a tag on a leg describes half a project, and the bundle tag,
   `contracts/manifest.yaml` and `contracts/CHANGELOG.md` live where a consumer's
   pin points.
-  **STATUS — THE ROOT NOW NAMES BOTH LANDED LEGS; THE CUT ITSELF IS BRETT'S ACT,
-  SO THE BOX DOES NOT TICK. Recorded by AMENDMENT #9, 2026-09-19.**
+  **STATUS AS OF AMENDMENT #9, 2026-09-19 — THE ROOT NOW NAMES BOTH LANDED LEGS,
+  AND THE BOX DID NOT TICK THERE because the cut itself is Brett's act.**
   `opensoft/openDox` **`#10` → `d05e204e`**, merged **2026-09-19T01:38:50Z**,
   advances `code` `0b4e8bbf` → **`d816cf06`** (§ 3.5's runtime, § 3.6's creation
   act and both follow-ups, § 3.7's FLOOR PART 3, § 5.4's clause (d)) and `spec`
@@ -2243,8 +2243,8 @@ the bookkeeping that ticks this group.
   than the ambiguity it would remove.
 - [x] 4.6 `[oXd]` Cut `xdox-v1.0` after its own suite is green. **In the ASSEMBLY
   ROOT** (amended 2026-09-05), on 3.8's reasoning.
-  **STATUS — THE SAME SHAPE AS § 3.8, and the box does NOT tick. Recorded by
-  AMENDMENT #9, 2026-09-19.** `opensoft/openXdox` **`#12` → `9be407bd`**, merged
+  **STATUS AS OF AMENDMENT #9, 2026-09-19 — THE SAME SHAPE AS § 3.8, and the box
+  DID NOT TICK THERE.** `opensoft/openXdox` **`#12` → `9be407bd`**, merged
   **2026-09-19T01:38:39Z**, advances `code` `2529c10a` → **`ab04453d`** (§ 5.4's
   clause (d) and the corpus adapter) and `spec` `ae59dfa5` → **`f088b097`**
   (§ 6.1's forward half); gate `validate` **pass**, SonarCloud **pass**, same
@@ -2253,8 +2253,8 @@ the bookkeeping that ticks this group.
   `5738327369`), over `9be407bd`. *(The apparatus is written out once, at § 3.8,
   rather than twice; what is NOT shared between the two boxes is the commit each
   tag would sit on.)*
-  **STATUS — THE SAME SHAPE AS § 3.8'S, and this box likewise does not tick.
-  Recorded by AMENDMENT #10, 2026-09-21.** `opensoft/openXdox` **`#13`**, OPEN as
+  **STATUS AS OF AMENDMENT #10's FIRST ROUND, 2026-09-21 — THE SAME SHAPE AS
+  § 3.8'S, and at that head the box had not ticked either.** `opensoft/openXdox` **`#13`**, OPEN as
   a **DRAFT** at head `7522ddaf`: *"openXdox release surface:
   contract_bundle_version none → xdox-v1.0, five entries at the pinned spec leg,
   and the § 4.6 CHANGELOG entry (NO TAG)"*. **FIVE entries where openDox's
@@ -5197,6 +5197,14 @@ realization evidence, never on landing. Each line is its own evidence.
   files' `commit:` and `digests:` in the same landing, under its own claim — and
   **step 3 is the aggregation's three-pointer sync**. CLAIMED `5767572080`,
   narrowed by CORRECTION `5767621766`.
+  *(THREE STATUS HEADERS WERE RE-SCOPED 2026-09-21 AT COPILOT'S FINDING, and the
+  mechanism is the one this packet has already documented three times: the CLAIM
+  sat on one line and its DATE on the CONTINUATION line, so *"the box does NOT
+  tick"* read as current beneath a box that had since ticked. § 3.8's and § 4.6's
+  amendment-#9 headers and § 4.6's amendment-#10 first-round header now carry
+  their date ON the line that carries the claim, in the past tense. Nothing else
+  moved: a STATUS is written in the present tense of its own act, and this packet
+  keeps superseded readings — what it must not do is let one read as live.)*
   *(A CLOCK CORRECTION THIS RECORD OWES ITS OWN SOURCE, measured because this
   lane measures handed figures: the report gave `21:21:13Z`. The two fields that
   exist read **`mergedAt` 2026-09-21T21:21:07Z** and the merge commit's own
