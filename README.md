@@ -558,6 +558,22 @@ Active changes:
   optional). All three are additionally encoded, in this one commit, as
   `tasks.md` task 1.5 (§ 1 stays ticked); none touches `openspec/specs/`;
   all three move only the delta text.
+  **A FIFTH WORD ON 2026-09-21 AT ~20:30Z THEN AMENDED THE DELTA AGAIN**, over
+  a gap Copilot's review of the REALIZATION pull request #1119 (not #1101)
+  named between the ratified `pin` kind and `design.md` D0.2 row 3, recorded
+  as a `RULED` entry in `lanes/log/openXfactory-5.md` and set out in full at
+  [`review/ratification-2026-09-18.md`](openspec/changes/add-estate-repository-inventory/review/ratification-2026-09-18.md)
+  § 7: *"Drop the pin admission on row 3"* — row 3
+  (`codeXfactory/codexFactory`) loses its `pin (review-lane-pin.yaml)`
+  admission and keeps `gitlink (opensoft/xFactory)` and `workflow`, the `pin`
+  kind's own definition UNCHANGED; `contracts/review-lane-pin.yaml` is a
+  COMMIT-ONLY `pinned_workflow` pin of governance code with no digest set,
+  satisfying neither half of the kind's "commit-and-digest pin … for a
+  product PINNED rather than governed" definition. Widening the kind and
+  adding a sixth admission kind were both put and both declined: row 3 is
+  admitted without either. Encoded, in this later and separate pull request,
+  as `design.md` D0.1/D0.2, `.openspec.yaml` `approved_by`, and `tasks.md`
+  § 1.5(d); none touches `openspec/specs/`.
   Answers openxFactory
   [#1087](https://github.com/opensoft/openxFactory/issues/1087), the successor
   `gate-code-surface-declarations` `tasks.md` § 6.1 named and that packet's

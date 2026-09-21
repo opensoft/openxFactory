@@ -98,6 +98,16 @@ origin:
     NOTHING IS PROMOTED, REALIZED OR ARCHIVED BY THESE THREE WORDS EITHER: no
     file under `openspec/specs/` is edited, no script and no test moves, and
     openxFactory #1087 stays OPEN and closes at the archive.
+    A FIFTH WORD OF A LATER DAY, 2026-09-21 approximately 20:30Z, verbatim
+    "Drop the pin admission on row 3" — given in the lane's terminal to lane
+    `openxfactory-5` and recorded as a RULED entry in `opensoft/brett-wip`
+    `lanes/log/openXfactory-5.md`, over a gap Copilot's review of the
+    REALIZATION pull request #1119 (not #1101) named between the ratified
+    `pin` kind and `design.md` D0.2 row 3 — drops that row's `pin
+    (review-lane-pin.yaml)` admission, keeping `gitlink (opensoft/xFactory)`
+    and `workflow`, with the kind's own definition UNCHANGED and nothing
+    under `openspec/specs/` moved by it; full record
+    `review/ratification-2026-09-18.md` § 7.
   approved_on: 2026-09-18
 related:
   - openxFactory:issue:1087                                                    # THE GOVERNING FINDING. Filed at the landing of PR #1076 as the successor § 6.1 named; CLAIMED by this lane before authoring; stays OPEN and closes at the ARCHIVE, never at this landing
