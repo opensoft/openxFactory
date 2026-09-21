@@ -1634,13 +1634,16 @@ the bookkeeping that ticks this group.
   tag — `object.type: tag`, tag object `608236a1`, which is precisely what
   distinguishes an annotated tag from a lightweight ref — targeting commit
   **`dc7aa08f`**, the commit that names both legs.
-  **THE BOX STILL DOES NOT TICK, AND THE REASON IS THE TICK STANDARD RATHER THAN
-  THE FACT**: the holder's instruction is that this tick lands on the tag
-  EVIDENCE comment id, one per tag. *(The distinction is worth the sentence: the
-  measurement above says the tag exists, and the evidence line says WHO recorded
-  it, WHERE, and against which commit — this packet has ticked on a recorded pass
-  and refused a candidate's three times, so it does not tick on a live read of a
-  ref.)*
+  **THE MEASUREMENT ALONE DOES NOT TICK THIS BOX — THE TICK STANDARD IS THE
+  EVIDENCE COMMENT, AND IT IS NOW IN HAND (below).** The holder's instruction was
+  that this tick lands on the tag EVIDENCE comment id, one per tag; when the two
+  paragraphs above were written that comment did not yet exist, and it now does.
+  *(The distinction is worth keeping even though it lasted twenty minutes: the
+  measurement says THE TAG EXISTS, and the evidence line says WHO recorded it,
+  WHERE, and against which commit. This packet has ticked § 3.7 on a recorded
+  pass and refused a candidate head's pass three times, so it does not tick on a
+  live read of a ref — not because a ref lies, but because a ledger that cites
+  live state cites something its reader cannot re-read.)*
   **TICKED 2026-09-21 by `tasks.md` AMENDMENT #10, ON THE TAG EVIDENCE COMMENT
   THE STANDARD ABOVE NAMED**: `#656` comment **`5767450348`**
   (2026-09-21T21:01:13Z, 6,376 bytes), *"TAG EVIDENCE — `dox-v1.0` CUT AND
@@ -2249,8 +2252,9 @@ the bookkeeping that ticks this group.
   contract_bundle_version none → xdox-v1.0, five entries at the pinned spec leg,
   and the § 4.6 CHANGELOG entry (NO TAG)"*. **FIVE entries where openDox's
   carries three** — the difference is the § 6 re-homes each spec leg received, not
-  a difference in the form. `xdox-v1.0` remains **Brett's act**, and the tick
-  waits on the tag evidence.
+  a difference in the form. `xdox-v1.0` remains **Brett's act**, and **at that
+  draft head the tick still waited on the tag evidence** — which has since
+  arrived and is recorded below.
   **THE SURFACE HAS LANDED — recorded by AMENDMENT #10, 2026-09-21, under the
   SAME RULED (a) word** (`#656` `5767052465`; landing note `5767406030`).
   `opensoft/openXdox` **`#13` → `2073e3a92948b266d4e4d8063a6d4522b089cf3c`**,
@@ -3412,10 +3416,10 @@ the bookkeeping that ticks this group.
   now unblocked at its front.)*
   **STATUS — THE FORM THIS BOX TAKES AT THE ARCHIVE IS DECIDED, AND THE MARKER
   DOES NOT MOVE HERE. Recorded by AMENDMENT #10, 2026-09-21.** At the archive
-  this box takes the house's reserved DEFERRED form — `- [~] 5.6 … **DEFERRED
-  <date>, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.** **Owner: this lane
-  and codexFactory `#232`'s floor**` — and **the ARCHIVE AMENDMENT flips it, not
-  this one.**
+  this box takes the house's reserved DEFERRED form: the marker becomes `[~]`
+  and the box opens **DEFERRED &lt;date&gt;, AT THE ARCHIVE — OPEN, OWNED, AND NOT
+  CLAIMED.**, with **Owner: this lane and codexFactory `#232`'s floor** on its
+  own line — and **the ARCHIVE AMENDMENT flips it, not this one.**
   **WHY IT CANNOT TICK INSTEAD, IN ONE SENTENCE A LATER READER NEED NOT
   RECONSTRUCT**: R-B's RULED ORDER above puts the archive FIRST — its clauses
   (1), (2), (3) — and RULED **Q-D1 (a)** parks Phase 1 on that archive, so **the
@@ -4844,10 +4848,11 @@ realization evidence, never on landing. Each line is its own evidence.
   written order and the machinery are **jointly unsatisfiable for a REMOVAL**
   (`specs_floor_block.py::assert_landed_pin` refuses a block pinned at any
   `openxFactory` commit not reachable from `main`). At the archive this box
-  therefore takes `- [~] 8.4 … **DEFERRED <date>, AT THE ARCHIVE — OPEN, OWNED,
-  AND NOT CLAIMED.** **Owner: this lane and codexFactory `#232`'s floor**`, with
-  the R-B exception named IN it so the next reader meets the exception rather
-  than the contradiction; **the ARCHIVE AMENDMENT flips it.**
+  therefore takes the same form § 5.6 names: the marker becomes `[~]` and the box
+  opens **DEFERRED &lt;date&gt;, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**,
+  with **Owner: this lane and codexFactory `#232`'s floor**, and with the R-B
+  exception named IN it so the next reader meets the exception rather than the
+  contradiction; **the ARCHIVE AMENDMENT flips it.**
   **BOTH DIRECTIONS THE BOX ASKS FOR ARE MEASURED, AND THEY AGREE WITH R-B'S
   ARITHMETIC.** The archive REMOVES `openspec/specs/ideation-dashboard/` —
   **307,705 B, 104 requirements, 487 scenarios** at `main` `80c68da6` — and ADDS
