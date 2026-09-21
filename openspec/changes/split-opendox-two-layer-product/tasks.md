@@ -5085,6 +5085,33 @@ realization evidence, never on landing. Each line is its own evidence.
   more than one requirement"* — the header now states the figure this record
   measured. **It closes a header's prose and moves no box**, which is the exact
   standing the residue was registered with.
+  **AGGREGATION-SIDE RECORD A2 — THE POINTER ADVANCE, AND THE FORCED ORDER IT
+  REVEALS. Added by AMENDMENT #10, 2026-09-21; IT IS NOT PART OF § 8.7's TICK
+  EVIDENCE and moves no box.** `opensoft/xFactory` **`#474` →
+  `f55149c538a3520b9e0db23b390e6451301116af`**, a **MERGE COMMIT** (two parents,
+  `8fe054f9` and `e4d3956c`), *"Sync submodule pointers: openxFactory 89d7975d →
+  80c68da6, with the clearing PIN in the same commit"*. **EXACTLY TWO FILES,
+  which is that sync's own invariant**: the `openxFactory` gitlink and
+  `.github/clearing/openxfactory/PIN.yaml`, moved together because the nightly
+  runs scripts from the gitlink; **MIGRATION_PIN and the `codexFactory` gitlink
+  are untouched**, so this is neither the ceremony of § 5.6's R-5 correction nor
+  the routine codexFactory sync of `#472`.
+  **IT IS STEP 1 OF A FORCED ORDER, AND THE ORDER IS A TEST RATHER THAN A
+  PREFERENCE**: `opensoft/xFactory`'s
+  `tests/test_opendox_openxdox_gitlink_parity.py` (17,165 B at that root's
+  `main`) requires, per leg, that the **aggregation ROOT gitlink**, `openxFactory`'s
+  **NESTED gitlink** and `openxFactory`'s **pin-file `commit:` read at the pinned
+  gitlink** all name ONE commit. So **step 2 is `openxFactory`'s own nested
+  leg-advance** — `openDox` → `dc7aa08f`, `openXdox` → `2073e3a9`, with both pin
+  files' `commit:` and `digests:` in the same landing, under its own claim — and
+  **step 3 is the aggregation's three-pointer sync**. CLAIMED `5767572080`,
+  narrowed by CORRECTION `5767621766`.
+  *(A CLOCK CORRECTION THIS RECORD OWES ITS OWN SOURCE, measured because this
+  lane measures handed figures: the report gave `21:21:13Z`. The two fields that
+  exist read **`mergedAt` 2026-09-21T21:21:07Z** and the merge commit's own
+  author/committer date **21:21:06Z**; neither is 21:21:13Z. The seconds do not
+  matter to any gate — the FIELD does, which is why this packet now names the
+  field beside every clock.)*
 - [x] 8.8 Amendment 3 applied with the SIX repository names and the election,
   and the descendant names — each with its two leg names — registered with no
   repository created (amended 2026-09-05).
@@ -5409,6 +5436,27 @@ realization evidence, never on landing. Each line is its own evidence.
   flight. **Extending the ratified REMOVED delta is the other route and it is NOT
   taken**: two added REMOVED entries are NORMATIVE text after the ratifying word,
   so that route is Brett's, not this lane's.
+  **THAT REMEDY HAS LANDED, AHEAD OF THE ARCHIVE — recorded by AMENDMENT #10,
+  2026-09-21.** `opensoft/xFactory` **`#473` →
+  `0675ff561609546ffce65d8ef5b16b6edb15f921`**, merged **21:22:03Z**, ONE file,
+  *"Dispose retire-doxbench-chat-turn-v1's two orphaned-and-satisfied writers"*
+  (CLAIMED `5767475243` under this lane's NOTED `5767257654`). The row sits at
+  `health/dispositions.yaml`:**3337-3360** in the aggregation: `family:
+  promotion-fidelity`, `repo: openxFactory`, **path-keyed and deliberately NOT
+  narrowed by `requirement:`**, `severity: error`, `date: 2026-09-21`, and its
+  `cite` reproduces the arithmetic this row registered — 115 writers, 102
+  superseded by title, 11 pre-existing, 2 this delta's own. The file's
+  promotion-fidelity block goes **5 rows → 6** and the file **84 → 85**.
+  **AND THE TWO-SCOPE RULE IS NOW WRITTEN IN BOTH PLACES**, which is what makes
+  it survive: this row states it above, and the dispositions file states it at
+  `:3332-3334` — *"Any § 8.9 doc-health BEFORE/AFTER record taken at the real
+  archive must state which of the two scopes it ran in."*
+  *(Landing the row BEFORE the archive is the right order and worth saying why: a
+  disposition that arrives after the finding has already reddened a gate is a
+  repair, while one that arrives before it is a declared exception. The measured
+  check that this costs nothing today — a zero-match row does not red
+  `xFactory`'s `validate` — is what makes the early landing safe rather than
+  merely convenient.)*
   *(One caveat the archive's own doc-health record MUST carry or its vectors will
   not compare: dispositions live at the AGGREGATION root, so a `--single-repo`
   self-gate run sees NONE of them — `promotion_fidelity.py`:736-740. A BEFORE run
