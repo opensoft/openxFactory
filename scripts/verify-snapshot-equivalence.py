@@ -220,6 +220,57 @@ REPOSITORY_NAME = "fixture-repo"
 #: the two spellings together, so they cannot drift apart silently.
 BYTECODE_HOME = ROOT / ".pycache"
 
+
+def pinned_mounts() -> tuple[Path, ...]:
+    """The mounted submodules a bytecode cache must never land INSIDE.
+
+    DERIVED from `LEG_GITLINKS`'s own root entries, so it cannot fall out of
+    step with the pins this runner verifies, and every nested mount (`code`,
+    `spec`) is at or under one of them.
+    """
+    return tuple(ROOT / path for parent, path in LEG_GITLINKS
+                 if parent == ".")
+
+
+def inside_a_pinned_mount(prefix: str) -> bool:
+    """Whether a bytecode prefix would put the cache INSIDE a pinned mount.
+
+    A RELATIVE prefix counts as inside, and that is not pedantry: CPython
+    joins the prefix with the SOURCE FILE'S OWN directory at write time, and
+    a relative head is then resolved against whatever the working directory
+    is — so where it lands is not knowable here, and a guarantee that cannot
+    be checked is not a guarantee. Symlinks are resolved on both sides,
+    because a link into a leg is the same placement under another name.
+    """
+    candidate = Path(prefix)
+    if not candidate.is_absolute():
+        return True
+    candidate = candidate.resolve()
+    return any(candidate.is_relative_to(mount.resolve())
+               for mount in pinned_mounts())
+
+
+def bytecode_out_of_the_legs() -> None:
+    """`sys.pycache_prefix`, pointed anywhere but inside a pinned mount.
+
+    A prefix the process already chose is KEPT — `PYTHONPYCACHEPREFIX`, or a
+    host that has set its own — UNLESS it resolves inside a pin, in which
+    case it defeats the very thing it is being kept for. "Any prefix at all
+    satisfies this, and one pointed into a leg would be caught by the sweep"
+    was the first rule here and BOTH HALVES WERE WRONG (Copilot, PR #1132):
+    a prefix at a LEG ROOT puts the cache inside the pin and OUTSIDE the
+    `src` the sweep scans, and even a prefix under `src` is read during
+    `post_stack()` — before `verify_pins()` sweeps anything — so the refusal
+    would arrive after the crafted cache had already executed. Replacing
+    rather than refusing is `GIT_ATTR_NOSYSTEM`'s precedent in this same
+    file: an ambient variable that would weaken a guarantee is overridden,
+    not turned into a required gate's refusal.
+    """
+    chosen = sys.pycache_prefix
+    if chosen is not None and not inside_a_pinned_mount(chosen):
+        return
+    sys.pycache_prefix = str(BYTECODE_HOME)
+
 #: How many lines of the unified diff a `equivalence-digests-differ` prints
 #: before it truncates. A refusal that is a wall of JSON is a refusal nobody
 #: reads; `--json` then carries the WHOLE DIFF (and the digests and byte
@@ -875,12 +926,10 @@ def post_stack(register_profile: bool = True):
     # SET HERE AND NOT ONLY IN `carved_reach.install()`, for the reason the
     # paragraph above sets `GIT_NO_LAZY_FETCH` here: a guarantee this
     # runner's verdict rests on is made BY this runner, on the process,
-    # before the shared reader is imported, rather than inherited from it. An
-    # already-chosen prefix is left alone — a host's `PYTHONPYCACHEPREFIX` is
-    # a deliberate act and any prefix satisfies this — and one pointed INTO a
-    # leg would be caught by the sweep it is trying to fool.
-    if sys.pycache_prefix is None:
-        sys.pycache_prefix = str(BYTECODE_HOME)
+    # before the shared reader is imported, rather than inherited from it.
+    # `bytecode_out_of_the_legs()` keeps a prefix the host chose UNLESS it
+    # resolves inside a pinned mount, which is the case that would defeat it.
+    bytecode_out_of_the_legs()
     import carved_reach
     try:
         carved_reach.require()

@@ -1827,18 +1827,63 @@ def test_the_bytecode_cache_is_out_of_the_legs_before_either_is_imported(
         assert (MODULE.ROOT / leg) not in Path(seen["at_require"]).parents
 
 
-def test_a_prefix_the_process_already_chose_is_left_alone(monkeypatch):
-    """`PYTHONPYCACHEPREFIX`, or a host that has set one — any prefix at all
-    satisfies the requirement, since the cache is then not beside the source
-    wherever it is, and overriding a deliberate choice is the more surprising
-    act. A prefix pointed INTO a leg would be caught by the sweep it was
-    trying to fool, which is the only case worth worrying about and is
-    already refused."""
+def test_a_prefix_the_process_chose_outside_the_pins_is_left_alone(
+        monkeypatch):
+    """`PYTHONPYCACHEPREFIX`, or a host that has set one: a prefix that
+    satisfies the requirement is kept, because overriding a deliberate choice
+    that costs nothing is the more surprising act."""
     chosen = "/a/prefix/a/host/chose/for/itself"
     monkeypatch.setitem(sys.modules, "carved_reach", _fake_reach())
     monkeypatch.setattr(sys, "pycache_prefix", chosen)
     MODULE.post_stack(register_profile=False)
     assert sys.pycache_prefix == chosen
+
+
+@pytest.mark.parametrize("spelling", ["mount", "code", "src", "relative",
+                                      "symlink"])
+def test_a_host_prefix_inside_a_pin_is_replaced_rather_than_kept(
+        spelling, monkeypatch, tmp_path):
+    """KEEPING EVERY NON-`None` PREFIX WAS THE HOLE (Copilot, PR #1132), and
+    it was worse than it looks in two ways this test covers.
+
+    A prefix at a LEG ROOT puts the cache INSIDE the pin and OUTSIDE the
+    `src` the cleanliness sweep scans, so a crafted cache there is invisible
+    to the one check that would have reported it; and even a prefix under
+    `src` is read during `post_stack()`, which imports the legs BEFORE
+    `verify_pins()` sweeps anything — so the refusal would arrive after the
+    crafted cache had executed. A RELATIVE prefix is in the same class
+    because CPython resolves it at write time against a working directory
+    this runner does not control, and a SYMLINK into a leg is the same
+    placement under another name."""
+    mount = MODULE.pinned_mounts()[0]
+    chosen = {"mount": str(mount),
+              "code": str(mount / "code"),
+              "src": str(mount / "code" / "src"),
+              "relative": ".pycache",
+              "symlink": str(tmp_path / "link")}[spelling]
+    if spelling == "symlink":
+        Path(chosen).symlink_to(mount, target_is_directory=True)
+    monkeypatch.setitem(sys.modules, "carved_reach", _fake_reach())
+    monkeypatch.setattr(sys, "pycache_prefix", chosen)
+    assert MODULE.inside_a_pinned_mount(chosen), chosen
+    MODULE.post_stack(register_profile=False)
+    assert sys.pycache_prefix == str(MODULE.BYTECODE_HOME)
+
+
+def test_the_pins_and_the_mounts_a_cache_is_kept_out_of_are_the_same_set():
+    """The runner DERIVES its mount set from `LEG_GITLINKS`; the reach spells
+    its two out, because `openXdox`'s root is not a `MOUNTS` key. This holds
+    the second to the first — and both to every mount the reach declares — so
+    a leg added to one cannot quietly leave the other."""
+    import carved_reach
+
+    assert set(MODULE.pinned_mounts()) == set(carved_reach._PINNED_MOUNTS)
+    for mount in carved_reach.MOUNTS.values():
+        assert any(mount.resolve().is_relative_to(root.resolve())
+                   for root in carved_reach._PINNED_MOUNTS), mount
+    for leg in MODULE.IMPORTED_LEGS:
+        assert MODULE.inside_a_pinned_mount(str(MODULE.ROOT / leg))
+    assert not MODULE.inside_a_pinned_mount(str(MODULE.BYTECODE_HOME))
 
 
 def test_a_run_writes_no_bytecode_into_either_pinned_leg():
@@ -1922,21 +1967,27 @@ def test_the_reach_takes_every_importers_bytecode_out_of_the_legs(tmp_path):
                "import carved_reach\n"
                "carved_reach.install()\n"
                "print(sys.pycache_prefix)\n")
-    environment = dict(os.environ)
-    environment.pop("PYTHONPYCACHEPREFIX", None)
-    done = subprocess.run([sys.executable, "-c", program], env=environment,
-                          capture_output=True, text=True, check=False,
-                          cwd=str(REPO_ROOT))
-    assert done.returncode == 0, done.stderr
-    assert done.stdout.strip() == str(carved_reach.BYTECODE_HOME)
 
+    def probe(prefix: str | None) -> str:
+        environment = dict(os.environ)
+        environment.pop("PYTHONPYCACHEPREFIX", None)
+        if prefix is not None:
+            environment["PYTHONPYCACHEPREFIX"] = prefix
+        done = subprocess.run([sys.executable, "-c", program],
+                              env=environment, capture_output=True,
+                              text=True, check=False, cwd=str(REPO_ROOT))
+        assert done.returncode == 0, done.stderr
+        return done.stdout.strip()
+
+    assert probe(None) == str(carved_reach.BYTECODE_HOME)
     chosen = tmp_path / "chosen-by-the-host"
-    environment["PYTHONPYCACHEPREFIX"] = str(chosen)
-    done = subprocess.run([sys.executable, "-c", program], env=environment,
-                          capture_output=True, text=True, check=False,
-                          cwd=str(REPO_ROOT))
-    assert done.returncode == 0, done.stderr
-    assert done.stdout.strip() == str(chosen)
+    assert probe(str(chosen)) == str(chosen)
+    # AND A HOST PREFIX INSIDE A PIN IS REPLACED THERE TOO (Copilot, PR
+    # #1132) — the reach is where every importer but this runner arrives, so
+    # the check cannot live only in `post_stack()`.
+    assert probe(str(REPO_ROOT / "openXdox")) == str(
+        carved_reach.BYTECODE_HOME)
+    assert probe(".pycache") == str(carved_reach.BYTECODE_HOME)
 
 
 def test_the_refusal_names_which_archive_path_the_tree_lacks(tmp_path):

@@ -173,6 +173,14 @@ SCRIPTS_DIR = REPO_ROOT / "scripts"
 #: the failure mode is a slower import and never a broken one.
 BYTECODE_HOME = REPO_ROOT / ".pycache"
 
+#: The mounted submodules a bytecode cache must never land INSIDE. The two
+#: assembly roots, because every mount in `MOUNTS` is at or under one of them
+#: — and `openXdox`'s own root is not a `MOUNTS` key (no manifest row arrives
+#: there), so a set derived from `MOUNTS` alone would miss it. openxFactory's
+#: suite holds this tuple to `MOUNTS` rather than anyone remembering.
+_PINNED_MOUNTS: tuple[Path, ...] = (REPO_ROOT / "openDox",
+                                    REPO_ROOT / "openXdox")
+
 INIT_COMMAND = "git submodule update --init --recursive openDox openXdox"
 
 #: The remedy for a leg whose object store exists but cannot answer for the
@@ -318,23 +326,48 @@ def _require(gitlink: str, leg: str, src: Path, package: str) -> None:
         f"repository root.")
 
 
+def _inside_a_pinned_mount(prefix: str) -> bool:
+    """Whether a bytecode prefix would put the cache INSIDE a pinned mount.
+
+    A RELATIVE prefix counts as inside, and that is not pedantry: CPython
+    joins the prefix with the SOURCE FILE'S OWN directory at write time, and a
+    relative head is resolved against whatever the working directory is then —
+    so where it lands is not knowable here, and a guarantee that cannot be
+    checked is not a guarantee. Symlinks are resolved on both sides, because a
+    link into a leg is the same placement under another name.
+    """
+    candidate = Path(prefix)
+    if not candidate.is_absolute():
+        return True
+    candidate = candidate.resolve()
+    return any(candidate.is_relative_to(mount.resolve())
+               for mount in _PINNED_MOUNTS)
+
+
 def _bytecode_out_of_the_legs() -> None:
     """Send CPython's bytecode cache to `BYTECODE_HOME`, BEFORE either leg is
     importable — the one line that keeps this repository from writing into a
     tree it pins, and from executing a `.pyc` it has not read.
 
-    A PREFIX THE PROCESS ALREADY HAS IS LEFT ALONE — `PYTHONPYCACHEPREFIX`,
-    or a host that has chosen its own — because any prefix at all satisfies
-    the requirement (the cache is no longer beside the source, wherever it is),
-    and overriding a deliberate choice is the more surprising act. What must
-    not happen is that it is left UNSET, which is the default and the only
-    condition this function changes.
+    A PREFIX THE PROCESS ALREADY CHOSE IS KEPT — `PYTHONPYCACHEPREFIX`, or a
+    host that has set its own — UNLESS it resolves inside a pinned mount, in
+    which case it defeats the very thing it is being kept for and is replaced.
+    "Any prefix at all satisfies this" was the first rule here and it was
+    wrong (Copilot, openxFactory PR #1132): a prefix at a LEG ROOT puts the
+    cache inside the pin AND outside the `src` the cleanliness sweep scans, so
+    a crafted cache there is both read — before `verify_pins()` runs, since the
+    legs are imported first — and invisible to the check that would have
+    reported it. Replacing rather than refusing is `GIT_ATTR_NOSYSTEM`'s
+    precedent one file over: an ambient variable that would weaken a guarantee
+    is overridden, not made into a required gate's refusal.
 
     Idempotent, and called from `install()`, which `module()` calls in turn,
     so every route this repository has into the legs passes through it.
     """
-    if sys.pycache_prefix is None:
-        sys.pycache_prefix = str(BYTECODE_HOME)
+    chosen = sys.pycache_prefix
+    if chosen is not None and not _inside_a_pinned_mount(chosen):
+        return
+    sys.pycache_prefix = str(BYTECODE_HOME)
 
 
 def install(*, tests: bool = False) -> None:
