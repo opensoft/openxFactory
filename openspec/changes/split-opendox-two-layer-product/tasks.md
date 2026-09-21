@@ -1612,11 +1612,35 @@ the bookkeeping that ticks this group.
   `contracts/CHANGELOG.md` entries this box names, prepared for review BEFORE the
   cut, which is option **(a)** of the RULING NEEDED (`#656` comment
   `5738327369`).
-  **NO TAG IS IN IT, DELIBERATELY**: the annotated `dox-v1.0` over `d05e204e` is
-  **Brett's act** under runbook § 9 Phase 6, and no workflow in either root makes
-  it. **THIS BOX TICKS ONLY ON THE TAG EVIDENCE, AND THIS STATUS IS NOT IT** —
-  the tick will quote the tag, the commit it targets and the evidence comment id,
-  and until then the measured fact stands: **zero tags in the root.**
+  **NO TAG IS IN IT, DELIBERATELY**: the annotated `dox-v1.0` is **Brett's act**
+  under runbook § 9 Phase 6, and no workflow in either root makes it. **THIS BOX
+  TICKS ONLY ON THE TAG EVIDENCE, AND THIS STATUS IS NOT IT** — the tick will
+  quote the tag, the commit it targets and the evidence comment id.
+  **THE SURFACE HAS LANDED — recorded by AMENDMENT #10, 2026-09-21, under RULED
+  (a)**, Brett Heap's word quoted verbatim on the RULING NEEDED: *"(a) for both,
+  cut the tags when the drafts are green"* (`#656` comment `5767052465`; the
+  landing note is `5767406030`). `opensoft/openDox` **`#11` →
+  `dc7aa08fe48c8d17b596b0daa1ce87cdc0472aca`**, merged **2026-09-21T20:55:35Z**,
+  squash on a plain gate. **TWO FILES AND NOTHING ELSE, measured in the pull
+  request**: `contracts/manifest.yaml` takes `contract_bundle_version: none →
+  **dox-v1.0**` (`:14`) with **three** entries at the pinned spec leg `8fe8c4c7`
+  — `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog`,
+  `ideation-workbench` — of which **two carry `release_member: true`** (`:89`,
+  `:98`; `:108` is `false`, and the file says a release member *"is therefore a
+  measurement, not a judgement"*); and `contracts/CHANGELOG.md` takes the
+  `dox-v1.0` entry at `Status: draft`.
+  **AND THE TAG IS CUT — MEASURED HERE RATHER THAN AWAITED, at 2026-09-21
+  ~21:05Z**: `refs/tags/dox-v1.0` exists in `opensoft/openDox` as an **ANNOTATED**
+  tag — `object.type: tag`, tag object `608236a1`, which is precisely what
+  distinguishes an annotated tag from a lightweight ref — targeting commit
+  **`dc7aa08f`**, the commit that names both legs.
+  **THE BOX STILL DOES NOT TICK, AND THE REASON IS THE TICK STANDARD RATHER THAN
+  THE FACT**: the holder's instruction is that this tick lands on the tag
+  EVIDENCE comment id, one per tag, and that comment does not exist yet. *(The
+  distinction is worth the sentence: the measurement above says the tag exists,
+  and the evidence line says WHO recorded it, WHERE, and against which commit —
+  this packet has ticked on a recorded pass and refused a candidate's three
+  times, so it does not now tick on a live read of a ref.)*
 
 ## 4. The openXdox mapping core
 
@@ -2197,8 +2221,29 @@ the bookkeeping that ticks this group.
   contract_bundle_version none → xdox-v1.0, five entries at the pinned spec leg,
   and the § 4.6 CHANGELOG entry (NO TAG)"*. **FIVE entries where openDox's
   carries three** — the difference is the § 6 re-homes each spec leg received, not
-  a difference in the form. `xdox-v1.0` over `9be407bd` remains **Brett's act**,
-  and the tick waits on the tag evidence.
+  a difference in the form. `xdox-v1.0` remains **Brett's act**, and the tick
+  waits on the tag evidence.
+  **THE SURFACE HAS LANDED — recorded by AMENDMENT #10, 2026-09-21, under the
+  SAME RULED (a) word** (`#656` `5767052465`; landing note `5767406030`).
+  `opensoft/openXdox` **`#13` → `2073e3a92948b266d4e4d8063a6d4522b089cf3c`**,
+  merged **2026-09-21T20:56:19Z** — forty-four seconds after openDox's, which is
+  the same act performed twice and not two decisions. **Two files, measured**:
+  `contracts/manifest.yaml` takes `contract_bundle_version: none →
+  **xdox-v1.0**` (`:14`) with **five** entries at the pinned spec leg `f088b097`
+  — `gate-action-record`, `ideation-dashboard-snapshot`,
+  `ideation-dashboard-snapshot-index`, `domain-profile`, `domain-profile-example`
+  — of which **ONE carries `release_member: true`** (`:103`); and
+  `contracts/CHANGELOG.md` takes the `xdox-v1.0` entry.
+  *(FIVE ENTRIES AND ONE RELEASE MEMBER IS NOT A CONTRADICTION, and it is the
+  figure a later reader is most likely to mis-read: `entries:` is the leg's whole
+  declared surface, while `xdox-vN.M selects { entry | entry.release_member ==
+  true }` is what the bundle tag names. openDox's three-with-two and openXdox's
+  five-with-one are both that rule applied, not two conventions.)*
+  **AND THE TAG IS CUT — MEASURED at 2026-09-21 ~21:05Z**: `refs/tags/xdox-v1.0`
+  exists in `opensoft/openXdox` as an **ANNOTATED** tag (`object.type: tag`, tag
+  object `2d2e9b85`) over commit **`2073e3a9`**. **The box still does not tick**,
+  on § 3.8's reasoning and for the same standard: the tick lands on the tag
+  EVIDENCE comment id, which does not exist yet.
 
 ## 5. openxFactory consumes and sheds; the MAJOR is cut. BREAKING
 
