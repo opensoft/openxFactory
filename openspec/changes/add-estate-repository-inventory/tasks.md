@@ -81,13 +81,14 @@ word.
       AS IT NOW STANDS, both disclosures inside it, and named neither
       separately — which is the outcome this task was written to produce, not a
       fifth decision taken by silence.
-- [x] 1.5 **(OPERATOR — THREE FURTHER WORDS OF THE SAME DAY, ON GAPS THE BARE
-      WORD DID NOT REACH.)** Copilot's review of PR #1101 found three gaps in the
-      ratified text. Each was put to Brett Heap as a multiple choice and each was
-      answered on 2026-09-18 at approximately 15:40Z in the lane's terminal to
-      lane `openxfactory-5`, recorded as `RULED` entries in `opensoft/brett-wip`
-      `lanes/log/openXfactory-5.md`. **ALL THREE ARE ENCODED AS RATIFIED TEXT IN
-      ONE COMMIT**, verbatim:
+- [x] 1.5 **(OPERATOR — THREE FURTHER WORDS OF 2026-09-18, PLUS A FOURTH OF
+      2026-09-21, ON GAPS THE BARE WORD DID NOT REACH.)** Copilot's review of PR
+      #1101 found three gaps in the ratified text on 2026-09-18. Each was put to
+      Brett Heap as a multiple choice and each was answered on 2026-09-18 at
+      approximately 15:40Z in the lane's terminal to lane `openxfactory-5`,
+      recorded as `RULED` entries in `opensoft/brett-wip`
+      `lanes/log/openXfactory-5.md`. **ALL THREE WERE ENCODED AS RATIFIED TEXT IN
+      ONE COMMIT (`089b02e0`)**, verbatim:
       **(a) "Bind the carrier identity"** — a working tree supplied for a
       `gitlink` row's re-check MUST be verified as a checkout of the CARRIER the
       row names, by the tree's own origin URL or by its record in
@@ -107,7 +108,22 @@ word.
       **(c) "MAY becomes MUST"** — the inventory MUST carry the PROVISIONAL row a
       repository-creating ratified change opens; the membership arm stays
       UNCONDITIONAL and fails closed. Mirrored at `design.md` D1.1.
-      **NO WORD OF BRETT HEAP'S IS PARAPHRASED HERE**: the three quoted strings
+      **(d) "Drop the pin admission on row 3"** — a LATER word answering a LATER
+      gap, given 2026-09-21 approximately 20:30Z in the lane's terminal, recorded
+      as a `RULED` entry in `opensoft/brett-wip` `lanes/log/openXfactory-5.md`,
+      over a gap Copilot's review of the REALIZATION pull request **#1119**
+      found (not #1101, already merged by then, and encoded in a SEPARATE, LATER
+      commit than (a)-(c)): `design.md` D0.2 row 3 admitted `codeXfactory/codexFactory`
+      by `pin (review-lane-pin.yaml)` among others, and that file is `kind:
+      pinned_workflow`, a commit-only pin of governance code with no digest
+      set — satisfying neither half of the delta's own `pin` kind definition.
+      Row 3 loses the `pin` admission and keeps `gitlink (opensoft/xFactory)`
+      and `workflow`; the `pin` kind's definition is UNCHANGED. TWO REMEDIES
+      WERE PUT AND DECLINED — widening the kind's definition, and adding a
+      sixth admission kind — because row 3 is already admitted without either.
+      Mirrored at `design.md` D0.1, D0.2; full record at
+      `review/ratification-2026-09-18.md` § 7.
+      **NO WORD OF BRETT HEAP'S IS PARAPHRASED HERE**: all four quoted strings
       are the option texts as given, and the encoding is what this lane did with
       them.
 
