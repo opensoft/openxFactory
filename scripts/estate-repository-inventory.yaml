@@ -116,11 +116,18 @@ kind: estate-repository-inventory
 # THIRTY-THREE rows, built from the five naming sites at `design.md` D0.1 and
 # RE-MEASURED at this realization head by the same five commands (`tasks.md`
 # § 4.3): the aggregation's `.gitmodules` (23 addresses, the identical set),
-# the governed repositories' own `.gitmodules` (11 nested gitlinks in 6
-# repositories, naming the same 7 no other site names), this repository's
-# `contracts/` pins (the same 6 repositories), this repository's workflows (the
-# same 1, already a submodule) and the ratified change whose realization
-# creates a repository (the same 1, still active). ZERO ROWS MOVED.
+# the governed repositories' own `.gitmodules` (12 nested gitlinks in 7
+# repositories as of `728b8770` — rows 28-33's reclassification to `governed`
+# added `opensoft/LedgerxAvatar` as a SEVENTH carrier, nesting
+# `opensoft/openAvatar`; that target names NO repository the inventory did
+# not already carry (row 15, the aggregation's own gitlink), so the set
+# still names the same 7 no other site names: `openChart`, `openPractice`,
+# `MedxAvatar`, `LedgerxAvatar`, `MedxEHR-spec`, `MedxEHR-code` and
+# `LedgerxWallet` — PR #1119's own § 4.3 disclosure, re-measured here rather
+# than left to contradict it), this repository's `contracts/` pins (the same
+# 6 repositories), this repository's workflows (the same 1, already a
+# submodule) and the ratified change whose realization creates a repository
+# (the same 1, still active). ZERO ROWS MOVED.
 
 repositories:
 
