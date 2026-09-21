@@ -48,7 +48,17 @@ $ for r in <the 19 governed non-root rows of D0.2>; do \
 
 $ grep -rn 'source_repository\|^repository:' contracts/*.yaml
   -> 7 pin declarations naming 6 distinct repositories
+```
 
+**ONE OF THE SEVEN IS NOT A `pin`-KIND ADMISSION, RULED 2026-09-21:**
+`contracts/review-lane-pin.yaml`'s hit (`repository: codeXfactory/codexFactory`)
+is `kind: pinned_workflow`, a COMMIT-ONLY pin of GOVERNANCE CODE with no digest
+set and not the delta's `pin` kind at all — a commit-and-digest pin of a product
+PINNED rather than governed — so Brett Heap ruled it out of row 3's admission,
+verbatim *"Drop the pin admission on row 3"* (D0.2 below; full record
+`review/ratification-2026-09-18.md` § 7).
+
+```
 $ grep -rhoP 'uses:\s*\K[A-Za-z0-9._-]+/[A-Za-z0-9._-]+' .github/workflows/ | sort -u
 $ grep -rn 'codeXfactory/codexFactory' .github/workflows/
   -> 1 estate repository dispatched at a named ref (already a submodule)
@@ -94,7 +104,7 @@ exactly as D1.1, D4 and the delta spell them.
 | ---: | --- | --- | --- | --- |
 | 1 | `opensoft/xFactory` | aggregation root; owns workspace assembly and pins only | governed | root |
 | 2 | `opensoft/openxFactory` | canonical domain-neutral contract repository | governed | gitlink |
-| 3 | `codeXfactory/codexFactory` | DomainxFactory, engineering | governed | gitlink (`opensoft/xFactory`), pin (`review-lane-pin.yaml`), workflow |
+| 3 | `codeXfactory/codexFactory` | DomainxFactory, engineering | governed | gitlink (`opensoft/xFactory`), workflow |
 | 4 | `MedxSoft/MedxFactory` | DomainxFactory, medical | governed | gitlink |
 | 5 | `ledgerXfactory/LedgerxFactory` | DomainxFactory, accounting | governed | gitlink |
 | 6 | `opensoft/OpsxFactory` | DomainxFactory, IT operations | governed | gitlink |
@@ -135,6 +145,27 @@ the review widened the kind. Each is a real submodule of a governed estate
 repository and each is named by NO aggregation gitlink, NO openxFactory pin and
 NO openxFactory workflow, which is exactly why a `gitlink` read as the
 aggregation's alone left them admitted by nothing.
+
+**ROW 3 LOSES THE `pin` ADMISSION — RULED 2026-09-21, AND THE FIRST FILING HAD
+IT WRONG.** The candidate above admitted `codeXfactory/codexFactory` by THREE
+kinds, one of them `pin (`review-lane-pin.yaml`)`; Copilot's review of the
+REALIZATION pull request #1119 (not #1101, already merged by then) named the
+mismatch, put to Brett Heap as a multiple choice, and RULED — verbatim *"Drop
+the pin admission on row 3"* — against the two alternatives also put:
+WIDENING the `pin` kind's own definition to admit a commit-only pin of
+governance code, and ADDING A SIXTH admission kind for that case, both
+DECLINED because row 3 is admitted without either, by `gitlink
+(`opensoft/xFactory`)` and `workflow` alone. `contracts/review-lane-pin.yaml`
+is `kind: pinned_workflow`, a COMMIT-ONLY pin (no digest set, by the file's own
+header) of EXECUTABLE GOVERNANCE CODE — which commit of codexFactory's
+decision core judges THIS repository's own merge-master lane — and row 3's own
+governance class is already `governed`, not `pinned`: the file satisfies
+NEITHER half of the delta's `pin` kind ("an openxFactory file under
+`contracts/` names the repository as the source of a commit-and-digest pin …
+for a product PINNED rather than governed"). **THE KIND'S DEFINITION IS
+UNCHANGED**: the defect was never the definition, every row it still admits
+(12-16, 26) being a real commit-and-digest pin of a `pinned`-class product. The
+full record is `review/ratification-2026-09-18.md` § 7.
 
 *The governance class of rows 28-33 is stated as the four openxFactory sites
 measure it and NOT further.* None of the six is named by any openxFactory
