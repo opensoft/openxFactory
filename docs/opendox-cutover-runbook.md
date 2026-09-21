@@ -912,18 +912,18 @@ passes. The sweep is
 four reads and not a `git status`: the tracked diff under the import surface,
 the ignored files under it, the untracked files, and an `ls-files -v` scan for
 the `assume-unchanged` / `skip-worktree` flags that make git report an edited
-file as CLEAN. **Nothing under the import surface is passed over** — an
-ignored `.py` there is as importable as a tracked one, and so is a compiled
-`.pyc`: CPython validates a cached `.pyc` against the mtime and size in its
-own header, so a crafted cache matching the tracked source would be EXECUTED
-by the run whose claim is that this tree IS that commit. What makes counting
-all of it possible is that the run no longer PUTS any there:
-`sys.pycache_prefix` is set before either leg is imported — by the runner, and
-by `scripts/carved_reach.py`'s `install()` for every other importer this
-repository has — so CPython neither reads nor writes a `__pycache__` inside a
-leg. A checkout that ran the suite before that change carries bytecode nothing
-writes any more, and the sweep reports it: clear it once per leg with `git -C
-openDox/code clean -fdX -- src`. Seven named refusal codes and one blanket,
+file as CLEAN. The ignored read passes over exactly ONE class and trusts
+nothing: an ignored `.py` under `src` is as importable as a tracked one, and
+so is a sourceless `src/shadow.pyc` sitting where `shadow.py` would sit, but
+compiled bytecode in a `__pycache__` is UNREACHABLE to the run — because
+`sys.pycache_prefix` is set before either leg is imported, by the runner and
+by `scripts/carved_reach.py`'s `install()`, so CPython consults no
+`__pycache__` beside a source and writes none into a pinned tree. That matters
+twice over: a crafted cache whose header still matches the tracked source
+would otherwise be EXECUTED by the run whose claim is that this tree IS that
+commit, and the pass-over is no longer "the files this runner wrote" — a
+provenance a pathname cannot establish — but a class the run has established
+it cannot read. Seven named refusal codes and one blanket,
 **exit 0 or 2 and never 1**, in § 2.1's idiom. The evidence line also carries
 the SUPERPROJECT's own revision and dirt state, which no gitlink pins:
 `carved_reach.py`, `opendox_host.py` and the profile are read out of this

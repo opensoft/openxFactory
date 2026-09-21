@@ -96,6 +96,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -367,7 +368,18 @@ def _bytecode_out_of_the_legs() -> None:
     chosen = sys.pycache_prefix
     if chosen is not None and not _inside_a_pinned_mount(chosen):
         return
-    sys.pycache_prefix = str(BYTECODE_HOME)
+    # AND THE FALLBACK IS HELD TO THE SAME RULE IT ENFORCES (Copilot,
+    # openxFactory PR #1132 round 2): `BYTECODE_HOME` is a PATH, and a
+    # pre-existing `<repo>/.pycache` that is a SYMLINK into a pinned mount
+    # would put the cache exactly where this function exists to keep it out
+    # of. A directory this process has just created cannot hold a crafted
+    # cache to read, so `mkdtemp()` is the last resort rather than a raise:
+    # `install()` runs in every conftest in this repository, and a stray
+    # symlink in one checkout must not become an ImportError in all of them.
+    home = str(BYTECODE_HOME)
+    if _inside_a_pinned_mount(home):
+        home = tempfile.mkdtemp(prefix="openxfactory-bytecode-")
+    sys.pycache_prefix = home
 
 
 def install(*, tests: bool = False) -> None:

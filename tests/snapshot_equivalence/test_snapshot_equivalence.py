@@ -1758,25 +1758,26 @@ def test_the_sweep_does_not_refuse_on_what_the_leg_itself_ignores(tmp_path):
     assert MODULE.worktree_dirt(leg) == []
 
 
-def test_every_ignored_file_under_src_is_dirt_including_the_bytecode(
+def test_an_ignored_module_under_src_is_dirt_and_an_unreachable_cache_is_not(
         tmp_path):
-    """NOTHING UNDER THE IMPORT SURFACE IS TRUSTED BY ITS PATHNAME ANY MORE —
-    the retirement of the bytecode allowlist, asserted from three sides.
+    """WHAT THE SWEEP PASSES OVER IS WHAT IT HAS ESTABLISHED IT CANNOT REACH,
+    and everything else under the import surface is dirt.
 
     `--exclude-standard` drops EVERY ignored path, and an ignored `.py` under
     `src` is still perfectly importable — it can shadow a module or be
     imported outright — so excluding the whole class let a leg render bytes
-    that are in no commit while the verdict named one (Copilot, PR #1115).
-    The first answer allowlisted `__pycache__/<name>.pyc`, because this
-    runner's own imports created those files; that allowlist then produced
-    three further findings, ending in the one that retires it — CPython
-    validates a cached `.pyc` by the mtime and size in its HEADER, so a
-    crafted cache matching the tracked source is executed by a run whose whole
-    claim is that this tree IS that commit (`r4049745762`, registered in
-    `#1115` comment `5736824535`). `sys.pycache_prefix` takes the cache out of
-    the legs, so there is nothing left to allowlist and all three of these are
-    dirt: a `__pycache__` `.pyc`, a sourceless `src/shadow.pyc` sitting where
-    `shadow.py` would sit, and an ignored `.py`."""
+    that are in no commit while the verdict named one (Copilot, PR #1115). A
+    sourceless `src/shadow.pyc`, sitting where `shadow.py` would sit, is an
+    ordinary import candidate too, and `sys.pycache_prefix` does NOT make it
+    unreachable — the prefix moves CACHE lookups, not the module search path.
+    Both are dirt.
+
+    `src/__pycache__/m.cpython-312.pyc` is not, and the reason is no longer
+    "this runner wrote it" — that was trust by PROVENANCE and it is what
+    `r4049745762` broke. With the prefix set this process consults no
+    `__pycache__` beside a source, so those bytes cannot execute in this run
+    whoever wrote them; the next test asserts that reachability directly
+    rather than assuming it."""
     leg = tmp_path / "leg"
     _seed(leg)
     (leg / "src").mkdir()
@@ -1787,6 +1788,8 @@ def test_every_ignored_file_under_src_is_dirt_including_the_bytecode(
     assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
     (leg / "src" / "__pycache__").mkdir()
     (leg / "src" / "__pycache__" / "m.cpython-312.pyc").write_bytes(b"\x00")
+    assert MODULE.worktree_dirt(leg) == [], "the unreachable cache refused"
+
     (leg / "src" / "shadow.pyc").write_bytes(b"\x00")
     (leg / "src" / "local_override.py").write_text("x = 2\n",
                                                    encoding="utf-8")
@@ -1794,11 +1797,34 @@ def test_every_ignored_file_under_src_is_dirt_including_the_bytecode(
     assert blind.stdout.strip() == "", "git reported the ignored files"
     dirt = MODULE.worktree_dirt(leg)
     assert all(row.startswith("!!") for row in dirt), dirt
-    assert any("m.cpython-312.pyc" in row for row in dirt), dirt
+    assert not any("m.cpython-312.pyc" in row for row in dirt), dirt
     assert any("shadow.pyc" in row for row in dirt), dirt
     assert any("local_override" in row for row in dirt), dirt
     advice = MODULE._clean_advice(dirt, leg)
     assert "clean -fdX" in advice
+
+
+def test_a_cache_a_sibling_suite_wrote_does_not_refuse_the_run(tmp_path):
+    """THE GATE'S OWN CASE, and the one that ended the attempt to retire the
+    pass-over. `pytest-suite` at `e85d15384` failed 23 tests on
+    `opendox/__pycache__/{__init__,corpus_adapter}.cpython-312.pyc`, written
+    by `scripts/corpus_adapter_openxfactory/` — a SECOND reach that puts
+    `openDox/code/src` on `sys.path` itself and never mentions
+    `carved_reach` (RULED OQ-Q, `#872`). The bytes cannot reach this run, so
+    refusing on them is a FALSE refusal, and the enumeration of importers is
+    not closable by inspection."""
+    leg = tmp_path / "leg"
+    _seed(leg)
+    (leg / "src" / "opendox").mkdir(parents=True)
+    (leg / "src" / "opendox" / "__init__.py").write_text("", encoding="utf-8")
+    (leg / ".gitignore").write_text("__pycache__/\n", encoding="utf-8")
+    assert MODULE._git(leg, "add", "-A").returncode == 0
+    assert MODULE._git(leg, "commit", "-qm", "src").returncode == 0
+    cache = leg / "src" / "opendox" / "__pycache__"
+    cache.mkdir()
+    for name in ("__init__", "corpus_adapter"):
+        (cache / f"{name}.cpython-312.pyc").write_bytes(b"\x00")
+    assert MODULE.worktree_dirt(leg) == []
 
 
 def test_the_bytecode_cache_is_out_of_the_legs_before_either_is_imported(
@@ -1870,6 +1896,54 @@ def test_a_host_prefix_inside_a_pin_is_replaced_rather_than_kept(
     assert sys.pycache_prefix == str(MODULE.BYTECODE_HOME)
 
 
+def test_a_cache_home_that_is_a_symlink_into_a_pin_is_not_used_either(
+        monkeypatch, tmp_path):
+    """THE FALLBACK IS HELD TO THE RULE IT ENFORCES (Copilot, PR #1132 round
+    2). `BYTECODE_HOME` is a PATH, not a guarantee: a pre-existing
+    `<repo>/.pycache` that is a SYMLINK into a pinned mount places the cache
+    exactly where this function exists to keep it out of, and the check that
+    would have said so — which resolves links — was asked about a host's
+    prefix and never about the fallback. A directory just created by this
+    process is the last resort rather than a refusal, because it cannot hold
+    a crafted cache to read, and because a required gate must not be takeable
+    down by a stray symlink in somebody's checkout."""
+    link = tmp_path / "pycache-link"
+    link.symlink_to(MODULE.pinned_mounts()[0] / "code",
+                    target_is_directory=True)
+    monkeypatch.setattr(MODULE, "BYTECODE_HOME", link)
+    monkeypatch.setattr(sys, "pycache_prefix", None)
+    MODULE.bytecode_out_of_the_legs()
+    assert sys.pycache_prefix != str(link)
+    assert not MODULE.inside_a_pinned_mount(sys.pycache_prefix)
+    assert Path(sys.pycache_prefix).is_dir()
+
+
+def test_the_reach_does_not_use_a_symlinked_cache_home_either(tmp_path):
+    """The same hole one file over, where every importer but this runner
+    arrives — probed in a fresh interpreter, since `BYTECODE_HOME` is a
+    module global and `install()` mutates the process."""
+    import carved_reach
+
+    link = tmp_path / "pycache-link"
+    link.symlink_to(REPO_ROOT / "openDox", target_is_directory=True)
+    scripts = str(REPO_ROOT / "scripts")
+    program = (f"import sys; sys.path.insert(0, {scripts!r})\n"
+               "import pathlib, carved_reach\n"
+               f"carved_reach.BYTECODE_HOME = pathlib.Path({str(link)!r})\n"
+               "carved_reach.install()\n"
+               "print(sys.pycache_prefix)\n")
+    environment = dict(os.environ)
+    environment.pop("PYTHONPYCACHEPREFIX", None)
+    done = subprocess.run([sys.executable, "-c", program], env=environment,
+                          capture_output=True, text=True, check=False,
+                          cwd=str(REPO_ROOT))
+    assert done.returncode == 0, done.stderr
+    landed = done.stdout.strip()
+    assert landed != str(link)
+    assert not carved_reach._inside_a_pinned_mount(landed), landed
+    assert Path(landed).is_dir()
+
+
 def test_the_pins_and_the_mounts_a_cache_is_kept_out_of_are_the_same_set():
     """The runner DERIVES its mount set from `LEG_GITLINKS`; the reach spells
     its two out, because `openXdox`'s root is not a `MOUNTS` key. This holds
@@ -1890,10 +1964,12 @@ def test_a_run_writes_no_bytecode_into_either_pinned_leg():
     """What the retired allowlist used to paper over, measured END TO END: a
     real run leaves both pinned trees exactly as it found them.
 
-    The allowlist existed because this assertion was FALSE — the post side is
-    composed IN THIS PROCESS and importing it wrote a `__pycache__` into the
-    very tree the next check asserts is clean (8 `.pyc` files from one run,
-    measured). It is true now, so the sweep needs no exception for it."""
+    Before this act the assertion was FALSE — the post side is composed IN
+    THIS PROCESS and importing it wrote a `__pycache__` into the very tree
+    the next check asserts is clean (8 `.pyc` files from one run, measured).
+    What the run found is what it leaves: whatever a sibling suite may
+    already have put there, this one ADDS nothing, which is the claim this
+    runner can actually make about itself."""
     legs = [MODULE.ROOT / leg / "src" for leg in MODULE.IMPORTED_LEGS]
 
     def bytecode() -> dict[str, list[str]]:
@@ -1903,24 +1979,20 @@ def test_a_run_writes_no_bytecode_into_either_pinned_leg():
             for leg in legs}
 
     before = bytecode()
-    stale = {leg: rows for leg, rows in before.items() if rows}
-    assert not stale, (
-        "these pinned legs already carry bytecode, written before this "
-        "change by something that no longer writes any — and the sweep "
-        "reports it now that the allowlist is retired. Clear it once, per "
-        "leg: `git -C <leg> clean -fdX -- src`. " + repr(stale))
     done = _run()
     assert done.returncode == 0, done.stderr
     assert bytecode() == before
 
 
 def test_a_leg_module_is_never_cached_beside_its_source():
-    """The exposure, stated the way CPython states it. `cache_from_source()`
-    is where the interpreter looks for — and writes — a module's compiled
-    bytecode, and for a module in a pinned leg it is no longer inside that
-    leg. A cache the interpreter does not read is a cache nobody can craft
-    into this process, which is why the remedy is the prefix and not
-    `sys.dont_write_bytecode` (that one stops the writing and leaves the
+    """The exposure, stated the way CPython states it — AND the assertion the
+    sweep's one pass-over rests on. `cache_from_source()` is where the
+    interpreter looks for, and writes, a module's compiled bytecode, and for
+    a module in a pinned leg it is no longer inside that leg. A cache the
+    interpreter does not read is a cache nobody can craft into this process:
+    that is why `worktree_dirt()` may pass over a `__pycache__` `.pyc`
+    without trusting it, and why the remedy is the prefix and not
+    `sys.dont_write_bytecode` (which stops the writing and leaves the
     reading)."""
     import carved_reach
 
