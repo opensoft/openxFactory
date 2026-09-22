@@ -541,7 +541,7 @@ Active changes:
   [`5778300335`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778300335)
   and
   [`5778397686`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778397686)).
-  **ONE `## ADDED` requirement, five scenarios; no existing requirement is
+  **ONE `## ADDED` requirement, SEVEN scenarios; no existing requirement is
   modified and the disposition mechanism is not touched.** A gate step, task
   box, checklist item, runbook step, review record, agent instruction or other
   evidence record asserting CORPUS-WIDE OpenSpec

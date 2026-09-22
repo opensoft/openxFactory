@@ -49,11 +49,15 @@ A BOX THAT NAMES THE RAW COMMAND IS UNSATISFIABLE BY CONSTRUCTION FOR AS LONG AS
 A RATIFIED DISPOSITION STANDS AGAINST A FINDING THE TOOL STILL REPORTS, and that
 is a defect in the box and not in the corpus. The qualification is exact rather
 than decorative: once such a disposition goes STALE — the finding no longer
-occurring — the two verdicts INVERT, the raw command exiting 0 because it sees
-nothing while the entrypoint REFUSES `pin-disposition-stale` until the spent
-exception is removed. A box naming the raw command is then satisfiable and WRONG
-rather than unsatisfiable, which is worse, and it is the same defect: the record
-names a reader whose verdict is not the repository's. Read literally it demands a green exit the adjudicated gate does not
+occurring — the two verdicts CAN INVERT, and on a run carrying NO OTHER BLOCKING
+FINDING they do, the raw command exiting 0 because it sees nothing while the
+entrypoint REFUSES `pin-disposition-stale` until the spent exception is removed.
+A box naming the raw command is then satisfiable and WRONG rather than
+unsatisfiable, which is worse, and it is the same defect: the record names a
+reader whose verdict is not the repository's. Where an unrelated blocking finding
+remains, the raw run stays non-zero and no inversion arises — which is why the
+rule is stated about WHICH READER a record names and never about which exit code
+happens to result. Read literally it demands a green exit the adjudicated gate does not
 owe; the only edit that would produce one is to revert the ratified decision the
 disposition protects. So the box asks for an act the corpus forbids, while the
 repository's actual gate is green — and a reader who trusts the box concludes
@@ -101,11 +105,12 @@ governs what is WRITTEN NEXT.
 #### Scenario: A record names the wrapper but selects an unpinned mode
 - **WHEN** a gate step or record names the entrypoint while selecting its PATH mode, or a pin other than the consuming repository's own
 - **THEN** the obligation is unmet, the named wrapper having verified no artifact provenance and the asserted property being that a VERIFIED artifact adjudicated against THIS repository's dispositions
-- **AND** naming the wrapper is not the guarantee; the default, pinned-artifact invocation is
+- **AND** naming the wrapper is not by itself the guarantee, the guarantee being the DEFAULT, PINNED-ARTIFACT invocation of it — the one that resolves the tool from the verified artifact and reads the consuming repository's own pin
 
 #### Scenario: The disposition a box's red depended on goes stale
 - **WHEN** a ratified disposition stops matching any finding, so the pinned tool no longer reports it
-- **THEN** the two verdicts INVERT — the raw command exits 0 having seen nothing, while the entrypoint REFUSES `pin-disposition-stale` until the spent exception is removed
+- **THEN** on a run carrying no other blocking finding the two verdicts INVERT — the raw command exits 0 having seen nothing, while the entrypoint REFUSES `pin-disposition-stale` until the spent exception is removed
+- **AND** where an unrelated blocking finding remains the raw run stays non-zero and no inversion arises, the rule being about WHICH READER a record names and never about which exit code happens to result
 - **AND** a box naming the raw command is then satisfiable and WRONG rather than unsatisfiable, which is the same defect reported the other way up
 
 #### Scenario: A record names the validation of one change

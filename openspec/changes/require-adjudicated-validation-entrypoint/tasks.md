@@ -43,8 +43,14 @@ realization and does not perform it.
 
 ## 2. The delta — LANDED IN THIS PULL REQUEST
 
-- [x] 2.1 **ONE `## ADDED` REQUIREMENT in `neutral-product-pin`**, five
-      scenarios. **No existing requirement is modified.**
+- [x] 2.1 **ONE `## ADDED` REQUIREMENT in `neutral-product-pin`**, **SEVEN
+      scenarios**. **No existing requirement is modified.** *(This line read
+      "five" until Copilot `r4073925957` counted the headings: the round that
+      closed the PATH-mode hole and the stale-disposition inversion added two
+      scenarios and updated no count. Re-derived here from
+      `grep -c "^#### Scenario:"` on the delta — **seven** — rather than from the
+      previous sentence, which is the same discipline the sibling packet had to
+      adopt for the same reason.)*
 - [x] 2.2 **THE BOUNDARIES ARE IN THE NORMATIVE TEXT.** The obligation reaches
       the written assertion as well as the run; a NARROWED claim about one
       change is explicitly not reached; ratified and archived text is explicitly

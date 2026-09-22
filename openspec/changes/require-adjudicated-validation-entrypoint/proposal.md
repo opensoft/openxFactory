@@ -126,10 +126,13 @@ than it is:
 3. **The unsatisfiability is qualified, because a STALE disposition inverts it.**
    A box naming the raw command is unsatisfiable only while a ratified
    disposition stands against a finding the tool STILL REPORTS. Once it goes
-   stale the verdicts swap — the raw command exits 0 having seen nothing, while
-   the entrypoint REFUSES `pin-disposition-stale` — and the box becomes
-   satisfiable and **wrong**, which is worse. Same defect, reported the other way
-   up. *(Copilot `r4073721379`.)*
+   stale the verdicts can swap — **on a run with no other blocking finding**,
+   the raw command exits 0 having seen nothing while the entrypoint REFUSES
+   `pin-disposition-stale` — and the box becomes satisfiable and **wrong**,
+   which is worse. Same defect, reported the other way up. *(Copilot
+   `r4073721379`; the "no other blocking finding" condition is `r4073925824`'s,
+   and it matters — an unrelated ERROR keeps the raw run non-zero and the
+   inversion does not arise.)*
 4. **Ratified and archived text is not edited by this requirement.** An archived
    record is frozen and a ratified clause is amended only by its own instrument.
    The remedy for an existing box is the one its own packet provides — the
@@ -207,8 +210,8 @@ claim must name, not about one tool's defect.
 
 ## Impact
 
-- **Specification:** `neutral-product-pin` — one ADDED requirement, five
-  scenarios.
+- **Specification:** `neutral-product-pin` — one ADDED requirement, **seven
+  scenarios**.
 - **Code:** none. The enforced gate already names the entrypoint
   (`.github/workflows/openspec-cli-pin-gate.yml`:101).
 - **Contracts:** none. `contracts/openspec-cli-pin.yaml` is not edited — **the
