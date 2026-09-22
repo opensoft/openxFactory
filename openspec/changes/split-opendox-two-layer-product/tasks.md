@@ -2042,7 +2042,14 @@ the bookkeeping that ticks this group.
   `sorted-ls-tree-r-v1` digest — by Brett Heap at `#656` comment `5768144952`,
   verbatim *"(b) for the pin shape, keep going"*, recorded in full at § 5.1, where
   the DIRECT pins live.
-  **WHAT THIS BOX OWES, REGISTERED AND NOT DISCHARGED HERE**: this file,
+  **WHAT THIS BOX OWES, REGISTERED AND NOT DISCHARGED HERE** *(SUPERSEDED
+  2026-09-22T01:33:20Z — DISCHARGED immediately below by `openXdox` **`#16` →
+  `7194c06c`**. The reading is kept in the present tense of its own act and marked
+  so that no reader meets it as live, which is the same treatment § 5.1's
+  execution plan takes for the same fold. Caught as a "previously missed" finding
+  on this amendment's own pull request, in text round 7 did not touch: it is the
+  MIRROR of the defect round 7 fixed, which is why the marker now stands at BOTH
+  boxes rather than at the one that was reported)*: this file,
   `openXdox/contracts/opendox-pin.yaml`, still carries the UN-AMENDED trigger
   sentence at openXdox `main` **`646f1dc0`** — the commit where `openXdox` `#15`
   advanced its `commit:` to `dc7aa08f`, which § 4.6 records. The identical header
