@@ -920,8 +920,9 @@ lockstep:
     rather than by a deliberate act. (It is NOT the first convergence closing a
     re-divergence this repository caused: the 2026-09-10 flip above closed the
     2026-09-01 one, which the (b′) activation caused here by hand. What is
-    first about this one is stated two paragraphs down, and it is about the
-    ORDER the two repositories moved in, not about who caused the gap.)
+    first about this one is stated in the paragraph directly below, and it is
+    about the ORDER the two repositories moved in, not about who caused the
+    gap.)
     `opensoft/xFactory` PR #475, merge commit
     `c88d1fdd`, landed 2026-09-21T21:55:36Z on the explicit ceremony word of
     Brett Heap that day ("(a) for all four, (i) for the tag, keep going", item
