@@ -87,6 +87,30 @@ from `openspec/specs/` rather than by retyping them, and
 It is committed with the packet rather than run once and reported, so the proof
 survives every later edit — including edits made in response to review.
 
+## D4a — the one replaced unit is DECLARED, not silently reworded
+
+The seam block only INSERTS: every promoted body unit survives it, and
+`doc-health --family modified-block-currency` names it in zero findings. The
+mapping block REPLACES one — the `exactly five axes` sentence — which is the
+whole object of the amendment, and the checker reported it exactly as it should:
+*"a divergence this arm CANNOT distinguish from a deliberate rewording, and does
+not claim to"*, severity `info`, class `contested`.
+
+**A packet whose thesis is that a `## MODIFIED` block must not quietly alter
+promoted text cannot leave that finding standing.** So the removal is declared in
+the form `document-lifecycle` reserves — `**Removed from canon by
+amend-home-adapter-scope-and-mapping-axis-count (2026-09-22):**` carrying the
+removed unit VERBATIM in a code span, then the reason — and the reason states
+what an author reading the diff needs and a checker cannot infer: that the
+sentence is REPLACED rather than dropped, that all five axes it names are carried
+forward in its own words and its own order, and that exactly two things change.
+The disclosure clause the same module requires of a `Modified over` marker does
+not apply here: that one's basis is another ACTIVE change whose standing must be
+disclosed, while this marker's basis is canon.
+
+Both families re-measured clean after it: `--family modified-block-currency` and
+`--family proposal-origin` each name this packet in ZERO findings.
+
 ## D5 — two stale strings found and deliberately not fixed
 
 Both were met while measuring and neither is folded in.

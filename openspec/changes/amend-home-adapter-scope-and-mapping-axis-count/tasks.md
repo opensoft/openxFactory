@@ -43,6 +43,17 @@ Kind: tasks
   readings is right. THREE promoted scenarios carried byte-identically, ONE
   added: a declaration carrying five axes and no derived-model boundary is
   reported as a MISSING AXIS rather than as a forbidden sixth.
+- [x] 2.2a THE ONE UNIT NOT CARRIED IS DECLARED, not left to be noticed. The
+  mapping block is the only one of the two that REPLACES a promoted body unit
+  (the seam block only inserts), so `doc-health --family modified-block-currency`
+  named it: *"does not carry 1 of the 9 body units ... a divergence this arm
+  CANNOT distinguish from a deliberate rewording, and does not claim to"*,
+  severity `info`, class `contested`. Answered with the form the corpus reserves
+  for exactly this — a `**Removed from canon by <change-id> (<date>):**` marker
+  carrying the removed unit verbatim in a code span plus its reason — rather
+  than by leaving a contested finding for someone else to dispose of. Re-measured
+  after: `--family modified-block-currency` and `--family proposal-origin` each
+  name this packet in ZERO findings.
 - [x] 2.3 Neither block reaches any other requirement in either spec. Requirement
   3 of `domain-mapping-declaration` — the one that MANDATES the sixth axis — is
   not edited: this packet adds no obligation, it names one the corpus carries.
