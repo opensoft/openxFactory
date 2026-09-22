@@ -81,8 +81,8 @@ Both blocks were built by EXTRACTING the promoted scenarios programmatically
 from `openspec/specs/` rather than by retyping them, and
 `review/verify-carriage.py` re-extracts and compares on demand:
 
-    OK corpus-adapter-seam: all 3 promoted scenario blocks carried exactly and in order among the delta's 6 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared); canon still states the basis — nothing moved under this block
-    OK domain-mapping-declaration: all 3 promoted scenario blocks carried exactly and in order among the delta's 4 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared); canon still states the basis — nothing moved under this block
+    OK corpus-adapter-seam: all 3 promoted scenario blocks carried exactly and in order among the delta's 6 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared); canon still states the basis, body and scenarios both — nothing moved under this block
+    OK domain-mapping-declaration: all 3 promoted scenario blocks carried exactly and in order among the delta's 4 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared); canon still states the basis, body and scenarios both — nothing moved under this block
 
 It is committed with the packet rather than run once and reported, so the proof
 survives every later edit — including edits made in response to review.
@@ -287,6 +287,43 @@ review-time pass.
 about TIME rather than about bytes.** The earlier four asked whether the
 comparison was exact; this one asked how long the answer stays true — and a proof
 committed inside a packet has to survive its own packet's success.
+
+## D4f — the post-archive promise was itself unrunnable, and the currency check was narrower than its docstring
+
+Two findings on the round after D4e, and each falsified a claim D4e had just
+made.
+
+**(1) `ROOT` WAS A DEPTH CALCULATION, so the post-archive run D4e promises would
+have failed on a path error.** `PACKET.parent.parent.parent` is correct exactly
+once — today, at `openspec/changes/<id>/review/`. Archiving moves the packet one
+level deeper, the same expression answers `<repo>/openspec`, and both `BASIS` and
+canon resolve under `<repo>/openspec/openspec/…`. **The script that was fixed to
+survive its own archive could not be run from inside it.** `ROOT` is now found by
+MARKER — the directory holding both `openspec/specs` and `openspec/changes` —
+which is depth-independent, and the control runs the script from a simulated
+`openspec/changes/archive/<date>-<id>/` and gets the ordinary pass.
+
+**(2) THE CURRENCY CHECK COMPARED SCENARIO BLOCKS WHILE ITS DOCSTRING PROMISED
+ANY OTHER STATE WOULD FAIL.** A canon requirement whose scenarios were untouched
+but whose NORMATIVE BODY changed compared equal and passed — and a body-only edit
+is exactly the kind this amendment itself makes, so the gap was not theoretical.
+`canon_state` now compares the WHOLE REQUIREMENT, body and scenarios together.
+**The two units are deliberately different and the docstring says why:** the
+carriage proof is per scenario because that is what a `## MODIFIED` block must
+carry; the currency check is over the whole requirement because that is what
+could move.
+
+**Both proved by control, tree restored and re-measured clean after each:** one
+body word changed in canon with every scenario untouched gives `FAIL … canon
+matches NEITHER the basis nor this block over the requirement's full text`; the
+packet copied one directory deeper runs clean.
+
+**Seven defects have now been found in this script by review and none by me.**
+They fall into three kinds — what it read (bytes, canon), what it compared
+(quotation, order, blanks, body) and how long the answer stays true (archive
+depth, canon drift) — and the third kind is the one first-principles authoring
+never reaches, because it is a question about the future rather than about the
+text.
 
 ## D5 — two stale strings found and deliberately not fixed
 

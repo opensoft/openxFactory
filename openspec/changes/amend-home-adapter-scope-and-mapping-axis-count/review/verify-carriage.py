@@ -67,7 +67,30 @@ import re
 import sys
 
 PACKET = pathlib.Path(__file__).resolve().parent.parent
-ROOT = PACKET.parent.parent.parent
+
+
+def _repo_root(start: pathlib.Path) -> pathlib.Path:
+    """The repository root, found by MARKER and never by counting directories.
+
+    A depth calculation (`parent.parent.parent`) is correct exactly once: today,
+    with this packet at `openspec/changes/<id>/review/`. Archiving moves it one
+    level deeper to `openspec/changes/archive/<date>-<id>/review/`, and the same
+    expression then answers `<repo>/openspec` — so `BASIS` and canon both resolve
+    under `<repo>/openspec/openspec/...` and the post-archive run this script
+    promises fails on a path error. Walking up to the directory that actually
+    holds `openspec/specs` and `openspec/changes` is depth-independent, which is
+    the property the promise needs.
+    """
+    for candidate in (start, *start.parents):
+        if (candidate / "openspec" / "specs").is_dir() and \
+                (candidate / "openspec" / "changes").is_dir():
+            return candidate
+    raise SystemExit(
+        f"no repository root above {start}: looked for a directory holding both "
+        f"`openspec/specs` and `openspec/changes`")
+
+
+ROOT = _repo_root(PACKET)
 
 #: THE IMMUTABLE BASIS, and it is NOT `openspec/specs/`. Canon is the mutable
 #: current state: the moment this amendment archives, `openspec/specs/` carries
@@ -101,6 +124,26 @@ def read_lf_bytes(path: pathlib.Path) -> str:
             f"byte-for-byte comparison across mixed line endings is not one — "
             f"reported rather than normalized away")
     return raw.decode("utf-8")
+
+
+def requirement_section(text: str, title: str) -> str:
+    """The whole requirement under `title` — normative body AND scenarios.
+
+    `scenario_blocks` alone is the wrong unit for the currency check: a canon
+    requirement whose scenarios are untouched but whose BODY changed would
+    compare equal and pass, so a concurrent body-only edit — exactly the kind
+    this amendment itself makes — could move canon under this block unnoticed.
+    The carriage proof is per scenario because that is what a `## MODIFIED` block
+    must carry; the CURRENCY check is over the whole requirement because that is
+    what could move.
+    """
+    for part in re.split(r"(?m)^### Requirement: ", text)[1:]:
+        head, _, body = part.partition("\n")
+        if head.strip() != title:
+            continue
+        cut = re.search(r"(?m)^(?:### Requirement: |## )", body)
+        return (body[:cut.start()] if cut else body).rstrip("\n")
+    raise SystemExit(f"requirement not found: {title!r}")
 
 
 def scenario_blocks(text: str, title: str) -> list[str]:
@@ -147,14 +190,22 @@ def scenario_blocks(text: str, title: str) -> list[str]:
 
 
 def canon_state(capability: str, title: str,
-                basis: list[str], mine: list[str]) -> tuple[bool, str]:
+                basis: str, mine: str) -> tuple[bool, str]:
     """Where live canon stands relative to the basis this block was written over.
 
-    THREE STATES AND ONLY ONE IS A FAILURE. Canon equal to the basis is the
-    review-time state: nothing has moved under this block. Canon equal to THIS
-    BLOCK is the post-archive state: the amendment has been applied and the proof
-    above is historical and still true. Anything else means canon moved and
-    matches neither, which is the one case a reader must be stopped on.
+    FOUR STATES AND TWO ARE FAILURES. Canon equal to the basis is the review-time
+    state: nothing has moved under this block. Canon equal to THIS BLOCK is the
+    post-archive state: the amendment has been applied and the proof above is
+    historical and still true. Canon matching neither means something else moved
+    it, and canon ABSENT means the capability the basis promoted was deleted —
+    both are cases a reader must be stopped on.
+
+    COMPARED OVER THE WHOLE REQUIREMENT, body and scenarios together, and not
+    over the scenario blocks alone: a canon requirement whose scenarios are
+    untouched but whose normative body changed would otherwise compare equal and
+    pass. The carriage proof above is per scenario because that is what a
+    `## MODIFIED` block must carry; this check is over the whole requirement
+    because that is what could move.
     """
     canon_path = ROOT / "openspec/specs" / capability / "spec.md"
     if not canon_path.is_file():
@@ -164,14 +215,16 @@ def canon_state(capability: str, title: str,
         # amended — which is the failure mode this corpus has actually met, and
         # a check that shrugged at it would let a deleted spec pass as carriage.
         return False, f"canon absent at {canon_path}: the capability the basis promoted is gone"
-    canon = scenario_blocks(read_lf_bytes(canon_path), title)
+    canon = requirement_section(read_lf_bytes(canon_path), title)
     if canon == basis:
-        return True, "canon still states the basis — nothing moved under this block"
+        return True, ("canon still states the basis, body and scenarios both — "
+                      "nothing moved under this block")
     if canon == mine:
-        return True, ("canon now states THIS BLOCK — the amendment has been "
-                      "applied and the proof above is historical")
-    return False, (f"canon matches NEITHER the basis nor this block "
-                   f"({len(canon)} blocks): something else moved it")
+        return True, ("canon now states THIS BLOCK, body and scenarios both — "
+                      "the amendment has been applied and the proof above is "
+                      "historical")
+    return False, ("canon matches NEITHER the basis nor this block over the "
+                   "requirement's full text: something else moved it")
 
 
 def main() -> int:
@@ -206,7 +259,10 @@ def main() -> int:
                   f"{out_of_order[0]}")
             failures += 1
             continue
-        ok, note = canon_state(capability, title, carried, mine)
+        ok, note = canon_state(
+            capability, title,
+            requirement_section(promoted, title),
+            requirement_section(delta, title))
         if not ok:
             print(f"FAIL {capability}: {note}")
             failures += 1
