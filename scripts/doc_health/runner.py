@@ -430,6 +430,13 @@ def main(argv=None) -> int:
                          "baseline; records a new baseline marker when "
                          "the sweep queue drains)")
     args = ap.parse_args(argv)
+    # Resolve the budget default EXACTLY ONCE, and only for an absent
+    # flag. `or` would be wrong here: it folds an explicit `0` or a
+    # negative back into the default, so an operator who typed a bad
+    # cap would silently get the good one and `pack_within_budget`'s
+    # validation would never be reached (Copilot, PR #1137).
+    if args.semantic_input_budget_bytes is None:
+        args.semantic_input_budget_bytes = _INPUT_BUDGET_DEFAULT
 
     ctx = build_context(args)
 
@@ -451,8 +458,7 @@ def main(argv=None) -> int:
             bundle_out,
             model=args.semantic_model or _semantic.DEFAULT_MODEL,
             inventory=inventory, allowed_output_root=bundle_root,
-            input_budget_bytes=(args.semantic_input_budget_bytes
-                                or _INPUT_BUDGET_DEFAULT))
+            input_budget_bytes=args.semantic_input_budget_bytes)
         print(f"sweep bundle written: {args.semantic_prepare} "
               f"({meta['corpus_size']} docs; {meta['scope']}; "
               f"{meta['input_bytes']} of {meta['input_budget_bytes']} "
@@ -590,8 +596,7 @@ def main(argv=None) -> int:
         sem_findings, semantic_meta = semantic.run_sweep(
             ctx.repo_paths, ctx.docs, ctx.as_of, ctx.agg_root, prev_inv,
             model=model, invoke=_invoke, inventory=inventory,
-            input_budget_bytes=(args.semantic_input_budget_bytes
-                                or _INPUT_BUDGET_DEFAULT))
+            input_budget_bytes=args.semantic_input_budget_bytes)
         result.findings.extend(sem_findings)
         result.findings.sort(key=Finding.sort_key)
 
@@ -829,6 +834,22 @@ def main(argv=None) -> int:
         unavailable_families.update(set(FAMILIES) - {args.family})
     if semantic_meta is not None and semantic_meta.skipped_reason:
         unavailable_families.update(semantic.SEMANTIC_FAMILY_IDS)
+    # A DEFERRED DOCUMENT IS NOT A SWEPT DOCUMENT (add-worker-input-budget).
+    # The family-level exclusion above only fires when the whole sweep was
+    # SKIPPED; a successful PARTIAL pack leaves `skipped_reason` empty while
+    # some documents never reached the model at all. Their prior contested
+    # findings cannot be re-confirmed or refuted by this run, so their
+    # absence from `result.findings` must not read as "resolved" — exactly
+    # the rule `unavailable_families` and `unavailable_repos` already encode,
+    # one axis further in, at the PATH. Without this the first budgeted night
+    # manufactures an uncited-resolution ERROR per deferred document that
+    # carried a semantic finding (Copilot, PR #1137).
+    unavailable_keys = set()
+    if semantic_meta is not None:
+        unavailable_keys.update(
+            (family, repo, path)
+            for family in semantic.SEMANTIC_FAMILY_IDS
+            for repo, path in semantic_meta.deferred)
     # The ideation-readiness lane's `contested` findings are folded into the
     # ranked plan AFTER this render (report.insert_readiness_section, from the
     # readiness merge step), so they are NEVER in `result.findings` at this
@@ -851,7 +872,8 @@ def main(argv=None) -> int:
     result.findings += report.uncited_resolutions(
         result.findings, previous_contested, dispositions,
         unavailable_families=unavailable_families,
-        unavailable_repos=unavailable_repos)
+        unavailable_repos=unavailable_repos,
+        unavailable_keys=unavailable_keys)
     new = report.regressions(result.findings, previous_keys)
 
     spec_words = 0

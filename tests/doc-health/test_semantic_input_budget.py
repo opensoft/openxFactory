@@ -268,7 +268,8 @@ def test_the_report_states_what_was_sent_and_what_was_held_back():
         envelope_ref="SEMSWEEP-abc123abc123",
         input_budget_bytes=1_900_000, input_bytes=1_899_448,
         docs_included=93, docs_deferred=2,
-        truncated=True, deferred=["alpha/docs/x.md", "beta/docs/y.md"])
+        truncated=True,
+        deferred=[("alpha", "docs/x.md"), ("beta", "docs/y.md")])
     text = report.render(date(2026, 9, 21), [], [], [], [], 0, [], [],
                          semantic_meta=meta)
     assert "1899448 of 1900000 budgeted bytes" in text
@@ -295,7 +296,8 @@ def test_run_sweep_records_the_budget_on_its_meta(tmp_path):
     assert meta.input_bytes == seen["bytes"]
     assert meta.truncated is True
     assert meta.docs_deferred == 20 - meta.docs_included
-    assert all("/" in name for name in meta.deferred)
+    assert all(isinstance(entry, tuple) and len(entry) == 2
+               for entry in meta.deferred)
 
 
 def test_the_cli_exposes_the_budget_as_a_flag():
@@ -362,3 +364,117 @@ def test_catalog_bundle_meta_records_the_budget_and_each_shard_size(
             (out / "shards" / f"{shard_id}.json").read_text(encoding="utf-8"))
         assert size == len(catalog_dispatch.shard_analysis_input(
             "PROMPT", payload).encode("utf-8"))
+
+
+def test_a_finding_on_a_deferred_document_is_not_admissible(tmp_path):
+    # `enforce_contract` admits a finding only for a document in the corpus
+    # it is given. A deferred document was never in the prompt, so a finding
+    # naming it is a hallucination -- and passing the SELECTED corpus rather
+    # than the SENT one would admit it.
+    docs = [Doc("alpha", f"docs/{i:03d}.md", "body " * 400, "draft")
+            for i in range(20)]
+
+    def invoke(prompt, model):
+        return json.dumps({"findings": [
+            {"family": "semantic-normative-prose", "repo": "alpha",
+             "path": "docs/019.md", "passage": "must always",
+             "confidence": "high"}]})
+
+    (tmp_path / "alpha").mkdir()
+    findings, meta = semantic.run_sweep(
+        {"alpha": tmp_path / "alpha"}, docs, AS_OF, None, None,
+        invoke=invoke, input_budget_bytes=9_000)
+    assert meta.docs_deferred > 0, "this budget must force a deferral"
+    deferred = {path for _repo, path in meta.deferred}
+    assert "docs/019.md" in deferred, (
+        "the packer's order should have deferred the last document")
+    assert findings == [], (
+        "a finding on a deferred document must not be admitted")
+
+
+# --- Copilot, PR #1137: the two findings this suite now pins ----------------
+
+def test_a_deferred_documents_prior_finding_is_not_a_resolution():
+    """`uncited_resolutions`' third exclusion axis, at the unit level.
+
+    The family axis only fires when the WHOLE sweep was skipped. A partial
+    pack leaves `skipped_reason` empty while some documents never reached the
+    model, so without a path-level exclusion the first budgeted night would
+    manufacture one uncited-resolution ERROR per deferred document that
+    carried a semantic finding -- and the nightly files those as a regression
+    issue, which the doc-health contract forbids for the semantic families.
+    """
+    contested = {
+        ("semantic-normative-prose", "alpha", "docs/deferred.md"),
+        ("semantic-normative-prose", "alpha", "docs/swept.md"),
+    }
+    deferred_keys = {("semantic-normative-prose", "alpha",
+                      "docs/deferred.md")}
+    got = report.uncited_resolutions(
+        [], contested, dispositions=set(), unavailable_keys=deferred_keys)
+    assert [(f.family, f.repo, f.path) for f in got] == [
+        ("uncited-resolution", "alpha", "docs/swept.md")]
+    # and with no exclusion at all, BOTH would have been reported --
+    # which is the defect, stated as the control.
+    ungated = report.uncited_resolutions([], contested, dispositions=set())
+    assert len(ungated) == 2
+
+
+def test_the_runner_builds_that_exclusion_from_the_deferred_set():
+    """The wiring, not just the primitive: `runner.main` must turn
+    `semantic_meta.deferred` into `(family, repo, path)` keys for BOTH
+    semantic families and hand them to `uncited_resolutions`. Asserted
+    structurally, in the idiom of `tests/citation_remainder/
+    test_report_wiring.py`, because reaching this line through a full
+    `main()` needs a previous report, a baseline inventory and a worker."""
+    import ast
+    from pathlib import Path
+
+    source = (Path(semantic.__file__).parent / "runner.py").read_text(
+        encoding="utf-8")
+    tree = ast.parse(source)
+    calls = [node for node in ast.walk(tree)
+             if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Attribute)
+             and node.func.attr == "uncited_resolutions"]
+    assert len(calls) == 1, "expected exactly one uncited_resolutions call"
+    keywords = {kw.arg for kw in calls[0].keywords}
+    assert "unavailable_keys" in keywords, (
+        "the deferred-document exclusion is not wired into the call")
+    assert "SEMANTIC_FAMILY_IDS" in source and "semantic_meta.deferred" in \
+        source
+
+
+def test_an_explicit_non_positive_budget_is_not_folded_into_the_default():
+    """`--semantic-input-budget-bytes 0` must REACH `pack_within_budget`'s
+    validation rather than be silently replaced by the default.
+
+    `args.semantic_input_budget_bytes or DEFAULT` would fold an explicit `0`
+    or a negative straight back into the default, so an operator who typed a
+    bad cap would quietly get the good one and the flag could not reliably
+    configure the requested bound (Copilot, PR #1137). Asserted on the
+    SOURCE: reaching the resolution through `main()` means running the whole
+    deterministic suite, which is minutes and writes a bundle directory.
+    """
+    import ast
+    from pathlib import Path
+
+    source = (Path(semantic.__file__).parent / "runner.py").read_text(
+        encoding="utf-8")
+    assert "or _INPUT_BUDGET_DEFAULT" not in source, (
+        "an `or` fallback folds an explicit 0 or negative into the default")
+    tree = ast.parse(source)
+    guarded = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.If)
+        and isinstance(node.test, ast.Compare)
+        and isinstance(node.test.ops[0], ast.Is)
+        and isinstance(node.test.left, ast.Attribute)
+        and node.test.left.attr == "semantic_input_budget_bytes"
+    ]
+    assert len(guarded) == 1, (
+        "the default must be resolved exactly once, and only for `is None`")
+    # and the value that survives is refused downstream, not ignored
+    for bad in (0, -1):
+        with pytest.raises(ValueError, match="input budget must be positive"):
+            semantic.pack_within_budget(CONTRACT, [], [], budget_bytes=bad)

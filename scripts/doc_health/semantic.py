@@ -162,9 +162,11 @@ class SweepMeta:
     envelope_ref: str
     skipped_reason: str | None = None
     dropped: list = field(default_factory=list)
-    # Input-budget accounting (add-worker-input-budget). `deferred` holds
-    # "<repo>/<path>" for every document the budget kept out of THIS run's
-    # prompt -- a record, never a silent drop.
+    # Input-budget accounting (add-worker-input-budget). `deferred` holds a
+    # `(repo, path)` pair for every document the budget kept out of THIS
+    # run's prompt -- a record, never a silent drop. STRUCTURED rather than
+    # a rendered "<repo>/<path>" string, because `runner.main` turns these
+    # into uncited-resolution exclusion keys and a path contains separators.
     input_budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
     input_bytes: int = 0
     docs_included: int = 0
@@ -181,7 +183,7 @@ def _record_budget(meta: SweepMeta, stats: dict) -> None:
     meta.docs_included = stats["docs_included"]
     meta.docs_deferred = stats["docs_deferred"]
     meta.truncated = stats["truncated"]
-    meta.deferred = [f"{d['repo']}/{d['path']}" for d in stats["deferred"]]
+    meta.deferred = [(d["repo"], d["path"]) for d in stats["deferred"]]
 
 
 # --- Hermes-layer scope resolution ------------------------------------------
@@ -528,6 +530,14 @@ def document_cost(document: dict) -> int:
         + _JSON_ITEM_SEPARATOR_BYTES
 
 
+def _priced_document_order(priced: tuple[dict, int]) -> tuple[str, str]:
+    """Packing order for a (document, cost) pair: `(repo, path)` — the same
+    order the payload itself is emitted in, so the prompt reads in the order
+    it was packed."""
+    document, _cost = priced
+    return (document["repo"], document["path"])
+
+
 def _pack_first_fit(candidates: list[tuple[dict, int]], capacity: int):
     """First fit, in the order given, WHOLE DOCUMENTS ONLY.
 
@@ -578,11 +588,10 @@ def pack_within_budget(contract_text: str, corpus_documents: list[dict],
         raise ValueError(
             f"prompt scaffold ({scaffold} bytes) already exceeds the input "
             f"budget ({budget_bytes} bytes); no document can be sent")
-    order = (lambda item: (item[0]["repo"], item[0]["path"]))
     corpus = sorted(((d, document_cost(d)) for d in corpus_documents),
-                    key=order)
+                    key=_priced_document_order)
     grounding = sorted(((d, document_cost(d)) for d in grounding_documents),
-                       key=order)
+                       key=_priced_document_order)
     available = budget_bytes - scaffold
     grounding_capacity = int(available * grounding_share)
     corpus_capacity = available - grounding_capacity
@@ -752,6 +761,15 @@ def run_sweep(repo_paths: dict, docs, as_of: date, agg_root,
     except Exception as exc:  # non-fatal by contract: record the skip
         meta.skipped_reason = f"analysis worker failed: {exc}"
         return [], meta
-    findings, dropped = enforce_contract(parsed, corpus_entries)
+    # A DEFERRED DOCUMENT IS NOT A SWEPT DOCUMENT, and the finding contract
+    # has to agree: `enforce_contract` drops any finding whose (repo, path)
+    # is outside the corpus it is given, and a document the budget held back
+    # was never in the prompt. Passing the SELECTED corpus here would make
+    # a finding on a document the model never saw admissible.
+    deferred_keys = {(d["repo"], d["path"])
+                     for d in budget_stats["deferred"]}
+    swept_entries = [e for e in corpus_entries
+                     if (e["repo"], e["path"]) not in deferred_keys]
+    findings, dropped = enforce_contract(parsed, swept_entries)
     meta.dropped = dropped
     return findings, meta
