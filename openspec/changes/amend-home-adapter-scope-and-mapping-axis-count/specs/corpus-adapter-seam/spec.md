@@ -1,0 +1,71 @@
+# corpus-adapter-seam Specification
+
+**ONE `## MODIFIED` REQUIREMENT, AND THE BLOCK CARRIES EVERY SCENARIO THE
+PROMOTED REQUIREMENT HAS.** A `## MODIFIED` block REPLACES the requirement it
+names, so all THREE promoted scenarios are carried below BYTE-IDENTICALLY —
+extracted from `openspec/specs/corpus-adapter-seam/spec.md` by script rather
+than retyped, and re-compared against that file at `tasks.md` § 4.2 — and TWO
+are added. No active change carries a delta on this capability (checked by
+enumerating `openspec/changes/*/specs/` on `main` `4f92d651`), so there is no
+collision, no basis marker is owed, and this block is written over canon as
+promoted.
+
+**WHAT THE AMENDMENT REACHES AND WHAT IT LEAVES ALONE.** It reaches the SCOPE of
+the first requirement's external-product clause and nothing else: the one-way
+dependency rule, the relocation rule, the measured back-edge instance and all
+three promoted scenarios are carried unedited, and the three requirements below
+this one in the promoted spec are untouched by this packet.
+
+## MODIFIED Requirements
+
+### Requirement: The corpus reader is an external pinned product and the dependency points one way
+`openxFactory` SHALL consume every tool that reads its governed corpus as an
+EXTERNAL NEUTRAL PRODUCT pinned under `neutral-product-pin`, and no neutral
+product `openxFactory` pins SHALL import `openxFactory`'s own tooling. THE ONE
+EXCEPTION IS `openxFactory`'s OWN ADAPTER OVER ITS OWN CORPUS, which RULING DQ-1
+(`opensoft/openxFactory` issue #656, 2026-09-04T22:14Z) keeps in this repository
+— *"doc-health and OpenSpec stay in openxFactory, and a small adapter package
+beside them implements the corpus-adapter seam"* — and whose obligations the
+requirement *openxFactory's own adapter is one implementation and carries no
+privileged path* below, together with the promoted capability
+`openxfactory-engineering-adapter`, states in this rule's place. THE EXCEPTION IS
+ONE NAMED IMPLEMENTATION AND NOT A GENERAL LICENCE: it does not admit a second
+in-repository reader, it does not release that adapter from the interface it
+implements, and it does not reverse the dependency. It is written here rather
+than discharged by pinning the home adapter because pinning it would not resolve
+the tension but relocate it — a pinned home adapter would violate this
+requirement's SECOND clause the moment it imported `doc_health`, which is
+precisely where DQ-1 puts it, so the escape this requirement's first clause
+appears to offer is closed by its own second clause and the exception has to be
+stated. The dependency points ONE WAY — a reader depends on the interface it
+implements, and never on the corpus's own check families — and where two
+packages today import each other, the shared type SHALL be relocated into a
+module BOTH depend on before either is extracted. The measured instance this
+rule is written from: twelve of `scripts/ideation_dashboard/`'s forty-eight
+modules carry twenty-three `scripts/doc_health/` imports, and
+`scripts/doc_health/` imports back exactly twice — `derive_possibles.py:857` and
+`ideation_readiness.py:1351`, each
+`from ideation_dashboard.boundary import OutputBoundary` — so the back-edge is
+ONE class in ONE module, imported lazily in two places.
+
+#### Scenario: A neutral product imports the corpus's own tooling
+- **WHEN** a repository `openxFactory` pins as a neutral product imports `openxFactory`'s check families, validators or corpus readers
+- **THEN** the import is refused, because the dependency has reversed and neither repository can be released without the other
+
+#### Scenario: Two packages import each other across the seam
+- **WHEN** an extraction would place two mutually importing packages in different repositories
+- **THEN** the shared type is relocated into a module both depend on BEFORE either package moves
+- **AND** the relocation lands as its own change, because it is correct whether or not the extraction ever happens
+
+#### Scenario: A reader is vendored instead of pinned
+- **WHEN** a corpus reader is copied into `openxFactory` rather than pinned as an external product
+- **THEN** the copy is refused, because a vendored reader has no version anyone can name and drifts silently from the product it was taken from
+
+#### Scenario: The home adapter is measured against the external-product rule
+- **WHEN** `openxFactory`'s own adapter over its own corpus — the package RULING DQ-1 keeps beside `doc_health`, authored here and named in no pin — is measured against this requirement
+- **THEN** it is the one named exception and is NOT refused for being neither external nor pinned, and its obligations are read from "openxFactory's own adapter is one implementation and carries no privileged path" and from `openxfactory-engineering-adapter` instead
+- **AND** the exception is not cured by pinning it, because a pinned home adapter importing `doc_health` would then violate this requirement's second clause
+
+#### Scenario: A second in-repository reader claims the exception
+- **WHEN** a corpus reader other than the home adapter RULING DQ-1 keeps is authored inside `openxFactory` rather than pinned as an external product
+- **THEN** it is refused, because the exception names ONE implementation and a general licence would return this rule to the vendoring its third scenario exists to forbid

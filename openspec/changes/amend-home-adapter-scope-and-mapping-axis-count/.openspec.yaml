@@ -1,0 +1,67 @@
+schema: spec-driven
+created: 2026-09-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-22-amend-home-adapter-scope-and-mapping-axis-count
+  reason: >-
+    TWO PROMOTED REQUIREMENTS CONTRADICT A SIBLING REQUIREMENT IN THEIR OWN
+    SPEC, AND THE REALIZED ARTIFACTS OBEY THE SIBLING. Copilot review
+    `5273796676` on `opensoft/openxFactory#1139` — the archive of
+    `split-opendox-two-layer-product`, merged `e8fde27f` — registered FOUR
+    findings against text that pull request PROMOTED but did not author. One
+    (`r4067623184`) was ruled and landed as `#1140`. Three named ratified
+    requirement text; the `neutral-product-pin` one was ruled (b) by Brett Heap
+    at `#656` comment `5777949892` and landed as `#1140` -> `e90997bc`. THE
+    OTHER TWO ARE THIS PACKET, and the archiving lane registered both as REAL
+    rather than dismissing them, at `#1139` comment `5770749761`.
+    FINDING `r4067852518` — `corpus-adapter-seam`'s first requirement obliges
+    `openxFactory` to consume "every tool that reads its governed corpus" as an
+    EXTERNAL NEUTRAL PRODUCT pinned under `neutral-product-pin`, while RULING
+    DQ-1 (`#656`, 2026-09-04T22:14Z) KEEPS one such tool here — "a small adapter
+    package beside them implements the corpus-adapter seam" — the fourth
+    requirement governs it as one implementation among others, and the promoted
+    capability `openxfactory-engineering-adapter` carries its obligations in
+    full. Measured on `main` `4f92d651`: `scripts/corpus_adapter_openxfactory/`
+    exists in tree, appears in no `contracts/*-pin.yaml`, and imports
+    `doc_health` at six sites across four modules and `ideation_dashboard` at
+    two. So it satisfies
+    neither half of the requirement, and the escape the first clause appears to
+    offer is closed by the second.
+    FINDING `r4067955892` — `domain-mapping-declaration`'s first requirement
+    says a declaration covers "exactly five axes" while its THIRD requirement
+    mandates, for every derived-model family, a TRUTH STORE and an EXTERNAL
+    ENFORCEMENT point that belong to none of the five. The realized artifact has
+    already answered the question the other way: `contracts/domain-profiles/openxfactory-engineering.yaml`
+    carries `truth_store:` as a TOP-LEVEL key beside the five, with
+    `external_enforcement_point:` nested inside it, under the file's own
+    `AXIS 1`..`AXIS 5` comment banners and under NO axis banner of its own; and
+    `DomainProfile` carries `truth_store` as its own field. The amendment states
+    the count the corpus already keeps.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was grepped on 2026-09-22 for both capability names.
+    Two files match and NEITHER proposes this rule: `ideation/staging/INDEX.md`
+    is the topic inventory, and `ideation/staging/opendox-two-layer-product/` is
+    the SOURCE of the two requirements being amended, not of the amendment.
+    `kind: staged` would claim a staging source that does not resolve. The
+    organized source is the review and the archiving lane's registration of it.
+  proposed_by: >-
+    Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`), actor
+    `successor2`, encoding two findings a sibling lane registered and this one
+    re-measured against the LANDED text before writing a word. NOTHING HERE IS
+    RATIFIED BY THE AUTHORING LANE. Both amendments go to Brett Heap for his
+    word. THE DECISIONS THIS PACKET REACHES ARE DECLARED FOR A VETO in
+    `design.md`: D1 (the home-adapter exception is stated as ONE NAMED
+    IMPLEMENTATION rather than as a general "openxFactory-authored" carve-out,
+    which would reopen the vendoring hole the requirement's third scenario
+    closes), D2 (the sixth axis is NAMED as an axis rather than nested under an
+    existing one, because the realized profile and the `DomainProfile` shape
+    both carry it as a sibling of the five), and D3 (both blocks are written
+    over canon as promoted, because no active change carries a delta on either
+    capability, so no basis marker is owed). Each is separable and each carries
+    its own veto cost.
+  proposed_on: 2026-09-22
+related:
+  - openxFactory:change:split-opendox-two-layer-product     # ARCHIVED 2026-09-22 (#1139 -> e8fde27f). Promoted both requirements VERBATIM out of its delta ratified 2026-09-05; this packet amends the promoted text and edits nothing in the archive
+  - openxFactory:pr:1139                                    # The archive whose Copilot review 5273796676 raised all four findings, and whose comment 5770749761 registered these two as real
+  - openxFactory:pr:1140                                    # The sibling amendment that discharged the THIRD ratified-text finding (r4067623184 / r4067852551). Not this packet's subject; named so the set is countable
+  - openxFactory:issue:656                                  # RULING DQ-1 (2026-09-04T22:14Z), which keeps the home adapter here and is the fact the seam amendment is written against
