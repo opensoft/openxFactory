@@ -54,6 +54,76 @@ CONFIDENCE_VALUES = {"low", "medium", "high"}
 DEFAULT_MODEL = "claude-sonnet-5"
 ANALYSIS_TIMEOUT = 1800
 
+# --- input budget -----------------------------------------------------------
+#
+# WHY THIS EXISTS. The assembled `analysis-input.txt` is one prompt: the
+# whole thing has to fit the model's context window, and nothing in this
+# module ever bounded it. The lane failed silently for weeks as a result --
+# `claude -p` exits 1 with `{"result": "Prompt is too long"}` on STDOUT
+# (which the child redirects into `worker-result.json` and then deletes),
+# so the job log showed an exit code and nothing else.
+#
+# THE ARITHMETIC behind DEFAULT_INPUT_BUDGET_BYTES. Every figure below is
+# MEASURED, not assumed -- read off the CLI's own refusal when 2,799,448
+# bytes of this very corpus were fed to `claude -p` with the child's exact
+# flag set:
+#
+#   "the request is ~1086484 tokens (limit 1000000) but this conversation
+#    is only ~700164 tokens -- the rest is system prompt, tool definitions,
+#    and attachment content"
+#
+# which resolves the two unknowns at once:
+#
+#   context limit                         1,000,000 tokens  (stated)
+#   - CLI fixed overhead, MEASURED          386,320 tokens  (1,086,484
+#                                           minus the 700,164 the corpus
+#                                           itself occupied -- system
+#                                           prompt and tool definitions,
+#                                           over a third of the window)
+#   - the model's own answer                 64,000 tokens  (max output)
+#   = usable prompt content                 549,680 tokens
+#   x bytes per token, MEASURED                 3.998 bytes  (2,799,448
+#                                           bytes read as 700,164 tokens)
+#   = 2,197,600 bytes
+#   x 0.87 safety margin
+#   = 1,911,912  ->  1,900,000 bytes
+#
+# Cross-check, forwards: 1,900,000 bytes is ~475,200 content tokens; with
+# the fixed overhead that is ~861,520 of the 1,000,000-token request, and a
+# full 64,000-token answer still leaves ~74,000 tokens spare.
+#
+# Cross-check, against production: the largest input this lane ever got
+# ACCEPTED was 2,524,427 bytes (2026-09-02, 200s, real findings) and the
+# smallest it ever got REJECTED was 2,913,875 bytes (2026-09-03). The
+# measured ceiling, 549,680 + 64,000 tokens of content, is ~2.45 MB, which
+# sits exactly inside that bracket. 1,900,000 is 75% of the largest
+# accepted input and 65% of the smallest rejected one.
+#
+# The budget bounds the WHOLE assembled file -- prompt scaffold included --
+# because that whole file is what reaches stdin.
+DEFAULT_INPUT_BUDGET_BYTES = 1_900_000
+
+#: Share of the per-run budget reserved for promoted-spec grounding.
+#:
+#: The grounding population is NOT small and NOT optional: the promoted
+#: specs alone were 1,866,899 bytes on 2026-09-02 and 3,051,663 bytes on
+#: 2026-09-21 -- by themselves already over the ceiling, which is why a
+#: budget that bounded only the changed-docs population would not have
+#: revived this lane. Reserving a share for each population keeps BOTH
+#: check families alive: `semantic-normative-prose` needs the changed
+#: docs, `semantic-contradiction` needs the specs to ground against.
+GROUNDING_BUDGET_SHARE = 0.5
+
+#: Charged per document on top of its own JSON length, for the ", "
+#: separator `json.dumps` writes between array items. Charged for EVERY
+#: document including the first (which needs no separator), so the packer
+#: is conservative by at most 2 bytes per document -- never optimistic.
+_JSON_ITEM_SEPARATOR_BYTES = 2
+
+#: Population labels recorded against every deferred document.
+CORPUS_POPULATION = "corpus"
+GROUNDING_POPULATION = "grounding"
+
 WORKER_OUTPUT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
@@ -92,6 +162,26 @@ class SweepMeta:
     envelope_ref: str
     skipped_reason: str | None = None
     dropped: list = field(default_factory=list)
+    # Input-budget accounting (add-worker-input-budget). `deferred` holds
+    # "<repo>/<path>" for every document the budget kept out of THIS run's
+    # prompt -- a record, never a silent drop.
+    input_budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
+    input_bytes: int = 0
+    docs_included: int = 0
+    docs_deferred: int = 0
+    truncated: bool = False
+    deferred: list = field(default_factory=list)
+
+
+def _record_budget(meta: SweepMeta, stats: dict) -> None:
+    """Copy one run's budget record onto its SweepMeta, so the report can
+    state what was sent and what was held back."""
+    meta.input_budget_bytes = stats["input_budget_bytes"]
+    meta.input_bytes = stats["input_bytes"]
+    meta.docs_included = stats["docs_included"]
+    meta.docs_deferred = stats["docs_deferred"]
+    meta.truncated = stats["truncated"]
+    meta.deferred = [f"{d['repo']}/{d['path']}" for d in stats["deferred"]]
 
 
 # --- Hermes-layer scope resolution ------------------------------------------
@@ -261,7 +351,9 @@ def prepare_bundle(repo_paths: dict, docs, as_of: date,
                    previous_inventory: list[dict] | None, out_dir,
                    model: str = DEFAULT_MODEL,
                    inventory: list[dict] | None = None,
-                   allowed_output_root=None) -> dict:
+                   allowed_output_root=None,
+                   input_budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
+                   ) -> dict:
     """Write the analysis worker's corpus bundle: prompt, selected docs,
     and the promoted specs (contradiction grounding). The bundle is fully
     self-contained so the worker host needs no repository access at all."""
@@ -313,10 +405,11 @@ def prepare_bundle(repo_paths: dict, docs, as_of: date,
     (out / "inventory.json").write_text(  # NOSONAR: out is boundary-checked
         json.dumps(inventory, indent=1, sort_keys=True) + "\n",
         encoding="utf-8")
+    analysis_text, budget_stats = build_analysis_input_with_stats(
+        contract_text, corpus_entries, by_key, promoted_specs,
+        budget_bytes=input_budget_bytes)
     (out / "analysis-input.txt").write_text(  # NOSONAR: boundary-checked
-        build_analysis_input(
-            contract_text, corpus_entries, by_key, promoted_specs),
-        encoding="utf-8")
+        analysis_text, encoding="utf-8")
     (out / "findings.schema.json").write_text(  # NOSONAR: boundary-checked
         json.dumps(WORKER_OUTPUT_SCHEMA, separators=(",", ":")) + "\n",
         encoding="utf-8")
@@ -325,6 +418,11 @@ def prepare_bundle(repo_paths: dict, docs, as_of: date,
             "total_docs": len(inventory), "model": model,
             "prompt_version": prompt_version,
             "envelope_ref": env["job"]["id"]}
+    # The child reads `input_budget_bytes` from here and refuses to invoke
+    # the model on an input over it (aggregation
+    # doc-health-analysis-worker.yml), so the budget travels WITH the
+    # bundle rather than being duplicated as a constant on both sides.
+    meta.update(budget_stats)
     (out / "meta.json").write_text(  # NOSONAR: out is boundary-checked
         json.dumps(meta, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     return meta
@@ -400,24 +498,12 @@ def parse_worker_output(raw: str):
     raise ValueError("worker output does not contain a findings array")
 
 
-def build_analysis_input(contract_text: str, corpus_entries: list[dict],
-                         by_key: dict, promoted_specs: list[dict]) -> str:
-    """Embed untrusted corpus data so the model needs no filesystem tools."""
-    documents = []
-    seen = set()
-    for entry in corpus_entries:
-        key = (entry["repo"], entry["path"])
-        doc = by_key[key]
-        documents.append({
-            "repo": entry["repo"], "path": entry["path"],
-            "status": entry["status"], "content": doc.text,
-        })
-        seen.add(key)
-    for spec in promoted_specs:
-        key = (spec["repo"], spec["path"])
-        if key not in seen:
-            documents.append(spec)
-    documents.sort(key=lambda item: (item["repo"], item["path"]))
+def render_analysis_input(contract_text: str, documents: list[dict]) -> str:
+    """The assembled prompt exactly as the worker reads it from stdin.
+
+    Extracted from `build_analysis_input` so the packer can measure the
+    scaffold (everything that is not a document) against the budget
+    instead of guessing at it."""
     payload = json.dumps({"documents": documents}, ensure_ascii=True,
                          sort_keys=True)
     return (
@@ -428,9 +514,181 @@ def build_analysis_input(contract_text: str, corpus_entries: list[dict],
     )
 
 
+def _byte_length(text: str) -> int:
+    """UTF-8 length -- the unit the bundle is written and measured in."""
+    return len(text.encode("utf-8"))
+
+
+def document_cost(document: dict) -> int:
+    """Budget cost of one document: its own JSON length plus the array
+    separator. `ensure_ascii=True` keeps the payload pure ASCII, so this is
+    both the character and the byte cost."""
+    return _byte_length(json.dumps(document, ensure_ascii=True,
+                                   sort_keys=True)) \
+        + _JSON_ITEM_SEPARATOR_BYTES
+
+
+def _pack_first_fit(candidates: list[tuple[dict, int]], capacity: int):
+    """First fit, in the order given, WHOLE DOCUMENTS ONLY.
+
+    A document that does not fit is deferred and the walk continues, so one
+    oversized document defers itself rather than starving every document
+    behind it. Nothing is ever truncated mid-document: a partial governance
+    document would make the model reason about text that does not exist.
+    Returns (taken, deferred, spent)."""
+    taken, deferred, spent = [], [], 0
+    for document, cost in candidates:
+        if spent + cost <= capacity:
+            taken.append(document)
+            spent += cost
+        else:
+            deferred.append((document, cost))
+    return taken, deferred, spent
+
+
+def pack_within_budget(contract_text: str, corpus_documents: list[dict],
+                       grounding_documents: list[dict],
+                       budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES,
+                       grounding_share: float = GROUNDING_BUDGET_SHARE
+                       ) -> tuple[str, dict]:
+    """Assemble the analysis prompt within `budget_bytes`.
+
+    Deterministic in three phases, so the same corpus always produces the
+    same prompt and the same deferred set:
+
+    1. the changed-docs population packs first fit into its reserved share
+       (the sweep's actual subject);
+    2. the promoted-spec grounding packs first fit into its own reserved
+       share (what `semantic-contradiction` is judged against);
+    3. whatever either population left unused is re-offered to the
+       documents the first two phases deferred -- corpus first.
+
+    Within each population the order is `(repo, path)`, the same order the
+    payload itself is emitted in. Returns the prompt text and the budget
+    record; `stats["deferred"]` names every document held back, because a
+    document dropped without a record is indistinguishable from a document
+    with nothing wrong with it."""
+    if budget_bytes < 1:
+        raise ValueError(f"input budget must be positive: {budget_bytes!r}")
+    if not 0.0 <= grounding_share <= 1.0:
+        raise ValueError(
+            f"grounding share must be within [0, 1]: {grounding_share!r}")
+    scaffold = _byte_length(render_analysis_input(contract_text, []))
+    if scaffold > budget_bytes:
+        raise ValueError(
+            f"prompt scaffold ({scaffold} bytes) already exceeds the input "
+            f"budget ({budget_bytes} bytes); no document can be sent")
+    order = (lambda item: (item[0]["repo"], item[0]["path"]))
+    corpus = sorted(((d, document_cost(d)) for d in corpus_documents),
+                    key=order)
+    grounding = sorted(((d, document_cost(d)) for d in grounding_documents),
+                       key=order)
+    available = budget_bytes - scaffold
+    grounding_capacity = int(available * grounding_share)
+    corpus_capacity = available - grounding_capacity
+
+    taken_corpus, left_corpus, spent_corpus = _pack_first_fit(
+        corpus, corpus_capacity)
+    taken_grounding, left_grounding, spent_grounding = _pack_first_fit(
+        grounding, grounding_capacity)
+    leftover = available - spent_corpus - spent_grounding
+    extra_corpus, left_corpus, spent_extra_corpus = _pack_first_fit(
+        left_corpus, leftover)
+    extra_grounding, left_grounding, _ = _pack_first_fit(
+        left_grounding, leftover - spent_extra_corpus)
+
+    documents = taken_corpus + extra_corpus + taken_grounding + extra_grounding
+    documents.sort(key=lambda item: (item["repo"], item["path"]))
+    deferred = sorted(
+        [{"repo": d["repo"], "path": d["path"], "bytes": cost,
+          "population": CORPUS_POPULATION} for d, cost in left_corpus]
+        + [{"repo": d["repo"], "path": d["path"], "bytes": cost,
+            "population": GROUNDING_POPULATION}
+           for d, cost in left_grounding],
+        key=lambda item: (item["repo"], item["path"]))
+    text = render_analysis_input(contract_text, documents)
+    input_bytes = _byte_length(text)
+    # The packer charges a separator for every document including the
+    # first, so the rendered text is always at or under the budget. An
+    # assertion rather than a comment: a packer that overshoots its budget
+    # is the exact defect this function exists to prevent, and it must not
+    # reach the worker.
+    if input_bytes > budget_bytes:
+        raise AssertionError(
+            f"packed input {input_bytes} exceeds budget {budget_bytes}")
+    stats = {
+        "input_budget_bytes": budget_bytes,
+        "input_bytes": input_bytes,
+        "docs_included": len(documents),
+        "docs_deferred": len(deferred),
+        "truncated": bool(deferred),
+        "deferred": deferred,
+    }
+    return text, stats
+
+
+def corpus_documents(corpus_entries: list[dict], by_key: dict,
+                     promoted_specs: list[dict]
+                     ) -> tuple[list[dict], list[dict]]:
+    """Split this run's payload into its two populations: the swept
+    changed-docs corpus and the promoted-spec grounding. A promoted spec
+    that is already a corpus entry stays in the corpus population only --
+    the same de-duplication the unbudgeted builder has always applied."""
+    documents, seen = [], set()
+    for entry in corpus_entries:
+        key = (entry["repo"], entry["path"])
+        doc = by_key[key]
+        documents.append({
+            "repo": entry["repo"], "path": entry["path"],
+            "status": entry["status"], "content": doc.text,
+        })
+        seen.add(key)
+    grounding = [spec for spec in promoted_specs
+                 if (spec["repo"], spec["path"]) not in seen]
+    return documents, grounding
+
+
+def build_analysis_input_with_stats(
+        contract_text: str, corpus_entries: list[dict], by_key: dict,
+        promoted_specs: list[dict],
+        budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
+) -> tuple[str, dict]:
+    """Budget-bounded assembly: the prompt plus its budget record."""
+    documents, grounding = corpus_documents(
+        corpus_entries, by_key, promoted_specs)
+    return pack_within_budget(contract_text, documents, grounding,
+                              budget_bytes=budget_bytes)
+
+
+def build_analysis_input(contract_text: str, corpus_entries: list[dict],
+                         by_key: dict, promoted_specs: list[dict],
+                         budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
+                         ) -> str:
+    """Embed untrusted corpus data so the model needs no filesystem tools.
+
+    Bounded by `budget_bytes` since add-worker-input-budget; callers that
+    need the budget record call `build_analysis_input_with_stats`."""
+    text, _stats = build_analysis_input_with_stats(
+        contract_text, corpus_entries, by_key, promoted_specs,
+        budget_bytes=budget_bytes)
+    return text
+
+
 def analysis_input(repo_paths: dict, docs, corpus_entries: list[dict],
-                   contract_text: str) -> str:
+                   contract_text: str,
+                   budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES) -> str:
     """Build the same no-tools payload used by hosted and Cloud PC lanes."""
+    text, _stats = analysis_input_with_stats(
+        repo_paths, docs, corpus_entries, contract_text,
+        budget_bytes=budget_bytes)
+    return text
+
+
+def analysis_input_with_stats(repo_paths: dict, docs,
+                              corpus_entries: list[dict], contract_text: str,
+                              budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
+                              ) -> tuple[str, dict]:
+    """`analysis_input` plus the budget record the report and meta carry."""
     from . import corpus as corpus_mod
     by_key = {(d.repo, d.path): d for d in docs}
     promoted_specs = []
@@ -443,15 +701,17 @@ def analysis_input(repo_paths: dict, docs, corpus_entries: list[dict],
                 "status": "promoted-spec",
                 "content": spec.read_text(encoding="utf-8"),
             })
-    return build_analysis_input(
-        contract_text, corpus_entries, by_key, promoted_specs)
+    return build_analysis_input_with_stats(
+        contract_text, corpus_entries, by_key, promoted_specs,
+        budget_bytes=budget_bytes)
 
 
 def run_sweep(repo_paths: dict, docs, as_of: date, agg_root,
               previous_inventory: list[dict] | None,
               model: str = DEFAULT_MODEL,
               invoke=real_invoke,
-              inventory: list[dict] | None = None
+              inventory: list[dict] | None = None,
+              input_budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
               ) -> tuple[list[Finding], SweepMeta]:
     """Orchestrate one sweep. Deterministic except for `invoke`; any
     analysis failure yields zero findings and a recorded skip reason."""
@@ -468,7 +728,8 @@ def run_sweep(repo_paths: dict, docs, as_of: date, agg_root,
                      corpus_size=len(corpus_entries),
                      total_docs=len(inventory), model=model,
                      prompt_version=prompt_version,
-                     envelope_ref=env["job"]["id"])
+                     envelope_ref=env["job"]["id"],
+                     input_budget_bytes=input_budget_bytes)
     if agg_root is not None:
         env_dir = Path(agg_root) / "health" / "envelopes"
         env_dir.mkdir(parents=True, exist_ok=True)
@@ -482,9 +743,11 @@ def run_sweep(repo_paths: dict, docs, as_of: date, agg_root,
         meta.skipped_reason = "empty sweep corpus (no changed docs)"
         return [], meta
     try:
-        raw = invoke(
-            analysis_input(repo_paths, docs, corpus_entries, contract_text),
-            model)
+        prompt, budget_stats = analysis_input_with_stats(
+            repo_paths, docs, corpus_entries, contract_text,
+            budget_bytes=input_budget_bytes)
+        _record_budget(meta, budget_stats)
+        raw = invoke(prompt, model)
         parsed = parse_worker_output(raw)
     except Exception as exc:  # non-fatal by contract: record the skip
         meta.skipped_reason = f"analysis worker failed: {exc}"

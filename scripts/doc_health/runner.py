@@ -279,6 +279,11 @@ def run_suite(ctx, only_family: str | None, skip: set[str]) -> RunResult:
 
 
 def main(argv=None) -> int:
+    # Lazily, under its own name: `semantic` is bound as a LOCAL further
+    # down this same function (`from . import semantic`), so reading the
+    # module here under that name would be an unbound local. Only the
+    # budget default is needed at parser-build time.
+    from .semantic import DEFAULT_INPUT_BUDGET_BYTES as _INPUT_BUDGET_DEFAULT
     ap = argparse.ArgumentParser(prog="doc-health")
     scope = ap.add_mutually_exclusive_group(required=True)
     scope.add_argument("--repo-root", help="aggregation checkout")
@@ -338,6 +343,14 @@ def main(argv=None) -> int:
     ap.add_argument("--semantic-unavailable-reason",
                     help="auditable reason a dispatched findings artifact "
                          "is unavailable")
+    ap.add_argument("--semantic-input-budget-bytes", type=int,
+                    default=None, metavar="N",
+                    help="byte cap on the assembled analysis prompt "
+                         "(default %d). Documents that do not fit are "
+                         "deferred WHOLE and named in the report and in "
+                         "the bundle's meta.json; nothing is ever "
+                         "truncated mid-document."
+                         % _INPUT_BUDGET_DEFAULT)
     ap.add_argument("--semantic-claude-bin", default="claude",
                     help=argparse.SUPPRESS)  # testability: fake worker binary
     ap.add_argument("--catalog-prepare", metavar="DIR",
@@ -437,9 +450,13 @@ def main(argv=None) -> int:
             ctx.repo_paths, ctx.docs, ctx.as_of, prev_inv,
             bundle_out,
             model=args.semantic_model or _semantic.DEFAULT_MODEL,
-            inventory=inventory, allowed_output_root=bundle_root)
+            inventory=inventory, allowed_output_root=bundle_root,
+            input_budget_bytes=(args.semantic_input_budget_bytes
+                                or _INPUT_BUDGET_DEFAULT))
         print(f"sweep bundle written: {args.semantic_prepare} "
-              f"({meta['corpus_size']} docs; {meta['scope']})")
+              f"({meta['corpus_size']} docs; {meta['scope']}; "
+              f"{meta['input_bytes']} of {meta['input_budget_bytes']} "
+              f"budgeted bytes, {meta['docs_deferred']} deferred)")
         return 0
 
     if args.catalog_prepare:
@@ -572,7 +589,9 @@ def main(argv=None) -> int:
 
         sem_findings, semantic_meta = semantic.run_sweep(
             ctx.repo_paths, ctx.docs, ctx.as_of, ctx.agg_root, prev_inv,
-            model=model, invoke=_invoke, inventory=inventory)
+            model=model, invoke=_invoke, inventory=inventory,
+            input_budget_bytes=(args.semantic_input_budget_bytes
+                                or _INPUT_BUDGET_DEFAULT))
         result.findings.extend(sem_findings)
         result.findings.sort(key=Finding.sort_key)
 

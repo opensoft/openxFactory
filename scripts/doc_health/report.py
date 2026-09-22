@@ -540,6 +540,16 @@ def render(run_date: date, findings: list[Finding], skips, preflight_log,
         out.append(f"- scope: {semantic_meta.scope} ({declared})")
         out.append(f"- corpus: {semantic_meta.corpus_size} of "
                    f"{semantic_meta.total_docs} docs")
+        # add-worker-input-budget: what actually reached the worker. A
+        # deferred document is NOT a swept document -- saying so here is
+        # what keeps its prior findings from reading as resolved.
+        out.append(
+            f"- input: {semantic_meta.input_bytes} of "
+            f"{semantic_meta.input_budget_bytes} budgeted bytes, "
+            f"{semantic_meta.docs_included} docs sent, "
+            f"{semantic_meta.docs_deferred} deferred")
+        for path in semantic_meta.deferred:
+            out.append(f"  - deferred (input budget): {path}")
         out.append(f"- model: {semantic_meta.model}, prompt contract "
                    f"v{semantic_meta.prompt_version}")
         out.append(f"- job envelope: {semantic_meta.envelope_ref}")
