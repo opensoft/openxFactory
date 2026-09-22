@@ -2176,3 +2176,67 @@ def test_the_reproduction_archive_is_NOT_ASKED_rather_than_a_hang(tmp_path,
         f"pass nor fail; got {ok!r} — {detail}")
     assert "NOT ASKED rather than answered" in detail, detail
     assert "timed out after 30s" in detail, detail
+
+
+# -------------------------------------------------------------------------
+# OSError coverage beside the timeout coverage (Copilot, PR #1142)
+#
+# #1098 measured the gap as TWO-part: no `timeout=` AND no `try`/`except` at
+# all. The tests above pin the timeout half at each site; these pin the other
+# half on its own, so a later edit that narrowed the `except` back to
+# `TimeoutExpired` alone would go red rather than pass quietly on the strength
+# of the timeout tests.
+# -------------------------------------------------------------------------
+
+def test_a_git_that_cannot_run_answers_the_same_failed_read_shape(tmp_path,
+                                                                  monkeypatch):
+    """A REAL unrunnable git — an emptied `PATH`, nothing exec'able called
+    `git` — must come back as the same `CompletedProcess` a timed-out one
+    does. Before #1128 this raised `FileNotFoundError` out of whichever
+    reachability read was in progress."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    empty_bin = tmp_path / "empty-bin-shape"
+    empty_bin.mkdir()
+    monkeypatch.setenv("PATH", str(empty_bin))
+
+    got = pc._git(repo, "rev-parse", "HEAD")
+
+    assert isinstance(got, subprocess.CompletedProcess)
+    assert got.returncode == 1
+    assert got.stdout == ""
+    assert "could not be performed" in got.stderr, got.stderr
+    assert "rev-parse" in got.stderr
+
+
+def test_a_reconstruction_that_cannot_run_git_is_NOT_ASKED(tmp_path,
+                                                           monkeypatch):
+    """The third site's OSError arm. An emptied `PATH` cannot be used here —
+    the reads BEFORE the archive are `_git` calls too, so the function would
+    answer "not committed" and never reach the reconstruction — so only the
+    archive's spawn fails, which is also the honest shape of the real hazard
+    (a `git` that is there but cannot be exec'd for this one call)."""
+    repo = _init(tmp_path / "unrunnable-archive")
+    _write(repo, "ideation/brainstorm/one.md", "# one\n\nStatus: brainstorm\n")
+    pin = _commit(repo, "corpus")
+    _write(repo, "ideation/cross-reference.yaml", yaml.safe_dump(
+        {"schema_version": 1, "kind": "ideation-cross-reference",
+         "generation": {"source_revision": pin}, "topic_entries": []},
+        sort_keys=False))
+    _commit(repo, "index pinning the corpus commit")
+
+    real_run = subprocess.run
+
+    def archive_cannot_run(argv, **kwargs):
+        if "archive" in list(argv):
+            raise PermissionError(13, "Permission denied")
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", archive_cannot_run)
+    ok, detail = ir.index_reproduces_at(repo, pin)
+
+    assert ok is None, (
+        f"a reconstruction that could not be SPAWNED is NOT ASKED, exactly as "
+        f"one that timed out is; got {ok!r} — {detail}")
+    assert "NOT ASKED rather than answered" in detail, detail
+    assert "git could not be run" in detail, detail
+    assert "Permission denied" in detail, detail

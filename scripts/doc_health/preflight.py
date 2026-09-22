@@ -8,6 +8,8 @@ convention.
 
 from __future__ import annotations
 
+import os
+import signal
 import subprocess
 from pathlib import Path
 
@@ -43,6 +45,82 @@ _OPENX_NOARG = (
 # all — which is the outcome an unbounded call, or a far larger bound, gives.
 _ENTRYPOINT_TIMEOUT_SECONDS = 120
 
+# How long the group kill itself is given to drain the pipes before the finding
+# is recorded anyway. Something that outlives SIGKILL (an uninterruptible wait,
+# a namespace this process may not signal) must not become the very block the
+# bound above exists to prevent.
+_GROUP_REAP_SECONDS = 5
+
+
+def _terminate_group(proc: subprocess.Popen) -> None:
+    """SIGKILL the whole session the child was given, not just the child.
+
+    `subprocess.run(timeout=…)` kills and reaps the DIRECT child only, and
+    every entrypoint here is a wrapper whose real work is done by children of
+    its own: `bash scripts/validate-docs.sh`, `make validate`, or a python
+    validator that spawns git (`validate-domain-openxfactory-pins.py` has its
+    own `_git`). Killing only the wrapper would leave that work — including a
+    network read — running after the finding is recorded, and a nightly that
+    times out repeatedly would accumulate them (Copilot, PR #1142).
+
+    MEASURED, not argued: with the parent-only kill this file carried one
+    commit ago, a `bash` wrapper's backgrounded child was still RUNNING (not
+    even a zombie) after the bound fired. With the group kill it is dead
+    before the finding is recorded.
+
+    A surviving grandchild can ALSO hold the inherited stdout/stderr pipe
+    open, which would make the drain after a kill wait on the very process
+    the bound just gave up on. That did NOT reproduce in the measurement
+    above — the drain returned at once — so it is named here as the reason
+    the drain below is itself bounded, not as a defect anyone observed.
+
+    POSIX only, and guarded rather than assumed: where there are no process
+    groups the direct child is all there is to kill, which is exactly the
+    behaviour `subprocess.run` already had."""
+    if os.name != "posix" or not hasattr(os, "killpg"):
+        proc.kill()
+        return
+    try:
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+    except OSError:
+        # `ProcessLookupError` (already gone) and `PermissionError` (not ours
+        # to signal) are the two expected shapes, and both are `OSError`; the
+        # direct child is still ours either way.
+        proc.kill()
+
+
+def _run_entrypoint(cmd: list[str], cwd: Path,
+                    env: dict) -> subprocess.CompletedProcess:
+    """`subprocess.run(capture_output=True, text=True, timeout=…)`, except
+    that a timeout takes the entrypoint's DESCENDANTS down with it.
+
+    `run()` cannot do this itself — on timeout it kills its own child and
+    re-raises, and by then the `Popen` it built is out of reach — so the one
+    site that spawns wrappers builds the `Popen` here instead. Every other
+    semantic `run()` gave is kept: captured text output, the same
+    `CompletedProcess` on success, the same `OSError` when the command cannot
+    be spawned at all, and the same `subprocess.TimeoutExpired` re-raised to
+    the caller after the group is gone."""
+    proc = subprocess.Popen(
+        cmd, cwd=cwd, env=env, text=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        start_new_session=(os.name == "posix"))
+    try:
+        out, err = proc.communicate(timeout=_ENTRYPOINT_TIMEOUT_SECONDS)
+    except subprocess.TimeoutExpired:
+        _terminate_group(proc)
+        try:
+            proc.communicate(timeout=_GROUP_REAP_SECONDS)
+        except subprocess.TimeoutExpired:
+            pass                      # see _GROUP_REAP_SECONDS
+        raise                         # the ORIGINAL timeout, for the caller
+    except BaseException:
+        # A KeyboardInterrupt or anything else out of the wait must not strand
+        # the session this function created.
+        _terminate_group(proc)
+        raise
+    return subprocess.CompletedProcess(cmd, proc.returncode, out, err)
+
 
 def _entrypoints(repo: str, repo_path: Path,
                  domain_paths: list[Path]) -> list[list[str]]:
@@ -76,11 +154,9 @@ def run_preflight(repo_paths: dict[str, Path]):
             continue
         for cmd in cmds:
             try:
-                proc = subprocess.run(cmd, cwd=repo_path, capture_output=True,
-                                      text=True,
-                                      timeout=_ENTRYPOINT_TIMEOUT_SECONDS,
-                                      env={**__import__("os").environ,
-                                           "DOC_HEALTH_PREFLIGHT": "1"})
+                proc = _run_entrypoint(
+                    cmd, repo_path,
+                    {**os.environ, "DOC_HEALTH_PREFLIGHT": "1"})
             except (OSError, subprocess.TimeoutExpired) as exc:
                 # #1128: an entrypoint that never returns used to block
                 # `run_suite` (runner.py:227) before a single family ran — it
@@ -91,7 +167,9 @@ def run_preflight(repo_paths: dict[str, Path]):
                 # same path so regression matching is unchanged, with the
                 # reason standing in for the output tail there is none of. An
                 # unrunnable entrypoint (`OSError` — no `bash`, no `make`)
-                # takes the same route: it was never caught here either.
+                # takes the same route: it was never caught here either. The
+                # timeout has already taken the whole process group with it by
+                # the time this runs — see `_terminate_group`.
                 reason = (
                     f"timed out after {_ENTRYPOINT_TIMEOUT_SECONDS}s"
                     if isinstance(exc, subprocess.TimeoutExpired)
