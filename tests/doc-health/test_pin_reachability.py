@@ -1425,7 +1425,15 @@ def _real_report():
                     f"({', '.join(pc.MAIN_REF_ORDER)}); reachability is a fact "
                     "about the clone here, not about any artifact")
     truncated, observed = pc.is_truncated(repo)
-    if truncated:
+    # `is not False` RATHER THAN A TRUTH TEST, because `is_truncated` answers
+    # THREE states since PR #1142 and `None` — the observation could not be
+    # MADE — is falsey. A truth test here would fall through to `verify()` and
+    # assert `report.clean`, which deliberately EXCLUDES `inconclusive`, so an
+    # unobservable truncation could let this proof pass over unanswered results
+    # whenever the remaining pins happened to be reachable (Copilot, PR #1142).
+    # A question that could not be asked skips for the same reason a truncated
+    # clone does: neither is a fact about an artifact.
+    if truncated is not False:
         pytest.skip(f"{repo} cannot answer the question: {observed}")
     report = pc.verify(repo)
     # The retention half of the ref set is a REMOTE read, so a machine with no
@@ -1469,6 +1477,9 @@ def test_this_repository_resolves_the_main_half_of_the_ref_set():
     assert ref in pc.MAIN_REF_ORDER
     assert pc.FULL_SHA_RE.match(sha)
     truncated, observed = pc.is_truncated(repo)
+    if truncated is None:
+        pytest.skip(f"{repo}'s truncation could not be OBSERVED, so this "
+                    f"precondition is unanswered rather than met: {observed}")
     if truncated:
         pytest.skip(f"{repo} is genuinely truncated, which is a fact about the "
                     f"clone rather than a configuration defect: {observed}")
