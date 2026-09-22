@@ -6072,12 +6072,84 @@ realization evidence, never on landing. Each line is its own evidence.
   and NOT a pair chosen after seeing the run.** Three clauses, three evidence
   lines, each measured by the archiving act at the tree it names:
   **(1) `python3 -m pytest tests/doc-health tests/sequenced_after -q`** —
-  `<<REHOME: pytest counts>>`.
+  **BEFORE at the base `cd246a01` and AFTER at this pull request's head are
+  IDENTICAL — `1 failed, 2185 passed, 8 skipped` — so the archive adds ZERO test
+  failures.** The one failure is
+  `tests/doc-health/test_sentinel_vocabulary.py::test_the_pin_counts_did_not_move_and_no_site_is_classified_twice`
+  (`assert len(report.lost) == 1`, measured 0), and it is **A LOCAL-CLONE
+  ARTIFACT, NOT A CORPUS FACT**: `pytest-suite` on `main` at that same
+  `cd246a01`'s predecessor `7c49825e` is SUCCESS (run `35675861095`), and the
+  same test fails identically in a clean checkout of `main` with nothing applied.
+  The two assertions immediately above it pass, so only the `lost` arm is
+  affected. **THE CI SUITE IS WIDER THAN THIS COMMAND AND IT CAUGHT MORE:**
+  `pytest tests/` on the first pushed head reddened `tests/code_surface/`, which
+  this box's own command never runs — three register entries whose
+  `retires_when:` reads "or the packet archives" had to be retired, and they are,
+  in this same pull request. One further test, the
+  `modified-block-currency` self-gate, had its named subject removed from canon
+  by this archive's own `## REMOVED` block and was re-aimed in the same pull
+  request, which is what that module's failure message instructs.
   **(2) `OPENSPEC_TELEMETRY=0 openspec validate --all --strict`** —
-  `<<REHOME: strict-validate delta>>`.
+  **108 items, 107 passed, 1 failed at this pull request's head; 107 items,
+  106 passed, 1 failed at the base `cd246a01`. NOT EXIT 0, AND THE FAILURE IS
+  NAMED: `change/add-chain-attestation`** — *`signed-execution-chain/spec.md`:
+  MODIFIED "A gate validates the short chain as a hash-linked chain" omits
+  scenario(s) the current spec still has: "a tranche-two link does not exist
+  yet"* — ANOTHER change's MODIFIED block, red on `main` before this branch
+  existed and asked of lane `openxfactory-1` by name at `#656` comment
+  `5767267092`. **The archive's own contribution to this command is +1 item, +1
+  passed and ZERO new failures.** Measured in three states so the attribution is
+  not inferred: 106/1 at the base, 105/**3** with the CLI's two `TBD` Purpose
+  placeholders left in place, and 107/1 once real `## Purpose` text is written —
+  which is the fix § 8.4 registered in advance and this pull request carries.
+  **THIS BOX'S TICK STANDS ONLY ON AN EXIT-0 AFTER FOR THIS CLAUSE, AND THE AFTER
+  IS EXIT 1.** The condition is a sibling's to discharge; if
+  `add-chain-attestation` is not folded before this pull request lands, the
+  bookkeeper re-cuts this box into the `[~]` DEFERRED contingency its own
+  archive-amendment names, and the count at (xi) becomes
+  `67 [x] / 0 [ ] / 5 [~] of 72`. The rehome-lander does not flip a marker it
+  does not own, and states the condition here rather than filling a red under a
+  tick and saying nothing.
   **(3) the doc-health BEFORE→AFTER record, per family and per severity with
   `info` included, and a named reason for every finding that ENTERED, LEFT or
-  CHANGED SEVERITY** — `<<REHOME: doc-health deltas per family>>`.
+  CHANGED SEVERITY** — **BASELINE FIXED AND PUBLISHED BEFORE THE AFTER RUN** (`brett-wip`
+  `003fc795`): this pull request's OWN BASE, `main`
+  `cd246a012645d1d97047cc40427f66f43440401f`; AFTER is this pull request's own
+  head; both trees the SAME KIND (a plain `git clone --filter=blob:none` with
+  `openDox` and `openXdox` materialized), and doc-health run FROM the tree it
+  measures rather than pointed at it. **SCOPE NAMED FIRST, BOTH REPORTED, NEVER
+  NETTED TOGETHER.**
+  **(A) `--single-repo . --as-of 2026-09-22`** — TOTAL
+  `31→31 critical, 28→25 error, 37→37 warning, 20→20 info`; canon share 42.1%
+  (414,832/985,117) → 39.5% (371,871/942,156); new regressions 0 at both ends;
+  the same five families skipped at both ends and each named. Per family, every
+  one unmoved except one: `document-catalog` 0/0/0/1→1, `ideation-routing`
+  0/0/2/2, `modified-block-currency` 0/0/0/12, **`promotion-fidelity`
+  error 20→17**, `ratified-provenance` 27 critical, `record-immutability` 4
+  critical, `release-inventory-drift` 3 error + 3 info,
+  `release-tag-publication` 1 info, `staged-candidate-aging` 34 warning + 1 info,
+  `staged-topic-template` 1 warning, `tag-hygiene` 5 error. **ENTERED 0, CHANGED
+  SEVERITY 0, LEFT 3** — the `add-composed-view-authoring`,
+  `add-doxchat-model-intake` and `add-nightly-dashboard-refresh`
+  `specs/ideation-dashboard/spec.md` scenario-completeness findings — and the
+  reason is ONE reason: each names a title that reached canon incompletely, and
+  this archive's `## REMOVED` block removes those titles from canon, so there is
+  no incomplete promotion left to report. Nothing was suppressed and no
+  disposition was added. The canon-share fall is the same event from the other
+  side: canon and governance words fall by the identical 42,961.
+  **(B) aggregation `--repo-root`, `health/` from `opensoft/xFactory`
+  `cfe27de3`** — `16→16 critical, 949→951 error, 3300→3300 warning, 33→33 info`;
+  only `document-catalog` moves, 941→943. **ENTERED 2, LEFT 0, CHANGED SEVERITY
+  0**: `[coverage] document has no catalog entry` on
+  `openspec/specs/corpus-adapter-seam/spec.md` and
+  `openspec/specs/domain-mapping-declaration/spec.md`, the two capabilities this
+  archive promoted, both `class="auto-fixable"`. The remedy is NOT in this
+  repository — the catalog baseline lives at the aggregation root — so the
+  mechanical catalog pass for these two belongs to the xFactory sync that follows
+  this landing. `promotion-fidelity` contributes ZERO in aggregation mode at both
+  ends, the dispositions suppressing the family entirely, which is exactly why
+  (A) and (B) are reported apart. Full record, finding by finding:
+  `review/archive-record-2026-09-22.md`.
   **THE BASELINE IS FIXED BEFORE THE RUN AND NAMED AS A SHA** — the archive pull
   request's OWN BASE commit, the last pre-archive `main`, stated together with the
   doc-health invocation; **the AFTER is bound the same way**, naming that pull
