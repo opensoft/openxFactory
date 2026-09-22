@@ -368,6 +368,22 @@ def _inside_a_pinned_mount(prefix: str) -> bool:
         target = _resolved(mount)
         if target is None or resolved.is_relative_to(target):
             return True
+        # AND WHERE THE BYTES WOULD ACTUALLY LAND, WHICH IS NOT THE PREFIX
+        # ITSELF (Copilot, PR #1132 round 4). In prefix mode CPython does not
+        # put the cache AT the prefix: `cache_from_source()` builds the
+        # directory as `_path_join(sys.pycache_prefix, head.lstrip(
+        # path_separators))` — the source's own absolute directory appended
+        # to the prefix — and drops the `__pycache__` component entirely. So
+        # the filesystem ROOT maps a leg module straight back BESIDE ITS OWN
+        # SOURCE, inside the pin. MEASURED: with `PYTHONPYCACHEPREFIX=/`,
+        # `cache_from_source(<leg>/src/openxdox/generator.py)` is
+        # `<leg>/src/openxdox/generator.cpython-312.pyc`. A predicate about
+        # where a prefix IS cannot answer that; this one asks where the
+        # bytes GO, so the root is refused as the case it is rather than as
+        # a special one.
+        mapped = _resolved(resolved / str(target).lstrip("/"))
+        if mapped is None or mapped.is_relative_to(target):
+            return True
     return False
 
 

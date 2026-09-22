@@ -1866,7 +1866,7 @@ def test_a_prefix_the_process_chose_outside_the_pins_is_left_alone(
 
 
 @pytest.mark.parametrize("spelling", ["mount", "code", "src", "relative",
-                                      "symlink"])
+                                      "symlink", "root"])
 def test_a_host_prefix_inside_a_pin_is_replaced_rather_than_kept(
         spelling, monkeypatch, tmp_path):
     """KEEPING EVERY NON-`None` PREFIX WAS THE HOLE (Copilot, PR #1132), and
@@ -1880,13 +1880,22 @@ def test_a_host_prefix_inside_a_pin_is_replaced_rather_than_kept(
     crafted cache had executed. A RELATIVE prefix is in the same class
     because CPython resolves it at write time against a working directory
     this runner does not control, and a SYMLINK into a leg is the same
-    placement under another name."""
+    placement under another name.
+
+    `/` IS THE ONE THAT LOOKS SAFE AND IS NOT (Copilot, PR #1132 round 4):
+    in prefix mode CPython appends the SOURCE'S OWN absolute directory to
+    the prefix and drops the `__pycache__` component, so the filesystem root
+    maps a leg module straight back beside its own source. Measured — with
+    `PYTHONPYCACHEPREFIX=/`,
+    `cache_from_source(<leg>/src/openxdox/generator.py)` is
+    `<leg>/src/openxdox/generator.cpython-312.pyc`."""
     mount = MODULE.pinned_mounts()[0]
     chosen = {"mount": str(mount),
               "code": str(mount / "code"),
               "src": str(mount / "code" / "src"),
               "relative": ".pycache",
-              "symlink": str(tmp_path / "link")}[spelling]
+              "symlink": str(tmp_path / "link"),
+              "root": "/"}[spelling]
     if spelling == "symlink":
         Path(chosen).symlink_to(mount, target_is_directory=True)
     monkeypatch.setitem(sys.modules, "carved_reach", _fake_reach())
@@ -2020,7 +2029,11 @@ def test_the_pins_and_the_mounts_a_cache_is_kept_out_of_are_the_same_set():
                    for root in carved_reach._PINNED_MOUNTS), mount
     for leg in MODULE.IMPORTED_LEGS:
         assert MODULE.inside_a_pinned_mount(str(MODULE.ROOT / leg))
+    assert MODULE.inside_a_pinned_mount("/"), "the root maps back into a pin"
+    assert carved_reach._inside_a_pinned_mount("/")
     assert not MODULE.inside_a_pinned_mount(str(MODULE.BYTECODE_HOME))
+    assert not carved_reach._inside_a_pinned_mount(
+        str(carved_reach.BYTECODE_HOME))
 
 
 def test_a_run_writes_no_bytecode_into_either_pinned_leg():
@@ -2123,6 +2136,7 @@ def test_the_reach_takes_every_importers_bytecode_out_of_the_legs(tmp_path):
     assert probe(str(REPO_ROOT / "openXdox")) == str(
         carved_reach.BYTECODE_HOME)
     assert probe(".pycache") == str(carved_reach.BYTECODE_HOME)
+    assert probe("/") == str(carved_reach.BYTECODE_HOME)
 
 
 def test_the_refusal_names_which_archive_path_the_tree_lacks(tmp_path):
