@@ -2087,34 +2087,93 @@ def test_the_lower_readers_degrade_rather_than_raise_through_a_timeout(
         tmp_path, monkeypatch):
     """The other reads reached through `_git` answer rather than raise, exactly
     as they do today when git exits non-zero. This pins that the bound did not
-    quietly introduce an exception on paths whose contract is a value: nothing
-    in `is_truncated`, `resolve_main`, `reachable_from_main` or
-    `remote_retention_refs` changes shape, and `remote_retention_refs` — the
-    one that REPORTS its reason — carries the timeout through to its detail.
+    quietly introduce an exception on paths whose contract is a value:
+    `resolve_main` and `remote_retention_refs` do not change shape, and the
+    latter — the one that REPORTS its reason — carries the timeout through to
+    its detail.
 
-    `is_truncated` answering `False` here is NOT this bound's doing and is
-    asserted rather than hidden: it is what that reader already answers when
-    git exits non-zero on both probes, because its contract is a `(bool, str)`
-    observation with no third state. It is unreachable on the hot path anyway —
-    `verify()` raises `GitUnavailable` on its `rev-parse` before ever calling
-    it — and giving it one would change a caller contract this fix is not
-    allowed to move (#1128).
+    TWO OF THEM NOW ANSWER A THIRD STATE, AND THAT REVERSES A SCOPING DECISION
+    THIS TEST USED TO PIN. Until Copilot's review of PR #1142 this test asserted
+    `is_truncated(...) -> False` and `reachable_from_main(...) -> False` under a
+    timeout, on the ground that a third state "would change a caller contract
+    this fix is not allowed to move". The review measured what that costs and
+    the cost is not payable: `--is-ancestor` reports "not an ancestor" by
+    EXITING NON-ZERO, so a timed-out probe became a confident `False` and
+    `verify()` published it as **HISTORICAL or ORPHAN** — a pin declared
+    unreached by `main` on a question nobody got to ask. `is_truncated` was
+    worse in kind, returning the sentence "`--is-shallow-repository` is false
+    for <repo> and it declares no promisor remote", which asserts two
+    observations that were never made under a docstring whose first line
+    promises "OBSERVED not conjectured".
+
+    **The bound introduced that path, so the bound owns it.** Both now answer
+    `None` for "could not be asked", which is the distinction this module
+    already keeps everywhere else — `remote_retention_refs` refuses to collapse
+    an unaskable namespace into an empty one, and `verify()` already renders
+    `could not be performed` as INCONCLUSIVE for the retention read.
     """
     repo, _, _ = orphaned_pin_repo(tmp_path)
     monkeypatch.setattr(subprocess, "run", _raise_timeout)
 
     truncated, observed = pc.is_truncated(repo)
-    assert truncated is False and isinstance(observed, str), (
-        "unchanged from what a non-zero git already answers here")
+    assert truncated is None, (
+        "an unmade observation must not be reported as the observation "
+        "`False`, whose detail string names two probes that never ran")
+    assert "could not be observed" in observed, observed
     assert pc.resolve_main(repo) is None, (
         "no ref could be resolved, which is what None already means here")
-    assert pc.reachable_from_main(repo, "deadbeef", "refs/heads/main") is False
+    assert pc.reachable_from_main(repo, "deadbeef", "refs/heads/main") is None, (
+        "an ancestry question that could not be PUT is not the answer 'not an "
+        "ancestor'; `--is-ancestor` spells that answer with the same non-zero "
+        "exit a timeout now produces")
     index, detail = pc.remote_retention_refs(repo)
     assert index is None, (
         "an unaskable namespace must stay None — an empty dict would be "
         "indistinguishable from an empty namespace, which is the distinction "
         "this reader's own docstring exists to keep")
     assert "could not be performed" in detail, detail
+
+
+def test_an_unaskable_ancestry_is_INCONCLUSIVE_and_never_orphan_or_historical(
+        tmp_path, monkeypatch):
+    """`verify()` reports the scenario Copilot named on PR #1142, end to end.
+
+    The hot path raises `GitUnavailable` when the FIRST `rev-parse` cannot be
+    performed, so a blanket timeout never reaches the ancestry read at all —
+    which is why the defect needed a test that lets the opening probe succeed
+    and fails only the probe after it. That is this test: real git answers
+    everything except `merge-base --is-ancestor`, which is made unaskable.
+
+    Without the fix the run reports the pin **ORPHAN or HISTORICAL** — a
+    verdict about ancestry, published from a question that was never put. With
+    it the site is INCONCLUSIVE and the reason says so, which is what this
+    module does everywhere else an answer is unavailable."""
+    repo, orphan, _ = orphaned_pin_repo(tmp_path)
+    real_git = pc._git
+
+    def _ancestry_is_unaskable(target, *args, **kwargs):
+        if args[:2] == ("merge-base", "--is-ancestor"):
+            argv = ["git", "-C", str(target), *args]
+            return pc._Unavailable(
+                args=argv, returncode=1, stdout="",
+                stderr=f"`{' '.join(argv)}` could not be performed: timed out")
+        return real_git(target, *args, **kwargs)
+
+    monkeypatch.setattr(pc, "_git", _ancestry_is_unaskable)
+    report = pc.verify(repo, allow_remote=False)
+
+    for result in report.results:
+        assert result.verdict != pc.ORPHAN, (
+            "an unaskable ancestry must never be published as ORPHAN: "
+            f"{result.how}")
+        assert result.verdict != pc.HISTORICAL, (
+            "an unaskable ancestry must never be published as HISTORICAL: "
+            f"{result.how}")
+    inconclusive = [r for r in report.results if r.verdict == pc.INCONCLUSIVE]
+    assert inconclusive, "the unaskable ancestry must surface as INCONCLUSIVE"
+    assert any("could not be consulted" in r.how for r in inconclusive), (
+        "the reason must say the question was not answerable rather than "
+        f"answered: {[r.how for r in inconclusive]}")
 
 
 def test_a_check_true_caller_is_raised_at_rather_than_handed_a_failure(

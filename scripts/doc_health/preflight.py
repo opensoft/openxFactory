@@ -78,7 +78,7 @@ def _terminate_group(proc: subprocess.Popen) -> None:
     groups the direct child is all there is to kill, which is exactly the
     behaviour `subprocess.run` already had."""
     if os.name != "posix" or not hasattr(os, "killpg"):
-        proc.kill()
+        _kill_direct(proc)
         return
     try:
         os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
@@ -86,7 +86,32 @@ def _terminate_group(proc: subprocess.Popen) -> None:
         # `ProcessLookupError` (already gone) and `PermissionError` (not ours
         # to signal) are the two expected shapes, and both are `OSError`; the
         # direct child is still ours either way.
+        _kill_direct(proc)
+
+
+def _kill_direct(proc: subprocess.Popen) -> None:
+    """`proc.kill()`, and an already-gone child is not an error.
+
+    THE FALLBACK MUST NOT RAISE THE RACE IT IS THE FALLBACK FOR (Copilot,
+    PR #1142). Every caller of `_terminate_group` is inside
+    `_run_entrypoint`'s `except subprocess.TimeoutExpired` handler, whose whole
+    job is to RE-RAISE that timeout so `run_preflight` can turn it into a
+    finding. If the child exits between `communicate()` timing out and this
+    cleanup, `os.getpgid()` raises `ProcessLookupError` — which is why the
+    fallback exists — and a bare `proc.kill()` can then raise the SAME
+    `ProcessLookupError` from inside the `except` that was handling it. That
+    second exception REPLACES the `TimeoutExpired`, escapes `run_preflight`'s
+    handler, and takes the run down at precisely the moment an entrypoint was
+    supposed to become an ordinary preflight finding.
+
+    So the direct kill swallows `OSError` and nothing else: a child that is
+    already gone needs no killing, and a signal we are not permitted to send
+    is not a reason to lose the timeout. Every other exception still
+    propagates."""
+    try:
         proc.kill()
+    except OSError:
+        pass
 
 
 def _run_entrypoint(cmd: list[str], cwd: Path,

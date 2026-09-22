@@ -1733,23 +1733,66 @@ def _git(repo, *args, check: bool = False):
     except (OSError, subprocess.TimeoutExpired) as exc:
         if check:
             raise
-        return subprocess.CompletedProcess(
+        return _Unavailable(
             args=argv, returncode=1, stdout="",
             stderr=f"`{' '.join(argv)}` could not be performed: {exc}")
 
 
-def is_truncated(repo) -> tuple[bool, str]:
+class _Unavailable(subprocess.CompletedProcess):
+    """A `CompletedProcess` for a git that could not be ASKED.
+
+    IT IS STILL A NON-ZERO `CompletedProcess`, so the seven callers that only
+    ever needed "this did not succeed" are unchanged, exactly as the
+    translation above intends. What it adds is that the two callers for which
+    "git said NO" and "git could not be asked" mean DIFFERENT THINGS can now
+    tell them apart — and they must, because this module's own doctrine is
+    that an unanswerable question is INCONCLUSIVE and never an answer: see
+    `retention_holder`, whose unconsultable remote "the caller reports as
+    INCONCLUSIVE rather than as an orphan", and `verify()`'s own
+    `could not be performed` branch, which already renders exactly this
+    condition that way for the retention namespace.
+
+    A SUBCLASS RATHER THAN A SENTINEL RETURNCODE, deliberately: a
+    distinguishing exit code would collide the day a real `git` chose the same
+    number, and a parallel out-of-band flag would be one more thing a caller
+    could forget to read. `isinstance` cannot be spoofed by a git that merely
+    exits oddly, and it keeps every existing `.returncode` / `.stdout` /
+    `.stderr` read working untouched."""
+
+
+def unavailable(result) -> bool:
+    """Whether `result` is a git that could not be ASKED, not one that said no."""
+    return isinstance(result, _Unavailable)
+
+
+def is_truncated(repo) -> tuple[bool | None, str]:
     """Whether the clone's history is truncated, OBSERVED not conjectured.
 
     Returns `(truncated, what-was-observed)`. Shallow and partial (filtered)
     clones both answer a reachability question about themselves rather than
     about an artifact, which is the split the promoted readiness requirement
-    already draws and this module reuses rather than re-spells."""
+    already draws and this module reuses rather than re-spells.
+
+    `None` MEANS THE OBSERVATION COULD NOT BE MADE, and it exists because this
+    docstring's first line is a promise (Copilot, PR #1142). A probe that TIMED
+    OUT returns non-zero exactly like a probe that answered "no", so before this
+    the function fell through to `False` and reported "`--is-shallow-repository`
+    is false for <repo> and it declares no promisor remote" — a sentence
+    asserting TWO observations that were never made. Conjecture wearing the
+    words of an observation is the one thing the first line rules out, so an
+    unavailable probe now answers `None` with its reason and `verify()` renders
+    it INCONCLUSIVE."""
     shallow = _git(repo, "rev-parse", "--is-shallow-repository")
+    if unavailable(shallow):
+        return None, ("the clone's truncation could not be observed: "
+                      f"{shallow.stderr.strip()}")
     if shallow.returncode == 0 and shallow.stdout.strip() == "true":
         return True, ("`git rev-parse --is-shallow-repository` is true for "
                       f"{repo}")
     promisor = _git(repo, "config", "--get-regexp", r"^remote\..*\.promisor")
+    if unavailable(promisor):
+        return None, ("the clone's truncation could not be observed: "
+                      f"{promisor.stderr.strip()}")
     if promisor.returncode == 0 and promisor.stdout.strip():
         return True, (f"{repo} is a partial clone "
                       f"({promisor.stdout.strip().splitlines()[0]})")
@@ -1781,12 +1824,25 @@ def resolve_main(repo) -> tuple[str, str] | None:
     return None
 
 
-def reachable_from_main(repo, pin: str, main_ref: str) -> bool:
+def reachable_from_main(repo, pin: str, main_ref: str) -> bool | None:
     """`git merge-base --is-ancestor <pin> <main_ref>` — git's own ancestry
     relation, nothing invented. NOT `cat-file`: an object surviving in this
-    clone's store is not reachability (see the module docstring)."""
-    return _git(repo, "merge-base", "--is-ancestor", pin, main_ref
-                ).returncode == 0
+    clone's store is not reachability (see the module docstring).
+
+    `None` MEANS THE QUESTION COULD NOT BE PUT, and it is the difference
+    between a verdict and a guess (Copilot, PR #1142). `--is-ancestor` reports
+    "not an ancestor" by EXITING NON-ZERO, which is the same shape a timed-out
+    or unspawnable git now returns — so before this, a bound that fired here
+    became a confident `False` and `verify()` published it as HISTORICAL or
+    ORPHAN: a pin declared unreached by `main` on the strength of a question
+    nobody got to ask. `remote_retention_refs` already refuses that trade in as
+    many words — "never an empty dict, which would be indistinguishable from
+    the namespace is empty, and would silently convert an unaskable question
+    into an answer" — and the ancestry probe owes the same refusal."""
+    got = _git(repo, "merge-base", "--is-ancestor", pin, main_ref)
+    if unavailable(got):
+        return None
+    return got.returncode == 0
 
 
 def remote_retention_refs(repo, remote: str = "origin"
@@ -2542,7 +2598,21 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
                     f"{', '.join(MAIN_REF_ORDER)}), so the branch half of the "
                     f"ref set could not be consulted"))
                 continue
-            if reachable_from_main(repo, site.pin, main_ref):
+            reached = reachable_from_main(repo, site.pin, main_ref)
+            if reached is None:
+                # THE ANCESTRY QUESTION COULD NOT BE PUT, so it is not
+                # answered. HISTORICAL is reserved for the concrete,
+                # asked-and-not-reached outcome — the same distinction the
+                # `main_ref is None` branch above already draws, reached here
+                # by a git that could not be ASKED rather than by a ref that
+                # was not there.
+                results.append(PinResult(
+                    site, INCONCLUSIVE,
+                    f"the ancestry of `{site.pin}` against {main_ref} could "
+                    f"not be consulted, so the question was not answerable "
+                    f"rather than answered"))
+                continue
+            if reached:
                 results.append(PinResult(site, PASS,
                                          f"ancestor of {main_ref}"))
                 continue
@@ -2565,7 +2635,18 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
                 f"{', '.join(MAIN_REF_ORDER)}), so the branch half of the ref "
                 f"set could not be consulted"))
             continue
-        if reachable_from_main(repo, site.pin, main_ref):
+        reached = reachable_from_main(repo, site.pin, main_ref)
+        if reached is None:
+            # As above: unaskable is INCONCLUSIVE, never ORPHAN. Falling
+            # through here would spend a remote round trip chasing retention
+            # for a pin whose ancestry was never actually tested.
+            results.append(PinResult(
+                site, INCONCLUSIVE,
+                f"the ancestry of `{site.pin}` against {main_ref} could not "
+                f"be consulted, so the question was not answerable rather "
+                f"than answered"))
+            continue
+        if reached:
             results.append(PinResult(site, PASS, f"ancestor of {main_ref}"))
             continue
         if allow_remote and not listed_remote:
@@ -2578,6 +2659,13 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
             remote_index=remote_index, remote_error=remote_error)
         if where is not None:
             results.append(PinResult(site, PASS, f"retained: {detail}"))
+            continue
+        if truncated is None:
+            results.append(PinResult(
+                site, INCONCLUSIVE,
+                f"the clone's truncation could not be observed, so whether "
+                f"this pin is absent or merely out of this clone's reach is "
+                f"unanswered: {truncation}; {detail}"))
             continue
         if truncated:
             results.append(PinResult(
