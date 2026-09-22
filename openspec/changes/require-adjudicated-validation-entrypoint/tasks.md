@@ -65,8 +65,16 @@ realization and does not perform it.
       block.
 - [x] 2.5 **The machine-seeded sweep-ledger row** in
       `tests/sequenced_after/corpus-ledger.yaml`, written by the sanctioned
-      `python3 scripts/validate-sequenced-after.py . --seed-ledger` and by no
-      hand.
+      `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
+      '#1141'` and by no hand. **ONE row moved**, read `sole` because the
+      `## ADDED` requirement title is written by no other change in the corpus,
+      and `depth: 0` on the positive root claim `sequenced_after: []`.
+      *(The `--moved-by` argument was missing from this line until Copilot
+      `r4074...` counted it against the committed row's own `moved_by: "#1141"`:
+      `--seed-ledger` REFUSES at argument parsing without it — "`--seed-ledger`
+      requires `--moved-by '#<PR>'`" — so the command as written could not have
+      produced the row it claims to have produced. **A recipe in a ticked box is
+      a claim that it runs**, and this one did not.)*
 
 ## 3. The measurement — TAKEN, at this packet's own head
 
