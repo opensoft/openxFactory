@@ -88,7 +88,8 @@ scenarios. No unit the requirement already carries is edited.**
 1. **The equivalence, stated with its ground.** A pin of a SOURCE TREE that
    declares a whole-tree digest definition and records a digest over the ENTIRE
    tree of the commit it names discharges the per-file `sha256` /
-   `pinned_by_commit_only:` obligation, and those lists MAY then be absent. The
+   `pinned_by_commit_only:` obligation, and **such a pin carries NEITHER list**
+   (see 2). The
    paragraph says WHAT MAKES THEM EQUIVALENT rather than merely asserting it: a
    whole-tree digest covers every file in the tree and therefore SUBSUMES any
    list of them, which is the published-artifact paragraph's own reasoning

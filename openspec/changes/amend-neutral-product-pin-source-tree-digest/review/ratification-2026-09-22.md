@@ -87,10 +87,26 @@ name `ca47e2cb` explicitly.
 
 ## 4. What stood between proposal and ratification
 
-Two Copilot review rounds, ten findings, all answered and every thread resolved.
-**Six were taken as fixes, one was registered with its reason, and four were true
-when written and already false at the head they were raised against.** The two
-that changed the requirement's meaning:
+**THE TALLY IS STATED AS OF THIS RECORD'S OWN COMMIT AND THE PULL REQUEST CARRIES
+THE RUNNING ONE**, because review continued after the ratifying word and a count
+frozen into a record is a count that goes stale. As of `35300d39`, four rounds
+and **SIXTEEN findings**, all answered and every thread resolved:
+
+| disposition | count | which |
+| --- | ---: | --- |
+| FIXED | 11 | `r4073177274`, `r4073364832`, `r4073364921`, `r4073495698`, `r4073495808`, `r4073495848`, `r4073610119`, `r4073704461`, `r4073704501`, `r4073991713`, `r4073991767` |
+| REGISTERED, not fixed | 2 | `r4073110728` (`tasks.md` § 5.3), `r4073495753` (§ 5.4) |
+| TRUE WHEN WRITTEN, false at the head raised against | 2 | `r4073110643`, `r4073110783` |
+| NOT A DEFECT — this packet's own disclosure, read back | 1 | `r4073704409` |
+
+*(An earlier draft of this paragraph said "ten findings … six fixes, one
+registered, four stale" and was wrong on two counts: it under-counted the
+registered findings by omitting `r4073495753`, and it called four findings stale
+where two were. Caught by Copilot `r4073991767` against `35300d39` — a review
+finding about this record's own accounting of review findings, which is the
+correct place for it to be caught.)*
+
+The two that changed the requirement's meaning:
 
 - **`r4073364832`** — the amendment said the two lists *"MAY then be absent"*,
   which left a pin carrying BOTH a whole-tree digest and a `files:` list
@@ -101,11 +117,19 @@ that changed the requirement's meaning:
   and resolved the second time against the first. `design.md` D3 carries both
   rounds, because the discarded reading is the instructive one.
 
-**One finding is registered rather than fixed** (`r4073110728`, `tasks.md` § 5.3):
-the required-check requirement's scenario conditions on the per-file digests,
-which a whole-tree pin does not carry. The gap PREDATES this packet — both pins
-have carried the whole-tree form since they were filed — and amending a SECOND
-requirement is beyond a commission that names one clause.
+**TWO findings are registered rather than fixed**, and both are scope
+judgments rather than disagreements:
+
+- **`r4073110728`** (`tasks.md` § 5.3) — the required-check requirement's
+  scenario conditions on the per-file digests, which a whole-tree pin does not
+  carry. The gap PREDATES this packet — both pins have carried the whole-tree
+  form since they were filed — and amending a SECOND requirement is beyond a
+  commission that names one clause.
+- **`r4073495753`** (`tasks.md` § 5.4) — `pin_shapes.py`:772-775 detects the
+  both-forms mixture only when `files` is present, so the
+  `pinned_by_commit_only:` half of the new scenario is unreached by any running
+  check. **No pin in the estate is in that state** — every `contracts/*-pin.yaml`
+  was read — so no code is owed by this packet and `code_surface: none` stands.
 
 ## 5. What was measured, and by which reader
 
