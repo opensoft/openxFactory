@@ -8,8 +8,9 @@ per requirement, each in the repository named in its heading and each carrying
 the FALSIFICATION COMMAND that closes it — an exact invocation with its checkout
 preconditions and its expected result, so the archive gate's evidence under
 `release-realization` is a command re-run and quoted rather than a description
-believed. Where a box names `<the entry point from 10.1>`, that placeholder is
-resolved by group 10 and written out in full at that point.
+believed. Every command names a verb `src/opendox/cli.py` already declares — the
+arc packages and unblocks that surface, it does not invent one — and task 10.1
+carries the verb table the commands are written against.
 
 House rule: OpenSpec ratifies, Speckit builds. No group below is started before
 ratification, no group is started without its own claim on
@@ -194,7 +195,7 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   — over a fixture directory of plain `.md` documents carrying none of
   openxFactory's governance vocabulary):
 
-      <the entry point from 10.1> generate --corpus tests/fixtures/plain-documents --out /tmp/snap.json
+      opendox --repo-root tests/fixtures/plain-documents generate --output /tmp/snap.json
       python -c "import json;d=json.load(open('/tmp/snap.json'));print(len(d['documents']))"
 
   A snapshot is written, its document count is non-zero, and
@@ -282,13 +283,18 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
   CHECKOUT** — which is exactly the "reaching into a host tree instead of an
   injected adapter" class this arc exists to close, appearing a second time.
   Claim them here or hand them on by name; do not leave them unowned again.
-- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling). Validation is the
+  POST-RENDER step inside the generate verbs — there is no `validate` verb and
+  this packet adds none — so it is exercised through `--strict`, which also makes
+  a validator that could not RUN fatal instead of a warning:
 
-      <the entry point from 10.1> validate tests/fixtures/plain-documents/example.md; echo "rc=$?"
+      opendox --repo-root tests/fixtures/plain-documents --strict generate --output /tmp/ok.json;  echo "rc=$?"
+      opendox --repo-root tests/fixtures/malformed       --strict generate --output /tmp/bad.json; echo "rc=$?"
 
-  Returns a verdict with `rc=0`, and the same command over a deliberately malformed
-  fixture returns non-zero naming the rule. Neither run may fail on an unresolvable
-  schema path.
+  The first is `rc=0`; the second is non-zero and names the rule it broke.
+  **Neither may fail on an unresolvable schema path** — today that is exactly how
+  it fails, because `--strict` makes "the validator is unreachable" fatal and the
+  validator is unreachable.
 
 ## Group 8 — Requirement 8 / G7: openDox-spec governs openDox (openDox-spec) — BLOCKED
 
@@ -370,10 +376,26 @@ packet's interim arrangement ends.**
 
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
-- [ ] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface, and NAME IT
-  HERE so the falsification below is executable rather than a placeholder:
-  **`opendox = "opendox.cli:main"`**, serving on **port 8080** by default with
-  `--port` to override. Today the only console script is
+- [ ] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface. **The verbs
+  are NOT invented here — `src/opendox/cli.py` already declares them** and group 2
+  is what makes them reachable; the entry point is the missing packaging line:
+
+      opendox = "opendox.cli:main"
+
+  and the surface it exposes is the one already in the tree, named here so every
+  falsification below is executable rather than a placeholder:
+
+  | verb | shape, as `cli.py` declares it today |
+  |---|---|
+  | `generate` | `--repo-root <corpus> generate --output <path>` (`:880-881`) |
+  | `generate-and-open` | `--repo-root <corpus> generate-and-open [--run-dir P] [--host H] [--port N] [--no-open] [--no-serve]` (`:885-`) |
+  | `create`, `edit` | scaffold a header-compliant doc; select-to-edit (`:911`, `:927`) |
+  | shared | `--repo-root`, `--strict`, `--no-validate`, `--project`, `--possibles` (`:840-849`) |
+
+  **There is no `serve` verb and no `validate` verb**, and this packet does not
+  add either: serving is `generate-and-open`, and validation is a POST-RENDER
+  step inside the generate verbs, hardened by `--strict` and skipped by
+  `--no-validate`. Today the only console script is
   `opendox-runtime = "opendox.runtime.cli:main"` — a subsystem, not the product —
   and there is no `__main__.py` anywhere under `src/`. **RULED Q-R4 already places this work in THIS act** (`#656` comment
   `5701772032`, Brett Heap, 2026-09-16, recorded at `runtime/cli.py:40-46`): *"the
@@ -407,7 +429,7 @@ packet's interim arrangement ends.**
       python -m venv .venv && . .venv/bin/activate && pip install .
       python -c "import openxdox" 2>&1 | grep -q ModuleNotFoundError   # prove the sibling is absent
       opendox --help                                                   # the console script MUST exist
-      opendox serve --port 8080 & SERVER=$!
+      opendox --repo-root tests/fixtures/plain-documents generate-and-open --no-open --port 8080 & SERVER=$!
       for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/ >/dev/null && break; sleep 1; done
       curl -sf http://127.0.0.1:8080/ | head -c 200
       kill $SERVER
