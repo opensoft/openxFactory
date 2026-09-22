@@ -125,7 +125,9 @@ is right.
 **The minimum text** is the axis list itself: six rather than five, the sixth
 named as the DERIVED-MODEL BOUNDARY, its content deferred to the requirement
 that already states it in full, and one sentence saying it is an axis of THIS
-declaration rather than a field of `governed-derived-model`'s own dial. The
+declaration rather than data nested under one of the five, and that it does not
+replace `governed-derived-model`'s `truth_store` dial but names the same store,
+beside the enforcement point that dial does not name. The
 third requirement is not edited: this packet adds no obligation, it names one
 the corpus already carries. All three promoted scenarios are carried unedited.
 

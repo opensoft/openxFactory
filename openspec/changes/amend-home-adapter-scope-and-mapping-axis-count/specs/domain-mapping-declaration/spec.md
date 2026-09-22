@@ -35,12 +35,15 @@ derived-model family the domain declares under `governed-derived-model`, the
 TRUTH STORE that family may never write and the EXTERNAL ENFORCEMENT point that
 store sits behind — which the requirement *A mapping declaration names the truth
 store its derived models may never write* below states in full. THE SIXTH AXIS
-IS AN AXIS OF THIS DECLARATION AND NOT A FIELD OF `governed-derived-model`'s OWN
-DIAL, and saying which it is, is the whole of what this clause adds: that
-capability decides what a derived model may be, this declaration records what
-each of THIS domain's families is non-authoritative ABOUT, and a closed axis
-list that omitted the field could not tell an implementer whether declaring it
-was forbidden or owed. A neutral layer that hardcodes one domain's status words,
+IS AN AXIS OF THIS DECLARATION, NOT DATA NESTED UNDER ONE OF THE OTHER FIVE, AND
+IT DOES NOT REPLACE `governed-derived-model`'s `truth_store` DIAL: each family's
+conformance declaration still carries that dial, and the store this axis names
+for a family is the store that family's dial names, stated here beside the
+EXTERNAL ENFORCEMENT point, which the dial does not name. Saying which it is, is
+the whole of what this clause adds: that capability decides what a derived model
+may be, this declaration records what each of THIS domain's families is
+non-authoritative ABOUT, and a closed axis list that omitted the field could not
+tell an implementer whether declaring it was forbidden or owed. A neutral layer that hardcodes one domain's status words,
 artifact nouns or act verbs SHALL be reported, because every other descendant
 then forks it — which is the failure DIRECTION Q5 was given to prevent.
 

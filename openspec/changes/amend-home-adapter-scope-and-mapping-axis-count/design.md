@@ -49,6 +49,22 @@ own field. Nesting it now would make the one realized declaration in the estate
 non-conformant to repair a text defect — which is the inversion this packet
 exists to avoid.
 
+**And the axis does not replace the dial, which the first drafting failed to
+say.** It read *"NOT A FIELD OF `governed-derived-model`'s OWN DIAL"*, and a
+*previously missed* item in Copilot review `5283370966` read that as denying the
+`truth_store` dial the conformance declaration requires of every family
+(`openspec/specs/governed-derived-model/spec.md`:25-27;
+`contracts/schemas/xfactory-derived-model-conformance.schema.yaml`:157-187, where
+`dials` requires `truth_store` and `truth_store_class`). The finding was right
+twice: the sentence could be read that way, and it left the two capabilities
+unreconciled. The sentence now says both halves — the axis is not data nested
+under one of the five, and the store it names for a family is the store that
+family's dial names, stated beside the external enforcement point, which the dial
+does not name. No realized artifact moves: the engineering domain declares no
+derived-model family, so there is no conformance declaration for its profile to
+disagree with. **The finding went unanswered from that review until this one
+because it arrived in a review body, with no thread to resolve.**
+
 **What is deliberately NOT done: the third requirement is not edited.** It
 already states the obligation in full, with three scenarios. Restating it inside
 the axis list would put one obligation in two places in one file and set up the
