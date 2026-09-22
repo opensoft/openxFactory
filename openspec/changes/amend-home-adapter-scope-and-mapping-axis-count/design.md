@@ -267,8 +267,17 @@ block for block** before the switch.
 | equals the basis | pass — *"nothing moved under this block"* (the review-time state) |
 | equals THIS BLOCK | pass — *"the amendment has been applied and the proof above is historical"* (the post-archive state) |
 | matches neither | **FAIL** — *"something else moved it"* |
+| **absent** | **FAIL** — *"the capability the basis promoted is gone"* |
 
-**All three proved by control, tree restored and re-measured clean after each:**
+**A FOURTH state was hiding inside the third and it was a PASS:** an absent
+canon file returned "not promoted here" and was let through. `BASIS` is the
+archived packet that ALREADY promoted both capabilities, so canon existed when
+this was written and its absence means the capability was DELETED rather than
+amended — the failure mode this corpus has actually met, and one a carriage proof
+that shrugged at it would wave past. It is now a FAIL naming the missing path,
+proved by hiding the file.
+
+**All four proved by control, tree restored and re-measured clean after each:**
 applying the block to canon gives the historical-pass note; altering canon by one
 word in a carried scenario gives `FAIL … canon matches NEITHER the basis nor this
 block (6 blocks): something else moved it`; the untouched tree gives the

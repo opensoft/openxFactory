@@ -158,7 +158,12 @@ def canon_state(capability: str, title: str,
     """
     canon_path = ROOT / "openspec/specs" / capability / "spec.md"
     if not canon_path.is_file():
-        return True, "canon absent (capability not promoted here)"
+        # NOT a valid state, and not a pass. `BASIS` is the archived packet that
+        # ALREADY promoted this capability, so canon existed when this was
+        # written; its absence means the capability was deleted rather than
+        # amended — which is the failure mode this corpus has actually met, and
+        # a check that shrugged at it would let a deleted spec pass as carriage.
+        return False, f"canon absent at {canon_path}: the capability the basis promoted is gone"
     canon = scenario_blocks(read_lf_bytes(canon_path), title)
     if canon == basis:
         return True, "canon still states the basis — nothing moved under this block"
