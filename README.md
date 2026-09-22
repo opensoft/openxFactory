@@ -532,6 +532,33 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [add-neutral-product-standalone-operability](openspec/changes/add-neutral-product-standalone-operability/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, **`Status: draft`** (awaiting Brett
+  Heap's ratification read), as the BUILD ARC the archived
+  `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
+  `## ADDED` block creating the capability `neutral-product-standalone-operability`
+  — ten requirements, thirty scenarios**, written domain-neutrally (its sibling is
+  `neutral-product-pin`: that governs openxFactory CONSUMING an external neutral
+  product, this governs the product being able to STAND UP without its consumer),
+  with openDox as the measured instance and one requirement per gap of the
+  2026-09-22 feature/gap sweep, each separately satisfiable and each falsifiable
+  by a command named in `tasks.md`. Requirement 1 states what openxFactory KEEPS
+  as a refusal — the corpus, the OpenSpec instance, every doc-health check family,
+  the adapter column, the intent-plane schemas and the integration tests — because
+  the arc reverses a DIRECTION and relocates no boundary. **`code_surface:`
+  openxFactory + openDox-code + openXdox-code + the openDox assembly root;
+  `target_release: implementation_pending`** — the requirements land now, the
+  realization runs post-ratification, and this packet authors no code byte. Two
+  findings are recorded rather than assumed: the packet is filed HERE and not in
+  openDox-spec because that instance, while operable, has promoted nothing and
+  the CLI refuses MODIFIED deltas against specs that exist nowhere (requirement
+  8's third scenario names the condition that ends the arrangement); and the
+  openDox → openXdox inversion is already FINISHED at import time, so what is
+  unclosed is the reach into the PUBLISHER, which no gate watches.
+  **`design.md` § Q-G3 puts the one open question — where the snapshot generator
+  lives — to Brett with three options and a recommendation; requirement 4 is
+  written to the OUTCOME so it is satisfied by whichever mechanism is ruled.**
+
 - [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
   Brett Heap, *"ratify #1140 and #1141"*, `#656` comment `5779511063`, at head

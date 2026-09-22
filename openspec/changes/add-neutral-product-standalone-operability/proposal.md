@@ -139,6 +139,17 @@ is NOT closed is two other things, and this packet is about them:
    this reach disappear — openDox naming a protocol and being handed an
    implementation — does not exist yet and is BUILD-arc work."*
 
+**Both legs' required checks are green, and that is the problem.** openDox-code's
+`validate.yml` runs 37 of its 63 test files and clears its floor with zero margin
+(`1114/1111/3`); openXdox-code runs 16 of 85 and clears `539/533/6`, also with
+zero margin. Run whole, openDox-code produces 1,299 errors and openXdox-code
+produces **1,089 errors and zero passed**, 57 of its 85 files failing collection.
+And every one of openXdox's six skips carries the same reason — *"doc_health
+reachability is BUILD-arc work (§ 3.5/3.6) … this test will assert for real once
+that lands"* — while two of openDox's three are its mirror image. **The
+whole-product assertions are precisely the ones that skip.** A green required
+check is not evidence that the product runs, and requirement 9 exists to say so.
+
 **And the structural fact, which is why this cannot be closed by deleting two
 import lines.** openDox serves a snapshot it cannot generate. `generate_snapshot`,
 `write_snapshot`, `find_validator`, `corpus_root`, `snapshot_registry` and
@@ -196,11 +207,22 @@ does not have is a single promoted requirement, and that is what decides this:
    `dispositions:`. The corpus grammar this packet is validated under is
    adjudicated in openxFactory alone.
 
+**And the emptiness is not benign — it has already stalled openDox-spec's own
+backlog.** Three of its four active changes carry `## MODIFIED Requirements`
+blocks against `ideation-dashboard`, a spec that does not exist in that
+repository, so **they can never be archived**. The loop is open at both ends:
+nothing can be promoted because nothing has been archived, and nothing can be
+archived because nothing has been promoted. Its gate cannot see this — both spec
+legs pin `@fission-ai/openspec@1.2.0`, and run against the same tree 1.2.0 emits
+NONE of the three *"Archive would refuse this delta"* notices that the 1.12.0
+line this repository pins reports.
+
 **That openDox cannot yet govern its own BUILD arc is itself the gap this packet
 carries as G7**, and the requirement *"An extracted product's own spec instance
 governs its requirements before the product is called standalone"* names the
 succession: once openDox-spec has promoted the requirements the carve's map
-assigns it, work scoped to openDox is authored there, and this arrangement ends.
+assigns it — **68 of the 71 appear nowhere in that repository today** — work
+scoped to openDox is authored there, and this arrangement ends.
 
 ## What is already built, and is not proposed again
 
@@ -288,11 +310,16 @@ the other side like an extraction, and this one is not.
 - **The OpenSpec instance.** 66 promoted capabilities, 180 archived changes, 43
   active. Nothing in this arc touches `openspec/specs/` except to ADD the one
   capability this packet declares.
-- **The doc-health check families.** Not one moves. Requirement 6 says so as a
-  refusal, not as a promise: a family that reads openxFactory's `Status:`
-  taxonomy or its change/spec/delta nouns stays with the corpus under RULING C2.
-  What openDox gains is a health check over ITS OWN documents — new generic code
-  on the neutral side, not a relocated family.
+- **The doc-health check families.** Not one moves, and the measurement says
+  there was never much to take: stripping comments and docstrings so only
+  executable code counts, exactly ONE of `scripts/doc_health/`'s 37 Python
+  modules is free of openxFactory/OpenSpec identifiers — `lines.py`, 133 lines of
+  31,437, or 0.4%. About 13 mix a reusable mechanism with hard-coded corpus
+  identifiers and about 23 are corpus operations by subject. **There is no
+  extractable generic doc-health core.** Requirement 6 is therefore satisfied by
+  openDox growing its own check over its own declaration, which is new neutral
+  code, not a relocated family — and requirement 1 states that as a refusal
+  rather than a promise.
 - **The adapter column.** `ideation_dashboard`, `corpus_adapter_openxfactory`
   and `scripts/opendox_host.py` stay, and the carve manifest already files them
   `stays_openxfactory_adapter`. The arc does not delete them: it stops openDox
@@ -339,6 +366,16 @@ requirement's wording.
 - **Affected code at ratification:** none. This packet authors no code byte.
 - **Blocked on a ruling:** requirement 4's mechanism (§ Q-G3). Every other
   requirement is actionable on ratification.
+- **One constraint the realization must respect, found by measurement:** the
+  entry point requirement 10 asks for CANNOT be an assembly-root `Makefile`
+  target. `openDox/Makefile` carries a row in `contracts/shape-pin.yaml` and
+  `AGENTS-shape.md` is explicit — *"An edit in place is reported as DRIFT and
+  refused"* — so such a target would red `make pins`, and the lawful route would
+  be an upstream change in `opensoft/openRepoShape` binding every project that
+  carries the shape. The entry point belongs at the CODE leg as a
+  `[project.scripts]` console script, which is where the shape's own "What goes
+  where" puts the implementation; the root's README, which carries no shape-pin
+  row, documents it.
 - **Related and not duplicated:** `corpus-adapter-seam` and
   `domain-mapping-declaration` (promoted 2026-09-22 by the carve's archive) are
   the requirements this arc discharges against; `neutral-product-pin` governs the

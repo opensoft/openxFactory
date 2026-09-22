@@ -240,6 +240,42 @@ Two consequences this packet is built on:
 > "THE REMEDY IS TO INSTALL openXdox — and only that, today … the injection that
 > would make this reach disappear does not exist yet and is BUILD-arc work."
 
+## D8 — Where the product entry point may lawfully live
+
+Requirement 10 says a product must declare ONE documented entry point and does
+not say where, deliberately — but the realization has exactly one lawful place
+and the reason is worth recording, because the obvious place is refused.
+
+`opensoft/openDox` is an openRepoShape assembly root. Its `Makefile` carries a
+row in `contracts/shape-pin.yaml` (`:49-50`), and `AGENTS-shape.md` § "Never edit
+a file that has a row in `contracts/shape-pin.yaml`" is unambiguous: *"every
+sha256 is recomputed on every pull request. An edit in place is reported as DRIFT
+and refused."* So a `run` or `serve` target at the root is not a small
+convenience — it reds `make pins`, and the lawful route is an upstream change in
+`opensoft/openRepoShape` propagated by its `update-shape.py`, which would bind
+EVERY project carrying the shape.
+
+The shape's own "What goes where" settles it the other way in one line: *"the
+code leg | the implementation and its tests"*. And `README.md`, `AGENTS.md`,
+`CLAUDE.md` and `project.yaml` carry NO shape-pin row and are the project's own
+to edit. So:
+
+- the entry point is a `[project.scripts]` console script at **openDox-code**,
+  beside the existing `opendox-runtime`;
+- the assembly root **documents** it in `README.md` and points at it;
+- the root `Makefile` is not touched.
+
+The measured starting position: `openDox/Makefile` is 23 lines with four targets
+(`help`, `bootstrap`, `validate`, `pins`) and is **byte-identical to openXdox's**;
+neither code leg has a Makefile at all; and the assembly README's only
+instruction is `make bootstrap`, which its own text describes as putting each leg
+on its pinned commit and running three validators. Nothing in either repository
+starts a document tool, and the only containerized path —
+`openDox-code/deploy/compose/`, whose `Dockerfile` ends
+`CMD ["opendox-runtime", "runtime", "serve"]` — starts the runtime API on
+`/livez`, `/readyz` and `/api/v1`, mounting no static files and serving no
+document surface.
+
 ## Q-G3 — THE ONE QUESTION FOR BRETT: where does the snapshot generator live?
 
 **This packet does not decide this and requirement 4 is deliberately written to

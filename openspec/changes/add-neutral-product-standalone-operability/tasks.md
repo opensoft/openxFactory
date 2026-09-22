@@ -156,12 +156,25 @@ mention in the package is prose.
 
 ## Group 6 — Requirement 6 / G5: a health check over openDox's own documents (openDox-code)
 
-- [ ] 6.1 Confirm by measurement which of openxFactory's doc-health modules are
-  generic traversal and which are corpus operations, and relocate the generic
-  part into a module both sides depend on BEFORE either side moves —
-  `corpus-adapter-seam`'s relocation rule applied inside a module.
+- [ ] 6.1 **Expect to find almost nothing generic, and plan for that.** A strict
+  measurement — comments and docstrings stripped, so only executable code counts
+  — finds exactly ONE of `scripts/doc_health/`'s 37 Python modules free of
+  openxFactory/OpenSpec identifiers: `lines.py`, 133 lines of 31,437 (0.4%).
+  About 13 modules mix a reusable mechanism with hard-coded corpus identifiers
+  (`corpus.py:39,59,92-93`; `inventory.py:37,52`; `preflight.py:20-25,180-185`),
+  and about 23 are corpus operations by subject. **There is no extractable
+  generic doc-health core**, so requirement 6 is satisfied by openDox growing its
+  own check over its own declaration — not by relocating families.
+- [ ] 6.1a Where a module genuinely mixes both, relocate the generic part into a
+  module both sides depend on BEFORE either side moves — `corpus-adapter-seam`'s
+  relocation rule applied inside a module.
 - [ ] 6.2 openDox carries a health check over its own documents, reading its own
-  declaration. **No openxFactory check family moves** (requirement 1).
+  declaration. **No openxFactory check family moves** (requirement 1). The seam
+  already exists and is DEAD: `src/opendox/workbench.py:1389`'s
+  `run_scoped_doc_health` (families `status-validity`, `tag-hygiene`) catches the
+  `ImportError` and records `status = not-available`,
+  `detail = doc-health machinery unavailable: No module named 'doc_health'`. Give
+  it something to call.
 - [ ] **FALSIFIED BY:** running openDox's health check over a directory of its own
   documents in an openDox-only checkout produces a report.
 
@@ -170,6 +183,16 @@ mention in the package is prose.
 - [ ] 7.1 Resolve the three-way schema split so one checkout carries the set
   openDox's validator reads; schemas openxFactory OWNS arrive by the declared pin
   and are read from the pinned checkout, never by a sibling path literal.
+  Measured: the validator's `SCHEMA_FILENAMES` names **10** schemas, split
+  **openXdox-spec 3 / openDox-spec 3 / openxFactory 4**; both code legs and both
+  assembly roots carry **zero**. The script itself
+  (`openXdox-code/scripts/validate-ideation-dashboard-contracts.py`) derives
+  `SCHEMAS_DIR` from `__file__` (`:114-115`) and so looks for a
+  `contracts/schemas/` its own leg does not have — it exits 2 with
+  `ERROR .../contracts/schemas not found` run from its OWN repository.
+- [ ] 7.2 openDox-code has **no `scripts/` directory at all** and one console
+  script. Whatever validator it gains is new surface at the code leg, not a
+  relocated one.
 - [ ] **FALSIFIED BY:** validating a document in an openDox-only checkout returns
   a verdict rather than failing on an unresolvable schema path.
 
@@ -182,7 +205,20 @@ Not this packet's act, and named so the dependency is explicit.
   openXdox / 15 openxFactory**; the 16 were carried into openXdox by the carve's
   § 6.1 and § 6.5 closures, and the 15 were re-promoted here by
   `repromote-engineering-vocabulary` under RULING DQ-1 — only openDox's 71 have
-  no home).
+  no home). Measured by normalized-title scan of every `spec.md` in openDox-spec:
+  **68 of the 71 appear nowhere in the repository**, and the three that do appear
+  only inside `## MODIFIED` blocks of draft changes.
+- [ ] 8.1a **Unblocks openDox-spec's own backlog, which is why this is not
+  housekeeping.** Three of its four active changes carry `## MODIFIED` blocks
+  against `ideation-dashboard`, a spec that does not exist there, so **they can
+  never be archived** — the loop is open at both ends: nothing can be promoted
+  because nothing has been archived, and nothing can be archived because nothing
+  has been promoted. Promoting the 71 is what breaks it.
+- [ ] 8.1b **Raise openDox-spec's CLI pin while doing it.** Both spec legs pin
+  `@fission-ai/openspec@1.2.0`; openxFactory pins 1.12.0 by content address. Run
+  against the same tree, **1.2.0 emits none of the three "Archive would refuse
+  this delta" notices** that 1.12.0/1.13.x report. openDox-spec's gate cannot see
+  the defect in 8.1a.
 - [ ] 8.2 On that landing, requirement 8's third scenario fires and work scoped to
   openDox is authored in openDox-spec. This packet's interim arrangement ends.
 - [ ] **FALSIFIED BY:** `OPENSPEC_TELEMETRY=0 openspec list --specs` in openDox-spec
@@ -200,7 +236,21 @@ Not this packet's act, and named so the dependency is explicit.
   under a green check. Requirement 2's third scenario is that instrument.
 - [ ] 9.3 Behaviours needing both legs become declared INTEGRATION tests naming
   the pin they compose at, rather than being dropped from both suites — including
-  the assembled `--help` tree neither leg produces alone.
+  the 31-entry assembled `--help` tree the carve manifest records as one
+  *"which after the carve neither leg produces alone"*
+  (`docs/opendox-carve-manifest.yaml:3088`). Nothing anywhere reproduces it today.
+- [ ] 9.4 **Restore the margin, and stop the skips carrying the gap.** Both legs
+  pass their floors with ZERO margin (openDox `1114/1111/3`, openXdox
+  `539/533/6`), and every one of openXdox's six skips carries the same reason —
+  *"doc_health reachability is BUILD-arc work (§ 3.5/3.6) … this test will assert
+  for real once that lands"*. Two of openDox's three are the mirror image. **The
+  whole-product assertions are precisely the ones that skip**, which is why both
+  legs report green while neither product runs.
+- [ ] 9.5 Note for whoever takes this box: openXdox pins openDox at `5c137a90`,
+  nine commits behind openDox-code `main`, and the openDox root's gitlink and
+  `contracts/code-pin.yaml` name `d816cf06`, two behind. Both are ancestors —
+  nothing is forked — but the pins move before the integration run means
+  anything.
 - [ ] **FALSIFIED BY:** each leg's full suite runs green in its own checkout with
   no sibling present, and the exclusion list in each `validate.yml` is empty.
 
@@ -210,10 +260,25 @@ Not this packet's act, and named so the dependency is explicit.
   only console script is `opendox-runtime = "opendox.runtime.cli:main"` — a
   subsystem, not the product.
 - [ ] 10.2 The web bundle is served by that entry point and is reachable in a
-  browser from an openDox-only install.
-- [ ] 10.3 The assembly root gains ONE documented start target; its bootstrap,
-  validate and pin targets stay what they are and are not offered as the entry
-  point.
+  browser from an openDox-only install. openDox-code carries **42** web files,
+  self-contained by declaration (`src/opendox/web/index.html`: *"All assets are
+  local/vendored: no CDN, no external fonts, no remote scripts"*), and **nothing
+  serves them**: `serve.py` will not import, and `runtime/app.py` mounts no
+  `StaticFiles` — its routes are `/livez`, `/readyz` and `/api/v1`. The bundle is
+  not the gap; the door is.
+- [ ] 10.2a `intent-feed.js` stays at openxFactory under RULED OQ-F and is NOT
+  owed to openDox; openDox's replacement is `views/intent-binding.js`. Do not
+  count it as a missing file.
+- [ ] 10.3 **The assembly root DOCUMENTS the entry point; it does not host it.**
+  `openDox/Makefile` carries a row in `contracts/shape-pin.yaml` (`:49-50`), and
+  `AGENTS-shape.md` § "Never edit a file that has a row" is explicit: *"An edit
+  in place is reported as DRIFT and refused."* A `run`/`serve` target added there
+  would red `make pins`, and the lawful route would be an upstream change in
+  `opensoft/openRepoShape` binding EVERY project that carries the shape. So the
+  entry point is a `[project.scripts]` console script at the CODE leg (10.1),
+  which is where the shape's own "What goes where" puts *"the implementation and
+  its tests"*; the root's `README.md` has no shape-pin row and is the project's
+  own to edit, so it documents and points at the command.
 - [ ] **FALSIFIED BY:** a reader installs openDox alone, runs the single command
   its README documents, and reaches the running product in a browser.
 
