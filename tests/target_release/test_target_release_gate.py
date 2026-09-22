@@ -1231,7 +1231,17 @@ def test_admitting_the_value_did_not_move_the_closed_baseline():
     # shrink, in one diff because that is where the choice is legible. This
     # literal is the baseline's SIZE: it falls with a removal exactly as it would
     # refuse an addition, and it is the assertion that keeps the shrink honest.
-    assert len(tr.CLOSED_REGISTER) == 20
+    #
+    # 20 UNTIL 2026-09-22, when the packet that closed the 2026-09-16 pair
+    # ARCHIVED ON ITS OWN LEDGER — `split-opendox-two-layer-product`,
+    # openxFactory #1139 — and retired its own `implementation_pending` entry on
+    # the same second limb, for the same reason, by the same removable-register
+    # rule. The two retirements are not the same event and the difference is
+    # worth the sentence: in 2026-09-16 the packet was FROZEN AND RE-HOMED by
+    # somebody else's ruling; here the change reached the end of its own tasks.
+    # The register effect is identical either way, which is why the literal falls
+    # again rather than needing a new rule.
+    assert len(tr.CLOSED_REGISTER) == 19
     # THE SIZE ALONE DOES NOT SAY WHICH PAIR LEFT, and that is what this change
     # claims. A later edit could restore this pair and drop an unrelated one
     # while 20 still held, so the retirement is asserted by IDENTITY as well —
@@ -1253,6 +1263,20 @@ def test_admitting_the_value_did_not_move_the_closed_baseline():
             "This is a ceiling, never a floor.' So a pair surviving its entry "
             "is ordinary; THIS pair was removed on purpose when the packet "
             "archived, and its return means that edit was reverted")
+    # AND THE SAME IDENTITY ASSERTION FOR THE 2026-09-22 PAIR, on the reasoning
+    # the paragraph above gives for the first one: a count verifies a shrink's
+    # magnitude and not the shrink, so each deliberate removal is pinned by name.
+    assert ("split-opendox-two-layer-product", "implementation_pending") \
+        not in tr.CLOSED_REGISTER, (
+            "the `implementation_pending` baseline pair for "
+            "`split-opendox-two-layer-product` is back in CLOSED_REGISTER. It "
+            "retired on 2026-09-22 with the packet, on the second limb of its "
+            "own `retires_when:` — 'or the packet archives' — and the packet is "
+            "archived at "
+            "`openspec/changes/archive/2026-09-22-split-opendox-two-layer-product`. "
+            "As with the 2026-09-16 pair above, the defect is that a DELIBERATE "
+            "shrink was undone and not that a retained pair is unlawful in "
+            "general: the module says a baseline is 'a ceiling, never a floor'")
     assert not [e for e in tr.CLOSED_REGISTER
                 if e[1] == tr.DEFERRED_ALLOCATION]
 

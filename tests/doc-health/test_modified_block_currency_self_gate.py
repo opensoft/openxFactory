@@ -432,6 +432,29 @@ _SCENARIOS_CANON_MUST_NOT_GAIN = (
 #: vacuously over a file that no longer says what this test thinks it says.
 _CANON_SCENARIO_CONTROL = "Gate verbs hide on a composed view"
 
+#: THE SIXTH DELTA TITLE, the one `_SCENARIOS_CANON_MUST_NOT_GAIN` deliberately
+#: excludes because canon carried it and asserting its absence would have failed
+#: against a correct tree. The archive of `split-opendox-two-layer-product`
+#: (2026-09-22, PR #1139) removed the canon requirement that carried it, so it is
+#: absent now — and that is a DIFFERENT fact from the five above, which is why it
+#: is pinned here rather than folded into that tuple: the five say canon never
+#: gained titles it must not have; this one says canon lost a title it had.
+_SCENARIO_CANON_ONCE_CARRIED = "A tile jumps to its repository"
+
+#: CANON'S SURVIVING REQUIREMENTS, and the discovery floor that replaces the
+#: control above. `_CANON_SCENARIO_CONTROL` proved "this is still the block these
+#: assertions read"; with the block gone, what proves "this is still the file
+#: these assertions read" is the pair of requirements the archive left standing.
+#: Both belong to `retire-doxbench-chat-turn-v1` — openxFactory's own § 6.2
+#: retirement, the one of the five § 6 changes closed by PROMOTION rather than as
+#: re-homed, so its content is this repository's and stays. Measured over the
+#: post-archive tree, not predicted.
+_CANON_SURVIVING_REQUIREMENTS = (
+    "The doxBench chat-turn v1 envelope family is REMOVED at contract-v3.0",
+    "An unrecognized chat-turn kind is refused in the SURVIVING family, never "
+    "coerced into a removed one",
+)
+
 #: THE SAME INVARIANT OVER UNITS, because the title list above watches FIVE of
 #: the TWENTY-SIX units canon does not carry. `promotion_fidelity` compares
 #: `writer.scenarios` and nothing else
@@ -453,10 +476,16 @@ _CANON_SCENARIO_CONTROL = "Gate verbs hide on a composed view"
 #: shared set, and the count of its kind FALLS here.
 #: (Found by Copilot's reviews at `ad2c33be`, `26a8ed26` and `31fbb445` — three
 #: readings of one omission, and the third named the mechanism above.)
+#: RE-MEASURED 2026-09-22 AT THE ARCHIVE (PR #1139). These were the delta-only
+#: counts while canon still held the block and shared five units with it —
+#: `{BODY: 10, SCENARIO_BULLET: 11, SCENARIO_TITLE: 5}`, 26 of the block's 31
+#: units. The archive removed canon's block, so canon shares NOTHING with it and
+#: the delta-only tally is now the block's WHOLE unit census. The numbers rose
+#: because canon lost text, not because the delta gained any.
 _DELTA_UNITS_CANON_MUST_NOT_GAIN = {
-    mbc.BODY: 10,
-    mbc.SCENARIO_BULLET: 11,
-    mbc.SCENARIO_TITLE: 5,
+    mbc.BODY: 11,
+    mbc.SCENARIO_BULLET: 14,
+    mbc.SCENARIO_TITLE: 6,
 }
 
 #: AND THE PARTITION ITSELF, EXACTLY, because a per-kind COUNT is defeated by a
@@ -471,17 +500,22 @@ _DELTA_UNITS_CANON_MUST_NOT_GAIN = {
 #: twenty-six-unit complement is not.
 #: (Found by Copilot's review at `f64bbdd0`, one round after its reviews at
 #: `ad2c33be`/`26a8ed26`/`31fbb445` established the kind tally this repairs.)
-_UNITS_CANON_ALREADY_CARRIES = frozenset({
-    (mbc.BODY, "Per-tile repository binding remains a successor change."),
-    (mbc.SCENARIO_TITLE, "A tile jumps to its repository"),
-    (mbc.SCENARIO_BULLET,
-     "WHEN the rendered snapshot carries `generation.composed_from`"),
-    (mbc.SCENARIO_BULLET,
-     'WHEN a human invokes "open in <repo>" on a composed tile'),
-    (mbc.SCENARIO_BULLET,
-     "THEN the active snapshot switches to that tile's `(repository, ref)` and "
-     "the page reloads with every verb available as today"),
-})
+_UNITS_CANON_ALREADY_CARRIES = frozenset()
+#: EMPTIED 2026-09-22 AT THE ARCHIVE (PR #1139), and the five members are kept in
+#: this comment rather than deleted, because what they pinned was a real state of
+#: the corpus and the empty set only means something beside them:
+#:     (BODY,            "Per-tile repository binding remains a successor change.")
+#:     (SCENARIO_TITLE,  "A tile jumps to its repository")
+#:     (SCENARIO_BULLET, "WHEN the rendered snapshot carries `generation.composed_from`")
+#:     (SCENARIO_BULLET, 'WHEN a human invokes "open in <repo>" on a composed tile')
+#:     (SCENARIO_BULLET, "THEN the active snapshot switches to that tile's
+#:                        `(repository, ref)` and the page reloads with every verb
+#:                        available as today")
+#: They were canon's own text, which a MODIFIED block restates by construction,
+#: and they left when the archive removed canon's requirement. Equality against
+#: the EMPTY set is the sharper assertion the module's own reasoning asks for:
+#: an arrival grows it, and there is no longer a departure to confuse with one.
+
 
 _LEDGER_SUBJECTS = {
     # ADDED 2026-09-22 BY `add-worker-input-budget` (opensoft/xFactory#479,
@@ -1628,33 +1662,92 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     #     which is the one state the control exists to catch.
     # `mbc.promoted()` is the reader four families already share, keyed by
     # normalized title, and `PromotedRequirement.scenario_titles` is that block's
-    # own units. Comparing normalized titles WITHIN the target requirement closes
-    # both directions at once. The module says why in its own words: "a second
-    # grammar for the same heading is how two readers of one document come to
-    # disagree about what it says".
+    # own units. Comparing normalized titles closes both directions at once. The
+    # module says why in its own words: "a second grammar for the same heading is
+    # how two readers of one document come to disagree about what it says".
     # (Found by Copilot's review at `25988caf`.)
     canon_requirements = mbc.promoted(ROOT, capability)
     assert canon_requirements, _moved(
         f"the promoted capability {capability!r} readable through "
         "`mbc.promoted()`",
         "it read nothing, so the assertions below would be vacuous")
+
+    # **RE-AIMED 2026-09-22 BY THE ARCHIVE OF `split-opendox-two-layer-product`
+    # (PR #1139), AND THE SUBJECT THAT MOVED IS CANON'S SIDE, NOT THE DELTA'S.**
+    # Until that archive, canon carried its own
+    # `Composed views are read-only with a repository jump` block and every
+    # assertion below was scoped to it: the control was canon's own scenario
+    # inside that block, the forbidden titles were checked against that block's
+    # titles, and the unit partition was `delta_only` / `_UNITS_CANON_ALREADY_CARRIES`
+    # across that one block. The archive's `## REMOVED Requirements` block took
+    # **102 of canon's 104 requirements**, that one among them, so the block this
+    # test read is GONE from canon — which is why the file's own failure message
+    # says corpus movement is the EXPECTED cause and to re-aim the named subjects
+    # in the same commit, saying which subject moved and why.
+    #
+    # THE INVARIANT IS NOT WEAKENED BY THE RE-AIM, IT IS STRENGTHENED, and that is
+    # the whole reason the repair is an assertion rather than a deletion. RULING
+    # Q6 forbids this delta's blocks promoting here. A block-scoped guard could
+    # only see arrival INTO that block; with the block gone, the same question is
+    # asked of **ALL of canon** — every surviving requirement, every unit — so a
+    # delta unit re-homed under one of the survivors is now caught too, and it
+    # was not before.
+    #
+    # WHAT THE THREE NAMED SUBJECTS BECAME, each measured over the post-archive
+    # tree rather than predicted:
+    #   `_CANON_SCENARIO_CONTROL` — canon's own superseded scenario. It left with
+    #     the requirement that held it, so it is asserted ABSENT below; that
+    #     absence is now the positive evidence that this is the post-archive canon
+    #     and not a stale tree, which is exactly the job the presence check did.
+    #   `_SCENARIOS_CANON_MUST_NOT_GAIN` — unchanged as a list, re-scoped from the
+    #     block to the whole file. `A tile jumps to its repository`, the sixth
+    #     title deliberately excluded because canon already stated it, is now
+    #     absent too and is pinned separately rather than folded in: it is a
+    #     DIFFERENT fact (canon lost a title it had) from the five (canon never
+    #     gained titles it must not have).
+    #   `_DELTA_UNITS_CANON_MUST_NOT_GAIN` / `_UNITS_CANON_ALREADY_CARRIES` — the
+    #     partition collapsed to one side. Canon shares ZERO units with the
+    #     archived block now, so the delta-only tally is the block's whole unit
+    #     census and the shared set is empty.
     canon_block = canon_requirements.get(mbc.norm(requirement))
-    assert canon_block is not None, _moved(
-        f"canon's own {requirement!r} block, the control that proves these "
-        "assertions are reading the requirement they are about",
-        f"canon holds {len(canon_requirements)} requirement(s) and none of them "
-        "is that one, so the absences below would pass over the wrong block")
-    canon_titles = {mbc.norm(t) for t in canon_block.scenario_titles}
-    assert mbc.norm(_CANON_SCENARIO_CONTROL) in canon_titles, _moved(
-        f"canon's own scenario {_CANON_SCENARIO_CONTROL!r} inside that block, "
-        "the control that proves it is still the block these assertions read",
-        f"the block's scenario titles are {sorted(canon_block.scenario_titles)}")
+    assert canon_block is None, _moved(
+        f"canon NO LONGER carrying its own {requirement!r} block — the archive "
+        "of `split-opendox-two-layer-product` removed 102 of canon's 104 "
+        "requirements and this was one of them",
+        "canon still holds that requirement, so either the archive was reverted "
+        "or the requirement came back by an act that must be declared")
+    assert {r.title for r in canon_requirements.values()} == set(
+            _CANON_SURVIVING_REQUIREMENTS), _moved(
+        f"canon holding EXACTLY the {len(_CANON_SURVIVING_REQUIREMENTS)} "
+        "requirements the archive left standing, which is what proves this is "
+        "the post-archive canon and not some other file",
+        f"canon holds {sorted(r.title for r in canon_requirements.values())}")
+
+    # ONE UNIT SET FOR THE WHOLE FILE, because the block that used to scope these
+    # questions is gone and the question itself is not: canon must not carry this
+    # delta's content ANYWHERE, under any of its surviving requirements.
+    canon_units = [u for r in canon_requirements.values() for u in r.units]
+    assert canon_units, _moved(
+        "canon's surviving requirements carrying units at all",
+        "they derive none, so every absence asserted below would be vacuous")
+    canon_titles = {mbc.norm(t) for r in canon_requirements.values()
+                    for t in r.scenario_titles}
+    assert mbc.norm(_CANON_SCENARIO_CONTROL) not in canon_titles, _moved(
+        f"canon's own superseded scenario {_CANON_SCENARIO_CONTROL!r} GONE with "
+        "the requirement that held it",
+        "it still stands somewhere in canon, so the requirement's removal was "
+        "not the clean cut this test now rests on")
+    assert mbc.norm(_SCENARIO_CANON_ONCE_CARRIED) not in canon_titles, _moved(
+        f"the sixth delta title {_SCENARIO_CANON_ONCE_CARRIED!r} — the one "
+        "excluded from the forbidden list precisely because canon carried it — "
+        "gone with the same requirement",
+        "canon still carries it, so the exclusion above is still load-bearing "
+        "and this assertion is the wrong shape")
     arrived = [t for t in _SCENARIOS_CANON_MUST_NOT_GAIN
                if mbc.norm(t) in canon_titles]
     assert not arrived, _moved(
-        f"the delta's own scenarios ABSENT from canon's {requirement!r} block "
-        "(RULING Q6 re-homes this block to opensoft/openDox and promotes "
-        "NOTHING here)",
+        f"the delta's own scenarios ABSENT from canon ENTIRELY (RULING Q6 "
+        "re-homes this block to opensoft/openDox and promotes NOTHING here)",
         f"{len(arrived)} of them now stand in canon: {arrived}. Either the "
         "delta was promoted after all — which contradicts the closure and the "
         "archived packet's own words — or canon gained those titles by another "
@@ -1663,45 +1756,44 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
 
     # AND THE SAME GUARD OVER UNITS, not only over headings. Both sides are
     # derived by the family's own `derive_units` — `units` is the archived
-    # block's, `canon_block.units` is canon's, the SINGLE derivation the module
-    # says is "run over canon's block and the delta's block alike" — and the
-    # partition is its own `carried()`, whose first argument is the side being
-    # filtered. So there is no second reader here and a derivation bug is
-    # SYMMETRIC: it can make this assertion quiet, never make it invent a
-    # finding. Equality over the whole tally, not a floor: a kind that FELL
-    # means canon gained those units, which is the promotion RULING Q6 forbids;
-    # a kind that ROSE means the archived delta itself moved, which is a
-    # different defect with a different remedy, and the message names both.
+    # block's, `canon_units` is every surviving requirement's, the SINGLE
+    # derivation the module says is "run over canon's block and the delta's block
+    # alike" — and the partition is its own `carried()`, whose first argument is
+    # the side being filtered. So there is no second reader here and a derivation
+    # bug is SYMMETRIC: it can make this assertion quiet, never make it invent a
+    # finding. Equality over the whole tally, not a floor: a kind that FELL means
+    # canon gained those units, which is the promotion RULING Q6 forbids; a kind
+    # that ROSE means the archived delta itself moved, which is a different
+    # defect with a different remedy, and the message names both.
     # (Found by Copilot's reviews at `ad2c33be`, `26a8ed26` and `31fbb445`.)
-    delta_only = mbc.carried(units, canon_block.units)
+    delta_only = mbc.carried(units, canon_units)
     tally: dict[str, int] = {}
     for unit in delta_only:
         tally[unit.kind] = tally.get(unit.kind, 0) + 1
     assert tally == _DELTA_UNITS_CANON_MUST_NOT_GAIN, _moved(
         f"every one of the {sum(_DELTA_UNITS_CANON_MUST_NOT_GAIN.values())} "
-        f"units the archived block does not share with canon ABSENT from "
-        f"canon's {requirement!r} block — a body sentence reaching canon is the "
-        "promotion this closure forbids exactly as a scenario title is",
+        f"units of the archived block ABSENT from canon — a body sentence "
+        "reaching canon is the promotion this closure forbids exactly as a "
+        "scenario title is",
         f"the delta-only tally is {tally}, not "
         f"{_DELTA_UNITS_CANON_MUST_NOT_GAIN}; first three delta-only units are "
         f"{[(u.kind, u.text[:60]) for u in delta_only[:3]]}")
 
     # AND THE PARTITION EXACTLY, not only its shape. The tally above counts, and
     # a count is defeated by a SAME-KIND SWAP — canon gaining one delta-only body
-    # unit while losing one of the body units it already shared holds `BODY` at
-    # ten. So the five units canon ALREADY carries are pinned by `(kind, text)`:
-    # an arrival grows this set, a departure shrinks it, a swap replaces a member
-    # at constant size, and equality names all three. The tally is KEPT rather
-    # than replaced, because it reads the other side of the same partition and
-    # so still catches a change in the ARCHIVED BLOCK — which this set, computed
-    # from canon's side, cannot see.
+    # unit while losing one it already shared holds `BODY` constant. Before the
+    # archive five units were shared and were pinned by `(kind, text)`; the
+    # archive removed canon's block, so the shared set is now EMPTY and equality
+    # against an empty set says the same thing more sharply: any arrival at all
+    # grows it. The tally is KEPT rather than replaced, because it reads the other
+    # side of the same partition and so still catches a change in the ARCHIVED
+    # BLOCK — which this set, computed from canon's side, cannot see.
     # (Found by Copilot's review at `f64bbdd0`.)
     shared = {u.pair() for u in units
-              if u.pair() in {x.pair() for x in canon_block.units}}
+              if u.pair() in {x.pair() for x in canon_units}}
     assert shared == _UNITS_CANON_ALREADY_CARRIES, _moved(
-        f"canon's {requirement!r} block carrying EXACTLY the "
-        f"{len(_UNITS_CANON_ALREADY_CARRIES)} units of the archived block it "
-        "already carried — no delta unit arriving, and none of the five leaving",
+        "canon sharing EXACTLY NO unit with the archived block, the five it "
+        "once shared having left with the requirement that held them",
         f"it now shares {len(shared)}: ARRIVED (canon gained delta content, the "
         f"promotion RULING Q6 forbids) {sorted(shared - _UNITS_CANON_ALREADY_CARRIES)}; "
         f"LEFT (canon dropped text the block restates, a different defect) "
@@ -1720,11 +1812,11 @@ def test_the_scenario_arm_reads_zero_since_the_rename_was_declared():
     # compares the text alone. The family's own same-kind semantics are untouched
     # above; this is an extra reading, not a replacement.
     # (Found by Copilot's review at `fa039107`.)
-    canon_texts = {u.text for u in canon_block.units}
+    canon_texts = {u.text for u in canon_units}
     crossed = [u for u in delta_only if u.text in canon_texts]
     assert not crossed, _moved(
-        f"no delta-only unit of the archived block standing in canon's "
-        f"{requirement!r} block UNDER ANY KIND",
+        "no unit of the archived block standing ANYWHERE in canon UNDER ANY "
+        "KIND",
         f"{len(crossed)} of them do, re-kinded rather than absent: "
         f"{[(u.kind, u.text[:70]) for u in crossed]}. A body sentence promoted "
         "as a bullet is still promoted")
