@@ -1,0 +1,118 @@
+# Tasks: amend-neutral-product-pin-source-tree-digest
+
+Status: draft
+Kind: tasks
+
+`code_surface: none`, `target_release: implemented`. **There is no realization
+group, because there is nothing to realize.** The delta is requirement prose; the
+behaviour it states has been the real behaviour of
+`scripts/verify-opendox-pin.py` and `scripts/verify-openxdox-pin.py` since each
+was written, and of the two pin files since they were filed. Under
+`release-realization` an empty code surface archives ON LANDING plus this task
+list rather than on merged-plus-green realization evidence. **The "realization"
+of a wording amendment IS its promotion at archive.**
+
+**NOTHING IS TICKED THAT DID NOT LAND.** Every ticked box is a diff in this pull
+request or a measurement recorded verbatim in its body. § 1 is OPEN: the word
+that commissioned this amendment is not the word that ratifies the packet, and
+that second act is Brett Heap's. § 4 (archive) stays entirely open.
+
+## 1. Ratification — OWED, and NOT taken by the authoring lane
+
+- [ ] 1.1 **RATIFY THE PACKET.** The CONTENT is already ruled — Brett Heap,
+      2026-09-22T14:04:00Z, `#656` comment `5777949892`, by multi-choice,
+      verbatim **"(b) — AMEND THE CLAUSE."** — and this packet encodes that
+      ruling and reaches no judgment beyond it. What is NOT yet given is the
+      word that ratifies THIS packet's text, which is a separate act on a
+      separate reading. Record it at `review/ratification-<date>.md` and flip
+      `Status:` in `proposal.md`, `design.md` and this file in one commit.
+- [ ] 1.2 **THE ONE DECISION BEYOND THE RULED WORD, declared for a veto.** The
+      ruling fixes the OUTCOME (a whole-tree digest is an equivalent discharge)
+      and names its ground (the reasoning already in the requirement). It does
+      not fix the BOUNDARY sentences, and `design.md` D2 and D3 carry them: D2
+      keeps an enumeration lawful and owed where no whole-tree digest is
+      recorded, so the amendment admits a second form rather than replacing the
+      first; D3 states in the text itself that the equivalence reaches WHICH
+      FORM and never WHETHER, and that the runtime-deployment clause is
+      untouched. Both are separable and the cost of vetoing either is written
+      into D2 and D3 themselves.
+
+## 2. The delta — LANDED IN THIS PULL REQUEST
+
+- [x] 2.1 **ONE `## MODIFIED` BLOCK, on *An external neutral product is pinned
+      by commit and digest, never by tag*.** One amendment paragraph and three
+      scenarios added; **not one character of any unit the requirement already
+      carries is edited**, which is what the `modified-block-currency` carriage
+      arm reads rather than what this line claims.
+- [x] 2.2 **THE BLOCK IS WRITTEN OVER `split-opendox-two-layer-product`'s
+      OUTCOME, and says so in the block.** That packet's active block on this
+      same requirement was ratified 2026-09-05; its runtime-deployment clause,
+      its own per-requirement record and both of its scenarios are carried here
+      with the five promoted ones, for **seven carried scenarios and three
+      added, ten in the block**. The ordering is declared by
+      `sequenced_after: [split-opendox-two-layer-product]` and by the named
+      section in `proposal.md`, which is what the family reads.
+- [x] 2.3 **THE BOUNDARY IS IN THE NORMATIVE TEXT, not only in the proposal.**
+      The amendment paragraph states that the equivalence is about which form
+      the digest obligation takes and never about whether digests are owed;
+      that an enumeration stays lawful and stays owed where no whole-tree
+      digest is recorded; that the runtime-deployment clause is untouched and
+      narrowed in no respect; and that a pin recording NEITHER form has
+      discharged nothing. Scenario *The equivalence is cited as permission to
+      skip a digest* refuses the misreading directly.
+- [x] 2.4 **README *Active changes* row added** to the **OpenSpec Records**
+      block, per the corpus's own authoring rule.
+- [x] 2.5 **The machine-seeded sweep-ledger rows** in
+      `tests/sequenced_after/corpus-ledger.yaml`, written by the sanctioned
+      `python3 scripts/validate-sequenced-after.py . --seed-ledger` and by no
+      hand — this change's own row, and the partner row this block flips to
+      `co-modifier` because it writes a requirement key
+      `split-opendox-two-layer-product` also writes.
+
+## 3. The measurement — TAKEN, and recorded in the pull request body
+
+- [x] 3.1 **`code_surface: none` IS MEASURED, NOT ASSUMED.** Neither
+      `scripts/verify-opendox-pin.py` nor `scripts/verify-openxdox-pin.py`
+      reads `files:` or `pinned_by_commit_only:`; the only two occurrences of
+      the latter across both are module-docstring prose about the openXwallet
+      pin. Neither closed refusal vocabulary carries a code for a missing
+      per-file list. The two verifiers that DO read the key read it with an
+      absent-is-empty default, transcribed by `scripts/doc_health/pin_shapes.py`.
+- [x] 3.2 **THE TESTED SHAPE IS ALREADY THE WHOLE-TREE ONE.**
+      `python3 -m pytest tests/opendox_pin tests/openxdox_pin -q` reads **105
+      passed** at this head, over fixtures that build pins from
+      `digest_definition` plus `digests.tree_sha256` with no per-file key at
+      all. **A pin conformant before this lands is conformant after it.**
+- [x] 3.3 **VALIDATION RUNS THROUGH THE PINNED CONSUMER ENTRYPOINT**,
+      `python3 scripts/validate-openspec-cli-pin.py`, and not through the
+      `openspec` on `PATH` — which at this workstation is **1.13.1** against a
+      pin of **1.12.0**, so its verdict would not be this repository's on two
+      separate grounds. Counts are recorded in the pull request body.
+
+## 4. Archive — OPEN
+
+- [ ] 4.1 **ARCHIVE ON A SEPARATE WORD.** Promotion writes the amended block
+      into `openspec/specs/neutral-product-pin/spec.md`. Run the archive through
+      `python3 scripts/proposal-support.py . archive
+      amend-neutral-product-pin-source-tree-digest` in the pinned checkout,
+      never an ambient `openspec archive`.
+- [ ] 4.2 **ORDER AGAINST THE BASIS.** `split-opendox-two-layer-product` is this
+      packet's declared predecessor and archives first. Should this packet
+      somehow reach archive ahead of it, the promotion would write the basis's
+      clause into canon before the basis's own archive did — so the order is
+      checked at the archive rather than assumed here.
+
+## 5. Residue — named, not swept
+
+- [ ] 5.1 **THE openXdox-SIDE HEADER AMENDMENT is a different act in a different
+      repository and is NOT this packet's.** `5768144952` registered it: the
+      openXdox `contracts/opendox-pin.yaml` header still carries the un-amended
+      trigger text at `646f1dc0`, owed to a small follow-up pull request there.
+      This packet edits no pin file in any repository.
+- [ ] 5.2 **THE OTHER TWO PRE-STAGE FINDINGS ARE NOT ANSWERED HERE.** `#1139`
+      review `5273796676` registered three; `5777949892` answers only the
+      `neutral-product-pin` per-file one, which is this packet. The
+      `corpus-adapter-seam` "every tool" finding and the
+      `domain-mapping-declaration` five-axes finding remain as the pre-stage
+      recommends — left as ratified, registered for a successor amendment
+      change. **Naming them here is not adopting them.**

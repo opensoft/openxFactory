@@ -532,6 +532,43 @@ Every DomainxFactory must validate against the canonical contract:
 
 Active changes:
 
+- [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
+  — filed 2026-09-22, lane `openxfactory-4`, `Status: draft`, on Brett Heap's
+  ruling of the same day (`opensoft/openxFactory#656` comment
+  [`5777949892`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5777949892),
+  by multi-choice, verbatim *"(b) — AMEND THE CLAUSE"*). **ONE `## MODIFIED`
+  requirement, one added paragraph, three added scenarios.** The SOURCE-TREE
+  clause of *An external neutral product is pinned by commit and digest, never
+  by tag* is amended to admit a whole-tree `sorted-ls-tree-r-v1` digest as an
+  EQUIVALENT discharge of the per-file `sha256` / `pinned_by_commit_only:`
+  obligation — the reading the requirement already states one medium over for a
+  published artifact, reaching a source tree unchanged, because a whole-tree
+  digest covers every file in the tree and therefore SUBSUMES any list of them.
+  The boundary is normative text and not only proposal prose: an enumeration
+  stays lawful and stays owed where no whole-tree digest is recorded (the
+  openXwallet and openRepoShape pins are untouched and stay conformant), the
+  equivalence reaches WHICH FORM the digest obligation takes and never WHETHER
+  digests are owed, **the runtime-deployment clause is narrowed in no respect**,
+  and a pin recording NEITHER form has discharged nothing. Raised by Copilot
+  `r4067623184` on the `#1139` archive pre-stage and verified by the lane's
+  bookkeeper: the pin-shape ruling `5768144952` (*"(b) for the pin shape, keep
+  going"*) had settled what `contracts/opendox-pin.yaml` and
+  `contracts/openxdox-pin.yaml` CARRY while the ratified clause still said
+  otherwise, leaving the corpus a rule and an unwritten exception. **This packet
+  edits no pin file** — it settles only the normative text. The block is written
+  over `split-opendox-two-layer-product`'s OUTCOME (declared by
+  `sequenced_after:` and in a dated per-requirement record, the form that basis
+  itself used over `add-openspec-cli-pin`), so it carries that packet's
+  runtime clause and both its scenarios: **seven carried, three added, ten in
+  the block.** `code_surface:` is `none` and MEASURED — neither
+  `scripts/verify-opendox-pin.py` nor `scripts/verify-openxdox-pin.py` reads
+  `files:` or `pinned_by_commit_only:`, neither closed refusal vocabulary
+  carries a code for a missing per-file list, and
+  `pytest tests/opendox_pin tests/openxdox_pin` reads 105 passed over fixtures
+  already in the admitted shape — so the packet archives ON LANDING plus its
+  task list rather than on realization evidence, and a pin conformant before it
+  lands is conformant after it.
+
 - [add-worker-input-budget](openspec/changes/add-worker-input-budget/proposal.md)
   — filed 2026-09-22, lane `openxfactory-1`, `Status: draft`, on Brett Heap's
   word *"brief a writer to add the input-size guard"* (2026-09-22). **The
