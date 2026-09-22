@@ -2035,6 +2035,14 @@ the bookkeeping that ticks this group.
   the file's next reader never meets. The ruling states the gap in its own words —
   the claim posted as `5767868394` was an earlier draft that lacked this finding —
   and it is repeated here rather than quietly closed.)*
+  **AND THE SAME TENSION REACHES THIS FILE, because the requirement does not care
+  which link of the chain a pin sits on**: the MODIFIED `neutral-product-pin`
+  requirement's SOURCE-TREE clause (`specs/neutral-product-pin/spec.md`:87-100)
+  asks a per-file `sha256` of every artifact the pinned product's own manifest
+  digests per file, and its whole-tree-digest reasoning is scoped to PUBLISHED
+  ARTIFACTS (:102-121). It is registered in full at § 5.1 with a RULING NEEDED and
+  a recommendation, and it is named here so the actor taking this file's follow-up
+  meets it before editing the header rather than after.
   **THE TICK IS UNDISTURBED, and the reason is worth one line**: this box ticked on
   the pin file's FIELDS at openXdox root `eca0b597` — product, source repository,
   an ASSEMBLY-ROOT `commit:`, `revision_kind`, the digest under
@@ -2490,6 +2498,49 @@ the bookkeeping that ticks this group.
   and the one-link-up digest reasoning — and a ruling that leaves both in the tree
   leaves the next reader to pick one. That is why the amendment is written into
   the pin FILE, beside the sentence it supersedes, and not only onto the issue.)*
+  **AND THE RULING SITS AGAINST THIS PACKET'S OWN RATIFIED REQUIREMENT, WHICH IS
+  NAMED HERE RATHER THAN LEFT FOR A LATER READER TO COLLIDE WITH** (a Copilot
+  finding on this amendment's own pull request, `r4067623184`, and it is right in
+  the delta). The MODIFIED `neutral-product-pin` requirement THIS PACKET RATIFIED
+  says of a SOURCE-TREE pin that it *"SHALL carry the product's COMMIT, its
+  `revision_kind`, a per-file `sha256` for every artifact the product's own
+  manifest digests per file, and `pinned_by_commit_only:` for every artifact the
+  product content-addresses by commit alone"* —
+  `specs/neutral-product-pin/spec.md`:**87-100**. **The
+  one-digest-addresses-every-byte reasoning IS in that requirement, and it is
+  SCOPED TO A DIFFERENT MEDIUM**: it belongs to the clause opening *"WHERE THE
+  PRODUCT IS DISTRIBUTED AS A PUBLISHED, CONTENT-ADDRESSED ARTIFACT RATHER THAN AS
+  A SOURCE TREE"* (**:102-121**), and the runtime clause this packet itself added
+  says in terms that the deployment declaration *"SHALL NOT be read as permission
+  to skip the digests — commit and per-file `sha256` remain the trusted referent
+  exactly as for a file-read pin"* (**:123-138**). **openDox is pinned as a SOURCE
+  TREE, by commit**, so at `dc7aa08f` the three per-file entries make that
+  obligation NON-VACUOUS for the first time — which is precisely what the pin
+  header's own trigger anticipated.
+  **SO WHAT IS SETTLED AND WHAT IS NOT, STATED SEPARATELY BECAUSE THEY ARE
+  DIFFERENT QUESTIONS.** **SETTLED**: what the two pin FILES carry today — that is
+  Brett Heap's word at `5768144952` and it is executed. **NOT SETTLED**: whether
+  the requirement's SOURCE-TREE clause is discharged by a whole-tree digest. That
+  is NORMATIVE TEXT, so changing it is a SPEC-DELTA-CLASS ACT — the disposition
+  RULED `5700622683` gave § 7.1's scenario-4 defect and the one § 7.3 records for
+  its own ratified trigger phrase: registered, owed from an act that CLAIMS the
+  delta, never repaired by a bookkeeping amendment.
+  **RULING NEEDED, registered and carried in writing rather than left on a pull
+  request**: **(a)** both direct pins carry the three per-file `sha256` entries plus
+  an explicit `pinned_by_commit_only: []`, and the deferral narrows to the SHAPE of
+  those lists rather than to their existence; **(b)** the MODIFIED requirement's
+  source-tree clause is amended to admit a whole-tree `sorted-ls-tree-r-v1` digest
+  as an EQUIVALENT discharge, which is the reading the ruling already applies one
+  medium over; **(c)** the ruling stands as a recorded EXCEPTION to this packet's
+  own requirement, named at this box and at the delta. **REC (b)** — it is the only
+  option that leaves ONE rule in the corpus rather than a rule and an exception,
+  and its reasoning is already written in the requirement, three paragraphs down.
+  *(Recorded as a TENSION rather than resolved by picking the reading that makes
+  the ledger tidy. This packet refused that move at § 8.5 clause (b), at § 7.4's
+  Reading A and at § 8.4's surviving-two question, and the refusal is worth more
+  than any one of those three answers. The pin files are not wrong to carry what a
+  ruling told them to carry; what would be wrong is a ledger recording a ruling as
+  agreeing with a requirement it has not been measured against.)*
   **EXECUTION IN TWO HALVES, AND THE SECOND IS OWED**: the `openxFactory` half
   rides in the STEP 2 pull request itself, so the file carrying the superseded
   sentence carries its amendment in the same landing; the **openXdox half** —
@@ -5374,8 +5425,17 @@ realization evidence, never on landing. Each line is its own evidence.
   narrowed by CORRECTION `5767621766`.
   **THAT STEP-2 FIGURE IS CORRECTED BY AMENDMENT #11, 2026-09-22, AND THE SENTENCE
   ABOVE IS KEPT BECAUSE IT IS THE READING THE CLAIM WAS WRITTEN UNDER.** Step 2's
-  `openXdox` target is **`646f1dc0`**, not `2073e3a9`. The two are one commit apart
-  and that gap is the whole of STEP 1: `2073e3a9` is the commit `xdox-v1.0` tags,
+  `openXdox` target is **`646f1dc0`**, not `2073e3a9`. **`646f1dc0` is TWO commits
+  ahead of `2073e3a9`, and only the SECOND of the two is STEP 1** — measured on the
+  root's own history: `2073e3a9` (`#13`, the release surface, 20:56:18Z) →
+  **`6df0a030`** (`#14`, CHANGELOG `draft` → `standard`, 21:39:17Z, which touches
+  no pin) → **`646f1dc0`** (`#15`, 21:51:39Z, the pin advance that IS step 1).
+  *(This correction's own first round wrote "one commit apart" and Copilot caught
+  it on this amendment's pull request. It is fixed rather than tidied away, because
+  the two intervening commits are not interchangeable: a reader counting back one
+  from `646f1dc0` lands on a CHANGELOG edit, not on the tag, and this packet has
+  spent three amendments on exactly that class of off-by-one locator.)*
+  **THE GAP IS WHAT STEP 1 CLOSES**: `2073e3a9` is the commit `xdox-v1.0` tags,
   and its `contracts/opendox-pin.yaml` still pins openDox at `c4c5014d`, while
   `openxFactory`'s `scripts/verify-opendox-pin.py` enforces a LOCKSTEP — its own
   direct openDox `commit:` must equal the `commit:` read from
