@@ -54,7 +54,7 @@ and every refusal took two to four seconds — far too little for a model call.
 `doc-health-cataloger-worker` child — the SAME runner, the SAME vault-fetched
 token, the SAME `claude -p` flag set, the SAME `claude-sonnet-5` — ran 188 s,
 324 s, 188 s and 305 s and returned valid structured output, on an assembled
-input of 82,753 bytes. On those same four nights the analysis child died in two
+input of 82,712 bytes. On those same four nights the analysis child died in two
 to four seconds. Authentication was demonstrably healthy; only the input size
 differed.
 

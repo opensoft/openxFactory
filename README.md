@@ -545,7 +545,7 @@ Active changes:
   against an empty stderr. Size separates the nights with no exception
   (accepted at 2,524,427 bytes and below, refused at 2,913,875 and above), and
   the CONTROL is the sibling cataloger child: on 2026-09-11/12/14/15 it ran
-  188–324 s on 82,753 bytes of input, same runner, same token, same flag set,
+  188–324 s on 82,712 bytes of input, same runner, same token, same flag set,
   while the analysis child died in 2–4 s. Re-run on 2026-09-22T01:20Z after the
   Cloud PC account's seat was assigned, the analysis child failed again in
   three seconds on the same 7,940,307-byte input — the seat was not the
