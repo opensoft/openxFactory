@@ -2516,3 +2516,76 @@ def test_a_clone_with_no_origin_main_still_falls_back_to_the_local_branch(
     assert sha == _git(repo, "rev-parse",
                        "refs/heads/main").stdout.strip(), sha
     assert "refs/heads/main" in why, why
+
+
+def test_a_bound_that_fires_AFTER_the_opening_probes_is_a_skip_not_a_crash(
+        tmp_path, monkeypatch):
+    """THE INITIAL PROBE SUCCEEDING PROTECTS NOTHING (Copilot, PR #1142).
+
+    `verify()` raises `GitUnavailable` from its OPENING `rev-parse` and from
+    every later inventory read — `committed_paths` on `main` already, and
+    `committed_text` since this branch widened it. `verify_pin_reachability`
+    caught neither, so a bound that fires on the twentieth `git show` of a sweep
+    escaped as a crash and took down whatever surface called in — a pytest run,
+    a preflight pass, a nightly — **at the moment a SKIP was owed and
+    available**. Both branches of that are asserted here, because the whole
+    point of the finding is that the two are reached differently.
+
+    THE FIXTURE LETS THE OPENING PROBES SUCCEED. `_raise_timeout` is armed for
+    `ls-tree` ALONE — the inventory read, which `verify()` performs only after
+    `rev-parse` and `is_truncated` have already answered with real git. A test
+    that stopped every probe would exercise the opening raise instead, which is
+    the path that was never in doubt.
+
+    SKIP AND NOT FAIL: every FAIL this function returns names a defect in an
+    ARTIFACT and a repair route for it, and there is neither here — only a
+    question that could not be put. The report is None because the inventory
+    never completed, and an empty one would render as a clean sweep of zero
+    sites: the silent pass this branch exists to prevent."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    from doc_health import ideation_readiness as ir
+
+    real_run = subprocess.run
+    seen = []
+
+    def inventory_never_returns(argv, **kwargs):
+        argv = list(argv)
+        seen.append(argv)
+        if "ls-tree" in argv:
+            return _raise_timeout(argv, **kwargs)
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", inventory_never_returns)
+
+    verdict, reason, report = ir.verify_pin_reachability(repo,
+                                                         allow_remote=False)
+
+    assert any("rev-parse" in a for a in seen), (
+        "the opening probe must have RUN and SUCCEEDED, or this test is "
+        "measuring the crash path that was never in doubt")
+    assert verdict == ir.PIN_PROBE_SKIP, (
+        f"an unconsultable repository is this probe's own SKIP, not {verdict}: "
+        "a FAIL would name an artifact defect and offer a repair route, and "
+        "there is no artifact defect here")
+    assert report is None, (
+        "the inventory never completed, so there is no report; a fabricated "
+        "empty one renders as a clean sweep of zero sites")
+    assert "NOT ANSWERABLE" in reason, reason
+    assert "could not be consulted" in reason, reason
+
+
+def test_that_same_surface_still_answers_normally_when_git_works(tmp_path):
+    """The narrowing above must not have swallowed a real verdict.
+
+    The same fixture, with no probe interfered with at all, still reaches a
+    genuine classification and a genuine report — so the new `except` catches
+    the unconsultable repository and nothing else."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    from doc_health import ideation_readiness as ir
+
+    verdict, reason, report = ir.verify_pin_reachability(repo,
+                                                         allow_remote=False)
+    assert report is not None, "a consultable repository still yields a report"
+    assert verdict in (ir.PIN_PROBE_PASS, ir.PIN_PROBE_FAIL,
+                       ir.PIN_PROBE_SKIP), verdict
+    assert "could not be consulted" not in reason, reason

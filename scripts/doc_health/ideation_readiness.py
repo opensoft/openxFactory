@@ -778,12 +778,46 @@ def verify_pin_reachability(repo=None, *, rev: str = "HEAD",
     consulted and, for a defect, the repair route the artifact's own class
     allows: retention for immutable evidence, reproduction for a regenerable
     projection. Naming the route at the moment the finding fires is how the
-    landing obligation is discoverable where it binds."""
+    landing obligation is discoverable where it binds.
+
+    `report` IS None IN EXACTLY ONE CASE — an unconsultable repository — and
+    that is the only shape a caller has to allow for beyond the three verdicts.
+    See the SKIP below."""
     from . import pin_class
 
     root = Path(repo or Path(__file__).resolve().parents[2])
-    report = pin_class.verify(root, rev=rev, remote=remote,
-                              allow_remote=allow_remote)
+    try:
+        report = pin_class.verify(root, rev=rev, remote=remote,
+                                  allow_remote=allow_remote)
+    except pin_class.GitUnavailable as exc:
+        # AN UNCONSULTABLE REPOSITORY IS THIS PROBE'S OWN SKIP, NEVER A CRASH
+        # (Copilot, PR #1142). `verify()` raises `GitUnavailable` from its
+        # OPENING `rev-parse` and from every later inventory read —
+        # `committed_paths` on `main` already, and `committed_text` since this
+        # branch — so the initial probe succeeding protects nothing: a bound
+        # that fires on the twentieth `git show` of the sweep reaches here just
+        # as the first one does. Uncaught, it takes down whatever surface
+        # called in — a pytest run, a preflight pass, a nightly — at the moment
+        # a SKIP was owed and available.
+        #
+        # SKIP AND NOT FAIL, deliberately. Every FAIL this function returns
+        # names a defect IN AN ARTIFACT and a repair route for it; there is no
+        # artifact defect here and no route to offer, only a question that
+        # could not be put. That is the distinction `report.inconclusive`
+        # already draws one branch below, reached there by sites that answered
+        # INCONCLUSIVE individually and reached here when the inventory itself
+        # could not be read — so the two arrive at the SAME verdict, which is
+        # what makes this the existing answer rather than a new one.
+        #
+        # THE REPORT IS None BECAUSE THERE IS NO REPORT: the inventory never
+        # completed. A fabricated empty one would render as a clean sweep of
+        # zero sites, which is the silent pass this whole branch exists to
+        # prevent.
+        return (PIN_PROBE_SKIP,
+                f"DERIVATION-PIN REACHABILITY NOT ANSWERABLE here: the "
+                f"repository could not be consulted, so no site was "
+                f"classified. Observed, not conjectured: {exc}",
+                None)
     rendered = pin_class.render(report)
 
     if not report.clean:
