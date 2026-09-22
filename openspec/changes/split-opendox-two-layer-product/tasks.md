@@ -2492,8 +2492,22 @@ the bookkeeping that ticks this group.
   `ideation-workbench`, each digested per file at `contracts/schemas/…` in
   `opensoft/openDox-spec` at `8fe8c4c7`. **So the revisit is RECORDED AS DONE,
   with the digest reading as its resolution, and the trigger sentence — *"that
-  artifact then moves into a `files:` list here"* — is AMENDED rather than left
-  standing contradicted.**
+  artifact then moves into a `files:` list here"* — is RULED AMENDED rather than
+  left standing contradicted.**
+  **AND A RULING IS NOT YET THE FILES: AS THIS AMENDMENT IS WRITTEN, NEITHER PIN
+  FILE CARRIES THE AMENDED HEADER ON A LANDED COMMIT** (a Copilot finding on this
+  amendment's own pull request, `r4067646318`, and it is right). The
+  `openxFactory` side is written and IN FLIGHT inside STEP 2's pull request
+  (`#1134` at head `ca2c8a82`, DRAFT — recorded below); the **openXdox side is
+  OWED and not yet authored**. **What is DONE is the ruling and the revisit it
+  answers; what is PENDING is the execution, in two pull requests — and this box
+  says which is which rather than letting one word cover both.**
+  *(Recorded because a ledger that reads "amended" where it means "RULED to be
+  amended" is exactly how an archive comes to treat outstanding work as closed.
+  That failure mode has already been refused three times in this packet — § 3.7
+  against three candidate heads, § 4.5a against an abbreviated command, and
+  §§ 3.8/4.6 against a live read of a tag ref — each time by refusing to record
+  anything but a landed sha as landed.)*
   *(Two recorded readings in this family disagreed — the header's trigger sentence
   and the one-link-up digest reasoning — and a ruling that leaves both in the tree
   leaves the next reader to pick one. That is why the amendment is written into
