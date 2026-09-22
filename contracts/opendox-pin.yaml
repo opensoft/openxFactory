@@ -49,10 +49,13 @@ kind: pinned_contract_manifest
 # WHY THERE IS NO `files:` AND NO `pinned_by_commit_only:`, unchanged from
 # `contracts/openxdox-pin.yaml`'s own reasoning:
 #
-#   1. openDox's own `contracts/manifest.yaml` declares
+#   1. openDox's own `contracts/manifest.yaml` declared
 #      `contract_bundle_version: none` and `entries: []`. The per-file
 #      obligation is keyed to "every artifact the product's own manifest
-#      digests per file", and that set is EMPTY.
+#      digests per file", and that set was EMPTY.
+#      AMENDED 2026-09-21 — that set is NO LONGER EMPTY (see the amendment
+#      below); reason 1 is kept as the reading that held until `dc7aa08f`,
+#      and reason 2 is now the operative one.
 #   2. The whole-tree digest discharges the completeness obligation those two
 #      lists exist to serve, and discharges it MORE STRONGLY: one digest
 #      addresses every byte, so no member can be undeclared and none can be
@@ -63,19 +66,42 @@ kind: pinned_contract_manifest
 #      `opendox-pin.yaml`, each carry `digest_definition: sorted-ls-tree-r-v1`
 #      and `digests.tree_sha256` and no per-file list at all.
 #
-# NO `contract_bundle_tag:`. openDox has cut no bundle: `dox-v1.0` is this
-# project's own act, strictly later than this phase, and a label recorded
-# before the thing it labels exists would be a claim, not a label.
+# AMENDMENT, 2026-09-21 — RULED by Brett Heap at `opensoft/openxFactory#656`
+# comment 5768144952, verbatim "(b) for the pin shape, keep going". THE REVISIT
+# THIS BLOCK OWED IS DONE, AND ITS ANSWER IS THAT THE LISTS ARE NOT OWED.
 #
-# OFFLINE LAW, WITH ONE NAMED EXTENSION. The four mirrored checks read this
-# pin file, the `openDox` gitlink, and the `openDox/` submodule's own object
-# store — never the network. The lockstep check ALSO reads
-# `openXdox/contracts/opendox-pin.yaml` as a git BLOB — out of the SECOND
-# submodule this same repository already mounts, AT THE COMMIT THE `openXdox`
-# GITLINK RECORDS, never the openXdox working tree — which is a local disk
-# read, not a network one; the offline property holds for the whole verifier,
-# not only for its first four checks.
-# ============================================================================
+# THE TRIGGER FIRED, AND IT FIRED HERE. The bump this commit makes, `c4c5014d`
+# -> `dc7aa08f`, crosses openDox's FIRST BUNDLE: at `dc7aa08f` its
+# `contracts/manifest.yaml` carries `contract_bundle_version: dox-v1.0` and
+# THREE `entries:`, every one digested per file --
+# `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog` and
+# `ideation-workbench`, all at `path: contracts/schemas/...` in
+# `opensoft/openDox-spec` at `8fe8c4c7`. So the condition the
+# `neutral-product-pin` header names -- the first commit whose manifest carries
+# a non-empty `entries:` row -- is met at `dc7aa08f`, 2026-09-21.
+#
+# RESOLVED: `files:` AND `pinned_by_commit_only:` ARE NOT OWED, AND THE TRIGGER
+# TEXT IS AMENDED RATHER THAN LEFT CONTRADICTED. The header's sentence "that
+# artifact then moves into a `files:` list here" is superseded for this pin by
+# the reading reason 2 above already records, which is
+# `scripts/verify-openxdox-pin.py`'s own conclusion one link up this same
+# chain: the whole-tree `sorted-ls-tree-r-v1` digest covers EVERY BYTE of the
+# pinned root tree, so no member can be undeclared and none can be added or
+# altered without changing the referent -- it discharges the completeness
+# obligation those two lists exist to serve, and discharges it MORE STRONGLY
+# than an enumeration. The three artifacts sit in openDox's SPEC leg, which is
+# itself pinned by commit AND digest in openDox's own `contracts/spec-pin.yaml`,
+# so they are covered by a digest chain end to end and an enumeration here would
+# add a second, weaker statement of the same fact -- one that could drift.
+# Two recorded readings in this family disagreed; this is the ruling that makes
+# them agree, and it is recorded in the file rather than only on the issue so a
+# later reader of the trigger sentence finds the answer beside it.
+#
+# `openXdox/contracts/opendox-pin.yaml` carries the un-amended trigger sentence
+# natively and takes the IDENTICAL amendment in its own follow-up pull request,
+# registered on 5768144952. It did not come with `openXdox#15` because the claim
+# posted as 5767868394 was an earlier draft that lacked this finding -- a gap in
+# the record, stated rather than quietly closed.
 
 source_repository: opensoft/openDox
 
@@ -89,7 +115,7 @@ submodule_path: openDox
 # `openDox-spec` are the assembly root's own job to pin, and openxFactory
 # never pins or mounts a leg, on `contracts/openxdox-pin.yaml`'s own
 # reasoning for openXdox.
-commit: "c4c5014d9b39ac55e5df957db23a56db38847a6b"
+commit: "dc7aa08fe48c8d17b596b0daa1ce87cdc0472aca"
 revision_kind: commit
 
 digest_algorithm: sha256
@@ -107,7 +133,7 @@ digest_algorithm: sha256
 # without mounting the other two.
 digest_definition: sorted-ls-tree-r-v1
 digests:
-  tree_sha256: "f7b9b0236ae6afabcb2692abb3f7e084053ea67babf450222efff7452cac51f6"
+  tree_sha256: "adc049c973298e44064187aa91cd5c987aec1b911ebb8dea607648c9ae7f7cee"
 
 # MIGRATION DECLARATION — MODIFIED `neutral-product-pin` requirement, "A pin
 # bump crosses a migration" scenario (`split-opendox-two-layer-product`
@@ -130,10 +156,41 @@ digests:
 # same sentinel, so neither reads as a claim the other is silent on; that
 # leg's own comment still cites `da8aae96`, which is ITS record of when ITS
 # root last read the leg and is not this repository's to edit.
+#
+# FILLED AT THIS BUMP (2026-09-21). The sentinel above is kept as the history
+# of why it stood; the test it set is now MET. This pin advanced `c4c5014d` ->
+# `dc7aa08f` (the commit `dox-v1.0` tags), carrying openDox's `code` leg
+# `0b4e8bbf` -> `d816cf06`. Re-running the very command the comment above
+# records -- `git ls-tree -r <leg> | grep -i migration` on
+# `opensoft/openDox-code` -- returns NOTHING at `0b4e8bbf`, exactly as written,
+# and SIX paths at `d816cf06`, among them
+# `migrations/0001_identity_and_coordination.sql` and
+# `migrations/0002_migration_state.sql`. So this bump is the first real
+# migration this pin crosses.
+#
+# THE VALUES ARE openXdox's, NOT A SECOND OPINION. The comment above records
+# why both direct pins carry the same sentinel -- "so neither reads as a claim
+# the other is silent on" -- and that obligation is discharged the same way:
+# these three are the values `openXdox/contracts/opendox-pin.yaml` carries at
+# `646f1dc0` (landed as `opensoft/openXdox#15`), with `runbook` copied VERBATIM
+# rather than re-worded, so the two files cannot drift into two spellings of
+# one fact. `range` follows the ledger's `<version>_<name>`, the spelling
+# chosen by the holder. `reversible: false` is openDox's own statement:
+# `0002_migration_state.sql` reads "openDox ships no down migration today" and
+# its ledger column is `reversible boolean not null default false`.
+#
+# `runbook` CARRIES A CORRECTION. It first read "none exists" on the openXdox
+# side, and that was FALSE: the search behind it matched FILE NAMES only, so
+# `docs/runtime.md` -- "The openDox runtime -- a runbook", section 5
+# "Migrations" and section 6 "Running it", named by
+# `deploy/kubernetes/base/migration-job.yaml` for the re-run -- was never
+# opened. Copilot's review of openXdox#15 caught it; the holder withdrew the
+# absence claim at `opensoft/openxFactory#656` comment 5768022822. The value
+# below is the corrected one.
 migration:
-  range: not_yet_deployed
-  reversible: not_yet_deployed
-  runbook: not_yet_deployed
+  range: "0001..0002"
+  reversible: false
+  runbook: "opensoft/openDox-code docs/runtime.md sections 5-6, at the pinned code leg d816cf06 - the Kubernetes migration Job names it for the re-run; corrected from a false absence at Copilot review of openXdox#15, reported back to openxFactory#656 5767868616"
 
 # The BYTE-IDENTITY REFERENT, record 2 of the three RULED OQ-I requires
 # (Brett Heap, #656, 2026-09-09; `docs/opendox-cutover-runbook.md` § 1) — the
