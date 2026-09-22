@@ -469,13 +469,20 @@ def _write_shard_bundle(out_dir, allowed_output_root, shards, prompt_text,
                         prompt_version, taxonomy, model, as_of, docs,
                         input_budget_bytes: int = DEFAULT_INPUT_BUDGET_BYTES
                         ) -> None:
-    # noqa: D401 -- see the module docstring for the bundle's contract.
     """Write the cataloger child's self-contained bundle: prompt, output
     schema, and one file per shard (job envelope + corpus excerpts for
     exactly that shard's already-protected-filtered selections) — mirrors
     `semantic.prepare_bundle`'s self-containment (module docstring: "the
     bundle is fully self-contained so the worker host needs no repository
-    access at all")."""
+    access at all").
+
+    `input_budget_bytes` bounds the prompt the CHILD assembles from each
+    shard (`shard_analysis_input`). The parent cannot pack that prompt --
+    the child builds it -- but it measures every shard, records the
+    measurements in the bundle's `meta.json`, and leaves any shard over the
+    budget OUT of `shards.json`, the only list the child reads. The shard's
+    own file still ships, so the bundle stays a complete record of what was
+    sharded."""
     require_budget(input_budget_bytes)
     write = _bundle_writer(out_dir, allowed_output_root)
     write(Path("prompt.md"), prompt_text)
