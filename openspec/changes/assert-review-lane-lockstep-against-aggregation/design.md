@@ -278,6 +278,74 @@ UNDETERMINED scenario would be unreachable by the only route that reaches it. Th
 realization makes every read outcome, failures included, an input naming what
 could not be read.
 
+## D12 — the surfaces are read at ONE resolved commit, or the check measures read timing
+
+Copilot's *previously missed* item on round 5: reading the three files
+independently from `main` is not a snapshot. **A re-point commit landing between
+two API calls returns a MIXED set, which the check would report as INCONSISTENT —
+a state that never existed in the repository it was reading.** Taken into the
+REQUIREMENT rather than the task list, because it is about what is measured
+rather than how.
+
+The check resolves the aggregation's branch to a single commit FIRST, reads every
+surface at that commit, and names the commit with its verdict. **A measurement
+taken across a moving ref measures read timing, not the aggregation** — and for
+this packet that failure would be particularly cruel: the one outcome it would
+manufacture, INCONSISTENT, is the outcome nobody can check against anything,
+because it says the other repository disagrees with itself.
+
+## D13 — the binding's second consumer is a second ENTRY, and the never-passed statement is HONOURED rather than amended
+
+Copilot `r4076368784` measured what round 4's fix had waved at:
+`contracts/review-lane-repin-binding.template.yaml` is structurally
+single-consumer — `consumer.holder_ref: "openxfactory:workflow:review-lane-repin"`
+(`:100`), `resolution.resolved_by: review_lane_repin_workflow_only` (`:167`), and
+a statement that the minted token is *"never passed to a second workflow"*
+(`:190`). *"Names both consumers"* without saying HOW would let an implementation
+add the privilege under a contract that still denies it.
+
+**The representation is a SECOND CONSUMER ENTRY with its own `holder_ref` and its
+own mint**, `resolved_by` widened to name both workflows by id — and the
+never-passed statement **carried unchanged, because nothing is passed.** Each
+workflow mints its own token from the same App under the same read-only scope.
+The existing sentence is not an obstacle the design works around; it is the
+design, and the second consumer is built to satisfy it.
+
+## D14 — a fork pull request is OUT OF SCOPE, not UNDETERMINED
+
+Copilot `r4076368722`: a fork-origin pull request receives no repository secrets,
+so the gate could not mint a token and would answer UNDETERMINED on every fork
+event — the state the requirement forbids from standing, reached by a route that
+has nothing to do with the aggregation.
+
+The gate runs only where the head repository IS this repository, which is where
+every pin advance comes from (`bot/review-lane-repin` is a branch here), and a
+fork event is reported **OUT OF SCOPE**. *Not applicable* and *could not measure*
+are different answers, and this packet's entire subject is a corpus that had
+stopped distinguishing a claim from a measurement; it would be a poor place to
+start conflating two more.
+
+**`pull_request_target` is REFUSED BY NAME.** It is not foreign to this
+repository — `doc-health-reusable.yml` and `merge-master-approval.yml` both use
+it — but it runs with secrets against an untrusted head, and no cross-repository
+measurement is worth that. Recorded as a refusal rather than an omission so the
+next reader does not offer it as the obvious fix.
+
+## D15 — the neutral conclusion needs a WRITE path, and it is a different token from the read
+
+Copilot's second *previously missed* item: § 5.1e publishes through the check-run
+API while § 5.1c's binding grants `contents:read` only, and **no workflow in this
+repository grants `checks: write` today** (`merge-master-approval.yml`:453 grants
+`checks: read`). The publish would 403, and INCONSISTENT/UNDETERMINED could never
+be visible as `neutral` — the contract would degrade to exactly the silent green
+pass D11 was written to prevent, by a different route.
+
+The gate's own job grants least-privilege `checks: write` in its `permissions:`
+block. **The aggregation read token stays read-only and gains nothing**: the
+thing being written is a check run in THIS repository and the thing being read is
+ANOTHER repository, and keeping those two privileges in different places is the
+same separation the binding's `never_grants:` set exists to state.
+
 ## D5 — what the check compares, and why it is values rather than authorship
 
 The comparison is `core_commit` against the commit the aggregation's JUDGING

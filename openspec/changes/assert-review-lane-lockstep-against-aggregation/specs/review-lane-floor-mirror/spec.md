@@ -53,6 +53,15 @@ as UNDETERMINED and name what it could not read; it SHALL NOT resolve to either
 state, and it SHALL NOT read its own silence as confirmation of the declared one.
 An unaskable question is never an implicit pass.
 
+THE SURFACES ARE READ AT ONE RESOLVED COMMIT OF THE AGGREGATION AND NOT
+INDEPENDENTLY FROM A MOVING REF. The check SHALL resolve the aggregation's
+branch to a single commit first and read every surface AT THAT COMMIT, and
+SHALL name that commit with its verdict. Reading the surfaces one at a time from
+a branch lets a re-point land between the reads and returns a MIXED set — which
+the check would then report as INCONSISTENT, a state that never existed in the
+repository it was reading. A measurement taken across a moving ref measures READ
+TIMING, not the aggregation.
+
 THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the aggregation
 UNREADABLE first; then its surfaces DISAGREEING with each other; then the
 comparison of the agreed commit against `core_commit`; then the declared state
@@ -96,9 +105,10 @@ compared only to itself is a tautology.
 - **THEN** the check reports that contradiction too, because the obligation is that the declaration be TRUE and not that it be pessimistic
 
 #### Scenario: The aggregation's own surfaces disagree with each other
-- **WHEN** the aggregation's surfaces are read and do not all carry the same commit
+- **WHEN** the aggregation's surfaces, read at ONE resolved commit of it, do not all carry the same commit
 - **THEN** the check reports INCONSISTENT and names each surface with the value it carried
 - **AND** it concludes neither `converged` nor `diverged`, because a check permitted to pick one surface would be choosing its own answer
+- **AND** the disagreement is the aggregation's own at that commit, not an artefact of reading its surfaces one at a time while a re-point landed between the reads
 
 #### Scenario: The aggregation's surfaces cannot be read
 - **WHEN** the check cannot obtain the aggregation's judging surfaces

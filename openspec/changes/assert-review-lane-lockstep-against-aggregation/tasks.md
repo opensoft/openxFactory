@@ -132,6 +132,42 @@ this packet's archive until merged PLUS green realization evidence.
   CONSUMERS, and a test asserts THE PULL-REQUEST SIDE's read succeeds rather than
   only the advance side's. **The two runs share an identity and a scope; they
   share no token and no outputs.**
+- [ ] 5.1f **THE BINDING IS STRUCTURALLY SINGLE-CONSUMER AND THE SECOND
+  CONSUMER IS A SECOND ENTRY, NOT A SHARED TOKEN** (Copilot `r4076368784`).
+  Measured: `contracts/review-lane-repin-binding.template.yaml` carries
+  `consumer.holder_ref: "openxfactory:workflow:review-lane-repin"` (`:100`),
+  `resolution.resolved_by: review_lane_repin_workflow_only` (`:167`) and a
+  statement that the minted token is *"never passed to a second workflow"*
+  (`:190`). Saying the binding "names both consumers" without saying HOW would
+  let an implementation add the privilege under a contract that still denies it.
+  **The representation is a SECOND CONSUMER ENTRY with its own `holder_ref`
+  (`openxfactory:workflow:<the gate>`) and its own mint**, `resolved_by` widened
+  to name both workflows by id, and the never-passed statement **carried
+  UNCHANGED** — because nothing is passed: each workflow mints its own token from
+  the same App under the same read-only scope. The statement is honoured by the
+  design rather than amended around. Its tests move with it.
+- [ ] 5.1g **THE GATE IS SCOPED TO SAME-REPOSITORY PULL REQUESTS** (Copilot
+  `r4076368722`). A fork-origin pull request receives no repository secrets, so
+  the gate could not mint a token and would answer UNDETERMINED on every fork
+  event — the state the requirement forbids from standing. The gate therefore
+  runs only where the head repository IS this repository, which is where every
+  pin advance comes from (`bot/review-lane-repin` is a branch here), and a fork
+  event is reported OUT OF SCOPE rather than UNDETERMINED: *not applicable* and
+  *could not measure* are different answers and this packet's whole subject is
+  not conflating them. **`pull_request_target` is REFUSED by name**: it would run
+  with secrets against an untrusted head, and no cross-repository measurement is
+  worth that.
+- [ ] 5.1h **THE NEUTRAL CONCLUSION NEEDS A WRITE PATH, AND IT IS A DIFFERENT
+  TOKEN FROM THE READ** (Copilot's *previously missed* item, round 5). § 5.1e
+  publishes through the check-run API and § 5.1c's aggregation binding grants
+  `contents:read` only — measured, no workflow in this repository grants
+  `checks: write` today (`merge-master-approval.yml`:453 grants `checks: read`)
+  — so the publish would 403 and INCONSISTENT/UNDETERMINED could never be
+  visible as `neutral`. The gate's OWN job grants least-privilege `checks: write`
+  in its `permissions:` block; **the aggregation read token stays read-only and
+  gains nothing**, because the thing being written is a check run in this
+  repository and the thing being read is another repository. A test exercises the
+  published check-run path.
 - [ ] 5.1d **A READ FAILURE IS AN INPUT, NEVER A FATAL STEP** (Copilot
   `r4076152544`). The advance workflow treats a non-404 API failure as step-fatal,
   so an auth error, a rate limit or a transport failure would abort before the
