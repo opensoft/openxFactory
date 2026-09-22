@@ -334,11 +334,13 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
       if python -m opendox.cli --repo-root tests/fixtures/malformed --strict generate --output /tmp/bad.json 2>/tmp/err; then
         echo "FAIL: a malformed corpus validated"; exit 1
       fi
-      grep -qv "No such file or directory" /tmp/err   # the refusal must name a RULE, not a missing path
+      ! grep -q "No such file or directory" /tmp/err  # the refusal must name a RULE, not a missing path
 
   The first exits 0; the second exits NON-ZERO and the sequence asserts that
   rather than printing it, so a validator returning zero on a malformed corpus
-  fails the check. **Neither may fail on an unresolvable schema path** — today
+  fails the check. The last line is a NEGATIVE `grep` — `! grep -q` — not
+  `grep -qv`, which would have succeeded on any single non-matching line and so
+  passed a mixed "missing schema AND rule error" stderr. **Neither may fail on an unresolvable schema path** — today
   that is exactly how it fails, because `--strict` makes "the validator is
   unreachable" fatal and the validator is unreachable.
 
@@ -417,8 +419,17 @@ packet's interim arrangement ends.**
       set -euo pipefail
       python -m pytest -q                                   # NOT --noconftest, NOT a file list
       test "$(grep -c -- --noconftest .github/workflows/validate.yml)" -eq 0
+      # AND no pytest step enumerates a subset: a named file list with no
+      # --noconftest would otherwise pass the assertion above.
+      python - <<'EOF'
+      import re, sys, pathlib
+      w = pathlib.Path(".github/workflows/validate.yml").read_text()
+      body = "\n".join(l.split("#")[0] for l in w.split("\n"))
+      named = set(re.findall(r'tests(?:_runtime)?/test_[A-Za-z0-9_]+\.py', body))
+      sys.exit(0 if not named else (print("FAIL: workflow still enumerates", len(named), "test files"), 1)[1])
+      EOF
 
-  Both statements must succeed: `set -e` propagates a failing suite (a passing
+  All three statements must succeed: `set -e` propagates a failing suite (a passing
   `grep` after a failing `pytest` must not make the sequence exit zero), and the
   `test` asserts the exclusion count is ZERO rather than leaving it to a reader.
   Today openDox-code gives 1,298 errors / 0 passed and openXdox-code 1,089 / 0.
@@ -554,8 +565,14 @@ that does not name a platform.
   `serve.py:933` construct `GhPullRequests` by name and `serve.py:1507` records
   that an unset injection *"builds the real `GhPullRequests`"*. The unset default
   becomes the neutral implementation; `GhPullRequests` becomes ONE contributed
-  implementation, registered through the SAME injection seam requirement 4 uses
-  for the generator.
+  implementation. **NAME THE SUBMISSION REGISTRATION POINT, and keep it SEPARATE
+  from the generator's.** The submission seam ALREADY EXISTS and is
+  `pull_request_factory` — `serve.py:766` declares it, `:931-932` calls it, and
+  `:1505` describes it as *"the same kind of seam"* — so this box repoints its
+  UNSET DEFAULT to the neutral implementation rather than inventing a seam. The
+  generator seam that task 5.4 declares is a DIFFERENT interface that does not
+  exist yet; the two are contributed through the same PATTERN, not through the
+  same registration point, and conflating them would make neither implementable.
 - [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
   registered, openxFactory's GitHub pull-request flow behaves exactly as today.
   This is a generalization, not a replacement, and 12.5 is the box that proves it.

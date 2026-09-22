@@ -750,6 +750,15 @@ this packet's own pricing is.
 
 openDox does **not** take `generator.py`. Instead:
 
+**One precision the review forced, and it is worth keeping.** "Through the same
+seam" is true of the PATTERN and false of the REGISTRATION POINT. The submission
+seam already exists — `serve.py:766`'s `pull_request_factory`, called at
+`:931-932`, described at `:1505` as *"the same kind of seam"* — so requirement 11
+repoints its unset DEFAULT rather than inventing anything. The generator seam
+requirement 4 needs does NOT exist and § 5.4 declares it. They are two interfaces
+built the same way, not one interface serving both, and saying otherwise would
+leave neither implementable.
+
 - **openDox grows a SMALL NEUTRAL PROJECTION** over the `CorpusAdapter` protocol
   it *already declares* — `src/opendox/corpus_adapter.py`, a
   `@runtime_checkable` `Protocol` (`:280`) with six closed members (`resolve`,
