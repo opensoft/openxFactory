@@ -65,7 +65,9 @@ expected to be **long-lived**.
 The pinned CLI is a FOREIGN JUDGMENT about a LOCAL corpus. This corpus has a
 PROMOTED scenario-rename grammar — the reserved
 ``**Merged into `<title>` by `<change>` (<date>):**`` marker, canon at
-`openspec/specs/doc-health/spec.md`:1770 — and **1.12.0 cannot read it**. The
+`openspec/specs/doc-health/spec.md`:1772 — the second of the two marker-form
+bullets, **:1770 being the sibling `Removed from canon` form**, which is why the
+number must be read with the form it names — and **1.12.0 cannot read it**. The
 readiness evidence says so in as many words:
 `openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`
 § *The two refusals* — *"1.12.0's scenario-currency check is marker-blind. It
@@ -122,8 +124,10 @@ than it is:
 2. **A narrowed claim is not reached.** A record naming the validation of ONE
    change says something about that change; only a whole-corpus claim asserts
    the adjudicated verdict. A narrowed run **still applies** the dispositions it
-   matches — canon says so at `openspec/specs/neutral-product-pin/spec.md`:602-604
-   — and what it cannot do is decide STALENESS. *(An earlier draft said such a
+   matches — canon says so at `openspec/specs/neutral-product-pin/spec.md`:663-668,
+   *"A narrowed run SHALL still APPLY the dispositions it matches, and SHALL
+   state that it checked none for staleness"* — and what it cannot do is decide
+   STALENESS. *(An earlier draft said such a
    run could not be reconciled against the dispositions "at all", which
    contradicted that ratified sentence. Caught by Copilot `r4073184083`; the
    restriction is now scoped to staleness, which is what canon restricts.)*
@@ -163,7 +167,7 @@ digest."* This requirement extends that from WHICH READER RAN to WHICH VERDICT
 IS THE REPOSITORY'S.
 
 **Why not `doc-health`.** It owns the `Merged into` marker at
-`openspec/specs/doc-health/spec.md`:1770 — the convention whose unreadability
+`openspec/specs/doc-health/spec.md`:1772 — the convention whose unreadability
 CAUSES the finding — but it owns neither the pin, nor the entrypoint, nor the
 dispositions. Placing the remedy there would put it in a different capability
 from the mechanism it depends on, and `doc-health` would acquire a rule about a

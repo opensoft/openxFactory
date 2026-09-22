@@ -608,7 +608,7 @@ Active changes:
   workstation not even being the pinned version (`1.13.1` on `PATH` against a
   pin of `1.12.0`). The cause is promoted canon the CLI cannot read: the
   reserved ``Merged into`` scenario-rename marker at
-  `openspec/specs/doc-health/spec.md`:1770. The worked example is
+  `openspec/specs/doc-health/spec.md`:1772. The worked example is
   `split-opendox-two-layer-product` § 8.9 clause (2), which named the raw
   command, could never be ticked while the ratified `add-chain-attestation`
   disposition stood, and took the reserved `[~]` DEFERRED marker under RULED

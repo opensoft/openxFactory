@@ -85,8 +85,15 @@ The three that changed the requirement's meaning:
 
 - **`r4073184083`** — the delta said only a whole-corpus run could be reconciled
   against the dispositions *"at all"*, which **contradicts ratified canon**:
-  `openspec/specs/neutral-product-pin/spec.md`:602-604 says a narrowed run SHALL
-  still APPLY the dispositions it matches and only may not decide staleness. The
+  `openspec/specs/neutral-product-pin/spec.md`:663-668 — *"A narrowed run SHALL
+  still APPLY the dispositions it matches, and SHALL state that it checked none
+  for staleness"* — says a narrowed run still applies them and only may not
+  decide staleness. *(The record cited `:602-604` when it was written; the
+  merge-from-main that `#1140`'s landing required moved the canon file, and
+  `:602-604` now lands on an unrelated scenario. **The POINTER is corrected so it
+  still reaches the sentence it always named — the quoted text, not the number,
+  is what this record relies on** — and the quotation is carried here so the next
+  drift is visible rather than silent. Copilot, PR #1141.)* The
   restriction is now scoped to staleness. **A packet whose whole subject is
   deferring to the disposition mechanism could not afford to misstate it**, which
   is why it was taken as a fix rather than argued.

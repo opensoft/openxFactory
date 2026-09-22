@@ -19,7 +19,8 @@ origin:
     the same totals and the same finding and EXITS 1, at 1.13.1 on PATH against a
     pin of 1.12.0. Same tree, same finding, opposite exit.
     THE CAUSE IS PROMOTED CANON THE TOOL CANNOT READ. This corpus's reserved
-    scenario-rename marker is canon at `openspec/specs/doc-health/spec.md`:1770,
+    scenario-rename marker is canon at `openspec/specs/doc-health/spec.md`:1772
+    (the `Merged into` bullet; :1770 is the sibling `Removed from canon` bullet),
     and `openspec/changes/prepare-openspec-1-12-readiness/evidence/openspec-1.12-readiness-2026-09-05.md`
     § "The two refusals" states the defect plainly: "1.12.0's scenario-currency
     check is marker-blind. It compares scenario title sets and cannot read the
