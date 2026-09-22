@@ -2491,8 +2491,10 @@ the bookkeeping that ticks this group.
   down the same chain, and it takes its own record of what it owes.
   **RULED — 2026-09-21T22:03:33Z by Brett Heap, `#656` comment `5768144952`,
   verbatim *"(b) for the pin shape, keep going"***, answering the RULING NEEDED at
-  `5768088579`. **`files:` AND `pinned_by_commit_only:` STAY DEFERRED IN BOTH
-  DIRECT PINS**, on the ONE-LINK-UP precedent this chain already runs on and which
+  `5768088579`. **`files:` AND `pinned_by_commit_only:` STAY DEFERRED IN THE TWO
+  PINS OF openDox** — `openxFactory`'s own `contracts/opendox-pin.yaml` and
+  `openXdox`'s `contracts/opendox-pin.yaml`, which is the pair the ruling's phrase
+  *"both direct pins"* names — on the ONE-LINK-UP precedent this chain runs on and
   `scripts/verify-openxdox-pin.py` reached first: the whole-tree
   `sorted-ls-tree-r-v1` digest addresses **every byte** of the pinned root tree, so
   no member can be undeclared and none can be added or altered without changing
@@ -2502,6 +2504,17 @@ the bookkeeping that ticks this group.
   by their assembly root, so the chain is covered end to end. An enumeration here
   would add a second, weaker statement of one fact — and a second statement is a
   thing that can drift.
+  **A PHRASE COLLISION, FLAGGED ONCE SO IT IS NEVER RESOLVED SILENTLY**:
+  *"direct pins"* names **TWO DIFFERENT PAIRS** in this box, and only ONE file
+  belongs to both. **The ruling's pair is the two pins OF openDox** —
+  `openxFactory`'s `contracts/opendox-pin.yaml` and `openXdox`'s file of the same
+  name, each DIRECT from its own consumer's position, the second of them
+  TRANSITIVE as seen from `openxFactory`. **This box's own pair is the two pins
+  `openxFactory` DECLARES** — `contracts/openxdox-pin.yaml` and
+  `contracts/opendox-pin.yaml`, which is what RULED **Q7** made two. Every mention
+  here names its files, and **neither phrase is renamed**: the ruling's words are
+  the ruling's, and renaming a ruling's label in a ledger breaks every record that
+  cites it — the same treatment the `R-5` collision gets at § 5.6.
   **THE TRIGGER THE HEADER SET FOR ITSELF DID FIRE, AND THE RULING ANSWERS IT
   RATHER THAN AVOIDS IT.** That header's revisit condition is the first commit
   whose pinned manifest carries a non-empty `entries:` row, and that commit is
