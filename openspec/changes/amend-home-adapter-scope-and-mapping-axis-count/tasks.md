@@ -91,8 +91,17 @@ Kind: tasks
   `validate-sequenced-after.py`.
 - [ ] 4.4 Required checks green at the head, Copilot review at the exact head
   read for its "Suppressed comments" block, every thread resolved.
-- [ ] 4.5 The ledger row seeded with `--moved-by` once the pull request has a
-  number.
+- [x] 4.5 The ledger row seeded with `--moved-by '#1143'` by the sanctioned
+  seeder: `active`, `co-modifier`, `declares [split-opendox-two-layer-product]`,
+  `depth: 1`. One row moved.
+
+**§§ 1 and 4.4 KEEP A LITERAL `- [ ]` DELIBERATELY, and the archiving actor owes
+them a tick.** `scripts/proposal-support.py`:4632 refuses an archive on any
+remaining `^- \[ \]` — verified by reading it, on Copilot `r4075913406`. Those
+boxes are for acts that have not happened yet (the ratifying word, the green
+head with every thread resolved), so they are ticked by the acts that perform
+them and not in advance. Every box for work this packet will never do carries
+`[~]`, in § 5.
 
 ## 5. Registered, not taken
 

@@ -13,6 +13,29 @@ every later edit to the packet.
 
 Exit 0 and one line per capability, or exit 1 naming the first scenario that
 does not match. Run from the openxFactory root.
+
+TWO THINGS THIS SCRIPT DOES THE LONG WAY, BOTH ON COPILOT FINDINGS AGAINST ITS
+FIRST DRAFT (`r4075847837`, `r4075847914` on `opensoft/openxFactory#1143`), and
+both because a carriage proof that is approximately right proves nothing.
+
+(1) IT READS BYTES AND REFUSES A CARRIAGE RETURN, rather than reading text.
+`Path.read_text()` applies universal-newline conversion before any comparison
+runs, so a promoted scenario whose line endings changed to CRLF would compare
+EQUAL to a delta carrying LF — the script would report a byte-for-byte match
+over bytes it had already normalized. Both files are therefore read as bytes,
+decoded strictly, and refused outright if either contains `\r`: this corpus
+writes LF, and an unexpected CR is a fact to report rather than to smooth.
+
+(2) IT COMPARES PARSED SCENARIO BLOCKS, not a substring of the delta file. A
+`carried in delta_text` search passes when the promoted bytes survive ANYWHERE
+in the file — in explanatory prose, in a marker, or under a different
+requirement — while the requirement's actual scenario blocks are replaced. That
+is not a hypothetical here: this packet's `domain-mapping-declaration` delta
+carries a promoted BODY unit verbatim inside a `Removed from canon by` marker,
+exactly the kind of quotation a substring search would accept as carriage. So
+each side is parsed into individual `#### Scenario:` blocks under the SAME
+requirement title, and every promoted block must appear among the DELTA's
+parsed blocks.
 """
 from __future__ import annotations
 
@@ -31,39 +54,69 @@ PAIRS = (
 )
 
 
-def scenarios_of(text: str, title: str) -> str:
+def read_lf_bytes(path: pathlib.Path) -> str:
+    """The file's bytes, decoded strictly, with a carriage return REFUSED.
+
+    Never `read_text()`: its universal-newline conversion would make a CRLF file
+    compare equal to an LF one and turn this script's own claim into a
+    tautology.
+    """
+    raw = path.read_bytes()
+    if b"\r" in raw:
+        raise SystemExit(
+            f"{path}: contains a carriage return. This corpus writes LF, and a "
+            f"byte-for-byte comparison across mixed line endings is not one — "
+            f"reported rather than normalized away")
+    return raw.decode("utf-8")
+
+
+def scenario_blocks(text: str, title: str) -> list[str]:
+    """Every `#### Scenario:` block under `title`, as separate strings.
+
+    Blocks and not one region: the comparison must be per scenario, so that a
+    promoted block surviving somewhere in the file cannot stand in for one that
+    was replaced where it matters.
+    """
     for part in re.split(r"(?m)^### Requirement: ", text)[1:]:
-        if part.split("\n", 1)[0].strip() == title:
-            body = part.split("\n", 1)[1]
-            index = body.find("#### Scenario:")
-            if index == -1:
-                raise SystemExit(f"no scenarios under {title!r}")
-            return body[index:].rstrip("\n")
+        head, _, body = part.partition("\n")
+        if head.strip() != title:
+            continue
+        index = body.find("#### Scenario:")
+        if index == -1:
+            raise SystemExit(f"no scenarios under {title!r}")
+        region = body[index:]
+        # Stop at the next requirement or top-level section, if any follows.
+        cut = re.search(r"(?m)^(?:### Requirement: |## )", region)
+        if cut:
+            region = region[:cut.start()]
+        pieces = re.split(r"(?m)^(?=#### Scenario:)", region)
+        return [piece.rstrip("\n") for piece in pieces if piece.strip()]
     raise SystemExit(f"requirement not found: {title!r}")
 
 
 def main() -> int:
     failures = 0
     for capability, title, expected in PAIRS:
-        promoted = (ROOT / "openspec/specs" / capability / "spec.md").read_text()
-        delta = (PACKET / "specs" / capability / "spec.md").read_text()
-        carried = scenarios_of(promoted, title)
-        count = carried.count("#### Scenario:")
-        if count != expected:
-            print(f"FAIL {capability}: promoted requirement has {count} scenarios, "
-                  f"this script expects {expected} — re-derive before trusting the compare")
+        promoted = read_lf_bytes(ROOT / "openspec/specs" / capability / "spec.md")
+        delta = read_lf_bytes(PACKET / "specs" / capability / "spec.md")
+        carried = scenario_blocks(promoted, title)
+        mine = scenario_blocks(delta, title)
+        if len(carried) != expected:
+            print(f"FAIL {capability}: promoted requirement has {len(carried)} "
+                  f"scenarios, this script expects {expected} — re-derive before "
+                  f"trusting the compare")
             failures += 1
             continue
-        if carried not in delta:
-            for block in carried.split("\n\n"):
-                if block.strip() and block not in delta:
-                    print(f"FAIL {capability}: not carried byte-identically -> "
-                          f"{block.splitlines()[0]}")
-                    break
+        missing = [block for block in carried if block not in mine]
+        if missing:
+            print(f"FAIL {capability}: {len(missing)} promoted scenario block(s) "
+                  f"not carried byte-identically; first -> "
+                  f"{missing[0].splitlines()[0]}")
             failures += 1
             continue
-        print(f"OK {capability}: all {count} promoted scenarios carried byte-identically; "
-              f"block carries {delta.count('#### Scenario:')} in total")
+        print(f"OK {capability}: all {len(carried)} promoted scenario blocks "
+              f"carried byte-identically among the delta's {len(mine)} parsed "
+              f"blocks")
     return 1 if failures else 0
 
 

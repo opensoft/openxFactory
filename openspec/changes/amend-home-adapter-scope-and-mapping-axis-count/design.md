@@ -111,6 +111,44 @@ disclosed, while this marker's basis is canon.
 Both families re-measured clean after it: `--family modified-block-currency` and
 `--family proposal-origin` each name this packet in ZERO findings.
 
+## D4b — the carriage proof was itself defective, twice, and both are proved
+
+Copilot's first review of this packet found two FACT defects in `verify-carriage.py`
+(`r4075847837`, `r4075847914`) and both were taken. **A carriage proof that is
+approximately right proves nothing**, so each fix is proved by construction
+rather than asserted.
+
+**(1) `Path.read_text()` applies universal-newline conversion**, so the script
+claimed a BYTE-FOR-BYTE comparison over bytes it had already normalized. Proved:
+rewriting the delta CRLF leaves every byte different from the promoted LF file,
+and the old reader answers `carried in delta -> True`. The script now reads
+BYTES, decodes strictly, and REFUSES a carriage return outright — reported rather
+than smoothed, because this corpus writes LF and an unexpected CR is a fact.
+Against the CRLF tree it now exits 1 naming the file.
+
+**(2) `carried in delta_text` searched the whole file**, so the promoted bytes
+surviving ANYWHERE — in prose, in a marker, under another requirement — read as
+carriage while the requirement's real blocks were replaced. **Not hypothetical
+here:** this packet's `domain-mapping-declaration` delta carries a promoted BODY
+unit verbatim inside its `Removed from canon by` marker, exactly the quotation a
+substring search accepts. Proved: with the pristine promoted region quoted into
+the header prose and one real scenario bullet altered by a single word's case,
+the old check answers `carried in delta -> True` **while the requirement is
+narrowed**, and the new one answers
+
+    FAIL corpus-adapter-seam: 1 promoted scenario block(s) not carried
+    byte-identically; first -> #### Scenario: A neutral product imports the
+    corpus's own tooling
+
+Each side is now parsed into individual `#### Scenario:` blocks under the same
+requirement title, and every promoted block must appear among the DELTA's parsed
+blocks. Both controls were run against the pre-fix reader and the post-fix
+reader, and the tree was restored and re-measured clean after each.
+
+**The lesson is the packet's own thesis turned on itself:** a check that compares
+a concatenation cannot tell carriage from quotation, and the packet that most
+needed to know the difference had written one.
+
 ## D5 — two stale strings found and deliberately not fixed
 
 Both were met while measuring and neither is folded in.
