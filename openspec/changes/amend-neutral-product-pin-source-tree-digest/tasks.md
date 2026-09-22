@@ -48,8 +48,8 @@ that second act is Brett Heap's. § 4 (archive) stays entirely open.
       OUTCOME, and says so in the block.** That packet's active block on this
       same requirement was ratified 2026-09-05; its runtime-deployment clause,
       its own per-requirement record and both of its scenarios are carried here
-      with the five promoted ones, for **seven carried scenarios and three
-      added, ten in the block**. The ordering is declared by
+      with the five promoted ones, for **seven carried scenarios and five
+      added, twelve in the block**. The ordering is declared by
       `sequenced_after: [split-opendox-two-layer-product]` and by the named
       section in `proposal.md`, which is what the family reads.
 - [x] 2.3 **THE BOUNDARY IS IN THE NORMATIVE TEXT, not only in the proposal.**
@@ -62,12 +62,20 @@ that second act is Brett Heap's. § 4 (archive) stays entirely open.
       skip a digest* refuses the misreading directly.
 - [x] 2.4 **README *Active changes* row added** to the **OpenSpec Records**
       block, per the corpus's own authoring rule.
-- [x] 2.5 **The machine-seeded sweep-ledger rows** in
+- [x] 2.5 **The machine-seeded sweep-ledger row** in
       `tests/sequenced_after/corpus-ledger.yaml`, written by the sanctioned
-      `python3 scripts/validate-sequenced-after.py . --seed-ledger` and by no
-      hand — this change's own row, and the partner row this block flips to
-      `co-modifier` because it writes a requirement key
-      `split-opendox-two-layer-product` also writes.
+      `python3 scripts/validate-sequenced-after.py . --seed-ledger --moved-by
+      '#1140'` and by no hand. **ONE row moved, not two**, and the difference is
+      recorded rather than smoothed: this change's own row, read `co-modifier`
+      because its block writes a requirement key
+      `split-opendox-two-layer-product` also writes. **NO PARTNER ROW FLIPPED** —
+      the basis at `tests/sequenced_after/corpus-ledger.yaml`:291 was ALREADY
+      `co-modifier` before this packet existed, so there was no `sole` to flip.
+      *(An earlier draft of this line predicted the flip from the rule rather
+      than from the generated diff, and the seeder's own output — `224 rows, 1
+      moved by #1140` — is what corrected it. Caught by Copilot `r4073364921`
+      against head `4f786903`. **A row count in this line is a reading of the
+      diff, never a prediction from the rule.**)*
 
 ## 3. The measurement — TAKEN, and recorded in the pull request body
 
@@ -102,17 +110,43 @@ that second act is Brett Heap's. § 4 (archive) stays entirely open.
       clause into canon before the basis's own archive did — so the order is
       checked at the archive rather than assumed here.
 
-## 5. Residue — named, not swept
+## 5. Residue — named, not swept, and carrying the reserved DEFERRED marker
 
-- [ ] 5.1 **THE openXdox-SIDE HEADER AMENDMENT is a different act in a different
+**WHY `[~]` AND NOT `- [ ]`.** Every item here is work this packet will NEVER
+do — it belongs to another repository, another packet or another act — so a
+literal `- [ ]` would be a box that can only ever be ticked falsely, and
+`archive_change()` refuses an archive on any literal `- [ ]` anywhere in this
+file (`scripts/proposal-support.py`:4633, `re.search(r"^- \[ \]", ...)` →
+`"change has incomplete tasks"`). The reserved DEFERRED marker is the house form
+for exactly this, and each item names its holder. **§§ 1 and 4 keep `- [ ]`
+deliberately**: those WILL be ticked, by the ratifying and archiving acts.
+*(Raised by Copilot `r4073184032` against the sibling packet and applied here
+for the same reason.)*
+
+- [~] 5.1 **THE openXdox-SIDE HEADER AMENDMENT is a different act in a different
       repository and is NOT this packet's.** `5768144952` registered it: the
       openXdox `contracts/opendox-pin.yaml` header still carries the un-amended
       trigger text at `646f1dc0`, owed to a small follow-up pull request there.
       This packet edits no pin file in any repository.
-- [ ] 5.2 **THE OTHER TWO PRE-STAGE FINDINGS ARE NOT ANSWERED HERE.** `#1139`
+- [~] 5.2 **THE OTHER TWO PRE-STAGE FINDINGS ARE NOT ANSWERED HERE.** `#1139`
       review `5273796676` registered three; `5777949892` answers only the
       `neutral-product-pin` per-file one, which is this packet. The
       `corpus-adapter-seam` "every tool" finding and the
       `domain-mapping-declaration` five-axes finding remain as the pre-stage
       recommends — left as ratified, registered for a successor amendment
       change. **Naming them here is not adopting them.**
+- [~] 5.3 **THE REQUIRED-CHECK REQUIREMENT'S WORDING IS KEYED TO AN ENUMERATED
+      PIN, AND THIS PACKET DOES NOT AMEND IT.** Measured on Copilot
+      `r4073110728`: the scenario *The pinned reader runs before the pin is
+      verified* (`openspec/specs/neutral-product-pin/spec.md`:147-149) conditions
+      on "the pin's per-file digests and its `pinned_by_commit_only:` set", which
+      a whole-tree pin does not carry. **THE GAP IS NOT CREATED BY THIS PACKET
+      AND PREDATES IT**: `contracts/opendox-pin.yaml` and
+      `contracts/openxdox-pin.yaml` have carried the whole-tree form since they
+      were filed, so the scenario has read this way against live pins all along.
+      This amendment makes the form explicitly lawful and therefore sharpens the
+      question, which is why it is registered here rather than left unstated.
+      **Amending a SECOND requirement is beyond this packet's commission** —
+      RULED `5777949892` names one clause — so the remedy is a successor that
+      scopes that scenario to the enumerated form or names the whole-tree digest
+      beside it. Holder: unassigned; raise with the ruling that commissions it.

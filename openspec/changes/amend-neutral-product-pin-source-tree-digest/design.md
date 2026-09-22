@@ -52,13 +52,22 @@ exception has. Two boundary statements are therefore in the requirement itself:
    respect"*, and scenario *The equivalence is cited as permission to skip a
    digest* refuses the misreading directly.
 
-**This is the one place the packet could have done harm and deliberately does
-not.** The runtime clause's own sentence names "commit and per-file `sha256`" as
+**This is the one place the packet could have done harm, and the first draft
+did.** The runtime clause's own sentence names "commit and per-file `sha256`" as
 the trusted referent. That phrase is carried WITHOUT EDIT: correcting it to name
 the admitted second form would be a normative change to a clause the ruling did
-not reach, in a packet commissioned to amend a different clause. The reading is
-left where the ruling left it, and a future runtime product pinned by whole-tree
-digest is a question for the act that first has one.
+not reach, in a packet commissioned to amend a different clause.
+
+**But leaving the phrase alone was not enough, and Copilot `r4073177274` was
+right about why.** The first draft granted the equivalence to any source-tree
+pin — which includes a runtime product pinned as a source tree — and then said
+the runtime clause was "untouched". Those two statements CONTRADICT each other
+rather than compose: a rule that reaches a pin cannot leave the clause governing
+that pin untouched. The amendment now EXCLUDES runtime-clause-governed pins from
+its scope outright, with its own scenario, so the clause is untouched in fact and
+not merely in assertion. **Whether a whole-tree digest may discharge the
+obligation there is left UNOPENED**, which is a different thing from left
+ambiguous: it is a question for the act that first has such a product.
 
 **Veto cost:** two sentences and one scenario, and an equivalence whose edges a
 later reader has to infer.

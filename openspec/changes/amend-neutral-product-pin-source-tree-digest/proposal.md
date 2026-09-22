@@ -68,7 +68,7 @@ in the requirement three paragraphs down."*
 
 ## What changes
 
-**ONE `## MODIFIED` block, on ONE requirement, adding ONE paragraph and THREE
+**ONE `## MODIFIED` block, on ONE requirement, adding ONE paragraph and FIVE
 scenarios. No unit the requirement already carries is edited.**
 
 1. **The equivalence, stated with its ground.** A pin of a SOURCE TREE that
@@ -79,19 +79,40 @@ scenarios. No unit the requirement already carries is edited.**
    whole-tree digest covers every file in the tree and therefore SUBSUMES any
    list of them, which is the published-artifact paragraph's own reasoning
    reaching a source tree unchanged.
-2. **The boundary, stated so it cannot be read wider.** The equivalence is about
+2. **The two forms are ALTERNATIVES, not a menu.** Such a pin carries NEITHER
+   list, in the published-artifact clause's own words. This is not tidiness:
+   `scripts/doc_health/pin_shapes.py`:763-775 already REFUSES a record carrying
+   both a whole-tree `digests.tree_sha256` and a `files:` list, naming both
+   shapes tried, so text admitting the mixture would disagree with a guard that
+   is already running. *(Raised by Copilot `r4073364832`; the wording was `MAY
+   then be absent` and is now the exclusion the guard enforces.)*
+3. **The boundary, stated so it cannot be read wider.** The equivalence is about
    WHICH FORM the digest obligation takes and never about WHETHER digests are
    owed. An enumeration remains lawful and remains OWED where no whole-tree
    digest is recorded — this admits a second form and retires neither the first
    nor any pin carrying it (`contracts/openxwallet-pin.yaml`'s eight `files:`
-   digests are untouched and stay conformant). **The runtime-deployment clause
-   is not narrowed by one word**: its own sentence forbids reading a deployment
-   declaration as permission to skip the digests, and this amendment authorizes
-   skipping no digest anywhere. A pin recording NEITHER form has discharged
-   nothing.
-3. **Three scenarios** — the conformant whole-tree pin, the pin that records
-   neither form and is refused, and the misreading that cites the equivalence as
-   permission to skip a digest and is refused.
+   digests are untouched and stay conformant). **And it does not reach a pin the
+   runtime-deployment clause governs**: for a product carrying a schema and
+   ordered migrations that clause stands unmodified, its trusted referent
+   unchanged, and whether a whole-tree digest may discharge the obligation THERE
+   is left unopened rather than answered by implication. *(Raised by Copilot
+   `r4073177274`, which was right that saying the clause is "untouched" did not
+   settle whether the new scope reached the pins it governs. It now does not.)*
+   A pin recording NEITHER form has discharged nothing.
+4. **Five scenarios** — the conformant whole-tree pin; the pin carrying BOTH
+   forms, refused; the pin recording neither, refused; the runtime product's pin,
+   which the equivalence does not reach; and the misreading that cites the
+   equivalence as permission to skip a digest, refused.
+
+### A side effect worth naming: the capability stops being silent
+
+`scripts/doc_health/pin_shapes.py`:764-770 records, in its own words, that
+"`neutral-product-pin`'s ratified text is SILENT on the whole-tree shape — the
+spellings `digest_definition`, `digests` and `tree_sha256` occur nowhere under
+`openspec/specs/`", and falls back to the capability's fail-closed rule for want
+of text. **This amendment ends that silence**: it is the first promoted text to
+name the form the guard has been judging. The guard is not changed — it already
+does what the text will now say.
 
 ### The block is written over `split-opendox-two-layer-product`'s outcome
 
@@ -114,4 +135,13 @@ this section is the reference the `modified-block-currency` family reads.
   and their headers already cite the reasoning it promotes — **this packet edits
   neither**, because what the pin files carry was settled and executed by
   `5768144952` and this one settles only the normative text.
+- **Registered, not fixed:** the required-check requirement's scenario *The
+  pinned reader runs before the pin is verified*
+  (`openspec/specs/neutral-product-pin/spec.md`:147-149) conditions on the
+  per-file digests and the `pinned_by_commit_only:` set, which a whole-tree pin
+  does not carry. **The gap predates this packet** — the two pins have carried
+  the whole-tree form since they were filed — and amending a SECOND requirement
+  is beyond a commission that names one clause, so it is registered at
+  `tasks.md` § 5.3 for a successor rather than swept in here. *(Copilot
+  `r4073110728`.)*
 - **The corpus after:** one rule, not a rule and an exception.

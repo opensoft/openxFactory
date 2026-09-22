@@ -5,7 +5,7 @@ ONE REQUIREMENT, ONE AMENDED CLAUSE. This delta amends the SOURCE-TREE half of
 that a whole-tree digest over a pinned source tree discharges the per-file
 `sha256` / `pinned_by_commit_only:` obligation as an EQUIVALENT, rather than
 standing beside it as an unwritten exception. It adds one amendment paragraph
-and three scenarios and edits not one character of any unit the requirement
+and five scenarios and edits not one character of any unit the requirement
 already carries.
 
 **THE BLOCK IS WRITTEN OVER `split-opendox-two-layer-product`'s OUTCOME.** That
@@ -65,8 +65,12 @@ SOURCE TREE declares a whole-tree digest definition and records a digest
 computed over the ENTIRE TREE of the commit it names —
 `digest_definition: sorted-ls-tree-r-v1` with `digests.tree_sha256`, the form
 this estate's pin family already writes — that digest SHALL discharge the
-per-file `sha256` and `pinned_by_commit_only:` obligation, and those two lists
-MAY then be absent. WHAT MAKES THE TWO FORMS EQUIVALENT is the reasoning the
+per-file `sha256` and `pinned_by_commit_only:` obligation. SUCH A PIN CARRIES
+NEITHER A PER-FILE `sha256` LIST NOR A `pinned_by_commit_only:` LIST, in the
+published-artifact clause's own words and for its own reason: the two forms are
+ALTERNATIVES rather than a menu to combine, and a record carrying both declares
+two answers to what is enumerated where exactly one is owed. WHAT MAKES THE TWO
+FORMS EQUIVALENT is the reasoning the
 paragraph above already states for the published-artifact medium, which reaches
 a source tree unchanged: the lists exist because a commit is not a digest a
 consumer can compare a single file against, so the surface must be ENUMERATED
@@ -79,11 +83,15 @@ REMAINS OWED where no whole-tree digest is recorded: this admits a second form
 and retires neither the first nor any pin that carries it. WHERE THE EQUIVALENCE
 DOES NOT REACH, written here so it cannot be read wider than it is: it is a
 statement about WHICH FORM the digest obligation takes and never about WHETHER
-digests are owed, so it authorizes skipping no digest anywhere, and the
-runtime-deployment clause below — whose own sentence forbids reading a
-deployment declaration as permission to skip the digests — is untouched by it
-and narrowed by it in no respect. A pin that records NEITHER a per-file list NOR
-a whole-tree digest over the commit's tree has discharged nothing.
+digests are owed, so it authorizes skipping no digest anywhere. AND IT DOES NOT
+REACH A PIN THE RUNTIME-DEPLOYMENT CLAUSE BELOW GOVERNS: for a product carrying
+a database schema and ordered migrations that clause stands UNMODIFIED, its
+trusted referent unchanged and its refusal to read a deployment declaration as
+permission to skip the digests unweakened, and whether a whole-tree digest may
+discharge the per-file obligation THERE is a question this amendment leaves
+unopened rather than answers by implication. A pin that records NEITHER a
+per-file list NOR a whole-tree digest over the commit's tree has discharged
+nothing.
 
 **Modified by `split-opendox-two-layer-product`:** **WHERE THE PINNED PRODUCT IS
 A RUNTIME, THE PIN SHALL DECLARE THAT ITS CONSUMPTION IS A DEPLOYMENT AND NAME
@@ -125,7 +133,7 @@ and not over canon as it reads while that packet is still active: every unit the
 basis carries is carried here — the source-tree clause, the published-artifact
 clause, the enumeration clause, the basis's own runtime-deployment clause, its
 per-requirement record above and all seven of its scenarios — and the amendment
-paragraph and the three scenarios at the end are this packet's own additions on
+paragraph and the five scenarios at the end are this packet's own additions on
 top, marked in place. The ordering the `modified-block-currency` family reads is
 the `sequenced_after: [split-opendox-two-layer-product]` declaration and the
 reference to that packet in this one's `proposal.md`; this paragraph is the
@@ -170,9 +178,19 @@ promoted and the declaration is the record of why.
 - **THEN** the completeness obligation is DISCHARGED, that digest covering every file in the tree and therefore subsuming any enumeration of them
 - **AND** the absence of the two lists is not a permitted omission but a consequence of the stronger form, no member being undeclarable and none alterable without changing the referent
 
+#### Scenario: A source-tree pin carries both forms
+- **WHEN** a pin records a whole-tree digest over the commit's tree AND a per-file `sha256` or `pinned_by_commit_only:` list
+- **THEN** it is refused, the two forms being alternatives rather than a menu to combine
+- **AND** the refusal is that the record declares two answers to what is enumerated where exactly one is owed, not that either answer is wrong on its own
+
 #### Scenario: A source-tree pin records neither form
 - **WHEN** a pin names a commit and carries no per-file `sha256` list, no `pinned_by_commit_only:` and no whole-tree digest over that commit's tree
 - **THEN** it is refused, the equivalence admitting a second way to DISCHARGE the obligation and never a way to leave it undischarged
+
+#### Scenario: A runtime product's pin is offered the equivalence
+- **WHEN** the pinned product carries a database schema and ordered migrations, so the runtime-deployment clause governs its pin
+- **THEN** the equivalence does not reach it, that clause standing unmodified with its trusted referent unchanged
+- **AND** whether a whole-tree digest may discharge the per-file obligation there is left unopened, an amendment scoped to one clause not answering for another by implication
 
 #### Scenario: The equivalence is cited as permission to skip a digest
 - **WHEN** a pin, a consumer or a runbook cites the whole-tree equivalence to justify verifying no digest at all, or to narrow the runtime-deployment clause's refusal

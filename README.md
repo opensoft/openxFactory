@@ -548,8 +548,11 @@ Active changes:
   stays lawful and stays owed where no whole-tree digest is recorded (the
   openXwallet and openRepoShape pins are untouched and stay conformant), the
   equivalence reaches WHICH FORM the digest obligation takes and never WHETHER
-  digests are owed, **the runtime-deployment clause is narrowed in no respect**,
-  and a pin recording NEITHER form has discharged nothing. Raised by Copilot
+  digests are owed, the two forms are ALTERNATIVES so such a pin carries NEITHER
+  list (matching the guard at `scripts/doc_health/pin_shapes.py`:763-775, which
+  already refuses a record carrying both), **the equivalence does not reach a pin
+  the runtime-deployment clause governs**, and a pin recording NEITHER form has
+  discharged nothing. Raised by Copilot
   `r4067623184` on the `#1139` archive pre-stage and verified by the lane's
   bookkeeper: the pin-shape ruling `5768144952` (*"(b) for the pin shape, keep
   going"*) had settled what `contracts/opendox-pin.yaml` and
@@ -559,7 +562,7 @@ Active changes:
   over `split-opendox-two-layer-product`'s OUTCOME (declared by
   `sequenced_after:` and in a dated per-requirement record, the form that basis
   itself used over `add-openspec-cli-pin`), so it carries that packet's
-  runtime clause and both its scenarios: **seven carried, three added, ten in
+  runtime clause and both its scenarios: **seven carried, five added, twelve in
   the block.** `code_surface:` is `none` and MEASURED — neither
   `scripts/verify-opendox-pin.py` nor `scripts/verify-openxdox-pin.py` reads
   `files:` or `pinned_by_commit_only:`, neither closed refusal vocabulary
