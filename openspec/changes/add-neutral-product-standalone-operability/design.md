@@ -2,7 +2,7 @@
 
 Status: draft
 
-This document carries the decisions behind the ten requirements, the ONE
+This document carries the decisions behind the eleven requirements, the ONE
 question this packet refuses to decide, and the measurements each rests on.
 Every measurement is a command a reader can re-run; where a number is quoted,
 the command that produced it is beside it.
@@ -31,7 +31,7 @@ The id was chosen to be READ correctly by someone who has not read this packet:
 ids, and "standalone operability" names the property without naming openDox, so
 that openXwallet and any future neutral product inherit it. Rejected: `add-opendox-build-arc`
 (names an actor's work plan, not a property, and dies when the arc closes),
-`invert-opendox-consumer-dependency` (names one of ten requirements),
+`invert-opendox-consumer-dependency` (names one of eleven requirements),
 `add-standalone-product-contract` ("contract" is already overloaded in this
 corpus by `contracts/`).
 
@@ -427,9 +427,9 @@ Requirement 5 is about reaches that resolve through a declared seam. This is the
 WRITE path leaving the repository, it has its own constitutional invariant that
 neither of those carries, and it is separately satisfiable: openDox could
 generate its own snapshot and still have no way to submit, or submit and still
-serve nothing. Ten requirements were already "ordered and separately
-satisfiable"; folding this into one of them would break that and hide the merge
-invariant inside a requirement about something else. It shares requirement 4's
+serve nothing. The other ten requirements were already "ordered and separately
+satisfiable"; folding this into one of them would break that and hide the open
+merge question inside a requirement about something else. It shares requirement 4's
 INJECTION SEAM, and says so rather than restating it.
 
 ## R-G3 — RULED: openDox gets its own neutral generator

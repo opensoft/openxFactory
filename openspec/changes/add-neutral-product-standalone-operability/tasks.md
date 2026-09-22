@@ -3,7 +3,7 @@
 Status: draft
 
 Dependency-ordered. **Group 1 is the authoring THIS change performs and it
-touches no code.** Groups 2-11 are the post-ratification realization, one group
+touches no code.** Groups 2-12 are the post-ratification realization, one group
 per requirement, each in the repository named in its heading and each carrying
 the FALSIFICATION COMMAND that closes it — an exact invocation with its checkout
 preconditions and its expected result, so the archive gate's evidence under
@@ -577,15 +577,18 @@ that does not name a platform.
   `command -v gh` must be empty, which is the student's machine):
 
       set -euo pipefail
-      git init /tmp/plain && git -C /tmp/plain commit -q --allow-empty -m seed
-      git init --bare /tmp/remote && git -C /tmp/plain remote add origin /tmp/remote
+      rm -rf /tmp/plain /tmp/remote
+      git init -q /tmp/plain && git -C /tmp/plain commit -q --allow-empty -m seed
+      git -C /tmp/plain branch sess-1                       # the SESSION BRANCH must exist to be pushed
+      git init -q --bare /tmp/remote && git -C /tmp/plain remote add origin /tmp/remote
       # submit a session on the plain repository with a remote attached:
-      python -c "from opendox import session_pr; print(session_pr.default_submitter('/tmp/plain').push('sess-1'))"
+      python -c "from opendox import session_pr; session_pr.default_submitter('/tmp/plain').push('sess-1')"
       git -C /tmp/remote rev-parse --verify sess-1          # the branch ARRIVED
 
-  The push succeeds and the bare remote carries `sess-1`. Then, with the remote
-  removed, the same call reports plainly that there is no submission target and
-  does not raise an opaque error. **No assertion about landing operations belongs
+  The push succeeds and the bare remote carries `sess-1` — `rev-parse --verify`
+  exits non-zero if it does not, and `set -e` fails the sequence. Then, with the
+  remote removed (`git -C /tmp/plain remote remove origin`), the same call reports
+  plainly that there is no submission target and does not raise an opaque error. **No assertion about landing operations belongs
   in this falsification while 12.6 is open** — asserting the absence would encode
   reading (a), and asserting its presence would encode reading (b).
 
