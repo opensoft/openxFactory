@@ -11,7 +11,7 @@ fixed to `git`: `_entrypoints` builds `python3 <validator>`, `bash
 scripts/validate-docs.sh` or `make validate` per discovered repository, so the
 exposure was the slowest thing any domain repo's own validator does.
 
-This module is new with the fix (#1128 measured that nothing tested this file),
+This module is new with the bind (#1128 measured that nothing tested this file),
 so it pins the surrounding contract as well as the bound: an ordinary validator
 failure must still be the Finding it always was, because a fix that moved THAT
 would be a worse defect than the one it repairs.
