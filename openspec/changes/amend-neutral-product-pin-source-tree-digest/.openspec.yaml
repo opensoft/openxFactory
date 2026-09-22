@@ -1,0 +1,104 @@
+schema: spec-driven
+created: 2026-09-22
+origin:
+  kind: ad_hoc
+  id: openxFactory:adhoc:2026-09-22-amend-neutral-product-pin-source-tree-digest
+  reason: >-
+    TWO RATIFIED READINGS IN ONE CAPABILITY DISAGREE, AND THE PINS THE ESTATE
+    CARRIES OBEY THE SECOND. `neutral-product-pin`'s requirement *An external
+    neutral product is pinned by commit and digest, never by tag* opens by
+    obliging a consuming pin to carry a per-file `sha256` for every artifact the
+    product's own manifest digests per file, plus `pinned_by_commit_only:` for
+    the rest. Three paragraphs later, for a product distributed as a published
+    artifact, the same requirement reasons that obligation away in its STRONGER
+    form: the two lists exist only because "a commit is not a digest a consumer
+    can compare a single file against, so the surface must be ENUMERATED for
+    completeness to be checkable at all", whereas "ONE digest addresses EVERY
+    byte inside it, so no member can be undeclared and none can be added or
+    altered without changing the referent" — "DISCHARGED MORE STRONGLY here
+    rather than waived".
+    THE REASONING DOES NOT DEPEND ON THE MEDIUM, AND THE ESTATE HAD ALREADY
+    APPLIED IT TO A SOURCE TREE. `contracts/openxdox-pin.yaml` and
+    `contracts/opendox-pin.yaml` each pin an assembly ROOT by commit plus a
+    whole-tree `sorted-ls-tree-r-v1` digest, carry neither list, and quote that
+    paragraph as their reason. On 2026-09-21 the condition those headers had
+    deferred against fired: at openDox `dc7aa08f` the product's own
+    `contracts/manifest.yaml` carried a non-empty `entries:` for the first time,
+    so the per-file obligation had members. Brett Heap ruled the pin shape at
+    `opensoft/openxFactory#656` comment 5768144952 — "(b) for the pin shape,
+    keep going" — and the lists stayed deferred on the whole-tree digest's own
+    strength.
+    THAT SETTLED THE PIN FILES AND NOT THE NORMATIVE TEXT. Copilot review
+    comment r4067623184 found the residue on the #1139 archive pre-stage and the
+    lane's bookkeeper verified it: the corpus held a rule and an unwritten
+    exception. Brett Heap ruled the remedy by multi-choice on 2026-09-22 —
+    AMEND THE CLAUSE rather than record an exception beside it — and named this
+    packet's form: "it becomes its own small OpenSpec change against
+    `neutral-product-pin`, citing 5768144952, this ruling, and Copilot
+    r4067623184."
+    NOTHING HERE IS A CODE DECISION, AND THAT IS MEASURED. No verifier reads
+    `files:` or `pinned_by_commit_only:` for a source-tree pin: the only two
+    occurrences across `scripts/verify-opendox-pin.py` and
+    `scripts/verify-openxdox-pin.py` are module-docstring prose about the
+    openXwallet pin, neither closed refusal vocabulary carries a code for a
+    missing per-file list, and `pytest tests/opendox_pin tests/openxdox_pin`
+    reads 105 passed over fixtures already in the admitted shape. The delta
+    states what the readers have done since they were written.
+    WHY `kind: ad_hoc` AND NOT `kind: staged`, CHECKED RATHER THAN ASSUMED.
+    `ideation/staging/` was enumerated and grepped on 2026-09-22 for
+    `neutral-product-pin`, `whole-tree digest`, `sorted-ls-tree` and `per-file`.
+    Three topics name the capability and NONE proposes this rule:
+    `opendox-two-layer-product` is the source of the runtime-deployment clause
+    this block carries; `openxwallet-neutral-home` is the source of the ORIGINAL
+    per-file clause being amended, not of the amendment; and
+    `wallet-carried-work-authority` is about wallet authority. `kind: staged`
+    would claim a staging source that does not resolve. The organized source is
+    the ruling and the Copilot finding that raised it.
+  proposed_by: >-
+    Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`),
+    encoding Brett Heap's ruling of 2026-09-22 and reaching no judgment beyond
+    it. THE DECISIONS THIS PACKET DOES REACH ARE DECLARED FOR A VETO in
+    `design.md`: D2 (an enumeration stays lawful and stays owed where no
+    whole-tree digest is recorded, so the amendment admits a second form rather
+    than replacing the first), D3 (the boundary goes in the NORMATIVE text — the
+    equivalence reaches WHICH FORM the digest obligation takes and never WHETHER
+    digests are owed, and the runtime-deployment clause is carried VERBATIM AND
+    UNEDITED rather than reconciled, because correcting its "commit and per-file
+    `sha256`" phrase would be a normative edit to a clause the ruling did not
+    reach), and D4 (the block is written over `split-opendox-two-layer-product`'s
+    OUTCOME rather than over canon, so it is correct whichever archives first).
+    Each is separable and each carries its own veto cost.
+  proposed_on: 2026-09-22
+  approved_by: >-
+    Brett Heap (openxFactory operator authority) — 2026-09-22T15:45:54Z,
+    interactive in the lane session, verbatim: "ratify #1140 and #1141",
+    recorded at `opensoft/openxFactory` issue #656 comment 5779511063. Record:
+    review/ratification-2026-09-22.md.
+    THE WORD RATIFIES TWO PACKETS IN ONE UTTERANCE AND DECIDES NOTHING ABOUT
+    THEIR CONTENT, which two earlier rulings had already decided — 5777949892
+    ("(b) - AMEND THE CLAUSE"), which commissioned this packet and named its
+    form, and 5768144952 ("(b) for the pin shape, keep going"), which settled
+    what the pin files carry. This packet settles only the normative text.
+    THE RATIFIED BASELINE IS HEAD `ca47e2cb` AND THE CURRENT HEAD IS NOT,
+    which is disclosed rather than smoothed. `9f82caeb` was committed at
+    2026-09-22T15:45:53Z — ONE SECOND before the word — and pushed around it, so
+    it was in flight at ratification and cannot have been read. It is not
+    cosmetic: it REVERSES the runtime exclusion `ca47e2cb` carried, on Copilot
+    r4073495698's measurement that the exclusion would have made
+    `contracts/opendox-pin.yaml` non-conformant (a `migration:` block at :190 AND
+    a whole-tree digest with no per-file list) — the opposite of what 5768144952
+    settled. The correction runs in the ratified direction, but it is requirement
+    text moved after a ratify word, and the estate admits only NON-NORMATIVE
+    folding after the word. RE-RATIFICATION AT `9f82caeb` IS REGISTERED AS OWED
+    at tasks.md § 1.3 and in the ratification record § 3, and no line here claims
+    the word covered text it could not have.
+    NO COUNCIL SITTING WAS HELD AND NONE WAS OWED: no convening packet, no
+    ballot, no seat returns, no council review. A single-requirement wording
+    amendment with `code_surface: none`, commissioned by a ruling that already
+    named its form, ratified by the repository owner's direct word in session.
+  approved_on: 2026-09-22
+related:
+  - openxFactory:change:split-opendox-two-layer-product     # ACTIVE. Holds a `## MODIFIED` block on this same requirement, ratified 2026-09-05; this block is written over its OUTCOME and carries its runtime clause and both its scenarios. Declared by `sequenced_after:`
+  - openxFactory:issue:656                                  # THE RULING, comment 5777949892 ("(b) - AMEND THE CLAUSE"), and the pin-shape ruling 5768144952 it reconciles the text to
+  - openxFactory:pr:1139                                    # The archive pre-stage whose Copilot review r4067623184 raised the tension. Its other two findings are NOT answered here
+  - openxFactory:pr:1134                                    # The openxFactory nested-leg advance that landed the `contracts/opendox-pin.yaml` header amendment 5768144952 authorized. Its bytes are NOT edited by this packet
