@@ -87,7 +87,14 @@ this packet's archive until merged PLUS green realization evidence.
 - [ ] 5.1 The advance-side read: `.github/workflows/review-lane-repin.yml`
   obtains the aggregation's surfaces beside the source repository it already
   reads, and hands the values on as inputs, so the advance the lane proposes
-  carries the measurement with it.
+  carries the measurement with it. **THE RESOLVED SHA IS WIRED AND THE WIRING IS
+  TESTED** (Copilot `r4076474933`): the workflow resolves the aggregation's
+  branch to one commit FIRST, and a workflow-level test captures that resolved
+  sha, asserts EVERY surface read names it, and asserts the verdict names it too.
+  Value fixtures alone cannot catch a reader that takes each file from `main`
+  independently — and that reader manufactures INCONSISTENT the moment a re-point
+  lands between two calls, which is the one outcome nobody can check against
+  anything.
 - [ ] 5.1a **THE PULL-REQUEST-SIDE HOST, AND IT IS A SECOND WORKFLOW THAT TAKES
   ITS OWN READING** (Copilot `r4075976980`, `r4076152645`). It is a SEPARATE
   WORKFLOW RUN and therefore cannot consume the scheduled run's step outputs, so
@@ -146,17 +153,30 @@ this packet's archive until merged PLUS green realization evidence.
   UNCHANGED** — because nothing is passed: each workflow mints its own token from
   the same App under the same read-only scope. The statement is honoured by the
   design rather than amended around. Its tests move with it.
-- [ ] 5.1g **THE GATE IS SCOPED TO SAME-REPOSITORY PULL REQUESTS** (Copilot
-  `r4076368722`). A fork-origin pull request receives no repository secrets, so
-  the gate could not mint a token and would answer UNDETERMINED on every fork
-  event — the state the requirement forbids from standing. The gate therefore
-  runs only where the head repository IS this repository, which is where every
-  pin advance comes from (`bot/review-lane-repin` is a branch here), and a fork
-  event is reported OUT OF SCOPE rather than UNDETERMINED: *not applicable* and
-  *could not measure* are different answers and this packet's whole subject is
-  not conflating them. **`pull_request_target` is REFUSED by name**: it would run
-  with secrets against an untrusted head, and no cross-repository measurement is
-  worth that.
+- [ ] 5.1g **THE GATE USES `pull_request_target`, NEVER `pull_request`, AND
+  TAKES NO HEAD CHECKOUT — REVERSING THIS PACKET'S OWN EARLIER DECISION**
+  (Copilot `r4076368722`, then `r4076474882`). The earlier draft refused
+  `pull_request_target` by name and scoped a plain `pull_request` gate to
+  same-repository events. **That was wrong on this repository's own doctrine, and
+  the doctrine is a RUNNING TEST**: `tests/review_lane_pin/test_review_lane_caller.py`
+  `test_the_head_executing_trigger_is_absent` refuses a plain `pull_request`
+  trigger on the secret-bearing caller, verbatim — *"a plain `pull_request`
+  trigger would run the head's copy of this file with the App credential that
+  reads a private repository in scope — the exfiltration shape the base-branch
+  rule prevents"* — and `EXPECTED_TRIGGERS` is `{"pull_request_target",
+  "workflow_dispatch"}`. A same-repository head-ref condition does not fix that,
+  because under `pull_request` the head's copy of the WORKFLOW runs and can
+  simply delete the condition. So the gate takes the estate's worked shape:
+  **`pull_request_target`** (the BASE's copy of the workflow runs, so a head
+  cannot rewrite it), **no checkout of `github.event.pull_request.head`** —
+  mirroring `test_no_checkout_takes_the_pull_request_head`, and easy here because
+  the check reads two repositories over the API and needs no candidate code at
+  all — and a **head-ref allowlist** (`bot/review-lane-repin`) plus the
+  same-repository condition as defence in depth, with a test that a
+  same-repository NON-BOT pull request is skipped. A fork event and a
+  non-allowlisted head are both reported OUT OF SCOPE rather than UNDETERMINED:
+  *not applicable* and *could not measure* are different answers, and this
+  packet's whole subject is not conflating them.
 - [ ] 5.1h **THE NEUTRAL CONCLUSION NEEDS A WRITE PATH, AND IT IS A DIFFERENT
   TOKEN FROM THE READ** (Copilot's *previously missed* item, round 5). § 5.1e
   publishes through the check-run API and § 5.1c's aggregation binding grants

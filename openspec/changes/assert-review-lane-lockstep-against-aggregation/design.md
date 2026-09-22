@@ -311,25 +311,64 @@ workflow mints its own token from the same App under the same read-only scope.
 The existing sentence is not an obstacle the design works around; it is the
 design, and the second consumer is built to satisfy it.
 
-## D14 — a fork pull request is OUT OF SCOPE, not UNDETERMINED
+## D14 — `pull_request_target`, and THIS DECISION REVERSES ITSELF ON THE ESTATE'S OWN RUNNING TEST
 
-Copilot `r4076368722`: a fork-origin pull request receives no repository secrets,
-so the gate could not mint a token and would answer UNDETERMINED on every fork
-event — the state the requirement forbids from standing, reached by a route that
-has nothing to do with the aggregation.
+**The first version of this decision refused `pull_request_target` by name and
+scoped a plain `pull_request` gate to same-repository events. It was wrong, and
+the evidence against it is a test this repository already runs.**
 
-The gate runs only where the head repository IS this repository, which is where
-every pin advance comes from (`bot/review-lane-repin` is a branch here), and a
-fork event is reported **OUT OF SCOPE**. *Not applicable* and *could not measure*
-are different answers, and this packet's entire subject is a corpus that had
-stopped distinguishing a claim from a measurement; it would be a poor place to
-start conflating two more.
+Copilot `r4076368722` raised fork events (no secrets → UNDETERMINED on every fork
+run), and the fix was a `head.repo.full_name` condition. `r4076474882` then
+measured what that condition does not reach:
+`tests/review_lane_pin/test_review_lane_caller.py`'s
+`test_the_head_executing_trigger_is_absent`, verbatim —
 
-**`pull_request_target` is REFUSED BY NAME.** It is not foreign to this
-repository — `doc-health-reusable.yml` and `merge-master-approval.yml` both use
-it — but it runs with secrets against an untrusted head, and no cross-repository
-measurement is worth that. Recorded as a refusal rather than an omission so the
-next reader does not offer it as the obvious fix.
+> *"a plain `pull_request` trigger would run the head's copy of this file with
+> the App credential that reads a private repository in scope — the exfiltration
+> shape the base-branch rule prevents"*
+
+— with `EXPECTED_TRIGGERS = {"pull_request_target", "workflow_dispatch"}` beside
+it. **A same-repository condition cannot fix that, because under `pull_request`
+the head's copy of the WORKFLOW runs and can delete the condition.** Any
+same-repository pull request author could have read a private repository's
+contents through this gate.
+
+So the gate takes the estate's worked shape rather than one reasoned out here:
+**`pull_request_target`**, so the BASE's copy of the workflow runs and a head
+cannot rewrite it; **no checkout of `github.event.pull_request.head`**, mirroring
+`test_no_checkout_takes_the_pull_request_head` (*"rules must come from the base
+branch"*) — and that costs nothing here, because the check reads two repositories
+over the API and needs no candidate code at all, which is exactly the "safe
+base-code/API design" the first finding asked for; plus a **head-ref allowlist**
+(`bot/review-lane-repin`) and the same-repository condition as defence in depth,
+with a test that a same-repository NON-BOT pull request is skipped.
+
+**A fork event and a non-allowlisted head are both OUT OF SCOPE, not
+UNDETERMINED** — *not applicable* and *could not measure* are different answers,
+and this packet's entire subject is a corpus that had stopped distinguishing a
+claim from a measurement.
+
+**The lesson is the one this packet keeps relearning about itself.** I refused
+`pull_request_target` by reasoning from its general hazard without checking
+whether this estate had already solved it — and it had, in the workflow this very
+capability governs, with the reason written into a test's failure message. **A
+first-principles refusal that contradicts a running test is a finding about the
+reasoner.**
+
+## D14a — the declared state is a closed vocabulary, or the ordering has an input it does not reach
+
+Copilot's *previously missed* item on round 6: D8's table and D9's ordering
+between them claim exactly one outcome holds for any input, **and neither has a
+case for a declared status that is absent or outside the two words.** With
+agreeing surfaces, a value such as `pending` is neither `converged` nor
+`diverged` and the comparison reaches no defined outcome. The live pin test
+checks only the current literal, so nothing closes that domain.
+
+The requirement now does: the declared state SHALL be one of the two words, and
+an absent or foreign value FAILS naming what was found, **in the same class as a
+contradicted declaration** — because both are this repository's own file failing
+to say something true, and the remedy for both is one edit to the field. It gets
+its own scenario, and the ordering is total.
 
 ## D15 — the neutral conclusion needs a WRITE path, and it is a different token from the read
 

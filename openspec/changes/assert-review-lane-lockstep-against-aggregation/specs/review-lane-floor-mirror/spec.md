@@ -62,6 +62,14 @@ the check would then report as INCONSISTENT, a state that never existed in the
 repository it was reading. A measurement taken across a moving ref measures READ
 TIMING, not the aggregation.
 
+THE DECLARED STATE IS A CLOSED VOCABULARY AND AN UNREADABLE DECLARATION IS THE
+REPOSITORY'S OWN DEFECT. The declared lockstep state SHALL be one of the two
+words the field carries; where it is ABSENT, or carries any other value, the
+check SHALL FAIL naming the value it found, in the same class as a declaration
+the measurement contradicts — because both are this repository's own file failing
+to say something true, and the remedy for both is one edit to the field. Without
+that clause the ordering below has an input it does not reach.
+
 THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the aggregation
 UNREADABLE first; then its surfaces DISAGREEING with each other; then the
 comparison of the agreed commit against `core_commit`; then the declared state
@@ -99,6 +107,11 @@ compared only to itself is a tautology.
 - **WHEN** an automated pin advance moves `core_commit` to a commit that the aggregation's surfaces — agreeing with each other, and read — do not name, and the declared lockstep state still reads `converged`
 - **THEN** the check reports the contradiction on the advance's own pull request, naming both values and the surfaces it read them from
 - **AND** the report does not depend on the advancing lane having remembered to write the field, because the check reads the other repository rather than the lane's intent
+
+#### Scenario: The declared state is absent or outside its vocabulary
+- **WHEN** the pin's declared lockstep state is absent, or carries a value that is neither of the two words the field admits
+- **THEN** the check FAILS and names the value it found, in the same class as a declaration the measurement contradicts
+- **AND** it does not fall through to a comparison, because there is nothing to compare
 
 #### Scenario: The advance lands on the commit the aggregation already pins
 - **WHEN** an advance moves `core_commit` to exactly the commit the aggregation's surfaces — agreeing with each other, and read — already name, and the declared state reads `diverged`
