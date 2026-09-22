@@ -595,9 +595,16 @@ def pack_within_budget(contract_text: str, corpus_documents: list[dict],
     document dropped without a record is indistinguishable from a document
     with nothing wrong with it."""
     require_budget(budget_bytes)
-    if not 0.0 <= grounding_share <= 1.0:
+    # STRICTLY between: an endpoint gives ONE population a reserved share
+    # of zero, which is exactly what this requirement exists to forbid
+    # ("each population SHALL have a reserved share of the budget, so that
+    # no population can be starved to nothing by another"). The parameter
+    # is exposed, so a caller could otherwise bypass the invariant the
+    # default satisfies (Copilot, PR #1137).
+    if not 0.0 < grounding_share < 1.0:
         raise ValueError(
-            f"grounding share must be within [0, 1]: {grounding_share!r}")
+            "grounding share must be strictly between 0 and 1 so each "
+            f"population keeps a reserve: {grounding_share!r}")
     scaffold = _byte_length(render_analysis_input(contract_text, []))
     if scaffold > budget_bytes:
         raise ValueError(

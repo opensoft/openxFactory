@@ -541,3 +541,16 @@ def test_the_catalog_bundle_refuses_a_non_positive_budget(tmp_path):
         catalog_dispatch._write_shard_bundle(
             tmp_path / "b", tmp_path, [], "PROMPT", 3, {"digest": "0" * 64},
             "claude-sonnet-5", AS_OF, [], input_budget_bytes=0)
+
+
+@pytest.mark.parametrize("share", [0.0, 1.0, -0.1, 1.1],
+                         ids=["zero", "one", "below", "above"])
+def test_a_share_that_reserves_nothing_for_a_population_is_refused(share):
+    """`GROUNDING_BUDGET_SHARE` is an exposed parameter, so an endpoint
+    would let a caller give one population a reserved share of zero --
+    exactly what the requirement forbids ("no population can be starved to
+    nothing by another"). The default satisfies the invariant; the
+    validation is what keeps every other caller to it (Copilot, #1137)."""
+    with pytest.raises(ValueError, match="strictly between 0 and 1"):
+        semantic.pack_within_budget(CONTRACT, [], [], grounding_share=share)
+    assert 0.0 < semantic.GROUNDING_BUDGET_SHARE < 1.0
