@@ -337,8 +337,23 @@ CLOSED_REGISTER = (
      "05a7603ca57cd4c83ddf66b2068c94891634f9c49efbefd818771a1247af4ae6"),
     ("extend-merge-master-envelope-to-floor-bot-lanes",
      "2854d3889fb1cb79e8f1cabaf64c7287a2b073e72130f5098a81e946bea825e8"),
-    ("split-opendox-two-layer-product",
-     "60f4e11d53e6d0772ff642280fcf626dafcabebafa0c7c4e537d8eae8a54d058"),
+    # RETIRED 2026-09-22 BY THE ARCHIVE OF ITS OWN PACKET (openxFactory #1139).
+    # `split-opendox-two-layer-product` archived to
+    # `openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/`, so
+    # the declaration this pair excepted is no longer in the ACTIVE corpus this
+    # register scans, and the gate refuses the pair in its own words: "code
+    # surface register entries matched NOTHING (stale) … delete the entry: the
+    # exception outlived its condition." The digest it carried was
+    # `60f4e11d53e6d0772ff642280fcf626dafcabebafa0c7c4e537d8eae8a54d058`, kept
+    # here so the retirement names what left.
+    # THIS IS THE FIRST TIME THE COMMENT ABOVE'S LAST LINE HAS STOPPED BEING
+    # TRUE, and it is corrected rather than quoted past: it reads "NONE OF THE
+    # SEVEN MOVED AT ANY RE-MEASUREMENT: no registered packet archived and no
+    # registered declaration was edited between any two of these heads." A
+    # registered packet has now archived. The baseline goes EIGHT to SEVEN, and
+    # the ruled "Keep the eighth entry" of 2026-09-16 is untouched by it —
+    # that ruling is about `encode-wallet-authority-rulings-r6-r12`, which is
+    # still here.
     # the carrier that arrived between `54885296` and the SECOND
     # re-measurement `bfa90db6`, and was disposed of there —
     # *The corpus moves between drafting and landing*, fired

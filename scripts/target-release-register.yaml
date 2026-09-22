@@ -270,19 +270,26 @@ register:
       the declaration is corrected to the target it realizes on, or the packet
       archives.
 
-  - change: split-opendox-two-layer-product
-    token: "implementation_pending"
-    class: realization-state
-    why: >-
-      "implementation_pending — the affected repositories' own main lines, plus
-      release identities allocated AT THE CUT" — a state word in front of a
-      declaration that then names both a main line and a deferred allocation.
-    cited_to:
-      - openspec/specs/release-realization/spec.md § Realization archive gate
-      - docs/contract-versioning-policy.md § Bundle Realization Order
-    retires_when: >-
-      the declaration is corrected to the target it realizes on, or the packet
-      archives.
+  # RETIRED 2026-09-22 — `split-opendox-two-layer-product` on the second limb of
+  # its own `retires_when:` ("or the packet archives"), by openxFactory #1139.
+  # THIS ONE ARCHIVED ON ITS OWN LEDGER rather than being closed by somebody
+  # else's ruling, which is the difference from the 2026-09-16 retirement above:
+  # there the packet was FROZEN AND RE-HOMED by this very change's § 6.1; here
+  # the change itself reached the end of its own tasks and moved to
+  # `openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/`. The
+  # register effect is identical either way — the declaration leaves the ACTIVE
+  # corpus this register scans — so the entry MUST go: `Report.stale` refuses
+  # while it stands, and `tests/code_surface/test_code_surface_gate.py` reads the
+  # entry's own `openspec/changes/<change>/proposal.md` and fails on the path the
+  # archive has just moved.
+  # `CLOSED_REGISTER` loses the same pair in the same pull request, **20 pairs
+  # to 19 — counted at this commit, not copied from the packet's README entry,
+  # which says "21 pairs to 20" because it was written before #1060 dropped the
+  # 2026-09-16 pair above** — as a DELIBERATE SHRINK and NOT because the module requires it — the
+  # baseline is "a ceiling, never a floor" — and for the reason the 2026-09-16
+  # note gives: a ceiling left standing over a retired entry is a line nothing
+  # ever reconciles again. The archived packet's own README entry named this pair
+  # as "THE LOCKSTEP PAIR THE ARCHIVE RETIRES" before the archive ran.
 
   # ---- class: non-bundle-target ---------------------------------------------
   # The declaration names a KIND of realization that is neither a main line nor
