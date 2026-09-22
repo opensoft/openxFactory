@@ -558,7 +558,12 @@ Active changes:
   advance, symmetric in both directions, with the aggregation's surfaces read as a
   SET that must agree before either state is concluded (disagreement reported
   INCONSISTENT) and an unreadable aggregation reported UNDETERMINED and never as
-  a pass. **Shape (b) and not (a), by measurement**:
+  a pass. **Each outcome carries a CONCLUSION and only one fails:** a declaration
+  the measurement CONTRADICTS fails the check, because that is this repository's
+  own file stating something false; INCONSISTENT and UNDETERMINED each conclude
+  NEUTRAL and visible, because neither is this repository's claim to answer and
+  turning another repository's outage into a red build here is how a governance
+  check stops being run. **Shape (b) and not (a), by measurement**:
   the lane has no reading of the aggregation, so it could only write `diverged`
   by inference — an inference the fourth ceremony already falsified, since the
   aggregation converged ONTO a commit this file had held for three days — and the

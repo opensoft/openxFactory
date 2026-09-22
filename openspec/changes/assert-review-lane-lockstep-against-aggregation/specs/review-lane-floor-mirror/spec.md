@@ -53,6 +53,19 @@ as UNDETERMINED and name what it could not read; it SHALL NOT resolve to either
 state, and it SHALL NOT read its own silence as confirmation of the declared one.
 An unaskable question is never an implicit pass.
 
+EACH OUTCOME SHALL CARRY A CONCLUSION AND NOT ONLY A NAME, because a state a
+check computes and does not publish is a state nobody acts on. A declaration the
+measurement CONTRADICTS SHALL fail the check and name both values: that is this
+repository's own contract file stating something false about another repository,
+and the remedy is one edit to the field. UNDETERMINED and INCONSISTENT SHALL
+each conclude NEUTRAL — visible, naming the state and what was read, and NOT
+failing — because neither is this repository's claim to answer: an unreachable
+aggregation is another repository's availability and an aggregation whose own
+surfaces disagree is another repository's defect, and turning either into this
+repository's red build would make the check a liability its owners would route
+around. A NEUTRAL conclusion SHALL NOT be reported as a pass, and silence SHALL
+NOT stand in for it.
+
 THE DECLARATION IS NOT REMOVED BY THIS RULE. The pin file stays the place the
 state is declared and the place its dated reasoning is kept; what changes is that
 the declaration becomes the SUBJECT of a measurement rather than its only
@@ -78,6 +91,7 @@ compared only to itself is a tautology.
 - **WHEN** the check cannot obtain the aggregation's judging surfaces
 - **THEN** it reports the lockstep state as UNDETERMINED and names each surface it could not read
 - **AND** it concludes neither `converged` nor `diverged`, and does not report the declared value as confirmed
+- **AND** the check's own conclusion is NEUTRAL and visible rather than failing, because another repository's availability is not this repository's build, and rather than passing, because silence is not a measurement
 
 #### Scenario: The verdict is reproduced without firing the lane
 - **WHEN** a reviewer is given the commit the pin declares, the commits the aggregation's surfaces name and the declared state

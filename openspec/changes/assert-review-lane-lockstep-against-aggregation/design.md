@@ -157,6 +157,41 @@ the repository. § 5.1b makes that a TESTED negative control rather than a
 convention — a test requires `pull_request` to be ABSENT from the advance lane's
 triggers.
 
+## D8 — each outcome carries a CONCLUSION, and only one of the four fails
+
+Copilot's *previously missed* item on this round found that the requirement
+defined an UNDETERMINED semantic state and never said what the CHECK concludes,
+leaving an implementation free to fail the gate on an xFactory outage — which D4
+rejects — or to pass without a visible neutral result. **Taken, and it forced the
+missing half of D2.**
+
+| outcome | conclusion | why |
+| --- | --- | --- |
+| declared state CONTRADICTED by the measurement | **FAIL**, naming both values | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
+| surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
+| aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
+| declared state agrees | pass | |
+
+**A NEUTRAL conclusion is not a pass and silence does not stand in for it.** A
+state a check computes and does not publish is a state nobody acts on, which is
+the same defect as a declaration nobody measures — this packet would be an odd
+place to reintroduce it.
+
+**THIS DOES NOT CONTRADICT D2, AND THE DISTINCTION IS WORTH STATING.** D2 refuses
+a gate that BLOCKS AN ADVANCE for leaving the aggregation behind: divergence is a
+lawful state the pin file has carried, with reasons, through four cycles, and a
+check that refused every such advance would refuse the ordinary case the estate
+designed for. What fails here is not the divergence but **the false declaration
+about it** — a field asserting `converged` while the measurement says otherwise.
+The advance stays lawful; only the sentence claiming something untrue is refused,
+and fixing it is one edit rather than an act in another repository.
+
+**And the asymmetry is deliberate.** The one outcome that fails is the only one
+whose subject is THIS repository's own file. The two neutral ones are facts about
+the aggregation; turning either into a red build here would make the check a
+liability its owners would route around, which is how a governance check stops
+being run.
+
 ## D5 — what the check compares, and why it is values rather than authorship
 
 The comparison is `core_commit` against the commit the aggregation's JUDGING

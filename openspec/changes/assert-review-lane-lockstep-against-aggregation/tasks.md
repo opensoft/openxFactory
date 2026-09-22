@@ -21,7 +21,7 @@ Kind: tasks
 ## 2. The delta
 
 - [x] 2.1 `specs/review-lane-floor-mirror/spec.md` — ONE `## ADDED` requirement,
-  four scenarios. The declared cross-repository lockstep state is MEASURED
+  five scenarios. The declared cross-repository lockstep state is MEASURED
   against the aggregation's own surfaces; the check runs at least at every
   proposed advance and its pull request; the read lives in the workflow and the
   comparison is a pure function; the check is SYMMETRIC; an unreadable
@@ -67,8 +67,17 @@ Kind: tasks
   `validate-sequenced-after.py`.
 - [ ] 4.3 Required checks green at the head, Copilot review at the exact head
   read for its "Suppressed comments" block, every thread resolved.
-- [ ] 4.4 The ledger row seeded with `--moved-by` once the pull request has a
-  number.
+- [x] 4.4 The ledger row seeded with `--moved-by '#1145'` by the sanctioned
+  seeder: `active`, `sole`, `declares [mirror-floor-regeneration-automation]`,
+  `depth: 2`. `sole` rather than `co-modifier` because this packet's only delta
+  is a `## ADDED` requirement no other change in the corpus writes.
+
+**§§ 1 and 4.3 KEEP A LITERAL `- [ ]` DELIBERATELY, and the archiving actor owes
+them a tick.** `scripts/proposal-support.py`:4632 refuses an archive on any
+remaining `^- \[ \]`. Those boxes — and every box in § 5, which is realization
+work this packet declares and does not perform — are for acts that have not
+happened yet, so they are ticked by the acts that perform them. Every box for
+work this packet will NEVER do carries `[~]`, in § 6.
 
 ## 5. Realization, and it is NOT taken by this packet
 
