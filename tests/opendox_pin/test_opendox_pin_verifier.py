@@ -514,19 +514,37 @@ def test_the_real_pin_is_in_lockstep_with_openxdox_own_derived_reading(
 def test_the_migration_block_is_present_and_lockstep_with_openxdox() -> None:
     """PR #952 review thread: the §4.2 `migration` block RULED ASK-1 (#656
     comment 5628886636) is not read by `verify()` — only the commit and tree
-    digest are — so deleting or renaming it would still leave every other
-    check in this file green. This is the positive assertion the thread
-    asked for: the root pin carries `migration.range`, `.reversible`, and
-    `.runbook` each at the `not_yet_deployed` sentinel, the in-file comment
-    cites ASK-1, and openXdox's own derived copy — read as a git BLOB at the
-    gitlinked commit, never the working tree, on the same reasoning as
+    digest are — so deleting, renaming or corrupting it would still leave
+    every other check in this file green. THIS TEST IS THEREFORE THE ONLY
+    GATE THAT BLOCK HAS, and it asserts three things: the root pin carries
+    `migration.range`, `.reversible` and `.runbook`, well-formed; the in-file
+    comment cites ASK-1; and openXdox's own derived copy — read as a git BLOB
+    at the gitlinked commit, never the working tree, on the same reasoning as
     `test_the_real_pin_is_in_lockstep_with_openxdox_own_derived_reading`
-    above — renders the identical three keys and cites the same ruling.
+    above — renders the IDENTICAL block and cites the same ruling.
 
-    Field-VALUE enforcement inside `verify()` itself (refusing a pin whose
-    `migration.range` etc. are not `not_yet_deployed`, or requiring the keys
-    at all) is a follow-up once `neutral-product-pin`'s spec pins the key
-    names; this test only proves the shape is not silently deletable.
+    THE SENTINEL IS FILLED, AND THIS TEST MOVED WITH IT. The three fields
+    stood at `not_yet_deployed` until the pin advanced `c4c5014d` ->
+    `dc7aa08f`, the first bump crossing a real openDox migration
+    (`migrations/0001_identity_and_coordination.sql` and `0002_…`), which is
+    the event ASK-1 placed the sentinel to await. Asserting the literal
+    sentinel would now assert a falsehood, so the check became a SHAPE check:
+    `_assert_migration_shape` below requires the three keys, `range` and
+    `runbook` as non-blank strings whose trimmed value is not the sentinel,
+    and `reversible` as a real YAML boolean. Values stay unconstrained, so a
+    later bump may write any well-formed ones without touching this test.
+
+    WHY TYPES AND NOT JUST "NOT THE SENTINEL" (Copilot review of #1134):
+    because nothing else reads these fields, a populated but malformed value
+    would pass every gate while asserting nothing — the string `'false'` for
+    the boolean, which is truthy to any reader that does not compare it
+    literally, or an empty, blank or non-string `range`/`runbook`. That is
+    the same failure class the sentinel was replaced to end.
+
+    Field-value enforcement inside `verify()` ITSELF remains a follow-up once
+    `neutral-product-pin`'s spec pins the key names; until then the
+    enforcement lives here, and the lockstep equality below is what keeps the
+    two direct pins from drifting into two spellings of one fact.
     """
     def _assert_migration_shape(block, where: str) -> None:
         """Types and non-emptiness, not merely "is not the sentinel".
