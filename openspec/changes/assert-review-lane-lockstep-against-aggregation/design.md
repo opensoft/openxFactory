@@ -253,6 +253,17 @@ PUBLISHED CONCLUSION for each outcome rather than the process exit code —
 **because this contract degrades silently to a green pass if nobody checks which
 of the two was published.**
 
+**`r4076254027` — and the same separateness reaches the CREDENTIALS.** A binding
+written for the repin identity alone would leave the pull-request gate
+UNDETERMINED on every run — D10's defect, reappearing one workflow over, because
+a separate run cannot reuse a minted App token any more than it can reuse step
+outputs, and the ambient `GITHUB_TOKEN` cannot read a private repository at all.
+The gate mints its own token from the SAME App under the SAME read-only scope,
+the binding names both consumers, and a test asserts the PULL-REQUEST SIDE's read
+succeeds rather than only the advance side's. **The two runs share an identity
+and a scope; they share no token and no outputs** — D7's split restated where it
+costs something.
+
 **`r4076152645` — the pull-request host is a separate workflow run** and cannot
 consume the scheduled run's step outputs, so § 5.1a takes its own reading and
 passes it to the same pure comparison. Two reads of one fact by two runs is the

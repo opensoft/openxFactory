@@ -120,6 +120,18 @@ this packet's archive until merged PLUS green realization evidence.
   also what keeps the family's own rule intact: *"neither repository's lane may
   reach into the other's"*. The aggregation is READ and never written, by this
   packet or by its realization.
+  **AND THE BINDING COVERS BOTH RUNS, NOT ONE** (Copilot `r4076254027`). § 5.1a's
+  pull-request gate is a SEPARATE WORKFLOW RUN: it cannot reuse the advance lane's
+  minted App token any more than it can reuse its step outputs, and the ambient
+  `GITHUB_TOKEN` cannot read a private `opensoft/xFactory` at all — so a binding
+  written for the repin identity alone would leave the PR-side check UNDETERMINED
+  on every run, which is the very defect this box exists to close, one workflow
+  over. The gate therefore mints its OWN token from the same App
+  (`actions/create-github-app-token`, as `review-lane-repin.yml` already does at
+  `:278` and `:303`) under the same read-only scope, the binding NAMES BOTH
+  CONSUMERS, and a test asserts THE PULL-REQUEST SIDE's read succeeds rather than
+  only the advance side's. **The two runs share an identity and a scope; they
+  share no token and no outputs.**
 - [ ] 5.1d **A READ FAILURE IS AN INPUT, NEVER A FATAL STEP** (Copilot
   `r4076152544`). The advance workflow treats a non-404 API failure as step-fatal,
   so an auth error, a rate limit or a transport failure would abort before the
