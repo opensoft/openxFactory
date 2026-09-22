@@ -541,7 +541,10 @@ Active changes:
   remedy's shape as option **(b)** — *"make the CROSS-REPOSITORY fact assertable
   at all … (b) is the better fix, because (a) still leaves this file's truth
   depending on a lane remembering to write it"*. **ONE `## ADDED` requirement,
-  five scenarios, no `## MODIFIED` block.** `contracts/review-lane-pin.yaml`
+  SIX scenarios — an absent or foreign declared state, a stale `converged`, a
+  stale `diverged`, surfaces disagreeing with each other, an unreadable
+  aggregation, and the pure-function reproduction — no `## MODIFIED` block.**
+  `contracts/review-lane-pin.yaml`
   DECLARES at `lockstep.status` whether this repository's pinned decision core
   and the aggregation's `MIGRATION_PIN` name one commit, and nothing measures the
   claim: `WRITABLE_PATHS` is four files, the lane rewrites only regex-anchored

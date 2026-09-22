@@ -21,7 +21,9 @@ Kind: tasks
 ## 2. The delta
 
 - [x] 2.1 `specs/review-lane-floor-mirror/spec.md` — ONE `## ADDED` requirement,
-  five scenarios. The declared cross-repository lockstep state is MEASURED
+  SIX scenarios — an absent or foreign declared state, a stale `converged`, a
+  stale `diverged`, surfaces disagreeing with each other, an unreadable
+  aggregation, and the pure-function reproduction. The declared cross-repository lockstep state is MEASURED
   against the aggregation's own surfaces; the check runs at least at every
   proposed advance and its pull request; the read lives in the workflow and the
   comparison is a pure function; the check is SYMMETRIC; an unreadable
@@ -201,7 +203,7 @@ this packet's archive until merged PLUS green realization evidence.
   a pass"* has no expression by exit code alone. The realization publishes the
   conclusion through the check-run API — conclusion `neutral`, with the state and
   the values read in its output — and a test asserts the published conclusion for
-  each of the four outcomes rather than the process exit code, **because the
+  each of the five outcomes rather than the process exit code, **because the
   contract this packet adds degrades silently to a green pass if nobody checks
   which of the two it published.**
 - [ ] 5.1b The wiring is TESTED and not assumed: a test reads the new gate's
@@ -210,10 +212,11 @@ this packet's archive until merged PLUS green realization evidence.
   that keeps the advance lane out of the pull-request path.
 - [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
   over the declared state, `core_commit` and the surfaces' values, reaching no
-  network, returning the four outcomes the scenarios name.
+  network, returning the five outcomes the scenarios name.
 - [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
-  FIVE scenarios — stale `converged`, stale `diverged`, surfaces disagreeing with
-  each other, unreadable aggregation, and the pure-function reproduction — **plus
+  SIX scenarios — an ABSENT or foreign declared state (the FAIL-without-comparison
+  case), a stale `converged`, a stale `diverged`, surfaces disagreeing with each
+  other, an unreadable aggregation, and the pure-function reproduction — **plus
   the POSITIVE case, a true `converged` and a true `diverged` each reported as
   agreeing**, so the check is proved to accept a correct declaration and not only
   to refuse a wrong one. **Each written to FAIL against the pre-fix reader and

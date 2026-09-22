@@ -70,12 +70,17 @@ the measurement contradicts — because both are this repository's own file fail
 to say something true, and the remedy for both is one edit to the field. Without
 that clause the ordering below has an input it does not reach.
 
-THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the aggregation
-UNREADABLE first; then its surfaces DISAGREEING with each other; then the
-comparison of the agreed commit against `core_commit`; then the declared state
+THE OUTCOMES ARE ORDERED AND EXACTLY ONE HOLDS FOR ANY INPUT: the DECLARED STATE
+OUTSIDE ITS VOCABULARY first — this repository's own file, readable without
+touching anything else, and a defect that makes every later question moot; then
+the aggregation UNREADABLE; then its surfaces DISAGREEING with each other; then
+the comparison of the agreed commit against `core_commit` and the declared state
 against that comparison. A later outcome is reached only where every earlier one
 does not hold, so no input can require two conclusions and no implementation has
-to arbitrate between them.
+to arbitrate between them. THE VOCABULARY IS VALIDATED BEFORE ANYTHING IS READ,
+which is both the ordering the scenarios require and the honest engineering
+order: a check does not go asking another repository a question in order to
+report a defect in its own file.
 
 UNDETERMINED SHALL NOT BE A STANDING STATE. Where the check cannot read the
 aggregation on EVERY run, the defect is the check's own access and SHALL be

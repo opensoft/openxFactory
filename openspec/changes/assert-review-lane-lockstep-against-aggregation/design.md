@@ -167,6 +167,7 @@ missing half of D2.**
 
 | outcome | conclusion | why |
 | --- | --- | --- |
+| declared state ABSENT or outside its vocabulary | **FAIL**, naming the value found | added at round 6; see D14a. Checked FIRST, before anything is read |
 | declared state CONTRADICTED by the measurement | **FAIL**, naming both values | this repository's own contract file states something false about another repository; the remedy is one edit to the field |
 | surfaces disagree with each other (INCONSISTENT) | **NEUTRAL**, visible | another repository's defect, and not this repository's claim to answer |
 | aggregation unreadable (UNDETERMINED) | **NEUTRAL**, visible | another repository's availability, and D4's whole point |
@@ -369,6 +370,35 @@ an absent or foreign value FAILS naming what was found, **in the same class as a
 contradicted declaration** — because both are this repository's own file failing
 to say something true, and the remedy for both is one edit to the field. It gets
 its own scenario, and the ordering is total.
+
+## D14b — the new outcome had to go FIRST in the order, and four inventories had to move with it
+
+Copilot round 7 raised five findings and four were one defect: **adding a
+scenario left four statements of the count behind** — `tasks.md` § 2.1 and § 5.3,
+the `target_release` archive-evidence clause, and the README row. The sibling
+packet on this lane spent four review rounds on exactly that class, so this one
+was swept the way that one ended up being swept: case-insensitively, across
+`.md`, `.yaml` and `.py`, over every number-word adjacent to a counted noun. Every
+inventory now also NAMES the six rather than only counting them, which is the
+durable half of the fix.
+
+**The fifth finding was real and structural.** `r4076557241`: the ordering in D9
+put the comparison before the declared state, while D14a's scenario requires an
+absent or foreign value to FAIL **without falling through to a comparison**. For
+readable, agreeing surfaces and `status: pending`, the two texts disagreed about
+which outcome held — the exact defect D9 exists to prevent, reintroduced by the
+fix that closed D14a's gap.
+
+**The vocabulary check now comes FIRST**, before the aggregation is read at all:
+
+> the DECLARED STATE OUTSIDE ITS VOCABULARY first — this repository's own file,
+> readable without touching anything else, and a defect that makes every later
+> question moot; then the aggregation UNREADABLE; then its surfaces DISAGREEING;
+> then the comparison.
+
+That is both the ordering the scenarios require and the honest engineering order:
+**a check does not go asking another repository a question in order to report a
+defect in its own file.**
 
 ## D15 — the neutral conclusion needs a WRITE path, and it is a different token from the read
 
