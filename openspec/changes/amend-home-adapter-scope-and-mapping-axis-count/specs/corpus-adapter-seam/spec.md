@@ -4,8 +4,10 @@
 PROMOTED REQUIREMENT HAS.** A `## MODIFIED` block REPLACES the requirement it
 names, so all THREE promoted scenarios are carried below BYTE-IDENTICALLY —
 extracted from `openspec/specs/corpus-adapter-seam/spec.md` by script rather
-than retyped, and re-compared against that file at `tasks.md` § 4.2 — and TWO
-are added. No active change carries a delta on this capability (checked by
+than retyped, and re-compared against that file at `tasks.md` § 4.2 — and THREE
+are added: the home adapter measured against the external-product rule, the home
+adapter importing the corpus's own check families, and a second in-repository
+reader refused the exception. No active change carries a delta on this capability (checked by
 enumerating `openspec/changes/*/specs/` on `main` `4f92d651`), so there is no
 collision, no basis marker is owed, and this block is written over canon as
 promoted.

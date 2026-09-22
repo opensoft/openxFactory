@@ -122,8 +122,8 @@ them and not in advance. Every box for work this packet will never do carries
   those two new files is the `## Purpose` the CLI leaves as a `TBD`"*. **So the
   sentence is written HERE for the archiving actor to carry**, rather than left to
   be rediscovered: the Purpose's *"A corpus reader is an EXTERNAL neutral product
-  consumed under a pin"* becomes *"A corpus reader `openxFactory` does not itself
-  author is an EXTERNAL neutral product consumed under a pin, and `openxFactory`'s
+  consumed under a pin"* becomes *"A corpus reader not authored by `openxFactory`
+  is an EXTERNAL neutral product consumed under a pin, and `openxFactory`'s
   own adapter over its own corpus — the one RULING DQ-1 keeps here — is the single
   named exception, governed by the fourth requirement and by
   `openxfactory-engineering-adapter` rather than by the first."* Nothing else in
