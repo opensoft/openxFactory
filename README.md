@@ -557,9 +557,20 @@ Active changes:
   8's third scenario names the condition that ends the arrangement); and the
   openDox → openXdox inversion is already FINISHED at import time, so what is
   unclosed is the reach into the PUBLISHER, which no gate watches.
-  **`design.md` § Q-G3 puts the one open question — where the snapshot generator
-  lives — to Brett with three options and a recommendation; requirement 4 is
-  written to the OUTCOME so it is satisfied by whichever mechanism is ruled.**
+  **`design.md` § R-G3 records the one question the packet asked and the RULING
+  that answered it** — Brett Heap, 2026-09-22 (`#656` comment
+  [`5783335210`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783335210)),
+  verbatim *"yes, openDox gets its own neutral generator"*: openDox grows a small
+  neutral projection over the `CorpusAdapter` protocol it already declares, with
+  `runtime/local_git_adapter.py` as the conformant implementation, and openXdox
+  KEEPS its governed generator and injects it through the same seam. The section
+  also records a CORRECTION to this packet's own pricing of the rejected option —
+  `generator.py:66-68` imports openxFactory's `doc_health`, so relocating it was
+  never lawful under `corpus-adapter-seam` whatever its path literals said. Two
+  constraints arrive with the ruling: `NEUTRAL_DISPLAY`'s six words stand
+  unchanged (*"keep those six words"*), and the view-wiring slice is CLAIMED and
+  IN FLIGHT on openDox-code under actor `viewwire` and is deliberately NOT owed
+  here.
 
 - [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,

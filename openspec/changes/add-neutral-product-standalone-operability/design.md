@@ -294,181 +294,154 @@ starts a document tool, and the only containerized path —
 `/livez`, `/readyz` and `/api/v1`, mounting no static files and serving no
 document surface.
 
-## Q-G3 — THE ONE QUESTION FOR BRETT: where does the snapshot generator live?
+## R-G3 — RULED: openDox gets its own neutral generator
 
-**This packet does not decide this and requirement 4 is deliberately written to
-the outcome so that it is satisfied by whichever answer is ruled.**
+**This section asked a question until 2026-09-22T20:08:59Z. It now records an
+answer.** RULED by Brett Heap, openxFactory `#656` comment
+[`5783335210`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783335210),
+interactive in the lane session, verbatim:
 
-### The position today, and why it is not an oversight
+> **"yes, openDox gets its own neutral generator"**
+
+Requirement 4 is written to that ruling. What follows is the position the
+question was asked from, the three options as they were put, what was ruled, and
+**one correction to this packet's own earlier analysis**, recorded because the
+analysis was wrong in a way that mattered.
+
+### The position the question was asked from
 
 openDox serves a snapshot it cannot generate. The generating half is in
 openXdox-code: `generator.py` (974 lines, `generate_snapshot`), `snapshot.py`
 (223, `write_snapshot`, `find_validator`), `snapshot_registry.py` (1,318),
 `completeness.py` (548) and `corpus_root.py` (101) — **3,164 lines over five
-modules**, reached back from openDox late-bound through `consumer_reach.py`.
+modules**, reached back from openDox late-bound through `consumer_reach.py`,
+whose refusal text names the remedy as *"BUILD-arc work"* that *"does not exist
+yet"*.
 
-**It is there by a ratified DESIGN READING, not by a ruling that names it — and
-that distinction is why this is a question rather than an amendment.** DIRECTION
-Q5 says so itself, in its own last paragraph:
+It was placed there by a ratified DESIGN READING, not by a ruling naming it.
+DIRECTION Q5 says so in its own last paragraph: *"The per-module assignment is
+therefore design work under this test … **not ruled here module by module**."*
+The reading was then settled in three agreeing places — the carve proposal's
+`code_surface`, its `design.md` module assignment, and the 102-row map, where all
+eight requirements of the *projection and snapshot* cluster read as openXdox.
 
-> "The per-module assignment is therefore design work under this test, carried by
-> the brainstorm set and the staging topic, **not ruled here module by module**."
+What RULING C2 binds is the vocabulary, and it binds it in both directions
+(`#656` comment `5544370242`, 2026-09-04T17:47Z), verbatim:
 
-The generator's home was then settled as design, in three places that agree: the
-carve proposal's `code_surface` (*"the domain-mapping core PARAMETERIZED by a
-domain profile (RULING C2): the corpus-adapter IMPLEMENTATION and projection
-mechanism (`corpus_root`, `generator`, `snapshot`, `snapshot_registry`,
-`register`, `completeness`, `round_trip`)"*), the carve `design.md`'s module
-assignment, and the 102-row per-requirement map, where all 8 requirements of the
-*projection and snapshot* cluster read as openXdox. **So the thing that would
-move is a design reading inside a ratified map, not a ruling's text** — and no
-option below rewrites RULING C2's words.
+> "**openXdox is the domain-mapping core, parameterized.** … **parameterized by
+> a domain profile that a descendant supplies.** Engineering vocabulary
+> ("requirement", "OpenSpec change", the doc-health check families) belongs to
+> the engineering descendant `codexDox`, or stays in openxFactory as its own
+> adapter over the corpus-adapter interface; a clinician using `MedxDox` never
+> sees the word "requirement"."
 
-What C2 DOES bind is the vocabulary, and it binds it in both directions.
-**RULING C2** (`#656` comment `5544370242`, 2026-09-04T17:47Z), verbatim:
+### The three options, as they were put
 
-> "**openXdox is the domain-mapping core, parameterized.** It holds what every
-> domain factory shares — typed artifact kinds, a governed lifecycle engine
-> (statuses, gates, roles, evidence) and the dispatch/apply lane —
-> **parameterized by a domain profile that a descendant supplies.** Engineering
-> vocabulary ("requirement", "OpenSpec change", the doc-health check families)
-> belongs to the engineering descendant `codexDox`, or stays in openxFactory as
-> its own adapter over the corpus-adapter interface; a clinician using `MedxDox`
-> never sees the word "requirement"."
+**(a) Move the generator into openDox as it stands.** Fastest; openDox generates
+immediately. Contradicts C2's principle and accepts Q5's named failure — every
+descendant inherits a core speaking openxFactory's nouns and forks it.
 
-Note what that sentence already says: the core is **parameterized by a domain
-profile**. Option (c) below is not an invention — it is C2's own construction,
-applied one layer up. And the promoted `domain-mapping-declaration` spec states
-the refusal and its reason:
+**(b) The protocol injection AND a small neutral-side generator openDox writes
+for itself.** Direction reversed lawfully, every ruling intact, but two
+generators over the same kind of artifact and a standing drift liability.
 
-> "**WHEN** `openxFactory`'s nine-word `Status:` taxonomy, its change/spec/delta
-> nouns or its doc-health families are placed in the neutral layer rather than in
-> the engineering descendant's declaration — **THEN** the placement is refused
-> under RULING C2, because a clinician using a descendant would then see the word
-> 'requirement'."
+**(c) Move the generator into openDox parameterized by a domain mapping
+declaration.** One generator, every ruling intact, the parameterized core C2
+describes — at the cost of auditing and re-expressing ~30 corpus-shaped literal
+sites across 3,164 lines. **This packet recommended (c).**
 
-**DIRECTION Q5** is the same rule stated as a failure mode: a neutral layer that
-hardcodes one domain's status words, artifact nouns or act verbs *"SHALL be
-reported, because every other descendant then forks it — which is the failure
-DIRECTION Q5 was given to prevent."*
+### THE CORRECTION — (a) and (c) were both worse than this packet said
 
-And the generator does carry that vocabulary. Measured in openXdox-code at
-`ab04453` — the corpus-shaped literals are real code, not comments:
+The recommendation was right and **its stated reason was incomplete, in a way
+that would have misled the ruling had it gone the other way.** This packet
+measured the corpus-shaped PATH LITERALS in `generator.py` and priced (a) as
+*"low engineering, high governance"*. It did not measure the imports. They are at
+`src/openxdox/generator.py:66-68`:
 
 ```
-$ grep -nE 'openspec|ideation/|proposal\.md|tasks\.md|spec\.md' src/openxdox/generator.py
-240:    base = repo_root / "openspec" / "changes"
-264:    tasks = folder / "tasks.md"
-278:    path = folder / ".openspec.yaml"
-443:    proposal = folder / "proposal.md"
-   … 311-316: the `ideation/staging/` topic rule
+from doc_health import corpus
+from doc_health.corpus import RealGit
+from doc_health.lines import split_keepends
 ```
 
-Roughly thirty such sites across the five modules, plus one `Status:`-taxonomy
-literal in `generator.py`. So moving the generator AS IT STANDS into openDox
-would place openxFactory's artifact model in the neutral layer, which is what C2
-refuses and Q5 was given to prevent.
+**`generator.py` imports openxFactory's `doc_health` package directly.** So
+option (a) was never merely a governance cost: relocating that file into openDox
+would have put `import doc_health` inside the neutral core, which is the exact
+thing `corpus-adapter-seam`'s first requirement forbids — *"no neutral product
+`openxFactory` pins SHALL import `openxFactory`'s own tooling"* — and would have
+traded one wrong-way dependency for a deeper one. Option (c) carries the same
+defect in smaller print: parameterizing the path literals does not remove the
+`doc_health` imports, so (c)'s audit was larger than this packet priced it at.
 
-### The options
+The governance vocabulary is heavier than the ruling's own figures too. The
+ruling records `staging` ×63, `proposal` ×17, `openspec` ×12, `ratified` ×5,
+`ideation/` and `Status:` ×4. Re-measured independently at openXdox-code
+`ab04453`, case-insensitively over the whole file: **`staging` 72, `proposal` 19,
+`openspec` 18, `ratified` 6, `ideation/` 4, `Status:` 4.** The direction is
+identical and the magnitude is larger. Nothing in the ruling is contradicted;
+this packet's own pricing is.
 
-**(a) Move the generator into openDox as it stands.**
-openDox generates immediately and the arc closes fastest. But openxFactory's
-artifact model — `openspec/changes/`, `proposal.md`, `tasks.md`,
-`.openspec.yaml`, `ideation/staging/` — lands in the neutral core, which is
-precisely the placement RULING C2 refuses. It does not rewrite C2's TEXT — nothing does — but it
-contradicts C2's PRINCIPLE and accepts Q5's named failure: MedxDox and codexDox
-inherit a core that speaks openxFactory's nouns, and each forks it. **Cost: low
-engineering, high governance — a ratified principle is set aside and the
-descendant story becomes the one Q5 exists to prevent.** A ruling for (a)
-therefore carries ONE OBLIGATION, named here in advance so it is not forgotten:
-the departure from C2's principle is recorded where C2 is read — an amendment to
-`domain-mapping-declaration`, or a cited disposition — as part of task 5.2 and
-before the generator moves. No option in this list is offered without the
-governance it implies.
+### What was ruled, and what it means mechanically
 
-**(b) Build the protocol injection AND a small neutral-side default generator
-openDox writes for itself.**
-openDox declares a generator protocol, openXdox implements it over openxFactory's
-corpus, and openDox ships its OWN modest generator for plain documents — new
-code, written to openDox's needs, not the 3,164 lines re-expressed.
+openDox does **not** take `generator.py`. Instead:
 
-**The second half is not optional, and the option is stated with it for that
-reason.** The injection ALONE reverses the direction lawfully and satisfies
-`corpus-adapter-seam`, but it leaves openDox still unable to generate anything
-when installed alone: it converts a `ModuleNotFoundError` into a well-worded
-refusal. Bare injection therefore **cannot satisfy requirement 4**, which is why
-it is not offered as a separate answer — an option that cannot meet the
-requirement is not an option, and requirement 4's own text now says that a
-mechanism leaving the product unable to generate alone does not satisfy it.
+- **openDox grows a SMALL NEUTRAL PROJECTION** over the `CorpusAdapter` protocol
+  it *already declares* — `src/opendox/corpus_adapter.py`, a
+  `@runtime_checkable` `Protocol` (`:280`) with six closed members (`resolve`,
+  `list_documents`, `read`, `classify`, `check`, `write_back`), whose own
+  docstring at `:27` says *"This interface travels to openDox"*. The seam is not
+  designed by this arc; it is used by it.
+- **`runtime/local_git_adapter.py`** (2,796 lines, RULING C3's plain local git
+  repository) is the conformant implementation openDox already has, so the
+  neutral projection has something real to read on day one.
+- **openXdox KEEPS its governed generator** and hands it in through the same
+  seam. It loses nothing; the publisher's corpus is projected exactly as today.
 
-**Cost: moderate engineering twice over — a protocol AND a second generator — no
-governance cost, and a standing risk that the two generators drift over the same
-kind of artifact, which is the failure `corpus-adapter-seam` warns about in
-another voice ("a vendored reader has no version anyone can name and drifts
-silently from the product it was taken from").**
+That is the injection `consumer_reach.py` describes and says does not exist:
+*"openDox naming a protocol and being handed an implementation."* The protocol
+exists. The implementation exists. What has never been built is the projection
+that uses them, and that is requirement 4's subject.
 
-**(c) [RECOMMENDED] Move the generator into openDox PARAMETERIZED BY A DOMAIN
-MAPPING DECLARATION, and leave openxFactory's vocabulary in openXdox's
-declaration.**
-The generator's corpus-shaped literals become reads of the declaration's ARTIFACT
-KINDS and LIFECYCLE axes; openXdox supplies openxFactory's declaration and keeps
-its corpus adapter; openDox ships a declaration for its own domain — documents
-and ideas — and generates over it with no consumer installed.
+**Why this is better than the option this packet recommended.** (c) would have
+re-expressed 3,164 lines of someone else's governed code and still had to sever
+three `doc_health` imports. The ruled path writes a small amount of new neutral
+code against an interface that already exists, and leaves the governed generator
+where its vocabulary belongs. It is (b)'s shape without (b)'s duplication
+complaint, because openXdox's generator is not a second copy of openDox's — the
+two read different corpora by construction.
 
-This is not a new mechanism. **RULING C2's own sentence describes it** — *"the
-domain-mapping core, parameterized … parameterized by a domain profile that a
-descendant supplies"* — and option (c) applies that construction one layer up, so
-that the NEUTRAL core is parameterized too and openXdox supplies openxFactory's
-declaration as a descendant supplies its profile. It is also the mechanism
-`domain-mapping-declaration` was promoted to provide, in its own words: *"the neutral layer SHALL be
-parameterized by it rather than shipping any one domain's words"*, with the five
-axes named — artifact kinds, lifecycle vocabulary, acts and gates, evidence
-classes, promoting authorities. A generator's `proposal.md` / `tasks.md` /
-`spec.md` / `.openspec.yaml` / `ideation/staging/` literals ARE artifact kinds,
-and the declaration's first axis is where they belong.
+### The constraint that comes with it
 
-It is also a technique this estate has already executed and ruled on. Carve
-slice **S7** (RULED Q1/Q2/Q7, `#656` comment `5648049748`, Brett Heap
-2026-09-12) did exactly this to the front end: *"parameterize class C — every
-governance word in the fourteen class-C files and the four declared class-A tails
-becomes a read of the registered domain's DISPLAY facet BY ROLE"*. The generator
-is the same job on the server side, against a declaration axis instead of a
-display facet.
+**RULED, same comment, decision 2, verbatim: "keep those six words".**
+`NEUTRAL_DISPLAY` in `src/opendox/display_profile.py` stands unchanged —
+**`sources → groups → candidates → selections → submissions → completions`** —
+ratified as the standalone product's own vocabulary. The neutral projection
+renders these and no others; this arc designs no new workflow and re-authors no
+word. `display_profile.py:72-80` already argues why they are the right ones: a
+shell rendering them is *"VISIBLY not rendering a domain's"*, and a student who
+installs openDox alone *"gets a working funnel"*. Requirement 3's fourth scenario
+carries this as a general rule so a future neutral product inherits it.
 
-**Cost: the largest engineering item of the arc — five modules, 3,164 lines, ~30
-literal sites to audit and re-express — but ZERO governance cost: C2 and Q5 are
-SATISFIED rather than amended, and every descendant gets the parameterized core
-Q5 was written to guarantee.** It also subsumes (b): the seams stay, openXdox
-keeps contributing its routes and subcommands, and the declaration is what
-travels instead of the vocabulary.
+### The sibling slice, in flight — do not duplicate it
 
-### The recommendation, and what makes it refutable
+**RULED, same comment, decision 3, verbatim: "wire the views and land it"**, and
+CLAIMED in the same comment on `opensoft/openDox-code` by actor `viewwire`: the
+hardcoded governance spellings in `src/opendox/web/views/` become role lookups
+through the display facet, and `views/lens.js` joins it. Measured in that claim:
+six of seven views already import `views/display.js` but still carry literal
+`stage-brainstorm` / `stage-staged` / `stage-realized` names; `lens.js` imports
+it not at all. Both halves of the facet — `display_profile.py` on the server and
+`views/display.js` on the client — are already built and need no design.
 
-**(c).** All three can now reach the outcome, so the choice is about cost and
-about what the estate is left holding afterwards. (a) is cheapest to build and
-sets aside C2's principle, handing every descendant the fork Q5 was written to
-prevent. (b) keeps every ruling intact and leaves the estate maintaining TWO
-generators over the same kind of artifact, a drift liability with no owner.
-(c) keeps every ruling intact, leaves ONE generator, and produces the
-parameterized core C2 describes in its own words — the shape MedxDox and
-codexDox need anyway.
+**This packet does not own that slice and does not list it as owed work.** It is
+referenced so that whoever takes group 10 does not author it twice. The ruling is
+explicit that the generator is not in that claim: *"The generator itself
+(decision 1) is NOT in this claim — it is the BUILD-arc proposal's subject and
+comes back for its own word."*
 
-What would change the recommendation: if the ~30 literal sites turn out on audit
-to be load-bearing on openxFactory's SEMANTICS rather than its PATHS — that is,
-if the generator does not merely walk `openspec/changes/` but reasons about what
-a change MEANS — then the parameterization is authoring a second product rather
-than re-expressing a first, and **(b) becomes the cheaper honest answer**, because
-at that point its "second generator" is not duplication: it is the only neutral
-generator there was ever going to be. The audit is the first task of the
-G3 box and its result is recorded there BEFORE any code moves.
+### What is still open after the ruling
 
-### What this packet does without the ruling
-
-Requirement 4 stands and is falsifiable under any of the three: *"a snapshot is
-generated over a corpus of plain documents carrying none of the publishing
-repository's governance vocabulary, with no consumer installed."* It names no
-mechanism and forecloses only the empty answer — *"a mechanism that leaves the
-neutral product unable to generate when installed alone SHALL NOT be treated as
-satisfying it"* — so the ruling picks freely among options that can actually
-deliver, and cannot pick one that cannot. Every other
-requirement is actionable on ratification and none of them waits on Q-G3.
+Nothing in requirement 4. The arc's remaining open question is the smaller one
+this packet already flags at § D5: whether requirement 3's default domain profile
+is foreclosed by RULED ASK-2, which answered a different question about an EMPTY
+default. That is a ratification read, not a separate ruling request.

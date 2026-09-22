@@ -18,8 +18,10 @@ Authoring method: hand-authored against a MEASURED state. Every fact in this
 proposal was produced by running something in a fresh clone, and the command is
 given beside the claim so a reader can refuse it. No `opsx:propose` alignment
 review or council debate was run: the design decisions are settled by the
-archived packet's own rulings, and the ONE that is not settled is put to Brett
-as a named question in `design.md` § Q-G3 rather than decided here.
+archived packet's own rulings. The ONE that was not settled at filing was put to
+Brett as a named question rather than decided here — and it was RULED the same
+day, so `design.md` § R-G3 now records a decision, the options as they were put,
+and a correction to this packet's own analysis of them.
 
 FILING IS NOT RATIFYING. All three lifecycle documents carry `Status: draft`,
 `.openspec.yaml` declares drafting provenance with NO approval pair, and nothing
@@ -172,8 +174,10 @@ import lines.** openDox serves a snapshot it cannot generate. `generate_snapshot
 late-bound through `consumer_reach.py`, whose docstring states the position in
 terms: *"THE REMEDY IS TO INSTALL openXdox — and only that, today."* A user who
 installs openDox alone gets a reader with nothing to read. **Where that generator
-should live is the one question this packet does not answer** — see
-§ "The one question this packet puts to Brett" below, and `design.md` § Q-G3.
+should live was the one question this packet did not answer, and Brett ruled it
+on 2026-09-22: openDox gets its OWN neutral generator and openXdox keeps its
+governed one** — see § "The question this packet asked, and the ruling that
+answered it" below, and `design.md` § R-G3.
 
 ## Where this change is authored, and why — a finding
 
@@ -288,12 +292,19 @@ it proposes work someone has done. Measured, not assumed:
   `cli.build_parser(subcommand_extensions=)`, with `serve_gate.routes()`,
   `serve_projection.routes()` and `cli_gate.GateSubcommands.register()` on the
   consumer side. Requirement 2's remedy uses them.
+- **The generator's seam is already declared on BOTH sides, which is why the
+  ruled path is small.** `src/opendox/corpus_adapter.py` is a
+  `@runtime_checkable` `Protocol` with six closed members, and
+  `src/opendox/runtime/local_git_adapter.py` (2,796 lines, RULING C3's plain
+  local git repository) is a conformant implementation openDox already ships.
+  Requirement 4 asks for the projection that uses them, not for either of them.
 - **A neutral, profile-parameterized corpus reader already exists** at
   openXdox-code `src/openxdox/domain_corpus_adapter.py`, answering the
   conformance corpus 17 of 17 (`#23` → `3ee8cd39`). It is at the consumer leg, so
-  openDox reaching it would be a new back-import — but it is evidence that the
-  parameterized shape Q-G3 recommends is a shape this estate has already built
-  once.
+  openDox reaching it would be a new back-import — but it is evidence that a
+  profile-parameterized neutral reader is a shape this estate has already built
+  once, and openDox's own projection (requirement 4) is the same shape on its own
+  side of the seam.
 
 **One correction this packet owes the record.** openDox-code's `README.md:39-42`
 says `validate` is narrowed *"Until the BUILD arc … inverts the openDox →
@@ -320,7 +331,7 @@ separately satisfiable and each falsifiable by a command named in `tasks.md`:
 | 1 | Making a neutral product standalone moves no corpus, no governance instance and no check family | — | the guard: a diff of `openxFactory/scripts/` and `openspec/` across the arc |
 | 2 | A neutral product imports with no consumer, no publisher and no host present | G1 | `python -c "import opendox.serve"` in an openDox-only checkout |
 | 3 | A neutral product ships a default profile for its own domain, and the composition point stays open | G2 | `opendox --help` with no host registered |
-| 4 | A neutral product produces its own primary artifact with no consumer installed | G3 | generate a snapshot with `openxdox` absent |
+| 4 | A neutral product produces its own primary artifact with no consumer installed **(RULED)** | G3 | generate a snapshot with `openxdox` absent |
 | 5 | A deferred reach into the publisher or the consumer resolves through the declared seam | G4 | call the authoring verb with no `corpus_adapter_openxfactory` on the path |
 | 6 | A neutral product carries a health check over its own documents, and corpus-operations families stay with the corpus | G5 | run openDox's health check in an openDox-only checkout |
 | 7 | A neutral product validates its own documents from a single checkout | G6 | run openDox's validator over a document, one checkout |
@@ -381,22 +392,64 @@ The one openxFactory-side change this arc contemplates is **annotation**: the
 carve manifest gains a row note for each closed reach, so the ledger records
 that the direction was reversed and when. No behaviour, no family, no schema.
 
-## The one question this packet puts to Brett
+## The question this packet asked, and the ruling that answered it
 
-**G3 — where does the snapshot generator live?** This packet does not decide it
-and must not. The generator sits in openXdox by RULING C2 and DIRECTION Q5, which
-are about vocabulary, not about convenience: C2 refuses placing openxFactory's
-status taxonomy, its change/spec/delta nouns and its doc-health families in the
-neutral layer, *"because a clinician using a descendant would then see the word
-'requirement'"*; Q5 exists to stop the neutral layer shipping one domain's words
-so that every other descendant forks it. Moving the generator naively would
-violate both. Leaving it where it is means openDox is never standalone.
+**G3 was an open question when this packet was filed. It was ruled six hours
+later and requirement 4 is written to the ruling.** Brett Heap, openxFactory
+`#656` comment
+[`5783335210`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783335210),
+2026-09-22T20:08:59Z, verbatim: **"yes, openDox gets its own neutral
+generator."**
 
-The options, the recommendation and the consequences of each are in `design.md`
-§ Q-G3. Requirement 4 above is deliberately written to the OUTCOME — "produces
-its own primary artifact with no consumer installed" — so that it is satisfied
-by whichever mechanism Brett rules, and no mechanism is smuggled in by the
-requirement's wording.
+openDox does **not** take openXdox's `generator.py`. It grows a small neutral
+projection over the `CorpusAdapter` protocol it *already declares* —
+`src/opendox/corpus_adapter.py`, a `@runtime_checkable` `Protocol` whose own
+docstring says *"This interface travels to openDox"* — with
+`runtime/local_git_adapter.py` as the conformant implementation it already has.
+openXdox **keeps** its governed generator and hands it in through the same seam,
+losing nothing. That is precisely the injection `consumer_reach.py` names as
+*"BUILD-arc work"* that *"does not exist yet"*: the protocol exists, the
+implementation exists, and what was never built is the projection that uses them.
+
+**The ruling is better than this packet's own recommendation was, and the reason
+is a fact this packet had not measured.** It recommended relocating the generator
+parameterized by a domain mapping declaration. `src/openxdox/generator.py:66-68`
+reads:
+
+```
+from doc_health import corpus
+from doc_health.corpus import RealGit
+from doc_health.lines import split_keepends
+```
+
+**The generator imports openxFactory's `doc_health` directly.** Relocating it
+would have put `import doc_health` inside the neutral core — the exact thing
+`corpus-adapter-seam` forbids — trading one wrong-way dependency for a deeper
+one. The correction is recorded in full at `design.md` § R-G3 rather than quietly
+fixed, because this packet priced that option wrongly and a reader deciding
+something similar later should see how.
+
+**Two constraints arrive with the ruling** and are carried as such, not as
+proposals:
+
+- **"keep those six words."** `NEUTRAL_DISPLAY` in
+  `src/opendox/display_profile.py` stands unchanged — *sources → groups →
+  candidates → selections → submissions → completions* — ratified as the
+  standalone product's own vocabulary. This arc designs no workflow and
+  re-authors no word; requirement 3's fourth scenario carries the rule
+  neutrally.
+- **"wire the views and land it."** The view-wiring slice is CLAIMED and IN
+  FLIGHT on openDox-code under actor `viewwire`. **This packet does not own it
+  and does not list it as owed work** — it is referenced so group 10 is not
+  authored twice. The ruling is explicit: *"The generator itself (decision 1) is
+  NOT in this claim — it is the BUILD-arc proposal's subject."*
+
+One smaller item remains for the ratification read, and it is not a ruling
+request: `design.md` § D5 records that requirement 3 revisits the **premise** of
+RULED ASK-2 — not its reasoning, since an EMPTY default stays refused. If ASK-2
+is read as foreclosing a default profile for openDox's own domain, requirement 3
+is struck and the other nine stand.
+
 
 ## Impact
 
@@ -407,8 +460,11 @@ requirement's wording.
   `opensoft/openDox` (one start target), `openxFactory` (manifest annotations
   only).
 - **Affected code at ratification:** none. This packet authors no code byte.
-- **Blocked on a ruling:** requirement 4's mechanism (§ Q-G3). Every other
+- **Blocked on a ruling:** nothing. Requirement 4's mechanism was RULED on
+  2026-09-22 (`#656` `5783335210`) and the requirement is written to it. Every
   requirement is actionable on ratification.
+- **In flight elsewhere, deliberately not owned here:** the view-wiring slice on
+  openDox-code, claimed by actor `viewwire` in the same ruling comment.
 - **One constraint the realization must respect, found by measurement:** the
   entry point requirement 10 asks for CANNOT be an assembly-root `Makefile`
   target. `openDox/Makefile` carries a row in `contracts/shape-pin.yaml` and

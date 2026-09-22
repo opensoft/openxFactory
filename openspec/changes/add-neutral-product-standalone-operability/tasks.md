@@ -35,17 +35,22 @@ Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
   `neutral-product-standalone-operability` — 10 requirements, 30 scenarios,
   domain-neutral, openDox as the measured instance.
-- [x] 1.4 Author `design.md`: D1-D7 and **Q-G3**, the one question put to Brett
-  with three options, the measured cost of each and a recommendation.
+- [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
+  put to Brett with three options and a recommendation; RULED the same day and
+  rewritten as the record of the decision, the options as they were put, and the
+  CORRECTION to this packet's own pricing of the rejected option.
 - [ ] 1.5 `OPENSPEC_TELEMETRY=0 openspec validate add-neutral-product-standalone-operability --strict`
   and `--all --strict` pass with no NEW failure against the baseline above.
 - [ ] 1.6 `python3 scripts/proposal-support.py . verify add-neutral-product-standalone-operability`
   passes; the `tests/sequenced_after/corpus-ledger.yaml` row is machine-seeded
   (`scripts/validate-sequenced-after.py --seed-ledger --moved-by … --moved-on …`),
   and the README "OpenSpec Records" *Active changes* bullet is added.
-- [ ] 1.7 **RULING Q-G3.** Human-gated, Brett Heap. `design.md` § Q-G3 carries the
-  three options and the recommendation (c). Nothing in group 5 starts until it is
-  answered; every other group is actionable without it.
+- [x] 1.7 **RULING G3 — GIVEN.** Brett Heap, `#656` comment `5783335210`,
+  2026-09-22T20:08:59Z: *"yes, openDox gets its own neutral generator."* Group 5
+  is no longer blocked and requirement 4 is written to the ruling. `design.md`
+  § R-G3 records the options as they were put, what was ruled, and the CORRECTION
+  to this packet's own pricing of option (a) — `generator.py:66-68` imports
+  `doc_health`, which this packet had not measured when it recommended (c).
 - [ ] 1.8 On ratification: `Status: ratified` + `Ratified by:` on all three
   lifecycle documents; `## Ratification record` in `proposal.md`; the approval
   pair ADDED beside the fixed origin in `.openspec.yaml`, never substituted.
@@ -149,22 +154,45 @@ mention in the package is prose.
   `ModuleNotFoundError: No module named 'corpus_adapter_openxfactory'` while
   `python -c "import opendox.authoring"` exits 0.
 
-## Group 5 — Requirement 4 / G3: openDox generates its own snapshot (BLOCKED on ruling 1.7)
+## Group 5 — Requirement 4 / G3: openDox's own neutral projection (RULED, openDox-code)
 
-- [ ] 5.1 **AUDIT FIRST, BEFORE ANY CODE MOVES.** Classify each corpus-shaped site
-  in `generator.py` (974), `snapshot.py` (223), `snapshot_registry.py` (1,318),
-  `completeness.py` (548) and `corpus_root.py` (101) as (i) a PATH literal
-  re-expressible as a declared artifact kind, or (ii) reasoning about what an
-  openxFactory artifact MEANS. Record the count of each. `design.md` § Q-G3 names
-  this as the finding that would overturn the recommendation.
-- [ ] 5.2 Realize the mechanism Brett rules — (a) move as-is, (b) protocol
-  injection, or (c) move parameterized by a domain mapping declaration.
-- [ ] 5.3 Whichever is ruled: openXdox keeps its corpus adapter and its
-  declaration, and continues contributing its routes and subcommands through the
-  existing seams. The consumer loses no capability.
+**RULED: openDox gets its OWN neutral generator. `generator.py` does not move.**
+The audit this box used to open with is spent — it would have priced a relocation
+nobody is doing — and its decisive finding is recorded instead: `generator.py`
+imports `doc_health` at `:66-68`, so relocating it was never lawful under
+`corpus-adapter-seam` whatever its literals said.
+
+- [ ] 5.1 Write openDox's SMALL NEUTRAL PROJECTION over the `CorpusAdapter`
+  protocol already declared at `src/opendox/corpus_adapter.py` (a
+  `@runtime_checkable` `Protocol`, six closed members: `resolve`,
+  `list_documents`, `read`, `classify`, `check`, `write_back`). New neutral code
+  written to openDox's needs — NOT 3,164 lines re-expressed, and NOT a copy of
+  openXdox's.
+- [ ] 5.2 Bind `src/opendox/runtime/local_git_adapter.py` (2,796 lines, RULING
+  C3's plain local git repository) as the conformant implementation, so the
+  projection has a real corpus to read with nothing else installed.
+- [ ] 5.3 Render `NEUTRAL_DISPLAY`'s SIX WORDS and no others — `sources`,
+  `groups`, `candidates`, `selections`, `submissions`, `completions` (RULED
+  *"keep those six words"*, same comment). **No word is re-authored and no
+  workflow is designed.** `src/opendox/display_profile.py` is unchanged by this
+  group.
+- [ ] 5.4 openXdox KEEPS `generator.py`, `snapshot.py`, `snapshot_registry.py`,
+  `completeness.py` and `corpus_root.py`, and hands its governed generator in
+  through the SAME seam. The publisher's corpus is projected exactly as today and
+  the consumer loses no capability — requirement 4's third scenario is the check.
+- [ ] 5.5 Lower `consumer_reach.py`'s generator-facing deferred reaches as the
+  projection replaces them; the import-time column stays at zero.
+- [ ] 5.6 **Do NOT author the view-wiring slice here.** It is CLAIMED and IN
+  FLIGHT on openDox-code under actor `viewwire` (RULED *"wire the views and land
+  it"*, same comment), which converts the hardcoded `stage-brainstorm` /
+  `stage-staged` / `stage-realized` spellings in `src/opendox/web/views/` to role
+  lookups and joins `lens.js` to the display facet. Coordinate; do not duplicate.
+  The ruling is explicit that the generator is not in that claim.
 - [ ] **FALSIFIED BY** (openDox-code checkout, `pip uninstall -y openxdox` so that
-  `python -c "import openxdox"` raises, over a fixture directory of plain `.md`
-  documents carrying none of openxFactory's governance vocabulary):
+  `python -c "import openxdox"` raises, AND `python -c "import doc_health"` raises
+  too — the neutral projection must reach neither the consumer nor the publisher
+  — over a fixture directory of plain `.md` documents carrying none of
+  openxFactory's governance vocabulary):
 
       <the entry point from 10.1> generate --corpus tests/fixtures/plain-documents --out /tmp/snap.json
       python -c "import json;d=json.load(open('/tmp/snap.json'));print(len(d['documents']))"

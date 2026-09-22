@@ -54,7 +54,12 @@ ship a DEFAULT PROFILE for its own neutral domain and SHALL start on it with no
 host present, while the composition point REMAINS OPEN for any host to register
 a different profile. Shipping a default is not owning the composition point: the
 default describes the product's own domain — documents and ideas — and a host,
-a consumer layer or a domain descendant registers its own and replaces it. What
+a consumer layer or a domain descendant registers its own and replaces it. Where
+the product already SHIPS a neutral vocabulary for its own shape, that vocabulary
+is the default profile's and SHALL NOT be re-authored by this arc: a standalone
+product that already says what it does in plain words has the thing the arc is
+for, and changing those words would be designing a workflow rather than opening
+a door. What
 a core may not carry is ANOTHER domain's profile, which is why the publisher's
 profile was deleted at the carve rather than travelling; the absence of any
 default, however, leaves a product that cannot start, and that is a defect
@@ -68,6 +73,10 @@ rather than a discipline.
 - **WHEN** a neutral product's default profile names the publishing repository's status taxonomy, its change/spec/delta nouns or its act verbs
 - **THEN** the profile is refused under RULING C2 and DIRECTION Q5, and those words stay in the declaration of the domain they belong to
 
+#### Scenario: The product already ships a neutral vocabulary
+- **WHEN** the neutral product already carries plain words for its own shape, rendered by a shell that is visibly not rendering a domain's
+- **THEN** those words are the default profile's vocabulary unchanged, and the arc neither re-authors them nor designs a new workflow around them
+
 #### Scenario: A host registers its own profile
 - **WHEN** a host, consumer layer or domain descendant registers a profile
 - **THEN** the registered profile replaces the default for that process, so the default is a fallback and never a privileged path
@@ -79,14 +88,18 @@ the CONSUMER layer is not installed. A product that serves an artifact it cannot
 generate is not standalone however complete its serving half is: the user who
 installs it alone gets a reader with nothing to read. Where the generator lives
 today in the consumer because it was written against the publisher's corpus, the
-neutral product SHALL reach a state in which it generates over its OWN corpus.
-This requirement is satisfied by the OUTCOME and is deliberately silent on the
-mechanism — but silence is not admission: **a mechanism that leaves the neutral
+neutral product SHALL grow its OWN generator over the adapter interface it
+already declares, and the consumer SHALL KEEP its governed generator and hand it
+in through that same seam. A generator that carries the publisher's governance
+vocabulary, or that imports the publisher's own check families, SHALL NOT BE
+RELOCATED into the neutral product: relocating it trades one wrong-way dependency
+for a deeper one, and the neutral core ends up importing the very tooling
+`corpus-adapter-seam` forbids it to import. **A mechanism that leaves the neutral
 product unable to generate when installed alone SHALL NOT be treated as
-satisfying it**, however lawful the direction it produces. Declaring a protocol
-the consumer implements reverses the DIRECTION and is required by
-`corpus-adapter-seam`; on its own it converts a missing-module error into a
-well-worded refusal and leaves this requirement open.
+satisfying this requirement either**, however lawful the direction it produces —
+declaring a protocol the consumer implements reverses the DIRECTION and is
+required, but on its own it converts a missing-module error into a well-worded
+refusal and leaves the product with nothing to read.
 
 #### Scenario: The product serves a snapshot it cannot generate
 - **WHEN** a product's server reads a snapshot whose generator resolves only through the consumer layer
@@ -99,6 +112,11 @@ well-worded refusal and leaves this requirement open.
 #### Scenario: The consumer's own corpus is projected
 - **WHEN** the consumer layer IS installed and points the product at the publisher's governed corpus
 - **THEN** the projection is unchanged from today's behaviour, because the arc reverses a direction and removes no capability from the consumer
+
+#### Scenario: The consumer's generator carries the publisher's vocabulary
+- **WHEN** the generator that exists is written against the publisher's corpus — its governance nouns in its paths, and the publisher's check families among its imports
+- **THEN** it is NOT relocated into the neutral product; the neutral product grows its own projection over its declared adapter interface, and the consumer injects its governed generator through the same seam
+- **AND** the neutral product's projection is judged by what it can read alone, not by what the consumer's can read
 
 ### Requirement: A deferred reach into the publisher or the consumer resolves through the declared seam
 A neutral product's DEFERRED reach — an import written inside a function body so

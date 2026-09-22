@@ -53,6 +53,23 @@ origin:
     FILING IS NOT RATIFYING. All three lifecycle documents carry `Status:
     draft`, no approval pair is declared, and nothing here admits text to
     canon.
+    AFTER FILING, AND ADDED BESIDE THE ABOVE RATHER THAN SUBSTITUTED FOR IT.
+    The text above describes the filing truthfully as of the filing
+    (2026-09-22 ~19:45Z), when the packet put G3 to Brett as an open question.
+    It was RULED at 20:08:59Z the same day - `#656` comment `5783335210`,
+    verbatim "yes, openDox gets its own neutral generator" - so the packet now
+    RECORDS that decision instead of asking it, requirement 4 is written to
+    it, and `design.md` section R-G3 carries the options as they were put, the
+    ruling, and a CORRECTION to this packet's own pricing of the rejected
+    option (`src/openxdox/generator.py:66-68` imports openxFactory's
+    `doc_health`, which the packet had not measured). Two constraints arrive
+    with the ruling and are carried as constraints, not proposals:
+    `NEUTRAL_DISPLAY`'s six words stand unchanged, and the view-wiring slice
+    is claimed and in flight under actor `viewwire` and is NOT owed by this
+    packet. `kind` and `id` do not move, and NO APPROVAL PAIR IS ADDED: a
+    ruling on ONE QUESTION INSIDE the packet is not ratification OF the packet
+    - the three lifecycle documents still carry `Status: draft` and
+    `approved_by`/`approved_on` remain absent.
   proposed_by: >-
     Lane `openxfactory-4` (display `openXfactory-4-openDox_extraction`),
     session `faabad8b`, actor `buildarc`, on the holder's brief of 2026-09-22
