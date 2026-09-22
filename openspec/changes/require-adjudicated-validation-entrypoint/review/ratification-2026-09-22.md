@@ -67,10 +67,21 @@ re-ratification is registered as owed in ITS record and ITS `tasks.md` § 1.3.
 
 ## 4. What stood between proposal and ratification
 
-One Copilot review round, five findings, **all answered and every thread
-resolved**. Three were taken as fixes, one was a mechanism finding applied to
-both packets, and one was true when written and already false at the head it was
-raised against. The one that changed the requirement's meaning:
+**THE TALLY IS STATED AS OF THIS RECORD'S OWN COMMIT AND THE PULL REQUEST CARRIES
+THE RUNNING ONE**, because review continued after the ratifying word and a count
+frozen into a record is a count that goes stale. As of `691a7dfc`, four rounds
+and **EIGHTEEN findings**, all answered and every thread resolved: **16 FIXED**,
+and **2 true when written and already false at the head they were raised
+against** (`r4073183972`, the `.openspec.yaml` origin, which had landed at
+`50ac2fc5`; and `r4073991484`, the scenario count, corrected at `691a7dfc`
+before the review naming it was posted).
+
+*(An earlier draft of this paragraph said "one round, five findings". It was true
+when written and three rounds have happened since — the same failure mode this
+packet's own findings kept catching elsewhere, which is why the count is now
+bound to a named head rather than restated.)*
+
+The three that changed the requirement's meaning:
 
 - **`r4073184083`** — the delta said only a whole-corpus run could be reconciled
   against the dispositions *"at all"*, which **contradicts ratified canon**:
@@ -80,9 +91,26 @@ raised against. The one that changed the requirement's meaning:
   deferring to the disposition mechanism could not afford to misstate it**, which
   is why it was taken as a fix rather than argued.
 
-Two others sharpened the text: `r4073391844` widened the requirement's SUBJECT to
-carry every record kind the packet claims, and `r4073391907` corrected *"never
-more permissive"*, which was false against this packet's own central measurement.
+- **`r4073721220`** — the subject required only the script path plus `--all`, so
+  `--path-mode` or an alternate `--pin` **satisfied the letter of the rule while
+  resolving the tool from `PATH` or reading a foreign pin** — precisely the
+  invocation the capability already forbids a required check to use. It now
+  requires the DEFAULT, PINNED-ARTIFACT form. **The flags are part of the name.**
+- **`r4073721379`, then `r4073925702`** — the unsatisfiability claim was
+  unconditional twice over: first it ignored that a STALE disposition inverts the
+  two verdicts, then that an unrelated blocking finding prevents the inversion.
+  Both conditions are now in the text, and the second correction forced it to say
+  what the requirement is actually about — **WHICH READER a record names, never
+  which exit code happens to result.**
+
+Others sharpened the text: `r4073391844` widened the requirement's SUBJECT to
+carry every record kind the packet claims; `r4073391907` and `r4073721340`
+corrected *"never more permissive"* in the delta and then in the proposal, false
+against this packet's own central measurement; `r4073925921` completed a scenario
+bullet that stopped mid-clause; `r4073925779`/`r4073925865`/`r4073925957`
+corrected a scenario count that lagged the delta; and
+`r4073798745`/`r4073798821` corrected two lifecycle claims that ratification
+itself made false.
 
 ## 5. What was measured, and by which reader
 
