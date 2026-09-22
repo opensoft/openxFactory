@@ -479,7 +479,15 @@ def test_ruling_q7_two_direct_upstreams_in_lockstep() -> None:
     derived_pin = yaml.safe_load(derived_blob)
 
     assert opendox_pin["commit"] == derived_pin["commit"]
-    assert opendox_pin["commit"] == "c4c5014d9b39ac55e5df957db23a56db38847a6b"
+    # A SNAPSHOT LITERAL, AND IT MOVES WITH THE PIN. The equality above is the
+    # invariant; this line is the recorded value the invariant currently holds
+    # at, so a pin advance that forgot to move one of the two sides cannot pass
+    # by moving both to some third commit. It advanced c4c5014d -> dc7aa08f with
+    # the nested leg advance (openxFactory#656 5768088437, STEP 2 of the forced
+    # order 5767733963), and it is expected to move on every future bump --
+    # the same way codexFactory's review-lane `PIN` constant moves with its
+    # gitlink, and for the same reason.
+    assert opendox_pin["commit"] == "dc7aa08fe48c8d17b596b0daa1ce87cdc0472aca"
 
 
 def test_main_prints_one_success_line_and_returns_zero(capsys) -> None:
