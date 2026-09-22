@@ -1944,6 +1944,69 @@ def test_the_reach_does_not_use_a_symlinked_cache_home_either(tmp_path):
     assert Path(landed).is_dir()
 
 
+def _symlink_loop(at: Path) -> Path:
+    """A cyclic symlink: `a -> b -> a`. MEASURED on CPython 3.12.3,
+    `Path(a).resolve()` raises `RuntimeError: Symlink loop from …` — with
+    `strict=False` as well as `strict=True`, which is the half that surprises
+    (`os.path.realpath()` swallows it and returns the path)."""
+    first, second = at / "loop-a", at / "loop-b"
+    first.symlink_to(second)
+    second.symlink_to(first)
+    return first
+
+
+def test_a_prefix_whose_path_cannot_be_resolved_is_replaced_not_raised_on(
+        monkeypatch, tmp_path):
+    """A CYCLIC PREFIX MUST NOT TAKE THE GATE DOWN (Copilot, PR #1132 round
+    3). The round before promised that a stray symlink would not become an
+    ImportError in every conftest in this repository, and then asked
+    `Path.resolve()` for an answer it raises on. A path that cannot be shown
+    to be OUTSIDE every pinned mount is treated as inside — fail safe — so
+    the cache lands in the freshly created directory instead."""
+    loop = _symlink_loop(tmp_path)
+    assert MODULE.inside_a_pinned_mount(str(loop)), "the loop resolved?"
+    monkeypatch.setitem(sys.modules, "carved_reach", _fake_reach())
+    monkeypatch.setattr(sys, "pycache_prefix", str(loop))
+    MODULE.post_stack(register_profile=False)
+    assert sys.pycache_prefix != str(loop)
+    assert Path(sys.pycache_prefix).is_dir()
+
+
+def test_a_cache_home_that_cannot_be_resolved_is_not_used_either(
+        monkeypatch, tmp_path):
+    """The same question asked of the FALLBACK, which is the one that has to
+    survive: `BYTECODE_HOME` itself cyclic, with no prefix chosen."""
+    loop = _symlink_loop(tmp_path)
+    monkeypatch.setattr(MODULE, "BYTECODE_HOME", loop)
+    monkeypatch.setattr(sys, "pycache_prefix", None)
+    MODULE.bytecode_out_of_the_legs()
+    assert sys.pycache_prefix != str(loop)
+    assert not MODULE.inside_a_pinned_mount(sys.pycache_prefix)
+    assert Path(sys.pycache_prefix).is_dir()
+
+
+def test_the_reach_survives_a_cyclic_prefix_rather_than_raising(tmp_path):
+    """And one file over, where it would have raised inside `install()` — in
+    a fresh interpreter, because that is where every other importer in this
+    repository arrives and where the crash would have landed."""
+    import carved_reach
+
+    loop = _symlink_loop(tmp_path)
+    scripts = str(REPO_ROOT / "scripts")
+    program = (f"import sys; sys.path.insert(0, {scripts!r})\n"
+               "import carved_reach\n"
+               "carved_reach.install()\n"
+               "print(sys.pycache_prefix)\n")
+    environment = dict(os.environ)
+    environment["PYTHONPYCACHEPREFIX"] = str(loop)
+    done = subprocess.run([sys.executable, "-c", program], env=environment,
+                          capture_output=True, text=True, check=False,
+                          cwd=str(REPO_ROOT))
+    assert done.returncode == 0, done.stderr
+    assert "RuntimeError" not in done.stderr, done.stderr
+    assert done.stdout.strip() == str(carved_reach.BYTECODE_HOME)
+
+
 def test_the_pins_and_the_mounts_a_cache_is_kept_out_of_are_the_same_set():
     """The runner DERIVES its mount set from `LEG_GITLINKS`; the reach spells
     its two out, because `openXdox`'s root is not a `MOUNTS` key. This holds

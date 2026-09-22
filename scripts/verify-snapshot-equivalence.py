@@ -232,6 +232,27 @@ def pinned_mounts() -> tuple[Path, ...]:
                  if parent == ".")
 
 
+def _resolved(path: Path) -> Path | None:
+    """`path.resolve()`, or `None` when the filesystem will not answer.
+
+    MEASURED on this repository's own interpreter, CPython 3.12.3:
+    `Path.resolve()` raises `RuntimeError: Symlink loop from …` on a cyclic
+    link, with `strict=False` as well as `strict=True` — `os.path.realpath()`
+    swallows it and `resolve()` does not (Copilot, PR #1132 round 3). A
+    cyclic `<repo>/.pycache`, or a cyclic `PYTHONPYCACHEPREFIX`, would
+    therefore have raised out of `post_stack()` — in every conftest in this
+    repository — which is precisely the failure the fallback exists to avoid.
+
+    `None` FAILS SAFE at the one caller: a path that cannot be shown to be
+    outside every pinned mount is treated as inside, so the cache goes to the
+    freshly created directory rather than to a path nothing could resolve.
+    """
+    try:
+        return path.resolve()
+    except (OSError, RuntimeError, ValueError):
+        return None
+
+
 def inside_a_pinned_mount(prefix: str) -> bool:
     """Whether a bytecode prefix would put the cache INSIDE a pinned mount.
 
@@ -245,9 +266,14 @@ def inside_a_pinned_mount(prefix: str) -> bool:
     candidate = Path(prefix)
     if not candidate.is_absolute():
         return True
-    candidate = candidate.resolve()
-    return any(candidate.is_relative_to(mount.resolve())
-               for mount in pinned_mounts())
+    resolved = _resolved(candidate)
+    if resolved is None:
+        return True
+    for mount in pinned_mounts():
+        target = _resolved(mount)
+        if target is None or resolved.is_relative_to(target):
+            return True
+    return False
 
 
 def bytecode_out_of_the_legs() -> None:
