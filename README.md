@@ -3598,10 +3598,16 @@ Archived changes:
   AND THE REASON IS RECORDED:** splitting a ratified requirement's sentences is
   authoring rather than carriage, and the `openxFactory` half has nowhere to land
   today — its capability is this packet's § 5.2a, unbuilt, with
-  `corpus-adapter-seam` an unpromoted delta of the same packet. Same reading *(TRUE WHEN WRITTEN; `corpus-adapter-seam`
-  was PROMOTED on 2026-09-22 by that packet's own archive, PR #1139 — the
-  successor capability id at § 5.2a remains unbuilt, which is the half this
-  sentence turns on.)*
+  `corpus-adapter-seam` an unpromoted delta of the same packet. *(TRUE WHEN
+  WRITTEN, AND BOTH HALVES HAVE SINCE MOVED. `corpus-adapter-seam` was PROMOTED
+  on 2026-09-22 by that packet's own archive, PR #1139. The § 5.2a successor
+  CAPABILITY also exists: `openspec/specs/openxfactory-engineering-adapter/`,
+  promoted by `repromote-engineering-vocabulary` — PR #1103 → `eb1880cb` — and
+  § 5.2a is itself ticked in the archived ledger. What remains unbuilt is the
+  ADAPTER IMPLEMENTATION, not the capability, and the two are distinguished here
+  so this re-home record does not contradict the spec inventory. Copilot's
+  reading on PR #1139 caught an earlier version of this note that said the
+  capability was unbuilt; it was right.)* Same reading
   § 6.1 took for its seven `doc-health` requirements. **WHAT STAYS:**
   `scripts/doc_health/staging_seed.py` and `/actions/staging-seed`, untouched
   here. **WHAT TRAVELS OPEN:** § 4.4, the first real staging seed — a box no
@@ -3665,7 +3671,11 @@ Archived changes:
   ratifying the seven until it lands. **THE LOCKSTEP PAIR THE ARCHIVE RETIRES:**
   `scripts/target-release-register.yaml`'s `implementation_pending` entry —
   whose own `retires_when:` reads *"or the packet archives"* — and
-  `scripts/target_release.py`'s `CLOSED_REGISTER` tuple, 21 pairs to 20. **THE
+  `scripts/target_release.py`'s `CLOSED_REGISTER` tuple, 21 pairs to 20 *(TRUE
+  WHEN WRITTEN; MEASURED AT THE ARCHIVE THE TRANSITION IS 20 PAIRS TO 19, because
+  PR #1060 had already retired the 2026-09-16 pair in between — PR #1139 records
+  the measured figure and this sentence is corrected rather than left to
+  contradict the executable baseline)*. **THE
   TWO HALVES ARE NOT THE SAME OBLIGATION:** the ENTRY's deletion is required
   (`Report.stale` refuses while it stands), while the baseline pair's is a
   DELIBERATE SHRINK — `target_release.py` says a baseline *"MAY BE A STRICT

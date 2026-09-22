@@ -375,9 +375,25 @@ register:
   # #1139, on the SECOND limb of this entry's own `retires_when:` ("or the packet
   # archives"), which also says the entry "MUST be deleted in that same pull
   # request". It is, and its `CLOSED_REGISTER` pair in `scripts/code_surface.py`
-  # goes in the same diff — the module refuses a register entry whose pair the
-  # baseline does not carry, and refuses a baseline pair no entry names, so the
-  # two only ever move together.
+  # goes in the same diff.
+  #
+  # AND THE REASON THE PAIR MOVES WITH IT IS NOT THE MODULE — an earlier version
+  # of this note said the module refuses a baseline pair no entry names, and that
+  # is WRONG IN THE DIRECTION THAT MATTERS. `load_register()` enforces ONE
+  # direction only (`scripts/code_surface.py`, the `baseline_key not in closed`
+  # refusal): an ENTRY whose pair the baseline lacks. A baseline WIDER than the
+  # register is lawful and has its own test saying so,
+  # `test_a_baseline_wider_than_the_register_is_lawful` — "the baseline is a
+  # CEILING, never a floor". What requires the pair to go is THIS REPOSITORY'S
+  # OWN two tests over the HOUSE register:
+  # `test_the_house_register_is_within_its_own_closed_baseline` (equal lengths)
+  # and `test_the_closed_baseline_is_exactly_the_registers_own_population` (set
+  # equality), whose docstring says the baseline "may be wider, but at the gate's
+  # landing it is the register's own population — so a divergence between the two
+  # here is a drift nobody declared". The distinction matters to a future reader:
+  # the module tolerates a wider baseline everywhere, and the house holds itself
+  # to equality on purpose. (Copilot's reading on PR #1139 caught the earlier
+  # claim; it was right.)
   #
   # THE FIRST LIMB NEVER FIRED, and that is worth recording because it is the
   # limb the entry was written for: the packet did NOT decide what its
