@@ -39,9 +39,9 @@ Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
   put to Brett with three options and a recommendation; RULED the same day and
   rewritten as the record of the decision, the options as they were put, and the
   CORRECTION to this packet's own pricing of the rejected option.
-- [ ] 1.5 `OPENSPEC_TELEMETRY=0 openspec validate add-neutral-product-standalone-operability --strict`
+- [x] 1.5 `OPENSPEC_TELEMETRY=0 openspec validate add-neutral-product-standalone-operability --strict`
   and `--all --strict` pass with no NEW failure against the baseline above.
-- [ ] 1.6 `python3 scripts/proposal-support.py . verify add-neutral-product-standalone-operability`
+- [x] 1.6 `python3 scripts/proposal-support.py . verify add-neutral-product-standalone-operability`
   passes; the `tests/sequenced_after/corpus-ledger.yaml` row is machine-seeded
   (`scripts/validate-sequenced-after.py --seed-ledger --moved-by … --moved-on …`),
   and the README "OpenSpec Records" *Active changes* bullet is added.
@@ -230,16 +230,36 @@ imports `doc_health` at `:66-68`, so relocating it was never lawful under
 
 ## Group 7 — Requirement 7 / G6: a validator openDox can run (openDox-code)
 
-- [ ] 7.1 Resolve the three-way schema split so one checkout carries the set
-  openDox's validator reads; schemas openxFactory OWNS arrive by the declared pin
-  and are read from the pinned checkout, never by a sibling path literal.
-  Measured: the validator's `SCHEMA_FILENAMES` names **10** schemas, split
-  **openXdox-spec 3 / openDox-spec 3 / openxFactory 4**; both code legs and both
-  assembly roots carry **zero**. The script itself
-  (`openXdox-code/scripts/validate-ideation-dashboard-contracts.py`) derives
-  `SCHEMAS_DIR` from `__file__` (`:114-115`) and so looks for a
-  `contracts/schemas/` its own leg does not have — it exits 2 with
-  `ERROR .../contracts/schemas not found` run from its OWN repository.
+- [ ] 7.1 **NARROW THE INPUT SET FIRST, then acquire what remains.** The existing
+  validator's `SCHEMA_FILENAMES` names **ten** schemas and they have three
+  different owners, so "give openDox the whole set" is the wrong shape:
+
+  | owner | count | schemas |
+  |---|---|---|
+  | `opensoft/openDox-spec` | 3 | `ideation-workbench`, `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog` |
+  | `opensoft/openXdox-spec` | 3 | `ideation-dashboard-snapshot`, `ideation-dashboard-snapshot-index`, `gate-action-record` |
+  | `openxFactory` | 4 | `ideation-possibles-register`, `project-register`, `demotion-execution-receipt`, `gate-intent` |
+
+  Ownership is settled, not inferred: `docs/contract-versioning-policy.md`
+  § 1047-1053 records openxFactory DIVESTING the first six to the two spec legs
+  by canonical home, leg commit and unchanged `sha256`. Both code legs and both
+  assembly roots carry **zero** schema files.
+
+  **The default direction, and the one this task recommends:** openDox's
+  validator validates openDox's OWN document kinds — its spec leg's **three** —
+  which openDox-code reads from its own assembly root's `spec/` submodule, the
+  path `AGENTS-shape.md` already defines (*"A contract the code READS but does
+  not OWN lives in the SPEC leg"*, with the root exporting `CONTRACTS_DIR`). The
+  openXdox-spec three belong to the CONSUMER's validator and openDox never needs
+  them. Only if a measured openDox verb genuinely needs one of openxFactory's
+  four does it arrive as the DIGEST-PINNED VENDORED COPY `neutral-product-pin`
+  admits — a CONSUMED manifest member, and note that capability admits **ONE**,
+  so needing more than one is itself a finding to raise rather than a thing to do.
+- [ ] 7.1a Record why the existing script cannot simply be reused: it derives
+  `SCHEMAS_DIR` from `__file__` (`validate-ideation-dashboard-contracts.py:114-115`)
+  and so looks for a `contracts/schemas/` its own leg does not have — run from
+  openXdox-code it exits 2 with `ERROR .../contracts/schemas not found`. That is
+  the G6 defect in one line, and it is the consumer's to fix for its own set.
 - [ ] 7.2 openDox-code has **no `scripts/` directory at all** and one console
   script. Whatever validator it gains is new surface at the code leg, not a
   relocated one.
@@ -339,10 +359,12 @@ packet's interim arrangement ends.**
 
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
-- [ ] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface. Today the
-  only console script is `opendox-runtime = "opendox.runtime.cli:main"` — a
-  subsystem, not the product — and there is no `__main__.py` anywhere under
-  `src/`. **RULED Q-R4 already places this work in THIS act** (`#656` comment
+- [ ] 10.1 A `[project.scripts]` entry point for the DOCUMENT surface, and NAME IT
+  HERE so the falsification below is executable rather than a placeholder:
+  **`opendox = "opendox.cli:main"`**, serving on **port 8080** by default with
+  `--port` to override. Today the only console script is
+  `opendox-runtime = "opendox.runtime.cli:main"` — a subsystem, not the product —
+  and there is no `__main__.py` anywhere under `src/`. **RULED Q-R4 already places this work in THIS act** (`#656` comment
   `5701772032`, Brett Heap, 2026-09-16, recorded at `runtime/cli.py:40-46`): *"the
   verbs are wired into `opendox.cli` in the BUILD-arc act that repairs
   `opendox.serve`, and `opendox-runtime` is the spelling until then."* So 10.1
@@ -367,16 +389,23 @@ packet's interim arrangement ends.**
   which is where the shape's own "What goes where" puts *"the implementation and
   its tests"*; the root's `README.md` has no shape-pin row and is the project's
   own to edit, so it documents and points at the command.
-- [ ] **FALSIFIED BY** (empty machine, openDox-code only):
+- [ ] **FALSIFIED BY** (clean checkout of openDox-code ONLY, fresh venv, no
+  sibling installed — the server is started in the BACKGROUND with a readiness
+  wait so the sequence runs to completion unattended):
 
-      pip install .
-      opendox --help                    # the console script MUST exist
-      <the single command the README documents>
-      curl -sf http://localhost:<port>/ | head -c 200
+      python -m venv .venv && . .venv/bin/activate && pip install .
+      python -c "import openxdox" 2>&1 | grep -q ModuleNotFoundError   # prove the sibling is absent
+      opendox --help                                                   # the console script MUST exist
+      opendox serve --port 8080 & SERVER=$!
+      for i in $(seq 1 30); do curl -sf http://127.0.0.1:8080/ >/dev/null && break; sleep 1; done
+      curl -sf http://127.0.0.1:8080/ | head -c 200
+      kill $SERVER
 
-  The help prints, the server starts, and the curl returns the web bundle's HTML
-  with no sibling repository installed. Today `[project.scripts]` declares only
-  `opendox-runtime`, there is no `__main__.py`, and nothing serves `web/`.
+  `opendox --help` exits 0, the readiness loop succeeds within 30s, and the
+  `curl` returns the web bundle's HTML. Today `opendox` does not exist as a
+  console script, there is no `__main__.py`, and nothing serves `web/` — the
+  runtime's `app.py` mounts no `StaticFiles` and declares only `/livez`,
+  `/readyz` and `/api/v1`.
 
 ## Group 11 — Requirement 1: the guard holds (openxFactory)
 
@@ -385,10 +414,19 @@ packet's interim arrangement ends.**
   removed, no corpus document moved, no intent-plane schema moved, and no
   integration test moved. The only openxFactory edits are carve-manifest row
   annotations recording each closed reach.
-- [ ] **FALSIFIED BY** (openxFactory checkout, at the close of the arc):
+- [ ] **FALSIFIED BY** (openxFactory checkout, at the close of the arc).
+  **`<arc-base>` is THIS PACKET'S OWN MERGE COMMIT, not a pre-authoring commit** —
+  the guard measures what the ARC does to openxFactory, and the packet's own
+  filing artifacts (the `openspec/changes/` directory, the README bullet and the
+  machine-seeded `tests/sequenced_after/corpus-ledger.yaml` row) are the FILING,
+  not the arc. Defining the base any earlier makes the command self-failing,
+  because this packet necessarily edits the ledger it would then flag:
 
-      git diff --name-only <arc-base>..<arc-tip> -- scripts/ contracts/ tests/ ideation/ docs/ openspec/specs/
+      git diff --name-only <this-packet's-merge-commit>..<arc-tip>         -- scripts/ contracts/ tests/ ideation/ docs/ openspec/specs/         ':(exclude)tests/sequenced_after/corpus-ledger.yaml'
 
   Every path it prints is either `docs/opendox-carve-manifest.yaml` or
   `openspec/specs/neutral-product-standalone-operability/spec.md`. Any other path
-  is a breach of requirement 1 and must be reverted or declared.
+  is a breach of requirement 1 and must be reverted or declared. The ledger is
+  excluded by name because it is machine-seeded bookkeeping every filing owes and
+  carries no behaviour; if it ever moves for another reason, that shows up in the
+  seeder's own `--ledger-diff` gate instead.
