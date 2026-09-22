@@ -3108,7 +3108,11 @@ Archived changes:
   **R-B** ([#656 comment 5728607038](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5728607038)),
   which inverted their written order because both of R-B's remaining clauses
   take this archive's own merge sha as their input. The ledger closes at
-  **68 `[x]` / 0 `[ ]` / 4 `[~]` of 72**.
+  **67 `[x]` / 0 `[ ]` / 5 `[~]` of 72** — §§ 5.6, 7.3, 7.4, 8.4 and 8.9, the
+  last of these on the ruling of 2026-09-22 ([#656 comment
+  5778397686](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5778397686))
+  that § 8.9's clause (2) reads LITERALLY, so a box whose raw command exits 1 on
+  another change's red takes the reserved `[~]` rather than a tick.
   — authored 2026-09-04, **`Status: ratified`** (2026-09-05, Brett Heap,
   in-session, verbatim *"ratify #666"* at 01:38Z over head `6935fb8b`; record
   `openspec/changes/archive/2026-09-22-split-opendox-two-layer-product/review/ratification-2026-09-05.md`,

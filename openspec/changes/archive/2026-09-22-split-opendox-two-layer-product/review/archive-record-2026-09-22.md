@@ -225,4 +225,37 @@ rather than inert.
 **R-B** (#656 comment `5728607038`), which inverted their written order because
 both of R-B's remaining clauses take this archive's own merge sha as their input,
 so neither can be performed before this landing. § 7.3 and § 7.4 keep their own
-`[~]`. The ledger closes at **68 `[x]` / 0 `[ ]` / 4 `[~]` of 72**.
+`[~]`.
+
+**AND § 8.9 JOINS THEM, ON A RULING TAKEN AT THIS ARCHIVE.** Its clause (2) asks
+for `OPENSPEC_TELEMETRY=0 openspec validate --all --strict` GREEN. The RAW
+command exits **1** at this pull request's head, on
+`change/add-chain-attestation` — another change's MODIFIED block. Brett Heap was
+given the measurement (#656 comment `5778300335`) and RULED by multi-choice
+(#656 comment **`5778397686`**) that **clause (2) reads LITERALLY**: the box takes
+the reserved `[~]` rather than a tick standing over a red.
+
+The measurement that the ruling rests on, and it is the reason the question was
+worth asking at all: **the corpus's own governed reading of that same command
+exits 0.** `contracts/openspec-cli-pin.yaml` carries a LIVE, CITED, RATIFIED
+disposition for exactly this finding — `item: add-chain-attestation`,
+`path: signed-execution-chain/spec.md`, `level: ERROR`, the finding quoted
+verbatim, `ratified_by: 'Brett Heap, 2026-09-05, "take exit 2"'`,
+`retires_when: add-chain-attestation archives` — because the scenario is RENAMED
+AND RE-CONDITIONED rather than dropped, declared in the block with the reserved
+`Merged into` marker, and **the pinned CLI is blind to that marker** while the
+corpus's own promoted grammar defines it at `openspec/specs/doc-health/spec.md`
+line 1770. So `scripts/validate-openspec-cli-pin.py --all --strict` reports
+`Totals: 107 passed, 1 failed` and then `exit 0` with
+`0 UNDISPOSITIONED failures`, naming the finding `✗→D` and the tree
+`NOT A CLEAN TREE`. Two readings of one command, one literal and one governed,
+and the box's own words pick the literal one.
+
+**Clauses (1) and (3) are DISCHARGED and their records stand** — the pytest pair
+is identical at BASE and HEAD, and the doc-health BASE→HEAD vectors above are
+complete in both scopes with every entered, left and severity-changed finding
+named. Only clause (2) is owed, it is owed by a sibling change, and the archive's
+own contribution to it is **+1 item, +1 passed and ZERO new failures**.
+
+The ledger closes at **67 `[x]` / 0 `[ ]` / 5 `[~]` of 72** (`[~]`: §§ 5.6, 7.3,
+7.4, 8.4, 8.9).
