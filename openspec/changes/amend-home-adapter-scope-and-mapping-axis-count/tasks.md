@@ -33,9 +33,13 @@ Kind: tasks
   adapter RULING DQ-1 keeps, deferring its obligations to requirement 4 and to
   `openxfactory-engineering-adapter`; the one-way dependency rule, the
   relocation rule and the measured back-edge instance are carried unedited.
-  THREE promoted scenarios carried byte-identically, TWO added: the home adapter
-  measured against the rule, and a second in-repository reader refused the
-  exception.
+  THREE promoted scenarios carried byte-identically, THREE added: the home
+  adapter measured against the external-product rule, the home adapter importing
+  the corpus's own check families, and a second in-repository reader refused the
+  exception. **The third was added by Copilot round 2 (`r4076010204`) and this
+  count went stale for one round, which round 3 (`r4076105337`) then caught —
+  reading the README's correct `four added` against this box's stale `two`.** Six
+  scenarios in the block; `verify-carriage.py` reports the same number.
 - [x] 2.2 `specs/domain-mapping-declaration/spec.md` — ONE `## MODIFIED`
   requirement. `exactly five axes` becomes `exactly six`, the sixth named as the
   DERIVED-MODEL BOUNDARY with its content deferred to the requirement that
