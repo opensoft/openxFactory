@@ -76,16 +76,39 @@ def _terminate_group(proc: subprocess.Popen) -> None:
 
     POSIX only, and guarded rather than assumed: where there are no process
     groups the direct child is all there is to kill, which is exactly the
-    behaviour `subprocess.run` already had."""
+    behaviour `subprocess.run` already had.
+
+    THE GROUP ID IS `proc.pid`, NOT A LOOKUP OF IT (Copilot, PR #1142).
+    `_run_entrypoint` spawns with `start_new_session=True` on exactly this
+    branch, so the child calls `setsid()` and IS the session and process-group
+    leader: the group id EQUALS the child pid by construction. `os.getpgid`
+    was therefore asking the kernel for a number this function already had —
+    and asking can FAIL where the answer stays valid. If the leader has exited
+    and been reaped while a descendant still holds the group (and the inherited
+    stdout/stderr pipe, which is what made `communicate` block into the timeout
+    in the first place), the lookup raises `ProcessLookupError`, cleanup falls
+    to `_kill_direct`, and `proc.kill()` on an already-gone leader is a no-op.
+    THE DESCENDANT THEN SURVIVES while the timeout finding is recorded — which
+    is precisely the accumulation this function exists to prevent, arriving by
+    the one route the lookup opened. Signalling the group directly cannot meet
+    that failure, because a process group outlives its leader as long as any
+    member remains.
+
+    PID REUSE IS NOT A RISK HERE, and the ordering is what makes that true
+    rather than luck: `_terminate_group` runs BEFORE the reaping
+    `communicate()` in every caller, so the direct child is at worst a ZOMBIE
+    still holding its pid. An unreaped pid cannot be recycled, so `proc.pid` is
+    still this group's number and no other's. A kill-after-reap would be a
+    different function, and it is not this one."""
     if os.name != "posix" or not hasattr(os, "killpg"):
         _kill_direct(proc)
         return
     try:
-        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        os.killpg(proc.pid, signal.SIGKILL)
     except OSError:
-        # `ProcessLookupError` (already gone) and `PermissionError` (not ours
-        # to signal) are the two expected shapes, and both are `OSError`; the
-        # direct child is still ours either way.
+        # `ProcessLookupError` (the whole group is already gone) and
+        # `PermissionError` (not ours to signal) are the two expected shapes,
+        # and both are `OSError`; the direct child is still ours either way.
         _kill_direct(proc)
 
 
@@ -97,12 +120,12 @@ def _kill_direct(proc: subprocess.Popen) -> None:
     `_run_entrypoint`'s `except subprocess.TimeoutExpired` handler, whose whole
     job is to RE-RAISE that timeout so `run_preflight` can turn it into a
     finding. If the child exits between `communicate()` timing out and this
-    cleanup, `os.getpgid()` raises `ProcessLookupError` — which is why the
-    fallback exists — and a bare `proc.kill()` can then raise the SAME
-    `ProcessLookupError` from inside the `except` that was handling it. That
-    second exception REPLACES the `TimeoutExpired`, escapes `run_preflight`'s
-    handler, and takes the run down at precisely the moment an entrypoint was
-    supposed to become an ordinary preflight finding.
+    cleanup, the group signal above raises `ProcessLookupError` — which is why
+    this fallback is reached at all — and a bare `proc.kill()` can then raise
+    the SAME `ProcessLookupError` from inside the `except` that was handling
+    it. That second exception REPLACES the `TimeoutExpired`, escapes
+    `run_preflight`'s handler, and takes the run down at precisely the moment
+    an entrypoint was supposed to become an ordinary preflight finding.
 
     So the direct kill swallows `OSError` and nothing else: a child that is
     already gone needs no killing, and a signal we are not permitted to send

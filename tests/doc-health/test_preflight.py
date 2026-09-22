@@ -281,3 +281,68 @@ def test_a_spawn_failure_reports_its_reason_rather_than_raising(tmp_path,
     assert "Permission denied" in findings[0].rule, findings[0].rule
     assert log == [("driftFactory", "bash scripts/validate-docs.sh", False,
                     log[0][3])] and "Permission denied" in log[0][3]
+
+
+def test_the_group_is_killed_by_id_and_not_by_a_lookup_that_can_fail(
+        tmp_path, monkeypatch):
+    """THE LEADER EXITING MUST NOT SAVE THE DESCENDANT (Copilot, PR #1142).
+
+    `_run_entrypoint` spawns with `start_new_session=True`, so the child calls
+    `setsid()` and IS the process-group leader: **the group id equals the child
+    pid by construction.** Asking `os.getpgid` for it was therefore a lookup of
+    a number the function already had — and asking can FAIL where the answer
+    stays valid. When the leader has exited and been reaped while a descendant
+    still holds the group and the inherited pipe, the lookup raises
+    `ProcessLookupError`, cleanup falls through to `_kill_direct`, and
+    `proc.kill()` on an already-gone leader is a no-op. **The descendant then
+    survives while the timeout finding is recorded** — the exact accumulation
+    `_terminate_group` exists to prevent, reached by the one route the lookup
+    opened.
+
+    THE FIXTURE IS THAT SHAPE AND NOT AN APPROXIMATION OF IT. The wrapper
+    backgrounds a long sleep and then EXITS rather than `wait`-ing, so the
+    leader is gone within milliseconds while the descendant keeps stdout and
+    stderr open — which is what makes `communicate()` block into the bound at
+    all. `os.getpgid` is stubbed to raise the `ProcessLookupError` the premise
+    names, since the reap it depends on is a race that cannot be scheduled.
+
+    TWO ASSERTIONS, BECAUSE THE BEHAVIOUR AND THE DESIGN ARE DIFFERENT CLAIMS:
+    the descendant is dead (the outcome), and the lookup was never consulted
+    (the reason it stays dead in every ordering, not just this one). Against
+    the pre-fix lookup the first fails — the sleep is still running."""
+    pidfile = tmp_path / "descendant.pid"
+    paths = _repo_with_validator(
+        tmp_path,
+        f"#!/bin/sh\nsleep 300 &\necho $! > {pidfile}\nexit 0\n")
+    monkeypatch.setattr(preflight, "_ENTRYPOINT_TIMEOUT_SECONDS", 2)
+
+    consulted = []
+
+    def lookup_fails(pid):
+        consulted.append(pid)
+        raise ProcessLookupError(3, "No such process")
+
+    monkeypatch.setattr(os, "getpgid", lookup_fails)
+
+    findings, log = preflight.run_preflight(paths)
+
+    pid = int(pidfile.read_text(encoding="utf-8").strip())
+    try:
+        assert _gone_within(pid), (
+            f"the descendant ({pid}) outlived the timeout: the leader had "
+            "already exited, so a pgid LOOKUP failed and the direct kill hit "
+            "a process that was gone — while the work this bound exists to "
+            "stop kept running under a group nobody signalled")
+        assert consulted == [], (
+            "the group id is `proc.pid` by construction under "
+            "`start_new_session=True`; looking it up re-introduces a failure "
+            f"mode the number never had (consulted: {consulted})")
+        assert len(findings) == 1 and findings[0].severity == ERROR
+        assert "timed out after 2s" in findings[0].rule, findings[0].rule
+        assert log[0][2] is False
+    finally:
+        if _alive(pid):
+            try:
+                os.kill(pid, 9)
+            except OSError:
+                pass
