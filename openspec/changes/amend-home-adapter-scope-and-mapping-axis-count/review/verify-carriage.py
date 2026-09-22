@@ -36,6 +36,25 @@ exactly the kind of quotation a substring search would accept as carriage. So
 each side is parsed into individual `#### Scenario:` blocks under the SAME
 requirement title, and every promoted block must appear among the DELTA's
 parsed blocks.
+
+(3) IT SAYS WHAT A BLOCK IS, AND STOPS CLAIMING MORE THAN IT COMPARES
+(`r4076204332`'s successor finding on `opensoft/openxFactory#1143`). The earlier
+drafts said BYTE-FOR-BYTE while `rstrip("\n")` normalized each block's trailing
+newlines, so a change in the number of blank lines between blocks passed as
+identical and the claim was wider than the comparison. **THE CANONICAL BLOCK IS
+DEFINED HERE RATHER THAN LEFT TO A STRIP CALL**: a block runs from its
+`#### Scenario:` line through its LAST NON-BLANK line, and every byte inside
+that span — every bullet, every space, every internal blank line — must match
+exactly. Blank lines BETWEEN blocks are outside every block by that definition
+and are deliberately not compared: they carry no requirement text, the OpenSpec
+parser does not read them, and a check that reddened on a cosmetic reflow would
+be one nobody ran. The script reports the definition with its verdict, so the
+claim and the comparison are the same sentence.
+
+(4) IT COMPARES IN ORDER, not as a set. Membership alone would pass a delta that
+carried every promoted scenario in a different sequence — a reordering of the
+requirement that no reader asked for and this script was meant to catch. The
+promoted blocks must appear among the delta's in their PROMOTED ORDER.
 """
 from __future__ import annotations
 
@@ -76,6 +95,14 @@ def scenario_blocks(text: str, title: str) -> list[str]:
     Blocks and not one region: the comparison must be per scenario, so that a
     promoted block surviving somewhere in the file cannot stand in for one that
     was replaced where it matters.
+
+    A BLOCK RUNS FROM ITS `#### Scenario:` LINE THROUGH ITS LAST NON-BLANK LINE.
+    That boundary is the definition, not a convenience: every byte inside the
+    span is compared exactly, and the blank lines BETWEEN blocks fall outside
+    every block and are not compared at all. They carry no requirement text, the
+    OpenSpec parser does not read them, and a check that reddened on a cosmetic
+    reflow is a check nobody runs. What the earlier draft did by `rstrip` and
+    called byte-for-byte, this does by definition and says so.
     """
     for part in re.split(r"(?m)^### Requirement: ", text)[1:]:
         head, _, body = part.partition("\n")
@@ -90,7 +117,18 @@ def scenario_blocks(text: str, title: str) -> list[str]:
         if cut:
             region = region[:cut.start()]
         pieces = re.split(r"(?m)^(?=#### Scenario:)", region)
-        return [piece.rstrip("\n") for piece in pieces if piece.strip()]
+        # The canonical boundary: keep every byte up to and including the last
+        # NON-BLANK line, so internal blank lines survive the comparison and only
+        # the run of blank lines separating one block from the next is dropped.
+        blocks = []
+        for piece in pieces:
+            if not piece.strip():
+                continue
+            lines = piece.split("\n")
+            while lines and not lines[-1].strip():
+                lines.pop()
+            blocks.append("\n".join(lines))
+        return blocks
     raise SystemExit(f"requirement not found: {title!r}")
 
 
@@ -114,9 +152,23 @@ def main() -> int:
                   f"{missing[0].splitlines()[0]}")
             failures += 1
             continue
+        # IN ORDER, not merely present. Membership alone would pass a delta that
+        # carried every promoted scenario in a different sequence.
+        positions = [mine.index(block) for block in carried]
+        if positions != sorted(positions):
+            out_of_order = [carried[i].splitlines()[0]
+                            for i in range(1, len(positions))
+                            if positions[i] < positions[i - 1]]
+            print(f"FAIL {capability}: the promoted scenario blocks are all "
+                  f"present but REORDERED; first out of sequence -> "
+                  f"{out_of_order[0]}")
+            failures += 1
+            continue
         print(f"OK {capability}: all {len(carried)} promoted scenario blocks "
-              f"carried byte-identically among the delta's {len(mine)} parsed "
-              f"blocks")
+              f"carried exactly and in order among the delta's {len(mine)} "
+              f"parsed blocks (a block is its heading through its last "
+              f"non-blank line; blank lines between blocks are outside every "
+              f"block and are not compared)")
     return 1 if failures else 0
 
 

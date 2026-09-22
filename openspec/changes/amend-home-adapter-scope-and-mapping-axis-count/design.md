@@ -81,8 +81,8 @@ Both blocks were built by EXTRACTING the promoted scenarios programmatically
 from `openspec/specs/` rather than by retyping them, and
 `review/verify-carriage.py` re-extracts and compares on demand:
 
-    OK corpus-adapter-seam: all 3 promoted scenario blocks carried byte-identically among the delta's 6 parsed blocks
-    OK domain-mapping-declaration: all 3 promoted scenario blocks carried byte-identically among the delta's 4 parsed blocks
+    OK corpus-adapter-seam: all 3 promoted scenario blocks carried exactly and in order among the delta's 6 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared)
+    OK domain-mapping-declaration: all 3 promoted scenario blocks carried exactly and in order among the delta's 4 parsed blocks (a block is its heading through its last non-blank line; blank lines between blocks are outside every block and are not compared)
 
 It is committed with the packet rather than run once and reported, so the proof
 survives every later edit — including edits made in response to review.
@@ -211,6 +211,38 @@ the exception paragraph that immediately precedes it and names the clauses it
 reaches, rather than by editing the sentence — so the seam block still removes
 NO promoted body unit, and `verify-carriage.py` still reports all three promoted
 scenarios carried.
+
+## D4d — the proof claimed more than it compared, and now says exactly what it compares
+
+Copilot's *previously missed* item on round 5 found that `rstrip("\n")` normalized
+each block's trailing newlines while the script and this design said BYTE FOR
+BYTE, so a change in the number of blank lines between blocks passed as
+identical. **The same class as round 1's `read_text()` finding, twice removed: a
+proof that quietly normalizes is a proof of something narrower than its own
+sentence.** Taken.
+
+**THE CANONICAL BLOCK IS NOW A DEFINITION RATHER THAN A STRIP CALL.** A block
+runs from its `#### Scenario:` line through its LAST NON-BLANK line; every byte
+inside that span — every bullet, every space, every internal blank line — must
+match exactly, and the blank lines BETWEEN blocks fall outside every block and
+are deliberately not compared. They carry no requirement text, the OpenSpec
+parser does not read them, and a check that reddened on a cosmetic reflow is one
+nobody runs. The verdict line now carries the definition, so the claim and the
+comparison are the same sentence.
+
+**AND A SECOND GAP WENT WITH IT, FOUND WHILE FIXING THE FIRST.** The comparison
+was `block not in mine` — set MEMBERSHIP — so a delta carrying every promoted
+scenario **in a different sequence** would have passed. The promoted blocks must
+now appear in the delta in their PROMOTED ORDER.
+
+**Three controls, each run against both readers, tree restored and re-measured
+clean after each:**
+
+| control | verdict |
+| --- | --- |
+| two promoted blocks swapped | `FAIL … the promoted scenario blocks are all present but REORDERED; first out of sequence -> #### Scenario: The neutral layer hardcodes a domain's status words` |
+| a blank line inserted INSIDE a block, between a `WHEN` and its `THEN` | `FAIL … 1 promoted scenario block(s) not carried byte-identically` |
+| the blank runs BETWEEN every block doubled | `OK …` — by definition, and the verdict line says which definition |
 
 ## D5 — two stale strings found and deliberately not fixed
 
