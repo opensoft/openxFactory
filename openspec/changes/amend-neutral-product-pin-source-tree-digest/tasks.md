@@ -174,3 +174,21 @@ for the same reason.)*
       RULED `5777949892` names one clause — so the remedy is a successor that
       scopes that scenario to the enumerated form or names the whole-tree digest
       beside it. Holder: unassigned; raise with the ruling that commissions it.
+- [~] 5.4 **THE MIXTURE GUARD COVERS ONE HALF OF THE RULE TODAY.** Measured on
+      Copilot `r4073495753`: `scripts/doc_health/pin_shapes.py`:772-775 refuses
+      the mixture only when `files` is present, so a tree pin carrying
+      `pinned_by_commit_only:` alone is not caught, and neither
+      `scripts/verify-opendox-pin.py` nor `scripts/verify-openxdox-pin.py` reads
+      either key. **NO CODE IS OWED BY THIS PACKET AND `code_surface: none`
+      STANDS**, because no pin in this repository is in that state — every
+      `contracts/*-pin.yaml` was read and none carries a whole-tree digest
+      beside either list. The scenario states the rule for BOTH halves, which is
+      what a requirement is for: a specification that only ever described what
+      the current guard happens to detect would have nothing to gate the next
+      guard against. Extending the guard is a realization act for the successor
+      that also owns § 5.3. Holder: unassigned.
+      *(THIS ITEM WENT MISSING ONCE AND THE CAUSE IS RECORDED: the round-2 edit
+      that wrote it aborted on an unrelated failed assertion before reaching the
+      append, so `proposal.md` referenced a § 5.4 that did not exist. Caught by
+      Copilot `r4073610119` against head `bb22ada2`. **A cross-reference is not
+      evidence that its target landed** — the target is.)*

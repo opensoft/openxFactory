@@ -114,8 +114,9 @@ scenarios. No unit the requirement already carries is edited.**
    settle whether the new scope reached the pins it governs. It now does not.)*
    A pin recording NEITHER form has discharged nothing.
 4. **Five scenarios** — the conformant whole-tree pin; the pin carrying BOTH
-   forms, refused; the pin recording neither, refused; the runtime product's pin,
-   which the equivalence does not reach; and the misreading that cites the
+   forms, refused; the pin recording neither, refused; **the runtime product's
+   pin, whose whole-tree digest DOES discharge the obligation while every
+   deployment obligation stays owed in full**; and the misreading that cites the
    equivalence as permission to skip a digest, refused.
 
 ### A side effect worth naming: the capability stops being silent
