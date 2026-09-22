@@ -75,16 +75,36 @@ Kind: tasks
 The code surface is declared, not written. `release-realization` therefore holds
 this packet's archive until merged PLUS green realization evidence.
 
-- [ ] 5.1 The workflow read: `.github/workflows/review-lane-repin.yml` obtains
-  the aggregation's three surfaces beside the source repository it already reads,
-  and hands the values on as inputs.
+- [ ] 5.1 The advance-side read: `.github/workflows/review-lane-repin.yml`
+  obtains the aggregation's surfaces beside the source repository it already
+  reads, and hands the values on as inputs, so the advance the lane proposes
+  carries the measurement with it.
+- [ ] 5.1a **THE PULL-REQUEST-SIDE HOST, AND IT IS A SECOND WORKFLOW** (Copilot
+  `r4075976980`). Measured: `review-lane-repin.yml`'s `on:` keys are exactly
+  `['schedule', 'repository_dispatch', 'workflow_dispatch']` — the only
+  `pull_request` string in that file is a comment at `:672`, which is why a
+  line-oriented grep for it answers misleadingly. So § 5.1 alone leaves the
+  requirement's *"and the pull request that carries it"* clause unrealized: the
+  lane's own advance could open a pull request with no check running ON that
+  pull request. The estate's own pattern answers it — a pin gate is its OWN
+  `pull_request`-triggered workflow (`openspec-cli-pin-gate.yml`,
+  `openreposhape-pin-gate.yml`), each a required check — so the realization adds
+  one, and `review-lane-repin.yml` does NOT gain a `pull_request` trigger, which
+  would fire the advance logic on every pull request in the repository.
+- [ ] 5.1b The wiring is TESTED and not assumed: a test reads the new gate's
+  `on:` keys and its job id, and a test reads `review-lane-repin.yml`'s `on:`
+  keys and requires `pull_request` to be ABSENT from them — the negative control
+  that keeps the advance lane out of the pull-request path.
 - [ ] 5.2 The comparison: `scripts/review_lane_repin.py` gains a pure function
   over the declared state, `core_commit` and the surfaces' values, reaching no
   network, returning the four outcomes the scenarios name.
-- [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each — stale
-  `converged`, stale `diverged`, unreadable aggregation, pure-function
-  reproduction. **Each written to FAIL against the pre-fix reader and pass after**,
-  so the regression is proved rather than asserted.
+- [ ] 5.3 The proof: `tests/review_lane_pin/` gains a fixture for each of the
+  FIVE scenarios — stale `converged`, stale `diverged`, surfaces disagreeing with
+  each other, unreadable aggregation, and the pure-function reproduction — **plus
+  the POSITIVE case, a true `converged` and a true `diverged` each reported as
+  agreeing**, so the check is proved to accept a correct declaration and not only
+  to refuse a wrong one. **Each written to FAIL against the pre-fix reader and
+  pass after**, so the regression is proved rather than asserted.
 - [ ] 5.4 ONE real observation of the check running against a proposed advance,
   which is the half that cannot be manufactured.
 

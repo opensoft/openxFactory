@@ -108,6 +108,55 @@ the check reports UNDETERMINED, names each surface it could not read, and
 concludes neither state. The declared value is neither confirmed nor
 contradicted, because it was not measured.
 
+## D6 — the surfaces are read as a SET, and disagreement is its own outcome
+
+Copilot `r4075976905` found that the first draft said *"the commit the
+aggregation's judging surfaces name"* while D5 had the implementation reading
+THREE values, and never said what happens if they differ or which one is
+authoritative. **An implementation could pick one surface and claim compliance,
+so the measurement was not deterministic.** Taken.
+
+The requirement now reads the surfaces AS A SET, requires them to agree before
+either state is concluded, and gives disagreement its own outcome — INCONSISTENT,
+with each surface named and its value quoted, concluding neither `converged` nor
+`diverged`. **A check permitted to pick one surface is choosing its own answer**,
+which is the same defect in miniature as the declaration this packet exists to
+stop trusting.
+
+**Naming the set rather than a count.** The text says *"the pin's own
+`converged_with:` members and the aggregation's constant that holds them
+identical"* rather than "three", because `converged_with:` is a list the pin
+owner may extend and a requirement that hardcoded the cardinality would go stale
+the day it did. D5's decision not to promote the constant to a converged-with
+member is unchanged: it is READ, and it is not a member.
+
+**And the outcome is worth having for its own sake.** The aggregation's constant
+exists to hold its two judging workflows identical to each other; if it ever
+disagreed with them, that is a fact about that repository which nothing today is
+positioned to notice, because nothing today reads all three at once. This check
+will be the first thing that does.
+
+## D7 — the pull-request side is a SECOND workflow, and the advance lane keeps its triggers
+
+Copilot `r4075976980` found that § 5.1 assigned the read to
+`.github/workflows/review-lane-repin.yml`, whose `on:` keys are measured exactly
+`['schedule', 'repository_dispatch', 'workflow_dispatch']` — **no
+`pull_request`** — so the requirement's *"and the pull request that carries it"*
+clause had nowhere to run and an advance could open a pull request with no check
+on it. (The only `pull_request` string in that file is a comment at `:672`, which
+is why a line-oriented grep for it answers misleadingly; the measurement above is
+the parsed `on:` mapping.) Taken.
+
+**The realization adds a `pull_request`-triggered gate of its own**, on the
+estate's existing pattern — `openspec-cli-pin-gate.yml` and
+`openreposhape-pin-gate.yml` are each their own `pull_request` workflow and each
+a required check. **`review-lane-repin.yml` deliberately does NOT gain a
+`pull_request` trigger**: that workflow's whole shape is *propose an advance*,
+and a pull-request trigger would fire the advance logic on every pull request in
+the repository. § 5.1b makes that a TESTED negative control rather than a
+convention — a test requires `pull_request` to be ABSENT from the advance lane's
+triggers.
+
 ## D5 — what the check compares, and why it is values rather than authorship
 
 The comparison is `core_commit` against the commit the aggregation's JUDGING

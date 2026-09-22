@@ -21,11 +21,19 @@ check SHALL compare the declared state to the commit those surfaces name, and
 SHALL REPORT a declared state the comparison contradicts.
 
 WHAT IS COMPARED is values and not authorship: the pin's `core_commit` against
-the commit the aggregation's judging surfaces name, `converged` meaning equal and
-`diverged` meaning unequal. WHEN IT RUNS is at least every proposed advance of
-`core_commit` and the pull request that carries it, so a declaration an advance
-falsifies is reported in the SAME pull request that falsifies it rather than
-whenever a human next happens to read the field.
+the commit the aggregation's surfaces name, `converged` meaning equal and
+`diverged` meaning unequal. THE AGGREGATION'S SURFACES ARE READ AS A SET AND
+SHALL AGREE WITH EACH OTHER BEFORE EITHER STATE IS CONCLUDED — the pin's own
+`converged_with:` members and the aggregation's constant that holds them
+identical — and where they DISAGREE the check SHALL report INCONSISTENT, name
+each surface with the value it carried, and conclude NEITHER `converged` NOR
+`diverged`. A check permitted to pick one surface would be choosing its own
+answer, and an aggregation whose own surfaces disagree is a fact about that
+repository that this measurement is the first thing positioned to see. WHEN IT
+RUNS is at least every proposed advance of `core_commit` and the pull request
+that carries it, so a declaration an advance falsifies is reported in the SAME
+pull request that falsifies it rather than whenever a human next happens to read
+the field.
 
 WHERE THE READ LIVES AND WHERE THE JUDGMENT LIVES follows this capability's own
 split and SHALL NOT be drawn elsewhere: the cross-repository read is performed
@@ -60,6 +68,11 @@ compared only to itself is a tautology.
 #### Scenario: The advance lands on the commit the aggregation already pins
 - **WHEN** an advance moves `core_commit` to exactly the commit the aggregation's judging surfaces already name, and the declared state reads `diverged`
 - **THEN** the check reports that contradiction too, because the obligation is that the declaration be TRUE and not that it be pessimistic
+
+#### Scenario: The aggregation's own surfaces disagree with each other
+- **WHEN** the aggregation's surfaces are read and do not all carry the same commit
+- **THEN** the check reports INCONSISTENT and names each surface with the value it carried
+- **AND** it concludes neither `converged` nor `diverged`, because a check permitted to pick one surface would be choosing its own answer
 
 #### Scenario: The aggregation's surfaces cannot be read
 - **WHEN** the check cannot obtain the aggregation's judging surfaces

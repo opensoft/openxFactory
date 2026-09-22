@@ -541,7 +541,7 @@ Active changes:
   remedy's shape as option **(b)** — *"make the CROSS-REPOSITORY fact assertable
   at all … (b) is the better fix, because (a) still leaves this file's truth
   depending on a lane remembering to write it"*. **ONE `## ADDED` requirement,
-  four scenarios, no `## MODIFIED` block.** `contracts/review-lane-pin.yaml`
+  five scenarios, no `## MODIFIED` block.** `contracts/review-lane-pin.yaml`
   DECLARES at `lockstep.status` whether this repository's pinned decision core
   and the aggregation's `MIGRATION_PIN` name one commit, and nothing measures the
   claim: `WRITABLE_PATHS` is four files, the lane rewrites only regex-anchored
@@ -555,8 +555,10 @@ Active changes:
   `#1138` is OPEN with auto-merge armed proposing `core_commit`
   `b21f0100` → `491fc54d` in a diff whose lockstep line count is ZERO. The
   requirement makes the state MEASURED rather than declared, at every proposed
-  advance, symmetric in both directions, with an unreadable aggregation reported
-  UNDETERMINED and never as a pass. **Shape (b) and not (a), by measurement**:
+  advance, symmetric in both directions, with the aggregation's surfaces read as a
+  SET that must agree before either state is concluded (disagreement reported
+  INCONSISTENT) and an unreadable aggregation reported UNDETERMINED and never as
+  a pass. **Shape (b) and not (a), by measurement**:
   the lane has no reading of the aggregation, so it could only write `diverged`
   by inference — an inference the fourth ceremony already falsified, since the
   aggregation converged ONTO a commit this file had held for three days — and the
