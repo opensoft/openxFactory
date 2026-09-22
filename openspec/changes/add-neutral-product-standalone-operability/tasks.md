@@ -5,9 +5,11 @@ Status: draft
 Dependency-ordered. **Group 1 is the authoring THIS change performs and it
 touches no code.** Groups 2-11 are the post-ratification realization, one group
 per requirement, each in the repository named in its heading and each carrying
-the FALSIFICATION COMMAND that closes it — the command is the archive gate's
-evidence under `release-realization`, run in a checkout holding only the
-repository under test and quoted with its output.
+the FALSIFICATION COMMAND that closes it — an exact invocation with its checkout
+preconditions and its expected result, so the archive gate's evidence under
+`release-realization` is a command re-run and quoted rather than a description
+believed. Where a box names `<the entry point from 10.1>`, that placeholder is
+resolved by group 10 and written out in full at that point.
 
 House rule: OpenSpec ratifies, Speckit builds. No group below is started before
 ratification, no group is started without its own claim on
@@ -115,9 +117,14 @@ mention in the package is prose.
 - [ ] 3.3 Record in the carve manifest that the `deleted_at_carve` row for
   `profile_openxfactory.py` is UNCHANGED by this: openxFactory's profile stays
   deleted from the core and `scripts/opendox_host.py` remains openxFactory's host.
-- [ ] **FALSIFIED BY:** in a checkout of openDox-code alone, building the parser
-  and the server in a process where nothing has registered a profile succeeds,
-  and registering one still overrides it.
+- [ ] **FALSIFIED BY** (openDox-code checkout, `pip install -e .`, no sibling):
+
+      python -c "from opendox.cli import build_parser; build_parser(); print('OK')"
+      python -c "from opendox.serve import build_server; build_server(); print('OK')"
+
+  Both print `OK`. Today both raise `domain_profile.ProfileNotRegistered`. Then
+  `pytest tests/test_profile_registration.py` proves a registered profile still
+  replaces the default.
 
 ## Group 4 — Requirement 5 / G4: the deferred reach resolves through the seam (openDox-code)
 
@@ -132,10 +139,15 @@ mention in the package is prose.
   declared seam, or genuinely owed to the consumer and therefore staying
   late-bound with its reason. The import-time column is already `0` — do not
   re-do it.
-- [ ] **FALSIFIED BY:** calling openDox's authoring verb in a checkout with no
-  `corpus_adapter_openxfactory` on the path returns a result through a registered
-  adapter, or refuses naming the seam. Today `import opendox.authoring` exits 0
-  and the failure waits for the call.
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, no
+  `corpus_adapter_openxfactory` importable):
+
+      python -c "import opendox.authoring as a; a.required_header_fields()"
+
+  Returns the fields through the registered adapter, or raises openDox's own named
+  refusal. It MUST NOT raise `ModuleNotFoundError`. Today it raises
+  `ModuleNotFoundError: No module named 'corpus_adapter_openxfactory'` while
+  `python -c "import opendox.authoring"` exits 0.
 
 ## Group 5 — Requirement 4 / G3: openDox generates its own snapshot (BLOCKED on ruling 1.7)
 
@@ -150,9 +162,15 @@ mention in the package is prose.
 - [ ] 5.3 Whichever is ruled: openXdox keeps its corpus adapter and its
   declaration, and continues contributing its routes and subcommands through the
   existing seams. The consumer loses no capability.
-- [ ] **FALSIFIED BY:** in a checkout of openDox-code alone, pointed at a
-  directory of plain documents carrying none of openxFactory's governance
-  vocabulary, a snapshot is generated and names no openxFactory noun.
+- [ ] **FALSIFIED BY** (openDox-code checkout, `pip uninstall -y openxdox` so that
+  `python -c "import openxdox"` raises, over a fixture directory of plain `.md`
+  documents carrying none of openxFactory's governance vocabulary):
+
+      <the entry point from 10.1> generate --corpus tests/fixtures/plain-documents --out /tmp/snap.json
+      python -c "import json;d=json.load(open('/tmp/snap.json'));print(len(d['documents']))"
+
+  A snapshot is written, its document count is non-zero, and
+  `grep -iE 'openspec|proposal[.]md|ratified' /tmp/snap.json` finds nothing.
 
 ## Group 6 — Requirement 6 / G5: a health check over openDox's own documents (openDox-code)
 
@@ -175,8 +193,12 @@ mention in the package is prose.
   `ImportError` and records `status = not-available`,
   `detail = doc-health machinery unavailable: No module named 'doc_health'`. Give
   it something to call.
-- [ ] **FALSIFIED BY:** running openDox's health check over a directory of its own
-  documents in an openDox-only checkout produces a report.
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
+
+      python -c "from opendox import workbench; print(workbench.run_scoped_doc_health('.', ['README.md'])['status'])"
+
+  Prints a real status. Today it prints `not-available` with
+  `detail = doc-health machinery unavailable: No module named 'doc_health'`.
 
 ## Group 7 — Requirement 7 / G6: a validator openDox can run (openDox-code)
 
@@ -201,14 +223,27 @@ mention in the package is prose.
   CHECKOUT** — which is exactly the "reaching into a host tree instead of an
   injected adapter" class this arc exists to close, appearing a second time.
   Claim them here or hand them on by name; do not leave them unowned again.
-- [ ] **FALSIFIED BY:** validating a document in an openDox-only checkout returns
-  a verdict rather than failing on an unresolvable schema path.
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling):
+
+      <the entry point from 10.1> validate tests/fixtures/plain-documents/example.md; echo "rc=$?"
+
+  Returns a verdict with `rc=0`, and the same command over a deliberately malformed
+  fixture returns non-zero naming the rule. Neither run may fail on an unresolvable
+  schema path.
 
 ## Group 8 — Requirement 8 / G7: openDox-spec governs openDox (openDox-spec) — BLOCKED
 
-Not this packet's act, and named so the dependency is explicit.
+**These boxes carry the reserved `[~]` marker, not `[ ]`, and that is deliberate.**
+They are NOT this packet's act — they are openDox-spec's, in a repository this
+packet cannot write — so a literal unchecked box would make this packet
+unarchivable for work it was never entitled to do. The marker is the corpus's own
+(`split-opendox-two-layer-product` closed at 67 [x] / 0 [ ] / 5 [~]).
+**Owner: whoever holds openDox-spec's instance.**
+**Exit condition: requirement 8's third scenario — when openDox-spec has promoted
+the requirements the carve's map assigns it, these boxes close there and this
+packet's interim arrangement ends.**
 
-- [ ] 8.1 openDox-spec promotes the requirements the carve's ratified
+- [~] 8.1 openDox-spec promotes the requirements the carve's ratified
   per-requirement map assigns to openDox (the map's split: **71 openDox / 16
   openXdox / 15 openxFactory**; the 16 were carried into openXdox by the carve's
   § 6.1 and § 6.5 closures, and the 15 were re-promoted here by
@@ -216,21 +251,28 @@ Not this packet's act, and named so the dependency is explicit.
   no home). Measured by normalized-title scan of every `spec.md` in openDox-spec:
   **68 of the 71 appear nowhere in the repository**, and the three that do appear
   only inside `## MODIFIED` blocks of draft changes.
-- [ ] 8.1a **Unblocks openDox-spec's own backlog, which is why this is not
+- [~] 8.1a **Unblocks openDox-spec's own backlog, which is why this is not
   housekeeping.** Three of its four active changes carry `## MODIFIED` blocks
   against `ideation-dashboard`, a spec that does not exist there, so **they can
   never be archived** — the loop is open at both ends: nothing can be promoted
   because nothing has been archived, and nothing can be archived because nothing
   has been promoted. Promoting the 71 is what breaks it.
-- [ ] 8.1b **Raise openDox-spec's CLI pin while doing it.** Both spec legs pin
+- [~] 8.1b **Raise openDox-spec's CLI pin while doing it.** Both spec legs pin
   `@fission-ai/openspec@1.2.0`; openxFactory pins 1.12.0 by content address. Run
   against the same tree, **1.2.0 emits none of the three "Archive would refuse
   this delta" notices** that 1.12.0/1.13.x report. openDox-spec's gate cannot see
   the defect in 8.1a.
-- [ ] 8.2 On that landing, requirement 8's third scenario fires and work scoped to
+- [~] 8.2 On that landing, requirement 8's third scenario fires and work scoped to
   openDox is authored in openDox-spec. This packet's interim arrangement ends.
-- [ ] **FALSIFIED BY:** `OPENSPEC_TELEMETRY=0 openspec list --specs` in openDox-spec
-  returns the promoted set. Today it returns `No specs found.`
+- [~] **FALSIFIED BY** (openDox-spec checkout):
+
+      OPENSPEC_TELEMETRY=0 openspec list --specs
+      OPENSPEC_TELEMETRY=0 openspec validate --all --strict
+
+  The first lists the promoted capabilities; the second passes with no "Archive
+  would refuse this delta" notice under a CLI at or above the openxFactory pin.
+  Today the first answers `No specs found.`, and three of four changes carry the
+  notice under 1.12.0 while their own gate at 1.2.0 cannot see it.
 
 ## Group 9 — Requirement 9 / G8: each leg's suite green alone (both legs)
 
@@ -259,8 +301,13 @@ Not this packet's act, and named so the dependency is explicit.
   `contracts/code-pin.yaml` name `d816cf06`, two behind. Both are ancestors —
   nothing is forked — but the pins move before the integration run means
   anything.
-- [ ] **FALSIFIED BY:** each leg's full suite runs green in its own checkout with
-  no sibling present, and the exclusion list in each `validate.yml` is empty.
+- [ ] **FALSIFIED BY** (each leg's own checkout, no sibling installed):
+
+      python -m pytest -q          # NOT --noconftest, NOT a file list
+
+  Exits 0 in both legs with zero errors, and
+  `grep -c noconftest .github/workflows/validate.yml` returns 0 in both. Today
+  openDox-code gives 1,298 errors / 0 passed and openXdox-code 1,089 / 0.
 
 ## Group 10 — Requirement 10 / G9, G10: one entry point (openDox-code + openDox root)
 
@@ -292,8 +339,16 @@ Not this packet's act, and named so the dependency is explicit.
   which is where the shape's own "What goes where" puts *"the implementation and
   its tests"*; the root's `README.md` has no shape-pin row and is the project's
   own to edit, so it documents and points at the command.
-- [ ] **FALSIFIED BY:** a reader installs openDox alone, runs the single command
-  its README documents, and reaches the running product in a browser.
+- [ ] **FALSIFIED BY** (empty machine, openDox-code only):
+
+      pip install .
+      opendox --help                    # the console script MUST exist
+      <the single command the README documents>
+      curl -sf http://localhost:<port>/ | head -c 200
+
+  The help prints, the server starts, and the curl returns the web bundle's HTML
+  with no sibling repository installed. Today `[project.scripts]` declares only
+  `opendox-runtime`, there is no `__main__.py`, and nothing serves `web/`.
 
 ## Group 11 — Requirement 1: the guard holds (openxFactory)
 
@@ -302,6 +357,10 @@ Not this packet's act, and named so the dependency is explicit.
   removed, no corpus document moved, no intent-plane schema moved, and no
   integration test moved. The only openxFactory edits are carve-manifest row
   annotations recording each closed reach.
-- [ ] **FALSIFIED BY:** `git diff <arc-base>..<arc-tip>` over `openxFactory`
-  touches nothing outside `docs/opendox-carve-manifest.yaml`, `openspec/` records
-  and this packet.
+- [ ] **FALSIFIED BY** (openxFactory checkout, at the close of the arc):
+
+      git diff --name-only <arc-base>..<arc-tip> -- scripts/ contracts/ tests/ ideation/ docs/ openspec/specs/
+
+  Every path it prints is either `docs/opendox-carve-manifest.yaml` or
+  `openspec/specs/neutral-product-standalone-operability/spec.md`. Any other path
+  is a breach of requirement 1 and must be reverted or declared.

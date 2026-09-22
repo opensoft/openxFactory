@@ -379,19 +379,33 @@ precisely the placement RULING C2 refuses. It does not rewrite C2's TEXT — not
 contradicts C2's PRINCIPLE and accepts Q5's named failure: MedxDox and codexDox
 inherit a core that speaks openxFactory's nouns, and each forks it. **Cost: low
 engineering, high governance — a ratified principle is set aside and the
-descendant story becomes the one Q5 exists to prevent.**
+descendant story becomes the one Q5 exists to prevent.** A ruling for (a)
+therefore carries ONE OBLIGATION, named here in advance so it is not forgotten:
+the departure from C2's principle is recorded where C2 is read — an amendment to
+`domain-mapping-declaration`, or a cited disposition — as part of task 5.2 and
+before the generator moves. No option in this list is offered without the
+governance it implies.
 
-**(b) Build the protocol injection: openDox declares a generator protocol,
-openXdox implements it.**
-The direction is reversed lawfully; no ruling is amended; the consumer keeps its
-vocabulary. **But this does NOT by itself make openDox standalone**, and that
-should be said plainly: a seam with no neutral-side implementation leaves openDox
-still unable to generate anything when installed alone. It converts a
-`ModuleNotFoundError` into a well-worded refusal. It satisfies
-`corpus-adapter-seam`; it does not satisfy requirement 4 or the owner's goal
-unless openDox ALSO ships a default generator — at which point the real question
-is what that default generator is, which is option (c). **Cost: moderate
-engineering, NO governance cost — and it leaves the owner's question unanswered.**
+**(b) Build the protocol injection AND a small neutral-side default generator
+openDox writes for itself.**
+openDox declares a generator protocol, openXdox implements it over openxFactory's
+corpus, and openDox ships its OWN modest generator for plain documents — new
+code, written to openDox's needs, not the 3,164 lines re-expressed.
+
+**The second half is not optional, and the option is stated with it for that
+reason.** The injection ALONE reverses the direction lawfully and satisfies
+`corpus-adapter-seam`, but it leaves openDox still unable to generate anything
+when installed alone: it converts a `ModuleNotFoundError` into a well-worded
+refusal. Bare injection therefore **cannot satisfy requirement 4**, which is why
+it is not offered as a separate answer — an option that cannot meet the
+requirement is not an option, and requirement 4's own text now says that a
+mechanism leaving the product unable to generate alone does not satisfy it.
+
+**Cost: moderate engineering twice over — a protocol AND a second generator — no
+governance cost, and a standing risk that the two generators drift over the same
+kind of artifact, which is the failure `corpus-adapter-seam` warns about in
+another voice ("a vendored reader has no version anyone can name and drifts
+silently from the product it was taken from").**
 
 **(c) [RECOMMENDED] Move the generator into openDox PARAMETERIZED BY A DOMAIN
 MAPPING DECLARATION, and leave openxFactory's vocabulary in openXdox's
@@ -430,22 +444,31 @@ travels instead of the vocabulary.
 
 ### The recommendation, and what makes it refutable
 
-**(c).** It is the only option that answers the owner's question — *can openDox be
-self-contained as a research and document tool?* — with YES, without amending a
-ratified ruling. (a) answers YES by amending C2. (b) answers NO while making the
-failure polite.
+**(c).** All three can now reach the outcome, so the choice is about cost and
+about what the estate is left holding afterwards. (a) is cheapest to build and
+sets aside C2's principle, handing every descendant the fork Q5 was written to
+prevent. (b) keeps every ruling intact and leaves the estate maintaining TWO
+generators over the same kind of artifact, a drift liability with no owner.
+(c) keeps every ruling intact, leaves ONE generator, and produces the
+parameterized core C2 describes in its own words — the shape MedxDox and
+codexDox need anyway.
 
 What would change the recommendation: if the ~30 literal sites turn out on audit
 to be load-bearing on openxFactory's SEMANTICS rather than its PATHS — that is,
 if the generator does not merely walk `openspec/changes/` but reasons about what
 a change MEANS — then the parameterization is authoring a second product rather
-than re-expressing a first, and (b) plus a smaller purpose-built neutral
-generator becomes the cheaper honest answer. The audit is the first task of the
+than re-expressing a first, and **(b) becomes the cheaper honest answer**, because
+at that point its "second generator" is not duplication: it is the only neutral
+generator there was ever going to be. The audit is the first task of the
 G3 box and its result is recorded there BEFORE any code moves.
 
 ### What this packet does without the ruling
 
-Requirement 4 stands and is falsifiable under any option: *"a snapshot is
+Requirement 4 stands and is falsifiable under any of the three: *"a snapshot is
 generated over a corpus of plain documents carrying none of the publishing
-repository's governance vocabulary, with no consumer installed."* Every other
+repository's governance vocabulary, with no consumer installed."* It names no
+mechanism and forecloses only the empty answer — *"a mechanism that leaves the
+neutral product unable to generate when installed alone SHALL NOT be treated as
+satisfying it"* — so the ruling picks freely among options that can actually
+deliver, and cannot pick one that cannot. Every other
 requirement is actionable on ratification and none of them waits on Q-G3.

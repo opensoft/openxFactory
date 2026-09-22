@@ -79,11 +79,14 @@ the CONSUMER layer is not installed. A product that serves an artifact it cannot
 generate is not standalone however complete its serving half is: the user who
 installs it alone gets a reader with nothing to read. Where the generator lives
 today in the consumer because it was written against the publisher's corpus, the
-neutral product SHALL reach a state in which it generates over its OWN corpus,
-by whichever mechanism is ruled — the generator relocated and parameterized, or
-the generation injected through a declared protocol the consumer implements —
-and this requirement is satisfied by the OUTCOME rather than by either
-mechanism.
+neutral product SHALL reach a state in which it generates over its OWN corpus.
+This requirement is satisfied by the OUTCOME and is deliberately silent on the
+mechanism — but silence is not admission: **a mechanism that leaves the neutral
+product unable to generate when installed alone SHALL NOT be treated as
+satisfying it**, however lawful the direction it produces. Declaring a protocol
+the consumer implements reverses the DIRECTION and is required by
+`corpus-adapter-seam`; on its own it converts a missing-module error into a
+well-worded refusal and leaves this requirement open.
 
 #### Scenario: The product serves a snapshot it cannot generate
 - **WHEN** a product's server reads a snapshot whose generator resolves only through the consumer layer
@@ -150,9 +153,12 @@ in ONE checkout, so that validating a document requires no second repository on
 disk. A validator whose schemas are split across checkouts is not a validator
 anyone can run: the split is discoverable only by trying it, and the failure it
 produces names a missing path rather than a missing product. Schemas the
-publishing repository OWNS SHALL arrive by the declared pin and be read from the
-pinned checkout under `neutral-product-pin`, never by a path literal reaching a
-sibling directory.
+publishing repository OWNS SHALL arrive as the DIGEST-PINNED VENDORED COPY
+`neutral-product-pin` admits — registered as a CONSUMED manifest member, never an
+owned one, naming the publisher contract version it pins — and SHALL NOT be
+reached by a path literal into a sibling checkout. Vendoring is what makes the
+one-checkout rule satisfiable rather than in tension with the pin: the pinned
+bytes are IN the checkout, and the pin is what says which bytes they are.
 
 #### Scenario: No checkout carries the whole schema set
 - **WHEN** a validator's schemas are split so that no single checkout carries the set it reads
@@ -164,7 +170,8 @@ sibling directory.
 
 #### Scenario: A publisher-owned schema is needed
 - **WHEN** a validation genuinely needs a schema the publishing repository owns
-- **THEN** the schema is read from the pinned checkout the product's pin names, and never from a path literal reaching a sibling directory
+- **THEN** the schema travels as the DIGEST-PINNED VENDORED COPY `neutral-product-pin` already admits — registered in the product's own manifest as a CONSUMED member, never an owned one, naming the publisher contract version it pins — so that the product's checkout carries what its validator reads
+- **AND** it is never reached by a path literal into a sibling checkout, which is the failure this requirement exists to close
 
 ### Requirement: An extracted product's own spec instance governs its requirements before the product is called standalone
 Requirements a carve assigns to an extracted product SHALL be re-promoted in
