@@ -34,7 +34,7 @@ Baselines, measured on `openxFactory` `main` `4f92d651` before this packet:
   requirement table; the explicit "what openxFactory keeps" section; honest
   `code_surface:` / `target_release:` front-matter.
 - [x] 1.3 Author the `## ADDED Requirements` delta creating
-  `neutral-product-standalone-operability` — 10 requirements, 33 scenarios,
+  `neutral-product-standalone-operability` — 11 requirements, 37 scenarios,
   domain-neutral, openDox as the measured instance.
 - [x] 1.4 Author `design.md`: D1-D8 and **R-G3** — filed as Q-G3, the one question
   put to Brett with three options and a recommendation; RULED the same day and
@@ -463,3 +463,73 @@ packet's interim arrangement ends.**
   excluded by name because it is machine-seeded bookkeeping every filing owes and
   carries no behaviour; if it ever moves for another reason, that shows up in the
   seeder's own `--ledger-diff` gate instead.
+
+## Group 12 — Requirement 11: the neutral submission step (RULED, openDox-code)
+
+**RULED** by Brett Heap, `#656` comment `5783934499`, 2026-09-22T20:49:40Z:
+*"add a neutral publish step to the build arc"*. Named **submission** in the
+delta, after the fifth of the six ruled words, for the reasons in `design.md`
+§ D9 — "publisher" is already taken in this capability for the repository that
+publishes the corpus and the contract bundle.
+
+The seam is NOT invented here: `src/opendox/session_pr.py:98-99` already declares
+`@runtime_checkable class PullRequestPort(Protocol)` with `push`, `open_or_update`
+and `find_open`, and `FakePullRequests` (`:116`) is already a second
+implementation. What is missing is a NEUTRAL implementation and a default binding
+that does not name a platform.
+
+- [ ] 12.1 Reshape the protocol around the neutral ACT rather than the platform's
+  artifact. `push(branch)` is already git-neutral and stays; `open_or_update` and
+  `find_open` return a `PullRequest` carrying `url` / `number` / `state`, and
+  `number` is a hosting platform's concept. Whatever the neutral return becomes,
+  it must be expressible by a plain push.
+- [ ] 12.2 Ship the NEUTRAL DEFAULT: on a plain git repository with a remote
+  attached, push the session branch to it and report where the work went. The
+  runtime already models the remote — `runtime/repository_act.py:1131`'s
+  `attach_remote(..., executable="git")` takes ANY git remote and writes no
+  object, *"which is what makes the eventual move a push, not a migration"*.
+- [ ] 12.3 With NO remote attached, say so plainly. Not an opaque failure, not a
+  reported success. This is the same refusal discipline `corpus-adapter-seam`
+  requires of an unresolvable corpus, applied to an unresolvable destination.
+- [ ] 12.4 Stop the DEFAULT BINDING naming a platform. `cli.py:812` and
+  `serve.py:933` construct `GhPullRequests` by name and `serve.py:1507` records
+  that an unset injection *"builds the real `GhPullRequests`"*. The unset default
+  becomes the neutral implementation; `GhPullRequests` becomes ONE contributed
+  implementation, registered through the SAME injection seam requirement 4 uses
+  for the generator.
+- [ ] 12.5 **THE GOVERNED FLOW IS UNCHANGED.** With the host's implementation
+  registered, openxFactory's GitHub pull-request flow behaves exactly as today.
+  This is a generalization, not a replacement, and 12.5 is the box that proves it.
+- [~] 12.6 **MERGE AUTHORITY — BLOCKED ON THE OPERATOR, AND NOT TO BE DECIDED BY
+  THE IMPLEMENTER.** An earlier draft made the absence of `merge`, `approve`,
+  `review`, `self_review`, `bypass_protection` and `enable_auto_merge` binding and
+  refused a merging implementation in a scenario; **both were withdrawn from the
+  delta** on Brett Heap's question of 2026-09-22 — *"if we are going to have
+  openDox be standalone, then it will need to merge documents."* The two readings
+  are in `proposal.md` § "OPEN — MERGE AUTHORITY IN A STANDALONE INSTALL" and the
+  packet recommends neither.
+  **Owner: Brett Heap (operator authority).**
+  **Exit condition: the ruling.** Until it is given, groups 12.1-12.5 proceed and
+  **the implementer ADDS NO landing operation to any implementation** — not
+  because this packet forbids it, but because building one would decide an open
+  question. Whichever way it goes, the GOVERNED host's implementation declares no
+  merge and openxFactory's flow is unchanged (12.5).
+- [ ] **FALSIFIED BY** (openDox-code checkout, no sibling, `gh` NOT installed —
+  `command -v gh` must be empty, which is the student's machine):
+
+      git init /tmp/plain && git -C /tmp/plain commit -q --allow-empty -m seed
+      git init --bare /tmp/remote && git -C /tmp/plain remote add origin /tmp/remote
+      # submit a session on the plain repository with a remote attached:
+      python -c "from opendox import session_pr; print(session_pr.default_submitter('/tmp/plain').push('sess-1'))"
+      git -C /tmp/remote rev-parse --verify sess-1          # the branch ARRIVED
+
+  The push succeeds and the bare remote carries `sess-1`. Then, with the remote
+  removed, the same call reports plainly that there is no submission target and
+  does not raise an opaque error. **No assertion about landing operations belongs
+  in this falsification while 12.6 is open** — asserting the absence would encode
+  reading (a), and asserting its presence would encode reading (b).
+
+  Today none of this is reachable: the only implementation is `GhPullRequests`,
+  which shells `["gh", "pr", ...]` (`:367`) against `_GITHUB_HOST = "github.com"`
+  (`:233`), so a machine without `gh` and a repository without a GitHub remote
+  have no submission path at all.

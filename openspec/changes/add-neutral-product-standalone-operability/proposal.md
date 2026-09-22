@@ -1,5 +1,5 @@
 ---
-code_surface: openxFactory, openDox-code, openXdox-code and openDox — (openDox is the assembly root; its leg repositories are named separately because each carries its own arm of the realization.) THIS PACKET AUTHORS NO CODE BYTE, and it declares a real one. Landing here is corpus text only: this packet's five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and ONE `## ADDED` spec delta), one README *Active changes* bullet, and the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION the requirements specify runs post-ratification, in FOUR repositories — the three that gain code, plus openxFactory for annotation only — and each arm is a named task with its own claim: in `opensoft/openDox-code`, the removal of the two module-level `ideation_dashboard` imports at `src/opendox/serve.py:199,206` and their replacement by the route-extension seam the carve's `design.md` already specifies, a default domain profile so `build_parser()`/`build_server()` start with no host, the resolution of `src/opendox/authoring.py:318`'s `corpus_adapter_openxfactory` reach through the registered adapter, a document validator and a health check over its own documents, a `[project.scripts]` entry point for the document surface, and the removal of its `validate.yml` exclusions; in `opensoft/openXdox-code`, the consumer half of the RULED G3 shape — openXdox keeps its governed generator and injects it through openDox's declared seam (`#656` `5783335210`) — plus the `OPENDOX_BACK_IMPORTS` ratchet driven down as each reach closes; in `opensoft/openDox` (the assembly root), one documented start target; and in `openxFactory`, NOTHING BUT the carve-manifest annotations that record each closed reach — no check family, no schema, no corpus document and no `scripts/` module moves, per this packet's first requirement. NOT THIS CHANGE'S SURFACE, and named so no reader infers it: the re-promotion of the 71 requirements the carve's map assigns to openDox is openDox-spec's own act and is tracked as a BLOCKED task here, not authored here; the document surface is NOT rewritten, re-architected or re-scoped; and no pin, gitlink, contract bundle or release tag moves.
+code_surface: openxFactory, openDox-code, openXdox-code and openDox — (openDox is the assembly root; its leg repositories are named separately because each carries its own arm of the realization.) THIS PACKET AUTHORS NO CODE BYTE, and it declares a real one. Landing here is corpus text only: this packet's five files (`proposal.md`, `design.md`, `tasks.md`, `.openspec.yaml` and ONE `## ADDED` spec delta), one README *Active changes* bullet, and the machine-seeded per-change row in `tests/sequenced_after/corpus-ledger.yaml` that every filing owes. The REALIZATION the requirements specify runs post-ratification, in FOUR repositories — the three that gain code, plus openxFactory for annotation only — and each arm is a named task with its own claim: in `opensoft/openDox-code`, the removal of the two module-level `ideation_dashboard` imports at `src/opendox/serve.py:199,206` and their replacement by the route-extension seam the carve's `design.md` already specifies, a default domain profile so `build_parser()`/`build_server()` start with no host, the resolution of `src/opendox/authoring.py:318`'s `corpus_adapter_openxfactory` reach through the registered adapter, a document validator and a health check over its own documents, a `[project.scripts]` entry point for the document surface, THE NEUTRAL SUBMISSION DEFAULT that lets a plain git repository get a session's work out (RULED `5783934499`), and the removal of its `validate.yml` exclusions; in `opensoft/openXdox-code`, the consumer half of the RULED G3 shape — openXdox keeps its governed generator and injects it through openDox's declared seam (`#656` `5783335210`) — plus the `OPENDOX_BACK_IMPORTS` ratchet driven down as each reach closes; in `opensoft/openDox` (the assembly root), one documented start target; and in `openxFactory`, NOTHING BUT the carve-manifest annotations that record each closed reach — no check family, no schema, no corpus document and no `scripts/` module moves, per this packet's first requirement. NOT THIS CHANGE'S SURFACE, and named so no reader infers it: the re-promotion of the 71 requirements the carve's map assigns to openDox is openDox-spec's own act and is tracked as a BLOCKED task here, not authored here; the document surface is NOT rewritten, re-architected or re-scoped; and no pin, gitlink, contract bundle or release tag moves.
 target_release: implemented — the affected repositories' main lines (openxFactory, openDox-code, openXdox-code, openDox). `implementation_pending` was the honest-looking word and it is NOT in the ratified vocabulary, which admits `implemented`, a release this estate defines, or `deferred-allocation`; the deferral this packet needs is carried by the CODE SURFACE, not by this token. Under `release-realization`'s archive gate a change with a NON-EMPTY code surface "SHALL NOT archive until realization evidence exists: its code merged on the implemented target through the owning domain's engineering gates, and — where the surface is runnable — a green run of that surface", so this packet stays ACTIVE as approved-but-unrealized intent until the arc is built. The evidence is per requirement: the falsification command named in that requirement's `tasks.md` box, run in a checkout holding only the repository under test, quoted with its output. No contract bundle is cut, no bundle number is allocated or reserved, and no release tag is owed — this packet moves no contract byte.
 sequenced_after: []
 ---
@@ -316,7 +316,7 @@ name entirely. The correction is task 9.1's, not this packet's.
 ## What Changes
 
 ONE `## ADDED Requirements` block creating the capability
-`neutral-product-standalone-operability` — ten requirements, thirty-three scenarios.
+`neutral-product-standalone-operability` — eleven requirements, thirty-seven scenarios.
 The capability is the sibling of `neutral-product-pin`: that one governs
 openxFactory CONSUMING an external neutral product; this one governs the product
 being able to STAND UP without its consumer. It is written domain-neutrally and
@@ -339,6 +339,7 @@ separately satisfiable and each falsifiable by a command named in `tasks.md`:
 | 8 | An extracted product's own spec instance governs its requirements before the product is called standalone | G7 | `openspec list --specs` in openDox-spec |
 | 9 | Each repository of a split product runs its own suite to green in its own checkout | G8 | each leg's suite, no exclusions, no sibling |
 | 10 | A neutral product declares one entry point that starts the whole product | G9, G10 | install, run the one documented command, reach the browser surface |
+| 11 | A session's work leaves the local repository through a declared submission protocol with a neutral default **(RULED)** | — | submit a session on a plain git repo with `gh` not installed |
 
 **What this packet deliberately does NOT propose.** It is not a rewrite. The
 document surface is not re-architected, its routes are not re-scoped and its
@@ -445,11 +446,102 @@ proposals:
   authored twice. The ruling is explicit: *"The generator itself (decision 1) is
   NOT in this claim — it is the BUILD-arc proposal's subject."*
 
+## A second ruling, forty minutes later: the neutral submission step
+
+**RULED** by Brett Heap, `#656` comment
+[`5783934499`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783934499),
+2026-09-22T20:49:40Z: **"add a neutral publish step to the build arc"**. It
+enters as **requirement 11**, a new requirement rather than an amendment, for the
+reasons in `design.md` § D9.
+
+**The gap.** RULING C3 makes a standalone openDox a plain local git repository
+per project with a remote attachable later, and the runtime honours it —
+`runtime/repository_act.py:1131-1138`'s `attach_remote(..., executable="git")`
+takes ANY git remote and writes no object, *"which is what makes the eventual
+move 'a push, not a migration'"*. **The document surface does not.**
+`session_pr.py:297` is `class GhPullRequests`, shelling out at `:367` with
+`["gh", "pr", subcommand]` against `_GITHUB_HOST = "github.com"` (`:233`). A pull
+request is a hosting-platform artifact and a push is a git one, so the student on
+the plain repository C3 describes **has no way to get a session's work out at
+all**.
+
+**One refinement, measured here, that makes the requirement narrower and truer.**
+A declared protocol already exists — `session_pr.py:98-99` is
+`@runtime_checkable class PullRequestPort(Protocol)` with `push`,
+`open_or_update` and `find_open`, and `FakePullRequests` is a second
+implementation. So `push` is ALREADY neutral; what is platform-shaped is the
+other two operations' `PullRequest` return (`number` is a platform's concept);
+and **the hard-wire is the DEFAULT BINDING**, not the protocol — `cli.py:812` and
+`serve.py:933` construct `GhPullRequests` by name. The arc therefore supplies the
+missing neutral IMPLEMENTATION and stops the default naming a platform. Same
+shape as requirement 3's missing default profile, one layer over.
+
+### OPEN — MERGE AUTHORITY IN A STANDALONE INSTALL. Not decided here.
+
+**Requirement 11 is deliberately SILENT on who may land submitted work, and that
+silence is the point.** An earlier draft of this requirement carried the
+invariant below as binding text and refused any merging implementation in a
+scenario. **That has been withdrawn from the delta** pending the operator's
+decision, because it may be right for one install and wrong for the other.
+
+The invariant, as `session_pr.py:17-23` states it for the GOVERNED context:
+
+> "**The absence is the enforcement.** There is deliberately no `merge`,
+> `approve`, `review`, `self_review`, `bypass_protection`, `enable_auto_merge`,
+> or any other operation that could land or bless a pull request — not on the
+> protocol, not on the fake, not on the real adapter. A refusal message could be
+> deleted by a later edit; a method that does not exist cannot be called at all.
+> The merge is the Merge Master's action under the EXISTING ritual, enforced
+> outside this dashboard by branch protection."
+
+**The question, raised by Brett Heap on 2026-09-22:** *"if we are going to have
+openDox be standalone, then it will need to merge documents."* The absence was
+designed for a governed factory where landing belongs to the Merge Master on a
+platform, under branch protection this product does not own. A standalone student
+or lab assistant on a plain local repository owns the repository, and there is no
+Merge Master and no branch protection to defer to.
+
+**The two readings, stated so either can be chosen:**
+
+**(a) openDox never merges, in every mode.** The absence is constitutional and
+survives the generalization unchanged: a submitter proposes or pushes, and
+landing is always someone else's act. A standalone owner merges with `git` in
+their own checkout, outside the product, exactly as they would today. Preserves
+the strongest property this surface has — a capability that does not exist cannot
+be reached by a bug, a later edit, or a contributed implementation — and keeps one
+rule for both installs. Costs the standalone user an in-product path to finish
+their own work on their own repository.
+
+**(b) Merge authority belongs to whoever owns the repository.** The absence is
+not constitutional but CONTEXTUAL — it encodes "this install does not own the
+branch" — so the governed host RESERVES landing (its implementation declares no
+merge, and openxFactory's flow is unchanged from today) while a standalone owner
+HOLDS it and openDox's neutral default may land work in a repository the user
+owns. Gives the standalone product the complete workflow the founding ruling
+describes. Costs the absence-as-enforcement property: the capability would then
+exist in the tree and be governed by configuration rather than by non-existence,
+which is a weaker guarantee and needs its own gate.
+
+**This packet records no recommendation between them.** It is the operator's to
+decide, and requirement 11 is written so that either answer can be encoded
+afterwards without reopening the requirement: nothing in it grants a merge
+capability and nothing in it forbids one. **Requirement 11 should not be read as
+having settled this by omission.**
+
+**The name is "submission", not "publish", and the ruling asked for that care.**
+This capability already uses "publisher" for the repository that publishes the
+corpus and the contract bundle — requirement 2 reads *"no consumer, no publisher
+and no host present"* — and a reader meeting the word twice with two meanings is
+a reader the capability has failed. "Submission" is the **fifth of the six ruled
+words** `NEUTRAL_DISPLAY` already carries, so the step is named after the stage
+the product already says it reaches. Rejected alternatives and the reasoning are
+in `design.md` § D9.
+
 One smaller item remains for the ratification read, and it is not a ruling
 request: `design.md` § D5 records that requirement 3 revisits the **premise** of
 RULED ASK-2 — not its reasoning, since an EMPTY default stays refused. If ASK-2
 is read as foreclosing a default profile for openDox's own domain, requirement 3
-is struck and the other nine stand.
+is struck and the other ten stand.
 
 
 ## Impact
@@ -484,4 +576,4 @@ is struck and the other nine stand.
 
 ## Capabilities
 
-- `neutral-product-standalone-operability` — ADDED, 10 requirements, 33 scenarios.
+- `neutral-product-standalone-operability` — ADDED, 11 requirements, 37 scenarios.

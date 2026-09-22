@@ -271,3 +271,42 @@ one nobody outside its authors can run.
 #### Scenario: The assembly root's targets are treated as the entry point
 - **WHEN** an assembly root offering only bootstrap, validation and pin targets is offered as the way to start the product
 - **THEN** the offer is refused, because assembling sources is not starting a product
+
+### Requirement: A session's work leaves the local repository through a declared submission protocol with a neutral default
+A neutral product SHALL move a session's work out of the local repository through
+a DECLARED SUBMISSION PROTOCOL carrying a NEUTRAL DEFAULT that works on a plain
+git repository, and SHALL NOT bind that protocol to one hosting platform's
+command-line tool. A pull request is a HOSTING-PLATFORM artifact and a push is a
+git one: a product whose only submission implementation opens pull requests has
+no submission path at all for the plain local repository its own install story
+describes. The protocol governs how work LEAVES the local repository; what may
+then be done with it is settled elsewhere. The neutral default SHALL push the session branch to the attached
+remote where one exists, and where none exists SHALL SAY SO PLAINLY — never a
+silent failure, never a reported success it did not achieve. A governed host
+contributes its own implementation through the SAME injection seam the product's
+other contributed implementations use, so the host's existing flow is unchanged.
+
+THIS REQUIREMENT IS DELIBERATELY SILENT ON WHO MAY LAND SUBMITTED WORK. Whether a
+neutral product may itself merge, and whether that answer differs between a
+governed install and a standalone owner who owns the repository, is an OPEN
+QUESTION recorded in this change's proposal and reserved to the operator. Nothing
+here grants a merge capability and nothing here forbids one; a submission
+implementation's landing authority is settled by that answer and not by this
+text.
+
+#### Scenario: The only submission implementation shells out to one platform
+- **WHEN** a neutral product's only implementation of its submission protocol invokes one hosting platform's command-line tool, defaulting to that platform's host
+- **THEN** it is reported as having no submission path for a plain local repository, which is the install its own ruling describes
+
+#### Scenario: A session is submitted on a plain repository with a remote
+- **WHEN** a session is submitted on a plain git repository that has a remote attached
+- **THEN** the neutral default pushes the session branch to that remote and reports where the work went
+
+#### Scenario: No submission target exists
+- **WHEN** a session is submitted on a repository with no remote attached
+- **THEN** the product reports plainly that there is nowhere to submit, rather than failing opaquely or reporting a success it did not achieve
+
+#### Scenario: A governed host contributes its own submission implementation
+- **WHEN** a governed host needs its own platform flow
+- **THEN** it registers its implementation through the same injection seam the product's other contributed implementations use, and the host's existing flow is unchanged
+

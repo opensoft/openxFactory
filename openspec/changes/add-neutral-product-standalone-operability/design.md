@@ -72,7 +72,7 @@ under which it can.
 ## D3 — Why the gaps are REQUIREMENTS and not merely tasks
 
 A gap list is an actor's inventory; it expires when the actor stops. Ten
-requirements with thirty-three scenarios are a standing property of any neutral
+requirements with thirty-seven scenarios are a standing property of any neutral
 product this repository pins, and they outlive the arc. The concrete openDox
 work is in `tasks.md`, one box per requirement, each naming the falsification
 command — so the requirement states the property, the task states the act, and
@@ -293,6 +293,127 @@ starts a document tool, and the only containerized path —
 `CMD ["opendox-runtime", "runtime", "serve"]` — starts the runtime API on
 `/livez`, `/readyz` and `/api/v1`, mounting no static files and serving no
 document surface.
+
+## D9 — RULED: the neutral submission step, and why it is not called "publish"
+
+**RULED by Brett Heap, `#656` comment
+[`5783934499`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783934499),
+2026-09-22T20:49:40Z, verbatim: "add a neutral publish step to the build arc".**
+It enters the delta as requirement 11 — a NEW requirement, not an amendment to an
+existing one, for the reason given under "Why not fold it into 4 or 5" below.
+
+### The gap, re-measured here rather than accepted
+
+RULING **C3** makes a standalone openDox a PLAIN LOCAL GIT REPOSITORY per
+project with a remote attachable later, and the runtime honours it:
+`src/opendox/runtime/repository_act.py:1131-1138`'s `attach_remote(store, *,
+project_id, remote_url, executable="git")` takes ANY git remote and *"writes NO
+object and moves NO ref … which is what makes the eventual move 'a push, not a
+migration'."*
+
+The document surface does not. `src/opendox/session_pr.py:297` is `class
+GhPullRequests`, which shells out at `:367` with `args = ["gh", "pr",
+subcommand]` against `_GITHUB_HOST = "github.com"` (`:233`). A pull request is a
+hosting-platform artifact; a push is a git one. So the student on the plain local
+repository C3 describes has no way to get a session's work out at all.
+
+**One refinement, measured, that makes the requirement narrower and truer than
+"there is no declared protocol".** A declared protocol ALREADY EXISTS:
+`session_pr.py:98-99` is `@runtime_checkable class PullRequestPort(Protocol)`
+with exactly three operations —
+
+```
+def push(self, branch: str) -> None: ...
+def open_or_update(self, branch, *, base, title, body, ...) -> PullRequest: ...
+def find_open(self, branch: str) -> PullRequest | None: ...
+```
+
+— and `FakePullRequests` (`:116`) is a second implementation. So three things are
+true at once, and the requirement is written to all three:
+
+1. **`push` is already neutral.** It is a git operation and needs no platform.
+2. **The protocol is PLATFORM-SHAPED around the other two.** They return a
+   `PullRequest` carrying `url` / `number` / `state`, and `number` is a platform's
+   concept, not git's.
+3. **The DEFAULT BINDING is the hard-wire, not the protocol.** `cli.py:812` and
+   `serve.py:933` construct `GhPullRequests` by name, and `serve.py:1507` records
+   that an unset injection *"builds the real `GhPullRequests`"*. There is no
+   neutral implementation to fall back to — which is the same shape as
+   requirement 3's missing default profile, one layer over.
+
+So the arc does not invent a seam here any more than it did for the generator. It
+supplies the missing NEUTRAL IMPLEMENTATION and stops the default binding naming
+a platform.
+
+### The invariant — WITHDRAWN FROM THE DELTA, PENDING THE OPERATOR
+
+An earlier draft of requirement 11 carried the absence below as binding text and
+refused any merging implementation in a fifth scenario. **Both were removed
+before this packet was pushed**, on Brett Heap's question of 2026-09-22: *"if we
+are going to have openDox be standalone, then it will need to merge documents."*
+The requirement is now explicitly silent on landing authority, the two readings
+are set out in `proposal.md` § "OPEN — MERGE AUTHORITY IN A STANDALONE INSTALL",
+and **this packet records no recommendation between them** — it is the operator's
+to decide.
+
+The reason the absence is worth this care, and the text it is stated in
+(`session_pr.py:17-23`):
+
+> "**The absence is the enforcement.** There is deliberately no `merge`,
+> `approve`, `review`, `self_review`, `bypass_protection`, `enable_auto_merge`,
+> or any other operation that could land or bless a pull request — not on the
+> protocol, not on the fake, not on the real adapter. A refusal message could be
+> deleted by a later edit; a method that does not exist cannot be called at all.
+> The merge is the Merge Master's action under the EXISTING ritual, enforced
+> outside this dashboard by branch protection."
+
+Generalizing a surface is exactly when a constitutional absence gets lost — which
+is why it is recorded here as an OPEN ITEM rather than quietly dropped. The
+question is whether the absence is CONSTITUTIONAL (true of the product) or
+CONTEXTUAL (true of a governed install that does not own the branch). Requirement
+11 is drafted so either answer encodes afterwards without reopening it, and the
+requirement must not be read as having settled the matter by omission.
+
+### The name, chosen deliberately
+
+The ruling says "publish step". **This delta does not use that word for it, and
+the ruling's own naming note is why**: *"the proposal already uses 'publisher'
+for the upstream that PUBLISHES a contract bundle, so the new step takes a word
+that cannot be read as that one."* That collision is real in this packet's own
+text — requirement 2 reads *"imports with no consumer, no **publisher** and no
+host present"*, where "publisher" is the repository that publishes the corpus and
+the contract bundle. A reader meeting "publisher" twice in one capability with two
+meanings is a reader the capability has failed.
+
+The word taken is **SUBMISSION**, and it is not a euphemism:
+
+- it is the **fifth of the six ruled words** `NEUTRAL_DISPLAY` carries
+  (`sources → groups → candidates → selections → submissions → completions`), so
+  the arc names the step after the stage the product already says it reaches,
+  rather than importing a new noun;
+- it says what the act IS on a plain repository — the work is submitted somewhere
+  — without claiming what the destination does with it, which "publish" (already
+  taken) and "pull request" (platform-shaped) both do;
+- and it stays accurate under BOTH readings of the open merge question: one
+  SUBMITS work somewhere, which says nothing about who may then land it. A word
+  that implied the work had landed would prejudge the open item.
+
+Rejected: `publish` (collides, as the ruling notes), `propose` (collides with
+OpenSpec's proposal noun, which this corpus uses constantly), `share` (says
+nothing about direction), `push` (names one implementation's mechanism as the
+protocol, the exact error the requirement exists to correct).
+
+### Why not fold it into requirement 4 or 5
+
+Requirement 4 is the READ path — the product generating the artifact it serves.
+Requirement 5 is about reaches that resolve through a declared seam. This is the
+WRITE path leaving the repository, it has its own constitutional invariant that
+neither of those carries, and it is separately satisfiable: openDox could
+generate its own snapshot and still have no way to submit, or submit and still
+serve nothing. Ten requirements were already "ordered and separately
+satisfiable"; folding this into one of them would break that and hide the merge
+invariant inside a requirement about something else. It shares requirement 4's
+INJECTION SEAM, and says so rather than restating it.
 
 ## R-G3 — RULED: openDox gets its own neutral generator
 

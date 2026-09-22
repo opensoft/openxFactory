@@ -537,7 +537,7 @@ Active changes:
   Heap's ratification read), as the BUILD ARC the archived
   `split-opendox-two-layer-product` names as its own unclosed residue. **ONE
   `## ADDED` block creating the capability `neutral-product-standalone-operability`
-  — ten requirements, thirty-three scenarios**, written domain-neutrally (its sibling is
+  — eleven requirements, thirty-seven scenarios**, written domain-neutrally (its sibling is
   `neutral-product-pin`: that governs openxFactory CONSUMING an external neutral
   product, this governs the product being able to STAND UP without its consumer),
   with openDox as the measured instance and one requirement per gap of the
@@ -570,7 +570,20 @@ Active changes:
   constraints arrive with the ruling: `NEUTRAL_DISPLAY`'s six words stand
   unchanged (*"keep those six words"*), and the view-wiring slice is CLAIMED and
   IN FLIGHT on openDox-code under actor `viewwire` and is deliberately NOT owed
-  here.
+  here. **A SECOND RULING forty minutes later** (`#656` comment
+  [`5783934499`](https://github.com/opensoft/openxFactory/issues/656#issuecomment-5783934499),
+  *"add a neutral publish step to the build arc"*) adds requirement 11, the
+  NEUTRAL SUBMISSION STEP: RULING C3 makes a standalone openDox a plain local git
+  repository, but `session_pr.py:297`'s `GhPullRequests` shells `gh` against
+  `github.com`, so the student C3 describes cannot get a session's work out at
+  all. Named *submission* — the fifth of the six ruled words — because this
+  capability already uses "publisher" for the repository that publishes the
+  corpus. **ONE ITEM IS EXPLICITLY OPEN and the packet recommends nothing on it:**
+  whether a standalone openDox may MERGE. The absence of merge/approve/bypass was
+  designed for a governed install where landing is the Merge Master's act under
+  branch protection; Brett has raised that a standalone owner owns the
+  repository. Both readings are set out in the proposal and requirement 11 is
+  drafted so either encodes afterwards without reopening it.
 
 - [amend-neutral-product-pin-source-tree-digest](openspec/changes/amend-neutral-product-pin-source-tree-digest/proposal.md)
   — filed 2026-09-22, lane `openxfactory-4`, **`Status: ratified`** (2026-09-22,
