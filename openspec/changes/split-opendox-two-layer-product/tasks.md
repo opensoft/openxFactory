@@ -2012,6 +2012,34 @@ the bookkeeping that ticks this group.
   schema shape before it is needed"). Every field the MODIFIED
   `neutral-product-pin` requirement and this task's own text name is present
   or is a documented, ruled HAND-ACT judgment — none silently omitted.
+  **STATUS — THE JUDGMENT STANDS AND ITS FIRST REASON DOES NOT. Recorded by
+  AMENDMENT #11, 2026-09-22; the marker does not move.** The recorded HAND-ACT
+  judgment above — that the per-file `sha256` and `pinned_by_commit_only:` lists
+  are both empty — rested on TWO reasons, and the first has expired: openDox's own
+  `contracts/manifest.yaml` no longer reads `contract_bundle_version: none` with
+  `entries: []`. At **`dc7aa08f`**, the commit `dox-v1.0` tags, it reads
+  `dox-v1.0` with **three** per-file-digested entries. **The judgment itself is
+  RULED to stand, now resting on its second reason** — the whole-tree
+  `sorted-ls-tree-r-v1` digest — by Brett Heap at `#656` comment `5768144952`,
+  verbatim *"(b) for the pin shape, keep going"*, recorded in full at § 5.1, where
+  the DIRECT pins live.
+  **WHAT THIS BOX OWES, REGISTERED AND NOT DISCHARGED HERE**: this file,
+  `openXdox/contracts/opendox-pin.yaml`, still carries the UN-AMENDED trigger
+  sentence at openXdox `main` **`646f1dc0`** — the commit where `openXdox` `#15`
+  advanced its `commit:` to `dc7aa08f`, which § 4.6 records. The identical header
+  amendment the `openxFactory` side takes inside STEP 2's pull request is owed
+  here, in a small follow-up by the same actor after STEP 3, registered on
+  `5768144952`.
+  *(Named at the box that owns the FILE rather than left in the ruling's own
+  comment, because an obligation recorded only where it was ruled is an obligation
+  the file's next reader never meets. The ruling states the gap in its own words —
+  the claim posted as `5767868394` was an earlier draft that lacked this finding —
+  and it is repeated here rather than quietly closed.)*
+  **THE TICK IS UNDISTURBED, and the reason is worth one line**: this box ticked on
+  the pin file's FIELDS at openXdox root `eca0b597` — product, source repository,
+  an ASSEMBLY-ROOT `commit:`, `revision_kind`, the digest under
+  `sorted-ls-tree-r-v1`, and the RULED ASK-1 migration triple — and a later advance
+  of the `commit:` removes none of them. A pin that moves is a pin that works.
 - [x] 4.3 `[oXd]` The routes and subcommands openXdox CONTRIBUTES to openDox's
   extension points, **from `openXdox-code`**. No fork of the server.
   **STATUS — 2026-09-12, tick JUDGED MET — both halves are landed.** CODE
@@ -2424,6 +2452,65 @@ the bookkeeping that ticks this group.
   commit this box TICKED on (named rather than left as "that commit", which three
   paragraphs of amendment now separate from its referent):
   `OK openxdox-pin verified: openXdox@db58fffa58d49d92f58db40bd7e63cad3205052f, gitlink read from HEAD, sorted-ls-tree-r-v1 tree digest recomputed (43c60b29693820d3e8c066e9c6a088f306bf0a7c0f2d818d72ceb62657c53209)`.
+  **STATUS — THE PIN SHAPE IS RULED, AND THE ADVANCE THIS BOX'S FILES TAKE IS
+  STEP 2 OF THE PIN CHAIN. Recorded by AMENDMENT #11, 2026-09-22; the marker does
+  NOT move.** This box is `[x]` on `#917` → `edf0e24f`, and a later advance of a
+  pin it already ticked on does not re-open it — what follows is a record.
+  **WHY THE RULING IS RECORDED AT THIS BOX AND NOT AT § 4.2**: it rules on the
+  SHAPE of a DIRECT pin, and the two direct pins `openxFactory` declares —
+  `contracts/openxdox-pin.yaml` and, since RULED **Q7**,
+  `contracts/opendox-pin.yaml` — are this box's own object, together with the two
+  gitlinks they move with. § 4.2 owns openXdox's pin of openDox, one link further
+  down the same chain, and it takes its own record of what it owes.
+  **RULED — 2026-09-21T22:03:33Z by Brett Heap, `#656` comment `5768144952`,
+  verbatim *"(b) for the pin shape, keep going"***, answering the RULING NEEDED at
+  `5768088579`. **`files:` AND `pinned_by_commit_only:` STAY DEFERRED IN BOTH
+  DIRECT PINS**, on the ONE-LINK-UP precedent this chain already runs on and which
+  `scripts/verify-openxdox-pin.py` reached first: the whole-tree
+  `sorted-ls-tree-r-v1` digest addresses **every byte** of the pinned root tree, so
+  no member can be undeclared and none can be added or altered without changing
+  the referent. It discharges the completeness obligation those two lists exist to
+  serve, and discharges it MORE STRONGLY than an enumeration would; and the legs
+  the digested artifacts actually sit in are themselves pinned by commit AND digest
+  by their assembly root, so the chain is covered end to end. An enumeration here
+  would add a second, weaker statement of one fact — and a second statement is a
+  thing that can drift.
+  **THE TRIGGER THE HEADER SET FOR ITSELF DID FIRE, AND THE RULING ANSWERS IT
+  RATHER THAN AVOIDS IT.** That header's revisit condition is the first commit
+  whose pinned manifest carries a non-empty `entries:` row, and that commit is
+  openDox **`dc7aa08f`**, 2026-09-21, where `contracts/manifest.yaml` reads
+  `contract_bundle_version: dox-v1.0` with **THREE** entries —
+  `xfactory-workbench-chat-turn`, `xfactory-workbench-model-catalog` and
+  `ideation-workbench`, each digested per file at `contracts/schemas/…` in
+  `opensoft/openDox-spec` at `8fe8c4c7`. **So the revisit is RECORDED AS DONE,
+  with the digest reading as its resolution, and the trigger sentence — *"that
+  artifact then moves into a `files:` list here"* — is AMENDED rather than left
+  standing contradicted.**
+  *(Two recorded readings in this family disagreed — the header's trigger sentence
+  and the one-link-up digest reasoning — and a ruling that leaves both in the tree
+  leaves the next reader to pick one. That is why the amendment is written into
+  the pin FILE, beside the sentence it supersedes, and not only onto the issue.)*
+  **EXECUTION IN TWO HALVES, AND THE SECOND IS OWED**: the `openxFactory` half
+  rides in the STEP 2 pull request itself, so the file carrying the superseded
+  sentence carries its amendment in the same landing; the **openXdox half** —
+  § 4.2's `openXdox/contracts/opendox-pin.yaml`, which carries the un-amended
+  trigger sentence natively at `646f1dc0` — takes the IDENTICAL amendment in a
+  small follow-up pull request by the same actor after STEP 3, registered on
+  `5768144952` and recorded at § 4.2 rather than only here.
+  **STEP 2 ITSELF — `openxFactory`'s NESTED LEG-ADVANCE, the second act of the
+  forced order RULED at `#656` comment `5767733963`.** **IN FLIGHT as this amendment is written,
+  and measured at the forge at 2026-09-22T00:36Z rather than taken from a
+  report**: `openxFactory` **`#1134`**, branch
+  `change/advance-nested-opendox-openxdox-legs`, head **`ca2c8a82`**, DRAFT, base
+  `main`. **SIX files, and the six are the invariant the aggregation's parity test
+  names**: `contracts/opendox-pin.yaml` and `contracts/openxdox-pin.yaml`, each
+  moving `commit:` and `digests.tree_sha256`; the `openDox` gitlink `c4c5014d` →
+  **`dc7aa08f`**; the `openXdox` gitlink `88a1047e` → **`646f1dc0`**; and the two
+  pin verifiers' own tests. It carries the `openxFactory` half of the pin-shape
+  amendment above **in the same landing as the pin it amends**, which is the point
+  of putting it there.
+  **The merge sha is amendment #12's to record.** This box records the act, its
+  object and its head, and does not record a landing that has not happened.
 - [x] 5.2a `[oxF]` **The FIFTEEN engineering-vocabulary requirements are
   re-promoted HERE (RULING DQ-1), not shed.** They leave the capability
   `ideation-dashboard` and land in `openxFactory`'s own corpus under the § 2.2a
@@ -4954,8 +5041,9 @@ realization evidence, never on landing. Each line is its own evidence.
   not move here.** The order this box CHECKS — *"de-floored BEFORE the removal"* —
   is the order RULED **R-B** inverted at § 5.6, on the measured ground that the
   written order and the machinery are **jointly unsatisfiable for a REMOVAL**
-  (`specs_floor_block.py::assert_landed_pin` refuses a block pinned at any
-  `openxFactory` commit not reachable from `main`). At the archive this box
+  (codexFactory's `scripts/merge_master/specs_floor_block.py::assert_landed_pin`
+  refuses a block pinned at any `openxFactory` commit not reachable from
+  `main`). At the archive this box
   therefore takes the same form § 5.6 names: the marker becomes `[~]` and the box
   opens **DEFERRED &lt;date&gt;, AT THE ARCHIVE — OPEN, OWNED, AND NOT CLAIMED.**,
   with **Owner: this lane and codexFactory `#232`'s floor**, and with the R-B
@@ -5026,6 +5114,27 @@ realization evidence, never on landing. Each line is its own evidence.
   and Row B, `#473`'s, measured never-live); and **`README.md`:83 still reads
   *"so § 3.7 is not ticked"***, stale since amendment #8 and non-normative, to be
   corrected INSIDE the archive pull request.
+  **CITATION QUALIFIED 2026-09-22 BY `tasks.md` AMENDMENT #11 — IT IS A
+  COORDINATE, NOT A READING, AND THIS BOX STILL DOES NOT TICK.** A Copilot
+  finding at amendment #10's head `525fe5b2` — LOW, *"Unresolvable citation path
+  for assert_landed_pin"* — was CORRECT: the paragraph above cited
+  `specs_floor_block.py::assert_landed_pin` bare, and **no file of that name
+  exists anywhere in `openxFactory`**; the function is codexFactory's, and this
+  same document already qualifies it properly at § 5.6 as
+  `scripts/merge_master/specs_floor_block.py::assert_landed_pin`. It is repaired
+  IN PLACE, in the words Brett Heap wrote out for this amendment to fold verbatim
+  (`#656` comment `5768299637`), under the rule § 7.3's own locator repair ran
+  under: **a bookkeeping amendment fixes stale or under-qualified COORDINATES,
+  and does not re-word what ratification was over.** The rule's words are
+  unchanged; only the path that finds it is.
+  *(REGISTERED AT #10's HEAD RATHER THAN PUSHED, and the standard is written here
+  so that a later reader does not read the delay as neglect. The finding
+  under-qualifies a citation in a box that DOES NOT TICK — § 8.4 is one of the
+  three still `[ ]` — so it falsifies no tick and no evidence line, and this lane
+  moves a reviewed head only for a finding showing that a TICK IS WRONG. Six
+  pushes had already re-run that gate on that pull request. The cost of the rule
+  is exactly this: a true finding waits one amendment, and it is carried in
+  writing so that waiting cannot become losing.)*
 - [x] 8.5 All five re-homed changes dispositioned, each with its destination named
   in the receiving repository; `retire-doxbench-chat-turn-v1` archived in
   `openxFactory` on its own evidence before this packet's own archive (§ 8).
@@ -5263,6 +5372,28 @@ realization evidence, never on landing. Each line is its own evidence.
   files' `commit:` and `digests:` in the same landing, under its own claim — and
   **step 3 is the aggregation's three-pointer sync**. CLAIMED `5767572080`,
   narrowed by CORRECTION `5767621766`.
+  **THAT STEP-2 FIGURE IS CORRECTED BY AMENDMENT #11, 2026-09-22, AND THE SENTENCE
+  ABOVE IS KEPT BECAUSE IT IS THE READING THE CLAIM WAS WRITTEN UNDER.** Step 2's
+  `openXdox` target is **`646f1dc0`**, not `2073e3a9`. The two are one commit apart
+  and that gap is the whole of STEP 1: `2073e3a9` is the commit `xdox-v1.0` tags,
+  and its `contracts/opendox-pin.yaml` still pins openDox at `c4c5014d`, while
+  `openxFactory`'s `scripts/verify-opendox-pin.py` enforces a LOCKSTEP — its own
+  direct openDox `commit:` must equal the `commit:` read from
+  `openXdox/contracts/opendox-pin.yaml` at the pinned gitlink — so pinning
+  `dox-v1.0` and `2073e3a9` together is REFUSED by the verifier. `openXdox` **`#15`
+  → `646f1dc0`** (recorded at § 4.6) is the act that makes step 2 possible, and
+  `openxFactory` `#1134` moves the `openXdox` gitlink to `646f1dc0` exactly.
+  *(TWO BOXES OF AMENDMENT #10 DISAGREED ABOUT ONE FIGURE — § 4.6 wrote `646f1dc0`
+  and this record wrote `2073e3a9` — which is the defect class § 8.4 caught in
+  itself the same night, and it is corrected at the box that was wrong. The forced
+  order at `#656` `5767733963` names its own openXdox target as **X**, a variable
+  step 1 resolves; this record resolved it from the TAG instead of from the
+  LANDING, which is the one substitution that order forbids.)*
+  **STEP 3's STATE AS THIS AMENDMENT IS WRITTEN**: the aggregation's three-pointer sync under claim
+  `5767572080` **has not opened** — measured at `opensoft/xFactory`
+  2026-09-22T00:40Z, where the five open pull requests are `#396`, `#160`, `#22`,
+  `#21` and `#5`, none of them a pointer sync. It follows step 2 by the parity
+  test's own order, and amendment #12 records it.
   *(THREE STATUS HEADERS WERE RE-SCOPED 2026-09-21 AT COPILOT'S FINDING, and the
   mechanism is the one this packet has already documented three times: the CLAIM
   sat on one line and its DATE on the CONTINUATION line, so *"the box does NOT
