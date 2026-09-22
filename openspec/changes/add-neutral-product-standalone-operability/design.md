@@ -136,10 +136,20 @@ DISTINCT test modules actually named: 37
 tree: tests/test_*.py = 53, tests_runtime/test_*.py = 10, TOTAL = 63
 ```
 
-**So the figure this packet uses everywhere is 37 of 63**, and the three
-`--noconftest` blocks reproduce the pinned `MIN_SELECTED: 1114 /
-MIN_PASSED: 1111 / EXPECT_SKIPPED: 3` exactly. **26 test modules are named by no
-pytest step at all.** A green required
+**The CONSUMER leg was measured the same way**, at openXdox-code `ab04453d`:
+
+```
+run: blocks invoking pytest: 2
+DISTINCT test modules actually named: 16
+tree: tests/test_*.py = 85, TOTAL = 85
+```
+
+**So the figures this packet uses everywhere are 37 of 63 and 16 of 85**, and the
+three `--noconftest` blocks reproduce the pinned `MIN_SELECTED: 1114 /
+MIN_PASSED: 1111 / EXPECT_SKIPPED: 3` exactly. **26 openDox test modules, and 69
+openXdox ones, are named by no pytest step at all.** An earlier draft of this
+packet said 20 of 85, from a hand count taken before the extractor was written;
+the extractor's answer is the one above and it is the one every site now carries. A green required
 check is not evidence that the product imports, and requirement 2's second
 scenario exists to say so.
 
@@ -188,8 +198,8 @@ own words, *"openDox is the NEUTRAL product and ships no profile of its own"*.
 This packet proposes that it should ship one FOR ITS OWN DOMAIN, which is a
 different question from the one ASK-2 answered, and ratifying this packet is the
 act that settles it. **If the ratification read takes ASK-2 to foreclose the
-question, requirement 3 is the one to strike**, and the other nine stand without
-it — openDox would then need a host shipped somewhere, and that is the same gap
+question, requirement 3 is the one to strike**, and the other fifteen stand
+without it — openDox would then need a host shipped somewhere, and that is the same gap
 under another name.
 
 ## D6 — Why G1 and G4 are separate requirements

@@ -129,7 +129,7 @@ mention in the package is prose.
   ASK-2 option (2) (`#656` comment `5628886636`) — not its reasoning. An EMPTY
   default stays refused; what changes is the refusal text's premise that *"openDox
   … ships no profile of its own"*. If the ratification read takes ASK-2 to
-  foreclose this, requirement 3 is struck and the other nine stand. See
+  foreclose this, requirement 3 is struck and the other **fifteen** stand. See
   `design.md` § D5.
 - [ ] 3.1 Ship a default profile for openDox's OWN domain — documents and ideas —
   carrying none of openxFactory's status taxonomy or change/spec/delta nouns
@@ -598,6 +598,10 @@ that does not name a platform.
 - [ ] 12.3 With NO remote attached, say so plainly. Not an opaque failure, not a
   reported success. This is the same refusal discipline `corpus-adapter-seam`
   requires of an unresolvable corpus, applied to an unresolvable destination.
+  **The refusal is a named exception, `session_pr.NoSubmissionTarget`, whose
+  message names what is missing** — named here so the falsification can catch that
+  type and nothing else, which is what separates "refused for the right reason"
+  from "raised something".
 - [ ] 12.4 Stop the DEFAULT BINDING naming a platform. `cli.py:812` and
   `serve.py:933` construct `GhPullRequests` by name and `serve.py:1507` records
   that an unset injection *"builds the real `GhPullRequests`"*. The unset default
@@ -651,13 +655,29 @@ that does not name a platform.
       PY
       git -C /tmp/remote rev-parse --verify sess-1          # and the branch ARRIVED
 
-  Two things are asserted, not one: the branch arrived (`rev-parse --verify` exits
-  non-zero if it did not, and `set -e` fails the sequence) **and the call REPORTED
-  where it went**, which is requirement 11's second scenario and which a
-  `None`-returning `push` could not have satisfied however well the push worked.
-  Then, with the remote removed (`git -C /tmp/plain remote remove origin`), the
-  same call refuses with the reason named — scenario 3 — rather than raising an
-  opaque error or returning a `Submission` it did not achieve.
+  and then the NO-REMOTE case, which is scenario 3 and is executed, not described:
+
+      git -C /tmp/plain remote remove origin
+      python - <<'PY'
+      from pathlib import Path
+      from opendox import session_pr
+      port = session_pr.LocalGitSubmissions(Path("/tmp/plain"))
+      try:
+          r = port.push("sess-1")
+      except session_pr.NoSubmissionTarget as e:          # 12.3 names this refusal
+          assert "remote" in str(e).lower(), f"the refusal does not name what is missing: {e}"
+      else:
+          raise AssertionError(f"a repository with no remote reported a submission: {r!r}")
+      PY
+
+  Two things are asserted on the remote path, not one: the branch arrived
+  (`rev-parse --verify` exits non-zero if it did not, and `set -e` fails the
+  sequence) **and the call REPORTED where it went**, which is requirement 11's
+  second scenario and which a `None`-returning `push` could not have satisfied
+  however well the push worked. And the no-remote path fails the sequence in BOTH
+  wrong directions — a silent success reaches the `else` and raises; an opaque
+  error is not `NoSubmissionTarget` and propagates — which is exactly the pair
+  scenario 3 forbids.
 
   **And the three guardrails are asserted here too, now that 12.6 is RULED**: a
   merge with no human act refuses; a merge meeting a conflict SHOWS it rather than
@@ -689,7 +709,12 @@ amendments.
   single-user install is not a reason to serve from the migrating credential.
 - [ ] 13.4 **A NAMED local single-user mode (AMENDS RULING Q2).** `config.py:89-92`
   makes `OPENDOX_OIDC_ISSUER` required — *"the Keycloak broker's issuer, pinned
-  … (RULING Q2)"*. Add an explicit local mode that needs no broker.
+  … (RULING Q2)"*. Add an explicit local mode that needs no broker. **The selector
+  is `OPENDOX_IDENTITY_MODE`, values `local` and `hosted`, read in
+  `runtime/config.py` beside `OPENDOX_OIDC_ISSUER` and defaulting to `hosted`** —
+  named here so the falsification below is executable and so the default is the
+  SAFE one: an install that sets nothing is hosted, and a hosted install with no
+  issuer refuses (13.5). It is UNSET, not `local`, that must be safe.
 - [ ] 13.5 **A hosted install SHALL NOT fall into local mode by omission.** An
   unset issuer in a hosted install stays a REFUSAL naming the setting. This box
   is the safety of 13.4 and must land with it, not after it.
@@ -698,20 +723,37 @@ amendments.
 - [ ] **FALSIFIED BY** (a machine with no database and no identity broker):
 
       set -euo pipefail
-      <the documented standalone install command>
+      # the install is group 10's, unchanged — one entry point, one command:
+      python -m venv /tmp/v13 && . /tmp/v13/bin/activate && pip install .
+      unset OPENDOX_DATABASE_URL OPENDOX_OIDC_ISSUER      # a machine with NEITHER
       opendox --help >/dev/null
-      # local mode starts with no broker reachable:
-      OPENDOX_MODE=local opendox --repo-root /tmp/plain generate-and-open --no-open --port 8080 &
+      # LOCAL mode starts, with no broker and no operator-supplied database:
+      OPENDOX_IDENTITY_MODE=local opendox --repo-root /tmp/plain generate-and-open --no-open --port 8080 &
       SERVER=$!; trap 'kill "$SERVER" 2>/dev/null || true' EXIT
       ready=0; for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8080/ >/dev/null && { ready=1; break; }; sleep 1; done
       test "$ready" -eq 1
-      # and a HOSTED install with no issuer REFUSES rather than degrading:
-      if OPENDOX_MODE=hosted opendox --repo-root /tmp/plain generate-and-open --no-serve; then
+      kill "$SERVER"; wait "$SERVER" 2>/dev/null || true
+      # and a HOSTED install with no issuer REFUSES — by the SAME server path, and
+      # the refusal must NAME THE SETTING, or an unrelated error would pass here:
+      if OPENDOX_IDENTITY_MODE=hosted opendox --repo-root /tmp/plain generate-and-open --no-open --port 8081 2>/tmp/hosted.err; then
         echo "FAIL: hosted install started with no issuer"; exit 1
       fi
+      grep -q "OPENDOX_OIDC_ISSUER" /tmp/hosted.err       # the reason, not merely a non-zero exit
+      # and the DEFAULT is hosted, so an install that configures nothing refuses too:
+      if opendox --repo-root /tmp/plain generate-and-open --no-open --port 8082 >/dev/null 2>&1; then
+        echo "FAIL: an unconfigured install fell into local mode"; exit 1
+      fi
 
-  (`OPENDOX_MODE` is illustrative — 13.4 names the real selector and this box is
-  rewritten to it.) Today neither half is reachable: the runtime refuses without
+  **Three assertions, and the second and third are the safety.** The hosted probe
+  takes the SAME `generate-and-open` server path the local probe takes — not
+  `--no-serve`, which can return before configuration is read — and it is not
+  satisfied by a non-zero exit: `grep -q OPENDOX_OIDC_ISSUER` requires the refusal
+  to name the missing setting, so an unrelated generation failure cannot pass it.
+  The third proves the DEFAULT: with `OPENDOX_IDENTITY_MODE` unset the install
+  must refuse exactly as the hosted one does, because 13.5's whole point is that a
+  mode is entered deliberately and never by omission.
+
+  Today none of it is reachable: the runtime refuses without
   `OPENDOX_DATABASE_URL` and `OPENDOX_OIDC_ISSUER`, and there is no local mode.
 
 ## Group 14 — Requirements 6, 14, 15: health in the store, and the fix loop (RULED, openDox-code)
@@ -743,7 +785,20 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   configured. **openxFactory's 23 governance families stay put** (requirement 1).
 - [ ] 14.5 **The Health view, with CLI PARITY.** Every resolution action available
   in the view is available from the command line — requirement 14's last scenario
-  exists because a standalone install may have no browser.
+  exists because a standalone install may have no browser. **The verbs this arc
+  adds to `opendox.cli`, named here so groups 14 and 15 close on an exact
+  surface** (the preamble's rule: no box closes on a verb its own group did not
+  declare):
+
+  | verb | shape |
+  |---|---|
+  | `health run` | `--repo-root <corpus> health run [--pack ID] [--timeout SECONDS]` |
+  | `health list` | `--repo-root <corpus> health list [--json]` |
+  | `health fix` | `--repo-root <corpus> health fix --finding ID [--batch]` |
+  | `health accept` | `--repo-root <corpus> health accept --finding ID --reason TEXT` |
+
+  They are NEW surface — `cli.py` declares none of them today (10.1's table is the
+  surface that exists) — and 14.6's applier is what `health fix` invokes.
 - [ ] 14.6 **The three resolution classes.** AUTO-FIX (moved link target,
   derivable front matter, stage/location mismatch) written by the product;
   ASSISTED (near-duplicates, empty stubs) proposed for the human to edit, model-
@@ -768,26 +823,42 @@ fix loop to #1144"*). `design.md` §§ D10.4, D10.5 and D11.
   known broken link and a known accepted finding):
 
       set -euo pipefail
-      opendox --repo-root tests/fixtures/health-corpus health run
-      opendox --repo-root tests/fixtures/health-corpus health list | grep -q 'broken-link'
+      C=tests/fixtures/health-corpus
+      opendox --repo-root $C health run
+      opendox --repo-root $C health list > /tmp/h1.txt
+      grep -q 'broken-link' /tmp/h1.txt
       # a mechanical repair writes a DRAFT ON A BRANCH and never the default branch:
-      before=$(git -C tests/fixtures/health-corpus rev-parse HEAD)
-      opendox --repo-root tests/fixtures/health-corpus health fix --finding broken-link
-      test "$(git -C tests/fixtures/health-corpus rev-parse HEAD)" = "$before"   # default branch UNMOVED
-      git -C tests/fixtures/health-corpus rev-parse --verify --quiet refs/heads/health-fix-broken-link
-      # THE EXCEPTION SURVIVES A RESET OF THE STORE:
+      before=$(git -C $C rev-parse HEAD)
+      opendox --repo-root $C health fix --finding broken-link
+      test "$(git -C $C rev-parse HEAD)" = "$before"        # default branch UNMOVED
+      git -C $C rev-parse --verify --quiet refs/heads/health-fix-broken-link
+      # THE EXCEPTION IS PROVED TO EXIST BEFORE THE RESET, not merely absent after:
+      opendox --repo-root $C health accept --finding accepted-finding --reason "fixture"
+      git -C $C diff --quiet -- health/dispositions.yaml && { echo "FAIL: accept wrote nothing to git"; exit 1; }
+      git -C $C add health/dispositions.yaml && git -C $C commit -qm "accept fixture finding"
+      opendox --repo-root $C health run
+      opendox --repo-root $C health list > /tmp/h2.txt
+      ! grep -q 'accepted-finding' /tmp/h2.txt              # suppressed BEFORE the reset
+      # ...and it survives the store being dropped and rebuilt:
       opendox-runtime runtime reset --confirm yes-drop-the-coordination-database
       opendox-runtime runtime migrate
-      opendox --repo-root tests/fixtures/health-corpus health run
-      if opendox --repo-root tests/fixtures/health-corpus health list | grep -q 'accepted-finding'; then
-        echo "FAIL: a committed exception was lost with the store"; exit 1
-      fi
+      opendox --repo-root $C health run
+      opendox --repo-root $C health list > /tmp/h3.txt      # a FAILING list now fails the sequence
+      grep -q 'broken-link' /tmp/h3.txt                     # the run really did produce findings
+      ! grep -q 'accepted-finding' /tmp/h3.txt              # and the exception still holds
 
-  The default branch must not move, the draft branch must exist, and the
-  committed exception must still hold after the store is dropped and rebuilt.
-  (Verb spellings are illustrative; 14.5 names them and this box is rewritten to
-  them.) Today none of it exists: there is no health table, no health verb, and
-  no applier anywhere in the estate.
+  Four things are proved in order, and the order is the point: the exception is
+  written TO GIT (a `git diff --quiet` that finds no change fails the sequence),
+  it suppresses the finding BEFORE the reset, the post-reset run really produced
+  findings (`broken-link` is present, so an empty listing cannot masquerade as
+  suppression), and only then is `accepted-finding` asserted absent. **Every
+  listing is captured to a file first and grepped second**, so a `health list`
+  that exits non-zero fails under `set -e` instead of being read as the desired
+  absence — which is exactly what the earlier `if … | grep -q` form would have
+  done. The default branch must not move and the draft branch must exist.
+
+  Today none of it exists: there is no health table, no health verb, and no
+  applier anywhere in the estate.
 
 
 ## Group 15 — Requirement 16: the check-pack interface (RULED, openDox-code)
@@ -816,7 +887,16 @@ to #1144"*. `design.md` § D12.
   returns a class the engine does not declare, or declares its own baseline or
   landing rule.
 - [ ] 15.6 **A PACK THAT CRASHES OR TIMES OUT IS A FINDING AGAINST THAT PACK**,
-  and the other packs still run. Give it a time budget. A health check whose
+  and the other packs still run. Give it a time budget: `health run --timeout
+  SECONDS` (14.5), default declared by this box, applied PER PACK and enforced by
+  the engine rather than by the caller — a pack cannot opt out of it.
+- [ ] 15.6a **SHIP THE TWO FIXTURE PACKS the falsification needs**, under
+  `tests/fixtures/packs/`, registered the way 15.1's contract says packs are
+  registered (declare that registration here if 15.1 leaves it open): 
+  `fixture-crashing-pack`, which raises on its first family, and
+  `fixture-slow-pack`, which sleeps past any timeout. They are test fixtures of
+  the engine, not shipped packs, and they exist so 15.6 is falsifiable rather
+  than asserted. A health check whose
   failure mode is silence is worse than one that reports itself broken — the
   doc-health nightly failed silently every night from 2026-08-30 and nobody saw it.
 - [ ] 15.7 **PACK ID AND PACK VERSION ON EVERY FINDING, in the SAME additive
@@ -826,21 +906,36 @@ to #1144"*. `design.md` § D12.
   and a deliberately slow one registered beside the neutral checks):
 
       set -euo pipefail
-      opendox --repo-root tests/fixtures/health-corpus health run
-      # the neutral checks still produced findings despite a broken pack:
-      opendox --repo-root tests/fixtures/health-corpus health list | grep -q 'broken-link'
-      # and the broken pack is itself a finding, attributed:
-      opendox --repo-root tests/fixtures/health-corpus health list --json \
-        | python -c "
-      import json,sys
-      f=json.load(sys.stdin)
-      assert any(x['pack_id']=='fixture-crashing-pack' for x in f), 'crashing pack not reported'
+      C=tests/fixtures/health-corpus
+      # the two fixture packs of 15.6a are registered; the run is itself bounded,
+      # so a hang is a FAILED FALSIFICATION and never a hung falsifier:
+      timeout 120 opendox --repo-root $C health run --timeout 5
+      # the neutral checks still produced findings despite a crashing pack:
+      opendox --repo-root $C health list > /tmp/p1.txt
+      grep -q 'broken-link' /tmp/p1.txt
+      # and BOTH broken packs are themselves findings, attributed:
+      opendox --repo-root $C health list --json > /tmp/p1.json
+      python3 - /tmp/p1.json <<'PY'
+      import json, sys
+      f = json.load(open(sys.argv[1]))
+      ids = {x['pack_id'] for x in f}
+      assert 'fixture-crashing-pack' in ids, 'crashing pack not reported'
+      assert 'fixture-slow-pack' in ids, 'timed-out pack not reported'
       assert all(x.get('pack_id') and x.get('pack_version') for x in f), 'a finding has no provenance'
-      print('packs attributed:', sorted({x['pack_id'] for x in f}))"
+      print('packs attributed:', sorted(ids))
+      PY
 
-  Every finding carries a pack id and version, the crashing pack appears as a
-  finding rather than as a stack trace, and the run completes. Today none of this
-  exists: there is no pack contract, no health run, and no findings store.
+  Every finding carries a pack id and version, **BOTH** broken packs appear as
+  findings rather than as a stack trace and a hang, and the run completes. The
+  outer `timeout 120` is the difference between a falsifier that FAILS on a
+  runaway pack and one that HANGS on it: without it, the very defect 15.6 exists
+  to prevent would take the acceptance command down with it, and the box would
+  look unfinished rather than failed. The JSON is captured to a file and read by
+  `sys.argv[1]`, because a heredoc and a stdin redirect cannot both feed the same
+  interpreter and the heredoc wins.
+
+  Today none of this exists: there is no pack contract, no health run, and no
+  findings store.
 
 ## Follow-ons named here and NOT authored here
 
