@@ -1,7 +1,17 @@
 # domain-mapping-declaration Specification
 
 ## Purpose
-TBD - created by archiving change split-opendox-two-layer-product. Update Purpose after archive.
+Govern the DOMAIN MAPPING DECLARATION a `<Domainx>Dox` descendant carries, and
+the corresponding obligation on the neutral layer to ship no single domain's
+vocabulary. The neutral layer is PARAMETERIZED by the declaration instead: the
+declaration covers the domain's artifact kinds, the lifecycle vocabulary each
+kind travels — its statuses, the legal transitions between them, and the point
+at which a record becomes immutable-with-addenda — the acts and the gate each
+act passes, and the evidence each act leaves. A lifecycle declaration NAMES its
+transitions and the authority each one requires, so a transition nobody is
+authorized to make is visible as such rather than discovered at the attempt. And
+a mapping declaration NAMES THE TRUTH STORE its derived models may never write,
+which is the boundary that keeps a projection a projection.
 
 ## Requirements
 

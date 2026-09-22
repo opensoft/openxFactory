@@ -1,7 +1,19 @@
 # corpus-adapter-seam Specification
 
 ## Purpose
-TBD - created by archiving change split-opendox-two-layer-product. Update Purpose after archive.
+Govern the SEAM between openxFactory's governed corpus and any tool that
+reads it. A corpus reader is an EXTERNAL neutral product consumed under a pin,
+and the dependency points ONE WAY: a reader depends on the interface it
+implements and never on the corpus's own check families, so a shared type that
+both sides need is relocated into a module both depend on rather than imported
+across the seam. A reader over a corpus it does not own FAILS CLOSED on an
+unresolvable corpus — an unanswerable question is never an implicit pass. The
+governed write path is the only write path and the adapter DECLARES it, so a
+reader that may not write says so in its resolution rather than being trusted
+not to. And openxFactory's own adapter is ONE IMPLEMENTATION among others with
+no privileged path: the seam is the same for the publisher of the corpus as for
+anybody else, which is what makes the interface a contract rather than a
+courtesy.
 
 ## Requirements
 
