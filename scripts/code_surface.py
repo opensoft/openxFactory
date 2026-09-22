@@ -320,6 +320,13 @@ def declaration_digest(text: str) -> str:
 #: times after.
 #: NONE OF THE SEVEN MOVED AT ANY RE-MEASUREMENT: no registered packet archived
 #: and no registered declaration was edited between any two of these heads.
+#: **TRUE UNTIL 2026-09-22, AND NO LONGER. A REGISTERED PACKET HAS NOW ARCHIVED**
+#: — `split-opendox-two-layer-product`, openxFactory #1139 — which retired its
+#: entry and the pair below, EIGHT to SEVEN. The sentence above is kept as the
+#: dated measurement it was rather than rewritten, and this line is where it
+#: stops. Read the retirement note inside the tuple for the rest. (Copilot's
+#: reading on #1139 caught the first version of that note describing a
+#: correction it had not actually made here; it was right.)
 CLOSED_REGISTER = (
     # class: block-scalar
     ("adopt-configured-notebook-hosting-identity",
@@ -347,10 +354,12 @@ CLOSED_REGISTER = (
     # `60f4e11d53e6d0772ff642280fcf626dafcabebafa0c7c4e537d8eae8a54d058`, kept
     # here so the retirement names what left.
     # THIS IS THE FIRST TIME THE COMMENT ABOVE'S LAST LINE HAS STOPPED BEING
-    # TRUE, and it is corrected rather than quoted past: it reads "NONE OF THE
-    # SEVEN MOVED AT ANY RE-MEASUREMENT: no registered packet archived and no
-    # registered declaration was edited between any two of these heads." A
-    # registered packet has now archived. The baseline goes EIGHT to SEVEN, and
+    # TRUE — "NONE OF THE SEVEN MOVED AT ANY RE-MEASUREMENT: no registered
+    # packet archived and no registered declaration was edited between any two
+    # of these heads" — and that sentence is DATED WHERE IT STANDS rather than
+    # only described here, so a reader who never reaches this tuple still meets
+    # the correction. A registered packet has now archived. The baseline goes
+    # EIGHT to SEVEN, and
     # the ruled "Keep the eighth entry" of 2026-09-16 is untouched by it —
     # that ruling is about `encode-wallet-authority-rulings-r6-r12`, which is
     # still here.
