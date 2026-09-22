@@ -1815,13 +1815,45 @@ def is_truncated(repo) -> tuple[bool | None, str]:
 MAIN_REF_ORDER = ("refs/remotes/origin/main", "refs/heads/main")
 
 
-def resolve_main(repo) -> tuple[str, str] | None:
-    """`(ref, sha)` for the `main` half of the ref set, or None."""
+def resolve_main(repo) -> tuple[tuple[str, str] | None, str]:
+    """`((ref, sha), detail)` for the `main` half of the ref set, else
+    `(None, detail)`.
+
+    THE FALLBACK IS FOR A REF THAT IS NOT THERE, NEVER FOR ONE THAT COULD NOT BE
+    READ (Copilot, PR #1142). `MAIN_REF_ORDER` tries `refs/remotes/origin/main`
+    FIRST because it is the authoritative spelling; `refs/heads/main` is its
+    stand-in only in a clone that HAS no remote-tracking ref, which is the one
+    condition the fallback was written for. `--verify --quiet` reports "not
+    there" by exiting non-zero — the same shape an unaskable git now returns —
+    so before this a TIMED-OUT probe of the authoritative ref silently promoted
+    the local branch to the authority for the whole run, and `verify()`
+    published every reachability verdict in the report against it. A local
+    `main` sitting behind origin is not a neutral substitute: a pin that IS an
+    ancestor of `origin/main` but not yet of the stale local branch comes out
+    ORPHAN or HISTORICAL — a confident finding produced by a question nobody
+    got to ask, which is the trade `remote_retention_refs`, `retention_holder`
+    and `reachable_from_main` each refuse in as many words. The loop therefore
+    STOPS at an unavailable ref and carries the reason out. No new verdict is
+    needed downstream: `verify()` already answers a None `main` with
+    INCONCLUSIVE at every site.
+
+    THE DETAIL IS RETURNED RATHER THAN RECONSTRUCTED BY THE CALLER, because the
+    two Nones are different facts and the report has to say which one it met.
+    Returning a bare None would have left `verify()` printing "no `main` in this
+    clone (looked for ...)" — an ABSENCE nobody observed — over a clone whose
+    `main` may be sitting right there unread, and a detail string asserting an
+    unmade observation is the defect this whole packet exists to remove. The
+    `(value, detail)` shape is this module's own, already carried by
+    `is_truncated`, `remote_retention_refs` and `retention_holder`."""
     for ref in MAIN_REF_ORDER:
         got = _git(repo, "rev-parse", "--verify", "--quiet", ref)
+        if unavailable(got):
+            return None, (f"`{ref}` could not be consulted: "
+                          f"{got.stderr.strip()}")
         if got.returncode == 0 and got.stdout.strip():
-            return ref, got.stdout.strip()
-    return None
+            return (ref, got.stdout.strip()), f"`main` read from {ref}"
+    return None, (f"no `main` in this clone (looked for "
+                  f"{', '.join(MAIN_REF_ORDER)})")
 
 
 def reachable_from_main(repo, pin: str, main_ref: str) -> bool | None:
@@ -2587,7 +2619,7 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
                              f"{resolved.stderr.strip()}")
     rev_sha = resolved.stdout.strip()
     truncated, truncation = is_truncated(repo)
-    main = resolve_main(repo)
+    main, main_detail = resolve_main(repo)
     main_ref, main_sha = main if main else (None, None)
 
     paths = committed_paths(repo, rev_sha)
@@ -2628,8 +2660,7 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
             if main_ref is None:
                 results.append(PinResult(
                     site, INCONCLUSIVE,
-                    f"no `main` in this clone (looked for "
-                    f"{', '.join(MAIN_REF_ORDER)}), so the branch half of the "
+                    f"{main_detail}, so the branch half of the "
                     f"ref set could not be consulted"))
                 continue
             reached = reachable_from_main(repo, site.pin, main_ref)
@@ -2665,8 +2696,7 @@ def verify(repo, *, rev: str = "HEAD", remote: str = "origin",
         if main_ref is None:
             results.append(PinResult(
                 site, INCONCLUSIVE,
-                f"no `main` in this clone (looked for "
-                f"{', '.join(MAIN_REF_ORDER)}), so the branch half of the ref "
+                f"{main_detail}, so the branch half of the ref "
                 f"set could not be consulted"))
             continue
         reached = reachable_from_main(repo, site.pin, main_ref)

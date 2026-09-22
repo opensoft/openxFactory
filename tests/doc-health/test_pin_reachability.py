@@ -404,9 +404,10 @@ def test_the_declared_unrecoverable_loss_is_still_unrecoverable():
     of letting a stale exemption stand. The governance act it names is still
     owed and is deliberately not performed by code."""
     repo = Path(REPO_ROOT)
-    if pc.resolve_main(repo) is None:
-        pytest.skip(f"{repo} resolves no `main`; reachability is a fact about "
-                    "the clone here")
+    resolved, why = pc.resolve_main(repo)
+    if resolved is None:
+        pytest.skip(f"{repo} resolves no `main` ({why}); reachability is a fact "
+                    "about the clone here")
     assert pc.KNOWN_LOSSES, "the register is the mechanism; an empty one is fine"
     for loss in pc.KNOWN_LOSSES:
         assert pc.FULL_SHA_RE.match(loss.pin)
@@ -985,7 +986,7 @@ def test_a_main_less_clone_is_inconclusive_and_a_main_ed_one_is_historical_or_pa
     old = _commit(repo, "corpus, on a branch that is not main")
     _write(repo, GATE_INTENT_REL, _gate_intent(old))
     _commit(repo, "an intent citing the corpus commit")
-    assert pc.resolve_main(repo) is None
+    assert pc.resolve_main(repo)[0] is None
     assert _git(repo, "remote").stdout.strip() == ""
 
     # 1. no `main` in this clone at all.
@@ -1262,8 +1263,9 @@ def test_every_current_member_of_the_declared_class_is_carried_somewhere():
     row still has no committed instance. This is the test that fails the day a
     generator is retired or a future member arrives."""
     repo = Path(REPO_ROOT)
-    if pc.resolve_main(repo) is None:
-        pytest.skip(f"{repo} resolves no `main`")
+    resolved, why = pc.resolve_main(repo)
+    if resolved is None:
+        pytest.skip(f"{repo} resolves no `main` ({why})")
     report = pc.verify(repo)
     assert report.vanished == (), (
         "declared CURRENT member(s) match no committed artifact: "
@@ -1420,10 +1422,11 @@ def test_the_two_prose_members_are_lifted_out_of_prose():
 
 def _real_report():
     repo = Path(REPO_ROOT)
-    if pc.resolve_main(repo) is None:
+    resolved, why = pc.resolve_main(repo)
+    if resolved is None:
         pytest.skip(f"{repo} resolves no `main` "
-                    f"({', '.join(pc.MAIN_REF_ORDER)}); reachability is a fact "
-                    "about the clone here, not about any artifact")
+                    f"({', '.join(pc.MAIN_REF_ORDER)}): {why}; reachability is a "
+                    "fact about the clone here, not about any artifact")
     truncated, observed = pc.is_truncated(repo)
     # `is not False` RATHER THAN A TRUTH TEST, because `is_truncated` answers
     # THREE states since PR #1142 and `None` — the observation could not be
@@ -1467,8 +1470,9 @@ def test_this_repository_resolves_the_main_half_of_the_ref_set():
     `refs/remotes/origin/*`, so the first spelling is present in CI; a plain
     `git clone` provides it too."""
     repo = Path(REPO_ROOT)
-    resolved = pc.resolve_main(repo)
+    resolved, why = pc.resolve_main(repo)
     assert resolved is not None, (
+        f"{why}. "
         f"{repo} resolves none of {pc.MAIN_REF_ORDER}, so the branch half of "
         "the ref set cannot be consulted and every reachability proof in this "
         "module degrades to a skip. Fetch `main`, or fix the checkout that "
@@ -1498,8 +1502,10 @@ def test_this_repository_can_consult_the_retention_namespace():
     SKIPPED where it used to report the pins conforming has lost a proof, and
     losing proofs silently is the defect this whole packet descends from."""
     repo = Path(REPO_ROOT)
-    if pc.resolve_main(repo) is None:
-        pytest.skip(f"{repo} resolves no `main`; see the precondition above")
+    resolved, why = pc.resolve_main(repo)
+    if resolved is None:
+        pytest.skip(f"{repo} resolves no `main` ({why}); see the precondition "
+                    "above")
     found, detail = pc.remote_retention_refs(repo)
     assert found is not None, (
         f"the retention half of the ref set is unreachable from {repo}: "
@@ -1546,11 +1552,14 @@ def test_every_declared_repo_local_pin_in_this_repository_resolves():
         assert pc.path_matches(result.site.path, member.paths)
         assert pc.path_matches(result.site.path,
                                ("ideation/dashboard/intents/**",))
-        assert not pc.reachable_from_main(repo, result.site.pin,
-                                          report.main_ref), (
+        assert pc.reachable_from_main(repo, result.site.pin,
+                                      report.main_ref) is False, (
             "a historical pin main DOES reach is reported PASS, so a "
             "HISTORICAL verdict on a reachable revision means the branch that "
-            "makes the free observation stopped running")
+            "makes the free observation stopped running — and `is False` "
+            "rather than `not`, because `not None` is true and would let an "
+            "ancestry read that never happened satisfy the very assertion "
+            "written to prove one did (Copilot, PR #1142)")
 
     retained = [r for r in report.results if r.verdict == pc.PASS
                 and "retained" in r.how]
@@ -1559,10 +1568,12 @@ def test_every_declared_repo_local_pin_in_this_repository_resolves():
         f"found {len(retained)}: {[r.site.pin for r in retained]}")
     for result in retained:
         assert pc.retention_ref(result.site.pin) in result.how
-        assert not pc.reachable_from_main(repo, result.site.pin,
-                                          report.main_ref), (
+        assert pc.reachable_from_main(repo, result.site.pin,
+                                      report.main_ref) is False, (
             "a retained pin that main ALSO reaches proves nothing about the "
-            "namespace")
+            "namespace — and an UNASKED ancestry proves nothing either, so "
+            "this demands the observation `False` and not merely a falsy "
+            "`None` (Copilot, PR #1142)")
 
 
 def test_every_committed_commit_shaped_value_that_resolves_is_covered():
@@ -1792,10 +1803,12 @@ def test_the_fabricated_prefix_would_have_resolved_and_is_still_refused(
     repo, real, digest = digest_under_a_pin_key_repo(tmp_path)
     # the collision is REAL in this fixture rather than assumed
     assert digest.startswith(real)
-    main_ref, _ = pc.resolve_main(repo)
-    assert pc.reachable_from_main(repo, real, main_ref), (
+    (main_ref, _), _why = pc.resolve_main(repo)
+    assert pc.reachable_from_main(repo, real, main_ref) is True, (
         "the fixture's prefix must name a REACHABLE commit or this test is "
-        "measuring the harmless failure instead of the dangerous one")
+        "measuring the harmless failure instead of the dangerous one; `is "
+        "True` keeps an unaskable `None` failing here rather than being read "
+        "as the answer it is not")
 
     report = _verify(repo)
     assert [r.verdict for r in report.results] == []
@@ -2099,9 +2112,10 @@ def test_the_lower_readers_degrade_rather_than_raise_through_a_timeout(
     """The other reads reached through `_git` answer rather than raise, exactly
     as they do today when git exits non-zero. This pins that the bound did not
     quietly introduce an exception on paths whose contract is a value:
-    `resolve_main` and `remote_retention_refs` do not change shape, and the
-    latter — the one that REPORTS its reason — carries the timeout through to
-    its detail.
+    `remote_retention_refs` does not change shape, and — as the one that
+    REPORTS its reason — carries the timeout through to its detail.
+    `resolve_main` now reports one too, for the reason its own docstring
+    gives.
 
     TWO OF THEM NOW ANSWER A THIRD STATE, AND THAT REVERSES A SCOPING DECISION
     THIS TEST USED TO PIN. Until Copilot's review of PR #1142 this test asserted
@@ -2131,8 +2145,10 @@ def test_the_lower_readers_degrade_rather_than_raise_through_a_timeout(
         "an unmade observation must not be reported as the observation "
         "`False`, whose detail string names two probes that never ran")
     assert "could not be observed" in observed, observed
-    assert pc.resolve_main(repo) is None, (
-        "no ref could be resolved, which is what None already means here")
+    main, why = pc.resolve_main(repo)
+    assert main is None, (
+        "a `main` cannot be resolved by a git that cannot be run")
+    assert "could not be consulted" in why, why
     assert pc.reachable_from_main(repo, "deadbeef", "refs/heads/main") is None, (
         "an ancestry question that could not be PUT is not the answer 'not an "
         "ancestor'; `--is-ancestor` spells that answer with the same non-zero "
@@ -2424,3 +2440,79 @@ def test_the_readiness_probes_map_an_unavailable_read_to_their_own_skip(
         f"{reason}")
 
     assert ir._committed_status(tmp_path, "HEAD", "some/path.md") is None
+
+
+def test_an_unreadable_origin_main_does_not_promote_the_local_branch(
+        tmp_path, monkeypatch):
+    """THE AUTHORITATIVE REF FAILING IS NOT THE LOCAL REF WINNING.
+
+    `MAIN_REF_ORDER` is a FALLBACK for a clone that has no
+    `refs/remotes/origin/main`, and `--verify --quiet` spells "not there" with
+    the same non-zero exit an unaskable git now returns. So a bounded probe
+    that fired on the authoritative ref used to fall straight through to
+    `refs/heads/main` and hand the whole run an authority nobody asked for: a
+    local branch that may sit behind origin, against which `verify()` then
+    published every reachability verdict in the report. A pin that IS an
+    ancestor of `origin/main` but not yet of a stale local `main` comes back
+    ORPHAN or HISTORICAL from that — a confident finding manufactured out of a
+    question that timed out (Copilot, PR #1142).
+
+    THE FIXTURE MAKES THE WRONG ANSWER AVAILABLE, which is the only way to
+    prove the right one is chosen. `refs/heads/main` here is REAL and READABLE:
+    `_raise_timeout` is armed for the origin spelling ALONE, so a reader that
+    fell through would succeed, return `("refs/heads/main", <sha>)`, and pass
+    any test that only asserted "no crash". The module-wide timeout test cannot
+    catch this because it stops every probe, which is exactly the case the old
+    loop happened to get right.
+
+    The detail is asserted as well as the value: reporting this as "no `main`
+    in this clone" would trade one unmade observation for another, and
+    `verify()` prints the string it is handed."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    local = _git(repo, "rev-parse", "--verify", "--quiet", "refs/heads/main")
+    assert local.returncode == 0 and local.stdout.strip(), (
+        "the fixture must OFFER the fallback for this test to prove it is not "
+        "taken")
+
+    real_run = subprocess.run
+
+    def origin_never_returns(argv, **kwargs):
+        if "refs/remotes/origin/main" in list(argv):
+            return _raise_timeout(argv, **kwargs)
+        return real_run(argv, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", origin_never_returns)
+
+    main, why = pc.resolve_main(repo)
+    assert main is None, (
+        "the authoritative ref could not be READ, so the branch half of the "
+        f"ref set is unknown — not {main!r}, which is the stale local branch "
+        "answering a question that was put to origin")
+    assert "refs/remotes/origin/main" in why, why
+    assert "could not be consulted" in why, why
+    assert "no `main` in this clone" not in why, (
+        "an unreadable ref must not be reported as an absent one; this clone's "
+        f"`main` may be sitting right there, unread: {why}")
+
+
+def test_a_clone_with_no_origin_main_still_falls_back_to_the_local_branch(
+        tmp_path):
+    """The fallback the ORDER exists for still works, unchanged.
+
+    The fix above narrows `resolve_main` to stop on an UNAVAILABLE probe, and a
+    narrowing that also broke the absent-ref case would have swapped one defect
+    for another. This fixture has no remote at all, so the origin spelling is
+    genuinely absent — non-zero for a reason git can answer — and the local
+    branch is still resolved, still named in the detail."""
+    repo, _, _ = orphaned_pin_repo(tmp_path)
+    assert _git(repo, "remote").stdout.strip() == "", (
+        "no remote, so `refs/remotes/origin/main` is absent rather than "
+        "unreadable — which is the whole distinction under test")
+
+    main, why = pc.resolve_main(repo)
+    assert main is not None, "an ABSENT origin ref must still fall back"
+    ref, sha = main
+    assert ref == "refs/heads/main", ref
+    assert sha == _git(repo, "rev-parse",
+                       "refs/heads/main").stdout.strip(), sha
+    assert "refs/heads/main" in why, why
